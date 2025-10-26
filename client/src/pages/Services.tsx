@@ -1,8 +1,12 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckIcon } from "@/components/icons";
+import { InquiryForm } from "@/components/InquiryForm";
 
 export default function Services() {
+  const [inquiryOpen, setInquiryOpen] = useState(false);
+  const [selectedService, setSelectedService] = useState<string>("");
   const services = [
     {
       title: "One-on-One Virtual Coaching (30 min)",
@@ -77,7 +81,14 @@ export default function Services() {
                   ))}
                 </ul>
               </div>
-              <Button className="w-full font-bold" data-testid={`button-book-${idx}`}>
+              <Button
+                className="w-full font-bold"
+                data-testid={`button-book-${idx}`}
+                onClick={() => {
+                  setSelectedService(service.title);
+                  setInquiryOpen(true);
+                }}
+              >
                 Book Session
               </Button>
             </Card>
@@ -92,10 +103,24 @@ export default function Services() {
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
           Every session is customized to your specific challenges. Let's build a plan that delivers measurable results.
         </p>
-        <Button size="lg" className="font-bold" data-testid="button-contact-us">
+        <Button
+          size="lg"
+          className="font-bold"
+          data-testid="button-contact-us"
+          onClick={() => {
+            setSelectedService("");
+            setInquiryOpen(true);
+          }}
+        >
           Contact Us to Get Started
         </Button>
       </div>
+
+      <InquiryForm
+        open={inquiryOpen}
+        onOpenChange={setInquiryOpen}
+        defaultServiceType={selectedService}
+      />
     </div>
   );
 }

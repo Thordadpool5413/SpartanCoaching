@@ -13,6 +13,7 @@ import {
   objectionRequestSchema,
   researchRequestSchema,
   chatRequestSchema,
+  inquirySchema,
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -105,6 +106,22 @@ Keep it under 100 words and use a warm, professional tone.`;
     } catch (error: any) {
       console.error("Chat error:", error);
       res.status(500).json({ error: error.message || "Failed to generate chat response" });
+    }
+  });
+
+  // Inquiry Form Submission
+  app.post("/api/inquiries", async (req, res) => {
+    try {
+      const inquiryData = inquirySchema.parse(req.body);
+      
+      const inquiry = await storage.createInquiry(inquiryData);
+      
+      console.log("New inquiry received:", inquiry);
+      
+      res.json({ success: true, inquiry });
+    } catch (error: any) {
+      console.error("Inquiry submission error:", error);
+      res.status(500).json({ error: error.message || "Failed to submit inquiry" });
     }
   });
 

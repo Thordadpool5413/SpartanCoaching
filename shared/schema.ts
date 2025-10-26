@@ -74,6 +74,19 @@ export const transcriptionRequestSchema = z.object({
 
 export type TranscriptionRequest = z.infer<typeof transcriptionRequestSchema>;
 
+// Inquiry form schema
+export const inquirySchema = z.object({
+  name: z.string().min(2, "Name must be at least 2 characters"),
+  email: z.string().email("Please enter a valid email address"),
+  phone: z.string().min(10, "Please enter a valid phone number"),
+  company: z.string().optional(),
+  serviceType: z.string().optional(),
+  message: z.string().min(10, "Message must be at least 10 characters"),
+  submittedAt: z.number().optional(),
+});
+
+export type Inquiry = z.infer<typeof inquirySchema>;
+
 // Theme preference
 export type Theme = "light" | "dark";
 

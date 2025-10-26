@@ -1,8 +1,12 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckIcon } from "@/components/icons";
+import { InquiryForm } from "@/components/InquiryForm";
 
 export default function Programs() {
+  const [inquiryOpen, setInquiryOpen] = useState(false);
+  const [selectedProgram, setSelectedProgram] = useState<string>("");
   const hospicePrograms = [
     {
       title: "Admissions Speed Boost",
@@ -137,7 +141,15 @@ export default function Programs() {
                 </ul>
               </div>
             </div>
-            <Button variant="outline" className="w-full font-bold mt-4" data-testid={`button-inquire-program-${idx}`}>
+            <Button
+              variant="outline"
+              className="w-full font-bold mt-4"
+              data-testid={`button-inquire-program-${idx}`}
+              onClick={() => {
+                setSelectedProgram(program.title);
+                setInquiryOpen(true);
+              }}
+            >
               Inquire About Program
             </Button>
           </Card>
@@ -170,13 +182,27 @@ export default function Programs() {
                   ))}
                 </ul>
               </div>
-              <Button variant="outline" className="w-full font-bold" data-testid={`button-inquire-strategic-${idx}`}>
+              <Button
+                variant="outline"
+                className="w-full font-bold"
+                data-testid={`button-inquire-strategic-${idx}`}
+                onClick={() => {
+                  setSelectedProgram(service.title);
+                  setInquiryOpen(true);
+                }}
+              >
                 Inquire About Service
               </Button>
             </Card>
           ))}
         </div>
       </div>
+
+      <InquiryForm
+        open={inquiryOpen}
+        onOpenChange={setInquiryOpen}
+        defaultServiceType={selectedProgram}
+      />
     </div>
   );
 }
