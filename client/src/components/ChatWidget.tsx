@@ -1,9 +1,11 @@
 import { useState, useRef, useEffect } from "react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { Card } from "@/components/ui/card";
 import { MessageCircle, X, Send, Loader2 } from "lucide-react";
 import type { ChatMessage } from "@shared/schema";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { cn } from "@/lib/utils";
 
 export function ChatWidget() {
   const [isOpen, setIsOpen] = useState(false);
@@ -11,6 +13,8 @@ export function ChatWidget() {
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
+
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -71,7 +75,7 @@ export function ChatWidget() {
 
     try {
       const conversationHistory = messages.slice(-10); // Send last 10 messages for context
-      
+
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -86,7 +90,7 @@ export function ChatWidget() {
       }
 
       const data = await response.json();
-      
+
       const aiMessage: ChatMessage = {
         role: "model",
         content: data.response,
@@ -96,13 +100,13 @@ export function ChatWidget() {
       setMessages((prev) => [...prev, aiMessage]);
     } catch (error) {
       console.error("Chat error:", error);
-      
+
       const errorMessage: ChatMessage = {
         role: "model",
         content: "Sorry, I'm having trouble responding right now. Please try again.",
         timestamp: Date.now(),
       };
-      
+
       setMessages((prev) => [...prev, errorMessage]);
     } finally {
       setIsLoading(false);
@@ -118,36 +122,34 @@ export function ChatWidget() {
 
   if (!isOpen) {
     return (
-      <Button
-        onClick={() => setIsOpen(true)}
-        size="icon"
-        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-14 w-14 rounded-full shadow-lg z-50"
-        data-testid="button-open-chat"
-      >
-        <MessageCircle className="w-6 h-6" />
-      </Button>
+      <>
+        {!isOpen && (
+          <button
+            onClick={() => setIsOpen(true)}
+            className="fixed bottom-4 right-4 md:bottom-6 md:right-6 bg-primary text-primary-foreground p-3 md:p-4 rounded-full shadow-lg hover:bg-primary/90 transition-all z-50"
+            aria-label="Open chat"
+          >
+            <MessageCircle className="w-5 h-5 md:w-6 md:h-6" />
+          </button>
+        )}
+      </>
     );
   }
 
   return (
-    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[calc(100vw-2rem)] sm:w-96 max-w-96 h-[32rem] flex flex-col shadow-2xl rounded-2xl overflow-hidden z-50 border-2 border-border">
-      <Card className="flex flex-col h-full rounded-2xl overflow-hidden p-0">
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 bg-primary text-primary-foreground">
-          <div className="flex items-center gap-2">
-            <MessageCircle className="w-5 h-5" />
-            <h3 className="font-bold">Spartan AI Coach</h3>
-          </div>
-          <Button
-            size="icon"
-            variant="ghost"
-            onClick={() => setIsOpen(false)}
-            className="h-8 w-8 text-primary-foreground hover:bg-primary-foreground/20"
-            data-testid="button-close-chat"
-          >
-            <X className="w-4 h-4" />
-          </Button>
-        </div>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogContent className={cn(
+        "flex flex-col",
+        isMobile
+          ? "fixed inset-0 max-w-full h-full rounded-none"
+          : "max-w-2xl max-h-[80vh]"
+      )}>
+        <DialogHeader>
+          <DialogTitle>Chat with Spartan AI Assistant</DialogTitle>
+          <DialogDescription>
+            Ask me anything about Spartan Coaching, sales strategies, or get help with your daily drills.
+          </DialogDescription>
+        </DialogHeader>
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
@@ -215,7 +217,7 @@ export function ChatWidget() {
             </Button>
           </div>
         </div>
-      </Card>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

@@ -194,6 +194,18 @@
 }
 
 @layer utilities {
+  /* Mobile touch improvements */
+  @media (max-width: 767px) {
+    .mobile-full-height {
+      min-height: 100vh;
+      min-height: -webkit-fill-available;
+    }
+    
+    .mobile-safe-padding {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+  }
+
   input[type="search"]::-webkit-search-cancel-button {
     @apply hidden;
   }

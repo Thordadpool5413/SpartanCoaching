@@ -14,18 +14,23 @@ import {
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-function NavLink({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
+function NavLink({ href, children, onClick }: { href: string; children: React.ReactNode; onClick?: () => void }) {
+  const [location] = useLocation();
+  const isActive = location === href;
+
   return (
-    <a
+    <Link
       href={href}
+      onClick={onClick}
       className={cn(
-        "text-base font-bold transition-all hover:text-red-600 relative py-1",
-        active ? "text-red-600" : "text-foreground",
-        active && "after:absolute after:bottom-0 after:left-0 after:right-0 after:h-0.5 after:bg-red-600"
+        "px-4 py-2 rounded-lg font-medium transition-colors hover-elevate block",
+        isActive
+          ? "bg-primary text-primary-foreground"
+          : "text-foreground hover:bg-accent"
       )}
     >
       {children}
-    </a>
+    </Link>
   );
 }
 
@@ -112,43 +117,16 @@ export function Header() {
 
       {/* Mobile Navigation */}
       {menuOpen && (
-        <nav className="lg:hidden py-4 grid gap-2" aria-label="Mobile navigation">
-          {routes.map((route) => (
-            <Link key={route.path} href={route.path}>
-              <div
-                onClick={() => setMenuOpen(false)}
-                className={`block px-4 py-3 text-lg font-bold rounded-lg transition-colors hover-elevate cursor-pointer ${
-                  location === route.path
-                    ? "bg-primary text-primary-foreground"
-                    : "text-foreground"
-                }`}
-                data-testid={`link-mobile-${route.label.toLowerCase().replace(/\s+/g, "-")}`}
-              >
-                {route.label}
-              </div>
-            </Link>
-          ))}
-          <Button
-            onClick={() => {
-              toggleTheme();
-              setMenuOpen(false);
-            }}
-            variant="ghost"
-            className="w-full mt-2 justify-start text-lg font-bold"
-            data-testid="button-mobile-theme-toggle"
-          >
-            {theme === "dark" ? (
-              <>
-                <Sun className="w-5 h-5 mr-2" />
-                Light Mode
-              </>
-            ) : (
-              <>
-                <Moon className="w-5 h-5 mr-2" />
-                Dark Mode
-              </>
-            )}
-          </Button>
+        <nav className="lg:hidden absolute top-full left-0 right-0 bg-background border-b border-border shadow-lg z-50">
+          <div className="flex flex-col p-4 space-y-2">
+            <NavLink href="/" onClick={() => setMenuOpen(false)}>Home</NavLink>
+            <NavLink href="/services" onClick={() => setMenuOpen(false)}>Services</NavLink>
+            <NavLink href="/programs" onClick={() => setMenuOpen(false)}>Programs</NavLink>
+            <NavLink href="/method" onClick={() => setMenuOpen(false)}>Method</NavLink>
+            <NavLink href="/tools" onClick={() => setMenuOpen(false)}>AI Field Kit</NavLink>
+            <NavLink href="/resources" onClick={() => setMenuOpen(false)}>Resources</NavLink>
+            <NavLink href="/about" onClick={() => setMenuOpen(false)}>About</NavLink>
+          </div>
         </nav>
       )}
     </header>
