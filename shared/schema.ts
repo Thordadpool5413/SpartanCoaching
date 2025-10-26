@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { pgTable, text, serial, bigint } from "drizzle-orm/pg-core";
+import { pgTable, text, serial, bigint, boolean } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 
 // Chat message schema for AI interactions
@@ -108,6 +108,33 @@ export const insertInquirySchema = createInsertSchema(inquiries).omit({
 });
 export type InsertInquiry = z.infer<typeof insertInquirySchema>;
 export type SelectInquiry = typeof inquiries.$inferSelect;
+
+// Drizzle table definition for newsletter subscribers
+export const newsletterSubscribers = pgTable("newsletter_subscribers", {
+  id: serial("id").primaryKey(),
+  email: text("email").notNull().unique(),
+  subscribedAt: bigint("subscribed_at", { mode: "number" }).notNull(),
+  isActive: boolean("is_active").notNull().default(true),
+});
+
+// Insert schema and types for newsletter subscribers
+export const insertNewsletterSubscriberSchema = createInsertSchema(newsletterSubscribers).omit({ 
+  id: true, 
+  subscribedAt: true,
+  isActive: true
+});
+export type InsertNewsletterSubscriber = z.infer<typeof insertNewsletterSubscriberSchema>;
+export type SelectNewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
+
+// Email template request schema
+export const emailTemplateRequestSchema = z.object({
+  templateType: z.enum(["follow_up", "thank_you", "value_add"]),
+  recipientName: z.string().optional(),
+  context: z.string().min(10, "Context must be at least 10 characters"),
+  customization: z.string().optional(),
+});
+
+export type EmailTemplateRequest = z.infer<typeof emailTemplateRequestSchema>;
 
 // Theme preference
 export type Theme = "light" | "dark";

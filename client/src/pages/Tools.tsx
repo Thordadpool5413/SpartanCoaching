@@ -1,5 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { LightbulbIcon, SearchIcon, ChatIcon, MicrophoneIcon } from "@/components/icons";
+import { Mail } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 
@@ -28,6 +29,12 @@ export default function Tools() {
       description: "Record and transcribe sales calls, practice sessions, or coaching conversations. Review transcripts to identify improvement opportunities and track your progress.",
       icon: <MicrophoneIcon className="w-8 h-8" />,
       path: "/tools/transcribe",
+    },
+    {
+      title: "Email Templates",
+      description: "Generate professional follow-up emails, thank you notes, and value-add messages. AI-powered templates help you build relationships and stay top-of-mind with your referral sources.",
+      icon: <Mail className="w-8 h-8" />,
+      path: "/tools/email-templates",
     },
   ];
 

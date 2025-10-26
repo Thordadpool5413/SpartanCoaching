@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { LightbulbIcon, DisciplineIcon, EmpathyIcon, StrategyIcon, SpinnerIcon } from "@/components/icons";
 import { Shield, Heart, Zap, Target, Users, BookOpen } from "lucide-react";
 import { LS } from "@/lib/utils";
+import { NewsletterSignup } from "@/components/NewsletterSignup";
 
 // DailyDrill component displays the daily coaching drill
 const DailyDrill = ({ drill, isLoading }: { drill: string; isLoading: boolean }) => {
@@ -254,6 +255,21 @@ export default function Home() {
           </div>
         </div>
       </div>
+
+      {/* Newsletter Section */}
+      <section className="bg-gradient-to-br from-red-600 to-red-700 dark:from-red-800 dark:to-red-900 text-white py-16">
+        <div className="max-w-7xl mx-auto px-6 text-center">
+          <h2 className="text-4xl md:text-5xl font-black mb-4">
+            Weekly Coaching Tips
+          </h2>
+          <p className="text-xl mb-8 text-red-100 max-w-2xl mx-auto">
+            Get proven hospice sales strategies, objection handlers, and territory planning tips delivered to your inbox every week.
+          </p>
+          <div className="flex justify-center">
+            <NewsletterSignup />
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

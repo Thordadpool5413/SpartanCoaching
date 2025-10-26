@@ -1,0 +1,20 @@
+{
+  "name": "Spartan Coaching - Hospice Sales Training",
+  "short_name": "Spartan Coaching",
+  "description": "Elite coaching for healthcare sales professionals. Master discipline, empathy, and strategy to transform your career.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#dc2626",
+  "theme_color": "#dc2626",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/spartan-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "education", "productivity"],
+  "screenshots": []
+}

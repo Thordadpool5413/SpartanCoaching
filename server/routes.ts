@@ -14,6 +14,8 @@ import {
   researchRequestSchema,
   chatRequestSchema,
   inquirySchema,
+  insertNewsletterSubscriberSchema,
+  emailTemplateRequestSchema,
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -122,6 +124,114 @@ Keep it under 100 words and use a warm, professional tone.`;
     } catch (error: any) {
       console.error("Inquiry submission error:", error);
       res.status(500).json({ error: error.message || "Failed to submit inquiry" });
+    }
+  });
+
+  // Get All Inquiries (Admin)
+  app.get("/api/inquiries", async (req, res) => {
+    try {
+      const inquiries = await storage.getInquiries();
+      
+      res.json({ inquiries });
+    } catch (error: any) {
+      console.error("Get inquiries error:", error);
+      res.status(500).json({ error: error.message || "Failed to retrieve inquiries" });
+    }
+  });
+
+  // Newsletter Subscription
+  app.post("/api/newsletter/subscribe", async (req, res) => {
+    try {
+      const subscriberData = insertNewsletterSubscriberSchema.parse(req.body);
+      
+      const subscriber = await storage.subscribeNewsletter(subscriberData);
+      
+      console.log("New newsletter subscriber:", subscriber);
+      
+      res.json({ success: true, message: "Successfully subscribed to newsletter" });
+    } catch (error: any) {
+      console.error("Newsletter subscription error:", error);
+      // Return 400 for validation errors, 500 for other errors
+      if (error.name === "ZodError") {
+        res.status(400).json({ error: error.message || "Invalid email address" });
+      } else {
+        res.status(500).json({ error: error.message || "Failed to subscribe to newsletter" });
+      }
+    }
+  });
+
+  // Get Newsletter Subscribers (Admin)
+  app.get("/api/newsletter/subscribers", async (req, res) => {
+    try {
+      const subscribers = await storage.getNewsletterSubscribers();
+      
+      res.json({ subscribers });
+    } catch (error: any) {
+      console.error("Get subscribers error:", error);
+      res.status(500).json({ error: error.message || "Failed to retrieve subscribers" });
+    }
+  });
+
+  // Email Template Generator
+  app.post("/api/email-templates", async (req, res) => {
+    try {
+      const { templateType, recipientName, context, customization } = emailTemplateRequestSchema.parse(req.body);
+      
+      let prompt = "";
+      
+      if (templateType === "follow_up") {
+        prompt = `Create a professional follow-up email for a hospice sales professional.
+        
+Recipient: ${recipientName || "the prospect"}
+Context: ${context}
+${customization ? `Additional customization: ${customization}\n` : ""}
+The email should:
+1. Reference our previous conversation
+2. Add value with a relevant insight or resource
+3. Include a soft call-to-action
+4. Be warm but professional
+
+Format: Provide subject line and email body.`;
+      } else if (templateType === "thank_you") {
+        prompt = `Create a genuine thank you email for a hospice sales professional.
+        
+Recipient: ${recipientName || "the recipient"}
+Context: ${context}
+${customization ? `Additional customization: ${customization}\n` : ""}
+The email should:
+1. Express sincere gratitude
+2. Reinforce the relationship
+3. Mention next steps if applicable
+4. Be warm and authentic
+
+Format: Provide subject line and email body.`;
+      } else {
+        prompt = `Create a value-add email that shares helpful content.
+        
+Recipient: ${recipientName || "the recipient"}
+Context: ${context}
+${customization ? `Additional customization: ${customization}\n` : ""}
+The email should:
+1. Share a relevant article, insight, or resource
+2. Explain why it's valuable to them
+3. Build thought leadership
+4. No hard sell - just adding value
+
+Format: Provide subject line and email body.`;
+      }
+
+      const systemInstruction = `You are an expert at writing professional, relationship-building emails for hospice sales professionals. Your emails should be warm, authentic, and focused on building trust. Format the output as:
+
+Subject: [subject line]
+
+[Email body with proper greeting, main content, and signature]`;
+
+      const template = await generateComplexResponse(prompt, systemInstruction);
+      
+      res.json({ template });
+    } catch (error: any) {
+      console.error("Email template generation error:", error);
+      res.status(500).json({ error: error.message || "Failed to generate email template" });
     }
   });
 

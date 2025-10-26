@@ -22,6 +22,8 @@ import QuickStartGuide from "@/pages/resources/QuickStartGuide";
 import ObjectionCards from "@/pages/resources/ObjectionCards";
 import TerritoryTemplate from "@/pages/resources/TerritoryTemplate";
 import MetricsDashboard from "@/pages/resources/MetricsDashboard";
+import Admin from "@/pages/Admin";
+import EmailTemplates from "@/pages/EmailTemplates";
 
 function Router() {
   return (
@@ -35,7 +37,9 @@ function Router() {
       <Route path="/tools/objections" component={Objections} />
       <Route path="/tools/research" component={Research} />
       <Route path="/tools/transcribe" component={Transcribe} />
+      <Route path="/tools/email-templates" component={EmailTemplates} />
       <Route path="/resources" component={Resources} />
+      <Route path="/admin" component={Admin} />
       <Route path="/resources/weekly-plan" component={WeeklyPlan} />
       <Route path="/resources/quick-start-guide" component={QuickStartGuide} />
       <Route path="/resources/objection-cards" component={ObjectionCards} />
