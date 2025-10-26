@@ -10,6 +10,75 @@ The application is built as a full-stack TypeScript application using React for 
 
 Preferred communication style: Simple, everyday language.
 
+## Content Strategy & Page Structure
+
+**Core Messaging Philosophy**
+- Focus on execution systems over motivational content ("Tuesday afternoon" practicality)
+- Emphasize getting eligible patients into hospice care earlier through better sales execution
+- Clear problem/solution/outcome narratives across all content
+- Professional tone avoiding buzzwords and vague promises
+
+**Homepage**
+- Hero section emphasizes "Hospice sales systems that work on Tuesday afternoon"
+- Tagline: "No motivational speeches. No vague goals. Just practical execution frameworks"
+- Primary CTAs: "View Services" and "Why Spartan Exists"
+- Daily Drill card showcasing AI coaching tool
+- Feature highlights for AI Field Kit tools
+- Contact form for inquiries (stored in database)
+
+**Services Page (/services)**
+Organized by three target audiences with detailed service offerings:
+
+1. **Individual Sales Reps**
+   - Virtual Coaching Sessions (bi-weekly via Teams/Zoom)
+   - In-Person Training Workshops (half-day/full-day sessions)
+   - Field Ridealongs (live coaching during actual sales calls)
+
+2. **Sales Leadership**
+   - Virtual Leadership Coaching (monthly strategic sessions)
+   - Team Training Programs (customized for sales teams)
+   - Growth Strategy Consulting (territory planning, pipeline optimization)
+
+3. **Corporate Providers**
+   - Full-Service Training Programs (comprehensive onboarding/ongoing development)
+   - Territory Analysis & Management (data-driven territory optimization)
+   - Executive Consulting (strategic advisory for sales operations)
+
+Each section includes:
+- Clear problem statement the audience faces
+- Specific solutions offered
+- Expected outcomes and deliverables
+- Pricing signals (monthly rates, session packages)
+
+**About Page (/about)**
+Structured to lead with mission and purpose:
+- Prominent "Why Spartan Exists" section explaining core mission
+- Focus on closing gap between good intentions and consistent results
+- Emphasis on practical execution over inspirational content
+- Founder background and Spartan Method overview as supporting content
+- Mission-driven narrative about getting eligible patients into care earlier
+
+**Testimonials Page (/testimonials)**
+New page added with structured framework ready for real content:
+- Hero section explaining value of social proof
+- Testimonial cards (placeholder structure for 3+ client quotes)
+- Case Studies section with measurable outcomes
+- Data points section highlighting key metrics
+- CTA encouraging prospects to contact for services
+- Route: `/testimonials`
+- Navigation: Added to both desktop and mobile menus
+
+**Navigation Structure**
+Main menu items (in order):
+1. Home
+2. Services
+3. Programs
+4. The Spartan Method
+5. AI Field Kit
+6. Resources
+7. Testimonials (newly added)
+8. About
+
 ## System Architecture
 
 ### Frontend Architecture
