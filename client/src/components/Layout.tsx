@@ -23,7 +23,7 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
       href={href}
       onClick={onClick}
       className={cn(
-        "px-4 py-2 rounded-lg font-medium transition-colors hover-elevate block",
+        "px-3 py-2 rounded-lg text-sm font-medium transition-colors hover-elevate block whitespace-nowrap",
         isActive
           ? "bg-primary text-primary-foreground"
           : "text-foreground hover:bg-accent"
@@ -72,11 +72,11 @@ export function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-4 flex-shrink-0" aria-label="Main navigation">
+        <nav className="hidden lg:flex items-center gap-2 flex-shrink-0" aria-label="Main navigation">
           <Button
             variant="ghost"
             size="sm"
-            className="gap-2"
+            className="gap-2 text-sm"
             onClick={() => {
               const searchInput = document.createElement('input');
               searchInput.placeholder = 'Search tools, resources...';
@@ -84,7 +84,7 @@ export function Header() {
               console.log('Search feature - coming soon');
             }}
           >
-            <span className="text-sm font-bold">Search</span>
+            <span className="font-medium">Search</span>
           </Button>
           {routes.slice(1).map((route) => (
             <NavLink key={route.path} href={route.path}>
