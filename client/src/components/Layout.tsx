@@ -31,7 +31,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b border-border no-print">
       <div className="w-full max-w-7xl mx-auto px-6">
-        <div className="flex items-center justify-between min-h-20">
+        <div className="flex items-center justify-between min-h-24 py-2">
           <Link href="/">
             <div className="flex items-center gap-3 hover-elevate rounded-lg px-2 py-1 -ml-2 cursor-pointer" data-testid="link-home">
               <SpartanLogo className="h-20 w-auto object-contain" />
