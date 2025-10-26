@@ -54,13 +54,6 @@ export default function Home() {
         <div className="absolute inset-0 bg-[url('/spartan-hero.jpg')] bg-cover bg-center opacity-30"></div>
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/40"></div>
         <div className="relative z-10 max-w-7xl mx-auto px-6 py-24 text-center">
-          <div className="mb-12 animate-fade-in">
-            <img
-              src="/spartan-logo.png"
-              alt="Spartan Coaching Logo"
-              className="w-40 h-40 mx-auto mb-8 drop-shadow-2xl"
-            />
-          </div>
           <h1 className="text-6xl md:text-8xl font-black mb-8 leading-[0.9] tracking-tight bg-gradient-to-r from-white via-gray-100 to-gray-300 text-transparent bg-clip-text animate-fade-in">
             Spartan Coaching
           </h1>
