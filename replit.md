@@ -81,14 +81,24 @@ Preferred communication style: Simple, everyday language.
 
 ### External Dependencies
 
-**AI Integration**
-- Google Gemini AI (`@google/genai`) for content generation, grounding, and text-to-speech
-- Configured for multiple AI capabilities:
-  - Complex response generation (playbooks)
-  - Grounded search with web sources (research tool)
-  - Quick responses (objection handling)
-  - Text-to-speech for audio playback
-- API key managed via environment variables
+**AI Integration (Fully Operational)**
+- Google Gemini AI (`@google/genai`) integrated and actively powering all coaching tools
+- Live AI service implementation in `server/gemini.ts` with:
+  - Complex response generation for detailed playbooks (gemini-2.0-flash-exp model)
+  - Quick response generation for objection handling (500 token limit, optimized)
+  - Grounded search for research queries (note: full grounding requires Vertex AI, API key version provides comprehensive research without web citations)
+  - Daily drill generator with rotating curated coaching exercises
+  - Chat conversation support with full context history
+- All endpoints include comprehensive error handling and logging
+- API key managed securely via GEMINI_API_KEY environment variable
+- Request/response validation with Zod schemas for type safety
+- Active API routes:
+  - `POST /api/playbooks` - generates comprehensive sales playbooks
+  - `POST /api/objections` - handles sales objections with empathy
+  - `POST /api/research` - provides detailed industry research
+  - `GET /api/daily-drill` - returns daily training exercises
+  - `POST /api/chat` - conversational AI coaching assistant
+- System instruction ensures all AI responses follow Spartan Method principles (Discipline, Empathy, Strategy)
 
 **Database**
 - Neon serverless PostgreSQL (configured but not yet actively used)
