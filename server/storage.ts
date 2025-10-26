@@ -1,31 +1,35 @@
-import { type Inquiry } from "@shared/schema";
-import { randomUUID } from "crypto";
+import { inquiries, type InsertInquiry, type SelectInquiry } from "@shared/schema";
+import { db } from "./db";
+import { desc } from "drizzle-orm";
 
-// modify the interface with any CRUD methods
-// you might need
-
+// Storage interface for CRUD operations
 export interface IStorage {
-  createInquiry(inquiry: Inquiry): Promise<Inquiry & { id: string }>;
-  getInquiries(): Promise<Array<Inquiry & { id: string }>>;
+  createInquiry(inquiry: InsertInquiry): Promise<SelectInquiry>;
+  getInquiries(): Promise<SelectInquiry[]>;
 }
 
-export class MemStorage implements IStorage {
-  private inquiries: Map<string, Inquiry & { id: string }>;
-
-  constructor() {
-    this.inquiries = new Map();
+// Database-backed storage implementation
+export class DatabaseStorage implements IStorage {
+  async createInquiry(inquiry: InsertInquiry): Promise<SelectInquiry> {
+    const inquiryWithTimestamp = {
+      ...inquiry,
+      submittedAt: Date.now(),
+    };
+    
+    const [created] = await db
+      .insert(inquiries)
+      .values(inquiryWithTimestamp)
+      .returning();
+    
+    return created;
   }
 
-  async createInquiry(inquiry: Inquiry): Promise<Inquiry & { id: string }> {
-    const id = randomUUID();
-    const inquiryWithId = { ...inquiry, id, submittedAt: Date.now() };
-    this.inquiries.set(id, inquiryWithId);
-    return inquiryWithId;
-  }
-
-  async getInquiries(): Promise<Array<Inquiry & { id: string }>> {
-    return Array.from(this.inquiries.values());
+  async getInquiries(): Promise<SelectInquiry[]> {
+    return await db
+      .select()
+      .from(inquiries)
+      .orderBy(desc(inquiries.submittedAt));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
