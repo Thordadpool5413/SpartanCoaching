@@ -1,6 +1,8 @@
+import spartanLogoUrl from "@assets/spartan-logo.png";
+
 export const SpartanLogo = ({ className = "w-12 h-12" }: { className?: string }) => (
   <img 
-    src="/attached_assets/spartan-logo.png" 
+    src={spartanLogoUrl}
     alt="Spartan Coaching Logo" 
     className={className}
   />
