@@ -4,106 +4,371 @@ import { Button } from "@/components/ui/button";
 import { CheckIcon } from "@/components/icons";
 import { InquiryForm } from "@/components/InquiryForm";
 import { BackButton } from "@/components/BackButton";
+import { Users, Building2, UserCheck } from "lucide-react";
 
 export default function Services() {
   const [inquiryOpen, setInquiryOpen] = useState(false);
   const [selectedService, setSelectedService] = useState<string>("");
-  const services = [
+
+  const individualServices = [
     {
-      title: "One-on-One Virtual Coaching (30 min)",
-      price: 40,
-      duration: "30 minutes",
-      description: "A focused tune-up when you need quick progress on a real situation.",
-      features: [
-        "Prep form",
-        "Live Zoom session",
-        "Short recap with next steps & recording",
+      title: "Virtual Coaching Sessions",
+      duration: "30 or 60 minutes",
+      price: "$40 / $70",
+      problem: "You're stuck on a specific challenge—an objection you can't handle, a territory that isn't producing, or a referral partner who won't commit.",
+      solution: "Focused coaching via Teams or Zoom to fix what's broken right now.",
+      includes: [
+        "Prep form to identify the exact problem",
+        "Live session with role-play and real scenarios",
+        "One-page action plan for immediate implementation",
+        "Recording for review (60 min sessions)",
       ],
+      outcome: "Walk away with a clear next step you can execute Tuesday morning.",
     },
     {
-      title: "One-on-One Virtual Coaching (60 min)",
-      price: 70,
-      duration: "60 minutes",
-      description: "A deeper working session for territory moves, referral strategy, complex cases, or pipeline structure.",
-      features: [
-        "Prep form",
-        "60-minute live session with role-play",
-        "One-page action plan",
-        "Recording by request",
+      title: "Field Coaching Ridealongs",
+      duration: "Half or full day",
+      price: "Custom pricing",
+      problem: "You know what to say in theory, but it doesn't land in real conversations. You need live feedback, not more classroom training.",
+      solution: "I ride with you to actual sales calls—hospitals, clinics, facilities—and coach you in real time.",
+      includes: [
+        "Pre-call to set specific goals for the day",
+        "Live observation of 4-6 sales interactions",
+        "Real-time coaching between calls",
+        "Debrief with written action summary and talk tracks",
       ],
+      outcome: "See exactly what works in the field and practice it until it's repeatable.",
     },
     {
-      title: "Live Field Coaching for Hospice Providers",
-      price: null,
-      duration: "Full day",
-      description: "Ride-along coaching that changes behavior and proves it in the field.",
-      features: [
-        "Pre-call to set goals",
-        "On-site ride-along",
-        "Live coaching & debriefs",
-        "One-page action summary with talk tracks",
+      title: "Territory Management Coaching",
+      duration: "2-3 sessions",
+      price: "Custom pricing",
+      problem: "Your calendar is full but your pipeline isn't moving. You're busy but not productive.",
+      solution: "Build a territory plan that focuses effort where it actually converts.",
+      includes: [
+        "Territory analysis: who refers, who should, who's wasting your time",
+        "Account prioritization system (A/B/C classification)",
+        "Weekly routing plan for maximum efficiency",
+        "Follow-up cadence that prevents dropped balls",
       ],
+      outcome: "Spend less time driving, more time with decision-makers who can say yes.",
+    },
+  ];
+
+  const leadershipServices = [
+    {
+      title: "Team Training Workshops",
+      duration: "1-2 days",
+      price: "Custom pricing",
+      problem: "Your team knows they should be doing better, but they don't have a shared system. Everyone's running their own playbook.",
+      solution: "Intensive on-site or virtual training that teaches your entire team the same execution framework.",
+      includes: [
+        "Customized curriculum based on your market and challenges",
+        "Live practice with objection handling and discovery",
+        "Territory planning workshop with real accounts",
+        "Written playbook your team can reference daily",
+      ],
+      outcome: "Your team speaks the same language, uses the same process, and coaches each other up.",
+    },
+    {
+      title: "Leadership Coaching",
+      duration: "Monthly or quarterly",
+      price: "Custom pricing",
+      problem: "You're managing by results instead of coaching to behaviors. When numbers are down, you don't know what to fix.",
+      solution: "Learn to coach one skill at a time, run effective pipeline reviews, and build team rhythm that survives turnover.",
+      includes: [
+        "1:1 coaching on skill-based management",
+        "Pipeline review framework that drives action",
+        "Weekly huddle structure (5 minutes that matter)",
+        "Scorecard design: what to measure, how to use it",
+      ],
+      outcome: "You'll know what good looks like, how to spot it, and how to coach your team to it.",
+    },
+    {
+      title: "Growth Strategy Consulting",
+      duration: "3-6 months",
+      price: "Custom pricing",
+      problem: "You're not sure where growth will come from. You need a plan that's specific, not aspirational.",
+      solution: "Identify where referrals should come from, build the system to capture them, and measure what matters.",
+      includes: [
+        "Market analysis: diagnosis mix, competitor positioning, referral patterns",
+        "Growth opportunity identification (untapped accounts, diagnosis gaps)",
+        "Sales process redesign for faster conversions",
+        "Quarterly reviews to track progress and adjust",
+      ],
+      outcome: "A repeatable system for growth that doesn't depend on hope or heroics.",
+    },
+  ];
+
+  const corporateServices = [
+    {
+      title: "Market & Territory Analysis",
+      duration: "4-6 weeks",
+      price: "Custom pricing",
+      problem: "You don't know where referrals are coming from, where they should be coming from, or why the gap exists.",
+      solution: "Deep analysis of your markets to understand what's working, what's broken, and where opportunity lives.",
+      includes: [
+        "Referral source analysis by market and diagnosis",
+        "Competitor positioning and market share assessment",
+        "Territory design: account assignment, routing optimization",
+        "Top 10 growth opportunities with action plans",
+      ],
+      outcome: "You'll know exactly where to focus resources for the highest return.",
+    },
+    {
+      title: "System Implementation & Training",
+      duration: "3-6 months",
+      price: "Custom pricing",
+      problem: "You have markets performing differently with no standard process. Wins aren't repeatable and you can't scale what's working.",
+      solution: "Install a repeatable sales system across all markets so execution is consistent and results are predictable.",
+      includes: [
+        "Sales process design and documentation",
+        "Team training rollout (virtual or on-site)",
+        "Leadership coaching for local managers",
+        "Performance tracking system and dashboards",
+      ],
+      outcome: "Every market runs the same playbook. You can see what's working and replicate it.",
+    },
+    {
+      title: "Executive Consulting",
+      duration: "Ongoing retainer",
+      price: "Custom pricing",
+      problem: "You need strategic guidance for growth, M&A integration, or performance turnarounds—not generic consulting, but hospice-specific expertise.",
+      solution: "Ongoing access to senior-level strategic consulting for complex challenges.",
+      includes: [
+        "Monthly strategic planning sessions",
+        "Market expansion and acquisition guidance",
+        "Sales force effectiveness audits",
+        "Crisis response and performance turnarounds",
+      ],
+      outcome: "Make better decisions faster with someone who knows hospice sales inside and out.",
     },
   ];
 
   return (
     <div className="w-full max-w-7xl mx-auto px-6 py-16">
       <BackButton />
-      <div className="text-center max-w-3xl mx-auto mb-16">
-        <h1 className="text-4xl md:text-5xl font-black text-foreground mb-4" data-testid="text-services-title">
-          Coaching Services
+      
+      <div className="text-center max-w-4xl mx-auto mb-16">
+        <h1 className="text-4xl md:text-5xl font-black text-foreground mb-6" data-testid="text-services-title">
+          Services Built for Hospice Sales
         </h1>
+        <p className="text-xl text-muted-foreground leading-relaxed mb-4">
+          No motivational speeches. No one-size-fits-all programs. Just practical systems that work on Tuesday afternoon when the clinic is short-staffed and the family is scared.
+        </p>
         <p className="text-lg text-muted-foreground leading-relaxed">
-          From focused one-on-one sessions to comprehensive team programs, every service is built to be simple, measurable, and patient-first.
+          Whether you're an individual rep sharpening your skills, a leader building a team, or a corporate executive scaling across markets—we have services designed for where you are.
         </p>
       </div>
 
-      <div className="mb-20">
-        <h2 className="text-3xl font-bold text-center text-foreground mb-12">
-          Coaching That Works in the Field
-        </h2>
-        <div className="grid md:grid-cols-3 gap-8">
-          {services.map((service, idx) => (
-            <Card key={idx} className="flex flex-col h-full hover-elevate transition-all" data-testid={`card-service-${idx}`}>
-              <div className="flex-1">
+      {/* Individual Sales Reps Section */}
+      <div className="mb-24">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+            <UserCheck className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-3xl font-black text-foreground">For Individual Sales Reps</h2>
+            <p className="text-muted-foreground">Get better at the job you're doing right now.</p>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {individualServices.map((service, idx) => (
+            <Card key={idx} className="flex flex-col hover-elevate transition-all" data-testid={`card-individual-${idx}`}>
+              <div className="flex-1 p-6">
                 <h3 className="text-xl font-bold text-foreground mb-2">{service.title}</h3>
-                {service.price && (
-                  <p className="text-4xl font-black text-primary mb-4" data-testid={`text-price-${idx}`}>${service.price}</p>
-                )}
-                {!service.price && (
-                  <p className="text-lg font-semibold text-muted-foreground mb-4">Custom Pricing</p>
-                )}
-                <p className="text-muted-foreground mb-6 leading-relaxed">{service.description}</p>
-                <ul className="space-y-3 mb-6">
-                  {service.features.map((feature, fIdx) => (
-                    <li key={fIdx} className="flex items-start gap-2">
-                      <CheckIcon className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                      <span className="text-foreground">{feature}</span>
-                    </li>
-                  ))}
-                </ul>
+                <div className="flex items-baseline gap-3 mb-4">
+                  <p className="text-2xl font-black text-primary">{service.price}</p>
+                  <p className="text-sm text-muted-foreground">{service.duration}</p>
+                </div>
+                
+                <div className="mb-4">
+                  <p className="text-sm font-semibold text-foreground mb-1">The Problem:</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{service.problem}</p>
+                </div>
+
+                <div className="mb-4">
+                  <p className="text-sm font-semibold text-foreground mb-1">The Solution:</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{service.solution}</p>
+                </div>
+
+                <div className="mb-4">
+                  <p className="text-sm font-semibold text-foreground mb-2">What's Included:</p>
+                  <ul className="space-y-2">
+                    {service.includes.map((item, iIdx) => (
+                      <li key={iIdx} className="flex items-start gap-2">
+                        <CheckIcon className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span className="text-sm text-foreground">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="bg-accent/30 rounded-lg p-3">
+                  <p className="text-sm font-semibold text-foreground mb-1">Outcome:</p>
+                  <p className="text-sm text-muted-foreground">{service.outcome}</p>
+                </div>
               </div>
-              <Button
-                className="w-full font-bold"
-                data-testid={`button-book-${idx}`}
-                onClick={() => {
-                  setSelectedService(service.title);
-                  setInquiryOpen(true);
-                }}
-              >
-                Book Session
-              </Button>
+
+              <div className="p-6 pt-0">
+                <Button
+                  className="w-full font-bold"
+                  data-testid={`button-book-individual-${idx}`}
+                  onClick={() => {
+                    setSelectedService(service.title);
+                    setInquiryOpen(true);
+                  }}
+                >
+                  Get Started
+                </Button>
+              </div>
             </Card>
           ))}
         </div>
       </div>
 
+      {/* Sales Leadership Section */}
+      <div className="mb-24">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Users className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-3xl font-black text-foreground">For Sales Leadership</h2>
+            <p className="text-muted-foreground">Build teams that execute consistently and scale what works.</p>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {leadershipServices.map((service, idx) => (
+            <Card key={idx} className="flex flex-col hover-elevate transition-all" data-testid={`card-leadership-${idx}`}>
+              <div className="flex-1 p-6">
+                <h3 className="text-xl font-bold text-foreground mb-2">{service.title}</h3>
+                <div className="flex items-baseline gap-3 mb-4">
+                  <p className="text-2xl font-black text-primary">{service.price}</p>
+                  <p className="text-sm text-muted-foreground">{service.duration}</p>
+                </div>
+                
+                <div className="mb-4">
+                  <p className="text-sm font-semibold text-foreground mb-1">The Problem:</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{service.problem}</p>
+                </div>
+
+                <div className="mb-4">
+                  <p className="text-sm font-semibold text-foreground mb-1">The Solution:</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{service.solution}</p>
+                </div>
+
+                <div className="mb-4">
+                  <p className="text-sm font-semibold text-foreground mb-2">What's Included:</p>
+                  <ul className="space-y-2">
+                    {service.includes.map((item, iIdx) => (
+                      <li key={iIdx} className="flex items-start gap-2">
+                        <CheckIcon className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span className="text-sm text-foreground">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="bg-accent/30 rounded-lg p-3">
+                  <p className="text-sm font-semibold text-foreground mb-1">Outcome:</p>
+                  <p className="text-sm text-muted-foreground">{service.outcome}</p>
+                </div>
+              </div>
+
+              <div className="p-6 pt-0">
+                <Button
+                  className="w-full font-bold"
+                  data-testid={`button-book-leadership-${idx}`}
+                  onClick={() => {
+                    setSelectedService(service.title);
+                    setInquiryOpen(true);
+                  }}
+                >
+                  Get Started
+                </Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Corporate Providers Section */}
+      <div className="mb-20">
+        <div className="flex items-center gap-4 mb-8">
+          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
+            <Building2 className="w-6 h-6 text-primary" />
+          </div>
+          <div>
+            <h2 className="text-3xl font-black text-foreground">For Corporate Hospice Providers</h2>
+            <p className="text-muted-foreground">Scale execution across markets and make growth predictable.</p>
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          {corporateServices.map((service, idx) => (
+            <Card key={idx} className="flex flex-col hover-elevate transition-all" data-testid={`card-corporate-${idx}`}>
+              <div className="flex-1 p-6">
+                <h3 className="text-xl font-bold text-foreground mb-2">{service.title}</h3>
+                <div className="flex items-baseline gap-3 mb-4">
+                  <p className="text-2xl font-black text-primary">{service.price}</p>
+                  <p className="text-sm text-muted-foreground">{service.duration}</p>
+                </div>
+                
+                <div className="mb-4">
+                  <p className="text-sm font-semibold text-foreground mb-1">The Problem:</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{service.problem}</p>
+                </div>
+
+                <div className="mb-4">
+                  <p className="text-sm font-semibold text-foreground mb-1">The Solution:</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{service.solution}</p>
+                </div>
+
+                <div className="mb-4">
+                  <p className="text-sm font-semibold text-foreground mb-2">What's Included:</p>
+                  <ul className="space-y-2">
+                    {service.includes.map((item, iIdx) => (
+                      <li key={iIdx} className="flex items-start gap-2">
+                        <CheckIcon className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span className="text-sm text-foreground">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="bg-accent/30 rounded-lg p-3">
+                  <p className="text-sm font-semibold text-foreground mb-1">Outcome:</p>
+                  <p className="text-sm text-muted-foreground">{service.outcome}</p>
+                </div>
+              </div>
+
+              <div className="p-6 pt-0">
+                <Button
+                  className="w-full font-bold"
+                  data-testid={`button-book-corporate-${idx}`}
+                  onClick={() => {
+                    setSelectedService(service.title);
+                    setInquiryOpen(true);
+                  }}
+                >
+                  Get Started
+                </Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* CTA Section */}
       <div className="bg-accent/50 rounded-2xl p-8 md:p-12 text-center">
         <h2 className="text-3xl font-bold text-foreground mb-4">
-          Ready to Elevate Your Performance?
+          Not Sure Which Service Fits?
         </h2>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-          Every session is customized to your specific challenges. Let's build a plan that delivers measurable results.
+          Every engagement starts with understanding your specific challenge. Let's talk about what's not working and build a plan that fixes it.
         </p>
         <Button
           size="lg"
@@ -114,7 +379,7 @@ export default function Services() {
             setInquiryOpen(true);
           }}
         >
-          Contact Us to Get Started
+          Schedule a Consultation
         </Button>
       </div>
 

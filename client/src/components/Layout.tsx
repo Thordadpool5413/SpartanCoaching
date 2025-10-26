@@ -55,6 +55,7 @@ export function Header() {
     { path: "/method", label: "The Spartan Method" },
     { path: "/tools", label: "AI Field Kit" },
     { path: "/resources", label: "Resources" },
+    { path: "/testimonials", label: "Testimonials" },
     { path: "/about", label: "About" },
   ];
 
@@ -123,6 +124,7 @@ export function Header() {
             <NavLink href="/method" onClick={() => setMenuOpen(false)}>Method</NavLink>
             <NavLink href="/tools" onClick={() => setMenuOpen(false)}>AI Field Kit</NavLink>
             <NavLink href="/resources" onClick={() => setMenuOpen(false)}>Resources</NavLink>
+            <NavLink href="/testimonials" onClick={() => setMenuOpen(false)}>Testimonials</NavLink>
             <NavLink href="/about" onClick={() => setMenuOpen(false)}>About</NavLink>
           </div>
         </nav>

@@ -24,6 +24,7 @@ import TerritoryTemplate from "@/pages/resources/TerritoryTemplate";
 import MetricsDashboard from "@/pages/resources/MetricsDashboard";
 import Admin from "@/pages/Admin";
 import EmailTemplates from "@/pages/EmailTemplates";
+import Testimonials from "@/pages/Testimonials";
 
 function Router() {
   return (
@@ -45,6 +46,7 @@ function Router() {
       <Route path="/resources/objection-cards" component={ObjectionCards} />
       <Route path="/resources/territory-template" component={TerritoryTemplate} />
       <Route path="/resources/metrics-dashboard" component={MetricsDashboard} />
+      <Route path="/testimonials" component={Testimonials} />
       <Route path="/about" component={About} />
       <Route component={NotFound} />
     </Switch>

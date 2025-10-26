@@ -58,15 +58,18 @@ export default function Home() {
           <h1 className="text-6xl md:text-8xl font-black mb-8 leading-[0.9] tracking-tight bg-gradient-to-r from-white via-gray-100 to-gray-300 text-transparent bg-clip-text animate-fade-in">
             Spartan Coaching
           </h1>
-          <p className="text-xl md:text-3xl mb-12 max-w-4xl mx-auto font-light leading-relaxed text-gray-200 animate-fade-in">
-            Elite coaching for healthcare sales professionals. Master discipline, empathy, and strategy to transform your career.
+          <p className="text-2xl md:text-4xl mb-6 max-w-4xl mx-auto font-bold leading-tight text-white animate-fade-in">
+            Hospice sales systems that work on Tuesday afternoon.
+          </p>
+          <p className="text-lg md:text-xl mb-12 max-w-3xl mx-auto font-light leading-relaxed text-gray-200 animate-fade-in">
+            No motivational speeches. No vague goals. Just practical execution frameworks that close the gap between good intentions and consistent results—so more eligible patients receive care earlier in their journey.
           </p>
           <div className="flex flex-col sm:flex-row gap-6 justify-center animate-fade-in">
             <Button size="lg" asChild className="text-lg px-10 py-7 font-bold shadow-2xl hover:shadow-red-500/50 transition-all">
-              <Link href="/services">Explore Coaching Services</Link>
+              <Link href="/services">View Services</Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="text-lg px-10 py-7 font-semibold bg-white/5 border-white/40 hover:bg-white/15 backdrop-blur-sm transition-all">
-              <Link href="/method">Learn The Method</Link>
+              <Link href="/about">Why Spartan Exists</Link>
             </Button>
           </div>
         </div>
