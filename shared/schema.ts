@@ -1,4 +1,6 @@
 import { z } from "zod";
+import { pgTable, text, serial, bigint } from "drizzle-orm/pg-core";
+import { createInsertSchema } from "drizzle-zod";
 
 // Chat message schema for AI interactions
 export const chatMessageSchema = z.object({
@@ -86,6 +88,23 @@ export const inquirySchema = z.object({
 });
 
 export type Inquiry = z.infer<typeof inquirySchema>;
+
+// Drizzle table definition for inquiries
+export const inquiries = pgTable("inquiries", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  email: text("email").notNull(),
+  phone: text("phone").notNull(),
+  company: text("company"),
+  serviceType: text("service_type"),
+  message: text("message").notNull(),
+  submittedAt: bigint("submitted_at", { mode: "number" }).notNull(),
+});
+
+// Insert schema and types for inquiries
+export const insertInquirySchema = createInsertSchema(inquiries).omit({ id: true });
+export type InsertInquiry = z.infer<typeof insertInquirySchema>;
+export type SelectInquiry = typeof inquiries.$inferSelect;
 
 // Theme preference
 export type Theme = "light" | "dark";
