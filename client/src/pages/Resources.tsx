@@ -17,6 +17,33 @@ export default function Resources() {
     }
   };
 
+  const resources = [
+    {
+      title: "Quick Start Guide",
+      description: "Your first 30 days as a hospice liaison—everything you need to hit the ground running.",
+      cta: "Download PDF",
+      link: "/resources/quick-start-guide",
+    },
+    {
+      title: "Objection Response Cards",
+      description: "Pocket-sized response cards for the 8 most common hospice objections.",
+      cta: "Download PDF",
+      link: "/resources/objection-cards",
+    },
+    {
+      title: "Territory Planning Template",
+      description: "Map your market, prioritize accounts, and build your weekly route.",
+      cta: "Download PDF",
+      link: "/resources/territory-template",
+    },
+    {
+      title: "Metrics Dashboard",
+      description: "Track referrals, conversions, and start-of-care speed in one simple view.",
+      cta: "Download PDF",
+      link: "/resources/metrics-dashboard",
+    },
+  ];
+
   return (
     <div className="w-full max-w-7xl mx-auto px-6 py-16">
       <div className="text-center max-w-3xl mx-auto mb-16">
@@ -71,89 +98,39 @@ export default function Resources() {
 
       {/* Additional Resources */}
       <div className="grid md:grid-cols-2 gap-6">
-        <Card className="hover-elevate transition-all">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="p-3 rounded-lg bg-primary/10">
-              <DownloadIcon className="w-6 h-6 text-primary" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-xl font-bold text-foreground mb-2">
-                Quick Start Guide
-              </h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Your first 30 days as a hospice liaison—everything you need to hit the ground running.
-              </p>
-              <Link href="/resources/quick-start-guide">
-                <Button variant="outline" className="font-bold" data-testid="button-download-guide">
-                  Download PDF
+        {resources.map((resource, idx) => (
+          <Card key={idx} className="hover-elevate transition-all" data-testid={`card-resource-${idx}`}>
+            <div className="flex items-start gap-4 mb-4">
+              <div className="p-3 rounded-lg bg-primary/10">
+                <DownloadIcon className="w-6 h-6 text-primary" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-foreground mb-2">{resource.title}</h3>
+                <p className="text-sm text-muted-foreground mb-4">
+                  {resource.description}
+                </p>
+                <Button
+                  asChild
+                  className="w-full font-bold"
+                  data-testid={`button-resource-${idx}`}
+                  onClick={() => {
+                    // Track resource access
+                    fetch('/api/analytics/resource-access', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        resourceName: resource.title,
+                        timestamp: Date.now()
+                      })
+                    }).catch(console.error);
+                  }}
+                >
+                  <Link href={resource.link}>{resource.cta}</Link>
                 </Button>
-              </Link>
+              </div>
             </div>
-          </div>
-        </Card>
-
-        <Card className="hover-elevate transition-all">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="p-3 rounded-lg bg-primary/10">
-              <DownloadIcon className="w-6 h-6 text-primary" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-xl font-bold text-foreground mb-2">
-                Objection Response Cards
-              </h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Pocket-sized response cards for the 8 most common hospice objections.
-              </p>
-              <Link href="/resources/objection-cards">
-                <Button variant="outline" className="font-bold" data-testid="button-download-cards">
-                  Download PDF
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="hover-elevate transition-all">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="p-3 rounded-lg bg-primary/10">
-              <DownloadIcon className="w-6 h-6 text-primary" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-xl font-bold text-foreground mb-2">
-                Territory Planning Template
-              </h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Map your market, prioritize accounts, and build your weekly route.
-              </p>
-              <Link href="/resources/territory-template">
-                <Button variant="outline" className="font-bold" data-testid="button-download-template">
-                  Download PDF
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </Card>
-
-        <Card className="hover-elevate transition-all">
-          <div className="flex items-start gap-4 mb-4">
-            <div className="p-3 rounded-lg bg-primary/10">
-              <DownloadIcon className="w-6 h-6 text-primary" />
-            </div>
-            <div className="flex-1">
-              <h3 className="text-xl font-bold text-foreground mb-2">
-                Metrics Dashboard
-              </h3>
-              <p className="text-sm text-muted-foreground mb-4">
-                Track referrals, conversions, and start-of-care speed in one simple view.
-              </p>
-              <Link href="/resources/metrics-dashboard">
-                <Button variant="outline" className="font-bold" data-testid="button-download-dashboard">
-                  Download PDF
-                </Button>
-              </Link>
-            </div>
-          </div>
-        </Card>
+          </Card>
+        ))}
       </div>
     </div>
   );

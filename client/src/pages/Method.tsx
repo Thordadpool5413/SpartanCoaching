@@ -1,17 +1,20 @@
+
 import { Card } from "@/components/ui/card";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 
 export default function Method() {
   return (
     <div className="w-full max-w-7xl mx-auto px-6 py-16">
-      <div className="max-w-3xl mx-auto">
-        <h1 className="text-4xl md:text-5xl font-black text-foreground mb-6" data-testid="text-method-title">
-          Our Mission & Method
+      <div className="text-center max-w-3xl mx-auto mb-16">
+        <h1 className="text-4xl md:text-5xl font-black text-foreground mb-4" data-testid="text-method-title">
+          The Spartan Method
         </h1>
-        
-        <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
-          We exist to change how healthcare sales is done. The goal is simple: ensure every patient gets the right care, at the right time, at the right level of service. This is our why.
+        <p className="text-lg text-muted-foreground leading-relaxed">
+          A practical framework built on three pillars: Discipline, Empathy, and Strategy. Each pillar is essential. Together, they create a system for serving patients with excellence.
         </p>
+      </div>
 
+      <div className="max-w-4xl mx-auto">
         <Card className="bg-accent/30 mb-12">
           <h2 className="text-3xl font-bold text-foreground mb-4">The Spartan Mission</h2>
           <p className="text-foreground leading-relaxed mb-4">
@@ -24,28 +27,67 @@ export default function Method() {
 
         <h2 className="text-3xl font-bold text-foreground mb-8">The Three Pillars</h2>
 
-        <div className="space-y-8">
-          <Card>
-            <h3 className="text-2xl font-bold text-primary mb-3">Discipline</h3>
-            <p className="text-foreground leading-relaxed">
-              Success in hospice sales requires more than good intentions—it demands structure and consistency. Discipline means having a proven framework for territory planning, objection handling, and follow-up strategies. It's about showing up prepared, executing with precision, and tracking what matters. We teach you to build habits that lead to predictable, high-impact results.
-            </p>
-          </Card>
+        <Accordion type="single" collapsible className="space-y-4">
+          <AccordionItem value="discipline">
+            <AccordionTrigger className="text-2xl font-bold text-primary hover:text-primary/80">
+              Discipline
+            </AccordionTrigger>
+            <AccordionContent className="text-foreground leading-relaxed pt-4 space-y-4">
+              <p>
+                Success in hospice sales requires more than good intentions—it demands structure and consistency. Discipline means having a proven framework for territory planning, objection handling, and follow-up strategies. It's about showing up prepared, executing with precision, and tracking what matters.
+              </p>
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h4 className="font-bold mb-2">Key Components:</h4>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  <li>Weekly territory planning with clear objectives</li>
+                  <li>Standardized call preparation and follow-up protocols</li>
+                  <li>Metrics tracking for activity and outcomes</li>
+                  <li>Continuous skill development through practice</li>
+                </ul>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
 
-          <Card>
-            <h3 className="text-2xl font-bold text-primary mb-3">Empathy</h3>
-            <p className="text-foreground leading-relaxed">
-              At the heart of hospice sales is human connection. Empathy is about listening with intent, understanding the unspoken needs of providers and families, and building trust that goes beyond any single referral. We train you to connect authentically, ask better questions, and position hospice not as a product, but as a partner in delivering comfort and dignity.
-            </p>
-          </Card>
+          <AccordionItem value="empathy">
+            <AccordionTrigger className="text-2xl font-bold text-primary hover:text-primary/80">
+              Empathy
+            </AccordionTrigger>
+            <AccordionContent className="text-foreground leading-relaxed pt-4 space-y-4">
+              <p>
+                At the heart of hospice sales is human connection. Empathy is about listening with intent, understanding the unspoken needs of providers and families, and building trust that goes beyond any single referral. We train you to connect authentically, ask better questions, and position hospice not as a product, but as a partner in delivering comfort and dignity.
+              </p>
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h4 className="font-bold mb-2">Core Practices:</h4>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  <li>Active listening techniques for clinical conversations</li>
+                  <li>Understanding provider pain points and workflows</li>
+                  <li>Building long-term relationships over transactional wins</li>
+                  <li>Patient-centered communication that honors dignity</li>
+                </ul>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
 
-          <Card>
-            <h3 className="text-2xl font-bold text-primary mb-3">Strategy</h3>
-            <p className="text-foreground leading-relaxed">
-              Strategy is about acting with purpose. It means using data, market insights, and AI-powered tools to identify the right referral sources and focus your energy where it will have the greatest impact. We help you cut through the noise, prioritize high-value activities, and build a pipeline that serves the patients who need you most. Every move should be intentional and measurable.
-            </p>
-          </Card>
-        </div>
+          <AccordionItem value="strategy">
+            <AccordionTrigger className="text-2xl font-bold text-primary hover:text-primary/80">
+              Strategy
+            </AccordionTrigger>
+            <AccordionContent className="text-foreground leading-relaxed pt-4 space-y-4">
+              <p>
+                Strategy is about acting with purpose. It means using data, market insights, and AI-powered tools to identify the right referral sources and focus your energy where it will have the greatest impact. We help you cut through the noise, prioritize high-value activities, and build a pipeline that serves the patients who need you most.
+              </p>
+              <div className="bg-muted/50 p-4 rounded-lg">
+                <h4 className="font-bold mb-2">Strategic Elements:</h4>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  <li>Data-driven territory analysis and segmentation</li>
+                  <li>Competitive intelligence and market positioning</li>
+                  <li>AI-powered research and insights tools</li>
+                  <li>Intentional account prioritization based on impact</li>
+                </ul>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
 
         <div className="mt-12 bg-gradient-to-br from-primary/10 to-destructive/10 rounded-2xl p-8 text-center">
           <h3 className="text-2xl font-bold text-foreground mb-4">

@@ -21,17 +21,40 @@ export function ChatWidget() {
   }, [messages]);
 
   useEffect(() => {
-    if (isOpen && messages.length === 0) {
-      // Add welcome message
-      setMessages([
-        {
-          role: "model",
-          content: "Welcome to Spartan Coaching! I'm your AI sales coach. How can I help you today? Ask me about hospice sales strategies, handling objections, or building relationships with referral sources.",
-          timestamp: Date.now(),
-        },
-      ]);
+    if (isOpen) {
+      // Load persisted messages or add welcome message
+      const savedMessages = localStorage.getItem('spartan-chat-history');
+      if (savedMessages && messages.length === 0) {
+        try {
+          setMessages(JSON.parse(savedMessages));
+        } catch (e) {
+          // If parsing fails, start fresh
+          setMessages([
+            {
+              role: "model",
+              content: "Welcome to Spartan Coaching! I'm your AI sales coach. How can I help you today? Ask me about hospice sales strategies, handling objections, or building relationships with referral sources.",
+              timestamp: Date.now(),
+            },
+          ]);
+        }
+      } else if (messages.length === 0) {
+        setMessages([
+          {
+            role: "model",
+            content: "Welcome to Spartan Coaching! I'm your AI sales coach. How can I help you today? Ask me about hospice sales strategies, handling objections, or building relationships with referral sources.",
+            timestamp: Date.now(),
+          },
+        ]);
+      }
     }
   }, [isOpen]);
+
+  // Persist messages whenever they change
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem('spartan-chat-history', JSON.stringify(messages.slice(-20)));
+    }
+  }, [messages]);
 
   const handleSend = async () => {
     if (!input.trim() || isLoading) return;
@@ -157,6 +180,21 @@ export function ChatWidget() {
 
         {/* Input */}
         <div className="p-4 border-t border-border bg-background">
+          {messages.length <= 1 && (
+            <div className="flex flex-wrap gap-2 mb-3">
+              {['Handle "We already have a provider"', 'Territory planning tips', 'Building referral relationships'].map((suggestion) => (
+                <Button
+                  key={suggestion}
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setInput(suggestion)}
+                  className="text-xs"
+                >
+                  {suggestion}
+                </Button>
+              ))}
+            </div>
+          )}
           <div className="flex gap-2">
             <Textarea
               value={input}

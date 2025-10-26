@@ -44,6 +44,19 @@ export function Header() {
 
           {/* Desktop Navigation */}
           <nav className="hidden lg:flex items-center gap-2" aria-label="Main navigation">
+            <Button
+              variant="ghost"
+              size="sm"
+              className="gap-2"
+              onClick={() => {
+                const searchInput = document.createElement('input');
+                searchInput.placeholder = 'Search tools, resources...';
+                // TODO: Implement full search modal
+                console.log('Search feature - coming soon');
+              }}
+            >
+              <span className="text-sm">Search</span>
+            </Button>
             {routes.slice(1).map((route) => (
               <Link key={route.path} href={route.path}>
                 <div
