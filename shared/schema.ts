@@ -51,6 +51,14 @@ export const researchRequestSchema = z.object({
 
 export type ResearchRequest = z.infer<typeof researchRequestSchema>;
 
+// Chat request schema
+export const chatRequestSchema = z.object({
+  prompt: z.string().min(1, "Message cannot be empty"),
+  conversationHistory: z.array(chatMessageSchema).optional(),
+});
+
+export type ChatRequest = z.infer<typeof chatRequestSchema>;
+
 // Text-to-speech schema
 export const ttsRequestSchema = z.object({
   text: z.string().min(1),

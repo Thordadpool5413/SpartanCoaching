@@ -12,7 +12,7 @@ import {
   playbookRequestSchema,
   objectionRequestSchema,
   researchRequestSchema,
-  aiRequestSchema,
+  chatRequestSchema,
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -97,11 +97,7 @@ Keep it under 100 words and use a warm, professional tone.`;
   // AI Chat
   app.post("/api/chat", async (req, res) => {
     try {
-      const { prompt, conversationHistory } = req.body;
-      
-      if (!prompt || typeof prompt !== "string") {
-        return res.status(400).json({ error: "Prompt is required" });
-      }
+      const { prompt, conversationHistory } = chatRequestSchema.parse(req.body);
 
       const response = await generateChatResponse(prompt, conversationHistory);
       

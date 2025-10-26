@@ -6,7 +6,7 @@ import { SearchIcon, SpinnerIcon } from "@/components/icons";
 
 export default function Research() {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<{ text: string; sources: Array<{ title: string; uri: string }> } | null>(null);
+  const [results, setResults] = useState<{ text: string; sources?: Array<{ title: string; uri: string }> } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const exampleQueries = [
@@ -112,7 +112,7 @@ export default function Research() {
             <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap mb-6" data-testid="text-research-results">
               {results.text}
             </div>
-            {results.sources.length > 0 && (
+            {results.sources && results.sources.length > 0 && (
               <div>
                 <h3 className="font-bold text-sm text-muted-foreground mb-3">Sources:</h3>
                 <ul className="space-y-2">
