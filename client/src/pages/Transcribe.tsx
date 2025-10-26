@@ -1,54 +1,115 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MicrophoneIcon, SpinnerIcon } from "@/components/icons";
+
+declare global {
+  interface Window {
+    SpeechRecognition: any;
+    webkitSpeechRecognition: any;
+  }
+}
 
 export default function Transcribe() {
   const [isRecording, setIsRecording] = useState(false);
   const [transcription, setTranscription] = useState("");
   const [isProcessing, setIsProcessing] = useState(false);
-  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
-  const chunksRef = useRef<Blob[]>([]);
+  const [hasError, setHasError] = useState(false);
+  const recognitionRef = useRef<any>(null);
 
-  const startRecording = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-      const mediaRecorder = new MediaRecorder(stream);
-      mediaRecorderRef.current = mediaRecorder;
-      chunksRef.current = [];
+  useEffect(() => {
+    // Check if browser supports Web Speech API
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    
+    if (!SpeechRecognition) {
+      setHasError(true);
+      return;
+    }
 
-      mediaRecorder.ondataavailable = (e) => {
-        if (e.data.size > 0) {
-          chunksRef.current.push(e.data);
+    const recognition = new SpeechRecognition();
+    recognition.continuous = true;
+    recognition.interimResults = true;
+    recognition.lang = "en-US";
+
+    let finalTranscript = "";
+
+    recognition.onresult = (event: any) => {
+      let interimTranscript = "";
+
+      for (let i = event.resultIndex; i < event.results.length; i++) {
+        const transcript = event.results[i][0].transcript;
+        if (event.results[i].isFinal) {
+          finalTranscript += transcript + " ";
+        } else {
+          interimTranscript += transcript;
         }
-      };
+      }
 
-      mediaRecorder.onstop = async () => {
-        setIsProcessing(true);
-        
-        // Placeholder for MVP - will connect to backend transcription in integration phase
-        setTimeout(() => {
-          const mockTranscription = "This is a sample transcription of your audio recording. In the full implementation, this will be the actual transcribed text from your audio using AI-powered speech-to-text technology. You can use this to review sales calls, practice sessions, or any coaching conversations.";
-          setTranscription(mockTranscription);
-          setIsProcessing(false);
-        }, 2000);
+      setTranscription(finalTranscript + interimTranscript);
+    };
 
-        stream.getTracks().forEach((track) => track.stop());
-      };
+    recognition.onerror = (event: any) => {
+      console.error("Speech recognition error:", event.error);
+      if (event.error === "no-speech") {
+        // This is common and not really an error
+        return;
+      }
+      setIsRecording(false);
+      setHasError(true);
+    };
 
-      mediaRecorder.start();
+    recognition.onend = () => {
+      setIsRecording(false);
+      setIsProcessing(false);
+    };
+
+    recognitionRef.current = recognition;
+
+    return () => {
+      if (recognitionRef.current) {
+        recognitionRef.current.stop();
+      }
+    };
+  }, []);
+
+  const startRecording = () => {
+    if (!recognitionRef.current) {
+      alert("Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.");
+      return;
+    }
+
+    try {
+      setTranscription("");
+      setHasError(false);
+      recognitionRef.current.start();
       setIsRecording(true);
     } catch (error) {
-      console.error("Error accessing microphone:", error);
-      alert("Could not access microphone. Please check your permissions.");
+      console.error("Error starting speech recognition:", error);
+      alert("Could not start recording. Please try again.");
     }
   };
 
   const stopRecording = () => {
-    if (mediaRecorderRef.current && isRecording) {
-      mediaRecorderRef.current.stop();
+    if (recognitionRef.current && isRecording) {
+      recognitionRef.current.stop();
       setIsRecording(false);
     }
+  };
+
+  const copyToClipboard = () => {
+    navigator.clipboard.writeText(transcription);
+  };
+
+  const exportAsText = () => {
+    const blob = new Blob([transcription], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "transcription.txt";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -113,17 +174,17 @@ export default function Transcribe() {
             </p>
           </div>
           <div className="mt-4 flex gap-3">
-            <Button variant="outline" className="font-bold" data-testid="button-copy">
+            <Button onClick={copyToClipboard} variant="outline" className="font-bold" data-testid="button-copy">
               Copy to Clipboard
             </Button>
-            <Button variant="outline" className="font-bold" data-testid="button-export-transcription">
+            <Button onClick={exportAsText} variant="outline" className="font-bold" data-testid="button-export-transcription">
               Export as Text
             </Button>
           </div>
         </Card>
       )}
 
-      {!transcription && !isProcessing && !isRecording && (
+      {!transcription && !isProcessing && !isRecording && !hasError && (
         <Card className="bg-accent/50">
           <h3 className="font-bold text-lg text-foreground mb-3">How it works:</h3>
           <ol className="space-y-2 text-muted-foreground">
@@ -144,6 +205,18 @@ export default function Transcribe() {
               <span>Review your transcription and identify areas for improvement</span>
             </li>
           </ol>
+          <p className="mt-4 text-sm text-muted-foreground">
+            <strong>Note:</strong> This feature works best in Chrome, Edge, or Safari browsers. Make sure to speak clearly and allow microphone permissions when prompted.
+          </p>
+        </Card>
+      )}
+
+      {hasError && (
+        <Card className="bg-destructive/10 border-destructive">
+          <h3 className="font-bold text-lg text-destructive mb-2">Browser Not Supported</h3>
+          <p className="text-muted-foreground">
+            Speech recognition is not available in your current browser. Please use Chrome, Edge, or Safari for the best experience with real-time transcription.
+          </p>
         </Card>
       )}
     </div>

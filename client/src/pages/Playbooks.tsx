@@ -41,13 +41,28 @@ export default function Playbooks() {
     setGeneratedPlaybook("");
     setShowModal(true);
 
-    // Placeholder for MVP - will connect to backend in integration phase
-    setTimeout(() => {
-      const mockPlaybook = `# Strategic Playbook\n\n## Scenario Overview\n${finalPrompt}\n\n${desiredOutcomes ? `## Success Metrics\n${desiredOutcomes}\n\n` : ""}## Actionable Steps\n\n### Step 1: Research & Preparation\nGather intelligence about the referral source before your visit.\n\n> **Talking Point:** "I've been following your facility's approach to patient care, and I'm impressed by your commitment to quality."\n\n### Step 2: Discovery & Listening\nAsk open-ended questions to understand their current challenges.\n\n> **Talking Point:** "What challenges are you seeing with your current end-of-life care options?"\n\n### Step 3: Value Proposition\nPosition hospice as a solution to their specific pain points.\n\n> **Talking Point:** "Hospice can help reduce hospital readmissions and provide 24/7 support for your residents and families."\n\n## Key Takeaways\n- Focus on building trust before asking for referrals\n- Listen more than you talk\n- Always follow up within 24 hours\n- Provide value at every touchpoint`;
-      
-      setGeneratedPlaybook(mockPlaybook);
+    try {
+      const response = await fetch("/api/playbooks", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          scenario: finalPrompt,
+          desiredOutcomes: desiredOutcomes || undefined,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate playbook");
+      }
+
+      const data = await response.json();
+      setGeneratedPlaybook(data.playbook);
+    } catch (err: any) {
+      setError(err.message || "An error occurred while generating the playbook");
+      console.error("Playbook generation error:", err);
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const handleExportTxt = () => {

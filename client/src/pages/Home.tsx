@@ -17,13 +17,23 @@ export default function Home() {
       setDrill(cached.drill);
     } else {
       setIsLoading(true);
-      // Will be connected to AI in integration phase
-      const placeholder = "**Discipline Drill:** Review your territory map. Identify the top 3 referral sources you haven't touched in 30 days. Before the day ends, send each one a personalized value message—no ask, just value.";
-      setTimeout(() => {
-        setDrill(placeholder);
-        LS.set("daily_drill", { date: today, drill: placeholder });
-        setIsLoading(false);
-      }, 500);
+      
+      fetch("/api/daily-drill")
+        .then((res) => res.json())
+        .then((data) => {
+          setDrill(data.drill);
+          LS.set("daily_drill", { date: today, drill: data.drill });
+        })
+        .catch((error) => {
+          console.error("Daily drill error:", error);
+          // Fallback to placeholder if API fails
+          const fallback = "**Discipline Drill:** Review your territory map and identify opportunities to add value today.";
+          setDrill(fallback);
+          LS.set("daily_drill", { date: today, drill: fallback });
+        })
+        .finally(() => {
+          setIsLoading(false);
+        });
     }
   }, []);
 

@@ -22,18 +22,28 @@ export default function Research() {
     setIsLoading(true);
     setResults(null);
 
-    // Placeholder for MVP - will connect to backend with grounded search in integration phase
-    setTimeout(() => {
-      const mockResults = {
-        text: `Based on current research and industry best practices:\n\n${query}\n\nHospice services are designed to provide comfort-focused care for patients with advanced illness. The Medicare hospice benefit covers all care related to the terminal diagnosis, including medications, medical equipment, and 24/7 support from an interdisciplinary team.\n\nKey considerations:\n• Patients must have a prognosis of 6 months or less if the disease runs its normal course\n• Focus shifts from curative treatment to comfort and quality of life\n• Services are provided in the patient's home, assisted living, or nursing facility\n• Family education and bereavement support are included\n\nFor the most current information, consult CMS.gov or speak with your hospice medical director.`,
-        sources: [
-          { title: "CMS Hospice Benefits", uri: "https://www.cms.gov/Medicare/Medicare-General-Information/Hospice" },
-          { title: "NHPCO Clinical Guidelines", uri: "https://www.nhpco.org" },
-        ],
-      };
-      setResults(mockResults);
+    try {
+      const response = await fetch("/api/research", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ query }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to perform research");
+      }
+
+      const data = await response.json();
+      setResults(data);
+    } catch (error) {
+      console.error("Research error:", error);
+      setResults({
+        text: "Sorry, I couldn't complete the research. Please try again.",
+        sources: [],
+      });
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   return (

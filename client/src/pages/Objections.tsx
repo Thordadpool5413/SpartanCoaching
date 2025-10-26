@@ -46,12 +46,25 @@ export default function Objections() {
   const generateResponse = async (objection: string) => {
     setLoading((prev) => ({ ...prev, [objection]: true }));
     
-    // Placeholder for MVP - will connect to backend in integration phase
-    setTimeout(() => {
-      const mockResponse = "I understand your concern. Every family's journey is unique, and we're here to support you at whatever pace feels right. Would it be helpful if I shared some information about how our services work, without any obligation?";
-      setAiResponses((prev) => ({ ...prev, [objection]: mockResponse }));
+    try {
+      const response = await fetch("/api/objections", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ objection }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate response");
+      }
+
+      const data = await response.json();
+      setAiResponses((prev) => ({ ...prev, [objection]: data.response }));
+    } catch (error) {
+      console.error("Objection response error:", error);
+      setAiResponses((prev) => ({ ...prev, [objection]: "Sorry, I couldn't generate a response. Please try again." }));
+    } finally {
       setLoading((prev) => ({ ...prev, [objection]: false }));
-    }, 1000);
+    }
   };
 
   const readAloud = async (text: string, key: string) => {
