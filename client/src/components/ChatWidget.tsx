@@ -98,7 +98,7 @@ export function ChatWidget() {
       <Button
         onClick={() => setIsOpen(true)}
         size="icon"
-        className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50"
+        className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 h-14 w-14 rounded-full shadow-lg z-50"
         data-testid="button-open-chat"
       >
         <MessageCircle className="w-6 h-6" />
@@ -107,7 +107,7 @@ export function ChatWidget() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 w-96 h-[32rem] flex flex-col shadow-2xl rounded-2xl overflow-hidden z-50 border-2 border-border">
+    <div className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 w-[calc(100vw-2rem)] sm:w-96 max-w-96 h-[32rem] flex flex-col shadow-2xl rounded-2xl overflow-hidden z-50 border-2 border-border">
       <Card className="flex flex-col h-full rounded-2xl overflow-hidden p-0">
         {/* Header */}
         <div className="flex items-center justify-between p-4 bg-primary text-primary-foreground">
