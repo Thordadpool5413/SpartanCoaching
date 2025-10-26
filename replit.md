@@ -65,19 +65,31 @@ Preferred communication style: Simple, everyday language.
 ### Data Storage Solutions
 
 **Current Implementation**
-- In-memory storage for users and application state
+- PostgreSQL database via Neon serverless (actively used for persistent data)
+- Drizzle ORM for type-safe database operations
 - LocalStorage for client-side preferences (theme, cached data)
 
-**Prepared Database Integration**
-- Drizzle ORM configured for PostgreSQL via `@neondatabase/serverless`
-- Migration system ready (`drizzle-kit`) with migrations output to `./migrations`
-- Schema definitions use Zod for validation and type inference
-- Connection string via `DATABASE_URL` environment variable
+**Database Configuration**
+- Neon serverless PostgreSQL with connection pooling via `@neondatabase/serverless`
+- Drizzle ORM configured with schema binding in `server/db.ts`
+- Migration system using `drizzle-kit` with `npm run db:push` command
+- Connection string managed via `DATABASE_URL` environment variable
+- WebSocket support for Neon serverless via `ws` package
 
 **Schema Definitions**
+- Inquiries table: stores contact form submissions with name, email, phone, company, serviceType, message, and auto-generated timestamp
+  - Insert schema omits auto-generated fields (id, submittedAt)
+  - Server automatically injects timestamp on creation
+  - Results ordered by submission date (newest first)
 - AI chat messages (role, content, timestamp)
 - Request/response types for AI operations (playbooks, objections, research)
 - User model ready for authentication implementation
+
+**Storage Layer Architecture**
+- Abstract `IStorage` interface in `server/storage.ts` for flexibility
+- `DatabaseStorage` implementation for PostgreSQL persistence
+- CRUD operations: createInquiry, getInquiries
+- Type-safe operations using Drizzle-generated types (InsertInquiry, SelectInquiry)
 
 ### External Dependencies
 
@@ -100,10 +112,12 @@ Preferred communication style: Simple, everyday language.
   - `POST /api/chat` - conversational AI coaching assistant
 - System instruction ensures all AI responses follow Spartan Method principles (Discipline, Empathy, Strategy)
 
-**Database**
-- Neon serverless PostgreSQL (configured but not yet actively used)
+**Database (Active)**
+- Neon serverless PostgreSQL actively storing inquiry submissions
 - Connection pooling via `@neondatabase/serverless`
-- Session store ready with `connect-pg-simple` for Express sessions
+- Database connection in `server/db.ts` with schema binding
+- Migration workflow: `npm run db:push` to sync schema changes
+- Session store ready with `connect-pg-simple` for Express sessions (not yet implemented)
 
 **UI Libraries**
 - Radix UI primitives for accessible components (dialogs, dropdowns, tooltips, etc.)
