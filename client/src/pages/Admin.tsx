@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Mail, Phone, Building, Calendar, Users } from "lucide-react";
 import type { SelectInquiry, SelectNewsletterSubscriber } from "@shared/schema";
+import { BackButton } from "@/components/BackButton";
 
 export default function Admin() {
   const { data: inquiriesData, isLoading: inquiriesLoading } = useQuery<{ inquiries: SelectInquiry[] }>({
@@ -20,6 +21,7 @@ export default function Admin() {
 
   return (
     <div className="container mx-auto px-6 py-12">
+      <BackButton />
       <div className="mb-8">
         <h1 className="text-5xl font-black mb-4">Admin Dashboard</h1>
         <p className="text-xl text-muted-foreground">

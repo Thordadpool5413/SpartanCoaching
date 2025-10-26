@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MicrophoneIcon, SpinnerIcon } from "@/components/icons";
+import { BackButton } from "@/components/BackButton";
 
 declare global {
   interface Window {
@@ -114,6 +115,7 @@ export default function Transcribe() {
 
   return (
     <div className="w-full max-w-4xl mx-auto px-6 py-16">
+      <BackButton />
       <h1 className="text-4xl font-black text-foreground mb-2" data-testid="text-transcribe-title">
         Audio Transcriber
       </h1>

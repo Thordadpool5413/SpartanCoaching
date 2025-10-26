@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LightbulbIcon, SpeakerIcon, SpinnerIcon } from "@/components/icons";
+import { BackButton } from "@/components/BackButton";
 
 export default function Objections() {
   const objections = [
@@ -79,6 +80,7 @@ export default function Objections() {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-6 py-16">
+      <BackButton />
       <h1 className="text-4xl font-black text-foreground mb-2" data-testid="text-objections-title">
         Objection Handling with AI
       </h1>

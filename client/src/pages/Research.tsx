@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SearchIcon, SpinnerIcon } from "@/components/icons";
+import { BackButton } from "@/components/BackButton";
 
 export default function Research() {
   const [query, setQuery] = useState("");
@@ -48,6 +49,7 @@ export default function Research() {
 
   return (
     <div className="w-full max-w-4xl mx-auto px-6 py-16">
+      <BackButton />
       <h1 className="text-4xl font-black text-foreground mb-2" data-testid="text-research-title">
         Grounded Research Tool
       </h1>

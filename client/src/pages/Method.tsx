@@ -1,10 +1,11 @@
-
 import { Card } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { BackButton } from "@/components/BackButton";
 
 export default function Method() {
   return (
     <div className="w-full max-w-7xl mx-auto px-6 py-16">
+      <BackButton />
       <div className="text-center max-w-3xl mx-auto mb-16">
         <h1 className="text-4xl md:text-5xl font-black text-foreground mb-4" data-testid="text-method-title">
           The Spartan Method

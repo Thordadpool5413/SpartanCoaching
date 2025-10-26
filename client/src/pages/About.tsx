@@ -1,9 +1,11 @@
 import { Card } from "@/components/ui/card";
+import { BackButton } from "@/components/BackButton";
 
 export default function About() {
   return (
     <div className="w-full max-w-7xl mx-auto px-6 py-16">
       <div className="max-w-4xl mx-auto">
+        <BackButton />
         <h1 className="text-4xl md:text-5xl font-black text-foreground mb-8 text-center" data-testid="text-about-title">
           About the Founder
         </h1>

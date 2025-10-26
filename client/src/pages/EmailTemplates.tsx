@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Copy, Loader2 } from "lucide-react";
+import { BackButton } from "@/components/BackButton";
 
 export default function EmailTemplates() {
   const [templateType, setTemplateType] = useState<"follow_up" | "thank_you" | "value_add">("follow_up");
@@ -70,6 +71,7 @@ export default function EmailTemplates() {
   return (
     <div className="container mx-auto px-6 py-12">
       <div className="max-w-4xl mx-auto">
+        <BackButton />
         <div className="mb-8">
           <h1 className="text-5xl font-black mb-4">Email Templates</h1>
           <p className="text-xl text-muted-foreground">

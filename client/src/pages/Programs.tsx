@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckIcon } from "@/components/icons";
 import { InquiryForm } from "@/components/InquiryForm";
+import { BackButton } from "@/components/BackButton";
 
 export default function Programs() {
   const [inquiryOpen, setInquiryOpen] = useState(false);
@@ -109,6 +110,7 @@ export default function Programs() {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-6 py-16">
+      <BackButton />
       <div className="text-center max-w-3xl mx-auto mb-16">
         <h1 className="text-4xl md:text-5xl font-black text-foreground mb-4" data-testid="text-programs-title">
           Hospice Provider Programs
