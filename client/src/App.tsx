@@ -17,6 +17,11 @@ import Playbooks from "@/pages/Playbooks";
 import Objections from "@/pages/Objections";
 import Research from "@/pages/Research";
 import Transcribe from "@/pages/Transcribe";
+import WeeklyPlan from "@/pages/resources/WeeklyPlan";
+import QuickStartGuide from "@/pages/resources/QuickStartGuide";
+import ObjectionCards from "@/pages/resources/ObjectionCards";
+import TerritoryTemplate from "@/pages/resources/TerritoryTemplate";
+import MetricsDashboard from "@/pages/resources/MetricsDashboard";
 
 function Router() {
   return (
@@ -31,6 +36,11 @@ function Router() {
       <Route path="/tools/research" component={Research} />
       <Route path="/tools/transcribe" component={Transcribe} />
       <Route path="/resources" component={Resources} />
+      <Route path="/resources/weekly-plan" component={WeeklyPlan} />
+      <Route path="/resources/quick-start-guide" component={QuickStartGuide} />
+      <Route path="/resources/objection-cards" component={ObjectionCards} />
+      <Route path="/resources/territory-template" component={TerritoryTemplate} />
+      <Route path="/resources/metrics-dashboard" component={MetricsDashboard} />
       <Route path="/about" component={About} />
       <Route component={NotFound} />
     </Switch>

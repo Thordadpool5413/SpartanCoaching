@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -54,9 +55,14 @@ export default function Resources() {
               </form>
             ) : (
               <div className="bg-primary/20 border border-primary rounded-lg p-4">
-                <p className="text-foreground font-semibold" data-testid="text-success">
+                <p className="text-foreground font-semibold mb-2" data-testid="text-success">
                   ✓ Success! Check your inbox for the Spartan Weekly Plan PDF.
                 </p>
+                <Link href="/resources/weekly-plan">
+                  <Button variant="outline" size="sm" className="font-bold">
+                    Or View It Now →
+                  </Button>
+                </Link>
               </div>
             )}
           </div>
@@ -77,9 +83,11 @@ export default function Resources() {
               <p className="text-sm text-muted-foreground mb-4">
                 Your first 30 days as a hospice liaison—everything you need to hit the ground running.
               </p>
-              <Button variant="outline" className="font-bold" data-testid="button-download-guide">
-                Download PDF
-              </Button>
+              <Link href="/resources/quick-start-guide">
+                <Button variant="outline" className="font-bold" data-testid="button-download-guide">
+                  Download PDF
+                </Button>
+              </Link>
             </div>
           </div>
         </Card>
@@ -96,9 +104,11 @@ export default function Resources() {
               <p className="text-sm text-muted-foreground mb-4">
                 Pocket-sized response cards for the 8 most common hospice objections.
               </p>
-              <Button variant="outline" className="font-bold" data-testid="button-download-cards">
-                Download PDF
-              </Button>
+              <Link href="/resources/objection-cards">
+                <Button variant="outline" className="font-bold" data-testid="button-download-cards">
+                  Download PDF
+                </Button>
+              </Link>
             </div>
           </div>
         </Card>
@@ -115,9 +125,11 @@ export default function Resources() {
               <p className="text-sm text-muted-foreground mb-4">
                 Map your market, prioritize accounts, and build your weekly route.
               </p>
-              <Button variant="outline" className="font-bold" data-testid="button-download-template">
-                Download PDF
-              </Button>
+              <Link href="/resources/territory-template">
+                <Button variant="outline" className="font-bold" data-testid="button-download-template">
+                  Download PDF
+                </Button>
+              </Link>
             </div>
           </div>
         </Card>
@@ -134,9 +146,11 @@ export default function Resources() {
               <p className="text-sm text-muted-foreground mb-4">
                 Track referrals, conversions, and start-of-care speed in one simple view.
               </p>
-              <Button variant="outline" className="font-bold" data-testid="button-download-dashboard">
-                Download PDF
-              </Button>
+              <Link href="/resources/metrics-dashboard">
+                <Button variant="outline" className="font-bold" data-testid="button-download-dashboard">
+                  Download PDF
+                </Button>
+              </Link>
             </div>
           </div>
         </Card>
