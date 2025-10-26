@@ -34,7 +34,7 @@ export function Header() {
         <div className="flex items-center justify-between min-h-20">
           <Link href="/">
             <div className="flex items-center gap-3 hover-elevate rounded-lg px-2 py-1 -ml-2 cursor-pointer" data-testid="link-home">
-              <SpartanLogo className="w-12 h-12" />
+              <SpartanLogo className="w-16 h-16" />
               <div className="hidden sm:block">
                 <h1 className="font-black text-xl text-foreground">Spartan Coaching</h1>
                 <p className="text-sm text-muted-foreground">Expert Hospice Sales Training</p>
