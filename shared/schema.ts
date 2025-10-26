@@ -102,7 +102,10 @@ export const inquiries = pgTable("inquiries", {
 });
 
 // Insert schema and types for inquiries
-export const insertInquirySchema = createInsertSchema(inquiries).omit({ id: true });
+export const insertInquirySchema = createInsertSchema(inquiries).omit({ 
+  id: true, 
+  submittedAt: true 
+});
 export type InsertInquiry = z.infer<typeof insertInquirySchema>;
 export type SelectInquiry = typeof inquiries.$inferSelect;
 
