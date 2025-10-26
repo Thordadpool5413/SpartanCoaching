@@ -60,13 +60,13 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-sm">
-      <div className="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-6 h-32 flex items-center justify-between">
         <Link href="/">
           <div className="flex items-center gap-4 hover:opacity-80 transition-opacity group cursor-pointer" data-testid="link-home">
-            <SpartanLogo className="h-14 w-auto object-contain group-hover:scale-110 transition-transform" />
+            <SpartanLogo className="h-20 w-auto object-contain group-hover:scale-110 transition-transform" />
             <div className="hidden sm:block">
-              <h1 className="font-black text-2xl text-foreground tracking-tight">Spartan Coaching</h1>
-              <p className="text-sm text-muted-foreground">Expert Hospice Sales Training</p>
+              <h1 className="font-black text-3xl text-foreground tracking-tight">Spartan Coaching</h1>
+              <p className="text-base text-muted-foreground">Expert Hospice Sales Training</p>
             </div>
           </div>
         </Link>
@@ -88,7 +88,7 @@ export function Header() {
           </Button>
           {routes.slice(1).map((route) => (
             <Link key={route.path} href={route.path}>
-              <NavLink href={route.path} active={location === route.path}>
+              <NavLink href={route.path}>
                 {route.label}
               </NavLink>
             </Link>
