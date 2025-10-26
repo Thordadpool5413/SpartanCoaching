@@ -60,7 +60,7 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-sm">
-      <div className="max-w-7xl mx-auto px-6 h-32 flex items-center justify-between">
+      <div className="max-w-7xl mx-auto px-6 h-32 flex items-center justify-between gap-12">
         <Link href="/">
           <div className="flex items-center gap-4 hover:opacity-80 transition-opacity group cursor-pointer" data-testid="link-home">
             <SpartanLogo className="h-20 w-auto object-contain group-hover:scale-110 transition-transform" />
@@ -72,7 +72,7 @@ export function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-8" aria-label="Main navigation">
+        <nav className="hidden lg:flex items-center gap-8 flex-shrink-0" aria-label="Main navigation">
           <Button
             variant="ghost"
             size="sm"
