@@ -6,9 +6,8 @@ import { LightbulbIcon, DisciplineIcon, EmpathyIcon, StrategyIcon, SpinnerIcon }
 import { Shield, Heart, Zap, Target, Users, BookOpen } from "lucide-react";
 import { LS } from "@/lib/utils";
 
-// Placeholder for DailyDrill component if it's defined elsewhere
-// For this example, we'll assume it's a simple component that displays the drill
-const DailyDrill = ({ drill, isLoading }) => {
+// DailyDrill component displays the daily coaching drill
+const DailyDrill = ({ drill, isLoading }: { drill: string; isLoading: boolean }) => {
   if (isLoading) {
     return <div className="w-full flex justify-center"><SpinnerIcon className="w-8 h-8 animate-spin" /></div>;
   }
