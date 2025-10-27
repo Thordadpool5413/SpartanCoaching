@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -51,10 +51,19 @@ export function InquiryForm({ open, onOpenChange, defaultServiceType }: InquiryF
       email: "",
       phone: "",
       company: "",
-      serviceType: defaultServiceType || "",
+      serviceType: "",
       message: "",
     },
   });
+
+  // Update serviceType when dialog opens or defaultServiceType changes
+  useEffect(() => {
+    if (open) {
+      // Always set the field value based on current defaultServiceType
+      // This ensures correct prefilling regardless of previous state
+      form.setValue("serviceType", defaultServiceType || "");
+    }
+  }, [open, defaultServiceType, form]);
 
   const onSubmit = async (data: InquiryFormData) => {
     setIsSubmitting(true);
@@ -157,21 +166,25 @@ export function InquiryForm({ open, onOpenChange, defaultServiceType }: InquiryF
               )}
             />
 
-            {defaultServiceType && (
-              <FormField
-                control={form.control}
-                name="serviceType"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Service Interest</FormLabel>
-                    <FormControl>
-                      <Input {...field} disabled className="bg-muted" data-testid="input-inquiry-service" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-            )}
+            <FormField
+              control={form.control}
+              name="serviceType"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Service Interest</FormLabel>
+                  <FormControl>
+                    <Input 
+                      {...field} 
+                      disabled={!!defaultServiceType}
+                      className={defaultServiceType ? "bg-muted" : ""} 
+                      placeholder={defaultServiceType ? "" : "e.g., Virtual Coaching, Hospital Referral Pathway"}
+                      data-testid="input-inquiry-service" 
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
 
             <FormField
               control={form.control}
