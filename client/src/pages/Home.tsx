@@ -38,6 +38,12 @@ export default function Home() {
 
   const handleVideoCanPlay = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     const video = e.currentTarget;
+    console.log('Hero video loaded successfully!', {
+      duration: video.duration,
+      videoWidth: video.videoWidth,
+      videoHeight: video.videoHeight,
+      readyState: video.readyState
+    });
     if (video.paused) {
       attemptVideoPlay(video);
     }
@@ -92,8 +98,8 @@ export default function Home() {
           <source src="/hero-video.mp4" type="video/mp4" />
         </video>
         
-        {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/70 z-[2]"></div>
+        {/* Dark overlay for text readability - lightened to show video */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/30 to-black/40 z-[2]"></div>
         
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-20 lg:py-24 text-center">
