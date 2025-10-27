@@ -20,6 +20,29 @@ export default function Home() {
   const [drill, setDrill] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // Handle video autoplay with retry logic
+  const attemptVideoPlay = (video: HTMLVideoElement, retries = 3) => {
+    const playPromise = video.play();
+    
+    if (playPromise !== undefined) {
+      playPromise.catch(() => {
+        // Retry after a short delay if autoplay was blocked
+        if (retries > 0) {
+          setTimeout(() => attemptVideoPlay(video, retries - 1), 500);
+        } else {
+          console.log('Video autoplay blocked by browser - poster fallback active');
+        }
+      });
+    }
+  };
+
+  const handleVideoCanPlay = (e: React.SyntheticEvent<HTMLVideoElement>) => {
+    const video = e.currentTarget;
+    if (video.paused) {
+      attemptVideoPlay(video);
+    }
+  };
+
   useEffect(() => {
     const today = new Date().toISOString().split("T")[0];
     const cached = LS.get<{ date: string; drill: string } | null>("daily_drill", null);
@@ -57,7 +80,9 @@ export default function Home() {
           muted
           loop
           playsInline
+          preload="auto"
           poster="/videos/hero-poster.jpg"
+          onCanPlay={handleVideoCanPlay}
           className="absolute inset-0 w-full h-full object-cover hidden md:block"
           data-testid="hero-video"
         >
