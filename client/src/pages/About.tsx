@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { Target, Users, TrendingUp } from "lucide-react";
+import nickPhoto from "@assets/nick-photo.jpg";
 
 export default function About() {
   return (
@@ -100,10 +101,15 @@ export default function About() {
           
           <div className="grid md:grid-cols-3 gap-8 mb-12">
             <div className="md:col-span-1">
-              <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-destructive/20 flex items-center justify-center">
+              <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-destructive/20 flex items-center justify-center p-6">
                 <div className="text-center">
-                  <div className="w-32 h-32 mx-auto rounded-full bg-card flex items-center justify-center mb-4">
-                    <span className="text-5xl font-black text-primary">NL</span>
+                  <div className="w-40 h-40 mx-auto rounded-full overflow-hidden mb-4 border-4 border-card shadow-xl">
+                    <img 
+                      src={nickPhoto} 
+                      alt="Nick Lynch" 
+                      className="w-full h-full object-cover"
+                      data-testid="img-founder"
+                    />
                   </div>
                   <h3 className="text-2xl font-bold text-foreground">Nick Lynch</h3>
                   <p className="text-muted-foreground">Founder</p>
