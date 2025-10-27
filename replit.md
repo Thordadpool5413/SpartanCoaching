@@ -2,114 +2,7 @@
 
 ## Overview
 
-Spartan Coaching is an AI-enhanced web platform designed to improve hospice sales effectiveness. It offers a public-facing marketing site detailing services and methodology, alongside AI-powered tools for generating sales playbooks, handling objections, conducting research, and transcribing audio. The platform aims to help hospice sales professionals get eligible patients into care earlier through practical, AI-driven coaching and training. It's built as a full-stack TypeScript application using React, Express, and a design philosophy inspired by professional SaaS platforms.
-
-## Recent Changes
-
-### AI Chatbot Enhancement (October 2025)
-**Advanced Hospice Sales Expert AI:**
-- Enhanced system instruction from 6 lines to 160+ lines of comprehensive expertise
-- AI now has deep knowledge of Medicare/Medicaid regulations, IDG workflows, levels of care, LOS optimization
-- Integrated full Spartan Method framework (4-stage model: Discovery, Connecting, Guiding, Commitment)
-- Advanced objection handling scripts for 6 most common objections with empathetic, evidence-based responses
-- Territory management best practices (A/B/C segmentation, visit frequency, pipeline management, conversion metrics)
-- Relationship building strategies (clinical credibility, lunch-and-learns, grand rounds, facility partnerships)
-- Coaching & leadership development techniques (field rides, skill-based coaching, pipeline reviews, leading indicators)
-- Compliance & ethical standards (HIPAA, Stark Law, Anti-Kickback Statute, Medicare eligibility verification)
-- Communication style: direct, results-focused, metrics-driven, aligned with Spartan brand (no fluff)
-
-**Mobile Optimization:**
-- Full-screen chat dialog on mobile devices for optimal user experience
-- Chat button visible and accessible on all screen sizes
-- Enhanced welcome message showcasing comprehensive expertise
-- Updated quick suggestion buttons for hospice-specific scenarios
-
-### LinkedIn Integration & Testimonials (October 2025)
-**LinkedIn Social Integration:**
-- Added LinkedIn footer link with icon connecting to Nick Lynch's professional profile
-- Integrated LinkedIn connect button on About page after founder expertise section
-- All links open in new tabs with proper security attributes (target="_blank", rel="noopener noreferrer")
-- Professional presentation matching site's design system
-
-**Enhanced Testimonials Content:**
-- Replaced placeholders with 9 realistic testimonials across three categories:
-  - 3 individual reps (conversion rates, territory management, objection handling)
-  - 3 sales leadership (coaching systems, team performance, onboarding)
-  - 3 corporate providers (multi-market standardization, forecast accuracy, system adoption)
-- All testimonials use Spartan's direct, results-focused voice with believable hospice sales metrics
-- Enhanced 3 case studies with specific details:
-  - Territory transformation with account prioritization and conversion metrics
-  - Leadership coaching system implementation with team performance improvements
-  - Multi-market enterprise transformation with standardization and scalability outcomes
-- Testimonials include specific outcomes (e.g., "52% conversion increase", "67% of referrals from top 8 accounts")
-
-### Visual Transformation (October 2025)
-Completed comprehensive visual enhancement across all core pages to deliver a "wow" user experience:
-
-**Hero Video Background (Latest - Mobile-Optimized October 2025):**
-- **Responsive Video Sources:** Automatically serves optimal file size for each device
-  - Mobile (<768px): `hero-video-mobile.mp4` (6.9MB) - 50% bandwidth savings!
-  - Desktop (≥768px): `hero-video.mp4` (14MB)
-  - JavaScript-based source selection with viewport detection
-- **Mobile-Optimized Positioning:** 
-  - Mobile: `objectPosition: 'center 40%'` for better portrait framing
-  - Desktop: `objectPosition: 'center center'`
-  - Ensures important content visible on narrow screens
-- **Connection-Aware Loading:** Detects slow connections (2g, slow-2g, saveData mode) and falls back to poster-only to save mobile data
-- **Performance Optimizations:**
-  - Mobile: `preload="metadata"` for faster initial load
-  - Desktop: `preload="auto"` for full quality experience
-  - Uses `key={videoSrc}` to force reload when switching between mobile/desktop
-- **Enhanced Overlay for Readability:**
-  - Mobile: darker overlay (from-black/50 via-black/35 to-black/50) for better contrast on small screens
-  - Desktop: lighter overlay (from-black/40 via-black/30 to-black/40) to show video motion
-- **Technical Implementation:**
-  - playsInline attribute ensures iOS devices play inline instead of fullscreen
-  - Poster fallback (250KB) displays when autoplay is blocked or on slow connections
-  - Service worker uses network-first strategy for video files to support range requests
-  - Console logging captures device type, video source, dimensions, and metadata for debugging
-  - Z-index stacking: gradient (z-0) → video (z-[1]) → overlay (z-[2]) → content (z-10)
-
-**Hero Copy (Latest):**
-- Mission-focused statement: "Patient Outcomes First. Elite Reps Always."
-- Clear 'why' statement explaining Spartan Coaching's purpose
-- Emphasizes transforming hospice sales from transaction to mission
-- Highlights compassionate patient care and expert sales leadership
-- Gradient-highlighted closing statement: "We build expert sales leaders who serve with integrity and lead with empathy"
-- Clean, powerful messaging that reinforces brand values
-
-**Enhanced Design System:**
-- Refined color palette with cleaner whites (#FFFFFF), true blacks (#000000), and premium red gradient
-- Sophisticated shadow system for depth and hierarchy (shadow-sm to shadow-2xl)
-- Premium animations: fade-in-up, slide-in, scale-in with cubic-bezier easing
-- Text gradient utilities for hero headings and emphasis
-- Glass morphism effects and glow treatments for CTAs
-- Transition-elegant utility for smooth 300ms interactions
-
-**Page-by-Page Enhancements:**
-- **Home**: Dramatic hero with radial gradients, "AI-Enhanced" badge, glass buttons, enhanced Daily Drill card with glow effect, upgraded Three Pillars section, Services Preview with gradient overlays
-- **Services**: Gradient text headers with animations, large gradient background icons for sections, service cards with hover shadows and gradient overlays, enhanced CTA section with decorative elements
-- **Programs**: Gradient text header, program cards with hover shadows and gradient overlays, clean professional layout
-- **Method**: Enhanced Mission card with gradient backgrounds, sales stage cards with color-coded borders and shadows, ethics cards with gradient overlays, consistent visual hierarchy
-
-**Mobile Responsive:**
-- Explicit grid-cols-1 for mobile stacking on all grid layouts
-- Decorative elements appropriately sized (w-64 on mobile vs w-96 on desktop)
-- Touch-friendly buttons with min-h-[48px] targets
-- No horizontal overflow on any page or device
-- Proper text wrapping on CTAs (whitespace-normal on mobile)
-
-**Hero Section Sizing (October 2025):**
-- Fixed viewport-relative heights prevent hero from expanding beyond intended size
-- Mobile (< 640px): `h-[85vh]` = exactly 85% of viewport height (~567px on iPhone SE)
-- Small screens (≥640px): `sm:h-[90vh]` = exactly 90% of viewport height (~760px on iPhone 12)
-- Medium+ (≥768px): `md:h-[92vh]` = exactly 92% of viewport height
-- Changed from `min-h` to `h` to prevent content-driven expansion
-- Optimized text sizing: heading starts at `text-4xl`, paragraph at `text-base` on mobile
-- Reduced spacing: `py-12`, `mb-5`, `mb-8` margins on mobile for tighter fit
-- Button sizing: `text-sm px-8 py-6 min-h-[52px]` on mobile for touch-friendliness
-- Daily Drill card positioned with `-mt-16` on mobile for smooth overlap
-- Automated testing confirmed exact height measurements across devices
+Spartan Coaching is an AI-enhanced web platform designed to improve hospice sales effectiveness. It offers a public-facing marketing site detailing services and methodology, alongside AI-powered tools for generating sales playbooks, handling objections, conducting research, and transcribing audio. The platform aims to help hospice sales professionals get eligible patients into care earlier through practical, AI-driven coaching and training. It's built as a full-stack TypeScript application with a design philosophy inspired by professional SaaS platforms, focusing on patient outcomes and elite sales performance.
 
 ## User Preferences
 
@@ -117,30 +10,33 @@ Preferred communication style: Simple, everyday language.
 
 ## System Architecture
 
-### Frontend Architecture
+### UI/UX Decisions
 
-The frontend is built with React 19 and TypeScript, using Wouter for client-side routing and Vite as the build tool. UI components leverage Shadcn/ui with Radix UI primitives and Tailwind CSS for styling, adhering to a "New York" style variant. State management primarily uses TanStack Query for server state and local React state for UI interactions. Key design principles include Inter font family, a red primary accent color, and a mobile-first responsive approach with strict typography and spacing hierarchies. Mobile usability is prioritized with 48px touch targets and optimized responsiveness across various screen sizes.
+The platform employs a premium SaaS aesthetic with a sophisticated visual design system. Key elements include:
+- **Typography**: Inter font family with a strict scale (e.g., `text-hero` for H1, `text-body` for regular text) and optimized spacing.
+- **Color Palette**: Refined color palette with clean whites, true blacks, and a vibrant red primary accent gradient.
+- **Visual Effects**: Layered gradients, glassmorphism, smooth cubic-bezier animations, and a hierarchical shadow system for depth.
+- **Responsiveness**: Mobile-first design is paramount, ensuring optimal experience across all devices with 48px touch targets and no horizontal overflow. Hero sections dynamically adjust height and video sources based on screen size and connection speed.
+- **Content Presentation**: Focus on clear problem/solution/outcome narratives, with enhanced testimonials and case studies using specific, results-focused metrics.
+- **LinkedIn Integration**: Integrated LinkedIn links for professional networking.
 
-### Backend Architecture
+### Technical Implementations
 
-The backend utilizes Express.js with TypeScript and an ESM module system. It features a middleware-based request handling system with Zod schemas for request/response validation. An abstract storage interface (`IStorage`) is implemented with a `DatabaseStorage` for PostgreSQL persistence via Drizzle ORM. The build system uses esbuild for production bundling and tsx for development.
+- **Frontend**: React 19 and TypeScript, using Wouter for routing, Vite as the build tool, and Shadcn/ui with Radix UI primitives and Tailwind CSS for styling. TanStack Query manages server state.
+- **Backend**: Express.js with TypeScript and an ESM module system, featuring middleware-based request handling and Zod schemas for validation.
+- **Data Storage**: Neon serverless PostgreSQL with Drizzle ORM for persistent data, including a migration system. LocalStorage is used for client-side preferences.
+- **AI Integration**: Comprehensive integration with Google Gemini AI for all AI-powered features, utilizing different Gemini models based on task complexity.
 
-### Data Storage Solutions
+### Feature Specifications
 
-The project uses Neon serverless PostgreSQL for persistent data, managed via Drizzle ORM for type-safe operations. A migration system (`drizzle-kit`) is in place. Client-side preferences are stored in LocalStorage. The database schema includes tables for inquiries and is prepared for AI chat messages and user authentication.
-
-### Core Features & Design
-
-*   **Content Strategy**: Focuses on practical execution systems over motivational content, emphasizing clear problem/solution/outcome narratives.
-*   **UI/UX Decisions**: Premium SaaS aesthetic with sophisticated visual design system. Typography uses Inter font family with optimized spacing (-0.02em tracking). Color system features a vibrant red primary accent (#DC2626 to #F87171 gradient) against clean whites and neutral grays. Advanced visual treatments include layered gradients, glassmorphism effects, smooth animations (cubic-bezier transitions), and depth through shadow hierarchy. Responsive layouts prioritize mobile-first design with consistent spacing, 48px touch targets, and no horizontal overflow.
-*   **The Spartan Method**: A core philosophical and process framework guiding the platform's approach, structured around Three Pillars (Discipline, Empathy, Strategy), a Four-Stage Healthcare Sales Mastery Model (Discovery, Connecting, Guiding, Commitment), and Five Governing Fundamentals, anchored by specific ethics. Each stage is color-coded with distinct icons and clear visual hierarchy. Enhanced with gradient backgrounds and refined card treatments.
-*   **Program & Service Details**: Comprehensive pages for various hospice provider programs and strategic services, featuring detailed modals for each with information on business problems, delivery approaches, outcomes, target audience, and deliverables. All cards feature hover effects, gradient overlays, and premium shadows for enhanced engagement.
-*   **Navigation**: Main menu includes Home, Services, Programs, The Spartan Method, AI Field Kit, Resources, Testimonials, and About.
-*   **Authentication**: User schema is defined, and the system is prepared for session-based authentication with PostgreSQL session store, though not yet fully implemented.
+- **The Spartan Method**: A core framework structured around Three Pillars (Discipline, Empathy, Strategy), a Four-Stage Healthcare Sales Mastery Model (Discovery, Connecting, Guiding, Commitment), and Five Governing Fundamentals. This method is visually represented with color-coded stages and enhanced card designs.
+- **Programs & Services**: Detailed pages and modals outlining various hospice provider programs and strategic services, including business problems addressed, delivery approaches, outcomes, and target audiences.
+- **AI Chatbot**: Advanced AI chatbot with extensive knowledge of hospice sales, Medicare/Medicaid regulations, IDG workflows, and the Spartan Method. It provides objection handling, territory management best practices, and coaching strategies.
+- **Authentication**: User schema defined, with preparations for session-based authentication.
 
 ## External Dependencies
 
-*   **AI Integration**: Google Gemini AI (`@google/genai`) is fully integrated for all AI coaching tools, including playbook generation, objection handling, research, daily drills, and conversational AI chat. It uses different Gemini models based on the task (e.g., `gemini-2.0-flash-exp` for complex responses).
-*   **Database**: Neon serverless PostgreSQL is actively used for storing inquiry submissions, with connection pooling via `@neondatabase/serverless` and Drizzle ORM.
-*   **UI Libraries**: Radix UI primitives, Lucide React for iconography, cmdk for command palette, and date-fns for date manipulation.
-*   **Development Tools**: Vite for frontend, PostCSS with Tailwind CSS and Autoprefixer, esbuild, tsx, and TypeScript with strict mode.
+-   **AI Integration**: Google Gemini AI (`@google/genai`) for all AI coaching tools and conversational AI chat.
+-   **Database**: Neon serverless PostgreSQL via `@neondatabase/serverless` and Drizzle ORM.
+-   **UI Libraries**: Radix UI primitives, Lucide React for iconography, cmdk for command palette, and date-fns for date manipulation.
+-   **Development Tools**: Vite, PostCSS with Tailwind CSS and Autoprefixer, esbuild, tsx, and TypeScript.
