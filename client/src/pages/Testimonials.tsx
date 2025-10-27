@@ -127,29 +127,30 @@ export default function Testimonials() {
   ];
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-6 py-16">
+    <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
       <BackButton />
       
       <div className="text-center max-w-4xl mx-auto mb-16">
-        <h1 className="text-4xl md:text-5xl font-black text-foreground mb-6" data-testid="text-testimonials-title">
+        <h1 className="text-h1 text-foreground mb-6" data-testid="text-testimonials-title">
           Success Stories
         </h1>
-        <p className="text-xl text-muted-foreground leading-relaxed">
+        <p className="text-body-lg text-muted-foreground leading-relaxed">
           Real results from reps, leaders, and organizations who chose the Spartan way: fewer buzzwords, more practice. Clear standards, straight talk, measurable outcomes.
         </p>
       </div>
 
       {/* Testimonials Section */}
-      <div className="mb-24">
+      <div className="space-y-8 md:space-y-12 lg:space-y-16">
         <div className="flex items-center gap-3 mb-8">
           <Quote className="w-8 h-8 text-primary" />
-          <h2 className="text-3xl font-bold text-foreground">What People Are Saying</h2>
+          <h2 className="text-h2 text-foreground">What People Are Saying</h2>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-8">
+        <div className="grid md:grid-cols-3 gap-cards">
           {testimonials.map((testimonial, idx) => (
-            <Card key={idx} className="flex flex-col hover-elevate transition-all" data-testid={`card-testimonial-${idx}`}>
-              <div className="flex-1 p-6">
+            <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card" data-testid={`card-testimonial-${idx}`}>
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="flex-1 relative">
                 <div className="mb-4">
                   <Quote className="w-8 h-8 text-primary/20" />
                 </div>
@@ -178,16 +179,17 @@ export default function Testimonials() {
       </div>
 
       {/* Case Studies Section */}
-      <div className="mb-20">
+      <div className="space-y-8 md:space-y-12 lg:space-y-16">
         <div className="flex items-center gap-3 mb-8">
           <Award className="w-8 h-8 text-primary" />
-          <h2 className="text-3xl font-bold text-foreground">Case Studies</h2>
+          <h2 className="text-h2 text-foreground">Case Studies</h2>
         </div>
 
-        <div className="space-y-8">
+        <div className="gap-cards">
           {caseStudies.map((study, idx) => (
-            <Card key={idx} className="hover-elevate transition-all" data-testid={`card-case-study-${idx}`}>
-              <div className="p-8">
+            <Card key={idx} className="hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card" data-testid={`card-case-study-${idx}`}>
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="relative">
                 <div className="grid md:grid-cols-3 gap-8">
                   <div className="md:col-span-2">
                     <h3 className="text-2xl font-bold text-foreground mb-3">{study.title}</h3>
@@ -234,35 +236,44 @@ export default function Testimonials() {
       </div>
 
       {/* Categories Explanation */}
-      <div className="grid md:grid-cols-3 gap-6 mb-12">
-        <Card className="text-center hover-elevate transition-all">
-          <div className="w-12 h-12 mx-auto mb-3 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Users className="w-6 h-6 text-primary" />
+      <div className="grid md:grid-cols-3 gap-cards mb-12">
+        <Card className="text-center hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card">
+          <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div className="relative">
+            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-spartan-gradient flex items-center justify-center">
+              <Users className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="text-lg font-bold text-foreground mb-2">Individual Reps</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Sales professionals improving their territory performance, conversion rates, and execution consistency.
+            </p>
           </div>
-          <h3 className="text-lg font-bold text-foreground mb-2">Individual Reps</h3>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Sales professionals improving their territory performance, conversion rates, and execution consistency.
-          </p>
         </Card>
 
-        <Card className="text-center hover-elevate transition-all">
-          <div className="w-12 h-12 mx-auto mb-3 rounded-lg bg-primary/10 flex items-center justify-center">
-            <TrendingUp className="w-6 h-6 text-primary" />
+        <Card className="text-center hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card">
+          <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div className="relative">
+            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-spartan-gradient flex items-center justify-center">
+              <TrendingUp className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="text-lg font-bold text-foreground mb-2">Sales Leadership</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Managers and directors building consistent team performance and scalable coaching systems.
+            </p>
           </div>
-          <h3 className="text-lg font-bold text-foreground mb-2">Sales Leadership</h3>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Managers and directors building consistent team performance and scalable coaching systems.
-          </p>
         </Card>
 
-        <Card className="text-center hover-elevate transition-all">
-          <div className="w-12 h-12 mx-auto mb-3 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Award className="w-6 h-6 text-primary" />
+        <Card className="text-center hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card">
+          <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div className="relative">
+            <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-spartan-gradient flex items-center justify-center">
+              <Award className="w-6 h-6 text-white" />
+            </div>
+            <h3 className="text-lg font-bold text-foreground mb-2">Corporate Providers</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Multi-market organizations standardizing execution and making growth predictable across regions.
+            </p>
           </div>
-          <h3 className="text-lg font-bold text-foreground mb-2">Corporate Providers</h3>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Multi-market organizations standardizing execution and making growth predictable across regions.
-          </p>
         </Card>
       </div>
 

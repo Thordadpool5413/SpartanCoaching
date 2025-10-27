@@ -440,6 +440,15 @@
     animation: slide-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
+  /* Spartan gradient utilities */
+  .bg-spartan-gradient {
+    @apply bg-gradient-to-br from-primary via-primary/90 to-destructive;
+  }
+  
+  .bg-spartan-gradient-subtle {
+    @apply bg-gradient-to-br from-primary/10 via-primary/5 to-destructive/10;
+  }
+  
   /* Gradient text utilities */
   .text-gradient {
     @apply bg-clip-text text-transparent;
@@ -451,6 +460,133 @@
 
   .text-gradient-elegant {
     @apply bg-gradient-to-r from-foreground via-foreground/80 to-foreground/60 bg-clip-text text-transparent;
+  }
+  
+  /* Standardized typography scale - precise pixel targets */
+  .text-hero {
+    font-size: 4rem;       /* 64px mobile */
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+  
+  @media (min-width: 1024px) {
+    .text-hero {
+      font-size: 4.5rem;   /* 72px desktop */
+    }
+  }
+  
+  .text-h1 {
+    font-size: 2.5rem;     /* 40px mobile */
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+  
+  @media (min-width: 1024px) {
+    .text-h1 {
+      font-size: 3rem;     /* 48px desktop */
+    }
+  }
+  
+  .text-h2 {
+    font-size: 2rem;       /* 32px mobile */
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+  
+  @media (min-width: 1024px) {
+    .text-h2 {
+      font-size: 2.25rem;  /* 36px desktop */
+    }
+  }
+  
+  .text-h3 {
+    font-size: 1.5rem;     /* 24px mobile */
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+  
+  @media (min-width: 1024px) {
+    .text-h3 {
+      font-size: 1.75rem;  /* 28px desktop */
+    }
+  }
+  
+  .text-body-lg {
+    font-size: 1.125rem;   /* 18px mobile */
+    line-height: 1.6;
+  }
+  
+  @media (min-width: 1024px) {
+    .text-body-lg {
+      font-size: 1.25rem;  /* 20px desktop */
+    }
+  }
+  
+  .text-body {
+    font-size: 1rem;       /* 16px mobile */
+    line-height: 1.6;
+  }
+  
+  @media (min-width: 1024px) {
+    .text-body {
+      font-size: 1.125rem; /* 18px desktop */
+    }
+  }
+  
+  /* Consistent spacing rhythm utilities - 32/48/72px */
+  .spacing-section {
+    padding-top: 2rem;     /* 32px mobile */
+    padding-bottom: 2rem;
+  }
+  
+  @media (min-width: 768px) {
+    .spacing-section {
+      padding-top: 3rem;   /* 48px tablet */
+      padding-bottom: 3rem;
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .spacing-section {
+      padding-top: 4.5rem;  /* 72px desktop */
+      padding-bottom: 4.5rem;
+    }
+  }
+  
+  .spacing-container {
+    @apply px-4 md:px-8 lg:px-12;
+  }
+  
+  .spacing-card {
+    @apply p-6 md:p-8;
+  }
+  
+  .spacing-card-sm {
+    @apply p-4 md:p-6;
+  }
+  
+  .gap-cards {
+    @apply gap-4 md:gap-6;
+  }
+  
+  .gap-sections {
+    gap: 2rem;            /* 32px mobile */
+  }
+  
+  @media (min-width: 768px) {
+    .gap-sections {
+      gap: 3rem;          /* 48px tablet */
+    }
+  }
+  
+  @media (min-width: 1024px) {
+    .gap-sections {
+      gap: 4.5rem;        /* 72px desktop */
+    }
   }
   
   /* Touch manipulation for better mobile performance */

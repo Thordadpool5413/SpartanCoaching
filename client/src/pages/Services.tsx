@@ -146,57 +146,57 @@ export default function Services() {
   ];
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-16">
+    <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
       <BackButton />
       
       <div className="text-center max-w-4xl mx-auto mb-16 sm:mb-20 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-red-500/5 via-transparent to-transparent blur-3xl -z-10"></div>
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-foreground mb-6 sm:mb-8 animate-fade-in-up" data-testid="text-services-title">
+        <h1 className="text-hero text-foreground mb-8 animate-fade-in-up" data-testid="text-services-title">
           Services Built for <span className="text-gradient-primary">Hospice Sales</span>
         </h1>
-        <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed mb-4 sm:mb-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+        <p className="text-body-lg text-muted-foreground mb-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           No motivational speeches. No one-size-fits-all programs. Just practical systems that work on Tuesday afternoon when the clinic is short-staffed and the family is scared.
         </p>
-        <p className="text-base sm:text-lg text-muted-foreground/80 leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+        <p className="text-body text-muted-foreground/80 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
           Whether you're an individual rep sharpening your skills, a leader building a team, or a corporate executive scaling across markets—we have services designed for where you are.
         </p>
       </div>
 
       {/* Individual Sales Reps Section */}
-      <div className="mb-20 sm:mb-24">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-8 sm:mb-10">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-red-500 via-red-600 to-red-700 flex items-center justify-center shadow-2xl flex-shrink-0">
-            <UserCheck className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+      <div className="space-y-8 md:space-y-12 lg:space-y-16">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-10">
+          <div className="w-16 h-16 rounded-2xl bg-spartan-gradient flex items-center justify-center shadow-2xl flex-shrink-0">
+            <UserCheck className="w-8 h-8 text-white" />
           </div>
           <div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground mb-1">For Individual Sales Reps</h2>
-            <p className="text-base sm:text-lg text-muted-foreground">Get better at the job you're doing right now.</p>
+            <h2 className="text-h2 text-foreground mb-1">For Individual Sales Reps</h2>
+            <p className="text-body text-muted-foreground">Get better at the job you're doing right now.</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards">
           {individualServices.map((service, idx) => (
-            <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden" data-testid={`card-individual-${idx}`}>
-              <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <div className="flex-1 p-6">
-                <h3 className="text-xl font-bold text-foreground mb-2">{service.title}</h3>
-                <div className="flex items-baseline gap-3 mb-4">
-                  <p className="text-2xl font-black text-primary">{service.price}</p>
+            <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card" data-testid={`card-individual-${idx}`}>
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-foreground mb-3">{service.title}</h3>
+                <div className="flex items-baseline gap-3 mb-6">
+                  <p className="text-3xl font-black text-primary">{service.price}</p>
                   <p className="text-sm text-muted-foreground">{service.duration}</p>
                 </div>
                 
                 <div className="mb-4">
-                  <p className="text-sm font-semibold text-foreground mb-1">The Problem:</p>
+                  <p className="text-sm font-semibold text-foreground mb-2">The Problem:</p>
                   <p className="text-sm text-muted-foreground leading-relaxed">{service.problem}</p>
                 </div>
 
                 <div className="mb-4">
-                  <p className="text-sm font-semibold text-foreground mb-1">The Solution:</p>
+                  <p className="text-sm font-semibold text-foreground mb-2">The Solution:</p>
                   <p className="text-sm text-muted-foreground leading-relaxed">{service.solution}</p>
                 </div>
 
-                <div className="mb-4">
-                  <p className="text-sm font-semibold text-foreground mb-2">What's Included:</p>
+                <div className="mb-6">
+                  <p className="text-sm font-semibold text-foreground mb-3">What's Included:</p>
                   <ul className="space-y-2">
                     {service.includes.map((item, iIdx) => (
                       <li key={iIdx} className="flex items-start gap-2">
@@ -207,64 +207,62 @@ export default function Services() {
                   </ul>
                 </div>
 
-                <div className="bg-accent/30 rounded-lg p-3">
-                  <p className="text-sm font-semibold text-foreground mb-1">Outcome:</p>
+                <div className="bg-accent/30 rounded-lg p-4 mb-6">
+                  <p className="text-sm font-semibold text-foreground mb-2">Outcome:</p>
                   <p className="text-sm text-muted-foreground">{service.outcome}</p>
                 </div>
               </div>
 
-              <div className="p-6 pt-0">
-                <Button
-                  className="w-full font-bold"
-                  data-testid={`button-book-individual-${idx}`}
-                  onClick={() => {
-                    setSelectedService(service.title);
-                    setInquiryOpen(true);
-                  }}
-                >
-                  Get Started
-                </Button>
-              </div>
+              <Button
+                className="w-full font-bold mt-auto"
+                data-testid={`button-book-individual-${idx}`}
+                onClick={() => {
+                  setSelectedService(service.title);
+                  setInquiryOpen(true);
+                }}
+              >
+                Get Started
+              </Button>
             </Card>
           ))}
         </div>
       </div>
 
       {/* Sales Leadership Section */}
-      <div className="mb-20 sm:mb-24">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-8 sm:mb-10">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-red-500 via-red-600 to-red-700 flex items-center justify-center shadow-2xl flex-shrink-0">
-            <Users className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+      <div className="space-y-8 md:space-y-12 lg:space-y-16">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-10">
+          <div className="w-16 h-16 rounded-2xl bg-spartan-gradient flex items-center justify-center shadow-2xl flex-shrink-0">
+            <Users className="w-8 h-8 text-white" />
           </div>
           <div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground mb-1">For Sales Leadership</h2>
-            <p className="text-base sm:text-lg text-muted-foreground">Build teams that execute consistently and scale what works.</p>
+            <h2 className="text-h2 text-foreground mb-1">For Sales Leadership</h2>
+            <p className="text-body text-muted-foreground">Build teams that execute consistently and scale what works.</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards">
           {leadershipServices.map((service, idx) => (
-            <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden" data-testid={`card-leadership-${idx}`}>
-              <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <div className="flex-1 p-6">
-                <h3 className="text-xl font-bold text-foreground mb-2">{service.title}</h3>
-                <div className="flex items-baseline gap-3 mb-4">
-                  <p className="text-2xl font-black text-primary">{service.price}</p>
+            <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card" data-testid={`card-leadership-${idx}`}>
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-foreground mb-3">{service.title}</h3>
+                <div className="flex items-baseline gap-3 mb-6">
+                  <p className="text-3xl font-black text-primary">{service.price}</p>
                   <p className="text-sm text-muted-foreground">{service.duration}</p>
                 </div>
                 
                 <div className="mb-4">
-                  <p className="text-sm font-semibold text-foreground mb-1">The Problem:</p>
+                  <p className="text-sm font-semibold text-foreground mb-2">The Problem:</p>
                   <p className="text-sm text-muted-foreground leading-relaxed">{service.problem}</p>
                 </div>
 
                 <div className="mb-4">
-                  <p className="text-sm font-semibold text-foreground mb-1">The Solution:</p>
+                  <p className="text-sm font-semibold text-foreground mb-2">The Solution:</p>
                   <p className="text-sm text-muted-foreground leading-relaxed">{service.solution}</p>
                 </div>
 
-                <div className="mb-4">
-                  <p className="text-sm font-semibold text-foreground mb-2">What's Included:</p>
+                <div className="mb-6">
+                  <p className="text-sm font-semibold text-foreground mb-3">What's Included:</p>
                   <ul className="space-y-2">
                     {service.includes.map((item, iIdx) => (
                       <li key={iIdx} className="flex items-start gap-2">
@@ -275,64 +273,62 @@ export default function Services() {
                   </ul>
                 </div>
 
-                <div className="bg-accent/30 rounded-lg p-3">
-                  <p className="text-sm font-semibold text-foreground mb-1">Outcome:</p>
+                <div className="bg-accent/30 rounded-lg p-4 mb-6">
+                  <p className="text-sm font-semibold text-foreground mb-2">Outcome:</p>
                   <p className="text-sm text-muted-foreground">{service.outcome}</p>
                 </div>
               </div>
 
-              <div className="p-6 pt-0">
-                <Button
-                  className="w-full font-bold"
-                  data-testid={`button-book-leadership-${idx}`}
-                  onClick={() => {
-                    setSelectedService(service.title);
-                    setInquiryOpen(true);
-                  }}
-                >
-                  Get Started
-                </Button>
-              </div>
+              <Button
+                className="w-full font-bold mt-auto"
+                data-testid={`button-book-leadership-${idx}`}
+                onClick={() => {
+                  setSelectedService(service.title);
+                  setInquiryOpen(true);
+                }}
+              >
+                Get Started
+              </Button>
             </Card>
           ))}
         </div>
       </div>
 
       {/* Corporate Providers Section */}
-      <div className="mb-20">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-8 sm:mb-10">
-          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-red-500 via-red-600 to-red-700 flex items-center justify-center shadow-2xl flex-shrink-0">
-            <Building2 className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+      <div className="space-y-8 md:space-y-12 lg:space-y-16">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-10">
+          <div className="w-16 h-16 rounded-2xl bg-spartan-gradient flex items-center justify-center shadow-2xl flex-shrink-0">
+            <Building2 className="w-8 h-8 text-white" />
           </div>
           <div>
-            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground mb-1">For Corporate Hospice Providers</h2>
-            <p className="text-base sm:text-lg text-muted-foreground">Scale execution across markets and make growth predictable.</p>
+            <h2 className="text-h2 text-foreground mb-1">For Corporate Hospice Providers</h2>
+            <p className="text-body text-muted-foreground">Scale execution across markets and make growth predictable.</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards">
           {corporateServices.map((service, idx) => (
-            <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden" data-testid={`card-corporate-${idx}`}>
-              <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <div className="flex-1 p-6">
-                <h3 className="text-xl font-bold text-foreground mb-2">{service.title}</h3>
-                <div className="flex items-baseline gap-3 mb-4">
-                  <p className="text-2xl font-black text-primary">{service.price}</p>
+            <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card" data-testid={`card-corporate-${idx}`}>
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
+              <div className="flex-1">
+                <h3 className="text-xl font-bold text-foreground mb-3">{service.title}</h3>
+                <div className="flex items-baseline gap-3 mb-6">
+                  <p className="text-3xl font-black text-primary">{service.price}</p>
                   <p className="text-sm text-muted-foreground">{service.duration}</p>
                 </div>
                 
                 <div className="mb-4">
-                  <p className="text-sm font-semibold text-foreground mb-1">The Problem:</p>
+                  <p className="text-sm font-semibold text-foreground mb-2">The Problem:</p>
                   <p className="text-sm text-muted-foreground leading-relaxed">{service.problem}</p>
                 </div>
 
                 <div className="mb-4">
-                  <p className="text-sm font-semibold text-foreground mb-1">The Solution:</p>
+                  <p className="text-sm font-semibold text-foreground mb-2">The Solution:</p>
                   <p className="text-sm text-muted-foreground leading-relaxed">{service.solution}</p>
                 </div>
 
-                <div className="mb-4">
-                  <p className="text-sm font-semibold text-foreground mb-2">What's Included:</p>
+                <div className="mb-6">
+                  <p className="text-sm font-semibold text-foreground mb-3">What's Included:</p>
                   <ul className="space-y-2">
                     {service.includes.map((item, iIdx) => (
                       <li key={iIdx} className="flex items-start gap-2">
@@ -343,24 +339,22 @@ export default function Services() {
                   </ul>
                 </div>
 
-                <div className="bg-accent/30 rounded-lg p-3">
-                  <p className="text-sm font-semibold text-foreground mb-1">Outcome:</p>
+                <div className="bg-accent/30 rounded-lg p-4 mb-6">
+                  <p className="text-sm font-semibold text-foreground mb-2">Outcome:</p>
                   <p className="text-sm text-muted-foreground">{service.outcome}</p>
                 </div>
               </div>
 
-              <div className="p-6 pt-0">
-                <Button
-                  className="w-full font-bold"
-                  data-testid={`button-book-corporate-${idx}`}
-                  onClick={() => {
-                    setSelectedService(service.title);
-                    setInquiryOpen(true);
-                  }}
-                >
-                  Get Started
-                </Button>
-              </div>
+              <Button
+                className="w-full font-bold mt-auto"
+                data-testid={`button-book-corporate-${idx}`}
+                onClick={() => {
+                  setSelectedService(service.title);
+                  setInquiryOpen(true);
+                }}
+              >
+                Get Started
+              </Button>
             </Card>
           ))}
         </div>

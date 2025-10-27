@@ -231,154 +231,134 @@ export default function Home() {
       </section>
 
       {/* Value Pillars - Enhanced with better visuals */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-24 md:py-32">
+      <section className="max-w-7xl mx-auto spacing-container spacing-section">
         <div className="text-center mb-16 sm:mb-20">
-          <h2 className="text-5xl sm:text-6xl md:text-7xl font-black mb-4 sm:mb-6 text-gradient-elegant px-4">
+          <h2 className="text-hero text-gradient-elegant mb-6">
             The Three Pillars
           </h2>
-          <p className="text-xl sm:text-2xl text-muted-foreground max-w-3xl mx-auto px-4 leading-relaxed">
+          <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto">
             The foundation of the Spartan Method—where philosophy meets practice
           </p>
         </div>
         
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 sm:gap-8">
-          <Card className="text-center hover:shadow-2xl transition-elegant border-2 group cursor-pointer relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <CardHeader className="relative pb-6 sm:pb-8">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-red-500 via-red-600 to-red-700 rounded-3xl flex items-center justify-center mx-auto mb-6 sm:mb-8 shadow-2xl group-hover:shadow-red-500/50 group-hover:scale-110 transition-elegant">
-                <DisciplineIcon className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
-              </div>
-              <CardTitle className="text-3xl sm:text-4xl font-black">Discipline</CardTitle>
-            </CardHeader>
-            <CardContent className="relative">
-              <p className="text-base sm:text-lg leading-relaxed text-muted-foreground">
-                Build unwavering commitment to your craft through consistent action and accountability.
-              </p>
-            </CardContent>
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-cards">
+          <Card className="text-center hover:shadow-2xl transition-elegant border-2 group cursor-pointer relative overflow-hidden spacing-card">
+            <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-spartan-gradient rounded-3xl flex items-center justify-center mx-auto mb-6 sm:mb-8 shadow-2xl group-hover:shadow-red-500/50 group-hover:scale-110 transition-elegant">
+              <DisciplineIcon className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+            </div>
+            <CardTitle className="text-h3 mb-4">Discipline</CardTitle>
+            <p className="text-body text-muted-foreground">
+              Build unwavering commitment to your craft through consistent action and accountability.
+            </p>
           </Card>
 
-          <Card className="text-center hover:shadow-2xl transition-elegant border-2 group cursor-pointer relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <CardHeader className="relative pb-6 sm:pb-8">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-red-500 via-red-600 to-red-700 rounded-3xl flex items-center justify-center mx-auto mb-6 sm:mb-8 shadow-2xl group-hover:shadow-red-500/50 group-hover:scale-110 transition-elegant">
-                <EmpathyIcon className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
-              </div>
-              <CardTitle className="text-3xl sm:text-4xl font-black">Empathy</CardTitle>
-            </CardHeader>
-            <CardContent className="relative">
-              <p className="text-base sm:text-lg leading-relaxed text-muted-foreground">
-                Connect authentically with healthcare providers and truly understand their needs.
-              </p>
-            </CardContent>
+          <Card className="text-center hover:shadow-2xl transition-elegant border-2 group cursor-pointer relative overflow-hidden spacing-card">
+            <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-spartan-gradient rounded-3xl flex items-center justify-center mx-auto mb-6 sm:mb-8 shadow-2xl group-hover:shadow-red-500/50 group-hover:scale-110 transition-elegant">
+              <EmpathyIcon className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+            </div>
+            <CardTitle className="text-h3 mb-4">Empathy</CardTitle>
+            <p className="text-body text-muted-foreground">
+              Connect authentically with healthcare providers and truly understand their needs.
+            </p>
           </Card>
 
-          <Card className="text-center hover:shadow-2xl transition-elegant border-2 group cursor-pointer relative overflow-hidden sm:col-span-2 md:col-span-1">
-            <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <CardHeader className="relative pb-6 sm:pb-8">
-              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-red-500 via-red-600 to-red-700 rounded-3xl flex items-center justify-center mx-auto mb-6 sm:mb-8 shadow-2xl group-hover:shadow-red-500/50 group-hover:scale-110 transition-elegant">
-                <StrategyIcon className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
-              </div>
-              <CardTitle className="text-3xl sm:text-4xl font-black">Strategy</CardTitle>
-            </CardHeader>
-            <CardContent className="relative">
-              <p className="text-base sm:text-lg leading-relaxed text-muted-foreground">
-                Execute with precision using proven frameworks that drive measurable results.
-              </p>
-            </CardContent>
+          <Card className="text-center hover:shadow-2xl transition-elegant border-2 group cursor-pointer relative overflow-hidden sm:col-span-2 md:col-span-1 spacing-card">
+            <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-spartan-gradient rounded-3xl flex items-center justify-center mx-auto mb-6 sm:mb-8 shadow-2xl group-hover:shadow-red-500/50 group-hover:scale-110 transition-elegant">
+              <StrategyIcon className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+            </div>
+            <CardTitle className="text-h3 mb-4">Strategy</CardTitle>
+            <p className="text-body text-muted-foreground">
+              Execute with precision using proven frameworks that drive measurable results.
+            </p>
           </Card>
         </div>
       </section>
 
       {/* Services Preview - Enhanced engagement */}
-      <section className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-black dark:to-gray-950 py-20 sm:py-24 md:py-32">
+      <section className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-black dark:to-gray-950 spacing-section">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(239,68,68,0.03),transparent_70%)]"></div>
         
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="relative max-w-7xl mx-auto spacing-container">
           <div className="text-center mb-16 sm:mb-20">
-            <h2 className="text-5xl sm:text-6xl md:text-7xl font-black mb-4 sm:mb-6 text-gradient-elegant px-4">
+            <h2 className="text-hero text-gradient-elegant mb-6">
               Transform Your Career
             </h2>
-            <p className="text-xl sm:text-2xl text-muted-foreground max-w-3xl mx-auto px-4 leading-relaxed">
+            <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto">
               Choose the path that fits your goals—from one-on-one coaching to comprehensive training
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-10 max-w-5xl mx-auto">
-            <Card className="hover:shadow-2xl transition-elegant border-2 overflow-hidden group relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 via-red-500/3 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-cards max-w-5xl mx-auto">
+            <Card className="hover:shadow-2xl transition-elegant border-2 overflow-hidden group relative spacing-card">
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div className="absolute top-0 right-0 w-48 h-48 bg-red-500/5 rounded-full blur-3xl"></div>
               
-              <CardHeader className="relative pb-6 sm:pb-8">
-                <div className="flex flex-col items-center gap-4 mb-4 justify-center">
-                  <div className="p-4 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-2xl shadow-lg">
-                    <Users className="w-8 h-8 sm:w-10 sm:h-10 text-red-600 dark:text-red-400" />
-                  </div>
-                  <CardTitle className="text-3xl sm:text-4xl font-black text-center">Coaching Services</CardTitle>
+              <div className="flex flex-col items-center gap-4 mb-6 justify-center">
+                <div className="p-4 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-2xl shadow-lg">
+                  <Users className="w-10 h-10 text-red-600 dark:text-red-400" />
                 </div>
-                <p className="text-center text-muted-foreground text-lg">
-                  One-on-one coaching tailored to your unique challenges in healthcare sales.
-                </p>
-              </CardHeader>
-              <CardContent className="relative px-6 sm:px-8">
-                <Button size="lg" asChild className="w-full font-bold shadow-lg min-h-[52px] touch-manipulation group">
-                  <Link href="/services">
-                    <span>View Services</span>
-                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </Button>
-              </CardContent>
+                <CardTitle className="text-h2 text-center">Coaching Services</CardTitle>
+              </div>
+              <p className="text-center text-muted-foreground text-body mb-8">
+                One-on-one coaching tailored to your unique challenges in healthcare sales.
+              </p>
+              <Button size="lg" asChild className="w-full font-bold shadow-lg min-h-[52px] touch-manipulation group mt-auto">
+                <Link href="/services">
+                  <span>View Services</span>
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
             </Card>
 
-            <Card className="hover:shadow-2xl transition-elegant border-2 overflow-hidden group relative">
-              <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 via-red-500/3 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <Card className="hover:shadow-2xl transition-elegant border-2 overflow-hidden group relative spacing-card">
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div className="absolute top-0 right-0 w-48 h-48 bg-red-500/5 rounded-full blur-3xl"></div>
               
-              <CardHeader className="relative pb-6 sm:pb-8">
-                <div className="flex flex-col items-center gap-4 mb-4 justify-center">
-                  <div className="p-4 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-2xl shadow-lg">
-                    <BookOpen className="w-8 h-8 sm:w-10 sm:h-10 text-red-600 dark:text-red-400" />
-                  </div>
-                  <CardTitle className="text-3xl sm:text-4xl font-black text-center">Training Programs</CardTitle>
+              <div className="flex flex-col items-center gap-4 mb-6 justify-center">
+                <div className="p-4 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-2xl shadow-lg">
+                  <BookOpen className="w-10 h-10 text-red-600 dark:text-red-400" />
                 </div>
-                <p className="text-center text-muted-foreground text-lg">
-                  Structured programs designed to build lasting skills and habits.
-                </p>
-              </CardHeader>
-              <CardContent className="relative px-6 sm:px-8">
-                <Button size="lg" asChild className="w-full font-bold shadow-lg min-h-[52px] touch-manipulation group">
-                  <Link href="/programs">
-                    <span>Explore Programs</span>
-                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                  </Link>
-                </Button>
-              </CardContent>
+                <CardTitle className="text-h2 text-center">Training Programs</CardTitle>
+              </div>
+              <p className="text-center text-muted-foreground text-body mb-8">
+                Structured programs designed to build lasting skills and habits.
+              </p>
+              <Button size="lg" asChild className="w-full font-bold shadow-lg min-h-[52px] touch-manipulation group mt-auto">
+                <Link href="/programs">
+                  <span>Explore Programs</span>
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
             </Card>
           </div>
         </div>
       </section>
 
       {/* Philosophy Section - Enhanced */}
-      <section className="relative bg-gradient-to-br from-accent/40 via-accent/20 to-accent/40 py-24 sm:py-32">
-        <div className="w-full max-w-7xl mx-auto px-6">
+      <section className="relative bg-gradient-to-br from-accent/40 via-accent/20 to-accent/40 spacing-section">
+        <div className="w-full max-w-7xl mx-auto spacing-container">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-2xl sm:text-3xl font-bold text-primary mb-3" data-testid="text-philosophy-label">Our Philosophy</h2>
-            <h3 className="text-4xl sm:text-5xl md:text-6xl font-black text-foreground mb-6">
+            <h2 className="text-h3 text-primary mb-3" data-testid="text-philosophy-label">Our Philosophy</h2>
+            <h3 className="text-hero text-foreground mb-6">
               The Path to Mastery in Hospice Sales
             </h3>
-            <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed">
+            <p className="text-body-lg text-muted-foreground">
               Success isn't about closing deals. It's about opening doors to comfort, dignity, and peace. This requires more than sales tactics; it demands a disciplined mindset.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 sm:gap-12">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-sections">
             <div className="text-center group">
               <div className="flex justify-center mb-6" data-testid="icon-discipline">
                 <div className="p-4 bg-primary/10 rounded-2xl group-hover:bg-primary/20 transition-colors">
-                  <DisciplineIcon className="w-14 h-14 sm:w-16 sm:h-16 text-primary" />
+                  <DisciplineIcon className="w-16 h-16 text-primary" />
                 </div>
               </div>
-              <h4 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">Discipline</h4>
-              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
+              <h4 className="text-h3 text-foreground mb-3">Discipline</h4>
+              <p className="text-body text-muted-foreground">
                 Mastery demands structure. We provide a proven framework for everything from territory planning to handling complex objections, enabling consistent, high-impact performance.
               </p>
             </div>
@@ -386,11 +366,11 @@ export default function Home() {
             <div className="text-center group">
               <div className="flex justify-center mb-6" data-testid="icon-empathy">
                 <div className="p-4 bg-primary/10 rounded-2xl group-hover:bg-primary/20 transition-colors">
-                  <EmpathyIcon className="w-14 h-14 sm:w-16 sm:h-16 text-primary" />
+                  <EmpathyIcon className="w-16 h-16 text-primary" />
                 </div>
               </div>
-              <h4 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">Empathy</h4>
-              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
+              <h4 className="text-h3 text-foreground mb-3">Empathy</h4>
+              <p className="text-body text-muted-foreground">
                 Connect on a human level. We teach you to listen with intent, understand the unspoken needs of providers and families, and build trust that transcends the sale.
               </p>
             </div>
@@ -398,11 +378,11 @@ export default function Home() {
             <div className="text-center group">
               <div className="flex justify-center mb-6" data-testid="icon-strategy">
                 <div className="p-4 bg-primary/10 rounded-2xl group-hover:bg-primary/20 transition-colors">
-                  <StrategyIcon className="w-14 h-14 sm:w-16 sm:h-16 text-primary" />
+                  <StrategyIcon className="w-16 h-16 text-primary" />
                 </div>
               </div>
-              <h4 className="text-2xl sm:text-3xl font-bold text-foreground mb-3">Strategy</h4>
-              <p className="text-base sm:text-lg text-muted-foreground leading-relaxed">
+              <h4 className="text-h3 text-foreground mb-3">Strategy</h4>
+              <p className="text-body text-muted-foreground">
                 Act with purpose. Leverage data, market insights, and AI-powered tools to identify the right partners and focus your energy where it matters most: on the patients who need you.
               </p>
             </div>
@@ -420,15 +400,15 @@ export default function Home() {
       </section>
 
       {/* Newsletter Section - Enhanced */}
-      <section className="relative bg-gradient-to-br from-red-600 via-red-600 to-red-700 dark:from-red-800 dark:to-red-900 text-white py-20 sm:py-24 overflow-hidden">
+      <section className="relative bg-spartan-gradient text-white spacing-section overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_50%)]"></div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(255,255,255,0.05),transparent_50%)]"></div>
         
-        <div className="relative max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-black mb-6">
+        <div className="relative max-w-4xl mx-auto spacing-container text-center">
+          <h2 className="text-hero mb-6">
             Weekly Coaching Tips
           </h2>
-          <p className="text-xl sm:text-2xl mb-10 text-red-100 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-body-lg mb-10 text-red-100 max-w-2xl mx-auto">
             Get proven hospice sales strategies, objection handlers, and territory planning tips delivered to your inbox every week.
           </p>
           <div className="flex justify-center">

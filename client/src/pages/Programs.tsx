@@ -451,23 +451,23 @@ export default function Programs() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-16">
+    <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
       <BackButton />
       <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-red-500/5 via-transparent to-transparent blur-3xl -z-10"></div>
-        <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-foreground mb-6 sm:mb-8 animate-fade-in-up" data-testid="text-programs-title">
+        <h1 className="text-hero text-foreground mb-8 animate-fade-in-up" data-testid="text-programs-title">
           Hospice Provider <span className="text-gradient-primary">Programs</span>
         </h1>
-        <p className="text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+        <p className="text-body-lg text-muted-foreground leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           Full program builds intended to be purchased as discrete projects. Each includes a kickoff, weekly working sessions, optional field practice, and a final summary with wins, blockers, and next steps.
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-20">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards gap-sections">
         {hospicePrograms.map((program, idx) => (
-          <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden" data-testid={`card-program-${idx}`}>
-            <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-            <div className="relative flex-1 p-6">
+          <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card" data-testid={`card-program-${idx}`}>
+            <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative flex-1">
               <h3 className="text-xl font-bold text-foreground mb-3">{program.title}</h3>
               <p className="text-muted-foreground mb-4 leading-relaxed text-sm">{program.description}</p>
               <div className="mb-4">
@@ -515,18 +515,19 @@ export default function Programs() {
       </div>
 
       {/* Strategic Services */}
-      <div className="mb-16">
+      <div className="space-y-8 md:space-y-12 lg:space-y-16">
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-3xl md:text-4xl font-black text-foreground mb-4">
+          <h2 className="text-h2 text-foreground mb-4">
             Strategic Services
           </h2>
-          <p className="text-lg text-muted-foreground leading-relaxed">
+          <p className="text-body-lg text-muted-foreground leading-relaxed">
             Standalone one-off services or add-ons to programs. Simple to use, easy to teach, and fast to measure. Every deliverable stays patient-first and compliant.
           </p>
         </div>
-        <div className="grid md:grid-cols-2 gap-6">
+        <div className="grid md:grid-cols-2 gap-cards">
           {strategicServices.map((service, idx) => (
-            <Card key={idx} className="flex flex-col hover-elevate transition-all" data-testid={`card-strategic-${idx}`}>
+            <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card" data-testid={`card-strategic-${idx}`}>
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div className="flex-1">
                 <h3 className="text-xl font-bold text-foreground mb-3">{service.title}</h3>
                 <p className="text-muted-foreground mb-4 leading-relaxed text-sm">{service.description}</p>
