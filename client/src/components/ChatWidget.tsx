@@ -36,7 +36,7 @@ export function ChatWidget() {
           setMessages([
             {
               role: "model",
-              content: "Welcome to Spartan Coaching! I'm your AI sales coach. How can I help you today? Ask me about hospice sales strategies, handling objections, or building relationships with referral sources.",
+              content: "Welcome to Spartan Coaching! I'm your expert AI hospice sales coach with deep knowledge of Medicare regulations, The Spartan Method sales framework, objection handling, territory management, and coaching strategies. Whether you need help with \"We already have a provider,\" want to improve your SNF relationships, or need coaching on pipeline management—I'm here to help. What's your challenge today?",
               timestamp: Date.now(),
             },
           ]);
@@ -45,7 +45,7 @@ export function ChatWidget() {
         setMessages([
           {
             role: "model",
-            content: "Welcome to Spartan Coaching! I'm your AI sales coach. How can I help you today? Ask me about hospice sales strategies, handling objections, or building relationships with referral sources.",
+            content: "Welcome to Spartan Coaching! I'm your expert AI hospice sales coach with deep knowledge of Medicare regulations, The Spartan Method sales framework, objection handling, territory management, and coaching strategies. Whether you need help with \"We already have a provider,\" want to improve your SNF relationships, or need coaching on pipeline management—I'm here to help. What's your challenge today?",
             timestamp: Date.now(),
           },
         ]);
@@ -145,9 +145,9 @@ export function ChatWidget() {
           : "max-w-2xl max-h-[80vh]"
       )}>
         <DialogHeader>
-          <DialogTitle>Chat with Spartan AI Assistant</DialogTitle>
+          <DialogTitle>Expert Hospice Sales Coach</DialogTitle>
           <DialogDescription>
-            Ask me anything about Spartan Coaching, sales strategies, or get help with your daily drills.
+            Advanced AI coach specializing in hospice sales, objection handling, territory management, and The Spartan Method.
           </DialogDescription>
         </DialogHeader>
 
@@ -184,7 +184,12 @@ export function ChatWidget() {
         <div className="p-4 border-t border-border bg-background">
           {messages.length <= 1 && (
             <div className="flex flex-wrap gap-2 mb-3">
-              {['Handle "We already have a provider"', 'Territory planning tips', 'Building referral relationships'].map((suggestion) => (
+              {[
+                'Handle "We already have a provider"', 
+                'How do I prioritize my territory?', 
+                'Coach me on SNF objections',
+                'Build a weekly sales rhythm'
+              ].map((suggestion) => (
                 <Button
                   key={suggestion}
                   variant="outline"
