@@ -86,6 +86,7 @@ Main menu items (in order):
 **Framework & Routing**
 - React 19 with TypeScript for UI components
 - Wouter for client-side routing (lightweight alternative to React Router)
+- Automatic scroll-to-top on route changes via ScrollToTop component in App.tsx
 - Vite as the build tool and development server
 - File-based architecture with pages in `client/src/pages/`
 
