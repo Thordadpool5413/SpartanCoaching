@@ -1,7 +1,8 @@
 import { Card } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
-import { Target, Users, TrendingUp } from "lucide-react";
+import { Target, Users, TrendingUp, Linkedin } from "lucide-react";
 import nickPhoto from "@assets/nick-photo.jpg";
+import { Button } from "@/components/ui/button";
 
 export default function About() {
   return (
@@ -150,6 +151,30 @@ export default function About() {
               <p className="text-muted-foreground leading-relaxed">
                 Believes in coaching that happens in the work, not in theory. Every framework is field-tested, every playbook is battle-proven, and every strategy prioritizes patient-first outcomes.
               </p>
+            </Card>
+          </div>
+
+          {/* LinkedIn Connect Section */}
+          <div className="mt-8 text-center">
+            <Card className="p-6 bg-gradient-to-br from-primary/5 to-primary/10">
+              <p className="text-muted-foreground mb-4">
+                Learn more about Nick's professional background and experience
+              </p>
+              <Button
+                asChild
+                variant="outline"
+                className="gap-2 group"
+                data-testid="button-linkedin-about"
+              >
+                <a
+                  href="https://www.linkedin.com/in/nicholas-lynch-coaching"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <Linkedin className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  <span>Connect on LinkedIn</span>
+                </a>
+              </Button>
             </Card>
           </div>
         </div>

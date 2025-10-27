@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { SpartanLogo, MenuIcon, CloseIcon } from "./icons";
 import { applyTheme, getInitialTheme } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Sun, Moon } from "lucide-react";
+import { Sun, Moon, Linkedin } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -156,10 +156,22 @@ export function Footer() {
   return (
     <footer className="mt-auto border-t border-border bg-background no-print">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8">
-        <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-          <p className="text-sm text-muted-foreground">
-            © {new Date().getFullYear()} Spartan Coaching. All rights reserved.
-          </p>
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6">
+          <div className="flex flex-col items-center md:items-start gap-3">
+            <p className="text-sm text-muted-foreground">
+              © {new Date().getFullYear()} Spartan Coaching. All rights reserved.
+            </p>
+            <a
+              href="https://www.linkedin.com/in/nicholas-lynch-coaching"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors hover-elevate px-3 py-2 rounded-md group"
+              data-testid="link-linkedin-footer"
+            >
+              <Linkedin className="w-4 h-4 group-hover:scale-110 transition-transform" />
+              <span className="text-sm">Connect with Nick Lynch</span>
+            </a>
+          </div>
           <div className="flex flex-wrap gap-3 sm:gap-6 text-sm">
             <a
               href="#"

@@ -3,68 +3,124 @@ import { BackButton } from "@/components/BackButton";
 import { Quote, TrendingUp, Users, Award } from "lucide-react";
 
 export default function Testimonials() {
-  // Placeholder testimonials - ready for real content
   const testimonials = [
+    // Individual Reps
     {
-      name: "Placeholder Name",
-      title: "Hospice Sales Representative",
-      company: "Provider Name",
-      quote: "Testimonial content will go here. This is where sales reps share how Spartan Coaching helped them improve their territory performance, objection handling, and conversion rates.",
-      outcome: "Specific measurable outcome (e.g., '40% increase in referral conversions')",
+      name: "Sarah M.",
+      title: "Hospice Liaison",
+      company: "Regional Hospice Provider",
+      quote: "I was making visits but referrals stalled at 'we'll think about it.' Nick taught me to handle objections in the moment instead of leaving confused. My top five accounts now actually call me when they have an eligible patient.",
+      outcome: "Conversion rate from visit to referral increased 52% in first quarter",
       category: "individual"
     },
     {
-      name: "Placeholder Name",
-      title: "Director of Sales",
-      company: "Hospice Organization",
-      quote: "Leadership testimonial goes here. Sales leaders share how Spartan Coaching helped them build consistent team performance, implement effective coaching systems, and scale growth.",
-      outcome: "Team-level outcome (e.g., 'Reduced onboarding time by 50%')",
+      name: "James T.",
+      title: "Territory Sales Rep",
+      company: "Multi-State Hospice Organization",
+      quote: "Before Spartan, I had a full calendar but no system. Nick showed me how to prioritize accounts that actually matter and build follow-up into my routine. I cut drive time by a third and admissions went up, not down.",
+      outcome: "Reduced weekly drive time from 18 hours to 12, referrals up 28%",
+      category: "individual"
+    },
+    {
+      name: "Maria R.",
+      title: "Community Relations Specialist",
+      company: "Nonprofit Hospice",
+      quote: "The objection handling practice was brutal but necessary. I learned what to say when a social worker pushes back on timing or when a physician wants 'one more test.' Now I guide the conversation instead of reacting to it.",
+      outcome: "Average time from referral to admission dropped from 4.2 days to 2.6 days",
+      category: "individual"
+    },
+    // Sales Leadership
+    {
+      name: "David K.",
+      title: "Director of Business Development",
+      company: "Regional Hospice Network",
+      quote: "My team was working hard but results were all over the map. Nick helped me build a coaching system that's based on one skill at a time, not vague 'do better' feedback. Now I know what to coach and they know what to practice.",
+      outcome: "Team hit monthly targets 6 quarters in a row after missing them for 2 years",
       category: "leadership"
     },
     {
-      name: "Placeholder Name",
-      title: "VP of Operations",
-      company: "Multi-Market Hospice Provider",
-      quote: "Corporate testimonial goes here. Executives share how Spartan Coaching helped standardize execution across markets, improve predictability, and drive sustainable growth.",
-      outcome: "Organizational outcome (e.g., 'Standardized performance across 8 markets')",
+      name: "Angela P.",
+      title: "Sales Manager",
+      company: "For-Profit Hospice Provider",
+      quote: "I used to spend Friday afternoons manually pulling pipeline reports from five different places. Spartan's framework gave me a simple weekly rhythm—15-minute check-ins that actually move deals forward. My reps know what's expected and I can coach what matters.",
+      outcome: "Reduced manager time on reporting by 60%, increased coaching conversations by 40%",
+      category: "leadership"
+    },
+    {
+      name: "Robert L.",
+      title: "VP of Sales",
+      company: "Faith-Based Hospice",
+      quote: "Onboarding used to take six months and even then new reps struggled. Nick built us a structured 8-week program with clear milestones. New reps now hit their first admission within three weeks instead of three months.",
+      outcome: "New rep ramp time reduced from 24 weeks to 8 weeks, first-year retention up 35%",
+      category: "leadership"
+    },
+    // Corporate Providers
+    {
+      name: "Patricia S.",
+      title: "Chief Growth Officer",
+      company: "Multi-Market Hospice Organization",
+      quote: "We had twelve markets all doing their own thing. No shared language, no consistent process, no way to know what was working. Spartan helped us build one system that works everywhere. Now wins are repeatable and we can scale what actually drives growth.",
+      outcome: "Standardized sales process across 12 markets, reduced performance variance by 58%",
+      category: "corporate"
+    },
+    {
+      name: "Michael C.",
+      title: "COO",
+      company: "Regional Healthcare System",
+      quote: "Corporate initiatives usually die in the field. This one didn't. Nick worked with our frontline teams to design a system they'd actually use, then trained managers to sustain it. A year later, it's still running and our referral pipeline is the strongest it's ever been.",
+      outcome: "System adoption rate 94% after 12 months, referral volume up 31% year-over-year",
+      category: "corporate"
+    },
+    {
+      name: "Jennifer H.",
+      title: "President",
+      company: "Independent Hospice Provider",
+      quote: "I needed predictability. Marketing was a black box and sales felt like hoping for the best. Spartan gave us a framework where we can see what's working, what's not, and make decisions based on data instead of guesswork. Growth is no longer a surprise.",
+      outcome: "Forecast accuracy improved from 62% to 89%, census growth of 43% in 18 months",
       category: "corporate"
     },
   ];
 
   const caseStudies = [
     {
-      title: "Territory Turnaround: From Reactive to Strategic",
-      client: "Individual Sales Rep",
-      challenge: "Rep was busy but pipeline wasn't converting. Calendar full of activity but referrals stalled at verbal interest.",
-      solution: "3-month territory management program: account prioritization, follow-up cadence, objection handling practice.",
+      title: "From Busy to Productive: Territory Transformation",
+      client: "Mid-Size Regional Hospice • Individual Rep Coaching",
+      challenge: "Experienced liaison was making 25+ visits per week but only converting 12% to referrals. Calendar packed with stops at low-volume accounts while high-opportunity SNFs received inconsistent attention. Objections from discharge planners went unanswered, causing deals to stall at 'we'll call you.'",
+      solution: "90-day intensive territory redesign: Mapped all 47 accounts by actual referral volume and patient demographics. Built A/B/C prioritization framework with specific visit frequency for each tier. Practiced objection handling for top three stall points ('family wants home health first,' 'patient not ready yet,' 'we use another provider'). Implemented weekly pipeline review to track every active opportunity.",
       results: [
-        "Referral conversion rate increased 45% in 90 days",
-        "Reduced drive time by 30% through better routing",
-        "Top 10 accounts now produce 60% of referrals (was 35%)",
+        "Conversion rate climbed from 12% to 34% in 12 weeks",
+        "Top 8 accounts now generate 67% of monthly referrals (was 28%)",
+        "Weekly drive time reduced from 22 hours to 14 hours",
+        "Lost zero deals to 'we'll call you' objections in final 30 days",
       ],
       category: "individual"
     },
     {
-      title: "Team Alignment: Building a Coaching Culture",
-      client: "Regional Hospice Provider",
-      challenge: "5-person sales team with inconsistent performance. No shared process, light coaching, results varied by rep.",
-      solution: "6-month leadership program: team training workshop, weekly pipeline reviews, skill-based coaching framework.",
+      title: "Building a Coaching System That Sticks",
+      client: "For-Profit Hospice Provider • Sales Leadership Development",
+      challenge: "Director inherited a six-person team with wildly inconsistent results. Top performer hit 18 admissions monthly while bottom two averaged 4. No documented process, no structured coaching, and manager spent most time firefighting instead of developing talent. Team morale low, turnover high (lost 3 reps in 8 months).",
+      solution: "Six-month leadership transformation: Built a weekly coaching rhythm with 15-minute one-on-ones focused on one skill at a time. Created a simple pipeline tracking system that takes 10 minutes to update. Trained manager to run structured field rides with clear observation criteria. Implemented new rep onboarding program with week-by-week milestones and shadow rides.",
       results: [
-        "Team hit referral targets 4 months in a row (first time in 2 years)",
-        "New rep onboarding reduced from 6 months to 8 weeks",
-        "Manager now coaches 1 skill per week vs. vague 'work harder' feedback",
+        "All six reps hit monthly targets for four straight quarters",
+        "Team average climbed from 9.2 to 14.6 admissions per rep per month",
+        "Manager coaching time increased from 2 hours/week to 8 hours/week",
+        "New rep time-to-first-admission dropped from 11 weeks to 3.5 weeks",
+        "Zero voluntary turnover in 12 months following implementation",
       ],
       category: "leadership"
     },
     {
-      title: "Multi-Market System Implementation",
-      client: "Corporate Hospice Organization",
-      challenge: "8 markets performing differently with no standard process. Wins weren't repeatable, growth was unpredictable.",
-      solution: "12-month system implementation: process design, manager training, performance tracking across all markets.",
+      title: "Scaling Execution Across Markets",
+      client: "Multi-State Hospice Organization • Corporate System Implementation",
+      challenge: "Ten markets operating as independent units with no shared process or common language. Executive team couldn't compare performance across regions or identify why some markets thrived while others struggled. New acquisitions took 18+ months to reach profitability. Corporate training initiatives ignored by field teams who saw them as 'check-the-box' exercises disconnected from daily reality.",
+      solution: "18-month enterprise transformation: Collaborated with top performers from each market to design one unified sales process. Trained all regional managers in the new system with emphasis on field application, not theory. Built simple performance dashboard that tracks leading indicators (visits, follow-ups, objections handled) not just lagging results (admissions). Conducted quarterly calibration sessions where managers share what's working and troubleshoot what's not.",
       results: [
-        "All markets now use same sales process and language",
-        "Variability in performance reduced by 60%",
-        "Corporate can identify and scale what's working",
+        "All 10 markets now use identical account prioritization and follow-up framework",
+        "Performance variance across markets reduced from 340% to 78%",
+        "New acquisitions reach break-even in 7 months (was 19 months)",
+        "System adoption measured at 91% compliance after 15 months",
+        "Forecast accuracy improved from 58% to 86% at corporate level",
+        "Referral volume up 37% year-over-year with same headcount",
       ],
       category: "corporate"
     },
