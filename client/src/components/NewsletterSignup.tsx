@@ -62,14 +62,14 @@ export function NewsletterSignup() {
         placeholder="Enter your email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        className="flex-1"
+        className="flex-1 min-h-[48px] text-base"
         disabled={isLoading}
         data-testid="input-newsletter-email"
       />
       <Button
         type="submit"
         disabled={isLoading}
-        className="whitespace-nowrap"
+        className="whitespace-nowrap min-h-[48px] touch-manipulation"
         data-testid="button-newsletter-subscribe"
       >
         <Mail className="w-4 h-4 mr-2" />

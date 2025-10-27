@@ -60,14 +60,14 @@ export function Header() {
   ];
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur-xl supports-[backdrop-filter]:bg-background/60 shadow-sm">
-      <div className="max-w-7xl mx-auto px-6 h-32 flex items-center justify-between gap-6">
+    <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 shadow-sm">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-24 sm:h-28 md:h-32 flex items-center justify-between gap-3 sm:gap-6">
         <Link href="/">
-          <div className="flex items-center gap-4 hover:opacity-80 transition-opacity group cursor-pointer" data-testid="link-home">
-            <SpartanLogo className="h-20 w-auto object-contain group-hover:scale-110 transition-transform" />
+          <div className="flex items-center gap-2 sm:gap-4 hover:opacity-80 transition-opacity group cursor-pointer touch-manipulation" data-testid="link-home">
+            <SpartanLogo className="h-14 sm:h-16 md:h-20 w-auto object-contain group-hover:scale-110 transition-transform" />
             <div className="hidden sm:block">
-              <h1 className="font-black text-3xl text-foreground tracking-tight">Spartan Coaching</h1>
-              <p className="text-base text-muted-foreground">Expert Hospice Sales Training</p>
+              <h1 className="font-black text-2xl md:text-3xl text-foreground tracking-tight">Spartan Coaching</h1>
+              <p className="text-sm md:text-base text-muted-foreground">Expert Hospice Sales Training</p>
             </div>
           </div>
         </Link>
@@ -106,26 +106,45 @@ export function Header() {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="lg:hidden p-2 text-foreground hover-elevate rounded-lg"
+          className="lg:hidden p-3 min-h-[48px] min-w-[48px] flex items-center justify-center text-foreground hover-elevate active-elevate-2 rounded-lg touch-manipulation transition-transform active:scale-95"
           aria-label="Toggle menu"
           data-testid="button-mobile-menu"
         >
-          {menuOpen ? <CloseIcon /> : <MenuIcon />}
+          {menuOpen ? <CloseIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
         </button>
       </div>
 
       {/* Mobile Navigation */}
       {menuOpen && (
-        <nav className="lg:hidden absolute top-full left-0 right-0 bg-background border-b border-border shadow-lg z-50">
-          <div className="flex flex-col p-4 space-y-2">
-            <NavLink href="/" onClick={() => setMenuOpen(false)}>Home</NavLink>
-            <NavLink href="/services" onClick={() => setMenuOpen(false)}>Services</NavLink>
-            <NavLink href="/programs" onClick={() => setMenuOpen(false)}>Programs</NavLink>
-            <NavLink href="/method" onClick={() => setMenuOpen(false)}>Method</NavLink>
-            <NavLink href="/tools" onClick={() => setMenuOpen(false)}>AI Field Kit</NavLink>
-            <NavLink href="/resources" onClick={() => setMenuOpen(false)}>Resources</NavLink>
-            <NavLink href="/testimonials" onClick={() => setMenuOpen(false)}>Testimonials</NavLink>
-            <NavLink href="/about" onClick={() => setMenuOpen(false)}>About</NavLink>
+        <nav className="lg:hidden absolute top-full left-0 right-0 bg-background border-b border-border shadow-lg z-50 animate-fade-in mobile-safe-padding">
+          <div className="flex flex-col p-4 space-y-3 max-h-[70vh] overflow-y-auto">
+            {routes.map((route) => (
+              <Link
+                key={route.path}
+                href={route.path}
+                onClick={() => setMenuOpen(false)}
+                className={cn(
+                  "px-4 py-3 rounded-lg text-base font-medium transition-all hover-elevate active-elevate-2 touch-manipulation min-h-[48px] flex items-center",
+                  location === route.path
+                    ? "bg-primary text-primary-foreground"
+                    : "text-foreground hover:bg-accent"
+                )}
+              >
+                {route.label}
+              </Link>
+            ))}
+            <div className="pt-2 flex items-center justify-between">
+              <span className="text-sm text-muted-foreground px-4">Theme</span>
+              <Button
+                onClick={toggleTheme}
+                variant="ghost"
+                size="icon"
+                className="touch-manipulation min-h-[48px] min-w-[48px]"
+                aria-label="Toggle theme"
+              >
+                {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </Button>
+            </div>
           </div>
         </nav>
       )}
@@ -136,22 +155,22 @@ export function Header() {
 export function Footer() {
   return (
     <footer className="mt-auto border-t border-border bg-background no-print">
-      <div className="w-full max-w-7xl mx-auto px-6 py-8">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8">
         <div className="flex flex-col md:flex-row items-center justify-between gap-4">
           <p className="text-sm text-muted-foreground">
             © {new Date().getFullYear()} Spartan Coaching. All rights reserved.
           </p>
-          <div className="flex gap-6 text-sm">
+          <div className="flex flex-wrap gap-3 sm:gap-6 text-sm">
             <a
               href="#"
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md min-h-[48px] flex items-center justify-center touch-manipulation"
               data-testid="link-privacy"
             >
               Privacy Policy
             </a>
             <a
               href="#"
-              className="text-muted-foreground hover:text-foreground transition-colors"
+              className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md min-h-[48px] flex items-center justify-center touch-manipulation"
               data-testid="link-contact"
             >
               Contact
