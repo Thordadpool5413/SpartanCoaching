@@ -19,8 +19,39 @@ const DailyDrill = ({ drill, isLoading }: { drill: string; isLoading: boolean })
 export default function Home() {
   const [drill, setDrill] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth < 768);
+  const [shouldLoadVideo, setShouldLoadVideo] = useState(true);
+  const [videoSrc, setVideoSrc] = useState('');
 
-  // Handle video autoplay with retry logic
+  // Detect mobile device and connection quality
+  useEffect(() => {
+    const checkMobile = () => {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      setVideoSrc(mobile ? '/hero-video-mobile.mp4' : '/hero-video.mp4');
+      console.log('Device detection:', { 
+        isMobile: mobile, 
+        screenWidth: window.innerWidth,
+        videoFile: mobile ? 'mobile (6.9MB)' : 'desktop (14MB)'
+      });
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    
+    // Check connection quality for mobile
+    if ('connection' in navigator) {
+      const conn = (navigator as any).connection;
+      if (conn && (conn.saveData || conn.effectiveType === 'slow-2g' || conn.effectiveType === '2g')) {
+        setShouldLoadVideo(false);
+        console.log('Slow connection detected - showing poster only');
+      }
+    }
+    
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+
+  // Handle video autoplay with mobile-specific retry logic
   const attemptVideoPlay = (video: HTMLVideoElement, retries = 3) => {
     const playPromise = video.play();
     
@@ -38,11 +69,14 @@ export default function Home() {
 
   const handleVideoCanPlay = (e: React.SyntheticEvent<HTMLVideoElement>) => {
     const video = e.currentTarget;
-    console.log('Hero video loaded successfully!', {
+    const videoSource = isMobile ? 'mobile (6.9MB)' : 'desktop (14MB)';
+    console.log(`Hero video loaded successfully! [${videoSource}]`, {
       duration: video.duration,
       videoWidth: video.videoWidth,
       videoHeight: video.videoHeight,
-      readyState: video.readyState
+      readyState: video.readyState,
+      isMobile,
+      screenWidth: window.innerWidth
     });
     if (video.paused) {
       attemptVideoPlay(video);
@@ -78,28 +112,44 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section - Enhanced with video background */}
+      {/* Hero Section - Enhanced with mobile-optimized video background */}
       <section className="relative min-h-[80vh] sm:h-[90vh] md:h-[92vh] flex items-center justify-center overflow-hidden bg-gray-950">
         {/* Fallback gradient background for very old browsers */}
         <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 z-0"></div>
         
-        {/* Video Background - plays on all devices */}
-        <video
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          poster="/hero-poster.jpg"
-          onCanPlay={handleVideoCanPlay}
-          className="absolute inset-0 w-full h-full object-cover z-[1]"
-          data-testid="hero-video"
-        >
-          <source src="/hero-video.mp4" type="video/mp4" />
-        </video>
+        {/* Video Background - mobile-optimized with responsive sources */}
+        {shouldLoadVideo && videoSrc ? (
+          <video
+            key={videoSrc}
+            autoPlay
+            muted
+            loop
+            playsInline
+            preload={isMobile ? "metadata" : "auto"}
+            poster="/hero-poster.jpg"
+            onCanPlay={handleVideoCanPlay}
+            className="absolute inset-0 w-full h-full object-cover z-[1]"
+            style={{
+              objectPosition: isMobile ? 'center 40%' : 'center center'
+            }}
+            data-testid="hero-video"
+            data-mobile={isMobile}
+          >
+            <source src={videoSrc} type="video/mp4" />
+          </video>
+        ) : (
+          /* Show poster image only on slow connections or while loading */
+          <div 
+            className="absolute inset-0 w-full h-full bg-cover z-[1]"
+            style={{ 
+              backgroundImage: 'url(/hero-poster.jpg)',
+              backgroundPosition: isMobile ? 'center 40%' : 'center center'
+            }}
+          />
+        )}
         
-        {/* Dark overlay for text readability - lightened to show video */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/30 to-black/40 z-[2]"></div>
+        {/* Overlay for text readability - slightly darker on mobile for better contrast */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/35 to-black/50 md:from-black/40 md:via-black/30 md:to-black/40 z-[2]"></div>
         
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-20 lg:py-24 text-center">
