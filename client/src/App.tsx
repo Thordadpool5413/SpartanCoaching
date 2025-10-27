@@ -6,6 +6,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header, Footer } from "@/components/Layout";
 import { ChatWidget } from "@/components/ChatWidget";
+import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
 import NotFound from "@/pages/not-found";
 import Home from "@/pages/Home";
 import Services from "@/pages/Services";
@@ -79,6 +80,7 @@ function App() {
           <Footer />
         </div>
         <ChatWidget />
+        <PWAInstallPrompt />
         <Toaster />
       </TooltipProvider>
     </QueryClientProvider>
