@@ -102,10 +102,22 @@ Main menu items (in order):
 - Custom hooks for common patterns (theme, mobile detection)
 
 **Key Design Principles**
-- Typography: Inter font family with strict hierarchy (text-5xl to text-7xl for heroes, consistent spacing)
+- Typography: Inter font family with strict hierarchy (text-5xl to text-8xl for heroes with responsive scaling)
 - Color System: Red primary accent (#dc2626), neutral grays, gradient treatments for emphasis
-- Spacing: Tailwind's 4/6/8/12/16/20/24/32 unit system
-- Responsive: Mobile-first with specific breakpoints for tablet (md) and desktop (lg)
+- Spacing: Tailwind's 4/6/8/12/16/20/24/32 unit system with responsive padding (px-4 sm:px-6 pattern)
+- Responsive: Mobile-first with specific breakpoints for mobile (base), tablet (md), and desktop (lg/xl)
+
+**Mobile & UX Enhancements**
+- All touch targets meet 48px minimum height for mobile usability (tested on iPhone SE, iPhone 12/13, Samsung)
+- Responsive hero section with mobile-full-height utility for proper viewport handling
+- Typography scales across breakpoints: mobile (text-5xl) → tablet (text-6xl/7xl) → desktop (text-8xl)
+- Enhanced mobile navigation with smooth animations and proper touch feedback
+- Footer links optimized with adequate padding and touch targets
+- Form inputs include min-h-[48px] and touch-manipulation for better mobile experience
+- Smooth transitions and hover effects: scale transforms (hover:scale-105), shadow transitions (300ms duration)
+- Mobile-optimized CSS utilities: touch-manipulation, mobile-full-height, transition-smooth
+- Enhanced header responsiveness: h-24 sm:h-28 md:h-32 with proportional logo sizing
+- No horizontal scroll on mobile devices; tested across 375px to 1920px viewports
 
 ### Backend Architecture
 
