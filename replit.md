@@ -46,15 +46,17 @@ Spartan Coaching is an AI-enhanced web platform designed to improve hospice sale
 ### Visual Transformation (October 2025)
 Completed comprehensive visual enhancement across all core pages to deliver a "wow" user experience:
 
-**Hero Video Background (Latest):**
-- Cinematic Spartan logo video with fire/smoke effects (91MB)
-- Video autoplays on desktop; poster fallback on mobile due to file size and browser policies
+**Hero Video Background (Latest - Optimized October 2025):**
+- Cinematic Spartan coaching business video optimized to 14MB (85% reduction from 91MB)
+- Video autoplays on desktop; poster fallback on mobile due to browser policies
 - playsInline attribute ensures iOS devices play inline instead of fullscreen
-- Dark overlay (from-black/80 via-black/50 to-black/70) ensures text remains highly readable
+- Lightened overlay (from-black/40 via-black/30 to-black/40) allows video to show through while keeping text readable
 - Fallback poster image (250KB) displays when autoplay is blocked by browser policies
 - Video loops seamlessly in background on supported devices
-- Files: `public/hero-video.mp4` (91MB), `public/hero-poster.jpg` (250KB)
+- Files: `client/public/hero-video.mp4` (14MB), `client/public/hero-poster.jpg` (250KB)
 - Z-index stacking ensures proper layering: gradient (z-0) → video (z-[1]) → overlay (z-[2]) → content (z-10)
+- Service worker uses network-first strategy for video files to support range requests and proper streaming
+- Console logging captures video metadata (duration, dimensions, readyState) for debugging autoplay behavior
 
 **Hero Copy (Latest):**
 - Mission-focused statement: "Patient Outcomes First. Elite Reps Always."
