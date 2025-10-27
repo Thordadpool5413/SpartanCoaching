@@ -46,17 +46,29 @@ Spartan Coaching is an AI-enhanced web platform designed to improve hospice sale
 ### Visual Transformation (October 2025)
 Completed comprehensive visual enhancement across all core pages to deliver a "wow" user experience:
 
-**Hero Video Background (Latest - Optimized October 2025):**
-- Cinematic Spartan coaching business video optimized to 14MB (85% reduction from 91MB)
-- Video autoplays on desktop; poster fallback on mobile due to browser policies
-- playsInline attribute ensures iOS devices play inline instead of fullscreen
-- Lightened overlay (from-black/40 via-black/30 to-black/40) allows video to show through while keeping text readable
-- Fallback poster image (250KB) displays when autoplay is blocked by browser policies
-- Video loops seamlessly in background on supported devices
-- Files: `client/public/hero-video.mp4` (14MB), `client/public/hero-poster.jpg` (250KB)
-- Z-index stacking ensures proper layering: gradient (z-0) → video (z-[1]) → overlay (z-[2]) → content (z-10)
-- Service worker uses network-first strategy for video files to support range requests and proper streaming
-- Console logging captures video metadata (duration, dimensions, readyState) for debugging autoplay behavior
+**Hero Video Background (Latest - Mobile-Optimized October 2025):**
+- **Responsive Video Sources:** Automatically serves optimal file size for each device
+  - Mobile (<768px): `hero-video-mobile.mp4` (6.9MB) - 50% bandwidth savings!
+  - Desktop (≥768px): `hero-video.mp4` (14MB)
+  - JavaScript-based source selection with viewport detection
+- **Mobile-Optimized Positioning:** 
+  - Mobile: `objectPosition: 'center 40%'` for better portrait framing
+  - Desktop: `objectPosition: 'center center'`
+  - Ensures important content visible on narrow screens
+- **Connection-Aware Loading:** Detects slow connections (2g, slow-2g, saveData mode) and falls back to poster-only to save mobile data
+- **Performance Optimizations:**
+  - Mobile: `preload="metadata"` for faster initial load
+  - Desktop: `preload="auto"` for full quality experience
+  - Uses `key={videoSrc}` to force reload when switching between mobile/desktop
+- **Enhanced Overlay for Readability:**
+  - Mobile: darker overlay (from-black/50 via-black/35 to-black/50) for better contrast on small screens
+  - Desktop: lighter overlay (from-black/40 via-black/30 to-black/40) to show video motion
+- **Technical Implementation:**
+  - playsInline attribute ensures iOS devices play inline instead of fullscreen
+  - Poster fallback (250KB) displays when autoplay is blocked or on slow connections
+  - Service worker uses network-first strategy for video files to support range requests
+  - Console logging captures device type, video source, dimensions, and metadata for debugging
+  - Z-index stacking: gradient (z-0) → video (z-[1]) → overlay (z-[2]) → content (z-10)
 
 **Hero Copy (Latest):**
 - Mission-focused statement: "Patient Outcomes First. Elite Reps Always."
