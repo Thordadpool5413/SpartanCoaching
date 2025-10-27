@@ -117,31 +117,36 @@ export default function Method() {
       <BackButton />
       
       {/* Header */}
-      <div className="text-center max-w-3xl mx-auto mb-16">
-        <h1 className="text-4xl md:text-5xl font-black text-foreground mb-4" data-testid="text-method-title">
-          The Spartan Method
+      <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-red-500/5 via-transparent to-transparent blur-3xl -z-10"></div>
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-foreground mb-6 sm:mb-8 animate-fade-in-up" data-testid="text-method-title">
+          The <span className="text-gradient-primary">Spartan Method</span>
         </h1>
-        <p className="text-lg text-muted-foreground leading-relaxed">
+        <p className="text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           A complete methodology for hospice sales excellence. Built on three philosophical pillars and executed through a proven four-stage process.
         </p>
       </div>
 
-      <div className="max-w-5xl mx-auto space-y-16">
+      <div className="max-w-5xl mx-auto space-y-16 sm:space-y-20">
         {/* Mission */}
-        <Card className="bg-gradient-to-br from-primary/10 to-destructive/10">
-          <h2 className="text-3xl font-bold text-foreground mb-4">The Spartan Mission</h2>
-          <p className="text-foreground leading-relaxed mb-4">
-            Spartan Coaching was born in the field. We built teams, ran routes, and sat with clinicians. A pattern emerged: good people failed not because they cared too little, but because the system around them was noisy, complex, and rewarded the wrong activities. We fixed the system. We kept what worked and cut the rest.
-          </p>
-          <p className="text-foreground leading-relaxed">
-            To us, 'Spartan' means a disciplined commitment to a higher purpose. It's about preparing with intent, practicing under pressure, and measuring progress in the open. Our method is built on clarity, compassionate accountability, and a relentless focus on patient-first outcomes.
-          </p>
+        <Card className="relative overflow-hidden border-2 shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent"></div>
+          <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/5 rounded-full blur-3xl"></div>
+          <div className="relative p-6 sm:p-8">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground mb-4 sm:mb-6">The Spartan Mission</h2>
+            <p className="text-base sm:text-lg text-foreground/90 leading-relaxed mb-4 sm:mb-6">
+              Spartan Coaching was born in the field. We built teams, ran routes, and sat with clinicians. A pattern emerged: good people failed not because they cared too little, but because the system around them was noisy, complex, and rewarded the wrong activities. We fixed the system. We kept what worked and cut the rest.
+            </p>
+            <p className="text-base sm:text-lg text-foreground/90 leading-relaxed">
+              To us, 'Spartan' means a disciplined commitment to a higher purpose. It's about preparing with intent, practicing under pressure, and measuring progress in the open. Our method is built on clarity, compassionate accountability, and a relentless focus on patient-first outcomes.
+            </p>
+          </div>
         </Card>
 
         {/* Three Pillars */}
         <section>
-          <h2 className="text-3xl font-bold text-foreground mb-2 text-center">The Three Pillars</h2>
-          <p className="text-center text-muted-foreground mb-8 max-w-2xl mx-auto">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground mb-3 sm:mb-4 text-center">The Three Pillars</h2>
+          <p className="text-center text-base sm:text-lg text-muted-foreground mb-8 sm:mb-10 max-w-2xl mx-auto">
             The philosophical foundation that guides everything we do
           </p>
 
@@ -210,19 +215,21 @@ export default function Method() {
 
         {/* Healthcare Sales Mastery Model */}
         <section>
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-foreground mb-2">Healthcare Sales Mastery Model</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <div className="text-center mb-10 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground mb-3 sm:mb-4">Healthcare Sales Mastery Model</h2>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
               The four-stage process that turns philosophy into practice. Each stage has a single purpose, a clear entry condition, disciplined activities, a visible exit artifact, and a single decision that advances the work.
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-6 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mb-8">
             {salesStages.map((stage, idx) => {
               const Icon = stage.icon;
               return (
-                <Card key={idx} className={`border-2 ${stage.borderColor} hover-elevate transition-all`} data-testid={`card-stage-${idx}`}>
-                  <div className="flex items-start gap-4 mb-4">
+                <Card key={idx} className={`border-2 ${stage.borderColor} hover:shadow-2xl transition-elegant group relative overflow-hidden`} data-testid={`card-stage-${idx}`}>
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="relative p-6">
+                    <div className="flex items-start gap-4 mb-4">
                     <div className={`p-3 rounded-lg ${stage.bgColor}`}>
                       <Icon className={`w-6 h-6 ${stage.color}`} />
                     </div>
@@ -265,6 +272,7 @@ export default function Method() {
                       <p className="text-sm text-muted-foreground leading-relaxed">{stage.decisionToAdvance}</p>
                     </div>
                   </div>
+                  </div>
                 </Card>
               );
             })}
@@ -279,16 +287,16 @@ export default function Method() {
 
         {/* Five Fundamentals */}
         <section>
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-foreground mb-2">Five Fundamentals That Govern Every Stage</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <div className="text-center mb-10 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground mb-3 sm:mb-4">Five Fundamentals That Govern Every Stage</h2>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
               These principles anchor every activity, every conversation, every decision
             </p>
           </div>
 
-          <div className="space-y-4">
+          <div className="space-y-4 sm:space-y-6">
             {fundamentals.map((fundamental, idx) => (
-              <Card key={idx} className="hover-elevate transition-all" data-testid={`card-fundamental-${idx}`}>
+              <Card key={idx} className="hover:shadow-2xl transition-elegant border-2 group" data-testid={`card-fundamental-${idx}`}>
                 <div className="flex items-start gap-4">
                   <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
                     <span className="text-sm font-bold text-primary">{idx + 1}</span>
@@ -305,18 +313,19 @@ export default function Method() {
 
         {/* Ethics */}
         <section>
-          <div className="text-center mb-10">
-            <h2 className="text-3xl font-bold text-foreground mb-2">Ethics That Anchor The Model</h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
+          <div className="text-center mb-10 sm:mb-12">
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground mb-3 sm:mb-4">Ethics That Anchor The Model</h2>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto">
               These values are non-negotiable and visible in every interaction
             </p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 sm:gap-8">
             {ethics.map((ethic, idx) => {
               const Icon = ethic.icon;
               return (
-                <Card key={idx} className="text-center hover-elevate transition-all" data-testid={`card-ethic-${idx}`}>
+                <Card key={idx} className="text-center hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden" data-testid={`card-ethic-${idx}`}>
+                  <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
                   <div className="flex justify-center mb-4">
                     <div className="p-4 rounded-full bg-primary/10">
                       <Icon className="w-8 h-8 text-primary" />
@@ -331,16 +340,20 @@ export default function Method() {
         </section>
 
         {/* Closing */}
-        <Card className="bg-gradient-to-br from-primary/10 to-destructive/10 text-center">
-          <h3 className="text-2xl font-bold text-foreground mb-4">
-            Built in the Field, Proven in Practice
-          </h3>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-4">
-            Every framework, every playbook, every drill we teach has been tested in real-world hospice sales. This isn't theory—it's battle-tested strategy designed to help you win with integrity.
-          </p>
-          <p className="text-sm text-muted-foreground italic">
-            The Spartan Method: Where discipline, empathy, and strategy meet execution.
-          </p>
+        <Card className="relative overflow-hidden border-2 shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent"></div>
+          <div className="absolute bottom-0 left-0 w-64 h-64 bg-red-500/5 rounded-full blur-3xl"></div>
+          <div className="relative p-6 sm:p-8 text-center">
+            <h3 className="text-2xl sm:text-3xl font-black text-foreground mb-4 sm:mb-6">
+              Built in the Field, Proven in Practice
+            </h3>
+            <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-4">
+              Every framework, every playbook, every drill we teach has been tested in real-world hospice sales. This isn't theory—it's battle-tested strategy designed to help you win with integrity.
+            </p>
+            <p className="text-sm text-muted-foreground italic">
+              The Spartan Method: Where discipline, empathy, and strategy meet execution.
+            </p>
+          </div>
         </Card>
       </div>
     </div>

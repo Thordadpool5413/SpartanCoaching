@@ -453,19 +453,21 @@ export default function Programs() {
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-16">
       <BackButton />
-      <div className="text-center max-w-3xl mx-auto mb-16">
-        <h1 className="text-4xl md:text-5xl font-black text-foreground mb-4" data-testid="text-programs-title">
-          Hospice Provider Programs
+      <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-red-500/5 via-transparent to-transparent blur-3xl -z-10"></div>
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-foreground mb-6 sm:mb-8 animate-fade-in-up" data-testid="text-programs-title">
+          Hospice Provider <span className="text-gradient-primary">Programs</span>
         </h1>
-        <p className="text-lg text-muted-foreground leading-relaxed">
+        <p className="text-base sm:text-lg text-muted-foreground leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           Full program builds intended to be purchased as discrete projects. Each includes a kickoff, weekly working sessions, optional field practice, and a final summary with wins, blockers, and next steps.
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-20">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 mb-20">
         {hospicePrograms.map((program, idx) => (
-          <Card key={idx} className="flex flex-col hover-elevate transition-all" data-testid={`card-program-${idx}`}>
-            <div className="flex-1">
+          <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden" data-testid={`card-program-${idx}`}>
+            <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+            <div className="relative flex-1 p-6">
               <h3 className="text-xl font-bold text-foreground mb-3">{program.title}</h3>
               <p className="text-muted-foreground mb-4 leading-relaxed text-sm">{program.description}</p>
               <div className="mb-4">
@@ -484,29 +486,29 @@ export default function Programs() {
                   </p>
                 )}
               </div>
-            </div>
-            <div className="flex gap-2 mt-4">
-              <Button
-                variant="outline"
-                className="flex-1 font-bold touch-manipulation min-h-[48px]"
-                data-testid={`button-learn-more-program-${idx}`}
-                onClick={() => handleLearnMore(program)}
-              >
-                <Eye className="w-4 h-4 mr-2" />
-                Learn More
-              </Button>
-              <Button
-                variant="default"
-                size="icon"
-                className="touch-manipulation min-h-[48px] min-w-[48px]"
-                data-testid={`button-inquire-program-${idx}`}
-                onClick={() => {
-                  setSelectedProgram(program.title);
-                  setInquiryOpen(true);
-                }}
-              >
-                <MessageSquare className="w-5 h-5" />
-              </Button>
+              <div className="flex gap-2 mt-4">
+                <Button
+                  variant="outline"
+                  className="flex-1 font-bold touch-manipulation min-h-[48px]"
+                  data-testid={`button-learn-more-program-${idx}`}
+                  onClick={() => handleLearnMore(program)}
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  Learn More
+                </Button>
+                <Button
+                  variant="default"
+                  size="icon"
+                  className="touch-manipulation min-h-[48px] min-w-[48px]"
+                  data-testid={`button-inquire-program-${idx}`}
+                  onClick={() => {
+                    setSelectedProgram(program.title);
+                    setInquiryOpen(true);
+                  }}
+                >
+                  <MessageSquare className="w-5 h-5" />
+                </Button>
+              </div>
             </div>
           </Card>
         ))}

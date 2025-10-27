@@ -146,36 +146,38 @@ export default function Services() {
   ];
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-6 py-16">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-16">
       <BackButton />
       
-      <div className="text-center max-w-4xl mx-auto mb-16">
-        <h1 className="text-4xl md:text-5xl font-black text-foreground mb-6" data-testid="text-services-title">
-          Services Built for Hospice Sales
+      <div className="text-center max-w-4xl mx-auto mb-16 sm:mb-20 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-red-500/5 via-transparent to-transparent blur-3xl -z-10"></div>
+        <h1 className="text-4xl sm:text-5xl md:text-6xl font-black text-foreground mb-6 sm:mb-8 animate-fade-in-up" data-testid="text-services-title">
+          Services Built for <span className="text-gradient-primary">Hospice Sales</span>
         </h1>
-        <p className="text-xl text-muted-foreground leading-relaxed mb-4">
+        <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed mb-4 sm:mb-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           No motivational speeches. No one-size-fits-all programs. Just practical systems that work on Tuesday afternoon when the clinic is short-staffed and the family is scared.
         </p>
-        <p className="text-lg text-muted-foreground leading-relaxed">
+        <p className="text-base sm:text-lg text-muted-foreground/80 leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
           Whether you're an individual rep sharpening your skills, a leader building a team, or a corporate executive scaling across markets—we have services designed for where you are.
         </p>
       </div>
 
       {/* Individual Sales Reps Section */}
-      <div className="mb-24">
-        <div className="flex items-center gap-4 mb-8">
-          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-            <UserCheck className="w-6 h-6 text-primary" />
+      <div className="mb-20 sm:mb-24">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-8 sm:mb-10">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-red-500 via-red-600 to-red-700 flex items-center justify-center shadow-2xl flex-shrink-0">
+            <UserCheck className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
           </div>
           <div>
-            <h2 className="text-3xl font-black text-foreground">For Individual Sales Reps</h2>
-            <p className="text-muted-foreground">Get better at the job you're doing right now.</p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground mb-1">For Individual Sales Reps</h2>
+            <p className="text-base sm:text-lg text-muted-foreground">Get better at the job you're doing right now.</p>
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {individualServices.map((service, idx) => (
-            <Card key={idx} className="flex flex-col hover-elevate transition-all" data-testid={`card-individual-${idx}`}>
+            <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden" data-testid={`card-individual-${idx}`}>
+              <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div className="flex-1 p-6">
                 <h3 className="text-xl font-bold text-foreground mb-2">{service.title}</h3>
                 <div className="flex items-baseline gap-3 mb-4">
@@ -229,20 +231,21 @@ export default function Services() {
       </div>
 
       {/* Sales Leadership Section */}
-      <div className="mb-24">
-        <div className="flex items-center gap-4 mb-8">
-          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Users className="w-6 h-6 text-primary" />
+      <div className="mb-20 sm:mb-24">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-8 sm:mb-10">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-red-500 via-red-600 to-red-700 flex items-center justify-center shadow-2xl flex-shrink-0">
+            <Users className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
           </div>
           <div>
-            <h2 className="text-3xl font-black text-foreground">For Sales Leadership</h2>
-            <p className="text-muted-foreground">Build teams that execute consistently and scale what works.</p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground mb-1">For Sales Leadership</h2>
+            <p className="text-base sm:text-lg text-muted-foreground">Build teams that execute consistently and scale what works.</p>
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {leadershipServices.map((service, idx) => (
-            <Card key={idx} className="flex flex-col hover-elevate transition-all" data-testid={`card-leadership-${idx}`}>
+            <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden" data-testid={`card-leadership-${idx}`}>
+              <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div className="flex-1 p-6">
                 <h3 className="text-xl font-bold text-foreground mb-2">{service.title}</h3>
                 <div className="flex items-baseline gap-3 mb-4">
@@ -297,19 +300,20 @@ export default function Services() {
 
       {/* Corporate Providers Section */}
       <div className="mb-20">
-        <div className="flex items-center gap-4 mb-8">
-          <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-            <Building2 className="w-6 h-6 text-primary" />
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-8 sm:mb-10">
+          <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-gradient-to-br from-red-500 via-red-600 to-red-700 flex items-center justify-center shadow-2xl flex-shrink-0">
+            <Building2 className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
           </div>
           <div>
-            <h2 className="text-3xl font-black text-foreground">For Corporate Hospice Providers</h2>
-            <p className="text-muted-foreground">Scale execution across markets and make growth predictable.</p>
+            <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground mb-1">For Corporate Hospice Providers</h2>
+            <p className="text-base sm:text-lg text-muted-foreground">Scale execution across markets and make growth predictable.</p>
           </div>
         </div>
 
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
           {corporateServices.map((service, idx) => (
-            <Card key={idx} className="flex flex-col hover-elevate transition-all" data-testid={`card-corporate-${idx}`}>
+            <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden" data-testid={`card-corporate-${idx}`}>
+              <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div className="flex-1 p-6">
                 <h3 className="text-xl font-bold text-foreground mb-2">{service.title}</h3>
                 <div className="flex items-baseline gap-3 mb-4">
@@ -363,24 +367,27 @@ export default function Services() {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-accent/50 rounded-2xl p-8 md:p-12 text-center">
-        <h2 className="text-3xl font-bold text-foreground mb-4">
-          Not Sure Which Service Fits?
-        </h2>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-          Every engagement starts with understanding your specific challenge. Let's talk about what's not working and build a plan that fixes it.
-        </p>
-        <Button
-          size="lg"
-          className="font-bold"
-          data-testid="button-contact-us"
-          onClick={() => {
-            setSelectedService("");
-            setInquiryOpen(true);
-          }}
-        >
-          Schedule a Consultation
-        </Button>
+      <div className="relative bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent rounded-3xl p-8 sm:p-10 md:p-12 text-center overflow-hidden border-2 border-red-500/20 shadow-2xl">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-red-500/10 rounded-full blur-3xl"></div>
+        <div className="relative">
+          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground mb-4 sm:mb-6">
+            Not Sure Which Service Fits?
+          </h2>
+          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-8 sm:mb-10">
+            Every engagement starts with understanding your specific challenge. Let's talk about what's not working and build a plan that fixes it.
+          </p>
+          <Button
+            size="lg"
+            className="font-bold text-base px-8 sm:px-10 py-6 shadow-xl glow-primary-hover"
+            data-testid="button-contact-us"
+            onClick={() => {
+              setSelectedService("");
+              setInquiryOpen(true);
+            }}
+          >
+            Schedule a Consultation
+          </Button>
+        </div>
       </div>
 
       <InquiryForm
