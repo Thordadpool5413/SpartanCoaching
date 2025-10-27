@@ -8,6 +8,11 @@ interface BeforeInstallPromptEvent extends Event {
   userChoice: Promise<{ outcome: 'accepted' | 'dismissed' }>;
 }
 
+// Configuration constants
+const IOS_PROMPT_DELAY = 3000; // 3 seconds
+const ANDROID_PROMPT_DELAY = 2000; // 2 seconds
+const DISMISS_COOLDOWN_DAYS = 7;
+
 export function PWAInstallPrompt() {
   const [deferredPrompt, setDeferredPrompt] = useState<BeforeInstallPromptEvent | null>(null);
   const [showPrompt, setShowPrompt] = useState(false);
@@ -30,11 +35,11 @@ export function PWAInstallPrompt() {
       ? (Date.now() - dismissedDate.getTime()) / (1000 * 60 * 60 * 24)
       : Infinity;
 
-    // Only show if not standalone, and either never dismissed or dismissed >7 days ago
-    if (!standalone && (!dismissed || daysSinceDismissed > 7)) {
+    // Only show if not standalone, and either never dismissed or dismissed >DISMISS_COOLDOWN_DAYS days ago
+    if (!standalone && (!dismissed || daysSinceDismissed > DISMISS_COOLDOWN_DAYS)) {
       if (iOS) {
         // For iOS, show custom prompt after a delay
-        const timer = setTimeout(() => setShowPrompt(true), 3000);
+        const timer = setTimeout(() => setShowPrompt(true), IOS_PROMPT_DELAY);
         return () => clearTimeout(timer);
       }
 
@@ -43,7 +48,7 @@ export function PWAInstallPrompt() {
         e.preventDefault();
         setDeferredPrompt(e as BeforeInstallPromptEvent);
         // Show prompt after a short delay
-        setTimeout(() => setShowPrompt(true), 2000);
+        setTimeout(() => setShowPrompt(true), ANDROID_PROMPT_DELAY);
       };
 
       window.addEventListener('beforeinstallprompt', handler);
@@ -59,6 +64,9 @@ export function PWAInstallPrompt() {
 
     if (outcome === 'accepted') {
       console.log('User accepted the install prompt');
+    } else if (outcome === 'dismissed') {
+      // Persist dismiss timestamp to enforce cooldown period
+      localStorage.setItem('pwa-install-dismissed', new Date().toISOString());
     }
 
     setDeferredPrompt(null);
@@ -78,15 +86,21 @@ export function PWAInstallPrompt() {
   // iOS Install Instructions
   if (isIOS) {
     return (
-      <div className="fixed bottom-4 left-4 right-4 z-50 animate-slide-in-up" data-testid="pwa-install-prompt">
+      <div 
+        className="fixed bottom-4 left-4 right-4 z-50 animate-slide-in-up" 
+        role="dialog"
+        aria-labelledby="pwa-install-title"
+        aria-describedby="pwa-install-description"
+        data-testid="pwa-install-prompt"
+      >
         <Card className="p-4 shadow-2xl border-2 border-primary/20 bg-card/95 backdrop-blur-sm">
           <div className="flex items-start gap-3">
             <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-destructive flex items-center justify-center">
               <Smartphone className="w-5 h-5 text-white" />
             </div>
             <div className="flex-1 min-w-0">
-              <h3 className="font-bold text-foreground mb-1">Install Spartan Coaching</h3>
-              <p className="text-sm text-muted-foreground mb-3">
+              <h3 id="pwa-install-title" className="font-bold text-foreground mb-1">Install Spartan Coaching</h3>
+              <p id="pwa-install-description" className="text-sm text-muted-foreground mb-3">
                 Get quick access from your home screen. Tap the share button 
                 <span className="inline-block mx-1 px-2 py-0.5 bg-primary/10 rounded text-xs">
                   <svg className="inline w-3 h-3" fill="currentColor" viewBox="0 0 20 20">
@@ -113,7 +127,13 @@ export function PWAInstallPrompt() {
 
   // Android/Desktop Install Prompt
   return (
-    <div className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md z-50 animate-slide-in-up" data-testid="pwa-install-prompt">
+    <div 
+      className="fixed bottom-4 left-4 right-4 md:left-auto md:right-4 md:max-w-md z-50 animate-slide-in-up"
+      role="dialog"
+      aria-labelledby="pwa-install-title"
+      aria-describedby="pwa-install-description"
+      data-testid="pwa-install-prompt"
+    >
       <Card className="p-4 shadow-2xl border-2 border-primary/20 bg-card/95 backdrop-blur-sm">
         <div className="flex items-start gap-3">
           <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-destructive flex items-center justify-center">
