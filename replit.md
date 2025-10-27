@@ -6,6 +6,25 @@ Spartan Coaching is an AI-enhanced web platform designed to improve hospice sale
 
 ## Recent Changes
 
+### LinkedIn Integration & Testimonials (October 2025)
+**LinkedIn Social Integration:**
+- Added LinkedIn footer link with icon connecting to Nick Lynch's professional profile
+- Integrated LinkedIn connect button on About page after founder expertise section
+- All links open in new tabs with proper security attributes (target="_blank", rel="noopener noreferrer")
+- Professional presentation matching site's design system
+
+**Enhanced Testimonials Content:**
+- Replaced placeholders with 9 realistic testimonials across three categories:
+  - 3 individual reps (conversion rates, territory management, objection handling)
+  - 3 sales leadership (coaching systems, team performance, onboarding)
+  - 3 corporate providers (multi-market standardization, forecast accuracy, system adoption)
+- All testimonials use Spartan's direct, results-focused voice with believable hospice sales metrics
+- Enhanced 3 case studies with specific details:
+  - Territory transformation with account prioritization and conversion metrics
+  - Leadership coaching system implementation with team performance improvements
+  - Multi-market enterprise transformation with standardization and scalability outcomes
+- Testimonials include specific outcomes (e.g., "52% conversion increase", "67% of referrals from top 8 accounts")
+
 ### Visual Transformation (October 2025)
 Completed comprehensive visual enhancement across all core pages to deliver a "wow" user experience:
 
