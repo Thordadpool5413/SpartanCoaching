@@ -9,6 +9,14 @@ Spartan Coaching is an AI-enhanced web platform designed to improve hospice sale
 ### Visual Transformation (October 2025)
 Completed comprehensive visual enhancement across all core pages to deliver a "wow" user experience:
 
+**Hero Copy Enhancement (Latest):**
+- Restructured homepage hero value proposition for greater impact and specificity
+- Multi-layered messaging: bold promise → specific anti-patterns → mission outcome
+- Three "No..." statements reject industry fluff with precise language ("rah-rah sessions that wear off by Thursday," "tips that don't survive first contact with a social worker")
+- Gradient-highlighted patient care outcome ties execution to mission
+- Progressive text opacity creates visual hierarchy (white/95 → white/90 → gradient)
+- Responsive line breaks and staggered animations (0.1s-0.4s) for digestibility
+
 **Enhanced Design System:**
 - Refined color palette with cleaner whites (#FFFFFF), true blacks (#000000), and premium red gradient
 - Sophisticated shadow system for depth and hierarchy (shadow-sm to shadow-2xl)

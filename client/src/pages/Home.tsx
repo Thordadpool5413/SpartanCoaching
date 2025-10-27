@@ -73,15 +73,22 @@ export default function Home() {
             </span>
           </h1>
           
-          <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-4 sm:mb-6 max-w-5xl mx-auto font-bold leading-tight text-white/95 animate-fade-in-up px-4" style={{ animationDelay: '0.1s' }}>
-            Hospice sales systems that work on Tuesday afternoon.
+          <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-6 sm:mb-8 max-w-5xl mx-auto font-bold leading-[1.15] text-white/95 animate-fade-in-up px-4" style={{ animationDelay: '0.1s' }}>
+            Sales systems that actually work.<br className="hidden sm:block" />
+            <span className="text-white/80">On Tuesday afternoon. In real territory.</span>
           </p>
           
-          <p className="text-lg sm:text-xl md:text-2xl mb-12 sm:mb-14 max-w-3xl mx-auto leading-relaxed text-gray-300 animate-fade-in-up px-4" style={{ animationDelay: '0.2s' }}>
-            No motivational speeches. No vague goals. Just practical execution frameworks that close the gap between good intentions and consistent results—so more eligible patients receive care earlier in their journey.
+          <p className="text-lg sm:text-xl md:text-2xl mb-8 sm:mb-10 max-w-4xl mx-auto leading-relaxed text-gray-300 animate-fade-in-up px-4" style={{ animationDelay: '0.2s' }}>
+            <span className="text-white/90 font-semibold">No rah-rah sessions that wear off by Thursday.</span><br className="hidden sm:block" />
+            <span className="text-white/90 font-semibold">No "set better goals" advice that changes nothing.</span><br className="hidden md:block" />
+            <span className="text-white/90 font-semibold">No tips that sound good but don't survive first contact with a social worker.</span>
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center animate-fade-in-up px-4 max-w-2xl mx-auto" style={{ animationDelay: '0.3s' }}>
+          <p className="text-xl sm:text-2xl md:text-3xl mb-12 sm:mb-14 max-w-3xl mx-auto leading-relaxed text-white font-medium animate-fade-in-up px-4" style={{ animationDelay: '0.3s' }}>
+            Just battle-tested execution frameworks that close the gap between knowing what to do and actually doing it—<span className="bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent font-bold">so eligible patients get into care sooner</span>.
+          </p>
+          
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center animate-fade-in-up px-4 max-w-2xl mx-auto" style={{ animationDelay: '0.4s' }}>
             <Button 
               size="lg" 
               asChild 
