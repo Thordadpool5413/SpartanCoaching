@@ -18,13 +18,13 @@ Completed comprehensive visual enhancement across all core pages to deliver a "w
 - Fallback poster image (83KB) displays if autoplay is blocked by browser policies
 - 18.8-second video loops seamlessly in background
 
-**Hero Copy Enhancement:**
-- Restructured homepage hero value proposition for greater impact and specificity
-- Multi-layered messaging: bold promise → specific anti-patterns → mission outcome
-- Three "No..." statements reject industry fluff with precise language ("rah-rah sessions that wear off by Thursday," "tips that don't survive first contact with a social worker")
-- Gradient-highlighted patient care outcome ties execution to mission
-- Progressive text opacity creates visual hierarchy (white/95 → white/90 → gradient)
-- Responsive line breaks and staggered animations (0.1s-0.4s) for digestibility
+**Hero Copy (Latest):**
+- Mission-focused statement: "Patient Outcomes First. Elite Reps Always."
+- Clear 'why' statement explaining Spartan Coaching's purpose
+- Emphasizes transforming hospice sales from transaction to mission
+- Highlights compassionate patient care and expert sales leadership
+- Gradient-highlighted closing statement: "We build expert sales leaders who serve with integrity and lead with empathy"
+- Clean, powerful messaging that reinforces brand values
 
 **Enhanced Design System:**
 - Refined color palette with cleaner whites (#FFFFFF), true blacks (#000000), and premium red gradient

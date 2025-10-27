@@ -110,23 +110,16 @@ export default function Home() {
           
           <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black mb-6 sm:mb-8 leading-[0.95] tracking-tight animate-fade-in-up">
             <span className="block bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
-              Spartan Coaching
+              Patient Outcomes First.
+            </span>
+            <span className="block bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent mt-2">
+              Elite Reps Always.
             </span>
           </h1>
           
-          <p className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl mb-6 sm:mb-8 max-w-5xl mx-auto font-bold leading-[1.15] text-white/95 animate-fade-in-up px-4" style={{ animationDelay: '0.1s' }}>
-            Sales systems that actually work.<br className="hidden sm:block" />
-            <span className="text-white/80">On Tuesday afternoon. In real territory.</span>
-          </p>
-          
-          <p className="text-lg sm:text-xl md:text-2xl mb-8 sm:mb-10 max-w-4xl mx-auto leading-relaxed text-gray-300 animate-fade-in-up px-4" style={{ animationDelay: '0.2s' }}>
-            <span className="text-white/90 font-semibold">No rah-rah sessions that wear off by Thursday.</span><br className="hidden sm:block" />
-            <span className="text-white/90 font-semibold">No "set better goals" advice that changes nothing.</span><br className="hidden md:block" />
-            <span className="text-white/90 font-semibold">No tips that sound good but don't survive first contact with a social worker.</span>
-          </p>
-          
-          <p className="text-xl sm:text-2xl md:text-3xl mb-12 sm:mb-14 max-w-3xl mx-auto leading-relaxed text-white font-medium animate-fade-in-up px-4" style={{ animationDelay: '0.3s' }}>
-            Just battle-tested execution frameworks that close the gap between knowing what to do and actually doing it—<span className="bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent font-bold">so eligible patients get into care sooner</span>.
+          <p className="text-xl sm:text-2xl md:text-3xl mb-12 sm:mb-14 max-w-4xl mx-auto leading-relaxed font-medium animate-fade-in-up px-4" style={{ animationDelay: '0.1s' }}>
+            <span className="text-white/90">This is the 'why' of Spartan Coaching. We exist to transform hospice sales from a transaction into a mission: ensuring every eligible patient receives the compassionate care they deserve.</span>
+            <span className="block mt-4 bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent font-bold">We build expert sales leaders who serve with integrity and lead with empathy.</span>
           </p>
           
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center animate-fade-in-up px-4 max-w-2xl mx-auto" style={{ animationDelay: '0.4s' }}>
