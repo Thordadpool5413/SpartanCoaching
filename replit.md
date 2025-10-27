@@ -6,6 +6,24 @@ Spartan Coaching is an AI-enhanced web platform designed to improve hospice sale
 
 ## Recent Changes
 
+### AI Chatbot Enhancement (October 2025)
+**Advanced Hospice Sales Expert AI:**
+- Enhanced system instruction from 6 lines to 160+ lines of comprehensive expertise
+- AI now has deep knowledge of Medicare/Medicaid regulations, IDG workflows, levels of care, LOS optimization
+- Integrated full Spartan Method framework (4-stage model: Discovery, Connecting, Guiding, Commitment)
+- Advanced objection handling scripts for 6 most common objections with empathetic, evidence-based responses
+- Territory management best practices (A/B/C segmentation, visit frequency, pipeline management, conversion metrics)
+- Relationship building strategies (clinical credibility, lunch-and-learns, grand rounds, facility partnerships)
+- Coaching & leadership development techniques (field rides, skill-based coaching, pipeline reviews, leading indicators)
+- Compliance & ethical standards (HIPAA, Stark Law, Anti-Kickback Statute, Medicare eligibility verification)
+- Communication style: direct, results-focused, metrics-driven, aligned with Spartan brand (no fluff)
+
+**Mobile Optimization:**
+- Full-screen chat dialog on mobile devices for optimal user experience
+- Chat button visible and accessible on all screen sizes
+- Enhanced welcome message showcasing comprehensive expertise
+- Updated quick suggestion buttons for hospice-specific scenarios
+
 ### LinkedIn Integration & Testimonials (October 2025)
 **LinkedIn Social Integration:**
 - Added LinkedIn footer link with icon connecting to Nick Lynch's professional profile
@@ -31,11 +49,12 @@ Completed comprehensive visual enhancement across all core pages to deliver a "w
 **Hero Video Background (Latest):**
 - Cinematic Spartan logo video with fire/smoke effects
 - Converted from 34MB 4K (3:45 duration) to 8.1MB 1080p (30 seconds) - 76% size reduction
-- Video autoplays muted on desktop browsers (with retry logic for edge cases)
-- Mobile devices show static poster image for better performance (saves 8MB bandwidth)
+- Video autoplays muted on all devices (desktop, tablet, mobile) with retry logic for edge cases
+- playsInline attribute ensures iOS devices play inline instead of fullscreen
 - Dark overlay (from-black/80 via-black/50 to-black/70) ensures text remains highly readable
 - Fallback poster image (178KB) displays if autoplay is blocked by browser policies
 - 30-second video loops seamlessly in background
+- Note: Some mobile browsers may block autoplay due to browser policies (poster image fallback ensures good UX)
 
 **Hero Copy (Latest):**
 - Mission-focused statement: "Patient Outcomes First. Elite Reps Always."
