@@ -1,10 +1,11 @@
 {
   "name": "Spartan Coaching - Hospice Sales Training",
-  "short_name": "Spartan Coaching",
-  "description": "Elite coaching for healthcare sales professionals. Master discipline, empathy, and strategy to transform your career.",
+  "short_name": "Spartan",
+  "description": "AI-enhanced hospice sales training platform. Master discipline, empathy, and strategy with expert coaching tools and playbooks.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
-  "background_color": "#dc2626",
+  "background_color": "#ffffff",
   "theme_color": "#dc2626",
   "orientation": "portrait-primary",
   "icons": [
@@ -12,9 +13,54 @@
       "src": "/spartan-logo.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
+    },
+    {
+      "src": "/spartan-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
   "categories": ["business", "education", "productivity"],
-  "screenshots": []
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Daily Drill",
+      "short_name": "Drill",
+      "description": "Get your daily coaching drill",
+      "url": "/ai-field-kit?tool=daily-drill",
+      "icons": [
+        {
+          "src": "/spartan-logo.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "AI Field Kit",
+      "short_name": "AI Kit",
+      "description": "Access AI coaching tools",
+      "url": "/ai-field-kit",
+      "icons": [
+        {
+          "src": "/spartan-logo.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
 }
