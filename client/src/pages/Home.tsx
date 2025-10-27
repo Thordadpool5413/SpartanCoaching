@@ -84,12 +84,12 @@ export default function Home() {
           loop
           playsInline
           preload="auto"
-          poster="/videos/hero-poster.jpg"
+          poster="/hero-poster.jpg"
           onCanPlay={handleVideoCanPlay}
           className="absolute inset-0 w-full h-full object-cover z-[1]"
           data-testid="hero-video"
         >
-          <source src="/videos/hero-video.mp4" type="video/mp4" />
+          <source src="/hero-video.mp4" type="video/mp4" />
         </video>
         
         {/* Dark overlay for text readability */}
