@@ -15,21 +15,21 @@ export default function QuickStartGuide() {
       `}</style>
       
       <div className="text-center mb-6 border-b-4 border-red-600 pb-4">
-        <h1 className="text-4xl font-black mb-2">QUICK START GUIDE</h1>
-        <h2 className="text-xl font-bold text-gray-700">Your First 30 Days as a Hospice Liaison</h2>
+        <h1 className="text-h1 font-black mb-2">QUICK START GUIDE</h1>
+        <h2 className="text-h2 font-bold text-gray-700">Your First 30 Days as a Hospice Liaison</h2>
         <p className="text-sm text-gray-600 mt-2">Discipline • Empathy • Strategy</p>
       </div>
 
       <div className="bg-red-600 text-white p-4 mb-6">
-        <h3 className="text-lg font-bold mb-2">Welcome to Hospice Sales</h3>
+        <h3 className="text-h3 font-bold mb-2">Welcome to Hospice Sales</h3>
         <p className="text-sm">This guide will help you build credibility, establish relationships, and generate your first referrals in 30 days. Focus on fundamentals, not shortcuts.</p>
       </div>
 
       <div className="mb-8">
-        <h2 className="text-2xl font-black mb-4 border-b-2 border-gray-300 pb-2">WEEK 1: FOUNDATION</h2>
+        <h2 className="text-h2 font-black mb-4 border-b-2 border-gray-300 pb-2">WEEK 1: FOUNDATION</h2>
         
         <div className="mb-4">
-          <h3 className="text-lg font-bold mb-2">Days 1-2: Learn Your Value Proposition</h3>
+          <h3 className="text-h3 font-bold mb-2">Days 1-2: Learn Your Value Proposition</h3>
           <div className="bg-gray-50 p-4 border-l-4 border-red-600 mb-3">
             <p className="font-semibold mb-2">Action Items:</p>
             <ul className="list-disc list-inside space-y-1 text-sm">
@@ -46,7 +46,7 @@ export default function QuickStartGuide() {
         </div>
 
         <div className="mb-4">
-          <h3 className="text-lg font-bold mb-2">Days 3-5: Map Your Territory</h3>
+          <h3 className="text-h3 font-bold mb-2">Days 3-5: Map Your Territory</h3>
           <div className="bg-gray-50 p-4 border-l-4 border-red-600 mb-3">
             <p className="font-semibold mb-2">Action Items:</p>
             <ul className="list-disc list-inside space-y-1 text-sm">
@@ -64,10 +64,10 @@ export default function QuickStartGuide() {
       </div>
 
       <div className="page-break mb-8">
-        <h2 className="text-2xl font-black mb-4 border-b-2 border-gray-300 pb-2">WEEK 2: FIRST CONTACTS</h2>
+        <h2 className="text-h2 font-black mb-4 border-b-2 border-gray-300 pb-2">WEEK 2: FIRST CONTACTS</h2>
         
         <div className="mb-4">
-          <h3 className="text-lg font-bold mb-2">Days 6-10: Introduction Visits</h3>
+          <h3 className="text-h3 font-bold mb-2">Days 6-10: Introduction Visits</h3>
           <div className="bg-gray-50 p-4 border-l-4 border-red-600 mb-3">
             <p className="font-semibold mb-2">Your Script for First Visits:</p>
             <div className="bg-white p-3 border border-gray-300 text-sm italic mb-3">
@@ -89,10 +89,10 @@ export default function QuickStartGuide() {
       </div>
 
       <div className="mb-8">
-        <h2 className="text-2xl font-black mb-4 border-b-2 border-gray-300 pb-2">WEEK 3: BUILD RHYTHM</h2>
+        <h2 className="text-h2 font-black mb-4 border-b-2 border-gray-300 pb-2">WEEK 3: BUILD RHYTHM</h2>
         
         <div className="mb-4">
-          <h3 className="text-lg font-bold mb-2">Days 11-15: Establish Weekly Touchpoints</h3>
+          <h3 className="text-h3 font-bold mb-2">Days 11-15: Establish Weekly Touchpoints</h3>
           <div className="bg-gray-50 p-4 border-l-4 border-red-600 mb-3">
             <p className="font-semibold mb-2">Action Items:</p>
             <ul className="list-disc list-inside space-y-1 text-sm">
@@ -105,7 +105,7 @@ export default function QuickStartGuide() {
         </div>
 
         <div className="mb-4">
-          <h3 className="text-lg font-bold mb-2">Days 16-20: Handle Your First Objection</h3>
+          <h3 className="text-h3 font-bold mb-2">Days 16-20: Handle Your First Objection</h3>
           <div className="bg-gray-50 p-4 border-l-4 border-red-600 mb-3">
             <p className="font-semibold mb-2">Common Objection #1: "We already have a hospice provider."</p>
             <div className="bg-white p-3 border border-gray-300 text-sm italic mb-3">
@@ -124,10 +124,10 @@ export default function QuickStartGuide() {
       </div>
 
       <div className="page-break mb-8">
-        <h2 className="text-2xl font-black mb-4 border-b-2 border-gray-300 pb-2">WEEK 4: GENERATE REFERRALS</h2>
+        <h2 className="text-h2 font-black mb-4 border-b-2 border-gray-300 pb-2">WEEK 4: GENERATE REFERRALS</h2>
         
         <div className="mb-4">
-          <h3 className="text-lg font-bold mb-2">Days 21-25: Close Your First Referral</h3>
+          <h3 className="text-h3 font-bold mb-2">Days 21-25: Close Your First Referral</h3>
           <div className="bg-gray-50 p-4 border-l-4 border-red-600 mb-3">
             <p className="font-semibold mb-2">Action Items:</p>
             <ul className="list-disc list-inside space-y-1 text-sm">
@@ -144,7 +144,7 @@ export default function QuickStartGuide() {
         </div>
 
         <div className="mb-4">
-          <h3 className="text-lg font-bold mb-2">Days 26-30: Reflect and Optimize</h3>
+          <h3 className="text-h3 font-bold mb-2">Days 26-30: Reflect and Optimize</h3>
           <div className="bg-gray-50 p-4 border-l-4 border-red-600 mb-3">
             <p className="font-semibold mb-2">Reflection Questions:</p>
             <ul className="list-disc list-inside space-y-1 text-sm">
@@ -158,7 +158,7 @@ export default function QuickStartGuide() {
       </div>
 
       <div className="bg-gray-900 text-white p-6">
-        <h2 className="text-2xl font-black mb-3">YOUR 30-DAY SCORECARD</h2>
+        <h2 className="text-h2 font-black mb-3">YOUR 30-DAY SCORECARD</h2>
         <div className="grid grid-cols-2 gap-4 text-sm">
           <div className="border border-gray-600 p-3">
             <p className="font-semibold mb-1">Meaningful Touches:</p>

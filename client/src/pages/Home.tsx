@@ -12,7 +12,7 @@ const DailyDrill = ({ drill, isLoading }: { drill: string; isLoading: boolean })
   if (isLoading) {
     return <div className="w-full flex justify-center py-8"><SpinnerIcon className="w-10 h-10 animate-spin text-white/80" /></div>;
   }
-  return <p className="text-lg sm:text-xl font-medium leading-relaxed" data-testid="text-daily-drill">{drill}</p>;
+  return <p className="text-body-lg font-medium" data-testid="text-daily-drill">{drill}</p>;
 };
 
 
@@ -158,7 +158,7 @@ export default function Home() {
             <span>AI-Enhanced Hospice Sales Training</span>
           </div>
           
-          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black mb-4 sm:mb-6 md:mb-8 leading-[1.1] tracking-tight animate-fade-in-up px-4">
+          <h1 className="text-hero mb-4 sm:mb-6 md:mb-8 animate-fade-in-up px-4">
             <span className="block bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
               Patient Outcomes First.
             </span>
@@ -167,7 +167,7 @@ export default function Home() {
             </span>
           </h1>
           
-          <p className="text-sm sm:text-xl md:text-2xl lg:text-3xl mb-6 sm:mb-10 md:mb-14 max-w-4xl mx-auto leading-relaxed font-medium animate-fade-in-up px-6" style={{ animationDelay: '0.1s' }}>
+          <p className="text-body-lg mb-6 sm:mb-10 md:mb-14 max-w-4xl mx-auto animate-fade-in-up px-6" style={{ animationDelay: '0.1s' }}>
             <span className="text-white/90">This is the 'why' of Spartan Coaching. We exist to transform hospice sales from a transaction into a mission: ensuring every eligible patient receives the compassionate care they deserve.</span>
             <span className="block mt-3 sm:mt-4 bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent font-bold">We build expert sales leaders who serve with integrity and lead with empathy.</span>
           </p>
@@ -214,7 +214,7 @@ export default function Home() {
           <div className="absolute top-0 right-0 w-64 h-64 sm:w-96 sm:h-96 bg-white/5 rounded-full blur-3xl"></div>
           
           <CardHeader className="relative pb-4 sm:pb-6">
-            <CardTitle className="text-2xl sm:text-3xl md:text-4xl font-black flex items-center gap-3 sm:gap-4">
+            <CardTitle className="text-h3 flex items-center gap-3 sm:gap-4">
               <div className="p-3 sm:p-4 bg-white/20 rounded-xl backdrop-blur-sm shrink-0 shadow-lg">
                 <LightbulbIcon className="w-8 h-8 sm:w-10 sm:h-10" />
               </div>
@@ -233,7 +233,7 @@ export default function Home() {
       {/* Value Pillars - Enhanced with better visuals */}
       <section className="max-w-7xl mx-auto spacing-container spacing-section">
         <div className="text-center mb-16 sm:mb-20">
-          <h2 className="text-hero text-gradient-elegant mb-6">
+          <h2 className="text-h2 text-gradient-elegant mb-6">
             The Three Pillars
           </h2>
           <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto">
@@ -283,7 +283,7 @@ export default function Home() {
         
         <div className="relative max-w-7xl mx-auto spacing-container">
           <div className="text-center mb-16 sm:mb-20">
-            <h2 className="text-hero text-gradient-elegant mb-6">
+            <h2 className="text-h2 text-gradient-elegant mb-6">
               Transform Your Career
             </h2>
             <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto">
@@ -341,10 +341,10 @@ export default function Home() {
       <section className="relative bg-gradient-to-br from-accent/40 via-accent/20 to-accent/40 spacing-section">
         <div className="w-full max-w-7xl mx-auto spacing-container">
           <div className="text-center max-w-3xl mx-auto mb-16">
-            <h2 className="text-h3 text-primary mb-3" data-testid="text-philosophy-label">Our Philosophy</h2>
-            <h3 className="text-hero text-foreground mb-6">
+            <p className="text-lg font-semibold text-primary mb-3" data-testid="text-philosophy-label">Our Philosophy</p>
+            <h2 className="text-h2 text-foreground mb-6">
               The Path to Mastery in Hospice Sales
-            </h3>
+            </h2>
             <p className="text-body-lg text-muted-foreground">
               Success isn't about closing deals. It's about opening doors to comfort, dignity, and peace. This requires more than sales tactics; it demands a disciplined mindset.
             </p>
@@ -405,7 +405,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(255,255,255,0.05),transparent_50%)]"></div>
         
         <div className="relative max-w-4xl mx-auto spacing-container text-center">
-          <h2 className="text-hero mb-6">
+          <h2 className="text-h2 mb-6">
             Weekly Coaching Tips
           </h2>
           <p className="text-body-lg mb-10 text-red-100 max-w-2xl mx-auto">

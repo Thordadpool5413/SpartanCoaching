@@ -192,7 +192,7 @@ export default function Testimonials() {
               <div className="relative">
                 <div className="grid md:grid-cols-3 gap-8">
                   <div className="md:col-span-2">
-                    <h3 className="text-2xl font-bold text-foreground mb-3">{study.title}</h3>
+                    <h3 className="text-h3 font-bold text-foreground mb-3">{study.title}</h3>
                     <p className="text-sm text-muted-foreground mb-6">{study.client}</p>
 
                     <div className="space-y-4">
@@ -243,7 +243,7 @@ export default function Testimonials() {
             <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-spartan-gradient flex items-center justify-center">
               <Users className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-lg font-bold text-foreground mb-2">Individual Reps</h3>
+            <h3 className="text-h3 font-bold text-foreground mb-2">Individual Reps</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Sales professionals improving their territory performance, conversion rates, and execution consistency.
             </p>
@@ -256,7 +256,7 @@ export default function Testimonials() {
             <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-spartan-gradient flex items-center justify-center">
               <TrendingUp className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-lg font-bold text-foreground mb-2">Sales Leadership</h3>
+            <h3 className="text-h3 font-bold text-foreground mb-2">Sales Leadership</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Managers and directors building consistent team performance and scalable coaching systems.
             </p>
@@ -269,7 +269,7 @@ export default function Testimonials() {
             <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-spartan-gradient flex items-center justify-center">
               <Award className="w-6 h-6 text-white" />
             </div>
-            <h3 className="text-lg font-bold text-foreground mb-2">Corporate Providers</h3>
+            <h3 className="text-h3 font-bold text-foreground mb-2">Corporate Providers</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
               Multi-market organizations standardizing execution and making growth predictable across regions.
             </p>
@@ -279,10 +279,10 @@ export default function Testimonials() {
 
       {/* CTA */}
       <div className="bg-gradient-to-br from-primary/10 to-destructive/10 rounded-2xl p-8 md:p-12 text-center">
-        <h2 className="text-3xl font-bold text-foreground mb-4">
+        <h2 className="text-h2 font-bold text-foreground mb-4">
           Ready to Write Your Success Story?
         </h2>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
+        <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-8">
           Whether you're a rep looking to sharpen your skills, a leader building a team, or an executive scaling across markets—let's talk about what's not working and build a plan that fixes it.
         </p>
         <a href="mailto:contact@spartancoaching.com" className="inline-block">

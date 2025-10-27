@@ -152,7 +152,7 @@ export default function Method() {
 
           <Accordion type="single" collapsible className="space-y-4">
             <AccordionItem value="discipline">
-              <AccordionTrigger className="text-2xl font-bold text-primary hover:text-primary/80">
+              <AccordionTrigger className="text-h3 font-bold text-primary hover:text-primary/80">
                 Discipline
               </AccordionTrigger>
               <AccordionContent className="text-foreground leading-relaxed pt-4 space-y-4">
@@ -172,7 +172,7 @@ export default function Method() {
             </AccordionItem>
 
             <AccordionItem value="empathy">
-              <AccordionTrigger className="text-2xl font-bold text-primary hover:text-primary/80">
+              <AccordionTrigger className="text-h3 font-bold text-primary hover:text-primary/80">
                 Empathy
               </AccordionTrigger>
               <AccordionContent className="text-foreground leading-relaxed pt-4 space-y-4">
@@ -192,7 +192,7 @@ export default function Method() {
             </AccordionItem>
 
             <AccordionItem value="strategy">
-              <AccordionTrigger className="text-2xl font-bold text-primary hover:text-primary/80">
+              <AccordionTrigger className="text-h3 font-bold text-primary hover:text-primary/80">
                 Strategy
               </AccordionTrigger>
               <AccordionContent className="text-foreground leading-relaxed pt-4 space-y-4">
@@ -234,7 +234,7 @@ export default function Method() {
                       <Icon className={`w-6 h-6 ${stage.color}`} />
                     </div>
                     <div className="flex-1">
-                      <h3 className={`text-2xl font-bold ${stage.color} mb-1`}>{stage.title}</h3>
+                      <h3 className={`text-h3 font-bold ${stage.color} mb-1`}>{stage.title}</h3>
                       <p className="text-sm text-muted-foreground italic">Stage {idx + 1} of 4</p>
                     </div>
                   </div>
@@ -302,7 +302,7 @@ export default function Method() {
                     <span className="text-sm font-bold text-primary">{idx + 1}</span>
                   </div>
                   <div className="flex-1">
-                    <h3 className="font-bold text-foreground mb-2">{fundamental.title}</h3>
+                    <h3 className="text-h3 text-foreground mb-2">{fundamental.title}</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed">{fundamental.description}</p>
                   </div>
                 </div>
@@ -331,7 +331,7 @@ export default function Method() {
                       <Icon className="w-8 h-8 text-white" />
                     </div>
                   </div>
-                  <h3 className="font-bold text-foreground mb-3">{ethic.title}</h3>
+                  <h3 className="text-h3 text-foreground mb-3">{ethic.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{ethic.description}</p>
                 </Card>
               );

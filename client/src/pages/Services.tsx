@@ -179,7 +179,7 @@ export default function Services() {
             <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card" data-testid={`card-individual-${idx}`}>
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div className="flex-1">
-                <h3 className="text-xl font-bold text-foreground mb-3">{service.title}</h3>
+                <h3 className="text-h3 font-bold text-foreground mb-3">{service.title}</h3>
                 <div className="flex items-baseline gap-3 mb-6">
                   <p className="text-3xl font-black text-primary">{service.price}</p>
                   <p className="text-sm text-muted-foreground">{service.duration}</p>
@@ -245,7 +245,7 @@ export default function Services() {
             <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card" data-testid={`card-leadership-${idx}`}>
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div className="flex-1">
-                <h3 className="text-xl font-bold text-foreground mb-3">{service.title}</h3>
+                <h3 className="text-h3 font-bold text-foreground mb-3">{service.title}</h3>
                 <div className="flex items-baseline gap-3 mb-6">
                   <p className="text-3xl font-black text-primary">{service.price}</p>
                   <p className="text-sm text-muted-foreground">{service.duration}</p>
@@ -311,7 +311,7 @@ export default function Services() {
             <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card" data-testid={`card-corporate-${idx}`}>
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div className="flex-1">
-                <h3 className="text-xl font-bold text-foreground mb-3">{service.title}</h3>
+                <h3 className="text-h3 font-bold text-foreground mb-3">{service.title}</h3>
                 <div className="flex items-baseline gap-3 mb-6">
                   <p className="text-3xl font-black text-primary">{service.price}</p>
                   <p className="text-sm text-muted-foreground">{service.duration}</p>
@@ -364,10 +364,10 @@ export default function Services() {
       <div className="relative bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent rounded-3xl p-8 sm:p-10 md:p-12 text-center overflow-hidden border-2 border-red-500/20 shadow-2xl">
         <div className="absolute top-0 right-0 w-48 h-48 bg-red-500/10 rounded-full blur-3xl"></div>
         <div className="relative">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-foreground mb-4 sm:mb-6">
+          <h2 className="text-h2 text-foreground mb-4 sm:mb-6">
             Not Sure Which Service Fits?
           </h2>
-          <p className="text-base sm:text-lg text-muted-foreground max-w-2xl mx-auto mb-8 sm:mb-10">
+          <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-8 sm:mb-10">
             Every engagement starts with understanding your specific challenge. Let's talk about what's not working and build a plan that fixes it.
           </p>
           <Button

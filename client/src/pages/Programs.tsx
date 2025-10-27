@@ -468,7 +468,7 @@ export default function Programs() {
           <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card" data-testid={`card-program-${idx}`}>
             <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="relative flex-1">
-              <h3 className="text-xl font-bold text-foreground mb-3">{program.title}</h3>
+              <h3 className="text-h3 font-bold text-foreground mb-3">{program.title}</h3>
               <p className="text-muted-foreground mb-4 leading-relaxed text-sm">{program.description}</p>
               <div className="mb-4">
                 <p className="text-sm font-bold text-foreground mb-2">Key Deliverables:</p>
@@ -529,7 +529,7 @@ export default function Programs() {
             <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card" data-testid={`card-strategic-${idx}`}>
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div className="flex-1">
-                <h3 className="text-xl font-bold text-foreground mb-3">{service.title}</h3>
+                <h3 className="text-h3 font-bold text-foreground mb-3">{service.title}</h3>
                 <p className="text-muted-foreground mb-4 leading-relaxed text-sm">{service.description}</p>
                 <div className="mb-4">
                   <p className="text-sm font-bold text-foreground mb-2">Key Deliverables:</p>

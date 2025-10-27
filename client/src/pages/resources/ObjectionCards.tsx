@@ -58,7 +58,7 @@ export default function ObjectionCards() {
       `}</style>
       
       <div className="text-center mb-6 border-b-4 border-red-600 pb-4">
-        <h1 className="text-3xl font-black mb-2">OBJECTION RESPONSE CARDS</h1>
+        <h1 className="text-h1 font-black mb-2">OBJECTION RESPONSE CARDS</h1>
         <p className="text-sm text-gray-600">Pocket-sized responses for the 8 most common hospice objections</p>
         <p className="text-xs text-gray-500 mt-2">Print double-sided, cut along lines, and laminate for field use</p>
       </div>
@@ -89,7 +89,7 @@ export default function ObjectionCards() {
       </div>
 
       <div className="mt-8 bg-gray-900 text-white p-6 rounded-lg">
-        <h2 className="font-black text-xl mb-3">THE UNIVERSAL FRAMEWORK</h2>
+        <h2 className="font-black text-h2 mb-3">THE UNIVERSAL FRAMEWORK</h2>
         <div className="grid grid-cols-3 gap-4 text-sm">
           <div>
             <h3 className="font-bold mb-2 text-red-400">1. ACKNOWLEDGE</h3>

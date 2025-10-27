@@ -22,11 +22,11 @@ export default function About() {
         {/* The Why Section - Core Message */}
         <div className="space-y-8 md:space-y-12 lg:space-y-16">
           <Card className="spacing-card bg-gradient-to-br from-primary/5 to-destructive/5 border-2">
-            <div className="space-y-6 text-lg leading-relaxed">
+            <div className="space-y-6 text-body-lg leading-relaxed">
               <p className="text-foreground">
                 The promise is simple. When a person is eligible, they should receive expert, compassionate care without delay, and their family should feel supported at every step. That promise breaks when sales teams are left with vague goals, light coaching, and a calendar full of activity that does not move referrals.
               </p>
-              <p className="text-foreground font-semibold text-xl">
+              <p className="text-foreground font-semibold text-body-lg">
                 Spartan Coaching exists to close the gap between good intentions and consistent execution so more eligible patients receive care earlier in their journey.
               </p>
               <p className="text-foreground">
@@ -49,7 +49,7 @@ export default function About() {
                 <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-spartan-gradient flex items-center justify-center">
                   <Target className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-lg font-bold text-foreground mb-2">For Teams</h3>
+                <h3 className="text-h3 font-bold text-foreground mb-2">For Teams</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   When teams communicate clearly with referral partners and remove friction from the pathway, length of stay stabilizes, hospital readmissions drop, and families feel seen.
                 </p>
@@ -62,7 +62,7 @@ export default function About() {
                 <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-spartan-gradient flex items-center justify-center">
                   <Users className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-lg font-bold text-foreground mb-2">For Reps</h3>
+                <h3 className="text-h3 font-bold text-foreground mb-2">For Reps</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   When reps carry a clean plan for their top accounts, follow up is faster, objections become opportunities to educate, and referrals move from interest to signed order without getting lost.
                 </p>
@@ -75,7 +75,7 @@ export default function About() {
                 <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-spartan-gradient flex items-center justify-center">
                   <TrendingUp className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-lg font-bold text-foreground mb-2">For Organizations</h3>
+                <h3 className="text-h3 font-bold text-foreground mb-2">For Organizations</h3>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   When the corporate office can see the same standards across markets, wins are repeatable and growth is not guesswork.
                 </p>
@@ -95,7 +95,7 @@ export default function About() {
               <p>
                 That system has to be simple, honest, and teachable. It has to honor Medicare rules and protect trust with physicians and facilities. It has to turn mission into steps that any trained rep can take and any skilled leader can coach.
               </p>
-              <p className="font-semibold text-foreground text-lg">
+              <p className="font-semibold text-foreground text-body-lg">
                 Spartan is a choice. It means fewer buzzwords and more practice. Fewer meetings and more field work. Clear standards. Straight talk. Daily accountability.
               </p>
               <p>
@@ -122,7 +122,7 @@ export default function About() {
                       data-testid="img-founder"
                     />
                   </div>
-                  <h3 className="text-2xl font-bold text-foreground">Nick Lynch</h3>
+                  <h3 className="text-h3 font-bold text-foreground">Nick Lynch</h3>
                   <p className="text-muted-foreground">Founder</p>
                 </div>
               </div>
@@ -144,7 +144,7 @@ export default function About() {
             <Card className="hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div className="relative">
-                <h3 className="text-xl font-bold text-primary mb-2">Field Leadership</h3>
+                <h3 className="text-h3 font-bold text-primary mb-2">Field Leadership</h3>
                 <p className="text-muted-foreground leading-relaxed">
                   Built and led field sales teams across multiple markets, developing territory strategies that respect clinical workflows while driving measurable growth in referrals and patient census.
                 </p>
@@ -154,7 +154,7 @@ export default function About() {
             <Card className="hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div className="relative">
-                <h3 className="text-xl font-bold text-primary mb-2">Operational Excellence</h3>
+                <h3 className="text-h3 font-bold text-primary mb-2">Operational Excellence</h3>
                 <p className="text-muted-foreground leading-relaxed">
                   Designed and implemented systems for admissions speed, start-of-care readiness, and IDT communication that reduce delays and improve patient outcomes.
                 </p>
@@ -164,7 +164,7 @@ export default function About() {
             <Card className="hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div className="relative">
-                <h3 className="text-xl font-bold text-primary mb-2">Practical Coaching</h3>
+                <h3 className="text-h3 font-bold text-primary mb-2">Practical Coaching</h3>
                 <p className="text-muted-foreground leading-relaxed">
                   Believes in coaching that happens in the work, not in theory. Every framework is field-tested, every playbook is battle-proven, and every strategy prioritizes patient-first outcomes.
                 </p>
@@ -199,10 +199,10 @@ export default function About() {
 
         {/* CTA */}
         <div className="bg-gradient-to-br from-primary/10 to-destructive/10 rounded-2xl p-8 md:p-12 text-center">
-          <h2 className="text-3xl font-bold text-foreground mb-4">
+          <h2 className="text-h2 font-bold text-foreground mb-4">
             Let's Work Together
           </h2>
-          <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-6 leading-relaxed">
+          <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-6 leading-relaxed">
             Whether you need one-on-one coaching, team training, or strategic consulting, Spartan Coaching is here to help you deliver better outcomes for the patients who need you most.
           </p>
           <a href="mailto:contact@spartancoaching.com" className="inline-block">
