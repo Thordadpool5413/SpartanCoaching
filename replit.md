@@ -85,6 +85,18 @@ Completed comprehensive visual enhancement across all core pages to deliver a "w
 - No horizontal overflow on any page or device
 - Proper text wrapping on CTAs (whitespace-normal on mobile)
 
+**Hero Section Sizing (October 2025):**
+- Fixed viewport-relative heights prevent hero from expanding beyond intended size
+- Mobile (< 640px): `h-[85vh]` = exactly 85% of viewport height (~567px on iPhone SE)
+- Small screens (≥640px): `sm:h-[90vh]` = exactly 90% of viewport height (~760px on iPhone 12)
+- Medium+ (≥768px): `md:h-[92vh]` = exactly 92% of viewport height
+- Changed from `min-h` to `h` to prevent content-driven expansion
+- Optimized text sizing: heading starts at `text-4xl`, paragraph at `text-base` on mobile
+- Reduced spacing: `py-12`, `mb-5`, `mb-8` margins on mobile for tighter fit
+- Button sizing: `text-sm px-8 py-6 min-h-[52px]` on mobile for touch-friendliness
+- Daily Drill card positioned with `-mt-16` on mobile for smooth overlap
+- Automated testing confirmed exact height measurements across devices
+
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
