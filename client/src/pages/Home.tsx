@@ -49,16 +49,32 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section - Enhanced with dramatic visuals */}
+      {/* Hero Section - Enhanced with video background */}
       <section className="relative min-h-[100vh] md:min-h-[92vh] flex items-center justify-center overflow-hidden mobile-full-height">
-        {/* Background with animated gradient */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(239,68,68,0.15),transparent_50%)]"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(239,68,68,0.1),transparent_50%)]"></div>
+        {/* Video Background */}
+        <video
+          autoPlay
+          muted
+          loop
+          playsInline
+          poster="/videos/hero-poster.jpg"
+          className="absolute inset-0 w-full h-full object-cover hidden md:block"
+          data-testid="hero-video"
+        >
+          <source src="/videos/hero-video.mp4" type="video/mp4" />
+        </video>
         
-        {/* Optional hero image with overlay */}
-        <div className="absolute inset-0 bg-[url('/spartan-hero.jpg')] bg-cover bg-center opacity-20"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-black/60"></div>
+        {/* Poster image for mobile (better performance) */}
+        <div 
+          className="absolute inset-0 bg-cover bg-center md:hidden"
+          style={{ backgroundImage: 'url(/videos/hero-poster.jpg)' }}
+        ></div>
+        
+        {/* Fallback gradient background for very old browsers */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 -z-10"></div>
+        
+        {/* Dark overlay for text readability */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/70"></div>
         
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-24 md:py-28 text-center">
