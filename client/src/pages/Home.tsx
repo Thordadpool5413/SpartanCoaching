@@ -73,7 +73,7 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section - Enhanced with video background */}
-      <section className="relative min-h-[100vh] md:min-h-[92vh] flex items-center justify-center overflow-hidden mobile-full-height">
+      <section className="relative h-[85vh] sm:h-[90vh] md:h-[92vh] flex items-center justify-center overflow-hidden">
         {/* Video Background - plays on all devices */}
         <video
           autoPlay
@@ -96,48 +96,48 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/70"></div>
         
         {/* Content */}
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-24 md:py-28 text-center">
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-20 lg:py-24 text-center">
           <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-sm font-medium animate-fade-in">
             <Sparkles className="w-4 h-4" />
             <span>AI-Enhanced Hospice Sales Training</span>
           </div>
           
-          <h1 className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl font-black mb-6 sm:mb-8 leading-[0.95] tracking-tight animate-fade-in-up">
+          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black mb-5 sm:mb-6 md:mb-8 leading-[1] tracking-tight animate-fade-in-up">
             <span className="block bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
               Patient Outcomes First.
             </span>
-            <span className="block bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent mt-2">
+            <span className="block bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent mt-1 sm:mt-2">
               Elite Reps Always.
             </span>
           </h1>
           
-          <p className="text-xl sm:text-2xl md:text-3xl mb-12 sm:mb-14 max-w-4xl mx-auto leading-relaxed font-medium animate-fade-in-up px-4" style={{ animationDelay: '0.1s' }}>
+          <p className="text-base sm:text-xl md:text-2xl lg:text-3xl mb-8 sm:mb-10 md:mb-14 max-w-4xl mx-auto leading-relaxed font-medium animate-fade-in-up px-4" style={{ animationDelay: '0.1s' }}>
             <span className="text-white/90">This is the 'why' of Spartan Coaching. We exist to transform hospice sales from a transaction into a mission: ensuring every eligible patient receives the compassionate care they deserve.</span>
-            <span className="block mt-4 bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent font-bold">We build expert sales leaders who serve with integrity and lead with empathy.</span>
+            <span className="block mt-3 sm:mt-4 bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent font-bold">We build expert sales leaders who serve with integrity and lead with empathy.</span>
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 justify-center animate-fade-in-up px-4 max-w-2xl mx-auto" style={{ animationDelay: '0.4s' }}>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-6 justify-center animate-fade-in-up px-4 max-w-2xl mx-auto" style={{ animationDelay: '0.4s' }}>
             <Button 
               size="lg" 
               asChild 
-              className="text-base sm:text-lg px-10 sm:px-12 py-7 sm:py-8 font-bold shadow-2xl glow-primary-hover transition-elegant min-h-[56px] sm:min-h-auto touch-manipulation group"
+              className="text-sm sm:text-base md:text-lg px-8 sm:px-10 md:px-12 py-6 sm:py-7 md:py-8 font-bold shadow-2xl glow-primary-hover transition-elegant min-h-[52px] sm:min-h-[56px] touch-manipulation group"
               data-testid="button-view-services"
             >
               <Link href="/services">
                 <span>View Services</span>
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
             <Button 
               size="lg" 
               variant="outline" 
               asChild 
-              className="text-base sm:text-lg px-10 sm:px-12 py-7 sm:py-8 font-semibold glass border-white/30 hover:bg-white/20 hover:border-white/40 transition-elegant min-h-[56px] sm:min-h-auto touch-manipulation group"
+              className="text-sm sm:text-base md:text-lg px-8 sm:px-10 md:px-12 py-6 sm:py-7 md:py-8 font-semibold glass border-white/30 hover:bg-white/20 hover:border-white/40 transition-elegant min-h-[52px] sm:min-h-[56px] touch-manipulation group"
               data-testid="button-why-spartan"
             >
               <Link href="/about">
                 <span>Why Spartan Exists</span>
-                <Heart className="ml-2 w-5 h-5 group-hover:scale-110 transition-transform" />
+                <Heart className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
               </Link>
             </Button>
           </div>
@@ -152,7 +152,7 @@ export default function Home() {
       </section>
 
       {/* Daily Drill Card - Enhanced design */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 -mt-20 sm:-mt-28 relative z-20">
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 -mt-16 sm:-mt-20 md:-mt-24 relative z-20">
         <Card className="relative bg-gradient-to-br from-red-600 via-red-600 to-red-700 text-white shadow-2xl border-0 overflow-hidden transition-elegant hover:scale-[1.02] hover:shadow-red-500/30 glow-primary">
           <div className="absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/10"></div>
           <div className="absolute top-0 right-0 w-64 h-64 sm:w-96 sm:h-96 bg-white/5 rounded-full blur-3xl"></div>
