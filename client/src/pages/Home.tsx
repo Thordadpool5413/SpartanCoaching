@@ -74,7 +74,7 @@ export default function Home() {
     <div className="flex flex-col">
       {/* Hero Section - Enhanced with video background */}
       <section className="relative min-h-[100vh] md:min-h-[92vh] flex items-center justify-center overflow-hidden mobile-full-height">
-        {/* Video Background */}
+        {/* Video Background - plays on all devices */}
         <video
           autoPlay
           muted
@@ -83,17 +83,11 @@ export default function Home() {
           preload="auto"
           poster="/videos/hero-poster.jpg"
           onCanPlay={handleVideoCanPlay}
-          className="absolute inset-0 w-full h-full object-cover hidden md:block"
+          className="absolute inset-0 w-full h-full object-cover"
           data-testid="hero-video"
         >
           <source src="/videos/hero-video.mp4" type="video/mp4" />
         </video>
-        
-        {/* Poster image for mobile (better performance) */}
-        <div 
-          className="absolute inset-0 bg-cover bg-center md:hidden"
-          style={{ backgroundImage: 'url(/videos/hero-poster.jpg)' }}
-        ></div>
         
         {/* Fallback gradient background for very old browsers */}
         <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 -z-10"></div>
