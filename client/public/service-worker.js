@@ -54,7 +54,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-first strategy for static assets
+  // Cache-first strategy for static assets (excluding large videos for network-first)
   if (
     request.url.includes('/assets/') ||
     request.url.includes('/attached_assets/') ||
@@ -125,6 +125,19 @@ self.addEventListener('fetch', (event) => {
             );
           });
         })
+    );
+    return;
+  }
+
+  // Network-first strategy for videos (bypass cache for range requests)
+  if (request.url.match(/\.(mp4|webm|mov)$/i)) {
+    event.respondWith(
+      fetch(request).catch(() => {
+        return new Response('Video unavailable', {
+          status: 503,
+          statusText: 'Service Unavailable'
+        });
+      })
     );
     return;
   }
