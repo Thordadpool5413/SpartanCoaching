@@ -233,6 +233,33 @@
       overflow-x: hidden;
       width: 100%;
     }
+    
+    /* Improved touch targets */
+    button, a[role="button"], input[type="button"], input[type="submit"] {
+      min-height: 48px;
+      min-width: 48px;
+      padding: 12px 20px;
+    }
+    
+    /* Better input fields */
+    input, textarea, select {
+      font-size: 16px !important; /* Prevents zoom on iOS */
+      padding: 14px;
+    }
+    
+    /* Optimize scrolling */
+    * {
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    /* Reduce motion for better performance */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
   }
 
   input[type="search"]::-webkit-search-cancel-button {

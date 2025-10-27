@@ -106,11 +106,11 @@ export function Header() {
         {/* Mobile Menu Button */}
         <button
           onClick={() => setMenuOpen(!menuOpen)}
-          className="lg:hidden p-3 min-h-[48px] min-w-[48px] flex items-center justify-center text-foreground hover-elevate active-elevate-2 rounded-lg touch-manipulation transition-transform active:scale-95"
+          className="lg:hidden p-4 min-h-[52px] min-w-[52px] flex items-center justify-center text-foreground hover-elevate active-elevate-2 rounded-lg touch-manipulation transition-transform active:scale-95 -mr-2"
           aria-label="Toggle menu"
           data-testid="button-mobile-menu"
         >
-          {menuOpen ? <CloseIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
+          {menuOpen ? <CloseIcon className="w-7 h-7" /> : <MenuIcon className="w-7 h-7" />}
         </button>
       </div>
 

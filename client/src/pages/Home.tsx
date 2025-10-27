@@ -79,7 +79,7 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section - Enhanced with video background */}
-      <section className="relative h-[85vh] sm:h-[90vh] md:h-[92vh] flex items-center justify-center overflow-hidden bg-gray-950">
+      <section className="relative min-h-[80vh] sm:h-[90vh] md:h-[92vh] flex items-center justify-center overflow-hidden bg-gray-950">
         {/* Fallback gradient background for very old browsers */}
         <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 z-0"></div>
         
@@ -108,21 +108,21 @@ export default function Home() {
             <span>AI-Enhanced Hospice Sales Training</span>
           </div>
           
-          <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black mb-5 sm:mb-6 md:mb-8 leading-[1] tracking-tight animate-fade-in-up">
+          <h1 className="text-3xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-black mb-4 sm:mb-6 md:mb-8 leading-[1.1] tracking-tight animate-fade-in-up px-4">
             <span className="block bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
               Patient Outcomes First.
             </span>
-            <span className="block bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent mt-1 sm:mt-2">
+            <span className="block bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent mt-2">
               Elite Reps Always.
             </span>
           </h1>
           
-          <p className="text-base sm:text-xl md:text-2xl lg:text-3xl mb-8 sm:mb-10 md:mb-14 max-w-4xl mx-auto leading-relaxed font-medium animate-fade-in-up px-4" style={{ animationDelay: '0.1s' }}>
+          <p className="text-sm sm:text-xl md:text-2xl lg:text-3xl mb-6 sm:mb-10 md:mb-14 max-w-4xl mx-auto leading-relaxed font-medium animate-fade-in-up px-6" style={{ animationDelay: '0.1s' }}>
             <span className="text-white/90">This is the 'why' of Spartan Coaching. We exist to transform hospice sales from a transaction into a mission: ensuring every eligible patient receives the compassionate care they deserve.</span>
             <span className="block mt-3 sm:mt-4 bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent font-bold">We build expert sales leaders who serve with integrity and lead with empathy.</span>
           </p>
           
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-6 justify-center animate-fade-in-up px-4 max-w-2xl mx-auto" style={{ animationDelay: '0.4s' }}>
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-6 justify-center animate-fade-in-up px-6 max-w-2xl mx-auto" style={{ animationDelay: '0.4s' }}>
             <Button 
               size="lg" 
               asChild 

@@ -8,12 +8,12 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 
 export function ChatWidget() {
+  const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const isMobile = useIsMobile();
 
 
   const scrollToBottom = () => {
@@ -185,8 +185,8 @@ export function ChatWidget() {
           {messages.length <= 1 && (
             <div className="flex flex-wrap gap-2 mb-3">
               {[
-                'Handle "We already have a provider"', 
-                'How do I prioritize my territory?', 
+                'Handle "We already have a provider"',
+                'How do I prioritize my territory?',
                 'Coach me on SNF objections',
                 'Build a weekly sales rhythm'
               ].map((suggestion) => (
