@@ -68,6 +68,23 @@ New page added with structured framework ready for real content:
 - Route: `/testimonials`
 - Navigation: Added to both desktop and mobile menus
 
+**Programs Page (/programs)**
+Enhanced comprehensive page showcasing hospice provider programs and strategic services:
+- **6 Hospice Programs**: Admissions Speed Boost, Hospital Referral Pathway, Assisted Living & Memory Care Growth, Physician Office Route & Message, After-Hours Readiness, Objection Handling
+- **4 Strategic Services**: Referral Data & Market Scan, Start of Care Readiness Kit, IDT Communication Tune-Up, New Liaison Starter Week
+- Duration references removed (no "4 weeks", "6 weeks" text)
+- Enhanced card design showing title, description, and top 3 deliverables
+- Each card has "Learn More" and quick inquiry buttons
+- **Program Detail Modals** (`ProgramDetailDialog` component):
+  - The Why: Business problem and patient care impact
+  - The Delivery: Implementation approach with numbered phases
+  - Expected Outcomes: Measurable results
+  - Who It's For: Target audience and ideal scenarios
+  - All Deliverables: Complete list with context
+- Content emphasizes practical execution systems, patient-first outcomes, and measurable business results
+- Mobile-optimized with 48px touch targets
+- Service Interest field in inquiry form auto-populates when opened from program/service cards or detail modals
+
 **Navigation Structure**
 Main menu items (in order):
 1. Home
