@@ -73,7 +73,10 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section - Enhanced with video background */}
-      <section className="relative h-[85vh] sm:h-[90vh] md:h-[92vh] flex items-center justify-center overflow-hidden">
+      <section className="relative h-[85vh] sm:h-[90vh] md:h-[92vh] flex items-center justify-center overflow-hidden bg-gray-950">
+        {/* Fallback gradient background for very old browsers */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 z-0"></div>
+        
         {/* Video Background - plays on all devices */}
         <video
           autoPlay
@@ -83,17 +86,14 @@ export default function Home() {
           preload="auto"
           poster="/videos/hero-poster.jpg"
           onCanPlay={handleVideoCanPlay}
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover z-[1]"
           data-testid="hero-video"
         >
           <source src="/videos/hero-video.mp4" type="video/mp4" />
         </video>
         
-        {/* Fallback gradient background for very old browsers */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 -z-10"></div>
-        
         {/* Dark overlay for text readability */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/70"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/50 to-black/70 z-[2]"></div>
         
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-20 lg:py-24 text-center">
