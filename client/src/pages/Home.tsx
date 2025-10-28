@@ -25,18 +25,33 @@ export default function Home() {
     };
     
     checkMobile();
-    window.addEventListener('resize', checkMobile);
+    let resizeTimer: NodeJS.Timeout;
+    const debouncedResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(checkMobile, 250);
+    };
+    window.addEventListener('resize', debouncedResize);
     
     // Check connection quality for mobile
     if ('connection' in navigator) {
       const conn = (navigator as any).connection;
-      if (conn && (conn.saveData || conn.effectiveType === 'slow-2g' || conn.effectiveType === '2g')) {
+      if (conn && (conn.saveData || conn.effectiveType === 'slow-2g' || conn.effectiveType === '2g' || conn.effectiveType === '3g')) {
         setShouldLoadVideo(false);
         console.log('Slow connection detected - showing poster only');
       }
     }
     
-    return () => window.removeEventListener('resize', checkMobile);
+    // Also check battery status on mobile
+    if ('getBattery' in navigator && mobile) {
+      (navigator as any).getBattery().then((battery: any) => {
+        if (battery.level < 0.2 && !battery.charging) {
+          setShouldLoadVideo(false);
+          console.log('Low battery - video disabled');
+        }
+      });
+    }
+    
+    return () => window.removeEventListener('resize', debouncedResize);
   }, []);
 
   // Handle video autoplay with mobile-specific retry logic

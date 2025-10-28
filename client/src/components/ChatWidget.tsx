@@ -124,13 +124,14 @@ export function ChatWidget() {
     return (
       <>
         {!isOpen && (
-          <button
+          <Button
             onClick={() => setIsOpen(true)}
-            className="fixed bottom-4 right-4 md:bottom-6 md:right-6 bg-primary text-primary-foreground p-3 md:p-4 rounded-full shadow-lg hover:bg-primary/90 transition-all z-50"
-            aria-label="Open chat"
+            className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-2xl z-50 hover:scale-110 transition-transform md:w-14 md:h-14 sm:w-12 sm:h-12 sm:bottom-4 sm:right-4"
+            variant="default"
+            size="icon"
           >
-            <MessageCircle className="w-5 h-5 md:w-6 md:h-6" />
-          </button>
+            <MessageCircle className="h-6 w-6 sm:h-5 sm:w-5" />
+          </Button>
         )}
       </>
     );

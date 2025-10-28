@@ -14,6 +14,21 @@ import {
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 
+// Helper hook to determine if the screen is mobile
+function useIsMobile() {
+  const [width, setWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setWidth(window.innerWidth);
+    };
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  return width < 768; // Adjust breakpoint as needed
+}
+
 function NavLink({ href, children, onClick }: { href: string; children: React.ReactNode; onClick?: () => void }) {
   const [location] = useLocation();
   const isActive = location === href;
@@ -37,8 +52,16 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
 
 export function Header() {
   const [location] = useLocation();
+  const isMobile = useIsMobile();
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Close mobile menu on route change
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location]);
+
   const [theme, setTheme] = useState<"light" | "dark">(getInitialTheme);
-  const [menuOpen, setMenuOpen] = useState(false);
+
 
   useEffect(() => {
     applyTheme(theme);
@@ -106,25 +129,27 @@ export function Header() {
         </nav>
 
         {/* Mobile Menu Button */}
-        <button
-          onClick={() => setMenuOpen(!menuOpen)}
-          className="lg:hidden p-4 min-h-[52px] min-w-[52px] flex items-center justify-center text-foreground hover-elevate active-elevate-2 rounded-lg touch-manipulation transition-transform active:scale-95 -mr-2"
-          aria-label="Toggle menu"
-          data-testid="button-mobile-menu"
-        >
-          {menuOpen ? <CloseIcon className="w-7 h-7" /> : <MenuIcon className="w-7 h-7" />}
-        </button>
+        {isMobile && (
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="lg:hidden p-4 min-h-[52px] min-w-[52px] flex items-center justify-center text-foreground hover-elevate active-elevate-2 rounded-lg touch-manipulation transition-transform active:scale-95 -mr-2"
+            aria-label="Toggle menu"
+            data-testid="button-mobile-menu"
+          >
+            {mobileMenuOpen ? <CloseIcon className="w-7 h-7" /> : <MenuIcon className="w-7 h-7" />}
+          </button>
+        )}
       </div>
 
       {/* Mobile Navigation */}
-      {menuOpen && (
+      {mobileMenuOpen && (
         <nav className="lg:hidden absolute top-full left-0 right-0 bg-background border-b border-border shadow-lg z-50 animate-fade-in mobile-safe-padding">
           <div className="flex flex-col p-4 space-y-3 max-h-[70vh] overflow-y-auto">
             {routes.map((route) => (
               <Link
                 key={route.path}
                 href={route.path}
-                onClick={() => setMenuOpen(false)}
+                onClick={() => setMobileMenuOpen(false)}
                 className={cn(
                   "px-4 py-3 rounded-lg text-base font-medium transition-all hover-elevate active-elevate-2 touch-manipulation min-h-[48px] flex items-center",
                   location === route.path
