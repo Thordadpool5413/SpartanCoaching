@@ -1,29 +1,136 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, Building, Calendar, Users } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Mail, Phone, Building, Calendar, Users, Lock, LogOut } from "lucide-react";
 import type { SelectInquiry, SelectNewsletterSubscriber } from "@shared/schema";
 import { BackButton } from "@/components/BackButton";
+import { useToast } from "@/hooks/use-toast";
+
+const ADMIN_CODE = "5413";
+const ADMIN_AUTH_KEY = "spartan-admin-auth";
 
 export default function Admin() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [passwordInput, setPasswordInput] = useState("");
+  const [showPasswordDialog, setShowPasswordDialog] = useState(true);
+  const { toast } = useToast();
+
+  // Check localStorage on mount
+  useEffect(() => {
+    const authStatus = localStorage.getItem(ADMIN_AUTH_KEY);
+    if (authStatus === "true") {
+      setIsAuthenticated(true);
+      setShowPasswordDialog(false);
+    }
+  }, []);
+
+  const handlePasswordSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (passwordInput === ADMIN_CODE) {
+      setIsAuthenticated(true);
+      setShowPasswordDialog(false);
+      localStorage.setItem(ADMIN_AUTH_KEY, "true");
+      toast({
+        title: "Access Granted",
+        description: "Welcome to the admin dashboard",
+      });
+      setPasswordInput("");
+    } else {
+      toast({
+        title: "Access Denied",
+        description: "Incorrect password. Please try again.",
+        variant: "destructive",
+      });
+      setPasswordInput("");
+    }
+  };
+
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+    setShowPasswordDialog(true);
+    localStorage.removeItem(ADMIN_AUTH_KEY);
+    toast({
+      title: "Logged Out",
+      description: "You have been logged out of the admin dashboard",
+    });
+  };
+
   const { data: inquiriesData, isLoading: inquiriesLoading } = useQuery<{ inquiries: SelectInquiry[] }>({
     queryKey: ["/api/inquiries"],
+    enabled: isAuthenticated,
   });
 
   const { data: subscribersData, isLoading: subscribersLoading } = useQuery<{ subscribers: SelectNewsletterSubscriber[] }>({
     queryKey: ["/api/newsletter/subscribers"],
+    enabled: isAuthenticated,
   });
 
   const inquiries = inquiriesData?.inquiries || [];
   const subscribers = subscribersData?.subscribers || [];
 
+  // Show password dialog if not authenticated
+  if (!isAuthenticated) {
+    return (
+      <Dialog open={showPasswordDialog} onOpenChange={() => {}}>
+        <DialogContent className="sm:max-w-md" onPointerDownOutside={(e) => e.preventDefault()} onEscapeKeyDown={(e) => e.preventDefault()}>
+          <DialogHeader>
+            <div className="flex items-center justify-center mb-4">
+              <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center">
+                <Lock className="w-8 h-8 text-primary" />
+              </div>
+            </div>
+            <DialogTitle className="text-center text-2xl">Admin Access Required</DialogTitle>
+            <DialogDescription className="text-center">
+              Please enter your admin password to continue
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handlePasswordSubmit} className="space-y-4 mt-4">
+            <Input
+              type="password"
+              placeholder="Enter admin code"
+              value={passwordInput}
+              onChange={(e) => setPasswordInput(e.target.value)}
+              className="text-center text-lg tracking-widest"
+              maxLength={4}
+              autoFocus
+              data-testid="input-admin-password"
+            />
+            <Button 
+              type="submit" 
+              className="w-full bg-spartan-gradient hover:glow-primary"
+              data-testid="button-submit-password"
+            >
+              Access Admin Dashboard
+            </Button>
+          </form>
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
   return (
     <div className="container mx-auto px-6 py-12">
-      <BackButton />
+      <div className="flex items-center justify-between mb-8">
+        <BackButton />
+        <Button
+          variant="outline"
+          onClick={handleLogout}
+          className="gap-2"
+          data-testid="button-logout"
+        >
+          <LogOut className="w-4 h-4" />
+          Logout
+        </Button>
+      </div>
+      
       <div className="mb-8">
-        <h1 className="text-5xl font-black mb-4">Admin Dashboard</h1>
+        <h1 className="text-5xl font-black mb-4" data-testid="text-admin-title">Admin Dashboard</h1>
         <p className="text-xl text-muted-foreground">
           Manage inquiries and newsletter subscribers
         </p>

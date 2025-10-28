@@ -287,6 +287,13 @@ export function Footer() {
             >
               Contact
             </a>
+            <Link
+              href="/admin"
+              className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md min-h-[48px] flex items-center justify-center touch-manipulation"
+              data-testid="link-admin"
+            >
+              Admin
+            </Link>
           </div>
         </div>
       </div>
