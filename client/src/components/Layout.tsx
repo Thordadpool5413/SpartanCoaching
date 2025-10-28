@@ -262,7 +262,7 @@ export function Footer() {
               © {new Date().getFullYear()} Spartan Coaching. All rights reserved.
             </p>
             <a
-              href="https://www.linkedin.com/in/nicholas-lynch-coaching"
+              href="https://www.linkedin.com/in/nicholas-lynch-coaching?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BzPbXAWy3RZWKMT%2FppHgzbw%3D%3D"
               target="_blank"
               rel="noopener noreferrer"
               className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors hover-elevate px-3 py-2 rounded-md group"

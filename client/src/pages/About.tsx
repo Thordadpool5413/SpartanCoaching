@@ -185,7 +185,7 @@ export default function About() {
                 data-testid="button-linkedin-about"
               >
                 <a
-                  href="https://www.linkedin.com/in/nicholas-lynch-coaching"
+                  href="https://www.linkedin.com/in/nicholas-lynch-coaching?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BzPbXAWy3RZWKMT%2FppHgzbw%3D%3D"
                   target="_blank"
                   rel="noopener noreferrer"
                 >
