@@ -158,14 +158,16 @@ export function Header() {
         </nav>
 
         {/* Mobile Menu Button */}
-        <button
+        <Button
+          variant="ghost"
+          size="icon"
           onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="lg:hidden p-4 min-h-[48px] min-w-[48px] flex items-center justify-center text-foreground hover-elevate active-elevate-2 rounded-lg touch-manipulation transition-transform active:scale-95 -mr-2"
+          className="lg:hidden min-h-[48px] min-w-[48px] touch-manipulation -mr-2"
           aria-label="Toggle menu"
           data-testid="button-mobile-menu"
         >
           {mobileMenuOpen ? <CloseIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
-        </button>
+        </Button>
       </div>
 
       {/* Mobile Navigation */}
