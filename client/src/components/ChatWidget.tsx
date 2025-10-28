@@ -1,20 +1,26 @@
 import { useState, useRef, useEffect } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { MessageCircle, X, Send, Loader2 } from "lucide-react";
+import { MessageCircle, X, Send, Loader2, Minimize2 } from "lucide-react";
 import type { ChatMessage } from "@shared/schema";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
+import { Card } from "@/components/ui/card";
 
 export function ChatWidget() {
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
+  const [isMinimized, setIsMinimized] = useState(false);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // Reset minimized state when closing the widget
+  const handleClose = () => {
+    setIsOpen(false);
+    setIsMinimized(false);
+  };
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -25,7 +31,7 @@ export function ChatWidget() {
   }, [messages]);
 
   useEffect(() => {
-    if (isOpen) {
+    if (isOpen && !isMinimized) {
       // Load persisted messages or add welcome message
       const savedMessages = localStorage.getItem('spartan-chat-history');
       if (savedMessages && messages.length === 0) {
@@ -51,7 +57,7 @@ export function ChatWidget() {
         ]);
       }
     }
-  }, [isOpen]);
+  }, [isOpen, isMinimized]);
 
   // Persist messages whenever they change
   useEffect(() => {
@@ -120,58 +126,124 @@ export function ChatWidget() {
     }
   };
 
+  // Closed state - Floating button
   if (!isOpen) {
     return (
       <Button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-2xl z-50 hover:scale-110 transition-transform md:w-14 md:h-14 sm:w-12 sm:h-12 sm:bottom-4 sm:right-4"
-        variant="default"
+        className={cn(
+          "fixed z-50 rounded-full shadow-2xl hover:scale-110 transition-all duration-300",
+          "bg-spartan-gradient glow-primary-hover",
+          isMobile
+            ? "bottom-4 right-4 w-14 h-14"
+            : "bottom-8 right-8 w-16 h-16"
+        )}
         size="icon"
         data-testid="button-chat-widget"
       >
-        <MessageCircle className="h-6 w-6 sm:h-5 sm:w-5" />
+        <MessageCircle className={cn(
+          "text-white",
+          isMobile ? "h-6 w-6" : "h-8 w-8"
+        )} />
       </Button>
     );
   }
 
+  // Minimized state - Small tab on right edge
+  if (isMinimized) {
+    return (
+      <Button
+        onClick={() => setIsMinimized(false)}
+        className={cn(
+          "fixed z-50 rounded-l-lg rounded-r-none shadow-2xl transition-all duration-300",
+          "bg-spartan-gradient glow-primary-hover flex flex-col items-center gap-2 px-3 py-6",
+          isMobile
+            ? "top-1/2 -translate-y-1/2 right-0"
+            : "top-1/3 right-0"
+        )}
+        data-testid="button-chat-minimized"
+      >
+        <MessageCircle className="h-5 w-5 text-white" />
+        <span className="text-white text-xs font-bold" style={{ writingMode: 'vertical-rl' }}>AI Coach</span>
+      </Button>
+    );
+  }
+
+  // Open state - Floating sidebar panel
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogContent className={cn(
-        "flex flex-col",
+    <div
+      className={cn(
+        "fixed z-50 transition-all duration-300 ease-in-out",
         isMobile
-          ? "fixed inset-0 max-w-full h-full rounded-none"
-          : "max-w-2xl max-h-[80vh]"
+          ? "inset-0 bg-background"
+          : "top-0 right-0 bottom-0 w-full max-w-md"
+      )}
+      data-testid="chat-widget-panel"
+    >
+      <Card className={cn(
+        "h-full flex flex-col border-2 shadow-2xl",
+        isMobile ? "rounded-none" : "rounded-l-xl rounded-r-none border-r-0"
       )}>
-        <DialogHeader>
-          <DialogTitle>Expert Hospice Sales Coach</DialogTitle>
-          <DialogDescription>
-            Advanced AI coach specializing in hospice sales, objection handling, territory management, and The Spartan Method.
-          </DialogDescription>
-        </DialogHeader>
+        {/* Header */}
+        <div className="flex items-center justify-between p-4 border-b border-border bg-spartan-gradient">
+          <div className="flex items-center gap-3">
+            <MessageCircle className="h-5 w-5 text-white" />
+            <div>
+              <h3 className="font-bold text-white text-base">Expert Hospice Sales Coach</h3>
+              <p className="text-xs text-white/80">AI-powered by The Spartan Method</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-1">
+            {!isMobile && (
+              <Button
+                size="icon"
+                variant="ghost"
+                onClick={() => setIsMinimized(true)}
+                className="h-8 w-8 text-white hover:bg-white/20"
+                data-testid="button-minimize-chat"
+              >
+                <Minimize2 className="h-4 w-4" />
+              </Button>
+            )}
+            <Button
+              size="icon"
+              variant="ghost"
+              onClick={handleClose}
+              className="h-8 w-8 text-white hover:bg-white/20"
+              data-testid="button-close-chat"
+            >
+              <X className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
 
         {/* Messages */}
         <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
           {messages.map((msg, idx) => (
             <div
               key={idx}
-              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+              className={cn(
+                "flex",
+                msg.role === "user" ? "justify-end" : "justify-start"
+              )}
               data-testid={`chat-message-${idx}`}
             >
               <div
-                className={`max-w-[80%] rounded-lg p-3 ${
+                className={cn(
+                  "max-w-[85%] rounded-lg p-3 shadow-sm",
                   msg.role === "user"
-                    ? "bg-primary text-primary-foreground"
-                    : "bg-muted text-foreground"
-                }`}
+                    ? "bg-spartan-gradient text-white"
+                    : "bg-muted text-foreground border border-border"
+                )}
               >
-                <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
+                <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
               </div>
             </div>
           ))}
           {isLoading && (
             <div className="flex justify-start">
-              <div className="bg-muted text-foreground rounded-lg p-3">
-                <Loader2 className="w-5 h-5 animate-spin" />
+              <div className="bg-muted text-foreground rounded-lg p-3 border border-border">
+                <Loader2 className="w-5 h-5 animate-spin text-primary" />
               </div>
             </div>
           )}
@@ -179,7 +251,7 @@ export function ChatWidget() {
         </div>
 
         {/* Input */}
-        <div className="p-4 border-t border-border bg-background">
+        <div className="p-4 border-t border-border bg-muted/30">
           {messages.length <= 1 && (
             <div className="flex flex-wrap gap-2 mb-3">
               {[
@@ -193,7 +265,8 @@ export function ChatWidget() {
                   variant="outline"
                   size="sm"
                   onClick={() => setInput(suggestion)}
-                  className="text-xs"
+                  className="text-xs hover-elevate"
+                  data-testid={`button-suggestion-${suggestion.slice(0, 20)}`}
                 >
                   {suggestion}
                 </Button>
@@ -206,21 +279,21 @@ export function ChatWidget() {
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={handleKeyDown}
               placeholder="Ask me anything about hospice sales..."
-              className="min-h-10 max-h-24 resize-none"
+              className="min-h-[48px] max-h-32 resize-none text-sm"
               data-testid="textarea-chat-input"
             />
             <Button
               onClick={handleSend}
               disabled={!input.trim() || isLoading}
               size="icon"
-              className="h-10 w-10"
+              className="h-12 w-12 bg-spartan-gradient hover:glow-primary transition-all"
               data-testid="button-send-message"
             >
-              <Send className="w-4 h-4" />
+              <Send className="w-5 h-5 text-white" />
             </Button>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </Card>
+    </div>
   );
 }
