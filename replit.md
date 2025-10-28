@@ -31,7 +31,7 @@ The platform employs a premium SaaS aesthetic with a sophisticated visual design
 
 - **The Spartan Method**: A core framework structured around Three Pillars (Discipline, Empathy, Strategy), a Four-Stage Healthcare Sales Mastery Model (Discovery, Connecting, Guiding, Commitment), and Five Governing Fundamentals. This method is visually represented with color-coded stages and enhanced card designs.
 - **Programs & Services**: Detailed pages and modals outlining various hospice provider programs and strategic services, including business problems addressed, delivery approaches, outcomes, and target audiences.
-- **AI Chatbot**: Advanced AI chatbot with extensive knowledge of hospice sales, Medicare/Medicaid regulations, IDG workflows, and the Spartan Method. It provides objection handling, territory management best practices, and coaching strategies.
+- **AI Chatbot**: Advanced AI chatbot with extensive knowledge of hospice sales, Medicare/Medicaid regulations, IDG workflows, and the Spartan Method. It provides objection handling, territory management best practices, and coaching strategies. The chatbot is implemented as a floating, sticky widget positioned on the right side of the screen with three states: closed (floating button), minimized (vertical tab), and open (full chat panel). It uses fixed positioning to remain visible during scrolling and persists conversation history via localStorage.
 - **Authentication**: User schema defined, with preparations for session-based authentication.
 
 ## External Dependencies
