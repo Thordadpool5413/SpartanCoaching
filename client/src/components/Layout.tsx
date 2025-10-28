@@ -157,53 +157,56 @@ export function Header() {
           </Button>
         </nav>
 
-        {/* Mobile Menu Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="lg:hidden min-h-[48px] min-w-[48px] touch-manipulation -mr-2"
-          aria-label="Toggle menu"
-          data-testid="button-mobile-menu"
-        >
-          {mobileMenuOpen ? <CloseIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
-        </Button>
+        {/* Mobile Menu Sheet */}
+        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+          <SheetTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="lg:hidden min-h-[48px] min-w-[48px] touch-manipulation -mr-2"
+              aria-label="Toggle menu"
+              data-testid="button-mobile-menu"
+            >
+              <Menu className="w-6 h-6" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+            <SheetHeader>
+              <SheetTitle>Menu</SheetTitle>
+            </SheetHeader>
+            <nav className="flex flex-col mt-6 space-y-2">
+              {routes.map((route) => (
+                <Link
+                  key={route.path}
+                  href={route.path}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={cn(
+                    "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all active:scale-[0.98]",
+                    location === route.path
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "text-foreground bg-muted/50 active-elevate-2"
+                  )}
+                  data-testid={`link-mobile-${route.path}`}
+                >
+                  {route.label}
+                </Link>
+              ))}
+              <div className="pt-4 flex items-center justify-between border-t border-border mt-4">
+                <span className="text-sm text-muted-foreground px-4">Theme</span>
+                <Button
+                  onClick={toggleTheme}
+                  variant="ghost"
+                  size="icon"
+                  className="touch-manipulation min-h-[48px] min-w-[48px]"
+                  aria-label="Toggle theme"
+                >
+                  {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+                </Button>
+              </div>
+            </nav>
+          </SheetContent>
+        </Sheet>
       </div>
-
-      {/* Mobile Navigation */}
-      {mobileMenuOpen && (
-        <nav className="lg:hidden fixed top-[96px] sm:top-[112px] md:top-[128px] left-0 right-0 bottom-0 bg-background/98 backdrop-blur-lg z-50 overflow-y-auto" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-          <div className="flex flex-col p-4 space-y-2 min-h-full">
-            {routes.map((route) => (
-              <Link
-                key={route.path}
-                href={route.path}
-                onClick={() => setMobileMenuOpen(false)}
-                className={cn(
-                  "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all active:scale-[0.98]",
-                  location === route.path
-                    ? "bg-primary text-primary-foreground shadow-md"
-                    : "text-foreground bg-muted/50 active-elevate-2"
-                )}
-              >
-                {route.label}
-              </Link>
-            ))}
-            <div className="pt-2 flex items-center justify-between border-t border-border mt-4">
-              <span className="text-sm text-muted-foreground px-4">Theme</span>
-              <Button
-                onClick={toggleTheme}
-                variant="ghost"
-                size="icon"
-                className="touch-manipulation min-h-[48px] min-w-[48px]"
-                aria-label="Toggle theme"
-              >
-                {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-              </Button>
-            </div>
-          </div>
-        </nav>
-      )}
 
       {/* Search Modal */}
       <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
