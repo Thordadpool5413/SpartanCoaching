@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section - Enhanced with video background */}
-      <section className="relative min-h-[80vh] sm:h-[90vh] md:h-[92vh] flex items-center justify-center overflow-hidden bg-gray-950">
+      <section className="relative min-h-[70vh] sm:min-h-[80vh] md:h-[92vh] flex items-center justify-center overflow-hidden bg-gray-950">
         {/* Enhanced gradient background with radial accents */}
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-black"></div>
@@ -26,7 +26,7 @@ export default function Home() {
           playsInline
           className="absolute inset-0 w-full h-full object-cover z-[1]"
           style={{
-            objectPosition: 'center center'
+            objectPosition: 'center 30%'
           }}
           data-testid="hero-video"
         >
