@@ -8,76 +8,22 @@ import { NewsletterSignup } from "@/components/NewsletterSignup";
 
 export default function Home() {
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth < 768);
-  const [shouldLoadVideo, setShouldLoadVideo] = useState(true);
-  const [videoSrc, setVideoSrc] = useState('');
 
-  // Detect mobile device and connection quality
   useEffect(() => {
-    const checkMobile = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      setVideoSrc(mobile ? '/hero-video-mobile.mp4' : '/hero-video.mp4');
-      
-      // On mobile, default to poster-only for better performance
-      if (mobile) {
-        setShouldLoadVideo(false);
-      }
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
     };
     
-    checkMobile();
-    let resizeTimer: NodeJS.Timeout;
-    const debouncedResize = () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(checkMobile, 250);
-    };
-    window.addEventListener('resize', debouncedResize);
-    
-    // Check connection quality for mobile
-    if ('connection' in navigator) {
-      const conn = (navigator as any).connection;
-      if (conn && (conn.saveData || conn.effectiveType === 'slow-2g' || conn.effectiveType === '2g' || conn.effectiveType === '3g')) {
-        setShouldLoadVideo(false);
-      }
-    }
-    
-    return () => window.removeEventListener('resize', debouncedResize);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Handle video autoplay with mobile-specific retry logic
-  const attemptVideoPlay = (video: HTMLVideoElement, retries = 3) => {
-    const playPromise = video.play();
-    
-    if (playPromise !== undefined) {
-      playPromise.catch(() => {
-        // Retry after a short delay if autoplay was blocked
-        if (retries > 0) {
-          setTimeout(() => attemptVideoPlay(video, retries - 1), 500);
-        } else {
-          console.log('Video autoplay blocked by browser - poster fallback active');
-        }
-      });
-    }
-  };
-
-  const handleVideoCanPlay = (e: React.SyntheticEvent<HTMLVideoElement>) => {
-    const video = e.currentTarget;
-    const videoSource = isMobile ? 'mobile (6.9MB)' : 'desktop (14MB)';
-    console.log(`Hero video loaded successfully! [${videoSource}]`, {
-      duration: video.duration,
-      videoWidth: video.videoWidth,
-      videoHeight: video.videoHeight,
-      readyState: video.readyState,
-      isMobile,
-      screenWidth: window.innerWidth
-    });
-    if (video.paused) {
-      attemptVideoPlay(video);
-    }
-  };
+  // Get video source based on device
+  const videoSrc = isMobile ? '/hero-video-mobile.mp4' : '/hero-video.mp4';
 
   return (
     <div className="flex flex-col">
-      {/* Hero Section - Enhanced with mobile-optimized video background */}
+      {/* Hero Section - Enhanced with video background */}
       <section className="relative min-h-[80vh] sm:h-[90vh] md:h-[92vh] flex items-center justify-center overflow-hidden bg-gray-950">
         {/* Enhanced gradient background with radial accents */}
         <div className="absolute inset-0 z-0">
@@ -86,36 +32,21 @@ export default function Home() {
           <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-radial from-red-950/20 via-transparent to-transparent blur-3xl"></div>
         </div>
         
-        {/* Video Background - mobile-optimized with responsive sources */}
-        {shouldLoadVideo && videoSrc ? (
-          <video
-            key={videoSrc}
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload={isMobile ? "metadata" : "auto"}
-            poster="/hero-poster.jpg"
-            onCanPlay={handleVideoCanPlay}
-            className="absolute inset-0 w-full h-full object-cover z-[1]"
-            style={{
-              objectPosition: isMobile ? 'center 40%' : 'center center'
-            }}
-            data-testid="hero-video"
-            data-mobile={isMobile}
-          >
-            <source src={videoSrc} type="video/mp4" />
-          </video>
-        ) : (
-          /* Show poster image only on slow connections or while loading */
-          <div 
-            className="absolute inset-0 w-full h-full bg-cover z-[1]"
-            style={{ 
-              backgroundImage: 'url(/hero-poster.jpg)',
-              backgroundPosition: isMobile ? 'center 40%' : 'center center'
-            }}
-          />
-        )}
+        {/* Hero Video Background */}
+        <video
+          key={videoSrc}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover z-[1]"
+          style={{
+            objectPosition: isMobile ? 'center 40%' : 'center center'
+          }}
+          data-testid="hero-video"
+        >
+          <source src={videoSrc} type="video/mp4" />
+        </video>
         
         {/* Overlay for text readability - slightly darker on mobile for better contrast */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/35 to-black/50 md:from-black/40 md:via-black/30 md:to-black/40 z-[2]"></div>
