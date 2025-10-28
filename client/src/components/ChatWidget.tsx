@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { MessageCircle, X, Send, Loader2, Minimize2 } from "lucide-react";
@@ -7,7 +8,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 
-export function ChatWidget() {
+function ChatWidgetContent() {
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
   const [isMinimized, setIsMinimized] = useState(false);
@@ -129,43 +130,54 @@ export function ChatWidget() {
   // Closed state - Floating button
   if (!isOpen) {
     return (
-      <Button
+      <button
         onClick={() => setIsOpen(true)}
         className={cn(
-          "fixed z-50 rounded-full shadow-2xl hover:scale-110 transition-all duration-300",
+          "flex items-center justify-center rounded-full shadow-2xl hover:scale-110 transition-all duration-300 cursor-pointer border-0",
           "bg-spartan-gradient glow-primary-hover",
           isMobile
-            ? "bottom-4 right-4 w-14 h-14"
-            : "bottom-8 right-8 w-16 h-16"
+            ? "w-14 h-14"
+            : "w-16 h-16"
         )}
-        size="icon"
+        style={{
+          position: 'fixed',
+          bottom: isMobile ? '16px' : '32px',
+          right: isMobile ? '16px' : '32px',
+          zIndex: 50,
+        }}
         data-testid="button-chat-widget"
+        aria-label="Open AI Chat"
       >
         <MessageCircle className={cn(
           "text-white",
           isMobile ? "h-6 w-6" : "h-8 w-8"
         )} />
-      </Button>
+      </button>
     );
   }
 
   // Minimized state - Small tab on right edge
   if (isMinimized) {
     return (
-      <Button
+      <button
         onClick={() => setIsMinimized(false)}
         className={cn(
-          "fixed z-50 rounded-l-lg rounded-r-none shadow-2xl transition-all duration-300",
-          "bg-spartan-gradient glow-primary-hover flex flex-col items-center gap-2 px-3 py-6",
-          isMobile
-            ? "top-1/2 -translate-y-1/2 right-0"
-            : "top-1/3 right-0"
+          "rounded-l-lg rounded-r-none shadow-2xl transition-all duration-300 cursor-pointer border-0",
+          "bg-spartan-gradient glow-primary-hover flex flex-col items-center gap-2 px-3 py-6"
         )}
+        style={{
+          position: 'fixed',
+          top: isMobile ? '50%' : '33.333%',
+          right: 0,
+          transform: isMobile ? 'translateY(-50%)' : 'none',
+          zIndex: 50,
+        }}
         data-testid="button-chat-minimized"
+        aria-label="Expand AI Chat"
       >
         <MessageCircle className="h-5 w-5 text-white" />
         <span className="text-white text-xs font-bold" style={{ writingMode: 'vertical-rl' }}>AI Coach</span>
-      </Button>
+      </button>
     );
   }
 
@@ -295,5 +307,22 @@ export function ChatWidget() {
         </div>
       </Card>
     </div>
+  );
+}
+
+export function ChatWidget() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  if (!mounted) {
+    return null;
+  }
+
+  return createPortal(
+    <ChatWidgetContent />,
+    document.body
   );
 }
