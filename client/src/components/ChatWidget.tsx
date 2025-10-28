@@ -122,18 +122,15 @@ export function ChatWidget() {
 
   if (!isOpen) {
     return (
-      <>
-        {!isOpen && (
-          <Button
-            onClick={() => setIsOpen(true)}
-            className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-2xl z-50 hover:scale-110 transition-transform md:w-14 md:h-14 sm:w-12 sm:h-12 sm:bottom-4 sm:right-4"
-            variant="default"
-            size="icon"
-          >
-            <MessageCircle className="h-6 w-6 sm:h-5 sm:w-5" />
-          </Button>
-        )}
-      </>
+      <Button
+        onClick={() => setIsOpen(true)}
+        className="fixed bottom-6 right-6 rounded-full w-14 h-14 shadow-2xl z-50 hover:scale-110 transition-transform md:w-14 md:h-14 sm:w-12 sm:h-12 sm:bottom-4 sm:right-4"
+        variant="default"
+        size="icon"
+        data-testid="button-chat-widget"
+      >
+        <MessageCircle className="h-6 w-6 sm:h-5 sm:w-5" />
+      </Button>
     );
   }
 
