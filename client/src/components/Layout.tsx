@@ -170,7 +170,7 @@ export function Header() {
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <nav className="lg:hidden fixed top-[64px] left-0 right-0 bottom-0 bg-background/98 backdrop-blur-lg z-50 overflow-y-auto" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+        <nav className="lg:hidden fixed top-[96px] sm:top-[112px] md:top-[128px] left-0 right-0 bottom-0 bg-background/98 backdrop-blur-lg z-50 overflow-y-auto" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
           <div className="flex flex-col p-4 space-y-2 min-h-full">
             {routes.map((route) => (
               <Link
