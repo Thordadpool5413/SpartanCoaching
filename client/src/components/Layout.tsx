@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { SpartanLogo, MenuIcon, CloseIcon } from "./icons";
 import { applyTheme, getInitialTheme } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Sun, Moon, Linkedin } from "lucide-react";
+import { Sun, Moon, Linkedin, Search } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -11,6 +11,14 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -51,9 +59,11 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
 
 
 export function Header() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -61,7 +71,6 @@ export function Header() {
   }, [location]);
 
   const [theme, setTheme] = useState<"light" | "dark">(getInitialTheme);
-
 
   useEffect(() => {
     applyTheme(theme);
@@ -72,15 +81,38 @@ export function Header() {
   };
 
   const routes = [
-    { path: "/", label: "Home" },
-    { path: "/services", label: "Services" },
-    { path: "/programs", label: "Programs" },
-    { path: "/method", label: "The Spartan Method" },
-    { path: "/tools", label: "AI Field Kit" },
-    { path: "/resources", label: "Resources" },
-    { path: "/testimonials", label: "Testimonials" },
-    { path: "/about", label: "About" },
+    { path: "/", label: "Home", description: "Main landing page" },
+    { path: "/services", label: "Services", description: "Strategic services and consulting" },
+    { path: "/programs", label: "Programs", description: "Training programs for hospice providers" },
+    { path: "/method", label: "The Spartan Method", description: "Our proven sales methodology" },
+    { path: "/tools", label: "AI Field Kit", description: "AI-powered sales tools" },
+    { path: "/resources", label: "Resources", description: "Helpful guides and resources" },
+    { path: "/testimonials", label: "Testimonials", description: "Client success stories" },
+    { path: "/about", label: "About", description: "Learn about Spartan Coaching" },
   ];
+
+  const aiTools = [
+    { path: "/tools/playbooks", label: "Sales Playbooks", description: "Generate custom sales playbooks" },
+    { path: "/tools/objections", label: "Objection Handler", description: "Get strategies for handling objections" },
+    { path: "/tools/research", label: "Territory Research", description: "Research facilities and territories" },
+    { path: "/tools/email-templates", label: "Email Templates", description: "Create professional email templates" },
+    { path: "/tools/chatbot", label: "AI Coach", description: "Chat with your AI sales coach" },
+  ];
+
+  const allSearchItems = [...routes, ...aiTools];
+
+  const filteredResults = searchQuery.trim()
+    ? allSearchItems.filter(item =>
+        item.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchQuery.toLowerCase())
+      )
+    : allSearchItems;
+
+  const handleSearchSelect = (path: string) => {
+    setLocation(path);
+    setSearchOpen(false);
+    setSearchQuery("");
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/90 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/75 shadow-lg" style={{
@@ -103,13 +135,10 @@ export function Header() {
             variant="ghost"
             size="sm"
             className="gap-2 text-sm"
-            onClick={() => {
-              const searchInput = document.createElement('input');
-              searchInput.placeholder = 'Search tools, resources...';
-              // TODO: Implement full search modal
-              console.log('Search feature - coming soon');
-            }}
+            onClick={() => setSearchOpen(true)}
+            data-testid="button-search"
           >
+            <Search className="w-4 h-4" />
             <span className="font-medium">Search</span>
           </Button>
           {routes.slice(1).map((route) => (
@@ -175,6 +204,50 @@ export function Header() {
           </div>
         </nav>
       )}
+
+      {/* Search Modal */}
+      <Dialog open={searchOpen} onOpenChange={setSearchOpen}>
+        <DialogContent className="sm:max-w-[600px]" data-testid="dialog-search">
+          <DialogHeader>
+            <DialogTitle>Search</DialogTitle>
+            <DialogDescription>
+              Search through pages and AI tools to quickly navigate to what you need.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input
+                placeholder="Search pages and tools..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-9"
+                autoFocus
+                data-testid="input-search"
+              />
+            </div>
+            <div className="max-h-[400px] overflow-y-auto space-y-1">
+              {filteredResults.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground" data-testid="text-no-results">
+                  No results found
+                </div>
+              ) : (
+                filteredResults.map((item) => (
+                  <button
+                    key={item.path}
+                    onClick={() => handleSearchSelect(item.path)}
+                    className="w-full text-left px-4 py-3 rounded-lg hover-elevate active-elevate-2 transition-colors"
+                    data-testid={`button-search-result-${item.path}`}
+                  >
+                    <div className="font-medium text-foreground">{item.label}</div>
+                    <div className="text-sm text-muted-foreground">{item.description}</div>
+                  </button>
+                ))
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </header>
   );
 }
