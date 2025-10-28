@@ -30,18 +30,7 @@
   --sidebar-foreground: 20 14% 15%;
   --sidebar-border: 45 15% 85%;
 
-  /* Mobile video optimization */
-  @media (max-width: 767px) {
-    video {
-      object-fit: cover;
-      max-height: 60vh;
-    }
-    
-    /* Disable autoplay on mobile for better performance */
-    video[autoplay] {
-      poster: attr(poster);
-    }
-  }
+  
 
   --sidebar-primary: 9 75% 61%;
   --sidebar-primary-foreground: 0 0% 100%;
@@ -222,6 +211,14 @@
   img, video {
     max-width: 100%;
     height: auto;
+  }
+
+  /* Mobile video optimization */
+  @media (max-width: 767px) {
+    video {
+      object-fit: cover;
+      max-height: 60vh;
+    }
   }
 
   /* Mobile touch improvements */

@@ -158,21 +158,19 @@ export function Header() {
         </nav>
 
         {/* Mobile Menu Button */}
-        {isMobile && (
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-4 min-h-[48px] min-w-[48px] flex items-center justify-center text-foreground hover-elevate active-elevate-2 rounded-lg touch-manipulation transition-transform active:scale-95 -mr-2"
-            aria-label="Toggle menu"
-            data-testid="button-mobile-menu"
-          >
-            {mobileMenuOpen ? <CloseIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
-          </button>
-        )}
+        <button
+          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+          className="lg:hidden p-4 min-h-[48px] min-w-[48px] flex items-center justify-center text-foreground hover-elevate active-elevate-2 rounded-lg touch-manipulation transition-transform active:scale-95 -mr-2"
+          aria-label="Toggle menu"
+          data-testid="button-mobile-menu"
+        >
+          {mobileMenuOpen ? <CloseIcon className="w-6 h-6" /> : <MenuIcon className="w-6 h-6" />}
+        </button>
       </div>
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <nav className="lg:hidden fixed top-[64px] left-0 right-0 bottom-0 bg-background/95 backdrop-blur-md z-50 mobile-safe-padding overflow-y-auto">
+        <nav className="lg:hidden fixed top-[64px] left-0 right-0 bottom-0 bg-background/98 backdrop-blur-lg z-50 overflow-y-auto" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
           <div className="flex flex-col p-4 space-y-2 min-h-full">
             {routes.map((route) => (
               <Link
@@ -180,16 +178,16 @@ export function Header() {
                 href={route.path}
                 onClick={() => setMobileMenuOpen(false)}
                 className={cn(
-                  "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center active:scale-[0.98] transition-transform",
+                  "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all active:scale-[0.98]",
                   location === route.path
                     ? "bg-primary text-primary-foreground shadow-md"
-                    : "text-foreground bg-muted/50"
+                    : "text-foreground bg-muted/50 active-elevate-2"
                 )}
               >
                 {route.label}
               </Link>
             ))}
-            <div className="pt-2 flex items-center justify-between">
+            <div className="pt-2 flex items-center justify-between border-t border-border mt-4">
               <span className="text-sm text-muted-foreground px-4">Theme</span>
               <Button
                 onClick={toggleTheme}
