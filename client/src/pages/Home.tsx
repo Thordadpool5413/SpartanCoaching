@@ -119,7 +119,7 @@ export default function Home() {
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-cards">
-          <Card className="text-center card-lift border-2 group cursor-pointer relative overflow-hidden spacing-card shadow-lg" data-testid="card-pillar-discipline">
+          <Card className="text-center card-lift border-2 group cursor-pointer relative spacing-card shadow-lg" data-testid="card-pillar-discipline">
             <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
             <div className="absolute inset-0 bg-spartan-gradient-radial opacity-0 group-hover:opacity-30 transition-all duration-500"></div>
             <div className="relative">
@@ -133,7 +133,7 @@ export default function Home() {
             </div>
           </Card>
 
-          <Card className="text-center card-lift border-2 group cursor-pointer relative overflow-hidden spacing-card shadow-lg sm:col-span-2 md:col-span-1" data-testid="card-pillar-empathy">
+          <Card className="text-center card-lift border-2 group cursor-pointer relative spacing-card shadow-lg sm:col-span-2 md:col-span-1" data-testid="card-pillar-empathy">
             <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
             <div className="absolute inset-0 bg-spartan-gradient-radial opacity-0 group-hover:opacity-30 transition-all duration-500"></div>
             <div className="relative">
@@ -147,7 +147,7 @@ export default function Home() {
             </div>
           </Card>
 
-          <Card className="text-center card-lift border-2 group cursor-pointer relative overflow-hidden spacing-card shadow-lg sm:col-span-2 md:col-span-1" data-testid="card-pillar-strategy">
+          <Card className="text-center card-lift border-2 group cursor-pointer relative spacing-card shadow-lg sm:col-span-2 md:col-span-1" data-testid="card-pillar-strategy">
             <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
             <div className="absolute inset-0 bg-spartan-gradient-radial opacity-0 group-hover:opacity-30 transition-all duration-500"></div>
             <div className="relative">
@@ -178,7 +178,7 @@ export default function Home() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-cards max-w-5xl mx-auto">
-            <Card className="card-lift border-2 overflow-hidden group relative spacing-card shadow-lg flex flex-col" data-testid="card-services-preview">
+            <Card className="card-lift border-2 group relative spacing-card shadow-lg flex flex-col" data-testid="card-services-preview">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="absolute top-0 right-0 w-48 h-48 bg-red-500/5 rounded-full blur-3xl"></div>
               
@@ -201,7 +201,7 @@ export default function Home() {
               </div>
             </Card>
 
-            <Card className="card-lift border-2 overflow-hidden group relative spacing-card shadow-lg flex flex-col" data-testid="card-programs-preview">
+            <Card className="card-lift border-2 group relative spacing-card shadow-lg flex flex-col" data-testid="card-programs-preview">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="absolute top-0 right-0 w-48 h-48 bg-red-500/5 rounded-full blur-3xl"></div>
               

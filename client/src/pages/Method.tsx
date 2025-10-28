@@ -226,7 +226,7 @@ export default function Method() {
             {salesStages.map((stage, idx) => {
               const Icon = stage.icon;
               return (
-                <Card key={idx} className={`border-2 ${stage.borderColor} card-lift group relative overflow-hidden spacing-card shadow-lg`} data-testid={`card-stage-${idx}`}>
+                <Card key={idx} className={`border-2 ${stage.borderColor} group relative card-lift spacing-card shadow-lg`} data-testid={`card-stage-${idx}`}>
                   <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500" />
                   <div className="relative">
                     <div className="flex items-start gap-4 mb-4">
@@ -324,7 +324,7 @@ export default function Method() {
             {ethics.map((ethic, idx) => {
               const Icon = ethic.icon;
               return (
-                <Card key={idx} className="text-center card-lift border-2 group relative overflow-hidden spacing-card shadow-lg" data-testid={`card-ethic-${idx}`}>
+                <Card key={idx} className="text-center border-2 group relative card-lift spacing-card shadow-lg" data-testid={`card-ethic-${idx}`}>
                   <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500" />
                   <div className="relative">
                     <div className="flex justify-center mb-6">

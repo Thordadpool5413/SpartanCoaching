@@ -53,7 +53,7 @@ export default function Tools() {
 
       <div className="grid md:grid-cols-2 gap-cards">
         {tools.map((tool, idx) => (
-          <Card key={idx} className="flex flex-col card-lift border-2 group relative overflow-hidden spacing-card shadow-lg" data-testid={`card-tool-${idx}`}>
+          <Card key={idx} className="flex flex-col border-2 group relative card-lift spacing-card shadow-lg" data-testid={`card-tool-${idx}`}>
             <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
             <div className="relative flex-1 flex flex-col">
               <div className="flex items-center gap-4 mb-6">

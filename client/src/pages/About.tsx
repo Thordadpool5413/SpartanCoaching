@@ -43,7 +43,7 @@ export default function About() {
         <div className="space-y-8 md:space-y-12 lg:space-y-16">
           <h2 className="text-h2 text-foreground mb-8">The Stakes Are Real</h2>
           <div className="grid md:grid-cols-3 gap-cards">
-            <Card className="card-lift border-2 group relative overflow-hidden text-center spacing-card shadow-lg" data-testid="card-stakes-teams">
+            <Card className="border-2 group relative card-lift text-center spacing-card shadow-lg" data-testid="card-stakes-teams">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
                 <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:glow-primary transition-all duration-300">
@@ -56,7 +56,7 @@ export default function About() {
               </div>
             </Card>
 
-            <Card className="card-lift border-2 group relative overflow-hidden text-center spacing-card shadow-lg" data-testid="card-stakes-reps">
+            <Card className="border-2 group relative card-lift text-center spacing-card shadow-lg" data-testid="card-stakes-reps">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
                 <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:glow-primary transition-all duration-300">
@@ -69,7 +69,7 @@ export default function About() {
               </div>
             </Card>
 
-            <Card className="card-lift border-2 group relative overflow-hidden text-center spacing-card shadow-lg" data-testid="card-stakes-orgs">
+            <Card className="border-2 group relative card-lift text-center spacing-card shadow-lg" data-testid="card-stakes-orgs">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
                 <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:glow-primary transition-all duration-300">
@@ -141,7 +141,7 @@ export default function About() {
           </div>
 
           <div className="grid gap-4">
-            <Card className="card-lift border-2 group relative overflow-hidden spacing-card shadow-lg" data-testid="card-experience-field">
+            <Card className="border-2 group relative card-lift spacing-card shadow-lg" data-testid="card-experience-field">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
                 <h3 className="text-h3 font-bold text-primary mb-3">Field Leadership</h3>
@@ -151,7 +151,7 @@ export default function About() {
               </div>
             </Card>
 
-            <Card className="card-lift border-2 group relative overflow-hidden spacing-card shadow-lg" data-testid="card-experience-operations">
+            <Card className="border-2 group relative card-lift spacing-card shadow-lg" data-testid="card-experience-operations">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
                 <h3 className="text-h3 font-bold text-primary mb-3">Operational Excellence</h3>
@@ -161,7 +161,7 @@ export default function About() {
               </div>
             </Card>
 
-            <Card className="card-lift border-2 group relative overflow-hidden spacing-card shadow-lg" data-testid="card-experience-coaching">
+            <Card className="border-2 group relative card-lift spacing-card shadow-lg" data-testid="card-experience-coaching">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
                 <h3 className="text-h3 font-bold text-primary mb-3">Practical Coaching</h3>

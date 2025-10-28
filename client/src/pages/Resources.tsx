@@ -101,38 +101,35 @@ export default function Resources() {
       {/* Additional Resources */}
       <div className="grid md:grid-cols-2 gap-cards">
         {resources.map((resource, idx) => (
-          <Card key={idx} className="card-lift border-2 group relative overflow-hidden spacing-card shadow-lg" data-testid={`card-resource-${idx}`}>
-            <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
-            <div className="relative">
-              <div className="flex items-start gap-4 mb-6">
-                <div className="p-3 rounded-lg bg-primary/10 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300 flex-shrink-0">
-                  <DownloadIcon className="w-6 h-6 text-primary" />
-                </div>
-                <div className="flex-1">
-                  <h3 className="text-h3 font-bold text-foreground mb-2">{resource.title}</h3>
-                  <p className="text-body text-muted-foreground mb-6 leading-relaxed">
-                    {resource.description}
-                  </p>
-                  <Button
-                    asChild
-                    size="lg"
-                    className="w-full font-bold min-h-[52px] touch-manipulation"
-                    data-testid={`button-resource-${idx}`}
-                    onClick={() => {
-                      // Track resource access
-                      fetch('/api/analytics/resource-access', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                          resourceName: resource.title,
-                          timestamp: Date.now()
-                        })
-                      }).catch(console.error);
-                    }}
-                  >
-                    <Link href={resource.link}>{resource.cta}</Link>
-                  </Button>
-                </div>
+          <Card key={idx} className="card-lift border-2 group relative spacing-card shadow-lg" data-testid={`card-resource-${idx}`}>
+            <div className="flex items-start gap-4">
+              <div className="p-3 rounded-lg bg-primary/10 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300 flex-shrink-0">
+                <DownloadIcon className="w-6 h-6 text-primary group-hover:glow-primary transition-all duration-300" />
+              </div>
+              <div className="flex-1">
+                <h3 className="text-h3 font-bold text-foreground mb-2">{resource.title}</h3>
+                <p className="text-body text-muted-foreground mb-6 leading-relaxed">
+                  {resource.description}
+                </p>
+                <Button
+                  asChild
+                  size="lg"
+                  className="w-full font-bold min-h-[52px] touch-manipulation"
+                  data-testid={`button-resource-${idx}`}
+                  onClick={() => {
+                    // Track resource access
+                    fetch('/api/analytics/resource-access', {
+                      method: 'POST',
+                      headers: { 'Content-Type': 'application/json' },
+                      body: JSON.stringify({
+                        resourceName: resource.title,
+                        timestamp: Date.now()
+                      })
+                    }).catch(console.error);
+                  }}
+                >
+                  <Link href={resource.link}>{resource.cta}</Link>
+                </Button>
               </div>
             </div>
           </Card>
