@@ -176,8 +176,9 @@ export default function Services() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards">
           {individualServices.map((service, idx) => (
-            <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card" data-testid={`card-individual-${idx}`}>
-              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <Card key={idx} className="flex flex-col card-lift border-gradient group relative overflow-hidden spacing-card" data-testid={`card-individual-${idx}`}>
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+              <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-radial from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-2xl"></div>
               <div className="flex-1">
                 <h3 className="text-h3 font-bold text-foreground mb-3">{service.title}</h3>
                 <div className="flex items-baseline gap-3 mb-6">

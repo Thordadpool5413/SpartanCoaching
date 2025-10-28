@@ -68,15 +68,15 @@
   --font-mono: 'JetBrains Mono', Menlo, monospace;
   --radius: 0.75rem;
   
-  /* Enhanced shadows for depth */
-  --shadow-2xs: 0 1px 2px 0 rgb(0 0 0 / 0.03);
-  --shadow-xs: 0 1px 3px 0 rgb(0 0 0 / 0.06), 0 1px 2px -1px rgb(0 0 0 / 0.06);
-  --shadow-sm: 0 2px 4px -1px rgb(0 0 0 / 0.06), 0 2px 4px -2px rgb(0 0 0 / 0.05);
-  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.08), 0 2px 4px -2px rgb(0 0 0 / 0.06);
-  --shadow-md: 0 6px 12px -2px rgb(0 0 0 / 0.10), 0 4px 6px -2px rgb(0 0 0 / 0.05);
-  --shadow-lg: 0 12px 24px -4px rgb(0 0 0 / 0.12), 0 6px 12px -4px rgb(0 0 0 / 0.08);
-  --shadow-xl: 0 20px 40px -8px rgb(0 0 0 / 0.18), 0 10px 20px -6px rgb(0 0 0 / 0.12);
-  --shadow-2xl: 0 30px 60px -12px rgb(0 0 0 / 0.25), 0 18px 36px -12px rgb(0 0 0 / 0.15);
+  /* Enhanced shadows for depth - more dramatic and premium */
+  --shadow-2xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-xs: 0 2px 4px -1px rgb(0 0 0 / 0.08), 0 1px 2px -1px rgb(0 0 0 / 0.06);
+  --shadow-sm: 0 3px 6px -2px rgb(0 0 0 / 0.10), 0 2px 4px -2px rgb(0 0 0 / 0.06);
+  --shadow: 0 4px 8px -2px rgb(0 0 0 / 0.12), 0 2px 4px -2px rgb(0 0 0 / 0.08);
+  --shadow-md: 0 8px 16px -4px rgb(0 0 0 / 0.14), 0 4px 8px -2px rgb(0 0 0 / 0.08);
+  --shadow-lg: 0 16px 32px -8px rgb(0 0 0 / 0.18), 0 8px 16px -4px rgb(0 0 0 / 0.12);
+  --shadow-xl: 0 24px 48px -12px rgb(0 0 0 / 0.24), 0 12px 24px -8px rgb(0 0 0 / 0.16);
+  --shadow-2xl: 0 40px 80px -16px rgb(0 0 0 / 0.30), 0 20px 40px -12px rgb(0 0 0 / 0.20);
 
   --tracking-normal: -0.01em;
   --spacing: 0.25rem;
@@ -144,15 +144,15 @@
   --chart-4: 147.1429 78.5047% 41.9608%;
   --chart-5: 341.4894 75.2000% 50.9804%;
 
-  /* Enhanced shadows for dark mode depth */
-  --shadow-2xs: 0 1px 2px 0 rgb(0 0 0 / 0.6);
-  --shadow-xs: 0 1px 3px 0 rgb(0 0 0 / 0.7), 0 1px 2px -1px rgb(0 0 0 / 0.6);
-  --shadow-sm: 0 2px 4px -1px rgb(0 0 0 / 0.7), 0 2px 4px -2px rgb(0 0 0 / 0.6);
-  --shadow: 0 4px 6px -1px rgb(0 0 0 / 0.8), 0 2px 4px -2px rgb(0 0 0 / 0.6);
-  --shadow-md: 0 6px 12px -2px rgb(0 0 0 / 0.9), 0 4px 6px -2px rgb(0 0 0 / 0.7);
-  --shadow-lg: 0 12px 24px -4px rgb(0 0 0 / 0.95), 0 6px 12px -4px rgb(0 0 0 / 0.8);
-  --shadow-xl: 0 20px 40px -8px rgb(0 0 0 / 0.98), 0 10px 20px -6px rgb(0 0 0 / 0.9);
-  --shadow-2xl: 0 30px 60px -12px rgb(0 0 0 / 1), 0 18px 36px -12px rgb(0 0 0 / 0.95);
+  /* Enhanced shadows for dark mode depth - deeper with subtle red glow */
+  --shadow-2xs: 0 1px 2px 0 rgb(0 0 0 / 0.7);
+  --shadow-xs: 0 2px 4px -1px rgb(0 0 0 / 0.8), 0 1px 2px -1px rgb(0 0 0 / 0.7);
+  --shadow-sm: 0 3px 6px -2px rgb(0 0 0 / 0.85), 0 2px 4px -2px rgb(0 0 0 / 0.75);
+  --shadow: 0 4px 8px -2px rgb(0 0 0 / 0.9), 0 2px 4px -2px rgb(0 0 0 / 0.8);
+  --shadow-md: 0 8px 16px -4px rgb(0 0 0 / 0.95), 0 4px 8px -2px rgb(0 0 0 / 0.85);
+  --shadow-lg: 0 16px 32px -8px rgb(0 0 0 / 0.98), 0 8px 16px -4px rgb(0 0 0 / 0.9);
+  --shadow-xl: 0 24px 48px -12px rgb(0 0 0 / 1), 0 12px 24px -8px rgb(0 0 0 / 0.95);
+  --shadow-2xl: 0 40px 80px -16px rgb(0 0 0 / 1), 0 20px 40px -12px rgb(0 0 0 / 0.98), 0 0 60px -12px rgb(239 68 68 / 0.15);
 
   --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
   --sidebar-accent-border: hsl(from hsl(var(--sidebar-accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
@@ -440,13 +440,31 @@
     animation: slide-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
-  /* Spartan gradient utilities */
+  /* Spartan gradient utilities - enhanced blending */
   .bg-spartan-gradient {
-    @apply bg-gradient-to-br from-primary via-primary/90 to-destructive;
+    background: linear-gradient(135deg, 
+      hsl(var(--primary)) 0%, 
+      hsl(var(--primary) / 0.95) 25%,
+      hsl(var(--primary) / 0.9) 50%,
+      hsl(var(--destructive) / 0.95) 75%,
+      hsl(var(--destructive)) 100%
+    );
   }
   
   .bg-spartan-gradient-subtle {
-    @apply bg-gradient-to-br from-primary/10 via-primary/5 to-destructive/10;
+    background: linear-gradient(135deg, 
+      hsl(var(--primary) / 0.08) 0%, 
+      hsl(var(--primary) / 0.04) 50%,
+      hsl(var(--destructive) / 0.08) 100%
+    );
+  }
+  
+  .bg-spartan-gradient-radial {
+    background: radial-gradient(circle at 30% 50%, 
+      hsl(var(--primary) / 0.15) 0%, 
+      hsl(var(--primary) / 0.05) 40%,
+      transparent 70%
+    );
   }
   
   /* Gradient text utilities */
@@ -628,13 +646,64 @@
     border: 1px solid rgba(0, 0, 0, 0.1);
   }
 
-  /* Glow effects */
+  /* Glow effects - enhanced */
   .glow-primary {
-    box-shadow: 0 0 20px rgba(239, 68, 68, 0.3), 0 0 60px rgba(239, 68, 68, 0.1);
+    box-shadow: 
+      0 0 20px rgba(239, 68, 68, 0.4), 
+      0 0 60px rgba(239, 68, 68, 0.15),
+      0 0 100px rgba(239, 68, 68, 0.05);
   }
 
   .glow-primary-hover:hover {
-    box-shadow: 0 0 30px rgba(239, 68, 68, 0.5), 0 0 80px rgba(239, 68, 68, 0.2);
+    box-shadow: 
+      0 0 30px rgba(239, 68, 68, 0.6), 
+      0 0 80px rgba(239, 68, 68, 0.25),
+      0 0 120px rgba(239, 68, 68, 0.1);
+  }
+  
+  /* Enhanced card lift on hover */
+  .card-lift {
+    transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1), 
+                box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .card-lift:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: var(--shadow-2xl);
+  }
+  
+  /* Subtle border gradient */
+  .border-gradient {
+    position: relative;
+    border: 1px solid transparent;
+    background: 
+      linear-gradient(var(--background), var(--background)) padding-box,
+      linear-gradient(135deg, 
+        hsl(var(--primary) / 0.3), 
+        hsl(var(--primary) / 0.1),
+        hsl(var(--destructive) / 0.2)
+      ) border-box;
+  }
+  
+  /* Text shimmer effect */
+  .text-shimmer {
+    background: linear-gradient(
+      90deg,
+      hsl(var(--foreground)) 0%,
+      hsl(var(--primary)) 50%,
+      hsl(var(--foreground)) 100%
+    );
+    background-size: 200% auto;
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 3s linear infinite;
+  }
+  
+  @keyframes shimmer {
+    to {
+      background-position: 200% center;
+    }
   }
 }
 

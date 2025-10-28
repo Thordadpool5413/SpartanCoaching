@@ -75,8 +75,12 @@ export default function Home() {
     <div className="flex flex-col">
       {/* Hero Section - Enhanced with mobile-optimized video background */}
       <section className="relative min-h-[80vh] sm:h-[90vh] md:h-[92vh] flex items-center justify-center overflow-hidden bg-gray-950">
-        {/* Fallback gradient background for very old browsers */}
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-gray-950 z-0"></div>
+        {/* Enhanced gradient background with radial accents */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-black"></div>
+          <div className="absolute inset-0 bg-spartan-gradient-radial opacity-40"></div>
+          <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-radial from-red-950/20 via-transparent to-transparent blur-3xl"></div>
+        </div>
         
         {/* Video Background - mobile-optimized with responsive sources */}
         {shouldLoadVideo && videoSrc ? (
@@ -120,10 +124,10 @@ export default function Home() {
           </div>
           
           <h1 className="text-hero mb-4 sm:mb-6 md:mb-8 animate-fade-in-up px-4">
-            <span className="block bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
+            <span className="block bg-gradient-to-r from-white via-gray-50 to-white bg-clip-text text-transparent font-black tracking-tighter drop-shadow-2xl">
               Patient Outcomes First.
             </span>
-            <span className="block bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent mt-2">
+            <span className="block bg-gradient-to-r from-red-50 via-white to-red-50 bg-clip-text text-transparent mt-2 font-black tracking-tighter drop-shadow-2xl">
               Elite Reps Always.
             </span>
           </h1>
@@ -180,10 +184,11 @@ export default function Home() {
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-cards">
-          <Card className="text-center hover:shadow-2xl transition-elegant border-2 group cursor-pointer relative overflow-hidden spacing-card">
-            <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-spartan-gradient rounded-3xl flex items-center justify-center mx-auto mb-6 sm:mb-8 shadow-2xl group-hover:shadow-red-500/50 group-hover:scale-110 transition-elegant">
-              <DisciplineIcon className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+          <Card className="text-center card-lift border-2 border-gradient group cursor-pointer relative overflow-hidden spacing-card">
+            <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+            <div className="absolute inset-0 bg-spartan-gradient-radial opacity-0 group-hover:opacity-30 transition-all duration-500"></div>
+            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-spartan-gradient rounded-3xl flex items-center justify-center mx-auto mb-6 sm:mb-8 shadow-xl group-hover:shadow-2xl group-hover:glow-primary group-hover:scale-110 transition-all duration-500 relative">
+              <DisciplineIcon className="w-10 h-10 sm:w-12 sm:h-12 text-white relative z-10" />
             </div>
             <CardTitle className="text-h3 mb-4">Discipline</CardTitle>
             <p className="text-body text-muted-foreground">

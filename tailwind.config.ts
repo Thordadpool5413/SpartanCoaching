@@ -103,5 +103,18 @@ export default {
       },
     },
   },
-  plugins: [require("tailwindcss-animate"), require("@tailwindcss/typography")],
+  plugins: [
+    require("tailwindcss-animate"), 
+    require("@tailwindcss/typography"),
+    function({ addUtilities }: any) {
+      addUtilities({
+        '.text-balance': {
+          'text-wrap': 'balance',
+        },
+        '.gradient-radial': {
+          'background-image': 'radial-gradient(var(--tw-gradient-stops))',
+        },
+      })
+    }
+  ],
 } satisfies Config;
