@@ -2,23 +2,11 @@ import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { LightbulbIcon, DisciplineIcon, EmpathyIcon, StrategyIcon, SpinnerIcon } from "@/components/icons";
+import { DisciplineIcon, EmpathyIcon, StrategyIcon } from "@/components/icons";
 import { Shield, Heart, Zap, Target, Users, BookOpen, ArrowRight, Sparkles } from "lucide-react";
-import { LS } from "@/lib/utils";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 
-// DailyDrill component displays the daily coaching drill
-const DailyDrill = ({ drill, isLoading }: { drill: string; isLoading: boolean }) => {
-  if (isLoading) {
-    return <div className="w-full flex justify-center py-8"><SpinnerIcon className="w-10 h-10 animate-spin text-white/80" /></div>;
-  }
-  return <p className="text-body-lg font-medium" data-testid="text-daily-drill">{drill}</p>;
-};
-
-
 export default function Home() {
-  const [drill, setDrill] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
   const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth < 768);
   const [shouldLoadVideo, setShouldLoadVideo] = useState(true);
   const [videoSrc, setVideoSrc] = useState('');
@@ -82,33 +70,6 @@ export default function Home() {
       attemptVideoPlay(video);
     }
   };
-
-  useEffect(() => {
-    const today = new Date().toISOString().split("T")[0];
-    const cached = LS.get<{ date: string; drill: string } | null>("daily_drill", null);
-
-    if (cached && cached.date === today) {
-      setDrill(cached.drill);
-    } else {
-      setIsLoading(true);
-
-      fetch("/api/daily-drill")
-        .then((res) => res.json())
-        .then((data) => {
-          setDrill(data.drill);
-          LS.set("daily_drill", { date: today, drill: data.drill });
-        })
-        .catch((error) => {
-          console.error("Daily drill error:", error);
-          const fallback = "**Discipline Drill:** Review your territory map and identify opportunities to add value today.";
-          setDrill(fallback);
-          LS.set("daily_drill", { date: today, drill: fallback });
-        })
-        .finally(() => {
-          setIsLoading(false);
-        });
-    }
-  }, []);
 
   return (
     <div className="flex flex-col">
@@ -205,29 +166,6 @@ export default function Home() {
             <div className="w-1 h-3 rounded-full bg-white/50"></div>
           </div>
         </div>
-      </section>
-
-      {/* Daily Drill Card - Enhanced design */}
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 -mt-16 sm:-mt-20 md:-mt-24 relative z-20">
-        <Card className="relative bg-gradient-to-br from-red-600 via-red-600 to-red-700 text-white shadow-2xl border-0 overflow-hidden transition-elegant hover:scale-[1.02] hover:shadow-red-500/30 glow-primary">
-          <div className="absolute inset-0 bg-gradient-to-tr from-black/20 via-transparent to-white/10"></div>
-          <div className="absolute top-0 right-0 w-64 h-64 sm:w-96 sm:h-96 bg-white/5 rounded-full blur-3xl"></div>
-          
-          <CardHeader className="relative pb-4 sm:pb-6">
-            <CardTitle className="text-h3 flex items-center gap-3 sm:gap-4">
-              <div className="p-3 sm:p-4 bg-white/20 rounded-xl backdrop-blur-sm shrink-0 shadow-lg">
-                <LightbulbIcon className="w-8 h-8 sm:w-10 sm:h-10" />
-              </div>
-              <div>
-                <span className="leading-tight block">Today's Spartan Drill</span>
-                <p className="text-red-100 text-sm sm:text-base mt-1 font-normal">Your daily dose of disciplined execution</p>
-              </div>
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="relative">
-            <DailyDrill drill={drill} isLoading={isLoading} />
-          </CardContent>
-        </Card>
       </section>
 
       {/* Value Pillars - Enhanced with better visuals */}
