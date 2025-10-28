@@ -1,4 +1,3 @@
-import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,19 +6,6 @@ import { Shield, Heart, Zap, Target, Users, BookOpen, ArrowRight, Sparkles } fro
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 
 export default function Home() {
-  const [isMobile, setIsMobile] = useState(typeof window !== 'undefined' && window.innerWidth < 768);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
-
-  // Get video source based on device
-  const videoSrc = isMobile ? '/hero-video-mobile.mp4' : '/hero-video.mp4';
 
   return (
     <div className="flex flex-col">
@@ -34,18 +20,17 @@ export default function Home() {
         
         {/* Hero Video Background */}
         <video
-          key={videoSrc}
           autoPlay
           muted
           loop
           playsInline
           className="absolute inset-0 w-full h-full object-cover z-[1]"
           style={{
-            objectPosition: isMobile ? 'center 40%' : 'center center'
+            objectPosition: 'center center'
           }}
           data-testid="hero-video"
         >
-          <source src={videoSrc} type="video/mp4" />
+          <source src="/hero-video.mp4" type="video/mp4" />
         </video>
         
         {/* Overlay for text readability - slightly darker on mobile for better contrast */}
