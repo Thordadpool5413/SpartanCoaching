@@ -9,6 +9,7 @@ export default function Research() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<{ text: string; sources?: Array<{ title: string; uri: string }> } | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const exampleQueries = [
     "What are the latest CMS guidelines for hospice eligibility?",
@@ -18,10 +19,16 @@ export default function Research() {
   ];
 
   const handleSearch = async () => {
+    if (query.length < 5) {
+      setValidationError("Query must be at least 5 characters");
+      return;
+    }
+    
     if (!query) return;
     
     setIsLoading(true);
     setResults(null);
+    setValidationError(null);
 
     try {
       const response = await fetch("/api/research", {
@@ -61,13 +68,18 @@ export default function Research() {
         <div className="flex gap-3">
           <Input
             value={query}
-            onChange={(e) => setQuery(e.target.value)}
+            onChange={(e) => {
+              setQuery(e.target.value);
+              if (validationError && e.target.value.length >= 5) {
+                setValidationError(null);
+              }
+            }}
             placeholder="Ask a question about hospice sales, regulations, or industry trends..."
             className="flex-1"
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             data-testid="input-research-query"
           />
-          <Button onClick={handleSearch} disabled={isLoading || !query} className="font-bold" data-testid="button-search">
+          <Button onClick={handleSearch} disabled={isLoading || !query || query.length < 5} className="font-bold" data-testid="button-search">
             {isLoading ? (
               <SpinnerIcon className="w-5 h-5 animate-spin" />
             ) : (
@@ -78,6 +90,11 @@ export default function Research() {
             )}
           </Button>
         </div>
+        {validationError && (
+          <p className="text-sm text-destructive mt-2" data-testid="text-validation-error">
+            {validationError}
+          </p>
+        )}
       </Card>
 
       {!results && !isLoading && (

@@ -13,6 +13,7 @@ export default function Playbooks() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showModal, setShowModal] = useState(false);
+  const [validationError, setValidationError] = useState<string | null>(null);
 
   const classicPlaybooks = [
     {
@@ -35,10 +36,18 @@ export default function Playbooks() {
 
   const handleGenerate = async (customPrompt?: string) => {
     const finalPrompt = customPrompt || scenario;
+    
+    // Validate minimum length for custom scenarios
+    if (!customPrompt && finalPrompt.length < 10) {
+      setValidationError("Scenario must be at least 10 characters");
+      return;
+    }
+    
     if (!finalPrompt) return;
 
     setIsLoading(true);
     setError(null);
+    setValidationError(null);
     setGeneratedPlaybook("");
     setShowModal(true);
 
@@ -102,11 +111,21 @@ export default function Playbooks() {
             </p>
             <Textarea
               value={scenario}
-              onChange={(e) => setScenario(e.target.value)}
+              onChange={(e) => {
+                setScenario(e.target.value);
+                if (validationError && e.target.value.length >= 10) {
+                  setValidationError(null);
+                }
+              }}
               placeholder="e.g., 'Building a new relationship with a busy cardiology clinic that has never used hospice before.'"
               className="min-h-32"
               data-testid="textarea-scenario"
             />
+            {validationError && (
+              <p className="text-sm text-destructive mt-2" data-testid="text-validation-error">
+                {validationError}
+              </p>
+            )}
 
             <h2 className="text-xl font-bold mt-6 mb-4">2. Desired Outcomes (Optional)</h2>
             <p className="text-sm text-muted-foreground mb-4">
@@ -123,7 +142,7 @@ export default function Playbooks() {
             <Button
               onClick={() => handleGenerate()}
               className="mt-6 w-full font-bold"
-              disabled={isLoading || !scenario}
+              disabled={isLoading || !scenario || scenario.length < 10}
               data-testid="button-generate"
             >
               {isLoading && <SpinnerIcon className="w-5 h-5 animate-spin" />}
