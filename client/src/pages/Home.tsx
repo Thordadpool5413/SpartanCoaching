@@ -18,13 +18,13 @@ export default function Home() {
           <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-radial from-red-950/20 via-transparent to-transparent blur-3xl"></div>
         </div>
 
-        {/* Hero Video Background */}
+        {/* Hero Video Background - Scaled down on mobile to show less of the large text */}
         <video
           autoPlay
           muted
           loop
           playsInline
-          className="absolute inset-0 w-full h-full object-cover z-[1]"
+          className="absolute inset-0 w-full h-full object-cover z-[1] scale-[0.65] sm:scale-[0.8] md:scale-100"
           style={{
             objectPosition: 'center 30%'
           }}
