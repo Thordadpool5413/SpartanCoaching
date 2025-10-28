@@ -73,15 +73,15 @@ export default function EmailTemplates() {
       <div className="max-w-4xl mx-auto">
         <BackButton />
         <div className="mb-8">
-          <h1 className="text-5xl font-black mb-4">Email Templates</h1>
-          <p className="text-xl text-muted-foreground">
+          <h1 className="text-h1 font-black mb-6">Email Templates</h1>
+          <p className="text-body-lg text-muted-foreground leading-relaxed">
             Generate professional, relationship-building emails for your hospice sales outreach
           </p>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
           {/* Input Form */}
-          <Card>
+          <Card className="card-lift border-2 shadow-lg spacing-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Mail className="w-5 h-5" />
@@ -144,18 +144,19 @@ export default function EmailTemplates() {
               <Button
                 onClick={handleGenerate}
                 disabled={isLoading}
-                className="w-full"
+                size="lg"
+                className="w-full font-bold min-h-[52px] touch-manipulation"
                 data-testid="button-generate-template"
               >
                 {isLoading ? (
                   <>
                     <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Generating...
+                    <span>Generating...</span>
                   </>
                 ) : (
                   <>
                     <Mail className="w-4 h-4 mr-2" />
-                    Generate Email
+                    <span>Generate Email</span>
                   </>
                 )}
               </Button>
@@ -163,19 +164,20 @@ export default function EmailTemplates() {
           </Card>
 
           {/* Generated Template */}
-          <Card>
+          <Card className="card-lift border-2 shadow-lg spacing-card">
             <CardHeader>
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-2">
                 <CardTitle>Generated Template</CardTitle>
                 {generatedTemplate && (
                   <Button
                     variant="outline"
-                    size="sm"
+                    size="default"
                     onClick={handleCopy}
+                    className="font-bold min-h-[48px] touch-manipulation"
                     data-testid="button-copy-template"
                   >
                     <Copy className="w-4 h-4 mr-2" />
-                    Copy
+                    <span>Copy</span>
                   </Button>
                 )}
               </div>

@@ -95,17 +95,17 @@ export default function Playbooks() {
   return (
     <div className="w-full max-w-7xl mx-auto px-6 py-16">
       <BackButton />
-      <h1 className="text-4xl font-black text-foreground mb-2" data-testid="text-playbooks-title">
+      <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-playbooks-title">
         AI Custom Playbook Generator
       </h1>
-      <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+      <p className="text-body-lg text-muted-foreground mb-8 leading-relaxed">
         A playbook is not just a script; it's a strategic battle plan. Describe any sales scenario, and the Spartan AI will generate a complete, strategic playbook to guide you to success.
       </p>
 
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1 space-y-6">
-          <Card>
-            <h2 className="text-xl font-bold mb-4">1. Describe a Scenario</h2>
+          <Card className="card-lift border-2 shadow-lg spacing-card">
+            <h2 className="text-h2 font-bold mb-4">1. Describe a Scenario</h2>
             <p className="text-sm text-muted-foreground mb-4">
               Be specific about the referral source, challenges, and goals.
             </p>
@@ -127,7 +127,7 @@ export default function Playbooks() {
               </p>
             )}
 
-            <h2 className="text-xl font-bold mt-6 mb-4">2. Desired Outcomes (Optional)</h2>
+            <h2 className="text-h2 font-bold mt-6 mb-4">2. Desired Outcomes (Optional)</h2>
             <p className="text-sm text-muted-foreground mb-4">
               Specify your goals. The AI will prioritize these to tailor the playbook.
             </p>
@@ -141,17 +141,18 @@ export default function Playbooks() {
 
             <Button
               onClick={() => handleGenerate()}
-              className="mt-6 w-full font-bold"
+              size="lg"
+              className="mt-6 w-full font-bold min-h-[52px] touch-manipulation"
               disabled={isLoading || !scenario || scenario.length < 10}
               data-testid="button-generate"
             >
-              {isLoading && <SpinnerIcon className="w-5 h-5 animate-spin" />}
-              {isLoading ? "Thinking..." : "Generate Custom Playbook"}
+              {isLoading && <SpinnerIcon className="w-5 h-5 animate-spin mr-2" />}
+              <span>{isLoading ? "Thinking..." : "Generate Custom Playbook"}</span>
             </Button>
           </Card>
 
-          <Card>
-            <h2 className="text-xl font-bold mb-4">Classic Spartan Playbooks</h2>
+          <Card className="card-lift border-2 shadow-lg spacing-card">
+            <h2 className="text-h2 font-bold mb-4">Classic Spartan Playbooks</h2>
             <p className="text-sm text-muted-foreground mb-4">
               Need inspiration? Click a classic scenario to instantly generate a proven playbook.
             </p>
@@ -164,7 +165,7 @@ export default function Playbooks() {
                     setDesiredOutcomes("");
                     handleGenerate(playbook.prompt);
                   }}
-                  className="text-left w-full text-sm font-semibold p-3 rounded-md bg-accent hover-elevate transition-colors"
+                  className="text-left w-full text-sm font-semibold p-3 rounded-md bg-accent hover-elevate active-elevate-2 transition-colors min-h-[48px] touch-manipulation"
                   data-testid={`button-classic-${idx}`}
                 >
                   {playbook.title}
@@ -176,25 +177,25 @@ export default function Playbooks() {
 
         <div className="lg:col-span-2">
           {!generatedPlaybook && !isLoading && (
-            <Card className="h-full flex items-center justify-center">
+            <Card className="h-full flex items-center justify-center card-lift border-2 shadow-lg spacing-card">
               <div className="text-center text-muted-foreground">
-                <p className="text-lg mb-2">No playbook generated yet</p>
-                <p className="text-sm">Describe a scenario and click "Generate" to create your custom playbook</p>
+                <p className="text-body-lg mb-2">No playbook generated yet</p>
+                <p className="text-body">Describe a scenario and click "Generate" to create your custom playbook</p>
               </div>
             </Card>
           )}
 
           {generatedPlaybook && !showModal && (
-            <Card>
-              <div className="flex justify-between items-center mb-6">
-                <h2 className="text-2xl font-bold">Your Custom Playbook</h2>
+            <Card className="card-lift border-2 shadow-lg spacing-card">
+              <div className="flex justify-between items-center mb-6 flex-wrap gap-2">
+                <h2 className="text-h2 font-bold">Your Custom Playbook</h2>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="sm" onClick={handlePrint} data-testid="button-print">
+                  <Button variant="outline" size="default" onClick={handlePrint} className="font-bold min-h-[48px] touch-manipulation" data-testid="button-print">
                     Print
                   </Button>
-                  <Button variant="outline" size="sm" onClick={handleExportTxt} data-testid="button-export">
-                    <DownloadIcon className="w-4 h-4" />
-                    Download
+                  <Button variant="outline" size="default" onClick={handleExportTxt} className="font-bold min-h-[48px] touch-manipulation" data-testid="button-export">
+                    <DownloadIcon className="w-4 h-4 mr-2" />
+                    <span>Download</span>
                   </Button>
                 </div>
               </div>

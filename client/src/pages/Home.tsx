@@ -76,24 +76,24 @@ export default function Home() {
             <Button 
               size="lg" 
               asChild 
-              className="text-sm sm:text-base md:text-lg px-8 sm:px-10 md:px-12 py-6 sm:py-7 md:py-8 font-bold shadow-2xl glow-primary-hover transition-elegant min-h-[52px] sm:min-h-[56px] touch-manipulation group"
+              className="text-base sm:text-lg px-8 sm:px-10 md:px-12 py-6 sm:py-7 md:py-8 font-bold shadow-xl glow-primary-hover transition-elegant min-h-[56px] sm:min-h-[60px] touch-manipulation group"
               data-testid="button-view-services"
             >
               <Link href="/services">
                 <span>View Services</span>
-                <ArrowRight className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
             <Button 
               size="lg" 
               variant="outline" 
               asChild 
-              className="text-sm sm:text-base md:text-lg px-8 sm:px-10 md:px-12 py-6 sm:py-7 md:py-8 font-semibold glass border-white/30 hover:bg-white/20 hover:border-white/40 transition-elegant min-h-[52px] sm:min-h-[56px] touch-manipulation group"
+              className="text-base sm:text-lg px-8 sm:px-10 md:px-12 py-6 sm:py-7 md:py-8 font-bold glass border-white/30 hover:bg-white/20 hover:border-white/40 transition-elegant min-h-[56px] sm:min-h-[60px] touch-manipulation group"
               data-testid="button-why-spartan"
             >
               <Link href="/about">
                 <span>Why Spartan Exists</span>
-                <Heart className="ml-2 w-4 h-4 sm:w-5 sm:h-5 group-hover:scale-110 transition-transform" />
+                <Heart className="ml-2 w-5 h-5 group-hover:scale-110 transition-transform" />
               </Link>
             </Button>
           </div>
@@ -119,38 +119,46 @@ export default function Home() {
         </div>
         
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-cards">
-          <Card className="text-center card-lift border-2 border-gradient group cursor-pointer relative overflow-hidden spacing-card">
+          <Card className="text-center card-lift border-2 group cursor-pointer relative overflow-hidden spacing-card shadow-lg" data-testid="card-pillar-discipline">
             <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
             <div className="absolute inset-0 bg-spartan-gradient-radial opacity-0 group-hover:opacity-30 transition-all duration-500"></div>
-            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-spartan-gradient rounded-3xl flex items-center justify-center mx-auto mb-6 sm:mb-8 shadow-xl group-hover:shadow-2xl group-hover:glow-primary group-hover:scale-110 transition-all duration-500 relative">
-              <DisciplineIcon className="w-10 h-10 sm:w-12 sm:h-12 text-white relative z-10" />
+            <div className="relative">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-spartan-gradient rounded-3xl flex items-center justify-center mx-auto mb-6 sm:mb-8 shadow-xl group-hover:glow-primary group-hover:scale-110 transition-all duration-500">
+                <DisciplineIcon className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+              </div>
+              <CardTitle className="text-h3 mb-4">Discipline</CardTitle>
+              <p className="text-body text-muted-foreground leading-relaxed">
+                Build unwavering commitment to your craft through consistent action and accountability.
+              </p>
             </div>
-            <CardTitle className="text-h3 mb-4">Discipline</CardTitle>
-            <p className="text-body text-muted-foreground">
-              Build unwavering commitment to your craft through consistent action and accountability.
-            </p>
           </Card>
 
-          <Card className="text-center hover:shadow-2xl transition-elegant border-2 group cursor-pointer relative overflow-hidden spacing-card">
-            <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-spartan-gradient rounded-3xl flex items-center justify-center mx-auto mb-6 sm:mb-8 shadow-2xl group-hover:shadow-red-500/50 group-hover:scale-110 transition-elegant">
-              <EmpathyIcon className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+          <Card className="text-center card-lift border-2 group cursor-pointer relative overflow-hidden spacing-card shadow-lg sm:col-span-2 md:col-span-1" data-testid="card-pillar-empathy">
+            <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+            <div className="absolute inset-0 bg-spartan-gradient-radial opacity-0 group-hover:opacity-30 transition-all duration-500"></div>
+            <div className="relative">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-spartan-gradient rounded-3xl flex items-center justify-center mx-auto mb-6 sm:mb-8 shadow-xl group-hover:glow-primary group-hover:scale-110 transition-all duration-500">
+                <EmpathyIcon className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+              </div>
+              <CardTitle className="text-h3 mb-4">Empathy</CardTitle>
+              <p className="text-body text-muted-foreground leading-relaxed">
+                Connect authentically with healthcare providers and truly understand their needs.
+              </p>
             </div>
-            <CardTitle className="text-h3 mb-4">Empathy</CardTitle>
-            <p className="text-body text-muted-foreground">
-              Connect authentically with healthcare providers and truly understand their needs.
-            </p>
           </Card>
 
-          <Card className="text-center hover:shadow-2xl transition-elegant border-2 group cursor-pointer relative overflow-hidden sm:col-span-2 md:col-span-1 spacing-card">
-            <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
-            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-spartan-gradient rounded-3xl flex items-center justify-center mx-auto mb-6 sm:mb-8 shadow-2xl group-hover:shadow-red-500/50 group-hover:scale-110 transition-elegant">
-              <StrategyIcon className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+          <Card className="text-center card-lift border-2 group cursor-pointer relative overflow-hidden spacing-card shadow-lg sm:col-span-2 md:col-span-1" data-testid="card-pillar-strategy">
+            <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+            <div className="absolute inset-0 bg-spartan-gradient-radial opacity-0 group-hover:opacity-30 transition-all duration-500"></div>
+            <div className="relative">
+              <div className="w-20 h-20 sm:w-24 sm:h-24 bg-spartan-gradient rounded-3xl flex items-center justify-center mx-auto mb-6 sm:mb-8 shadow-xl group-hover:glow-primary group-hover:scale-110 transition-all duration-500">
+                <StrategyIcon className="w-10 h-10 sm:w-12 sm:h-12 text-white" />
+              </div>
+              <CardTitle className="text-h3 mb-4">Strategy</CardTitle>
+              <p className="text-body text-muted-foreground leading-relaxed">
+                Execute with precision using proven frameworks that drive measurable results.
+              </p>
             </div>
-            <CardTitle className="text-h3 mb-4">Strategy</CardTitle>
-            <p className="text-body text-muted-foreground">
-              Execute with precision using proven frameworks that drive measurable results.
-            </p>
           </Card>
         </div>
       </section>
@@ -170,46 +178,50 @@ export default function Home() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-cards max-w-5xl mx-auto">
-            <Card className="hover:shadow-2xl transition-elegant border-2 overflow-hidden group relative spacing-card">
-              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <Card className="card-lift border-2 overflow-hidden group relative spacing-card shadow-lg flex flex-col" data-testid="card-services-preview">
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="absolute top-0 right-0 w-48 h-48 bg-red-500/5 rounded-full blur-3xl"></div>
               
-              <div className="flex flex-col items-center gap-4 mb-6 justify-center">
-                <div className="p-4 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-2xl shadow-lg">
-                  <Users className="w-10 h-10 text-red-600 dark:text-red-400" />
+              <div className="relative flex-1 flex flex-col">
+                <div className="flex flex-col items-center gap-4 mb-6 justify-center">
+                  <div className="p-4 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-2xl shadow-lg group-hover:scale-105 transition-transform duration-300">
+                    <Users className="w-10 h-10 text-red-600 dark:text-red-400" />
+                  </div>
+                  <CardTitle className="text-h2 text-center">Coaching Services</CardTitle>
                 </div>
-                <CardTitle className="text-h2 text-center">Coaching Services</CardTitle>
+                <p className="text-center text-muted-foreground text-body mb-8 leading-relaxed">
+                  One-on-one coaching tailored to your unique challenges in healthcare sales.
+                </p>
+                <Button size="lg" asChild className="w-full font-bold shadow-lg min-h-[52px] touch-manipulation group mt-auto" data-testid="button-view-services-preview">
+                  <Link href="/services">
+                    <span>View Services</span>
+                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
               </div>
-              <p className="text-center text-muted-foreground text-body mb-8">
-                One-on-one coaching tailored to your unique challenges in healthcare sales.
-              </p>
-              <Button size="lg" asChild className="w-full font-bold shadow-lg min-h-[52px] touch-manipulation group mt-auto">
-                <Link href="/services">
-                  <span>View Services</span>
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
             </Card>
 
-            <Card className="hover:shadow-2xl transition-elegant border-2 overflow-hidden group relative spacing-card">
-              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <Card className="card-lift border-2 overflow-hidden group relative spacing-card shadow-lg flex flex-col" data-testid="card-programs-preview">
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="absolute top-0 right-0 w-48 h-48 bg-red-500/5 rounded-full blur-3xl"></div>
               
-              <div className="flex flex-col items-center gap-4 mb-6 justify-center">
-                <div className="p-4 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-2xl shadow-lg">
-                  <BookOpen className="w-10 h-10 text-red-600 dark:text-red-400" />
+              <div className="relative flex-1 flex flex-col">
+                <div className="flex flex-col items-center gap-4 mb-6 justify-center">
+                  <div className="p-4 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-2xl shadow-lg group-hover:scale-105 transition-transform duration-300">
+                    <BookOpen className="w-10 h-10 text-red-600 dark:text-red-400" />
+                  </div>
+                  <CardTitle className="text-h2 text-center">Training Programs</CardTitle>
                 </div>
-                <CardTitle className="text-h2 text-center">Training Programs</CardTitle>
+                <p className="text-center text-muted-foreground text-body mb-8 leading-relaxed">
+                  Structured programs designed to build lasting skills and habits.
+                </p>
+                <Button size="lg" asChild className="w-full font-bold shadow-lg min-h-[52px] touch-manipulation group mt-auto" data-testid="button-explore-programs-preview">
+                  <Link href="/programs">
+                    <span>Explore Programs</span>
+                    <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                  </Link>
+                </Button>
               </div>
-              <p className="text-center text-muted-foreground text-body mb-8">
-                Structured programs designed to build lasting skills and habits.
-              </p>
-              <Button size="lg" asChild className="w-full font-bold shadow-lg min-h-[52px] touch-manipulation group mt-auto">
-                <Link href="/programs">
-                  <span>Explore Programs</span>
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
             </Card>
           </div>
         </div>
@@ -267,7 +279,7 @@ export default function Home() {
           </div>
 
           <div className="mt-16 text-center px-4">
-            <Button asChild variant="outline" size="lg" className="font-bold text-sm sm:text-base md:text-lg px-6 sm:px-8 py-6 group whitespace-normal sm:whitespace-nowrap">
+            <Button asChild variant="outline" size="lg" className="font-bold text-base sm:text-lg px-6 sm:px-8 py-6 group whitespace-normal sm:whitespace-nowrap min-h-[52px] touch-manipulation">
               <Link href="/method" data-testid="button-learn-more-method">
                 <span>Learn More About The Spartan Method</span>
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform flex-shrink-0" />

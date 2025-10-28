@@ -57,14 +57,14 @@ export default function Research() {
   return (
     <div className="w-full max-w-4xl mx-auto px-6 py-16">
       <BackButton />
-      <h1 className="text-4xl font-black text-foreground mb-2" data-testid="text-research-title">
+      <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-research-title">
         Grounded Research Tool
       </h1>
-      <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+      <p className="text-body-lg text-muted-foreground mb-8 leading-relaxed">
         Get AI-powered insights with real web sources. Ask questions about hospice trends, regulations, or competitive intelligence, and receive answers backed by credible citations.
       </p>
 
-      <Card className="mb-8">
+      <Card className="mb-8 card-lift border-2 shadow-lg spacing-card">
         <div className="flex gap-3">
           <Input
             value={query}
@@ -79,13 +79,13 @@ export default function Research() {
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             data-testid="input-research-query"
           />
-          <Button onClick={handleSearch} disabled={isLoading || !query || query.length < 5} className="font-bold" data-testid="button-search">
+          <Button onClick={handleSearch} disabled={isLoading || !query || query.length < 5} size="lg" className="font-bold min-h-[48px] touch-manipulation" data-testid="button-search">
             {isLoading ? (
               <SpinnerIcon className="w-5 h-5 animate-spin" />
             ) : (
               <>
                 <SearchIcon className="w-5 h-5" />
-                Search
+                <span>Search</span>
               </>
             )}
           </Button>
@@ -99,13 +99,13 @@ export default function Research() {
 
       {!results && !isLoading && (
         <div>
-          <p className="text-sm font-semibold text-muted-foreground mb-4">Example questions:</p>
+          <p className="text-body font-semibold text-muted-foreground mb-4">Example questions:</p>
           <div className="grid gap-3">
             {exampleQueries.map((example, idx) => (
               <button
                 key={idx}
                 onClick={() => setQuery(example)}
-                className="text-left p-4 rounded-lg bg-accent hover-elevate transition-all text-foreground"
+                className="text-left p-4 rounded-lg bg-accent hover-elevate active-elevate-2 transition-all text-foreground min-h-[48px] touch-manipulation"
                 data-testid={`button-example-${idx}`}
               >
                 {example}
@@ -116,7 +116,7 @@ export default function Research() {
       )}
 
       {isLoading && (
-        <Card className="flex items-center justify-center h-48">
+        <Card className="flex items-center justify-center h-48 card-lift border-2 shadow-lg spacing-card">
           <div className="text-center">
             <SpinnerIcon className="w-8 h-8 animate-spin text-primary mx-auto mb-3" />
             <p className="text-muted-foreground">Searching for relevant information...</p>
@@ -126,14 +126,14 @@ export default function Research() {
 
       {results && (
         <div className="space-y-6">
-          <Card>
-            <h2 className="text-2xl font-bold text-foreground mb-4">Research Results</h2>
+          <Card className="card-lift border-2 shadow-lg spacing-card">
+            <h2 className="text-h2 font-bold text-foreground mb-4">Research Results</h2>
             <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap mb-6" data-testid="text-research-results">
               {results.text}
             </div>
             {results.sources && results.sources.length > 0 && (
               <div>
-                <h3 className="font-bold text-sm text-muted-foreground mb-3">Sources:</h3>
+                <h3 className="text-h3 font-bold text-muted-foreground mb-4">Sources:</h3>
                 <ul className="space-y-2">
                   {results.sources.map((source, idx) => (
                     <li key={idx}>

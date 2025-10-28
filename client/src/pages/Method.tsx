@@ -226,8 +226,8 @@ export default function Method() {
             {salesStages.map((stage, idx) => {
               const Icon = stage.icon;
               return (
-                <Card key={idx} className={`border-2 ${stage.borderColor} hover:shadow-2xl transition-elegant group relative overflow-hidden spacing-card`} data-testid={`card-stage-${idx}`}>
-                  <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity" />
+                <Card key={idx} className={`border-2 ${stage.borderColor} card-lift group relative overflow-hidden spacing-card shadow-lg`} data-testid={`card-stage-${idx}`}>
+                  <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500" />
                   <div className="relative">
                     <div className="flex items-start gap-4 mb-4">
                     <div className={`p-3 rounded-lg ${stage.bgColor}`}>
@@ -294,16 +294,16 @@ export default function Method() {
             </p>
           </div>
 
-          <div className="gap-cards">
+          <div className="grid gap-4">
             {fundamentals.map((fundamental, idx) => (
-              <Card key={idx} className="hover:shadow-2xl transition-elegant border-2 group spacing-card" data-testid={`card-fundamental-${idx}`}>
+              <Card key={idx} className="card-lift border-2 group spacing-card shadow-lg" data-testid={`card-fundamental-${idx}`}>
                 <div className="flex items-start gap-4">
-                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-sm font-bold text-primary">{idx + 1}</span>
+                  <div className="flex-shrink-0 w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
+                    <span className="text-base font-bold text-primary">{idx + 1}</span>
                   </div>
                   <div className="flex-1">
                     <h3 className="text-h3 text-foreground mb-2">{fundamental.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">{fundamental.description}</p>
+                    <p className="text-body text-muted-foreground leading-relaxed">{fundamental.description}</p>
                   </div>
                 </div>
               </Card>
@@ -324,15 +324,17 @@ export default function Method() {
             {ethics.map((ethic, idx) => {
               const Icon = ethic.icon;
               return (
-                <Card key={idx} className="text-center hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card" data-testid={`card-ethic-${idx}`}>
-                  <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <div className="flex justify-center mb-4">
-                    <div className="p-4 rounded-full bg-spartan-gradient">
-                      <Icon className="w-8 h-8 text-white" />
+                <Card key={idx} className="text-center card-lift border-2 group relative overflow-hidden spacing-card shadow-lg" data-testid={`card-ethic-${idx}`}>
+                  <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500" />
+                  <div className="relative">
+                    <div className="flex justify-center mb-6">
+                      <div className="p-4 rounded-full bg-spartan-gradient shadow-lg group-hover:scale-110 group-hover:glow-primary transition-all duration-300">
+                        <Icon className="w-8 h-8 text-white" />
+                      </div>
                     </div>
+                    <h3 className="text-h3 text-foreground mb-3">{ethic.title}</h3>
+                    <p className="text-body text-muted-foreground leading-relaxed">{ethic.description}</p>
                   </div>
-                  <h3 className="text-h3 text-foreground mb-3">{ethic.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{ethic.description}</p>
                 </Card>
               );
             })}

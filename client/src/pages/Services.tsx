@@ -176,10 +176,10 @@ export default function Services() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards">
           {individualServices.map((service, idx) => (
-            <Card key={idx} className="flex flex-col card-lift border-gradient group relative overflow-hidden spacing-card" data-testid={`card-individual-${idx}`}>
+            <Card key={idx} className="flex flex-col card-lift border-2 group relative overflow-hidden spacing-card shadow-lg" data-testid={`card-individual-${idx}`}>
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-radial from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-2xl"></div>
-              <div className="flex-1">
+              <div className="flex-1 relative">
                 <h3 className="text-h3 font-bold text-foreground mb-3">{service.title}</h3>
                 <div className="flex items-baseline gap-3 mb-6">
                   <p className="text-3xl font-black text-primary">{service.price}</p>
@@ -215,7 +215,8 @@ export default function Services() {
               </div>
 
               <Button
-                className="w-full font-bold mt-auto"
+                size="lg"
+                className="w-full font-bold mt-auto min-h-[52px] touch-manipulation"
                 data-testid={`button-book-individual-${idx}`}
                 onClick={() => {
                   setSelectedService(service.title);
@@ -243,9 +244,10 @@ export default function Services() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards">
           {leadershipServices.map((service, idx) => (
-            <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card" data-testid={`card-leadership-${idx}`}>
-              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <div className="flex-1">
+            <Card key={idx} className="flex flex-col card-lift border-2 group relative overflow-hidden spacing-card shadow-lg" data-testid={`card-leadership-${idx}`}>
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+              <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-radial from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-2xl"></div>
+              <div className="flex-1 relative">
                 <h3 className="text-h3 font-bold text-foreground mb-3">{service.title}</h3>
                 <div className="flex items-baseline gap-3 mb-6">
                   <p className="text-3xl font-black text-primary">{service.price}</p>
@@ -281,7 +283,8 @@ export default function Services() {
               </div>
 
               <Button
-                className="w-full font-bold mt-auto"
+                size="lg"
+                className="w-full font-bold mt-auto min-h-[52px] touch-manipulation"
                 data-testid={`button-book-leadership-${idx}`}
                 onClick={() => {
                   setSelectedService(service.title);
@@ -309,9 +312,10 @@ export default function Services() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards">
           {corporateServices.map((service, idx) => (
-            <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card" data-testid={`card-corporate-${idx}`}>
-              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
-              <div className="flex-1">
+            <Card key={idx} className="flex flex-col card-lift border-2 group relative overflow-hidden spacing-card shadow-lg" data-testid={`card-corporate-${idx}`}>
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+              <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-radial from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-2xl"></div>
+              <div className="flex-1 relative">
                 <h3 className="text-h3 font-bold text-foreground mb-3">{service.title}</h3>
                 <div className="flex items-baseline gap-3 mb-6">
                   <p className="text-3xl font-black text-primary">{service.price}</p>
@@ -347,7 +351,8 @@ export default function Services() {
               </div>
 
               <Button
-                className="w-full font-bold mt-auto"
+                size="lg"
+                className="w-full font-bold mt-auto min-h-[52px] touch-manipulation"
                 data-testid={`button-book-corporate-${idx}`}
                 onClick={() => {
                   setSelectedService(service.title);
@@ -362,18 +367,19 @@ export default function Services() {
       </div>
 
       {/* CTA Section */}
-      <div className="relative bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent rounded-3xl p-8 sm:p-10 md:p-12 text-center overflow-hidden border-2 border-red-500/20 shadow-2xl">
+      <div className="relative bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent rounded-3xl p-8 sm:p-10 md:p-12 text-center overflow-hidden border-2 border-red-500/20 shadow-lg">
         <div className="absolute top-0 right-0 w-48 h-48 bg-red-500/10 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-red-500/5 rounded-full blur-3xl"></div>
         <div className="relative">
           <h2 className="text-h2 text-foreground mb-4 sm:mb-6">
             Not Sure Which Service Fits?
           </h2>
-          <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-8 sm:mb-10">
+          <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed">
             Every engagement starts with understanding your specific challenge. Let's talk about what's not working and build a plan that fixes it.
           </p>
           <Button
             size="lg"
-            className="font-bold text-base px-8 sm:px-10 py-6 shadow-xl glow-primary-hover"
+            className="font-bold text-base px-8 sm:px-10 py-6 shadow-xl glow-primary-hover min-h-[52px] touch-manipulation"
             data-testid="button-contact-us"
             onClick={() => {
               setSelectedService("");

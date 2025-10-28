@@ -49,22 +49,22 @@ export default function Resources() {
     <div className="w-full max-w-7xl mx-auto px-6 py-16">
       <BackButton />
       <div className="text-center max-w-3xl mx-auto mb-16">
-        <h1 className="text-4xl md:text-5xl font-black text-foreground mb-4" data-testid="text-resources-title">
+        <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-resources-title">
           Field-Ready Resources
         </h1>
-        <p className="text-lg text-muted-foreground leading-relaxed">
+        <p className="text-body-lg text-muted-foreground leading-relaxed">
           Download these field-tested PDF templates to bring clarity, structure, and discipline to your sales process.
         </p>
       </div>
 
       {/* Spartan Weekly Plan */}
-      <Card className="bg-gradient-to-br from-primary/10 to-destructive/10 mb-12">
+      <Card className="bg-gradient-to-br from-primary/10 to-destructive/10 mb-12 card-lift border-2 border-primary/20 shadow-lg spacing-card" data-testid="card-weekly-plan">
         <div className="flex flex-col md:flex-row items-center gap-8">
           <div className="flex-1">
-            <h2 className="text-3xl font-bold text-foreground mb-4">
+            <h2 className="text-h2 font-bold text-foreground mb-4">
               Get The Spartan Weekly Plan PDF
             </h2>
-            <p className="text-muted-foreground leading-relaxed mb-6">
+            <p className="text-body text-muted-foreground leading-relaxed mb-6">
               A one-page tool to define your objective, set daily priorities, track key metrics like referrals and start-of-care speed, and plan your recovery. Delivered instantly to your inbox.
             </p>
             {!submitted ? (
@@ -78,7 +78,7 @@ export default function Resources() {
                   className="flex-1"
                   data-testid="input-email"
                 />
-                <Button type="submit" className="font-bold whitespace-nowrap" data-testid="button-get-plan">
+                <Button type="submit" size="lg" className="font-bold whitespace-nowrap min-h-[52px] touch-manipulation" data-testid="button-get-plan">
                   Get The Plan
                 </Button>
               </form>
@@ -87,11 +87,11 @@ export default function Resources() {
                 <p className="text-foreground font-semibold mb-2" data-testid="text-success">
                   ✓ Success! Check your inbox for the Spartan Weekly Plan PDF.
                 </p>
-                <Link href="/resources/weekly-plan">
-                  <Button variant="outline" size="sm" className="font-bold">
+                <Button asChild variant="outline" size="default" className="font-bold min-h-[48px] touch-manipulation">
+                  <Link href="/resources/weekly-plan">
                     Or View It Now →
-                  </Button>
-                </Link>
+                  </Link>
+                </Button>
               </div>
             )}
           </div>
@@ -99,36 +99,40 @@ export default function Resources() {
       </Card>
 
       {/* Additional Resources */}
-      <div className="grid md:grid-cols-2 gap-6">
+      <div className="grid md:grid-cols-2 gap-cards">
         {resources.map((resource, idx) => (
-          <Card key={idx} className="hover-elevate transition-all" data-testid={`card-resource-${idx}`}>
-            <div className="flex items-start gap-4 mb-4">
-              <div className="p-3 rounded-lg bg-primary/10">
-                <DownloadIcon className="w-6 h-6 text-primary" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-xl font-bold text-foreground mb-2">{resource.title}</h3>
-                <p className="text-sm text-muted-foreground mb-4">
-                  {resource.description}
-                </p>
-                <Button
-                  asChild
-                  className="w-full font-bold"
-                  data-testid={`button-resource-${idx}`}
-                  onClick={() => {
-                    // Track resource access
-                    fetch('/api/analytics/resource-access', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        resourceName: resource.title,
-                        timestamp: Date.now()
-                      })
-                    }).catch(console.error);
-                  }}
-                >
-                  <Link href={resource.link}>{resource.cta}</Link>
-                </Button>
+          <Card key={idx} className="card-lift border-2 group relative overflow-hidden spacing-card shadow-lg" data-testid={`card-resource-${idx}`}>
+            <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+            <div className="relative">
+              <div className="flex items-start gap-4 mb-6">
+                <div className="p-3 rounded-lg bg-primary/10 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300 flex-shrink-0">
+                  <DownloadIcon className="w-6 h-6 text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="text-h3 font-bold text-foreground mb-2">{resource.title}</h3>
+                  <p className="text-body text-muted-foreground mb-6 leading-relaxed">
+                    {resource.description}
+                  </p>
+                  <Button
+                    asChild
+                    size="lg"
+                    className="w-full font-bold min-h-[52px] touch-manipulation"
+                    data-testid={`button-resource-${idx}`}
+                    onClick={() => {
+                      // Track resource access
+                      fetch('/api/analytics/resource-access', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          resourceName: resource.title,
+                          timestamp: Date.now()
+                        })
+                      }).catch(console.error);
+                    }}
+                  >
+                    <Link href={resource.link}>{resource.cta}</Link>
+                  </Button>
+                </div>
               </div>
             </div>
           </Card>

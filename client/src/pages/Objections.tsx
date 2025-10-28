@@ -81,36 +81,37 @@ export default function Objections() {
   return (
     <div className="w-full max-w-7xl mx-auto px-6 py-16">
       <BackButton />
-      <h1 className="text-4xl font-black text-foreground mb-2" data-testid="text-objections-title">
+      <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-objections-title">
         Objection Handling with AI
       </h1>
-      <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+      <p className="text-body-lg text-muted-foreground mb-8 leading-relaxed">
         Objections aren't roadblocks; they are opportunities to educate and build trust. Here are expert-crafted responses. Use the AI to generate alternative approaches for any situation.
       </p>
 
       <div className="grid gap-6">
         {objections.map((obj, idx) => (
-          <Card key={idx} className="flex flex-col md:flex-row gap-6" data-testid={`card-objection-${idx}`}>
+          <Card key={idx} className="flex flex-col md:flex-row gap-6 card-lift border-2 shadow-lg spacing-card" data-testid={`card-objection-${idx}`}>
             <div className="flex-1">
-              <h3 className="font-bold text-lg text-foreground mb-3">{obj.q}</h3>
+              <h3 className="text-h3 font-bold text-foreground mb-4">{obj.q}</h3>
               <p className="text-muted-foreground italic border-l-4 border-primary pl-4">"{obj.a}"</p>
             </div>
             <div className="w-full md:w-1/2 space-y-3">
               <Button
                 onClick={() => generateResponse(obj.q)}
                 disabled={loading[obj.q]}
-                className="w-full font-bold"
+                size="lg"
+                className="w-full font-bold min-h-[52px] touch-manipulation"
                 data-testid={`button-generate-${idx}`}
               >
                 {loading[obj.q] ? (
                   <>
-                    <SpinnerIcon className="w-5 h-5 animate-spin" />
-                    Generating...
+                    <SpinnerIcon className="w-5 h-5 animate-spin mr-2" />
+                    <span>Generating...</span>
                   </>
                 ) : (
                   <>
-                    <LightbulbIcon className="w-5 h-5" />
-                    Generate AI Alternative
+                    <LightbulbIcon className="w-5 h-5 mr-2" />
+                    <span>Generate AI Alternative</span>
                   </>
                 )}
               </Button>

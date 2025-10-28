@@ -116,14 +116,14 @@ export default function Transcribe() {
   return (
     <div className="w-full max-w-4xl mx-auto px-6 py-16">
       <BackButton />
-      <h1 className="text-4xl font-black text-foreground mb-2" data-testid="text-transcribe-title">
+      <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-transcribe-title">
         Audio Transcriber
       </h1>
-      <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+      <p className="text-body-lg text-muted-foreground mb-8 leading-relaxed">
         Record and transcribe sales calls, practice sessions, or coaching conversations. Review transcripts to identify improvement opportunities and track your progress.
       </p>
 
-      <Card className="mb-8">
+      <Card className="mb-8 card-lift border-2 shadow-lg spacing-card">
         <div className="text-center py-8">
           <div className="mb-6">
             {isRecording ? (
@@ -142,16 +142,16 @@ export default function Transcribe() {
           {isRecording ? (
             <div>
               <p className="text-lg font-semibold text-destructive mb-4">Recording in progress...</p>
-              <Button onClick={stopRecording} variant="destructive" size="lg" className="font-bold" data-testid="button-stop-recording">
+              <Button onClick={stopRecording} variant="destructive" size="lg" className="font-bold min-h-[52px] touch-manipulation" data-testid="button-stop-recording">
                 Stop Recording
               </Button>
             </div>
           ) : (
             <div>
               <p className="text-lg font-semibold text-foreground mb-4">Ready to record</p>
-              <Button onClick={startRecording} size="lg" className="font-bold" data-testid="button-start-recording">
+              <Button onClick={startRecording} size="lg" className="font-bold min-h-[52px] touch-manipulation" data-testid="button-start-recording">
                 <MicrophoneIcon className="w-5 h-5" />
-                Start Recording
+                <span>Start Recording</span>
               </Button>
             </div>
           )}
@@ -159,7 +159,7 @@ export default function Transcribe() {
       </Card>
 
       {isProcessing && (
-        <Card className="flex items-center justify-center h-32">
+        <Card className="flex items-center justify-center h-32 card-lift border-2 shadow-lg spacing-card">
           <div className="text-center">
             <SpinnerIcon className="w-8 h-8 animate-spin text-primary mx-auto mb-3" />
             <p className="text-muted-foreground">Transcribing audio...</p>
@@ -168,18 +168,18 @@ export default function Transcribe() {
       )}
 
       {transcription && !isProcessing && (
-        <Card>
-          <h2 className="text-2xl font-bold text-foreground mb-4">Transcription</h2>
+        <Card className="card-lift border-2 shadow-lg spacing-card">
+          <h2 className="text-h2 font-bold text-foreground mb-4">Transcription</h2>
           <div className="bg-accent rounded-lg p-4">
             <p className="text-foreground leading-relaxed" data-testid="text-transcription">
               {transcription}
             </p>
           </div>
           <div className="mt-4 flex gap-3">
-            <Button onClick={copyToClipboard} variant="outline" className="font-bold" data-testid="button-copy">
+            <Button onClick={copyToClipboard} variant="outline" size="default" className="font-bold min-h-[48px] touch-manipulation" data-testid="button-copy">
               Copy to Clipboard
             </Button>
-            <Button onClick={exportAsText} variant="outline" className="font-bold" data-testid="button-export-transcription">
+            <Button onClick={exportAsText} variant="outline" size="default" className="font-bold min-h-[48px] touch-manipulation" data-testid="button-export-transcription">
               Export as Text
             </Button>
           </div>
@@ -187,8 +187,8 @@ export default function Transcribe() {
       )}
 
       {!transcription && !isProcessing && !isRecording && !hasError && (
-        <Card className="bg-accent/50">
-          <h3 className="font-bold text-lg text-foreground mb-3">How it works:</h3>
+        <Card className="bg-accent/50 card-lift border-2 shadow-lg spacing-card">
+          <h3 className="text-h3 font-bold text-foreground mb-4">How it works:</h3>
           <ol className="space-y-2 text-muted-foreground">
             <li className="flex gap-3">
               <span className="font-bold text-primary">1.</span>
@@ -214,8 +214,8 @@ export default function Transcribe() {
       )}
 
       {hasError && (
-        <Card className="bg-destructive/10 border-destructive">
-          <h3 className="font-bold text-lg text-destructive mb-2">Browser Not Supported</h3>
+        <Card className="bg-destructive/10 border-destructive card-lift border-2 shadow-lg spacing-card">
+          <h3 className="text-h3 font-bold text-destructive mb-4">Browser Not Supported</h3>
           <p className="text-muted-foreground">
             Speech recognition is not available in your current browser. Please use Chrome, Edge, or Safari for the best experience with real-time transcription.
           </p>

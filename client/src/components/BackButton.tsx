@@ -20,13 +20,13 @@ export function BackButton({ fallbackPath = "/" }: BackButtonProps) {
   return (
     <Button
       variant="ghost"
-      size="sm"
+      size="default"
       onClick={handleBack}
       data-testid="button-back"
-      className="mb-4"
+      className="mb-6 min-h-[48px] touch-manipulation group"
     >
-      <ArrowLeft className="h-4 w-4 mr-2" />
-      Back
+      <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
+      <span>Back</span>
     </Button>
   );
 }

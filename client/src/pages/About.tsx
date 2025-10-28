@@ -21,7 +21,7 @@ export default function About() {
 
         {/* The Why Section - Core Message */}
         <div className="space-y-8 md:space-y-12 lg:space-y-16">
-          <Card className="spacing-card bg-gradient-to-br from-primary/5 to-destructive/5 border-2">
+          <Card className="spacing-card bg-gradient-to-br from-primary/5 to-destructive/5 card-lift border-2 shadow-lg">
             <div className="space-y-6 text-body-lg leading-relaxed">
               <p className="text-foreground">
                 The promise is simple. When a person is eligible, they should receive expert, compassionate care without delay, and their family should feel supported at every step. That promise breaks when sales teams are left with vague goals, light coaching, and a calendar full of activity that does not move referrals.
@@ -43,40 +43,40 @@ export default function About() {
         <div className="space-y-8 md:space-y-12 lg:space-y-16">
           <h2 className="text-h2 text-foreground mb-8">The Stakes Are Real</h2>
           <div className="grid md:grid-cols-3 gap-cards">
-            <Card className="hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden text-center spacing-card">
-              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <Card className="card-lift border-2 group relative overflow-hidden text-center spacing-card shadow-lg" data-testid="card-stakes-teams">
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
-                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-spartan-gradient flex items-center justify-center">
-                  <Target className="w-6 h-6 text-white" />
+                <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:glow-primary transition-all duration-300">
+                  <Target className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="text-h3 font-bold text-foreground mb-2">For Teams</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <h3 className="text-h3 font-bold text-foreground mb-3">For Teams</h3>
+                <p className="text-body text-muted-foreground leading-relaxed">
                   When teams communicate clearly with referral partners and remove friction from the pathway, length of stay stabilizes, hospital readmissions drop, and families feel seen.
                 </p>
               </div>
             </Card>
 
-            <Card className="hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden text-center spacing-card">
-              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <Card className="card-lift border-2 group relative overflow-hidden text-center spacing-card shadow-lg" data-testid="card-stakes-reps">
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
-                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-spartan-gradient flex items-center justify-center">
-                  <Users className="w-6 h-6 text-white" />
+                <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:glow-primary transition-all duration-300">
+                  <Users className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="text-h3 font-bold text-foreground mb-2">For Reps</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <h3 className="text-h3 font-bold text-foreground mb-3">For Reps</h3>
+                <p className="text-body text-muted-foreground leading-relaxed">
                   When reps carry a clean plan for their top accounts, follow up is faster, objections become opportunities to educate, and referrals move from interest to signed order without getting lost.
                 </p>
               </div>
             </Card>
 
-            <Card className="hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden text-center spacing-card">
-              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <Card className="card-lift border-2 group relative overflow-hidden text-center spacing-card shadow-lg" data-testid="card-stakes-orgs">
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
-                <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-spartan-gradient flex items-center justify-center">
-                  <TrendingUp className="w-6 h-6 text-white" />
+                <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:glow-primary transition-all duration-300">
+                  <TrendingUp className="w-7 h-7 text-white" />
                 </div>
-                <h3 className="text-h3 font-bold text-foreground mb-2">For Organizations</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">
+                <h3 className="text-h3 font-bold text-foreground mb-3">For Organizations</h3>
+                <p className="text-body text-muted-foreground leading-relaxed">
                   When the corporate office can see the same standards across markets, wins are repeatable and growth is not guesswork.
                 </p>
               </div>
@@ -140,32 +140,32 @@ export default function About() {
             </div>
           </div>
 
-          <div className="gap-cards">
-            <Card className="hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card">
-              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          <div className="grid gap-4">
+            <Card className="card-lift border-2 group relative overflow-hidden spacing-card shadow-lg" data-testid="card-experience-field">
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
-                <h3 className="text-h3 font-bold text-primary mb-2">Field Leadership</h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <h3 className="text-h3 font-bold text-primary mb-3">Field Leadership</h3>
+                <p className="text-body text-muted-foreground leading-relaxed">
                   Built and led field sales teams across multiple markets, developing territory strategies that respect clinical workflows while driving measurable growth in referrals and patient census.
                 </p>
               </div>
             </Card>
 
-            <Card className="hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card">
-              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <Card className="card-lift border-2 group relative overflow-hidden spacing-card shadow-lg" data-testid="card-experience-operations">
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
-                <h3 className="text-h3 font-bold text-primary mb-2">Operational Excellence</h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <h3 className="text-h3 font-bold text-primary mb-3">Operational Excellence</h3>
+                <p className="text-body text-muted-foreground leading-relaxed">
                   Designed and implemented systems for admissions speed, start-of-care readiness, and IDT communication that reduce delays and improve patient outcomes.
                 </p>
               </div>
             </Card>
 
-            <Card className="hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card">
-              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
+            <Card className="card-lift border-2 group relative overflow-hidden spacing-card shadow-lg" data-testid="card-experience-coaching">
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
-                <h3 className="text-h3 font-bold text-primary mb-2">Practical Coaching</h3>
-                <p className="text-muted-foreground leading-relaxed">
+                <h3 className="text-h3 font-bold text-primary mb-3">Practical Coaching</h3>
+                <p className="text-body text-muted-foreground leading-relaxed">
                   Believes in coaching that happens in the work, not in theory. Every framework is field-tested, every playbook is battle-proven, and every strategy prioritizes patient-first outcomes.
                 </p>
               </div>
@@ -174,7 +174,7 @@ export default function About() {
 
           {/* LinkedIn Connect Section */}
           <div className="mt-8 text-center">
-            <Card className="spacing-card bg-gradient-to-br from-primary/5 to-primary/10">
+            <Card className="spacing-card bg-gradient-to-br from-primary/5 to-primary/10 card-lift border-2 shadow-lg">
               <p className="text-muted-foreground mb-4">
                 Learn more about Nick's professional background and experience
               </p>
@@ -205,11 +205,16 @@ export default function About() {
           <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-6 leading-relaxed">
             Whether you need one-on-one coaching, team training, or strategic consulting, Spartan Coaching is here to help you deliver better outcomes for the patients who need you most.
           </p>
-          <a href="mailto:contact@spartancoaching.com" className="inline-block">
-            <button className="bg-primary text-primary-foreground font-bold px-8 py-4 rounded-lg hover-elevate transition-all" data-testid="button-contact">
+          <Button 
+            asChild 
+            size="lg"
+            className="font-bold shadow-lg glow-primary-hover min-h-[52px] touch-manipulation" 
+            data-testid="button-contact"
+          >
+            <a href="mailto:contact@spartancoaching.com">
               Get in Touch
-            </button>
-          </a>
+            </a>
+          </Button>
         </div>
       </div>
     </div>

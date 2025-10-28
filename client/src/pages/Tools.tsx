@@ -43,40 +43,43 @@ export default function Tools() {
     <div className="w-full max-w-7xl mx-auto px-6 py-16">
       <BackButton />
       <div className="text-center max-w-3xl mx-auto mb-16">
-        <h1 className="text-4xl md:text-5xl font-black text-foreground mb-4" data-testid="text-tools-title">
+        <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-tools-title">
           AI Field Kit
         </h1>
-        <p className="text-lg text-muted-foreground leading-relaxed">
+        <p className="text-body-lg text-muted-foreground leading-relaxed">
           Your digital toolkit powered by AI. Generate playbooks, practice objections, conduct research, and transcribe calls—all designed to make you a more effective hospice sales professional.
         </p>
       </div>
 
-      <div className="grid md:grid-cols-2 gap-8">
+      <div className="grid md:grid-cols-2 gap-cards">
         {tools.map((tool, idx) => (
-          <Card key={idx} className="flex flex-col hover-elevate transition-all" data-testid={`card-tool-${idx}`}>
-            <div className="flex items-center gap-4 mb-4">
-              <div className="p-3 rounded-lg bg-primary/10 text-primary">
-                {tool.icon}
+          <Card key={idx} className="flex flex-col card-lift border-2 group relative overflow-hidden spacing-card shadow-lg" data-testid={`card-tool-${idx}`}>
+            <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+            <div className="relative flex-1 flex flex-col">
+              <div className="flex items-center gap-4 mb-6">
+                <div className="p-3 rounded-lg bg-primary/10 text-primary group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                  {tool.icon}
+                </div>
+                <h3 className="text-h3 font-bold text-foreground">{tool.title}</h3>
               </div>
-              <h3 className="text-2xl font-bold text-foreground">{tool.title}</h3>
+              <p className="text-body text-muted-foreground leading-relaxed flex-1 mb-6">
+                {tool.description}
+              </p>
+              <Button asChild className="w-full font-bold min-h-[52px] touch-manipulation" size="lg">
+                <Link href={tool.path} data-testid={`button-tool-${idx}`}>
+                  Launch Tool
+                </Link>
+              </Button>
             </div>
-            <p className="text-muted-foreground leading-relaxed flex-1 mb-6">
-              {tool.description}
-            </p>
-            <Button asChild className="w-full font-bold">
-              <Link href={tool.path} data-testid={`button-tool-${idx}`}>
-                Launch Tool
-              </Link>
-            </Button>
           </Card>
         ))}
       </div>
 
-      <div className="mt-16 bg-accent/50 rounded-2xl p-8 md:p-12 text-center">
-        <h2 className="text-3xl font-bold text-foreground mb-4">
+      <div className="mt-16 bg-gradient-to-br from-accent/50 to-accent/30 rounded-2xl p-8 md:p-12 text-center border-2 border-accent/50 shadow-lg">
+        <h2 className="text-h2 font-bold text-foreground mb-4">
           AI-Powered Coaching, On Demand
         </h2>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+        <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
           These tools are designed to give you instant access to expert coaching whenever you need it. Practice, prepare, and perform at your best.
         </p>
       </div>
