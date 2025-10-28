@@ -59,10 +59,10 @@ export default function Home() {
           </div>
           
           <h1 className="text-hero mb-4 sm:mb-6 md:mb-8 animate-fade-in-up px-4">
-            <span className="block bg-gradient-to-r from-white via-gray-50 to-white bg-clip-text text-transparent font-black tracking-tighter drop-shadow-2xl">
+            <span className="block bg-gradient-to-r from-red-600 via-red-500 to-red-600 bg-clip-text text-transparent font-black tracking-tighter drop-shadow-2xl">
               Patient Outcomes First.
             </span>
-            <span className="block bg-gradient-to-r from-red-50 via-white to-red-50 bg-clip-text text-transparent mt-2 font-black tracking-tighter drop-shadow-2xl">
+            <span className="block bg-gradient-to-r from-red-600 via-red-500 to-red-600 bg-clip-text text-transparent mt-2 font-black tracking-tighter drop-shadow-2xl">
               Elite Reps Always.
             </span>
           </h1>
