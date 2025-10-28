@@ -29,6 +29,20 @@
   --sidebar: 45 25% 98%;
   --sidebar-foreground: 20 14% 15%;
   --sidebar-border: 45 15% 85%;
+
+  /* Mobile video optimization */
+  @media (max-width: 767px) {
+    video {
+      object-fit: cover;
+      max-height: 60vh;
+    }
+    
+    /* Disable autoplay on mobile for better performance */
+    video[autoplay] {
+      poster: attr(poster);
+    }
+  }
+
   --sidebar-primary: 9 75% 61%;
   --sidebar-primary-foreground: 0 0% 100%;
   --sidebar-accent: 25 45% 85%;
@@ -230,8 +244,22 @@
     
     /* Optimize hero text size for mobile */
     .text-hero {
-      font-size: 2.5rem !important;
-      line-height: 1.1 !important;
+      font-size: 2.25rem !important;
+      line-height: 1.15 !important;
+      letter-spacing: -0.03em !important;
+    }
+    
+    /* Optimize heading sizes for mobile readability */
+    .text-h1 {
+      font-size: 2rem !important;
+    }
+    
+    .text-h2 {
+      font-size: 1.75rem !important;
+    }
+    
+    .text-h3 {
+      font-size: 1.375rem !important;
     }
     
     /* Ensure containers don't overflow */
@@ -239,15 +267,34 @@
       overflow-x: hidden;
       width: 100%;
       max-width: 100vw;
+      position: relative;
+    }
+    
+    /* Constrain all content containers */
+    .container, [class*="container"] {
+      max-width: 100vw;
+      overflow-x: hidden;
+    }
+    
+    /* Prevent layout shift from scrollbars */
+    html {
+      overflow-y: scroll;
+      overflow-x: hidden;
     }
     
     /* Improved touch targets - WCAG AA compliant */
     button, a[role="button"], input[type="button"], input[type="submit"] {
-      min-height: 48px;
-      min-width: 48px;
-      padding: 14px 20px;
+      min-height: 44px;
+      min-width: 44px;
+      padding: 12px 16px;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
+    }
+    
+    /* Larger touch targets for primary CTAs */
+    button[type="submit"], .btn-primary {
+      min-height: 48px;
+      padding: 14px 24px;
     }
     
     /* Better input fields */
@@ -264,18 +311,29 @@
     
     /* Better card spacing on mobile */
     .gap-cards {
-      gap: 1rem;
+      gap: 0.875rem;
     }
     
     .spacing-section {
-      padding-top: 1.5rem;
-      padding-bottom: 1.5rem;
+      padding-top: 2rem;
+      padding-bottom: 2rem;
     }
     
-    /* Optimize container padding */
+    /* Optimize container padding with safe areas */
     .spacing-container {
-      padding-left: 1rem;
-      padding-right: 1rem;
+      padding-left: max(1rem, env(safe-area-inset-left));
+      padding-right: max(1rem, env(safe-area-inset-right));
+    }
+    
+    /* Force single column layouts on mobile */
+    .grid {
+      grid-template-columns: 1fr !important;
+    }
+    
+    /* Optimize flex layouts */
+    .flex {
+      flex-wrap: wrap;
+      gap: 0.75rem;
     }
     
     /* Better modal sizing on mobile */
@@ -291,6 +349,29 @@
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
       }
+    }
+    
+    /* Disable expensive animations on mobile for performance */
+    .animate-fade-in,
+    .animate-fade-in-up,
+    .animate-slide-in-left,
+    .animate-slide-in-right,
+    .animate-scale-in {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
+    
+    /* Keep essential transitions only */
+    .transition-smooth,
+    .transition-elegant {
+      transition: opacity 0.2s ease;
+    }
+    
+    /* Disable hover effects on mobile */
+    .card-lift:hover {
+      transform: none;
+      box-shadow: var(--shadow-md);
     }
   }
 

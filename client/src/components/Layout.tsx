@@ -172,18 +172,18 @@ export function Header() {
 
       {/* Mobile Navigation */}
       {mobileMenuOpen && (
-        <nav className="lg:hidden absolute top-full left-0 right-0 bg-background border-b border-border shadow-lg z-50 animate-fade-in mobile-safe-padding">
-          <div className="flex flex-col p-4 space-y-3 max-h-[70vh] overflow-y-auto">
+        <nav className="lg:hidden fixed top-[64px] left-0 right-0 bottom-0 bg-background/95 backdrop-blur-md z-50 mobile-safe-padding overflow-y-auto">
+          <div className="flex flex-col p-4 space-y-2 min-h-full">
             {routes.map((route) => (
               <Link
                 key={route.path}
                 href={route.path}
                 onClick={() => setMobileMenuOpen(false)}
                 className={cn(
-                  "px-4 py-3 rounded-lg text-base font-medium transition-all hover-elevate active-elevate-2 touch-manipulation min-h-[48px] flex items-center",
+                  "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center active:scale-[0.98] transition-transform",
                   location === route.path
-                    ? "bg-primary text-primary-foreground"
-                    : "text-foreground hover:bg-accent"
+                    ? "bg-primary text-primary-foreground shadow-md"
+                    : "text-foreground bg-muted/50"
                 )}
               >
                 {route.label}
