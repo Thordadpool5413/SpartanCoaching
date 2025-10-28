@@ -228,6 +228,12 @@
       hyphens: auto;
     }
     
+    /* Optimize hero text size for mobile */
+    .text-hero {
+      font-size: 2.5rem !important;
+      line-height: 1.1 !important;
+    }
+    
     /* Ensure containers don't overflow */
     section, main, header, footer, nav {
       overflow-x: hidden;
@@ -237,17 +243,18 @@
     
     /* Improved touch targets - WCAG AA compliant */
     button, a[role="button"], input[type="button"], input[type="submit"] {
-      min-height: 44px;
-      min-width: 44px;
-      padding: 12px 16px;
+      min-height: 48px;
+      min-width: 48px;
+      padding: 14px 20px;
       touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
     }
     
     /* Better input fields */
     input, textarea, select {
       font-size: 16px !important; /* Prevents zoom on iOS */
-      padding: 12px 16px;
-      min-height: 44px;
+      padding: 14px 16px;
+      min-height: 48px;
     }
     
     /* Optimize scrolling */
@@ -261,8 +268,8 @@
     }
     
     .spacing-section {
-      padding-top: 2rem;
-      padding-bottom: 2rem;
+      padding-top: 1.5rem;
+      padding-bottom: 1.5rem;
     }
     
     /* Optimize container padding */

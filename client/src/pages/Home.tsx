@@ -17,11 +17,11 @@ export default function Home() {
       const mobile = window.innerWidth < 768;
       setIsMobile(mobile);
       setVideoSrc(mobile ? '/hero-video-mobile.mp4' : '/hero-video.mp4');
-      console.log('Device detection:', { 
-        isMobile: mobile, 
-        screenWidth: window.innerWidth,
-        videoFile: mobile ? 'mobile (6.9MB)' : 'desktop (14MB)'
-      });
+      
+      // On mobile, default to poster-only for better performance
+      if (mobile) {
+        setShouldLoadVideo(false);
+      }
     };
     
     checkMobile();
@@ -37,18 +37,7 @@ export default function Home() {
       const conn = (navigator as any).connection;
       if (conn && (conn.saveData || conn.effectiveType === 'slow-2g' || conn.effectiveType === '2g' || conn.effectiveType === '3g')) {
         setShouldLoadVideo(false);
-        console.log('Slow connection detected - showing poster only');
       }
-    }
-    
-    // Also check battery status on mobile
-    if ('getBattery' in navigator && mobile) {
-      (navigator as any).getBattery().then((battery: any) => {
-        if (battery.level < 0.2 && !battery.charging) {
-          setShouldLoadVideo(false);
-          console.log('Low battery - video disabled');
-        }
-      });
     }
     
     return () => window.removeEventListener('resize', debouncedResize);
