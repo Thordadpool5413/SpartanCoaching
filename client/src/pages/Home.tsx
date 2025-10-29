@@ -13,14 +13,47 @@ export default function Home() {
     const playVideo = async () => {
       if (videoRef.current) {
         try {
-          await videoRef.current.play();
+          // Set video properties
+          videoRef.current.muted = true;
+          videoRef.current.playsInline = true;
+          
+          // Try to play
+          const playPromise = videoRef.current.play();
+          
+          if (playPromise !== undefined) {
+            await playPromise;
+          }
         } catch (error) {
-          console.log('Video autoplay prevented:', error);
+          console.log('Video autoplay blocked, trying on user interaction');
+          
+          // Play on any user interaction
+          const playOnInteraction = async () => {
+            if (videoRef.current) {
+              try {
+                await videoRef.current.play();
+                // Remove listeners after successful play
+                document.removeEventListener('click', playOnInteraction);
+                document.removeEventListener('touchstart', playOnInteraction);
+                document.removeEventListener('scroll', playOnInteraction);
+              } catch (e) {
+                console.log('Video play failed:', e);
+              }
+            }
+          };
+          
+          document.addEventListener('click', playOnInteraction, { once: true });
+          document.addEventListener('touchstart', playOnInteraction, { once: true });
+          document.addEventListener('scroll', playOnInteraction, { once: true });
         }
       }
     };
     
-    playVideo();
+    // Try to play after a short delay
+    const timer = setTimeout(playVideo, 100);
+    
+    return () => {
+      clearTimeout(timer);
+    };
   }, []);
 
   return (
