@@ -13,48 +13,64 @@ export default function Home() {
     const video = videoRef.current;
     if (!video) return;
 
-    let hasPlayed = false;
+    // Force muted state for autoplay
+    video.muted = true;
+    video.volume = 0;
+    video.setAttribute('muted', 'true');
+    video.setAttribute('playsinline', 'true');
 
-    // Ensure video loads
-    video.load();
+    let retryCount = 0;
+    const maxRetries = 5;
 
-    const attemptAutoplay = async () => {
-      if (hasPlayed) return;
-      
+    const forcePlay = async () => {
       try {
-        await video.play();
-        hasPlayed = true;
-        console.log('Video autoplaying successfully');
-      } catch (error) {
-        console.log('Autoplay blocked - will play on user interaction:', error);
+        video.muted = true;
+        video.volume = 0;
+        const playPromise = video.play();
         
-        // Fallback: play on first real user interaction
-        const playOnGesture = async () => {
-          if (hasPlayed) return;
-          try {
-            await video.play();
-            hasPlayed = true;
-            console.log('Video playing after user interaction');
-          } catch (err) {
-            console.error('Video play failed:', err);
-          }
-        };
-
-        // Non-passive listeners for reliable playback
-        document.addEventListener('click', playOnGesture, { once: true });
-        document.addEventListener('touchstart', playOnGesture, { once: true });
+        if (playPromise !== undefined) {
+          await playPromise;
+          console.log('✅ Video autoplaying');
+          return true;
+        }
+      } catch (error) {
+        retryCount++;
+        if (retryCount < maxRetries) {
+          // Retry after short delay
+          setTimeout(forcePlay, 200 * retryCount);
+        }
+        return false;
       }
     };
 
-    // Try autoplay when video is ready
+    // Multiple autoplay strategies
+    const startAutoplay = () => {
+      // Strategy 1: Immediate play
+      forcePlay();
+      
+      // Strategy 2: Play on canplay
+      video.addEventListener('canplay', forcePlay, { once: true });
+      
+      // Strategy 3: Play on canplaythrough
+      video.addEventListener('canplaythrough', forcePlay, { once: true });
+      
+      // Strategy 4: Play after brief delay
+      setTimeout(forcePlay, 100);
+      setTimeout(forcePlay, 500);
+      setTimeout(forcePlay, 1000);
+    };
+
+    // Start autoplay attempts
     if (video.readyState >= 2) {
-      attemptAutoplay();
+      startAutoplay();
     } else {
-      video.addEventListener('loadedmetadata', attemptAutoplay, { once: true });
+      video.addEventListener('loadeddata', startAutoplay, { once: true });
     }
 
     return () => {
-      video.removeEventListener('loadedmetadata', attemptAutoplay);
+      video.removeEventListener('canplay', forcePlay);
+      video.removeEventListener('canplaythrough', forcePlay);
+      video.removeEventListener('loadeddata', startAutoplay);
     };
   }, []);
 
@@ -69,18 +85,19 @@ export default function Home() {
           <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-radial from-red-950/20 via-transparent to-transparent blur-3xl"></div>
         </div>
 
-        {/* Hero Video Background - Optimized for mobile */}
+        {/* Hero Video Background - Responsive sources for mobile/desktop */}
         <video
           ref={videoRef}
           autoPlay
           muted
           loop
           playsInline
-          preload="metadata"
+          preload="auto"
           className="absolute inset-0 w-full h-full object-contain md:object-cover z-[1]"
           data-testid="hero-video"
           style={{ pointerEvents: 'none', objectPosition: 'center' }}
         >
+          <source src="/hero-video-mobile.mp4" type="video/mp4" media="(max-width: 767px)" />
           <source src="/hero-video.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
