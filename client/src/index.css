@@ -316,6 +316,26 @@ body {
       padding-bottom: env(safe-area-inset-bottom);
     }
     
+    /* Optimize spacing for mobile */
+    .spacing-container {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
+    
+    /* Full width cards on mobile */
+    .card {
+      width: 100%;
+    }
+    
+    /* Stack elements on mobile */
+    .flex {
+      flex-direction: column;
+    }
+    
+    .flex.sm\:flex-row {
+      flex-direction: row;
+    }
+    
     /* Prevent text from causing overflow */
     h1, h2, h3, h4, h5, h6, p, span, div {
       word-wrap: break-word;

@@ -7,6 +7,14 @@ import type { ChatMessage } from "@shared/schema";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerDescription,
+} from "@/components/ui/drawer";
+
 
 function ChatWidgetContent() {
   const isMobile = useIsMobile();
@@ -127,6 +135,88 @@ function ChatWidgetContent() {
     }
   };
 
+  const ChatContent = () => (
+    <>
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
+        {messages.map((msg, idx) => (
+          <div
+            key={idx}
+            className={cn(
+              "flex",
+              msg.role === "user" ? "justify-end" : "justify-start"
+            )}
+            data-testid={`chat-message-${idx}`}
+          >
+            <div
+              className={cn(
+                "max-w-[85%] rounded-lg p-3 shadow-sm",
+                msg.role === "user"
+                  ? "bg-spartan-gradient text-white"
+                  : "bg-muted text-foreground border border-border"
+              )}
+            >
+              <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+            </div>
+          </div>
+        ))}
+        {isLoading && (
+          <div className="flex justify-start">
+            <div className="bg-muted text-foreground rounded-lg p-3 border border-border">
+              <Loader2 className="w-5 h-5 animate-spin text-primary" />
+            </div>
+          </div>
+        )}
+        <div ref={messagesEndRef} />
+      </div>
+
+      {/* Input */}
+      <div className="p-4 border-t border-border bg-muted/30">
+        {messages.length <= 1 && (
+          <div className="flex flex-wrap gap-2 mb-3">
+            {[
+              'Handle "We already have a provider"',
+              'How do I prioritize my territory?',
+              'Coach me on SNF objections',
+              'Build a weekly sales rhythm'
+            ].map((suggestion) => (
+              <Button
+                key={suggestion}
+                variant="outline"
+                size="sm"
+                onClick={() => setInput(suggestion)}
+                className="text-xs hover-elevate"
+                data-testid={`button-suggestion-${suggestion.slice(0, 20)}`}
+              >
+                {suggestion}
+              </Button>
+            ))}
+          </div>
+        )}
+        <div className="flex gap-2">
+          <Textarea
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyDown}
+            placeholder="Ask me anything about hospice sales..."
+            className="min-h-[48px] max-h-32 resize-none text-sm"
+            data-testid="textarea-chat-input"
+          />
+          <Button
+            onClick={handleSend}
+            disabled={!input.trim() || isLoading}
+            size="icon"
+            className="h-12 w-12 bg-spartan-gradient hover:glow-primary transition-all touch-manipulation"
+            data-testid="button-send-message"
+          >
+            <Send className="w-5 h-5 text-white" />
+          </Button>
+        </div>
+      </div>
+    </>
+  );
+
+
   // Closed state - Floating button
   if (!isOpen) {
     return (
@@ -181,132 +271,82 @@ function ChatWidgetContent() {
     );
   }
 
-  // Open state - Floating sidebar panel
+  // Open state - Floating sidebar panel or Drawer
   return (
-    <div
-      className={cn(
-        "fixed z-50 transition-all duration-300 ease-in-out",
-        isMobile
-          ? "inset-0 bg-background"
-          : "top-0 right-0 bottom-0 w-full max-w-md"
-      )}
-      data-testid="chat-widget-panel"
-    >
-      <Card className={cn(
-        "h-full flex flex-col border-2 shadow-2xl",
-        isMobile ? "rounded-none" : "rounded-l-xl rounded-r-none border-r-0"
-      )}>
-        {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-border bg-spartan-gradient">
-          <div className="flex items-center gap-3">
-            <MessageCircle className="h-5 w-5 text-white" />
-            <div>
-              <h3 className="font-bold text-white text-base">Expert Hospice Sales Coach</h3>
-              <p className="text-xs text-white/80">AI-powered by The Spartan Method</p>
-            </div>
-          </div>
-          <div className="flex items-center gap-1">
-            {!isMobile && (
-              <Button
-                size="icon"
-                variant="ghost"
-                onClick={() => setIsMinimized(true)}
-                className="h-8 w-8 text-white hover:bg-white/20"
-                data-testid="button-minimize-chat"
-              >
-                <Minimize2 className="h-4 w-4" />
-              </Button>
-            )}
-            <Button
-              size="icon"
-              variant="ghost"
-              onClick={handleClose}
-              className="h-8 w-8 text-white hover:bg-white/20"
-              data-testid="button-close-chat"
-            >
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-
-        {/* Messages */}
-        <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
-          {messages.map((msg, idx) => (
-            <div
-              key={idx}
-              className={cn(
-                "flex",
-                msg.role === "user" ? "justify-end" : "justify-start"
-              )}
-              data-testid={`chat-message-${idx}`}
-            >
-              <div
-                className={cn(
-                  "max-w-[85%] rounded-lg p-3 shadow-sm",
-                  msg.role === "user"
-                    ? "bg-spartan-gradient text-white"
-                    : "bg-muted text-foreground border border-border"
-                )}
-              >
-                <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
-              </div>
-            </div>
-          ))}
-          {isLoading && (
-            <div className="flex justify-start">
-              <div className="bg-muted text-foreground rounded-lg p-3 border border-border">
-                <Loader2 className="w-5 h-5 animate-spin text-primary" />
-              </div>
-            </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-
-        {/* Input */}
-        <div className="p-4 border-t border-border bg-muted/30">
-          {messages.length <= 1 && (
-            <div className="flex flex-wrap gap-2 mb-3">
-              {[
-                'Handle "We already have a provider"',
-                'How do I prioritize my territory?',
-                'Coach me on SNF objections',
-                'Build a weekly sales rhythm'
-              ].map((suggestion) => (
+    <>
+      {isMobile ? (
+        <Drawer open={isOpen} onOpenChange={setIsOpen}>
+          <DrawerContent className="h-[85vh] flex flex-col rounded-t-xl">
+            <DrawerHeader className="border-b border-border bg-spartan-gradient">
+              <DrawerTitle className="flex items-center gap-3 text-white">
+                <MessageCircle className="h-5 w-5" />
+                <h3 className="font-bold text-base">Expert Hospice Sales Coach</h3>
+              </DrawerTitle>
+              <DrawerDescription className="text-xs text-white/80">
+                AI-powered by The Spartan Method
+              </DrawerDescription>
+              <div className="absolute top-4 right-4">
                 <Button
-                  key={suggestion}
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setInput(suggestion)}
-                  className="text-xs hover-elevate"
-                  data-testid={`button-suggestion-${suggestion.slice(0, 20)}`}
+                  size="icon"
+                  variant="ghost"
+                  onClick={handleClose}
+                  className="h-8 w-8 text-white hover:bg-white/20"
+                  data-testid="button-close-chat"
                 >
-                  {suggestion}
+                  <X className="h-4 w-4" />
                 </Button>
-              ))}
-            </div>
+              </div>
+            </DrawerHeader>
+            <ChatContent />
+          </DrawerContent>
+        </Drawer>
+      ) : (
+        <div
+          className={cn(
+            "fixed top-0 right-0 bottom-0 w-full max-w-md z-50 transition-all duration-300 ease-in-out",
+            "border-l border-border"
           )}
-          <div className="flex gap-2">
-            <Textarea
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyDown={handleKeyDown}
-              placeholder="Ask me anything about hospice sales..."
-              className="min-h-[48px] max-h-32 resize-none text-sm"
-              data-testid="textarea-chat-input"
-            />
-            <Button
-              onClick={handleSend}
-              disabled={!input.trim() || isLoading}
-              size="icon"
-              className="h-12 w-12 bg-spartan-gradient hover:glow-primary transition-all"
-              data-testid="button-send-message"
-            >
-              <Send className="w-5 h-5 text-white" />
-            </Button>
-          </div>
+          data-testid="chat-widget-panel"
+        >
+          <Card className={cn(
+            "h-full flex flex-col shadow-2xl",
+            "rounded-none border-r-0"
+          )}>
+            {/* Header */}
+            <div className="flex items-center justify-between p-4 border-b border-border bg-spartan-gradient">
+              <div className="flex items-center gap-3">
+                <MessageCircle className="h-5 w-5 text-white" />
+                <div>
+                  <h3 className="font-bold text-white text-base">Expert Hospice Sales Coach</h3>
+                  <p className="text-xs text-white/80">AI-powered by The Spartan Method</p>
+                </div>
+              </div>
+              <div className="flex items-center gap-1">
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => setIsMinimized(true)}
+                  className="h-8 w-8 text-white hover:bg-white/20"
+                  data-testid="button-minimize-chat"
+                >
+                  <Minimize2 className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={handleClose}
+                  className="h-8 w-8 text-white hover:bg-white/20"
+                  data-testid="button-close-chat"
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            </div>
+            <ChatContent />
+          </Card>
         </div>
-      </Card>
-    </div>
+      )}
+    </>
   );
 }
 
