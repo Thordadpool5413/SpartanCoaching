@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section - Enhanced with video background */}
-      <section className="relative min-h-[40vh] sm:min-h-[55vh] md:h-[92vh] flex items-center justify-center overflow-hidden bg-gray-950">
+      <section className="relative min-h-[30vh] sm:min-h-[50vh] md:h-[92vh] flex items-center justify-center overflow-hidden bg-gray-950">
         {/* Enhanced gradient background with radial accents */}
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-black"></div>
