@@ -10,17 +10,63 @@ export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
+    let attemptPlayHandler: (() => Promise<void>) | null = null;
+
     const playVideo = async () => {
       if (videoRef.current) {
         try {
-          await videoRef.current.play();
+          // Ensure video is muted
+          videoRef.current.muted = true;
+          videoRef.current.volume = 0;
+          
+          // Attempt to play
+          const playPromise = videoRef.current.play();
+          
+          if (playPromise !== undefined) {
+            await playPromise;
+          }
         } catch (error) {
-          console.log('Video autoplay prevented:', error);
+          // If autoplay fails, try again on user interaction
+          attemptPlayHandler = async () => {
+            try {
+              if (videoRef.current) {
+                videoRef.current.muted = true;
+                await videoRef.current.play();
+                // Remove listeners after successful play
+                if (attemptPlayHandler) {
+                  document.removeEventListener('click', attemptPlayHandler);
+                  document.removeEventListener('touchstart', attemptPlayHandler);
+                  document.removeEventListener('scroll', attemptPlayHandler);
+                }
+              }
+            } catch (err) {
+              // Silently fail
+            }
+          };
+
+          // Try to play on any user interaction
+          document.addEventListener('click', attemptPlayHandler, { once: true });
+          document.addEventListener('touchstart', attemptPlayHandler, { once: true });
+          document.addEventListener('scroll', attemptPlayHandler, { once: true });
         }
       }
     };
 
+    // Try to play immediately
     playVideo();
+
+    // Also try after a short delay (sometimes helps with browser policies)
+    const timeoutId = setTimeout(playVideo, 100);
+
+    return () => {
+      clearTimeout(timeoutId);
+      // Clean up interaction listeners if component unmounts
+      if (attemptPlayHandler) {
+        document.removeEventListener('click', attemptPlayHandler);
+        document.removeEventListener('touchstart', attemptPlayHandler);
+        document.removeEventListener('scroll', attemptPlayHandler);
+      }
+    };
   }, []);
 
   return (
