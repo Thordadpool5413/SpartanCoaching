@@ -938,26 +938,57 @@ body {
 
   .glow-primary-hover:hover {
     box-shadow: 
-      0 0 45px rgba(239, 68, 68, 0.8), 
-      0 0 100px rgba(239, 68, 68, 0.40),
-      0 0 160px rgba(239, 68, 68, 0.18),
-      var(--shadow-xl);
+      0 0 50px rgba(239, 68, 68, 0.9), 
+      0 0 110px rgba(239, 68, 68, 0.45),
+      0 0 180px rgba(239, 68, 68, 0.22),
+      var(--shadow-2xl);
+  }
+  
+  /* Pulse glow animation */
+  .glow-pulse {
+    animation: glowPulse 2s ease-in-out infinite;
+  }
+  
+  @keyframes glowPulse {
+    0%, 100% {
+      box-shadow: 
+        0 0 30px rgba(239, 68, 68, 0.5), 
+        0 0 60px rgba(239, 68, 68, 0.2),
+        var(--shadow-lg);
+    }
+    50% {
+      box-shadow: 
+        0 0 45px rgba(239, 68, 68, 0.8), 
+        0 0 90px rgba(239, 68, 68, 0.35),
+        var(--shadow-xl);
+    }
   }
   
   /* Enhanced card lift with smoother animation */
   .card-lift {
-    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1), 
-                box-shadow 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+    transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
   
   .card-lift:hover {
-    transform: translateY(-10px) scale(1.02);
+    transform: translateY(-12px) scale(1.02);
     box-shadow: var(--shadow-2xl);
   }
   
   .card-lift:active {
-    transform: translateY(-3px) scale(1.01);
-    transition: transform 0.12s ease;
+    transform: translateY(-4px) scale(1.01);
+    transition: transform 0.15s ease-out;
+  }
+  
+  /* Subtle card lift for less prominent cards */
+  .card-lift-subtle {
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), 
+                box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  
+  .card-lift-subtle:hover {
+    transform: translateY(-6px) scale(1.01);
+    box-shadow: var(--shadow-xl);
   }
   
   /* Subtle border gradient */

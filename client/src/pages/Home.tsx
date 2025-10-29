@@ -75,9 +75,9 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-6 justify-center animate-fade-in-up px-6 max-w-2xl mx-auto" style={{ animationDelay: '0.4s' }}>
-            <Button 
-              size="lg" 
-              asChild 
+            <Button
+              size="lg"
+              asChild
               className="text-base sm:text-lg px-8 sm:px-10 md:px-12 py-6 sm:py-7 md:py-8 font-bold shadow-xl glow-primary-hover transition-elegant min-h-[56px] sm:min-h-[60px] touch-manipulation group"
               data-testid="button-view-services"
             >
@@ -86,10 +86,10 @@ export default function Home() {
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
-            <Button 
-              size="lg" 
-              variant="outline" 
-              asChild 
+            <Button
+              size="lg"
+              variant="outline"
+              asChild
               className="text-base sm:text-lg px-8 sm:px-10 md:px-12 py-6 sm:py-7 md:py-8 font-bold glass border-white/30 hover:bg-white/20 hover:border-white/40 transition-elegant min-h-[56px] sm:min-h-[60px] touch-manipulation group"
               data-testid="button-why-spartan"
             >

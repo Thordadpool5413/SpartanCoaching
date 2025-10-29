@@ -6,19 +6,19 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { cn } from "@/lib/utils"
 
 const buttonVariants = cva(
-  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 transition-all duration-250" +
+  "inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-lg text-sm font-bold focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 transition-all duration-300 ease-out" +
   " hover-elevate active-elevate-2",
   {
     variants: {
       variant: {
         default:
-          "bg-primary text-primary-foreground border-2 border-primary-border shadow-lg hover:shadow-xl active:shadow-md hover:scale-[1.02] active:scale-[0.98]",
+          "bg-primary text-primary-foreground border-2 border-primary-border shadow-lg hover:shadow-2xl active:shadow-md hover:scale-[1.03] active:scale-[0.98] glow-primary-hover",
         destructive:
-          "bg-destructive text-destructive-foreground border-2 border-destructive-border shadow-lg hover:shadow-xl active:shadow-md hover:scale-[1.02] active:scale-[0.98]",
+          "bg-destructive text-destructive-foreground border-2 border-destructive-border shadow-lg hover:shadow-2xl active:shadow-md hover:scale-[1.03] active:scale-[0.98] glow-primary-hover",
         outline:
-          "border-2 [border-color:var(--button-outline)] shadow-md hover:shadow-lg active:shadow-sm hover:scale-[1.02] active:scale-[0.98]",
-        secondary: "border-2 bg-secondary text-secondary-foreground border-secondary-border shadow-md hover:shadow-lg active:shadow-sm hover:scale-[1.02] active:scale-[0.98]",
-        ghost: "border border-transparent hover:bg-accent/60 active:bg-accent/80",
+          "border-2 [border-color:var(--button-outline)] shadow-md hover:shadow-xl active:shadow-sm hover:scale-[1.03] active:scale-[0.98] hover:border-primary/30",
+        secondary: "border-2 bg-secondary text-secondary-foreground border-secondary-border shadow-md hover:shadow-xl active:shadow-sm hover:scale-[1.03] active:scale-[0.98]",
+        ghost: "border border-transparent hover:bg-accent/60 active:bg-accent/80 hover:scale-[1.02]",
       },
       size: {
         default: "min-h-10 px-5 py-2.5",
