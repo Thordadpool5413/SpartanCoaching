@@ -55,11 +55,6 @@ export default function Home() {
 
         {/* Content */}
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-20 lg:py-24 text-center">
-          <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 backdrop-blur-sm border border-white/20 text-white/90 text-sm font-medium animate-fade-in">
-            <Sparkles className="w-4 h-4" />
-            <span>AI-Enhanced Hospice Sales Training</span>
-          </div>
-
           <h1 className="text-hero mb-4 sm:mb-6 md:mb-8 animate-fade-in-up px-4">
             <span className="block bg-gradient-to-r from-red-600 via-red-500 to-red-600 bg-clip-text text-transparent font-black tracking-tighter drop-shadow-2xl">
               Patient Outcomes First.
