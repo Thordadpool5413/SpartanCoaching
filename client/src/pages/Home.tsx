@@ -24,10 +24,13 @@ export default function Home() {
           muted
           loop
           playsInline
+          preload="auto"
           className="absolute inset-0 w-full h-full object-cover hero-video-mobile z-[1]"
           data-testid="hero-video"
+          style={{ pointerEvents: 'none' }}
         >
           <source src="/hero-video.mp4" type="video/mp4" />
+          Your browser does not support the video tag.
         </video>
 
         {/* Overlay for text readability - slightly darker on mobile for better contrast */}
