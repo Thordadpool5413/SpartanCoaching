@@ -10,7 +10,7 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       {/* Hero Section - Enhanced with video background */}
-      <section className="relative min-h-[35vh] sm:min-h-[55vh] md:h-[92vh] flex items-center justify-center overflow-hidden bg-gray-950">
+      <section className="relative min-h-[45vh] sm:min-h-[60vh] md:h-[92vh] flex items-center justify-center overflow-hidden bg-gray-950">
         {/* Enhanced gradient background with radial accents */}
         <div className="absolute inset-0 z-0">
           <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-black"></div>
@@ -18,16 +18,13 @@ export default function Home() {
           <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-radial from-red-950/20 via-transparent to-transparent blur-3xl"></div>
         </div>
 
-        {/* Hero Video Background */}
+        {/* Hero Video Background - Optimized for mobile */}
         <video
           autoPlay
           muted
           loop
           playsInline
-          className="absolute inset-0 w-full h-full object-cover z-[1]"
-          style={{
-            objectPosition: 'center 30%'
-          }}
+          className="absolute inset-0 w-full h-full object-cover hero-video-mobile z-[1]"
           data-testid="hero-video"
         >
           <source src="/hero-video.mp4" type="video/mp4" />

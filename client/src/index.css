@@ -1,5 +1,17 @@
 
 /* Mobile-First Responsive Design System */
+
+/* Hero Video - Responsive Positioning */
+.hero-video-mobile {
+  object-position: center 10%;
+}
+
+@media (min-width: 768px) {
+  .hero-video-mobile {
+    object-position: center 30%;
+  }
+}
+
 @media (max-width: 640px) {
   /* Container adjustments */
   .container {
