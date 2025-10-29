@@ -1,6 +1,17 @@
 
 /* Mobile-First Responsive Design System */
 
+/* Hero Video - Responsive Positioning */
+.hero-video-mobile {
+  object-position: center 10%;
+}
+
+@media (min-width: 768px) {
+  .hero-video-mobile {
+    object-position: center 30%;
+  }
+}
+
 @media (max-width: 640px) {
   /* Container adjustments */
   .container {
@@ -283,7 +294,13 @@ body {
     height: auto;
   }
 
-  /* Mobile video optimization - removed global override */
+  /* Mobile video optimization */
+  @media (max-width: 767px) {
+    video {
+      object-fit: cover;
+      max-height: 60vh;
+    }
+  }
 
   /* Mobile touch improvements */
   @media (max-width: 767px) {

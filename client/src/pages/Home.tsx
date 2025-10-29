@@ -10,54 +10,17 @@ export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const video = videoRef.current;
-    if (!video) {
-      console.log('❌ Video ref not found');
-      return;
-    }
-
-    console.log('🎬 Video element found, setting up autoplay');
-
-    // Force absolute mute for autoplay
-    video.muted = true;
-    video.volume = 0;
-
     const playVideo = async () => {
-      try {
-        // Ensure muted before every play attempt
-        video.muted = true;
-        video.volume = 0;
-        
-        await video.play();
-        console.log('✅ VIDEO PLAYING');
-      } catch (err: any) {
-        console.log('❌ Autoplay failed:', err.message);
+      if (videoRef.current) {
+        try {
+          await videoRef.current.play();
+        } catch (error) {
+          console.log('Video autoplay prevented:', error);
+        }
       }
     };
-
-    // Attempt 1: Try immediately
-    playVideo();
-
-    // Attempt 2: When video can play
-    const onCanPlay = () => {
-      console.log('🎥 Video can play');
-      playVideo();
-    };
     
-    video.addEventListener('canplay', onCanPlay);
-    video.addEventListener('loadedmetadata', onCanPlay);
-
-    // Attempt 3: Retry multiple times
-    setTimeout(playVideo, 100);
-    setTimeout(playVideo, 300);
-    setTimeout(playVideo, 500);
-    setTimeout(playVideo, 1000);
-    setTimeout(playVideo, 2000);
-
-    return () => {
-      video.removeEventListener('canplay', onCanPlay);
-      video.removeEventListener('loadedmetadata', onCanPlay);
-    };
+    playVideo();
   }, []);
 
   return (
@@ -71,7 +34,7 @@ export default function Home() {
           <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-radial from-red-950/20 via-transparent to-transparent blur-3xl"></div>
         </div>
 
-        {/* Hero Video Background - Responsive sources for mobile/desktop */}
+        {/* Hero Video Background - Optimized for mobile */}
         <video
           ref={videoRef}
           autoPlay
@@ -79,11 +42,10 @@ export default function Home() {
           loop
           playsInline
           preload="auto"
-          className="absolute inset-0 w-full h-full object-contain md:object-cover z-[1]"
+          className="absolute inset-0 w-full h-full object-cover hero-video-mobile z-[1]"
           data-testid="hero-video"
-          style={{ pointerEvents: 'none', objectPosition: 'center' }}
+          style={{ pointerEvents: 'none' }}
         >
-          <source src="/hero-video-mobile.mp4" type="video/mp4" media="(max-width: 767px)" />
           <source src="/hero-video.mp4" type="video/mp4" />
           Your browser does not support the video tag.
         </video>
