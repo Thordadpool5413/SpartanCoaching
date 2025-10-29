@@ -11,66 +11,52 @@ export default function Home() {
 
   useEffect(() => {
     const video = videoRef.current;
-    if (!video) return;
+    if (!video) {
+      console.log('❌ Video ref not found');
+      return;
+    }
 
-    // Force muted state for autoplay
+    console.log('🎬 Video element found, setting up autoplay');
+
+    // Force absolute mute for autoplay
     video.muted = true;
     video.volume = 0;
-    video.setAttribute('muted', 'true');
-    video.setAttribute('playsinline', 'true');
 
-    let retryCount = 0;
-    const maxRetries = 5;
-
-    const forcePlay = async () => {
+    const playVideo = async () => {
       try {
+        // Ensure muted before every play attempt
         video.muted = true;
         video.volume = 0;
-        const playPromise = video.play();
         
-        if (playPromise !== undefined) {
-          await playPromise;
-          console.log('✅ Video autoplaying');
-          return true;
-        }
-      } catch (error) {
-        retryCount++;
-        if (retryCount < maxRetries) {
-          // Retry after short delay
-          setTimeout(forcePlay, 200 * retryCount);
-        }
-        return false;
+        await video.play();
+        console.log('✅ VIDEO PLAYING');
+      } catch (err: any) {
+        console.log('❌ Autoplay failed:', err.message);
       }
     };
 
-    // Multiple autoplay strategies
-    const startAutoplay = () => {
-      // Strategy 1: Immediate play
-      forcePlay();
-      
-      // Strategy 2: Play on canplay
-      video.addEventListener('canplay', forcePlay, { once: true });
-      
-      // Strategy 3: Play on canplaythrough
-      video.addEventListener('canplaythrough', forcePlay, { once: true });
-      
-      // Strategy 4: Play after brief delay
-      setTimeout(forcePlay, 100);
-      setTimeout(forcePlay, 500);
-      setTimeout(forcePlay, 1000);
-    };
+    // Attempt 1: Try immediately
+    playVideo();
 
-    // Start autoplay attempts
-    if (video.readyState >= 2) {
-      startAutoplay();
-    } else {
-      video.addEventListener('loadeddata', startAutoplay, { once: true });
-    }
+    // Attempt 2: When video can play
+    const onCanPlay = () => {
+      console.log('🎥 Video can play');
+      playVideo();
+    };
+    
+    video.addEventListener('canplay', onCanPlay);
+    video.addEventListener('loadedmetadata', onCanPlay);
+
+    // Attempt 3: Retry multiple times
+    setTimeout(playVideo, 100);
+    setTimeout(playVideo, 300);
+    setTimeout(playVideo, 500);
+    setTimeout(playVideo, 1000);
+    setTimeout(playVideo, 2000);
 
     return () => {
-      video.removeEventListener('canplay', forcePlay);
-      video.removeEventListener('canplaythrough', forcePlay);
-      video.removeEventListener('loadeddata', startAutoplay);
+      video.removeEventListener('canplay', onCanPlay);
+      video.removeEventListener('loadedmetadata', onCanPlay);
     };
   }, []);
 
