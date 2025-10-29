@@ -10,49 +10,49 @@ export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const playVideo = async () => {
-      if (videoRef.current) {
-        try {
-          // Set video properties
-          videoRef.current.muted = true;
-          videoRef.current.playsInline = true;
-          
-          // Try to play
-          const playPromise = videoRef.current.play();
-          
-          if (playPromise !== undefined) {
-            await playPromise;
-          }
-        } catch (error) {
-          console.log('Video autoplay blocked, trying on user interaction');
-          
-          // Play on any user interaction
-          const playOnInteraction = async () => {
-            if (videoRef.current) {
-              try {
-                await videoRef.current.play();
-                // Remove listeners after successful play
-                document.removeEventListener('click', playOnInteraction);
-                document.removeEventListener('touchstart', playOnInteraction);
-                document.removeEventListener('scroll', playOnInteraction);
-              } catch (e) {
-                console.log('Video play failed:', e);
-              }
-            }
-          };
-          
-          document.addEventListener('click', playOnInteraction, { once: true });
-          document.addEventListener('touchstart', playOnInteraction, { once: true });
-          document.addEventListener('scroll', playOnInteraction, { once: true });
-        }
+    const video = videoRef.current;
+    if (!video) return;
+
+    // Ensure video properties are set
+    video.muted = true;
+    video.playsInline = true;
+    video.defaultMuted = true;
+
+    const attemptPlay = async () => {
+      try {
+        await video.play();
+        console.log('Video playing successfully');
+      } catch (err) {
+        console.log('Autoplay blocked, will play on interaction');
       }
     };
-    
-    // Try to play after a short delay
-    const timer = setTimeout(playVideo, 100);
-    
+
+    // Wait for video to be loaded enough to play
+    const handleCanPlay = () => {
+      attemptPlay();
+    };
+
+    // Play on any interaction if autoplay fails
+    const playOnInteraction = () => {
+      video.play().catch(err => console.log('Play on interaction failed:', err));
+    };
+
+    if (video.readyState >= 3) {
+      // Video is already loaded
+      attemptPlay();
+    } else {
+      // Wait for video to load
+      video.addEventListener('canplay', handleCanPlay, { once: true });
+    }
+
+    // Fallback: play on any user interaction
+    document.addEventListener('click', playOnInteraction, { once: true, passive: true });
+    document.addEventListener('touchstart', playOnInteraction, { once: true, passive: true });
+
     return () => {
-      clearTimeout(timer);
+      video.removeEventListener('canplay', handleCanPlay);
+      document.removeEventListener('click', playOnInteraction);
+      document.removeEventListener('touchstart', playOnInteraction);
     };
   }, []);
 
