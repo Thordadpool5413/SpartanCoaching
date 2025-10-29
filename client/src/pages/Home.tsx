@@ -15,69 +15,46 @@ export default function Home() {
 
     let hasPlayed = false;
 
-    // Force video properties
-    video.muted = true;
-    video.playsInline = true;
-    video.setAttribute('muted', '');
-    video.setAttribute('playsinline', '');
-    video.volume = 0;
+    // Ensure video loads
+    video.load();
 
-    const playVideo = async () => {
-      if (hasPlayed || !video) return;
+    const attemptAutoplay = async () => {
+      if (hasPlayed) return;
       
       try {
-        video.muted = true;
-        video.volume = 0;
         await video.play();
         hasPlayed = true;
-        console.log('Video playing');
-      } catch (err) {
-        // Silently fail
+        console.log('Video autoplaying successfully');
+      } catch (error) {
+        console.log('Autoplay blocked - will play on user interaction:', error);
+        
+        // Fallback: play on first real user interaction
+        const playOnGesture = async () => {
+          if (hasPlayed) return;
+          try {
+            await video.play();
+            hasPlayed = true;
+            console.log('Video playing after user interaction');
+          } catch (err) {
+            console.error('Video play failed:', err);
+          }
+        };
+
+        // Non-passive listeners for reliable playback
+        document.addEventListener('click', playOnGesture, { once: true });
+        document.addEventListener('touchstart', playOnGesture, { once: true });
       }
     };
 
-    // Strategy 1: Try to play when video can play
-    const handleCanPlay = () => {
-      playVideo();
-    };
-
-    // Strategy 2: Play on any user interaction
-    const handleInteraction = () => {
-      playVideo();
-    };
-
-    // Strategy 3: Use Intersection Observer
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          playVideo();
-        }
-      });
-    }, { threshold: 0.5 });
-
-    observer.observe(video);
-
-    // Attach event listeners
-    video.addEventListener('canplay', handleCanPlay);
-    video.addEventListener('loadedmetadata', playVideo);
-    
-    // User interaction listeners - attach to window for broader coverage
-    window.addEventListener('click', handleInteraction, { once: true, passive: true });
-    window.addEventListener('touchstart', handleInteraction, { once: true, passive: true });
-    window.addEventListener('scroll', handleInteraction, { once: true, passive: true });
-
-    // Try to play immediately if already loaded
+    // Try autoplay when video is ready
     if (video.readyState >= 2) {
-      playVideo();
+      attemptAutoplay();
+    } else {
+      video.addEventListener('loadedmetadata', attemptAutoplay, { once: true });
     }
 
     return () => {
-      observer.disconnect();
-      video.removeEventListener('canplay', handleCanPlay);
-      video.removeEventListener('loadedmetadata', playVideo);
-      window.removeEventListener('click', handleInteraction);
-      window.removeEventListener('touchstart', handleInteraction);
-      window.removeEventListener('scroll', handleInteraction);
+      video.removeEventListener('loadedmetadata', attemptAutoplay);
     };
   }, []);
 
@@ -99,10 +76,10 @@ export default function Home() {
           muted
           loop
           playsInline
-          preload="auto"
-          className="absolute inset-0 w-full h-full object-cover hero-video-mobile z-[1]"
+          preload="metadata"
+          className="absolute inset-0 w-full h-full object-contain md:object-cover z-[1]"
           data-testid="hero-video"
-          style={{ pointerEvents: 'none' }}
+          style={{ pointerEvents: 'none', objectPosition: 'center' }}
         >
           <source src="/hero-video.mp4" type="video/mp4" />
           Your browser does not support the video tag.
