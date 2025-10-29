@@ -1,4 +1,5 @@
 import { Link } from "wouter";
+import { useEffect, useRef } from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DisciplineIcon, EmpathyIcon, StrategyIcon } from "@/components/icons";
@@ -6,6 +7,21 @@ import { Shield, Heart, Zap, Target, Users, BookOpen, ArrowRight, Sparkles } fro
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 
 export default function Home() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const playVideo = async () => {
+      if (videoRef.current) {
+        try {
+          await videoRef.current.play();
+        } catch (error) {
+          console.log('Video autoplay prevented:', error);
+        }
+      }
+    };
+    
+    playVideo();
+  }, []);
 
   return (
     <div className="flex flex-col">
@@ -20,6 +36,7 @@ export default function Home() {
 
         {/* Hero Video Background - Optimized for mobile */}
         <video
+          ref={videoRef}
           autoPlay
           muted
           loop
