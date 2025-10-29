@@ -1,13 +1,15 @@
 
 /* Mobile-First Responsive Design System */
 
-/* Hero Video - Responsive Positioning */
+/* Hero Video - Responsive Sizing and Positioning */
 .hero-video-mobile {
-  object-position: center 10%;
+  object-fit: contain;
+  object-position: center center;
 }
 
 @media (min-width: 768px) {
   .hero-video-mobile {
+    object-fit: cover;
     object-position: center 30%;
   }
 }

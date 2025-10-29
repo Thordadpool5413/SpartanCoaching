@@ -13,46 +13,71 @@ export default function Home() {
     const video = videoRef.current;
     if (!video) return;
 
-    // Ensure video properties are set
+    let hasPlayed = false;
+
+    // Force video properties
     video.muted = true;
     video.playsInline = true;
-    video.defaultMuted = true;
+    video.setAttribute('muted', '');
+    video.setAttribute('playsinline', '');
+    video.volume = 0;
 
-    const attemptPlay = async () => {
+    const playVideo = async () => {
+      if (hasPlayed || !video) return;
+      
       try {
+        video.muted = true;
+        video.volume = 0;
         await video.play();
-        console.log('Video playing successfully');
+        hasPlayed = true;
+        console.log('Video playing');
       } catch (err) {
-        console.log('Autoplay blocked, will play on interaction');
+        // Silently fail
       }
     };
 
-    // Wait for video to be loaded enough to play
+    // Strategy 1: Try to play when video can play
     const handleCanPlay = () => {
-      attemptPlay();
+      playVideo();
     };
 
-    // Play on any interaction if autoplay fails
-    const playOnInteraction = () => {
-      video.play().catch(err => console.log('Play on interaction failed:', err));
+    // Strategy 2: Play on any user interaction
+    const handleInteraction = () => {
+      playVideo();
     };
 
-    if (video.readyState >= 3) {
-      // Video is already loaded
-      attemptPlay();
-    } else {
-      // Wait for video to load
-      video.addEventListener('canplay', handleCanPlay, { once: true });
+    // Strategy 3: Use Intersection Observer
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          playVideo();
+        }
+      });
+    }, { threshold: 0.5 });
+
+    observer.observe(video);
+
+    // Attach event listeners
+    video.addEventListener('canplay', handleCanPlay);
+    video.addEventListener('loadedmetadata', playVideo);
+    
+    // User interaction listeners - attach to window for broader coverage
+    window.addEventListener('click', handleInteraction, { once: true, passive: true });
+    window.addEventListener('touchstart', handleInteraction, { once: true, passive: true });
+    window.addEventListener('scroll', handleInteraction, { once: true, passive: true });
+
+    // Try to play immediately if already loaded
+    if (video.readyState >= 2) {
+      playVideo();
     }
 
-    // Fallback: play on any user interaction
-    document.addEventListener('click', playOnInteraction, { once: true, passive: true });
-    document.addEventListener('touchstart', playOnInteraction, { once: true, passive: true });
-
     return () => {
+      observer.disconnect();
       video.removeEventListener('canplay', handleCanPlay);
-      document.removeEventListener('click', playOnInteraction);
-      document.removeEventListener('touchstart', playOnInteraction);
+      video.removeEventListener('loadedmetadata', playVideo);
+      window.removeEventListener('click', handleInteraction);
+      window.removeEventListener('touchstart', handleInteraction);
+      window.removeEventListener('scroll', handleInteraction);
     };
   }, []);
 
