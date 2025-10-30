@@ -192,7 +192,7 @@ export default function About() {
         </div>
 
         {/* CTA */}
-        <div className="bg-gradient-to-br from-primary/10 to-destructive/10 rounded-2xl p-8 md:p-12 text-center">
+        <div className="bg-gradient-to-br from-primary/10 to-destructive/10 rounded-2xl p-8 md:p-12 text-center pt-[45px] pb-[45px] pl-[48px] pr-[48px]">
           <h2 className="text-h2 font-bold text-foreground mb-4">
             Let's Work Together
           </h2>
