@@ -21,6 +21,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { ContactForm } from "@/components/ContactForm";
 
 // Helper hook to determine if the screen is mobile
 function useIsMobile() {
@@ -256,6 +257,8 @@ export function Header() {
 }
 
 export function Footer() {
+  const [contactFormOpen, setContactFormOpen] = useState(false);
+
   return (
     <footer className="mt-auto border-t border-border bg-background no-print">
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8">
@@ -283,13 +286,13 @@ export function Footer() {
             >
               Privacy Policy
             </a>
-            <a
-              href="#"
+            <button
+              onClick={() => setContactFormOpen(true)}
               className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md min-h-[48px] flex items-center justify-center touch-manipulation"
-              data-testid="link-contact"
+              data-testid="button-footer-contact"
             >
               Contact
-            </a>
+            </button>
             <Link
               href="/admin"
               className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md min-h-[48px] flex items-center justify-center touch-manipulation"
@@ -300,6 +303,8 @@ export function Footer() {
           </div>
         </div>
       </div>
+
+      <ContactForm open={contactFormOpen} onOpenChange={setContactFormOpen} />
     </footer>
   );
 }

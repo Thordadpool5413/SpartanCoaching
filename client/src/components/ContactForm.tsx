@@ -41,11 +41,17 @@ type ContactFormData = z.infer<typeof contactFormSchema>;
 interface ContactFormProps {
   trigger?: React.ReactNode;
   defaultServiceType?: string;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
-export function ContactForm({ trigger, defaultServiceType }: ContactFormProps) {
-  const [open, setOpen] = useState(false);
+export function ContactForm({ trigger, defaultServiceType, open: externalOpen, onOpenChange }: ContactFormProps) {
+  const [internalOpen, setInternalOpen] = useState(false);
   const { toast } = useToast();
+
+  // Use external control if provided, otherwise use internal state
+  const open = externalOpen !== undefined ? externalOpen : internalOpen;
+  const setOpen = onOpenChange || setInternalOpen;
 
   const form = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema),
