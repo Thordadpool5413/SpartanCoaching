@@ -515,7 +515,7 @@ export default function Programs() {
       {/* Strategic Services */}
       <div className="space-y-8 md:space-y-12 lg:space-y-16">
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-foreground pt-[0px] pb-[0px] mt-[45px] mb-[45px]">
+          <h2 className="text-foreground pt-[0px] pb-[0px] mt-[45px] mb-[45px] text-[40px]">
             Strategic Services
           </h2>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
