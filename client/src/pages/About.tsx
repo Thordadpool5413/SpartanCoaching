@@ -88,9 +88,7 @@ export default function About() {
           <Card className="spacing-card mt-[45px] mb-[45px]">
             <h2 className="text-h2 text-foreground mb-6">Foundation of Spartan Coaching</h2>
             <div className="space-y-4 text-base leading-relaxed text-muted-foreground">
-              <p>
-                We built Spartan Coaching because hospice deserves better than motivational posters and one-time pep talks. People need a system they can run on Tuesday afternoon when a clinic is short-staffed, the hospitalist is behind, and the family is scared.
-              </p>
+              <p>Spartan Coaching was built because hospice deserves better than motivational posters and one-time pep talks. People need a system they can run on Tuesday afternoon when a clinic is short-staffed, the hospitalist is behind, and the family is scared.</p>
               <p>
                 That system has to be simple, honest, and teachable. It has to honor Medicare rules and protect trust with physicians and facilities. It has to turn mission into steps that any trained rep can take and any skilled leader can coach.
               </p>
