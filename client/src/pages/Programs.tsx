@@ -462,7 +462,6 @@ export default function Programs() {
           Full program builds intended to be purchased as discrete projects. Each includes a kickoff, weekly working sessions, optional field practice, and a final summary with wins, blockers, and next steps.
         </p>
       </div>
-
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards gap-sections">
         {hospicePrograms.map((program, idx) => (
           <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card" data-testid={`card-program-${idx}`}>
@@ -513,11 +512,10 @@ export default function Programs() {
           </Card>
         ))}
       </div>
-
       {/* Strategic Services */}
       <div className="space-y-8 md:space-y-12 lg:space-y-16">
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-h2 text-foreground mb-4">
+          <h2 className="text-foreground pt-[0px] pb-[0px] mt-[45px] mb-[45px]">
             Strategic Services
           </h2>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
@@ -575,14 +573,12 @@ export default function Programs() {
           ))}
         </div>
       </div>
-
       <ProgramDetailDialog
         open={detailOpen}
         onOpenChange={setDetailOpen}
         program={selectedDetail}
         onInquire={handleInquireFromDetail}
       />
-
       <InquiryForm
         open={inquiryOpen}
         onOpenChange={setInquiryOpen}
