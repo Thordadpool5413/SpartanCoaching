@@ -16,7 +16,7 @@ export default function Services() {
       duration: "30 or 60 minutes",
       price: "$40 / $70",
       problem: "You're stuck on a specific challenge—an objection you can't handle, a territory that isn't producing, or a referral partner who won't commit.",
-      solution: "Focused coaching via Teams or Zoom to fix what's broken right now.",
+      solution: "Get targeted, real-time coaching to break through the exact obstacle holding you back. No wasted time on theory you already know—just focused work on the one thing stopping you from moving forward right now.",
       includes: [
         "Prep form to identify the exact problem",
         "Live session with role-play and real scenarios",
@@ -30,7 +30,7 @@ export default function Services() {
       duration: "Full day",
       price: "Custom pricing",
       problem: "You know what to say in theory, but it doesn't land in real conversations. You need live feedback, not more classroom training.",
-      solution: "I ride with you to actual sales calls—hospitals, clinics, facilities—and coach you in real time.",
+      solution: "Experience coaching where it actually matters—in the field with real referral sources. Watch what works, practice it in live situations, and get immediate correction so you walk away with skills you can repeat in every call.",
       includes: [
         "Pre-work session with hospice liaison to set goals",
         "Full day of field time with live observation",
@@ -44,7 +44,7 @@ export default function Services() {
       duration: "2-3 sessions",
       price: "Custom pricing",
       problem: "Your calendar is full but your pipeline isn't moving. You're busy but not productive.",
-      solution: "Build a territory plan that focuses effort where it actually converts.",
+      solution: "Stop the chaos. Build a territory system that tells you exactly where to go, who to see, and when to follow up—so you spend time on accounts that actually convert instead of spinning your wheels on low-value visits.",
       includes: [
         "Territory analysis: who refers, who should, who's wasting your time",
         "Account prioritization system (A/B/C classification)",
@@ -61,7 +61,7 @@ export default function Services() {
       duration: "1-2 days",
       price: "Custom pricing",
       problem: "Your team knows they should be doing better, but they don't have a shared system. Everyone's running their own playbook.",
-      solution: "Intensive on-site or virtual training that teaches your entire team the same execution framework.",
+      solution: "Give your entire team the same language, the same process, and the same skills—so they can coach each other, hold themselves accountable, and execute consistently without you micromanaging every interaction.",
       includes: [
         "Customized curriculum based on your market and challenges",
         "Live practice with objection handling and discovery",
@@ -75,7 +75,7 @@ export default function Services() {
       duration: "Monthly or quarterly",
       price: "Custom pricing",
       problem: "You're managing by results instead of coaching to behaviors. When numbers are down, you don't know what to fix.",
-      solution: "Learn to coach one skill at a time, run effective pipeline reviews, and build team rhythm that survives turnover.",
+      solution: "Transform from firefighting to coaching. Learn to diagnose performance gaps, coach one skill at a time, and build a weekly rhythm that develops your team's capability instead of just chasing this month's numbers.",
       includes: [
         "1:1 coaching on skill-based management",
         "Pipeline review framework that drives action",
@@ -89,7 +89,7 @@ export default function Services() {
       duration: "3-6 months",
       price: "Custom pricing",
       problem: "You're not sure where growth will come from. You need a plan that's specific, not aspirational.",
-      solution: "Identify where referrals should come from, build the system to capture them, and measure what matters.",
+      solution: "Stop guessing. Get a clear roadmap showing exactly where referrals should come from, which accounts to prioritize, and what needs to change in your sales process to capture the opportunities you're currently missing.",
       includes: [
         "Market analysis: diagnosis mix, competitor positioning, referral patterns",
         "Growth opportunity identification (untapped accounts, diagnosis gaps)",
@@ -106,7 +106,7 @@ export default function Services() {
       duration: "4-6 weeks",
       price: "Custom pricing",
       problem: "You don't know where referrals are coming from, where they should be coming from, or why the gap exists.",
-      solution: "Deep analysis of your markets to understand what's working, what's broken, and where opportunity lives.",
+      solution: "Get complete visibility into your market opportunity. Discover which accounts are underperforming, where competitors are winning, and which diagnosis categories represent untapped growth—so you can deploy resources where they'll actually move the needle.",
       includes: [
         "Referral source analysis by market and diagnosis",
         "Competitor positioning and market share assessment",
@@ -120,7 +120,7 @@ export default function Services() {
       duration: "3-6 months",
       price: "Custom pricing",
       problem: "You have markets performing differently with no standard process. Wins aren't repeatable and you can't scale what's working.",
-      solution: "Install a repeatable sales system across all markets so execution is consistent and results are predictable.",
+      solution: "Build one execution system that works in every market. Standardize how your team prospects, presents, handles objections, and follows up—so you can finally replicate what top performers do and stop relying on individual heroics.",
       includes: [
         "Sales process design and documentation",
         "Team training rollout (virtual or on-site)",
@@ -134,7 +134,7 @@ export default function Services() {
       duration: "Ongoing retainer",
       price: "Custom pricing",
       problem: "You need strategic guidance for growth, M&A integration, or performance turnarounds—not generic consulting, but hospice-specific expertise.",
-      solution: "Ongoing access to senior-level strategic consulting for complex challenges.",
+      solution: "Access senior-level strategic thinking without hiring a full-time executive. Get hospice-specific guidance on growth strategy, M&A integration, and performance turnarounds—from someone who's been in the field, knows what actually works, and can help you navigate complex decisions faster.",
       includes: [
         "Monthly strategic planning sessions",
         "Market expansion and acquisition guidance",
