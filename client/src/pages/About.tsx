@@ -8,7 +8,6 @@ export default function About() {
   return (
     <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
       <BackButton />
-      
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">
           <h1 className="text-h1 text-foreground mb-6" data-testid="text-about-title">
@@ -41,7 +40,7 @@ export default function About() {
 
         {/* The Stakes */}
         <div className="space-y-8 md:space-y-12 lg:space-y-16">
-          <h2 className="text-h2 text-foreground mb-8">The Stakes Are Real</h2>
+          <h2 className="text-foreground mt-[30px] mb-[30px] pt-[0px] pb-[0px] pl-[0px] pr-[0px]">The Stakes Are Real</h2>
           <div className="grid md:grid-cols-3 gap-cards">
             <Card className="border-2 group relative card-lift text-center spacing-card shadow-lg" data-testid="card-stakes-teams">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
