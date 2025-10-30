@@ -1,10 +1,14 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { Quote, TrendingUp, Users, Award } from "lucide-react";
+import { ContactForm } from "@/components/ContactForm";
+import { Button } from "@/components/ui/button";
 
 export default function Testimonials() {
+  const [contactFormOpen, setContactFormOpen] = useState(false);
+
   const testimonials = [
-    // Individual Reps
     {
       name: "Sarah M.",
       title: "Hospice Liaison",
@@ -15,7 +19,7 @@ export default function Testimonials() {
     },
     {
       name: "James T.",
-      title: "Territory Sales Rep",
+      title: "Hospice Liaison",
       company: "Multi-State Hospice Organization",
       quote: "Before Spartan, I had a full calendar but no system. Nick showed me how to prioritize accounts that actually matter and build follow-up into my routine. I cut drive time by a third and admissions went up, not down.",
       outcome: "Reduced weekly drive time from 18 hours to 12, referrals up 28%",
@@ -23,61 +27,11 @@ export default function Testimonials() {
     },
     {
       name: "Maria R.",
-      title: "Community Relations Specialist",
+      title: "Hospice Liaison",
       company: "Nonprofit Hospice",
       quote: "The objection handling practice was brutal but necessary. I learned what to say when a social worker pushes back on timing or when a physician wants 'one more test.' Now I guide the conversation instead of reacting to it.",
       outcome: "Average time from referral to admission dropped from 4.2 days to 2.6 days",
       category: "individual"
-    },
-    // Sales Leadership
-    {
-      name: "David K.",
-      title: "Director of Business Development",
-      company: "Regional Hospice Network",
-      quote: "My team was working hard but results were all over the map. Nick helped me build a coaching system that's based on one skill at a time, not vague 'do better' feedback. Now I know what to coach and they know what to practice.",
-      outcome: "Team hit monthly targets 6 quarters in a row after missing them for 2 years",
-      category: "leadership"
-    },
-    {
-      name: "Angela P.",
-      title: "Sales Manager",
-      company: "For-Profit Hospice Provider",
-      quote: "I used to spend Friday afternoons manually pulling pipeline reports from five different places. Spartan's framework gave me a simple weekly rhythm—15-minute check-ins that actually move deals forward. My reps know what's expected and I can coach what matters.",
-      outcome: "Reduced manager time on reporting by 60%, increased coaching conversations by 40%",
-      category: "leadership"
-    },
-    {
-      name: "Robert L.",
-      title: "VP of Sales",
-      company: "Faith-Based Hospice",
-      quote: "Onboarding used to take six months and even then new reps struggled. Nick built us a structured 8-week program with clear milestones. New reps now hit their first admission within three weeks instead of three months.",
-      outcome: "New rep ramp time reduced from 24 weeks to 8 weeks, first-year retention up 35%",
-      category: "leadership"
-    },
-    // Corporate Providers
-    {
-      name: "Patricia S.",
-      title: "Chief Growth Officer",
-      company: "Multi-Market Hospice Organization",
-      quote: "We had twelve markets all doing their own thing. No shared language, no consistent process, no way to know what was working. Spartan helped us build one system that works everywhere. Now wins are repeatable and we can scale what actually drives growth.",
-      outcome: "Standardized sales process across 12 markets, reduced performance variance by 58%",
-      category: "corporate"
-    },
-    {
-      name: "Michael C.",
-      title: "COO",
-      company: "Regional Healthcare System",
-      quote: "Corporate initiatives usually die in the field. This one didn't. Nick worked with our frontline teams to design a system they'd actually use, then trained managers to sustain it. A year later, it's still running and our referral pipeline is the strongest it's ever been.",
-      outcome: "System adoption rate 94% after 12 months, referral volume up 31% year-over-year",
-      category: "corporate"
-    },
-    {
-      name: "Jennifer H.",
-      title: "President",
-      company: "Independent Hospice Provider",
-      quote: "I needed predictability. Marketing was a black box and sales felt like hoping for the best. Spartan gave us a framework where we can see what's working, what's not, and make decisions based on data instead of guesswork. Growth is no longer a surprise.",
-      outcome: "Forecast accuracy improved from 62% to 89%, census growth of 43% in 18 months",
-      category: "corporate"
     },
   ];
 
@@ -280,12 +234,16 @@ export default function Testimonials() {
         <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-8">
           Whether you're a rep looking to sharpen your skills, a leader building a team, or an executive scaling across markets—let's talk about what's not working and build a plan that fixes it.
         </p>
-        <a href="mailto:contact@spartancoaching.com" className="inline-block">
-          <button className="bg-primary text-primary-foreground font-bold px-8 py-4 rounded-lg hover-elevate transition-all" data-testid="button-contact">
-            Schedule a Consultation
-          </button>
-        </a>
+        <Button
+          onClick={() => setContactFormOpen(true)}
+          className="bg-primary text-primary-foreground font-bold px-8 py-4 rounded-lg hover-elevate transition-all"
+          data-testid="button-contact"
+        >
+          Schedule a Consultation
+        </Button>
       </div>
+
+      <ContactForm open={contactFormOpen} onOpenChange={setContactFormOpen} />
     </div>
   );
 }
