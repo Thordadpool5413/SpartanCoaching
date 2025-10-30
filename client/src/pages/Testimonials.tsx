@@ -129,7 +129,6 @@ export default function Testimonials() {
   return (
     <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
       <BackButton />
-      
       <div className="text-center max-w-4xl mx-auto mb-16">
         <h1 className="text-h1 text-foreground mb-6" data-testid="text-testimonials-title">
           Success Stories
@@ -138,7 +137,6 @@ export default function Testimonials() {
           Real results from reps, leaders, and organizations who chose the Spartan way: fewer buzzwords, more practice. Clear standards, straight talk, measurable outcomes.
         </p>
       </div>
-
       {/* Testimonials Section */}
       <div className="space-y-8 md:space-y-12 lg:space-y-16">
         <div className="flex items-center gap-3 mb-8">
@@ -177,10 +175,9 @@ export default function Testimonials() {
           </p>
         </div>
       </div>
-
       {/* Case Studies Section */}
       <div className="space-y-8 md:space-y-12 lg:space-y-16">
-        <div className="flex items-center gap-3 mb-8">
+        <div className="flex items-center gap-3 pt-[0px] pb-[0px] mt-[35px] mb-[35px]">
           <Award className="w-8 h-8 text-primary" />
           <h2 className="text-h2 text-foreground">Case Studies</h2>
         </div>
@@ -234,7 +231,6 @@ export default function Testimonials() {
           </p>
         </div>
       </div>
-
       {/* Categories Explanation */}
       <div className="grid md:grid-cols-3 gap-cards mb-12">
         <Card className="text-center hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card">
@@ -276,7 +272,6 @@ export default function Testimonials() {
           </div>
         </Card>
       </div>
-
       {/* CTA */}
       <div className="bg-gradient-to-br from-primary/10 to-destructive/10 rounded-2xl p-8 md:p-12 text-center">
         <h2 className="text-h2 font-bold text-foreground mb-4">
