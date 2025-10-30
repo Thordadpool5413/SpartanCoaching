@@ -3,6 +3,7 @@ import { BackButton } from "@/components/BackButton";
 import { Target, Users, TrendingUp, Linkedin } from "lucide-react";
 import nickPhoto from "@assets/nick-photo.jpg";
 import { Button } from "@/components/ui/button";
+import { ContactForm } from "@/components/ContactForm";
 
 export default function About() {
   return (
@@ -199,16 +200,7 @@ export default function About() {
           <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-6 leading-relaxed">
             Whether you need one-on-one coaching, team training, or strategic consulting, Spartan Coaching is here to help you deliver better outcomes for the patients who need you most.
           </p>
-          <Button 
-            asChild 
-            size="lg"
-            className="font-bold shadow-lg glow-primary-hover min-h-[52px] touch-manipulation" 
-            data-testid="button-contact"
-          >
-            <a href="mailto:contact@spartancoaching.com">
-              Get in Touch
-            </a>
-          </Button>
+          <ContactForm />
         </div>
       </div>
     </div>
