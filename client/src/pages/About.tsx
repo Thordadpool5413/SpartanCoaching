@@ -108,7 +108,7 @@ export default function About() {
           
           <div className="grid md:grid-cols-3 gap-8 mb-12">
             <div className="md:col-span-1">
-              <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-destructive/20 flex items-center justify-center p-6">
+              <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-destructive/20 flex items-center justify-center p-6 pt-[45px] pb-[45px]">
                 <div className="text-center">
                   <div className="w-40 h-40 mx-auto overflow-hidden mb-4 border-4 border-card shadow-xl" style={{ borderRadius: '9999px' }}>
                     <img 
