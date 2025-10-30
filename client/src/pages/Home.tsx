@@ -275,7 +275,7 @@ export default function Home() {
             <h2 className="text-h2 text-foreground mb-6">
               The Path to Mastery in Hospice Sales
             </h2>
-            <p className="text-body-lg text-muted-foreground">Success isn't messured in total referrals. It's about opening doors to comfort, dignity, and peace. This requires more than sales tactics; it demands a disciplined mindset.</p>
+            <p className="text-body-lg text-muted-foreground">Success isn't measured in total referrals. It's about opening doors to comfort, dignity, and peace. This requires more than sales tactics; it demands a disciplined mindset.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-sections">
