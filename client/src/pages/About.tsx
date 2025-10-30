@@ -134,7 +134,7 @@ export default function About() {
             </div>
           </div>
 
-          <div className="grid gap-4">
+          <div className="grid gap-4 mt-[55px] mb-[55px]">
             <Card className="border-2 group relative card-lift spacing-card shadow-lg" data-testid="card-experience-field">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
