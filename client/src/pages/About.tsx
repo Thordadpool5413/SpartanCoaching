@@ -39,7 +39,7 @@ export default function About() {
         </div>
 
         {/* The Stakes */}
-        <div className="space-y-8 md:space-y-12 lg:space-y-16">
+        <div className="space-y-8 md:space-y-12 lg:space-y-16 text-[40px]">
           <h2 className="text-foreground mt-[30px] mb-[30px] pt-[0px] pb-[0px] pl-[0px] pr-[0px]">The Stakes Are Real</h2>
           <div className="grid md:grid-cols-3 gap-cards">
             <Card className="border-2 group relative card-lift text-center spacing-card shadow-lg" data-testid="card-stakes-teams">
