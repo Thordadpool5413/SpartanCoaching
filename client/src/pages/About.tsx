@@ -169,7 +169,7 @@ export default function About() {
           {/* LinkedIn Connect Section */}
           <div className="mt-8 text-center">
             <Card className="spacing-card bg-gradient-to-br from-primary/5 to-primary/10 card-lift border-2 shadow-lg">
-              <p className="text-muted-foreground mb-4">
+              <p className="text-muted-foreground mb-4 font-bold">
                 Learn more about Nick's professional background and experience
               </p>
               <Button
