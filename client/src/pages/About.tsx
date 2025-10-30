@@ -130,9 +130,7 @@ export default function About() {
                 <p className="text-body text-muted-foreground leading-relaxed mb-4">
                   Nick Lynch brings years of hands-on experience in hospice sales, team leadership, and operational excellence. His approach is born from real-world challenges—sitting in clinics, riding with liaisons, and building systems that actually work in the field.
                 </p>
-                <blockquote className="text-base italic text-foreground leading-relaxed border-l-4 border-primary pl-6">
-                  "Nick has built and led field teams across hospice, home health, and post-acute care. He builds practical frameworks that respect clinical workflow and deliver measurable improvements in admissions and case mix quality. He believes in simple plans repeated well, and in coaching that happens in the work, not in a lecture hall."
-                </blockquote>
+                <blockquote className="text-base italic text-foreground leading-relaxed border-l-4 border-primary pl-6">"Nick has built and led field teams across hospice, home health, and post-acute care from direct hands on experience. Nick's approach is born from real-world challenges that builds practical frameworks that respect clinical workflow and deliver measurable improvements in admissions and case mix quality. Nick believes in simple plans repeated well, and in coaching that happens in the work, not in a lecture hall."</blockquote>
               </Card>
             </div>
           </div>
