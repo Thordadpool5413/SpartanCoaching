@@ -296,7 +296,7 @@ export default function Services() {
       </div>
       {/* Corporate Providers Section */}
       <div className="space-y-8 md:space-y-12 lg:space-y-16">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-10">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mt-[30px] mb-[30px]">
           <div className="w-16 h-16 rounded-2xl bg-spartan-gradient flex items-center justify-center shadow-2xl flex-shrink-0">
             <Building2 className="w-8 h-8 text-white" />
           </div>
