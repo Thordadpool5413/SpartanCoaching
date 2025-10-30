@@ -149,7 +149,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Value Pillars - Enhanced with better visuals */}
       <section className="max-w-7xl mx-auto spacing-container spacing-section">
         <div className="text-center mb-16 sm:mb-20">
@@ -205,7 +204,6 @@ export default function Home() {
           </Card>
         </div>
       </section>
-
       {/* Services Preview - Enhanced engagement */}
       <section className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-black dark:to-gray-950 spacing-section">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(239,68,68,0.03),transparent_70%)]"></div>
@@ -269,7 +267,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Philosophy Section - Enhanced */}
       <section className="relative bg-gradient-to-br from-accent/40 via-accent/20 to-accent/40 spacing-section">
         <div className="w-full max-w-7xl mx-auto spacing-container">
@@ -278,9 +275,7 @@ export default function Home() {
             <h2 className="text-h2 text-foreground mb-6">
               The Path to Mastery in Hospice Sales
             </h2>
-            <p className="text-body-lg text-muted-foreground">
-              Success isn't about closing deals. It's about opening doors to comfort, dignity, and peace. This requires more than sales tactics; it demands a disciplined mindset.
-            </p>
+            <p className="text-body-lg text-muted-foreground">Success isn't messured in total referrals. It's about opening doors to comfort, dignity, and peace. This requires more than sales tactics; it demands a disciplined mindset.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-sections">
@@ -331,7 +326,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
       {/* Newsletter Section - Enhanced */}
       <section className="relative bg-spartan-gradient text-white spacing-section overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_50%)]"></div>
