@@ -85,7 +85,7 @@ export default function About() {
 
         {/* What We Built */}
         <div className="space-y-8 md:space-y-12 lg:space-y-16">
-          <Card className="spacing-card">
+          <Card className="spacing-card mt-[45px] mb-[45px]">
             <h2 className="text-h2 text-foreground mb-6">What We Built</h2>
             <div className="space-y-4 text-base leading-relaxed text-muted-foreground">
               <p>
