@@ -86,7 +86,7 @@ export default function About() {
         {/* What We Built */}
         <div className="space-y-8 md:space-y-12 lg:space-y-16">
           <Card className="spacing-card mt-[45px] mb-[45px]">
-            <h2 className="text-h2 text-foreground mb-6">What We Built</h2>
+            <h2 className="text-h2 text-foreground mb-6">Foundation of Spartan Coaching</h2>
             <div className="space-y-4 text-base leading-relaxed text-muted-foreground">
               <p>
                 We built Spartan Coaching because hospice deserves better than motivational posters and one-time pep talks. People need a system they can run on Tuesday afternoon when a clinic is short-staffed, the hospitalist is behind, and the family is scared.
