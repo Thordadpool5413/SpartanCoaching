@@ -123,7 +123,7 @@ export function Header() {
         <Link href="/">
           <div className="flex items-center gap-2 sm:gap-4 hover:opacity-80 transition-opacity cursor-pointer touch-manipulation" data-testid="link-home">
             <div>
-              <h1 className="font-black text-xl sm:text-2xl md:text-3xl text-foreground tracking-tight">SPARTAN COACHING</h1>
+              <h1 className="font-black text-xl sm:text-2xl md:text-3xl text-primary tracking-tight">SPARTAN COACHING</h1>
               <p className="text-xs sm:text-sm md:text-base text-muted-foreground">Expert Hospice Sales Training</p>
             </div>
           </div>
