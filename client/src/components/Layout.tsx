@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
-import { SpartanLogo, MenuIcon, CloseIcon } from "./icons";
+import { MenuIcon, CloseIcon } from "./icons";
 import { applyTheme, getInitialTheme } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Sun, Moon, Linkedin, Search } from "lucide-react";
@@ -121,11 +121,10 @@ export function Header() {
     }}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-24 sm:h-28 md:h-32 flex items-center justify-between gap-3 sm:gap-6">
         <Link href="/">
-          <div className="flex items-center gap-2 sm:gap-4 hover:opacity-80 transition-opacity group cursor-pointer touch-manipulation" data-testid="link-home">
-            <SpartanLogo className="h-14 sm:h-16 md:h-20 w-auto object-contain group-hover:scale-110 transition-transform" />
-            <div className="hidden sm:block">
-              <h1 className="font-black text-2xl md:text-3xl text-foreground tracking-tight">Spartan Coaching</h1>
-              <p className="text-sm md:text-base text-muted-foreground">Expert Hospice Sales Training</p>
+          <div className="flex items-center gap-2 sm:gap-4 hover:opacity-80 transition-opacity cursor-pointer touch-manipulation" data-testid="link-home">
+            <div>
+              <h1 className="font-black text-xl sm:text-2xl md:text-3xl text-foreground tracking-tight">SPARTAN COACHING</h1>
+              <p className="text-xs sm:text-sm md:text-base text-muted-foreground">Expert Hospice Sales Training</p>
             </div>
           </div>
         </Link>

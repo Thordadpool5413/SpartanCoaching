@@ -1,13 +1,3 @@
-import spartanLogoUrl from "@assets/spartan-logo.png";
-
-export const SpartanLogo = ({ className = "w-12 h-12" }: { className?: string }) => (
-  <img 
-    src={spartanLogoUrl}
-    alt="Spartan Coaching Logo" 
-    className={className}
-  />
-);
-
 export const SpinnerIcon = ({ className = "w-5 h-5" }: { className?: string }) => (
   <svg className={className} xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
