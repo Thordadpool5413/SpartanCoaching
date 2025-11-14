@@ -16,6 +16,7 @@ import {
   inquirySchema,
   insertNewsletterSubscriberSchema,
   emailTemplateRequestSchema,
+  insertArticleSchema,
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -232,6 +233,116 @@ Subject: [subject line]
     } catch (error: any) {
       console.error("Email template generation error:", error);
       res.status(500).json({ error: error.message || "Failed to generate email template" });
+    }
+  });
+
+  // Article Management Routes
+  
+  // Create Article
+  app.post("/api/articles", async (req, res) => {
+    try {
+      const articleData = insertArticleSchema.parse(req.body);
+      
+      const article = await storage.createArticle(articleData);
+      
+      console.log("New article created:", article);
+      
+      res.json({ success: true, article });
+    } catch (error: any) {
+      console.error("Create article error:", error);
+      if (error.name === "ZodError") {
+        res.status(400).json({ error: error.message || "Invalid article data" });
+      } else {
+        res.status(500).json({ error: error.message || "Failed to create article" });
+      }
+    }
+  });
+
+  // Get All Articles
+  app.get("/api/articles", async (req, res) => {
+    try {
+      const articles = await storage.getArticles();
+      
+      res.json({ articles });
+    } catch (error: any) {
+      console.error("Get articles error:", error);
+      res.status(500).json({ error: error.message || "Failed to retrieve articles" });
+    }
+  });
+
+  // Get Single Article
+  app.get("/api/articles/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid article ID" });
+      }
+
+      const article = await storage.getArticle(id);
+      
+      if (!article) {
+        return res.status(404).json({ error: "Article not found" });
+      }
+      
+      res.json({ article });
+    } catch (error: any) {
+      console.error("Get article error:", error);
+      res.status(500).json({ error: error.message || "Failed to retrieve article" });
+    }
+  });
+
+  // Update Article
+  app.put("/api/articles/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid article ID" });
+      }
+
+      const articleData = insertArticleSchema.partial().parse(req.body);
+      
+      // Ensure at least one field is provided
+      if (Object.keys(articleData).length === 0) {
+        return res.status(400).json({ error: "At least one field must be provided for update" });
+      }
+      
+      // Check if article exists first
+      const existingArticle = await storage.getArticle(id);
+      if (!existingArticle) {
+        return res.status(404).json({ error: "Article not found" });
+      }
+      
+      const article = await storage.updateArticle(id, articleData);
+      
+      console.log("Article updated:", article);
+      
+      res.json({ success: true, article });
+    } catch (error: any) {
+      console.error("Update article error:", error);
+      if (error.name === "ZodError") {
+        res.status(400).json({ error: error.message || "Invalid article data" });
+      } else {
+        res.status(500).json({ error: error.message || "Failed to update article" });
+      }
+    }
+  });
+
+  // Delete Article
+  app.delete("/api/articles/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid article ID" });
+      }
+
+      await storage.deleteArticle(id);
+      
+      console.log("Article deleted:", id);
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Delete article error:", error);
+      res.status(500).json({ error: error.message || "Failed to delete article" });
     }
   });
 

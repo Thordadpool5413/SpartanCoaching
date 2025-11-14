@@ -126,6 +126,23 @@ export const insertNewsletterSubscriberSchema = createInsertSchema(newsletterSub
 export type InsertNewsletterSubscriber = z.infer<typeof insertNewsletterSubscriberSchema>;
 export type SelectNewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
 
+// Drizzle table definition for articles
+export const articles = pgTable("articles", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  linkedinUrl: text("linkedin_url").notNull(),
+  publishDate: bigint("publish_date", { mode: "number" }).notNull(),
+  featured: boolean("featured").notNull().default(false),
+});
+
+// Insert schema and types for articles
+export const insertArticleSchema = createInsertSchema(articles).omit({ 
+  id: true
+});
+export type InsertArticle = z.infer<typeof insertArticleSchema>;
+export type SelectArticle = typeof articles.$inferSelect;
+
 // Email template request schema
 export const emailTemplateRequestSchema = z.object({
   templateType: z.enum(["follow_up", "thank_you", "value_add"]),
