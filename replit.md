@@ -32,6 +32,13 @@ The platform employs a premium SaaS aesthetic with a sophisticated visual design
 - **The Spartan Method**: A core framework structured around Three Pillars (Discipline, Empathy, Strategy), a Four-Stage Healthcare Sales Mastery Model (Discovery, Connecting, Guiding, Commitment), and Five Governing Fundamentals. This method is visually represented with color-coded stages and enhanced card designs.
 - **Programs & Services**: Detailed pages and modals outlining various hospice provider programs and strategic services, including business problems addressed, delivery approaches, outcomes, and target audiences.
 - **AI Chatbot**: Advanced AI chatbot with extensive knowledge of hospice sales, Medicare/Medicaid regulations, IDG workflows, and the Spartan Method. It provides objection handling, territory management best practices, and coaching strategies. The chatbot is implemented as a floating, sticky widget positioned on the right side of the screen with three states: closed (floating button in bottom-right corner), minimized (vertical tab on right edge), and open (full chat panel on right side). It uses React Portal rendering to document.body with explicit fixed positioning (inline styles) to ensure it remains visible during scrolling. Conversation history persists via localStorage across sessions.
+- **Articles Section**: Database-backed content management system for publishing LinkedIn articles. Features include:
+  - Public-facing Articles page displaying thought leadership content
+  - Featured articles highlighted in a separate section
+  - Each article links to the full LinkedIn post
+  - Admin panel for full CRUD operations (create, edit, delete articles)
+  - Article metadata includes title, description, LinkedIn URL, publish date, and featured status
+  - Fully tested end-to-end workflow verified
 - **Authentication**: User schema defined, with preparations for session-based authentication.
 
 ## External Dependencies
