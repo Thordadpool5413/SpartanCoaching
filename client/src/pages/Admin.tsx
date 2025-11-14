@@ -1,15 +1,19 @@
 import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Mail, Phone, Building, Calendar, Users, Lock, LogOut } from "lucide-react";
-import type { SelectInquiry, SelectNewsletterSubscriber } from "@shared/schema";
+import { Mail, Phone, Building, Calendar, Users, Lock, LogOut, Plus, Edit, Trash2, ExternalLink, Star } from "lucide-react";
+import type { SelectInquiry, SelectNewsletterSubscriber, SelectArticle, InsertArticle } from "@shared/schema";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
 
 const ADMIN_CODE = "5413";
 const ADMIN_AUTH_KEY = "spartan-admin-auth";
@@ -71,8 +75,139 @@ export default function Admin() {
     enabled: isAuthenticated,
   });
 
+  const { data: articlesData, isLoading: articlesLoading } = useQuery<{ articles: SelectArticle[] }>({
+    queryKey: ["/api/articles"],
+    enabled: isAuthenticated,
+  });
+
   const inquiries = inquiriesData?.inquiries || [];
   const subscribers = subscribersData?.subscribers || [];
+  const articles = articlesData?.articles || [];
+
+  // Article form state
+  const [articleDialogOpen, setArticleDialogOpen] = useState(false);
+  const [editingArticle, setEditingArticle] = useState<SelectArticle | null>(null);
+  const [articleForm, setArticleForm] = useState({
+    title: "",
+    description: "",
+    linkedinUrl: "",
+    publishDate: new Date().toISOString().split('T')[0],
+    featured: false,
+  });
+
+  // Create article mutation
+  const createArticleMutation = useMutation({
+    mutationFn: async (data: InsertArticle) => {
+      return await apiRequest("POST", "/api/articles", data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/articles"] });
+      setArticleDialogOpen(false);
+      resetArticleForm();
+      toast({
+        title: "Article Created",
+        description: "The article has been successfully published",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create article",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Update article mutation
+  const updateArticleMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: InsertArticle }) => {
+      return await apiRequest("PUT", `/api/articles/${id}`, data);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/articles"] });
+      setArticleDialogOpen(false);
+      setEditingArticle(null);
+      resetArticleForm();
+      toast({
+        title: "Article Updated",
+        description: "The article has been successfully updated",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update article",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete article mutation
+  const deleteArticleMutation = useMutation({
+    mutationFn: async (id: number) => {
+      return await apiRequest("DELETE", `/api/articles/${id}`);
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/articles"] });
+      toast({
+        title: "Article Deleted",
+        description: "The article has been successfully removed",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete article",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const resetArticleForm = () => {
+    setArticleForm({
+      title: "",
+      description: "",
+      linkedinUrl: "",
+      publishDate: new Date().toISOString().split('T')[0],
+      featured: false,
+    });
+  };
+
+  const handleEditArticle = (article: SelectArticle) => {
+    setEditingArticle(article);
+    setArticleForm({
+      title: article.title,
+      description: article.description,
+      linkedinUrl: article.linkedinUrl,
+      publishDate: new Date(article.publishDate).toISOString().split('T')[0],
+      featured: article.featured,
+    });
+    setArticleDialogOpen(true);
+  };
+
+  const handleSaveArticle = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const data: InsertArticle = {
+      title: articleForm.title,
+      description: articleForm.description,
+      linkedinUrl: articleForm.linkedinUrl,
+      publishDate: new Date(articleForm.publishDate).getTime(),
+      featured: articleForm.featured,
+    };
+
+    if (editingArticle) {
+      updateArticleMutation.mutate({ id: editingArticle.id, data });
+    } else {
+      createArticleMutation.mutate(data);
+    }
+  };
+
+  const handleDeleteArticle = (id: number) => {
+    if (window.confirm("Are you sure you want to delete this article?")) {
+      deleteArticleMutation.mutate(id);
+    }
+  };
 
   // Show password dialog if not authenticated
   if (!isAuthenticated) {
@@ -132,17 +267,20 @@ export default function Admin() {
       <div className="mb-8">
         <h1 className="text-5xl font-black mb-4" data-testid="text-admin-title">Admin Dashboard</h1>
         <p className="text-xl text-muted-foreground">
-          Manage inquiries and newsletter subscribers
+          Manage inquiries, newsletter subscribers, and published articles
         </p>
       </div>
 
       <Tabs defaultValue="inquiries" className="space-y-6">
-        <TabsList className="grid w-full max-w-md grid-cols-2">
+        <TabsList className="grid w-full max-w-2xl grid-cols-3">
           <TabsTrigger value="inquiries" data-testid="tab-inquiries">
             Inquiries ({inquiries.length})
           </TabsTrigger>
           <TabsTrigger value="subscribers" data-testid="tab-subscribers">
             Subscribers ({subscribers.length})
+          </TabsTrigger>
+          <TabsTrigger value="articles" data-testid="tab-articles">
+            Articles ({articles.length})
           </TabsTrigger>
         </TabsList>
 
@@ -246,7 +384,202 @@ export default function Admin() {
             </Card>
           )}
         </TabsContent>
+
+        <TabsContent value="articles" className="space-y-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">Manage Articles</h2>
+            <Button
+              onClick={() => {
+                setEditingArticle(null);
+                resetArticleForm();
+                setArticleDialogOpen(true);
+              }}
+              className="gap-2"
+              data-testid="button-add-article"
+            >
+              <Plus className="w-4 h-4" />
+              Add Article
+            </Button>
+          </div>
+
+          {articlesLoading ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Loading articles...</p>
+            </div>
+          ) : articles.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">No articles yet. Click "Add Article" to create your first article.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {articles.map((article) => (
+                <Card key={article.id} data-testid={`article-${article.id}`}>
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <CardTitle className="text-xl">{article.title}</CardTitle>
+                          {article.featured && (
+                            <Badge variant="default" className="gap-1">
+                              <Star className="w-3 h-3 fill-current" />
+                              Featured
+                            </Badge>
+                          )}
+                        </div>
+                        <CardDescription className="flex items-center gap-2">
+                          <Calendar className="w-4 h-4" />
+                          {new Date(article.publishDate).toLocaleDateString()}
+                        </CardDescription>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleEditArticle(article)}
+                          data-testid={`button-edit-article-${article.id}`}
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleDeleteArticle(article.id)}
+                          disabled={deleteArticleMutation.isPending}
+                          data-testid={`button-delete-article-${article.id}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <p className="text-sm text-muted-foreground">{article.description}</p>
+                    <div className="flex items-center gap-2">
+                      <ExternalLink className="w-4 h-4 text-muted-foreground" />
+                      <a
+                        href={article.linkedinUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-sm text-primary hover:underline"
+                      >
+                        View on LinkedIn
+                      </a>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
       </Tabs>
+
+      {/* Article Dialog */}
+      <Dialog open={articleDialogOpen} onOpenChange={(open) => {
+        setArticleDialogOpen(open);
+        if (!open) {
+          setEditingArticle(null);
+          resetArticleForm();
+        }
+      }}>
+        <DialogContent className="sm:max-w-2xl" data-testid="dialog-article-form">
+          <DialogHeader>
+            <DialogTitle>{editingArticle ? "Edit Article" : "Add New Article"}</DialogTitle>
+            <DialogDescription>
+              {editingArticle
+                ? "Update the article details below"
+                : "Fill in the article information to publish it to the Articles page"}
+            </DialogDescription>
+          </DialogHeader>
+          <form onSubmit={handleSaveArticle} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="title">Article Title *</Label>
+              <Input
+                id="title"
+                value={articleForm.title}
+                onChange={(e) => setArticleForm({ ...articleForm, title: e.target.value })}
+                placeholder="Enter article title"
+                required
+                data-testid="input-article-title"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="description">Description *</Label>
+              <Textarea
+                id="description"
+                value={articleForm.description}
+                onChange={(e) => setArticleForm({ ...articleForm, description: e.target.value })}
+                placeholder="Brief description or summary of the article"
+                rows={3}
+                required
+                data-testid="input-article-description"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="linkedinUrl">LinkedIn Article URL *</Label>
+              <Input
+                id="linkedinUrl"
+                type="url"
+                value={articleForm.linkedinUrl}
+                onChange={(e) => setArticleForm({ ...articleForm, linkedinUrl: e.target.value })}
+                placeholder="https://www.linkedin.com/pulse/..."
+                required
+                data-testid="input-article-url"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="publishDate">Publish Date *</Label>
+              <Input
+                id="publishDate"
+                type="date"
+                value={articleForm.publishDate}
+                onChange={(e) => setArticleForm({ ...articleForm, publishDate: e.target.value })}
+                required
+                data-testid="input-article-date"
+              />
+            </div>
+
+            <div className="flex items-center justify-between rounded-lg border p-4">
+              <div className="space-y-0.5">
+                <Label htmlFor="featured" className="text-base">Featured Article</Label>
+                <p className="text-sm text-muted-foreground">
+                  Display this article prominently on the Articles page
+                </p>
+              </div>
+              <Switch
+                id="featured"
+                checked={articleForm.featured}
+                onCheckedChange={(checked) => setArticleForm({ ...articleForm, featured: checked })}
+                data-testid="switch-article-featured"
+              />
+            </div>
+
+            <div className="flex gap-3 pt-4">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setArticleDialogOpen(false)}
+                className="flex-1"
+                data-testid="button-cancel-article"
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                className="flex-1"
+                disabled={createArticleMutation.isPending || updateArticleMutation.isPending}
+                data-testid="button-save-article"
+              >
+                {editingArticle ? "Update Article" : "Create Article"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

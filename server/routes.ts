@@ -299,12 +299,7 @@ Subject: [subject line]
         return res.status(400).json({ error: "Invalid article ID" });
       }
 
-      const articleData = insertArticleSchema.partial().parse(req.body);
-      
-      // Ensure at least one field is provided
-      if (Object.keys(articleData).length === 0) {
-        return res.status(400).json({ error: "At least one field must be provided for update" });
-      }
+      const articleData = insertArticleSchema.parse(req.body);
       
       // Check if article exists first
       const existingArticle = await storage.getArticle(id);

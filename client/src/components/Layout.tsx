@@ -89,6 +89,7 @@ export function Header() {
     { path: "/tools", label: "AI Field Kit", description: "AI-powered sales tools" },
     { path: "/resources", label: "Resources", description: "Helpful guides and resources" },
     { path: "/testimonials", label: "Testimonials", description: "Client success stories" },
+    { path: "/articles", label: "Articles", description: "Industry insights and thought leadership" },
     { path: "/about", label: "About", description: "Learn about Spartan Coaching" },
   ];
 
