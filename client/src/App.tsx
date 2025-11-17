@@ -39,10 +39,27 @@ function ScrollToTop() {
   return null;
 }
 
+function VisitorTracker() {
+  const [location] = useLocation();
+  
+  useEffect(() => {
+    fetch('/api/analytics/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        pagePath: location
+      })
+    }).catch(console.error);
+  }, [location]);
+  
+  return null;
+}
+
 function Router() {
   return (
     <>
       <ScrollToTop />
+      <VisitorTracker />
       <Switch>
         <Route path="/" component={Home} />
         <Route path="/services" component={Services} />
