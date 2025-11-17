@@ -39,6 +39,12 @@ The platform employs a premium SaaS aesthetic with a sophisticated visual design
   - Admin panel for full CRUD operations (create, edit, delete articles)
   - Article metadata includes title, description, LinkedIn URL, publish date, and featured status
   - Fully tested end-to-end workflow verified
+- **Visitor Analytics**: Automatic page visit tracking system that records visitor activity across all pages. Features include:
+  - Automatic tracking of page visits on route changes
+  - Database storage of visitor data with timestamps
+  - Admin dashboard displaying visitor statistics for multiple time periods (day, week, month, quarter, year)
+  - Optimized SQL COUNT queries for efficient analytics retrieval
+  - Fully tested end-to-end tracking and reporting functionality
 - **Authentication**: User schema defined, with preparations for session-based authentication.
 
 ## External Dependencies
