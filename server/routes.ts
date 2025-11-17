@@ -17,6 +17,7 @@ import {
   insertNewsletterSubscriberSchema,
   emailTemplateRequestSchema,
   insertArticleSchema,
+  insertVisitorSchema,
 } from "@shared/schema";
 
 export async function registerRoutes(app: Express): Promise<Server> {
@@ -338,6 +339,32 @@ Subject: [subject line]
     } catch (error: any) {
       console.error("Delete article error:", error);
       res.status(500).json({ error: error.message || "Failed to delete article" });
+    }
+  });
+
+  // Track Visitor
+  app.post("/api/analytics/track", async (req, res) => {
+    try {
+      const visitorData = insertVisitorSchema.parse(req.body);
+      
+      await storage.trackVisitor(visitorData);
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Track visitor error:", error);
+      res.status(500).json({ error: error.message || "Failed to track visitor" });
+    }
+  });
+
+  // Get Visitor Analytics
+  app.get("/api/analytics/visitors", async (req, res) => {
+    try {
+      const analytics = await storage.getVisitorAnalytics();
+      
+      res.json({ analytics });
+    } catch (error: any) {
+      console.error("Get analytics error:", error);
+      res.status(500).json({ error: error.message || "Failed to retrieve analytics" });
     }
   });
 
