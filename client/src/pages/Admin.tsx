@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Mail, Phone, Building, Calendar, Users, Lock, LogOut, Plus, Edit, Trash2, ExternalLink, Star } from "lucide-react";
-import type { SelectInquiry, SelectNewsletterSubscriber, SelectArticle, InsertArticle } from "@shared/schema";
+import type { SelectInquiry, SelectNewsletterSubscriber, SelectArticle, InsertArticle, VisitorAnalytics } from "@shared/schema";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -80,9 +80,15 @@ export default function Admin() {
     enabled: isAuthenticated,
   });
 
+  const { data: analyticsData, isLoading: analyticsLoading } = useQuery<{ analytics: VisitorAnalytics }>({
+    queryKey: ["/api/analytics/visitors"],
+    enabled: isAuthenticated,
+  });
+
   const inquiries = inquiriesData?.inquiries || [];
   const subscribers = subscribersData?.subscribers || [];
   const articles = articlesData?.articles || [];
+  const analytics = analyticsData?.analytics;
 
   // Article form state
   const [articleDialogOpen, setArticleDialogOpen] = useState(false);
@@ -269,6 +275,73 @@ export default function Admin() {
         <p className="text-xl text-muted-foreground">
           Manage inquiries, newsletter subscribers, and published articles
         </p>
+      </div>
+
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold mb-4">Visitor Statistics</h2>
+        {analyticsLoading ? (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">Loading visitor statistics...</p>
+          </div>
+        ) : analytics ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+            <Card data-testid="card-visitors-day">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Today</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold" data-testid="text-visitors-day">{analytics.day}</div>
+                <p className="text-xs text-muted-foreground mt-1">visitors</p>
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-visitors-week">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">This Week</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold" data-testid="text-visitors-week">{analytics.week}</div>
+                <p className="text-xs text-muted-foreground mt-1">visitors</p>
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-visitors-month">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">This Month</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold" data-testid="text-visitors-month">{analytics.month}</div>
+                <p className="text-xs text-muted-foreground mt-1">visitors</p>
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-visitors-quarter">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">This Quarter</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold" data-testid="text-visitors-quarter">{analytics.quarter}</div>
+                <p className="text-xs text-muted-foreground mt-1">visitors</p>
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-visitors-year">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">This Year</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold" data-testid="text-visitors-year">{analytics.year}</div>
+                <p className="text-xs text-muted-foreground mt-1">visitors</p>
+              </CardContent>
+            </Card>
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="py-8 text-center">
+              <p className="text-muted-foreground">No visitor data available</p>
+            </CardContent>
+          </Card>
+        )}
       </div>
 
       <Tabs defaultValue="inquiries" className="space-y-6">
