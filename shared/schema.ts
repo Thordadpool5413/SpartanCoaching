@@ -143,6 +143,32 @@ export const insertArticleSchema = createInsertSchema(articles).omit({
 export type InsertArticle = z.infer<typeof insertArticleSchema>;
 export type SelectArticle = typeof articles.$inferSelect;
 
+// Drizzle table definition for visitor tracking
+export const visitors = pgTable("visitors", {
+  id: serial("id").primaryKey(),
+  pagePath: text("page_path").notNull(),
+  visitedAt: bigint("visited_at", { mode: "number" }).notNull(),
+});
+
+// Insert schema and types for visitors
+export const insertVisitorSchema = createInsertSchema(visitors).omit({ 
+  id: true, 
+  visitedAt: true 
+});
+export type InsertVisitor = z.infer<typeof insertVisitorSchema>;
+export type SelectVisitor = typeof visitors.$inferSelect;
+
+// Visitor analytics response schema
+export const visitorAnalyticsSchema = z.object({
+  day: z.number(),
+  week: z.number(),
+  month: z.number(),
+  quarter: z.number(),
+  year: z.number(),
+});
+
+export type VisitorAnalytics = z.infer<typeof visitorAnalyticsSchema>;
+
 // Email template request schema
 export const emailTemplateRequestSchema = z.object({
   templateType: z.enum(["follow_up", "thank_you", "value_add"]),
