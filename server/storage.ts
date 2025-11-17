@@ -14,7 +14,7 @@ import {
   type VisitorAnalytics
 } from "@shared/schema";
 import { db } from "./db";
-import { desc, eq, gte } from "drizzle-orm";
+import { desc, eq, gte, count } from "drizzle-orm";
 
 // Storage interface for CRUD operations
 export interface IStorage {
@@ -151,20 +151,20 @@ export class DatabaseStorage implements IStorage {
     const quarterAgo = now - (90 * msPerDay);
     const yearAgo = now - (365 * msPerDay);
     
-    const [dayCount, weekCount, monthCount, quarterCount, yearCount] = await Promise.all([
-      db.select().from(visitors).where(gte(visitors.visitedAt, dayAgo)),
-      db.select().from(visitors).where(gte(visitors.visitedAt, weekAgo)),
-      db.select().from(visitors).where(gte(visitors.visitedAt, monthAgo)),
-      db.select().from(visitors).where(gte(visitors.visitedAt, quarterAgo)),
-      db.select().from(visitors).where(gte(visitors.visitedAt, yearAgo)),
+    const [dayResult, weekResult, monthResult, quarterResult, yearResult] = await Promise.all([
+      db.select({ count: count() }).from(visitors).where(gte(visitors.visitedAt, dayAgo)),
+      db.select({ count: count() }).from(visitors).where(gte(visitors.visitedAt, weekAgo)),
+      db.select({ count: count() }).from(visitors).where(gte(visitors.visitedAt, monthAgo)),
+      db.select({ count: count() }).from(visitors).where(gte(visitors.visitedAt, quarterAgo)),
+      db.select({ count: count() }).from(visitors).where(gte(visitors.visitedAt, yearAgo)),
     ]);
     
     return {
-      day: dayCount.length,
-      week: weekCount.length,
-      month: monthCount.length,
-      quarter: quarterCount.length,
-      year: yearCount.length,
+      day: dayResult[0].count,
+      week: weekResult[0].count,
+      month: monthResult[0].count,
+      quarter: quarterResult[0].count,
+      year: yearResult[0].count,
     };
   }
 }
