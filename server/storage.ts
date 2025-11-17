@@ -2,15 +2,19 @@ import {
   inquiries, 
   newsletterSubscribers,
   articles,
+  visitors,
   type InsertInquiry, 
   type SelectInquiry,
   type InsertNewsletterSubscriber,
   type SelectNewsletterSubscriber,
   type InsertArticle,
-  type SelectArticle
+  type SelectArticle,
+  type InsertVisitor,
+  type SelectVisitor,
+  type VisitorAnalytics
 } from "@shared/schema";
 import { db } from "./db";
-import { desc, eq } from "drizzle-orm";
+import { desc, eq, gte } from "drizzle-orm";
 
 // Storage interface for CRUD operations
 export interface IStorage {
@@ -24,6 +28,8 @@ export interface IStorage {
   getArticle(id: number): Promise<SelectArticle | undefined>;
   updateArticle(id: number, article: Partial<InsertArticle>): Promise<SelectArticle>;
   deleteArticle(id: number): Promise<void>;
+  trackVisitor(visitor: InsertVisitor): Promise<SelectVisitor>;
+  getVisitorAnalytics(): Promise<VisitorAnalytics>;
 }
 
 // Database-backed storage implementation
@@ -119,6 +125,47 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(articles)
       .where(eq(articles.id, id));
+  }
+
+  async trackVisitor(visitor: InsertVisitor): Promise<SelectVisitor> {
+    const visitorWithTimestamp = {
+      ...visitor,
+      visitedAt: Date.now(),
+    };
+    
+    const [created] = await db
+      .insert(visitors)
+      .values(visitorWithTimestamp)
+      .returning();
+    
+    return created;
+  }
+
+  async getVisitorAnalytics(): Promise<VisitorAnalytics> {
+    const now = Date.now();
+    const msPerDay = 24 * 60 * 60 * 1000;
+    
+    const dayAgo = now - msPerDay;
+    const weekAgo = now - (7 * msPerDay);
+    const monthAgo = now - (30 * msPerDay);
+    const quarterAgo = now - (90 * msPerDay);
+    const yearAgo = now - (365 * msPerDay);
+    
+    const [dayCount, weekCount, monthCount, quarterCount, yearCount] = await Promise.all([
+      db.select().from(visitors).where(gte(visitors.visitedAt, dayAgo)),
+      db.select().from(visitors).where(gte(visitors.visitedAt, weekAgo)),
+      db.select().from(visitors).where(gte(visitors.visitedAt, monthAgo)),
+      db.select().from(visitors).where(gte(visitors.visitedAt, quarterAgo)),
+      db.select().from(visitors).where(gte(visitors.visitedAt, yearAgo)),
+    ]);
+    
+    return {
+      day: dayCount.length,
+      week: weekCount.length,
+      month: monthCount.length,
+      quarter: quarterCount.length,
+      year: yearCount.length,
+    };
   }
 }
 
