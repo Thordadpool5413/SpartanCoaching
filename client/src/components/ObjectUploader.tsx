@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { ReactNode } from "react";
 import Uppy from "@uppy/core";
-import { DashboardModal } from "@uppy/react";
+import Dashboard from "@uppy/dashboard";
 import AwsS3 from "@uppy/aws-s3";
 import type { UploadResult } from "@uppy/core";
 import { Button } from "@/components/ui/button";
@@ -29,8 +29,11 @@ export function ObjectUploader({
   children,
 }: ObjectUploaderProps) {
   const [showModal, setShowModal] = useState(false);
-  const [uppy] = useState(() =>
-    new Uppy({
+  const uppyRef = useRef<Uppy | null>(null);
+  const dashboardRef = useRef<any>(null);
+
+  useEffect(() => {
+    const uppy = new Uppy({
       restrictions: {
         maxNumberOfFiles,
         maxFileSize,
@@ -43,21 +46,41 @@ export function ObjectUploader({
       })
       .on("complete", (result) => {
         onComplete?.(result);
-      })
-  );
+        setShowModal(false);
+      });
+
+    const dashboard = uppy.use(Dashboard, {
+      inline: false,
+      trigger: null,
+      proudlyDisplayPoweredByUppy: false,
+      closeModalOnClickOutside: true,
+      closeAfterFinish: false,
+    });
+
+    uppyRef.current = uppy;
+    dashboardRef.current = dashboard;
+
+    return () => {
+      uppy.cancelAll();
+      uppy.clear();
+    };
+  }, [maxNumberOfFiles, maxFileSize, onGetUploadParameters, onComplete]);
+
+  useEffect(() => {
+    if (dashboardRef.current) {
+      if (showModal) {
+        dashboardRef.current.openModal();
+      } else {
+        dashboardRef.current.closeModal();
+      }
+    }
+  }, [showModal]);
 
   return (
     <div>
       <Button onClick={() => setShowModal(true)} className={buttonClassName} data-testid="button-open-uploader">
         {children}
       </Button>
-
-      <DashboardModal
-        uppy={uppy}
-        open={showModal}
-        onRequestClose={() => setShowModal(false)}
-        proudlyDisplayPoweredByUppy={false}
-      />
     </div>
   );
 }
