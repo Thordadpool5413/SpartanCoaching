@@ -14,6 +14,9 @@ import type { SelectInquiry, SelectNewsletterSubscriber, SelectArticle, InsertAr
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
+import { ObjectUploader } from "@/components/ObjectUploader";
+import type { UploadResult } from "@uppy/core";
+import { FileText } from "lucide-react";
 
 const ADMIN_CODE = "5413";
 const ADMIN_AUTH_KEY = "spartan-admin-auth";
@@ -99,6 +102,7 @@ export default function Admin() {
     linkedinUrl: "",
     publishDate: new Date().toISOString().split('T')[0],
     featured: false,
+    pdfUrl: "",
   });
 
   // Create article mutation
@@ -176,6 +180,7 @@ export default function Admin() {
       linkedinUrl: "",
       publishDate: new Date().toISOString().split('T')[0],
       featured: false,
+      pdfUrl: "",
     });
   };
 
@@ -187,6 +192,7 @@ export default function Admin() {
       linkedinUrl: article.linkedinUrl,
       publishDate: new Date(article.publishDate).toISOString().split('T')[0],
       featured: article.featured,
+      pdfUrl: article.pdfUrl || "",
     });
     setArticleDialogOpen(true);
   };
@@ -200,12 +206,73 @@ export default function Admin() {
       linkedinUrl: articleForm.linkedinUrl,
       publishDate: new Date(articleForm.publishDate).getTime(),
       featured: articleForm.featured,
+      pdfUrl: articleForm.pdfUrl || undefined,
     };
 
     if (editingArticle) {
       updateArticleMutation.mutate({ id: editingArticle.id, data });
     } else {
       createArticleMutation.mutate(data);
+    }
+  };
+
+  // PDF Upload handlers
+  const handleGetPDFUploadParams = async () => {
+    const response = await fetch("/api/objects/upload", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Admin-Auth": "5413",
+      },
+      body: JSON.stringify({}),
+    });
+    
+    if (!response.ok) {
+      throw new Error("Failed to get upload URL");
+    }
+    
+    const data = await response.json();
+    return {
+      method: "PUT" as const,
+      url: data.uploadURL,
+    };
+  };
+
+  const handlePDFUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+    if (result.successful && result.successful[0]) {
+      const uploadURL = result.successful[0].uploadURL;
+      if (uploadURL) {
+        try {
+          const response = await fetch("/api/articles/normalize-pdf", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+              "X-Admin-Auth": "5413",
+            },
+            body: JSON.stringify({ uploadURL }),
+          });
+          
+          if (!response.ok) {
+            throw new Error("Failed to normalize PDF path");
+          }
+          
+          const data = await response.json();
+          const normalizedPath = data.normalizedPath;
+          
+          setArticleForm({ ...articleForm, pdfUrl: normalizedPath });
+          toast({
+            title: "PDF Uploaded",
+            description: "PDF has been successfully uploaded and is ready to use",
+          });
+        } catch (error) {
+          console.error("Error normalizing PDF path:", error);
+          toast({
+            title: "Error",
+            description: "Failed to process uploaded PDF",
+            variant: "destructive",
+          });
+        }
+      }
     }
   };
 
@@ -629,6 +696,42 @@ export default function Admin() {
                 onCheckedChange={(checked) => setArticleForm({ ...articleForm, featured: checked })}
                 data-testid="switch-article-featured"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label>Article PDF (Optional)</Label>
+              <p className="text-sm text-muted-foreground mb-2">
+                Upload a PDF version of the article that readers can view or download
+              </p>
+              <div className="flex items-center gap-3">
+                <ObjectUploader
+                  maxNumberOfFiles={1}
+                  maxFileSize={10485760}
+                  onGetUploadParameters={handleGetPDFUploadParams}
+                  onComplete={handlePDFUploadComplete}
+                  buttonClassName="gap-2"
+                >
+                  <FileText className="w-4 h-4" />
+                  {articleForm.pdfUrl ? "Change PDF" : "Upload PDF"}
+                </ObjectUploader>
+                {articleForm.pdfUrl && (
+                  <div className="flex items-center gap-2">
+                    <Badge variant="secondary" className="gap-1" data-testid="badge-pdf-uploaded">
+                      <FileText className="w-3 h-3" />
+                      PDF Uploaded
+                    </Badge>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setArticleForm({ ...articleForm, pdfUrl: "" })}
+                      data-testid="button-remove-pdf"
+                    >
+                      Remove
+                    </Button>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="flex gap-3 pt-4">

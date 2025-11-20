@@ -19,6 +19,10 @@ import {
   insertArticleSchema,
   insertVisitorSchema,
 } from "@shared/schema";
+import {
+  ObjectStorageService,
+  ObjectNotFoundError,
+} from "./objectStorage";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // AI Playbook Generator
@@ -365,6 +369,82 @@ Subject: [subject line]
     } catch (error: any) {
       console.error("Get analytics error:", error);
       res.status(500).json({ error: error.message || "Failed to retrieve analytics" });
+    }
+  });
+
+  // Object Storage: Get upload URL for PDF (Admin only - requires password verification)
+  app.post("/api/objects/upload", async (req, res) => {
+    const adminAuth = req.headers["x-admin-auth"];
+    
+    if (adminAuth !== "5413") {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    
+    try {
+      const objectStorageService = new ObjectStorageService();
+      const uploadURL = await objectStorageService.getObjectEntityUploadURL();
+      res.json({ uploadURL });
+    } catch (error: any) {
+      console.error("Upload URL generation error:", error);
+      res.status(500).json({ error: error.message || "Failed to generate upload URL" });
+    }
+  });
+
+  // Normalize PDF upload URL and set ACL policy
+  app.post("/api/articles/normalize-pdf", async (req, res) => {
+    const adminAuth = req.headers["x-admin-auth"];
+    
+    if (adminAuth !== "5413") {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    
+    try {
+      const { uploadURL } = req.body;
+      
+      if (!uploadURL) {
+        return res.status(400).json({ error: "uploadURL is required" });
+      }
+      
+      const objectStorageService = new ObjectStorageService();
+      const normalizedPath = await objectStorageService.trySetObjectEntityAclPolicy(
+        uploadURL,
+        {
+          owner: "admin",
+          visibility: "public",
+        }
+      );
+      
+      res.json({ normalizedPath });
+    } catch (error: any) {
+      console.error("Error normalizing PDF path:", error);
+      res.status(500).json({ error: error.message || "Failed to normalize PDF path" });
+    }
+  });
+
+  // Object Storage: Serve objects (PDFs) - public read access with ACL check
+  app.get("/objects/:objectPath(*)", async (req, res) => {
+    const objectStorageService = new ObjectStorageService();
+    try {
+      const objectFile = await objectStorageService.getObjectEntityFile(
+        req.path,
+      );
+      
+      const canAccess = await objectStorageService.canAccessObjectEntity({
+        objectFile,
+        requestedPermission: undefined,
+      });
+      
+      if (!canAccess) {
+        return res.sendStatus(403);
+      }
+      
+      objectStorageService.downloadObject(objectFile, res);
+    } catch (error) {
+      console.error("Error retrieving object:", error);
+      if (error instanceof ObjectNotFoundError) {
+        return res.sendStatus(404);
+      }
+      return res.sendStatus(500);
     }
   });
 

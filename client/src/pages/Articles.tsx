@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/BackButton";
-import { ExternalLink, Calendar, Star } from "lucide-react";
+import { ExternalLink, Calendar, Star, FileText } from "lucide-react";
 import type { SelectArticle } from "@shared/schema";
 
 export default function Articles() {
@@ -99,21 +99,40 @@ export default function Articles() {
                     <span>{formatDate(article.publishDate)}</span>
                   </div>
                   
-                  <Button
-                    variant="default"
-                    className="w-full gap-2"
-                    asChild
-                    data-testid={`button-read-article-${article.id}`}
-                  >
-                    <a 
-                      href={article.linkedinUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
+                  <div className="flex gap-2">
+                    <Button
+                      variant="default"
+                      className="flex-1 gap-2"
+                      asChild
+                      data-testid={`button-read-article-${article.id}`}
                     >
-                      Read on LinkedIn
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  </Button>
+                      <a 
+                        href={article.linkedinUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                      >
+                        Read on LinkedIn
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </Button>
+                    {article.pdfUrl && (
+                      <Button
+                        variant="outline"
+                        className="gap-2"
+                        asChild
+                        data-testid={`button-view-pdf-${article.id}`}
+                      >
+                        <a 
+                          href={article.pdfUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                        >
+                          <FileText className="w-4 h-4" />
+                          PDF
+                        </a>
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </Card>
             ))}
@@ -148,21 +167,40 @@ export default function Articles() {
                     <span>{formatDate(article.publishDate)}</span>
                   </div>
                   
-                  <Button
-                    variant="outline"
-                    className="w-full gap-2"
-                    asChild
-                    data-testid={`button-read-article-${article.id}`}
-                  >
-                    <a 
-                      href={article.linkedinUrl} 
-                      target="_blank" 
-                      rel="noopener noreferrer"
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      className="flex-1 gap-2"
+                      asChild
+                      data-testid={`button-read-article-${article.id}`}
                     >
-                      Read on LinkedIn
-                      <ExternalLink className="w-4 h-4" />
-                    </a>
-                  </Button>
+                      <a 
+                        href={article.linkedinUrl} 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                      >
+                        Read on LinkedIn
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    </Button>
+                    {article.pdfUrl && (
+                      <Button
+                        variant="outline"
+                        className="gap-2"
+                        asChild
+                        data-testid={`button-view-pdf-${article.id}`}
+                      >
+                        <a 
+                          href={article.pdfUrl} 
+                          target="_blank" 
+                          rel="noopener noreferrer"
+                        >
+                          <FileText className="w-4 h-4" />
+                          PDF
+                        </a>
+                      </Button>
+                    )}
+                  </div>
                 </div>
               </Card>
             ))}

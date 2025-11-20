@@ -134,6 +134,7 @@ export const articles = pgTable("articles", {
   linkedinUrl: text("linkedin_url").notNull(),
   publishDate: bigint("publish_date", { mode: "number" }).notNull(),
   featured: boolean("featured").notNull().default(false),
+  pdfUrl: text("pdf_url"),
 });
 
 // Insert schema and types for articles
