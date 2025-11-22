@@ -30,9 +30,11 @@ export function ObjectUploader({
 }: ObjectUploaderProps) {
   const [showModal, setShowModal] = useState(false);
   const uppyRef = useRef<Uppy | null>(null);
-  const dashboardRef = useRef<any>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!containerRef.current) return;
+
     const uppy = new Uppy({
       restrictions: {
         maxNumberOfFiles,
@@ -49,16 +51,14 @@ export function ObjectUploader({
         setShowModal(false);
       });
 
-    const dashboard = uppy.use(Dashboard, {
-      inline: false,
-      trigger: null,
+    uppy.use(Dashboard, {
+      inline: true,
+      target: containerRef.current,
       proudlyDisplayPoweredByUppy: false,
-      closeModalOnClickOutside: true,
-      closeAfterFinish: false,
+      height: 400,
     });
 
     uppyRef.current = uppy;
-    dashboardRef.current = dashboard;
 
     return () => {
       uppy.cancelAll();
@@ -66,21 +66,37 @@ export function ObjectUploader({
     };
   }, [maxNumberOfFiles, maxFileSize, onGetUploadParameters, onComplete]);
 
-  useEffect(() => {
-    if (dashboardRef.current) {
-      if (showModal) {
-        dashboardRef.current.openModal();
-      } else {
-        dashboardRef.current.closeModal();
-      }
-    }
-  }, [showModal]);
-
   return (
     <div>
       <Button onClick={() => setShowModal(true)} className={buttonClassName} data-testid="button-open-uploader">
         {children}
       </Button>
+
+      {showModal && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={(e) => {
+            if (e.target === e.currentTarget) {
+              setShowModal(false);
+            }
+          }}
+        >
+          <div className="bg-background rounded-lg shadow-lg max-w-2xl w-full mx-4">
+            <div className="p-4 border-b flex justify-between items-center">
+              <h2 className="text-lg font-semibold">Upload PDF</h2>
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => setShowModal(false)}
+                data-testid="button-close-uploader"
+              >
+                ✕
+              </Button>
+            </div>
+            <div ref={containerRef} />
+          </div>
+        </div>
+      )}
     </div>
   );
 }
