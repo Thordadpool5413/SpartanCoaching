@@ -1,5 +1,7 @@
 import type { Express } from "express";
+import express from "express";
 import { createServer, type Server } from "http";
+import path from "path";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
 import {
@@ -28,6 +30,9 @@ import {
 } from "./objectStorage";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Serve training resources files
+  app.use('/resources', express.static(path.join(import.meta.dirname, '../public/resources')));
+
   // Replit Auth setup - blueprint:javascript_log_in_with_replit
   await setupAuth(app);
 
