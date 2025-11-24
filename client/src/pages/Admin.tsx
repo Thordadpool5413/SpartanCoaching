@@ -574,7 +574,6 @@ export default function Admin() {
       description: podcastForm.description || undefined,
       episodeNumber: podcastForm.episodeNumber ? parseInt(podcastForm.episodeNumber) : undefined,
       duration: podcastForm.duration || undefined,
-      publishDate: new Date(podcastForm.publishDate).toISOString(),
       audioUrl: podcastForm.audioUrl,
     };
 
