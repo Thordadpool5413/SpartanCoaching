@@ -87,9 +87,10 @@ export function Header() {
     { path: "/programs", label: "Programs", description: "Training programs for hospice providers" },
     { path: "/method", label: "The Spartan Method", description: "Our proven sales methodology" },
     { path: "/tools", label: "AI Field Kit", description: "AI-powered sales tools" },
-    { path: "/resources", label: "Resources", description: "Helpful guides and resources" },
-    { path: "/testimonials", label: "Testimonials", description: "Client success stories" },
+    { path: "/resources", label: "Training Resources", description: "Downloadable templates, scripts, checklists, and guides" },
+    { path: "/podcasts", label: "Podcasts", description: "Coaching podcasts and expert insights" },
     { path: "/articles", label: "Articles", description: "Industry insights and thought leadership" },
+    { path: "/testimonials", label: "Testimonials", description: "Client success stories" },
     { path: "/about", label: "About", description: "Learn about Spartan Coaching" },
   ];
 
