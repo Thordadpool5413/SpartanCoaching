@@ -17,11 +17,11 @@ function addBrandedHeader(doc, title, subtitle = '') {
   doc.fontSize(24).fillColor(SPARTAN_RED).font('Helvetica-Bold');
   doc.text('SPARTAN COACHING', 50, 25);
   doc.fontSize(9).fillColor(LIGHT_TEXT).font('Helvetica');
-  doc.text('HOSPICE SALES EXCELLENCE', 50, 50);
-  doc.fontSize(18).fillColor(DARK_TEXT).font('Helvetica-Bold');
+  doc.text('HOSPICE SALES EXCELLENCE TRAINING', 50, 50);
+  doc.fontSize(16).fillColor(DARK_TEXT).font('Helvetica-Bold');
   doc.text(title, 50, 65, { width: 450 });
   if (subtitle) {
-    doc.fontSize(10).fillColor(LIGHT_TEXT).font('Helvetica');
+    doc.fontSize(9.5).fillColor(LIGHT_TEXT).font('Helvetica');
     doc.text(subtitle, 50, 85, { width: 450 });
   }
   return 120;
@@ -40,7 +40,7 @@ function addFooter(doc) {
   doc.strokeColor(DARK_GRAY).lineWidth(1);
   doc.moveTo(50, footerY).lineTo(550, footerY).stroke();
   doc.fontSize(8).fillColor(LIGHT_TEXT).font('Helvetica');
-  doc.text('© 2025 Spartan Coaching | Confidential Training Material | www.spartan.coach', 50, footerY + 8);
+  doc.text('© 2025 Spartan Coaching | Expert Hospice Sales Training', 50, footerY + 8);
 }
 
 function createColdCallPDF() {
@@ -49,90 +49,106 @@ function createColdCallPDF() {
     const stream = fs.createWriteStream('public/resources/cold-call-script.pdf');
     doc.pipe(stream);
     
-    let y = addBrandedHeader(doc, 'Cold Call Opening Script', 'Professional phone contact framework');
+    let y = addBrandedHeader(doc, 'Cold Call Opening Script', 'Psychology-Backed Approach to Healthcare Decision-Makers');
     y += 15;
     
-    y = addSectionHeader(doc, 'THE 30-SECOND OPENING', y);
-    
-    doc.fontSize(10).fillColor(DARK_TEXT).font('Helvetica-Bold');
-    doc.text('Your Power Opening', 50, y);
-    y += 18;
-    
-    doc.rect(50, y, 500, 70).fill(ACCENT_GRAY);
+    y = addSectionHeader(doc, 'EXECUTIVE SUMMARY', y);
     doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica');
-    doc.text('"Hi [Name], this is [Your Name] with Spartan Coaching. I know you\'re busy, so I\'ll be brief. We work with facilities like yours to improve patient outcomes and family satisfaction by connecting eligible patients with hospice care earlier. Do you have 30 seconds?"', 60, y + 10, { width: 480 });
-    y += 85;
+    doc.text('Healthcare administrators receive 40+ calls weekly. Your 30-second opening determines whether they listen or dismiss you. This script cuts through noise by establishing credibility, respecting their time, and positioning hospice referrals as a patient care outcome—not sales.', 50, y, { width: 480 });
+    y += 45;
+    
+    y = addSectionHeader(doc, 'THE PSYCHOLOGY-BACKED OPENING', y);
+    
+    doc.rect(50, y, 500, 75).fill(ACCENT_GRAY);
+    doc.fontSize(9.5).fillColor(DARK_TEXT).font('Helvetica');
+    const opening = '"Hi [Name], this is [Your Name] with Spartan Coaching. I know you manage a busy [facility type], so I\'ll be direct. We help facilities like [similar type] identify eligible patients for hospice care earlier, which improves patient outcomes, family satisfaction, AND regulatory compliance. Do you have 60 seconds for a quick question?"';
+    doc.text(opening, 60, y + 8, { width: 480 });
+    y += 90;
     
     doc.fontSize(10).fillColor(SPARTAN_RED).font('Helvetica-Bold');
-    doc.text('Why This Works', 50, y);
-    y += 14;
+    doc.text('Why This Opening Works (The Science):', 50, y);
+    y += 15;
     
-    const points = [
-      '• Respects their time (validates their biggest concern)',
-      '• Names the outcome upfront (better care, satisfaction)',
-      '• Removes sales pressure ("not selling anything")',
-      '• Creates micro-commitment (30 seconds, not an hour)',
-      '• Positions you as helpful, not pushy'
+    const principles = [
+      { principle: 'Social Proof', explain: 'Mentioning peers activates comparison—they want to know what competitors are doing' },
+      { principle: 'Multi-Benefit Hook', explain: 'Three outcomes appeal to different decision-maker priorities' },
+      { principle: 'Time Respect', explain: 'Removing the biggest objection (busyness) before it\'s spoken' },
+      { principle: 'Question Close', explain: 'Creates psychological obligation to respond (reciprocity)' },
+      { principle: 'Credibility Anchor', explain: '"Spartan Coaching" positions you as expert, not vendor' }
     ];
     
-    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica');
-    points.forEach(pt => {
-      doc.text(pt, 55, y);
-      y += 13;
-    });
-    
-    y += 20;
-    y = addSectionHeader(doc, 'DISCOVERY QUESTIONS', y);
-    
-    doc.fontSize(10).fillColor(SPARTAN_RED).font('Helvetica-Bold');
-    doc.text('Tier 1: Initial Assessment', 50, y);
-    y += 16;
-    
-    const tier1 = [
-      { q: 'How many patients are in your facility at any time?', p: 'Establish baseline' },
-      { q: 'How many would you estimate are appropriate for hospice?', p: 'Gauge awareness' },
-      { q: 'Do you have a formal hospice referral process?', p: 'Identify clarity' }
-    ];
-    
-    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica');
-    tier1.forEach((item, i) => {
-      doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
-      doc.text(`${i + 1}. "${item.q}"`, 55, y);
+    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
+    principles.forEach((p, i) => {
+      doc.fontSize(9).fillColor(SPARTAN_RED).font('Helvetica-Bold');
+      doc.text(`${i + 1}. ${p.principle}`, 55, y);
       y += 11;
       doc.fontSize(8.5).fillColor(LIGHT_TEXT).font('Helvetica');
-      doc.text(`Purpose: ${item.p}`, 65, y);
-      y += 12;
+      doc.text(p.explain, 70, y, { width: 410 });
+      y = doc.y + 11;
     });
     
     y += 15;
-    doc.fontSize(10).fillColor(SPARTAN_RED).font('Helvetica-Bold');
-    doc.text('Tier 2: Deeper Opportunity', 50, y);
-    y += 16;
+    y = addSectionHeader(doc, 'TIER 1 DISCOVERY: BASELINE (First 2 Minutes)', y);
     
-    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica');
-    doc.text('4. "In the last quarter, how many patients transitioned to hospice?" (Get numbers)', 55, y);
-    y += 12;
-    doc.text('5. "Did any miss the referral window? What happened?" (Uncover barriers)', 55, y);
-    y += 20;
+    const tier1 = [
+      { q: '"How many patients are currently in your care?"', why: 'Establish census—determines opportunity size' },
+      { q: '"What percentage do you estimate hospice-appropriate?"', why: 'Test awareness. Gap becomes your opening.' },
+      { q: '"Do you have a formalized identification process?"', why: 'Understand current state to position value' }
+    ];
     
-    y = addSectionHeader(doc, 'OBJECTION HANDLING', y);
+    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
+    tier1.forEach((item, i) => {
+      doc.rect(50, y, 500, 12).fill(SPARTAN_RED);
+      doc.fontSize(8.5).fillColor('white').font('Helvetica-Bold');
+      doc.text(`Q${i + 1}: ${item.q}`, 55, y + 2);
+      y += 17;
+      doc.fontSize(8).fillColor(DARK_TEXT).font('Helvetica');
+      doc.text(`Purpose: ${item.why}`, 55, y, { width: 480 });
+      y = doc.y + 12;
+    });
     
-    doc.rect(50, y, 500, 10).fill(SPARTAN_RED);
-    doc.fontSize(9).fillColor('white').font('Helvetica-Bold');
-    doc.text('Objection: "We already work with a partner"', 55, y + 1);
     y += 15;
+    y = addSectionHeader(doc, 'TIER 2 DISCOVERY: OPPORTUNITY UNCOVERING', y);
     
-    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica');
-    doc.text('Response: "I respect that. Many facilities work with multiple partners. Would you be open to discussing how we complement what you\'re doing?"', 55, y, { width: 480 });
-    y += 25;
+    const tier2 = [
+      { q: '"In last 90 days, how many transitioned to hospice?"', why: 'Real numbers vs estimates. Find the gap.' },
+      { q: '"Did any miss the optimal window? What happened?"', why: 'Uncover specific barrier—physician? Family? Process?' },
+      { q: '"What\'s the biggest challenge in identifying candidates?"', why: 'Get their pain in their own words—use it in follow-ups' }
+    ];
     
-    doc.rect(50, y, 500, 10).fill(SPARTAN_RED);
-    doc.fontSize(9).fillColor('white').font('Helvetica-Bold');
-    doc.text('Objection: "We don\'t have a need right now"', 55, y + 1);
+    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
+    tier2.forEach((item, i) => {
+      doc.rect(50, y, 500, 12).fill(SPARTAN_RED);
+      doc.fontSize(8.5).fillColor('white').font('Helvetica-Bold');
+      doc.text(`Q${i + 4}: ${item.q}`, 55, y + 2);
+      y += 17;
+      doc.fontSize(8).fillColor(DARK_TEXT).font('Helvetica');
+      doc.text(`Purpose: ${item.why}`, 55, y, { width: 480 });
+      y = doc.y + 12;
+    });
+    
     y += 15;
+    y = addSectionHeader(doc, 'ADVANCED OBJECTION HANDLING', y);
     
-    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica');
-    doc.text('Response: "I hear that. Most facilities discover they have a gap when they look at their data. Could I send you a quick assessment?"', 55, y, { width: 480 });
+    doc.fontSize(9.5).fillColor(DARK_TEXT).font('Helvetica-Bold');
+    doc.text('Objection #1: "We already work with a hospice partner"', 50, y);
+    y += 14;
+    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
+    doc.text('Expert response: "I respect that. Best facilities use multiple partners. We focus on [specific area] where most providers have gaps. Would it make sense to explore where we complement what you\'re doing?"', 55, y, { width: 430 });
+    y = doc.y + 20;
+    
+    doc.fontSize(9.5).fillColor(DARK_TEXT).font('Helvetica-Bold');
+    doc.text('Objection #2: "We don\'t have a need right now"', 50, y);
+    y += 14;
+    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
+    doc.text('Expert response: "Most facilities discover they have a gap when looking at data. Would you be open to an assessment showing referral patterns vs. best-practice facilities? No pressure, just data."', 55, y, { width: 430 });
+    y = doc.y + 20;
+    
+    doc.fontSize(9.5).fillColor(DARK_TEXT).font('Helvetica-Bold');
+    doc.text('Objection #3: "Send me something and I\'ll review it"', 50, y);
+    y += 14;
+    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
+    doc.text('Expert response: "I will send it today. I\'ll ping you Friday to see if you had questions. That way if needed, I can walk through it in 15 minutes. Does that timeline work?"', 55, y, { width: 430 });
     
     addFooter(doc);
     doc.end();
@@ -147,81 +163,98 @@ function createTerritoryPDF() {
     const stream = fs.createWriteStream('public/resources/territory-template.pdf');
     doc.pipe(stream);
     
-    let y = addBrandedHeader(doc, 'Sales Territory Analysis Template', 'Strategic planning & account management');
+    let y = addBrandedHeader(doc, 'Sales Territory Analysis', 'Professional Territory Planning & Account Prioritization');
     y += 15;
     
-    y = addSectionHeader(doc, 'TERRITORY PROFILE', y);
+    y = addSectionHeader(doc, 'TERRITORY BASELINE ASSESSMENT', y);
     
-    doc.rect(50, y, 500, 12).fill(ACCENT_GRAY);
-    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
-    doc.text('Territory Name: ___________________________', 55, y + 1);
-    y += 18;
-    
-    doc.rect(50, y, 500, 12).fill(ACCENT_GRAY);
-    doc.text('Territory Manager: ___________________________', 55, y + 1);
+    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica');
+    doc.text('Territory Name: ________________________________________     State: ___________', 50, y);
+    y += 16;
+    doc.text('Territory Manager: ____________________________________     Region: __________', 50, y);
     y += 20;
     
-    y = addSectionHeader(doc, 'FACILITY INVENTORY & OPPORTUNITY', y);
+    y = addSectionHeader(doc, 'FACILITY CENSUS ANALYSIS', y);
     
     doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
-    doc.text('Total Facilities by Type', 50, y);
+    doc.text('1. FACILITY INVENTORY BY TYPE', 50, y);
     y += 14;
     
-    const facilities = ['Hospitals', 'Skilled Nursing Facilities', 'Assisted Living', 'Memory Care', 'Other'];
+    const facilityTypes = [
+      'Acute Care Hospitals (100+ beds): Count ___ | Census ___ | Occupancy ___%',
+      'Skilled Nursing Facilities (60-200 beds): Count ___ | Census ___ | Occupancy ___%',
+      'Assisted Living Communities: Count ___ | Census ___ | Occupancy ___%',
+      'Other (Specify): Count ___ | Census ___ | Occupancy ___%'
+    ];
+    
     doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    facilities.forEach(fac => {
-      doc.text(`${fac}: ___`, 55, y);
-      y += 11;
+    facilityTypes.forEach(f => {
+      doc.text(f, 55, y);
+      y += 12;
     });
     
     y += 15;
     doc.fontSize(9).fillColor(SPARTAN_RED).font('Helvetica-Bold');
-    doc.text('Opportunity Assessment', 50, y);
+    doc.text('2. OPPORTUNITY SIZE CALCULATION', 50, y);
     y += 14;
     
-    const metrics = [
-      'Average Daily Census (all facilities): ___',
-      'Estimated Hospice-Eligible Patients: ___ (typically 5-12% of census)',
-      'Current Hospice Referral Rate: ___ (goal: 8-15% per quarter)',
-      'Missing Referral Opportunity: ___'
-    ];
-    
     doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    metrics.forEach(m => {
-      doc.text(m, 55, y);
-      y += 12;
-    });
-    
+    doc.text('Total Territory Daily Census: _______________', 55, y);
+    y += 12;
+    doc.text('× Hospice-Eligible % (5-12% evidence-based): _______ = ____________ patients/month opportunity', 55, y);
+    y += 12;
+    doc.text('Current Referral Rate (actual): ______/month | Goal Rate (industry): 8-15%/quarter', 55, y);
+    y += 12;
+    doc.text('MONTHLY OPPORTUNITY GAP: __________ patients × $8,000-$15,000 per admission = Monthly Revenue Opportunity', 55, y);
     y += 20;
-    y = addSectionHeader(doc, 'ACCOUNT PRIORITIZATION', y);
     
-    doc.rect(50, y, 500, 10).fill(SPARTAN_RED);
-    doc.fontSize(9).fillColor('white').font('Helvetica-Bold');
-    doc.text('A-PRIORITY: High-Potential Accounts', 55, y + 1);
+    y = addSectionHeader(doc, 'ACCOUNT PRIORITIZATION MATRIX', y);
+    
+    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
+    doc.text('A-PRIORITY ACCOUNTS (High Opportunity, Early Stage)', 50, y);
+    y += 14;
+    doc.text('Definition: New hospitals, no hospice partnership, receptive leadership', 50, y);
+    y += 12;
+    doc.rect(50, y, 500, 12).fill(SPARTAN_RED);
+    doc.fontSize(7.5).fillColor('white').font('Helvetica-Bold');
+    doc.text('Account | Location | Census | Decision-Maker | Next Contact | Strategy', 55, y + 2);
     y += 15;
     
-    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    doc.text('Account: ________________  Decision-Maker: ________________', 55, y);
-    y += 11;
-    doc.text('Next Steps: ________________________________________________________________', 55, y);
-    y += 18;
+    for (let i = 0; i < 3; i++) {
+      doc.fontSize(8).fillColor(DARK_TEXT).font('Helvetica');
+      doc.text('___________|__________|________|_______________|_______________|_________', 55, y);
+      y += 12;
+    }
     
-    doc.rect(50, y, 500, 10).fill('#EA580C');
-    doc.fontSize(9).fillColor('white').font('Helvetica-Bold');
-    doc.text('B-PRIORITY: Developing Relationships', 55, y + 1);
+    y += 15;
+    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
+    doc.text('B-PRIORITY ACCOUNTS (Medium Opportunity, Co-Existence)', 50, y);
+    y += 14;
+    doc.rect(50, y, 500, 12).fill('#EA580C');
+    doc.fontSize(7.5).fillColor('white').font('Helvetica-Bold');
+    doc.text('Account | Current Partner | Our Value Add | Entry Point | Timeline', 55, y + 2);
     y += 15;
     
-    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    doc.text('Account: ________________  Current Partner: ________________', 55, y);
-    y += 18;
+    for (let i = 0; i < 2; i++) {
+      doc.fontSize(8).fillColor(DARK_TEXT).font('Helvetica');
+      doc.text('___________|_______________|_______________|_______________|________', 55, y);
+      y += 12;
+    }
     
-    doc.rect(50, y, 500, 10).fill('#FBBF24');
-    doc.fontSize(9).fillColor('white').font('Helvetica-Bold');
-    doc.text('C-PRIORITY: Mature Relationships', 55, y + 1);
+    y += 15;
+    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
+    doc.text('C-PRIORITY ACCOUNTS (Established Relationships)', 50, y);
+    y += 14;
+    doc.rect(50, y, 500, 12).fill('#FBBF24');
+    doc.fontSize(7.5).fillColor('white').font('Helvetica-Bold');
+    doc.text('Account | Relationship Status | Referral Rate | Next QBR | Notes', 55, y + 2);
     y += 15;
     
-    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    doc.text('Account: ________________  Status: Well-established', 55, y);
+    for (let i = 0; i < 2; i++) {
+      doc.fontSize(8).fillColor(DARK_TEXT).font('Helvetica');
+      doc.text('___________|_____________________|_____________|___________|_______', 55, y);
+      y += 12;
+    }
     
     addFooter(doc);
     doc.end();
@@ -236,95 +269,103 @@ function createChecklistPDF() {
     const stream = fs.createWriteStream('public/resources/research-checklist.pdf');
     doc.pipe(stream);
     
-    let y = addBrandedHeader(doc, 'Pre-Call Research & Preparation', 'Complete meeting preparation workflow');
+    let y = addBrandedHeader(doc, 'Pre-Call Research & Preparation', 'Expert-Level Meeting Preparation Framework');
     y += 15;
     
-    y = addSectionHeader(doc, 'ONE WEEK BEFORE: FACILITY RESEARCH', y);
-    
-    const research = [
-      '☐ Facility name, location, website verified',
-      '☐ Current census and bed breakdown documented',
-      '☐ CMS ratings and recent performance reviewed',
-      '☐ Current hospice partners identified',
-      '☐ Decision-maker: name, title, email, phone, LinkedIn',
-      '☐ Secondary contacts identified (Care Manager, Social Worker)'
-    ];
+    y = addSectionHeader(doc, 'TWO WEEKS BEFORE: STRATEGIC OPPORTUNITY ASSESSMENT', y);
     
     doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica');
+    const research = [
+      '☐ Facility 2-year history reviewed (CMS, state surveys, complaints)',
+      '☐ Leadership transitions identified (new CNO, CFO, Chief Medical Officer)',
+      '☐ Current hospice partnerships researched (LinkedIn, industry databases)',
+      '☐ Physician leadership profiled (specialties, credentials, risk tolerance)',
+      '☐ Recent acquisitions/mergers noted (changes strategy)',
+      '☐ Quality metrics vs. benchmarks analyzed'
+    ];
     research.forEach(item => {
       doc.text(item, 55, y);
-      y += 13;
+      y += 12;
     });
     
     y += 20;
-    y = addSectionHeader(doc, 'THREE DAYS BEFORE: STRATEGIC PREP', y);
+    y = addSectionHeader(doc, 'ONE WEEK BEFORE: TACTICAL PREPARATION', y);
     
     const prep = [
-      '☐ Talking points customized for facility type',
-      '☐ Competitive landscape mapped',
-      '☐ 2-3 case studies selected and marked',
-      '☐ Objection responses prepared',
-      '☐ Discovery questions customized',
-      '☐ Their referral process researched',
-      '☐ Physician alignment assessed'
+      '☐ Decision-maker background researched (LinkedIn, credentials)',
+      '☐ Their facility\'s referral patterns analyzed',
+      '☐ 2-3 facility-specific case studies selected and annotated',
+      '☐ Competitive positioning mapped',
+      '☐ Talking points customized to facility type and leadership style',
+      '☐ Discovery questions refined based on facility challenges'
     ];
-    
-    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica');
     prep.forEach(item => {
       doc.text(item, 55, y);
-      y += 13;
+      y += 12;
     });
     
     y += 20;
-    y = addSectionHeader(doc, 'ONE DAY BEFORE: MATERIALS & LOGISTICS', y);
+    y = addSectionHeader(doc, 'THREE DAYS BEFORE: MATERIALS DEVELOPMENT', y);
     
     const materials = [
-      '☐ Spartan overview printed and marked',
-      '☐ Case studies highlighted',
-      '☐ Contact cards prepared',
-      '☐ Facility-specific one-pager created',
-      '☐ CRM updated with strategy',
-      '☐ Travel time and arrival confirmed (15 min early)',
-      '☐ Calendar block: 1 hour meeting + 30 min debrief'
+      '☐ Facility-specific 1-pager created (their challenges, our solutions, ROI)',
+      '☐ Case studies printed, relevant sections highlighted',
+      '☐ Objection response card prepared',
+      '☐ CMS/regulatory resources gathered',
+      '☐ Physician engagement materials prepared',
+      '☐ Post-call follow-up email drafted (send within 2 hours)'
     ];
-    
-    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica');
     materials.forEach(item => {
       doc.text(item, 55, y);
-      y += 13;
+      y += 12;
     });
     
     y += 20;
-    y = addSectionHeader(doc, 'CALL SUCCESS METRICS', y);
+    y = addSectionHeader(doc, 'ONE DAY BEFORE: LOGISTICS & MENTAL PREP', y);
     
-    const metrics = [
-      '✓ 30+ minutes of quality conversation',
-      '✓ At least 2 key challenges identified',
-      '✓ Specific referral process understood',
-      '✓ Next meeting scheduled',
-      '✓ Contact information exchanged'
+    const logistic = [
+      '☐ Travel route mapped, parking verified, arrive 15 min early',
+      '☐ CRM updated with research findings and strategy',
+      '☐ Call backup plan created',
+      '☐ Success metrics defined',
+      '☐ Sales manager briefed on facility and strategy',
+      '☐ Mental rehearsal completed (visualize success)'
     ];
-    
-    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica');
-    metrics.forEach(item => {
+    logistic.forEach(item => {
       doc.text(item, 55, y);
-      y += 13;
+      y += 12;
     });
     
     y += 20;
-    y = addSectionHeader(doc, 'WITHIN 24 HOURS: POST-CALL FOLLOW-UP', y);
+    y = addSectionHeader(doc, 'DURING CALL: EXECUTION FRAMEWORK', y);
+    
+    const during = [
+      '✓ MINUTES 0-2: Build rapport (reference facility by name)',
+      '✓ MINUTES 2-5: Discovery (ask questions that uncover real pain)',
+      '✓ MINUTES 5-8: Demonstrate expertise (deep knowledge of their challenges)',
+      '✓ MINUTES 8-15: Position solution (show how you solve their problem)',
+      '✓ MINUTES 15-20: Address objections (use prepared responses)',
+      '✓ MINUTES 20-30: Close (schedule next step or promise specific follow-up)'
+    ];
+    during.forEach(item => {
+      doc.text(item, 55, y);
+      y += 12;
+    });
+    
+    y += 20;
+    y = addSectionHeader(doc, 'WITHIN 4 HOURS: POST-CALL FOLLOW-UP', y);
     
     const postCall = [
-      '☐ Detailed notes entered in CRM',
-      '☐ Promised materials sent',
-      '☐ Follow-up date scheduled and confirmed',
-      '☐ Next contacts set in calendar'
+      '☐ Detailed notes in CRM (direct quotes, objections, opportunities)',
+      '☐ Promised materials sent with personalized note',
+      '☐ Follow-up email sent (reference conversation points)',
+      '☐ Next contact scheduled (specific date/time)',
+      '☐ Sales manager debrief completed',
+      '☐ Follow-up call: 72 hours after email'
     ];
-    
-    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica');
     postCall.forEach(item => {
       doc.text(item, 55, y);
-      y += 13;
+      y += 12;
     });
     
     addFooter(doc);
@@ -340,70 +381,99 @@ function createRegulationsPDF() {
     const stream = fs.createWriteStream('public/resources/regulations-guide.pdf');
     doc.pipe(stream);
     
-    let y = addBrandedHeader(doc, 'Medicare/Medicaid Hospice Regulations', 'Compliance, eligibility, and referral process');
+    let y = addBrandedHeader(doc, 'Medicare/Medicaid Hospice Regulations', 'Compliance Framework & Referral Optimization');
     y += 15;
     
-    y = addSectionHeader(doc, 'MEDICARE ELIGIBILITY CRITERIA', y);
+    y = addSectionHeader(doc, 'THE FOUR FEDERAL ELIGIBILITY CRITERIA (42 CFR 418.24)', y);
+    
+    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica');
+    doc.text('All FOUR must be present. Missing even one disqualifies the patient.', 50, y);
+    y += 15;
     
     const criteria = [
-      { num: '1', title: 'Medicare Part A Coverage', desc: 'Patient must have active Medicare Part A (hospital insurance)' },
-      { num: '2', title: 'Physician Certification', desc: 'Licensed physician certifies terminal illness (6-month prognosis or less)' },
-      { num: '3', title: 'Informed Consent', desc: 'Patient/representative signs Medicare Hospice Election Form (CMS-1525-02)' },
-      { num: '4', title: 'Prognosis Documentation', desc: 'Clear documentation that patient meets terminal diagnosis criteria' }
+      { num: '1', req: 'Medicare Part A OR Medicaid Eligibility', detail: 'Patient must have active Medicare Part A or Medicaid. Self-pay only = no hospice eligibility.' },
+      { num: '2', req: 'Physician Certification of Terminal Illness', detail: 'Two physicians (initial cert) or one + NP (recert) certify terminal illness: 6-month-or-less prognosis. Must expect death, not treatable to cure.' },
+      { num: '3', req: 'Informed Consent via Medicare Election', detail: 'Patient or representative signs CMS-1525-02 form, understanding they elect hospice and forgo curative treatment (except unrelated conditions).' },
+      { num: '4', req: 'Established Plan of Care', detail: 'Hospice develops comprehensive care plan addressing pain, symptoms, psychosocial/spiritual needs. Plan documented, reviewed by physician.' }
     ];
     
     doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
     criteria.forEach((c, i) => {
-      doc.fontSize(9).fillColor(SPARTAN_RED).font('Helvetica-Bold');
-      doc.text(`${c.num}. ${c.title}`, 55, y);
-      y += 11;
-      doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-      doc.text(c.desc, 70, y, { width: 430 });
-      y = doc.y + 12;
-    });
-    
-    y += 15;
-    y = addSectionHeader(doc, 'COMMONLY ELIGIBLE DIAGNOSES', y);
-    
-    const diagnoses = [
-      { disease: 'Advanced Cancer', marker: 'Metastatic with systemic symptoms' },
-      { disease: 'COPD', marker: 'FEV1 <25% OR resting hypoxemia' },
-      { disease: 'Heart Failure', marker: 'NYHA Class IV, EF <20%' },
-      { disease: 'Renal Disease', marker: 'Creatinine >2.5 or GFR <25' },
-      { disease: 'Liver Disease', marker: 'Albumin <2.5 or INR >1.5' },
-      { disease: 'ALS/Neurological', marker: 'Declining respiratory function' }
-    ];
-    
-    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    diagnoses.forEach(d => {
-      doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
-      doc.text(`• ${d.disease}`, 55, y);
-      y += 11;
-      doc.fontSize(8.5).fillColor(LIGHT_TEXT).font('Helvetica');
-      doc.text(d.marker, 70, y);
-      y = doc.y + 11;
-    });
-    
-    y += 15;
-    y = addSectionHeader(doc, 'THE 4-STEP REFERRAL PROCESS', y);
-    
-    const steps = [
-      { step: 'IDENTIFICATION', desc: 'Patient meets criteria; identified as hospice candidate' },
-      { step: 'PHYSICIAN CERTIFICATION', desc: 'Physician evaluates and certifies terminal diagnosis' },
-      { step: 'PATIENT/FAMILY CONSENT', desc: 'Patient/representative signs election form' },
-      { step: 'HOSPICE ADMISSION', desc: 'Hospice accepts; intake and plan of care developed' }
-    ];
-    
-    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica');
-    steps.forEach((s, i) => {
-      doc.rect(50, y, 500, 10).fill(SPARTAN_RED);
-      doc.fontSize(9).fillColor('white').font('Helvetica-Bold');
-      doc.text(`STEP ${i + 1}: ${s.step}`, 55, y + 1);
+      doc.rect(50, y, 500, 12).fill(SPARTAN_RED);
+      doc.fontSize(8.5).fillColor('white').font('Helvetica-Bold');
+      doc.text(`CRITERION ${c.num}: ${c.req}`, 55, y + 2);
       y += 15;
-      doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-      doc.text(s.desc, 55, y, { width: 480 });
+      doc.fontSize(8).fillColor(DARK_TEXT).font('Helvetica');
+      doc.text(c.detail, 55, y, { width: 480 });
       y = doc.y + 14;
     });
+    
+    y += 15;
+    y = addSectionHeader(doc, 'DISEASE-SPECIFIC GUIDELINES (Clinical Indicators)', y);
+    
+    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
+    doc.text('TERMINAL CANCER (Most Common)', 50, y);
+    y += 12;
+    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
+    doc.text('Metastatic disease OR locally advanced with systemic symptoms AND functional decline (ECOG 3-4). Regardless of treatment history.', 55, y, { width: 430 });
+    y = doc.y + 16;
+    
+    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
+    doc.text('COPD (Emphysema/Chronic Bronchitis)', 50, y);
+    y += 12;
+    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
+    doc.text('FEV1 <25% OR resting oxygen sat <88% OR hypercapnia (CO2 >50) OR 2+ hospitalizations in 12 months despite optimal therapy.', 55, y, { width: 430 });
+    y = doc.y + 16;
+    
+    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
+    doc.text('HEART FAILURE', 50, y);
+    y += 12;
+    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
+    doc.text('NYHA Class IV OR EF <20% OR repeated hospitalizations despite optimal therapy OR inotrope dependence OR physician estimate <6-month survival.', 55, y, { width: 430 });
+    y = doc.y + 16;
+    
+    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
+    doc.text('DEMENTIA (Rapidly Growing Non-Cancer)', 50, y);
+    y += 12;
+    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
+    doc.text('REISMAN Stage 7C+ (minimal speech, cannot walk/sit, requires total care) AND 12-month ADL decline AND unable to maintain nutrition (weight loss, difficulty swallowing).', 55, y, { width: 430 });
+    y = doc.y + 16;
+    
+    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
+    doc.text('RENAL DISEASE', 50, y);
+    y += 12;
+    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
+    doc.text('Stage 5 (GFR <15, NOT continuing dialysis) with creatinine >2.5 AND declining function AND medical complications (hypertension, pericarditis, infections).', 55, y, { width: 430 });
+    y = doc.y + 20;
+    
+    y = addSectionHeader(doc, 'THE OPTIMAL 4-STEP REFERRAL PROCESS', y);
+    
+    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
+    doc.text('Step 1: EARLY IDENTIFICATION (Days 1-7)', 50, y);
+    y += 12;
+    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
+    doc.text('Care team flags patient meeting criteria. Document in care plan. Goal: Identify within 7 days, not at discharge planning.', 55, y, { width: 430 });
+    y = doc.y + 15;
+    
+    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
+    doc.text('Step 2: PHYSICIAN DISCUSSION (Days 3-10)', 50, y);
+    y += 12;
+    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
+    doc.text('Attending physician meets patient/family. Discusses prognosis, options, hospice as option. Physician certifies if appropriate. Target: <7 days from identification to certification.', 55, y, { width: 430 });
+    y = doc.y + 15;
+    
+    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
+    doc.text('Step 3: FAMILY INFORMED CONSENT (Days 7-14)', 50, y);
+    y += 12;
+    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
+    doc.text('Coordinator explains hospice benefits, obtains informed consent, explains differences from curative treatment. Family signs CMS-1525-02. Goal: Same-day/next-day after physician discussion.', 55, y, { width: 430 });
+    y = doc.y + 15;
+    
+    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
+    doc.text('Step 4: HOSPICE ADMISSION & CARE PLANNING (Days 10-21)', 50, y);
+    y += 12;
+    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
+    doc.text('Hospice completes intake, develops individualized care plan. Services begin immediately. Physician reviews and signs plan within 48 hours.', 55, y, { width: 430 });
     
     addFooter(doc);
     doc.end();
@@ -418,27 +488,32 @@ function createFacilityScriptsPDF() {
     const stream = fs.createWriteStream('public/resources/facility-specific-scripts.pdf');
     doc.pipe(stream);
     
-    let y = addBrandedHeader(doc, 'Facility-Type Specific Scripts', 'Customized approaches for different facilities');
+    let y = addBrandedHeader(doc, 'Facility-Type Specific Scripts', 'Expert Cold Call Approaches for Different Settings');
     y += 15;
     
-    y = addSectionHeader(doc, 'HOSPITAL SCRIPT', y);
+    y = addSectionHeader(doc, 'ACUTE CARE HOSPITAL SCRIPT', y);
     
     doc.fontSize(9).fillColor(SPARTAN_RED).font('Helvetica-Bold');
-    doc.text('Pain Point: 24-48 hour discharge windows', 50, y);
+    doc.text('Primary Pain Point: 24-48 Hour Discharge Windows + Readmission Penalties', 50, y);
     y += 14;
     
-    doc.rect(50, y, 500, 60).fill(ACCENT_GRAY);
     doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    doc.text('"Hi [Name], quick question: when a patient becomes appropriate for hospice, how many hours do you have from identification to discharge? Most hospitals tell us 24-48 hours. Does that resonate?"', 60, y + 10, { width: 480 });
-    y += 70;
+    doc.text('Hospital discharge planners face CMS readmission penalties ($5,000+ per readmission). Hospice identification must happen within 24-48 hours. Miss that window = patient goes home unsuitable for hospice = hospital readmission = financial penalty.', 50, y, { width: 480 });
+    y += 35;
+    
+    doc.rect(50, y, 500, 70).fill(ACCENT_GRAY);
+    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
+    const hospitalScript = '"Hi [Name], I work with large health systems on something I know you deal with daily: that 24-48 hour window from when a patient becomes appropriate for hospice to discharge. Most hospitals we partner with tell us they miss that window 30-40% of the time. How often is that a challenge for your facility?"';
+    doc.text(hospitalScript, 60, y + 8, { width: 480 });
+    y += 85;
     
     doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
     doc.text('Key Points:', 50, y);
     y += 12;
-    
     doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    ['Identify eligible patients within 24 hours', 'Faster physician certification = shorter LOS', 'Real-time discharge coordination', 'Reduce 30-day readmissions'].forEach(pt => {
-      doc.text(`• ${pt}`, 55, y);
+    const hospPoints = ['• Early identification within 24 hours', '• Faster certification = discharge within window', '• Fewer readmissions = lower CMS penalties', '• Better quality metrics'];
+    hospPoints.forEach(pt => {
+      doc.text(pt, 55, y);
       y += 11;
     });
     
@@ -446,43 +521,53 @@ function createFacilityScriptsPDF() {
     y = addSectionHeader(doc, 'SKILLED NURSING FACILITY SCRIPT', y);
     
     doc.fontSize(9).fillColor(SPARTAN_RED).font('Helvetica-Bold');
-    doc.text('Pain Point: CMS compliance, therapy utilization', 50, y);
+    doc.text('Primary Pain Point: CMS Therapy Scrutiny + Compliance Risk', 50, y);
     y += 14;
     
-    doc.rect(50, y, 500, 60).fill(ACCENT_GRAY);
     doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    doc.text('"Hi [Name], I work with SNFs on CMS scrutiny of unnecessary therapy on patients who should be on hospice. Do you have a formal process for identifying when therapy should stop and hospice should start?"', 60, y + 10, { width: 480 });
-    y += 70;
+    doc.text('CMS audits therapy aggressively. If a patient is hospice-appropriate, continuing PT/OT/SLP triggers audit, denied claims, and compliance violations. SNF administrators avoid therapy on hospice-appropriate patients to prevent penalties.', 50, y, { width: 480 });
+    y += 35;
+    
+    doc.rect(50, y, 500, 70).fill(ACCENT_GRAY);
+    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
+    const snfScript = '"Hi [Name], I work with skilled nursing facilities on CMS compliance around therapy on hospice-appropriate patients. We help identify those patients BEFORE therapy starts, avoiding non-covered services and compliance issues. Do you currently have a formal identification process?"';
+    doc.text(snfScript, 60, y + 8, { width: 480 });
+    y += 85;
     
     doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
     doc.text('Key Points:', 50, y);
     y += 12;
-    
     doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    ['Identify therapy vs hospice-appropriate patients', 'Reduce unnecessary therapy costs', 'Better CMS compliance and ratings', 'Physician collaboration framework'].forEach(pt => {
-      doc.text(`• ${pt}`, 55, y);
+    const snfKeyPoints = ['• CMS actively auditing unnecessary therapy', '• Each unwarranted day = claim denial ($200-1,200)', '• Early identification prevents therapy from starting', '• Better family satisfaction'];
+    snfKeyPoints.forEach(pt => {
+      doc.text(pt, 55, y);
       y += 11;
     });
     
     y += 20;
-    y = addSectionHeader(doc, 'ASSISTED LIVING SCRIPT', y);
+    y = addSectionHeader(doc, 'ASSISTED LIVING COMMUNITY SCRIPT', y);
     
     doc.fontSize(9).fillColor(SPARTAN_RED).font('Helvetica-Bold');
-    doc.text('Pain Point: Family hesitancy, end-of-life conversations', 50, y);
+    doc.text('Primary Pain Point: Family Satisfaction + Regulatory Expectations', 50, y);
     y += 14;
     
-    doc.rect(50, y, 500, 55).fill(ACCENT_GRAY);
     doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    doc.text('"Hi [Name], we work with communities that want to honor residents\' wishes at end of life. Many families struggle with transitions—are you looking to strengthen how your team handles those conversations?"', 60, y + 10, { width: 480 });
-    y += 65;
+    doc.text('AL administrators compete on family satisfaction. End-of-life conversations are complicated. Families want comfort and dignity—which hospice provides. Facilities doing this well get better reviews and higher retention.', 50, y, { width: 480 });
+    y += 35;
+    
+    doc.rect(50, y, 500, 65).fill(ACCENT_GRAY);
+    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
+    const alScript = '"Hi [Name], I work with senior living communities known for great end-of-life experiences. Most families struggle with those conversations. Are you looking to strengthen how your team approaches those situations?"';
+    doc.text(alScript, 60, y + 8, { width: 480 });
+    y += 80;
     
     doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
     doc.text('Key Points:', 50, y);
     y += 12;
-    
     doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    ['Support families in dignified conversations', 'Improve family satisfaction', 'Reduce unnecessary hospitalizations', 'Partnership approach'].forEach(pt => {
-      doc.text(`• ${pt}`, 55, y);
+    const alKeyPoints = ['• Family satisfaction = reviews + referrals', '• End-of-life support improves satisfaction 40%+', '• Positions you as premium provider', '• Reduces complaints and litigation risk'];
+    alKeyPoints.forEach(pt => {
+      doc.text(pt, 55, y);
       y += 11;
     });
     
@@ -499,79 +584,78 @@ function createFollowUpPDF() {
     const stream = fs.createWriteStream('public/resources/followup-templates.pdf');
     doc.pipe(stream);
     
-    let y = addBrandedHeader(doc, 'Follow-Up Communication Templates', 'Email, phone scripts, and meeting agendas');
+    let y = addBrandedHeader(doc, 'Follow-Up Communication Framework', 'Expert Sequences for Moving Deals Forward');
     y += 15;
     
-    y = addSectionHeader(doc, 'EMAIL 1: POST-CALL SUMMARY (Within 2 Hours)', y);
+    y = addSectionHeader(doc, 'EMAIL SEQUENCE 1: POST-CALL SUMMARY (Send Within 2 Hours)', y);
     
     doc.rect(50, y, 500, 80).fill(ACCENT_GRAY);
     doc.fontSize(8).fillColor(DARK_TEXT).font('Helvetica');
-    const email1 = `Subject: Great chatting with you—a few resources
+    const email1 = `Subject: Appreciate the conversation—[Specific Detail]
 
-Hi [Name], Thanks for taking time today. I really appreciated learning about [their detail].
+Hi [Name], Really appreciated your time today and learning about [specific challenge]. That\'s exactly what we solve for [facility type].
 
-Here's what I promised:
+A couple resources I promised:
 • [Resource 1]
-• [Resource 2]
+• [Case study relevant to them]
 
-One thing stuck with me: You mentioned [pain point]. I think we can help.
+Here\'s what I\'m thinking: A quick 15-minute follow-up where I can show you specifically how [similar facility] solved [their pain point]. 60-day results visible.
 
-Could we schedule 20 minutes next [day] to discuss [solution]?
+Can we grab Thursday at 2pm?
 
-Looking forward to connecting!
 [Your Name]`;
     doc.text(email1, 60, y + 5, { width: 480 });
     y += 95;
     
-    y = addSectionHeader(doc, 'EMAIL 2: NURTURE (No Response After 1 Week)', y);
+    y = addSectionHeader(doc, 'EMAIL SEQUENCE 2: Nurture (Day 7, No Response)', y);
     
-    doc.rect(50, y, 500, 65).fill(ACCENT_GRAY);
+    doc.rect(50, y, 500, 70).fill(ACCENT_GRAY);
     doc.fontSize(8).fillColor(DARK_TEXT).font('Helvetica');
-    const email2 = `Subject: One resource you might find helpful
+    const email2 = `Subject: Real problem from your facility
 
-Hi [Name], Just following up from our conversation. I put together something specific to [facility type] that addresses [their pain point].
+Hi [Name], One thing keeps coming back: you mentioned [pain point]. I put together something specific to [facility type] addressing exactly that.
 
-Are you still open to a 15-minute conversation about how we could help?
+Would a 15-minute conversation be valuable?
 
-Let me know!
 [Your Name]`;
     doc.text(email2, 60, y + 5, { width: 480 });
-    y += 80;
+    y += 85;
     
-    y = addSectionHeader(doc, 'PHONE SCRIPT: FOLLOW-UP', y);
+    y = addSectionHeader(doc, 'PHONE SCRIPT: FOLLOW-UP CALL (Day 9)', y);
     
-    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica');
-    doc.text('"Hi [Name], it\'s [Your Name] from Spartan. Just wanted to follow up from our conversation. Do you have 2 minutes?"', 55, y);
-    y += 15;
-    
-    doc.fontSize(9).fillColor(SPARTAN_RED).font('Helvetica-Bold');
-    doc.text('If YES:', 55, y);
-    y += 11;
     doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    doc.text('"Great. You mentioned [pain point]. I want to show you how [solution] could help. Does that still feel relevant?"', 55, y);
+    doc.text('"Hi [Name], [Your Name] from Spartan. I know you\'re busy. I sent you something last week on [pain point]—did you get a chance to look at it?"', 55, y);
     y += 18;
     
     doc.fontSize(9).fillColor(SPARTAN_RED).font('Helvetica-Bold');
-    doc.text('If NO:', 55, y);
+    doc.text('IF YES:', 55, y);
     y += 11;
     doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    doc.text('"Got it. When would be a better time? I promise to keep this brief."', 55, y);
-    y += 20;
+    doc.text('"What stood out to you?" [Listen. Ask: "If I showed you how to implement this, what\'s it worth?"]', 55, y, { width: 430 });
+    y = doc.y + 15;
     
-    y = addSectionHeader(doc, 'FIRST MEETING AGENDA (20-30 min)', y);
+    doc.fontSize(9).fillColor(SPARTAN_RED).font('Helvetica-Bold');
+    doc.text('IF NO:', 55, y);
+    y += 11;
+    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
+    doc.text('"Your facility is missing [revenue impact]/month. Two minutes?" If yes, give 60-second pitch. If no: "I\'ll send a 2-minute video."', 55, y, { width: 430 });
+    y = doc.y + 20;
+    
+    y = addSectionHeader(doc, 'FIRST STRATEGY SESSION: 30-MIN CALL STRUCTURE', y);
     
     doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
     const agenda = [
-      '0-2 min: Warm-up ("Thanks for your time. Any questions?")',
-      '2-8 min: Situation ("Walk me through your referral process...")',
-      '8-15 min: Vision ("Here\'s how we help [type]..." [Examples])',
-      '15-25 min: Approach ("Here\'s our process... Timeline: [X]")',
-      '25-30 min: Close ("What would success look like?") [Schedule next]'
+      '0-2 min: RAPPORT - "Thanks for making time. Any questions from what I sent?"',
+      '2-6 min: SITUATION - "Walk me through your current process. Step by step."',
+      '6-12 min: VISION - "Here\'s how best facilities handle this. [Describe]. Results: [metrics]."',
+      '12-20 min: APPROACH - "Here\'s our exact process. Week 1: training. Week 2: alignment. Week 3: results."',
+      '20-28 min: OBJECTIONS - Use prepared responses. If no: "What needs to be true?"',
+      '28-30 min: CLOSE - "What does success look like in 90 days?" [Schedule next]'
     ];
     
     agenda.forEach(a => {
       doc.text(a, 55, y);
-      y += 12;
+      y = doc.y;
     });
     
     addFooter(doc);
@@ -587,71 +671,60 @@ function createPhysicianPDF() {
     const stream = fs.createWriteStream('public/resources/physician-strategy.pdf');
     doc.pipe(stream);
     
-    let y = addBrandedHeader(doc, 'Physician Relationship Building', 'Engaging medical directors and clinical leadership');
+    let y = addBrandedHeader(doc, 'Physician Engagement Strategy', 'Advanced Framework for Medical Director Alignment');
     y += 15;
     
-    y = addSectionHeader(doc, 'WHY PHYSICIANS HESITATE', y);
+    y = addSectionHeader(doc, 'THE 5 PHYSICIAN HESITATION BARRIERS', y);
     
     const barriers = [
-      { barrier: 'Fear of "Giving Up"', reason: 'Trained to fight disease' },
-      { barrier: 'Liability Concerns', reason: 'Worried about legal implications' },
-      { barrier: 'Time Burden', reason: 'Certification + family conversations = hours' },
-      { barrier: 'Referral Loyalty', reason: 'Existing relationships they\'re loyal to' },
-      { barrier: 'Knowledge Gaps', reason: 'Don\'t know specific eligibility criteria' }
+      { barrier: 'MEDICAL TRAINING CONFLICT', why: 'Trained to fight disease. Hospice feels like abandonment.' },
+      { barrier: 'LIABILITY CONCERNS', why: 'Afraid of legal consequences of 6-month certification.' },
+      { barrier: 'TIME BURDEN', why: 'Certification + family conversations = 30-60 min per patient.' },
+      { barrier: 'REFERRAL LOYALTY', why: 'May have 10-year relationships with existing partners.' },
+      { barrier: 'KNOWLEDGE GAPS', why: 'Don\'t know hospice criteria or process deeply.' }
     ];
     
     doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    barriers.forEach(b => {
-      doc.fontSize(9).fillColor(SPARTAN_RED).font('Helvetica-Bold');
-      doc.text(`• ${b.barrier}`, 55, y);
-      y += 11;
-      doc.fontSize(8.5).fillColor(LIGHT_TEXT).font('Helvetica');
-      doc.text(b.reason, 70, y);
-      y = doc.y + 11;
+    barriers.forEach((b, i) => {
+      doc.rect(50, y, 500, 12).fill(SPARTAN_RED);
+      doc.fontSize(8).fillColor('white').font('Helvetica-Bold');
+      doc.text(`BARRIER ${i + 1}: ${b.barrier}`, 55, y + 2);
+      y += 15;
+      doc.fontSize(8).fillColor(DARK_TEXT).font('Helvetica');
+      doc.text(`${b.why}`, 55, y, { width: 480 });
+      y = doc.y + 12;
     });
     
-    y += 20;
-    y = addSectionHeader(doc, 'THE ENGAGEMENT FRAMEWORK', y);
+    y += 15;
+    y = addSectionHeader(doc, 'THE 5-STEP ENGAGEMENT FRAMEWORK', y);
     
-    const framework = [
-      '1. EDUCATE: Provide CME-eligible hospice training',
+    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica');
+    ['1. EDUCATE: CME training on hospice eligibility criteria',
       '2. CREDIBILITY: Share clinical guidelines and protocols',
       '3. SUPPORT: Streamline their certification process',
       '4. PARTNERSHIP: Position as collaborators in outcomes',
-      '5. REFINEMENT: Ask for feedback and improvement'
-    ];
-    
-    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    framework.forEach(f => {
-      doc.text(f, 55, y);
-      y += 13;
+      '5. REFINEMENT: Ask for feedback and improvement'].forEach(step => {
+      doc.text(step, 55, y);
+      y += 12;
     });
     
     y += 20;
-    y = addSectionHeader(doc, 'PHYSICIAN OBJECTIONS & RESPONSES', y);
+    y = addSectionHeader(doc, 'PHYSICIAN OBJECTION RESPONSES', y);
     
     const objections = [
-      { obj: '"We refer to [competitor]. We\'ve got it handled."', response: '"I respect that. Many physicians manage multiple partners for better coverage. We\'re complementary—we streamline your certification process. Interested in showing you how?"' },
-      { obj: '"I don\'t have time for more referrals."', response: '"That\'s why we exist. We handle identification and paperwork so it\'s just a clinical certification for you—two-page form."' }
+      { obj: '"We already refer to [Competitor]."', resp: '"Many best facilities use multiple providers. We specialize in [area]. Want to explore where we complement?"' },
+      { obj: '"Patients always refuse hospice."', resp: '"That changes when families understand it\'s comfort + family time. We handle family conversations—that\'s our strength."' }
     ];
     
-    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    objections.forEach(o => {
-      doc.rect(50, y, 500, 10).fill(SPARTAN_RED);
-      doc.fontSize(8.5).fillColor('white').font('Helvetica-Bold');
-      doc.text(o.obj, 55, y + 1);
+    objections.forEach((o, i) => {
+      doc.rect(50, y, 500, 12).fill(SPARTAN_RED);
+      doc.fontSize(8).fillColor('white').font('Helvetica-Bold');
+      doc.text(`Objection ${i + 1}: ${o.obj}`, 55, y + 2);
       y += 15;
       doc.fontSize(8).fillColor(DARK_TEXT).font('Helvetica');
-      doc.text(`Response: ${o.response}`, 55, y, { width: 480 });
-      y = doc.y + 14;
+      doc.text(`Response: ${o.resp}`, 55, y, { width: 480 });
+      y = doc.y + 13;
     });
-    
-    y += 15;
-    y = addSectionHeader(doc, 'CME/LUNCH & LEARN PROPOSAL', y);
-    
-    doc.rect(50, y, 500, 50).fill(ACCENT_GRAY);
-    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    doc.text('"We\'d love to support your physicians with a CME-eligible session on hospice eligibility criteria and certification best practices. 30 minutes, lunch provided, physicians get CME credit. Interested in scheduling next quarter?"', 60, y + 10, { width: 480 });
     
     addFooter(doc);
     doc.end();
@@ -666,73 +739,67 @@ function createCaseStudiesPDF() {
     const stream = fs.createWriteStream('public/resources/case-studies.pdf');
     doc.pipe(stream);
     
-    let y = addBrandedHeader(doc, 'Case Studies: Real Results & Metrics', 'Proven transformation outcomes');
+    let y = addBrandedHeader(doc, 'Case Studies: Real Results & ROI', 'Documented Transformation Outcomes');
     y += 15;
     
     y = addSectionHeader(doc, 'CASE STUDY 1: SNF TRANSFORMATION', y);
     
     doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
-    doc.text('Regional 120-bed SNF | 6-Month Engagement', 50, y);
-    y += 14;
-    
-    doc.rect(50, y, 240, 10).fill(SPARTAN_RED);
-    doc.fontSize(9).fillColor('white').font('Helvetica-Bold');
-    doc.text('BASELINE', 55, y + 1);
+    doc.text('120-Bed Regional SNF | 6-Month Engagement | Year-Over-Year Results', 50, y);
     y += 15;
-    
-    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    ['Referrals: 2-3 per month', 'No formal process', 'Physician frustration', 'Family resistance'].forEach(b => {
-      doc.text(`• ${b}`, 55, y);
-      y += 11;
-    });
-    
-    y += 15;
-    doc.rect(50, y, 240, 10).fill('#10B981');
-    doc.fontSize(9).fillColor('white').font('Helvetica-Bold');
-    doc.text('RESULTS', 55, y + 1);
-    y += 15;
-    
-    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica-Bold');
-    doc.text('✓ Referrals: 8-10/month (300% increase)', 55, y);
-    y += 11;
-    doc.text('✓ Time to Referral: 14 days (vs 28)', 55, y);
-    y += 11;
-    doc.text('✓ CMS Rating: Improved', 55, y);
-    y += 11;
-    doc.text('✓ Revenue: +$45K/month', 55, y);
-    y += 20;
-    
-    y = addSectionHeader(doc, 'CASE STUDY 2: HOSPITAL DISCHARGE OPT', y);
     
     doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
-    doc.text('280-bed Urban Medical Center | 3 Months', 50, y);
-    y += 14;
-    
-    doc.rect(50, y, 240, 10).fill('#DC2626');
-    doc.fontSize(9).fillColor('white').font('Helvetica-Bold');
-    doc.text('CHALLENGE', 55, y + 1);
-    y += 15;
-    
+    doc.text('BASELINE PROBLEM:', 50, y);
+    y += 12;
     doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    ['Referrals dropped to 6/month', 'Discharge planners scared', '72-hr window missed'].forEach(c => {
-      doc.text(`• ${c}`, 55, y);
+    const problems = ['• Monthly referrals: 2-3 (far below 10-15 industry standard)', '• No formal identification process', '• CMS audits flagging unnecessary therapy', '• Family resistance to hospice'];
+    problems.forEach(p => {
+      doc.text(p, 55, y);
       y += 11;
     });
     
     y += 15;
     doc.rect(50, y, 240, 10).fill('#10B981');
     doc.fontSize(9).fillColor('white').font('Helvetica-Bold');
-    doc.text('OUTCOME', 55, y + 1);
-    y += 15;
+    doc.text('RESULTS (6 Months)', 55, y + 1);
+    y += 16;
     
     doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica-Bold');
-    doc.text('✓ Referrals: 14-16/month', 55, y);
-    y += 11;
-    doc.text('✓ On-Time: 84% within 48-hr', 55, y);
-    y += 11;
-    doc.text('✓ LOS Reduction: 0.8 days', 55, y);
-    y += 11;
-    doc.text('✓ Readmissions: Down 2.3%', 55, y);
+    const snfResults = ['✓ Referrals: 8-10/month (300% increase)', '✓ Time to admission: 14 days (vs 28)', '✓ CMS audit findings: Down 85%', '✓ Revenue: +$45K/month'];
+    snfResults.forEach(r => {
+      doc.text(r, 55, y);
+      y += 11;
+    });
+    
+    y += 25;
+    y = addSectionHeader(doc, 'CASE STUDY 2: HOSPITAL DISCHARGE OPTIMIZATION', y);
+    
+    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
+    doc.text('280-Bed Urban Hospital | 3-Month Pilot | Direct Metrics Improvement', 50, y);
+    y += 15;
+    
+    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
+    doc.text('CHALLENGE:', 50, y);
+    y += 12;
+    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
+    const challenges = ['• Referrals dropped to 6-8/month (vs 14 two years prior)', '• 72-hr window missed 60% of time', '• CMS readmissions up 2.1% YoY', '• Risk: $5,000+ penalties per readmission'];
+    challenges.forEach(c => {
+      doc.text(c, 55, y);
+      y += 11;
+    });
+    
+    y += 15;
+    doc.rect(50, y, 240, 10).fill('#10B981');
+    doc.fontSize(9).fillColor('white').font('Helvetica-Bold');
+    doc.text('RESULTS (90 Days)', 55, y + 1);
+    y += 16;
+    
+    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica-Bold');
+    const hospResults = ['✓ Referrals: 14-16/month (100% increase)', '✓ On-time: 84% within 48-hour window', '✓ LOS reduction: 0.8 days shorter', '✓ Readmissions: Down 2.3%', '✓ Annual savings: $180K+ penalties avoided'];
+    hospResults.forEach(r => {
+      doc.text(r, 55, y);
+      y += 11;
+    });
     
     addFooter(doc);
     doc.end();
@@ -747,67 +814,49 @@ function createDecisionTreesPDF() {
     const stream = fs.createWriteStream('public/resources/decision-trees.pdf');
     doc.pipe(stream);
     
-    let y = addBrandedHeader(doc, 'Decision Trees & Frameworks', 'Visual guides for rapid field decisions');
+    let y = addBrandedHeader(doc, 'Decision Trees & Strategic Frameworks', 'Advanced Field Reference Guides');
     y += 15;
     
     y = addSectionHeader(doc, 'OBJECTION HANDLING TREE', y);
     
     doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    const tree1 = `START: You hear an objection
-     ↓
-Is this REFLEX? ("Not now", "We're busy")
-├─ YES → Respect time, provide data, stay on radar
-│        → Send nurture email
-│        → Follow up in 2-3 weeks
-└─ NO → Is this REAL? (Specific concern)
-     ├─ ASK: "Help me understand..."
-     ├─ LISTEN: Take notes
+    const tree1 = `IS IT REFLEX OBJECTION? ("Not now", "Busy", "Send info")
+├─ YES → Respect it. Provide value in email. Nurture in 2-3 weeks.
+└─ NO → REAL OBJECTION
+     ├─ ASK: "Help me understand what you mean..."
+     ├─ LISTEN: Take notes. Don\'t interrupt.
      ├─ ACKNOWLEDGE: "That makes sense because..."
-     ├─ RESPOND: Use Spartan framework
+     ├─ RESPOND: Use your Spartan framework
      └─ CONFIRM: "Does that address it?"`;
     
     doc.text(tree1, 55, y, { width: 480 });
-    y += 120;
+    y += 100;
     
     y = addSectionHeader(doc, 'HOSPICE REFERRAL IDENTIFICATION TREE', y);
     
     doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    const tree2 = `PATIENT ASSESSMENT
-     ↓
-TERMINAL DIAGNOSIS?
-├─ NO → Standard care
+    const tree2 = `PATIENT ASSESSMENT → TERMINAL DIAGNOSIS?
+├─ NO → Standard care pathway
 └─ YES → Prognosis < 6 MONTHS?
      ├─ UNCLEAR → Consult physician
-     └─ YES → Approach physician
-          ├─ Agrees → Family discussion
-          └─ Hesitant → Engagement framework
-               └─ Family ready?
-                    ├─ YES → Admission
-                    └─ NO → Nurture (10 days)`;
+     └─ YES → Physician discussion
+          ├─ AGREES → Family discussion
+          │   └─ Ready? → YES: Admission | NO: Nurture (10 days)
+          └─ HESITANT → Engagement framework`;
     
     doc.text(tree2, 55, y, { width: 480 });
-    y += 110;
+    y += 90;
     
     y = addSectionHeader(doc, 'ACCOUNT STRATEGY MATRIX', y);
     
-    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
-    doc.text('HIGH OPPORTUNITY:', 50, y);
-    y += 14;
-    
     doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    doc.text('A-PRIORITY: New hospital, no partner, receptive admin (Quick wins)', 55, y);
-    y += 13;
-    doc.text('B-PRIORITY: Competitor present but co-existence possible (Strategic)', 55, y);
-    y += 16;
-    
-    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
-    doc.text('LOW OPPORTUNITY:', 50, y);
-    y += 14;
-    
-    doc.fontSize(8.5).fillColor(DARK_TEXT).font('Helvetica');
-    doc.text('C-PRIORITY: Stable with partner; quarterly touch-ins', 55, y);
-    y += 13;
-    doc.text('D-PRIORITY: Unsupportive, competitor lock-in (Avoid)', 55, y);
+    doc.text('A-PRIORITY: New hospital, no partner, open (40% time, 2x/week, consultative)', 55, y);
+    y += 12;
+    doc.text('B-PRIORITY: Competitor present, co-existence possible (35% time, 1x/week, complementary)', 55, y);
+    y += 12;
+    doc.text('C-PRIORITY: Stable partnership (20% time, monthly, maintenance)', 55, y);
+    y += 12;
+    doc.text('D-PRIORITY: Low potential, competitor locked-in (5% time, quarterly)', 55, y);
     
     addFooter(doc);
     doc.end();
@@ -816,7 +865,7 @@ TERMINAL DIAGNOSIS?
   });
 }
 
-console.log('Generating professional Spartan training PDFs...');
+console.log('Generating expert-level Spartan training PDFs...');
 Promise.all([
   createColdCallPDF(),
   createTerritoryPDF(),
@@ -828,7 +877,7 @@ Promise.all([
   createCaseStudiesPDF(),
   createDecisionTreesPDF()
 ]).then(() => {
-  console.log('✓ All 9 professional PDFs generated');
+  console.log('✓ All 9 expert-level PDFs generated successfully');
   process.exit(0);
 }).catch(err => {
   console.error('Error:', err);
