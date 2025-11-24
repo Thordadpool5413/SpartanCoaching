@@ -45,11 +45,48 @@ The platform employs a premium SaaS aesthetic with a sophisticated visual design
   - Admin dashboard displaying visitor statistics for multiple time periods (day, week, month, quarter, year)
   - Optimized SQL COUNT queries for efficient analytics retrieval
   - Fully tested end-to-end tracking and reporting functionality
-- **Authentication**: User schema defined, with preparations for session-based authentication.
+- **Authentication**: Replit Auth integrated with OpenID Connect supporting Google, GitHub, and email/password login. Session-based authentication using PostgreSQL sessions table. Currently, all public pages remain accessible without authentication for marketing purposes. Auth infrastructure ready for user-specific features (forum, personalized plans, etc.).
+- **Resources Library**: Database-backed downloadable resources system for sales templates, scripts, checklists, and guides. Features include:
+  - Public-facing Resources page displaying all downloadable materials
+  - Admin panel for full CRUD operations (create, edit, delete resources)
+  - Object storage integration for PDF files with proper ACL enforcement
+  - Resource metadata includes title, description, category, and file URL
+  - Fully tested end-to-end workflow verified
+- **Podcasts**: Database-backed podcast episodes management system. Features include:
+  - Public-facing Podcasts page with embedded audio players
+  - Admin panel for creating and deleting podcast episodes
+  - Object storage integration for MP3/audio files
+  - Episode metadata includes title, description, episode number, and audio URL
+  - Fully tested end-to-end functionality
+
+## Recent Changes (November 2025)
+
+### Critical Fixes Applied
+- **Public Routing Restored**: Removed authentication gate that was blocking all public pages. All marketing pages (/, /services, /articles, /resources, /podcasts) are now accessible without login.
+- **Delete Mutations Fixed**: Corrected JSON parsing issues in admin panel delete operations. Now properly handles both JSON responses and bodyless 204 responses.
+- **ObjectUploader Component**: Fixed compatibility with Uppy v5 by switching from DashboardModal to Dashboard inline mode.
+- **Admin Authentication**: Simple password-based admin panel (password: 5413) for content management. Adequate for current needs but recommended to upgrade to session-based auth for production.
+
+### Phase 1 Completion Status
+✅ Replit Auth integration (Google, GitHub, email/password)
+✅ Resources library with admin management
+✅ Podcasts page with admin management
+✅ Visitor analytics system
+✅ Articles management system
+✅ AI chatbot with conversation history
+
+### Next Phase Planned
+- Enhanced AI features: role-play scenarios, personalized coaching plans, weekly drill reminders
+- Discussion forum for sales professionals
+- Email automation (SendGrid/Resend integration)
+- Web push notifications for coaching reminders
 
 ## External Dependencies
 
--   **AI Integration**: Google Gemini AI (`@google/genai`) for all AI coaching tools and conversational AI chat.
--   **Database**: Neon serverless PostgreSQL via `@neondatabase/serverless` and Drizzle ORM.
--   **UI Libraries**: Radix UI primitives, Lucide React for iconography, cmdk for command palette, and date-fns for date manipulation.
--   **Development Tools**: Vite, PostCSS with Tailwind CSS and Autoprefixer, esbuild, tsx, and TypeScript.
+- **AI Integration**: Google Gemini AI (`@google/genai`) for all AI coaching tools and conversational AI chat.
+- **Database**: Neon serverless PostgreSQL via `@neondatabase/serverless` and Drizzle ORM.
+- **Object Storage**: Google Cloud Storage (`@google-cloud/storage`) for PDF resources and audio files.
+- **Authentication**: Replit Auth with OpenID Connect via `openid-client`, session management via `express-session` and `connect-pg-simple`.
+- **File Uploads**: Uppy v5 (`@uppy/core`, `@uppy/dashboard`, `@uppy/aws-s3`, `@uppy/react`) for client-side file uploads.
+- **UI Libraries**: Radix UI primitives, Lucide React for iconography, cmdk for command palette, and date-fns for date manipulation.
+- **Development Tools**: Vite, PostCSS with Tailwind CSS and Autoprefixer, esbuild, tsx, and TypeScript.
