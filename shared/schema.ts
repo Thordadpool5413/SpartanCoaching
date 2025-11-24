@@ -220,7 +220,8 @@ export const podcasts = pgTable("podcasts", {
 // Insert schema and types for podcasts
 export const insertPodcastSchema = createInsertSchema(podcasts).omit({ 
   id: true,
-  createdAt: true
+  createdAt: true,
+  publishDate: true
 });
 export type InsertPodcast = z.infer<typeof insertPodcastSchema>;
 export type SelectPodcast = typeof podcasts.$inferSelect;
