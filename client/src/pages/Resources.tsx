@@ -1,140 +1,105 @@
-import { useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { DownloadIcon } from "@/components/icons";
+import { Badge } from "@/components/ui/badge";
+import { Download } from "lucide-react";
 import { BackButton } from "@/components/BackButton";
+import type { SelectResource } from "@shared/schema";
 
 export default function Resources() {
-  const [email, setEmail] = useState("");
-  const [submitted, setSubmitted] = useState(false);
+  const { data: resourcesData, isLoading } = useQuery<{ resources: SelectResource[] }>({
+    queryKey: ["/api/resources"],
+  });
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (email) {
-      setSubmitted(true);
-      setEmail("");
+  const resources = resourcesData?.resources || [];
+
+  // Group resources by category
+  const groupedResources = resources.reduce((acc, resource) => {
+    if (!acc[resource.category]) {
+      acc[resource.category] = [];
     }
-  };
+    acc[resource.category].push(resource);
+    return acc;
+  }, {} as Record<string, SelectResource[]>);
 
-  const resources = [
-    {
-      title: "Quick Start Guide",
-      description: "Your first 30 days as a hospice liaison—everything you need to hit the ground running.",
-      cta: "Download PDF",
-      link: "/resources/quick-start-guide",
-    },
-    {
-      title: "Objection Response Cards",
-      description: "Pocket-sized response cards for the 8 most common hospice objections.",
-      cta: "Download PDF",
-      link: "/resources/objection-cards",
-    },
-    {
-      title: "Territory Planning Template",
-      description: "Map your market, prioritize accounts, and build your weekly route.",
-      cta: "Download PDF",
-      link: "/resources/territory-template",
-    },
-    {
-      title: "Metrics Dashboard",
-      description: "Track referrals, conversions, and start-of-care speed in one simple view.",
-      cta: "Download PDF",
-      link: "/resources/metrics-dashboard",
-    },
-  ];
+  // Category display names
+  const categoryNames: Record<string, string> = {
+    template: "Templates",
+    script: "Scripts",
+    checklist: "Checklists",
+    guide: "Guides",
+  };
 
   return (
     <div className="w-full max-w-7xl mx-auto px-6 py-16">
       <BackButton />
       <div className="text-center max-w-3xl mx-auto mb-16">
-        <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-resources-title">
-          Field-Ready Resources
+        <h1 className="text-5xl font-black text-foreground mb-6" data-testid="text-resources-title">
+          Training Resources Library
         </h1>
-        <p className="text-body-lg text-muted-foreground leading-relaxed">
-          Download these field-tested PDF templates to bring clarity, structure, and discipline to your sales process.
+        <p className="text-xl text-muted-foreground leading-relaxed">
+          Download field-tested templates, scripts, checklists, and guides to elevate your hospice sales performance.
         </p>
       </div>
 
-      {/* Spartan Weekly Plan */}
-      <Card className="bg-gradient-to-br from-primary/10 to-destructive/10 mb-12 card-lift border-2 border-primary/20 shadow-lg spacing-card" data-testid="card-weekly-plan">
-        <div className="flex flex-col md:flex-row items-center gap-8">
-          <div className="flex-1">
-            <h2 className="text-h2 font-bold text-foreground mb-4">
-              Get The Spartan Weekly Plan PDF
-            </h2>
-            <p className="text-body text-muted-foreground leading-relaxed mb-6">
-              A one-page tool to define your objective, set daily priorities, track key metrics like referrals and start-of-care speed, and plan your recovery. Delivered instantly to your inbox.
-            </p>
-            {!submitted ? (
-              <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
-                <Input
-                  type="email"
-                  placeholder="Your email address"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="flex-1"
-                  data-testid="input-email"
-                />
-                <Button type="submit" size="lg" className="font-bold whitespace-nowrap min-h-[52px] touch-manipulation" data-testid="button-get-plan">
-                  Get The Plan
-                </Button>
-              </form>
-            ) : (
-              <div className="bg-primary/20 border border-primary rounded-lg p-4">
-                <p className="text-foreground font-semibold mb-2" data-testid="text-success">
-                  ✓ Success! Check your inbox for the Spartan Weekly Plan PDF.
-                </p>
-                <Button asChild variant="outline" size="default" className="font-bold min-h-[48px] touch-manipulation">
-                  <Link href="/resources/weekly-plan">
-                    Or View It Now →
-                  </Link>
-                </Button>
-              </div>
-            )}
-          </div>
+      {isLoading ? (
+        <div className="text-center py-12">
+          <p className="text-muted-foreground">Loading resources...</p>
         </div>
-      </Card>
-
-      {/* Additional Resources */}
-      <div className="grid md:grid-cols-2 gap-cards">
-        {resources.map((resource, idx) => (
-          <Card key={idx} className="card-lift border-2 group relative spacing-card shadow-lg" data-testid={`card-resource-${idx}`}>
-            <div className="flex items-start gap-4">
-              <div className="p-3 rounded-lg bg-primary/10 group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300 flex-shrink-0">
-                <DownloadIcon className="w-6 h-6 text-primary group-hover:glow-primary transition-all duration-300" />
-              </div>
-              <div className="flex-1">
-                <h3 className="text-h3 font-bold text-foreground mb-2">{resource.title}</h3>
-                <p className="text-body text-muted-foreground mb-6 leading-relaxed">
-                  {resource.description}
-                </p>
-                <Button
-                  asChild
-                  size="lg"
-                  className="w-full font-bold min-h-[52px] touch-manipulation"
-                  data-testid={`button-resource-${idx}`}
-                  onClick={() => {
-                    // Track resource access
-                    fetch('/api/analytics/resource-access', {
-                      method: 'POST',
-                      headers: { 'Content-Type': 'application/json' },
-                      body: JSON.stringify({
-                        resourceName: resource.title,
-                        timestamp: Date.now()
-                      })
-                    }).catch(console.error);
-                  }}
-                >
-                  <Link href={resource.link}>{resource.cta}</Link>
-                </Button>
+      ) : resources.length === 0 ? (
+        <Card>
+          <CardContent className="py-12 text-center">
+            <p className="text-muted-foreground">No resources available yet. Check back soon!</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-12">
+          {Object.entries(groupedResources).map(([category, categoryResources]) => (
+            <div key={category} data-testid={`category-${category}`}>
+              <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
+                {categoryNames[category] || category}
+                <Badge variant="secondary" className="text-sm">
+                  {categoryResources.length}
+                </Badge>
+              </h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {categoryResources.map((resource) => (
+                  <Card 
+                    key={resource.id} 
+                    className="hover-elevate active-elevate-2 transition-all duration-300"
+                    data-testid={`resource-card-${resource.id}`}
+                  >
+                    <CardHeader>
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <CardTitle className="text-xl leading-tight">{resource.title}</CardTitle>
+                        <Badge variant="outline" className="shrink-0">
+                          {categoryNames[resource.category] || resource.category}
+                        </Badge>
+                      </div>
+                      {resource.description && (
+                        <CardDescription className="line-clamp-3">
+                          {resource.description}
+                        </CardDescription>
+                      )}
+                    </CardHeader>
+                    <CardContent>
+                      <Button
+                        className="w-full gap-2"
+                        onClick={() => window.open(resource.fileUrl, '_blank')}
+                        data-testid={`button-download-${resource.id}`}
+                      >
+                        <Download className="w-4 h-4" />
+                        Download
+                      </Button>
+                    </CardContent>
+                  </Card>
+                ))}
               </div>
             </div>
-          </Card>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }

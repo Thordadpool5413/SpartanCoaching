@@ -1,6 +1,34 @@
 import { z } from "zod";
-import { pgTable, text, serial, bigint, boolean } from "drizzle-orm/pg-core";
+import { sql } from "drizzle-orm";
+import { pgTable, text, serial, bigint, boolean, varchar, timestamp, jsonb, index, integer } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
+
+// Replit Auth: Session storage table
+// This table is mandatory for Replit Auth - from blueprint:javascript_log_in_with_replit
+export const sessions = pgTable(
+  "sessions",
+  {
+    sid: varchar("sid").primaryKey(),
+    sess: jsonb("sess").notNull(),
+    expire: timestamp("expire").notNull(),
+  },
+  (table) => [index("IDX_session_expire").on(table.expire)],
+);
+
+// Replit Auth: User storage table
+// This table is mandatory for Replit Auth - from blueprint:javascript_log_in_with_replit
+export const users = pgTable("users", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  email: varchar("email").unique(),
+  firstName: varchar("first_name"),
+  lastName: varchar("last_name"),
+  profileImageUrl: varchar("profile_image_url"),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type UpsertUser = typeof users.$inferInsert;
+export type User = typeof users.$inferSelect;
 
 // Chat message schema for AI interactions
 export const chatMessageSchema = z.object({
@@ -158,6 +186,44 @@ export const insertVisitorSchema = createInsertSchema(visitors).omit({
 });
 export type InsertVisitor = z.infer<typeof insertVisitorSchema>;
 export type SelectVisitor = typeof visitors.$inferSelect;
+
+// Drizzle table definition for resources
+export const resources = pgTable("resources", {
+  id: serial("id").primaryKey(),
+  title: varchar("title").notNull(),
+  description: text("description"),
+  fileUrl: varchar("file_url").notNull(),
+  category: varchar("category").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Insert schema and types for resources
+export const insertResourceSchema = createInsertSchema(resources).omit({ 
+  id: true,
+  createdAt: true
+});
+export type InsertResource = z.infer<typeof insertResourceSchema>;
+export type SelectResource = typeof resources.$inferSelect;
+
+// Drizzle table definition for podcasts
+export const podcasts = pgTable("podcasts", {
+  id: serial("id").primaryKey(),
+  title: varchar("title").notNull(),
+  description: text("description"),
+  episodeNumber: integer("episode_number"),
+  audioUrl: varchar("audio_url").notNull(),
+  publishDate: timestamp("publish_date").notNull().defaultNow(),
+  duration: varchar("duration"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+// Insert schema and types for podcasts
+export const insertPodcastSchema = createInsertSchema(podcasts).omit({ 
+  id: true,
+  createdAt: true
+});
+export type InsertPodcast = z.infer<typeof insertPodcastSchema>;
+export type SelectPodcast = typeof podcasts.$inferSelect;
 
 // Visitor analytics response schema
 export const visitorAnalyticsSchema = z.object({

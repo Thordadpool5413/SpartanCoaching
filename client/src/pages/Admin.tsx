@@ -8,9 +8,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Mail, Phone, Building, Calendar, Users, Lock, LogOut, Plus, Edit, Trash2, ExternalLink, Star } from "lucide-react";
-import type { SelectInquiry, SelectNewsletterSubscriber, SelectArticle, InsertArticle, VisitorAnalytics } from "@shared/schema";
+import type { SelectInquiry, SelectNewsletterSubscriber, SelectArticle, InsertArticle, VisitorAnalytics, SelectResource, InsertResource, SelectPodcast, InsertPodcast } from "@shared/schema";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -88,10 +89,22 @@ export default function Admin() {
     enabled: isAuthenticated,
   });
 
+  const { data: resourcesData, isLoading: resourcesLoading } = useQuery<{ resources: SelectResource[] }>({
+    queryKey: ["/api/resources"],
+    enabled: isAuthenticated,
+  });
+
+  const { data: podcastsData, isLoading: podcastsLoading } = useQuery<{ podcasts: SelectPodcast[] }>({
+    queryKey: ["/api/podcasts"],
+    enabled: isAuthenticated,
+  });
+
   const inquiries = inquiriesData?.inquiries || [];
   const subscribers = subscribersData?.subscribers || [];
   const articles = articlesData?.articles || [];
   const analytics = analyticsData?.analytics;
+  const resources = resourcesData?.resources || [];
+  const podcasts = podcastsData?.podcasts || [];
 
   // Article form state
   const [articleDialogOpen, setArticleDialogOpen] = useState(false);
@@ -282,6 +295,346 @@ export default function Admin() {
     }
   };
 
+  // Resource form state
+  const [resourceForm, setResourceForm] = useState({
+    title: "",
+    description: "",
+    category: "",
+    fileUrl: "",
+  });
+
+  // Create resource mutation
+  const createResourceMutation = useMutation({
+    mutationFn: async (data: InsertResource) => {
+      const response = await fetch("/api/resources", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Admin-Auth": "5413",
+        },
+        body: JSON.stringify(data),
+      });
+      
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "Failed to create resource");
+      }
+      
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/resources"] });
+      resetResourceForm();
+      toast({
+        title: "Resource Created",
+        description: "The resource has been successfully added",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create resource",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete resource mutation
+  const deleteResourceMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await fetch(`/api/resources/${id}`, {
+        method: "DELETE",
+        headers: {
+          "X-Admin-Auth": "5413",
+        },
+      });
+      
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "Failed to delete resource");
+      }
+      
+      // Handle successful deletion - parse JSON if present
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        return await response.json();
+      }
+      return {};
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/resources"] });
+      toast({
+        title: "Resource Deleted",
+        description: "The resource has been successfully removed",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete resource",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const resetResourceForm = () => {
+    setResourceForm({
+      title: "",
+      description: "",
+      category: "",
+      fileUrl: "",
+    });
+  };
+
+  const handleSaveResource = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!resourceForm.title || !resourceForm.category || !resourceForm.fileUrl) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in all required fields and upload a file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const data: InsertResource = {
+      title: resourceForm.title,
+      description: resourceForm.description || undefined,
+      category: resourceForm.category,
+      fileUrl: resourceForm.fileUrl,
+    };
+
+    createResourceMutation.mutate(data);
+  };
+
+  // Resource PDF Upload handlers
+  const handleGetResourceUploadParams = async () => {
+    const response = await fetch("/api/objects/upload", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Admin-Auth": "5413",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to get upload URL");
+    }
+
+    const data = await response.json();
+    return {
+      method: "PUT" as const,
+      url: data.uploadURL,
+    };
+  };
+
+  const handleResourceUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+    if (result.successful && result.successful.length > 0) {
+      const uploadURL = result.successful[0].uploadURL;
+      
+      const response = await fetch("/api/articles/normalize-pdf", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Admin-Auth": "5413",
+        },
+        body: JSON.stringify({ uploadURL }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to normalize PDF path");
+      }
+
+      const data = await response.json();
+      setResourceForm(prev => ({ ...prev, fileUrl: data.normalizedPath }));
+      
+      toast({
+        title: "Upload Complete",
+        description: "Resource file has been successfully uploaded",
+      });
+    }
+  };
+
+  const handleDeleteResource = (id: number) => {
+    if (window.confirm("Are you sure you want to delete this resource?")) {
+      deleteResourceMutation.mutate(id);
+    }
+  };
+
+  // Podcast form state
+  const [podcastForm, setPodcastForm] = useState({
+    title: "",
+    description: "",
+    episodeNumber: "",
+    duration: "",
+    publishDate: new Date().toISOString().split('T')[0],
+    audioUrl: "",
+  });
+
+  // Create podcast mutation
+  const createPodcastMutation = useMutation({
+    mutationFn: async (data: InsertPodcast) => {
+      const response = await fetch("/api/podcasts", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Admin-Auth": "5413",
+        },
+        body: JSON.stringify(data),
+      });
+      
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "Failed to create podcast");
+      }
+      
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/podcasts"] });
+      resetPodcastForm();
+      toast({
+        title: "Podcast Created",
+        description: "The podcast episode has been successfully added",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create podcast",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Delete podcast mutation
+  const deletePodcastMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const response = await fetch(`/api/podcasts/${id}`, {
+        method: "DELETE",
+        headers: {
+          "X-Admin-Auth": "5413",
+        },
+      });
+      
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "Failed to delete podcast");
+      }
+      
+      // Handle successful deletion - parse JSON if present
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("application/json")) {
+        return await response.json();
+      }
+      return {};
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/podcasts"] });
+      toast({
+        title: "Podcast Deleted",
+        description: "The podcast episode has been successfully removed",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete podcast",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const resetPodcastForm = () => {
+    setPodcastForm({
+      title: "",
+      description: "",
+      episodeNumber: "",
+      duration: "",
+      publishDate: new Date().toISOString().split('T')[0],
+      audioUrl: "",
+    });
+  };
+
+  const handleSavePodcast = (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!podcastForm.title || !podcastForm.audioUrl) {
+      toast({
+        title: "Validation Error",
+        description: "Please fill in title and upload an audio file",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const data: InsertPodcast = {
+      title: podcastForm.title,
+      description: podcastForm.description || undefined,
+      episodeNumber: podcastForm.episodeNumber ? parseInt(podcastForm.episodeNumber) : undefined,
+      duration: podcastForm.duration || undefined,
+      publishDate: new Date(podcastForm.publishDate).toISOString(),
+      audioUrl: podcastForm.audioUrl,
+    };
+
+    createPodcastMutation.mutate(data);
+  };
+
+  // Podcast audio upload handlers
+  const handleGetAudioUploadParams = async () => {
+    const response = await fetch("/api/objects/upload", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Admin-Auth": "5413",
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error("Failed to get upload URL");
+    }
+
+    const data = await response.json();
+    return {
+      method: "PUT" as const,
+      url: data.uploadURL,
+    };
+  };
+
+  const handleAudioUploadComplete = async (result: UploadResult<Record<string, unknown>, Record<string, unknown>>) => {
+    if (result.successful && result.successful.length > 0) {
+      const uploadURL = result.successful[0].uploadURL;
+      
+      const response = await fetch("/api/articles/normalize-pdf", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Admin-Auth": "5413",
+        },
+        body: JSON.stringify({ uploadURL }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to normalize audio path");
+      }
+
+      const data = await response.json();
+      setPodcastForm(prev => ({ ...prev, audioUrl: data.normalizedPath }));
+      
+      toast({
+        title: "Upload Complete",
+        description: "Audio file has been successfully uploaded",
+      });
+    }
+  };
+
+  const handleDeletePodcast = (id: number) => {
+    if (window.confirm("Are you sure you want to delete this podcast episode?")) {
+      deletePodcastMutation.mutate(id);
+    }
+  };
+
   // Show password dialog if not authenticated
   if (!isAuthenticated) {
     return (
@@ -412,7 +765,7 @@ export default function Admin() {
       </div>
 
       <Tabs defaultValue="inquiries" className="space-y-6">
-        <TabsList className="grid w-full max-w-2xl grid-cols-3">
+        <TabsList className="grid w-full max-w-4xl grid-cols-5">
           <TabsTrigger value="inquiries" data-testid="tab-inquiries">
             Inquiries ({inquiries.length})
           </TabsTrigger>
@@ -421,6 +774,12 @@ export default function Admin() {
           </TabsTrigger>
           <TabsTrigger value="articles" data-testid="tab-articles">
             Articles ({articles.length})
+          </TabsTrigger>
+          <TabsTrigger value="resources" data-testid="tab-resources">
+            Resources ({resources.length})
+          </TabsTrigger>
+          <TabsTrigger value="podcasts" data-testid="tab-podcasts">
+            Podcasts ({podcasts.length})
           </TabsTrigger>
         </TabsList>
 
@@ -608,6 +967,322 @@ export default function Admin() {
                       </a>
                     </div>
                   </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="resources" className="space-y-4">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-2xl font-bold">Manage Resources</h2>
+          </div>
+
+          <Card className="mb-6">
+            <CardHeader>
+              <CardTitle>Add New Resource</CardTitle>
+              <CardDescription>
+                Upload training materials, templates, scripts, and checklists for your team
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSaveResource} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="resource-title">Title *</Label>
+                  <Input
+                    id="resource-title"
+                    value={resourceForm.title}
+                    onChange={(e) => setResourceForm({ ...resourceForm, title: e.target.value })}
+                    placeholder="e.g., Cold Call Script Template"
+                    required
+                    data-testid="input-resource-title"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="resource-description">Description</Label>
+                  <Textarea
+                    id="resource-description"
+                    value={resourceForm.description}
+                    onChange={(e) => setResourceForm({ ...resourceForm, description: e.target.value })}
+                    placeholder="Brief description of this resource"
+                    rows={3}
+                    data-testid="input-resource-description"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="resource-category">Category *</Label>
+                  <Select
+                    value={resourceForm.category}
+                    onValueChange={(value) => setResourceForm({ ...resourceForm, category: value })}
+                  >
+                    <SelectTrigger id="resource-category" data-testid="select-resource-category">
+                      <SelectValue placeholder="Select a category" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="template">Template</SelectItem>
+                      <SelectItem value="script">Script</SelectItem>
+                      <SelectItem value="checklist">Checklist</SelectItem>
+                      <SelectItem value="guide">Guide</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Resource File (PDF) *</Label>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Upload a PDF file that users can download
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <ObjectUploader
+                      maxNumberOfFiles={1}
+                      maxFileSize={10485760}
+                      onGetUploadParameters={handleGetResourceUploadParams}
+                      onComplete={handleResourceUploadComplete}
+                      buttonClassName="gap-2"
+                    >
+                      <FileText className="w-4 h-4" />
+                      {resourceForm.fileUrl ? "Change File" : "Upload File"}
+                    </ObjectUploader>
+                    {resourceForm.fileUrl && (
+                      <Badge variant="secondary" className="gap-1" data-testid="badge-file-uploaded">
+                        <FileText className="w-3 h-3" />
+                        File Uploaded
+                      </Badge>
+                    )}
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  disabled={createResourceMutation.isPending}
+                  data-testid="button-add-resource"
+                >
+                  {createResourceMutation.isPending ? "Adding..." : "Add Resource"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          <h3 className="text-xl font-bold mb-4">Existing Resources</h3>
+          
+          {resourcesLoading ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Loading resources...</p>
+            </div>
+          ) : resources.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">No resources yet. Add your first resource above.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {resources.map((resource) => (
+                <Card key={resource.id} data-testid={`resource-${resource.id}`}>
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <CardTitle className="text-xl">{resource.title}</CardTitle>
+                          <Badge variant="outline">{resource.category}</Badge>
+                        </div>
+                        {resource.description && (
+                          <CardDescription>{resource.description}</CardDescription>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => window.open(resource.fileUrl, '_blank')}
+                          data-testid={`button-download-resource-${resource.id}`}
+                        >
+                          <FileText className="w-4 h-4" />
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() => handleDeleteResource(resource.id)}
+                          disabled={deleteResourceMutation.isPending}
+                          data-testid={`button-delete-resource-${resource.id}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        <TabsContent value="podcasts" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Add New Podcast Episode</CardTitle>
+              <CardDescription>
+                Upload and publish podcast episodes for your coaching content
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <form onSubmit={handleSavePodcast} className="space-y-4">
+                <div className="space-y-2">
+                  <Label htmlFor="podcast-title">Episode Title *</Label>
+                  <Input
+                    id="podcast-title"
+                    value={podcastForm.title}
+                    onChange={(e) => setPodcastForm({ ...podcastForm, title: e.target.value })}
+                    placeholder="Enter podcast episode title"
+                    required
+                    data-testid="input-podcast-title"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="podcast-description">Description</Label>
+                  <Textarea
+                    id="podcast-description"
+                    value={podcastForm.description}
+                    onChange={(e) => setPodcastForm({ ...podcastForm, description: e.target.value })}
+                    placeholder="Brief description of the episode"
+                    rows={3}
+                    data-testid="input-podcast-description"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="podcast-episode-number">Episode Number</Label>
+                    <Input
+                      id="podcast-episode-number"
+                      type="number"
+                      value={podcastForm.episodeNumber}
+                      onChange={(e) => setPodcastForm({ ...podcastForm, episodeNumber: e.target.value })}
+                      placeholder="e.g., 1"
+                      data-testid="input-podcast-episode-number"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="podcast-duration">Duration</Label>
+                    <Input
+                      id="podcast-duration"
+                      value={podcastForm.duration}
+                      onChange={(e) => setPodcastForm({ ...podcastForm, duration: e.target.value })}
+                      placeholder="MM:SS or HH:MM:SS"
+                      data-testid="input-podcast-duration"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="podcast-publish-date">Publish Date *</Label>
+                    <Input
+                      id="podcast-publish-date"
+                      type="date"
+                      value={podcastForm.publishDate}
+                      onChange={(e) => setPodcastForm({ ...podcastForm, publishDate: e.target.value })}
+                      required
+                      data-testid="input-podcast-publish-date"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Audio File *</Label>
+                  <p className="text-sm text-muted-foreground mb-2">
+                    Upload the podcast audio file (MP3, M4A, or other audio formats)
+                  </p>
+                  <div className="flex items-center gap-3">
+                    <ObjectUploader
+                      maxNumberOfFiles={1}
+                      maxFileSize={104857600}
+                      onGetUploadParameters={handleGetAudioUploadParams}
+                      onComplete={handleAudioUploadComplete}
+                      buttonClassName="gap-2"
+                    >
+                      <FileText className="w-4 h-4" />
+                      <span data-testid="button-upload-podcast">
+                        {podcastForm.audioUrl ? "Change Audio" : "Upload Audio"}
+                      </span>
+                    </ObjectUploader>
+                    {podcastForm.audioUrl && (
+                      <div className="flex items-center gap-2">
+                        <Badge variant="secondary" className="gap-1">
+                          <FileText className="w-3 h-3" />
+                          Audio Uploaded
+                        </Badge>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setPodcastForm({ ...podcastForm, audioUrl: "" })}
+                        >
+                          Remove
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                </div>
+
+                <Button
+                  type="submit"
+                  className="w-full"
+                  disabled={createPodcastMutation.isPending}
+                  data-testid="button-add-podcast"
+                >
+                  {createPodcastMutation.isPending ? "Adding..." : "Add Podcast"}
+                </Button>
+              </form>
+            </CardContent>
+          </Card>
+
+          <h3 className="text-xl font-bold mb-4">Existing Podcasts</h3>
+          
+          {podcastsLoading ? (
+            <div className="text-center py-12">
+              <p className="text-muted-foreground">Loading podcasts...</p>
+            </div>
+          ) : podcasts.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">No podcast episodes yet. Add your first episode above.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-4">
+              {podcasts.map((podcast) => (
+                <Card key={podcast.id} data-testid={`podcast-${podcast.id}`}>
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-4">
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          {podcast.episodeNumber && (
+                            <Badge variant="outline">Episode {podcast.episodeNumber}</Badge>
+                          )}
+                          <CardTitle className="text-xl">{podcast.title}</CardTitle>
+                        </div>
+                        {podcast.description && (
+                          <CardDescription>{podcast.description}</CardDescription>
+                        )}
+                        <div className="flex items-center gap-4 mt-2 text-sm text-muted-foreground">
+                          <span>{new Date(podcast.publishDate).toLocaleDateString()}</span>
+                          {podcast.duration && <span>{podcast.duration}</span>}
+                        </div>
+                      </div>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        onClick={() => handleDeletePodcast(podcast.id)}
+                        disabled={deletePodcastMutation.isPending}
+                        data-testid={`button-delete-podcast-${podcast.id}`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardHeader>
                 </Card>
               ))}
             </div>

@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
+import { setupAuth, isAuthenticated } from "./replitAuth";
 import {
   generateComplexResponse,
   generateQuickResponse,
@@ -18,6 +19,8 @@ import {
   emailTemplateRequestSchema,
   insertArticleSchema,
   insertVisitorSchema,
+  insertResourceSchema,
+  insertPodcastSchema,
 } from "@shared/schema";
 import {
   ObjectStorageService,
@@ -25,6 +28,21 @@ import {
 } from "./objectStorage";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Replit Auth setup - blueprint:javascript_log_in_with_replit
+  await setupAuth(app);
+
+  // Auth routes - blueprint:javascript_log_in_with_replit
+  app.get("/api/auth/user", isAuthenticated, async (req: any, res) => {
+    try {
+      const userId = req.user.claims.sub;
+      const user = await storage.getUser(userId);
+      res.json(user);
+    } catch (error) {
+      console.error("Error fetching user:", error);
+      res.status(500).json({ message: "Failed to fetch user" });
+    }
+  });
+
   // AI Playbook Generator
   app.post("/api/playbooks", async (req, res) => {
     try {
@@ -343,6 +361,136 @@ Subject: [subject line]
     } catch (error: any) {
       console.error("Delete article error:", error);
       res.status(500).json({ error: error.message || "Failed to delete article" });
+    }
+  });
+
+  // Resource Management Routes
+  
+  // Get All Resources (Public)
+  app.get("/api/resources", async (req, res) => {
+    try {
+      const resources = await storage.getAllResources();
+      
+      res.json({ resources });
+    } catch (error: any) {
+      console.error("Get resources error:", error);
+      res.status(500).json({ error: error.message || "Failed to retrieve resources" });
+    }
+  });
+
+  // Create Resource (Admin only)
+  app.post("/api/resources", async (req, res) => {
+    const adminAuth = req.headers["x-admin-auth"];
+    
+    if (adminAuth !== "5413") {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    
+    try {
+      const resourceData = insertResourceSchema.parse(req.body);
+      
+      const resource = await storage.createResource(resourceData);
+      
+      console.log("New resource created:", resource);
+      
+      res.json({ success: true, resource });
+    } catch (error: any) {
+      console.error("Create resource error:", error);
+      if (error.name === "ZodError") {
+        res.status(400).json({ error: error.message || "Invalid resource data" });
+      } else {
+        res.status(500).json({ error: error.message || "Failed to create resource" });
+      }
+    }
+  });
+
+  // Delete Resource (Admin only)
+  app.delete("/api/resources/:id", async (req, res) => {
+    const adminAuth = req.headers["x-admin-auth"];
+    
+    if (adminAuth !== "5413") {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid resource ID" });
+      }
+
+      await storage.deleteResource(id);
+      
+      console.log("Resource deleted:", id);
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Delete resource error:", error);
+      res.status(500).json({ error: error.message || "Failed to delete resource" });
+    }
+  });
+
+  // Podcast Management Routes
+  
+  // Get All Podcasts (Public)
+  app.get("/api/podcasts", async (req, res) => {
+    try {
+      const podcasts = await storage.getAllPodcasts();
+      
+      res.json({ podcasts });
+    } catch (error: any) {
+      console.error("Get podcasts error:", error);
+      res.status(500).json({ error: error.message || "Failed to retrieve podcasts" });
+    }
+  });
+
+  // Create Podcast (Admin only)
+  app.post("/api/podcasts", async (req, res) => {
+    const adminAuth = req.headers["x-admin-auth"];
+    
+    if (adminAuth !== "5413") {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    
+    try {
+      const podcastData = insertPodcastSchema.parse(req.body);
+      
+      const podcast = await storage.createPodcast(podcastData);
+      
+      console.log("New podcast created:", podcast);
+      
+      res.json({ success: true, podcast });
+    } catch (error: any) {
+      console.error("Create podcast error:", error);
+      if (error.name === "ZodError") {
+        res.status(400).json({ error: error.message || "Invalid podcast data" });
+      } else {
+        res.status(500).json({ error: error.message || "Failed to create podcast" });
+      }
+    }
+  });
+
+  // Delete Podcast (Admin only)
+  app.delete("/api/podcasts/:id", async (req, res) => {
+    const adminAuth = req.headers["x-admin-auth"];
+    
+    if (adminAuth !== "5413") {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid podcast ID" });
+      }
+
+      await storage.deletePodcast(id);
+      
+      console.log("Podcast deleted:", id);
+      
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Delete podcast error:", error);
+      res.status(500).json({ error: error.message || "Failed to delete podcast" });
     }
   });
 

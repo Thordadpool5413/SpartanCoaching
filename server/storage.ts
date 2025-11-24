@@ -3,6 +3,9 @@ import {
   newsletterSubscribers,
   articles,
   visitors,
+  users,
+  resources,
+  podcasts,
   type InsertInquiry, 
   type SelectInquiry,
   type InsertNewsletterSubscriber,
@@ -11,13 +14,23 @@ import {
   type SelectArticle,
   type InsertVisitor,
   type SelectVisitor,
-  type VisitorAnalytics
+  type VisitorAnalytics,
+  type User,
+  type UpsertUser,
+  type InsertResource,
+  type SelectResource,
+  type InsertPodcast,
+  type SelectPodcast
 } from "@shared/schema";
 import { db } from "./db";
 import { desc, eq, gte, count } from "drizzle-orm";
 
 // Storage interface for CRUD operations
 export interface IStorage {
+  // User operations (Replit Auth - blueprint:javascript_log_in_with_replit)
+  getUser(id: string): Promise<User | undefined>;
+  upsertUser(user: UpsertUser): Promise<User>;
+  // Other operations
   createInquiry(inquiry: InsertInquiry): Promise<SelectInquiry>;
   getInquiries(): Promise<SelectInquiry[]>;
   subscribeNewsletter(subscriber: InsertNewsletterSubscriber): Promise<SelectNewsletterSubscriber>;
@@ -30,10 +43,39 @@ export interface IStorage {
   deleteArticle(id: number): Promise<void>;
   trackVisitor(visitor: InsertVisitor): Promise<SelectVisitor>;
   getVisitorAnalytics(): Promise<VisitorAnalytics>;
+  getAllResources(): Promise<SelectResource[]>;
+  getResource(id: number): Promise<SelectResource | undefined>;
+  createResource(data: InsertResource): Promise<SelectResource>;
+  deleteResource(id: number): Promise<void>;
+  getAllPodcasts(): Promise<SelectPodcast[]>;
+  getPodcast(id: number): Promise<SelectPodcast | undefined>;
+  createPodcast(data: InsertPodcast): Promise<SelectPodcast>;
+  deletePodcast(id: number): Promise<void>;
 }
 
 // Database-backed storage implementation
 export class DatabaseStorage implements IStorage {
+  // User operations (Replit Auth - blueprint:javascript_log_in_with_replit)
+  async getUser(id: string): Promise<User | undefined> {
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
+  }
+
+  async upsertUser(userData: UpsertUser): Promise<User> {
+    const [user] = await db
+      .insert(users)
+      .values(userData)
+      .onConflictDoUpdate({
+        target: users.id,
+        set: {
+          ...userData,
+          updatedAt: new Date(),
+        },
+      })
+      .returning();
+    return user;
+  }
+
   async createInquiry(inquiry: InsertInquiry): Promise<SelectInquiry> {
     const inquiryWithTimestamp = {
       ...inquiry,
@@ -166,6 +208,68 @@ export class DatabaseStorage implements IStorage {
       quarter: quarterResult[0].count,
       year: yearResult[0].count,
     };
+  }
+
+  async getAllResources(): Promise<SelectResource[]> {
+    return await db
+      .select()
+      .from(resources)
+      .orderBy(desc(resources.createdAt));
+  }
+
+  async getResource(id: number): Promise<SelectResource | undefined> {
+    const [resource] = await db
+      .select()
+      .from(resources)
+      .where(eq(resources.id, id));
+    
+    return resource;
+  }
+
+  async createResource(data: InsertResource): Promise<SelectResource> {
+    const [created] = await db
+      .insert(resources)
+      .values(data)
+      .returning();
+    
+    return created;
+  }
+
+  async deleteResource(id: number): Promise<void> {
+    await db
+      .delete(resources)
+      .where(eq(resources.id, id));
+  }
+
+  async getAllPodcasts(): Promise<SelectPodcast[]> {
+    return await db
+      .select()
+      .from(podcasts)
+      .orderBy(desc(podcasts.publishDate));
+  }
+
+  async getPodcast(id: number): Promise<SelectPodcast | undefined> {
+    const [podcast] = await db
+      .select()
+      .from(podcasts)
+      .where(eq(podcasts.id, id));
+    
+    return podcast;
+  }
+
+  async createPodcast(data: InsertPodcast): Promise<SelectPodcast> {
+    const [created] = await db
+      .insert(podcasts)
+      .values(data)
+      .returning();
+    
+    return created;
+  }
+
+  async deletePodcast(id: number): Promise<void> {
+    await db
+      .delete(podcasts)
+      .where(eq(podcasts.id, id));
   }
 }
 

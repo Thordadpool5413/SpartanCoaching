@@ -28,6 +28,7 @@ import Admin from "@/pages/Admin";
 import EmailTemplates from "@/pages/EmailTemplates";
 import Testimonials from "@/pages/Testimonials";
 import Articles from "@/pages/Articles";
+import Podcasts from "@/pages/Podcasts";
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -98,6 +99,7 @@ function Router() {
         <Route path="/resources/metrics-dashboard" component={MetricsDashboard} />
         <Route path="/testimonials" component={Testimonials} />
         <Route path="/articles" component={Articles} />
+        <Route path="/podcasts" component={Podcasts} />
         <Route path="/about" component={About} />
         <Route component={NotFound} />
       </Switch>
