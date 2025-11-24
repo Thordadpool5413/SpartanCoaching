@@ -2,6 +2,7 @@ import { Card } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { BackButton } from "@/components/BackButton";
 import { Compass, Users, Target, CheckCircle, Lightbulb, BarChart3, Shield, Heart, Eye } from "lucide-react";
+import { SEO } from "@/components/SEO";
 
 export default function Method() {
   const salesStages = [
@@ -114,6 +115,7 @@ export default function Method() {
 
   return (
     <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
+      <SEO />
       <BackButton />
       
       {/* Header */}

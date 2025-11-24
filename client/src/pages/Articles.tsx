@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/BackButton";
 import { ExternalLink, Calendar, Star, FileText } from "lucide-react";
 import type { SelectArticle } from "@shared/schema";
+import { SEO } from "@/components/SEO";
 
 export default function Articles() {
   const { data, isLoading } = useQuery<{ articles: SelectArticle[] }>({
@@ -25,6 +26,7 @@ export default function Articles() {
   if (isLoading) {
     return (
       <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
+        <SEO />
         <BackButton />
         <div className="text-center py-20">
           <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto"></div>
@@ -37,6 +39,7 @@ export default function Articles() {
   if (articles.length === 0) {
     return (
       <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
+        <SEO />
         <BackButton />
         <div className="text-center max-w-2xl mx-auto py-20">
           <h1 className="text-h1 text-foreground mb-6">Articles</h1>
@@ -50,6 +53,7 @@ export default function Articles() {
 
   return (
     <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
+      <SEO />
       <BackButton />
       
       {/* Header */}

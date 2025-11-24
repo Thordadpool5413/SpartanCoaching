@@ -4,6 +4,7 @@ import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock } from "lucide-react";
 import type { SelectPodcast } from "@shared/schema";
 import { BackButton } from "@/components/BackButton";
+import { SEO } from "@/components/SEO";
 
 export default function Podcasts() {
   const { data, isLoading } = useQuery<{ podcasts: SelectPodcast[] }>({
@@ -14,6 +15,7 @@ export default function Podcasts() {
 
   return (
     <div className="container mx-auto px-6 py-12">
+      <SEO />
       <div className="mb-8">
         <BackButton />
       </div>

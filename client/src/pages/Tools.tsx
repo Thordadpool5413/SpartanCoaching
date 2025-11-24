@@ -4,6 +4,7 @@ import { Mail } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/BackButton";
+import { SEO } from "@/components/SEO";
 
 export default function Tools() {
   const tools = [
@@ -41,6 +42,7 @@ export default function Tools() {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-6 py-16">
+      <SEO />
       <BackButton />
       <div className="text-center max-w-3xl mx-auto mb-16">
         <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-tools-title">

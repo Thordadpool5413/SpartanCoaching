@@ -4,6 +4,7 @@ import { BackButton } from "@/components/BackButton";
 import { Quote, TrendingUp, Users, Award } from "lucide-react";
 import { ContactForm } from "@/components/ContactForm";
 import { Button } from "@/components/ui/button";
+import { SEO } from "@/components/SEO";
 
 export default function Testimonials() {
   const [contactFormOpen, setContactFormOpen] = useState(false);
@@ -82,6 +83,7 @@ export default function Testimonials() {
 
   return (
     <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
+      <SEO />
       <BackButton />
       <div className="text-center max-w-4xl mx-auto mb-16">
         <h1 className="text-h1 text-foreground mb-6" data-testid="text-testimonials-title">

@@ -1,4 +1,5 @@
 import { BackButton } from "@/components/BackButton";
+import { SEO } from "@/components/SEO";
 
 export default function ObjectionCards() {
   const objections = [
@@ -46,6 +47,7 @@ export default function ObjectionCards() {
 
   return (
     <div className="max-w-6xl mx-auto p-8 bg-white text-black print:p-0">
+      <SEO />
       <div className="print:hidden">
         <BackButton />
       </div>

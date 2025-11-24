@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Download } from "lucide-react";
 import { BackButton } from "@/components/BackButton";
 import type { SelectResource } from "@shared/schema";
+import { SEO } from "@/components/SEO";
 
 export default function Resources() {
   const { data: resourcesData, isLoading } = useQuery<{ resources: SelectResource[] }>({
@@ -33,6 +34,7 @@ export default function Resources() {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-6 py-16">
+      <SEO />
       <BackButton />
       <div className="text-center max-w-3xl mx-auto mb-16">
         <h1 className="text-5xl font-black text-foreground mb-6" data-testid="text-resources-title">

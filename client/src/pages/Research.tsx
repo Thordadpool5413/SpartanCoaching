@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SearchIcon, SpinnerIcon } from "@/components/icons";
 import { BackButton } from "@/components/BackButton";
+import { SEO } from "@/components/SEO";
 
 export default function Research() {
   const [query, setQuery] = useState("");
@@ -56,6 +57,7 @@ export default function Research() {
 
   return (
     <div className="w-full max-w-4xl mx-auto px-6 py-16">
+      <SEO />
       <BackButton />
       <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-research-title">
         Grounded Research Tool

@@ -5,6 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { SpinnerIcon, DownloadIcon } from "@/components/icons";
 import { BackButton } from "@/components/BackButton";
+import { SEO } from "@/components/SEO";
 
 export default function Playbooks() {
   const [scenario, setScenario] = useState("");
@@ -94,6 +95,7 @@ export default function Playbooks() {
 
   return (
     <div className="w-full max-w-7xl mx-auto px-6 py-16">
+      <SEO />
       <BackButton />
       <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-playbooks-title">
         AI Custom Playbook Generator

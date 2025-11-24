@@ -18,6 +18,7 @@ import { apiRequest, queryClient } from "@/lib/queryClient";
 import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UploadResult } from "@uppy/core";
 import { FileText } from "lucide-react";
+import { SEO } from "@/components/SEO";
 
 const ADMIN_CODE = "5413";
 const ADMIN_AUTH_KEY = "spartan-admin-auth";
@@ -676,6 +677,7 @@ export default function Admin() {
 
   return (
     <div className="container mx-auto px-6 py-12">
+      <SEO />
       <div className="flex items-center justify-between mb-8">
         <BackButton />
         <Button

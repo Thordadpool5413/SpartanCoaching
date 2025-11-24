@@ -4,10 +4,12 @@ import { Target, Users, TrendingUp, Linkedin } from "lucide-react";
 import nickPhoto from "@assets/nick-photo.jpg";
 import { Button } from "@/components/ui/button";
 import { ContactForm } from "@/components/ContactForm";
+import { SEO } from "@/components/SEO";
 
 export default function About() {
   return (
     <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
+      <SEO />
       <BackButton />
       <div className="max-w-4xl mx-auto">
         <div className="text-center mb-16">

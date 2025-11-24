@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { DisciplineIcon, EmpathyIcon, StrategyIcon } from "@/components/icons";
 import { Shield, Heart, Zap, Target, Users, BookOpen, ArrowRight, Sparkles } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
+import { SEO } from "@/components/SEO";
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -71,6 +72,7 @@ export default function Home() {
 
   return (
     <div className="flex flex-col">
+      <SEO />
       {/* Hero Section - Enhanced with video background */}
       <section className="relative min-h-[50vh] sm:min-h-[60vh] md:h-[92vh] flex items-center justify-center overflow-hidden bg-gray-950">
         {/* Enhanced gradient background with radial accents */}

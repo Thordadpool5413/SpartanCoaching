@@ -1,8 +1,10 @@
 import { BackButton } from "@/components/BackButton";
+import { SEO } from "@/components/SEO";
 
 export default function TerritoryTemplate() {
   return (
     <div className="max-w-5xl mx-auto p-8 bg-white text-black print:p-0">
+      <SEO />
       <div className="print:hidden">
         <BackButton />
       </div>
