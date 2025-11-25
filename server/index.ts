@@ -1,9 +1,28 @@
 import express, { type Request, Response, NextFunction } from "express";
-import { registerRoutes } from "./routes";
+import { registerRoutes, deferredInit } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 import { seedDatabase } from "./seed";
 
 const app = express();
+
+// Health check endpoint - MUST be first and respond immediately
+// This ensures deployment health checks pass before any other initialization
+app.get("/healthz", (_req, res) => {
+  res.status(200).json({ status: "ok" });
+});
+
+// Root health check fallback for deployments that check /
+app.get("/", (_req, res, next) => {
+  // Only respond to health checks (no accept header or json accept)
+  const acceptHeader = _req.headers.accept || "";
+  if (acceptHeader.includes("text/html")) {
+    // Let it fall through to the static file handler
+    next();
+  } else {
+    // Respond immediately for health checks
+    res.status(200).json({ status: "ok" });
+  }
+});
 
 declare module 'http' {
   interface IncomingMessage {
@@ -47,49 +66,53 @@ app.use((req, res, next) => {
   next();
 });
 
-(async () => {
-  const server = await registerRoutes(app);
+// Synchronous route registration - no async operations that would delay startup
+const server = registerRoutes(app);
 
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
+app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  const status = err.status || err.statusCode || 500;
+  const message = err.message || "Internal Server Error";
 
-    res.status(status).json({ message });
-    throw err;
-  });
+  res.status(status).json({ message });
+  throw err;
+});
 
-  // importantly only setup vite in development and after
-  // setting up all the other routes so the catch-all route
-  // doesn't interfere with the other routes
-  if (app.get("env") === "development") {
-    await setupVite(app, server);
-  } else {
-    serveStatic(app);
-  }
+// ALWAYS serve the app on the port specified in the environment variable PORT
+// Other ports are firewalled. Default to 5000 if not specified.
+// this serves both the API and the client.
+// It is the only port that is not firewalled.
+const port = parseInt(process.env.PORT || '5000', 10);
 
-  // ALWAYS serve the app on the port specified in the environment variable PORT
-  // Other ports are firewalled. Default to 5000 if not specified.
-  // this serves both the API and the client.
-  // It is the only port that is not firewalled.
-  const port = parseInt(process.env.PORT || '5000', 10);
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
-    
-    // Seed database AFTER server is listening (deferred to pass health checks)
-    // This runs in the background and doesn't block the server
-    setImmediate(async () => {
-      try {
-        log("Starting deferred database seed...");
-        await seedDatabase();
-        log("Database seed completed successfully");
-      } catch (error: any) {
-        log(`Warning: Database seeding failed - ${error?.message || 'Unknown error'}`);
-        console.error("Full seeding error:", error);
+// Start listening IMMEDIATELY - health checks need fast response
+server.listen({
+  port,
+  host: "0.0.0.0",
+  reusePort: true,
+}, () => {
+  log(`serving on port ${port}`);
+  
+  // ALL async initialization happens AFTER server is listening
+  // This ensures health checks pass immediately
+  setImmediate(async () => {
+    try {
+      // Setup Vite or static serving (deferred)
+      if (app.get("env") === "development") {
+        await setupVite(app, server);
+      } else {
+        serveStatic(app);
       }
-    });
+      
+      // Initialize auth (deferred)
+      log("Starting deferred initialization...");
+      await deferredInit(app);
+      
+      // Seed database (deferred)
+      log("Starting database seed...");
+      await seedDatabase();
+      log("All deferred initialization completed successfully");
+    } catch (error: any) {
+      log(`Warning: Deferred initialization failed - ${error?.message || 'Unknown error'}`);
+      console.error("Full initialization error:", error);
+    }
   });
-})();
+});

@@ -33,7 +33,20 @@ import {
 // Get admin password from environment, default to secure value for development
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "5413";
 
-export async function registerRoutes(app: Express): Promise<Server> {
+// Track if auth has been initialized (for deferred init)
+let authInitialized = false;
+
+// Deferred initialization - call this AFTER server.listen()
+export async function deferredInit(app: Express): Promise<void> {
+  if (!authInitialized) {
+    console.log("Running deferred auth initialization...");
+    await setupAuth(app);
+    authInitialized = true;
+    console.log("Auth initialization complete");
+  }
+}
+
+export function registerRoutes(app: Express): Server {
   // Serve training resources files
   // In development: ./public/resources (from project root)
   // In production: ./dist/public/resources (bundled with the build)
@@ -42,8 +55,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
     : path.join(import.meta.dirname, '..', 'public', 'resources');
   app.use('/resources', express.static(resourcesPath));
 
-  // Replit Auth setup - blueprint:javascript_log_in_with_replit
-  await setupAuth(app);
+  // NOTE: Auth setup is deferred to after server.listen() for faster startup
+  // See deferredInit() function above
 
   // Auth routes - blueprint:javascript_log_in_with_replit
   app.get("/api/auth/user", isAuthenticated, async (req: any, res) => {
