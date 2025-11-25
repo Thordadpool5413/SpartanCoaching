@@ -35,7 +35,12 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "5413";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Serve training resources files
-  app.use('/resources', express.static(path.join(import.meta.dirname, '../public/resources')));
+  // In development: ./public/resources (from project root)
+  // In production: ./dist/public/resources (bundled with the build)
+  const resourcesPath = process.env.NODE_ENV === 'production'
+    ? path.join(import.meta.dirname, 'public', 'resources')
+    : path.join(import.meta.dirname, '..', 'public', 'resources');
+  app.use('/resources', express.static(resourcesPath));
 
   // Replit Auth setup - blueprint:javascript_log_in_with_replit
   await setupAuth(app);
