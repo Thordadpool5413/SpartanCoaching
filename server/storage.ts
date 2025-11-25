@@ -107,7 +107,10 @@ export class DatabaseStorage implements IStorage {
     const [created] = await db
       .insert(newsletterSubscribers)
       .values(subscriberWithTimestamp)
-      .onConflictDoNothing()
+      .onConflictDoUpdate({
+        target: newsletterSubscribers.email,
+        set: { isActive: true, subscribedAt: Date.now() }
+      })
       .returning();
     
     return created;

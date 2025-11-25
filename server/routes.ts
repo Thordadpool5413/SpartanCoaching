@@ -175,7 +175,11 @@ Keep it under 100 words and use a warm, professional tone.`;
       
       const subscriber = await storage.subscribeNewsletter(subscriberData);
       
-      console.log("New newsletter subscriber:", subscriber);
+      if (!subscriber) {
+        return res.status(400).json({ error: "Failed to subscribe to newsletter" });
+      }
+      
+      console.log("Newsletter subscriber:", subscriber);
       
       res.json({ success: true, message: "Successfully subscribed to newsletter" });
     } catch (error: any) {

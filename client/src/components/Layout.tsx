@@ -201,6 +201,7 @@ export function Header() {
                   size="icon"
                   className="touch-manipulation min-h-[48px] min-w-[48px]"
                   aria-label="Toggle theme"
+                  data-testid="button-mobile-theme-toggle"
                 >
                   {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
                 </Button>
