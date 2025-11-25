@@ -48,14 +48,6 @@ app.use((req, res, next) => {
 });
 
 (async () => {
-  // Seed database with initial training resources content
-  try {
-    await seedDatabase();
-  } catch (error: any) {
-    log(`Warning: Database seeding failed - ${error?.message || 'Unknown error'}`);
-    console.error("Full seeding error:", error);
-  }
-
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -86,5 +78,18 @@ app.use((req, res, next) => {
     reusePort: true,
   }, () => {
     log(`serving on port ${port}`);
+    
+    // Seed database AFTER server is listening (deferred to pass health checks)
+    // This runs in the background and doesn't block the server
+    setImmediate(async () => {
+      try {
+        log("Starting deferred database seed...");
+        await seedDatabase();
+        log("Database seed completed successfully");
+      } catch (error: any) {
+        log(`Warning: Database seeding failed - ${error?.message || 'Unknown error'}`);
+        console.error("Full seeding error:", error);
+      }
+    });
   });
 })();
