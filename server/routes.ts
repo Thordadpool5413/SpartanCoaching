@@ -24,10 +24,14 @@ import {
   insertResourceSchema,
   insertPodcastSchema,
 } from "@shared/schema";
+
 import {
   ObjectStorageService,
   ObjectNotFoundError,
 } from "./objectStorage";
+
+// Get admin password from environment, default to secure value for development
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "5413";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Serve training resources files
@@ -391,7 +395,7 @@ Subject: [subject line]
   app.post("/api/resources", async (req, res) => {
     const adminAuth = req.headers["x-admin-auth"];
     
-    if (adminAuth !== "5413") {
+    if (adminAuth !== ADMIN_PASSWORD) {
       return res.status(401).json({ error: "Unauthorized" });
     }
     
@@ -413,11 +417,48 @@ Subject: [subject line]
     }
   });
 
+  // Update Resource (Admin only)
+  app.put("/api/resources/:id", async (req, res) => {
+    const adminAuth = req.headers["x-admin-auth"];
+    
+    if (adminAuth !== ADMIN_PASSWORD) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid resource ID" });
+      }
+
+      const resourceData = insertResourceSchema.parse(req.body);
+      
+      // Check if resource exists first
+      const existingResource = await storage.getResource(id);
+      if (!existingResource) {
+        return res.status(404).json({ error: "Resource not found" });
+      }
+      
+      const resource = await storage.updateResource(id, resourceData);
+      
+      console.log("Resource updated:", resource);
+      
+      res.json({ success: true, resource });
+    } catch (error: any) {
+      console.error("Update resource error:", error);
+      if (error.name === "ZodError") {
+        res.status(400).json({ error: error.message || "Invalid resource data" });
+      } else {
+        res.status(500).json({ error: error.message || "Failed to update resource" });
+      }
+    }
+  });
+
   // Delete Resource (Admin only)
   app.delete("/api/resources/:id", async (req, res) => {
     const adminAuth = req.headers["x-admin-auth"];
     
-    if (adminAuth !== "5413") {
+    if (adminAuth !== ADMIN_PASSWORD) {
       return res.status(401).json({ error: "Unauthorized" });
     }
     
@@ -456,7 +497,7 @@ Subject: [subject line]
   app.post("/api/podcasts", async (req, res) => {
     const adminAuth = req.headers["x-admin-auth"];
     
-    if (adminAuth !== "5413") {
+    if (adminAuth !== ADMIN_PASSWORD) {
       return res.status(401).json({ error: "Unauthorized" });
     }
     
@@ -478,11 +519,48 @@ Subject: [subject line]
     }
   });
 
+  // Update Podcast (Admin only)
+  app.put("/api/podcasts/:id", async (req, res) => {
+    const adminAuth = req.headers["x-admin-auth"];
+    
+    if (adminAuth !== ADMIN_PASSWORD) {
+      return res.status(401).json({ error: "Unauthorized" });
+    }
+    
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) {
+        return res.status(400).json({ error: "Invalid podcast ID" });
+      }
+
+      const podcastData = insertPodcastSchema.parse(req.body);
+      
+      // Check if podcast exists first
+      const existingPodcast = await storage.getPodcast(id);
+      if (!existingPodcast) {
+        return res.status(404).json({ error: "Podcast not found" });
+      }
+      
+      const podcast = await storage.updatePodcast(id, podcastData);
+      
+      console.log("Podcast updated:", podcast);
+      
+      res.json({ success: true, podcast });
+    } catch (error: any) {
+      console.error("Update podcast error:", error);
+      if (error.name === "ZodError") {
+        res.status(400).json({ error: error.message || "Invalid podcast data" });
+      } else {
+        res.status(500).json({ error: error.message || "Failed to update podcast" });
+      }
+    }
+  });
+
   // Delete Podcast (Admin only)
   app.delete("/api/podcasts/:id", async (req, res) => {
     const adminAuth = req.headers["x-admin-auth"];
     
-    if (adminAuth !== "5413") {
+    if (adminAuth !== ADMIN_PASSWORD) {
       return res.status(401).json({ error: "Unauthorized" });
     }
     
@@ -533,7 +611,7 @@ Subject: [subject line]
   app.post("/api/objects/upload", async (req, res) => {
     const adminAuth = req.headers["x-admin-auth"];
     
-    if (adminAuth !== "5413") {
+    if (adminAuth !== ADMIN_PASSWORD) {
       return res.status(401).json({ error: "Unauthorized" });
     }
     
@@ -551,7 +629,7 @@ Subject: [subject line]
   app.post("/api/articles/normalize-pdf", async (req, res) => {
     const adminAuth = req.headers["x-admin-auth"];
     
-    if (adminAuth !== "5413") {
+    if (adminAuth !== ADMIN_PASSWORD) {
       return res.status(401).json({ error: "Unauthorized" });
     }
     

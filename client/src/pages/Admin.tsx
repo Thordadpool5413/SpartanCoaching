@@ -20,7 +20,7 @@ import type { UploadResult } from "@uppy/core";
 import { FileText } from "lucide-react";
 import { SEO } from "@/components/SEO";
 
-const ADMIN_CODE = "5413";
+const ADMIN_CODE = import.meta.env.VITE_ADMIN_PASSWORD || "5413";
 const ADMIN_AUTH_KEY = "spartan-admin-auth";
 
 export default function Admin() {
@@ -200,11 +200,13 @@ export default function Admin() {
 
   const handleEditArticle = (article: SelectArticle) => {
     setEditingArticle(article);
+    // Convert timestamp to date string - handle both number and Date types
+    const date = new Date(typeof article.publishDate === 'number' ? article.publishDate : parseInt(String(article.publishDate)));
     setArticleForm({
       title: article.title,
       description: article.description,
       linkedinUrl: article.linkedinUrl,
-      publishDate: new Date(article.publishDate).toISOString().split('T')[0],
+      publishDate: date.toISOString().split('T')[0],
       featured: article.featured,
       pdfUrl: article.pdfUrl || "",
     });
@@ -236,7 +238,7 @@ export default function Admin() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Admin-Auth": "5413",
+        "X-Admin-Auth": ADMIN_CODE,
       },
       body: JSON.stringify({}),
     });
@@ -261,7 +263,7 @@ export default function Admin() {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "X-Admin-Auth": "5413",
+              "X-Admin-Auth": ADMIN_CODE,
             },
             body: JSON.stringify({ uploadURL }),
           });
@@ -311,7 +313,7 @@ export default function Admin() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Admin-Auth": "5413",
+          "X-Admin-Auth": ADMIN_CODE,
         },
         body: JSON.stringify(data),
       });
@@ -340,13 +342,48 @@ export default function Admin() {
     },
   });
 
+  // Update resource mutation
+  const updateResourceMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: InsertResource }) => {
+      const response = await fetch(`/api/resources/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Admin-Auth": ADMIN_CODE,
+        },
+        body: JSON.stringify(data),
+      });
+      
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "Failed to update resource");
+      }
+      
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/resources"] });
+      toast({
+        title: "Resource Updated",
+        description: "The resource has been successfully updated",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update resource",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Delete resource mutation
   const deleteResourceMutation = useMutation({
     mutationFn: async (id: number) => {
       const response = await fetch(`/api/resources/${id}`, {
         method: "DELETE",
         headers: {
-          "X-Admin-Auth": "5413",
+          "X-Admin-Auth": ADMIN_CODE,
         },
       });
       
@@ -378,12 +415,26 @@ export default function Admin() {
     },
   });
 
+  // State to track editing resource
+  const [editingResource, setEditingResource] = useState<SelectResource | null>(null);
+
   const resetResourceForm = () => {
     setResourceForm({
       title: "",
       description: "",
       category: "",
       fileUrl: "",
+    });
+    setEditingResource(null);
+  };
+
+  const handleEditResource = (resource: SelectResource) => {
+    setEditingResource(resource);
+    setResourceForm({
+      title: resource.title,
+      description: resource.description || "",
+      category: resource.category,
+      fileUrl: resource.fileUrl,
     });
   };
 
@@ -406,7 +457,11 @@ export default function Admin() {
       fileUrl: resourceForm.fileUrl,
     };
 
-    createResourceMutation.mutate(data);
+    if (editingResource) {
+      updateResourceMutation.mutate({ id: editingResource.id, data });
+    } else {
+      createResourceMutation.mutate(data);
+    }
   };
 
   // Resource PDF Upload handlers
@@ -415,7 +470,7 @@ export default function Admin() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Admin-Auth": "5413",
+        "X-Admin-Auth": ADMIN_CODE,
       },
     });
 
@@ -438,7 +493,7 @@ export default function Admin() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Admin-Auth": "5413",
+          "X-Admin-Auth": ADMIN_CODE,
         },
         body: JSON.stringify({ uploadURL }),
       });
@@ -480,7 +535,7 @@ export default function Admin() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Admin-Auth": "5413",
+          "X-Admin-Auth": ADMIN_CODE,
         },
         body: JSON.stringify(data),
       });
@@ -509,13 +564,48 @@ export default function Admin() {
     },
   });
 
+  // Update podcast mutation
+  const updatePodcastMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: InsertPodcast }) => {
+      const response = await fetch(`/api/podcasts/${id}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Admin-Auth": ADMIN_CODE,
+        },
+        body: JSON.stringify(data),
+      });
+      
+      if (!response.ok) {
+        const text = await response.text();
+        throw new Error(text || "Failed to update podcast");
+      }
+      
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/podcasts"] });
+      toast({
+        title: "Podcast Updated",
+        description: "The podcast episode has been successfully updated",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to update podcast",
+        variant: "destructive",
+      });
+    },
+  });
+
   // Delete podcast mutation
   const deletePodcastMutation = useMutation({
     mutationFn: async (id: number) => {
       const response = await fetch(`/api/podcasts/${id}`, {
         method: "DELETE",
         headers: {
-          "X-Admin-Auth": "5413",
+          "X-Admin-Auth": ADMIN_CODE,
         },
       });
       
@@ -547,6 +637,9 @@ export default function Admin() {
     },
   });
 
+  // State to track editing podcast
+  const [editingPodcast, setEditingPodcast] = useState<SelectPodcast | null>(null);
+
   const resetPodcastForm = () => {
     setPodcastForm({
       title: "",
@@ -555,6 +648,21 @@ export default function Admin() {
       duration: "",
       publishDate: new Date().toISOString().split('T')[0],
       audioUrl: "",
+    });
+    setEditingPodcast(null);
+  };
+
+  const handleEditPodcast = (podcast: SelectPodcast) => {
+    setEditingPodcast(podcast);
+    // Convert timestamp to date string - handle both number and Date types
+    const date = new Date(typeof podcast.publishDate === 'string' || podcast.publishDate instanceof Date ? podcast.publishDate : parseInt(String(podcast.publishDate)));
+    setPodcastForm({
+      title: podcast.title,
+      description: podcast.description || "",
+      episodeNumber: podcast.episodeNumber ? String(podcast.episodeNumber) : "",
+      duration: podcast.duration || "",
+      publishDate: date.toISOString().split('T')[0],
+      audioUrl: podcast.audioUrl,
     });
   };
 
@@ -578,7 +686,11 @@ export default function Admin() {
       audioUrl: podcastForm.audioUrl,
     };
 
-    createPodcastMutation.mutate(data);
+    if (editingPodcast) {
+      updatePodcastMutation.mutate({ id: editingPodcast.id, data });
+    } else {
+      createPodcastMutation.mutate(data);
+    }
   };
 
   // Podcast audio upload handlers
@@ -587,7 +699,7 @@ export default function Admin() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Admin-Auth": "5413",
+        "X-Admin-Auth": ADMIN_CODE,
       },
     });
 
@@ -610,7 +722,7 @@ export default function Admin() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Admin-Auth": "5413",
+          "X-Admin-Auth": ADMIN_CODE,
         },
         body: JSON.stringify({ uploadURL }),
       });

@@ -47,9 +47,11 @@ export interface IStorage {
   getResource(id: number): Promise<SelectResource | undefined>;
   createResource(data: InsertResource): Promise<SelectResource>;
   deleteResource(id: number): Promise<void>;
+  updateResource(id: number, resource: Partial<InsertResource>): Promise<SelectResource>;
   getAllPodcasts(): Promise<SelectPodcast[]>;
   getPodcast(id: number): Promise<SelectPodcast | undefined>;
   createPodcast(data: InsertPodcast): Promise<SelectPodcast>;
+  updatePodcast(id: number, podcast: Partial<InsertPodcast>): Promise<SelectPodcast>;
   deletePodcast(id: number): Promise<void>;
 }
 
@@ -244,6 +246,16 @@ export class DatabaseStorage implements IStorage {
       .where(eq(resources.id, id));
   }
 
+  async updateResource(id: number, resource: Partial<InsertResource>): Promise<SelectResource> {
+    const [updated] = await db
+      .update(resources)
+      .set(resource)
+      .where(eq(resources.id, id))
+      .returning();
+    
+    return updated;
+  }
+
   async getAllPodcasts(): Promise<SelectPodcast[]> {
     return await db
       .select()
@@ -267,6 +279,16 @@ export class DatabaseStorage implements IStorage {
       .returning();
     
     return created;
+  }
+
+  async updatePodcast(id: number, podcast: Partial<InsertPodcast>): Promise<SelectPodcast> {
+    const [updated] = await db
+      .update(podcasts)
+      .set(podcast)
+      .where(eq(podcasts.id, id))
+      .returning();
+    
+    return updated;
   }
 
   async deletePodcast(id: number): Promise<void> {
