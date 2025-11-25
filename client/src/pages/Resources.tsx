@@ -9,7 +9,7 @@ import type { SelectResource } from "@shared/schema";
 import { SEO } from "@/components/SEO";
 
 export default function Resources() {
-  const { data: resourcesData, isLoading } = useQuery<{ resources: SelectResource[] }>({
+  const { data: resourcesData, isLoading, isError } = useQuery<{ resources: SelectResource[] }>({
     queryKey: ["/api/resources"],
   });
 
@@ -49,6 +49,12 @@ export default function Resources() {
         <div className="text-center py-12">
           <p className="text-muted-foreground">Loading resources...</p>
         </div>
+      ) : isError ? (
+        <Card className="border-destructive/50">
+          <CardContent className="py-12 text-center">
+            <p className="text-destructive">Failed to load resources. Please try again later.</p>
+          </CardContent>
+        </Card>
       ) : resources.length === 0 ? (
         <Card>
           <CardContent className="py-12 text-center">

@@ -45,14 +45,6 @@ function VisitorTracker() {
   const [location] = useLocation();
   
   useEffect(() => {
-    const SESSION_KEY = 'visitor-tracked';
-    
-    if (sessionStorage.getItem(SESSION_KEY)) {
-      return;
-    }
-    
-    sessionStorage.setItem(SESSION_KEY, 'true');
-    
     fetch('/api/analytics/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -62,12 +54,10 @@ function VisitorTracker() {
     })
       .then((response) => {
         if (!response.ok) {
-          sessionStorage.removeItem(SESSION_KEY);
           console.error('Visitor tracking failed:', response.status, response.statusText);
         }
       })
       .catch((error) => {
-        sessionStorage.removeItem(SESSION_KEY);
         console.error('Visitor tracking error:', error);
       });
   }, [location]);

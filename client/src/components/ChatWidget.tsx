@@ -139,14 +139,14 @@ function ChatWidgetContent() {
     <>
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
-        {messages.map((msg, idx) => (
+        {messages.map((msg) => (
           <div
-            key={idx}
+            key={`${msg.timestamp}-${msg.role}`}
             className={cn(
               "flex",
               msg.role === "user" ? "justify-end" : "justify-start"
             )}
-            data-testid={`chat-message-${idx}`}
+            data-testid={`chat-message-${msg.timestamp}`}
           >
             <div
               className={cn(
