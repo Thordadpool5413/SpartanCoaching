@@ -62,7 +62,6 @@ export default function Transcribe() {
 
     recognition.onend = () => {
       setIsRecording(false);
-      setIsProcessing(false);
     };
 
     recognitionRef.current = recognition;

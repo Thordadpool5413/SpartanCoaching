@@ -73,10 +73,26 @@ export default function Objections() {
     if (playing === key) return;
     setPlaying(key);
     
-    // Placeholder for MVP - will connect to TTS in integration phase
-    setTimeout(() => {
+    try {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1.0;
+      utterance.pitch = 1.0;
+      utterance.volume = 1.0;
+      
+      utterance.onend = () => {
+        setPlaying(null);
+      };
+      
+      utterance.onerror = () => {
+        setPlaying(null);
+      };
+      
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(utterance);
+    } catch (error) {
+      console.error("Text-to-speech error:", error);
       setPlaying(null);
-    }, 2000);
+    }
   };
 
   return (

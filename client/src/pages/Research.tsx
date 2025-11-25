@@ -106,7 +106,38 @@ export default function Research() {
             {exampleQueries.map((example, idx) => (
               <button
                 key={idx}
-                onClick={() => setQuery(example)}
+                onClick={() => {
+                  setQuery(example);
+                  setTimeout(() => {
+                    setIsLoading(true);
+                    setResults(null);
+                    setValidationError(null);
+                    fetch("/api/research", {
+                      method: "POST",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ query: example }),
+                    })
+                      .then((response) => {
+                        if (!response.ok) {
+                          throw new Error("Failed to perform research");
+                        }
+                        return response.json();
+                      })
+                      .then((data) => {
+                        setResults(data);
+                      })
+                      .catch((error) => {
+                        console.error("Research error:", error);
+                        setResults({
+                          text: "Sorry, I couldn't complete the research. Please try again.",
+                          sources: [],
+                        });
+                      })
+                      .finally(() => {
+                        setIsLoading(false);
+                      });
+                  }, 0);
+                }}
                 className="text-left p-4 rounded-lg bg-accent hover-elevate active-elevate-2 transition-all text-foreground min-h-[48px] touch-manipulation"
                 data-testid={`button-example-${idx}`}
               >
