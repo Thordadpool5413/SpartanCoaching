@@ -62,9 +62,7 @@ export function PWAInstallPrompt() {
     deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
 
-    if (outcome === 'accepted') {
-      console.log('User accepted the install prompt');
-    } else if (outcome === 'dismissed') {
+    if (outcome === 'dismissed') {
       // Persist dismiss timestamp to enforce cooldown period
       localStorage.setItem('pwa-install-dismissed', new Date().toISOString());
     }

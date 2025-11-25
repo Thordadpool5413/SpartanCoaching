@@ -23,12 +23,14 @@ function ChatWidgetContent() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [hasLoadedMessages, setHasLoadedMessages] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   // Reset minimized state when closing the widget
   const handleClose = () => {
     setIsOpen(false);
     setIsMinimized(false);
+    setHasLoadedMessages(false);
   };
 
   const scrollToBottom = () => {
@@ -40,14 +42,16 @@ function ChatWidgetContent() {
   }, [messages]);
 
   useEffect(() => {
-    if (isOpen && !isMinimized) {
+    if (isOpen && !isMinimized && !hasLoadedMessages) {
       // Load persisted messages or add welcome message
       const savedMessages = localStorage.getItem('spartan-chat-history');
-      if (savedMessages && messages.length === 0) {
+      if (savedMessages) {
         try {
-          setMessages(JSON.parse(savedMessages));
+          const parsed = JSON.parse(savedMessages);
+          setMessages(parsed);
+          setHasLoadedMessages(true);
         } catch (e) {
-          // If parsing fails, start fresh
+          // If parsing fails, start fresh with welcome message
           setMessages([
             {
               role: "model",
@@ -55,8 +59,10 @@ function ChatWidgetContent() {
               timestamp: Date.now(),
             },
           ]);
+          setHasLoadedMessages(true);
         }
-      } else if (messages.length === 0) {
+      } else {
+        // No saved messages, show welcome message
         setMessages([
           {
             role: "model",
@@ -64,9 +70,10 @@ function ChatWidgetContent() {
             timestamp: Date.now(),
           },
         ]);
+        setHasLoadedMessages(true);
       }
     }
-  }, [isOpen, isMinimized]);
+  }, [isOpen, isMinimized, hasLoadedMessages]);
 
   // Persist messages whenever they change
   useEffect(() => {
@@ -139,14 +146,14 @@ function ChatWidgetContent() {
     <>
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
-        {messages.map((msg) => (
+        {messages.map((msg, index) => (
           <div
-            key={`${msg.timestamp}-${msg.role}`}
+            key={`${msg.timestamp}-${msg.role}-${index}`}
             className={cn(
               "flex",
               msg.role === "user" ? "justify-end" : "justify-start"
             )}
-            data-testid={`chat-message-${msg.timestamp}`}
+            data-testid={`chat-message-${msg.timestamp}-${index}`}
           >
             <div
               className={cn(
