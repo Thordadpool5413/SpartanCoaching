@@ -51,8 +51,9 @@ app.use((req, res, next) => {
   // Seed database with initial training resources content
   try {
     await seedDatabase();
-  } catch (error) {
-    log("Warning: Database seeding failed, continuing startup...");
+  } catch (error: any) {
+    log(`Warning: Database seeding failed - ${error?.message || 'Unknown error'}`);
+    console.error("Full seeding error:", error);
   }
 
   const server = await registerRoutes(app);

@@ -1,5 +1,6 @@
-import { db } from "./db";
+import { db, pool } from "./db";
 import { resources, podcasts, articles } from "@shared/schema";
+import { sql } from "drizzle-orm";
 
 const trainingResources = [
   {
@@ -71,34 +72,51 @@ const sampleArticles = [
 
 export async function seedDatabase() {
   console.log("Starting database seed...");
+  console.log(`Environment: ${process.env.NODE_ENV || 'not set'}`);
+  console.log(`Database URL exists: ${!!process.env.DATABASE_URL}`);
 
   try {
+    // Test database connection first
+    console.log("Testing database connection...");
+    const testResult = await db.execute(sql`SELECT 1 as test`);
+    console.log("Database connection successful");
+
     // Check if resources already exist
+    console.log("Checking existing resources...");
     const existingResources = await db.select().from(resources);
+    console.log(`Found ${existingResources.length} existing resources`);
     
     if (existingResources.length === 0) {
       console.log("Seeding resources...");
-      await db.insert(resources).values(trainingResources);
-      console.log(`Inserted ${trainingResources.length} resources`);
+      const insertedResources = await db.insert(resources).values(trainingResources).returning();
+      console.log(`Successfully inserted ${insertedResources.length} resources`);
     } else {
       console.log(`Resources already exist (${existingResources.length} found), skipping seed`);
     }
 
     // Check if articles already exist
+    console.log("Checking existing articles...");
     const existingArticles = await db.select().from(articles);
+    console.log(`Found ${existingArticles.length} existing articles`);
     
     if (existingArticles.length === 0) {
       console.log("Seeding articles...");
-      await db.insert(articles).values(sampleArticles);
-      console.log(`Inserted ${sampleArticles.length} articles`);
+      const insertedArticles = await db.insert(articles).values(sampleArticles).returning();
+      console.log(`Successfully inserted ${insertedArticles.length} articles`);
     } else {
       console.log(`Articles already exist (${existingArticles.length} found), skipping seed`);
     }
 
     console.log("Database seed completed successfully!");
     return true;
-  } catch (error) {
-    console.error("Error seeding database:", error);
+  } catch (error: any) {
+    console.error("Error seeding database:");
+    console.error("Error name:", error?.name);
+    console.error("Error message:", error?.message);
+    console.error("Error code:", error?.code);
+    if (error?.stack) {
+      console.error("Stack trace:", error.stack);
+    }
     throw error;
   }
 }
