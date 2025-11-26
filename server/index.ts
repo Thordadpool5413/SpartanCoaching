@@ -11,12 +11,8 @@ declare module 'http' {
 const app = express();
 const server = createServer(app);
 
-// CRITICAL: Health check MUST be the absolute first thing - no conditions, no logic
-// This responds to deployment health checks before anything else loads
-app.get("/", (_req, res) => {
-  res.status(200).send("OK");
-});
-
+// CRITICAL: Health check endpoint for deployment - must be registered first
+// Use /healthz (not "/" which needs to serve frontend HTML)
 app.get("/healthz", (_req, res) => {
   res.status(200).send("OK");
 });
