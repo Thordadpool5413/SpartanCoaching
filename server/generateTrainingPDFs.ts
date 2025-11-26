@@ -114,7 +114,7 @@ function addTipBox(doc: InstanceType<typeof PDFDocument>, title: string, content
   doc.rect(MARGIN_LEFT, y, CONTENT_WIDTH, 60).fill(ACCENT_BG);
   doc.rect(MARGIN_LEFT, y, 4, 60).fill(SPARTAN_RED);
   doc.fontSize(10).fillColor(SPARTAN_RED).font('Helvetica-Bold');
-  doc.text(`💡 ${title}`, MARGIN_LEFT + 15, y + 10);
+  doc.text(`[TIP] ${title}`, MARGIN_LEFT + 15, y + 10);
   doc.fontSize(9).fillColor(MEDIUM_TEXT).font('Helvetica');
   doc.text(content, MARGIN_LEFT + 15, y + 28, { width: CONTENT_WIDTH - 30 });
   return y + 70;
