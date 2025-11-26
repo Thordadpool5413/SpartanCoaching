@@ -20,22 +20,12 @@ const port = parseInt(process.env.PORT || '5000', 10);
 server.listen(port, "0.0.0.0", () => {
   console.log(`Server listening on port ${port}`);
   
-  // Initialize in priority order - frontend serving FIRST
   setImmediate(async () => {
     try {
       const { setupVite, serveStatic, log } = await import("./vite");
-      
-      // PRIORITY 1: Setup Vite/static serving IMMEDIATELY so "/" responds
-      if (process.env.NODE_ENV === "development") {
-        await setupVite(app, server);
-      } else {
-        serveStatic(app);
-      }
-      log("Frontend serving ready");
-
-      // PRIORITY 2: Add middleware and routes (doesn't block frontend)
       const { registerRoutes, deferredInit } = await import("./routes");
       
+      // STEP 1: Add body parsing middleware FIRST
       app.use(express.json({
         verify: (req: any, _res, buf) => {
           req.rawBody = buf;
@@ -43,6 +33,7 @@ server.listen(port, "0.0.0.0", () => {
       }));
       app.use(express.urlencoded({ extended: false }));
 
+      // STEP 2: Add request logging middleware
       app.use((req, res, next) => {
         const start = Date.now();
         const reqPath = req.path;
@@ -71,22 +62,31 @@ server.listen(port, "0.0.0.0", () => {
         next();
       });
 
+      // STEP 3: Register API routes BEFORE Vite/static (critical for /api/* to work)
       registerRoutes(app);
+      log("API routes registered");
 
+      // STEP 4: Error handler for API routes
       app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
         const status = err.status || err.statusCode || 500;
         const message = err.message || "Internal Server Error";
         res.status(status).json({ message });
       });
 
-      // PRIORITY 3: Background initialization (non-blocking)
-      // These run in background and don't block request handling
+      // STEP 5: Setup Vite/static serving LAST (catch-all for frontend routes)
+      if (process.env.NODE_ENV === "development") {
+        await setupVite(app, server);
+      } else {
+        serveStatic(app);
+      }
+      log("Frontend serving ready");
+
+      // STEP 6: Background initialization (non-blocking)
       setImmediate(async () => {
         try {
           log("Starting background initialization...");
           await deferredInit(app);
           
-          // Only seed in development, skip in production for faster startup
           if (process.env.NODE_ENV !== "production") {
             const { seedDatabase } = await import("./seed");
             log("Starting database seed...");
