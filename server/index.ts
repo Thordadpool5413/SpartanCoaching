@@ -11,10 +11,24 @@ declare module 'http' {
 const app = express();
 const server = createServer(app);
 
-// CRITICAL: Health check endpoint for deployment - must be registered first
-// Use /healthz (not "/" which needs to serve frontend HTML)
+// CRITICAL: Health check endpoints for deployment - must be registered first
 app.get("/healthz", (_req, res) => {
   res.status(200).send("OK");
+});
+
+// Track initialization state for root health check
+let appReady = false;
+
+// Temporary root handler that responds immediately during initialization
+// This gets overridden by Vite/static serving once ready
+app.get("/", (_req, res, next) => {
+  if (appReady) {
+    // Let Vite or static serving handle it
+    next();
+  } else {
+    // Return minimal HTML during initialization
+    res.status(200).send(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>Loading...</title><meta http-equiv="refresh" content="2"></head><body><p>Starting up...</p></body></html>`);
+  }
 });
 
 // Start server IMMEDIATELY - before importing anything else
@@ -91,9 +105,14 @@ server.listen(port, "0.0.0.0", () => {
       // Seed database
       log("Starting database seed...");
       await seedDatabase();
+      
+      // Mark app as ready - this allows the root route to pass through to Vite/static
+      appReady = true;
       log("All initialization completed successfully");
     } catch (error: any) {
       console.error("Initialization error:", error?.message || error);
+      // Even on error, mark ready so frontend can load
+      appReady = true;
     }
   });
 });
