@@ -1,35 +1,37 @@
 import { Switch, Route, useLocation } from "wouter";
-import { useEffect } from "react";
+import { useEffect, useRef, lazy, Suspense } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header, Footer } from "@/components/Layout";
-import { ChatWidget } from "@/components/ChatWidget";
-import { PWAInstallPrompt } from "@/components/PWAInstallPrompt";
-import NotFound from "@/pages/not-found";
-import Home from "@/pages/Home";
-import Services from "@/pages/Services";
-import Programs from "@/pages/Programs";
-import Method from "@/pages/Method";
-import Tools from "@/pages/Tools";
-import Resources from "@/pages/Resources";
-import About from "@/pages/About";
-import Playbooks from "@/pages/Playbooks";
-import Objections from "@/pages/Objections";
-import Research from "@/pages/Research";
-import Transcribe from "@/pages/Transcribe";
-import WeeklyPlan from "@/pages/resources/WeeklyPlan";
-import QuickStartGuide from "@/pages/resources/QuickStartGuide";
-import ObjectionCards from "@/pages/resources/ObjectionCards";
-import TerritoryTemplate from "@/pages/resources/TerritoryTemplate";
-import MetricsDashboard from "@/pages/resources/MetricsDashboard";
-import Admin from "@/pages/Admin";
-import EmailTemplates from "@/pages/EmailTemplates";
-import Testimonials from "@/pages/Testimonials";
-import Articles from "@/pages/Articles";
-import Podcasts from "@/pages/Podcasts";
+
+const ChatWidget = lazy(() => import("@/components/ChatWidget").then(m => ({ default: m.ChatWidget })));
+const PWAInstallPrompt = lazy(() => import("@/components/PWAInstallPrompt").then(m => ({ default: m.PWAInstallPrompt })));
+
+const NotFound = lazy(() => import("@/pages/not-found"));
+const Home = lazy(() => import("@/pages/Home"));
+const Services = lazy(() => import("@/pages/Services"));
+const Programs = lazy(() => import("@/pages/Programs"));
+const Method = lazy(() => import("@/pages/Method"));
+const Tools = lazy(() => import("@/pages/Tools"));
+const Resources = lazy(() => import("@/pages/Resources"));
+const About = lazy(() => import("@/pages/About"));
+const Playbooks = lazy(() => import("@/pages/Playbooks"));
+const Objections = lazy(() => import("@/pages/Objections"));
+const Research = lazy(() => import("@/pages/Research"));
+const Transcribe = lazy(() => import("@/pages/Transcribe"));
+const WeeklyPlan = lazy(() => import("@/pages/resources/WeeklyPlan"));
+const QuickStartGuide = lazy(() => import("@/pages/resources/QuickStartGuide"));
+const ObjectionCards = lazy(() => import("@/pages/resources/ObjectionCards"));
+const TerritoryTemplate = lazy(() => import("@/pages/resources/TerritoryTemplate"));
+const MetricsDashboard = lazy(() => import("@/pages/resources/MetricsDashboard"));
+const Admin = lazy(() => import("@/pages/Admin"));
+const EmailTemplates = lazy(() => import("@/pages/EmailTemplates"));
+const Testimonials = lazy(() => import("@/pages/Testimonials"));
+const Articles = lazy(() => import("@/pages/Articles"));
+const Podcasts = lazy(() => import("@/pages/Podcasts"));
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -43,26 +45,39 @@ function ScrollToTop() {
 
 function VisitorTracker() {
   const [location] = useLocation();
+  const lastTrackedRef = useRef<string>("");
+  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
   
   useEffect(() => {
-    fetch('/api/analytics/track', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        pagePath: location
-      })
-    })
-      .then((response) => {
-        if (!response.ok) {
-          console.error('Visitor tracking failed:', response.status, response.statusText);
-        }
-      })
-      .catch((error) => {
-        console.error('Visitor tracking error:', error);
-      });
+    if (lastTrackedRef.current === location) return;
+    
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    timeoutRef.current = setTimeout(() => {
+      lastTrackedRef.current = location;
+      fetch('/api/analytics/track', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ pagePath: location })
+      }).catch(() => {});
+    }, 500);
+    
+    return () => {
+      if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    };
   }, [location]);
   
   return null;
+}
+
+function PageLoader() {
+  return (
+    <div className="flex items-center justify-center min-h-[50vh]">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+    </div>
+  );
 }
 
 function Router() {
@@ -70,30 +85,32 @@ function Router() {
     <>
       <ScrollToTop />
       <VisitorTracker />
-      <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/services" component={Services} />
-        <Route path="/programs" component={Programs} />
-        <Route path="/method" component={Method} />
-        <Route path="/tools" component={Tools} />
-        <Route path="/tools/playbooks" component={Playbooks} />
-        <Route path="/tools/objections" component={Objections} />
-        <Route path="/tools/research" component={Research} />
-        <Route path="/tools/transcribe" component={Transcribe} />
-        <Route path="/tools/email-templates" component={EmailTemplates} />
-        <Route path="/resources" component={Resources} />
-        <Route path="/admin" component={Admin} />
-        <Route path="/resources/weekly-plan" component={WeeklyPlan} />
-        <Route path="/resources/quick-start-guide" component={QuickStartGuide} />
-        <Route path="/resources/objection-cards" component={ObjectionCards} />
-        <Route path="/resources/territory-template" component={TerritoryTemplate} />
-        <Route path="/resources/metrics-dashboard" component={MetricsDashboard} />
-        <Route path="/testimonials" component={Testimonials} />
-        <Route path="/articles" component={Articles} />
-        <Route path="/podcasts" component={Podcasts} />
-        <Route path="/about" component={About} />
-        <Route component={NotFound} />
-      </Switch>
+      <Suspense fallback={<PageLoader />}>
+        <Switch>
+          <Route path="/" component={Home} />
+          <Route path="/services" component={Services} />
+          <Route path="/programs" component={Programs} />
+          <Route path="/method" component={Method} />
+          <Route path="/tools" component={Tools} />
+          <Route path="/tools/playbooks" component={Playbooks} />
+          <Route path="/tools/objections" component={Objections} />
+          <Route path="/tools/research" component={Research} />
+          <Route path="/tools/transcribe" component={Transcribe} />
+          <Route path="/tools/email-templates" component={EmailTemplates} />
+          <Route path="/resources" component={Resources} />
+          <Route path="/admin" component={Admin} />
+          <Route path="/resources/weekly-plan" component={WeeklyPlan} />
+          <Route path="/resources/quick-start-guide" component={QuickStartGuide} />
+          <Route path="/resources/objection-cards" component={ObjectionCards} />
+          <Route path="/resources/territory-template" component={TerritoryTemplate} />
+          <Route path="/resources/metrics-dashboard" component={MetricsDashboard} />
+          <Route path="/testimonials" component={Testimonials} />
+          <Route path="/articles" component={Articles} />
+          <Route path="/podcasts" component={Podcasts} />
+          <Route path="/about" component={About} />
+          <Route component={NotFound} />
+        </Switch>
+      </Suspense>
     </>
   );
 }
@@ -110,8 +127,10 @@ function App() {
             </main>
             <Footer />
           </div>
-          <ChatWidget />
-          <PWAInstallPrompt />
+          <Suspense fallback={null}>
+            <ChatWidget />
+            <PWAInstallPrompt />
+          </Suspense>
           <Toaster />
         </TooltipProvider>
       </QueryClientProvider>
