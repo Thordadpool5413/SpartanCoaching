@@ -101,13 +101,12 @@ function addNumberedItem(doc: InstanceType<typeof PDFDocument>, num: number, tit
   return doc.y + 12;
 }
 
-function addQuoteBox(doc: InstanceType<typeof PDFDocument>, quote: string, y: number): number {
-  const boxHeight = 50;
-  doc.rect(MARGIN_LEFT, y, 4, boxHeight).fill(SPARTAN_RED);
-  doc.rect(MARGIN_LEFT + 4, y, CONTENT_WIDTH - 4, boxHeight).fill('#F9FAFB');
+function addQuoteBox(doc: InstanceType<typeof PDFDocument>, quote: string, y: number, height = 50): number {
+  doc.rect(MARGIN_LEFT, y, 4, height).fill(SPARTAN_RED);
+  doc.rect(MARGIN_LEFT + 4, y, CONTENT_WIDTH - 4, height).fill('#F9FAFB');
   doc.fontSize(10).fillColor(DARK_TEXT).font('Helvetica-Oblique');
   doc.text(`"${quote}"`, MARGIN_LEFT + 15, y + 10, { width: CONTENT_WIDTH - 30 });
-  return y + boxHeight + 15;
+  return y + height + 15;
 }
 
 function addTipBox(doc: InstanceType<typeof PDFDocument>, title: string, content: string, y: number): number {
@@ -127,69 +126,76 @@ function addChecklistItem(doc: InstanceType<typeof PDFDocument>, text: string, y
   return doc.y + 8;
 }
 
+function addStageBox(doc: InstanceType<typeof PDFDocument>, stageNum: number, stageName: string, stageDesc: string, y: number): number {
+  doc.rect(MARGIN_LEFT, y, 40, 40).fill(SPARTAN_RED);
+  doc.fontSize(20).fillColor('#FFFFFF').font('Helvetica-Bold');
+  doc.text(`${stageNum}`, MARGIN_LEFT + 14, y + 10);
+  
+  doc.rect(MARGIN_LEFT + 40, y, CONTENT_WIDTH - 40, 40).fill('#F9FAFB');
+  doc.strokeColor(BORDER_COLOR).lineWidth(1);
+  doc.rect(MARGIN_LEFT + 40, y, CONTENT_WIDTH - 40, 40).stroke();
+  
+  doc.fontSize(12).fillColor(DARK_TEXT).font('Helvetica-Bold');
+  doc.text(stageName.toUpperCase(), MARGIN_LEFT + 55, y + 8);
+  doc.fontSize(9).fillColor(MEDIUM_TEXT).font('Helvetica');
+  doc.text(stageDesc, MARGIN_LEFT + 55, y + 24, { width: CONTENT_WIDTH - 70 });
+  
+  return y + 50;
+}
+
 function createColdCallPDF(): Promise<void> {
   return new Promise((resolve, reject) => {
     const doc = new PDFDocument({ size: 'A4', margin: 0, bufferPages: true });
     const stream = fs.createWriteStream('public/resources/cold-call-script.pdf');
     doc.pipe(stream);
     
-    let y = addProfessionalHeader(doc, 'Cold Call Opening Script', 'Master the Psychology-Backed 30-Second Opening Framework');
+    let y = addProfessionalHeader(doc, 'Cold Call Opening Script', 'Healthcare Sales Mastery Model - Stage 1: Discovery');
     
-    y = addSectionHeader(doc, 'The Spartan 30-Second Opening', y);
+    y = addSectionHeader(doc, 'The Healthcare Sales Mastery Model', y);
+    y = addParagraph(doc, 'Every successful healthcare sale follows this proven 4-stage progression. Master each stage before advancing:', y);
     
-    y = addQuoteBox(doc, "Hi [Name], this is [Your Name] with [Hospice Company]. I know you're incredibly busy caring for patients, so I'll be brief. We partner with facilities like yours to ensure patients receive optimal comfort care at the right time. Do you have 30 seconds?", y);
+    y = addStageBox(doc, 1, 'Discovery', 'Learning about the needs and operations of the account or contact', y);
+    y = addStageBox(doc, 2, 'Connecting', 'Learning the individual needs of the account or contact', y);
+    y = addStageBox(doc, 3, 'Guiding', 'Aligning their needs to your features and benefits', y);
+    y = addStageBox(doc, 4, 'Commitment', 'Closing and asking for the business', y);
     
-    y = addSubSection(doc, 'Why This Works:', y);
+    y += 5;
+    y = addSectionHeader(doc, 'Stage 1: The Spartan 30-Second Opening', y);
+    
+    y = addQuoteBox(doc, "Hi [Name], this is [Your Name] with [Hospice Company]. I know you're incredibly busy caring for patients, so I'll be brief. We partner with facilities like yours to ensure patients receive optimal comfort care at the right time. Do you have 30 seconds?", y, 55);
+    
+    y = addSubSection(doc, 'Why This Opening Works:', y);
     y = addBulletPoint(doc, 'Acknowledges their time constraints immediately (builds respect)', y);
     y = addBulletPoint(doc, 'Focuses on patient outcomes, not sales (aligns with their mission)', y);
     y = addBulletPoint(doc, 'Requests minimal commitment (lowers resistance)', y);
-    y = addBulletPoint(doc, 'Opens door for deeper conversation', y);
     
-    y += 10;
-    y = addSectionHeader(doc, 'Tier 1 Discovery Questions', y);
-    y = addParagraph(doc, 'Use these questions to understand their current situation and identify opportunities:', y);
+    y += 8;
+    y = addSectionHeader(doc, 'Discovery Questions (Stage 1)', y);
+    y = addParagraph(doc, 'Your goal: Learn about their operations, processes, and organizational challenges.', y);
     
-    const tier1Questions = [
+    const discoveryQuestions = [
       'How many patients in your facility would you estimate are appropriate for hospice comfort care?',
       'What does your current referral process look like when a patient becomes appropriate?',
       'Who else is typically involved in those care transition decisions?',
       'What challenges do you face in identifying appropriate patients early enough?'
     ];
     
-    tier1Questions.forEach((q, i) => {
+    discoveryQuestions.forEach((q, i) => {
       y = addNumberedItem(doc, i + 1, '', `"${q}"`, y);
     });
     
     y += 5;
-    y = addSectionHeader(doc, 'Tier 2 Deep Discovery Questions', y);
-    
-    const tier2Questions = [
-      'What would it mean for your facility if you could identify appropriate patients 2 weeks earlier?',
-      'How does late hospice referral impact your readmission rates and family satisfaction scores?',
-      'What percentage of your patients who pass away were receiving hospice services?'
-    ];
-    
-    tier2Questions.forEach((q, i) => {
-      y = addNumberedItem(doc, i + 1, '', `"${q}"`, y);
-    });
-    
-    y += 10;
     y = addSectionHeader(doc, 'Spartan Objection Framework', y);
     
     doc.fontSize(10).fillColor(SPARTAN_RED).font('Helvetica-Bold');
     doc.text('OBJECTION: "We already have a hospice partner"', MARGIN_LEFT, y);
     y = doc.y + 5;
-    y = addQuoteBox(doc, "I respect that relationship. Many of our best partners work with multiple hospice providers to ensure coverage and options for families. What criteria do you use when a family requests a specific provider?", y);
+    y = addQuoteBox(doc, "I respect that relationship. Many of our best partners work with multiple hospice providers to ensure coverage and options for families. What criteria do you use when a family requests a specific provider?", y, 45);
     
     doc.fontSize(10).fillColor(SPARTAN_RED).font('Helvetica-Bold');
     doc.text('OBJECTION: "Not interested right now"', MARGIN_LEFT, y);
     y = doc.y + 5;
-    y = addQuoteBox(doc, "I understand completely. The reason I called is that many facilities discover they have patients who could benefit from earlier hospice conversations. Could I send you a 2-minute assessment tool? No obligation—just something that might be helpful.", y);
-    
-    doc.fontSize(10).fillColor(SPARTAN_RED).font('Helvetica-Bold');
-    doc.text('OBJECTION: "I don\'t have time"', MARGIN_LEFT, y);
-    y = doc.y + 5;
-    y = addQuoteBox(doc, "That's exactly why I called—to help save you time in the long run. Our partners tell us we've reduced their hospice-related administrative burden by 40%. Can we schedule a focused 15-minute call next week when it's more convenient?", y);
+    y = addQuoteBox(doc, "I understand completely. Could I send you a 2-minute assessment tool? No obligation—just something that might be helpful for identifying patients who could benefit from earlier hospice conversations.", y, 45);
     
     y = addTipBox(doc, 'SPARTAN PRINCIPLE', 'Never argue with an objection. Acknowledge, pivot to value, and offer a low-commitment next step. Discipline in your response builds trust.', y);
     
@@ -207,7 +213,7 @@ function createTerritoryPDF(): Promise<void> {
     const stream = fs.createWriteStream('public/resources/territory-template.pdf');
     doc.pipe(stream);
     
-    let y = addProfessionalHeader(doc, 'Sales Territory Analysis Template', 'Strategic Planning Framework for Territory Optimization');
+    let y = addProfessionalHeader(doc, 'Sales Territory Analysis Template', 'Track Progress Through the Healthcare Sales Mastery Model');
     
     y = addSectionHeader(doc, 'Territory Overview', y);
     
@@ -215,70 +221,76 @@ function createTerritoryPDF(): Promise<void> {
     const fields = [
       'Territory Name: _______________________________________________',
       'Territory Manager: ____________________________________________',
-      'Analysis Period: ______________________________________________',
-      'Total Addressable Market (Facilities): ____________________________'
+      'Analysis Period: ______________________________________________'
     ];
     fields.forEach(field => {
       doc.text(field, MARGIN_LEFT, y);
-      y += 22;
+      y += 20;
     });
     
-    y += 10;
-    y = addSectionHeader(doc, 'Facility Inventory Analysis', y);
-    
-    doc.strokeColor(BORDER_COLOR).lineWidth(1);
-    doc.rect(MARGIN_LEFT, y, CONTENT_WIDTH, 25).stroke();
-    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
-    doc.text('Facility Type', MARGIN_LEFT + 10, y + 8);
-    doc.text('Count', MARGIN_LEFT + 180, y + 8);
-    doc.text('Avg Beds', MARGIN_LEFT + 250, y + 8);
-    doc.text('Priority', MARGIN_LEFT + 330, y + 8);
-    doc.text('Est. Opportunity', MARGIN_LEFT + 410, y + 8);
-    y += 25;
-    
-    const facilityTypes = ['Acute Care Hospitals', 'Skilled Nursing Facilities', 'Assisted Living', 'Memory Care', 'Home Health Agencies'];
-    facilityTypes.forEach(type => {
-      doc.rect(MARGIN_LEFT, y, CONTENT_WIDTH, 22).stroke();
-      doc.fontSize(9).fillColor(MEDIUM_TEXT).font('Helvetica');
-      doc.text(type, MARGIN_LEFT + 10, y + 7);
-      y += 22;
-    });
-    
-    y += 15;
-    y = addSectionHeader(doc, 'Account Prioritization Matrix', y);
-    
-    y = addSubSection(doc, 'A-Priority Accounts (Top 20%)', y);
-    y = addParagraph(doc, 'High volume, decision-maker access, strong fit. Target: Weekly contact.', y);
-    
-    y = addSubSection(doc, 'B-Priority Accounts (Middle 50%)', y);
-    y = addParagraph(doc, 'Medium volume, developing relationships. Target: Bi-weekly contact.', y);
-    
-    y = addSubSection(doc, 'C-Priority Accounts (Bottom 30%)', y);
-    y = addParagraph(doc, 'Lower volume, limited access. Target: Monthly contact.', y);
-    
-    y += 10;
-    y = addSectionHeader(doc, 'Quarterly Targets', y);
+    y += 5;
+    y = addSectionHeader(doc, 'Healthcare Sales Mastery Model Tracking', y);
+    y = addParagraph(doc, 'Track each account through the 4 stages of the sales process:', y);
     
     doc.strokeColor(BORDER_COLOR).lineWidth(1);
     doc.rect(MARGIN_LEFT, y, CONTENT_WIDTH, 25).fill('#F9FAFB').stroke();
     doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
-    doc.text('Quarter', MARGIN_LEFT + 10, y + 8);
-    doc.text('Discovery Meetings', MARGIN_LEFT + 100, y + 8);
-    doc.text('Proposals', MARGIN_LEFT + 220, y + 8);
-    doc.text('New Accounts', MARGIN_LEFT + 310, y + 8);
-    doc.text('Revenue Target', MARGIN_LEFT + 420, y + 8);
+    doc.text('Stage', MARGIN_LEFT + 10, y + 8);
+    doc.text('Definition', MARGIN_LEFT + 80, y + 8);
+    doc.text('# Accounts', MARGIN_LEFT + 320, y + 8);
+    doc.text('Target', MARGIN_LEFT + 410, y + 8);
     y += 25;
     
-    ['Q1', 'Q2', 'Q3', 'Q4'].forEach(q => {
+    const stages = [
+      ['1. Discovery', 'Learning about needs/operations of account', '___', '___'],
+      ['2. Connecting', 'Learning individual needs of contact', '___', '___'],
+      ['3. Guiding', 'Aligning needs to features/benefits', '___', '___'],
+      ['4. Commitment', 'Closing, asking for the business', '___', '___']
+    ];
+    
+    stages.forEach(([stage, def, count, target]) => {
       doc.rect(MARGIN_LEFT, y, CONTENT_WIDTH, 22).stroke();
-      doc.fontSize(9).fillColor(MEDIUM_TEXT).font('Helvetica');
-      doc.text(q, MARGIN_LEFT + 10, y + 7);
+      doc.fontSize(9).fillColor(SPARTAN_RED).font('Helvetica-Bold');
+      doc.text(stage, MARGIN_LEFT + 10, y + 7);
+      doc.fontSize(8).fillColor(MEDIUM_TEXT).font('Helvetica');
+      doc.text(def, MARGIN_LEFT + 80, y + 7, { width: 220 });
+      doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica');
+      doc.text(count, MARGIN_LEFT + 330, y + 7);
+      doc.text(target, MARGIN_LEFT + 420, y + 7);
       y += 22;
     });
     
     y += 15;
-    y = addSectionHeader(doc, 'Strategic Notes & Action Items', y);
-    doc.rect(MARGIN_LEFT, y, CONTENT_WIDTH, 80).lineWidth(1).strokeColor(BORDER_COLOR).stroke();
+    y = addSectionHeader(doc, 'Facility Inventory by Type', y);
+    
+    doc.strokeColor(BORDER_COLOR).lineWidth(1);
+    doc.rect(MARGIN_LEFT, y, CONTENT_WIDTH, 22).fill('#F9FAFB').stroke();
+    doc.fontSize(9).fillColor(DARK_TEXT).font('Helvetica-Bold');
+    doc.text('Facility Type', MARGIN_LEFT + 10, y + 6);
+    doc.text('Count', MARGIN_LEFT + 180, y + 6);
+    doc.text('Priority A', MARGIN_LEFT + 250, y + 6);
+    doc.text('Priority B', MARGIN_LEFT + 330, y + 6);
+    doc.text('Priority C', MARGIN_LEFT + 410, y + 6);
+    y += 22;
+    
+    const facilityTypes = ['Acute Care Hospitals', 'Skilled Nursing Facilities', 'Assisted Living', 'Home Health Agencies', 'Physician Practices'];
+    facilityTypes.forEach(type => {
+      doc.rect(MARGIN_LEFT, y, CONTENT_WIDTH, 20).stroke();
+      doc.fontSize(9).fillColor(MEDIUM_TEXT).font('Helvetica');
+      doc.text(type, MARGIN_LEFT + 10, y + 6);
+      y += 20;
+    });
+    
+    y += 15;
+    y = addSectionHeader(doc, 'Weekly Activity Targets', y);
+    
+    y = addBulletPoint(doc, 'Discovery calls/visits: ___ per week', y);
+    y = addBulletPoint(doc, 'Connecting meetings scheduled: ___ per week', y);
+    y = addBulletPoint(doc, 'Guiding presentations delivered: ___ per week', y);
+    y = addBulletPoint(doc, 'Commitment asks made: ___ per week', y);
+    
+    y += 10;
+    y = addTipBox(doc, 'TRACKING SUCCESS', 'Review your stage progression weekly. If accounts are stalling in one stage, focus your training and preparation on advancing through that specific stage.', y);
     
     addFooter(doc);
     doc.end();
@@ -294,57 +306,61 @@ function createChecklistPDF(): Promise<void> {
     const stream = fs.createWriteStream('public/resources/research-checklist.pdf');
     doc.pipe(stream);
     
-    let y = addProfessionalHeader(doc, 'Pre-Call Research Checklist', 'Complete Preparation Framework for Maximum Impact');
+    let y = addProfessionalHeader(doc, 'Pre-Call Research Checklist', 'Complete Preparation for Every Stage of the Sales Mastery Model');
     
-    y = addSectionHeader(doc, '2 Weeks Before: Strategic Assessment', y);
+    y = addSectionHeader(doc, 'Stage 1: Discovery Preparation', y);
+    y = addParagraph(doc, 'Before learning about their needs/operations, research:', y);
     
-    const twoWeekItems = [
-      'Identify all decision-makers and influencers at target facility',
-      'Research facility ownership, recent acquisitions, or changes',
-      'Review CMS quality ratings and any recent citations',
-      'Analyze competitor presence and current hospice relationships',
-      'Document facility mission, values, and strategic priorities'
+    const discoveryItems = [
+      'Facility ownership, size, and patient census',
+      'CMS quality ratings and recent inspection results',
+      'Current hospice partnerships (if any)',
+      'Recent news, awards, or community involvement',
+      'Key decision-makers and their LinkedIn profiles'
     ];
-    twoWeekItems.forEach(item => { y = addChecklistItem(doc, item, y); });
+    discoveryItems.forEach(item => { y = addChecklistItem(doc, item, y); });
     
     y += 10;
-    y = addSectionHeader(doc, '1 Week Before: Tactical Preparation', y);
+    y = addSectionHeader(doc, 'Stage 2: Connecting Preparation', y);
+    y = addParagraph(doc, 'Before learning individual needs of the contact, prepare:', y);
     
-    const oneWeekItems = [
-      'Review LinkedIn profiles of key contacts',
-      'Identify mutual connections for warm introductions',
-      'Research recent news, press releases, or community involvement',
-      'Prepare customized value proposition for their specific challenges',
-      'Select 2-3 relevant case studies from similar facilities'
+    const connectingItems = [
+      'Personal background of your specific contact',
+      'Their role in the referral decision process',
+      'Their professional challenges and goals',
+      'Mutual connections or shared interests',
+      'Questions about their individual perspective on patient care'
     ];
-    oneWeekItems.forEach(item => { y = addChecklistItem(doc, item, y); });
+    connectingItems.forEach(item => { y = addChecklistItem(doc, item, y); });
     
     y += 10;
-    y = addSectionHeader(doc, '3 Days Before: Materials Development', y);
+    y = addSectionHeader(doc, 'Stage 3: Guiding Preparation', y);
+    y = addParagraph(doc, 'Before aligning needs to features/benefits, have ready:', y);
     
-    const threeDayItems = [
-      'Customize presentation deck with facility-specific data',
-      'Prepare printed materials and leave-behinds',
-      'Draft personalized follow-up email template',
-      'Prepare objection responses specific to their situation',
-      'Create meeting agenda with clear objectives'
+    const guidingItems = [
+      'Case studies relevant to their specific situation',
+      'Data points that address their stated challenges',
+      'Comparison of your approach vs. their current process',
+      'ROI calculations or outcome improvements',
+      'References from similar facilities'
     ];
-    threeDayItems.forEach(item => { y = addChecklistItem(doc, item, y); });
+    guidingItems.forEach(item => { y = addChecklistItem(doc, item, y); });
     
     y += 10;
-    y = addSectionHeader(doc, 'Day Of: Execution Readiness', y);
+    y = addSectionHeader(doc, 'Stage 4: Commitment Preparation', y);
+    y = addParagraph(doc, 'Before asking for the business, confirm:', y);
     
-    const dayOfItems = [
-      'Confirm meeting time and location',
-      'Review key talking points and objectives',
-      'Prepare discovery questions tailored to their needs',
-      'Test all technology if virtual meeting',
-      'Arrive 10 minutes early (or log in 5 minutes early)'
+    const commitmentItems = [
+      'All decision-makers have been engaged',
+      'Key objections have been addressed',
+      'Implementation timeline is understood',
+      'Contract or agreement documents ready',
+      'Onboarding plan prepared to present'
     ];
-    dayOfItems.forEach(item => { y = addChecklistItem(doc, item, y); });
+    commitmentItems.forEach(item => { y = addChecklistItem(doc, item, y); });
     
     y += 10;
-    y = addTipBox(doc, 'SPARTAN DISCIPLINE', 'Preparation is the foundation of confidence. The more you prepare, the more natural and authentic your conversation will be. Never wing it.', y);
+    y = addTipBox(doc, 'SPARTAN DISCIPLINE', 'Never advance to the next stage until you have genuinely completed the current one. Rushing through stages leads to lost deals and wasted effort.', y);
     
     addFooter(doc);
     doc.end();
@@ -394,12 +410,12 @@ function createRegulationsPDF(): Promise<void> {
     y = addBulletPoint(doc, 'Recent aspiration pneumonia, UTI, sepsis, or pressure ulcers', y);
     
     y += 10;
-    y = addSectionHeader(doc, 'Optimal 4-Step Referral Process', y);
+    y = addSectionHeader(doc, 'Referral Process Aligned to Sales Mastery Model', y);
     
-    y = addNumberedItem(doc, 1, 'IDENTIFY', 'Use screening tools during care planning to identify appropriate patients early', y);
-    y = addNumberedItem(doc, 2, 'DISCUSS', 'Conduct goals-of-care conversation with patient/family about comfort options', y);
-    y = addNumberedItem(doc, 3, 'CERTIFY', 'Obtain physician certification of terminal prognosis (< 6 months)', y);
-    y = addNumberedItem(doc, 4, 'ELECT', 'Patient signs election form; hospice admission within 24-48 hours', y);
+    y = addNumberedItem(doc, 1, 'DISCOVERY', 'Identify eligible patients during care planning meetings', y);
+    y = addNumberedItem(doc, 2, 'CONNECTING', 'Conduct goals-of-care conversation with patient/family', y);
+    y = addNumberedItem(doc, 3, 'GUIDING', 'Educate on hospice benefits and address concerns', y);
+    y = addNumberedItem(doc, 4, 'COMMITMENT', 'Obtain physician certification and patient election', y);
     
     y = addTipBox(doc, 'COMPLIANCE TIP', 'Document all conversations about hospice in the medical record. Include patient/family responses and any barriers discussed. This protects both the facility and supports continuity of care.', y);
     
@@ -425,17 +441,17 @@ function createFacilityScriptsPDF(): Promise<void> {
     y = addBulletPoint(doc, 'Length of stay pressure and bed turnover', y);
     y = addBulletPoint(doc, 'Patient satisfaction scores (HCAHPS)', y);
     
-    y = addSubSection(doc, 'Opening Script:', y);
-    y = addQuoteBox(doc, "I work with hospitals like yours to reduce readmissions and improve patient satisfaction scores. Many of our hospital partners have seen a 15-20% reduction in 30-day readmits by identifying hospice-appropriate patients 24-48 hours earlier. Is that something worth 10 minutes to explore?", y);
+    y = addSubSection(doc, 'Discovery Opening (Stage 1):', y);
+    y = addQuoteBox(doc, "I work with hospitals like yours to reduce readmissions and improve patient satisfaction scores. Many of our hospital partners have seen a 15-20% reduction in 30-day readmits by identifying hospice-appropriate patients 24-48 hours earlier. How are you currently identifying patients who might benefit from hospice conversations?", y, 60);
     
     y = addSectionHeader(doc, 'Skilled Nursing Facilities', y);
     y = addSubSection(doc, 'Key Pain Points:', y);
-    y = addBulletPoint(doc, 'CMS therapy minute scrutiny and RUG optimization', y);
     y = addBulletPoint(doc, 'Staff burden and after-hours coverage needs', y);
     y = addBulletPoint(doc, 'Family satisfaction and complaint management', y);
+    y = addBulletPoint(doc, 'Managing declining residents appropriately', y);
     
-    y = addSubSection(doc, 'Opening Script:', y);
-    y = addQuoteBox(doc, "I partner with SNFs to provide 24/7 clinical support for your most complex residents. Our hospice team becomes an extension of your staff—handling symptom management, family conversations, and after-hours needs. How are you currently managing residents with declining trajectories?", y);
+    y = addSubSection(doc, 'Discovery Opening (Stage 1):', y);
+    y = addQuoteBox(doc, "I partner with SNFs to provide 24/7 clinical support for your most complex residents. Our hospice team becomes an extension of your staff—handling symptom management, family conversations, and after-hours needs. How are you currently managing residents with declining trajectories?", y, 60);
     
     y = addSectionHeader(doc, 'Assisted Living Communities', y);
     y = addSubSection(doc, 'Key Pain Points:', y);
@@ -443,10 +459,10 @@ function createFacilityScriptsPDF(): Promise<void> {
     y = addBulletPoint(doc, 'Family expectations and communication burden', y);
     y = addBulletPoint(doc, 'Staff training on end-of-life care', y);
     
-    y = addSubSection(doc, 'Opening Script:', y);
-    y = addQuoteBox(doc, "We help assisted living communities keep residents comfortable in their homes rather than transferring to hospitals during end-of-life. Our approach focuses on family communication and staff support. What percentage of your residents are currently aging in place versus transferring out?", y);
+    y = addSubSection(doc, 'Discovery Opening (Stage 1):', y);
+    y = addQuoteBox(doc, "We help assisted living communities keep residents comfortable in their homes rather than transferring to hospitals during end-of-life. Our approach focuses on family communication and staff support. What percentage of your residents are currently aging in place versus transferring out?", y, 55);
     
-    y = addTipBox(doc, 'SPARTAN STRATEGY', 'Always research the specific facility before calling. Reference their recent news, awards, or challenges to demonstrate you understand their unique situation.', y);
+    y = addTipBox(doc, 'SPARTAN STRATEGY', 'Always research the specific facility before calling. Reference their recent news, awards, or challenges to demonstrate you understand their unique situation. This moves you quickly from Discovery to Connecting.', y);
     
     addFooter(doc);
     doc.end();
@@ -462,47 +478,66 @@ function createFollowUpPDF(): Promise<void> {
     const stream = fs.createWriteStream('public/resources/followup-templates.pdf');
     doc.pipe(stream);
     
-    let y = addProfessionalHeader(doc, 'Follow-Up Communication Framework', 'Strategic Sequences for Moving Deals Forward');
+    let y = addProfessionalHeader(doc, 'Follow-Up Communication Framework', 'Advancing Through Each Stage of the Sales Mastery Model');
     
-    y = addSectionHeader(doc, 'Post-Meeting Same-Day Email', y);
+    y = addSectionHeader(doc, 'After Stage 1: Discovery Follow-Up', y);
+    y = addParagraph(doc, 'Goal: Move to Connecting by scheduling a deeper conversation', y);
     
     doc.fontSize(10).fillColor(DARK_TEXT).font('Helvetica-Bold');
-    doc.text('Subject: Following Up - [Facility Name] Partnership Discussion', MARGIN_LEFT, y);
-    y = doc.y + 10;
+    doc.text('Subject: Following Up - [Facility Name] Patient Care Discussion', MARGIN_LEFT, y);
+    y = doc.y + 8;
     
     doc.fontSize(9).fillColor(MEDIUM_TEXT).font('Helvetica');
     const email1 = `Hi [Name],
 
-Thank you for taking time to meet with me today. I enjoyed learning about [specific thing discussed] and [specific challenge mentioned].
+Thank you for sharing insights about [specific challenge they mentioned]. I've been thinking about what you said regarding [their situation].
 
-As promised, I've attached [relevant resource discussed]. I think you'll find the section on [specific topic] particularly relevant to [their situation].
-
-Based on our conversation, I'd like to propose [specific next step] to help you [achieve specific outcome]. Would [specific date/time] work for a brief follow-up call?
-
-Looking forward to continuing our conversation.
+I'd love to learn more about your perspective on patient care transitions. Would you have 20 minutes this week for a deeper conversation about how we might support your team?
 
 Best regards,
 [Your Name]`;
     doc.text(email1, MARGIN_LEFT, y, { width: CONTENT_WIDTH });
     y = doc.y + 15;
     
-    y = addSectionHeader(doc, '7-Day Nurture Sequence', y);
+    y = addSectionHeader(doc, 'After Stage 2: Connecting Follow-Up', y);
+    y = addParagraph(doc, 'Goal: Move to Guiding by presenting tailored solutions', y);
     
-    y = addSubSection(doc, 'Day 2: Value-Add Touch', y);
-    y = addParagraph(doc, 'Share a relevant article or resource related to their specific challenge. No ask—just value.', y);
+    doc.fontSize(10).fillColor(DARK_TEXT).font('Helvetica-Bold');
+    doc.text('Subject: Addressing [Specific Challenge] at [Facility Name]', MARGIN_LEFT, y);
+    y = doc.y + 8;
     
-    y = addSubSection(doc, 'Day 4: Case Study Share', y);
-    y = addParagraph(doc, 'Send a brief case study from a similar facility. Highlight specific metrics and outcomes.', y);
+    doc.fontSize(9).fillColor(MEDIUM_TEXT).font('Helvetica');
+    const email2 = `Hi [Name],
+
+Based on our conversation about [their individual challenges], I've prepared a brief overview of how facilities like yours have addressed similar situations.
+
+I'd like to walk you through 2-3 specific approaches that align with your goals. Would [specific date/time] work for a 30-minute presentation?
+
+Best regards,
+[Your Name]`;
+    doc.text(email2, MARGIN_LEFT, y, { width: CONTENT_WIDTH });
+    y = doc.y + 15;
     
-    y = addSubSection(doc, 'Day 7: Reconnection Call', y);
-    y = addParagraph(doc, 'Phone call to check in, reference previous conversation, and propose concrete next step.', y);
+    y = addSectionHeader(doc, 'After Stage 3: Guiding Follow-Up', y);
+    y = addParagraph(doc, 'Goal: Move to Commitment by addressing final concerns', y);
     
-    y += 10;
-    y = addSectionHeader(doc, 'Phone Follow-Up Script', y);
+    doc.fontSize(10).fillColor(DARK_TEXT).font('Helvetica-Bold');
+    doc.text('Subject: Next Steps for [Facility Name] Partnership', MARGIN_LEFT, y);
+    y = doc.y + 8;
     
-    y = addQuoteBox(doc, "Hi [Name], this is [Your Name] from Spartan Coaching. I wanted to follow up on our conversation last week about [specific topic]. I've been thinking about what you said regarding [their challenge], and I had an idea I wanted to run by you. Do you have 2 minutes?", y);
+    doc.fontSize(9).fillColor(MEDIUM_TEXT).font('Helvetica');
+    const email3 = `Hi [Name],
+
+Thank you for your time reviewing our approach. Based on our discussion, I believe we can help you [achieve specific outcome they care about].
+
+I'd like to discuss next steps and answer any remaining questions. When would be a good time to talk through the partnership process?
+
+Best regards,
+[Your Name]`;
+    doc.text(email3, MARGIN_LEFT, y, { width: CONTENT_WIDTH });
+    y = doc.y + 15;
     
-    y = addTipBox(doc, 'SPARTAN EMPATHY', 'Always reference something specific from your previous conversation. This shows you were listening and builds trust. Generic follow-ups get ignored.', y);
+    y = addTipBox(doc, 'SPARTAN EMPATHY', 'Always reference something specific from your previous conversation. This shows you were listening and builds trust. Generic follow-ups signal you see them as a transaction, not a relationship.', y);
     
     addFooter(doc);
     doc.end();
@@ -518,7 +553,7 @@ function createPhysicianPDF(): Promise<void> {
     const stream = fs.createWriteStream('public/resources/physician-strategy.pdf');
     doc.pipe(stream);
     
-    let y = addProfessionalHeader(doc, 'Physician Engagement Strategy', 'Building Medical Director Alignment & Referral Partnerships');
+    let y = addProfessionalHeader(doc, 'Physician Engagement Strategy', 'Building Medical Director Alignment Through the Sales Mastery Model');
     
     y = addSectionHeader(doc, 'The 5 Physician Hesitation Barriers', y);
     
@@ -529,22 +564,19 @@ function createPhysicianPDF(): Promise<void> {
     y = addNumberedItem(doc, 5, 'Knowledge Gaps', '"I\'m not sure about the criteria." Response: Provide LCD reference cards and offer brief in-service education.', y);
     
     y += 10;
-    y = addSectionHeader(doc, '5-Step Physician Engagement Framework', y);
+    y = addSectionHeader(doc, 'Applying the Sales Mastery Model to Physicians', y);
     
-    y = addSubSection(doc, 'Step 1: EDUCATE', y);
-    y = addParagraph(doc, 'Provide clinical criteria resources, LCD guidelines, and prognostication tools. Position yourself as a resource, not a salesperson.', y);
+    y = addSubSection(doc, 'Stage 1 - Discovery:', y);
+    y = addParagraph(doc, 'Learn about their patient population, referral patterns, and current hospice relationships. Ask about their experience with hospice.', y);
     
-    y = addSubSection(doc, 'Step 2: ESTABLISH CREDIBILITY', y);
-    y = addParagraph(doc, 'Share your medical director credentials, clinical team qualifications, and outcome data from similar patient populations.', y);
+    y = addSubSection(doc, 'Stage 2 - Connecting:', y);
+    y = addParagraph(doc, 'Understand their personal philosophy on end-of-life care. What matters most to them about patient outcomes?', y);
     
-    y = addSubSection(doc, 'Step 3: OFFER SUPPORT', y);
-    y = addParagraph(doc, 'Offer to conduct family meetings, provide 24/7 clinical backup, and handle care coordination. Remove burden, don\'t add it.', y);
+    y = addSubSection(doc, 'Stage 3 - Guiding:', y);
+    y = addParagraph(doc, 'Present how your hospice approach aligns with their values. Share clinical protocols, outcome data, and quality metrics.', y);
     
-    y = addSubSection(doc, 'Step 4: BUILD PARTNERSHIP', y);
-    y = addParagraph(doc, 'Propose regular case reviews, IDT participation, and open communication channels. Make collaboration easy.', y);
-    
-    y = addSubSection(doc, 'Step 5: CONTINUOUS REFINEMENT', y);
-    y = addParagraph(doc, 'Provide feedback on patient outcomes, family satisfaction, and process improvements. Demonstrate ongoing value.', y);
+    y = addSubSection(doc, 'Stage 4 - Commitment:', y);
+    y = addParagraph(doc, 'Propose a pilot: "Would you be willing to refer 2-3 appropriate patients so you can evaluate our clinical approach?"', y);
     
     y += 10;
     y = addTipBox(doc, 'CME OPPORTUNITY', 'Offer to sponsor or facilitate CME-eligible education on palliative care, hospice criteria, or goals-of-care conversations. This positions you as an educational partner, not just a vendor.', y);
@@ -563,48 +595,46 @@ function createCaseStudiesPDF(): Promise<void> {
     const stream = fs.createWriteStream('public/resources/case-studies.pdf');
     doc.pipe(stream);
     
-    let y = addProfessionalHeader(doc, 'Case Studies: Real Results', 'Documented Transformation Outcomes & ROI Analysis');
+    let y = addProfessionalHeader(doc, 'Case Studies: Real Results', 'Documented Transformation Outcomes Through the Sales Mastery Model');
     
     y = addSectionHeader(doc, 'Case Study #1: 120-Bed Skilled Nursing Facility', y);
     
     y = addSubSection(doc, 'The Challenge:', y);
-    y = addParagraph(doc, 'A 120-bed SNF was averaging only 2-3 hospice referrals per month despite having 40+ residents with life-limiting conditions. Staff reported feeling uncomfortable initiating hospice conversations, and families were often surprised when their loved one passed.', y);
+    y = addParagraph(doc, 'A 120-bed SNF was averaging only 2-3 hospice referrals per month despite having 40+ residents with life-limiting conditions. Staff reported feeling uncomfortable initiating hospice conversations.', y);
     
-    y = addSubSection(doc, 'The Spartan Approach:', y);
-    y = addBulletPoint(doc, 'Implemented monthly hospice eligibility screening rounds', y);
-    y = addBulletPoint(doc, 'Trained nursing staff on goals-of-care conversation techniques', y);
-    y = addBulletPoint(doc, 'Established direct communication channel with hospice liaison', y);
-    y = addBulletPoint(doc, 'Created family education materials in multiple languages', y);
+    y = addSubSection(doc, 'Sales Mastery Model Application:', y);
+    y = addBulletPoint(doc, 'DISCOVERY: Learned their referral process was ad-hoc with no systematic screening', y);
+    y = addBulletPoint(doc, 'CONNECTING: Director of Nursing wanted to improve family satisfaction scores', y);
+    y = addBulletPoint(doc, 'GUIDING: Proposed monthly screening rounds + staff training program', y);
+    y = addBulletPoint(doc, 'COMMITMENT: Secured 6-month pilot with monthly reviews', y);
     
     y = addSubSection(doc, 'The Results (6 Months):', y);
     doc.fontSize(11).fillColor(SPARTAN_RED).font('Helvetica-Bold');
     doc.text('300% INCREASE', MARGIN_LEFT, y);
     doc.fontSize(10).fillColor(MEDIUM_TEXT).font('Helvetica');
-    doc.text(' in monthly hospice referrals (2-3 → 8-10/month)', MARGIN_LEFT + 110, y);
+    doc.text(' in monthly hospice referrals (2-3 to 8-10/month)', MARGIN_LEFT + 110, y);
     y = doc.y + 8;
     y = addBulletPoint(doc, 'Family satisfaction scores increased from 3.2 to 4.6 (out of 5)', y);
     y = addBulletPoint(doc, 'Hospital transfer rate for end-of-life residents decreased 45%', y);
-    y = addBulletPoint(doc, 'Staff reported feeling more confident in difficult conversations', y);
     
-    y += 15;
+    y += 10;
     y = addSectionHeader(doc, 'Case Study #2: 280-Bed Regional Hospital', y);
     
     y = addSubSection(doc, 'The Challenge:', y);
-    y = addParagraph(doc, 'A regional hospital struggled with late hospice referrals—average length of stay on hospice was only 5 days. This led to poor patient/family experience, increased costs, and missed quality metrics.', y);
+    y = addParagraph(doc, 'Average length of stay on hospice was only 5 days, indicating late referrals. This led to poor patient/family experience and missed quality metrics.', y);
     
-    y = addSubSection(doc, 'The Spartan Approach:', y);
-    y = addBulletPoint(doc, 'Integrated palliative care triggers into EMR workflows', y);
-    y = addBulletPoint(doc, 'Trained hospitalists on prognostic indicators and referral criteria', y);
-    y = addBulletPoint(doc, 'Established 24-hour hospice admission guarantee', y);
-    y = addBulletPoint(doc, 'Created seamless discharge-to-hospice pathway', y);
+    y = addSubSection(doc, 'Sales Mastery Model Application:', y);
+    y = addBulletPoint(doc, 'DISCOVERY: Learned hospitalists lacked confidence in prognostic indicators', y);
+    y = addBulletPoint(doc, 'CONNECTING: Chief Medical Officer valued reducing readmissions', y);
+    y = addBulletPoint(doc, 'GUIDING: Proposed EMR-integrated triggers + hospitalist training', y);
+    y = addBulletPoint(doc, 'COMMITMENT: Secured 24-hour hospice admission guarantee partnership', y);
     
     y = addSubSection(doc, 'The Results (12 Months):', y);
     doc.fontSize(11).fillColor(SPARTAN_RED).font('Helvetica-Bold');
-    doc.text('100% INCREASE', MARGIN_LEFT, y);
+    doc.text('460% INCREASE', MARGIN_LEFT, y);
     doc.fontSize(10).fillColor(MEDIUM_TEXT).font('Helvetica');
-    doc.text(' in monthly hospice referrals (6-8 → 14-16/month)', MARGIN_LEFT + 105, y);
+    doc.text(' in average hospice length of stay (5 to 28 days)', MARGIN_LEFT + 110, y);
     y = doc.y + 8;
-    y = addBulletPoint(doc, 'Average hospice length of stay increased from 5 to 28 days', y);
     y = addBulletPoint(doc, 'Readmission rate for discharged hospice patients: 0%', y);
     y = addBulletPoint(doc, 'Estimated annual cost savings: $420,000', y);
     
@@ -622,50 +652,43 @@ function createDecisionTreesPDF(): Promise<void> {
     const stream = fs.createWriteStream('public/resources/decision-trees.pdf');
     doc.pipe(stream);
     
-    let y = addProfessionalHeader(doc, 'Decision Trees & Frameworks', 'Strategic Decision-Making Tools for Complex Situations');
+    let y = addProfessionalHeader(doc, 'Decision Trees & Frameworks', 'Strategic Navigation Through the Healthcare Sales Mastery Model');
     
-    y = addSectionHeader(doc, 'Account Qualification Framework', y);
+    y = addSectionHeader(doc, 'The Healthcare Sales Mastery Model', y);
+    y = addParagraph(doc, 'Use this 4-stage framework to track every account and guide your next action:', y);
     
-    y = addSubSection(doc, 'Is This a Qualified Opportunity?', y);
-    
-    y = addNumberedItem(doc, 1, 'BUDGET', 'Do they have decision-making authority on hospice partnerships?', y);
-    y = addNumberedItem(doc, 2, 'AUTHORITY', 'Are you speaking with the right person?', y);
-    y = addNumberedItem(doc, 3, 'NEED', 'Do they have patients who could benefit from hospice services?', y);
-    y = addNumberedItem(doc, 4, 'TIMELINE', 'Is there a compelling reason to act now?', y);
-    
-    y += 5;
-    y = addParagraph(doc, 'If YES to all 4: Priority A account. If YES to 3: Priority B. If YES to 2 or fewer: Nurture or deprioritize.', y);
+    y = addStageBox(doc, 1, 'Discovery', 'Learning about the needs and operations of the account or contact', y);
+    y = addStageBox(doc, 2, 'Connecting', 'Learning the individual needs of the account or contact', y);
+    y = addStageBox(doc, 3, 'Guiding', 'Aligning their needs to your features and benefits', y);
+    y = addStageBox(doc, 4, 'Commitment', 'Closing and asking for the business', y);
     
     y += 10;
-    y = addSectionHeader(doc, 'Objection Response Decision Tree', y);
+    y = addSectionHeader(doc, 'Stage Advancement Criteria', y);
     
-    doc.fontSize(10).fillColor(MEDIUM_TEXT).font('Helvetica');
-    doc.text('When you encounter resistance, follow this framework:', MARGIN_LEFT, y);
-    y = doc.y + 12;
+    y = addSubSection(doc, 'Ready to move from Discovery to Connecting when:', y);
+    y = addBulletPoint(doc, 'You understand their patient population and care model', y);
+    y = addBulletPoint(doc, 'You know their current referral process', y);
+    y = addBulletPoint(doc, 'You have identified key decision-makers', y);
     
-    y = addSubSection(doc, 'Step 1: ACKNOWLEDGE', y);
-    y = addParagraph(doc, '"I understand..." or "That makes sense..." Validate their concern without agreeing with the objection itself.', y);
+    y = addSubSection(doc, 'Ready to move from Connecting to Guiding when:', y);
+    y = addBulletPoint(doc, 'You understand their personal priorities and concerns', y);
+    y = addBulletPoint(doc, 'They have shared specific challenges they want to solve', y);
+    y = addBulletPoint(doc, 'You have built rapport and they view you as a resource', y);
     
-    y = addSubSection(doc, 'Step 2: CLARIFY', y);
-    y = addParagraph(doc, '"Help me understand..." or "Can you tell me more about..." Get to the root of the objection.', y);
-    
-    y = addSubSection(doc, 'Step 3: RESPOND', y);
-    y = addParagraph(doc, 'Address the specific concern with relevant evidence, case studies, or reframing. Keep it brief.', y);
-    
-    y = addSubSection(doc, 'Step 4: ADVANCE', y);
-    y = addParagraph(doc, 'Propose a low-commitment next step. "Would it be helpful if I..." or "Could we schedule..."', y);
-    
-    y += 10;
-    y = addSectionHeader(doc, 'Meeting Outcome Decision Tree', y);
-    
-    y = addSubSection(doc, 'After Every Meeting, Ask:', y);
-    y = addBulletPoint(doc, 'Did I advance the relationship? → If NO: What value can I add in follow-up?', y);
-    y = addBulletPoint(doc, 'Did I learn something new? → If NO: What questions should I have asked?', y);
-    y = addBulletPoint(doc, 'Is there a clear next step? → If NO: Immediately schedule follow-up action.', y);
-    y = addBulletPoint(doc, 'Am I closer to a decision? → If NO: What\'s blocking progress?', y);
+    y = addSubSection(doc, 'Ready to move from Guiding to Commitment when:', y);
+    y = addBulletPoint(doc, 'They see clear alignment between their needs and your solution', y);
+    y = addBulletPoint(doc, 'Key objections have been addressed', y);
+    y = addBulletPoint(doc, 'All decision-makers have been engaged', y);
     
     y += 10;
-    y = addTipBox(doc, 'CONTINUOUS IMPROVEMENT', 'After every call, meeting, or interaction, spend 2 minutes documenting lessons learned. What worked? What would you do differently? This discipline compounds into expertise.', y);
+    y = addSectionHeader(doc, 'Objection Response Framework', y);
+    
+    y = addNumberedItem(doc, 1, 'ACKNOWLEDGE', '"I understand..." or "That makes sense..." Validate their concern.', y);
+    y = addNumberedItem(doc, 2, 'CLARIFY', '"Help me understand..." Get to the root of the objection.', y);
+    y = addNumberedItem(doc, 3, 'RESPOND', 'Address with relevant evidence. Keep it brief and specific.', y);
+    y = addNumberedItem(doc, 4, 'ADVANCE', 'Propose a low-commitment next step within the current stage.', y);
+    
+    y = addTipBox(doc, 'CONTINUOUS IMPROVEMENT', 'After every interaction, document: Which stage is this account in? What do I need to learn/do to advance them to the next stage? This discipline compounds into expertise.', y);
     
     addFooter(doc);
     doc.end();
