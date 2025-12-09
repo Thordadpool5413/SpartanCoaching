@@ -28,14 +28,17 @@ interface PDFState {
   pageNum: number;
 }
 
-function ensureSpace(state: PDFState, needed: number): void {
-  if (state.y + needed > PAGE_HEIGHT - FOOTER_HEIGHT - 30) {
+function ensureSpace(state: PDFState, needed: number): boolean {
+  const availableSpace = PAGE_HEIGHT - FOOTER_HEIGHT - 20 - state.y;
+  if (availableSpace < needed) {
     addFooter(state);
     state.doc.addPage();
     state.pageNum++;
     addHeader(state);
-    state.y = HEADER_HEIGHT + 30;
+    state.y = HEADER_HEIGHT + 24;
+    return true;
   }
+  return false;
 }
 
 function addHeader(state: PDFState): void {
@@ -196,11 +199,12 @@ function addScriptBox(state: PDFState, script: string): void {
   state.y = doc.y + 16;
 }
 
-function addTipBox(state: PDFState, tipTitle: string, tipContent: string): void {
-  ensureSpace(state, 70);
-  const { doc } = state;
-  
+function addTipBox(state: PDFState, tipTitle: string, tipContent: string, isLast: boolean = false): void {
   const boxHeight = 58;
+  if (!isLast) {
+    ensureSpace(state, boxHeight + 10);
+  }
+  const { doc } = state;
   
   doc.rect(MARGIN, state.y, CONTENT_WIDTH, boxHeight)
     .fillAndStroke('#FEF2F2', SPARTAN_RED);
@@ -213,7 +217,7 @@ function addTipBox(state: PDFState, tipTitle: string, tipContent: string): void 
   doc.fontSize(9).font('Helvetica').fillColor(DARK_GRAY);
   doc.text(tipContent, MARGIN + 16, state.y + 28, { width: CONTENT_WIDTH - 32, lineGap: 2 });
   
-  state.y += boxHeight + 14;
+  state.y += boxHeight + 10;
 }
 
 function addCheckbox(state: PDFState, text: string): void {
@@ -302,7 +306,6 @@ function createDocument(): PDFState {
   const doc = new PDFDocument({ 
     size: 'LETTER',
     margin: 0,
-    bufferPages: true,
     autoFirstPage: true
   });
   
@@ -363,7 +366,7 @@ async function createColdCallScript(): Promise<void> {
   addSubsection(state, '"Not interested right now"');
   addScriptBox(state, `"I understand completely. Could I send you a 2-minute assessment tool? No obligation - just something that might help identify patients who could benefit from earlier hospice conversations."`);
   
-  addTipBox(state, 'Spartan Principle', 'Never argue with an objection. Acknowledge, pivot to value, and offer a low-commitment next step. Discipline in your response builds trust.');
+  addTipBox(state, 'Spartan Principle', 'Never argue with an objection. Acknowledge, pivot to value, and offer a low-commitment next step. Discipline in your response builds trust.', true);
   
   await finishDocument(state, 'public/resources/cold-call-script.pdf');
 }
@@ -408,7 +411,7 @@ async function createTerritoryTemplate(): Promise<void> {
   addFormField(state, 'Guiding presentations delivered per week');
   addFormField(state, 'Commitment asks made per week');
   
-  addTipBox(state, 'Tracking Success', 'Review your stage progression weekly. If accounts are stalling in one stage, focus your training and preparation on advancing through that specific stage.');
+  addTipBox(state, 'Tracking Success', 'Review your stage progression weekly. If accounts are stalling in one stage, focus your training and preparation on advancing through that specific stage.', true);
   
   await finishDocument(state, 'public/resources/territory-template.pdf');
 }
@@ -454,7 +457,7 @@ async function createResearchChecklist(): Promise<void> {
   addCheckbox(state, 'Onboarding plan is prepared to present');
   addCheckbox(state, 'Next steps after commitment are clearly defined');
   
-  addTipBox(state, 'Spartan Discipline', 'Never advance to the next stage until you have genuinely completed the current one. Rushing through stages leads to lost deals and wasted effort.');
+  addTipBox(state, 'Spartan Discipline', 'Never advance to the next stage until you have genuinely completed the current one. Rushing through stages leads to lost deals and wasted effort.', true);
   
   await finishDocument(state, 'public/resources/research-checklist.pdf');
 }
@@ -500,7 +503,7 @@ async function createRegulationsGuide(): Promise<void> {
   addSalesStage(state, 3, 'Guiding', 'Educate on hospice benefits and address concerns');
   addSalesStage(state, 4, 'Commitment', 'Obtain physician certification and patient election');
   
-  addTipBox(state, 'Compliance Tip', 'Document all hospice conversations in the medical record. Include patient/family responses and any barriers discussed. This protects the facility and supports continuity of care.');
+  addTipBox(state, 'Compliance Tip', 'Document all hospice conversations in the medical record. Include patient/family responses and any barriers discussed. This protects the facility and supports continuity of care.', true);
   
   await finishDocument(state, 'public/resources/regulations-guide.pdf');
 }
@@ -537,7 +540,7 @@ async function createFacilityScripts(): Promise<void> {
   addSubsection(state, 'Discovery Opening Script');
   addScriptBox(state, `"We help assisted living communities keep residents comfortable in their homes rather than transferring to hospitals during end-of-life. Our approach focuses on family communication and staff support.\n\nWhat percentage of your residents are currently aging in place versus transferring out?"`);
   
-  addTipBox(state, 'Spartan Strategy', 'Always research the specific facility before calling. Reference their recent news, awards, or challenges to demonstrate you understand their unique situation. This moves you quickly from Discovery to Connecting.');
+  addTipBox(state, 'Spartan Strategy', 'Always research the specific facility before calling. Reference their recent news, awards, or challenges to demonstrate you understand their unique situation. This moves you quickly from Discovery to Connecting.', true);
   
   await finishDocument(state, 'public/resources/facility-specific-scripts.pdf');
 }
@@ -614,7 +617,7 @@ Welcome to the partnership. We look forward to serving your patients together.
 Best regards,
 [Your Name]`);
   
-  addTipBox(state, 'Follow-Up Discipline', 'Always reference something specific from your previous conversation. Generic follow-ups feel impersonal and reduce response rates. Take notes during every call and use them.');
+  addTipBox(state, 'Follow-Up Discipline', 'Always reference something specific from your previous conversation. Generic follow-ups feel impersonal and reduce response rates. Take notes during every call and use them.', true);
   
   await finishDocument(state, 'public/resources/followup-templates.pdf');
 }
@@ -665,7 +668,7 @@ async function createPhysicianStrategy(): Promise<void> {
   addBullet(state, 'Case conferences on complex patients');
   addBullet(state, 'Written CME materials on end-of-life care');
   
-  addTipBox(state, 'Physician Relationship Rule', 'Never waste a physician\'s time. Be prepared, be brief, be clinical. If you can\'t articulate your value in 30 seconds, you\'re not ready for the meeting.');
+  addTipBox(state, 'Physician Relationship Rule', 'Never waste a physician\'s time. Be prepared, be brief, be clinical. If you can\'t articulate your value in 30 seconds, you\'re not ready for the meeting.', true);
   
   await finishDocument(state, 'public/resources/physician-strategy.pdf');
 }
@@ -715,7 +718,7 @@ async function createCaseStudies(): Promise<void> {
   addNumberedItem(state, 3, 'Data-Driven', 'Measurable outcomes tracked and shared with partners');
   addNumberedItem(state, 4, 'Relationship Investment', 'Long-term partnership mentality over transactional approach');
   
-  addTipBox(state, 'Using Case Studies', 'When presenting case studies, always ask first: "Would it be helpful if I shared how a similar facility addressed this challenge?" Let them invite the story rather than forcing it.');
+  addTipBox(state, 'Using Case Studies', 'When presenting case studies, always ask first: "Would it be helpful if I shared how a similar facility addressed this challenge?" Let them invite the story rather than forcing it.', true);
   
   await finishDocument(state, 'public/resources/case-studies.pdf');
 }
@@ -768,7 +771,7 @@ async function createDecisionFrameworks(): Promise<void> {
   addBullet(state, 'Tuesday-Thursday: High-value face-to-face meetings');
   addBullet(state, 'Friday: Follow-up, documentation, and next week prep');
   
-  addTipBox(state, 'Strategic Discipline', 'Review these frameworks weekly. The difference between good and great salespeople is consistent application of proven processes, not occasional brilliance.');
+  addTipBox(state, 'Strategic Discipline', 'Review these frameworks weekly. The difference between good and great salespeople is consistent application of proven processes, not occasional brilliance.', true);
   
   await finishDocument(state, 'public/resources/decision-frameworks.pdf');
 }
