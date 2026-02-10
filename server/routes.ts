@@ -10,7 +10,7 @@ import {
   generateGroundedSearch,
   generateDailyDrill,
   generateChatResponse,
-} from "./openai";
+} from "./gemini";
 import {
   playbookRequestSchema,
   objectionRequestSchema,

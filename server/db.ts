@@ -1,42 +1,36 @@
-import { Pool, neonConfig } from '@neondatabase/serverless';
-import { drizzle, NeonDatabase } from 'drizzle-orm/neon-serverless';
-import ws from "ws";
+import pg from "pg";
+import { drizzle } from "drizzle-orm/node-postgres";
 import * as schema from "@shared/schema";
 
-neonConfig.webSocketConstructor = ws;
+let _pool: pg.Pool | null = null;
+let _db: ReturnType<typeof drizzle<typeof schema>> | null = null;
 
-// Lazy initialization - database connection is created on first use, not at import time
-// This allows the server to start and respond to health checks before connecting to DB
-let _pool: Pool | null = null;
-let _db: NeonDatabase<typeof schema> | null = null;
-
-function getPool(): Pool {
+function getPool(): pg.Pool {
   if (!_pool) {
     if (!process.env.DATABASE_URL) {
       throw new Error(
         "DATABASE_URL must be set. Did you forget to provision a database?",
       );
     }
-    _pool = new Pool({ connectionString: process.env.DATABASE_URL });
+    _pool = new pg.Pool({ connectionString: process.env.DATABASE_URL });
   }
   return _pool;
 }
 
-function getDb(): NeonDatabase<typeof schema> {
+function getDb() {
   if (!_db) {
-    _db = drizzle({ client: getPool(), schema });
+    _db = drizzle(getPool(), { schema });
   }
   return _db;
 }
 
-// Export getters that lazily initialize the connection
-export const pool = new Proxy({} as Pool, {
+export const pool = new Proxy({} as pg.Pool, {
   get(_, prop) {
     return (getPool() as any)[prop];
   }
 });
 
-export const db = new Proxy({} as NeonDatabase<typeof schema>, {
+export const db = new Proxy({} as ReturnType<typeof drizzle<typeof schema>>, {
   get(_, prop) {
     const realDb = getDb();
     const value = (realDb as any)[prop];

@@ -1,12 +1,17 @@
 import { GoogleGenAI } from "@google/genai";
 
-const API_KEY = process.env.GEMINI_API_KEY;
+let genAI: GoogleGenAI | null = null;
 
-if (!API_KEY) {
-  throw new Error("GEMINI_API_KEY environment variable is required");
+function getGenAI(): GoogleGenAI {
+  if (!genAI) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error("GEMINI_API_KEY environment variable is required");
+    }
+    genAI = new GoogleGenAI({ apiKey });
+  }
+  return genAI;
 }
-
-const genAI = new GoogleGenAI({ apiKey: API_KEY });
 
 /**
  * Hospice sales coaching system instruction for all AI interactions
@@ -177,7 +182,7 @@ When users ask questions, draw from this deep expertise to provide world-class h
  */
 export async function generateComplexResponse(prompt: string, systemInstruction?: string): Promise<string> {
   try {
-    const result = await genAI.models.generateContent({
+    const result = await getGenAI().models.generateContent({
       model: "gemini-2.0-flash-exp",
       contents: prompt,
       config: {
@@ -197,7 +202,7 @@ export async function generateComplexResponse(prompt: string, systemInstruction?
  */
 export async function generateQuickResponse(prompt: string): Promise<string> {
   try {
-    const result = await genAI.models.generateContent({
+    const result = await getGenAI().models.generateContent({
       model: "gemini-2.0-flash-exp",
       contents: prompt,
       config: {
@@ -223,7 +228,7 @@ export async function generateGroundedSearch(query: string): Promise<{
   sources?: Array<{ title: string; uri: string }>;
 }> {
   try {
-    const result = await genAI.models.generateContent({
+    const result = await getGenAI().models.generateContent({
       model: "gemini-2.0-flash-exp",
       contents: `Research this hospice sales question and provide a detailed, well-researched answer with specific facts and best practices: ${query}`,
       config: {
@@ -284,7 +289,7 @@ export async function generateChatResponse(
     
     conversationText += `User: ${message}`;
 
-    const result = await genAI.models.generateContent({
+    const result = await getGenAI().models.generateContent({
       model: "gemini-2.0-flash-exp",
       contents: conversationText,
       config: {
