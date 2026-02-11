@@ -1,6 +1,6 @@
 import type { Express } from "express";
 import express from "express";
-import { createServer, type Server } from "http";
+
 import path from "path";
 import { storage } from "./storage";
 import { setupAuth, isAuthenticated } from "./replitAuth";
@@ -46,7 +46,7 @@ export async function deferredInit(app: Express): Promise<void> {
   }
 }
 
-export function registerRoutes(app: Express): Server {
+export function registerRoutes(app: Express): void {
   // Serve training resources files
   // In development: ./public/resources (from project root)
   // In production: ./dist/public/resources (bundled with the build)
@@ -319,8 +319,8 @@ Subject: [subject line]
       
       res.json({ articles });
     } catch (error: any) {
-      console.error("Get articles error:", error);
-      res.status(500).json({ error: error.message || "Failed to retrieve articles" });
+      console.error("Get articles error (DB may be unavailable):", error);
+      res.json({ articles: [] });
     }
   });
 
@@ -341,7 +341,7 @@ Subject: [subject line]
       res.json({ article });
     } catch (error: any) {
       console.error("Get article error:", error);
-      res.status(500).json({ error: error.message || "Failed to retrieve article" });
+      res.status(503).json({ error: "Database temporarily unavailable" });
     }
   });
 
@@ -404,8 +404,8 @@ Subject: [subject line]
       
       res.json({ resources });
     } catch (error: any) {
-      console.error("Get resources error:", error);
-      res.status(500).json({ error: error.message || "Failed to retrieve resources" });
+      console.error("Get resources error (DB may be unavailable):", error);
+      res.json({ resources: [] });
     }
   });
 
@@ -506,8 +506,8 @@ Subject: [subject line]
       
       res.json({ podcasts });
     } catch (error: any) {
-      console.error("Get podcasts error:", error);
-      res.status(500).json({ error: error.message || "Failed to retrieve podcasts" });
+      console.error("Get podcasts error (DB may be unavailable):", error);
+      res.json({ podcasts: [] });
     }
   });
 
@@ -701,7 +701,4 @@ Subject: [subject line]
     }
   });
 
-  const httpServer = createServer(app);
-
-  return httpServer;
 }
