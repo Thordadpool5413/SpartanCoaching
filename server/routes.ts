@@ -47,13 +47,14 @@ export async function deferredInit(app: Express): Promise<void> {
 }
 
 export function registerRoutes(app: Express): void {
-  // Serve training resources files
+  // Serve training resources files (PDFs, etc.)
+  // Uses /resources/files path to avoid conflict with frontend /resources route
   // In development: ./public/resources (from project root)
   // In production: ./dist/public/resources (bundled with the build)
   const resourcesPath = process.env.NODE_ENV === 'production'
     ? path.join(import.meta.dirname, 'public', 'resources')
     : path.join(import.meta.dirname, '..', 'public', 'resources');
-  app.use('/resources', express.static(resourcesPath));
+  app.use('/resources/files', express.static(resourcesPath));
 
   // NOTE: Auth setup is deferred to after server.listen() for faster startup
   // See deferredInit() function above
