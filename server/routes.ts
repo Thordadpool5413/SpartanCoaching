@@ -56,6 +56,11 @@ export function registerRoutes(app: Express): void {
     : path.join(import.meta.dirname, '..', 'public', 'resources');
   app.use('/resources/files', express.static(resourcesPath));
 
+  // Backwards-compatible redirect: old /resources/*.pdf paths -> /resources/files/*.pdf
+  app.get(/^\/resources\/(.+\.pdf)$/, (req, res) => {
+    res.redirect(301, `/resources/files/${req.params[0]}`);
+  });
+
   // NOTE: Auth setup is deferred to after server.listen() for faster startup
   // See deferredInit() function above
 

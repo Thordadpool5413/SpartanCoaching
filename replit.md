@@ -119,4 +119,15 @@ The platform employs a premium SaaS aesthetic with a sophisticated visual design
 8. **Case Studies: Real Results** (3.6K) - Before/after metrics & ROI impact
 9. **Decision Trees & Frameworks** (3.3K) - Visual field reference guides
 
-**All PDFs**: Professional formatting, Spartan branding, print-ready, fully downloadable at /resources
+**All PDFs**: Professional formatting, Spartan branding, print-ready, fully downloadable at /resources/files/
+
+## Recent Changes (February 2026)
+
+### Bug Fixes Applied
+- **Duplicate HTTP server removed**: `registerRoutes()` in routes.ts no longer creates a second unused HTTP server via `createServer(app)`. The single server in index.ts is the authoritative listener.
+- **Database failure resilience**: Public GET endpoints (`/api/articles`, `/api/resources`, `/api/podcasts`) now return empty arrays instead of 500 errors when the database is unavailable. This ensures the frontend renders properly even during DB outages.
+- **Resource path conflict fixed**: Static file serving for training PDFs moved from `/resources` to `/resources/files` to prevent conflicts with the frontend `/resources` SPA route. A backwards-compatible 301 redirect ensures old `/resources/*.pdf` links still work.
+- **Seed data updated**: All resource `fileUrl` paths in seed.ts updated from `/resources/*.pdf` to `/resources/files/*.pdf`.
+
+### Known Issue
+- **DATABASE_URL**: The Neon PostgreSQL endpoint (`ep-wispy-credit-aex4jsso`) is currently disabled. This is a platform-level issue requiring re-provisioning. All database-dependent features (articles, resources, podcasts, visitor analytics, newsletter, inquiries) return empty/error states until the database is restored. When restored, existing resource records may need their `fileUrl` paths updated from `/resources/` to `/resources/files/`.
