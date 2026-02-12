@@ -7,20 +7,8 @@
   "display": "standalone",
   "background_color": "#ffffff",
   "theme_color": "#dc2626",
-  "orientation": "portrait-primary",
+  "orientation": "any",
   "icons": [
-    {
-      "src": "/spartan-logo.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "any"
-    },
-    {
-      "src": "/spartan-logo.png",
-      "sizes": "512x512",
-      "type": "image/png",
-      "purpose": "maskable"
-    },
     {
       "src": "/icon-192.png",
       "sizes": "192x192",
@@ -32,31 +20,31 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/spartan-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
     }
   ],
   "categories": ["business", "education", "productivity"],
   "screenshots": [],
   "shortcuts": [
     {
-      "name": "Daily Drill",
-      "short_name": "Drill",
-      "description": "Get your daily coaching drill",
-      "url": "/ai-field-kit?tool=daily-drill",
-      "icons": [
-        {
-          "src": "/spartan-logo.png",
-          "sizes": "192x192"
-        }
-      ]
-    },
-    {
       "name": "AI Field Kit",
       "short_name": "AI Kit",
       "description": "Access AI coaching tools",
-      "url": "/ai-field-kit",
+      "url": "/tools",
       "icons": [
         {
-          "src": "/spartan-logo.png",
+          "src": "/icon-192.png",
           "sizes": "192x192"
         }
       ]

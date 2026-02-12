@@ -90,6 +90,7 @@ export function PWAInstallPrompt() {
         aria-labelledby="pwa-install-title"
         aria-describedby="pwa-install-description"
         data-testid="pwa-install-prompt"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
         <Card className="p-4 shadow-2xl border-2 border-primary/20 bg-card/95 backdrop-blur-sm">
           <div className="flex items-start gap-3">
@@ -131,6 +132,7 @@ export function PWAInstallPrompt() {
       aria-labelledby="pwa-install-title"
       aria-describedby="pwa-install-description"
       data-testid="pwa-install-prompt"
+      style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       <Card className="p-4 shadow-2xl border-2 border-primary/20 bg-card/95 backdrop-blur-sm">
         <div className="flex items-start gap-3">

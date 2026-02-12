@@ -238,8 +238,8 @@ function ChatWidgetContent() {
         )}
         style={{
           position: 'fixed',
-          bottom: isMobile ? '16px' : '32px',
-          right: isMobile ? '16px' : '32px',
+          bottom: isMobile ? 'calc(16px + env(safe-area-inset-bottom, 0px))' : '32px',
+          right: isMobile ? 'calc(16px + env(safe-area-inset-right, 0px))' : '32px',
           zIndex: 50,
         }}
         data-testid="button-chat-widget"
