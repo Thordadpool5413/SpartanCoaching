@@ -275,7 +275,6 @@ body {
   html {
     scroll-behavior: smooth;
     -webkit-tap-highlight-color: transparent;
-    overflow-x: hidden;
     width: 100%;
   }
 
@@ -286,19 +285,15 @@ body {
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
     letter-spacing: var(--tracking-normal);
     line-height: 1.65;
-    overflow-x: hidden;
     width: 100%;
     position: relative;
     text-rendering: optimizeLegibility;
     font-variant-ligatures: common-ligatures;
   }
-
-  body {
-    overflow-y: auto !important;
-  }
   
   #root {
     width: 100%;
+    overflow-x: hidden;
   }
   
   h1, h2, h3, h4, h5, h6 {
