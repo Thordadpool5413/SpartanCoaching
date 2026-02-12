@@ -57,7 +57,7 @@ export default function Articles() {
       <BackButton />
       
       {/* Header */}
-      <div className="text-center max-w-4xl mx-auto mb-16">
+      <div className="text-center max-w-4xl mx-auto mb-10 sm:mb-16">
         <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-transparent to-transparent blur-3xl -z-10"></div>
         <h1 className="text-hero text-foreground mb-8" data-testid="text-articles-title">
           Articles & <span className="text-gradient-primary">Insights</span>
@@ -70,7 +70,7 @@ export default function Articles() {
 
       {/* Featured Articles */}
       {featuredArticles.length > 0 && (
-        <div className="mb-16">
+        <div className="mb-10 sm:mb-16">
           <div className="flex items-center gap-3 mb-8">
             <Star className="w-7 h-7 text-primary fill-primary" />
             <h2 className="text-h2 text-foreground">Featured Articles</h2>

@@ -14,7 +14,7 @@ export default function Podcasts() {
   const podcasts = data?.podcasts || [];
 
   return (
-    <div className="container mx-auto px-6 py-12">
+    <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
       <SEO />
       <div className="mb-8">
         <BackButton />

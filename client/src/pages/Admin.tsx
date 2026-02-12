@@ -788,7 +788,7 @@ export default function Admin() {
   }
 
   return (
-    <div className="container mx-auto px-6 py-12">
+    <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
       <SEO />
       <div className="flex items-center justify-between mb-8">
         <BackButton />
@@ -817,7 +817,7 @@ export default function Admin() {
             <p className="text-muted-foreground">Loading visitor statistics...</p>
           </div>
         ) : analytics ? (
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             <Card data-testid="card-visitors-day">
               <CardHeader className="pb-3">
                 <CardTitle className="text-sm font-medium text-muted-foreground">Today</CardTitle>
@@ -878,7 +878,7 @@ export default function Admin() {
       </div>
 
       <Tabs defaultValue="inquiries" className="space-y-6">
-        <TabsList className="grid w-full max-w-4xl grid-cols-5">
+        <TabsList className="flex w-full max-w-4xl overflow-x-auto">
           <TabsTrigger value="inquiries" data-testid="tab-inquiries">
             Inquiries ({inquiries.length})
           </TabsTrigger>

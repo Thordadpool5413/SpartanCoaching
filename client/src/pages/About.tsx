@@ -12,7 +12,7 @@ export default function About() {
       <SEO />
       <BackButton />
       <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-16">
+        <div className="text-center mb-10 sm:mb-16">
           <h1 className="text-h1 text-foreground mb-6" data-testid="text-about-title">
             Why Spartan Coaching Exists
           </h1>

@@ -41,10 +41,10 @@ export default function Tools() {
   ];
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-6 py-16">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
       <SEO />
       <BackButton />
-      <div className="text-center max-w-3xl mx-auto mb-16">
+      <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
         <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-tools-title">
           AI Field Kit
         </h1>
@@ -77,7 +77,7 @@ export default function Tools() {
         ))}
       </div>
 
-      <div className="mt-16 bg-gradient-to-br from-accent/50 to-accent/30 rounded-2xl p-8 md:p-12 text-center border-2 border-accent/50 shadow-lg">
+      <div className="mt-10 sm:mt-16 bg-gradient-to-br from-accent/50 to-accent/30 rounded-2xl p-8 md:p-12 text-center border-2 border-accent/50 shadow-lg">
         <h2 className="text-h2 font-bold text-foreground mb-4">
           AI-Powered Coaching, On Demand
         </h2>

@@ -33,10 +33,10 @@ export default function Resources() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-6 py-16">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
       <SEO />
       <BackButton />
-      <div className="text-center max-w-3xl mx-auto mb-16">
+      <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
         <h1 className="text-5xl font-black text-foreground mb-6" data-testid="text-resources-title">
           Training Resources Library
         </h1>
