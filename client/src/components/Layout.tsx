@@ -99,7 +99,6 @@ export function Header() {
     { path: "/tools/objections", label: "Objection Handler", description: "Get strategies for handling objections" },
     { path: "/tools/research", label: "Territory Research", description: "Research facilities and territories" },
     { path: "/tools/email-templates", label: "Email Templates", description: "Create professional email templates" },
-    { path: "/tools/chatbot", label: "AI Coach", description: "Chat with your AI sales coach" },
   ];
 
   const allSearchItems = [...routes, ...aiTools];
