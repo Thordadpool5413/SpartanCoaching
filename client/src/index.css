@@ -292,6 +292,10 @@ body {
     text-rendering: optimizeLegibility;
     font-variant-ligatures: common-ligatures;
   }
+
+  body:not([data-vaul-drawer-visible="true"]) {
+    overflow-y: auto !important;
+  }
   
   #root {
     overflow-x: hidden;

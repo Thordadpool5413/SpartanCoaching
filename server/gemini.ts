@@ -4,11 +4,17 @@ let genAI: GoogleGenAI | null = null;
 
 function getGenAI(): GoogleGenAI {
   if (!genAI) {
-    const apiKey = process.env.GEMINI_API_KEY;
+    const apiKey = process.env.AI_INTEGRATIONS_GEMINI_API_KEY;
     if (!apiKey) {
-      throw new Error("GEMINI_API_KEY environment variable is required");
+      throw new Error("AI_INTEGRATIONS_GEMINI_API_KEY environment variable is required");
     }
-    genAI = new GoogleGenAI({ apiKey });
+    genAI = new GoogleGenAI({
+      apiKey,
+      httpOptions: {
+        apiVersion: "",
+        baseUrl: process.env.AI_INTEGRATIONS_GEMINI_BASE_URL,
+      },
+    });
   }
   return genAI;
 }
@@ -183,7 +189,7 @@ When users ask questions, draw from this deep expertise to provide world-class h
 export async function generateComplexResponse(prompt: string, systemInstruction?: string): Promise<string> {
   try {
     const result = await getGenAI().models.generateContent({
-      model: "gemini-2.0-flash-exp",
+      model: "gemini-2.5-flash",
       contents: prompt,
       config: {
         systemInstruction: systemInstruction || SPARTAN_SYSTEM_INSTRUCTION,
@@ -203,7 +209,7 @@ export async function generateComplexResponse(prompt: string, systemInstruction?
 export async function generateQuickResponse(prompt: string): Promise<string> {
   try {
     const result = await getGenAI().models.generateContent({
-      model: "gemini-2.0-flash-exp",
+      model: "gemini-2.5-flash",
       contents: prompt,
       config: {
         systemInstruction: SPARTAN_SYSTEM_INSTRUCTION,
@@ -229,7 +235,7 @@ export async function generateGroundedSearch(query: string): Promise<{
 }> {
   try {
     const result = await getGenAI().models.generateContent({
-      model: "gemini-2.0-flash-exp",
+      model: "gemini-2.5-flash",
       contents: `Research this hospice sales question and provide a detailed, well-researched answer with specific facts and best practices: ${query}`,
       config: {
         systemInstruction: `You are a hospice industry research assistant. Provide accurate, well-researched information about hospice care, Medicare regulations, sales strategies, and industry best practices. When possible, mention specific sources of information.`,
@@ -290,7 +296,7 @@ export async function generateChatResponse(
     conversationText += `User: ${message}`;
 
     const result = await getGenAI().models.generateContent({
-      model: "gemini-2.0-flash-exp",
+      model: "gemini-2.5-flash",
       contents: conversationText,
       config: {
         systemInstruction: SPARTAN_SYSTEM_INSTRUCTION,

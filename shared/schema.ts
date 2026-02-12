@@ -248,6 +248,8 @@ export const emailTemplateRequestSchema = z.object({
 export type EmailTemplateRequest = z.infer<typeof emailTemplateRequestSchema>;
 
 // Theme preference
+export * from "./models/chat";
+
 export type Theme = "light" | "dark";
 
 // Service/Program data types (for display only, no database storage needed for MVP)
