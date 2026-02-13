@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { MicrophoneIcon, SpinnerIcon } from "@/components/icons";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
+import { trackEvent } from "@/lib/analytics";
 
 declare global {
   interface Window {
@@ -79,6 +80,7 @@ export default function Transcribe() {
       return;
     }
 
+    trackEvent("ai_tool_usage", "transcribe");
     try {
       setTranscription("");
       setHasError(false);
@@ -114,7 +116,7 @@ export default function Transcribe() {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-6 py-16">
+    <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
       <SEO />
       <Breadcrumbs items={[{ label: "AI Tools", href: "/tools" }, { label: "Transcribe" }]} />
       <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-transcribe-title">

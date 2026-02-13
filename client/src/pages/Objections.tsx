@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { LightbulbIcon, SpeakerIcon, SpinnerIcon } from "@/components/icons";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
+import { trackEvent } from "@/lib/analytics";
 
 export default function Objections() {
   const objections = [
@@ -46,6 +47,7 @@ export default function Objections() {
   const [playing, setPlaying] = useState<string | null>(null);
 
   const generateResponse = async (objection: string) => {
+    trackEvent("ai_tool_usage", "objections");
     setLoading((prev) => ({ ...prev, [objection]: true }));
     
     try {
@@ -96,7 +98,7 @@ export default function Objections() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-6 py-16">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
       <SEO />
       <Breadcrumbs items={[{ label: "AI Tools", href: "/tools" }, { label: "Objection Handler" }]} />
       <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-objections-title">

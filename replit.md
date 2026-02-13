@@ -129,6 +129,12 @@ The platform employs a premium SaaS aesthetic with a sophisticated visual design
 - **Grouped Dropdown Navigation**: Desktop nav reorganized from 10 flat items into 3 dropdown groups (Solutions, AI Tools, Learn) + About. Keyboard accessible with focus-within support. Mobile menu grouped with section headers.
 - **Unified Card Layouts**: Articles, Podcasts, Resources pages now share consistent card styling (border-2, spacing-card, hover gradient effects, spinner loading states).
 - **Breadcrumb Navigation**: New Breadcrumbs component replaces BackButton on 10 sub-pages (5 AI tool pages + 5 resource sub-pages). Shows Home > Parent > Current hierarchy.
+- **Email Notifications (Resend)**: Contact form submissions trigger email notifications via Resend integration. Newsletter signups send welcome confirmation emails. Both are fire-and-forget (don't block responses).
+- **Newsletter Signup in Footer**: Newsletter subscription form added to site footer with "Weekly Coaching Tips" heading and description. Uses existing NewsletterSignup component.
+- **SEO Meta Tags**: Every page has unique title, description, keywords, and Open Graph tags via react-helmet-async. SEO config defined in `client/src/lib/seo-config.ts`.
+- **Skeleton Loading States**: Articles, Podcasts, Resources pages show skeleton card placeholders while loading instead of simple spinners.
+- **Mobile Optimization**: All AI tool pages (Playbooks, Objections, Research, Transcribe, Email Templates) use responsive padding (`px-4 sm:px-6`). Research search bar stacks vertically on mobile.
+- **Event Analytics**: New `event_tracking` database table tracks AI tool usage, resource downloads, and contact form submissions. Admin dashboard expanded with Event Analytics section showing usage counts per tool/resource. Frontend utility at `client/src/lib/analytics.ts`.
 
 ### Bug Fixes Applied
 - **Duplicate HTTP server removed**: `registerRoutes()` in routes.ts no longer creates a second unused HTTP server via `createServer(app)`. The single server in index.ts is the authoritative listener.

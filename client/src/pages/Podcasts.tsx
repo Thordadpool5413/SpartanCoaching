@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Calendar, Clock } from "lucide-react";
 import type { SelectPodcast } from "@shared/schema";
 import { BackButton } from "@/components/BackButton";
@@ -15,14 +16,22 @@ export default function Podcasts() {
 
   if (isLoading) {
     return (
-      <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
+      <div className="min-h-screen">
         <SEO />
-        <div className="mb-8">
-          <BackButton />
-        </div>
-        <div className="text-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading podcast episodes...</p>
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
+          <Skeleton className="h-10 w-64 mb-4" />
+          <Skeleton className="h-5 w-96 mb-8" />
+          <div className="grid md:grid-cols-2 gap-cards">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Card key={i} className="flex flex-col border-2 spacing-card">
+                <Skeleton className="h-5 w-24 mb-3" />
+                <Skeleton className="h-6 w-3/4 mb-2" />
+                <Skeleton className="h-4 w-1/3 mb-4" />
+                <Skeleton className="h-16 w-full mb-4" />
+                <Skeleton className="h-10 w-full rounded-lg" />
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
     );

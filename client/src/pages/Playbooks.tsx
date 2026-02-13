@@ -6,6 +6,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { SpinnerIcon, DownloadIcon } from "@/components/icons";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
+import { trackEvent } from "@/lib/analytics";
 
 export default function Playbooks() {
   const [scenario, setScenario] = useState("");
@@ -46,6 +47,7 @@ export default function Playbooks() {
     
     if (!finalPrompt) return;
 
+    trackEvent("ai_tool_usage", "playbooks");
     setIsLoading(true);
     setError(null);
     setValidationError(null);
@@ -94,7 +96,7 @@ export default function Playbooks() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-6 py-16">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
       <SEO />
       <Breadcrumbs items={[{ label: "AI Tools", href: "/tools" }, { label: "Sales Playbooks" }]} />
       <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-playbooks-title">

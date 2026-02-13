@@ -100,6 +100,11 @@ export default function Admin() {
     enabled: isAuthenticated,
   });
 
+  const { data: eventAnalyticsData, isLoading: eventAnalyticsLoading } = useQuery<{ analytics: { aiToolUsage: Array<{ eventName: string; count: number }>; resourceDownloads: Array<{ eventName: string; count: number }>; contactSubmissions: number } }>({
+    queryKey: ["/api/analytics/events"],
+    enabled: isAuthenticated,
+  });
+
   const inquiries = inquiriesData?.inquiries || [];
   const subscribers = subscribersData?.subscribers || [];
   const articles = articlesData?.articles || [];
@@ -872,6 +877,73 @@ export default function Admin() {
           <Card>
             <CardContent className="py-8 text-center">
               <p className="text-muted-foreground">No visitor data available</p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      <div className="mb-8">
+        <h2 className="text-2xl font-bold mb-4">Event Analytics</h2>
+        {eventAnalyticsLoading ? (
+          <div className="text-center py-8">
+            <p className="text-muted-foreground">Loading event analytics...</p>
+          </div>
+        ) : eventAnalyticsData?.analytics ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card data-testid="card-ai-tool-usage">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">AI Tool Usage</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {eventAnalyticsData.analytics.aiToolUsage.length > 0 ? (
+                  <div className="space-y-2">
+                    {eventAnalyticsData.analytics.aiToolUsage.map((item) => (
+                      <div key={item.eventName} className="flex items-center justify-between" data-testid={`ai-tool-${item.eventName}`}>
+                        <span className="text-sm capitalize">{item.eventName.replace(/_/g, " ")}</span>
+                        <Badge variant="secondary">{item.count}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No AI tool usage recorded yet</p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-resource-downloads">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Resource Downloads</CardTitle>
+              </CardHeader>
+              <CardContent>
+                {eventAnalyticsData.analytics.resourceDownloads.length > 0 ? (
+                  <div className="space-y-2">
+                    {eventAnalyticsData.analytics.resourceDownloads.map((item) => (
+                      <div key={item.eventName} className="flex items-center justify-between gap-2" data-testid={`resource-download-${item.eventName}`}>
+                        <span className="text-sm truncate">{item.eventName}</span>
+                        <Badge variant="secondary" className="shrink-0">{item.count}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">No resource downloads recorded yet</p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-contact-submissions">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Contact Form Submissions</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-3xl font-bold" data-testid="text-contact-submissions">{eventAnalyticsData.analytics.contactSubmissions}</div>
+                <p className="text-xs text-muted-foreground mt-1">total submissions tracked</p>
+              </CardContent>
+            </Card>
+          </div>
+        ) : (
+          <Card>
+            <CardContent className="py-8 text-center">
+              <p className="text-muted-foreground">No event data available</p>
             </CardContent>
           </Card>
         )}

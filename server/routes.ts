@@ -23,12 +23,14 @@ import {
   insertVisitorSchema,
   insertResourceSchema,
   insertPodcastSchema,
+  insertEventTrackingSchema,
 } from "@shared/schema";
 
 import {
   ObjectStorageService,
   ObjectNotFoundError,
 } from "./objectStorage";
+import { sendInquiryNotification, sendNewsletterConfirmation } from "./resend";
 
 // Get admin password from environment, default to secure value for development
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "5413";
@@ -175,6 +177,12 @@ Keep it under 100 words and use a warm, professional tone.`;
       
       const inquiry = await storage.createInquiry(inquiryData);
       
+      storage.trackEvent({ eventType: "contact_form_submission", eventName: "inquiry" }).catch(() => {});
+      
+      sendInquiryNotification(inquiryData).catch(err => 
+        console.error("Failed to send inquiry notification:", err)
+      );
+      
       console.log("New inquiry received:", inquiry);
       
       res.json({ success: true, inquiry });
@@ -206,6 +214,10 @@ Keep it under 100 words and use a warm, professional tone.`;
       if (!subscriber) {
         return res.status(400).json({ error: "Failed to subscribe to newsletter" });
       }
+      
+      sendNewsletterConfirmation(subscriberData.email).catch(err => 
+        console.error("Failed to send newsletter confirmation:", err)
+      );
       
       console.log("Newsletter subscriber:", subscriber);
       
@@ -628,6 +640,27 @@ Subject: [subject line]
     } catch (error: any) {
       console.error("Get analytics error:", error);
       res.status(500).json({ error: error.message || "Failed to retrieve analytics" });
+    }
+  });
+
+  app.post("/api/analytics/events", async (req, res) => {
+    try {
+      const eventData = insertEventTrackingSchema.parse(req.body);
+      await storage.trackEvent(eventData);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Track event error:", error);
+      res.status(500).json({ error: error.message || "Failed to track event" });
+    }
+  });
+
+  app.get("/api/analytics/events", async (req, res) => {
+    try {
+      const analytics = await storage.getEventAnalytics();
+      res.json({ analytics });
+    } catch (error: any) {
+      console.error("Get event analytics error:", error);
+      res.status(500).json({ error: error.message || "Failed to retrieve event analytics" });
     }
   });
 

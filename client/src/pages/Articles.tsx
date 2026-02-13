@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { BackButton } from "@/components/BackButton";
 import { ExternalLink, Calendar, Star, FileText } from "lucide-react";
 import type { SelectArticle } from "@shared/schema";
@@ -25,12 +26,22 @@ export default function Articles() {
 
   if (isLoading) {
     return (
-      <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
+      <div className="min-h-screen">
         <SEO />
-        <BackButton />
-        <div className="text-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading articles...</p>
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
+          <Skeleton className="h-10 w-64 mb-4" />
+          <Skeleton className="h-5 w-96 mb-8" />
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <Card key={i} className="flex flex-col border-2 spacing-card">
+                <Skeleton className="h-5 w-20 mb-3" />
+                <Skeleton className="h-6 w-3/4 mb-2" />
+                <Skeleton className="h-4 w-1/2 mb-4" />
+                <Skeleton className="h-16 w-full mb-4" />
+                <Skeleton className="h-9 w-28" />
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
     );

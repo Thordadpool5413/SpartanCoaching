@@ -3,10 +3,12 @@ import { Link } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Download } from "lucide-react";
 import { BackButton } from "@/components/BackButton";
 import type { SelectResource } from "@shared/schema";
 import { SEO } from "@/components/SEO";
+import { trackEvent } from "@/lib/analytics";
 
 export default function Resources() {
   const { data: resourcesData, isLoading, isError } = useQuery<{ resources: SelectResource[] }>({
@@ -32,12 +34,21 @@ export default function Resources() {
 
   if (isLoading) {
     return (
-      <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
+      <div className="min-h-screen">
         <SEO />
-        <BackButton />
-        <div className="text-center py-20">
-          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto"></div>
-          <p className="mt-4 text-muted-foreground">Loading resources...</p>
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-12">
+          <Skeleton className="h-10 w-64 mb-4" />
+          <Skeleton className="h-5 w-96 mb-8" />
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
+            {Array.from({ length: 9 }).map((_, i) => (
+              <Card key={i} className="flex flex-col border-2 spacing-card">
+                <Skeleton className="h-6 w-3/4 mb-2" />
+                <Skeleton className="h-5 w-20 mb-4" />
+                <Skeleton className="h-12 w-full mb-4" />
+                <Skeleton className="h-9 w-32" />
+              </Card>
+            ))}
+          </div>
         </div>
       </div>
     );
@@ -116,7 +127,10 @@ export default function Resources() {
 
                     <Button
                       className="w-full gap-2"
-                      onClick={() => window.open(resource.fileUrl, '_blank')}
+                      onClick={() => {
+                        trackEvent("resource_download", resource.title);
+                        window.open(resource.fileUrl, '_blank');
+                      }}
                       data-testid={`button-download-${resource.id}`}
                     >
                       <Download className="w-4 h-4" />

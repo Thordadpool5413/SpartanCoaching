@@ -187,6 +187,21 @@ export const insertVisitorSchema = createInsertSchema(visitors).omit({
 export type InsertVisitor = z.infer<typeof insertVisitorSchema>;
 export type SelectVisitor = typeof visitors.$inferSelect;
 
+export const eventTracking = pgTable("event_tracking", {
+  id: serial("id").primaryKey(),
+  eventType: text("event_type").notNull(),
+  eventName: text("event_name").notNull(),
+  metadata: text("metadata"),
+  createdAt: bigint("created_at", { mode: "number" }).notNull(),
+});
+
+export const insertEventTrackingSchema = createInsertSchema(eventTracking).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertEventTracking = z.infer<typeof insertEventTrackingSchema>;
+export type SelectEventTracking = typeof eventTracking.$inferSelect;
+
 // Drizzle table definition for resources
 export const resources = pgTable("resources", {
   id: serial("id").primaryKey(),

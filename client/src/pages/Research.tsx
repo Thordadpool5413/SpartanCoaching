@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { SearchIcon, SpinnerIcon } from "@/components/icons";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
+import { trackEvent } from "@/lib/analytics";
 
 export default function Research() {
   const [query, setQuery] = useState("");
@@ -27,6 +28,7 @@ export default function Research() {
     
     if (!query) return;
     
+    trackEvent("ai_tool_usage", "research");
     setIsLoading(true);
     setResults(null);
     setValidationError(null);
@@ -56,7 +58,7 @@ export default function Research() {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-6 py-16">
+    <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
       <SEO />
       <Breadcrumbs items={[{ label: "AI Tools", href: "/tools" }, { label: "Territory Research" }]} />
       <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-research-title">
@@ -67,7 +69,7 @@ export default function Research() {
       </p>
 
       <Card className="mb-8 card-lift border-2 shadow-lg spacing-card">
-        <div className="flex gap-3">
+        <div className="flex flex-col sm:flex-row gap-3">
           <Input
             value={query}
             onChange={(e) => {

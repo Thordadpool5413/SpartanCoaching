@@ -6,6 +6,7 @@ import {
   users,
   resources,
   podcasts,
+  eventTracking,
   type InsertInquiry, 
   type SelectInquiry,
   type InsertNewsletterSubscriber,
@@ -20,7 +21,9 @@ import {
   type InsertResource,
   type SelectResource,
   type InsertPodcast,
-  type SelectPodcast
+  type SelectPodcast,
+  type InsertEventTracking,
+  type SelectEventTracking
 } from "@shared/schema";
 import { db } from "./db";
 import { desc, eq, gte, count } from "drizzle-orm";
@@ -53,6 +56,9 @@ export interface IStorage {
   createPodcast(data: InsertPodcast): Promise<SelectPodcast>;
   updatePodcast(id: number, podcast: Partial<InsertPodcast>): Promise<SelectPodcast>;
   deletePodcast(id: number): Promise<void>;
+  trackEvent(event: InsertEventTracking): Promise<SelectEventTracking>;
+  getEventCounts(eventType: string): Promise<Array<{ eventName: string; count: number }>>;
+  getEventAnalytics(): Promise<{ aiToolUsage: Array<{ eventName: string; count: number }>; resourceDownloads: Array<{ eventName: string; count: number }>; contactSubmissions: number }>;
 }
 
 // Database-backed storage implementation
@@ -295,6 +301,40 @@ export class DatabaseStorage implements IStorage {
     await db
       .delete(podcasts)
       .where(eq(podcasts.id, id));
+  }
+
+  async trackEvent(event: InsertEventTracking): Promise<SelectEventTracking> {
+    const [created] = await db
+      .insert(eventTracking)
+      .values({ ...event, createdAt: Date.now() })
+      .returning();
+    return created;
+  }
+
+  async getEventCounts(eventType: string): Promise<Array<{ eventName: string; count: number }>> {
+    const results = await db
+      .select({ 
+        eventName: eventTracking.eventName, 
+        count: count() 
+      })
+      .from(eventTracking)
+      .where(eq(eventTracking.eventType, eventType))
+      .groupBy(eventTracking.eventName)
+      .orderBy(desc(count()));
+    return results;
+  }
+
+  async getEventAnalytics(): Promise<{ aiToolUsage: Array<{ eventName: string; count: number }>; resourceDownloads: Array<{ eventName: string; count: number }>; contactSubmissions: number }> {
+    const [aiToolUsage, resourceDownloads, contactResults] = await Promise.all([
+      this.getEventCounts("ai_tool_usage"),
+      this.getEventCounts("resource_download"),
+      db.select({ count: count() }).from(eventTracking).where(eq(eventTracking.eventType, "contact_form_submission")),
+    ]);
+    return {
+      aiToolUsage,
+      resourceDownloads,
+      contactSubmissions: contactResults[0]?.count || 0,
+    };
   }
 }
 

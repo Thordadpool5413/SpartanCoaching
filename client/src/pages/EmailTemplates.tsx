@@ -9,6 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Mail, Copy, Loader2 } from "lucide-react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
+import { trackEvent } from "@/lib/analytics";
 
 export default function EmailTemplates() {
   const [templateType, setTemplateType] = useState<"follow_up" | "thank_you" | "value_add">("follow_up");
@@ -29,6 +30,7 @@ export default function EmailTemplates() {
       return;
     }
 
+    trackEvent("ai_tool_usage", "email_templates");
     setIsLoading(true);
 
     try {
@@ -70,7 +72,7 @@ export default function EmailTemplates() {
   };
 
   return (
-    <div className="container mx-auto px-6 py-12">
+    <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
       <SEO />
       <div className="max-w-4xl mx-auto">
         <Breadcrumbs items={[{ label: "AI Tools", href: "/tools" }, { label: "Email Templates" }]} />

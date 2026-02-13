@@ -22,6 +22,7 @@ import { Input } from "@/components/ui/input";
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { ContactForm } from "@/components/ContactForm";
+import { NewsletterSignup } from "@/components/NewsletterSignup";
 
 // Helper hook to determine if the screen is mobile
 function useIsMobile() {
@@ -427,6 +428,11 @@ export function Footer() {
               <Linkedin className="w-4 h-4 group-hover:scale-110 transition-transform" />
               <span className="text-sm">Connect with Nick Lynch</span>
             </a>
+          </div>
+          <div className="flex flex-col items-center md:items-start gap-2" data-testid="section-newsletter">
+            <h3 className="text-sm font-semibold text-foreground">Weekly Coaching Tips</h3>
+            <p className="text-xs text-muted-foreground max-w-xs text-center md:text-left">Get actionable hospice sales strategies delivered to your inbox.</p>
+            <NewsletterSignup />
           </div>
           <div className="flex flex-wrap gap-3 sm:gap-6 text-sm">
             <a
