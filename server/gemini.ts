@@ -256,25 +256,39 @@ export async function generateGroundedSearch(query: string): Promise<{
 /**
  * Generate daily drill for homepage
  */
-export async function generateDailyDrill(): Promise<string> {
+export async function generateDailyDrill(): Promise<{ drill: string; category: string; index: number }> {
   const drills = [
-    "Review your territory map and identify the top 3 referral sources you haven't contacted in 30 days. Send each a personalized value message today.",
-    "Practice your elevator pitch 3 times out loud. Time yourself - can you deliver it confidently in under 60 seconds?",
-    "Identify one common objection you heard this week. Write out 3 different empathetic responses and practice them.",
-    "Research one of your top referral partners. Find a recent news article or achievement about them to reference in your next visit.",
-    "Review your follow-up list. Choose 3 prospects and send them valuable content (article, tip, resource) with no sales ask.",
-    "Reflect on your last 5 conversations. What questions did you ask? Write down 3 better discovery questions for next time.",
-    "Map out your ideal week. Block time for prospecting, follow-ups, education, and relationship building. Stick to it today.",
+    { category: "Prospecting", drill: "Review your territory map and identify the top 3 referral sources you haven't contacted in 30 days. Send each a personalized value message today." },
+    { category: "Prospecting", drill: "Identify 5 new potential referral sources in your territory that you've never visited. Research each one and plan your approach for this week." },
+    { category: "Prospecting", drill: "Create a 'value drop' for your top prospect - find a relevant article, case study, or industry insight to share with no sales ask attached." },
+    { category: "Communication", drill: "Practice your elevator pitch 3 times out loud. Time yourself - can you deliver it confidently in under 60 seconds?" },
+    { category: "Communication", drill: "Record yourself explaining hospice benefits to a family member. Listen back and identify filler words, unclear explanations, or missed empathy moments." },
+    { category: "Communication", drill: "Write three different opening statements for cold calls. Test which feels most natural and authentic to your style." },
+    { category: "Objection Handling", drill: "Identify one common objection you heard this week. Write out 3 different empathetic responses and practice them." },
+    { category: "Objection Handling", drill: "Practice the 'Feel, Felt, Found' technique: Write responses to 'Hospice means giving up,' 'We're not ready,' and 'We already have a hospice provider.'" },
+    { category: "Objection Handling", drill: "Role-play handling the objection 'The patient isn't ready for hospice yet' with three different approaches: clinical, emotional, and practical." },
+    { category: "Relationship Building", drill: "Research one of your top referral partners. Find a recent news article or achievement about them to reference in your next visit." },
+    { category: "Relationship Building", drill: "Send a handwritten thank-you note to a referral source who sent you a patient this month. Mention something specific about the case." },
+    { category: "Relationship Building", drill: "Schedule a lunch-and-learn at a facility you want to grow. Prepare a 10-minute educational presentation on a hospice topic they'd value." },
+    { category: "Follow-Up", drill: "Review your follow-up list. Choose 3 prospects and send them valuable content (article, tip, resource) with no sales ask." },
+    { category: "Follow-Up", drill: "Create a 30-60-90 day follow-up plan for your newest referral source. Map out touchpoints, value drops, and check-ins." },
+    { category: "Self-Reflection", drill: "Reflect on your last 5 conversations. What questions did you ask? Write down 3 better discovery questions for next time." },
+    { category: "Self-Reflection", drill: "Review your win/loss ratio this month. For each lost opportunity, identify the moment the conversation went sideways and what you'd do differently." },
+    { category: "Planning", drill: "Map out your ideal week. Block time for prospecting, follow-ups, education, and relationship building. Stick to it today." },
+    { category: "Planning", drill: "Analyze your top 10 accounts by revenue potential. Are you spending enough time on your highest-value opportunities?" },
+    { category: "Clinical Knowledge", drill: "Study one hospice eligibility diagnosis you're less familiar with. Learn the specific decline indicators and practice explaining them simply." },
+    { category: "Clinical Knowledge", drill: "Review the four levels of hospice care. Practice explaining when each is appropriate in language a non-clinical person would understand." },
   ];
 
   const date = new Date();
-  const dayOfWeek = date.getDay();
-  const weekNumber = Math.floor(date.getDate() / 7);
+  const dayOfYear = Math.floor((date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
+  const index = dayOfYear % drills.length;
   
-  // Use a combination of day and week to pseudo-randomly select a drill
-  const index = (dayOfWeek + weekNumber) % drills.length;
-  
-  return `**Discipline Drill:** ${drills[index]}`;
+  return {
+    drill: drills[index].drill,
+    category: drills[index].category,
+    index,
+  };
 }
 
 /**
@@ -309,5 +323,112 @@ export async function generateChatResponse(
   } catch (error: any) {
     console.error("Gemini API error (chat):", error);
     throw new Error(`Chat generation failed: ${error.message}`);
+  }
+}
+
+export async function generateRoleplayResponse(
+  scenarioId: string,
+  scenarioTitle: string,
+  userMessage: string,
+  conversationHistory?: Array<{ role: string; content: string }>
+): Promise<string> {
+  try {
+    const characterDescriptions: Record<string, string> = {
+      "cold_call_snf": "You are playing the role of a busy, somewhat skeptical Skilled Nursing Facility (SNF) Director of Nursing. You are interrupted during a hectic day. You've had bad experiences with hospice companies that over-promised and under-delivered. You care deeply about your residents but are protective of your time. Start somewhat dismissive but can be won over with genuine value and respect for your time. React naturally - ask questions, push back, express concerns about transitions of care.",
+      "physician_objection": "You are playing the role of a physician who is hesitant to refer patients to hospice. You believe in aggressive treatment and feel hospice means 'giving up.' You worry about patient and family reactions. You're busy and data-driven. You need evidence that hospice improves outcomes. Push back on emotional appeals - you want clinical data, quality metrics, and clear eligibility criteria.",
+      "family_consultation": "You are playing the role of an adult child whose elderly parent has been diagnosed with a terminal illness. You are emotional, scared, and confused about what hospice means. You have misconceptions - you think hospice means no more treatment, that it's only for the last few days, and that choosing it means abandoning your parent. Ask lots of questions, express fear and guilt.",
+      "hospital_discharge": "You are playing the role of a hospital discharge planner who is overworked and juggling many cases. You've worked with several hospice companies and are comparing them. You care about smooth transitions, reliable communication, and companies that follow through. Test the sales rep on their responsiveness, coverage areas, and what makes them different.",
+      "assisted_living_admin": "You are playing the role of an Assisted Living facility administrator. You're concerned about how hospice presence affects your community's atmosphere and your staff's workload. You want to know about training, coordination, and how the hospice team will integrate with your staff. You're open but cautious.",
+      "competitor_territory": "You are playing the role of a referral source (case manager) who currently uses a competitor hospice company and is generally satisfied. You're not actively looking to switch. The sales rep needs to find gaps in your current service and offer compelling reasons to consider an alternative without badmouthing the competitor."
+    };
+
+    const characterPrompt = characterDescriptions[scenarioId] || 
+      `You are playing a role in a hospice sales practice scenario: "${scenarioTitle}". Stay in character as the person the hospice sales representative is meeting with. React realistically and naturally.`;
+
+    let conversationText = "";
+    if (conversationHistory && conversationHistory.length > 0) {
+      conversationText = conversationHistory.map(msg =>
+        `${msg.role === "user" ? "Sales Rep" : "Character"}: ${msg.content}`
+      ).join("\n\n") + "\n\n";
+    }
+    conversationText += `Sales Rep: ${userMessage}`;
+
+    const systemInstruction = `${characterPrompt}
+
+IMPORTANT RULES:
+- Stay completely in character. Never break character or offer coaching tips during the conversation.
+- Respond as this person would naturally respond - with their concerns, questions, objections, and communication style.
+- Keep responses conversational and realistic (2-4 sentences typically, sometimes longer if the character would naturally elaborate).
+- React to what the sales rep says - if they say something good, warm up slightly. If they're too pushy, push back harder.
+- Don't make it too easy - real prospects have real concerns and aren't easily convinced.
+- Never mention that you are an AI or that this is a practice exercise.`;
+
+    const result = await getGenAI().models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: conversationText,
+      config: {
+        systemInstruction,
+        maxOutputTokens: 500,
+        temperature: 0.85,
+      },
+    });
+
+    return result.text || "";
+  } catch (error: any) {
+    console.error("Gemini API error (roleplay response):", error);
+    throw new Error(`Roleplay generation failed: ${error.message}`);
+  }
+}
+
+export async function generateRoleplayFeedback(
+  scenarioTitle: string,
+  transcript: Array<{ role: string; content: string }>
+): Promise<{ feedback: string; rating: number }> {
+  try {
+    const conversationText = transcript.map(msg =>
+      `${msg.role === "user" ? "Sales Rep" : "Prospect/Contact"}: ${msg.content}`
+    ).join("\n\n");
+
+    const prompt = `Analyze this hospice sales role-play practice conversation and provide detailed coaching feedback.
+
+SCENARIO: ${scenarioTitle}
+
+CONVERSATION TRANSCRIPT:
+${conversationText}
+
+Please provide:
+
+1. **Overall Rating** (1-10): Rate the sales rep's performance
+2. **What Went Well**: Specific things the rep did effectively (with quotes from the conversation)
+3. **Areas for Improvement**: Specific weaknesses with actionable suggestions
+4. **Spartan Method Analysis**: How well did they demonstrate:
+   - Discipline (preparation, structure, follow-through)
+   - Empathy (active listening, understanding concerns)
+   - Strategy (value positioning, objection handling, next steps)
+5. **Key Takeaway**: One most important thing to practice next time
+
+IMPORTANT: Start your response with the rating as a number on its own line, like "RATING: 7"
+Then provide the detailed feedback in markdown format.`;
+
+    const result = await getGenAI().models.generateContent({
+      model: "gemini-2.5-flash",
+      contents: prompt,
+      config: {
+        systemInstruction: "You are an expert hospice sales coach providing detailed, constructive feedback on practice role-play sessions. Be specific, reference actual quotes from the conversation, and provide actionable coaching advice based on the Spartan Method (Discipline, Empathy, Strategy). Be encouraging but honest.",
+        temperature: 0.4,
+      },
+    });
+
+    const text = result.text || "";
+    
+    const ratingMatch = text.match(/RATING:\s*(\d+)/i);
+    const rating = ratingMatch ? Math.min(10, Math.max(1, parseInt(ratingMatch[1]))) : 5;
+    
+    const feedback = text.replace(/RATING:\s*\d+\n?/i, "").trim();
+
+    return { feedback, rating };
+  } catch (error: any) {
+    console.error("Gemini API error (roleplay feedback):", error);
+    throw new Error(`Roleplay feedback generation failed: ${error.message}`);
   }
 }

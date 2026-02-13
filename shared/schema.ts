@@ -262,6 +262,86 @@ export const emailTemplateRequestSchema = z.object({
 
 export type EmailTemplateRequest = z.infer<typeof emailTemplateRequestSchema>;
 
+// Role-play practice sessions
+export const roleplaySessions = pgTable("roleplay_sessions", {
+  id: serial("id").primaryKey(),
+  scenarioId: text("scenario_id").notNull(),
+  scenarioTitle: text("scenario_title").notNull(),
+  status: text("status").notNull().default("active"), // "active" | "completed"
+  feedback: text("feedback"),
+  rating: integer("rating"),
+  createdAt: bigint("created_at", { mode: "number" }).notNull(),
+});
+
+export const insertRoleplaySessionSchema = createInsertSchema(roleplaySessions).omit({
+  id: true,
+  createdAt: true,
+  feedback: true,
+  rating: true,
+});
+export type InsertRoleplaySession = z.infer<typeof insertRoleplaySessionSchema>;
+export type SelectRoleplaySession = typeof roleplaySessions.$inferSelect;
+
+// Role-play conversation messages
+export const roleplayMessages = pgTable("roleplay_messages", {
+  id: serial("id").primaryKey(),
+  sessionId: integer("session_id").notNull(),
+  role: text("role").notNull(), // "user" | "character"
+  content: text("content").notNull(),
+  createdAt: bigint("created_at", { mode: "number" }).notNull(),
+});
+
+export const insertRoleplayMessageSchema = createInsertSchema(roleplayMessages).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertRoleplayMessage = z.infer<typeof insertRoleplayMessageSchema>;
+export type SelectRoleplayMessage = typeof roleplayMessages.$inferSelect;
+
+// Daily drill completions
+export const drillCompletions = pgTable("drill_completions", {
+  id: serial("id").primaryKey(),
+  drillIndex: integer("drill_index").notNull(),
+  drillTitle: text("drill_title").notNull(),
+  notes: text("notes"),
+  completedAt: bigint("completed_at", { mode: "number" }).notNull(),
+});
+
+export const insertDrillCompletionSchema = createInsertSchema(drillCompletions).omit({
+  id: true,
+  completedAt: true,
+});
+export type InsertDrillCompletion = z.infer<typeof insertDrillCompletionSchema>;
+export type SelectDrillCompletion = typeof drillCompletions.$inferSelect;
+
+// Role-play request schemas
+export const roleplayStartSchema = z.object({
+  scenarioId: z.string().min(1),
+  scenarioTitle: z.string().min(1),
+});
+export type RoleplayStartRequest = z.infer<typeof roleplayStartSchema>;
+
+export const roleplayMessageSchema = z.object({
+  content: z.string().min(1, "Message cannot be empty"),
+});
+export type RoleplayMessageRequest = z.infer<typeof roleplayMessageSchema>;
+
+// Drill completion request schema
+export const drillCompletionRequestSchema = z.object({
+  drillIndex: z.number().int().min(0),
+  drillTitle: z.string().min(1),
+  notes: z.string().optional(),
+});
+export type DrillCompletionRequest = z.infer<typeof drillCompletionRequestSchema>;
+
+// Send email request schema
+export const sendEmailRequestSchema = z.object({
+  to: z.string().email("Please enter a valid email address"),
+  subject: z.string().min(1, "Subject is required"),
+  body: z.string().min(1, "Email body is required"),
+});
+export type SendEmailRequest = z.infer<typeof sendEmailRequestSchema>;
+
 // Theme preference
 export * from "./models/chat";
 

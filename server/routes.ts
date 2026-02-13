@@ -10,6 +10,8 @@ import {
   generateGroundedSearch,
   generateDailyDrill,
   generateChatResponse,
+  generateRoleplayResponse,
+  generateRoleplayFeedback,
 } from "./gemini";
 import {
   playbookRequestSchema,
@@ -24,13 +26,17 @@ import {
   insertResourceSchema,
   insertPodcastSchema,
   insertEventTrackingSchema,
+  roleplayStartSchema,
+  roleplayMessageSchema,
+  drillCompletionRequestSchema,
+  sendEmailRequestSchema,
 } from "@shared/schema";
 
 import {
   ObjectStorageService,
   ObjectNotFoundError,
 } from "./objectStorage";
-import { sendInquiryNotification, sendNewsletterConfirmation } from "./resend";
+import { sendInquiryNotification, sendNewsletterConfirmation, sendGeneratedEmail } from "./resend";
 
 // Get admin password from environment, default to secure value for development
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "5413";
@@ -147,9 +153,8 @@ Keep it under 100 words and use a warm, professional tone.`;
   // Daily Drill Generator
   app.get("/api/daily-drill", async (req, res) => {
     try {
-      const drill = await generateDailyDrill();
-      
-      res.json({ drill });
+      const drillData = await generateDailyDrill();
+      res.json(drillData);
     } catch (error: any) {
       console.error("Daily drill error:", error);
       res.status(500).json({ error: error.message || "Failed to generate daily drill" });
@@ -710,6 +715,136 @@ Subject: [subject line]
     } catch (error: any) {
       console.error("Error normalizing PDF path:", error);
       res.status(500).json({ error: error.message || "Failed to normalize PDF path" });
+    }
+  });
+
+  // ===== ROLE-PLAY PRACTICE ROUTES =====
+
+  app.post("/api/roleplay/sessions", async (req, res) => {
+    try {
+      const { scenarioId, scenarioTitle } = roleplayStartSchema.parse(req.body);
+      const session = await storage.createRoleplaySession({ scenarioId, scenarioTitle, status: "active" });
+
+      const initialResponse = await generateRoleplayResponse(scenarioId, scenarioTitle, "Hello, I'm here to speak with you today.", []);
+      await storage.createRoleplayMessage({ sessionId: session.id, role: "character", content: initialResponse });
+
+      res.json({ session, initialMessage: initialResponse });
+    } catch (error: any) {
+      console.error("Roleplay session creation error:", error);
+      res.status(500).json({ error: error.message || "Failed to create roleplay session" });
+    }
+  });
+
+  app.get("/api/roleplay/sessions", async (_req, res) => {
+    try {
+      const sessions = await storage.getRoleplaySessions();
+      res.json(sessions);
+    } catch (error: any) {
+      console.error("Get roleplay sessions error:", error);
+      res.json([]);
+    }
+  });
+
+  app.get("/api/roleplay/sessions/:id", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const session = await storage.getRoleplaySession(id);
+      if (!session) return res.status(404).json({ error: "Session not found" });
+      const messages = await storage.getRoleplayMessages(id);
+      res.json({ session, messages });
+    } catch (error: any) {
+      console.error("Get roleplay session error:", error);
+      res.status(500).json({ error: error.message || "Failed to get session" });
+    }
+  });
+
+  app.post("/api/roleplay/sessions/:id/messages", async (req, res) => {
+    try {
+      const sessionId = parseInt(req.params.id);
+      const { content } = roleplayMessageSchema.parse(req.body);
+
+      const session = await storage.getRoleplaySession(sessionId);
+      if (!session) return res.status(404).json({ error: "Session not found" });
+      if (session.status !== "active") return res.status(400).json({ error: "Session is no longer active" });
+
+      await storage.createRoleplayMessage({ sessionId, role: "user", content });
+
+      const messages = await storage.getRoleplayMessages(sessionId);
+      const history = messages.map(m => ({ role: m.role, content: m.content }));
+
+      const response = await generateRoleplayResponse(session.scenarioId, session.scenarioTitle, content, history.slice(0, -1));
+      await storage.createRoleplayMessage({ sessionId, role: "character", content: response });
+
+      storage.trackEvent({ eventType: "ai_tool_usage", eventName: "roleplay" }).catch(() => {});
+
+      res.json({ response });
+    } catch (error: any) {
+      console.error("Roleplay message error:", error);
+      res.status(500).json({ error: error.message || "Failed to send message" });
+    }
+  });
+
+  app.post("/api/roleplay/sessions/:id/feedback", async (req, res) => {
+    try {
+      const sessionId = parseInt(req.params.id);
+      const session = await storage.getRoleplaySession(sessionId);
+      if (!session) return res.status(404).json({ error: "Session not found" });
+
+      const messages = await storage.getRoleplayMessages(sessionId);
+      const transcript = messages.map(m => ({ role: m.role, content: m.content }));
+
+      const { feedback, rating } = await generateRoleplayFeedback(session.scenarioTitle, transcript);
+      const updated = await storage.updateRoleplaySession(sessionId, { status: "completed", feedback, rating });
+
+      res.json({ session: updated, feedback, rating });
+    } catch (error: any) {
+      console.error("Roleplay feedback error:", error);
+      res.status(500).json({ error: error.message || "Failed to generate feedback" });
+    }
+  });
+
+  // ===== DAILY DRILL ROUTES =====
+
+  app.post("/api/drills/completions", async (req, res) => {
+    try {
+      const data = drillCompletionRequestSchema.parse(req.body);
+      const completion = await storage.createDrillCompletion(data);
+      storage.trackEvent({ eventType: "ai_tool_usage", eventName: "drill_completion" }).catch(() => {});
+      res.json(completion);
+    } catch (error: any) {
+      console.error("Drill completion error:", error);
+      res.status(500).json({ error: error.message || "Failed to record completion" });
+    }
+  });
+
+  app.get("/api/drills/completions", async (_req, res) => {
+    try {
+      const completions = await storage.getDrillCompletions();
+      res.json(completions);
+    } catch (error: any) {
+      console.error("Get drill completions error:", error);
+      res.json([]);
+    }
+  });
+
+  // ===== SEND EMAIL ROUTE =====
+
+  app.post("/api/send-email", async (req, res) => {
+    try {
+      const { to, subject, body } = sendEmailRequestSchema.parse(req.body);
+      const success = await sendGeneratedEmail(to, subject, body);
+      if (!success) {
+        return res.status(500).json({ error: "Failed to send email" });
+      }
+      storage.trackEvent({ eventType: "ai_tool_usage", eventName: "email_sent" }).catch(() => {});
+      res.json({ success: true, message: "Email sent successfully" });
+    } catch (error: any) {
+      console.error("Send email error:", error);
+      if (error.name === "ZodError") {
+        res.status(400).json({ error: "Invalid email data" });
+      } else {
+        res.status(500).json({ error: error.message || "Failed to send email" });
+      }
     }
   });
 

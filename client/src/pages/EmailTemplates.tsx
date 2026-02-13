@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Copy, Loader2 } from "lucide-react";
+import { Mail, Copy, Loader2, Send } from "lucide-react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
@@ -18,6 +18,9 @@ export default function EmailTemplates() {
   const [customization, setCustomization] = useState("");
   const [generatedTemplate, setGeneratedTemplate] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [recipientEmail, setRecipientEmail] = useState("");
+  const [emailSubject, setEmailSubject] = useState("");
+  const [isSending, setIsSending] = useState(false);
   const { toast } = useToast();
 
   const handleGenerate = async () => {
@@ -51,6 +54,13 @@ export default function EmailTemplates() {
 
       const data = await response.json();
       setGeneratedTemplate(data.template);
+
+      const defaultSubjects: Record<string, string> = {
+        follow_up: `Following Up - ${recipientName || 'Our Conversation'}`,
+        thank_you: `Thank You${recipientName ? ` ${recipientName}` : ''}`,
+        value_add: `Resource for You${recipientName ? `, ${recipientName}` : ''}`,
+      };
+      setEmailSubject(defaultSubjects[templateType] || "From Spartan Coaching");
     } catch (error: any) {
       console.error("Template generation error:", error);
       toast({
@@ -69,6 +79,49 @@ export default function EmailTemplates() {
       title: "Copied!",
       description: "Email template copied to clipboard",
     });
+  };
+
+  const handleSend = async () => {
+    if (!recipientEmail || !emailSubject) {
+      toast({
+        title: "Missing information",
+        description: "Please enter both recipient email and subject",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSending(true);
+    try {
+      const response = await fetch("/api/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          to: recipientEmail,
+          subject: emailSubject,
+          body: generatedTemplate,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to send email");
+      }
+
+      toast({
+        title: "Email sent!",
+        description: `Email delivered to ${recipientEmail}`,
+      });
+      setRecipientEmail("");
+    } catch (error: any) {
+      toast({
+        title: "Send failed",
+        description: error.message || "Could not send the email. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSending(false);
+    }
   };
 
   return (
@@ -188,8 +241,52 @@ export default function EmailTemplates() {
             </CardHeader>
             <CardContent>
               {generatedTemplate ? (
-                <div className="bg-muted p-4 rounded-lg whitespace-pre-wrap text-sm" data-testid="text-generated-template">
-                  {generatedTemplate}
+                <div className="space-y-4">
+                  <div className="bg-muted p-4 rounded-lg whitespace-pre-wrap text-sm" data-testid="text-generated-template">
+                    {generatedTemplate}
+                  </div>
+                  <div className="mt-6 space-y-3 border-t pt-4">
+                    <h4 className="font-semibold text-sm">Send this Email</h4>
+                    <div className="space-y-2">
+                      <Label htmlFor="send-to">Recipient Email</Label>
+                      <Input
+                        id="send-to"
+                        type="email"
+                        placeholder="recipient@example.com"
+                        value={recipientEmail}
+                        onChange={(e) => setRecipientEmail(e.target.value)}
+                        data-testid="input-send-to"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="send-subject">Subject Line</Label>
+                      <Input
+                        id="send-subject"
+                        placeholder="Email subject"
+                        value={emailSubject}
+                        onChange={(e) => setEmailSubject(e.target.value)}
+                        data-testid="input-send-subject"
+                      />
+                    </div>
+                    <Button
+                      onClick={handleSend}
+                      disabled={isSending || !recipientEmail}
+                      className="w-full font-bold touch-manipulation"
+                      data-testid="button-send-email"
+                    >
+                      {isSending ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          <span>Sending...</span>
+                        </>
+                      ) : (
+                        <>
+                          <Send className="w-4 h-4 mr-2" />
+                          <span>Send Email</span>
+                        </>
+                      )}
+                    </Button>
+                  </div>
                 </div>
               ) : (
                 <div className="text-center py-12 text-muted-foreground">

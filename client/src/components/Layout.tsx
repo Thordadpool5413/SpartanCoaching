@@ -145,6 +145,7 @@ export function Header() {
     { path: "/tools/objections", label: "Objection Handler", description: "Get strategies for handling objections" },
     { path: "/tools/research", label: "Territory Research", description: "Research facilities and territories" },
     { path: "/tools/email-templates", label: "Email Templates", description: "Create professional email templates" },
+    { path: "/tools/role-play", label: "Role-Play Practice", description: "Practice sales conversations with AI" },
   ];
 
   const allSearchItems = [...routes, ...aiTools];
@@ -199,9 +200,11 @@ export function Header() {
             { path: "/tools/objections", label: "Objection Handler", description: "Handle objections" },
             { path: "/tools/research", label: "Territory Research", description: "Research facilities" },
             { path: "/tools/email-templates", label: "Email Templates", description: "Professional emails" },
+            { path: "/tools/role-play", label: "Role-Play Practice", description: "Practice with AI" },
           ]} />
           <NavDropdown label="Learn" dataTestId="dropdown-learn" items={[
             { path: "/resources", label: "Training Resources", description: "Templates and guides" },
+            { path: "/drills", label: "Daily Drills", description: "Daily coaching exercises" },
             { path: "/podcasts", label: "Podcasts", description: "Expert insights" },
             { path: "/articles", label: "Articles", description: "Thought leadership" },
             { path: "/testimonials", label: "Testimonials", description: "Client success stories" },
@@ -283,6 +286,7 @@ export function Header() {
                 { path: "/tools/objections", label: "Objection Handler" },
                 { path: "/tools/research", label: "Territory Research" },
                 { path: "/tools/email-templates", label: "Email Templates" },
+                { path: "/tools/role-play", label: "Role-Play Practice" },
               ].map((item) => (
                 <Link
                   key={item.path}
@@ -305,6 +309,7 @@ export function Header() {
               </div>
               {[
                 { path: "/resources", label: "Training Resources" },
+                { path: "/drills", label: "Daily Drills" },
                 { path: "/podcasts", label: "Podcasts" },
                 { path: "/articles", label: "Articles" },
                 { path: "/testimonials", label: "Testimonials" },

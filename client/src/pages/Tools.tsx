@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { LightbulbIcon, SearchIcon, ChatIcon, MicrophoneIcon } from "@/components/icons";
-import { Mail } from "lucide-react";
+import { Mail, Users } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/BackButton";
@@ -37,6 +37,12 @@ export default function Tools() {
       description: "Generate professional follow-up emails, thank you notes, and value-add messages. AI-powered templates help you build relationships and stay top-of-mind with your referral sources.",
       icon: <Mail className="w-8 h-8" />,
       path: "/tools/email-templates",
+    },
+    {
+      title: "Role-Play Practice",
+      description: "Practice real sales conversations with AI-powered characters. Simulate cold calls, handle physician objections, guide family consultations, and get detailed coaching feedback on your performance.",
+      icon: <Users className="w-8 h-8" />,
+      path: "/tools/role-play",
     },
   ];
 

@@ -23,7 +23,16 @@ import {
   type InsertPodcast,
   type SelectPodcast,
   type InsertEventTracking,
-  type SelectEventTracking
+  type SelectEventTracking,
+  roleplaySessions,
+  roleplayMessages,
+  drillCompletions,
+  type InsertRoleplaySession,
+  type SelectRoleplaySession,
+  type InsertRoleplayMessage,
+  type SelectRoleplayMessage,
+  type InsertDrillCompletion,
+  type SelectDrillCompletion,
 } from "@shared/schema";
 import { db } from "./db";
 import { desc, eq, gte, count } from "drizzle-orm";
@@ -59,6 +68,16 @@ export interface IStorage {
   trackEvent(event: InsertEventTracking): Promise<SelectEventTracking>;
   getEventCounts(eventType: string): Promise<Array<{ eventName: string; count: number }>>;
   getEventAnalytics(): Promise<{ aiToolUsage: Array<{ eventName: string; count: number }>; resourceDownloads: Array<{ eventName: string; count: number }>; contactSubmissions: number }>;
+  // Role-play operations
+  createRoleplaySession(session: InsertRoleplaySession): Promise<SelectRoleplaySession>;
+  getRoleplaySession(id: number): Promise<SelectRoleplaySession | undefined>;
+  getRoleplaySessions(): Promise<SelectRoleplaySession[]>;
+  updateRoleplaySession(id: number, updates: Partial<{ status: string; feedback: string; rating: number }>): Promise<SelectRoleplaySession>;
+  createRoleplayMessage(message: InsertRoleplayMessage): Promise<SelectRoleplayMessage>;
+  getRoleplayMessages(sessionId: number): Promise<SelectRoleplayMessage[]>;
+  // Drill operations
+  createDrillCompletion(completion: InsertDrillCompletion): Promise<SelectDrillCompletion>;
+  getDrillCompletions(): Promise<SelectDrillCompletion[]>;
 }
 
 // Database-backed storage implementation
@@ -335,6 +354,62 @@ export class DatabaseStorage implements IStorage {
       resourceDownloads,
       contactSubmissions: contactResults[0]?.count || 0,
     };
+  }
+  async createRoleplaySession(session: InsertRoleplaySession): Promise<SelectRoleplaySession> {
+    const [created] = await db
+      .insert(roleplaySessions)
+      .values({ ...session, createdAt: Date.now() })
+      .returning();
+    return created;
+  }
+
+  async getRoleplaySession(id: number): Promise<SelectRoleplaySession | undefined> {
+    const [session] = await db.select().from(roleplaySessions).where(eq(roleplaySessions.id, id));
+    return session;
+  }
+
+  async getRoleplaySessions(): Promise<SelectRoleplaySession[]> {
+    return await db.select().from(roleplaySessions).orderBy(desc(roleplaySessions.createdAt));
+  }
+
+  async updateRoleplaySession(id: number, updates: Partial<{ status: string; feedback: string; rating: number }>): Promise<SelectRoleplaySession> {
+    const [updated] = await db
+      .update(roleplaySessions)
+      .set(updates)
+      .where(eq(roleplaySessions.id, id))
+      .returning();
+    return updated;
+  }
+
+  async createRoleplayMessage(message: InsertRoleplayMessage): Promise<SelectRoleplayMessage> {
+    const [created] = await db
+      .insert(roleplayMessages)
+      .values({ ...message, createdAt: Date.now() })
+      .returning();
+    return created;
+  }
+
+  async getRoleplayMessages(sessionId: number): Promise<SelectRoleplayMessage[]> {
+    return await db
+      .select()
+      .from(roleplayMessages)
+      .where(eq(roleplayMessages.sessionId, sessionId))
+      .orderBy(roleplayMessages.createdAt);
+  }
+
+  async createDrillCompletion(completion: InsertDrillCompletion): Promise<SelectDrillCompletion> {
+    const [created] = await db
+      .insert(drillCompletions)
+      .values({ ...completion, completedAt: Date.now() })
+      .returning();
+    return created;
+  }
+
+  async getDrillCompletions(): Promise<SelectDrillCompletion[]> {
+    return await db
+      .select()
+      .from(drillCompletions)
+      .orderBy(desc(drillCompletions.completedAt));
   }
 }
 

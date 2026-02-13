@@ -107,3 +107,28 @@ export async function sendNewsletterConfirmation(email: string): Promise<boolean
     return false;
   }
 }
+
+export async function sendGeneratedEmail(to: string, subject: string, body: string): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+
+    await client.emails.send({
+      from: fromEmail,
+      to,
+      subject,
+      html: `
+        <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+          ${body.split('\n').map(line => line.trim() ? `<p style="margin: 8px 0; line-height: 1.6;">${line}</p>` : '<br/>').join('\n')}
+          <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;" />
+          <p style="color: #888; font-size: 12px;">Sent via Spartan Coaching email tools.</p>
+        </div>
+      `,
+    });
+
+    console.log(`Generated email sent to ${to}`);
+    return true;
+  } catch (error) {
+    console.error('Failed to send generated email:', error);
+    return false;
+  }
+}
