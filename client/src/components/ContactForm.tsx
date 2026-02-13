@@ -94,7 +94,7 @@ export function ContactForm({ trigger, defaultServiceType, open: externalOpen, o
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button size="lg" className="font-bold shadow-lg touch-manipulation" data-testid="button-contact-trigger">
+          <Button size="lg" className="font-bold shadow-lg touch-manipulation py-3" data-testid="button-contact-trigger">
             Get in Touch
           </Button>
         )}
@@ -220,7 +220,7 @@ export function ContactForm({ trigger, defaultServiceType, open: externalOpen, o
               )}
             />
 
-            <div className="flex gap-3 pt-4">
+            <div className="flex gap-4 pt-4">
               <Button
                 type="button"
                 variant="outline"

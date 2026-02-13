@@ -115,7 +115,7 @@ export default function Objections() {
               <h3 className="text-h3 font-bold text-foreground mb-4">{obj.q}</h3>
               <p className="text-muted-foreground italic border-l-4 border-primary pl-4">"{obj.a}"</p>
             </div>
-            <div className="w-full md:w-1/2 space-y-3">
+            <div className="w-full md:w-1/2 space-y-4">
               <Button
                 onClick={() => generateResponse(obj.q)}
                 disabled={loading[obj.q]}

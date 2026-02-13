@@ -216,7 +216,7 @@ export default function Services() {
 
               <Button
                 size="lg"
-                className="w-full font-bold mt-auto touch-manipulation"
+                className="w-full font-bold mt-auto touch-manipulation py-3"
                 data-testid={`button-book-individual-${idx}`}
                 onClick={() => {
                   setSelectedService(service.title);
@@ -283,7 +283,7 @@ export default function Services() {
 
               <Button
                 size="lg"
-                className="w-full font-bold mt-auto touch-manipulation"
+                className="w-full font-bold mt-auto touch-manipulation py-3"
                 data-testid={`button-book-leadership-${idx}`}
                 onClick={() => {
                   setSelectedService(service.title);
@@ -350,7 +350,7 @@ export default function Services() {
 
               <Button
                 size="lg"
-                className="w-full font-bold mt-auto touch-manipulation"
+                className="w-full font-bold mt-auto touch-manipulation py-3"
                 data-testid={`button-book-corporate-${idx}`}
                 onClick={() => {
                   setSelectedService(service.title);
@@ -376,7 +376,7 @@ export default function Services() {
           </p>
           <Button
             size="lg"
-            className="font-bold text-base shadow-xl touch-manipulation"
+            className="font-bold text-base shadow-xl touch-manipulation py-3"
             data-testid="button-contact-us"
             onClick={() => {
               setSelectedService("");

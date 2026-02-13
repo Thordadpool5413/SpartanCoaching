@@ -21,10 +21,10 @@ const buttonVariants = cva(
         ghost: "border border-transparent",
       },
       size: {
-        default: "min-h-9 px-5 py-2.5",
-        sm: "min-h-8 rounded-md px-4 text-xs",
-        lg: "min-h-10 rounded-xl px-8 text-base",
-        icon: "h-9 w-9",
+        default: "min-h-10 px-5 py-2.5",
+        sm: "min-h-9 rounded-md px-4 text-xs",
+        lg: "min-h-12 rounded-xl px-8 py-3 text-base",
+        icon: "h-10 w-10",
       },
     },
     defaultVariants: {

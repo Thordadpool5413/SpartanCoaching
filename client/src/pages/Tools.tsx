@@ -67,7 +67,7 @@ export default function Tools() {
               <p className="text-body text-muted-foreground leading-relaxed flex-1 mb-6">
                 {tool.description}
               </p>
-              <Button asChild className="w-full font-bold touch-manipulation" size="lg">
+              <Button asChild className="w-full font-bold touch-manipulation py-3" size="lg">
                 <Link href={tool.path} data-testid={`button-tool-${idx}`}>
                   Launch Tool
                 </Link>

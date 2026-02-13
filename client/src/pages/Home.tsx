@@ -137,11 +137,11 @@ export default function Home() {
             <span className="block mt-3 sm:mt-4 bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent font-bold">We build expert sales leaders who serve with integrity and lead with empathy.</span>
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 md:gap-6 justify-center animate-fade-in-up px-6 max-w-2xl mx-auto" style={{ animationDelay: '0.4s' }}>
+          <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 justify-center animate-fade-in-up px-6 max-w-2xl mx-auto" style={{ animationDelay: '0.4s' }}>
             <Button
               size="lg"
               asChild
-              className="text-base sm:text-lg font-bold shadow-xl transition-elegant touch-manipulation group"
+              className="text-base sm:text-lg font-bold shadow-xl transition-elegant touch-manipulation group px-10 py-4"
               data-testid="button-view-services"
             >
               <Link href="/services">
@@ -153,7 +153,7 @@ export default function Home() {
               size="lg"
               variant="outline"
               asChild
-              className="text-base sm:text-lg font-bold glass border-white/30 transition-elegant touch-manipulation group"
+              className="text-base sm:text-lg font-bold glass border-white/30 transition-elegant touch-manipulation group px-10 py-4"
               data-testid="button-why-spartan"
             >
               <Link href="/about">
@@ -449,7 +449,7 @@ export default function Home() {
           </div>
 
           <div className="mt-16 text-center px-4">
-            <Button asChild variant="outline" size="lg" className="font-bold text-base sm:text-lg px-6 sm:px-8 group whitespace-normal sm:whitespace-nowrap touch-manipulation">
+            <Button asChild variant="outline" size="lg" className="font-bold text-base sm:text-lg px-6 sm:px-8 py-3 group whitespace-normal sm:whitespace-nowrap touch-manipulation">
               <Link href="/method" data-testid="button-learn-more-method">
                 <span>Learn More About The Spartan Method</span>
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform flex-shrink-0" />

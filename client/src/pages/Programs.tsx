@@ -490,7 +490,7 @@ export default function Programs() {
               <div className="flex gap-2 mt-4">
                 <Button
                   variant="outline"
-                  className="flex-1 font-bold touch-manipulation"
+                  className="flex-1 font-bold touch-manipulation py-2.5"
                   data-testid={`button-learn-more-program-${idx}`}
                   onClick={() => handleLearnMore(program)}
                 >
@@ -551,7 +551,7 @@ export default function Programs() {
               <div className="flex gap-2 mt-4">
                 <Button
                   variant="outline"
-                  className="flex-1 font-bold touch-manipulation"
+                  className="flex-1 font-bold touch-manipulation py-2.5"
                   data-testid={`button-learn-more-strategic-${idx}`}
                   onClick={() => handleLearnMore(service)}
                 >
