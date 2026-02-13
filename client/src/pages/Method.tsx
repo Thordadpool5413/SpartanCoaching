@@ -1,11 +1,11 @@
 import { Card } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { BackButton } from "@/components/BackButton";
-import { Compass, Users, Target, CheckCircle, Shield, Heart, Eye, Lock, Database, UserCheck, AlertTriangle, ArrowDown, ArrowRight, Flame } from "lucide-react";
+import { Compass, Users, Target, CheckCircle, Shield, Heart, Eye, Lock, Database, UserCheck, ArrowDown, ArrowRight, Flame } from "lucide-react";
 import { SEO } from "@/components/SEO";
 
 export default function Method() {
-  const salesStages = [
+  const subjects = [
     {
       title: "Discovery",
       icon: Compass,
@@ -13,18 +13,8 @@ export default function Method() {
       bgColor: "bg-blue-50 dark:bg-blue-950/30",
       borderColor: "border-blue-200 dark:border-blue-800",
       purpose: "Discovery is learning about the contact and their individual needs. This is where we identify what matters to them, what they need help with, and what they require in order to feel confident moving a patient toward hospice.",
-      entry: "A qualified meeting with a stakeholder who can describe the flow of care.",
-      standardWork: [
-        "Set the aim for the engagement",
-        "Map the path from first signal to first visit or appropriate alternative",
-        "Land three frictions as a time, a rate, and a count — using ranges first",
-        "Identify roles and the decision path",
-        "Surface constraints worth respecting",
-        "Deliver a ninety-second recap in their language"
-      ],
-      exitArtifact: "Discovery Brief confirmed by the customer.",
-      decisionLabel: "Decision to Advance",
-      decisionToAdvance: "Recap confirmed, timing windows known, permission to return for a fit review."
+      executionStandard: "Ask targeted questions about workflow, decision-making preferences, and patient transition concerns. Listen for the specific language the contact uses to describe their challenges. Document their priorities, communication preferences, and the criteria they use to evaluate a hospice partner. Confirm your understanding before leaving the conversation.",
+      measurableOutput: "A completed contact profile that captures the individual's stated needs, preferred communication style, decision-making role, and the specific conditions under which they would feel confident initiating a hospice referral."
     },
     {
       title: "Connecting",
@@ -33,17 +23,8 @@ export default function Method() {
       bgColor: "bg-purple-50 dark:bg-purple-950/30",
       borderColor: "border-purple-200 dark:border-purple-800",
       purpose: "Connecting happens after Discovery, once we have learned what the individual needs are. This is where we connect with the contact based on what they told us they need, and we align to how they want to work, communicate, and move decisions forward.",
-      entry: "Discovery Brief accepted by the people who will own the work.",
-      standardWork: [
-        "Deliver a sixty-second recap of Discovery findings",
-        "Present two or three pillars that map one-to-one with outcomes they named",
-        "Show one proof per pillar",
-        "Invite live edits to co-author the language",
-        "Sketch the first test and the measures the customer already tracks"
-      ],
-      exitArtifact: "Fit Outline with pillars, proofs, and a first test sketch.",
-      decisionLabel: "Decision to Advance",
-      decisionToAdvance: "Agreement to try it here with a starting location and named access."
+      executionStandard: "Reference specific needs the contact shared during Discovery. Demonstrate alignment by adapting your communication cadence, format, and content to match their stated preferences. Show how your team operates in ways that fit their workflow — not the other way around. Confirm mutual understanding of how you will work together going forward.",
+      measurableOutput: "A documented working agreement that reflects the contact's preferred communication method, frequency, and the specific ways your team will support their workflow. Both sides can describe how the relationship operates."
     },
     {
       title: "Guiding",
@@ -52,17 +33,8 @@ export default function Method() {
       bgColor: "bg-orange-50 dark:bg-orange-950/30",
       borderColor: "border-orange-200 dark:border-orange-800",
       purpose: "Guiding is using the solutions we have as a hospice provider to solve and improve the needs of the contact and the account. This is where we show how we support their goals, reduce friction, and make hospice easier to use for the right patients.",
-      entry: "Fit Outline approved by the people who will own the work.",
-      standardWork: [
-        "Write a One Page Plan in the customer's language",
-        "Assign owners and dates",
-        "Start privacy and access steps",
-        "Define success checks with the exact data source",
-        "Place a midpoint review and a decision review on calendars before the meeting ends"
-      ],
-      exitArtifact: "One Page Plan and two calendar links.",
-      decisionLabel: "Decision to Advance",
-      decisionToAdvance: "Owners named, access started, success checks understood by everyone."
+      executionStandard: "Present specific hospice capabilities that directly address the needs and friction points identified in Discovery. Use real examples, case-level scenarios, or clinical support tools that demonstrate how your team reduces burden and improves outcomes. Make the connection between their problem and your solution unmistakable. Let them see the path, not just hear the pitch.",
+      measurableOutput: "The contact can articulate at least one specific way your hospice team solves a problem they previously identified. They understand how to use your services for the patients who qualify, and they see hospice as a tool that makes their job easier."
     },
     {
       title: "Commitment",
@@ -71,17 +43,8 @@ export default function Method() {
       bgColor: "bg-green-50 dark:bg-green-950/30",
       borderColor: "border-green-200 dark:border-green-800",
       purpose: "Commitment is getting the contact and the account to commit to a patient referral. This is where the next step becomes clear action — who calls, when they call, what triggers the call, and what happens once the referral is made.",
-      entry: "One Page Plan accepted and owners present.",
-      standardWork: [
-        "Restate the plan and privacy posture in plain language",
-        "Send the correct agreement while sharing screens and confirm the signature path",
-        "Book kickoff and confirm acceptance while present",
-        "Deliver the Welcome Packet within two hours",
-        "State the first visible win and schedule it"
-      ],
-      exitArtifact: "Signed agreement, kickoff on calendar, Welcome Packet sent.",
-      decisionLabel: "Decision to Finish",
-      decisionToAdvance: "First visible win stated and scheduled."
+      executionStandard: "Define the referral trigger clearly — what clinical or situational signal tells the contact it is time to call. Establish who makes the call, what information is needed, and what happens on your end once the referral is received. Remove ambiguity from every step. Walk through the process together so the contact knows exactly what to expect.",
+      measurableOutput: "A referral pathway document or verbal commitment that names the trigger, the caller, the method, and the follow-up process. The contact can describe when and how they will refer without needing to ask."
     }
   ];
 
@@ -142,11 +105,11 @@ export default function Method() {
   ];
 
   const traceabilityMap = [
-    { mamba: "Prepare with intent", stage: "Discovery", icon: Compass },
-    { mamba: "Practice under pressure", stage: "Connecting", icon: Users },
-    { mamba: "Measure in the open", stage: "Guiding", icon: Target },
-    { mamba: "Finish strong", stage: "Commitment", icon: CheckCircle },
-    { mamba: "Honor choice, support clinical judgment, and protect privacy", stage: "Every stage", icon: Shield }
+    { mamba: "Prepare with intent", subject: "Discovery", icon: Compass },
+    { mamba: "Practice under pressure", subject: "Connecting", icon: Users },
+    { mamba: "Measure in the open", subject: "Guiding", icon: Target },
+    { mamba: "Finish strong", subject: "Commitment", icon: CheckCircle },
+    { mamba: "Honor choice, support clinical judgment, and protect privacy", subject: "Every subject", icon: Shield }
   ];
 
   return (
@@ -161,7 +124,7 @@ export default function Method() {
           The <span className="text-gradient-primary">Spartan Method</span>
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          A complete methodology for healthcare sales mastery. Value is discovered, translated, proven, and made official through four disciplined stages — each governed by ethics that are non-negotiable.
+          A complete methodology for healthcare sales mastery. Value is discovered, translated, proven, and made official through four disciplined subjects — each governed by ethics that are non-negotiable.
         </p>
       </div>
 
@@ -255,84 +218,59 @@ export default function Method() {
         <section>
           <div className="text-center mb-12">
             <h2 className="text-h2 text-foreground mb-4" data-testid="text-mastery-model-title">Healthcare Sales Mastery Model</h2>
-            <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto">
-              Four stages that turn philosophy into measurable practice. Each stage has a clear purpose, a defined entry condition, disciplined standard work, a visible exit artifact, and a single decision that advances the work.
+            <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed">
+              This model is built for hospice providers who want referrals to be consistent, appropriate, and repeatable inside an account. Not because someone is "great with people," but because the referral source has a clear path, clear expectations, and a clear reason to call you when the right patient shows up.
             </p>
           </div>
 
-          {/* Quality Gate Rule */}
-          <Card className="mb-10 border-2 border-amber-300 dark:border-amber-700 bg-amber-50/50 dark:bg-amber-950/20 spacing-card" data-testid="card-quality-gate">
-            <div className="flex items-start gap-4">
-              <div className="flex-shrink-0 p-3 rounded-md bg-amber-100 dark:bg-amber-900/40">
-                <AlertTriangle className="w-6 h-6 text-amber-600 dark:text-amber-400" />
-              </div>
-              <div>
-                <h3 className="text-h3 text-foreground mb-2">Quality Gate Rule</h3>
-                <p className="text-body text-foreground/90 leading-relaxed font-medium">
-                  Entry is permission. Exit is an artifact. If the artifact is missing, the stage is not complete.
-                </p>
-                <p className="text-sm text-muted-foreground mt-2">
-                  This rule governs every stage transition. No exceptions, no shortcuts. The artifact proves the work was done.
-                </p>
-              </div>
+          <Card className="mb-10 spacing-card border-2" data-testid="card-model-context">
+            <div className="space-y-4">
+              <p className="text-body text-foreground/90 leading-relaxed">
+                Hospice referrals do not break because the account does not care. They break because the process is unclear. The triggers are fuzzy. The conversation feels risky. The workflow feels like extra work. This model removes that friction by giving your team a simple, coachable process that works across different roles, different personalities, and different levels of account engagement.
+              </p>
+              <p className="text-body text-muted-foreground leading-relaxed">
+                The model is structured into four subjects. Each subject has a purpose, an execution standard, and a measurable output. We run them in sequence every time, because skipping steps is how you end up "checking in" for six months and calling it relationship building.
+              </p>
             </div>
           </Card>
 
-          {/* Stages - Vertical Sequential Flow */}
-          <div className="relative" data-testid="stages-container">
-            {salesStages.map((stage, idx) => {
-              const Icon = stage.icon;
-              const isLast = idx === salesStages.length - 1;
+          <div className="relative" data-testid="subjects-container">
+            {subjects.map((subject, idx) => {
+              const Icon = subject.icon;
+              const isLast = idx === subjects.length - 1;
               return (
                 <div key={idx} className="relative">
-                  <Card className={`border-2 ${stage.borderColor} spacing-card shadow-lg`} data-testid={`card-stage-${idx}`}>
+                  <Card className={`border-2 ${subject.borderColor} spacing-card shadow-lg`} data-testid={`card-subject-${idx}`}>
                     <div className="flex items-start gap-4 mb-4">
-                      <div className={`flex-shrink-0 p-3 rounded-md ${stage.bgColor}`}>
-                        <Icon className={`w-6 h-6 ${stage.color}`} />
+                      <div className={`flex-shrink-0 p-3 rounded-md ${subject.bgColor}`}>
+                        <Icon className={`w-6 h-6 ${subject.color}`} />
                       </div>
                       <div className="flex-1">
-                        <h3 className={`text-h3 font-bold ${stage.color} mb-1`}>{stage.title}</h3>
-                        <p className="text-sm text-muted-foreground italic">Stage {idx + 1} of 4</p>
+                        <h3 className={`text-h3 font-bold ${subject.color} mb-1`}>{subject.title}</h3>
+                        <p className="text-sm text-muted-foreground italic">Subject {idx + 1} of 4</p>
                       </div>
                     </div>
 
                     <div className="space-y-4">
                       <div>
                         <h4 className="font-bold text-sm text-foreground mb-1">Purpose</h4>
-                        <p className="text-sm text-muted-foreground leading-relaxed">{stage.purpose}</p>
+                        <p className="text-sm text-muted-foreground leading-relaxed">{subject.purpose}</p>
                       </div>
 
                       <div>
-                        <h4 className="font-bold text-sm text-foreground mb-1">Entry</h4>
-                        <p className="text-sm text-muted-foreground leading-relaxed">{stage.entry}</p>
+                        <h4 className="font-bold text-sm text-foreground mb-1">Execution Standard</h4>
+                        <p className="text-sm text-muted-foreground leading-relaxed">{subject.executionStandard}</p>
                       </div>
 
-                      <div>
-                        <h4 className="font-bold text-sm text-foreground mb-1">Standard Work</h4>
-                        <ul className="space-y-1">
-                          {stage.standardWork.map((item, sIdx) => (
-                            <li key={sIdx} className="flex items-start gap-2">
-                              <span className="text-primary mt-0.5">•</span>
-                              <span className="text-sm text-muted-foreground">{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-
-                      <div className={`p-3 rounded-md ${stage.bgColor} border ${stage.borderColor}`}>
-                        <h4 className="font-bold text-sm text-foreground mb-1">Exit Artifact</h4>
-                        <p className="text-sm text-foreground">{stage.exitArtifact}</p>
-                      </div>
-
-                      <div className="pt-2 border-t">
-                        <h4 className="font-bold text-sm text-foreground mb-1">{stage.decisionLabel}</h4>
-                        <p className="text-sm text-muted-foreground leading-relaxed">{stage.decisionToAdvance}</p>
+                      <div className={`p-3 rounded-md ${subject.bgColor} border ${subject.borderColor}`}>
+                        <h4 className="font-bold text-sm text-foreground mb-1">Measurable Output</h4>
+                        <p className="text-sm text-foreground">{subject.measurableOutput}</p>
                       </div>
                     </div>
                   </Card>
 
                   {!isLast && (
-                    <div className="flex justify-center py-3" data-testid={`connector-stage-${idx}`}>
+                    <div className="flex justify-center py-3" data-testid={`connector-subject-${idx}`}>
                       <div className="flex flex-col items-center gap-1">
                         <div className="w-0.5 h-4 bg-muted-foreground/30"></div>
                         <ArrowDown className="w-5 h-5 text-muted-foreground/50" />
@@ -355,7 +293,7 @@ export default function Method() {
         {/* Five Fundamentals */}
         <section>
           <div className="text-center mb-12">
-            <h2 className="text-h2 text-foreground mb-4" data-testid="text-fundamentals-title">Five Fundamentals That Govern Every Stage</h2>
+            <h2 className="text-h2 text-foreground mb-4" data-testid="text-fundamentals-title">Five Fundamentals That Govern Every Subject</h2>
             <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto">
               These principles anchor every activity, every conversation, every decision
             </p>
@@ -410,7 +348,7 @@ export default function Method() {
           <div className="text-center mb-12">
             <h2 className="text-h2 text-foreground mb-4" data-testid="text-traceability-title">Traceability</h2>
             <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto">
-              Every principle maps to a stage. The Mamba standard is not separate from the model — it is woven into every step.
+              Every principle maps to a subject. The Mamba standard is not separate from the model — it is woven into every step.
             </p>
           </div>
 
@@ -434,7 +372,7 @@ export default function Method() {
                       <div className="p-2 rounded-md bg-muted/50">
                         <Icon className="w-4 h-4 text-primary" />
                       </div>
-                      <span className={`text-body font-semibold ${isEthicsRow ? 'text-primary' : 'text-foreground'}`}>{item.stage}</span>
+                      <span className={`text-body font-semibold ${isEthicsRow ? 'text-primary' : 'text-foreground'}`}>{item.subject}</span>
                     </div>
                   </div>
                 </Card>
