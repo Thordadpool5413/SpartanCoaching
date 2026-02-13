@@ -8,6 +8,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header, Footer } from "@/components/Layout";
 
 const ChatWidget = lazy(() => import("@/components/ChatWidget").then(m => ({ default: m.ChatWidget })));
+const StickyBookCall = lazy(() => import("@/components/StickyBookCall").then(m => ({ default: m.StickyBookCall })));
 const PWAInstallPrompt = lazy(() => import("@/components/PWAInstallPrompt").then(m => ({ default: m.PWAInstallPrompt })));
 
 const NotFound = lazy(() => import("@/pages/not-found"));
@@ -129,6 +130,7 @@ function App() {
           </div>
           <Suspense fallback={null}>
             <ChatWidget />
+            <StickyBookCall />
             <PWAInstallPrompt />
           </Suspense>
           <Toaster />

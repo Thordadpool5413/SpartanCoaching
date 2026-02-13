@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { MicrophoneIcon, SpinnerIcon } from "@/components/icons";
-import { BackButton } from "@/components/BackButton";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 
 declare global {
@@ -116,7 +116,7 @@ export default function Transcribe() {
   return (
     <div className="w-full max-w-4xl mx-auto px-6 py-16">
       <SEO />
-      <BackButton />
+      <Breadcrumbs items={[{ label: "AI Tools", href: "/tools" }, { label: "Transcribe" }]} />
       <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-transcribe-title">
         Audio Transcriber
       </h1>

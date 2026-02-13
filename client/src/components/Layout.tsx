@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { MenuIcon, CloseIcon } from "./icons";
 import { applyTheme, getInitialTheme } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Sun, Moon, Linkedin, Search } from "lucide-react";
+import { Sun, Moon, Linkedin, Search, ChevronDown } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -55,6 +55,51 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
     >
       {children}
     </Link>
+  );
+}
+
+function NavDropdown({ label, items, dataTestId }: { 
+  label: string; 
+  items: { path: string; label: string; description: string }[];
+  dataTestId: string;
+}) {
+  const [location] = useLocation();
+  const isGroupActive = items.some(item => location === item.path || location.startsWith(item.path + '/'));
+  
+  return (
+    <div className="relative group" data-testid={dataTestId}>
+      <button 
+        className={cn(
+          "px-3 py-2 rounded-lg text-sm font-medium transition-colors hover-elevate flex items-center gap-1 whitespace-nowrap",
+          isGroupActive ? "bg-primary text-primary-foreground" : "text-foreground"
+        )}
+        aria-haspopup="true"
+      >
+        {label}
+        <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 group-focus-within:rotate-180" />
+      </button>
+      <div className="invisible group-hover:visible group-focus-within:visible opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-200 absolute top-full left-0 pt-2 z-50">
+        <div className="bg-popover border rounded-lg shadow-lg py-2 min-w-[220px]">
+          {items.map(item => (
+            <Link
+              key={item.path}
+              href={item.path}
+              tabIndex={0}
+              className={cn(
+                "block px-4 py-2.5 text-sm hover-elevate transition-colors",
+                location === item.path
+                  ? "bg-primary/10 text-primary font-medium"
+                  : "text-foreground"
+              )}
+              data-testid={`link-nav-${item.path.replace(/\//g, '-')}`}
+            >
+              <div className="font-medium">{item.label}</div>
+              <div className="text-xs text-muted-foreground mt-0.5">{item.description}</div>
+            </Link>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
@@ -131,7 +176,7 @@ export function Header() {
         </Link>
 
         {/* Desktop Navigation */}
-        <nav className="hidden lg:flex items-center gap-2 flex-shrink-0" aria-label="Main navigation">
+        <nav className="hidden lg:flex items-center gap-1 flex-shrink-0" aria-label="Main navigation">
           <Button
             variant="ghost"
             size="sm"
@@ -142,11 +187,25 @@ export function Header() {
             <Search className="w-4 h-4" />
             <span className="font-medium">Search</span>
           </Button>
-          {routes.slice(1).map((route) => (
-            <NavLink key={route.path} href={route.path}>
-              {route.label}
-            </NavLink>
-          ))}
+          <NavDropdown label="Solutions" dataTestId="dropdown-solutions" items={[
+            { path: "/services", label: "Services", description: "Strategic services and consulting" },
+            { path: "/programs", label: "Programs", description: "Training programs" },
+            { path: "/method", label: "The Spartan Method", description: "Our proven methodology" },
+          ]} />
+          <NavDropdown label="AI Tools" dataTestId="dropdown-ai-tools" items={[
+            { path: "/tools", label: "AI Field Kit", description: "AI-powered sales tools" },
+            { path: "/tools/playbooks", label: "Sales Playbooks", description: "Generate custom playbooks" },
+            { path: "/tools/objections", label: "Objection Handler", description: "Handle objections" },
+            { path: "/tools/research", label: "Territory Research", description: "Research facilities" },
+            { path: "/tools/email-templates", label: "Email Templates", description: "Professional emails" },
+          ]} />
+          <NavDropdown label="Learn" dataTestId="dropdown-learn" items={[
+            { path: "/resources", label: "Training Resources", description: "Templates and guides" },
+            { path: "/podcasts", label: "Podcasts", description: "Expert insights" },
+            { path: "/articles", label: "Articles", description: "Thought leadership" },
+            { path: "/testimonials", label: "Testimonials", description: "Client success stories" },
+          ]} />
+          <NavLink href="/about">About</NavLink>
           <Button
             onClick={toggleTheme}
             variant="ghost"
@@ -175,23 +234,113 @@ export function Header() {
             <SheetHeader>
               <SheetTitle>Menu</SheetTitle>
             </SheetHeader>
-            <nav className="flex flex-col mt-6 space-y-2">
-              {routes.map((route) => (
+            <nav className="flex flex-col mt-6 space-y-1">
+              <Link
+                href="/"
+                onClick={() => setMobileMenuOpen(false)}
+                className={cn(
+                  "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all active:scale-[0.98]",
+                  location === "/"
+                    ? "bg-primary text-primary-foreground shadow-md"
+                    : "text-foreground bg-muted/50 active-elevate-2"
+                )}
+                data-testid="link-mobile-/"
+              >
+                Home
+              </Link>
+
+              <div className="pt-3 pb-1">
+                <span className="px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Solutions</span>
+              </div>
+              {[
+                { path: "/services", label: "Services" },
+                { path: "/programs", label: "Programs" },
+                { path: "/method", label: "The Spartan Method" },
+              ].map((item) => (
                 <Link
-                  key={route.path}
-                  href={route.path}
+                  key={item.path}
+                  href={item.path}
                   onClick={() => setMobileMenuOpen(false)}
                   className={cn(
                     "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all active:scale-[0.98]",
-                    location === route.path
+                    location === item.path
                       ? "bg-primary text-primary-foreground shadow-md"
                       : "text-foreground bg-muted/50 active-elevate-2"
                   )}
-                  data-testid={`link-mobile-${route.path}`}
+                  data-testid={`link-mobile-${item.path}`}
                 >
-                  {route.label}
+                  {item.label}
                 </Link>
               ))}
+
+              <div className="pt-3 pb-1">
+                <span className="px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">AI Tools</span>
+              </div>
+              {[
+                { path: "/tools", label: "AI Field Kit" },
+                { path: "/tools/playbooks", label: "Sales Playbooks" },
+                { path: "/tools/objections", label: "Objection Handler" },
+                { path: "/tools/research", label: "Territory Research" },
+                { path: "/tools/email-templates", label: "Email Templates" },
+              ].map((item) => (
+                <Link
+                  key={item.path}
+                  href={item.path}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={cn(
+                    "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all active:scale-[0.98]",
+                    location === item.path
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "text-foreground bg-muted/50 active-elevate-2"
+                  )}
+                  data-testid={`link-mobile-${item.path}`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+
+              <div className="pt-3 pb-1">
+                <span className="px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Learn</span>
+              </div>
+              {[
+                { path: "/resources", label: "Training Resources" },
+                { path: "/podcasts", label: "Podcasts" },
+                { path: "/articles", label: "Articles" },
+                { path: "/testimonials", label: "Testimonials" },
+              ].map((item) => (
+                <Link
+                  key={item.path}
+                  href={item.path}
+                  onClick={() => setMobileMenuOpen(false)}
+                  className={cn(
+                    "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all active:scale-[0.98]",
+                    location === item.path
+                      ? "bg-primary text-primary-foreground shadow-md"
+                      : "text-foreground bg-muted/50 active-elevate-2"
+                  )}
+                  data-testid={`link-mobile-${item.path}`}
+                >
+                  {item.label}
+                </Link>
+              ))}
+
+              <div className="pt-3 pb-1">
+                <span className="px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Company</span>
+              </div>
+              <Link
+                href="/about"
+                onClick={() => setMobileMenuOpen(false)}
+                className={cn(
+                  "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all active:scale-[0.98]",
+                  location === "/about"
+                    ? "bg-primary text-primary-foreground shadow-md"
+                    : "text-foreground bg-muted/50 active-elevate-2"
+                )}
+                data-testid="link-mobile-/about"
+              >
+                About
+              </Link>
+
               <div className="pt-4 flex items-center justify-between border-t border-border mt-4">
                 <span className="text-sm text-muted-foreground px-4">Theme</span>
                 <Button

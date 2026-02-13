@@ -123,6 +123,13 @@ The platform employs a premium SaaS aesthetic with a sophisticated visual design
 
 ## Recent Changes (February 2026)
 
+### UX Enhancements
+- **Sticky "Book a Call" CTA**: Floating button (bottom-left) that opens contact form dialog, appears after 300px scroll. Uses portal rendering to avoid overflow clipping. Positioned to not conflict with chat widget (bottom-right).
+- **Social Proof Section**: Added below homepage hero with 4 key stats (300% referral increase, 84% discharge rate, 500+ reps trained, 15+ years) plus testimonial quote. Uses intersection observer for scroll animations.
+- **Grouped Dropdown Navigation**: Desktop nav reorganized from 10 flat items into 3 dropdown groups (Solutions, AI Tools, Learn) + About. Keyboard accessible with focus-within support. Mobile menu grouped with section headers.
+- **Unified Card Layouts**: Articles, Podcasts, Resources pages now share consistent card styling (border-2, spacing-card, hover gradient effects, spinner loading states).
+- **Breadcrumb Navigation**: New Breadcrumbs component replaces BackButton on 10 sub-pages (5 AI tool pages + 5 resource sub-pages). Shows Home > Parent > Current hierarchy.
+
 ### Bug Fixes Applied
 - **Duplicate HTTP server removed**: `registerRoutes()` in routes.ts no longer creates a second unused HTTP server via `createServer(app)`. The single server in index.ts is the authoritative listener.
 - **Database failure resilience**: Public GET endpoints (`/api/articles`, `/api/resources`, `/api/podcasts`) now return empty arrays instead of 500 errors when the database is unavailable. This ensures the frontend renders properly even during DB outages.

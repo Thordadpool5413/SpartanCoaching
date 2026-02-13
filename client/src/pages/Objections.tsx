@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LightbulbIcon, SpeakerIcon, SpinnerIcon } from "@/components/icons";
-import { BackButton } from "@/components/BackButton";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 
 export default function Objections() {
@@ -98,7 +98,7 @@ export default function Objections() {
   return (
     <div className="w-full max-w-7xl mx-auto px-6 py-16">
       <SEO />
-      <BackButton />
+      <Breadcrumbs items={[{ label: "AI Tools", href: "/tools" }, { label: "Objection Handler" }]} />
       <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-objections-title">
         Objection Handling with AI
       </h1>

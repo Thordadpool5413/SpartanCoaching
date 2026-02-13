@@ -1,4 +1,4 @@
-import { BackButton } from "@/components/BackButton";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 
 export default function WeeklyPlan() {
@@ -6,7 +6,7 @@ export default function WeeklyPlan() {
     <div className="max-w-4xl mx-auto p-8 bg-white text-black print:p-0">
       <SEO />
       <div className="print:hidden">
-        <BackButton />
+        <Breadcrumbs items={[{ label: "Training Resources", href: "/resources" }, { label: "Weekly Plan" }]} />
       </div>
       <style>{`
         @media print {

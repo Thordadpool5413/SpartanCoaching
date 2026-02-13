@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Mail, Copy, Loader2 } from "lucide-react";
-import { BackButton } from "@/components/BackButton";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 
 export default function EmailTemplates() {
@@ -73,7 +73,7 @@ export default function EmailTemplates() {
     <div className="container mx-auto px-6 py-12">
       <SEO />
       <div className="max-w-4xl mx-auto">
-        <BackButton />
+        <Breadcrumbs items={[{ label: "AI Tools", href: "/tools" }, { label: "Email Templates" }]} />
         <div className="mb-8">
           <h1 className="text-h1 font-black mb-6">Email Templates</h1>
           <p className="text-body-lg text-muted-foreground leading-relaxed">

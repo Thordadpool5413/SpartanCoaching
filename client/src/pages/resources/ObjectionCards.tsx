@@ -1,4 +1,4 @@
-import { BackButton } from "@/components/BackButton";
+import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 
 export default function ObjectionCards() {
@@ -49,7 +49,7 @@ export default function ObjectionCards() {
     <div className="max-w-6xl mx-auto p-8 bg-white text-black print:p-0">
       <SEO />
       <div className="print:hidden">
-        <BackButton />
+        <Breadcrumbs items={[{ label: "Training Resources", href: "/resources" }, { label: "Objection Cards" }]} />
       </div>
       <style>{`
         @media print {

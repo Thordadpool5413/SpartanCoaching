@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { Link } from "wouter";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Download } from "lucide-react";
@@ -15,7 +15,6 @@ export default function Resources() {
 
   const resources = resourcesData?.resources || [];
 
-  // Group resources by category
   const groupedResources = resources.reduce((acc, resource) => {
     if (!acc[resource.category]) {
       acc[resource.category] = [];
@@ -24,13 +23,52 @@ export default function Resources() {
     return acc;
   }, {} as Record<string, SelectResource[]>);
 
-  // Category display names
   const categoryNames: Record<string, string> = {
     template: "Templates",
     script: "Scripts",
     checklist: "Checklists",
     guide: "Guides",
   };
+
+  if (isLoading) {
+    return (
+      <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
+        <SEO />
+        <BackButton />
+        <div className="text-center py-20">
+          <div className="animate-spin rounded-full h-12 w-12 border-4 border-primary border-t-transparent mx-auto"></div>
+          <p className="mt-4 text-muted-foreground">Loading resources...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (isError) {
+    return (
+      <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
+        <SEO />
+        <BackButton />
+        <div className="text-center max-w-2xl mx-auto py-20">
+          <p className="text-destructive">Failed to load resources. Please try again later.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (resources.length === 0) {
+    return (
+      <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
+        <SEO />
+        <BackButton />
+        <div className="text-center max-w-2xl mx-auto py-20">
+          <h1 className="text-h1 text-foreground mb-6" data-testid="text-resources-title">Training Resources Library</h1>
+          <p className="text-body-lg text-muted-foreground">
+            No resources available yet. Check back soon!
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
@@ -45,69 +83,52 @@ export default function Resources() {
         </p>
       </div>
 
-      {isLoading ? (
-        <div className="text-center py-12">
-          <p className="text-muted-foreground">Loading resources...</p>
-        </div>
-      ) : isError ? (
-        <Card className="border-destructive/50">
-          <CardContent className="py-12 text-center">
-            <p className="text-destructive">Failed to load resources. Please try again later.</p>
-          </CardContent>
-        </Card>
-      ) : resources.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-muted-foreground">No resources available yet. Check back soon!</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-12">
-          {Object.entries(groupedResources).map(([category, categoryResources]) => (
-            <div key={category} data-testid={`category-${category}`}>
-              <h2 className="text-h2 mb-6 flex items-center gap-3">
-                {categoryNames[category] || category}
-                <Badge variant="secondary" className="text-sm">
-                  {categoryResources.length}
-                </Badge>
-              </h2>
-              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {categoryResources.map((resource) => (
-                  <Card 
-                    key={resource.id} 
-                    className="hover-elevate active-elevate-2 transition-all duration-300"
-                    data-testid={`resource-card-${resource.id}`}
-                  >
-                    <CardHeader>
-                      <div className="flex items-start justify-between gap-2 mb-2">
-                        <CardTitle className="text-xl leading-tight">{resource.title}</CardTitle>
-                        <Badge variant="outline" className="shrink-0">
-                          {categoryNames[resource.category] || resource.category}
-                        </Badge>
-                      </div>
-                      {resource.description && (
-                        <CardDescription className="line-clamp-3">
-                          {resource.description}
-                        </CardDescription>
-                      )}
-                    </CardHeader>
-                    <CardContent>
-                      <Button
-                        className="w-full gap-2"
-                        onClick={() => window.open(resource.fileUrl, '_blank')}
-                        data-testid={`button-download-${resource.id}`}
-                      >
-                        <Download className="w-4 h-4" />
-                        Download
-                      </Button>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
+      <div className="space-y-12">
+        {Object.entries(groupedResources).map(([category, categoryResources]) => (
+          <div key={category} data-testid={`category-${category}`}>
+            <h2 className="text-h2 mb-6 flex items-center gap-3 flex-wrap">
+              {categoryNames[category] || category}
+              <Badge variant="secondary" className="text-sm">
+                {categoryResources.length}
+              </Badge>
+            </h2>
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
+              {categoryResources.map((resource) => (
+                <Card
+                  key={resource.id}
+                  className="flex flex-col hover-elevate border-2 group relative spacing-card"
+                  data-testid={`resource-card-${resource.id}`}
+                >
+                  <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                  <div className="flex-1 relative">
+                    <div className="flex items-start justify-between gap-2 mb-4 flex-wrap">
+                      <h3 className="text-h3 text-foreground leading-tight">{resource.title}</h3>
+                      <Badge variant="outline" className="shrink-0">
+                        {categoryNames[resource.category] || resource.category}
+                      </Badge>
+                    </div>
+
+                    {resource.description && (
+                      <p className="text-base text-muted-foreground leading-relaxed mb-6 line-clamp-3">
+                        {resource.description}
+                      </p>
+                    )}
+
+                    <Button
+                      className="w-full gap-2"
+                      onClick={() => window.open(resource.fileUrl, '_blank')}
+                      data-testid={`button-download-${resource.id}`}
+                    >
+                      <Download className="w-4 h-4" />
+                      Download
+                    </Button>
+                  </div>
+                </Card>
+              ))}
             </div>
-          ))}
-        </div>
-      )}
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
