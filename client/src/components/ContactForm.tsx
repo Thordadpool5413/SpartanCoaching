@@ -90,15 +90,19 @@ export function ContactForm({ trigger, defaultServiceType, open: externalOpen, o
     submitMutation.mutate(data);
   };
 
+  const isControlled = externalOpen !== undefined;
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        {trigger || (
-          <Button size="lg" className="font-bold shadow-lg touch-manipulation py-3" data-testid="button-contact-trigger">
-            Get in Touch
-          </Button>
-        )}
-      </DialogTrigger>
+      {!isControlled && (
+        <DialogTrigger asChild>
+          {trigger || (
+            <Button size="lg" className="font-bold shadow-lg touch-manipulation py-3" data-testid="button-contact-trigger">
+              Get in Touch
+            </Button>
+          )}
+        </DialogTrigger>
+      )}
       <DialogContent className="sm:max-w-[500px] max-h-[90vh] overflow-y-auto" data-testid="dialog-contact-form">
         <DialogHeader>
           <DialogTitle className="text-h3">Get in Touch</DialogTitle>

@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { Target, Users, TrendingUp, Linkedin } from "lucide-react";
@@ -7,6 +8,7 @@ import { ContactForm } from "@/components/ContactForm";
 import { SEO } from "@/components/SEO";
 
 export default function About() {
+  const [contactOpen, setContactOpen] = useState(false);
   return (
     <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
       <SEO />
@@ -202,7 +204,15 @@ export default function About() {
           <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-6 leading-relaxed">
             Whether you need one-on-one coaching, team training, or strategic consulting, Spartan Coaching is here to help you deliver better outcomes for the patients who need you most.
           </p>
-          <ContactForm />
+          <Button
+            size="lg"
+            className="font-bold py-3"
+            onClick={() => setContactOpen(true)}
+            data-testid="button-about-contact"
+          >
+            Get in Touch
+          </Button>
+          <ContactForm open={contactOpen} onOpenChange={setContactOpen} />
         </div>
       </div>
     </div>
