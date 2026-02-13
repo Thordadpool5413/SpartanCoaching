@@ -146,7 +146,7 @@ export default function Playbooks() {
             <Button
               onClick={() => handleGenerate()}
               size="lg"
-              className="mt-6 w-full font-bold min-h-[52px] touch-manipulation"
+              className="mt-6 w-full font-bold touch-manipulation"
               disabled={isLoading || !scenario || scenario.length < 10}
               data-testid="button-generate"
             >
@@ -194,10 +194,10 @@ export default function Playbooks() {
               <div className="flex justify-between items-center mb-6 flex-wrap gap-2">
                 <h2 className="text-h2 font-bold">Your Custom Playbook</h2>
                 <div className="flex gap-2">
-                  <Button variant="outline" size="default" onClick={handlePrint} className="font-bold min-h-[48px] touch-manipulation" data-testid="button-print">
+                  <Button variant="outline" size="default" onClick={handlePrint} className="font-bold touch-manipulation" data-testid="button-print">
                     Print
                   </Button>
-                  <Button variant="outline" size="default" onClick={handleExportTxt} className="font-bold min-h-[48px] touch-manipulation" data-testid="button-export">
+                  <Button variant="outline" size="default" onClick={handleExportTxt} className="font-bold touch-manipulation" data-testid="button-export">
                     <DownloadIcon className="w-4 h-4 mr-2" />
                     <span>Download</span>
                   </Button>

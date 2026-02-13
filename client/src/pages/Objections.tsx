@@ -120,7 +120,7 @@ export default function Objections() {
                 onClick={() => generateResponse(obj.q)}
                 disabled={loading[obj.q]}
                 size="lg"
-                className="w-full font-bold min-h-[52px] touch-manipulation"
+                className="w-full font-bold touch-manipulation"
                 data-testid={`button-generate-${idx}`}
               >
                 {loading[obj.q] ? (

@@ -145,14 +145,14 @@ export default function Transcribe() {
           {isRecording ? (
             <div>
               <p className="text-lg font-semibold text-destructive mb-4">Recording in progress...</p>
-              <Button onClick={stopRecording} variant="destructive" size="lg" className="font-bold min-h-[52px] touch-manipulation" data-testid="button-stop-recording">
+              <Button onClick={stopRecording} variant="destructive" size="lg" className="font-bold touch-manipulation" data-testid="button-stop-recording">
                 Stop Recording
               </Button>
             </div>
           ) : (
             <div>
               <p className="text-lg font-semibold text-foreground mb-4">Ready to record</p>
-              <Button onClick={startRecording} size="lg" className="font-bold min-h-[52px] touch-manipulation" data-testid="button-start-recording">
+              <Button onClick={startRecording} size="lg" className="font-bold touch-manipulation" data-testid="button-start-recording">
                 <MicrophoneIcon className="w-5 h-5" />
                 <span>Start Recording</span>
               </Button>
@@ -179,10 +179,10 @@ export default function Transcribe() {
             </p>
           </div>
           <div className="mt-4 flex gap-3">
-            <Button onClick={copyToClipboard} variant="outline" size="default" className="font-bold min-h-[48px] touch-manipulation" data-testid="button-copy">
+            <Button onClick={copyToClipboard} variant="outline" size="default" className="font-bold touch-manipulation" data-testid="button-copy">
               Copy to Clipboard
             </Button>
-            <Button onClick={exportAsText} variant="outline" size="default" className="font-bold min-h-[48px] touch-manipulation" data-testid="button-export-transcription">
+            <Button onClick={exportAsText} variant="outline" size="default" className="font-bold touch-manipulation" data-testid="button-export-transcription">
               Export as Text
             </Button>
           </div>

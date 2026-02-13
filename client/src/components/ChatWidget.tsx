@@ -213,10 +213,9 @@ function ChatWidgetContent() {
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
             size="icon"
-            className="h-12 w-12 bg-spartan-gradient hover:glow-primary transition-all touch-manipulation"
             data-testid="button-send-message"
           >
-            <Send className="w-5 h-5 text-white" />
+            <Send className="w-5 h-5" />
           </Button>
         </div>
       </div>

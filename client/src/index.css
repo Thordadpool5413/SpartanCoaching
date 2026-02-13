@@ -404,19 +404,10 @@ body {
       max-width: 100vw;
     }
     
-    /* Improved touch targets - WCAG AA compliant */
+    /* Touch-friendly interactions - don't override padding/size which breaks icon buttons */
     button, a[role="button"], input[type="button"], input[type="submit"] {
-      min-height: 44px;
-      min-width: 44px;
-      padding: 12px 16px;
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
-    }
-    
-    /* Larger touch targets for primary CTAs */
-    button[type="submit"], .btn-primary {
-      min-height: 48px;
-      padding: 14px 24px;
     }
     
     /* Better input fields */

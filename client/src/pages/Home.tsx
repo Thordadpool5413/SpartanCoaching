@@ -141,7 +141,7 @@ export default function Home() {
             <Button
               size="lg"
               asChild
-              className="text-base sm:text-lg px-8 sm:px-10 md:px-12 py-6 sm:py-7 md:py-8 font-bold shadow-xl glow-primary-hover transition-elegant min-h-[56px] sm:min-h-[60px] touch-manipulation group"
+              className="text-base sm:text-lg font-bold shadow-xl transition-elegant touch-manipulation group"
               data-testid="button-view-services"
             >
               <Link href="/services">
@@ -153,7 +153,7 @@ export default function Home() {
               size="lg"
               variant="outline"
               asChild
-              className="text-base sm:text-lg px-8 sm:px-10 md:px-12 py-6 sm:py-7 md:py-8 font-bold glass border-white/30 hover:bg-white/20 hover:border-white/40 transition-elegant min-h-[56px] sm:min-h-[60px] touch-manipulation group"
+              className="text-base sm:text-lg font-bold glass border-white/30 transition-elegant touch-manipulation group"
               data-testid="button-why-spartan"
             >
               <Link href="/about">
@@ -365,7 +365,7 @@ export default function Home() {
                 <p className="text-center text-muted-foreground text-body mb-8 leading-relaxed">
                   One-on-one coaching tailored to your unique challenges in healthcare sales.
                 </p>
-                <Button size="lg" asChild className="w-full font-bold shadow-lg min-h-[52px] touch-manipulation group mt-auto" data-testid="button-view-services-preview">
+                <Button size="lg" asChild className="w-full font-bold shadow-lg touch-manipulation group mt-auto" data-testid="button-view-services-preview">
                   <Link href="/services">
                     <span>View Services</span>
                     <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -388,7 +388,7 @@ export default function Home() {
                 <p className="text-center text-muted-foreground text-body mb-8 leading-relaxed">
                   Structured programs designed to build lasting skills and habits.
                 </p>
-                <Button size="lg" asChild className="w-full font-bold shadow-lg min-h-[52px] touch-manipulation group mt-auto" data-testid="button-explore-programs-preview">
+                <Button size="lg" asChild className="w-full font-bold shadow-lg touch-manipulation group mt-auto" data-testid="button-explore-programs-preview">
                   <Link href="/programs">
                     <span>Explore Programs</span>
                     <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
@@ -449,7 +449,7 @@ export default function Home() {
           </div>
 
           <div className="mt-16 text-center px-4">
-            <Button asChild variant="outline" size="lg" className="font-bold text-base sm:text-lg px-6 sm:px-8 py-6 group whitespace-normal sm:whitespace-nowrap min-h-[52px] touch-manipulation">
+            <Button asChild variant="outline" size="lg" className="font-bold text-base sm:text-lg px-6 sm:px-8 group whitespace-normal sm:whitespace-nowrap touch-manipulation">
               <Link href="/method" data-testid="button-learn-more-method">
                 <span>Learn More About The Spartan Method</span>
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform flex-shrink-0" />

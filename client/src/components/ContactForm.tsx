@@ -94,7 +94,7 @@ export function ContactForm({ trigger, defaultServiceType, open: externalOpen, o
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         {trigger || (
-          <Button size="lg" className="font-bold shadow-lg glow-primary-hover min-h-[52px] touch-manipulation" data-testid="button-contact-trigger">
+          <Button size="lg" className="font-bold shadow-lg touch-manipulation" data-testid="button-contact-trigger">
             Get in Touch
           </Button>
         )}

@@ -149,7 +149,7 @@ export default function EmailTemplates() {
                 onClick={handleGenerate}
                 disabled={isLoading}
                 size="lg"
-                className="w-full font-bold min-h-[52px] touch-manipulation"
+                className="w-full font-bold touch-manipulation"
                 data-testid="button-generate-template"
               >
                 {isLoading ? (
@@ -177,7 +177,7 @@ export default function EmailTemplates() {
                     variant="outline"
                     size="default"
                     onClick={handleCopy}
-                    className="font-bold min-h-[48px] touch-manipulation"
+                    className="font-bold touch-manipulation"
                     data-testid="button-copy-template"
                   >
                     <Copy className="w-4 h-4 mr-2" />

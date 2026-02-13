@@ -69,7 +69,7 @@ export function NewsletterSignup() {
       <Button
         type="submit"
         disabled={isLoading}
-        className="whitespace-nowrap min-h-[48px] touch-manipulation"
+        className="whitespace-nowrap touch-manipulation"
         data-testid="button-newsletter-subscribe"
       >
         <Mail className="w-4 h-4 mr-2" />

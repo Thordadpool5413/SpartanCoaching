@@ -158,7 +158,7 @@ export function ProgramDetailDialog({
                 onInquire();
                 onOpenChange(false);
               }}
-              className="flex-1 touch-manipulation min-h-[48px]"
+              className="flex-1 touch-manipulation"
               data-testid="button-inquire-from-detail"
             >
               Inquire About This Program
@@ -166,7 +166,7 @@ export function ProgramDetailDialog({
             <Button
               variant="outline"
               onClick={() => onOpenChange(false)}
-              className="touch-manipulation min-h-[48px]"
+              className="touch-manipulation"
               data-testid="button-close-detail"
             >
               Close

@@ -224,7 +224,7 @@ export function Header() {
             <Button
               variant="ghost"
               size="icon"
-              className="lg:hidden min-h-[48px] min-w-[48px] touch-manipulation -mr-2"
+              className="lg:hidden touch-manipulation -mr-2"
               aria-label="Toggle menu"
               data-testid="button-mobile-menu"
             >
@@ -240,7 +240,7 @@ export function Header() {
                 href="/"
                 onClick={() => setMobileMenuOpen(false)}
                 className={cn(
-                  "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all active:scale-[0.98]",
+                  "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all",
                   location === "/"
                     ? "bg-primary text-primary-foreground shadow-md"
                     : "text-foreground bg-muted/50 active-elevate-2"
@@ -263,7 +263,7 @@ export function Header() {
                   href={item.path}
                   onClick={() => setMobileMenuOpen(false)}
                   className={cn(
-                    "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all active:scale-[0.98]",
+                    "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all",
                     location === item.path
                       ? "bg-primary text-primary-foreground shadow-md"
                       : "text-foreground bg-muted/50 active-elevate-2"
@@ -289,7 +289,7 @@ export function Header() {
                   href={item.path}
                   onClick={() => setMobileMenuOpen(false)}
                   className={cn(
-                    "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all active:scale-[0.98]",
+                    "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all",
                     location === item.path
                       ? "bg-primary text-primary-foreground shadow-md"
                       : "text-foreground bg-muted/50 active-elevate-2"
@@ -314,7 +314,7 @@ export function Header() {
                   href={item.path}
                   onClick={() => setMobileMenuOpen(false)}
                   className={cn(
-                    "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all active:scale-[0.98]",
+                    "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all",
                     location === item.path
                       ? "bg-primary text-primary-foreground shadow-md"
                       : "text-foreground bg-muted/50 active-elevate-2"
@@ -332,7 +332,7 @@ export function Header() {
                 href="/about"
                 onClick={() => setMobileMenuOpen(false)}
                 className={cn(
-                  "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all active:scale-[0.98]",
+                  "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all",
                   location === "/about"
                     ? "bg-primary text-primary-foreground shadow-md"
                     : "text-foreground bg-muted/50 active-elevate-2"
@@ -348,7 +348,7 @@ export function Header() {
                   onClick={toggleTheme}
                   variant="ghost"
                   size="icon"
-                  className="touch-manipulation min-h-[48px] min-w-[48px]"
+                  className="touch-manipulation"
                   aria-label="Toggle theme"
                   data-testid="button-mobile-theme-toggle"
                 >
@@ -437,21 +437,21 @@ export function Footer() {
           <div className="flex flex-wrap gap-3 sm:gap-6 text-sm">
             <a
               href="#"
-              className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md min-h-[48px] flex items-center justify-center touch-manipulation"
+              className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
               data-testid="link-privacy"
             >
               Privacy Policy
             </a>
             <button
               onClick={() => setContactFormOpen(true)}
-              className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md min-h-[48px] flex items-center justify-center touch-manipulation"
+              className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
               data-testid="button-footer-contact"
             >
               Contact
             </button>
             <Link
               href="/admin"
-              className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md min-h-[48px] flex items-center justify-center touch-manipulation"
+              className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
               data-testid="link-admin"
             >
               Admin

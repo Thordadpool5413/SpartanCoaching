@@ -490,7 +490,7 @@ export default function Programs() {
               <div className="flex gap-2 mt-4">
                 <Button
                   variant="outline"
-                  className="flex-1 font-bold touch-manipulation min-h-[48px]"
+                  className="flex-1 font-bold touch-manipulation"
                   data-testid={`button-learn-more-program-${idx}`}
                   onClick={() => handleLearnMore(program)}
                 >
@@ -500,7 +500,7 @@ export default function Programs() {
                 <Button
                   variant="default"
                   size="icon"
-                  className="touch-manipulation min-h-[48px] min-w-[48px]"
+                  className="touch-manipulation"
                   data-testid={`button-inquire-program-${idx}`}
                   onClick={() => {
                     setSelectedProgram(program.title);
@@ -551,7 +551,7 @@ export default function Programs() {
               <div className="flex gap-2 mt-4">
                 <Button
                   variant="outline"
-                  className="flex-1 font-bold touch-manipulation min-h-[48px]"
+                  className="flex-1 font-bold touch-manipulation"
                   data-testid={`button-learn-more-strategic-${idx}`}
                   onClick={() => handleLearnMore(service)}
                 >
@@ -561,7 +561,7 @@ export default function Programs() {
                 <Button
                   variant="default"
                   size="icon"
-                  className="touch-manipulation min-h-[48px] min-w-[48px]"
+                  className="touch-manipulation"
                   data-testid={`button-inquire-strategic-${idx}`}
                   onClick={() => {
                     setSelectedProgram(service.title);
