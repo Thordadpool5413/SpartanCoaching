@@ -12,7 +12,7 @@ export default function Method() {
       color: "text-blue-600 dark:text-blue-400",
       bgColor: "bg-blue-50 dark:bg-blue-950/30",
       borderColor: "border-blue-200 dark:border-blue-800",
-      purpose: "Learn how care actually moves, quantify friction in the customer's numbers, and earn the next meeting.",
+      purpose: "Discovery is learning about the contact and their individual needs. This is where we identify what matters to them, what they need help with, and what they require in order to feel confident moving a patient toward hospice.",
       entry: "A qualified meeting with a stakeholder who can describe the flow of care.",
       standardWork: [
         "Set the aim for the engagement",
@@ -32,7 +32,7 @@ export default function Method() {
       color: "text-purple-600 dark:text-purple-400",
       bgColor: "bg-purple-50 dark:bg-purple-950/30",
       borderColor: "border-purple-200 dark:border-purple-800",
-      purpose: "Translate Discovery into two or three fit pillars with believable proof and a first test sketched in the customer's language.",
+      purpose: "Connecting happens after Discovery, once we have learned what the individual needs are. This is where we connect with the contact based on what they told us they need, and we align to how they want to work, communicate, and move decisions forward.",
       entry: "Discovery Brief accepted by the people who will own the work.",
       standardWork: [
         "Deliver a sixty-second recap of Discovery findings",
@@ -51,7 +51,7 @@ export default function Method() {
       color: "text-orange-600 dark:text-orange-400",
       bgColor: "bg-orange-50 dark:bg-orange-950/30",
       borderColor: "border-orange-200 dark:border-orange-800",
-      purpose: "Turn shared fit into a small plan that reduces risk and shows progress in the customer's numbers.",
+      purpose: "Guiding is using the solutions we have as a hospice provider to solve and improve the needs of the contact and the account. This is where we show how we support their goals, reduce friction, and make hospice easier to use for the right patients.",
       entry: "Fit Outline approved by the people who will own the work.",
       standardWork: [
         "Write a One Page Plan in the customer's language",
@@ -70,7 +70,7 @@ export default function Method() {
       color: "text-green-600 dark:text-green-400",
       bgColor: "bg-green-50 dark:bg-green-950/30",
       borderColor: "border-green-200 dark:border-green-800",
-      purpose: "Make momentum official while alignment is fresh.",
+      purpose: "Commitment is getting the contact and the account to commit to a patient referral. This is where the next step becomes clear action — who calls, when they call, what triggers the call, and what happens once the referral is made.",
       entry: "One Page Plan accepted and owners present.",
       standardWork: [
         "Restate the plan and privacy posture in plain language",
