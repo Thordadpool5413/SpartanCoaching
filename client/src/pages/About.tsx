@@ -23,7 +23,7 @@ export default function About() {
 
         {/* The Why Section - Core Message */}
         <div className="space-y-8 md:space-y-12 lg:space-y-16">
-          <Card className="spacing-card bg-gradient-to-br from-primary/5 to-destructive/5 card-lift border-2 shadow-lg">
+          <Card className="spacing-card bg-gradient-to-br from-primary/5 to-destructive/5 card-lift border-2">
             <div className="space-y-6 text-body-lg leading-relaxed">
               <p className="text-foreground">
                 The promise is simple. When a person is eligible, they should receive expert, compassionate care without delay, and their family should feel supported at every step. That promise breaks when sales teams are left with vague goals, light coaching, and a calendar full of activity that does not move referrals.
@@ -42,13 +42,13 @@ export default function About() {
         </div>
 
         {/* The Stakes */}
-        <div className="space-y-8 md:space-y-12 lg:space-y-16 text-[40px]">
-          <h2 className="text-foreground mt-[30px] mb-[30px] pt-[0px] pb-[0px] pl-[0px] pr-[0px]">The Stakes Are Real</h2>
+        <div className="space-y-8 md:space-y-12 lg:space-y-16">
+          <h2 className="text-h2 text-foreground mt-12 mb-8">The Stakes Are Real</h2>
           <div className="grid md:grid-cols-3 gap-cards">
-            <Card className="border-2 group relative card-lift text-center spacing-card shadow-lg" data-testid="card-stakes-teams">
+            <Card className="border-2 group relative card-lift text-center spacing-card" data-testid="card-stakes-teams">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
-                <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:glow-primary transition-all duration-300">
+                <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg group-hover:scale-105 group-hover:glow-primary transition-all duration-300">
                   <Target className="w-7 h-7 text-white" />
                 </div>
                 <h3 className="text-h3 font-bold text-foreground mb-3">For Teams</h3>
@@ -58,10 +58,10 @@ export default function About() {
               </div>
             </Card>
 
-            <Card className="border-2 group relative card-lift text-center spacing-card shadow-lg" data-testid="card-stakes-reps">
+            <Card className="border-2 group relative card-lift text-center spacing-card" data-testid="card-stakes-reps">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
-                <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:glow-primary transition-all duration-300">
+                <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg group-hover:scale-105 group-hover:glow-primary transition-all duration-300">
                   <Users className="w-7 h-7 text-white" />
                 </div>
                 <h3 className="text-h3 font-bold text-foreground mb-3">For Reps</h3>
@@ -71,10 +71,10 @@ export default function About() {
               </div>
             </Card>
 
-            <Card className="border-2 group relative card-lift text-center spacing-card shadow-lg" data-testid="card-stakes-orgs">
+            <Card className="border-2 group relative card-lift text-center spacing-card" data-testid="card-stakes-orgs">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
-                <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:glow-primary transition-all duration-300">
+                <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg group-hover:scale-105 group-hover:glow-primary transition-all duration-300">
                   <TrendingUp className="w-7 h-7 text-white" />
                 </div>
                 <h3 className="text-h3 font-bold text-foreground mb-3">For Organizations</h3>
@@ -88,7 +88,7 @@ export default function About() {
 
         {/* What We Built */}
         <div className="space-y-8 md:space-y-12 lg:space-y-16">
-          <Card className="spacing-card mt-[45px] mb-[45px]">
+          <Card className="spacing-card mt-16 mb-16">
             <h2 className="text-h2 text-foreground mb-6">Foundation of Spartan Coaching</h2>
             <div className="space-y-4 text-base leading-relaxed text-muted-foreground">
               <p>Spartan Coaching was built because hospice deserves better than motivational posters and one-time pep talks. People need a system they can run on Tuesday afternoon when a clinic is short-staffed, the hospitalist is behind, and the family is scared.</p>
@@ -111,7 +111,7 @@ export default function About() {
           
           <div className="grid md:grid-cols-3 gap-8 mb-12">
             <div className="md:col-span-1">
-              <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-destructive/20 flex items-center justify-center p-6 pt-[45px] pb-[45px]">
+              <div className="aspect-square rounded-2xl bg-gradient-to-br from-primary/20 to-destructive/20 flex items-center justify-center p-6">
                 <div className="text-center">
                   <div className="w-40 h-40 mx-auto overflow-hidden mb-4 border-4 border-card shadow-xl" style={{ borderRadius: '9999px' }}>
                     <img 
@@ -137,8 +137,8 @@ export default function About() {
             </div>
           </div>
 
-          <div className="grid gap-4 mt-[55px] mb-[55px]">
-            <Card className="border-2 group relative card-lift spacing-card shadow-lg" data-testid="card-experience-field">
+          <div className="grid gap-4 mt-16 mb-16">
+            <Card className="border-2 group relative card-lift spacing-card" data-testid="card-experience-field">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
                 <h3 className="text-h3 font-bold text-primary mb-3">Field Leadership</h3>
@@ -148,7 +148,7 @@ export default function About() {
               </div>
             </Card>
 
-            <Card className="border-2 group relative card-lift spacing-card shadow-lg" data-testid="card-experience-operations">
+            <Card className="border-2 group relative card-lift spacing-card" data-testid="card-experience-operations">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
                 <h3 className="text-h3 font-bold text-primary mb-3">Operational Excellence</h3>
@@ -158,7 +158,7 @@ export default function About() {
               </div>
             </Card>
 
-            <Card className="border-2 group relative card-lift spacing-card shadow-lg" data-testid="card-experience-coaching">
+            <Card className="border-2 group relative card-lift spacing-card" data-testid="card-experience-coaching">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
                 <h3 className="text-h3 font-bold text-primary mb-3">Practical Coaching</h3>
@@ -171,7 +171,7 @@ export default function About() {
 
           {/* LinkedIn Connect Section */}
           <div className="mt-8 text-center">
-            <Card className="spacing-card bg-gradient-to-br from-primary/5 to-primary/10 card-lift border-2 shadow-lg">
+            <Card className="spacing-card bg-gradient-to-br from-primary/5 to-primary/10 card-lift border-2">
               <p className="text-muted-foreground mb-4 font-bold">
                 Learn more about Nick's professional background and experience
               </p>
@@ -195,7 +195,7 @@ export default function About() {
         </div>
 
         {/* CTA */}
-        <div className="bg-gradient-to-br from-primary/10 to-destructive/10 rounded-2xl p-8 md:p-12 text-center pt-[45px] pb-[45px] pl-[48px] pr-[48px] mt-[45px] mb-[45px]">
+        <div className="bg-gradient-to-br from-primary/10 to-destructive/10 rounded-2xl p-8 md:p-12 text-center mt-16">
           <h2 className="text-h2 font-bold text-foreground mb-4">
             Let's Work Together
           </h2>

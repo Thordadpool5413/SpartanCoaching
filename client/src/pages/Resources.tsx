@@ -33,14 +33,14 @@ export default function Resources() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+    <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
       <SEO />
       <BackButton />
       <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
-        <h1 className="text-5xl font-black text-foreground mb-6" data-testid="text-resources-title">
+        <h1 className="text-h1 text-foreground mb-6" data-testid="text-resources-title">
           Training Resources Library
         </h1>
-        <p className="text-xl text-muted-foreground leading-relaxed">
+        <p className="text-body-lg text-muted-foreground leading-relaxed">
           Download field-tested templates, scripts, checklists, and guides to elevate your hospice sales performance.
         </p>
       </div>
@@ -65,7 +65,7 @@ export default function Resources() {
         <div className="space-y-12">
           {Object.entries(groupedResources).map(([category, categoryResources]) => (
             <div key={category} data-testid={`category-${category}`}>
-              <h2 className="text-3xl font-bold mb-6 flex items-center gap-3">
+              <h2 className="text-h2 mb-6 flex items-center gap-3">
                 {categoryNames[category] || category}
                 <Badge variant="secondary" className="text-sm">
                   {categoryResources.length}

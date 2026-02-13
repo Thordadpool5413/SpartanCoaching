@@ -80,7 +80,7 @@ export default function Articles() {
             {featuredArticles.map((article) => (
               <Card 
                 key={article.id} 
-                className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card"
+                className="flex flex-col hover-elevate border-2 group relative spacing-card"
                 data-testid={`card-featured-article-${article.id}`}
               >
                 <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -153,7 +153,7 @@ export default function Articles() {
             {regularArticles.map((article) => (
               <Card 
                 key={article.id} 
-                className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card"
+                className="flex flex-col hover-elevate border-2 group relative spacing-card"
                 data-testid={`card-article-${article.id}`}
               >
                 <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>

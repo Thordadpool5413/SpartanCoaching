@@ -130,7 +130,7 @@ export default function Method() {
 
       <div className="max-w-5xl mx-auto space-y-8 md:space-y-12 lg:space-y-16">
         {/* Mission */}
-        <Card className="relative overflow-hidden border-2 shadow-2xl spacing-card">
+        <Card className="relative border-2 shadow-lg spacing-card">
           <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent"></div>
           <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/5 rounded-full blur-3xl"></div>
           <div className="relative">

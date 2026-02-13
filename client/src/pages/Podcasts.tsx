@@ -14,17 +14,17 @@ export default function Podcasts() {
   const podcasts = data?.podcasts || [];
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
       <SEO />
       <div className="mb-8">
         <BackButton />
       </div>
 
       <div className="mb-12 text-center">
-        <h1 className="text-5xl font-black mb-4" data-testid="text-podcasts-title">
+        <h1 className="text-h1 mb-4" data-testid="text-podcasts-title">
           Coaching Podcasts
         </h1>
-        <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+        <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto">
           Listen to expert insights, strategies, and real-world advice to elevate your hospice sales performance
         </p>
       </div>

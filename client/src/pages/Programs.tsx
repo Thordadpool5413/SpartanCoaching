@@ -466,7 +466,7 @@ export default function Programs() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards gap-sections">
         {hospicePrograms.map((program, idx) => (
-          <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card" data-testid={`card-program-${idx}`}>
+          <Card key={idx} className="flex flex-col hover-elevate border-2 group relative spacing-card" data-testid={`card-program-${idx}`}>
             <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity" />
             <div className="relative flex-1">
               <h3 className="text-h3 font-bold text-foreground mb-3">{program.title}</h3>
@@ -517,7 +517,7 @@ export default function Programs() {
       {/* Strategic Services */}
       <div className="space-y-8 md:space-y-12 lg:space-y-16">
         <div className="text-center max-w-3xl mx-auto mb-12">
-          <h2 className="text-foreground pt-[0px] pb-[0px] mt-[45px] mb-[45px] text-[40px]">
+          <h2 className="text-foreground mt-16 mb-8 text-h2">
             Strategic Services
           </h2>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
@@ -526,7 +526,7 @@ export default function Programs() {
         </div>
         <div className="grid md:grid-cols-2 gap-cards">
           {strategicServices.map((service, idx) => (
-            <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card" data-testid={`card-strategic-${idx}`}>
+            <Card key={idx} className="flex flex-col hover-elevate border-2 group relative spacing-card" data-testid={`card-strategic-${idx}`}>
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div className="flex-1">
                 <h3 className="text-h3 font-bold text-foreground mb-3">{service.title}</h3>

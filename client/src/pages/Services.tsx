@@ -231,7 +231,7 @@ export default function Services() {
       </div>
       {/* Sales Leadership Section */}
       <div className="space-y-8 md:space-y-12 lg:space-y-16">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mt-[30px] mb-[30px] pt-[0px] pb-[0px]">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mt-16 mb-10">
           <div className="w-16 h-16 rounded-2xl bg-spartan-gradient flex items-center justify-center shadow-2xl flex-shrink-0">
             <Users className="w-8 h-8 text-white" />
           </div>
@@ -298,7 +298,7 @@ export default function Services() {
       </div>
       {/* Corporate Providers Section */}
       <div className="space-y-8 md:space-y-12 lg:space-y-16">
-        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mt-[30px] mb-[30px]">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mt-16 mb-10">
           <div className="w-16 h-16 rounded-2xl bg-spartan-gradient flex items-center justify-center shadow-2xl flex-shrink-0">
             <Building2 className="w-8 h-8 text-white" />
           </div>
@@ -364,7 +364,7 @@ export default function Services() {
         </div>
       </div>
       {/* CTA Section */}
-      <div className="relative bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent rounded-3xl p-8 sm:p-10 md:p-12 text-center overflow-hidden border-2 border-red-500/20 shadow-lg mt-[45px] mb-[45px]">
+      <div className="relative bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent rounded-3xl p-8 sm:p-10 md:p-12 text-center overflow-hidden border-2 border-red-500/20 shadow-lg mt-16">
         <div className="absolute top-0 right-0 w-48 h-48 bg-red-500/10 rounded-full blur-3xl"></div>
         <div className="absolute bottom-0 left-0 w-48 h-48 bg-red-500/5 rounded-full blur-3xl"></div>
         <div className="relative">

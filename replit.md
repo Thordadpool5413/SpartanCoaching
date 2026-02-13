@@ -72,7 +72,7 @@ The platform employs a premium SaaS aesthetic with a sophisticated visual design
 - **Real Case Studies**: SNF transformation (300% referral increase), Hospital discharge optimization (84% on-time)
 - **Visual Decision Trees**: Objection handling, referral identification, account strategy matrices for rapid field decisions
 - **Professional PDF Format**: All resources are print-ready, branded PDFs (37.8 KB total, 9 files)
-- **Database-Backed**: All resources searchable and manageable via admin panel (password: 5413)
+- **Database-Backed**: All resources searchable and manageable via admin panel
 
 ### Phase 1 Completion Status ✅ COMPLETE
 ✅ Replit Auth integration (Google, GitHub, email/password)

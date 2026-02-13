@@ -102,7 +102,7 @@ export default function Testimonials() {
 
         <div className="grid md:grid-cols-3 gap-cards">
           {testimonials.map((testimonial, idx) => (
-            <Card key={idx} className="flex flex-col hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card" data-testid={`card-testimonial-${idx}`}>
+            <Card key={idx} className="flex flex-col hover-elevate transition-elegant border-2 group relative spacing-card" data-testid={`card-testimonial-${idx}`}>
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div className="flex-1 relative">
                 <div className="mb-4">
@@ -125,22 +125,17 @@ export default function Testimonials() {
           ))}
         </div>
 
-        <div className="mt-8 text-center">
-          <p className="text-sm text-muted-foreground italic">
-            Client testimonials will be added as engagements are completed. Privacy and confidentiality always respected.
-          </p>
-        </div>
       </div>
       {/* Case Studies Section */}
       <div className="space-y-8 md:space-y-12 lg:space-y-16">
-        <div className="flex items-center gap-3 pt-[0px] pb-[0px] mt-[35px] mb-[35px]">
+        <div className="flex items-center gap-3 mt-12 mb-8">
           <Award className="w-8 h-8 text-primary" />
           <h2 className="text-h2 text-foreground">Case Studies</h2>
         </div>
 
         <div className="gap-cards">
           {caseStudies.map((study, idx) => (
-            <Card key={idx} className="hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card" data-testid={`card-case-study-${idx}`}>
+            <Card key={idx} className="hover-elevate transition-elegant border-2 group relative spacing-card" data-testid={`card-case-study-${idx}`}>
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
               <div className="relative">
                 <div className="grid md:grid-cols-3 gap-8">
@@ -181,15 +176,10 @@ export default function Testimonials() {
           ))}
         </div>
 
-        <div className="mt-8 text-center">
-          <p className="text-sm text-muted-foreground italic">
-            Detailed case studies will be published with client permission. All metrics are verifiable and outcomes are sustainable.
-          </p>
-        </div>
       </div>
       {/* Categories Explanation */}
       <div className="grid md:grid-cols-3 gap-cards mb-12">
-        <Card className="text-center hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card">
+        <Card className="text-center hover-elevate transition-elegant border-2 group relative spacing-card">
           <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <div className="relative">
             <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-spartan-gradient flex items-center justify-center">
@@ -202,7 +192,7 @@ export default function Testimonials() {
           </div>
         </Card>
 
-        <Card className="text-center hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card">
+        <Card className="text-center hover-elevate transition-elegant border-2 group relative spacing-card">
           <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <div className="relative">
             <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-spartan-gradient flex items-center justify-center">
@@ -215,7 +205,7 @@ export default function Testimonials() {
           </div>
         </Card>
 
-        <Card className="text-center hover:shadow-2xl transition-elegant border-2 group relative overflow-hidden spacing-card">
+        <Card className="text-center hover-elevate transition-elegant border-2 group relative spacing-card">
           <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
           <div className="relative">
             <div className="w-12 h-12 mx-auto mb-4 rounded-full bg-spartan-gradient flex items-center justify-center">
@@ -238,7 +228,7 @@ export default function Testimonials() {
         </p>
         <Button
           onClick={() => setContactFormOpen(true)}
-          className="bg-primary text-primary-foreground font-bold px-8 py-4 rounded-lg hover-elevate transition-all"
+          className="font-bold px-8 py-4 rounded-lg transition-all"
           data-testid="button-contact"
         >
           Schedule a Consultation
