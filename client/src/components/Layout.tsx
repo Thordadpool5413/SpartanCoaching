@@ -51,7 +51,7 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
         "px-3 py-2 rounded-lg text-sm font-medium transition-colors hover-elevate block whitespace-nowrap",
         isActive
           ? "bg-primary text-primary-foreground"
-          : "text-foreground hover:bg-accent"
+          : "text-foreground"
       )}
     >
       {children}
@@ -203,6 +203,7 @@ export function Header() {
             { path: "/tools/role-play", label: "Role-Play Practice", description: "Practice with AI" },
           ]} />
           <NavDropdown label="Learn" dataTestId="dropdown-learn" items={[
+            { path: "/dashboard", label: "My Dashboard", description: "Your progress and activity" },
             { path: "/resources", label: "Training Resources", description: "Templates and guides" },
             { path: "/drills", label: "Daily Drills", description: "Daily coaching exercises" },
             { path: "/podcasts", label: "Podcasts", description: "Expert insights" },
@@ -308,6 +309,7 @@ export function Header() {
                 <span className="px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Learn</span>
               </div>
               {[
+                { path: "/dashboard", label: "My Dashboard" },
                 { path: "/resources", label: "Training Resources" },
                 { path: "/drills", label: "Daily Drills" },
                 { path: "/podcasts", label: "Podcasts" },
@@ -347,7 +349,7 @@ export function Header() {
                 About
               </Link>
 
-              <div className="pt-4 flex items-center justify-between border-t border-border mt-4">
+              <div className="pt-4 flex items-center justify-between gap-2 border-t border-border mt-4">
                 <span className="text-sm text-muted-foreground px-4">Theme</span>
                 <Button
                   onClick={toggleTheme}

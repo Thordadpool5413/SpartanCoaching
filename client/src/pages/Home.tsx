@@ -1,34 +1,15 @@
 import { Link } from "wouter";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { DisciplineIcon, EmpathyIcon, StrategyIcon } from "@/components/icons";
 import { Shield, Heart, Zap, Target, Users, BookOpen, ArrowRight, Sparkles, TrendingUp, Award, Clock } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { SEO } from "@/components/SEO";
+import { AnimatedCounter, FadeIn, SlideUp, StaggerContainer, StaggerItem } from "@/components/animations";
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
-  const [statsVisible, setStatsVisible] = useState(false);
-  const statsRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setStatsVisible(true);
-          observer.unobserve(entry.target);
-        }
-      },
-      { threshold: 0.1 }
-    );
-
-    if (statsRef.current) {
-      observer.observe(statsRef.current);
-    }
-
-    return () => observer.disconnect();
-  }, []);
 
   useEffect(() => {
     let attemptPlayHandler: (() => Promise<void>) | null = null;
@@ -178,86 +159,78 @@ export default function Home() {
         
         <div className="relative max-w-7xl mx-auto spacing-container">
           {/* Statistics Grid */}
-          <div ref={statsRef} className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-16 sm:mb-20">
-            {/* Referral Increase */}
-            <div 
-              data-testid="stat-referral-increase"
-              className={`text-center p-6 sm:p-8 rounded-lg transition-all duration-700 ${
-                statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-              }`}
-              style={{ transitionDelay: statsVisible ? '0ms' : '0ms' }}
-            >
-              <div className="flex justify-center mb-4 sm:mb-5">
-                <TrendingUp className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
+          <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-16 sm:mb-20">
+            <StaggerItem>
+              <div 
+                data-testid="stat-referral-increase"
+                className="text-center p-6 sm:p-8 rounded-lg"
+              >
+                <div className="flex justify-center mb-4 sm:mb-5">
+                  <TrendingUp className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
+                </div>
+                <div className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent mb-2">
+                  <AnimatedCounter target={300} suffix="%" />
+                </div>
+                <div className="text-sm sm:text-base text-muted-foreground font-medium">
+                  Referral Increase
+                </div>
               </div>
-              <div className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent mb-2">
-                300%
-              </div>
-              <div className="text-sm sm:text-base text-muted-foreground font-medium">
-                Referral Increase
-              </div>
-            </div>
+            </StaggerItem>
 
-            {/* On-Time Discharge Rate */}
-            <div 
-              data-testid="stat-discharge-rate"
-              className={`text-center p-6 sm:p-8 rounded-lg transition-all duration-700 ${
-                statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-              }`}
-              style={{ transitionDelay: statsVisible ? '100ms' : '0ms' }}
-            >
-              <div className="flex justify-center mb-4 sm:mb-5">
-                <Award className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
+            <StaggerItem>
+              <div 
+                data-testid="stat-discharge-rate"
+                className="text-center p-6 sm:p-8 rounded-lg"
+              >
+                <div className="flex justify-center mb-4 sm:mb-5">
+                  <Award className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
+                </div>
+                <div className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent mb-2">
+                  <AnimatedCounter target={84} suffix="%" />
+                </div>
+                <div className="text-sm sm:text-base text-muted-foreground font-medium">
+                  On-Time Discharge Rate
+                </div>
               </div>
-              <div className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent mb-2">
-                84%
-              </div>
-              <div className="text-sm sm:text-base text-muted-foreground font-medium">
-                On-Time Discharge Rate
-              </div>
-            </div>
+            </StaggerItem>
 
-            {/* Reps Trained */}
-            <div 
-              data-testid="stat-reps-trained"
-              className={`text-center p-6 sm:p-8 rounded-lg transition-all duration-700 ${
-                statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-              }`}
-              style={{ transitionDelay: statsVisible ? '200ms' : '0ms' }}
-            >
-              <div className="flex justify-center mb-4 sm:mb-5">
-                <Users className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
+            <StaggerItem>
+              <div 
+                data-testid="stat-reps-trained"
+                className="text-center p-6 sm:p-8 rounded-lg"
+              >
+                <div className="flex justify-center mb-4 sm:mb-5">
+                  <Users className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
+                </div>
+                <div className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent mb-2">
+                  <AnimatedCounter target={500} suffix="+" />
+                </div>
+                <div className="text-sm sm:text-base text-muted-foreground font-medium">
+                  Reps Trained
+                </div>
               </div>
-              <div className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent mb-2">
-                500+
-              </div>
-              <div className="text-sm sm:text-base text-muted-foreground font-medium">
-                Reps Trained
-              </div>
-            </div>
+            </StaggerItem>
 
-            {/* Years Experience */}
-            <div 
-              data-testid="stat-years-experience"
-              className={`text-center p-6 sm:p-8 rounded-lg transition-all duration-700 ${
-                statsVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'
-              }`}
-              style={{ transitionDelay: statsVisible ? '300ms' : '0ms' }}
-            >
-              <div className="flex justify-center mb-4 sm:mb-5">
-                <Clock className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
+            <StaggerItem>
+              <div 
+                data-testid="stat-years-experience"
+                className="text-center p-6 sm:p-8 rounded-lg"
+              >
+                <div className="flex justify-center mb-4 sm:mb-5">
+                  <Clock className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
+                </div>
+                <div className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent mb-2">
+                  <AnimatedCounter target={15} suffix="+" />
+                </div>
+                <div className="text-sm sm:text-base text-muted-foreground font-medium">
+                  Years Experience
+                </div>
               </div>
-              <div className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent mb-2">
-                15+
-              </div>
-              <div className="text-sm sm:text-base text-muted-foreground font-medium">
-                Years Experience
-              </div>
-            </div>
-          </div>
+            </StaggerItem>
+          </StaggerContainer>
 
           {/* Testimonial Quote */}
-          <div className="max-w-3xl mx-auto">
+          <SlideUp className="max-w-3xl mx-auto">
             <Card className="border-2 spacing-card shadow-lg relative overflow-hidden group">
               <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
               <CardContent className="relative pt-8 sm:pt-10 px-6 sm:px-8 pb-8 sm:pb-10">
@@ -277,22 +250,25 @@ export default function Home() {
                 </div>
               </CardContent>
             </Card>
-          </div>
+          </SlideUp>
         </div>
       </section>
 
       {/* Value Pillars - Enhanced with better visuals */}
       <section className="max-w-7xl mx-auto spacing-container spacing-section">
-        <div className="text-center mb-16 sm:mb-20">
-          <h2 className="text-h2 text-gradient-elegant mb-6">
-            The Three Pillars
-          </h2>
-          <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto">
-            The foundation of the Spartan Method—where philosophy meets practice
-          </p>
-        </div>
+        <FadeIn>
+          <div className="text-center mb-16 sm:mb-20">
+            <h2 className="text-h2 text-gradient-elegant mb-6">
+              The Three Pillars
+            </h2>
+            <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto">
+              The foundation of the Spartan Method—where philosophy meets practice
+            </p>
+          </div>
+        </FadeIn>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-cards">
+        <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-cards">
+          <StaggerItem>
           <Card className="text-center card-lift border-2 group cursor-pointer relative spacing-card shadow-lg" data-testid="card-pillar-discipline">
             <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
             <div className="absolute inset-0 bg-spartan-gradient-radial opacity-0 group-hover:opacity-30 transition-all duration-500"></div>
@@ -306,7 +282,9 @@ export default function Home() {
               </p>
             </div>
           </Card>
+          </StaggerItem>
 
+          <StaggerItem>
           <Card className="text-center card-lift border-2 group cursor-pointer relative spacing-card shadow-lg sm:col-span-2 md:col-span-1" data-testid="card-pillar-empathy">
             <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
             <div className="absolute inset-0 bg-spartan-gradient-radial opacity-0 group-hover:opacity-30 transition-all duration-500"></div>
@@ -320,7 +298,9 @@ export default function Home() {
               </p>
             </div>
           </Card>
+          </StaggerItem>
 
+          <StaggerItem>
           <Card className="text-center card-lift border-2 group cursor-pointer relative spacing-card shadow-lg sm:col-span-2 md:col-span-1" data-testid="card-pillar-strategy">
             <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
             <div className="absolute inset-0 bg-spartan-gradient-radial opacity-0 group-hover:opacity-30 transition-all duration-500"></div>
@@ -334,23 +314,27 @@ export default function Home() {
               </p>
             </div>
           </Card>
-        </div>
+          </StaggerItem>
+        </StaggerContainer>
       </section>
       {/* Services Preview - Enhanced engagement */}
       <section className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-black dark:to-gray-950 spacing-section">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(239,68,68,0.03),transparent_70%)]"></div>
 
         <div className="relative max-w-7xl mx-auto spacing-container">
-          <div className="text-center mb-16 sm:mb-20">
-            <h2 className="text-h2 text-gradient-elegant mb-6">
-              Transform Your Career
-            </h2>
-            <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto">
-              Choose the path that fits your goals—from one-on-one coaching to comprehensive training
-            </p>
-          </div>
+          <FadeIn>
+            <div className="text-center mb-16 sm:mb-20">
+              <h2 className="text-h2 text-gradient-elegant mb-6">
+                Transform Your Career
+              </h2>
+              <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto">
+                Choose the path that fits your goals—from one-on-one coaching to comprehensive training
+              </p>
+            </div>
+          </FadeIn>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-cards max-w-5xl mx-auto">
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-cards max-w-5xl mx-auto">
+            <StaggerItem>
             <Card className="card-lift border-2 group relative spacing-card shadow-lg flex flex-col" data-testid="card-services-preview">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="absolute top-0 right-0 w-48 h-48 bg-red-500/5 rounded-full blur-3xl"></div>
@@ -373,7 +357,9 @@ export default function Home() {
                 </Button>
               </div>
             </Card>
+            </StaggerItem>
 
+            <StaggerItem>
             <Card className="card-lift border-2 group relative spacing-card shadow-lg flex flex-col" data-testid="card-programs-preview">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="absolute top-0 right-0 w-48 h-48 bg-red-500/5 rounded-full blur-3xl"></div>
@@ -396,21 +382,25 @@ export default function Home() {
                 </Button>
               </div>
             </Card>
-          </div>
+            </StaggerItem>
+          </StaggerContainer>
         </div>
       </section>
       {/* Philosophy Section - Enhanced */}
       <section className="relative bg-gradient-to-br from-accent/40 via-accent/20 to-accent/40 spacing-section">
         <div className="w-full max-w-7xl mx-auto spacing-container">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <p className="text-lg font-semibold text-primary mb-3" data-testid="text-philosophy-label">Our Philosophy</p>
-            <h2 className="text-h2 text-foreground mb-6">
-              The Path to Mastery in Hospice Sales
-            </h2>
-            <p className="text-body-lg text-muted-foreground">Success isn't measured in total referrals. It's about opening doors to comfort, dignity, and peace. This requires more than sales tactics; it demands a disciplined mindset.</p>
-          </div>
+          <FadeIn>
+            <div className="text-center max-w-3xl mx-auto mb-16">
+              <p className="text-lg font-semibold text-primary mb-3" data-testid="text-philosophy-label">Our Philosophy</p>
+              <h2 className="text-h2 text-foreground mb-6">
+                The Path to Mastery in Hospice Sales
+              </h2>
+              <p className="text-body-lg text-muted-foreground">Success isn't measured in total referrals. It's about opening doors to comfort, dignity, and peace. This requires more than sales tactics; it demands a disciplined mindset.</p>
+            </div>
+          </FadeIn>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-sections">
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-sections">
+            <StaggerItem>
             <div className="text-center group">
               <div className="flex justify-center mb-6" data-testid="icon-discipline">
                 <div className="p-4 bg-primary/10 rounded-2xl group-hover:bg-primary/20 transition-colors">
@@ -422,7 +412,9 @@ export default function Home() {
                 Mastery demands structure. We provide a proven framework for everything from territory planning to handling complex objections, enabling consistent, high-impact performance.
               </p>
             </div>
+            </StaggerItem>
 
+            <StaggerItem>
             <div className="text-center group">
               <div className="flex justify-center mb-6" data-testid="icon-empathy">
                 <div className="p-4 bg-primary/10 rounded-2xl group-hover:bg-primary/20 transition-colors">
@@ -434,7 +426,9 @@ export default function Home() {
                 Connect on a human level. We teach you to listen with intent, understand the unspoken needs of providers and families, and build trust that transcends the sale.
               </p>
             </div>
+            </StaggerItem>
 
+            <StaggerItem>
             <div className="text-center group">
               <div className="flex justify-center mb-6" data-testid="icon-strategy">
                 <div className="p-4 bg-primary/10 rounded-2xl group-hover:bg-primary/20 transition-colors">
@@ -446,8 +440,10 @@ export default function Home() {
                 Act with purpose. Leverage data, market insights, and AI-powered tools to identify the right partners and focus your energy where it matters most: on the patients who need you.
               </p>
             </div>
-          </div>
+            </StaggerItem>
+          </StaggerContainer>
 
+          <FadeIn>
           <div className="mt-16 text-center px-4">
             <Button asChild variant="outline" size="lg" className="font-bold text-base sm:text-lg px-6 sm:px-8 py-3 group whitespace-normal sm:whitespace-nowrap touch-manipulation">
               <Link href="/method" data-testid="button-learn-more-method">
@@ -456,6 +452,7 @@ export default function Home() {
               </Link>
             </Button>
           </div>
+          </FadeIn>
         </div>
       </section>
       {/* Newsletter Section - Enhanced */}
@@ -463,6 +460,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_50%)]"></div>
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(255,255,255,0.05),transparent_50%)]"></div>
 
+        <FadeIn>
         <div className="relative max-w-4xl mx-auto spacing-container text-center">
           <h2 className="text-h2 mb-6">
             Weekly Coaching Tips
@@ -474,6 +472,7 @@ export default function Home() {
             <NewsletterSignup />
           </div>
         </div>
+        </FadeIn>
       </section>
     </div>
   );

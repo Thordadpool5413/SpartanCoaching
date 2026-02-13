@@ -43,4 +43,16 @@ The platform features a premium SaaS aesthetic with a sophisticated visual desig
 - **PDF Generation**: PDFKit for creating branded training materials.
 - **Authentication**: Replit Auth with OpenID Connect via `openid-client`, session management via `express-session` and `connect-pg-simple`.
 - **File Uploads**: Uppy v5 (`@uppy/core`, `@uppy/dashboard`, `@uppy/aws-s3`, `@uppy/react`) for client-side file uploads.
+- **Animations**: Framer Motion for scroll-triggered animations, animated counters, progress rings, and page transitions.
 - **UI Libraries**: Radix UI primitives, Lucide React for iconography, cmdk for command palette, and date-fns for date manipulation.
+
+## Enhanced UX Features (February 2026)
+
+- **Scroll Animations**: All pages use framer-motion based scroll-reveal animations (FadeIn, SlideUp, StaggerContainer/StaggerItem, ScaleIn) via `@/components/animations.tsx`
+- **Personal Dashboard** (`/dashboard`): Progress overview with animated counters, progress rings (weekly/monthly goals), recent activity feed, and quick action links
+- **Enhanced Role-Play UI**: Avatar-based chat bubbles, animated typing indicator (3 bouncing dots), conversation header with live indicator, and animated radial score gauge in feedback view with color-coded ratings
+- **Enhanced Drills UI**: GitHub-style activity heatmap calendar (90 days), animated stats row (streak, total, weekly), AnimatePresence transitions for completion flow, motivational quote footer
+- **Command Palette**: Ctrl+K / Cmd+K global keyboard shortcut for quick navigation across all pages and tools, using cmdk library
+- **Animated Homepage Stats**: Stats count up from zero when scrolled into view using AnimatedCounter
+- **Tools Page Search**: Real-time search/filter bar with category badges and staggered card entrance animations
+- **Navigation**: Dashboard accessible via "Learn" dropdown and mobile menu

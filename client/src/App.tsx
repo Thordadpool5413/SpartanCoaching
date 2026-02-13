@@ -6,6 +6,7 @@ import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header, Footer } from "@/components/Layout";
+import { CommandPalette } from "@/components/CommandPalette";
 
 const ChatWidget = lazy(() => import("@/components/ChatWidget").then(m => ({ default: m.ChatWidget })));
 const StickyBookCall = lazy(() => import("@/components/StickyBookCall").then(m => ({ default: m.StickyBookCall })));
@@ -35,6 +36,7 @@ const Articles = lazy(() => import("@/pages/Articles"));
 const Podcasts = lazy(() => import("@/pages/Podcasts"));
 const RolePlay = lazy(() => import("@/pages/RolePlay"));
 const Drills = lazy(() => import("@/pages/Drills"));
+const Dashboard = lazy(() => import("@/pages/Dashboard"));
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -102,6 +104,7 @@ function Router() {
           <Route path="/tools/email-templates" component={EmailTemplates} />
           <Route path="/tools/role-play" component={RolePlay} />
           <Route path="/drills" component={Drills} />
+          <Route path="/dashboard" component={Dashboard} />
           <Route path="/resources" component={Resources} />
           <Route path="/admin" component={Admin} />
           <Route path="/resources/weekly-plan" component={WeeklyPlan} />
@@ -136,6 +139,7 @@ function App() {
             <ChatWidget />
             <StickyBookCall />
             <PWAInstallPrompt />
+            <CommandPalette />
           </Suspense>
           <Toaster />
         </TooltipProvider>
