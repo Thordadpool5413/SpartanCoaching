@@ -19,7 +19,7 @@ import {
   FileText,
   Headphones,
   FolderOpen,
-  LayoutDashboard,
+
   Lightbulb,
   MessageCircle,
   Search,
@@ -42,7 +42,7 @@ const commandItems = [
       { title: "Articles", path: "/articles", icon: FileText },
       { title: "Podcasts", path: "/podcasts", icon: Headphones },
       { title: "Resources", path: "/resources", icon: FolderOpen },
-      { title: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+
     ],
   },
   {

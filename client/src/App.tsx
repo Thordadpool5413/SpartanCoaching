@@ -36,7 +36,7 @@ const Articles = lazy(() => import("@/pages/Articles"));
 const Podcasts = lazy(() => import("@/pages/Podcasts"));
 const RolePlay = lazy(() => import("@/pages/RolePlay"));
 const Drills = lazy(() => import("@/pages/Drills"));
-const Dashboard = lazy(() => import("@/pages/Dashboard"));
+
 
 function ScrollToTop() {
   const [location] = useLocation();
@@ -104,7 +104,7 @@ function Router() {
           <Route path="/tools/email-templates" component={EmailTemplates} />
           <Route path="/tools/role-play" component={RolePlay} />
           <Route path="/drills" component={Drills} />
-          <Route path="/dashboard" component={Dashboard} />
+
           <Route path="/resources" component={Resources} />
           <Route path="/admin" component={Admin} />
           <Route path="/resources/weekly-plan" component={WeeklyPlan} />

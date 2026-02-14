@@ -203,7 +203,7 @@ export function Header() {
             { path: "/tools/role-play", label: "Role-Play Practice", description: "Practice with AI" },
           ]} />
           <NavDropdown label="Learn" dataTestId="dropdown-learn" items={[
-            { path: "/dashboard", label: "My Dashboard", description: "Your progress and activity" },
+
             { path: "/resources", label: "Training Resources", description: "Templates and guides" },
             { path: "/drills", label: "Daily Drills", description: "Daily coaching exercises" },
             { path: "/podcasts", label: "Podcasts", description: "Expert insights" },
@@ -309,7 +309,7 @@ export function Header() {
                 <span className="px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Learn</span>
               </div>
               {[
-                { path: "/dashboard", label: "My Dashboard" },
+
                 { path: "/resources", label: "Training Resources" },
                 { path: "/drills", label: "Daily Drills" },
                 { path: "/podcasts", label: "Podcasts" },
