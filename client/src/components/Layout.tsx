@@ -501,6 +501,14 @@ export function Footer() {
               >
                 Disclaimer
               </Link>
+              <Link
+                href="/baa"
+                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
+                data-testid="link-baa"
+                aria-label="HIPAA BAA"
+              >
+                HIPAA BAA
+              </Link>
               <button
                 onClick={() => setContactFormOpen(true)}
                 className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"

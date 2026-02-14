@@ -42,6 +42,7 @@ const FAQ = lazy(() => import("@/pages/FAQ"));
 const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
 const Disclaimer = lazy(() => import("@/pages/Disclaimer"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
+const HipaaBAA = lazy(() => import("@/pages/HipaaBAA"));
 
 
 function ScrollToTop() {
@@ -126,6 +127,7 @@ function Router() {
           <Route path="/terms" component={TermsOfService} />
           <Route path="/disclaimer" component={Disclaimer} />
           <Route path="/privacy" component={PrivacyPolicy} />
+          <Route path="/baa" component={HipaaBAA} />
           <Route path="/learn/knowledge-base" component={KnowledgeBase} />
           <Route path="/about" component={About} />
           <Route component={NotFound} />

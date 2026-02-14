@@ -146,6 +146,11 @@ const seoDefaults: Record<string, SEOConfig> = {
     description: 'Privacy Policy for Spartan Coaching. Learn how we collect, use, and protect your personal information on our hospice sales consulting platform.',
     keywords: 'privacy policy, data protection, Spartan Coaching privacy',
   },
+  '/baa': {
+    title: 'HIPAA Business Associate Agreement | Spartan Coaching',
+    description: 'Review our HIPAA Business Associate Agreement. Spartan Coaching safeguards Protected Health Information with full HIPAA and HITECH Act compliance.',
+    keywords: 'HIPAA BAA, business associate agreement, PHI protection, HIPAA compliance, hospice data security',
+  },
   '/learn/knowledge-base': {
     title: 'Hospice Knowledge Base | Spartan Coaching',
     description: 'The definitive reference for hospice terminology, regulations, eligibility criteria, clinical concepts, and sales terminology. Searchable glossary for hospice professionals.',
