@@ -193,7 +193,7 @@ export default function RolePlay() {
         </SlideUp>
         <SlideUp delay={0.1}>
           <p className="text-body-lg text-muted-foreground mb-10 leading-relaxed max-w-2xl" data-testid="text-roleplay-subtitle">
-            Sharpen your hospice sales skills by practicing realistic conversations with AI-powered characters. Choose a scenario below and start your practice session.
+            Sharpen your hospice sales skills by practicing realistic conversations in simulated scenarios. Choose a scenario below and start your practice session.
           </p>
         </SlideUp>
         <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">

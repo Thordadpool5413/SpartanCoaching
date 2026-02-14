@@ -24,14 +24,14 @@ export default function Tools() {
     },
     {
       title: "Objection Handler",
-      description: "Practice and refine your responses to common hospice objections. Generate AI-powered alternative responses and hear them read aloud to perfect your delivery.",
+      description: "Practice and refine your responses to common hospice objections. Generate expert alternative responses and hear them read aloud to perfect your delivery.",
       icon: <ChatIcon className="w-8 h-8" />,
       path: "/tools/objections",
       category: "Communication",
     },
     {
       title: "Grounded Research",
-      description: "Get AI-powered insights with real web sources. Ask questions about hospice trends, regulations, or competitive intelligence, and receive answers backed by credible citations.",
+      description: "Get expert insights with real web sources. Ask questions about hospice trends, regulations, or competitive intelligence, and receive answers backed by credible citations.",
       icon: <CustomSearchIcon className="w-8 h-8" />,
       path: "/tools/research",
       category: "Intelligence",
@@ -45,14 +45,14 @@ export default function Tools() {
     },
     {
       title: "Email Templates",
-      description: "Generate professional follow-up emails, thank you notes, and value-add messages. AI-powered templates help you build relationships and stay top-of-mind with your referral sources.",
+      description: "Generate professional follow-up emails, thank you notes, and value-add messages. Expert templates help you build relationships and stay top-of-mind with your referral sources.",
       icon: <Mail className="w-8 h-8" />,
       path: "/tools/email-templates",
       category: "Outreach",
     },
     {
       title: "Role-Play Practice",
-      description: "Practice real sales conversations with AI-powered characters. Simulate cold calls, handle physician objections, guide family consultations, and get detailed coaching feedback on your performance.",
+      description: "Practice real sales conversations in simulated scenarios. Simulate cold calls, handle physician objections, guide family consultations, and get detailed coaching feedback on your performance.",
       icon: <Users className="w-8 h-8" />,
       path: "/tools/role-play",
       category: "Training",
@@ -151,7 +151,7 @@ export default function Tools() {
       <SlideUp delay={0.2}>
         <div className="mt-10 sm:mt-16 bg-gradient-to-br from-accent/50 to-accent/30 rounded-2xl p-8 md:p-12 text-center border-2 border-accent/50 shadow-lg">
           <h2 className="text-h2 font-bold text-foreground mb-4">
-            AI-Powered Coaching, On Demand
+            Expert Coaching, On Demand
           </h2>
           <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             These tools are designed to give you instant access to expert coaching whenever you need it. Practice, prepare, and perform at your best.

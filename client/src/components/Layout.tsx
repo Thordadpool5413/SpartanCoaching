@@ -132,7 +132,7 @@ export function Header() {
     { path: "/services", label: "Services", description: "Strategic services and consulting" },
     { path: "/programs", label: "Programs", description: "Training programs for hospice providers" },
     { path: "/method", label: "The Spartan Method", description: "Our proven sales methodology" },
-    { path: "/tools", label: "AI Field Kit", description: "AI-powered sales tools" },
+    { path: "/tools", label: "AI Field Kit", description: "Expert sales tools" },
     { path: "/resources", label: "Training Resources", description: "Downloadable templates, scripts, checklists, and guides" },
     { path: "/podcasts", label: "Podcasts", description: "Coaching podcasts and expert insights" },
     { path: "/articles", label: "Articles", description: "Industry insights and thought leadership" },
@@ -197,7 +197,7 @@ export function Header() {
             { path: "/method", label: "The Spartan Method", description: "Our proven methodology" },
           ]} />
           <NavDropdown label="AI Tools" dataTestId="dropdown-ai-tools" items={[
-            { path: "/tools", label: "AI Field Kit", description: "AI-powered sales tools" },
+            { path: "/tools", label: "AI Field Kit", description: "Expert sales tools" },
             { path: "/tools/playbooks", label: "Sales Playbooks", description: "Generate custom playbooks" },
             { path: "/tools/objections", label: "Objection Handler", description: "Handle objections" },
             { path: "/tools/research", label: "Territory Research", description: "Research facilities" },

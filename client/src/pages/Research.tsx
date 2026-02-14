@@ -66,7 +66,7 @@ export default function Research() {
         Grounded Research Tool
       </h1>
       <p className="text-body-lg text-muted-foreground mb-8 leading-relaxed">
-        Get AI-powered insights with real web sources. Ask questions about hospice trends, regulations, or competitive intelligence, and receive answers backed by credible citations.
+        Get expert insights with real web sources. Ask questions about hospice trends, regulations, or competitive intelligence, and receive answers backed by credible citations.
       </p>
 
       <Card className="mb-8 card-lift border-2 shadow-lg spacing-card">

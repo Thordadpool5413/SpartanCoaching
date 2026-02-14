@@ -294,7 +294,7 @@ function ChatWidgetContent() {
                 <h3 className="font-bold text-base">Expert Hospice Sales Coach</h3>
               </DrawerTitle>
               <DrawerDescription className="text-xs text-white/80">
-                AI-powered by The Spartan Method
+                Powered by The Spartan Method
               </DrawerDescription>
               <div className="absolute top-4 right-4">
                 <Button
@@ -329,7 +329,7 @@ function ChatWidgetContent() {
                 <MessageCircle className="h-5 w-5 text-white" />
                 <div>
                   <h3 className="font-bold text-white text-base">Expert Hospice Sales Coach</h3>
-                  <p className="text-xs text-white/80">AI-powered by The Spartan Method</p>
+                  <p className="text-xs text-white/80">Powered by The Spartan Method</p>
                 </div>
               </div>
               <div className="flex items-center gap-1">

@@ -198,14 +198,14 @@ export default function Method() {
               </AccordionTrigger>
               <AccordionContent className="text-foreground leading-relaxed pt-4 space-y-4">
                 <p>
-                  Strategy is about acting with purpose, not activity for activity's sake. It means using data, market insights, and AI-powered tools to identify the right referral sources and focus your energy where it will have the greatest impact. We help you cut through the noise, prioritize high-value activities, and build a pipeline that serves the patients who need you most. This looks like knowing which five clinics in your territory treat the most heart failure patients and building your week around them.
+                  Strategy is about acting with purpose, not activity for activity's sake. It means using data, market insights, and proven tools to identify the right referral sources and focus your energy where it will have the greatest impact. We help you cut through the noise, prioritize high-value activities, and build a pipeline that serves the patients who need you most. This looks like knowing which five clinics in your territory treat the most heart failure patients and building your week around them.
                 </p>
                 <div className="bg-muted/50 p-4 rounded-lg">
                   <h4 className="font-bold mb-2">Strategic Elements:</h4>
                   <ul className="list-disc list-inside space-y-1 text-sm">
                     <li>Data-driven territory analysis and segmentation (not guesswork)</li>
                     <li>Competitive intelligence and market positioning based on real gaps</li>
-                    <li>AI-powered research and insights tools that save time</li>
+                    <li>Research and insights tools that save time</li>
                     <li>Intentional account prioritization based on patient impact and referral potential</li>
                   </ul>
                 </div>

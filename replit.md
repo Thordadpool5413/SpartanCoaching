@@ -1,8 +1,8 @@
-# Spartan Coaching - Hospice Sales Training Platform
+# Spartan Coaching - Hospice Sales Consulting Platform
 
 ## Overview
 
-Spartan Coaching is an AI-enhanced web platform designed to improve hospice sales effectiveness. It offers a public-facing marketing site and AI-powered tools for generating sales playbooks, handling objections, conducting research, and transcribing audio. The platform aims to help hospice sales professionals get eligible patients into care earlier through practical, AI-driven coaching and training, focusing on patient outcomes and elite sales performance.
+Spartan Coaching is a hospice sales consulting firm's web platform designed to improve hospice sales effectiveness. It offers a public-facing marketing site and expert tools for generating sales playbooks, handling objections, conducting research, and transcribing audio. The platform aims to help hospice sales professionals get eligible patients into care earlier through practical, expert-driven coaching and consulting, focusing on patient outcomes and elite sales performance. Note: Spartan Coaching is a consulting business, NOT an AI company — AI is used as a supporting tool, not the core identity.
 
 ## User Preferences
 
@@ -35,7 +35,7 @@ The platform features a premium SaaS aesthetic with a sophisticated visual desig
 - **Email Send Integration**: Enhanced Email Templates tool supporting direct email sending via Resend.
 - **Podcasts**: A database-backed podcast episodes management system with public-facing pages and an admin panel, integrating object storage for audio files.
 - **Knowledge Base / Glossary**: Searchable reference page (`/learn/knowledge-base`) with 40+ entries covering hospice terminology, regulations, eligibility criteria, clinical concepts, sales terms, and billing. Client-side search and category filtering.
-- **Ask Spartan AI**: Prominent AI-powered question bar on the homepage where visitors can ask any hospice question and get instant expert answers via Gemini AI. Includes suggestion chips for common questions.
+- **Ask Spartan AI**: Prominent AI-powered question bar on the homepage ("Ask a Hospice Expert") where visitors can ask any hospice question and get instant expert answers. Includes suggestion chips for common questions.
 - **ROI Calculator**: Interactive tool (`/tools/roi-calculator`) where hospice providers input team size and current metrics to estimate Spartan Coaching's impact on referrals, revenue, and patient care.
 
 ## External Dependencies
@@ -58,4 +58,4 @@ The platform features a premium SaaS aesthetic with a sophisticated visual desig
 - **Animated Homepage Stats**: Stats count up from zero when scrolled into view using AnimatedCounter
 - **Tools Page Search**: Real-time search/filter bar with category badges and staggered card entrance animations
 - **Navigation**: "Learn" dropdown and mobile menu for content discovery
-- **Homepage Authority Positioning**: Hero messaging positions Spartan as "The Authority in Hospice Excellence" with AI-Powered Hospice Intelligence showcase section and "Why Spartan" credibility section covering sales mastery, clinical knowledge, strategic consulting, and AI intelligence
+- **Homepage Authority Positioning**: Hero messaging positions Spartan as "The Authority in Hospice Excellence — Expert-Driven. Results-Proven." with Spartan Coaching Tools showcase section and "Why Spartan" credibility section covering sales mastery, clinical knowledge, strategic consulting, and technology & innovation. Spartan is a consulting business — AI is a supporting tool, not the brand identity.

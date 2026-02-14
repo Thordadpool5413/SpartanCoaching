@@ -7,9 +7,9 @@ interface SEOConfig {
 
 const seoDefaults: Record<string, SEOConfig> = {
   '/': {
-    title: 'Spartan Coaching | Elite Hospice Sales Training & AI Tools',
-    description: 'Transform your hospice sales team with AI-powered coaching, training resources, and proven methodologies. Get eligible patients into care earlier with the Spartan Method.',
-    keywords: 'hospice sales training, hospice marketing, sales coaching, AI sales tools, healthcare sales, hospice referrals',
+    title: 'Spartan Coaching | Expert Hospice Sales Consulting & Training',
+    description: 'Transform your hospice sales team with expert consulting, hands-on coaching, and proven methodologies. Get eligible patients into care earlier with the Spartan Method.',
+    keywords: 'hospice sales consulting, hospice sales training, hospice marketing, sales coaching, healthcare sales, hospice referrals',
   },
   '/services': {
     title: 'Coaching Services | Spartan Coaching',
@@ -27,23 +27,23 @@ const seoDefaults: Record<string, SEOConfig> = {
     keywords: 'Spartan Method, sales methodology, hospice sales framework, discipline empathy strategy',
   },
   '/tools': {
-    title: 'AI Sales Tools | Spartan Coaching',
-    description: 'AI-powered tools for hospice sales professionals. Generate playbooks, handle objections, research territories, and craft emails instantly.',
-    keywords: 'AI sales tools, sales playbook generator, objection handling, territory research, email templates',
+    title: 'Hospice Sales Tools | Spartan Coaching',
+    description: 'Expert tools for hospice sales professionals. Generate playbooks, handle objections, research territories, and craft emails instantly.',
+    keywords: 'hospice sales tools, sales playbook generator, objection handling, territory research, email templates',
   },
   '/tools/playbooks': {
-    title: 'AI Playbook Generator | Spartan Coaching',
-    description: 'Generate customized hospice sales playbooks with AI. Get step-by-step strategies, talking points, and action plans for any sales scenario.',
-    keywords: 'sales playbook generator, AI playbook, hospice sales strategies, talking points',
+    title: 'Sales Playbook Generator | Spartan Coaching',
+    description: 'Generate customized hospice sales playbooks. Get step-by-step strategies, talking points, and action plans for any sales scenario.',
+    keywords: 'sales playbook generator, hospice sales strategies, talking points, sales playbook',
   },
   '/tools/objections': {
-    title: 'AI Objection Handler | Spartan Coaching',
-    description: 'Handle hospice sales objections with empathy and confidence. Get AI-generated responses that address concerns and keep conversations moving.',
+    title: 'Objection Handler | Spartan Coaching',
+    description: 'Handle hospice sales objections with empathy and confidence. Get expert responses that address concerns and keep conversations moving.',
     keywords: 'objection handling, sales objections, hospice objections, empathetic responses',
   },
   '/tools/research': {
     title: 'Territory Research | Spartan Coaching',
-    description: 'Research your sales territory with AI-powered insights. Get data on facilities, demographics, and market opportunities for hospice outreach.',
+    description: 'Research your sales territory with expert insights. Get data on facilities, demographics, and market opportunities for hospice outreach.',
     keywords: 'territory research, sales territory, market research, hospice demographics, facility research',
   },
   '/tools/transcribe': {
@@ -52,8 +52,8 @@ const seoDefaults: Record<string, SEOConfig> = {
     keywords: 'audio transcription, sales call transcription, meeting transcription, AI transcription',
   },
   '/tools/email-templates': {
-    title: 'AI Email Templates | Spartan Coaching',
-    description: 'Generate professional follow-up emails, thank you notes, and value-add messages for hospice sales outreach. AI-crafted templates that build relationships.',
+    title: 'Email Templates | Spartan Coaching',
+    description: 'Generate professional follow-up emails, thank you notes, and value-add messages for hospice sales outreach. Expert-crafted templates that build relationships.',
     keywords: 'email templates, sales emails, follow-up emails, hospice outreach templates',
   },
   '/tools/roi-calculator': {
@@ -125,8 +125,8 @@ const seoDefaults: Record<string, SEOConfig> = {
 
 const defaultConfig: SEOConfig = {
   title: 'Spartan Coaching | Hospice Sales Training',
-  description: 'AI-enhanced hospice sales training platform. Coaching, tools, and resources to help your team get eligible patients into care earlier.',
-  keywords: 'hospice sales, sales training, coaching, AI tools',
+  description: 'Expert hospice sales consulting and training. Coaching, tools, and resources to help your team get eligible patients into care earlier.',
+  keywords: 'hospice sales, sales training, consulting, coaching',
 };
 
 export function getSEOConfig(path: string): SEOConfig {

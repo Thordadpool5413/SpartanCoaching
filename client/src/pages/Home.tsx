@@ -145,13 +145,13 @@ export default function Home() {
               The Authority in Hospice Excellence.
             </span>
             <span className="block bg-gradient-to-r from-red-600 via-red-500 to-red-600 bg-clip-text text-transparent mt-2 font-black tracking-tighter drop-shadow-2xl">
-              AI-Powered. Expert-Driven.
+              Expert-Driven. Results-Proven.
             </span>
           </h1>
 
           <p className="text-body-lg mb-6 sm:mb-10 md:mb-14 max-w-4xl mx-auto animate-fade-in-up px-6" style={{ animationDelay: '0.1s' }}>
-            <span className="text-white/90">Spartan Coaching is the definitive platform for hospice expertise — from clinical sales mastery and strategic consulting to AI-powered intelligence tools. We equip hospice professionals with everything they need to get eligible patients into care earlier.</span>
-            <span className="block mt-3 sm:mt-4 bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent font-bold">Sales. Clinical. Consulting. AI Intelligence — All in one platform.</span>
+            <span className="text-white/90">Spartan Coaching is the premier consulting firm for hospice organizations — delivering hands-on sales coaching, clinical training, and strategic consulting that gets eligible patients into care earlier.</span>
+            <span className="block mt-3 sm:mt-4 bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent font-bold">Sales Coaching. Clinical Training. Strategic Consulting.</span>
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 justify-center animate-fade-in-up px-6 max-w-2xl mx-auto" style={{ animationDelay: '0.4s' }}>
@@ -173,7 +173,7 @@ export default function Home() {
               className="text-base sm:text-lg font-bold glass border-white/30 transition-elegant touch-manipulation group px-10 py-4"
               data-testid="button-ask-spartan-hero"
             >
-              <span>Ask Spartan AI</span>
+              <span>Ask a Hospice Expert</span>
               <Sparkles className="ml-2 w-5 h-5 group-hover:scale-110 transition-transform" />
             </Button>
           </div>
@@ -196,7 +196,7 @@ export default function Home() {
             <div className="text-center mb-10 sm:mb-14">
               <div className="flex items-center justify-center gap-3 mb-6">
                 <Sparkles className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
-                <h2 className="text-h2 text-gradient-elegant">Ask Spartan AI</h2>
+                <h2 className="text-h2 text-gradient-elegant">Ask a Hospice Expert</h2>
               </div>
               <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto">
                 Get instant expert answers on any hospice topic — sales strategies, clinical eligibility, regulations, territory planning, and more
@@ -259,7 +259,7 @@ export default function Home() {
               <CardContent className="pt-6">
                 <div className="flex items-center gap-3" data-testid="text-loading-indicator">
                   <Sparkles className="w-5 h-5 text-primary animate-pulse" />
-                  <span className="text-muted-foreground font-medium">Spartan AI is thinking...</span>
+                  <span className="text-muted-foreground font-medium">Finding the best answer...</span>
                 </div>
               </CardContent>
             </Card>
@@ -402,10 +402,10 @@ export default function Home() {
           <FadeIn>
             <div className="text-center mb-16 sm:mb-20">
               <h2 className="text-h2 text-gradient-elegant mb-6" data-testid="text-ai-tools-title">
-                AI-Powered Hospice Intelligence
+                Spartan Coaching Tools
               </h2>
               <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto">
-                Every tool a hospice professional needs — powered by advanced AI trained on real-world hospice expertise
+                Every tool a hospice professional needs — built on 15+ years of real-world hospice expertise
               </p>
             </div>
           </FadeIn>
@@ -441,7 +441,7 @@ export default function Home() {
                   </div>
                   <CardTitle className="text-h3 text-center mb-3">Objection Handler</CardTitle>
                   <p className="text-body text-muted-foreground text-center leading-relaxed mb-6 flex-1">
-                    AI-crafted responses to the toughest hospice objections with empathy and clinical precision
+                    Expert-crafted responses to the toughest hospice objections with empathy and clinical precision
                   </p>
                   <Button size="sm" variant="outline" asChild className="w-full font-bold touch-manipulation group mt-auto" data-testid="button-try-objections">
                     <Link href="/tools/objections">
@@ -504,7 +504,7 @@ export default function Home() {
                   </div>
                   <CardTitle className="text-h3 text-center mb-3">Role-Play Practice</CardTitle>
                   <p className="text-body text-muted-foreground text-center leading-relaxed mb-6 flex-1">
-                    Practice real sales conversations with AI playing the role of physicians, nurses, and administrators
+                    Practice real sales conversations in simulated scenarios with physicians, nurses, and administrators
                   </p>
                   <Button size="sm" variant="outline" asChild className="w-full font-bold touch-manipulation group mt-auto" data-testid="button-try-role-play">
                     <Link href="/tools/role-play">
@@ -723,7 +723,7 @@ export default function Home() {
               </div>
               <h4 className="text-h3 text-foreground mb-3">Strategy</h4>
               <p className="text-body text-muted-foreground">
-                Act with purpose. Leverage data, market insights, and AI-powered tools to identify the right partners and focus your energy where it matters most: on the patients who need you.
+                Act with purpose. Leverage data, market insights, and proven frameworks to identify the right partners and focus your energy where it matters most: on the patients who need you.
               </p>
             </div>
             </StaggerItem>
@@ -750,10 +750,10 @@ export default function Home() {
             <div className="text-center mb-16 sm:mb-20">
               <p className="text-lg font-semibold text-primary mb-3" data-testid="text-why-spartan-label">The Spartan Difference</p>
               <h2 className="text-h2 text-foreground mb-6" data-testid="text-why-spartan-title">
-                The Most Comprehensive Hospice Expertise Platform
+                Why Hospice Organizations Choose Spartan
               </h2>
               <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto">
-                No other platform combines deep hospice industry knowledge with AI-powered tools, hands-on coaching, and clinical sales training
+                No other consulting firm combines deep hospice industry knowledge with hands-on coaching, clinical sales training, and strategic growth planning
               </p>
             </div>
           </FadeIn>
@@ -807,9 +807,9 @@ export default function Home() {
                   <div className="w-14 h-14 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-2xl flex items-center justify-center mb-5">
                     <Brain className="w-7 h-7 text-red-600 dark:text-red-400" />
                   </div>
-                  <CardTitle className="text-h3 mb-3">AI Intelligence</CardTitle>
+                  <CardTitle className="text-h3 mb-3">Technology & Innovation</CardTitle>
                   <p className="text-body text-muted-foreground leading-relaxed">
-                    Cutting-edge AI trained on hospice-specific knowledge. Every tool understands the nuances of hospice regulations, clinical scenarios, and sales dynamics.
+                    Proprietary tools and resources built on hospice-specific knowledge, helping your team access expert guidance on regulations, clinical scenarios, and sales dynamics anytime.
                   </p>
                 </div>
               </Card>
