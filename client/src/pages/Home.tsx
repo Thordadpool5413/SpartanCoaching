@@ -1,15 +1,51 @@
 import { Link } from "wouter";
-import { useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { DisciplineIcon, EmpathyIcon, StrategyIcon } from "@/components/icons";
-import { Shield, Heart, Zap, Target, Users, BookOpen, ArrowRight, Sparkles, TrendingUp, Award, Clock } from "lucide-react";
+import { Shield, Heart, Zap, Target, Users, BookOpen, ArrowRight, Sparkles, TrendingUp, Award, Clock, Lightbulb, MessageCircle, Search, Mail, Flame, Stethoscope, Brain, Briefcase } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { SEO } from "@/components/SEO";
+import { apiRequest } from "@/lib/queryClient";
+import { MarkdownContent } from "@/components/MarkdownContent";
 import { AnimatedCounter, FadeIn, SlideUp, StaggerContainer, StaggerItem } from "@/components/animations";
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const [askQuery, setAskQuery] = useState("");
+  const [askResponse, setAskResponse] = useState("");
+  const [askLoading, setAskLoading] = useState(false);
+  const [askError, setAskError] = useState<string | null>(null);
+
+  const suggestionQuestions = [
+    "What are hospice eligibility criteria for heart failure?",
+    "How do I handle the 'not ready' objection?",
+    "What is the Medicare hospice benefit?",
+    "Best strategies for building physician referrals?",
+  ];
+
+  const handleAskSubmit = async (prompt: string) => {
+    if (!prompt.trim()) return;
+    setAskLoading(true);
+    setAskResponse("");
+    setAskError(null);
+    try {
+      const res = await apiRequest("POST", "/api/chat", { prompt, conversationHistory: [] });
+      const data = await res.json();
+      setAskResponse(data.response);
+    } catch (error) {
+      setAskError("Something went wrong. Please try again.");
+    } finally {
+      setAskLoading(false);
+    }
+  };
+
+  const handleAskReset = () => {
+    setAskQuery("");
+    setAskResponse("");
+    setAskError(null);
+  };
 
   useEffect(() => {
     let attemptPlayHandler: (() => Promise<void>) | null = null;
@@ -106,16 +142,16 @@ export default function Home() {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-20 lg:py-24 text-center">
           <h1 className="text-hero mb-4 sm:mb-6 md:mb-8 animate-fade-in-up px-4">
             <span className="block bg-gradient-to-r from-red-600 via-red-500 to-red-600 bg-clip-text text-transparent font-black tracking-tighter drop-shadow-2xl">
-              Patient Outcomes First.
+              The Authority in Hospice Excellence.
             </span>
             <span className="block bg-gradient-to-r from-red-600 via-red-500 to-red-600 bg-clip-text text-transparent mt-2 font-black tracking-tighter drop-shadow-2xl">
-              Elite Reps Always.
+              AI-Powered. Expert-Driven.
             </span>
           </h1>
 
           <p className="text-body-lg mb-6 sm:mb-10 md:mb-14 max-w-4xl mx-auto animate-fade-in-up px-6" style={{ animationDelay: '0.1s' }}>
-            <span className="text-white/90">This is the 'why' of Spartan Coaching. We exist to transform hospice sales from a transaction into a mission: ensuring every eligible patient receives the compassionate care they deserve.</span>
-            <span className="block mt-3 sm:mt-4 bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent font-bold">We build expert sales leaders who serve with integrity and lead with empathy.</span>
+            <span className="text-white/90">Spartan Coaching is the definitive platform for hospice expertise — from clinical sales mastery and strategic consulting to AI-powered intelligence tools. We equip hospice professionals with everything they need to get eligible patients into care earlier.</span>
+            <span className="block mt-3 sm:mt-4 bg-gradient-to-r from-red-400 to-red-300 bg-clip-text text-transparent font-bold">Sales. Clinical. Consulting. AI Intelligence — All in one platform.</span>
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 justify-center animate-fade-in-up px-6 max-w-2xl mx-auto" style={{ animationDelay: '0.4s' }}>
@@ -123,24 +159,22 @@ export default function Home() {
               size="lg"
               asChild
               className="text-base sm:text-lg font-bold shadow-xl transition-elegant touch-manipulation group px-10 py-4"
-              data-testid="button-view-services"
+              data-testid="button-explore-platform"
             >
-              <Link href="/services">
-                <span>View Services</span>
+              <Link href="/tools">
+                <span>Explore Our Platform</span>
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
             <Button
               size="lg"
               variant="outline"
-              asChild
+              onClick={() => document.getElementById('ask-spartan')?.scrollIntoView({ behavior: 'smooth' })}
               className="text-base sm:text-lg font-bold glass border-white/30 transition-elegant touch-manipulation group px-10 py-4"
-              data-testid="button-why-spartan"
+              data-testid="button-ask-spartan-hero"
             >
-              <Link href="/about">
-                <span>Why Spartan Exists</span>
-                <Heart className="ml-2 w-5 h-5 group-hover:scale-110 transition-transform" />
-              </Link>
+              <span>Ask Spartan AI</span>
+              <Sparkles className="ml-2 w-5 h-5 group-hover:scale-110 transition-transform" />
             </Button>
           </div>
         </div>
@@ -150,6 +184,112 @@ export default function Home() {
           <div className="w-6 h-10 rounded-full border-2 border-white/30 flex items-start justify-center p-2">
             <div className="w-1 h-3 rounded-full bg-white/50"></div>
           </div>
+        </div>
+      </section>
+
+      {/* Ask Spartan AI Section */}
+      <section id="ask-spartan" className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-ask-spartan">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(239,68,68,0.08),transparent_50%)] pointer-events-none"></div>
+
+        <div className="relative max-w-4xl mx-auto spacing-container">
+          <FadeIn>
+            <div className="text-center mb-10 sm:mb-14">
+              <div className="flex items-center justify-center gap-3 mb-6">
+                <Sparkles className="w-7 h-7 sm:w-8 sm:h-8 text-primary" />
+                <h2 className="text-h2 text-gradient-elegant">Ask Spartan AI</h2>
+              </div>
+              <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto">
+                Get instant expert answers on any hospice topic — sales strategies, clinical eligibility, regulations, territory planning, and more
+              </p>
+            </div>
+          </FadeIn>
+
+          <div className="mb-8">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleAskSubmit(askQuery);
+              }}
+              className="flex items-center gap-2"
+            >
+              <div className="flex-1 flex items-center gap-2 rounded-lg border-2 border-border bg-card p-2 shadow-lg focus-within:border-primary transition-colors">
+                <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground ml-1 flex-shrink-0" />
+                <Input
+                  type="text"
+                  value={askQuery}
+                  onChange={(e) => setAskQuery(e.target.value)}
+                  placeholder="Ask any hospice question..."
+                  className="flex-1 border-0 bg-transparent text-base sm:text-lg px-2 focus-visible:ring-0 focus-visible:border-0"
+                  data-testid="input-ask-spartan"
+                />
+              </div>
+              <Button
+                type="submit"
+                disabled={askLoading || !askQuery.trim()}
+                className="font-bold px-6"
+                data-testid="button-ask-submit"
+              >
+                Ask
+              </Button>
+            </form>
+          </div>
+
+          {!askResponse && !askLoading && (
+            <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8">
+              {suggestionQuestions.map((question, index) => (
+                <Button
+                  key={index}
+                  variant="outline"
+                  size="sm"
+                  className="text-xs sm:text-sm font-medium"
+                  data-testid={`button-suggestion-${index}`}
+                  onClick={() => {
+                    setAskQuery(question);
+                    handleAskSubmit(question);
+                  }}
+                >
+                  {question}
+                </Button>
+              ))}
+            </div>
+          )}
+
+          {askLoading && (
+            <Card className="spacing-card shadow-lg">
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3" data-testid="text-loading-indicator">
+                  <Sparkles className="w-5 h-5 text-primary animate-pulse" />
+                  <span className="text-muted-foreground font-medium">Spartan AI is thinking...</span>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {askError && (
+            <div className="p-4 rounded-lg bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800" data-testid="text-ask-error">
+              <p className="text-red-700 dark:text-red-300 font-medium">{askError}</p>
+            </div>
+          )}
+
+          {askResponse && !askLoading && (
+            <Card className="spacing-card shadow-lg">
+              <CardContent className="pt-6">
+                <div data-testid="text-ai-response">
+                  <MarkdownContent content={askResponse} />
+                </div>
+                <div className="mt-6 pt-4 border-t border-border">
+                  <Button
+                    variant="outline"
+                    onClick={handleAskReset}
+                    className="font-bold"
+                    data-testid="button-ask-reset"
+                  >
+                    Ask another question
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
       </section>
 
@@ -251,6 +391,152 @@ export default function Home() {
               </CardContent>
             </Card>
           </SlideUp>
+        </div>
+      </section>
+
+      {/* AI-Powered Hospice Intelligence Showcase */}
+      <section className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-ai-tools">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(239,68,68,0.05),transparent_60%)] pointer-events-none"></div>
+
+        <div className="relative max-w-7xl mx-auto spacing-container">
+          <FadeIn>
+            <div className="text-center mb-16 sm:mb-20">
+              <h2 className="text-h2 text-gradient-elegant mb-6" data-testid="text-ai-tools-title">
+                AI-Powered Hospice Intelligence
+              </h2>
+              <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto">
+                Every tool a hospice professional needs — powered by advanced AI trained on real-world hospice expertise
+              </p>
+            </div>
+          </FadeIn>
+
+          <StaggerContainer className="grid grid-cols-2 md:grid-cols-3 gap-cards">
+            <StaggerItem>
+              <Card className="card-lift border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-playbooks">
+                <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                <div className="relative flex-1 flex flex-col">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-spartan-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-all duration-500">
+                    <Lightbulb className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                  </div>
+                  <CardTitle className="text-h3 text-center mb-3">Sales Playbook Generator</CardTitle>
+                  <p className="text-body text-muted-foreground text-center leading-relaxed mb-6 flex-1">
+                    Generate custom sales playbooks for any scenario, facility type, or objection pattern
+                  </p>
+                  <Button size="sm" variant="outline" asChild className="w-full font-bold touch-manipulation group mt-auto" data-testid="button-try-playbooks">
+                    <Link href="/tools/playbooks">
+                      <span>Try it now</span>
+                      <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </Button>
+                </div>
+              </Card>
+            </StaggerItem>
+
+            <StaggerItem>
+              <Card className="card-lift border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-objections">
+                <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                <div className="relative flex-1 flex flex-col">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-spartan-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-all duration-500">
+                    <MessageCircle className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                  </div>
+                  <CardTitle className="text-h3 text-center mb-3">Objection Handler</CardTitle>
+                  <p className="text-body text-muted-foreground text-center leading-relaxed mb-6 flex-1">
+                    AI-crafted responses to the toughest hospice objections with empathy and clinical precision
+                  </p>
+                  <Button size="sm" variant="outline" asChild className="w-full font-bold touch-manipulation group mt-auto" data-testid="button-try-objections">
+                    <Link href="/tools/objections">
+                      <span>Try it now</span>
+                      <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </Button>
+                </div>
+              </Card>
+            </StaggerItem>
+
+            <StaggerItem>
+              <Card className="card-lift border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-research">
+                <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                <div className="relative flex-1 flex flex-col">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-spartan-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-all duration-500">
+                    <Search className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                  </div>
+                  <CardTitle className="text-h3 text-center mb-3">Territory Research</CardTitle>
+                  <p className="text-body text-muted-foreground text-center leading-relaxed mb-6 flex-1">
+                    Deep-dive research on facilities, demographics, and market opportunities in your territory
+                  </p>
+                  <Button size="sm" variant="outline" asChild className="w-full font-bold touch-manipulation group mt-auto" data-testid="button-try-research">
+                    <Link href="/tools/research">
+                      <span>Try it now</span>
+                      <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </Button>
+                </div>
+              </Card>
+            </StaggerItem>
+
+            <StaggerItem>
+              <Card className="card-lift border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-email-templates">
+                <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                <div className="relative flex-1 flex flex-col">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-spartan-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-all duration-500">
+                    <Mail className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                  </div>
+                  <CardTitle className="text-h3 text-center mb-3">Email Templates</CardTitle>
+                  <p className="text-body text-muted-foreground text-center leading-relaxed mb-6 flex-1">
+                    Professional follow-up emails, thank you notes, and value-add messages that build referral relationships
+                  </p>
+                  <Button size="sm" variant="outline" asChild className="w-full font-bold touch-manipulation group mt-auto" data-testid="button-try-email-templates">
+                    <Link href="/tools/email-templates">
+                      <span>Try it now</span>
+                      <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </Button>
+                </div>
+              </Card>
+            </StaggerItem>
+
+            <StaggerItem>
+              <Card className="card-lift border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-role-play">
+                <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                <div className="relative flex-1 flex flex-col">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-spartan-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-all duration-500">
+                    <Users className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                  </div>
+                  <CardTitle className="text-h3 text-center mb-3">Role-Play Practice</CardTitle>
+                  <p className="text-body text-muted-foreground text-center leading-relaxed mb-6 flex-1">
+                    Practice real sales conversations with AI playing the role of physicians, nurses, and administrators
+                  </p>
+                  <Button size="sm" variant="outline" asChild className="w-full font-bold touch-manipulation group mt-auto" data-testid="button-try-role-play">
+                    <Link href="/tools/role-play">
+                      <span>Try it now</span>
+                      <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </Button>
+                </div>
+              </Card>
+            </StaggerItem>
+
+            <StaggerItem>
+              <Card className="card-lift border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-drills">
+                <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                <div className="relative flex-1 flex flex-col">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-spartan-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-all duration-500">
+                    <Flame className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                  </div>
+                  <CardTitle className="text-h3 text-center mb-3">Daily Coaching Drills</CardTitle>
+                  <p className="text-body text-muted-foreground text-center leading-relaxed mb-6 flex-1">
+                    Daily exercises to sharpen objection handling, territory planning, and clinical knowledge
+                  </p>
+                  <Button size="sm" variant="outline" asChild className="w-full font-bold touch-manipulation group mt-auto" data-testid="button-try-drills">
+                    <Link href="/drills">
+                      <span>Try it now</span>
+                      <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </Button>
+                </div>
+              </Card>
+            </StaggerItem>
+          </StaggerContainer>
         </div>
       </section>
 
@@ -455,6 +741,83 @@ export default function Home() {
           </FadeIn>
         </div>
       </section>
+      {/* Why Spartan Credibility Section */}
+      <section className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-why-spartan">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(239,68,68,0.06),transparent_50%)] pointer-events-none"></div>
+
+        <div className="relative max-w-7xl mx-auto spacing-container">
+          <FadeIn>
+            <div className="text-center mb-16 sm:mb-20">
+              <p className="text-lg font-semibold text-primary mb-3" data-testid="text-why-spartan-label">The Spartan Difference</p>
+              <h2 className="text-h2 text-foreground mb-6" data-testid="text-why-spartan-title">
+                The Most Comprehensive Hospice Expertise Platform
+              </h2>
+              <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto">
+                No other platform combines deep hospice industry knowledge with AI-powered tools, hands-on coaching, and clinical sales training
+              </p>
+            </div>
+          </FadeIn>
+
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-cards max-w-5xl mx-auto">
+            <StaggerItem>
+              <Card className="border-2 spacing-card shadow-lg h-full" data-testid="card-expertise-sales">
+                <div className="flex flex-col">
+                  <div className="w-14 h-14 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-2xl flex items-center justify-center mb-5">
+                    <Target className="w-7 h-7 text-red-600 dark:text-red-400" />
+                  </div>
+                  <CardTitle className="text-h3 mb-3">Hospice Sales Mastery</CardTitle>
+                  <p className="text-body text-muted-foreground leading-relaxed">
+                    15+ years of real-world hospice sales experience distilled into actionable frameworks. Territory management, referral development, and relationship building with physicians, discharge planners, and facility administrators.
+                  </p>
+                </div>
+              </Card>
+            </StaggerItem>
+
+            <StaggerItem>
+              <Card className="border-2 spacing-card shadow-lg h-full" data-testid="card-expertise-clinical">
+                <div className="flex flex-col">
+                  <div className="w-14 h-14 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-2xl flex items-center justify-center mb-5">
+                    <Stethoscope className="w-7 h-7 text-red-600 dark:text-red-400" />
+                  </div>
+                  <CardTitle className="text-h3 mb-3">Clinical Knowledge</CardTitle>
+                  <p className="text-body text-muted-foreground leading-relaxed">
+                    Deep understanding of hospice eligibility criteria, clinical indicators, Medicare guidelines, and the medical terminology that builds credibility with clinical staff.
+                  </p>
+                </div>
+              </Card>
+            </StaggerItem>
+
+            <StaggerItem>
+              <Card className="border-2 spacing-card shadow-lg h-full" data-testid="card-expertise-consulting">
+                <div className="flex flex-col">
+                  <div className="w-14 h-14 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-2xl flex items-center justify-center mb-5">
+                    <Briefcase className="w-7 h-7 text-red-600 dark:text-red-400" />
+                  </div>
+                  <CardTitle className="text-h3 mb-3">Strategic Consulting</CardTitle>
+                  <p className="text-body text-muted-foreground leading-relaxed">
+                    Organizational strategy for hospice providers — from market analysis and competitive positioning to team structure and growth planning.
+                  </p>
+                </div>
+              </Card>
+            </StaggerItem>
+
+            <StaggerItem>
+              <Card className="border-2 spacing-card shadow-lg h-full" data-testid="card-expertise-ai">
+                <div className="flex flex-col">
+                  <div className="w-14 h-14 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-2xl flex items-center justify-center mb-5">
+                    <Brain className="w-7 h-7 text-red-600 dark:text-red-400" />
+                  </div>
+                  <CardTitle className="text-h3 mb-3">AI Intelligence</CardTitle>
+                  <p className="text-body text-muted-foreground leading-relaxed">
+                    Cutting-edge AI trained on hospice-specific knowledge. Every tool understands the nuances of hospice regulations, clinical scenarios, and sales dynamics.
+                  </p>
+                </div>
+              </Card>
+            </StaggerItem>
+          </StaggerContainer>
+        </div>
+      </section>
+
       {/* Newsletter Section - Enhanced */}
       <section className="relative bg-spartan-gradient text-white spacing-section overflow-hidden">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_50%)]"></div>

@@ -34,6 +34,9 @@ The platform features a premium SaaS aesthetic with a sophisticated visual desig
 - **Daily Coaching Drills**: Daily practice exercises categorized into 20 types, with daily rotation, completion tracking, and a streak counter.
 - **Email Send Integration**: Enhanced Email Templates tool supporting direct email sending via Resend.
 - **Podcasts**: A database-backed podcast episodes management system with public-facing pages and an admin panel, integrating object storage for audio files.
+- **Knowledge Base / Glossary**: Searchable reference page (`/learn/knowledge-base`) with 40+ entries covering hospice terminology, regulations, eligibility criteria, clinical concepts, sales terms, and billing. Client-side search and category filtering.
+- **Ask Spartan AI**: Prominent AI-powered question bar on the homepage where visitors can ask any hospice question and get instant expert answers via Gemini AI. Includes suggestion chips for common questions.
+- **ROI Calculator**: Interactive tool (`/tools/roi-calculator`) where hospice providers input team size and current metrics to estimate Spartan Coaching's impact on referrals, revenue, and patient care.
 
 ## External Dependencies
 
@@ -55,3 +58,4 @@ The platform features a premium SaaS aesthetic with a sophisticated visual desig
 - **Animated Homepage Stats**: Stats count up from zero when scrolled into view using AnimatedCounter
 - **Tools Page Search**: Real-time search/filter bar with category badges and staggered card entrance animations
 - **Navigation**: "Learn" dropdown and mobile menu for content discovery
+- **Homepage Authority Positioning**: Hero messaging positions Spartan as "The Authority in Hospice Excellence" with AI-Powered Hospice Intelligence showcase section and "Why Spartan" credibility section covering sales mastery, clinical knowledge, strategic consulting, and AI intelligence

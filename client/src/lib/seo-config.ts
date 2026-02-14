@@ -56,6 +56,11 @@ const seoDefaults: Record<string, SEOConfig> = {
     description: 'Generate professional follow-up emails, thank you notes, and value-add messages for hospice sales outreach. AI-crafted templates that build relationships.',
     keywords: 'email templates, sales emails, follow-up emails, hospice outreach templates',
   },
+  '/tools/roi-calculator': {
+    title: 'ROI Calculator | Spartan Coaching',
+    description: 'Calculate the potential return on investment from Spartan Coaching for your hospice organization. Estimate revenue growth, increased referrals, and improved conversion rates.',
+    keywords: 'ROI calculator, hospice ROI, sales coaching ROI, revenue calculator, hospice revenue growth',
+  },
   '/resources': {
     title: 'Training Resources | Spartan Coaching',
     description: 'Downloadable training materials for hospice sales professionals. Scripts, templates, checklists, and guides to sharpen your skills.',
@@ -110,6 +115,11 @@ const seoDefaults: Record<string, SEOConfig> = {
     title: 'Admin Dashboard | Spartan Coaching',
     description: 'Admin dashboard for managing content, analytics, and inquiries.',
     keywords: 'admin, dashboard, management',
+  },
+  '/learn/knowledge-base': {
+    title: 'Hospice Knowledge Base | Spartan Coaching',
+    description: 'The definitive reference for hospice terminology, regulations, eligibility criteria, clinical concepts, and sales terminology. Searchable glossary for hospice professionals.',
+    keywords: 'hospice glossary, hospice terminology, hospice eligibility criteria, Medicare hospice benefit, hospice regulations, clinical terms',
   },
 };
 

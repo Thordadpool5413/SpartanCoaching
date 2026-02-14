@@ -146,6 +146,8 @@ export function Header() {
     { path: "/tools/research", label: "Territory Research", description: "Research facilities and territories" },
     { path: "/tools/email-templates", label: "Email Templates", description: "Create professional email templates" },
     { path: "/tools/role-play", label: "Role-Play Practice", description: "Practice sales conversations with AI" },
+    { path: "/tools/roi-calculator", label: "ROI Calculator", description: "Estimate coaching impact on revenue" },
+    { path: "/learn/knowledge-base", label: "Knowledge Base", description: "Hospice terminology and regulations reference" },
   ];
 
   const allSearchItems = [...routes, ...aiTools];
@@ -172,7 +174,7 @@ export function Header() {
           <div className="flex items-center gap-2 sm:gap-4 hover:opacity-80 transition-opacity cursor-pointer touch-manipulation" data-testid="link-home">
             <div>
               <h1 className="font-black text-xl sm:text-2xl md:text-3xl text-primary tracking-tight">SPARTAN COACHING</h1>
-              <p className="text-xs sm:text-sm md:text-base text-muted-foreground">Expert Hospice Sales Training</p>
+              <p className="text-xs sm:text-sm md:text-base text-muted-foreground">The Authority in Hospice Excellence</p>
             </div>
           </div>
         </Link>
@@ -201,9 +203,10 @@ export function Header() {
             { path: "/tools/research", label: "Territory Research", description: "Research facilities" },
             { path: "/tools/email-templates", label: "Email Templates", description: "Professional emails" },
             { path: "/tools/role-play", label: "Role-Play Practice", description: "Practice with AI" },
+            { path: "/tools/roi-calculator", label: "ROI Calculator", description: "Estimate coaching impact" },
           ]} />
           <NavDropdown label="Learn" dataTestId="dropdown-learn" items={[
-
+            { path: "/learn/knowledge-base", label: "Knowledge Base", description: "Hospice terminology and regulations" },
             { path: "/resources", label: "Training Resources", description: "Templates and guides" },
             { path: "/drills", label: "Daily Drills", description: "Daily coaching exercises" },
             { path: "/podcasts", label: "Podcasts", description: "Expert insights" },
@@ -288,6 +291,7 @@ export function Header() {
                 { path: "/tools/research", label: "Territory Research" },
                 { path: "/tools/email-templates", label: "Email Templates" },
                 { path: "/tools/role-play", label: "Role-Play Practice" },
+                { path: "/tools/roi-calculator", label: "ROI Calculator" },
               ].map((item) => (
                 <Link
                   key={item.path}
@@ -309,7 +313,7 @@ export function Header() {
                 <span className="px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Learn</span>
               </div>
               {[
-
+                { path: "/learn/knowledge-base", label: "Knowledge Base" },
                 { path: "/resources", label: "Training Resources" },
                 { path: "/drills", label: "Daily Drills" },
                 { path: "/podcasts", label: "Podcasts" },

@@ -36,6 +36,8 @@ const Articles = lazy(() => import("@/pages/Articles"));
 const Podcasts = lazy(() => import("@/pages/Podcasts"));
 const RolePlay = lazy(() => import("@/pages/RolePlay"));
 const Drills = lazy(() => import("@/pages/Drills"));
+const KnowledgeBase = lazy(() => import("@/pages/KnowledgeBase"));
+const ROICalculator = lazy(() => import("@/pages/ROICalculator"));
 
 
 function ScrollToTop() {
@@ -103,6 +105,7 @@ function Router() {
           <Route path="/tools/transcribe" component={Transcribe} />
           <Route path="/tools/email-templates" component={EmailTemplates} />
           <Route path="/tools/role-play" component={RolePlay} />
+          <Route path="/tools/roi-calculator" component={ROICalculator} />
           <Route path="/drills" component={Drills} />
 
           <Route path="/resources" component={Resources} />
@@ -115,6 +118,7 @@ function Router() {
           <Route path="/testimonials" component={Testimonials} />
           <Route path="/articles" component={Articles} />
           <Route path="/podcasts" component={Podcasts} />
+          <Route path="/learn/knowledge-base" component={KnowledgeBase} />
           <Route path="/about" component={About} />
           <Route component={NotFound} />
         </Switch>

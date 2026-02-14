@@ -19,7 +19,8 @@ import {
   FileText,
   Headphones,
   FolderOpen,
-
+  BookOpen,
+  Calculator,
   Lightbulb,
   MessageCircle,
   Search,
@@ -42,7 +43,7 @@ const commandItems = [
       { title: "Articles", path: "/articles", icon: FileText },
       { title: "Podcasts", path: "/podcasts", icon: Headphones },
       { title: "Resources", path: "/resources", icon: FolderOpen },
-
+      { title: "Knowledge Base", path: "/learn/knowledge-base", icon: BookOpen },
     ],
   },
   {
@@ -66,6 +67,7 @@ const commandItems = [
         icon: Mail,
       },
       { title: "Role-Play Practice", path: "/tools/role-play", icon: Users },
+      { title: "ROI Calculator", path: "/tools/roi-calculator", icon: Calculator },
     ],
   },
   {
