@@ -10,7 +10,7 @@ import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { SEO } from "@/components/SEO";
 import { apiRequest } from "@/lib/queryClient";
 import { MarkdownContent } from "@/components/MarkdownContent";
-import { FadeIn, StaggerContainer, StaggerItem, AnimatedCounter } from "@/components/animations";
+import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 import { ContactForm } from "@/components/ContactForm";
 
 export default function Home() {
@@ -245,37 +245,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Social Proof Stats */}
-      <section className="relative bg-gradient-to-r from-gray-950 via-gray-900 to-gray-950 py-10 sm:py-14 border-b border-white/10" data-testid="section-social-proof">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            <div>
-              <p className="text-3xl sm:text-4xl font-black text-white mb-1">
-                <AnimatedCounter target={15} suffix="+" />
-              </p>
-              <p className="text-sm text-white/60">Years Hospice Experience</p>
-            </div>
-            <div>
-              <p className="text-3xl sm:text-4xl font-black text-white mb-1">
-                <AnimatedCounter target={500} suffix="+" />
-              </p>
-              <p className="text-sm text-white/60">Sales Reps Coached</p>
-            </div>
-            <div>
-              <p className="text-3xl sm:text-4xl font-black text-white mb-1">
-                <AnimatedCounter target={40} suffix="%" prefix="+" />
-              </p>
-              <p className="text-sm text-white/60">Average Referral Increase</p>
-            </div>
-            <div>
-              <p className="text-3xl sm:text-4xl font-black text-white mb-1">
-                <AnimatedCounter target={95} suffix="%" />
-              </p>
-              <p className="text-sm text-white/60">Client Satisfaction</p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Ask Spartan AI Section */}
       <section id="ask-spartan" className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-ask-spartan">
