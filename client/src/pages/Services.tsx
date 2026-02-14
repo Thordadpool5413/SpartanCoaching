@@ -218,6 +218,7 @@ export default function Services() {
                 size="lg"
                 className="w-full font-bold mt-auto touch-manipulation py-3"
                 data-testid={`button-book-individual-${idx}`}
+                aria-label={`Book a call for ${service.title}`}
                 onClick={() => {
                   setSelectedService(service.title);
                   setInquiryOpen(true);
@@ -286,6 +287,7 @@ export default function Services() {
                 size="lg"
                 className="w-full font-bold mt-auto touch-manipulation py-3"
                 data-testid={`button-book-leadership-${idx}`}
+                aria-label={`Book a call for ${service.title}`}
                 onClick={() => {
                   setSelectedService(service.title);
                   setInquiryOpen(true);
@@ -354,6 +356,7 @@ export default function Services() {
                 size="lg"
                 className="w-full font-bold mt-auto touch-manipulation py-3"
                 data-testid={`button-book-corporate-${idx}`}
+                aria-label={`Book a call for ${service.title}`}
                 onClick={() => {
                   setSelectedService(service.title);
                   setInquiryOpen(true);
@@ -381,6 +384,7 @@ export default function Services() {
             size="lg"
             className="font-bold text-base shadow-xl touch-manipulation py-3"
             data-testid="button-contact-us"
+            aria-label="Book a free strategy call"
             onClick={() => {
               setSelectedService("");
               setInquiryOpen(true);

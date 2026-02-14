@@ -97,6 +97,7 @@ export default function Tools() {
                 onChange={(e) => setSearchQuery(e.target.value)}
                 data-testid="input-tools-search"
                 className="pl-10"
+                aria-label="Search tools"
               />
             </div>
             <p className="text-sm text-muted-foreground whitespace-nowrap">
@@ -127,7 +128,7 @@ export default function Tools() {
                   {tool.description}
                 </p>
                 <Button asChild className="w-full font-bold touch-manipulation py-3" size="lg">
-                  <Link href={tool.path} data-testid={`button-tool-${idx}`}>
+                  <Link href={tool.path} data-testid={`button-tool-${idx}`} aria-label={`Launch ${tool.title}`}>
                     Launch Tool
                   </Link>
                 </Button>

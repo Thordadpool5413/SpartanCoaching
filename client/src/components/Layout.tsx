@@ -75,6 +75,7 @@ function NavDropdown({ label, items, dataTestId }: {
           isGroupActive ? "bg-primary text-primary-foreground" : "text-foreground"
         )}
         aria-haspopup="true"
+        aria-label={`${label} menu`}
       >
         {label}
         <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 group-focus-within:rotate-180" />
@@ -242,7 +243,7 @@ export function Header() {
             <SheetHeader>
               <SheetTitle>Menu</SheetTitle>
             </SheetHeader>
-            <nav className="flex flex-col mt-6 space-y-1">
+            <nav className="flex flex-col mt-6 space-y-1" aria-label="Mobile navigation">
               <Link
                 href="/"
                 onClick={() => setMobileMenuOpen(false)}
@@ -390,6 +391,7 @@ export function Header() {
                 className="pl-9"
                 autoFocus
                 data-testid="input-search"
+                aria-label="Search pages and tools"
               />
             </div>
             <div className="max-h-[400px] overflow-y-auto space-y-1">
@@ -404,6 +406,7 @@ export function Header() {
                     onClick={() => handleSearchSelect(item.path)}
                     className="w-full text-left px-4 py-3 rounded-lg hover-elevate active-elevate-2 transition-colors"
                     data-testid={`button-search-result-${item.path}`}
+                    aria-label={`Navigate to ${item.label}`}
                   >
                     <div className="font-medium text-foreground">{item.label}</div>
                     <div className="text-sm text-muted-foreground">{item.description}</div>
@@ -457,6 +460,7 @@ export function Footer() {
                 rel="noopener noreferrer"
                 className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors hover-elevate px-3 py-2 rounded-md group"
                 data-testid="link-linkedin-footer"
+                aria-label="Connect with Nick Lynch on LinkedIn"
               >
                 <Linkedin className="w-4 h-4 group-hover:scale-110 transition-transform" />
                 <span className="text-sm">Connect with Nick Lynch</span>
@@ -472,6 +476,7 @@ export function Footer() {
                 href="#"
                 className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
                 data-testid="link-privacy"
+                aria-label="Privacy Policy"
               >
                 Privacy Policy
               </a>
@@ -479,6 +484,7 @@ export function Footer() {
                 onClick={() => setContactFormOpen(true)}
                 className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
                 data-testid="button-footer-contact"
+                aria-label="Open contact form"
               >
                 Contact
               </button>
@@ -486,6 +492,7 @@ export function Footer() {
                 href="/admin"
                 className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
                 data-testid="link-admin"
+                aria-label="Admin dashboard"
               >
                 Admin
               </Link>

@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { useState, useEffect, useRef } from "react";
+import { Helmet } from "react-helmet-async";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,7 +10,7 @@ import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { SEO } from "@/components/SEO";
 import { apiRequest } from "@/lib/queryClient";
 import { MarkdownContent } from "@/components/MarkdownContent";
-import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
+import { FadeIn, StaggerContainer, StaggerItem, AnimatedCounter } from "@/components/animations";
 import { ContactForm } from "@/components/ContactForm";
 
 export default function Home() {
@@ -112,6 +113,50 @@ export default function Home() {
   return (
     <div className="flex flex-col">
       <SEO />
+      <Helmet>
+        <script type="application/ld+json">
+          {JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ProfessionalService",
+            "name": "Spartan Coaching",
+            "description": "Expert hospice sales consulting and training firm. Delivering hands-on sales coaching, clinical training, and strategic consulting that gets eligible patients into care earlier.",
+            "url": typeof window !== 'undefined' ? window.location.origin : '',
+            "serviceType": ["Hospice Sales Consulting", "Sales Training", "Strategic Consulting", "Leadership Coaching"],
+            "areaServed": "US",
+            "knowsAbout": ["Hospice Sales", "Healthcare Sales Training", "Medicare Hospice Benefits", "Referral Development", "Territory Management"],
+            "hasOfferCatalog": {
+              "@type": "OfferCatalog",
+              "name": "Consulting Services",
+              "itemListElement": [
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "Virtual Coaching Sessions",
+                    "description": "Targeted coaching for specific hospice sales challenges"
+                  }
+                },
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "Team Training Workshops",
+                    "description": "Customized training for hospice sales teams"
+                  }
+                },
+                {
+                  "@type": "Offer",
+                  "itemOffered": {
+                    "@type": "Service",
+                    "name": "Growth Strategy Consulting",
+                    "description": "Strategic planning for hospice organization growth"
+                  }
+                }
+              ]
+            }
+          })}
+        </script>
+      </Helmet>
       {/* Hero Section - Enhanced with video background */}
       <section className="relative min-h-[50vh] sm:min-h-[60vh] md:h-[92vh] flex items-center justify-center overflow-hidden bg-gray-950">
         {/* Enhanced gradient background with radial accents */}
@@ -131,6 +176,7 @@ export default function Home() {
           preload="auto"
           className="absolute inset-0 w-full h-full object-cover hero-video-mobile z-[1]"
           data-testid="hero-video"
+          aria-label="Spartan Coaching hero video background"
           style={{ pointerEvents: 'none' }}
         >
           <source src="/hero-video.mp4" type="video/mp4" />
@@ -192,9 +238,41 @@ export default function Home() {
         </div>
 
         {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
+        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce" aria-label="Scroll down">
           <div className="w-6 h-10 rounded-full border-2 border-white/30 flex items-start justify-center p-2">
             <div className="w-1 h-3 rounded-full bg-white/50"></div>
+          </div>
+        </div>
+      </section>
+
+      {/* Social Proof Stats */}
+      <section className="relative bg-gradient-to-r from-gray-950 via-gray-900 to-gray-950 py-10 sm:py-14 border-b border-white/10" data-testid="section-social-proof">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+            <div>
+              <p className="text-3xl sm:text-4xl font-black text-white mb-1">
+                <AnimatedCounter target={15} suffix="+" />
+              </p>
+              <p className="text-sm text-white/60">Years Hospice Experience</p>
+            </div>
+            <div>
+              <p className="text-3xl sm:text-4xl font-black text-white mb-1">
+                <AnimatedCounter target={500} suffix="+" />
+              </p>
+              <p className="text-sm text-white/60">Sales Reps Coached</p>
+            </div>
+            <div>
+              <p className="text-3xl sm:text-4xl font-black text-white mb-1">
+                <AnimatedCounter target={40} suffix="%" prefix="+" />
+              </p>
+              <p className="text-sm text-white/60">Average Referral Increase</p>
+            </div>
+            <div>
+              <p className="text-3xl sm:text-4xl font-black text-white mb-1">
+                <AnimatedCounter target={95} suffix="%" />
+              </p>
+              <p className="text-sm text-white/60">Client Satisfaction</p>
+            </div>
           </div>
         </div>
       </section>
@@ -240,6 +318,7 @@ export default function Home() {
                 disabled={askLoading || !askQuery.trim()}
                 className="font-bold px-6"
                 data-testid="button-ask-submit"
+                aria-label="Submit question"
               >
                 Ask
               </Button>
