@@ -38,6 +38,10 @@ const RolePlay = lazy(() => import("@/pages/RolePlay"));
 const Drills = lazy(() => import("@/pages/Drills"));
 const KnowledgeBase = lazy(() => import("@/pages/KnowledgeBase"));
 const ROICalculator = lazy(() => import("@/pages/ROICalculator"));
+const FAQ = lazy(() => import("@/pages/FAQ"));
+const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
+const Disclaimer = lazy(() => import("@/pages/Disclaimer"));
+const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 
 
 function ScrollToTop() {
@@ -118,6 +122,10 @@ function Router() {
           <Route path="/testimonials" component={Testimonials} />
           <Route path="/articles" component={Articles} />
           <Route path="/podcasts" component={Podcasts} />
+          <Route path="/faq" component={FAQ} />
+          <Route path="/terms" component={TermsOfService} />
+          <Route path="/disclaimer" component={Disclaimer} />
+          <Route path="/privacy" component={PrivacyPolicy} />
           <Route path="/learn/knowledge-base" component={KnowledgeBase} />
           <Route path="/about" component={About} />
           <Route component={NotFound} />

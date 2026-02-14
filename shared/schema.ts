@@ -154,6 +154,22 @@ export const insertNewsletterSubscriberSchema = createInsertSchema(newsletterSub
 export type InsertNewsletterSubscriber = z.infer<typeof insertNewsletterSubscriberSchema>;
 export type SelectNewsletterSubscriber = typeof newsletterSubscribers.$inferSelect;
 
+export const resourceLeads = pgTable("resource_leads", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(),
+  email: text("email").notNull(),
+  resourceId: integer("resource_id").notNull(),
+  resourceTitle: varchar("resource_title").notNull(),
+  capturedAt: timestamp("captured_at").defaultNow(),
+});
+
+export const insertResourceLeadSchema = createInsertSchema(resourceLeads).omit({ 
+  id: true,
+  capturedAt: true
+});
+export type InsertResourceLead = z.infer<typeof insertResourceLeadSchema>;
+export type SelectResourceLead = typeof resourceLeads.$inferSelect;
+
 // Drizzle table definition for articles
 export const articles = pgTable("articles", {
   id: serial("id").primaryKey(),

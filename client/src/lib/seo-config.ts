@@ -8,12 +8,12 @@ interface SEOConfig {
 const seoDefaults: Record<string, SEOConfig> = {
   '/': {
     title: 'Spartan Coaching | Expert Hospice Sales Consulting & Training',
-    description: 'Transform your hospice sales team with expert consulting, hands-on coaching, and proven methodologies. Get eligible patients into care earlier with the Spartan Method.',
+    description: 'Transform your hospice sales team with expert consulting and hands-on coaching. Get eligible patients into care earlier using the proven Spartan Method.',
     keywords: 'hospice sales consulting, hospice sales training, hospice marketing, sales coaching, healthcare sales, hospice referrals',
   },
   '/services': {
     title: 'Coaching Services | Spartan Coaching',
-    description: 'Individual and team coaching services designed to elevate hospice sales performance. Build discipline, empathy, and strategy with personalized training programs.',
+    description: 'Elevate your hospice sales performance with personalized coaching. Individual and team programs build discipline, empathy, and winning strategies. Start today.',
     keywords: 'hospice sales coaching, individual coaching, team coaching, sales training services',
   },
   '/programs': {
@@ -28,93 +28,123 @@ const seoDefaults: Record<string, SEOConfig> = {
   },
   '/tools': {
     title: 'Hospice Sales Tools | Spartan Coaching',
-    description: 'Expert tools for hospice sales professionals. Generate playbooks, handle objections, research territories, and craft emails instantly.',
+    description: 'Try powerful AI-powered tools for hospice sales. Generate playbooks, handle objections, research territories, and craft winning emails instantly.',
     keywords: 'hospice sales tools, sales playbook generator, objection handling, territory research, email templates',
   },
   '/tools/playbooks': {
     title: 'Sales Playbook Generator | Spartan Coaching',
-    description: 'Generate customized hospice sales playbooks. Get step-by-step strategies, talking points, and action plans for any sales scenario.',
+    description: 'Generate customized hospice sales playbooks instantly. Get proven strategies, talking points, and action plans for any sales scenario. Try free.',
     keywords: 'sales playbook generator, hospice sales strategies, talking points, sales playbook',
   },
   '/tools/objections': {
     title: 'Objection Handler | Spartan Coaching',
-    description: 'Handle hospice sales objections with empathy and confidence. Get expert responses that address concerns and keep conversations moving.',
+    description: 'Master hospice sales objections with confidence. Get expert responses that address concerns and keep conversations moving. Win more deals.',
     keywords: 'objection handling, sales objections, hospice objections, empathetic responses',
   },
   '/tools/research': {
     title: 'Territory Research | Spartan Coaching',
-    description: 'Research your sales territory with expert insights. Get data on facilities, demographics, and market opportunities for hospice outreach.',
+    description: 'Research your territory with expert insights. Get data on facilities, demographics, and market opportunities to maximize hospice outreach.',
     keywords: 'territory research, sales territory, market research, hospice demographics, facility research',
   },
   '/tools/transcribe': {
     title: 'Audio Transcription | Spartan Coaching',
-    description: 'Transcribe sales calls and meetings instantly with AI. Capture key details, follow-up items, and coaching insights from every conversation.',
+    description: 'Transcribe sales calls instantly with AI. Capture details, follow-ups, and coaching insights to improve every conversation. Try free.',
     keywords: 'audio transcription, sales call transcription, meeting transcription, AI transcription',
   },
   '/tools/email-templates': {
     title: 'Email Templates | Spartan Coaching',
-    description: 'Generate professional follow-up emails, thank you notes, and value-add messages for hospice sales outreach. Expert-crafted templates that build relationships.',
+    description: 'Generate professional hospice sales emails instantly. Expert-crafted follow-ups, thank yous, and value-adds that build relationships. Start today.',
     keywords: 'email templates, sales emails, follow-up emails, hospice outreach templates',
   },
   '/tools/roi-calculator': {
     title: 'ROI Calculator | Spartan Coaching',
-    description: 'Calculate the potential return on investment from Spartan Coaching for your hospice organization. Estimate revenue growth, increased referrals, and improved conversion rates.',
+    description: 'Calculate ROI from Spartan Coaching for your hospice organization. Estimate revenue growth, referral increases, and improved conversion rates.',
     keywords: 'ROI calculator, hospice ROI, sales coaching ROI, revenue calculator, hospice revenue growth',
+  },
+  '/tools/role-play': {
+    title: 'AI Role-Play Practice | Spartan Coaching',
+    description: 'Practice hospice sales conversations with AI-powered role-play scenarios. Get real-time coaching feedback on your approach, empathy, and strategy.',
+    keywords: 'role-play practice, sales simulation, AI coaching, conversation practice, hospice sales training',
+  },
+  '/drills': {
+    title: 'Daily Coaching Drills | Spartan Coaching',
+    description: 'Sharpen your hospice sales skills with daily practice drills. Build habits that lead to consistent performance with exercises in objection handling, prospecting, and more.',
+    keywords: 'daily drills, sales practice, coaching exercises, hospice sales habits, daily training',
   },
   '/resources': {
     title: 'Training Resources | Spartan Coaching',
-    description: 'Downloadable training materials for hospice sales professionals. Scripts, templates, checklists, and guides to sharpen your skills.',
+    description: 'Download proven training materials for hospice sales. Scripts, templates, checklists, and guides to accelerate your team\'s success.',
     keywords: 'training resources, sales scripts, templates, checklists, hospice sales guides',
   },
   '/resources/weekly-plan': {
     title: 'Weekly Action Plan | Spartan Coaching',
-    description: 'Structure your hospice sales week with a proven action plan template. Prioritize activities, track progress, and maximize productivity.',
+    description: 'Structure your hospice sales week with a proven action plan. Prioritize activities, track progress, and maximize results. Download now.',
     keywords: 'weekly plan, sales action plan, activity planning, hospice sales productivity',
   },
   '/resources/quick-start-guide': {
     title: 'Quick Start Guide | Spartan Coaching',
-    description: 'Get started with hospice sales fundamentals. A step-by-step guide covering essential skills, processes, and best practices.',
+    description: 'Master hospice sales fundamentals fast. Step-by-step guide covering essential skills, processes, and best practices. Start today.',
     keywords: 'quick start guide, hospice sales basics, getting started, sales fundamentals',
   },
   '/resources/objection-cards': {
     title: 'Objection Response Cards | Spartan Coaching',
-    description: 'Ready-to-use objection response cards for common hospice sales challenges. Practice and prepare for every conversation.',
+    description: 'Master objections with ready-to-use response cards for common hospice sales challenges. Practice and win more deals. Download now.',
     keywords: 'objection cards, response cards, sales objections, hospice sales practice',
   },
   '/resources/territory-template': {
     title: 'Territory Planning Template | Spartan Coaching',
-    description: 'Plan and organize your hospice sales territory with this comprehensive template. Map accounts, track progress, and identify opportunities.',
+    description: 'Organize your hospice territory strategically. Map accounts, track progress, identify opportunities, and maximize results. Try now.',
     keywords: 'territory template, territory planning, account mapping, hospice sales territory',
   },
   '/resources/metrics-dashboard': {
     title: 'Sales Metrics Dashboard | Spartan Coaching',
-    description: 'Track your hospice sales performance with key metrics. Monitor referrals, conversions, and growth to measure your progress.',
+    description: 'Track your hospice sales performance in real-time. Monitor referrals, conversions, and growth. Measure progress and improve results.',
     keywords: 'sales metrics, performance dashboard, hospice sales KPIs, referral tracking',
   },
   '/articles': {
     title: 'Articles & Insights | Spartan Coaching',
-    description: 'Thought leadership articles on hospice sales excellence. Expert insights on strategy, empathy, and building referral partnerships.',
+    description: 'Expert thought leadership on hospice sales excellence. Get insights on strategy, empathy, and building referral partnerships.',
     keywords: 'hospice sales articles, thought leadership, sales insights, industry articles',
   },
   '/podcasts': {
     title: 'Coaching Podcasts | Spartan Coaching',
-    description: 'Listen to expert coaching episodes on hospice sales strategies, real-world scenarios, and professional development tips.',
+    description: 'Learn from expert coaching episodes on hospice sales strategies and real-world scenarios. Listen and grow your skills.',
     keywords: 'coaching podcasts, hospice sales podcast, sales training episodes, coaching tips',
   },
   '/testimonials': {
     title: 'Client Testimonials | Spartan Coaching',
-    description: 'See results from hospice organizations that have transformed their sales performance with Spartan Coaching. Real stories, real metrics.',
+    description: 'See how hospice organizations transformed sales performance with Spartan Coaching. Real results, proven success, measurable growth.',
     keywords: 'testimonials, client results, hospice sales success, coaching results',
   },
   '/about': {
     title: 'About | Spartan Coaching',
-    description: 'Meet the team behind Spartan Coaching. Over 15 years of hospice sales experience dedicated to helping providers reach more patients.',
+    description: 'Meet our team of hospice sales experts. 15+ years of experience helping providers reach more patients and grow revenue.',
     keywords: 'about Spartan Coaching, hospice sales experts, coaching team, mission',
   },
   '/admin': {
     title: 'Admin Dashboard | Spartan Coaching',
-    description: 'Admin dashboard for managing content, analytics, and inquiries.',
-    keywords: 'admin, dashboard, management',
+    description: 'Manage Spartan Coaching content, analytics, and customer inquiries in one centralized dashboard. Monitor platform performance and engagement.',
+    keywords: 'admin dashboard, content management, analytics dashboard, inquiry management',
+  },
+  '/faq': {
+    title: 'Frequently Asked Questions | Spartan Coaching',
+    description: 'Get answers to common questions about hospice sales coaching, program details, pricing, and how Spartan Coaching helps transform sales performance.',
+    keywords: 'hospice coaching FAQ, sales training questions, coaching cost, hospice sales coaching process',
+  },
+  '/terms': {
+    title: 'Terms of Service | Spartan Coaching',
+    description: 'Terms of Service for Spartan Coaching hospice sales consulting platform. Review our terms governing use of our website, tools, and services.',
+    keywords: 'terms of service, legal terms, Spartan Coaching terms',
+  },
+  '/disclaimer': {
+    title: 'Disclaimer | Spartan Coaching',
+    description: 'Important disclaimers regarding Spartan Coaching services, AI tools, and educational content. Our services are for informational purposes.',
+    keywords: 'disclaimer, legal disclaimer, consulting disclaimer, AI tools disclaimer',
+  },
+  '/privacy': {
+    title: 'Privacy Policy | Spartan Coaching',
+    description: 'Privacy Policy for Spartan Coaching. Learn how we collect, use, and protect your personal information on our hospice sales consulting platform.',
+    keywords: 'privacy policy, data protection, Spartan Coaching privacy',
   },
   '/learn/knowledge-base': {
     title: 'Hospice Knowledge Base | Spartan Coaching',

@@ -1,14 +1,19 @@
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Download } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Download, Mail, User } from "lucide-react";
 import { BackButton } from "@/components/BackButton";
 import type { SelectResource } from "@shared/schema";
 import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
+import { apiRequest } from "@/lib/queryClient";
 
 export default function Resources() {
   const { data: resourcesData, isLoading, isError } = useQuery<{ resources: SelectResource[] }>({
@@ -16,6 +21,28 @@ export default function Resources() {
   });
 
   const resources = resourcesData?.resources || [];
+
+  const [gateOpen, setGateOpen] = useState(false);
+  const [selectedResource, setSelectedResource] = useState<SelectResource | null>(null);
+  const [leadName, setLeadName] = useState("");
+  const [leadEmail, setLeadEmail] = useState("");
+
+  const leadMutation = useMutation({
+    mutationFn: async (data: { name: string; email: string; resourceId: number; resourceTitle: string }) => {
+      const res = await apiRequest("POST", "/api/resource-leads", data);
+      return res.json();
+    },
+    onSuccess: () => {
+      if (selectedResource) {
+        trackEvent("resource_download", selectedResource.title);
+        window.open(selectedResource.fileUrl, '_blank');
+      }
+      setGateOpen(false);
+      setLeadName("");
+      setLeadEmail("");
+      setSelectedResource(null);
+    },
+  });
 
   const groupedResources = resources.reduce((acc, resource) => {
     if (!acc[resource.category]) {
@@ -128,8 +155,8 @@ export default function Resources() {
                     <Button
                       className="w-full gap-2"
                       onClick={() => {
-                        trackEvent("resource_download", resource.title);
-                        window.open(resource.fileUrl, '_blank');
+                        setSelectedResource(resource);
+                        setGateOpen(true);
                       }}
                       data-testid={`button-download-${resource.id}`}
                     >
@@ -143,6 +170,75 @@ export default function Resources() {
           </div>
         ))}
       </div>
+
+      <Dialog open={gateOpen} onOpenChange={(open) => { setGateOpen(open); if (!open) setSelectedResource(null); }}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Get Your Free Resource</DialogTitle>
+            <DialogDescription>
+              Enter your name and email to download "{selectedResource?.title}". We'll also send you occasional hospice sales tips.
+            </DialogDescription>
+          </DialogHeader>
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              if (selectedResource && leadName.trim() && leadEmail.trim()) {
+                leadMutation.mutate({
+                  name: leadName.trim(),
+                  email: leadEmail.trim(),
+                  resourceId: selectedResource.id,
+                  resourceTitle: selectedResource.title,
+                });
+              }
+            }}
+            className="space-y-4"
+          >
+            <div className="space-y-2">
+              <Label htmlFor="lead-name">Name</Label>
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="lead-name"
+                  placeholder="Your name"
+                  value={leadName}
+                  onChange={(e) => setLeadName(e.target.value)}
+                  className="pl-9"
+                  required
+                  data-testid="input-lead-name"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="lead-email">Email</Label>
+              <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  id="lead-email"
+                  type="email"
+                  placeholder="your@email.com"
+                  value={leadEmail}
+                  onChange={(e) => setLeadEmail(e.target.value)}
+                  className="pl-9"
+                  required
+                  data-testid="input-lead-email"
+                />
+              </div>
+            </div>
+            <Button
+              type="submit"
+              className="w-full gap-2"
+              disabled={leadMutation.isPending}
+              data-testid="button-submit-lead"
+            >
+              <Download className="w-4 h-4" />
+              {leadMutation.isPending ? "Processing..." : "Download Now"}
+            </Button>
+            <p className="text-xs text-muted-foreground text-center">
+              We respect your privacy. Unsubscribe anytime.
+            </p>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

@@ -33,6 +33,9 @@ import {
   type SelectRoleplayMessage,
   type InsertDrillCompletion,
   type SelectDrillCompletion,
+  resourceLeads,
+  type InsertResourceLead,
+  type SelectResourceLead,
 } from "@shared/schema";
 import { db } from "./db";
 import { desc, eq, gte, count } from "drizzle-orm";
@@ -78,6 +81,9 @@ export interface IStorage {
   // Drill operations
   createDrillCompletion(completion: InsertDrillCompletion): Promise<SelectDrillCompletion>;
   getDrillCompletions(): Promise<SelectDrillCompletion[]>;
+  // Resource lead operations
+  captureResourceLead(lead: InsertResourceLead): Promise<SelectResourceLead>;
+  getResourceLeads(): Promise<SelectResourceLead[]>;
 }
 
 // Database-backed storage implementation
@@ -410,6 +416,15 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(drillCompletions)
       .orderBy(desc(drillCompletions.completedAt));
+  }
+
+  async captureResourceLead(lead: InsertResourceLead): Promise<SelectResourceLead> {
+    const [result] = await db.insert(resourceLeads).values(lead).returning();
+    return result;
+  }
+
+  async getResourceLeads(): Promise<SelectResourceLead[]> {
+    return await db.select().from(resourceLeads).orderBy(desc(resourceLeads.capturedAt));
   }
 }
 

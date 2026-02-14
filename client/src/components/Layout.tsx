@@ -139,6 +139,9 @@ export function Header() {
     { path: "/articles", label: "Articles", description: "Industry insights and thought leadership" },
     { path: "/testimonials", label: "Testimonials", description: "Client success stories" },
     { path: "/about", label: "About", description: "Learn about Spartan Coaching" },
+    { path: "/faq", label: "FAQ", description: "Common questions answered" },
+    { path: "/terms", label: "Terms of Service", description: "Terms governing use of our services" },
+    { path: "/disclaimer", label: "Disclaimer", description: "Important disclaimers and notices" },
   ];
 
   const aiTools = [
@@ -213,6 +216,7 @@ export function Header() {
             { path: "/podcasts", label: "Podcasts", description: "Expert insights" },
             { path: "/articles", label: "Articles", description: "Thought leadership" },
             { path: "/testimonials", label: "Testimonials", description: "Client success stories" },
+            { path: "/faq", label: "FAQ", description: "Common questions answered" },
           ]} />
           <NavLink href="/about">About</NavLink>
           <Button
@@ -320,6 +324,7 @@ export function Header() {
                 { path: "/podcasts", label: "Podcasts" },
                 { path: "/articles", label: "Articles" },
                 { path: "/testimonials", label: "Testimonials" },
+                { path: "/faq", label: "FAQ" },
               ].map((item) => (
                 <Link
                   key={item.path}
@@ -472,14 +477,30 @@ export function Footer() {
               <NewsletterSignup />
             </div>
             <div className="flex flex-wrap gap-3 sm:gap-6 text-sm">
-              <a
-                href="#"
+              <Link
+                href="/privacy"
                 className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
                 data-testid="link-privacy"
                 aria-label="Privacy Policy"
               >
                 Privacy Policy
-              </a>
+              </Link>
+              <Link
+                href="/terms"
+                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
+                data-testid="link-terms"
+                aria-label="Terms of Service"
+              >
+                Terms of Service
+              </Link>
+              <Link
+                href="/disclaimer"
+                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
+                data-testid="link-disclaimer"
+                aria-label="Disclaimer"
+              >
+                Disclaimer
+              </Link>
               <button
                 onClick={() => setContactFormOpen(true)}
                 className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"

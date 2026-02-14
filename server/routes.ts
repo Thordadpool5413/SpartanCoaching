@@ -29,6 +29,7 @@ import {
   roleplayMessageSchema,
   drillCompletionRequestSchema,
   sendEmailRequestSchema,
+  insertResourceLeadSchema,
 } from "@shared/schema";
 
 import {
@@ -60,6 +61,67 @@ export function registerRoutes(app: Express): void {
     res.redirect(301, `/resources/files/${req.params[0]}`);
   });
 
+  // robots.txt route
+  app.get('/robots.txt', (_req, res) => {
+    const baseUrl = `${_req.protocol}://${_req.get('host')}`;
+    res.set('Content-Type', 'text/plain');
+    res.send(`User-agent: *
+Allow: /
+Disallow: /admin
+
+Sitemap: ${baseUrl}/sitemap.xml`);
+  });
+
+  // XML Sitemap route
+  app.get('/sitemap.xml', (_req, res) => {
+    const baseUrl = `${_req.protocol}://${_req.get('host')}`;
+    
+    const pages = [
+      { path: '/', priority: '1.0', changefreq: 'weekly' },
+      { path: '/services', priority: '0.9', changefreq: 'monthly' },
+      { path: '/programs', priority: '0.9', changefreq: 'monthly' },
+      { path: '/method', priority: '0.8', changefreq: 'monthly' },
+      { path: '/tools', priority: '0.8', changefreq: 'weekly' },
+      { path: '/tools/playbooks', priority: '0.7', changefreq: 'monthly' },
+      { path: '/tools/objections', priority: '0.7', changefreq: 'monthly' },
+      { path: '/tools/research', priority: '0.7', changefreq: 'monthly' },
+      { path: '/tools/transcribe', priority: '0.7', changefreq: 'monthly' },
+      { path: '/tools/email-templates', priority: '0.7', changefreq: 'monthly' },
+      { path: '/tools/role-play', priority: '0.7', changefreq: 'monthly' },
+      { path: '/tools/roi-calculator', priority: '0.7', changefreq: 'monthly' },
+      { path: '/drills', priority: '0.7', changefreq: 'daily' },
+      { path: '/resources', priority: '0.8', changefreq: 'weekly' },
+      { path: '/resources/weekly-plan', priority: '0.6', changefreq: 'monthly' },
+      { path: '/resources/quick-start-guide', priority: '0.6', changefreq: 'monthly' },
+      { path: '/resources/objection-cards', priority: '0.6', changefreq: 'monthly' },
+      { path: '/resources/territory-template', priority: '0.6', changefreq: 'monthly' },
+      { path: '/resources/metrics-dashboard', priority: '0.6', changefreq: 'monthly' },
+      { path: '/articles', priority: '0.8', changefreq: 'weekly' },
+      { path: '/podcasts', priority: '0.8', changefreq: 'weekly' },
+      { path: '/testimonials', priority: '0.7', changefreq: 'monthly' },
+      { path: '/learn/knowledge-base', priority: '0.7', changefreq: 'monthly' },
+      { path: '/about', priority: '0.6', changefreq: 'monthly' },
+      { path: '/faq', priority: '0.7', changefreq: 'monthly' },
+      { path: '/terms', priority: '0.3', changefreq: 'yearly' },
+      { path: '/disclaimer', priority: '0.3', changefreq: 'yearly' },
+      { path: '/privacy', priority: '0.3', changefreq: 'yearly' },
+    ];
+
+    const today = new Date().toISOString().split('T')[0];
+
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${pages.map(p => `  <url>
+    <loc>${baseUrl}${p.path}</loc>
+    <lastmod>${today}</lastmod>
+    <changefreq>${p.changefreq}</changefreq>
+    <priority>${p.priority}</priority>
+  </url>`).join('\n')}
+</urlset>`;
+
+    res.set('Content-Type', 'application/xml');
+    res.send(xml);
+  });
 
   // AI Playbook Generator
   app.post("/api/playbooks", async (req, res) => {
@@ -469,6 +531,31 @@ Subject: [subject line]
       } else {
         res.status(500).json({ error: error.message || "Failed to update resource" });
       }
+    }
+  });
+
+  app.post("/api/resource-leads", async (req, res) => {
+    try {
+      const leadData = insertResourceLeadSchema.parse(req.body);
+      const lead = await storage.captureResourceLead(leadData);
+      res.json({ success: true, lead });
+    } catch (error: any) {
+      if (error.name === "ZodError") {
+        res.status(400).json({ error: "Invalid data provided" });
+      } else {
+        console.error("Resource lead capture error:", error);
+        res.status(500).json({ error: "Failed to capture lead" });
+      }
+    }
+  });
+
+  app.get("/api/resource-leads", async (_req, res) => {
+    try {
+      const leads = await storage.getResourceLeads();
+      res.json({ leads });
+    } catch (error: any) {
+      console.error("Get resource leads error:", error);
+      res.status(500).json({ error: "Failed to retrieve leads" });
     }
   });
 
