@@ -20,19 +20,21 @@ export default function ROICalculator() {
   const [referrals, setReferrals] = useState(15);
   const [conversion, setConversion] = useState(65);
   const [los, setLos] = useState(45);
-  const [rppd, setRppd] = useState(195);
+  const [rppd, setRppd] = useState(200);
 
   const totalReferrals = reps * referrals;
   const conversionRate = conversion / 100;
   const monthlyAdmissions = totalReferrals * conversionRate;
-  const monthlyRevenue = monthlyAdmissions * los * rppd;
+  const revenuePerAdmission = los * rppd;
+  const monthlyRevenue = monthlyAdmissions * revenuePerAdmission;
   const annualRevenue = monthlyRevenue * 12;
 
   const projectedReferrals = totalReferrals * 1.4;
   const projectedConversionRate = Math.min(conversion + 15, 95) / 100;
   const projectedAdmissions = projectedReferrals * projectedConversionRate;
   const projectedLos = los * 1.25;
-  const projectedMonthlyRevenue = projectedAdmissions * projectedLos * rppd;
+  const projectedRevenuePerAdmission = projectedLos * rppd;
+  const projectedMonthlyRevenue = projectedAdmissions * projectedRevenuePerAdmission;
   const projectedAnnualRevenue = projectedMonthlyRevenue * 12;
 
   const additionalMonthlyRevenue = projectedMonthlyRevenue - monthlyRevenue;
@@ -152,7 +154,7 @@ export default function ROICalculator() {
                   </div>
                   <div>
                     <Label htmlFor="input-rppd" className="text-sm font-semibold text-foreground mb-2 block">
-                      Average Revenue Per Patient Day ($)
+                      Medicare Hospice Per-Diem Rate ($)
                     </Label>
                     <Input
                       id="input-rppd"
@@ -163,6 +165,9 @@ export default function ROICalculator() {
                       min={100}
                       max={500}
                     />
+                    <p className="text-xs text-muted-foreground mt-2">
+                      Based on the CMS Medicare hospice routine home care per-diem rate. Adjust for your specific payer mix.
+                    </p>
                   </div>
                 </div>
               </CardContent>
@@ -185,6 +190,10 @@ export default function ROICalculator() {
                     <div className="flex items-center justify-between gap-4">
                       <span className="text-body text-muted-foreground">Monthly Admissions</span>
                       <span className="text-lg font-bold text-foreground">{monthlyAdmissions.toFixed(1)}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-body text-muted-foreground">Revenue Per Admission</span>
+                      <span className="text-lg font-bold text-foreground" data-testid="text-revenue-per-admission">{formatCurrency(revenuePerAdmission)}</span>
                     </div>
                     <div className="flex items-center justify-between gap-4">
                       <span className="text-body text-muted-foreground">Monthly Revenue</span>
@@ -216,6 +225,10 @@ export default function ROICalculator() {
                     <div className="flex items-center justify-between gap-4">
                       <span className="text-body text-muted-foreground">Projected Monthly Admissions</span>
                       <span className="text-lg font-bold text-primary">{projectedAdmissions.toFixed(1)}</span>
+                    </div>
+                    <div className="flex items-center justify-between gap-4">
+                      <span className="text-body text-muted-foreground">Projected Revenue Per Admission</span>
+                      <span className="text-lg font-bold text-primary" data-testid="text-projected-revenue-per-admission">{formatCurrency(projectedRevenuePerAdmission)}</span>
                     </div>
                     <div className="flex items-center justify-between gap-4">
                       <span className="text-body text-muted-foreground">Projected Monthly Revenue</span>
@@ -265,7 +278,7 @@ export default function ROICalculator() {
               </Card>
 
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Projections are estimates based on average improvements observed across Spartan Coaching clients. Individual results may vary based on market conditions, team experience, and implementation.
+                Revenue calculations are based on the average Medicare hospice routine home care per-diem rate (~$200/day). Actual rates vary by region, level of care, and payer mix. Projections are estimates based on average improvements observed across Spartan Coaching clients. Individual results may vary based on market conditions, team experience, and implementation.
               </p>
             </div>
           </FadeIn>
