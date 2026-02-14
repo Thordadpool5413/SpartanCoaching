@@ -502,60 +502,12 @@ export function Footer() {
                 Disclaimer
               </Link>
               <Link
-                href="/baa"
+                href="/legal"
                 className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
-                data-testid="link-baa"
-                aria-label="HIPAA BAA"
+                data-testid="link-legal"
+                aria-label="Legal Agreements"
               >
-                HIPAA BAA
-              </Link>
-              <Link
-                href="/contract"
-                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
-                data-testid="link-contract"
-                aria-label="Services Contract"
-              >
-                Services Contract
-              </Link>
-              <Link
-                href="/nda"
-                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
-                data-testid="link-nda"
-                aria-label="NDA"
-              >
-                NDA
-              </Link>
-              <Link
-                href="/emr-access"
-                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
-                data-testid="link-emr-access"
-                aria-label="EMR Access Agreement"
-              >
-                EMR Access
-              </Link>
-              <Link
-                href="/conflict-of-interest"
-                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
-                data-testid="link-conflict-of-interest"
-                aria-label="Conflict of Interest"
-              >
-                Conflict of Interest
-              </Link>
-              <Link
-                href="/liability-waiver"
-                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
-                data-testid="link-liability-waiver"
-                aria-label="Liability Waiver"
-              >
-                Liability Waiver
-              </Link>
-              <Link
-                href="/testimonial-release"
-                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
-                data-testid="link-testimonial-release"
-                aria-label="Testimonial Release"
-              >
-                Testimonial Release
+                Legal Agreements
               </Link>
               <button
                 onClick={() => setContactFormOpen(true)}

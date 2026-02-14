@@ -106,6 +106,7 @@ Sitemap: ${baseUrl}/sitemap.xml`);
       { path: '/terms', priority: '0.3', changefreq: 'yearly' },
       { path: '/disclaimer', priority: '0.3', changefreq: 'yearly' },
       { path: '/privacy', priority: '0.3', changefreq: 'yearly' },
+      { path: '/legal', priority: '0.4', changefreq: 'yearly' },
       { path: '/baa', priority: '0.3', changefreq: 'yearly' },
       { path: '/contract', priority: '0.3', changefreq: 'yearly' },
       { path: '/nda', priority: '0.3', changefreq: 'yearly' },

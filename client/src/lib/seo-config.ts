@@ -151,6 +151,11 @@ const seoDefaults: Record<string, SEOConfig> = {
     description: 'Review our HIPAA Business Associate Agreement. Spartan Coaching safeguards Protected Health Information with full HIPAA and HITECH Act compliance.',
     keywords: 'HIPAA BAA, business associate agreement, PHI protection, HIPAA compliance, hospice data security',
   },
+  '/legal': {
+    title: 'Legal Agreements | Spartan Coaching',
+    description: 'Review and digitally sign consulting engagement agreements including HIPAA BAA, Services Contract, NDA, EMR Access, and more.',
+    keywords: 'legal agreements, consulting contracts, HIPAA BAA, NDA, hospice consulting agreements',
+  },
   '/contract': {
     title: 'Services Contract Agreement | Spartan Coaching',
     description: 'Review our consulting services contract covering scope, fees, confidentiality, and terms for hospice sales coaching and training engagements.',
