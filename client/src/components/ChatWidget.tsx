@@ -14,6 +14,7 @@ import {
   DrawerTitle,
   DrawerDescription,
 } from "@/components/ui/drawer";
+import { MarkdownContent } from "@/components/MarkdownContent";
 
 
 function ChatWidgetContent() {
@@ -163,7 +164,11 @@ function ChatWidgetContent() {
                   : "bg-muted text-foreground border border-border"
               )}
             >
-              <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+              {msg.role === "user" ? (
+                <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+              ) : (
+                <MarkdownContent content={msg.content} variant="compact" />
+              )}
             </div>
           </div>
         ))}

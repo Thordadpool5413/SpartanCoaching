@@ -5,6 +5,7 @@ import { LightbulbIcon, SpeakerIcon, SpinnerIcon } from "@/components/icons";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
+import { MarkdownContent } from "@/components/MarkdownContent";
 
 export default function Objections() {
   const objections = [
@@ -138,7 +139,9 @@ export default function Objections() {
               {aiResponses[obj.q] && (
                 <div className="p-4 bg-accent rounded-lg">
                   <p className="font-semibold text-sm mb-2 text-primary">AI Generated Response:</p>
-                  <p className="text-foreground mb-3" data-testid={`text-ai-response-${idx}`}>{aiResponses[obj.q]}</p>
+                  <div className="text-foreground mb-3" data-testid={`text-ai-response-${idx}`}>
+                    <MarkdownContent content={aiResponses[obj.q]} />
+                  </div>
                   <button
                     onClick={() => readAloud(aiResponses[obj.q], obj.q)}
                     disabled={playing === obj.q}

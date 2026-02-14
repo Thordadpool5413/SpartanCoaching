@@ -3,7 +3,6 @@ import express from "express";
 
 import path from "path";
 import { storage } from "./storage";
-import { setupAuth, isAuthenticated } from "./replitAuth";
 import {
   generateComplexResponse,
   generateQuickResponse,
@@ -41,17 +40,9 @@ import { sendInquiryNotification, sendNewsletterConfirmation, sendGeneratedEmail
 // Get admin password from environment, default to secure value for development
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "5413";
 
-// Track if auth has been initialized (for deferred init)
-let authInitialized = false;
-
 // Deferred initialization - call this AFTER server.listen()
 export async function deferredInit(app: Express): Promise<void> {
-  if (!authInitialized) {
-    console.log("Running deferred auth initialization...");
-    await setupAuth(app);
-    authInitialized = true;
-    console.log("Auth initialization complete");
-  }
+  console.log("Deferred initialization complete");
 }
 
 export function registerRoutes(app: Express): void {
@@ -69,20 +60,6 @@ export function registerRoutes(app: Express): void {
     res.redirect(301, `/resources/files/${req.params[0]}`);
   });
 
-  // NOTE: Auth setup is deferred to after server.listen() for faster startup
-  // See deferredInit() function above
-
-  // Auth routes - blueprint:javascript_log_in_with_replit
-  app.get("/api/auth/user", isAuthenticated, async (req: any, res) => {
-    try {
-      const userId = req.user.claims.sub;
-      const user = await storage.getUser(userId);
-      res.json(user);
-    } catch (error) {
-      console.error("Error fetching user:", error);
-      res.status(500).json({ message: "Failed to fetch user" });
-    }
-  });
 
   // AI Playbook Generator
   app.post("/api/playbooks", async (req, res) => {

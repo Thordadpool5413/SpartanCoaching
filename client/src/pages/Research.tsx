@@ -6,6 +6,7 @@ import { SearchIcon, SpinnerIcon } from "@/components/icons";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
+import { MarkdownContent } from "@/components/MarkdownContent";
 
 export default function Research() {
   const [query, setQuery] = useState("");
@@ -163,8 +164,8 @@ export default function Research() {
         <div className="space-y-6">
           <Card className="card-lift border-2 shadow-lg spacing-card">
             <h2 className="text-h2 font-bold text-foreground mb-4">Research Results</h2>
-            <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap mb-6" data-testid="text-research-results">
-              {results.text}
+            <div className="mb-6" data-testid="text-research-results">
+              <MarkdownContent content={results.text} />
             </div>
             {results.sources && results.sources.length > 0 && (
               <div>

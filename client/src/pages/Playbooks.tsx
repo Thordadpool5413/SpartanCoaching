@@ -7,6 +7,7 @@ import { SpinnerIcon, DownloadIcon } from "@/components/icons";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
+import { MarkdownContent } from "@/components/MarkdownContent";
 
 export default function Playbooks() {
   const [scenario, setScenario] = useState("");
@@ -203,8 +204,8 @@ export default function Playbooks() {
                   </Button>
                 </div>
               </div>
-              <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap" data-testid="text-playbook-content">
-                {generatedPlaybook}
+              <div data-testid="text-playbook-content">
+                <MarkdownContent content={generatedPlaybook} />
               </div>
             </Card>
           )}
@@ -224,8 +225,8 @@ export default function Playbooks() {
             <div className="text-destructive">{error}</div>
           ) : (
             <>
-              <div className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap mb-6">
-                {generatedPlaybook}
+              <div className="mb-6">
+                <MarkdownContent content={generatedPlaybook} />
               </div>
               <div className="flex gap-3">
                 <Button variant="outline" onClick={handlePrint} className="flex-1" data-testid="button-modal-print">

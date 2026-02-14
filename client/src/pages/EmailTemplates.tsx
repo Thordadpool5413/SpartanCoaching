@@ -10,6 +10,7 @@ import { Mail, Copy, Loader2, Send } from "lucide-react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
+import { MarkdownContent } from "@/components/MarkdownContent";
 
 export default function EmailTemplates() {
   const [templateType, setTemplateType] = useState<"follow_up" | "thank_you" | "value_add">("follow_up");
@@ -242,8 +243,8 @@ export default function EmailTemplates() {
             <CardContent>
               {generatedTemplate ? (
                 <div className="space-y-4">
-                  <div className="bg-muted p-4 rounded-lg whitespace-pre-wrap text-sm" data-testid="text-generated-template">
-                    {generatedTemplate}
+                  <div className="bg-muted p-4 rounded-lg" data-testid="text-generated-template">
+                    <MarkdownContent content={generatedTemplate} />
                   </div>
                   <div className="mt-6 space-y-3 border-t pt-4">
                     <h4 className="font-semibold text-sm">Send this Email</h4>

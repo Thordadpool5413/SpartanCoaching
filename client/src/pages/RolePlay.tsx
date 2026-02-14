@@ -8,6 +8,7 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
+import { MarkdownContent } from "@/components/MarkdownContent";
 import {
   FadeIn,
   SlideUp,
@@ -319,11 +320,7 @@ export default function RolePlay() {
                     <h3 className="text-lg font-bold text-foreground">Strengths</h3>
                   </div>
                   <Card className="spacing-card bg-green-50/50 dark:bg-green-950/20 border-green-200/50 dark:border-green-800/30">
-                    <div className="prose prose-sm dark:prose-invert max-w-none text-foreground">
-                      {feedbackSections.strengths.map((line, i) => (
-                        <p key={i} className="text-sm leading-relaxed mb-1 last:mb-0">{line}</p>
-                      ))}
-                    </div>
+                    <MarkdownContent content={feedbackSections.strengths.join("\n")} />
                   </Card>
                 </div>
               </SlideUp>
@@ -337,11 +334,7 @@ export default function RolePlay() {
                     <h3 className="text-lg font-bold text-foreground">Areas to Improve</h3>
                   </div>
                   <Card className="spacing-card bg-amber-50/50 dark:bg-amber-950/20 border-amber-200/50 dark:border-amber-800/30">
-                    <div className="prose prose-sm dark:prose-invert max-w-none text-foreground">
-                      {feedbackSections.improvements.map((line, i) => (
-                        <p key={i} className="text-sm leading-relaxed mb-1 last:mb-0">{line}</p>
-                      ))}
-                    </div>
+                    <MarkdownContent content={feedbackSections.improvements.join("\n")} />
                   </Card>
                 </div>
               </SlideUp>
@@ -350,11 +343,8 @@ export default function RolePlay() {
             {feedbackSections.general.length > 0 && (
               <SlideUp delay={0.45}>
                 <div className="mb-8" data-testid="display-general-feedback">
-                  <div
-                    className="prose prose-sm dark:prose-invert max-w-none whitespace-pre-wrap text-foreground"
-                    data-testid="text-feedback-content"
-                  >
-                    {feedbackSections.general.join("\n")}
+                  <div data-testid="text-feedback-content">
+                    <MarkdownContent content={feedbackSections.general.join("\n")} />
                   </div>
                 </div>
               </SlideUp>
@@ -446,7 +436,11 @@ export default function RolePlay() {
                     : "bg-muted text-foreground border border-border"
                 )}
               >
-                <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                {msg.role === "user" ? (
+                  <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                ) : (
+                  <MarkdownContent content={msg.content} variant="compact" />
+                )}
               </div>
               {msg.role === "user" && (
                 <div className="w-8 h-8 rounded-full bg-accent flex items-center justify-center shrink-0 mt-0.5" data-testid={`avatar-user-${index}`}>

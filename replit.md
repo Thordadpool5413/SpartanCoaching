@@ -28,7 +28,7 @@ The platform features a premium SaaS aesthetic with a sophisticated visual desig
 - **AI Chatbot**: An advanced AI chatbot with extensive knowledge of hospice sales, regulations, and the Spartan Method, offering objection handling, territory management, and coaching strategies. It's implemented as a floating, sticky widget with conversation history persistence via localStorage.
 - **Articles Section**: A database-backed content management system for publishing LinkedIn articles, including an admin panel for CRUD operations.
 - **Visitor Analytics**: An automatic page visit tracking system that records visitor activity and stores data in a database, with an admin dashboard for statistics.
-- **Authentication**: Replit Auth integrated with OpenID Connect, supporting Google, GitHub, and email/password login, with session-based authentication using PostgreSQL. Public pages remain accessible without authentication.
+- **Authentication**: Removed. The site is fully public with no user accounts or login system.
 - **Training Resources Library**: A comprehensive database-backed downloadable resources system with 9 professional training PDFs for hospice sales professionals, categorized and manageable via an admin panel. Features professional PDF formatting and object storage integration.
 - **Role-Play Practice**: Interactive AI-powered roleplay practice with 6 pre-built scenarios, real-time messaging, and detailed coaching analysis based on the Spartan Method. Sessions and transcripts are persisted in the database.
 - **Daily Coaching Drills**: Daily practice exercises categorized into 20 types, with daily rotation, completion tracking, and a streak counter.
@@ -41,7 +41,7 @@ The platform features a premium SaaS aesthetic with a sophisticated visual desig
 - **Database**: Neon serverless PostgreSQL via `@neondatabase/serverless` and Drizzle ORM.
 - **Object Storage**: Google Cloud Storage (`@google-cloud/storage`) for secure file hosting.
 - **PDF Generation**: PDFKit for creating branded training materials.
-- **Authentication**: Replit Auth with OpenID Connect via `openid-client`, session management via `express-session` and `connect-pg-simple`.
+- **Markdown Rendering**: `react-markdown` with `remark-gfm` for professional AI content display via `MarkdownContent` component.
 - **File Uploads**: Uppy v5 (`@uppy/core`, `@uppy/dashboard`, `@uppy/aws-s3`, `@uppy/react`) for client-side file uploads.
 - **Animations**: Framer Motion for scroll-triggered animations, animated counters, progress rings, and page transitions.
 - **UI Libraries**: Radix UI primitives, Lucide React for iconography, cmdk for command palette, and date-fns for date manipulation.
