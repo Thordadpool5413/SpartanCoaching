@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { CheckIcon } from "@/components/icons";
 import { InquiryForm } from "@/components/InquiryForm";
 import { BackButton } from "@/components/BackButton";
-import { Users, Building2, UserCheck } from "lucide-react";
+import { Users, Building2, UserCheck, Phone } from "lucide-react";
 import { SEO } from "@/components/SEO";
 
 export default function Services() {
@@ -223,7 +223,8 @@ export default function Services() {
                   setInquiryOpen(true);
                 }}
               >
-                Get Started
+                <Phone className="mr-2 w-4 h-4" />
+                Book a Call
               </Button>
             </Card>
           ))}
@@ -290,7 +291,8 @@ export default function Services() {
                   setInquiryOpen(true);
                 }}
               >
-                Get Started
+                <Phone className="mr-2 w-4 h-4" />
+                Book a Call
               </Button>
             </Card>
           ))}
@@ -357,7 +359,8 @@ export default function Services() {
                   setInquiryOpen(true);
                 }}
               >
-                Get Started
+                <Phone className="mr-2 w-4 h-4" />
+                Book a Call
               </Button>
             </Card>
           ))}
@@ -383,7 +386,8 @@ export default function Services() {
               setInquiryOpen(true);
             }}
           >
-            Schedule a Consultation
+            <Phone className="mr-2 w-5 h-5" />
+            Book a Free Strategy Call
           </Button>
         </div>
       </div>

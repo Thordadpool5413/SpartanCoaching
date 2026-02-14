@@ -4,12 +4,13 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DisciplineIcon, EmpathyIcon, StrategyIcon } from "@/components/icons";
-import { Shield, Heart, Zap, Target, Users, BookOpen, ArrowRight, Sparkles, Lightbulb, MessageCircle, Search, Mail, Flame, Stethoscope, Brain, Briefcase } from "lucide-react";
+import { Shield, Heart, Zap, Target, Users, BookOpen, ArrowRight, Sparkles, Lightbulb, MessageCircle, Search, Mail, Flame, Stethoscope, Brain, Briefcase, Phone } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { SEO } from "@/components/SEO";
 import { apiRequest } from "@/lib/queryClient";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
+import { ContactForm } from "@/components/ContactForm";
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -17,6 +18,7 @@ export default function Home() {
   const [askResponse, setAskResponse] = useState("");
   const [askLoading, setAskLoading] = useState(false);
   const [askError, setAskError] = useState<string | null>(null);
+  const [contactFormOpen, setContactFormOpen] = useState(false);
 
   const suggestionQuestions = [
     "What are hospice eligibility criteria for heart failure?",
@@ -169,13 +171,23 @@ export default function Home() {
             <Button
               size="lg"
               variant="outline"
-              onClick={() => document.getElementById('ask-spartan')?.scrollIntoView({ behavior: 'smooth' })}
+              onClick={() => setContactFormOpen(true)}
               className="text-base sm:text-lg font-bold glass border-white/30 transition-elegant touch-manipulation group px-10 py-4"
-              data-testid="button-ask-spartan-hero"
+              data-testid="button-book-call-hero"
             >
-              <span>Ask a Hospice Expert</span>
-              <Sparkles className="ml-2 w-5 h-5 group-hover:scale-110 transition-transform" />
+              <span>Book a Free Strategy Call</span>
+              <Phone className="ml-2 w-5 h-5 group-hover:scale-110 transition-transform" />
             </Button>
+          </div>
+
+          <div className="mt-6 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+            <button
+              onClick={() => document.getElementById('ask-spartan')?.scrollIntoView({ behavior: 'smooth' })}
+              className="text-white/60 hover:text-white/90 text-sm font-medium transition-colors underline underline-offset-4"
+              data-testid="link-ask-expert-hero"
+            >
+              Or ask a hospice expert a question
+            </button>
           </div>
         </div>
 
@@ -737,6 +749,8 @@ export default function Home() {
         </div>
         </FadeIn>
       </section>
+
+      <ContactForm open={contactFormOpen} onOpenChange={setContactFormOpen} />
     </div>
   );
 }
