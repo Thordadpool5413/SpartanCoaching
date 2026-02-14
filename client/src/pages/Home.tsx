@@ -4,12 +4,12 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DisciplineIcon, EmpathyIcon, StrategyIcon } from "@/components/icons";
-import { Shield, Heart, Zap, Target, Users, BookOpen, ArrowRight, Sparkles, TrendingUp, Award, Clock, Lightbulb, MessageCircle, Search, Mail, Flame, Stethoscope, Brain, Briefcase } from "lucide-react";
+import { Shield, Heart, Zap, Target, Users, BookOpen, ArrowRight, Sparkles, Lightbulb, MessageCircle, Search, Mail, Flame, Stethoscope, Brain, Briefcase } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { SEO } from "@/components/SEO";
 import { apiRequest } from "@/lib/queryClient";
 import { MarkdownContent } from "@/components/MarkdownContent";
-import { AnimatedCounter, FadeIn, SlideUp, StaggerContainer, StaggerItem } from "@/components/animations";
+import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -142,10 +142,10 @@ export default function Home() {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-20 lg:py-24 text-center">
           <h1 className="text-hero mb-4 sm:mb-6 md:mb-8 animate-fade-in-up px-4">
             <span className="block bg-gradient-to-r from-red-600 via-red-500 to-red-600 bg-clip-text text-transparent font-black tracking-tighter drop-shadow-2xl">
-              The Authority in Hospice Excellence.
+              Hospice Sales Training
             </span>
             <span className="block bg-gradient-to-r from-red-600 via-red-500 to-red-600 bg-clip-text text-transparent mt-2 font-black tracking-tighter drop-shadow-2xl">
-              Expert-Driven. Results-Proven.
+              & Consulting
             </span>
           </h1>
 
@@ -293,106 +293,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Social Proof Section - Key Statistics and Testimonial */}
-      <section className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-social-proof">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(239,68,68,0.08),transparent_50%)] pointer-events-none"></div>
-        
-        <div className="relative max-w-7xl mx-auto spacing-container">
-          {/* Statistics Grid */}
-          <StaggerContainer className="grid grid-cols-2 md:grid-cols-4 gap-6 sm:gap-8 mb-16 sm:mb-20">
-            <StaggerItem>
-              <div 
-                data-testid="stat-referral-increase"
-                className="text-center p-6 sm:p-8 rounded-lg"
-              >
-                <div className="flex justify-center mb-4 sm:mb-5">
-                  <TrendingUp className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
-                </div>
-                <div className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent mb-2">
-                  <AnimatedCounter target={300} suffix="%" />
-                </div>
-                <div className="text-sm sm:text-base text-muted-foreground font-medium">
-                  Referral Increase
-                </div>
-              </div>
-            </StaggerItem>
-
-            <StaggerItem>
-              <div 
-                data-testid="stat-discharge-rate"
-                className="text-center p-6 sm:p-8 rounded-lg"
-              >
-                <div className="flex justify-center mb-4 sm:mb-5">
-                  <Award className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
-                </div>
-                <div className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent mb-2">
-                  <AnimatedCounter target={84} suffix="%" />
-                </div>
-                <div className="text-sm sm:text-base text-muted-foreground font-medium">
-                  On-Time Discharge Rate
-                </div>
-              </div>
-            </StaggerItem>
-
-            <StaggerItem>
-              <div 
-                data-testid="stat-reps-trained"
-                className="text-center p-6 sm:p-8 rounded-lg"
-              >
-                <div className="flex justify-center mb-4 sm:mb-5">
-                  <Users className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
-                </div>
-                <div className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent mb-2">
-                  <AnimatedCounter target={500} suffix="+" />
-                </div>
-                <div className="text-sm sm:text-base text-muted-foreground font-medium">
-                  Reps Trained
-                </div>
-              </div>
-            </StaggerItem>
-
-            <StaggerItem>
-              <div 
-                data-testid="stat-years-experience"
-                className="text-center p-6 sm:p-8 rounded-lg"
-              >
-                <div className="flex justify-center mb-4 sm:mb-5">
-                  <Clock className="w-8 h-8 sm:w-10 sm:h-10 text-primary" />
-                </div>
-                <div className="text-3xl sm:text-4xl font-black bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent mb-2">
-                  <AnimatedCounter target={15} suffix="+" />
-                </div>
-                <div className="text-sm sm:text-base text-muted-foreground font-medium">
-                  Years Experience
-                </div>
-              </div>
-            </StaggerItem>
-          </StaggerContainer>
-
-          {/* Testimonial Quote */}
-          <SlideUp className="max-w-3xl mx-auto">
-            <Card className="border-2 spacing-card shadow-lg relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-              <CardContent className="relative pt-8 sm:pt-10 px-6 sm:px-8 pb-8 sm:pb-10">
-                <div className="text-center">
-                  <div className="inline-flex mb-6 text-red-600/30">
-                    <svg className="w-8 h-8 sm:w-10 sm:h-10" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M3 21c3 0 7-1 7-8V5c0-1.25-4.716-5-7-5-1.657 0-3 1.343-3 3v13c0 1.657 1.343 3 3 3z" />
-                      <path d="M15 21c3 0 7-1 7-8V5c0-1.25-4.716-5-7-5-1.657 0-3 1.343-3 3v13c0 1.657 1.343 3 3 3z" />
-                    </svg>
-                  </div>
-                  <p className="text-body-lg text-foreground leading-relaxed mb-6 italic" data-testid="text-testimonial-quote">
-                    "Spartan Coaching transformed how our team approaches hospice sales. The results speak for themselves — we saw a 300% increase in referrals within the first quarter."
-                  </p>
-                  <p className="text-sm sm:text-base text-muted-foreground font-medium">
-                    — Director of Business Development, Regional Hospice Provider
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
-          </SlideUp>
-        </div>
-      </section>
 
       {/* AI-Powered Hospice Intelligence Showcase */}
       <section className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-ai-tools">
