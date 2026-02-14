@@ -36,6 +36,9 @@ import {
   resourceLeads,
   type InsertResourceLead,
   type SelectResourceLead,
+  signedAgreements,
+  type InsertSignedAgreement,
+  type SelectSignedAgreement,
 } from "@shared/schema";
 import { db } from "./db";
 import { desc, eq, gte, count } from "drizzle-orm";
@@ -84,6 +87,8 @@ export interface IStorage {
   // Resource lead operations
   captureResourceLead(lead: InsertResourceLead): Promise<SelectResourceLead>;
   getResourceLeads(): Promise<SelectResourceLead[]>;
+  createSignedAgreement(agreement: InsertSignedAgreement): Promise<SelectSignedAgreement>;
+  getSignedAgreements(): Promise<SelectSignedAgreement[]>;
 }
 
 // Database-backed storage implementation
@@ -425,6 +430,15 @@ export class DatabaseStorage implements IStorage {
 
   async getResourceLeads(): Promise<SelectResourceLead[]> {
     return await db.select().from(resourceLeads).orderBy(desc(resourceLeads.capturedAt));
+  }
+
+  async createSignedAgreement(agreement: InsertSignedAgreement): Promise<SelectSignedAgreement> {
+    const [result] = await db.insert(signedAgreements).values(agreement).returning();
+    return result;
+  }
+
+  async getSignedAgreements(): Promise<SelectSignedAgreement[]> {
+    return await db.select().from(signedAgreements).orderBy(desc(signedAgreements.signedAt));
   }
 }
 

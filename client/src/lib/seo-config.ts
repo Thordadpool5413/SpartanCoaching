@@ -151,6 +151,36 @@ const seoDefaults: Record<string, SEOConfig> = {
     description: 'Review our HIPAA Business Associate Agreement. Spartan Coaching safeguards Protected Health Information with full HIPAA and HITECH Act compliance.',
     keywords: 'HIPAA BAA, business associate agreement, PHI protection, HIPAA compliance, hospice data security',
   },
+  '/contract': {
+    title: 'Services Contract Agreement | Spartan Coaching',
+    description: 'Review our consulting services contract covering scope, fees, confidentiality, and terms for hospice sales coaching and training engagements.',
+    keywords: 'services contract, consulting agreement, hospice consulting terms, coaching contract',
+  },
+  '/nda': {
+    title: 'Non-Disclosure Agreement | Spartan Coaching',
+    description: 'Mutual Non-Disclosure Agreement protecting confidential business information exchanged during hospice sales consulting engagements.',
+    keywords: 'NDA, non-disclosure agreement, confidentiality agreement, mutual NDA, hospice consulting',
+  },
+  '/emr-access': {
+    title: 'EMR/Data Access Agreement | Spartan Coaching',
+    description: 'Terms governing consultant access to your EMR system including security requirements, permitted use, and credential management policies.',
+    keywords: 'EMR access agreement, data access, electronic medical records, hospice EMR, system access terms',
+  },
+  '/conflict-of-interest': {
+    title: 'Conflict of Interest Disclosure | Spartan Coaching',
+    description: 'Transparency disclosure about working with multiple hospice organizations, information barriers, and conflict management policies.',
+    keywords: 'conflict of interest, disclosure, consulting ethics, information barriers, hospice consulting',
+  },
+  '/liability-waiver': {
+    title: 'Liability Waiver | Spartan Coaching',
+    description: 'Hold harmless agreement covering consulting services, on-site activities, and implementation responsibility for hospice sales training.',
+    keywords: 'liability waiver, hold harmless, indemnification, consulting liability, risk acknowledgment',
+  },
+  '/testimonial-release': {
+    title: 'Testimonial / Case Study Release | Spartan Coaching',
+    description: 'Permission form for using client testimonials and case study results in marketing materials with review, approval, and anonymity options.',
+    keywords: 'testimonial release, case study permission, marketing consent, client testimonial agreement',
+  },
   '/learn/knowledge-base': {
     title: 'Hospice Knowledge Base | Spartan Coaching',
     description: 'The definitive reference for hospice terminology, regulations, eligibility criteria, clinical concepts, and sales terminology. Searchable glossary for hospice professionals.',

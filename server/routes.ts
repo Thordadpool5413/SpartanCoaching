@@ -30,13 +30,14 @@ import {
   drillCompletionRequestSchema,
   sendEmailRequestSchema,
   insertResourceLeadSchema,
+  insertSignedAgreementSchema,
 } from "@shared/schema";
 
 import {
   ObjectStorageService,
   ObjectNotFoundError,
 } from "./objectStorage";
-import { sendInquiryNotification, sendNewsletterConfirmation, sendGeneratedEmail } from "./resend";
+import { sendInquiryNotification, sendNewsletterConfirmation, sendGeneratedEmail, sendAgreementConfirmation } from "./resend";
 
 // Get admin password from environment, default to secure value for development
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "5413";
@@ -106,6 +107,12 @@ Sitemap: ${baseUrl}/sitemap.xml`);
       { path: '/disclaimer', priority: '0.3', changefreq: 'yearly' },
       { path: '/privacy', priority: '0.3', changefreq: 'yearly' },
       { path: '/baa', priority: '0.3', changefreq: 'yearly' },
+      { path: '/contract', priority: '0.3', changefreq: 'yearly' },
+      { path: '/nda', priority: '0.3', changefreq: 'yearly' },
+      { path: '/emr-access', priority: '0.3', changefreq: 'yearly' },
+      { path: '/conflict-of-interest', priority: '0.3', changefreq: 'yearly' },
+      { path: '/liability-waiver', priority: '0.3', changefreq: 'yearly' },
+      { path: '/testimonial-release', priority: '0.3', changefreq: 'yearly' },
     ];
 
     const today = new Date().toISOString().split('T')[0];
@@ -557,6 +564,43 @@ Subject: [subject line]
     } catch (error: any) {
       console.error("Get resource leads error:", error);
       res.status(500).json({ error: "Failed to retrieve leads" });
+    }
+  });
+
+  app.post("/api/signed-agreements", async (req, res) => {
+    try {
+      const agreementData = insertSignedAgreementSchema.parse(req.body);
+      const agreement = await storage.createSignedAgreement(agreementData);
+      
+      await sendAgreementConfirmation({
+        agreementType: agreement.agreementType,
+        signerName: agreement.signerName,
+        signerTitle: agreement.signerTitle,
+        signerOrganization: agreement.signerOrganization,
+        signerEmail: agreement.signerEmail,
+        signedAt: new Date(agreement.signedAt!).toLocaleDateString('en-US', { 
+          year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+        }),
+      });
+      
+      res.json({ success: true, agreement });
+    } catch (error: any) {
+      if (error.name === "ZodError") {
+        res.status(400).json({ error: "Invalid data provided" });
+      } else {
+        console.error("Signed agreement error:", error);
+        res.status(500).json({ error: "Failed to save agreement" });
+      }
+    }
+  });
+
+  app.get("/api/signed-agreements", async (_req, res) => {
+    try {
+      const agreements = await storage.getSignedAgreements();
+      res.json({ agreements });
+    } catch (error: any) {
+      console.error("Get signed agreements error:", error);
+      res.status(500).json({ error: "Failed to retrieve agreements" });
     }
   });
 

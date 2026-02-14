@@ -108,6 +108,67 @@ export async function sendNewsletterConfirmation(email: string): Promise<boolean
   }
 }
 
+interface AgreementEmailData {
+  agreementType: string;
+  signerName: string;
+  signerTitle: string;
+  signerOrganization: string;
+  signerEmail: string;
+  signedAt: string;
+}
+
+export async function sendAgreementConfirmation(data: AgreementEmailData): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    const adminEmail = 'nicholas.lynch@spartan-coaching-schools.org';
+    
+    const htmlContent = `
+      <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+        <div style="background: #b91c1c; padding: 24px; text-align: center;">
+          <h1 style="color: white; margin: 0; font-size: 24px;">Spartan Coaching</h1>
+          <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0 0;">Agreement Confirmation</p>
+        </div>
+        <div style="padding: 32px; background: #ffffff;">
+          <h2 style="color: #1a1a1a; margin-top: 0;">${data.agreementType}</h2>
+          <p style="color: #555;">This confirms that the following agreement has been digitally signed:</p>
+          <table style="border-collapse: collapse; width: 100%; margin: 24px 0;">
+            <tr><td style="padding: 10px 12px; font-weight: bold; border-bottom: 1px solid #eee; color: #333;">Name</td><td style="padding: 10px 12px; border-bottom: 1px solid #eee; color: #555;">${data.signerName}</td></tr>
+            <tr><td style="padding: 10px 12px; font-weight: bold; border-bottom: 1px solid #eee; color: #333;">Title</td><td style="padding: 10px 12px; border-bottom: 1px solid #eee; color: #555;">${data.signerTitle}</td></tr>
+            <tr><td style="padding: 10px 12px; font-weight: bold; border-bottom: 1px solid #eee; color: #333;">Organization</td><td style="padding: 10px 12px; border-bottom: 1px solid #eee; color: #555;">${data.signerOrganization}</td></tr>
+            <tr><td style="padding: 10px 12px; font-weight: bold; border-bottom: 1px solid #eee; color: #333;">Email</td><td style="padding: 10px 12px; border-bottom: 1px solid #eee; color: #555;"><a href="mailto:${data.signerEmail}">${data.signerEmail}</a></td></tr>
+            <tr><td style="padding: 10px 12px; font-weight: bold; border-bottom: 1px solid #eee; color: #333;">Date Signed</td><td style="padding: 10px 12px; border-bottom: 1px solid #eee; color: #555;">${data.signedAt}</td></tr>
+          </table>
+          <p style="color: #555; font-size: 14px;">This is a digital record of the agreement. Please retain this email for your records. For questions, contact Spartan Coaching.</p>
+        </div>
+        <div style="padding: 16px; background: #f5f5f5; text-align: center;">
+          <p style="color: #888; font-size: 12px; margin: 0;">Spartan Coaching &mdash; The Authority in Hospice Excellence</p>
+        </div>
+      </div>
+    `;
+
+    await Promise.all([
+      client.emails.send({
+        from: fromEmail,
+        to: data.signerEmail,
+        subject: `Agreement Signed: ${data.agreementType} — Spartan Coaching`,
+        html: htmlContent,
+      }),
+      client.emails.send({
+        from: fromEmail,
+        to: adminEmail,
+        subject: `New Agreement Signed: ${data.agreementType} by ${data.signerName} (${data.signerOrganization})`,
+        html: htmlContent,
+      }),
+    ]);
+    
+    console.log(`Agreement confirmation emails sent for ${data.agreementType} - ${data.signerName}`);
+    return true;
+  } catch (error) {
+    console.error('Failed to send agreement confirmation emails:', error);
+    return false;
+  }
+}
+
 export async function sendGeneratedEmail(to: string, subject: string, body: string): Promise<boolean> {
   try {
     const { client, fromEmail } = await getUncachableResendClient();

@@ -43,6 +43,12 @@ const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
 const Disclaimer = lazy(() => import("@/pages/Disclaimer"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
 const HipaaBAA = lazy(() => import("@/pages/HipaaBAA"));
+const ServicesContract = lazy(() => import("@/pages/ServicesContract"));
+const NDA = lazy(() => import("@/pages/NDA"));
+const EmrAccess = lazy(() => import("@/pages/EmrAccess"));
+const ConflictOfInterest = lazy(() => import("@/pages/ConflictOfInterest"));
+const LiabilityWaiver = lazy(() => import("@/pages/LiabilityWaiver"));
+const TestimonialRelease = lazy(() => import("@/pages/TestimonialRelease"));
 
 
 function ScrollToTop() {
@@ -128,6 +134,12 @@ function Router() {
           <Route path="/disclaimer" component={Disclaimer} />
           <Route path="/privacy" component={PrivacyPolicy} />
           <Route path="/baa" component={HipaaBAA} />
+          <Route path="/contract" component={ServicesContract} />
+          <Route path="/nda" component={NDA} />
+          <Route path="/emr-access" component={EmrAccess} />
+          <Route path="/conflict-of-interest" component={ConflictOfInterest} />
+          <Route path="/liability-waiver" component={LiabilityWaiver} />
+          <Route path="/testimonial-release" component={TestimonialRelease} />
           <Route path="/learn/knowledge-base" component={KnowledgeBase} />
           <Route path="/about" component={About} />
           <Route component={NotFound} />

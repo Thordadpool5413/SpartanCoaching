@@ -1,6 +1,7 @@
 import { SEO } from "@/components/SEO";
 import { BackButton } from "@/components/BackButton";
 import { FadeIn } from "@/components/animations";
+import { AgreementSignatureForm } from "@/components/AgreementSignatureForm";
 
 export default function HipaaBAA() {
   return (
@@ -154,6 +155,11 @@ export default function HipaaBAA() {
           </section>
         </div>
       </FadeIn>
+
+      <AgreementSignatureForm
+        agreementType="HIPAA Business Associate Agreement"
+        agreementTitle="HIPAA Business Associate Agreement"
+      />
     </div>
   );
 }

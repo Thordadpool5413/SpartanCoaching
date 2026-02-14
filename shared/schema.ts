@@ -170,6 +170,23 @@ export const insertResourceLeadSchema = createInsertSchema(resourceLeads).omit({
 export type InsertResourceLead = z.infer<typeof insertResourceLeadSchema>;
 export type SelectResourceLead = typeof resourceLeads.$inferSelect;
 
+export const signedAgreements = pgTable("signed_agreements", {
+  id: serial("id").primaryKey(),
+  agreementType: varchar("agreement_type").notNull(),
+  signerName: varchar("signer_name").notNull(),
+  signerTitle: varchar("signer_title").notNull(),
+  signerOrganization: varchar("signer_organization").notNull(),
+  signerEmail: text("signer_email").notNull(),
+  signedAt: timestamp("signed_at").defaultNow(),
+});
+
+export const insertSignedAgreementSchema = createInsertSchema(signedAgreements).omit({
+  id: true,
+  signedAt: true,
+});
+export type InsertSignedAgreement = z.infer<typeof insertSignedAgreementSchema>;
+export type SelectSignedAgreement = typeof signedAgreements.$inferSelect;
+
 // Drizzle table definition for articles
 export const articles = pgTable("articles", {
   id: serial("id").primaryKey(),
