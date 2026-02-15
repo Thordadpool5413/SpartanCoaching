@@ -243,11 +243,11 @@ export function Header() {
               <Menu className="w-6 h-6" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-[300px] sm:w-[400px]">
+          <SheetContent side="right" className="w-[300px] sm:w-[400px] flex flex-col">
             <SheetHeader>
               <SheetTitle>Menu</SheetTitle>
             </SheetHeader>
-            <nav className="flex flex-col mt-6 space-y-1" aria-label="Mobile navigation">
+            <nav className="flex flex-col mt-6 space-y-1 flex-1 overflow-y-auto pb-4 -mx-6 px-6" aria-label="Mobile navigation">
               <Link
                 href="/"
                 onClick={() => setMobileMenuOpen(false)}
