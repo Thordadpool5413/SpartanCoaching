@@ -59,6 +59,32 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
   );
 }
 
+function MobileNavLink({ href, label, location, onClose }: { href: string; label: string; location: string; onClose: () => void }) {
+  return (
+    <Link
+      href={href}
+      onClick={onClose}
+      className={cn(
+        "px-4 py-3 rounded-lg text-sm font-medium touch-manipulation min-h-[44px] flex items-center transition-all",
+        location === href
+          ? "bg-primary text-primary-foreground shadow-md"
+          : "text-foreground bg-muted/50 active-elevate-2"
+      )}
+      data-testid={`link-mobile-${href}`}
+    >
+      {label}
+    </Link>
+  );
+}
+
+function MobileNavSection({ title }: { title: string }) {
+  return (
+    <div className="pt-3 pb-1">
+      <span className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">{title}</span>
+    </div>
+  );
+}
+
 function NavDropdown({ label, items, dataTestId }: { 
   label: string; 
   items: { path: string; label: string; description: string }[];
@@ -243,136 +269,70 @@ export function Header() {
               <Menu className="w-6 h-6" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-[300px] sm:w-[400px] flex flex-col">
-            <SheetHeader>
+          <SheetContent side="right" className="w-[85vw] max-w-[350px] p-0 flex flex-col h-full max-h-[100dvh]">
+            <SheetHeader className="px-5 pt-5 pb-3 shrink-0">
               <SheetTitle>Menu</SheetTitle>
             </SheetHeader>
-            <nav className="flex flex-col mt-6 space-y-1 flex-1 overflow-y-auto pb-4 -mx-6 px-6" aria-label="Mobile navigation">
-              <Link
-                href="/"
-                onClick={() => setMobileMenuOpen(false)}
-                className={cn(
-                  "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all",
-                  location === "/"
-                    ? "bg-primary text-primary-foreground shadow-md"
-                    : "text-foreground bg-muted/50 active-elevate-2"
-                )}
-                data-testid="link-mobile-/"
+            <div
+              className="flex-1 overflow-y-auto overscroll-contain px-5 pb-5"
+              style={{ WebkitOverflowScrolling: 'touch' }}
+              data-testid="mobile-menu-scroll-container"
+            >
+              <nav className="flex flex-col space-y-1" aria-label="Mobile navigation">
+                <MobileNavLink href="/" label="Home" location={location} onClose={() => setMobileMenuOpen(false)} />
+
+                <MobileNavSection title="Solutions" />
+                {[
+                  { path: "/services", label: "Services" },
+                  { path: "/programs", label: "Programs" },
+                  { path: "/method", label: "The Spartan Method" },
+                ].map((item) => (
+                  <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
+                ))}
+
+                <MobileNavSection title="AI Tools" />
+                {[
+                  { path: "/tools", label: "AI Field Kit" },
+                  { path: "/tools/playbooks", label: "Sales Playbooks" },
+                  { path: "/tools/objections", label: "Objection Handler" },
+                  { path: "/tools/research", label: "Territory Research" },
+                  { path: "/tools/email-templates", label: "Email Templates" },
+                  { path: "/tools/role-play", label: "Role-Play Practice" },
+                  { path: "/tools/roi-calculator", label: "ROI Calculator" },
+                ].map((item) => (
+                  <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
+                ))}
+
+                <MobileNavSection title="Learn" />
+                {[
+                  { path: "/learn/knowledge-base", label: "Knowledge Base" },
+                  { path: "/resources", label: "Training Resources" },
+                  { path: "/drills", label: "Daily Drills" },
+                  { path: "/podcasts", label: "Podcasts" },
+                  { path: "/articles", label: "Articles" },
+                  { path: "/testimonials", label: "Testimonials" },
+                  { path: "/faq", label: "FAQ" },
+                ].map((item) => (
+                  <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
+                ))}
+
+                <MobileNavSection title="Company" />
+                <MobileNavLink href="/about" label="About" location={location} onClose={() => setMobileMenuOpen(false)} />
+              </nav>
+            </div>
+            <div className="shrink-0 flex items-center justify-between gap-2 border-t border-border px-5 py-3">
+              <span className="text-sm text-muted-foreground">Theme</span>
+              <Button
+                onClick={toggleTheme}
+                variant="ghost"
+                size="icon"
+                className="touch-manipulation"
+                aria-label="Toggle theme"
+                data-testid="button-mobile-theme-toggle"
               >
-                Home
-              </Link>
-
-              <div className="pt-3 pb-1">
-                <span className="px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Solutions</span>
-              </div>
-              {[
-                { path: "/services", label: "Services" },
-                { path: "/programs", label: "Programs" },
-                { path: "/method", label: "The Spartan Method" },
-              ].map((item) => (
-                <Link
-                  key={item.path}
-                  href={item.path}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={cn(
-                    "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all",
-                    location === item.path
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "text-foreground bg-muted/50 active-elevate-2"
-                  )}
-                  data-testid={`link-mobile-${item.path}`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-
-              <div className="pt-3 pb-1">
-                <span className="px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">AI Tools</span>
-              </div>
-              {[
-                { path: "/tools", label: "AI Field Kit" },
-                { path: "/tools/playbooks", label: "Sales Playbooks" },
-                { path: "/tools/objections", label: "Objection Handler" },
-                { path: "/tools/research", label: "Territory Research" },
-                { path: "/tools/email-templates", label: "Email Templates" },
-                { path: "/tools/role-play", label: "Role-Play Practice" },
-                { path: "/tools/roi-calculator", label: "ROI Calculator" },
-              ].map((item) => (
-                <Link
-                  key={item.path}
-                  href={item.path}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={cn(
-                    "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all",
-                    location === item.path
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "text-foreground bg-muted/50 active-elevate-2"
-                  )}
-                  data-testid={`link-mobile-${item.path}`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-
-              <div className="pt-3 pb-1">
-                <span className="px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Learn</span>
-              </div>
-              {[
-                { path: "/learn/knowledge-base", label: "Knowledge Base" },
-                { path: "/resources", label: "Training Resources" },
-                { path: "/drills", label: "Daily Drills" },
-                { path: "/podcasts", label: "Podcasts" },
-                { path: "/articles", label: "Articles" },
-                { path: "/testimonials", label: "Testimonials" },
-                { path: "/faq", label: "FAQ" },
-              ].map((item) => (
-                <Link
-                  key={item.path}
-                  href={item.path}
-                  onClick={() => setMobileMenuOpen(false)}
-                  className={cn(
-                    "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all",
-                    location === item.path
-                      ? "bg-primary text-primary-foreground shadow-md"
-                      : "text-foreground bg-muted/50 active-elevate-2"
-                  )}
-                  data-testid={`link-mobile-${item.path}`}
-                >
-                  {item.label}
-                </Link>
-              ))}
-
-              <div className="pt-3 pb-1">
-                <span className="px-5 text-xs font-semibold text-muted-foreground uppercase tracking-wider">Company</span>
-              </div>
-              <Link
-                href="/about"
-                onClick={() => setMobileMenuOpen(false)}
-                className={cn(
-                  "px-5 py-4 rounded-xl text-base font-medium touch-manipulation min-h-[56px] flex items-center transition-all",
-                  location === "/about"
-                    ? "bg-primary text-primary-foreground shadow-md"
-                    : "text-foreground bg-muted/50 active-elevate-2"
-                )}
-                data-testid="link-mobile-/about"
-              >
-                About
-              </Link>
-
-              <div className="pt-4 flex items-center justify-between gap-2 border-t border-border mt-4">
-                <span className="text-sm text-muted-foreground px-4">Theme</span>
-                <Button
-                  onClick={toggleTheme}
-                  variant="ghost"
-                  size="icon"
-                  className="touch-manipulation"
-                  aria-label="Toggle theme"
-                  data-testid="button-mobile-theme-toggle"
-                >
-                  {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                </Button>
-              </div>
-            </nav>
+                {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+              </Button>
+            </div>
           </SheetContent>
         </Sheet>
       </div>
