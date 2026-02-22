@@ -50,6 +50,7 @@ const ConflictOfInterest = lazy(() => import("@/pages/ConflictOfInterest"));
 const LiabilityWaiver = lazy(() => import("@/pages/LiabilityWaiver"));
 const TestimonialRelease = lazy(() => import("@/pages/TestimonialRelease"));
 const LegalAgreements = lazy(() => import("@/pages/LegalAgreements"));
+const ComplianceEthics = lazy(() => import("@/pages/ComplianceEthics"));
 
 
 function ScrollToTop() {
@@ -142,6 +143,7 @@ function Router() {
           <Route path="/liability-waiver" component={LiabilityWaiver} />
           <Route path="/testimonial-release" component={TestimonialRelease} />
           <Route path="/legal" component={LegalAgreements} />
+          <Route path="/compliance" component={ComplianceEthics} />
           <Route path="/learn/knowledge-base" component={KnowledgeBase} />
           <Route path="/about" component={About} />
           <Route component={NotFound} />

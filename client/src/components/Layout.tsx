@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { MenuIcon, CloseIcon } from "./icons";
 import { applyTheme, getInitialTheme } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Sun, Moon, Linkedin, Search, ChevronDown, Phone } from "lucide-react";
+import { Sun, Moon, Linkedin, Search, ChevronDown } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -395,10 +395,10 @@ export function Footer() {
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_60%)] pointer-events-none"></div>
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 py-16 sm:py-20 text-center">
           <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-4 tracking-tight">
-            Ready to Transform Your Team?
+            Ready to Build a Consistent Growth System?
           </h2>
           <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto mb-8 leading-relaxed">
-            Every engagement starts with understanding your specific challenge. Book a free strategy call and let's build a plan that gets your team producing results.
+            Every engagement starts with understanding your specific challenge. Apply now and let's talk about what is not working and how to fix it.
           </p>
           <Button
             size="lg"
@@ -406,8 +406,7 @@ export function Footer() {
             className="bg-white text-red-700 font-bold text-base sm:text-lg px-8 sm:px-10 py-3 shadow-xl border-white"
             data-testid="button-book-call-banner"
           >
-            <Phone className="mr-2 w-5 h-5" />
-            Book a Free Strategy Call
+            Apply Now
           </Button>
         </div>
       </section>
@@ -418,6 +417,15 @@ export function Footer() {
             <div className="flex flex-col items-center md:items-start gap-3">
               <p className="text-sm text-muted-foreground">
                 © {new Date().getFullYear()} Spartan Coaching. All rights reserved.
+              </p>
+              <p className="text-xs text-muted-foreground max-w-md">
+                We respect your privacy. We do not sell or share your personal information. See our full Privacy Policy for details.
+              </p>
+              <p className="text-xs text-muted-foreground max-w-md">
+                All coaching services are subject to our Terms of Service. Refund eligibility is outlined in our terms.
+              </p>
+              <p className="text-xs text-muted-foreground max-w-md">
+                Questions? Reach us at nicholas.lynch@spartan-coaching-schools.org
               </p>
               <a
                 href="https://www.linkedin.com/in/nicholas-lynch-coaching?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BzPbXAWy3RZWKMT%2FppHgzbw%3D%3D"
@@ -468,6 +476,14 @@ export function Footer() {
                 aria-label="Legal Agreements"
               >
                 Legal Agreements
+              </Link>
+              <Link
+                href="/compliance"
+                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
+                data-testid="link-compliance"
+                aria-label="Compliance and Ethics"
+              >
+                Compliance
               </Link>
               <button
                 onClick={() => setContactFormOpen(true)}

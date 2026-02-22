@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
-import { Target, Users, TrendingUp, Linkedin } from "lucide-react";
+import { Target, Users, TrendingUp, Linkedin, BookOpen, Repeat, Heart, Handshake, ShieldCheck } from "lucide-react";
 import nickPhoto from "@assets/nick-photo.jpg";
 import { Button } from "@/components/ui/button";
 import { ContactForm } from "@/components/ContactForm";
@@ -132,9 +132,12 @@ export default function About() {
 
             <div className="md:col-span-2">
               <Card className="spacing-card">
-                <p className="text-body text-muted-foreground leading-relaxed">
-                  Nick Lynch brings years of hands-on experience in hospice sales, team leadership, and operational excellence. His approach is born from real-world challenges, sitting in clinics, riding with liaisons, and building systems that actually work in the field. Nick builds practical frameworks that respect clinical workflow and deliver measurable improvements in admissions and case mix quality. Nick believes in simple plans repeated well, and in coaching that happens in the work, not in a lecture hall.
-                </p>
+                <div className="space-y-4 text-body text-muted-foreground leading-relaxed">
+                  <p>Nick Lynch brings two things into hospice coaching that most people keep separate: what liaisons see in the field every day and what leaders need to see to coach performance without guessing. He has led teams, worked in clinics, and spent real time on ride alongs, seeing firsthand where good plans break down and what actually holds up.</p>
+                  <p>Nick helps teams decide the next right move and then follow through. He keeps the work anchored to the field and aligned with clinical workflow, so it stays usable when the week gets busy. When a territory feels unclear, he can use eligibility knowledge and claims data to separate what is true from what is assumed, then turn it into a simple plan the team can run consistently.</p>
+                  <p>When Nick steps away, leaders are not just looking at numbers. They understand the people behind them. They know what each rep is strong at, where they hesitate, what they avoid, and what they need next. They can coach the person, not just the pipeline.</p>
+                  <p>They also have a real read on the market. Not impressions, not 'it feels slow.' They know the temperature in each territory, what referral sources are shifting, where relationships are strong or slipping, and what needs attention now. That clarity keeps coaching focused and keeps execution steady because the team is working the right plan for the market they are actually in.</p>
+                </div>
               </Card>
             </div>
           </div>
@@ -167,6 +170,82 @@ export default function About() {
                 <p className="text-body text-muted-foreground leading-relaxed">
                   Believes in coaching that happens in the work, not in theory. Every framework is field-tested, every playbook is battle-proven, and every strategy prioritizes patient-first outcomes.
                 </p>
+              </div>
+            </Card>
+          </div>
+
+          {/* Values and Coaching Philosophy */}
+          <div className="mt-16 mb-16">
+            <h2 className="text-h2 text-foreground mb-8 text-center">Values and Coaching Philosophy</h2>
+            <div className="grid md:grid-cols-2 gap-cards">
+              <Card className="border-2 group relative card-lift spacing-card" data-testid="card-value-practical">
+                <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                <div className="relative flex gap-4 items-start">
+                  <div className="w-12 h-12 shrink-0 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg">
+                    <BookOpen className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-h3 font-bold text-foreground mb-2">Practical Over Theoretical</h3>
+                    <p className="text-body text-muted-foreground leading-relaxed">Coaching happens in the work, not in a classroom</p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="border-2 group relative card-lift spacing-card" data-testid="card-value-consistency">
+                <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                <div className="relative flex gap-4 items-start">
+                  <div className="w-12 h-12 shrink-0 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg">
+                    <Repeat className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-h3 font-bold text-foreground mb-2">Consistency Over Intensity</h3>
+                    <p className="text-body text-muted-foreground leading-relaxed">Simple plans repeated well beat heroic one-time efforts</p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="border-2 group relative card-lift spacing-card" data-testid="card-value-patient">
+                <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                <div className="relative flex gap-4 items-start">
+                  <div className="w-12 h-12 shrink-0 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg">
+                    <Heart className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-h3 font-bold text-foreground mb-2">Patient-First Outcomes</h3>
+                    <p className="text-body text-muted-foreground leading-relaxed">Every strategy prioritizes getting eligible patients into care earlier</p>
+                  </div>
+                </div>
+              </Card>
+
+              <Card className="border-2 group relative card-lift spacing-card" data-testid="card-value-ethical">
+                <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                <div className="relative flex gap-4 items-start">
+                  <div className="w-12 h-12 shrink-0 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg">
+                    <Handshake className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-h3 font-bold text-foreground mb-2">Ethical Relationship Building</h3>
+                    <p className="text-body text-muted-foreground leading-relaxed">Education-based outreach that respects clinical partners</p>
+                  </div>
+                </div>
+              </Card>
+            </div>
+          </div>
+
+          {/* Ethical Growth Stance */}
+          <div className="mb-16">
+            <h2 className="text-h2 text-foreground mb-8 text-center">Ethical Growth Stance</h2>
+            <Card className="spacing-card bg-gradient-to-br from-primary/5 to-destructive/5 border-2" data-testid="card-ethical-stance">
+              <div className="flex gap-4 items-start">
+                <div className="w-12 h-12 shrink-0 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg">
+                  <ShieldCheck className="w-6 h-6 text-white" />
+                </div>
+                <div className="space-y-4 text-body text-muted-foreground leading-relaxed">
+                  <p>Spartan Coaching focuses on ethical, education-based relationship building. We believe that sustainable growth comes from genuine clinical partnerships, not shortcuts.</p>
+                  <p>We do not train inducements, aggressive tactics, or misleading messaging. Every method we teach is designed to be transparent, compliant, and respectful of the clinical professionals we work alongside.</p>
+                  <p>Coaching respects clinical workflow and prioritizes patient access. Our strategies are built to integrate with how healthcare teams actually operate, ensuring that patient care is never disrupted.</p>
+                  <p className="font-semibold text-foreground">No guarantees of admissions, referrals, or census growth are made. We provide the frameworks, coaching, and accountability. Results depend on consistent execution by committed teams.</p>
+                </div>
               </div>
             </Card>
           </div>
@@ -210,7 +289,7 @@ export default function About() {
             onClick={() => setContactOpen(true)}
             data-testid="button-about-contact"
           >
-            Get in Touch
+            Apply Now
           </Button>
           <ContactForm open={contactOpen} onOpenChange={setContactOpen} />
         </div>
