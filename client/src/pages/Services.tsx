@@ -4,8 +4,14 @@ import { Button } from "@/components/ui/button";
 import { CheckIcon } from "@/components/icons";
 import { InquiryForm } from "@/components/InquiryForm";
 import { BackButton } from "@/components/BackButton";
-import { Users, Building2, UserCheck, Phone } from "lucide-react";
+import { Users, Building2, UserCheck, ClipboardList, MessageCircleQuestion } from "lucide-react";
 import { SEO } from "@/components/SEO";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export default function Services() {
   const [inquiryOpen, setInquiryOpen] = useState(false);
@@ -16,8 +22,8 @@ export default function Services() {
       title: "Virtual Coaching Sessions",
       duration: "30 or 60 minutes",
       price: "$40 / $70",
-      problem: "You're stuck on a specific challenge—an objection you can't handle, a territory that isn't producing, or a referral partner who won't commit.",
-      solution: "Get targeted, real-time coaching to break through the exact obstacle holding you back. No wasted time on theory you already know—just focused work on the one thing stopping you from moving forward right now.",
+      problem: "You're stuck on a specific challenge, an objection you can't handle, a territory that isn't producing, or a referral partner who won't commit.",
+      solution: "Get targeted, real-time coaching to break through the exact obstacle holding you back. No wasted time on theory you already know, just focused work on the one thing stopping you from moving forward right now.",
       includes: [
         "Prep form to identify the exact problem",
         "Live session with role-play and real scenarios",
@@ -31,7 +37,7 @@ export default function Services() {
       duration: "Full day",
       price: "Custom pricing",
       problem: "You know what to say in theory, but it doesn't land in real conversations. You need live feedback, not more classroom training.",
-      solution: "Experience coaching where it actually matters—in the field with real referral sources. Watch what works, practice it in live situations, and get immediate correction so you walk away with skills you can repeat in every call.",
+      solution: "Experience coaching where it actually matters, in the field with real referral sources. Watch what works, practice it in live situations, and get immediate correction so you walk away with skills you can repeat in every call.",
       includes: [
         "Pre-work session with hospice liaison to set goals",
         "Full day of field time with live observation",
@@ -45,7 +51,7 @@ export default function Services() {
       duration: "2-3 sessions",
       price: "Custom pricing",
       problem: "Your calendar is full but your pipeline isn't moving. You're busy but not productive.",
-      solution: "Stop the chaos. Build a territory system that tells you exactly where to go, who to see, and when to follow up—so you spend time on accounts that actually convert instead of spinning your wheels on low-value visits.",
+      solution: "Stop the chaos. Build a territory system that tells you exactly where to go, who to see, and when to follow up, so you spend time on accounts that actually convert instead of spinning your wheels on low-value visits.",
       includes: [
         "Territory analysis: who refers, who should, who's wasting your time",
         "Account prioritization system (A/B/C classification)",
@@ -62,7 +68,7 @@ export default function Services() {
       duration: "1-2 days",
       price: "Custom pricing",
       problem: "Your team knows they should be doing better, but they don't have a shared system. Everyone's running their own playbook.",
-      solution: "Give your entire team the same language, the same process, and the same skills—so they can coach each other, hold themselves accountable, and execute consistently without you micromanaging every interaction.",
+      solution: "Give your entire team the same language, the same process, and the same skills, so they can coach each other, hold themselves accountable, and execute consistently without you micromanaging every interaction.",
       includes: [
         "Customized curriculum based on your market and challenges",
         "Live practice with objection handling and discovery",
@@ -107,7 +113,7 @@ export default function Services() {
       duration: "4-6 weeks",
       price: "Custom pricing",
       problem: "You don't know where referrals are coming from, where they should be coming from, or why the gap exists.",
-      solution: "Get complete visibility into your market opportunity. Discover which accounts are underperforming, where competitors are winning, and which diagnosis categories represent untapped growth—so you can deploy resources where they'll actually move the needle.",
+      solution: "Get complete visibility into your market opportunity. Discover which accounts are underperforming, where competitors are winning, and which diagnosis categories represent untapped growth, so you can deploy resources where they'll actually move the needle.",
       includes: [
         "Referral source analysis by market and diagnosis",
         "Competitor positioning and market share assessment",
@@ -121,7 +127,7 @@ export default function Services() {
       duration: "3-6 months",
       price: "Custom pricing",
       problem: "You have markets performing differently with no standard process. Wins aren't repeatable and you can't scale what's working.",
-      solution: "Build one execution system that works in every market. Standardize how your team prospects, presents, handles objections, and follows up—so you can finally replicate what top performers do and stop relying on individual heroics.",
+      solution: "Build one execution system that works in every market. Standardize how your team prospects, presents, handles objections, and follows up, so you can finally replicate what top performers do and stop relying on individual heroics.",
       includes: [
         "Sales process design and documentation",
         "Team training rollout (virtual or on-site)",
@@ -134,8 +140,8 @@ export default function Services() {
       title: "Executive Consulting",
       duration: "Ongoing retainer",
       price: "Custom pricing",
-      problem: "You need strategic guidance for growth, M&A integration, or performance turnarounds—not generic consulting, but hospice-specific expertise.",
-      solution: "Access senior-level strategic thinking without hiring a full-time executive. Get hospice-specific guidance on growth strategy, M&A integration, and performance turnarounds—from someone who's been in the field, knows what actually works, and can help you navigate complex decisions faster.",
+      problem: "You need strategic guidance for growth, M&A integration, or performance turnarounds, not generic consulting, but hospice-specific expertise.",
+      solution: "Access senior-level strategic thinking without hiring a full-time executive. Get hospice-specific guidance on growth strategy, M&A integration, and performance turnarounds, from someone who's been in the field, knows what actually works, and can help you navigate complex decisions faster.",
       includes: [
         "Monthly strategic planning sessions",
         "Market expansion and acquisition guidance",
@@ -153,13 +159,10 @@ export default function Services() {
       <div className="text-center max-w-4xl mx-auto mb-16 sm:mb-20 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-red-500/5 via-transparent to-transparent blur-3xl -z-10"></div>
         <h1 className="text-hero text-foreground mb-8 animate-fade-in-up" data-testid="text-services-title">
-          Services Built for <span className="text-gradient-primary">Hospice Sales</span>
+          Work <span className="text-gradient-primary">With Us</span>
         </h1>
         <p className="text-body-lg text-muted-foreground mb-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          No motivational speeches. No one-size-fits-all programs. Just practical systems that work on Tuesday afternoon when the clinic is short-staffed and the family is scared.
-        </p>
-        <p className="text-body text-muted-foreground/80 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-          Whether you're an individual rep sharpening your skills, a leader building a team, or a corporate executive scaling across markets—we have services designed for where you are.
+          Coaching options for individual reps, team leaders, and hospice organizations. Every engagement is structured, repeatable, and built around weekly accountability.
         </p>
       </div>
       {/* Individual Sales Reps Section */}
@@ -218,14 +221,13 @@ export default function Services() {
                 size="lg"
                 className="w-full font-bold mt-auto touch-manipulation py-3"
                 data-testid={`button-book-individual-${idx}`}
-                aria-label={`Book a call for ${service.title}`}
+                aria-label={`Apply now for ${service.title}`}
                 onClick={() => {
                   setSelectedService(service.title);
                   setInquiryOpen(true);
                 }}
               >
-                <Phone className="mr-2 w-4 h-4" />
-                Book a Call
+                Apply Now
               </Button>
             </Card>
           ))}
@@ -287,14 +289,13 @@ export default function Services() {
                 size="lg"
                 className="w-full font-bold mt-auto touch-manipulation py-3"
                 data-testid={`button-book-leadership-${idx}`}
-                aria-label={`Book a call for ${service.title}`}
+                aria-label={`Apply now for ${service.title}`}
                 onClick={() => {
                   setSelectedService(service.title);
                   setInquiryOpen(true);
                 }}
               >
-                <Phone className="mr-2 w-4 h-4" />
-                Book a Call
+                Apply Now
               </Button>
             </Card>
           ))}
@@ -356,19 +357,124 @@ export default function Services() {
                 size="lg"
                 className="w-full font-bold mt-auto touch-manipulation py-3"
                 data-testid={`button-book-corporate-${idx}`}
-                aria-label={`Book a call for ${service.title}`}
+                aria-label={`Apply now for ${service.title}`}
                 onClick={() => {
                   setSelectedService(service.title);
                   setInquiryOpen(true);
                 }}
               >
-                <Phone className="mr-2 w-4 h-4" />
-                Book a Call
+                Apply Now
               </Button>
             </Card>
           ))}
         </div>
       </div>
+      {/* Application Process Section */}
+      <div className="mt-16 sm:mt-20">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-10">
+          <div className="w-16 h-16 rounded-2xl bg-spartan-gradient flex items-center justify-center shadow-2xl flex-shrink-0">
+            <ClipboardList className="w-8 h-8 text-white" />
+          </div>
+          <div>
+            <h2 className="text-h2 text-foreground mb-1">Application Process</h2>
+            <p className="text-body text-muted-foreground">Four steps from first contact to weekly coaching.</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {[
+            {
+              step: 1,
+              title: "Submit an application",
+              description: "Tell us about your role, your challenges, and what you want to improve.",
+            },
+            {
+              step: 2,
+              title: "Initial consult",
+              description: "We review your situation and schedule a conversation to discuss fit.",
+            },
+            {
+              step: 3,
+              title: "Coaching plan",
+              description: "We build a plan with clear deliverables, timeline, and success metrics.",
+            },
+            {
+              step: 4,
+              title: "Execute and refine",
+              description: "Weekly coaching begins. We track progress, adjust, and build consistency.",
+            },
+          ].map((item) => (
+            <Card key={item.step} className="spacing-card border-2 relative" data-testid={`card-step-${item.step}`}>
+              <div className="flex items-center gap-3 mb-4">
+                <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-lg flex-shrink-0">
+                  {item.step}
+                </div>
+                <h3 className="text-h3 font-bold text-foreground">{item.title}</h3>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">{item.description}</p>
+            </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Common Questions Section */}
+      <div className="mt-16 sm:mt-20">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-10">
+          <div className="w-16 h-16 rounded-2xl bg-spartan-gradient flex items-center justify-center shadow-2xl flex-shrink-0">
+            <MessageCircleQuestion className="w-8 h-8 text-white" />
+          </div>
+          <div>
+            <h2 className="text-h2 text-foreground mb-1">Common Questions</h2>
+            <p className="text-body text-muted-foreground">Answers to the questions we hear most before getting started.</p>
+          </div>
+        </div>
+
+        <div className="max-w-3xl">
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="engagement-length" data-testid="faq-engagement-length">
+              <AccordionTrigger className="text-left text-foreground font-semibold">
+                How long is a typical engagement?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
+                Engagements are flexible. Some clients do a focused 4 to 8 week sprint. Others maintain ongoing coaching. We recommend a timeline during your initial consult based on your goals.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="switch-types" data-testid="faq-switch-types">
+              <AccordionTrigger className="text-left text-foreground font-semibold">
+                Can I switch between coaching types?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
+                Yes. Many clients start with individual coaching and expand to team training as they see results. We can adjust scope as your needs evolve.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="not-right-fit" data-testid="faq-not-right-fit">
+              <AccordionTrigger className="text-left text-foreground font-semibold">
+                What if coaching is not the right fit?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
+                We will tell you during the consult. If your challenge is better solved by a different approach, we will say so. No pressure, no wasted time.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="outside-us" data-testid="faq-outside-us">
+              <AccordionTrigger className="text-left text-foreground font-semibold">
+                Do you work with hospice organizations outside the US?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
+                Currently our coaching and consulting services focus on the US hospice market and Medicare regulations.
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="time-commitment" data-testid="faq-time-commitment">
+              <AccordionTrigger className="text-left text-foreground font-semibold">
+                What is the time commitment?
+              </AccordionTrigger>
+              <AccordionContent className="text-muted-foreground leading-relaxed">
+                Plan for 2 to 3 hours per week, including prep work, the coaching session, and post-session execution. The system is designed to fit into a working week, not replace it.
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+      </div>
+
       {/* CTA Section */}
       <div className="relative bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent rounded-3xl p-8 sm:p-10 md:p-12 text-center overflow-hidden border-2 border-red-500/20 shadow-lg mt-16">
         <div className="absolute top-0 right-0 w-48 h-48 bg-red-500/10 rounded-full blur-3xl"></div>
@@ -384,14 +490,13 @@ export default function Services() {
             size="lg"
             className="font-bold text-base shadow-xl touch-manipulation py-3"
             data-testid="button-contact-us"
-            aria-label="Book a free strategy call"
+            aria-label="Apply now"
             onClick={() => {
               setSelectedService("");
               setInquiryOpen(true);
             }}
           >
-            <Phone className="mr-2 w-5 h-5" />
-            Book a Free Strategy Call
+            Apply Now
           </Button>
         </div>
       </div>
