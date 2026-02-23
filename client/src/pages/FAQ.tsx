@@ -1,6 +1,9 @@
 import { SEO } from "@/components/SEO";
 import { BackButton } from "@/components/BackButton";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
+import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
+import { ArrowRight } from "lucide-react";
 import {
   Accordion,
   AccordionContent,
@@ -147,9 +150,15 @@ export default function FAQ() {
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-4 tracking-tight">
               Still have questions?
             </h2>
-            <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto leading-relaxed mb-8">
               Reach out through our contact page and get personalized answers about how Spartan Coaching can help you or your team execute with discipline and accountability.
             </p>
+            <Button size="lg" variant="outline" asChild className="font-bold glass border-white/30 touch-manipulation group px-10" data-testid="button-faq-contact">
+              <Link href="/contact">
+                <span>Contact Us</span>
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </Button>
           </div>
         </section>
       </FadeIn>

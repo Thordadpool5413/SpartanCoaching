@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Phone } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 
 function StickyBookCallContent() {
   const isMobile = useIsMobile();
+  const [location] = useLocation();
   const [isVisible, setIsVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -31,11 +32,11 @@ function StickyBookCallContent() {
 
   return (
     <>
-      {isVisible && (
+      {isVisible && location !== "/contact" && (
         <Button
           asChild
           className={cn(
-            "fixed gap-2 shadow-lg transition-all duration-300 ease-out animate-slide-in-up z-50",
+            "fixed gap-2 shadow-lg transition-all duration-300 ease-out animate-slide-in-up z-40",
             isMobile ? "bottom-[calc(20px+env(safe-area-inset-bottom,0px))] left-[calc(16px+env(safe-area-inset-left,0px))] p-0 w-12 h-12" : "bottom-8 left-8 px-5 py-3"
           )}
           data-testid="button-contact-sticky"

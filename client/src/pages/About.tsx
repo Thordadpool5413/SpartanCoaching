@@ -1,6 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
-import { Target, Users, TrendingUp, Linkedin, BookOpen, Repeat, Heart, Handshake, ShieldCheck } from "lucide-react";
+import { Target, Users, TrendingUp, Linkedin, BookOpen, Repeat, Heart, Handshake, ShieldCheck, ArrowRight } from "lucide-react";
+import { Link } from "wouter";
 import nickPhoto from "@assets/nick-photo.jpg";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
@@ -277,9 +278,15 @@ export default function About() {
           <h2 className="text-h2 font-bold text-foreground mb-4">
             Let's Work Together
           </h2>
-          <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
             Whether you need one-on-one coaching, team training, or strategic consulting, Spartan Coaching is here to help you deliver better outcomes for the patients who need you most.
           </p>
+          <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10" data-testid="button-about-contact">
+            <Link href="/contact">
+              <span>Contact Us</span>
+              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </Button>
         </div>
       </div>
     </div>

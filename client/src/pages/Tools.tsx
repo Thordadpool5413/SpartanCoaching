@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { LightbulbIcon, SearchIcon as CustomSearchIcon, ChatIcon, MicrophoneIcon } from "@/components/icons";
-import { Mail, Users, Search } from "lucide-react";
+import { Mail, Users, Search, ArrowRight } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/BackButton";
@@ -154,9 +154,15 @@ export default function Tools() {
           <h2 className="text-h2 font-bold text-foreground mb-4">
             Expert Coaching, On Demand
           </h2>
-          <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
+          <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
             These tools are designed to give you instant access to expert coaching whenever you need it. Practice, prepare, and perform at your best.
           </p>
+          <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10" data-testid="button-tools-contact">
+            <Link href="/contact">
+              <span>Contact Us</span>
+              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </Button>
         </div>
       </SlideUp>
     </div>

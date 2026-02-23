@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -9,6 +10,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Form,
   FormControl,
   FormField,
@@ -19,7 +27,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { FadeIn } from "@/components/animations";
 import { SEO } from "@/components/SEO";
-import { Loader2, Mail } from "lucide-react";
+import { CheckCircle, Loader2, Mail } from "lucide-react";
 
 const contactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -34,6 +42,7 @@ type ContactFormData = z.infer<typeof contactFormSchema>;
 
 export default function Contact() {
   const { toast } = useToast();
+  const [submitted, setSubmitted] = useState(false);
 
   const form = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema),
@@ -56,6 +65,7 @@ export default function Contact() {
         title: "Message sent!",
         description: "We'll get back to you as soon as possible.",
       });
+      setSubmitted(true);
       form.reset();
     },
     onError: (error: Error) => {
@@ -88,6 +98,22 @@ export default function Contact() {
         </FadeIn>
 
         <FadeIn delay={0.1}>
+          {submitted ? (
+            <Card className="spacing-card text-center" data-testid="card-contact-success">
+              <div className="flex flex-col items-center gap-4 py-8">
+                <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
+                  <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
+                </div>
+                <h2 className="text-h2 text-foreground">Thank You</h2>
+                <p className="text-body-lg text-muted-foreground max-w-md">
+                  We received your message and will get back to you soon. Thank you for reaching out.
+                </p>
+                <Button variant="outline" onClick={() => { setSubmitted(false); form.reset(); }} className="mt-4 font-bold" data-testid="button-send-another">
+                  Send Another Message
+                </Button>
+              </div>
+            </Card>
+          ) : (
           <Card className="spacing-card" data-testid="card-contact-form">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -175,13 +201,21 @@ export default function Contact() {
                   render={({ field }) => (
                     <FormItem>
                       <FormLabel>Service Interest</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="e.g., Individual Coaching, Team Training"
-                          {...field}
-                          data-testid="input-contact-service"
-                        />
-                      </FormControl>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger data-testid="input-contact-service">
+                            <SelectValue placeholder="Select a service..." />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          <SelectItem value="Individual Coaching">Individual Coaching</SelectItem>
+                          <SelectItem value="Team Training">Team Training</SelectItem>
+                          <SelectItem value="Sales Leadership Development">Sales Leadership Development</SelectItem>
+                          <SelectItem value="Corporate Consulting">Corporate Consulting</SelectItem>
+                          <SelectItem value="Territory Strategy">Territory Strategy</SelectItem>
+                          <SelectItem value="Other">Other</SelectItem>
+                        </SelectContent>
+                      </Select>
                       <FormMessage />
                     </FormItem>
                   )}
@@ -225,6 +259,7 @@ export default function Contact() {
               </form>
             </Form>
           </Card>
+          )}
         </FadeIn>
 
         <FadeIn delay={0.2}>

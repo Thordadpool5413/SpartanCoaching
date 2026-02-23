@@ -1,7 +1,9 @@
 import { Card } from "@/components/ui/card";
 import { CheckIcon } from "@/components/icons";
 import { BackButton } from "@/components/BackButton";
-import { Users, Building2, UserCheck, ClipboardList, MessageCircleQuestion } from "lucide-react";
+import { Users, Building2, UserCheck, ClipboardList, MessageCircleQuestion, ArrowRight } from "lucide-react";
+import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import {
   Accordion,
@@ -444,6 +446,12 @@ export default function Services() {
           <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed">
             Every engagement starts with understanding your specific challenge. Let's talk about what's not working and build a plan that fixes it.
           </p>
+          <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10" data-testid="button-services-contact">
+            <Link href="/contact">
+              <span>Contact Us</span>
+              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </Button>
         </div>
       </div>
     </div>

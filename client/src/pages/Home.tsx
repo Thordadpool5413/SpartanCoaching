@@ -183,7 +183,19 @@ export default function Home() {
             <span className="text-white/90">Build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and measurable weekly accountability.</span>
           </p>
 
-          <div className="mt-6 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+          <div className="flex flex-col items-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+            <Button
+              size="lg"
+              variant="outline"
+              asChild
+              className="text-base sm:text-lg font-bold glass border-white/30 transition-elegant touch-manipulation group px-10 py-4"
+              data-testid="button-hero-contact"
+            >
+              <Link href="/contact">
+                <span>Get in Touch</span>
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </Button>
             <p className="text-white/70 text-sm font-semibold tracking-wide">
               Hospice-specific. Compliance-aware. Field-tested.
             </p>
@@ -526,17 +538,17 @@ export default function Home() {
               <Card className="border-2 spacing-card shadow-lg h-full" data-testid="card-case-study-1">
                 <div className="flex flex-col gap-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-xl flex items-center justify-center">
-                    <Target className="w-6 h-6 text-red-600 dark:text-red-400" />
+                    <CheckCircle className="w-6 h-6 text-red-600 dark:text-red-400" />
                   </div>
                   <h3 className="text-h3 text-foreground">Clarity and follow through</h3>
-                  <div className="space-y-3">
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                  <div className="divide-y divide-border">
+                    <p className="text-sm text-muted-foreground leading-relaxed pb-3">
                       <span className="font-semibold text-foreground">Starting point:</span> Priority accounts were unclear and follow up was inconsistent.
                     </p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <p className="text-sm text-muted-foreground leading-relaxed py-3">
                       <span className="font-semibold text-foreground">What changed:</span> Weekly focus became clear and follow up stopped slipping.
                     </p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <p className="text-sm text-muted-foreground leading-relaxed pt-3">
                       <span className="font-semibold text-foreground">Actions that drove it:</span> Territory priorities, next step tracking, simple follow through standard.
                     </p>
                   </div>
@@ -548,17 +560,17 @@ export default function Home() {
               <Card className="border-2 spacing-card shadow-lg h-full" data-testid="card-case-study-2">
                 <div className="flex flex-col gap-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-xl flex items-center justify-center">
-                    <Target className="w-6 h-6 text-red-600 dark:text-red-400" />
+                    <ArrowRight className="w-6 h-6 text-red-600 dark:text-red-400" />
                   </div>
                   <h3 className="text-h3 text-foreground">Better next steps</h3>
-                  <div className="space-y-3">
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                  <div className="divide-y divide-border">
+                    <p className="text-sm text-muted-foreground leading-relaxed pb-3">
                       <span className="font-semibold text-foreground">Starting point:</span> Good relationships, but conversations did not consistently move to a next step.
                     </p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <p className="text-sm text-muted-foreground leading-relaxed py-3">
                       <span className="font-semibold text-foreground">What changed:</span> Stronger control of next steps and cleaner follow up.
                     </p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <p className="text-sm text-muted-foreground leading-relaxed pt-3">
                       <span className="font-semibold text-foreground">Actions that drove it:</span> Conversation structure, post visit follow up plan, weekly review.
                     </p>
                   </div>
@@ -573,14 +585,14 @@ export default function Home() {
                     <Target className="w-6 h-6 text-red-600 dark:text-red-400" />
                   </div>
                   <h3 className="text-h3 text-foreground">Real market read</h3>
-                  <div className="space-y-3">
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                  <div className="divide-y divide-border">
+                    <p className="text-sm text-muted-foreground leading-relaxed pb-3">
                       <span className="font-semibold text-foreground">Starting point:</span> The market felt confusing and the team was guessing what was happening.
                     </p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <p className="text-sm text-muted-foreground leading-relaxed py-3">
                       <span className="font-semibold text-foreground">What changed:</span> Clear read on territory temperature and where to focus now.
                     </p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
+                    <p className="text-sm text-muted-foreground leading-relaxed pt-3">
                       <span className="font-semibold text-foreground">Actions that drove it:</span> Segment accounts, track education touches, validate assumptions with data when needed.
                     </p>
                   </div>
@@ -932,9 +944,15 @@ export default function Home() {
             <h2 className="text-h2 text-foreground mb-6" data-testid="text-closing-title">
               Stop Guessing. Start Executing.
             </h2>
-            <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto">
+            <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-8">
               If you are ready to build a repeatable system for hospice growth, reach out. No obligation, no pressure. Just an honest conversation about what is not working and what to do about it.
             </p>
+            <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10" data-testid="button-closing-contact">
+              <Link href="/contact">
+                <span>Contact Us</span>
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </Button>
           </div>
         </FadeIn>
       </section>

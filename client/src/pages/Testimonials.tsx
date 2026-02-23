@@ -1,7 +1,10 @@
 import { Card } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
-import { Quote, TrendingUp, Users, Award } from "lucide-react";
+import { Quote, TrendingUp, Users, Award, ArrowRight } from "lucide-react";
 import { SEO } from "@/components/SEO";
+import { Button } from "@/components/ui/button";
+import { Link } from "wouter";
+import { FadeIn } from "@/components/animations";
 
 export default function Testimonials() {
   const testimonials = [
@@ -213,6 +216,22 @@ export default function Testimonials() {
           </div>
         </Card>
       </div>
+      <FadeIn delay={0.2}>
+        <div className="bg-gradient-to-br from-primary/10 to-destructive/10 rounded-2xl p-8 md:p-12 text-center mt-16">
+          <h2 className="text-h2 font-bold text-foreground mb-4">
+            Ready to See Results Like These?
+          </h2>
+          <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
+            Whether you are a rep looking to sharpen your skills, a leader building a team, or an executive scaling across markets, let's talk about what is not working and build a plan that fixes it.
+          </p>
+          <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10" data-testid="button-testimonials-contact">
+            <Link href="/contact">
+              <span>Contact Us</span>
+              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </Link>
+          </Button>
+        </div>
+      </FadeIn>
     </div>
   );
 }
