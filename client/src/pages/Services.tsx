@@ -1,8 +1,5 @@
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { CheckIcon } from "@/components/icons";
-import { InquiryForm } from "@/components/InquiryForm";
 import { BackButton } from "@/components/BackButton";
 import { Users, Building2, UserCheck, ClipboardList, MessageCircleQuestion } from "lucide-react";
 import { SEO } from "@/components/SEO";
@@ -14,9 +11,6 @@ import {
 } from "@/components/ui/accordion";
 
 export default function Services() {
-  const [inquiryOpen, setInquiryOpen] = useState(false);
-  const [selectedService, setSelectedService] = useState<string>("");
-
   const individualServices = [
     {
       title: "Virtual Coaching Sessions",
@@ -217,18 +211,6 @@ export default function Services() {
                 </div>
               </div>
 
-              <Button
-                size="lg"
-                className="w-full font-bold mt-auto touch-manipulation py-3"
-                data-testid={`button-book-individual-${idx}`}
-                aria-label={`Apply now for ${service.title}`}
-                onClick={() => {
-                  setSelectedService(service.title);
-                  setInquiryOpen(true);
-                }}
-              >
-                Apply Now
-              </Button>
             </Card>
           ))}
         </div>
@@ -285,18 +267,6 @@ export default function Services() {
                 </div>
               </div>
 
-              <Button
-                size="lg"
-                className="w-full font-bold mt-auto touch-manipulation py-3"
-                data-testid={`button-book-leadership-${idx}`}
-                aria-label={`Apply now for ${service.title}`}
-                onClick={() => {
-                  setSelectedService(service.title);
-                  setInquiryOpen(true);
-                }}
-              >
-                Apply Now
-              </Button>
             </Card>
           ))}
         </div>
@@ -353,18 +323,6 @@ export default function Services() {
                 </div>
               </div>
 
-              <Button
-                size="lg"
-                className="w-full font-bold mt-auto touch-manipulation py-3"
-                data-testid={`button-book-corporate-${idx}`}
-                aria-label={`Apply now for ${service.title}`}
-                onClick={() => {
-                  setSelectedService(service.title);
-                  setInquiryOpen(true);
-                }}
-              >
-                Apply Now
-              </Button>
             </Card>
           ))}
         </div>
@@ -486,25 +444,8 @@ export default function Services() {
           <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed">
             Every engagement starts with understanding your specific challenge. Let's talk about what's not working and build a plan that fixes it.
           </p>
-          <Button
-            size="lg"
-            className="font-bold text-base shadow-xl touch-manipulation py-3"
-            data-testid="button-contact-us"
-            aria-label="Apply now"
-            onClick={() => {
-              setSelectedService("");
-              setInquiryOpen(true);
-            }}
-          >
-            Apply Now
-          </Button>
         </div>
       </div>
-      <InquiryForm
-        open={inquiryOpen}
-        onOpenChange={setInquiryOpen}
-        defaultServiceType={selectedService}
-      />
     </div>
   );
 }

@@ -21,7 +21,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { ContactForm } from "@/components/ContactForm";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 
 // Helper hook to determine if the screen is mobile
@@ -245,6 +244,7 @@ export function Header() {
             { path: "/faq", label: "FAQ", description: "Common questions answered" },
           ]} />
           <NavLink href="/about">About</NavLink>
+          <NavLink href="/contact">Contact</NavLink>
           <Button
             onClick={toggleTheme}
             variant="ghost"
@@ -318,6 +318,7 @@ export function Header() {
 
                 <MobileNavSection title="Company" />
                 <MobileNavLink href="/about" label="About" location={location} onClose={() => setMobileMenuOpen(false)} />
+                <MobileNavLink href="/contact" label="Contact" location={location} onClose={() => setMobileMenuOpen(false)} />
               </nav>
             </div>
             <div className="shrink-0 flex items-center justify-between gap-2 border-t border-border px-5 py-3">
@@ -387,30 +388,8 @@ export function Header() {
 }
 
 export function Footer() {
-  const [contactFormOpen, setContactFormOpen] = useState(false);
-
   return (
     <>
-      <section className="bg-gradient-to-br from-red-600 via-red-700 to-red-800 relative overflow-hidden" data-testid="section-cta-banner">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_60%)] pointer-events-none"></div>
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 py-16 sm:py-20 text-center">
-          <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-4 tracking-tight">
-            Ready to Build a Consistent Growth System?
-          </h2>
-          <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto mb-8 leading-relaxed">
-            Every engagement starts with understanding your specific challenge. Apply now and let's talk about what is not working and how to fix it.
-          </p>
-          <Button
-            size="lg"
-            onClick={() => setContactFormOpen(true)}
-            className="bg-white text-red-700 font-bold text-base sm:text-lg px-8 sm:px-10 py-3 shadow-xl border-white"
-            data-testid="button-book-call-banner"
-          >
-            Apply Now
-          </Button>
-        </div>
-      </section>
-
       <footer className="mt-auto border-t border-border bg-background no-print safe-area-bottom">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 pb-20">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
@@ -485,14 +464,14 @@ export function Footer() {
               >
                 Compliance
               </Link>
-              <button
-                onClick={() => setContactFormOpen(true)}
+              <Link
+                href="/contact"
                 className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
-                data-testid="button-footer-contact"
-                aria-label="Open contact form"
+                data-testid="link-footer-contact"
+                aria-label="Contact us"
               >
                 Contact
-              </button>
+              </Link>
               <Link
                 href="/admin"
                 className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
@@ -506,7 +485,6 @@ export function Footer() {
         </div>
       </footer>
 
-      <ContactForm open={contactFormOpen} onOpenChange={setContactFormOpen} />
     </>
   );
 }

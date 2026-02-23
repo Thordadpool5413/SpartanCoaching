@@ -5,13 +5,12 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DisciplineIcon, EmpathyIcon, StrategyIcon } from "@/components/icons";
-import { Shield, Heart, Zap, Target, Users, BookOpen, ArrowRight, Sparkles, Lightbulb, MessageCircle, Search, Mail, Flame, Stethoscope, Brain, Briefcase, Phone, CheckCircle, AlertCircle, Quote } from "lucide-react";
+import { Shield, Heart, Zap, Target, Users, BookOpen, ArrowRight, Sparkles, Lightbulb, MessageCircle, Search, Mail, Flame, Stethoscope, Brain, Briefcase, CheckCircle, AlertCircle } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { SEO } from "@/components/SEO";
 import { apiRequest } from "@/lib/queryClient";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
-import { ContactForm } from "@/components/ContactForm";
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -19,7 +18,6 @@ export default function Home() {
   const [askResponse, setAskResponse] = useState("");
   const [askLoading, setAskLoading] = useState(false);
   const [askError, setAskError] = useState<string | null>(null);
-  const [contactFormOpen, setContactFormOpen] = useState(false);
 
   const suggestionQuestions = [
     "What are hospice eligibility criteria for heart failure?",
@@ -185,28 +183,6 @@ export default function Home() {
             <span className="text-white/90">Build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and measurable weekly accountability.</span>
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 sm:gap-5 justify-center animate-fade-in-up px-6 max-w-2xl mx-auto" style={{ animationDelay: '0.4s' }}>
-            <Button
-              size="lg"
-              onClick={() => setContactFormOpen(true)}
-              className="text-base sm:text-lg font-bold shadow-xl transition-elegant touch-manipulation group px-10 py-4"
-              data-testid="button-apply-now-hero"
-            >
-              <span>Apply Now</span>
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              onClick={() => setContactFormOpen(true)}
-              className="text-base sm:text-lg font-bold glass border-white/30 transition-elegant touch-manipulation group px-10 py-4"
-              data-testid="button-book-consult-hero"
-            >
-              <span>Book a Consult</span>
-              <Phone className="ml-2 w-5 h-5 group-hover:scale-110 transition-transform" />
-            </Button>
-          </div>
-
           <div className="mt-6 animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
             <p className="text-white/70 text-sm font-semibold tracking-wide">
               Hospice-specific. Compliance-aware. Field-tested.
@@ -363,27 +339,6 @@ export default function Home() {
               </StaggerItem>
             ))}
           </StaggerContainer>
-
-          <FadeIn>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-cards max-w-4xl mx-auto">
-              <Card className="border-2 spacing-card shadow-lg" data-testid="card-testimonial-1">
-                <div className="flex flex-col gap-4">
-                  <Quote className="w-8 h-8 text-primary/40" />
-                  <p className="text-body text-muted-foreground italic leading-relaxed">
-                    "[Testimonial from hospice liaison describing behavior change]"
-                  </p>
-                </div>
-              </Card>
-              <Card className="border-2 spacing-card shadow-lg" data-testid="card-testimonial-2">
-                <div className="flex flex-col gap-4">
-                  <Quote className="w-8 h-8 text-primary/40" />
-                  <p className="text-body text-muted-foreground italic leading-relaxed">
-                    "[Testimonial from director of business development describing team improvement]"
-                  </p>
-                </div>
-              </Card>
-            </div>
-          </FadeIn>
         </div>
       </section>
 
@@ -402,7 +357,7 @@ export default function Home() {
                 <div className="space-y-4">
                   {[
                     "Your calendar is full but your pipeline is flat",
-                    "Follow-up falls through the cracks every week",
+                    "Follow up falls through the cracks every week",
                     "Objections stall conversations you should be winning",
                     "Territory planning is a spreadsheet nobody updates",
                     "New reps take months to produce and experienced reps plateau",
@@ -459,11 +414,11 @@ export default function Home() {
               { title: "Territory and account planning system", desc: "Organize your territory with clarity so every week has a purpose." },
               { title: "Referral source segmentation framework", desc: "Structured approach for hospitals, SNFs, home health, physicians, senior living, and community partners." },
               { title: "Weekly scorecard and accountability rhythm", desc: "Track the behaviors that drive results, not just the results themselves." },
-              { title: "Messaging library and education-based outreach scripts", desc: "Scripts organized by referral source type so your outreach is relevant and respectful." },
+              { title: "Messaging library and education based outreach scripts", desc: "Scripts organized by referral source type so your outreach is relevant and respectful." },
               { title: "Objection handling scripts", desc: "Patient-centered and accurate responses that keep conversations moving forward." },
-              { title: "Follow-up sequences and cadence templates", desc: "Never let a warm relationship go cold because of inconsistent follow-up." },
+              { title: "Follow up sequences and cadence templates", desc: "Never let a warm relationship go cold because of inconsistent follow up." },
               { title: "Weekly coaching agenda and pre-work", desc: "Sessions are structured and repeatable so coaching time is never wasted." },
-              { title: "Optional AI-enabled planning tools", desc: "For organizing messaging and territory workflow. Do not enter patient identifiers or PHI into any tool." },
+              { title: "Optional AI enabled planning tools", desc: "For organizing messaging and territory workflow. Do not enter patient identifiers or PHI into any tool." },
             ].map((item, index) => (
               <StaggerItem key={index}>
                 <div className="flex items-start gap-4 p-4 rounded-lg" data-testid={`text-deliverable-${index}`}>
@@ -476,20 +431,6 @@ export default function Home() {
               </StaggerItem>
             ))}
           </StaggerContainer>
-
-          <FadeIn>
-            <div className="mt-12 text-center">
-              <Button
-                size="lg"
-                onClick={() => setContactFormOpen(true)}
-                className="font-bold shadow-lg touch-manipulation group px-10"
-                data-testid="button-apply-now-deliverables"
-              >
-                <span>Apply Now</span>
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </div>
-          </FadeIn>
         </div>
       </section>
 
@@ -563,20 +504,6 @@ export default function Home() {
               </StaggerItem>
             ))}
           </StaggerContainer>
-
-          <FadeIn>
-            <div className="mt-12 text-center">
-              <Button
-                size="lg"
-                onClick={() => setContactFormOpen(true)}
-                className="font-bold shadow-lg touch-manipulation group px-10"
-                data-testid="button-apply-now-steps"
-              >
-                <span>Apply Now</span>
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </div>
-          </FadeIn>
         </div>
       </section>
 
@@ -595,50 +522,72 @@ export default function Home() {
           </FadeIn>
 
           <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-cards mb-12">
-            {[1, 2, 3].map((num) => (
-              <StaggerItem key={num}>
-                <Card className="border-2 spacing-card shadow-lg h-full" data-testid={`card-case-study-${num}`}>
-                  <div className="flex flex-col gap-4">
-                    <div className="w-12 h-12 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-xl flex items-center justify-center">
-                      <Target className="w-6 h-6 text-red-600 dark:text-red-400" />
-                    </div>
-                    <p className="text-body text-muted-foreground italic leading-relaxed">
-                      "[Starting point, what changed, and what actions drove improvement]"
+            <StaggerItem>
+              <Card className="border-2 spacing-card shadow-lg h-full" data-testid="card-case-study-1">
+                <div className="flex flex-col gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-xl flex items-center justify-center">
+                    <Target className="w-6 h-6 text-red-600 dark:text-red-400" />
+                  </div>
+                  <h3 className="text-h3 text-foreground">Clarity and follow through</h3>
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      <span className="font-semibold text-foreground">Starting point:</span> Priority accounts were unclear and follow up was inconsistent.
+                    </p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      <span className="font-semibold text-foreground">What changed:</span> Weekly focus became clear and follow up stopped slipping.
+                    </p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      <span className="font-semibold text-foreground">Actions that drove it:</span> Territory priorities, next step tracking, simple follow through standard.
                     </p>
                   </div>
-                </Card>
-              </StaggerItem>
-            ))}
+                </div>
+              </Card>
+            </StaggerItem>
+
+            <StaggerItem>
+              <Card className="border-2 spacing-card shadow-lg h-full" data-testid="card-case-study-2">
+                <div className="flex flex-col gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-xl flex items-center justify-center">
+                    <Target className="w-6 h-6 text-red-600 dark:text-red-400" />
+                  </div>
+                  <h3 className="text-h3 text-foreground">Better next steps</h3>
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      <span className="font-semibold text-foreground">Starting point:</span> Good relationships, but conversations did not consistently move to a next step.
+                    </p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      <span className="font-semibold text-foreground">What changed:</span> Stronger control of next steps and cleaner follow up.
+                    </p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      <span className="font-semibold text-foreground">Actions that drove it:</span> Conversation structure, post visit follow up plan, weekly review.
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </StaggerItem>
+
+            <StaggerItem>
+              <Card className="border-2 spacing-card shadow-lg h-full" data-testid="card-case-study-3">
+                <div className="flex flex-col gap-4">
+                  <div className="w-12 h-12 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-xl flex items-center justify-center">
+                    <Target className="w-6 h-6 text-red-600 dark:text-red-400" />
+                  </div>
+                  <h3 className="text-h3 text-foreground">Real market read</h3>
+                  <div className="space-y-3">
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      <span className="font-semibold text-foreground">Starting point:</span> The market felt confusing and the team was guessing what was happening.
+                    </p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      <span className="font-semibold text-foreground">What changed:</span> Clear read on territory temperature and where to focus now.
+                    </p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      <span className="font-semibold text-foreground">Actions that drove it:</span> Segment accounts, track education touches, validate assumptions with data when needed.
+                    </p>
+                  </div>
+                </div>
+              </Card>
+            </StaggerItem>
           </StaggerContainer>
-
-          <FadeIn>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-cards max-w-4xl mx-auto mb-12">
-              {[1, 2].map((num) => (
-                <Card key={num} className="border-2 spacing-card shadow-lg" data-testid={`card-verified-testimonial-${num}`}>
-                  <div className="flex flex-col gap-4">
-                    <Quote className="w-8 h-8 text-primary/40" />
-                    <p className="text-body text-muted-foreground italic leading-relaxed">
-                      "[Verified testimonial describing measurable behavior change]"
-                    </p>
-                  </div>
-                </Card>
-              ))}
-            </div>
-          </FadeIn>
-
-          <FadeIn>
-            <div className="text-center">
-              <Button
-                size="lg"
-                onClick={() => setContactFormOpen(true)}
-                className="font-bold shadow-lg touch-manipulation group px-10"
-                data-testid="button-apply-now-results"
-              >
-                <span>Apply Now</span>
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </div>
-          </FadeIn>
         </div>
       </section>
 
@@ -729,6 +678,28 @@ export default function Home() {
       </section>
 
 
+      {/* Why Spartan Name Section */}
+      <section className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-why-spartan-name">
+        <div className="relative max-w-4xl mx-auto spacing-container">
+          <FadeIn>
+            <div className="text-center mb-8">
+              <h2 className="text-h2 text-gradient-elegant mb-6" data-testid="text-spartan-name-title">
+                Why Spartan
+              </h2>
+            </div>
+            <div className="max-w-3xl mx-auto space-y-4">
+              <p className="text-body text-muted-foreground leading-relaxed">
+                The name Spartan is not about being aggressive. It is about being disciplined, prepared, and willing to do the hard work consistently. In hospice growth, success does not come from one great meeting or one lucky referral. It comes from showing up every week with a plan, executing that plan, and doing the unglamorous work that most people skip.
+              </p>
+              <p className="text-body text-muted-foreground leading-relaxed">
+                Spartan reflects a coaching philosophy rooted in structure, accountability, and simplicity. We strip away what does not work, focus on what does, and build habits that hold up under pressure. That is what the name means to us. Not flash. Not hype. Just the work.
+              </p>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
+
       {/* 11. Spartan Coaching Tools Showcase */}
       <section className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-ai-tools">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(239,68,68,0.05),transparent_60%)] pointer-events-none"></div>
@@ -740,7 +711,7 @@ export default function Home() {
                 Spartan Coaching Tools
               </h2>
               <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto">
-                Every tool a hospice professional needs, built on 15+ years of real-world hospice expertise
+                Built on real hospice field experience. Use these tools to plan your week, sharpen your messaging, and prepare for tough conversations.
               </p>
             </div>
           </FadeIn>
@@ -776,7 +747,7 @@ export default function Home() {
                   </div>
                   <CardTitle className="text-h3 text-center mb-3">Objection Handler</CardTitle>
                   <p className="text-body text-muted-foreground text-center leading-relaxed mb-6 flex-1">
-                    Expert-crafted responses to the toughest hospice objections with empathy and clinical precision
+                    Expert crafted responses to the toughest hospice objections with empathy and clinical precision
                   </p>
                   <Button size="sm" variant="outline" asChild className="w-full font-bold touch-manipulation group mt-auto" data-testid="button-try-objections">
                     <Link href="/tools/objections">
@@ -797,7 +768,7 @@ export default function Home() {
                   </div>
                   <CardTitle className="text-h3 text-center mb-3">Territory Research</CardTitle>
                   <p className="text-body text-muted-foreground text-center leading-relaxed mb-6 flex-1">
-                    Deep-dive research on facilities, demographics, and market opportunities in your territory
+                    Deep dive research on facilities, demographics, and market opportunities in your territory
                   </p>
                   <Button size="sm" variant="outline" asChild className="w-full font-bold touch-manipulation group mt-auto" data-testid="button-try-research">
                     <Link href="/tools/research">
@@ -818,7 +789,7 @@ export default function Home() {
                   </div>
                   <CardTitle className="text-h3 text-center mb-3">Email Templates</CardTitle>
                   <p className="text-body text-muted-foreground text-center leading-relaxed mb-6 flex-1">
-                    Professional follow-up emails, thank you notes, and value-add messages that build referral relationships
+                    Professional follow up emails, thank you notes, and value add messages that build referral relationships
                   </p>
                   <Button size="sm" variant="outline" asChild className="w-full font-bold touch-manipulation group mt-auto" data-testid="button-try-email-templates">
                     <Link href="/tools/email-templates">
@@ -837,7 +808,7 @@ export default function Home() {
                   <div className="w-14 h-14 sm:w-16 sm:h-16 bg-spartan-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-all duration-500">
                     <Users className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
                   </div>
-                  <CardTitle className="text-h3 text-center mb-3">Role-Play Practice</CardTitle>
+                  <CardTitle className="text-h3 text-center mb-3">Role Play Practice</CardTitle>
                   <p className="text-body text-muted-foreground text-center leading-relaxed mb-6 flex-1">
                     Practice real sales conversations in simulated scenarios with physicians, nurses, and administrators
                   </p>
@@ -883,12 +854,12 @@ export default function Home() {
         <div className="relative max-w-7xl mx-auto spacing-container">
           <FadeIn>
             <div className="text-center mb-16 sm:mb-20">
-              <p className="text-lg font-semibold text-primary mb-3" data-testid="text-why-spartan-label">The Spartan Difference</p>
+              <p className="text-lg font-semibold text-primary mb-3" data-testid="text-why-spartan-label">Why Spartan</p>
               <h2 className="text-h2 text-foreground mb-6" data-testid="text-why-spartan-title">
-                Why Hospice Organizations Choose Spartan
+                What Makes This Different
               </h2>
               <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto">
-                No other consulting firm combines deep hospice industry knowledge with hands-on coaching, clinical sales training, and strategic growth planning
+                Most sales training is generic. Spartan is built for hospice growth professionals who need practical systems, not motivational speeches.
               </p>
             </div>
           </FadeIn>
@@ -900,9 +871,9 @@ export default function Home() {
                   <div className="w-14 h-14 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-2xl flex items-center justify-center mb-5">
                     <Target className="w-7 h-7 text-red-600 dark:text-red-400" />
                   </div>
-                  <CardTitle className="text-h3 mb-3">Hospice Sales Mastery</CardTitle>
+                  <CardTitle className="text-h3 mb-3">Field Experience, Not Theory</CardTitle>
                   <p className="text-body text-muted-foreground leading-relaxed">
-                    15+ years of real-world hospice sales experience distilled into actionable frameworks. Territory management, referral development, and relationship building with physicians, discharge planners, and facility administrators.
+                    Every framework we teach has been used in real hospice markets, with real referral sources, in real conversations. Nothing here was built in a classroom.
                   </p>
                 </div>
               </Card>
@@ -914,9 +885,9 @@ export default function Home() {
                   <div className="w-14 h-14 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-2xl flex items-center justify-center mb-5">
                     <Stethoscope className="w-7 h-7 text-red-600 dark:text-red-400" />
                   </div>
-                  <CardTitle className="text-h3 mb-3">Clinical Knowledge</CardTitle>
+                  <CardTitle className="text-h3 mb-3">Clinical Fluency</CardTitle>
                   <p className="text-body text-muted-foreground leading-relaxed">
-                    Deep understanding of hospice eligibility criteria, clinical indicators, Medicare guidelines, and the medical terminology that builds credibility with clinical staff.
+                    We understand eligibility criteria, clinical indicators, and Medicare guidelines well enough to coach your team to speak credibly with physicians and clinical staff.
                   </p>
                 </div>
               </Card>
@@ -928,9 +899,9 @@ export default function Home() {
                   <div className="w-14 h-14 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-2xl flex items-center justify-center mb-5">
                     <Briefcase className="w-7 h-7 text-red-600 dark:text-red-400" />
                   </div>
-                  <CardTitle className="text-h3 mb-3">Strategic Consulting</CardTitle>
+                  <CardTitle className="text-h3 mb-3">Execution Focus</CardTitle>
                   <p className="text-body text-muted-foreground leading-relaxed">
-                    Organizational strategy for hospice providers, from market analysis and competitive positioning to team structure and growth planning.
+                    Strategy without execution is a waste of time. Every engagement is built around weekly behaviors, visible accountability, and measurable follow through.
                   </p>
                 </div>
               </Card>
@@ -942,9 +913,9 @@ export default function Home() {
                   <div className="w-14 h-14 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-2xl flex items-center justify-center mb-5">
                     <Brain className="w-7 h-7 text-red-600 dark:text-red-400" />
                   </div>
-                  <CardTitle className="text-h3 mb-3">Technology and Innovation</CardTitle>
+                  <CardTitle className="text-h3 mb-3">Practical Tools</CardTitle>
                   <p className="text-body text-muted-foreground leading-relaxed">
-                    Proprietary tools and resources built on hospice-specific knowledge, helping your team access expert guidance on regulations, clinical scenarios, and sales dynamics anytime.
+                    Our tools are designed to support your weekly workflow. Territory planning, messaging prep, objection handling, and follow up tracking, all built for the field.
                   </p>
                 </div>
               </Card>
@@ -954,36 +925,19 @@ export default function Home() {
       </section>
 
 
-      {/* 13. Final CTA Section */}
-      <section className="relative bg-spartan-gradient text-white spacing-section overflow-hidden" data-testid="section-final-cta">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.1),transparent_50%)]"></div>
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_70%_50%,rgba(255,255,255,0.05),transparent_50%)]"></div>
-
+      {/* 13. Closing Section */}
+      <section className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-black dark:to-gray-950 spacing-section" data-testid="section-closing">
         <FadeIn>
           <div className="relative max-w-4xl mx-auto spacing-container text-center">
-            <h2 className="text-h2 mb-6" data-testid="text-final-cta-title">
+            <h2 className="text-h2 text-foreground mb-6" data-testid="text-closing-title">
               Stop Guessing. Start Executing.
             </h2>
-            <p className="text-body-lg mb-10 text-red-100 max-w-2xl mx-auto">
-              If you are ready to build a repeatable system for hospice growth, apply now. No obligation, no pressure. Just an honest conversation about what is not working and what to do about it.
+            <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto">
+              If you are ready to build a repeatable system for hospice growth, reach out. No obligation, no pressure. Just an honest conversation about what is not working and what to do about it.
             </p>
-            <div className="flex justify-center">
-              <Button
-                size="lg"
-                variant="outline"
-                onClick={() => setContactFormOpen(true)}
-                className="text-base sm:text-lg font-bold glass border-white/30 transition-elegant touch-manipulation group px-10 py-4"
-                data-testid="button-apply-now-final"
-              >
-                <span>Apply Now</span>
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Button>
-            </div>
           </div>
         </FadeIn>
       </section>
-
-      <ContactForm open={contactFormOpen} onOpenChange={setContactFormOpen} />
     </div>
   );
 }
