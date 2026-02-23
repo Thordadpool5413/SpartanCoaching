@@ -191,6 +191,16 @@ const seoDefaults: Record<string, SEOConfig> = {
     description: 'The definitive reference for hospice terminology, regulations, eligibility criteria, clinical concepts, and sales terminology. Searchable glossary for hospice professionals.',
     keywords: 'hospice glossary, hospice terminology, hospice eligibility criteria, Medicare hospice benefit, hospice regulations, clinical terms',
   },
+  '/contact': {
+    title: 'Contact Us | Spartan Coaching',
+    description: 'Reach out to Spartan Coaching for hospice sales consulting, team training, or coaching. No pressure, no obligation. Tell us what you need and we will get back to you.',
+    keywords: 'contact Spartan Coaching, hospice consulting inquiry, sales coaching contact, get in touch',
+  },
+  '/compliance': {
+    title: 'Compliance and Ethics | Spartan Coaching',
+    description: 'Our ethical boundaries, compliance posture, and what we will never train. Spartan Coaching operates within clear guidelines to protect patients, providers, and the profession.',
+    keywords: 'compliance, ethics, hospice compliance, sales ethics, PHI protection, HIPAA, ethical coaching',
+  },
 };
 
 const defaultConfig: SEOConfig = {
