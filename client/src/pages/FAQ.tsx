@@ -80,7 +80,7 @@ const faqCategories = [
       {
         id: "how-to-start",
         q: "How do I get started?",
-        a: "Submit an application. We will review your situation and schedule a consult to discuss your specific challenges, goals, and whether Spartan is the right fit. There is no pressure and no commitment required.",
+        a: "Reach out through our contact page. We will review your situation and schedule a consult to discuss your specific challenges, goals, and whether Spartan is the right fit. There is no pressure and no commitment required.",
       },
       {
         id: "cost",
@@ -148,7 +148,7 @@ export default function FAQ() {
               Still have questions?
             </h2>
             <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto leading-relaxed">
-              Submit an application and get personalized answers about how Spartan Coaching can help you or your team execute with discipline and accountability.
+              Reach out through our contact page and get personalized answers about how Spartan Coaching can help you or your team execute with discipline and accountability.
             </p>
           </div>
         </section>

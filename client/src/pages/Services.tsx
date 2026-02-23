@@ -343,7 +343,7 @@ export default function Services() {
           {[
             {
               step: 1,
-              title: "Submit an application",
+              title: "Reach out",
               description: "Tell us about your role, your challenges, and what you want to improve.",
             },
             {
