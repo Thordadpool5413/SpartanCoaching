@@ -1,14 +1,11 @@
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { Target, Users, TrendingUp, Linkedin, BookOpen, Repeat, Heart, Handshake, ShieldCheck } from "lucide-react";
 import nickPhoto from "@assets/nick-photo.jpg";
 import { Button } from "@/components/ui/button";
-import { ContactForm } from "@/components/ContactForm";
 import { SEO } from "@/components/SEO";
 
 export default function About() {
-  const [contactOpen, setContactOpen] = useState(false);
   return (
     <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
       <SEO />
@@ -280,18 +277,9 @@ export default function About() {
           <h2 className="text-h2 font-bold text-foreground mb-4">
             Let's Work Together
           </h2>
-          <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-6 leading-relaxed">
+          <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Whether you need one-on-one coaching, team training, or strategic consulting, Spartan Coaching is here to help you deliver better outcomes for the patients who need you most.
           </p>
-          <Button
-            size="lg"
-            className="font-bold py-3"
-            onClick={() => setContactOpen(true)}
-            data-testid="button-about-contact"
-          >
-            Apply Now
-          </Button>
-          <ContactForm open={contactOpen} onOpenChange={setContactOpen} />
         </div>
       </div>
     </div>

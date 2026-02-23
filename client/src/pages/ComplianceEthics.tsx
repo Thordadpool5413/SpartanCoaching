@@ -1,10 +1,7 @@
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/BackButton";
 import { SEO } from "@/components/SEO";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
-import { ContactForm } from "@/components/ContactForm";
 import { Shield, Lock, Heart, AlertTriangle, CheckCircle, ShieldOff, BookOpen, Target } from "lucide-react";
 
 const boundaryItems = [
@@ -37,7 +34,6 @@ const guaranteeItems = [
 ];
 
 export default function ComplianceEthics() {
-  const [contactOpen, setContactOpen] = useState(false);
   return (
     <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
       <SEO />
@@ -154,18 +150,9 @@ export default function ComplianceEthics() {
               <h2 className="text-h2 font-bold text-foreground mb-4">
                 Ready to Get Started?
               </h2>
-              <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-6 leading-relaxed">
+              <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
                 Partner with a coaching program built on integrity, compliance, and a commitment to ethical hospice sales practices.
               </p>
-              <Button
-                size="lg"
-                className="font-bold py-3"
-                onClick={() => setContactOpen(true)}
-                data-testid="button-compliance-apply"
-              >
-                Apply Now
-              </Button>
-              <ContactForm open={contactOpen} onOpenChange={setContactOpen} />
             </div>
           </FadeIn>
         </div>

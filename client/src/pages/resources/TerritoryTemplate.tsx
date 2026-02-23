@@ -45,7 +45,7 @@ export default function TerritoryTemplate() {
         </div>
         <div className="border-2 border-gray-300 p-3">
           <label className="text-xs font-bold text-gray-600 uppercase">Last Updated:</label>
-          <input type="text" className="mt-2 h-6 border-b-2 border-dotted border-gray-400" placeholder="e.g., Jan 2025" />
+          <input type="text" className="mt-2 h-6 border-b-2 border-dotted border-gray-400" placeholder="e.g., Jan 2026" />
         </div>
       </div>
 

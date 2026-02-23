@@ -23,7 +23,7 @@ export default function Method() {
       bgColor: "bg-purple-50 dark:bg-purple-950/30",
       borderColor: "border-purple-200 dark:border-purple-800",
       purpose: "Connecting happens after Discovery, once we have learned what the individual needs are. This is where we connect with the contact based on what they told us they need, and we align to how they want to work, communicate, and move decisions forward.",
-      executionStandard: "Reference specific needs the contact shared during Discovery. Demonstrate alignment by adapting your communication cadence, format, and content to match their stated preferences. Show how your team operates in ways that fit their workflow — not the other way around. Confirm mutual understanding of how you will work together going forward.",
+      executionStandard: "Reference specific needs the contact shared during Discovery. Demonstrate alignment by adapting your communication cadence, format, and content to match their stated preferences. Show how your team operates in ways that fit their workflow, not the other way around. Confirm mutual understanding of how you will work together going forward.",
       measurableOutput: "A documented working agreement that reflects the contact's preferred communication method, frequency, and the specific ways your team will support their workflow. Both sides can describe how the relationship operates."
     },
     {
@@ -42,8 +42,8 @@ export default function Method() {
       color: "text-green-600 dark:text-green-400",
       bgColor: "bg-green-50 dark:bg-green-950/30",
       borderColor: "border-green-200 dark:border-green-800",
-      purpose: "Commitment is getting the contact and the account to commit to a patient referral. This is where the next step becomes clear action — who calls, when they call, what triggers the call, and what happens once the referral is made.",
-      executionStandard: "Define the referral trigger clearly — what clinical or situational signal tells the contact it is time to call. Establish who makes the call, what information is needed, and what happens on your end once the referral is received. Remove ambiguity from every step. Walk through the process together so the contact knows exactly what to expect.",
+      purpose: "Commitment is getting the contact and the account to commit to a patient referral. This is where the next step becomes clear action. Who calls, when they call, what triggers the call, and what happens once the referral is made.",
+      executionStandard: "Define the referral trigger clearly. What clinical or situational signal tells the contact it is time to call. Establish who makes the call, what information is needed, and what happens on your end once the referral is received. Remove ambiguity from every step. Walk through the process together so the contact knows exactly what to expect.",
       measurableOutput: "A referral pathway document or verbal commitment that names the trigger, the caller, the method, and the follow-up process. The contact can describe when and how they will refer without needing to ask."
     }
   ];
@@ -51,7 +51,7 @@ export default function Method() {
   const fundamentals = [
     {
       title: "Mamba mentality in practice and performance",
-      description: "Repetitions on purpose, film review, and one tiny edge recorded after every session. Excellence is not accidental — it is engineered through deliberate, relentless refinement of the craft."
+      description: "Repetitions on purpose, film review, and one tiny edge recorded after every session. Excellence is not accidental. It is engineered through deliberate, relentless refinement of the craft."
     },
     {
       title: "Plain language that busy clinical leaders can use the same day",
@@ -67,7 +67,7 @@ export default function Method() {
     },
     {
       title: "Visible work that another person can see, repeat, and coach",
-      description: "If the work cannot be observed, it cannot be improved. Every activity is documented, repeatable, and designed to be coached — no black boxes, no hidden methods."
+      description: "If the work cannot be observed, it cannot be improved. Every activity is documented, repeatable, and designed to be coached. No black boxes, no hidden methods."
     }
   ];
 
@@ -75,7 +75,7 @@ export default function Method() {
     {
       title: "Patient choice is honored at every step",
       icon: Heart,
-      description: "Every interaction upholds the patient's right to choose. Autonomy is not a formality — it is the foundation upon which all clinical and commercial activity rests."
+      description: "Every interaction upholds the patient's right to choose. Autonomy is not a formality. It is the foundation upon which all clinical and commercial activity rests."
     },
     {
       title: "Clinical judgment is supported and never replaced",
@@ -85,7 +85,7 @@ export default function Method() {
     {
       title: "Privacy is protected by behavior and explained in human language",
       icon: Eye,
-      description: "Patient privacy is not merely policy — it is practiced in every conversation, every handoff, every system interaction. We explain it in words anyone can understand."
+      description: "Patient privacy is not merely policy. It is practiced in every conversation, every handoff, every system interaction. We explain it in words anyone can understand."
     },
     {
       title: "Only the minimum necessary data is used",
@@ -100,7 +100,7 @@ export default function Method() {
     {
       title: "No protected information leaves approved systems",
       icon: Lock,
-      description: "Data boundaries are absolute. Protected information stays within sanctioned systems — no exceptions, no workarounds, no shortcuts."
+      description: "Data boundaries are absolute. Protected information stays within sanctioned systems. No exceptions, no workarounds, no shortcuts."
     }
   ];
 
@@ -124,7 +124,7 @@ export default function Method() {
           The <span className="text-gradient-primary">Spartan Method</span>
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          A complete methodology for healthcare sales mastery. Value is discovered, translated, proven, and made official through four disciplined subjects — each governed by ethics that are non-negotiable.
+          A complete methodology for healthcare sales mastery. Value is discovered, translated, proven, and made official through four disciplined subjects, each governed by ethics that are non-negotiable.
         </p>
       </div>
 
@@ -158,7 +158,7 @@ export default function Method() {
               </AccordionTrigger>
               <AccordionContent className="text-foreground leading-relaxed pt-4 space-y-4">
                 <p>
-                  Success in hospice sales requires more than good intentions—it demands structure and consistency. Discipline means having a proven framework for territory planning, objection handling, and follow-up strategies. It's about showing up prepared, executing with precision, and tracking what matters. In practice, this looks like a liaison who knows exactly which accounts to visit on Tuesday, what questions to ask, and how to measure success.
+                  Success in hospice sales requires more than good intentions. It demands structure and consistency. Discipline means having a proven framework for territory planning, objection handling, and follow-up strategies. It's about showing up prepared, executing with precision, and tracking what matters. In practice, this looks like a liaison who knows exactly which accounts to visit on Tuesday, what questions to ask, and how to measure success.
                 </p>
                 <div className="bg-muted/50 p-4 rounded-lg">
                   <h4 className="font-bold mb-2">Key Components:</h4>
@@ -285,7 +285,7 @@ export default function Method() {
 
           <Card className="bg-muted/30 text-center spacing-card mt-8">
             <p className="text-sm text-muted-foreground italic">
-              <strong className="text-foreground">Design Version:</strong> 2025-10-13. Field-tested. Prepare with intent. Practice under pressure. Measure in the open. Correct fast. Finish strong. Honor choice. Support clinical judgment. Prove progress in the customer's numbers.
+              <strong className="text-foreground">Design Version:</strong> 2026-01-15. Field-tested. Prepare with intent. Practice under pressure. Measure in the open. Correct fast. Finish strong. Honor choice. Support clinical judgment. Prove progress in the customer's numbers.
             </p>
           </Card>
         </section>
@@ -348,7 +348,7 @@ export default function Method() {
           <div className="text-center mb-12">
             <h2 className="text-h2 text-foreground mb-4" data-testid="text-traceability-title">Traceability</h2>
             <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto">
-              Every principle maps to a subject. The Mamba standard is not separate from the model — it is woven into every step.
+              Every principle maps to a subject. The Mamba standard is not separate from the model. It is woven into every step.
             </p>
           </div>
 
@@ -390,10 +390,10 @@ export default function Method() {
               Built in the Field, Proven in Practice
             </h3>
             <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-4">
-              Every framework, every playbook, every drill we teach has been tested in real-world healthcare sales. This is not theory — it is a traceable system where preparation maps to Discovery, pressure maps to Connecting, measurement maps to Guiding, and finishing strong maps to Commitment. The ethics hold it all together.
+              Every framework, every playbook, every drill we teach has been tested in real-world healthcare sales. This is not theory. It is a traceable system where preparation maps to Discovery, pressure maps to Connecting, measurement maps to Guiding, and finishing strong maps to Commitment. The ethics hold it all together.
             </p>
             <p className="text-sm text-muted-foreground italic">
-              The Spartan Method: Where discipline, empathy, and strategy meet execution — and every step traces back to purpose.
+              The Spartan Method: Where discipline, empathy, and strategy meet execution, and every step traces back to purpose.
             </p>
           </div>
         </Card>

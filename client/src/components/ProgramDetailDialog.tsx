@@ -33,14 +33,12 @@ interface ProgramDetailDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   program: ProgramDetail | null;
-  onInquire: () => void;
 }
 
 export function ProgramDetailDialog({
   open,
   onOpenChange,
   program,
-  onInquire,
 }: ProgramDetailDialogProps) {
   if (!program) return null;
 
@@ -151,18 +149,7 @@ export function ProgramDetailDialog({
             </div>
           </section>
 
-          {/* CTA */}
           <div className="flex gap-3 pt-4 border-t">
-            <Button
-              onClick={() => {
-                onInquire();
-                onOpenChange(false);
-              }}
-              className="flex-1 touch-manipulation"
-              data-testid="button-inquire-from-detail"
-            >
-              Inquire About This Program
-            </Button>
             <Button
               variant="outline"
               onClick={() => onOpenChange(false)}

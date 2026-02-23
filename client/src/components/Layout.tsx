@@ -167,6 +167,7 @@ export function Header() {
     { path: "/faq", label: "FAQ", description: "Common questions answered" },
     { path: "/terms", label: "Terms of Service", description: "Terms governing use of our services" },
     { path: "/disclaimer", label: "Disclaimer", description: "Important disclaimers and notices" },
+    { path: "/contact", label: "Contact", description: "Get in touch with Spartan Coaching" },
   ];
 
   const aiTools = [

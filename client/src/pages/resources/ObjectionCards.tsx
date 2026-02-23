@@ -5,22 +5,22 @@ export default function ObjectionCards() {
   const objections = [
     {
       objection: "We already have a hospice provider",
-      response: "I completely understand—and I'm not here to replace anyone. What I've found is that having a backup option gives you flexibility when response times are critical. Would it be okay if I stay in touch so you know who to call if you ever need a faster turnaround?",
+      response: "I completely understand, and I'm not here to replace anyone. What I've found is that having a backup option gives you flexibility when response times are critical. Would it be okay if I stay in touch so you know who to call if you ever need a faster turnaround?",
       tip: "Never bash competitors. Position yourself as a secondary option for urgent cases."
     },
     {
       objection: "The family isn't ready",
-      response: "That's very common, and it's a hard conversation. What I've learned is that an evaluation doesn't commit anyone—it just gives the family information so they can make the best decision when they're ready. Would it help if we scheduled a low-pressure assessment?",
+      response: "That's very common, and it's a hard conversation. What I've learned is that an evaluation doesn't commit anyone. It just gives the family information so they can make the best decision when they're ready. Would it help if we scheduled a low-pressure assessment?",
       tip: "Reframe evaluation as information gathering, not a commitment."
     },
     {
       objection: "They're not sick enough yet",
-      response: "I appreciate you being thoughtful about timing. In my experience, early hospice actually improves quality of life—patients get better symptom management and family support earlier. Would it make sense to at least get an assessment now so the family knows what's available when they need it?",
+      response: "I appreciate you being thoughtful about timing. In my experience, early hospice actually improves quality of life. Patients get better symptom management and family support earlier. Would it make sense to at least get an assessment now so the family knows what's available when they need it?",
       tip: "Educate on early hospice benefits without pressuring."
     },
     {
       objection: "We tried hospice before and it didn't work",
-      response: "I'm sorry to hear that—can you tell me what didn't work? [Listen] That must have been frustrating. Every hospice operates differently, and I'd love the chance to show you how we approach [specific pain point]. Would you be open to giving us one case to prove ourselves?",
+      response: "I'm sorry to hear that. Can you tell me what didn't work? [Listen] That must have been frustrating. Every hospice operates differently, and I'd love the chance to show you how we approach [specific pain point]. Would you be open to giving us one case to prove ourselves?",
       tip: "Acknowledge the pain, listen fully, then offer a low-risk trial."
     },
     {
@@ -35,7 +35,7 @@ export default function ObjectionCards() {
     },
     {
       objection: "I need to check with my supervisor first",
-      response: "Absolutely—I'd never want you to bypass your process. Would it help if I put together a one-page summary of our services that you can share? Or would your supervisor prefer I reach out directly to introduce myself?",
+      response: "Absolutely. I'd never want you to bypass your process. Would it help if I put together a one-page summary of our services that you can share? Or would your supervisor prefer I reach out directly to introduce myself?",
       tip: "Respect hierarchy. Offer to make their job easier."
     },
     {

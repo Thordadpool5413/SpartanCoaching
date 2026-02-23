@@ -3,11 +3,9 @@ import { Link } from "wouter";
 import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { FadeIn, SlideUp } from "@/components/animations";
-import { Calculator, TrendingUp, DollarSign, Users, ArrowRight, Home, ChevronRight, Phone } from "lucide-react";
-import { ContactForm } from "@/components/ContactForm";
+import { Calculator, TrendingUp, DollarSign, Users, ArrowRight, Home, ChevronRight } from "lucide-react";
 
 function formatCurrency(value: number): string {
   return "$" + Math.round(value).toLocaleString("en-US");
@@ -23,8 +21,6 @@ export default function ROICalculator() {
   const [conversion, setConversion] = useState(65);
   const [los, setLos] = useState(45);
   const [rppd, setRppd] = useState(200);
-  const [contactFormOpen, setContactFormOpen] = useState(false);
-
   const totalReferrals = reps * referrals;
   const conversionRate = conversion / 100;
   const monthlyAdmissions = totalReferrals * conversionRate;
@@ -277,20 +273,6 @@ export default function ROICalculator() {
                       </p>
                     </div>
                   </div>
-                  <div className="mt-8 pt-6 border-t border-primary/20 text-center">
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Ready to unlock this growth for your organization?
-                    </p>
-                    <Button
-                      size="lg"
-                      onClick={() => setContactFormOpen(true)}
-                      className="font-bold text-base shadow-lg touch-manipulation"
-                      data-testid="button-book-call-roi"
-                    >
-                      <Phone className="mr-2 w-5 h-5" />
-                      Book a Free Strategy Call
-                    </Button>
-                  </div>
                 </CardContent>
               </Card>
 
@@ -301,7 +283,6 @@ export default function ROICalculator() {
           </FadeIn>
         </div>
       </div>
-      <ContactForm open={contactFormOpen} onOpenChange={setContactFormOpen} />
     </div>
   );
 }

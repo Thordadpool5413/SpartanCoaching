@@ -56,7 +56,7 @@ function ChatWidgetContent() {
           setMessages([
             {
               role: "model",
-              content: "Welcome to Spartan Coaching! I'm your expert AI hospice sales coach with deep knowledge of Medicare regulations, The Spartan Method sales framework, objection handling, territory management, and coaching strategies. Whether you need help with \"We already have a provider,\" want to improve your SNF relationships, or need coaching on pipeline management—I'm here to help. What's your challenge today?",
+              content: "Welcome to Spartan Coaching! I'm your expert AI hospice sales coach with deep knowledge of Medicare regulations, The Spartan Method sales framework, objection handling, territory management, and coaching strategies. Whether you need help with \"We already have a provider,\" want to improve your SNF relationships, or need coaching on pipeline management, I am here to help. What's your challenge today?",
               timestamp: Date.now(),
             },
           ]);
@@ -67,7 +67,7 @@ function ChatWidgetContent() {
         setMessages([
           {
             role: "model",
-            content: "Welcome to Spartan Coaching! I'm your expert AI hospice sales coach with deep knowledge of Medicare regulations, The Spartan Method sales framework, objection handling, territory management, and coaching strategies. Whether you need help with \"We already have a provider,\" want to improve your SNF relationships, or need coaching on pipeline management—I'm here to help. What's your challenge today?",
+            content: "Welcome to Spartan Coaching! I'm your expert AI hospice sales coach with deep knowledge of Medicare regulations, The Spartan Method sales framework, objection handling, territory management, and coaching strategies. Whether you need help with \"We already have a provider,\" want to improve your SNF relationships, or need coaching on pipeline management, I am here to help. What's your challenge today?",
             timestamp: Date.now(),
           },
         ]);

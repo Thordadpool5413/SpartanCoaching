@@ -2,15 +2,12 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CheckIcon } from "@/components/icons";
-import { InquiryForm } from "@/components/InquiryForm";
 import { BackButton } from "@/components/BackButton";
 import { ProgramDetailDialog, ProgramDetail } from "@/components/ProgramDetailDialog";
-import { Eye, MessageSquare } from "lucide-react";
+import { Eye } from "lucide-react";
 import { SEO } from "@/components/SEO";
 
 export default function Programs() {
-  const [inquiryOpen, setInquiryOpen] = useState(false);
-  const [selectedProgram, setSelectedProgram] = useState<string>("");
   const [detailOpen, setDetailOpen] = useState(false);
   const [selectedDetail, setSelectedDetail] = useState<ProgramDetail | null>(null);
 
@@ -19,8 +16,8 @@ export default function Programs() {
       title: "Admissions Speed Boost",
       description: "Fix slow handoffs, unclear owners, and delays from referral to start of care by installing a same-day contact rule and a daily admissions huddle.",
       why: {
-        problem: "Most hospice providers lose eligible patients because of slow response times. When a referral comes in on Monday but the patient isn't contacted until Wednesday, families find another provider or the clinical window closes. The problem isn't laziness—it's unclear ownership, clunky handoffs between sales and intake, and no forcing mechanism to move fast.",
-        impact: "Every day of delay reduces conversion rates and shortens average length of stay. Patients who could benefit from 60+ days of hospice care end up with 14 days or less. This isn't just lost revenue—it's lost opportunity to serve families during the hardest moments of their lives."
+        problem: "Most hospice providers lose eligible patients because of slow response times. When a referral comes in on Monday but the patient isn't contacted until Wednesday, families find another provider or the clinical window closes. The problem isn't laziness. It is unclear ownership, clunky handoffs between sales and intake, and no forcing mechanism to move fast.",
+        impact: "Every day of delay reduces conversion rates and shortens average length of stay. Patients who could benefit from 60+ days of hospice care end up with 14 days or less. This isn't just lost revenue. It is lost opportunity to serve families during the hardest moments of their lives."
       },
       delivery: {
         approach: "This is a 4-week intensive program with a kickoff session, weekly working sessions with your admissions team, optional field shadowing, and a final summary with clear wins, remaining blockers, and next steps.",
@@ -63,7 +60,7 @@ export default function Programs() {
       title: "Hospital Referral Pathway",
       description: "Build a repeatable, respectful weekly touch pattern that fits hospital discharge windows and hold rhythms to earn consistent referrals from case managers.",
       why: {
-        problem: "Hospital case managers move fast. They have 15-20 discharge decisions to make every day, and they default to providers who are reliable, present, and easy to work with. Most hospice liaisons show up sporadically, drop off lunch trays without meaningful conversation, or worse—never build relationships with the people who actually control the referral flow.",
+        problem: "Hospital case managers move fast. They have 15-20 discharge decisions to make every day, and they default to providers who are reliable, present, and easy to work with. Most hospice liaisons show up sporadically, drop off lunch trays without meaningful conversation, or worse, never build relationships with the people who actually control the referral flow.",
         impact: "Without a systematic hospital strategy, you're invisible when discharge decisions happen. Case managers refer to whoever they remember, whoever picked up the phone last time, or whoever the hospital has a preferred relationship with. You lose winnable referrals because you weren't in the room when it mattered."
       },
       delivery: {
@@ -79,7 +76,7 @@ export default function Programs() {
           },
           {
             name: "Clinical Case Story Development",
-            description: "Develop three compelling clinical case stories that demonstrate your team's ability to handle complex patients well. These aren't sales pitches—they're proof points that build credibility with clinical decision-makers."
+            description: "Develop three compelling clinical case stories that demonstrate your team's ability to handle complex patients well. These aren't sales pitches. They are proof points that build credibility with clinical decision-makers."
           },
           {
             name: "Field Practice & Refinement",
@@ -151,7 +148,7 @@ export default function Programs() {
       title: "Physician Office Route & Message",
       description: "Target the right clinics by diagnosis and create a visit rhythm and discovery process that fits the fast-paced clinic flow.",
       why: {
-        problem: "Most hospice liaisons waste time visiting physician offices that will never refer. They show up with donuts, drop off brochures, and hope something sticks. Meanwhile, the clinics that treat the most heart failure, COPD, and cancer patients—the ones with real referral potential—never get the focused attention they deserve.",
+        problem: "Most hospice liaisons waste time visiting physician offices that will never refer. They show up with donuts, drop off brochures, and hope something sticks. Meanwhile, the clinics that treat the most heart failure, COPD, and cancer patients, the ones with real referral potential, never get the focused attention they deserve.",
         impact: "Without a targeted approach, you're spending time and money on relationships that don't produce referrals. Your liaison is busy, but not effective. The clinics that could be your strongest referral partners don't even know you exist."
       },
       delivery: {
@@ -191,7 +188,7 @@ export default function Programs() {
       title: "After-Hours Readiness",
       description: "Prevent loss of conversions during evenings and weekends with a simple triage and messaging flow for urgent cases.",
       why: {
-        problem: "Hospice referrals don't stop at 5pm on Friday. Patients decline on Saturday afternoons, families panic on Sunday evenings, and hospital case managers need answers at 9pm. If your on-call system isn't ready to convert these urgent referrals, families call the next hospice on the list—and you lose the patient.",
+        problem: "Hospice referrals don't stop at 5pm on Friday. Patients decline on Saturday afternoons, families panic on Sunday evenings, and hospital case managers need answers at 9pm. If your on-call system isn't ready to convert these urgent referrals, families call the next hospice on the list, and you lose the patient.",
         impact: "After-hours referrals are often the most urgent and the most valuable. These are families in crisis who need help now. If your on-call team fumbles the phone call, doesn't know what to say, or can't coordinate a rapid start-of-care, you lose conversions and damage your reputation with referral sources."
       },
       delivery: {
@@ -235,7 +232,7 @@ export default function Programs() {
       title: "Objection Handling for Hospice Conversations",
       description: "Address common objections from families and clinicians that reduce conversion with tested counters and short scripts for the most common concerns.",
       why: {
-        problem: "Hospice conversations trigger fear, resistance, and misunderstanding. Families worry that choosing hospice means giving up. Physicians hesitate because they don't want to feel like they're abandoning patients. Nurses push back because they've seen hospice done poorly. These objections are predictable—but most hospice staff don't have clear, confident responses ready.",
+        problem: "Hospice conversations trigger fear, resistance, and misunderstanding. Families worry that choosing hospice means giving up. Physicians hesitate because they don't want to feel like they're abandoning patients. Nurses push back because they've seen hospice done poorly. These objections are predictable, but most hospice staff don't have clear, confident responses ready.",
         impact: "Every fumbled objection is a lost patient. When your team doesn't know what to say, they avoid the conversation altogether, refer too late, or lose the family to a competitor who handled the concern better. Patients who could benefit from hospice never get the chance."
       },
       delivery: {
@@ -444,13 +441,6 @@ export default function Programs() {
     setDetailOpen(true);
   };
 
-  const handleInquireFromDetail = () => {
-    if (selectedDetail) {
-      setSelectedProgram(selectedDetail.title);
-      setInquiryOpen(true);
-    }
-  };
-
   return (
     <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
       <SEO />
@@ -496,18 +486,6 @@ export default function Programs() {
                 >
                   <Eye className="w-4 h-4 mr-2" />
                   Learn More
-                </Button>
-                <Button
-                  variant="default"
-                  size="icon"
-                  className="touch-manipulation"
-                  data-testid={`button-inquire-program-${idx}`}
-                  onClick={() => {
-                    setSelectedProgram(program.title);
-                    setInquiryOpen(true);
-                  }}
-                >
-                  <MessageSquare className="w-5 h-5" />
                 </Button>
               </div>
             </div>
@@ -558,18 +536,6 @@ export default function Programs() {
                   <Eye className="w-4 h-4 mr-2" />
                   Learn More
                 </Button>
-                <Button
-                  variant="default"
-                  size="icon"
-                  className="touch-manipulation"
-                  data-testid={`button-inquire-strategic-${idx}`}
-                  onClick={() => {
-                    setSelectedProgram(service.title);
-                    setInquiryOpen(true);
-                  }}
-                >
-                  <MessageSquare className="w-5 h-5" />
-                </Button>
               </div>
             </Card>
           ))}
@@ -579,12 +545,6 @@ export default function Programs() {
         open={detailOpen}
         onOpenChange={setDetailOpen}
         program={selectedDetail}
-        onInquire={handleInquireFromDetail}
-      />
-      <InquiryForm
-        open={inquiryOpen}
-        onOpenChange={setInquiryOpen}
-        defaultServiceType={selectedProgram}
       />
     </div>
   );

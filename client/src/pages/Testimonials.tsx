@@ -1,14 +1,9 @@
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { Quote, TrendingUp, Users, Award } from "lucide-react";
-import { ContactForm } from "@/components/ContactForm";
-import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 
 export default function Testimonials() {
-  const [contactFormOpen, setContactFormOpen] = useState(false);
-
   const testimonials = [
     {
       name: "Sarah M.",
@@ -218,24 +213,6 @@ export default function Testimonials() {
           </div>
         </Card>
       </div>
-      {/* CTA */}
-      <div className="bg-gradient-to-br from-primary/10 to-destructive/10 rounded-2xl p-8 md:p-12 text-center">
-        <h2 className="text-h2 font-bold text-foreground mb-4">
-          Ready to Write Your Success Story?
-        </h2>
-        <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-          Whether you're a rep looking to sharpen your skills, a leader building a team, or an executive scaling across markets—let's talk about what's not working and build a plan that fixes it.
-        </p>
-        <Button
-          onClick={() => setContactFormOpen(true)}
-          className="font-bold px-8 py-4 rounded-lg transition-all"
-          data-testid="button-contact"
-        >
-          Schedule a Consultation
-        </Button>
-      </div>
-
-      <ContactForm open={contactFormOpen} onOpenChange={setContactFormOpen} />
     </div>
   );
 }

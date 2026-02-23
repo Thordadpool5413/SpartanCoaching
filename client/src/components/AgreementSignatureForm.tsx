@@ -90,7 +90,7 @@ export function AgreementSignatureForm({ agreementType, agreementTitle }: Agreem
       <Card className="mt-12">
         <CardHeader>
           <CardTitle className="text-xl" data-testid="text-signature-form-title">
-            Digital Signature — {agreementTitle}
+            Digital Signature for {agreementTitle}
           </CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
             By completing this form, you acknowledge that you have read and agree to the terms above. A signed copy will be emailed to you and to Spartan Coaching.

@@ -111,11 +111,11 @@ export default function QuickStartGuide() {
           <div className="bg-gray-50 p-4 border-l-4 border-red-600 mb-3">
             <p className="font-semibold mb-2">Common Objection #1: "We already have a hospice provider."</p>
             <div className="bg-white p-3 border border-gray-300 text-sm italic mb-3">
-              "I completely understand—and I'm not here to replace anyone. What I've found is that having a backup option gives you flexibility when response times are critical. Would it be okay if I stay in touch so you know who to call if you ever need a faster turnaround?"
+              "I completely understand, and I'm not here to replace anyone. What I've found is that having a backup option gives you flexibility when response times are critical. Would it be okay if I stay in touch so you know who to call if you ever need a faster turnaround?"
             </div>
             <p className="font-semibold mb-2">Common Objection #2: "The family isn't ready."</p>
             <div className="bg-white p-3 border border-gray-300 text-sm italic mb-3">
-              "That's very common, and it's a hard conversation. What I've learned is that an evaluation doesn't commit anyone—it just gives the family information so they can make the best decision when they're ready. Would it help if we scheduled a low-pressure assessment?"
+              "That's very common, and it's a hard conversation. What I've learned is that an evaluation doesn't commit anyone. It just gives the family information so they can make the best decision when they're ready. Would it help if we scheduled a low-pressure assessment?"
             </div>
           </div>
           <div className="bg-blue-50 p-3 border-l-4 border-blue-600 text-sm">

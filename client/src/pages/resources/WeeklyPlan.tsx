@@ -34,7 +34,7 @@ export default function WeeklyPlan() {
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div className="border-2 border-gray-300 p-3">
           <label className="text-xs font-bold text-gray-600 uppercase">Week Of:</label>
-          <input type="text" className="mt-2 h-6" placeholder="e.g., Jan 15-19, 2025" />
+          <input type="text" className="mt-2 h-6" placeholder="e.g., Jan 15-19, 2026" />
         </div>
         <div className="border-2 border-gray-300 p-3">
           <label className="text-xs font-bold text-gray-600 uppercase">Territory:</label>

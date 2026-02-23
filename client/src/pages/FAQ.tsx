@@ -1,9 +1,5 @@
-import { useState } from "react";
 import { SEO } from "@/components/SEO";
 import { BackButton } from "@/components/BackButton";
-import { Button } from "@/components/ui/button";
-import { ArrowRight } from "lucide-react";
-import { ContactForm } from "@/components/ContactForm";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 import {
   Accordion,
@@ -101,8 +97,6 @@ const faqCategories = [
 ];
 
 export default function FAQ() {
-  const [contactFormOpen, setContactFormOpen] = useState(false);
-
   return (
     <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
       <SEO />
@@ -153,23 +147,12 @@ export default function FAQ() {
             <h2 className="text-2xl sm:text-3xl md:text-4xl font-black text-white mb-4 tracking-tight">
               Still have questions?
             </h2>
-            <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto mb-8 leading-relaxed">
+            <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto leading-relaxed">
               Submit an application and get personalized answers about how Spartan Coaching can help you or your team execute with discipline and accountability.
             </p>
-            <Button
-              size="lg"
-              onClick={() => setContactFormOpen(true)}
-              className="bg-white text-red-700 font-bold text-base sm:text-lg px-8 sm:px-10 py-3 shadow-xl border-white"
-              data-testid="button-faq-apply-now"
-            >
-              <ArrowRight className="mr-2 w-5 h-5" />
-              Apply Now
-            </Button>
           </div>
         </section>
       </FadeIn>
-
-      <ContactForm open={contactFormOpen} onOpenChange={setContactFormOpen} />
     </div>
   );
 }

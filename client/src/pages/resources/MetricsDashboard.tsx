@@ -31,7 +31,7 @@ export default function MetricsDashboard() {
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="border-2 border-gray-300 p-3">
           <label className="text-xs font-bold text-gray-600 uppercase">Month:</label>
-          <input type="text" className="mt-1" placeholder="January 2025" />
+          <input type="text" className="mt-1" placeholder="January 2026" />
         </div>
         <div className="border-2 border-gray-300 p-3">
           <label className="text-xs font-bold text-gray-600 uppercase">Territory:</label>

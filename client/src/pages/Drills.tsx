@@ -314,7 +314,7 @@ export default function Drills() {
             <Flame className="w-8 h-8 text-orange-500 shrink-0" />
             <div>
               <p className="text-3xl font-black text-foreground" data-testid="text-streak-count">
-                {completionsLoading ? "—" : <AnimatedCounter target={streak} />}
+                {completionsLoading ? "..." : <AnimatedCounter target={streak} />}
               </p>
               <p className="text-sm text-muted-foreground font-medium">Day Streak</p>
             </div>
@@ -325,7 +325,7 @@ export default function Drills() {
             <CheckCircle className="w-8 h-8 text-green-500 shrink-0" />
             <div>
               <p className="text-3xl font-black text-foreground" data-testid="text-total-count">
-                {completionsLoading ? "—" : <AnimatedCounter target={totalCompleted} />}
+                {completionsLoading ? "..." : <AnimatedCounter target={totalCompleted} />}
               </p>
               <p className="text-sm text-muted-foreground font-medium">Total Completed</p>
             </div>
@@ -336,7 +336,7 @@ export default function Drills() {
             <Calendar className="w-8 h-8 text-blue-500 shrink-0" />
             <div>
               <p className="text-3xl font-black text-foreground" data-testid="text-week-count">
-                {completionsLoading ? "—" : <AnimatedCounter target={thisWeek} />}
+                {completionsLoading ? "..." : <AnimatedCounter target={thisWeek} />}
               </p>
               <p className="text-sm text-muted-foreground font-medium">This Week</p>
             </div>

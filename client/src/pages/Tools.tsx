@@ -79,7 +79,7 @@ export default function Tools() {
             AI Field Kit
           </h1>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
-            Your digital toolkit powered by AI. Generate playbooks, practice objections, conduct research, and transcribe calls—all designed to make you a more effective hospice sales professional.
+            Your digital toolkit powered by AI. Generate playbooks, practice objections, conduct research, and transcribe calls, all designed to make you a more effective hospice sales professional.
           </p>
         </div>
       </SlideUp>
