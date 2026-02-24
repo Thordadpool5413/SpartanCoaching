@@ -486,16 +486,14 @@ export function Footer() {
               >
                 Contact
               </Link>
-              {location.startsWith("/admin") && (
-                <Link
-                  href="/admin"
-                  className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
-                  data-testid="link-admin"
-                  aria-label="Admin dashboard"
-                >
-                  Admin
-                </Link>
-              )}
+              <Link
+                href="/admin"
+                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
+                data-testid="link-admin"
+                aria-label="Admin dashboard"
+              >
+                Admin
+              </Link>
             </div>
           </div>
         </div>
