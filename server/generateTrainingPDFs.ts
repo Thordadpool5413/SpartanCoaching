@@ -776,6 +776,300 @@ async function createDecisionFrameworks(): Promise<void> {
   await finishDocument(state, 'public/resources/decision-frameworks.pdf');
 }
 
+async function createWeeklyActivityTracker(): Promise<void> {
+  const state = createDocument();
+
+  addDocumentTitle(state, 'Weekly Activity Tracker', 'Track Daily Conversations, Referrals, and Admissions');
+
+  addSection(state, 'How to Use This Tracker');
+  addParagraph(state, 'Record each conversation with a referral source contact throughout the day. At the end of each day, tally your numbers and note any key takeaways. Review weekly totals every Friday to identify patterns and adjust your plan.');
+
+  for (const day of ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']) {
+    addSection(state, day);
+    addSubsection(state, 'Conversations');
+    addCheckbox(state, 'Account Name: ________________  Contact: ________________  Outcome: ________________');
+    addCheckbox(state, 'Account Name: ________________  Contact: ________________  Outcome: ________________');
+    addCheckbox(state, 'Account Name: ________________  Contact: ________________  Outcome: ________________');
+    addCheckbox(state, 'Account Name: ________________  Contact: ________________  Outcome: ________________');
+    addCheckbox(state, 'Account Name: ________________  Contact: ________________  Outcome: ________________');
+    addCheckbox(state, 'Account Name: ________________  Contact: ________________  Outcome: ________________');
+    addSubsection(state, 'Daily Totals');
+    addParagraph(state, 'Conversations: ____  Referrals Received: ____  Admissions: ____');
+    addSubsection(state, 'Notes and Observations');
+    addParagraph(state, '________________________________________________________________________');
+    addParagraph(state, '________________________________________________________________________');
+  }
+
+  addSection(state, 'Weekly Summary');
+  addParagraph(state, 'Total Conversations: ____  Total Referrals: ____  Total Admissions: ____');
+  addParagraph(state, 'Conversion Rate (Referrals to Admissions): ____%');
+  addSubsection(state, 'Weekly Reflection');
+  addParagraph(state, 'What worked well this week?');
+  addParagraph(state, '________________________________________________________________________');
+  addParagraph(state, 'What could improve next week?');
+  addParagraph(state, '________________________________________________________________________');
+
+  addTipBox(state, 'Coaching Tip', 'Consistency matters more than perfection. If you track every day for four weeks, the patterns in your data will tell you exactly where to focus your energy.', true);
+
+  await finishDocument(state, 'public/resources/weekly-activity-tracker.pdf');
+}
+
+async function createEligibilityQuickReference(): Promise<void> {
+  const state = createDocument();
+
+  addDocumentTitle(state, 'Hospice Eligibility Quick Reference', 'Clinical Criteria by Diagnosis');
+
+  addSection(state, 'General Eligibility Requirements');
+  addBullet(state, 'Terminal prognosis of 6 months or less if disease runs its normal course');
+  addBullet(state, 'Patient elects comfort focused care over curative treatment');
+  addBullet(state, 'Certification by attending physician and hospice medical director');
+
+  addSection(state, 'Cancer');
+  addBullet(state, 'Metastatic or locally advanced disease');
+  addBullet(state, 'Disease progression despite treatment or patient declines further treatment');
+  addBullet(state, 'Declining functional status (KPS 50 or below)');
+
+  addSection(state, 'Heart Disease');
+  addBullet(state, 'NYHA Class IV symptoms despite optimal treatment');
+  addBullet(state, 'Ejection fraction 20% or less');
+  addBullet(state, 'Refractory angina or recurrent hospitalizations');
+  addBullet(state, 'History of cardiac arrest or syncope');
+
+  addSection(state, 'COPD and Pulmonary Disease');
+  addBullet(state, 'Disabling dyspnea at rest');
+  addBullet(state, 'FEV1 below 30% predicted');
+  addBullet(state, 'Progressive disease with increasing ER visits or hospitalizations');
+  addBullet(state, 'Cor pulmonale or right heart failure');
+
+  addSection(state, 'Dementia and Alzheimer\'s');
+  addBullet(state, 'FAST Scale Stage 7 or beyond');
+  addBullet(state, 'Inability to ambulate, dress, or bathe without assistance');
+  addBullet(state, 'Urinary and fecal incontinence');
+  addBullet(state, 'Limited meaningful speech (fewer than 6 intelligible words per day)');
+  addBullet(state, 'Plus a comorbid condition within the past 12 months');
+
+  addSection(state, 'Renal Disease');
+  addBullet(state, 'Patient not seeking or discontinuing dialysis');
+  addBullet(state, 'Creatinine clearance below 10 ml/min');
+  addBullet(state, 'Serum creatinine above 8.0 mg/dl with comorbid conditions');
+
+  addSection(state, 'Liver Disease');
+  addBullet(state, 'Prothrombin time more than 5 seconds over control');
+  addBullet(state, 'Serum albumin less than 2.5 g/dl');
+  addBullet(state, 'Refractory ascites or hepatic encephalopathy');
+
+  addSection(state, 'Stroke and CVA');
+  addBullet(state, 'Coma or persistent vegetative state beyond 3 days');
+  addBullet(state, 'Dysphagia preventing adequate food and fluid intake');
+  addBullet(state, 'Post stroke dementia with FAST Stage 7 or beyond');
+
+  addSection(state, 'Adult Failure to Thrive');
+  addBullet(state, 'BMI under 22');
+  addBullet(state, 'Unintentional weight loss exceeding 10% in 6 months');
+  addBullet(state, 'Declining functional status and serum albumin under 2.5');
+
+  addTipBox(state, 'Field Note', 'You do not need to memorize every criterion. Know the most common diagnoses in your territory and keep this card accessible. When in doubt, ask your clinical team for a consultation.', true);
+
+  await finishDocument(state, 'public/resources/eligibility-quick-reference.pdf');
+}
+
+async function createNewHireOnboarding(): Promise<void> {
+  const state = createDocument();
+
+  addDocumentTitle(state, 'New Hire Onboarding Checklist', '90 Day Plan for Hospice Sales Representatives');
+
+  addSection(state, 'Week 1: Orientation and Foundation');
+  addCheckbox(state, 'Complete company orientation and HR requirements');
+  addCheckbox(state, 'Meet clinical team members (nursing, social work, chaplain)');
+  addCheckbox(state, 'Review all hospice service offerings and levels of care');
+  addCheckbox(state, 'Study the Medicare Hospice Benefit basics');
+  addCheckbox(state, 'Shadow an experienced rep for 2 full days in the field');
+  addCheckbox(state, 'Receive territory assignment and account list');
+  addCheckbox(state, 'Set up CRM and learn documentation requirements');
+
+  addSection(state, 'Week 2: Territory Mapping');
+  addCheckbox(state, 'Map all referral sources in your territory by type');
+  addCheckbox(state, 'Research the top 20 accounts (key contacts, volume, competitors)');
+  addCheckbox(state, 'Tier accounts into A, B, and C categories');
+  addCheckbox(state, 'Create a visit schedule based on account tiers');
+  addCheckbox(state, 'Practice your elevator pitch until it feels natural');
+  addCheckbox(state, 'Complete a second ride along with your manager');
+
+  addSection(state, 'Week 3 to 4: Initial Outreach');
+  addCheckbox(state, 'Visit 5 accounts per day minimum');
+  addCheckbox(state, 'Introduce yourself to key contacts at each location');
+  addCheckbox(state, 'Deliver a value message, not a company pitch');
+  addCheckbox(state, 'Document every visit in your CRM');
+  addCheckbox(state, 'Schedule your first lunch and learn');
+  addCheckbox(state, 'Debrief weekly with your manager on conversation quality');
+
+  addSection(state, 'Month 2: Building Relationships');
+  addCheckbox(state, 'Increase to 6 to 8 conversations per day');
+  addCheckbox(state, 'Begin second round visits at top tier accounts');
+  addCheckbox(state, 'Deliver at least 2 lunch and learns');
+  addCheckbox(state, 'Study eligibility criteria for the 3 most common diagnoses in your territory');
+  addCheckbox(state, 'Practice objection handling with your manager or a peer');
+  addCheckbox(state, 'Track weekly activity and conversion metrics');
+
+  addSection(state, 'Month 3: Full Pace Operations');
+  addCheckbox(state, 'Operating at full daily conversation targets');
+  addCheckbox(state, 'Maintain consistent visit frequency by account tier');
+  addCheckbox(state, 'Receiving regular referrals from at least 3 sources');
+  addCheckbox(state, 'Completing all documentation within 24 hours');
+  addCheckbox(state, 'Conducting regular lunch and learns independently');
+  addCheckbox(state, 'Preparing for first quarterly territory review');
+
+  addTipBox(state, '90 Day Milestone', 'By the end of 90 days, you should be operating at full daily targets, have established relationships at your top accounts, and be generating consistent referral activity. If you are behind in any area, talk to your manager about a specific plan to catch up.', true);
+
+  await finishDocument(state, 'public/resources/new-hire-onboarding.pdf');
+}
+
+async function createLunchLearnTemplate(): Promise<void> {
+  const state = createDocument();
+
+  addDocumentTitle(state, 'Lunch and Learn Presentation Template', 'Educational Presentation for Referral Sources');
+
+  addSection(state, 'Before the Presentation');
+  addBullet(state, 'Confirm date, time, and room with your contact at least one week ahead');
+  addBullet(state, 'Ask how many attendees to expect and what roles they hold');
+  addBullet(state, 'Choose a topic relevant to their patient population');
+  addBullet(state, 'Prepare food that is easy to eat during a presentation (no messy options)');
+  addBullet(state, 'Arrive 15 minutes early to set up');
+
+  addSection(state, 'Presentation Structure (15 to 20 Minutes)');
+
+  addNumberedItem(state, 1, 'Opening (2 minutes)', 'Introduce yourself briefly. Thank the team for their time. State the topic and why it matters to their patients.');
+  addNumberedItem(state, 2, 'The Problem (3 minutes)', 'Describe a common challenge their patients face that relates to your topic. Use a relatable scenario, not statistics.');
+  addNumberedItem(state, 3, 'Key Education Points (8 minutes)', 'Cover 3 to 4 specific, practical takeaways. Use simple language. Avoid acronyms unless you define them. Connect each point back to patient outcomes.');
+  addNumberedItem(state, 4, 'How to Identify Patients (3 minutes)', 'Give them clear, actionable signs to look for. This is the most valuable part for clinical staff.');
+  addNumberedItem(state, 5, 'Q&A and Close (3 minutes)', 'Open the floor for questions. Thank them again. Leave your card and a one page reference sheet.');
+
+  addSection(state, 'Suggested Topics');
+  addBullet(state, 'Common misconceptions about hospice care');
+  addBullet(state, 'How to have the hospice conversation with families');
+  addBullet(state, 'Hospice eligibility criteria for specific diagnoses');
+  addBullet(state, 'The difference between palliative care and hospice');
+  addBullet(state, 'How hospice supports the facility care team');
+  addBullet(state, 'What families wish they had known sooner');
+
+  addSection(state, 'Common Mistakes to Avoid');
+  addBullet(state, 'Talking too much about your company instead of educating');
+  addBullet(state, 'Using too many slides or reading from notes');
+  addBullet(state, 'Going over 20 minutes (respect their schedule)');
+  addBullet(state, 'Forgetting to leave a reference sheet or contact info');
+  addBullet(state, 'Not following up within 48 hours after the presentation');
+
+  addTipBox(state, 'The Real Goal', 'A lunch and learn is not a sales pitch. It is an opportunity to establish yourself as a knowledgeable, trustworthy resource. If you do that well, the referrals will follow naturally.', true);
+
+  await finishDocument(state, 'public/resources/lunch-learn-template.pdf');
+}
+
+async function createAccountTieringWorksheet(): Promise<void> {
+  const state = createDocument();
+
+  addDocumentTitle(state, 'Account Tiering Worksheet', 'Prioritize Your Territory for Maximum Impact');
+
+  addSection(state, 'How Account Tiering Works');
+  addParagraph(state, 'Not all accounts deserve equal time. Tiering helps you invest your limited hours where they will generate the most referrals and admissions. Review your tiers monthly and adjust based on results.');
+
+  addSection(state, 'Tier Definitions');
+
+  addSubsection(state, 'A Tier: High Value Accounts (Visit Weekly)');
+  addBullet(state, 'Currently sending referrals or high potential to start');
+  addBullet(state, 'Strong relationship with key contacts');
+  addBullet(state, 'High patient volume in your target population');
+  addBullet(state, 'Typically 8 to 12 accounts in this tier');
+
+  addSubsection(state, 'B Tier: Growth Accounts (Visit Every 2 Weeks)');
+  addBullet(state, 'Occasional referrals or growing relationship');
+  addBullet(state, 'Moderate patient volume with room to grow');
+  addBullet(state, 'Requires more education or trust building');
+  addBullet(state, 'Typically 15 to 20 accounts in this tier');
+
+  addSubsection(state, 'C Tier: Maintenance Accounts (Visit Monthly)');
+  addBullet(state, 'Low current volume but worth maintaining');
+  addBullet(state, 'New contacts still being developed');
+  addBullet(state, 'May move up with consistent effort');
+  addBullet(state, 'Remaining accounts in your territory');
+
+  addSection(state, 'Scoring Criteria');
+  addParagraph(state, 'Rate each account 1 to 5 on the following dimensions:');
+  addBullet(state, 'Current referral volume (1 = none, 5 = consistent high volume)');
+  addBullet(state, 'Growth potential (1 = maxed out, 5 = significant untapped potential)');
+  addBullet(state, 'Relationship strength (1 = no contacts, 5 = strong champion)');
+  addBullet(state, 'Competitive position (1 = locked out, 5 = preferred provider)');
+  addParagraph(state, 'Total score 16 to 20 = A Tier. Score 10 to 15 = B Tier. Score below 10 = C Tier.');
+
+  addSection(state, 'Account Tiering Template');
+  addParagraph(state, 'Account: ________________  Type: ________________  Tier: ____');
+  addParagraph(state, 'Key Contact: ________________  Volume Score: __  Growth Score: __');
+  addParagraph(state, 'Relationship Score: __  Competitive Score: __  Total: ____');
+  addParagraph(state, '');
+  addParagraph(state, 'Account: ________________  Type: ________________  Tier: ____');
+  addParagraph(state, 'Key Contact: ________________  Volume Score: __  Growth Score: __');
+  addParagraph(state, 'Relationship Score: __  Competitive Score: __  Total: ____');
+  addParagraph(state, '');
+  addParagraph(state, 'Account: ________________  Type: ________________  Tier: ____');
+  addParagraph(state, 'Key Contact: ________________  Volume Score: __  Growth Score: __');
+  addParagraph(state, 'Relationship Score: __  Competitive Score: __  Total: ____');
+
+  addTipBox(state, 'Territory Discipline', 'The hardest part of tiering is being honest about accounts that consume your time without producing results. If an account has been C Tier for three months with no movement, it may be time to stop visiting and replace it with a new prospect.', true);
+
+  await finishDocument(state, 'public/resources/account-tiering-worksheet.pdf');
+}
+
+async function createDifficultConversationGuide(): Promise<void> {
+  const state = createDocument();
+
+  addDocumentTitle(state, 'Difficult Conversation Preparation Guide', 'Frameworks for Sensitive End of Life Discussions');
+
+  addSection(state, 'Before the Conversation');
+  addParagraph(state, 'Difficult conversations in hospice are not about having the right words. They are about having the right posture: listening more than talking, being comfortable with silence, and letting the other person lead when they are ready.');
+
+  addSubsection(state, 'Preparation Checklist');
+  addCheckbox(state, 'Review the patient situation and any clinical details you have');
+  addCheckbox(state, 'Identify who will be in the conversation and their likely concerns');
+  addCheckbox(state, 'Prepare 2 to 3 open ended questions rather than a script');
+  addCheckbox(state, 'Check your own emotional state before entering the room');
+
+  addSection(state, 'Common Scenarios');
+
+  addSubsection(state, 'When a Family Says "We Are Not Ready"');
+  addParagraph(state, 'This is the most common thing you will hear. Resist the urge to convince them otherwise.');
+  addBullet(state, 'Acknowledge: "That makes complete sense. This is a big decision."');
+  addBullet(state, 'Explore: "Can you tell me more about what feels like it is not the right time?"');
+  addBullet(state, 'Educate: "Some families find it helpful to at least understand what services are available, with no pressure to decide today."');
+
+  addSubsection(state, 'When a Physician Resists the Hospice Conversation');
+  addParagraph(state, 'Physicians often feel that discussing hospice means they have failed. Approach with respect for their clinical judgment.');
+  addBullet(state, 'Acknowledge: "I understand there is still a lot you are doing for this patient."');
+  addBullet(state, 'Explore: "Have the family members expressed any concerns about the patient\'s comfort?"');
+  addBullet(state, 'Educate: "Hospice can actually work alongside your care plan to support symptom management."');
+
+  addSubsection(state, 'When a Discharge Planner Is Overwhelmed');
+  addParagraph(state, 'Discharge planners manage dozens of cases at once. Respect their time and make things simple.');
+  addBullet(state, 'Lead with: "I know you are busy. I just wanted to check if there is anyone I can help with today."');
+  addBullet(state, 'Be specific: "I noticed Mrs. Johnson has been here for 12 days. Would it be helpful if I spoke with the family?"');
+  addBullet(state, 'Follow through: Everything you promise, deliver on time, every time.');
+
+  addSection(state, 'Language to Use and Language to Avoid');
+  addSubsection(state, 'Use');
+  addBullet(state, '"Tell me more about what is happening."');
+  addBullet(state, '"What matters most to you right now?"');
+  addBullet(state, '"How can I be most helpful to you today?"');
+  addBullet(state, '"There is no pressure to make any decisions right now."');
+
+  addSubsection(state, 'Avoid');
+  addBullet(state, '"You need to consider hospice." (Too directive)');
+  addBullet(state, '"Most patients at this stage..." (Generalizing their situation)');
+  addBullet(state, '"If I were you..." (Making it about you)');
+  addBullet(state, '"They qualify for hospice." (Clinical language that feels cold)');
+
+  addTipBox(state, 'The Most Important Thing', 'In difficult conversations, your presence matters more than your words. Being calm, patient, and genuinely interested in what the other person needs will carry you further than any scripted response.', true);
+
+  await finishDocument(state, 'public/resources/difficult-conversation-guide.pdf');
+}
+
 export async function generateAllPDFs(): Promise<void> {
   const resourceDir = 'public/resources';
   if (!fs.existsSync(resourceDir)) {
@@ -811,7 +1105,25 @@ export async function generateAllPDFs(): Promise<void> {
   await createDecisionFrameworks();
   console.log('  Created: decision-frameworks.pdf');
   
-  console.log('All 9 training PDFs generated successfully!');
+  await createWeeklyActivityTracker();
+  console.log('  Created: weekly-activity-tracker.pdf');
+  
+  await createEligibilityQuickReference();
+  console.log('  Created: eligibility-quick-reference.pdf');
+  
+  await createNewHireOnboarding();
+  console.log('  Created: new-hire-onboarding.pdf');
+  
+  await createLunchLearnTemplate();
+  console.log('  Created: lunch-learn-template.pdf');
+  
+  await createAccountTieringWorksheet();
+  console.log('  Created: account-tiering-worksheet.pdf');
+  
+  await createDifficultConversationGuide();
+  console.log('  Created: difficult-conversation-guide.pdf');
+  
+  console.log('All 15 training PDFs generated successfully!');
 }
 
 const __filename = fileURLToPath(import.meta.url);
