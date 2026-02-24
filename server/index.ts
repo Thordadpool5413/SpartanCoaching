@@ -87,9 +87,13 @@ async function main() {
       log("Starting background initialization...");
       await deferredInit(app);
 
-      const { seedDatabase } = await import("./seed");
-      log("Starting database seed...");
-      await seedDatabase();
+      try {
+        const { seedDatabase } = await import("./seed");
+        log("Starting database seed...");
+        await seedDatabase();
+      } catch (seedError: any) {
+        console.error("Database seed error (non-fatal):", seedError?.message || seedError);
+      }
       log("Background initialization completed");
     } catch (error: any) {
       console.error("Background initialization error:", error?.message || error);

@@ -210,14 +210,11 @@ export async function seedDatabase() {
     console.log("Database seed completed successfully!");
     return true;
   } catch (error: any) {
-    console.error("Error seeding database:");
+    console.error("Error seeding database (non-fatal):");
     console.error("Error name:", error?.name);
     console.error("Error message:", error?.message);
     console.error("Error code:", error?.code);
-    if (error?.stack) {
-      console.error("Stack trace:", error.stack);
-    }
-    throw error;
+    return false;
   }
 }
 
