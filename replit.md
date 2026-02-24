@@ -37,6 +37,7 @@ The platform features a premium SaaS aesthetic with a sophisticated visual desig
 - **Knowledge Base / Glossary**: Searchable reference page (`/learn/knowledge-base`) with 40+ entries covering hospice terminology, regulations, eligibility criteria, clinical concepts, sales terms, and billing. Client-side search and category filtering.
 - **Ask Spartan AI**: Prominent AI-powered question bar on the homepage ("Ask a Hospice Expert") where visitors can ask any hospice question and get instant expert answers. Includes suggestion chips for common questions.
 - **ROI Calculator**: Interactive tool (`/tools/roi-calculator`) where hospice providers input team size and current metrics to estimate Spartan Coaching's impact on referrals, revenue, and patient care.
+- **Activity Calculator**: Interactive tool (`/tools/activity-calculator`) that converts a monthly admission goal into exact referral source conversation targets (monthly, weekly, daily). Supports tenured reps (uses personal last-cycle conversion rate) and new hires (uses team baseline rate with 4-week ramp plan at 50/70/85/100%). Includes buffer conversations, animated results dashboard with metric cards, visual ramp bar chart, and plain English coaching summary.
 
 ## External Dependencies
 
