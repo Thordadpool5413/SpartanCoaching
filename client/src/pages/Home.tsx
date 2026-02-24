@@ -210,6 +210,25 @@ export default function Home() {
       </section>
 
 
+      {/* Credibility Stat Bar */}
+      <section className="relative bg-background border-b" data-testid="section-stat-bar">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+            {[
+              { value: "200+", label: "Reps Coached" },
+              { value: "50+", label: "Organizations Served" },
+              { value: "15+", label: "Markets Covered" },
+              { value: "10+", label: "Years in Hospice" },
+            ].map((stat, index) => (
+              <div key={index} data-testid={`stat-${index}`}>
+                <p className="text-2xl sm:text-3xl font-black text-primary">{stat.value}</p>
+                <p className="text-xs sm:text-sm text-muted-foreground font-medium mt-1">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* 2. Ask Spartan AI Section */}
       <section id="ask-spartan" className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-ask-spartan">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(239,68,68,0.08),transparent_50%)] pointer-events-none"></div>
@@ -421,27 +440,34 @@ export default function Home() {
             </div>
           </FadeIn>
 
-          <StaggerContainer className="space-y-4">
+          <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 gap-cards">
             {[
-              { title: "Territory and account planning system", desc: "Organize your territory with clarity so every week has a purpose." },
-              { title: "Referral source segmentation framework", desc: "Structured approach for hospitals, SNFs, home health, physicians, senior living, and community partners." },
-              { title: "Weekly scorecard and accountability rhythm", desc: "Track the behaviors that drive results, not just the results themselves." },
-              { title: "Messaging library and education based outreach scripts", desc: "Scripts organized by referral source type so your outreach is relevant and respectful." },
-              { title: "Objection handling scripts", desc: "Patient-centered and accurate responses that keep conversations moving forward." },
-              { title: "Follow up sequences and cadence templates", desc: "Never let a warm relationship go cold because of inconsistent follow up." },
-              { title: "Weekly coaching agenda and pre-work", desc: "Sessions are structured and repeatable so coaching time is never wasted." },
-              { title: "Optional AI enabled planning tools", desc: "For organizing messaging and territory workflow. Do not enter patient identifiers or PHI into any tool." },
-            ].map((item, index) => (
-              <StaggerItem key={index}>
-                <div className="flex items-start gap-4 p-4 rounded-lg" data-testid={`text-deliverable-${index}`}>
-                  <CheckCircle className="w-6 h-6 text-red-600 dark:text-red-400 mt-0.5 flex-shrink-0" />
-                  <div>
-                    <p className="text-body font-bold text-foreground">{item.title}</p>
-                    <p className="text-body text-muted-foreground mt-1">{item.desc}</p>
-                  </div>
-                </div>
-              </StaggerItem>
-            ))}
+              { title: "Territory and account planning system", desc: "Organize your territory with clarity so every week has a purpose.", icon: Target },
+              { title: "Referral source segmentation framework", desc: "Structured approach for hospitals, SNFs, home health, physicians, senior living, and community partners.", icon: Users },
+              { title: "Weekly scorecard and accountability rhythm", desc: "Track the behaviors that drive results, not just the results themselves.", icon: Zap },
+              { title: "Messaging library and education based outreach scripts", desc: "Scripts organized by referral source type so your outreach is relevant and respectful.", icon: BookOpen },
+              { title: "Objection handling scripts", desc: "Patient-centered and accurate responses that keep conversations moving forward.", icon: MessageCircle },
+              { title: "Follow up sequences and cadence templates", desc: "Never let a warm relationship go cold because of inconsistent follow up.", icon: Mail },
+              { title: "Weekly coaching agenda and pre-work", desc: "Sessions are structured and repeatable so coaching time is never wasted.", icon: Briefcase },
+              { title: "Optional AI enabled planning tools", desc: "For organizing messaging and territory workflow. Do not enter patient identifiers or PHI into any tool.", icon: Brain },
+            ].map((item, index) => {
+              const IconComponent = item.icon;
+              return (
+                <StaggerItem key={index}>
+                  <Card className="border-2 spacing-card h-full" data-testid={`text-deliverable-${index}`}>
+                    <div className="flex items-start gap-4">
+                      <div className="w-10 h-10 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <IconComponent className="w-5 h-5 text-red-600 dark:text-red-400" />
+                      </div>
+                      <div>
+                        <p className="text-body font-bold text-foreground">{item.title}</p>
+                        <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{item.desc}</p>
+                      </div>
+                    </div>
+                  </Card>
+                </StaggerItem>
+              );
+            })}
           </StaggerContainer>
         </div>
       </section>
@@ -467,6 +493,7 @@ export default function Home() {
               "Community partners who refer inconsistently",
               "New reps who freeze during tough clinical conversations",
               "Territories that feel like dead zones",
+              "Leaders who manage by numbers instead of coaching the person",
             ].map((reality, index) => (
               <StaggerItem key={index}>
                 <div className="flex items-start gap-3 p-3" data-testid={`text-reality-${index}`}>
@@ -604,6 +631,62 @@ export default function Home() {
       </section>
 
 
+      {/* Before and After Comparison */}
+      <section className="relative bg-gradient-to-br from-accent/40 via-accent/20 to-accent/40 spacing-section" data-testid="section-before-after">
+        <div className="max-w-5xl mx-auto spacing-container">
+          <FadeIn>
+            <div className="text-center mb-12 sm:mb-16">
+              <h2 className="text-h2 text-foreground mb-6" data-testid="text-before-after-title">
+                The Difference in Practice
+              </h2>
+            </div>
+          </FadeIn>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <FadeIn>
+              <Card className="border-2 spacing-card h-full" data-testid="card-before">
+                <h3 className="text-h3 text-muted-foreground mb-6 font-bold">What Most Teams Do</h3>
+                <div className="space-y-4">
+                  {[
+                    "Visit accounts without a written plan for why or what to accomplish",
+                    "React to objections with improvised answers that don't move the conversation",
+                    "Review results once a month and hope next month is better",
+                    "Onboard new reps with a ride along and a binder, then wait",
+                    "Run team meetings that recap numbers without coaching behavior",
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-start gap-3" data-testid={`text-before-${index}`}>
+                      <AlertCircle className="w-5 h-5 text-muted-foreground mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-muted-foreground leading-relaxed">{item}</p>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </FadeIn>
+
+            <FadeIn delay={0.2}>
+              <Card className="border-2 spacing-card h-full bg-gradient-to-br from-primary/5 to-destructive/5" data-testid="card-after">
+                <h3 className="text-h3 text-foreground mb-6 font-bold">What Spartan Teams Do</h3>
+                <div className="space-y-4">
+                  {[
+                    "Walk into every visit with a clear objective and a next step to close on",
+                    "Handle objections with practiced, patient centered responses that keep the conversation moving",
+                    "Review weekly behaviors that lead to results and adjust before outcomes suffer",
+                    "Onboard new reps with week by week milestones and structured field coaching",
+                    "Run short huddles that coach one skill at a time and drive accountability",
+                  ].map((item, index) => (
+                    <div key={index} className="flex items-start gap-3" data-testid={`text-after-${index}`}>
+                      <CheckCircle className="w-5 h-5 text-green-600 dark:text-green-400 mt-0.5 flex-shrink-0" />
+                      <p className="text-sm text-foreground font-medium leading-relaxed">{item}</p>
+                    </div>
+                  ))}
+                </div>
+              </Card>
+            </FadeIn>
+          </div>
+        </div>
+      </section>
+
+
       {/* 9. Compliance and Ethics Block */}
       <section className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-compliance">
         <div className="relative max-w-4xl mx-auto spacing-container">
@@ -686,28 +769,6 @@ export default function Home() {
               </div>
             </FadeIn>
           </div>
-        </div>
-      </section>
-
-
-      {/* Why Spartan Name Section */}
-      <section className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-why-spartan-name">
-        <div className="relative max-w-4xl mx-auto spacing-container">
-          <FadeIn>
-            <div className="text-center mb-8">
-              <h2 className="text-h2 text-gradient-elegant mb-6" data-testid="text-spartan-name-title">
-                Why Spartan
-              </h2>
-            </div>
-            <div className="max-w-3xl mx-auto space-y-4">
-              <p className="text-body text-muted-foreground leading-relaxed">
-                The name Spartan is not about being aggressive. It is about being disciplined, prepared, and willing to do the hard work consistently. In hospice growth, success does not come from one great meeting or one lucky referral. It comes from showing up every week with a plan, executing that plan, and doing the unglamorous work that most people skip.
-              </p>
-              <p className="text-body text-muted-foreground leading-relaxed">
-                Spartan reflects a coaching philosophy rooted in structure, accountability, and simplicity. We strip away what does not work, focus on what does, and build habits that hold up under pressure. That is what the name means to us. Not flash. Not hype. Just the work.
-              </p>
-            </div>
-          </FadeIn>
         </div>
       </section>
 
@@ -870,8 +931,11 @@ export default function Home() {
               <h2 className="text-h2 text-foreground mb-6" data-testid="text-why-spartan-title">
                 What Makes This Different
               </h2>
-              <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto">
+              <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto mb-4">
                 Most sales training is generic. Spartan is built for hospice growth professionals who need practical systems, not motivational speeches.
+              </p>
+              <p className="text-body text-muted-foreground max-w-3xl mx-auto">
+                The name is not about being aggressive. It is about being disciplined, prepared, and willing to do the hard work consistently. We strip away what does not work, focus on what does, and build habits that hold up under pressure. Not flash. Not hype. Just the work.
               </p>
             </div>
           </FadeIn>
@@ -933,6 +997,49 @@ export default function Home() {
               </Card>
             </StaggerItem>
           </StaggerContainer>
+        </div>
+      </section>
+
+
+      {/* Lead Magnet Section */}
+      <section className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-lead-magnet">
+        <div className="relative max-w-4xl mx-auto spacing-container">
+          <FadeIn>
+            <Card className="border-2 spacing-card shadow-lg" data-testid="card-lead-magnet">
+              <div className="grid md:grid-cols-2 gap-8 items-center">
+                <div>
+                  <p className="text-sm font-semibold text-primary mb-3">Free Resource</p>
+                  <h2 className="text-h2 text-foreground mb-4">
+                    Territory Planning Starter Kit
+                  </h2>
+                  <p className="text-body text-muted-foreground leading-relaxed mb-4">
+                    Get the same territory planning framework we use with coaching clients. Includes account prioritization worksheet, weekly routing template, and follow up cadence guide.
+                  </p>
+                  <ul className="space-y-2 mb-6">
+                    {[
+                      "A/B/C account classification template",
+                      "Weekly territory routing planner",
+                      "Follow up cadence tracker",
+                    ].map((item, index) => (
+                      <li key={index} className="flex items-center gap-2 text-sm text-foreground">
+                        <CheckCircle className="w-4 h-4 text-green-600 dark:text-green-400 flex-shrink-0" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div className="flex flex-col items-center text-center">
+                  <div className="w-20 h-20 bg-gradient-to-br from-red-100 to-red-50 dark:from-red-900/30 dark:to-red-800/20 rounded-2xl flex items-center justify-center mb-6">
+                    <BookOpen className="w-10 h-10 text-red-600 dark:text-red-400" />
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-4">
+                    Enter your email to get instant access to the free kit.
+                  </p>
+                  <NewsletterSignup />
+                </div>
+              </div>
+            </Card>
+          </FadeIn>
         </div>
       </section>
 
