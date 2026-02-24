@@ -23,6 +23,13 @@ import {
   RotateCcw,
   UserPlus,
   Briefcase,
+  MapPin,
+  Coffee,
+  FileText,
+  MessageSquare,
+  Car,
+  Sun,
+  Sunset,
 } from "lucide-react";
 
 const SETTINGS = {
@@ -167,6 +174,257 @@ function RampChart({ result }: { result: CalculationResult }) {
         );
       })}
     </div>
+  );
+}
+
+function DayInTheFieldCard({ result }: { result: CalculationResult }) {
+  const daily = result.targetConversationsDay;
+  const morningConvos = Math.ceil(daily / 2);
+  const afternoonConvos = daily - morningConvos;
+
+  const totalWorkHours = 8;
+  const lunchHours = 0.5;
+  const driveHours = Math.min(2.5, Math.max(1.5, daily * 0.25));
+  const docHours = Math.min(1.5, Math.max(0.5, daily * 0.15));
+  const sellingHours = totalWorkHours - lunchHours - driveHours - docHours;
+  const minutesBetween = sellingHours > 0 ? Math.round((sellingHours * 60) / daily) : 0;
+
+  const driveRounded = Math.round(driveHours * 10) / 10;
+  const docRounded = Math.round(docHours * 10) / 10;
+  const sellingRounded = Math.round(sellingHours * 10) / 10;
+
+  return (
+    <Card className="border-2 spacing-card h-full" data-testid="card-day-in-field">
+      <CardTitle className="text-h3 mb-6 flex items-center gap-2">
+        <MapPin className="w-5 h-5 text-primary" />
+        Your Day in the Field
+      </CardTitle>
+
+      <div className="space-y-6">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl">
+            <div className="flex items-center gap-2 mb-2">
+              <Sun className="w-4 h-4 text-amber-600 dark:text-amber-400" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-amber-700 dark:text-amber-400">Morning</span>
+            </div>
+            <p className="text-2xl font-black text-foreground">{morningConvos}</p>
+            <p className="text-xs text-muted-foreground">conversations before lunch</p>
+          </div>
+          <div className="p-4 bg-gradient-to-br from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 rounded-xl">
+            <div className="flex items-center gap-2 mb-2">
+              <Sunset className="w-4 h-4 text-blue-600 dark:text-blue-400" />
+              <span className="text-xs font-semibold uppercase tracking-wider text-blue-700 dark:text-blue-400">Afternoon</span>
+            </div>
+            <p className="text-2xl font-black text-foreground">{afternoonConvos}</p>
+            <p className="text-xs text-muted-foreground">conversations after lunch</p>
+          </div>
+        </div>
+
+        <div className="p-4 bg-primary/5 rounded-xl">
+          <p className="text-sm font-semibold text-foreground mb-1">
+            About 1 conversation every {minutesBetween} minutes of selling time
+          </p>
+          <p className="text-xs text-muted-foreground">
+            Based on {sellingRounded} hours of actual face time per day
+          </p>
+        </div>
+
+        <div className="space-y-3">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Suggested Time Blocks</p>
+          <div className="space-y-2">
+            {[
+              { icon: Car, label: "Drive time between accounts", value: `${driveRounded} hours`, color: "text-slate-600 dark:text-slate-400" },
+              { icon: MessageSquare, label: "Actual selling and face time", value: `${sellingRounded} hours`, color: "text-green-600 dark:text-green-400" },
+              { icon: FileText, label: "Documentation and follow ups", value: `${docRounded} hours`, color: "text-purple-600 dark:text-purple-400" },
+              { icon: Coffee, label: "Lunch break", value: "30 min", color: "text-amber-600 dark:text-amber-400" },
+            ].map((block, i) => (
+              <div key={i} className="flex items-center justify-between py-2">
+                <div className="flex items-center gap-3">
+                  <block.icon className={`w-4 h-4 ${block.color}`} />
+                  <span className="text-sm text-foreground">{block.label}</span>
+                </div>
+                <span className="text-sm font-bold text-foreground">{block.value}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div className="p-3 bg-accent/30 rounded-lg">
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            These are suggested blocks. Adjust based on your territory size and account density. The key is making sure {daily} conversations actually happen, however you structure the day.
+          </p>
+        </div>
+      </div>
+    </Card>
+  );
+}
+
+interface TimeBlock {
+  label: string;
+  start: string;
+  end: string;
+  type: "conversation" | "drive" | "doc" | "lunch";
+  icon: typeof MessageSquare;
+}
+
+function buildDaySchedule(dailyTarget: number): TimeBlock[] {
+  const schedule: TimeBlock[] = [];
+  const morningConvos = Math.ceil(dailyTarget / 2);
+  const afternoonConvos = dailyTarget - morningConvos;
+
+  let hour = 8;
+  let minute = 0;
+
+  const addMinutes = (h: number, m: number, add: number) => {
+    m += add;
+    while (m >= 60) { h++; m -= 60; }
+    return [h, m];
+  };
+
+  const fmt = (h: number, m: number) => {
+    const period = h >= 12 ? "pm" : "am";
+    const displayH = h > 12 ? h - 12 : h === 0 ? 12 : h;
+    return `${displayH}:${m.toString().padStart(2, "0")}${period}`;
+  };
+
+  const avgConvoMin = 20;
+  const avgDriveMin = 15;
+  const docMin = 10;
+
+  for (let i = 0; i < morningConvos; i++) {
+    if (i > 0) {
+      const driveStart = fmt(hour, minute);
+      [hour, minute] = addMinutes(hour, minute, avgDriveMin);
+      schedule.push({ label: "Drive to next account", start: driveStart, end: fmt(hour, minute), type: "drive", icon: Car });
+    }
+    const convoStart = fmt(hour, minute);
+    [hour, minute] = addMinutes(hour, minute, avgConvoMin);
+    schedule.push({ label: `Conversation ${i + 1}`, start: convoStart, end: fmt(hour, minute), type: "conversation", icon: MessageSquare });
+  }
+
+  if (hour < 12) {
+    const docStart = fmt(hour, minute);
+    [hour, minute] = addMinutes(hour, minute, docMin);
+    schedule.push({ label: "Quick notes and follow ups", start: docStart, end: fmt(hour, minute), type: "doc", icon: FileText });
+  }
+
+  if (hour < 12) { hour = 12; minute = 0; }
+  schedule.push({ label: "Lunch break", start: fmt(hour, minute), end: fmt(12, 30), type: "lunch", icon: Coffee });
+  hour = 12; minute = 30;
+
+  for (let i = 0; i < afternoonConvos; i++) {
+    if (i > 0 || morningConvos > 0) {
+      const driveStart = fmt(hour, minute);
+      [hour, minute] = addMinutes(hour, minute, avgDriveMin);
+      schedule.push({ label: "Drive to next account", start: driveStart, end: fmt(hour, minute), type: "drive", icon: Car });
+    }
+    const convoStart = fmt(hour, minute);
+    [hour, minute] = addMinutes(hour, minute, avgConvoMin);
+    schedule.push({ label: `Conversation ${morningConvos + i + 1}`, start: convoStart, end: fmt(hour, minute), type: "conversation", icon: MessageSquare });
+  }
+
+  const wrapStart = fmt(hour, minute);
+  const endTime = Math.max(hour + 1, 17);
+  schedule.push({ label: "Documentation and wrap up", start: wrapStart, end: fmt(endTime > 17 ? 17 : endTime, 0), type: "doc", icon: FileText });
+
+  return schedule;
+}
+
+const blockColors = {
+  conversation: {
+    bg: "bg-green-100 dark:bg-green-900/30",
+    border: "border-green-300 dark:border-green-700",
+    text: "text-green-800 dark:text-green-300",
+    icon: "text-green-600 dark:text-green-400",
+    barBg: "bg-green-500",
+  },
+  drive: {
+    bg: "bg-slate-100 dark:bg-slate-800/50",
+    border: "border-slate-300 dark:border-slate-600",
+    text: "text-slate-700 dark:text-slate-300",
+    icon: "text-slate-500 dark:text-slate-400",
+    barBg: "bg-slate-400",
+  },
+  doc: {
+    bg: "bg-purple-100 dark:bg-purple-900/30",
+    border: "border-purple-300 dark:border-purple-700",
+    text: "text-purple-800 dark:text-purple-300",
+    icon: "text-purple-600 dark:text-purple-400",
+    barBg: "bg-purple-500",
+  },
+  lunch: {
+    bg: "bg-amber-100 dark:bg-amber-900/30",
+    border: "border-amber-300 dark:border-amber-700",
+    text: "text-amber-800 dark:text-amber-300",
+    icon: "text-amber-600 dark:text-amber-400",
+    barBg: "bg-amber-500",
+  },
+};
+
+function DayTimelineVisual({ result }: { result: CalculationResult }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true });
+  const schedule = buildDaySchedule(result.targetConversationsDay);
+
+  return (
+    <Card className="border-2 spacing-card shadow-lg" data-testid="card-day-timeline" ref={ref}>
+      <CardTitle className="text-h3 mb-2 flex items-center gap-2">
+        <Clock className="w-5 h-5 text-primary" />
+        A Day in the Life
+      </CardTitle>
+      <p className="text-xs text-muted-foreground mb-6">
+        What a productive day looks like when you are hitting {result.targetConversationsDay} conversations
+      </p>
+
+      <div className="flex items-center gap-4 flex-wrap mb-6">
+        {[
+          { type: "conversation" as const, label: "Conversation" },
+          { type: "drive" as const, label: "Drive Time" },
+          { type: "doc" as const, label: "Documentation" },
+          { type: "lunch" as const, label: "Lunch" },
+        ].map((legend) => (
+          <div key={legend.type} className="flex items-center gap-1.5">
+            <div className={`w-3 h-3 rounded-sm ${blockColors[legend.type].barBg}`} />
+            <span className="text-xs text-muted-foreground">{legend.label}</span>
+          </div>
+        ))}
+      </div>
+
+      <div className="space-y-2">
+        {schedule.map((block, index) => {
+          const colors = blockColors[block.type];
+          const Icon = block.icon;
+          return (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, x: -20 }}
+              animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+              transition={{ duration: 0.3, delay: index * 0.06 }}
+              className={`flex items-center gap-3 p-3 rounded-lg border ${colors.bg} ${colors.border}`}
+              data-testid={`timeline-block-${index}`}
+            >
+              <div className="flex-shrink-0">
+                <Icon className={`w-4 h-4 ${colors.icon}`} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className={`text-sm font-semibold ${colors.text}`}>{block.label}</p>
+              </div>
+              <div className="flex-shrink-0 text-right">
+                <p className="text-xs font-medium text-muted-foreground whitespace-nowrap">
+                  {block.start} — {block.end}
+                </p>
+              </div>
+            </motion.div>
+          );
+        })}
+      </div>
+
+      <div className="mt-6 p-3 bg-accent/30 rounded-lg">
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          This is one example of how the day could flow. Your actual schedule will vary based on geography, appointment availability, and account density. The point is to see that {result.targetConversationsDay} conversations per day is achievable with intentional planning.
+        </p>
+      </div>
+    </Card>
   );
 }
 
@@ -701,11 +959,29 @@ export default function ActivityCalculator() {
                   </motion.div>
                 </div>
 
-                {result.repStatus === "new_hire" && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.55 }}
+                  >
+                    <DayInTheFieldCard result={result} />
+                  </motion.div>
+
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.5, delay: 0.6 }}
+                  >
+                    <DayTimelineVisual result={result} />
+                  </motion.div>
+                </div>
+
+                {result.repStatus === "new_hire" && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.5, delay: 0.7 }}
                   >
                     <Card className="border-2 spacing-card shadow-lg" data-testid="card-ramp-plan">
                       <CardTitle className="text-h3 mb-2 flex items-center gap-2">
@@ -728,7 +1004,7 @@ export default function ActivityCalculator() {
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.7 }}
+                  transition={{ duration: 0.5, delay: 0.8 }}
                 >
                   <Card className="border-2 spacing-card bg-gradient-to-br from-accent/50 to-accent/30 shadow-lg" data-testid="card-cta">
                     <div className="text-center">
