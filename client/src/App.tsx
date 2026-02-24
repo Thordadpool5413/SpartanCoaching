@@ -53,6 +53,7 @@ const TestimonialRelease = lazy(() => import("@/pages/TestimonialRelease"));
 const LegalAgreements = lazy(() => import("@/pages/LegalAgreements"));
 const ComplianceEthics = lazy(() => import("@/pages/ComplianceEthics"));
 const Contact = lazy(() => import("@/pages/Contact"));
+const Manifesto = lazy(() => import("@/pages/Manifesto"));
 
 
 function ScrollToTop() {
@@ -150,6 +151,7 @@ function Router() {
           <Route path="/learn/knowledge-base" component={KnowledgeBase} />
           <Route path="/about" component={About} />
           <Route path="/contact" component={Contact} />
+          <Route path="/manifesto" component={Manifesto} />
           <Route component={NotFound} />
         </Switch>
       </Suspense>

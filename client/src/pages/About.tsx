@@ -105,6 +105,40 @@ export default function About() {
           </Card>
         </div>
 
+        {/* The Founding Moment */}
+        <div className="space-y-8 md:space-y-12 lg:space-y-16">
+          <h2 className="text-h2 text-foreground mt-16 mb-8">Why This Business Exists</h2>
+          <Card className="spacing-card bg-gradient-to-br from-primary/5 to-destructive/5 border-2">
+            <div className="space-y-6 text-body-lg text-muted-foreground leading-relaxed">
+              <p>
+                Nick Lynch built Spartan Coaching from a pattern he kept seeing in the field. Good people. Real intentions. Genuine care for patients and families. And yet the execution was inconsistent, the pipeline was flat, and the leaders were reviewing numbers without knowing how to change them.
+              </p>
+              <p>
+                The problem was never motivation. Hospice professionals are among the most mission-driven people in healthcare. The problem was structure. Teams had good values and no system. They had goals and no playbook. They had activity and no accountability rhythm that anyone could actually coach from.
+              </p>
+              <p className="text-foreground font-semibold">
+                Meanwhile, eligible patients were not getting referred. Families were managing end-of-life without expert support because the right conversation had not happened yet. The gap was real and it was widening.
+              </p>
+              <p>
+                Spartan Coaching was built to close that gap. Not through motivation. Not through a conference or a seminar. Through a practical, teachable, repeatable system that any committed rep can run and any skilled leader can coach.
+              </p>
+              <p>
+                The name matters because the preparation matters. You do not show up unprepared to the most important conversations in people's lives.
+              </p>
+            </div>
+          </Card>
+
+          <div className="mt-8 mb-8">
+            <Card className="spacing-card bg-gray-950 border-0">
+              <div className="text-center">
+                <p className="text-xl sm:text-2xl font-bold text-white leading-snug">
+                  "Ethics without structure does not scale. Structure without heart does not last. We teach both."
+                </p>
+              </div>
+            </Card>
+          </div>
+        </div>
+
         {/* About the Founder */}
         <div className="space-y-8 md:space-y-12 lg:space-y-16">
           <h2 className="text-h2 text-foreground mb-8 text-center">About the Founder</h2>
@@ -248,6 +282,66 @@ export default function About() {
             </Card>
           </div>
 
+          {/* What a Spartan Rep Looks Like */}
+          <div className="mt-16 mb-8">
+            <h2 className="text-h2 text-foreground mb-4">What a Spartan Rep Looks Like</h2>
+            <p className="text-body-lg text-muted-foreground leading-relaxed mb-8">
+              Not the most charismatic rep. Not the most experienced. The most prepared. Here is what that looks like in observable behaviors.
+            </p>
+            <div className="grid sm:grid-cols-2 gap-4">
+              {[
+                {
+                  label: "Before the visit",
+                  items: [
+                    "Account reviewed, not just remembered",
+                    "Written objective for the visit, not a general intention",
+                    "Notes from the last visit read, relevant detail ready",
+                    "Next step identified before walking in",
+                  ],
+                },
+                {
+                  label: "After the visit",
+                  items: [
+                    "What happened documented within the day",
+                    "Commitments made tracked and followed up",
+                    "Follow up on the calendar with specific content planned",
+                    "One observation captured for coaching",
+                  ],
+                },
+                {
+                  label: "With clinical partners",
+                  items: [
+                    "First question is about them, not about referrals",
+                    "Their workflow understood and respected",
+                    "Commitments kept without prompting",
+                    "Educational value delivered consistently, not just when a referral is needed",
+                  ],
+                },
+                {
+                  label: "With their own performance",
+                  items: [
+                    "Scorecard completed honestly, including the bad weeks",
+                    "Patterns reviewed, not just numbers reported",
+                    "Practice done before difficult conversations, not after failures",
+                    "Coaching received as information, not judgment",
+                  ],
+                },
+              ].map((group, i) => (
+                <Card key={i} className="spacing-card border-2" data-testid={`card-spartan-rep-${i}`}>
+                  <h3 className="text-sm font-bold text-primary uppercase tracking-wide mb-4">{group.label}</h3>
+                  <ul className="space-y-2">
+                    {group.items.map((item, j) => (
+                      <li key={j} className="flex items-start gap-2 text-body text-muted-foreground">
+                        <ShieldCheck className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <span>{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </Card>
+              ))}
+            </div>
+          </div>
+
           {/* LinkedIn Connect Section */}
           <div className="mt-8 text-center">
             <Card className="spacing-card bg-gradient-to-br from-primary/5 to-primary/10 card-lift border-2">
@@ -274,19 +368,26 @@ export default function About() {
         </div>
 
         {/* CTA */}
-        <div className="bg-gradient-to-br from-primary/10 to-destructive/10 rounded-2xl p-8 md:p-12 text-center mt-16">
-          <h2 className="text-h2 font-bold text-foreground mb-4">
-            Let's Work Together
+        <div className="bg-gray-950 rounded-2xl p-8 md:p-12 text-center mt-16">
+          <h2 className="text-h2 font-bold text-white mb-4">
+            If this resonates, reach out.
           </h2>
-          <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
-            Whether you need one-on-one coaching, team training, or strategic consulting, Spartan Coaching is here to help you deliver better outcomes for the patients who need you most.
+          <p className="text-body-lg text-white/70 max-w-2xl mx-auto leading-relaxed mb-8">
+            No pressure. No obligation. Just an honest conversation about where your team is and what would actually help.
           </p>
-          <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10" data-testid="button-about-contact">
-            <Link href="/contact">
-              <span>Contact Us</span>
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10" data-testid="button-about-contact">
+              <Link href="/contact">
+                <span>Contact Spartan Coaching</span>
+                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild className="font-bold glass border-white/30 touch-manipulation px-10" data-testid="button-about-manifesto">
+              <Link href="/manifesto">
+                <span>Read the Spartan Ethos</span>
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
     </div>

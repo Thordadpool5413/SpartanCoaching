@@ -164,6 +164,7 @@ export function Header() {
     { path: "/articles", label: "Articles", description: "Industry insights and thought leadership" },
     { path: "/testimonials", label: "Testimonials", description: "Client success stories" },
     { path: "/about", label: "About", description: "Learn about Spartan Coaching" },
+    { path: "/manifesto", label: "The Spartan Ethos", description: "What it means to be Spartan" },
     { path: "/faq", label: "FAQ", description: "Common questions answered" },
     { path: "/terms", label: "Terms of Service", description: "Terms governing use of our services" },
     { path: "/disclaimer", label: "Disclaimer", description: "Important disclaimers and notices" },
@@ -225,6 +226,7 @@ export function Header() {
             { path: "/services", label: "Services", description: "Strategic services and consulting" },
             { path: "/programs", label: "Programs", description: "Training programs" },
             { path: "/method", label: "The Spartan Method", description: "Our proven methodology" },
+            { path: "/manifesto", label: "The Spartan Ethos", description: "What it means to be Spartan" },
           ]} />
           <NavDropdown label="AI Tools" dataTestId="dropdown-ai-tools" items={[
             { path: "/tools", label: "AI Field Kit", description: "Expert sales tools" },
@@ -287,6 +289,7 @@ export function Header() {
                   { path: "/services", label: "Services" },
                   { path: "/programs", label: "Programs" },
                   { path: "/method", label: "The Spartan Method" },
+                  { path: "/manifesto", label: "The Spartan Ethos" },
                 ].map((item) => (
                   <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
                 ))}
@@ -319,6 +322,7 @@ export function Header() {
 
                 <MobileNavSection title="Company" />
                 <MobileNavLink href="/about" label="About" location={location} onClose={() => setMobileMenuOpen(false)} />
+                <MobileNavLink href="/manifesto" label="The Spartan Ethos" location={location} onClose={() => setMobileMenuOpen(false)} />
                 <MobileNavLink href="/contact" label="Contact" location={location} onClose={() => setMobileMenuOpen(false)} />
               </nav>
             </div>
@@ -465,6 +469,14 @@ export function Footer() {
                 aria-label="Compliance and Ethics"
               >
                 Compliance
+              </Link>
+              <Link
+                href="/manifesto"
+                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
+                data-testid="link-manifesto"
+                aria-label="The Spartan Ethos"
+              >
+                The Spartan Ethos
               </Link>
               <Link
                 href="/contact"

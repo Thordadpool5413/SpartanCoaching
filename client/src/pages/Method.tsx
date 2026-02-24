@@ -343,6 +343,48 @@ export default function Method() {
           </div>
         </section>
 
+        {/* Why the Method Exists */}
+        <section>
+          <Card className="relative border-2 shadow-lg spacing-card bg-gray-950 border-0">
+            <div className="text-center mb-8">
+              <h2 className="text-h2 text-white mb-4">Why the Method Exists</h2>
+              <p className="text-body-lg text-white/70 max-w-2xl mx-auto leading-relaxed">
+                The Spartan Method is not a sales training framework. It is a patient access framework.
+              </p>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-6 max-w-3xl mx-auto">
+              {[
+                {
+                  heading: "When Discovery is skipped",
+                  outcome: "The rep shows up with a pitch instead of a question. The contact feels sold to. Trust erodes. Referrals stay inconsistent.",
+                },
+                {
+                  heading: "When Connecting is done well",
+                  outcome: "The contact knows you understand their workflow. They pick up your calls because they trust that you have something worth hearing.",
+                },
+                {
+                  heading: "When Guiding lands",
+                  outcome: "The physician sees hospice as a clinical tool that makes their job easier, not a sales call they have to manage.",
+                },
+                {
+                  heading: "When Commitment is clear",
+                  outcome: "A patient who qualifies gets referred when the moment is right. Not someday. Not maybe. On a specific day with a specific next step.",
+                },
+              ].map((item, i) => (
+                <div key={i} className="bg-white/5 rounded-lg p-5 space-y-2">
+                  <p className="text-sm font-bold text-red-400 uppercase tracking-wide">{item.heading}</p>
+                  <p className="text-body text-white/75 leading-relaxed">{item.outcome}</p>
+                </div>
+              ))}
+            </div>
+            <div className="text-center mt-8">
+              <p className="text-body-lg text-white/80 font-semibold max-w-2xl mx-auto leading-relaxed">
+                Every step of the method exists to reduce the friction between a qualifying patient and the care team that can help them. The rep is the bridge. The method is what keeps the bridge standing.
+              </p>
+            </div>
+          </Card>
+        </section>
+
         {/* Traceability */}
         <section data-testid="section-traceability">
           <div className="text-center mb-12">
@@ -382,19 +424,30 @@ export default function Method() {
         </section>
 
         {/* Closing */}
-        <Card className="relative overflow-hidden border-2 shadow-2xl spacing-card">
-          <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent"></div>
-          <div className="absolute bottom-0 left-0 w-64 h-64 bg-red-500/5 rounded-full blur-3xl"></div>
+        <Card className="relative overflow-hidden border-0 shadow-2xl spacing-card bg-gray-950">
           <div className="relative text-center">
-            <h3 className="text-h3 text-foreground mb-6" data-testid="text-closing-title">
-              Built in the Field, Proven in Practice
+            <h3 className="text-h3 text-white mb-6" data-testid="text-closing-title">
+              Built in the Field. Proven in Practice.
             </h3>
-            <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-4">
-              Every framework, every playbook, every drill we teach has been tested in real-world healthcare sales. This is not theory. It is a traceable system where preparation maps to Discovery, pressure maps to Connecting, measurement maps to Guiding, and finishing strong maps to Commitment. The ethics hold it all together.
+            <p className="text-body-lg text-white/70 max-w-2xl mx-auto leading-relaxed mb-8">
+              Every framework, every playbook, every drill we teach has been tested in real hospice markets. This is not theory. It is a traceable system where preparation maps to Discovery, practice maps to Connecting, measurement maps to Guiding, and finishing strong maps to Commitment. The ethics hold it all together.
             </p>
-            <p className="text-sm text-muted-foreground italic">
-              The Spartan Method: Where discipline, empathy, and strategy meet execution, and every step traces back to purpose.
-            </p>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <a
+                href="/contact"
+                className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground font-bold px-8 py-3 rounded-md hover-elevate transition-all"
+                data-testid="button-method-contact"
+              >
+                Contact Spartan Coaching
+              </a>
+              <a
+                href="/manifesto"
+                className="inline-flex items-center justify-center gap-2 border border-white/30 text-white font-bold px-8 py-3 rounded-md hover-elevate transition-all"
+                data-testid="button-method-manifesto"
+              >
+                Read the Spartan Ethos
+              </a>
+            </div>
           </div>
         </Card>
       </div>

@@ -172,15 +172,15 @@ export default function Home() {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-20 lg:py-24 text-center">
           <h1 className="text-hero mb-4 sm:mb-6 md:mb-8 animate-fade-in-up px-4">
             <span className="block bg-gradient-to-r from-red-600 via-red-500 to-red-600 bg-clip-text text-transparent font-black tracking-tighter drop-shadow-2xl">
-              Practical Coaching for
+              Hospice Sales Coaching
             </span>
-            <span className="block bg-gradient-to-r from-red-600 via-red-500 to-red-600 bg-clip-text text-transparent mt-2 font-black tracking-tighter drop-shadow-2xl">
-              Hospice Growth Professionals
+            <span className="block text-white font-black tracking-tighter mt-2">
+              Built for the Work. Not the Classroom.
             </span>
           </h1>
 
-          <p className="text-body-lg mb-6 sm:mb-10 md:mb-14 max-w-4xl mx-auto animate-fade-in-up px-6" style={{ animationDelay: '0.1s' }}>
-            <span className="text-white/90">Build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and measurable weekly accountability.</span>
+          <p className="text-body-lg mb-6 sm:mb-10 md:mb-14 max-w-3xl mx-auto animate-fade-in-up px-6" style={{ animationDelay: '0.1s' }}>
+            <span className="text-white/90">Eligible patients are not receiving hospice care because the right conversations are not happening. Spartan Coaching exists to close that gap, one prepared visit at a time.</span>
           </p>
 
           <div className="flex flex-col items-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
@@ -354,6 +354,47 @@ export default function Home() {
         </div>
       </section>
 
+
+      {/* 3b. The Stakes */}
+      <section className="relative bg-gray-950 py-20 sm:py-28" data-testid="section-stakes">
+        <div className="absolute inset-0 bg-spartan-gradient-radial opacity-20 pointer-events-none" />
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
+          <FadeIn>
+            <p className="text-sm font-bold tracking-widest text-red-400 uppercase mb-6">The Real Problem</p>
+            <h2 className="text-h2 font-bold text-white mb-8" data-testid="text-stakes-title">
+              The Gap Is Not Clinical. It Is Conversational.
+            </h2>
+            <div className="space-y-6 text-body-lg text-white/75 leading-relaxed max-w-3xl mx-auto text-left">
+              <p>
+                Hundreds of thousands of Americans die each year without hospice care who would have qualified for it. The average hospice length of stay is around eighteen days. The Medicare benefit allows up to six months. That gap does not exist because of bad clinical decisions.
+              </p>
+              <p className="text-white/90 font-semibold">
+                It exists because the right conversations did not happen. A referral that did not get made. A physician who said "not yet" to a rep who did not know how to respond. An eligible patient who never got asked.
+              </p>
+              <p>
+                When a rep does the work well, that changes. A patient stops managing their own pain alone. A family gets a care team instead of a crisis. A daughter gets to be a daughter again instead of a medical coordinator trying to figure out what to do next.
+              </p>
+              <p>
+                That is what good sales execution produces. Not a quota hit. Not a commission. A human being who gets comfort care they needed and deserved, earlier in their journey.
+              </p>
+            </div>
+            <div className="mt-12">
+              <Button
+                size="lg"
+                variant="outline"
+                asChild
+                className="font-bold glass border-white/30 touch-manipulation group px-10"
+                data-testid="button-stakes-manifesto"
+              >
+                <Link href="/manifesto">
+                  <span>Read the Spartan Ethos</span>
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
 
       {/* 4. The Problem and The Promise */}
       <section className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-problem-promise">
@@ -780,7 +821,7 @@ export default function Home() {
                   </div>
                   <CardTitle className="text-h3 text-center mb-3">Sales Playbook Generator</CardTitle>
                   <p className="text-body text-muted-foreground text-center leading-relaxed mb-6 flex-1">
-                    Generate custom sales playbooks for any scenario, facility type, or objection pattern
+                    Build the playbook before the visit so you walk in prepared, not improvising. Custom to your scenario and referral source type.
                   </p>
                   <Button size="sm" variant="outline" asChild className="w-full font-bold touch-manipulation group mt-auto" data-testid="button-try-playbooks">
                     <Link href="/tools/playbooks">
@@ -801,7 +842,7 @@ export default function Home() {
                   </div>
                   <CardTitle className="text-h3 text-center mb-3">Objection Handler</CardTitle>
                   <p className="text-body text-muted-foreground text-center leading-relaxed mb-6 flex-1">
-                    Expert crafted responses to the toughest hospice objections with empathy and clinical precision
+                    Practice your response before the conversation, not after it stalled. Patient-centered answers to the objections that stop most reps cold.
                   </p>
                   <Button size="sm" variant="outline" asChild className="w-full font-bold touch-manipulation group mt-auto" data-testid="button-try-objections">
                     <Link href="/tools/objections">
@@ -822,7 +863,7 @@ export default function Home() {
                   </div>
                   <CardTitle className="text-h3 text-center mb-3">Territory Research</CardTitle>
                   <p className="text-body text-muted-foreground text-center leading-relaxed mb-6 flex-1">
-                    Deep dive research on facilities, demographics, and market opportunities in your territory
+                    Strategy is only as good as your market read. Know the data behind your territory before you decide where to spend your week.
                   </p>
                   <Button size="sm" variant="outline" asChild className="w-full font-bold touch-manipulation group mt-auto" data-testid="button-try-research">
                     <Link href="/tools/research">
@@ -843,7 +884,7 @@ export default function Home() {
                   </div>
                   <CardTitle className="text-h3 text-center mb-3">Email Templates</CardTitle>
                   <p className="text-body text-muted-foreground text-center leading-relaxed mb-6 flex-1">
-                    Professional follow up emails, thank you notes, and value add messages that build referral relationships
+                    Follow up that feels like a partner checking in, not a vendor chasing a referral. Templates built for clinical relationships.
                   </p>
                   <Button size="sm" variant="outline" asChild className="w-full font-bold touch-manipulation group mt-auto" data-testid="button-try-email-templates">
                     <Link href="/tools/email-templates">
@@ -864,7 +905,7 @@ export default function Home() {
                   </div>
                   <CardTitle className="text-h3 text-center mb-3">Role Play Practice</CardTitle>
                   <p className="text-body text-muted-foreground text-center leading-relaxed mb-6 flex-1">
-                    Practice real sales conversations in simulated scenarios with physicians, nurses, and administrators
+                    Practice the hard conversation before it is real. Physician objections, family hesitation, competitive situations. Scored and coached.
                   </p>
                   <Button size="sm" variant="outline" asChild className="w-full font-bold touch-manipulation group mt-auto" data-testid="button-try-role-play">
                     <Link href="/tools/role-play">
@@ -885,7 +926,7 @@ export default function Home() {
                   </div>
                   <CardTitle className="text-h3 text-center mb-3">Daily Coaching Drills</CardTitle>
                   <p className="text-body text-muted-foreground text-center leading-relaxed mb-6 flex-1">
-                    Daily exercises to sharpen objection handling, territory planning, and clinical knowledge
+                    Repetitions build the skill. Ten minutes a day on objection handling, clinical knowledge, and territory planning so you are not winging it.
                   </p>
                   <Button size="sm" variant="outline" asChild className="w-full font-bold touch-manipulation group mt-auto" data-testid="button-try-drills">
                     <Link href="/drills">
@@ -1026,21 +1067,30 @@ export default function Home() {
 
 
       {/* 13. Closing Section */}
-      <section className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-black dark:to-gray-950 spacing-section" data-testid="section-closing">
+      <section className="relative bg-gray-950 py-24 sm:py-32" data-testid="section-closing">
+        <div className="absolute inset-0 bg-spartan-gradient-radial opacity-20 pointer-events-none" />
         <FadeIn>
-          <div className="relative max-w-4xl mx-auto spacing-container text-center">
-            <h2 className="text-h2 text-foreground mb-6" data-testid="text-closing-title">
-              Stop Guessing. Start Executing.
+          <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
+            <p className="text-sm font-bold tracking-widest text-red-400 uppercase mb-6">Ready to close the gap?</p>
+            <h2 className="text-h2 font-bold text-white mb-6" data-testid="text-closing-title">
+              Stop Winging It.
             </h2>
-            <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-              If you are ready to build a repeatable system for hospice growth, reach out. No obligation, no pressure. Just an honest conversation about what is not working and what to do about it.
+            <p className="text-body-lg text-white/75 max-w-2xl mx-auto mb-10 leading-relaxed">
+              If you are ready to build a system that holds when the week is hard, reach out. No obligation, no pressure. Just an honest conversation about where your team is and what it would take to get it working the way it should.
             </p>
-            <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10" data-testid="button-closing-contact">
-              <Link href="/contact">
-                <span>Contact Us</span>
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </Button>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10" data-testid="button-closing-contact">
+                <Link href="/contact">
+                  <span>Contact Spartan Coaching</span>
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild className="font-bold glass border-white/30 touch-manipulation group px-10" data-testid="button-closing-manifesto">
+                <Link href="/manifesto">
+                  <span>Read the Spartan Ethos</span>
+                </Link>
+              </Button>
+            </div>
           </div>
         </FadeIn>
       </section>
