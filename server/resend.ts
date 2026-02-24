@@ -169,6 +169,64 @@ export async function sendAgreementConfirmation(data: AgreementEmailData): Promi
   }
 }
 
+export async function sendResourceLeadNotification(name: string, email: string, resourceTitle: string): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    const adminEmail = 'nicholas.lynch@spartan-coaching-schools.org';
+
+    await client.emails.send({
+      from: fromEmail,
+      to: adminEmail,
+      subject: `New Resource Download: ${resourceTitle}`,
+      html: `
+        <h2>New Resource Download</h2>
+        <p>Someone entered their information to download a training resource.</p>
+        <table style="border-collapse: collapse; width: 100%; max-width: 600px;">
+          <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Name</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${name}</td></tr>
+          <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Email</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><a href="mailto:${email}">${email}</a></td></tr>
+          <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Resource</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${resourceTitle}</td></tr>
+        </table>
+        <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;" />
+        <p style="color: #888; font-size: 12px;">This notification was sent from the Spartan Coaching resource library.</p>
+      `,
+    });
+
+    console.log(`Resource lead notification sent for ${name} (${resourceTitle})`);
+    return true;
+  } catch (error) {
+    console.error('Failed to send resource lead notification:', error);
+    return false;
+  }
+}
+
+export async function sendNewsletterNotification(email: string): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    const adminEmail = 'nicholas.lynch@spartan-coaching-schools.org';
+
+    await client.emails.send({
+      from: fromEmail,
+      to: adminEmail,
+      subject: `New Newsletter Subscriber: ${email}`,
+      html: `
+        <h2>New Newsletter Subscriber</h2>
+        <p>Someone subscribed to the Spartan Coaching weekly newsletter.</p>
+        <table style="border-collapse: collapse; width: 100%; max-width: 600px;">
+          <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Email</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><a href="mailto:${email}">${email}</a></td></tr>
+        </table>
+        <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;" />
+        <p style="color: #888; font-size: 12px;">This notification was sent from the Spartan Coaching newsletter signup.</p>
+      `,
+    });
+
+    console.log(`Newsletter notification sent for new subscriber: ${email}`);
+    return true;
+  } catch (error) {
+    console.error('Failed to send newsletter notification:', error);
+    return false;
+  }
+}
+
 export async function sendGeneratedEmail(to: string, subject: string, body: string): Promise<boolean> {
   try {
     const { client, fromEmail } = await getUncachableResendClient();

@@ -37,7 +37,7 @@ import {
   ObjectStorageService,
   ObjectNotFoundError,
 } from "./objectStorage";
-import { sendInquiryNotification, sendNewsletterConfirmation, sendGeneratedEmail, sendAgreementConfirmation } from "./resend";
+import { sendInquiryNotification, sendNewsletterConfirmation, sendGeneratedEmail, sendAgreementConfirmation, sendResourceLeadNotification, sendNewsletterNotification } from "./resend";
 
 // Get admin password from environment, default to secure value for development
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "5413";
@@ -270,6 +270,9 @@ Keep it under 100 words and use a warm, professional tone.`;
       
       sendNewsletterConfirmation(subscriberData.email).catch(err => 
         console.error("Failed to send newsletter confirmation:", err)
+      );
+      sendNewsletterNotification(subscriberData.email).catch(err =>
+        console.error("Failed to send newsletter notification:", err)
       );
       
       console.log("Newsletter subscriber:", subscriber);
@@ -547,6 +550,9 @@ Subject: [subject line]
     try {
       const leadData = insertResourceLeadSchema.parse(req.body);
       const lead = await storage.captureResourceLead(leadData);
+      sendResourceLeadNotification(leadData.name, leadData.email, leadData.resourceTitle).catch(err =>
+        console.error("Failed to send resource lead notification:", err)
+      );
       res.json({ success: true, lead });
     } catch (error: any) {
       if (error.name === "ZodError") {
