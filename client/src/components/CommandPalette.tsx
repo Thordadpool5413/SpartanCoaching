@@ -68,6 +68,7 @@ const commandItems = [
       },
       { title: "Role-Play Practice", path: "/tools/role-play", icon: Users },
       { title: "ROI Calculator", path: "/tools/roi-calculator", icon: Calculator },
+      { title: "Activity Calculator", path: "/tools/activity-calculator", icon: Calculator },
     ],
   },
   {

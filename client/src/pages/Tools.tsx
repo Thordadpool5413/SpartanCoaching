@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { LightbulbIcon, SearchIcon as CustomSearchIcon, ChatIcon, MicrophoneIcon } from "@/components/icons";
-import { Mail, Users, Search, ArrowRight } from "lucide-react";
+import { Mail, Users, Search, ArrowRight, Calculator } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/BackButton";
@@ -56,6 +56,13 @@ export default function Tools() {
       icon: <Users className="w-8 h-8" />,
       path: "/tools/role-play",
       category: "Training",
+    },
+    {
+      title: "Activity Calculator",
+      description: "Turn a monthly admission goal into the exact number of referral source conversations needed each month, week, and day. Includes a 4 week ramp plan for new hires.",
+      icon: <Calculator className="w-8 h-8" />,
+      path: "/tools/activity-calculator",
+      category: "Planning",
     },
   ];
 
