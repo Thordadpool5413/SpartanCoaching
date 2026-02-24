@@ -101,6 +101,10 @@ async function main() {
   });
 }
 
+process.on('unhandledRejection', (reason: any) => {
+  console.error('Unhandled promise rejection (non-fatal):', reason?.message || reason);
+});
+
 main().catch((error) => {
   console.error("Initialization error:", error?.message || error);
   process.exit(1);
