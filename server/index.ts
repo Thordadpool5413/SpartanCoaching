@@ -87,11 +87,9 @@ async function main() {
       log("Starting background initialization...");
       await deferredInit(app);
 
-      if (process.env.NODE_ENV !== "production") {
-        const { seedDatabase } = await import("./seed");
-        log("Starting database seed...");
-        await seedDatabase();
-      }
+      const { seedDatabase } = await import("./seed");
+      log("Starting database seed...");
+      await seedDatabase();
       log("Background initialization completed");
     } catch (error: any) {
       console.error("Background initialization error:", error?.message || error);
