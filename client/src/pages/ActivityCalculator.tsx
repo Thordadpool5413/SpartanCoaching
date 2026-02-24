@@ -411,7 +411,7 @@ function DayTimelineVisual({ result }: { result: CalculationResult }) {
               </div>
               <div className="flex-shrink-0 text-right">
                 <p className="text-xs font-medium text-muted-foreground whitespace-nowrap">
-                  {block.start} — {block.end}
+                  {block.start} to {block.end}
                 </p>
               </div>
             </motion.div>

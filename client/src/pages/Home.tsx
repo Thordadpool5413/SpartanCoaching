@@ -194,7 +194,7 @@ export default function Home() {
               </Link>
             </Button>
             <p className="text-white/70 text-sm font-semibold tracking-wide">
-              Hospice-specific. Compliance-aware. Field-tested.
+              Coaching built for the people who show up to the hardest conversations in healthcare.
             </p>
           </div>
         </div>

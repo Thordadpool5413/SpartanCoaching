@@ -13,7 +13,7 @@ export default function Testimonials() {
       title: "Hospice Liaison",
       company: "Regional Hospice Provider",
       quote: "I was making visits but referrals stalled at 'we'll think about it.' Nick taught me to handle objections in the moment instead of leaving confused. My top five accounts now actually call me when they have an eligible patient.",
-      outcome: "Conversion rate from visit to referral increased 52% in first quarter",
+      outcome: "Conversion rate from visit to referral increased 52% in first quarter. More conversions meant more patients received care earlier, because conversations that were stalling finally moved forward.",
       category: "individual"
     },
     {
@@ -21,7 +21,7 @@ export default function Testimonials() {
       title: "Hospice Liaison",
       company: "Multi-State Hospice Organization",
       quote: "Before Spartan, I had a full calendar but no system. Nick showed me how to prioritize accounts that actually matter and build follow-up into my routine. I cut drive time by a third and admissions went up, not down.",
-      outcome: "Reduced weekly drive time from 18 hours to 12, referrals up 28%",
+      outcome: "Reduced weekly drive time from 18 hours to 12, referrals up 28%. Less time on the road meant better preparation for the visits that matter, and more families reached.",
       category: "individual"
     },
     {
@@ -29,7 +29,7 @@ export default function Testimonials() {
       title: "Hospice Liaison",
       company: "Nonprofit Hospice",
       quote: "The objection handling practice was brutal but necessary. I learned what to say when a social worker pushes back on timing or when a physician wants 'one more test.' Now I guide the conversation instead of reacting to it.",
-      outcome: "Average time from referral to admission dropped from 4.2 days to 2.6 days",
+      outcome: "Average time from referral to admission dropped from 4.2 days to 2.6 days. Each day shorter is a day a patient spends less time managing symptoms without expert support.",
       category: "individual"
     },
   ];
@@ -45,6 +45,7 @@ export default function Testimonials() {
         "Top 8 accounts now generate 67% of monthly referrals (was 28%)",
         "Weekly drive time reduced from 22 hours to 14 hours",
         "Lost zero deals to 'we'll call you' objections in final 30 days",
+        "More patients received timely referrals as the conversion barriers that had stalled care were removed",
       ],
       category: "individual"
     },
@@ -59,6 +60,7 @@ export default function Testimonials() {
         "Manager coaching time increased from 2 hours/week to 8 hours/week",
         "New rep time-to-first-admission dropped from 11 weeks to 3.5 weeks",
         "Zero voluntary turnover in 12 months following implementation",
+        "Faster onboarding and a higher-performing team meant fewer eligible patients went unserved in the market during that period",
       ],
       category: "leadership"
     },
@@ -74,6 +76,7 @@ export default function Testimonials() {
         "System adoption measured at 91% compliance after 15 months",
         "Forecast accuracy improved from 58% to 86% at corporate level",
         "Referral volume up 37% year-over-year with same headcount",
+        "With performance variance reduced and referral volume growing, more families across all 10 markets received access to care at the right time",
       ],
       category: "corporate"
     },
@@ -88,7 +91,7 @@ export default function Testimonials() {
           Success Stories
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed">
-          Real results from reps, leaders, and organizations who chose the Spartan way: fewer buzzwords, more practice. Clear standards, straight talk, measurable outcomes.
+          Real results from reps, leaders, and organizations who chose the Spartan way: fewer buzzwords, more practice. Clear standards, straight talk, measurable outcomes. Behind every number is a family that got the conversation they needed.
         </p>
       </div>
       {/* Testimonials Section */}
@@ -217,14 +220,14 @@ export default function Testimonials() {
         </Card>
       </div>
       <FadeIn delay={0.2}>
-        <div className="bg-gradient-to-br from-primary/10 to-destructive/10 rounded-2xl p-8 md:p-12 text-center mt-16">
-          <h2 className="text-h2 font-bold text-foreground mb-4">
+        <div className="bg-gray-950 rounded-3xl p-10 md:p-16 text-center mt-16">
+          <h2 className="text-h2 font-black text-white mb-6">
             Ready to See Results Like These?
           </h2>
-          <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
+          <p className="text-body-lg text-white/80 max-w-2xl mx-auto leading-relaxed mb-10">
             Whether you are a rep looking to sharpen your skills, a leader building a team, or an executive scaling across markets, let's talk about what is not working and build a plan that fixes it.
           </p>
-          <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10" data-testid="button-testimonials-contact">
+          <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10 bg-red-600 hover:bg-red-700 text-white border-red-600" data-testid="button-testimonials-contact">
             <Link href="/contact">
               <span>Contact Us</span>
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />

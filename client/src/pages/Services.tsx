@@ -26,7 +26,7 @@ export default function Services() {
         "One-page action plan for immediate implementation",
         "Recording for review (60 min sessions)",
       ],
-      outcome: "Walk away with a clear next step you can execute Tuesday morning.",
+      outcome: "Walk away with a clear next step you can execute Tuesday morning. Better execution means fewer stalled referrals, and fewer stalled referrals means more patients receive care when they need it.",
     },
     {
       title: "Field Coaching Ridealongs",
@@ -40,7 +40,7 @@ export default function Services() {
         "Real-time coaching between sales calls",
         "Post-call follow-up with written action summary and talk tracks",
       ],
-      outcome: "See exactly what works in the field and practice it until it's repeatable.",
+      outcome: "See exactly what works in the field and practice it until it is repeatable. When real visits convert at a higher rate, eligible patients get referred instead of waiting.",
     },
     {
       title: "Territory Management Coaching",
@@ -54,7 +54,7 @@ export default function Services() {
         "Weekly routing plan for maximum efficiency",
         "Follow-up cadence that prevents dropped balls",
       ],
-      outcome: "Spend less time driving, more time with decision-makers who can say yes.",
+      outcome: "Spend less time driving, more time with decision-makers who can say yes. Focused reps reach the right people more often, and more of the right conversations lead to patients getting referred.",
     },
   ];
 
@@ -71,7 +71,7 @@ export default function Services() {
         "Territory planning workshop with real accounts",
         "Written playbook your team can reference daily",
       ],
-      outcome: "Your team speaks the same language, uses the same process, and coaches each other up.",
+      outcome: "Your team speaks the same language, uses the same process, and coaches each other up. Consistent teams generate consistent referrals, and consistent referrals mean fewer eligible patients go unserved.",
     },
     {
       title: "Leadership Coaching",
@@ -85,7 +85,7 @@ export default function Services() {
         "Weekly huddle structure (5 minutes that matter)",
         "Scorecard design: what to measure, how to use it",
       ],
-      outcome: "You'll know what good looks like, how to spot it, and how to coach your team to it.",
+      outcome: "You will know what good looks like, how to spot it, and how to coach your team to it. Leaders who develop people build teams that serve more patients at a higher standard.",
     },
     {
       title: "Growth Strategy Consulting",
@@ -99,7 +99,7 @@ export default function Services() {
         "Sales process redesign for faster conversions",
         "Quarterly reviews to track progress and adjust",
       ],
-      outcome: "A repeatable system for growth that doesn't depend on hope or heroics.",
+      outcome: "A repeatable system for growth that does not depend on hope or heroics. Sustainable growth means more markets reached and more patients connected to care at the right time.",
     },
   ];
 
@@ -116,7 +116,7 @@ export default function Services() {
         "Territory design: account assignment, routing optimization",
         "Top 10 growth opportunities with action plans",
       ],
-      outcome: "You'll know exactly where to focus resources for the highest return.",
+      outcome: "You will know exactly where to focus resources for the highest return. Better targeting means teams spend time on accounts where eligible patients are actually being missed.",
     },
     {
       title: "System Implementation & Training",
@@ -130,7 +130,7 @@ export default function Services() {
         "Leadership coaching for local managers",
         "Performance tracking system and dashboards",
       ],
-      outcome: "Every market runs the same playbook. You can see what's working and replicate it.",
+      outcome: "Every market runs the same playbook. You can see what is working and replicate it. Standardized execution across markets means no region leaves eligible patients underserved.",
     },
     {
       title: "Executive Consulting",
@@ -144,7 +144,7 @@ export default function Services() {
         "Sales force effectiveness audits",
         "Crisis response and performance turnarounds",
       ],
-      outcome: "Make better decisions faster with someone who knows hospice sales inside and out.",
+      outcome: "Make better decisions faster with someone who knows hospice sales inside and out. Strategic clarity at the top translates to more families reached and served in every market.",
     },
   ];
 
@@ -157,8 +157,11 @@ export default function Services() {
         <h1 className="text-hero text-foreground mb-8 animate-fade-in-up" data-testid="text-services-title">
           Work <span className="text-gradient-primary">With Us</span>
         </h1>
-        <p className="text-body-lg text-muted-foreground mb-6 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+        <p className="text-body-lg text-muted-foreground mb-4 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           Coaching options for individual reps, team leaders, and hospice organizations. Every engagement is structured, repeatable, and built around weekly accountability.
+        </p>
+        <p className="text-body text-muted-foreground max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+          Every service here exists because eligible patients are not receiving hospice care. Not because hospice is the wrong choice, but because the right conversations are not happening. Trained reps have those conversations. Prepared teams make them consistent. That is what this work is for.
         </p>
       </div>
       {/* Individual Sales Reps Section */}
@@ -329,6 +332,14 @@ export default function Services() {
           ))}
         </div>
       </div>
+      {/* What This Is All For */}
+      <div className="bg-gray-950 rounded-3xl p-10 md:p-16 text-center mt-16">
+        <h2 className="text-h2 font-black text-white mb-6">What This Is All For</h2>
+        <p className="text-body-lg text-white/80 max-w-3xl mx-auto leading-relaxed">
+          Every coaching session, every field ride, every team workshop exists because eligible patients are not getting referred. Not because hospice is the wrong answer. Because the person who should have had that conversation was not prepared to have it. Spartan Coaching exists to fix that, one rep, one team, one market at a time.
+        </p>
+      </div>
+
       {/* Application Process Section */}
       <div className="mt-16 sm:mt-20">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-10">
@@ -436,23 +447,19 @@ export default function Services() {
       </div>
 
       {/* CTA Section */}
-      <div className="relative bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent rounded-3xl p-8 sm:p-10 md:p-12 text-center overflow-hidden border-2 border-red-500/20 shadow-lg mt-16">
-        <div className="absolute top-0 right-0 w-48 h-48 bg-red-500/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-0 left-0 w-48 h-48 bg-red-500/5 rounded-full blur-3xl"></div>
-        <div className="relative">
-          <h2 className="text-h2 text-foreground mb-4 sm:mb-6">
-            Not Sure Which Service Fits?
-          </h2>
-          <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed">
-            Every engagement starts with understanding your specific challenge. Let's talk about what's not working and build a plan that fixes it.
-          </p>
-          <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10" data-testid="button-services-contact">
-            <Link href="/contact">
-              <span>Contact Us</span>
-              <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-            </Link>
-          </Button>
-        </div>
+      <div className="bg-gray-950 rounded-3xl p-10 md:p-16 text-center mt-16">
+        <h2 className="text-h2 font-black text-white mb-6">
+          Not Sure Which Service Fits?
+        </h2>
+        <p className="text-body-lg text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
+          Every engagement starts with understanding your specific challenge. Let's talk about what is not working and build a plan that fixes it.
+        </p>
+        <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10 bg-red-600 hover:bg-red-700 text-white border-red-600" data-testid="button-services-contact">
+          <Link href="/contact">
+            <span>Contact Us</span>
+            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+          </Link>
+        </Button>
       </div>
     </div>
   );

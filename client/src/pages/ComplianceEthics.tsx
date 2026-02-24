@@ -146,13 +146,21 @@ export default function ComplianceEthics() {
           </FadeIn>
 
           <FadeIn>
-            <div className="bg-gradient-to-br from-primary/10 to-destructive/10 rounded-2xl p-8 md:p-12 text-center mt-16">
-              <h2 className="text-h2 font-bold text-foreground mb-4">
+            <div className="bg-gray-950 rounded-3xl p-10 md:p-16 text-center mt-16">
+              <h2 className="text-h2 font-black text-white mb-6">
                 Ready to Get Started?
               </h2>
-              <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-                Partner with a coaching program built on integrity, compliance, and a commitment to ethical hospice sales practices.
+              <p className="text-body-lg text-white/80 max-w-2xl mx-auto leading-relaxed mb-10">
+                Partner with a coaching program built on integrity, compliance, and a commitment to ethical hospice sales practices. The standard is clear. The work is real.
               </p>
+              <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                <a href="/contact" className="inline-flex items-center justify-center gap-2 px-10 py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-colors text-base" data-testid="button-compliance-contact">
+                  Contact Us
+                </a>
+                <a href="/manifesto" className="inline-flex items-center justify-center gap-2 px-10 py-4 border border-white/20 text-white/80 hover:text-white hover:border-white/40 font-semibold rounded-lg transition-colors text-base" data-testid="link-compliance-manifesto">
+                  Read the Spartan Ethos
+                </a>
+              </div>
             </div>
           </FadeIn>
         </div>
