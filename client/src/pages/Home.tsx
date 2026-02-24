@@ -210,25 +210,6 @@ export default function Home() {
       </section>
 
 
-      {/* Credibility Stat Bar */}
-      <section className="relative bg-background border-b" data-testid="section-stat-bar">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
-            {[
-              { value: "200+", label: "Reps Coached" },
-              { value: "50+", label: "Organizations Served" },
-              { value: "15+", label: "Markets Covered" },
-              { value: "10+", label: "Years in Hospice" },
-            ].map((stat, index) => (
-              <div key={index} data-testid={`stat-${index}`}>
-                <p className="text-2xl sm:text-3xl font-black text-primary">{stat.value}</p>
-                <p className="text-xs sm:text-sm text-muted-foreground font-medium mt-1">{stat.label}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* 2. Ask Spartan AI Section */}
       <section id="ask-spartan" className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-ask-spartan">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(239,68,68,0.08),transparent_50%)] pointer-events-none"></div>
