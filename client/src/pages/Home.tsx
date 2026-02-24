@@ -174,9 +174,6 @@ export default function Home() {
             <span className="block bg-gradient-to-r from-red-600 via-red-500 to-red-600 bg-clip-text text-transparent font-black tracking-tighter drop-shadow-2xl">
               Hospice Sales Coaching
             </span>
-            <span className="block text-white font-black tracking-tighter mt-2">
-              Built for the Work. Not the Classroom.
-            </span>
           </h1>
 
           <p className="text-body-lg mb-6 sm:mb-10 md:mb-14 max-w-3xl mx-auto animate-fade-in-up px-6" style={{ animationDelay: '0.1s' }}>
