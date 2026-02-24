@@ -186,7 +186,7 @@ async function seedByTitle(table: any, allItems: any[], label: string) {
   const existingTitles = new Set(existing.map((r: any) => r.title));
   const newItems = allItems.filter((item: any) => !existingTitles.has(item.title));
   if (newItems.length > 0) {
-    const inserted: any[] = await db.insert(table).values(newItems).returning();
+    const inserted = await db.insert(table).values(newItems).returning() as any[];
     console.log(`  Inserted ${inserted.length} new ${label}`);
   } else {
     console.log(`  All ${label} already exist (${existing.length} found)`);
