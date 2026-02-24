@@ -278,6 +278,18 @@ export async function generateDailyDrill(): Promise<{ drill: string; category: s
     { category: "Planning", drill: "Analyze your top 10 accounts by revenue potential. Are you spending enough time on your highest-value opportunities?" },
     { category: "Clinical Knowledge", drill: "Study one hospice eligibility diagnosis you're less familiar with. Learn the specific decline indicators and practice explaining them simply." },
     { category: "Clinical Knowledge", drill: "Review the four levels of hospice care. Practice explaining when each is appropriate in language a non-clinical person would understand." },
+    { category: "Prospecting", drill: "Look at your calendar for the next two weeks. Identify any day where you have fewer than 4 conversations scheduled and fill those gaps with new or existing account visits right now." },
+    { category: "Prospecting", drill: "List your top 5 referral sources from last quarter. Have any of them gone quiet? If so, plan a specific value touch for each one this week." },
+    { category: "Communication", drill: "Think about the last referral you received. Write a thank you message to the person who sent it. Be specific about the patient outcome and why the referral mattered." },
+    { category: "Communication", drill: "Practice explaining the difference between palliative care and hospice in 30 seconds or less. Say it out loud three times until it sounds natural." },
+    { category: "Objection Handling", drill: "Write out your response to this exact phrase: 'Our patients are not ready for hospice.' Then practice delivering it with genuine curiosity rather than defensiveness." },
+    { category: "Relationship Building", drill: "Pick one discharge planner you have a good relationship with. Ask them this week what the biggest challenge they are facing at work is. Just listen." },
+    { category: "Relationship Building", drill: "Identify a referral source you lost this year. Write down what happened and what you would do differently. Consider whether it is worth re-engaging." },
+    { category: "Follow-Up", drill: "Open your CRM or contact list. Find every referral source you spoke with last week and make sure each one has a clear next step documented." },
+    { category: "Self-Reflection", drill: "Rate your energy level today on a scale of 1 to 10. If it is below a 7, identify one thing you can change about your routine tomorrow to show up sharper." },
+    { category: "Planning", drill: "Write down your top 3 priorities for this week. Not tasks, priorities. Then check if your calendar actually reflects those priorities or if you are spending time on things that do not move the needle." },
+    { category: "Clinical Knowledge", drill: "Pick one hospice eligibility diagnosis you are less confident discussing. Read the LCD criteria for that diagnosis and write down the three most important decline indicators in your own words." },
+    { category: "Clinical Knowledge", drill: "Practice explaining what a FAST Scale score of 7A means to a nurse who asks why their dementia patient might qualify for hospice. Keep it under 60 seconds." },
   ];
 
   const date = new Date();

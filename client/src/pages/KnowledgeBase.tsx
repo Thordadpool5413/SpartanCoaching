@@ -237,6 +237,116 @@ const glossaryEntries: GlossaryEntry[] = [
     definition: "When a patient is discharged from hospice alive, either due to extended prognosis, revocation, or transfer. High live discharge rates may trigger CMS scrutiny.",
     category: "Insurance & Billing",
   },
+  {
+    term: "FAST Scale",
+    definition: "Functional Assessment Staging Tool used to evaluate the progression of dementia. Stage 7 and beyond, combined with comorbid conditions, is a key indicator for hospice eligibility in Alzheimer's and related dementias.",
+    category: "Clinical Terms",
+  },
+  {
+    term: "Prognosis",
+    definition: "A medical professional's estimate of the likely course and outcome of a disease. In hospice, a prognosis of six months or less is required for Medicare eligibility.",
+    category: "Clinical Terms",
+  },
+  {
+    term: "Symptom Burden",
+    definition: "The combined impact of all symptoms a patient experiences, including pain, nausea, fatigue, anxiety, and shortness of breath. High symptom burden often indicates appropriateness for hospice level care.",
+    category: "Clinical Terms",
+  },
+  {
+    term: "Edema",
+    definition: "Swelling caused by excess fluid trapped in body tissues. Peripheral edema and ascites are common indicators of advanced cardiac, liver, and renal disease in hospice eligible patients.",
+    category: "Clinical Terms",
+  },
+  {
+    term: "Do Not Resuscitate (DNR)",
+    definition: "A medical order indicating that cardiopulmonary resuscitation should not be performed if a patient's heart or breathing stops. While common among hospice patients, a DNR is not required for hospice admission.",
+    category: "Clinical Terms",
+  },
+  {
+    term: "OIG (Office of Inspector General)",
+    definition: "The federal agency responsible for investigating fraud, waste, and abuse in Medicare programs including hospice. Publishes annual work plans that identify hospice audit priorities.",
+    category: "Regulations & Compliance",
+  },
+  {
+    term: "Anti Kickback Statute",
+    definition: "Federal law prohibiting the exchange of anything of value to induce or reward referrals for services covered by federal healthcare programs. Hospice marketing activities must be carefully structured to avoid violations.",
+    category: "Regulations & Compliance",
+  },
+  {
+    term: "Stark Law",
+    definition: "Federal law prohibiting physician self referrals for designated health services payable by Medicare. Hospice organizations must ensure their physician relationships comply with Stark Law exceptions.",
+    category: "Regulations & Compliance",
+  },
+  {
+    term: "Liver Disease Criteria",
+    definition: "Prothrombin time more than 5 seconds over control, serum albumin less than 2.5 g/dl, refractory ascites, hepatic encephalopathy, or hepatorenal syndrome despite treatment.",
+    category: "Eligibility Criteria",
+  },
+  {
+    term: "Stroke/CVA Criteria",
+    definition: "Coma or persistent vegetative state beyond three days, dysphagia preventing adequate food and fluid intake, post stroke dementia with FAST Stage 7 or beyond.",
+    category: "Eligibility Criteria",
+  },
+  {
+    term: "HIV/AIDS Criteria",
+    definition: "CD4 count less than 25, persistent viral load above 100,000 copies, CNS lymphoma, wasting syndrome, or visceral Kaposi sarcoma unresponsive to treatment.",
+    category: "Eligibility Criteria",
+  },
+  {
+    term: "Failure to Thrive (Adult)",
+    definition: "A general decline in health without a single identifiable terminal diagnosis. Characterized by BMI under 22, unintentional weight loss exceeding 10% in six months, declining functional status, and serum albumin under 2.5.",
+    category: "Eligibility Criteria",
+  },
+  {
+    term: "Value Proposition",
+    definition: "The specific, measurable benefits your hospice organization delivers to referral sources and patients that differentiate you from competitors. Goes beyond clinical quality to include responsiveness, communication, and education.",
+    category: "Sales & Marketing",
+  },
+  {
+    term: "Account Tiering",
+    definition: "The practice of categorizing referral sources into A, B, and C tiers based on referral volume, growth potential, and relationship strength. Determines visit frequency and resource allocation.",
+    category: "Sales & Marketing",
+  },
+  {
+    term: "Lunch and Learn",
+    definition: "An educational presentation delivered at a referral source, typically during a meal. Effective lunch and learns focus on clinical education rather than company promotion and should last 15 to 20 minutes.",
+    category: "Sales & Marketing",
+  },
+  {
+    term: "Ride Along",
+    definition: "A field coaching session where a sales manager accompanies a rep on account visits. Most effective when the manager observes, takes notes, and debriefs after each call rather than taking over conversations.",
+    category: "Sales & Marketing",
+  },
+  {
+    term: "Advance Directive",
+    definition: "A legal document in which a person specifies what actions should be taken for their health if they can no longer make decisions. Includes living wills and durable power of attorney for healthcare.",
+    category: "Care Services",
+  },
+  {
+    term: "Plan of Care (POC)",
+    definition: "The comprehensive care plan developed by the hospice interdisciplinary team for each patient. Updated at each IDG meeting and must reflect the patient's current condition, goals, and interventions.",
+    category: "Care Services",
+  },
+  {
+    term: "Hospice Aide",
+    definition: "A trained caregiver who provides personal care services such as bathing, grooming, and light housekeeping under the supervision of a registered nurse. Part of the hospice interdisciplinary team.",
+    category: "Care Services",
+  },
+  {
+    term: "Sequestration",
+    definition: "Automatic federal budget cuts that reduce Medicare hospice payments by approximately 2%. Affects all four levels of hospice care and has been in effect since 2013.",
+    category: "Insurance & Billing",
+  },
+  {
+    term: "Dual Eligible",
+    definition: "A patient who qualifies for both Medicare and Medicaid. Hospice billing for dual eligible patients follows Medicare rules, but Medicaid may cover additional services not included in the hospice benefit.",
+    category: "Insurance & Billing",
+  },
+  {
+    term: "Service Intensity Add On (SIA)",
+    definition: "Additional Medicare payment for registered nurse and social worker visits provided during the last seven days of a patient's life. Designed to support increased care needs at end of life.",
+    category: "Insurance & Billing",
+  },
 ];
 
 function categorySlug(cat: string): string {

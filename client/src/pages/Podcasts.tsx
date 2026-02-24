@@ -116,17 +116,23 @@ export default function Podcasts() {
                 </p>
               )}
 
-              <audio
-                controls
-                className="w-full"
-                data-testid={`audio-player-${podcast.id}`}
-                preload="metadata"
-              >
-                <source src={podcast.audioUrl} type="audio/mpeg" />
-                <source src={podcast.audioUrl} type="audio/mp4" />
-                <source src={podcast.audioUrl} type="audio/ogg" />
-                Your browser does not support the audio element.
-              </audio>
+              {podcast.audioUrl ? (
+                <audio
+                  controls
+                  className="w-full"
+                  data-testid={`audio-player-${podcast.id}`}
+                  preload="metadata"
+                >
+                  <source src={podcast.audioUrl} type="audio/mpeg" />
+                  <source src={podcast.audioUrl} type="audio/mp4" />
+                  <source src={podcast.audioUrl} type="audio/ogg" />
+                  Your browser does not support the audio element.
+                </audio>
+              ) : (
+                <div className="w-full py-3 px-4 bg-accent/50 rounded-lg text-center" data-testid={`audio-coming-soon-${podcast.id}`}>
+                  <p className="text-sm font-medium text-muted-foreground">Episode coming soon</p>
+                </div>
+              )}
             </div>
           </Card>
         ))}
