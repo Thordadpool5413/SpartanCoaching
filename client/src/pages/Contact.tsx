@@ -92,7 +92,7 @@ export default function Contact() {
               Contact Us
             </h1>
             <p className="text-body-lg text-muted-foreground leading-relaxed max-w-2xl mx-auto" data-testid="text-contact-intro">
-              Have a question about Spartan Coaching? Want to learn more about how we work with hospice growth professionals? Reach out and we will get back to you.
+              Have a question about Spartan Coaching? Want to learn more about how we work with hospice growth professionals? Reach out and we will get back to you. We typically respond within one business day.
             </p>
           </div>
         </FadeIn>
@@ -106,7 +106,7 @@ export default function Contact() {
                 </div>
                 <h2 className="text-h2 text-foreground">Thank You</h2>
                 <p className="text-body-lg text-muted-foreground max-w-md">
-                  We received your message and will get back to you soon. Thank you for reaching out.
+                  We received your message. We typically respond within one business day. Thank you for reaching out.
                 </p>
                 <Button variant="outline" onClick={() => { setSubmitted(false); form.reset(); }} className="mt-4 font-bold" data-testid="button-send-another">
                   Send Another Message

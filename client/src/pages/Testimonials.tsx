@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
-import { Quote, TrendingUp, Users, Award, ArrowRight } from "lucide-react";
+import { Quote, TrendingUp, Users, Award, ArrowRight, CheckCircle } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
@@ -131,7 +131,7 @@ export default function Testimonials() {
           <h2 className="text-h2 text-foreground">Case Studies</h2>
         </div>
 
-        <div className="gap-cards">
+        <div className="grid grid-cols-1 gap-8">
           {caseStudies.map((study, idx) => (
             <Card key={idx} className="hover-elevate transition-elegant border-2 group relative spacing-card" data-testid={`card-case-study-${idx}`}>
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
@@ -154,16 +154,16 @@ export default function Testimonials() {
                     </div>
                   </div>
 
-                  <div className="bg-accent/30 rounded-lg p-6">
-                    <p className="text-sm font-bold text-foreground mb-4 flex items-center gap-2">
-                      <TrendingUp className="w-4 h-4 text-primary" />
-                      Results:
+                  <div className="bg-gradient-to-br from-primary/10 to-destructive/10 rounded-lg p-6 border border-primary/20">
+                    <p className="text-base font-bold text-foreground mb-5 flex items-center gap-2">
+                      <TrendingUp className="w-5 h-5 text-primary" />
+                      Measurable Results
                     </p>
-                    <ul className="space-y-3">
+                    <ul className="space-y-4">
                       {study.results.map((result, rIdx) => (
-                        <li key={rIdx} className="flex items-start gap-2">
-                          <div className="w-1.5 h-1.5 rounded-full bg-primary mt-2 flex-shrink-0" />
-                          <span className="text-sm text-foreground leading-relaxed">{result}</span>
+                        <li key={rIdx} className="flex items-start gap-3">
+                          <CheckCircle className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                          <span className="text-sm font-medium text-foreground leading-relaxed">{result}</span>
                         </li>
                       ))}
                     </ul>

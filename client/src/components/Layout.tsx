@@ -199,7 +199,7 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-background/90 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/75 shadow-lg safe-area-top" style={{
       boxShadow: '0 4px 24px -2px rgba(0, 0, 0, 0.12), 0 2px 8px -2px rgba(0, 0, 0, 0.08), inset 0 -1px 0 0 rgba(255, 255, 255, 0.05)'
     }}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-24 sm:h-28 md:h-32 flex items-center justify-between gap-3 sm:gap-6 safe-area-x">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-18 md:h-20 flex items-center justify-between gap-3 sm:gap-6 safe-area-x">
         <Link href="/">
           <div className="flex items-center gap-2 sm:gap-4 hover:opacity-80 transition-opacity cursor-pointer touch-manipulation" data-testid="link-home">
             <div>
@@ -389,6 +389,7 @@ export function Header() {
 }
 
 export function Footer() {
+  const [location] = useLocation();
   return (
     <>
       <footer className="mt-auto border-t border-border bg-background no-print safe-area-bottom">
@@ -473,14 +474,16 @@ export function Footer() {
               >
                 Contact
               </Link>
-              <Link
-                href="/admin"
-                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
-                data-testid="link-admin"
-                aria-label="Admin dashboard"
-              >
-                Admin
-              </Link>
+              {location.startsWith("/admin") && (
+                <Link
+                  href="/admin"
+                  className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
+                  data-testid="link-admin"
+                  aria-label="Admin dashboard"
+                >
+                  Admin
+                </Link>
+              )}
             </div>
           </div>
         </div>
