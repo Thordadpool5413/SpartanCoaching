@@ -178,6 +178,8 @@ export default function RolePlay() {
     }
   };
 
+  const canEndSession = messages.filter(m => m.role === "user").length >= 2;
+
   const activeScenario = SCENARIOS.find((s) => s.id === activeScenarioId);
   const ActiveIcon = activeScenario?.icon || MessageCircle;
 
@@ -425,20 +427,27 @@ export default function RolePlay() {
               </div>
             </div>
           </div>
-          <Button
-            variant="outline"
-            onClick={handleEndSession}
-            disabled={sessionStatus === "loading_feedback" || isLoading}
-            className="font-bold touch-manipulation"
-            data-testid="button-end-session"
-          >
-            {sessionStatus === "loading_feedback" ? (
-              <Loader2 className="w-4 h-4 animate-spin mr-2" />
-            ) : (
-              <Star className="w-4 h-4 mr-2" />
+          <div className="relative" title={!canEndSession ? "Send at least 2 messages to unlock feedback" : undefined}>
+            <Button
+              variant="outline"
+              onClick={handleEndSession}
+              disabled={sessionStatus === "loading_feedback" || isLoading || !canEndSession}
+              className="font-bold touch-manipulation"
+              data-testid="button-end-session"
+            >
+              {sessionStatus === "loading_feedback" ? (
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+              ) : (
+                <Star className="w-4 h-4 mr-2" />
+              )}
+              End & Get Feedback
+            </Button>
+            {!canEndSession && (
+              <p className="absolute right-0 top-full mt-1 text-xs text-muted-foreground whitespace-nowrap" data-testid="text-end-hint">
+                Send 2 more messages to unlock
+              </p>
             )}
-            End & Get Feedback
-          </Button>
+          </div>
         </div>
       </Card>
 
@@ -528,39 +537,45 @@ export default function RolePlay() {
 }
 
 function parseFeedbackSections(text: string) {
-  const lines = text.split("\n");
+  const headingRegex = /^##\s+(.+)$/m;
+  const hasHeadings = headingRegex.test(text);
+
+  if (!hasHeadings) {
+    return { strengths: [], improvements: [], general: [text] };
+  }
+
+  const parts = text.split(/^##\s+/m).filter(Boolean);
   const strengths: string[] = [];
   const improvements: string[] = [];
   const general: string[] = [];
-  let currentSection: "general" | "strengths" | "improvements" = "general";
 
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (!trimmed) continue;
+  for (const part of parts) {
+    const firstNewline = part.indexOf("\n");
+    if (firstNewline === -1) continue;
+    const heading = part.slice(0, firstNewline).toLowerCase();
+    const body = part.slice(firstNewline + 1).trim();
+    if (!body) continue;
 
-    const lowerLine = trimmed.toLowerCase();
-    if (lowerLine.includes("strength") || lowerLine.includes("well done") || lowerLine.includes("positive") || lowerLine.includes("what you did well")) {
-      currentSection = "strengths";
-      if (trimmed.startsWith("#") || trimmed.startsWith("**")) continue;
-    } else if (lowerLine.includes("improve") || lowerLine.includes("area") || lowerLine.includes("suggestion") || lowerLine.includes("work on") || lowerLine.includes("weakness")) {
-      currentSection = "improvements";
-      if (trimmed.startsWith("#") || trimmed.startsWith("**")) continue;
-    }
-
-    const cleanLine = trimmed.replace(/^[#*\-]+\s*/, "").trim();
-    if (!cleanLine) continue;
-
-    if (currentSection === "strengths") {
-      strengths.push(cleanLine);
-    } else if (currentSection === "improvements") {
-      improvements.push(cleanLine);
+    if (
+      heading.includes("went well") ||
+      heading.includes("strength") ||
+      heading.includes("positive") ||
+      heading.includes("well done") ||
+      heading.includes("effective")
+    ) {
+      strengths.push(body);
+    } else if (
+      heading.includes("improve") ||
+      heading.includes("area") ||
+      heading.includes("suggestion") ||
+      heading.includes("weakness") ||
+      heading.includes("work on") ||
+      heading.includes("develop")
+    ) {
+      improvements.push(body);
     } else {
-      general.push(cleanLine);
+      general.push(`## ${part.slice(0, firstNewline)}\n${body}`);
     }
-  }
-
-  if (strengths.length === 0 && improvements.length === 0) {
-    return { strengths: [], improvements: [], general: lines.filter((l) => l.trim()) };
   }
 
   return { strengths, improvements, general };

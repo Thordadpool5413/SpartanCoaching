@@ -1,114 +1,135 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { MicrophoneIcon, SpinnerIcon } from "@/components/icons";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
+import { MarkdownContent } from "@/components/MarkdownContent";
 import { trackEvent } from "@/lib/analytics";
-
-declare global {
-  interface Window {
-    SpeechRecognition: any;
-    webkitSpeechRecognition: any;
-  }
-}
+import { Mic, MicOff, Upload, Copy, Download, Loader2, Sparkles } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Transcribe() {
+  const { toast } = useToast();
   const [isRecording, setIsRecording] = useState(false);
-  const [transcription, setTranscription] = useState("");
-  const [isProcessing, setIsProcessing] = useState(false);
-  const [hasError, setHasError] = useState(false);
-  const recognitionRef = useRef<any>(null);
+  const [recordingSeconds, setRecordingSeconds] = useState(0);
+  const [transcript, setTranscript] = useState("");
+  const [analysis, setAnalysis] = useState("");
+  const [isTranscribing, setIsTranscribing] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [uploadFileName, setUploadFileName] = useState("");
 
-  useEffect(() => {
-    // Check if browser supports Web Speech API
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-    
-    if (!SpeechRecognition) {
-      setHasError(true);
-      return;
-    }
+  const mediaRecorderRef = useRef<MediaRecorder | null>(null);
+  const chunksRef = useRef<Blob[]>([]);
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-    const recognition = new SpeechRecognition();
-    recognition.continuous = true;
-    recognition.interimResults = true;
-    recognition.lang = "en-US";
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+    const s = (seconds % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  };
 
-    let finalTranscript = "";
-
-    recognition.onresult = (event: any) => {
-      let interimTranscript = "";
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const transcript = event.results[i][0].transcript;
-        if (event.results[i].isFinal) {
-          finalTranscript += transcript + " ";
-        } else {
-          interimTranscript += transcript;
-        }
-      }
-
-      setTranscription(finalTranscript + interimTranscript);
-    };
-
-    recognition.onerror = (event: any) => {
-      console.error("Speech recognition error:", event.error);
-      if (event.error === "no-speech") {
-        // This is common and not really an error
-        return;
-      }
-      setIsRecording(false);
-      setHasError(true);
-    };
-
-    recognition.onend = () => {
-      setIsRecording(false);
-    };
-
-    recognitionRef.current = recognition;
-
-    return () => {
-      if (recognitionRef.current) {
-        recognitionRef.current.stop();
-      }
-    };
-  }, []);
-
-  const startRecording = () => {
-    if (!recognitionRef.current) {
-      alert("Speech recognition is not supported in your browser. Please use Chrome, Edge, or Safari.");
-      return;
-    }
-
-    trackEvent("ai_tool_usage", "transcribe");
+  const uploadAndTranscribe = async (blob: Blob, filename: string) => {
+    setIsTranscribing(true);
+    setTranscript("");
+    setAnalysis("");
     try {
-      setTranscription("");
-      setHasError(false);
-      recognitionRef.current.start();
+      const formData = new FormData();
+      formData.append("audio", blob, filename);
+      const res = await fetch("/api/transcribe", {
+        method: "POST",
+        body: formData,
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Transcription failed" }));
+        throw new Error(err.error || "Transcription failed");
+      }
+      const data = await res.json();
+      setTranscript(data.transcript || "");
+      trackEvent("ai_tool_usage", "transcribe");
+    } catch (err: any) {
+      toast({ title: "Transcription failed", description: err.message, variant: "destructive" });
+    } finally {
+      setIsTranscribing(false);
+    }
+  };
+
+  const startRecording = async () => {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const recorder = new MediaRecorder(stream, { mimeType: "audio/webm" });
+      chunksRef.current = [];
+      recorder.ondataavailable = (e) => {
+        if (e.data.size > 0) chunksRef.current.push(e.data);
+      };
+      recorder.onstop = async () => {
+        stream.getTracks().forEach((t) => t.stop());
+        const blob = new Blob(chunksRef.current, { type: "audio/webm" });
+        await uploadAndTranscribe(blob, "recording.webm");
+      };
+      recorder.start();
+      mediaRecorderRef.current = recorder;
       setIsRecording(true);
-    } catch (error) {
-      console.error("Error starting speech recognition:", error);
-      alert("Could not start recording. Please try again.");
+      setRecordingSeconds(0);
+      timerRef.current = setInterval(() => setRecordingSeconds((s) => s + 1), 1000);
+    } catch (err: any) {
+      toast({ title: "Microphone error", description: "Could not access microphone. Please allow permission and try again.", variant: "destructive" });
     }
   };
 
   const stopRecording = () => {
-    if (recognitionRef.current && isRecording) {
-      recognitionRef.current.stop();
+    if (mediaRecorderRef.current && isRecording) {
+      mediaRecorderRef.current.stop();
       setIsRecording(false);
+      if (timerRef.current) {
+        clearInterval(timerRef.current);
+        timerRef.current = null;
+      }
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadFileName(file.name);
+    await uploadAndTranscribe(file, file.name);
+    e.target.value = "";
+  };
+
+  const handleAnalyze = async () => {
+    if (!transcript) return;
+    setIsAnalyzing(true);
+    setAnalysis("");
+    try {
+      const res = await fetch("/api/transcribe/analyze", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ transcript }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({ error: "Analysis failed" }));
+        throw new Error(err.error || "Analysis failed");
+      }
+      const data = await res.json();
+      setAnalysis(data.analysis || "");
+    } catch (err: any) {
+      toast({ title: "Analysis failed", description: err.message, variant: "destructive" });
+    } finally {
+      setIsAnalyzing(false);
     }
   };
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(transcription);
+    navigator.clipboard.writeText(transcript);
+    toast({ title: "Copied", description: "Transcript copied to clipboard." });
   };
 
   const exportAsText = () => {
-    const blob = new Blob([transcription], { type: "text/plain" });
+    const blob = new Blob([transcript], { type: "text/plain" });
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "transcription.txt";
+    a.download = "spartan-transcription.txt";
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -119,109 +140,196 @@ export default function Transcribe() {
     <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
       <SEO />
       <Breadcrumbs items={[{ label: "AI Tools", href: "/tools" }, { label: "Transcribe" }]} />
-      <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-transcribe-title">
-        Audio Transcriber
+      <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-transcribe-title">
+        AI Audio Transcriber
       </h1>
       <p className="text-body-lg text-muted-foreground mb-8 leading-relaxed">
-        Record and transcribe sales calls, practice sessions, or coaching conversations. Review transcripts to identify improvement opportunities and track your progress.
+        Record or upload a sales call, practice session, or coaching conversation. Get a full transcript and optional AI coaching analysis based on the Spartan Method.
       </p>
 
-      <Card className="mb-8 card-lift border-2 shadow-lg spacing-card">
-        <div className="text-center py-8">
-          <div className="mb-6">
-            {isRecording ? (
-              <div className="w-24 h-24 mx-auto rounded-full bg-destructive/20 flex items-center justify-center animate-pulse">
-                <div className="w-16 h-16 rounded-full bg-destructive flex items-center justify-center">
-                  <MicrophoneIcon className="w-8 h-8 text-primary-foreground" />
-                </div>
-              </div>
-            ) : (
-              <div className="w-24 h-24 mx-auto rounded-full bg-primary/20 flex items-center justify-center">
-                <MicrophoneIcon className="w-12 h-12 text-primary" />
-              </div>
-            )}
-          </div>
+      <Card className="mb-8 spacing-card">
+        <Tabs defaultValue="record">
+          <TabsList className="w-full mb-6">
+            <TabsTrigger value="record" className="flex-1 gap-2" data-testid="tab-record">
+              <Mic className="w-4 h-4" />
+              Record Audio
+            </TabsTrigger>
+            <TabsTrigger value="upload" className="flex-1 gap-2" data-testid="tab-upload">
+              <Upload className="w-4 h-4" />
+              Upload File
+            </TabsTrigger>
+          </TabsList>
 
-          {isRecording ? (
-            <div>
-              <p className="text-lg font-semibold text-destructive mb-4">Recording in progress...</p>
-              <Button onClick={stopRecording} variant="destructive" size="lg" className="font-bold touch-manipulation" data-testid="button-stop-recording">
-                Stop Recording
-              </Button>
+          <TabsContent value="record" className="mt-0">
+            <div className="text-center py-6">
+              <div className="mb-6">
+                {isRecording ? (
+                  <div className="w-24 h-24 mx-auto rounded-full bg-destructive/20 flex items-center justify-center animate-pulse">
+                    <div className="w-16 h-16 rounded-full bg-destructive flex items-center justify-center">
+                      <MicOff className="w-8 h-8 text-primary-foreground" />
+                    </div>
+                  </div>
+                ) : (
+                  <div className="w-24 h-24 mx-auto rounded-full bg-primary/10 flex items-center justify-center">
+                    <Mic className="w-12 h-12 text-primary" />
+                  </div>
+                )}
+              </div>
+
+              {isRecording ? (
+                <div>
+                  <p className="text-lg font-semibold text-destructive mb-1" data-testid="text-recording-status">
+                    Recording in progress
+                  </p>
+                  <p className="text-3xl font-black text-foreground mb-5 tabular-nums" data-testid="text-recording-timer">
+                    {formatTime(recordingSeconds)}
+                  </p>
+                  <Button onClick={stopRecording} variant="destructive" size="lg" className="font-bold" data-testid="button-stop-recording">
+                    <MicOff className="w-5 h-5 mr-2" />
+                    Stop and Transcribe
+                  </Button>
+                </div>
+              ) : isTranscribing ? (
+                <div>
+                  <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-3" />
+                  <p className="text-muted-foreground">Transcribing with AI...</p>
+                </div>
+              ) : (
+                <div>
+                  <p className="text-base text-muted-foreground mb-5">Click to start recording from your microphone</p>
+                  <Button onClick={startRecording} size="lg" className="font-bold" data-testid="button-start-recording">
+                    <Mic className="w-5 h-5 mr-2" />
+                    Start Recording
+                  </Button>
+                </div>
+              )}
             </div>
-          ) : (
-            <div>
-              <p className="text-lg font-semibold text-foreground mb-4">Ready to record</p>
-              <Button onClick={startRecording} size="lg" className="font-bold touch-manipulation" data-testid="button-start-recording">
-                <MicrophoneIcon className="w-5 h-5" />
-                <span>Start Recording</span>
-              </Button>
+          </TabsContent>
+
+          <TabsContent value="upload" className="mt-0">
+            <div className="text-center py-6">
+              <div className="w-24 h-24 mx-auto rounded-full bg-primary/10 flex items-center justify-center mb-6">
+                <Upload className="w-12 h-12 text-primary" />
+              </div>
+
+              {isTranscribing ? (
+                <div>
+                  <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-3" />
+                  <p className="text-muted-foreground">Transcribing {uploadFileName} with AI...</p>
+                </div>
+              ) : (
+                <div>
+                  <p className="text-base text-muted-foreground mb-2">
+                    Upload an audio file to transcribe
+                  </p>
+                  <p className="text-xs text-muted-foreground mb-5">Supports MP3, WAV, M4A, WebM, OGG (max 25 MB)</p>
+                  <label
+                    htmlFor="audio-upload"
+                    className="inline-flex items-center gap-2 bg-primary text-primary-foreground hover-elevate font-bold px-6 py-3 rounded-md cursor-pointer text-sm"
+                    data-testid="label-upload-audio"
+                  >
+                    <Upload className="w-4 h-4" />
+                    Choose Audio File
+                  </label>
+                  <input
+                    id="audio-upload"
+                    type="file"
+                    accept="audio/*,.mp3,.wav,.m4a,.webm,.ogg"
+                    onChange={handleFileUpload}
+                    className="sr-only"
+                    data-testid="input-audio-file"
+                  />
+                </div>
+              )}
             </div>
-          )}
-        </div>
+          </TabsContent>
+        </Tabs>
       </Card>
 
-      {isProcessing && (
-        <Card className="flex items-center justify-center h-32 card-lift border-2 shadow-lg spacing-card">
-          <div className="text-center">
-            <SpinnerIcon className="w-8 h-8 animate-spin text-primary mx-auto mb-3" />
-            <p className="text-muted-foreground">Transcribing audio...</p>
+      {transcript && (
+        <Card className="spacing-card mb-6" data-testid="card-transcript">
+          <div className="flex items-center justify-between gap-3 mb-4 flex-wrap">
+            <h2 className="text-h2 font-bold text-foreground">Transcript</h2>
+            <div className="flex items-center gap-2 flex-wrap">
+              <Button onClick={copyToClipboard} variant="outline" size="default" className="font-bold" data-testid="button-copy">
+                <Copy className="w-4 h-4 mr-2" />
+                Copy
+              </Button>
+              <Button onClick={exportAsText} variant="outline" size="default" className="font-bold" data-testid="button-export-transcription">
+                <Download className="w-4 h-4 mr-2" />
+                Download
+              </Button>
+            </div>
           </div>
-        </Card>
-      )}
-
-      {transcription && !isProcessing && (
-        <Card className="card-lift border-2 shadow-lg spacing-card">
-          <h2 className="text-h2 font-bold text-foreground mb-4">Transcription</h2>
-          <div className="bg-accent rounded-lg p-4">
-            <p className="text-foreground leading-relaxed" data-testid="text-transcription">
-              {transcription}
+          <div className="bg-accent/30 rounded-lg p-4 max-h-64 overflow-y-auto">
+            <p className="text-foreground leading-relaxed text-sm whitespace-pre-wrap" data-testid="text-transcription">
+              {transcript}
             </p>
           </div>
-          <div className="mt-4 flex gap-3">
-            <Button onClick={copyToClipboard} variant="outline" size="default" className="font-bold touch-manipulation" data-testid="button-copy">
-              Copy to Clipboard
-            </Button>
-            <Button onClick={exportAsText} variant="outline" size="default" className="font-bold touch-manipulation" data-testid="button-export-transcription">
-              Export as Text
-            </Button>
+
+          {!analysis && (
+            <div className="mt-4">
+              <Button
+                onClick={handleAnalyze}
+                disabled={isAnalyzing}
+                className="font-bold"
+                data-testid="button-analyze"
+              >
+                {isAnalyzing ? (
+                  <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                ) : (
+                  <Sparkles className="w-4 h-4 mr-2" />
+                )}
+                {isAnalyzing ? "Analyzing..." : "Analyze with AI Coaching"}
+              </Button>
+              <p className="text-xs text-muted-foreground mt-2">
+                Get specific coaching feedback based on the Spartan Method (Discipline, Empathy, Strategy)
+              </p>
+            </div>
+          )}
+        </Card>
+      )}
+
+      {isAnalyzing && (
+        <Card className="spacing-card mb-6 flex items-center justify-center min-h-32" data-testid="card-analysis-loading">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin text-primary mx-auto mb-3" />
+            <p className="text-muted-foreground">Analyzing your conversation...</p>
           </div>
         </Card>
       )}
 
-      {!transcription && !isProcessing && !isRecording && !hasError && (
-        <Card className="bg-accent/50 card-lift border-2 shadow-lg spacing-card">
-          <h3 className="text-h3 font-bold text-foreground mb-4">How it works:</h3>
-          <ol className="space-y-2 text-muted-foreground">
-            <li className="flex gap-3">
-              <span className="font-bold text-primary">1.</span>
-              <span>Click "Start Recording" and allow microphone access</span>
-            </li>
-            <li className="flex gap-3">
-              <span className="font-bold text-primary">2.</span>
-              <span>Practice your pitch, objection response, or record a real call</span>
-            </li>
-            <li className="flex gap-3">
-              <span className="font-bold text-primary">3.</span>
-              <span>Click "Stop Recording" when finished</span>
-            </li>
-            <li className="flex gap-3">
-              <span className="font-bold text-primary">4.</span>
-              <span>Review your transcription and identify areas for improvement</span>
-            </li>
-          </ol>
-          <p className="mt-4 text-sm text-muted-foreground">
-            <strong>Note:</strong> This feature works best in Chrome, Edge, or Safari browsers. Make sure to speak clearly and allow microphone permissions when prompted.
-          </p>
+      {analysis && !isAnalyzing && (
+        <Card className="spacing-card" data-testid="card-analysis">
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="w-5 h-5 text-primary" />
+            <h2 className="text-h2 font-bold text-foreground">Coaching Analysis</h2>
+          </div>
+          <MarkdownContent content={analysis} />
         </Card>
       )}
 
-      {hasError && (
-        <Card className="bg-destructive/10 border-destructive card-lift border-2 shadow-lg spacing-card">
-          <h3 className="text-h3 font-bold text-destructive mb-4">Browser Not Supported</h3>
-          <p className="text-muted-foreground">
-            Speech recognition is not available in your current browser. Please use Chrome, Edge, or Safari for the best experience with real-time transcription.
-          </p>
+      {!transcript && !isTranscribing && (
+        <Card className="bg-accent/30 spacing-card" data-testid="card-instructions">
+          <h3 className="text-h3 font-bold text-foreground mb-4">How it works</h3>
+          <ol className="space-y-3 text-muted-foreground">
+            <li className="flex gap-3">
+              <span className="font-bold text-primary shrink-0">1.</span>
+              <span>Record directly from your microphone or upload an existing audio file</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="font-bold text-primary shrink-0">2.</span>
+              <span>Your audio is transcribed using OpenAI's speech recognition model</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="font-bold text-primary shrink-0">3.</span>
+              <span>Review the full transcript, then optionally request AI coaching analysis</span>
+            </li>
+            <li className="flex gap-3">
+              <span className="font-bold text-primary shrink-0">4.</span>
+              <span>Get specific, Spartan Method feedback on what to improve before your next conversation</span>
+            </li>
+          </ol>
         </Card>
       )}
     </div>

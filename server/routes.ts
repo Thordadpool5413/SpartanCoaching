@@ -11,7 +11,7 @@ import {
   generateChatResponse,
   generateRoleplayResponse,
   generateRoleplayFeedback,
-} from "./gemini";
+} from "./openai";
 import {
   playbookRequestSchema,
   objectionRequestSchema,
@@ -1048,6 +1048,74 @@ Subject: [subject line]
       } else {
         res.status(500).json({ error: error.message || "Failed to send email" });
       }
+    }
+  });
+
+  // Audio transcription endpoint
+  app.post("/api/transcribe", async (req, res) => {
+    try {
+      const multer = (await import("multer")).default;
+      const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
+      upload.single("audio")(req, res as any, async (err) => {
+        if (err) {
+          return res.status(400).json({ error: "File upload failed: " + err.message });
+        }
+        if (!req.file) {
+          return res.status(400).json({ error: "No audio file provided" });
+        }
+        try {
+          const OpenAI = (await import("openai")).default;
+          const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+          const { toFile } = await import("openai");
+          const audioFile = await toFile(req.file.buffer, req.file.originalname || "audio.webm", { type: req.file.mimetype });
+          const transcription = await openai.audio.transcriptions.create({
+            file: audioFile,
+            model: "whisper-1",
+            response_format: "json",
+          });
+          return res.json({ transcript: transcription.text });
+        } catch (apiErr: any) {
+          console.error("Transcription API error:", apiErr);
+          return res.status(500).json({ error: "Transcription failed: " + apiErr.message });
+        }
+      });
+    } catch (error: any) {
+      console.error("Transcribe route error:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  // Analyze transcript with AI coaching feedback
+  app.post("/api/transcribe/analyze", async (req, res) => {
+    try {
+      const { transcript } = req.body;
+      if (!transcript || typeof transcript !== "string") {
+        return res.status(400).json({ error: "transcript is required" });
+      }
+      const analysis = await generateComplexResponse(
+        `You are reviewing a transcript of a hospice sales call or practice conversation. Provide specific, actionable coaching feedback based on the Spartan Method (Discipline, Empathy, Strategy).
+
+TRANSCRIPT:
+${transcript}
+
+Structure your response with these sections:
+## What Went Well
+Specific observations from the transcript with direct quotes where helpful.
+
+## Areas for Improvement
+Two to three concrete, actionable suggestions.
+
+## Spartan Method Score
+Rate Discipline, Empathy, and Strategy each on a 1 to 5 scale and explain briefly.
+
+## One Thing to Practice
+The single most important skill to work on before the next conversation.`,
+        "You are an expert hospice sales coach providing detailed, constructive feedback on practice conversations and real sales calls. Be specific, reference what was said, and provide actionable advice based on the Spartan Method."
+      );
+      res.json({ analysis });
+    } catch (error: any) {
+      console.error("Transcript analysis error:", error);
+      res.status(500).json({ error: error.message });
     }
   });
 

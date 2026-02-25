@@ -4,6 +4,7 @@ import { Card, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SEO } from "@/components/SEO";
 import { FadeIn, SlideUp, AnimatedCounter } from "@/components/animations";
 import { motion, AnimatePresence, useInView } from "framer-motion";
@@ -607,136 +608,49 @@ export default function ActivityCalculator() {
                       <Label className="text-sm font-semibold mb-3 block">
                         Rep Status
                       </Label>
-                      <div className="grid grid-cols-2 gap-3">
-                        <button
-                          type="button"
-                          onClick={() => setRepStatus("tenured")}
-                          className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-300 ${
-                            repStatus === "tenured"
-                              ? "border-primary bg-primary/5 shadow-md"
-                              : "border-border hover:border-muted-foreground/30"
-                          }`}
-                          data-testid="button-status-tenured"
-                        >
-                          <div
-                            className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors duration-300 ${
-                              repStatus === "tenured"
-                                ? "bg-primary/10"
-                                : "bg-accent"
-                            }`}
-                          >
-                            <Briefcase
-                              className={`w-5 h-5 transition-colors duration-300 ${
-                                repStatus === "tenured"
-                                  ? "text-primary"
-                                  : "text-muted-foreground"
-                              }`}
-                            />
-                          </div>
-                          <span
-                            className={`text-sm font-semibold transition-colors duration-300 ${
-                              repStatus === "tenured"
-                                ? "text-foreground"
-                                : "text-muted-foreground"
-                            }`}
-                          >
-                            Tenured Rep
-                          </span>
-                          <span className="text-xs text-muted-foreground text-center">
-                            Has prior month data
-                          </span>
-                          {repStatus === "tenured" && (
-                            <motion.div
-                              layoutId="statusIndicator"
-                              className="absolute top-2 right-2"
-                              transition={{ type: "spring", duration: 0.4 }}
-                            >
-                              <CheckCircle className="w-5 h-5 text-primary" />
-                            </motion.div>
-                          )}
-                        </button>
-
-                        <button
-                          type="button"
-                          onClick={() => setRepStatus("new_hire")}
-                          className={`relative flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all duration-300 ${
-                            repStatus === "new_hire"
-                              ? "border-primary bg-primary/5 shadow-md"
-                              : "border-border hover:border-muted-foreground/30"
-                          }`}
-                          data-testid="button-status-new-hire"
-                        >
-                          <div
-                            className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors duration-300 ${
-                              repStatus === "new_hire"
-                                ? "bg-primary/10"
-                                : "bg-accent"
-                            }`}
-                          >
-                            <UserPlus
-                              className={`w-5 h-5 transition-colors duration-300 ${
-                                repStatus === "new_hire"
-                                  ? "text-primary"
-                                  : "text-muted-foreground"
-                              }`}
-                            />
-                          </div>
-                          <span
-                            className={`text-sm font-semibold transition-colors duration-300 ${
-                              repStatus === "new_hire"
-                                ? "text-foreground"
-                                : "text-muted-foreground"
-                            }`}
-                          >
-                            New Hire
-                          </span>
-                          <span className="text-xs text-muted-foreground text-center">
-                            No prior month data yet
-                          </span>
-                          {repStatus === "new_hire" && (
-                            <motion.div
-                              layoutId="statusIndicator"
-                              className="absolute top-2 right-2"
-                              transition={{ type: "spring", duration: 0.4 }}
-                            >
-                              <CheckCircle className="w-5 h-5 text-primary" />
-                            </motion.div>
-                          )}
-                        </button>
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label
-                        htmlFor="monthlyGoal"
-                        className="text-sm font-semibold mb-2 block"
+                      <Tabs
+                        value={repStatus}
+                        onValueChange={(val) => {
+                          setRepStatus(val as "tenured" | "new_hire");
+                          setResult(null);
+                          setShowResult(false);
+                        }}
+                        data-testid="tabs-rep-status"
                       >
-                        Monthly Admission Goal
-                      </Label>
-                      <Input
-                        id="monthlyGoal"
-                        type="number"
-                        min="1"
-                        max="100"
-                        placeholder="e.g. 8"
-                        value={monthlyGoal}
-                        onChange={(e) => setMonthlyGoal(e.target.value)}
-                        data-testid="input-monthly-goal"
-                      />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        The number of admissions this rep is targeting this month
-                      </p>
-                    </div>
+                        <TabsList className="w-full mb-6">
+                          <TabsTrigger value="tenured" className="flex-1 gap-2" data-testid="tab-tenured">
+                            <Briefcase className="w-4 h-4" />
+                            Tenured Rep
+                          </TabsTrigger>
+                          <TabsTrigger value="new_hire" className="flex-1 gap-2" data-testid="tab-new-hire">
+                            <UserPlus className="w-4 h-4" />
+                            New Hire
+                          </TabsTrigger>
+                        </TabsList>
 
-                    <AnimatePresence>
-                      {repStatus === "tenured" && (
-                        <motion.div
-                          initial={{ opacity: 0, height: 0 }}
-                          animate={{ opacity: 1, height: "auto" }}
-                          exit={{ opacity: 0, height: 0 }}
-                          transition={{ duration: 0.3 }}
-                          className="overflow-hidden"
-                        >
+                        <TabsContent value="tenured" className="space-y-6 mt-0">
+                          <div>
+                            <Label
+                              htmlFor="monthlyGoalTenured"
+                              className="text-sm font-semibold mb-2 block"
+                            >
+                              Monthly Admission Goal
+                            </Label>
+                            <Input
+                              id="monthlyGoalTenured"
+                              type="number"
+                              min="1"
+                              max="100"
+                              placeholder="e.g. 8"
+                              value={monthlyGoal}
+                              onChange={(e) => setMonthlyGoal(e.target.value)}
+                              data-testid="input-monthly-goal"
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">
+                              The number of admissions this rep is targeting this month
+                            </p>
+                          </div>
+
                           <div className="space-y-6 pt-2 border-t">
                             <p className="text-xs font-medium text-primary uppercase tracking-wider pt-4">
                               Last Cycle Performance (Previous 20 Workdays)
@@ -788,9 +702,47 @@ export default function ActivityCalculator() {
                               </p>
                             </div>
                           </div>
-                        </motion.div>
-                      )}
-                    </AnimatePresence>
+                        </TabsContent>
+
+                        <TabsContent value="new_hire" className="space-y-6 mt-0">
+                          <div>
+                            <Label
+                              htmlFor="monthlyGoalNewHire"
+                              className="text-sm font-semibold mb-2 block"
+                            >
+                              Monthly Admission Goal
+                            </Label>
+                            <Input
+                              id="monthlyGoalNewHire"
+                              type="number"
+                              min="1"
+                              max="100"
+                              placeholder="e.g. 8"
+                              value={monthlyGoal}
+                              onChange={(e) => setMonthlyGoal(e.target.value)}
+                              data-testid="input-monthly-goal-new-hire"
+                            />
+                            <p className="text-xs text-muted-foreground mt-1">
+                              The number of admissions this rep is targeting this month
+                            </p>
+                          </div>
+
+                          <div className="p-4 bg-accent/40 rounded-lg border">
+                            <div className="flex items-start gap-3">
+                              <UserPlus className="w-5 h-5 text-primary mt-0.5 shrink-0" />
+                              <div>
+                                <p className="text-sm font-semibold text-foreground mb-1">
+                                  Team Baseline Rate Applied
+                                </p>
+                                <p className="text-sm text-muted-foreground leading-relaxed">
+                                  Since this rep does not yet have a personal conversion history, the team baseline of 15 conversations per admission will be used. A 4-week ramp plan will also be generated to build up to full activity pace gradually.
+                                </p>
+                              </div>
+                            </div>
+                          </div>
+                        </TabsContent>
+                      </Tabs>
+                    </div>
 
                     <Button
                       size="lg"

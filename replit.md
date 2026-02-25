@@ -19,7 +19,7 @@ The platform features a premium SaaS aesthetic with a sophisticated visual desig
 - **Frontend**: Built with React 19 and TypeScript, using Wouter for routing, Vite as the build tool, and Shadcn/ui with Radix UI primitives and Tailwind CSS for styling. TanStack Query manages server state.
 - **Backend**: Implemented with Express.js in TypeScript with an ESM module system, featuring middleware-based request handling and Zod schemas for validation.
 - **Data Storage**: Uses Neon serverless PostgreSQL with Drizzle ORM for persistent data, including a migration system. LocalStorage is used for client-side preferences.
-- **AI Integration**: Comprehensive integration with Google Gemini AI for all AI-powered features, utilizing different Gemini models based on task complexity.
+- **AI Integration**: OpenAI GPT-4o via Replit AI Integrations (`AI_INTEGRATIONS_OPENAI_BASE_URL` + `AI_INTEGRATIONS_OPENAI_API_KEY`). All 7 functions in `server/openai.ts`: complex responses (gpt-4o), quick responses (gpt-4o-mini), research, drills, chatbot, roleplay response, and roleplay feedback. `server/gemini.ts` kept as deprecated backup. Client is created fresh per call (no caching, tokens expire).
 
 ### Feature Specifications
 
