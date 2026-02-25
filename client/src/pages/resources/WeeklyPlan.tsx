@@ -1,5 +1,7 @@
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
+import { Button } from "@/components/ui/button";
+import { Printer } from "lucide-react";
 
 export default function WeeklyPlan() {
   return (
@@ -34,7 +36,7 @@ export default function WeeklyPlan() {
       <div className="grid grid-cols-2 gap-4 mb-6">
         <div className="border-2 border-gray-300 p-3">
           <label className="text-xs font-bold text-gray-600 uppercase">Week Of:</label>
-          <input type="text" className="mt-2 h-6" placeholder="e.g., Jan 15-19, 2026" />
+          <input type="text" className="mt-2 h-6" placeholder="e.g., Jan 15 to 19, 2026" />
         </div>
         <div className="border-2 border-gray-300 p-3">
           <label className="text-xs font-bold text-gray-600 uppercase">Territory:</label>
@@ -132,12 +134,10 @@ export default function WeeklyPlan() {
       </div>
 
       <div className="mt-6 text-center print:hidden">
-        <button
-          onClick={() => window.print()}
-          className="bg-red-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-red-700"
-        >
+        <Button onClick={() => window.print()} size="lg" data-testid="button-print">
+          <Printer className="w-4 h-4" />
           Print / Save as PDF
-        </button>
+        </Button>
       </div>
     </div>
   );

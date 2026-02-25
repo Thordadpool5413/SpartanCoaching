@@ -1,5 +1,7 @@
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
+import { Button } from "@/components/ui/button";
+import { Printer } from "lucide-react";
 
 export default function TerritoryTemplate() {
   return (
@@ -173,7 +175,7 @@ export default function TerritoryTemplate() {
         <h3 className="font-bold text-sm mb-2">SPARTAN ROUTE PLANNING TIPS</h3>
         <ul className="text-xs space-y-1 list-disc list-inside">
           <li><strong>Geographic Clustering:</strong> Group visits by area to reduce drive time</li>
-          <li><strong>Peak Hours:</strong> Visit hospitals 8-10am and 2-4pm (before/after rounds)</li>
+          <li><strong>Peak Hours:</strong> Visit hospitals 8 to 10am and 2 to 4pm (before and after rounds)</li>
           <li><strong>Lunch Strategy:</strong> Schedule lunch-and-learns or use for admin work</li>
           <li><strong>Buffer Time:</strong> Leave 15min between appointments for unexpected delays</li>
           <li><strong>Friday Follow-ups:</strong> Reserve Friday afternoons for relationship-building calls</li>
@@ -185,12 +187,10 @@ export default function TerritoryTemplate() {
       </div>
 
       <div className="mt-6 text-center print:hidden">
-        <button
-          onClick={() => window.print()}
-          className="bg-red-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-red-700"
-        >
+        <Button onClick={() => window.print()} size="lg" data-testid="button-print">
+          <Printer className="w-4 h-4" />
           Print / Save as PDF
-        </button>
+        </Button>
       </div>
     </div>
   );

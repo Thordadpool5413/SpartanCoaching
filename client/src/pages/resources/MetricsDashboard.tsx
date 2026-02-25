@@ -1,5 +1,7 @@
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
+import { Button } from "@/components/ui/button";
+import { Printer } from "lucide-react";
 
 export default function MetricsDashboard() {
   return (
@@ -121,7 +123,7 @@ export default function MetricsDashboard() {
           <div className="border-2 border-red-600 bg-red-50 p-4">
             <h3 className="text-sm font-bold mb-3 text-red-700">REFERRALS RECEIVED</h3>
             <input type="number" className="text-4xl font-black text-center mb-2 bg-transparent border-b-4 border-red-600" placeholder="0" />
-            <p className="text-xs text-center text-gray-600">Goal: 8-12/month</p>
+            <p className="text-xs text-center text-gray-600">Goal: 8 to 12 per month</p>
             <div className="mt-4 space-y-2 text-xs">
               <div className="flex justify-between">
                 <span>From Hospitals:</span>
@@ -141,7 +143,7 @@ export default function MetricsDashboard() {
           <div className="border-2 border-green-600 bg-green-50 p-4">
             <h3 className="text-sm font-bold mb-3 text-green-700">ADMISSIONS (SOC)</h3>
             <input type="number" className="text-4xl font-black text-center mb-2 bg-transparent border-b-4 border-green-600" placeholder="0" />
-            <p className="text-xs text-center text-gray-600">Goal: 6-8/month</p>
+            <p className="text-xs text-center text-gray-600">Goal: 6 to 8 per month</p>
             <div className="mt-4 text-xs">
               <div className="flex justify-between mb-2">
                 <span className="font-semibold">Conversion Rate:</span>
@@ -151,7 +153,7 @@ export default function MetricsDashboard() {
                 </div>
               </div>
               <p className="text-gray-600">SOC ÷ Referrals × 100</p>
-              <p className="text-green-700 font-semibold mt-2">Target: 60-70%</p>
+              <p className="text-green-700 font-semibold mt-2">Target: 60 to 70%</p>
             </div>
           </div>
 
@@ -167,11 +169,11 @@ export default function MetricsDashboard() {
                 <p className="font-semibold mb-1">Breakdown:</p>
                 <div className="space-y-1">
                   <div className="flex justify-between text-xs">
-                    <span>0-12 hrs:</span>
+                    <span>0 to 12 hrs:</span>
                     <input type="number" className="w-12 text-right" placeholder="0" />
                   </div>
                   <div className="flex justify-between text-xs">
-                    <span>13-24 hrs:</span>
+                    <span>13 to 24 hrs:</span>
                     <input type="number" className="w-12 text-right" placeholder="0" />
                   </div>
                   <div className="flex justify-between text-xs">
@@ -240,12 +242,10 @@ export default function MetricsDashboard() {
       </div>
 
       <div className="mt-6 text-center print:hidden">
-        <button
-          onClick={() => window.print()}
-          className="bg-red-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-red-700"
-        >
+        <Button onClick={() => window.print()} size="lg" data-testid="button-print">
+          <Printer className="w-4 h-4" />
           Print / Save as PDF
-        </button>
+        </Button>
       </div>
     </div>
   );

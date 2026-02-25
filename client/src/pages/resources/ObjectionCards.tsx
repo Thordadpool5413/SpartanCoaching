@@ -1,5 +1,7 @@
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
+import { Button } from "@/components/ui/button";
+import { Printer } from "lucide-react";
 
 export default function ObjectionCards() {
   const objections = [
@@ -83,7 +85,7 @@ export default function ObjectionCards() {
             </div>
 
             <div className="bg-yellow-50 border-l-4 border-yellow-500 p-2">
-              <p className="text-xs font-semibold mb-1">💡 Pro Tip:</p>
+              <p className="text-xs font-semibold mb-1">Pro Tip:</p>
               <p className="text-xs">{item.tip}</p>
             </div>
           </div>
@@ -113,12 +115,10 @@ export default function ObjectionCards() {
       </div>
 
       <div className="mt-6 text-center print:hidden">
-        <button
-          onClick={() => window.print()}
-          className="bg-red-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-red-700"
-        >
+        <Button onClick={() => window.print()} size="lg" data-testid="button-print">
+          <Printer className="w-4 h-4" />
           Print / Save as PDF
-        </button>
+        </Button>
       </div>
     </div>
   );

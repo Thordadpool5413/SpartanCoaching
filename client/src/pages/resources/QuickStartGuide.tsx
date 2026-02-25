@@ -1,5 +1,7 @@
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
+import { Button } from "@/components/ui/button";
+import { Printer } from "lucide-react";
 
 export default function QuickStartGuide() {
   return (
@@ -31,7 +33,7 @@ export default function QuickStartGuide() {
         <h2 className="text-h2 font-black mb-4 border-b-2 border-gray-300 pb-2">WEEK 1: FOUNDATION</h2>
         
         <div className="mb-4">
-          <h3 className="text-h3 font-bold mb-2">Days 1-2: Learn Your Value Proposition</h3>
+          <h3 className="text-h3 font-bold mb-2">Days 1 to 2: Learn Your Value Proposition</h3>
           <div className="bg-gray-50 p-4 border-l-4 border-red-600 mb-3">
             <p className="font-semibold mb-2">Action Items:</p>
             <ul className="list-disc list-inside space-y-1 text-sm">
@@ -48,7 +50,7 @@ export default function QuickStartGuide() {
         </div>
 
         <div className="mb-4">
-          <h3 className="text-h3 font-bold mb-2">Days 3-5: Map Your Territory</h3>
+          <h3 className="text-h3 font-bold mb-2">Days 3 to 5: Map Your Territory</h3>
           <div className="bg-gray-50 p-4 border-l-4 border-red-600 mb-3">
             <p className="font-semibold mb-2">Action Items:</p>
             <ul className="list-disc list-inside space-y-1 text-sm">
@@ -69,7 +71,7 @@ export default function QuickStartGuide() {
         <h2 className="text-h2 font-black mb-4 border-b-2 border-gray-300 pb-2">WEEK 2: FIRST CONTACTS</h2>
         
         <div className="mb-4">
-          <h3 className="text-h3 font-bold mb-2">Days 6-10: Introduction Visits</h3>
+          <h3 className="text-h3 font-bold mb-2">Days 6 to 10: Introduction Visits</h3>
           <div className="bg-gray-50 p-4 border-l-4 border-red-600 mb-3">
             <p className="font-semibold mb-2">Your Script for First Visits:</p>
             <div className="bg-white p-3 border border-gray-300 text-sm italic mb-3">
@@ -77,7 +79,7 @@ export default function QuickStartGuide() {
             </div>
             <p className="font-semibold mb-2">Action Items:</p>
             <ul className="list-disc list-inside space-y-1 text-sm">
-              <li>Make 15-20 introduction visits this week (3-4 per day)</li>
+              <li>Make 15 to 20 introduction visits this week (3 to 4 per day)</li>
               <li>Focus on assisted living and physician offices (easier access than hospitals)</li>
               <li>Ask: "What's your preferred way to reach out for hospice evaluations?"</li>
               <li>Leave a business card and one-page hospice eligibility guide</li>
@@ -94,7 +96,7 @@ export default function QuickStartGuide() {
         <h2 className="text-h2 font-black mb-4 border-b-2 border-gray-300 pb-2">WEEK 3: BUILD RHYTHM</h2>
         
         <div className="mb-4">
-          <h3 className="text-h3 font-bold mb-2">Days 11-15: Establish Weekly Touchpoints</h3>
+          <h3 className="text-h3 font-bold mb-2">Days 11 to 15: Establish Weekly Touchpoints</h3>
           <div className="bg-gray-50 p-4 border-l-4 border-red-600 mb-3">
             <p className="font-semibold mb-2">Action Items:</p>
             <ul className="list-disc list-inside space-y-1 text-sm">
@@ -107,7 +109,7 @@ export default function QuickStartGuide() {
         </div>
 
         <div className="mb-4">
-          <h3 className="text-h3 font-bold mb-2">Days 16-20: Handle Your First Objection</h3>
+          <h3 className="text-h3 font-bold mb-2">Days 16 to 20: Handle Your First Objection</h3>
           <div className="bg-gray-50 p-4 border-l-4 border-red-600 mb-3">
             <p className="font-semibold mb-2">Common Objection #1: "We already have a hospice provider."</p>
             <div className="bg-white p-3 border border-gray-300 text-sm italic mb-3">
@@ -129,7 +131,7 @@ export default function QuickStartGuide() {
         <h2 className="text-h2 font-black mb-4 border-b-2 border-gray-300 pb-2">WEEK 4: GENERATE REFERRALS</h2>
         
         <div className="mb-4">
-          <h3 className="text-h3 font-bold mb-2">Days 21-25: Close Your First Referral</h3>
+          <h3 className="text-h3 font-bold mb-2">Days 21 to 25: Close Your First Referral</h3>
           <div className="bg-gray-50 p-4 border-l-4 border-red-600 mb-3">
             <p className="font-semibold mb-2">Action Items:</p>
             <ul className="list-disc list-inside space-y-1 text-sm">
@@ -141,12 +143,12 @@ export default function QuickStartGuide() {
           </div>
           <div className="bg-blue-50 p-3 border-l-4 border-blue-600 text-sm">
             <p className="font-semibold">✓ Success Metric:</p>
-            <p>1-2 referrals converted to admissions. Feedback loop established.</p>
+            <p>1 to 2 referrals converted to admissions. Feedback loop established.</p>
           </div>
         </div>
 
         <div className="mb-4">
-          <h3 className="text-h3 font-bold mb-2">Days 26-30: Reflect and Optimize</h3>
+          <h3 className="text-h3 font-bold mb-2">Days 26 to 30: Reflect and Optimize</h3>
           <div className="bg-gray-50 p-4 border-l-4 border-red-600 mb-3">
             <p className="font-semibold mb-2">Reflection Questions:</p>
             <ul className="list-disc list-inside space-y-1 text-sm">
@@ -175,12 +177,12 @@ export default function QuickStartGuide() {
           <div className="border border-gray-600 p-3">
             <p className="font-semibold mb-1">Referrals Received:</p>
             <p className="text-2xl font-bold">______</p>
-            <p className="text-xs text-gray-400">Goal: 3-5</p>
+            <p className="text-xs text-gray-400">Goal: 3 to 5</p>
           </div>
           <div className="border border-gray-600 p-3">
             <p className="font-semibold mb-1">Admissions (SOC):</p>
             <p className="text-2xl font-bold">______</p>
-            <p className="text-xs text-gray-400">Goal: 1-2</p>
+            <p className="text-xs text-gray-400">Goal: 1 to 2</p>
           </div>
         </div>
       </div>
@@ -190,12 +192,10 @@ export default function QuickStartGuide() {
       </div>
 
       <div className="mt-6 text-center print:hidden">
-        <button
-          onClick={() => window.print()}
-          className="bg-red-600 text-white px-6 py-3 rounded-lg font-bold hover:bg-red-700"
-        >
+        <Button onClick={() => window.print()} size="lg" data-testid="button-print">
+          <Printer className="w-4 h-4" />
           Print / Save as PDF
-        </button>
+        </Button>
       </div>
     </div>
   );
