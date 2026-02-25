@@ -28,6 +28,7 @@ import {
   FileText,
   MessageSquare,
   Car,
+  Printer,
   Sun,
   Sunset,
 } from "lucide-react";
@@ -846,14 +847,24 @@ export default function ActivityCalculator() {
                       </span>
                     </p>
                   </div>
-                  <Button
-                    variant="outline"
-                    onClick={handleReset}
-                    data-testid="button-recalculate"
-                  >
-                    <RotateCcw className="w-4 h-4 mr-2" />
-                    Recalculate
-                  </Button>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <Button
+                      variant="outline"
+                      onClick={() => window.print()}
+                      data-testid="button-print-activity"
+                    >
+                      <Printer className="w-4 h-4 mr-2" />
+                      Print
+                    </Button>
+                    <Button
+                      variant="outline"
+                      onClick={handleReset}
+                      data-testid="button-recalculate"
+                    >
+                      <RotateCcw className="w-4 h-4 mr-2" />
+                      Recalculate
+                    </Button>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
@@ -1033,6 +1044,15 @@ export default function ActivityCalculator() {
           ) : null}
         </AnimatePresence>
       </div>
+
+      <style>{`
+        @media print {
+          nav, [data-testid="breadcrumb-activity"], [data-testid="card-activity-form"], [data-testid="button-print-activity"], [data-testid="button-recalculate"], [data-testid="button-results-contact"] { display: none !important; }
+          [data-testid="section-activity-calculator"] { padding: 0 !important; }
+          body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+          @page { size: letter portrait; margin: 0.75in; }
+        }
+      `}</style>
     </div>
   );
 }

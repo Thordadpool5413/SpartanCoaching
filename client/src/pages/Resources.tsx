@@ -8,7 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Download, Mail, User } from "lucide-react";
+import { Download, Mail, User, Printer } from "lucide-react";
 import { BackButton } from "@/components/BackButton";
 import type { SelectResource } from "@shared/schema";
 import { SEO } from "@/components/SEO";
@@ -169,6 +169,36 @@ export default function Resources() {
             </div>
           </div>
         ))}
+      </div>
+
+      <div className="mt-16">
+        <h2 className="text-h2 mb-2 flex items-center gap-3 flex-wrap">
+          Printable Fill-In Templates
+          <Badge variant="secondary" className="text-sm">5</Badge>
+        </h2>
+        <p className="text-muted-foreground mb-6">Open in your browser, fill in, and print. No account required.</p>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
+          {[
+            { href: "/resources/weekly-plan", title: "Weekly Activity Planner", desc: "Daily schedule grid, priority accounts, follow-up tracker, and end-of-week review for any sales rep." },
+            { href: "/resources/quick-start-guide", title: "First 30 Days Guide", desc: "Week-by-week actions, first contact scripts, objection responses, and a 30-day scorecard for new hires." },
+            { href: "/resources/objection-cards", title: "Objection Response Cards", desc: "Eight of the most common hospice objections with response frameworks, coaching tips, and a universal reframe method." },
+            { href: "/resources/territory-template", title: "Territory Planning Template", desc: "Account priority matrix (A/B/C tier), 25-row account table, weekly route planner, and routing tips." },
+            { href: "/resources/metrics-dashboard", title: "Metrics Dashboard", desc: "Monthly tracking sheet for activity, conversions, speed to care, top referral sources, and reflections." },
+          ].map((item) => (
+            <Card key={item.href} className="flex flex-col border-2 hover-elevate spacing-card">
+              <div className="flex-1">
+                <h3 className="text-h3 text-foreground leading-tight mb-2">{item.title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">{item.desc}</p>
+              </div>
+              <Link href={item.href}>
+                <Button className="w-full gap-2" data-testid={`button-open-${item.href.split("/").pop()}`}>
+                  <Printer className="w-4 h-4" />
+                  Open and Print
+                </Button>
+              </Link>
+            </Card>
+          ))}
+        </div>
       </div>
 
       <Dialog open={gateOpen} onOpenChange={(open) => { setGateOpen(open); if (!open) setSelectedResource(null); }}>

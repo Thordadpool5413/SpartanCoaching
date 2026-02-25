@@ -96,8 +96,45 @@ export default function Playbooks() {
     window.print();
   };
 
+  const printStyles = `
+    @media print {
+      body > * { display: none !important; }
+      #playbook-print-area { display: block !important; }
+      @page { size: letter; margin: 0.75in; }
+    }
+    #playbook-print-area {
+      display: none;
+      font-family: Georgia, serif;
+      font-size: 11pt;
+      line-height: 1.5;
+      color: #111;
+    }
+    #playbook-print-area h1 { font-size: 18pt; font-weight: 900; margin-bottom: 4pt; }
+    #playbook-print-area .print-header { border-bottom: 3px solid #dc2626; margin-bottom: 16pt; padding-bottom: 8pt; }
+    #playbook-print-area .print-footer { border-top: 1px solid #ccc; margin-top: 24pt; padding-top: 6pt; font-size: 9pt; color: #666; display: flex; justify-content: space-between; }
+    #playbook-print-area pre, #playbook-print-area code { font-family: monospace; font-size: 10pt; white-space: pre-wrap; }
+    #playbook-print-area h2 { font-size: 14pt; margin-top: 14pt; }
+    #playbook-print-area h3 { font-size: 12pt; margin-top: 10pt; }
+    #playbook-print-area ul, #playbook-print-area ol { padding-left: 18pt; }
+    #playbook-print-area li { margin-bottom: 4pt; }
+  `;
+
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
+      <style dangerouslySetInnerHTML={{ __html: printStyles }} />
+      {generatedPlaybook && (
+        <div id="playbook-print-area">
+          <div className="print-header">
+            <h1>SPARTAN COACHING | Sales Playbook</h1>
+            <p style={{ fontSize: "10pt", color: "#666" }}>Generated {new Date().toLocaleDateString()} | spartancoaching.com</p>
+          </div>
+          <div style={{ whiteSpace: "pre-wrap" }}>{generatedPlaybook}</div>
+          <div className="print-footer">
+            <span>Spartan Coaching | Hospice Sales Excellence</span>
+            <span>Confidential Training Material</span>
+          </div>
+        </div>
+      )}
       <SEO />
       <Breadcrumbs items={[{ label: "AI Tools", href: "/tools" }, { label: "Sales Playbooks" }]} />
       <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-playbooks-title">

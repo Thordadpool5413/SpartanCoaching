@@ -267,11 +267,43 @@ export default function RolePlay() {
                 <span className="text-sm text-muted-foreground">Session Complete</span>
               </div>
               <div className="flex items-center gap-2 flex-wrap">
-                <Button variant="outline" size="sm" data-testid="button-share-feedback">
+                <Button variant="outline" size="sm" data-testid="button-share-feedback" onClick={() => {
+                  const scoreLabel = (feedback?.rating ?? 0) >= 8 ? "Excellent Performance" : (feedback?.rating ?? 0) >= 5 ? "Good Progress" : "Keep Practicing";
+                  const summary = `Spartan Coaching Role-Play: ${activeScenarioTitle}\nScore: ${feedback?.rating ?? 0}/10 (${scoreLabel})\nPracticed on ${new Date().toLocaleDateString()}`;
+                  navigator.clipboard.writeText(summary).then(() => {
+                    toast({ title: "Copied to clipboard", description: "Session summary ready to share." });
+                  });
+                }}>
                   <Share2 className="w-4 h-4 mr-1.5" />
                   Share
                 </Button>
-                <Button variant="outline" size="sm" data-testid="button-download-feedback">
+                <Button variant="outline" size="sm" data-testid="button-download-feedback" onClick={() => {
+                  const scoreLabel = (feedback?.rating ?? 0) >= 8 ? "Excellent Performance" : (feedback?.rating ?? 0) >= 5 ? "Good Progress" : "Keep Practicing";
+                  const lines: string[] = [
+                    "SPARTAN COACHING | ROLE-PLAY SESSION TRANSCRIPT",
+                    "=".repeat(50),
+                    `Scenario: ${activeScenarioTitle}`,
+                    `Date: ${new Date().toLocaleDateString()}`,
+                    `Score: ${feedback?.rating ?? 0}/10 (${scoreLabel})`,
+                    "",
+                    "CONVERSATION",
+                    "-".repeat(50),
+                    ...messages.map((m) => `${m.role === "user" ? "You" : "Spartan Coach"}: ${m.content}`),
+                    "",
+                    "PERFORMANCE FEEDBACK",
+                    "-".repeat(50),
+                    feedback?.text ?? "",
+                  ];
+                  const blob = new Blob([lines.join("\n")], { type: "text/plain" });
+                  const url = URL.createObjectURL(blob);
+                  const a = document.createElement("a");
+                  a.href = url;
+                  a.download = `spartan-roleplay-${activeScenarioId}-${Date.now()}.txt`;
+                  document.body.appendChild(a);
+                  a.click();
+                  document.body.removeChild(a);
+                  URL.revokeObjectURL(url);
+                }}>
                   <Download className="w-4 h-4 mr-1.5" />
                   Download
                 </Button>
