@@ -1,11 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Calendar, Clock } from "lucide-react";
+import { Calendar, Clock, Mic } from "lucide-react";
 import type { SelectPodcast } from "@shared/schema";
 import { BackButton } from "@/components/BackButton";
 import { SEO } from "@/components/SEO";
+import { Link } from "wouter";
 
 export default function Podcasts() {
   const { data, isLoading } = useQuery<{ podcasts: SelectPodcast[] }>({
@@ -129,8 +131,21 @@ export default function Podcasts() {
                   Your browser does not support the audio element.
                 </audio>
               ) : (
-                <div className="w-full py-3 px-4 bg-accent/50 rounded-lg text-center" data-testid={`audio-coming-soon-${podcast.id}`}>
-                  <p className="text-sm font-medium text-muted-foreground">Episode coming soon</p>
+                <div className="w-full py-4 px-5 bg-accent/40 rounded-lg border border-border" data-testid={`audio-coming-soon-${podcast.id}`}>
+                  <div className="flex items-start gap-3">
+                    <div className="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 mt-0.5">
+                      <Mic className="w-4 h-4 text-primary" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground mb-1">Audio being prepared</p>
+                      <p className="text-xs text-muted-foreground leading-relaxed">
+                        This episode is in production. Subscribe to our newsletter for release updates.
+                      </p>
+                      <Button asChild variant="ghost" size="sm" className="mt-2 h-7 px-2 text-xs text-primary">
+                        <Link href="/contact">Get notified</Link>
+                      </Button>
+                    </div>
+                  </div>
                 </div>
               )}
             </div>

@@ -611,6 +611,93 @@ Subject: [subject line]
     }
   });
 
+  // Testimonials
+  app.get("/api/testimonials", async (_req, res) => {
+    try {
+      const items = await storage.getTestimonials();
+      res.json({ testimonials: items });
+    } catch (error: any) {
+      res.status(500).json({ error: "Failed to retrieve testimonials" });
+    }
+  });
+
+  app.post("/api/testimonials", async (req, res) => {
+    const adminAuth = req.headers["x-admin-auth"];
+    if (adminAuth !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
+    try {
+      const data = req.body;
+      const item = await storage.createTestimonial(data);
+      res.json({ testimonial: item });
+    } catch (error: any) {
+      res.status(500).json({ error: "Failed to create testimonial" });
+    }
+  });
+
+  app.put("/api/testimonials/:id", async (req, res) => {
+    const adminAuth = req.headers["x-admin-auth"];
+    if (adminAuth !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
+    try {
+      const item = await storage.updateTestimonial(parseInt(req.params.id), req.body);
+      res.json({ testimonial: item });
+    } catch (error: any) {
+      res.status(500).json({ error: "Failed to update testimonial" });
+    }
+  });
+
+  app.delete("/api/testimonials/:id", async (req, res) => {
+    const adminAuth = req.headers["x-admin-auth"];
+    if (adminAuth !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
+    try {
+      await storage.deleteTestimonial(parseInt(req.params.id));
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: "Failed to delete testimonial" });
+    }
+  });
+
+  // Case Studies
+  app.get("/api/case-studies", async (_req, res) => {
+    try {
+      const items = await storage.getCaseStudies();
+      res.json({ caseStudies: items });
+    } catch (error: any) {
+      res.status(500).json({ error: "Failed to retrieve case studies" });
+    }
+  });
+
+  app.post("/api/case-studies", async (req, res) => {
+    const adminAuth = req.headers["x-admin-auth"];
+    if (adminAuth !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
+    try {
+      const item = await storage.createCaseStudy(req.body);
+      res.json({ caseStudy: item });
+    } catch (error: any) {
+      res.status(500).json({ error: "Failed to create case study" });
+    }
+  });
+
+  app.put("/api/case-studies/:id", async (req, res) => {
+    const adminAuth = req.headers["x-admin-auth"];
+    if (adminAuth !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
+    try {
+      const item = await storage.updateCaseStudy(parseInt(req.params.id), req.body);
+      res.json({ caseStudy: item });
+    } catch (error: any) {
+      res.status(500).json({ error: "Failed to update case study" });
+    }
+  });
+
+  app.delete("/api/case-studies/:id", async (req, res) => {
+    const adminAuth = req.headers["x-admin-auth"];
+    if (adminAuth !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
+    try {
+      await storage.deleteCaseStudy(parseInt(req.params.id));
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: "Failed to delete case study" });
+    }
+  });
+
   // Delete Resource (Admin only)
   app.delete("/api/resources/:id", async (req, res) => {
     const adminAuth = req.headers["x-admin-auth"];

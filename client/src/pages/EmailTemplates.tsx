@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Mail, Copy, Loader2, Send } from "lucide-react";
+import { Mail, Copy, Loader2, Send, Download } from "lucide-react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
@@ -80,6 +80,18 @@ export default function EmailTemplates() {
       title: "Copied!",
       description: "Email template copied to clipboard",
     });
+  };
+
+  const handleDownload = () => {
+    const blob = new Blob([generatedTemplate], { type: "text/plain" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "spartan-email-template.txt";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
   };
 
   const handleSend = async () => {
@@ -227,16 +239,28 @@ export default function EmailTemplates() {
               <div className="flex items-center justify-between gap-2">
                 <CardTitle>Generated Template</CardTitle>
                 {generatedTemplate && (
-                  <Button
-                    variant="outline"
-                    size="default"
-                    onClick={handleCopy}
-                    className="font-bold touch-manipulation"
-                    data-testid="button-copy-template"
-                  >
-                    <Copy className="w-4 h-4 mr-2" />
-                    <span>Copy</span>
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="default"
+                      onClick={handleCopy}
+                      className="font-bold touch-manipulation"
+                      data-testid="button-copy-template"
+                    >
+                      <Copy className="w-4 h-4 mr-2" />
+                      <span>Copy</span>
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="default"
+                      onClick={handleDownload}
+                      className="font-bold touch-manipulation"
+                      data-testid="button-download-template"
+                    >
+                      <Download className="w-4 h-4 mr-2" />
+                      <span>Download</span>
+                    </Button>
+                  </div>
                 )}
               </div>
             </CardHeader>

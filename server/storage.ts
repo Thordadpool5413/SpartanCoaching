@@ -39,6 +39,12 @@ import {
   signedAgreements,
   type InsertSignedAgreement,
   type SelectSignedAgreement,
+  testimonials,
+  type InsertTestimonial,
+  type SelectTestimonial,
+  caseStudies,
+  type InsertCaseStudy,
+  type SelectCaseStudy,
 } from "@shared/schema";
 import { db } from "./db";
 import { desc, eq, gte, count } from "drizzle-orm";
@@ -89,6 +95,16 @@ export interface IStorage {
   getResourceLeads(): Promise<SelectResourceLead[]>;
   createSignedAgreement(agreement: InsertSignedAgreement): Promise<SelectSignedAgreement>;
   getSignedAgreements(): Promise<SelectSignedAgreement[]>;
+  // Testimonial operations
+  getTestimonials(): Promise<SelectTestimonial[]>;
+  createTestimonial(testimonial: InsertTestimonial): Promise<SelectTestimonial>;
+  updateTestimonial(id: number, testimonial: Partial<InsertTestimonial>): Promise<SelectTestimonial>;
+  deleteTestimonial(id: number): Promise<void>;
+  // Case study operations
+  getCaseStudies(): Promise<SelectCaseStudy[]>;
+  createCaseStudy(study: InsertCaseStudy): Promise<SelectCaseStudy>;
+  updateCaseStudy(id: number, study: Partial<InsertCaseStudy>): Promise<SelectCaseStudy>;
+  deleteCaseStudy(id: number): Promise<void>;
 }
 
 // Database-backed storage implementation
@@ -439,6 +455,42 @@ export class DatabaseStorage implements IStorage {
 
   async getSignedAgreements(): Promise<SelectSignedAgreement[]> {
     return await db.select().from(signedAgreements).orderBy(desc(signedAgreements.signedAt));
+  }
+
+  async getTestimonials(): Promise<SelectTestimonial[]> {
+    return await db.select().from(testimonials).orderBy(testimonials.displayOrder, testimonials.id);
+  }
+
+  async createTestimonial(testimonial: InsertTestimonial): Promise<SelectTestimonial> {
+    const [result] = await db.insert(testimonials).values(testimonial).returning();
+    return result;
+  }
+
+  async updateTestimonial(id: number, testimonial: Partial<InsertTestimonial>): Promise<SelectTestimonial> {
+    const [result] = await db.update(testimonials).set(testimonial).where(eq(testimonials.id, id)).returning();
+    return result;
+  }
+
+  async deleteTestimonial(id: number): Promise<void> {
+    await db.delete(testimonials).where(eq(testimonials.id, id));
+  }
+
+  async getCaseStudies(): Promise<SelectCaseStudy[]> {
+    return await db.select().from(caseStudies).orderBy(caseStudies.displayOrder, caseStudies.id);
+  }
+
+  async createCaseStudy(study: InsertCaseStudy): Promise<SelectCaseStudy> {
+    const [result] = await db.insert(caseStudies).values(study).returning();
+    return result;
+  }
+
+  async updateCaseStudy(id: number, study: Partial<InsertCaseStudy>): Promise<SelectCaseStudy> {
+    const [result] = await db.update(caseStudies).set(study).where(eq(caseStudies.id, id)).returning();
+    return result;
+  }
+
+  async deleteCaseStudy(id: number): Promise<void> {
+    await db.delete(caseStudies).where(eq(caseStudies.id, id));
   }
 }
 

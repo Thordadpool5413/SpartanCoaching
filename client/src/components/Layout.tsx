@@ -178,6 +178,8 @@ export function Header() {
     { path: "/tools/email-templates", label: "Email Templates", description: "Create professional email templates" },
     { path: "/tools/role-play", label: "Role-Play Practice", description: "Practice sales conversations with AI" },
     { path: "/tools/roi-calculator", label: "ROI Calculator", description: "Estimate coaching impact on revenue" },
+    { path: "/tools/activity-calculator", label: "Activity Calculator", description: "Convert your admission goal into daily conversation targets" },
+    { path: "/tools/transcribe", label: "Call Transcriber", description: "Transcribe and summarize sales calls and meetings" },
     { path: "/learn/knowledge-base", label: "Knowledge Base", description: "Hospice terminology and regulations reference" },
   ];
 

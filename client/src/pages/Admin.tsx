@@ -10,8 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Mail, Phone, Building, Calendar, Users, Lock, LogOut, Plus, Edit, Trash2, ExternalLink, Star } from "lucide-react";
-import type { SelectInquiry, SelectNewsletterSubscriber, SelectArticle, InsertArticle, VisitorAnalytics, SelectResource, InsertResource, SelectPodcast, InsertPodcast } from "@shared/schema";
+import { Mail, Phone, Building, Calendar, Users, Lock, LogOut, Plus, Edit, Trash2, ExternalLink, Star, FileText as FileSignature, PlayCircle, Target, Quote, Award, ChevronDown, ChevronUp } from "lucide-react";
+import type { SelectInquiry, SelectNewsletterSubscriber, SelectArticle, InsertArticle, VisitorAnalytics, SelectResource, InsertResource, SelectPodcast, InsertPodcast, SelectSignedAgreement, SelectRoleplaySession, SelectDrillCompletion, SelectTestimonial, SelectCaseStudy, InsertTestimonial, InsertCaseStudy } from "@shared/schema";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -100,6 +100,31 @@ export default function Admin() {
     enabled: isAuthenticated,
   });
 
+  const { data: agreementsData, isLoading: agreementsLoading } = useQuery<{ agreements: SelectSignedAgreement[] }>({
+    queryKey: ["/api/signed-agreements"],
+    enabled: isAuthenticated,
+  });
+
+  const { data: roleplaySessionsData, isLoading: roleplaySessionsLoading } = useQuery<{ sessions: SelectRoleplaySession[] }>({
+    queryKey: ["/api/roleplay/sessions"],
+    enabled: isAuthenticated,
+  });
+
+  const { data: drillCompletionsData, isLoading: drillCompletionsLoading } = useQuery<{ completions: SelectDrillCompletion[] }>({
+    queryKey: ["/api/drills/completions"],
+    enabled: isAuthenticated,
+  });
+
+  const { data: testimonialsData, isLoading: testimonialsLoading } = useQuery<{ testimonials: SelectTestimonial[] }>({
+    queryKey: ["/api/testimonials"],
+    enabled: isAuthenticated,
+  });
+
+  const { data: caseStudiesData, isLoading: caseStudiesLoading } = useQuery<{ caseStudies: SelectCaseStudy[] }>({
+    queryKey: ["/api/case-studies"],
+    enabled: isAuthenticated,
+  });
+
   const { data: eventAnalyticsData, isLoading: eventAnalyticsLoading } = useQuery<{ analytics: { aiToolUsage: Array<{ eventName: string; count: number }>; resourceDownloads: Array<{ eventName: string; count: number }>; contactSubmissions: number } }>({
     queryKey: ["/api/analytics/events"],
     enabled: isAuthenticated,
@@ -111,6 +136,11 @@ export default function Admin() {
   const analytics = analyticsData?.analytics;
   const resources = resourcesData?.resources || [];
   const podcasts = podcastsData?.podcasts || [];
+  const agreements = agreementsData?.agreements || [];
+  const roleplaySessions = roleplaySessionsData?.sessions || [];
+  const drillCompletions = drillCompletionsData?.completions || [];
+  const testimonialsList = testimonialsData?.testimonials || [];
+  const caseStudiesList = caseStudiesData?.caseStudies || [];
 
   // Article form state
   const [articleDialogOpen, setArticleDialogOpen] = useState(false);
@@ -752,6 +782,94 @@ export default function Admin() {
     }
   };
 
+  // Testimonial state
+  const [testimonialDialogOpen, setTestimonialDialogOpen] = useState(false);
+  const [editingTestimonial, setEditingTestimonial] = useState<SelectTestimonial | null>(null);
+  const [testimonialForm, setTestimonialForm] = useState({ name: "", title: "", company: "", quote: "", outcome: "", category: "individual", featured: false, displayOrder: 0 });
+  const [expandedAgreement, setExpandedAgreement] = useState<number | null>(null);
+
+  const adminFetch = async (method: string, url: string, data?: unknown) => {
+    const res = await fetch(url, {
+      method,
+      headers: { "Content-Type": "application/json", "X-Admin-Auth": ADMIN_CODE },
+      body: data ? JSON.stringify(data) : undefined,
+    });
+    if (!res.ok) throw new Error(await res.text());
+    return res.json();
+  };
+
+  const createTestimonialMutation = useMutation({
+    mutationFn: async (data: InsertTestimonial) => adminFetch("POST", "/api/testimonials", data),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/testimonials"] }); setTestimonialDialogOpen(false); setEditingTestimonial(null); setTestimonialForm({ name: "", title: "", company: "", quote: "", outcome: "", category: "individual", featured: false, displayOrder: 0 }); toast({ title: "Testimonial saved" }); },
+    onError: () => toast({ title: "Error", description: "Failed to save testimonial", variant: "destructive" }),
+  });
+
+  const updateTestimonialMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: Partial<InsertTestimonial> }) => adminFetch("PUT", `/api/testimonials/${id}`, data),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/testimonials"] }); setTestimonialDialogOpen(false); setEditingTestimonial(null); toast({ title: "Testimonial updated" }); },
+    onError: () => toast({ title: "Error", description: "Failed to update testimonial", variant: "destructive" }),
+  });
+
+  const deleteTestimonialMutation = useMutation({
+    mutationFn: async (id: number) => adminFetch("DELETE", `/api/testimonials/${id}`),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/testimonials"] }); toast({ title: "Testimonial deleted" }); },
+    onError: () => toast({ title: "Error", description: "Failed to delete testimonial", variant: "destructive" }),
+  });
+
+  const handleEditTestimonial = (t: SelectTestimonial) => {
+    setEditingTestimonial(t);
+    setTestimonialForm({ name: t.name, title: t.title, company: t.company, quote: t.quote, outcome: t.outcome, category: t.category, featured: t.featured, displayOrder: t.displayOrder });
+    setTestimonialDialogOpen(true);
+  };
+
+  const handleSaveTestimonial = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (editingTestimonial) {
+      updateTestimonialMutation.mutate({ id: editingTestimonial.id, data: testimonialForm });
+    } else {
+      createTestimonialMutation.mutate(testimonialForm);
+    }
+  };
+
+  // Case study state
+  const [caseStudyDialogOpen, setCaseStudyDialogOpen] = useState(false);
+  const [editingCaseStudy, setEditingCaseStudy] = useState<SelectCaseStudy | null>(null);
+  const [caseStudyForm, setCaseStudyForm] = useState({ title: "", clientLabel: "", challenge: "", solution: "", results: "", category: "individual", displayOrder: 0 });
+
+  const createCaseStudyMutation = useMutation({
+    mutationFn: async (data: InsertCaseStudy) => adminFetch("POST", "/api/case-studies", data),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/case-studies"] }); setCaseStudyDialogOpen(false); setEditingCaseStudy(null); setCaseStudyForm({ title: "", clientLabel: "", challenge: "", solution: "", results: "", category: "individual", displayOrder: 0 }); toast({ title: "Case study saved" }); },
+    onError: () => toast({ title: "Error", description: "Failed to save case study", variant: "destructive" }),
+  });
+
+  const updateCaseStudyMutation = useMutation({
+    mutationFn: async ({ id, data }: { id: number; data: Partial<InsertCaseStudy> }) => adminFetch("PUT", `/api/case-studies/${id}`, data),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/case-studies"] }); setCaseStudyDialogOpen(false); setEditingCaseStudy(null); toast({ title: "Case study updated" }); },
+    onError: () => toast({ title: "Error", description: "Failed to update case study", variant: "destructive" }),
+  });
+
+  const deleteCaseStudyMutation = useMutation({
+    mutationFn: async (id: number) => adminFetch("DELETE", `/api/case-studies/${id}`),
+    onSuccess: () => { queryClient.invalidateQueries({ queryKey: ["/api/case-studies"] }); toast({ title: "Case study deleted" }); },
+    onError: () => toast({ title: "Error", description: "Failed to delete case study", variant: "destructive" }),
+  });
+
+  const handleEditCaseStudy = (s: SelectCaseStudy) => {
+    setEditingCaseStudy(s);
+    setCaseStudyForm({ title: s.title, clientLabel: s.clientLabel, challenge: s.challenge, solution: s.solution, results: s.results.join("\n"), category: s.category, displayOrder: s.displayOrder });
+    setCaseStudyDialogOpen(true);
+  };
+
+  const handleSaveCaseStudy = (e: React.FormEvent) => {
+    e.preventDefault();
+    const data = { ...caseStudyForm, results: caseStudyForm.results.split("\n").map(r => r.trim()).filter(Boolean) };
+    if (editingCaseStudy) {
+      updateCaseStudyMutation.mutate({ id: editingCaseStudy.id, data });
+    } else {
+      createCaseStudyMutation.mutate(data);
+    }
+  };
+
   // Show password dialog if not authenticated
   if (!isAuthenticated) {
     return (
@@ -950,7 +1068,7 @@ export default function Admin() {
       </div>
 
       <Tabs defaultValue="inquiries" className="space-y-6">
-        <TabsList className="flex w-full max-w-4xl overflow-x-auto">
+        <TabsList className="flex w-full max-w-6xl overflow-x-auto">
           <TabsTrigger value="inquiries" data-testid="tab-inquiries">
             Inquiries ({inquiries.length})
           </TabsTrigger>
@@ -965,6 +1083,18 @@ export default function Admin() {
           </TabsTrigger>
           <TabsTrigger value="podcasts" data-testid="tab-podcasts">
             Podcasts ({podcasts.length})
+          </TabsTrigger>
+          <TabsTrigger value="testimonials" data-testid="tab-testimonials">
+            Testimonials ({testimonialsList.length})
+          </TabsTrigger>
+          <TabsTrigger value="agreements" data-testid="tab-agreements">
+            Agreements ({agreements.length})
+          </TabsTrigger>
+          <TabsTrigger value="roleplay" data-testid="tab-roleplay">
+            Role-Play ({roleplaySessions.length})
+          </TabsTrigger>
+          <TabsTrigger value="drills" data-testid="tab-drills">
+            Drills ({drillCompletions.length})
           </TabsTrigger>
         </TabsList>
 
@@ -1473,6 +1603,229 @@ export default function Admin() {
             </div>
           )}
         </TabsContent>
+
+        {/* Testimonials Tab */}
+        <TabsContent value="testimonials" className="space-y-6">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h2 className="text-xl font-bold">Testimonials</h2>
+              <p className="text-sm text-muted-foreground">{testimonialsList.length} quotes and {caseStudiesList.length} case studies</p>
+            </div>
+            <div className="flex gap-2">
+              <Button onClick={() => { setEditingTestimonial(null); setTestimonialForm({ name: "", title: "", company: "", quote: "", outcome: "", category: "individual", featured: false, displayOrder: 0 }); setTestimonialDialogOpen(true); }} data-testid="button-add-testimonial">
+                <Plus className="w-4 h-4 mr-2" /> Add Quote
+              </Button>
+              <Button variant="outline" onClick={() => { setEditingCaseStudy(null); setCaseStudyForm({ title: "", clientLabel: "", challenge: "", solution: "", results: "", category: "individual", displayOrder: 0 }); setCaseStudyDialogOpen(true); }} data-testid="button-add-case-study">
+                <Plus className="w-4 h-4 mr-2" /> Add Case Study
+              </Button>
+            </div>
+          </div>
+
+          {testimonialsLoading ? (
+            <div className="text-center py-8 text-muted-foreground">Loading testimonials...</div>
+          ) : (
+            <div className="space-y-3">
+              <h3 className="font-semibold text-lg">Quotes</h3>
+              {testimonialsList.length === 0 ? (
+                <p className="text-muted-foreground text-sm">No testimonials yet.</p>
+              ) : testimonialsList.map((t) => (
+                <Card key={t.id} data-testid={`card-testimonial-${t.id}`}>
+                  <CardHeader className="flex flex-row items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <CardTitle className="text-base">{t.name}</CardTitle>
+                        {t.featured && <Badge variant="secondary">Featured</Badge>}
+                        <Badge variant="outline" className="text-xs">{t.category}</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">{t.title}, {t.company}</p>
+                      <p className="text-sm mt-2 italic line-clamp-2">"{t.quote}"</p>
+                      {t.outcome && <p className="text-xs text-muted-foreground mt-1">Outcome: {t.outcome}</p>}
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                      <Button size="icon" variant="outline" onClick={() => handleEditTestimonial(t)} data-testid={`button-edit-testimonial-${t.id}`}><Edit className="w-4 h-4" /></Button>
+                      <Button size="icon" variant="outline" onClick={() => { if (window.confirm("Delete this testimonial?")) deleteTestimonialMutation.mutate(t.id); }} data-testid={`button-delete-testimonial-${t.id}`}><Trash2 className="w-4 h-4" /></Button>
+                    </div>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          )}
+
+          {caseStudiesLoading ? (
+            <div className="text-center py-8 text-muted-foreground">Loading case studies...</div>
+          ) : (
+            <div className="space-y-3 mt-4">
+              <h3 className="font-semibold text-lg">Case Studies</h3>
+              {caseStudiesList.length === 0 ? (
+                <p className="text-muted-foreground text-sm">No case studies yet.</p>
+              ) : caseStudiesList.map((s) => (
+                <Card key={s.id} data-testid={`card-case-study-${s.id}`}>
+                  <CardHeader className="flex flex-row items-start justify-between gap-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <CardTitle className="text-base">{s.title}</CardTitle>
+                        <Badge variant="outline" className="text-xs">{s.category}</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">{s.clientLabel}</p>
+                      <p className="text-sm mt-2 line-clamp-2">{s.challenge}</p>
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                      <Button size="icon" variant="outline" onClick={() => handleEditCaseStudy(s)} data-testid={`button-edit-case-study-${s.id}`}><Edit className="w-4 h-4" /></Button>
+                      <Button size="icon" variant="outline" onClick={() => { if (window.confirm("Delete this case study?")) deleteCaseStudyMutation.mutate(s.id); }} data-testid={`button-delete-case-study-${s.id}`}><Trash2 className="w-4 h-4" /></Button>
+                    </div>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Agreements Tab */}
+        <TabsContent value="agreements" className="space-y-4">
+          <div>
+            <h2 className="text-xl font-bold">Signed Agreements</h2>
+            <p className="text-sm text-muted-foreground">{agreements.length} agreements on file</p>
+          </div>
+
+          {agreementsLoading ? (
+            <div className="text-center py-8 text-muted-foreground">Loading agreements...</div>
+          ) : agreements.length === 0 ? (
+            <Card><CardHeader><CardTitle className="text-base text-muted-foreground text-center py-4">No signed agreements yet.</CardTitle></CardHeader></Card>
+          ) : (
+            <div className="space-y-3">
+              {agreements.map((ag) => (
+                <Card key={ag.id} data-testid={`card-agreement-${ag.id}`}>
+                  <CardHeader className="flex flex-row items-start justify-between gap-4 cursor-pointer" onClick={() => setExpandedAgreement(expandedAgreement === ag.id ? null : ag.id)}>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <CardTitle className="text-base">{ag.signerName}</CardTitle>
+                        <Badge variant="secondary" className="text-xs">{ag.agreementType}</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground mt-1">{ag.signerTitle} at {ag.signerOrganization}</p>
+                      <p className="text-xs text-muted-foreground mt-1">{ag.signerEmail} &bull; Signed {ag.signedAt ? new Date(ag.signedAt).toLocaleDateString() : "Unknown"}</p>
+                    </div>
+                    <Button size="icon" variant="ghost">
+                      {expandedAgreement === ag.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </Button>
+                  </CardHeader>
+                  {expandedAgreement === ag.id && (
+                    <div className="px-6 pb-4 space-y-2 border-t pt-4">
+                      <p className="text-sm"><span className="font-medium">Agreement Type:</span> {ag.agreementType}</p>
+                      <p className="text-sm"><span className="font-medium">Organization:</span> {ag.signerOrganization}</p>
+                      <p className="text-sm"><span className="font-medium">Email:</span> {ag.signerEmail}</p>
+                      <p className="text-sm"><span className="font-medium">Date Signed:</span> {ag.signedAt ? new Date(ag.signedAt).toLocaleString() : "Unknown"}</p>
+                    </div>
+                  )}
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
+        {/* Role-Play Tab */}
+        <TabsContent value="roleplay" className="space-y-4">
+          <div>
+            <h2 className="text-xl font-bold">Role-Play Sessions</h2>
+            <p className="text-sm text-muted-foreground">{roleplaySessions.length} sessions recorded</p>
+          </div>
+
+          {roleplaySessionsLoading ? (
+            <div className="text-center py-8 text-muted-foreground">Loading sessions...</div>
+          ) : (
+            <>
+              {roleplaySessions.length > 0 && (() => {
+                const scoredSessions = roleplaySessions.filter(s => s.rating !== null && s.rating !== undefined);
+                const avgScore = scoredSessions.length > 0 ? Math.round(scoredSessions.reduce((sum, s) => sum + (s.rating ?? 0), 0) / scoredSessions.length) : null;
+                const scenarioCounts: Record<string, number> = {};
+                roleplaySessions.forEach(s => { scenarioCounts[s.scenarioTitle] = (scenarioCounts[s.scenarioTitle] || 0) + 1; });
+                const topScenario = Object.entries(scenarioCounts).sort((a, b) => b[1] - a[1])[0]?.[0];
+                return (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-2">
+                    <Card><CardHeader className="pb-2"><p className="text-sm text-muted-foreground">Total Sessions</p><p className="text-3xl font-bold">{roleplaySessions.length}</p></CardHeader></Card>
+                    <Card><CardHeader className="pb-2"><p className="text-sm text-muted-foreground">Average Score</p><p className="text-3xl font-bold">{avgScore !== null ? `${avgScore}%` : "N/A"}</p></CardHeader></Card>
+                    <Card><CardHeader className="pb-2"><p className="text-sm text-muted-foreground">Most Practiced</p><p className="text-base font-semibold leading-snug">{topScenario ?? "N/A"}</p></CardHeader></Card>
+                  </div>
+                );
+              })()}
+
+              {roleplaySessions.length === 0 ? (
+                <Card><CardHeader><CardTitle className="text-base text-muted-foreground text-center py-4">No role-play sessions yet.</CardTitle></CardHeader></Card>
+              ) : (
+                <div className="space-y-3">
+                  {roleplaySessions.map((session) => {
+                    const rating = session.rating;
+                    const scoreBadgeVariant = rating === null || rating === undefined ? "outline" : rating >= 80 ? "default" : rating >= 60 ? "secondary" : "destructive";
+                    const scoreLabel = rating !== null && rating !== undefined ? `${rating}%` : "Unscored";
+                    return (
+                      <Card key={session.id} data-testid={`card-roleplay-${session.id}`}>
+                        <CardHeader className="flex flex-row items-center justify-between gap-4 flex-wrap">
+                          <div className="flex-1 min-w-0">
+                            <CardTitle className="text-base">{session.scenarioTitle}</CardTitle>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {new Date(session.createdAt).toLocaleDateString()} &bull; {session.status}
+                            </p>
+                          </div>
+                          <Badge variant={scoreBadgeVariant} data-testid={`badge-score-${session.id}`}>{scoreLabel}</Badge>
+                        </CardHeader>
+                      </Card>
+                    );
+                  })}
+                </div>
+              )}
+            </>
+          )}
+        </TabsContent>
+
+        {/* Drills Tab */}
+        <TabsContent value="drills" className="space-y-4">
+          <div>
+            <h2 className="text-xl font-bold">Drills Activity</h2>
+            <p className="text-sm text-muted-foreground">{drillCompletions.length} total completions recorded</p>
+          </div>
+
+          {drillCompletionsLoading ? (
+            <div className="text-center py-8 text-muted-foreground">Loading drills data...</div>
+          ) : (
+            <>
+              {drillCompletions.length > 0 && (() => {
+                const uniqueDrills = new Set(drillCompletions.map(c => c.drillIndex)).size;
+                const sevenDaysAgo = Date.now() - 7 * 24 * 60 * 60 * 1000;
+                const recentCount = drillCompletions.filter(c => c.completedAt >= sevenDaysAgo).length;
+                return (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-2">
+                    <Card><CardHeader className="pb-2"><p className="text-sm text-muted-foreground">Total Completions</p><p className="text-3xl font-bold">{drillCompletions.length}</p></CardHeader></Card>
+                    <Card><CardHeader className="pb-2"><p className="text-sm text-muted-foreground">Unique Drills Practiced</p><p className="text-3xl font-bold">{uniqueDrills}</p></CardHeader></Card>
+                    <Card><CardHeader className="pb-2"><p className="text-sm text-muted-foreground">Last 7 Days</p><p className="text-3xl font-bold">{recentCount}</p></CardHeader></Card>
+                  </div>
+                );
+              })()}
+
+              {drillCompletions.length === 0 ? (
+                <Card><CardHeader><CardTitle className="text-base text-muted-foreground text-center py-4">No drill completions yet.</CardTitle></CardHeader></Card>
+              ) : (
+                <div className="space-y-3">
+                  {drillCompletions.slice().sort((a, b) => b.completedAt - a.completedAt).slice(0, 50).map((completion) => (
+                    <Card key={completion.id} data-testid={`card-drill-${completion.id}`}>
+                      <CardHeader className="flex flex-row items-center justify-between gap-4 flex-wrap">
+                        <div className="flex-1 min-w-0">
+                          <CardTitle className="text-base">{completion.drillTitle}</CardTitle>
+                          <p className="text-sm text-muted-foreground mt-1">
+                            Drill #{completion.drillIndex} &bull; {new Date(completion.completedAt).toLocaleDateString()}
+                          </p>
+                        </div>
+                        <Badge variant="outline" className="text-xs shrink-0">Completed</Badge>
+                      </CardHeader>
+                    </Card>
+                  ))}
+                  {drillCompletions.length > 50 && (
+                    <p className="text-sm text-muted-foreground text-center">Showing 50 most recent of {drillCompletions.length} total</p>
+                  )}
+                </div>
+              )}
+            </>
+          )}
+        </TabsContent>
+
       </Tabs>
 
       {/* Article Dialog */}
@@ -1611,6 +1964,120 @@ export default function Admin() {
                 data-testid="button-save-article"
               >
                 {editingArticle ? "Update Article" : "Create Article"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Testimonial Dialog */}
+      <Dialog open={testimonialDialogOpen} onOpenChange={(open) => { setTestimonialDialogOpen(open); if (!open) setEditingTestimonial(null); }}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{editingTestimonial ? "Edit Testimonial" : "Add Testimonial"}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSaveTestimonial} className="space-y-4">
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label htmlFor="t-name">Name</Label>
+                <Input id="t-name" value={testimonialForm.name} onChange={e => setTestimonialForm({ ...testimonialForm, name: e.target.value })} required data-testid="input-testimonial-name" />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="t-title">Title</Label>
+                <Input id="t-title" value={testimonialForm.title} onChange={e => setTestimonialForm({ ...testimonialForm, title: e.target.value })} required data-testid="input-testimonial-title" />
+              </div>
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="t-company">Company</Label>
+              <Input id="t-company" value={testimonialForm.company} onChange={e => setTestimonialForm({ ...testimonialForm, company: e.target.value })} required data-testid="input-testimonial-company" />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="t-quote">Quote</Label>
+              <Textarea id="t-quote" value={testimonialForm.quote} onChange={e => setTestimonialForm({ ...testimonialForm, quote: e.target.value })} required rows={3} data-testid="input-testimonial-quote" />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="t-outcome">Outcome (optional)</Label>
+              <Input id="t-outcome" value={testimonialForm.outcome} onChange={e => setTestimonialForm({ ...testimonialForm, outcome: e.target.value })} data-testid="input-testimonial-outcome" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label htmlFor="t-category">Category</Label>
+                <Select value={testimonialForm.category} onValueChange={v => setTestimonialForm({ ...testimonialForm, category: v })}>
+                  <SelectTrigger data-testid="select-testimonial-category"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="individual">Individual</SelectItem>
+                    <SelectItem value="leadership">Leadership</SelectItem>
+                    <SelectItem value="corporate">Corporate</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="t-order">Display Order</Label>
+                <Input id="t-order" type="number" value={testimonialForm.displayOrder} onChange={e => setTestimonialForm({ ...testimonialForm, displayOrder: parseInt(e.target.value) || 0 })} data-testid="input-testimonial-order" />
+              </div>
+            </div>
+            <div className="flex items-center justify-between rounded-lg border p-3">
+              <Label htmlFor="t-featured">Featured</Label>
+              <Switch id="t-featured" checked={testimonialForm.featured} onCheckedChange={checked => setTestimonialForm({ ...testimonialForm, featured: checked })} data-testid="switch-testimonial-featured" />
+            </div>
+            <div className="flex gap-3 pt-2">
+              <Button type="button" variant="outline" className="flex-1" onClick={() => setTestimonialDialogOpen(false)} data-testid="button-cancel-testimonial">Cancel</Button>
+              <Button type="submit" className="flex-1" disabled={createTestimonialMutation.isPending || updateTestimonialMutation.isPending} data-testid="button-save-testimonial">
+                {editingTestimonial ? "Update" : "Save"}
+              </Button>
+            </div>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Case Study Dialog */}
+      <Dialog open={caseStudyDialogOpen} onOpenChange={(open) => { setCaseStudyDialogOpen(open); if (!open) setEditingCaseStudy(null); }}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>{editingCaseStudy ? "Edit Case Study" : "Add Case Study"}</DialogTitle>
+          </DialogHeader>
+          <form onSubmit={handleSaveCaseStudy} className="space-y-4">
+            <div className="space-y-1">
+              <Label htmlFor="cs-title">Title</Label>
+              <Input id="cs-title" value={caseStudyForm.title} onChange={e => setCaseStudyForm({ ...caseStudyForm, title: e.target.value })} required data-testid="input-casestudy-title" />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="cs-client">Client Label</Label>
+              <Input id="cs-client" value={caseStudyForm.clientLabel} onChange={e => setCaseStudyForm({ ...caseStudyForm, clientLabel: e.target.value })} required placeholder="e.g. Regional Hospice Provider" data-testid="input-casestudy-client" />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="cs-challenge">Challenge</Label>
+              <Textarea id="cs-challenge" value={caseStudyForm.challenge} onChange={e => setCaseStudyForm({ ...caseStudyForm, challenge: e.target.value })} required rows={2} data-testid="input-casestudy-challenge" />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="cs-solution">Solution</Label>
+              <Textarea id="cs-solution" value={caseStudyForm.solution} onChange={e => setCaseStudyForm({ ...caseStudyForm, solution: e.target.value })} required rows={2} data-testid="input-casestudy-solution" />
+            </div>
+            <div className="space-y-1">
+              <Label htmlFor="cs-results">Results (one per line)</Label>
+              <Textarea id="cs-results" value={caseStudyForm.results} onChange={e => setCaseStudyForm({ ...caseStudyForm, results: e.target.value })} required rows={3} placeholder={"Referrals up 40%\nAverage census grew by 12 patients"} data-testid="input-casestudy-results" />
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <Label htmlFor="cs-category">Category</Label>
+                <Select value={caseStudyForm.category} onValueChange={v => setCaseStudyForm({ ...caseStudyForm, category: v })}>
+                  <SelectTrigger data-testid="select-casestudy-category"><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="individual">Individual</SelectItem>
+                    <SelectItem value="leadership">Leadership</SelectItem>
+                    <SelectItem value="corporate">Corporate</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="cs-order">Display Order</Label>
+                <Input id="cs-order" type="number" value={caseStudyForm.displayOrder} onChange={e => setCaseStudyForm({ ...caseStudyForm, displayOrder: parseInt(e.target.value) || 0 })} data-testid="input-casestudy-order" />
+              </div>
+            </div>
+            <div className="flex gap-3 pt-2">
+              <Button type="button" variant="outline" className="flex-1" onClick={() => setCaseStudyDialogOpen(false)} data-testid="button-cancel-casestudy">Cancel</Button>
+              <Button type="submit" className="flex-1" disabled={createCaseStudyMutation.isPending || updateCaseStudyMutation.isPending} data-testid="button-save-casestudy">
+                {editingCaseStudy ? "Update" : "Save"}
               </Button>
             </div>
           </form>

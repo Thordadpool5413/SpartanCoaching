@@ -1,5 +1,5 @@
 import { db, pool } from "./db";
-import { resources, podcasts, articles } from "@shared/schema";
+import { resources, podcasts, articles, testimonials, caseStudies } from "@shared/schema";
 import { sql } from "drizzle-orm";
 
 const trainingResources = [
@@ -169,16 +169,100 @@ const additionalArticles = [
 ];
 
 const samplePodcasts = [
-  { title: "The First 90 Days: Building Your Territory From Scratch", description: "What does it actually look like to walk into a brand new territory with zero relationships? In this episode, Nick breaks down the exact steps a new hospice rep should take in their first 90 days. From mapping your territory to identifying your first 20 accounts, this is the playbook most companies never give you.", episodeNumber: 1, audioUrl: "", duration: "34:12" },
-  { title: "Why Most Hospice Reps Fail at Follow Up (And What to Do Instead)", description: "Follow up is where most reps lose. Not because they do not try, but because they do it wrong. This episode covers the difference between checking in and adding value, how to build a follow up rhythm that does not feel pushy, and why most reps give up two conversations too early.", episodeNumber: 2, audioUrl: "", duration: "28:45" },
-  { title: "Understanding the Physician Referral: What Doctors Actually Want From You", description: "Most hospice reps treat physician offices like any other referral source. They are not. In this episode, we cover what physicians actually need to hear, how to earn trust in a clinical setting, and the biggest mistakes reps make when approaching doctor offices.", episodeNumber: 3, audioUrl: "", duration: "31:20" },
-  { title: "Objection Handling: When the Facility Says They Already Have a Hospice Provider", description: "This is the most common objection in the field and most reps handle it terribly. Nick walks through the real reason behind the objection, why competing on price never works, and the three step approach that opens doors even when someone else already has the contract.", episodeNumber: 4, audioUrl: "", duration: "26:58" },
-  { title: "Territory Management for the Rep Who Feels Overwhelmed", description: "When you have 100 accounts and 20 workdays in a month, something has to give. This episode breaks down how to prioritize your accounts, when to cut underperforming sources, and how to build a weekly rhythm that keeps you consistent without burning out.", episodeNumber: 5, audioUrl: "", duration: "33:40" },
-  { title: "The Admission Conversation: What Happens After the Referral", description: "Getting the referral is only half the battle. This episode covers the admission conversation with families, how to set expectations without overpromising, and the specific language that helps families feel confident about choosing hospice.", episodeNumber: 6, audioUrl: "", duration: "29:15" },
-  { title: "Building Real Relationships With Discharge Planners", description: "Discharge planners are some of the busiest people in healthcare. If you want their referrals, you need to make their job easier, not harder. This episode covers what discharge planners actually care about, how to become their go to hospice contact, and the small things that separate great reps from average ones.", episodeNumber: 7, audioUrl: "", duration: "27:33" },
-  { title: "Clinical Conversations for Non Clinical Reps", description: "You do not need a nursing degree to have credible clinical conversations. But you do need to understand the basics. This episode covers the clinical language every hospice rep should know, how to discuss eligibility criteria with confidence, and how to recognize when a patient might qualify even when the referral source is unsure.", episodeNumber: 8, audioUrl: "", duration: "35:08" },
-  { title: "Coaching Your Team: What Sales Leaders Get Wrong About Ride Alongs", description: "Ride alongs should be the most valuable coaching tool a sales leader has. Instead, most leaders turn them into silent observation sessions or worse, take over the conversation entirely. This episode is for sales managers who want to coach effectively in the field.", episodeNumber: 9, audioUrl: "", duration: "30:22" },
-  { title: "The Ethics of Hospice Sales: Where the Line Actually Is", description: "Selling hospice is not like selling any other product. There are real ethical boundaries that matter. This episode covers what ethical hospice sales looks like, where the line is between education and pressure, and how to build a career you can be proud of in this industry.", episodeNumber: 10, audioUrl: "", duration: "32:45" },
+  { title: "The First 90 Days: Building Your Territory From Scratch", description: "What does it actually look like to walk into a brand new territory with zero relationships? In this episode, Nick breaks down the exact steps a new hospice rep should take in their first 90 days. From mapping your territory to identifying your first 20 accounts, this is the playbook most companies never give you.", episodeNumber: 1, audioUrl: null, duration: "34:12" },
+  { title: "Why Most Hospice Reps Fail at Follow Up (And What to Do Instead)", description: "Follow up is where most reps lose. Not because they do not try, but because they do it wrong. This episode covers the difference between checking in and adding value, how to build a follow up rhythm that does not feel pushy, and why most reps give up two conversations too early.", episodeNumber: 2, audioUrl: null, duration: "28:45" },
+  { title: "Understanding the Physician Referral: What Doctors Actually Want From You", description: "Most hospice reps treat physician offices like any other referral source. They are not. In this episode, we cover what physicians actually need to hear, how to earn trust in a clinical setting, and the biggest mistakes reps make when approaching doctor offices.", episodeNumber: 3, audioUrl: null, duration: "31:20" },
+  { title: "Objection Handling: When the Facility Says They Already Have a Hospice Provider", description: "This is the most common objection in the field and most reps handle it terribly. Nick walks through the real reason behind the objection, why competing on price never works, and the three step approach that opens doors even when someone else already has the contract.", episodeNumber: 4, audioUrl: null, duration: "26:58" },
+  { title: "Territory Management for the Rep Who Feels Overwhelmed", description: "When you have 100 accounts and 20 workdays in a month, something has to give. This episode breaks down how to prioritize your accounts, when to cut underperforming sources, and how to build a weekly rhythm that keeps you consistent without burning out.", episodeNumber: 5, audioUrl: null, duration: "33:40" },
+  { title: "The Admission Conversation: What Happens After the Referral", description: "Getting the referral is only half the battle. This episode covers the admission conversation with families, how to set expectations without overpromising, and the specific language that helps families feel confident about choosing hospice.", episodeNumber: 6, audioUrl: null, duration: "29:15" },
+  { title: "Building Real Relationships With Discharge Planners", description: "Discharge planners are some of the busiest people in healthcare. If you want their referrals, you need to make their job easier, not harder. This episode covers what discharge planners actually care about, how to become their go to hospice contact, and the small things that separate great reps from average ones.", episodeNumber: 7, audioUrl: null, duration: "27:33" },
+  { title: "Clinical Conversations for Non Clinical Reps", description: "You do not need a nursing degree to have credible clinical conversations. But you do need to understand the basics. This episode covers the clinical language every hospice rep should know, how to discuss eligibility criteria with confidence, and how to recognize when a patient might qualify even when the referral source is unsure.", episodeNumber: 8, audioUrl: null, duration: "35:08" },
+  { title: "Coaching Your Team: What Sales Leaders Get Wrong About Ride Alongs", description: "Ride alongs should be the most valuable coaching tool a sales leader has. Instead, most leaders turn them into silent observation sessions or worse, take over the conversation entirely. This episode is for sales managers who want to coach effectively in the field.", episodeNumber: 9, audioUrl: null, duration: "30:22" },
+  { title: "The Ethics of Hospice Sales: Where the Line Actually Is", description: "Selling hospice is not like selling any other product. There are real ethical boundaries that matter. This episode covers what ethical hospice sales looks like, where the line is between education and pressure, and how to build a career you can be proud of in this industry.", episodeNumber: 10, audioUrl: null, duration: "32:45" },
+];
+
+const sampleTestimonials = [
+  {
+    name: "Sarah M.",
+    title: "Hospice Liaison",
+    company: "Regional Hospice Provider",
+    quote: "I was making visits but referrals stalled at 'we'll think about it.' Nick taught me to handle objections in the moment instead of leaving confused. My top five accounts now actually call me when they have an eligible patient.",
+    outcome: "Conversion rate from visit to referral increased 52% in first quarter. More conversions meant more patients received care earlier, because conversations that were stalling finally moved forward.",
+    category: "individual",
+    featured: true,
+    displayOrder: 0,
+  },
+  {
+    name: "James T.",
+    title: "Hospice Liaison",
+    company: "Multi-State Hospice Organization",
+    quote: "Before Spartan, I had a full calendar but no system. Nick showed me how to prioritize accounts that actually matter and build follow-up into my routine. I cut drive time by a third and admissions went up, not down.",
+    outcome: "Reduced weekly drive time from 18 hours to 12, referrals up 28%. Less time on the road meant better preparation for the visits that matter, and more families reached.",
+    category: "individual",
+    featured: false,
+    displayOrder: 1,
+  },
+  {
+    name: "Maria R.",
+    title: "Hospice Liaison",
+    company: "Nonprofit Hospice",
+    quote: "The objection handling practice was brutal but necessary. I learned what to say when a social worker pushes back on timing or when a physician wants 'one more test.' Now I guide the conversation instead of reacting to it.",
+    outcome: "Average time from referral to admission dropped from 4.2 days to 2.6 days. Each day shorter is a day a patient spends less time managing symptoms without expert support.",
+    category: "individual",
+    featured: false,
+    displayOrder: 2,
+  },
+];
+
+const sampleCaseStudies = [
+  {
+    title: "From Busy to Productive: Territory Transformation",
+    clientLabel: "Mid-Size Regional Hospice / Individual Rep Coaching",
+    challenge: "Experienced liaison was making 25+ visits per week but only converting 12% to referrals. Calendar packed with stops at low-volume accounts while high-opportunity SNFs received inconsistent attention. Objections from discharge planners went unanswered, causing deals to stall at 'we'll call you.'",
+    solution: "90-day intensive territory redesign: Mapped all 47 accounts by actual referral volume and patient demographics. Built A/B/C prioritization framework with specific visit frequency for each tier. Practiced objection handling for top three stall points. Implemented weekly pipeline review to track every active opportunity.",
+    results: [
+      "Conversion rate climbed from 12% to 34% in 12 weeks",
+      "Top 8 accounts now generate 67% of monthly referrals (was 28%)",
+      "Weekly drive time reduced from 22 hours to 14 hours",
+      "Lost zero deals to stall objections in final 30 days",
+      "More patients received timely referrals as the conversion barriers that had stalled care were removed",
+    ],
+    category: "individual",
+    displayOrder: 0,
+  },
+  {
+    title: "Building a Coaching System That Sticks",
+    clientLabel: "For-Profit Hospice Provider / Sales Leadership Development",
+    challenge: "Director inherited a six-person team with wildly inconsistent results. Top performer hit 18 admissions monthly while bottom two averaged 4. No documented process, no structured coaching, and manager spent most time firefighting instead of developing talent. Team morale low, turnover high.",
+    solution: "Six-month leadership transformation: Built a weekly coaching rhythm with 15-minute one-on-ones focused on one skill at a time. Created a simple pipeline tracking system that takes 10 minutes to update. Trained manager to run structured field rides with clear observation criteria. Implemented new rep onboarding program with week-by-week milestones.",
+    results: [
+      "All six reps hit monthly targets for four straight quarters",
+      "Team average climbed from 9.2 to 14.6 admissions per rep per month",
+      "Manager coaching time increased from 2 hours per week to 8 hours per week",
+      "New rep time to first admission dropped from 11 weeks to 3.5 weeks",
+      "Zero voluntary turnover in 12 months following implementation",
+      "Faster onboarding and a higher-performing team meant fewer eligible patients went unserved in the market during that period",
+    ],
+    category: "leadership",
+    displayOrder: 1,
+  },
+  {
+    title: "Scaling Execution Across Markets",
+    clientLabel: "Multi-State Hospice Organization / Corporate System Implementation",
+    challenge: "Ten markets operating as independent units with no shared process or common language. Executive team could not compare performance across regions or identify why some markets thrived while others struggled. New acquisitions took 18+ months to reach profitability.",
+    solution: "18-month enterprise transformation: Collaborated with top performers from each market to design one unified sales process. Trained all regional managers in the new system with emphasis on field application, not theory. Built simple performance dashboard that tracks leading indicators. Conducted quarterly calibration sessions where managers share what is working.",
+    results: [
+      "All 10 markets now use identical account prioritization and follow-up framework",
+      "Performance variance across markets reduced from 340% to 78%",
+      "New acquisitions reach break-even in 7 months (was 19 months)",
+      "System adoption measured at 91% compliance after 15 months",
+      "Forecast accuracy improved from 58% to 86% at corporate level",
+      "Referral volume up 37% year-over-year with same headcount",
+      "With performance variance reduced and referral volume growing, more families across all 10 markets received access to care at the right time",
+    ],
+    category: "corporate",
+    displayOrder: 2,
+  },
 ];
 
 async function seedByTitle(table: any, allItems: any[], label: string) {
@@ -206,6 +290,8 @@ export async function seedDatabase() {
     await seedByTitle(resources, [...trainingResources, ...additionalResources], "resources");
     await seedByTitle(articles, [...sampleArticles, ...additionalArticles], "articles");
     await seedByTitle(podcasts, samplePodcasts, "podcasts");
+    await seedByTitle(testimonials, sampleTestimonials, "testimonials");
+    await seedByTitle(caseStudies, sampleCaseStudies, "case studies");
 
     console.log("Database seed completed successfully!");
     return true;

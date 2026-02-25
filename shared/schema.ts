@@ -380,6 +380,47 @@ export * from "./models/chat";
 
 export type Theme = "light" | "dark";
 
+// Testimonials
+export const testimonials = pgTable("testimonials", {
+  id: serial("id").primaryKey(),
+  name: text("name").notNull(),
+  title: text("title").notNull(),
+  company: text("company").notNull(),
+  quote: text("quote").notNull(),
+  outcome: text("outcome").notNull(),
+  category: text("category").notNull().default("individual"),
+  featured: boolean("featured").notNull().default(false),
+  displayOrder: integer("display_order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertTestimonialSchema = createInsertSchema(testimonials).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertTestimonial = z.infer<typeof insertTestimonialSchema>;
+export type SelectTestimonial = typeof testimonials.$inferSelect;
+
+// Case Studies
+export const caseStudies = pgTable("case_studies", {
+  id: serial("id").primaryKey(),
+  title: text("title").notNull(),
+  clientLabel: text("client_label").notNull(),
+  challenge: text("challenge").notNull(),
+  solution: text("solution").notNull(),
+  results: text("results").array().notNull(),
+  category: text("category").notNull().default("individual"),
+  displayOrder: integer("display_order").notNull().default(0),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertCaseStudySchema = createInsertSchema(caseStudies).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertCaseStudy = z.infer<typeof insertCaseStudySchema>;
+export type SelectCaseStudy = typeof caseStudies.$inferSelect;
+
 // Service/Program data types (for display only, no database storage needed for MVP)
 export interface CoachingService {
   title: string;
