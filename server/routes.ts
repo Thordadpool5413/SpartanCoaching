@@ -1016,7 +1016,10 @@ Subject: [subject line]
       res.json(completion);
     } catch (error: any) {
       console.error("Drill completion error:", error);
-      res.status(500).json({ error: error.message || "Failed to record completion" });
+      if (error.name === "ZodError") {
+        return res.status(400).json({ error: "Invalid completion data" });
+      }
+      res.status(503).json({ error: "Unable to save completion right now. Please try again shortly." });
     }
   });
 
