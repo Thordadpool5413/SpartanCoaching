@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { MessageCircle, X, Send, Loader2, Minimize2 } from "lucide-react";
+import { MessageCircle, X, Send, Minimize2, ShieldCheck, Trash2, User } from "lucide-react";
 import type { ChatMessage } from "@shared/schema";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
@@ -17,6 +17,28 @@ import {
 import { MarkdownContent } from "@/components/MarkdownContent";
 
 
+function formatRelativeTime(timestamp: number): string {
+  const diff = Date.now() - timestamp;
+  if (diff < 60000) return "just now";
+  if (diff < 3600000) return `${Math.floor(diff / 60000)} min ago`;
+  if (diff < 86400000) return `${Math.floor(diff / 3600000)} hr ago`;
+  return new Date(timestamp).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+}
+
+function TypingIndicator() {
+  return (
+    <div className="flex gap-1 items-center py-1">
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="w-2 h-2 rounded-full bg-muted-foreground/50 inline-block"
+          style={{ animation: `bounce 1.2s infinite ${i * 0.2}s` }}
+        />
+      ))}
+    </div>
+  );
+}
+
 function ChatWidgetContent() {
   const isMobile = useIsMobile();
   const [isOpen, setIsOpen] = useState(false);
@@ -27,11 +49,20 @@ function ChatWidgetContent() {
   const [hasLoadedMessages, setHasLoadedMessages] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Reset minimized state when closing the widget
   const handleClose = () => {
     setIsOpen(false);
     setIsMinimized(false);
     setHasLoadedMessages(false);
+  };
+
+  const handleClearChat = () => {
+    if (!window.confirm("Clear your conversation history?")) return;
+    localStorage.removeItem('spartan-chat-history');
+    setMessages([{
+      role: "model",
+      content: "Welcome to Spartan Coaching! I'm your expert AI hospice sales coach with deep knowledge of Medicare regulations, The Spartan Method sales framework, objection handling, territory management, and coaching strategies. Whether you need help with \"We already have a provider,\" want to improve your SNF relationships, or need coaching on pipeline management, I am here to help. What's your challenge today?",
+      timestamp: Date.now(),
+    }]);
   };
 
   const scrollToBottom = () => {
@@ -146,36 +177,57 @@ function ChatWidgetContent() {
   const ChatContent = () => (
     <>
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
+      <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-background">
         {messages.map((msg, index) => (
           <div
             key={`${msg.timestamp}-${msg.role}-${index}`}
             className={cn(
-              "flex",
+              "flex gap-2 items-end",
               msg.role === "user" ? "justify-end" : "justify-start"
             )}
             data-testid={`chat-message-${msg.timestamp}-${index}`}
           >
-            <div
-              className={cn(
-                "max-w-[85%] rounded-lg p-3 shadow-sm",
-                msg.role === "user"
-                  ? "bg-spartan-gradient text-white"
-                  : "bg-muted text-foreground border border-border"
-              )}
-            >
-              {msg.role === "user" ? (
-                <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
-              ) : (
-                <MarkdownContent content={msg.content} variant="compact" />
-              )}
+            {msg.role === "model" && (
+              <div className="shrink-0 w-7 h-7 rounded-full bg-primary flex items-center justify-center mb-4">
+                <ShieldCheck className="w-4 h-4 text-white" />
+              </div>
+            )}
+            <div className="flex flex-col gap-1 max-w-[85%]">
+              <div
+                className={cn(
+                  "rounded-lg p-3 shadow-sm",
+                  msg.role === "user"
+                    ? "bg-spartan-gradient text-white"
+                    : "bg-muted text-foreground border border-border"
+                )}
+              >
+                {msg.role === "user" ? (
+                  <p className="text-sm whitespace-pre-wrap leading-relaxed">{msg.content}</p>
+                ) : (
+                  <MarkdownContent content={msg.content} variant="compact" />
+                )}
+              </div>
+              <p className={cn(
+                "text-[10px] text-muted-foreground px-1",
+                msg.role === "user" ? "text-right" : "text-left"
+              )}>
+                {msg.timestamp ? formatRelativeTime(msg.timestamp) : ""}
+              </p>
             </div>
+            {msg.role === "user" && (
+              <div className="shrink-0 w-7 h-7 rounded-full bg-muted border border-border flex items-center justify-center mb-4">
+                <User className="w-4 h-4 text-muted-foreground" />
+              </div>
+            )}
           </div>
         ))}
         {isLoading && (
-          <div className="flex justify-start">
-            <div className="bg-muted text-foreground rounded-lg p-3 border border-border">
-              <Loader2 className="w-5 h-5 animate-spin text-primary" />
+          <div className="flex gap-2 items-end justify-start">
+            <div className="shrink-0 w-7 h-7 rounded-full bg-primary flex items-center justify-center">
+              <ShieldCheck className="w-4 h-4 text-white" />
+            </div>
+            <div className="bg-muted text-foreground rounded-lg px-4 py-3 border border-border">
+              <TypingIndicator />
             </div>
           </div>
         )}
@@ -185,7 +237,7 @@ function ChatWidgetContent() {
       {/* Input */}
       <div className="p-4 border-t border-border bg-muted/30">
         {messages.length <= 1 && (
-          <div className="flex flex-wrap gap-2 mb-3">
+          <div className="flex gap-2 mb-3 overflow-x-auto pb-1 scrollbar-hide">
             {[
               'Handle "We already have a provider"',
               'How do I prioritize my territory?',
@@ -197,7 +249,7 @@ function ChatWidgetContent() {
                 variant="outline"
                 size="sm"
                 onClick={() => setInput(suggestion)}
-                className="text-xs hover-elevate"
+                className="text-xs whitespace-nowrap shrink-0"
                 data-testid={`button-suggestion-${suggestion.slice(0, 20)}`}
               >
                 {suggestion}
@@ -289,23 +341,44 @@ function ChatWidgetContent() {
         <Drawer open={isOpen} onOpenChange={setIsOpen}>
           <DrawerContent className="h-[85vh] flex flex-col rounded-t-xl">
             <DrawerHeader className="border-b border-border bg-spartan-gradient">
-              <DrawerTitle className="flex items-center gap-3 text-white">
-                <MessageCircle className="h-5 w-5" />
-                <h3 className="font-bold text-base">Expert Hospice Sales Coach</h3>
-              </DrawerTitle>
-              <DrawerDescription className="text-xs text-white/80">
-                Powered by The Spartan Method
-              </DrawerDescription>
-              <div className="absolute top-4 right-4">
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  onClick={handleClose}
-                  className="h-8 w-8 text-white hover:bg-white/20"
-                  data-testid="button-close-chat"
-                >
-                  <X className="h-4 w-4" />
-                </Button>
+              <div className="flex items-center justify-between gap-2">
+                <DrawerTitle className="flex items-center gap-3 text-white">
+                  <div className="relative shrink-0">
+                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                      <ShieldCheck className="h-4 w-4 text-white" />
+                    </div>
+                    <span className="absolute bottom-0 right-0 w-2 h-2 rounded-full bg-green-400 border-2 border-white" style={{ animation: 'pulse 2s infinite' }} />
+                  </div>
+                  <div className="text-left">
+                    <p className="font-bold text-base leading-tight">Spartan AI Coach</p>
+                    <DrawerDescription className="text-xs text-white/80 mt-0">
+                      Expert in hospice sales
+                    </DrawerDescription>
+                  </div>
+                </DrawerTitle>
+                <div className="flex items-center gap-1 shrink-0">
+                  {messages.length > 1 && (
+                    <Button
+                      size="icon"
+                      variant="ghost"
+                      onClick={handleClearChat}
+                      className="h-8 w-8 text-white/70 hover:bg-white/20 hover:text-white"
+                      data-testid="button-clear-chat-mobile"
+                      title="Clear conversation"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                  )}
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={handleClose}
+                    className="h-8 w-8 text-white hover:bg-white/20"
+                    data-testid="button-close-chat"
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                </div>
               </div>
             </DrawerHeader>
             <ChatContent />
@@ -324,15 +397,32 @@ function ChatWidgetContent() {
             "rounded-none border-r-0"
           )}>
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-border bg-spartan-gradient">
+            <div className="flex items-center justify-between p-4 border-b border-border bg-spartan-gradient shrink-0">
               <div className="flex items-center gap-3">
-                <MessageCircle className="h-5 w-5 text-white" />
+                <div className="relative shrink-0">
+                  <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">
+                    <ShieldCheck className="h-5 w-5 text-white" />
+                  </div>
+                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 rounded-full bg-green-400 border-2 border-white" style={{ animation: 'pulse 2s infinite' }} />
+                </div>
                 <div>
-                  <h3 className="font-bold text-white text-base">Expert Hospice Sales Coach</h3>
-                  <p className="text-xs text-white/80">Powered by The Spartan Method</p>
+                  <h3 className="font-bold text-white text-base leading-tight">Spartan AI Coach</h3>
+                  <p className="text-xs text-white/80">Expert in hospice sales</p>
                 </div>
               </div>
               <div className="flex items-center gap-1">
+                {messages.length > 1 && (
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    onClick={handleClearChat}
+                    className="h-8 w-8 text-white/70 hover:bg-white/20 hover:text-white"
+                    data-testid="button-clear-chat"
+                    title="Clear conversation"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
                 <Button
                   size="icon"
                   variant="ghost"

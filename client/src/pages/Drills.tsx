@@ -104,6 +104,48 @@ const motivationalQuotes = [
   "Small daily improvements over time lead to stunning results.",
 ];
 
+const CLIENT_DRILLS = [
+  { category: "Prospecting", drill: "Review your territory map and identify the top 3 referral sources you have not contacted in 30 days. Send each a personalized value message today." },
+  { category: "Prospecting", drill: "Identify 5 new potential referral sources in your territory that you have never visited. Research each one and plan your approach for this week." },
+  { category: "Prospecting", drill: "Create a value drop for your top prospect. Find a relevant article, case study, or industry insight to share with no sales ask attached." },
+  { category: "Communication", drill: "Practice your elevator pitch 3 times out loud. Time yourself. Can you deliver it confidently in under 60 seconds?" },
+  { category: "Communication", drill: "Record yourself explaining hospice benefits to a family member. Listen back and identify filler words, unclear explanations, or missed empathy moments." },
+  { category: "Communication", drill: "Write three different opening statements for cold calls. Test which feels most natural and authentic to your style." },
+  { category: "Objection Handling", drill: "Identify one common objection you heard this week. Write out 3 different empathetic responses and practice them." },
+  { category: "Objection Handling", drill: "Practice the Feel, Felt, Found technique. Write responses to 'Hospice means giving up,' 'We are not ready,' and 'We already have a hospice provider.'" },
+  { category: "Objection Handling", drill: "Role-play handling the objection 'The patient is not ready for hospice yet' with three different approaches: clinical, emotional, and practical." },
+  { category: "Relationship Building", drill: "Research one of your top referral partners. Find a recent news article or achievement about them to reference in your next visit." },
+  { category: "Relationship Building", drill: "Send a handwritten thank-you note to a referral source who sent you a patient this month. Mention something specific about the case." },
+  { category: "Relationship Building", drill: "Schedule a lunch-and-learn at a facility you want to grow. Prepare a 10-minute educational presentation on a hospice topic they would value." },
+  { category: "Follow-Up", drill: "Review your follow-up list. Choose 3 prospects and send them valuable content (article, tip, resource) with no sales ask." },
+  { category: "Follow-Up", drill: "Create a 30-60-90 day follow-up plan for your newest referral source. Map out touchpoints, value drops, and check-ins." },
+  { category: "Self-Reflection", drill: "Reflect on your last 5 conversations. What questions did you ask? Write down 3 better discovery questions for next time." },
+  { category: "Self-Reflection", drill: "Review your win/loss ratio this month. For each lost opportunity, identify the moment the conversation went sideways and what you would do differently." },
+  { category: "Planning", drill: "Map out your ideal week. Block time for prospecting, follow-ups, education, and relationship building. Stick to it today." },
+  { category: "Planning", drill: "Analyze your top 10 accounts by revenue potential. Are you spending enough time on your highest-value opportunities?" },
+  { category: "Clinical Knowledge", drill: "Study one hospice eligibility diagnosis you are less familiar with. Learn the specific decline indicators and practice explaining them simply." },
+  { category: "Clinical Knowledge", drill: "Review the four levels of hospice care. Practice explaining when each is appropriate in language a non-clinical person would understand." },
+  { category: "Prospecting", drill: "Look at your calendar for the next two weeks. Identify any day where you have fewer than 4 conversations scheduled and fill those gaps with new or existing account visits right now." },
+  { category: "Prospecting", drill: "List your top 5 referral sources from last quarter. Have any of them gone quiet? If so, plan a specific value touch for each one this week." },
+  { category: "Communication", drill: "Think about the last referral you received. Write a thank you message to the person who sent it. Be specific about the patient outcome and why the referral mattered." },
+  { category: "Communication", drill: "Practice explaining the difference between palliative care and hospice in 30 seconds or less. Say it out loud three times until it sounds natural." },
+  { category: "Objection Handling", drill: "Write out your response to this exact phrase: 'Our patients are not ready for hospice.' Then practice delivering it with genuine curiosity rather than defensiveness." },
+  { category: "Relationship Building", drill: "Pick one discharge planner you have a good relationship with. Ask them this week what the biggest challenge they are facing at work is. Just listen." },
+  { category: "Relationship Building", drill: "Identify a referral source you lost this year. Write down what happened and what you would do differently. Consider whether it is worth re-engaging." },
+  { category: "Follow-Up", drill: "Open your CRM or contact list. Find every referral source you spoke with last week and make sure each one has a clear next step documented." },
+  { category: "Self-Reflection", drill: "Rate your energy level today on a scale of 1 to 10. If it is below a 7, identify one thing you can change about your routine tomorrow to show up sharper." },
+  { category: "Planning", drill: "Write down your top 3 priorities for this week. Not tasks, priorities. Then check if your calendar actually reflects those priorities or if you are spending time on things that do not move the needle." },
+  { category: "Clinical Knowledge", drill: "Pick one hospice eligibility diagnosis you are less confident discussing. Read the LCD criteria for that diagnosis and write down the three most important decline indicators in your own words." },
+  { category: "Clinical Knowledge", drill: "Practice explaining what a FAST Scale score of 7A means to a nurse who asks why their dementia patient might qualify for hospice. Keep it under 60 seconds." },
+];
+
+function getClientFallbackDrill(): DailyDrill {
+  const date = new Date();
+  const dayOfYear = Math.floor((date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
+  const index = dayOfYear % CLIENT_DRILLS.length;
+  return { ...CLIENT_DRILLS[index], index };
+}
+
 function getCompletionsThisWeek(completions: DrillCompletion[]): number {
   const now = new Date();
   const startOfWeek = new Date(now);
@@ -237,9 +279,11 @@ export default function Drills() {
   const [completed, setCompleted] = useState(false);
   const { toast } = useToast();
 
-  const { data: drillData, isLoading: drillLoading } = useQuery<DailyDrill>({
+  const { data: drillData } = useQuery<DailyDrill>({
     queryKey: ['/api/daily-drill'],
   });
+
+  const activeDrill: DailyDrill = drillData ?? getClientFallbackDrill();
 
   const { data: completions, isLoading: completionsLoading } = useQuery<DrillCompletion[]>({
     queryKey: ['/api/drills/completions'],
@@ -274,10 +318,9 @@ export default function Drills() {
   };
 
   const handleSubmitCompletion = () => {
-    if (!drillData) return;
     completeMutation.mutate({
-      drillIndex: drillData.index,
-      drillTitle: drillData.drill,
+      drillIndex: activeDrill.index,
+      drillTitle: activeDrill.drill,
       notes: notes || undefined,
     });
   };
@@ -344,29 +387,21 @@ export default function Drills() {
         </Card>
       </div>
 
-      {drillLoading ? (
-        <Card className="spacing-card mb-8">
-          <Skeleton className="h-5 w-28 mb-4" />
-          <Skeleton className="h-6 w-full mb-2" />
-          <Skeleton className="h-6 w-3/4 mb-6" />
-          <Skeleton className="h-9 w-40" />
-        </Card>
-      ) : drillData ? (
-        <Card className="spacing-card mb-8 border-2 border-primary/50" data-testid="card-today-drill">
+      <Card className="spacing-card mb-8 border-2 border-primary/50" data-testid="card-today-drill">
           <CardHeader className="flex flex-row items-center justify-between gap-2 flex-wrap space-y-0 pb-2">
             <CardTitle className="text-h3 font-bold" data-testid="text-drill-heading">
               Today's Drill
             </CardTitle>
             <Badge
-              className={cn("no-default-hover-elevate no-default-active-elevate", getCategoryBadgeClass(drillData.category))}
+              className={cn("no-default-hover-elevate no-default-active-elevate", getCategoryBadgeClass(activeDrill.category))}
               data-testid="badge-drill-category"
             >
-              {drillData.category}
+              {activeDrill.category}
             </Badge>
           </CardHeader>
           <CardContent>
             <p className="text-lg text-foreground leading-relaxed mb-6" data-testid="text-drill-content">
-              {drillData.drill}
+              {activeDrill.drill}
             </p>
 
             <AnimatePresence mode="wait">
@@ -439,7 +474,6 @@ export default function Drills() {
             </AnimatePresence>
           </CardContent>
         </Card>
-      ) : null}
 
       {completionsLoading ? (
         <Card className="spacing-card mb-8">

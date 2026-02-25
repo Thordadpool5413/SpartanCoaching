@@ -1027,6 +1027,21 @@ body {
   }
 }
 
+/* Typing indicator bounce animation */
+@keyframes bounce {
+  0%, 60%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-6px); }
+}
+
+/* Hide scrollbar for suggestion chips row */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 /* Print styles for AI generated content */
 @media print {
   body {
