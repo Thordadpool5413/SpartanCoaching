@@ -39,15 +39,15 @@ export default function TerritoryTemplate() {
       <div className="grid grid-cols-3 gap-4 mb-6">
         <div className="border-2 border-gray-300 p-3">
           <label className="text-xs font-bold text-gray-600 uppercase">Territory Name:</label>
-          <input type="text" className="mt-2 h-6 border-b-2 border-dotted border-gray-400" placeholder="e.g., North Region" />
+          <input id="territory-name" name="territory-name" type="text" className="mt-2 h-6 border-b-2 border-dotted border-gray-400" placeholder="e.g., North Region" />
         </div>
         <div className="border-2 border-gray-300 p-3">
           <label className="text-xs font-bold text-gray-600 uppercase">Coverage Area:</label>
-          <input type="text" className="mt-2 h-6 border-b-2 border-dotted border-gray-400" placeholder="e.g., Counties A, B, C" />
+          <input id="coverage-area" name="coverage-area" type="text" className="mt-2 h-6 border-b-2 border-dotted border-gray-400" placeholder="e.g., Counties A, B, C" />
         </div>
         <div className="border-2 border-gray-300 p-3">
           <label className="text-xs font-bold text-gray-600 uppercase">Last Updated:</label>
-          <input type="text" className="mt-2 h-6 border-b-2 border-dotted border-gray-400" placeholder="e.g., Jan 2026" />
+          <input id="last-updated" name="last-updated" type="text" className="mt-2 h-6 border-b-2 border-dotted border-gray-400" placeholder="e.g., Jan 2026" />
         </div>
       </div>
 
@@ -74,13 +74,13 @@ export default function TerritoryTemplate() {
             {[...Array(25)].map((_, i) => (
               <tr key={i}>
                 <td className="text-center text-gray-400">{i + 1}</td>
-                <td><input type="text" placeholder="Account name" /></td>
-                <td><input type="text" placeholder="Hospital/ALF/MD" /></td>
-                <td><input type="text" placeholder="Contact name" /></td>
-                <td><input type="tel" placeholder="Phone" /></td>
-                <td><input type="text" placeholder="A/B/C" maxLength={1} /></td>
-                <td><input type="text" placeholder="MM/DD" /></td>
-                <td><input type="text" placeholder="Notes" /></td>
+                <td><input id={`account-${i + 1}-name`} name={`account-${i + 1}-name`} type="text" placeholder="Account name" /></td>
+                <td><input id={`account-${i + 1}-type`} name={`account-${i + 1}-type`} type="text" placeholder="Hospital/ALF/MD" /></td>
+                <td><input id={`account-${i + 1}-contact`} name={`account-${i + 1}-contact`} type="text" placeholder="Contact name" /></td>
+                <td><input id={`account-${i + 1}-phone`} name={`account-${i + 1}-phone`} type="tel" placeholder="Phone" /></td>
+                <td><input id={`account-${i + 1}-priority`} name={`account-${i + 1}-priority`} type="text" placeholder="A/B/C" maxLength={1} /></td>
+                <td><input id={`account-${i + 1}-last-touch`} name={`account-${i + 1}-last-touch`} type="text" placeholder="MM/DD" /></td>
+                <td><input id={`account-${i + 1}-notes`} name={`account-${i + 1}-notes`} type="text" placeholder="Notes" /></td>
               </tr>
             ))}
           </tbody>
@@ -157,12 +157,17 @@ export default function TerritoryTemplate() {
                 {[...Array(5)].map((_, i) => (
                   <tr key={i}>
                     <td className="text-center">
-                      <input type="text" placeholder={i === 0 ? '9:00' : i === 1 ? '10:30' : i === 2 ? '12:00' : i === 3 ? '2:00' : '3:30'} />
+                      <input
+                        id={`${day.toLowerCase()}-slot-${i + 1}-time`}
+                        name={`${day.toLowerCase()}-slot-${i + 1}-time`}
+                        type="text"
+                        placeholder={i === 0 ? '9:00' : i === 1 ? '10:30' : i === 2 ? '12:00' : i === 3 ? '2:00' : '3:30'}
+                      />
                     </td>
-                    <td><input type="text" placeholder="Account" /></td>
-                    <td><input type="text" placeholder="Contact" /></td>
-                    <td><input type="text" placeholder={i === 2 ? 'Lunch' : 'Purpose'} /></td>
-                    <td><input type="text" placeholder="Outcome" /></td>
+                    <td><input id={`${day.toLowerCase()}-slot-${i + 1}-account`} name={`${day.toLowerCase()}-slot-${i + 1}-account`} type="text" placeholder="Account" /></td>
+                    <td><input id={`${day.toLowerCase()}-slot-${i + 1}-contact`} name={`${day.toLowerCase()}-slot-${i + 1}-contact`} type="text" placeholder="Contact" /></td>
+                    <td><input id={`${day.toLowerCase()}-slot-${i + 1}-purpose`} name={`${day.toLowerCase()}-slot-${i + 1}-purpose`} type="text" placeholder={i === 2 ? 'Lunch' : 'Purpose'} /></td>
+                    <td><input id={`${day.toLowerCase()}-slot-${i + 1}-outcome`} name={`${day.toLowerCase()}-slot-${i + 1}-outcome`} type="text" placeholder="Outcome" /></td>
                   </tr>
                 ))}
               </tbody>
