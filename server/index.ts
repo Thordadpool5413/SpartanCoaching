@@ -67,7 +67,20 @@ async function main() {
     res.status(status).json({ message });
   });
 
-  // STEP 5: Setup Vite/static serving LAST (catch-all for frontend routes)
+  // STEP 5: No-cache headers for HTML entry point so browsers always fetch fresh markup
+  app.use((req, _res, next) => {
+    if (
+      !req.path.startsWith("/api") &&
+      !req.path.match(/\.(js|css|png|jpg|jpeg|gif|ico|svg|woff|woff2|ttf|eot|webp|mp3|mp4|pdf|json|txt|xml|webmanifest)$/)
+    ) {
+      _res.setHeader("Cache-Control", "no-cache, no-store, must-revalidate");
+      _res.setHeader("Pragma", "no-cache");
+      _res.setHeader("Expires", "0");
+    }
+    next();
+  });
+
+  // STEP 6 (was 5): Setup Vite/static serving LAST (catch-all for frontend routes)
   if (process.env.NODE_ENV === "development") {
     await setupVite(app, server);
   } else {
