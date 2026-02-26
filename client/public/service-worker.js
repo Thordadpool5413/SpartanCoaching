@@ -1,5 +1,5 @@
-const CACHE_NAME = 'spartan-coaching-v2';
-const RUNTIME_CACHE = 'spartan-runtime-v2';
+const CACHE_NAME = 'spartan-coaching-v3';
+const RUNTIME_CACHE = 'spartan-runtime-v3';
 const OFFLINE_PAGE = '/offline.html';
 
 const urlsToCache = [
