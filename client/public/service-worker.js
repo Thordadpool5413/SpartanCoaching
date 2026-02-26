@@ -1,5 +1,5 @@
-const CACHE_NAME = 'spartan-coaching-v3';
-const RUNTIME_CACHE = 'spartan-runtime-v3';
+const CACHE_NAME = 'spartan-coaching-v4';
+const RUNTIME_CACHE = 'spartan-runtime-v4';
 const OFFLINE_PAGE = '/offline.html';
 
 const urlsToCache = [
@@ -54,11 +54,33 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // Cache-first strategy for static assets (excluding large videos for network-first)
+  // Network-first strategy for JS and CSS - always fetch fresh, fall back to cache offline
+  if (request.url.match(/\.(js|css)(\?.*)?$/i) || request.url.includes('/assets/')) {
+    event.respondWith(
+      fetch(request)
+        .then((fetchResponse) => {
+          if (!fetchResponse || fetchResponse.status !== 200 || fetchResponse.type === 'error') {
+            return fetchResponse;
+          }
+          const responseToCache = fetchResponse.clone();
+          caches.open(RUNTIME_CACHE)
+            .then((cache) => cache.put(request, responseToCache))
+            .catch((error) => console.error('Failed to cache asset:', error));
+          return fetchResponse;
+        })
+        .catch(() => {
+          return caches.match(request).then((cachedResponse) => {
+            return cachedResponse || new Response('', { status: 503, statusText: 'Service Unavailable' });
+          });
+        })
+    );
+    return;
+  }
+
+  // Cache-first strategy for images, fonts, and other true static assets
   if (
-    request.url.includes('/assets/') ||
     request.url.includes('/attached_assets/') ||
-    request.url.match(/\.(js|css|png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|ttf|eot)$/i)
+    request.url.match(/\.(png|jpg|jpeg|gif|svg|webp|ico|woff|woff2|ttf|eot)$/i)
   ) {
     event.respondWith(
       caches.match(request)
@@ -66,25 +88,18 @@ self.addEventListener('fetch', (event) => {
           if (cachedResponse) {
             return cachedResponse;
           }
-          
           return fetch(request).then((fetchResponse) => {
-            // Check if valid response
             if (!fetchResponse || fetchResponse.status !== 200 || fetchResponse.type === 'error') {
               return fetchResponse;
             }
-
-            // Clone and cache the response
             const responseToCache = fetchResponse.clone();
             caches.open(RUNTIME_CACHE)
               .then((cache) => cache.put(request, responseToCache))
-              .catch((error) => console.error('Failed to cache resource:', error));
-            
+              .catch((error) => console.error('Failed to cache image:', error));
             return fetchResponse;
           });
         })
-        .catch((error) => {
-          console.error('Fetch failed for static asset:', error);
-          // For images, return a placeholder or nothing
+        .catch(() => {
           return new Response('', { status: 503, statusText: 'Service Unavailable' });
         })
     );
@@ -96,7 +111,6 @@ self.addEventListener('fetch', (event) => {
     event.respondWith(
       fetch(request)
         .then((response) => {
-          // Optionally cache successful API responses for offline access
           if (response && response.status === 200 && request.method === 'GET') {
             const responseToCache = response.clone();
             caches.open(RUNTIME_CACHE)
@@ -106,16 +120,14 @@ self.addEventListener('fetch', (event) => {
           return response;
         })
         .catch(() => {
-          // Try to return cached API response if available
           return caches.match(request).then((cachedResponse) => {
             if (cachedResponse) {
               return cachedResponse;
             }
-            // Return offline error for API calls
             return new Response(
-              JSON.stringify({ 
-                error: 'Network unavailable', 
-                message: 'Please check your internet connection and try again.' 
+              JSON.stringify({
+                error: 'Network unavailable',
+                message: 'Please check your internet connection and try again.'
               }),
               {
                 status: 503,
@@ -146,7 +158,6 @@ self.addEventListener('fetch', (event) => {
   event.respondWith(
     fetch(request)
       .then((response) => {
-        // Cache successful navigation responses
         if (response && response.status === 200 && request.destination === 'document') {
           const responseToCache = response.clone();
           caches.open(RUNTIME_CACHE)
@@ -156,18 +167,13 @@ self.addEventListener('fetch', (event) => {
         return response;
       })
       .catch(() => {
-        // Try to return cached page
         return caches.match(request).then((cachedResponse) => {
           if (cachedResponse) {
             return cachedResponse;
           }
-          
-          // For navigation requests, show offline page
           if (request.destination === 'document') {
             return caches.match(OFFLINE_PAGE);
           }
-          
-          // For other requests, return error
           return new Response('Offline - resource not available', {
             status: 503,
             statusText: 'Service Unavailable',
@@ -183,7 +189,7 @@ self.addEventListener('message', (event) => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
-  
+
   if (event.data && event.data.type === 'CLEAR_CACHE') {
     event.waitUntil(
       caches.keys().then((cacheNames) => {
