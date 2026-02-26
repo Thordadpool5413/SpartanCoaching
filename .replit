@@ -9,7 +9,7 @@ packages = ["ffmpeg-full"]
 [deployment]
 deploymentTarget = "autoscale"
 build = ["npm", "run", "build"]
-run = ["npm", "run", "start"]
+run = ["bash", "-c", "npm run build && npm run start"]
 publicDir = "dist/public"
 
 [[ports]]
