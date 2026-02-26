@@ -403,7 +403,7 @@ export function Footer() {
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex flex-col items-center md:items-start gap-3">
               <p className="text-sm text-muted-foreground">
-                © {new Date().getFullYear()} Spartan Coaching. All rights reserved.
+                © 2026 Spartan Coaching. All rights reserved.
               </p>
               <p className="text-xs text-muted-foreground max-w-md">
                 We respect your privacy. We do not sell or share your personal information. See our full Privacy Policy for details.

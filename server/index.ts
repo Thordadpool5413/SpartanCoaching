@@ -67,7 +67,19 @@ async function main() {
     res.status(status).json({ message });
   });
 
-  // STEP 5: No-cache headers for HTML entry point so browsers always fetch fresh markup
+  // STEP 5: Force a cache-bust redirect so browsers with stale HTML re-fetch fresh markup.
+  // Any request to "/" without a build version query param gets redirected to "/?v=20260226".
+  // Since browsers have never cached that versioned URL, they fetch fresh HTML, get the
+  // no-cache headers below, and will always revalidate on future visits.
+  const BUILD_VERSION = "20260226";
+  app.get("/", (req, res, next) => {
+    if (!req.query.v) {
+      return res.redirect(302, `/?v=${BUILD_VERSION}`);
+    }
+    next();
+  });
+
+  // No-cache headers for all HTML routes so browsers always revalidate
   app.use((req, _res, next) => {
     if (
       !req.path.startsWith("/api") &&
