@@ -10,7 +10,6 @@ import { CommandPalette } from "@/components/CommandPalette";
 
 const ChatWidget = lazy(() => import("@/components/ChatWidget").then(m => ({ default: m.ChatWidget })));
 const StickyBookCall = lazy(() => import("@/components/StickyBookCall").then(m => ({ default: m.StickyBookCall })));
-const PWAInstallPrompt = lazy(() => import("@/components/PWAInstallPrompt").then(m => ({ default: m.PWAInstallPrompt })));
 
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/Home"));
@@ -174,7 +173,6 @@ function App() {
           <Suspense fallback={null}>
             <ChatWidget />
             <StickyBookCall />
-            <PWAInstallPrompt />
             <CommandPalette />
           </Suspense>
           <Toaster />

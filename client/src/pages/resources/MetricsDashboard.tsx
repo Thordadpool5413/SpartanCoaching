@@ -30,7 +30,7 @@ export default function MetricsDashboard() {
         <p className="text-sm text-gray-600">Track what matters: Referrals, Conversions, Speed to Care</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-4 mb-6">
         <div className="border-2 border-gray-300 p-3">
           <label htmlFor="month" className="text-xs font-bold text-gray-600 uppercase">Month:</label>
           <input id="month" name="month" type="text" className="mt-1" placeholder="January 2026" />
@@ -51,7 +51,7 @@ export default function MetricsDashboard() {
           <p className="text-xs">How much work are you putting in?</p>
         </div>
 
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-6">
           <div className="border-2 border-gray-300 p-4">
             <h3 className="text-sm font-bold mb-3 bg-gray-100 p-2">TOUCHES & VISITS</h3>
             <div className="space-y-3">
@@ -119,7 +119,7 @@ export default function MetricsDashboard() {
           <p className="text-xs">Are your activities turning into results?</p>
         </div>
 
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-6">
           <div className="border-2 border-red-600 bg-red-50 p-4">
             <h3 className="text-sm font-bold mb-3 text-red-700">REFERRALS RECEIVED</h3>
             <input id="referrals-total" name="referrals-total" type="number" className="text-4xl font-black text-center mb-2 bg-transparent border-b-4 border-red-600" placeholder="0" />
@@ -193,7 +193,8 @@ export default function MetricsDashboard() {
           <p className="text-xs">Which accounts are driving results?</p>
         </div>
 
-        <div className="border-2 border-gray-300">
+        <div className="overflow-x-auto">
+        <div className="border-2 border-gray-300 min-w-[520px]">
           <table className="w-full text-sm">
             <thead className="bg-gray-900 text-white">
               <tr>
@@ -219,9 +220,10 @@ export default function MetricsDashboard() {
             </tbody>
           </table>
         </div>
+        </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-6 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-6 mb-6">
         <div className="border-2 border-gray-300 p-4">
           <h3 className="text-sm font-bold mb-3 bg-green-100 p-2 border-l-4 border-green-600">WINS THIS MONTH</h3>
           <textarea id="wins-this-month" name="wins-this-month" className="w-full border border-gray-300 p-2 min-h-[100px] text-sm" placeholder="What went well? New accounts? Strong conversions?"></textarea>

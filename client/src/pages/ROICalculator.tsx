@@ -248,7 +248,7 @@ export default function ROICalculator() {
                     <ArrowRight className="w-6 h-6 text-primary" />
                     Impact Summary
                   </CardTitle>
-                  <div className="grid grid-cols-2 gap-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div className="text-center">
                       <p className="text-sm text-muted-foreground mb-1">Additional Monthly Revenue</p>
                       <p className="text-2xl sm:text-3xl font-black bg-gradient-to-r from-red-600 to-red-500 bg-clip-text text-transparent" data-testid="text-revenue-increase">

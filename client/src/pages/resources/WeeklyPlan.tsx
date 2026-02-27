@@ -33,7 +33,7 @@ export default function WeeklyPlan() {
         <p className="text-sm text-gray-600">Discipline • Empathy • Strategy</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-4 mb-6">
         <div className="border-2 border-gray-300 p-3">
           <label className="text-xs font-bold text-gray-600 uppercase">Week Of:</label>
           <input id="week-of" name="week-of" type="text" className="mt-2 h-6" placeholder="e.g., Jan 15 to 19, 2026" />
@@ -55,7 +55,7 @@ export default function WeeklyPlan() {
         {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map((day) => (
           <div key={day} className="mb-3 border border-gray-300 p-2">
             <div className="font-bold text-sm mb-1">{day.toUpperCase()}</div>
-            <div className="grid grid-cols-3 gap-2 text-xs">
+            <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-2 text-xs">
               <div>
                 <span className="font-semibold">Top 3:</span>
                 <input id={`${day.toLowerCase()}-priorities`} name={`${day.toLowerCase()}-priorities`} type="text" className="h-5" placeholder="Priority accounts" />
@@ -73,7 +73,7 @@ export default function WeeklyPlan() {
         ))}
       </div>
 
-      <div className="grid grid-cols-2 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-4 mb-6">
         <div className="border-2 border-gray-300 p-3">
           <h3 className="font-bold text-sm mb-2 bg-gray-100 p-2">KEY METRICS THIS WEEK</h3>
           <div className="space-y-2 text-xs">
@@ -117,7 +117,7 @@ export default function WeeklyPlan() {
 
       <div className="border-t-2 border-gray-300 pt-3">
         <h3 className="font-bold text-sm mb-2">END OF WEEK REFLECTION</h3>
-        <div className="grid grid-cols-2 gap-3 text-xs">
+        <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-3 text-xs">
           <div>
             <label className="font-semibold block mb-1">What worked well?</label>
             <textarea id="worked-well" name="worked-well" className="border border-gray-400 p-2 min-h-[50px] w-full" placeholder="Wins and successes"></textarea>

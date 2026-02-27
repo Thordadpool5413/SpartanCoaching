@@ -36,7 +36,7 @@ export default function TerritoryTemplate() {
         <p className="text-sm text-gray-600">Map your market, prioritize accounts, build your route</p>
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mb-6">
+      <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-4 mb-6">
         <div className="border-2 border-gray-300 p-3">
           <label className="text-xs font-bold text-gray-600 uppercase">Territory Name:</label>
           <input id="territory-name" name="territory-name" type="text" className="mt-2 h-6 border-b-2 border-dotted border-gray-400" placeholder="e.g., North Region" />
@@ -57,7 +57,8 @@ export default function TerritoryTemplate() {
           <p className="text-xs">Rank accounts by potential and current engagement</p>
         </div>
 
-        <table>
+        <div className="overflow-x-auto">
+        <table className="min-w-[640px]">
           <thead>
             <tr>
               <th className="w-8">#</th>
@@ -85,13 +86,14 @@ export default function TerritoryTemplate() {
             ))}
           </tbody>
         </table>
+        </div>
       </div>
 
       <div className="page-break mb-8">
         <div className="bg-gray-900 text-white p-3 mb-3">
           <h2 className="text-lg font-bold">PRIORITY DEFINITIONS</h2>
         </div>
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-4">
           <div className="border-2 border-red-600 p-4 bg-red-50">
             <h3 className="font-black text-lg mb-2 text-red-600">TIER A</h3>
             <p className="text-sm font-semibold mb-2">High-Value Accounts</p>
@@ -143,7 +145,8 @@ export default function TerritoryTemplate() {
         {['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'].map((day) => (
           <div key={day} className="mb-4 border-2 border-gray-300 p-3">
             <h3 className="font-bold text-sm mb-2 bg-gray-100 px-2 py-1">{day.toUpperCase()}</h3>
-            <table className="text-xs">
+            <div className="overflow-x-auto">
+            <table className="text-xs min-w-[400px]">
               <thead>
                 <tr>
                   <th className="w-16">Time</th>
@@ -172,6 +175,7 @@ export default function TerritoryTemplate() {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         ))}
       </div>

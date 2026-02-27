@@ -163,7 +163,7 @@ export default function QuickStartGuide() {
 
       <div className="bg-gray-900 text-white p-6">
         <h2 className="text-h2 font-black mb-3">YOUR 30-DAY SCORECARD</h2>
-        <div className="grid grid-cols-2 gap-4 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-4 text-sm">
           <div className="border border-gray-600 p-3">
             <p className="font-semibold mb-1">Meaningful Touches:</p>
             <p className="text-2xl font-bold">______</p>

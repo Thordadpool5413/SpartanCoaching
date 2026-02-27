@@ -67,7 +67,7 @@ export default function ObjectionCards() {
         <p className="text-xs text-gray-500 mt-2">Print double-sided, cut along lines, and laminate for field use</p>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 print:grid-cols-2 gap-4">
         {objections.map((item, idx) => (
           <div key={idx} className="card border-2 border-gray-400 rounded-lg p-4 bg-gradient-to-br from-white to-gray-50">
             <div className="bg-red-600 text-white px-3 py-2 rounded-t-lg -mx-4 -mt-4 mb-3">
@@ -94,7 +94,7 @@ export default function ObjectionCards() {
 
       <div className="mt-8 bg-gray-900 text-white p-6 rounded-lg">
         <h2 className="font-black text-h2 mb-3">THE UNIVERSAL FRAMEWORK</h2>
-        <div className="grid grid-cols-3 gap-4 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-3 print:grid-cols-3 gap-4 text-sm">
           <div>
             <h3 className="font-bold mb-2 text-red-400">1. ACKNOWLEDGE</h3>
             <p className="text-xs">"I understand..." "That makes sense..." "I hear you..."</p>

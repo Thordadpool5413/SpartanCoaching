@@ -443,7 +443,7 @@ export default function RolePlay() {
               End & Get Feedback
             </Button>
             {!canEndSession && (
-              <p className="absolute right-0 top-full mt-1 text-xs text-muted-foreground whitespace-nowrap" data-testid="text-end-hint">
+              <p className="absolute right-0 top-full mt-1 text-xs text-muted-foreground text-right max-w-[200px] sm:max-w-none" data-testid="text-end-hint">
                 Send 2 more messages to unlock
               </p>
             )}
