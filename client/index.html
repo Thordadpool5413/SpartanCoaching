@@ -17,7 +17,6 @@
     <meta property="twitter:description" content="Elite coaching for hospice sales professionals. Master discipline, empathy, and strategy to transform your career." />
     <meta property="twitter:image" content="/spartan-logo.png" />
 
-    <!-- PWA -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover, interactive-widget=resizes-content" />
     <meta name="theme-color" content="#dc2626" media="(prefers-color-scheme: light)" />
     <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
@@ -27,17 +26,11 @@
     <meta name="apple-mobile-web-app-title" content="Spartan" />
     <meta name="format-detection" content="telephone=no" />
     
-    <!-- Touch Icons -->
-    <link rel="manifest" href="/manifest.json" />
     <link rel="apple-touch-icon" sizes="192x192" href="/icon-192.png" />
     <link rel="apple-touch-icon" sizes="512x512" href="/icon-512.png" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png" />
     
-    <!-- Prevent tap highlight on iOS -->
-    <meta name="format-detection" content="telephone=no" />
-    
-    <!-- Improve mobile performance -->
     <meta name="HandheldFriendly" content="true" />
     <meta name="MobileOptimized" content="width" />
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -49,14 +42,10 @@
   </head>
   <body>
     <script>
-      // In any non-production environment, nuke all service workers and caches
-      // so Vite HMR always delivers fresh code to the preview.
-      if ('serviceWorker' in navigator && location.hostname !== 'spartan-coaching.replit.app') {
+      // Aggressively clear any stale service workers and caches on every load
+      if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(function(regs) {
-          regs.forEach(function(r) {
-            r.active && r.active.postMessage({ type: 'CLEAR_CACHE' });
-            r.unregister();
-          });
+          regs.forEach(function(r) { r.unregister(); });
         });
         caches.keys().then(function(keys) {
           keys.forEach(function(k) { caches.delete(k); });
