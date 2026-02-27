@@ -227,7 +227,7 @@ function ActivityHeatmap({ completions }: { completions: DrillCompletion[] }) {
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">
-          <div className="inline-flex gap-0.5">
+          <div className="inline-flex gap-0.5 min-w-max">
             <div className="flex flex-col gap-0.5 mr-1 pt-5">
               {dayLabels.map((label, i) => (
                 <div key={i} className="h-[14px] flex items-center">
@@ -241,7 +241,7 @@ function ActivityHeatmap({ completions }: { completions: DrillCompletion[] }) {
                   const ml = monthLabels.find(m => m.col === colIdx);
                   return (
                     <div key={colIdx} className="w-[14px]">
-                      <span className="text-[10px] text-muted-foreground leading-none">
+                      <span className="text-[10px] text-muted-foreground leading-none whitespace-nowrap">
                         {ml ? ml.label : ""}
                       </span>
                     </div>
