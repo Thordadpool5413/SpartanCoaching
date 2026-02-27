@@ -48,6 +48,21 @@
     <title>Spartan Coaching - Expert Hospice Sales Training</title>
   </head>
   <body>
+    <script>
+      // In any non-production environment, nuke all service workers and caches
+      // so Vite HMR always delivers fresh code to the preview.
+      if ('serviceWorker' in navigator && location.hostname !== 'spartan-coaching.replit.app') {
+        navigator.serviceWorker.getRegistrations().then(function(regs) {
+          regs.forEach(function(r) {
+            r.active && r.active.postMessage({ type: 'CLEAR_CACHE' });
+            r.unregister();
+          });
+        });
+        caches.keys().then(function(keys) {
+          keys.forEach(function(k) { caches.delete(k); });
+        });
+      }
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
