@@ -183,51 +183,60 @@ export async function generateGroundedSearch(query: string): Promise<{
 }
 
 /**
+ * Full drill library shared between daily drill rotation and library endpoint
+ */
+export const ALL_DRILLS: { category: string; drill: string }[] = [
+  { category: "Prospecting", drill: "Review your territory map and identify the top 3 referral sources you have not contacted in 30 days. Send each a personalized value message today." },
+  { category: "Prospecting", drill: "Identify 5 new potential referral sources in your territory that you have never visited. Research each one and plan your approach for this week." },
+  { category: "Prospecting", drill: "Create a value drop for your top prospect. Find a relevant article, case study, or industry insight to share with no sales ask attached." },
+  { category: "Prospecting", drill: "Look at your calendar for the next two weeks. Identify any day where you have fewer than 4 conversations scheduled and fill those gaps now." },
+  { category: "Prospecting", drill: "List your top 5 referral sources from last quarter. Have any gone quiet? Plan a specific value touch for each one this week." },
+  { category: "Communication", drill: "Practice your elevator pitch 3 times out loud. Time yourself. Can you deliver it confidently in under 60 seconds?" },
+  { category: "Communication", drill: "Record yourself explaining hospice benefits to a family member. Listen back and identify filler words, unclear explanations, or missed empathy moments." },
+  { category: "Communication", drill: "Write three different opening statements for cold calls. Test which feels most natural and authentic to your style." },
+  { category: "Communication", drill: "Think about the last referral you received. Write a thank you message to the person who sent it. Be specific about the patient outcome and why the referral mattered." },
+  { category: "Communication", drill: "Practice explaining the difference between palliative care and hospice in 30 seconds or less. Say it out loud three times until it sounds natural." },
+  { category: "Objection Handling", drill: "Identify one common objection you heard this week. Write out 3 different empathetic responses and practice them." },
+  { category: "Objection Handling", drill: "Practice the Feel, Felt, Found technique. Write responses to 'Hospice means giving up,' 'We are not ready,' and 'We already have a hospice provider.'" },
+  { category: "Objection Handling", drill: "Role-play handling the objection 'The patient is not ready for hospice yet' with three different approaches: clinical, emotional, and practical." },
+  { category: "Objection Handling", drill: "Write out your response to this exact phrase: 'Our patients are not ready for hospice.' Then practice delivering it with genuine curiosity rather than defensiveness." },
+  { category: "Objection Handling", drill: "Script a response to 'We already use another hospice' that acknowledges the relationship, adds clinical value, and keeps the door open without being pushy." },
+  { category: "Relationship Building", drill: "Research one of your top referral partners. Find a recent news article or achievement about them to reference in your next visit." },
+  { category: "Relationship Building", drill: "Send a handwritten thank-you note to a referral source who sent you a patient this month. Mention something specific about the case." },
+  { category: "Relationship Building", drill: "Schedule a lunch-and-learn at a facility you want to grow. Prepare a 10-minute educational presentation on a hospice topic they would value." },
+  { category: "Relationship Building", drill: "Pick one discharge planner you have a good relationship with. Ask them this week what the biggest challenge they are facing at work is. Just listen." },
+  { category: "Relationship Building", drill: "Identify a referral source you lost this year. Write down what happened and what you would do differently. Consider whether it is worth re-engaging." },
+  { category: "Relationship Building", drill: "Identify three facilities where you do not know the charge nurse or social worker by name. Make a plan to introduce yourself this week." },
+  { category: "Follow-Up", drill: "Review your follow-up list. Choose 3 prospects and send them valuable content (article, tip, resource) with no sales ask." },
+  { category: "Follow-Up", drill: "Create a 30-60-90 day follow-up plan for your newest referral source. Map out touchpoints, value drops, and check-ins." },
+  { category: "Follow-Up", drill: "Open your CRM or contact list. Find every referral source you spoke with last week and make sure each one has a clear next step documented." },
+  { category: "Follow-Up", drill: "Write a follow-up message for a referral source you have not heard from in 60 or more days. Keep it short, warm, and valuable. No pressure." },
+  { category: "Self-Reflection", drill: "Reflect on your last 5 conversations. What questions did you ask? Write down 3 better discovery questions for next time." },
+  { category: "Self-Reflection", drill: "Review your win/loss ratio this month. For each lost opportunity, identify the moment the conversation went sideways and what you would do differently." },
+  { category: "Self-Reflection", drill: "Rate your energy level today on a scale of 1 to 10. If it is below a 7, identify one thing you can change about your routine tomorrow to show up sharper." },
+  { category: "Self-Reflection", drill: "Write down the one skill that would most change your results if you improved it. What is one action you can take today to develop that skill?" },
+  { category: "Planning", drill: "Map out your ideal week. Block time for prospecting, follow-ups, education, and relationship building. Stick to it today." },
+  { category: "Planning", drill: "Analyze your top 10 accounts by revenue potential. Are you spending enough time on your highest-value opportunities?" },
+  { category: "Planning", drill: "Write down your top 3 priorities for this week. Not tasks, priorities. Then check if your calendar actually reflects those priorities." },
+  { category: "Planning", drill: "Set a specific measurable goal for your conversations this week. Write down what success looks like and how you will track it." },
+  { category: "Clinical Knowledge", drill: "Study one hospice eligibility diagnosis you are less familiar with. Learn the specific decline indicators and practice explaining them simply." },
+  { category: "Clinical Knowledge", drill: "Review the four levels of hospice care. Practice explaining when each is appropriate in language a non-clinical person would understand." },
+  { category: "Clinical Knowledge", drill: "Pick one hospice eligibility diagnosis you are less confident discussing. Read the LCD criteria and write down the three most important decline indicators in your own words." },
+  { category: "Clinical Knowledge", drill: "Practice explaining what a FAST Scale score of 7A means to a nurse who asks why their dementia patient might qualify for hospice. Keep it under 60 seconds." },
+  { category: "Clinical Knowledge", drill: "Learn one new hospice-related clinical term this week. Write a simple explanation of it and practice using it correctly in a sentence." },
+];
+
+/**
  * Generate daily drill for homepage
  */
 export async function generateDailyDrill(): Promise<{ drill: string; category: string; index: number }> {
-  const drills = [
-    { category: "Prospecting", drill: "Review your territory map and identify the top 3 referral sources you have not contacted in 30 days. Send each a personalized value message today." },
-    { category: "Prospecting", drill: "Identify 5 new potential referral sources in your territory that you have never visited. Research each one and plan your approach for this week." },
-    { category: "Prospecting", drill: "Create a value drop for your top prospect. Find a relevant article, case study, or industry insight to share with no sales ask attached." },
-    { category: "Communication", drill: "Practice your elevator pitch 3 times out loud. Time yourself. Can you deliver it confidently in under 60 seconds?" },
-    { category: "Communication", drill: "Record yourself explaining hospice benefits to a family member. Listen back and identify filler words, unclear explanations, or missed empathy moments." },
-    { category: "Communication", drill: "Write three different opening statements for cold calls. Test which feels most natural and authentic to your style." },
-    { category: "Objection Handling", drill: "Identify one common objection you heard this week. Write out 3 different empathetic responses and practice them." },
-    { category: "Objection Handling", drill: "Practice the Feel, Felt, Found technique. Write responses to 'Hospice means giving up,' 'We are not ready,' and 'We already have a hospice provider.'" },
-    { category: "Objection Handling", drill: "Role-play handling the objection 'The patient is not ready for hospice yet' with three different approaches: clinical, emotional, and practical." },
-    { category: "Relationship Building", drill: "Research one of your top referral partners. Find a recent news article or achievement about them to reference in your next visit." },
-    { category: "Relationship Building", drill: "Send a handwritten thank-you note to a referral source who sent you a patient this month. Mention something specific about the case." },
-    { category: "Relationship Building", drill: "Schedule a lunch-and-learn at a facility you want to grow. Prepare a 10-minute educational presentation on a hospice topic they would value." },
-    { category: "Follow-Up", drill: "Review your follow-up list. Choose 3 prospects and send them valuable content (article, tip, resource) with no sales ask." },
-    { category: "Follow-Up", drill: "Create a 30-60-90 day follow-up plan for your newest referral source. Map out touchpoints, value drops, and check-ins." },
-    { category: "Self-Reflection", drill: "Reflect on your last 5 conversations. What questions did you ask? Write down 3 better discovery questions for next time." },
-    { category: "Self-Reflection", drill: "Review your win/loss ratio this month. For each lost opportunity, identify the moment the conversation went sideways and what you would do differently." },
-    { category: "Planning", drill: "Map out your ideal week. Block time for prospecting, follow-ups, education, and relationship building. Stick to it today." },
-    { category: "Planning", drill: "Analyze your top 10 accounts by revenue potential. Are you spending enough time on your highest-value opportunities?" },
-    { category: "Clinical Knowledge", drill: "Study one hospice eligibility diagnosis you are less familiar with. Learn the specific decline indicators and practice explaining them simply." },
-    { category: "Clinical Knowledge", drill: "Review the four levels of hospice care. Practice explaining when each is appropriate in language a non-clinical person would understand." },
-    { category: "Prospecting", drill: "Look at your calendar for the next two weeks. Identify any day where you have fewer than 4 conversations scheduled and fill those gaps with new or existing account visits right now." },
-    { category: "Prospecting", drill: "List your top 5 referral sources from last quarter. Have any of them gone quiet? If so, plan a specific value touch for each one this week." },
-    { category: "Communication", drill: "Think about the last referral you received. Write a thank you message to the person who sent it. Be specific about the patient outcome and why the referral mattered." },
-    { category: "Communication", drill: "Practice explaining the difference between palliative care and hospice in 30 seconds or less. Say it out loud three times until it sounds natural." },
-    { category: "Objection Handling", drill: "Write out your response to this exact phrase: 'Our patients are not ready for hospice.' Then practice delivering it with genuine curiosity rather than defensiveness." },
-    { category: "Relationship Building", drill: "Pick one discharge planner you have a good relationship with. Ask them this week what the biggest challenge they are facing at work is. Just listen." },
-    { category: "Relationship Building", drill: "Identify a referral source you lost this year. Write down what happened and what you would do differently. Consider whether it is worth re-engaging." },
-    { category: "Follow-Up", drill: "Open your CRM or contact list. Find every referral source you spoke with last week and make sure each one has a clear next step documented." },
-    { category: "Self-Reflection", drill: "Rate your energy level today on a scale of 1 to 10. If it is below a 7, identify one thing you can change about your routine tomorrow to show up sharper." },
-    { category: "Planning", drill: "Write down your top 3 priorities for this week. Not tasks, priorities. Then check if your calendar actually reflects those priorities or if you are spending time on things that do not move the needle." },
-    { category: "Clinical Knowledge", drill: "Pick one hospice eligibility diagnosis you are less confident discussing. Read the LCD criteria for that diagnosis and write down the three most important decline indicators in your own words." },
-    { category: "Clinical Knowledge", drill: "Practice explaining what a FAST Scale score of 7A means to a nurse who asks why their dementia patient might qualify for hospice. Keep it under 60 seconds." },
-  ];
-
   const date = new Date();
   const dayOfYear = Math.floor((date.getTime() - new Date(date.getFullYear(), 0, 0).getTime()) / (1000 * 60 * 60 * 24));
-  const index = dayOfYear % drills.length;
+  const index = dayOfYear % ALL_DRILLS.length;
 
   return {
-    drill: drills[index].drill,
-    category: drills[index].category,
+    drill: ALL_DRILLS[index].drill,
+    category: ALL_DRILLS[index].category,
     index,
   };
 }

@@ -11,6 +11,7 @@ import {
   generateChatResponse,
   generateRoleplayResponse,
   generateRoleplayFeedback,
+  ALL_DRILLS,
 } from "./openai";
 import {
   playbookRequestSchema,
@@ -207,6 +208,12 @@ Keep it under 100 words and use a warm, professional tone.`;
       console.error("Daily drill error:", error);
       res.status(500).json({ error: error.message || "Failed to generate daily drill" });
     }
+  });
+
+  // Full Drill Library
+  app.get("/api/drills", (_req, res) => {
+    const library = ALL_DRILLS.map((d, index) => ({ index, category: d.category, drill: d.drill }));
+    res.json(library);
   });
 
   // AI Chat

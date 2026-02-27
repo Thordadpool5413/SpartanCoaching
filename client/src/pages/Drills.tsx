@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
-import { Flame, CheckCircle, Loader2, Calendar, BookOpen } from "lucide-react";
+import { Flame, CheckCircle, Loader2, Calendar, BookOpen, ChevronDown, ChevronRight, Library } from "lucide-react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -273,10 +273,19 @@ function ActivityHeatmap({ completions }: { completions: DrillCompletion[] }) {
   );
 }
 
+interface LibraryDrill {
+  index: number;
+  category: string;
+  drill: string;
+}
+
 export default function Drills() {
   const [showNotes, setShowNotes] = useState(false);
   const [notes, setNotes] = useState("");
   const [completed, setCompleted] = useState(false);
+  const [librarySelectedIndex, setLibrarySelectedIndex] = useState<number | null>(null);
+  const [libraryNotes, setLibraryNotes] = useState("");
+  const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set(["Prospecting"]));
   const { toast } = useToast();
 
   const { data: drillData } = useQuery<DailyDrill>({
@@ -287,6 +296,10 @@ export default function Drills() {
 
   const { data: completions, isLoading: completionsLoading } = useQuery<DrillCompletion[]>({
     queryKey: ['/api/drills/completions'],
+  });
+
+  const { data: libraryDrills } = useQuery<LibraryDrill[]>({
+    queryKey: ['/api/drills'],
   });
 
   const completeMutation = useMutation({
@@ -313,6 +326,29 @@ export default function Drills() {
     },
   });
 
+  const libraryCompleteMutation = useMutation({
+    mutationFn: async (payload: { drillIndex: number; drillTitle: string; notes?: string }) => {
+      const res = await apiRequest("POST", "/api/drills/completions", payload);
+      return res.json();
+    },
+    onSuccess: () => {
+      setLibrarySelectedIndex(null);
+      setLibraryNotes("");
+      queryClient.invalidateQueries({ queryKey: ['/api/drills/completions'] });
+      toast({
+        title: "Drill completed!",
+        description: "Great work. Keep the streak going!",
+      });
+    },
+    onError: () => {
+      toast({
+        title: "Error",
+        description: "Failed to save completion. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
+
   const handleMarkComplete = () => {
     setShowNotes(true);
   };
@@ -324,6 +360,28 @@ export default function Drills() {
       notes: notes || undefined,
     });
   };
+
+  const toggleCategory = (category: string) => {
+    setExpandedCategories(prev => {
+      const next = new Set(prev);
+      if (next.has(category)) { next.delete(category); } else { next.add(category); }
+      return next;
+    });
+  };
+
+  const completedIndexes = useMemo(() => {
+    if (!completions) return new Set<number>();
+    return new Set(completions.map(c => c.drillIndex));
+  }, [completions]);
+
+  const groupedLibrary = useMemo(() => {
+    if (!libraryDrills) return {};
+    return libraryDrills.reduce<Record<string, LibraryDrill[]>>((acc, d) => {
+      if (!acc[d.category]) acc[d.category] = [];
+      acc[d.category].push(d);
+      return acc;
+    }, {});
+  }, [libraryDrills]);
 
   const streak = completions ? calculateStreak(completions) : 0;
   const totalCompleted = completions ? completions.length : 0;
@@ -543,6 +601,132 @@ export default function Drills() {
               <p className="text-muted-foreground">No completions yet. Complete today's drill to start your streak!</p>
             </div>
           </Card>
+        )}
+      </div>
+
+      <div className="mb-8" data-testid="section-drill-library">
+        <div className="flex items-center gap-3 mb-6">
+          <Library className="w-6 h-6 text-primary shrink-0" />
+          <div>
+            <h2 className="text-h2 font-bold text-foreground" data-testid="text-library-heading">
+              Drill Library
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              {libraryDrills ? `${libraryDrills.length} drills across ${Object.keys(groupedLibrary).length} categories. Complete any drill to build your streak.` : "Loading drills..."}
+            </p>
+          </div>
+        </div>
+
+        {!libraryDrills ? (
+          <div className="space-y-3">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <Skeleton key={i} className="h-14 w-full" />
+            ))}
+          </div>
+        ) : (
+          <div className="space-y-3">
+            {Object.entries(groupedLibrary).map(([category, drills]) => {
+              const isExpanded = expandedCategories.has(category);
+              const categoryDoneCount = drills.filter(d => completedIndexes.has(d.index)).length;
+              return (
+                <Card key={category} className="overflow-hidden" data-testid={`card-category-${category.replace(/\s+/g, '-').toLowerCase()}`}>
+                  <button
+                    className="w-full flex items-center justify-between px-4 py-3 text-left hover-elevate"
+                    onClick={() => toggleCategory(category)}
+                    data-testid={`button-toggle-category-${category.replace(/\s+/g, '-').toLowerCase()}`}
+                  >
+                    <div className="flex items-center gap-3">
+                      {isExpanded ? <ChevronDown className="w-4 h-4 text-muted-foreground shrink-0" /> : <ChevronRight className="w-4 h-4 text-muted-foreground shrink-0" />}
+                      <span className="font-semibold text-foreground">{category}</span>
+                      <Badge className={cn("no-default-hover-elevate no-default-active-elevate text-xs", getCategoryBadgeClass(category))}>
+                        {drills.length} drills
+                      </Badge>
+                    </div>
+                    {categoryDoneCount > 0 && (
+                      <span className="text-xs text-green-600 dark:text-green-400 font-medium shrink-0">
+                        {categoryDoneCount} of {drills.length} done
+                      </span>
+                    )}
+                  </button>
+
+                  <AnimatePresence initial={false}>
+                    {isExpanded && (
+                      <motion.div
+                        key="content"
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        transition={{ duration: 0.2 }}
+                        style={{ overflow: "hidden" }}
+                      >
+                        <div className="border-t border-border divide-y divide-border">
+                          {drills.map((drill) => {
+                            const isDone = completedIndexes.has(drill.index);
+                            const isSelected = librarySelectedIndex === drill.index;
+                            return (
+                              <div key={drill.index} className="px-4 py-3" data-testid={`drill-library-item-${drill.index}`}>
+                                <div className="flex items-start gap-3">
+                                  <div className="flex-1 min-w-0">
+                                    <p className="text-sm text-foreground leading-relaxed">{drill.drill}</p>
+                                    {isSelected && (
+                                      <motion.div
+                                        initial={{ opacity: 0, y: 4 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        className="mt-3 space-y-2"
+                                      >
+                                        <Textarea
+                                          value={libraryNotes}
+                                          onChange={(e) => setLibraryNotes(e.target.value)}
+                                          placeholder="Add notes about this drill (optional)"
+                                          className="min-h-20 text-sm"
+                                          data-testid={`textarea-library-notes-${drill.index}`}
+                                        />
+                                        <div className="flex gap-2 flex-wrap">
+                                          <Button
+                                            size="sm"
+                                            onClick={() => libraryCompleteMutation.mutate({ drillIndex: drill.index, drillTitle: drill.drill, notes: libraryNotes || undefined })}
+                                            disabled={libraryCompleteMutation.isPending}
+                                            data-testid={`button-library-submit-${drill.index}`}
+                                          >
+                                            {libraryCompleteMutation.isPending && <Loader2 className="w-3 h-3 animate-spin mr-1" />}
+                                            Save Completion
+                                          </Button>
+                                          <Button size="sm" variant="outline" onClick={() => { setLibrarySelectedIndex(null); setLibraryNotes(""); }} data-testid={`button-library-cancel-${drill.index}`}>
+                                            Cancel
+                                          </Button>
+                                        </div>
+                                      </motion.div>
+                                    )}
+                                  </div>
+                                  <div className="shrink-0">
+                                    {isDone ? (
+                                      <div className="flex items-center gap-1 text-green-600 dark:text-green-400" data-testid={`status-done-${drill.index}`}>
+                                        <CheckCircle className="w-5 h-5" />
+                                        <span className="text-xs font-medium hidden sm:block">Done</span>
+                                      </div>
+                                    ) : !isSelected ? (
+                                      <Button
+                                        size="sm"
+                                        variant="outline"
+                                        onClick={() => setLibrarySelectedIndex(drill.index)}
+                                        data-testid={`button-library-complete-${drill.index}`}
+                                      >
+                                        Complete
+                                      </Button>
+                                    ) : null}
+                                  </div>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </Card>
+              );
+            })}
+          </div>
         )}
       </div>
 
