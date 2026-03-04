@@ -259,7 +259,7 @@ export const podcasts = pgTable("podcasts", {
   title: varchar("title").notNull(),
   description: text("description"),
   episodeNumber: integer("episode_number"),
-  audioUrl: varchar("audio_url").notNull(),
+  audioUrl: varchar("audio_url"),
   publishDate: timestamp("publish_date").notNull().defaultNow(),
   duration: varchar("duration"),
   createdAt: timestamp("created_at").defaultNow(),
