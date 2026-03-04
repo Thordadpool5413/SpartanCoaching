@@ -17,6 +17,12 @@ export default function QuickStartGuide() {
           body { margin: 0; padding: 20px; }
           button, nav, header, footer { display: none !important; }
           .page-break { page-break-before: always; }
+          div.bg-gray-50, div.bg-gray-100, div.bg-blue-50,
+          div.bg-yellow-50, div.bg-red-50, div.bg-red-600,
+          div.bg-gray-900, div.bg-white.p-3, div.border-2, div.border-l-4 {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
         }
       `}</style>
       

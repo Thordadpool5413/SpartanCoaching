@@ -60,6 +60,10 @@ export default function ObjectionCards() {
           body { margin: 0; padding: 10px; }
           button, nav, header, footer { display: none !important; }
           .card { page-break-inside: avoid; }
+          div.bg-yellow-50, div.bg-gray-50, div.border-2, div.border-l-4 {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
         }
       `}</style>
       

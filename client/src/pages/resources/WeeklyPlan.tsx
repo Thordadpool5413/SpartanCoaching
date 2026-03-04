@@ -16,6 +16,10 @@ export default function WeeklyPlan() {
         @media print {
           body { margin: 0; padding: 20px; }
           button, nav, header, footer { display: none !important; }
+          div.bg-gray-100, div.bg-red-600, div.border-2, div.border {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
         }
         input, textarea {
           border: none;

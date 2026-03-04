@@ -16,6 +16,16 @@ export default function MetricsDashboard() {
         @media print {
           body { margin: 0; padding: 20px; }
           button, nav, header, footer { display: none !important; }
+          div.bg-gray-50, div.bg-gray-100, div.bg-green-100,
+          div.bg-yellow-100, div.bg-red-600, div.bg-gray-900,
+          div.border-2, div.border-l-4 {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
+          tr {
+            break-inside: avoid !important;
+            page-break-inside: avoid !important;
+          }
         }
         input[type="text"], input[type="number"] {
           border: none;
