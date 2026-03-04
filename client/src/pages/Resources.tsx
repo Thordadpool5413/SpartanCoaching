@@ -14,6 +14,7 @@ import type { SelectResource } from "@shared/schema";
 import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
 import { apiRequest } from "@/lib/queryClient";
+import { ContentNotice } from "@/components/ContentNotice";
 
 export default function Resources() {
   const { data: resourcesData, isLoading, isError } = useQuery<{ resources: SelectResource[] }>({
@@ -120,6 +121,7 @@ export default function Resources() {
           Download field-tested templates, scripts, checklists, and guides to elevate your hospice sales performance.
         </p>
       </div>
+      <ContentNotice />
 
       <div className="space-y-12">
         {Object.entries(groupedResources).map(([category, categoryResources]) => (

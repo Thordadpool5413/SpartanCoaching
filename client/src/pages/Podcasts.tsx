@@ -8,6 +8,7 @@ import type { SelectPodcast } from "@shared/schema";
 import { BackButton } from "@/components/BackButton";
 import { SEO } from "@/components/SEO";
 import { Link } from "wouter";
+import { ContentNotice } from "@/components/ContentNotice";
 
 export default function Podcasts() {
   const { data, isLoading } = useQuery<{ podcasts: SelectPodcast[] }>({
@@ -71,6 +72,7 @@ export default function Podcasts() {
           Listen to expert insights, strategies, and real-world advice to elevate your hospice sales performance
         </p>
       </div>
+      <ContentNotice />
 
       <div className="grid md:grid-cols-2 gap-cards">
         {podcasts.map((podcast) => (

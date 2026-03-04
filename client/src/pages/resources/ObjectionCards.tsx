@@ -2,6 +2,7 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
+import { ContentNotice } from "@/components/ContentNotice";
 
 export default function ObjectionCards() {
   const objections = [
@@ -52,6 +53,7 @@ export default function ObjectionCards() {
       <SEO />
       <div className="print:hidden">
         <Breadcrumbs items={[{ label: "Training Resources", href: "/resources" }, { label: "Objection Cards" }]} />
+        <ContentNotice />
       </div>
       <style>{`
         @media print {

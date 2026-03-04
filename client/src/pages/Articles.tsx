@@ -6,6 +6,7 @@ import { BackButton } from "@/components/BackButton";
 import { ExternalLink, Calendar, Star, FileText } from "lucide-react";
 import type { SelectArticle } from "@shared/schema";
 import { SEO } from "@/components/SEO";
+import { ContentNotice } from "@/components/ContentNotice";
 
 export default function Articles() {
   const { data, isLoading } = useQuery<{ articles: SelectArticle[] }>({
@@ -77,6 +78,7 @@ export default function Articles() {
           Real strategies from the field, not theory from a desk.
         </p>
       </div>
+      <ContentNotice />
 
       {/* Featured Articles */}
       {featuredArticles.length > 0 && (

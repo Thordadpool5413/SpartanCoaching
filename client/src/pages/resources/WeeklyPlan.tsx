@@ -2,6 +2,7 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
+import { ContentNotice } from "@/components/ContentNotice";
 
 export default function WeeklyPlan() {
   return (
@@ -9,6 +10,7 @@ export default function WeeklyPlan() {
       <SEO />
       <div className="print:hidden">
         <Breadcrumbs items={[{ label: "Training Resources", href: "/resources" }, { label: "Weekly Plan" }]} />
+        <ContentNotice />
       </div>
       <style>{`
         @media print {
