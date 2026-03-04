@@ -1057,15 +1057,11 @@ body {
   body::after {
     content: "\00A9 Spartan Coaching \2014 For personal use only. Not for resale or redistribution. spartan-coaching-schools.org";
     display: block;
-    position: fixed;
-    bottom: 0;
-    left: 0;
-    right: 0;
     text-align: center;
     font-size: 9px;
     color: #666;
     border-top: 1px solid #ccc;
-    padding: 6px 0;
-    background: white;
+    padding: 8px 0 4px;
+    margin-top: 24px;
   }
 }
