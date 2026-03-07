@@ -237,7 +237,10 @@ export function Header() {
             { path: "/tools/research", label: "Territory Research", description: "Research facilities" },
             { path: "/tools/email-templates", label: "Email Templates", description: "Professional emails" },
             { path: "/tools/role-play", label: "Role-Play Practice", description: "Practice with AI" },
-            { path: "/tools/roi-calculator", label: "ROI Calculator", description: "Estimate coaching impact" },
+          ]} />
+          <NavDropdown label="Calculators" dataTestId="dropdown-calculators" items={[
+            { path: "/tools/roi-calculator", label: "ROI Calculator", description: "Estimate the revenue impact of Spartan Coaching" },
+            { path: "/tools/activity-calculator", label: "Activity Calculator", description: "Convert your admission goal into daily conversation targets" },
           ]} />
           <NavDropdown label="Learn" dataTestId="dropdown-learn" items={[
             { path: "/learn/knowledge-base", label: "Knowledge Base", description: "Hospice terminology and regulations" },
@@ -304,7 +307,14 @@ export function Header() {
                   { path: "/tools/research", label: "Territory Research" },
                   { path: "/tools/email-templates", label: "Email Templates" },
                   { path: "/tools/role-play", label: "Role-Play Practice" },
+                ].map((item) => (
+                  <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
+                ))}
+
+                <MobileNavSection title="Calculators" />
+                {[
                   { path: "/tools/roi-calculator", label: "ROI Calculator" },
+                  { path: "/tools/activity-calculator", label: "Activity Calculator" },
                 ].map((item) => (
                   <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
                 ))}
