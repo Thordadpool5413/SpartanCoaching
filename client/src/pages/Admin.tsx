@@ -929,7 +929,7 @@ export default function Admin() {
       <div className="mb-8">
         <h1 className="text-5xl font-black mb-4" data-testid="text-admin-title">Admin Dashboard</h1>
         <p className="text-xl text-muted-foreground">
-          Manage inquiries, newsletter subscribers, and published articles
+          Manage inquiries, subscribers, articles, resources, podcasts, testimonials, and more
         </p>
       </div>
 
