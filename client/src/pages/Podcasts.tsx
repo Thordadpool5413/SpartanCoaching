@@ -3,12 +3,13 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Calendar, Clock, Mic } from "lucide-react";
+import { Calendar, Clock, Mic, Radio } from "lucide-react";
 import type { SelectPodcast } from "@shared/schema";
 import { BackButton } from "@/components/BackButton";
 import { SEO } from "@/components/SEO";
 import { Link } from "wouter";
 import { ContentNotice } from "@/components/ContentNotice";
+import { NewsletterSignup } from "@/components/NewsletterSignup";
 
 export default function Podcasts() {
   const { data, isLoading } = useQuery<{ podcasts: SelectPodcast[] }>({
@@ -73,6 +74,26 @@ export default function Podcasts() {
         </p>
       </div>
       <ContentNotice />
+
+      {/* Season launch newsletter signup */}
+      <div className="mb-10 sm:mb-14">
+        <Card className="border-2 overflow-hidden">
+          <div className="p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-6">
+            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <Radio className="w-6 h-6 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-bold text-foreground mb-1">Season 1 is in production</h2>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                All episodes are currently being recorded and edited. Subscribe below and you will be among the first to know when new episodes drop.
+              </p>
+            </div>
+            <div className="w-full sm:w-auto sm:min-w-72 flex-shrink-0">
+              <NewsletterSignup />
+            </div>
+          </div>
+        </Card>
+      </div>
 
       <div className="grid md:grid-cols-2 gap-cards">
         {podcasts.map((podcast) => (

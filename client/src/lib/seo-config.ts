@@ -47,9 +47,9 @@ const seoDefaults: Record<string, SEOConfig> = {
     keywords: 'territory research, sales territory, market research, hospice demographics, facility research',
   },
   '/tools/transcribe': {
-    title: 'Audio Transcription | Spartan Coaching',
-    description: 'Transcribe sales calls instantly with AI. Capture details, follow-ups, and coaching insights to improve every conversation. Try free.',
-    keywords: 'audio transcription, sales call transcription, meeting transcription, AI transcription',
+    title: 'Call Transcriber | Spartan Coaching',
+    description: 'Transcribe hospice sales calls instantly with AI. Capture details, follow-ups, and coaching insights to improve every conversation. Try free.',
+    keywords: 'call transcriber, sales call transcription, hospice call notes, AI transcription, meeting transcription',
   },
   '/tools/email-templates': {
     title: 'Email Templates | Spartan Coaching',
@@ -200,6 +200,21 @@ const seoDefaults: Record<string, SEOConfig> = {
     title: 'Compliance and Ethics | Spartan Coaching',
     description: 'Our ethical boundaries, compliance posture, and what we will never train. Spartan Coaching operates within clear guidelines to protect patients, providers, and the profession.',
     keywords: 'compliance, ethics, hospice compliance, sales ethics, PHI protection, HIPAA, ethical coaching',
+  },
+  '/quiz': {
+    title: 'Hospice Knowledge Quiz | Spartan Coaching',
+    description: 'Test your hospice sales knowledge with our interactive quiz. Covers eligibility, Medicare benefit, regulations, and clinical terminology. See how you score.',
+    keywords: 'hospice knowledge quiz, hospice sales test, Medicare hospice benefit quiz, hospice eligibility quiz, sales training quiz',
+  },
+  '/manifesto': {
+    title: 'The Spartan Manifesto | Spartan Coaching',
+    description: 'The principles that guide every Spartan-trained hospice sales professional. Our commitment to discipline, empathy, and ethical patient advocacy.',
+    keywords: 'Spartan Manifesto, hospice sales principles, sales ethics, patient advocacy, Spartan Coaching values',
+  },
+  '/tools/activity-calculator': {
+    title: 'Activity Calculator | Spartan Coaching',
+    description: 'Calculate the exact number of calls, visits, and touches needed to hit your hospice census goals. Build a data-driven weekly activity plan.',
+    keywords: 'activity calculator, hospice sales activity, sales goal calculator, census calculator, weekly sales plan',
   },
 };
 

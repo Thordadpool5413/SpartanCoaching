@@ -492,6 +492,31 @@ export default function KnowledgeBase() {
               ))}
             </StaggerContainer>
           )}
+
+          {/* Quiz CTA */}
+          <FadeIn>
+            <div className="mt-14 mb-4">
+              <Card className="border-2" data-testid="card-quiz-cta">
+                <CardContent className="p-6 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center gap-6">
+                  <div className="flex-shrink-0 w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <BookOpen className="w-6 h-6 text-primary" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-lg font-bold text-foreground mb-1">Ready to test yourself?</h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Put your hospice knowledge to work with our interactive quiz. Covers eligibility, Medicare benefit rules, clinical terms, and compliance.
+                    </p>
+                  </div>
+                  <Button asChild className="flex-shrink-0" data-testid="button-take-quiz-cta">
+                    <Link href="/quiz">
+                      <ChevronRight className="w-4 h-4 mr-2" />
+                      Take the Quiz
+                    </Link>
+                  </Button>
+                </CardContent>
+              </Card>
+            </div>
+          </FadeIn>
         </div>
       </section>
     </div>

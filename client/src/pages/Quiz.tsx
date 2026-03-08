@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/BackButton";
 import { CheckCircle, XCircle, Printer, RotateCcw, ChevronRight, BookOpen } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Link } from "wouter";
 
 interface Question {
   id: number;
@@ -554,6 +555,12 @@ export default function Quiz() {
                       <RotateCcw className="w-4 h-4 mr-2" />
                       Retake Quiz
                     </Button>
+                    <Button asChild variant="outline" className="no-print" data-testid="button-study-knowledge-base">
+                      <Link href="/learn/knowledge-base">
+                        <BookOpen className="w-4 h-4 mr-2" />
+                        Study Knowledge Base
+                      </Link>
+                    </Button>
                   </div>
                 </CardContent>
               </Card>
@@ -613,6 +620,12 @@ export default function Quiz() {
                 <Button onClick={handleRestart} variant="outline" data-testid="button-retake-quiz-bottom">
                   <RotateCcw className="w-4 h-4 mr-2" />
                   Retake Quiz
+                </Button>
+                <Button asChild variant="outline" data-testid="button-study-knowledge-base-bottom">
+                  <Link href="/learn/knowledge-base">
+                    <BookOpen className="w-4 h-4 mr-2" />
+                    Study Knowledge Base
+                  </Link>
                 </Button>
               </div>
             </div>
