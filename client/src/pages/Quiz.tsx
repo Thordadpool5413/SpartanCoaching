@@ -4,9 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { BackButton } from "@/components/BackButton";
-import { CheckCircle, XCircle, Printer, RotateCcw, ChevronRight, BookOpen } from "lucide-react";
+import { CheckCircle, XCircle, Printer, RotateCcw, ChevronRight, BookOpen, Award } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Link } from "wouter";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 interface Question {
   id: number;
@@ -289,6 +292,8 @@ export default function Quiz() {
   const [answers, setAnswers] = useState<(number | null)[]>(new Array(questions.length).fill(null));
   const [revealed, setRevealed] = useState(false);
   const resultsRef = useRef<HTMLDivElement>(null);
+  const [certName, setCertName] = useState("");
+  const [showCertDialog, setShowCertDialog] = useState(false);
 
   const question = questions[current];
   const score = answers.filter((a, i) => a === questions[i].correctIndex).length;
@@ -332,11 +337,63 @@ export default function Quiz() {
     setRevealed(false);
   };
 
+  const perf = performanceLabel();
+
   const handlePrint = () => {
     window.print();
   };
 
-  const perf = performanceLabel();
+  const handlePrintCert = () => {
+    const displayName = certName.trim() || "Your Name";
+    const tier = perf.label;
+    const dateStr = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    const certHtml = `<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8" />
+<title>Spartan Coaching Certificate</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { background: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: 'Inter', Arial, sans-serif; }
+  .cert { width: 760px; padding: 56px 72px; border: 3px solid #b91c1c; position: relative; text-align: center; }
+  .cert::before { content: ''; position: absolute; inset: 8px; border: 1px solid #b91c1c; opacity: 0.3; pointer-events: none; }
+  .brand { font-size: 13px; letter-spacing: 4px; text-transform: uppercase; color: #b91c1c; font-weight: 600; margin-bottom: 28px; }
+  .heading { font-family: 'Playfair Display', Georgia, serif; font-size: 34px; font-weight: 700; color: #111; letter-spacing: 1px; margin-bottom: 32px; line-height: 1.2; }
+  .certifies { font-size: 14px; color: #777; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
+  .name { font-family: 'Playfair Display', Georgia, serif; font-size: 40px; font-weight: 700; color: #111; margin-bottom: 20px; border-bottom: 2px solid #b91c1c; display: inline-block; padding-bottom: 8px; min-width: 300px; }
+  .has-demonstrated { font-size: 15px; color: #444; margin-bottom: 8px; }
+  .tier { font-size: 20px; font-weight: 700; color: #b91c1c; margin-bottom: 4px; }
+  .subject { font-family: 'Playfair Display', Georgia, serif; font-size: 24px; color: #111; margin-bottom: 32px; }
+  .meta { font-size: 13px; color: #888; margin-bottom: 8px; }
+  .rule { border: none; border-top: 1px solid #e5e7eb; margin: 28px auto; width: 200px; }
+  .footer { font-size: 12px; color: #aaa; letter-spacing: 1px; }
+  @media print { body { min-height: auto; } }
+</style>
+</head>
+<body>
+<div class="cert">
+  <div class="brand">Spartan Coaching</div>
+  <div class="heading">Certificate of Achievement</div>
+  <div class="certifies">This certifies that</div>
+  <div class="name">${displayName}</div>
+  <div class="has-demonstrated">has demonstrated</div>
+  <div class="tier">${tier} Proficiency</div>
+  <div class="subject">in Hospice Sales Knowledge</div>
+  <div class="meta">Score: ${score}/${questions.length} &mdash; ${pct}%</div>
+  <div class="meta">${dateStr}</div>
+  <hr class="rule" />
+  <div class="footer">SPARTAN COACHING &mdash; THE AUTHORITY IN HOSPICE SALES EXCELLENCE</div>
+</div>
+<script>window.onload = function() { window.print(); setTimeout(function() { window.close(); }, 500); };</script>
+</body>
+</html>`;
+    const win = window.open("", "_blank");
+    if (win) {
+      win.document.write(certHtml);
+      win.document.close();
+    }
+  };
 
   return (
     <>
@@ -561,6 +618,12 @@ export default function Quiz() {
                         Study Knowledge Base
                       </Link>
                     </Button>
+                    {pct >= 75 && (
+                      <Button onClick={() => setShowCertDialog(true)} variant="default" className="no-print" data-testid="button-get-certificate">
+                        <Award className="w-4 h-4 mr-2" />
+                        Get Certificate
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -627,11 +690,62 @@ export default function Quiz() {
                     Study Knowledge Base
                   </Link>
                 </Button>
+                {pct >= 75 && (
+                  <Button onClick={() => setShowCertDialog(true)} variant="default" data-testid="button-get-certificate-bottom">
+                    <Award className="w-4 h-4 mr-2" />
+                    Get Certificate
+                  </Button>
+                )}
               </div>
             </div>
           )}
         </div>
       </div>
+
+      <Dialog open={showCertDialog} onOpenChange={setShowCertDialog}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Your Certificate</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="cert-name-input">Your name</Label>
+              <Input
+                id="cert-name-input"
+                value={certName}
+                onChange={(e) => setCertName(e.target.value)}
+                placeholder="Enter your full name"
+                className="mt-1.5"
+                data-testid="input-cert-name"
+              />
+            </div>
+            <div className="border-2 border-primary/40 p-6 text-center space-y-2 relative rounded-md">
+              <div className="absolute inset-2 border border-primary/15 pointer-events-none rounded-sm" />
+              <p className="text-xs tracking-[4px] uppercase text-primary font-semibold">Spartan Coaching</p>
+              <p className="text-lg font-bold text-foreground font-serif">Certificate of Achievement</p>
+              <p className="text-xs text-muted-foreground uppercase tracking-widest">This certifies that</p>
+              <p className="text-2xl font-bold text-foreground border-b-2 border-primary pb-1 inline-block min-w-48">
+                {certName.trim() ? certName.trim() : <span className="text-muted-foreground italic text-xl font-normal">Your Name</span>}
+              </p>
+              <p className="text-sm text-muted-foreground">has demonstrated</p>
+              <p className={cn("text-base font-bold", perf.color)}>{perf.label} Proficiency</p>
+              <p className="text-sm font-medium text-foreground">in Hospice Sales Knowledge</p>
+              <p className="text-xs text-muted-foreground">Score: {score}/{questions.length} &mdash; {pct}%</p>
+              <p className="text-xs text-muted-foreground">{new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
+              <div className="border-t border-border mt-3 pt-2">
+                <p className="text-[10px] text-muted-foreground tracking-widest uppercase">Spartan Coaching &mdash; The Authority in Hospice Sales Excellence</p>
+              </div>
+            </div>
+          </div>
+          <DialogFooter className="flex flex-wrap gap-2">
+            <Button variant="outline" onClick={() => setShowCertDialog(false)}>Cancel</Button>
+            <Button onClick={handlePrintCert} data-testid="button-print-certificate">
+              <Printer className="w-4 h-4 mr-2" />
+              Print Certificate
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }

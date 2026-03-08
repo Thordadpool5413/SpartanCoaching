@@ -38,7 +38,7 @@ import {
   ObjectStorageService,
   ObjectNotFoundError,
 } from "./objectStorage";
-import { sendInquiryNotification, sendNewsletterConfirmation, sendGeneratedEmail, sendAgreementConfirmation, sendResourceLeadNotification, sendNewsletterNotification, sendNewsletterBroadcast } from "./resend";
+import { sendInquiryNotification, sendNewsletterConfirmation, sendGeneratedEmail, sendAgreementConfirmation, sendResourceLeadNotification, sendNewsletterNotification, sendNewsletterBroadcast, sendDripDay3, sendDripDay7 } from "./resend";
 
 // Get admin password from environment, default to secure value for development
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "5413";
@@ -308,6 +308,12 @@ Keep it under 100 words and use a warm, professional tone.`;
       );
       sendNewsletterNotification(subscriberData.email).catch(err =>
         console.error("Failed to send newsletter notification:", err)
+      );
+      sendDripDay3(subscriberData.email).catch(err =>
+        console.error("Drip day 3 failed:", err)
+      );
+      sendDripDay7(subscriberData.email).catch(err =>
+        console.error("Drip day 7 failed:", err)
       );
       
       console.log("Newsletter subscriber:", subscriber);
