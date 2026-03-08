@@ -243,6 +243,7 @@ export function Header() {
           <NavDropdown label="Calculators" dataTestId="dropdown-calculators" items={[
             { path: "/tools/roi-calculator", label: "ROI Calculator", description: "Estimate the revenue impact of Spartan Coaching" },
             { path: "/tools/activity-calculator", label: "Activity Calculator", description: "Convert your admission goal into daily conversation targets" },
+            { path: "/tools/branch-profitability", label: "Branch Profitability Simulator", description: "Model break-even ADC, staffing, and cash runway for your branch" },
           ]} />
           <NavDropdown label="Learn" dataTestId="dropdown-learn" items={[
             { path: "/learn/knowledge-base", label: "Knowledge Base", description: "Hospice terminology and regulations" },
@@ -319,6 +320,7 @@ export function Header() {
                 {[
                   { path: "/tools/roi-calculator", label: "ROI Calculator" },
                   { path: "/tools/activity-calculator", label: "Activity Calculator" },
+                  { path: "/tools/branch-profitability", label: "Branch Profitability Simulator" },
                 ].map((item) => (
                   <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
                 ))}
