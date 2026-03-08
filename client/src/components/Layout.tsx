@@ -237,6 +237,7 @@ export function Header() {
             { path: "/tools/research", label: "Territory Research", description: "Research facilities" },
             { path: "/tools/email-templates", label: "Email Templates", description: "Professional emails" },
             { path: "/tools/role-play", label: "Role-Play Practice", description: "Practice with AI" },
+            { path: "/tools/transcribe", label: "Call Transcriber", description: "Transcribe and summarize sales calls" },
           ]} />
           <NavDropdown label="Calculators" dataTestId="dropdown-calculators" items={[
             { path: "/tools/roi-calculator", label: "ROI Calculator", description: "Estimate the revenue impact of Spartan Coaching" },
@@ -307,6 +308,7 @@ export function Header() {
                   { path: "/tools/research", label: "Territory Research" },
                   { path: "/tools/email-templates", label: "Email Templates" },
                   { path: "/tools/role-play", label: "Role-Play Practice" },
+                  { path: "/tools/transcribe", label: "Call Transcriber" },
                 ].map((item) => (
                   <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
                 ))}
