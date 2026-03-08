@@ -155,27 +155,40 @@ export async function generateQuickResponse(prompt: string): Promise<string> {
 }
 
 /**
- * Generate grounded search results
+ * Generate grounded search results using OpenAI web search
  */
 export async function generateGroundedSearch(query: string): Promise<{
   text: string;
   sources?: Array<{ title: string; uri: string }>;
 }> {
   try {
-    const response = await openai.chat.completions.create({
-      model: MODEL,
-      messages: [
-        { 
-          role: "system", 
-          content: `You are a hospice industry research assistant. Provide accurate, well-researched information about hospice care, Medicare regulations, sales strategies, and industry best practices. When possible, mention specific sources of information.` 
-        },
-        { role: "user", content: `Research this hospice sales question and provide a detailed, well-researched answer with specific facts and best practices: ${query}` }
-      ],
-      max_completion_tokens: 2048,
+    const response = await (openai as any).responses.create({
+      model: "gpt-4o",
+      tools: [{ type: "web_search_preview" }],
+      instructions: `You are a hospice industry research assistant. Provide accurate, well-researched information about hospice care, Medicare regulations, sales strategies, and industry best practices. Structure your answer clearly with key findings, practical implications, and relevant facts. Use web search to find the most current and accurate information.`,
+      input: `Research this hospice sales question and provide a detailed, well-researched answer with specific facts and best practices: ${query}`,
     });
 
-    const text = response.choices[0].message.content || "";
-    return { text, sources: undefined };
+    const text = response.output_text || "";
+
+    const seen = new Set<string>();
+    const sources: Array<{ title: string; uri: string }> = [];
+    for (const item of response.output || []) {
+      if (item.type === "message") {
+        for (const content of item.content || []) {
+          if (content.type === "output_text") {
+            for (const annotation of content.annotations || []) {
+              if (annotation.type === "url_citation" && !seen.has(annotation.url)) {
+                seen.add(annotation.url);
+                sources.push({ title: annotation.title || annotation.url, uri: annotation.url });
+              }
+            }
+          }
+        }
+      }
+    }
+
+    return { text, sources: sources.length > 0 ? sources : undefined };
   } catch (error: any) {
     console.error("OpenAI API error (research):", error);
     throw new Error(`Research failed: ${error.message}`);
