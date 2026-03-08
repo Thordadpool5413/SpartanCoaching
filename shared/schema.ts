@@ -127,6 +127,7 @@ export const inquiries = pgTable("inquiries", {
   serviceType: text("service_type"),
   message: text("message").notNull(),
   submittedAt: bigint("submitted_at", { mode: "number" }).notNull(),
+  isRead: boolean("is_read").default(false).notNull(),
 });
 
 // Insert schema and types for inquiries

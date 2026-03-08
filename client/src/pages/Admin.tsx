@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Mail, Phone, Building, Calendar, Users, Lock, LogOut, Plus, Edit, Trash2, ExternalLink, Star, FileText as FileSignature, PlayCircle, Target, Quote, Award, ChevronDown, ChevronUp } from "lucide-react";
+import { Mail, Phone, Building, Calendar, Users, Lock, LogOut, Plus, Edit, Trash2, ExternalLink, Star, FileText as FileSignature, PlayCircle, Target, Quote, Award, ChevronDown, ChevronUp, Download, CheckCircle, Circle } from "lucide-react";
 import type { SelectInquiry, SelectNewsletterSubscriber, SelectArticle, InsertArticle, VisitorAnalytics, SelectResource, InsertResource, SelectPodcast, InsertPodcast, SelectSignedAgreement, SelectRoleplaySession, SelectDrillCompletion, SelectTestimonial, SelectCaseStudy, InsertTestimonial, InsertCaseStudy } from "@shared/schema";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
@@ -22,6 +22,31 @@ import { SEO } from "@/components/SEO";
 
 const ADMIN_CODE = import.meta.env.VITE_ADMIN_PASSWORD || "5413";
 const ADMIN_AUTH_KEY = "spartan-admin-auth";
+
+const adminGet = async (url: string) => {
+  const res = await fetch(url, {
+    headers: { "X-Admin-Auth": ADMIN_CODE },
+    credentials: "include",
+  });
+  if (!res.ok) throw new Error(`${res.status}: ${await res.text()}`);
+  return res.json();
+};
+
+const downloadCSV = (
+  rows: string[][],
+  filename: string
+) => {
+  const csv = rows
+    .map((r) => r.map((c) => `"${String(c ?? "").replace(/"/g, '""')}"`).join(","))
+    .join("\n");
+  const blob = new Blob([csv], { type: "text/csv" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+};
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -72,12 +97,30 @@ export default function Admin() {
 
   const { data: inquiriesData, isLoading: inquiriesLoading } = useQuery<{ inquiries: SelectInquiry[] }>({
     queryKey: ["/api/inquiries"],
+    queryFn: () => adminGet("/api/inquiries"),
     enabled: isAuthenticated,
   });
 
   const { data: subscribersData, isLoading: subscribersLoading } = useQuery<{ subscribers: SelectNewsletterSubscriber[] }>({
     queryKey: ["/api/newsletter/subscribers"],
+    queryFn: () => adminGet("/api/newsletter/subscribers"),
     enabled: isAuthenticated,
+  });
+
+  const markReadMutation = useMutation({
+    mutationFn: async ({ id, isRead }: { id: number; isRead: boolean }) => {
+      const res = await fetch(`/api/inquiries/${id}/read`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "X-Admin-Auth": ADMIN_CODE },
+        credentials: "include",
+        body: JSON.stringify({ isRead }),
+      });
+      if (!res.ok) throw new Error(`${res.status}`);
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/inquiries"] });
+    },
   });
 
   const { data: articlesData, isLoading: articlesLoading } = useQuery<{ articles: SelectArticle[] }>({
@@ -87,6 +130,7 @@ export default function Admin() {
 
   const { data: analyticsData, isLoading: analyticsLoading } = useQuery<{ analytics: VisitorAnalytics }>({
     queryKey: ["/api/analytics/visitors"],
+    queryFn: () => adminGet("/api/analytics/visitors"),
     enabled: isAuthenticated,
   });
 
@@ -102,6 +146,7 @@ export default function Admin() {
 
   const { data: agreementsData, isLoading: agreementsLoading } = useQuery<{ agreements: SelectSignedAgreement[] }>({
     queryKey: ["/api/signed-agreements"],
+    queryFn: () => adminGet("/api/signed-agreements"),
     enabled: isAuthenticated,
   });
 
@@ -127,6 +172,7 @@ export default function Admin() {
 
   const { data: eventAnalyticsData, isLoading: eventAnalyticsLoading } = useQuery<{ analytics: { aiToolUsage: Array<{ eventName: string; count: number }>; resourceDownloads: Array<{ eventName: string; count: number }>; contactSubmissions: number } }>({
     queryKey: ["/api/analytics/events"],
+    queryFn: () => adminGet("/api/analytics/events"),
     enabled: isAuthenticated,
   });
 
@@ -1069,8 +1115,13 @@ export default function Admin() {
 
       <Tabs defaultValue="inquiries" className="space-y-6">
         <TabsList className="flex w-full max-w-6xl overflow-x-auto">
-          <TabsTrigger value="inquiries" data-testid="tab-inquiries">
+          <TabsTrigger value="inquiries" data-testid="tab-inquiries" className="gap-2">
             Inquiries ({inquiries.length})
+            {inquiries.filter(i => !i.isRead).length > 0 && (
+              <Badge variant="destructive" className="text-xs px-1.5 py-0 h-5 min-w-[1.25rem]">
+                {inquiries.filter(i => !i.isRead).length}
+              </Badge>
+            )}
           </TabsTrigger>
           <TabsTrigger value="subscribers" data-testid="tab-subscribers">
             Subscribers ({subscribers.length})
@@ -1110,47 +1161,102 @@ export default function Admin() {
               </CardContent>
             </Card>
           ) : (
-            inquiries.map((inquiry) => (
-              <Card key={inquiry.id} data-testid={`inquiry-${inquiry.id}`}>
-                <CardHeader>
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="text-2xl">{inquiry.name}</CardTitle>
-                      <CardDescription className="flex items-center gap-2 mt-2">
-                        <Calendar className="w-4 h-4" />
-                        {new Date(inquiry.submittedAt).toLocaleDateString()}
-                      </CardDescription>
+            <>
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  data-testid="button-export-inquiries"
+                  onClick={() =>
+                    downloadCSV(
+                      [
+                        ["Date", "Name", "Email", "Phone", "Company", "Service", "Message"],
+                        ...inquiries.map((i) => [
+                          new Date(i.submittedAt).toLocaleDateString(),
+                          i.name,
+                          i.email,
+                          i.phone,
+                          i.company || "",
+                          i.serviceType || "",
+                          i.message,
+                        ]),
+                      ],
+                      `inquiries-${new Date().toISOString().slice(0, 10)}.csv`
+                    )
+                  }
+                >
+                  <Download className="w-4 h-4" />
+                  Export CSV
+                </Button>
+              </div>
+              {inquiries.map((inquiry) => (
+                <Card
+                  key={inquiry.id}
+                  data-testid={`inquiry-${inquiry.id}`}
+                  className={inquiry.isRead ? "" : "border-primary/50"}
+                >
+                  <CardHeader>
+                    <div className="flex items-start justify-between gap-2 flex-wrap">
+                      <div className="flex items-start gap-3 min-w-0">
+                        {!inquiry.isRead && (
+                          <div className="w-2 h-2 rounded-full bg-primary mt-2.5 shrink-0" data-testid={`dot-unread-${inquiry.id}`} />
+                        )}
+                        <div className="min-w-0">
+                          <CardTitle className="text-2xl">{inquiry.name}</CardTitle>
+                          <CardDescription className="flex items-center gap-2 mt-2">
+                            <Calendar className="w-4 h-4" />
+                            {new Date(inquiry.submittedAt).toLocaleDateString()}
+                          </CardDescription>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        {inquiry.serviceType && (
+                          <Badge variant="secondary">{inquiry.serviceType}</Badge>
+                        )}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="gap-1.5 text-xs"
+                          data-testid={`button-mark-read-${inquiry.id}`}
+                          disabled={markReadMutation.isPending}
+                          onClick={() => markReadMutation.mutate({ id: inquiry.id, isRead: !inquiry.isRead })}
+                        >
+                          {inquiry.isRead ? (
+                            <><Circle className="w-3.5 h-3.5" />Mark Unread</>
+                          ) : (
+                            <><CheckCircle className="w-3.5 h-3.5 text-primary" />Mark Read</>
+                          )}
+                        </Button>
+                      </div>
                     </div>
-                    {inquiry.serviceType && (
-                      <Badge variant="secondary">{inquiry.serviceType}</Badge>
-                    )}
-                  </div>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div className="flex items-center gap-2 text-sm">
-                    <Mail className="w-4 h-4 text-muted-foreground" />
-                    <a href={`mailto:${inquiry.email}`} className="hover:underline">
-                      {inquiry.email}
-                    </a>
-                  </div>
-                  <div className="flex items-center gap-2 text-sm">
-                    <Phone className="w-4 h-4 text-muted-foreground" />
-                    <a href={`tel:${inquiry.phone}`} className="hover:underline">
-                      {inquiry.phone}
-                    </a>
-                  </div>
-                  {inquiry.company && (
+                  </CardHeader>
+                  <CardContent className="space-y-3">
                     <div className="flex items-center gap-2 text-sm">
-                      <Building className="w-4 h-4 text-muted-foreground" />
-                      {inquiry.company}
+                      <Mail className="w-4 h-4 text-muted-foreground" />
+                      <a href={`mailto:${inquiry.email}`} className="hover:underline">
+                        {inquiry.email}
+                      </a>
                     </div>
-                  )}
-                  <div className="mt-4 p-4 bg-muted rounded-lg">
-                    <p className="text-sm whitespace-pre-wrap">{inquiry.message}</p>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
+                    <div className="flex items-center gap-2 text-sm">
+                      <Phone className="w-4 h-4 text-muted-foreground" />
+                      <a href={`tel:${inquiry.phone}`} className="hover:underline">
+                        {inquiry.phone}
+                      </a>
+                    </div>
+                    {inquiry.company && (
+                      <div className="flex items-center gap-2 text-sm">
+                        <Building className="w-4 h-4 text-muted-foreground" />
+                        {inquiry.company}
+                      </div>
+                    )}
+                    <div className="mt-4 p-4 bg-muted rounded-lg">
+                      <p className="text-sm whitespace-pre-wrap">{inquiry.message}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </>
           )}
         </TabsContent>
 
@@ -1166,36 +1272,61 @@ export default function Admin() {
               </CardContent>
             </Card>
           ) : (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Users className="w-5 h-5" />
-                  Newsletter Subscribers
-                </CardTitle>
-                <CardDescription>
-                  {subscribers.length} active subscribers
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {subscribers.map((subscriber) => (
-                    <div
-                      key={subscriber.id}
-                      className="flex items-center justify-between p-3 rounded-lg hover-elevate"
-                      data-testid={`subscriber-${subscriber.id}`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Mail className="w-4 h-4 text-muted-foreground" />
-                        <span>{subscriber.email}</span>
+            <>
+              <div className="flex justify-end">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="gap-2"
+                  data-testid="button-export-subscribers"
+                  onClick={() =>
+                    downloadCSV(
+                      [
+                        ["Date", "Email"],
+                        ...subscribers.map((s) => [
+                          new Date(s.subscribedAt).toLocaleDateString(),
+                          s.email,
+                        ]),
+                      ],
+                      `subscribers-${new Date().toISOString().slice(0, 10)}.csv`
+                    )
+                  }
+                >
+                  <Download className="w-4 h-4" />
+                  Export CSV
+                </Button>
+              </div>
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Users className="w-5 h-5" />
+                    Newsletter Subscribers
+                  </CardTitle>
+                  <CardDescription>
+                    {subscribers.length} active subscribers
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {subscribers.map((subscriber) => (
+                      <div
+                        key={subscriber.id}
+                        className="flex items-center justify-between p-3 rounded-lg hover-elevate"
+                        data-testid={`subscriber-${subscriber.id}`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <Mail className="w-4 h-4 text-muted-foreground" />
+                          <span>{subscriber.email}</span>
+                        </div>
+                        <span className="text-sm text-muted-foreground">
+                          {new Date(subscriber.subscribedAt).toLocaleDateString()}
+                        </span>
                       </div>
-                      <span className="text-sm text-muted-foreground">
-                        {new Date(subscriber.subscribedAt).toLocaleDateString()}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              </CardContent>
-            </Card>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            </>
           )}
         </TabsContent>
 

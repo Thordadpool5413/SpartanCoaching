@@ -106,6 +106,13 @@ async function main() {
     console.log(`Server listening on port ${port}`);
   });
 
+  // Graceful shutdown: release the port before the process exits so restarts don't hit EADDRINUSE
+  const shutdown = () => {
+    server.close(() => process.exit(0));
+  };
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT', shutdown);
+
   // STEP 7: Background initialization (non-blocking)
   setImmediate(async () => {
     try {

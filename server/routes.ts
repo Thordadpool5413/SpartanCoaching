@@ -43,6 +43,15 @@ import { sendInquiryNotification, sendNewsletterConfirmation, sendGeneratedEmail
 // Get admin password from environment, default to secure value for development
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "5413";
 
+// Middleware that guards admin-only read endpoints
+function requireAdmin(req: any, res: any, next: any) {
+  const auth = req.headers["x-admin-auth"];
+  if (auth !== ADMIN_PASSWORD) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  next();
+}
+
 // Deferred initialization - call this AFTER server.listen()
 export async function deferredInit(app: Express): Promise<void> {
   console.log("Deferred initialization complete");
@@ -259,7 +268,7 @@ Keep it under 100 words and use a warm, professional tone.`;
   });
 
   // Get All Inquiries (Admin)
-  app.get("/api/inquiries", async (req, res) => {
+  app.get("/api/inquiries", requireAdmin, async (req, res) => {
     try {
       const inquiries = await storage.getInquiries();
       
@@ -267,6 +276,19 @@ Keep it under 100 words and use a warm, professional tone.`;
     } catch (error: any) {
       console.error("Get inquiries error:", error);
       res.status(500).json({ error: error.message || "Failed to retrieve inquiries" });
+    }
+  });
+
+  // Toggle inquiry read/unread (Admin)
+  app.patch("/api/inquiries/:id/read", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const { isRead } = req.body;
+      const updated = await storage.markInquiryRead(id, Boolean(isRead));
+      res.json({ inquiry: updated });
+    } catch (error: any) {
+      console.error("Mark inquiry read error:", error);
+      res.status(500).json({ error: error.message || "Failed to update inquiry" });
     }
   });
 
@@ -303,7 +325,7 @@ Keep it under 100 words and use a warm, professional tone.`;
   });
 
   // Get Newsletter Subscribers (Admin)
-  app.get("/api/newsletter/subscribers", async (req, res) => {
+  app.get("/api/newsletter/subscribers", requireAdmin, async (req, res) => {
     try {
       const subscribers = await storage.getNewsletterSubscribers();
       
@@ -614,7 +636,7 @@ Subject: [subject line]
     }
   });
 
-  app.get("/api/signed-agreements", async (_req, res) => {
+  app.get("/api/signed-agreements", requireAdmin, async (_req, res) => {
     try {
       const agreements = await storage.getSignedAgreements();
       res.json({ agreements });
@@ -853,7 +875,7 @@ Subject: [subject line]
   });
 
   // Get Visitor Analytics
-  app.get("/api/analytics/visitors", async (req, res) => {
+  app.get("/api/analytics/visitors", requireAdmin, async (req, res) => {
     try {
       const analytics = await storage.getVisitorAnalytics();
       
@@ -875,7 +897,7 @@ Subject: [subject line]
     }
   });
 
-  app.get("/api/analytics/events", async (req, res) => {
+  app.get("/api/analytics/events", requireAdmin, async (req, res) => {
     try {
       const analytics = await storage.getEventAnalytics();
       res.json({ analytics });

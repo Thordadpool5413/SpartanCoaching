@@ -57,6 +57,7 @@ export interface IStorage {
   // Other operations
   createInquiry(inquiry: InsertInquiry): Promise<SelectInquiry>;
   getInquiries(): Promise<SelectInquiry[]>;
+  markInquiryRead(id: number, isRead: boolean): Promise<SelectInquiry>;
   subscribeNewsletter(subscriber: InsertNewsletterSubscriber): Promise<SelectNewsletterSubscriber>;
   getNewsletterSubscribers(): Promise<SelectNewsletterSubscriber[]>;
   unsubscribeNewsletter(email: string): Promise<void>;
@@ -149,6 +150,15 @@ export class DatabaseStorage implements IStorage {
       .select()
       .from(inquiries)
       .orderBy(desc(inquiries.submittedAt));
+  }
+
+  async markInquiryRead(id: number, isRead: boolean): Promise<SelectInquiry> {
+    const [updated] = await db
+      .update(inquiries)
+      .set({ isRead })
+      .where(eq(inquiries.id, id))
+      .returning();
+    return updated;
   }
 
   async subscribeNewsletter(subscriber: InsertNewsletterSubscriber): Promise<SelectNewsletterSubscriber> {
