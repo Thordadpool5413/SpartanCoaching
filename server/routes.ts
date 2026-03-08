@@ -1,5 +1,14 @@
 import type { Express } from "express";
 import express from "express";
+import {
+  heavyAiLimit,
+  standardAiLimit,
+  roleplayLimit,
+  roleplayMessageLimit,
+  lightAiLimit,
+  globalDailyAiCap,
+  getAiUsageToday,
+} from "./rateLimits";
 
 import path from "path";
 import { storage } from "./storage";
@@ -149,7 +158,7 @@ ${pages.map(p => `  <url>
   });
 
   // AI Playbook Generator
-  app.post("/api/playbooks", async (req, res) => {
+  app.post("/api/playbooks", heavyAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const { scenario, desiredOutcomes } = playbookRequestSchema.parse(req.body);
       
@@ -178,7 +187,7 @@ Format the playbook in markdown with clear sections, bullet points, and quoted t
   });
 
   // AI Objection Handler
-  app.post("/api/objections", async (req, res) => {
+  app.post("/api/objections", standardAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const { objection } = objectionRequestSchema.parse(req.body);
       
@@ -201,7 +210,7 @@ Keep it under 100 words and use a warm, professional tone.`;
   });
 
   // AI Research Tool
-  app.post("/api/research", async (req, res) => {
+  app.post("/api/research", standardAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const { query } = researchRequestSchema.parse(req.body);
       
@@ -215,7 +224,7 @@ Keep it under 100 words and use a warm, professional tone.`;
   });
 
   // Daily Drill Generator
-  app.get("/api/daily-drill", async (req, res) => {
+  app.get("/api/daily-drill", lightAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const drillData = await generateDailyDrill();
       res.json(drillData);
@@ -366,7 +375,7 @@ Keep it under 100 words and use a warm, professional tone.`;
   });
 
   // Email Template Generator
-  app.post("/api/email-templates", async (req, res) => {
+  app.post("/api/email-templates", heavyAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const { templateType, recipientName, context, customization } = emailTemplateRequestSchema.parse(req.body);
       
@@ -936,6 +945,10 @@ Subject: [subject line]
     }
   });
 
+  app.get("/api/admin/ai-usage", requireAdmin, (_req, res) => {
+    res.json(getAiUsageToday());
+  });
+
   // Object Storage: Get upload URL for PDF (Admin only - requires password verification)
   app.post("/api/objects/upload", async (req, res) => {
     const adminAuth = req.headers["x-admin-auth"];
@@ -987,7 +1000,7 @@ Subject: [subject line]
 
   // ===== ROLE-PLAY PRACTICE ROUTES =====
 
-  app.post("/api/roleplay/sessions", async (req, res) => {
+  app.post("/api/roleplay/sessions", roleplayLimit, globalDailyAiCap, async (req, res) => {
     try {
       const { scenarioId, scenarioTitle } = roleplayStartSchema.parse(req.body);
       const session = await storage.createRoleplaySession({ scenarioId, scenarioTitle, status: "active" });
@@ -1025,7 +1038,7 @@ Subject: [subject line]
     }
   });
 
-  app.post("/api/roleplay/sessions/:id/messages", async (req, res) => {
+  app.post("/api/roleplay/sessions/:id/messages", roleplayMessageLimit, globalDailyAiCap, async (req, res) => {
     try {
       const sessionId = parseInt(req.params.id);
       const { content } = roleplayMessageSchema.parse(req.body);
@@ -1051,7 +1064,7 @@ Subject: [subject line]
     }
   });
 
-  app.post("/api/roleplay/sessions/:id/feedback", async (req, res) => {
+  app.post("/api/roleplay/sessions/:id/feedback", roleplayMessageLimit, globalDailyAiCap, async (req, res) => {
     try {
       const sessionId = parseInt(req.params.id);
       const session = await storage.getRoleplaySession(sessionId);
@@ -1099,7 +1112,7 @@ Subject: [subject line]
 
   // ===== SEND EMAIL ROUTE =====
 
-  app.post("/api/send-email", async (req, res) => {
+  app.post("/api/send-email", standardAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const { to, subject, body } = sendEmailRequestSchema.parse(req.body);
       const success = await sendGeneratedEmail(to, subject, body);
@@ -1119,7 +1132,7 @@ Subject: [subject line]
   });
 
   // Audio transcription endpoint
-  app.post("/api/transcribe", async (req, res) => {
+  app.post("/api/transcribe", heavyAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const multer = (await import("multer")).default;
       const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
@@ -1153,7 +1166,7 @@ Subject: [subject line]
   });
 
   // Analyze transcript with AI coaching feedback
-  app.post("/api/transcribe/analyze", async (req, res) => {
+  app.post("/api/transcribe/analyze", heavyAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const { transcript } = req.body;
       if (!transcript || typeof transcript !== "string") {

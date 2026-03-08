@@ -176,6 +176,13 @@ export default function Admin() {
     enabled: isAuthenticated,
   });
 
+  const { data: aiUsageData } = useQuery<{ count: number; cap: number; date: string }>({
+    queryKey: ["/api/admin/ai-usage"],
+    queryFn: () => adminGet("/api/admin/ai-usage"),
+    enabled: isAuthenticated,
+    refetchInterval: 30000,
+  });
+
   const inquiries = inquiriesData?.inquiries || [];
   const subscribers = subscribersData?.subscribers || [];
   const articles = articlesData?.articles || [];
@@ -1083,6 +1090,34 @@ export default function Admin() {
 
       <div className="mb-8">
         <h2 className="text-2xl font-bold mb-4">Event Analytics</h2>
+
+        {aiUsageData && (
+          <div className="mb-4">
+            <Card data-testid="card-ai-daily-usage">
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">AI Calls Today (Rate-Limited)</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="flex items-end gap-2">
+                  <span className="text-3xl font-bold" data-testid="text-ai-calls-today">{aiUsageData.count}</span>
+                  <span className="text-muted-foreground mb-0.5">/ {aiUsageData.cap}</span>
+                </div>
+                <div className="mt-2 h-2 w-full bg-muted rounded-full overflow-hidden">
+                  <div
+                    className="h-full rounded-full transition-all"
+                    style={{
+                      width: `${Math.min((aiUsageData.count / aiUsageData.cap) * 100, 100)}%`,
+                      backgroundColor: aiUsageData.count / aiUsageData.cap > 0.8 ? "hsl(var(--destructive))" : "hsl(var(--primary))",
+                    }}
+                    data-testid="progress-ai-usage"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Resets at midnight · Refreshes every 30s</p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
         {eventAnalyticsLoading ? (
           <div className="text-center py-8">
             <p className="text-muted-foreground">Loading event analytics...</p>
