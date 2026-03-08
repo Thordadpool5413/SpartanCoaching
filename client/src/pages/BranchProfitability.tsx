@@ -4,7 +4,6 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SEO } from "@/components/SEO";
 import { FadeIn, SlideUp } from "@/components/animations";
 import { BackButton } from "@/components/BackButton";
@@ -195,6 +194,62 @@ function simulateProfitCurve(inputs: Parameters<typeof computeMetrics>[0]) {
   return rows;
 }
 
+function computeCashRunway(
+  inputs: Parameters<typeof computeMetrics>[0] & { startCash: number }
+) {
+  const { startCash, adc } = inputs;
+  const blendedRevDay = computeBlendedRevenue(inputs.rhc1, inputs.rhc2, inputs.los);
+  const varCostDay = inputs.pharmacy + inputs.dme + inputs.supplies + inputs.travel + inputs.other;
+  const staffing = computeStaffing(adc);
+  const annualPayroll = staffing.reduce((s, r) => s + r.annualCost, 0);
+  const annualOverhead = inputs.overhead * 12;
+  const annualFixedCost = annualPayroll + annualOverhead;
+  const monthlyFixed = annualFixedCost / 12;
+
+  const rows: {
+    month: number;
+    projectedAdc: number;
+    monthlyRevenue: number;
+    monthlyCost: number;
+    monthlyPnl: number;
+    cumulativeCash: number;
+  }[] = [];
+
+  let cumCash = startCash;
+  let monthToPositive = -1;
+  let monthsOfRunway = 18;
+
+  for (let m = 1; m <= 18; m++) {
+    const projectedAdc = m <= 12 ? (adc * m) / 12 : adc;
+    const monthlyRevenue = projectedAdc * blendedRevDay * 30;
+    const monthlyVarCost = projectedAdc * varCostDay * 30;
+    const monthlyCost = monthlyVarCost + monthlyFixed;
+    const monthlyPnl = monthlyRevenue - monthlyCost;
+    cumCash += monthlyPnl;
+
+    rows.push({
+      month: m,
+      projectedAdc: +projectedAdc.toFixed(1),
+      monthlyRevenue,
+      monthlyCost,
+      monthlyPnl,
+      cumulativeCash: cumCash,
+    });
+
+    if (monthToPositive === -1 && monthlyPnl > 0) monthToPositive = m;
+    if (cumCash <= 0 && monthsOfRunway === 18) monthsOfRunway = m - 1;
+  }
+
+  const cashAtMonth12 = rows[11]?.cumulativeCash ?? startCash;
+
+  return {
+    rows,
+    monthToPositive,
+    monthsOfRunway,
+    cashAtMonth12,
+  };
+}
+
 const DEFAULT_INPUTS = {
   scenario: "base" as keyof typeof SCENARIOS,
   adc: 50,
@@ -226,6 +281,7 @@ export default function BranchProfitability() {
 
   const metrics = useMemo(() => computeMetrics(inputs), [inputs]);
   const curve = useMemo(() => simulateProfitCurve(inputs), [inputs]);
+  const runway = useMemo(() => computeCashRunway(inputs), [inputs]);
 
   const status =
     metrics.annualProfit < 0
@@ -449,6 +505,20 @@ export default function BranchProfitability() {
                 data-testid="input-overhead"
               />
             </div>
+            <div>
+              <Label htmlFor="startCash" className="text-sm font-medium">Starting Capital ($)</Label>
+              <p className="text-xs text-muted-foreground mb-1">Cash available at launch for runway analysis</p>
+              <Input
+                id="startCash"
+                type="number"
+                step={5000}
+                min={0}
+                value={inputs.startCash}
+                onChange={(e) => set("startCash", +e.target.value)}
+                className="mt-1"
+                data-testid="input-start-cash"
+              />
+            </div>
           </Card>
 
           {/* Sales */}
@@ -552,6 +622,140 @@ export default function BranchProfitability() {
                   <div className="flex justify-between"><span>Break Even ADC</span><span className="font-semibold">{metrics.breakevenAdc.toFixed(1)}</span></div>
                   <div className="flex justify-between"><span>Target ADC</span><span className="font-semibold">{metrics.targetMarginAdc > 0 ? metrics.targetMarginAdc.toFixed(1) : "N/A"}</span></div>
                 </div>
+              </div>
+            </Card>
+          </FadeIn>
+
+          {/* Cash Runway */}
+          <FadeIn delay={0.08}>
+            <Card className="spacing-card">
+              <div className="flex items-center gap-2 mb-4">
+                <DollarSign className="w-5 h-5 text-primary" />
+                <h2 className="text-base font-bold">Cash Runway — 18-Month Ramp</h2>
+              </div>
+
+              <div className="grid sm:grid-cols-3 gap-4 mb-5">
+                {[
+                  {
+                    label: "Months of Runway",
+                    value: runway.monthsOfRunway === 18 ? "18+" : runway.monthsOfRunway.toString(),
+                    sub: "before cash runs out",
+                    danger: runway.monthsOfRunway < 6,
+                    testId: "text-months-runway",
+                  },
+                  {
+                    label: "Month Goes Cash-Flow +",
+                    value: runway.monthToPositive === -1 ? "18+" : `Month ${runway.monthToPositive}`,
+                    sub: "first month P&L > 0",
+                    danger: runway.monthToPositive === -1,
+                    testId: "text-month-positive",
+                  },
+                  {
+                    label: "Cash at Month 12",
+                    value: fmtK(runway.cashAtMonth12),
+                    sub: "projected remaining",
+                    danger: runway.cashAtMonth12 < 0,
+                    testId: "text-cash-month-12",
+                  },
+                ].map(({ label, value, sub, danger, testId }) => (
+                  <div key={label} className="bg-muted/40 rounded-md px-4 py-3">
+                    <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">{label}</div>
+                    <div
+                      className={`text-xl font-black ${danger ? "text-destructive" : "text-foreground"}`}
+                      data-testid={testId}
+                    >
+                      {value}
+                    </div>
+                    <div className="text-xs text-muted-foreground mt-0.5">{sub}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="h-48 w-full mb-5">
+                <ResponsiveContainer width="100%" height="100%">
+                  <LineChart
+                    data={runway.rows}
+                    margin={{ top: 4, right: 12, left: 0, bottom: 4 }}
+                  >
+                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                    <XAxis
+                      dataKey="month"
+                      tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                      label={{ value: "Month", position: "insideBottomRight", offset: -4, fontSize: 11 }}
+                    />
+                    <YAxis
+                      tickFormatter={(v) => fmtK(v)}
+                      tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                      width={66}
+                    />
+                    <Tooltip
+                      formatter={(v: number) => [fmtK(v), "Cumulative Cash"]}
+                      labelFormatter={(l) => `Month ${l}`}
+                      contentStyle={{
+                        background: "hsl(var(--popover))",
+                        border: "1px solid hsl(var(--border))",
+                        borderRadius: 6,
+                        fontSize: 12,
+                      }}
+                    />
+                    <ReferenceLine y={0} stroke="hsl(var(--destructive))" strokeDasharray="4 4" label={{ value: "$0", fontSize: 10, fill: "hsl(var(--destructive))" }} />
+                    {runway.monthToPositive > 0 && (
+                      <ReferenceLine
+                        x={runway.monthToPositive}
+                        stroke="hsl(var(--primary))"
+                        strokeDasharray="4 4"
+                        label={{ value: "CF+", fontSize: 10, fill: "hsl(var(--primary))" }}
+                      />
+                    )}
+                    <Line
+                      type="monotone"
+                      dataKey="cumulativeCash"
+                      name="Cumulative Cash"
+                      stroke="hsl(var(--primary))"
+                      dot={false}
+                      strokeWidth={2}
+                    />
+                  </LineChart>
+                </ResponsiveContainer>
+              </div>
+
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs" data-testid="table-runway">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left pb-2 font-semibold text-muted-foreground">Mo</th>
+                      <th className="text-right pb-2 font-semibold text-muted-foreground">ADC</th>
+                      <th className="text-right pb-2 font-semibold text-muted-foreground">Revenue</th>
+                      <th className="text-right pb-2 font-semibold text-muted-foreground">Costs</th>
+                      <th className="text-right pb-2 font-semibold text-muted-foreground">Monthly P&L</th>
+                      <th className="text-right pb-2 font-semibold text-muted-foreground">Cum. Cash</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {runway.rows.map((r) => {
+                      const neg = r.cumulativeCash < 0;
+                      const pnlNeg = r.monthlyPnl < 0;
+                      return (
+                        <tr
+                          key={r.month}
+                          className={r.month % 2 === 0 ? "bg-muted/30" : ""}
+                          data-testid={`row-runway-${r.month}`}
+                        >
+                          <td className="py-1 pr-2 font-medium">{r.month}</td>
+                          <td className="py-1 text-right">{r.projectedAdc}</td>
+                          <td className="py-1 text-right">{fmtK(r.monthlyRevenue)}</td>
+                          <td className="py-1 text-right">{fmtK(r.monthlyCost)}</td>
+                          <td className={`py-1 text-right font-semibold ${pnlNeg ? "text-destructive" : "text-green-600 dark:text-green-400"}`}>
+                            {fmtK(r.monthlyPnl)}
+                          </td>
+                          <td className={`py-1 text-right font-bold ${neg ? "text-destructive" : "text-foreground"}`}>
+                            {fmtK(r.cumulativeCash)}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
               </div>
             </Card>
           </FadeIn>
