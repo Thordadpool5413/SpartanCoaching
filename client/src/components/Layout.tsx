@@ -181,6 +181,7 @@ export function Header() {
     { path: "/tools/activity-calculator", label: "Activity Calculator", description: "Convert your admission goal into daily conversation targets" },
     { path: "/tools/transcribe", label: "Call Transcriber", description: "Transcribe and summarize sales calls and meetings" },
     { path: "/learn/knowledge-base", label: "Knowledge Base", description: "Hospice terminology and regulations reference" },
+    { path: "/quiz", label: "Knowledge Quiz", description: "Test your hospice sales knowledge with 20 questions" },
   ];
 
   const allSearchItems = [...routes, ...aiTools];
@@ -245,6 +246,7 @@ export function Header() {
           ]} />
           <NavDropdown label="Learn" dataTestId="dropdown-learn" items={[
             { path: "/learn/knowledge-base", label: "Knowledge Base", description: "Hospice terminology and regulations" },
+            { path: "/quiz", label: "Knowledge Quiz", description: "Test your hospice sales knowledge" },
             { path: "/resources", label: "Training Resources", description: "Templates and guides" },
             { path: "/drills", label: "Daily Drills", description: "Daily coaching exercises" },
             { path: "/podcasts", label: "Podcasts", description: "Expert insights" },
@@ -324,6 +326,7 @@ export function Header() {
                 <MobileNavSection title="Learn" />
                 {[
                   { path: "/learn/knowledge-base", label: "Knowledge Base" },
+                  { path: "/quiz", label: "Knowledge Quiz" },
                   { path: "/resources", label: "Training Resources" },
                   { path: "/drills", label: "Daily Drills" },
                   { path: "/podcasts", label: "Podcasts" },

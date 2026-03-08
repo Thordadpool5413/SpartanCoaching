@@ -29,6 +29,7 @@ const ObjectionCards = lazy(() => import("@/pages/resources/ObjectionCards"));
 const TerritoryTemplate = lazy(() => import("@/pages/resources/TerritoryTemplate"));
 const MetricsDashboard = lazy(() => import("@/pages/resources/MetricsDashboard"));
 const ActivityTracker = lazy(() => import("@/pages/resources/ActivityTracker"));
+const Quiz = lazy(() => import("@/pages/Quiz"));
 const Admin = lazy(() => import("@/pages/Admin"));
 const EmailTemplates = lazy(() => import("@/pages/EmailTemplates"));
 const Testimonials = lazy(() => import("@/pages/Testimonials"));
@@ -129,6 +130,7 @@ function Router() {
           <Route path="/admin" component={Admin} />
           <Route path="/resources/weekly-plan" component={WeeklyPlan} />
           <Route path="/resources/activity-tracker" component={ActivityTracker} />
+          <Route path="/quiz" component={Quiz} />
           <Route path="/resources/quick-start-guide" component={QuickStartGuide} />
           <Route path="/resources/objection-cards" component={ObjectionCards} />
           <Route path="/resources/territory-template" component={TerritoryTemplate} />
