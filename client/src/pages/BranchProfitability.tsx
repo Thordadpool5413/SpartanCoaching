@@ -1,11 +1,11 @@
-import { useState, useMemo } from "react";
+import { useState } from "react";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SEO } from "@/components/SEO";
-import { FadeIn, SlideUp } from "@/components/animations";
+import { SlideUp } from "@/components/animations";
 import { BackButton } from "@/components/BackButton";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import {
@@ -279,9 +279,9 @@ export default function BranchProfitability() {
     setInputs((prev) => ({ ...prev, [field]: value }));
   }
 
-  const metrics = useMemo(() => computeMetrics(inputs), [inputs]);
-  const curve = useMemo(() => simulateProfitCurve(inputs), [inputs]);
-  const runway = useMemo(() => computeCashRunway(inputs), [inputs]);
+  const metrics = computeMetrics(inputs);
+  const curve = simulateProfitCurve(inputs);
+  const runway = computeCashRunway(inputs);
 
   const status =
     metrics.annualProfit < 0
@@ -398,7 +398,7 @@ export default function BranchProfitability() {
                 min={1}
                 max={500}
                 value={inputs.adc}
-                onChange={(e) => set("adc", +e.target.value)}
+                onChange={(e) => set("adc", +e.target.value || 1)}
                 className="mt-1"
                 data-testid="input-adc"
               />
@@ -410,7 +410,7 @@ export default function BranchProfitability() {
                 type="number"
                 min={1}
                 value={inputs.los}
-                onChange={(e) => set("los", +e.target.value)}
+                onChange={(e) => set("los", +e.target.value || 1)}
                 className="mt-1"
                 data-testid="input-los"
               />
@@ -424,7 +424,7 @@ export default function BranchProfitability() {
                 max={100}
                 step={0.5}
                 value={(inputs.targetMargin * 100).toFixed(1)}
-                onChange={(e) => set("targetMargin", +e.target.value / 100)}
+                onChange={(e) => set("targetMargin", (+e.target.value || 0) / 100)}
                 className="mt-1"
                 data-testid="input-target-margin"
               />
@@ -441,7 +441,7 @@ export default function BranchProfitability() {
                 type="number"
                 step={0.01}
                 value={inputs.rhc1}
-                onChange={(e) => set("rhc1", +e.target.value)}
+                onChange={(e) => set("rhc1", +e.target.value || 0)}
                 className="mt-1"
                 data-testid="input-rhc1"
               />
@@ -453,7 +453,7 @@ export default function BranchProfitability() {
                 type="number"
                 step={0.01}
                 value={inputs.rhc2}
-                onChange={(e) => set("rhc2", +e.target.value)}
+                onChange={(e) => set("rhc2", +e.target.value || 0)}
                 className="mt-1"
                 data-testid="input-rhc2"
               />
@@ -480,7 +480,7 @@ export default function BranchProfitability() {
                   step={0.01}
                   min={0}
                   value={inputs[key]}
-                  onChange={(e) => set(key, +e.target.value)}
+                  onChange={(e) => set(key, +e.target.value || 0)}
                   className="mt-1"
                   data-testid={`input-${key}`}
                 />
@@ -500,7 +500,7 @@ export default function BranchProfitability() {
                 step={100}
                 min={0}
                 value={inputs.overhead}
-                onChange={(e) => set("overhead", +e.target.value)}
+                onChange={(e) => set("overhead", +e.target.value || 0)}
                 className="mt-1"
                 data-testid="input-overhead"
               />
@@ -514,7 +514,7 @@ export default function BranchProfitability() {
                 step={5000}
                 min={0}
                 value={inputs.startCash}
-                onChange={(e) => set("startCash", +e.target.value)}
+                onChange={(e) => set("startCash", +e.target.value || 0)}
                 className="mt-1"
                 data-testid="input-start-cash"
               />
@@ -531,7 +531,7 @@ export default function BranchProfitability() {
                 type="number"
                 min={1}
                 value={inputs.admissionsPerMarketer}
-                onChange={(e) => set("admissionsPerMarketer", +e.target.value)}
+                onChange={(e) => set("admissionsPerMarketer", +e.target.value || 1)}
                 className="mt-1"
                 data-testid="input-admissions-per-marketer"
               />
@@ -542,7 +542,7 @@ export default function BranchProfitability() {
         {/* ── RIGHT: RESULTS ── */}
         <div className="lg:col-span-2 space-y-5">
           {/* Key Metrics Row */}
-          <FadeIn>
+          <div>
             <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-4">
               {[
                 {
@@ -586,10 +586,10 @@ export default function BranchProfitability() {
                 </Card>
               ))}
             </div>
-          </FadeIn>
+          </div>
 
           {/* Status & Summary */}
-          <FadeIn delay={0.05}>
+          <div>
             <Card className="spacing-card">
               <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
                 <div>
@@ -624,10 +624,10 @@ export default function BranchProfitability() {
                 </div>
               </div>
             </Card>
-          </FadeIn>
+          </div>
 
           {/* Cash Runway */}
-          <FadeIn delay={0.08}>
+          <div>
             <Card className="spacing-card">
               <div className="flex items-center gap-2 mb-4">
                 <DollarSign className="w-5 h-5 text-primary" />
@@ -758,10 +758,10 @@ export default function BranchProfitability() {
                 </table>
               </div>
             </Card>
-          </FadeIn>
+          </div>
 
           {/* Profit Curve Chart */}
-          <FadeIn delay={0.1}>
+          <div>
             <Card className="spacing-card">
               <h2 className="text-base font-bold mb-4">Profit Curve — ADC 10 to 200</h2>
               <div className="h-64 w-full">
@@ -805,10 +805,10 @@ export default function BranchProfitability() {
                 </ResponsiveContainer>
               </div>
             </Card>
-          </FadeIn>
+          </div>
 
           {/* Margin Curve */}
-          <FadeIn delay={0.15}>
+          <div>
             <Card className="spacing-card">
               <h2 className="text-base font-bold mb-4">Operating Margin by ADC</h2>
               <div className="h-56 w-full">
@@ -842,10 +842,10 @@ export default function BranchProfitability() {
                 </ResponsiveContainer>
               </div>
             </Card>
-          </FadeIn>
+          </div>
 
           {/* Staffing Table */}
-          <FadeIn delay={0.2}>
+          <div>
             <Card className="spacing-card">
               <div className="flex items-center gap-2 mb-4">
                 <Users className="w-5 h-5 text-primary" />
@@ -880,10 +880,10 @@ export default function BranchProfitability() {
                 </table>
               </div>
             </Card>
-          </FadeIn>
+          </div>
 
           {/* Conversion CTA */}
-          <FadeIn delay={0.25}>
+          <div>
             <Card className="bg-primary/5 border-primary/20 no-print">
               <CardContent className="py-5">
                 <div className="flex flex-wrap items-start justify-between gap-4">
@@ -902,7 +902,7 @@ export default function BranchProfitability() {
                 </div>
               </CardContent>
             </Card>
-          </FadeIn>
+          </div>
         </div>
       </div>
     </div>
