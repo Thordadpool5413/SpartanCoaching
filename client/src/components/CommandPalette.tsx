@@ -60,7 +60,7 @@ const commandItems = [
         icon: MessageCircle,
       },
       { title: "Grounded Research", path: "/tools/research", icon: Search },
-      { title: "Audio Transcriber", path: "/tools/transcribe", icon: Mic },
+      { title: "Call Transcriber", path: "/tools/transcribe", icon: Mic },
       {
         title: "Email Templates",
         path: "/tools/email-templates",

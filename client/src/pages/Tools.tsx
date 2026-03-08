@@ -37,7 +37,7 @@ export default function Tools() {
       category: "Intelligence",
     },
     {
-      title: "Audio Transcriber",
+      title: "Call Transcriber",
       description: "Record and transcribe sales calls, practice sessions, or coaching conversations. Review transcripts to identify improvement opportunities and track your progress.",
       icon: <MicrophoneIcon className="w-8 h-8" />,
       path: "/tools/transcribe",

@@ -141,7 +141,7 @@ export default function Transcribe() {
       <SEO />
       <Breadcrumbs items={[{ label: "AI Tools", href: "/tools" }, { label: "Transcribe" }]} />
       <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-transcribe-title">
-        AI Audio Transcriber
+        Call Transcriber
       </h1>
       <p className="text-body-lg text-muted-foreground mb-8 leading-relaxed">
         Record or upload a sales call, practice session, or coaching conversation. Get a full transcript and optional AI coaching analysis based on the Spartan Method.
