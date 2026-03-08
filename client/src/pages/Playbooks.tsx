@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { Card } from "@/components/ui/card";
+import { Link } from "wouter";
+import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { SpinnerIcon, DownloadIcon } from "@/components/icons";
-import { Copy } from "lucide-react";
+import { Copy, Rocket } from "lucide-react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
@@ -257,6 +258,25 @@ export default function Playbooks() {
               <div data-testid="text-playbook-content">
                 <MarkdownContent content={generatedPlaybook} />
               </div>
+            </Card>
+          )}
+
+          {generatedPlaybook && !showModal && (
+            <Card className="bg-primary/5 border-primary/20 mt-4" data-testid="card-playbook-conversion">
+              <CardContent className="py-4 px-5">
+                <div className="flex flex-wrap items-start justify-between gap-4">
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <Rocket className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">Want this built for your specific territory?</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">AI gives you the framework. Coaching builds the system tailored to your market.</p>
+                    </div>
+                  </div>
+                  <Button asChild size="sm" className="font-bold flex-shrink-0" data-testid="button-playbook-book-call">
+                    <Link href="/contact">Talk to Nick</Link>
+                  </Button>
+                </div>
+              </CardContent>
             </Card>
           )}
         </div>

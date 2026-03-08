@@ -285,6 +285,24 @@ export default function ROICalculator() {
                 <Printer className="w-4 h-4" />
                 Print Results
               </Button>
+
+              <Card className="bg-primary/5 border-primary/20 no-print" data-testid="card-roi-conversion">
+                <CardContent className="pt-5 pb-5">
+                  <div className="flex items-start gap-3 mb-3">
+                    <TrendingUp className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
+                    <div>
+                      <h3 className="text-base font-bold text-foreground">Ready to close the gap?</h3>
+                      <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                        These projections reflect improvements Spartan Coaching clients consistently achieve. The difference between your current numbers and these results is exactly what the coaching process is designed to close.
+                      </p>
+                    </div>
+                  </div>
+                  <Button asChild className="w-full font-bold mt-1" data-testid="button-roi-book-call">
+                    <Link href="/contact">Book a Discovery Call</Link>
+                  </Button>
+                  <p className="text-xs text-muted-foreground text-center mt-2">No commitment. 30 minutes with Nick to assess your situation.</p>
+                </CardContent>
+              </Card>
             </div>
           </FadeIn>
         </div>
