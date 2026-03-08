@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { LightbulbIcon, SearchIcon as CustomSearchIcon, ChatIcon, MicrophoneIcon } from "@/components/icons";
-import { Mail, Users, Search, ArrowRight, Calculator } from "lucide-react";
+import { Mail, Users, Search, ArrowRight, Calculator, TrendingUp } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/BackButton";
@@ -62,6 +62,13 @@ export default function Tools() {
       description: "Turn a monthly admission goal into the exact number of referral source conversations needed each month, week, and day. Includes a 4 week ramp plan for new hires.",
       icon: <Calculator className="w-8 h-8" />,
       path: "/tools/activity-calculator",
+      category: "Planning",
+    },
+    {
+      title: "ROI Calculator",
+      description: "Estimate the revenue impact of consistent coaching. Enter your current admissions, conversion rates, and average revenue per patient to see the financial opportunity of closing the performance gap.",
+      icon: <TrendingUp className="w-8 h-8" />,
+      path: "/tools/roi-calculator",
       category: "Planning",
     },
   ];

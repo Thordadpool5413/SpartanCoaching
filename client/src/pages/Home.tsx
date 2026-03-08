@@ -5,7 +5,7 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DisciplineIcon, EmpathyIcon, StrategyIcon } from "@/components/icons";
-import { Shield, Heart, Zap, Target, Users, BookOpen, ArrowRight, Sparkles, Lightbulb, MessageCircle, Search, Mail, Flame, Stethoscope, Brain, Briefcase, CheckCircle, AlertCircle } from "lucide-react";
+import { Shield, Heart, Zap, Target, Users, BookOpen, ArrowRight, Sparkles, Lightbulb, MessageCircle, Search, Mail, Flame, Stethoscope, Brain, Briefcase, CheckCircle, AlertCircle, Mic, TrendingUp } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { SEO } from "@/components/SEO";
 import { apiRequest } from "@/lib/queryClient";
@@ -932,6 +932,69 @@ export default function Home() {
                   <Button size="sm" variant="outline" asChild className="w-full font-bold touch-manipulation group mt-auto" data-testid="button-try-drills">
                     <Link href="/drills">
                       <span>Try it now</span>
+                      <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </Button>
+                </div>
+              </Card>
+            </StaggerItem>
+
+            <StaggerItem>
+              <Card className="card-lift border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-transcribe">
+                <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                <div className="relative flex-1 flex flex-col">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-spartan-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-all duration-500">
+                    <Mic className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                  </div>
+                  <CardTitle className="text-h3 text-center mb-3">Call Transcriber</CardTitle>
+                  <p className="text-body text-muted-foreground text-center leading-relaxed mb-6 flex-1">
+                    Transcribe and analyze sales calls and coaching sessions. Identify what landed, what stalled, and what to adjust before your next visit.
+                  </p>
+                  <Button size="sm" variant="outline" asChild className="w-full font-bold touch-manipulation group mt-auto" data-testid="button-try-transcribe">
+                    <Link href="/tools/transcribe">
+                      <span>Try it now</span>
+                      <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </Button>
+                </div>
+              </Card>
+            </StaggerItem>
+
+            <StaggerItem>
+              <Card className="card-lift border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-roi-calculator">
+                <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                <div className="relative flex-1 flex flex-col">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-spartan-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-all duration-500">
+                    <TrendingUp className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                  </div>
+                  <CardTitle className="text-h3 text-center mb-3">ROI Calculator</CardTitle>
+                  <p className="text-body text-muted-foreground text-center leading-relaxed mb-6 flex-1">
+                    Turn your admissions goal into a revenue case. See the financial impact of closing the gap between your current and potential performance.
+                  </p>
+                  <Button size="sm" variant="outline" asChild className="w-full font-bold touch-manipulation group mt-auto" data-testid="button-try-roi-calculator">
+                    <Link href="/tools/roi-calculator">
+                      <span>Try it now</span>
+                      <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                    </Link>
+                  </Button>
+                </div>
+              </Card>
+            </StaggerItem>
+
+            <StaggerItem>
+              <Card className="card-lift border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-quiz">
+                <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+                <div className="relative flex-1 flex flex-col">
+                  <div className="w-14 h-14 sm:w-16 sm:h-16 bg-spartan-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-all duration-500">
+                    <BookOpen className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+                  </div>
+                  <CardTitle className="text-h3 text-center mb-3">Knowledge Quiz</CardTitle>
+                  <p className="text-body text-muted-foreground text-center leading-relaxed mb-6 flex-1">
+                    Test your knowledge across eligibility, objection handling, territory strategy, and compliance. Immediate feedback on every answer with full explanations.
+                  </p>
+                  <Button size="sm" variant="outline" asChild className="w-full font-bold touch-manipulation group mt-auto" data-testid="button-try-quiz">
+                    <Link href="/quiz">
+                      <span>Take the quiz</span>
                       <ArrowRight className="ml-2 w-4 h-4 group-hover:translate-x-1 transition-transform" />
                     </Link>
                   </Button>
