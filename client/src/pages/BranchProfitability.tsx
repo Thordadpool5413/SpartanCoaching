@@ -4,6 +4,12 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import {
+  Tooltip as UITooltip,
+  TooltipContent,
+  TooltipTrigger,
+  TooltipProvider,
+} from "@/components/ui/tooltip";
 import { SEO } from "@/components/SEO";
 import { SlideUp } from "@/components/animations";
 import { BackButton } from "@/components/BackButton";
@@ -18,6 +24,9 @@ import {
   CheckCircle,
   Printer,
   RotateCcw,
+  HelpCircle,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import {
   LineChart,
@@ -25,7 +34,7 @@ import {
   XAxis,
   YAxis,
   CartesianGrid,
-  Tooltip,
+  Tooltip as RTooltip,
   ReferenceLine,
   ResponsiveContainer,
   Legend,
@@ -267,8 +276,53 @@ const DEFAULT_INPUTS = {
   admissionsPerMarketer: 10,
 };
 
+function InfoTip({ text }: { text: string }) {
+  return (
+    <TooltipProvider delayDuration={200}>
+      <UITooltip>
+        <TooltipTrigger asChild>
+          <button type="button" className="inline-flex items-center ml-1 text-muted-foreground hover:text-foreground transition-colors" tabIndex={-1} aria-label="More info">
+            <HelpCircle className="w-3.5 h-3.5" />
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="right" className="max-w-xs text-xs leading-relaxed">
+          {text}
+        </TooltipContent>
+      </UITooltip>
+    </TooltipProvider>
+  );
+}
+
+const HOW_TO_READ = [
+  {
+    term: "Annual Profit",
+    def: "Net operating income after all payroll, variable costs, and overhead at your current ADC. A negative number means the branch is losing money every day at that census.",
+  },
+  {
+    term: "Operating Margin",
+    def: "Profit ÷ Revenue. Lenders, PE buyers, and investors look for 12–18% in a healthy branch. Below 10% is considered at-risk; above 20% is exceptional.",
+  },
+  {
+    term: "Break-Even ADC",
+    def: "The minimum census where monthly revenue exactly covers all fixed and variable costs. Every patient below this number costs you money. Every patient above it generates pure contribution margin.",
+  },
+  {
+    term: "Target Margin ADC",
+    def: "The census where you hit your operating margin goal. This is your real sales target — not break-even. Build your 12-month sales plan around closing the gap to this number.",
+  },
+  {
+    term: "Cash Runway",
+    def: "How many months your starting capital can absorb negative cash flow while census builds. Plan your sales hiring and ramp so you hit break-even ADC before runway runs out.",
+  },
+  {
+    term: "Admissions Needed",
+    def: "Monthly new patient admissions required to maintain your target ADC, accounting for average length of stay. This directly drives how many marketers you need and what their monthly production target should be.",
+  },
+];
+
 export default function BranchProfitability() {
   const [inputs, setInputs] = useState(DEFAULT_INPUTS);
+  const [showHowTo, setShowHowTo] = useState(false);
 
   function applyScenario(key: keyof typeof SCENARIOS) {
     const s = SCENARIOS[key];
@@ -385,13 +439,18 @@ export default function BranchProfitability() {
                 </Button>
               ))}
             </div>
+            <div className="mt-3 space-y-1 text-xs text-muted-foreground border-t border-border pt-3">
+              <p><span className="font-semibold text-foreground">Lean</span> — Short LOS (70 days), referral mix weighted toward shorter-stay diagnoses like heart failure or COPD. More revenue captured in the higher Day 1–60 rate.</p>
+              <p><span className="font-semibold text-foreground">Base</span> — 90-day blended LOS with equal Day 1–60 and Day 61+ rates. The most common starting model for a new branch with a mixed referral mix.</p>
+              <p><span className="font-semibold text-foreground">High Acuity</span> — Same LOS as Base but with significantly higher pharmacy and supply costs, reflecting an oncology-heavy or complex symptom management patient mix.</p>
+            </div>
           </Card>
 
           {/* ADC & LOS */}
           <Card className="spacing-card space-y-4">
             <h2 className="text-base font-bold">Census & Length of Stay</h2>
             <div>
-              <Label htmlFor="adc" className="text-sm font-medium">Target ADC (patients)</Label>
+              <Label htmlFor="adc" className="text-sm font-medium flex items-center">Target ADC (patients)<InfoTip text="Average Daily Census — the number of patients actively on service at any given time. This is the single most important driver of branch revenue and profit." /></Label>
               <Input
                 id="adc"
                 type="number"
@@ -404,7 +463,7 @@ export default function BranchProfitability() {
               />
             </div>
             <div>
-              <Label htmlFor="los" className="text-sm font-medium">Avg Length of Stay (days)</Label>
+              <Label htmlFor="los" className="text-sm font-medium flex items-center">Avg Length of Stay (days)<InfoTip text="Average number of days a patient remains on service before death or discharge. Longer LOS shifts revenue toward the lower Day 61+ rate. Shorter LOS keeps more revenue in the higher Day 1–60 rate band." /></Label>
               <Input
                 id="los"
                 type="number"
@@ -416,7 +475,7 @@ export default function BranchProfitability() {
               />
             </div>
             <div>
-              <Label htmlFor="targetMargin" className="text-sm font-medium">Target Operating Margin (%)</Label>
+              <Label htmlFor="targetMargin" className="text-sm font-medium flex items-center">Target Operating Margin (%)<InfoTip text="Your goal for operating profit as a percentage of revenue. A healthy hospice branch targets 12–18%. This drives the 'Target Margin ADC' shown in results — the census where you actually hit your goal." /></Label>
               <Input
                 id="targetMargin"
                 type="number"
@@ -435,7 +494,7 @@ export default function BranchProfitability() {
           <Card className="spacing-card space-y-4">
             <h2 className="text-base font-bold">Revenue Rates</h2>
             <div>
-              <Label htmlFor="rhc1" className="text-sm font-medium">RHC Day 1–60 ($/day)</Label>
+              <Label htmlFor="rhc1" className="text-sm font-medium flex items-center">RHC Day 1–60 ($/day)<InfoTip text="Medicare's Routine Home Care reimbursement rate for the first 60 days of each benefit period. The 2025 national base rate is $224.62 — your actual rate may vary by CBSA wage index. This is your highest-revenue rate tier." /></Label>
               <Input
                 id="rhc1"
                 type="number"
@@ -447,7 +506,7 @@ export default function BranchProfitability() {
               />
             </div>
             <div>
-              <Label htmlFor="rhc2" className="text-sm font-medium">RHC Day 61+ ($/day)</Label>
+              <Label htmlFor="rhc2" className="text-sm font-medium flex items-center">RHC Day 61+ ($/day)<InfoTip text="Medicare's reduced RHC rate for days 61 and beyond in a benefit period. Approximately 21% lower than the Day 1–60 rate. Patients with longer LOS spend more time at this rate, which is why LOS directly affects blended revenue." /></Label>
               <Input
                 id="rhc2"
                 type="number"
@@ -465,15 +524,15 @@ export default function BranchProfitability() {
             <h2 className="text-base font-bold">Variable Clinical Costs ($/day)</h2>
             {(
               [
-                { key: "pharmacy", label: "Pharmacy" },
-                { key: "dme", label: "DME" },
-                { key: "supplies", label: "Supplies" },
-                { key: "travel", label: "Travel" },
-                { key: "other", label: "Other" },
+                { key: "pharmacy", label: "Pharmacy", tip: "Average daily drug cost per patient. Your largest variable cost. Standard acuity: $20–25/day. Oncology or complex pain management: $40–60/day." },
+                { key: "dme", label: "DME", tip: "Durable Medical Equipment — daily cost for hospital beds, wheelchairs, commodes, and oxygen. Usually $8–12/day for a standard patient mix." },
+                { key: "supplies", label: "Supplies", tip: "Clinical supply cost per patient per day — dressings, catheters, incontinence products. Standard acuity: $8–12/day. Wound-heavy or oncology patients can push $20–30/day." },
+                { key: "travel", label: "Travel", tip: "Average clinician mileage and drive-time cost per patient per day. Varies by geography and patient density. Rural branches often see $8–12/day." },
+                { key: "other", label: "Other", tip: "Any direct variable cost not captured above — contracted therapy, interpreter services, or other per-patient expenses." },
               ] as const
-            ).map(({ key, label }) => (
+            ).map(({ key, label, tip }) => (
               <div key={key}>
-                <Label htmlFor={key} className="text-sm font-medium">{label}</Label>
+                <Label htmlFor={key} className="text-sm font-medium flex items-center">{label}<InfoTip text={tip} /></Label>
                 <Input
                   id={key}
                   type="number"
@@ -492,8 +551,7 @@ export default function BranchProfitability() {
           <Card className="spacing-card space-y-4">
             <h2 className="text-base font-bold">Fixed Overhead</h2>
             <div>
-              <Label htmlFor="overhead" className="text-sm font-medium">Monthly Non-Payroll Overhead ($)</Label>
-              <p className="text-xs text-muted-foreground mb-1">Office, EMR, insurance, rent, phones</p>
+              <Label htmlFor="overhead" className="text-sm font-medium flex items-center">Monthly Non-Payroll Overhead ($)<InfoTip text="Fixed non-payroll costs: office rent, EMR subscription, liability insurance, phone systems, and G&A. This cost does not scale with census — it's the same whether you have 10 or 100 patients, which is why it's the key driver of your break-even ADC." /></Label>
               <Input
                 id="overhead"
                 type="number"
@@ -506,8 +564,7 @@ export default function BranchProfitability() {
               />
             </div>
             <div>
-              <Label htmlFor="startCash" className="text-sm font-medium">Starting Capital ($)</Label>
-              <p className="text-xs text-muted-foreground mb-1">Cash available at launch for runway analysis</p>
+              <Label htmlFor="startCash" className="text-sm font-medium flex items-center">Starting Capital ($)<InfoTip text="Total cash available at launch to absorb early losses while census ramps up. The Cash Runway section shows how many months this covers before you hit break-even. Typical new branch capital ranges from $200K–$500K." /></Label>
               <Input
                 id="startCash"
                 type="number"
@@ -525,7 +582,7 @@ export default function BranchProfitability() {
           <Card className="spacing-card space-y-4">
             <h2 className="text-base font-bold">Sales Assumptions</h2>
             <div>
-              <Label htmlFor="admissionsPerMarketer" className="text-sm font-medium">Admissions per Marketer / Month</Label>
+              <Label htmlFor="admissionsPerMarketer" className="text-sm font-medium flex items-center">Admissions per Marketer / Month<InfoTip text="New patient admissions each salesperson generates per month. Industry average is 6–10. A coached team with structured referral development and consistent call cycles should consistently exceed 10. This drives your marketer headcount in staffing." /></Label>
               <Input
                 id="admissionsPerMarketer"
                 type="number"
@@ -541,6 +598,33 @@ export default function BranchProfitability() {
 
         {/* ── RIGHT: RESULTS ── */}
         <div className="lg:col-span-2 space-y-5">
+
+          {/* How to Read Your Results */}
+          <Card className="border-primary/20 bg-primary/5">
+            <button
+              type="button"
+              className="w-full flex items-center justify-between px-5 py-4 text-left"
+              onClick={() => setShowHowTo((v) => !v)}
+              data-testid="button-how-to-toggle"
+            >
+              <div className="flex items-center gap-2">
+                <HelpCircle className="w-4 h-4 text-primary flex-shrink-0" />
+                <span className="text-sm font-semibold text-foreground">How to Read Your Results</span>
+              </div>
+              {showHowTo ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+            </button>
+            {showHowTo && (
+              <div className="px-5 pb-5 grid sm:grid-cols-2 gap-x-6 gap-y-4 border-t border-primary/10 pt-4">
+                {HOW_TO_READ.map(({ term, def }) => (
+                  <div key={term}>
+                    <div className="text-xs font-bold text-foreground mb-0.5">{term}</div>
+                    <div className="text-xs text-muted-foreground leading-relaxed">{def}</div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+
           {/* Key Metrics Row */}
           <div>
             <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-4">
@@ -688,7 +772,7 @@ export default function BranchProfitability() {
                       tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                       width={66}
                     />
-                    <Tooltip
+                    <RTooltip
                       formatter={(v: number) => [fmtK(v), "Cumulative Cash"]}
                       labelFormatter={(l) => `Month ${l}`}
                       contentStyle={{
@@ -778,7 +862,7 @@ export default function BranchProfitability() {
                       tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                       width={62}
                     />
-                    <Tooltip
+                    <RTooltip
                       formatter={(v: number, name: string) =>
                         name === "Annual Profit" ? [fmtK(v), name] : [v.toFixed(1) + "%", name]
                       }
@@ -825,7 +909,7 @@ export default function BranchProfitability() {
                       tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                       width={44}
                     />
-                    <Tooltip
+                    <RTooltip
                       formatter={(v: number) => [v.toFixed(1) + "%", "Margin"]}
                       labelFormatter={(l) => `ADC: ${l}`}
                       contentStyle={{
