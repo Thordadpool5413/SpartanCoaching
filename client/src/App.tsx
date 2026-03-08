@@ -40,6 +40,7 @@ const Drills = lazy(() => import("@/pages/Drills"));
 const KnowledgeBase = lazy(() => import("@/pages/KnowledgeBase"));
 const ROICalculator = lazy(() => import("@/pages/ROICalculator"));
 const ActivityCalculator = lazy(() => import("@/pages/ActivityCalculator"));
+const BranchProfitability = lazy(() => import("@/pages/BranchProfitability"));
 const FAQ = lazy(() => import("@/pages/FAQ"));
 const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
 const Disclaimer = lazy(() => import("@/pages/Disclaimer"));
@@ -124,6 +125,7 @@ function Router() {
           <Route path="/tools/role-play" component={RolePlay} />
           <Route path="/tools/roi-calculator" component={ROICalculator} />
           <Route path="/tools/activity-calculator" component={ActivityCalculator} />
+          <Route path="/tools/branch-profitability" component={BranchProfitability} />
           <Route path="/drills" component={Drills} />
 
           <Route path="/resources" component={Resources} />

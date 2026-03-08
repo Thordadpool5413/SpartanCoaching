@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { LightbulbIcon, SearchIcon as CustomSearchIcon, ChatIcon, MicrophoneIcon } from "@/components/icons";
-import { Mail, Users, Search, ArrowRight, Calculator, TrendingUp } from "lucide-react";
+import { Mail, Users, Search, ArrowRight, Calculator, TrendingUp, Building } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/BackButton";
@@ -69,6 +69,13 @@ export default function Tools() {
       description: "Estimate the revenue impact of consistent coaching. Enter your current admissions, conversion rates, and average revenue per patient to see the financial opportunity of closing the performance gap.",
       icon: <TrendingUp className="w-8 h-8" />,
       path: "/tools/roi-calculator",
+      category: "Planning",
+    },
+    {
+      title: "Branch Profitability Simulator",
+      description: "Model your hospice branch across any average daily census. Enter revenue rates, clinical variable costs, and staffing to find your break-even ADC, required admissions, and target margin census.",
+      icon: <Building className="w-8 h-8" />,
+      path: "/tools/branch-profitability",
       category: "Planning",
     },
   ];
