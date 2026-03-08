@@ -38,7 +38,7 @@ import {
   ObjectStorageService,
   ObjectNotFoundError,
 } from "./objectStorage";
-import { sendInquiryNotification, sendNewsletterConfirmation, sendGeneratedEmail, sendAgreementConfirmation, sendResourceLeadNotification, sendNewsletterNotification } from "./resend";
+import { sendInquiryNotification, sendNewsletterConfirmation, sendGeneratedEmail, sendAgreementConfirmation, sendResourceLeadNotification, sendNewsletterNotification, sendNewsletterBroadcast } from "./resend";
 
 // Get admin password from environment, default to secure value for development
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "5413";
@@ -333,6 +333,29 @@ Keep it under 100 words and use a warm, professional tone.`;
     } catch (error: any) {
       console.error("Get subscribers error:", error);
       res.status(500).json({ error: error.message || "Failed to retrieve subscribers" });
+    }
+  });
+
+  // Send Newsletter Broadcast (Admin)
+  app.post("/api/newsletter/broadcast", requireAdmin, async (req, res) => {
+    try {
+      const { subject, body } = req.body;
+      if (!subject || typeof subject !== "string" || subject.trim().length < 3) {
+        return res.status(400).json({ error: "Subject must be at least 3 characters" });
+      }
+      if (!body || typeof body !== "string" || body.trim().length < 10) {
+        return res.status(400).json({ error: "Body must be at least 10 characters" });
+      }
+      const subscribers = await storage.getNewsletterSubscribers();
+      if (subscribers.length === 0) {
+        return res.status(400).json({ error: "No subscribers to send to" });
+      }
+      const emails = subscribers.map((s: any) => s.email);
+      const result = await sendNewsletterBroadcast(emails, subject.trim(), body.trim());
+      res.json({ success: true, ...result });
+    } catch (error: any) {
+      console.error("Newsletter broadcast error:", error);
+      res.status(500).json({ error: error.message || "Failed to send broadcast" });
     }
   });
 

@@ -222,6 +222,7 @@ const defaultConfig: SEOConfig = {
   title: 'Spartan Coaching | Hospice Sales Training',
   description: 'Expert hospice sales consulting and training. Coaching, tools, and resources to help your team get eligible patients into care earlier.',
   keywords: 'hospice sales, sales training, consulting, coaching',
+  ogImage: '/hero-poster.jpg',
 };
 
 export function getSEOConfig(path: string): SEOConfig {

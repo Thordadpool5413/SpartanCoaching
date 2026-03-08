@@ -2,10 +2,12 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { LightbulbIcon, SpeakerIcon, SpinnerIcon } from "@/components/icons";
+import { Copy } from "lucide-react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
 import { MarkdownContent } from "@/components/MarkdownContent";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Objections() {
   const objections = [
@@ -43,6 +45,7 @@ export default function Objections() {
     },
   ];
 
+  const { toast } = useToast();
   const [aiResponses, setAiResponses] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [playing, setPlaying] = useState<string | null>(null);
@@ -142,15 +145,29 @@ export default function Objections() {
                   <div className="text-foreground mb-3" data-testid={`text-ai-response-${idx}`}>
                     <MarkdownContent content={aiResponses[obj.q]} />
                   </div>
-                  <button
-                    onClick={() => readAloud(aiResponses[obj.q], obj.q)}
-                    disabled={playing === obj.q}
-                    className="flex items-center gap-2 text-sm text-primary hover:underline disabled:opacity-50"
-                    data-testid={`button-read-aloud-${idx}`}
-                  >
-                    <SpeakerIcon className="w-4 h-4" />
-                    {playing === obj.q ? "Playing..." : "Read Aloud"}
-                  </button>
+                  <div className="flex items-center gap-4">
+                    <button
+                      onClick={() => readAloud(aiResponses[obj.q], obj.q)}
+                      disabled={playing === obj.q}
+                      className="flex items-center gap-2 text-sm text-primary hover:underline disabled:opacity-50"
+                      data-testid={`button-read-aloud-${idx}`}
+                    >
+                      <SpeakerIcon className="w-4 h-4" />
+                      {playing === obj.q ? "Playing..." : "Read Aloud"}
+                    </button>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(aiResponses[obj.q]).then(() => {
+                          toast({ title: "Copied to clipboard", description: "AI response is ready to paste." });
+                        });
+                      }}
+                      className="flex items-center gap-2 text-sm text-primary hover:underline"
+                      data-testid={`button-copy-response-${idx}`}
+                    >
+                      <Copy className="w-4 h-4" />
+                      Copy
+                    </button>
+                  </div>
                 </div>
               )}
             </div>

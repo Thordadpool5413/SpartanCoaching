@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Mail, Phone, Building, Calendar, Users, Lock, LogOut, Plus, Edit, Trash2, ExternalLink, Star, FileText as FileSignature, PlayCircle, Target, Quote, Award, ChevronDown, ChevronUp, Download, CheckCircle, Circle } from "lucide-react";
+import { Mail, Phone, Building, Calendar, Users, Lock, LogOut, Plus, Edit, Trash2, ExternalLink, Star, FileText as FileSignature, PlayCircle, Target, Quote, Award, ChevronDown, ChevronUp, Download, CheckCircle, Circle, Send, Loader2 } from "lucide-react";
 import type { SelectInquiry, SelectNewsletterSubscriber, SelectArticle, InsertArticle, VisitorAnalytics, SelectResource, InsertResource, SelectPodcast, InsertPodcast, SelectSignedAgreement, SelectRoleplaySession, SelectDrillCompletion, SelectTestimonial, SelectCaseStudy, InsertTestimonial, InsertCaseStudy } from "@shared/schema";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
@@ -187,6 +187,41 @@ export default function Admin() {
   const drillCompletions = drillCompletionsData?.completions || [];
   const testimonialsList = testimonialsData?.testimonials || [];
   const caseStudiesList = caseStudiesData?.caseStudies || [];
+
+  // Newsletter broadcast state
+  const [broadcastSubject, setBroadcastSubject] = useState("");
+  const [broadcastBody, setBroadcastBody] = useState("");
+
+  const broadcastMutation = useMutation({
+    mutationFn: async ({ subject, body }: { subject: string; body: string }) => {
+      const res = await fetch("/api/newsletter/broadcast", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Admin-Auth": ADMIN_CODE },
+        credentials: "include",
+        body: JSON.stringify({ subject, body }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to send broadcast");
+      }
+      return res.json();
+    },
+    onSuccess: (data) => {
+      toast({
+        title: "Newsletter sent",
+        description: `Delivered to ${data.sent} subscriber${data.sent !== 1 ? "s" : ""}${data.failed > 0 ? ` (${data.failed} failed)` : ""}.`,
+      });
+      setBroadcastSubject("");
+      setBroadcastBody("");
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Send failed",
+        description: error.message || "Could not send newsletter",
+        variant: "destructive",
+      });
+    },
+  });
 
   // Article form state
   const [articleDialogOpen, setArticleDialogOpen] = useState(false);
@@ -1261,6 +1296,64 @@ export default function Admin() {
         </TabsContent>
 
         <TabsContent value="subscribers" className="space-y-4">
+          {/* Newsletter Broadcast */}
+          <Card data-testid="card-newsletter-broadcast">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Send className="w-5 h-5" />
+                Send Newsletter
+              </CardTitle>
+              <CardDescription>
+                Compose and send an email to all {subscribers.length} subscriber{subscribers.length !== 1 ? "s" : ""}.
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="broadcast-subject">Subject</Label>
+                <Input
+                  id="broadcast-subject"
+                  value={broadcastSubject}
+                  onChange={(e) => setBroadcastSubject(e.target.value)}
+                  placeholder="e.g. Weekly Coaching Tip: Territory Planning"
+                  data-testid="input-broadcast-subject"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="broadcast-body">Message</Label>
+                <Textarea
+                  id="broadcast-body"
+                  value={broadcastBody}
+                  onChange={(e) => setBroadcastBody(e.target.value)}
+                  placeholder="Write your newsletter content here. Each line break becomes a new paragraph."
+                  rows={6}
+                  data-testid="textarea-broadcast-body"
+                />
+              </div>
+              <Button
+                onClick={() => broadcastMutation.mutate({ subject: broadcastSubject, body: broadcastBody })}
+                disabled={
+                  broadcastMutation.isPending ||
+                  subscribers.length === 0 ||
+                  broadcastSubject.trim().length < 3 ||
+                  broadcastBody.trim().length < 10
+                }
+                data-testid="button-send-broadcast"
+              >
+                {broadcastMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    <Send className="w-4 h-4 mr-2" />
+                    Send to {subscribers.length} Subscriber{subscribers.length !== 1 ? "s" : ""}
+                  </>
+                )}
+              </Button>
+            </CardContent>
+          </Card>
+
           {subscribersLoading ? (
             <div className="text-center py-12">
               <p className="text-muted-foreground">Loading subscribers...</p>

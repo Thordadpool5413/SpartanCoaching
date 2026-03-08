@@ -227,6 +227,49 @@ export async function sendNewsletterNotification(email: string): Promise<boolean
   }
 }
 
+export async function sendNewsletterBroadcast(
+  emails: string[],
+  subject: string,
+  body: string
+): Promise<{ sent: number; failed: number }> {
+  let sent = 0;
+  let failed = 0;
+
+  for (const email of emails) {
+    try {
+      const { client, fromEmail } = await getUncachableResendClient();
+      await client.emails.send({
+        from: fromEmail,
+        to: email,
+        subject,
+        html: `
+          <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+            <div style="background: #b91c1c; padding: 20px 24px; margin-bottom: 0;">
+              <h2 style="color: white; margin: 0; font-size: 20px; letter-spacing: 0.5px;">Spartan Coaching</h2>
+            </div>
+            <div style="padding: 32px 24px; background: #ffffff; border: 1px solid #e5e7eb; border-top: none;">
+              ${body.split('\n').map(line => line.trim() ? `<p style="margin: 0 0 14px 0; line-height: 1.65; color: #1a1a1a;">${line}</p>` : '<br/>').join('\n')}
+            </div>
+            <div style="padding: 16px 24px; background: #f9fafb; border: 1px solid #e5e7eb; border-top: none; text-align: center;">
+              <p style="color: #9ca3af; font-size: 12px; margin: 0;">
+                You're receiving this because you subscribed to the Spartan Coaching newsletter.<br/>
+                Spartan Coaching &mdash; The Authority in Hospice Sales Excellence
+              </p>
+            </div>
+          </div>
+        `,
+      });
+      sent++;
+    } catch (err) {
+      console.error(`Failed to send broadcast to ${email}:`, err);
+      failed++;
+    }
+  }
+
+  console.log(`Newsletter broadcast complete — sent: ${sent}, failed: ${failed}`);
+  return { sent, failed };
+}
+
 export async function sendGeneratedEmail(to: string, subject: string, body: string): Promise<boolean> {
   try {
     const { client, fromEmail } = await getUncachableResendClient();

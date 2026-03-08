@@ -4,12 +4,15 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { SpinnerIcon, DownloadIcon } from "@/components/icons";
+import { Copy } from "lucide-react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
 import { MarkdownContent } from "@/components/MarkdownContent";
+import { useToast } from "@/hooks/use-toast";
 
 export default function Playbooks() {
+  const { toast } = useToast();
   const [scenario, setScenario] = useState("");
   const [desiredOutcomes, setDesiredOutcomes] = useState("");
   const [generatedPlaybook, setGeneratedPlaybook] = useState("");
@@ -90,6 +93,12 @@ export default function Playbooks() {
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
+  };
+
+  const handleCopyPlaybook = () => {
+    navigator.clipboard.writeText(generatedPlaybook).then(() => {
+      toast({ title: "Copied to clipboard", description: "Playbook is ready to paste." });
+    });
   };
 
   const handlePrint = () => {
@@ -232,6 +241,10 @@ export default function Playbooks() {
               <div className="flex justify-between items-center mb-6 flex-wrap gap-2">
                 <h2 className="text-h2 font-bold">Your Custom Playbook</h2>
                 <div className="flex gap-2">
+                  <Button variant="outline" size="default" onClick={handleCopyPlaybook} className="font-bold touch-manipulation" data-testid="button-copy">
+                    <Copy className="w-4 h-4 mr-2" />
+                    <span>Copy</span>
+                  </Button>
                   <Button variant="outline" size="default" onClick={handlePrint} className="font-bold touch-manipulation" data-testid="button-print">
                     Print
                   </Button>
@@ -266,6 +279,10 @@ export default function Playbooks() {
                 <MarkdownContent content={generatedPlaybook} />
               </div>
               <div className="flex gap-3">
+                <Button variant="outline" onClick={handleCopyPlaybook} className="flex-1" data-testid="button-modal-copy">
+                  <Copy className="w-4 h-4 mr-1" />
+                  Copy
+                </Button>
                 <Button variant="outline" onClick={handlePrint} className="flex-1" data-testid="button-modal-print">
                   Print
                 </Button>
