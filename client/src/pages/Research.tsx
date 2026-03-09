@@ -3,6 +3,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SearchIcon, SpinnerIcon } from "@/components/icons";
+import { CoachingCTA } from "@/components/CoachingCTA";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
@@ -189,6 +190,7 @@ export default function Research() {
               </div>
             )}
           </Card>
+          <CoachingCTA className="mt-2" />
         </div>
       )}
     </div>

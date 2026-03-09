@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import { Link } from "wouter";
 import { Card, CardTitle } from "@/components/ui/card";
+import { CoachingCTA } from "@/components/CoachingCTA";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
@@ -969,27 +970,7 @@ export default function ActivityCalculator() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.8 }}
                 >
-                  <Card className="border-2 spacing-card bg-gradient-to-br from-accent/50 to-accent/30 shadow-lg" data-testid="card-cta">
-                    <div className="text-center">
-                      <h3 className="text-h3 font-bold text-foreground mb-3">
-                        Need Help Building the System Behind These Numbers?
-                      </h3>
-                      <p className="text-sm text-muted-foreground max-w-xl mx-auto mb-6">
-                        Knowing the numbers is one thing. Building the weekly rhythm, account plans, and coaching structure to actually hit them is another. That is what we do.
-                      </p>
-                      <Button
-                        size="lg"
-                        asChild
-                        className="font-bold shadow-lg touch-manipulation group px-10"
-                        data-testid="button-results-contact"
-                      >
-                        <Link href="/contact">
-                          <span>Contact Us</span>
-                          <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                        </Link>
-                      </Button>
-                    </div>
-                  </Card>
+                  <CoachingCTA />
                 </motion.div>
               </div>
             </motion.div>

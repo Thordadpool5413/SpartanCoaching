@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
+import { CoachingCTA } from "@/components/CoachingCTA";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -967,26 +968,7 @@ export default function BranchProfitability() {
           </div>
 
           {/* Conversion CTA */}
-          <div>
-            <Card className="bg-primary/5 border-primary/20 no-print">
-              <CardContent className="py-5">
-                <div className="flex flex-wrap items-start justify-between gap-4">
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <Building className="w-5 h-5 text-primary flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="text-sm font-semibold text-foreground">Need help closing the gap to break-even?</p>
-                      <p className="text-xs text-muted-foreground mt-0.5">
-                        The fastest path to target margin is census growth through disciplined sales execution — exactly what Spartan Coaching is built for.
-                      </p>
-                    </div>
-                  </div>
-                  <Button asChild size="sm" className="font-bold flex-shrink-0" data-testid="button-branch-cta">
-                    <Link href="/contact">Book a Discovery Call</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
+          <CoachingCTA className="no-print" />
         </div>
       </div>
     </div>

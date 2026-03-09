@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { CoachingCTA } from "@/components/CoachingCTA";
 import { LightbulbIcon, SpeakerIcon, SpinnerIcon } from "@/components/icons";
 import { Copy } from "lucide-react";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -174,6 +175,10 @@ export default function Objections() {
           </Card>
         ))}
       </div>
+
+      {Object.keys(aiResponses).length > 0 && (
+        <CoachingCTA className="mt-6" />
+      )}
     </div>
   );
 }

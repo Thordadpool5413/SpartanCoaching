@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
+import { CoachingCTA } from "@/components/CoachingCTA";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
@@ -383,6 +384,8 @@ export default function RolePlay() {
                 </div>
               </SlideUp>
             )}
+
+            <CoachingCTA className="mb-6" />
 
             <FadeIn delay={0.5}>
               <Button

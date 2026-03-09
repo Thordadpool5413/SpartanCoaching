@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { Card } from "@/components/ui/card";
+import { CoachingCTA } from "@/components/CoachingCTA";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
@@ -307,6 +308,10 @@ export default function Transcribe() {
           </div>
           <MarkdownContent content={analysis} />
         </Card>
+      )}
+
+      {transcript && !isAnalyzing && (
+        <CoachingCTA className="mt-2" />
       )}
 
       {!transcript && !isTranscribing && (
