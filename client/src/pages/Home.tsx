@@ -170,7 +170,7 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/35 to-black/50 md:from-black/40 md:via-black/30 md:to-black/40 z-[2]"></div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-20 lg:py-24 text-center">
-          <Link href="/programs" className="inline-flex items-center gap-3 bg-green-500/20 border border-green-400/50 rounded-full px-6 py-2 mb-8 animate-fade-in-up hover:bg-green-500/30 transition-colors cursor-pointer" data-testid="link-hero-programs-badge">
+          <Link href="/services" className="inline-flex items-center gap-3 bg-green-500/20 border border-green-400/50 rounded-full px-6 py-2 mb-8 animate-fade-in-up hover:bg-green-500/30 transition-colors cursor-pointer" data-testid="link-hero-programs-badge">
             <span className="w-3 h-3 rounded-full bg-green-400 shrink-0" style={{ animation: 'pulse 2s infinite' }} />
             <span className="text-green-300 text-base font-bold tracking-wide">2026 Coaching Programs Now Open</span>
             <ArrowRight className="w-4 h-4 text-green-300" />
