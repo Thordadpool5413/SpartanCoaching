@@ -193,7 +193,7 @@ function ChatWidgetContent() {
           <div
             key={`${msg.timestamp}-${msg.role}-${index}`}
             className={cn(
-              "flex gap-2 items-end",
+              "flex flex-nowrap gap-2 items-end",
               msg.role === "user" ? "justify-end" : "justify-start"
             )}
             data-testid={`chat-message-${msg.timestamp}-${index}`}
@@ -233,7 +233,7 @@ function ChatWidgetContent() {
           </div>
         ))}
         {isLoading && (
-          <div className="flex gap-2 items-end justify-start">
+          <div className="flex flex-nowrap gap-2 items-end justify-start">
             <div className="shrink-0 w-7 h-7 rounded-full bg-primary flex items-center justify-center">
               <ShieldCheck className="w-4 h-4 text-white" />
             </div>
@@ -353,7 +353,7 @@ function ChatWidgetContent() {
         <Drawer open={isOpen} onOpenChange={setIsOpen}>
           <DrawerContent className="h-[85dvh] flex flex-col rounded-t-xl">
             <DrawerHeader className="border-b border-border bg-spartan-gradient">
-              <div className="flex items-center justify-between gap-2">
+              <div className="flex flex-nowrap items-center justify-between gap-2">
                 <DrawerTitle className="flex items-center gap-3 text-white">
                   <div className="relative shrink-0">
                     <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
@@ -409,7 +409,7 @@ function ChatWidgetContent() {
             "rounded-none border-r-0"
           )}>
             {/* Header */}
-            <div className="flex items-center justify-between p-4 border-b border-border bg-spartan-gradient shrink-0">
+            <div className="flex flex-nowrap items-center justify-between p-4 border-b border-border bg-spartan-gradient shrink-0">
               <div className="flex items-center gap-3">
                 <div className="relative shrink-0">
                   <div className="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center">

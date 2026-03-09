@@ -438,16 +438,6 @@ body {
       padding-right: max(1rem, env(safe-area-inset-right));
     }
     
-    /* Force single column layouts on mobile */
-    .grid {
-      grid-template-columns: 1fr !important;
-    }
-    
-    /* Optimize flex layouts */
-    .flex {
-      flex-wrap: wrap;
-      gap: 0.75rem;
-    }
     
     /* Better modal sizing on mobile */
     [role="dialog"] {

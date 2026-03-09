@@ -373,6 +373,10 @@ export default function BranchProfitability() {
         description="Model hospice branch profitability across any ADC. Enter your revenue rates, clinical costs, and staffing assumptions to find your break-even point and target margin ADC."
       />
       <style>{`
+        @page {
+          size: letter portrait;
+          margin: 0.75in;
+        }
         @media print {
           .no-print { display: none !important; }
           body { font-size: 11pt; }
