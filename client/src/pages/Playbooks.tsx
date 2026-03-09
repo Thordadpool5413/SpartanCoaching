@@ -116,17 +116,22 @@ export default function Playbooks() {
       visibility: hidden;
       font-family: Georgia, serif;
       font-size: 11pt;
-      line-height: 1.5;
+      line-height: 1.6;
       color: #111;
     }
-    #playbook-print-area h1 { font-size: 18pt; font-weight: 900; margin-bottom: 4pt; }
     #playbook-print-area .print-header { border-bottom: 3px solid #dc2626; margin-bottom: 16pt; padding-bottom: 8pt; }
     #playbook-print-area .print-footer { border-top: 1px solid #ccc; margin-top: 24pt; padding-top: 6pt; font-size: 9pt; color: #666; display: flex; justify-content: space-between; }
+    #playbook-print-area h1 { font-size: 18pt; font-weight: 900; margin-top: 14pt; margin-bottom: 4pt; color: #111 !important; }
+    #playbook-print-area h2 { font-size: 14pt; font-weight: 700; margin-top: 14pt; margin-bottom: 4pt; color: #111 !important; }
+    #playbook-print-area h3 { font-size: 12pt; font-weight: 600; margin-top: 10pt; margin-bottom: 3pt; color: #111 !important; }
+    #playbook-print-area p { margin-bottom: 6pt; color: #111 !important; }
+    #playbook-print-area ul, #playbook-print-area ol { padding-left: 18pt; margin-bottom: 8pt; }
+    #playbook-print-area li { margin-bottom: 3pt; color: #111 !important; }
+    #playbook-print-area strong { font-weight: 700; }
+    #playbook-print-area em { font-style: italic; }
     #playbook-print-area pre, #playbook-print-area code { font-family: monospace; font-size: 10pt; white-space: pre-wrap; }
-    #playbook-print-area h2 { font-size: 14pt; margin-top: 14pt; }
-    #playbook-print-area h3 { font-size: 12pt; margin-top: 10pt; }
-    #playbook-print-area ul, #playbook-print-area ol { padding-left: 18pt; }
-    #playbook-print-area li { margin-bottom: 4pt; }
+    #playbook-print-area blockquote { border-left: 3px solid #dc2626; padding-left: 10pt; margin-left: 0; color: #444 !important; }
+    #playbook-print-area .text-foreground, #playbook-print-area .text-muted-foreground { color: #111 !important; }
   `;
 
   return (
@@ -138,7 +143,7 @@ export default function Playbooks() {
             <h1>SPARTAN COACHING | Sales Playbook</h1>
             <p style={{ fontSize: "10pt", color: "#666" }}>Generated {new Date().toLocaleDateString()} | spartancoaching.com</p>
           </div>
-          <div style={{ whiteSpace: "pre-wrap" }}>{generatedPlaybook}</div>
+          <MarkdownContent content={generatedPlaybook} />
           <div className="print-footer">
             <span>Spartan Coaching | Hospice Sales Excellence</span>
             <span>Confidential Training Material</span>

@@ -8,6 +8,7 @@ declare module 'http' {
 }
 
 const app = express();
+app.set("trust proxy", 1);
 const server = createServer(app);
 
 // CRITICAL: Health check endpoint for deployment - must be registered first

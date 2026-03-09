@@ -51,3 +51,4 @@ integrations = ["javascript_gemini:1.0.0", "javascript_database:1.0.0", "javascr
 
 [userenv.shared]
 ADMIN_PASSWORD = "5413"
+NOTIFICATION_EMAIL = "nicholas.lynch@spartan-coaching-schools.org"
