@@ -157,15 +157,19 @@ export default function ROICalculator() {
                     <Label htmlFor="input-rppd" className="text-sm font-semibold text-foreground mb-2 block">
                       Medicare Hospice Per-Diem Rate ($)
                     </Label>
-                    <Input
-                      id="input-rppd"
-                      data-testid="input-rppd"
-                      type="number"
-                      value={rppd}
-                      onChange={clampAndSet(setRppd, 100, 500)}
-                      min={100}
-                      max={500}
-                    />
+                    <div className="relative">
+                      <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none select-none">$</span>
+                      <Input
+                        id="input-rppd"
+                        data-testid="input-rppd"
+                        type="number"
+                        value={rppd}
+                        onChange={clampAndSet(setRppd, 100, 500)}
+                        min={100}
+                        max={500}
+                        className="pl-6"
+                      />
+                    </div>
                     <p className="text-xs text-muted-foreground mt-2">
                       Based on the CMS Medicare hospice routine home care per-diem rate. Adjust for your specific payer mix.
                     </p>

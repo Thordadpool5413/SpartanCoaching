@@ -6,11 +6,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
-  Tooltip as UITooltip,
-  TooltipContent,
-  TooltipTrigger,
-  TooltipProvider,
-} from "@/components/ui/tooltip";
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { SEO } from "@/components/SEO";
 import { SlideUp } from "@/components/animations";
 import { BackButton } from "@/components/BackButton";
@@ -279,18 +278,16 @@ const DEFAULT_INPUTS = {
 
 function InfoTip({ text }: { text: string }) {
   return (
-    <TooltipProvider delayDuration={200}>
-      <UITooltip>
-        <TooltipTrigger asChild>
-          <button type="button" className="inline-flex items-center ml-1 text-muted-foreground hover:text-foreground transition-colors" tabIndex={-1} aria-label="More info">
-            <HelpCircle className="w-3.5 h-3.5" />
-          </button>
-        </TooltipTrigger>
-        <TooltipContent side="right" className="max-w-xs text-xs leading-relaxed">
-          {text}
-        </TooltipContent>
-      </UITooltip>
-    </TooltipProvider>
+    <Popover>
+      <PopoverTrigger asChild>
+        <button type="button" className="inline-flex items-center ml-1 text-muted-foreground hover:text-foreground transition-colors touch-manipulation" aria-label="More info">
+          <HelpCircle className="w-3.5 h-3.5" />
+        </button>
+      </PopoverTrigger>
+      <PopoverContent side="top" className="max-w-xs text-xs leading-relaxed p-3">
+        {text}
+      </PopoverContent>
+    </Popover>
   );
 }
 
@@ -495,28 +492,34 @@ export default function BranchProfitability() {
           <Card className="spacing-card space-y-4">
             <h2 className="text-base font-bold">Revenue Rates</h2>
             <div>
-              <Label htmlFor="rhc1" className="text-sm font-medium flex items-center">RHC Day 1–60 ($/day)<InfoTip text="Medicare's Routine Home Care reimbursement rate for the first 60 days of each benefit period. The 2025 national base rate is $224.62 — your actual rate may vary by CBSA wage index. This is your highest-revenue rate tier." /></Label>
-              <Input
-                id="rhc1"
-                type="number"
-                step={0.01}
-                value={inputs.rhc1}
-                onChange={(e) => set("rhc1", +e.target.value || 0)}
-                className="mt-1"
-                data-testid="input-rhc1"
-              />
+              <Label htmlFor="rhc1" className="text-sm font-medium flex items-center">RHC Day 1–60 ($/day)<InfoTip text="Medicare's Routine Home Care reimbursement rate for the first 60 days of each benefit period. The 2025 national base rate is $224.62. Your actual rate may vary by CBSA wage index. This is your highest-revenue rate tier." /></Label>
+              <div className="relative mt-1">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none select-none">$</span>
+                <Input
+                  id="rhc1"
+                  type="number"
+                  step={0.01}
+                  value={inputs.rhc1}
+                  onChange={(e) => set("rhc1", +e.target.value || 0)}
+                  className="pl-6"
+                  data-testid="input-rhc1"
+                />
+              </div>
             </div>
             <div>
-              <Label htmlFor="rhc2" className="text-sm font-medium flex items-center">RHC Day 61+ ($/day)<InfoTip text="Medicare's reduced RHC rate for days 61 and beyond in a benefit period. Approximately 21% lower than the Day 1–60 rate. Patients with longer LOS spend more time at this rate, which is why LOS directly affects blended revenue." /></Label>
-              <Input
-                id="rhc2"
-                type="number"
-                step={0.01}
-                value={inputs.rhc2}
-                onChange={(e) => set("rhc2", +e.target.value || 0)}
-                className="mt-1"
-                data-testid="input-rhc2"
-              />
+              <Label htmlFor="rhc2" className="text-sm font-medium flex items-center">RHC Day 61+ ($/day)<InfoTip text="Medicare's reduced RHC rate for days 61 and beyond in a benefit period. Approximately 21% lower than the Day 1-60 rate. Patients with longer LOS spend more time at this rate, which is why LOS directly affects blended revenue." /></Label>
+              <div className="relative mt-1">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none select-none">$</span>
+                <Input
+                  id="rhc2"
+                  type="number"
+                  step={0.01}
+                  value={inputs.rhc2}
+                  onChange={(e) => set("rhc2", +e.target.value || 0)}
+                  className="pl-6"
+                  data-testid="input-rhc2"
+                />
+              </div>
             </div>
           </Card>
 
@@ -534,16 +537,19 @@ export default function BranchProfitability() {
             ).map(({ key, label, tip }) => (
               <div key={key}>
                 <Label htmlFor={key} className="text-sm font-medium flex items-center">{label}<InfoTip text={tip} /></Label>
-                <Input
-                  id={key}
-                  type="number"
-                  step={0.01}
-                  min={0}
-                  value={inputs[key]}
-                  onChange={(e) => set(key, +e.target.value || 0)}
-                  className="mt-1"
-                  data-testid={`input-${key}`}
-                />
+                <div className="relative mt-1">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none select-none">$</span>
+                  <Input
+                    id={key}
+                    type="number"
+                    step={0.01}
+                    min={0}
+                    value={inputs[key]}
+                    onChange={(e) => set(key, +e.target.value || 0)}
+                    className="pl-6"
+                    data-testid={`input-${key}`}
+                  />
+                </div>
               </div>
             ))}
           </Card>
@@ -552,30 +558,36 @@ export default function BranchProfitability() {
           <Card className="spacing-card space-y-4">
             <h2 className="text-base font-bold">Fixed Overhead</h2>
             <div>
-              <Label htmlFor="overhead" className="text-sm font-medium flex items-center">Monthly Non-Payroll Overhead ($)<InfoTip text="Fixed non-payroll costs: office rent, EMR subscription, liability insurance, phone systems, and G&A. This cost does not scale with census — it's the same whether you have 10 or 100 patients, which is why it's the key driver of your break-even ADC." /></Label>
-              <Input
-                id="overhead"
-                type="number"
-                step={100}
-                min={0}
-                value={inputs.overhead}
-                onChange={(e) => set("overhead", +e.target.value || 0)}
-                className="mt-1"
-                data-testid="input-overhead"
-              />
+              <Label htmlFor="overhead" className="text-sm font-medium flex items-center">Monthly Non-Payroll Overhead ($)<InfoTip text="Fixed non-payroll costs: office rent, EMR subscription, liability insurance, phone systems, and G&A. This cost does not scale with census. It is the same whether you have 10 or 100 patients, which is why it is the key driver of your break-even ADC." /></Label>
+              <div className="relative mt-1">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none select-none">$</span>
+                <Input
+                  id="overhead"
+                  type="number"
+                  step={100}
+                  min={0}
+                  value={inputs.overhead}
+                  onChange={(e) => set("overhead", +e.target.value || 0)}
+                  className="pl-6"
+                  data-testid="input-overhead"
+                />
+              </div>
             </div>
             <div>
-              <Label htmlFor="startCash" className="text-sm font-medium flex items-center">Starting Capital ($)<InfoTip text="Total cash available at launch to absorb early losses while census ramps up. The Cash Runway section shows how many months this covers before you hit break-even. Typical new branch capital ranges from $200K–$500K." /></Label>
-              <Input
-                id="startCash"
-                type="number"
-                step={5000}
-                min={0}
-                value={inputs.startCash}
-                onChange={(e) => set("startCash", +e.target.value || 0)}
-                className="mt-1"
-                data-testid="input-start-cash"
-              />
+              <Label htmlFor="startCash" className="text-sm font-medium flex items-center">Starting Capital ($)<InfoTip text="Total cash available at launch to absorb early losses while census ramps up. The Cash Runway section shows how many months this covers before you hit break-even. Typical new branch capital ranges from $200K to $500K." /></Label>
+              <div className="relative mt-1">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none select-none">$</span>
+                <Input
+                  id="startCash"
+                  type="number"
+                  step={5000}
+                  min={0}
+                  value={inputs.startCash}
+                  onChange={(e) => set("startCash", +e.target.value || 0)}
+                  className="pl-6"
+                  data-testid="input-start-cash"
+                />
+              </div>
             </div>
           </Card>
 

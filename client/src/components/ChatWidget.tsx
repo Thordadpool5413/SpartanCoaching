@@ -339,7 +339,7 @@ function ChatWidgetContent() {
     <>
       {isMobile ? (
         <Drawer open={isOpen} onOpenChange={setIsOpen}>
-          <DrawerContent className="h-[85vh] flex flex-col rounded-t-xl">
+          <DrawerContent className="h-[85dvh] flex flex-col rounded-t-xl">
             <DrawerHeader className="border-b border-border bg-spartan-gradient">
               <div className="flex items-center justify-between gap-2">
                 <DrawerTitle className="flex items-center gap-3 text-white">
