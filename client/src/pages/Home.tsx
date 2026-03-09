@@ -5,7 +5,7 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DisciplineIcon, EmpathyIcon, StrategyIcon } from "@/components/icons";
-import { Shield, Heart, Zap, Target, Users, BookOpen, ArrowRight, Sparkles, Lightbulb, MessageCircle, Search, Mail, Flame, Stethoscope, Brain, Briefcase, CheckCircle, AlertCircle, Mic, TrendingUp } from "lucide-react";
+import { Shield, Heart, Zap, Target, Users, BookOpen, ArrowRight, Sparkles, Lightbulb, MessageCircle, Search, Mail, Flame, Stethoscope, Brain, Briefcase, CheckCircle, AlertCircle, Mic, TrendingUp, Building2, Clock } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { SEO } from "@/components/SEO";
 import { apiRequest } from "@/lib/queryClient";
@@ -170,10 +170,11 @@ export default function Home() {
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/35 to-black/50 md:from-black/40 md:via-black/30 md:to-black/40 z-[2]"></div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-20 lg:py-24 text-center">
-          <div className="inline-flex items-center gap-3 bg-green-500/20 border border-green-400/50 rounded-full px-6 py-2 mb-8 animate-fade-in-up">
+          <Link href="/programs" className="inline-flex items-center gap-3 bg-green-500/20 border border-green-400/50 rounded-full px-6 py-2 mb-8 animate-fade-in-up hover:bg-green-500/30 transition-colors cursor-pointer" data-testid="link-hero-programs-badge">
             <span className="w-3 h-3 rounded-full bg-green-400 shrink-0" style={{ animation: 'pulse 2s infinite' }} />
             <span className="text-green-300 text-base font-bold tracking-wide">2026 Coaching Programs Now Open</span>
-          </div>
+            <ArrowRight className="w-4 h-4 text-green-300" />
+          </Link>
           <h1 className="text-hero mb-4 sm:mb-6 md:mb-8 animate-fade-in-up px-4">
             <span className="block bg-gradient-to-r from-red-600 via-red-500 to-red-600 bg-clip-text text-transparent font-black tracking-tighter drop-shadow-2xl">
               Hospice Sales Coaching
@@ -185,18 +186,30 @@ export default function Home() {
           </p>
 
           <div className="flex flex-col items-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-            <Button
-              size="lg"
-              variant="outline"
-              asChild
-              className="text-base sm:text-lg font-bold glass border-white/30 transition-elegant touch-manipulation group px-10 py-4"
-              data-testid="button-hero-contact"
-            >
-              <Link href="/contact">
-                <span>Get in Touch</span>
-                <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-              </Link>
-            </Button>
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <Button
+                size="lg"
+                asChild
+                className="text-base sm:text-lg font-bold touch-manipulation group px-10"
+                data-testid="button-hero-programs"
+              >
+                <Link href="/programs">
+                  <span>View Programs</span>
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
+              <Button
+                size="lg"
+                variant="outline"
+                asChild
+                className="text-base sm:text-lg font-bold glass border-white/30 transition-elegant touch-manipulation group px-10"
+                data-testid="button-hero-contact"
+              >
+                <Link href="/contact">
+                  <span>Get in Touch</span>
+                </Link>
+              </Button>
+            </div>
             <p className="text-white/70 text-sm font-semibold tracking-wide">
               Coaching built for the people who show up to the hardest conversations in healthcare.
             </p>
@@ -566,6 +579,78 @@ export default function Home() {
               </StaggerItem>
             ))}
           </StaggerContainer>
+        </div>
+      </section>
+
+
+      {/* 7b. Coaching Programs Preview */}
+      <section className="relative bg-gray-950 py-20 sm:py-28" data-testid="section-programs-preview">
+        <div className="absolute inset-0 bg-spartan-gradient-radial opacity-20 pointer-events-none" />
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
+          <FadeIn>
+            <div className="text-center mb-14 sm:mb-18">
+              <p className="text-sm font-bold tracking-widest text-red-400 uppercase mb-4">Coaching Programs</p>
+              <h2 className="text-h2 font-bold text-white mb-4" data-testid="text-programs-preview-title">
+                Built Around the Problems That Actually Slow Growth
+              </h2>
+              <p className="text-body-lg text-white/65 max-w-2xl mx-auto">
+                Structured engagements with clear deliverables, not open-ended retainers. Each program targets a specific growth challenge.
+              </p>
+            </div>
+          </FadeIn>
+
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+            {[
+              {
+                icon: Clock,
+                title: "Admissions Speed Boost",
+                desc: "Fix slow handoffs and delays from referral to start of care. A 4-week intensive that installs clear ownership at every step in the pipeline.",
+              },
+              {
+                icon: Building2,
+                title: "Hospital Referral Pathway",
+                desc: "Build a repeatable weekly touch pattern that fits hospital discharge rhythms and earns consistent referrals from case managers.",
+              },
+              {
+                icon: Heart,
+                title: "Assisted Living & Memory Care Growth",
+                desc: "Train staff, align with community workflows, and grow a referral source most hospice providers leave chronically underworked.",
+              },
+            ].map((program, index) => {
+              const IconComponent = program.icon;
+              return (
+                <StaggerItem key={index}>
+                  <Card className="bg-white/5 border border-white/10 spacing-card h-full" data-testid={`card-program-preview-${index}`}>
+                    <div className="flex flex-col gap-4">
+                      <div className="w-12 h-12 bg-gradient-to-br from-red-900/50 to-red-800/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                        <IconComponent className="w-6 h-6 text-red-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-base font-bold text-white mb-2">{program.title}</h3>
+                        <p className="text-sm text-white/60 leading-relaxed">{program.desc}</p>
+                      </div>
+                    </div>
+                  </Card>
+                </StaggerItem>
+              );
+            })}
+          </StaggerContainer>
+
+          <FadeIn>
+            <div className="text-center">
+              <Button
+                size="lg"
+                asChild
+                className="font-bold touch-manipulation group px-10"
+                data-testid="button-programs-preview-cta"
+              >
+                <Link href="/programs">
+                  <span>Explore All Programs</span>
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
+            </div>
+          </FadeIn>
         </div>
       </section>
 
@@ -1142,11 +1227,16 @@ export default function Home() {
             <p className="text-body-lg text-white/75 max-w-2xl mx-auto mb-10 leading-relaxed">
               If you are ready to build a system that holds when the week is hard, reach out. No obligation, no pressure. Just an honest conversation about where your team is and what it would take to get it working the way it should.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
               <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10" data-testid="button-closing-contact">
                 <Link href="/contact">
                   <span>Contact Spartan Coaching</span>
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild className="font-bold glass border-white/30 touch-manipulation group px-10" data-testid="button-closing-programs">
+                <Link href="/programs">
+                  <span>View Programs</span>
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="font-bold glass border-white/30 touch-manipulation group px-10" data-testid="button-closing-manifesto">
