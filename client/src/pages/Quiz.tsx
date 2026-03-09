@@ -1,5 +1,6 @@
 import { useState, useRef } from "react";
 import { SEO } from "@/components/SEO";
+import { CoachingCTA } from "@/components/CoachingCTA";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -674,6 +675,8 @@ export default function Quiz() {
                   );
                 })}
               </div>
+
+              <CoachingCTA className="no-print" />
 
               <div className="flex flex-wrap gap-3 pb-8 no-print">
                 <Button onClick={handlePrint} variant="outline" data-testid="button-print-results-bottom">

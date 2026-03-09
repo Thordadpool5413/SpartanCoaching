@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CheckIcon } from "@/components/icons";
 import { Target, Lightbulb, Rocket, Award } from "lucide-react";
-import { Link } from "wouter";
+import { CoachingCTA } from "@/components/CoachingCTA";
 
 export interface ProgramDetail {
   title: string;
@@ -150,12 +150,9 @@ export function ProgramDetailDialog({
             </div>
           </section>
 
-          <div className="flex flex-wrap gap-3 pt-4 border-t">
-            <Link href="/contact" onClick={() => onOpenChange(false)}>
-              <Button className="touch-manipulation" data-testid="button-get-started-detail">
-                Get Started
-              </Button>
-            </Link>
+          <CoachingCTA />
+
+          <div className="flex justify-end pt-2">
             <Button
               variant="outline"
               onClick={() => onOpenChange(false)}

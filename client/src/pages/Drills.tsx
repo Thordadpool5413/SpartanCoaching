@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
+import { CoachingCTA } from "@/components/CoachingCTA";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -736,6 +737,10 @@ export default function Drills() {
             "{dailyQuote}"
           </p>
         </div>
+      </FadeIn>
+
+      <FadeIn>
+        <CoachingCTA />
       </FadeIn>
     </div>
   );
