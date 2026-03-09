@@ -268,6 +268,18 @@ export function Header() {
           </Button>
         </nav>
 
+        {/* Mobile Search Button */}
+        <Button
+          variant="ghost"
+          size="icon"
+          className="lg:hidden touch-manipulation"
+          onClick={() => setSearchOpen(true)}
+          aria-label="Search"
+          data-testid="button-mobile-search"
+        >
+          <Search className="w-5 h-5" />
+        </Button>
+
         {/* Mobile Menu Sheet */}
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
           <SheetTrigger asChild>
@@ -341,7 +353,6 @@ export function Header() {
 
                 <MobileNavSection title="Company" />
                 <MobileNavLink href="/about" label="About" location={location} onClose={() => setMobileMenuOpen(false)} />
-                <MobileNavLink href="/manifesto" label="The Spartan Ethos" location={location} onClose={() => setMobileMenuOpen(false)} />
                 <MobileNavLink href="/contact" label="Contact" location={location} onClose={() => setMobileMenuOpen(false)} />
               </nav>
             </div>
@@ -416,7 +427,7 @@ export function Footer() {
   return (
     <>
       <footer className="mt-auto border-t border-border bg-background no-print safe-area-bottom">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8" style={{ paddingBottom: 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}>
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8" style={{ paddingBottom: location === '/contact' ? '2rem' : 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}>
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex flex-col items-center md:items-start gap-3">
               <p className="text-sm text-muted-foreground">

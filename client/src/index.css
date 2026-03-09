@@ -1048,6 +1048,22 @@ body {
     color: black !important;
   }
 
+  :root, .dark {
+    --background: 0 0% 100% !important;
+    --foreground: 0 0% 5% !important;
+    --card: 0 0% 100% !important;
+    --card-foreground: 0 0% 5% !important;
+    --muted: 0 0% 94% !important;
+    --muted-foreground: 0 0% 30% !important;
+    --accent: 0 0% 94% !important;
+    --accent-foreground: 0 0% 5% !important;
+    --secondary: 0 0% 94% !important;
+    --secondary-foreground: 0 0% 5% !important;
+    --primary-foreground: 0 0% 100% !important;
+    --popover: 0 0% 100% !important;
+    --popover-foreground: 0 0% 5% !important;
+  }
+
   .bg-gray-50, .bg-gray-100, .bg-blue-50, .bg-yellow-50,
   .bg-red-600, .bg-red-100, .bg-green-100, .bg-yellow-100,
   .border-l-4, .border-2 {
