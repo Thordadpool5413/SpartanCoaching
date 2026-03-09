@@ -7,6 +7,8 @@ import { ExternalLink, Calendar, Star, FileText } from "lucide-react";
 import type { SelectArticle } from "@shared/schema";
 import { SEO } from "@/components/SEO";
 import { ContentNotice } from "@/components/ContentNotice";
+import { FadeIn } from "@/components/animations";
+import { CoachingCTA } from "@/components/CoachingCTA";
 
 export default function Articles() {
   const { data, isLoading } = useQuery<{ articles: SelectArticle[] }>({
@@ -223,6 +225,10 @@ export default function Articles() {
           </div>
         </div>
       )}
+
+      <FadeIn>
+        <CoachingCTA className="mt-8" />
+      </FadeIn>
     </div>
   );
 }

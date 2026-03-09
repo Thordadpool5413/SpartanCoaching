@@ -1,5 +1,6 @@
 import { useState, useMemo } from "react";
 import { Link } from "wouter";
+import { CoachingCTA } from "@/components/CoachingCTA";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -516,6 +517,10 @@ export default function KnowledgeBase() {
                 </CardContent>
               </Card>
             </div>
+          </FadeIn>
+
+          <FadeIn>
+            <CoachingCTA className="mt-6" />
           </FadeIn>
         </div>
       </section>
