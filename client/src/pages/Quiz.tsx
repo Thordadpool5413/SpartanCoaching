@@ -321,6 +321,7 @@ export default function Quiz() {
   };
 
   const handleNext = () => {
+    window.scrollTo({ top: 0, behavior: "instant" });
     if (current < questions.length - 1) {
       setCurrent(current + 1);
       setSelected(null);
@@ -331,6 +332,7 @@ export default function Quiz() {
   };
 
   const handleRestart = () => {
+    window.scrollTo({ top: 0, behavior: "instant" });
     setScreen("intro");
     setCurrent(0);
     setSelected(null);
@@ -348,33 +350,36 @@ export default function Quiz() {
     const displayName = certName.trim() || "Your Name";
     const tier = perf.label;
     const dateStr = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+    const logoUrl = `${window.location.origin}/spartan-logo.png`;
     const certHtml = `<!DOCTYPE html>
 <html>
 <head>
 <meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Spartan Coaching Certificate</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;600&display=swap');
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { background: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: 'Inter', Arial, sans-serif; }
-  .cert { width: 760px; padding: 56px 72px; border: 3px solid #b91c1c; position: relative; text-align: center; }
+  body { background: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; font-family: 'Inter', Arial, sans-serif; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .cert { width: 100%; max-width: 720px; padding: 48px 56px; border: 3px solid #b91c1c; position: relative; text-align: center; }
   .cert::before { content: ''; position: absolute; inset: 8px; border: 1px solid #b91c1c; opacity: 0.3; pointer-events: none; }
-  .brand { font-size: 13px; letter-spacing: 4px; text-transform: uppercase; color: #b91c1c; font-weight: 600; margin-bottom: 28px; }
-  .heading { font-family: 'Playfair Display', Georgia, serif; font-size: 34px; font-weight: 700; color: #111; letter-spacing: 1px; margin-bottom: 32px; line-height: 1.2; }
-  .certifies { font-size: 14px; color: #777; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 16px; }
-  .name { font-family: 'Playfair Display', Georgia, serif; font-size: 40px; font-weight: 700; color: #111; margin-bottom: 20px; border-bottom: 2px solid #b91c1c; display: inline-block; padding-bottom: 8px; min-width: 300px; }
+  .logo { height: 44px; margin: 0 auto 16px; display: block; object-fit: contain; }
+  .brand { font-size: 13px; letter-spacing: 4px; text-transform: uppercase; color: #b91c1c; font-weight: 600; margin-bottom: 24px; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .heading { font-family: 'Playfair Display', Georgia, serif; font-size: 32px; font-weight: 700; color: #111; letter-spacing: 1px; margin-bottom: 28px; line-height: 1.2; }
+  .certifies { font-size: 14px; color: #777; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 14px; }
+  .name { font-family: 'Playfair Display', Georgia, serif; font-size: 36px; font-weight: 700; color: #111; margin-bottom: 18px; border-bottom: 2px solid #b91c1c; display: inline-block; padding-bottom: 8px; min-width: 260px; }
   .has-demonstrated { font-size: 15px; color: #444; margin-bottom: 8px; }
-  .tier { font-size: 20px; font-weight: 700; color: #b91c1c; margin-bottom: 4px; }
-  .subject { font-family: 'Playfair Display', Georgia, serif; font-size: 24px; color: #111; margin-bottom: 32px; }
+  .tier { font-size: 20px; font-weight: 700; color: #b91c1c; margin-bottom: 4px; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
+  .subject { font-family: 'Playfair Display', Georgia, serif; font-size: 22px; color: #111; margin-bottom: 28px; }
   .meta { font-size: 13px; color: #888; margin-bottom: 8px; }
-  .rule { border: none; border-top: 1px solid #e5e7eb; margin: 28px auto; width: 200px; }
+  .rule { border: none; border-top: 1px solid #e5e7eb; margin: 24px auto; width: 180px; }
   .footer { font-size: 12px; color: #aaa; letter-spacing: 1px; }
   @media print { body { min-height: auto; } }
 </style>
 </head>
 <body>
 <div class="cert">
-  <img src="${window.location.origin}/spartan-logo.png" alt="Spartan Coaching" style="height:48px;margin:0 auto 16px;display:block;object-fit:contain;" />
+  <img src="${logoUrl}" alt="Spartan Coaching" class="logo" />
   <div class="brand">Spartan Coaching</div>
   <div class="heading">Certificate of Achievement</div>
   <div class="certifies">This certifies that</div>
@@ -387,13 +392,27 @@ export default function Quiz() {
   <hr class="rule" />
   <div class="footer">SPARTAN COACHING &mdash; THE AUTHORITY IN HOSPICE SALES EXCELLENCE</div>
 </div>
-<script>window.onload = function() { window.print(); setTimeout(function() { window.close(); }, 500); };</script>
 </body>
 </html>`;
-    const win = window.open("", "_blank");
-    if (win) {
-      win.document.write(certHtml);
-      win.document.close();
+    const iframe = document.createElement("iframe");
+    iframe.style.position = "fixed";
+    iframe.style.top = "-9999px";
+    iframe.style.left = "-9999px";
+    iframe.style.width = "0";
+    iframe.style.height = "0";
+    iframe.style.border = "none";
+    document.body.appendChild(iframe);
+    const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+    if (iframeDoc) {
+      iframeDoc.open();
+      iframeDoc.write(certHtml);
+      iframeDoc.close();
+      setTimeout(() => {
+        iframe.contentWindow?.print();
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+        }, 1000);
+      }, 500);
     }
   };
 

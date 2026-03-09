@@ -346,19 +346,18 @@ body {
       width: 100%;
     }
     
-    /* Stack elements on mobile */
-    .flex {
-      flex-direction: column;
-    }
-    
-    .flex.sm\:flex-row {
-      flex-direction: row;
-    }
     
     /* Prevent text from causing overflow */
     h1, h2, h3, h4, h5, h6, p, span, div {
       word-wrap: break-word;
       overflow-wrap: break-word;
+    }
+    /* Never hyphenate headings mid-word on mobile */
+    h1, h2, h3, h4, h5, h6 {
+      hyphens: none;
+    }
+    /* Allow long prose paragraphs to hyphenate gracefully */
+    p {
       hyphens: auto;
     }
     
@@ -1044,6 +1043,11 @@ body {
 
 /* Print styles for AI generated content */
 @media print {
+  * {
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
   body {
     background: white !important;
     color: black !important;

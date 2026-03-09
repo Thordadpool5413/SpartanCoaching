@@ -178,6 +178,17 @@ function ChatWidgetContent() {
     <>
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-3 bg-background">
+        {messages.length <= 1 && !isLoading && (
+          <div className="flex flex-col items-center justify-center h-full min-h-[160px] text-center px-4 py-8 gap-3">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <ShieldCheck className="w-6 h-6 text-primary" />
+            </div>
+            <div>
+              <p className="font-semibold text-foreground text-sm">How can I help you today?</p>
+              <p className="text-xs text-muted-foreground mt-1 leading-relaxed">Ask me anything about hospice sales, territory strategy, objections, or eligibility.</p>
+            </div>
+          </div>
+        )}
         {messages.map((msg, index) => (
           <div
             key={`${msg.timestamp}-${msg.role}-${index}`}
@@ -235,9 +246,9 @@ function ChatWidgetContent() {
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t border-border bg-muted/30">
+      <div className="p-3 border-t border-border bg-muted/30">
         {messages.length <= 1 && (
-          <div className="flex gap-2 mb-3 overflow-x-auto pb-1 scrollbar-hide">
+          <div className={cn("mb-3", isMobile ? "flex flex-col gap-1.5" : "flex gap-2 overflow-x-auto pb-1 scrollbar-hide")}>
             {[
               'Handle "We already have a provider"',
               'How do I prioritize my territory?',
@@ -249,7 +260,7 @@ function ChatWidgetContent() {
                 variant="outline"
                 size="sm"
                 onClick={() => setInput(suggestion)}
-                className="text-xs whitespace-nowrap shrink-0"
+                className={cn("text-xs text-left justify-start", isMobile ? "w-full" : "whitespace-nowrap shrink-0")}
                 data-testid={`button-suggestion-${suggestion.slice(0, 20)}`}
               >
                 {suggestion}
@@ -257,19 +268,20 @@ function ChatWidgetContent() {
             ))}
           </div>
         )}
-        <div className="flex gap-2">
+        <div className="flex gap-2" style={{ flexDirection: "row" }}>
           <Textarea
             value={input}
             onChange={(e) => setInput(e.target.value)}
             onKeyDown={handleKeyDown}
             placeholder="Ask me anything about hospice sales..."
-            className="min-h-[48px] max-h-32 resize-none text-sm"
+            className="min-h-[48px] max-h-32 resize-none text-sm flex-1"
             data-testid="textarea-chat-input"
           />
           <Button
             onClick={handleSend}
             disabled={!input.trim() || isLoading}
             size="icon"
+            className="shrink-0 self-end"
             data-testid="button-send-message"
           >
             <Send className="w-5 h-5" />

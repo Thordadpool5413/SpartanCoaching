@@ -47,7 +47,11 @@ function fmtPct(v: number) {
   return (v * 100).toFixed(1) + "%";
 }
 function fmtK(v: number) {
-  if (Math.abs(v) >= 1_000_000) return "$" + (v / 1_000_000).toFixed(2) + "M";
+  const sign = v < 0 ? "-" : "";
+  return sign + "$" + Math.abs(Math.round(v)).toLocaleString("en-US");
+}
+function fmtKAbbrev(v: number) {
+  if (Math.abs(v) >= 1_000_000) return "$" + (v / 1_000_000).toFixed(1) + "M";
   if (Math.abs(v) >= 1_000) return "$" + (v / 1_000).toFixed(0) + "K";
   return "$" + Math.round(v).toLocaleString();
 }
@@ -781,7 +785,7 @@ export default function BranchProfitability() {
                       label={{ value: "Month", position: "insideBottomRight", offset: -4, fontSize: 11 }}
                     />
                     <YAxis
-                      tickFormatter={(v) => fmtK(v)}
+                      tickFormatter={(v) => fmtKAbbrev(v)}
                       tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                       width={66}
                     />
@@ -840,13 +844,13 @@ export default function BranchProfitability() {
                         >
                           <td className="py-1 pr-2 font-medium">{r.month}</td>
                           <td className="py-1 text-right">{r.projectedAdc}</td>
-                          <td className="py-1 text-right">{fmtK(r.monthlyRevenue)}</td>
-                          <td className="py-1 text-right">{fmtK(r.monthlyCost)}</td>
+                          <td className="py-1 text-right">{fmtKAbbrev(r.monthlyRevenue)}</td>
+                          <td className="py-1 text-right">{fmtKAbbrev(r.monthlyCost)}</td>
                           <td className={`py-1 text-right font-semibold ${pnlNeg ? "text-destructive" : "text-green-600 dark:text-green-400"}`}>
-                            {fmtK(r.monthlyPnl)}
+                            {fmtKAbbrev(r.monthlyPnl)}
                           </td>
                           <td className={`py-1 text-right font-bold ${neg ? "text-destructive" : "text-foreground"}`}>
-                            {fmtK(r.cumulativeCash)}
+                            {fmtKAbbrev(r.cumulativeCash)}
                           </td>
                         </tr>
                       );
@@ -871,7 +875,7 @@ export default function BranchProfitability() {
                       label={{ value: "ADC", position: "insideBottomRight", offset: -4, fontSize: 11 }}
                     />
                     <YAxis
-                      tickFormatter={(v) => fmtK(v)}
+                      tickFormatter={(v) => fmtKAbbrev(v)}
                       tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
                       width={62}
                     />
