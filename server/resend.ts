@@ -33,10 +33,18 @@ async function getCredentials() {
 
 async function getUncachableResendClient() {
   const { apiKey, fromEmail } = await getCredentials();
+  console.log('Resend fromEmail configured as:', fromEmail);
   return {
     client: new Resend(apiKey),
     fromEmail
   };
+}
+
+async function sendEmail(client: Resend, params: Parameters<typeof client.emails.send>[0]): Promise<void> {
+  const { data, error } = await client.emails.send(params as any);
+  if (error) {
+    throw new Error(`Resend delivery error [${(error as any).name ?? 'unknown'}]: ${(error as any).message ?? JSON.stringify(error)}`);
+  }
 }
 
 interface InquiryEmailData {
@@ -54,7 +62,7 @@ export async function sendInquiryNotification(inquiry: InquiryEmailData): Promis
     
     const notificationEmail = process.env.NOTIFICATION_EMAIL || fromEmail;
     
-    await client.emails.send({
+    await sendEmail(client, {
       from: fromEmail,
       to: notificationEmail,
       subject: `New Inquiry from ${inquiry.name}`,
@@ -86,7 +94,7 @@ export async function sendNewsletterConfirmation(email: string): Promise<boolean
   try {
     const { client, fromEmail } = await getUncachableResendClient();
     
-    await client.emails.send({
+    await sendEmail(client, {
       from: fromEmail,
       to: email,
       subject: 'Welcome to Spartan Coaching',
@@ -147,13 +155,13 @@ export async function sendAgreementConfirmation(data: AgreementEmailData): Promi
     `;
 
     await Promise.all([
-      client.emails.send({
+      sendEmail(client, {
         from: fromEmail,
         to: data.signerEmail,
         subject: `Agreement Signed: ${data.agreementType} — Spartan Coaching`,
         html: htmlContent,
       }),
-      client.emails.send({
+      sendEmail(client, {
         from: fromEmail,
         to: adminEmail,
         subject: `New Agreement Signed: ${data.agreementType} by ${data.signerName} (${data.signerOrganization})`,
@@ -174,7 +182,7 @@ export async function sendResourceLeadNotification(name: string, email: string, 
     const { client, fromEmail } = await getUncachableResendClient();
     const adminEmail = 'nicholas.lynch@spartan-coaching-schools.org';
 
-    await client.emails.send({
+    await sendEmail(client, {
       from: fromEmail,
       to: adminEmail,
       subject: `New Resource Download: ${resourceTitle}`,
@@ -204,7 +212,7 @@ export async function sendNewsletterNotification(email: string): Promise<boolean
     const { client, fromEmail } = await getUncachableResendClient();
     const adminEmail = 'nicholas.lynch@spartan-coaching-schools.org';
 
-    await client.emails.send({
+    await sendEmail(client, {
       from: fromEmail,
       to: adminEmail,
       subject: `New Newsletter Subscriber: ${email}`,
@@ -238,7 +246,7 @@ export async function sendNewsletterBroadcast(
   for (const email of emails) {
     try {
       const { client, fromEmail } = await getUncachableResendClient();
-      await client.emails.send({
+      await sendEmail(client, {
         from: fromEmail,
         to: email,
         subject,
@@ -275,7 +283,7 @@ export async function sendDripDay3(email: string): Promise<boolean> {
     const { client, fromEmail } = await getUncachableResendClient();
     const scheduledAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
 
-    await client.emails.send({
+    await sendEmail(client, {
       from: fromEmail,
       to: email,
       subject: 'Your Spartan Coaching Toolkit — 3 Tools Worth Using This Week',
@@ -333,7 +341,7 @@ export async function sendDripDay7(email: string): Promise<boolean> {
     const { client, fromEmail } = await getUncachableResendClient();
     const scheduledAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString();
 
-    await client.emails.send({
+    await sendEmail(client, {
       from: fromEmail,
       to: email,
       subject: 'One Week In: Keep the Momentum Going',
@@ -390,7 +398,7 @@ export async function sendGeneratedEmail(to: string, subject: string, body: stri
   try {
     const { client, fromEmail } = await getUncachableResendClient();
 
-    await client.emails.send({
+    await sendEmail(client, {
       from: fromEmail,
       to,
       subject,
