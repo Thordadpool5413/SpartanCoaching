@@ -1211,6 +1211,7 @@ The single most important skill to work on before the next conversation.`,
       const doc = new PDFDocument({
         margin: 72,
         size: "LETTER",
+        bufferPages: true,
         info: { Title: title, Author: "Spartan Coaching", Creator: "Spartan Coaching" },
       });
       const safeFilename = (filename || "spartan-document").replace(/[^a-z0-9\-_]/gi, "-");
@@ -1221,13 +1222,15 @@ The single most important skill to work on before the next conversation.`,
       const RED = "#C8102E";
       const DARK = "#111827";
       const MUTED = "#6b7280";
+      const LIGHT_RULE = "#e5e7eb";
       const LEFT = doc.page.margins.left;
       const WIDTH = doc.page.width - doc.page.margins.left - doc.page.margins.right;
+      const YEAR = new Date().getFullYear();
 
       // Branded header block
       doc.fontSize(10).font("Helvetica-Bold").fillColor(RED).text("SPARTAN COACHING", { continued: true });
       doc.fontSize(10).font("Helvetica").fillColor(MUTED)
-        .text("  ·  " + new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }), { align: "left" });
+        .text("  \u00B7  " + new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }), { align: "left" });
       doc.moveDown(0.4);
       doc.moveTo(LEFT, doc.y).lineTo(LEFT + WIDTH, doc.y).strokeColor(RED).lineWidth(1.5).stroke();
       doc.moveDown(0.8);
@@ -1253,6 +1256,39 @@ The single most important skill to work on before the next conversation.`,
         }
       }
 
+      // Disclaimer section
+      doc.moveDown(0.5);
+      doc.moveTo(LEFT, doc.y).lineTo(LEFT + WIDTH, doc.y).strokeColor(LIGHT_RULE).lineWidth(0.5).stroke();
+      doc.moveDown(0.6);
+      doc.fontSize(10).font("Helvetica-Bold").fillColor(DARK).text("Disclaimer & Legal Notice", { align: "left" });
+      doc.moveDown(0.35);
+      doc.fontSize(8.5).font("Helvetica").fillColor(MUTED).text(
+        "This document was generated using artificial intelligence (OpenAI GPT-4o) through the Spartan Coaching platform and is provided for educational and training purposes only. It does not constitute professional, legal, clinical, regulatory, or compliance advice. Content should be reviewed, verified, and adapted to your specific organizational policies, state regulations, and individual patient circumstances before use.\n\nIntellectual Property: All AI-generated content produced through Spartan Coaching\u2019s platform is the exclusive property of Spartan Coaching. Unauthorized reproduction, redistribution, or commercial use of this content is strictly prohibited.\n\n\u00A9 " + YEAR + " Spartan Coaching. All rights reserved. | spartanhospicecoaching.com | For training purposes only. Not for resale.",
+        { align: "left", lineGap: 2, paragraphGap: 4 }
+      );
+
+      // Post-process: add per-page footer to every buffered page
+      const pageRange = doc.bufferedPageRange();
+      const totalPages = pageRange.count;
+      for (let i = 0; i < totalPages; i++) {
+        doc.switchToPage(pageRange.start + i);
+        const origBottom = doc.page.margins.bottom;
+        doc.page.margins.bottom = 0;
+        const footerY = doc.page.height - origBottom + 10;
+        doc.moveTo(LEFT, footerY - 5).lineTo(LEFT + WIDTH, footerY - 5)
+          .strokeColor(LIGHT_RULE).lineWidth(0.5).stroke();
+        doc.fontSize(7).font("Helvetica").fillColor(MUTED)
+          .text(`\u00A9 ${YEAR} Spartan Coaching. All rights reserved. | spartanhospicecoaching.com`, LEFT, footerY, {
+            width: Math.floor(WIDTH * 0.62), lineBreak: false,
+          });
+        doc.fontSize(7).font("Helvetica").fillColor(MUTED)
+          .text(`AI-generated \u2014 for training purposes only | Page ${i + 1} of ${totalPages}`, LEFT, footerY, {
+            width: WIDTH, align: "right", lineBreak: false,
+          });
+        doc.page.margins.bottom = origBottom;
+      }
+
+      doc.flushPages();
       doc.end();
     } catch (error: any) {
       console.error("PDF generation error:", error);

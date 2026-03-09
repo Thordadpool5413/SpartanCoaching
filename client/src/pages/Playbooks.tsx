@@ -107,12 +107,13 @@ export default function Playbooks() {
 
   const printStyles = `
     @media print {
-      body > * { display: none !important; }
-      #playbook-print-area { display: block !important; }
+      body * { visibility: hidden; }
+      #playbook-print-area, #playbook-print-area * { visibility: visible; }
+      #playbook-print-area { position: fixed; top: 0; left: 0; width: 100%; }
       @page { size: letter; margin: 0.75in; }
     }
     #playbook-print-area {
-      display: none;
+      visibility: hidden;
       font-family: Georgia, serif;
       font-size: 11pt;
       line-height: 1.5;
@@ -267,7 +268,7 @@ export default function Playbooks() {
       </div>
 
       <Dialog open={showModal} onOpenChange={setShowModal}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Generated Playbook</DialogTitle>
           </DialogHeader>
