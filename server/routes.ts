@@ -110,6 +110,7 @@ Sitemap: ${baseUrl}/sitemap.xml`);
       { path: '/tools/role-play', priority: '0.7', changefreq: 'monthly' },
       { path: '/tools/roi-calculator', priority: '0.7', changefreq: 'monthly' },
       { path: '/tools/activity-calculator', priority: '0.7', changefreq: 'monthly' },
+      { path: '/tools/branch-profitability', priority: '0.7', changefreq: 'monthly' },
       { path: '/quiz', priority: '0.7', changefreq: 'monthly' },
       { path: '/drills', priority: '0.7', changefreq: 'daily' },
       { path: '/resources', priority: '0.8', changefreq: 'weekly' },
