@@ -1,7 +1,8 @@
+import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { CheckIcon } from "@/components/icons";
 import { BackButton } from "@/components/BackButton";
-import { Users, Building2, UserCheck, ClipboardList, MessageCircleQuestion, ArrowRight } from "lucide-react";
+import { Users, Building2, UserCheck, ClipboardList, MessageCircleQuestion, ArrowRight, X } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
@@ -13,6 +14,14 @@ import {
 } from "@/components/ui/accordion";
 
 export default function Services() {
+  const [activeSegment, setActiveSegment] = useState<string>("individual");
+
+  const scrollTo = (id: string) => {
+    setActiveSegment(id);
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: "smooth" });
+  };
+
   const individualServices = [
     {
       title: "Virtual Coaching Sessions",
@@ -164,8 +173,29 @@ export default function Services() {
           Every service here exists because eligible patients are not receiving hospice care. Not because hospice is the wrong choice, but because the right conversations are not happening. Trained reps have those conversations. Prepared teams make them consistent. That is what this work is for.
         </p>
       </div>
+      {/* Audience Segment Selector */}
+      <div className="flex flex-wrap justify-center gap-3 mb-12" data-testid="section-segment-selector">
+        {[
+          { id: "individual", label: "Individual Rep", icon: UserCheck },
+          { id: "leadership", label: "Sales Leader", icon: Users },
+          { id: "corporate", label: "Corporate Provider", icon: Building2 },
+        ].map(({ id, label, icon: Icon }) => (
+          <Button
+            key={id}
+            variant={activeSegment === id ? "default" : "outline"}
+            size="sm"
+            onClick={() => scrollTo(id)}
+            className="font-semibold gap-2"
+            data-testid={`button-segment-${id}`}
+          >
+            <Icon className="w-4 h-4" />
+            {label}
+          </Button>
+        ))}
+      </div>
+
       {/* Individual Sales Reps Section */}
-      <div className="space-y-8 md:space-y-12 lg:space-y-16">
+      <div id="individual" className="space-y-8 md:space-y-12 lg:space-y-16 scroll-mt-24">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-10">
           <div className="w-16 h-16 rounded-2xl bg-spartan-gradient flex items-center justify-center shadow-2xl flex-shrink-0">
             <UserCheck className="w-8 h-8 text-white" />
@@ -215,13 +245,20 @@ export default function Services() {
                   <p className="text-sm text-muted-foreground">{service.outcome}</p>
                 </div>
               </div>
-
+              <div className="relative">
+                <Button size="sm" asChild className="w-full font-bold" data-testid={`button-get-started-individual-${idx}`}>
+                  <Link href={`/contact?service=${encodeURIComponent(service.title)}`}>
+                    <span>Get Started</span>
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
+                </Button>
+              </div>
             </Card>
           ))}
         </div>
       </div>
       {/* Sales Leadership Section */}
-      <div className="space-y-8 md:space-y-12 lg:space-y-16">
+      <div id="leadership" className="space-y-8 md:space-y-12 lg:space-y-16 scroll-mt-24">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mt-16 mb-10">
           <div className="w-16 h-16 rounded-2xl bg-spartan-gradient flex items-center justify-center shadow-2xl flex-shrink-0">
             <Users className="w-8 h-8 text-white" />
@@ -271,13 +308,20 @@ export default function Services() {
                   <p className="text-sm text-muted-foreground">{service.outcome}</p>
                 </div>
               </div>
-
+              <div className="relative">
+                <Button size="sm" asChild className="w-full font-bold" data-testid={`button-get-started-leadership-${idx}`}>
+                  <Link href={`/contact?service=${encodeURIComponent(service.title)}`}>
+                    <span>Get Started</span>
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
+                </Button>
+              </div>
             </Card>
           ))}
         </div>
       </div>
       {/* Corporate Providers Section */}
-      <div className="space-y-8 md:space-y-12 lg:space-y-16">
+      <div id="corporate" className="space-y-8 md:space-y-12 lg:space-y-16 scroll-mt-24">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mt-16 mb-10">
           <div className="w-16 h-16 rounded-2xl bg-spartan-gradient flex items-center justify-center shadow-2xl flex-shrink-0">
             <Building2 className="w-8 h-8 text-white" />
@@ -327,7 +371,14 @@ export default function Services() {
                   <p className="text-sm text-muted-foreground">{service.outcome}</p>
                 </div>
               </div>
-
+              <div className="relative">
+                <Button size="sm" asChild className="w-full font-bold" data-testid={`button-get-started-corporate-${idx}`}>
+                  <Link href={`/contact?service=${encodeURIComponent(service.title)}`}>
+                    <span>Get Started</span>
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
+                </Button>
+              </div>
             </Card>
           ))}
         </div>

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -27,7 +27,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { FadeIn } from "@/components/animations";
 import { SEO } from "@/components/SEO";
-import { CheckCircle, Loader2, Mail, ChevronLeft, ChevronRight } from "lucide-react";
+import { CheckCircle, Loader2, Mail, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const contactFormSchema = z.object({
@@ -58,6 +58,13 @@ export default function Contact() {
   const { toast } = useToast();
   const [submitted, setSubmitted] = useState(false);
   const [step, setStep] = useState(1);
+  const [serviceParam, setServiceParam] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const service = params.get("service");
+    if (service) setServiceParam(decodeURIComponent(service));
+  }, []);
 
   const form = useForm<ContactFormData>({
     resolver: zodResolver(contactFormSchema),
@@ -87,6 +94,9 @@ export default function Contact() {
       ];
       if (data.additionalContext?.trim()) {
         parts.push(`\nAdditional Context:\n${data.additionalContext.trim()}`);
+      }
+      if (serviceParam) {
+        parts.unshift(`Inquiring About: ${serviceParam}`);
       }
       return apiRequest("POST", "/api/inquiries", {
         name: data.name,
@@ -161,6 +171,24 @@ export default function Contact() {
             </Card>
           ) : (
             <Card className="spacing-card" data-testid="card-contact-form">
+              {/* Service context chip */}
+              {serviceParam && (
+                <div className="flex items-center justify-between gap-2 bg-primary/10 border border-primary/20 rounded-lg px-4 py-3 mb-6" data-testid="chip-service-context">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <span className="text-xs font-semibold text-primary uppercase tracking-wide flex-shrink-0">Inquiring about:</span>
+                    <span className="text-sm font-semibold text-foreground truncate">{serviceParam}</span>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => setServiceParam(null)}
+                    className="text-muted-foreground hover:text-foreground flex-shrink-0 ml-2"
+                    aria-label="Clear service selection"
+                    data-testid="button-clear-service"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
               {/* Step progress */}
               <div className="mb-8" data-testid="section-step-progress">
                 <div className="flex items-center justify-between mb-2">

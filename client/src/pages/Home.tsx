@@ -191,10 +191,10 @@ export default function Home() {
                 size="lg"
                 asChild
                 className="text-base sm:text-lg font-bold touch-manipulation group px-10"
-                data-testid="button-hero-programs"
+                data-testid="button-hero-services"
               >
-                <Link href="/programs">
-                  <span>View Programs</span>
+                <Link href="/services">
+                  <span>See Services & Pricing</span>
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
@@ -583,18 +583,18 @@ export default function Home() {
       </section>
 
 
-      {/* 7b. Coaching Programs Preview */}
-      <section className="relative bg-gray-950 py-20 sm:py-28" data-testid="section-programs-preview">
+      {/* 7b. Services Preview */}
+      <section className="relative bg-gray-950 py-20 sm:py-28" data-testid="section-services-preview">
         <div className="absolute inset-0 bg-spartan-gradient-radial opacity-20 pointer-events-none" />
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
           <FadeIn>
-            <div className="text-center mb-14 sm:mb-18">
-              <p className="text-sm font-bold tracking-widest text-red-400 uppercase mb-4">Coaching Programs</p>
-              <h2 className="text-h2 font-bold text-white mb-4" data-testid="text-programs-preview-title">
-                Built Around the Problems That Actually Slow Growth
+            <div className="text-center mb-14">
+              <p className="text-sm font-bold tracking-widest text-red-400 uppercase mb-4">Services & Pricing</p>
+              <h2 className="text-h2 font-bold text-white mb-4" data-testid="text-services-preview-title">
+                Coaching for Every Level of the Organization
               </h2>
               <p className="text-body-lg text-white/65 max-w-2xl mx-auto">
-                Structured engagements with clear deliverables, not open-ended retainers. Each program targets a specific growth challenge.
+                Whether you are an individual rep, a sales director, or a multi-market operator — there is a structured engagement built for your situation.
               </p>
             </div>
           </FadeIn>
@@ -602,35 +602,50 @@ export default function Home() {
           <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
             {[
               {
-                icon: Clock,
-                title: "Admissions Speed Boost",
-                desc: "Fix slow handoffs and delays from referral to start of care. A 4-week intensive that installs clear ownership at every step in the pipeline.",
+                icon: Users,
+                label: "Individual Sales Reps",
+                price: "From $40/session",
+                desc: "Virtual coaching sessions, field ridealongs, and territory management coaching. Targeted help on exactly what is stalling your results.",
+                href: "/services#individual",
+              },
+              {
+                icon: Briefcase,
+                label: "Sales Leadership",
+                price: "Custom pricing",
+                desc: "Team workshops, leadership coaching, and growth strategy consulting. Build teams that execute the same playbook and hold each other accountable.",
+                href: "/services#leadership",
               },
               {
                 icon: Building2,
-                title: "Hospital Referral Pathway",
-                desc: "Build a repeatable weekly touch pattern that fits hospital discharge rhythms and earns consistent referrals from case managers.",
+                label: "Corporate Providers",
+                price: "Custom pricing",
+                desc: "Market analysis, system implementation, and executive consulting. Scale execution across markets and make growth predictable and repeatable.",
+                href: "/services#corporate",
               },
-              {
-                icon: Heart,
-                title: "Assisted Living & Memory Care Growth",
-                desc: "Train staff, align with community workflows, and grow a referral source most hospice providers leave chronically underworked.",
-              },
-            ].map((program, index) => {
-              const IconComponent = program.icon;
+            ].map((tier, index) => {
+              const IconComponent = tier.icon;
               return (
                 <StaggerItem key={index}>
-                  <Card className="bg-white/5 border border-white/10 spacing-card h-full" data-testid={`card-program-preview-${index}`}>
-                    <div className="flex flex-col gap-4">
-                      <div className="w-12 h-12 bg-gradient-to-br from-red-900/50 to-red-800/30 rounded-xl flex items-center justify-center flex-shrink-0">
-                        <IconComponent className="w-6 h-6 text-red-400" />
+                  <Link href={tier.href} className="block h-full" data-testid={`link-service-tier-${index}`}>
+                    <Card className="bg-white/5 border border-white/10 spacing-card h-full hover-elevate cursor-pointer">
+                      <div className="flex flex-col gap-4">
+                        <div className="flex items-center justify-between gap-3">
+                          <div className="w-12 h-12 bg-gradient-to-br from-red-900/50 to-red-800/30 rounded-xl flex items-center justify-center flex-shrink-0">
+                            <IconComponent className="w-6 h-6 text-red-400" />
+                          </div>
+                          <span className="text-sm font-bold text-green-400 bg-green-400/10 border border-green-400/20 rounded-full px-3 py-1">{tier.price}</span>
+                        </div>
+                        <div>
+                          <h3 className="text-base font-bold text-white mb-2">{tier.label}</h3>
+                          <p className="text-sm text-white/60 leading-relaxed">{tier.desc}</p>
+                        </div>
+                        <div className="flex items-center gap-1 text-red-400 text-sm font-semibold mt-auto pt-2">
+                          <span>View services</span>
+                          <ArrowRight className="w-4 h-4" />
+                        </div>
                       </div>
-                      <div>
-                        <h3 className="text-base font-bold text-white mb-2">{program.title}</h3>
-                        <p className="text-sm text-white/60 leading-relaxed">{program.desc}</p>
-                      </div>
-                    </div>
-                  </Card>
+                    </Card>
+                  </Link>
                 </StaggerItem>
               );
             })}
@@ -642,10 +657,10 @@ export default function Home() {
                 size="lg"
                 asChild
                 className="font-bold touch-manipulation group px-10"
-                data-testid="button-programs-preview-cta"
+                data-testid="button-services-preview-cta"
               >
-                <Link href="/programs">
-                  <span>Explore All Programs</span>
+                <Link href="/services">
+                  <span>See All Services & Pricing</span>
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
@@ -1234,9 +1249,9 @@ export default function Home() {
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="font-bold glass border-white/30 touch-manipulation group px-10" data-testid="button-closing-programs">
-                <Link href="/programs">
-                  <span>View Programs</span>
+              <Button size="lg" variant="outline" asChild className="font-bold glass border-white/30 touch-manipulation group px-10" data-testid="button-closing-services">
+                <Link href="/services">
+                  <span>See Services & Pricing</span>
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="font-bold glass border-white/30 touch-manipulation group px-10" data-testid="button-closing-manifesto">
