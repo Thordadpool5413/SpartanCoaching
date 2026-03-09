@@ -12,6 +12,7 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
 import { MarkdownContent } from "@/components/MarkdownContent";
+import { downloadPdf, cleanMarkdown } from "@/lib/downloadPdf";
 
 export default function EmailTemplates() {
   const [templateType, setTemplateType] = useState<"follow_up" | "thank_you" | "value_add">("follow_up");
@@ -83,16 +84,18 @@ export default function EmailTemplates() {
     });
   };
 
-  const handleDownload = () => {
-    const blob = new Blob([generatedTemplate], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "spartan-email-template.txt";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  const handleDownload = async () => {
+    try {
+      await downloadPdf(
+        "spartan-email-template",
+        "Email Template",
+        [{ body: cleanMarkdown(generatedTemplate) }],
+        emailSubject || undefined
+      );
+      toast({ title: "Downloaded", description: "Your email template PDF is ready." });
+    } catch (err: any) {
+      toast({ title: "Download failed", description: err.message || "Could not generate PDF.", variant: "destructive" });
+    }
   };
 
   const handleSend = async () => {

@@ -1200,6 +1200,68 @@ The single most important skill to work on before the next conversation.`,
     }
   });
 
+  // PDF Export: generate a branded PDF from structured content
+  app.post("/api/pdf/export", standardAiLimit, async (req, res) => {
+    const { filename, title, subtitle, sections } = req.body;
+    if (!title || !Array.isArray(sections)) {
+      return res.status(400).json({ error: "title and sections are required" });
+    }
+    try {
+      const PDFDocument = (await import("pdfkit")).default;
+      const doc = new PDFDocument({
+        margin: 72,
+        size: "LETTER",
+        info: { Title: title, Author: "Spartan Coaching", Creator: "Spartan Coaching" },
+      });
+      const safeFilename = (filename || "spartan-document").replace(/[^a-z0-9\-_]/gi, "-");
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename="${safeFilename}.pdf"`);
+      doc.pipe(res);
+
+      const RED = "#C8102E";
+      const DARK = "#111827";
+      const MUTED = "#6b7280";
+      const LEFT = doc.page.margins.left;
+      const WIDTH = doc.page.width - doc.page.margins.left - doc.page.margins.right;
+
+      // Branded header block
+      doc.fontSize(10).font("Helvetica-Bold").fillColor(RED).text("SPARTAN COACHING", { continued: true });
+      doc.fontSize(10).font("Helvetica").fillColor(MUTED)
+        .text("  ·  " + new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }), { align: "left" });
+      doc.moveDown(0.4);
+      doc.moveTo(LEFT, doc.y).lineTo(LEFT + WIDTH, doc.y).strokeColor(RED).lineWidth(1.5).stroke();
+      doc.moveDown(0.8);
+
+      // Title
+      doc.fontSize(22).font("Helvetica-Bold").fillColor(DARK).text(title, { align: "left" });
+      if (subtitle) {
+        doc.moveDown(0.3);
+        doc.fontSize(11).font("Helvetica").fillColor(MUTED).text(subtitle, { align: "left" });
+      }
+      doc.moveDown(1.2);
+
+      // Sections
+      for (const section of sections) {
+        const safeBody = typeof section.body === "string" ? section.body.trim() : "";
+        if (section.heading) {
+          doc.fontSize(13).font("Helvetica-Bold").fillColor(DARK).text(section.heading, { align: "left" });
+          doc.moveDown(0.35);
+        }
+        if (safeBody) {
+          doc.fontSize(10.5).font("Helvetica").fillColor(DARK).text(safeBody, { align: "left", lineGap: 3, paragraphGap: 5 });
+          doc.moveDown(1);
+        }
+      }
+
+      doc.end();
+    } catch (error: any) {
+      console.error("PDF generation error:", error);
+      if (!res.headersSent) {
+        res.status(500).json({ error: "Failed to generate PDF" });
+      }
+    }
+  });
+
   // Object Storage: Serve objects (PDFs) - public read access with ACL check
   app.get("/objects/:objectPath(*)", async (req, res) => {
     const objectStorageService = new ObjectStorageService();

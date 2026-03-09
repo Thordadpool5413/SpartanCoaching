@@ -9,6 +9,7 @@ import { MarkdownContent } from "@/components/MarkdownContent";
 import { trackEvent } from "@/lib/analytics";
 import { Mic, MicOff, Upload, Copy, Download, Loader2, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { downloadPdf } from "@/lib/downloadPdf";
 
 export default function Transcribe() {
   const { toast } = useToast();
@@ -125,16 +126,18 @@ export default function Transcribe() {
     toast({ title: "Copied", description: "Transcript copied to clipboard." });
   };
 
-  const exportAsText = () => {
-    const blob = new Blob([transcript], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "spartan-transcription.txt";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+  const exportAsText = async () => {
+    try {
+      await downloadPdf(
+        "spartan-transcription",
+        "Call Transcript",
+        [{ body: transcript }],
+        new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })
+      );
+      toast({ title: "Downloaded", description: "Your transcript PDF is ready." });
+    } catch (err: any) {
+      toast({ title: "Download failed", description: err.message || "Could not generate PDF.", variant: "destructive" });
+    }
   };
 
   return (

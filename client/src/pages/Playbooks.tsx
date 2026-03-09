@@ -12,6 +12,7 @@ import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { useToast } from "@/hooks/use-toast";
+import { downloadPdf, markdownToSections } from "@/lib/downloadPdf";
 
 export default function Playbooks() {
   const { toast } = useToast();
@@ -84,17 +85,14 @@ export default function Playbooks() {
     }
   };
 
-  const handleExportTxt = () => {
+  const handleExportPdf = async () => {
     if (!generatedPlaybook) return;
-    const blob = new Blob([generatedPlaybook], { type: "text/plain" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "spartan-playbook.txt";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
+    try {
+      await downloadPdf("spartan-playbook", "Sales Playbook", markdownToSections(generatedPlaybook));
+      toast({ title: "Downloaded", description: "Your playbook PDF is ready." });
+    } catch (err: any) {
+      toast({ title: "Download failed", description: err.message || "Could not generate PDF.", variant: "destructive" });
+    }
   };
 
   const handleCopyPlaybook = () => {
@@ -250,7 +248,7 @@ export default function Playbooks() {
                   <Button variant="outline" size="default" onClick={handlePrint} className="font-bold touch-manipulation" data-testid="button-print">
                     Print
                   </Button>
-                  <Button variant="outline" size="default" onClick={handleExportTxt} className="font-bold touch-manipulation" data-testid="button-export">
+                  <Button variant="outline" size="default" onClick={handleExportPdf} className="font-bold touch-manipulation" data-testid="button-export">
                     <DownloadIcon className="w-4 h-4 mr-2" />
                     <span>Download</span>
                   </Button>
@@ -292,7 +290,7 @@ export default function Playbooks() {
                 <Button variant="outline" onClick={handlePrint} className="flex-1" data-testid="button-modal-print">
                   Print
                 </Button>
-                <Button variant="outline" onClick={handleExportTxt} className="flex-1" data-testid="button-modal-export">
+                <Button variant="outline" onClick={handleExportPdf} className="flex-1" data-testid="button-modal-export">
                   <DownloadIcon className="w-4 h-4" />
                   Download
                 </Button>

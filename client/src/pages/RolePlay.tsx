@@ -10,6 +10,7 @@ import { SEO } from "@/components/SEO";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { MarkdownContent } from "@/components/MarkdownContent";
+import { downloadPdf } from "@/lib/downloadPdf";
 import {
   FadeIn,
   SlideUp,
@@ -181,6 +182,30 @@ export default function RolePlay() {
 
   const canEndSession = messages.filter(m => m.role === "user").length >= 2;
 
+  const handleDownloadFeedback = async () => {
+    const scoreLabel = (feedback?.rating ?? 0) >= 8 ? "Excellent Performance" : (feedback?.rating ?? 0) >= 5 ? "Good Progress" : "Keep Practicing";
+    try {
+      await downloadPdf(
+        `spartan-roleplay-${activeScenarioId}-${Date.now()}`,
+        "Role-Play Session Transcript",
+        [
+          {
+            heading: "Conversation",
+            body: messages.map((m) => `${m.role === "user" ? "You" : "Spartan Coach"}: ${m.content}`).join("\n\n"),
+          },
+          {
+            heading: "Performance Feedback",
+            body: feedback?.text ?? "",
+          },
+        ],
+        `${activeScenarioTitle} · Score: ${feedback?.rating ?? 0}/10 (${scoreLabel})`
+      );
+      toast({ title: "Downloaded", description: "Your session PDF is ready." });
+    } catch (err: any) {
+      toast({ title: "Download failed", description: err.message || "Could not generate PDF.", variant: "destructive" });
+    }
+  };
+
   const activeScenario = SCENARIOS.find((s) => s.id === activeScenarioId);
   const ActiveIcon = activeScenario?.icon || MessageCircle;
 
@@ -280,33 +305,7 @@ export default function RolePlay() {
                   <Share2 className="w-4 h-4 mr-1.5" />
                   Share
                 </Button>
-                <Button variant="outline" size="sm" data-testid="button-download-feedback" onClick={() => {
-                  const scoreLabel = (feedback?.rating ?? 0) >= 8 ? "Excellent Performance" : (feedback?.rating ?? 0) >= 5 ? "Good Progress" : "Keep Practicing";
-                  const lines: string[] = [
-                    "SPARTAN COACHING | ROLE-PLAY SESSION TRANSCRIPT",
-                    "=".repeat(50),
-                    `Scenario: ${activeScenarioTitle}`,
-                    `Date: ${new Date().toLocaleDateString()}`,
-                    `Score: ${feedback?.rating ?? 0}/10 (${scoreLabel})`,
-                    "",
-                    "CONVERSATION",
-                    "-".repeat(50),
-                    ...messages.map((m) => `${m.role === "user" ? "You" : "Spartan Coach"}: ${m.content}`),
-                    "",
-                    "PERFORMANCE FEEDBACK",
-                    "-".repeat(50),
-                    feedback?.text ?? "",
-                  ];
-                  const blob = new Blob([lines.join("\n")], { type: "text/plain" });
-                  const url = URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = `spartan-roleplay-${activeScenarioId}-${Date.now()}.txt`;
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  URL.revokeObjectURL(url);
-                }}>
+                <Button variant="outline" size="sm" data-testid="button-download-feedback" onClick={handleDownloadFeedback}>
                   <Download className="w-4 h-4 mr-1.5" />
                   Download
                 </Button>
