@@ -204,7 +204,7 @@ function DayInTheFieldCard({ result }: { result: CalculationResult }) {
       </CardTitle>
 
       <div className="space-y-6">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 rounded-xl">
             <div className="flex items-center gap-2 mb-2">
               <Sun className="w-4 h-4 text-amber-600 dark:text-amber-400" />

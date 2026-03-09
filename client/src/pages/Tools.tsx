@@ -121,7 +121,7 @@ export default function Tools() {
                 aria-label="Search tools"
               />
             </div>
-            <p className="text-sm text-muted-foreground whitespace-nowrap">
+            <p className="text-sm text-muted-foreground">
               Showing {filteredTools.length} of {tools.length} tools
             </p>
           </div>
