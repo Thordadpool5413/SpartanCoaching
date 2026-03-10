@@ -1228,8 +1228,9 @@ The single most important skill to work on before the next conversation.`,
   async function generatePdfBuffer(title: string, subtitle: string | undefined, sections: Array<{ heading?: string; body: string }>): Promise<Buffer> {
     const PDFDocument = (await import("pdfkit")).default;
     return new Promise((resolve, reject) => {
+      const MARGIN = 60;
       const doc = new PDFDocument({
-        margin: 72,
+        margin: MARGIN,
         size: "LETTER",
         bufferPages: true,
         info: { Title: title, Author: "Spartan Coaching", Creator: "Spartan Coaching" },
@@ -1240,85 +1241,194 @@ The single most important skill to work on before the next conversation.`,
       doc.on("end", () => resolve(Buffer.concat(chunks)));
       doc.on("error", reject);
 
-      const RED = "#C8102E";
-      const DARK = "#111827";
-      const MUTED = "#6b7280";
-      const LIGHT_RULE = "#e5e7eb";
-      const LEFT = doc.page.margins.left;
-      const WIDTH = doc.page.width - doc.page.margins.left - doc.page.margins.right;
-      const YEAR = new Date().getFullYear();
+      // ── Brand palette ──
+      const RED        = "#C8102E";
+      const RED_DEEP   = "#9B0E23";
+      const DARK       = "#111827";
+      const MUTED      = "#6B7280";
+      const WHITE      = "#FFFFFF";
+      const LIGHT_RULE = "#E5E7EB";
+      const BANNER_SUB = "#E8899A"; // muted rose for secondary text on red banner
 
-      // If fewer than minPts remain before the bottom margin, start a fresh page
+      const PAGE_W   = doc.page.width;   // 612 pt
+      const PAGE_H   = doc.page.height;  // 792 pt
+      const CW       = PAGE_W - MARGIN * 2; // content width = 492 pt
+      const YEAR     = new Date().getFullYear();
+      const DATE_STR = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
+
+      // ── Page-1 cover header ──────────────────────────────────────────────
+      const BANNER_H1 = 82;
+      const ACCENT_H  = 5; // thin dark stripe at top
+      doc.rect(0, 0, PAGE_W, BANNER_H1).fill(RED);
+      doc.rect(0, 0, PAGE_W, ACCENT_H).fill(RED_DEEP);
+      // Company name
+      doc.fontSize(13).font("Helvetica-Bold").fillColor(WHITE)
+        .text("SPARTAN COACHING", MARGIN, 22, { lineBreak: false });
+      // Tagline
+      doc.fontSize(8).font("Helvetica").fillColor(BANNER_SUB)
+        .text("HOSPICE SALES TRAINING", MARGIN, 42, { lineBreak: false });
+      // Date (right side of banner)
+      doc.fontSize(8.5).font("Helvetica").fillColor(BANNER_SUB)
+        .text(DATE_STR, MARGIN, 27, { width: CW, align: "right", lineBreak: false });
+      // Vertical rule accent on right edge
+      doc.rect(PAGE_W - ACCENT_H, 0, ACCENT_H, BANNER_H1).fill(RED_DEEP);
+
+      // Start content below banner + padding
+      doc.y = BANNER_H1 + 22;
+
+      // ── Title block ─────────────────────────────────────────────────────
+      doc.fontSize(24).font("Helvetica-Bold").fillColor(DARK)
+        .text(title, MARGIN, doc.y, { width: CW });
+      if (subtitle) {
+        doc.moveDown(0.3);
+        doc.fontSize(11.5).font("Helvetica").fillColor(MUTED)
+          .text(subtitle, MARGIN, doc.y, { width: CW });
+      }
+      doc.moveDown(0.7);
+      // Red rule beneath title block
+      doc.moveTo(MARGIN, doc.y).lineTo(MARGIN + CW, doc.y)
+        .strokeColor(RED).lineWidth(2).stroke();
+      doc.moveDown(1.2);
+
+      // ── Mini header on subsequent pages ─────────────────────────────────
+      const MINI_H = 30;
+      doc.on("pageAdded", () => {
+        doc.rect(0, 0, PAGE_W, MINI_H).fill(RED);
+        doc.rect(0, 0, PAGE_W, 3).fill(RED_DEEP);
+        doc.rect(PAGE_W - 3, 0, 3, MINI_H).fill(RED_DEEP);
+        doc.fontSize(9).font("Helvetica-Bold").fillColor(WHITE)
+          .text("SPARTAN COACHING", MARGIN, 10, { lineBreak: false });
+        const shortTitle = title.length > 52 ? title.substring(0, 49) + "\u2026" : title;
+        doc.fontSize(8.5).font("Helvetica").fillColor(BANNER_SUB)
+          .text(shortTitle, MARGIN, 11, { width: CW, align: "right", lineBreak: false });
+        doc.y = MINI_H + 18;
+      });
+
+      // ── Space guard ─────────────────────────────────────────────────────
       const ensureSpace = (minPts: number) => {
-        const pageBottom = doc.page.height - doc.page.margins.bottom;
-        if (doc.y + minPts > pageBottom) {
+        if (doc.y + minPts > PAGE_H - MARGIN) {
           doc.addPage();
         }
       };
 
-      // ── Header ──
-      doc.fontSize(10).font("Helvetica-Bold").fillColor(RED).text("SPARTAN COACHING", { continued: true });
-      doc.fontSize(10).font("Helvetica").fillColor(MUTED)
-        .text("  \u00B7  " + new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }), { align: "left" });
-      doc.moveDown(0.4);
-      doc.moveTo(LEFT, doc.y).lineTo(LEFT + WIDTH, doc.y).strokeColor(RED).lineWidth(1.5).stroke();
-      doc.moveDown(0.8);
+      // ── Body text renderer (handles bullets, numbers, paragraphs) ────────
+      const renderBody = (rawBody: string) => {
+        const lines = rawBody.split("\n");
+        let paraLines: string[] = [];
 
-      // ── Title block ──
-      doc.fontSize(22).font("Helvetica-Bold").fillColor(DARK).text(title, { align: "left" });
-      if (subtitle) {
-        doc.moveDown(0.3);
-        doc.fontSize(11).font("Helvetica").fillColor(MUTED).text(subtitle, { align: "left" });
-      }
-      doc.moveDown(1.2);
+        const flushPara = () => {
+          if (paraLines.length === 0) return;
+          const para = paraLines.join(" ").trim();
+          if (para) {
+            doc.fontSize(10.5).font("Helvetica").fillColor(DARK)
+              .text(para, MARGIN, doc.y, { width: CW, lineGap: 2.5, paragraphGap: 0 });
+            doc.moveDown(0.55);
+          }
+          paraLines = [];
+        };
 
-      // ── Sections ──
+        for (const rawLine of lines) {
+          const line = rawLine.trim();
+
+          // Bullet line (• from cleanMarkdown, or - / * originals)
+          if (/^[•\-\*]\s/.test(line)) {
+            flushPara();
+            const bulletText = line.replace(/^[•\-\*]\s+/, "").trim();
+            const bulletY = doc.y;
+            doc.fontSize(10.5).font("Helvetica-Bold").fillColor(RED)
+              .text("\u2022", MARGIN + 2, bulletY, { lineBreak: false, width: 14 });
+            doc.fontSize(10.5).font("Helvetica").fillColor(DARK)
+              .text(bulletText, MARGIN + 16, bulletY, { width: CW - 16, lineGap: 2.5 });
+            doc.moveDown(0.25);
+            continue;
+          }
+
+          // Numbered list line
+          if (/^\d+\.\s/.test(line)) {
+            flushPara();
+            const match = line.match(/^(\d+\.\s+)(.*)/);
+            if (match) {
+              const numLabel = match[1].trim();
+              const numText  = match[2].trim();
+              const numY = doc.y;
+              doc.fontSize(10.5).font("Helvetica-Bold").fillColor(RED)
+                .text(numLabel, MARGIN + 2, numY, { lineBreak: false, width: 22 });
+              doc.fontSize(10.5).font("Helvetica").fillColor(DARK)
+                .text(numText, MARGIN + 26, numY, { width: CW - 26, lineGap: 2.5 });
+              doc.moveDown(0.25);
+            }
+            continue;
+          }
+
+          // Empty line = flush paragraph
+          if (!line) {
+            flushPara();
+            continue;
+          }
+
+          paraLines.push(line);
+        }
+        flushPara();
+      };
+
+      // ── Sections ────────────────────────────────────────────────────────
       for (const section of sections) {
         const safeBody = typeof section.body === "string" ? section.body.trim() : "";
+
         if (section.heading) {
-          // Keep at least 80 pt available so a heading is never stranded at the foot of a page
-          ensureSpace(80);
-          doc.fontSize(13).font("Helvetica-Bold").fillColor(DARK).text(section.heading, { align: "left" });
-          doc.moveDown(0.35);
+          ensureSpace(90);
+          const hY = doc.y;
+          // Red left accent bar
+          doc.rect(MARGIN, hY, 4, 17).fill(RED);
+          // Heading text
+          doc.fontSize(13).font("Helvetica-Bold").fillColor(DARK)
+            .text(section.heading, MARGIN + 11, hY, { width: CW - 11 });
+          doc.moveDown(0.3);
+          // Subtle rule under heading
+          doc.moveTo(MARGIN, doc.y).lineTo(MARGIN + CW, doc.y)
+            .strokeColor(LIGHT_RULE).lineWidth(0.5).stroke();
+          doc.moveDown(0.55);
         }
+
         if (safeBody) {
-          doc.fontSize(10.5).font("Helvetica").fillColor(DARK).text(safeBody, { align: "left", lineGap: 3, paragraphGap: 5 });
-          doc.moveDown(1);
+          renderBody(safeBody);
+          doc.moveDown(0.3);
         }
       }
 
-      // ── Disclaimer ──
-      // Requires ~200 pt: rule + heading + three paragraphs of 8.5 pt text
-      ensureSpace(200);
-      doc.moveDown(0.5);
-      doc.moveTo(LEFT, doc.y).lineTo(LEFT + WIDTH, doc.y).strokeColor(LIGHT_RULE).lineWidth(0.5).stroke();
+      // ── Disclaimer ──────────────────────────────────────────────────────
+      ensureSpace(210);
       doc.moveDown(0.6);
-      doc.fontSize(10).font("Helvetica-Bold").fillColor(DARK).text("Disclaimer & Legal Notice", { align: "left" });
-      doc.moveDown(0.35);
-      doc.fontSize(8.5).font("Helvetica").fillColor(MUTED).text(
-        "This document was generated using artificial intelligence (OpenAI GPT-4o) through the Spartan Coaching platform and is provided for educational and training purposes only. It does not constitute professional, legal, clinical, regulatory, or compliance advice. Content should be reviewed, verified, and adapted to your specific organizational policies, state regulations, and individual patient circumstances before use.\n\nIntellectual Property: All AI-generated content produced through Spartan Coaching\u2019s platform is the exclusive property of Spartan Coaching. Unauthorized reproduction, redistribution, or commercial use of this content is strictly prohibited.\n\n\u00A9 " + YEAR + " Spartan Coaching. All rights reserved. | spartanhospicecoaching.com | For training purposes only. Not for resale.",
-        { align: "left", lineGap: 2, paragraphGap: 4 }
-      );
+      doc.moveTo(MARGIN, doc.y).lineTo(MARGIN + CW, doc.y)
+        .strokeColor(LIGHT_RULE).lineWidth(0.5).stroke();
+      doc.moveDown(0.65);
+      doc.fontSize(9).font("Helvetica-Bold").fillColor(DARK)
+        .text("Disclaimer & Legal Notice", MARGIN, doc.y, { width: CW });
+      doc.moveDown(0.4);
+      doc.fontSize(8).font("Helvetica").fillColor(MUTED)
+        .text(
+          "This document was generated using artificial intelligence (OpenAI GPT-4o) through the Spartan Coaching platform and is provided for educational and training purposes only. It does not constitute professional, legal, clinical, regulatory, or compliance advice. Content should be reviewed, verified, and adapted to your specific organizational policies, state regulations, and individual patient circumstances before use.\n\nIntellectual Property: All AI-generated content produced through Spartan Coaching\u2019s platform is the exclusive property of Spartan Coaching. Unauthorized reproduction, redistribution, or commercial use of this content is strictly prohibited.\n\n\u00A9 " + YEAR + " Spartan Coaching. All rights reserved. | spartanhospicecoaching.com | For training purposes only. Not for resale.",
+          MARGIN, doc.y, { width: CW, lineGap: 2, paragraphGap: 4 }
+        );
 
-      // ── Footer on every page ──
+      // ── Footer on every page ─────────────────────────────────────────────
       const pageRange = doc.bufferedPageRange();
       const totalPages = pageRange.count;
       for (let i = 0; i < totalPages; i++) {
         doc.switchToPage(pageRange.start + i);
-        const origBottom = doc.page.margins.bottom;
         doc.page.margins.bottom = 0;
-        const footerY = doc.page.height - origBottom + 10;
-        doc.moveTo(LEFT, footerY - 5).lineTo(LEFT + WIDTH, footerY - 5)
+        const footerY = PAGE_H - MARGIN + 12;
+        doc.moveTo(MARGIN, footerY - 6).lineTo(MARGIN + CW, footerY - 6)
           .strokeColor(LIGHT_RULE).lineWidth(0.5).stroke();
         doc.fontSize(7).font("Helvetica").fillColor(MUTED)
-          .text(`\u00A9 ${YEAR} Spartan Coaching. All rights reserved. | spartanhospicecoaching.com`, LEFT, footerY, {
-            width: Math.floor(WIDTH * 0.62), lineBreak: false,
+          .text(`\u00A9 ${YEAR} Spartan Coaching  \u00B7  spartanhospicecoaching.com`, MARGIN, footerY, {
+            width: Math.floor(CW * 0.65), lineBreak: false,
           });
         doc.fontSize(7).font("Helvetica").fillColor(MUTED)
-          .text(`Spartan Coaching | Page ${i + 1} of ${totalPages}`, LEFT, footerY, {
-            width: WIDTH, align: "right", lineBreak: false,
+          .text(`Page ${i + 1} of ${totalPages}`, MARGIN, footerY, {
+            width: CW, align: "right", lineBreak: false,
           });
-        doc.page.margins.bottom = origBottom;
+        doc.page.margins.bottom = MARGIN;
       }
 
       doc.flushPages();
