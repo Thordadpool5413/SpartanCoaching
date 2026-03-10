@@ -1467,9 +1467,10 @@ The single most important skill to work on before the next conversation.`,
       const safeFilename = ((filename || "spartan-document").replace(/[^a-z0-9\-_]/gi, "-")) + ".pdf";
       const { sendPdfToUser } = await import("./resend");
       await sendPdfToUser(email, name, buffer, safeFilename, title);
+      console.log(`[PDF email] Sent "${title}" to ${email}`);
       res.json({ success: true });
     } catch (error: any) {
-      console.error("PDF email error:", error);
+      console.error(`[PDF email] FAILED sending "${title}" to ${email}:`, error?.message || error, error?.stack || "");
       res.status(500).json({ error: "Failed to email PDF" });
     }
   });

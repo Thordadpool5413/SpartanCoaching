@@ -121,6 +121,13 @@ async function main() {
       await deferredInit(app);
 
       try {
+        const { checkResendHealth } = await import("./resend");
+        await checkResendHealth();
+      } catch (resendErr: any) {
+        console.error("Resend health check error:", resendErr?.message || resendErr);
+      }
+
+      try {
         const { seedDatabase } = await import("./seed");
         log("Starting database seed...");
         await seedDatabase();

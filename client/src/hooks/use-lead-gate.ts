@@ -116,7 +116,7 @@ export function useLeadGate(toolName: string) {
     }
 
     const getEmailPdfFn = pendingEmailPdfRef.current;
-    if (isFirstTime && getEmailPdfFn) {
+    if (getEmailPdfFn) {
       const payload = getEmailPdfFn();
       if (payload) {
         emailPdf(lead.email, lead.name, payload).catch(() => {});

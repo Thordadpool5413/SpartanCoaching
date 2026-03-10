@@ -7,9 +7,11 @@ async function getCredentials() {
   const fromEmail = process.env.RESEND_FROM_EMAIL || 'Spartan Coaching <nick@spartanhospicecoaching.com>';
 
   if (process.env.RESEND_API_KEY) {
+    console.log('[Resend] Using RESEND_API_KEY env var, from:', fromEmail);
     return { apiKey: process.env.RESEND_API_KEY, fromEmail };
   }
 
+  console.log('[Resend] RESEND_API_KEY not found, trying Replit connector...');
   const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
   const xReplitToken = process.env.REPL_IDENTITY 
     ? 'repl ' + process.env.REPL_IDENTITY 
@@ -18,7 +20,7 @@ async function getCredentials() {
     : null;
 
   if (!xReplitToken) {
-    throw new Error('X_REPLIT_TOKEN not found for repl/depl');
+    throw new Error('[Resend] No credentials available: RESEND_API_KEY missing and no Replit identity token found');
   }
 
   connectionSettings = await fetch(
@@ -32,14 +34,23 @@ async function getCredentials() {
   ).then(res => res.json()).then(data => data.items?.[0]);
 
   if (!connectionSettings || (!connectionSettings.settings.api_key)) {
-    throw new Error('Resend not connected');
+    throw new Error('[Resend] Connector found but api_key is missing or connector not linked');
   }
+  console.log('[Resend] Using Replit connector credentials, from:', fromEmail);
   return { apiKey: connectionSettings.settings.api_key, fromEmail };
+}
+
+export async function checkResendHealth(): Promise<void> {
+  try {
+    const { fromEmail } = await getCredentials();
+    console.log('[Resend] Health check OK — ready to send from:', fromEmail);
+  } catch (err: any) {
+    console.error('[Resend] WARNING: Email sending will NOT work —', err?.message || err);
+  }
 }
 
 async function getUncachableResendClient() {
   const { apiKey, fromEmail } = await getCredentials();
-  console.log('Resend fromEmail configured as:', fromEmail);
   return {
     client: new Resend(apiKey),
     fromEmail
@@ -205,10 +216,10 @@ export async function sendResourceLeadNotification(name: string, email: string, 
       `,
     });
 
-    console.log(`Resource lead notification sent for ${name} (${resourceTitle})`);
+    console.log(`[Resend] Lead notification sent to admin for ${name} <${email}> (${resourceTitle})`);
     return true;
-  } catch (error) {
-    console.error('Failed to send resource lead notification:', error);
+  } catch (error: any) {
+    console.error(`[Resend] FAILED lead notification for ${name} <${email}> (${resourceTitle}):`, error?.message || error);
     return false;
   }
 }
@@ -431,10 +442,10 @@ export async function sendPdfToUser(toEmail: string, toName: string, pdfBuffer: 
       ],
     });
 
-    console.log(`PDF emailed to ${toEmail} (${resourceTitle})`);
+    console.log(`[Resend] PDF "${resourceTitle}" sent to ${toEmail}`);
     return true;
-  } catch (error) {
-    console.error('Failed to send PDF to user:', error);
+  } catch (error: any) {
+    console.error(`[Resend] FAILED PDF send to ${toEmail} ("${resourceTitle}"):`, error?.message || error);
     return false;
   }
 }
