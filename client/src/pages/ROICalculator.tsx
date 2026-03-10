@@ -10,7 +10,7 @@ import { FadeIn, SlideUp } from "@/components/animations";
 import { Calculator, TrendingUp, DollarSign, Users, ArrowRight, Home, ChevronRight, Printer } from "lucide-react";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
-import type { EmailPdfPayload } from "@/lib/downloadPdf";
+import { downloadPdf, type EmailPdfPayload } from "@/lib/downloadPdf";
 
 function formatCurrency(value: number): string {
   return "$" + Math.round(value).toLocaleString("en-US");
@@ -305,7 +305,10 @@ export default function ROICalculator() {
                     },
                   ],
                 });
-                capture(() => window.print(), getEmailPdf);
+                capture(async () => {
+                  const payload = getEmailPdf();
+                  await downloadPdf(payload.filename, payload.title, payload.sections, payload.subtitle);
+                }, getEmailPdf);
               }} variant="outline" className="w-full gap-2" data-testid="button-print-roi">
                 <Printer className="w-4 h-4" />
                 Print Results

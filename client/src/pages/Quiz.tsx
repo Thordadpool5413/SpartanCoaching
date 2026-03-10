@@ -1,7 +1,7 @@
 import { useState, useRef } from "react";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
-import type { EmailPdfPayload } from "@/lib/downloadPdf";
+import { downloadPdf, type EmailPdfPayload } from "@/lib/downloadPdf";
 import { SEO } from "@/components/SEO";
 import { CoachingCTA } from "@/components/CoachingCTA";
 import { Button } from "@/components/ui/button";
@@ -376,7 +376,10 @@ export default function Quiz() {
   };
 
   const handlePrint = () => {
-    capture(() => window.print(), getQuizEmailPdf);
+    capture(async () => {
+      const payload = getQuizEmailPdf();
+      await downloadPdf(payload.filename, payload.title, payload.sections, payload.subtitle);
+    }, getQuizEmailPdf);
   };
 
   const handlePrintCert = () => {

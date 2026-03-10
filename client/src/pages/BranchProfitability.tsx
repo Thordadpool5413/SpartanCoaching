@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
-import type { EmailPdfPayload } from "@/lib/downloadPdf";
+import { downloadPdf, type EmailPdfPayload } from "@/lib/downloadPdf";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { CoachingCTA } from "@/components/CoachingCTA";
@@ -443,7 +443,10 @@ export default function BranchProfitability() {
                     },
                   ],
                 });
-                capture(() => window.print(), getEmailPdf);
+                capture(async () => {
+                  const payload = getEmailPdf();
+                  await downloadPdf(payload.filename, payload.title, payload.sections, payload.subtitle);
+                }, getEmailPdf);
               }}
               data-testid="button-print"
             >

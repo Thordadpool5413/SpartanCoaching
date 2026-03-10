@@ -1,7 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
-import type { EmailPdfPayload } from "@/lib/downloadPdf";
+import { downloadPdf, type EmailPdfPayload } from "@/lib/downloadPdf";
 import { Link } from "wouter";
 import { Card, CardTitle } from "@/components/ui/card";
 import { CoachingCTA } from "@/components/CoachingCTA";
@@ -825,7 +825,12 @@ export default function ActivityCalculator() {
                             ],
                           };
                         };
-                        capture(() => window.print(), getEmailPdf);
+                        capture(async () => {
+                          const payload = getEmailPdf();
+                          if (payload) {
+                            await downloadPdf(payload.filename, payload.title, payload.sections, payload.subtitle);
+                          }
+                        }, getEmailPdf);
                       }}
                       data-testid="button-print-activity"
                     >
