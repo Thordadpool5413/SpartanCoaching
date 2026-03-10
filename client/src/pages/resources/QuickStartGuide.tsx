@@ -5,6 +5,7 @@ import { Printer } from "lucide-react";
 import { ContentNotice } from "@/components/ContentNotice";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
+import type { EmailPdfPayload } from "@/lib/downloadPdf";
 
 export default function QuickStartGuide() {
   const { capture, gateState } = useLeadGate("Quick Start Guide");
@@ -203,7 +204,21 @@ export default function QuickStartGuide() {
       </div>
 
       <div className="mt-6 text-center print:hidden">
-        <Button onClick={() => capture(() => window.print())} size="lg" data-testid="button-print">
+        <Button onClick={() => {
+          const getEmailPdf = (): EmailPdfPayload => ({
+            title: "Quick Start Guide",
+            filename: "spartan-quick-start-guide",
+            subtitle: "Your First 30 Days as a Hospice Liaison",
+            sections: [
+              { heading: "Week 1: Foundation", body: "Days 1-2: Learn your value proposition — what makes your hospice different, your average LOS, specialty programs, and key differentiators.\n\nDays 3-4: Map your territory — identify top 20 referral sources: SNFs, hospitals, ALFs, home health agencies, and physician offices.\n\nDay 5: Shadow a patient admission — understand the clinical intake process so you can speak credibly with referral sources." },
+              { heading: "Week 2: First Contacts", body: "Goal: 15+ in-person visits to referral sources.\n\nFocus on introducing yourself, not selling. Ask questions. Learn their discharge challenges. Leave behind one piece of educational material.\n\nKey message: 'We're here to make your job easier and serve your patients well.'" },
+              { heading: "Week 3: Build Momentum", body: "Follow up with every contact from Week 2.\n\nIdentify 3-5 'warm' referral sources — those who showed genuine interest.\n\nBegin tracking conversations-per-admission ratio to establish your baseline." },
+              { heading: "Week 4: First Referrals", body: "Target: 1-2 referrals from your warm contacts.\n\nDocument every conversation. What worked? What objections came up?\n\nSchedule weekly check-ins with your top 5 referral sources going forward." },
+              { heading: "30-Day Metrics to Track", body: "Referral source visits per week: Target 15+\nNew relationships established: Target 10+\nReferrals received: Target 1-2\nConversions to admissions: Track your ratio\nFollow-up rate: 100% of warm contacts" },
+            ],
+          });
+          capture(() => window.print(), getEmailPdf);
+        }} size="lg" data-testid="button-print">
           <Printer className="w-4 h-4" />
           Print / Save as PDF
         </Button>

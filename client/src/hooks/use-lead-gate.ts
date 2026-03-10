@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { apiRequest } from "@/lib/queryClient";
+import type { EmailPdfPayload } from "@/lib/downloadPdf";
 
 const STORAGE_KEY = "spartan_lead";
 
@@ -37,6 +38,17 @@ async function submitLead(name: string, email: string, toolName: string): Promis
   }
 }
 
+async function emailPdf(email: string, name: string, payload: EmailPdfPayload): Promise<void> {
+  try {
+    await fetch("/api/pdf/email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, name, ...payload }),
+    });
+  } catch {
+  }
+}
+
 export interface LeadGateState {
   open: boolean;
   nameVal: string;
@@ -55,15 +67,17 @@ export function useLeadGate(toolName: string) {
   const [emailVal, setEmailVal] = useState("");
   const [isPending, setIsPending] = useState(false);
   const pendingFnRef = useRef<(() => void) | null>(null);
+  const pendingEmailPdfRef = useRef<(() => EmailPdfPayload | null) | null>(null);
 
   const capture = useCallback(
-    (fn: () => void) => {
+    (fn: () => void, getEmailPdf?: () => EmailPdfPayload | null) => {
       const stored = getStoredLead();
       if (stored) {
         fn();
         return;
       }
       pendingFnRef.current = fn;
+      pendingEmailPdfRef.current = getEmailPdf ?? null;
       setOpen(true);
     },
     []
@@ -75,10 +89,20 @@ export function useLeadGate(toolName: string) {
     const lead = { name: nameVal.trim(), email: emailVal.trim() };
     await submitLead(lead.name, lead.email, toolName);
     storeLead(lead);
+
+    const getEmailPdf = pendingEmailPdfRef.current;
+    if (getEmailPdf) {
+      const payload = getEmailPdf();
+      if (payload) {
+        emailPdf(lead.email, lead.name, payload).catch(() => {});
+      }
+    }
+
     setIsPending(false);
     setOpen(false);
     const fn = pendingFnRef.current;
     pendingFnRef.current = null;
+    pendingEmailPdfRef.current = null;
     if (fn) fn();
   }, [nameVal, emailVal, toolName]);
 

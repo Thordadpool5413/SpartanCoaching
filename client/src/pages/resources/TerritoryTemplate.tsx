@@ -5,6 +5,7 @@ import { Printer } from "lucide-react";
 import { ContentNotice } from "@/components/ContentNotice";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
+import type { EmailPdfPayload } from "@/lib/downloadPdf";
 
 export default function TerritoryTemplate() {
   const { capture, gateState } = useLeadGate("Territory Template");
@@ -211,7 +212,19 @@ export default function TerritoryTemplate() {
       </div>
 
       <div className="mt-6 text-center print:hidden">
-        <Button onClick={() => capture(() => window.print())} size="lg" data-testid="button-print">
+        <Button onClick={() => {
+          const getEmailPdf = (): EmailPdfPayload => ({
+            title: "Territory Planning Template",
+            filename: "spartan-territory-template",
+            subtitle: "Hospice Sales Territory Management",
+            sections: [
+              { heading: "Referral Source Categories", body: "A-Tier (Weekly visits): SNFs, hospital discharge planners, high-volume physician offices\n\nB-Tier (Bi-weekly visits): ALFs, home health agencies, oncology offices\n\nC-Tier (Monthly visits): Community organizations, churches, support groups" },
+              { heading: "Weekly Routing Strategy", body: "Geographic Clustering: Group visits by area to reduce drive time.\n\nPeak Hours: Visit hospitals 8-10am and 2-4pm (before and after rounds).\n\nLunch Strategy: Schedule lunch-and-learns or use for admin work.\n\nBuffer Time: Leave 15min between appointments for unexpected delays.\n\nFriday Follow-ups: Reserve Friday afternoons for relationship-building calls." },
+              { heading: "Key Metrics to Track", body: "Total referral sources in territory: ___\nA-tier sources: ___\nB-tier sources: ___\nC-tier sources: ___\n\nWeekly visits completed: ___\nNew relationships this month: ___\nReferrals received this month: ___" },
+            ],
+          });
+          capture(() => window.print(), getEmailPdf);
+        }} size="lg" data-testid="button-print">
           <Printer className="w-4 h-4" />
           Print / Save as PDF
         </Button>

@@ -12,7 +12,7 @@ import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { useToast } from "@/hooks/use-toast";
-import { downloadPdf, markdownToSections } from "@/lib/downloadPdf";
+import { downloadPdf, markdownToSections, type EmailPdfPayload } from "@/lib/downloadPdf";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
 
@@ -90,6 +90,11 @@ export default function Playbooks() {
 
   const handleExportPdf = () => {
     if (!generatedPlaybook) return;
+    const getEmailPdf = (): EmailPdfPayload => ({
+      sections: markdownToSections(generatedPlaybook),
+      title: "Sales Playbook",
+      filename: "spartan-playbook",
+    });
     capture(async () => {
       try {
         await downloadPdf("spartan-playbook", "Sales Playbook", markdownToSections(generatedPlaybook));
@@ -97,7 +102,7 @@ export default function Playbooks() {
       } catch (err: any) {
         toast({ title: "Download failed", description: err.message || "Could not generate PDF.", variant: "destructive" });
       }
-    });
+    }, getEmailPdf);
   };
 
   const handleCopyPlaybook = () => {

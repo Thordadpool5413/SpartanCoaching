@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
+import type { EmailPdfPayload } from "@/lib/downloadPdf";
 import { Link } from "wouter";
 import { Card, CardTitle } from "@/components/ui/card";
 import { CoachingCTA } from "@/components/CoachingCTA";
@@ -806,7 +807,26 @@ export default function ActivityCalculator() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <Button
                       variant="outline"
-                      onClick={() => capture(() => window.print())}
+                      onClick={() => {
+                        const getEmailPdf = (): EmailPdfPayload | null => {
+                          if (!result) return null;
+                          return {
+                            title: "Activity Calculator Results",
+                            filename: "spartan-activity-calculator",
+                            sections: [
+                              {
+                                heading: "Rep Information",
+                                body: `Rep Name: ${result.repName || "Not specified"}\nStatus: ${result.repStatus === "tenured" ? "Tenured Rep" : "New Hire"}\nMonthly Admission Goal: ${result.monthlyGoal}`,
+                              },
+                              {
+                                heading: "Required Daily Activity",
+                                body: `Monthly Conversations: ${result.targetConversationsMonth}\nWeekly Conversations: ${result.targetConversationsWeek}\nDaily Conversations: ${result.targetConversationsDay}\n\nConversations per Admission: ${result.conversationsPerAdmission.toFixed(1)}\nBase Conversations Needed: ${result.baseConversations}`,
+                              },
+                            ],
+                          };
+                        };
+                        capture(() => window.print(), getEmailPdf);
+                      }}
                       data-testid="button-print-activity"
                     >
                       <Printer className="w-4 h-4 mr-2" />

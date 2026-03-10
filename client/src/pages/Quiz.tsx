@@ -1,6 +1,7 @@
 import { useState, useRef } from "react";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
+import type { EmailPdfPayload } from "@/lib/downloadPdf";
 import { SEO } from "@/components/SEO";
 import { CoachingCTA } from "@/components/CoachingCTA";
 import { Button } from "@/components/ui/button";
@@ -345,8 +346,37 @@ export default function Quiz() {
 
   const perf = performanceLabel();
 
+  const getQuizEmailPdf = (): EmailPdfPayload => {
+    const perf = performanceLabel();
+    const missed = questions.filter((q, i) => answers[i] !== q.correctIndex);
+    return {
+      title: "Hospice Sales Quiz Results",
+      filename: "spartan-quiz-results",
+      subtitle: `Score: ${score}/${questions.length} (${pct}%) — ${perf.label}`,
+      sections: [
+        {
+          heading: "Your Score",
+          body: `Score: ${score} out of ${questions.length} (${pct}%)\nPerformance Level: ${perf.label}`,
+        },
+        ...(missed.length > 0
+          ? [
+              {
+                heading: "Questions to Review",
+                body: missed
+                  .map(
+                    (q) =>
+                      `Q: ${q.question}\nCorrect Answer: ${q.options[q.correctIndex]}\nExplanation: ${q.explanation}`
+                  )
+                  .join("\n\n"),
+              },
+            ]
+          : [{ heading: "Questions to Review", body: "You answered all questions correctly — excellent work!" }]),
+      ],
+    };
+  };
+
   const handlePrint = () => {
-    capture(() => window.print());
+    capture(() => window.print(), getQuizEmailPdf);
   };
 
   const handlePrintCert = () => {
@@ -766,7 +796,7 @@ export default function Quiz() {
           </div>
           <DialogFooter className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={() => setShowCertDialog(false)}>Cancel</Button>
-            <Button onClick={() => capture(handlePrintCert)} data-testid="button-print-certificate">
+            <Button onClick={() => capture(handlePrintCert, getQuizEmailPdf)} data-testid="button-print-certificate">
               <Printer className="w-4 h-4 mr-2" />
               Print Certificate
             </Button>

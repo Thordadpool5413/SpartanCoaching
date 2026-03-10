@@ -394,6 +394,45 @@ export async function sendDripDay7(email: string): Promise<boolean> {
   }
 }
 
+export async function sendPdfToUser(toEmail: string, toName: string, pdfBuffer: Buffer, filename: string, resourceTitle: string): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+
+    await sendEmail(client, {
+      from: fromEmail,
+      to: toEmail,
+      subject: `Your ${resourceTitle} — Spartan Coaching`,
+      html: `
+        <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; color: #111827;">
+          <div style="border-bottom: 3px solid #C8102E; padding-bottom: 16px; margin-bottom: 24px;">
+            <p style="color: #C8102E; font-weight: bold; font-size: 13px; margin: 0 0 4px;">SPARTAN COACHING</p>
+            <h2 style="margin: 0; font-size: 20px;">Your resource is attached</h2>
+          </div>
+          <p style="margin: 0 0 16px; line-height: 1.6;">Hi ${toName},</p>
+          <p style="margin: 0 0 16px; line-height: 1.6;">Thanks for using Spartan Coaching's training tools. Your <strong>${resourceTitle}</strong> is attached to this email as a PDF — ready to save, print, or share with your team.</p>
+          <p style="margin: 0 0 24px; line-height: 1.6;">Keep pushing forward. Discipline, empathy, and strategy win the day.</p>
+          <p style="margin: 0 0 4px; font-weight: bold;">Nick Lynch</p>
+          <p style="margin: 0; color: #6b7280; font-size: 13px;">Spartan Coaching | <a href="https://spartanhospicecoaching.com" style="color: #C8102E;">spartanhospicecoaching.com</a></p>
+          <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;" />
+          <p style="color: #9ca3af; font-size: 11px; margin-top: 16px;">This resource is for training purposes only. Not for resale. &copy; ${new Date().getFullYear()} Spartan Coaching.</p>
+        </div>
+      `,
+      attachments: [
+        {
+          filename,
+          content: pdfBuffer,
+        },
+      ],
+    });
+
+    console.log(`PDF emailed to ${toEmail} (${resourceTitle})`);
+    return true;
+  } catch (error) {
+    console.error('Failed to send PDF to user:', error);
+    return false;
+  }
+}
+
 export async function sendGeneratedEmail(to: string, subject: string, body: string): Promise<boolean> {
   try {
     const { client, fromEmail } = await getUncachableResendClient();

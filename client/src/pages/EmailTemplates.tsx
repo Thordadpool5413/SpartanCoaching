@@ -12,7 +12,7 @@ import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
 import { MarkdownContent } from "@/components/MarkdownContent";
-import { downloadPdf, cleanMarkdown } from "@/lib/downloadPdf";
+import { downloadPdf, cleanMarkdown, type EmailPdfPayload } from "@/lib/downloadPdf";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
 
@@ -260,7 +260,15 @@ export default function EmailTemplates() {
                     <Button
                       variant="outline"
                       size="default"
-                      onClick={() => capture(handleDownload)}
+                      onClick={() => {
+                        const getEmailPdf = (): EmailPdfPayload => ({
+                          sections: [{ body: cleanMarkdown(generatedTemplate) }],
+                          title: "Email Template",
+                          filename: "spartan-email-template",
+                          subtitle: emailSubject || undefined,
+                        });
+                        capture(handleDownload, getEmailPdf);
+                      }}
                       className="font-bold touch-manipulation"
                       data-testid="button-download-template"
                     >

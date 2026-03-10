@@ -5,6 +5,7 @@ import { Printer } from "lucide-react";
 import { ContentNotice } from "@/components/ContentNotice";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
+import type { EmailPdfPayload } from "@/lib/downloadPdf";
 
 export default function WeeklyPlan() {
   const { capture, gateState } = useLeadGate("Weekly Sales Plan");
@@ -143,7 +144,21 @@ export default function WeeklyPlan() {
       </div>
 
       <div className="mt-6 text-center print:hidden">
-        <Button onClick={() => capture(() => window.print())} size="lg" data-testid="button-print">
+        <Button onClick={() => {
+          const getEmailPdf = (): EmailPdfPayload => ({
+            title: "Weekly Sales Plan",
+            filename: "spartan-weekly-plan",
+            subtitle: "Hospice Sales Weekly Planning Template",
+            sections: [
+              { heading: "Monday — Pipeline Review", body: "Review all open referrals and pending admissions.\nFollow up on any referrals received Friday.\nConfirm the week's appointments.\nPriority A-tier visits: ___" },
+              { heading: "Tuesday — Hospital & Physician Focus", body: "Hospital discharge planner rounds: 8-10am\nPhysician office visits: 10am-2pm\nTarget conversations: 5+\nNotes: ___" },
+              { heading: "Wednesday — SNF & ALF Circuit", body: "SNF visits (target 3-4 facilities)\nALF check-ins\nLunch-and-learn (if scheduled)\nTarget conversations: 6+\nNotes: ___" },
+              { heading: "Thursday — Follow-Ups & New Contacts", body: "Follow up with all warm contacts from Mon-Wed.\nNew facility introductions.\nTarget conversations: 5+\nNotes: ___" },
+              { heading: "Friday — Admin & Relationship Building", body: "CRM updates and documentation.\nThank-you notes to referral sources.\nWeek-in-review: what worked, what didn't.\nPlan adjustments for next week.\n\nThis week's admissions: ___\nThis week's referrals: ___\nWhat needs adjustment: ___" },
+            ],
+          });
+          capture(() => window.print(), getEmailPdf);
+        }} size="lg" data-testid="button-print">
           <Printer className="w-4 h-4" />
           Print / Save as PDF
         </Button>

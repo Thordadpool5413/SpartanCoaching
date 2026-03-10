@@ -1201,23 +1201,20 @@ The single most important skill to work on before the next conversation.`,
   });
 
   // PDF Export: generate a branded PDF from structured content
-  app.post("/api/pdf/export", standardAiLimit, async (req, res) => {
-    const { filename, title, subtitle, sections } = req.body;
-    if (!title || !Array.isArray(sections)) {
-      return res.status(400).json({ error: "title and sections are required" });
-    }
-    try {
-      const PDFDocument = (await import("pdfkit")).default;
+  async function generatePdfBuffer(title: string, subtitle: string | undefined, sections: Array<{ heading?: string; body: string }>): Promise<Buffer> {
+    const PDFDocument = (await import("pdfkit")).default;
+    return new Promise((resolve, reject) => {
       const doc = new PDFDocument({
         margin: 72,
         size: "LETTER",
         bufferPages: true,
         info: { Title: title, Author: "Spartan Coaching", Creator: "Spartan Coaching" },
       });
-      const safeFilename = (filename || "spartan-document").replace(/[^a-z0-9\-_]/gi, "-");
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", `attachment; filename="${safeFilename}.pdf"`);
-      doc.pipe(res);
+
+      const chunks: Buffer[] = [];
+      doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+      doc.on("end", () => resolve(Buffer.concat(chunks)));
+      doc.on("error", reject);
 
       const RED = "#C8102E";
       const DARK = "#111827";
@@ -1227,7 +1224,6 @@ The single most important skill to work on before the next conversation.`,
       const WIDTH = doc.page.width - doc.page.margins.left - doc.page.margins.right;
       const YEAR = new Date().getFullYear();
 
-      // Branded header block
       doc.fontSize(10).font("Helvetica-Bold").fillColor(RED).text("SPARTAN COACHING", { continued: true });
       doc.fontSize(10).font("Helvetica").fillColor(MUTED)
         .text("  \u00B7  " + new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }), { align: "left" });
@@ -1235,7 +1231,6 @@ The single most important skill to work on before the next conversation.`,
       doc.moveTo(LEFT, doc.y).lineTo(LEFT + WIDTH, doc.y).strokeColor(RED).lineWidth(1.5).stroke();
       doc.moveDown(0.8);
 
-      // Title
       doc.fontSize(22).font("Helvetica-Bold").fillColor(DARK).text(title, { align: "left" });
       if (subtitle) {
         doc.moveDown(0.3);
@@ -1243,7 +1238,6 @@ The single most important skill to work on before the next conversation.`,
       }
       doc.moveDown(1.2);
 
-      // Sections
       for (const section of sections) {
         const safeBody = typeof section.body === "string" ? section.body.trim() : "";
         if (section.heading) {
@@ -1256,7 +1250,6 @@ The single most important skill to work on before the next conversation.`,
         }
       }
 
-      // Disclaimer section
       doc.moveDown(0.5);
       doc.moveTo(LEFT, doc.y).lineTo(LEFT + WIDTH, doc.y).strokeColor(LIGHT_RULE).lineWidth(0.5).stroke();
       doc.moveDown(0.6);
@@ -1267,7 +1260,6 @@ The single most important skill to work on before the next conversation.`,
         { align: "left", lineGap: 2, paragraphGap: 4 }
       );
 
-      // Post-process: add per-page footer to every buffered page
       const pageRange = doc.bufferedPageRange();
       const totalPages = pageRange.count;
       for (let i = 0; i < totalPages; i++) {
@@ -1282,7 +1274,7 @@ The single most important skill to work on before the next conversation.`,
             width: Math.floor(WIDTH * 0.62), lineBreak: false,
           });
         doc.fontSize(7).font("Helvetica").fillColor(MUTED)
-          .text(`AI-generated \u2014 for training purposes only | Page ${i + 1} of ${totalPages}`, LEFT, footerY, {
+          .text(`Spartan Coaching | Page ${i + 1} of ${totalPages}`, LEFT, footerY, {
             width: WIDTH, align: "right", lineBreak: false,
           });
         doc.page.margins.bottom = origBottom;
@@ -1290,11 +1282,42 @@ The single most important skill to work on before the next conversation.`,
 
       doc.flushPages();
       doc.end();
+    });
+  }
+
+  app.post("/api/pdf/export", standardAiLimit, async (req, res) => {
+    const { filename, title, subtitle, sections } = req.body;
+    if (!title || !Array.isArray(sections)) {
+      return res.status(400).json({ error: "title and sections are required" });
+    }
+    try {
+      const buffer = await generatePdfBuffer(title, subtitle, sections);
+      const safeFilename = (filename || "spartan-document").replace(/[^a-z0-9\-_]/gi, "-");
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename="${safeFilename}.pdf"`);
+      res.send(buffer);
     } catch (error: any) {
       console.error("PDF generation error:", error);
       if (!res.headersSent) {
         res.status(500).json({ error: "Failed to generate PDF" });
       }
+    }
+  });
+
+  app.post("/api/pdf/email", async (req, res) => {
+    const { email, name, title, filename, subtitle, sections } = req.body;
+    if (!email || !name || !title || !Array.isArray(sections)) {
+      return res.status(400).json({ error: "email, name, title, and sections are required" });
+    }
+    try {
+      const buffer = await generatePdfBuffer(title, subtitle, sections);
+      const safeFilename = ((filename || "spartan-document").replace(/[^a-z0-9\-_]/gi, "-")) + ".pdf";
+      const { sendPdfToUser } = await import("./resend");
+      await sendPdfToUser(email, name, buffer, safeFilename, title);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("PDF email error:", error);
+      res.status(500).json({ error: "Failed to email PDF" });
     }
   });
 

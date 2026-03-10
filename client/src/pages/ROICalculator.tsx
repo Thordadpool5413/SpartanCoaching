@@ -10,6 +10,7 @@ import { FadeIn, SlideUp } from "@/components/animations";
 import { Calculator, TrendingUp, DollarSign, Users, ArrowRight, Home, ChevronRight, Printer } from "lucide-react";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
+import type { EmailPdfPayload } from "@/lib/downloadPdf";
 
 function formatCurrency(value: number): string {
   return "$" + Math.round(value).toLocaleString("en-US");
@@ -289,7 +290,23 @@ export default function ROICalculator() {
                 Revenue calculations are based on the average Medicare hospice routine home care per-diem rate (~$200/day). Actual rates vary by region, level of care, and payer mix. Projections are estimates based on average improvements observed across Spartan Coaching clients. Individual results may vary based on market conditions, team experience, and implementation.
               </p>
 
-              <Button onClick={() => capture(() => window.print())} variant="outline" className="w-full gap-2" data-testid="button-print-roi">
+              <Button onClick={() => {
+                const getEmailPdf = (): EmailPdfPayload => ({
+                  title: "ROI Calculator Results",
+                  filename: "spartan-roi-calculator",
+                  sections: [
+                    {
+                      heading: "Your Current Performance",
+                      body: `Sales Reps: ${reps}\nMonthly Referrals per Rep: ${referrals}\nConversion Rate: ${formatPercent(conversion)}\nAverage Length of Stay: ${los} days\nRevenue per Day: ${formatCurrency(rppd)}\n\nMonthly Admissions: ${monthlyAdmissions.toFixed(1)}\nMonthly Revenue: ${formatCurrency(monthlyRevenue)}\nAnnual Revenue: ${formatCurrency(annualRevenue)}`,
+                    },
+                    {
+                      heading: "Projected Performance After Spartan Coaching",
+                      body: `Monthly Admissions: ${projectedAdmissions.toFixed(1)} (+${additionalPatients.toFixed(1)} patients/mo)\nMonthly Revenue: ${formatCurrency(projectedMonthlyRevenue)}\nAnnual Revenue: ${formatCurrency(projectedAnnualRevenue)}\n\nAdditional Monthly Revenue: ${formatCurrency(additionalMonthlyRevenue)}\nAdditional Annual Revenue: ${formatCurrency(additionalAnnualRevenue)}\nRevenue Increase: ${formatPercent(revenueIncreasePercent)}`,
+                    },
+                  ],
+                });
+                capture(() => window.print(), getEmailPdf);
+              }} variant="outline" className="w-full gap-2" data-testid="button-print-roi">
                 <Printer className="w-4 h-4" />
                 Print Results
               </Button>

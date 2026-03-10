@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
+import type { EmailPdfPayload } from "@/lib/downloadPdf";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { CoachingCTA } from "@/components/CoachingCTA";
@@ -418,7 +419,32 @@ export default function BranchProfitability() {
             <Button
               variant="outline"
               size="default"
-              onClick={() => capture(() => window.print())}
+              onClick={() => {
+                const getEmailPdf = (): EmailPdfPayload => ({
+                  title: "Branch Profitability Analysis",
+                  filename: "spartan-branch-profitability",
+                  subtitle: `Scenario: ${SCENARIOS[inputs.scenario].label} | ADC: ${inputs.adc}`,
+                  sections: [
+                    {
+                      heading: "Key Inputs",
+                      body: `Average Daily Census (ADC): ${inputs.adc}\nAverage Length of Stay: ${inputs.los} days\nMonthly Overhead: ${fmtK(inputs.overhead)}\nStarting Cash: ${fmtK(inputs.startCash)}\nTarget Margin: ${fmtPct(inputs.targetMargin)}`,
+                    },
+                    {
+                      heading: "Financial Summary",
+                      body: `Annual Revenue: ${fmtK(metrics.annualRevenue)}\nAnnual Payroll: ${fmtK(metrics.annualPayroll)}\nAnnual Profit: ${fmtK(metrics.annualProfit)}\nOperating Margin: ${fmtPct(metrics.margin)}`,
+                    },
+                    {
+                      heading: "Key Thresholds",
+                      body: `Break-Even ADC: ${metrics.breakevenAdc.toFixed(1)} patients\nTarget Margin ADC: ${metrics.targetMarginAdc.toFixed(1)} patients\nAdmissions Needed per Month: ${metrics.admissionsNeeded}\nMarketers Needed: ${metrics.marketersNeeded}`,
+                    },
+                    {
+                      heading: "Cash Runway",
+                      body: `Starting Capital: ${fmtK(inputs.startCash)}\nMonths to Positive Cash Flow: ${runway.monthToPositive > 0 ? runway.monthToPositive : "Already positive"}\nCash at Month 12: ${fmtK(runway.cashAtMonth12)}`,
+                    },
+                  ],
+                });
+                capture(() => window.print(), getEmailPdf);
+              }}
               data-testid="button-print"
             >
               <Printer className="w-4 h-4 mr-1.5" />

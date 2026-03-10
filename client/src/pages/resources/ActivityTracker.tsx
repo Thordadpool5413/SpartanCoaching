@@ -5,6 +5,7 @@ import { Printer } from "lucide-react";
 import { ContentNotice } from "@/components/ContentNotice";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
+import type { EmailPdfPayload } from "@/lib/downloadPdf";
 
 const DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
 
@@ -202,7 +203,20 @@ export default function ActivityTracker() {
       </div>
 
       <div className="mt-6 text-center print:hidden">
-        <Button onClick={() => capture(() => window.print())} size="lg" data-testid="button-print">
+        <Button onClick={() => {
+          const getEmailPdf = (): EmailPdfPayload => ({
+            title: "Weekly Activity Tracker",
+            filename: "spartan-activity-tracker",
+            subtitle: "Hospice Sales Daily Activity Log",
+            sections: [
+              { heading: "How to Use This Tracker", body: "Log every referral source conversation, visit, and call each day. Do not wait until end of week — complete it in real time.\n\nTrack: Facility name, contact name, conversation type (visit/call/email), outcome, and follow-up date." },
+              { heading: "Daily Activity Targets", body: "Referral source conversations per day: 5-8\nNew facilities contacted per week: 3+\nFollow-up rate on warm contacts: 100%\nLunch-and-learns per month: 1-2" },
+              { heading: "Weekly Totals to Record", body: "Monday conversations: ___\nTuesday conversations: ___\nWednesday conversations: ___\nThursday conversations: ___\nFriday conversations: ___\n\nWeekly total: ___\nReferrals received: ___\nAdmissions this week: ___" },
+              { heading: "The Tracking Discipline", body: "Reps who track consistently outperform reps who do not, independent of any other variable. The data in your tracker is not for your manager — it is for you. It will tell you exactly where your process is breaking down. Trust it more than your gut. Your gut notices patterns too slowly. Your data catches them immediately." },
+            ],
+          });
+          capture(() => window.print(), getEmailPdf);
+        }} size="lg" data-testid="button-print">
           <Printer className="w-4 h-4" />
           Print / Save as PDF
         </Button>

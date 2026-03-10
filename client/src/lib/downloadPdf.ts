@@ -3,6 +3,13 @@ export interface PdfSection {
   body: string;
 }
 
+export interface EmailPdfPayload {
+  sections: PdfSection[];
+  title: string;
+  filename: string;
+  subtitle?: string;
+}
+
 export async function downloadPdf(
   filename: string,
   title: string,

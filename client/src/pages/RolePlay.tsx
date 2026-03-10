@@ -10,7 +10,7 @@ import { SEO } from "@/components/SEO";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { MarkdownContent } from "@/components/MarkdownContent";
-import { downloadPdf } from "@/lib/downloadPdf";
+import { downloadPdf, type EmailPdfPayload } from "@/lib/downloadPdf";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
 import {
@@ -308,7 +308,21 @@ export default function RolePlay() {
                   <Share2 className="w-4 h-4 mr-1.5" />
                   Share
                 </Button>
-                <Button variant="outline" size="sm" data-testid="button-download-feedback" onClick={() => capture(handleDownloadFeedback)}>
+                <Button variant="outline" size="sm" data-testid="button-download-feedback" onClick={() => {
+                  const getEmailPdf = (): EmailPdfPayload => {
+                    const scoreLabel = (feedback?.rating ?? 0) >= 8 ? "Excellent Performance" : (feedback?.rating ?? 0) >= 5 ? "Good Progress" : "Keep Practicing";
+                    return {
+                      sections: [
+                        { heading: "Conversation", body: messages.map((m) => `${m.role === "user" ? "You" : "Spartan Coach"}: ${m.content}`).join("\n\n") },
+                        { heading: "Performance Feedback", body: feedback?.text ?? "" },
+                      ],
+                      title: "Role-Play Session Transcript",
+                      filename: `spartan-roleplay-${activeScenarioId}`,
+                      subtitle: `${activeScenarioTitle} · Score: ${feedback?.rating ?? 0}/10 (${scoreLabel})`,
+                    };
+                  };
+                  capture(handleDownloadFeedback, getEmailPdf);
+                }}>
                   <Download className="w-4 h-4 mr-1.5" />
                   Download
                 </Button>

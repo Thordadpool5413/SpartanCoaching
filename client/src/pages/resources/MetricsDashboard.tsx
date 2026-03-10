@@ -5,6 +5,7 @@ import { Printer } from "lucide-react";
 import { ContentNotice } from "@/components/ContentNotice";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
+import type { EmailPdfPayload } from "@/lib/downloadPdf";
 
 export default function MetricsDashboard() {
   const { capture, gateState } = useLeadGate("Metrics Dashboard");
@@ -259,7 +260,20 @@ export default function MetricsDashboard() {
       </div>
 
       <div className="mt-6 text-center print:hidden">
-        <Button onClick={() => capture(() => window.print())} size="lg" data-testid="button-print">
+        <Button onClick={() => {
+          const getEmailPdf = (): EmailPdfPayload => ({
+            title: "Monthly Metrics Dashboard",
+            filename: "spartan-metrics-dashboard",
+            subtitle: "Hospice Sales Performance Tracking",
+            sections: [
+              { heading: "Weekly Activity Metrics", body: "Referral source visits: Target 15+ per week\nNew relationships initiated: Track weekly\nFollow-up calls completed: 100% of warm contacts\nLunch-and-learns scheduled: Target 1-2/month" },
+              { heading: "Monthly Outcome Metrics", body: "Total referrals received: ___\nConversions to admissions: ___\nConversion rate (referrals to admissions): ___%\nAverage LOS of new admits: ___ days\nTop referral source this month: ___" },
+              { heading: "Relationship Depth Indicators", body: "A-tier sources visited this month: ___/___\nSources that referred this month: ___\nNew A-tier relationships added: ___\nRelationships lost or cooled: ___" },
+              { heading: "Goal vs. Actual Summary", body: "Monthly admission goal: ___\nActual admissions: ___\nVariance: ___\n\nNext month focus areas:\n___________________________" },
+            ],
+          });
+          capture(() => window.print(), getEmailPdf);
+        }} size="lg" data-testid="button-print">
           <Printer className="w-4 h-4" />
           Print / Save as PDF
         </Button>

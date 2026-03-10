@@ -5,6 +5,7 @@ import { Printer } from "lucide-react";
 import { ContentNotice } from "@/components/ContentNotice";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
+import type { EmailPdfPayload } from "@/lib/downloadPdf";
 
 export default function ObjectionCards() {
   const { capture, gateState } = useLeadGate("Objection Reference Cards");
@@ -124,7 +125,21 @@ export default function ObjectionCards() {
       </div>
 
       <div className="mt-6 text-center print:hidden">
-        <Button onClick={() => capture(() => window.print())} size="lg" data-testid="button-print">
+        <Button onClick={() => {
+          const getEmailPdf = (): EmailPdfPayload => ({
+            title: "Objection Reference Cards",
+            filename: "spartan-objection-cards",
+            subtitle: "Hospice Sales Objection Handling",
+            sections: [
+              { heading: "Objection: 'It's too soon'", body: "Acknowledge: 'I completely understand — timing is everything in this decision.'\n\nReframe: 'Research shows patients who enroll earlier experience better symptom control and quality of life. Their families also feel more supported. Earlier enrollment is often the kindest choice.'\n\nAsk: 'What would need to be true for the timing to feel right?'" },
+              { heading: "Objection: 'The family isn't ready'", body: "Acknowledge: 'That's one of the most common and completely understandable concerns.'\n\nReframe: 'Our team specializes in having these conversations gently. We can meet with the family together to answer their questions at their own pace.'\n\nAsk: 'Would it help if I joined a family meeting to explain what hospice actually looks like day-to-day?'" },
+              { heading: "Objection: 'We use another hospice'", body: "Acknowledge: 'That makes sense — relationships matter in this work.'\n\nReframe: 'We're not asking to replace anyone. We're asking for a chance to earn your trust for the right patient at the right time — especially complex or high-acuity cases.'\n\nAsk: 'What would it take for us to be on your radar as a second option?'" },
+              { heading: "Objection: 'The patient wants to keep fighting'", body: "Acknowledge: 'Absolutely — and that decision always belongs to the patient.'\n\nReframe: 'Hospice isn't about giving up. Many patients on hospice live longer and more comfortably than those pursuing aggressive treatment. It's about fighting for quality of life.'\n\nAsk: 'Would it be okay if I simply left some information for the family to review?'" },
+              { heading: "The A.A.A. Framework", body: "1. ACKNOWLEDGE: Validate their concern without arguing. Never dismiss.\n\n2. REFRAME: Offer a new perspective that serves the patient's best interest.\n\n3. ASK: End with a question that moves the conversation forward:\n   'Would it help if...?'\n   'Could we...?'\n   'What if we tried...?'" },
+            ],
+          });
+          capture(() => window.print(), getEmailPdf);
+        }} size="lg" data-testid="button-print">
           <Printer className="w-4 h-4" />
           Print / Save as PDF
         </Button>
