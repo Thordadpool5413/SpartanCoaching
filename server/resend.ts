@@ -28,7 +28,7 @@ async function getCredentials() {
   if (!connectionSettings || (!connectionSettings.settings.api_key)) {
     throw new Error('Resend not connected');
   }
-  return { apiKey: connectionSettings.settings.api_key, fromEmail: connectionSettings.settings.from_email };
+  return { apiKey: connectionSettings.settings.api_key, fromEmail: process.env.RESEND_FROM_EMAIL || connectionSettings.settings.from_email };
 }
 
 async function getUncachableResendClient() {
@@ -128,7 +128,7 @@ interface AgreementEmailData {
 export async function sendAgreementConfirmation(data: AgreementEmailData): Promise<boolean> {
   try {
     const { client, fromEmail } = await getUncachableResendClient();
-    const adminEmail = 'nicholas.lynch@spartan-coaching-schools.org';
+    const adminEmail = process.env.NOTIFICATION_EMAIL || 'nick@spartanhospicecoaching.com';
     
     const htmlContent = `
       <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
@@ -180,7 +180,7 @@ export async function sendAgreementConfirmation(data: AgreementEmailData): Promi
 export async function sendResourceLeadNotification(name: string, email: string, resourceTitle: string): Promise<boolean> {
   try {
     const { client, fromEmail } = await getUncachableResendClient();
-    const adminEmail = 'nicholas.lynch@spartan-coaching-schools.org';
+    const adminEmail = process.env.NOTIFICATION_EMAIL || 'nick@spartanhospicecoaching.com';
 
     await sendEmail(client, {
       from: fromEmail,
@@ -210,7 +210,7 @@ export async function sendResourceLeadNotification(name: string, email: string, 
 export async function sendNewsletterNotification(email: string): Promise<boolean> {
   try {
     const { client, fromEmail } = await getUncachableResendClient();
-    const adminEmail = 'nicholas.lynch@spartan-coaching-schools.org';
+    const adminEmail = process.env.NOTIFICATION_EMAIL || 'nick@spartanhospicecoaching.com';
 
     await sendEmail(client, {
       from: fromEmail,
@@ -300,21 +300,21 @@ export async function sendDripDay3(email: string): Promise<boolean> {
                 <td style="padding: 16px; border: 1px solid #e5e7eb; vertical-align: top;">
                   <p style="margin: 0 0 6px 0; font-weight: bold; color: #1a1a1a;">Daily Drills</p>
                   <p style="margin: 0 0 10px 0; color: #555; font-size: 14px; line-height: 1.5;">Build your habits with focused daily practice. Ten minutes a day compounds fast.</p>
-                  <a href="https://spartan-coaching-schools.org/drills" style="color: #b91c1c; font-size: 14px; text-decoration: none; font-weight: bold;">Start Today's Drill &rarr;</a>
+                  <a href="https://spartanhospicecoaching.com/drills" style="color: #b91c1c; font-size: 14px; text-decoration: none; font-weight: bold;">Start Today's Drill &rarr;</a>
                 </td>
               </tr>
               <tr>
                 <td style="padding: 16px; border: 1px solid #e5e7eb; border-top: none; vertical-align: top;">
                   <p style="margin: 0 0 6px 0; font-weight: bold; color: #1a1a1a;">Playbook Generator</p>
                   <p style="margin: 0 0 10px 0; color: #555; font-size: 14px; line-height: 1.5;">Describe any sales scenario and get an AI-built playbook with opening, key talking points, and a close.</p>
-                  <a href="https://spartan-coaching-schools.org/tools/playbooks" style="color: #b91c1c; font-size: 14px; text-decoration: none; font-weight: bold;">Build a Playbook &rarr;</a>
+                  <a href="https://spartanhospicecoaching.com/tools/playbooks" style="color: #b91c1c; font-size: 14px; text-decoration: none; font-weight: bold;">Build a Playbook &rarr;</a>
                 </td>
               </tr>
               <tr>
                 <td style="padding: 16px; border: 1px solid #e5e7eb; border-top: none; vertical-align: top;">
                   <p style="margin: 0 0 6px 0; font-weight: bold; color: #1a1a1a;">Objection Handler</p>
                   <p style="margin: 0 0 10px 0; color: #555; font-size: 14px; line-height: 1.5;">Turn the most common objections into confident, empathetic responses — with AI assistance.</p>
-                  <a href="https://spartan-coaching-schools.org/tools/objections" style="color: #b91c1c; font-size: 14px; text-decoration: none; font-weight: bold;">Handle an Objection &rarr;</a>
+                  <a href="https://spartanhospicecoaching.com/tools/objections" style="color: #b91c1c; font-size: 14px; text-decoration: none; font-weight: bold;">Handle an Objection &rarr;</a>
                 </td>
               </tr>
             </table>
@@ -358,25 +358,25 @@ export async function sendDripDay7(email: string): Promise<boolean> {
                 <td style="padding: 16px; border: 1px solid #e5e7eb; vertical-align: top;">
                   <p style="margin: 0 0 6px 0; font-weight: bold; color: #1a1a1a;">Test Your Knowledge</p>
                   <p style="margin: 0 0 10px 0; color: #555; font-size: 14px; line-height: 1.5;">Take the 15-question Hospice Sales Knowledge Quiz. See how you score on eligibility, objections, compliance, and physician engagement.</p>
-                  <a href="https://spartan-coaching-schools.org/quiz" style="color: #b91c1c; font-size: 14px; text-decoration: none; font-weight: bold;">Take the Quiz &rarr;</a>
+                  <a href="https://spartanhospicecoaching.com/quiz" style="color: #b91c1c; font-size: 14px; text-decoration: none; font-weight: bold;">Take the Quiz &rarr;</a>
                 </td>
               </tr>
               <tr>
                 <td style="padding: 16px; border: 1px solid #e5e7eb; border-top: none; vertical-align: top;">
                   <p style="margin: 0 0 6px 0; font-weight: bold; color: #1a1a1a;">Read the Articles</p>
                   <p style="margin: 0 0 10px 0; color: #555; font-size: 14px; line-height: 1.5;">Deep dives on territory strategy, physician relationships, compliance, and referral growth — drawn from real hospice sales coaching experience.</p>
-                  <a href="https://spartan-coaching-schools.org/articles" style="color: #b91c1c; font-size: 14px; text-decoration: none; font-weight: bold;">Browse Articles &rarr;</a>
+                  <a href="https://spartanhospicecoaching.com/articles" style="color: #b91c1c; font-size: 14px; text-decoration: none; font-weight: bold;">Browse Articles &rarr;</a>
                 </td>
               </tr>
               <tr>
                 <td style="padding: 16px; border: 1px solid #e5e7eb; border-top: none; vertical-align: top;">
                   <p style="margin: 0 0 6px 0; font-weight: bold; color: #1a1a1a;">Calculate Your Revenue Potential</p>
                   <p style="margin: 0 0 10px 0; color: #555; font-size: 14px; line-height: 1.5;">Use the ROI Calculator to see what a 10–20% improvement in your admit rate is actually worth in annual Medicare revenue.</p>
-                  <a href="https://spartan-coaching-schools.org/tools/roi-calculator" style="color: #b91c1c; font-size: 14px; text-decoration: none; font-weight: bold;">Run Your Numbers &rarr;</a>
+                  <a href="https://spartanhospicecoaching.com/tools/roi-calculator" style="color: #b91c1c; font-size: 14px; text-decoration: none; font-weight: bold;">Run Your Numbers &rarr;</a>
                 </td>
               </tr>
             </table>
-            <p style="margin: 0 0 14px 0; line-height: 1.65; color: #1a1a1a;">If you'd like personalized coaching tailored to your team, territory, or specific challenges — <a href="https://spartan-coaching-schools.org/contact" style="color: #b91c1c;">reach out here</a>. We work directly with hospice sales professionals and their leadership teams.</p>
+            <p style="margin: 0 0 14px 0; line-height: 1.65; color: #1a1a1a;">If you'd like personalized coaching tailored to your team, territory, or specific challenges — <a href="https://spartanhospicecoaching.com/contact" style="color: #b91c1c;">reach out here</a>. We work directly with hospice sales professionals and their leadership teams.</p>
             <p style="color: #666; font-size: 14px; margin-top: 32px;">Stay disciplined. Stay empathetic. Stay strategic.<br/>— The Spartan Coaching Team</p>
           </div>
           <div style="padding: 16px 24px; background: #f9fafb; border: 1px solid #e5e7eb; border-top: none; text-align: center;">

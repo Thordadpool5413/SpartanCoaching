@@ -51,4 +51,5 @@ integrations = ["javascript_gemini:1.0.0", "javascript_database:1.0.0", "javascr
 
 [userenv.shared]
 ADMIN_PASSWORD = "5413"
-NOTIFICATION_EMAIL = "nicholas.lynch@spartan-coaching-schools.org"
+NOTIFICATION_EMAIL = "nick@spartanhospicecoaching.com"
+RESEND_FROM_EMAIL = "Spartan Coaching <onboarding@resend.dev>"
