@@ -1224,6 +1224,15 @@ The single most important skill to work on before the next conversation.`,
       const WIDTH = doc.page.width - doc.page.margins.left - doc.page.margins.right;
       const YEAR = new Date().getFullYear();
 
+      // If fewer than minPts remain before the bottom margin, start a fresh page
+      const ensureSpace = (minPts: number) => {
+        const pageBottom = doc.page.height - doc.page.margins.bottom;
+        if (doc.y + minPts > pageBottom) {
+          doc.addPage();
+        }
+      };
+
+      // ── Header ──
       doc.fontSize(10).font("Helvetica-Bold").fillColor(RED).text("SPARTAN COACHING", { continued: true });
       doc.fontSize(10).font("Helvetica").fillColor(MUTED)
         .text("  \u00B7  " + new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" }), { align: "left" });
@@ -1231,6 +1240,7 @@ The single most important skill to work on before the next conversation.`,
       doc.moveTo(LEFT, doc.y).lineTo(LEFT + WIDTH, doc.y).strokeColor(RED).lineWidth(1.5).stroke();
       doc.moveDown(0.8);
 
+      // ── Title block ──
       doc.fontSize(22).font("Helvetica-Bold").fillColor(DARK).text(title, { align: "left" });
       if (subtitle) {
         doc.moveDown(0.3);
@@ -1238,9 +1248,12 @@ The single most important skill to work on before the next conversation.`,
       }
       doc.moveDown(1.2);
 
+      // ── Sections ──
       for (const section of sections) {
         const safeBody = typeof section.body === "string" ? section.body.trim() : "";
         if (section.heading) {
+          // Keep at least 80 pt available so a heading is never stranded at the foot of a page
+          ensureSpace(80);
           doc.fontSize(13).font("Helvetica-Bold").fillColor(DARK).text(section.heading, { align: "left" });
           doc.moveDown(0.35);
         }
@@ -1250,6 +1263,9 @@ The single most important skill to work on before the next conversation.`,
         }
       }
 
+      // ── Disclaimer ──
+      // Requires ~200 pt: rule + heading + three paragraphs of 8.5 pt text
+      ensureSpace(200);
       doc.moveDown(0.5);
       doc.moveTo(LEFT, doc.y).lineTo(LEFT + WIDTH, doc.y).strokeColor(LIGHT_RULE).lineWidth(0.5).stroke();
       doc.moveDown(0.6);
@@ -1260,6 +1276,7 @@ The single most important skill to work on before the next conversation.`,
         { align: "left", lineGap: 2, paragraphGap: 4 }
       );
 
+      // ── Footer on every page ──
       const pageRange = doc.bufferedPageRange();
       const totalPages = pageRange.count;
       for (let i = 0; i < totalPages; i++) {
