@@ -440,7 +440,7 @@ export function Footer() {
                 All coaching services are subject to our Terms of Service. Refund eligibility is outlined in our terms.
               </p>
               <p className="text-xs text-muted-foreground max-w-md">
-                Questions? Reach us at nicholas.lynch@spartan-coaching-schools.org
+                Questions? Reach us at nick@spartanhospicecoaching.com
               </p>
               <a
                 href="https://www.linkedin.com/in/nicholas-lynch-coaching?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BzPbXAWy3RZWKMT%2FppHgzbw%3D%3D"

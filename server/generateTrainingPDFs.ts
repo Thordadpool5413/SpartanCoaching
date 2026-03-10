@@ -86,8 +86,8 @@ function addCoverPage(state: PDFState, title: string, subtitle: string, purpose:
   doc.fontSize(10).font('Helvetica').fillColor('rgba(255,255,255,0.7)');
   doc.text(purpose, MARGIN, subtitleBottom + 20, { width: CONTENT_WIDTH, lineGap: 4 });
   doc.fontSize(9).font('Helvetica').fillColor('rgba(255,255,255,0.6)');
-  doc.text('spartan-coaching-schools.org', MARGIN, PAGE_HEIGHT - 80);
-  doc.text('nicholas.lynch@spartan-coaching-schools.org', MARGIN, PAGE_HEIGHT - 64);
+  doc.text('spartanhospicecoaching.com', MARGIN, PAGE_HEIGHT - 80);
+  doc.text('nick@spartanhospicecoaching.com', MARGIN, PAGE_HEIGHT - 64);
   doc.text('2026 Edition  |  Confidential Training Material', PAGE_WIDTH - MARGIN - 160, PAGE_HEIGHT - 64, { width: 160, align: 'right' });
 }
 

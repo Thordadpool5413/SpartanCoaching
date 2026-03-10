@@ -506,11 +506,11 @@ export default function Contact() {
             <div className="flex items-center justify-center gap-2 text-muted-foreground">
               <Mail className="w-4 h-4" />
               <a
-                href="mailto:nicholas.lynch@spartan-coaching-schools.org"
+                href="mailto:nick@spartanhospicecoaching.com"
                 className="text-sm hover:text-foreground transition-colors"
                 data-testid="link-contact-email"
               >
-                nicholas.lynch@spartan-coaching-schools.org
+                nick@spartanhospicecoaching.com
               </a>
             </div>
           </div>
