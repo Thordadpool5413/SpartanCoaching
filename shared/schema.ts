@@ -171,6 +171,18 @@ export const insertResourceLeadSchema = createInsertSchema(resourceLeads).omit({
 export type InsertResourceLead = z.infer<typeof insertResourceLeadSchema>;
 export type SelectResourceLead = typeof resourceLeads.$inferSelect;
 
+export const usageEvents = pgTable("usage_events", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(),
+  email: text("email").notNull(),
+  toolName: varchar("tool_name").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertUsageEventSchema = createInsertSchema(usageEvents).omit({ id: true, createdAt: true });
+export type InsertUsageEvent = z.infer<typeof insertUsageEventSchema>;
+export type SelectUsageEvent = typeof usageEvents.$inferSelect;
+
 export const signedAgreements = pgTable("signed_agreements", {
   id: serial("id").primaryKey(),
   agreementType: varchar("agreement_type").notNull(),

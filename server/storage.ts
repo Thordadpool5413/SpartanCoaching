@@ -36,6 +36,9 @@ import {
   resourceLeads,
   type InsertResourceLead,
   type SelectResourceLead,
+  usageEvents,
+  type InsertUsageEvent,
+  type SelectUsageEvent,
   signedAgreements,
   type InsertSignedAgreement,
   type SelectSignedAgreement,
@@ -94,6 +97,9 @@ export interface IStorage {
   // Resource lead operations
   captureResourceLead(lead: InsertResourceLead): Promise<SelectResourceLead>;
   getResourceLeads(): Promise<SelectResourceLead[]>;
+  // Usage event tracking
+  trackUsageEvent(event: InsertUsageEvent): Promise<SelectUsageEvent>;
+  getUsageEvents(): Promise<SelectUsageEvent[]>;
   createSignedAgreement(agreement: InsertSignedAgreement): Promise<SelectSignedAgreement>;
   getSignedAgreements(): Promise<SelectSignedAgreement[]>;
   // Testimonial operations
@@ -456,6 +462,15 @@ export class DatabaseStorage implements IStorage {
 
   async getResourceLeads(): Promise<SelectResourceLead[]> {
     return await db.select().from(resourceLeads).orderBy(desc(resourceLeads.capturedAt));
+  }
+
+  async trackUsageEvent(event: InsertUsageEvent): Promise<SelectUsageEvent> {
+    const [result] = await db.insert(usageEvents).values(event).returning();
+    return result;
+  }
+
+  async getUsageEvents(): Promise<SelectUsageEvent[]> {
+    return await db.select().from(usageEvents).orderBy(desc(usageEvents.createdAt));
   }
 
   async createSignedAgreement(agreement: InsertSignedAgreement): Promise<SelectSignedAgreement> {

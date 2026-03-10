@@ -219,7 +219,7 @@ export default function EmailTemplates() {
               </div>
 
               <Button
-                onClick={handleGenerate}
+                onClick={() => capture(handleGenerate)}
                 disabled={isLoading}
                 size="lg"
                 className="w-full font-bold touch-manipulation"

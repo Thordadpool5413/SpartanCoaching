@@ -10,8 +10,11 @@ import { trackEvent } from "@/lib/analytics";
 import { Mic, MicOff, Upload, Copy, Download, Loader2, Sparkles } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { downloadPdf } from "@/lib/downloadPdf";
+import { useLeadGate } from "@/hooks/use-lead-gate";
+import { LeadGateDialog } from "@/components/LeadGateDialog";
 
 export default function Transcribe() {
+  const { capture, gateState } = useLeadGate("Call Transcription");
   const { toast } = useToast();
   const [isRecording, setIsRecording] = useState(false);
   const [recordingSeconds, setRecordingSeconds] = useState(0);
@@ -274,7 +277,7 @@ export default function Transcribe() {
           {!analysis && (
             <div className="mt-4">
               <Button
-                onClick={handleAnalyze}
+                onClick={() => capture(handleAnalyze)}
                 disabled={isAnalyzing}
                 className="font-bold"
                 data-testid="button-analyze"
@@ -340,6 +343,7 @@ export default function Transcribe() {
           </ol>
         </Card>
       )}
+      <LeadGateDialog gateState={gateState} />
     </div>
   );
 }

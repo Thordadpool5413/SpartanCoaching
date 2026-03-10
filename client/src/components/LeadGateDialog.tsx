@@ -9,7 +9,7 @@ interface LeadGateDialogProps {
 }
 
 export function LeadGateDialog({ gateState }: LeadGateDialogProps) {
-  const { open, setOpen, nameVal, setNameVal, emailVal, setEmailVal, isPending, onSubmit } = gateState;
+  const { open, setOpen, nameVal, setNameVal, emailVal, setEmailVal, isPending, onSubmit, isReturning } = gateState;
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === "Enter") onSubmit();
@@ -19,9 +19,13 @@ export function LeadGateDialog({ gateState }: LeadGateDialogProps) {
     <Dialog open={open} onOpenChange={(o) => { if (!o) setOpen(false); }}>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle>Unlock This Tool</DialogTitle>
+          <DialogTitle>
+            {isReturning ? "Quick Confirmation" : "Unlock This Tool"}
+          </DialogTitle>
           <DialogDescription>
-            Enter your name and email to access this resource. You'll only need to do this once.
+            {isReturning
+              ? "Confirm your details below to continue."
+              : "Enter your name and email to access this resource."}
           </DialogDescription>
         </DialogHeader>
         <div className="flex flex-col gap-4 pt-2">
@@ -55,7 +59,7 @@ export function LeadGateDialog({ gateState }: LeadGateDialogProps) {
             disabled={isPending || !nameVal.trim() || !emailVal.trim()}
             data-testid="button-gate-submit"
           >
-            {isPending ? "Please wait..." : "Continue"}
+            {isPending ? "Please wait..." : isReturning ? "Continue" : "Get Access"}
           </Button>
         </div>
       </DialogContent>

@@ -648,6 +648,30 @@ Subject: [subject line]
     }
   });
 
+  app.post("/api/usage-events", async (req, res) => {
+    try {
+      const { name, email, toolName } = req.body;
+      if (!name || !email || !toolName) {
+        return res.status(400).json({ error: "name, email, and toolName are required" });
+      }
+      const event = await storage.trackUsageEvent({ name, email, toolName });
+      res.json({ success: true, event });
+    } catch (error: any) {
+      console.error("Track usage event error:", error);
+      res.status(500).json({ error: "Failed to track usage" });
+    }
+  });
+
+  app.get("/api/usage-events", requireAdmin, async (_req, res) => {
+    try {
+      const events = await storage.getUsageEvents();
+      res.json({ events });
+    } catch (error: any) {
+      console.error("Get usage events error:", error);
+      res.status(500).json({ error: "Failed to retrieve usage events" });
+    }
+  });
+
   app.post("/api/signed-agreements", async (req, res) => {
     try {
       const agreementData = insertSignedAgreementSchema.parse(req.body);

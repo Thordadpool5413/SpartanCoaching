@@ -38,6 +38,17 @@ async function submitLead(name: string, email: string, toolName: string): Promis
   }
 }
 
+async function trackUsage(name: string, email: string, toolName: string): Promise<void> {
+  try {
+    await fetch("/api/usage-events", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ name, email, toolName }),
+    });
+  } catch {
+  }
+}
+
 async function emailPdf(email: string, name: string, payload: EmailPdfPayload): Promise<void> {
   try {
     await fetch("/api/pdf/email", {
@@ -54,6 +65,7 @@ export interface LeadGateState {
   nameVal: string;
   emailVal: string;
   isPending: boolean;
+  isReturning: boolean;
   setOpen: (open: boolean) => void;
   setNameVal: (v: string) => void;
   setEmailVal: (v: string) => void;
@@ -66,18 +78,24 @@ export function useLeadGate(toolName: string) {
   const [nameVal, setNameVal] = useState("");
   const [emailVal, setEmailVal] = useState("");
   const [isPending, setIsPending] = useState(false);
+  const [isReturning, setIsReturning] = useState(false);
   const pendingFnRef = useRef<(() => void) | null>(null);
   const pendingEmailPdfRef = useRef<(() => EmailPdfPayload | null) | null>(null);
 
   const capture = useCallback(
     (fn: () => void, getEmailPdf?: () => EmailPdfPayload | null) => {
       const stored = getStoredLead();
-      if (stored) {
-        fn();
-        return;
-      }
       pendingFnRef.current = fn;
       pendingEmailPdfRef.current = getEmailPdf ?? null;
+      if (stored) {
+        setNameVal(stored.name);
+        setEmailVal(stored.email);
+        setIsReturning(true);
+      } else {
+        setNameVal("");
+        setEmailVal("");
+        setIsReturning(false);
+      }
       setOpen(true);
     },
     []
@@ -87,12 +105,19 @@ export function useLeadGate(toolName: string) {
     if (!nameVal.trim() || !emailVal.trim()) return;
     setIsPending(true);
     const lead = { name: nameVal.trim(), email: emailVal.trim() };
-    await submitLead(lead.name, lead.email, toolName);
+    const isFirstTime = !getStoredLead();
+
     storeLead(lead);
 
-    const getEmailPdf = pendingEmailPdfRef.current;
-    if (getEmailPdf) {
-      const payload = getEmailPdf();
+    trackUsage(lead.name, lead.email, toolName).catch(() => {});
+
+    if (isFirstTime) {
+      await submitLead(lead.name, lead.email, toolName);
+    }
+
+    const getEmailPdfFn = pendingEmailPdfRef.current;
+    if (isFirstTime && getEmailPdfFn) {
+      const payload = getEmailPdfFn();
       if (payload) {
         emailPdf(lead.email, lead.name, payload).catch(() => {});
       }
@@ -111,6 +136,7 @@ export function useLeadGate(toolName: string) {
     nameVal,
     emailVal,
     isPending,
+    isReturning,
     setOpen,
     setNameVal,
     setEmailVal,

@@ -513,7 +513,7 @@ export default function Quiz() {
                   <Button
                     className="w-full"
                     size="lg"
-                    onClick={() => setScreen("question")}
+                    onClick={() => capture(() => setScreen("question"))}
                     data-testid="button-start-quiz"
                   >
                     Start Quiz

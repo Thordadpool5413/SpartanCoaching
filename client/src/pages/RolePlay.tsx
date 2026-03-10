@@ -256,7 +256,7 @@ export default function RolePlay() {
                       {scenario.description}
                     </p>
                     <Button
-                      onClick={() => handleStartSession(scenario.id, scenario.title)}
+                      onClick={() => capture(() => handleStartSession(scenario.id, scenario.title))}
                       disabled={isLoading}
                       className="w-full font-bold touch-manipulation"
                       data-testid={`button-start-${scenario.id}`}
