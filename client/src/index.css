@@ -1077,7 +1077,7 @@ body {
   }
 
   body::after {
-    content: "\00A9 Spartan Coaching \2014 For personal use only. Not for resale or redistribution. spartanhospicecoaching.com";
+    content: "\00A9 Spartan Coaching \00B7 spartanhospicecoaching.com";
     display: block;
     text-align: center;
     font-size: 9px;
