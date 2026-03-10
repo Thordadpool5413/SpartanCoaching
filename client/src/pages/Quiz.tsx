@@ -1,4 +1,6 @@
 import { useState, useRef } from "react";
+import { useLeadGate } from "@/hooks/use-lead-gate";
+import { LeadGateDialog } from "@/components/LeadGateDialog";
 import { SEO } from "@/components/SEO";
 import { CoachingCTA } from "@/components/CoachingCTA";
 import { Button } from "@/components/ui/button";
@@ -287,6 +289,7 @@ const questions: Question[] = [
 type Screen = "intro" | "question" | "results";
 
 export default function Quiz() {
+  const { capture, gateState } = useLeadGate("Hospice Sales Quiz");
   const [screen, setScreen] = useState<Screen>("intro");
   const [current, setCurrent] = useState(0);
   const [selected, setSelected] = useState<number | null>(null);
@@ -343,7 +346,7 @@ export default function Quiz() {
   const perf = performanceLabel();
 
   const handlePrint = () => {
-    window.print();
+    capture(() => window.print());
   };
 
   const handlePrintCert = () => {
@@ -763,13 +766,14 @@ export default function Quiz() {
           </div>
           <DialogFooter className="flex flex-wrap gap-2">
             <Button variant="outline" onClick={() => setShowCertDialog(false)}>Cancel</Button>
-            <Button onClick={handlePrintCert} data-testid="button-print-certificate">
+            <Button onClick={() => capture(handlePrintCert)} data-testid="button-print-certificate">
               <Printer className="w-4 h-4 mr-2" />
               Print Certificate
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
+      <LeadGateDialog gateState={gateState} />
     </>
   );
 }

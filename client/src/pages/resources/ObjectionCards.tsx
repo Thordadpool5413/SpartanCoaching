@@ -3,8 +3,11 @@ import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 import { ContentNotice } from "@/components/ContentNotice";
+import { useLeadGate } from "@/hooks/use-lead-gate";
+import { LeadGateDialog } from "@/components/LeadGateDialog";
 
 export default function ObjectionCards() {
+  const { capture, gateState } = useLeadGate("Objection Reference Cards");
   const objections = [
     {
       objection: "We already have a hospice provider",
@@ -121,11 +124,12 @@ export default function ObjectionCards() {
       </div>
 
       <div className="mt-6 text-center print:hidden">
-        <Button onClick={() => window.print()} size="lg" data-testid="button-print">
+        <Button onClick={() => capture(() => window.print())} size="lg" data-testid="button-print">
           <Printer className="w-4 h-4" />
           Print / Save as PDF
         </Button>
       </div>
+      <LeadGateDialog gateState={gateState} />
     </div>
   );
 }

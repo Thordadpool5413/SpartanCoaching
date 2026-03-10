@@ -1,4 +1,6 @@
 import { useState, useCallback, useRef } from "react";
+import { useLeadGate } from "@/hooks/use-lead-gate";
+import { LeadGateDialog } from "@/components/LeadGateDialog";
 import { Link } from "wouter";
 import { Card, CardTitle } from "@/components/ui/card";
 import { CoachingCTA } from "@/components/CoachingCTA";
@@ -485,6 +487,7 @@ function MetricCard({
 }
 
 export default function ActivityCalculator() {
+  const { capture, gateState } = useLeadGate("Activity Calculator");
   const [repName, setRepName] = useState("");
   const [repStatus, setRepStatus] = useState<"tenured" | "new_hire">("tenured");
   const [monthlyGoal, setMonthlyGoal] = useState<string>("");
@@ -803,7 +806,7 @@ export default function ActivityCalculator() {
                   <div className="flex items-center gap-2 flex-wrap">
                     <Button
                       variant="outline"
-                      onClick={() => window.print()}
+                      onClick={() => capture(() => window.print())}
                       data-testid="button-print-activity"
                     >
                       <Printer className="w-4 h-4 mr-2" />
@@ -986,6 +989,7 @@ export default function ActivityCalculator() {
           @page { size: letter portrait; margin: 0.75in; }
         }
       `}</style>
+      <LeadGateDialog gateState={gateState} />
     </div>
   );
 }

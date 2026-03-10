@@ -3,8 +3,11 @@ import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 import { ContentNotice } from "@/components/ContentNotice";
+import { useLeadGate } from "@/hooks/use-lead-gate";
+import { LeadGateDialog } from "@/components/LeadGateDialog";
 
 export default function WeeklyPlan() {
+  const { capture, gateState } = useLeadGate("Weekly Sales Plan");
   return (
     <div className="max-w-4xl mx-auto p-8 bg-white text-black print:p-0">
       <SEO />
@@ -140,11 +143,12 @@ export default function WeeklyPlan() {
       </div>
 
       <div className="mt-6 text-center print:hidden">
-        <Button onClick={() => window.print()} size="lg" data-testid="button-print">
+        <Button onClick={() => capture(() => window.print())} size="lg" data-testid="button-print">
           <Printer className="w-4 h-4" />
           Print / Save as PDF
         </Button>
       </div>
+      <LeadGateDialog gateState={gateState} />
     </div>
   );
 }

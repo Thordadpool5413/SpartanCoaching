@@ -13,8 +13,11 @@ import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { downloadPdf, cleanMarkdown } from "@/lib/downloadPdf";
+import { useLeadGate } from "@/hooks/use-lead-gate";
+import { LeadGateDialog } from "@/components/LeadGateDialog";
 
 export default function EmailTemplates() {
+  const { capture, gateState } = useLeadGate("Email Template");
   const [templateType, setTemplateType] = useState<"follow_up" | "thank_you" | "value_add">("follow_up");
   const [recipientName, setRecipientName] = useState("");
   const [context, setContext] = useState("");
@@ -257,7 +260,7 @@ export default function EmailTemplates() {
                     <Button
                       variant="outline"
                       size="default"
-                      onClick={handleDownload}
+                      onClick={() => capture(handleDownload)}
                       className="font-bold touch-manipulation"
                       data-testid="button-download-template"
                     >
@@ -331,6 +334,7 @@ export default function EmailTemplates() {
       {generatedTemplate && (
         <CoachingCTA className="mt-6" />
       )}
+      <LeadGateDialog gateState={gateState} />
     </div>
   );
 }

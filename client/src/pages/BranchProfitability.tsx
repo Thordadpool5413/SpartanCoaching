@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { useLeadGate } from "@/hooks/use-lead-gate";
+import { LeadGateDialog } from "@/components/LeadGateDialog";
 import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { CoachingCTA } from "@/components/CoachingCTA";
@@ -323,6 +325,7 @@ const HOW_TO_READ = [
 ];
 
 export default function BranchProfitability() {
+  const { capture, gateState } = useLeadGate("Branch Profitability Calculator");
   const [inputs, setInputs] = useState(DEFAULT_INPUTS);
   const [showHowTo, setShowHowTo] = useState(false);
 
@@ -415,7 +418,7 @@ export default function BranchProfitability() {
             <Button
               variant="outline"
               size="default"
-              onClick={() => window.print()}
+              onClick={() => capture(() => window.print())}
               data-testid="button-print"
             >
               <Printer className="w-4 h-4 mr-1.5" />
@@ -991,6 +994,7 @@ export default function BranchProfitability() {
           <CoachingCTA className="no-print" />
         </div>
       </div>
+      <LeadGateDialog gateState={gateState} />
     </div>
   );
 }

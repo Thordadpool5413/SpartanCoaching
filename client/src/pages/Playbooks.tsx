@@ -13,9 +13,12 @@ import { trackEvent } from "@/lib/analytics";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { useToast } from "@/hooks/use-toast";
 import { downloadPdf, markdownToSections } from "@/lib/downloadPdf";
+import { useLeadGate } from "@/hooks/use-lead-gate";
+import { LeadGateDialog } from "@/components/LeadGateDialog";
 
 export default function Playbooks() {
   const { toast } = useToast();
+  const { capture, gateState } = useLeadGate("Sales Playbook");
   const [scenario, setScenario] = useState("");
   const [desiredOutcomes, setDesiredOutcomes] = useState("");
   const [generatedPlaybook, setGeneratedPlaybook] = useState("");
@@ -85,14 +88,16 @@ export default function Playbooks() {
     }
   };
 
-  const handleExportPdf = async () => {
+  const handleExportPdf = () => {
     if (!generatedPlaybook) return;
-    try {
-      await downloadPdf("spartan-playbook", "Sales Playbook", markdownToSections(generatedPlaybook));
-      toast({ title: "Downloaded", description: "Your playbook PDF is ready." });
-    } catch (err: any) {
-      toast({ title: "Download failed", description: err.message || "Could not generate PDF.", variant: "destructive" });
-    }
+    capture(async () => {
+      try {
+        await downloadPdf("spartan-playbook", "Sales Playbook", markdownToSections(generatedPlaybook));
+        toast({ title: "Downloaded", description: "Your playbook PDF is ready." });
+      } catch (err: any) {
+        toast({ title: "Download failed", description: err.message || "Could not generate PDF.", variant: "destructive" });
+      }
+    });
   };
 
   const handleCopyPlaybook = () => {
@@ -102,7 +107,7 @@ export default function Playbooks() {
   };
 
   const handlePrint = () => {
-    window.print();
+    capture(() => window.print());
   };
 
   const printStyles = `
@@ -305,6 +310,7 @@ export default function Playbooks() {
           )}
         </DialogContent>
       </Dialog>
+      <LeadGateDialog gateState={gateState} />
     </div>
   );
 }

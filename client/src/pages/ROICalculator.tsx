@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { FadeIn, SlideUp } from "@/components/animations";
 import { Calculator, TrendingUp, DollarSign, Users, ArrowRight, Home, ChevronRight, Printer } from "lucide-react";
+import { useLeadGate } from "@/hooks/use-lead-gate";
+import { LeadGateDialog } from "@/components/LeadGateDialog";
 
 function formatCurrency(value: number): string {
   return "$" + Math.round(value).toLocaleString("en-US");
@@ -18,6 +20,7 @@ function formatPercent(value: number): string {
 }
 
 export default function ROICalculator() {
+  const { capture, gateState } = useLeadGate("ROI Calculator");
   const [reps, setReps] = useState(3);
   const [referrals, setReferrals] = useState(15);
   const [conversion, setConversion] = useState(65);
@@ -286,7 +289,7 @@ export default function ROICalculator() {
                 Revenue calculations are based on the average Medicare hospice routine home care per-diem rate (~$200/day). Actual rates vary by region, level of care, and payer mix. Projections are estimates based on average improvements observed across Spartan Coaching clients. Individual results may vary based on market conditions, team experience, and implementation.
               </p>
 
-              <Button onClick={() => window.print()} variant="outline" className="w-full gap-2" data-testid="button-print-roi">
+              <Button onClick={() => capture(() => window.print())} variant="outline" className="w-full gap-2" data-testid="button-print-roi">
                 <Printer className="w-4 h-4" />
                 Print Results
               </Button>
@@ -307,6 +310,7 @@ export default function ROICalculator() {
           @page { size: letter portrait; margin: 0.75in; }
         }
       `}</style>
+      <LeadGateDialog gateState={gateState} />
     </div>
   );
 }

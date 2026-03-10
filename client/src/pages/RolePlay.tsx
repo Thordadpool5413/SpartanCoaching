@@ -11,6 +11,8 @@ import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { downloadPdf } from "@/lib/downloadPdf";
+import { useLeadGate } from "@/hooks/use-lead-gate";
+import { LeadGateDialog } from "@/components/LeadGateDialog";
 import {
   FadeIn,
   SlideUp,
@@ -86,6 +88,7 @@ function getScoreColor(rating: number) {
 }
 
 export default function RolePlay() {
+  const { capture, gateState } = useLeadGate("Role-Play Session");
   const { toast } = useToast();
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const [activeSessionId, setActiveSessionId] = useState<number | null>(null);
@@ -305,7 +308,7 @@ export default function RolePlay() {
                   <Share2 className="w-4 h-4 mr-1.5" />
                   Share
                 </Button>
-                <Button variant="outline" size="sm" data-testid="button-download-feedback" onClick={handleDownloadFeedback}>
+                <Button variant="outline" size="sm" data-testid="button-download-feedback" onClick={() => capture(handleDownloadFeedback)}>
                   <Download className="w-4 h-4 mr-1.5" />
                   Download
                 </Button>
@@ -534,6 +537,7 @@ export default function RolePlay() {
           </div>
         </div>
       </Card>
+      <LeadGateDialog gateState={gateState} />
     </div>
   );
 }
