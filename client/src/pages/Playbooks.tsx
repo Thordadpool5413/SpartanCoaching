@@ -111,9 +111,7 @@ export default function Playbooks() {
     });
   };
 
-  const handlePrint = () => {
-    capture(() => window.print());
-  };
+  const handlePrint = handleExportPdf;
 
   const printStyles = `
     @media print {
