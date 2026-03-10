@@ -1333,6 +1333,7 @@ The single most important skill to work on before the next conversation.`,
           // Bullet line (• from cleanMarkdown, or - / * originals)
           if (/^[•\-\*]\s/.test(line)) {
             flushPara();
+            ensureSpace(30); // must come before capturing bulletY
             const bulletText = line.replace(/^[•\-\*]\s+/, "").trim();
             const bulletY = doc.y;
             doc.fontSize(10.5).font("Helvetica-Bold").fillColor(RED)
@@ -1346,6 +1347,7 @@ The single most important skill to work on before the next conversation.`,
           // Numbered list line
           if (/^\d+\.\s/.test(line)) {
             flushPara();
+            ensureSpace(30); // must come before capturing numY
             const match = line.match(/^(\d+\.\s+)(.*)/);
             if (match) {
               const numLabel = match[1].trim();
