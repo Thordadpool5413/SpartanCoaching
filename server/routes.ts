@@ -47,7 +47,9 @@ import {
   ObjectStorageService,
   ObjectNotFoundError,
 } from "./objectStorage";
-import { sendInquiryNotification, sendNewsletterConfirmation, sendGeneratedEmail, sendAgreementConfirmation, sendResourceLeadNotification, sendNewsletterNotification, sendNewsletterBroadcast, sendDripDay3, sendDripDay7 } from "./resend";
+import { sendInquiryNotification, sendNewsletterConfirmation, sendGeneratedEmail, sendAgreementConfirmation, sendResourceLeadNotification, sendNewsletterNotification, sendNewsletterBroadcast, sendDripDay3, sendDripDay7, sendSigningRequest, sendSignedAgreementPdf } from "./resend";
+import crypto from "crypto";
+import { AGREEMENT_TEXTS } from "./agreementTexts";
 
 // Get admin password from environment, default to secure value for development
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "5413";
@@ -809,16 +811,37 @@ Build a specific Monday–Friday territory plan for this week.`;
       const agreementData = insertSignedAgreementSchema.parse(req.body);
       const agreement = await storage.createSignedAgreement(agreementData);
       
-      await sendAgreementConfirmation({
+      const signedAtStr = new Date(agreement.signedAt!).toLocaleDateString('en-US', { 
+        year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' 
+      });
+
+      sendAgreementConfirmation({
         agreementType: agreement.agreementType,
         signerName: agreement.signerName,
         signerTitle: agreement.signerTitle,
         signerOrganization: agreement.signerOrganization,
         signerEmail: agreement.signerEmail,
-        signedAt: new Date(agreement.signedAt!).toLocaleDateString('en-US', { 
-          year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' 
-        }),
-      });
+        signedAt: signedAtStr,
+      }).catch(err => console.error("Agreement confirmation email failed:", err));
+
+      try {
+        const pdfBuffer = await generateAgreementPdf(agreement.agreementType, {
+          signerName: agreement.signerName,
+          signerTitle: agreement.signerTitle,
+          signerOrganization: agreement.signerOrganization,
+          signerEmail: agreement.signerEmail,
+          signatureImage: agreement.signatureImage || undefined,
+          signedAt: signedAtStr,
+        });
+        const pdfBase64 = pdfBuffer.toString("base64");
+        await storage.updateSignedAgreementPdf(agreement.id, pdfBase64);
+        const filename = `${agreement.agreementType.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-signed.pdf`;
+        sendSignedAgreementPdf(agreement.signerEmail, agreement.signerName, agreement.agreementType, pdfBuffer, filename).catch(err =>
+          console.error("Failed to send signed agreement PDF:", err)
+        );
+      } catch (pdfErr) {
+        console.error("PDF generation for agreement failed (non-blocking):", pdfErr);
+      }
       
       res.json({ success: true, agreement });
     } catch (error: any) {
@@ -834,10 +857,169 @@ Build a specific Monday–Friday territory plan for this week.`;
   app.get("/api/signed-agreements", requireAdmin, async (_req, res) => {
     try {
       const agreements = await storage.getSignedAgreements();
-      res.json({ agreements });
+      const sanitized = agreements.map(({ pdfData, ...rest }) => ({ ...rest, hasPdf: !!pdfData }));
+      res.json({ agreements: sanitized });
     } catch (error: any) {
       console.error("Get signed agreements error:", error);
       res.status(500).json({ error: "Failed to retrieve agreements" });
+    }
+  });
+
+  app.get("/api/signed-agreements/:id/pdf", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+      const agreement = await storage.getSignedAgreementById(id);
+      if (!agreement) return res.status(404).json({ error: "Agreement not found" });
+      if (!agreement.pdfData) return res.status(404).json({ error: "PDF not available for this agreement" });
+      const pdfBuffer = Buffer.from(agreement.pdfData, "base64");
+      const filename = `${agreement.agreementType.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-signed.pdf`;
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+      res.send(pdfBuffer);
+    } catch (error: any) {
+      console.error("Download signed agreement PDF error:", error);
+      res.status(500).json({ error: "Failed to download PDF" });
+    }
+  });
+
+  app.post("/api/agreement-requests", requireAdmin, async (req, res) => {
+    try {
+      const { recipientEmail, recipientName, documentTypes } = req.body;
+      if (!recipientEmail || !recipientName || !Array.isArray(documentTypes) || documentTypes.length === 0) {
+        return res.status(400).json({ error: "recipientEmail, recipientName, and documentTypes are required" });
+      }
+      const token = crypto.randomBytes(32).toString("hex");
+      const request = await storage.createAgreementRequest(
+        { recipientEmail, recipientName, documentTypes },
+        token
+      );
+      const baseUrl = `${req.protocol}://${req.get("host")}`;
+      const signingUrl = `${baseUrl}/sign/${token}`;
+      sendSigningRequest(recipientEmail, recipientName, documentTypes, signingUrl).catch(err =>
+        console.error("Failed to send signing request email:", err)
+      );
+      res.json({ success: true, request });
+    } catch (error: any) {
+      console.error("Create agreement request error:", error);
+      res.status(500).json({ error: "Failed to create agreement request" });
+    }
+  });
+
+  app.get("/api/agreement-requests", requireAdmin, async (_req, res) => {
+    try {
+      const requests = await storage.getAgreementRequests();
+      res.json({ requests });
+    } catch (error: any) {
+      console.error("Get agreement requests error:", error);
+      res.status(500).json({ error: "Failed to retrieve agreement requests" });
+    }
+  });
+
+  app.post("/api/agreement-requests/:id/resend", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const requests = await storage.getAgreementRequests();
+      const request = requests.find(r => r.id === id);
+      if (!request) return res.status(404).json({ error: "Request not found" });
+
+      const baseUrl = `${req.protocol}://${req.get("host")}`;
+      const signingUrl = `${baseUrl}/sign/${request.token}`;
+      await sendSigningRequest(request.recipientEmail, request.recipientName, request.documentTypes, signingUrl);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Resend agreement request error:", error);
+      res.status(500).json({ error: "Failed to resend" });
+    }
+  });
+
+  app.get("/api/sign/:token", async (req, res) => {
+    try {
+      const request = await storage.getAgreementRequestByToken(req.params.token);
+      if (!request) return res.status(404).json({ error: "Invalid or expired signing link" });
+      const signedAgreements = await storage.getSignedAgreementsByRequestId(request.id);
+      const signedTypes = signedAgreements.map(a => a.agreementType);
+      res.json({
+        request: {
+          id: request.id,
+          recipientEmail: request.recipientEmail,
+          recipientName: request.recipientName,
+          documentTypes: request.documentTypes,
+          status: request.status,
+        },
+        signedTypes,
+      });
+    } catch (error: any) {
+      console.error("Get signing request error:", error);
+      res.status(500).json({ error: "Failed to load signing request" });
+    }
+  });
+
+  app.post("/api/sign/:token", async (req, res) => {
+    try {
+      const request = await storage.getAgreementRequestByToken(req.params.token);
+      if (!request) return res.status(404).json({ error: "Invalid or expired signing link" });
+
+      const { signerName, signerTitle, signerOrganization, signerEmail, signatureImage, agreementType } = req.body;
+      if (!signerName || !signerTitle || !signerOrganization || !signerEmail || !agreementType) {
+        return res.status(400).json({ error: "All signer fields and agreementType are required" });
+      }
+      if (!request.documentTypes.includes(agreementType)) {
+        return res.status(400).json({ error: "Agreement type not part of this request" });
+      }
+      if (signerEmail.toLowerCase() !== request.recipientEmail.toLowerCase()) {
+        return res.status(400).json({ error: "Signer email must match the recipient email for this request" });
+      }
+
+      const agreement = await storage.createSignedAgreement({
+        agreementType,
+        signerName,
+        signerTitle,
+        signerOrganization,
+        signerEmail,
+        signatureImage: signatureImage || null,
+        requestId: request.id,
+      });
+
+      sendAgreementConfirmation({
+        agreementType: agreement.agreementType,
+        signerName: agreement.signerName,
+        signerTitle: agreement.signerTitle,
+        signerOrganization: agreement.signerOrganization,
+        signerEmail: agreement.signerEmail,
+        signedAt: new Date(agreement.signedAt!).toLocaleDateString('en-US', {
+          year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit'
+        }),
+      }).catch(err => console.error("Agreement confirmation email failed:", err));
+
+      try {
+        const pdfBuffer = await generateAgreementPdf(agreementType, {
+          signerName, signerTitle, signerOrganization, signerEmail,
+          signatureImage: signatureImage || undefined,
+          signedAt: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' }),
+        });
+        const pdfBase64 = pdfBuffer.toString("base64");
+        await storage.updateSignedAgreementPdf(agreement.id, pdfBase64);
+        const filename = `${agreementType.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-signed.pdf`;
+        sendSignedAgreementPdf(signerEmail, signerName, agreementType, pdfBuffer, filename).catch(err =>
+          console.error("Failed to send signed agreement PDF:", err)
+        );
+      } catch (pdfErr) {
+        console.error("PDF generation for agreement failed (non-blocking):", pdfErr);
+      }
+
+      const allSigned = await storage.getSignedAgreementsByRequestId(request.id);
+      const allTypes = request.documentTypes;
+      const signedTypes = allSigned.map(a => a.agreementType);
+      const allCompleted = allTypes.every(t => signedTypes.includes(t));
+      if (allCompleted) {
+        await storage.updateAgreementRequestStatus(request.id, "completed", new Date());
+      }
+
+      res.json({ success: true, agreement, allCompleted });
+    } catch (error: any) {
+      console.error("Sign agreement error:", error);
+      res.status(500).json({ error: "Failed to sign agreement" });
     }
   });
 
@@ -1355,6 +1537,121 @@ The single most important skill to work on before the next conversation.`,
       res.status(500).json({ error: error.message });
     }
   });
+
+  async function generateAgreementPdf(
+    agreementType: string,
+    signer: { signerName: string; signerTitle: string; signerOrganization: string; signerEmail: string; signatureImage?: string; signedAt: string }
+  ): Promise<Buffer> {
+    const PDFDocument = (await import("pdfkit")).default;
+    return new Promise((resolve, reject) => {
+      const MARGIN = 60;
+      const doc = new PDFDocument({
+        margin: MARGIN,
+        size: "LETTER",
+        bufferPages: true,
+        info: { Title: `${agreementType} — Signed`, Author: "Spartan Coaching", Creator: "Spartan Coaching" },
+      });
+      const chunks: Buffer[] = [];
+      doc.on("data", (chunk: Buffer) => chunks.push(chunk));
+      doc.on("end", () => resolve(Buffer.concat(chunks)));
+      doc.on("error", reject);
+
+      const RED = "#C8102E";
+      const RED_DEEP = "#9B0E23";
+      const DARK = "#111827";
+      const MUTED = "#6B7280";
+      const WHITE = "#FFFFFF";
+      const LIGHT_RULE = "#E5E7EB";
+      const PAGE_W = doc.page.width;
+      const CW = PAGE_W - MARGIN * 2;
+
+      doc.rect(0, 0, PAGE_W, 82).fill(RED);
+      doc.rect(0, 0, PAGE_W, 5).fill(RED_DEEP);
+      doc.fontSize(13).font("Helvetica-Bold").fillColor(WHITE).text("SPARTAN COACHING", MARGIN, 22, { lineBreak: false });
+      doc.fontSize(8).font("Helvetica").fillColor("#E8899A").text("SIGNED AGREEMENT", MARGIN, 42, { lineBreak: false });
+      doc.y = 104;
+
+      doc.fontSize(22).font("Helvetica-Bold").fillColor(DARK).text(agreementType, MARGIN, doc.y, { width: CW });
+      doc.moveDown(0.3);
+      doc.fontSize(11).font("Helvetica").fillColor(MUTED).text("Digitally Signed Document", MARGIN, doc.y, { width: CW });
+      doc.moveDown(0.7);
+      doc.moveTo(MARGIN, doc.y).lineTo(MARGIN + CW, doc.y).strokeColor(RED).lineWidth(2).stroke();
+      doc.moveDown(1.5);
+
+      doc.fontSize(13).font("Helvetica-Bold").fillColor(DARK).text("Signer Information", MARGIN, doc.y, { width: CW });
+      doc.moveDown(0.4);
+      doc.moveTo(MARGIN, doc.y).lineTo(MARGIN + CW, doc.y).strokeColor(LIGHT_RULE).lineWidth(0.5).stroke();
+      doc.moveDown(0.6);
+
+      const fields = [
+        ["Name", signer.signerName],
+        ["Title", signer.signerTitle],
+        ["Organization", signer.signerOrganization],
+        ["Email", signer.signerEmail],
+        ["Date Signed", signer.signedAt],
+        ["Agreement Type", agreementType],
+      ];
+
+      for (const [label, value] of fields) {
+        const fieldY = doc.y;
+        doc.fontSize(10).font("Helvetica-Bold").fillColor(MUTED).text(label + ":", MARGIN, fieldY, { width: 120, lineBreak: false });
+        doc.fontSize(10.5).font("Helvetica").fillColor(DARK).text(value, MARGIN + 125, fieldY, { width: CW - 125 });
+        doc.moveDown(0.3);
+      }
+
+      if (signer.signatureImage) {
+        doc.moveDown(1);
+        doc.fontSize(13).font("Helvetica-Bold").fillColor(DARK).text("Digital Signature", MARGIN, doc.y, { width: CW });
+        doc.moveDown(0.4);
+        doc.moveTo(MARGIN, doc.y).lineTo(MARGIN + CW, doc.y).strokeColor(LIGHT_RULE).lineWidth(0.5).stroke();
+        doc.moveDown(0.8);
+
+        try {
+          const base64Data = signer.signatureImage.replace(/^data:image\/\w+;base64,/, "");
+          const imgBuffer = Buffer.from(base64Data, "base64");
+          doc.image(imgBuffer, MARGIN, doc.y, { width: 250, height: 80 });
+          doc.y += 90;
+        } catch (imgErr) {
+          doc.fontSize(10).font("Helvetica").fillColor(MUTED).text("[Signature image could not be rendered]", MARGIN, doc.y, { width: CW });
+          doc.moveDown(0.5);
+        }
+      }
+
+      const agreementContent = AGREEMENT_TEXTS[agreementType];
+      if (agreementContent && agreementContent.sections.length > 0) {
+        doc.moveDown(1.5);
+        doc.fontSize(15).font("Helvetica-Bold").fillColor(DARK).text("Agreement Terms", MARGIN, doc.y, { width: CW });
+        doc.moveDown(0.4);
+        doc.moveTo(MARGIN, doc.y).lineTo(MARGIN + CW, doc.y).strokeColor(RED).lineWidth(1.5).stroke();
+        doc.moveDown(0.8);
+
+        for (const section of agreementContent.sections) {
+          if (doc.y > doc.page.height - 120) {
+            doc.addPage();
+          }
+          if (section.heading) {
+            doc.fontSize(11).font("Helvetica-Bold").fillColor(DARK).text(section.heading, MARGIN, doc.y, { width: CW });
+            doc.moveDown(0.3);
+          }
+          doc.fontSize(9.5).font("Helvetica").fillColor(MUTED).text(section.body, MARGIN, doc.y, { width: CW, lineGap: 2, paragraphGap: 3 });
+          doc.moveDown(0.7);
+        }
+      }
+
+      doc.moveDown(1.5);
+      doc.moveTo(MARGIN, doc.y).lineTo(MARGIN + CW, doc.y).strokeColor(LIGHT_RULE).lineWidth(0.5).stroke();
+      doc.moveDown(0.65);
+      doc.fontSize(9).font("Helvetica-Bold").fillColor(DARK).text("Legal Notice", MARGIN, doc.y, { width: CW });
+      doc.moveDown(0.4);
+      doc.fontSize(8).font("Helvetica").fillColor(MUTED).text(
+        "This document confirms that the above-named individual has digitally signed the referenced agreement through the Spartan Coaching platform. This constitutes a legally binding digital signature as acknowledged by the signer.\n\n\u00A9 " + new Date().getFullYear() + " Spartan Coaching. All rights reserved. | spartanhospicecoaching.com",
+        MARGIN, doc.y, { width: CW, lineGap: 2, paragraphGap: 4 }
+      );
+
+      doc.flushPages();
+      doc.end();
+    });
+  }
 
   // PDF Export: generate a branded PDF from structured content
   async function generatePdfBuffer(title: string, subtitle: string | undefined, sections: Array<{ heading?: string; body: string }>): Promise<Buffer> {

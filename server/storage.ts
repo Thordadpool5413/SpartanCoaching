@@ -42,6 +42,9 @@ import {
   signedAgreements,
   type InsertSignedAgreement,
   type SelectSignedAgreement,
+  agreementRequests,
+  type InsertAgreementRequest,
+  type SelectAgreementRequest,
   testimonials,
   type InsertTestimonial,
   type SelectTestimonial,
@@ -112,6 +115,13 @@ export interface IStorage {
   getUsageEvents(): Promise<SelectUsageEvent[]>;
   createSignedAgreement(agreement: InsertSignedAgreement): Promise<SelectSignedAgreement>;
   getSignedAgreements(): Promise<SelectSignedAgreement[]>;
+  createAgreementRequest(request: InsertAgreementRequest, token: string): Promise<SelectAgreementRequest>;
+  getAgreementRequests(): Promise<SelectAgreementRequest[]>;
+  getAgreementRequestByToken(token: string): Promise<SelectAgreementRequest | undefined>;
+  updateAgreementRequestStatus(id: number, status: string, completedAt?: Date): Promise<SelectAgreementRequest>;
+  getSignedAgreementsByRequestId(requestId: number): Promise<SelectSignedAgreement[]>;
+  getSignedAgreementById(id: number): Promise<SelectSignedAgreement | undefined>;
+  updateSignedAgreementPdf(id: number, pdfData: string): Promise<void>;
   // Testimonial operations
   getTestimonials(): Promise<SelectTestimonial[]>;
   createTestimonial(testimonial: InsertTestimonial): Promise<SelectTestimonial>;
@@ -507,6 +517,40 @@ export class DatabaseStorage implements IStorage {
 
   async getSignedAgreements(): Promise<SelectSignedAgreement[]> {
     return await db.select().from(signedAgreements).orderBy(desc(signedAgreements.signedAt));
+  }
+
+  async createAgreementRequest(request: InsertAgreementRequest, token: string): Promise<SelectAgreementRequest> {
+    const [result] = await db.insert(agreementRequests).values({ ...request, token, status: "pending" }).returning();
+    return result;
+  }
+
+  async getAgreementRequests(): Promise<SelectAgreementRequest[]> {
+    return await db.select().from(agreementRequests).orderBy(desc(agreementRequests.sentAt));
+  }
+
+  async getAgreementRequestByToken(token: string): Promise<SelectAgreementRequest | undefined> {
+    const [result] = await db.select().from(agreementRequests).where(eq(agreementRequests.token, token));
+    return result;
+  }
+
+  async updateAgreementRequestStatus(id: number, status: string, completedAt?: Date): Promise<SelectAgreementRequest> {
+    const updates: any = { status };
+    if (completedAt) updates.completedAt = completedAt;
+    const [result] = await db.update(agreementRequests).set(updates).where(eq(agreementRequests.id, id)).returning();
+    return result;
+  }
+
+  async getSignedAgreementsByRequestId(requestId: number): Promise<SelectSignedAgreement[]> {
+    return await db.select().from(signedAgreements).where(eq(signedAgreements.requestId, requestId));
+  }
+
+  async getSignedAgreementById(id: number): Promise<SelectSignedAgreement | undefined> {
+    const [result] = await db.select().from(signedAgreements).where(eq(signedAgreements.id, id));
+    return result;
+  }
+
+  async updateSignedAgreementPdf(id: number, pdfData: string): Promise<void> {
+    await db.update(signedAgreements).set({ pdfData }).where(eq(signedAgreements.id, id));
   }
 
   async getTestimonials(): Promise<SelectTestimonial[]> {

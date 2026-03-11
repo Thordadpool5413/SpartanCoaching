@@ -190,6 +190,9 @@ export const signedAgreements = pgTable("signed_agreements", {
   signerTitle: varchar("signer_title").notNull(),
   signerOrganization: varchar("signer_organization").notNull(),
   signerEmail: text("signer_email").notNull(),
+  signatureImage: text("signature_image"),
+  pdfData: text("pdf_data"),
+  requestId: integer("request_id"),
   signedAt: timestamp("signed_at").defaultNow(),
 });
 
@@ -199,6 +202,27 @@ export const insertSignedAgreementSchema = createInsertSchema(signedAgreements).
 });
 export type InsertSignedAgreement = z.infer<typeof insertSignedAgreementSchema>;
 export type SelectSignedAgreement = typeof signedAgreements.$inferSelect;
+
+export const agreementRequests = pgTable("agreement_requests", {
+  id: serial("id").primaryKey(),
+  recipientEmail: text("recipient_email").notNull(),
+  recipientName: varchar("recipient_name").notNull(),
+  documentTypes: text("document_types").array().notNull(),
+  token: varchar("token").notNull().unique(),
+  status: varchar("status").notNull().default("pending"),
+  sentAt: timestamp("sent_at").defaultNow(),
+  completedAt: timestamp("completed_at"),
+});
+
+export const insertAgreementRequestSchema = createInsertSchema(agreementRequests).omit({
+  id: true,
+  token: true,
+  status: true,
+  sentAt: true,
+  completedAt: true,
+});
+export type InsertAgreementRequest = z.infer<typeof insertAgreementRequestSchema>;
+export type SelectAgreementRequest = typeof agreementRequests.$inferSelect;
 
 // Drizzle table definition for articles
 export const articles = pgTable("articles", {

@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Mail, Phone, Building, Calendar, Users, Lock, LogOut, Plus, Edit, Trash2, ExternalLink, Star, FileText as FileSignature, PlayCircle, Target, Quote, Award, ChevronDown, ChevronUp, Download, CheckCircle, Circle, Send, Loader2, ClipboardList, Copy, Link as LinkIcon } from "lucide-react";
-import type { SelectInquiry, SelectNewsletterSubscriber, SelectArticle, InsertArticle, VisitorAnalytics, SelectResource, InsertResource, SelectPodcast, InsertPodcast, SelectSignedAgreement, SelectRoleplaySession, SelectDrillCompletion, SelectTestimonial, SelectCaseStudy, InsertTestimonial, InsertCaseStudy, SelectResourceLead, SelectAssessment, SelectAssessmentQuestion, SelectAssessmentSubmission } from "@shared/schema";
+import type { SelectInquiry, SelectNewsletterSubscriber, SelectArticle, InsertArticle, VisitorAnalytics, SelectResource, InsertResource, SelectPodcast, InsertPodcast, SelectSignedAgreement, SelectRoleplaySession, SelectDrillCompletion, SelectTestimonial, SelectCaseStudy, InsertTestimonial, InsertCaseStudy, SelectResourceLead, SelectAssessment, SelectAssessmentQuestion, SelectAssessmentSubmission, SelectAgreementRequest } from "@shared/schema";
 import type { SelectUsageEvent } from "@shared/schema";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
@@ -145,9 +145,15 @@ export default function Admin() {
     enabled: isAuthenticated,
   });
 
-  const { data: agreementsData, isLoading: agreementsLoading } = useQuery<{ agreements: SelectSignedAgreement[] }>({
+  const { data: agreementsData, isLoading: agreementsLoading } = useQuery<{ agreements: (SelectSignedAgreement & { hasPdf?: boolean })[] }>({
     queryKey: ["/api/signed-agreements"],
     queryFn: () => adminGet("/api/signed-agreements"),
+    enabled: isAuthenticated,
+  });
+
+  const { data: agreementRequestsData, isLoading: agreementRequestsLoading } = useQuery<{ requests: SelectAgreementRequest[] }>({
+    queryKey: ["/api/agreement-requests"],
+    queryFn: () => adminGet("/api/agreement-requests"),
     enabled: isAuthenticated,
   });
 
@@ -209,6 +215,7 @@ export default function Admin() {
   const resources = resourcesData?.resources || [];
   const podcasts = podcastsData?.podcasts || [];
   const agreements = agreementsData?.agreements || [];
+  const agreementRequests = agreementRequestsData?.requests || [];
   const roleplaySessions = roleplaySessionsData?.sessions || [];
   const drillCompletions = drillCompletionsData?.completions || [];
   const testimonialsList = testimonialsData?.testimonials || [];
@@ -337,6 +344,87 @@ export default function Admin() {
       data.correctAnswer = questionCorrectAnswer;
     }
     addQuestionMutation.mutate(data);
+  };
+
+  const [sendRequestDialogOpen, setSendRequestDialogOpen] = useState(false);
+  const [requestEmail, setRequestEmail] = useState("");
+  const [requestName, setRequestName] = useState("");
+  const [requestDocTypes, setRequestDocTypes] = useState<string[]>([]);
+
+  const AVAILABLE_DOC_TYPES = [
+    "HIPAA Business Associate Agreement",
+    "Services Contract Agreement",
+    "Non-Disclosure Agreement (NDA)",
+    "EMR/Data Access Agreement",
+    "Conflict of Interest Disclosure",
+    "Liability Waiver / Hold Harmless Agreement",
+    "Testimonial / Case Study Release",
+  ];
+
+  const sendRequestMutation = useMutation({
+    mutationFn: async (data: { recipientEmail: string; recipientName: string; documentTypes: string[] }) => {
+      const res = await fetch("/api/agreement-requests", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Admin-Auth": ADMIN_CODE },
+        credentials: "include",
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to send request");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/agreement-requests"] });
+      setSendRequestDialogOpen(false);
+      setRequestEmail("");
+      setRequestName("");
+      setRequestDocTypes([]);
+      toast({ title: "Request Sent", description: "Signing request email sent successfully." });
+    },
+    onError: (error: any) => {
+      toast({ title: "Error", description: error.message || "Failed to send request", variant: "destructive" });
+    },
+  });
+
+  const resendRequestMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/agreement-requests/${id}/resend`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Admin-Auth": ADMIN_CODE },
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("Failed to resend");
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Resent", description: "Signing request email resent." });
+    },
+    onError: () => {
+      toast({ title: "Error", description: "Failed to resend request.", variant: "destructive" });
+    },
+  });
+
+  const handleDownloadPdf = async (agreementId: number, agreementType: string) => {
+    try {
+      const res = await fetch(`/api/signed-agreements/${agreementId}/pdf`, {
+        headers: { "X-Admin-Auth": ADMIN_CODE },
+        credentials: "include",
+      });
+      if (!res.ok) throw new Error("PDF not available");
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${agreementType.replace(/[^a-z0-9]/gi, '-').toLowerCase()}-signed.pdf`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    } catch {
+      toast({ title: "Error", description: "PDF not available for download.", variant: "destructive" });
+    }
   };
 
   // Leads email dialog state
@@ -2152,45 +2240,184 @@ export default function Admin() {
         </TabsContent>
 
         {/* Agreements Tab */}
-        <TabsContent value="agreements" className="space-y-4">
-          <div>
-            <h2 className="text-xl font-bold">Signed Agreements</h2>
-            <p className="text-sm text-muted-foreground">{agreements.length} agreements on file</p>
+        <TabsContent value="agreements" className="space-y-6">
+          <div className="flex items-center justify-between flex-wrap gap-2">
+            <div>
+              <h2 className="text-xl font-bold">Agreements</h2>
+              <p className="text-sm text-muted-foreground">{agreements.length} signed, {agreementRequests.filter(r => r.status === "pending").length} pending requests</p>
+            </div>
+            <Button onClick={() => setSendRequestDialogOpen(true)} data-testid="button-send-signing-request">
+              <Send className="w-4 h-4 mr-2" /> Send Signing Request
+            </Button>
           </div>
 
-          {agreementsLoading ? (
-            <div className="text-center py-8 text-muted-foreground">Loading agreements...</div>
-          ) : agreements.length === 0 ? (
-            <Card><CardHeader><CardTitle className="text-base text-muted-foreground text-center py-4">No signed agreements yet.</CardTitle></CardHeader></Card>
-          ) : (
+          <Dialog open={sendRequestDialogOpen} onOpenChange={setSendRequestDialogOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Send Signing Request</DialogTitle>
+                <DialogDescription>Send agreement documents to a lead for digital signing.</DialogDescription>
+              </DialogHeader>
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                if (!requestEmail || !requestName || requestDocTypes.length === 0) return;
+                sendRequestMutation.mutate({ recipientEmail: requestEmail, recipientName: requestName, documentTypes: requestDocTypes });
+              }} className="space-y-4">
+                {inquiries.length > 0 && (
+                  <div className="space-y-2">
+                    <Label>Select from Inquiries</Label>
+                    <select
+                      className="w-full rounded-md border border-input bg-background px-3 min-h-9 text-sm"
+                      value=""
+                      onChange={(e) => {
+                        const inq = inquiries.find(i => i.id.toString() === e.target.value);
+                        if (inq) {
+                          setRequestName(inq.name);
+                          setRequestEmail(inq.email);
+                        }
+                      }}
+                      data-testid="select-inquiry-lead"
+                    >
+                      <option value="">Choose a lead to autofill...</option>
+                      {inquiries.map(inq => (
+                        <option key={inq.id} value={inq.id.toString()}>{inq.name} ({inq.email})</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <Label htmlFor="req-name">Recipient Name</Label>
+                  <Input id="req-name" value={requestName} onChange={(e) => setRequestName(e.target.value)} placeholder="Full name" required data-testid="input-request-name" />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="req-email">Recipient Email</Label>
+                  <Input id="req-email" type="email" value={requestEmail} onChange={(e) => setRequestEmail(e.target.value)} placeholder="email@company.com" required data-testid="input-request-email" />
+                </div>
+                <div className="space-y-2">
+                  <Label>Documents to Sign</Label>
+                  <div className="space-y-2 max-h-48 overflow-y-auto">
+                    {AVAILABLE_DOC_TYPES.map((dt) => (
+                      <label key={dt} className="flex items-center gap-2 cursor-pointer text-sm">
+                        <input
+                          type="checkbox"
+                          checked={requestDocTypes.includes(dt)}
+                          onChange={(e) => {
+                            if (e.target.checked) setRequestDocTypes([...requestDocTypes, dt]);
+                            else setRequestDocTypes(requestDocTypes.filter(d => d !== dt));
+                          }}
+                          className="rounded"
+                          data-testid={`checkbox-doc-${dt.replace(/[^a-z0-9]/gi, '-').toLowerCase()}`}
+                        />
+                        {dt}
+                      </label>
+                    ))}
+                  </div>
+                </div>
+                <Button type="submit" className="w-full" disabled={sendRequestMutation.isPending || !requestEmail || !requestName || requestDocTypes.length === 0} data-testid="button-submit-request">
+                  {sendRequestMutation.isPending ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" /> Sending...</> : "Send Request"}
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+
+          {agreementRequestsLoading ? (
+            <div className="text-center py-4 text-muted-foreground">Loading requests...</div>
+          ) : agreementRequests.length > 0 && (
             <div className="space-y-3">
-              {agreements.map((ag) => (
-                <Card key={ag.id} data-testid={`card-agreement-${ag.id}`}>
-                  <CardHeader className="flex flex-row items-start justify-between gap-4 cursor-pointer" onClick={() => setExpandedAgreement(expandedAgreement === ag.id ? null : ag.id)}>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <CardTitle className="text-base">{ag.signerName}</CardTitle>
-                        <Badge variant="secondary" className="text-xs">{ag.agreementType}</Badge>
+              <h3 className="font-semibold text-lg">Signing Requests</h3>
+              {agreementRequests.map((req) => {
+                const reqSignedAgs = agreements.filter(a => a.requestId === req.id);
+                const signedTypes = reqSignedAgs.map(a => a.agreementType);
+                return (
+                  <Card key={req.id} data-testid={`card-request-${req.id}`}>
+                    <CardHeader className="flex flex-row items-start justify-between gap-4">
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <CardTitle className="text-base">{req.recipientName}</CardTitle>
+                          <Badge variant={req.status === "completed" ? "default" : "outline"} className="text-xs">
+                            {req.status === "completed" ? "Completed" : "Pending"}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">{req.recipientEmail}</p>
+                        <p className="text-xs text-muted-foreground mt-1">Sent {req.sentAt ? new Date(req.sentAt).toLocaleDateString() : "Unknown"}</p>
+                        <div className="flex items-center gap-2 mt-2 flex-wrap">
+                          {req.documentTypes.map((dt) => (
+                            <Badge key={dt} variant={signedTypes.includes(dt) ? "default" : "secondary"} className="text-xs gap-1">
+                              {signedTypes.includes(dt) ? <CheckCircle className="w-3 h-3" /> : <Circle className="w-3 h-3" />}
+                              {dt.length > 30 ? dt.substring(0, 27) + "..." : dt}
+                            </Badge>
+                          ))}
+                        </div>
                       </div>
-                      <p className="text-sm text-muted-foreground mt-1">{ag.signerTitle} at {ag.signerOrganization}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{ag.signerEmail} &bull; Signed {ag.signedAt ? new Date(ag.signedAt).toLocaleDateString() : "Unknown"}</p>
-                    </div>
-                    <Button size="icon" variant="ghost">
-                      {expandedAgreement === ag.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-                    </Button>
-                  </CardHeader>
-                  {expandedAgreement === ag.id && (
-                    <div className="px-6 pb-4 space-y-2 border-t pt-4">
-                      <p className="text-sm"><span className="font-medium">Agreement Type:</span> {ag.agreementType}</p>
-                      <p className="text-sm"><span className="font-medium">Organization:</span> {ag.signerOrganization}</p>
-                      <p className="text-sm"><span className="font-medium">Email:</span> {ag.signerEmail}</p>
-                      <p className="text-sm"><span className="font-medium">Date Signed:</span> {ag.signedAt ? new Date(ag.signedAt).toLocaleString() : "Unknown"}</p>
-                    </div>
-                  )}
-                </Card>
-              ))}
+                      {req.status === "pending" && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => resendRequestMutation.mutate(req.id)}
+                          disabled={resendRequestMutation.isPending}
+                          data-testid={`button-resend-${req.id}`}
+                        >
+                          <Send className="w-3 h-3 mr-1" /> Resend
+                        </Button>
+                      )}
+                    </CardHeader>
+                  </Card>
+                );
+              })}
             </div>
           )}
+
+          <div className="space-y-3">
+            <h3 className="font-semibold text-lg">Signed Agreements ({agreements.length})</h3>
+            {agreementsLoading ? (
+              <div className="text-center py-8 text-muted-foreground">Loading agreements...</div>
+            ) : agreements.length === 0 ? (
+              <Card><CardHeader><CardTitle className="text-base text-muted-foreground text-center py-4">No signed agreements yet.</CardTitle></CardHeader></Card>
+            ) : (
+              <div className="space-y-3">
+                {agreements.map((ag) => (
+                  <Card key={ag.id} data-testid={`card-agreement-${ag.id}`}>
+                    <CardHeader className="flex flex-row items-start justify-between gap-4 cursor-pointer" onClick={() => setExpandedAgreement(expandedAgreement === ag.id ? null : ag.id)}>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <CardTitle className="text-base">{ag.signerName}</CardTitle>
+                          <Badge variant="secondary" className="text-xs">{ag.agreementType}</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mt-1">{ag.signerTitle} at {ag.signerOrganization}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{ag.signerEmail} &bull; Signed {ag.signedAt ? new Date(ag.signedAt).toLocaleDateString() : "Unknown"}</p>
+                      </div>
+                      <Button size="icon" variant="ghost">
+                        {expandedAgreement === ag.id ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                      </Button>
+                    </CardHeader>
+                    {expandedAgreement === ag.id && (
+                      <div className="px-6 pb-4 space-y-2 border-t pt-4">
+                        <p className="text-sm"><span className="font-medium">Agreement Type:</span> {ag.agreementType}</p>
+                        <p className="text-sm"><span className="font-medium">Organization:</span> {ag.signerOrganization}</p>
+                        <p className="text-sm"><span className="font-medium">Email:</span> {ag.signerEmail}</p>
+                        <p className="text-sm"><span className="font-medium">Date Signed:</span> {ag.signedAt ? new Date(ag.signedAt).toLocaleString() : "Unknown"}</p>
+                        {ag.signatureImage && (
+                          <div>
+                            <p className="text-sm font-medium mb-1">Drawn Signature:</p>
+                            <img src={ag.signatureImage} alt="Drawn signature" className="max-w-[250px] border rounded-md bg-white p-2" />
+                          </div>
+                        )}
+                        {ag.hasPdf && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={(e) => { e.stopPropagation(); handleDownloadPdf(ag.id, ag.agreementType); }}
+                            data-testid={`button-download-pdf-${ag.id}`}
+                          >
+                            <Download className="w-3 h-3 mr-1" /> Download Signed PDF
+                          </Button>
+                        )}
+                      </div>
+                    )}
+                  </Card>
+                ))}
+              </div>
+            )}
+          </div>
         </TabsContent>
 
         {/* Role-Play Tab */}

@@ -509,6 +509,104 @@ export async function sendAssessmentConfirmation(
   }
 }
 
+export async function sendSigningRequest(
+  toEmail: string,
+  recipientName: string,
+  documentTypes: string[],
+  signingUrl: string
+): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    const docList = documentTypes.map(d => `<li style="padding: 4px 0; color: #333;">${d}</li>`).join('');
+
+    await sendEmail(client, {
+      from: fromEmail,
+      to: toEmail,
+      subject: `Action Required: Agreement Signing Request — Spartan Coaching`,
+      html: `
+        <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+          <div style="background: #b91c1c; padding: 24px; text-align: center;">
+            <h1 style="color: white; margin: 0; font-size: 24px;">Spartan Coaching</h1>
+            <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0 0;">Agreement Signing Request</p>
+          </div>
+          <div style="padding: 32px; background: #ffffff;">
+            <p style="color: #555; line-height: 1.6;">Hi ${recipientName},</p>
+            <p style="color: #555; line-height: 1.6;">You have been requested to review and sign the following agreement(s):</p>
+            <ul style="margin: 16px 0; padding-left: 20px;">${docList}</ul>
+            <div style="text-align: center; margin: 32px 0;">
+              <a href="${signingUrl}" style="display: inline-block; background: #b91c1c; color: white; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 16px;">Review & Sign Documents</a>
+            </div>
+            <p style="color: #888; font-size: 13px; line-height: 1.5;">This link is unique to you. Please do not forward it to others. If you have questions, contact Spartan Coaching directly.</p>
+          </div>
+          <div style="padding: 16px; background: #f5f5f5; text-align: center;">
+            <p style="color: #888; font-size: 12px; margin: 0;">Spartan Coaching &mdash; The Authority in Hospice Excellence</p>
+          </div>
+        </div>
+      `,
+    });
+
+    console.log(`Signing request email sent to ${toEmail}`);
+    return true;
+  } catch (error) {
+    console.error('Failed to send signing request:', error);
+    return false;
+  }
+}
+
+export async function sendSignedAgreementPdf(
+  toEmail: string,
+  signerName: string,
+  agreementType: string,
+  pdfBuffer: Buffer,
+  filename: string
+): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    const adminEmail = process.env.NOTIFICATION_EMAIL || 'nick@spartanhospicecoaching.com';
+
+    const htmlContent = `
+      <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+        <div style="background: #b91c1c; padding: 24px; text-align: center;">
+          <h1 style="color: white; margin: 0; font-size: 24px;">Spartan Coaching</h1>
+          <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0 0;">Signed Agreement</p>
+        </div>
+        <div style="padding: 32px; background: #ffffff;">
+          <h2 style="color: #1a1a1a; margin-top: 0;">${agreementType}</h2>
+          <p style="color: #555; line-height: 1.6;">A signed copy of the <strong>${agreementType}</strong> is attached to this email as a PDF. Please retain it for your records.</p>
+          <p style="color: #555; line-height: 1.6;">Signed by: <strong>${signerName}</strong></p>
+          <p style="color: #555; line-height: 1.6;">Date: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+        </div>
+        <div style="padding: 16px; background: #f5f5f5; text-align: center;">
+          <p style="color: #888; font-size: 12px; margin: 0;">Spartan Coaching &mdash; The Authority in Hospice Excellence</p>
+        </div>
+      </div>
+    `;
+
+    await Promise.all([
+      sendEmail(client, {
+        from: fromEmail,
+        to: toEmail,
+        subject: `Signed Agreement: ${agreementType} — Spartan Coaching`,
+        html: htmlContent,
+        attachments: [{ filename, content: pdfBuffer }],
+      }),
+      sendEmail(client, {
+        from: fromEmail,
+        to: adminEmail,
+        subject: `Agreement Signed: ${agreementType} by ${signerName}`,
+        html: htmlContent,
+        attachments: [{ filename, content: pdfBuffer }],
+      }),
+    ]);
+
+    console.log(`Signed agreement PDF emailed to ${toEmail} and admin`);
+    return true;
+  } catch (error) {
+    console.error('Failed to send signed agreement PDF:', error);
+    return false;
+  }
+}
+
 export async function sendGeneratedEmail(to: string, subject: string, body: string): Promise<boolean> {
   try {
     const { client, fromEmail } = await getUncachableResendClient();

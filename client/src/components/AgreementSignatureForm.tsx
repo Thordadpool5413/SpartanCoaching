@@ -9,20 +9,27 @@ import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 import { User, Briefcase, Building2, Mail, CheckCircle2 } from "lucide-react";
 import { FadeIn } from "@/components/animations";
+import { SignaturePad } from "@/components/SignaturePad";
 
 interface AgreementSignatureFormProps {
   agreementType: string;
   agreementTitle: string;
+  prefillEmail?: string;
+  prefillName?: string;
+  requestId?: number;
+  onSigned?: () => void;
+  submitUrl?: string;
 }
 
-export function AgreementSignatureForm({ agreementType, agreementTitle }: AgreementSignatureFormProps) {
+export function AgreementSignatureForm({ agreementType, agreementTitle, prefillEmail, prefillName, requestId, onSigned, submitUrl }: AgreementSignatureFormProps) {
   const { toast } = useToast();
-  const [name, setName] = useState("");
+  const [name, setName] = useState(prefillName || "");
   const [title, setTitle] = useState("");
   const [organization, setOrganization] = useState("");
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState(prefillEmail || "");
   const [agreed, setAgreed] = useState(false);
   const [signed, setSigned] = useState(false);
+  const [signatureImage, setSignatureImage] = useState<string | null>(null);
 
   const signMutation = useMutation({
     mutationFn: async (data: {
@@ -31,16 +38,20 @@ export function AgreementSignatureForm({ agreementType, agreementTitle }: Agreem
       signerTitle: string;
       signerOrganization: string;
       signerEmail: string;
+      signatureImage?: string | null;
+      requestId?: number;
     }) => {
-      const res = await apiRequest("POST", "/api/signed-agreements", data);
+      const url = submitUrl || "/api/signed-agreements";
+      const res = await apiRequest("POST", url, data);
       return res.json();
     },
     onSuccess: () => {
       setSigned(true);
       toast({
         title: "Agreement Signed",
-        description: "A confirmation has been sent to your email. Thank you.",
+        description: "A confirmation and signed PDF have been sent to your email. Thank you.",
       });
+      onSigned?.();
     },
     onError: () => {
       toast({
@@ -60,6 +71,8 @@ export function AgreementSignatureForm({ agreementType, agreementTitle }: Agreem
       signerTitle: title.trim(),
       signerOrganization: organization.trim(),
       signerEmail: email.trim(),
+      signatureImage: signatureImage || undefined,
+      requestId,
     });
   };
 
@@ -71,7 +84,7 @@ export function AgreementSignatureForm({ agreementType, agreementTitle }: Agreem
             <CheckCircle2 className="w-12 h-12 text-green-600 dark:text-green-400 mx-auto mb-4" />
             <h3 className="text-xl font-bold text-foreground mb-2">Agreement Signed Successfully</h3>
             <p className="text-muted-foreground max-w-md mx-auto">
-              A confirmation copy of this {agreementTitle} has been sent to <strong className="text-foreground">{email}</strong>. Please retain it for your records.
+              A confirmation copy of this {agreementTitle} has been sent to <strong className="text-foreground">{email}</strong>. A signed PDF is also on its way. Please retain it for your records.
             </p>
             <div className="mt-6 p-4 rounded-md bg-muted/50 inline-block text-left">
               <p className="text-sm text-muted-foreground"><strong className="text-foreground">Signed by:</strong> {name}</p>
@@ -93,7 +106,7 @@ export function AgreementSignatureForm({ agreementType, agreementTitle }: Agreem
             Digital Signature for {agreementTitle}
           </CardTitle>
           <p className="text-sm text-muted-foreground mt-1">
-            By completing this form, you acknowledge that you have read and agree to the terms above. A signed copy will be emailed to you and to Spartan Coaching.
+            By completing this form, you acknowledge that you have read and agree to the terms above. A signed PDF copy will be emailed to you and to Spartan Coaching.
           </p>
         </CardHeader>
         <CardContent>
@@ -172,6 +185,11 @@ export function AgreementSignatureForm({ agreementType, agreementTitle }: Agreem
                 className="bg-muted/50"
                 data-testid="input-signer-date"
               />
+            </div>
+            <div className="space-y-2">
+              <Label>Drawn Signature</Label>
+              <p className="text-xs text-muted-foreground">Use your mouse or finger to draw your signature below.</p>
+              <SignaturePad onSignatureChange={setSignatureImage} />
             </div>
             <div className="flex items-start gap-3 pt-2">
               <Checkbox
