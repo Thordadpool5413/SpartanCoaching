@@ -50,7 +50,7 @@ import {
   type SelectCaseStudy,
 } from "@shared/schema";
 import { db } from "./db";
-import { desc, eq, gte, count } from "drizzle-orm";
+import { desc, eq, gte, count, ilike } from "drizzle-orm";
 
 // Storage interface for CRUD operations
 export interface IStorage {
@@ -97,6 +97,7 @@ export interface IStorage {
   // Resource lead operations
   captureResourceLead(lead: InsertResourceLead): Promise<SelectResourceLead>;
   getResourceLeads(): Promise<SelectResourceLead[]>;
+  isNewResourceLeadEmail(email: string): Promise<boolean>;
   // Usage event tracking
   trackUsageEvent(event: InsertUsageEvent): Promise<SelectUsageEvent>;
   getUsageEvents(): Promise<SelectUsageEvent[]>;
@@ -462,6 +463,11 @@ export class DatabaseStorage implements IStorage {
 
   async getResourceLeads(): Promise<SelectResourceLead[]> {
     return await db.select().from(resourceLeads).orderBy(desc(resourceLeads.capturedAt));
+  }
+
+  async isNewResourceLeadEmail(email: string): Promise<boolean> {
+    const existing = await db.select({ id: resourceLeads.id }).from(resourceLeads).where(ilike(resourceLeads.email, email.trim())).limit(1);
+    return existing.length === 0;
   }
 
   async trackUsageEvent(event: InsertUsageEvent): Promise<SelectUsageEvent> {

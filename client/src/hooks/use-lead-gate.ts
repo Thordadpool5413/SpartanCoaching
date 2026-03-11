@@ -105,15 +105,12 @@ export function useLeadGate(toolName: string) {
     if (!nameVal.trim() || !emailVal.trim()) return;
     setIsPending(true);
     const lead = { name: nameVal.trim(), email: emailVal.trim() };
-    const isFirstTime = !getStoredLead();
 
     storeLead(lead);
 
     trackUsage(lead.name, lead.email, toolName).catch(() => {});
 
-    if (isFirstTime) {
-      await submitLead(lead.name, lead.email, toolName);
-    }
+    await submitLead(lead.name, lead.email, toolName);
 
     const getEmailPdfFn = pendingEmailPdfRef.current;
     if (getEmailPdfFn) {
