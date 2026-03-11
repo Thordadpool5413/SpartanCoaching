@@ -247,7 +247,7 @@ export default function Home() {
                 e.preventDefault();
                 handleAskSubmit(askQuery);
               }}
-              className="flex flex-nowrap items-center gap-2"
+              className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2"
             >
               <div className="flex-1 flex items-center gap-2 rounded-lg border-2 border-border bg-card p-2 shadow-lg focus-within:border-primary transition-colors">
                 <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-muted-foreground ml-1 flex-shrink-0" />
@@ -263,7 +263,7 @@ export default function Home() {
               <Button
                 type="submit"
                 disabled={askLoading || !askQuery.trim()}
-                className="font-bold px-6"
+                className="font-bold px-6 w-full sm:w-auto"
                 data-testid="button-ask-submit"
                 aria-label="Submit question"
               >

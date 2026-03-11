@@ -395,7 +395,7 @@ export function Header() {
                 aria-label="Search pages and tools"
               />
             </div>
-            <div className="max-h-[400px] overflow-y-auto space-y-1">
+            <div className="max-h-[40dvh] overflow-y-auto space-y-1">
               {filteredResults.length === 0 ? (
                 <div className="text-center py-8 text-muted-foreground" data-testid="text-no-results">
                   No results found

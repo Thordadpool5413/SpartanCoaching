@@ -162,7 +162,7 @@ export default function Tools() {
                 <p className="text-body text-muted-foreground leading-relaxed flex-1 mb-6">
                   {tool.description}
                 </p>
-                <Button asChild className="w-full font-bold touch-manipulation py-3" size="lg">
+                <Button asChild className="w-full font-bold touch-manipulation py-3 min-h-[44px]" size="lg">
                   <Link href={tool.path} data-testid={`button-tool-${idx}`} aria-label={`Launch ${tool.title}`}>
                     Launch Tool
                   </Link>

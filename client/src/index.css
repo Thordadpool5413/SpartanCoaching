@@ -89,6 +89,29 @@
 @tailwind components;
 @tailwind utilities;
 
+/* iOS input zoom prevention — ensures all form inputs are ≥16px on mobile */
+@media (max-width: 768px) {
+  input,
+  textarea,
+  select,
+  input[type="text"],
+  input[type="email"],
+  input[type="tel"],
+  input[type="number"],
+  input[type="search"],
+  input[type="password"],
+  input[type="url"] {
+    font-size: 16px !important;
+  }
+}
+
+/* Bottom padding for page content to clear stacked sticky buttons on mobile */
+@media (max-width: 767px) {
+  main {
+    padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px));
+  }
+}
+
 /* Global Mobile Enhancements */
 :root {
   --vh: 1vh;
@@ -507,6 +530,30 @@ body {
       top: 0;
       z-index: 50;
       background: var(--background);
+    }
+
+    /* Ensure horizontal-scroll tables don't cause full-page overflow */
+    .overflow-x-auto {
+      -webkit-overflow-scrolling: touch;
+      max-width: 100%;
+    }
+  }
+
+  /* Sub-breakpoint for very narrow screens (iPhone SE, iPhone mini) */
+  @media (max-width: 430px) {
+    .text-hero {
+      font-size: 2rem !important;
+      line-height: 1.1 !important;
+    }
+
+    .text-h1 {
+      font-size: 1.75rem !important;
+      line-height: 1.15 !important;
+    }
+
+    .text-h2 {
+      font-size: 1.5rem !important;
+      line-height: 1.2 !important;
     }
   }
 

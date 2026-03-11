@@ -856,8 +856,8 @@ export default function BranchProfitability() {
                 </ResponsiveContainer>
               </div>
 
-              <div className="overflow-x-auto">
-                <table className="w-full text-xs" data-testid="table-runway">
+              <div className="overflow-x-auto -mx-2 px-2">
+                <table className="w-full text-xs min-w-[480px]" data-testid="table-runway">
                   <thead>
                     <tr className="border-b border-border">
                       <th className="text-left pb-2 font-semibold text-muted-foreground">Mo</th>
@@ -988,8 +988,8 @@ export default function BranchProfitability() {
                 <Users className="w-5 h-5 text-primary" />
                 <h2 className="text-base font-bold">Required Staffing at ADC {inputs.adc}</h2>
               </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm" data-testid="table-staffing">
+              <div className="overflow-x-auto -mx-2 px-2">
+                <table className="w-full text-sm min-w-[480px]" data-testid="table-staffing">
                   <thead>
                     <tr className="border-b border-border">
                       <th className="text-left pb-2 font-semibold text-muted-foreground">Role</th>

@@ -260,7 +260,7 @@ function ChatWidgetContent() {
                 variant="outline"
                 size="sm"
                 onClick={() => setInput(suggestion)}
-                className={cn("text-xs text-left justify-start", isMobile ? "w-full" : "whitespace-nowrap shrink-0")}
+                className={cn("text-xs text-left justify-start", isMobile ? "w-full min-h-[44px]" : "whitespace-nowrap shrink-0")}
                 data-testid={`button-suggestion-${suggestion.slice(0, 20)}`}
               >
                 {suggestion}
@@ -306,7 +306,7 @@ function ChatWidgetContent() {
         )}
         style={{
           position: 'fixed',
-          bottom: isMobile ? 'calc(16px + env(safe-area-inset-bottom, 0px))' : '32px',
+          bottom: isMobile ? 'calc(20px + env(safe-area-inset-bottom, 0px))' : '32px',
           right: isMobile ? 'calc(16px + env(safe-area-inset-right, 0px))' : '32px',
           zIndex: 50,
         }}
