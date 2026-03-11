@@ -1,8 +1,8 @@
 import OpenAI from "openai";
 
-// Using gpt-4o model for chat completions
+// Using gpt-4.1 model for chat completions
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-const MODEL = "gpt-4o";
+const MODEL = "gpt-4.1";
 
 /**
  * Hospice sales coaching system instruction for all AI interactions
@@ -164,7 +164,7 @@ export async function generateGroundedSearch(query: string): Promise<{
 }> {
   try {
     const response = await (openai as any).responses.create({
-      model: "gpt-4o",
+      model: MODEL,
       tools: [{ type: "web_search_preview" }],
       instructions: `You are a hospice industry research assistant. Provide accurate, well-researched information about hospice care, Medicare regulations, sales strategies, and industry best practices. Structure your answer clearly with key findings, practical implications, and relevant facts. Use web search to find the most current and accurate information.`,
       input: `Research this hospice sales question and provide a detailed, well-researched answer with specific facts and best practices: ${query}`,
