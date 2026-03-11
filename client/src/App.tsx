@@ -61,6 +61,7 @@ const Contact = lazy(() => import("@/pages/Contact"));
 const Manifesto = lazy(() => import("@/pages/Manifesto"));
 const Assessment = lazy(() => import("@/pages/Assessment"));
 const AssessmentPrint = lazy(() => import("@/pages/AssessmentPrint"));
+const AssessmentResultsPDF = lazy(() => import("@/pages/AssessmentResultsPDF"));
 const SignAgreements = lazy(() => import("@/pages/SignAgreements"));
 
 
@@ -168,6 +169,7 @@ function Router() {
           <Route path="/manifesto" component={Manifesto} />
           <Route path="/assessment/:id/print" component={AssessmentPrint} />
           <Route path="/assessment/:id" component={Assessment} />
+          <Route path="/assessment-results/:submissionId" component={AssessmentResultsPDF} />
           <Route path="/sign/:token" component={SignAgreements} />
           <Route component={NotFound} />
         </Switch>

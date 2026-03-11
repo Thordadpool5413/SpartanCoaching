@@ -2064,108 +2064,232 @@ The single most important skill to work on before the next conversation.`,
             answer: (answers as Record<string, string>)[String(q.id)] || "(No response)",
           }));
 
-          const systemPrompt = `You are Nick Lynch, founder of Spartan Hospice Coaching. You have spent over a decade in the hospice industry — first as a field sales rep, then as a sales manager, and now as the founder of the Spartan Method, the most results-focused hospice sales coaching system in the country. You have hired, trained, and evaluated hundreds of hospice sales representatives and you know exactly what separates a top performer from a rep who will churn out in six months.
+          const systemPrompt = `You are Nick Lynch, founder of Spartan Hospice Coaching — the most results-focused hospice sales training system in the country. You spent years in the field as a hospice sales rep and manager before founding Spartan Coaching to train high-performance reps and help hospice organizations grow census systematically. You have personally coached and evaluated hundreds of hospice sales reps. You know this industry inside and out, and you know the difference between someone who can talk sales and someone who can actually move census in a hospice territory.
 
-THE SPARTAN METHOD — What you believe and what you evaluate against:
+You evaluate candidates with the precision of a seasoned practitioner, not an HR checkbox. You are honest, direct, and specific. You reference what candidates actually said — not what you hoped they would say.
 
-The Spartan Method is built on one foundational truth: hospice sales success comes from consistent, intentional presence backed by genuine value delivery — not from volume, speed, or clever pitching. Your core principles:
+==============================================================================
+THE SPARTAN METHOD — FULL PHILOSOPHY AND EVALUATION FRAMEWORK
+==============================================================================
 
-1. RELATIONSHIP-FIRST, ALWAYS. The rep who shows up to every visit with something of value — a clinical insight, a patient outcome story, a resource, an idea — and who genuinely cares about the referral source's patients and challenges will always outlast the rep who leads with a pitch or a price advantage. Hospice referral sources are emotionally invested in their patients. They need to trust that the hospice rep understands that weight.
+CORE TRUTH: Hospice sales success is not about charm, territory size, or clinical features. It comes from one thing: consistent, intentional presence backed by genuine value delivery. Reps who show up with a purpose every single time — and who deeply understand the emotional world of their referral sources — build referral relationships that last. Reps who rely on pitching, price, or personality alone wash out.
 
-2. CONSISTENCY IS THE COMPETITIVE ADVANTAGE. The most powerful thing a rep can do is show up reliably, add value every time, and never go dark after a referral. Most reps disappear between referrals. The Spartan rep shows up more after a referral, not less — to close the loop, report on the patient's experience, and reinforce the referral source's decision. This builds the kind of loyalty that competitors cannot buy.
+--------------------------------------------------------------------
+1. RELATIONSHIP-FIRST SELLING
+--------------------------------------------------------------------
+Every Spartan rep earns the right to ask for a referral. They do not demand it, imply it, or expect it because they showed up with donuts. They earn it by: (a) understanding the referral source's patient population deeply, (b) bringing something of clinical or operational value to every visit — not just a business card — and (c) following through on every commitment they make.
 
-3. TERRITORY MANAGEMENT IS A SYSTEM, NOT AD HOC COVERAGE. Strong reps have a tiered account structure: Tier 1 accounts (highest volume, deepest relationship) get weekly contact. Tier 2 accounts (growth potential) get bi-weekly contact. Tier 3 accounts (awareness only) get monthly or less. Reps must be able to articulate how they prioritize and why. Reps who say they "try to hit everyone" have no system and will fail.
+When a Spartan rep walks into a skilled nursing facility, they already know: which nurses are carrying the heaviest patient loads, which patients on that floor are likely eligible for hospice, what the DON's biggest clinical frustration is this week, and what they promised to bring on the last visit. This is relationship-first selling — not transactional back-slapping.
 
-4. HOSPICE SALES REQUIRES EMOTIONAL INTELLIGENCE THAT IS RARE. Families who say "we're not ready to give up" are not objecting to hospice — they are expressing fear about what hospice means. A skilled rep knows that reframing hospice as a way to maximize quality of life, not abandon hope, is the key to those conversations. A rep who treats this as a standard sales objection to overcome will damage the referral source's trust and the family's experience.
+A strong candidate demonstrates they lead with curiosity, not a pitch. When challenged ("I already work with a hospice," "I don't see a difference between you"), the Spartan response is always a question first: "What do you value most in a hospice partner right now?" or "What does that relationship do well for you?" Only after listening does a Spartan rep differentiate.
 
-5. METRICS THAT MATTER. The Spartan Method measures meaningful face-to-face contacts per week, not total calls or email touches. A rep who averages 8-12 meaningful in-person visits per week, tiered correctly across their territory, will grow census. A rep who makes 40 calls a week from their car will not.
+--------------------------------------------------------------------
+2. CONSISTENCY IS THE ONLY COMPETITIVE MOAT
+--------------------------------------------------------------------
+The most powerful thing a rep can do is be more present after a referral than before. Most reps disappear between referrals and reappear only when they need something. The Spartan rep closes the loop on every patient — reporting back to the referral source on how the patient and family are doing — and uses that touchpoint to deepen the relationship, not to ask for another referral.
 
-6. COMPETITIVE HANDLING: NEVER ATTACK, ALWAYS DIFFERENTIATE. When a competitor is named, the Spartan rep asks what the referral source values in that relationship — then demonstrates, over time, that they deliver more of exactly that. They never speak negatively about a competitor. They never try to win on price or turnaround time alone. They win by being more present, more knowledgeable, and more trustworthy.
+This post-referral follow-through is what builds loyalty that competitors cannot buy. A strong candidate understands this instinctively or can articulate it clearly when prompted. Candidates who see follow-up as optional, or who only discuss pre-referral activity, are showing a fundamental gap.
 
-7. RED FLAGS THAT ELIMINATE CANDIDATES IMMEDIATELY:
-   - Leading with "we're faster" or "we're cheaper" or "we're better than XYZ hospice"
-   - Answering a relational problem with a transactional solution
-   - Giving vague strategic answers like "I would build relationships" without any specifics
-   - Showing no understanding of why families resist hospice or how to handle it with empathy
-   - No account prioritization logic whatsoever — treating all accounts equally
-   - Using HIPAA violations or compliance failures as bargaining chips or competitive leverage
+--------------------------------------------------------------------
+3. TERRITORY MANAGEMENT AS A SYSTEM
+--------------------------------------------------------------------
+Spartan reps manage their territory with a tiered account structure. Every account is classified:
 
-8. WHAT GREAT CANDIDATES LOOK LIKE:
-   - They ask before they pitch. When challenged, they lead with curiosity: "What do you value most in a hospice partner right now?"
-   - They have a specific, executable plan — not buzzwords
-   - They understand the emotional stakes of hospice for patients, families, and clinicians
-   - They can reframe "giving up" into "choosing comfort" in a way that feels genuine, not scripted
-   - They think in systems: tiered territories, weekly rhythms, post-referral follow-through
-   - They are coachable and self-aware about gaps in their knowledge
+TIER 1 — High-volume, high-relationship accounts. Weekly in-person contact minimum. These accounts receive the most preparation before each visit and the most follow-through after.
+TIER 2 — Growth-potential accounts. Bi-weekly in-person contact. These are accounts with referral volume that hasn't been unlocked yet.
+TIER 3 — Awareness accounts. Monthly or less. These are accounts being maintained while the rep focuses energy on Tier 1 and Tier 2.
 
-SCORING TIERS:
-- 85-100: Strong Hire. Deep hospice knowledge, Spartan Method mindset, specific and executable. Nick should move fast.
-- 70-84: Solid Candidate. Right instincts, some gaps in specificity or hospice depth. Worth a second conversation.
-- 50-69: Development Needed. Potential exists but the candidate needs significant coaching before they can run a territory independently.
-- 0-49: Not Ready. Generic sales thinking, no hospice context, or behaviors that would actively damage referral relationships.`;
+Strong candidates can articulate how they determine account tiers — referral volume potential, patient population fit, relationship warmth, competitive landscape. Weak candidates say things like "I would try to cover everyone equally" or "I'd focus on whoever is most responsive." No system = failure in this industry.
 
-          const prompt = `Evaluate this candidate's scenario responses for a hospice sales representative position.
+Spartan activity metrics that matter:
+- 8 to 12 meaningful face-to-face visits per week (not calls, not emails)
+- At least one value-added touchpoint per visit (clinical resource, patient outcome story, education, feedback loop from prior referral)
+- Post-referral follow-through within 48 hours of patient admission
+- Re-engagement plan for cold accounts: what specific value will re-open the door?
+
+--------------------------------------------------------------------
+4. HOSPICE-SPECIFIC EMOTIONAL INTELLIGENCE
+--------------------------------------------------------------------
+This is what separates hospice sales from every other form of healthcare sales. Families who say "we're not ready to give up" are not objecting to hospice — they are expressing fear based on a fundamental misunderstanding of what hospice is. They believe hospice means:
+- Giving up on their loved one
+- The doctor has stopped caring
+- Death is imminent and being accelerated
+
+A skilled hospice sales rep — and a skilled discharge planner they coach — knows how to reframe without minimizing:
+- "Hospice isn't about giving up. It's about making sure your mom gets the most out of whatever time she has — with expert symptom management, emotional support, and a team that's focused entirely on her comfort and your family's well-being."
+- "Choosing hospice doesn't mean stopping treatment — it means choosing a different kind of care that's focused on quality of life."
+- "The research actually shows that patients on hospice often live longer than those who continue aggressive curative treatment, because their symptoms are managed better and their stress is lower."
+
+Candidates who treat "not ready to give up" as a standard sales objection to overcome — rather than a deeply human fear to address with compassion — will damage referral relationships and patient experiences.
+
+Referral sources (especially nurses, social workers, and discharge planners) carry the emotional weight of recommending hospice to families. They need to trust that the rep they send to support those conversations will handle them with care. A rep who pushes, pressures, or sells to families has permanently burned that referral source.
+
+--------------------------------------------------------------------
+5. COMPETITIVE HANDLING
+--------------------------------------------------------------------
+The Spartan rep never attacks a competitor. Never. Not explicitly, not implicitly, not by suggesting "we have fewer complaints" or "I've heard they've had quality issues." Any competitive attack — even a truthful one — makes the rep look insecure and makes the referral source uncomfortable.
+
+Instead: ask what the referral source values in their current hospice relationship. Listen fully. Then demonstrate, over time, that you deliver more of exactly that. Consistent presence + value delivery always wins over pitch-based selling.
+
+When a competitor spreads false information (HIPAA rumors, quality allegations), the Spartan response is:
+1. Stay calm. Thank the referral source for telling you.
+2. Acknowledge the concern professionally: "I understand why you'd want to know if that's true. Here's what I can tell you directly..."
+3. Address it factually, briefly, and without attacking the competitor.
+4. Involve your organization's compliance or leadership team to respond formally if needed.
+5. Use the incident as an opportunity to deepen trust: you handled it with professionalism, not panic.
+
+--------------------------------------------------------------------
+6. WHAT ELITE CANDIDATES LOOK LIKE (AND WHAT WEAK ONES LOOK LIKE)
+--------------------------------------------------------------------
+STRONG SIGNALS:
+- Leads with a question when challenged, not a pitch
+- Has a specific, tiered account management plan — not "I'd cover the territory"
+- Understands why families resist hospice and frames their response with genuine compassion, not a rebuttal
+- Post-referral follow-through is instinctive — they mention it without being prompted
+- Self-aware about gaps and coachable about feedback
+- Speaks about referral sources as people, not targets
+- Gives specific examples of what "value" means in their visits (not just "building relationships")
+- Thinks in systems, cadences, and rhythms
+
+RED FLAGS THAT ELIMINATE CANDIDATES:
+- "I would differentiate on faster admissions" — transactional thinking that will fail
+- "I'd explain why we're better than their current hospice" — combative, non-relational
+- No mention of asking questions before pitching
+- Vague strategy: "I would stay consistent and build trust" with no specifics on how
+- No understanding of why families resist hospice; treats it as a standard objection
+- Suggests spreading false information about a competitor or retaliating
+- No post-referral follow-through instinct
+- No account prioritization logic — treating all accounts the same
+
+COACHABILITY SIGNALS (important for Solid Candidates):
+- Acknowledges uncertainty or gaps: "I would need to learn more about..."
+- Shows intellectual curiosity about hospice: asks about things outside their experience
+- Frames past failures as learning moments
+- Welcomes feedback or probing without becoming defensive
+- Demonstrates a growth mindset about sales craft
+
+==============================================================================
+SCORING TIERS
+==============================================================================
+85-100: STRONG HIRE. Deep hospice knowledge, Spartan Method alignment, specific and executable thinking. Nick should move fast.
+70-84: SOLID CANDIDATE. Right instincts, some gaps in specificity or hospice depth. Coachable. Worth a focused second conversation.
+50-69: DEVELOPMENT NEEDED. Has potential but needs significant coaching before running a territory independently. Consider only if other factors are very strong.
+0-49: NOT READY. Generic sales thinking, no hospice context, or behaviors that would actively damage referral relationships in the field.`;
+
+          const prompt = `Evaluate this candidate's full assessment responses for a hospice sales representative position.
 
 ASSESSMENT: "${assessment.name}"
-CANDIDATE: ${candidateName}
+CANDIDATE NAME: ${candidateName}
+CANDIDATE EMAIL: ${candidateEmail}
 
-## SCORING CRITERIA (100 points total)
+==============================================================================
+QUIZ PERFORMANCE
+==============================================================================
+Quiz Score: ${quizScore !== null ? `${quizScore}%` : "Not calculated"}
 
-**1. Hospice Industry Knowledge (25 pts)**
-Real understanding of: Medicare Hospice Benefit mechanics, what makes a patient eligible, why facilities refer and stop referring, how length of stay signals quality to referral sources, and the clinical-emotional weight hospice carries for patients and families. Generic healthcare sales answers with no hospice context = 0-5 pts here.
+Note: Review what quiz score implies. A candidate with deep field experience may perform differently than a candidate with strong theoretical knowledge. Consider the quiz score as context — the scenario responses are the primary evaluation signal.
 
-**2. Relationship-First Selling and Spartan Method Alignment (25 pts)**
-Does the candidate lead with curiosity before pitching? Do they ask what the referral source values before offering solutions? Do they show they understand that trust is built over many consistent visits — not won on a single pitch? Red flags: leading with price, speed, or competitor comparisons. Strong signals: discovery questions, patience, the instinct to listen first.
+==============================================================================
+SCENARIO RESPONSES TO EVALUATE
+==============================================================================
 
-**3. Empathy and Hospice-Specific Communication (25 pts)**
-Hospice is unlike any other healthcare sales because it touches families at the hardest moment of their lives. Does the candidate demonstrate they understand this? Can they guide a discharge planner through a resistant-family conversation with compassion rather than pressure? Do they know how to reframe "giving up" into "choosing comfort" in a way that feels authentic? Candidates who treat this like a standard sales objection score low.
-
-**4. Strategic Thinking and Territory Execution (25 pts)**
-Does the candidate have a real, specific, executable plan — or buzzwords? Look for: account tiering logic, weekly rhythm, how they track progress, how they re-engage cold accounts, how they handle competitive threats. Strong candidates are specific. Weak candidates say "I would stay consistent and build trust" without explaining what that looks like on a Tuesday morning.
-
-## CANDIDATE SCENARIO RESPONSES
-
-${scenarioResponses.map((sr, i) => `### Scenario ${i + 1}
+${scenarioResponses.map((sr, i) => `SCENARIO ${i + 1}
 Question: ${sr.question}
-Candidate's Response: ${sr.answer}`).join("\n\n")}
 
-## REQUIRED OUTPUT FORMAT
+Candidate's Response:
+${sr.answer}
 
-Return ONLY valid JSON in this exact structure. No markdown code blocks. No extra text before or after. Just the raw JSON object:
+---`).join("\n\n")}
+
+==============================================================================
+SCORING CRITERIA (100 points total across 4 categories)
+==============================================================================
+
+1. HOSPICE INDUSTRY KNOWLEDGE (25 pts)
+Real depth in: Medicare Hospice Benefit mechanics (6-month prognosis, physician certifications, benefit periods, what's covered), why facilities refer and stop referring, how length of stay reflects quality back to the referral source, and the clinical-emotional weight of end-of-life care. Generic healthcare sales answers with no hospice-specific knowledge = 0-8 pts. Solid foundational knowledge = 9-17 pts. Deep mastery with nuanced application = 18-25 pts.
+
+2. RELATIONSHIP-FIRST SELLING AND SPARTAN ALIGNMENT (25 pts)
+Leading with curiosity, asking before pitching, demonstrating that referral trust is earned over time through value and consistency — not won on a single visit. Post-referral follow-through instinct. Red flag: any transactional or price-based differentiation. Strong: specific discovery questions, patience, the instinct to listen before responding.
+
+3. EMPATHY AND HOSPICE-SPECIFIC COMMUNICATION (25 pts)
+Understanding that "not ready to give up" is fear, not objection. Ability to guide resistant families with compassion. Awareness that referral sources carry emotional weight about end-of-life conversations and need a rep they trust to handle families with care. Treats this as a human challenge, not a sales problem.
+
+4. STRATEGIC THINKING AND TERRITORY EXECUTION (25 pts)
+Tiered account management, specific weekly cadence, executable plans. Ability to re-engage cold accounts with a specific value-driven approach. Competitive handling that differentiates without attacking. Strong = very specific, system-driven, measurable. Weak = buzzwords and platitudes with no operational specifics.
+
+==============================================================================
+REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
+==============================================================================
 
 {
-  "overallScore": <number 0-100>,
+  "overallScore": <number 0-100, weighted 60% scenario / 40% quiz if quiz data exists>,
+  "fieldReadinessScore": <number 0-100, your assessment of how ready this person is to work a territory TODAY — separate from their learning potential>,
   "categoryScores": {
     "hospiceKnowledge": <number 0-25>,
     "relationshipSelling": <number 0-25>,
     "empathyCommunication": <number 0-25>,
     "strategicExecution": <number 0-25>
   },
-  "tier": "<one of: Strong Hire | Solid Candidate | Development Needed | Not Ready>",
+  "tier": "<Strong Hire | Solid Candidate | Development Needed | Not Ready>",
+  "quizAnalysis": "<1-2 sentences interpreting the quiz score in context of their scenario performance — are they consistent or is there a gap?>",
+  "standoutQualities": [
+    "<the single most impressive thing about this candidate's responses — be specific>",
+    "<second standout quality if one exists>"
+  ],
   "strengths": [
-    "<specific strength observed, referencing what the candidate actually said>",
+    "<specific strength directly referencing something the candidate wrote>",
     "<specific strength>",
     "<specific strength>"
   ],
   "developmentAreas": [
-    "<specific gap or weakness, with what a stronger answer would have included>",
+    "<specific gap, what they said or failed to say, and what a stronger answer would have included>",
     "<specific gap>",
     "<specific gap>"
+  ],
+  "redFlags": [
+    "<any immediate disqualifier observed — be specific about what they said. Empty array if none.>"
+  ],
+  "coachabilitySignals": [
+    "<evidence of self-awareness, intellectual curiosity, or growth mindset in their responses. Empty array if none observed.>"
   ],
   "scenarioFeedback": [
     {
       "scenarioNumber": 1,
-      "title": "<3-5 word label for this scenario>",
-      "feedback": "<2-4 sentences of specific feedback referencing what the candidate said or failed to say>"
+      "title": "<4-6 word label>",
+      "feedback": "<3-5 sentences of specific, practitioner-level feedback referencing exactly what the candidate said or failed to say>",
+      "strongerAnswer": "<1-2 sentences describing what an elite candidate would have said or done differently>"
     }
   ],
-  "candidatePotential": "<2-3 sentences assessing this person's ceiling as a hospice sales rep — their upside if coached well, and what stands in the way>",
-  "objectionsToProbe": [
-    "<a specific follow-up question Nick should ask in a live interview to pressure-test a gap or assumption>",
-    "<follow-up question>",
-    "<follow-up question>"
+  "candidatePotential": "<3-4 sentences on this person's ceiling as a hospice rep — their upside if coached well, realistic timeline to productivity, what will determine whether they succeed or wash out>",
+  "interviewGuide": [
+    {
+      "question": "<specific question Nick should ask in a live interview>",
+      "intent": "<why — what gap or assumption this question is designed to pressure-test>"
+    },
+    {
+      "question": "<second question>",
+      "intent": "<why>"
+    },
+    {
+      "question": "<third question>",
+      "intent": "<why>"
+    }
   ],
-  "hiringRecommendation": "<1-2 direct sentences telling Nick exactly what to do with this candidate and why>"
+  "developmentPlan": [
+    {
+      "focus": "<specific skill or knowledge area to develop>",
+      "action": "<concrete coaching action Nick can take or assign>"
+    },
+    {
+      "focus": "<second focus>",
+      "action": "<action>"
+    },
+    {
+      "focus": "<third focus>",
+      "action": "<action>"
+    }
+  ],
+  "hiringRecommendation": "<2-3 direct sentences telling Nick exactly what to do with this candidate, with your honest reasoning. Be a practitioner, not a diplomat.>"
 }`;
 
           const { generateComplexResponse } = await import("./openai");
@@ -2246,6 +2370,20 @@ Return ONLY valid JSON in this exact structure. No markdown code blocks. No extr
       res.json({ submissions });
     } catch (error: any) {
       res.status(500).json({ error: error.message || "Failed to fetch submissions" });
+    }
+  });
+
+  app.get("/api/submissions/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+      const submission = await storage.getAssessmentSubmission(id);
+      if (!submission) return res.status(404).json({ error: "Submission not found" });
+      const assessment = await storage.getAssessment(submission.assessmentId);
+      const questions = await storage.getAssessmentQuestions(submission.assessmentId);
+      res.json({ submission, assessment, questions });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to fetch submission" });
     }
   });
 

@@ -2733,11 +2733,11 @@ export default function Admin() {
                           <div className="space-y-2">
                             {assessmentSubmissions.map((sub) => (
                               <div key={sub.id} className="border rounded-md" data-testid={`submission-${sub.id}`}>
-                                <div
-                                  className="flex items-center justify-between gap-3 p-3 cursor-pointer flex-wrap"
-                                  onClick={() => setExpandedSubmissionId(expandedSubmissionId === sub.id ? null : sub.id)}
-                                >
-                                  <div className="flex items-center gap-3 flex-wrap">
+                                <div className="flex items-center justify-between gap-3 p-3 flex-wrap">
+                                  <div
+                                    className="flex items-center gap-3 flex-wrap flex-1 cursor-pointer"
+                                    onClick={() => setExpandedSubmissionId(expandedSubmissionId === sub.id ? null : sub.id)}
+                                  >
                                     <div>
                                       <p className="text-sm font-medium text-foreground">{sub.candidateName}</p>
                                       <p className="text-xs text-muted-foreground">{sub.candidateEmail}</p>
@@ -2751,22 +2751,37 @@ export default function Admin() {
                                     >
                                       {sub.overallScore ?? 0}%
                                     </Badge>
+                                    {sub.aiFeedback && (() => { try { const d = JSON.parse(sub.aiFeedback!); return d.tier ? <Badge variant="outline" className="text-xs">{d.tier}</Badge> : null; } catch { return null; } })()}
                                   </div>
-                                  <div className="flex items-center gap-3 flex-wrap">
+                                  <div className="flex items-center gap-2 flex-wrap">
                                     {sub.quizScore !== null && (
                                       <span className="text-xs text-muted-foreground">Quiz: {sub.quizScore}%</span>
                                     )}
                                     {sub.aiScore !== null && (
-                                      <span className="text-xs text-muted-foreground">AI: {sub.aiScore}%</span>
+                                      <span className="text-xs text-muted-foreground">Scenario: {sub.aiScore}%</span>
                                     )}
                                     <span className="text-xs text-muted-foreground">
                                       {sub.completedAt ? new Date(sub.completedAt).toLocaleDateString() : ""}
                                     </span>
-                                    {expandedSubmissionId === sub.id ? (
-                                      <ChevronUp className="w-4 h-4 text-muted-foreground" />
-                                    ) : (
-                                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
-                                    )}
+                                    <Button
+                                      size="sm"
+                                      variant="outline"
+                                      onClick={e => { e.stopPropagation(); window.open(`/assessment-results/${sub.id}`, "_blank"); }}
+                                      data-testid={`button-download-pdf-${sub.id}`}
+                                    >
+                                      <Printer className="w-3.5 h-3.5 mr-1" />
+                                      PDF
+                                    </Button>
+                                    <button
+                                      className="p-1 text-muted-foreground hover:text-foreground"
+                                      onClick={() => setExpandedSubmissionId(expandedSubmissionId === sub.id ? null : sub.id)}
+                                    >
+                                      {expandedSubmissionId === sub.id ? (
+                                        <ChevronUp className="w-4 h-4" />
+                                      ) : (
+                                        <ChevronDown className="w-4 h-4" />
+                                      )}
+                                    </button>
                                   </div>
                                 </div>
                                 {expandedSubmissionId === sub.id && (() => {
@@ -2777,12 +2792,16 @@ export default function Admin() {
                                   <div className="border-t p-4 space-y-5">
                                     {isStructured ? (
                                       <>
-                                        <div className="flex items-center gap-2 flex-wrap">
+                                        <div className="flex items-center gap-3 flex-wrap">
                                           <Badge variant={aiData.overallScore >= 85 ? "default" : aiData.overallScore >= 70 ? "secondary" : "destructive"} className="text-sm px-3 py-1">
-                                            {aiData.tier ?? `${aiData.overallScore}/100`}
+                                            {aiData.tier}
                                           </Badge>
-                                          <span className="text-xs text-muted-foreground">{aiData.overallScore}/100 overall</span>
+                                          <span className="text-xs text-muted-foreground">{aiData.overallScore}/100 overall &bull; Field Readiness: {aiData.fieldReadinessScore ?? "—"}/100</span>
                                         </div>
+
+                                        {aiData.quizAnalysis && (
+                                          <p className="text-xs text-muted-foreground italic border-l-2 border-muted pl-3">{aiData.quizAnalysis}</p>
+                                        )}
 
                                         <div className="grid grid-cols-2 gap-2">
                                           {[
@@ -2803,42 +2822,80 @@ export default function Admin() {
                                           ))}
                                         </div>
 
-                                        {aiData.strengths?.length > 0 && (
-                                          <div>
-                                            <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">Strengths</h4>
+                                        {aiData.standoutQualities?.length > 0 && (
+                                          <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-md p-3">
+                                            <h4 className="text-xs font-bold uppercase tracking-wide text-green-700 dark:text-green-400 mb-2">Standout Qualities</h4>
+                                            {aiData.standoutQualities.map((s: string, i: number) => (
+                                              <p key={i} className="text-sm text-foreground">{s}</p>
+                                            ))}
+                                          </div>
+                                        )}
+
+                                        {aiData.redFlags?.length > 0 && (
+                                          <div className="bg-red-50 dark:bg-red-950/20 border border-red-200 dark:border-red-800 rounded-md p-3">
+                                            <h4 className="text-xs font-bold uppercase tracking-wide text-red-600 dark:text-red-400 mb-2">Red Flags</h4>
                                             <ul className="space-y-1.5">
-                                              {aiData.strengths.map((s: string, i: number) => (
+                                              {aiData.redFlags.map((f: string, i: number) => (
                                                 <li key={i} className="flex items-start gap-2 text-sm">
-                                                  <span className="text-green-600 dark:text-green-400 shrink-0 mt-0.5">+</span>
-                                                  <span>{s}</span>
+                                                  <span className="text-red-600 dark:text-red-400 shrink-0 font-bold">!</span>
+                                                  <span>{f}</span>
                                                 </li>
                                               ))}
                                             </ul>
                                           </div>
                                         )}
 
-                                        {aiData.developmentAreas?.length > 0 && (
+                                        <div className="grid grid-cols-2 gap-4">
+                                          {aiData.strengths?.length > 0 && (
+                                            <div>
+                                              <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">Strengths</h4>
+                                              <ul className="space-y-1.5">
+                                                {aiData.strengths.map((s: string, i: number) => (
+                                                  <li key={i} className="flex items-start gap-2 text-sm">
+                                                    <span className="text-green-600 dark:text-green-400 shrink-0 font-bold">+</span>
+                                                    <span>{s}</span>
+                                                  </li>
+                                                ))}
+                                              </ul>
+                                            </div>
+                                          )}
+                                          {aiData.developmentAreas?.length > 0 && (
+                                            <div>
+                                              <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">Development Areas</h4>
+                                              <ul className="space-y-1.5">
+                                                {aiData.developmentAreas.map((s: string, i: number) => (
+                                                  <li key={i} className="flex items-start gap-2 text-sm">
+                                                    <span className="text-amber-500 shrink-0 font-bold">-</span>
+                                                    <span>{s}</span>
+                                                  </li>
+                                                ))}
+                                              </ul>
+                                            </div>
+                                          )}
+                                        </div>
+
+                                        {aiData.coachabilitySignals?.length > 0 && (
                                           <div>
-                                            <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">Development Areas</h4>
-                                            <ul className="space-y-1.5">
-                                              {aiData.developmentAreas.map((s: string, i: number) => (
-                                                <li key={i} className="flex items-start gap-2 text-sm">
-                                                  <span className="text-amber-500 shrink-0 mt-0.5">-</span>
-                                                  <span>{s}</span>
-                                                </li>
+                                            <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">Coachability Signals</h4>
+                                            <div className="flex flex-wrap gap-2">
+                                              {aiData.coachabilitySignals.map((s: string, i: number) => (
+                                                <span key={i} className="bg-blue-50 dark:bg-blue-950/30 text-blue-700 dark:text-blue-300 border border-blue-200 dark:border-blue-800 rounded px-2 py-1 text-xs">{s}</span>
                                               ))}
-                                            </ul>
+                                            </div>
                                           </div>
                                         )}
 
                                         {aiData.scenarioFeedback?.length > 0 && (
                                           <div>
-                                            <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">Scenario-by-Scenario Feedback</h4>
-                                            <div className="space-y-3">
+                                            <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">Scenario Evaluation</h4>
+                                            <div className="space-y-2">
                                               {aiData.scenarioFeedback.map((sf: any, i: number) => (
                                                 <div key={i} className="bg-muted/40 rounded-md p-3">
                                                   <p className="text-xs font-semibold mb-1">Scenario {sf.scenarioNumber}: {sf.title}</p>
-                                                  <p className="text-sm text-muted-foreground">{sf.feedback}</p>
+                                                  <p className="text-sm text-muted-foreground mb-2">{sf.feedback}</p>
+                                                  {sf.strongerAnswer && (
+                                                    <p className="text-xs text-green-700 dark:text-green-400 bg-green-50 dark:bg-green-950/20 rounded px-2 py-1.5">Stronger answer: {sf.strongerAnswer}</p>
+                                                  )}
                                                 </div>
                                               ))}
                                             </div>
@@ -2852,17 +2909,34 @@ export default function Admin() {
                                           </div>
                                         )}
 
-                                        {aiData.objectionsToProbe?.length > 0 && (
+                                        {aiData.interviewGuide?.length > 0 && (
                                           <div>
-                                            <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">Follow-Up Questions to Probe in Interview</h4>
-                                            <ul className="space-y-1.5">
-                                              {aiData.objectionsToProbe.map((q: string, i: number) => (
-                                                <li key={i} className="flex items-start gap-2 text-sm">
-                                                  <span className="text-primary shrink-0 mt-0.5">?</span>
-                                                  <span>{q}</span>
-                                                </li>
+                                            <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">Interview Questions to Ask</h4>
+                                            <div className="space-y-2">
+                                              {aiData.interviewGuide.map((item: any, i: number) => (
+                                                <div key={i} className="border rounded-md p-2.5">
+                                                  <p className="text-sm font-medium mb-0.5">{item.question}</p>
+                                                  <p className="text-xs text-muted-foreground">Intent: {item.intent}</p>
+                                                </div>
                                               ))}
-                                            </ul>
+                                            </div>
+                                          </div>
+                                        )}
+
+                                        {aiData.developmentPlan?.length > 0 && (
+                                          <div>
+                                            <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">Coaching Plan</h4>
+                                            <div className="space-y-2">
+                                              {aiData.developmentPlan.map((item: any, i: number) => (
+                                                <div key={i} className="flex items-start gap-2 border rounded-md p-2.5">
+                                                  <span className="bg-violet-100 dark:bg-violet-900/30 text-violet-700 dark:text-violet-300 rounded px-1.5 py-0.5 text-xs font-bold shrink-0">FOCUS</span>
+                                                  <div>
+                                                    <p className="text-sm font-medium">{item.focus}</p>
+                                                    <p className="text-xs text-muted-foreground mt-0.5">{item.action}</p>
+                                                  </div>
+                                                </div>
+                                              ))}
+                                            </div>
                                           </div>
                                         )}
 
