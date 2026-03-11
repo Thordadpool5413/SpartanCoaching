@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Mail, Phone, Building, Calendar, Users, Lock, LogOut, Plus, Edit, Trash2, ExternalLink, Star, FileText as FileSignature, PlayCircle, Target, Quote, Award, ChevronDown, ChevronUp, Download, CheckCircle, Circle, Send, Loader2, ClipboardList, Copy, Link as LinkIcon } from "lucide-react";
+import { Mail, Phone, Building, Calendar, Users, Lock, LogOut, Plus, Edit, Trash2, ExternalLink, Star, FileText as FileSignature, PlayCircle, Target, Quote, Award, ChevronDown, ChevronUp, Download, CheckCircle, Circle, Send, Loader2, ClipboardList, Copy, Link as LinkIcon, Printer } from "lucide-react";
 import type { SelectInquiry, SelectNewsletterSubscriber, SelectArticle, InsertArticle, VisitorAnalytics, SelectResource, InsertResource, SelectPodcast, InsertPodcast, SelectSignedAgreement, SelectRoleplaySession, SelectDrillCompletion, SelectTestimonial, SelectCaseStudy, InsertTestimonial, InsertCaseStudy, SelectResourceLead, SelectAssessment, SelectAssessmentQuestion, SelectAssessmentSubmission, SelectAgreementRequest } from "@shared/schema";
 import type { SelectUsageEvent } from "@shared/schema";
 import { BackButton } from "@/components/BackButton";
@@ -2647,6 +2647,15 @@ export default function Admin() {
                       <Button
                         size="sm"
                         variant="outline"
+                        onClick={() => window.open(`/assessment/${a.id}/print`, "_blank")}
+                        data-testid={`button-print-assessment-${a.id}`}
+                      >
+                        <Printer className="w-4 h-4 mr-1.5" />
+                        Print
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
                         onClick={() => handleCopyAssessmentLink(a.id)}
                         data-testid={`button-copy-link-${a.id}`}
                       >
@@ -2760,21 +2769,124 @@ export default function Admin() {
                                     )}
                                   </div>
                                 </div>
-                                {expandedSubmissionId === sub.id && (
-                                  <div className="border-t p-4 space-y-4">
-                                    {sub.aiFeedback && (
+                                {expandedSubmissionId === sub.id && (() => {
+                                  let aiData: any = null;
+                                  try { aiData = sub.aiFeedback ? JSON.parse(sub.aiFeedback) : null; } catch { aiData = null; }
+                                  const isStructured = aiData && typeof aiData.overallScore === "number";
+                                  return (
+                                  <div className="border-t p-4 space-y-5">
+                                    {isStructured ? (
+                                      <>
+                                        <div className="flex items-center gap-2 flex-wrap">
+                                          <Badge variant={aiData.overallScore >= 85 ? "default" : aiData.overallScore >= 70 ? "secondary" : "destructive"} className="text-sm px-3 py-1">
+                                            {aiData.tier ?? `${aiData.overallScore}/100`}
+                                          </Badge>
+                                          <span className="text-xs text-muted-foreground">{aiData.overallScore}/100 overall</span>
+                                        </div>
+
+                                        <div className="grid grid-cols-2 gap-2">
+                                          {[
+                                            { label: "Hospice Knowledge", val: aiData.categoryScores?.hospiceKnowledge, max: 25 },
+                                            { label: "Relationship Selling", val: aiData.categoryScores?.relationshipSelling, max: 25 },
+                                            { label: "Empathy & Communication", val: aiData.categoryScores?.empathyCommunication, max: 25 },
+                                            { label: "Strategic Execution", val: aiData.categoryScores?.strategicExecution, max: 25 },
+                                          ].map(cat => (
+                                            <div key={cat.label} className="bg-muted/40 rounded-md p-2.5">
+                                              <p className="text-xs text-muted-foreground mb-1">{cat.label}</p>
+                                              <div className="flex items-center gap-2">
+                                                <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                                                  <div className="h-full bg-primary rounded-full" style={{ width: `${Math.round(((cat.val ?? 0) / cat.max) * 100)}%` }} />
+                                                </div>
+                                                <span className="text-xs font-semibold shrink-0">{cat.val ?? "—"}/{cat.max}</span>
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </div>
+
+                                        {aiData.strengths?.length > 0 && (
+                                          <div>
+                                            <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">Strengths</h4>
+                                            <ul className="space-y-1.5">
+                                              {aiData.strengths.map((s: string, i: number) => (
+                                                <li key={i} className="flex items-start gap-2 text-sm">
+                                                  <span className="text-green-600 dark:text-green-400 shrink-0 mt-0.5">+</span>
+                                                  <span>{s}</span>
+                                                </li>
+                                              ))}
+                                            </ul>
+                                          </div>
+                                        )}
+
+                                        {aiData.developmentAreas?.length > 0 && (
+                                          <div>
+                                            <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">Development Areas</h4>
+                                            <ul className="space-y-1.5">
+                                              {aiData.developmentAreas.map((s: string, i: number) => (
+                                                <li key={i} className="flex items-start gap-2 text-sm">
+                                                  <span className="text-amber-500 shrink-0 mt-0.5">-</span>
+                                                  <span>{s}</span>
+                                                </li>
+                                              ))}
+                                            </ul>
+                                          </div>
+                                        )}
+
+                                        {aiData.scenarioFeedback?.length > 0 && (
+                                          <div>
+                                            <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">Scenario-by-Scenario Feedback</h4>
+                                            <div className="space-y-3">
+                                              {aiData.scenarioFeedback.map((sf: any, i: number) => (
+                                                <div key={i} className="bg-muted/40 rounded-md p-3">
+                                                  <p className="text-xs font-semibold mb-1">Scenario {sf.scenarioNumber}: {sf.title}</p>
+                                                  <p className="text-sm text-muted-foreground">{sf.feedback}</p>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        )}
+
+                                        {aiData.candidatePotential && (
+                                          <div>
+                                            <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">Candidate Potential</h4>
+                                            <p className="text-sm text-muted-foreground">{aiData.candidatePotential}</p>
+                                          </div>
+                                        )}
+
+                                        {aiData.objectionsToProbe?.length > 0 && (
+                                          <div>
+                                            <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-2">Follow-Up Questions to Probe in Interview</h4>
+                                            <ul className="space-y-1.5">
+                                              {aiData.objectionsToProbe.map((q: string, i: number) => (
+                                                <li key={i} className="flex items-start gap-2 text-sm">
+                                                  <span className="text-primary shrink-0 mt-0.5">?</span>
+                                                  <span>{q}</span>
+                                                </li>
+                                              ))}
+                                            </ul>
+                                          </div>
+                                        )}
+
+                                        {aiData.hiringRecommendation && (
+                                          <div className="bg-muted/40 rounded-md p-3">
+                                            <h4 className="text-xs font-bold uppercase tracking-wide text-muted-foreground mb-1.5">Hiring Recommendation</h4>
+                                            <p className="text-sm font-medium">{aiData.hiringRecommendation}</p>
+                                          </div>
+                                        )}
+                                      </>
+                                    ) : sub.aiFeedback ? (
                                       <div>
-                                        <h4 className="text-sm font-semibold mb-2">AI Feedback</h4>
+                                        <h4 className="text-sm font-semibold mb-2">AI Evaluation</h4>
                                         <div className="text-sm text-muted-foreground whitespace-pre-wrap bg-muted/50 p-3 rounded-md">
                                           {sub.aiFeedback}
                                         </div>
                                       </div>
-                                    )}
+                                    ) : null}
+
                                     {(sub.answers != null && typeof sub.answers === "object") ? (() => {
                                       const answersObj = sub.answers as Record<string, string>;
                                       return (
                                         <div>
-                                          <h4 className="text-sm font-semibold mb-2">Answers</h4>
+                                          <h4 className="text-sm font-semibold mb-2">Full Answer Record</h4>
                                           <div className="space-y-2">
                                             {Object.entries(answersObj).map(([qId, answer]) => {
                                               const q = assessmentQuestions.find(q => q.id === parseInt(qId));
@@ -2784,7 +2896,7 @@ export default function Admin() {
                                                   <p className="text-muted-foreground mt-1">{String(answer)}</p>
                                                   {q?.type === "quiz" && q?.correctAnswer && (
                                                     <p className={`text-xs mt-1 ${String(answer).trim().toLowerCase() === q.correctAnswer.trim().toLowerCase() ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
-                                                      {String(answer).trim().toLowerCase() === q.correctAnswer.trim().toLowerCase() ? "Correct" : `Incorrect (correct: ${q.correctAnswer})`}
+                                                      {String(answer).trim().toLowerCase() === q.correctAnswer.trim().toLowerCase() ? "Correct" : `Incorrect — correct answer: ${q.correctAnswer}`}
                                                     </p>
                                                   )}
                                                 </div>
@@ -2795,7 +2907,8 @@ export default function Admin() {
                                       );
                                     })() : null}
                                   </div>
-                                )}
+                                  );
+                                })()}
                               </div>
                             ))}
                           </div>
