@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { CheckIcon } from "@/components/icons";
 import { BackButton } from "@/components/BackButton";
-import { Users, Building2, UserCheck, ClipboardList, MessageCircleQuestion, ArrowRight, X } from "lucide-react";
+import { Users, Building2, UserCheck, ClipboardList, MessageCircleQuestion, ArrowRight, X, Shield } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
@@ -331,6 +331,22 @@ export default function Services() {
             <p className="text-body text-muted-foreground">Scale execution across markets and make growth predictable.</p>
           </div>
         </div>
+
+        <Card className="flex items-center gap-4 p-4 border-2 border-primary/20 bg-primary/5" data-testid="card-corporate-compliance">
+          <div className="w-10 h-10 shrink-0 rounded-full bg-primary/10 flex items-center justify-center">
+            <Shield className="w-5 h-5 text-primary" />
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-sm font-semibold text-foreground">HIPAA Compliant Engagement</p>
+            <p className="text-xs text-muted-foreground">No PHI stored or processed. BAA available for corporate accounts. <Link href="/compliance" className="text-primary font-semibold hover:underline">View compliance details</Link></p>
+          </div>
+          <Button size="sm" asChild className="font-bold shrink-0 gap-1" data-testid="button-request-baa-services">
+            <Link href="/contact?service=HIPAA+BAA+Request">
+              Request a BAA
+              <ArrowRight className="w-3 h-3" />
+            </Link>
+          </Button>
+        </Card>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards">
           {corporateServices.map((service, idx) => (

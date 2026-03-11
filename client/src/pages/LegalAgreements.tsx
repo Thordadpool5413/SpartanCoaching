@@ -2,17 +2,11 @@ import { SEO } from "@/components/SEO";
 import { BackButton } from "@/components/BackButton";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { FileText, Shield, Lock, Database, Users, Scale, MessageSquare, ArrowRight } from "lucide-react";
 
 const agreements = [
-  {
-    title: "HIPAA Business Associate Agreement",
-    description: "Safeguards Protected Health Information (PHI) in compliance with HIPAA, HITECH Act, and related regulations during consulting engagements.",
-    href: "/baa",
-    icon: Shield,
-    testId: "card-legal-baa",
-  },
   {
     title: "Services Contract Agreement",
     description: "Defines consulting scope, deliverables, fees, payment terms, confidentiality obligations, and termination conditions.",
@@ -69,6 +63,43 @@ export default function LegalAgreements() {
         <p className="text-body text-muted-foreground mb-10">
           Review and digitally sign the agreements required for your consulting engagement with Spartan Coaching. Each document can be signed electronically and a confirmation will be sent to your email.
         </p>
+      </FadeIn>
+
+      <FadeIn>
+        <Card
+          className="p-6 mb-8 border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent"
+          data-testid="card-legal-baa-featured"
+        >
+          <div className="flex flex-col sm:flex-row items-start gap-4">
+            <div className="mt-1 p-3 rounded-md bg-primary/10 text-primary shrink-0">
+              <Shield className="w-6 h-6" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <h2 className="text-lg font-bold text-foreground mb-1">
+                HIPAA Business Associate Agreement
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed mb-1">
+                Safeguards Protected Health Information (PHI) in compliance with HIPAA, HITECH Act, and related regulations during consulting engagements.
+              </p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Corporate and hospital-system clients: if your procurement process requires a BAA before engagement, you can review our template below or request a signed copy directly.
+              </p>
+              <div className="flex flex-wrap gap-3 mt-4">
+                <Button size="sm" asChild className="font-bold gap-1" data-testid="button-view-baa">
+                  <Link href="/baa">
+                    View BAA Template
+                    <ArrowRight className="w-3 h-3" />
+                  </Link>
+                </Button>
+                <Button size="sm" variant="outline" asChild className="font-bold gap-1" data-testid="button-request-baa-legal">
+                  <Link href="/contact?service=HIPAA+BAA+Request">
+                    Request a BAA
+                  </Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Card>
       </FadeIn>
 
       <StaggerContainer className="space-y-4">

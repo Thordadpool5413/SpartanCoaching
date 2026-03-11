@@ -3,7 +3,7 @@ import { Link, useLocation } from "wouter";
 import { MenuIcon, CloseIcon } from "./icons";
 import { applyTheme, getInitialTheme } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
-import { Sun, Moon, Linkedin, Search, ChevronDown } from "lucide-react";
+import { Sun, Moon, Linkedin, Search, ChevronDown, Shield } from "lucide-react";
 import {
   Sheet,
   SheetContent,
@@ -494,11 +494,12 @@ export function Footer() {
               </Link>
               <Link
                 href="/compliance"
-                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
+                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center gap-1.5 justify-center touch-manipulation"
                 data-testid="link-compliance"
-                aria-label="Compliance and Ethics"
+                aria-label="Compliance and Data Practices"
               >
-                Compliance
+                <Shield className="w-3.5 h-3.5" />
+                HIPAA Compliance
               </Link>
               <Link
                 href="/manifesto"

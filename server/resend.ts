@@ -79,11 +79,15 @@ export async function sendInquiryNotification(inquiry: InquiryEmailData): Promis
     
     const notificationEmail = process.env.NOTIFICATION_EMAIL || fromEmail;
     
+    const isComplianceInquiry = inquiry.serviceType?.toLowerCase().includes('hipaa') || inquiry.serviceType?.toLowerCase().includes('baa');
+    const subjectPrefix = isComplianceInquiry ? '[COMPLIANCE] ' : '';
+    
     await sendEmail(client, {
       from: fromEmail,
       to: notificationEmail,
-      subject: `New Inquiry from ${inquiry.name}`,
+      subject: `${subjectPrefix}New Inquiry from ${inquiry.name}`,
       html: `
+        ${isComplianceInquiry ? '<div style="background: #fef2f2; border: 2px solid #dc2626; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;"><strong style="color: #dc2626;">COMPLIANCE INQUIRY</strong> — This contact has requested information about HIPAA BAA or compliance-related services.</div>' : ''}
         <h2>New Contact Form Submission</h2>
         <table style="border-collapse: collapse; width: 100%; max-width: 600px;">
           <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Name</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${inquiry.name}</td></tr>

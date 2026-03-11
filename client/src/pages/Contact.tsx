@@ -27,7 +27,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { FadeIn } from "@/components/animations";
 import { SEO } from "@/components/SEO";
-import { CheckCircle, Loader2, Mail, ChevronLeft, ChevronRight, X } from "lucide-react";
+import { CheckCircle, Loader2, Mail, ChevronLeft, ChevronRight, X, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const contactFormSchema = z.object({
@@ -63,7 +63,13 @@ export default function Contact() {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     const service = params.get("service");
-    if (service) setServiceParam(decodeURIComponent(service));
+    if (service) {
+      const decoded = decodeURIComponent(service);
+      setServiceParam(decoded);
+      if (decoded === "HIPAA BAA Request") {
+        form.setValue("serviceType", "HIPAA BAA Request");
+      }
+    }
   }, []);
 
   const form = useForm<ContactFormData>({
@@ -145,6 +151,10 @@ export default function Contact() {
             <p className="text-body-lg text-muted-foreground leading-relaxed max-w-xl mx-auto" data-testid="text-contact-intro">
               Answer a few quick questions so Nick can come prepared. Takes about 90 seconds.
             </p>
+            <div className="flex items-center justify-center gap-2 mt-4 text-xs text-muted-foreground" data-testid="section-contact-compliance">
+              <Shield className="w-3.5 h-3.5 text-primary" />
+              <span>HIPAA-aware practices. No PHI collected. <Link href="/compliance" className="text-primary font-semibold hover:underline">Compliance details</Link></span>
+            </div>
           </div>
         </FadeIn>
 
@@ -424,6 +434,7 @@ export default function Contact() {
                                 <SelectItem value="Sales Leadership Development">Sales Leadership Development</SelectItem>
                                 <SelectItem value="Corporate Consulting">Corporate Consulting</SelectItem>
                                 <SelectItem value="Territory Strategy">Territory Strategy</SelectItem>
+                                <SelectItem value="HIPAA BAA Request">HIPAA BAA Request</SelectItem>
                                 <SelectItem value="Other">Other</SelectItem>
                               </SelectContent>
                             </Select>
