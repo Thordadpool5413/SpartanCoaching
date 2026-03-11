@@ -59,6 +59,7 @@ const WeeklyPlanBuilder = lazy(() => import("@/pages/WeeklyPlanBuilder"));
 const ComplianceEthics = lazy(() => import("@/pages/ComplianceEthics"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const Manifesto = lazy(() => import("@/pages/Manifesto"));
+const Assessment = lazy(() => import("@/pages/Assessment"));
 
 
 function ScrollToTop() {
@@ -163,6 +164,7 @@ function Router() {
           <Route path="/about" component={About} />
           <Route path="/contact" component={Contact} />
           <Route path="/manifesto" component={Manifesto} />
+          <Route path="/assessment/:id" component={Assessment} />
           <Route component={NotFound} />
         </Switch>
       </Suspense>

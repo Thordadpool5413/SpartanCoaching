@@ -434,6 +434,63 @@ export const insertCaseStudySchema = createInsertSchema(caseStudies).omit({
 export type InsertCaseStudy = z.infer<typeof insertCaseStudySchema>;
 export type SelectCaseStudy = typeof caseStudies.$inferSelect;
 
+// Assessments
+export const assessments = pgTable("assessments", {
+  id: serial("id").primaryKey(),
+  name: varchar("name").notNull(),
+  description: text("description"),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertAssessmentSchema = createInsertSchema(assessments).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertAssessment = z.infer<typeof insertAssessmentSchema>;
+export type SelectAssessment = typeof assessments.$inferSelect;
+
+// Assessment Questions
+export const assessmentQuestions = pgTable("assessment_questions", {
+  id: serial("id").primaryKey(),
+  assessmentId: integer("assessment_id").notNull(),
+  type: varchar("type").notNull(), // "quiz" | "scenario"
+  text: text("text").notNull(),
+  options: text("options").array(), // for quiz type, JSON array of option strings
+  correctAnswer: text("correct_answer"), // for quiz type
+  displayOrder: integer("display_order").notNull().default(0),
+});
+
+export const insertAssessmentQuestionSchema = createInsertSchema(assessmentQuestions).omit({
+  id: true,
+});
+export type InsertAssessmentQuestion = z.infer<typeof insertAssessmentQuestionSchema>;
+export type SelectAssessmentQuestion = typeof assessmentQuestions.$inferSelect;
+
+// Assessment Submissions
+export const assessmentSubmissions = pgTable("assessment_submissions", {
+  id: serial("id").primaryKey(),
+  assessmentId: integer("assessment_id").notNull(),
+  candidateName: varchar("candidate_name").notNull(),
+  candidateEmail: text("candidate_email").notNull(),
+  answers: jsonb("answers").notNull(), // JSON: { questionId: answer }
+  quizScore: integer("quiz_score"),
+  aiScore: integer("ai_score"),
+  overallScore: integer("overall_score"),
+  aiFeedback: text("ai_feedback"),
+  completedAt: timestamp("completed_at").defaultNow(),
+});
+
+export const insertAssessmentSubmissionSchema = createInsertSchema(assessmentSubmissions).omit({
+  id: true,
+  quizScore: true,
+  aiScore: true,
+  overallScore: true,
+  aiFeedback: true,
+  completedAt: true,
+});
+export type InsertAssessmentSubmission = z.infer<typeof insertAssessmentSubmissionSchema>;
+export type SelectAssessmentSubmission = typeof assessmentSubmissions.$inferSelect;
+
 // Service/Program data types (for display only, no database storage needed for MVP)
 export interface CoachingService {
   title: string;

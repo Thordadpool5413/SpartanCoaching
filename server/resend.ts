@@ -450,6 +450,61 @@ export async function sendPdfToUser(toEmail: string, toName: string, pdfBuffer: 
   }
 }
 
+export async function sendAssessmentConfirmation(
+  candidateEmail: string,
+  candidateName: string,
+  assessmentName: string,
+  overallScore: number,
+  quizScore: number | null,
+  aiScore: number | null,
+  feedback: string
+): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+
+    const scoreLabel = overallScore >= 80 ? "Excellent" : overallScore >= 60 ? "Proficient" : overallScore >= 40 ? "Developing" : "Needs Improvement";
+
+    await sendEmail(client, {
+      from: fromEmail,
+      to: candidateEmail,
+      subject: `Your Assessment Results: ${assessmentName}`,
+      html: `
+        <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; color: #333;">
+          <div style="background: linear-gradient(135deg, #b91c1c, #991b1b); padding: 32px; border-radius: 8px 8px 0 0;">
+            <h1 style="color: #fff; margin: 0; font-size: 24px;">Assessment Results</h1>
+            <p style="color: #fca5a5; margin: 8px 0 0;">Spartan Coaching</p>
+          </div>
+          <div style="padding: 32px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
+            <p style="font-size: 16px; margin: 0 0 16px;">Hi ${candidateName},</p>
+            <p style="margin: 0 0 24px; line-height: 1.6;">Thank you for completing the <strong>${assessmentName}</strong> assessment. Here is a summary of your results:</p>
+            
+            <div style="background: #f9fafb; border-radius: 8px; padding: 24px; margin: 0 0 24px;">
+              <div style="text-align: center; margin-bottom: 16px;">
+                <span style="font-size: 48px; font-weight: bold; color: #b91c1c;">${overallScore}%</span>
+                <br/>
+                <span style="font-size: 14px; color: #6b7280;">Overall Score — ${scoreLabel}</span>
+              </div>
+              ${quizScore !== null ? `<p style="margin: 8px 0; font-size: 14px;"><strong>Quiz Accuracy:</strong> ${quizScore}%</p>` : ""}
+              ${aiScore !== null ? `<p style="margin: 8px 0; font-size: 14px;"><strong>Scenario Response Score:</strong> ${aiScore}%</p>` : ""}
+            </div>
+
+            <p style="margin: 0 0 16px; line-height: 1.6;">The hiring team will review your results and will be in touch regarding next steps.</p>
+            
+            <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;" />
+            <p style="color: #9ca3af; font-size: 12px; margin: 0;">Sent by Spartan Coaching Assessment Platform</p>
+          </div>
+        </div>
+      `,
+    });
+
+    console.log(`[Resend] Assessment confirmation sent to ${candidateEmail}`);
+    return true;
+  } catch (error: any) {
+    console.error(`[Resend] FAILED assessment confirmation to ${candidateEmail}:`, error?.message || error);
+    return false;
+  }
+}
+
 export async function sendGeneratedEmail(to: string, subject: string, body: string): Promise<boolean> {
   try {
     const { client, fromEmail } = await getUncachableResendClient();

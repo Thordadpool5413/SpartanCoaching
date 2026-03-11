@@ -10,8 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Mail, Phone, Building, Calendar, Users, Lock, LogOut, Plus, Edit, Trash2, ExternalLink, Star, FileText as FileSignature, PlayCircle, Target, Quote, Award, ChevronDown, ChevronUp, Download, CheckCircle, Circle, Send, Loader2 } from "lucide-react";
-import type { SelectInquiry, SelectNewsletterSubscriber, SelectArticle, InsertArticle, VisitorAnalytics, SelectResource, InsertResource, SelectPodcast, InsertPodcast, SelectSignedAgreement, SelectRoleplaySession, SelectDrillCompletion, SelectTestimonial, SelectCaseStudy, InsertTestimonial, InsertCaseStudy, SelectResourceLead } from "@shared/schema";
+import { Mail, Phone, Building, Calendar, Users, Lock, LogOut, Plus, Edit, Trash2, ExternalLink, Star, FileText as FileSignature, PlayCircle, Target, Quote, Award, ChevronDown, ChevronUp, Download, CheckCircle, Circle, Send, Loader2, ClipboardList, Copy, Link as LinkIcon } from "lucide-react";
+import type { SelectInquiry, SelectNewsletterSubscriber, SelectArticle, InsertArticle, VisitorAnalytics, SelectResource, InsertResource, SelectPodcast, InsertPodcast, SelectSignedAgreement, SelectRoleplaySession, SelectDrillCompletion, SelectTestimonial, SelectCaseStudy, InsertTestimonial, InsertCaseStudy, SelectResourceLead, SelectAssessment, SelectAssessmentQuestion, SelectAssessmentSubmission } from "@shared/schema";
 import type { SelectUsageEvent } from "@shared/schema";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
@@ -196,6 +196,12 @@ export default function Admin() {
     enabled: isAuthenticated,
   });
 
+  const { data: assessmentsData, isLoading: assessmentsLoading } = useQuery<{ assessments: SelectAssessment[] }>({
+    queryKey: ["/api/assessments"],
+    queryFn: () => adminGet("/api/assessments"),
+    enabled: isAuthenticated,
+  });
+
   const inquiries = inquiriesData?.inquiries || [];
   const subscribers = subscribersData?.subscribers || [];
   const articles = articlesData?.articles || [];
@@ -209,6 +215,129 @@ export default function Admin() {
   const caseStudiesList = caseStudiesData?.caseStudies || [];
   const resourceLeads = resourceLeadsData?.leads || [];
   const usageEvents = usageEventsData?.events || [];
+  const assessmentsList = assessmentsData?.assessments || [];
+
+  const [assessmentDialogOpen, setAssessmentDialogOpen] = useState(false);
+  const [assessmentName, setAssessmentName] = useState("");
+  const [assessmentDescription, setAssessmentDescription] = useState("");
+  const [selectedAssessmentId, setSelectedAssessmentId] = useState<number | null>(null);
+  const [questionDialogOpen, setQuestionDialogOpen] = useState(false);
+  const [questionType, setQuestionType] = useState<"quiz" | "scenario">("quiz");
+  const [questionText, setQuestionText] = useState("");
+  const [questionOptions, setQuestionOptions] = useState(["", "", "", ""]);
+  const [questionCorrectAnswer, setQuestionCorrectAnswer] = useState("");
+  const [expandedSubmissionId, setExpandedSubmissionId] = useState<number | null>(null);
+
+  const { data: assessmentQuestionsData } = useQuery<{ questions: SelectAssessmentQuestion[] }>({
+    queryKey: ["/api/assessments", selectedAssessmentId, "questions"],
+    queryFn: () => adminGet(`/api/assessments/${selectedAssessmentId}/questions`),
+    enabled: isAuthenticated && selectedAssessmentId !== null,
+  });
+
+  const { data: assessmentSubmissionsData } = useQuery<{ submissions: SelectAssessmentSubmission[] }>({
+    queryKey: ["/api/assessments", selectedAssessmentId, "submissions"],
+    queryFn: () => adminGet(`/api/assessments/${selectedAssessmentId}/submissions`),
+    enabled: isAuthenticated && selectedAssessmentId !== null,
+  });
+
+  const createAssessmentMutation = useMutation({
+    mutationFn: async ({ name, description }: { name: string; description: string }) => {
+      const res = await fetch("/api/assessments", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Admin-Auth": ADMIN_CODE },
+        body: JSON.stringify({ name, description }),
+      });
+      if (!res.ok) throw new Error((await res.json()).error || "Failed");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/assessments"] });
+      setAssessmentDialogOpen(false);
+      setAssessmentName("");
+      setAssessmentDescription("");
+      toast({ title: "Assessment Created" });
+    },
+    onError: (err: any) => {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    },
+  });
+
+  const deleteAssessmentMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/assessments/${id}`, {
+        method: "DELETE",
+        headers: { "X-Admin-Auth": ADMIN_CODE },
+      });
+      if (!res.ok) throw new Error("Failed to delete");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/assessments"] });
+      if (selectedAssessmentId) setSelectedAssessmentId(null);
+      toast({ title: "Assessment Deleted" });
+    },
+  });
+
+  const addQuestionMutation = useMutation({
+    mutationFn: async (data: any) => {
+      const res = await fetch(`/api/assessments/${selectedAssessmentId}/questions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Admin-Auth": ADMIN_CODE },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) throw new Error((await res.json()).error || "Failed");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/assessments", selectedAssessmentId, "questions"] });
+      setQuestionDialogOpen(false);
+      setQuestionText("");
+      setQuestionOptions(["", "", "", ""]);
+      setQuestionCorrectAnswer("");
+      toast({ title: "Question Added" });
+    },
+    onError: (err: any) => {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    },
+  });
+
+  const deleteQuestionMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/assessments/questions/${id}`, {
+        method: "DELETE",
+        headers: { "X-Admin-Auth": ADMIN_CODE },
+      });
+      if (!res.ok) throw new Error("Failed to delete");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/assessments", selectedAssessmentId, "questions"] });
+      toast({ title: "Question Removed" });
+    },
+  });
+
+  const assessmentQuestions = assessmentQuestionsData?.questions || [];
+  const assessmentSubmissions = assessmentSubmissionsData?.submissions || [];
+
+  const handleCopyAssessmentLink = (assessmentId: number) => {
+    const link = `${window.location.origin}/assessment/${assessmentId}`;
+    navigator.clipboard.writeText(link).then(() => {
+      toast({ title: "Link Copied", description: "Assessment link copied to clipboard" });
+    });
+  };
+
+  const handleAddQuestion = () => {
+    const data: any = {
+      type: questionType,
+      text: questionText,
+      displayOrder: assessmentQuestions.length,
+    };
+    if (questionType === "quiz") {
+      data.options = questionOptions.filter(o => o.trim());
+      data.correctAnswer = questionCorrectAnswer;
+    }
+    addQuestionMutation.mutate(data);
+  };
 
   // Leads email dialog state
   const [leadEmailDialogOpen, setLeadEmailDialogOpen] = useState(false);
@@ -1297,6 +1426,9 @@ export default function Admin() {
               </Badge>
             )}
           </TabsTrigger>
+          <TabsTrigger value="assessments" data-testid="tab-assessments">
+            Assessments ({assessmentsList.length})
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="inquiries" className="space-y-4">
@@ -2247,7 +2379,343 @@ export default function Admin() {
           )}
         </TabsContent>
 
+        <TabsContent value="assessments" className="space-y-4">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <h2 className="text-xl font-bold">Candidate Assessments</h2>
+              <p className="text-sm text-muted-foreground">Create assessments with quiz and scenario questions for candidate evaluation</p>
+            </div>
+            <Button onClick={() => setAssessmentDialogOpen(true)} data-testid="button-create-assessment">
+              <Plus className="w-4 h-4 mr-1.5" />
+              New Assessment
+            </Button>
+          </div>
+
+          {assessmentsLoading ? (
+            <div className="text-center py-8 text-muted-foreground">Loading assessments...</div>
+          ) : assessmentsList.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <ClipboardList className="w-10 h-10 text-muted-foreground mx-auto mb-3" />
+                <p className="text-muted-foreground">No assessments created yet. Create your first assessment to start evaluating candidates.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="grid gap-4">
+              {assessmentsList.map((a) => (
+                <Card
+                  key={a.id}
+                  className={selectedAssessmentId === a.id ? "ring-2 ring-primary" : ""}
+                  data-testid={`card-assessment-${a.id}`}
+                >
+                  <CardHeader className="flex flex-row items-start justify-between gap-4 flex-wrap">
+                    <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setSelectedAssessmentId(selectedAssessmentId === a.id ? null : a.id)}>
+                      <CardTitle className="text-base">{a.name}</CardTitle>
+                      {a.description && <p className="text-sm text-muted-foreground mt-1">{a.description}</p>}
+                      <p className="text-xs text-muted-foreground mt-1">
+                        Created {a.createdAt ? new Date(a.createdAt).toLocaleDateString() : ""}
+                      </p>
+                    </div>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => handleCopyAssessmentLink(a.id)}
+                        data-testid={`button-copy-link-${a.id}`}
+                      >
+                        <LinkIcon className="w-4 h-4 mr-1.5" />
+                        Copy Link
+                      </Button>
+                      <Button
+                        size="icon"
+                        variant="outline"
+                        onClick={() => {
+                          if (window.confirm("Delete this assessment and all its questions and submissions?")) {
+                            deleteAssessmentMutation.mutate(a.id);
+                          }
+                        }}
+                        data-testid={`button-delete-assessment-${a.id}`}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
+                  </CardHeader>
+
+                  {selectedAssessmentId === a.id && (
+                    <CardContent className="border-t pt-4 space-y-6">
+                      <div>
+                        <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+                          <h3 className="font-semibold text-sm">Questions ({assessmentQuestions.length})</h3>
+                          <Button size="sm" onClick={() => { setQuestionType("quiz"); setQuestionDialogOpen(true); }} data-testid="button-add-question">
+                            <Plus className="w-4 h-4 mr-1" />
+                            Add Question
+                          </Button>
+                        </div>
+                        {assessmentQuestions.length === 0 ? (
+                          <p className="text-sm text-muted-foreground py-4 text-center">No questions added yet</p>
+                        ) : (
+                          <div className="space-y-2">
+                            {assessmentQuestions.map((q, idx) => (
+                              <div key={q.id} className="flex items-start justify-between gap-3 p-3 border rounded-md" data-testid={`question-${q.id}`}>
+                                <div className="flex-1 min-w-0">
+                                  <div className="flex items-center gap-2 mb-1 flex-wrap">
+                                    <span className="text-xs font-medium text-muted-foreground">Q{idx + 1}</span>
+                                    <Badge variant={q.type === "quiz" ? "secondary" : "default"} className="text-xs">
+                                      {q.type === "quiz" ? "Quiz" : "Scenario"}
+                                    </Badge>
+                                  </div>
+                                  <p className="text-sm text-foreground">{q.text}</p>
+                                  {q.type === "quiz" && q.options && (
+                                    <div className="mt-2 space-y-1">
+                                      {q.options.map((opt, oi) => (
+                                        <p key={oi} className={`text-xs ${opt === q.correctAnswer ? "text-green-600 dark:text-green-400 font-medium" : "text-muted-foreground"}`}>
+                                          {opt === q.correctAnswer ? "* " : "  "}{opt}
+                                        </p>
+                                      ))}
+                                    </div>
+                                  )}
+                                </div>
+                                <Button
+                                  size="icon"
+                                  variant="ghost"
+                                  onClick={() => deleteQuestionMutation.mutate(q.id)}
+                                  data-testid={`button-delete-question-${q.id}`}
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+
+                      <div>
+                        <h3 className="font-semibold text-sm mb-3">Submissions ({assessmentSubmissions.length})</h3>
+                        {assessmentSubmissions.length === 0 ? (
+                          <p className="text-sm text-muted-foreground py-4 text-center">No submissions yet</p>
+                        ) : (
+                          <div className="space-y-2">
+                            {assessmentSubmissions.map((sub) => (
+                              <div key={sub.id} className="border rounded-md" data-testid={`submission-${sub.id}`}>
+                                <div
+                                  className="flex items-center justify-between gap-3 p-3 cursor-pointer flex-wrap"
+                                  onClick={() => setExpandedSubmissionId(expandedSubmissionId === sub.id ? null : sub.id)}
+                                >
+                                  <div className="flex items-center gap-3 flex-wrap">
+                                    <div>
+                                      <p className="text-sm font-medium text-foreground">{sub.candidateName}</p>
+                                      <p className="text-xs text-muted-foreground">{sub.candidateEmail}</p>
+                                    </div>
+                                    <Badge
+                                      variant={
+                                        (sub.overallScore ?? 0) >= 80 ? "default" :
+                                        (sub.overallScore ?? 0) >= 60 ? "secondary" : "destructive"
+                                      }
+                                      data-testid={`badge-score-${sub.id}`}
+                                    >
+                                      {sub.overallScore ?? 0}%
+                                    </Badge>
+                                  </div>
+                                  <div className="flex items-center gap-3 flex-wrap">
+                                    {sub.quizScore !== null && (
+                                      <span className="text-xs text-muted-foreground">Quiz: {sub.quizScore}%</span>
+                                    )}
+                                    {sub.aiScore !== null && (
+                                      <span className="text-xs text-muted-foreground">AI: {sub.aiScore}%</span>
+                                    )}
+                                    <span className="text-xs text-muted-foreground">
+                                      {sub.completedAt ? new Date(sub.completedAt).toLocaleDateString() : ""}
+                                    </span>
+                                    {expandedSubmissionId === sub.id ? (
+                                      <ChevronUp className="w-4 h-4 text-muted-foreground" />
+                                    ) : (
+                                      <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                                    )}
+                                  </div>
+                                </div>
+                                {expandedSubmissionId === sub.id && (
+                                  <div className="border-t p-4 space-y-4">
+                                    {sub.aiFeedback && (
+                                      <div>
+                                        <h4 className="text-sm font-semibold mb-2">AI Feedback</h4>
+                                        <div className="text-sm text-muted-foreground whitespace-pre-wrap bg-muted/50 p-3 rounded-md">
+                                          {sub.aiFeedback}
+                                        </div>
+                                      </div>
+                                    )}
+                                    {(sub.answers != null && typeof sub.answers === "object") ? (() => {
+                                      const answersObj = sub.answers as Record<string, string>;
+                                      return (
+                                        <div>
+                                          <h4 className="text-sm font-semibold mb-2">Answers</h4>
+                                          <div className="space-y-2">
+                                            {Object.entries(answersObj).map(([qId, answer]) => {
+                                              const q = assessmentQuestions.find(q => q.id === parseInt(qId));
+                                              return (
+                                                <div key={qId} className="text-sm border-l-2 border-muted pl-3">
+                                                  <p className="font-medium text-foreground">{q?.text || `Question ${qId}`}</p>
+                                                  <p className="text-muted-foreground mt-1">{String(answer)}</p>
+                                                  {q?.type === "quiz" && q?.correctAnswer && (
+                                                    <p className={`text-xs mt-1 ${String(answer).trim().toLowerCase() === q.correctAnswer.trim().toLowerCase() ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}>
+                                                      {String(answer).trim().toLowerCase() === q.correctAnswer.trim().toLowerCase() ? "Correct" : `Incorrect (correct: ${q.correctAnswer})`}
+                                                    </p>
+                                                  )}
+                                                </div>
+                                              );
+                                            })}
+                                          </div>
+                                        </div>
+                                      );
+                                    })() : null}
+                                  </div>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  )}
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
       </Tabs>
+
+      {/* New Assessment Dialog */}
+      <Dialog open={assessmentDialogOpen} onOpenChange={setAssessmentDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Create Assessment</DialogTitle>
+            <DialogDescription>Create a new candidate assessment with a name and description.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <Label htmlFor="assessment-name">Assessment Name</Label>
+              <Input
+                id="assessment-name"
+                value={assessmentName}
+                onChange={(e) => setAssessmentName(e.target.value)}
+                placeholder="e.g. Q1 Sales Rep Assessment"
+                data-testid="input-assessment-name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="assessment-desc">Description (optional)</Label>
+              <Textarea
+                id="assessment-desc"
+                value={assessmentDescription}
+                onChange={(e) => setAssessmentDescription(e.target.value)}
+                placeholder="Describe what this assessment evaluates"
+                data-testid="textarea-assessment-description"
+              />
+            </div>
+            <div className="flex gap-3">
+              <Button variant="outline" className="flex-1" onClick={() => setAssessmentDialogOpen(false)} data-testid="button-cancel-assessment">Cancel</Button>
+              <Button
+                className="flex-1"
+                disabled={!assessmentName.trim() || createAssessmentMutation.isPending}
+                onClick={() => createAssessmentMutation.mutate({ name: assessmentName, description: assessmentDescription })}
+                data-testid="button-save-assessment"
+              >
+                {createAssessmentMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
+                Create
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Add Question Dialog */}
+      <Dialog open={questionDialogOpen} onOpenChange={setQuestionDialogOpen}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Add Question</DialogTitle>
+            <DialogDescription>Add a quiz or scenario question to this assessment.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <Label>Question Type</Label>
+              <Select value={questionType} onValueChange={(v) => setQuestionType(v as "quiz" | "scenario")}>
+                <SelectTrigger data-testid="select-question-type">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="quiz">Quiz (Multiple Choice)</SelectItem>
+                  <SelectItem value="scenario">Scenario (Written Response)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="question-text">Question Text</Label>
+              <Textarea
+                id="question-text"
+                value={questionText}
+                onChange={(e) => setQuestionText(e.target.value)}
+                placeholder={questionType === "quiz" ? "Enter the question..." : "Describe the scenario the candidate should respond to..."}
+                data-testid="textarea-question-text"
+              />
+            </div>
+            {questionType === "quiz" && (
+              <>
+                <div className="space-y-2">
+                  <Label>Answer Options</Label>
+                  {questionOptions.map((opt, idx) => (
+                    <Input
+                      key={idx}
+                      value={opt}
+                      onChange={(e) => {
+                        const updated = [...questionOptions];
+                        updated[idx] = e.target.value;
+                        setQuestionOptions(updated);
+                      }}
+                      placeholder={`Option ${idx + 1}`}
+                      data-testid={`input-option-${idx}`}
+                    />
+                  ))}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setQuestionOptions([...questionOptions, ""])}
+                    data-testid="button-add-option"
+                  >
+                    <Plus className="w-3 h-3 mr-1" />
+                    Add Option
+                  </Button>
+                </div>
+                <div className="space-y-2">
+                  <Label>Correct Answer</Label>
+                  <Select value={questionCorrectAnswer} onValueChange={setQuestionCorrectAnswer}>
+                    <SelectTrigger data-testid="select-correct-answer">
+                      <SelectValue placeholder="Select the correct answer" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {questionOptions.filter(o => o.trim()).map((opt, idx) => (
+                        <SelectItem key={idx} value={opt}>{opt}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+              </>
+            )}
+            <div className="flex gap-3">
+              <Button variant="outline" className="flex-1" onClick={() => setQuestionDialogOpen(false)} data-testid="button-cancel-question">Cancel</Button>
+              <Button
+                className="flex-1"
+                disabled={!questionText.trim() || (questionType === "quiz" && (!questionCorrectAnswer || questionOptions.filter(o => o.trim()).length < 2)) || addQuestionMutation.isPending}
+                onClick={handleAddQuestion}
+                data-testid="button-save-question"
+              >
+                {addQuestionMutation.isPending ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : null}
+                Add Question
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Lead Email Dialog */}
       <Dialog open={leadEmailDialogOpen} onOpenChange={(open) => { setLeadEmailDialogOpen(open); }}>

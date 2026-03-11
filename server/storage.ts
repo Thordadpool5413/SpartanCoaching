@@ -48,6 +48,15 @@ import {
   caseStudies,
   type InsertCaseStudy,
   type SelectCaseStudy,
+  assessments,
+  assessmentQuestions,
+  assessmentSubmissions,
+  type InsertAssessment,
+  type SelectAssessment,
+  type InsertAssessmentQuestion,
+  type SelectAssessmentQuestion,
+  type InsertAssessmentSubmission,
+  type SelectAssessmentSubmission,
 } from "@shared/schema";
 import { db } from "./db";
 import { desc, eq, gte, count, ilike } from "drizzle-orm";
@@ -113,6 +122,18 @@ export interface IStorage {
   createCaseStudy(study: InsertCaseStudy): Promise<SelectCaseStudy>;
   updateCaseStudy(id: number, study: Partial<InsertCaseStudy>): Promise<SelectCaseStudy>;
   deleteCaseStudy(id: number): Promise<void>;
+  // Assessment operations
+  createAssessment(assessment: InsertAssessment): Promise<SelectAssessment>;
+  getAssessments(): Promise<SelectAssessment[]>;
+  getAssessment(id: number): Promise<SelectAssessment | undefined>;
+  deleteAssessment(id: number): Promise<void>;
+  createAssessmentQuestion(question: InsertAssessmentQuestion): Promise<SelectAssessmentQuestion>;
+  getAssessmentQuestions(assessmentId: number): Promise<SelectAssessmentQuestion[]>;
+  deleteAssessmentQuestion(id: number): Promise<void>;
+  createAssessmentSubmission(submission: InsertAssessmentSubmission): Promise<SelectAssessmentSubmission>;
+  updateAssessmentSubmission(id: number, updates: Partial<SelectAssessmentSubmission>): Promise<SelectAssessmentSubmission>;
+  getAssessmentSubmissions(assessmentId: number): Promise<SelectAssessmentSubmission[]>;
+  getAssessmentSubmission(id: number): Promise<SelectAssessmentSubmission | undefined>;
 }
 
 // Database-backed storage implementation
@@ -522,6 +543,58 @@ export class DatabaseStorage implements IStorage {
 
   async deleteCaseStudy(id: number): Promise<void> {
     await db.delete(caseStudies).where(eq(caseStudies.id, id));
+  }
+
+  async createAssessment(assessment: InsertAssessment): Promise<SelectAssessment> {
+    const [result] = await db.insert(assessments).values(assessment).returning();
+    return result;
+  }
+
+  async getAssessments(): Promise<SelectAssessment[]> {
+    return await db.select().from(assessments).orderBy(desc(assessments.createdAt));
+  }
+
+  async getAssessment(id: number): Promise<SelectAssessment | undefined> {
+    const [result] = await db.select().from(assessments).where(eq(assessments.id, id));
+    return result;
+  }
+
+  async deleteAssessment(id: number): Promise<void> {
+    await db.delete(assessmentQuestions).where(eq(assessmentQuestions.assessmentId, id));
+    await db.delete(assessmentSubmissions).where(eq(assessmentSubmissions.assessmentId, id));
+    await db.delete(assessments).where(eq(assessments.id, id));
+  }
+
+  async createAssessmentQuestion(question: InsertAssessmentQuestion): Promise<SelectAssessmentQuestion> {
+    const [result] = await db.insert(assessmentQuestions).values(question).returning();
+    return result;
+  }
+
+  async getAssessmentQuestions(assessmentId: number): Promise<SelectAssessmentQuestion[]> {
+    return await db.select().from(assessmentQuestions).where(eq(assessmentQuestions.assessmentId, assessmentId)).orderBy(assessmentQuestions.displayOrder);
+  }
+
+  async deleteAssessmentQuestion(id: number): Promise<void> {
+    await db.delete(assessmentQuestions).where(eq(assessmentQuestions.id, id));
+  }
+
+  async createAssessmentSubmission(submission: InsertAssessmentSubmission): Promise<SelectAssessmentSubmission> {
+    const [result] = await db.insert(assessmentSubmissions).values(submission).returning();
+    return result;
+  }
+
+  async updateAssessmentSubmission(id: number, updates: Partial<SelectAssessmentSubmission>): Promise<SelectAssessmentSubmission> {
+    const [result] = await db.update(assessmentSubmissions).set(updates).where(eq(assessmentSubmissions.id, id)).returning();
+    return result;
+  }
+
+  async getAssessmentSubmissions(assessmentId: number): Promise<SelectAssessmentSubmission[]> {
+    return await db.select().from(assessmentSubmissions).where(eq(assessmentSubmissions.assessmentId, assessmentId)).orderBy(desc(assessmentSubmissions.completedAt));
+  }
+
+  async getAssessmentSubmission(id: number): Promise<SelectAssessmentSubmission | undefined> {
+    const [result] = await db.select().from(assessmentSubmissions).where(eq(assessmentSubmissions.id, id));
+    return result;
   }
 }
 

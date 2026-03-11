@@ -1607,6 +1607,253 @@ The single most important skill to work on before the next conversation.`,
     }
   });
 
+  // ─── Assessment Routes ───────────────────────────────────────────────
+
+  app.get("/api/assessments", requireAdmin, async (_req, res) => {
+    try {
+      const list = await storage.getAssessments();
+      res.json({ assessments: list });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to fetch assessments" });
+    }
+  });
+
+  app.post("/api/assessments", requireAdmin, async (req, res) => {
+    try {
+      const { name, description } = req.body;
+      if (!name || typeof name !== "string" || name.trim().length < 1) {
+        return res.status(400).json({ error: "Name is required" });
+      }
+      const assessment = await storage.createAssessment({ name: name.trim(), description: description?.trim() || null });
+      res.json({ assessment });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to create assessment" });
+    }
+  });
+
+  app.delete("/api/assessments/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+      await storage.deleteAssessment(id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to delete assessment" });
+    }
+  });
+
+  app.get("/api/assessments/:id/questions", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+      const questions = await storage.getAssessmentQuestions(id);
+      res.json({ questions });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to fetch questions" });
+    }
+  });
+
+  app.post("/api/assessments/:id/questions", requireAdmin, async (req, res) => {
+    try {
+      const assessmentId = parseInt(req.params.id);
+      if (isNaN(assessmentId)) return res.status(400).json({ error: "Invalid ID" });
+      const { type, text, options, correctAnswer, displayOrder } = req.body;
+      if (!type || !text) return res.status(400).json({ error: "type and text are required" });
+      if (type === "quiz" && (!options || !Array.isArray(options) || options.length < 2)) {
+        return res.status(400).json({ error: "Quiz questions need at least 2 options" });
+      }
+      if (type === "quiz" && (!correctAnswer || typeof correctAnswer !== "string")) {
+        return res.status(400).json({ error: "Quiz questions need a correct answer" });
+      }
+      const question = await storage.createAssessmentQuestion({
+        assessmentId,
+        type,
+        text,
+        options: type === "quiz" ? options : null,
+        correctAnswer: type === "quiz" ? correctAnswer : null,
+        displayOrder: displayOrder ?? 0,
+      });
+      res.json({ question });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to add question" });
+    }
+  });
+
+  app.delete("/api/assessments/questions/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+      await storage.deleteAssessmentQuestion(id);
+      res.json({ success: true });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to delete question" });
+    }
+  });
+
+  app.get("/api/assessments/:id/public", async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+      const assessment = await storage.getAssessment(id);
+      if (!assessment) return res.status(404).json({ error: "Assessment not found" });
+      const questions = await storage.getAssessmentQuestions(id);
+      const publicQuestions = questions.map(q => ({
+        id: q.id,
+        type: q.type,
+        text: q.text,
+        options: q.options,
+        displayOrder: q.displayOrder,
+      }));
+      res.json({ assessment: { id: assessment.id, name: assessment.name, description: assessment.description }, questions: publicQuestions });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to fetch assessment" });
+    }
+  });
+
+  app.post("/api/assessments/:id/submit", async (req, res) => {
+    try {
+      const assessmentId = parseInt(req.params.id);
+      if (isNaN(assessmentId)) return res.status(400).json({ error: "Invalid ID" });
+
+      const { candidateName, candidateEmail, answers } = req.body;
+      if (!candidateName || !candidateEmail || !answers) {
+        return res.status(400).json({ error: "candidateName, candidateEmail, and answers are required" });
+      }
+
+      const assessment = await storage.getAssessment(assessmentId);
+      if (!assessment) return res.status(404).json({ error: "Assessment not found" });
+
+      const questions = await storage.getAssessmentQuestions(assessmentId);
+      if (questions.length === 0) return res.status(400).json({ error: "This assessment has no questions" });
+
+      const scenarioExists = questions.some(q => q.type === "scenario");
+      if (!scenarioExists) return res.status(400).json({ error: "This assessment must include at least one scenario question" });
+
+      const allQuestionIds = questions.map(q => String(q.id));
+      const missingAnswers = allQuestionIds.filter(id => !answers[id] || String(answers[id]).trim() === "");
+      if (missingAnswers.length > 0) {
+        return res.status(400).json({ error: "All questions must be answered" });
+      }
+
+      const submission = await storage.createAssessmentSubmission({
+        assessmentId,
+        candidateName,
+        candidateEmail,
+        answers,
+      });
+
+      const quizQuestions = questions.filter(q => q.type === "quiz");
+      const scenarioQuestions = questions.filter(q => q.type === "scenario");
+
+      let quizScore: number | null = null;
+      if (quizQuestions.length > 0) {
+        let correct = 0;
+        for (const q of quizQuestions) {
+          const candidateAnswer = (answers as Record<string, string>)[String(q.id)];
+          if (candidateAnswer && q.correctAnswer && candidateAnswer.trim().toLowerCase() === q.correctAnswer.trim().toLowerCase()) {
+            correct++;
+          }
+        }
+        quizScore = Math.round((correct / quizQuestions.length) * 100);
+      }
+
+      let aiScore: number | null = null;
+      let aiFeedback = "";
+
+      if (scenarioQuestions.length > 0) {
+        try {
+          const scenarioResponses = scenarioQuestions.map(q => ({
+            question: q.text,
+            answer: (answers as Record<string, string>)[String(q.id)] || "(No response)",
+          }));
+
+          const prompt = `You are evaluating a hospice sales representative candidate's written scenario responses as part of a hiring assessment called "${assessment.name}".
+
+Score each response on a scale of 0-100 based on:
+- Understanding of hospice sales concepts
+- Empathy and communication skills
+- Strategic thinking and problem-solving
+- Professionalism and ethical awareness
+
+Here are the scenario responses:
+
+${scenarioResponses.map((sr, i) => `### Scenario ${i + 1}
+**Question:** ${sr.question}
+**Candidate's Answer:** ${sr.answer}`).join("\n\n")}
+
+Provide your evaluation in the following format:
+1. Start with "SCORE: X" where X is the overall score (0-100)
+2. Then provide qualitative feedback for each scenario response
+3. End with an overall assessment summary
+
+Be fair but thorough. A score of 70+ indicates strong aptitude.`;
+
+          const { generateComplexResponse } = await import("./openai");
+          const aiResult = await generateComplexResponse(prompt, "You are an expert hospice sales hiring evaluator. Provide detailed, constructive feedback on candidate scenario responses. Be fair, specific, and actionable.");
+
+          const scoreMatch = aiResult.match(/SCORE:\s*(\d+)/i);
+          aiScore = scoreMatch ? Math.min(100, Math.max(0, parseInt(scoreMatch[1]))) : 50;
+          aiFeedback = aiResult;
+        } catch (aiError: any) {
+          console.error("AI scoring failed:", aiError);
+          aiFeedback = "AI scoring was unavailable. Please review scenario responses manually.";
+          aiScore = null;
+        }
+      }
+
+      let overallScore: number;
+      if (quizScore !== null && aiScore !== null) {
+        overallScore = Math.round((quizScore + aiScore) / 2);
+      } else if (quizScore !== null) {
+        overallScore = quizScore;
+      } else if (aiScore !== null) {
+        overallScore = aiScore;
+      } else {
+        overallScore = 0;
+      }
+
+      const updated = await storage.updateAssessmentSubmission(submission.id, {
+        quizScore,
+        aiScore,
+        overallScore,
+        aiFeedback: aiFeedback || null,
+      });
+
+      const { sendAssessmentConfirmation } = await import("./resend");
+      sendAssessmentConfirmation(
+        candidateEmail,
+        candidateName,
+        assessment.name,
+        overallScore,
+        quizScore,
+        aiScore,
+        aiFeedback
+      ).catch(err => console.error("Failed to send assessment confirmation email:", err));
+
+      res.json({
+        submission: updated,
+        overallScore,
+        quizScore,
+        aiScore,
+        feedback: aiFeedback,
+      });
+    } catch (error: any) {
+      console.error("Assessment submission error:", error);
+      res.status(500).json({ error: error.message || "Failed to submit assessment" });
+    }
+  });
+
+  app.get("/api/assessments/:id/submissions", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+      const submissions = await storage.getAssessmentSubmissions(id);
+      res.json({ submissions });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to fetch submissions" });
+    }
+  });
+
   // Object Storage: Serve objects (PDFs) - public read access with ACL check
   app.get("/objects/:objectPath(*)", async (req, res) => {
     const objectStorageService = new ObjectStorageService();
