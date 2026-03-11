@@ -1,5 +1,5 @@
 import { db, pool } from "./db";
-import { resources, podcasts, articles, testimonials, caseStudies } from "@shared/schema";
+import { resources, podcasts, articles, testimonials, caseStudies, assessments, assessmentQuestions } from "@shared/schema";
 import { sql } from "drizzle-orm";
 
 const trainingResources = [
@@ -277,6 +277,259 @@ async function seedByTitle(table: any, allItems: any[], label: string) {
   }
 }
 
+async function seedAssessments() {
+  const existing = await db.select().from(assessments);
+  if (existing.length > 0) {
+    console.log(`  Assessments already seeded (${existing.length} found)`);
+    return;
+  }
+
+  // ── Assessment 1: Knowledge Screen ──────────────────────────────────────
+  const [a1] = await db.insert(assessments).values({
+    name: "Hospice Sales Representative — Knowledge Screen",
+    description: "Initial screen for hospice sales rep candidates. Tests foundational knowledge of the hospice benefit, referral relationships, and the Spartan Method philosophy. Estimated completion time: 15–20 minutes.",
+  }).returning();
+
+  await db.insert(assessmentQuestions).values([
+    {
+      assessmentId: a1.id,
+      type: "quiz",
+      text: "What is the standard prognosis requirement for a patient to qualify for the Medicare Hospice Benefit?",
+      options: [
+        "3 months or less",
+        "6 months or less if the illness runs its normal course",
+        "12 months or less",
+        "No prognosis requirement — any terminal diagnosis qualifies",
+      ],
+      correctAnswer: "6 months or less if the illness runs its normal course",
+      displayOrder: 1,
+    },
+    {
+      assessmentId: a1.id,
+      type: "quiz",
+      text: "Which of the following is TRUE about the Medicare Hospice Benefit?",
+      options: [
+        "It covers only inpatient care",
+        "It requires a $500 deductible per stay",
+        "It is all-inclusive and waives curative treatment for the terminal diagnosis",
+        "It is only available to patients over age 80",
+      ],
+      correctAnswer: "It is all-inclusive and waives curative treatment for the terminal diagnosis",
+      displayOrder: 2,
+    },
+    {
+      assessmentId: a1.id,
+      type: "quiz",
+      text: "How many physicians must certify a patient's terminal prognosis to elect the Medicare Hospice Benefit?",
+      options: [
+        "One attending physician only",
+        "Two physicians — the hospice medical director and the patient's attending physician",
+        "Three physicians — attending, specialist, and hospice MD",
+        "No physician certification is required for the first benefit period",
+      ],
+      correctAnswer: "Two physicians — the hospice medical director and the patient's attending physician",
+      displayOrder: 3,
+    },
+    {
+      assessmentId: a1.id,
+      type: "quiz",
+      text: "Which staff member in a skilled nursing facility typically controls the highest volume of direct hospice referrals?",
+      options: [
+        "The facility administrator",
+        "The Director of Nursing (DON)",
+        "The social worker",
+        "The activities director",
+      ],
+      correctAnswer: "The Director of Nursing (DON)",
+      displayOrder: 4,
+    },
+    {
+      assessmentId: a1.id,
+      type: "quiz",
+      text: "Under HIPAA, a hospice sales representative should handle patient-identifying information by:",
+      options: [
+        "Sharing it freely within the care team to coordinate referrals",
+        "Never discussing patient cases in any context",
+        "Using only the minimum necessary information with authorized parties",
+        "Storing it in personal notes for quick reference during visits",
+      ],
+      correctAnswer: "Using only the minimum necessary information with authorized parties",
+      displayOrder: 5,
+    },
+    {
+      assessmentId: a1.id,
+      type: "quiz",
+      text: "The Spartan Method approach to hospice sales is best described as:",
+      options: [
+        "High-volume cold calling and transactional relationship management",
+        "Competing on price and speed of admission to win market share",
+        "Consistent, value-driven presence that builds trust with referral sources over time",
+        "Focusing exclusively on physician relationships and ignoring facility staff",
+      ],
+      correctAnswer: "Consistent, value-driven presence that builds trust with referral sources over time",
+      displayOrder: 6,
+    },
+    {
+      assessmentId: a1.id,
+      type: "quiz",
+      text: "A hospice sales rep's most important weekly activity metric should be:",
+      options: [
+        "Number of brochures and marketing materials distributed",
+        "Number of meaningful, in-person interactions with referral sources",
+        "Number of cold calls made to new prospects",
+        "Number of admissions personally coordinated with the clinical team",
+      ],
+      correctAnswer: "Number of meaningful, in-person interactions with referral sources",
+      displayOrder: 7,
+    },
+    {
+      assessmentId: a1.id,
+      type: "quiz",
+      text: "When a referral source says 'I already have a hospice I work with,' the best first response is:",
+      options: [
+        "Immediately offer a faster admission turnaround time than the competitor",
+        "Ask what they value most about their current hospice relationship",
+        "Leave your card and say you will follow up next month",
+        "Explain your hospice's clinical superiority in detail",
+      ],
+      correctAnswer: "Ask what they value most about their current hospice relationship",
+      displayOrder: 8,
+    },
+    {
+      assessmentId: a1.id,
+      type: "scenario",
+      text: "You've been calling on a skilled nursing facility for three months. The Director of Nursing is always polite but has never sent a referral. On your next visit she says, 'Honestly, I don't really see a difference between you and the other hospice reps.' How do you respond in that moment — and describe your specific plan for the next 30 days to change her perception and earn her first referral.",
+      options: null,
+      correctAnswer: null,
+      displayOrder: 9,
+    },
+    {
+      assessmentId: a1.id,
+      type: "scenario",
+      text: "A hospital discharge planner you have a strong relationship with calls you urgently. She has a patient who is clinically appropriate for hospice and the family has been approached — but the family is resistant and says they are 'not ready to give up.' She asks for your advice on what she should say to them. Walk through exactly how you would coach her through that conversation, including specific language she can use.",
+      options: null,
+      correctAnswer: null,
+      displayOrder: 10,
+    },
+    {
+      assessmentId: a1.id,
+      type: "scenario",
+      text: "You are four weeks into a new territory. Your manager asks you to present a 90-day ramp plan at your next one-on-one. You have identified 50 potential accounts across SNFs, physician offices, and assisted living facilities. Describe your process for prioritizing which accounts to focus on first, what your first two weeks of activity look like day-by-day, and how you will measure whether you are on track at the 30-day mark.",
+      options: null,
+      correctAnswer: null,
+      displayOrder: 11,
+    },
+  ]);
+
+  // ── Assessment 2: Field Readiness Evaluation ────────────────────────────
+  const [a2] = await db.insert(assessments).values({
+    name: "Hospice Sales Representative — Field Readiness Evaluation",
+    description: "Final-round evaluation for hospice sales rep candidates. Assesses territory strategy, competitive handling, and scenario judgment. Recommended after a first-round interview. Estimated completion time: 20–25 minutes.",
+  }).returning();
+
+  await db.insert(assessmentQuestions).values([
+    {
+      assessmentId: a2.id,
+      type: "quiz",
+      text: "In a hospice business context, 'Average Daily Census' (ADC) measures:",
+      options: [
+        "The number of new referrals received per day",
+        "The average number of patients currently on hospice service on any given day",
+        "The total number of admissions in a calendar month",
+        "The average length of a patient's stay in days",
+      ],
+      correctAnswer: "The average number of patients currently on hospice service on any given day",
+      displayOrder: 1,
+    },
+    {
+      assessmentId: a2.id,
+      type: "quiz",
+      text: "A 'warm' referral source is best described as:",
+      options: [
+        "A referral source who has sent at least one patient in the past 90 days",
+        "A referral source who has expressed interest but has not yet sent a referral",
+        "A referral source you are meeting for the very first time",
+        "A referral source currently sending exclusively to a competitor",
+      ],
+      correctAnswer: "A referral source who has expressed interest but has not yet sent a referral",
+      displayOrder: 2,
+    },
+    {
+      assessmentId: a2.id,
+      type: "quiz",
+      text: "Which approach is most effective when re-engaging a referral source who has gone cold after previously referring?",
+      options: [
+        "Send a thank-you gift and follow up by phone a week later",
+        "Lead with a relevant clinical resource, patient outcome story, or case study tied to their patient population",
+        "Offer to host a lunch-and-learn at the facility immediately",
+        "Ask your clinical team to make the contact call on your behalf",
+      ],
+      correctAnswer: "Lead with a relevant clinical resource, patient outcome story, or case study tied to their patient population",
+      displayOrder: 3,
+    },
+    {
+      assessmentId: a2.id,
+      type: "quiz",
+      text: "From a referral source's perspective, why does a patient's length of stay on hospice matter to their referral decisions?",
+      options: [
+        "Longer stays create more paperwork and documentation burden for the facility",
+        "Referral sources associate early, appropriate hospice referrals with better patient comfort and quality of life, which reflects on their own care standards",
+        "Short stays indicate the hospice is managing patients efficiently",
+        "Length of stay has no meaningful influence on referral decisions",
+      ],
+      correctAnswer: "Referral sources associate early, appropriate hospice referrals with better patient comfort and quality of life, which reflects on their own care standards",
+      displayOrder: 4,
+    },
+    {
+      assessmentId: a2.id,
+      type: "quiz",
+      text: "The best time to request feedback from a referral source about a recently discharged patient is:",
+      options: [
+        "At least six months after the patient's discharge to allow emotions to settle",
+        "Never — raising past cases risks highlighting any problems that occurred",
+        "During a regular relationship visit within two weeks of the patient's discharge or death",
+        "Only if the outcome was clearly positive and the family expressed satisfaction",
+      ],
+      correctAnswer: "During a regular relationship visit within two weeks of the patient's discharge or death",
+      displayOrder: 5,
+    },
+    {
+      assessmentId: a2.id,
+      type: "scenario",
+      text: "You receive word that your top SNF account — responsible for roughly 40% of your monthly admissions — has started splitting referrals with a competitor because the competitor promised faster admission turnaround. You have a scheduled visit with the Director of Nursing tomorrow morning. Write out exactly what you will say in that meeting: your opening, how you address the issue directly, what you offer or commit to, and how you close the conversation.",
+      options: null,
+      correctAnswer: null,
+      displayOrder: 6,
+    },
+    {
+      assessmentId: a2.id,
+      type: "scenario",
+      text: "Your manager asks you to identify your top 10 accounts to prioritize for the next quarter and explain your reasoning. Walk through your exact process for evaluating and ranking your accounts. What criteria matter most to you, what data or observations do you use, and how do you decide which accounts to deprioritize for now?",
+      options: null,
+      correctAnswer: null,
+      displayOrder: 7,
+    },
+    {
+      assessmentId: a2.id,
+      type: "scenario",
+      text: "A primary care physician you have never met picks up the phone when you make a cold call to his practice. You can tell from his tone you have about 45 seconds before he becomes impatient. Write out exactly what you say — your opening line, how you differentiate yourself from every other hospice rep who has called his office, and how you close for a specific next step.",
+      options: null,
+      correctAnswer: null,
+      displayOrder: 8,
+    },
+    {
+      assessmentId: a2.id,
+      type: "scenario",
+      text: "Two of your established referral accounts mention to you in the same week that a competitor's representative has been telling people your hospice has had HIPAA violations and quality-of-care issues. None of it is true. Describe exactly how you handle this situation — what you say to the two accounts that mentioned it, what steps you take internally, and whether and how you address the competitor's representative directly.",
+      options: null,
+      correctAnswer: null,
+      displayOrder: 9,
+    },
+  ]);
+
+  console.log("  Seeded 2 candidate assessments with 20 questions total");
+}
+
 export async function seedDatabase() {
   console.log("Starting database seed...");
   console.log(`Environment: ${process.env.NODE_ENV || 'not set'}`);
@@ -292,6 +545,7 @@ export async function seedDatabase() {
     await seedByTitle(podcasts, samplePodcasts, "podcasts");
     await seedByTitle(testimonials, sampleTestimonials, "testimonials");
     await seedByTitle(caseStudies, sampleCaseStudies, "case studies");
+    await seedAssessments();
 
     console.log("Database seed completed successfully!");
     return true;
