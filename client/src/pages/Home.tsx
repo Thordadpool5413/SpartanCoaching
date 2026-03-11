@@ -914,7 +914,7 @@ export default function Home() {
 
           <StaggerContainer className="grid grid-cols-2 md:grid-cols-3 gap-cards">
             <StaggerItem>
-              <Card className="card-lift border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-playbooks">
+              <Card className="border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-playbooks">
                 <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                 <div className="relative flex-1 flex flex-col">
                   <div className="w-14 h-14 sm:w-16 sm:h-16 bg-spartan-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-all duration-500">
@@ -935,7 +935,7 @@ export default function Home() {
             </StaggerItem>
 
             <StaggerItem>
-              <Card className="card-lift border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-objections">
+              <Card className="border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-objections">
                 <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                 <div className="relative flex-1 flex flex-col">
                   <div className="w-14 h-14 sm:w-16 sm:h-16 bg-spartan-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-all duration-500">
@@ -956,7 +956,7 @@ export default function Home() {
             </StaggerItem>
 
             <StaggerItem>
-              <Card className="card-lift border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-research">
+              <Card className="border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-research">
                 <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                 <div className="relative flex-1 flex flex-col">
                   <div className="w-14 h-14 sm:w-16 sm:h-16 bg-spartan-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-all duration-500">
@@ -977,7 +977,7 @@ export default function Home() {
             </StaggerItem>
 
             <StaggerItem>
-              <Card className="card-lift border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-email-templates">
+              <Card className="border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-email-templates">
                 <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                 <div className="relative flex-1 flex flex-col">
                   <div className="w-14 h-14 sm:w-16 sm:h-16 bg-spartan-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-all duration-500">
@@ -998,7 +998,7 @@ export default function Home() {
             </StaggerItem>
 
             <StaggerItem>
-              <Card className="card-lift border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-role-play">
+              <Card className="border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-role-play">
                 <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                 <div className="relative flex-1 flex flex-col">
                   <div className="w-14 h-14 sm:w-16 sm:h-16 bg-spartan-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-all duration-500">
@@ -1019,7 +1019,7 @@ export default function Home() {
             </StaggerItem>
 
             <StaggerItem>
-              <Card className="card-lift border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-drills">
+              <Card className="border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-drills">
                 <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                 <div className="relative flex-1 flex flex-col">
                   <div className="w-14 h-14 sm:w-16 sm:h-16 bg-spartan-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-all duration-500">
@@ -1040,7 +1040,7 @@ export default function Home() {
             </StaggerItem>
 
             <StaggerItem>
-              <Card className="card-lift border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-transcribe">
+              <Card className="border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-transcribe">
                 <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                 <div className="relative flex-1 flex flex-col">
                   <div className="w-14 h-14 sm:w-16 sm:h-16 bg-spartan-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-all duration-500">
@@ -1061,7 +1061,7 @@ export default function Home() {
             </StaggerItem>
 
             <StaggerItem>
-              <Card className="card-lift border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-roi-calculator">
+              <Card className="border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-roi-calculator">
                 <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                 <div className="relative flex-1 flex flex-col">
                   <div className="w-14 h-14 sm:w-16 sm:h-16 bg-spartan-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-all duration-500">
@@ -1082,7 +1082,7 @@ export default function Home() {
             </StaggerItem>
 
             <StaggerItem>
-              <Card className="card-lift border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-quiz">
+              <Card className="border-2 group relative spacing-card shadow-lg flex flex-col h-full" data-testid="card-tool-quiz">
                 <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                 <div className="relative flex-1 flex flex-col">
                   <div className="w-14 h-14 sm:w-16 sm:h-16 bg-spartan-gradient rounded-2xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-lg group-hover:scale-110 transition-all duration-500">

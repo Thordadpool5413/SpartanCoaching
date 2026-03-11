@@ -70,7 +70,7 @@ export default function Research() {
         Get expert insights with real web sources. Ask questions about hospice trends, regulations, or competitive intelligence, and receive answers backed by credible citations.
       </p>
 
-      <Card className="mb-8 card-lift border-2 shadow-lg spacing-card">
+      <Card className="mb-8 border-2 shadow-lg spacing-card">
         <div className="flex flex-col sm:flex-row gap-3">
           <Input
             value={query}
@@ -153,7 +153,7 @@ export default function Research() {
       )}
 
       {isLoading && (
-        <Card className="flex items-center justify-center h-48 card-lift border-2 shadow-lg spacing-card">
+        <Card className="flex items-center justify-center h-48 border-2 shadow-lg spacing-card">
           <div className="text-center">
             <SpinnerIcon className="w-8 h-8 animate-spin text-primary mx-auto mb-3" />
             <p className="text-muted-foreground">Searching for relevant information...</p>
@@ -163,7 +163,7 @@ export default function Research() {
 
       {results && (
         <div className="space-y-6">
-          <Card className="card-lift border-2 shadow-lg spacing-card">
+          <Card className="border-2 shadow-lg spacing-card">
             <h2 className="text-h2 font-bold text-foreground mb-4">Research Results</h2>
             <div className="mb-6" data-testid="text-research-results">
               <MarkdownContent content={results.text} />

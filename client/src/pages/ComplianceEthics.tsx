@@ -1,8 +1,10 @@
 import { Card } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/BackButton";
 import { SEO } from "@/components/SEO";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 import { Shield, Lock, Heart, AlertTriangle, CheckCircle, ShieldOff, BookOpen, Target } from "lucide-react";
+import { Link } from "wouter";
 
 const boundaryItems = [
   { text: "We do not train inducements or kickbacks of any kind" },
@@ -84,7 +86,7 @@ export default function ComplianceEthics() {
               </div>
               <div className="grid md:grid-cols-2 gap-cards">
                 {phiItems.map((item, index) => (
-                  <Card key={index} className="border-2 group relative card-lift spacing-card" data-testid={`card-phi-${index}`}>
+                  <Card key={index} className="border-2 group relative spacing-card" data-testid={`card-phi-${index}`}>
                     <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                     <div className="relative flex gap-4 items-start">
                       <div className="w-12 h-12 shrink-0 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg">
@@ -108,7 +110,7 @@ export default function ComplianceEthics() {
               </div>
               <div className="grid md:grid-cols-2 gap-cards">
                 {ethicalItems.map((item, index) => (
-                  <Card key={index} className="border-2 group relative card-lift spacing-card" data-testid={`card-ethical-${index}`}>
+                  <Card key={index} className="border-2 group relative spacing-card" data-testid={`card-ethical-${index}`}>
                     <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                     <div className="relative flex gap-4 items-start">
                       <div className="w-12 h-12 shrink-0 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg">
@@ -154,12 +156,12 @@ export default function ComplianceEthics() {
                 Partner with a coaching program built on integrity, compliance, and a commitment to ethical hospice sales practices. The standard is clear. The work is real.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <a href="/contact" className="inline-flex items-center justify-center gap-2 px-10 py-4 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg transition-colors text-base" data-testid="button-compliance-contact">
-                  Contact Us
-                </a>
-                <a href="/manifesto" className="inline-flex items-center justify-center gap-2 px-10 py-4 border border-white/20 text-white/80 hover:text-white hover:border-white/40 font-semibold rounded-lg transition-colors text-base" data-testid="link-compliance-manifesto">
-                  Read the Spartan Ethos
-                </a>
+                <Button size="lg" asChild className="font-bold shadow-lg bg-red-600 text-white border-red-600" data-testid="button-compliance-contact">
+                  <Link href="/contact">Contact Us</Link>
+                </Button>
+                <Button size="lg" variant="outline" asChild className="font-bold glass border-white/30 text-white" data-testid="link-compliance-manifesto">
+                  <Link href="/manifesto">Read the Spartan Ethos</Link>
+                </Button>
               </div>
             </div>
           </FadeIn>

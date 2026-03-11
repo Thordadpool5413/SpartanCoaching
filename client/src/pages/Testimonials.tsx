@@ -179,7 +179,7 @@ export default function Testimonials() {
           <p className="text-body-lg text-white/80 max-w-2xl mx-auto leading-relaxed mb-10">
             Whether you are a rep looking to sharpen your skills, a leader building a team, or an executive scaling across markets, let's talk about what is not working and build a plan that fixes it.
           </p>
-          <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10 bg-red-600 hover:bg-red-700 text-white border-red-600" data-testid="button-testimonials-contact">
+          <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10 bg-red-600 text-white border-red-600" data-testid="button-testimonials-contact">
             <Link href="/contact">
               <span>Contact Us</span>
               <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />

@@ -169,7 +169,7 @@ export default function Playbooks() {
 
       <div className="grid lg:grid-cols-3 gap-8">
         <div className="lg:col-span-1 space-y-6">
-          <Card className="card-lift border-2 shadow-lg spacing-card">
+          <Card className="border-2 shadow-lg spacing-card">
             <h2 className="text-h2 font-bold mb-4">1. Describe a Scenario</h2>
             <p className="text-sm text-muted-foreground mb-4">
               Be specific about the referral source, challenges, and goals.
@@ -216,7 +216,7 @@ export default function Playbooks() {
             </Button>
           </Card>
 
-          <Card className="card-lift border-2 shadow-lg spacing-card">
+          <Card className="border-2 shadow-lg spacing-card">
             <h2 className="text-h2 font-bold mb-4">Classic Spartan Playbooks</h2>
             <p className="text-sm text-muted-foreground mb-4">
               Need inspiration? Click a classic scenario to instantly generate a proven playbook.
@@ -242,7 +242,7 @@ export default function Playbooks() {
 
         <div className="lg:col-span-2">
           {!generatedPlaybook && !isLoading && (
-            <Card className="h-full flex items-center justify-center card-lift border-2 shadow-lg spacing-card">
+            <Card className="h-full flex items-center justify-center border-2 shadow-lg spacing-card">
               <div className="text-center text-muted-foreground">
                 <p className="text-body-lg mb-2">No playbook generated yet</p>
                 <p className="text-body">Describe a scenario and click "Generate" to create your custom playbook</p>
@@ -251,7 +251,7 @@ export default function Playbooks() {
           )}
 
           {generatedPlaybook && !showModal && (
-            <Card className="card-lift border-2 shadow-lg spacing-card">
+            <Card className="border-2 shadow-lg spacing-card">
               <div className="flex justify-between items-center mb-6 flex-wrap gap-2">
                 <h2 className="text-h2 font-bold">Your Custom Playbook</h2>
                 <div className="flex gap-2">

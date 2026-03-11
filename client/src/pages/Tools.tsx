@@ -131,12 +131,12 @@ export default function Tools() {
       <StaggerContainer className="grid md:grid-cols-2 gap-cards">
         {filteredTools.map((tool, idx) => (
           <StaggerItem key={idx}>
-            <Card className={cn("flex flex-col border-2 group relative card-lift spacing-card shadow-lg", filteredTools.length === 0 ? "hidden" : "")} data-testid={`card-tool-${idx}`}>
+            <Card className={cn("flex flex-col border-2 group relative spacing-card shadow-lg", filteredTools.length === 0 ? "hidden" : "")} data-testid={`card-tool-${idx}`}>
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative flex-1 flex flex-col">
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div className="flex items-center gap-4">
-                    <div className="p-3 rounded-lg bg-primary/10 text-primary group-hover:scale-110 group-hover:bg-primary/20 transition-all duration-300">
+                    <div className="p-3 rounded-lg bg-primary/10 text-primary">
                       {tool.icon}
                     </div>
                     <h3 className="text-h3 font-bold text-foreground">{tool.title}</h3>

@@ -158,7 +158,7 @@ export default function EmailTemplates() {
 
         <div className="grid md:grid-cols-2 gap-8">
           {/* Input Form */}
-          <Card className="card-lift border-2 shadow-lg spacing-card">
+          <Card className="border-2 shadow-lg spacing-card">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Mail className="w-5 h-5" />
@@ -241,7 +241,7 @@ export default function EmailTemplates() {
           </Card>
 
           {/* Generated Template */}
-          <Card className="card-lift border-2 shadow-lg spacing-card">
+          <Card className="border-2 shadow-lg spacing-card">
             <CardHeader>
               <div className="flex items-center justify-between gap-2">
                 <CardTitle>Generated Template</CardTitle>

@@ -23,7 +23,7 @@ export default function About() {
 
         {/* The Why Section - Core Message */}
         <div className="space-y-8 md:space-y-12 lg:space-y-16">
-          <Card className="spacing-card bg-gradient-to-br from-primary/5 to-destructive/5 card-lift border-2">
+          <Card className="spacing-card bg-gradient-to-br from-primary/5 to-destructive/5 border-2">
             <div className="space-y-6 text-body-lg leading-relaxed">
               <p className="text-foreground">
                 The promise is simple. When a person is eligible, they should receive expert, compassionate care without delay, and their family should feel supported at every step. That promise breaks when sales teams are left with vague goals, light coaching, and a calendar full of activity that does not move referrals.
@@ -45,7 +45,7 @@ export default function About() {
         <div className="space-y-8 md:space-y-12 lg:space-y-16">
           <h2 className="text-h2 text-foreground mt-12 mb-8">The Stakes Are Real</h2>
           <div className="grid md:grid-cols-3 gap-cards">
-            <Card className="border-2 group relative card-lift text-center spacing-card" data-testid="card-stakes-teams">
+            <Card className="border-2 group relative text-center spacing-card" data-testid="card-stakes-teams">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
                 <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg group-hover:scale-105 group-hover:glow-primary transition-all duration-300">
@@ -58,7 +58,7 @@ export default function About() {
               </div>
             </Card>
 
-            <Card className="border-2 group relative card-lift text-center spacing-card" data-testid="card-stakes-reps">
+            <Card className="border-2 group relative text-center spacing-card" data-testid="card-stakes-reps">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
                 <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg group-hover:scale-105 group-hover:glow-primary transition-all duration-300">
@@ -71,7 +71,7 @@ export default function About() {
               </div>
             </Card>
 
-            <Card className="border-2 group relative card-lift text-center spacing-card" data-testid="card-stakes-orgs">
+            <Card className="border-2 group relative text-center spacing-card" data-testid="card-stakes-orgs">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
                 <div className="w-14 h-14 mx-auto mb-6 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg group-hover:scale-105 group-hover:glow-primary transition-all duration-300">
@@ -175,7 +175,7 @@ export default function About() {
           </div>
 
           <div className="grid gap-4 mt-16 mb-16">
-            <Card className="border-2 group relative card-lift spacing-card" data-testid="card-experience-field">
+            <Card className="border-2 group relative spacing-card" data-testid="card-experience-field">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
                 <h3 className="text-h3 font-bold text-primary mb-3">Field Leadership</h3>
@@ -185,7 +185,7 @@ export default function About() {
               </div>
             </Card>
 
-            <Card className="border-2 group relative card-lift spacing-card" data-testid="card-experience-operations">
+            <Card className="border-2 group relative spacing-card" data-testid="card-experience-operations">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
                 <h3 className="text-h3 font-bold text-primary mb-3">Operational Excellence</h3>
@@ -195,7 +195,7 @@ export default function About() {
               </div>
             </Card>
 
-            <Card className="border-2 group relative card-lift spacing-card" data-testid="card-experience-coaching">
+            <Card className="border-2 group relative spacing-card" data-testid="card-experience-coaching">
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="relative">
                 <h3 className="text-h3 font-bold text-primary mb-3">Practical Coaching</h3>
@@ -210,7 +210,7 @@ export default function About() {
           <div className="mt-16 mb-16">
             <h2 className="text-h2 text-foreground mb-8 text-center">Values and Coaching Philosophy</h2>
             <div className="grid md:grid-cols-2 gap-cards">
-              <Card className="border-2 group relative card-lift spacing-card" data-testid="card-value-practical">
+              <Card className="border-2 group relative spacing-card" data-testid="card-value-practical">
                 <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                 <div className="relative flex gap-4 items-start">
                   <div className="w-12 h-12 shrink-0 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg">
@@ -223,7 +223,7 @@ export default function About() {
                 </div>
               </Card>
 
-              <Card className="border-2 group relative card-lift spacing-card" data-testid="card-value-consistency">
+              <Card className="border-2 group relative spacing-card" data-testid="card-value-consistency">
                 <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                 <div className="relative flex gap-4 items-start">
                   <div className="w-12 h-12 shrink-0 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg">
@@ -236,7 +236,7 @@ export default function About() {
                 </div>
               </Card>
 
-              <Card className="border-2 group relative card-lift spacing-card" data-testid="card-value-patient">
+              <Card className="border-2 group relative spacing-card" data-testid="card-value-patient">
                 <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                 <div className="relative flex gap-4 items-start">
                   <div className="w-12 h-12 shrink-0 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg">
@@ -249,7 +249,7 @@ export default function About() {
                 </div>
               </Card>
 
-              <Card className="border-2 group relative card-lift spacing-card" data-testid="card-value-ethical">
+              <Card className="border-2 group relative spacing-card" data-testid="card-value-ethical">
                 <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
                 <div className="relative flex gap-4 items-start">
                   <div className="w-12 h-12 shrink-0 rounded-full bg-spartan-gradient flex items-center justify-center shadow-lg">
@@ -344,7 +344,7 @@ export default function About() {
 
           {/* LinkedIn Connect Section */}
           <div className="mt-8 text-center">
-            <Card className="spacing-card bg-gradient-to-br from-primary/5 to-primary/10 card-lift border-2">
+            <Card className="spacing-card bg-gradient-to-br from-primary/5 to-primary/10 border-2">
               <p className="text-muted-foreground mb-4 font-bold">
                 Learn more about Nick's professional background and experience
               </p>

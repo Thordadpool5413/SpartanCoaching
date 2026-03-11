@@ -115,7 +115,7 @@ export default function Objections() {
 
       <div className="grid gap-6">
         {objections.map((obj, idx) => (
-          <Card key={idx} className="flex flex-col md:flex-row gap-6 card-lift border-2 shadow-lg spacing-card" data-testid={`card-objection-${idx}`}>
+          <Card key={idx} className="flex flex-col md:flex-row gap-6 border-2 shadow-lg spacing-card" data-testid={`card-objection-${idx}`}>
             <div className="flex-1">
               <h3 className="text-h3 font-bold text-foreground mb-4">{obj.q}</h3>
               <p className="text-muted-foreground italic border-l-4 border-primary pl-4">"{obj.a}"</p>

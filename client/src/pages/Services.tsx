@@ -208,7 +208,7 @@ export default function Services() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards">
           {individualServices.map((service, idx) => (
-            <Card key={idx} className="flex flex-col border-2 group relative card-lift spacing-card shadow-lg" data-testid={`card-individual-${idx}`}>
+            <Card key={idx} className="flex flex-col border-2 group relative spacing-card shadow-lg" data-testid={`card-individual-${idx}`}>
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-radial from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-2xl"></div>
               <div className="flex-1 relative">
@@ -271,7 +271,7 @@ export default function Services() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards">
           {leadershipServices.map((service, idx) => (
-            <Card key={idx} className="flex flex-col border-2 group relative card-lift spacing-card shadow-lg" data-testid={`card-leadership-${idx}`}>
+            <Card key={idx} className="flex flex-col border-2 group relative spacing-card shadow-lg" data-testid={`card-leadership-${idx}`}>
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-radial from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-2xl"></div>
               <div className="flex-1 relative">
@@ -334,7 +334,7 @@ export default function Services() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards">
           {corporateServices.map((service, idx) => (
-            <Card key={idx} className="flex flex-col border-2 group relative card-lift spacing-card shadow-lg" data-testid={`card-corporate-${idx}`}>
+            <Card key={idx} className="flex flex-col border-2 group relative spacing-card shadow-lg" data-testid={`card-corporate-${idx}`}>
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-radial from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-2xl"></div>
               <div className="flex-1 relative">
@@ -505,7 +505,7 @@ export default function Services() {
         <p className="text-body-lg text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
           Every engagement starts with understanding your specific challenge. Let's talk about what is not working and build a plan that fixes it.
         </p>
-        <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10 bg-red-600 hover:bg-red-700 text-white border-red-600" data-testid="button-services-contact">
+        <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10 bg-red-600 text-white border-red-600" data-testid="button-services-contact">
           <Link href="/contact">
             <span>Contact Us</span>
             <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
