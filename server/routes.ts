@@ -2064,29 +2064,49 @@ The single most important skill to work on before the next conversation.`,
             answer: (answers as Record<string, string>)[String(q.id)] || "(No response)",
           }));
 
-          const prompt = `You are evaluating a hospice sales representative candidate's written scenario responses as part of a hiring assessment called "${assessment.name}".
+          const systemPrompt = `You are Nick Lynch, founder of Spartan Coaching and a veteran hospice sales trainer. You have coached hundreds of hospice sales representatives and know exactly what separates a top performer from an average rep in this industry. You evaluate candidates with deep knowledge of the Medicare Hospice Benefit, SNF and physician referral dynamics, the emotional complexity of end-of-life conversations, and the Spartan Method philosophy of consistent, value-driven relationship building.
 
-Score each response on a scale of 0-100 based on:
-- Understanding of hospice sales concepts
-- Empathy and communication skills
-- Strategic thinking and problem-solving
-- Professionalism and ethical awareness
+Your job is to evaluate candidate scenario responses and give Nick an honest, direct assessment of whether this person is ready to represent a hospice in the field.`;
 
-Here are the scenario responses:
+          const prompt = `You are evaluating a candidate for a hospice sales representative position as part of the assessment: "${assessment.name}".
+
+## Your Evaluation Framework
+
+Score each scenario response on these hospice-specific criteria:
+
+**1. Hospice Industry Knowledge (25 pts)**
+Does the candidate demonstrate real understanding of: the Medicare Hospice Benefit, what makes a patient eligible, why facilities refer (and why they stop referring), how length of stay reflects on the referral source, and the clinical/emotional weight of hospice for patients and families? Generic sales answers with no hospice context score 0-5 here.
+
+**2. Relationship-First Selling (25 pts)**
+Does the candidate lead with discovery and curiosity before pitching? The Spartan Method is about consistent, value-driven presence — not transactional volume selling. Red flags: immediately offering price advantages, jumping to "we're better than the competition," or making promises without asking questions first. Strong answers: ask what the referral source values, listen before responding, demonstrate that the rep earns trust over time.
+
+**3. Hospice-Specific Communication and Empathy (25 pts)**
+Hospice sales is unlike any other healthcare sales because it involves families at their most vulnerable and clinicians who carry the emotional weight of end-of-life care. Does the candidate show they understand this? Can they coach a discharge planner through a resistant family conversation in a way that is compassionate, not pushy? Do they know the difference between "giving up" and choosing comfort?
+
+**4. Strategic Thinking and Territory Execution (25 pts)**
+Does the candidate have a real, executable plan — not just buzzwords? Evaluate: account prioritization logic, daily/weekly structure, how they track progress, how they handle competitive accounts, and how they re-engage cold referral sources. Strong candidates are specific. Weak candidates say things like "I would build relationships and stay consistent" without explaining how.
+
+## Scoring Tiers
+- **85–100**: Strong Hire. This person understands hospice sales at a deep level and demonstrates the Spartan Method mindset. Nick should move forward.
+- **70–84**: Solid Candidate. Good instincts, some gaps. A second conversation or targeted interview questions recommended.
+- **50–69**: Development Needed. Potential exists but candidate needs significant coaching. Consider only for entry-level if other factors are strong.
+- **0–49**: Not Ready. Answers are generic, show no hospice knowledge, or demonstrate selling behaviors that would damage referral relationships.
+
+## Candidate Responses to Evaluate
 
 ${scenarioResponses.map((sr, i) => `### Scenario ${i + 1}
 **Question:** ${sr.question}
 **Candidate's Answer:** ${sr.answer}`).join("\n\n")}
 
-Provide your evaluation in the following format:
-1. Start with "SCORE: X" where X is the overall score (0-100)
-2. Then provide qualitative feedback for each scenario response
-3. End with an overall assessment summary
+## Output Format
+1. First line: "SCORE: X" (0–100 overall)
+2. For each scenario: brief label of the scenario, then 2–4 sentences of specific feedback referencing what the candidate said (or failed to say), with a note on what a stronger answer would have included
+3. Final paragraph: hiring recommendation in plain language — what Nick should take away about this candidate
 
-Be fair but thorough. A score of 70+ indicates strong aptitude.`;
+Be direct. Nick is a practitioner, not an HR professional. He wants to know if this person will perform in the field.`;
 
           const { generateComplexResponse } = await import("./openai");
-          const aiResult = await generateComplexResponse(prompt, "You are an expert hospice sales hiring evaluator. Provide detailed, constructive feedback on candidate scenario responses. Be fair, specific, and actionable.");
+          const aiResult = await generateComplexResponse(prompt, systemPrompt);
 
           const scoreMatch = aiResult.match(/SCORE:\s*(\d+)/i);
           aiScore = scoreMatch ? Math.min(100, Math.max(0, parseInt(scoreMatch[1]))) : 50;
