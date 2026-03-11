@@ -643,13 +643,140 @@ Subject: [subject line]
     }
   });
 
-  app.get("/api/resource-leads", async (_req, res) => {
+  app.get("/api/resource-leads", requireAdmin, async (_req, res) => {
     try {
       const leads = await storage.getResourceLeads();
       res.json({ leads });
     } catch (error: any) {
       console.error("Get resource leads error:", error);
       res.status(500).json({ error: "Failed to retrieve leads" });
+    }
+  });
+
+  app.post("/api/admin/send-email", requireAdmin, async (req, res) => {
+    try {
+      const { to, name, subject, body } = req.body;
+      if (!to || !subject || !body) {
+        return res.status(400).json({ error: "to, subject, and body are required" });
+      }
+      const success = await sendGeneratedEmail(to, subject, body);
+      if (success) {
+        console.log(`[Admin] Email sent to ${to} (${name || "unknown"})`);
+        res.json({ success: true });
+      } else {
+        res.status(500).json({ error: "Failed to send email" });
+      }
+    } catch (error: any) {
+      console.error("Admin send email error:", error);
+      res.status(500).json({ error: error.message || "Failed to send email" });
+    }
+  });
+
+  app.post("/api/cold-call-script", standardAiLimit, async (req, res) => {
+    try {
+      const { prospectType, prospectName, situation, repName } = req.body;
+      if (!prospectType || !situation || situation.length < 10) {
+        return res.status(400).json({ error: "prospectType and situation (min 10 chars) are required" });
+      }
+      const systemPrompt = `You are Nick Lynch, a Spartan Method hospice sales coach with 10+ years of experience coaching hospice liaisons. You create highly specific, immediately usable cold call scripts that respect the prospect's time and lead with clinical value — never pressure tactics.
+
+Your scripts are grounded in the Spartan Method: discipline, empathy, strategy. Every word earns its place. No filler phrases, no corporate speak.
+
+Format your response with exactly these sections using markdown headers:
+
+## Opening Hook
+A 25-30 second cold call opener. Natural, confident, curiosity-driven. Mentions the prospect's role specifically. Ends with an open question that invites conversation, not a yes/no.
+
+## Objection Handler 1: [Most Common Objection for This Prospect Type]
+**Objection:** [The exact words they typically say]
+**Response:** [Your response — acknowledge, pivot, reframe. 2-3 sentences max.]
+
+## Objection Handler 2: [Second Most Common Objection]
+**Objection:** [Exact words]
+**Response:** [2-3 sentences]
+
+## Objection Handler 3: [Third Most Common Objection]
+**Objection:** [Exact words]
+**Response:** [2-3 sentences]
+
+## Next Step Ask
+One clean closing line to secure a specific next step — a meeting, a 5-minute call, a facility tour. Not vague. Specific.
+
+---
+Keep the total script under 400 words. Make it feel like a real person talking, not a corporate training module.`;
+
+      const userPrompt = `Prospect Type: ${prospectType}${prospectName ? `\nProspect Name: ${prospectName}` : ""}
+Rep's Situation: ${situation}${repName ? `\nRep's Name: ${repName}` : ""}
+
+Generate a cold call script tailored to this exact situation.`;
+
+      const script = await generateComplexResponse(userPrompt, systemPrompt);
+      res.json({ script });
+    } catch (error: any) {
+      console.error("Cold call script error:", error);
+      res.status(500).json({ error: error.message || "Failed to generate script" });
+    }
+  });
+
+  app.post("/api/weekly-plan-builder", standardAiLimit, async (req, res) => {
+    try {
+      const { accounts, weeklyGoal, territoryFocus, challenges } = req.body;
+      if (!accounts || accounts.length < 10 || !weeklyGoal) {
+        return res.status(400).json({ error: "accounts and weeklyGoal are required" });
+      }
+      const systemPrompt = `You are Nick Lynch, a Spartan Method hospice sales territory management expert. You build specific, disciplined weekly territory plans for hospice liaisons.
+
+Your plans are:
+- Specific (named accounts, specific visit objectives, not generic advice)
+- Sequenced (accounts are ordered strategically across the week — high-value accounts early, follow-ups mid-week, re-engagements Thursday/Friday)
+- Actionable (each day has a clear "win condition" — what success looks like)
+- Honest (if an account won't convert this week, say so and deprioritize it)
+
+Format your response exactly like this:
+
+## Monday
+**Priority Accounts:**
+- [Account Name] — [Specific goal for this visit] | [One talk track focus sentence]
+
+**Daily Win Condition:** [What does success look like today?]
+
+**End-of-Day Task:** [One follow-up or admin action]
+
+## Tuesday
+[Same format]
+
+## Wednesday
+[Same format]
+
+## Thursday
+[Same format]
+
+## Friday
+**Priority Accounts:**
+[Same format]
+
+**Weekly Review Checklist:**
+1. [Question to assess progress toward the weekly goal]
+2. [Question about pipeline movement]
+3. [Question about relationship quality]
+4. [Question about what to carry into next week]
+5. [Question about one skill to sharpen]
+
+---
+Be specific. Use the actual accounts and goals provided. Do not pad with generic advice. Under 600 words total.`;
+
+      const userPrompt = `Accounts to visit this week:
+${accounts}
+
+Weekly Goal: ${weeklyGoal}${territoryFocus ? `\nTerritory Focus: ${territoryFocus}` : ""}${challenges ? `\nBiggest Challenge: ${challenges}` : ""}
+
+Build a specific Monday–Friday territory plan for this week.`;
+
+      const plan = await generateComplexResponse(userPrompt, systemPrompt);
+      res.json({ plan });
+    } catch (error: any) {
+      console.error("Weekly plan builder error:", error);
+      res.status(500).json({ error: error.message || "Failed to generate plan" });
     }
   });
 

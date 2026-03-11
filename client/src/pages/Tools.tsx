@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { LightbulbIcon, SearchIcon as CustomSearchIcon, ChatIcon, MicrophoneIcon } from "@/components/icons";
-import { Mail, Users, Search, ArrowRight, Calculator, TrendingUp, Building } from "lucide-react";
+import { Mail, Users, Search, ArrowRight, Calculator, TrendingUp, Building, Phone, CalendarDays } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/BackButton";
@@ -76,6 +76,20 @@ export default function Tools() {
       description: "Model your hospice branch across any average daily census. Enter revenue rates, clinical variable costs, and staffing to find your break-even ADC, required admissions, and target margin census.",
       icon: <Building className="w-8 h-8" />,
       path: "/tools/branch-profitability",
+      category: "Planning",
+    },
+    {
+      title: "Cold Call Script Generator",
+      description: "Get a personalized cold call opener built for your exact prospect type and situation. Includes three pre-loaded objection handlers and a specific next step ask — ready to use before your next call.",
+      icon: <Phone className="w-8 h-8" />,
+      path: "/tools/cold-call-script",
+      category: "Strategy",
+    },
+    {
+      title: "Weekly Plan Builder",
+      description: "Turn your account list into a structured Monday–Friday territory plan. Each day includes specific visit goals, talk track focus, and a win condition. Includes a Friday review checklist.",
+      icon: <CalendarDays className="w-8 h-8" />,
+      path: "/tools/weekly-plan-builder",
       category: "Planning",
     },
   ];

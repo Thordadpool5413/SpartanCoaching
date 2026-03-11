@@ -11,7 +11,8 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Mail, Phone, Building, Calendar, Users, Lock, LogOut, Plus, Edit, Trash2, ExternalLink, Star, FileText as FileSignature, PlayCircle, Target, Quote, Award, ChevronDown, ChevronUp, Download, CheckCircle, Circle, Send, Loader2 } from "lucide-react";
-import type { SelectInquiry, SelectNewsletterSubscriber, SelectArticle, InsertArticle, VisitorAnalytics, SelectResource, InsertResource, SelectPodcast, InsertPodcast, SelectSignedAgreement, SelectRoleplaySession, SelectDrillCompletion, SelectTestimonial, SelectCaseStudy, InsertTestimonial, InsertCaseStudy } from "@shared/schema";
+import type { SelectInquiry, SelectNewsletterSubscriber, SelectArticle, InsertArticle, VisitorAnalytics, SelectResource, InsertResource, SelectPodcast, InsertPodcast, SelectSignedAgreement, SelectRoleplaySession, SelectDrillCompletion, SelectTestimonial, SelectCaseStudy, InsertTestimonial, InsertCaseStudy, SelectResourceLead } from "@shared/schema";
+import type { SelectUsageEvent } from "@shared/schema";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
@@ -183,6 +184,18 @@ export default function Admin() {
     refetchInterval: 30000,
   });
 
+  const { data: resourceLeadsData, isLoading: resourceLeadsLoading } = useQuery<{ leads: SelectResourceLead[] }>({
+    queryKey: ["/api/resource-leads"],
+    queryFn: () => adminGet("/api/resource-leads"),
+    enabled: isAuthenticated,
+  });
+
+  const { data: usageEventsData } = useQuery<{ events: SelectUsageEvent[] }>({
+    queryKey: ["/api/usage-events"],
+    queryFn: () => adminGet("/api/usage-events"),
+    enabled: isAuthenticated,
+  });
+
   const inquiries = inquiriesData?.inquiries || [];
   const subscribers = subscribersData?.subscribers || [];
   const articles = articlesData?.articles || [];
@@ -194,6 +207,65 @@ export default function Admin() {
   const drillCompletions = drillCompletionsData?.completions || [];
   const testimonialsList = testimonialsData?.testimonials || [];
   const caseStudiesList = caseStudiesData?.caseStudies || [];
+  const resourceLeads = resourceLeadsData?.leads || [];
+  const usageEvents = usageEventsData?.events || [];
+
+  // Leads email dialog state
+  const [leadEmailDialogOpen, setLeadEmailDialogOpen] = useState(false);
+  const [leadEmailTarget, setLeadEmailTarget] = useState<{ email: string; name: string } | null>(null);
+  const [leadEmailSubject, setLeadEmailSubject] = useState("");
+  const [leadEmailBody, setLeadEmailBody] = useState("");
+
+  const sendLeadEmailMutation = useMutation({
+    mutationFn: async ({ to, name, subject, body }: { to: string; name: string; subject: string; body: string }) => {
+      const res = await fetch("/api/admin/send-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Admin-Auth": ADMIN_CODE },
+        credentials: "include",
+        body: JSON.stringify({ to, name, subject, body }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to send email");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      toast({ title: "Email sent", description: `Message sent to ${leadEmailTarget?.email}` });
+      setLeadEmailDialogOpen(false);
+      setLeadEmailSubject("");
+      setLeadEmailBody("");
+    },
+    onError: (error: any) => {
+      toast({ title: "Send failed", description: error.message || "Could not send email.", variant: "destructive" });
+    },
+  });
+
+  // Group leads by email for the Leads tab
+  const groupedLeads = (() => {
+    const map = new Map<string, { name: string; email: string; firstSeen: number; tools: string[]; interactions: number }>();
+    resourceLeads.forEach((lead) => {
+      const key = lead.email.toLowerCase();
+      const existing = map.get(key);
+      const ts = lead.capturedAt ? new Date(lead.capturedAt).getTime() : Date.now();
+      if (!existing) {
+        map.set(key, { name: lead.name, email: lead.email, firstSeen: ts, tools: [lead.resourceTitle], interactions: 1 });
+      } else {
+        if (ts < existing.firstSeen) existing.firstSeen = ts;
+        if (!existing.tools.includes(lead.resourceTitle)) existing.tools.push(lead.resourceTitle);
+        existing.interactions += 1;
+      }
+    });
+    usageEvents.forEach((ev) => {
+      const key = ev.email.toLowerCase();
+      const existing = map.get(key);
+      if (existing) {
+        if (!existing.tools.includes(ev.toolName)) existing.tools.push(ev.toolName);
+        existing.interactions += 1;
+      }
+    });
+    return Array.from(map.values()).sort((a, b) => b.interactions - a.interactions);
+  })();
 
   // Newsletter broadcast state
   const [broadcastSubject, setBroadcastSubject] = useState("");
@@ -785,7 +857,7 @@ export default function Admin() {
       episodeNumber: podcast.episodeNumber ? String(podcast.episodeNumber) : "",
       duration: podcast.duration || "",
       publishDate: date.toISOString().split('T')[0],
-      audioUrl: podcast.audioUrl,
+      audioUrl: podcast.audioUrl ?? "",
     });
   };
 
@@ -1216,6 +1288,14 @@ export default function Admin() {
           </TabsTrigger>
           <TabsTrigger value="drills" data-testid="tab-drills">
             Drills ({drillCompletions.length})
+          </TabsTrigger>
+          <TabsTrigger value="leads" data-testid="tab-leads" className="gap-2">
+            Leads ({groupedLeads.length})
+            {groupedLeads.filter(l => l.interactions >= 3).length > 0 && (
+              <Badge variant="destructive" className="text-xs px-1.5 py-0 h-5 min-w-[1.25rem]">
+                {groupedLeads.filter(l => l.interactions >= 3).length}
+              </Badge>
+            )}
           </TabsTrigger>
         </TabsList>
 
@@ -2085,7 +2165,140 @@ export default function Admin() {
           )}
         </TabsContent>
 
+        {/* Leads Tab */}
+        <TabsContent value="leads" className="space-y-4">
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div>
+              <h2 className="text-xl font-bold">Leads</h2>
+              <p className="text-sm text-muted-foreground">{groupedLeads.length} unique leads captured via tool gate</p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                const rows = [
+                  ["Name", "Email", "First Seen", "Tools Used", "Interactions", "Hot Lead"],
+                  ...groupedLeads.map(l => [
+                    l.name,
+                    l.email,
+                    new Date(l.firstSeen).toLocaleDateString(),
+                    l.tools.join("; "),
+                    String(l.interactions),
+                    l.interactions >= 3 ? "Yes" : "No",
+                  ]),
+                ];
+                downloadCSV(rows, "spartan-leads.csv");
+              }}
+              data-testid="button-leads-export"
+            >
+              <Download className="w-4 h-4 mr-1.5" />
+              Export CSV
+            </Button>
+          </div>
+
+          {resourceLeadsLoading ? (
+            <div className="text-center py-8 text-muted-foreground">Loading leads...</div>
+          ) : groupedLeads.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center">
+                <p className="text-muted-foreground">No leads captured yet. Leads are recorded when users submit the tool gate form.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            <div className="space-y-3">
+              {groupedLeads.map((lead) => (
+                <Card key={lead.email} data-testid={`card-lead-${lead.email}`}>
+                  <CardHeader className="flex flex-row items-start justify-between gap-4 flex-wrap">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap mb-1">
+                        <CardTitle className="text-base">{lead.name}</CardTitle>
+                        {lead.interactions >= 3 && (
+                          <Badge variant="destructive" className="text-xs" data-testid={`badge-hot-${lead.email}`}>Hot</Badge>
+                        )}
+                      </div>
+                      <p className="text-sm text-muted-foreground">{lead.email}</p>
+                      <p className="text-xs text-muted-foreground mt-1">
+                        First seen {new Date(lead.firstSeen).toLocaleDateString()} &bull; {lead.interactions} interaction{lead.interactions !== 1 ? "s" : ""}
+                      </p>
+                      <div className="flex flex-wrap gap-1.5 mt-3">
+                        {lead.tools.map((tool) => (
+                          <Badge key={tool} variant="secondary" className="text-xs" data-testid={`badge-tool-${lead.email}`}>{tool}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        setLeadEmailTarget({ email: lead.email, name: lead.name });
+                        setLeadEmailSubject(`Following up — Spartan Coaching`);
+                        setLeadEmailBody(`Hi ${lead.name},\n\nI noticed you've been exploring the tools on Spartan Coaching. I wanted to reach out personally to see if there's anything I can help with.\n\nIf you're working on a specific challenge right now, I'd love to hear about it.\n\n— Nick\nSpartan Coaching`);
+                        setLeadEmailDialogOpen(true);
+                      }}
+                      data-testid={`button-email-lead-${lead.email}`}
+                    >
+                      <Send className="w-4 h-4 mr-1.5" />
+                      Email
+                    </Button>
+                  </CardHeader>
+                </Card>
+              ))}
+            </div>
+          )}
+        </TabsContent>
+
       </Tabs>
+
+      {/* Lead Email Dialog */}
+      <Dialog open={leadEmailDialogOpen} onOpenChange={(open) => { setLeadEmailDialogOpen(open); }}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle>Email {leadEmailTarget?.name}</DialogTitle>
+            <DialogDescription>Send a personal follow-up to {leadEmailTarget?.email}</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <Label htmlFor="lead-email-subject">Subject</Label>
+              <Input
+                id="lead-email-subject"
+                value={leadEmailSubject}
+                onChange={(e) => setLeadEmailSubject(e.target.value)}
+                data-testid="input-lead-email-subject"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="lead-email-body">Message</Label>
+              <Textarea
+                id="lead-email-body"
+                value={leadEmailBody}
+                onChange={(e) => setLeadEmailBody(e.target.value)}
+                className="min-h-[180px]"
+                data-testid="textarea-lead-email-body"
+              />
+            </div>
+            <Button
+              onClick={() => {
+                if (!leadEmailTarget) return;
+                sendLeadEmailMutation.mutate({
+                  to: leadEmailTarget.email,
+                  name: leadEmailTarget.name,
+                  subject: leadEmailSubject,
+                  body: leadEmailBody,
+                });
+              }}
+              disabled={sendLeadEmailMutation.isPending || !leadEmailSubject || !leadEmailBody}
+              className="w-full font-bold"
+              data-testid="button-send-lead-email"
+            >
+              {sendLeadEmailMutation.isPending ? (
+                <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Sending...</>
+              ) : (
+                <><Send className="w-4 h-4 mr-2" />Send Email</>
+              )}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* Article Dialog */}
       <Dialog open={articleDialogOpen} onOpenChange={(open) => {

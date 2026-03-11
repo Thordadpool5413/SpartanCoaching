@@ -1,5 +1,6 @@
 import { Switch, Route, useLocation } from "wouter";
 import { useEffect, useRef, lazy, Suspense } from "react";
+import { pageView } from "./lib/ga";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { HelmetProvider } from "react-helmet-async";
@@ -53,6 +54,8 @@ const ConflictOfInterest = lazy(() => import("@/pages/ConflictOfInterest"));
 const LiabilityWaiver = lazy(() => import("@/pages/LiabilityWaiver"));
 const TestimonialRelease = lazy(() => import("@/pages/TestimonialRelease"));
 const LegalAgreements = lazy(() => import("@/pages/LegalAgreements"));
+const ColdCallScript = lazy(() => import("@/pages/ColdCallScript"));
+const WeeklyPlanBuilder = lazy(() => import("@/pages/WeeklyPlanBuilder"));
 const ComplianceEthics = lazy(() => import("@/pages/ComplianceEthics"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const Manifesto = lazy(() => import("@/pages/Manifesto"));
@@ -87,6 +90,7 @@ function VisitorTracker() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ pagePath: location })
       }).catch(() => {});
+      pageView(location);
     }, 500);
     
     return () => {
@@ -126,6 +130,8 @@ function Router() {
           <Route path="/tools/roi-calculator" component={ROICalculator} />
           <Route path="/tools/activity-calculator" component={ActivityCalculator} />
           <Route path="/tools/branch-profitability" component={BranchProfitability} />
+          <Route path="/tools/cold-call-script" component={ColdCallScript} />
+          <Route path="/tools/weekly-plan-builder" component={WeeklyPlanBuilder} />
           <Route path="/drills" component={Drills} />
 
           <Route path="/resources" component={Resources} />
