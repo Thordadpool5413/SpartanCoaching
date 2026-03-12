@@ -466,7 +466,28 @@ export async function sendAssessmentConfirmation(
   try {
     const { client, fromEmail } = await getUncachableResendClient();
 
-    const scoreLabel = overallScore >= 80 ? "Excellent" : overallScore >= 60 ? "Proficient" : overallScore >= 40 ? "Developing" : "Needs Improvement";
+    let tier = "";
+    let tierNote = "";
+    try {
+      const parsed = JSON.parse(feedback);
+      tier = parsed.tier || "";
+    } catch {}
+
+    if (!tier) {
+      tier = overallScore >= 85 ? "Strong Hire" : overallScore >= 70 ? "Solid Candidate" : overallScore >= 50 ? "Development Needed" : "Not Ready";
+    }
+
+    if (tier === "Strong Hire") {
+      tierNote = "Excellent work. Your responses demonstrated strong alignment with the competencies we look for in top hospice sales representatives. Expect to hear from us shortly about next steps.";
+    } else if (tier === "Solid Candidate") {
+      tierNote = "Solid performance. You showed real potential in key areas. Our team will review your results in detail and reach out to discuss opportunities and areas for continued growth.";
+    } else if (tier === "Development Needed") {
+      tierNote = "Thank you for your effort. Your results highlight some areas where further development would strengthen your candidacy. Our team may reach out to discuss coaching opportunities that could help accelerate your growth.";
+    } else {
+      tierNote = "Thank you for taking the time to complete this assessment. Our team will review your responses and may follow up with additional guidance or resources.";
+    }
+
+    const scoreLabel = overallScore >= 85 ? "Strong Hire" : overallScore >= 70 ? "Solid Candidate" : overallScore >= 50 ? "Development Needed" : "Needs Improvement";
 
     await sendEmail(client, {
       from: fromEmail,
@@ -486,13 +507,13 @@ export async function sendAssessmentConfirmation(
               <div style="text-align: center; margin-bottom: 16px;">
                 <span style="font-size: 48px; font-weight: bold; color: #b91c1c;">${overallScore}%</span>
                 <br/>
-                <span style="font-size: 14px; color: #6b7280;">Overall Score — ${scoreLabel}</span>
+                <span style="display: inline-block; margin-top: 8px; padding: 4px 16px; border-radius: 20px; font-size: 14px; font-weight: bold; color: #fff; background: ${overallScore >= 85 ? '#16a34a' : overallScore >= 70 ? '#2563eb' : overallScore >= 50 ? '#d97706' : '#dc2626'};">${tier}</span>
               </div>
               ${quizScore !== null ? `<p style="margin: 8px 0; font-size: 14px;"><strong>Quiz Accuracy:</strong> ${quizScore}%</p>` : ""}
               ${aiScore !== null ? `<p style="margin: 8px 0; font-size: 14px;"><strong>Scenario Response Score:</strong> ${aiScore}%</p>` : ""}
             </div>
 
-            <p style="margin: 0 0 16px; line-height: 1.6;">The hiring team will review your results and will be in touch regarding next steps.</p>
+            <p style="margin: 0 0 16px; line-height: 1.6;">${tierNote}</p>
             
             <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;" />
             <p style="color: #9ca3af; font-size: 12px; margin: 0;">Sent by Spartan Coaching Assessment Platform</p>
@@ -505,6 +526,144 @@ export async function sendAssessmentConfirmation(
     return true;
   } catch (error: any) {
     console.error(`[Resend] FAILED assessment confirmation to ${candidateEmail}:`, error?.message || error);
+    return false;
+  }
+}
+
+export async function sendSubmissionResultsToNick(
+  submissionId: number,
+  candidateName: string,
+  candidateEmail: string,
+  assessmentName: string,
+  overallScore: number,
+  quizScore: number | null,
+  aiScore: number | null,
+  feedback: string | null,
+  aiScoringFailed: boolean = false
+): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    const adminEmail = process.env.NOTIFICATION_EMAIL || 'nick@spartanhospicecoaching.com';
+
+    let tier = "";
+    let fieldReadinessScore = "";
+    let redFlagsHtml = "";
+    let standoutHtml = "";
+    let categoryHtml = "";
+    let hiringRec = "";
+
+    if (feedback && !aiScoringFailed) {
+      try {
+        const parsed = JSON.parse(feedback);
+        tier = parsed.tier || "";
+        fieldReadinessScore = parsed.fieldReadinessScore != null ? `${parsed.fieldReadinessScore}/100` : "";
+
+        if (parsed.redFlags?.length > 0) {
+          redFlagsHtml = `
+            <div style="background: #fef2f2; border: 1px solid #fecaca; border-radius: 6px; padding: 12px 16px; margin: 16px 0;">
+              <p style="margin: 0 0 8px; font-weight: bold; color: #dc2626; font-size: 13px;">RED FLAGS</p>
+              ${parsed.redFlags.map((f: string) => `<p style="margin: 4px 0; font-size: 14px; color: #7f1d1d;">${f}</p>`).join('')}
+            </div>`;
+        }
+
+        if (parsed.standoutQualities?.length > 0) {
+          standoutHtml = `
+            <div style="background: #f0fdf4; border: 1px solid #bbf7d0; border-radius: 6px; padding: 12px 16px; margin: 16px 0;">
+              <p style="margin: 0 0 8px; font-weight: bold; color: #16a34a; font-size: 13px;">STANDOUT QUALITIES</p>
+              ${parsed.standoutQualities.map((s: string) => `<p style="margin: 4px 0; font-size: 14px; color: #14532d;">${s}</p>`).join('')}
+            </div>`;
+        }
+
+        if (parsed.categoryScores) {
+          const cs = parsed.categoryScores;
+          categoryHtml = `
+            <table style="width: 100%; border-collapse: collapse; margin: 12px 0;">
+              <tr><td style="padding: 6px 8px; font-size: 13px; border-bottom: 1px solid #e5e7eb;">Hospice Knowledge</td><td style="padding: 6px 8px; font-size: 13px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: bold;">${cs.hospiceKnowledge ?? '—'}/25</td></tr>
+              <tr><td style="padding: 6px 8px; font-size: 13px; border-bottom: 1px solid #e5e7eb;">Relationship Selling</td><td style="padding: 6px 8px; font-size: 13px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: bold;">${cs.relationshipSelling ?? '—'}/25</td></tr>
+              <tr><td style="padding: 6px 8px; font-size: 13px; border-bottom: 1px solid #e5e7eb;">Empathy & Communication</td><td style="padding: 6px 8px; font-size: 13px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: bold;">${cs.empathyCommunication ?? '—'}/25</td></tr>
+              <tr><td style="padding: 6px 8px; font-size: 13px;">Strategic Execution</td><td style="padding: 6px 8px; font-size: 13px; text-align: right; font-weight: bold;">${cs.strategicExecution ?? '—'}/25</td></tr>
+            </table>`;
+        }
+
+        if (parsed.hiringRecommendation) {
+          hiringRec = `
+            <div style="background: #f9fafb; border-radius: 6px; padding: 12px 16px; margin: 16px 0;">
+              <p style="margin: 0 0 6px; font-weight: bold; font-size: 13px; color: #374151;">HIRING RECOMMENDATION</p>
+              <p style="margin: 0; font-size: 14px; color: #1f2937; line-height: 1.5;">${parsed.hiringRecommendation}</p>
+            </div>`;
+        }
+      } catch {}
+    }
+
+    if (!tier) {
+      tier = overallScore >= 85 ? "Strong Hire" : overallScore >= 70 ? "Solid Candidate" : overallScore >= 50 ? "Development Needed" : "Not Ready";
+    }
+
+    const tierColor = tier === "Strong Hire" ? "#16a34a" : tier === "Solid Candidate" ? "#2563eb" : tier === "Development Needed" ? "#d97706" : "#dc2626";
+
+    const siteUrl = process.env.SITE_URL
+      || (process.env.REPLIT_DEPLOYMENT_URL ? `https://${process.env.REPLIT_DEPLOYMENT_URL}` : '')
+      || (process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : '')
+      || 'https://spartanhospicecoaching.com';
+    const pdfLink = `${siteUrl}/assessment-results/${submissionId}`;
+
+    const subjectLine = aiScoringFailed
+      ? `[SCORING PENDING] New Assessment: ${candidateName} — Quiz ${quizScore ?? 0}%`
+      : `New Assessment: ${candidateName} — ${tier} (${overallScore}%)`;
+
+    await sendEmail(client, {
+      from: fromEmail,
+      to: adminEmail,
+      subject: subjectLine,
+      html: `
+        <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; color: #333;">
+          <div style="background: linear-gradient(135deg, #b91c1c, #991b1b); padding: 24px;">
+            <h1 style="color: #fff; margin: 0; font-size: 20px;">New Assessment Submission</h1>
+          </div>
+          <div style="padding: 24px; border: 1px solid #e5e7eb; border-top: none;">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
+              <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee; width: 40%;">Candidate</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${candidateName}</td></tr>
+              <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Email</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><a href="mailto:${candidateEmail}" style="color: #b91c1c;">${candidateEmail}</a></td></tr>
+              <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Assessment</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${assessmentName}</td></tr>
+            </table>
+
+            ${aiScoringFailed ? `
+              <div style="background: #fef3c7; border: 1px solid #fde68a; border-radius: 6px; padding: 12px 16px; margin: 16px 0;">
+                <p style="margin: 0; font-weight: bold; color: #92400e; font-size: 13px;">AI SCORING UNAVAILABLE</p>
+                <p style="margin: 6px 0 0; font-size: 14px; color: #78350f;">AI scoring failed for this submission. Quiz score is available below. Please review scenario responses manually in the admin panel.</p>
+              </div>
+            ` : ''}
+
+            <div style="text-align: center; padding: 20px 0;">
+              <span style="font-size: 42px; font-weight: bold; color: #b91c1c;">${overallScore}%</span>
+              <br/>
+              <span style="display: inline-block; margin-top: 8px; padding: 5px 20px; border-radius: 20px; font-size: 14px; font-weight: bold; color: #fff; background: ${tierColor};">${tier}</span>
+              ${fieldReadinessScore ? `<br/><span style="font-size: 12px; color: #6b7280; margin-top: 6px; display: inline-block;">Field Readiness: ${fieldReadinessScore}</span>` : ''}
+            </div>
+
+            ${quizScore !== null ? `<p style="margin: 4px 0; font-size: 14px;"><strong>Quiz:</strong> ${quizScore}%</p>` : ''}
+            ${aiScore !== null ? `<p style="margin: 4px 0; font-size: 14px;"><strong>Scenario:</strong> ${aiScore}%</p>` : ''}
+
+            ${categoryHtml}
+            ${standoutHtml}
+            ${redFlagsHtml}
+            ${hiringRec}
+
+            <div style="text-align: center; margin: 24px 0 8px;">
+              <a href="${pdfLink}" style="display: inline-block; background: #b91c1c; color: white; padding: 12px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px;">View Full Results</a>
+            </div>
+          </div>
+          <div style="padding: 12px; background: #f5f5f5; text-align: center;">
+            <p style="color: #888; font-size: 11px; margin: 0;">Spartan Coaching Assessment Platform</p>
+          </div>
+        </div>
+      `,
+    });
+
+    console.log(`[Resend] Admin notification sent for submission #${submissionId} (${candidateName})`);
+    return true;
+  } catch (error: any) {
+    console.error(`[Resend] FAILED admin notification for submission #${submissionId}:`, error?.message || error);
     return false;
   }
 }

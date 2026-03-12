@@ -2338,7 +2338,9 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
         aiFeedback: aiFeedback || null,
       });
 
-      const { sendAssessmentConfirmation } = await import("./resend");
+      const { sendAssessmentConfirmation, sendSubmissionResultsToNick } = await import("./resend");
+      const aiScoringFailed = aiFeedback === "AI scoring was unavailable. Please review scenario responses manually.";
+
       sendAssessmentConfirmation(
         candidateEmail,
         candidateName,
@@ -2348,6 +2350,18 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
         aiScore,
         aiFeedback
       ).catch(err => console.error("Failed to send assessment confirmation email:", err));
+
+      sendSubmissionResultsToNick(
+        updated.id,
+        candidateName,
+        candidateEmail,
+        assessment.name,
+        overallScore,
+        quizScore,
+        aiScore,
+        aiFeedback || null,
+        aiScoringFailed
+      ).catch(err => console.error("Failed to send admin notification email:", err));
 
       res.json({
         submission: updated,
