@@ -1,6 +1,7 @@
 import { Link, useLocation } from "wouter";
 import { Home, Wrench, BookOpen, ClipboardList, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const NAV_ITEMS = [
   { href: "/", label: "Home", icon: Home },
@@ -12,11 +13,14 @@ const NAV_ITEMS = [
 
 export function MobileBottomNav() {
   const [location] = useLocation();
+  const isMobile = useIsMobile();
+
+  if (!isMobile) return null;
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-background/95 backdrop-blur-xl border-t"
-      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+      className="fixed bottom-0 left-0 right-0 z-[100] bg-background border-t border-border"
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 16px)" }}
       aria-label="Mobile navigation"
     >
       <div className="flex items-stretch h-16">
@@ -32,7 +36,7 @@ export function MobileBottomNav() {
               key={href}
               href={href}
               className={cn(
-                "flex flex-col items-center justify-center flex-1 gap-0.5 text-[10px] font-medium transition-colors touch-manipulation min-h-[44px]",
+                "flex flex-col items-center justify-center flex-1 gap-0.5 text-[10px] font-medium transition-colors min-h-[44px] cursor-pointer select-none",
                 isActive
                   ? "text-primary"
                   : "text-muted-foreground"
@@ -41,7 +45,7 @@ export function MobileBottomNav() {
             >
               <Icon
                 className={cn(
-                  "w-5 h-5 transition-transform",
+                  "w-5 h-5",
                   isActive ? "scale-110" : "scale-100"
                 )}
               />
