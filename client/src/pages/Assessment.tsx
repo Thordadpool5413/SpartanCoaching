@@ -43,9 +43,10 @@ export default function Assessment() {
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [result, setResult] = useState<SubmissionResult | null>(null);
   const [isInvite, setIsInvite] = useState(false);
-  const [inviteUsed, setInviteUsed] = useState(false);
+  const [inviteError, setInviteError] = useState<string | null>(null);
+  const [inviteUsedName, setInviteUsedName] = useState<string | null>(null);
 
-  const { data: inviteData } = useQuery<{
+  const { data: inviteData, isLoading: inviteLoading } = useQuery<{
     candidateName: string;
     candidateEmail: string;
     assessmentId: number;
@@ -54,10 +55,16 @@ export default function Assessment() {
     queryKey: ["/api/assessment-invites", inviteToken],
     queryFn: async () => {
       const res = await fetch(`/api/assessment-invites/${inviteToken}`);
-      if (!res.ok) throw new Error("Invalid invite");
+      if (res.status === 410) {
+        const body = await res.json();
+        setInviteUsedName(body.candidateName || "");
+        throw new Error("USED");
+      }
+      if (!res.ok) throw new Error("INVALID");
       return res.json();
     },
     enabled: !!inviteToken,
+    retry: false,
   });
 
   useEffect(() => {
@@ -65,9 +72,6 @@ export default function Assessment() {
       setCandidateName(inviteData.candidateName);
       setCandidateEmail(inviteData.candidateEmail);
       setIsInvite(true);
-      if (inviteData.used) {
-        setInviteUsed(true);
-      }
     }
   }, [inviteData]);
 
@@ -110,10 +114,27 @@ export default function Assessment() {
     },
   });
 
-  if (isLoading) {
+  if (isLoading || (inviteToken && inviteLoading)) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]" data-testid="display-loading">
         <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
+
+  if (inviteToken && !inviteData) {
+    const isUsed = inviteUsedName !== null;
+    return (
+      <div className="w-full max-w-2xl mx-auto px-4 py-16 text-center" data-testid="display-invite-error">
+        <SEO title="Invite Link Invalid" />
+        <h1 className="text-h1 font-bold text-foreground mb-4">
+          {isUsed ? "Invite Already Used" : "Invalid Invite Link"}
+        </h1>
+        <p className="text-muted-foreground">
+          {isUsed
+            ? `This assessment invite for ${inviteUsedName} has already been completed. Each invite link can only be used once.`
+            : "This invite link is invalid or has expired. Please contact the person who sent you this link for a new one."}
+        </p>
       </div>
     );
   }
@@ -220,16 +241,6 @@ export default function Assessment() {
             </Badge>
           </div>
         </div>
-
-        {inviteUsed && (
-          <Card className="mb-4 border-yellow-500/50" data-testid="card-invite-used-warning">
-            <CardContent className="pt-6">
-              <p className="text-sm text-yellow-600 dark:text-yellow-400 font-medium">
-                This invite link has already been used. You may still submit, but your previous submission is on record.
-              </p>
-            </CardContent>
-          </Card>
-        )}
 
         <Card data-testid="card-intake-form">
           <CardHeader>

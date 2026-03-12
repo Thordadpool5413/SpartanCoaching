@@ -2022,9 +2022,16 @@ The single most important skill to work on before the next conversation.`,
 
       if (inviteToken) {
         const invite = await storage.getAssessmentInviteByToken(inviteToken);
-        if (invite && !invite.usedAt) {
-          storage.markAssessmentInviteUsed(invite.id).catch(err => console.error("Failed to mark invite used:", err));
+        if (!invite) {
+          return res.status(400).json({ error: "Invalid invite token" });
         }
+        if (invite.usedAt) {
+          return res.status(403).json({ error: "This invite link has already been used" });
+        }
+        if (invite.assessmentId !== assessmentId) {
+          return res.status(403).json({ error: "This invite token does not match this assessment" });
+        }
+        storage.markAssessmentInviteUsed(invite.id).catch(err => console.error("Failed to mark invite used:", err));
       }
 
       const questions = await storage.getAssessmentQuestions(assessmentId);
@@ -2463,11 +2470,18 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
     try {
       const invite = await storage.getAssessmentInviteByToken(req.params.token);
       if (!invite) return res.status(404).json({ error: "Invalid or expired invite link" });
+      if (invite.usedAt) {
+        return res.status(410).json({
+          error: "This invite has already been used",
+          used: true,
+          candidateName: invite.candidateName,
+        });
+      }
       res.json({
         candidateName: invite.candidateName,
         candidateEmail: invite.candidateEmail,
         assessmentId: invite.assessmentId,
-        used: !!invite.usedAt,
+        used: false,
       });
     } catch (error: any) {
       res.status(500).json({ error: error.message || "Failed to validate invite" });
