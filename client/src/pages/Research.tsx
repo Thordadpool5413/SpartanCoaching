@@ -85,7 +85,7 @@ export default function Research() {
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             data-testid="input-research-query"
           />
-          <Button onClick={handleSearch} disabled={isLoading || !query || query.length < 5} size="lg" className="font-bold touch-manipulation" data-testid="button-search">
+          <Button onClick={handleSearch} disabled={isLoading || !query || query.length < 5} size="lg" className="w-full sm:w-auto font-bold touch-manipulation" data-testid="button-search">
             {isLoading ? (
               <SpinnerIcon className="w-5 h-5 animate-spin" />
             ) : (

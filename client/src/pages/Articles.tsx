@@ -9,6 +9,7 @@ import { SEO } from "@/components/SEO";
 import { ContentNotice } from "@/components/ContentNotice";
 import { FadeIn } from "@/components/animations";
 import { CoachingCTA } from "@/components/CoachingCTA";
+import { ShareButton } from "@/components/ShareButton";
 
 export default function Articles() {
   const { data, isLoading } = useQuery<{ articles: SelectArticle[] }>({
@@ -117,7 +118,7 @@ export default function Articles() {
                     <span>{formatDate(article.publishDate)}</span>
                   </div>
                   
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <Button
                       variant="default"
                       className="flex-1 gap-2"
@@ -150,6 +151,12 @@ export default function Articles() {
                         </a>
                       </Button>
                     )}
+                    <ShareButton
+                      title={article.title}
+                      url={article.linkedinUrl}
+                      size="sm"
+                      variant="outline"
+                    />
                   </div>
                 </div>
               </Card>
@@ -185,7 +192,7 @@ export default function Articles() {
                     <span>{formatDate(article.publishDate)}</span>
                   </div>
                   
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 flex-wrap">
                     <Button
                       variant="outline"
                       className="flex-1 gap-2"
@@ -218,6 +225,12 @@ export default function Articles() {
                         </a>
                       </Button>
                     )}
+                    <ShareButton
+                      title={article.title}
+                      url={article.linkedinUrl}
+                      size="sm"
+                      variant="outline"
+                    />
                   </div>
                 </div>
               </Card>

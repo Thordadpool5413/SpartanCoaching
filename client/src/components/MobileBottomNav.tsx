@@ -1,0 +1,53 @@
+import { Link, useLocation } from "wouter";
+import { Home, Wrench, BookOpen, ClipboardList, Phone } from "lucide-react";
+import { cn } from "@/lib/utils";
+
+const NAV_ITEMS = [
+  { href: "/", label: "Home", icon: Home },
+  { href: "/tools", label: "AI Tools", icon: Wrench },
+  { href: "/resources", label: "Resources", icon: BookOpen },
+  { href: "/assessment/5", label: "Assessment", icon: ClipboardList },
+  { href: "/contact", label: "Contact", icon: Phone },
+];
+
+export function MobileBottomNav() {
+  const [location] = useLocation();
+
+  return (
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-50 lg:hidden bg-background/95 backdrop-blur-xl border-t"
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+      aria-label="Mobile navigation"
+    >
+      <div className="flex items-stretch h-16">
+        {NAV_ITEMS.map(({ href, label, icon: Icon }) => {
+          const isActive =
+            href === "/"
+              ? location === "/"
+              : location === href || location.startsWith(href + "/");
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                "flex flex-col items-center justify-center flex-1 gap-0.5 text-[10px] font-medium transition-colors touch-manipulation min-h-[44px]",
+                isActive
+                  ? "text-primary"
+                  : "text-muted-foreground"
+              )}
+              data-testid={`link-bottom-nav-${label.toLowerCase().replace(/\s+/g, "-")}`}
+            >
+              <Icon
+                className={cn(
+                  "w-5 h-5 transition-transform",
+                  isActive ? "scale-110" : "scale-100"
+                )}
+              />
+              <span>{label}</span>
+            </Link>
+          );
+        })}
+      </div>
+    </nav>
+  );
+}

@@ -7,6 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { SpinnerIcon, DownloadIcon } from "@/components/icons";
 import { Copy } from "lucide-react";
+import { ShareButton } from "@/components/ShareButton";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
@@ -254,7 +255,7 @@ export default function Playbooks() {
             <Card className="border-2 shadow-lg spacing-card">
               <div className="flex justify-between items-center mb-6 flex-wrap gap-2">
                 <h2 className="text-h2 font-bold">Your Custom Playbook</h2>
-                <div className="flex gap-2">
+                <div className="flex gap-2 flex-wrap">
                   <Button variant="outline" size="default" onClick={handleCopyPlaybook} className="font-bold touch-manipulation" data-testid="button-copy">
                     <Copy className="w-4 h-4 mr-2" />
                     <span>Copy</span>
@@ -266,6 +267,7 @@ export default function Playbooks() {
                     <DownloadIcon className="w-4 h-4 mr-2" />
                     <span>Download</span>
                   </Button>
+                  <ShareButton title="My Spartan Sales Playbook" variant="outline" />
                 </div>
               </div>
               <div data-testid="text-playbook-content">
