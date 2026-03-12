@@ -326,6 +326,52 @@ export default function Admin() {
   const assessmentQuestions = assessmentQuestionsData?.questions || [];
   const assessmentSubmissions = assessmentSubmissionsData?.submissions || [];
 
+  const [linkedinFollowers, setLinkedinFollowers] = useState("");
+  const [linkedinHeadline, setLinkedinHeadline] = useState("");
+  const [linkedinProfileUrl, setLinkedinProfileUrl] = useState("");
+  const [linkedinPost1, setLinkedinPost1] = useState("");
+  const [linkedinPost2, setLinkedinPost2] = useState("");
+  const [linkedinPost3, setLinkedinPost3] = useState("");
+  const [linkedinSettingsLoaded, setLinkedinSettingsLoaded] = useState(false);
+
+  const { data: siteSettingsData } = useQuery<{ settings: Record<string, string> }>({
+    queryKey: ["/api/site-settings"],
+    enabled: isAuthenticated,
+  });
+
+  useEffect(() => {
+    if (siteSettingsData?.settings && !linkedinSettingsLoaded) {
+      const s = siteSettingsData.settings;
+      setLinkedinFollowers(s["linkedin_followers"] || "");
+      setLinkedinHeadline(s["linkedin_headline"] || "");
+      setLinkedinProfileUrl(s["linkedin_profile_url"] || "");
+      setLinkedinPost1(s["linkedin_post_1"] || "");
+      setLinkedinPost2(s["linkedin_post_2"] || "");
+      setLinkedinPost3(s["linkedin_post_3"] || "");
+      setLinkedinSettingsLoaded(true);
+    }
+  }, [siteSettingsData, linkedinSettingsLoaded]);
+
+  const saveLinkedinMutation = useMutation({
+    mutationFn: async (settings: Record<string, string>) => {
+      const res = await fetch("/api/admin/site-settings", {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", "X-Admin-Auth": ADMIN_CODE },
+        credentials: "include",
+        body: JSON.stringify(settings),
+      });
+      if (!res.ok) throw new Error("Failed to save");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/site-settings"] });
+      toast({ title: "LinkedIn Settings Saved" });
+    },
+    onError: (err: any) => {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    },
+  });
+
   const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
   const [inviteName, setInviteName] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
@@ -1553,6 +1599,9 @@ export default function Admin() {
           </TabsTrigger>
           <TabsTrigger value="assessments" data-testid="tab-assessments">
             Assessments ({assessmentsList.length})
+          </TabsTrigger>
+          <TabsTrigger value="linkedin" data-testid="tab-linkedin">
+            LinkedIn
           </TabsTrigger>
         </TabsList>
 
@@ -3083,6 +3132,96 @@ export default function Admin() {
               ))}
             </div>
           )}
+        </TabsContent>
+
+        <TabsContent value="linkedin" className="space-y-4">
+          <div>
+            <h2 className="text-xl font-bold">LinkedIn Social Proof</h2>
+            <p className="text-sm text-muted-foreground">Configure the LinkedIn widget shown on the homepage. Leave fields empty to hide them.</p>
+          </div>
+          <Card>
+            <CardContent className="pt-6 space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div className="space-y-1">
+                  <Label htmlFor="linkedin-followers">Follower Count</Label>
+                  <Input
+                    id="linkedin-followers"
+                    placeholder="e.g. 5,200+"
+                    value={linkedinFollowers}
+                    onChange={(e) => setLinkedinFollowers(e.target.value)}
+                    data-testid="input-linkedin-followers"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <Label htmlFor="linkedin-profile-url">Profile URL</Label>
+                  <Input
+                    id="linkedin-profile-url"
+                    placeholder="https://linkedin.com/in/nicklynch"
+                    value={linkedinProfileUrl}
+                    onChange={(e) => setLinkedinProfileUrl(e.target.value)}
+                    data-testid="input-linkedin-profile-url"
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="linkedin-headline">Headline</Label>
+                <Input
+                  id="linkedin-headline"
+                  placeholder="e.g. Hospice Growth Strategist | Spartan Coaching Founder"
+                  value={linkedinHeadline}
+                  onChange={(e) => setLinkedinHeadline(e.target.value)}
+                  data-testid="input-linkedin-headline"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>Embedded Post URLs (paste the embed URL from LinkedIn "Embed this post")</Label>
+                <div className="space-y-2">
+                  <Input
+                    placeholder="Post embed URL #1"
+                    value={linkedinPost1}
+                    onChange={(e) => setLinkedinPost1(e.target.value)}
+                    data-testid="input-linkedin-post-1"
+                  />
+                  <Input
+                    placeholder="Post embed URL #2"
+                    value={linkedinPost2}
+                    onChange={(e) => setLinkedinPost2(e.target.value)}
+                    data-testid="input-linkedin-post-2"
+                  />
+                  <Input
+                    placeholder="Post embed URL #3"
+                    value={linkedinPost3}
+                    onChange={(e) => setLinkedinPost3(e.target.value)}
+                    data-testid="input-linkedin-post-3"
+                  />
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  To get the embed URL: open a LinkedIn post, click the three dots menu, choose "Embed this post", and copy the src URL from the iframe code.
+                </p>
+              </div>
+              <Button
+                onClick={() => {
+                  saveLinkedinMutation.mutate({
+                    linkedin_followers: linkedinFollowers,
+                    linkedin_headline: linkedinHeadline,
+                    linkedin_profile_url: linkedinProfileUrl,
+                    linkedin_post_1: linkedinPost1,
+                    linkedin_post_2: linkedinPost2,
+                    linkedin_post_3: linkedinPost3,
+                  });
+                }}
+                disabled={saveLinkedinMutation.isPending}
+                data-testid="button-save-linkedin"
+              >
+                {saveLinkedinMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                    Saving...
+                  </>
+                ) : "Save LinkedIn Settings"}
+              </Button>
+            </CardContent>
+          </Card>
         </TabsContent>
 
       </Tabs>

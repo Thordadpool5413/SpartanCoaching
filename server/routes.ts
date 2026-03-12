@@ -2493,6 +2493,37 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
     }
   });
 
+  app.get("/api/site-settings", async (_req, res) => {
+    try {
+      const allSettings = await storage.getAllSettings();
+      const settings: Record<string, string> = {};
+      for (const s of allSettings) {
+        settings[s.key] = s.value;
+      }
+      res.json({ settings });
+    } catch (error: any) {
+      console.error("Get site settings error:", error);
+      res.json({ settings: {} });
+    }
+  });
+
+  app.patch("/api/admin/site-settings", requireAdmin, async (req, res) => {
+    try {
+      const updates = req.body as Record<string, string>;
+      if (!updates || typeof updates !== "object") {
+        return res.status(400).json({ error: "Invalid settings payload" });
+      }
+      for (const [key, value] of Object.entries(updates)) {
+        if (typeof key !== "string" || typeof value !== "string") continue;
+        await storage.setSetting(key, value);
+      }
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Update site settings error:", error);
+      res.status(500).json({ error: error.message || "Failed to update settings" });
+    }
+  });
+
   // Object Storage: Serve objects (PDFs) - public read access with ACL check
   app.get("/objects/:objectPath(*)", async (req, res) => {
     const objectStorageService = new ObjectStorageService();

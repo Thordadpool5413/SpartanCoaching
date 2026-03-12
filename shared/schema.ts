@@ -543,6 +543,14 @@ export interface CoachingService {
   features: string[];
 }
 
+export const siteSettings = pgTable("site_settings", {
+  key: varchar("key", { length: 255 }).primaryKey(),
+  value: text("value").notNull().default(""),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+export type SelectSiteSetting = typeof siteSettings.$inferSelect;
+
 export interface HospiceProgram {
   title: string;
   duration: string;

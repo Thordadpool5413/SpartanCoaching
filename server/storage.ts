@@ -55,6 +55,8 @@ import {
   assessmentQuestions,
   assessmentSubmissions,
   assessmentInvites,
+  siteSettings,
+  type SelectSiteSetting,
   type InsertAssessment,
   type SelectAssessment,
   type InsertAssessmentQuestion,
@@ -151,6 +153,9 @@ export interface IStorage {
   getAssessmentInvites(assessmentId: number): Promise<SelectAssessmentInvite[]>;
   getAssessmentInviteByToken(token: string): Promise<SelectAssessmentInvite | undefined>;
   markAssessmentInviteUsed(id: number): Promise<SelectAssessmentInvite>;
+  getSetting(key: string): Promise<string | null>;
+  setSetting(key: string, value: string): Promise<void>;
+  getAllSettings(): Promise<SelectSiteSetting[]>;
 }
 
 // Database-backed storage implementation
@@ -666,6 +671,25 @@ export class DatabaseStorage implements IStorage {
   async markAssessmentInviteUsed(id: number): Promise<SelectAssessmentInvite> {
     const [result] = await db.update(assessmentInvites).set({ usedAt: new Date() }).where(eq(assessmentInvites.id, id)).returning();
     return result;
+  }
+
+  async getSetting(key: string): Promise<string | null> {
+    const [result] = await db.select().from(siteSettings).where(eq(siteSettings.key, key));
+    return result?.value ?? null;
+  }
+
+  async setSetting(key: string, value: string): Promise<void> {
+    await db
+      .insert(siteSettings)
+      .values({ key, value, updatedAt: new Date() })
+      .onConflictDoUpdate({
+        target: siteSettings.key,
+        set: { value, updatedAt: new Date() },
+      });
+  }
+
+  async getAllSettings(): Promise<SelectSiteSetting[]> {
+    return await db.select().from(siteSettings);
   }
 }
 

@@ -1,11 +1,13 @@
 import { Link } from "wouter";
 import { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet-async";
+import { useQuery } from "@tanstack/react-query";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DisciplineIcon, EmpathyIcon, StrategyIcon } from "@/components/icons";
 import { Shield, Heart, Zap, Target, Users, BookOpen, ArrowRight, Sparkles, Lightbulb, MessageCircle, Search, Mail, Flame, Stethoscope, Brain, Briefcase, CheckCircle, AlertCircle, Mic, TrendingUp, Building2, Clock } from "lucide-react";
+import { SiLinkedin } from "react-icons/si";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { SEO } from "@/components/SEO";
 import { apiRequest } from "@/lib/queryClient";
@@ -18,6 +20,13 @@ export default function Home() {
   const [askResponse, setAskResponse] = useState("");
   const [askLoading, setAskLoading] = useState(false);
   const [askError, setAskError] = useState<string | null>(null);
+
+  const { data: siteSettingsData } = useQuery<{ settings: Record<string, string> }>({
+    queryKey: ["/api/site-settings"],
+  });
+  const siteSettings = siteSettingsData?.settings || {};
+  const linkedinPosts = [siteSettings["linkedin_post_1"], siteSettings["linkedin_post_2"], siteSettings["linkedin_post_3"]].filter(Boolean);
+  const hasLinkedin = !!(siteSettings["linkedin_followers"] || siteSettings["linkedin_headline"] || siteSettings["linkedin_profile_url"] || linkedinPosts.length > 0);
 
   const suggestionQuestions = [
     "What are hospice eligibility criteria for heart failure?",
@@ -753,6 +762,68 @@ export default function Home() {
         </div>
       </section>
 
+
+      {/* LinkedIn Social Proof */}
+      {hasLinkedin && (
+        <section className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-linkedin">
+          <div className="relative max-w-5xl mx-auto spacing-container">
+            <FadeIn>
+              <div className="text-center mb-12 sm:mb-16">
+                <div className="flex items-center justify-center gap-3 mb-6">
+                  <SiLinkedin className="w-7 h-7 sm:w-8 sm:h-8 text-[#0A66C2]" />
+                  <h2 className="text-h2 text-gradient-elegant" data-testid="text-linkedin-title">Follow Along on LinkedIn</h2>
+                </div>
+                {siteSettings["linkedin_headline"] && (
+                  <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto">{siteSettings["linkedin_headline"]}</p>
+                )}
+              </div>
+            </FadeIn>
+
+            <FadeIn delay={0.1}>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-10">
+                {siteSettings["linkedin_followers"] && (
+                  <div className="flex items-center gap-2 bg-[#0A66C2]/10 border border-[#0A66C2]/20 rounded-md px-4 py-2">
+                    <SiLinkedin className="w-5 h-5 text-[#0A66C2]" />
+                    <span className="text-sm font-bold text-foreground" data-testid="text-linkedin-followers">{siteSettings["linkedin_followers"]} Followers</span>
+                  </div>
+                )}
+                {siteSettings["linkedin_profile_url"] && (
+                  <Button variant="outline" asChild className="font-bold" data-testid="link-linkedin-profile">
+                    <a href={siteSettings["linkedin_profile_url"]} target="_blank" rel="noopener noreferrer">
+                      <SiLinkedin className="w-4 h-4 mr-2 text-[#0A66C2]" />
+                      View LinkedIn Profile
+                      <ArrowRight className="w-4 h-4 ml-2" />
+                    </a>
+                  </Button>
+                )}
+              </div>
+            </FadeIn>
+
+            {linkedinPosts.length > 0 && (
+              <FadeIn delay={0.2}>
+                <div className={`grid gap-6 ${linkedinPosts.length === 1 ? "grid-cols-1 max-w-lg mx-auto" : linkedinPosts.length === 2 ? "grid-cols-1 sm:grid-cols-2 max-w-3xl mx-auto" : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"}`}>
+                  {linkedinPosts.map((postUrl, index) => (
+                    <Card key={index} className="overflow-hidden" data-testid={`card-linkedin-post-${index}`}>
+                      <div className="w-full" style={{ minHeight: "400px" }}>
+                        <iframe
+                          src={postUrl}
+                          width="100%"
+                          height="400"
+                          frameBorder="0"
+                          allowFullScreen
+                          title={`LinkedIn post ${index + 1}`}
+                          className="w-full"
+                          loading="lazy"
+                        />
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </FadeIn>
+            )}
+          </div>
+        </section>
+      )}
 
       {/* Before and After Comparison */}
       <section className="relative bg-gradient-to-br from-accent/40 via-accent/20 to-accent/40 spacing-section" data-testid="section-before-after">
