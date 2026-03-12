@@ -180,23 +180,44 @@ function Router() {
   );
 }
 
+function AppLayout() {
+  const [location] = useLocation();
+  const isBrandedAssessment = location.startsWith("/assess/");
+
+  if (isBrandedAssessment) {
+    return (
+      <div className="flex flex-col min-h-screen safe-area-x">
+        <main className="flex-1">
+          <Router />
+        </main>
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <div className="flex flex-col min-h-screen safe-area-x">
+        <Header />
+        <main className="flex-1">
+          <Router />
+        </main>
+        <Footer />
+      </div>
+      <Suspense fallback={null}>
+        <ChatWidget />
+        <StickyBookCall />
+        <CommandPalette />
+      </Suspense>
+    </>
+  );
+}
+
 function App() {
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <div className="flex flex-col min-h-screen safe-area-x">
-            <Header />
-            <main className="flex-1">
-              <Router />
-            </main>
-            <Footer />
-          </div>
-          <Suspense fallback={null}>
-            <ChatWidget />
-            <StickyBookCall />
-            <CommandPalette />
-          </Suspense>
+          <AppLayout />
           <Toaster />
         </TooltipProvider>
       </QueryClientProvider>

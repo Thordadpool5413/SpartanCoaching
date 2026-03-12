@@ -102,7 +102,13 @@ export default function Assessment({ overrideAssessmentId, clientBranding }: Ass
 
   const submitMutation = useMutation({
     mutationFn: async () => {
-      const payload: any = { candidateName, candidateEmail, answers };
+      const payload: {
+        candidateName: string;
+        candidateEmail: string;
+        answers: Record<string, string>;
+        inviteToken?: string;
+        clientSlug?: string;
+      } = { candidateName, candidateEmail, answers };
       if (inviteToken) payload.inviteToken = inviteToken;
       if (clientBranding?.slug) payload.clientSlug = clientBranding.slug;
       const res = await fetch(`/api/assessments/${assessmentId}/submit`, {
