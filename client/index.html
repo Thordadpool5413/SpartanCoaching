@@ -42,6 +42,19 @@
   </head>
   <body>
     <script>
+      // Apply theme synchronously before React renders to prevent flash/black screen
+      try {
+        var saved = null;
+        try { saved = JSON.parse(localStorage.getItem('spartan_theme')); } catch(e) {}
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var isDark = saved === 'dark' || (!saved && prefersDark);
+        if (isDark) {
+          document.documentElement.classList.add('dark');
+          document.documentElement.style.backgroundColor = '#080808';
+        } else {
+          document.documentElement.style.backgroundColor = '#fdfdfd';
+        }
+      } catch(e) {}
       // Aggressively clear any stale service workers and caches on every load
       if ('serviceWorker' in navigator) {
         navigator.serviceWorker.getRegistrations().then(function(regs) {

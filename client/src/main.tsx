@@ -1,5 +1,6 @@
 import { createRoot } from "react-dom/client";
 import App from "./App";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import "./index.css";
 
 const _err = window.onerror;
@@ -8,9 +9,12 @@ window.onerror = (msg, ...args) => {
   return _err ? _err(msg, ...args) : false;
 };
 
-const _unhandled = window.addEventListener.bind(window);
 window.addEventListener("error", (e) => {
   if (e.message?.includes("ResizeObserver loop")) e.stopImmediatePropagation();
 }, true);
 
-createRoot(document.getElementById("root")!).render(<App />);
+createRoot(document.getElementById("root")!).render(
+  <ErrorBoundary>
+    <App />
+  </ErrorBoundary>
+);

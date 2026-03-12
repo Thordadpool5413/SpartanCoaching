@@ -158,6 +158,7 @@ export default function Home() {
           loop
           playsInline
           preload="auto"
+          poster="/hero-poster.jpg"
           className="absolute inset-0 w-full h-full object-cover hero-video-mobile z-[1]"
           data-testid="hero-video"
           aria-label="Spartan Coaching hero video background"
