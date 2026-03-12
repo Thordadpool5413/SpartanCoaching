@@ -10,7 +10,7 @@ import { SEO } from "@/components/SEO";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { MarkdownContent } from "@/components/MarkdownContent";
-import { downloadPdf, type EmailPdfPayload } from "@/lib/downloadPdf";
+import { downloadPdf, markdownToSections, cleanMarkdown, type EmailPdfPayload, type PdfSection } from "@/lib/downloadPdf";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
 import {
@@ -185,23 +185,49 @@ export default function RolePlay() {
 
   const canEndSession = messages.filter(m => m.role === "user").length >= 2;
 
+  const getScoreLabel = (rating: number) =>
+    rating >= 8 ? "Excellent Performance" : rating >= 5 ? "Good Progress" : "Keep Practicing";
+
+  const buildRoleplayPdfPayload = (): { sections: PdfSection[]; subtitle: string } => {
+    const rating = feedback?.rating ?? 0;
+    const scoreLabel = getScoreLabel(rating);
+    const rawFeedback = feedback?.text ?? "";
+
+    const feedbackSections: PdfSection[] = markdownToSections(rawFeedback).map((s) => ({
+      heading: s.heading,
+      body: cleanMarkdown(s.body),
+    }));
+
+    const conversationBody = messages
+      .map((m) => `${m.role === "user" ? "You" : activeScenarioTitle}: ${m.content}`)
+      .join("\n\n");
+
+    const sections: PdfSection[] = [
+      {
+        heading: "Performance Score",
+        body: `${rating}/10 — ${scoreLabel}`,
+      },
+      ...feedbackSections,
+      {
+        heading: "Conversation Transcript",
+        body: conversationBody,
+      },
+    ];
+
+    return {
+      sections,
+      subtitle: `${activeScenarioTitle} · Score: ${rating}/10 (${scoreLabel})`,
+    };
+  };
+
   const handleDownloadFeedback = async () => {
-    const scoreLabel = (feedback?.rating ?? 0) >= 8 ? "Excellent Performance" : (feedback?.rating ?? 0) >= 5 ? "Good Progress" : "Keep Practicing";
     try {
+      const { sections, subtitle } = buildRoleplayPdfPayload();
       await downloadPdf(
         `spartan-roleplay-${activeScenarioId}-${Date.now()}`,
-        "Role-Play Session Transcript",
-        [
-          {
-            heading: "Conversation",
-            body: messages.map((m) => `${m.role === "user" ? "You" : "Spartan Coach"}: ${m.content}`).join("\n\n"),
-          },
-          {
-            heading: "Performance Feedback",
-            body: feedback?.text ?? "",
-          },
-        ],
-        `${activeScenarioTitle} · Score: ${feedback?.rating ?? 0}/10 (${scoreLabel})`
+        "Role-Play Session Feedback",
+        sections,
+        subtitle,
       );
       toast({ title: "Downloaded", description: "Your session PDF is ready." });
     } catch (err: any) {
@@ -311,15 +337,12 @@ export default function RolePlay() {
                 </Button>
                 <Button variant="outline" size="sm" data-testid="button-download-feedback" onClick={() => {
                   const getEmailPdf = (): EmailPdfPayload => {
-                    const scoreLabel = (feedback?.rating ?? 0) >= 8 ? "Excellent Performance" : (feedback?.rating ?? 0) >= 5 ? "Good Progress" : "Keep Practicing";
+                    const { sections, subtitle } = buildRoleplayPdfPayload();
                     return {
-                      sections: [
-                        { heading: "Conversation", body: messages.map((m) => `${m.role === "user" ? "You" : "Spartan Coach"}: ${m.content}`).join("\n\n") },
-                        { heading: "Performance Feedback", body: feedback?.text ?? "" },
-                      ],
-                      title: "Role-Play Session Transcript",
+                      sections,
+                      title: "Role-Play Session Feedback",
                       filename: `spartan-roleplay-${activeScenarioId}`,
-                      subtitle: `${activeScenarioTitle} · Score: ${feedback?.rating ?? 0}/10 (${scoreLabel})`,
+                      subtitle,
                     };
                   };
                   capture(handleDownloadFeedback, getEmailPdf);
