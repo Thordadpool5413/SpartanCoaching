@@ -202,9 +202,9 @@ function App() {
               <Router />
             </main>
             <Footer />
-            <MobileBottomNav />
-            <InstallBanner />
           </div>
+          <MobileBottomNav />
+          <InstallBanner />
           <Suspense fallback={null}>
             <ChatWidget />
             <StickyBookCall />

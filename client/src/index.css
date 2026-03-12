@@ -440,11 +440,6 @@ body {
       min-height: 48px;
     }
     
-    /* Optimize scrolling */
-    * {
-      -webkit-overflow-scrolling: touch;
-    }
-    
     /* Better card spacing on mobile */
     .gap-cards {
       gap: 0.875rem;
