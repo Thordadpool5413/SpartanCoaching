@@ -2781,7 +2781,7 @@ export default function Admin() {
                   data-testid={`card-assessment-${a.id}`}
                 >
                   <CardHeader className="flex flex-row items-start justify-between gap-4 flex-wrap">
-                    <div className="flex-1 min-w-0 cursor-pointer" onClick={() => setSelectedAssessmentId(selectedAssessmentId === a.id ? null : a.id)}>
+                    <div className="flex-1 min-w-0 cursor-pointer" onClick={() => { setSelectedAssessmentId(selectedAssessmentId === a.id ? null : a.id); setSubmissionClientFilter("all"); }}>
                       <CardTitle className="text-base">{a.name}</CardTitle>
                       {a.description && <p className="text-sm text-muted-foreground mt-1">{a.description}</p>}
                       <p className="text-xs text-muted-foreground mt-1">

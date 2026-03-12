@@ -2504,6 +2504,14 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
       if (slug.length < 2 || slug.length > 100 || !slugRegex.test(slug)) {
         return res.status(400).json({ error: "Slug must be 2-100 lowercase alphanumeric characters and hyphens" });
       }
+      const parsedAssessmentId = parseInt(assessmentId);
+      if (isNaN(parsedAssessmentId)) {
+        return res.status(400).json({ error: "assessmentId must be a number" });
+      }
+      const assessment = await storage.getAssessment(parsedAssessmentId);
+      if (!assessment) {
+        return res.status(404).json({ error: "Assessment not found" });
+      }
       const existing = await storage.getAssessmentClientBySlug(slug);
       if (existing) {
         return res.status(409).json({ error: "A client with this slug already exists" });
@@ -2513,7 +2521,7 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
         companyName,
         logoUrl: logoUrl || null,
         accentColor: accentColor || null,
-        assessmentId: parseInt(assessmentId),
+        assessmentId: parsedAssessmentId,
       });
       res.json({ client });
     } catch (error: any) {
