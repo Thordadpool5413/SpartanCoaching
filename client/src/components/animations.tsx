@@ -30,14 +30,11 @@ function useSafeInView(ref: React.RefObject<HTMLElement | null>): boolean {
       return;
     }
 
-    const timer = setTimeout(() => setVisible(true), 2000);
-
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
           setVisible(true);
           observer.disconnect();
-          clearTimeout(timer);
         }
       },
       { rootMargin: "50px 0px 50px 0px" },
@@ -46,7 +43,6 @@ function useSafeInView(ref: React.RefObject<HTMLElement | null>): boolean {
     observer.observe(el);
     return () => {
       observer.disconnect();
-      clearTimeout(timer);
     };
   }, [ref, visible]);
 
