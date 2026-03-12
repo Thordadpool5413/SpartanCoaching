@@ -333,7 +333,7 @@ export default function Admin() {
   const [clientAccentColor, setClientAccentColor] = useState("");
   const [clientAssessmentId, setClientAssessmentId] = useState("");
 
-  const { data: assessmentClientsData } = useQuery<{ clients: Array<{ id: number; slug: string; companyName: string; logoUrl: string | null; accentColor: string | null; assessmentId: number; createdAt: string }> }>({
+  const { data: assessmentClientsData } = useQuery<{ clients: Array<{ id: number; slug: string; companyName: string; logoUrl: string | null; accentColor: string | null; assessmentId: number; createdAt: string; submissionCount: number }> }>({
     queryKey: ["/api/admin/assessment-clients"],
     queryFn: () => adminGet("/api/admin/assessment-clients"),
     enabled: isAuthenticated,
@@ -2896,6 +2896,11 @@ export default function Admin() {
                                       {sub.overallScore ?? 0}%
                                     </Badge>
                                     {sub.aiFeedback && (() => { try { const d = JSON.parse(sub.aiFeedback!); return d.tier ? <Badge variant="outline" className="text-xs">{d.tier}</Badge> : null; } catch { return null; } })()}
+                                    {(sub as any).clientSlug && (
+                                      <Badge variant="outline" className="text-xs" data-testid={`badge-client-${sub.id}`}>
+                                        {(sub as any).clientSlug}
+                                      </Badge>
+                                    )}
                                   </div>
                                   <div className="flex items-center gap-2 flex-wrap">
                                     {sub.quizScore !== null && (
@@ -3220,6 +3225,9 @@ export default function Admin() {
                         </div>
                         <p className="text-xs text-muted-foreground mt-0.5">
                           /assess/{c.slug} {matchedAssessment ? `\u2192 ${matchedAssessment.name}` : ""}
+                          {c.submissionCount > 0 && (
+                            <span className="ml-2">({c.submissionCount} submission{c.submissionCount !== 1 ? "s" : ""})</span>
+                          )}
                         </p>
                       </div>
                       <div className="flex items-center gap-2 flex-wrap">

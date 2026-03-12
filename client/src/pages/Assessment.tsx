@@ -231,7 +231,20 @@ export default function Assessment({ overrideAssessmentId, clientBranding }: Ass
     return "text-red-600 dark:text-red-400";
   };
 
-  const brandingStyle = clientBranding?.accentColor ? { '--brand-accent': clientBranding.accentColor } as React.CSSProperties : {};
+  const brandingStyle = clientBranding?.accentColor ? {
+    '--brand-accent': clientBranding.accentColor,
+    '--brand-accent-fg': '#ffffff',
+  } as React.CSSProperties : {};
+
+  const accentBtnClass = clientBranding?.accentColor
+    ? "text-white border-transparent"
+    : "";
+  const accentBtnStyle = clientBranding?.accentColor
+    ? { backgroundColor: clientBranding.accentColor }
+    : {};
+  const accentBarStyle = clientBranding?.accentColor
+    ? { backgroundColor: clientBranding.accentColor }
+    : {};
 
   const BrandedHeader = () => {
     if (!clientBranding) return null;
@@ -324,7 +337,7 @@ export default function Assessment({ overrideAssessmentId, clientBranding }: Ass
                   data-testid="input-candidate-email"
                 />
               </div>
-              <Button type="submit" className="w-full font-bold" data-testid="button-start-assessment">
+              <Button type="submit" className={cn("w-full font-bold", accentBtnClass)} style={accentBtnStyle} data-testid="button-start-assessment">
                 Begin Assessment
                 <ArrowRight className="w-4 h-4 ml-2" />
               </Button>
@@ -436,7 +449,7 @@ export default function Assessment({ overrideAssessmentId, clientBranding }: Ass
         <div className="w-full h-2 bg-muted rounded-full overflow-hidden" data-testid="display-progress-bar">
           <div
             className="h-full bg-primary rounded-full transition-all duration-300"
-            style={{ width: `${progress}%` }}
+            style={{ width: `${progress}%`, ...accentBarStyle }}
           />
         </div>
       </div>
@@ -459,15 +472,19 @@ export default function Assessment({ overrideAssessmentId, clientBranding }: Ass
                       ? "border-primary bg-primary/5 ring-1 ring-primary"
                       : "border-border hover-elevate"
                   )}
+                  style={currentAnswer === option && clientBranding?.accentColor ? { borderColor: clientBranding.accentColor, ringColor: clientBranding.accentColor, boxShadow: `0 0 0 1px ${clientBranding.accentColor}` } : {}}
                   data-testid={`option-${idx}`}
                 >
                   <div className="flex items-start gap-3">
-                    <div className={cn(
-                      "w-5 h-5 rounded-full border-2 shrink-0 mt-0.5 flex items-center justify-center",
-                      currentAnswer === option ? "border-primary" : "border-muted-foreground/30"
-                    )}>
+                    <div
+                      className={cn(
+                        "w-5 h-5 rounded-full border-2 shrink-0 mt-0.5 flex items-center justify-center",
+                        currentAnswer === option ? "border-primary" : "border-muted-foreground/30"
+                      )}
+                      style={currentAnswer === option && clientBranding?.accentColor ? { borderColor: clientBranding.accentColor } : {}}
+                    >
                       {currentAnswer === option && (
-                        <div className="w-2.5 h-2.5 rounded-full bg-primary" />
+                        <div className="w-2.5 h-2.5 rounded-full bg-primary" style={accentBarStyle} />
                       )}
                     </div>
                     <span className="text-sm text-foreground leading-relaxed">{option}</span>
@@ -504,7 +521,8 @@ export default function Assessment({ overrideAssessmentId, clientBranding }: Ass
           <Button
             onClick={handleSubmit}
             disabled={!hasAnswer}
-            className="font-bold"
+            className={cn("font-bold", accentBtnClass)}
+            style={accentBtnStyle}
             data-testid="button-submit"
           >
             <Send className="w-4 h-4 mr-2" />
@@ -514,6 +532,8 @@ export default function Assessment({ overrideAssessmentId, clientBranding }: Ass
           <Button
             onClick={handleNext}
             disabled={!hasAnswer}
+            className={accentBtnClass}
+            style={accentBtnStyle}
             data-testid="button-next"
           >
             Next

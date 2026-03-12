@@ -2525,7 +2525,14 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
   app.get("/api/admin/assessment-clients", requireAdmin, async (req, res) => {
     try {
       const clients = await storage.getAssessmentClients();
-      res.json({ clients });
+      const clientsWithCounts = await Promise.all(
+        clients.map(async (c) => {
+          const submissions = await storage.getAssessmentSubmissions(c.assessmentId);
+          const submissionCount = submissions.filter(s => s.clientSlug === c.slug).length;
+          return { ...c, submissionCount };
+        })
+      );
+      res.json({ clients: clientsWithCounts });
     } catch (error: any) {
       console.error("Get assessment clients error:", error);
       res.json({ clients: [] });
