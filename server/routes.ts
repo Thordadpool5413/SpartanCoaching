@@ -2012,13 +2012,20 @@ The single most important skill to work on before the next conversation.`,
       const assessmentId = parseInt(req.params.id);
       if (isNaN(assessmentId)) return res.status(400).json({ error: "Invalid ID" });
 
-      const { candidateName, candidateEmail, answers } = req.body;
+      const { candidateName, candidateEmail, answers, inviteToken } = req.body;
       if (!candidateName || !candidateEmail || !answers) {
         return res.status(400).json({ error: "candidateName, candidateEmail, and answers are required" });
       }
 
       const assessment = await storage.getAssessment(assessmentId);
       if (!assessment) return res.status(404).json({ error: "Assessment not found" });
+
+      if (inviteToken) {
+        const invite = await storage.getAssessmentInviteByToken(inviteToken);
+        if (invite && !invite.usedAt) {
+          storage.markAssessmentInviteUsed(invite.id).catch(err => console.error("Failed to mark invite used:", err));
+        }
+      }
 
       const questions = await storage.getAssessmentQuestions(assessmentId);
       if (questions.length === 0) return res.status(400).json({ error: "This assessment has no questions" });
@@ -2398,6 +2405,72 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
       res.json({ submission, assessment, questions });
     } catch (error: any) {
       res.status(500).json({ error: error.message || "Failed to fetch submission" });
+    }
+  });
+
+  // Assessment Invites
+  app.post("/api/assessments/:id/invites", requireAdmin, async (req, res) => {
+    try {
+      const assessmentId = parseInt(req.params.id);
+      if (isNaN(assessmentId)) return res.status(400).json({ error: "Invalid ID" });
+
+      const { candidateEmail, candidateName } = req.body;
+      if (!candidateEmail || !candidateName) {
+        return res.status(400).json({ error: "candidateEmail and candidateName are required" });
+      }
+
+      const assessment = await storage.getAssessment(assessmentId);
+      if (!assessment) return res.status(404).json({ error: "Assessment not found" });
+
+      const { randomUUID } = await import("crypto");
+      const token = randomUUID();
+
+      const invite = await storage.createAssessmentInvite({
+        assessmentId,
+        token,
+        candidateEmail,
+        candidateName,
+      });
+
+      const siteUrl = process.env.SITE_URL
+        || (process.env.REPLIT_DEPLOYMENT_URL ? `https://${process.env.REPLIT_DEPLOYMENT_URL}` : null)
+        || (process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : "");
+      const assessmentUrl = `${siteUrl}/assessment/${assessmentId}?token=${token}`;
+
+      const { sendAssessmentInvite } = await import("./resend");
+      sendAssessmentInvite(candidateEmail, candidateName, assessment.name, assessmentUrl)
+        .catch(err => console.error("Failed to send assessment invite email:", err));
+
+      res.json({ invite, assessmentUrl });
+    } catch (error: any) {
+      console.error("Create invite error:", error);
+      res.status(500).json({ error: error.message || "Failed to create invite" });
+    }
+  });
+
+  app.get("/api/assessments/:id/invites", requireAdmin, async (req, res) => {
+    try {
+      const assessmentId = parseInt(req.params.id);
+      if (isNaN(assessmentId)) return res.status(400).json({ error: "Invalid ID" });
+      const invites = await storage.getAssessmentInvites(assessmentId);
+      res.json({ invites });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to fetch invites" });
+    }
+  });
+
+  app.get("/api/assessment-invites/:token", async (req, res) => {
+    try {
+      const invite = await storage.getAssessmentInviteByToken(req.params.token);
+      if (!invite) return res.status(404).json({ error: "Invalid or expired invite link" });
+      res.json({
+        candidateName: invite.candidateName,
+        candidateEmail: invite.candidateEmail,
+        assessmentId: invite.assessmentId,
+        used: !!invite.usedAt,
+      });
+    } catch (error: any) {
+      res.status(500).json({ error: error.message || "Failed to validate invite" });
     }
   });
 

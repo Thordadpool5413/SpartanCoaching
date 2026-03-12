@@ -515,6 +515,25 @@ export const insertAssessmentSubmissionSchema = createInsertSchema(assessmentSub
 export type InsertAssessmentSubmission = z.infer<typeof insertAssessmentSubmissionSchema>;
 export type SelectAssessmentSubmission = typeof assessmentSubmissions.$inferSelect;
 
+// Assessment Invites
+export const assessmentInvites = pgTable("assessment_invites", {
+  id: serial("id").primaryKey(),
+  assessmentId: integer("assessment_id").notNull(),
+  token: varchar("token").notNull().unique(),
+  candidateEmail: text("candidate_email").notNull(),
+  candidateName: varchar("candidate_name").notNull(),
+  sentAt: timestamp("sent_at").defaultNow(),
+  usedAt: timestamp("used_at"),
+});
+
+export const insertAssessmentInviteSchema = createInsertSchema(assessmentInvites).omit({
+  id: true,
+  sentAt: true,
+  usedAt: true,
+});
+export type InsertAssessmentInvite = z.infer<typeof insertAssessmentInviteSchema>;
+export type SelectAssessmentInvite = typeof assessmentInvites.$inferSelect;
+
 // Service/Program data types (for display only, no database storage needed for MVP)
 export interface CoachingService {
   title: string;

@@ -764,6 +764,50 @@ export async function sendSignedAgreementPdf(
   }
 }
 
+export async function sendAssessmentInvite(
+  toEmail: string,
+  toName: string,
+  assessmentName: string,
+  assessmentUrl: string
+): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+
+    await sendEmail(client, {
+      from: fromEmail,
+      to: toEmail,
+      subject: `You've Been Invited: ${assessmentName} — Spartan Coaching`,
+      html: `
+        <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; color: #111827;">
+          <div style="background: #b91c1c; padding: 20px 24px;">
+            <h2 style="color: white; margin: 0; font-size: 20px; letter-spacing: 0.5px;">Spartan Coaching</h2>
+          </div>
+          <div style="padding: 32px 24px; background: #ffffff; border: 1px solid #e5e7eb; border-top: none;">
+            <p style="margin: 0 0 16px; line-height: 1.6;">Hi ${toName},</p>
+            <p style="margin: 0 0 16px; line-height: 1.6;">You have been invited to complete the <strong>${assessmentName}</strong> assessment by Nick Lynch at Spartan Coaching.</p>
+            <p style="margin: 0 0 24px; line-height: 1.6;">This assessment evaluates your hospice sales knowledge, scenario handling, and strategic thinking. It typically takes 15-20 minutes to complete.</p>
+            <div style="text-align: center; margin: 32px 0;">
+              <a href="${assessmentUrl}" style="display: inline-block; background: #b91c1c; color: white; padding: 14px 32px; border-radius: 6px; text-decoration: none; font-weight: bold; font-size: 16px;">Start Assessment</a>
+            </div>
+            <p style="margin: 0 0 16px; line-height: 1.6; color: #555; font-size: 14px;">This link is unique to you. Your name and email are already pre-filled — just click the button above to begin.</p>
+            <p style="margin: 0 0 4px; font-weight: bold;">Nick Lynch</p>
+            <p style="margin: 0; color: #555; font-size: 14px;">Founder, Spartan Coaching</p>
+          </div>
+          <div style="padding: 16px 24px; background: #f9fafb; border: 1px solid #e5e7eb; border-top: none; text-align: center;">
+            <p style="color: #9ca3af; font-size: 12px; margin: 0;">Spartan Coaching &mdash; The Authority in Hospice Sales Excellence</p>
+          </div>
+        </div>
+      `,
+    });
+
+    console.log(`Assessment invite email sent to ${toName} <${toEmail}> for "${assessmentName}"`);
+    return true;
+  } catch (error) {
+    console.error(`Failed to send assessment invite to ${toEmail}:`, error);
+    return false;
+  }
+}
+
 export async function sendGeneratedEmail(to: string, subject: string, body: string): Promise<boolean> {
   try {
     const { client, fromEmail } = await getUncachableResendClient();

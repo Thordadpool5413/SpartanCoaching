@@ -11,7 +11,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Mail, Phone, Building, Calendar, Users, Lock, LogOut, Plus, Edit, Trash2, ExternalLink, Star, FileText as FileSignature, PlayCircle, Target, Quote, Award, ChevronDown, ChevronUp, Download, CheckCircle, Circle, Send, Loader2, ClipboardList, Copy, Link as LinkIcon, Printer } from "lucide-react";
-import type { SelectInquiry, SelectNewsletterSubscriber, SelectArticle, InsertArticle, VisitorAnalytics, SelectResource, InsertResource, SelectPodcast, InsertPodcast, SelectSignedAgreement, SelectRoleplaySession, SelectDrillCompletion, SelectTestimonial, SelectCaseStudy, InsertTestimonial, InsertCaseStudy, SelectResourceLead, SelectAssessment, SelectAssessmentQuestion, SelectAssessmentSubmission, SelectAgreementRequest } from "@shared/schema";
+import type { SelectInquiry, SelectNewsletterSubscriber, SelectArticle, InsertArticle, VisitorAnalytics, SelectResource, InsertResource, SelectPodcast, InsertPodcast, SelectSignedAgreement, SelectRoleplaySession, SelectDrillCompletion, SelectTestimonial, SelectCaseStudy, InsertTestimonial, InsertCaseStudy, SelectResourceLead, SelectAssessment, SelectAssessmentQuestion, SelectAssessmentSubmission, SelectAgreementRequest, SelectAssessmentInvite } from "@shared/schema";
 import type { SelectUsageEvent } from "@shared/schema";
 import { BackButton } from "@/components/BackButton";
 import { useToast } from "@/hooks/use-toast";
@@ -325,6 +325,43 @@ export default function Admin() {
 
   const assessmentQuestions = assessmentQuestionsData?.questions || [];
   const assessmentSubmissions = assessmentSubmissionsData?.submissions || [];
+
+  const [inviteDialogOpen, setInviteDialogOpen] = useState(false);
+  const [inviteName, setInviteName] = useState("");
+  const [inviteEmail, setInviteEmail] = useState("");
+
+  const { data: invitesData } = useQuery<{ invites: Array<{ id: number; token: string; candidateName: string; candidateEmail: string; sentAt: string | null; usedAt: string | null }> }>({
+    queryKey: ["/api/assessments", selectedAssessmentId, "invites"],
+    queryFn: () => adminGet(`/api/assessments/${selectedAssessmentId}/invites`),
+    enabled: isAuthenticated && selectedAssessmentId !== null,
+  });
+
+  const assessmentInvites = invitesData?.invites || [];
+
+  const sendInviteMutation = useMutation({
+    mutationFn: async ({ assessmentId, candidateName, candidateEmail }: { assessmentId: number; candidateName: string; candidateEmail: string }) => {
+      const res = await fetch(`/api/assessments/${assessmentId}/invites`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Admin-Auth": ADMIN_CODE },
+        body: JSON.stringify({ candidateName, candidateEmail }),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed to send invite");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/assessments", selectedAssessmentId, "invites"] });
+      setInviteDialogOpen(false);
+      setInviteName("");
+      setInviteEmail("");
+      toast({ title: "Invite Sent", description: "Assessment invite email sent to candidate" });
+    },
+    onError: (err: any) => {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    },
+  });
 
   const handleCopyAssessmentLink = (assessmentId: number) => {
     const link = `${window.location.origin}/assessment/${assessmentId}`;
@@ -2988,6 +3025,58 @@ export default function Admin() {
                           </div>
                         )}
                       </div>
+
+                      <div>
+                        <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+                          <h3 className="font-semibold text-sm">Invites ({assessmentInvites.length})</h3>
+                          <Button size="sm" onClick={() => setInviteDialogOpen(true)} data-testid="button-send-invite">
+                            <Send className="w-4 h-4 mr-1" />
+                            Send Invite
+                          </Button>
+                        </div>
+                        {assessmentInvites.length === 0 ? (
+                          <p className="text-sm text-muted-foreground py-4 text-center">No invites sent yet</p>
+                        ) : (
+                          <div className="space-y-2">
+                            {assessmentInvites.map((inv) => (
+                              <div key={inv.id} className="flex items-center justify-between gap-3 p-3 border rounded-md flex-wrap" data-testid={`invite-${inv.id}`}>
+                                <div className="flex-1 min-w-0">
+                                  <p className="text-sm font-medium text-foreground">{inv.candidateName}</p>
+                                  <p className="text-xs text-muted-foreground">{inv.candidateEmail}</p>
+                                </div>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  {inv.usedAt ? (
+                                    <Badge variant="default" className="text-xs" data-testid={`badge-invite-used-${inv.id}`}>
+                                      <CheckCircle className="w-3 h-3 mr-1" />
+                                      Completed
+                                    </Badge>
+                                  ) : (
+                                    <Badge variant="secondary" className="text-xs" data-testid={`badge-invite-pending-${inv.id}`}>
+                                      Pending
+                                    </Badge>
+                                  )}
+                                  <span className="text-xs text-muted-foreground">
+                                    {inv.sentAt ? new Date(inv.sentAt).toLocaleDateString() : ""}
+                                  </span>
+                                  <Button
+                                    size="icon"
+                                    variant="ghost"
+                                    onClick={() => {
+                                      const link = `${window.location.origin}/assessment/${a.id}?token=${inv.token}`;
+                                      navigator.clipboard.writeText(link).then(() => {
+                                        toast({ title: "Copied", description: "Invite link copied to clipboard" });
+                                      });
+                                    }}
+                                    data-testid={`button-copy-invite-${inv.id}`}
+                                  >
+                                    <Copy className="w-4 h-4" />
+                                  </Button>
+                                </div>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
                     </CardContent>
                   )}
                 </Card>
@@ -2997,6 +3086,50 @@ export default function Admin() {
         </TabsContent>
 
       </Tabs>
+
+      {/* Send Invite Dialog */}
+      <Dialog open={inviteDialogOpen} onOpenChange={setInviteDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Send Assessment Invite</DialogTitle>
+            <DialogDescription>Send a personalized assessment link to a candidate via email.</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            <div className="space-y-2">
+              <Label>Candidate Name</Label>
+              <Input
+                value={inviteName}
+                onChange={(e) => setInviteName(e.target.value)}
+                placeholder="Full name"
+                data-testid="input-invite-name"
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Email Address</Label>
+              <Input
+                type="email"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                placeholder="candidate@email.com"
+                data-testid="input-invite-email"
+              />
+            </div>
+            <Button
+              className="w-full"
+              disabled={!inviteName.trim() || !inviteEmail.trim() || sendInviteMutation.isPending}
+              onClick={() => {
+                if (selectedAssessmentId) {
+                  sendInviteMutation.mutate({ assessmentId: selectedAssessmentId, candidateName: inviteName, candidateEmail: inviteEmail });
+                }
+              }}
+              data-testid="button-confirm-send-invite"
+            >
+              {sendInviteMutation.isPending ? <Loader2 className="w-4 h-4 mr-1.5 animate-spin" /> : <Send className="w-4 h-4 mr-1.5" />}
+              Send Invite Email
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       {/* New Assessment Dialog */}
       <Dialog open={assessmentDialogOpen} onOpenChange={setAssessmentDialogOpen}>

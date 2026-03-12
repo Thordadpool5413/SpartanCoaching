@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
-import { useParams } from "wouter";
+import { useParams, useSearch } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -32,6 +32,9 @@ interface SubmissionResult {
 export default function Assessment() {
   const { id } = useParams<{ id: string }>();
   const assessmentId = parseInt(id || "0");
+  const searchString = useSearch();
+  const urlParams = new URLSearchParams(searchString);
+  const inviteToken = urlParams.get("token") || "";
 
   const [screen, setScreen] = useState<Screen>("intake");
   const [candidateName, setCandidateName] = useState("");
@@ -39,6 +42,34 @@ export default function Assessment() {
   const [currentQ, setCurrentQ] = useState(0);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [result, setResult] = useState<SubmissionResult | null>(null);
+  const [isInvite, setIsInvite] = useState(false);
+  const [inviteUsed, setInviteUsed] = useState(false);
+
+  const { data: inviteData } = useQuery<{
+    candidateName: string;
+    candidateEmail: string;
+    assessmentId: number;
+    used: boolean;
+  }>({
+    queryKey: ["/api/assessment-invites", inviteToken],
+    queryFn: async () => {
+      const res = await fetch(`/api/assessment-invites/${inviteToken}`);
+      if (!res.ok) throw new Error("Invalid invite");
+      return res.json();
+    },
+    enabled: !!inviteToken,
+  });
+
+  useEffect(() => {
+    if (inviteData) {
+      setCandidateName(inviteData.candidateName);
+      setCandidateEmail(inviteData.candidateEmail);
+      setIsInvite(true);
+      if (inviteData.used) {
+        setInviteUsed(true);
+      }
+    }
+  }, [inviteData]);
 
   const { data, isLoading, error } = useQuery<{
     assessment: { id: number; name: string; description: string | null };
@@ -55,10 +86,12 @@ export default function Assessment() {
 
   const submitMutation = useMutation({
     mutationFn: async () => {
+      const payload: any = { candidateName, candidateEmail, answers };
+      if (inviteToken) payload.inviteToken = inviteToken;
       const res = await fetch(`/api/assessments/${assessmentId}/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ candidateName, candidateEmail, answers }),
+        body: JSON.stringify(payload),
       });
       if (!res.ok) {
         const err = await res.json();
@@ -188,6 +221,16 @@ export default function Assessment() {
           </div>
         </div>
 
+        {inviteUsed && (
+          <Card className="mb-4 border-yellow-500/50" data-testid="card-invite-used-warning">
+            <CardContent className="pt-6">
+              <p className="text-sm text-yellow-600 dark:text-yellow-400 font-medium">
+                This invite link has already been used. You may still submit, but your previous submission is on record.
+              </p>
+            </CardContent>
+          </Card>
+        )}
+
         <Card data-testid="card-intake-form">
           <CardHeader>
             <CardTitle className="text-lg">Get Started</CardTitle>
@@ -202,6 +245,8 @@ export default function Assessment() {
                   onChange={(e) => setCandidateName(e.target.value)}
                   placeholder="Enter your full name"
                   required
+                  readOnly={isInvite}
+                  className={isInvite ? "bg-muted cursor-not-allowed" : ""}
                   data-testid="input-candidate-name"
                 />
               </div>
@@ -214,6 +259,8 @@ export default function Assessment() {
                   onChange={(e) => setCandidateEmail(e.target.value)}
                   placeholder="your@email.com"
                   required
+                  readOnly={isInvite}
+                  className={isInvite ? "bg-muted cursor-not-allowed" : ""}
                   data-testid="input-candidate-email"
                 />
               </div>

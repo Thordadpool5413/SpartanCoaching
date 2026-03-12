@@ -54,12 +54,15 @@ import {
   assessments,
   assessmentQuestions,
   assessmentSubmissions,
+  assessmentInvites,
   type InsertAssessment,
   type SelectAssessment,
   type InsertAssessmentQuestion,
   type SelectAssessmentQuestion,
   type InsertAssessmentSubmission,
   type SelectAssessmentSubmission,
+  type InsertAssessmentInvite,
+  type SelectAssessmentInvite,
 } from "@shared/schema";
 import { db } from "./db";
 import { desc, eq, gte, count, ilike } from "drizzle-orm";
@@ -144,6 +147,10 @@ export interface IStorage {
   updateAssessmentSubmission(id: number, updates: Partial<SelectAssessmentSubmission>): Promise<SelectAssessmentSubmission>;
   getAssessmentSubmissions(assessmentId: number): Promise<SelectAssessmentSubmission[]>;
   getAssessmentSubmission(id: number): Promise<SelectAssessmentSubmission | undefined>;
+  createAssessmentInvite(invite: InsertAssessmentInvite): Promise<SelectAssessmentInvite>;
+  getAssessmentInvites(assessmentId: number): Promise<SelectAssessmentInvite[]>;
+  getAssessmentInviteByToken(token: string): Promise<SelectAssessmentInvite | undefined>;
+  markAssessmentInviteUsed(id: number): Promise<SelectAssessmentInvite>;
 }
 
 // Database-backed storage implementation
@@ -638,6 +645,25 @@ export class DatabaseStorage implements IStorage {
 
   async getAssessmentSubmission(id: number): Promise<SelectAssessmentSubmission | undefined> {
     const [result] = await db.select().from(assessmentSubmissions).where(eq(assessmentSubmissions.id, id));
+    return result;
+  }
+
+  async createAssessmentInvite(invite: InsertAssessmentInvite): Promise<SelectAssessmentInvite> {
+    const [result] = await db.insert(assessmentInvites).values(invite).returning();
+    return result;
+  }
+
+  async getAssessmentInvites(assessmentId: number): Promise<SelectAssessmentInvite[]> {
+    return await db.select().from(assessmentInvites).where(eq(assessmentInvites.assessmentId, assessmentId)).orderBy(desc(assessmentInvites.sentAt));
+  }
+
+  async getAssessmentInviteByToken(token: string): Promise<SelectAssessmentInvite | undefined> {
+    const [result] = await db.select().from(assessmentInvites).where(eq(assessmentInvites.token, token));
+    return result;
+  }
+
+  async markAssessmentInviteUsed(id: number): Promise<SelectAssessmentInvite> {
+    const [result] = await db.update(assessmentInvites).set({ usedAt: new Date() }).where(eq(assessmentInvites.id, id)).returning();
     return result;
   }
 }
