@@ -2020,6 +2020,7 @@ The single most important skill to work on before the next conversation.`,
       const assessment = await storage.getAssessment(assessmentId);
       if (!assessment) return res.status(404).json({ error: "Assessment not found" });
 
+      let validatedInviteId: number | null = null;
       if (inviteToken) {
         const invite = await storage.getAssessmentInviteByToken(inviteToken);
         if (!invite) {
@@ -2031,7 +2032,7 @@ The single most important skill to work on before the next conversation.`,
         if (invite.assessmentId !== assessmentId) {
           return res.status(403).json({ error: "This invite token does not match this assessment" });
         }
-        storage.markAssessmentInviteUsed(invite.id).catch(err => console.error("Failed to mark invite used:", err));
+        validatedInviteId = invite.id;
       }
 
       const questions = await storage.getAssessmentQuestions(assessmentId);
@@ -2351,6 +2352,10 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
         overallScore,
         aiFeedback: aiFeedback || null,
       });
+
+      if (validatedInviteId) {
+        storage.markAssessmentInviteUsed(validatedInviteId).catch(err => console.error("Failed to mark invite used:", err));
+      }
 
       const { sendAssessmentConfirmation, sendSubmissionResultsToNick } = await import("./resend");
       const aiScoringFailed = aiFeedback === "AI scoring was unavailable. Please review scenario responses manually.";
