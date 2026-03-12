@@ -234,6 +234,7 @@ export default function Admin() {
   const [questionOptions, setQuestionOptions] = useState(["", "", "", ""]);
   const [questionCorrectAnswer, setQuestionCorrectAnswer] = useState("");
   const [expandedSubmissionId, setExpandedSubmissionId] = useState<number | null>(null);
+  const [submissionClientFilter, setSubmissionClientFilter] = useState<string>("all");
 
   const { data: assessmentQuestionsData } = useQuery<{ questions: SelectAssessmentQuestion[] }>({
     queryKey: ["/api/assessments", selectedAssessmentId, "questions"],
@@ -2870,12 +2871,37 @@ export default function Admin() {
                       </div>
 
                       <div>
-                        <h3 className="font-semibold text-sm mb-3">Submissions ({assessmentSubmissions.length})</h3>
-                        {assessmentSubmissions.length === 0 ? (
+                        {(() => {
+                          const clientSlugs = [...new Set(assessmentSubmissions.filter(s => s.clientSlug).map(s => s.clientSlug!))];
+                          const filteredSubmissions = submissionClientFilter === "all"
+                            ? assessmentSubmissions
+                            : submissionClientFilter === "direct"
+                              ? assessmentSubmissions.filter(s => !s.clientSlug)
+                              : assessmentSubmissions.filter(s => s.clientSlug === submissionClientFilter);
+                          return (
+                            <>
+                              <div className="flex items-center justify-between gap-3 mb-3 flex-wrap">
+                                <h3 className="font-semibold text-sm">Submissions ({filteredSubmissions.length}{submissionClientFilter !== "all" ? ` of ${assessmentSubmissions.length}` : ""})</h3>
+                                {clientSlugs.length > 0 && (
+                                  <Select value={submissionClientFilter} onValueChange={setSubmissionClientFilter}>
+                                    <SelectTrigger className="w-[180px]" data-testid="select-submission-filter">
+                                      <SelectValue placeholder="Filter by source" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="all">All Sources</SelectItem>
+                                      <SelectItem value="direct">Direct (no client)</SelectItem>
+                                      {clientSlugs.map(slug => (
+                                        <SelectItem key={slug} value={slug}>{slug}</SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                )}
+                              </div>
+                        {filteredSubmissions.length === 0 ? (
                           <p className="text-sm text-muted-foreground py-4 text-center">No submissions yet</p>
                         ) : (
                           <div className="space-y-2">
-                            {assessmentSubmissions.map((sub) => (
+                            {filteredSubmissions.map((sub) => (
                               <div key={sub.id} className="border rounded-md" data-testid={`submission-${sub.id}`}>
                                 <div className="flex items-center justify-between gap-3 p-3 flex-wrap">
                                   <div
@@ -3136,6 +3162,9 @@ export default function Admin() {
                             ))}
                           </div>
                         )}
+                            </>
+                          );
+                        })()}
                       </div>
 
                       <div>
