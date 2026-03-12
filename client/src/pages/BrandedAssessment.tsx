@@ -3,7 +3,6 @@ import { useParams, useLocation } from "wouter";
 import { Loader2 } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import Assessment from "./Assessment";
-import type { SelectAssessment } from "@shared/schema";
 
 interface ClientConfig {
   client: {
@@ -30,14 +29,14 @@ export default function BrandedAssessment() {
     retry: false,
   });
 
-  const { data: assessmentsData } = useQuery<{ assessments: SelectAssessment[] }>({
-    queryKey: ["/api/assessments-public-list"],
+  const { data: defaultData } = useQuery<{ assessmentId: number }>({
+    queryKey: ["/api/assessments/default"],
     queryFn: async () => {
-      const res = await fetch("/api/assessments");
-      if (!res.ok) throw new Error("Failed");
+      const res = await fetch("/api/assessments/default");
+      if (!res.ok) throw new Error("None");
       return res.json();
     },
-    enabled: !!error || (!isLoading && !data),
+    enabled: !isLoading && !data && !!error,
     retry: false,
   });
 
@@ -50,9 +49,8 @@ export default function BrandedAssessment() {
   }
 
   if (error || !data) {
-    const fallbackId = assessmentsData?.assessments?.[0]?.id;
-    if (fallbackId) {
-      navigate(`/assessment/${fallbackId}`);
+    if (defaultData?.assessmentId) {
+      navigate(`/assessment/${defaultData.assessmentId}`);
     } else {
       navigate("/");
     }

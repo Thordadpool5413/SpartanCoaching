@@ -2551,6 +2551,19 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
     }
   });
 
+  app.get("/api/assessments/default", async (_req, res) => {
+    try {
+      const allAssessments = await storage.getAssessments();
+      if (allAssessments.length > 0) {
+        res.json({ assessmentId: allAssessments[0].id });
+      } else {
+        res.status(404).json({ error: "No assessments available" });
+      }
+    } catch (error: any) {
+      res.status(500).json({ error: "Failed to load default assessment" });
+    }
+  });
+
   app.get("/api/assess/:slug", async (req, res) => {
     try {
       const client = await storage.getAssessmentClientBySlug(req.params.slug);

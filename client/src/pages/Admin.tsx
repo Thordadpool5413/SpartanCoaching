@@ -2896,9 +2896,9 @@ export default function Admin() {
                                       {sub.overallScore ?? 0}%
                                     </Badge>
                                     {sub.aiFeedback && (() => { try { const d = JSON.parse(sub.aiFeedback!); return d.tier ? <Badge variant="outline" className="text-xs">{d.tier}</Badge> : null; } catch { return null; } })()}
-                                    {(sub as any).clientSlug && (
+                                    {sub.clientSlug && (
                                       <Badge variant="outline" className="text-xs" data-testid={`badge-client-${sub.id}`}>
-                                        {(sub as any).clientSlug}
+                                        {sub.clientSlug}
                                       </Badge>
                                     )}
                                   </div>
