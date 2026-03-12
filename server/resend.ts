@@ -478,16 +478,14 @@ export async function sendAssessmentConfirmation(
     }
 
     if (tier === "Strong Hire") {
-      tierNote = "Excellent work. Your responses demonstrated strong alignment with the competencies we look for in top hospice sales representatives. Expect to hear from us shortly about next steps.";
+      tierNote = "Excellent work. Your responses demonstrated strong alignment with the competencies we look for in top hospice sales representatives. Nick Lynch, our founder, will be reaching out to you shortly to discuss next steps.";
     } else if (tier === "Solid Candidate") {
-      tierNote = "Solid performance. You showed real potential in key areas. Our team will review your results in detail and reach out to discuss opportunities and areas for continued growth.";
+      tierNote = "Solid performance. You showed real potential in key areas. Nick will review your results in detail and reach out to discuss opportunities and areas for continued growth.";
     } else if (tier === "Development Needed") {
-      tierNote = "Thank you for your effort. Your results highlight some areas where further development would strengthen your candidacy. Our team may reach out to discuss coaching opportunities that could help accelerate your growth.";
+      tierNote = "Thank you for your effort. Your results highlight some areas where further development would strengthen your candidacy. Nick may reach out to discuss coaching opportunities that could help accelerate your growth.";
     } else {
-      tierNote = "Thank you for taking the time to complete this assessment. Our team will review your responses and may follow up with additional guidance or resources.";
+      tierNote = "Thank you for taking the time to complete this assessment. Nick will review your responses and may follow up with additional guidance or resources.";
     }
-
-    const scoreLabel = overallScore >= 85 ? "Strong Hire" : overallScore >= 70 ? "Solid Candidate" : overallScore >= 50 ? "Development Needed" : "Needs Improvement";
 
     await sendEmail(client, {
       from: fromEmail,
