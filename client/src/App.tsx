@@ -8,9 +8,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header, Footer } from "@/components/Layout";
 import { CommandPalette } from "@/components/CommandPalette";
-import { MobileBottomNav } from "@/components/MobileBottomNav";
-import { InstallBanner } from "@/components/InstallBanner";
-import { Skeleton } from "@/components/ui/skeleton";
 
 const ChatWidget = lazy(() => import("@/components/ChatWidget").then(m => ({ default: m.ChatWidget })));
 const StickyBookCall = lazy(() => import("@/components/StickyBookCall").then(m => ({ default: m.StickyBookCall })));
@@ -110,18 +107,8 @@ function VisitorTracker() {
 
 function PageLoader() {
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 space-y-6 animate-pulse">
-      <Skeleton className="h-8 w-48" />
-      <Skeleton className="h-5 w-72" />
-      <div className="space-y-4 pt-2">
-        <Skeleton className="h-32 w-full rounded-lg" />
-        <div className="grid grid-cols-2 gap-4">
-          <Skeleton className="h-24 rounded-lg" />
-          <Skeleton className="h-24 rounded-lg" />
-        </div>
-        <Skeleton className="h-20 w-full rounded-lg" />
-        <Skeleton className="h-20 w-3/4 rounded-lg" />
-      </div>
+    <div className="flex items-center justify-center min-h-[50vh]">
+      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
     </div>
   );
 }
@@ -198,13 +185,11 @@ function App() {
         <TooltipProvider>
           <div className="flex flex-col min-h-screen safe-area-x">
             <Header />
-            <main className="flex-1 pb-16 md:pb-0">
+            <main className="flex-1">
               <Router />
             </main>
             <Footer />
           </div>
-          <MobileBottomNav />
-          <InstallBanner />
           <Suspense fallback={null}>
             <ChatWidget />
             <StickyBookCall />

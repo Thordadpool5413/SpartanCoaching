@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { useParams } from "wouter";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { SEO } from "@/components/SEO";
 import { cn } from "@/lib/utils";
-import { Loader2, CheckCircle, ArrowRight, ArrowLeft, ClipboardList, Send, Award, Save } from "lucide-react";
+import { Loader2, CheckCircle, ArrowRight, ArrowLeft, ClipboardList, Send, Award } from "lucide-react";
 import type { SelectAssessmentQuestion } from "@shared/schema";
 
 type Screen = "intake" | "questions" | "submitting" | "results";
@@ -29,54 +29,33 @@ interface SubmissionResult {
   feedback: string;
 }
 
-const SAVE_KEY = (id: number) => `spartan-assessment-${id}`;
-
 export default function Assessment() {
   const { id } = useParams<{ id: string }>();
-  const numericId = parseInt(id || "0");
-  const assessmentId = isNaN(numericId) ? 0 : numericId;
+  const assessmentId = parseInt(id || "0");
 
-  const savedRaw = assessmentId > 0 ? localStorage.getItem(SAVE_KEY(assessmentId)) : null;
-  const saved = savedRaw ? (() => { try { return JSON.parse(savedRaw); } catch { return null; } })() : null;
-
-  const [screen, setScreen] = useState<Screen>(saved?.screen === "questions" ? "questions" : "intake");
-  const [candidateName, setCandidateName] = useState<string>(saved?.candidateName || "");
-  const [candidateEmail, setCandidateEmail] = useState<string>(saved?.candidateEmail || "");
-  const [currentQ, setCurrentQ] = useState<number>(saved?.currentQ ?? 0);
-  const [answers, setAnswers] = useState<Record<string, string>>(saved?.answers || {});
+  const [screen, setScreen] = useState<Screen>("intake");
+  const [candidateName, setCandidateName] = useState("");
+  const [candidateEmail, setCandidateEmail] = useState("");
+  const [currentQ, setCurrentQ] = useState(0);
+  const [answers, setAnswers] = useState<Record<string, string>>({});
   const [result, setResult] = useState<SubmissionResult | null>(null);
-  const [savedIndicator, setSavedIndicator] = useState(false);
 
   const { data, isLoading, error } = useQuery<{
     assessment: { id: number; name: string; description: string | null };
     questions: PublicQuestion[];
   }>({
-    queryKey: ["/api/assessments", id, "public"],
+    queryKey: ["/api/assessments", assessmentId, "public"],
     queryFn: async () => {
-      const res = await fetch(`/api/assessments/${id}/public`);
+      const res = await fetch(`/api/assessments/${assessmentId}/public`);
       if (!res.ok) throw new Error("Assessment not found");
       return res.json();
     },
-    enabled: !!id && id !== "0",
+    enabled: assessmentId > 0,
   });
-
-  const realAssessmentId = data?.assessment.id ?? assessmentId;
-
-  useEffect(() => {
-    if (screen === "results" || screen === "submitting") return;
-    if (realAssessmentId > 0) {
-      localStorage.setItem(SAVE_KEY(realAssessmentId), JSON.stringify({
-        candidateName, candidateEmail, currentQ, answers, screen,
-      }));
-      setSavedIndicator(true);
-      const t = setTimeout(() => setSavedIndicator(false), 1500);
-      return () => clearTimeout(t);
-    }
-  }, [candidateName, candidateEmail, currentQ, answers, screen, realAssessmentId]);
 
   const submitMutation = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`/api/assessments/${realAssessmentId}/submit`, {
+      const res = await fetch(`/api/assessments/${assessmentId}/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ candidateName, candidateEmail, answers }),
@@ -88,7 +67,6 @@ export default function Assessment() {
       return res.json();
     },
     onSuccess: (data) => {
-      localStorage.removeItem(SAVE_KEY(realAssessmentId));
       setResult({
         overallScore: data.overallScore,
         quizScore: data.quizScore,
@@ -340,17 +318,9 @@ export default function Assessment() {
           <p className="text-sm text-muted-foreground" data-testid="text-progress-label">
             Question {currentQ + 1} of {totalQuestions}
           </p>
-          <div className="flex items-center gap-2">
-            {savedIndicator && (
-              <span className="flex items-center gap-1 text-xs text-muted-foreground" data-testid="text-saved-indicator">
-                <Save className="w-3 h-3" />
-                Saved
-              </span>
-            )}
-            <Badge variant="secondary" data-testid="badge-question-type">
-              {question.type === "quiz" ? "Multiple Choice" : "Written Response"}
-            </Badge>
-          </div>
+          <Badge variant="secondary" data-testid="badge-question-type">
+            {question.type === "quiz" ? "Multiple Choice" : "Written Response"}
+          </Badge>
         </div>
         <div className="w-full h-2 bg-muted rounded-full overflow-hidden" data-testid="display-progress-bar">
           <div

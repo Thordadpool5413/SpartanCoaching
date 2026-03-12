@@ -1,60 +1,12 @@
 import { useRef, useEffect, useState } from "react";
 import {
   motion,
+  useInView,
   useMotionValue,
   useTransform,
   animate,
 } from "framer-motion";
 import { cn } from "@/lib/utils";
-
-const MOBILE_BREAKPOINT = 768;
-
-function useSafeInView(ref: React.RefObject<HTMLElement | null>): boolean {
-  const [visible, setVisible] = useState(() => {
-    if (typeof window === "undefined") return true;
-    return window.innerWidth < MOBILE_BREAKPOINT;
-  });
-
-  useEffect(() => {
-    if (visible) return;
-
-    const el = ref.current;
-    if (!el) {
-      setVisible(true);
-      return;
-    }
-
-    const rect = el.getBoundingClientRect();
-    if (rect.top < window.innerHeight + 50 && rect.bottom > -50) {
-      setVisible(true);
-      return;
-    }
-
-    const nearViewport = rect.top < window.innerHeight * 3;
-    const timer = nearViewport
-      ? setTimeout(() => setVisible(true), 3000)
-      : null;
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setVisible(true);
-          observer.disconnect();
-          if (timer) clearTimeout(timer);
-        }
-      },
-      { rootMargin: "0px 0px -10% 0px" },
-    );
-
-    observer.observe(el);
-    return () => {
-      observer.disconnect();
-      if (timer) clearTimeout(timer);
-    };
-  }, [ref, visible]);
-
-  return visible;
-}
 
 interface FadeInProps {
   children: React.ReactNode;
@@ -63,23 +15,18 @@ interface FadeInProps {
   duration?: number;
 }
 
-export function FadeIn({
-  children,
-  className,
-  delay = 0,
-  duration = 0.6,
-}: FadeInProps) {
+export function FadeIn({ children, className, delay = 0, duration = 0.6 }: FadeInProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useSafeInView(ref);
+  const isInView = useInView(ref, { once: true });
 
   return (
     <motion.div
       ref={ref}
       data-testid="animation-fade-in"
       className={className}
-      initial={false}
+      initial={{ opacity: 0 }}
       animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-      transition={{ duration: isInView ? duration : 0, delay: isInView ? delay : 0, ease: "easeOut" }}
+      transition={{ duration, delay, ease: "easeOut" }}
     >
       {children}
     </motion.div>
@@ -93,23 +40,18 @@ interface SlideUpProps {
   duration?: number;
 }
 
-export function SlideUp({
-  children,
-  className,
-  delay = 0,
-  duration = 0.6,
-}: SlideUpProps) {
+export function SlideUp({ children, className, delay = 0, duration = 0.6 }: SlideUpProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useSafeInView(ref);
+  const isInView = useInView(ref, { once: true });
 
   return (
     <motion.div
       ref={ref}
       data-testid="animation-slide-up"
       className={className}
-      initial={false}
+      initial={{ opacity: 0, y: 40 }}
       animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-      transition={{ duration: isInView ? duration : 0, delay: isInView ? delay : 0, ease: "easeOut" }}
+      transition={{ duration, delay, ease: "easeOut" }}
     >
       {children}
     </motion.div>
@@ -132,7 +74,7 @@ export function SlideIn({
   duration = 0.6,
 }: SlideInProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useSafeInView(ref);
+  const isInView = useInView(ref, { once: true });
   const xOffset = direction === "left" ? -40 : 40;
 
   return (
@@ -140,9 +82,9 @@ export function SlideIn({
       ref={ref}
       data-testid="animation-slide-in"
       className={className}
-      initial={false}
+      initial={{ opacity: 0, x: xOffset }}
       animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: xOffset }}
-      transition={{ duration: isInView ? duration : 0, delay: isInView ? delay : 0, ease: "easeOut" }}
+      transition={{ duration, delay, ease: "easeOut" }}
     >
       {children}
     </motion.div>
@@ -156,23 +98,18 @@ interface ScaleInProps {
   duration?: number;
 }
 
-export function ScaleIn({
-  children,
-  className,
-  delay = 0,
-  duration = 0.5,
-}: ScaleInProps) {
+export function ScaleIn({ children, className, delay = 0, duration = 0.5 }: ScaleInProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useSafeInView(ref);
+  const isInView = useInView(ref, { once: true });
 
   return (
     <motion.div
       ref={ref}
       data-testid="animation-scale-in"
       className={className}
-      initial={false}
+      initial={{ opacity: 0, scale: 0.8 }}
       animate={isInView ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.8 }}
-      transition={{ duration: isInView ? duration : 0, delay: isInView ? delay : 0, ease: "easeOut" }}
+      transition={{ duration, delay, ease: "easeOut" }}
     >
       {children}
     </motion.div>
@@ -191,14 +128,14 @@ export function StaggerContainer({
   staggerDelay = 0.1,
 }: StaggerContainerProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useSafeInView(ref);
+  const isInView = useInView(ref, { once: true });
 
   return (
     <motion.div
       ref={ref}
       data-testid="animation-stagger-container"
       className={className}
-      initial={false}
+      initial="hidden"
       animate={isInView ? "visible" : "hidden"}
       variants={{
         hidden: {},
@@ -220,14 +157,12 @@ interface StaggerItemProps {
 }
 
 export function StaggerItem({ children, className }: StaggerItemProps) {
-  const isMobile = typeof window !== "undefined" && window.innerWidth < MOBILE_BREAKPOINT;
-
   return (
     <motion.div
       data-testid="animation-stagger-item"
       className={className}
       variants={{
-        hidden: { opacity: isMobile ? 1 : 0, y: isMobile ? 0 : 20 },
+        hidden: { opacity: 0, y: 20 },
         visible: {
           opacity: 1,
           y: 0,
@@ -256,7 +191,7 @@ export function AnimatedCounter({
   className,
 }: AnimatedCounterProps) {
   const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useSafeInView(ref);
+  const isInView = useInView(ref, { once: true });
   const motionValue = useMotionValue(0);
   const rounded = useTransform(motionValue, (v) => Math.round(v));
   const [displayValue, setDisplayValue] = useState(0);
@@ -303,7 +238,7 @@ export function ProgressRing({
   className,
 }: ProgressRingProps) {
   const ref = useRef<HTMLDivElement>(null);
-  const isInView = useSafeInView(ref);
+  const isInView = useInView(ref, { once: true });
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference - (progress / 100) * circumference;
@@ -329,7 +264,7 @@ export function ProgressRing({
           strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeDasharray={circumference}
-          initial={false}
+          initial={{ strokeDashoffset: circumference }}
           animate={
             isInView
               ? { strokeDashoffset }
@@ -349,13 +284,9 @@ interface TypewriterTextProps {
   className?: string;
 }
 
-export function TypewriterText({
-  text,
-  speed = 40,
-  className,
-}: TypewriterTextProps) {
+export function TypewriterText({ text, speed = 40, className }: TypewriterTextProps) {
   const ref = useRef<HTMLSpanElement>(null);
-  const isInView = useSafeInView(ref);
+  const isInView = useInView(ref, { once: true });
   const [displayedText, setDisplayedText] = useState("");
 
   useEffect(() => {

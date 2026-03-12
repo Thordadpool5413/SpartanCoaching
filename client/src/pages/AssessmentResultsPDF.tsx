@@ -16,14 +16,10 @@ interface AiData {
     relationshipSelling: number;
     empathyCommunication: number;
     strategicExecution: number;
-    spartanSalesModel?: number;
-    objectionHandling?: number;
-    familyMeetingCompetence?: number;
-    crmDiscipline?: number;
   };
   tier: string;
-  executiveSummary?: string;
   quizAnalysis: string;
+  standoutQualities: string[];
   strengths: string[];
   developmentAreas: string[];
   redFlags: string[];
@@ -210,26 +206,10 @@ export default function AssessmentResultsPDF() {
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px", marginBottom: "24px" }}>
               <div style={{ background: "#f9fafb", borderRadius: "8px", padding: "16px" }}>
                 <div style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#6b7280", marginBottom: "12px" }}>Category Scores</div>
-                {(() => {
-                  const cs = aiData!.categoryScores;
-                  const hasNewCategories = cs.spartanSalesModel !== undefined;
-                  const max = hasNewCategories ? 12.5 : 25;
-                  const categories = [
-                    { key: "hospiceKnowledge", label: "Hospice Industry Knowledge" },
-                    { key: "relationshipSelling", label: "Relationship-First Selling" },
-                    { key: "empathyCommunication", label: "Empathy & Communication" },
-                    { key: "strategicExecution", label: "Strategic Execution" },
-                    ...(hasNewCategories ? [
-                      { key: "spartanSalesModel", label: "Spartan Sales Model" },
-                      { key: "objectionHandling", label: "Objection Handling" },
-                      { key: "familyMeetingCompetence", label: "Family Meeting Competence" },
-                      { key: "crmDiscipline", label: "CRM Discipline" },
-                    ] : []),
-                  ];
-                  return categories.map(({ key, label }) => (
-                    <ScoreBar key={key} value={(cs as Record<string, number>)[key] ?? 0} max={max} label={label} />
-                  ));
-                })()}
+                <ScoreBar value={aiData!.categoryScores.hospiceKnowledge} max={25} label="Hospice Industry Knowledge" />
+                <ScoreBar value={aiData!.categoryScores.relationshipSelling} max={25} label="Relationship-First Selling" />
+                <ScoreBar value={aiData!.categoryScores.empathyCommunication} max={25} label="Empathy & Communication" />
+                <ScoreBar value={aiData!.categoryScores.strategicExecution} max={25} label="Strategic Execution" />
               </div>
               <div style={{ background: "#f9fafb", borderRadius: "8px", padding: "16px" }}>
                 <div style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#6b7280", marginBottom: "10px" }}>Hiring Recommendation</div>
@@ -243,10 +223,12 @@ export default function AssessmentResultsPDF() {
               </div>
             </div>
 
-            {aiData!.executiveSummary && (
-              <div style={{ background: "#f0f9ff", border: "1px solid #bae6fd", borderRadius: "8px", padding: "14px 16px", marginBottom: "20px" }}>
-                <div style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#0369a1", marginBottom: "8px" }}>Executive Summary</div>
-                <p style={{ fontSize: "12px", margin: 0, lineHeight: 1.7 }}>{aiData!.executiveSummary}</p>
+            {aiData!.standoutQualities?.length > 0 && (
+              <div style={{ background: "#f0fdf4", border: "1px solid #bbf7d0", borderRadius: "8px", padding: "14px 16px", marginBottom: "20px" }}>
+                <div style={{ fontSize: "9px", fontWeight: 700, letterSpacing: "0.1em", textTransform: "uppercase", color: "#15803d", marginBottom: "8px" }}>Standout Qualities</div>
+                {aiData!.standoutQualities.map((q, i) => (
+                  <p key={i} style={{ fontSize: "12px", margin: i === 0 ? 0 : "6px 0 0 0", lineHeight: 1.5 }}>{q}</p>
+                ))}
               </div>
             )}
 

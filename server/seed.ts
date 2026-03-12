@@ -279,14 +279,15 @@ async function seedByTitle(table: any, allItems: any[], label: string) {
 
 async function seedAssessments() {
   const existing = await db.select().from(assessments);
-  if (existing.length > 0) {
+  const alreadySeeded = existing.some(a => a.name === "Hospice Sales Representative Candidate Assessment");
+  if (alreadySeeded) {
     console.log(`  Assessments already seeded (${existing.length} found)`);
     return;
   }
 
   const [a1] = await db.insert(assessments).values({
-    name: "Hospice Sales Representative \u2014 Knowledge Screen",
-    description: "A focused knowledge assessment covering hospice eligibility, Medicare Hospice Benefit fundamentals, physician certification, referral source dynamics, HIPAA compliance, the Spartan Method philosophy, activity metrics, and objection handling. Includes three scenario-based questions that test judgment in real-world selling situations. Estimated completion time: 15 to 20 minutes.",
+    name: "Hospice Sales Representative Candidate Assessment",
+    description: "A comprehensive evaluation for hospice sales candidates covering the Medicare Hospice Benefit, referral relationships, HIPAA, the Spartan Method philosophy, and real-world scenario judgment. Estimated completion time: 25 to 30 minutes.",
   }).returning();
 
   await db.insert(assessmentQuestions).values([
@@ -396,93 +397,6 @@ async function seedAssessments() {
     },
     {
       assessmentId: a1.id,
-      type: "scenario",
-      text: "You have been calling on a skilled nursing facility for three months. The Director of Nursing is always polite but has never sent you a single referral. On your next visit, she looks at you and says, honestly, she does not really see a difference between you and any of the other hospice reps. How do you respond in that moment? And what does your specific plan look like for the next 30 days to change her perception and earn that first referral?",
-      options: null,
-      correctAnswer: null,
-      displayOrder: 9,
-    },
-    {
-      assessmentId: a1.id,
-      type: "scenario",
-      text: "A hospital discharge planner you have a solid relationship with calls you sounding stressed. She has a patient who is clinically ready for hospice and she approached the family, but they pushed back and said they are not ready to give up. She is asking you what to say to them. Walk through exactly how you would coach her through that conversation, including the specific language you would suggest she use.",
-      options: null,
-      correctAnswer: null,
-      displayOrder: 10,
-    },
-    {
-      assessmentId: a1.id,
-      type: "scenario",
-      text: "You have just been assigned a brand new territory with zero existing relationships. You have 90 days to establish yourself and generate your first referrals. Walk through your complete plan - how you research and prioritize accounts in the first two weeks, how you approach your first visits, what your weekly rhythm looks like by month two, and what specific milestones you expect to hit by day 90.",
-      options: null,
-      correctAnswer: null,
-      displayOrder: 11,
-    },
-    {
-      assessmentId: a1.id,
-      type: "quiz",
-      text: "The Spartan Coaching sales model follows a specific sequence of stages for building referral relationships. Which of the following best represents the correct order of those stages?",
-      options: [
-        "Engage, Educate, Identify, Retain, Earn, Advance",
-        "Identify, Engage, Educate, Earn, Advance, Retain",
-        "Educate, Engage, Earn, Identify, Advance, Retain",
-        "Identify, Advance, Engage, Educate, Retain, Earn",
-      ],
-      correctAnswer: "Identify, Engage, Educate, Earn, Advance, Retain",
-      displayOrder: 12,
-    },
-    {
-      assessmentId: a1.id,
-      type: "quiz",
-      text: "In the Spartan objection handling framework, what is the correct three-step sequence when a referral source raises a concern or pushback?",
-      options: [
-        "Correct the misconception, explain your advantages, ask for the referral",
-        "Acknowledge the concern, reframe the conversation, advance to a next step",
-        "Listen quietly, change the subject, follow up later by email",
-        "Agree with their objection, offer a discount or incentive, close immediately",
-      ],
-      correctAnswer: "Acknowledge the concern, reframe the conversation, advance to a next step",
-      displayOrder: 13,
-    },
-    {
-      assessmentId: a1.id,
-      type: "quiz",
-      text: "After every in-person visit to a referral source, what should a disciplined hospice sales rep log in their CRM at minimum?",
-      options: [
-        "Only the date and time of the visit",
-        "A brief note that a visit occurred and whether any referrals were received",
-        "The contact spoken with, topics discussed, commitments made, specific follow-up actions with dates, and any pipeline changes",
-        "Nothing unless a referral was actually received during the visit",
-      ],
-      correctAnswer: "The contact spoken with, topics discussed, commitments made, specific follow-up actions with dates, and any pipeline changes",
-      displayOrder: 14,
-    },
-    {
-      assessmentId: a1.id,
-      type: "scenario",
-      text: "A discharge planner at one of your Tier 2 hospitals tells you that the patient's daughter is very upset and says she is not ready to discuss hospice because she feels like the medical team is giving up on her father. The discharge planner asks if you can come speak with the daughter. Describe exactly how you would approach that conversation — what you say when you walk in, how you address the daughter's fear, and the specific language you would use to reframe hospice without pressuring or minimizing her emotions.",
-      options: null,
-      correctAnswer: null,
-      displayOrder: 15,
-    },
-    {
-      assessmentId: a1.id,
-      type: "scenario",
-      text: "You walk into a skilled nursing facility where the social worker tells you they already have a hospice provider they are happy with and sees no reason to change. Using the Spartan three-step objection framework — acknowledge, reframe, advance — write out exactly what you would say in that conversation, including your opening response, how you shift the conversation, and what specific next step you propose before leaving.",
-      options: null,
-      correctAnswer: null,
-      displayOrder: 16,
-    },
-  ]);
-
-  const [a2] = await db.insert(assessments).values({
-    name: "Hospice Sales Representative \u2014 Field Readiness Evaluation",
-    description: "An advanced field-readiness evaluation that tests deeper operational knowledge and scenario-based judgment. Covers ADC and census metrics, warm referral identification, re-engagement strategies, length of stay significance, post-discharge feedback timing, Spartan sales model application, objection handling, family meeting scenarios, CRM discipline, and four complex real-world scenarios. Estimated completion time: 25 to 30 minutes.",
-  }).returning();
-
-  await db.insert(assessmentQuestions).values([
-    {
-      assessmentId: a2.id,
       type: "quiz",
       text: "What does ADC stand for, and what does it actually measure in a hospice business?",
       options: [
@@ -492,10 +406,10 @@ async function seedAssessments() {
         "Average Duration of Care - how long each patient stays on service",
       ],
       correctAnswer: "Average Daily Census - the average number of patients on service on any given day",
-      displayOrder: 1,
+      displayOrder: 9,
     },
     {
-      assessmentId: a2.id,
+      assessmentId: a1.id,
       type: "quiz",
       text: "How would you describe a referral source who is considered warm?",
       options: [
@@ -505,10 +419,10 @@ async function seedAssessments() {
         "Someone who currently sends exclusively to a competitor",
       ],
       correctAnswer: "Someone who has shown genuine interest but has not sent you a referral yet",
-      displayOrder: 2,
+      displayOrder: 10,
     },
     {
-      assessmentId: a2.id,
+      assessmentId: a1.id,
       type: "quiz",
       text: "What tends to be the most effective way to re-engage a referral source who previously referred and then stopped sending patients?",
       options: [
@@ -518,10 +432,10 @@ async function seedAssessments() {
         "Have your clinical team reach out on your behalf to rebuild the relationship",
       ],
       correctAnswer: "Lead with something clinically useful - a case study, patient outcome story, or resource relevant to their patients",
-      displayOrder: 3,
+      displayOrder: 11,
     },
     {
-      assessmentId: a2.id,
+      assessmentId: a1.id,
       type: "quiz",
       text: "Why does a patient's length of stay on hospice tend to matter to referral sources when they decide who to send patients to?",
       options: [
@@ -531,10 +445,10 @@ async function seedAssessments() {
         "Length of stay generally does not influence referral decisions",
       ],
       correctAnswer: "Referral sources connect early and appropriate hospice referrals with better patient comfort and quality of life, which reflects on their own care standards",
-      displayOrder: 4,
+      displayOrder: 12,
     },
     {
-      assessmentId: a2.id,
+      assessmentId: a1.id,
       type: "quiz",
       text: "When is the right time to reach out to a referral source for feedback after a patient they referred has passed or been discharged?",
       options: [
@@ -544,88 +458,142 @@ async function seedAssessments() {
         "Only if the family gave very positive feedback about the experience",
       ],
       correctAnswer: "Within about two weeks, during a regular relationship visit",
-      displayOrder: 5,
+      displayOrder: 13,
     },
     {
-      assessmentId: a2.id,
+      assessmentId: a1.id,
+      type: "quiz",
+      text: "What should be your primary goal when visiting a referral account for the very first time?",
+      options: [
+        "Close the relationship and ask for a referral before the visit ends",
+        "Drop off as many brochures and marketing materials as possible",
+        "Learn about their patient population and understand what they value in a hospice partner",
+        "Walk them through your hospice services in full detail so they know what you offer",
+      ],
+      correctAnswer: "Learn about their patient population and understand what they value in a hospice partner",
+      displayOrder: 14,
+    },
+    {
+      assessmentId: a1.id,
+      type: "quiz",
+      text: "Which of the following would be considered a red flag behavior for a hospice sales rep?",
+      options: [
+        "Spending most of a visit listening and asking questions",
+        "Reaching out to referral sources after patient discharge to check in and gather feedback",
+        "Leading with price, admission speed, or a competitor comparison on a first visit",
+        "Prioritizing a small number of high-value accounts over spreading visits across every account equally",
+      ],
+      correctAnswer: "Leading with price, admission speed, or a competitor comparison on a first visit",
+      displayOrder: 15,
+    },
+    {
+      assessmentId: a1.id,
+      type: "quiz",
+      text: "When someone in hospice talks about census, what are they referring to?",
+      options: [
+        "The number of new patient inquiries received in a given month",
+        "The total number of patients on service at any point in time",
+        "The geographic territory assigned to a sales rep",
+        "The number of referral sources in a given territory",
+      ],
+      correctAnswer: "The total number of patients on service at any point in time",
+      displayOrder: 16,
+    },
+    {
+      assessmentId: a1.id,
+      type: "quiz",
+      text: "When a patient's family says they are not ready to give up, what does that usually signal to you as a hospice sales rep?",
+      options: [
+        "The patient is probably not clinically eligible for hospice yet",
+        "The family likely misunderstands what hospice means and may believe it hastens death or means giving up",
+        "The referral source made a mistake and this patient should not have been referred",
+        "You should step back and let the referral source handle the family conversation on their own",
+      ],
+      correctAnswer: "The family likely misunderstands what hospice means and may believe it hastens death or means giving up",
+      displayOrder: 17,
+    },
+    {
+      assessmentId: a1.id,
+      type: "quiz",
+      text: "Which of the following best describes a high-value referral account worth prioritizing in your territory?",
+      options: [
+        "Any facility or practice that has a large building and a high staff count",
+        "An account with a high volume of patients who match hospice eligibility criteria and where you can build a genuine relationship with the decision-makers",
+        "An account that is the farthest from other competitors in your territory",
+        "Any account that has agreed to display your marketing materials in their lobby",
+      ],
+      correctAnswer: "An account with a high volume of patients who match hospice eligibility criteria and where you can build a genuine relationship with the decision-makers",
+      displayOrder: 18,
+    },
+    {
+      assessmentId: a1.id,
+      type: "quiz",
+      text: "How often should you generally aim to visit your top-tier referral accounts?",
+      options: [
+        "Once a month at most so you do not wear out your welcome",
+        "Only when they call you with a referral or a question",
+        "Weekly or more often, with each visit offering something of value to the relationship",
+        "Quarterly, since these accounts already know and trust you",
+      ],
+      correctAnswer: "Weekly or more often, with each visit offering something of value to the relationship",
+      displayOrder: 19,
+    },
+    {
+      assessmentId: a1.id,
+      type: "quiz",
+      text: "When you are competing with another hospice for the same referral account, what tends to be the most sustainable way to differentiate yourself?",
+      options: [
+        "Offering faster admission turnaround than the competitor",
+        "Being more responsive to calls and messages than anyone else in the market",
+        "Building a deeper, more consistent relationship with the referral source than any competitor can match",
+        "Having the best-designed printed marketing materials and branded leave-behinds",
+      ],
+      correctAnswer: "Building a deeper, more consistent relationship with the referral source than any competitor can match",
+      displayOrder: 20,
+    },
+    {
+      assessmentId: a1.id,
+      type: "scenario",
+      text: "You have been calling on a skilled nursing facility for three months. The Director of Nursing is always polite but has never sent you a single referral. On your next visit, she looks at you and says, honestly, she does not really see a difference between you and any of the other hospice reps. How do you respond in that moment? And what does your specific plan look like for the next 30 days to change her perception and earn that first referral?",
+      options: null,
+      correctAnswer: null,
+      displayOrder: 21,
+    },
+    {
+      assessmentId: a1.id,
+      type: "scenario",
+      text: "A hospital discharge planner you have a solid relationship with calls you sounding stressed. She has a patient who is clinically ready for hospice and she approached the family, but they pushed back and said they are not ready to give up. She is asking you what to say to them. Walk through exactly how you would coach her through that conversation, including the specific language you would suggest she use.",
+      options: null,
+      correctAnswer: null,
+      displayOrder: 22,
+    },
+    {
+      assessmentId: a1.id,
       type: "scenario",
       text: "You find out that your top SNF account, which has been responsible for about 40 percent of your monthly admissions, has started splitting referrals with a competitor because the competitor promised faster admission turnaround. You have a visit with the Director of Nursing scheduled for tomorrow morning. Write out exactly what you plan to say in that meeting - your opening, how you bring up the situation, what you offer or commit to, and how you close the conversation.",
       options: null,
       correctAnswer: null,
-      displayOrder: 6,
+      displayOrder: 23,
     },
     {
-      assessmentId: a2.id,
-      type: "scenario",
-      text: "You are managing a territory with 60 accounts. You have been visiting all of them roughly equally, but your results have plateaued. Your manager tells you to cut your active visit list to 25 accounts and focus. Walk through how you decide which accounts make the cut - what data you look at, what factors matter most, how you handle the accounts you deprioritize, and what your weekly schedule looks like after you make the change.",
-      options: null,
-      correctAnswer: null,
-      displayOrder: 7,
-    },
-    {
-      assessmentId: a2.id,
+      assessmentId: a1.id,
       type: "scenario",
       text: "A primary care physician you have never spoken with picks up the phone when you cold call his practice. From his tone you can tell you have about 45 seconds before he becomes impatient and ends the call. Write out exactly what you say - your opening line, how you set yourself apart from every other hospice rep who has called his office, and how you close for a specific next step before he hangs up.",
       options: null,
       correctAnswer: null,
-      displayOrder: 8,
+      displayOrder: 24,
     },
     {
-      assessmentId: a2.id,
+      assessmentId: a1.id,
       type: "scenario",
       text: "Two of your established referral accounts tell you in the same week that a rep from a competing hospice has been telling people your organization has had HIPAA violations and quality issues. None of it is true. Describe exactly how you handle this - what you say to the two accounts who brought it up, what steps you take internally, and how you decide whether and how to address the competing rep directly.",
       options: null,
       correctAnswer: null,
-      displayOrder: 9,
-    },
-    {
-      assessmentId: a2.id,
-      type: "scenario",
-      text: "Walk through how you would apply the Spartan sales model stages — Identify, Engage, Educate, Earn, Advance, Retain — to a brand new assisted living facility in your territory that has never sent a hospice referral to any provider. For each stage, describe what you would specifically do, what information you need, and how you know when to move from one stage to the next.",
-      options: null,
-      correctAnswer: null,
-      displayOrder: 10,
-    },
-    {
-      assessmentId: a2.id,
-      type: "scenario",
-      text: "A physician you have been building a relationship with tells you he is interested in hospice for some of his patients but wants to see more clinical data before he starts referring. He says he needs evidence that hospice actually improves outcomes compared to continued curative treatment. Describe exactly how you handle this objection using the Spartan three-step framework — acknowledge, reframe, advance — and what specific resources or actions you bring to the next conversation.",
-      options: null,
-      correctAnswer: null,
-      displayOrder: 11,
-    },
-    {
-      assessmentId: a2.id,
-      type: "scenario",
-      text: "You are sitting in a goals-of-care meeting with a patient's family. The patient's wife wants to pursue hospice, but the patient's adult son is angry and says the family is giving up too soon. He turns to you and says, 'You just want us to stop fighting so your company gets paid.' Describe exactly how you respond in that moment, how you navigate the conflict between the two family members, and what the ideal outcome of that meeting looks like from your perspective.",
-      options: null,
-      correctAnswer: null,
-      displayOrder: 12,
-    },
-    {
-      assessmentId: a2.id,
-      type: "scenario",
-      text: "Describe your daily CRM routine. Walk through what you log before your first visit of the day, what you enter after each visit, and how you use the CRM at the end of each week to plan the following week. Include how you would use your CRM data to identify which accounts are trending up, which are going cold, and how you prioritize your time based on what the data tells you.",
-      options: null,
-      correctAnswer: null,
-      displayOrder: 13,
-    },
-    {
-      assessmentId: a2.id,
-      type: "quiz",
-      text: "In the Spartan sales model, what is the primary purpose of the 'Educate' stage when working a referral source?",
-      options: [
-        "Present a detailed slideshow about your hospice organization's history and capabilities",
-        "Bring clinical value and insight that positions you as a resource — not a salesperson — so the referral source begins to see you differently",
-        "Train the referral source staff on how to identify hospice-eligible patients",
-        "Distribute printed brochures and leave-behind materials at every visit",
-      ],
-      correctAnswer: "Bring clinical value and insight that positions you as a resource — not a salesperson — so the referral source begins to see you differently",
-      displayOrder: 14,
+      displayOrder: 25,
     },
   ]);
 
-  console.log("  Seeded 2 candidate assessments: Knowledge Screen (11 quiz + 5 scenario) and Field Readiness Evaluation (6 quiz + 8 scenario)");
+  console.log("  Seeded 1 candidate assessment with 25 questions (20 quiz + 5 scenario)");
 }
 
 export async function seedDatabase() {
