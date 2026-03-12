@@ -33,7 +33,8 @@ const SAVE_KEY = (id: number) => `spartan-assessment-${id}`;
 
 export default function Assessment() {
   const { id } = useParams<{ id: string }>();
-  const assessmentId = parseInt(id || "0");
+  const numericId = parseInt(id || "0");
+  const assessmentId = isNaN(numericId) ? 0 : numericId;
 
   const savedRaw = assessmentId > 0 ? localStorage.getItem(SAVE_KEY(assessmentId)) : null;
   const saved = savedRaw ? (() => { try { return JSON.parse(savedRaw); } catch { return null; } })() : null;
@@ -46,32 +47,36 @@ export default function Assessment() {
   const [result, setResult] = useState<SubmissionResult | null>(null);
   const [savedIndicator, setSavedIndicator] = useState(false);
 
-  useEffect(() => {
-    if (screen === "results" || screen === "submitting") return;
-    localStorage.setItem(SAVE_KEY(assessmentId), JSON.stringify({
-      candidateName, candidateEmail, currentQ, answers, screen,
-    }));
-    setSavedIndicator(true);
-    const t = setTimeout(() => setSavedIndicator(false), 1500);
-    return () => clearTimeout(t);
-  }, [candidateName, candidateEmail, currentQ, answers, screen, assessmentId]);
-
   const { data, isLoading, error } = useQuery<{
     assessment: { id: number; name: string; description: string | null };
     questions: PublicQuestion[];
   }>({
-    queryKey: ["/api/assessments", assessmentId, "public"],
+    queryKey: ["/api/assessments", id, "public"],
     queryFn: async () => {
-      const res = await fetch(`/api/assessments/${assessmentId}/public`);
+      const res = await fetch(`/api/assessments/${id}/public`);
       if (!res.ok) throw new Error("Assessment not found");
       return res.json();
     },
-    enabled: assessmentId > 0,
+    enabled: !!id && id !== "0",
   });
+
+  const realAssessmentId = data?.assessment.id ?? assessmentId;
+
+  useEffect(() => {
+    if (screen === "results" || screen === "submitting") return;
+    if (realAssessmentId > 0) {
+      localStorage.setItem(SAVE_KEY(realAssessmentId), JSON.stringify({
+        candidateName, candidateEmail, currentQ, answers, screen,
+      }));
+      setSavedIndicator(true);
+      const t = setTimeout(() => setSavedIndicator(false), 1500);
+      return () => clearTimeout(t);
+    }
+  }, [candidateName, candidateEmail, currentQ, answers, screen, realAssessmentId]);
 
   const submitMutation = useMutation({
     mutationFn: async () => {
-      const res = await fetch(`/api/assessments/${assessmentId}/submit`, {
+      const res = await fetch(`/api/assessments/${realAssessmentId}/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ candidateName, candidateEmail, answers }),
@@ -83,7 +88,7 @@ export default function Assessment() {
       return res.json();
     },
     onSuccess: (data) => {
-      localStorage.removeItem(SAVE_KEY(assessmentId));
+      localStorage.removeItem(SAVE_KEY(realAssessmentId));
       setResult({
         overallScore: data.overallScore,
         quizScore: data.quizScore,

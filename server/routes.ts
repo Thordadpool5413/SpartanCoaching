@@ -1989,11 +1989,17 @@ The single most important skill to work on before the next conversation.`,
 
   app.get("/api/assessments/:id/public", async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
-      if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
-      const assessment = await storage.getAssessment(id);
+      let assessment;
+      if (req.params.id === "active") {
+        const all = await storage.getAssessments();
+        assessment = all[0];
+      } else {
+        const id = parseInt(req.params.id);
+        if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+        assessment = await storage.getAssessment(id);
+      }
       if (!assessment) return res.status(404).json({ error: "Assessment not found" });
-      const questions = await storage.getAssessmentQuestions(id);
+      const questions = await storage.getAssessmentQuestions(assessment.id);
       const publicQuestions = questions.map(q => ({
         id: q.id,
         type: q.type,

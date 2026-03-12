@@ -6,7 +6,7 @@ const NAV_ITEMS = [
   { href: "/", label: "Home", icon: Home },
   { href: "/tools", label: "AI Tools", icon: Wrench },
   { href: "/resources", label: "Resources", icon: BookOpen },
-  { href: "/assessment/5", label: "Assessment", icon: ClipboardList },
+  { href: "/assessment/active", label: "Assessment", icon: ClipboardList },
   { href: "/contact", label: "Contact", icon: Phone },
 ];
 
@@ -24,6 +24,8 @@ export function MobileBottomNav() {
           const isActive =
             href === "/"
               ? location === "/"
+              : href.startsWith("/assessment")
+              ? location.startsWith("/assessment")
               : location === href || location.startsWith(href + "/");
           return (
             <Link

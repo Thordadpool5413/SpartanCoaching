@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Share2, Check } from "lucide-react";
 
@@ -19,9 +19,14 @@ export function ShareButton({
   size = "sm",
   variant = "outline",
 }: ShareButtonProps) {
+  const [canShare, setCanShare] = useState(false);
   const [shared, setShared] = useState(false);
 
-  if (!navigator.share) return null;
+  useEffect(() => {
+    setCanShare(typeof navigator !== "undefined" && !!navigator.share);
+  }, []);
+
+  if (!canShare) return null;
 
   const handleShare = async () => {
     try {
