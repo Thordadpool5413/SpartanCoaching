@@ -306,7 +306,7 @@ function ChatWidgetContent() {
         )}
         style={{
           position: 'fixed',
-          bottom: isMobile ? 'calc(20px + env(safe-area-inset-bottom, 0px))' : '32px',
+          bottom: isMobile ? 'calc(72px + env(safe-area-inset-bottom, 0px))' : '32px',
           right: isMobile ? 'calc(16px + env(safe-area-inset-right, 0px))' : '32px',
           zIndex: 50,
         }}
