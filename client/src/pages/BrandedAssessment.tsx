@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useLocation } from "wouter";
 import { Loader2 } from "lucide-react";
@@ -29,18 +30,30 @@ export default function BrandedAssessment() {
     retry: false,
   });
 
-  const { data: defaultData } = useQuery<{ assessmentId: number }>({
+  const slugFailed = !isLoading && !!error;
+
+  const { data: defaultData, isLoading: defaultLoading } = useQuery<{ assessmentId: number }>({
     queryKey: ["/api/assessments/default"],
     queryFn: async () => {
       const res = await fetch("/api/assessments/default");
       if (!res.ok) throw new Error("None");
       return res.json();
     },
-    enabled: !isLoading && !data && !!error,
+    enabled: slugFailed,
     retry: false,
   });
 
-  if (isLoading) {
+  useEffect(() => {
+    if (!slugFailed) return;
+    if (defaultLoading) return;
+    if (defaultData?.assessmentId) {
+      navigate(`/assessment/${defaultData.assessmentId}`);
+    } else {
+      navigate("/");
+    }
+  }, [slugFailed, defaultLoading, defaultData, navigate]);
+
+  if (isLoading || (slugFailed && defaultLoading)) {
     return (
       <div className="flex items-center justify-center min-h-[60vh]" data-testid="display-branded-loading">
         <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
@@ -48,14 +61,15 @@ export default function BrandedAssessment() {
     );
   }
 
-  if (error || !data) {
-    if (defaultData?.assessmentId) {
-      navigate(`/assessment/${defaultData.assessmentId}`);
-    } else {
-      navigate("/");
-    }
-    return null;
+  if (slugFailed) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]" data-testid="display-branded-loading">
+        <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+      </div>
+    );
   }
+
+  if (!data) return null;
 
   return (
     <>
