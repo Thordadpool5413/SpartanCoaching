@@ -418,11 +418,66 @@ async function seedAssessments() {
       correctAnswer: null,
       displayOrder: 11,
     },
+    {
+      assessmentId: a1.id,
+      type: "quiz",
+      text: "The Spartan Coaching sales model follows a specific sequence of stages for building referral relationships. Which of the following best represents the correct order of those stages?",
+      options: [
+        "Engage, Educate, Identify, Retain, Earn, Advance",
+        "Identify, Engage, Educate, Earn, Advance, Retain",
+        "Educate, Engage, Earn, Identify, Advance, Retain",
+        "Identify, Advance, Engage, Educate, Retain, Earn",
+      ],
+      correctAnswer: "Identify, Engage, Educate, Earn, Advance, Retain",
+      displayOrder: 12,
+    },
+    {
+      assessmentId: a1.id,
+      type: "quiz",
+      text: "In the Spartan objection handling framework, what is the correct three-step sequence when a referral source raises a concern or pushback?",
+      options: [
+        "Correct the misconception, explain your advantages, ask for the referral",
+        "Acknowledge the concern, reframe the conversation, advance to a next step",
+        "Listen quietly, change the subject, follow up later by email",
+        "Agree with their objection, offer a discount or incentive, close immediately",
+      ],
+      correctAnswer: "Acknowledge the concern, reframe the conversation, advance to a next step",
+      displayOrder: 13,
+    },
+    {
+      assessmentId: a1.id,
+      type: "quiz",
+      text: "After every in-person visit to a referral source, what should a disciplined hospice sales rep log in their CRM at minimum?",
+      options: [
+        "Only the date and time of the visit",
+        "A brief note that a visit occurred and whether any referrals were received",
+        "The contact spoken with, topics discussed, commitments made, specific follow-up actions with dates, and any pipeline changes",
+        "Nothing unless a referral was actually received during the visit",
+      ],
+      correctAnswer: "The contact spoken with, topics discussed, commitments made, specific follow-up actions with dates, and any pipeline changes",
+      displayOrder: 14,
+    },
+    {
+      assessmentId: a1.id,
+      type: "scenario",
+      text: "A discharge planner at one of your Tier 2 hospitals tells you that the patient's daughter is very upset and says she is not ready to discuss hospice because she feels like the medical team is giving up on her father. The discharge planner asks if you can come speak with the daughter. Describe exactly how you would approach that conversation — what you say when you walk in, how you address the daughter's fear, and the specific language you would use to reframe hospice without pressuring or minimizing her emotions.",
+      options: null,
+      correctAnswer: null,
+      displayOrder: 15,
+    },
+    {
+      assessmentId: a1.id,
+      type: "scenario",
+      text: "You walk into a skilled nursing facility where the social worker tells you they already have a hospice provider they are happy with and sees no reason to change. Using the Spartan three-step objection framework — acknowledge, reframe, advance — write out exactly what you would say in that conversation, including your opening response, how you shift the conversation, and what specific next step you propose before leaving.",
+      options: null,
+      correctAnswer: null,
+      displayOrder: 16,
+    },
   ]);
 
   const [a2] = await db.insert(assessments).values({
     name: "Hospice Sales Representative \u2014 Field Readiness Evaluation",
-    description: "An advanced field-readiness evaluation that tests deeper operational knowledge and scenario-based judgment. Covers ADC and census metrics, warm referral identification, re-engagement strategies, length of stay significance, post-discharge feedback timing, and four complex real-world scenarios. Estimated completion time: 20 to 25 minutes.",
+    description: "An advanced field-readiness evaluation that tests deeper operational knowledge and scenario-based judgment. Covers ADC and census metrics, warm referral identification, re-engagement strategies, length of stay significance, post-discharge feedback timing, Spartan sales model application, objection handling, family meeting scenarios, CRM discipline, and four complex real-world scenarios. Estimated completion time: 25 to 30 minutes.",
   }).returning();
 
   await db.insert(assessmentQuestions).values([
@@ -523,9 +578,54 @@ async function seedAssessments() {
       correctAnswer: null,
       displayOrder: 9,
     },
+    {
+      assessmentId: a2.id,
+      type: "scenario",
+      text: "Walk through how you would apply the Spartan sales model stages — Identify, Engage, Educate, Earn, Advance, Retain — to a brand new assisted living facility in your territory that has never sent a hospice referral to any provider. For each stage, describe what you would specifically do, what information you need, and how you know when to move from one stage to the next.",
+      options: null,
+      correctAnswer: null,
+      displayOrder: 10,
+    },
+    {
+      assessmentId: a2.id,
+      type: "scenario",
+      text: "A physician you have been building a relationship with tells you he is interested in hospice for some of his patients but wants to see more clinical data before he starts referring. He says he needs evidence that hospice actually improves outcomes compared to continued curative treatment. Describe exactly how you handle this objection using the Spartan three-step framework — acknowledge, reframe, advance — and what specific resources or actions you bring to the next conversation.",
+      options: null,
+      correctAnswer: null,
+      displayOrder: 11,
+    },
+    {
+      assessmentId: a2.id,
+      type: "scenario",
+      text: "You are sitting in a goals-of-care meeting with a patient's family. The patient's wife wants to pursue hospice, but the patient's adult son is angry and says the family is giving up too soon. He turns to you and says, 'You just want us to stop fighting so your company gets paid.' Describe exactly how you respond in that moment, how you navigate the conflict between the two family members, and what the ideal outcome of that meeting looks like from your perspective.",
+      options: null,
+      correctAnswer: null,
+      displayOrder: 12,
+    },
+    {
+      assessmentId: a2.id,
+      type: "scenario",
+      text: "Describe your daily CRM routine. Walk through what you log before your first visit of the day, what you enter after each visit, and how you use the CRM at the end of each week to plan the following week. Include how you would use your CRM data to identify which accounts are trending up, which are going cold, and how you prioritize your time based on what the data tells you.",
+      options: null,
+      correctAnswer: null,
+      displayOrder: 13,
+    },
+    {
+      assessmentId: a2.id,
+      type: "quiz",
+      text: "In the Spartan sales model, what is the primary purpose of the 'Educate' stage when working a referral source?",
+      options: [
+        "Present a detailed slideshow about your hospice organization's history and capabilities",
+        "Bring clinical value and insight that positions you as a resource — not a salesperson — so the referral source begins to see you differently",
+        "Train the referral source staff on how to identify hospice-eligible patients",
+        "Distribute printed brochures and leave-behind materials at every visit",
+      ],
+      correctAnswer: "Bring clinical value and insight that positions you as a resource — not a salesperson — so the referral source begins to see you differently",
+      displayOrder: 14,
+    },
   ]);
 
-  console.log("  Seeded 2 candidate assessments: Knowledge Screen (8 quiz + 3 scenario) and Field Readiness Evaluation (5 quiz + 4 scenario)");
+  console.log("  Seeded 2 candidate assessments: Knowledge Screen (11 quiz + 5 scenario) and Field Readiness Evaluation (6 quiz + 8 scenario)");
 }
 
 export async function seedDatabase() {

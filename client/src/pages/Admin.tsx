@@ -2804,30 +2804,40 @@ export default function Admin() {
                                         )}
 
                                         <div className="grid grid-cols-2 gap-2">
-                                          {[
-                                            { label: "Hospice Knowledge", val: aiData.categoryScores?.hospiceKnowledge, max: 25 },
-                                            { label: "Relationship Selling", val: aiData.categoryScores?.relationshipSelling, max: 25 },
-                                            { label: "Empathy & Communication", val: aiData.categoryScores?.empathyCommunication, max: 25 },
-                                            { label: "Strategic Execution", val: aiData.categoryScores?.strategicExecution, max: 25 },
-                                          ].map(cat => (
-                                            <div key={cat.label} className="bg-muted/40 rounded-md p-2.5">
-                                              <p className="text-xs text-muted-foreground mb-1">{cat.label}</p>
-                                              <div className="flex items-center gap-2">
-                                                <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                                                  <div className="h-full bg-primary rounded-full" style={{ width: `${Math.round(((cat.val ?? 0) / cat.max) * 100)}%` }} />
+                                          {(() => {
+                                            const cs = aiData.categoryScores;
+                                            const hasNew = cs?.spartanSalesModel !== undefined;
+                                            const max = hasNew ? 12.5 : 25;
+                                            const cats = [
+                                              { label: "Hospice Knowledge", val: cs?.hospiceKnowledge },
+                                              { label: "Relationship Selling", val: cs?.relationshipSelling },
+                                              { label: "Empathy & Communication", val: cs?.empathyCommunication },
+                                              { label: "Strategic Execution", val: cs?.strategicExecution },
+                                              ...(hasNew ? [
+                                                { label: "Spartan Sales Model", val: cs?.spartanSalesModel },
+                                                { label: "Objection Handling", val: cs?.objectionHandling },
+                                                { label: "Family Meetings", val: cs?.familyMeetingCompetence },
+                                                { label: "CRM Discipline", val: cs?.crmDiscipline },
+                                              ] : []),
+                                            ];
+                                            return cats.map(cat => (
+                                              <div key={cat.label} className="bg-muted/40 rounded-md p-2.5">
+                                                <p className="text-xs text-muted-foreground mb-1">{cat.label}</p>
+                                                <div className="flex items-center gap-2">
+                                                  <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                                                    <div className="h-full bg-primary rounded-full" style={{ width: `${Math.round(((cat.val ?? 0) / max) * 100)}%` }} />
+                                                  </div>
+                                                  <span className="text-xs font-semibold shrink-0">{cat.val ?? "—"}/{max}</span>
                                                 </div>
-                                                <span className="text-xs font-semibold shrink-0">{cat.val ?? "—"}/{cat.max}</span>
                                               </div>
-                                            </div>
-                                          ))}
+                                            ));
+                                          })()}
                                         </div>
 
-                                        {aiData.standoutQualities?.length > 0 && (
-                                          <div className="bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-800 rounded-md p-3">
-                                            <h4 className="text-xs font-bold uppercase tracking-wide text-green-700 dark:text-green-400 mb-2">Standout Qualities</h4>
-                                            {aiData.standoutQualities.map((s: string, i: number) => (
-                                              <p key={i} className="text-sm text-foreground">{s}</p>
-                                            ))}
+                                        {aiData.executiveSummary && (
+                                          <div className="bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-800 rounded-md p-3">
+                                            <h4 className="text-xs font-bold uppercase tracking-wide text-blue-700 dark:text-blue-400 mb-2">Executive Summary</h4>
+                                            <p className="text-sm text-foreground leading-relaxed">{aiData.executiveSummary}</p>
                                           </div>
                                         )}
 
