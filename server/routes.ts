@@ -2012,7 +2012,7 @@ The single most important skill to work on before the next conversation.`,
       const assessmentId = parseInt(req.params.id);
       if (isNaN(assessmentId)) return res.status(400).json({ error: "Invalid ID" });
 
-      const { candidateName, candidateEmail, answers, inviteToken } = req.body;
+      const { candidateName, candidateEmail, answers, inviteToken, clientSlug } = req.body;
       if (!candidateName || !candidateEmail || !answers) {
         return res.status(400).json({ error: "candidateName, candidateEmail, and answers are required" });
       }
@@ -2052,6 +2052,7 @@ The single most important skill to work on before the next conversation.`,
         candidateName,
         candidateEmail,
         answers,
+        clientSlug: clientSlug || null,
       });
 
       const quizQuestions = questions.filter(q => q.type === "quiz");
@@ -2490,6 +2491,81 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
       });
     } catch (error: any) {
       res.status(500).json({ error: error.message || "Failed to validate invite" });
+    }
+  });
+
+  app.post("/api/admin/assessment-clients", requireAdmin, async (req, res) => {
+    try {
+      const { slug, companyName, logoUrl, accentColor, assessmentId } = req.body;
+      if (!slug || !companyName || !assessmentId) {
+        return res.status(400).json({ error: "slug, companyName, and assessmentId are required" });
+      }
+      const slugRegex = /^[a-z0-9][a-z0-9-]*[a-z0-9]$/;
+      if (slug.length < 2 || slug.length > 100 || !slugRegex.test(slug)) {
+        return res.status(400).json({ error: "Slug must be 2-100 lowercase alphanumeric characters and hyphens" });
+      }
+      const existing = await storage.getAssessmentClientBySlug(slug);
+      if (existing) {
+        return res.status(409).json({ error: "A client with this slug already exists" });
+      }
+      const client = await storage.createAssessmentClient({
+        slug,
+        companyName,
+        logoUrl: logoUrl || null,
+        accentColor: accentColor || null,
+        assessmentId: parseInt(assessmentId),
+      });
+      res.json({ client });
+    } catch (error: any) {
+      console.error("Create assessment client error:", error);
+      res.status(500).json({ error: error.message || "Failed to create client" });
+    }
+  });
+
+  app.get("/api/admin/assessment-clients", requireAdmin, async (req, res) => {
+    try {
+      const clients = await storage.getAssessmentClients();
+      res.json({ clients });
+    } catch (error: any) {
+      console.error("Get assessment clients error:", error);
+      res.json({ clients: [] });
+    }
+  });
+
+  app.delete("/api/admin/assessment-clients/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
+      await storage.deleteAssessmentClient(id);
+      res.json({ success: true });
+    } catch (error: any) {
+      console.error("Delete assessment client error:", error);
+      res.status(500).json({ error: error.message || "Failed to delete client" });
+    }
+  });
+
+  app.get("/api/assess/:slug", async (req, res) => {
+    try {
+      const client = await storage.getAssessmentClientBySlug(req.params.slug);
+      if (!client) {
+        return res.status(404).json({ error: "Not found" });
+      }
+      const assessment = await storage.getAssessment(client.assessmentId);
+      if (!assessment) {
+        return res.status(404).json({ error: "Assessment not found" });
+      }
+      res.json({
+        client: {
+          slug: client.slug,
+          companyName: client.companyName,
+          logoUrl: client.logoUrl,
+          accentColor: client.accentColor,
+        },
+        assessmentId: client.assessmentId,
+      });
+    } catch (error: any) {
+      console.error("Get branded assessment error:", error);
+      res.status(500).json({ error: error.message || "Failed to load assessment" });
     }
   });
 

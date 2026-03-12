@@ -490,6 +490,24 @@ export const insertAssessmentQuestionSchema = createInsertSchema(assessmentQuest
 export type InsertAssessmentQuestion = z.infer<typeof insertAssessmentQuestionSchema>;
 export type SelectAssessmentQuestion = typeof assessmentQuestions.$inferSelect;
 
+// Assessment Clients (branded assessment URLs)
+export const assessmentClients = pgTable("assessment_clients", {
+  id: serial("id").primaryKey(),
+  slug: varchar("slug", { length: 100 }).notNull().unique(),
+  companyName: varchar("company_name").notNull(),
+  logoUrl: text("logo_url"),
+  accentColor: varchar("accent_color", { length: 20 }),
+  assessmentId: integer("assessment_id").notNull(),
+  createdAt: timestamp("created_at").defaultNow(),
+});
+
+export const insertAssessmentClientSchema = createInsertSchema(assessmentClients).omit({
+  id: true,
+  createdAt: true,
+});
+export type InsertAssessmentClient = z.infer<typeof insertAssessmentClientSchema>;
+export type SelectAssessmentClient = typeof assessmentClients.$inferSelect;
+
 // Assessment Submissions
 export const assessmentSubmissions = pgTable("assessment_submissions", {
   id: serial("id").primaryKey(),
@@ -501,6 +519,7 @@ export const assessmentSubmissions = pgTable("assessment_submissions", {
   aiScore: integer("ai_score"),
   overallScore: integer("overall_score"),
   aiFeedback: text("ai_feedback"),
+  clientSlug: varchar("client_slug", { length: 100 }),
   completedAt: timestamp("completed_at").defaultNow(),
 });
 

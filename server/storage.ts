@@ -55,6 +55,7 @@ import {
   assessmentQuestions,
   assessmentSubmissions,
   assessmentInvites,
+  assessmentClients,
   siteSettings,
   type SelectSiteSetting,
   type InsertAssessment,
@@ -65,6 +66,8 @@ import {
   type SelectAssessmentSubmission,
   type InsertAssessmentInvite,
   type SelectAssessmentInvite,
+  type InsertAssessmentClient,
+  type SelectAssessmentClient,
 } from "@shared/schema";
 import { db } from "./db";
 import { desc, eq, gte, count, ilike } from "drizzle-orm";
@@ -153,6 +156,10 @@ export interface IStorage {
   getAssessmentInvites(assessmentId: number): Promise<SelectAssessmentInvite[]>;
   getAssessmentInviteByToken(token: string): Promise<SelectAssessmentInvite | undefined>;
   markAssessmentInviteUsed(id: number): Promise<SelectAssessmentInvite>;
+  createAssessmentClient(client: InsertAssessmentClient): Promise<SelectAssessmentClient>;
+  getAssessmentClients(): Promise<SelectAssessmentClient[]>;
+  getAssessmentClientBySlug(slug: string): Promise<SelectAssessmentClient | undefined>;
+  deleteAssessmentClient(id: number): Promise<void>;
   getSetting(key: string): Promise<string | null>;
   setSetting(key: string, value: string): Promise<void>;
   getAllSettings(): Promise<SelectSiteSetting[]>;
@@ -671,6 +678,24 @@ export class DatabaseStorage implements IStorage {
   async markAssessmentInviteUsed(id: number): Promise<SelectAssessmentInvite> {
     const [result] = await db.update(assessmentInvites).set({ usedAt: new Date() }).where(eq(assessmentInvites.id, id)).returning();
     return result;
+  }
+
+  async createAssessmentClient(client: InsertAssessmentClient): Promise<SelectAssessmentClient> {
+    const [result] = await db.insert(assessmentClients).values(client).returning();
+    return result;
+  }
+
+  async getAssessmentClients(): Promise<SelectAssessmentClient[]> {
+    return await db.select().from(assessmentClients).orderBy(desc(assessmentClients.createdAt));
+  }
+
+  async getAssessmentClientBySlug(slug: string): Promise<SelectAssessmentClient | undefined> {
+    const [result] = await db.select().from(assessmentClients).where(eq(assessmentClients.slug, slug));
+    return result;
+  }
+
+  async deleteAssessmentClient(id: number): Promise<void> {
+    await db.delete(assessmentClients).where(eq(assessmentClients.id, id));
   }
 
   async getSetting(key: string): Promise<string | null> {

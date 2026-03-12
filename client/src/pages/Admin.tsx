@@ -326,6 +326,64 @@ export default function Admin() {
   const assessmentQuestions = assessmentQuestionsData?.questions || [];
   const assessmentSubmissions = assessmentSubmissionsData?.submissions || [];
 
+  const [clientDialogOpen, setClientDialogOpen] = useState(false);
+  const [clientSlug, setClientSlug] = useState("");
+  const [clientCompanyName, setClientCompanyName] = useState("");
+  const [clientLogoUrl, setClientLogoUrl] = useState("");
+  const [clientAccentColor, setClientAccentColor] = useState("");
+  const [clientAssessmentId, setClientAssessmentId] = useState("");
+
+  const { data: assessmentClientsData } = useQuery<{ clients: Array<{ id: number; slug: string; companyName: string; logoUrl: string | null; accentColor: string | null; assessmentId: number; createdAt: string }> }>({
+    queryKey: ["/api/admin/assessment-clients"],
+    queryFn: () => adminGet("/api/admin/assessment-clients"),
+    enabled: isAuthenticated,
+  });
+
+  const assessmentClientsList = assessmentClientsData?.clients || [];
+
+  const createClientMutation = useMutation({
+    mutationFn: async (data: { slug: string; companyName: string; logoUrl: string; accentColor: string; assessmentId: string }) => {
+      const res = await fetch("/api/admin/assessment-clients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-Admin-Auth": ADMIN_CODE },
+        body: JSON.stringify(data),
+      });
+      if (!res.ok) {
+        const err = await res.json();
+        throw new Error(err.error || "Failed");
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/assessment-clients"] });
+      setClientDialogOpen(false);
+      setClientSlug("");
+      setClientCompanyName("");
+      setClientLogoUrl("");
+      setClientAccentColor("");
+      setClientAssessmentId("");
+      toast({ title: "Client Created", description: "Branded assessment URL is now active" });
+    },
+    onError: (err: any) => {
+      toast({ title: "Error", description: err.message, variant: "destructive" });
+    },
+  });
+
+  const deleteClientMutation = useMutation({
+    mutationFn: async (id: number) => {
+      const res = await fetch(`/api/admin/assessment-clients/${id}`, {
+        method: "DELETE",
+        headers: { "X-Admin-Auth": ADMIN_CODE },
+      });
+      if (!res.ok) throw new Error("Failed to delete");
+      return res.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/api/admin/assessment-clients"] });
+      toast({ title: "Client Removed" });
+    },
+  });
+
   const [linkedinFollowers, setLinkedinFollowers] = useState("");
   const [linkedinHeadline, setLinkedinHeadline] = useState("");
   const [linkedinProfileUrl, setLinkedinProfileUrl] = useState("");
@@ -3132,6 +3190,157 @@ export default function Admin() {
               ))}
             </div>
           )}
+
+          <div className="border-t pt-6 mt-6">
+            <div className="flex items-center justify-between gap-4 flex-wrap mb-4">
+              <div>
+                <h3 className="text-lg font-bold">Branded Assessment URLs</h3>
+                <p className="text-sm text-muted-foreground">Create custom branded URLs for client organizations (e.g., /assess/acme-hospice)</p>
+              </div>
+              <Button onClick={() => setClientDialogOpen(true)} data-testid="button-create-client">
+                <Plus className="w-4 h-4 mr-1.5" />
+                New Client
+              </Button>
+            </div>
+
+            {assessmentClientsList.length === 0 ? (
+              <p className="text-sm text-muted-foreground text-center py-6">No branded clients configured yet.</p>
+            ) : (
+              <div className="space-y-3">
+                {assessmentClientsList.map((c) => {
+                  const matchedAssessment = assessmentsList.find(a => a.id === c.assessmentId);
+                  return (
+                    <div key={c.id} className="flex items-center justify-between gap-3 p-3 border rounded-md flex-wrap" data-testid={`client-row-${c.id}`}>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="font-medium text-sm text-foreground">{c.companyName}</p>
+                          {c.accentColor && (
+                            <span className="w-4 h-4 rounded-full border inline-block" style={{ backgroundColor: c.accentColor }} />
+                          )}
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          /assess/{c.slug} {matchedAssessment ? `\u2192 ${matchedAssessment.name}` : ""}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            const link = `${window.location.origin}/assess/${c.slug}`;
+                            navigator.clipboard.writeText(link).then(() => {
+                              toast({ title: "Link Copied", description: link });
+                            });
+                          }}
+                          data-testid={`button-copy-client-link-${c.id}`}
+                        >
+                          <Copy className="w-4 h-4 mr-1" />
+                          Copy URL
+                        </Button>
+                        <Button
+                          size="icon"
+                          variant="outline"
+                          onClick={() => {
+                            if (window.confirm(`Remove branded URL for ${c.companyName}?`)) {
+                              deleteClientMutation.mutate(c.id);
+                            }
+                          }}
+                          data-testid={`button-delete-client-${c.id}`}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          </div>
+
+          <Dialog open={clientDialogOpen} onOpenChange={setClientDialogOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Create Branded Assessment URL</DialogTitle>
+                <DialogDescription>Set up a custom branded assessment page for a client organization.</DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 pt-2">
+                <div>
+                  <Label htmlFor="clientCompanyName">Company Name</Label>
+                  <Input
+                    id="clientCompanyName"
+                    value={clientCompanyName}
+                    onChange={(e) => setClientCompanyName(e.target.value)}
+                    placeholder="Acme Hospice"
+                    data-testid="input-client-company-name"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="clientSlug">URL Slug</Label>
+                  <Input
+                    id="clientSlug"
+                    value={clientSlug}
+                    onChange={(e) => setClientSlug(e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, ""))}
+                    placeholder="acme-hospice"
+                    data-testid="input-client-slug"
+                  />
+                  <p className="text-xs text-muted-foreground mt-1">URL will be: /assess/{clientSlug || "your-slug"}</p>
+                </div>
+                <div>
+                  <Label htmlFor="clientAssessmentId">Assessment</Label>
+                  <Select value={clientAssessmentId} onValueChange={setClientAssessmentId}>
+                    <SelectTrigger data-testid="select-client-assessment">
+                      <SelectValue placeholder="Select assessment" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {assessmentsList.map((a) => (
+                        <SelectItem key={a.id} value={String(a.id)}>{a.name}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <Label htmlFor="clientLogoUrl">Logo URL (optional)</Label>
+                  <Input
+                    id="clientLogoUrl"
+                    value={clientLogoUrl}
+                    onChange={(e) => setClientLogoUrl(e.target.value)}
+                    placeholder="https://example.com/logo.png"
+                    data-testid="input-client-logo-url"
+                  />
+                </div>
+                <div>
+                  <Label htmlFor="clientAccentColor">Accent Color (optional)</Label>
+                  <div className="flex items-center gap-2">
+                    <Input
+                      id="clientAccentColor"
+                      value={clientAccentColor}
+                      onChange={(e) => setClientAccentColor(e.target.value)}
+                      placeholder="#1e40af"
+                      data-testid="input-client-accent-color"
+                    />
+                    {clientAccentColor && (
+                      <span className="w-9 h-9 rounded-md border shrink-0" style={{ backgroundColor: clientAccentColor }} />
+                    )}
+                  </div>
+                </div>
+                <Button
+                  className="w-full"
+                  disabled={!clientSlug || !clientCompanyName || !clientAssessmentId || createClientMutation.isPending}
+                  onClick={() => createClientMutation.mutate({
+                    slug: clientSlug,
+                    companyName: clientCompanyName,
+                    logoUrl: clientLogoUrl,
+                    accentColor: clientAccentColor,
+                    assessmentId: clientAssessmentId,
+                  })}
+                  data-testid="button-save-client"
+                >
+                  {createClientMutation.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
+                  Create Branded URL
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
         </TabsContent>
 
         <TabsContent value="linkedin" className="space-y-4">

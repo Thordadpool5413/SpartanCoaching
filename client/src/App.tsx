@@ -60,6 +60,7 @@ const ComplianceEthics = lazy(() => import("@/pages/ComplianceEthics"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const Manifesto = lazy(() => import("@/pages/Manifesto"));
 const Assessment = lazy(() => import("@/pages/Assessment"));
+const BrandedAssessment = lazy(() => import("@/pages/BrandedAssessment"));
 const AssessmentPrint = lazy(() => import("@/pages/AssessmentPrint"));
 const AssessmentResultsPDF = lazy(() => import("@/pages/AssessmentResultsPDF"));
 const SignAgreements = lazy(() => import("@/pages/SignAgreements"));
@@ -167,6 +168,7 @@ function Router() {
           <Route path="/about" component={About} />
           <Route path="/contact" component={Contact} />
           <Route path="/manifesto" component={Manifesto} />
+          <Route path="/assess/:slug" component={BrandedAssessment} />
           <Route path="/assessment/:id/print" component={AssessmentPrint} />
           <Route path="/assessment/:id" component={Assessment} />
           <Route path="/assessment-results/:submissionId" component={AssessmentResultsPDF} />

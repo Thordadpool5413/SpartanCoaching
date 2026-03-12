@@ -29,9 +29,21 @@ interface SubmissionResult {
   feedback: string;
 }
 
-export default function Assessment() {
+interface ClientBranding {
+  companyName: string;
+  logoUrl: string | null;
+  accentColor: string | null;
+  slug: string;
+}
+
+interface AssessmentProps {
+  overrideAssessmentId?: number;
+  clientBranding?: ClientBranding;
+}
+
+export default function Assessment({ overrideAssessmentId, clientBranding }: AssessmentProps = {}) {
   const { id } = useParams<{ id: string }>();
-  const assessmentId = parseInt(id || "0");
+  const assessmentId = overrideAssessmentId || parseInt(id || "0");
   const searchString = useSearch();
   const urlParams = new URLSearchParams(searchString);
   const inviteToken = urlParams.get("token") || "";
@@ -92,6 +104,7 @@ export default function Assessment() {
     mutationFn: async () => {
       const payload: any = { candidateName, candidateEmail, answers };
       if (inviteToken) payload.inviteToken = inviteToken;
+      if (clientBranding?.slug) payload.clientSlug = clientBranding.slug;
       const res = await fetch(`/api/assessments/${assessmentId}/submit`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -218,10 +231,46 @@ export default function Assessment() {
     return "text-red-600 dark:text-red-400";
   };
 
+  const brandingStyle = clientBranding?.accentColor ? { '--brand-accent': clientBranding.accentColor } as React.CSSProperties : {};
+
+  const BrandedHeader = () => {
+    if (!clientBranding) return null;
+    return (
+      <div className="text-center mb-6" data-testid="display-branded-header">
+        {clientBranding.logoUrl && (
+          <img
+            src={clientBranding.logoUrl}
+            alt={clientBranding.companyName}
+            className="h-12 mx-auto mb-3 object-contain"
+            data-testid="img-client-logo"
+          />
+        )}
+        <p className="text-sm font-medium text-muted-foreground" data-testid="text-client-name">
+          {clientBranding.companyName} Assessment
+        </p>
+      </div>
+    );
+  };
+
+  const PoweredByFooter = () => {
+    if (!clientBranding) return null;
+    return (
+      <div className="text-center mt-8 pt-4 border-t" data-testid="display-powered-by">
+        <p className="text-xs text-muted-foreground">
+          Powered by{" "}
+          <a href="/" className="font-semibold hover:underline" target="_blank" rel="noopener noreferrer">
+            Spartan Coaching
+          </a>
+        </p>
+      </div>
+    );
+  };
+
   if (screen === "intake") {
     return (
-      <div className="w-full max-w-xl mx-auto px-4 py-12 sm:py-20">
-        <SEO title={assessment.name} />
+      <div className="w-full max-w-xl mx-auto px-4 py-12 sm:py-20" style={brandingStyle}>
+        <SEO title={clientBranding ? `${clientBranding.companyName} Assessment` : assessment.name} />
+        <BrandedHeader />
         <div className="text-center mb-8">
           <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
             <ClipboardList className="w-8 h-8 text-primary" />
@@ -282,6 +331,7 @@ export default function Assessment() {
             </form>
           </CardContent>
         </Card>
+        <PoweredByFooter />
       </div>
     );
   }
@@ -309,8 +359,9 @@ export default function Assessment() {
 
   if (screen === "results" && result) {
     return (
-      <div className="w-full max-w-2xl mx-auto px-4 py-12 sm:py-20">
-        <SEO title={`Results - ${assessment.name}`} />
+      <div className="w-full max-w-2xl mx-auto px-4 py-12 sm:py-20" style={brandingStyle}>
+        <SEO title={clientBranding ? `Results - ${clientBranding.companyName}` : `Results - ${assessment.name}`} />
+        <BrandedHeader />
         <div className="text-center mb-8">
           <div className="w-20 h-20 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4">
             <Award className="w-10 h-10 text-primary" />
@@ -363,13 +414,15 @@ export default function Assessment() {
             </div>
           </CardContent>
         </Card>
+        <PoweredByFooter />
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-2xl mx-auto px-4 py-8 sm:py-16">
+    <div className="w-full max-w-2xl mx-auto px-4 py-8 sm:py-16" style={brandingStyle}>
       <SEO title={`${assessment.name} - Question ${currentQ + 1}`} />
+      <BrandedHeader />
 
       <div className="mb-6">
         <div className="flex items-center justify-between gap-3 mb-2 flex-wrap">
@@ -468,6 +521,7 @@ export default function Assessment() {
           </Button>
         )}
       </div>
+      <PoweredByFooter />
     </div>
   );
 }
