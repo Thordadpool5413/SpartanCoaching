@@ -472,16 +472,9 @@ body {
       }
     }
     
-    /* Disable expensive animations on mobile for performance */
-    .animate-fade-in,
-    .animate-fade-in-up,
-    .animate-slide-in-left,
-    .animate-slide-in-right,
-    .animate-scale-in {
-      animation: none;
-      opacity: 1;
-      transform: none;
-    }
+    /* Disable expensive animations on mobile for performance - 
+       NOTE: The actual override is placed AFTER base animation definitions 
+       (after @keyframes) to ensure correct CSS cascade order */
     
     /* Keep essential transitions only */
     .transition-smooth,
@@ -728,6 +721,19 @@ body {
 
   .animate-slide-in-up {
     animation: slide-in-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  }
+
+  @media (max-width: 767px) {
+    .animate-fade-in,
+    .animate-fade-in-up,
+    .animate-slide-in-left,
+    .animate-slide-in-right,
+    .animate-scale-in,
+    .animate-slide-in-up {
+      animation: none !important;
+      opacity: 1 !important;
+      transform: none !important;
+    }
   }
 
   /* Spartan gradient utilities - enhanced depth and vibrancy */
