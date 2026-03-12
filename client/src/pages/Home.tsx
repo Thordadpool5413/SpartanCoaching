@@ -144,9 +144,9 @@ export default function Home() {
       </Helmet>
 
       {/* 1. Hero Section */}
-      <section className="relative min-h-[50vh] sm:min-h-[60vh] md:h-[92vh] flex items-center justify-center overflow-hidden bg-gray-950">
+      <section className="relative min-h-[50vh] sm:min-h-[60vh] md:h-[92vh] flex items-center justify-center overflow-hidden bg-gray-950" style={{ backgroundImage: 'url(/hero-poster.jpg)', backgroundSize: 'cover', backgroundPosition: 'center' }}>
         <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-black"></div>
+          <div className="absolute inset-0 bg-gradient-to-br from-gray-950/80 via-gray-900/70 to-black/80"></div>
           <div className="absolute inset-0 bg-spartan-gradient-radial opacity-40"></div>
           <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-radial from-red-950/20 via-transparent to-transparent blur-3xl"></div>
         </div>

@@ -209,13 +209,13 @@ body {
   --tracking-normal: -0.015em;
   --spacing: 0.25rem;
 
-  --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --sidebar-accent-border: hsl(from hsl(var(--sidebar-accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --secondary-border: hsl(from hsl(var(--secondary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --muted-border: hsl(from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --sidebar-primary-border: hsl(0 75% 45%);
+  --sidebar-accent-border: hsl(25 45% 75%);
+  --primary-border: hsl(0 85% 48%);
+  --secondary-border: hsl(0 0% 83%);
+  --muted-border: hsl(0 0% 85%);
+  --accent-border: hsl(0 100% 87%);
+  --destructive-border: hsl(0 85% 48%);
 }
 
 .dark {
@@ -282,13 +282,13 @@ body {
   --shadow-xl: 0 36px 72px -12px rgb(0 0 0 / 1), 0 0 40px -8px rgb(239 68 68 / 0.32);
   --shadow-2xl: 0 56px 128px -20px rgb(0 0 0 / 1), 0 0 60px -12px rgb(239 68 68 / 0.38), 0 0 100px -20px rgb(239 68 68 / 0.24);
 
-  --sidebar-primary-border: hsl(from hsl(var(--sidebar-primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --sidebar-accent-border: hsl(from hsl(var(--sidebar-accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --primary-border: hsl(from hsl(var(--primary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --secondary-border: hsl(from hsl(var(--secondary)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --muted-border: hsl(from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --sidebar-primary-border: hsl(0 85% 74%);
+  --sidebar-accent-border: hsl(0 0% 25%);
+  --primary-border: hsl(0 85% 74%);
+  --secondary-border: hsl(0 0% 27%);
+  --muted-border: hsl(0 0% 25%);
+  --accent-border: hsl(0 85% 28%);
+  --destructive-border: hsl(0 85% 74%);
 }
 
 @layer base {
