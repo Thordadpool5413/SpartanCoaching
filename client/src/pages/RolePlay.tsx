@@ -274,6 +274,7 @@ export default function RolePlay() {
             );
           })}
         </StaggerContainer>
+      <LeadGateDialog gateState={gateState} />
       </div>
     );
   }
@@ -416,6 +417,7 @@ export default function RolePlay() {
             </FadeIn>
           </Card>
         </FadeIn>
+      <LeadGateDialog gateState={gateState} />
       </div>
     );
   }
