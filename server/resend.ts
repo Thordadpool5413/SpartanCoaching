@@ -64,6 +64,28 @@ async function sendEmail(client: Resend, params: Parameters<typeof client.emails
   }
 }
 
+function getSiteUrl(): string {
+  return process.env.SITE_URL
+    || (process.env.REPLIT_DEPLOYMENT_URL ? `https://${process.env.REPLIT_DEPLOYMENT_URL}` : '')
+    || (process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : '')
+    || 'https://spartanhospicecoaching.com';
+}
+
+function emailHeader(): string {
+  const siteUrl = getSiteUrl();
+  return `<div style="background: #111111; padding: 24px; text-align: center;">
+    <img src="${siteUrl}/spartan-logo.jpg" alt="Spartan Coaching" style="max-width: 260px; height: auto;" />
+  </div>`;
+}
+
+function emailFooter(): string {
+  const siteUrl = getSiteUrl();
+  return `<div style="padding: 20px 24px; background: #f9fafb; border-top: 1px solid #e5e7eb; text-align: center;">
+    <img src="${siteUrl}/spartan-logo.jpg" alt="Spartan Coaching" style="max-width: 120px; height: auto; margin-bottom: 8px; display: block; margin-left: auto; margin-right: auto;" />
+    <p style="color: #9ca3af; font-size: 12px; margin: 4px 0 0;">Spartan Coaching &mdash; The Authority in Hospice Sales Excellence</p>
+  </div>`;
+}
+
 interface InquiryEmailData {
   name: string;
   email: string;
@@ -87,19 +109,23 @@ export async function sendInquiryNotification(inquiry: InquiryEmailData): Promis
       to: notificationEmail,
       subject: `${subjectPrefix}New Inquiry from ${inquiry.name}`,
       html: `
-        ${isComplianceInquiry ? '<div style="background: #fef2f2; border: 2px solid #dc2626; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;"><strong style="color: #dc2626;">COMPLIANCE INQUIRY</strong> — This contact has requested information about HIPAA BAA or compliance-related services.</div>' : ''}
-        <h2>New Contact Form Submission</h2>
-        <table style="border-collapse: collapse; width: 100%; max-width: 600px;">
-          <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Name</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${inquiry.name}</td></tr>
-          <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Email</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><a href="mailto:${inquiry.email}">${inquiry.email}</a></td></tr>
-          <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Phone</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${inquiry.phone}</td></tr>
-          ${inquiry.company ? `<tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Company</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${inquiry.company}</td></tr>` : ''}
-          ${inquiry.serviceType ? `<tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Service Interest</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${inquiry.serviceType}</td></tr>` : ''}
-        </table>
-        <h3 style="margin-top: 20px;">Message</h3>
-        <p style="background: #f9f9f9; padding: 16px; border-radius: 8px; white-space: pre-wrap;">${inquiry.message}</p>
-        <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;" />
-        <p style="color: #888; font-size: 12px;">This notification was sent from the Spartan Coaching contact form.</p>
+        <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+          ${emailHeader()}
+          <div style="padding: 24px;">
+            ${isComplianceInquiry ? '<div style="background: #fef2f2; border: 2px solid #dc2626; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;"><strong style="color: #dc2626;">COMPLIANCE INQUIRY</strong> — This contact has requested information about HIPAA BAA or compliance-related services.</div>' : ''}
+            <h2 style="margin-top: 0;">New Contact Form Submission</h2>
+            <table style="border-collapse: collapse; width: 100%;">
+              <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Name</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${inquiry.name}</td></tr>
+              <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Email</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><a href="mailto:${inquiry.email}">${inquiry.email}</a></td></tr>
+              <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Phone</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${inquiry.phone}</td></tr>
+              ${inquiry.company ? `<tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Company</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${inquiry.company}</td></tr>` : ''}
+              ${inquiry.serviceType ? `<tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Service Interest</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${inquiry.serviceType}</td></tr>` : ''}
+            </table>
+            <h3 style="margin-top: 20px;">Message</h3>
+            <p style="background: #f9f9f9; padding: 16px; border-radius: 8px; white-space: pre-wrap;">${inquiry.message}</p>
+          </div>
+          ${emailFooter()}
+        </div>
       `,
     });
     
@@ -121,10 +147,14 @@ export async function sendNewsletterConfirmation(email: string): Promise<boolean
       subject: 'Welcome to Spartan Coaching',
       html: `
         <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
-          <h1 style="color: #1a1a1a;">Welcome to Spartan Coaching</h1>
-          <p>Thanks for subscribing to our newsletter. You'll receive weekly tips on hospice sales excellence, coaching strategies, and industry insights.</p>
-          <p style="margin-top: 24px;">Stay disciplined. Stay empathetic. Stay strategic.</p>
-          <p style="color: #666; font-size: 14px; margin-top: 32px;">— The Spartan Coaching Team</p>
+          ${emailHeader()}
+          <div style="padding: 32px 24px;">
+            <h1 style="color: #1a1a1a; margin-top: 0;">Welcome to Spartan Coaching</h1>
+            <p>Thanks for subscribing to our newsletter. You'll receive weekly tips on hospice sales excellence, coaching strategies, and industry insights.</p>
+            <p style="margin-top: 24px;">Stay disciplined. Stay empathetic. Stay strategic.</p>
+            <p style="color: #666; font-size: 14px; margin-top: 32px;">— The Spartan Coaching Team</p>
+          </div>
+          ${emailFooter()}
         </div>
       `,
     });
@@ -153,12 +183,10 @@ export async function sendAgreementConfirmation(data: AgreementEmailData): Promi
     
     const htmlContent = `
       <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
-        <div style="background: #b91c1c; padding: 24px; text-align: center;">
-          <h1 style="color: white; margin: 0; font-size: 24px;">Spartan Coaching</h1>
-          <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0 0;">Agreement Confirmation</p>
-        </div>
-        <div style="padding: 32px; background: #ffffff;">
-          <h2 style="color: #1a1a1a; margin-top: 0;">${data.agreementType}</h2>
+        ${emailHeader()}
+        <div style="padding: 32px 24px; background: #ffffff;">
+          <h2 style="color: #1a1a1a; margin-top: 0;">Agreement Confirmation</h2>
+          <h3 style="color: #333;">${data.agreementType}</h3>
           <p style="color: #555;">This confirms that the following agreement has been digitally signed:</p>
           <table style="border-collapse: collapse; width: 100%; margin: 24px 0;">
             <tr><td style="padding: 10px 12px; font-weight: bold; border-bottom: 1px solid #eee; color: #333;">Name</td><td style="padding: 10px 12px; border-bottom: 1px solid #eee; color: #555;">${data.signerName}</td></tr>
@@ -169,9 +197,7 @@ export async function sendAgreementConfirmation(data: AgreementEmailData): Promi
           </table>
           <p style="color: #555; font-size: 14px;">This is a digital record of the agreement. Please retain this email for your records. For questions, contact Spartan Coaching.</p>
         </div>
-        <div style="padding: 16px; background: #f5f5f5; text-align: center;">
-          <p style="color: #888; font-size: 12px; margin: 0;">Spartan Coaching &mdash; The Authority in Hospice Excellence</p>
-        </div>
+        ${emailFooter()}
       </div>
     `;
 
@@ -208,15 +234,19 @@ export async function sendResourceLeadNotification(name: string, email: string, 
       to: adminEmail,
       subject: `New Resource Download: ${resourceTitle}`,
       html: `
-        <h2>New Resource Download</h2>
-        <p>Someone entered their information to download a training resource.</p>
-        <table style="border-collapse: collapse; width: 100%; max-width: 600px;">
-          <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Name</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${name}</td></tr>
-          <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Email</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><a href="mailto:${email}">${email}</a></td></tr>
-          <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Resource</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${resourceTitle}</td></tr>
-        </table>
-        <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;" />
-        <p style="color: #888; font-size: 12px;">This notification was sent from the Spartan Coaching resource library.</p>
+        <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+          ${emailHeader()}
+          <div style="padding: 24px;">
+            <h2 style="margin-top: 0;">New Resource Download</h2>
+            <p>Someone entered their information to download a training resource.</p>
+            <table style="border-collapse: collapse; width: 100%;">
+              <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Name</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${name}</td></tr>
+              <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Email</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><a href="mailto:${email}">${email}</a></td></tr>
+              <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Resource</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${resourceTitle}</td></tr>
+            </table>
+          </div>
+          ${emailFooter()}
+        </div>
       `,
     });
 
@@ -238,13 +268,17 @@ export async function sendNewsletterNotification(email: string): Promise<boolean
       to: adminEmail,
       subject: `New Newsletter Subscriber: ${email}`,
       html: `
-        <h2>New Newsletter Subscriber</h2>
-        <p>Someone subscribed to the Spartan Coaching weekly newsletter.</p>
-        <table style="border-collapse: collapse; width: 100%; max-width: 600px;">
-          <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Email</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><a href="mailto:${email}">${email}</a></td></tr>
-        </table>
-        <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;" />
-        <p style="color: #888; font-size: 12px;">This notification was sent from the Spartan Coaching newsletter signup.</p>
+        <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+          ${emailHeader()}
+          <div style="padding: 24px;">
+            <h2 style="margin-top: 0;">New Newsletter Subscriber</h2>
+            <p>Someone subscribed to the Spartan Coaching weekly newsletter.</p>
+            <table style="border-collapse: collapse; width: 100%;">
+              <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Email</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><a href="mailto:${email}">${email}</a></td></tr>
+            </table>
+          </div>
+          ${emailFooter()}
+        </div>
       `,
     });
 
@@ -273,18 +307,16 @@ export async function sendNewsletterBroadcast(
         subject,
         html: `
           <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
-            <div style="background: #b91c1c; padding: 20px 24px; margin-bottom: 0;">
-              <h2 style="color: white; margin: 0; font-size: 20px; letter-spacing: 0.5px;">Spartan Coaching</h2>
-            </div>
+            ${emailHeader()}
             <div style="padding: 32px 24px; background: #ffffff; border: 1px solid #e5e7eb; border-top: none;">
               ${body.split('\n').map(line => line.trim() ? `<p style="margin: 0 0 14px 0; line-height: 1.65; color: #1a1a1a;">${line}</p>` : '<br/>').join('\n')}
             </div>
             <div style="padding: 16px 24px; background: #f9fafb; border: 1px solid #e5e7eb; border-top: none; text-align: center;">
               <p style="color: #9ca3af; font-size: 12px; margin: 0;">
-                You're receiving this because you subscribed to the Spartan Coaching newsletter.<br/>
-                Spartan Coaching &mdash; The Authority in Hospice Sales Excellence
+                You're receiving this because you subscribed to the Spartan Coaching newsletter.
               </p>
             </div>
+            ${emailFooter()}
           </div>
         `,
       });
@@ -311,9 +343,7 @@ export async function sendDripDay3(email: string): Promise<boolean> {
       scheduledAt,
       html: `
         <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
-          <div style="background: #b91c1c; padding: 20px 24px;">
-            <h2 style="color: white; margin: 0; font-size: 20px; letter-spacing: 0.5px;">Spartan Coaching</h2>
-          </div>
+          ${emailHeader()}
           <div style="padding: 32px 24px; background: #ffffff; border: 1px solid #e5e7eb; border-top: none;">
             <p style="margin: 0 0 16px 0; line-height: 1.65; color: #1a1a1a;">A few days in — hope you've had a chance to look around. Here are three tools that hospice sales reps use most on the platform:</p>
             <table style="width: 100%; border-collapse: collapse; margin: 24px 0;">
@@ -343,8 +373,9 @@ export async function sendDripDay3(email: string): Promise<boolean> {
             <p style="color: #666; font-size: 14px; margin-top: 32px;">— The Spartan Coaching Team</p>
           </div>
           <div style="padding: 16px 24px; background: #f9fafb; border: 1px solid #e5e7eb; border-top: none; text-align: center;">
-            <p style="color: #9ca3af; font-size: 12px; margin: 0;">You're receiving this because you subscribed to the Spartan Coaching newsletter.<br/>Spartan Coaching &mdash; The Authority in Hospice Sales Excellence</p>
+            <p style="color: #9ca3af; font-size: 12px; margin: 0;">You're receiving this because you subscribed to the Spartan Coaching newsletter.</p>
           </div>
+          ${emailFooter()}
         </div>
       `,
     } as any);
@@ -369,9 +400,7 @@ export async function sendDripDay7(email: string): Promise<boolean> {
       scheduledAt,
       html: `
         <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
-          <div style="background: #b91c1c; padding: 20px 24px;">
-            <h2 style="color: white; margin: 0; font-size: 20px; letter-spacing: 0.5px;">Spartan Coaching</h2>
-          </div>
+          ${emailHeader()}
           <div style="padding: 32px 24px; background: #ffffff; border: 1px solid #e5e7eb; border-top: none;">
             <p style="margin: 0 0 16px 0; line-height: 1.65; color: #1a1a1a;">One week in. If you've been using the tools, you're already ahead of most reps in your market. Here's where to go next:</p>
             <table style="width: 100%; border-collapse: collapse; margin: 24px 0;">
@@ -401,8 +430,9 @@ export async function sendDripDay7(email: string): Promise<boolean> {
             <p style="color: #666; font-size: 14px; margin-top: 32px;">Stay disciplined. Stay empathetic. Stay strategic.<br/>— The Spartan Coaching Team</p>
           </div>
           <div style="padding: 16px 24px; background: #f9fafb; border: 1px solid #e5e7eb; border-top: none; text-align: center;">
-            <p style="color: #9ca3af; font-size: 12px; margin: 0;">You're receiving this because you subscribed to the Spartan Coaching newsletter.<br/>Spartan Coaching &mdash; The Authority in Hospice Sales Excellence</p>
+            <p style="color: #9ca3af; font-size: 12px; margin: 0;">You're receiving this because you subscribed to the Spartan Coaching newsletter.</p>
           </div>
+          ${emailFooter()}
         </div>
       `,
     } as any);
@@ -425,17 +455,16 @@ export async function sendPdfToUser(toEmail: string, toName: string, pdfBuffer: 
       subject: `Your ${resourceTitle} — Spartan Coaching`,
       html: `
         <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; color: #111827;">
-          <div style="border-bottom: 3px solid #C8102E; padding-bottom: 16px; margin-bottom: 24px;">
-            <p style="color: #C8102E; font-weight: bold; font-size: 13px; margin: 0 0 4px;">SPARTAN COACHING</p>
-            <h2 style="margin: 0; font-size: 20px;">Your resource is attached</h2>
+          ${emailHeader()}
+          <div style="padding: 32px 24px;">
+            <h2 style="margin: 0 0 16px; font-size: 20px;">Your resource is attached</h2>
+            <p style="margin: 0 0 16px; line-height: 1.6;">Hi ${toName},</p>
+            <p style="margin: 0 0 16px; line-height: 1.6;">Thanks for using Spartan Coaching's training tools. Your <strong>${resourceTitle}</strong> is attached to this email as a PDF — ready to save, print, or share with your team.</p>
+            <p style="margin: 0 0 24px; line-height: 1.6;">Keep pushing forward. Discipline, empathy, and strategy win the day.</p>
+            <p style="margin: 0 0 4px; font-weight: bold;">Nick Lynch</p>
+            <p style="margin: 0; color: #6b7280; font-size: 13px;">Spartan Coaching | <a href="https://spartanhospicecoaching.com" style="color: #C8102E;">spartanhospicecoaching.com</a></p>
           </div>
-          <p style="margin: 0 0 16px; line-height: 1.6;">Hi ${toName},</p>
-          <p style="margin: 0 0 16px; line-height: 1.6;">Thanks for using Spartan Coaching's training tools. Your <strong>${resourceTitle}</strong> is attached to this email as a PDF — ready to save, print, or share with your team.</p>
-          <p style="margin: 0 0 24px; line-height: 1.6;">Keep pushing forward. Discipline, empathy, and strategy win the day.</p>
-          <p style="margin: 0 0 4px; font-weight: bold;">Nick Lynch</p>
-          <p style="margin: 0; color: #6b7280; font-size: 13px;">Spartan Coaching | <a href="https://spartanhospicecoaching.com" style="color: #C8102E;">spartanhospicecoaching.com</a></p>
-          <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;" />
-          <p style="color: #9ca3af; font-size: 11px; margin-top: 16px;">This resource is for training purposes only. Not for resale. &copy; ${new Date().getFullYear()} Spartan Coaching.</p>
+          ${emailFooter()}
         </div>
       `,
       attachments: [
@@ -493,11 +522,9 @@ export async function sendAssessmentConfirmation(
       subject: `Your Assessment Results: ${assessmentName}`,
       html: `
         <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; color: #333;">
-          <div style="background: linear-gradient(135deg, #b91c1c, #991b1b); padding: 32px; border-radius: 8px 8px 0 0;">
-            <h1 style="color: #fff; margin: 0; font-size: 24px;">Assessment Results</h1>
-            <p style="color: #fca5a5; margin: 8px 0 0;">Spartan Coaching</p>
-          </div>
-          <div style="padding: 32px; border: 1px solid #e5e7eb; border-top: none; border-radius: 0 0 8px 8px;">
+          ${emailHeader()}
+          <div style="padding: 32px; border: 1px solid #e5e7eb; border-top: none;">
+            <h1 style="color: #333; margin: 0 0 16px; font-size: 24px;">Assessment Results</h1>
             <p style="font-size: 16px; margin: 0 0 16px;">Hi ${candidateName},</p>
             <p style="margin: 0 0 24px; line-height: 1.6;">Thank you for completing the <strong>${assessmentName}</strong> assessment. Here is a summary of your results:</p>
             
@@ -513,9 +540,8 @@ export async function sendAssessmentConfirmation(
 
             <p style="margin: 0 0 16px; line-height: 1.6;">${tierNote}</p>
             
-            <hr style="margin: 24px 0; border: none; border-top: 1px solid #e5e7eb;" />
-            <p style="color: #9ca3af; font-size: 12px; margin: 0;">Sent by Spartan Coaching Assessment Platform</p>
           </div>
+          ${emailFooter()}
         </div>
       `,
     });
@@ -599,10 +625,7 @@ export async function sendSubmissionResultsToNick(
 
     const tierColor = tier === "Strong Hire" ? "#16a34a" : tier === "Solid Candidate" ? "#2563eb" : tier === "Development Needed" ? "#d97706" : "#dc2626";
 
-    const siteUrl = process.env.SITE_URL
-      || (process.env.REPLIT_DEPLOYMENT_URL ? `https://${process.env.REPLIT_DEPLOYMENT_URL}` : '')
-      || (process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : '')
-      || 'https://spartanhospicecoaching.com';
+    const siteUrl = getSiteUrl();
     const pdfLink = `${siteUrl}/assessment-results/${submissionId}`;
 
     const subjectLine = aiScoringFailed
@@ -615,10 +638,9 @@ export async function sendSubmissionResultsToNick(
       subject: subjectLine,
       html: `
         <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; color: #333;">
-          <div style="background: linear-gradient(135deg, #b91c1c, #991b1b); padding: 24px;">
-            <h1 style="color: #fff; margin: 0; font-size: 20px;">New Assessment Submission</h1>
-          </div>
+          ${emailHeader()}
           <div style="padding: 24px; border: 1px solid #e5e7eb; border-top: none;">
+            <h2 style="margin: 0 0 16px; font-size: 20px;">New Assessment Submission</h2>
             <table style="width: 100%; border-collapse: collapse; margin-bottom: 16px;">
               <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee; width: 40%;">Candidate</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${candidateName}</td></tr>
               <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Email</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><a href="mailto:${candidateEmail}" style="color: #b91c1c;">${candidateEmail}</a></td></tr>
@@ -651,9 +673,7 @@ export async function sendSubmissionResultsToNick(
               <a href="${pdfLink}" style="display: inline-block; background: #b91c1c; color: white; padding: 12px 28px; text-decoration: none; border-radius: 6px; font-weight: bold; font-size: 14px;">View Full Results</a>
             </div>
           </div>
-          <div style="padding: 12px; background: #f5f5f5; text-align: center;">
-            <p style="color: #888; font-size: 11px; margin: 0;">Spartan Coaching Assessment Platform</p>
-          </div>
+          ${emailFooter()}
         </div>
       `,
     });
@@ -682,11 +702,9 @@ export async function sendSigningRequest(
       subject: `Action Required: Agreement Signing Request — Spartan Coaching`,
       html: `
         <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
-          <div style="background: #b91c1c; padding: 24px; text-align: center;">
-            <h1 style="color: white; margin: 0; font-size: 24px;">Spartan Coaching</h1>
-            <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0 0;">Agreement Signing Request</p>
-          </div>
-          <div style="padding: 32px; background: #ffffff;">
+          ${emailHeader()}
+          <div style="padding: 32px 24px; background: #ffffff;">
+            <h2 style="color: #1a1a1a; margin-top: 0;">Agreement Signing Request</h2>
             <p style="color: #555; line-height: 1.6;">Hi ${recipientName},</p>
             <p style="color: #555; line-height: 1.6;">You have been requested to review and sign the following agreement(s):</p>
             <ul style="margin: 16px 0; padding-left: 20px;">${docList}</ul>
@@ -695,9 +713,7 @@ export async function sendSigningRequest(
             </div>
             <p style="color: #888; font-size: 13px; line-height: 1.5;">This link is unique to you. Please do not forward it to others. If you have questions, contact Spartan Coaching directly.</p>
           </div>
-          <div style="padding: 16px; background: #f5f5f5; text-align: center;">
-            <p style="color: #888; font-size: 12px; margin: 0;">Spartan Coaching &mdash; The Authority in Hospice Excellence</p>
-          </div>
+          ${emailFooter()}
         </div>
       `,
     });
@@ -723,19 +739,15 @@ export async function sendSignedAgreementPdf(
 
     const htmlContent = `
       <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
-        <div style="background: #b91c1c; padding: 24px; text-align: center;">
-          <h1 style="color: white; margin: 0; font-size: 24px;">Spartan Coaching</h1>
-          <p style="color: rgba(255,255,255,0.8); margin: 8px 0 0 0;">Signed Agreement</p>
-        </div>
-        <div style="padding: 32px; background: #ffffff;">
-          <h2 style="color: #1a1a1a; margin-top: 0;">${agreementType}</h2>
+        ${emailHeader()}
+        <div style="padding: 32px 24px; background: #ffffff;">
+          <h2 style="color: #1a1a1a; margin-top: 0;">Signed Agreement</h2>
+          <h3 style="color: #333;">${agreementType}</h3>
           <p style="color: #555; line-height: 1.6;">A signed copy of the <strong>${agreementType}</strong> is attached to this email as a PDF. Please retain it for your records.</p>
           <p style="color: #555; line-height: 1.6;">Signed by: <strong>${signerName}</strong></p>
           <p style="color: #555; line-height: 1.6;">Date: ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
         </div>
-        <div style="padding: 16px; background: #f5f5f5; text-align: center;">
-          <p style="color: #888; font-size: 12px; margin: 0;">Spartan Coaching &mdash; The Authority in Hospice Excellence</p>
-        </div>
+        ${emailFooter()}
       </div>
     `;
 
@@ -779,9 +791,7 @@ export async function sendAssessmentInvite(
       subject: `You've Been Invited: ${assessmentName} — Spartan Coaching`,
       html: `
         <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; color: #111827;">
-          <div style="background: #b91c1c; padding: 20px 24px;">
-            <h2 style="color: white; margin: 0; font-size: 20px; letter-spacing: 0.5px;">Spartan Coaching</h2>
-          </div>
+          ${emailHeader()}
           <div style="padding: 32px 24px; background: #ffffff; border: 1px solid #e5e7eb; border-top: none;">
             <p style="margin: 0 0 16px; line-height: 1.6;">Hi ${toName},</p>
             <p style="margin: 0 0 16px; line-height: 1.6;">You have been invited to complete the <strong>${assessmentName}</strong> assessment by Nick Lynch at Spartan Coaching.</p>
@@ -793,9 +803,7 @@ export async function sendAssessmentInvite(
             <p style="margin: 0 0 4px; font-weight: bold;">Nick Lynch</p>
             <p style="margin: 0; color: #555; font-size: 14px;">Founder, Spartan Coaching</p>
           </div>
-          <div style="padding: 16px 24px; background: #f9fafb; border: 1px solid #e5e7eb; border-top: none; text-align: center;">
-            <p style="color: #9ca3af; font-size: 12px; margin: 0;">Spartan Coaching &mdash; The Authority in Hospice Sales Excellence</p>
-          </div>
+          ${emailFooter()}
         </div>
       `,
     });
@@ -818,9 +826,11 @@ export async function sendGeneratedEmail(to: string, subject: string, body: stri
       subject,
       html: `
         <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
-          ${body.split('\n').map(line => line.trim() ? `<p style="margin: 8px 0; line-height: 1.6;">${line}</p>` : '<br/>').join('\n')}
-          <hr style="margin-top: 30px; border: none; border-top: 1px solid #eee;" />
-          <p style="color: #888; font-size: 12px;">Sent via Spartan Coaching email tools.</p>
+          ${emailHeader()}
+          <div style="padding: 32px 24px;">
+            ${body.split('\n').map(line => line.trim() ? `<p style="margin: 8px 0; line-height: 1.6;">${line}</p>` : '<br/>').join('\n')}
+          </div>
+          ${emailFooter()}
         </div>
       `,
     });
