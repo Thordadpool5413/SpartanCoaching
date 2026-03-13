@@ -411,8 +411,8 @@ def build():
     s += [stat_bar([
         ("72%",   "of hospice organizations\nlack a formalized sales\ncoaching system"),
         ("3-5x",  "ROI from structured coaching\nversus uncoached teams"),
-        ("28%",   "average census increase\nwith consistent monthly\ncoaching"),
-        ("$44K+", "annual Medicare revenue\nper additional daily\ncensus point"),
+        ("28%",   "average referral increase\nwith consistent monthly\ncoaching"),
+        ("$44K+", "annual Medicare revenue\nper additional referral\nsustained on census"),
     ]), sp(6)]
     s += [P("Sources: NHPCO industry data, Sales Management Association, Spartan Coaching internal analysis.",
              CAP), sp(18)]
@@ -479,7 +479,7 @@ def build():
             "Targeted, real-time coaching for the individual rep — addressing specific challenges "
             "from physician objections to territory production gaps.",
             ["Virtual sessions: 30 minutes ($40) or 60 minutes ($70)",
-             "Field coaching ride-alongs: full-day live observation and real-time feedback",
+             "Field coaching ridealongs: full-day live observation and real-time feedback",
              "Territory management: A/B/C account classification and weekly routing plans",
              "Daily drill platform: scenario practice, objection handling, knowledge quizzes"])]
     s += [svc_card("For Sales Leadership", "Team Training and Leadership Development",
@@ -511,9 +511,10 @@ def build():
         "effectiveness. Reps called on the wrong accounts, led with features instead of "
         "trust-building conversations, and failed to differentiate in a crowded market.",
         "After a Spartan audit and 60 days of coaching, the team rebuilt their referral tier "
-        "lists and adopted a physician-first engagement strategy. Within 90 days census grew "
-        "11 points. Within six months: up 22 points, representing over $1.8 million in "
-        "annualized Medicare revenue from a team that was already working hard."
+        "lists and adopted a physician-first engagement strategy. Within 90 days monthly "
+        "referrals increased by 11. Within six months referrals were up by 22 per month, "
+        "representing over $1.8 million in annualized Medicare revenue from a team that was "
+        "already working hard."
     )]
     s += [scenario_card(2,
         "New Hire Turnover: Onboarding Without Structure",
@@ -593,13 +594,13 @@ def build():
     )]
     s += [obj_card(
         "We cannot afford it right now.",
-        "One additional daily census point generates $44,000 to $58,000 per year in Medicare "
-        "reimbursement. If coaching produces two to three additional census points over six "
-        "months, the investment pays for itself many times over. Virtual sessions start at $40 "
-        "for 30 minutes. The question is not whether you can afford coaching — it is how much "
-        "census you are losing each month without it.",
-        "A five-point census increase generates $220,000 to $290,000 in annualized Medicare "
-        "revenue. Spartan Coaching engagements are priced at a fraction of that figure."
+        "Each additional referral sustained on census generates $44,000 to $58,000 per year "
+        "in Medicare reimbursement. If coaching secures two to three additional referrals per "
+        "month over six months, the investment pays for itself many times over. Virtual "
+        "sessions start at $40 for 30 minutes. The question is not whether you can afford "
+        "coaching — it is how many referrals you are losing each month without it.",
+        "Five additional referrals per month generates $220,000 to $290,000 in annualized "
+        "Medicare revenue. Spartan Coaching engagements are priced at a fraction of that figure."
     )]
     s += [obj_card(
         "We have tried sales training before and it did not stick.",
