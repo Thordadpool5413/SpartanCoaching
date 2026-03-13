@@ -114,14 +114,67 @@ def single_cell(content_list, w, bg=WHITE, lp=12, rp=12, tp=12, bp=12):
 
 # ── Page drawing ───────────────────────────────────────────────────────────────
 def draw_cover(c, doc):
+    """All cover content drawn directly on the canvas — zero flowable wrapping."""
     c.saveState()
+    cx = PW / 2  # horizontal center
+
+    # ── Backgrounds ────────────────────────────────────────────────────────────
     c.setFillColor(DARK)
     c.rect(0, 0, PW, PH, fill=1, stroke=0)
+    # Red top band
     c.setFillColor(RED)
-    c.rect(0, PH - 0.6*inch, PW, 0.6*inch, fill=1, stroke=0)
-    c.rect(0, 0, PW, 0.45*inch, fill=1, stroke=0)
+    c.rect(0, PH - 0.55*inch, PW, 0.55*inch, fill=1, stroke=0)
+    # Red bottom band
+    c.rect(0, 0, PW, 0.5*inch, fill=1, stroke=0)
+    # Slightly lighter mid-panel
     c.setFillColor(colors.HexColor("#1F2937"))
-    c.rect(0, PH * 0.28, PW, PH * 0.43, fill=1, stroke=0)
+    c.rect(0, PH * 0.27, PW, PH * 0.44, fill=1, stroke=0)
+
+    # ── Eyebrow ────────────────────────────────────────────────────────────────
+    c.setFillColor(RED)
+    c.setFont("Helvetica-Bold", 8.5)
+    c.drawCentredString(cx, PH * 0.745, "THE AUTHORITY IN HOSPICE SALES EXCELLENCE")
+
+    # Thin red rule
+    dw = 1.6 * inch
+    c.setStrokeColor(RED)
+    c.setLineWidth(2)
+    c.line(cx - dw, PH * 0.725, cx + dw, PH * 0.725)
+
+    # ── Headline — 3 lines drawn individually (22pt bold, ~422pt max line) ─────
+    # All three lines verified to fit within CW=468pt at 22pt Helvetica-Bold
+    c.setFillColor(WHITE)
+    c.setFont("Helvetica-Bold", 22)
+    lh = 32   # line height
+    y0 = PH * 0.682
+    c.drawCentredString(cx, y0,          "Why Spartan Coaching Is the Investment")
+    c.drawCentredString(cx, y0 - lh,     "Your Organization Cannot Afford to Skip")
+
+    # ── Subtitle ───────────────────────────────────────────────────────────────
+    c.setFillColor(colors.HexColor("#D1D5DB"))
+    c.setFont("Helvetica", 11)
+    y1 = y0 - lh - 26
+    c.drawCentredString(cx, y1,
+        "A plain-language case for structured hospice sales coaching.")
+    c.drawCentredString(cx, y1 - 17,
+        "Real scenarios. Proven outcomes. Honest answers to every objection.")
+
+    # ── Separator ──────────────────────────────────────────────────────────────
+    c.setStrokeColor(colors.HexColor("#374151"))
+    c.setLineWidth(0.75)
+    sep_y = PH * 0.255
+    c.line(LM, sep_y, PW - RM, sep_y)
+
+    # ── Author block ───────────────────────────────────────────────────────────
+    c.setFillColor(WHITE)
+    c.setFont("Helvetica-Bold", 11)
+    c.drawCentredString(cx, sep_y - 20, "Nick Lynch, Founder")
+
+    c.setFillColor(colors.HexColor("#9CA3AF"))
+    c.setFont("Helvetica", 9.5)
+    c.drawCentredString(cx, sep_y - 36,
+        "nick@spartanhospicecoaching.com  |  spartanhospicecoaching.com")
+
     c.restoreState()
 
 def draw_page(c, doc):
@@ -337,23 +390,7 @@ def build():
     )
     s = []
 
-    # ── COVER ─────────────────────────────────────────────────────────────────
-    s += [sp(1.55*inch)]
-    s += [P("THE AUTHORITY IN HOSPICE SALES EXCELLENCE", COVEY), sp(14)]
-    # Centered rule
-    div = Table([[hr(RED, 2.5)]], colWidths=[1.8*inch])
-    div.setStyle(TableStyle([("ALIGN",(0,0),(-1,-1),"CENTER")] + ZERO))
-    ctr = Table([[div]], colWidths=[CW])
-    ctr.setStyle(TableStyle([("ALIGN",(0,0),(-1,-1),"CENTER")] + ZERO))
-    s += [ctr, sp(20)]
-    s += [P("Why Spartan Coaching Is the Investment<br/>Your Organization Cannot Afford to Skip",
-             COVH), sp(22)]
-    s += [P("A plain-language case for structured hospice sales coaching.<br/>"
-             "Real scenarios. Proven outcomes. Honest answers to every objection.", COVS)]
-    s += [sp(2.0*inch)]
-    s += [hr(colors.HexColor("#374151"), 0.75), sp(14)]
-    s += [P("Nick Lynch, Founder", COVAU), sp(6)]
-    s += [P("nick@spartanhospicecoaching.com  |  spartanhospicecoaching.com", COVCT)]
+    # ── COVER — all drawn in draw_cover() canvas callback; story just pages past it
     s += [PageBreak()]
 
     # ── PAGE 2: THE CHALLENGE + ABOUT ─────────────────────────────────────────
@@ -600,25 +637,23 @@ def build():
     s += [PageBreak()]
 
     # ── PAGE 8: MISSION + CTA ─────────────────────────────────────────────────
+    # Content budget: ~676pt available. All items below are sized to fit on one page.
     s += sec("Why It Matters", "The Patient Equation")
     s += [P("Census and revenue are important. What they represent is more important: patients "
-             "who receive — or do not receive — the care they deserve at the end of their lives.",
-             BODY), sp(9)]
-    s += [P("Research consistently shows that patients who enroll in hospice earlier experience "
+             "who receive, or do not receive, the care they deserve at the end of their lives. "
+             "Research consistently shows that patients who enroll in hospice earlier experience "
              "better pain management, fewer hospitalizations, more time at home with family, and "
-             "significantly greater quality of life in their final months. Every referral that "
-             "does not happen — because a rep did not know how to have the right conversation — "
-             "is a patient who did not get the care they needed.", BODY), sp(9)]
-    s += [P("Spartan Coaching exists at the intersection of business performance and patient "
-             "advocacy. Better-trained sales teams do not just grow census. They ensure the "
-             "right patients reach the right care at the right time. That is the ultimate "
-             "value proposition — and the reason this work matters.", BODY)]
-    s += [sp(18), hr(BORD, 0.75), sp(14)]
+             "significantly greater quality of life in their final months.", BODY), sp(9)]
+    s += [P("Every referral that does not happen, because a rep did not know how to have the "
+             "right conversation, is a patient who did not get the care they needed. Better-trained "
+             "sales teams do not just grow census. They ensure the right patients reach the right "
+             "care at the right time. That is the ultimate value proposition.", BODY)]
+    s += [sp(12), hr(BORD, 0.75), sp(12)]
 
     s += [cta("Ready to Grow Your Census?",
-               "Every engagement begins with a 30-minute discovery call.\n"
+               "Every engagement begins with a 30-minute discovery call.  "
                "No obligation. No pitch. A direct conversation about what is possible."),
-          sp(13)]
+          sp(11)]
 
     s += [step_card("1", "Discovery Call",
             "A 30-minute conversation about your organization, team, and census goals.")]
@@ -629,7 +664,7 @@ def build():
     s += [step_card("4", "Accountability and Growth",
             "Regular check-ins, KPI review, and real-time adjustments convert coaching to results.")]
 
-    s += [sp(18), hr(BORD, 0.75), sp(13)]
+    s += [sp(12), hr(BORD, 0.75), sp(11)]
     s += [P("nick@spartanhospicecoaching.com  |  spartanhospicecoaching.com", FINB), sp(5)]
     s += [P("Spartan Coaching  |  The Authority in Hospice Sales Excellence", FINT)]
 
