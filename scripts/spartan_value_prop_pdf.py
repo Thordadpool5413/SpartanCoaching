@@ -153,24 +153,28 @@ def sec(label, title):
     return [P(label.upper(), EYE), sp(4), P(title, H1), sp(7), hr(RED, 2), sp(11)]
 
 def stat_bar(stats):
+    """Flat 2-row table: all numbers on row 0, all labels on row 1.
+    This guarantees every stat number sits at the exact same vertical position."""
     cw = CW / len(stats)
-    cols = []
-    for big, lbl in stats:
-        t = Table([[P(big, STATN)], [sp(3)], [P(lbl, STATL)]], colWidths=[cw])
-        t.setStyle(TableStyle([
-            ("BACKGROUND",(0,0),(-1,-1), LGRAY),
-            ("ALIGN",(0,0),(-1,-1),"CENTER"),
-            ("VALIGN",(0,0),(-1,-1),"TOP"),
-            ("LEFTPADDING",(0,0),(-1,-1),4),("RIGHTPADDING",(0,0),(-1,-1),4),
-            ("TOPPADDING",(0,0),(0,0),13),("BOTTOMPADDING",(0,0),(-1,-1),0),
-            ("TOPPADDING",(0,1),(-1,-1),2),("BOTTOMPADDING",(0,-1),(-1,-1),13),
-        ]))
-        cols.append(t)
-    t2 = Table([cols], colWidths=[cw]*len(stats))
-    t2.setStyle(TableStyle([
-        ("BOX",(0,0),(-1,-1),1,BORD), ("INNERGRID",(0,0),(-1,-1),1,BORD),
-    ] + ZERO))
-    return t2
+    nums = [P(big, STATN) for big, lbl in stats]
+    # Replace \n with <br/> so Paragraph renders real line breaks
+    lbls = [P(lbl.replace("\n", "<br/>"), STATL) for big, lbl in stats]
+    t = Table([nums, lbls], colWidths=[cw] * len(stats))
+    t.setStyle(TableStyle([
+        ("BACKGROUND",  (0,0),(-1,-1), LGRAY),
+        ("BOX",         (0,0),(-1,-1), 1, BORD),
+        ("INNERGRID",   (0,0),(-1,-1), 1, BORD),
+        ("ALIGN",       (0,0),(-1,-1), "CENTER"),
+        ("VALIGN",      (0,0),(-1,-1), "MIDDLE"),
+        ("TOPPADDING",  (0,0),(-1,0),  13),
+        ("BOTTOMPADDING",(0,0),(-1,0), 5),
+        ("TOPPADDING",  (0,1),(-1,1),  5),
+        ("BOTTOMPADDING",(0,1),(-1,1), 13),
+        ("LEFTPADDING", (0,0),(-1,-1), 6),
+        ("RIGHTPADDING",(0,0),(-1,-1), 6),
+    ]))
+    t.splitByRow = 0
+    return t
 
 def pillar_2x2(items):
     """2x2 grid — each cell is ~3.22 inches wide, no word-break risk."""
@@ -219,6 +223,7 @@ def mastery_row(lbl, title, body):
     t.setStyle(TableStyle([
         ("BOX",(0,0),(-1,-1),1,BORD),("LINEAFTER",(0,0),(0,-1),1,BORD),
     ] + ZERO))
+    t.splitByRow = 0
     return KeepTogether([t, sp(5)])
 
 def svc_card(cat, title, desc, bullets):
@@ -230,6 +235,7 @@ def svc_card(cat, title, desc, bullets):
     t.setStyle(TableStyle([
         ("BOX",(0,0),(-1,-1),1,BORD),("LINEBEFORE",(0,0),(0,-1),4,RED),
     ] + ZERO))
+    t.splitByRow = 0
     return KeepTogether([t, sp(8)])
 
 def scenario_card(num, title, challenge, impact):
@@ -253,6 +259,7 @@ def scenario_card(num, title, challenge, impact):
         ("BOX",(0,0),(-1,-1),1,BORD),("LINEAFTER",(0,0),(0,-1),1,BORD),
         ("VALIGN",(0,0),(-1,-1),"TOP"),
     ] + ZERO))
+    t.splitByRow = 0
     return KeepTogether([t, sp(8)])
 
 def obj_card(q, resp, proof):
@@ -279,6 +286,7 @@ def obj_card(q, resp, proof):
         ("BOX",(0,0),(-1,-1),1,BORD),
         ("LINEBELOW",(0,0),(0,0),1,BORD),("LINEABOVE",(0,2),(0,2),1,BORD),
     ] + ZERO))
+    wrapper.splitByRow = 0
     return KeepTogether([wrapper, sp(8)])
 
 def step_card(num, title, desc):
@@ -449,7 +457,7 @@ def build():
             "where the gaps are, and where the greatest growth opportunities exist.",
             ["Market and territory analysis: 4 to 6 week deep dive into share and opportunities",
              "System implementation: unified playbook standardized across all markets",
-             "Executive consulting: senior guidance for M&A integration and turnarounds",
+             "Executive consulting: senior guidance for M&amp;A integration and turnarounds",
              "HIPAA-compliant engagements with Business Associate Agreements available"])]
     s += [PageBreak()]
 
