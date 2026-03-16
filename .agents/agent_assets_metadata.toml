@@ -12,3 +12,9 @@ id = "Ug76EmPY27wD_2KjrVPsu"
 uri = "file://spartan-coaching-about.md"
 type = "text"
 title = "Spartan Coaching — About Document"
+
+[[outputs]]
+id = "pV4o371h6BsKWW2uaxigX"
+uri = "file://spartan-coaching-linkedin-about.md"
+type = "text"
+title = "Spartan Coaching — LinkedIn About"
