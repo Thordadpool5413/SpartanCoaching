@@ -1,13 +1,11 @@
 # Spartan Coaching — LinkedIn About Section
 
-> Character count: ~454 (under 500)
+> Character count: ~435 (under 500)
 
 ---
 
-Eligible patients aren't receiving hospice care because the right conversations aren't happening. That gap is conversational, not clinical — and that's the problem Spartan Coaching was built to solve.
+Spartan Coaching is built for hospice growth professionals — the sales liaisons, reps, and leaders responsible for expanding patient access to care.
 
-I work with hospice sales reps and leaders to build repeatable systems: territory planning, referral messaging, objection handling, and weekly accountability.
+Hundreds of thousands of Americans die each year without hospice care they qualified for. That gap is conversational, not clinical. Spartan exists to close it.
 
-Field-tested. Built for the field. Not a conference room.
-
-Ready to close the gap? Reach out.
+Practical systems, field-tested frameworks, and AI-powered tools — built for the field, not a conference room.
