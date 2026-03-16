@@ -4,8 +4,8 @@
 
 ---
 
-Spartan Coaching is built for hospice growth professionals — the sales liaisons, reps, and leaders responsible for expanding patient access to care.
+Spartan Coaching is a coaching and consulting platform built for hospice growth professionals — sales liaisons, reps, and organizational leaders.
 
-Hundreds of thousands of Americans die each year without hospice care they qualified for. That gap is conversational, not clinical. Spartan exists to close it.
+Services include territory planning, referral messaging, objection handling, scorecard accountability, branch profitability modeling, and hiring assessments. The AI field kit adds role-play practice, playbook generation, and call transcription.
 
-Practical systems, field-tested frameworks, and AI-powered tools — built for the field, not a conference room.
+Built for hospice. Grounded in the field.
