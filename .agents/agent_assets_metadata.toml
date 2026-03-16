@@ -6,3 +6,9 @@ id = "E8eBy-acKNgTZaMCDhegC"
 uri = "file://spartan-coaching-value-proposition.pdf"
 type = "pdf"
 title = "Spartan Coaching — Value Proposition (Referral Language + Content Review)"
+
+[[outputs]]
+id = "Ug76EmPY27wD_2KjrVPsu"
+uri = "file://spartan-coaching-about.md"
+type = "text"
+title = "Spartan Coaching — About Document"
