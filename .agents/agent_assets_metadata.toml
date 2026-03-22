@@ -24,3 +24,9 @@ id = "yBVlVWIkfrgqfvlSTYcFq"
 uri = "file://branch-profitability-value-proposition.md"
 type = "text"
 title = "Why Your Census Number Is Not Arbitrary — Branch Profitability Education"
+
+[[outputs]]
+id = "ErcRF7YSg-5ic5XnuXpv0"
+uri = "file://branch-profitability-education.pdf"
+type = "pdf"
+title = "Why Your Census Number Is Not Arbitrary — Spartan Coaching"
