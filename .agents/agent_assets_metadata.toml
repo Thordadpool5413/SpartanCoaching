@@ -18,3 +18,9 @@ id = "pV4o371h6BsKWW2uaxigX"
 uri = "file://spartan-coaching-linkedin-about.md"
 type = "text"
 title = "Spartan Coaching — LinkedIn About (Under 500 Characters)"
+
+[[outputs]]
+id = "yBVlVWIkfrgqfvlSTYcFq"
+uri = "file://branch-profitability-value-proposition.md"
+type = "text"
+title = "Why Your Census Number Is Not Arbitrary — Branch Profitability Education"
