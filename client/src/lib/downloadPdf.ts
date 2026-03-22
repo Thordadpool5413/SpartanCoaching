@@ -27,21 +27,13 @@ export async function downloadPdf(
     throw new Error(err.error || "PDF generation failed");
   }
 
-  const blob = await res.blob();
-  const url = URL.createObjectURL(blob);
-  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-  if (isIOS) {
-    window.open(url, "_blank");
-    setTimeout(() => URL.revokeObjectURL(url), 10000);
-  } else {
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = filename.endsWith(".pdf") ? filename : `${filename}.pdf`;
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  }
+  const { downloadUrl } = await res.json();
+  if (!downloadUrl) throw new Error("PDF generation failed");
+
+  // Navigate directly to the server-issued URL so the browser treats it as a
+  // normal file download — avoids the blob-URL pattern that triggers antivirus
+  // false positives on some platforms.
+  window.location.href = downloadUrl;
 }
 
 export function markdownToSections(markdown: string): PdfSection[] {

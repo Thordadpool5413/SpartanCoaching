@@ -1867,23 +1867,49 @@ The single most important skill to work on before the next conversation.`,
     });
   }
 
+  // In-memory store for short-lived PDF tokens (auto-expires after 2 minutes)
+  const pdfTokenStore = new Map<string, { buffer: Buffer; filename: string; expiresAt: number }>();
+
+  function cleanExpiredPdfTokens() {
+    const now = Date.now();
+    for (const [token, entry] of pdfTokenStore.entries()) {
+      if (entry.expiresAt < now) pdfTokenStore.delete(token);
+    }
+  }
+
   app.post("/api/pdf/export", standardAiLimit, async (req, res) => {
     const { filename, title, subtitle, sections } = req.body;
     if (!title || !Array.isArray(sections)) {
       return res.status(400).json({ error: "title and sections are required" });
     }
     try {
+      cleanExpiredPdfTokens();
       const buffer = await generatePdfBuffer(title, subtitle, sections);
-      const safeFilename = (filename || "spartan-document").replace(/[^a-z0-9\-_]/gi, "-");
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", `attachment; filename="${safeFilename}.pdf"`);
-      res.send(buffer);
+      const safeFilename = (filename || "spartan-document").replace(/[^a-z0-9\-_]/gi, "-") + ".pdf";
+      const { randomUUID } = await import("crypto");
+      const token = randomUUID();
+      pdfTokenStore.set(token, { buffer, filename: safeFilename, expiresAt: Date.now() + 2 * 60 * 1000 });
+      res.json({ downloadUrl: `/api/pdf/download/${token}` });
     } catch (error: any) {
       console.error("PDF generation error:", error);
       if (!res.headersSent) {
         res.status(500).json({ error: "Failed to generate PDF" });
       }
     }
+  });
+
+  app.get("/api/pdf/download/:token", (req, res) => {
+    const entry = pdfTokenStore.get(req.params.token);
+    if (!entry || entry.expiresAt < Date.now()) {
+      pdfTokenStore.delete(req.params.token);
+      return res.status(404).json({ error: "Download link expired or not found" });
+    }
+    pdfTokenStore.delete(req.params.token);
+    res.setHeader("Content-Type", "application/pdf");
+    res.setHeader("Content-Disposition", `attachment; filename="${entry.filename}"`);
+    res.setHeader("X-Content-Type-Options", "nosniff");
+    res.setHeader("Cache-Control", "no-store");
+    res.send(entry.buffer);
   });
 
   app.post("/api/pdf/email", async (req, res) => {
