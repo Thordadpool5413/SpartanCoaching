@@ -1,8 +1,7 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
 import { downloadPdf, type EmailPdfPayload } from "@/lib/downloadPdf";
-import { Link } from "wouter";
 import { Card, CardContent } from "@/components/ui/card";
 import { CoachingCTA } from "@/components/CoachingCTA";
 import { Button } from "@/components/ui/button";
@@ -15,7 +14,6 @@ import {
 } from "@/components/ui/popover";
 import { SEO } from "@/components/SEO";
 import { SlideUp } from "@/components/animations";
-import { BackButton } from "@/components/BackButton";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import {
   Building,
@@ -43,12 +41,10 @@ import {
   Legend,
 } from "recharts";
 
-function fmt$(v: number) {
-  return "$" + Math.round(v).toLocaleString("en-US");
-}
-function fmtPct(v: number) {
-  return (v * 100).toFixed(1) + "%";
-}
+import { runEngine, type BranchInputs, type BranchResults } from "@shared/branchProfitabilityEngine";
+import { DEFAULT_INPUTS, PRESET_CONFIGS, STAFF_ROLES } from "@shared/branchPresetConfigs";
+
+// ─── Display helpers (for use in JSX only — never inside engine) ──────────────
 function fmtK(v: number) {
   const sign = v < 0 ? "-" : "";
   return sign + "$" + Math.abs(Math.round(v)).toLocaleString("en-US");
@@ -58,236 +54,20 @@ function fmtKAbbrev(v: number) {
   if (Math.abs(v) >= 1_000) return "$" + (v / 1_000).toFixed(0) + "K";
   return "$" + Math.round(v).toLocaleString();
 }
-
-const SCENARIOS = {
-  lean: {
-    label: "Lean",
-    los: 70,
-    rhc1: 224.62,
-    rhc2: 176.92,
-    pharmacy: 22,
-    dme: 10,
-    supplies: 10,
-    travel: 6,
-    other: 5,
-    overhead: 38000,
-    startCash: 250000,
-    admissionsPerMarketer: 10,
-  },
-  base: {
-    label: "Base",
-    los: 90,
-    rhc1: 208.72,
-    rhc2: 208.72,
-    pharmacy: 22,
-    dme: 10,
-    supplies: 10,
-    travel: 6,
-    other: 5,
-    overhead: 38000,
-    startCash: 250000,
-    admissionsPerMarketer: 10,
-  },
-  highAcuity: {
-    label: "High Acuity",
-    los: 90,
-    rhc1: 208.72,
-    rhc2: 208.72,
-    pharmacy: 44.35,
-    dme: 10,
-    supplies: 23.33,
-    travel: 6,
-    other: 5,
-    overhead: 38000,
-    startCash: 250000,
-    admissionsPerMarketer: 10,
-  },
-};
-
-const STAFF_ROLES = [
-  { role: "Executive Director", salary: 140000, minFte: 1, caseloadTrigger: 9999 },
-  { role: "Supervisor RN Case Manager", salary: 110000, minFte: 1, caseloadTrigger: 9999 },
-  { role: "RN Case Manager", salary: 100000, minFte: 2, caseloadTrigger: 12 },
-  { role: "Hospice Aide", salary: 50000, minFte: 2, caseloadTrigger: 8 },
-  { role: "Social Worker", salary: 75000, minFte: 1, caseloadTrigger: 15 },
-  { role: "Chaplain", salary: 70000, minFte: 1, caseloadTrigger: 20 },
-  { role: "After Hours RN", salary: 95000, minFte: 1, caseloadTrigger: 9999 },
-  { role: "Weekend RN", salary: 95000, minFte: 1, caseloadTrigger: 9999 },
-  { role: "Intake Coordinator", salary: 60000, minFte: 1, caseloadTrigger: 9999 },
-  { role: "Secretary", salary: 55000, minFte: 1, caseloadTrigger: 9999 },
-  { role: "Sales Rep / Marketer", salary: 115000, minFte: 1, caseloadTrigger: 9999 },
-  { role: "Medical Director Contract", salary: 75000, minFte: 1, caseloadTrigger: 9999 },
-];
-
-function computeBlendedRevenue(rhc1: number, rhc2: number, los: number) {
-  if (los <= 0) return rhc1;
-  const day160Weight = Math.min(60, los) / los;
-  const day61Weight = Math.max(0, los - 60) / los;
-  return rhc1 * day160Weight + rhc2 * day61Weight;
+function fmtPctRaw(fraction: number) {
+  return (fraction * 100).toFixed(1) + "%";
 }
 
-function computeStaffing(adc: number) {
-  return STAFF_ROLES.map((r) => {
-    const autoFte = r.caseloadTrigger < 9999
-      ? Math.max(r.minFte, Math.ceil(adc / r.caseloadTrigger))
-      : r.minFte;
-    const monthlyCost = (autoFte * r.salary) / 12;
-    const annualCost = autoFte * r.salary;
-    return { ...r, autoFte, monthlyCost, annualCost };
-  });
-}
-
-function computeMetrics(inputs: {
-  adc: number;
-  los: number;
-  rhc1: number;
-  rhc2: number;
-  pharmacy: number;
-  dme: number;
-  supplies: number;
-  travel: number;
-  other: number;
-  overhead: number;
-  targetMargin: number;
-  admissionsPerMarketer: number;
-}) {
-  const { adc, los, rhc1, rhc2, pharmacy, dme, supplies, travel, other, overhead, targetMargin, admissionsPerMarketer } = inputs;
-  const blendedRevDay = computeBlendedRevenue(rhc1, rhc2, los);
-  const varCostDay = pharmacy + dme + supplies + travel + other;
-  const contribDay = blendedRevDay - varCostDay;
-
-  const staffing = computeStaffing(adc);
-  const annualPayroll = staffing.reduce((s, r) => s + r.annualCost, 0);
-  const annualOverhead = overhead * 12;
-  const annualFixedCost = annualPayroll + annualOverhead;
-
-  const annualRevenue = adc * blendedRevDay * 365;
-  const annualVarCost = adc * varCostDay * 365;
-  const annualProfit = annualRevenue - annualVarCost - annualFixedCost;
-  const margin = annualRevenue > 0 ? annualProfit / annualRevenue : 0;
-
-  const annualBreakevenRevenue = annualFixedCost + annualVarCost;
-  const breakevenAdc = annualFixedCost > 0
-    ? annualFixedCost / (contribDay * 365)
-    : 0;
-  const targetMarginAdc = contribDay * 365 > 0
-    ? annualFixedCost / ((1 - targetMargin) * blendedRevDay * 365 - varCostDay * 365)
-    : 0;
-
-  const admissionsNeeded = los > 0 ? Math.ceil((adc * 365) / los / 12) : 0;
-  const marketersNeeded = Math.ceil(admissionsNeeded / admissionsPerMarketer);
-
-  return {
-    blendedRevDay,
-    varCostDay,
-    contribDay,
-    annualPayroll,
-    annualOverhead,
-    annualFixedCost,
-    annualRevenue,
-    annualVarCost,
-    annualProfit,
-    margin,
-    breakevenAdc: Math.max(0, breakevenAdc),
-    targetMarginAdc: Math.max(0, targetMarginAdc),
-    admissionsNeeded,
-    marketersNeeded,
-    staffing,
-  };
-}
-
-function simulateProfitCurve(inputs: Parameters<typeof computeMetrics>[0]) {
-  const rows = [];
-  for (let adc = 10; adc <= 200; adc++) {
-    const m = computeMetrics({ ...inputs, adc });
-    rows.push({
-      adc,
-      annualProfit: m.annualProfit,
-      margin: +(m.margin * 100).toFixed(1),
-      annualRevenue: m.annualRevenue,
-    });
-  }
-  return rows;
-}
-
-function computeCashRunway(
-  inputs: Parameters<typeof computeMetrics>[0] & { startCash: number }
-) {
-  const { startCash, adc } = inputs;
-  const blendedRevDay = computeBlendedRevenue(inputs.rhc1, inputs.rhc2, inputs.los);
-  const varCostDay = inputs.pharmacy + inputs.dme + inputs.supplies + inputs.travel + inputs.other;
-  const staffing = computeStaffing(adc);
-  const annualPayroll = staffing.reduce((s, r) => s + r.annualCost, 0);
-  const annualOverhead = inputs.overhead * 12;
-  const annualFixedCost = annualPayroll + annualOverhead;
-  const monthlyFixed = annualFixedCost / 12;
-
-  const rows: {
-    month: number;
-    projectedAdc: number;
-    monthlyRevenue: number;
-    monthlyCost: number;
-    monthlyPnl: number;
-    cumulativeCash: number;
-  }[] = [];
-
-  let cumCash = startCash;
-  let monthToPositive = -1;
-  let monthsOfRunway = 18;
-
-  for (let m = 1; m <= 18; m++) {
-    const projectedAdc = m <= 12 ? (adc * m) / 12 : adc;
-    const monthlyRevenue = projectedAdc * blendedRevDay * 30;
-    const monthlyVarCost = projectedAdc * varCostDay * 30;
-    const monthlyCost = monthlyVarCost + monthlyFixed;
-    const monthlyPnl = monthlyRevenue - monthlyCost;
-    cumCash += monthlyPnl;
-
-    rows.push({
-      month: m,
-      projectedAdc: +projectedAdc.toFixed(1),
-      monthlyRevenue,
-      monthlyCost,
-      monthlyPnl,
-      cumulativeCash: cumCash,
-    });
-
-    if (monthToPositive === -1 && monthlyPnl > 0) monthToPositive = m;
-    if (cumCash <= 0 && monthsOfRunway === 18) monthsOfRunway = m - 1;
-  }
-
-  const cashAtMonth12 = rows[11]?.cumulativeCash ?? startCash;
-
-  return {
-    rows,
-    monthToPositive,
-    monthsOfRunway,
-    cashAtMonth12,
-  };
-}
-
-const DEFAULT_INPUTS = {
-  scenario: "base" as keyof typeof SCENARIOS,
-  adc: 50,
-  los: 90,
-  rhc1: 208.72,
-  rhc2: 208.72,
-  pharmacy: 22,
-  dme: 10,
-  supplies: 10,
-  travel: 6,
-  other: 5,
-  overhead: 38000,
-  startCash: 250000,
-  targetMargin: 0.15,
-  admissionsPerMarketer: 10,
-};
-
+// ─── Info tooltip ─────────────────────────────────────────────────────────────
 function InfoTip({ text }: { text: string }) {
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button type="button" className="inline-flex items-center ml-1 text-muted-foreground hover:text-foreground transition-colors touch-manipulation" aria-label="More info">
+        <button
+          type="button"
+          className="inline-flex items-center ml-1 text-muted-foreground hover:text-foreground transition-colors touch-manipulation"
+          aria-label="More info"
+        >
           <HelpCircle className="w-3.5 h-3.5" />
         </button>
       </PopoverTrigger>
@@ -298,6 +78,7 @@ function InfoTip({ text }: { text: string }) {
   );
 }
 
+// ─── How-to glossary ─────────────────────────────────────────────────────────
 const HOW_TO_READ = [
   {
     term: "Annual Profit",
@@ -325,39 +106,113 @@ const HOW_TO_READ = [
   },
 ];
 
+// ─── Main component ───────────────────────────────────────────────────────────
 export default function BranchProfitability() {
   const { capture, gateState } = useLeadGate("Branch Profitability Calculator");
-  const [inputs, setInputs] = useState(DEFAULT_INPUTS);
+  const [inputs, setInputs] = useState<BranchInputs>(DEFAULT_INPUTS);
   const [showHowTo, setShowHowTo] = useState(false);
 
-  function applyScenario(key: keyof typeof SCENARIOS) {
-    const s = SCENARIOS[key];
-    setInputs((prev) => ({ ...prev, scenario: key, ...s }));
+  // Single engine call — all downstream output from one structured result
+  const results: BranchResults = useMemo(
+    () => runEngine(inputs, STAFF_ROLES),
+    [inputs]
+  );
+
+  const { derived, display, tables, charts, narrative } = results;
+
+  function applyPreset(key: string) {
+    const preset = PRESET_CONFIGS[key];
+    if (!preset) return;
+    setInputs((prev) => ({
+      ...prev,
+      scenarioPreset: key,
+      ...preset.inputs,
+    }));
   }
 
-  function set(field: keyof typeof DEFAULT_INPUTS, value: number | string) {
+  function set<K extends keyof BranchInputs>(field: K, value: BranchInputs[K]) {
     setInputs((prev) => ({ ...prev, [field]: value }));
   }
 
-  const metrics = computeMetrics(inputs);
-  const curve = simulateProfitCurve(inputs);
-  const runway = computeCashRunway(inputs);
+  function numSet(field: keyof BranchInputs, raw: string, scale = 1) {
+    const n = parseFloat(raw);
+    set(field, (isNaN(n) ? 0 : n) / scale as any);
+  }
 
-  const status =
-    metrics.annualProfit < 0
-      ? "below-breakeven"
-      : metrics.margin < inputs.targetMargin
-      ? "profitable-below-target"
-      : "at-target";
+  // PDF export — all data comes from the engine results, never recalculated here
+  function buildExportPayload(): EmailPdfPayload {
+    return {
+      title: "Branch Profitability Analysis",
+      filename: "spartan-branch-profitability",
+      subtitle: `Scenario: ${PRESET_CONFIGS[inputs.scenarioPreset]?.label ?? inputs.scenarioPreset} | ADC: ${inputs.targetADC}`,
+      sections: [
+        {
+          heading: "Key Inputs",
+          body: [
+            `Average Daily Census (ADC): ${inputs.targetADC}`,
+            `Average Length of Stay: ${inputs.avgLengthOfStayDays} days`,
+            `Target Operating Margin: ${inputs.targetOperatingMarginPercent}%`,
+            `RHC Day 1–60: ${display.blendedRevenuePerDay}/day`,
+            `Monthly Non-Payroll Overhead: ${fmtK(inputs.monthlyNonPayrollOverhead)}`,
+            `Starting Capital: ${fmtK(inputs.startingCapital)}`,
+          ].join("\n"),
+        },
+        {
+          heading: "Financial Summary",
+          body: [
+            `Blended Revenue/Day: ${display.blendedRevenuePerDay}`,
+            `Annual Revenue: ${display.annualRevenue}`,
+            `Variable Cost/Day: ${display.totalVariableCostPerDay}`,
+            `Annual Variable Cost: ${display.annualVariableCost}`,
+            `Annual Payroll: ${display.annualPayroll}`,
+            `Annual Overhead: ${display.annualOverhead}`,
+            `Annual Profit: ${display.annualProfit}`,
+            `Operating Margin: ${display.operatingMarginPercent}`,
+            `Contribution/Day: ${display.contributionPerDay}`,
+          ].join("\n"),
+        },
+        {
+          heading: "Key Thresholds",
+          body: [
+            `Break-Even ADC: ${display.breakEvenADC} patients`,
+            `Target Margin ADC: ${display.targetMarginADC} patients`,
+            `Monthly Admissions Needed: ${display.monthlyAdmissionsNeeded}`,
+            `Weekly Admissions Needed: ${display.weeklyAdmissionsNeeded}`,
+            `Marketers Needed: ${display.marketersNeeded}`,
+          ].join("\n"),
+        },
+        {
+          heading: "Cash Runway (18-Month Ramp)",
+          body: [
+            `Starting Capital: ${fmtK(inputs.startingCapital)}`,
+            `Months of Runway: ${narrative.monthsOfRunway === 18 ? "18+" : narrative.monthsOfRunway}`,
+            `Month Goes Cash-Flow Positive: ${narrative.monthCashFlowTurnsPositive > 0 ? `Month ${narrative.monthCashFlowTurnsPositive}` : "Not within 18 months"}`,
+            `Cash at Month 12: ${fmtK(narrative.cashAtMonth12)}`,
+          ].join("\n"),
+        },
+        {
+          heading: "Required Staffing",
+          body: tables.requiredStaffing
+            .map(
+              (r) =>
+                `${r.role} — ${r.fte} FTE @ ${fmtK(r.salary)}/yr = ${fmtK(r.annualCost)}`
+            )
+            .concat([`Total Payroll: ${display.totalPayroll}`])
+            .join("\n"),
+        },
+      ],
+    };
+  }
 
-  const StatusBadge = () => {
-    if (status === "below-breakeven")
+  // Status badge — reads from engine result
+  function StatusBadge() {
+    if (narrative.status === "below-breakeven")
       return (
         <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-destructive">
-          <AlertCircle className="w-4 h-4" /> Below Break Even
+          <AlertCircle className="w-4 h-4" /> Below Break-Even
         </span>
       );
-    if (status === "profitable-below-target")
+    if (narrative.status === "profitable-below-target")
       return (
         <span className="inline-flex items-center gap-1.5 text-sm font-semibold text-yellow-600 dark:text-yellow-400">
           <TrendingUp className="w-4 h-4" /> Profitable — Below Target Margin
@@ -368,7 +223,7 @@ export default function BranchProfitability() {
         <CheckCircle className="w-4 h-4" /> At or Above Target
       </span>
     );
-  };
+  }
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
@@ -377,10 +232,7 @@ export default function BranchProfitability() {
         description="Model hospice branch profitability across any ADC. Enter your revenue rates, clinical costs, and staffing assumptions to find your break-even point and target margin ADC."
       />
       <style>{`
-        @page {
-          size: letter portrait;
-          margin: 0.75in;
-        }
+        @page { size: letter portrait; margin: 0.75in; }
         @media print {
           .no-print { display: none !important; }
           body { font-size: 11pt; }
@@ -399,11 +251,16 @@ export default function BranchProfitability() {
       <SlideUp>
         <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-h1 font-black text-foreground mb-2" data-testid="text-branch-profit-title">
+            <h1
+              className="text-h1 font-black text-foreground mb-2"
+              data-testid="text-branch-profit-title"
+            >
               Branch Profitability Simulator
             </h1>
             <p className="text-body-lg text-muted-foreground max-w-2xl leading-relaxed">
-              Model your hospice branch across any average daily census. Enter your revenue rates, clinical variable costs, and staffing to find your break-even point, required admissions, and target margin ADC.
+              Model your hospice branch across any average daily census. Enter
+              your revenue rates, clinical variable costs, and staffing to find
+              your break-even point, required admissions, and target margin ADC.
             </p>
           </div>
           <div className="flex gap-2 no-print">
@@ -420,33 +277,18 @@ export default function BranchProfitability() {
               variant="outline"
               size="default"
               onClick={() => {
-                const getEmailPdf = (): EmailPdfPayload => ({
-                  title: "Branch Profitability Analysis",
-                  filename: "spartan-branch-profitability",
-                  subtitle: `Scenario: ${SCENARIOS[inputs.scenario].label} | ADC: ${inputs.adc}`,
-                  sections: [
-                    {
-                      heading: "Key Inputs",
-                      body: `Average Daily Census (ADC): ${inputs.adc}\nAverage Length of Stay: ${inputs.los} days\nMonthly Overhead: ${fmtK(inputs.overhead)}\nStarting Cash: ${fmtK(inputs.startCash)}\nTarget Margin: ${fmtPct(inputs.targetMargin)}`,
-                    },
-                    {
-                      heading: "Financial Summary",
-                      body: `Annual Revenue: ${fmtK(metrics.annualRevenue)}\nAnnual Payroll: ${fmtK(metrics.annualPayroll)}\nAnnual Profit: ${fmtK(metrics.annualProfit)}\nOperating Margin: ${fmtPct(metrics.margin)}`,
-                    },
-                    {
-                      heading: "Key Thresholds",
-                      body: `Break-Even ADC: ${metrics.breakevenAdc.toFixed(1)} patients\nTarget Margin ADC: ${metrics.targetMarginAdc.toFixed(1)} patients\nAdmissions Needed per Month: ${metrics.admissionsNeeded}\nMarketers Needed: ${metrics.marketersNeeded}`,
-                    },
-                    {
-                      heading: "Cash Runway",
-                      body: `Starting Capital: ${fmtK(inputs.startCash)}\nMonths to Positive Cash Flow: ${runway.monthToPositive > 0 ? runway.monthToPositive : "Already positive"}\nCash at Month 12: ${fmtK(runway.cashAtMonth12)}`,
-                    },
-                  ],
-                });
-                capture(async () => {
-                  const payload = getEmailPdf();
-                  await downloadPdf(payload.filename, payload.title, payload.sections, payload.subtitle);
-                }, getEmailPdf);
+                const payload = buildExportPayload();
+                capture(
+                  async () => {
+                    await downloadPdf(
+                      payload.filename,
+                      payload.title,
+                      payload.sections,
+                      payload.subtitle
+                    );
+                  },
+                  () => payload
+                );
               }}
               data-testid="button-print"
             >
@@ -458,104 +300,127 @@ export default function BranchProfitability() {
       </SlideUp>
 
       <div className="grid lg:grid-cols-3 gap-8">
-        {/* ── LEFT: INPUTS ── */}
+        {/* ── LEFT: INPUTS ────────────────────────────────────────────────── */}
         <div className="lg:col-span-1 space-y-5 no-print">
-          {/* Scenario */}
+
+          {/* Scenario Preset */}
           <Card className="spacing-card">
             <h2 className="text-base font-bold mb-3">Scenario Preset</h2>
             <div className="grid grid-cols-3 gap-2">
               {(["lean", "base", "highAcuity"] as const).map((k) => (
                 <Button
                   key={k}
-                  variant={inputs.scenario === k ? "default" : "outline"}
+                  variant={inputs.scenarioPreset === k ? "default" : "outline"}
                   size="sm"
-                  onClick={() => applyScenario(k)}
+                  onClick={() => applyPreset(k)}
                   className="font-semibold"
                   data-testid={`button-scenario-${k}`}
                 >
-                  {SCENARIOS[k].label}
+                  {PRESET_CONFIGS[k].label}
                 </Button>
               ))}
             </div>
             <div className="mt-3 space-y-1 text-xs text-muted-foreground border-t border-border pt-3">
-              <p><span className="font-semibold text-foreground">Lean</span> — Short LOS (70 days), referral mix weighted toward shorter-stay diagnoses like heart failure or COPD. More revenue captured in the higher Day 1–60 rate.</p>
-              <p><span className="font-semibold text-foreground">Base</span> — 90-day blended LOS with equal Day 1–60 and Day 61+ rates. The most common starting model for a new branch with a mixed referral mix.</p>
-              <p><span className="font-semibold text-foreground">High Acuity</span> — Same LOS as Base but with significantly higher pharmacy and supply costs, reflecting an oncology-heavy or complex symptom management patient mix.</p>
+              {(["lean", "base", "highAcuity"] as const).map((k) => (
+                <p key={k}>
+                  <span className="font-semibold text-foreground">
+                    {PRESET_CONFIGS[k].label}
+                  </span>{" "}
+                  — {PRESET_CONFIGS[k].description}
+                </p>
+              ))}
             </div>
           </Card>
 
-          {/* ADC & LOS */}
+          {/* Census & LOS */}
           <Card className="spacing-card space-y-4">
-            <h2 className="text-base font-bold">Census & Length of Stay</h2>
+            <h2 className="text-base font-bold">Census &amp; Length of Stay</h2>
             <div>
-              <Label htmlFor="adc" className="text-sm font-medium flex items-center">Target ADC (patients)<InfoTip text="Average Daily Census — the number of patients actively on service at any given time. This is the single most important driver of branch revenue and profit." /></Label>
+              <Label htmlFor="adc" className="text-sm font-medium flex items-center">
+                Target ADC (patients)
+                <InfoTip text="Average Daily Census — the number of patients actively on service at any given time. This is the single most important driver of branch revenue and profit." />
+              </Label>
               <Input
                 id="adc"
                 type="number"
                 min={1}
                 max={500}
-                value={inputs.adc}
-                onChange={(e) => set("adc", +e.target.value || 1)}
+                value={inputs.targetADC}
+                onChange={(e) => numSet("targetADC", e.target.value)}
                 className="mt-1"
                 data-testid="input-adc"
               />
             </div>
             <div>
-              <Label htmlFor="los" className="text-sm font-medium flex items-center">Avg Length of Stay (days)<InfoTip text="Average number of days a patient remains on service before death or discharge. Longer LOS shifts revenue toward the lower Day 61+ rate. Shorter LOS keeps more revenue in the higher Day 1–60 rate band." /></Label>
+              <Label htmlFor="los" className="text-sm font-medium flex items-center">
+                Avg Length of Stay (days)
+                <InfoTip text="Average number of days a patient remains on service before death or discharge. Longer LOS shifts revenue toward the lower Day 61+ rate. Shorter LOS keeps more revenue in the higher Day 1–60 rate band." />
+              </Label>
               <Input
                 id="los"
                 type="number"
                 min={1}
-                value={inputs.los}
-                onChange={(e) => set("los", +e.target.value || 1)}
+                value={inputs.avgLengthOfStayDays}
+                onChange={(e) => numSet("avgLengthOfStayDays", e.target.value)}
                 className="mt-1"
                 data-testid="input-los"
               />
             </div>
             <div>
-              <Label htmlFor="targetMargin" className="text-sm font-medium flex items-center">Target Operating Margin (%)<InfoTip text="Your goal for operating profit as a percentage of revenue. A healthy hospice branch targets 12–18%. This drives the 'Target Margin ADC' shown in results — the census where you actually hit your goal." /></Label>
+              <Label htmlFor="targetMargin" className="text-sm font-medium flex items-center">
+                Target Operating Margin (%)
+                <InfoTip text="Your goal for operating profit as a percentage of revenue. A healthy hospice branch targets 12–18%. This drives the 'Target Margin ADC' shown in results — the census where you actually hit your goal." />
+              </Label>
               <Input
                 id="targetMargin"
                 type="number"
                 min={0}
                 max={100}
                 step={0.5}
-                value={(inputs.targetMargin * 100).toFixed(1)}
-                onChange={(e) => set("targetMargin", (+e.target.value || 0) / 100)}
+                value={inputs.targetOperatingMarginPercent}
+                onChange={(e) =>
+                  numSet("targetOperatingMarginPercent", e.target.value)
+                }
                 className="mt-1"
                 data-testid="input-target-margin"
               />
             </div>
           </Card>
 
-          {/* Revenue */}
+          {/* Revenue Rates */}
           <Card className="spacing-card space-y-4">
             <h2 className="text-base font-bold">Revenue Rates</h2>
             <div>
-              <Label htmlFor="rhc1" className="text-sm font-medium flex items-center">RHC Day 1–60 ($/day)<InfoTip text="Medicare's Routine Home Care reimbursement rate for the first 60 days of each benefit period. The 2025 national base rate is $224.62. Your actual rate may vary by CBSA wage index. This is your highest-revenue rate tier." /></Label>
+              <Label htmlFor="rhc1" className="text-sm font-medium flex items-center">
+                RHC Day 1–60 ($/day)
+                <InfoTip text="Medicare's Routine Home Care reimbursement rate for the first 60 days of each benefit period. The 2025 national base rate is $224.62. Your actual rate may vary by CBSA wage index." />
+              </Label>
               <div className="relative mt-1">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none select-none">$</span>
                 <Input
                   id="rhc1"
                   type="number"
                   step={0.01}
-                  value={inputs.rhc1}
-                  onChange={(e) => set("rhc1", +e.target.value || 0)}
+                  value={inputs.rhcDay1To60}
+                  onChange={(e) => numSet("rhcDay1To60", e.target.value)}
                   className="pl-6"
                   data-testid="input-rhc1"
                 />
               </div>
             </div>
             <div>
-              <Label htmlFor="rhc2" className="text-sm font-medium flex items-center">RHC Day 61+ ($/day)<InfoTip text="Medicare's reduced RHC rate for days 61 and beyond in a benefit period. Approximately 21% lower than the Day 1-60 rate. Patients with longer LOS spend more time at this rate, which is why LOS directly affects blended revenue." /></Label>
+              <Label htmlFor="rhc2" className="text-sm font-medium flex items-center">
+                RHC Day 61+ ($/day)
+                <InfoTip text="Medicare's reduced RHC rate for days 61 and beyond in a benefit period. Approximately 21% lower than the Day 1-60 rate. Patients with longer LOS spend more time at this rate, which is why LOS directly affects blended revenue." />
+              </Label>
               <div className="relative mt-1">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none select-none">$</span>
                 <Input
                   id="rhc2"
                   type="number"
                   step={0.01}
-                  value={inputs.rhc2}
-                  onChange={(e) => set("rhc2", +e.target.value || 0)}
+                  value={inputs.rhcDay61Plus}
+                  onChange={(e) => numSet("rhcDay61Plus", e.target.value)}
                   className="pl-6"
                   data-testid="input-rhc2"
                 />
@@ -568,15 +433,18 @@ export default function BranchProfitability() {
             <h2 className="text-base font-bold">Variable Clinical Costs ($/day)</h2>
             {(
               [
-                { key: "pharmacy", label: "Pharmacy", tip: "Average daily drug cost per patient. Your largest variable cost. Standard acuity: $20–25/day. Oncology or complex pain management: $40–60/day." },
-                { key: "dme", label: "DME", tip: "Durable Medical Equipment — daily cost for hospital beds, wheelchairs, commodes, and oxygen. Usually $8–12/day for a standard patient mix." },
-                { key: "supplies", label: "Supplies", tip: "Clinical supply cost per patient per day — dressings, catheters, incontinence products. Standard acuity: $8–12/day. Wound-heavy or oncology patients can push $20–30/day." },
-                { key: "travel", label: "Travel", tip: "Average clinician mileage and drive-time cost per patient per day. Varies by geography and patient density. Rural branches often see $8–12/day." },
-                { key: "other", label: "Other", tip: "Any direct variable cost not captured above — contracted therapy, interpreter services, or other per-patient expenses." },
+                { key: "pharmacyPerDay",  label: "Pharmacy", tip: "Average daily drug cost per patient. Standard acuity: $20–25/day. Oncology or complex pain management: $40–60/day." },
+                { key: "dmePerDay",       label: "DME",      tip: "Durable Medical Equipment — daily cost for hospital beds, wheelchairs, commodes, and oxygen. Usually $8–12/day." },
+                { key: "suppliesPerDay",  label: "Supplies", tip: "Clinical supply cost per patient per day. Standard acuity: $8–12/day. Wound-heavy or oncology patients can push $20–30/day." },
+                { key: "travelPerDay",    label: "Travel",   tip: "Average clinician mileage and drive-time cost per patient per day. Varies by geography and patient density." },
+                { key: "otherPerDay",     label: "Other",    tip: "Any direct variable cost not captured above — contracted therapy, interpreter services, or other per-patient expenses." },
               ] as const
             ).map(({ key, label, tip }) => (
               <div key={key}>
-                <Label htmlFor={key} className="text-sm font-medium flex items-center">{label}<InfoTip text={tip} /></Label>
+                <Label htmlFor={key} className="text-sm font-medium flex items-center">
+                  {label}
+                  <InfoTip text={tip} />
+                </Label>
                 <div className="relative mt-1">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none select-none">$</span>
                   <Input
@@ -585,7 +453,7 @@ export default function BranchProfitability() {
                     step={0.01}
                     min={0}
                     value={inputs[key]}
-                    onChange={(e) => set(key, +e.target.value || 0)}
+                    onChange={(e) => numSet(key, e.target.value)}
                     className="pl-6"
                     data-testid={`input-${key}`}
                   />
@@ -598,7 +466,10 @@ export default function BranchProfitability() {
           <Card className="spacing-card space-y-4">
             <h2 className="text-base font-bold">Fixed Overhead</h2>
             <div>
-              <Label htmlFor="overhead" className="text-sm font-medium flex items-center">Monthly Non-Payroll Overhead ($)<InfoTip text="Fixed non-payroll costs: office rent, EMR subscription, liability insurance, phone systems, and G&A. This cost does not scale with census. It is the same whether you have 10 or 100 patients, which is why it is the key driver of your break-even ADC." /></Label>
+              <Label htmlFor="overhead" className="text-sm font-medium flex items-center">
+                Monthly Non-Payroll Overhead ($)
+                <InfoTip text="Fixed non-payroll costs: office rent, EMR subscription, liability insurance, phone systems, and G&A. This does not scale with census — it is the same whether you have 10 or 100 patients." />
+              </Label>
               <div className="relative mt-1">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none select-none">$</span>
                 <Input
@@ -606,15 +477,18 @@ export default function BranchProfitability() {
                   type="number"
                   step={100}
                   min={0}
-                  value={inputs.overhead}
-                  onChange={(e) => set("overhead", +e.target.value || 0)}
+                  value={inputs.monthlyNonPayrollOverhead}
+                  onChange={(e) => numSet("monthlyNonPayrollOverhead", e.target.value)}
                   className="pl-6"
                   data-testid="input-overhead"
                 />
               </div>
             </div>
             <div>
-              <Label htmlFor="startCash" className="text-sm font-medium flex items-center">Starting Capital ($)<InfoTip text="Total cash available at launch to absorb early losses while census ramps up. The Cash Runway section shows how many months this covers before you hit break-even. Typical new branch capital ranges from $200K to $500K." /></Label>
+              <Label htmlFor="startCash" className="text-sm font-medium flex items-center">
+                Starting Capital ($)
+                <InfoTip text="Total cash available at launch to absorb early losses while census ramps up. The Cash Runway section shows how many months this covers before you hit break-even." />
+              </Label>
               <div className="relative mt-1">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none select-none">$</span>
                 <Input
@@ -622,8 +496,8 @@ export default function BranchProfitability() {
                   type="number"
                   step={5000}
                   min={0}
-                  value={inputs.startCash}
-                  onChange={(e) => set("startCash", +e.target.value || 0)}
+                  value={inputs.startingCapital}
+                  onChange={(e) => numSet("startingCapital", e.target.value)}
                   className="pl-6"
                   data-testid="input-start-cash"
                 />
@@ -631,17 +505,22 @@ export default function BranchProfitability() {
             </div>
           </Card>
 
-          {/* Sales */}
+          {/* Sales Assumptions */}
           <Card className="spacing-card space-y-4">
             <h2 className="text-base font-bold">Sales Assumptions</h2>
             <div>
-              <Label htmlFor="admissionsPerMarketer" className="text-sm font-medium flex items-center">Admissions per Marketer / Month<InfoTip text="New patient admissions each salesperson generates per month. Industry average is 6–10. A coached team with structured referral development and consistent call cycles should consistently exceed 10. This drives your marketer headcount in staffing." /></Label>
+              <Label htmlFor="admissionsPerMarketer" className="text-sm font-medium flex items-center">
+                Admissions per Marketer / Month
+                <InfoTip text="New patient admissions each salesperson generates per month. Industry average is 6–10. A coached team with structured referral development and consistent call cycles should consistently exceed 10." />
+              </Label>
               <Input
                 id="admissionsPerMarketer"
                 type="number"
                 min={1}
-                value={inputs.admissionsPerMarketer}
-                onChange={(e) => set("admissionsPerMarketer", +e.target.value || 1)}
+                value={inputs.admissionsPerMarketerPerMonth}
+                onChange={(e) =>
+                  numSet("admissionsPerMarketerPerMonth", e.target.value)
+                }
                 className="mt-1"
                 data-testid="input-admissions-per-marketer"
               />
@@ -649,10 +528,10 @@ export default function BranchProfitability() {
           </Card>
         </div>
 
-        {/* ── RIGHT: RESULTS ── */}
+        {/* ── RIGHT: RESULTS ───────────────────────────────────────────────── */}
         <div className="lg:col-span-2 space-y-5">
 
-          {/* How to Read Your Results */}
+          {/* How to Read */}
           <Card className="border-primary/20 bg-primary/5">
             <button
               type="button"
@@ -662,9 +541,15 @@ export default function BranchProfitability() {
             >
               <div className="flex items-center gap-2">
                 <HelpCircle className="w-4 h-4 text-primary flex-shrink-0" />
-                <span className="text-sm font-semibold text-foreground">How to Read Your Results</span>
+                <span className="text-sm font-semibold text-foreground">
+                  How to Read Your Results
+                </span>
               </div>
-              {showHowTo ? <ChevronUp className="w-4 h-4 text-muted-foreground" /> : <ChevronDown className="w-4 h-4 text-muted-foreground" />}
+              {showHowTo ? (
+                <ChevronUp className="w-4 h-4 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="w-4 h-4 text-muted-foreground" />
+              )}
             </button>
             {showHowTo && (
               <div className="px-5 pb-5 grid sm:grid-cols-2 gap-x-6 gap-y-4 border-t border-primary/10 pt-4">
@@ -678,351 +563,449 @@ export default function BranchProfitability() {
             )}
           </Card>
 
-          {/* Key Metrics Row */}
-          <div>
-            <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-4">
-              {[
-                {
-                  icon: <DollarSign className="w-5 h-5 text-primary" />,
-                  label: "Annual Profit",
-                  value: fmtK(metrics.annualProfit),
-                  sub: "at current ADC",
-                  testId: "text-annual-profit",
-                },
-                {
-                  icon: <TrendingUp className="w-5 h-5 text-primary" />,
-                  label: "Operating Margin",
-                  value: fmtPct(metrics.margin),
-                  sub: `target: ${fmtPct(inputs.targetMargin)}`,
-                  testId: "text-margin",
-                },
-                {
-                  icon: <Target className="w-5 h-5 text-primary" />,
-                  label: "Break-Even ADC",
-                  value: metrics.breakevenAdc.toFixed(1),
-                  sub: "patients",
-                  testId: "text-breakeven-adc",
-                },
-                {
-                  icon: <Users className="w-5 h-5 text-primary" />,
-                  label: "Marketers Needed",
-                  value: metrics.marketersNeeded.toString(),
-                  sub: `${metrics.admissionsNeeded} admits/mo`,
-                  testId: "text-marketers-needed",
-                },
-              ].map(({ icon, label, value, sub, testId }) => (
-                <Card key={label}>
-                  <CardContent className="pt-4 pb-4">
-                    <div className="flex items-center gap-2 mb-1">
-                      {icon}
-                      <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{label}</span>
-                    </div>
-                    <div className="text-2xl font-black text-foreground" data-testid={testId}>{value}</div>
-                    <div className="text-xs text-muted-foreground mt-0.5">{sub}</div>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          </div>
-
-          {/* Status & Summary */}
-          <div>
-            <Card className="spacing-card">
-              <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
-                <div>
-                  <h2 className="text-base font-bold">Summary at ADC {inputs.adc}</h2>
-                  <div className="mt-1"><StatusBadge /></div>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs text-muted-foreground">Target Margin ADC</div>
-                  <div className="text-xl font-black text-foreground" data-testid="text-target-adc">
-                    {metrics.targetMarginAdc > 0 ? metrics.targetMarginAdc.toFixed(1) : "N/A"}
+          {/* Key Metric Cards */}
+          <div className="grid sm:grid-cols-2 xl:grid-cols-4 gap-4">
+            {[
+              {
+                icon: <DollarSign className="w-5 h-5 text-primary" />,
+                label: "Annual Profit",
+                value: display.annualProfit,
+                sub: "at current ADC",
+                testId: "text-annual-profit",
+              },
+              {
+                icon: <TrendingUp className="w-5 h-5 text-primary" />,
+                label: "Operating Margin",
+                value: display.operatingMarginPercent,
+                sub: `target: ${inputs.targetOperatingMarginPercent}%`,
+                testId: "text-margin",
+              },
+              {
+                icon: <Target className="w-5 h-5 text-primary" />,
+                label: "Break-Even ADC",
+                value: display.breakEvenADC,
+                sub: "patients",
+                testId: "text-breakeven-adc",
+              },
+              {
+                icon: <Users className="w-5 h-5 text-primary" />,
+                label: "Marketers Needed",
+                value: display.marketersNeeded,
+                sub: `${display.monthlyAdmissionsNeeded} admits/mo`,
+                testId: "text-marketers-needed",
+              },
+            ].map(({ icon, label, value, sub, testId }) => (
+              <Card key={label}>
+                <CardContent className="pt-4 pb-4">
+                  <div className="flex items-center gap-2 mb-1">
+                    {icon}
+                    <span className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                      {label}
+                    </span>
                   </div>
-                </div>
-              </div>
-
-              <div className="grid sm:grid-cols-3 gap-4 text-sm">
-                <div className="space-y-2">
-                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Revenue</div>
-                  <div className="flex justify-between"><span>Blended $/Day</span><span className="font-semibold">{fmt$(metrics.blendedRevDay)}</span></div>
-                  <div className="flex justify-between"><span>Annual Revenue</span><span className="font-semibold">{fmtK(metrics.annualRevenue)}</span></div>
-                </div>
-                <div className="space-y-2">
-                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Costs</div>
-                  <div className="flex justify-between"><span>Var Cost/Day</span><span className="font-semibold">{fmt$(metrics.varCostDay)}</span></div>
-                  <div className="flex justify-between"><span>Annual Payroll</span><span className="font-semibold">{fmtK(metrics.annualPayroll)}</span></div>
-                  <div className="flex justify-between"><span>Annual Overhead</span><span className="font-semibold">{fmtK(metrics.annualOverhead)}</span></div>
-                </div>
-                <div className="space-y-2">
-                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Margin Drivers</div>
-                  <div className="flex justify-between"><span>Contrib/Day</span><span className="font-semibold">{fmt$(metrics.contribDay)}</span></div>
-                  <div className="flex justify-between"><span>Break Even ADC</span><span className="font-semibold">{metrics.breakevenAdc.toFixed(1)}</span></div>
-                  <div className="flex justify-between"><span>Target ADC</span><span className="font-semibold">{metrics.targetMarginAdc > 0 ? metrics.targetMarginAdc.toFixed(1) : "N/A"}</span></div>
-                </div>
-              </div>
-            </Card>
+                  <div
+                    className="text-2xl font-black text-foreground"
+                    data-testid={testId}
+                  >
+                    {value}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{sub}</div>
+                </CardContent>
+              </Card>
+            ))}
           </div>
+
+          {/* Summary at ADC */}
+          <Card className="spacing-card">
+            <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+              <div>
+                <h2 className="text-base font-bold">
+                  Summary at ADC {inputs.targetADC}
+                </h2>
+                <div className="mt-1">
+                  <StatusBadge />
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="text-xs text-muted-foreground">Target Margin ADC</div>
+                <div
+                  className="text-xl font-black text-foreground"
+                  data-testid="text-target-adc"
+                >
+                  {display.targetMarginADC}
+                </div>
+              </div>
+            </div>
+
+            <div className="grid sm:grid-cols-3 gap-4 text-sm">
+              <div className="space-y-2">
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Revenue</div>
+                <div className="flex justify-between">
+                  <span>Blended $/Day</span>
+                  <span className="font-semibold">{display.blendedRevenuePerDay}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Annual Revenue</span>
+                  <span className="font-semibold">{display.annualRevenue}</span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Costs</div>
+                <div className="flex justify-between">
+                  <span>Var Cost/Day</span>
+                  <span className="font-semibold">{display.totalVariableCostPerDay}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Annual Payroll</span>
+                  <span className="font-semibold">{display.annualPayroll}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Annual Overhead</span>
+                  <span className="font-semibold">{display.annualOverhead}</span>
+                </div>
+              </div>
+              <div className="space-y-2">
+                <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">Margin Drivers</div>
+                <div className="flex justify-between">
+                  <span>Contrib/Day</span>
+                  <span className="font-semibold">{display.contributionPerDay}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Break-Even ADC</span>
+                  <span className="font-semibold">{display.breakEvenADC}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Target ADC</span>
+                  <span className="font-semibold">{display.targetMarginADC}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Weekly Admits</span>
+                  <span className="font-semibold">{display.weeklyAdmissionsNeeded}/wk</span>
+                </div>
+              </div>
+            </div>
+          </Card>
 
           {/* Cash Runway */}
-          <div>
-            <Card className="spacing-card">
-              <div className="flex items-center gap-2 mb-4">
-                <DollarSign className="w-5 h-5 text-primary" />
-                <h2 className="text-base font-bold">Cash Runway — 18-Month Ramp</h2>
-              </div>
+          <Card className="spacing-card">
+            <div className="flex items-center gap-2 mb-4">
+              <DollarSign className="w-5 h-5 text-primary" />
+              <h2 className="text-base font-bold">Cash Runway — 18-Month Ramp</h2>
+            </div>
 
-              <div className="grid sm:grid-cols-3 gap-4 mb-5">
-                {[
-                  {
-                    label: "Months of Runway",
-                    value: runway.monthsOfRunway === 18 ? "18+" : runway.monthsOfRunway.toString(),
-                    sub: "before cash runs out",
-                    danger: runway.monthsOfRunway < 6,
-                    testId: "text-months-runway",
-                  },
-                  {
-                    label: "Month Goes Cash-Flow +",
-                    value: runway.monthToPositive === -1 ? "18+" : `Month ${runway.monthToPositive}`,
-                    sub: "first month P&L > 0",
-                    danger: runway.monthToPositive === -1,
-                    testId: "text-month-positive",
-                  },
-                  {
-                    label: "Cash at Month 12",
-                    value: fmtK(runway.cashAtMonth12),
-                    sub: "projected remaining",
-                    danger: runway.cashAtMonth12 < 0,
-                    testId: "text-cash-month-12",
-                  },
-                ].map(({ label, value, sub, danger, testId }) => (
-                  <div key={label} className="bg-muted/40 rounded-md px-4 py-3">
-                    <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">{label}</div>
-                    <div
-                      className={`text-xl font-black ${danger ? "text-destructive" : "text-foreground"}`}
-                      data-testid={testId}
-                    >
-                      {value}
-                    </div>
-                    <div className="text-xs text-muted-foreground mt-0.5">{sub}</div>
+            <div className="grid sm:grid-cols-3 gap-4 mb-5">
+              {[
+                {
+                  label: "Months of Runway",
+                  value:
+                    narrative.monthsOfRunway === 18
+                      ? "18+"
+                      : narrative.monthsOfRunway.toString(),
+                  sub: "before cash runs out",
+                  danger: narrative.monthsOfRunway < 6,
+                  testId: "text-months-runway",
+                },
+                {
+                  label: "Month Goes Cash-Flow +",
+                  value:
+                    narrative.monthCashFlowTurnsPositive === -1
+                      ? "18+"
+                      : `Month ${narrative.monthCashFlowTurnsPositive}`,
+                  sub: "first month P&L > 0",
+                  danger: narrative.monthCashFlowTurnsPositive === -1,
+                  testId: "text-month-positive",
+                },
+                {
+                  label: "Cash at Month 12",
+                  value: fmtK(narrative.cashAtMonth12),
+                  sub: "projected remaining",
+                  danger: narrative.cashAtMonth12 < 0,
+                  testId: "text-cash-month-12",
+                },
+              ].map(({ label, value, sub, danger, testId }) => (
+                <div key={label} className="bg-muted/40 rounded-md px-4 py-3">
+                  <div className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1">
+                    {label}
                   </div>
-                ))}
-              </div>
-
-              <div className="h-48 w-full mb-5">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart
-                    data={runway.rows}
-                    margin={{ top: 4, right: 12, left: 0, bottom: 4 }}
+                  <div
+                    className={`text-xl font-black ${danger ? "text-destructive" : "text-foreground"}`}
+                    data-testid={testId}
                   >
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis
-                      dataKey="month"
-                      tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
-                      label={{ value: "Month", position: "insideBottomRight", offset: -4, fontSize: 11 }}
-                    />
-                    <YAxis
-                      tickFormatter={(v) => fmtKAbbrev(v)}
-                      tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
-                      width={66}
-                    />
-                    <RTooltip
-                      formatter={(v: number) => [fmtK(v), "Cumulative Cash"]}
-                      labelFormatter={(l) => `Month ${l}`}
-                      contentStyle={{
-                        background: "hsl(var(--popover))",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: 6,
-                        fontSize: 12,
-                      }}
-                    />
-                    <ReferenceLine y={0} stroke="hsl(var(--destructive))" strokeDasharray="4 4" label={{ value: "$0", fontSize: 10, fill: "hsl(var(--destructive))" }} />
-                    {runway.monthToPositive > 0 && (
-                      <ReferenceLine
-                        x={runway.monthToPositive}
-                        stroke="hsl(var(--primary))"
-                        strokeDasharray="4 4"
-                        label={{ value: "CF+", fontSize: 10, fill: "hsl(var(--primary))" }}
-                      />
-                    )}
-                    <Line
-                      type="monotone"
-                      dataKey="cumulativeCash"
-                      name="Cumulative Cash"
-                      stroke="hsl(var(--primary))"
-                      dot={false}
-                      strokeWidth={2}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
+                    {value}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-0.5">{sub}</div>
+                </div>
+              ))}
+            </div>
 
-              <div className="overflow-x-auto -mx-2 px-2">
-                <table className="w-full text-xs min-w-[480px]" data-testid="table-runway">
-                  <thead>
-                    <tr className="border-b border-border">
-                      <th className="text-left pb-2 font-semibold text-muted-foreground">Mo</th>
-                      <th className="text-right pb-2 font-semibold text-muted-foreground">ADC</th>
-                      <th className="text-right pb-2 font-semibold text-muted-foreground">Revenue</th>
-                      <th className="text-right pb-2 font-semibold text-muted-foreground">Costs</th>
-                      <th className="text-right pb-2 font-semibold text-muted-foreground">Monthly P&L</th>
-                      <th className="text-right pb-2 font-semibold text-muted-foreground">Cum. Cash</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {runway.rows.map((r) => {
-                      const neg = r.cumulativeCash < 0;
-                      const pnlNeg = r.monthlyPnl < 0;
-                      return (
-                        <tr
-                          key={r.month}
-                          className={r.month % 2 === 0 ? "bg-muted/30" : ""}
-                          data-testid={`row-runway-${r.month}`}
+            {/* Runway chart */}
+            <div className="h-48 w-full mb-5">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={tables.runwayMonths}
+                  margin={{ top: 4, right: 12, left: 0, bottom: 4 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis
+                    dataKey="month"
+                    tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                    label={{ value: "Month", position: "insideBottomRight", offset: -4, fontSize: 11 }}
+                  />
+                  <YAxis
+                    tickFormatter={(v) => fmtKAbbrev(v)}
+                    tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                    width={66}
+                  />
+                  <RTooltip
+                    formatter={(v: number) => [fmtK(v), "Cumulative Cash"]}
+                    labelFormatter={(l) => `Month ${l}`}
+                    contentStyle={{
+                      background: "hsl(var(--popover))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: 6,
+                      fontSize: 12,
+                    }}
+                  />
+                  <ReferenceLine
+                    y={0}
+                    stroke="hsl(var(--destructive))"
+                    strokeDasharray="4 4"
+                    label={{ value: "$0", fontSize: 10, fill: "hsl(var(--destructive))" }}
+                  />
+                  {narrative.monthCashFlowTurnsPositive > 0 && (
+                    <ReferenceLine
+                      x={narrative.monthCashFlowTurnsPositive}
+                      stroke="hsl(var(--primary))"
+                      strokeDasharray="4 4"
+                      label={{ value: "CF+", fontSize: 10, fill: "hsl(var(--primary))" }}
+                    />
+                  )}
+                  <Line
+                    type="monotone"
+                    dataKey="cumulativeCash"
+                    name="Cumulative Cash"
+                    stroke="hsl(var(--primary))"
+                    dot={false}
+                    strokeWidth={2}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+
+            {/* Runway table */}
+            <div className="overflow-x-auto -mx-2 px-2">
+              <table className="w-full text-xs min-w-[520px]" data-testid="table-runway">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left pb-2 font-semibold text-muted-foreground">Mo</th>
+                    <th className="text-right pb-2 font-semibold text-muted-foreground">ADC</th>
+                    <th className="text-right pb-2 font-semibold text-muted-foreground">Revenue</th>
+                    <th className="text-right pb-2 font-semibold text-muted-foreground">Var Cost</th>
+                    <th className="text-right pb-2 font-semibold text-muted-foreground">Payroll</th>
+                    <th className="text-right pb-2 font-semibold text-muted-foreground">Overhead</th>
+                    <th className="text-right pb-2 font-semibold text-muted-foreground">Monthly P&L</th>
+                    <th className="text-right pb-2 font-semibold text-muted-foreground">Cum. Cash</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tables.runwayMonths.map((r) => {
+                    const neg = r.cumulativeCash < 0;
+                    const pnlNeg = r.monthlyProfitLoss < 0;
+                    return (
+                      <tr
+                        key={r.month}
+                        className={r.month % 2 === 0 ? "bg-muted/30" : ""}
+                        data-testid={`row-runway-${r.month}`}
+                      >
+                        <td className="py-1 pr-2 font-medium">{r.month}</td>
+                        <td className="py-1 text-right">{r.avgADC.toFixed(1)}</td>
+                        <td className="py-1 text-right">{fmtKAbbrev(r.monthlyRevenue)}</td>
+                        <td className="py-1 text-right">{fmtKAbbrev(r.monthlyVariableCost)}</td>
+                        <td className="py-1 text-right">{fmtKAbbrev(r.monthlyPayroll)}</td>
+                        <td className="py-1 text-right">{fmtKAbbrev(r.monthlyOverhead)}</td>
+                        <td
+                          className={`py-1 text-right font-semibold ${pnlNeg ? "text-destructive" : "text-green-600 dark:text-green-400"}`}
                         >
-                          <td className="py-1 pr-2 font-medium">{r.month}</td>
-                          <td className="py-1 text-right">{r.projectedAdc}</td>
-                          <td className="py-1 text-right">{fmtKAbbrev(r.monthlyRevenue)}</td>
-                          <td className="py-1 text-right">{fmtKAbbrev(r.monthlyCost)}</td>
-                          <td className={`py-1 text-right font-semibold ${pnlNeg ? "text-destructive" : "text-green-600 dark:text-green-400"}`}>
-                            {fmtKAbbrev(r.monthlyPnl)}
-                          </td>
-                          <td className={`py-1 text-right font-bold ${neg ? "text-destructive" : "text-foreground"}`}>
-                            {fmtKAbbrev(r.cumulativeCash)}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-          </div>
+                          {fmtKAbbrev(r.monthlyProfitLoss)}
+                        </td>
+                        <td
+                          className={`py-1 text-right font-bold ${neg ? "text-destructive" : "text-foreground"}`}
+                        >
+                          {fmtKAbbrev(r.cumulativeCash)}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </Card>
 
-          {/* Profit Curve Chart */}
-          <div>
-            <Card className="spacing-card">
-              <h2 className="text-base font-bold mb-4">Profit Curve — ADC 10 to 200</h2>
-              <div className="h-64 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={curve} margin={{ top: 4, right: 12, left: 0, bottom: 4 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis
-                      dataKey="adc"
-                      tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
-                      label={{ value: "ADC", position: "insideBottomRight", offset: -4, fontSize: 11 }}
-                    />
-                    <YAxis
-                      tickFormatter={(v) => fmtKAbbrev(v)}
-                      tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
-                      width={62}
-                    />
-                    <RTooltip
-                      formatter={(v: number, name: string) =>
-                        name === "Annual Profit" ? [fmtK(v), name] : [v.toFixed(1) + "%", name]
-                      }
-                      labelFormatter={(l) => `ADC: ${l}`}
-                      contentStyle={{
-                        background: "hsl(var(--popover))",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: 6,
-                        fontSize: 12,
-                      }}
-                    />
-                    <Legend wrapperStyle={{ fontSize: 12 }} />
-                    <ReferenceLine x={Math.round(metrics.breakevenAdc)} stroke="hsl(var(--destructive))" strokeDasharray="4 4" label={{ value: "B/E", fontSize: 10, fill: "hsl(var(--destructive))" }} />
-                    <ReferenceLine x={inputs.adc} stroke="hsl(var(--primary))" strokeDasharray="4 4" label={{ value: "You", fontSize: 10, fill: "hsl(var(--primary))" }} />
-                    <Line
-                      type="monotone"
-                      dataKey="annualProfit"
-                      name="Annual Profit"
-                      stroke="hsl(var(--primary))"
-                      dot={false}
-                      strokeWidth={2}
-                    />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
-          </div>
+          {/* Profit Curve */}
+          <Card className="spacing-card">
+            <h2 className="text-base font-bold mb-4">Profit Curve — ADC 10 to 200</h2>
+            <div className="h-64 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={charts.profitCurve}
+                  margin={{ top: 4, right: 12, left: 0, bottom: 4 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis
+                    dataKey="adc"
+                    tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                    label={{ value: "ADC", position: "insideBottomRight", offset: -4, fontSize: 11 }}
+                  />
+                  <YAxis
+                    tickFormatter={(v) => fmtKAbbrev(v)}
+                    tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                    width={62}
+                  />
+                  <RTooltip
+                    formatter={(v: number, name: string) =>
+                      name === "Annual Profit"
+                        ? [fmtK(v), name]
+                        : [v.toFixed(1) + "%", name]
+                    }
+                    labelFormatter={(l) => `ADC: ${l}`}
+                    contentStyle={{
+                      background: "hsl(var(--popover))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: 6,
+                      fontSize: 12,
+                    }}
+                  />
+                  <Legend wrapperStyle={{ fontSize: 12 }} />
+                  <ReferenceLine
+                    x={Math.round(derived.breakEvenADC)}
+                    stroke="hsl(var(--destructive))"
+                    strokeDasharray="4 4"
+                    label={{ value: "B/E", fontSize: 10, fill: "hsl(var(--destructive))" }}
+                  />
+                  <ReferenceLine
+                    x={inputs.targetADC}
+                    stroke="hsl(var(--primary))"
+                    strokeDasharray="4 4"
+                    label={{ value: "You", fontSize: 10, fill: "hsl(var(--primary))" }}
+                  />
+                  <Line
+                    type="monotone"
+                    dataKey="annualProfit"
+                    name="Annual Profit"
+                    stroke="hsl(var(--primary))"
+                    dot={false}
+                    strokeWidth={2}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
 
-          {/* Margin Curve */}
-          <div>
-            <Card className="spacing-card">
-              <h2 className="text-base font-bold mb-4">Operating Margin by ADC</h2>
-              <div className="h-56 w-full">
-                <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={curve} margin={{ top: 4, right: 12, left: 0, bottom: 4 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                    <XAxis
-                      dataKey="adc"
-                      tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
-                      label={{ value: "ADC", position: "insideBottomRight", offset: -4, fontSize: 11 }}
-                    />
-                    <YAxis
-                      tickFormatter={(v) => v + "%"}
-                      tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
-                      width={44}
-                    />
-                    <RTooltip
-                      formatter={(v: number) => [v.toFixed(1) + "%", "Margin"]}
-                      labelFormatter={(l) => `ADC: ${l}`}
-                      contentStyle={{
-                        background: "hsl(var(--popover))",
-                        border: "1px solid hsl(var(--border))",
-                        borderRadius: 6,
-                        fontSize: 12,
-                      }}
-                    />
-                    <ReferenceLine y={inputs.targetMargin * 100} stroke="hsl(var(--primary))" strokeDasharray="4 4" label={{ value: "Target", fontSize: 10, fill: "hsl(var(--primary))" }} />
-                    <ReferenceLine y={0} stroke="hsl(var(--destructive))" strokeDasharray="4 4" />
-                    <Line type="monotone" dataKey="margin" name="Margin %" stroke="#22c55e" dot={false} strokeWidth={2} />
-                  </LineChart>
-                </ResponsiveContainer>
-              </div>
-            </Card>
-          </div>
+          {/* Operating Margin by ADC */}
+          <Card className="spacing-card">
+            <h2 className="text-base font-bold mb-4">Operating Margin by ADC</h2>
+            <div className="h-56 w-full">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={charts.operatingMarginCurve}
+                  margin={{ top: 4, right: 12, left: 0, bottom: 4 }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                  <XAxis
+                    dataKey="adc"
+                    tick={{ fontSize: 11, fill: "hsl(var(--muted-foreground))" }}
+                    label={{ value: "ADC", position: "insideBottomRight", offset: -4, fontSize: 11 }}
+                  />
+                  <YAxis
+                    tickFormatter={(v) => v.toFixed(0) + "%"}
+                    tick={{ fontSize: 10, fill: "hsl(var(--muted-foreground))" }}
+                    width={44}
+                  />
+                  <RTooltip
+                    formatter={(v: number) => [v.toFixed(1) + "%", "Margin"]}
+                    labelFormatter={(l) => `ADC: ${l}`}
+                    contentStyle={{
+                      background: "hsl(var(--popover))",
+                      border: "1px solid hsl(var(--border))",
+                      borderRadius: 6,
+                      fontSize: 12,
+                    }}
+                  />
+                  <ReferenceLine
+                    y={inputs.targetOperatingMarginPercent}
+                    stroke="hsl(var(--primary))"
+                    strokeDasharray="4 4"
+                    label={{ value: "Target", fontSize: 10, fill: "hsl(var(--primary))" }}
+                  />
+                  <ReferenceLine y={0} stroke="hsl(var(--destructive))" strokeDasharray="4 4" />
+                  <Line
+                    type="monotone"
+                    dataKey="operatingMarginPercent"
+                    name="Margin %"
+                    stroke="#22c55e"
+                    dot={false}
+                    strokeWidth={2}
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
+          </Card>
 
           {/* Staffing Table */}
-          <div>
-            <Card className="spacing-card">
-              <div className="flex items-center gap-2 mb-4">
-                <Users className="w-5 h-5 text-primary" />
-                <h2 className="text-base font-bold">Required Staffing at ADC {inputs.adc}</h2>
-              </div>
-              <div className="overflow-x-auto -mx-2 px-2">
-                <table className="w-full text-sm min-w-[480px]" data-testid="table-staffing">
-                  <thead>
-                    <tr className="border-b border-border">
-                      <th className="text-left pb-2 font-semibold text-muted-foreground">Role</th>
-                      <th className="text-right pb-2 font-semibold text-muted-foreground">FTE</th>
-                      <th className="text-right pb-2 font-semibold text-muted-foreground">Annual Salary</th>
-                      <th className="text-right pb-2 font-semibold text-muted-foreground">Annual Cost</th>
+          <Card className="spacing-card">
+            <div className="flex items-center gap-2 mb-4">
+              <Users className="w-5 h-5 text-primary" />
+              <h2 className="text-base font-bold">
+                Required Staffing at ADC {inputs.targetADC}
+              </h2>
+            </div>
+            <div className="overflow-x-auto -mx-2 px-2">
+              <table className="w-full text-sm min-w-[480px]" data-testid="table-staffing">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left pb-2 font-semibold text-muted-foreground">Role</th>
+                    <th className="text-right pb-2 font-semibold text-muted-foreground">FTE</th>
+                    <th className="text-right pb-2 font-semibold text-muted-foreground">Annual Salary</th>
+                    <th className="text-right pb-2 font-semibold text-muted-foreground">Annual Cost</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tables.requiredStaffing.map((r, i) => (
+                    <tr
+                      key={r.role}
+                      className={i % 2 === 0 ? "bg-muted/30" : ""}
+                      data-testid={`row-staff-${i}`}
+                    >
+                      <td className="py-1.5 pr-3">{r.role}</td>
+                      <td className="py-1.5 text-right font-semibold">{r.fte}</td>
+                      <td className="py-1.5 text-right text-muted-foreground">
+                        {fmtK(r.salary)}
+                      </td>
+                      <td className="py-1.5 text-right font-semibold">
+                        {fmtK(r.annualCost)}
+                      </td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {metrics.staffing.map((r, i) => (
-                      <tr key={r.role} className={i % 2 === 0 ? "bg-muted/30" : ""} data-testid={`row-staff-${i}`}>
-                        <td className="py-1.5 pr-3">{r.role}</td>
-                        <td className="py-1.5 text-right font-semibold">{r.autoFte}</td>
-                        <td className="py-1.5 text-right text-muted-foreground">{fmt$(r.salary)}</td>
-                        <td className="py-1.5 text-right font-semibold">{fmt$(r.annualCost)}</td>
-                      </tr>
-                    ))}
-                    <tr className="border-t border-border font-bold">
-                      <td className="py-2">Total Payroll</td>
-                      <td />
-                      <td />
-                      <td className="py-2 text-right" data-testid="text-total-payroll">{fmtK(metrics.annualPayroll)}</td>
-                    </tr>
-                  </tbody>
-                </table>
-              </div>
-            </Card>
-          </div>
+                  ))}
+                  <tr className="border-t border-border font-bold">
+                    <td className="py-2">Total Payroll</td>
+                    <td />
+                    <td />
+                    <td
+                      className="py-2 text-right"
+                      data-testid="text-total-payroll"
+                    >
+                      {display.totalPayroll}
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </Card>
 
-          {/* Conversion CTA */}
           <CoachingCTA className="no-print" />
         </div>
       </div>
+
       <LeadGateDialog gateState={gateState} />
     </div>
   );

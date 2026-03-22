@@ -1912,6 +1912,24 @@ The single most important skill to work on before the next conversation.`,
     res.send(entry.buffer);
   });
 
+  // ─── Branch Profitability Calculator ─────────────────────────────────────
+  app.post("/api/branch-profitability/calculate", async (req, res) => {
+    try {
+      const { runEngine, validateInputs } = await import("../shared/branchProfitabilityEngine");
+      const { STAFF_ROLES } = await import("../shared/branchPresetConfigs");
+      const inputs = req.body;
+      const errors = validateInputs(inputs);
+      if (errors.length > 0) {
+        return res.status(400).json({ errors });
+      }
+      const results = runEngine(inputs, STAFF_ROLES);
+      res.json(results);
+    } catch (error: any) {
+      console.error("[branch-profitability] calculation error:", error?.message || error);
+      res.status(500).json({ error: "Calculation failed" });
+    }
+  });
+
   app.post("/api/pdf/email", async (req, res) => {
     const { email, name, title, filename, subtitle, sections } = req.body;
     if (!email || !name || !title || !Array.isArray(sections)) {
