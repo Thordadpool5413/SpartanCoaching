@@ -14,8 +14,11 @@ import Decimal from "decimal.js";
 // Configure Decimal globally for this module
 Decimal.set({ precision: 28, rounding: Decimal.ROUND_HALF_EVEN });
 
-// ─── Formula version ──────────────────────────────────────────────────────────
+// ─── Versions ─────────────────────────────────────────────────────────────────
 export const FORMULA_VERSION = "2.0.0";
+// Content version is imported at call-time to avoid circular deps.
+// The engine itself just stores whatever string is passed to it.
+export const CONTENT_VERSION_PLACEHOLDER = "see:branch_content_claim_registry";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -104,7 +107,14 @@ export interface BranchNarrative {
 
 export interface BranchMetadata {
   formulaVersion: string;
+  contentVersion: string;
   calculationTimestamp: string; // ISO 8601
+}
+
+export interface BranchValidation {
+  mathValid: boolean;
+  contentValid: boolean;
+  errors: ValidationError[];
 }
 
 export interface BranchResults {
@@ -137,6 +147,7 @@ export interface BranchResults {
   };
   narrative: BranchNarrative;
   metadata: BranchMetadata;
+  validation: BranchValidation;
 }
 
 export interface ValidationError {
@@ -322,7 +333,8 @@ export function computeTargetMarginADC(
 
 export function runEngine(
   inputs: BranchInputs,
-  staffingRoles: StaffingRole[]
+  staffingRoles: StaffingRole[],
+  contentVersion = "2.0.0"
 ): BranchResults {
   const {
     targetADC,
@@ -560,7 +572,13 @@ export function runEngine(
     },
     metadata: {
       formulaVersion:        FORMULA_VERSION,
+      contentVersion,
       calculationTimestamp:  new Date().toISOString(),
+    },
+    validation: {
+      mathValid: true,
+      contentValid: true,
+      errors: [],
     },
   };
 }

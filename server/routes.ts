@@ -1917,12 +1917,13 @@ The single most important skill to work on before the next conversation.`,
     try {
       const { runEngine, validateInputs } = await import("../shared/branchProfitabilityEngine");
       const { STAFF_ROLES } = await import("../shared/branchPresetConfigs");
+      const { CONTENT_VERSION } = await import("../shared/branch_content_claim_registry");
       const inputs = req.body;
       const errors = validateInputs(inputs);
       if (errors.length > 0) {
         return res.status(400).json({ errors });
       }
-      const results = runEngine(inputs, STAFF_ROLES);
+      const results = runEngine(inputs, STAFF_ROLES, CONTENT_VERSION);
       res.json(results);
     } catch (error: any) {
       console.error("[branch-profitability] calculation error:", error?.message || error);

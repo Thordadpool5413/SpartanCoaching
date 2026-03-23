@@ -1,0 +1,463 @@
+You are fixing a production Replit app called Branch Profitability Simulator.
+
+This is a full system correction task.
+
+You are not fixing one PDF.
+You are fixing the app so that for any valid user entered values:
+1. the math is correct
+2. the educational content is correct
+3. the screen output is correct
+4. the print output is correct
+5. the PDF output is correct
+6. the export output is correct
+
+Do not patch one page.
+Do not patch only visible text.
+Do not hard code example outputs.
+Do not make the sample scenario look right while leaving the rest of the app wrong.
+Do not leave duplicate formulas or duplicate educational claims in different components.
+
+Core objective
+
+Refactor the app so that every user facing number and every user facing knowledge statement comes from one governed system.
+
+That means:
+1. one shared calculation engine for all math
+2. one shared governed content layer for all educational statements
+3. one shared structured result object for screen, print, PDF, and export
+4. one validation layer that blocks incorrect output before render, print, save, export, or PDF generation
+
+Final rule
+
+If the screen, print view, PDF, or export ever show a value or statement that does not match the shared engine and governed content layer, block the output and treat it as a failure.
+
+App scope
+
+The fix must cover all places where the user sees or uses information, including:
+1. calculator inputs
+2. summary cards
+3. break even outputs
+4. target margin outputs
+5. marketers needed outputs
+6. staffing table
+7. summary narrative
+8. help text
+9. tooltip text
+10. educational text
+11. cash runway table
+12. charts
+13. print view
+14. generated PDF
+15. exported files
+
+Required architecture
+
+Create these shared layers.
+
+1. shared/branch_profitability_engine.ts
+This file contains all formulas and math logic only.
+
+2. shared/branch_profitability_schema.ts
+This file validates all inputs.
+
+3. shared/branch_profitability_types.ts
+This file contains types for inputs, outputs, tables, charts, metadata, and validation errors.
+
+4. shared/branch_profitability_formatters.ts
+This file formats numbers for display only.
+No formulas in this file.
+
+5. shared/branch_content_claim_registry.ts
+This file contains all governed educational claims and their metadata.
+
+6. shared/branch_content_validator.ts
+This file validates that factual claims are correctly classified and sourced.
+
+7. shared/branch_content_presenter.ts
+This file assembles educational content for screen, print, PDF, and export using only the governed claim registry and the shared result object.
+
+8. server/routes/branch_profitability.ts
+This route validates inputs, runs the shared engine, runs content validation, and returns the authoritative result.
+
+9. client side components must be presentational only.
+They may display values and text, but they may not contain formulas or hard coded factual claims.
+
+Required data flow
+
+Use this exact flow.
+
+1. User enters values in the UI.
+2. Client validates basic input shape.
+3. Shared engine calculates preview results or client requests preview from server.
+4. Server recalculates the full authoritative result.
+5. Server validates math consistency.
+6. Server validates educational content consistency.
+7. Server returns one structured result object.
+8. Screen, print, PDF, and export all render from that same result object.
+9. If validation fails at any step, block output and return an error.
+
+Input model
+
+The engine must work for any valid user entered values, not just sample values.
+
+At minimum support these inputs:
+1. scenarioPreset
+2. targetADC
+3. averageLengthOfStayDays
+4. targetOperatingMarginPercent
+5. rhcDay1To60
+6. rhcDay61Plus
+7. pharmacyPerDay
+8. dmePerDay
+9. suppliesPerDay
+10. travelPerDay
+11. otherPerDay
+12. monthlyNonPayrollOverhead
+13. startingCapital
+14. admissionsPerMarketerPerMonth
+
+If the app has more fields that affect results, include them in the same shared engine.
+No business critical input may live outside the engine.
+
+Math rules
+
+Use a decimal precision library for money and precision sensitive calculations.
+Use Decimal.js or Big.js.
+Do not rely on raw floating point for final financial outputs.
+
+All calculations must keep full precision internally.
+Do not round before a later formula uses the value.
+Round only in the display layer.
+
+Required formulas
+
+1. totalVariableCostPerDay
+equals pharmacyPerDay plus dmePerDay plus suppliesPerDay plus travelPerDay plus otherPerDay
+
+2. blendedRevenuePerDay
+if averageLengthOfStayDays is less than or equal to 60, use rhcDay1To60
+otherwise use:
+((rhcDay1To60 times 60) plus (rhcDay61Plus times (averageLengthOfStayDays less 60))) divided by averageLengthOfStayDays
+
+3. annualRevenue
+equals targetADC times blendedRevenuePerDay times 365
+
+4. annualVariableCost
+equals targetADC times totalVariableCostPerDay times 365
+
+5. annualPayroll
+equals the sum of all staffing row annualCost values returned by the staffing model
+
+6. annualOverhead
+equals monthlyNonPayrollOverhead times 12
+
+7. annualFixedCost
+equals annualPayroll plus annualOverhead
+
+8. annualProfit
+equals annualRevenue less annualVariableCost less annualPayroll less annualOverhead
+
+9. operatingMarginPercent
+equals annualProfit divided by annualRevenue times 100
+
+10. contributionPerDay
+equals blendedRevenuePerDay less totalVariableCostPerDay
+
+11. breakEvenADC
+equals annualFixedCost divided by (contributionPerDay times 365)
+
+12. targetMarginADC
+equals annualFixedCost divided by (365 times ((blendedRevenuePerDay times (1 less targetOperatingMarginPercent divided by 100)) less totalVariableCostPerDay))
+
+13. monthlyAdmissionsNeeded
+equals (targetADC times 365) divided by averageLengthOfStayDays divided by 12
+
+14. weeklyAdmissionsNeeded
+equals monthlyAdmissionsNeeded times 12 divided by 52
+
+15. marketersNeededRaw
+equals monthlyAdmissionsNeeded divided by admissionsPerMarketerPerMonth
+
+16. marketersNeededDisplay
+equals Math.ceil(marketersNeededRaw)
+
+17. if the app includes addedAdmissions and analysisPeriodDays, then:
+annualContributionFromAddedAdmissions equals addedAdmissions times averageLengthOfStayDays times contributionPerDay
+realizedPatientDaysInPeriod equals addedAdmissions times averageLengthOfStayDays when the model assumes all patient days fall inside the chosen analysis period
+adcLiftForPeriod equals realizedPatientDaysInPeriod divided by analysisPeriodDays
+
+Staffing model rules
+
+1. Staffing rows must come from a staffing model, not typed into components.
+2. Each staffing row must include:
+role
+fte
+annualSalary
+annualCost
+
+3. annualCost equals fte times annualSalary
+4. annualPayroll must always equal the sum of staffing row annualCost values
+5. The annualPayroll used in cards, summary, charts, runway, print, PDF, and export must always match the staffing table total exactly
+
+Cash runway rules
+
+Build the runway using the engine only.
+Do not hard code any runway values.
+
+Default runway behavior:
+1. ramp ADC evenly from month 1 through month 12 until targetADC is reached
+2. hold ADC flat from month 13 through month 18
+
+For each month calculate:
+1. monthNumber
+2. adc
+3. monthlyRevenue
+4. monthlyVariableCost
+5. monthlyPayroll
+6. monthlyOverhead
+7. monthlyProfitOrLoss
+8. cumulativeCashBalance
+
+From the same simulation derive:
+1. monthsOfRunway
+2. firstCashFlowPositiveMonth
+3. cashAtMonth12
+
+Chart rules
+
+1. profitCurve must calculate annualProfit for each ADC point using the shared engine only
+2. operatingMarginCurve must calculate operatingMarginPercent for each ADC point using the shared engine only
+3. charts may not contain separate math logic
+4. chart labels and tooltips must come from the same engine output and formatter
+
+Display and rounding rules
+
+1. internal precision must be preserved to at least 6 decimals
+2. currency displays to 2 decimals
+3. admissions displays to 1 decimal
+4. ADC displays to 1 decimal
+5. margin percent displays to 1 decimal
+6. print view and PDF output must use the exact same formatter rules as the screen
+7. displayed rounded values must never be fed back into later formulas
+
+Governed educational content rules
+
+All user facing educational content must be classified before it can appear.
+
+Every claim must be assigned one of these classes:
+1. regulatory_fact
+2. payment_fact
+3. formula_rule
+4. model_assumption
+5. operating_example
+6. strategy_guidance
+7. opinion
+
+The app must never present a model assumption, operating example, strategy guidance, or opinion as if it were a regulatory fact or payment fact.
+
+Every governed claim must include:
+claimId
+claimText
+claimClass
+sourceType
+sourceTitle
+sourceUrl
+lastVerifiedDate
+appliesTo
+confidenceLevel
+reviewStatus
+
+Use this content source hierarchy:
+1. current primary authoritative source
+2. shared engine formulas
+3. clearly labeled model assumptions
+4. clearly labeled educational guidance
+
+Do not use old app copy as proof that a statement is true.
+Do not allow freeform text inside components, print templates, PDF templates, or export builders to bypass the governed content layer.
+
+Content rendering rules
+
+1. Every help panel, tooltip, summary paragraph, educational section, print section, and PDF section must be assembled from the governed claim registry plus the shared result object.
+2. If a sentence contains a number, the number must come from the shared result object.
+3. If a paragraph mixes facts and assumptions, split them and label assumptions clearly.
+4. If a claim cannot be supported by a current authoritative source, do not present it as a fact.
+
+Blocking rules for content
+
+Block output if:
+1. a statement is presented as fact but has no governed source record
+2. a statement is labeled as a fact but is actually an assumption or example
+3. a sentence contains a number that does not match the current result object
+4. a print template or PDF template contains hard coded factual text not tied to the claim registry
+5. a component contains hard coded result numbers
+
+Validation rules for math
+
+Reject or block when:
+1. required numeric inputs are null, undefined, empty, NaN, or non numeric
+2. averageLengthOfStayDays is less than or equal to 0
+3. admissionsPerMarketerPerMonth is less than or equal to 0 when marketers are calculated
+4. annualRevenue is 0 when operating margin is calculated
+5. contributionPerDay is less than or equal to 0 when breakEvenADC or targetMarginADC is calculated
+6. any output is non finite
+7. any staffing row is invalid
+8. any displayed value differs from a fresh engine recalculation by more than 0.1
+9. any print, PDF, or export value differs from the screen value
+10. any narrative sentence contains a number that does not match the shared result object
+
+Required result object
+
+Return one structured result object and use it everywhere.
+
+{
+  inputs: {},
+  derived: {},
+  display: {},
+  tables: {
+    staffing: [],
+    runwayMonths: []
+  },
+  charts: {
+    profitCurve: [],
+    operatingMarginCurve: []
+  },
+  narrative: {},
+  metadata: {
+    formulaVersion: "",
+    contentVersion: "",
+    calculationTimestamp: ""
+  },
+  validation: {
+    mathValid: true,
+    contentValid: true,
+    errors: []
+  }
+}
+
+Screen, print, PDF, and export must all bind to this same result object only.
+
+Repo cleanup requirements
+
+Search the repo for all occurrences of:
+annualProfit
+operatingMarginPercent
+breakEvenADC
+targetMarginADC
+monthlyAdmissionsNeeded
+weeklyAdmissionsNeeded
+marketersNeeded
+runway
+profitCurve
+operatingMarginCurve
+staffing
+print
+pdf
+export
+tooltip
+helpText
+summary
+compliance
+margin
+breakEven
+LOS
+admissions
+
+Then:
+1. remove duplicate formulas
+2. remove duplicate educational claims
+3. replace local component math with engine calls
+4. replace hard coded factual text with governed claims
+5. refactor print and PDF logic to consume the same result object
+
+General correctness requirement
+
+The app must be correct for any valid user entered values.
+Do not stop after making sample scenarios pass.
+Do not stop after fixing one PDF.
+The system must be generalized.
+
+Testing requirements
+
+Create and run all of the following.
+
+1. Unit tests for every formula
+2. Unit tests for every formatter
+3. Unit tests for invalid input handling
+4. Unit tests for marketersNeededDisplay using round up logic
+5. Unit tests for staffing total payroll equaling the sum of staffing rows
+6. Unit tests for governed claim classification
+7. Unit tests for content validator blocking unsupported fact claims
+8. Integration tests proving screen, print, PDF, and export use the same result object
+9. Regression test for the visible scenario currently used in the app
+10. Randomized scenario tests across at least 1000 valid input combinations
+
+For each randomized valid scenario verify:
+1. client preview equals server result within tolerance
+2. screen result equals print result
+3. screen result equals PDF result
+4. screen result equals export result
+5. all displayed numbers come from the shared result object
+6. no hard coded numeric outputs remain
+7. no non finite values are produced
+
+Mathematical invariants to verify across randomized tests
+
+1. if targetADC increases while per day economics stay constant, annualRevenue increases
+2. if targetADC increases while per day economics stay constant, annualVariableCost increases
+3. if contributionPerDay is positive and fixed costs stay constant, annualProfit generally increases as targetADC increases
+4. if averageLengthOfStayDays increases while targetADC stays constant, monthlyAdmissionsNeeded decreases
+5. if admissionsPerMarketerPerMonth decreases while monthlyAdmissionsNeeded stays constant, marketersNeededDisplay stays the same or increases
+6. if monthlyNonPayrollOverhead increases while other values stay constant, breakEvenADC increases
+7. if contributionPerDay increases while fixed cost stays constant, breakEvenADC decreases
+8. annualPayroll always equals the sum of staffing row annualCost values
+9. printed values match screen values
+10. PDF values match screen values
+11. export values match screen values
+
+Required acceptance math checks
+
+The engine must pass these exact admissions checks:
+1. 30 ADC at 60 day LOS equals 15.2 monthly admissions and 3.5 weekly
+2. 50 ADC at 90 day LOS equals 16.9 monthly admissions and 3.9 weekly
+3. 60 ADC at 90 day LOS equals 20.3 monthly admissions and 4.7 weekly
+4. 80 ADC at 90 day LOS equals 27.0 monthly admissions and 6.2 weekly
+5. 100 ADC at 90 day LOS equals 33.8 monthly admissions and 7.8 weekly
+
+If the app includes the added admissions example logic, it must also pass:
+1. 3 added admissions at 90 day LOS equals 270 patient days
+2. 270 patient days over a 90 day period equals 3.0 ADC
+3. 270 times 135 equals 36450 contribution
+
+Definition of done
+
+The task is complete only when:
+1. changing any valid input updates all outputs correctly
+2. screen, print, PDF, and export always match
+3. no duplicate formulas remain
+4. no duplicate educational claims remain
+5. no hard coded result numbers remain
+6. no hard coded factual claims remain outside the governed claim layer
+7. unit tests pass
+8. integration tests pass
+9. randomized scenario tests pass
+10. math drift detection passes
+11. content validation passes
+12. the app cannot render, print, or export incorrect output
+
+Required final response after implementation
+
+After making the changes, return:
+1. list of files changed
+2. list of formulas centralized into the engine
+3. list of educational claims moved into the governed claim registry
+4. confirmation that duplicate formulas were removed
+5. confirmation that screen, print, PDF, and export use the same result object
+6. confirmation that educational content uses the governed claim registry
+7. test results summary
+8. final verified outputs for the current visible screen scenario
+9. final verified outputs for at least 5 randomized valid scenarios
+10. any remaining items that require manual review
+
+Do not just explain the plan.
+Inspect the repo, refactor the code, run the tests, verify the full app, and return the final implementation results.

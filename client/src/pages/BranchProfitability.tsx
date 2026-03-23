@@ -43,6 +43,8 @@ import {
 
 import { runEngine, type BranchInputs, type BranchResults } from "@shared/branchProfitabilityEngine";
 import { DEFAULT_INPUTS, PRESET_CONFIGS, STAFF_ROLES } from "@shared/branchPresetConfigs";
+import { TOOLTIP_CONTENT, getGlossaryEntries } from "@shared/branch_content_presenter";
+import { CONTENT_VERSION } from "@shared/branch_content_claim_registry";
 
 // ─── Display helpers (for use in JSX only — never inside engine) ──────────────
 function fmtK(v: number) {
@@ -74,33 +76,9 @@ function InfoTip({ text }: { text: string }) {
   );
 }
 
-// ─── How-to glossary ─────────────────────────────────────────────────────────
-const HOW_TO_READ = [
-  {
-    term: "Annual Profit",
-    def: "Net operating income after all payroll, variable costs, and overhead at your current ADC. A negative number means the branch is losing money every day at that census.",
-  },
-  {
-    term: "Operating Margin",
-    def: "Profit ÷ Revenue. Lenders, PE buyers, and investors look for 12–18% in a healthy branch. Below 10% is considered at-risk; above 20% is exceptional.",
-  },
-  {
-    term: "Break-Even ADC",
-    def: "The minimum census where monthly revenue exactly covers all fixed and variable costs. Every patient below this number costs you money. Every patient above it generates pure contribution margin.",
-  },
-  {
-    term: "Target Margin ADC",
-    def: "The census where you hit your operating margin goal. This is your real sales target — not break-even. Build your 12-month sales plan around closing the gap to this number.",
-  },
-  {
-    term: "Cash Runway",
-    def: "How many months your starting capital can absorb negative cash flow while census builds. Plan your sales hiring and ramp so you hit break-even ADC before runway runs out.",
-  },
-  {
-    term: "Admissions Needed",
-    def: "Monthly new patient admissions required to maintain your target ADC, accounting for average length of stay. This directly drives how many marketers you need and what their monthly production target should be.",
-  },
-];
+// ─── How-to glossary — sourced from governed content registry ─────────────────
+// No free-form factual text here. All entries come from branch_content_presenter.
+const HOW_TO_READ = getGlossaryEntries();
 
 // ─── Main component ───────────────────────────────────────────────────────────
 export default function BranchProfitability() {
@@ -108,9 +86,10 @@ export default function BranchProfitability() {
   const [inputs, setInputs] = useState<BranchInputs>(DEFAULT_INPUTS);
   const [showHowTo, setShowHowTo] = useState(false);
 
-  // Single engine call — all downstream output from one structured result
+  // Single engine call — all downstream output from one structured result.
+  // CONTENT_VERSION passed so the result object carries both formula and content provenance.
   const results: BranchResults = useMemo(
-    () => runEngine(inputs, STAFF_ROLES),
+    () => runEngine(inputs, STAFF_ROLES, CONTENT_VERSION),
     [inputs]
   );
 
@@ -334,7 +313,7 @@ export default function BranchProfitability() {
             <div>
               <Label htmlFor="adc" className="text-sm font-medium flex items-center">
                 Target ADC (patients)
-                <InfoTip text="Average Daily Census — the number of patients actively on service at any given time. This is the single most important driver of branch revenue and profit." />
+                <InfoTip text={TOOLTIP_CONTENT.targetADC()} />
               </Label>
               <Input
                 id="adc"
@@ -350,7 +329,7 @@ export default function BranchProfitability() {
             <div>
               <Label htmlFor="los" className="text-sm font-medium flex items-center">
                 Avg Length of Stay (days)
-                <InfoTip text="Average number of days a patient remains on service before death or discharge. Longer LOS shifts revenue toward the lower Day 61+ rate. Shorter LOS keeps more revenue in the higher Day 1–60 rate band." />
+                <InfoTip text={TOOLTIP_CONTENT.avgLengthOfStayDays()} />
               </Label>
               <Input
                 id="los"
@@ -365,7 +344,7 @@ export default function BranchProfitability() {
             <div>
               <Label htmlFor="targetMargin" className="text-sm font-medium flex items-center">
                 Target Operating Margin (%)
-                <InfoTip text="Your goal for operating profit as a percentage of revenue. A healthy hospice branch targets 12–18%. This drives the 'Target Margin ADC' shown in results — the census where you actually hit your goal." />
+                <InfoTip text={TOOLTIP_CONTENT.targetOperatingMarginPercent()} />
               </Label>
               <Input
                 id="targetMargin"
@@ -389,7 +368,7 @@ export default function BranchProfitability() {
             <div>
               <Label htmlFor="rhc1" className="text-sm font-medium flex items-center">
                 RHC Day 1–60 ($/day)
-                <InfoTip text="Medicare's Routine Home Care reimbursement rate for the first 60 days of each benefit period. The 2025 national base rate is $224.62. Your actual rate may vary by CBSA wage index." />
+                <InfoTip text={TOOLTIP_CONTENT.rhcDay1To60()} />
               </Label>
               <div className="relative mt-1">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none select-none">$</span>
@@ -407,7 +386,7 @@ export default function BranchProfitability() {
             <div>
               <Label htmlFor="rhc2" className="text-sm font-medium flex items-center">
                 RHC Day 61+ ($/day)
-                <InfoTip text="Medicare's reduced RHC rate for days 61 and beyond in a benefit period. Approximately 21% lower than the Day 1-60 rate. Patients with longer LOS spend more time at this rate, which is why LOS directly affects blended revenue." />
+                <InfoTip text={TOOLTIP_CONTENT.rhcDay61Plus()} />
               </Label>
               <div className="relative mt-1">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none select-none">$</span>
@@ -429,17 +408,17 @@ export default function BranchProfitability() {
             <h2 className="text-base font-bold">Variable Clinical Costs ($/day)</h2>
             {(
               [
-                { key: "pharmacyPerDay",  label: "Pharmacy", tip: "Average daily drug cost per patient. Standard acuity: $20–25/day. Oncology or complex pain management: $40–60/day." },
-                { key: "dmePerDay",       label: "DME",      tip: "Durable Medical Equipment — daily cost for hospital beds, wheelchairs, commodes, and oxygen. Usually $8–12/day." },
-                { key: "suppliesPerDay",  label: "Supplies", tip: "Clinical supply cost per patient per day. Standard acuity: $8–12/day. Wound-heavy or oncology patients can push $20–30/day." },
-                { key: "travelPerDay",    label: "Travel",   tip: "Average clinician mileage and drive-time cost per patient per day. Varies by geography and patient density." },
-                { key: "otherPerDay",     label: "Other",    tip: "Any direct variable cost not captured above — contracted therapy, interpreter services, or other per-patient expenses." },
+                { key: "pharmacyPerDay",  label: "Pharmacy" },
+                { key: "dmePerDay",       label: "DME"      },
+                { key: "suppliesPerDay",  label: "Supplies" },
+                { key: "travelPerDay",    label: "Travel"   },
+                { key: "otherPerDay",     label: "Other"    },
               ] as const
-            ).map(({ key, label, tip }) => (
+            ).map(({ key, label }) => (
               <div key={key}>
                 <Label htmlFor={key} className="text-sm font-medium flex items-center">
                   {label}
-                  <InfoTip text={tip} />
+                  <InfoTip text={TOOLTIP_CONTENT[key]()} />
                 </Label>
                 <div className="relative mt-1">
                   <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none select-none">$</span>
@@ -464,7 +443,7 @@ export default function BranchProfitability() {
             <div>
               <Label htmlFor="overhead" className="text-sm font-medium flex items-center">
                 Monthly Non-Payroll Overhead ($)
-                <InfoTip text="Fixed non-payroll costs: office rent, EMR subscription, liability insurance, phone systems, and G&A. This does not scale with census — it is the same whether you have 10 or 100 patients." />
+                <InfoTip text={TOOLTIP_CONTENT.monthlyNonPayrollOverhead()} />
               </Label>
               <div className="relative mt-1">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none select-none">$</span>
@@ -483,7 +462,7 @@ export default function BranchProfitability() {
             <div>
               <Label htmlFor="startCash" className="text-sm font-medium flex items-center">
                 Starting Capital ($)
-                <InfoTip text="Total cash available at launch to absorb early losses while census ramps up. The Cash Runway section shows how many months this covers before you hit break-even." />
+                <InfoTip text={TOOLTIP_CONTENT.startingCapital()} />
               </Label>
               <div className="relative mt-1">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground text-sm pointer-events-none select-none">$</span>
@@ -507,7 +486,7 @@ export default function BranchProfitability() {
             <div>
               <Label htmlFor="admissionsPerMarketer" className="text-sm font-medium flex items-center">
                 Admissions per Marketer / Month
-                <InfoTip text="New patient admissions each salesperson generates per month. Industry average is 6–10. A coached team with structured referral development and consistent call cycles should consistently exceed 10." />
+                <InfoTip text={TOOLTIP_CONTENT.admissionsPerMarketerPerMonth()} />
               </Label>
               <Input
                 id="admissionsPerMarketer"
