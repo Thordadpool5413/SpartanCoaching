@@ -54,10 +54,6 @@ function fmtKAbbrev(v: number) {
   if (Math.abs(v) >= 1_000) return "$" + (v / 1_000).toFixed(0) + "K";
   return "$" + Math.round(v).toLocaleString();
 }
-function fmtPctRaw(fraction: number) {
-  return (fraction * 100).toFixed(1) + "%";
-}
-
 // ─── Info tooltip ─────────────────────────────────────────────────────────────
 function InfoTip({ text }: { text: string }) {
   return (
