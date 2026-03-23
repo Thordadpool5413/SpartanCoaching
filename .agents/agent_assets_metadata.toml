@@ -30,3 +30,9 @@ id = "ErcRF7YSg-5ic5XnuXpv0"
 uri = "file://branch-profitability-education.pdf"
 type = "pdf"
 title = "Why Your Census Number Is Not Arbitrary — Math-Corrected Edition"
+
+[[outputs]]
+id = "_zUE6u9wcnQToFeUYocix"
+uri = "file://public/resources/branch-profitability-education.pdf"
+type = "pdf"
+title = "Why Your Census Number Is Not Arbitrary — v3"
