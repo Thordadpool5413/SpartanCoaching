@@ -571,6 +571,37 @@ describe("governed claim correctness", () => {
     const text = getClaimText("assumption.runwayRamp");
     expect(text).toMatch(/18|linear/i);
   });
+
+  it("FY 2026 payment update claim exists in registry", () => {
+    const claim = getClaim("fact.fy2026PaymentUpdate");
+    expect(claim).toBeDefined();
+  });
+
+  it("FY 2026 payment update claim is classified as payment_fact", () => {
+    const claim = getClaim("fact.fy2026PaymentUpdate");
+    expect(claim.claimClass).toBe("payment_fact");
+  });
+
+  it("FY 2026 payment update claim references 2.6%", () => {
+    const text = getClaimText("fact.fy2026PaymentUpdate");
+    expect(text).toMatch(/2\.6/);
+  });
+
+  it("FY 2026 payment update claim has sourceUrl", () => {
+    const claim = getClaim("fact.fy2026PaymentUpdate");
+    expect(claim.sourceUrl).toBeTruthy();
+  });
+
+  it("FY 2026 payment update claim has lastVerifiedDate", () => {
+    const claim = getClaim("fact.fy2026PaymentUpdate");
+    expect(claim.lastVerifiedDate).toBeTruthy();
+  });
+
+  it("FY 2026 payment update claim passes validator (no errors)", () => {
+    const claim = getClaim("fact.fy2026PaymentUpdate");
+    const errors = validateClaim(claim);
+    expect(errors).toHaveLength(0);
+  });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────

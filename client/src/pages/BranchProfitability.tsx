@@ -661,6 +661,68 @@ export default function BranchProfitability() {
             </div>
           </Card>
 
+          {/* Admissions Reference Table */}
+          <Card className="spacing-card">
+            <div className="flex items-center gap-2 mb-1">
+              <Users className="w-5 h-5 text-primary" />
+              <h2 className="text-base font-bold">Admissions Reference — Standard ADC Checkpoints</h2>
+            </div>
+            <p className="text-xs text-muted-foreground mb-4 leading-relaxed">
+              Required monthly and weekly admissions at key ADC levels using your current LOS of{" "}
+              <span className="font-semibold text-foreground">{inputs.avgLengthOfStayDays} days</span>.
+              Calculated from the engine formula: (ADC &times; 365) &divide; LOS &divide; 12.
+            </p>
+            <div className="overflow-x-auto -mx-2 px-2">
+              <table className="w-full text-sm min-w-[420px]" data-testid="table-admissions-reference">
+                <thead>
+                  <tr className="border-b border-border">
+                    <th className="text-left pb-2 font-semibold text-muted-foreground">Target ADC</th>
+                    <th className="text-right pb-2 font-semibold text-muted-foreground">Monthly Admits</th>
+                    <th className="text-right pb-2 font-semibold text-muted-foreground">Weekly Admits</th>
+                    <th className="text-right pb-2 font-semibold text-muted-foreground">Your ADC?</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {tables.admissionsReferenceTable.map((row, i) => {
+                    const isYou = row.targetADC === inputs.targetADC;
+                    return (
+                      <tr
+                        key={row.targetADC}
+                        className={`${i % 2 === 0 ? "bg-muted/30" : ""} ${isYou ? "ring-1 ring-primary/40 rounded" : ""}`}
+                        data-testid={`row-admref-${row.targetADC}`}
+                      >
+                        <td className={`py-1.5 pr-3 font-semibold ${isYou ? "text-primary" : ""}`}>
+                          {row.targetADC}
+                          {isYou && (
+                            <span className="ml-1.5 text-xs font-normal text-primary opacity-80">you</span>
+                          )}
+                        </td>
+                        <td className="py-1.5 text-right font-semibold">
+                          {row.display.monthlyAdmissionsNeeded}/mo
+                        </td>
+                        <td className="py-1.5 text-right">
+                          {row.display.weeklyAdmissionsNeeded}/wk
+                        </td>
+                        <td className="py-1.5 text-right text-muted-foreground text-xs">
+                          {isYou ? (
+                            <span className="font-semibold text-primary">Yes</span>
+                          ) : row.targetADC < inputs.targetADC ? "below" : "above"}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+                <tfoot>
+                  <tr className="border-t border-border">
+                    <td colSpan={4} className="pt-2 text-xs text-muted-foreground">
+                      LOS = {inputs.avgLengthOfStayDays} days &bull; All values calculated by the engine
+                    </td>
+                  </tr>
+                </tfoot>
+              </table>
+            </div>
+          </Card>
+
           {/* Cash Runway */}
           <Card className="spacing-card">
             <div className="flex items-center gap-2 mb-4">

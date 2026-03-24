@@ -394,6 +394,22 @@ const CLAIMS: ContentClaim[] = [
     requiresDisclaimer: true,
   },
 
+  // ── FY 2026 payment update rate ──────────────────────────────────────────
+  {
+    claimId: "fact.fy2026PaymentUpdate",
+    claimText:
+      "CMS increased the FY 2026 hospice payment rates by 2.6% compared to FY 2025, reflecting the Hospice Payment Update Percentage in the FY 2026 Hospice Wage Index and Payment Rate Update final rule.",
+    claimClass: "payment_fact",
+    sourceType: "cms_payment_rule",
+    sourceTitle: "CMS FY 2026 Hospice Wage Index and Payment Rate Update — Final Rule",
+    sourceUrl: "https://www.cms.gov/medicare/payment/hospice-payment",
+    lastVerifiedDate: "2026-01-01",
+    appliesTo: ["fact-fy2026-payment-update"],
+    confidenceLevel: "high",
+    reviewStatus: "current",
+    requiresDisclaimer: false,
+  },
+
   // ── Model assumption: staffing scaling ───────────────────────────────────
   {
     claimId: "assumption.staffingScaling",

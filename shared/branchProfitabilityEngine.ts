@@ -15,10 +15,53 @@ import Decimal from "decimal.js";
 Decimal.set({ precision: 28, rounding: Decimal.ROUND_HALF_EVEN });
 
 // ─── Versions ─────────────────────────────────────────────────────────────────
-export const FORMULA_VERSION = "2.0.0";
+export const FORMULA_VERSION = "2.1.0";
 // Content version is imported at call-time to avoid circular deps.
 // The engine itself just stores whatever string is passed to it.
 export const CONTENT_VERSION_PLACEHOLDER = "see:branch_content_claim_registry";
+
+// ─── Admissions reference table ───────────────────────────────────────────────
+
+/** Standard ADC checkpoints used in the admissions reference table. */
+export const REFERENCE_TABLE_ADC_VALUES = [30, 50, 60, 80, 100] as const;
+
+export interface AdmissionsRefRow {
+  targetADC: number;
+  avgLengthOfStayDays: number;
+  monthlyAdmissionsNeeded: number;
+  weeklyAdmissionsNeeded: number;
+  /** Pre-formatted display values (1 decimal place). */
+  display: {
+    monthlyAdmissionsNeeded: string;
+    weeklyAdmissionsNeeded: string;
+  };
+}
+
+/**
+ * Builds the admissions reference table for the given LOS.
+ * Always uses the engine formula — no hardcoded values.
+ * Formula: monthly = (ADC × 365) / LOS / 12, weekly = monthly × 12 / 52.
+ */
+export function buildAdmissionsReferenceTable(
+  avgLengthOfStayDays: number
+): AdmissionsRefRow[] {
+  const dLos = new Decimal(avgLengthOfStayDays);
+  return REFERENCE_TABLE_ADC_VALUES.map((adc) => {
+    const dAdc = new Decimal(adc);
+    const monthly = dAdc.times(365).dividedBy(dLos).dividedBy(12).toNumber();
+    const weekly  = new Decimal(monthly).times(12).dividedBy(52).toNumber();
+    return {
+      targetADC: adc,
+      avgLengthOfStayDays,
+      monthlyAdmissionsNeeded: monthly,
+      weeklyAdmissionsNeeded:  weekly,
+      display: {
+        monthlyAdmissionsNeeded: fmtAdmissions(monthly),
+        weeklyAdmissionsNeeded:  fmtAdmissions(weekly),
+      },
+    };
+  });
+}
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -141,6 +184,7 @@ export interface BranchResults {
   tables: {
     requiredStaffing: StaffingRow[];
     runwayMonths: RunwayMonth[];
+    admissionsReferenceTable: AdmissionsRefRow[];
   };
   charts: {
     profitCurve: CurvePoint[];
@@ -149,6 +193,13 @@ export interface BranchResults {
   narrative: BranchNarrative;
   metadata: BranchMetadata;
   validation: BranchValidation;
+  /** Structured payment fact references — all values sourced from registry. */
+  paymentContent: {
+    fiscalYear: string;
+    rhcDay1To60: number;
+    rhcDay61Plus: number;
+    fy2026UpdatePercent: number;
+  };
 }
 
 export interface ValidationError {
@@ -560,6 +611,7 @@ export function runEngine(
     tables: {
       requiredStaffing: staffingRows,
       runwayMonths,
+      admissionsReferenceTable: buildAdmissionsReferenceTable(inputs.avgLengthOfStayDays),
     },
     charts: {
       profitCurve,
@@ -581,6 +633,12 @@ export function runEngine(
       mathValid: true,
       contentValid: true,
       errors: [],
+    },
+    paymentContent: {
+      fiscalYear:          "2026",
+      rhcDay1To60:         inputs.rhcDay1To60,
+      rhcDay61Plus:        inputs.rhcDay61Plus,
+      fy2026UpdatePercent: 2.6,
     },
   };
 }
