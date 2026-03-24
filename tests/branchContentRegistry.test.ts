@@ -498,14 +498,46 @@ describe("content presenter — special content functions", () => {
 // ─────────────────────────────────────────────────────────────────────────────
 
 describe("governed claim correctness", () => {
-  it("RHC Day 1 claim mentions $224.62 (2025 national base rate)", () => {
+  it("RHC Day 1 claim mentions $230.83 (FY 2026 national base rate)", () => {
     const text = getClaimText("tip.rhcDay1");
-    expect(text).toContain("224.62");
+    expect(text).toContain("230.83");
   });
 
-  it("RHC Day 61 claim mentions $177.27 (2025 national base rate)", () => {
+  it("RHC Day 61 claim mentions $181.94 (FY 2026 national base rate)", () => {
     const text = getClaimText("tip.rhcDay61");
-    expect(text).toContain("177.27");
+    expect(text).toContain("181.94");
+  });
+
+  it("RHC Day 1 claim references FY 2026", () => {
+    const text = getClaimText("tip.rhcDay1");
+    expect(text).toContain("2026");
+  });
+
+  it("RHC Day 61 claim references FY 2026", () => {
+    const text = getClaimText("tip.rhcDay61");
+    expect(text).toContain("2026");
+  });
+
+  it("RHC Day 1 claim states national base rate before wage index adjustment", () => {
+    const text = getClaimText("tip.rhcDay1");
+    expect(text).toMatch(/national base rate/i);
+  });
+
+  it("RHC Day 61 claim states national base rate before wage index adjustment", () => {
+    const text = getClaimText("tip.rhcDay61");
+    expect(text).toMatch(/national base rate/i);
+  });
+
+  it("RHC Day 1 claim source is tagged FY2026", () => {
+    const claim = getClaim("tip.rhcDay1");
+    expect(claim.sourceTitle).toContain("FY2026");
+    expect(claim.lastVerifiedDate).toMatch(/^2026/);
+  });
+
+  it("RHC Day 61 claim source is tagged FY2026", () => {
+    const claim = getClaim("tip.rhcDay61");
+    expect(claim.sourceTitle).toContain("FY2026");
+    expect(claim.lastVerifiedDate).toMatch(/^2026/);
   });
 
   it("break-even glossary entry contains the formula", () => {

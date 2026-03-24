@@ -110,12 +110,12 @@ const CLAIMS: ContentClaim[] = [
   {
     claimId: "tip.rhcDay1",
     claimText:
-      "Medicare's Routine Home Care reimbursement rate for the first 60 days of each benefit period. The 2025 national base rate is $224.62 per day. Your actual contracted rate may vary by CBSA wage index. Enter your actual rate for accurate results.",
+      "Medicare's Routine Home Care reimbursement rate for the first 60 days of each benefit period. The FY 2026 national base rate is $230.83 per day (for hospices submitting required quality data). This is a national base rate before wage index adjustment - your actual rate will vary by CBSA. Enter your actual rate for accurate results.",
     claimClass: "payment_fact",
     sourceType: "cms_payment_rule",
-    sourceTitle: "CMS Hospice Payment Rates FY2025",
+    sourceTitle: "CMS Hospice Payment Rates FY2026",
     sourceUrl: "https://www.cms.gov/medicare/payment/hospice-payment",
-    lastVerifiedDate: "2025-01-01",
+    lastVerifiedDate: "2026-01-01",
     appliesTo: ["input-rhc1-tooltip"],
     confidenceLevel: "high",
     reviewStatus: "current",
@@ -126,12 +126,12 @@ const CLAIMS: ContentClaim[] = [
   {
     claimId: "tip.rhcDay61",
     claimText:
-      "Medicare's reduced RHC rate for days 61 and beyond in a benefit period. The 2025 national base rate is $177.27 per day — approximately 21% lower than the Day 1–60 rate. Patients with longer LOS generate more patient-days at this lower rate, which reduces blended revenue per day.",
+      "Medicare's reduced RHC rate for days 61 and beyond in a benefit period. The FY 2026 national base rate is $181.94 per day (for hospices submitting required quality data) - approximately 21% lower than the Day 1-60 rate. This is a national base rate before wage index adjustment. Patients with longer LOS generate more patient-days at this lower rate, which reduces blended revenue per day.",
     claimClass: "payment_fact",
     sourceType: "cms_payment_rule",
-    sourceTitle: "CMS Hospice Payment Rates FY2025",
+    sourceTitle: "CMS Hospice Payment Rates FY2026",
     sourceUrl: "https://www.cms.gov/medicare/payment/hospice-payment",
-    lastVerifiedDate: "2025-01-01",
+    lastVerifiedDate: "2026-01-01",
     appliesTo: ["input-rhc2-tooltip"],
     confidenceLevel: "high",
     reviewStatus: "current",
@@ -445,4 +445,4 @@ export function getClaimsFor(location: string): ContentClaim[] {
 }
 
 /** Content version — bump when claims are added or modified. */
-export const CONTENT_VERSION = "2.0.0";
+export const CONTENT_VERSION = "2.1.0";

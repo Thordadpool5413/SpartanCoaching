@@ -108,6 +108,7 @@ export interface BranchNarrative {
 export interface BranchMetadata {
   formulaVersion: string;
   contentVersion: string;
+  fiscalYear: string;           // CMS fiscal year for payment rates (e.g. "2026")
   calculationTimestamp: string; // ISO 8601
 }
 
@@ -217,7 +218,7 @@ export function fmtDollarRounded(v: number): string {
 }
 
 /**
- * Per-day rates shown to 2 decimal places ($208.72).
+ * Per-day rates shown to 2 decimal places (e.g., $230.83).
  */
 export function fmtPerDay(v: number): string {
   if (!Number.isFinite(v)) return "N/A";
@@ -573,6 +574,7 @@ export function runEngine(
     metadata: {
       formulaVersion:        FORMULA_VERSION,
       contentVersion,
+      fiscalYear:            "2026",
       calculationTimestamp:  new Date().toISOString(),
     },
     validation: {

@@ -48,15 +48,15 @@ function eng(overrides: Partial<BranchInputs> = {}) {
 
 describe("computeBlendedRevenuePerDay", () => {
   it("returns rhcDay1To60 when LOS <= 60", () => {
-    expect(computeBlendedRevenuePerDay(224.62, 176.92, 60)).toBeCloseTo(224.62, 6);
-    expect(computeBlendedRevenuePerDay(224.62, 176.92, 1)).toBeCloseTo(224.62, 6);
-    expect(computeBlendedRevenuePerDay(224.62, 176.92, 30)).toBeCloseTo(224.62, 6);
+    expect(computeBlendedRevenuePerDay(230.83, 181.94, 60)).toBeCloseTo(230.83, 6);
+    expect(computeBlendedRevenuePerDay(230.83, 181.94, 1)).toBeCloseTo(230.83, 6);
+    expect(computeBlendedRevenuePerDay(230.83, 181.94, 30)).toBeCloseTo(230.83, 6);
   });
 
-  it("blends rates correctly when LOS > 60", () => {
+  it("blends rates correctly when LOS > 60 (FY 2026 rates)", () => {
     const los = 90;
-    const expected = (224.62 * 60 + 176.92 * 30) / 90;
-    expect(computeBlendedRevenuePerDay(224.62, 176.92, los)).toBeCloseTo(expected, 6);
+    const expected = (230.83 * 60 + 181.94 * 30) / 90;
+    expect(computeBlendedRevenuePerDay(230.83, 181.94, los)).toBeCloseTo(expected, 6);
   });
 
   it("equals rhcDay1To60 when both rates are the same", () => {
@@ -583,18 +583,20 @@ describe("boundary conditions", () => {
 // SECTION 6 — Reference scenario (visible screenshot values)
 // ─────────────────────────────────────────────────────────────────────────────
 
-describe("reference scenario: base preset ADC=50", () => {
+describe("reference scenario: base preset ADC=50 (FY 2026 rates)", () => {
   const r = eng({ targetADC: 50, scenarioPreset: "base" });
   const d = r.derived;
 
-  it("blendedRevenuePerDay ≈ $208.72", () =>
-    expect(d.blendedRevenuePerDay).toBeCloseTo(208.72, 2));
+  // FY 2026: rhcDay1To60=$230.83, rhcDay61Plus=$181.94, LOS=90
+  // blended = (230.83*60 + 181.94*30) / 90 = 19308/90 = 214.533...
+  it("blendedRevenuePerDay ≈ $214.53 (FY 2026)", () =>
+    expect(d.blendedRevenuePerDay).toBeCloseTo(214.53, 2));
 
   it("totalVariableCostPerDay = 53", () =>
     expect(d.totalVariableCostPerDay).toBeCloseTo(53, 4));
 
-  it("annualRevenue ≈ $3,809,140", () =>
-    expect(d.annualRevenue).toBeCloseTo(3_809_140, 0));
+  it("annualRevenue ≈ $3,915,233", () =>
+    expect(d.annualRevenue).toBeCloseTo(3_915_233, 0));
 
   it("annualVariableCost ≈ $967,250", () =>
     expect(d.annualVariableCost).toBeCloseTo(967_250, 0));
@@ -605,20 +607,20 @@ describe("reference scenario: base preset ADC=50", () => {
   it("annualOverhead = $456,000", () =>
     expect(d.annualOverhead).toBeCloseTo(456_000, 0));
 
-  it("annualProfit ≈ $280,890", () =>
-    expect(d.annualProfit).toBeCloseTo(280_890, 0));
+  it("annualProfit ≈ $386,983", () =>
+    expect(d.annualProfit).toBeCloseTo(386_983, 0));
 
-  it("operatingMarginPercent ≈ 7.4%", () =>
-    expect(d.operatingMarginPercent).toBeCloseTo(7.37, 1));
+  it("operatingMarginPercent ≈ 9.9%", () =>
+    expect(d.operatingMarginPercent).toBeCloseTo(9.88, 1));
 
-  it("contributionPerDay ≈ $155.72", () =>
-    expect(d.contributionPerDay).toBeCloseTo(155.72, 2));
+  it("contributionPerDay ≈ $161.53", () =>
+    expect(d.contributionPerDay).toBeCloseTo(161.53, 2));
 
-  it("breakEvenADC ≈ 45.1", () =>
-    expect(d.breakEvenADC).toBeCloseTo(45.06, 1));
+  it("breakEvenADC ≈ 43.4", () =>
+    expect(d.breakEvenADC).toBeCloseTo(43.43, 1));
 
-  it("targetMarginADC ≈ 56.4", () =>
-    expect(d.targetMarginADC).toBeCloseTo(56.40, 1));
+  it("targetMarginADC ≈ 54.2", () =>
+    expect(d.targetMarginADC).toBeCloseTo(54.24, 1));
 
   it("monthlyAdmissionsNeeded ≈ 16.9", () =>
     expect(d.monthlyAdmissionsNeeded).toBeCloseTo(16.9, 1));

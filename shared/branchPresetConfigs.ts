@@ -36,11 +36,11 @@ export const PRESET_CONFIGS: Record<string, PresetConfig> = {
   lean: {
     label: "Lean",
     description:
-      "Short LOS (70 days), referral mix weighted toward shorter-stay diagnoses like heart failure or COPD. More revenue captured in the higher Day 1–60 rate.",
+      "Short LOS (70 days), referral mix weighted toward shorter-stay diagnoses like heart failure or COPD. More revenue captured in the higher Day 1-60 rate. Uses FY 2026 national base RHC rates.",
     inputs: {
       avgLengthOfStayDays: 70,
-      rhcDay1To60: 224.62,
-      rhcDay61Plus: 176.92,
+      rhcDay1To60: 230.83,
+      rhcDay61Plus: 181.94,
       pharmacyPerDay: 22,
       dmePerDay: 10,
       suppliesPerDay: 10,
@@ -54,11 +54,11 @@ export const PRESET_CONFIGS: Record<string, PresetConfig> = {
   base: {
     label: "Base",
     description:
-      "90-day blended LOS with equal Day 1–60 and Day 61+ rates. The most common starting model for a new branch with a mixed referral mix.",
+      "90-day blended LOS using FY 2026 Medicare national base RHC rates ($230.83 Day 1-60 / $181.94 Day 61+). The most common starting model for a new branch with a mixed referral mix.",
     inputs: {
       avgLengthOfStayDays: 90,
-      rhcDay1To60: 208.72,
-      rhcDay61Plus: 208.72,
+      rhcDay1To60: 230.83,
+      rhcDay61Plus: 181.94,
       pharmacyPerDay: 22,
       dmePerDay: 10,
       suppliesPerDay: 10,
@@ -72,11 +72,11 @@ export const PRESET_CONFIGS: Record<string, PresetConfig> = {
   highAcuity: {
     label: "High Acuity",
     description:
-      "Same LOS as Base but significantly higher pharmacy and supply costs, reflecting an oncology-heavy or complex symptom management patient mix.",
+      "Same LOS as Base but significantly higher pharmacy and supply costs, reflecting an oncology-heavy or complex symptom management patient mix. Uses FY 2026 national base RHC rates.",
     inputs: {
       avgLengthOfStayDays: 90,
-      rhcDay1To60: 208.72,
-      rhcDay61Plus: 208.72,
+      rhcDay1To60: 230.83,
+      rhcDay61Plus: 181.94,
       pharmacyPerDay: 44.35,
       dmePerDay: 10,
       suppliesPerDay: 23.33,
