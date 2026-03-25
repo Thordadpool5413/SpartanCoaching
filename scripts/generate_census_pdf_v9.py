@@ -10,6 +10,7 @@ No em dashes. Run: python3 scripts/generate_census_pdf_v9.py
 """
 
 import os
+import tempfile
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.lib.units import inch
@@ -22,6 +23,8 @@ from reportlab.platypus import (
     NextPageTemplate, Image
 )
 from reportlab.platypus.flowables import Flowable
+from reportlab.lib.utils import ImageReader
+from PIL import Image as PILImage
 
 # ---- Brand ------------------------------------------------------------------
 RED        = colors.HexColor("#b91c1c")
@@ -50,11 +53,59 @@ BOLD = "Helvetica-Bold"
 ITAL = "Helvetica-Oblique"
 BITA = "Helvetica-BoldOblique"
 
-LOGO_PATH = os.path.join(
+_LOGO_SOURCE = os.path.normpath(os.path.join(
     os.path.dirname(__file__), "..",
     "attached_assets", "Untitled_design_(2)_1774449105412.png"
-)
-LOGO_PATH = os.path.normpath(LOGO_PATH)
+))
+
+# Pre-process the logo: crop to content, resize to 400x400, save as PNG with
+# transparency preserved. This avoids embedding a 2048x2048 RGBA raw image.
+_LOGO_COVER = None   # 400x400 RGBA PNG path (for dark cover)
+_LOGO_FOOTER = None  # 120x120 RGBA PNG path (for footer stamp)
+
+def _recolor_stamp(img, r, g, b):
+    """Replace all pixels with (r, g, b) while keeping original alpha channel.
+    
+    This turns a dark stamp on transparent background into a white (or any
+    color) stamp on transparent background, making it visible on dark surfaces.
+    """
+    _, _, _, a_ch = img.split()
+    solid_r = PILImage.new("L", img.size, r)
+    solid_g = PILImage.new("L", img.size, g)
+    solid_b = PILImage.new("L", img.size, b)
+    return PILImage.merge("RGBA", (solid_r, solid_g, solid_b, a_ch))
+
+def _prepare_logos():
+    global _LOGO_COVER, _LOGO_FOOTER
+    if not os.path.exists(_LOGO_SOURCE):
+        print(f"Warning: logo not found at {_LOGO_SOURCE}")
+        return
+    try:
+        src = PILImage.open(_LOGO_SOURCE).convert("RGBA")
+        # Crop to content bounding box (removes transparent margins)
+        bbox = src.getbbox()
+        if bbox:
+            src = src.crop(bbox)
+        # Recolor to WHITE so stamp is visible on dark backgrounds (cover + footer)
+        white_src = _recolor_stamp(src, 255, 255, 255)
+        # Cover logo: 400x400 max, white RGBA
+        cover = white_src.copy()
+        cover.thumbnail((400, 400), PILImage.LANCZOS)
+        tf_cover = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+        cover.save(tf_cover.name, "PNG")
+        _LOGO_COVER = tf_cover.name
+        print(f"Cover logo: {cover.size} -> {tf_cover.name}")
+        # Footer logo: 100x100 max, white RGBA
+        footer = white_src.copy()
+        footer.thumbnail((100, 100), PILImage.LANCZOS)
+        tf_footer = tempfile.NamedTemporaryFile(suffix=".png", delete=False)
+        footer.save(tf_footer.name, "PNG")
+        _LOGO_FOOTER = tf_footer.name
+        print(f"Footer logo: {footer.size} -> {tf_footer.name}")
+    except Exception as e:
+        print(f"Warning: could not prepare logo images: {e}")
+
+_prepare_logos()
 
 
 # ---- Document ---------------------------------------------------------------
@@ -132,13 +183,16 @@ class SpartanDoc(BaseDocTemplate):
         canvas.drawString(MARGIN_L + 0.18 * inch, qy - 0.21 * inch,
             ' A rep who understands who depends on it never needs to be motivated again."')
         # Logo stamp - centered in lower half of cover
-        if os.path.exists(LOGO_PATH):
-            logo_size = 2.2 * inch
+        if _LOGO_COVER:
+            logo_size = 2.0 * inch
             logo_x = (PAGE_W - logo_size) / 2
             logo_y = 1.0 * inch
-            canvas.drawImage(LOGO_PATH, logo_x, logo_y,
-                             width=logo_size, height=logo_size,
-                             preserveAspectRatio=True, mask="auto")
+            try:
+                canvas.drawImage(_LOGO_COVER, logo_x, logo_y,
+                                 width=logo_size, height=logo_size,
+                                 preserveAspectRatio=True, mask="auto")
+            except Exception:
+                pass
         # Footer band
         canvas.setFillColor(DARK_MED)
         canvas.rect(0, 0, PAGE_W, 0.65 * inch, fill=1, stroke=0)
@@ -165,11 +219,14 @@ class SpartanDoc(BaseDocTemplate):
         canvas.setFillColor(DARK)
         canvas.rect(0, 0, PAGE_W, 0.45 * inch, fill=1, stroke=0)
         # Small stamp logo in footer
-        if os.path.exists(LOGO_PATH):
+        if _LOGO_FOOTER:
             stamp_h = 0.35 * inch
-            canvas.drawImage(LOGO_PATH, MARGIN_L, 0.05 * inch,
-                             width=stamp_h, height=stamp_h,
-                             preserveAspectRatio=True, mask="auto")
+            try:
+                canvas.drawImage(_LOGO_FOOTER, MARGIN_L, 0.05 * inch,
+                                 width=stamp_h, height=stamp_h,
+                                 preserveAspectRatio=True, mask="auto")
+            except Exception:
+                pass
         canvas.setFillColor(MID_LIGHT)
         canvas.setFont(BASE, 7)
         canvas.drawCentredString(PAGE_W / 2, 0.16 * inch,
@@ -394,8 +451,11 @@ def build_story(styles):
     story = []
 
     # =========================================================
-    # COVER PAGE SPACER (content drawn by _cover callback)
+    # COVER PAGE — content is drawn by _cover onPage callback.
+    # The Spacer ensures ReportLab actually creates and finalizes
+    # this page before the PageBreak (otherwise some builds skip it).
     # =========================================================
+    story.append(Spacer(1, 0.01))
     story.append(NextPageTemplate("toc"))
     story.append(PageBreak())
 

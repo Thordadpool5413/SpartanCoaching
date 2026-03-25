@@ -28,6 +28,7 @@ import {
   HelpCircle,
   ChevronDown,
   ChevronUp,
+  BookOpen,
 } from "lucide-react";
 import {
   LineChart,
@@ -269,6 +270,15 @@ export default function BranchProfitability() {
             >
               <Printer className="w-4 h-4 mr-1.5" />
               Print
+            </Button>
+            <Button
+              variant="default"
+              size="default"
+              onClick={() => window.open("/resources/files/branch-profitability-education.pdf", "_blank")}
+              data-testid="button-education-guide"
+            >
+              <BookOpen className="w-4 h-4 mr-1.5" />
+              Education Guide
             </Button>
           </div>
         </div>
