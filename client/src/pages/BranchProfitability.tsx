@@ -274,7 +274,12 @@ export default function BranchProfitability() {
             <Button
               variant="default"
               size="default"
-              onClick={() => window.open("/resources/files/branch-profitability-education.pdf", "_blank")}
+              onClick={() =>
+                capture(
+                  () => window.open("/resources/files/branch-profitability-education.pdf", "_blank"),
+                  () => null
+                )
+              }
               data-testid="button-education-guide"
             >
               <BookOpen className="w-4 h-4 mr-1.5" />
