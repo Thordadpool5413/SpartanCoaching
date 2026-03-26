@@ -224,25 +224,35 @@ export async function sendAgreementConfirmation(data: AgreementEmailData): Promi
   }
 }
 
-export async function sendResourceLeadNotification(name: string, email: string, resourceTitle: string): Promise<boolean> {
+export async function sendResourceLeadNotification(name: string, email: string, resourceTitle: string, isNew = true): Promise<boolean> {
   try {
     const { client, fromEmail } = await getUncachableResendClient();
     const adminEmail = process.env.NOTIFICATION_EMAIL || 'nick@spartanhospicecoaching.com';
+    const label = isNew ? 'New Lead' : 'Returning User';
+    const badgeColor = isNew ? '#b91c1c' : '#374151';
 
     await sendEmail(client, {
       from: fromEmail,
       to: adminEmail,
-      subject: `New Resource Download: ${resourceTitle}`,
+      subject: `[${label}] Resource Access: ${resourceTitle}`,
       html: `
         <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
           ${emailHeader()}
           <div style="padding: 24px;">
-            <h2 style="margin-top: 0;">New Resource Download</h2>
-            <p>Someone entered their information to download a training resource.</p>
+            <h2 style="margin-top: 0;">
+              <span style="display:inline-block;background:${badgeColor};color:#fff;font-size:12px;padding:3px 10px;border-radius:4px;margin-right:8px;vertical-align:middle;">${label}</span>
+              Resource Access
+            </h2>
+            <p style="color:#374151;">
+              ${isNew
+                ? 'A new contact entered their information to access a resource on your site.'
+                : 'A returning contact accessed another resource on your site.'}
+            </p>
             <table style="border-collapse: collapse; width: 100%;">
-              <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Name</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${name}</td></tr>
-              <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Email</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><a href="mailto:${email}">${email}</a></td></tr>
+              <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee; width: 110px;">Name</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${name}</td></tr>
+              <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Email</td><td style="padding: 8px; border-bottom: 1px solid #eee;"><a href="mailto:${email}" style="color:#b91c1c;">${email}</a></td></tr>
               <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Resource</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${resourceTitle}</td></tr>
+              <tr><td style="padding: 8px; font-weight: bold; border-bottom: 1px solid #eee;">Status</td><td style="padding: 8px; border-bottom: 1px solid #eee;">${label}</td></tr>
             </table>
           </div>
           ${emailFooter()}
@@ -250,7 +260,7 @@ export async function sendResourceLeadNotification(name: string, email: string, 
       `,
     });
 
-    console.log(`[Resend] Lead notification sent to admin for ${name} <${email}> (${resourceTitle})`);
+    console.log(`[Resend] Lead notification sent to admin for ${name} <${email}> (${resourceTitle}) [${label}]`);
     return true;
   } catch (error: any) {
     console.error(`[Resend] FAILED lead notification for ${name} <${email}> (${resourceTitle}):`, error?.message || error);

@@ -627,13 +627,9 @@ Subject: [subject line]
       const leadData = insertResourceLeadSchema.parse(req.body);
       const isNew = await storage.isNewResourceLeadEmail(leadData.email);
       const lead = await storage.captureResourceLead(leadData);
-      if (isNew) {
-        sendResourceLeadNotification(leadData.name, leadData.email, leadData.resourceTitle).catch(err =>
-          console.error("Failed to send resource lead notification:", err)
-        );
-      } else {
-        console.log(`[Lead] Returning user ${leadData.email} — skipping admin notification`);
-      }
+      sendResourceLeadNotification(leadData.name, leadData.email, leadData.resourceTitle, isNew).catch(err =>
+        console.error("Failed to send resource lead notification:", err)
+      );
       res.json({ success: true, lead });
     } catch (error: any) {
       if (error.name === "ZodError") {
