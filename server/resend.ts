@@ -82,12 +82,12 @@ function emailHeader(): string {
 
 function emailFooter(): string {
   const siteUrl = getSiteUrl();
-  return `<div style="padding: 20px 24px; background: #111827; text-align: center;">
-    <a href="${siteUrl}" style="display: inline-block; margin-bottom: 10px;">
-      <img src="${siteUrl}/spartan-logo-email.png" alt="Spartan Coaching" width="140" style="max-width: 140px; height: auto; display: block; margin: 0 auto;" />
+  return `<div style="padding: 28px 24px; background: #f9fafb; border-top: 2px solid #e5e7eb; text-align: center;">
+    <a href="${siteUrl}" style="display: inline-block; margin-bottom: 12px;">
+      <img src="${siteUrl}/spartan-stamp-email.png" alt="Spartan Coaching" width="140" style="max-width: 140px; height: auto; display: block; margin: 0 auto;" />
     </a>
-    <p style="color: #9ca3af; font-size: 12px; margin: 0;">Spartan Coaching &mdash; The Authority in Hospice Sales Excellence</p>
-    <p style="color: #6b7280; font-size: 11px; margin: 6px 0 0;">
+    <p style="color: #6b7280; font-size: 12px; margin: 0 0 4px;">Spartan Coaching &mdash; The Authority in Hospice Sales Excellence</p>
+    <p style="font-size: 11px; margin: 0;">
       <a href="${siteUrl}" style="color: #b91c1c; text-decoration: none;">spartanhospicecoaching.com</a>
     </p>
   </div>`;
