@@ -73,9 +73,9 @@ function getSiteUrl(): string {
 
 function emailHeader(): string {
   const siteUrl = getSiteUrl();
-  return `<div style="background: #000000; padding: 20px 24px; text-align: center;">
+  return `<div style="background: #ffffff; padding: 24px; text-align: center; border-bottom: 3px solid #b91c1c;">
     <a href="${siteUrl}" style="display: inline-block;">
-      <img src="${siteUrl}/spartan-logo-email.png" alt="Spartan Coaching" width="220" style="max-width: 220px; height: auto; display: block; margin: 0 auto;" />
+      <img src="${siteUrl}/spartan-stamp-email.png" alt="Spartan Coaching" width="200" style="max-width: 200px; height: auto; display: block; margin: 0 auto;" />
     </a>
   </div>`;
 }
