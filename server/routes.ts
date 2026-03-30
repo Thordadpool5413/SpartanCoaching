@@ -266,9 +266,8 @@ Keep it under 100 words and use a warm, professional tone.`;
       
       storage.trackEvent({ eventType: "contact_form_submission", eventName: "inquiry" }).catch(() => {});
       
-      sendInquiryNotification(inquiryData).catch(err => 
-        console.error("Failed to send inquiry notification:", err)
-      );
+      const inquirySent = await sendInquiryNotification(inquiryData);
+      if (!inquirySent) console.error("Inquiry notification email failed for", inquiryData.email);
       
       console.log("New inquiry received:", inquiry);
       
@@ -315,18 +314,15 @@ Keep it under 100 words and use a warm, professional tone.`;
         return res.status(400).json({ error: "Failed to subscribe to newsletter" });
       }
       
-      sendNewsletterConfirmation(subscriberData.email).catch(err => 
-        console.error("Failed to send newsletter confirmation:", err)
-      );
-      sendNewsletterNotification(subscriberData.email).catch(err =>
-        console.error("Failed to send newsletter notification:", err)
-      );
-      sendDripDay3(subscriberData.email).catch(err =>
-        console.error("Drip day 3 failed:", err)
-      );
-      sendDripDay7(subscriberData.email).catch(err =>
-        console.error("Drip day 7 failed:", err)
-      );
+      const [confirmSent, notifySent] = await Promise.all([
+        sendNewsletterConfirmation(subscriberData.email).catch(err => { console.error("Newsletter confirmation failed:", err); return false; }),
+        sendNewsletterNotification(subscriberData.email).catch(err => { console.error("Newsletter notification failed:", err); return false; }),
+      ]);
+      if (!confirmSent) console.error("Newsletter confirmation email failed for", subscriberData.email);
+      if (!notifySent) console.error("Newsletter admin notification failed for", subscriberData.email);
+
+      sendDripDay3(subscriberData.email).catch(err => console.error("Drip day 3 failed:", err));
+      sendDripDay7(subscriberData.email).catch(err => console.error("Drip day 7 failed:", err));
       
       console.log("Newsletter subscriber:", subscriber);
       
@@ -627,9 +623,8 @@ Subject: [subject line]
       const leadData = insertResourceLeadSchema.parse(req.body);
       const isNew = await storage.isNewResourceLeadEmail(leadData.email);
       const lead = await storage.captureResourceLead(leadData);
-      sendResourceLeadNotification(leadData.name, leadData.email, leadData.resourceTitle, isNew).catch(err =>
-        console.error("Failed to send resource lead notification:", err)
-      );
+      const leadSent = await sendResourceLeadNotification(leadData.name, leadData.email, leadData.resourceTitle, isNew);
+      if (!leadSent) console.error("Resource lead notification failed for", leadData.email);
       res.json({ success: true, lead });
     } catch (error: any) {
       if (error.name === "ZodError") {
@@ -2402,27 +2397,29 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
       const { sendAssessmentConfirmation, sendSubmissionResultsToNick } = await import("./resend");
       const aiScoringFailed = aiFeedback === "AI scoring was unavailable. Please review scenario responses manually.";
 
-      sendAssessmentConfirmation(
-        candidateEmail,
-        candidateName,
-        assessment.name,
-        overallScore,
-        quizScore,
-        aiScore,
-        aiFeedback
-      ).catch(err => console.error("Failed to send assessment confirmation email:", err));
+      await Promise.all([
+        sendAssessmentConfirmation(
+          candidateEmail,
+          candidateName,
+          assessment.name,
+          overallScore,
+          quizScore,
+          aiScore,
+          aiFeedback
+        ).catch(err => console.error("Failed to send assessment confirmation email:", err)),
 
-      sendSubmissionResultsToNick(
-        updated.id,
-        candidateName,
-        candidateEmail,
-        assessment.name,
-        overallScore,
-        quizScore,
-        aiScore,
-        aiFeedback || null,
-        aiScoringFailed
-      ).catch(err => console.error("Failed to send admin notification email:", err));
+        sendSubmissionResultsToNick(
+          updated.id,
+          candidateName,
+          candidateEmail,
+          assessment.name,
+          overallScore,
+          quizScore,
+          aiScore,
+          aiFeedback || null,
+          aiScoringFailed
+        ).catch(err => console.error("Failed to send admin notification email:", err)),
+      ]);
 
       res.json({
         submission: updated,
