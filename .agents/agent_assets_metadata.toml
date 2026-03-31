@@ -36,3 +36,9 @@ id = "_zUE6u9wcnQToFeUYocix"
 uri = "file://public/resources/branch-profitability-education.pdf"
 type = "pdf"
 title = "Why Your Census Number Is Not Arbitrary - v7.0"
+
+[[outputs]]
+id = "mGkJopUliJdyZhQE2c8on"
+uri = "file://public/resources/spartan-coaching-introduction.pdf"
+type = "pdf"
+title = "Spartan Coaching - Introduction Document"
