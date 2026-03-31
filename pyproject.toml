@@ -6,4 +6,5 @@ requires-python = ">=3.11"
 dependencies = [
     "pypdf>=6.7.5",
     "reportlab>=4.4.10",
+    "weasyprint>=68.1",
 ]
