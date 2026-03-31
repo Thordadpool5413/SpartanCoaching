@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { CheckIcon } from "@/components/icons";
 import { BackButton } from "@/components/BackButton";
-import { Users, Building2, UserCheck, ClipboardList, MessageCircleQuestion, ArrowRight, X, Shield } from "lucide-react";
+import { Users, Building2, UserCheck, ClipboardList, MessageCircleQuestion, ArrowRight, X, Shield, MonitorSmartphone } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
@@ -157,6 +157,54 @@ export default function Services() {
     },
   ];
 
+  const techServices = [
+    {
+      title: "Custom CRM Development",
+      duration: "6-12 weeks",
+      price: "Custom pricing",
+      problem: "Generic CRMs are built for sales teams that sell products, not hospice liaisons managing relationships with physicians, facilities, and families. You're forcing a tool that doesn't fit your workflow, and it's costing you visibility.",
+      solution: "Get a CRM built specifically for hospice sales operations. Track referral relationships, physician outreach cadences, facility account history, and census impact in one system designed around how hospice liaisons actually work.",
+      includes: [
+        "Discovery and workflow mapping with your team",
+        "Custom fields, pipelines, and dashboards for hospice-specific data",
+        "Referral source tracking by account type and diagnosis",
+        "Integration with existing EMR or reporting tools where possible",
+        "Training and documentation for your team",
+      ],
+      outcome: "Your team stops working around their tools and starts working with them. Better data means better decisions, more consistent follow-through, and fewer referral opportunities that fall through the cracks.",
+    },
+    {
+      title: "iOS App Development",
+      duration: "8-16 weeks",
+      price: "Custom pricing",
+      problem: "Your liaisons are in the field all day with no reliable way to log visits, update account status, or access patient eligibility information in real time. Field work happens on paper or memory and critical data gets lost.",
+      solution: "Put a purpose-built iOS app in the hands of every field liaison. Log visits, update referral source notes, track follow-up commitments, and access territory intelligence from any location, all built around the specific workflows of your organization.",
+      includes: [
+        "iOS native app built for iPhone and iPad",
+        "Offline mode for areas with limited connectivity",
+        "Real-time sync with your CRM or backend system",
+        "Visit logging, account notes, and follow-up scheduling",
+        "App Store submission and deployment support",
+      ],
+      outcome: "Your liaisons capture better data in the field, follow through on more commitments, and spend less time on administrative catch-up. The organization gets real-time visibility into field activity without adding reporting burden.",
+    },
+    {
+      title: "Custom Website Development",
+      duration: "4-8 weeks",
+      price: "Custom pricing",
+      problem: "Your website looks like a template. It does not reflect your organization's culture, differentiate your care model, or give referral sources and families a clear reason to choose you over a competitor two miles away.",
+      solution: "Build a website that works for your hospice organization specifically. One that speaks to your referral sources, communicates your care philosophy, and makes it easy for families in crisis to take the next step without confusion.",
+      includes: [
+        "Discovery session to understand your market, brand, and referral source audience",
+        "Custom design aligned with your organization's identity",
+        "Referral source portal or intake flow (if needed)",
+        "Mobile-optimized and fast-loading on all devices",
+        "SEO foundation targeting your service areas and diagnosis categories",
+      ],
+      outcome: "A website that does actual work. Referral sources who visit understand what makes you different. Families in need find a clear path to care. Your digital presence stops being a liability and starts generating inbound interest.",
+    },
+  ];
+
   return (
     <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
       <SEO />
@@ -179,6 +227,7 @@ export default function Services() {
           { id: "individual", label: "Individual Rep", icon: UserCheck },
           { id: "leadership", label: "Sales Leader", icon: Users },
           { id: "corporate", label: "Corporate Provider", icon: Building2 },
+          { id: "technology", label: "Technology Solutions", icon: MonitorSmartphone },
         ].map(({ id, label, icon: Icon }) => (
           <Button
             key={id}
@@ -399,6 +448,77 @@ export default function Services() {
           ))}
         </div>
       </div>
+
+      {/* Technology Solutions Section */}
+      <div id="technology" className="space-y-8 md:space-y-12 lg:space-y-16 scroll-mt-24">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mt-16 mb-10">
+          <div className="w-16 h-16 rounded-2xl bg-spartan-gradient flex items-center justify-center shadow-2xl flex-shrink-0">
+            <MonitorSmartphone className="w-8 h-8 text-white" />
+          </div>
+          <div>
+            <h2 className="text-h2 text-foreground mb-1">Technology Solutions</h2>
+            <p className="text-body text-muted-foreground">Custom-built tools designed specifically for hospice providers.</p>
+          </div>
+        </div>
+
+        <div className="bg-accent/20 rounded-xl p-5 border border-border mb-2">
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Off-the-shelf software is built for generic sales teams. Hospice operations have specific workflows, compliance requirements, and relationship dynamics that generic tools don't account for. These engagements deliver purpose-built technology that fits your organization, not the other way around.
+          </p>
+        </div>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards">
+          {techServices.map((service, idx) => (
+            <Card key={idx} className="flex flex-col border-2 group relative spacing-card shadow-lg" data-testid={`card-technology-${idx}`}>
+              <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
+              <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-radial from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-2xl"></div>
+              <div className="flex-1 relative">
+                <h3 className="text-h3 font-bold text-foreground mb-3">{service.title}</h3>
+                <div className="flex items-baseline gap-3 mb-6">
+                  <p className="text-3xl font-black text-primary">{service.price}</p>
+                  <p className="text-sm text-muted-foreground">{service.duration}</p>
+                </div>
+
+                <div className="mb-4">
+                  <p className="text-sm font-semibold text-foreground mb-2">The Problem:</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{service.problem}</p>
+                </div>
+
+                <div className="mb-4">
+                  <p className="text-sm font-semibold text-foreground mb-2">The Solution:</p>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{service.solution}</p>
+                </div>
+
+                <div className="mb-6">
+                  <p className="text-sm font-semibold text-foreground mb-3">What's Included:</p>
+                  <ul className="space-y-2">
+                    {service.includes.map((item, iIdx) => (
+                      <li key={iIdx} className="flex items-start gap-2">
+                        <CheckIcon className="w-4 h-4 text-primary flex-shrink-0 mt-0.5" />
+                        <span className="text-sm text-foreground">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+
+                <div className="bg-accent/30 rounded-lg p-4 mb-6">
+                  <p className="text-sm font-semibold text-foreground mb-2">Outcome:</p>
+                  <p className="text-sm text-muted-foreground">{service.outcome}</p>
+                </div>
+              </div>
+              <div className="relative">
+                <Button size="sm" asChild className="w-full font-bold" data-testid={`button-get-started-technology-${idx}`}>
+                  <Link href={`/contact?service=${encodeURIComponent(service.title)}`}>
+                    <span>Get Started</span>
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
+                </Button>
+              </div>
+            </Card>
+          ))}
+        </div>
+      </div>
+
       {/* What This Is All For */}
       <div className="bg-gray-950 rounded-3xl p-10 md:p-16 text-center mt-16">
         <h2 className="text-h2 font-black text-white mb-6">What This Is All For</h2>

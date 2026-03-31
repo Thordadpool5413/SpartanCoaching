@@ -6,7 +6,7 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DisciplineIcon, EmpathyIcon, StrategyIcon } from "@/components/icons";
-import { Shield, Heart, Zap, Target, Users, BookOpen, ArrowRight, Sparkles, Lightbulb, MessageCircle, Search, Mail, Flame, Stethoscope, Brain, Briefcase, CheckCircle, AlertCircle, Mic, TrendingUp, Building2, Clock } from "lucide-react";
+import { Shield, Heart, Zap, Target, Users, BookOpen, ArrowRight, Sparkles, Lightbulb, MessageCircle, Search, Mail, Flame, Stethoscope, Brain, Briefcase, CheckCircle, AlertCircle, Mic, TrendingUp, Building2, Clock, MonitorSmartphone } from "lucide-react";
 import { SiLinkedin } from "react-icons/si";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { SEO } from "@/components/SEO";
@@ -600,15 +600,15 @@ export default function Home() {
             <div className="text-center mb-14">
               <p className="text-sm font-bold tracking-widest text-red-400 uppercase mb-4">Services & Pricing</p>
               <h2 className="text-h2 font-bold text-white mb-4" data-testid="text-services-preview-title">
-                Coaching for Every Level of the Organization
+                Built for Every Level of the Organization
               </h2>
               <p className="text-body-lg text-white/65 max-w-2xl mx-auto">
-                Whether you are an individual rep, a sales director, or a multi-market operator — there is a structured engagement built for your situation.
+                Whether you are an individual rep, a sales director, a multi-market operator, or a hospice provider who needs purpose-built technology — there is an engagement built for your situation.
               </p>
             </div>
           </FadeIn>
 
-          <StaggerContainer className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
             {[
               {
                 icon: Users,
@@ -630,6 +630,13 @@ export default function Home() {
                 price: "Custom pricing",
                 desc: "Market analysis, system implementation, and executive consulting. Scale execution across markets and make growth predictable and repeatable.",
                 href: "/services#corporate",
+              },
+              {
+                icon: MonitorSmartphone,
+                label: "Technology Solutions",
+                price: "Custom pricing",
+                desc: "Custom CRMs, iOS apps, and websites built specifically for hospice providers. Purpose-built tools that fit how your organization actually works.",
+                href: "/services#technology",
               },
             ].map((tier, index) => {
               const IconComponent = tier.icon;

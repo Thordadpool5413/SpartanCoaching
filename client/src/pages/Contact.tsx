@@ -434,6 +434,9 @@ export default function Contact() {
                                 <SelectItem value="Sales Leadership Development">Sales Leadership Development</SelectItem>
                                 <SelectItem value="Corporate Consulting">Corporate Consulting</SelectItem>
                                 <SelectItem value="Territory Strategy">Territory Strategy</SelectItem>
+                                <SelectItem value="Custom CRM Development">Custom CRM Development</SelectItem>
+                                <SelectItem value="iOS App Development">iOS App Development</SelectItem>
+                                <SelectItem value="Custom Website Development">Custom Website Development</SelectItem>
                                 <SelectItem value="HIPAA BAA Request">HIPAA BAA Request</SelectItem>
                                 <SelectItem value="Other">Other</SelectItem>
                               </SelectContent>
