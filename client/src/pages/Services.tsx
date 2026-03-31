@@ -160,7 +160,6 @@ export default function Services() {
   const techServices = [
     {
       title: "Custom CRM Development",
-      duration: "6-12 weeks",
       price: "Custom pricing",
       problem: "Generic CRMs are built for sales teams that sell products, not hospice liaisons managing relationships with physicians, facilities, and families. You're forcing a tool that doesn't fit your workflow, and it's costing you visibility.",
       solution: "Get a CRM built specifically for hospice sales operations. Track referral relationships, physician outreach cadences, facility account history, and census impact in one system designed around how hospice liaisons actually work.",
@@ -175,7 +174,6 @@ export default function Services() {
     },
     {
       title: "iOS App Development",
-      duration: "8-16 weeks",
       price: "Custom pricing",
       problem: "Your liaisons are in the field all day with no reliable way to log visits, update account status, or access patient eligibility information in real time. Field work happens on paper or memory and critical data gets lost.",
       solution: "Put a purpose-built iOS app in the hands of every field liaison. Log visits, update referral source notes, track follow-up commitments, and access territory intelligence from any location, all built around the specific workflows of your organization.",
@@ -190,7 +188,6 @@ export default function Services() {
     },
     {
       title: "Custom Website Development",
-      duration: "4-8 weeks",
       price: "Custom pricing",
       problem: "Your website looks like a template. It does not reflect your organization's culture, differentiate your care model, or give referral sources and families a clear reason to choose you over a competitor two miles away.",
       solution: "Build a website that works for your hospice organization specifically. One that speaks to your referral sources, communicates your care philosophy, and makes it easy for families in crisis to take the next step without confusion.",
@@ -474,10 +471,7 @@ export default function Services() {
               <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-radial from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-2xl"></div>
               <div className="flex-1 relative">
                 <h3 className="text-h3 font-bold text-foreground mb-3">{service.title}</h3>
-                <div className="flex items-baseline gap-3 mb-6">
-                  <p className="text-3xl font-black text-primary">{service.price}</p>
-                  <p className="text-sm text-muted-foreground">{service.duration}</p>
-                </div>
+                <p className="text-3xl font-black text-primary mb-6">{service.price}</p>
 
                 <div className="mb-4">
                   <p className="text-sm font-semibold text-foreground mb-2">The Problem:</p>
