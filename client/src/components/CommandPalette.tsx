@@ -69,6 +69,8 @@ const commandItems = [
       { title: "Role-Play Practice", path: "/tools/role-play", icon: Users },
       { title: "ROI Calculator", path: "/tools/roi-calculator", icon: Calculator },
       { title: "Activity Calculator", path: "/tools/activity-calculator", icon: Calculator },
+      { title: "Branch Profitability Simulator", path: "/tools/branch-profitability", icon: Calculator },
+      { title: "Weekly Plan Builder", path: "/tools/weekly-plan-builder", icon: Lightbulb },
     ],
   },
   {
@@ -105,7 +107,7 @@ export function CommandPalette() {
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === "k") {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setOpen((prev) => !prev);
       }
