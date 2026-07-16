@@ -65,6 +65,13 @@ export default function Tools() {
       category: "Planning",
     },
     {
+      title: "Rep Cost Calculator",
+      description: "Model the fully loaded cost of a hospice sales rep by call, referral, and admitted patient. Includes commission tiers, conversion loss, annual totals, and a polished printable report.",
+      icon: <DollarSign className="w-8 h-8" />,
+      path: "/tools/rep-cost-calculator",
+      category: "Planning",
+    },
+    {
       title: "ROI Calculator",
       description: "Estimate the revenue impact of consistent coaching. Enter your current admissions, conversion rates, and average revenue per patient to see the financial opportunity of closing the performance gap.",
       icon: <TrendingUp className="w-8 h-8" />,
