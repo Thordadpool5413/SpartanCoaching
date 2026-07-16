@@ -27,6 +27,7 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { FadeIn } from "@/components/animations";
 import { SEO } from "@/components/SEO";
+import { Link } from "wouter";
 import { CheckCircle, Loader2, Mail, ChevronLeft, ChevronRight, X, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 

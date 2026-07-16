@@ -8,10 +8,14 @@ import {
   lightAiLimit,
   outboundEmailLimit,
   globalDailyAiCap,
+  globalDailyEmailCap,
   getAiUsageToday,
 } from "./rateLimits";
 
 import path from "path";
+import { and, eq, gt, lt } from "drizzle-orm";
+import { db } from "./db";
+import { objectUploadTokens } from "@shared/schema";
 import { storage } from "./storage";
 import {
   generateComplexResponse,
@@ -70,7 +74,6 @@ export async function deferredInit(app: Express): Promise<void> {
 }
 
 export function registerRoutes(app: Express): void {
-  const localUploadTokens = new Map<string, number>();
   // Serve training resources files (PDFs, etc.)
   // Uses /resources/files path to avoid conflict with frontend /resources route
   // In development: ./public/resources (from project root)
@@ -1300,7 +1303,9 @@ Build a specific Monday–Friday territory plan for this week.`;
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
       const localUploadId = uploadURL.match(/^\/api\/objects\/upload\/([0-9a-f-]{36})$/i)?.[1];
       if (localUploadId) {
-        localUploadTokens.set(localUploadId, Date.now() + 15 * 60 * 1000);
+        const now = new Date();
+        await db.delete(objectUploadTokens).where(lt(objectUploadTokens.expiresAt, now));
+        await db.insert(objectUploadTokens).values({ token: localUploadId, expiresAt: new Date(now.getTime() + 15 * 60 * 1000) });
       }
       res.json({ uploadURL });
     } catch (error: any) {
@@ -1313,9 +1318,11 @@ Build a specific Monday–Friday territory plan for this week.`;
   // is intentionally unguessable and is valid only for a single object upload.
   app.put("/api/objects/upload/:objectId", express.raw({ type: "*/*", limit: "100mb" }), async (req, res) => {
     try {
-      const expiresAt = localUploadTokens.get(req.params.objectId);
-      localUploadTokens.delete(req.params.objectId);
-      if (!expiresAt || expiresAt < Date.now()) {
+      const [uploadToken] = await db
+        .delete(objectUploadTokens)
+        .where(and(eq(objectUploadTokens.token, req.params.objectId), gt(objectUploadTokens.expiresAt, new Date())))
+        .returning({ token: objectUploadTokens.token });
+      if (!uploadToken) {
         return res.status(404).json({ error: "Upload URL expired or not found" });
       }
       const objectStorageService = new ObjectStorageService();
@@ -1476,7 +1483,7 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   // ===== SEND EMAIL ROUTE =====
 
-  app.post("/api/send-email", outboundEmailLimit, globalDailyAiCap, async (req, res) => {
+  app.post("/api/send-email", outboundEmailLimit, globalDailyEmailCap, async (req, res) => {
     try {
       const { to, subject, body } = sendEmailRequestSchema.parse(req.body);
       const success = await sendGeneratedEmail(to, subject, body);
@@ -1956,7 +1963,7 @@ The single most important skill to work on before the next conversation.`,
     }
   });
 
-  app.post("/api/pdf/email", outboundEmailLimit, globalDailyAiCap, async (req, res) => {
+  app.post("/api/pdf/email", outboundEmailLimit, globalDailyEmailCap, async (req, res) => {
     const { email, name, title, filename, subtitle, sections } = req.body;
     if (!email || !name || !title || !Array.isArray(sections)) {
       return res.status(400).json({ error: "email, name, title, and sections are required" });

@@ -478,7 +478,7 @@ export default function Assessment({ overrideAssessmentId, clientBranding }: Ass
                       ? "border-primary bg-primary/5 ring-1 ring-primary"
                       : "border-border hover-elevate"
                   )}
-                  style={currentAnswer === option && clientBranding?.accentColor ? { borderColor: clientBranding.accentColor, ringColor: clientBranding.accentColor, boxShadow: `0 0 0 1px ${clientBranding.accentColor}` } : {}}
+                  style={currentAnswer === option && clientBranding?.accentColor ? { borderColor: clientBranding.accentColor, boxShadow: `0 0 0 1px ${clientBranding.accentColor}` } : {}}
                   data-testid={`option-${idx}`}
                 >
                   <div className="flex items-start gap-3">

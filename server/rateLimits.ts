@@ -1,7 +1,7 @@
 import rateLimit from "express-rate-limit";
 import { sql } from "drizzle-orm";
 import { db } from "./db";
-import { aiUsageDaily } from "@shared/schema";
+import { aiUsageDaily, emailUsageDaily } from "@shared/schema";
 
 const rateLimitHandler = (_req: any, res: any) => {
   res.status(429).json({ error: "Too many requests. Please wait and try again." });
@@ -58,6 +58,7 @@ export const outboundEmailLimit = rateLimit({
 });
 
 const GLOBAL_DAILY_CAP = 300;
+const GLOBAL_DAILY_EMAIL_CAP = 100;
 
 function getTodayStr() {
   return new Date().toISOString().slice(0, 10);
@@ -71,18 +72,53 @@ export async function getAiUsageToday() {
 
 export async function globalDailyAiCap(_req: any, res: any, next: any) {
   try {
-    const date = getTodayStr();
-    const [usage] = await db
-      .insert(aiUsageDaily)
-      .values({ date, count: 1 })
-      .onConflictDoUpdate({ target: aiUsageDaily.date, set: { count: sql`${aiUsageDaily.count} + 1` } })
-      .returning({ count: aiUsageDaily.count });
-    if (usage.count > GLOBAL_DAILY_CAP) {
+    const usage = await getAiUsageToday();
+    if (usage.count >= GLOBAL_DAILY_CAP) {
       return res.status(429).json({ error: "Daily AI limit reached. Please try again tomorrow." });
     }
+    res.once("finish", () => {
+      if (res.statusCode < 400) {
+        incrementAiUsage().catch((error) => console.error("AI usage accounting failed:", error));
+      }
+    });
     next();
   } catch (error) {
     console.error("AI daily cap check failed:", error);
     res.status(503).json({ error: "AI tools are temporarily unavailable." });
   }
+}
+
+export async function globalDailyEmailCap(_req: any, res: any, next: any) {
+  try {
+    const date = getTodayStr();
+    const [usage] = await db.select().from(emailUsageDaily).where(sql`${emailUsageDaily.date} = ${date}`);
+    if ((usage?.count ?? 0) >= GLOBAL_DAILY_EMAIL_CAP) {
+      return res.status(429).json({ error: "Daily email limit reached. Please try again tomorrow." });
+    }
+    res.once("finish", () => {
+      if (res.statusCode < 400) {
+        incrementEmailUsage().catch((error) => console.error("Email usage accounting failed:", error));
+      }
+    });
+    next();
+  } catch (error) {
+    console.error("Email daily cap check failed:", error);
+    res.status(503).json({ error: "Email tools are temporarily unavailable." });
+  }
+}
+
+async function incrementAiUsage() {
+  const date = getTodayStr();
+  await db
+    .insert(aiUsageDaily)
+    .values({ date, count: 1 })
+    .onConflictDoUpdate({ target: aiUsageDaily.date, set: { count: sql`${aiUsageDaily.count} + 1` } });
+}
+
+async function incrementEmailUsage() {
+  const date = getTodayStr();
+  await db
+    .insert(emailUsageDaily)
+    .values({ date, count: 1 })
+    .onConflictDoUpdate({ target: emailUsageDaily.date, set: { count: sql`${emailUsageDaily.count} + 1` } });
 }
