@@ -1,0 +1,28 @@
+client/src/pages/RepCostCalculator.tsx
+  s_52fcc495a2b817::t_718d3a684fc1b8 2-88,90-96,98-106,108-163,168-188,190-205,216-303,305-321,325-338,340-369,371-377,379-426,428-433
+  s_52fcc495a2b817::t_e581ad9bfd7656 1,427
+  s_52fcc495a2b817::t_a2d0f6d54d93b8 89,97,107,206-215,304
+  s_52fcc495a2b817::t_0494c9d3b8a78b 164-167,189,322-324,339
+  s_52fcc495a2b817::t_44ed7f1822fedd 370,378
+client/src/App.tsx
+  s_52fcc495a2b817::t_718d3a684fc1b8 44,69-72,142,179
+client/src/pages/Tools.tsx
+  s_52fcc495a2b817::t_718d3a684fc1b8 68-73
+  s_52fcc495a2b817::t_16186a0e0744b4 67
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "ac2ae93f2b7a8c2b47e6bd96bc6fa8efd3a252cf",
+  "prompts": {},
+  "sessions": {
+    "s_52fcc495a2b817": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e0583-a329-7f31-9019-739c34b7ed5d",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
