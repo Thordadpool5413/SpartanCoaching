@@ -1,0 +1,47 @@
+README.md
+  s_52fcc495a2b817::t_264948b4e51100 1-20,27-38
+  s_52fcc495a2b817::t_9b052f4957cbe2 21-26
+server/objectStorage.ts
+  s_52fcc495a2b817::t_9c50682c91d31c 2,4-5,15-17,27,34-36,44-49,51-57,59,61-63,65-67,69-71,74-76,78-82,86-90,92-95,98-102,104-113,115-119,121-125,127,131-135,137-144,147-150,152-156,158-162,166-167,171-177,179
+shared/repCostCalculator.ts
+  s_52fcc495a2b817::t_264948b4e51100 1-40
+server/rateLimits.ts
+  s_52fcc495a2b817::t_7d98af01e4a002 2-4
+  s_52fcc495a2b817::t_7cbfd4f7cab8b9 50-58,60,66-69,72-86
+server/routes.ts
+  s_52fcc495a2b817::t_7d98af01e4a002 9
+  s_52fcc495a2b817::t_e29d40f8065a03 73,117,250,1281-1287,1301-1304,1312-1333,1479,1959
+tests/repCostCalculator.test.ts
+  s_52fcc495a2b817::t_f194816f3f3437 15-17
+  s_52fcc495a2b817::t_264948b4e51100 1-14,18-28
+.github/workflows/ci.yml
+  s_52fcc495a2b817::t_264948b4e51100 1-19
+.gitignore
+  s_52fcc495a2b817::t_81fe225889f503 6-10
+client/src/pages/RepCostCalculator.tsx
+  s_52fcc495a2b817::t_22d1f50287dbeb 12,47,146
+client/src/pages/Tools.tsx
+  s_52fcc495a2b817::t_48b1a6df3b0458 3
+package.json
+  s_52fcc495a2b817::t_98fc3133bbcbeb 11
+server/index.ts
+  s_52fcc495a2b817::t_e85dc8a2820739 72,75
+shared/schema.ts
+  s_52fcc495a2b817::t_656e84d3fb2139 182-187
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.14",
+  "base_commit_sha": "25f4a230eff414529c2a61a2c29ce5c96e0cc078",
+  "prompts": {},
+  "sessions": {
+    "s_52fcc495a2b817": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019e0583-a329-7f31-9019-739c34b7ed5d",
+        "model": "gpt-5.6-terra"
+      },
+      "human_author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
