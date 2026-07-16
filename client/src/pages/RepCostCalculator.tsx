@@ -9,6 +9,7 @@ import { FadeIn, SlideUp } from "@/components/animations";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import type { EmailPdfPayload } from "@/lib/downloadPdf";
+import { calculateRepCost, MILEAGE_RATE } from "@shared/repCostCalculator";
 import {
   Activity,
   Calculator,
@@ -43,7 +44,7 @@ type CommissionTier = {
   rate: number;
 };
 
-const mileageRate = 0.67;
+const mileageRate = MILEAGE_RATE;
 
 const initialInputs: CalculatorInputs = {
   baseSalary: 90000,
@@ -142,55 +143,7 @@ export default function RepCostCalculator() {
   const [tiers, setTiers] = useState<CommissionTier[]>(initialTiers);
   const { capture, gateState } = useLeadGate("Hospice Rep Cost Calculator");
 
-  const result = useMemo(() => {
-    const annualCalls = inputs.callsPerDay * inputs.workingDaysPerMonth * 12;
-    const monthlyCalls = inputs.callsPerDay * inputs.workingDaysPerMonth;
-    const monthlyReferrals = inputs.callsPerReferral > 0 ? monthlyCalls / inputs.callsPerReferral : 0;
-    const annualReferrals = monthlyReferrals * 12;
-    const monthlyAdmissions = monthlyReferrals * (inputs.conversionRate / 100);
-    const annualAdmissions = monthlyAdmissions * 12;
-    const monthlyLostAdmissions = Math.max(0, monthlyReferrals - monthlyAdmissions);
-    const annualLostAdmissions = monthlyLostAdmissions * 12;
-    const benefitsAndFixed =
-      inputs.baseSalary * (inputs.benefitsLoad / 100) +
-      inputs.annualMileage * mileageRate +
-      inputs.otherFixedCosts;
-    const fixedCost = inputs.baseSalary + benefitsAndFixed;
-    const activeTier =
-      tiers.find((tier) => monthlyAdmissions >= tier.min && monthlyAdmissions <= tier.max) ?? tiers[0];
-    const monthlyCommission = monthlyAdmissions * activeTier.rate;
-    const annualCommission = monthlyCommission * 12;
-    const totalRepCost = fixedCost + annualCommission;
-    const costPerCall = annualCalls > 0 ? fixedCost / annualCalls : 0;
-    const costPerReferral = annualReferrals > 0 ? fixedCost / annualReferrals : 0;
-    const costPerAdmit = annualAdmissions > 0 ? fixedCost / annualAdmissions : 0;
-    const blendedCostPerAdmit = annualAdmissions > 0 ? totalRepCost / annualAdmissions : 0;
-    const monthlyConversionLoss = monthlyLostAdmissions * costPerReferral;
-    const annualConversionLoss = annualLostAdmissions * costPerReferral;
-
-    return {
-      annualCalls,
-      monthlyCalls,
-      monthlyReferrals,
-      annualReferrals,
-      monthlyAdmissions,
-      annualAdmissions,
-      monthlyLostAdmissions,
-      annualLostAdmissions,
-      benefitsAndFixed,
-      fixedCost,
-      activeTier,
-      monthlyCommission,
-      annualCommission,
-      totalRepCost,
-      costPerCall,
-      costPerReferral,
-      costPerAdmit,
-      blendedCostPerAdmit,
-      monthlyConversionLoss,
-      annualConversionLoss,
-    };
-  }, [inputs, tiers]);
+  const result = useMemo(() => calculateRepCost(inputs, tiers), [inputs, tiers]);
 
   const updateInput = (key: keyof CalculatorInputs, value: number) => {
     setInputs((current) => ({ ...current, [key]: value }));

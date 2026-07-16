@@ -179,6 +179,12 @@ export const usageEvents = pgTable("usage_events", {
   createdAt: timestamp("created_at").defaultNow(),
 });
 
+// Shared daily quota so AI spend remains capped across restarts and instances.
+export const aiUsageDaily = pgTable("ai_usage_daily", {
+  date: varchar("date", { length: 10 }).primaryKey(),
+  count: integer("count").notNull().default(0),
+});
+
 export const insertUsageEventSchema = createInsertSchema(usageEvents).omit({ id: true, createdAt: true });
 export type InsertUsageEvent = z.infer<typeof insertUsageEventSchema>;
 export type SelectUsageEvent = typeof usageEvents.$inferSelect;

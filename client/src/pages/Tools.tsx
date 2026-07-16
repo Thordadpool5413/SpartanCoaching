@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { LightbulbIcon, SearchIcon as CustomSearchIcon, ChatIcon, MicrophoneIcon } from "@/components/icons";
-import { Mail, Users, Search, ArrowRight, Calculator, TrendingUp, Building, Phone, CalendarDays } from "lucide-react";
+import { Mail, Users, Search, ArrowRight, Calculator, DollarSign, TrendingUp, Building, Phone, CalendarDays } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/BackButton";
