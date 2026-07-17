@@ -69,10 +69,10 @@ async function main() {
   });
 
   // STEP 5: Force a cache-bust redirect so browsers with stale HTML re-fetch fresh markup.
-  // Any request to "/" without a build version query param gets redirected to "/?v=20260226".
+  // Deployments may set BUILD_VERSION to a commit SHA or release identifier.
   // Since browsers have never cached that versioned URL, they fetch fresh HTML, get the
   // no-cache headers below, and will always revalidate on future visits.
-  const BUILD_VERSION = "20260226";
+  const BUILD_VERSION = process.env.BUILD_VERSION || "dev";
   app.get("/", (req, res, next) => {
     if (!req.query.v) {
       return res.redirect(302, `/?v=${BUILD_VERSION}`);
