@@ -1,0 +1,54 @@
+{
+  "name": "Spartan Coaching - Hospice Sales Training",
+  "short_name": "Spartan",
+  "description": "AI-enhanced hospice sales training platform. Master discipline, empathy, and strategy with expert coaching tools and playbooks.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#dc2626",
+  "orientation": "any",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/spartan-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "categories": ["business", "education", "productivity"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "AI Field Kit",
+      "short_name": "AI Kit",
+      "description": "Access AI coaching tools",
+      "url": "/tools",
+      "icons": [
+        {
+          "src": "/icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
+  ],
+  "prefer_related_applications": false
+}

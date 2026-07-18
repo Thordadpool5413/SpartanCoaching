@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="description" content="Elite coaching for hospice sales professionals. Master discipline, empathy, and strategy with AI-powered tools, playbooks, and expert guidance to transform your career." />
+    <meta name="keywords" content="hospice sales, healthcare sales coaching, sales training, AI coaching tools, hospice referrals, healthcare sales strategy" />
+    
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Spartan Coaching - Expert Hospice Sales Training" />
+    <meta property="og:description" content="Elite coaching for hospice sales professionals. Master discipline, empathy, and strategy to transform your career." />
+    <meta property="og:image" content="/og-image.png" />
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image" />
+    <meta property="twitter:title" content="Spartan Coaching - Expert Hospice Sales Training" />
+    <meta property="twitter:description" content="Elite coaching for hospice sales professionals. Master discipline, empathy, and strategy to transform your career." />
+    <meta property="twitter:image" content="/og-image.png" />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover, interactive-widget=resizes-content" />
+    <meta name="theme-color" content="#dc2626" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Spartan" />
+    <meta name="format-detection" content="telephone=no" />
+    
+    <link rel="manifest" href="/manifest.json" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon.png" />
+    
+    <meta name="HandheldFriendly" content="true" />
+    <meta name="MobileOptimized" content="width" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/uppy-core.css">
+    <link rel="stylesheet" href="/uppy-dashboard.css">
+    <title>Spartan Coaching - Expert Hospice Sales Training</title>
+  </head>
+  <body>
+    <script>
+      // Aggressively clear any stale service workers and caches on every load
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function(regs) {
+          regs.forEach(function(r) { r.unregister(); });
+        });
+        caches.keys().then(function(keys) {
+          keys.forEach(function(k) { caches.delete(k); });
+        });
+      }
+    </script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
