@@ -170,8 +170,16 @@ export default function HomeScreen() {
                     style={[styles.reminderTitle, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}
                     numberOfLines={1}
                   >
-                    {reminder.contact ? reminder.contact : reminder.title}
+                    {reminder.title}
                   </Text>
+                  {reminder.contact ? (
+                    <Text
+                      style={[styles.reminderContact, { color: colors.foreground, fontFamily: "Inter_500Medium" }]}
+                      numberOfLines={1}
+                    >
+                      {reminder.contact}
+                    </Text>
+                  ) : null}
                   <Text style={[styles.reminderMeta, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
                     {reminder.presetLabel} · {formatScheduledTime(reminder.scheduledFor)}
                   </Text>
@@ -395,7 +403,8 @@ const styles = StyleSheet.create({
     flexShrink: 0,
   },
   reminderContent: { flex: 1 },
-  reminderTitle: { fontSize: 14, marginBottom: 2 },
+  reminderTitle: { fontSize: 14, marginBottom: 1 },
+  reminderContact: { fontSize: 13, marginBottom: 2 },
   reminderMeta: { fontSize: 12 },
   inputRow: {
     flexDirection: "row",
