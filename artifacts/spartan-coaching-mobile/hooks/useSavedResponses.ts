@@ -12,6 +12,7 @@ export interface SavedResponse {
 }
 
 const STORAGE_KEY = "spartan_saved_responses";
+const MAX_PER_TOOL_TYPE = 20;
 
 function generateId(): string {
   return `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
@@ -49,7 +50,20 @@ export function useSavedResponses(toolType: ToolType) {
           response,
           savedAt: Date.now(),
         };
-        const updated = [newItem, ...all];
+        const withNew = [newItem, ...all];
+        const forThisType = withNew.filter((item) => item.toolType === toolType);
+        const evicted = forThisType.length > MAX_PER_TOOL_TYPE
+          ? new Set(
+              forThisType
+                .slice()
+                .sort((a, b) => a.savedAt - b.savedAt)
+                .slice(0, forThisType.length - MAX_PER_TOOL_TYPE)
+                .map((item) => item.id)
+            )
+          : null;
+        const updated = evicted
+          ? withNew.filter((item) => !evicted.has(item.id))
+          : withNew;
         await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
         setSavedItems(updated.filter((item) => item.toolType === toolType));
       } catch {
