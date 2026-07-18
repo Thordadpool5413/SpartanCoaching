@@ -28,7 +28,11 @@ const colors = {
     input: "#e0e0e0",
 
     heroBackground: "#050505",
-    heroCard: "rgba(255,255,255,0.06)",
+    heroForeground: "#ffffff",
+    heroMuted: "rgba(255,255,255,0.6)",
+    heroBadgeBg: "rgba(255,255,255,0.08)",
+    heroBadgeBorder: "rgba(255,255,255,0.2)",
+    heroBadgeText: "rgba(255,255,255,0.85)",
   },
 
   dark: {
@@ -60,7 +64,11 @@ const colors = {
     input: "#2a2a2a",
 
     heroBackground: "#050505",
-    heroCard: "rgba(255,255,255,0.06)",
+    heroForeground: "#ffffff",
+    heroMuted: "rgba(255,255,255,0.6)",
+    heroBadgeBg: "rgba(255,255,255,0.08)",
+    heroBadgeBorder: "rgba(255,255,255,0.2)",
+    heroBadgeText: "rgba(255,255,255,0.85)",
   },
 
   radius: 12,

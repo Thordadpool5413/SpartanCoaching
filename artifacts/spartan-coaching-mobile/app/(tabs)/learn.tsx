@@ -6,35 +6,51 @@ import {
   Pressable,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
+import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
-import { apiGet } from "@/lib/api";
+import { apiGet, apiPost } from "@/lib/api";
 
-type LearnTab = "articles" | "podcasts";
+type LearnTab = "articles" | "podcasts" | "resources";
 
 type Article = {
   id: number;
   title: string;
-  summary?: string;
-  content?: string;
-  author?: string;
-  publishedAt?: number;
-  category?: string;
+  summary?: string | null;
+  content?: string | null;
+  author?: string | null;
+  publishedAt?: number | null;
+  category?: string | null;
 };
 
 type Podcast = {
   id: number;
   title: string;
-  description?: string;
-  episode?: string;
-  duration?: string;
-  publishedAt?: number;
-  host?: string;
+  description?: string | null;
+  episode?: string | null;
+  duration?: string | null;
+  publishedAt?: number | null;
+  host?: string | null;
 };
+
+type Resource = {
+  id: number;
+  title: string;
+  description?: string | null;
+  fileUrl: string;
+  category?: string | null;
+};
+
+const LEARN_TABS: { key: LearnTab; label: string; icon: "file-text" | "mic" | "search" }[] = [
+  { key: "articles", label: "Articles", icon: "file-text" },
+  { key: "podcasts", label: "Podcasts", icon: "mic" },
+  { key: "resources", label: "Knowledge Base", icon: "search" },
+];
 
 export default function LearnScreen() {
   const colors = useColors();
@@ -43,6 +59,12 @@ export default function LearnScreen() {
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 90;
+
+  // Knowledge Base search state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResult, setSearchResult] = useState("");
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchError, setSearchError] = useState<string | null>(null);
 
   const { data: articles, isLoading: articlesLoading, error: articlesError, refetch: refetchArticles } =
     useQuery<Article[]>({
@@ -58,7 +80,35 @@ export default function LearnScreen() {
       enabled: activeTab === "podcasts",
     });
 
-  const formatDate = (ts?: number) => {
+  const { data: resourcesData, isLoading: resourcesLoading, error: resourcesError, refetch: refetchResources } =
+    useQuery<{ resources: Resource[] }>({
+      queryKey: ["resources"],
+      queryFn: () => apiGet<{ resources: Resource[] }>("/api/resources"),
+      enabled: activeTab === "resources",
+    });
+
+  const resources = resourcesData?.resources ?? [];
+
+  const handleSearch = async () => {
+    if (searchQuery.trim().length < 5) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setSearchLoading(true);
+    setSearchResult("");
+    setSearchError(null);
+    try {
+      const data = await apiPost<{ response: string }>("/api/research", {
+        query: searchQuery,
+        useGrounding: true,
+      });
+      setSearchResult(data.response);
+    } catch {
+      setSearchError("Could not complete the search. Please try again.");
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  const formatDate = (ts?: number | null) => {
     if (!ts) return "";
     return new Date(ts).toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
   };
@@ -71,36 +121,35 @@ export default function LearnScreen() {
           Learn
         </Text>
         <Text style={[styles.headerSubtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-          Articles, podcasts & resources
+          Articles, podcasts and knowledge base
         </Text>
       </View>
 
       {/* Tab bar */}
       <View style={[styles.tabBar, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
-        {(["articles", "podcasts"] as LearnTab[]).map((tab) => (
+        {LEARN_TABS.map((tab) => (
           <Pressable
-            key={tab}
-            onPress={() => setActiveTab(tab)}
+            key={tab.key}
+            onPress={() => setActiveTab(tab.key)}
             style={({ pressed }) => [
               styles.tabBtn,
-              activeTab === tab && { borderBottomColor: colors.primary },
+              activeTab === tab.key && { borderBottomColor: colors.primary },
               { opacity: pressed ? 0.75 : 1 },
             ]}
           >
             <Feather
-              name={tab === "articles" ? "file-text" : "mic"}
-              size={16}
-              color={activeTab === tab ? colors.primary : colors.mutedForeground}
+              name={tab.icon}
+              size={15}
+              color={activeTab === tab.key ? colors.primary : colors.mutedForeground}
             />
             <Text
               style={[
                 styles.tabLabel,
-                { color: activeTab === tab ? colors.primary : colors.mutedForeground },
-                { fontFamily: activeTab === tab ? "Inter_600SemiBold" : "Inter_400Regular" },
-                { textTransform: "capitalize" },
+                { color: activeTab === tab.key ? colors.primary : colors.mutedForeground },
+                { fontFamily: activeTab === tab.key ? "Inter_600SemiBold" : "Inter_400Regular" },
               ]}
             >
-              {tab}
+              {tab.label}
             </Text>
           </Pressable>
         ))}
@@ -109,22 +158,13 @@ export default function LearnScreen() {
       {/* Articles */}
       {activeTab === "articles" && (
         <>
-          {articlesLoading && (
-            <View style={styles.centered}>
-              <ActivityIndicator color={colors.primary} size="large" />
-            </View>
-          )}
+          {articlesLoading && <View style={styles.centered}><ActivityIndicator color={colors.primary} size="large" /></View>}
           {!!articlesError && (
             <View style={styles.centered}>
               <Feather name="alert-circle" size={32} color={colors.mutedForeground} />
-              <Text style={[styles.emptyText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                Could not load articles
-              </Text>
-              <Pressable
-                onPress={() => refetchArticles()}
-                style={({ pressed }) => [styles.retryBtn, { backgroundColor: colors.muted, opacity: pressed ? 0.75 : 1 }]}
-              >
-                <Text style={[{ color: colors.foreground, fontFamily: "Inter_500Medium" }]}>Retry</Text>
+              <Text style={[styles.emptyText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>Could not load articles</Text>
+              <Pressable onPress={() => refetchArticles()} style={({ pressed }) => [styles.retryBtn, { backgroundColor: colors.muted, opacity: pressed ? 0.75 : 1 }]}>
+                <Text style={{ color: colors.foreground, fontFamily: "Inter_500Medium" }}>Retry</Text>
               </Pressable>
             </View>
           )}
@@ -132,48 +172,30 @@ export default function LearnScreen() {
             <FlatList
               data={articles ?? []}
               keyExtractor={(item) => String(item.id)}
-              scrollEnabled={!!(articles && articles.length > 0)}
               contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 16, paddingBottom: bottomPad }}
               showsVerticalScrollIndicator={false}
               ListEmptyComponent={
                 <View style={styles.centered}>
                   <Feather name="file-text" size={32} color={colors.mutedForeground} />
-                  <Text style={[styles.emptyText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                    No articles yet
-                  </Text>
+                  <Text style={[styles.emptyText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>No articles yet</Text>
                 </View>
               }
               renderItem={({ item }) => (
                 <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
                   {!!item.category && (
                     <View style={[styles.tag, { backgroundColor: colors.accent }]}>
-                      <Text style={[styles.tagText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
-                        {item.category}
-                      </Text>
+                      <Text style={[styles.tagText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>{item.category}</Text>
                     </View>
                   )}
-                  <Text style={[styles.cardTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
-                    {item.title}
-                  </Text>
+                  <Text style={[styles.cardTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>{item.title}</Text>
                   {!!(item.summary || item.content) && (
-                    <Text
-                      style={[styles.cardBody, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}
-                      numberOfLines={3}
-                    >
+                    <Text style={[styles.cardBody, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]} numberOfLines={3}>
                       {item.summary || item.content}
                     </Text>
                   )}
                   <View style={styles.cardMeta}>
-                    {!!item.author && (
-                      <Text style={[styles.metaText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                        {item.author}
-                      </Text>
-                    )}
-                    {!!item.publishedAt && (
-                      <Text style={[styles.metaText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                        {formatDate(item.publishedAt)}
-                      </Text>
-                    )}
+                    {!!item.author && <Text style={[styles.metaText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>{item.author}</Text>}
+                    {!!item.publishedAt && <Text style={[styles.metaText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>{formatDate(item.publishedAt)}</Text>}
                   </View>
                 </View>
               )}
@@ -185,22 +207,13 @@ export default function LearnScreen() {
       {/* Podcasts */}
       {activeTab === "podcasts" && (
         <>
-          {podcastsLoading && (
-            <View style={styles.centered}>
-              <ActivityIndicator color={colors.primary} size="large" />
-            </View>
-          )}
+          {podcastsLoading && <View style={styles.centered}><ActivityIndicator color={colors.primary} size="large" /></View>}
           {!!podcastsError && (
             <View style={styles.centered}>
               <Feather name="alert-circle" size={32} color={colors.mutedForeground} />
-              <Text style={[styles.emptyText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                Could not load podcasts
-              </Text>
-              <Pressable
-                onPress={() => refetchPodcasts()}
-                style={({ pressed }) => [styles.retryBtn, { backgroundColor: colors.muted, opacity: pressed ? 0.75 : 1 }]}
-              >
-                <Text style={[{ color: colors.foreground, fontFamily: "Inter_500Medium" }]}>Retry</Text>
+              <Text style={[styles.emptyText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>Could not load podcasts</Text>
+              <Pressable onPress={() => refetchPodcasts()} style={({ pressed }) => [styles.retryBtn, { backgroundColor: colors.muted, opacity: pressed ? 0.75 : 1 }]}>
+                <Text style={{ color: colors.foreground, fontFamily: "Inter_500Medium" }}>Retry</Text>
               </Pressable>
             </View>
           )}
@@ -208,15 +221,12 @@ export default function LearnScreen() {
             <FlatList
               data={podcasts ?? []}
               keyExtractor={(item) => String(item.id)}
-              scrollEnabled={!!(podcasts && podcasts.length > 0)}
               contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 16, paddingBottom: bottomPad }}
               showsVerticalScrollIndicator={false}
               ListEmptyComponent={
                 <View style={styles.centered}>
                   <Feather name="mic" size={32} color={colors.mutedForeground} />
-                  <Text style={[styles.emptyText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                    No podcasts yet
-                  </Text>
+                  <Text style={[styles.emptyText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>No podcasts yet</Text>
                 </View>
               }
               renderItem={({ item }) => (
@@ -226,30 +236,17 @@ export default function LearnScreen() {
                       <Feather name="mic" size={20} color={colors.primary} />
                     </View>
                     <View style={styles.podcastInfo}>
-                      <Text style={[styles.cardTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
-                        {item.title}
-                      </Text>
+                      <Text style={[styles.cardTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>{item.title}</Text>
                       {!!(item.episode || item.duration) && (
                         <View style={styles.podcastMeta}>
-                          {!!item.episode && (
-                            <Text style={[styles.metaText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                              {item.episode}
-                            </Text>
-                          )}
-                          {!!item.duration && (
-                            <Text style={[styles.metaText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                              {item.duration}
-                            </Text>
-                          )}
+                          {!!item.episode && <Text style={[styles.metaText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>{item.episode}</Text>}
+                          {!!item.duration && <Text style={[styles.metaText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>{item.duration}</Text>}
                         </View>
                       )}
                     </View>
                   </View>
                   {!!item.description && (
-                    <Text
-                      style={[styles.cardBody, { color: colors.mutedForeground, fontFamily: "Inter_400Regular", marginTop: 8 }]}
-                      numberOfLines={2}
-                    >
+                    <Text style={[styles.cardBody, { color: colors.mutedForeground, fontFamily: "Inter_400Regular", marginTop: 8 }]} numberOfLines={2}>
                       {item.description}
                     </Text>
                   )}
@@ -258,6 +255,122 @@ export default function LearnScreen() {
             />
           )}
         </>
+      )}
+
+      {/* Knowledge Base */}
+      {activeTab === "resources" && (
+        <FlatList
+          data={resourcesLoading ? [] : resources}
+          keyExtractor={(item) => String(item.id)}
+          contentContainerStyle={{ paddingHorizontal: 20, paddingBottom: bottomPad }}
+          showsVerticalScrollIndicator={false}
+          ListHeaderComponent={
+            <View>
+              {/* AI Search */}
+              <View style={[styles.searchSection, { borderBottomColor: colors.border }]}>
+                <Text style={[styles.searchTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
+                  AI Knowledge Search
+                </Text>
+                <Text style={[styles.searchSubtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                  Ask any question about hospice sales, regulations, or strategy
+                </Text>
+                <View style={[styles.searchRow, { borderColor: colors.border, backgroundColor: colors.card }]}>
+                  <Feather name="search" size={18} color={colors.mutedForeground} />
+                  <TextInput
+                    style={[styles.searchInput, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}
+                    placeholder="e.g. What are the six month prognosis criteria?"
+                    placeholderTextColor={colors.mutedForeground}
+                    value={searchQuery}
+                    onChangeText={setSearchQuery}
+                    onSubmitEditing={handleSearch}
+                    returnKeyType="search"
+                  />
+                  {searchQuery.trim().length >= 5 && (
+                    <Pressable
+                      onPress={handleSearch}
+                      style={({ pressed }) => [
+                        styles.searchBtn,
+                        { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },
+                      ]}
+                    >
+                      <Feather name="arrow-right" size={16} color={colors.primaryForeground} />
+                    </Pressable>
+                  )}
+                </View>
+                {searchLoading && (
+                  <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                    <ActivityIndicator color={colors.primary} size="small" />
+                    <Text style={[{ color: colors.mutedForeground, fontFamily: "Inter_400Regular", fontSize: 14, marginLeft: 8 }]}>
+                      Searching knowledge base...
+                    </Text>
+                  </View>
+                )}
+                {!!searchError && (
+                  <View style={[styles.resultCard, { backgroundColor: colors.accent, borderColor: colors.border }]}>
+                    <Text style={[{ color: colors.primary, fontFamily: "Inter_400Regular", fontSize: 14 }]}>{searchError}</Text>
+                  </View>
+                )}
+                {!!searchResult && !searchLoading && (
+                  <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                    <Text style={[{ color: colors.foreground, fontFamily: "Inter_400Regular", fontSize: 15, lineHeight: 22 }]}>
+                      {searchResult}
+                    </Text>
+                    <Pressable
+                      onPress={() => { setSearchQuery(""); setSearchResult(""); setSearchError(null); }}
+                      style={({ pressed }) => [{ marginTop: 10, alignSelf: "flex-start", borderWidth: 1, borderRadius: 8, paddingHorizontal: 12, paddingVertical: 6, borderColor: colors.border, opacity: pressed ? 0.75 : 1 }]}
+                    >
+                      <Text style={[{ color: colors.mutedForeground, fontFamily: "Inter_500Medium", fontSize: 13 }]}>New search</Text>
+                    </Pressable>
+                  </View>
+                )}
+              </View>
+
+              {/* Resources header */}
+              <View style={styles.resourcesHeader}>
+                <Text style={[styles.searchTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
+                  Training Resources
+                </Text>
+                {resourcesLoading && <ActivityIndicator color={colors.primary} size="small" />}
+                {!!resourcesError && (
+                  <Pressable onPress={() => refetchResources()} style={({ pressed }) => [styles.retryBtn, { backgroundColor: colors.muted, opacity: pressed ? 0.75 : 1 }]}>
+                    <Text style={{ color: colors.foreground, fontFamily: "Inter_500Medium" }}>Retry</Text>
+                  </Pressable>
+                )}
+              </View>
+            </View>
+          }
+          ListEmptyComponent={
+            !resourcesLoading && !resourcesError ? (
+              <View style={styles.centeredInline}>
+                <Feather name="folder" size={32} color={colors.mutedForeground} />
+                <Text style={[styles.emptyText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>No resources yet</Text>
+              </View>
+            ) : null
+          }
+          renderItem={({ item }) => (
+            <View style={[styles.resourceCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <View style={[styles.resourceIcon, { backgroundColor: colors.accent }]}>
+                <Feather name="file-text" size={18} color={colors.primary} />
+              </View>
+              <View style={styles.resourceInfo}>
+                <Text style={[styles.resourceTitle, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>
+                  {item.title}
+                </Text>
+                {!!item.description && (
+                  <Text style={[styles.resourceDesc, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]} numberOfLines={2}>
+                    {item.description}
+                  </Text>
+                )}
+                {!!item.category && (
+                  <Text style={[styles.resourceCategory, { color: colors.primary, fontFamily: "Inter_500Medium" }]}>
+                    {item.category}
+                  </Text>
+                )}
+              </View>
+              <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
+            </View>
+          )}
+        />
       )}
     </View>
   );
@@ -281,12 +394,12 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    gap: 6,
+    gap: 5,
     paddingVertical: 12,
     borderBottomWidth: 2,
     borderBottomColor: "transparent",
   },
-  tabLabel: { fontSize: 14 },
+  tabLabel: { fontSize: 12 },
   centered: {
     flex: 1,
     alignItems: "center",
@@ -294,6 +407,7 @@ const styles = StyleSheet.create({
     paddingTop: 60,
     gap: 12,
   },
+  centeredInline: { alignItems: "center", paddingVertical: 32, gap: 12 },
   emptyText: { fontSize: 15, textAlign: "center" },
   retryBtn: { paddingHorizontal: 20, paddingVertical: 10, borderRadius: 8, marginTop: 4 },
   card: {
@@ -316,12 +430,59 @@ const styles = StyleSheet.create({
   metaText: { fontSize: 12 },
   podcastRow: { flexDirection: "row", alignItems: "center", gap: 12 },
   podcastIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
+    width: 44, height: 44, borderRadius: 10,
+    alignItems: "center", justifyContent: "center",
   },
   podcastInfo: { flex: 1 },
   podcastMeta: { flexDirection: "row", gap: 8, marginTop: 4 },
+  searchSection: { paddingVertical: 20, borderBottomWidth: 1, marginBottom: 20 },
+  searchTitle: { fontSize: 18, fontWeight: "700", marginBottom: 4 },
+  searchSubtitle: { fontSize: 14, marginBottom: 12 },
+  searchRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1.5,
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    gap: 8,
+  },
+  searchInput: { flex: 1, fontSize: 15, minHeight: 24 },
+  searchBtn: {
+    width: 32, height: 32, borderRadius: 8,
+    alignItems: "center", justifyContent: "center",
+  },
+  resultCard: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    marginTop: 12,
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 14,
+    gap: 4,
+  },
+  resourcesHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: 12,
+  },
+  resourceCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 10,
+    gap: 12,
+  },
+  resourceIcon: {
+    width: 40, height: 40, borderRadius: 10,
+    alignItems: "center", justifyContent: "center",
+    flexShrink: 0,
+  },
+  resourceInfo: { flex: 1 },
+  resourceTitle: { fontSize: 15, fontWeight: "600" },
+  resourceDesc: { fontSize: 13, lineHeight: 18, marginTop: 3 },
+  resourceCategory: { fontSize: 12, marginTop: 4 },
 });

@@ -26,9 +26,9 @@ const SUGGESTIONS = [
 ];
 
 const QUICK_TOOLS = [
-  { label: "Objection Handler", icon: "shield" as const, tab: "tools", color: "#e8291e" },
-  { label: "Sales Playbooks", icon: "book-open" as const, tab: "tools", color: "#e8291e" },
-  { label: "Email Templates", icon: "mail" as const, tab: "tools", color: "#e8291e" },
+  { label: "Objection Handler", icon: "shield" as const },
+  { label: "Sales Playbooks", icon: "book-open" as const },
+  { label: "Email Templates", icon: "mail" as const },
 ];
 
 export default function HomeScreen() {
@@ -75,7 +75,7 @@ export default function HomeScreen() {
     >
       {/* Hero */}
       <LinearGradient
-        colors={["#080808", "#0f0f0f", "#1a0404"]}
+        colors={[colors.heroBackground, "#0f0f0f", "#1a0404"]}
         style={[styles.hero, { paddingTop: topPad + 20 }]}
       >
         <Image
@@ -83,13 +83,17 @@ export default function HomeScreen() {
           style={styles.logo}
           resizeMode="contain"
         />
-        <Text style={styles.heroTitle}>Hospice Sales{"\n"}Coaching</Text>
-        <Text style={styles.heroTagline}>
+        <Text style={[styles.heroTitle, { color: colors.primary }]}>
+          Hospice Sales{"\n"}Coaching
+        </Text>
+        <Text style={[styles.heroTagline, { color: colors.heroMuted }]}>
           The Authority in Hospice Excellence
         </Text>
-        <View style={styles.heroBadge}>
-          <View style={styles.heroBadgeDot} />
-          <Text style={styles.heroBadgeText}>2026 Programs Now Open</Text>
+        <View style={[styles.heroBadge, { backgroundColor: colors.heroBadgeBg, borderColor: colors.heroBadgeBorder }]}>
+          <View style={[styles.heroBadgeDot, { backgroundColor: colors.primary }]} />
+          <Text style={[styles.heroBadgeText, { color: colors.heroBadgeText }]}>
+            2026 Programs Now Open
+          </Text>
         </View>
       </LinearGradient>
 
@@ -97,11 +101,11 @@ export default function HomeScreen() {
       <View style={[styles.section, { backgroundColor: colors.background }]}>
         <View style={styles.sectionHeader}>
           <Feather name="zap" size={20} color={colors.primary} />
-          <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
+          <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
             Ask Spartan
           </Text>
         </View>
-        <Text style={[styles.sectionSubtitle, { color: colors.mutedForeground }]}>
+        <Text style={[styles.sectionSubtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
           Instant expert answers on any hospice topic
         </Text>
 
@@ -126,7 +130,7 @@ export default function HomeScreen() {
                 { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },
               ]}
             >
-              <Feather name="arrow-right" size={16} color="#fff" />
+              <Feather name="arrow-right" size={16} color={colors.primaryForeground} />
             </Pressable>
           )}
         </View>
@@ -191,7 +195,7 @@ export default function HomeScreen() {
 
       {/* Quick Tools */}
       <View style={[styles.section, { backgroundColor: colors.background }]}>
-        <Text style={[styles.sectionTitle, { color: colors.foreground, marginBottom: 12 }]}>
+        <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold", marginBottom: 12 }]}>
           AI Tools
         </Text>
         <View style={styles.toolsGrid}>
@@ -218,21 +222,28 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* Mission */}
-      <View style={[styles.missionSection, { backgroundColor: "#080808" }]}>
-        <Text style={styles.missionOverline}>The Real Problem</Text>
-        <Text style={styles.missionTitle}>
+      {/* Mission — always rendered on dark brand background */}
+      <View style={[styles.missionSection, { backgroundColor: colors.heroBackground }]}>
+        <Text style={[styles.missionOverline, { color: colors.primary, fontFamily: "Inter_700Bold" }]}>
+          The Real Problem
+        </Text>
+        <Text style={[styles.missionTitle, { color: colors.heroForeground, fontFamily: "Inter_700Bold" }]}>
           The Gap Is Not Clinical. It Is Conversational.
         </Text>
-        <Text style={styles.missionBody}>
+        <Text style={[styles.missionBody, { color: colors.heroMuted, fontFamily: "Inter_400Regular" }]}>
           Eligible patients are not receiving hospice care because the right conversations are not happening. Spartan Coaching exists to close that gap, one prepared visit at a time.
         </Text>
         <Pressable
           onPress={() => router.push("/contact")}
-          style={({ pressed }) => [styles.ctaBtn, { opacity: pressed ? 0.85 : 1 }]}
+          style={({ pressed }) => [
+            styles.ctaBtn,
+            { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },
+          ]}
         >
-          <Text style={styles.ctaBtnText}>Get in Touch</Text>
-          <Feather name="arrow-right" size={16} color="#fff" />
+          <Text style={[styles.ctaBtnText, { color: colors.primaryForeground, fontFamily: "Inter_700Bold" }]}>
+            Get in Touch
+          </Text>
+          <Feather name="arrow-right" size={16} color={colors.primaryForeground} />
         </Pressable>
       </View>
     </ScrollView>
@@ -250,42 +261,31 @@ const styles = StyleSheet.create({
   heroTitle: {
     fontSize: 38,
     fontWeight: "900",
-    color: "#e8291e",
     textAlign: "center",
     letterSpacing: -1,
     lineHeight: 44,
-    fontFamily: "Inter_700Bold",
   },
   heroTagline: {
     fontSize: 14,
-    color: "rgba(255,255,255,0.6)",
     marginTop: 8,
     letterSpacing: 0.5,
-    fontFamily: "Inter_400Regular",
   },
   heroBadge: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "rgba(34,197,94,0.15)",
     borderWidth: 1,
-    borderColor: "rgba(34,197,94,0.4)",
     borderRadius: 24,
     paddingHorizontal: 14,
     paddingVertical: 6,
     marginTop: 20,
   },
-  heroBadgeDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: "#4ade80" },
-  heroBadgeText: {
-    fontSize: 13,
-    fontWeight: "700",
-    color: "#86efac",
-    fontFamily: "Inter_600SemiBold",
-  },
+  heroBadgeDot: { width: 8, height: 8, borderRadius: 4 },
+  heroBadgeText: { fontSize: 13, fontWeight: "700" },
   section: { paddingHorizontal: 20, paddingVertical: 24 },
   sectionHeader: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 4 },
-  sectionTitle: { fontSize: 20, fontWeight: "700", fontFamily: "Inter_700Bold" },
-  sectionSubtitle: { fontSize: 14, marginBottom: 16, fontFamily: "Inter_400Regular" },
+  sectionTitle: { fontSize: 20, fontWeight: "700" },
+  sectionSubtitle: { fontSize: 14, marginBottom: 16 },
   inputRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -357,36 +357,29 @@ const styles = StyleSheet.create({
   missionOverline: {
     fontSize: 11,
     fontWeight: "700",
-    color: "#ed3b31",
     textTransform: "uppercase",
     letterSpacing: 1.5,
     marginBottom: 12,
-    fontFamily: "Inter_700Bold",
   },
   missionTitle: {
     fontSize: 24,
     fontWeight: "800",
-    color: "#ffffff",
     marginBottom: 16,
     lineHeight: 30,
-    fontFamily: "Inter_700Bold",
   },
   missionBody: {
     fontSize: 15,
-    color: "rgba(255,255,255,0.7)",
     lineHeight: 23,
     marginBottom: 24,
-    fontFamily: "Inter_400Regular",
   },
   ctaBtn: {
     flexDirection: "row",
     alignItems: "center",
     gap: 8,
-    backgroundColor: "#e8291e",
     alignSelf: "flex-start",
     paddingHorizontal: 20,
     paddingVertical: 12,
     borderRadius: 10,
   },
-  ctaBtnText: { fontSize: 15, fontWeight: "700", color: "#fff", fontFamily: "Inter_700Bold" },
+  ctaBtnText: { fontSize: 15, fontWeight: "700" },
 });

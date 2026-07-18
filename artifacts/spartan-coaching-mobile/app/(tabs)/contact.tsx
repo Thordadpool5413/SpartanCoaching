@@ -1,12 +1,10 @@
 import React, { useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Image,
   Linking,
   Platform,
   Pressable,
-  ScrollView,
   StyleSheet,
   Text,
   TextInput,
@@ -92,7 +90,10 @@ export default function ContactScreen() {
             Nick Lynch will be in touch within one business day.
           </Text>
           <Pressable
-            onPress={() => { setSubmitted(false); setForm({ name: "", email: "", phone: "", company: "", serviceType: "", message: "" }); }}
+            onPress={() => {
+              setSubmitted(false);
+              setForm({ name: "", email: "", phone: "", company: "", serviceType: "", message: "" });
+            }}
             style={({ pressed }) => [styles.resetBtn, { backgroundColor: colors.muted, opacity: pressed ? 0.75 : 1 }]}
           >
             <Text style={[{ color: colors.foreground, fontFamily: "Inter_500Medium" }]}>Send another message</Text>
@@ -118,27 +119,31 @@ export default function ContactScreen() {
         </Text>
       </View>
 
-      {/* Bio Card */}
-      <View style={[styles.bioCard, { backgroundColor: "#080808" }]}>
+      {/* Bio Card — always dark brand section */}
+      <View style={[styles.bioCard, { backgroundColor: colors.heroBackground }]}>
         <Image
           source={require("@/assets/images/logo.png")}
           style={styles.bioLogo}
           resizeMode="contain"
         />
         <View style={styles.bioInfo}>
-          <Text style={[styles.bioName, { fontFamily: "Inter_700Bold" }]}>Nick Lynch</Text>
-          <Text style={[styles.bioTitle, { fontFamily: "Inter_400Regular" }]}>
+          <Text style={[styles.bioName, { color: colors.heroForeground, fontFamily: "Inter_700Bold" }]}>
+            Nick Lynch
+          </Text>
+          <Text style={[styles.bioTitle, { color: colors.heroMuted, fontFamily: "Inter_400Regular" }]}>
             Founder, Spartan Coaching
           </Text>
-          <Text style={[styles.bioBio, { fontFamily: "Inter_400Regular" }]}>
+          <Text style={[styles.bioBio, { color: colors.heroMuted, fontFamily: "Inter_400Regular" }]}>
             The Authority in Hospice Excellence. Nick works with hospice sales professionals to build the conversations that get patients the care they deserve.
           </Text>
           <Pressable
             onPress={() => Linking.openURL("https://www.linkedin.com/in/nicklynch")}
-            style={({ pressed }) => [styles.linkedinBtn, { opacity: pressed ? 0.8 : 1 }]}
+            style={({ pressed }) => [styles.linkedinBtn, { opacity: pressed ? 0.75 : 1 }]}
           >
-            <Feather name="linkedin" size={16} color="#0a66c2" />
-            <Text style={[styles.linkedinText, { fontFamily: "Inter_600SemiBold" }]}>Connect on LinkedIn</Text>
+            <Feather name="linkedin" size={16} color={colors.heroBadgeText} />
+            <Text style={[styles.linkedinText, { color: colors.heroBadgeText, fontFamily: "Inter_600SemiBold" }]}>
+              Connect on LinkedIn
+            </Text>
           </Pressable>
         </View>
       </View>
@@ -149,18 +154,16 @@ export default function ContactScreen() {
           Send a Message
         </Text>
 
-        <View style={styles.formRow}>
-          <View style={styles.formField}>
-            <Text style={[styles.label, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>Name *</Text>
-            <TextInput
-              style={[styles.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, fontFamily: "Inter_400Regular" }]}
-              placeholder="Your full name"
-              placeholderTextColor={colors.mutedForeground}
-              value={form.name}
-              onChangeText={(v) => updateField("name", v)}
-              autoCapitalize="words"
-            />
-          </View>
+        <View style={styles.formField}>
+          <Text style={[styles.label, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>Name *</Text>
+          <TextInput
+            style={[styles.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, fontFamily: "Inter_400Regular" }]}
+            placeholder="Your full name"
+            placeholderTextColor={colors.mutedForeground}
+            value={form.name}
+            onChangeText={(v) => updateField("name", v)}
+            autoCapitalize="words"
+          />
         </View>
 
         <View style={styles.formField}>
@@ -260,11 +263,13 @@ export default function ContactScreen() {
           ]}
         >
           {loading ? (
-            <ActivityIndicator color="#fff" size="small" />
+            <ActivityIndicator color={colors.primaryForeground} size="small" />
           ) : (
             <>
-              <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold" }]}>Send Message</Text>
-              <Feather name="arrow-right" size={18} color="#fff" />
+              <Text style={[styles.submitBtnText, { color: colors.primaryForeground, fontFamily: "Inter_700Bold" }]}>
+                Send Message
+              </Text>
+              <Feather name="arrow-right" size={18} color={colors.primaryForeground} />
             </>
           )}
         </Pressable>
@@ -290,9 +295,9 @@ const styles = StyleSheet.create({
   },
   bioLogo: { width: 52, height: 52, borderRadius: 8 },
   bioInfo: { flex: 1 },
-  bioName: { fontSize: 18, fontWeight: "700", color: "#ffffff" },
-  bioTitle: { fontSize: 13, color: "rgba(255,255,255,0.6)", marginTop: 2 },
-  bioBio: { fontSize: 14, color: "rgba(255,255,255,0.75)", lineHeight: 20, marginTop: 8 },
+  bioName: { fontSize: 18, fontWeight: "700" },
+  bioTitle: { fontSize: 13, marginTop: 2 },
+  bioBio: { fontSize: 14, lineHeight: 20, marginTop: 8 },
   linkedinBtn: {
     flexDirection: "row",
     alignItems: "center",
@@ -300,10 +305,9 @@ const styles = StyleSheet.create({
     marginTop: 12,
     alignSelf: "flex-start",
   },
-  linkedinText: { fontSize: 14, color: "#0a66c2" },
+  linkedinText: { fontSize: 14 },
   form: { padding: 20 },
   formTitle: { fontSize: 20, fontWeight: "700", marginBottom: 20 },
-  formRow: { flexDirection: "row", gap: 12 },
   formField: { marginBottom: 16 },
   label: { fontSize: 14, marginBottom: 6 },
   input: {
@@ -341,7 +345,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     marginTop: 8,
   },
-  submitBtnText: { color: "#fff", fontSize: 17, fontWeight: "700" },
+  submitBtnText: { fontSize: 17, fontWeight: "700" },
   successContainer: {
     flex: 1,
     alignItems: "center",
