@@ -94,6 +94,7 @@ export default function ContactScreen() {
             title="Follow up with your contact"
             body="You submitted a Spartan Coaching inquiry — time to follow up and keep the conversation going."
             label="Remind me to follow up"
+            storageKey="inquiry"
           />
           <Pressable
             onPress={() => {

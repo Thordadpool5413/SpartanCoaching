@@ -719,6 +719,7 @@ export default function ToolsScreen() {
                 <ReminderPicker
                   title="Follow up after your visit"
                   body="You practiced handling an objection — set a reminder to follow up with your contact."
+                  storageKey="objection"
                 />
               )}
               <SavedSection
@@ -798,6 +799,7 @@ export default function ToolsScreen() {
                 <ReminderPicker
                   title="Execute your playbook"
                   body="Your sales playbook is ready — set a reminder to put it into action."
+                  storageKey="playbook"
                 />
               )}
               <SavedSection
@@ -905,6 +907,7 @@ export default function ToolsScreen() {
                 <ReminderPicker
                   title="Send your follow-up email"
                   body="Your email template is ready — set a reminder to send it and keep the relationship warm."
+                  storageKey="email"
                 />
               )}
               <SavedSection
@@ -1071,6 +1074,7 @@ export default function ToolsScreen() {
                   <ReminderPicker
                     title="Apply what you practiced"
                     body="You just completed a role-play — set a reminder to use these techniques in your next call."
+                    storageKey="roleplay"
                   />
 
                   <Pressable

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Platform,
@@ -8,6 +8,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
@@ -24,17 +25,32 @@ interface Props {
   body: string;
   label?: string;
   contact?: string;
+  storageKey?: string;
   onScheduled?: () => void;
   onCancelled?: () => void;
 }
 
-export function ReminderPicker({ title, body, label = "Set follow-up reminder", contact, onScheduled, onCancelled }: Props) {
+export function ReminderPicker({ title, body, label = "Set follow-up reminder", contact, storageKey, onScheduled, onCancelled }: Props) {
   const colors = useColors();
   const [scheduledId, setScheduledId] = useState<string | null>(null);
   const [scheduledLabel, setScheduledLabel] = useState<string | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
   const [denied, setDenied] = useState(false);
   const [contactInput, setContactInput] = useState("");
+
+  useEffect(() => {
+    if (!storageKey) return;
+    AsyncStorage.getItem(`reminder_contact_${storageKey}`).then((stored) => {
+      if (stored) setContactInput(stored);
+    });
+  }, [storageKey]);
+
+  const handleContactChange = (text: string) => {
+    setContactInput(text);
+    if (storageKey) {
+      AsyncStorage.setItem(`reminder_contact_${storageKey}`, text);
+    }
+  };
 
   if (Platform.OS === "web") return null;
 
@@ -141,7 +157,7 @@ export function ReminderPicker({ title, body, label = "Set follow-up reminder", 
           placeholder="Contact name (optional)"
           placeholderTextColor={colors.mutedForeground}
           value={contactInput}
-          onChangeText={setContactInput}
+          onChangeText={handleContactChange}
           returnKeyType="done"
           autoCorrect={false}
         />
