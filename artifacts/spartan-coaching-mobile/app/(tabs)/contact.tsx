@@ -16,6 +16,7 @@ import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
 import { apiPost } from "@/lib/api";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
+import { ReminderPicker } from "@/components/ReminderPicker";
 
 const SERVICE_OPTIONS = [
   "Virtual Coaching",
@@ -89,6 +90,11 @@ export default function ContactScreen() {
           <Text style={[styles.successBody, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
             Nick Lynch will be in touch within one business day.
           </Text>
+          <ReminderPicker
+            title="Follow up with your contact"
+            body="You submitted a Spartan Coaching inquiry — time to follow up and keep the conversation going."
+            label="Remind me to follow up"
+          />
           <Pressable
             onPress={() => {
               setSubmitted(false);

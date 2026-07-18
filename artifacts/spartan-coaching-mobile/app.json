@@ -14,9 +14,17 @@
       "backgroundColor": "#080808"
     },
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "infoPlist": {
+        "NSUserNotificationsUsageDescription": "Spartan Coaching uses notifications to remind you to follow up with contacts after visits."
+      }
     },
-    "android": {},
+    "android": {
+      "permissions": [
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.SCHEDULE_EXACT_ALARM"
+      ]
+    },
     "web": {
       "favicon": "./assets/images/icon.png"
     },
@@ -28,7 +36,17 @@
         }
       ],
       "expo-font",
-      "expo-web-browser"
+      "expo-web-browser",
+      [
+        "expo-notifications",
+        {
+          "icon": "./assets/images/icon.png",
+          "color": "#C8102E",
+          "sounds": [],
+          "androidMode": "default",
+          "androidCollapsedTitle": "Spartan Coaching"
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true,

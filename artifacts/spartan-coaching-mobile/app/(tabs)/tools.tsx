@@ -14,6 +14,7 @@ import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
 import { apiPost } from "@/lib/api";
+import { ReminderPicker } from "@/components/ReminderPicker";
 
 type ToolTab = "objection" | "playbook" | "email";
 
@@ -203,6 +204,12 @@ export default function ToolsScreen() {
                 <Text style={[styles.resultText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>{objectionResult}</Text>
               </View>
             )}
+            {!!objectionResult && (
+              <ReminderPicker
+                title="Follow up after your visit"
+                body="You practiced handling an objection — set a reminder to follow up with your contact."
+              />
+            )}
           </View>
         )}
 
@@ -253,6 +260,12 @@ export default function ToolsScreen() {
               <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                 <Text style={[styles.resultText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>{playbookResult}</Text>
               </View>
+            )}
+            {!!playbookResult && (
+              <ReminderPicker
+                title="Execute your playbook"
+                body="Your sales playbook is ready — set a reminder to put it into action."
+              />
             )}
           </View>
         )}
@@ -332,6 +345,12 @@ export default function ToolsScreen() {
               <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                 <Text style={[styles.resultText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>{emailResult}</Text>
               </View>
+            )}
+            {!!emailResult && (
+              <ReminderPicker
+                title="Send your follow-up email"
+                body="Your email template is ready — set a reminder to send it and keep the relationship warm."
+              />
             )}
           </View>
         )}
