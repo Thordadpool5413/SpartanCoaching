@@ -16,6 +16,7 @@ import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
 import { apiPost } from "@/lib/api";
 import { ReminderPicker } from "@/components/ReminderPicker";
+import { useSavedResponses, type SavedResponse } from "@/hooks/useSavedResponses";
 
 type ToolTab = "objection" | "playbook" | "email" | "roleplay";
 
@@ -61,6 +62,87 @@ const ROLEPLAY_SCENARIOS = [
 
 type RoleplayPhase = "select" | "active" | "feedback";
 
+function formatSavedDate(ts: number): string {
+  const d = new Date(ts);
+  const now = new Date();
+  const diffMs = now.getTime() - d.getTime();
+  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+  if (diffDays === 0) return "Today";
+  if (diffDays === 1) return "Yesterday";
+  if (diffDays < 7) return `${diffDays} days ago`;
+  return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
+}
+
+interface SavedSectionProps {
+  items: SavedResponse[];
+  onDelete: (id: string) => Promise<void>;
+  colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
+}
+
+function SavedSection({ items, onDelete, colors }: SavedSectionProps) {
+  const [expanded, setExpanded] = useState<string | null>(null);
+  if (items.length === 0) return null;
+  return (
+    <View style={{ marginTop: 28 }}>
+      <View style={savedStyles.sectionHeader}>
+        <Feather name="bookmark" size={14} color={colors.mutedForeground} />
+        <Text style={[savedStyles.sectionTitle, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
+          Saved ({items.length})
+        </Text>
+      </View>
+      {items.map((item) => {
+        const isOpen = expanded === item.id;
+        return (
+          <View key={item.id} style={[savedStyles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <Pressable
+              onPress={() => setExpanded(isOpen ? null : item.id)}
+              style={({ pressed }) => [savedStyles.cardHeader, { opacity: pressed ? 0.75 : 1 }]}
+            >
+              <View style={{ flex: 1 }}>
+                <Text style={[savedStyles.cardTitle, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]} numberOfLines={2}>
+                  {item.title}
+                </Text>
+                <Text style={[savedStyles.cardDate, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                  {formatSavedDate(item.savedAt)}
+                </Text>
+              </View>
+              <View style={savedStyles.cardActions}>
+                <Pressable
+                  onPress={() => onDelete(item.id)}
+                  hitSlop={8}
+                  style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+                >
+                  <Feather name="trash-2" size={15} color={colors.mutedForeground} />
+                </Pressable>
+                <Feather name={isOpen ? "chevron-up" : "chevron-down"} size={16} color={colors.mutedForeground} />
+              </View>
+            </Pressable>
+            {isOpen && (
+              <View style={[savedStyles.cardBody, { borderTopColor: colors.border }]}>
+                <Text style={[savedStyles.cardBodyText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>
+                  {item.response}
+                </Text>
+              </View>
+            )}
+          </View>
+        );
+      })}
+    </View>
+  );
+}
+
+const savedStyles = StyleSheet.create({
+  sectionHeader: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 12 },
+  sectionTitle: { fontSize: 13, textTransform: "uppercase", letterSpacing: 0.5 },
+  card: { borderWidth: 1, borderRadius: 12, marginBottom: 10, overflow: "hidden" },
+  cardHeader: { flexDirection: "row", alignItems: "center", padding: 14, gap: 10 },
+  cardTitle: { fontSize: 14, marginBottom: 2 },
+  cardDate: { fontSize: 12 },
+  cardActions: { flexDirection: "row", alignItems: "center", gap: 14 },
+  cardBody: { borderTopWidth: 1, padding: 14 },
+  cardBodyText: { fontSize: 14, lineHeight: 21 },
+});
+
 interface ChatMessage {
   role: "user" | "character";
   content: string;
@@ -84,11 +166,17 @@ export default function ToolsScreen() {
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 90;
 
+  // Saved responses hooks
+  const objectionSaved = useSavedResponses("objection");
+  const playbookSaved = useSavedResponses("playbook");
+  const emailSaved = useSavedResponses("email");
+
   // Objection Handler state
   const [objection, setObjection] = useState("");
   const [objectionResult, setObjectionResult] = useState("");
   const [objectionLoading, setObjectionLoading] = useState(false);
   const [objectionError, setObjectionError] = useState<string | null>(null);
+  const [objectionSavedId, setObjectionSavedId] = useState<string | null>(null);
 
   // Playbook state
   const [scenario, setScenario] = useState("");
@@ -96,6 +184,7 @@ export default function ToolsScreen() {
   const [playbookResult, setPlaybookResult] = useState("");
   const [playbookLoading, setPlaybookLoading] = useState(false);
   const [playbookError, setPlaybookError] = useState<string | null>(null);
+  const [playbookSavedId, setPlaybookSavedId] = useState<string | null>(null);
 
   // Email Template state
   const [emailType, setEmailType] = useState<"follow_up" | "thank_you" | "value_add">("follow_up");
@@ -104,6 +193,7 @@ export default function ToolsScreen() {
   const [emailResult, setEmailResult] = useState("");
   const [emailLoading, setEmailLoading] = useState(false);
   const [emailError, setEmailError] = useState<string | null>(null);
+  const [emailSavedId, setEmailSavedId] = useState<string | null>(null);
 
   // Role-Play state
   const [roleplayPhase, setRoleplayPhase] = useState<RoleplayPhase>("select");
@@ -123,6 +213,7 @@ export default function ToolsScreen() {
     setObjectionLoading(true);
     setObjectionResult("");
     setObjectionError(null);
+    setObjectionSavedId(null);
     try {
       const data = await apiPost<{ response: string }>("/api/objections", { objection });
       setObjectionResult(data.response);
@@ -133,12 +224,21 @@ export default function ToolsScreen() {
     }
   };
 
+  const handleSaveObjection = async () => {
+    if (!objectionResult || objectionSavedId) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const title = objection.length > 60 ? objection.slice(0, 57) + "…" : objection;
+    await objectionSaved.saveResponse(title, objectionResult);
+    setObjectionSavedId("saved");
+  };
+
   const handlePlaybook = async () => {
     if (scenario.trim().length < 10) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setPlaybookLoading(true);
     setPlaybookResult("");
     setPlaybookError(null);
+    setPlaybookSavedId(null);
     try {
       const data = await apiPost<{ playbook: string }>("/api/playbooks", {
         scenario,
@@ -152,12 +252,21 @@ export default function ToolsScreen() {
     }
   };
 
+  const handleSavePlaybook = async () => {
+    if (!playbookResult || playbookSavedId) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const title = scenario.length > 60 ? scenario.slice(0, 57) + "…" : scenario;
+    await playbookSaved.saveResponse(title, playbookResult);
+    setPlaybookSavedId("saved");
+  };
+
   const handleEmail = async () => {
     if (emailContext.trim().length < 10) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setEmailLoading(true);
     setEmailResult("");
     setEmailError(null);
+    setEmailSavedId(null);
     try {
       const data = await apiPost<{ template: string }>("/api/email-templates", {
         templateType: emailType,
@@ -170,6 +279,15 @@ export default function ToolsScreen() {
     } finally {
       setEmailLoading(false);
     }
+  };
+
+  const handleSaveEmail = async () => {
+    if (!emailResult || emailSavedId) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const typeLabel = EMAIL_TYPES.find((et) => et.value === emailType)?.label ?? emailType;
+    const title = recipientName ? `${typeLabel} — ${recipientName}` : typeLabel;
+    await emailSaved.saveResponse(title, emailResult);
+    setEmailSavedId("saved");
   };
 
   const startRoleplay = async (scenarioId: string, scenarioTitle: string) => {
@@ -345,11 +463,33 @@ export default function ToolsScreen() {
                 </View>
               )}
               {!!objectionResult && (
+                <Pressable
+                  onPress={handleSaveObjection}
+                  disabled={!!objectionSavedId}
+                  style={({ pressed }) => [
+                    styles.saveBtn,
+                    { borderColor: colors.primary },
+                    !!objectionSavedId && { opacity: 0.5 },
+                    pressed && { opacity: 0.75 },
+                  ]}
+                >
+                  <Feather name={objectionSavedId ? "check" : "bookmark"} size={15} color={colors.primary} />
+                  <Text style={[styles.saveBtnText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
+                    {objectionSavedId ? "Saved" : "Save Response"}
+                  </Text>
+                </Pressable>
+              )}
+              {!!objectionResult && (
                 <ReminderPicker
                   title="Follow up after your visit"
                   body="You practiced handling an objection — set a reminder to follow up with your contact."
                 />
               )}
+              <SavedSection
+                items={objectionSaved.savedItems}
+                onDelete={objectionSaved.deleteResponse}
+                colors={colors}
+              />
             </View>
           )}
 
@@ -402,11 +542,33 @@ export default function ToolsScreen() {
                 </View>
               )}
               {!!playbookResult && (
+                <Pressable
+                  onPress={handleSavePlaybook}
+                  disabled={!!playbookSavedId}
+                  style={({ pressed }) => [
+                    styles.saveBtn,
+                    { borderColor: colors.primary },
+                    !!playbookSavedId && { opacity: 0.5 },
+                    pressed && { opacity: 0.75 },
+                  ]}
+                >
+                  <Feather name={playbookSavedId ? "check" : "bookmark"} size={15} color={colors.primary} />
+                  <Text style={[styles.saveBtnText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
+                    {playbookSavedId ? "Saved" : "Save Playbook"}
+                  </Text>
+                </Pressable>
+              )}
+              {!!playbookResult && (
                 <ReminderPicker
                   title="Execute your playbook"
                   body="Your sales playbook is ready — set a reminder to put it into action."
                 />
               )}
+              <SavedSection
+                items={playbookSaved.savedItems}
+                onDelete={playbookSaved.deleteResponse}
+                colors={colors}
+              />
             </View>
           )}
 
@@ -487,11 +649,33 @@ export default function ToolsScreen() {
                 </View>
               )}
               {!!emailResult && (
+                <Pressable
+                  onPress={handleSaveEmail}
+                  disabled={!!emailSavedId}
+                  style={({ pressed }) => [
+                    styles.saveBtn,
+                    { borderColor: colors.primary },
+                    !!emailSavedId && { opacity: 0.5 },
+                    pressed && { opacity: 0.75 },
+                  ]}
+                >
+                  <Feather name={emailSavedId ? "check" : "bookmark"} size={15} color={colors.primary} />
+                  <Text style={[styles.saveBtnText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
+                    {emailSavedId ? "Saved" : "Save Email"}
+                  </Text>
+                </Pressable>
+              )}
+              {!!emailResult && (
                 <ReminderPicker
                   title="Send your follow-up email"
                   body="Your email template is ready — set a reminder to send it and keep the relationship warm."
                 />
               )}
+              <SavedSection
+                items={emailSaved.savedItems}
+                onDelete={emailSaved.deleteResponse}
+                colors={colors}
+              />
             </View>
           )}
 
@@ -788,6 +972,17 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   resultText: { fontSize: 15, lineHeight: 23 },
+  saveBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 6,
+    borderWidth: 1.5,
+    borderRadius: 10,
+    paddingVertical: 11,
+    marginTop: 10,
+  },
+  saveBtnText: { fontSize: 14 },
   emailTypePicker: { flexDirection: "row", gap: 8 },
   emailTypeBtn: {
     flex: 1,
