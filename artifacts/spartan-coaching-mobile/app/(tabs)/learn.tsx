@@ -66,19 +66,22 @@ export default function LearnScreen() {
   const [searchLoading, setSearchLoading] = useState(false);
   const [searchError, setSearchError] = useState<string | null>(null);
 
-  const { data: articles, isLoading: articlesLoading, error: articlesError, refetch: refetchArticles } =
-    useQuery<Article[]>({
+  const { data: articlesData, isLoading: articlesLoading, error: articlesError, refetch: refetchArticles } =
+    useQuery<{ articles: Article[] }>({
       queryKey: ["articles"],
-      queryFn: () => apiGet<Article[]>("/api/articles"),
+      queryFn: () => apiGet<{ articles: Article[] }>("/api/articles"),
       enabled: activeTab === "articles",
     });
 
-  const { data: podcasts, isLoading: podcastsLoading, error: podcastsError, refetch: refetchPodcasts } =
-    useQuery<Podcast[]>({
+  const { data: podcastsData, isLoading: podcastsLoading, error: podcastsError, refetch: refetchPodcasts } =
+    useQuery<{ podcasts: Podcast[] }>({
       queryKey: ["podcasts"],
-      queryFn: () => apiGet<Podcast[]>("/api/podcasts"),
+      queryFn: () => apiGet<{ podcasts: Podcast[] }>("/api/podcasts"),
       enabled: activeTab === "podcasts",
     });
+
+  const articles = articlesData?.articles ?? [];
+  const podcasts = podcastsData?.podcasts ?? [];
 
   const { data: resourcesData, isLoading: resourcesLoading, error: resourcesError, refetch: refetchResources } =
     useQuery<{ resources: Resource[] }>({
@@ -170,7 +173,7 @@ export default function LearnScreen() {
           )}
           {!articlesLoading && !articlesError && (
             <FlatList
-              data={articles ?? []}
+              data={articles}
               keyExtractor={(item) => String(item.id)}
               contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 16, paddingBottom: bottomPad }}
               showsVerticalScrollIndicator={false}
@@ -219,7 +222,7 @@ export default function LearnScreen() {
           )}
           {!podcastsLoading && !podcastsError && (
             <FlatList
-              data={podcasts ?? []}
+              data={podcasts}
               keyExtractor={(item) => String(item.id)}
               contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 16, paddingBottom: bottomPad }}
               showsVerticalScrollIndicator={false}

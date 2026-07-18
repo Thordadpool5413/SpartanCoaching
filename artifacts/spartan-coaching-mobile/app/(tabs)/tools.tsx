@@ -81,11 +81,11 @@ export default function ToolsScreen() {
     setPlaybookResult("");
     setPlaybookError(null);
     try {
-      const data = await apiPost<{ response: string }>("/api/playbooks", {
+      const data = await apiPost<{ playbook: string }>("/api/playbooks", {
         scenario,
         desiredOutcomes: desiredOutcomes || undefined,
       });
-      setPlaybookResult(data.response);
+      setPlaybookResult(data.playbook);
     } catch {
       setPlaybookError("Something went wrong. Please try again.");
     } finally {
@@ -100,12 +100,12 @@ export default function ToolsScreen() {
     setEmailResult("");
     setEmailError(null);
     try {
-      const data = await apiPost<{ response: string }>("/api/email-templates", {
+      const data = await apiPost<{ template: string }>("/api/email-templates", {
         templateType: emailType,
         recipientName: recipientName || undefined,
         context: emailContext,
       });
-      setEmailResult(data.response);
+      setEmailResult(data.template);
     } catch {
       setEmailError("Something went wrong. Please try again.");
     } finally {

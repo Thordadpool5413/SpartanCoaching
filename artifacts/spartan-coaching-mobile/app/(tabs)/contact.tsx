@@ -59,7 +59,7 @@ export default function ContactScreen() {
     setLoading(true);
     setError(null);
     try {
-      await apiPost("/api/contact", {
+      await apiPost("/api/inquiries", {
         name: form.name,
         email: form.email,
         phone: form.phone,
