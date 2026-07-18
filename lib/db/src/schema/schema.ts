@@ -353,6 +353,7 @@ export const roleplaySessions = pgTable("roleplay_sessions", {
   id: serial("id").primaryKey(),
   scenarioId: text("scenario_id").notNull(),
   scenarioTitle: text("scenario_title").notNull(),
+  scenarioDescription: text("scenario_description"),
   status: text("status").notNull().default("active"), // "active" | "completed"
   feedback: text("feedback"),
   rating: integer("rating"),
@@ -404,6 +405,7 @@ export type SelectDrillCompletion = typeof drillCompletions.$inferSelect;
 export const roleplayStartSchema = z.object({
   scenarioId: z.string().min(1),
   scenarioTitle: z.string().min(1),
+  scenarioDescription: z.string().optional(),
 });
 export type RoleplayStartRequest = z.infer<typeof roleplayStartSchema>;
 

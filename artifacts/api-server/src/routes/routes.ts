@@ -1373,10 +1373,10 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   app.post("/api/roleplay/sessions", roleplayLimit, globalDailyAiCap, async (req, res) => {
     try {
-      const { scenarioId, scenarioTitle } = roleplayStartSchema.parse(req.body);
-      const session = await storage.createRoleplaySession({ scenarioId, scenarioTitle, status: "active" });
+      const { scenarioId, scenarioTitle, scenarioDescription } = roleplayStartSchema.parse(req.body);
+      const session = await storage.createRoleplaySession({ scenarioId, scenarioTitle, scenarioDescription: scenarioDescription || null, status: "active" });
 
-      const initialResponse = await generateRoleplayResponse(scenarioId, scenarioTitle, "Hello, I'm here to speak with you today.", []);
+      const initialResponse = await generateRoleplayResponse(scenarioId, scenarioTitle, "Hello, I'm here to speak with you today.", [], scenarioDescription);
       await storage.createRoleplayMessage({ sessionId: session.id, role: "character", content: initialResponse });
 
       res.json({ session, initialMessage: initialResponse });
@@ -1423,7 +1423,7 @@ Build a specific Monday–Friday territory plan for this week.`;
       const messages = await storage.getRoleplayMessages(sessionId);
       const history = messages.map(m => ({ role: m.role, content: m.content }));
 
-      const response = await generateRoleplayResponse(session.scenarioId, session.scenarioTitle, content, history.slice(0, -1));
+      const response = await generateRoleplayResponse(session.scenarioId, session.scenarioTitle, content, history.slice(0, -1), session.scenarioDescription ?? undefined);
       await storage.createRoleplayMessage({ sessionId, role: "character", content: response });
 
       storage.trackEvent({ eventType: "ai_tool_usage", eventName: "roleplay" }).catch(() => {});

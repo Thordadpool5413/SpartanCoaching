@@ -58,6 +58,42 @@ const ROLEPLAY_SCENARIOS = [
     description: "Address fears about coverage, costs, and what hospice actually covers.",
     icon: "📋",
   },
+  {
+    id: "ltc_facility_director",
+    title: "LTC Facility Director",
+    description: "Break through gatekeeping at a long-term care facility and earn a trial referral.",
+    icon: "🏠",
+  },
+  {
+    id: "hospital_social_worker",
+    title: "Hospital Social Worker",
+    description: "Connect with an overwhelmed social worker juggling discharge deadlines and referral choices.",
+    icon: "👩‍⚕️",
+  },
+  {
+    id: "reluctant_pcp",
+    title: "Reluctant Primary Care Physician",
+    description: "Persuade a PCP who resists hospice referrals for fear of upsetting long-standing patients.",
+    icon: "🩻",
+  },
+  {
+    id: "veteran_family",
+    title: "Veteran's Family",
+    description: "Navigate VA benefit confusion and emotional resistance with a proud veteran's family.",
+    icon: "🎖️",
+  },
+  {
+    id: "palliative_care_coordinator",
+    title: "Palliative Care Coordinator",
+    description: "Collaborate — not compete — with a palliative coordinator who guards her patient relationships.",
+    icon: "💊",
+  },
+  {
+    id: "home_health_rn",
+    title: "Home Health RN",
+    description: "Build a cross-referral partnership with a home health nurse who has overlapping patients.",
+    icon: "🏥",
+  },
 ];
 
 type RoleplayPhase = "select" | "active" | "feedback";
@@ -209,6 +245,11 @@ export default function ToolsScreen() {
   const [endingSession, setEndingSession] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
 
+  // Custom scenario state
+  const [customScenarioExpanded, setCustomScenarioExpanded] = useState(false);
+  const [customTitle, setCustomTitle] = useState("");
+  const [customDescription, setCustomDescription] = useState("");
+
   const handleObjection = async () => {
     if (objection.trim().length < 5) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -292,7 +333,7 @@ export default function ToolsScreen() {
     setEmailSavedId("saved");
   };
 
-  const startRoleplay = async (scenarioId: string, scenarioTitle: string) => {
+  const startRoleplay = async (scenarioId: string, scenarioTitle: string, scenarioDescription?: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setRoleplayLoading(true);
     setRoleplayError(null);
@@ -300,9 +341,11 @@ export default function ToolsScreen() {
     setRoleplayFeedback(null);
     setRoleplayRating(null);
     try {
+      const body: Record<string, string> = { scenarioId, scenarioTitle };
+      if (scenarioDescription) body.scenarioDescription = scenarioDescription;
       const data = await apiPost<{ session: RoleplaySession; initialMessage: string }>(
         "/api/roleplay/sessions",
-        { scenarioId, scenarioTitle }
+        body
       );
       setRoleplaySession(data.session);
       setRoleplayMessages([{ role: "character", content: data.initialMessage }]);
@@ -366,6 +409,9 @@ export default function ToolsScreen() {
     setRoleplayFeedback(null);
     setRoleplayRating(null);
     setRoleplayError(null);
+    setCustomScenarioExpanded(false);
+    setCustomTitle("");
+    setCustomDescription("");
   };
 
   return (
@@ -838,28 +884,91 @@ export default function ToolsScreen() {
                       </Text>
                     </View>
                   ) : (
-                    ROLEPLAY_SCENARIOS.map((s) => (
-                      <Pressable
-                        key={s.id}
-                        onPress={() => startRoleplay(s.id, s.title)}
-                        style={({ pressed }) => [
-                          styles.scenarioCard,
-                          { backgroundColor: colors.card, borderColor: colors.border },
-                          pressed && { opacity: 0.8 },
-                        ]}
-                      >
-                        <Text style={styles.scenarioEmoji}>{s.icon}</Text>
-                        <View style={styles.scenarioTextWrap}>
-                          <Text style={[styles.scenarioTitle, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>
-                            {s.title}
-                          </Text>
-                          <Text style={[styles.scenarioDesc, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                            {s.description}
-                          </Text>
-                        </View>
-                        <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
-                      </Pressable>
-                    ))
+                    <>
+                      {ROLEPLAY_SCENARIOS.map((s) => (
+                        <Pressable
+                          key={s.id}
+                          onPress={() => startRoleplay(s.id, s.title)}
+                          style={({ pressed }) => [
+                            styles.scenarioCard,
+                            { backgroundColor: colors.card, borderColor: colors.border },
+                            pressed && { opacity: 0.8 },
+                          ]}
+                        >
+                          <Text style={styles.scenarioEmoji}>{s.icon}</Text>
+                          <View style={styles.scenarioTextWrap}>
+                            <Text style={[styles.scenarioTitle, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>
+                              {s.title}
+                            </Text>
+                            <Text style={[styles.scenarioDesc, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                              {s.description}
+                            </Text>
+                          </View>
+                          <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
+                        </Pressable>
+                      ))}
+
+                      {/* Custom Scenario card */}
+                      <View style={[styles.scenarioCard, { backgroundColor: colors.card, borderColor: colors.border, flexDirection: "column", alignItems: "stretch", gap: 0 }]}>
+                        <Pressable
+                          onPress={() => {
+                            Haptics.selectionAsync();
+                            setCustomScenarioExpanded((v) => !v);
+                          }}
+                          style={({ pressed }) => [{ flexDirection: "row", alignItems: "center", gap: 14, opacity: pressed ? 0.8 : 1 }]}
+                        >
+                          <Text style={styles.scenarioEmoji}>✏️</Text>
+                          <View style={styles.scenarioTextWrap}>
+                            <Text style={[styles.scenarioTitle, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>
+                              Custom Scenario
+                            </Text>
+                            <Text style={[styles.scenarioDesc, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                              Describe your own situation and practice it live.
+                            </Text>
+                          </View>
+                          <Feather name={customScenarioExpanded ? "chevron-up" : "chevron-down"} size={18} color={colors.mutedForeground} />
+                        </Pressable>
+
+                        {customScenarioExpanded && (
+                          <View style={{ marginTop: 14, gap: 10 }}>
+                            <TextInput
+                              style={[styles.textarea, { color: colors.foreground, backgroundColor: colors.background, borderColor: colors.border, fontFamily: "Inter_400Regular", minHeight: 44, marginBottom: 0 }]}
+                              placeholder="Scenario title (e.g. Reluctant SNF Administrator)"
+                              placeholderTextColor={colors.mutedForeground}
+                              value={customTitle}
+                              onChangeText={setCustomTitle}
+                              maxLength={80}
+                            />
+                            <TextInput
+                              style={[styles.textarea, { color: colors.foreground, backgroundColor: colors.background, borderColor: colors.border, fontFamily: "Inter_400Regular", marginBottom: 0 }]}
+                              placeholder="Describe the character and situation (e.g. A nursing home administrator who already works with two hospice companies and is satisfied with both…)"
+                              placeholderTextColor={colors.mutedForeground}
+                              value={customDescription}
+                              onChangeText={setCustomDescription}
+                              multiline
+                              numberOfLines={4}
+                              textAlignVertical="top"
+                              maxLength={500}
+                            />
+                            <Pressable
+                              onPress={() => {
+                                if (customTitle.trim().length < 3) return;
+                                startRoleplay("custom", customTitle.trim(), customDescription.trim() || undefined);
+                              }}
+                              disabled={customTitle.trim().length < 3}
+                              style={({ pressed }) => [
+                                styles.submitBtn,
+                                { backgroundColor: colors.primary, marginTop: 2 },
+                                customTitle.trim().length < 3 && { opacity: 0.45 },
+                                pressed && { opacity: 0.85 },
+                              ]}
+                            >
+                              <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold" }]}>Start Custom Session</Text>
+                            </Pressable>
+                          </View>
+                        )}
+                      </View>
+                    </>
                   )}
                 </View>
               )}
