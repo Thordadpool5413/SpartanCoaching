@@ -1,5 +1,13 @@
 import React, { useState } from "react";
-import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  TextInput,
+  View,
+} from "react-native";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
@@ -13,16 +21,27 @@ interface Props {
   title: string;
   body: string;
   label?: string;
+  contact?: string;
 }
 
-export function ReminderPicker({ title, body, label = "Set follow-up reminder" }: Props) {
+export function ReminderPicker({ title, body, label = "Set follow-up reminder", contact }: Props) {
   const colors = useColors();
   const [scheduledId, setScheduledId] = useState<string | null>(null);
   const [scheduledLabel, setScheduledLabel] = useState<string | null>(null);
   const [loading, setLoading] = useState<string | null>(null);
   const [denied, setDenied] = useState(false);
+  const [contactInput, setContactInput] = useState("");
 
   if (Platform.OS === "web") return null;
+
+  const contactName = contact ?? contactInput.trim();
+
+  const buildBody = () => {
+    if (contactName) {
+      return `Follow up with ${contactName} — ${body}`;
+    }
+    return body;
+  };
 
   const handleSchedule = async (minutes: number, presetLabel: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -32,7 +51,11 @@ export function ReminderPicker({ title, body, label = "Set follow-up reminder" }
       await cancelReminder(scheduledId);
     }
 
-    const id = await scheduleFollowUpReminder({ title, body, delayMinutes: minutes });
+    const id = await scheduleFollowUpReminder({
+      title,
+      body: buildBody(),
+      delayMinutes: minutes,
+    });
     setLoading(null);
 
     if (!id) {
@@ -58,8 +81,19 @@ export function ReminderPicker({ title, body, label = "Set follow-up reminder" }
       <View style={[styles.confirmedRow, { backgroundColor: colors.card, borderColor: colors.border }]}>
         <Feather name="bell" size={16} color={colors.primary} />
         <Text style={[styles.confirmedText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>
-          Reminder set for{" "}
-          <Text style={{ fontFamily: "Inter_600SemiBold" }}>{scheduledLabel}</Text>
+          {contactName ? (
+            <>
+              Reminder for{" "}
+              <Text style={{ fontFamily: "Inter_600SemiBold" }}>{contactName}</Text>
+              {" "}set for{" "}
+              <Text style={{ fontFamily: "Inter_600SemiBold" }}>{scheduledLabel}</Text>
+            </>
+          ) : (
+            <>
+              Reminder set for{" "}
+              <Text style={{ fontFamily: "Inter_600SemiBold" }}>{scheduledLabel}</Text>
+            </>
+          )}
         </Text>
         <Pressable onPress={handleCancel} hitSlop={8}>
           <Feather name="x" size={16} color={colors.mutedForeground} />
@@ -76,6 +110,26 @@ export function ReminderPicker({ title, body, label = "Set follow-up reminder" }
           {label}
         </Text>
       </View>
+
+      {!contact && (
+        <TextInput
+          style={[
+            styles.contactInput,
+            {
+              borderColor: colors.border,
+              color: colors.foreground,
+              backgroundColor: colors.card,
+              fontFamily: "Inter_400Regular",
+            },
+          ]}
+          placeholder="Contact name (optional)"
+          placeholderTextColor={colors.mutedForeground}
+          value={contactInput}
+          onChangeText={setContactInput}
+          returnKeyType="done"
+          autoCorrect={false}
+        />
+      )}
 
       {denied && (
         <Text style={[styles.deniedText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
@@ -124,6 +178,13 @@ const styles = StyleSheet.create({
     gap: 6,
   },
   labelText: { fontSize: 13 },
+  contactInput: {
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    fontSize: 14,
+  },
   presetRow: {
     flexDirection: "row",
     flexWrap: "wrap",
