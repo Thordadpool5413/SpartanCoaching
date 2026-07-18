@@ -1,0 +1,1 @@
+- [Spartan Coaching port](spartan-coaching-port.md) — key decisions and gotchas from porting this app to the monorepo

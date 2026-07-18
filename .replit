@@ -1,58 +1,19 @@
-modules = ["nodejs-20", "web", "python-3.11", "postgresql-16"]
-run = "npm run dev"
-hidden = [".config", ".git", "generated-icon.png", "node_modules", "dist"]
-
-[nix]
-channel = "stable-24_05"
-packages = ["ffmpeg-full", "fontconfig", "freetype", "ghostscript", "glib", "glibcLocales", "harfbuzz", "pango"]
+modules = ["nodejs-24", "python-3.11"]
 
 [deployment]
+router = "application"
 deploymentTarget = "autoscale"
-build = ["npm", "run", "build"]
-run = ["npm", "run", "start"]
-publicDir = "dist/public"
 
-[[ports]]
-localPort = 5000
-externalPort = 80
-
-[[ports]]
-localPort = 5904
-externalPort = 3000
-
-[env]
-PORT = "5000"
+[deployment.postBuild]
+args = ["pnpm", "store", "prune"]
+env = { "CI" = "true" }
 
 [workflows]
 runButton = "Project"
 
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Start application"
-
-[[workflows.workflow]]
-name = "Start application"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "npm run dev"
-waitForPort = 5000
-
 [agent]
-integrations = ["javascript_gemini:1.0.0", "javascript_database:1.0.0", "javascript_log_in_with_replit:1.0.0", "javascript_gemini_ai_integrations:2.0.0", "resend:1.0.0"]
-
-[userenv]
-
-[userenv.shared]
-ADMIN_PASSWORD = "5413"
-NOTIFICATION_EMAIL = "nick@spartanhospicecoaching.com"
-RESEND_FROM_EMAIL = "Spartan Coaching <nick@spartanhospicecoaching.com>"
+stack = "PNPM_WORKSPACE"
+expertMode = true
 
 [postMerge]
 path = "scripts/post-merge.sh"
