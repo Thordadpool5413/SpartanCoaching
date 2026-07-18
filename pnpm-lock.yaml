@@ -664,9 +664,15 @@ importers:
 
   artifacts/spartan-coaching-mobile:
     dependencies:
+      expo-background-fetch:
+        specifier: ^57.0.5
+        version: 57.0.5(expo@54.0.36)(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.1.17)(react@19.1.0))
       expo-notifications:
         specifier: ^57.0.6
         version: 57.0.6(expo@54.0.36)(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)(typescript@5.9.3)
+      expo-task-manager:
+        specifier: ^57.0.5
+        version: 57.0.5(expo@54.0.36)(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.1.17)(react@19.1.0))
     devDependencies:
       '@babel/core':
         specifier: ^7.25.2
@@ -3853,6 +3859,11 @@ packages:
       react: '*'
       react-native: '*'
 
+  expo-background-fetch@57.0.5:
+    resolution: {integrity: sha512-IVYhuR/c+3Ge3Hltogn29Z8Jf5meTLOOTaoyYPopXKJ6vokuXEpFoFiBb2nLG2tVUr8HbaI/Zl+a05Uk0ycvMQ==}
+    peerDependencies:
+      expo: '*'
+
   expo-blur@15.0.8:
     resolution: {integrity: sha512-rWyE1NBRZEu9WD+X+5l7gyPRszw7n12cW3IRNAb5i6KFzaBp8cxqT5oeaphJapqURvcqhkOZn2k5EtBSbsuU7w==}
     peerDependencies:
@@ -4022,6 +4033,12 @@ packages:
     peerDependenciesMeta:
       react-native-web:
         optional: true
+
+  expo-task-manager@57.0.5:
+    resolution: {integrity: sha512-bPHIheSTMqi9ZLQwHjEJDSRQhqq2/9iPC1wUP9XYy3Y2PbJysCvzmBcdlYS9nvuckAqq2VvJ4e9jnkGr2SG22g==}
+    peerDependencies:
+      expo: '*'
+      react-native: '*'
 
   expo-web-browser@15.0.11:
     resolution: {integrity: sha512-r2LS4Ro6DgUPZkcaEfgt8mp9eJuoA93x11Jh7S6utFe0FEzvUNn2yFhxg8XVwESaaHGt2k5V8LuK36rsp0BeIw==}
@@ -6479,6 +6496,9 @@ packages:
 
   unified@11.0.5:
     resolution: {integrity: sha512-xKvGhPWw3k84Qjh8bI3ZeJjqnyadK+GEFtazSfZv/rKeTkTjOJho6mFqh2SM96iIcZokxiOpg78GazTSg8+KHA==}
+
+  unimodules-app-loader@57.0.1:
+    resolution: {integrity: sha512-wey5ChoJkCTq0j0JWdIMu2QB81vVrdhmrNAP14ZZ6WDslnZ7ff7Ezv8rMdEnVHaCKz3xK4mIVXbVU51xHgdyCA==}
 
   unist-util-is@6.0.1:
     resolution: {integrity: sha512-LsiILbtBETkDz8I9p1dQ0uyRUWuaQzd/cuEeS1hoRSyW5E5XGmTzlwY1OrNzzakGowI9Dr/I8HVaw4hTtnxy8g==}
@@ -10579,6 +10599,13 @@ snapshots:
       - supports-color
       - typescript
 
+  expo-background-fetch@57.0.5(expo@54.0.36)(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.1.17)(react@19.1.0)):
+    dependencies:
+      expo: 54.0.36(@babel/core@7.29.7)(@expo/metro-runtime@6.1.2)(expo-router@6.0.24)(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)(typescript@5.9.3)
+      expo-task-manager: 57.0.5(expo@54.0.36)(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.1.17)(react@19.1.0))
+    transitivePeerDependencies:
+      - react-native
+
   expo-blur@15.0.8(expo@54.0.36)(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0):
     dependencies:
       expo: 54.0.36(@babel/core@7.29.7)(@expo/metro-runtime@6.1.2)(expo-router@6.0.24)(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)(typescript@5.9.3)
@@ -10769,6 +10796,12 @@ snapshots:
       react-native-web: 0.21.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
     transitivePeerDependencies:
       - supports-color
+
+  expo-task-manager@57.0.5(expo@54.0.36)(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.1.17)(react@19.1.0)):
+    dependencies:
+      expo: 54.0.36(@babel/core@7.29.7)(@expo/metro-runtime@6.1.2)(expo-router@6.0.24)(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.1.17)(react@19.1.0))(react@19.1.0)(typescript@5.9.3)
+      react-native: 0.81.5(@babel/core@7.29.7)(@types/react@19.1.17)(react@19.1.0)
+      unimodules-app-loader: 57.0.1
 
   expo-web-browser@15.0.11(expo@54.0.36)(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.1.17)(react@19.1.0)):
     dependencies:
@@ -13849,6 +13882,8 @@ snapshots:
       is-plain-obj: 4.1.0
       trough: 2.2.0
       vfile: 6.0.3
+
+  unimodules-app-loader@57.0.1: {}
 
   unist-util-is@6.0.1:
     dependencies:

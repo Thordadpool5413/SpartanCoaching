@@ -13,6 +13,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { registerRescheduleTask } from "@/lib/notifications";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -34,6 +35,10 @@ export default function RootLayout() {
     Inter_600SemiBold,
     Inter_700Bold,
   });
+
+  useEffect(() => {
+    registerRescheduleTask();
+  }, []);
 
   useEffect(() => {
     if (fontsLoaded || fontError) {
