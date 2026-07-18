@@ -16,6 +16,8 @@ import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
+  const coachingVideoRef = useRef<HTMLVideoElement>(null);
+  const [coachingPlaying, setCoachingPlaying] = useState(false);
   const [askQuery, setAskQuery] = useState("");
   const [askResponse, setAskResponse] = useState("");
   const [askLoading, setAskLoading] = useState(false);
@@ -418,6 +420,97 @@ export default function Home() {
           </FadeIn>
         </div>
       </section>
+
+      {/* 3c. Coaching Video Section */}
+      <section className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-black dark:to-gray-950 py-20 sm:py-28" data-testid="section-coaching-video">
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(239,68,68,0.04),transparent_70%)] pointer-events-none" />
+        <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
+          <FadeIn>
+            <div className="text-center mb-10 sm:mb-14">
+              <p className="text-sm font-bold tracking-widest text-red-600 dark:text-red-400 uppercase mb-4">What the Work Looks Like</p>
+              <h2 className="text-h2 text-foreground mb-4" data-testid="text-coaching-video-title">
+                Real Coaching. Real Conversations.
+              </h2>
+              <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto">
+                Spartan Coaching happens in the field and in the room, not on a slide deck. This is what building elite hospice sales execution actually looks like.
+              </p>
+            </div>
+          </FadeIn>
+
+          <FadeIn delay={0.15}>
+            <div className="relative rounded-2xl overflow-hidden shadow-2xl bg-gray-950 group" data-testid="container-coaching-video">
+              <video
+                ref={coachingVideoRef}
+                className="w-full aspect-video object-cover"
+                playsInline
+                preload="metadata"
+                onPlay={() => setCoachingPlaying(true)}
+                onPause={() => setCoachingPlaying(false)}
+                onEnded={() => setCoachingPlaying(false)}
+                data-testid="video-coaching"
+                aria-label="Spartan Coaching - coaching session video"
+              >
+                <source src="/spartan-coaching-video.mp4" type="video/mp4" />
+                Your browser does not support the video tag.
+              </video>
+
+              {/* Play / Pause overlay */}
+              <div
+                className="absolute inset-0 flex items-center justify-center cursor-pointer"
+                style={{ visibility: coachingPlaying ? 'hidden' : 'visible' }}
+                onClick={() => {
+                  if (coachingVideoRef.current) {
+                    coachingVideoRef.current.play();
+                  }
+                }}
+                data-testid="button-play-coaching-video"
+                aria-label="Play coaching video"
+              >
+                <div className="absolute inset-0 bg-black/40" />
+                <div className="relative w-20 h-20 rounded-full bg-white/95 flex items-center justify-center shadow-2xl group-hover:scale-105 transition-transform duration-200">
+                  <div className="w-0 h-0 border-t-[14px] border-t-transparent border-b-[14px] border-b-transparent border-l-[24px] border-l-red-600 ml-2" />
+                </div>
+              </div>
+
+              {/* Pause button when playing */}
+              <div
+                className="absolute inset-0 flex items-center justify-center cursor-pointer"
+                style={{ visibility: coachingPlaying ? 'visible' : 'hidden' }}
+                onClick={() => {
+                  if (coachingVideoRef.current) {
+                    coachingVideoRef.current.pause();
+                  }
+                }}
+                data-testid="button-pause-coaching-video"
+                aria-label="Pause coaching video"
+              >
+                <div className="absolute inset-0 bg-transparent" />
+              </div>
+
+              {/* Brand badge */}
+              <div className="absolute top-4 left-4 bg-black/70 backdrop-blur-sm rounded-full px-4 py-1.5 flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-red-500 shrink-0" style={{ animation: 'pulse 2s infinite' }} />
+                <span className="text-white text-xs font-bold tracking-wide uppercase">Spartan Coaching</span>
+              </div>
+            </div>
+          </FadeIn>
+
+          <FadeIn delay={0.25}>
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Button size="lg" asChild className="font-bold px-10 group" data-testid="button-coaching-video-contact">
+                <Link href="/contact">
+                  <span>Start the Conversation</span>
+                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild className="font-bold px-10" data-testid="button-coaching-video-services">
+                <Link href="/services">See All Programs</Link>
+              </Button>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
 
       {/* 4. The Problem and The Promise */}
       <section className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-problem-promise">
