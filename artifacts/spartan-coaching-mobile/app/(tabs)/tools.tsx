@@ -62,6 +62,8 @@ const ROLEPLAY_SCENARIOS = [
 
 type RoleplayPhase = "select" | "active" | "feedback";
 
+const TAB_BAR_HEIGHT = 49;
+
 function formatSavedDate(ts: number): string {
   const d = new Date(ts);
   const now = new Date();
@@ -367,62 +369,194 @@ export default function ToolsScreen() {
   };
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === "ios" ? "padding" : undefined}
-      keyboardVerticalOffset={0}
-    >
-      <ScrollView
-        ref={scrollRef}
-        style={[styles.container, { backgroundColor: colors.background }]}
-        contentContainerStyle={{ paddingBottom: bottomPad }}
-        keyboardShouldPersistTaps="handled"
-        showsVerticalScrollIndicator={false}
-      >
-        {/* Header */}
-        <View style={[styles.header, { paddingTop: topPad + 12, backgroundColor: colors.background, borderBottomColor: colors.border }]}>
-          <Text style={[styles.headerTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
-            AI Tools
-          </Text>
-          <Text style={[styles.headerSubtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-            Powered by hospice expertise
-          </Text>
-        </View>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
+      {/* Header — always pinned above content */}
+      <View style={[styles.header, { paddingTop: topPad + 12, backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+        <Text style={[styles.headerTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
+          AI Tools
+        </Text>
+        <Text style={[styles.headerSubtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+          Powered by hospice expertise
+        </Text>
+      </View>
 
-        {/* Tab bar */}
-        <View style={[styles.tabBar, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
-          {TOOL_TABS.map((tab) => (
-            <Pressable
-              key={tab.key}
-              onPress={() => {
-                Haptics.selectionAsync();
-                setActiveTab(tab.key);
-              }}
-              style={({ pressed }) => [
-                styles.tabBtn,
-                activeTab === tab.key && styles.tabBtnActive,
-                activeTab === tab.key && { borderBottomColor: colors.primary },
-                { opacity: pressed ? 0.75 : 1 },
+      {/* Tool tabs — always pinned */}
+      <View style={[styles.tabBar, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+        {TOOL_TABS.map((tab) => (
+          <Pressable
+            key={tab.key}
+            onPress={() => {
+              Haptics.selectionAsync();
+              setActiveTab(tab.key);
+            }}
+            style={({ pressed }) => [
+              styles.tabBtn,
+              activeTab === tab.key && styles.tabBtnActive,
+              activeTab === tab.key && { borderBottomColor: colors.primary },
+              { opacity: pressed ? 0.75 : 1 },
+            ]}
+          >
+            <Feather
+              name={tab.icon}
+              size={15}
+              color={activeTab === tab.key ? colors.primary : colors.mutedForeground}
+            />
+            <Text
+              style={[
+                styles.tabLabel,
+                { color: activeTab === tab.key ? colors.primary : colors.mutedForeground },
+                { fontFamily: activeTab === tab.key ? "Inter_600SemiBold" : "Inter_400Regular" },
               ]}
             >
-              <Feather
-                name={tab.icon}
-                size={15}
-                color={activeTab === tab.key ? colors.primary : colors.mutedForeground}
+              {tab.label}
+            </Text>
+          </Pressable>
+        ))}
+      </View>
+
+      {/* Active roleplay chat — flex layout with sticky input bar */}
+      {activeTab === "roleplay" && roleplayPhase === "active" && roleplaySession ? (
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          keyboardVerticalOffset={TAB_BAR_HEIGHT + insets.bottom}
+        >
+          {/* Session header */}
+          <View style={[styles.sessionHeader, { marginHorizontal: 20, marginTop: 16, borderColor: colors.border }]}>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.sessionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
+                {roleplaySession.scenarioTitle}
+              </Text>
+              <Text style={[styles.sessionSubtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                Live practice session
+              </Text>
+            </View>
+            <Pressable
+              onPress={endRoleplaySession}
+              disabled={endingSession || roleplayMessages.length < 3}
+              style={({ pressed }) => [
+                styles.endBtn,
+                { borderColor: colors.primary },
+                (endingSession || roleplayMessages.length < 3) && { opacity: 0.45 },
+                pressed && { opacity: 0.7 },
+              ]}
+            >
+              {endingSession ? (
+                <ActivityIndicator color={colors.primary} size="small" />
+              ) : (
+                <Text style={[styles.endBtnText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
+                  End
+                </Text>
+              )}
+            </Pressable>
+          </View>
+
+          {/* Scrollable message list */}
+          <ScrollView
+            ref={scrollRef}
+            style={{ flex: 1 }}
+            contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 8 }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            <View style={styles.chatList}>
+              {roleplayMessages.map((msg, idx) => (
+                <View
+                  key={idx}
+                  style={[
+                    styles.bubbleWrap,
+                    msg.role === "user" ? styles.bubbleWrapUser : styles.bubbleWrapChar,
+                  ]}
+                >
+                  {msg.role === "character" && (
+                    <View style={[styles.avatarDot, { backgroundColor: colors.primary }]}>
+                      <Feather name="user" size={11} color="#fff" />
+                    </View>
+                  )}
+                  <View
+                    style={[
+                      styles.bubble,
+                      msg.role === "user"
+                        ? [styles.bubbleUser, { backgroundColor: colors.primary }]
+                        : [styles.bubbleChar, { backgroundColor: colors.card, borderColor: colors.border }],
+                    ]}
+                  >
+                    <Text
+                      style={[
+                        styles.bubbleText,
+                        { color: msg.role === "user" ? "#fff" : colors.foreground, fontFamily: "Inter_400Regular" },
+                      ]}
+                    >
+                      {msg.content}
+                    </Text>
+                  </View>
+                </View>
+              ))}
+              {roleplayLoading && (
+                <View style={[styles.bubbleWrap, styles.bubbleWrapChar]}>
+                  <View style={[styles.avatarDot, { backgroundColor: colors.primary }]}>
+                    <Feather name="user" size={11} color="#fff" />
+                  </View>
+                  <View style={[styles.bubble, styles.bubbleChar, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                    <ActivityIndicator color={colors.primary} size="small" />
+                  </View>
+                </View>
+              )}
+            </View>
+          </ScrollView>
+
+          {!!roleplayError && (
+            <Text style={[styles.errorText, { color: colors.primary, fontFamily: "Inter_400Regular", marginHorizontal: 20, marginBottom: 4 }]}>
+              {roleplayError}
+            </Text>
+          )}
+
+          {/* Sticky input bar — sits just above the tab bar */}
+          <View style={{ paddingHorizontal: 12, paddingTop: 6, paddingBottom: TAB_BAR_HEIGHT + insets.bottom + 8 }}>
+            <View style={[styles.chatInputRow, { borderColor: colors.border, backgroundColor: colors.card }]}>
+              <TextInput
+                style={[styles.chatInput, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}
+                placeholder="Your response…"
+                placeholderTextColor={colors.mutedForeground}
+                value={roleplayInput}
+                onChangeText={setRoleplayInput}
+                multiline
+                maxLength={800}
+                returnKeyType="send"
+                blurOnSubmit={false}
+                onSubmitEditing={sendRoleplayMessage}
               />
-              <Text
-                style={[
-                  styles.tabLabel,
-                  { color: activeTab === tab.key ? colors.primary : colors.mutedForeground },
-                  { fontFamily: activeTab === tab.key ? "Inter_600SemiBold" : "Inter_400Regular" },
+              <Pressable
+                onPress={sendRoleplayMessage}
+                disabled={roleplayLoading || roleplayInput.trim().length === 0}
+                style={({ pressed }) => [
+                  styles.sendBtn,
+                  { backgroundColor: colors.primary },
+                  (roleplayLoading || roleplayInput.trim().length === 0) && { opacity: 0.45 },
+                  pressed && { opacity: 0.75 },
                 ]}
               >
-                {tab.label}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-
+                <Feather name="send" size={18} color="#fff" />
+              </Pressable>
+            </View>
+            <Text style={[styles.endHint, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+              Tap "End" after a few exchanges to get your feedback and rating.
+            </Text>
+          </View>
+        </KeyboardAvoidingView>
+      ) : (
+        /* All other tabs + roleplay select/feedback — normal scrollable layout */
+        <KeyboardAvoidingView
+          style={{ flex: 1 }}
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          keyboardVerticalOffset={0}
+        >
+          <ScrollView
+            style={[styles.container, { backgroundColor: colors.background }]}
+            contentContainerStyle={{ paddingBottom: bottomPad }}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
         <View style={styles.content}>
           {/* Objection Handler */}
           {activeTab === "objection" && (
@@ -730,124 +864,6 @@ export default function ToolsScreen() {
                 </View>
               )}
 
-              {/* Phase: Active conversation */}
-              {roleplayPhase === "active" && roleplaySession && (
-                <View>
-                  {/* Session header */}
-                  <View style={[styles.sessionHeader, { borderColor: colors.border }]}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={[styles.sessionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
-                        {roleplaySession.scenarioTitle}
-                      </Text>
-                      <Text style={[styles.sessionSubtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                        Live practice session
-                      </Text>
-                    </View>
-                    <Pressable
-                      onPress={endRoleplaySession}
-                      disabled={endingSession || roleplayMessages.length < 3}
-                      style={({ pressed }) => [
-                        styles.endBtn,
-                        { borderColor: colors.primary },
-                        (endingSession || roleplayMessages.length < 3) && { opacity: 0.45 },
-                        pressed && { opacity: 0.7 },
-                      ]}
-                    >
-                      {endingSession ? (
-                        <ActivityIndicator color={colors.primary} size="small" />
-                      ) : (
-                        <Text style={[styles.endBtnText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
-                          End
-                        </Text>
-                      )}
-                    </Pressable>
-                  </View>
-
-                  {/* Chat messages */}
-                  <View style={styles.chatList}>
-                    {roleplayMessages.map((msg, idx) => (
-                      <View
-                        key={idx}
-                        style={[
-                          styles.bubbleWrap,
-                          msg.role === "user" ? styles.bubbleWrapUser : styles.bubbleWrapChar,
-                        ]}
-                      >
-                        {msg.role === "character" && (
-                          <View style={[styles.avatarDot, { backgroundColor: colors.primary }]}>
-                            <Feather name="user" size={11} color="#fff" />
-                          </View>
-                        )}
-                        <View
-                          style={[
-                            styles.bubble,
-                            msg.role === "user"
-                              ? [styles.bubbleUser, { backgroundColor: colors.primary }]
-                              : [styles.bubbleChar, { backgroundColor: colors.card, borderColor: colors.border }],
-                          ]}
-                        >
-                          <Text
-                            style={[
-                              styles.bubbleText,
-                              { color: msg.role === "user" ? "#fff" : colors.foreground, fontFamily: "Inter_400Regular" },
-                            ]}
-                          >
-                            {msg.content}
-                          </Text>
-                        </View>
-                      </View>
-                    ))}
-                    {roleplayLoading && (
-                      <View style={[styles.bubbleWrap, styles.bubbleWrapChar]}>
-                        <View style={[styles.avatarDot, { backgroundColor: colors.primary }]}>
-                          <Feather name="user" size={11} color="#fff" />
-                        </View>
-                        <View style={[styles.bubble, styles.bubbleChar, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                          <ActivityIndicator color={colors.primary} size="small" />
-                        </View>
-                      </View>
-                    )}
-                  </View>
-
-                  {!!roleplayError && (
-                    <Text style={[styles.errorText, { color: colors.primary, fontFamily: "Inter_400Regular", marginBottom: 8 }]}>
-                      {roleplayError}
-                    </Text>
-                  )}
-
-                  {/* Input row */}
-                  <View style={[styles.chatInputRow, { borderColor: colors.border, backgroundColor: colors.card }]}>
-                    <TextInput
-                      style={[styles.chatInput, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}
-                      placeholder="Your response…"
-                      placeholderTextColor={colors.mutedForeground}
-                      value={roleplayInput}
-                      onChangeText={setRoleplayInput}
-                      multiline
-                      maxLength={800}
-                      returnKeyType="send"
-                      blurOnSubmit={false}
-                      onSubmitEditing={sendRoleplayMessage}
-                    />
-                    <Pressable
-                      onPress={sendRoleplayMessage}
-                      disabled={roleplayLoading || roleplayInput.trim().length === 0}
-                      style={({ pressed }) => [
-                        styles.sendBtn,
-                        { backgroundColor: colors.primary },
-                        (roleplayLoading || roleplayInput.trim().length === 0) && { opacity: 0.45 },
-                        pressed && { opacity: 0.75 },
-                      ]}
-                    >
-                      <Feather name="send" size={18} color="#fff" />
-                    </Pressable>
-                  </View>
-                  <Text style={[styles.endHint, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                    Tap "End" after a few exchanges to get your feedback and rating.
-                  </Text>
-                </View>
-              )}
-
               {/* Phase: Feedback */}
               {roleplayPhase === "feedback" && (
                 <View>
@@ -907,8 +923,10 @@ export default function ToolsScreen() {
             </View>
           )}
         </View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      )}
+    </View>
   );
 }
 
