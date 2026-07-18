@@ -5,11 +5,13 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TextInput,
   View,
 } from "react-native";
+import * as Clipboard from "expo-clipboard";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
@@ -119,6 +121,20 @@ interface SavedSectionProps {
 
 function SavedSection({ items, onDelete, colors }: SavedSectionProps) {
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [copiedId, setCopiedId] = useState<string | null>(null);
+
+  const handleCopy = async (item: SavedResponse) => {
+    await Clipboard.setStringAsync(item.response);
+    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    setCopiedId(item.id);
+    setTimeout(() => setCopiedId((prev) => (prev === item.id ? null : prev)), 2000);
+  };
+
+  const handleShare = async (item: SavedResponse) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    await Share.share({ message: item.response, title: item.title });
+  };
+
   if (items.length === 0) return null;
   return (
     <View style={{ marginTop: 28 }}>
@@ -130,6 +146,7 @@ function SavedSection({ items, onDelete, colors }: SavedSectionProps) {
       </View>
       {items.map((item) => {
         const isOpen = expanded === item.id;
+        const isCopied = copiedId === item.id;
         return (
           <View key={item.id} style={[savedStyles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Pressable
@@ -160,6 +177,34 @@ function SavedSection({ items, onDelete, colors }: SavedSectionProps) {
                 <Text style={[savedStyles.cardBodyText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>
                   {item.response}
                 </Text>
+                <View style={savedStyles.cardBodyActions}>
+                  <Pressable
+                    onPress={() => handleCopy(item)}
+                    style={({ pressed }) => [
+                      savedStyles.actionBtn,
+                      { borderColor: isCopied ? colors.primary : colors.border, backgroundColor: isCopied ? colors.primary + "18" : "transparent" },
+                      { opacity: pressed ? 0.7 : 1 },
+                    ]}
+                  >
+                    <Feather name={isCopied ? "check" : "copy"} size={14} color={isCopied ? colors.primary : colors.mutedForeground} />
+                    <Text style={[savedStyles.actionBtnText, { color: isCopied ? colors.primary : colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
+                      {isCopied ? "Copied!" : "Copy"}
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={() => handleShare(item)}
+                    style={({ pressed }) => [
+                      savedStyles.actionBtn,
+                      { borderColor: colors.border },
+                      { opacity: pressed ? 0.7 : 1 },
+                    ]}
+                  >
+                    <Feather name="share" size={14} color={colors.mutedForeground} />
+                    <Text style={[savedStyles.actionBtnText, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
+                      Share
+                    </Text>
+                  </Pressable>
+                </View>
               </View>
             )}
           </View>
@@ -179,6 +224,17 @@ const savedStyles = StyleSheet.create({
   cardActions: { flexDirection: "row", alignItems: "center", gap: 14 },
   cardBody: { borderTopWidth: 1, padding: 14 },
   cardBodyText: { fontSize: 14, lineHeight: 21 },
+  cardBodyActions: { flexDirection: "row", gap: 8, marginTop: 12 },
+  actionBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+  },
+  actionBtnText: { fontSize: 13 },
 });
 
 interface ChatMessage {
