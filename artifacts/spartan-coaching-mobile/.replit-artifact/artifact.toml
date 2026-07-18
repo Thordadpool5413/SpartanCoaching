@@ -1,0 +1,26 @@
+kind = "mobile"
+previewPath = "/mobile"
+title = "Spartan Coaching Mobile"
+version = "1.0.0"
+id = "artifacts/spartan-coaching-mobile"
+router = "path"
+
+[[integratedSkills]]
+name = "expo"
+version = "1.0.0"
+
+[[services]]
+name = "expo"
+paths = [ "/mobile" ]
+localPort = 19006
+
+[services.development]
+run = "pnpm --filter @workspace/spartan-coaching-mobile run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/spartan-coaching-mobile", "run", "build" ]
+run = [ "pnpm", "--filter", "@workspace/spartan-coaching-mobile", "run", "serve" ]
+
+[services.env]
+PORT = "19006"
+BASE_PATH = "/mobile"
