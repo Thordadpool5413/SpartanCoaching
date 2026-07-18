@@ -12,7 +12,9 @@ import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
 import {
+  addReminderToHistory,
   cancelReminder,
+  removeReminderFromHistory,
   REMINDER_PRESETS,
   scheduleFollowUpReminder,
 } from "@/lib/notifications";
@@ -22,9 +24,11 @@ interface Props {
   body: string;
   label?: string;
   contact?: string;
+  onScheduled?: () => void;
+  onCancelled?: () => void;
 }
 
-export function ReminderPicker({ title, body, label = "Set follow-up reminder", contact }: Props) {
+export function ReminderPicker({ title, body, label = "Set follow-up reminder", contact, onScheduled, onCancelled }: Props) {
   const colors = useColors();
   const [scheduledId, setScheduledId] = useState<string | null>(null);
   const [scheduledLabel, setScheduledLabel] = useState<string | null>(null);
@@ -49,6 +53,7 @@ export function ReminderPicker({ title, body, label = "Set follow-up reminder", 
 
     if (scheduledId) {
       await cancelReminder(scheduledId);
+      await removeReminderFromHistory(scheduledId);
     }
 
     const id = await scheduleFollowUpReminder({
@@ -63,17 +68,28 @@ export function ReminderPicker({ title, body, label = "Set follow-up reminder", 
       return;
     }
 
+    await addReminderToHistory(id, {
+      title,
+      body: buildBody(),
+      delayMinutes: minutes,
+      contact: contactName || undefined,
+      presetLabel,
+    });
+
     setScheduledId(id);
     setScheduledLabel(presetLabel);
     setDenied(false);
+    onScheduled?.();
   };
 
   const handleCancel = async () => {
     if (!scheduledId) return;
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     await cancelReminder(scheduledId);
+    await removeReminderFromHistory(scheduledId);
     setScheduledId(null);
     setScheduledLabel(null);
+    onCancelled?.();
   };
 
   if (scheduledId && scheduledLabel) {

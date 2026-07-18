@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   Image,
@@ -14,9 +14,12 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import { router } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
+import * as Notifications from "expo-notifications";
 import { useColors } from "@/hooks/useColors";
+import { useReminderHistory } from "@/hooks/useReminderHistory";
 import { apiPost } from "@/lib/api";
+import { cancelReminder, removeReminderFromHistory } from "@/lib/notifications";
 
 const SUGGESTIONS = [
   "What are hospice eligibility criteria for heart failure?",
@@ -31,6 +34,21 @@ const QUICK_TOOLS = [
   { label: "Email Templates", icon: "mail" as const },
 ];
 
+function formatScheduledTime(ts: number): string {
+  const now = Date.now();
+  const diffMs = ts - now;
+  if (diffMs <= 0) return "soon";
+
+  const diffMin = Math.round(diffMs / 60_000);
+  if (diffMin < 60) return `in ${diffMin}m`;
+
+  const diffHr = Math.round(diffMs / 3_600_000);
+  if (diffHr < 24) return `in ${diffHr}h`;
+
+  const diffDays = Math.round(diffMs / 86_400_000);
+  return `in ${diffDays}d`;
+}
+
 export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
@@ -38,9 +56,37 @@ export default function HomeScreen() {
   const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { reminders, load: reloadReminders, removeReminder } = useReminderHistory();
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 90;
+
+  useFocusEffect(
+    useCallback(() => {
+      reloadReminders();
+    }, [reloadReminders])
+  );
+
+  useEffect(() => {
+    if (Platform.OS === "web") return;
+
+    const receivedSub = Notifications.addNotificationReceivedListener(async (notification) => {
+      const id = notification.request.identifier;
+      await removeReminderFromHistory(id);
+      await reloadReminders();
+    });
+
+    const responseSub = Notifications.addNotificationResponseReceivedListener(async (response) => {
+      const id = response.notification.request.identifier;
+      await removeReminderFromHistory(id);
+      await reloadReminders();
+    });
+
+    return () => {
+      receivedSub.remove();
+      responseSub.remove();
+    };
+  }, [reloadReminders]);
 
   const handleAsk = async (prompt: string) => {
     if (!prompt.trim()) return;
@@ -65,6 +111,12 @@ export default function HomeScreen() {
     setQuery("");
     setResponse("");
     setError(null);
+  };
+
+  const handleCancelReminder = async (id: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    await cancelReminder(id);
+    await removeReminder(id);
   };
 
   return (
@@ -96,6 +148,46 @@ export default function HomeScreen() {
           </Text>
         </View>
       </LinearGradient>
+
+      {/* Pending Reminders */}
+      {Platform.OS !== "web" && reminders.length > 0 && (
+        <View style={[styles.section, { backgroundColor: colors.background }]}>
+          <View style={styles.sectionHeader}>
+            <Feather name="clock" size={20} color={colors.primary} />
+            <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
+              Pending Reminders
+            </Text>
+          </View>
+          <View style={styles.reminderList}>
+            {reminders.map((reminder) => (
+              <View
+                key={reminder.id}
+                style={[styles.reminderRow, { backgroundColor: colors.card, borderColor: colors.border }]}
+              >
+                <View style={[styles.reminderDot, { backgroundColor: colors.primary }]} />
+                <View style={styles.reminderContent}>
+                  <Text
+                    style={[styles.reminderTitle, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}
+                    numberOfLines={1}
+                  >
+                    {reminder.contact ? reminder.contact : reminder.title}
+                  </Text>
+                  <Text style={[styles.reminderMeta, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                    {reminder.presetLabel} · {formatScheduledTime(reminder.scheduledFor)}
+                  </Text>
+                </View>
+                <Pressable
+                  onPress={() => handleCancelReminder(reminder.id)}
+                  hitSlop={10}
+                  style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
+                >
+                  <Feather name="x" size={18} color={colors.mutedForeground} />
+                </Pressable>
+              </View>
+            ))}
+          </View>
+        </View>
+      )}
 
       {/* Ask Spartan */}
       <View style={[styles.section, { backgroundColor: colors.background }]}>
@@ -286,6 +378,25 @@ const styles = StyleSheet.create({
   sectionHeader: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 4 },
   sectionTitle: { fontSize: 20, fontWeight: "700" },
   sectionSubtitle: { fontSize: 14, marginBottom: 16 },
+  reminderList: { gap: 8, marginTop: 12 },
+  reminderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    borderWidth: 1,
+    borderRadius: 12,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+  },
+  reminderDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    flexShrink: 0,
+  },
+  reminderContent: { flex: 1 },
+  reminderTitle: { fontSize: 14, marginBottom: 2 },
+  reminderMeta: { fontSize: 12 },
   inputRow: {
     flexDirection: "row",
     alignItems: "center",

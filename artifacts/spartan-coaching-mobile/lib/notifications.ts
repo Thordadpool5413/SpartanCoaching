@@ -1,5 +1,9 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Notifications from "expo-notifications";
 import { Platform } from "react-native";
+
+import { REMINDER_STORAGE_KEY } from "@/hooks/useReminderHistory";
+import type { PendingReminder } from "@/hooks/useReminderHistory";
 
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
@@ -53,6 +57,43 @@ export async function scheduleFollowUpReminder(
 
 export async function cancelReminder(id: string): Promise<void> {
   await Notifications.cancelScheduledNotificationAsync(id);
+}
+
+export async function addReminderToHistory(
+  id: string,
+  opts: {
+    title: string;
+    body: string;
+    delayMinutes: number;
+    contact?: string;
+    presetLabel: string;
+  }
+): Promise<void> {
+  if (Platform.OS === "web") return;
+  try {
+    const raw = await AsyncStorage.getItem(REMINDER_STORAGE_KEY);
+    const all: PendingReminder[] = raw ? JSON.parse(raw) : [];
+    const entry: PendingReminder = {
+      id,
+      title: opts.title,
+      body: opts.body,
+      scheduledFor: Date.now() + opts.delayMinutes * 60 * 1000,
+      contact: opts.contact,
+      presetLabel: opts.presetLabel,
+    };
+    const updated = [entry, ...all.filter((r) => r.id !== id)];
+    await AsyncStorage.setItem(REMINDER_STORAGE_KEY, JSON.stringify(updated));
+  } catch {}
+}
+
+export async function removeReminderFromHistory(id: string): Promise<void> {
+  if (Platform.OS === "web") return;
+  try {
+    const raw = await AsyncStorage.getItem(REMINDER_STORAGE_KEY);
+    const all: PendingReminder[] = raw ? JSON.parse(raw) : [];
+    const updated = all.filter((r) => r.id !== id);
+    await AsyncStorage.setItem(REMINDER_STORAGE_KEY, JSON.stringify(updated));
+  } catch {}
 }
 
 export const REMINDER_PRESETS = [
