@@ -264,7 +264,7 @@ export default function ToolsScreen() {
   const [activeTab, setActiveTab] = useState<ToolTab>("objection");
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
-  const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 90;
+  const bottomPad = Platform.OS === "web" ? 34 : tabBarHeight;
 
   // Saved responses hooks
   const objectionSaved = useSavedResponses("objection");
