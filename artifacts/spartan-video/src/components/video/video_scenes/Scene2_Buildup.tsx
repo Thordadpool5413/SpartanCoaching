@@ -3,49 +3,68 @@ import { useEffect, useState } from 'react';
 
 export function Scene2_Buildup() {
   const [phase, setPhase] = useState(0);
+  const [shockKey, setShockKey] = useState(0);
 
   useEffect(() => {
     const timers = [
-      setTimeout(() => setPhase(1), 500),
-      setTimeout(() => setPhase(2), 2500),
-      setTimeout(() => setPhase(3), 4500),
+      setTimeout(() => setPhase(1), 150),
+      setTimeout(() => { setPhase(2); setShockKey(k => k + 1); }, 900),
+      setTimeout(() => setPhase(3), 2800),
     ];
     return () => timers.forEach(t => clearTimeout(t));
   }, []);
 
   return (
-    <motion.div 
+    <motion.div
       className="absolute inset-0 flex items-center justify-center z-10"
-      initial={{ opacity: 0, scale: 0.95 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 1.1, filter: 'blur(20px)' }}
-      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+      initial={{ opacity: 1 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, scale: 1.06, filter: 'blur(15px)' }}
+      transition={{ duration: 0.3 }}
     >
-      <div className="absolute inset-0 flex items-center justify-center">
-        <motion.h1 
-          className="text-[15vw] font-display font-bold uppercase text-white/10 leading-none absolute"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={phase >= 1 && phase < 3 ? { opacity: 1, scale: 1.1 } : { opacity: 0, scale: 1.2 }}
-          transition={{ duration: 2.5, ease: 'easeOut' }}
-        >
-          IT IS A
-        </motion.h1>
+      {/* Shockwave rings on PROMISE impact */}
+      {[0, 1, 2].map(i => (
+        <motion.div
+          key={`shock-${shockKey}-${i}`}
+          className="absolute rounded-full border-2 border-[#e8291e] pointer-events-none"
+          initial={{ width: '5vw', height: '5vw', opacity: 0.9 }}
+          animate={{ width: '90vw', height: '90vw', opacity: 0 }}
+          transition={{ duration: 0.7 + i * 0.18, delay: i * 0.12, ease: 'easeOut' }}
+        />
+      ))}
 
-        <motion.h1 
-          className="text-[20vw] font-display font-black uppercase text-[#e8291e] leading-none absolute mix-blend-screen"
-          initial={{ opacity: 0, scale: 1.5, filter: 'blur(20px)' }}
-          animate={phase >= 2 ? { opacity: 1, scale: 1, filter: 'blur(0px)' } : { opacity: 0, scale: 1.5, filter: 'blur(20px)' }}
-          transition={{ duration: 0.6, type: 'spring', stiffness: 200, damping: 20 }}
-        >
-          PROMISE
-        </motion.h1>
-      </div>
+      {/* "IT IS A" ghost — barely visible */}
+      <motion.h1
+        className="text-[16vw] font-display font-black uppercase leading-none absolute select-none"
+        style={{ color: 'rgba(255,255,255,0.05)' }}
+        initial={{ opacity: 0 }}
+        animate={phase >= 1 ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ duration: 0.3 }}
+      >
+        IT IS A
+      </motion.h1>
 
-      <motion.div 
-        className="absolute bottom-20 left-20 w-32 h-1 bg-[#e8291e]"
-        initial={{ scaleX: 0, transformOrigin: 'left' }}
+      {/* "PROMISE" — full-screen, blinding red impact */}
+      <motion.h1
+        className="text-[20vw] font-display font-black uppercase text-[#e8291e] leading-none absolute mix-blend-screen"
+        initial={{ opacity: 0, scale: 2.2, filter: 'blur(40px)' }}
+        animate={
+          phase >= 2
+            ? { opacity: 1, scale: 1, filter: 'blur(0px)' }
+            : { opacity: 0, scale: 2.2, filter: 'blur(40px)' }
+        }
+        transition={{ duration: 0.35, type: 'spring', stiffness: 500, damping: 28 }}
+      >
+        PROMISE
+      </motion.h1>
+
+      {/* Bottom red rule */}
+      <motion.div
+        className="absolute bottom-16 left-16 h-[3px] bg-[#e8291e] origin-left"
+        style={{ width: '40vw' }}
+        initial={{ scaleX: 0 }}
         animate={phase >= 3 ? { scaleX: 1 } : { scaleX: 0 }}
-        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
       />
     </motion.div>
   );

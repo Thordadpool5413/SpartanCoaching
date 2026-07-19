@@ -1,54 +1,75 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
-const spartanLogo = `${import.meta.env.BASE_URL}spartan-logo.png`;
+const spartanStamp = `${import.meta.env.BASE_URL}spartan-logo-stamp.png`;
 
 export function Scene5_Outro() {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
     const timers = [
-      setTimeout(() => setPhase(1), 1000),
-      setTimeout(() => setPhase(2), 2500),
+      setTimeout(() => setPhase(1), 200),
+      setTimeout(() => setPhase(2), 1000),
+      setTimeout(() => setPhase(3), 1600),
     ];
     return () => timers.forEach(t => clearTimeout(t));
   }, []);
 
   return (
-    <motion.div 
+    <motion.div
       className="absolute inset-0 flex flex-col items-center justify-center z-30 bg-[#080808]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 1 }}
+      transition={{ duration: 0.4 }}
     >
+      {/* Hard red impact flash on entry */}
+      <motion.div
+        className="absolute inset-0 bg-[#e8291e] pointer-events-none"
+        initial={{ opacity: 0.4 }}
+        animate={{ opacity: 0 }}
+        transition={{ duration: 0.5, ease: 'easeOut' }}
+      />
+
       <div className="relative flex flex-col items-center">
-        {/* Full Wordmark Logo */}
-        <motion.img 
-          src={spartanLogo}
+        {/* Crest stamp — dominant hero */}
+        <motion.img
+          src={spartanStamp}
           alt="Spartan Coaching"
-          className="h-[12vh] object-contain mb-12 relative z-10 filter drop-shadow-2xl"
-          initial={{ opacity: 0, scale: 1.1, filter: 'blur(10px)' }}
-          animate={phase >= 1 ? { opacity: 1, scale: 1, filter: 'blur(0px)' } : { opacity: 0, scale: 1.1, filter: 'blur(10px)' }}
-          transition={{ duration: 1.5, ease: [0.22, 1, 0.36, 1] }}
+          className="w-[30vh] h-[30vh] object-contain mb-8 relative z-10"
+          initial={{ scale: 1.6, opacity: 0 }}
+          animate={phase >= 1 ? { scale: 1, opacity: 1 } : { scale: 1.6, opacity: 0 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 28 }}
         />
 
-        {/* Tagline */}
-        <motion.div 
-          className="h-[1px] bg-[#e8291e] w-[20vw] mb-8"
-          initial={{ scaleX: 0 }}
-          animate={phase >= 2 ? { scaleX: 1 } : { scaleX: 0 }}
-          transition={{ duration: 1, ease: "easeOut" }}
-        />
-
-        <motion.p 
-          className="text-[1.5vw] font-body text-white/60 tracking-[0.2em] uppercase"
+        {/* Wordmark in CSS — no image dependency */}
+        <motion.div
+          className="flex flex-col items-center"
           initial={{ opacity: 0, y: 20 }}
           animate={phase >= 2 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-          transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
+          transition={{ type: 'spring', stiffness: 600, damping: 30 }}
         >
-          Hospice Sales Consulting
-        </motion.p>
+          <h1 className="text-[4.5vw] font-display font-black uppercase tracking-[0.3em] text-white leading-none">
+            SPARTAN COACHING
+          </h1>
+
+          {/* Red rule shoots left-to-right */}
+          <motion.div
+            className="h-[3px] bg-[#e8291e] w-full origin-left mt-4 mb-4"
+            initial={{ scaleX: 0 }}
+            animate={phase >= 2 ? { scaleX: 1 } : { scaleX: 0 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+          />
+
+          <motion.p
+            className="text-[1.6vw] font-body text-white/55 tracking-[0.3em] uppercase"
+            initial={{ opacity: 0 }}
+            animate={phase >= 3 ? { opacity: 1 } : { opacity: 0 }}
+            transition={{ duration: 0.4 }}
+          >
+            Hospice Sales Consulting
+          </motion.p>
+        </motion.div>
       </div>
     </motion.div>
   );

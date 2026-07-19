@@ -49,42 +49,71 @@ export default function VideoTemplate({
     <div className="w-full h-screen overflow-hidden relative bg-[#080808]">
       {/* Persistent Background Layer */}
       <div className="absolute inset-0 z-0">
+        {/* Primary red glow — aggressive pulse */}
         <motion.div
-          className="absolute w-[80vw] h-[80vw] rounded-full blur-[100px] opacity-30"
-          style={{ background: 'radial-gradient(circle, #e8291e, transparent 70%)' }}
+          className="absolute w-[70vw] h-[70vw] rounded-full blur-[90px]"
+          style={{ background: 'radial-gradient(circle, #e8291e, transparent 65%)' }}
           animate={{
-            x: ['-20%', '20%', '-10%', '-20%'],
-            y: ['-20%', '10%', '-30%', '-20%'],
-            scale: [1, 1.2, 0.9, 1],
-            opacity: sceneIndex === 3 ? 0.6 : (sceneIndex === 4 ? 0.1 : 0.3),
+            x: ['-15%', '15%', '-8%', '-15%'],
+            y: ['-15%', '8%', '-25%', '-15%'],
+            scale: [1, 1.3, 0.85, 1],
+            opacity:
+              sceneIndex === 3
+                ? [0.55, 0.75, 0.55]
+                : sceneIndex === 4
+                ? [0.05, 0.1, 0.05]
+                : [0.25, 0.45, 0.25],
           }}
-          transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
+          transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
         />
+
+        {/* Secondary dark red glow */}
         <motion.div
-          className="absolute w-[60vw] h-[60vw] rounded-full blur-[80px] opacity-20 right-0 bottom-0"
-          style={{ background: 'radial-gradient(circle, #5e0d08, transparent 60%)' }}
+          className="absolute w-[50vw] h-[50vw] rounded-full blur-[70px] right-0 bottom-0"
+          style={{ background: 'radial-gradient(circle, #6b0d08, transparent 55%)' }}
           animate={{
-            x: ['10%', '-30%', '20%', '10%'],
-            y: ['10%', '-20%', '30%', '10%'],
+            x: ['8%', '-25%', '15%', '8%'],
+            y: ['8%', '-15%', '25%', '8%'],
+            opacity: sceneIndex === 4 ? 0.08 : 0.22,
           }}
-          transition={{ duration: 20, repeat: Infinity, ease: 'easeInOut' }}
+          transition={{ duration: 11, repeat: Infinity, ease: 'easeInOut' }}
         />
+
+        {/* Film grain */}
         <div
-          className="absolute inset-0 opacity-[0.03] mix-blend-overlay pointer-events-none"
+          className="absolute inset-0 opacity-[0.04] mix-blend-overlay pointer-events-none"
           style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
+            backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")`,
           }}
         />
       </div>
 
-      {/* Persistent Midground: faint crest watermark */}
+      {/* Scene-transition hard flash — re-mounts on every scene change */}
+      <motion.div
+        key={`flash-${currentSceneKey}`}
+        className="absolute inset-0 z-40 pointer-events-none bg-[#e8291e]"
+        initial={{ opacity: 0.6 }}
+        animate={{ opacity: 0 }}
+        transition={{ duration: 0.35, ease: 'easeOut' }}
+      />
+
+      {/* Scene-transition scan line */}
+      <motion.div
+        key={`scan-${currentSceneKey}`}
+        className="absolute left-0 right-0 h-[2px] bg-white z-41 pointer-events-none"
+        style={{ top: 0 }}
+        initial={{ top: 0, opacity: 0.7 }}
+        animate={{ top: '100%', opacity: 0 }}
+        transition={{ duration: 0.6, ease: 'linear' }}
+      />
+
+      {/* Persistent midground: faint crest watermark (scenes 2-3 only) */}
       <motion.div
         className="absolute inset-0 flex items-center justify-center pointer-events-none z-0"
         animate={{
-          opacity: sceneIndex >= 2 && sceneIndex < 4 ? 0.05 : 0,
-          scale: [1, 1.05],
+          opacity: sceneIndex >= 2 && sceneIndex < 4 ? 0.06 : 0,
         }}
-        transition={{ duration: 15, ease: 'linear' }}
+        transition={{ duration: 0.4 }}
       >
         <img src={spartanStamp} alt="" className="w-[120vh] h-[120vh] object-contain" />
       </motion.div>
