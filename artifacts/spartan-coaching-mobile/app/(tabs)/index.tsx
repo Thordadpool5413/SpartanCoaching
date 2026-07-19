@@ -339,6 +339,36 @@ export default function HomeScreen() {
         </View>
       </View>
 
+      {/* Outreach */}
+      <View style={[styles.section, { backgroundColor: colors.background, paddingTop: 0 }]}>
+        <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold", marginBottom: 12 }]}>
+          Outreach
+        </Text>
+        <Pressable
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            router.push("/brand-video");
+          }}
+          style={({ pressed }) => [
+            styles.toolCard,
+            { backgroundColor: colors.card, borderColor: colors.border, opacity: pressed ? 0.8 : 1 },
+          ]}
+        >
+          <View style={[styles.toolIcon, { backgroundColor: colors.accent }]}>
+            <Feather name="film" size={20} color={colors.primary} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.toolLabel, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>
+              Brand Video
+            </Text>
+            <Text style={[styles.toolSub, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+              Preview and share the Spartan brand video with prospects
+            </Text>
+          </View>
+          <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
+        </Pressable>
+      </View>
+
       {/* Mission — always rendered on dark brand background */}
       <View style={[styles.missionSection, { backgroundColor: colors.heroBackground }]}>
         <Text style={[styles.missionOverline, { color: colors.primary, fontFamily: "Inter_700Bold" }]}>
@@ -487,6 +517,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   toolLabel: { fontSize: 16 },
+  toolSub: { fontSize: 13, marginTop: 2 },
   missionSection: {
     paddingHorizontal: 24,
     paddingVertical: 40,

@@ -23,6 +23,7 @@ function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerBackTitle: "Back" }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="brand-video" options={{ title: "Brand Video" }} />
       <Stack.Screen name="+not-found" />
     </Stack>
   );

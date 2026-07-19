@@ -60,6 +60,7 @@
     "expo-background-fetch": "^57.0.5",
     "expo-clipboard": "^57.0.1",
     "expo-notifications": "^57.0.6",
-    "expo-task-manager": "^57.0.5"
+    "expo-task-manager": "^57.0.5",
+    "react-native-webview": "13.15.0"
   }
 }
