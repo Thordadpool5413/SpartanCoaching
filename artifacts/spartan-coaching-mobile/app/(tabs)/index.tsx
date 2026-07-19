@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useState } from "react";
 import {
   ActivityIndicator,
+  AppState,
+  AppStateStatus,
   Image,
   Platform,
   Pressable,
@@ -82,9 +84,24 @@ export default function HomeScreen() {
       await reloadReminders();
     });
 
+    const handleAppStateChange = (nextState: AppStateStatus) => {
+      if (nextState === "active") {
+        reloadReminders();
+      }
+    };
+    const appStateSub = AppState.addEventListener("change", handleAppStateChange);
+
+    const pollInterval = setInterval(() => {
+      if (AppState.currentState === "active") {
+        reloadReminders();
+      }
+    }, 30_000);
+
     return () => {
       receivedSub.remove();
       responseSub.remove();
+      appStateSub.remove();
+      clearInterval(pollInterval);
     };
   }, [reloadReminders]);
 
