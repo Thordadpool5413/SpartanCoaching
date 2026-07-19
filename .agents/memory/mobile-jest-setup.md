@@ -24,3 +24,10 @@ Fix: update `artifacts/spartan-coaching-mobile/metro.config.js` to:
 - `resolver.unstable_enablePackageExports: true` — enables `exports` field resolution
 
 **Why:** Metro's default config is single-package; it ignores the monorepo root and doesn't follow `exports` fields without the flag. Any new workspace lib imported by the mobile app will need this config in place.
+
+## Expo phone connection in Replit (do NOT use --tunnel)
+Running `expo start --tunnel` causes Metro to restrict connections to the ngrok host only. Replit's phone QR uses `REPLIT_EXPO_DEV_DOMAIN` (expo.janeway.replit.dev), which Metro rejects → "HTTP response error 404" in Expo Go.
+
+Fix: remove `--tunnel` from the dev script. Metro in non-tunnel mode accepts any host. Replit's `REPLIT_EXPO_DEV_DOMAIN` routes directly to the Metro port (8081) and works correctly.
+
+**User instruction:** Scan the QR from the **Replit URL bar** (not the Expo console). The Expo console shows a LAN IP (`exp://172.x.x.x:8081`) that is not externally reachable — ignore it.

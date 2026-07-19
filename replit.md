@@ -38,7 +38,7 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 ## Gotchas
 
-- Mobile app (Expo Go on a phone) runs in tunnel mode (`expo start --tunnel`). The exp.direct URL/QR rotates whenever the expo workflow restarts — re-scan the QR from the expo workflow console after each restart.
+- Mobile app (Expo Go on a phone): scan the QR code from the **Replit URL bar** (not the Expo console). The Replit URL bar QR uses `REPLIT_EXPO_DEV_DOMAIN` which routes directly to the Metro server. The Expo console shows a LAN IP (`exp://172.x.x.x:8081`) which is NOT accessible from a phone — ignore it. Re-scan from the Replit URL bar after each workflow restart.
 
 ## Pointers
 
