@@ -1,4 +1,5 @@
-import { defineConfig } from "vite";
+import { defineConfig, Plugin } from "vite";
+import http from "http";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
@@ -25,9 +26,59 @@ if (!basePath) {
   );
 }
 
+function expoMetroProxy(): Plugin {
+  const METRO_PORT = 8081;
+  return {
+    name: "expo-metro-proxy",
+    apply: "serve",
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        const url = req.url ?? "";
+        const accept = req.headers.accept ?? "";
+
+        const shouldProxy =
+          accept.includes("application/expo+json") ||
+          accept.includes("multipart/mixed") ||
+          url.includes(".bundle?platform=") ||
+          url.includes(".bundle?") ||
+          url.startsWith("/_expo") ||
+          (url.includes("platform=") && url.includes("/assets")) ||
+          (url.includes("platform=") && url.includes("/node_modules"));
+
+        if (!shouldProxy) {
+          next();
+          return;
+        }
+
+        const proxyReq = http.request(
+          {
+            hostname: "localhost",
+            port: METRO_PORT,
+            path: url,
+            method: req.method ?? "GET",
+            headers: { ...req.headers, host: `localhost:${METRO_PORT}` },
+          },
+          (proxyRes) => {
+            res.writeHead(proxyRes.statusCode ?? 200, proxyRes.headers);
+            proxyRes.pipe(res, { end: true });
+          },
+        );
+        proxyReq.on("error", () => {
+          if (!res.headersSent) {
+            res.writeHead(502);
+          }
+          res.end();
+        });
+        req.pipe(proxyReq, { end: true });
+      });
+    },
+  };
+}
+
 export default defineConfig({
   base: basePath,
   plugins: [
+    expoMetroProxy(),
     react(),
     runtimeErrorOverlay(),
     ...(process.env.NODE_ENV !== "production" &&
