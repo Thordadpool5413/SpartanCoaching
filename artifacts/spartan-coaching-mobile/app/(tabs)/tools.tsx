@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useContext, useRef, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -15,6 +15,7 @@ import * as Clipboard from "expo-clipboard";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import { BottomTabBarHeightContext } from "@react-navigation/bottom-tabs";
 import { useColors } from "@/hooks/useColors";
 import { apiPost } from "@/lib/api";
 import { ReminderPicker } from "@/components/ReminderPicker";
@@ -99,8 +100,6 @@ const ROLEPLAY_SCENARIOS = [
 ];
 
 type RoleplayPhase = "select" | "active" | "feedback";
-
-const TAB_BAR_HEIGHT = 49;
 
 function formatSavedDate(ts: number): string {
   const d = new Date(ts);
@@ -255,6 +254,8 @@ interface RoleplaySession {
 export default function ToolsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const rnTabBarHeight = useContext(BottomTabBarHeightContext);
+  const tabBarHeight = rnTabBarHeight ?? insets.bottom + 49;
   const [activeTab, setActiveTab] = useState<ToolTab>("objection");
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
@@ -521,7 +522,7 @@ export default function ToolsScreen() {
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === "ios" ? "padding" : undefined}
-          keyboardVerticalOffset={TAB_BAR_HEIGHT + insets.bottom}
+          keyboardVerticalOffset={tabBarHeight}
         >
           {/* Session header */}
           <View style={[styles.sessionHeader, { marginHorizontal: 20, marginTop: 16, borderColor: colors.border }]}>
@@ -614,7 +615,7 @@ export default function ToolsScreen() {
           )}
 
           {/* Sticky input bar — sits just above the tab bar */}
-          <View style={{ paddingHorizontal: 12, paddingTop: 6, paddingBottom: TAB_BAR_HEIGHT + insets.bottom + 8 }}>
+          <View style={{ paddingHorizontal: 12, paddingTop: 6, paddingBottom: tabBarHeight + 8 }}>
             <View style={[styles.chatInputRow, { borderColor: colors.border, backgroundColor: colors.card }]}>
               <TextInput
                 style={[styles.chatInput, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}
