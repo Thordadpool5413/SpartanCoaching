@@ -49,3 +49,6 @@ The branch profitability engine (engine, presets, content claim registry) now li
 
 ## Duplicate vite type instances after lockfile changes
 After pnpm add/remove in artifacts, typecheck can fail in an unrelated Vite artifact with "Plugin<any> is not assignable to PluginOption" caused by two vite instances keyed on different jiti versions. Fix: `pnpm dedupe jiti`.
+
+## Hero video source
+The homepage hero background (`public/hero-video.mp4` + mobile + poster) is the first ~22.5s of the user-attached fiery logo animation `attached_assets/Spartan_Logo_Hero_1761587167656.mp4` (rest of that file is black), trimmed/re-encoded with ffmpeg. Re-trim from that source if the hero clip needs changes; don't use the black tail.

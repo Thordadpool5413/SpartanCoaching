@@ -183,6 +183,7 @@ export default function Home() {
           loop
           playsInline
           preload="auto"
+          poster="/hero-poster.jpg"
           className="absolute inset-0 w-full h-full object-cover hero-video-mobile z-[1]"
           data-testid="hero-video"
           aria-label="Spartan Coaching hero video background"
@@ -192,7 +193,7 @@ export default function Home() {
           Your browser does not support the video tag.
         </video>
 
-        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-black/35 to-black/50 md:from-black/40 md:via-black/30 md:to-black/40 z-[2]"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/50 to-black/60 md:from-black/60 md:via-black/45 md:to-black/55 z-[2]"></div>
 
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-20 lg:py-24 text-center">
           <Link href="/services" className="inline-flex items-center gap-3 bg-green-500/20 border border-green-400/50 rounded-full px-6 py-2 mb-8 animate-fade-in-up hover:bg-green-500/30 transition-colors cursor-pointer" data-testid="link-hero-programs-badge">
