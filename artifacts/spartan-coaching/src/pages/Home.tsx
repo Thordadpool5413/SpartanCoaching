@@ -6,13 +6,26 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DisciplineIcon, EmpathyIcon, StrategyIcon } from "@/components/icons";
-import { Shield, Heart, Zap, Target, Users, BookOpen, ArrowRight, Sparkles, Lightbulb, MessageCircle, Search, Mail, Flame, Stethoscope, Brain, Briefcase, CheckCircle, AlertCircle, Mic, TrendingUp, Building2, Clock, MonitorSmartphone } from "lucide-react";
+import { Shield, Heart, Zap, Target, Users, BookOpen, ArrowRight, Sparkles, Lightbulb, MessageCircle, Search, Mail, Flame, Stethoscope, Brain, Briefcase, CheckCircle, AlertCircle, Mic, TrendingUp, Building2, Clock, MonitorSmartphone, X } from "lucide-react";
 import { Linkedin as SiLinkedin } from "lucide-react";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { SEO } from "@/components/SEO";
 import { apiRequest } from "@/lib/queryClient";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
+import { useReminderHistory } from "@/hooks/use-reminder-history";
+
+function formatScheduledTime(ts: number): string {
+  const now = Date.now();
+  const diffMs = ts - now;
+  if (diffMs <= 0) return "soon";
+  const diffMin = Math.round(diffMs / 60_000);
+  if (diffMin < 60) return `in ${diffMin}m`;
+  const diffHr = Math.round(diffMs / 3_600_000);
+  if (diffHr < 24) return `in ${diffHr}h`;
+  const diffDays = Math.round(diffMs / 86_400_000);
+  return `in ${diffDays}d`;
+}
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -22,6 +35,7 @@ export default function Home() {
   const [askResponse, setAskResponse] = useState("");
   const [askLoading, setAskLoading] = useState(false);
   const [askError, setAskError] = useState<string | null>(null);
+  const { reminders, removeReminder } = useReminderHistory();
 
   const { data: siteSettingsData } = useQuery<{ settings: Record<string, string> }>({
     queryKey: ["/api/site-settings"],
@@ -234,6 +248,54 @@ export default function Home() {
         </div>
       </section>
 
+
+      {/* 1b. Pending Reminders */}
+      {reminders.length > 0 && (
+        <section className="bg-background border-b border-border" data-testid="section-pending-reminders">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6">
+            <div className="rounded-xl border-2 border-primary/20 bg-primary/5 p-5">
+              <div className="flex items-center gap-2 mb-4">
+                <Clock className="w-4 h-4 text-primary" />
+                <h2 className="text-sm font-bold uppercase tracking-wide text-primary">
+                  Pending Reminders
+                </h2>
+              </div>
+              <ul className="space-y-2">
+                {reminders.map((r) => (
+                  <li
+                    key={r.id}
+                    className="flex items-start gap-3 rounded-lg border border-border bg-background px-4 py-3"
+                    data-testid={`reminder-item-${r.id}`}
+                  >
+                    <div className="mt-0.5 h-2 w-2 flex-shrink-0 rounded-full bg-primary" />
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold text-foreground leading-snug truncate">
+                        {r.title}
+                      </p>
+                      {r.contact ? (
+                        <p className="text-sm font-medium text-foreground/80 truncate">
+                          {r.contact}
+                        </p>
+                      ) : null}
+                      <p className="text-xs text-muted-foreground mt-0.5">
+                        {r.presetLabel} · {formatScheduledTime(r.scheduledFor)}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => removeReminder(r.id)}
+                      className="text-muted-foreground hover:text-foreground transition-colors flex-shrink-0 mt-0.5"
+                      aria-label="Dismiss reminder"
+                      data-testid={`button-dismiss-reminder-${r.id}`}
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* 2. Ask Spartan AI Section */}
       <section id="ask-spartan" className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-ask-spartan">
