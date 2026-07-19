@@ -13,9 +13,9 @@ import {
 } from "../rateLimits";
 
 import path from "path";
-import { and, eq, gt, lt } from "drizzle-orm";
+import { and, count, eq, gt, lt, max } from "drizzle-orm";
 import { db } from "../db";
-import { objectUploadTokens } from "@workspace/db";
+import { objectUploadTokens, roleplaySessions } from "@workspace/db";
 import { storage } from "../storage";
 import {
   generateComplexResponse,
@@ -1392,6 +1392,23 @@ Build a specific Monday–Friday territory plan for this week.`;
       res.json(sessions);
     } catch (error: any) {
       console.error("Get roleplay sessions error:", error);
+      res.json([]);
+    }
+  });
+
+  app.get("/api/roleplay/stats", async (_req, res) => {
+    try {
+      const rows = await db
+        .select({
+          scenarioId: roleplaySessions.scenarioId,
+          count: count(),
+          lastPracticedAt: max(roleplaySessions.createdAt),
+        })
+        .from(roleplaySessions)
+        .groupBy(roleplaySessions.scenarioId);
+      res.json(rows);
+    } catch (error: any) {
+      console.error("Get roleplay stats error:", error);
       res.json([]);
     }
   });

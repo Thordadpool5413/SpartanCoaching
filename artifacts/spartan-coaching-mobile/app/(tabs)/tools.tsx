@@ -1,4 +1,4 @@
-import React, { useContext, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -17,7 +17,7 @@ import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { BottomTabBarHeightContext } from "@react-navigation/bottom-tabs";
 import { useColors } from "@/hooks/useColors";
-import { apiPost } from "@/lib/api";
+import { apiGet, apiPost } from "@/lib/api";
 import { ReminderPicker } from "@/components/ReminderPicker";
 import { useSavedResponses, type SavedResponse } from "@/hooks/useSavedResponses";
 
@@ -251,6 +251,11 @@ interface RoleplaySession {
   createdAt: number;
 }
 
+interface ScenarioStat {
+  count: number;
+  lastPracticedAt: number | null;
+}
+
 export default function ToolsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
@@ -306,6 +311,22 @@ export default function ToolsScreen() {
   const [customScenarioExpanded, setCustomScenarioExpanded] = useState(false);
   const [customTitle, setCustomTitle] = useState("");
   const [customDescription, setCustomDescription] = useState("");
+
+  // Scenario practice stats
+  const [scenarioStats, setScenarioStats] = useState<Record<string, ScenarioStat>>({});
+
+  useEffect(() => {
+    if (activeTab !== "roleplay" || roleplayPhase !== "select") return;
+    apiGet<{ scenarioId: string; count: number; lastPracticedAt: number | null }[]>("/api/roleplay/stats")
+      .then((rows) => {
+        const map: Record<string, ScenarioStat> = {};
+        for (const row of rows) {
+          map[row.scenarioId] = { count: row.count, lastPracticedAt: row.lastPracticedAt };
+        }
+        setScenarioStats(map);
+      })
+      .catch(() => {});
+  }, [activeTab, roleplayPhase]);
 
   const handleObjection = async () => {
     if (objection.trim().length < 5) return;
@@ -945,28 +966,39 @@ export default function ToolsScreen() {
                     </View>
                   ) : (
                     <>
-                      {ROLEPLAY_SCENARIOS.map((s) => (
-                        <Pressable
-                          key={s.id}
-                          onPress={() => startRoleplay(s.id, s.title)}
-                          style={({ pressed }) => [
-                            styles.scenarioCard,
-                            { backgroundColor: colors.card, borderColor: colors.border },
-                            pressed && { opacity: 0.8 },
-                          ]}
-                        >
-                          <Text style={styles.scenarioEmoji}>{s.icon}</Text>
-                          <View style={styles.scenarioTextWrap}>
-                            <Text style={[styles.scenarioTitle, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>
-                              {s.title}
-                            </Text>
-                            <Text style={[styles.scenarioDesc, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                              {s.description}
-                            </Text>
-                          </View>
-                          <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
-                        </Pressable>
-                      ))}
+                      {ROLEPLAY_SCENARIOS.map((s) => {
+                        const stat = scenarioStats[s.id];
+                        return (
+                          <Pressable
+                            key={s.id}
+                            onPress={() => startRoleplay(s.id, s.title)}
+                            style={({ pressed }) => [
+                              styles.scenarioCard,
+                              { backgroundColor: colors.card, borderColor: colors.border },
+                              pressed && { opacity: 0.8 },
+                            ]}
+                          >
+                            <Text style={styles.scenarioEmoji}>{s.icon}</Text>
+                            <View style={styles.scenarioTextWrap}>
+                              <Text style={[styles.scenarioTitle, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>
+                                {s.title}
+                              </Text>
+                              <Text style={[styles.scenarioDesc, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                                {s.description}
+                              </Text>
+                              {stat && stat.count > 0 && (
+                                <View style={styles.scenarioStatRow}>
+                                  <Feather name="check-circle" size={11} color={colors.primary} />
+                                  <Text style={[styles.scenarioStatText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
+                                    {stat.count}×{stat.lastPracticedAt ? ` · ${formatSavedDate(stat.lastPracticedAt)}` : ""}
+                                  </Text>
+                                </View>
+                              )}
+                            </View>
+                            <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
+                          </Pressable>
+                        );
+                      })}
 
                       {/* Custom Scenario card */}
                       <View style={[styles.scenarioCard, { backgroundColor: colors.card, borderColor: colors.border, flexDirection: "column", alignItems: "stretch", gap: 0 }]}>
@@ -1199,6 +1231,8 @@ const styles = StyleSheet.create({
   scenarioTextWrap: { flex: 1 },
   scenarioTitle: { fontSize: 16, marginBottom: 3 },
   scenarioDesc: { fontSize: 13, lineHeight: 19 },
+  scenarioStatRow: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 5 },
+  scenarioStatText: { fontSize: 11 },
 
   // Role-Play: Active session
   sessionHeader: {
