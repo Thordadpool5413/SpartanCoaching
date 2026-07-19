@@ -163,6 +163,7 @@ export function Header() {
     { path: "/terms", label: "Terms of Service", description: "Terms governing use of our services" },
     { path: "/disclaimer", label: "Disclaimer", description: "Important disclaimers and notices" },
     { path: "/contact", label: "Contact", description: "Get in touch with Spartan Coaching" },
+    { path: "/brand-video", label: "Brand Video", description: "Share the Spartan brand video with prospects" },
   ];
 
   const aiTools = [
@@ -233,6 +234,7 @@ export function Header() {
             { path: "/tools/email-templates", label: "Email Templates", description: "Professional emails" },
             { path: "/tools/role-play", label: "Role-Play Practice", description: "Practice with AI" },
             { path: "/tools/transcribe", label: "Call Transcriber", description: "Transcribe and summarize sales calls" },
+            { path: "/brand-video", label: "Brand Video", description: "Share the Spartan brand video" },
           ]} />
           <NavDropdown label="Calculators" dataTestId="dropdown-calculators" items={[
             { path: "/tools/roi-calculator", label: "ROI Calculator", description: "Estimate the revenue impact of Spartan Coaching" },
@@ -358,6 +360,7 @@ export function Header() {
                   { path: "/tools/email-templates", label: "Email Templates" },
                   { path: "/tools/role-play", label: "Role-Play Practice" },
                   { path: "/tools/transcribe", label: "Call Transcriber" },
+                  { path: "/brand-video", label: "Brand Video" },
                 ].map((item) => (
                   <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
                 ))}
