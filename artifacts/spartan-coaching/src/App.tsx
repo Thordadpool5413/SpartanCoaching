@@ -66,6 +66,7 @@ const BrandedAssessment = lazy(() => import("@/pages/BrandedAssessment"));
 const AssessmentPrint = lazy(() => import("@/pages/AssessmentPrint"));
 const AssessmentResultsPDF = lazy(() => import("@/pages/AssessmentResultsPDF"));
 const SignAgreements = lazy(() => import("@/pages/SignAgreements"));
+const BrandVideo = lazy(() => import("@/pages/BrandVideo"));
 
 function AssessmentRoute() {
   return <Assessment />;
@@ -180,6 +181,7 @@ function Router() {
           <Route path="/assessment/:id" component={AssessmentRoute} />
           <Route path="/assessment-results/:submissionId" component={AssessmentResultsPDF} />
           <Route path="/sign/:token" component={SignAgreements} />
+          <Route path="/brand-video" component={BrandVideo} />
           <Route component={NotFound} />
         </Switch>
       </Suspense>

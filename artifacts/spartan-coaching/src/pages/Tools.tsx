@@ -1,6 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { LightbulbIcon, SearchIcon as CustomSearchIcon, ChatIcon, MicrophoneIcon } from "@/components/icons";
-import { Mail, Users, Search, ArrowRight, Calculator, DollarSign, TrendingUp, Building, Phone, CalendarDays } from "lucide-react";
+import { Mail, Users, Search, ArrowRight, Calculator, DollarSign, TrendingUp, Building, Phone, CalendarDays, Video } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/BackButton";
@@ -98,6 +98,13 @@ export default function Tools() {
       icon: <CalendarDays className="w-8 h-8" />,
       path: "/tools/weekly-plan-builder",
       category: "Planning",
+    },
+    {
+      title: "Brand Video",
+      description: "Share the Spartan Coaching cinematic brand video with prospects in one click. Copy a shareable link and send it via email, LinkedIn, or text — no login required to view.",
+      icon: <Video className="w-8 h-8" />,
+      path: "/brand-video",
+      category: "Outreach",
     },
   ];
 
