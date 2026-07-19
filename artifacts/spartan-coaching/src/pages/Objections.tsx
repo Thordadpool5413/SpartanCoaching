@@ -9,6 +9,7 @@ import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { useToast } from "@/hooks/use-toast";
+import { ReminderPicker } from "@/components/ReminderPicker";
 
 export default function Objections() {
   const objections = [
@@ -141,9 +142,9 @@ export default function Objections() {
                 )}
               </Button>
               {aiResponses[obj.q] && (
-                <div className="p-4 bg-accent rounded-lg">
+                <div className="p-4 bg-accent rounded-lg space-y-3">
                   <p className="font-semibold text-sm mb-2 text-primary">AI Generated Response:</p>
-                  <div className="text-foreground mb-3" data-testid={`text-ai-response-${idx}`}>
+                  <div className="text-foreground" data-testid={`text-ai-response-${idx}`}>
                     <MarkdownContent content={aiResponses[obj.q]} />
                   </div>
                   <div className="flex items-center gap-4">
@@ -169,6 +170,7 @@ export default function Objections() {
                       Copy
                     </button>
                   </div>
+                  <ReminderPicker title={`Follow up: ${obj.q}`} />
                 </div>
               )}
             </div>

@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect } from "react";
+import { ReminderPicker } from "@/components/ReminderPicker";
 import { motion } from "framer-motion";
 import { Card } from "@/components/ui/card";
 import { CoachingCTA } from "@/components/CoachingCTA";
@@ -525,9 +526,15 @@ export default function RolePlay() {
               </SlideUp>
             )}
 
+            <SlideUp delay={0.5}>
+              <div className="mb-6">
+                <ReminderPicker title={`Follow up after ${activeScenarioTitle} practice`} />
+              </div>
+            </SlideUp>
+
             <CoachingCTA className="mb-6" />
 
-            <FadeIn delay={0.5}>
+            <FadeIn delay={0.6}>
               <Button
                 onClick={handlePracticeAgain}
                 size="lg"

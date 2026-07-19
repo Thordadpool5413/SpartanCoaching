@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { downloadPdf, markdownToSections, type EmailPdfPayload } from "@/lib/downloadPdf";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
+import { ReminderPicker } from "@/components/ReminderPicker";
 
 export default function Playbooks() {
   const { toast } = useToast();
@@ -271,6 +272,9 @@ export default function Playbooks() {
               <div data-testid="text-playbook-content">
                 <MarkdownContent content={generatedPlaybook} />
               </div>
+              <div className="mt-6 pt-4 border-t">
+                <ReminderPicker title="Follow up on playbook" />
+              </div>
             </Card>
           )}
 
@@ -296,7 +300,8 @@ export default function Playbooks() {
               <div className="mb-6">
                 <MarkdownContent content={generatedPlaybook} />
               </div>
-              <div className="flex gap-3">
+              <ReminderPicker title="Follow up on playbook" />
+              <div className="flex gap-3 mt-4">
                 <Button variant="outline" onClick={handleCopyPlaybook} className="flex-1" data-testid="button-modal-copy">
                   <Copy className="w-4 h-4 mr-1" />
                   Copy
