@@ -9,73 +9,25 @@ import {
   CommandItem,
   CommandSeparator,
 } from "@/components/ui/command";
-import {
-  Home,
-  Info,
-  Briefcase,
-  GraduationCap,
-  Shield,
-  MessageSquare,
-  FileText,
-  Headphones,
-  FolderOpen,
-  BookOpen,
-  Calculator,
-  Lightbulb,
-  MessageCircle,
-  Search,
-  Mic,
-  Mail,
-  Users,
-  Flame,
-} from "lucide-react";
+import { Users, Flame } from "lucide-react";
+import { navSections, additionalPages } from "@/lib/navigation";
 
 const commandItems = [
+  ...navSections.map((section) => ({
+    category: section.title,
+    items: section.items.map((item) => ({
+      title: item.label,
+      path: item.path,
+      icon: item.icon,
+    })),
+  })),
   {
-    category: "Pages",
-    items: [
-      { title: "Home", path: "/", icon: Home },
-      { title: "About", path: "/about", icon: Info },
-      { title: "Services", path: "/services", icon: Briefcase },
-      { title: "Programs", path: "/programs", icon: GraduationCap },
-      { title: "Method", path: "/method", icon: Shield },
-      { title: "Testimonials", path: "/testimonials", icon: MessageSquare },
-      { title: "Articles", path: "/articles", icon: FileText },
-      { title: "Podcasts", path: "/podcasts", icon: Headphones },
-      { title: "Resources", path: "/resources", icon: FolderOpen },
-      { title: "Knowledge Base", path: "/learn/knowledge-base", icon: BookOpen },
-    ],
-  },
-  {
-    category: "AI Tools",
-    items: [
-      {
-        title: "Playbook Generator",
-        path: "/tools/playbooks",
-        icon: Lightbulb,
-      },
-      {
-        title: "Objection Handler",
-        path: "/tools/objections",
-        icon: MessageCircle,
-      },
-      { title: "Grounded Research", path: "/tools/research", icon: Search },
-      { title: "Call Transcriber", path: "/tools/transcribe", icon: Mic },
-      {
-        title: "Email Templates",
-        path: "/tools/email-templates",
-        icon: Mail,
-      },
-      { title: "Role-Play Practice", path: "/tools/role-play", icon: Users },
-      { title: "ROI Calculator", path: "/tools/roi-calculator", icon: Calculator },
-      { title: "Activity Calculator", path: "/tools/activity-calculator", icon: Calculator },
-      { title: "Branch Profitability Simulator", path: "/tools/branch-profitability", icon: Calculator },
-      { title: "Weekly Plan Builder", path: "/tools/weekly-plan-builder", icon: Lightbulb },
-    ],
-  },
-  {
-    category: "Practice",
-    items: [{ title: "Daily Drills", path: "/drills", icon: Flame }],
+    category: "More Pages",
+    items: additionalPages.map((item) => ({
+      title: item.label,
+      path: item.path,
+      icon: item.icon,
+    })),
   },
   {
     category: "Quick Actions",
@@ -89,17 +41,6 @@ const commandItems = [
     ],
   },
 ];
-
-interface CommandItem {
-  title: string;
-  path: string;
-  icon: any;
-}
-
-interface CommandCategory {
-  category: string;
-  items: CommandItem[];
-}
 
 export function CommandPalette() {
   const [, navigate] = useLocation();

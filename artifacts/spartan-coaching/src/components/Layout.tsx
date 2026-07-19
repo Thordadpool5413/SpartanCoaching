@@ -24,6 +24,7 @@ import { Input } from "@/components/ui/input";
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
+import { navSections, allSearchablePages } from "@/lib/navigation";
 
 // Helper hook to determine if the screen is mobile
 function useIsMobile() {
@@ -147,39 +148,7 @@ export function Header() {
 
   const { mode: theme, toggleMode: toggleTheme, accent, setAccent } = useTheme();
 
-  const routes = [
-    { path: "/", label: "Home", description: "Main landing page" },
-    { path: "/services", label: "Services", description: "Strategic services and consulting" },
-    { path: "/programs", label: "Programs", description: "Training programs for hospice providers" },
-    { path: "/method", label: "The Spartan Method", description: "Our proven sales methodology" },
-    { path: "/tools", label: "AI Field Kit", description: "Expert sales tools" },
-    { path: "/resources", label: "Training Resources", description: "Downloadable templates, scripts, checklists, and guides" },
-    { path: "/podcasts", label: "Podcasts", description: "Coaching podcasts and expert insights" },
-    { path: "/articles", label: "Articles", description: "Industry insights and thought leadership" },
-    { path: "/testimonials", label: "Testimonials", description: "Client success stories" },
-    { path: "/about", label: "About", description: "Learn about Spartan Coaching" },
-    { path: "/manifesto", label: "The Spartan Ethos", description: "What it means to be Spartan" },
-    { path: "/faq", label: "FAQ", description: "Common questions answered" },
-    { path: "/terms", label: "Terms of Service", description: "Terms governing use of our services" },
-    { path: "/disclaimer", label: "Disclaimer", description: "Important disclaimers and notices" },
-    { path: "/contact", label: "Contact", description: "Get in touch with Spartan Coaching" },
-    { path: "/brand-video", label: "Brand Video", description: "Share the Spartan brand video with prospects" },
-  ];
-
-  const aiTools = [
-    { path: "/tools/playbooks", label: "Sales Playbooks", description: "Generate custom sales playbooks" },
-    { path: "/tools/objections", label: "Objection Handler", description: "Get strategies for handling objections" },
-    { path: "/tools/research", label: "Territory Research", description: "Research facilities and territories" },
-    { path: "/tools/email-templates", label: "Email Templates", description: "Create professional email templates" },
-    { path: "/tools/role-play", label: "Role-Play Practice", description: "Practice sales conversations with AI" },
-    { path: "/tools/roi-calculator", label: "ROI Calculator", description: "Estimate coaching impact on revenue" },
-    { path: "/tools/activity-calculator", label: "Activity Calculator", description: "Convert your admission goal into daily conversation targets" },
-    { path: "/tools/transcribe", label: "Call Transcriber", description: "Transcribe and summarize sales calls and meetings" },
-    { path: "/learn/knowledge-base", label: "Knowledge Base", description: "Hospice terminology and regulations reference" },
-    { path: "/quiz", label: "Knowledge Quiz", description: "Test your hospice sales knowledge with 20 questions" },
-  ];
-
-  const allSearchItems = [...routes, ...aiTools];
+  const allSearchItems = allSearchablePages;
 
   const filteredResults = searchQuery.trim()
     ? allSearchItems.filter(item =>
@@ -220,37 +189,14 @@ export function Header() {
             <Search className="w-4 h-4" />
             <span className="font-medium">Search</span>
           </Button>
-          <NavDropdown label="Solutions" dataTestId="dropdown-solutions" items={[
-            { path: "/services", label: "Services", description: "Strategic services and consulting" },
-            { path: "/programs", label: "Programs", description: "Training programs" },
-            { path: "/method", label: "The Spartan Method", description: "Our proven methodology" },
-            { path: "/manifesto", label: "The Spartan Ethos", description: "What it means to be Spartan" },
-          ]} />
-          <NavDropdown label="AI Tools" dataTestId="dropdown-ai-tools" items={[
-            { path: "/tools", label: "AI Field Kit", description: "Expert sales tools" },
-            { path: "/tools/playbooks", label: "Sales Playbooks", description: "Generate custom playbooks" },
-            { path: "/tools/objections", label: "Objection Handler", description: "Handle objections" },
-            { path: "/tools/research", label: "Territory Research", description: "Research facilities" },
-            { path: "/tools/email-templates", label: "Email Templates", description: "Professional emails" },
-            { path: "/tools/role-play", label: "Role-Play Practice", description: "Practice with AI" },
-            { path: "/tools/transcribe", label: "Call Transcriber", description: "Transcribe and summarize sales calls" },
-            { path: "/brand-video", label: "Brand Video", description: "Share the Spartan brand video" },
-          ]} />
-          <NavDropdown label="Calculators" dataTestId="dropdown-calculators" items={[
-            { path: "/tools/roi-calculator", label: "ROI Calculator", description: "Estimate the revenue impact of Spartan Coaching" },
-            { path: "/tools/activity-calculator", label: "Activity Calculator", description: "Convert your admission goal into daily conversation targets" },
-            { path: "/tools/branch-profitability", label: "Branch Profitability Simulator", description: "Model break-even ADC, staffing, and cash runway for your branch" },
-          ]} />
-          <NavDropdown label="Learn" dataTestId="dropdown-learn" items={[
-            { path: "/learn/knowledge-base", label: "Knowledge Base", description: "Hospice terminology and regulations" },
-            { path: "/quiz", label: "Knowledge Quiz", description: "Test your hospice sales knowledge" },
-            { path: "/resources", label: "Training Resources", description: "Templates and guides" },
-            { path: "/drills", label: "Daily Drills", description: "Daily coaching exercises" },
-            { path: "/podcasts", label: "Podcasts", description: "Expert insights" },
-            { path: "/articles", label: "Articles", description: "Thought leadership" },
-            { path: "/testimonials", label: "Testimonials", description: "Client success stories" },
-            { path: "/faq", label: "FAQ", description: "Common questions answered" },
-          ]} />
+          {navSections.filter(section => section.title !== "Company").map(section => (
+            <NavDropdown
+              key={section.title}
+              label={section.title}
+              dataTestId={`dropdown-${section.title.toLowerCase().replace(/\s+/g, '-')}`}
+              items={section.items}
+            />
+          ))}
           <NavLink href="/about">About</NavLink>
           <NavLink href="/contact">Contact</NavLink>
           <Popover>
@@ -341,56 +287,16 @@ export function Header() {
               <nav className="flex flex-col space-y-1" aria-label="Mobile navigation">
                 <MobileNavLink href="/" label="Home" location={location} onClose={() => setMobileMenuOpen(false)} />
 
-                <MobileNavSection title="Solutions" />
-                {[
-                  { path: "/services", label: "Services" },
-                  { path: "/programs", label: "Programs" },
-                  { path: "/method", label: "The Spartan Method" },
-                  { path: "/manifesto", label: "The Spartan Ethos" },
-                ].map((item) => (
-                  <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
+                {navSections.map((section) => (
+                  <div key={section.title}>
+                    <MobileNavSection title={section.title} />
+                    <div className="flex flex-col space-y-1">
+                      {section.items.map((item) => (
+                        <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
+                      ))}
+                    </div>
+                  </div>
                 ))}
-
-                <MobileNavSection title="AI Tools" />
-                {[
-                  { path: "/tools", label: "AI Field Kit" },
-                  { path: "/tools/playbooks", label: "Sales Playbooks" },
-                  { path: "/tools/objections", label: "Objection Handler" },
-                  { path: "/tools/research", label: "Territory Research" },
-                  { path: "/tools/email-templates", label: "Email Templates" },
-                  { path: "/tools/role-play", label: "Role-Play Practice" },
-                  { path: "/tools/transcribe", label: "Call Transcriber" },
-                  { path: "/brand-video", label: "Brand Video" },
-                ].map((item) => (
-                  <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
-                ))}
-
-                <MobileNavSection title="Calculators" />
-                {[
-                  { path: "/tools/roi-calculator", label: "ROI Calculator" },
-                  { path: "/tools/activity-calculator", label: "Activity Calculator" },
-                  { path: "/tools/branch-profitability", label: "Branch Profitability Simulator" },
-                ].map((item) => (
-                  <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
-                ))}
-
-                <MobileNavSection title="Learn" />
-                {[
-                  { path: "/learn/knowledge-base", label: "Knowledge Base" },
-                  { path: "/quiz", label: "Knowledge Quiz" },
-                  { path: "/resources", label: "Training Resources" },
-                  { path: "/drills", label: "Daily Drills" },
-                  { path: "/podcasts", label: "Podcasts" },
-                  { path: "/articles", label: "Articles" },
-                  { path: "/testimonials", label: "Testimonials" },
-                  { path: "/faq", label: "FAQ" },
-                ].map((item) => (
-                  <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
-                ))}
-
-                <MobileNavSection title="Company" />
-                <MobileNavLink href="/about" label="About" location={location} onClose={() => setMobileMenuOpen(false)} />
-                <MobileNavLink href="/contact" label="Contact" location={location} onClose={() => setMobileMenuOpen(false)} />
               </nav>
             </div>
             <div className="shrink-0 border-t border-border px-5 py-4 space-y-3">
