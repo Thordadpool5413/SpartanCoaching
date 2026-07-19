@@ -1,0 +1,31 @@
+kind = "video"
+previewPath = "/spartan-video/"
+title = "Spartan Coaching Logo Reveal"
+version = "1.0.0"
+id = "artifacts/spartan-video"
+router = "path"
+
+[[integratedSkills]]
+name = "video-js"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/spartan-video/" ]
+localPort = 21869
+
+[services.development]
+run = "pnpm --filter @workspace/spartan-video run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/spartan-video", "run", "build" ]
+publicDir = "artifacts/spartan-video/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "21869"
+BASE_PATH = "/spartan-video/"

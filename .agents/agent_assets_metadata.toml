@@ -1,0 +1,8 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "NZwgXkN_6fvfgocI2hE8B"
+uri = "file://artifacts/spartan-video/public/audio/bg_music.mp3"
+type = "audio"
+title = "background music"
