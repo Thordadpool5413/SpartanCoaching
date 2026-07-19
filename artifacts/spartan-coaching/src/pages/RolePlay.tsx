@@ -23,11 +23,17 @@ import {
   PulsingDot,
 } from "@/components/animations";
 import {
-  Phone,
   Stethoscope,
-  Heart,
-  Building2,
+  Users,
+  Clock,
+  FileText,
   Home,
+  UserCheck,
+  Activity,
+  Shield,
+  Pill,
+  Building2,
+  Pencil,
   Target,
   Send,
   Loader2,
@@ -37,15 +43,21 @@ import {
   CheckCircle,
   Download,
   Share2,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 
 const SCENARIOS = [
-  { id: "cold_call_snf", title: "Cold Call: SNF Director", description: "Practice cold-calling a busy, skeptical Skilled Nursing Facility Director of Nursing.", icon: Phone, difficulty: "Intermediate" as const },
-  { id: "physician_objection", title: "Physician Objection", description: "Handle a physician who is hesitant about hospice referrals and believes in aggressive treatment.", icon: Stethoscope, difficulty: "Advanced" as const },
-  { id: "family_consultation", title: "Family Consultation", description: "Guide an emotional family member through understanding what hospice care really means.", icon: Heart, difficulty: "Beginner" as const },
-  { id: "hospital_discharge", title: "Hospital Discharge Planner", description: "Impress an overworked discharge planner comparing multiple hospice providers.", icon: Building2, difficulty: "Intermediate" as const },
-  { id: "assisted_living_admin", title: "Assisted Living Admin", description: "Address concerns from a facility administrator about hospice presence in their community.", icon: Home, difficulty: "Beginner" as const },
-  { id: "competitor_territory", title: "Win from Competitor", description: "Convince a satisfied referral source to consider switching from their current hospice provider.", icon: Target, difficulty: "Advanced" as const },
+  { id: "skeptical_oncologist", title: "Skeptical Oncologist", description: "Push through hesitation about hospice timing with a doubting specialist.", icon: Stethoscope, difficulty: "Advanced" as const },
+  { id: "family_not_ready", title: "Family Not Ready", description: "Navigate grief and resistance when a patient's family resists the conversation.", icon: Users, difficulty: "Intermediate" as const },
+  { id: "busy_hospitalist", title: "Busy Hospitalist", description: "Capture attention and earn referrals from a time-pressed hospital doctor.", icon: Clock, difficulty: "Intermediate" as const },
+  { id: "insurance_concerns", title: "Insurance Concerns", description: "Address fears about coverage, costs, and what hospice actually covers.", icon: FileText, difficulty: "Beginner" as const },
+  { id: "ltc_facility_director", title: "LTC Facility Director", description: "Break through gatekeeping at a long-term care facility and earn a trial referral.", icon: Home, difficulty: "Advanced" as const },
+  { id: "hospital_social_worker", title: "Hospital Social Worker", description: "Connect with an overwhelmed social worker juggling discharge deadlines and referral choices.", icon: UserCheck, difficulty: "Intermediate" as const },
+  { id: "reluctant_pcp", title: "Reluctant Primary Care Physician", description: "Persuade a PCP who resists hospice referrals for fear of upsetting long-standing patients.", icon: Activity, difficulty: "Advanced" as const },
+  { id: "veteran_family", title: "Veteran's Family", description: "Navigate VA benefit confusion and emotional resistance with a proud veteran's family.", icon: Shield, difficulty: "Intermediate" as const },
+  { id: "palliative_care_coordinator", title: "Palliative Care Coordinator", description: "Collaborate — not compete — with a palliative coordinator who guards her patient relationships.", icon: Pill, difficulty: "Advanced" as const },
+  { id: "home_health_rn", title: "Home Health RN", description: "Build a cross-referral partnership with a home health nurse who has overlapping patients.", icon: Building2, difficulty: "Beginner" as const },
 ];
 
 function TypingIndicator() {
@@ -99,12 +111,15 @@ export default function RolePlay() {
   const [input, setInput] = useState("");
   const [activeScenarioTitle, setActiveScenarioTitle] = useState("");
   const [activeScenarioId, setActiveScenarioId] = useState("");
+  const [customExpanded, setCustomExpanded] = useState(false);
+  const [customTitle, setCustomTitle] = useState("");
+  const [customDescription, setCustomDescription] = useState("");
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const handleStartSession = async (scenarioId: string, scenarioTitle: string) => {
+  const handleStartSession = async (scenarioId: string, scenarioTitle: string, scenarioDescription?: string) => {
     setIsLoading(true);
     setActiveScenarioTitle(scenarioTitle);
     setActiveScenarioId(scenarioId);
@@ -112,7 +127,7 @@ export default function RolePlay() {
       const response = await fetch("/api/roleplay/sessions", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ scenarioId, scenarioTitle }),
+        body: JSON.stringify({ scenarioId, scenarioTitle, ...(scenarioDescription ? { scenarioDescription } : {}) }),
       });
       if (!response.ok) throw new Error("Failed to start session");
       const data = await response.json();
@@ -173,6 +188,9 @@ export default function RolePlay() {
     setInput("");
     setActiveScenarioTitle("");
     setActiveScenarioId("");
+    setCustomExpanded(false);
+    setCustomTitle("");
+    setCustomDescription("");
     setSessionStatus("selecting");
   };
 
@@ -299,6 +317,88 @@ export default function RolePlay() {
               </StaggerItem>
             );
           })}
+
+          {/* Custom Scenario card */}
+          <StaggerItem>
+            <Card
+              className="group relative hover-elevate spacing-card flex flex-col"
+              data-testid="card-scenario-custom"
+            >
+              <div className="absolute inset-0 rounded-md bg-gradient-to-br from-primary/20 via-primary/10 to-accent/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
+              <div className="relative flex flex-col flex-1">
+                <button
+                  className="flex items-start justify-between gap-3 mb-4 w-full text-left"
+                  onClick={() => setCustomExpanded((v) => !v)}
+                  data-testid="button-toggle-custom"
+                  type="button"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-muted-foreground/40 to-muted-foreground/20 flex items-center justify-center shrink-0">
+                      <Pencil className="w-6 h-6 text-foreground" />
+                    </div>
+                    <div>
+                      <h3 className="text-h3 font-bold text-foreground" data-testid="text-scenario-title-custom">
+                        Custom Scenario
+                      </h3>
+                      <p className="text-sm text-muted-foreground mt-0.5">
+                        Define your own character and situation
+                      </p>
+                    </div>
+                  </div>
+                  {customExpanded ? (
+                    <ChevronUp className="w-5 h-5 text-muted-foreground shrink-0 mt-1" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-muted-foreground shrink-0 mt-1" />
+                  )}
+                </button>
+
+                {customExpanded && (
+                  <div className="flex flex-col gap-3" data-testid="display-custom-form">
+                    <div>
+                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1 block">
+                        Scenario Title <span className="text-destructive">*</span>
+                      </label>
+                      <input
+                        className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring"
+                        placeholder="e.g. Resistant SNF Charge Nurse"
+                        value={customTitle}
+                        onChange={(e) => setCustomTitle(e.target.value)}
+                        data-testid="input-custom-title"
+                        maxLength={80}
+                      />
+                    </div>
+                    <div>
+                      <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1 block">
+                        Character Description <span className="text-muted-foreground font-normal normal-case">(optional)</span>
+                      </label>
+                      <Textarea
+                        placeholder="Describe the character's role, personality, and objections…"
+                        value={customDescription}
+                        onChange={(e) => setCustomDescription(e.target.value)}
+                        rows={3}
+                        className="text-sm"
+                        data-testid="input-custom-description"
+                        maxLength={500}
+                      />
+                    </div>
+                    <Button
+                      onClick={() => capture(() => handleStartSession("custom", customTitle.trim(), customDescription.trim() || undefined))}
+                      disabled={isLoading || customTitle.trim().length < 3}
+                      className="w-full font-bold touch-manipulation"
+                      data-testid="button-start-custom"
+                    >
+                      {isLoading ? (
+                        <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                      ) : (
+                        <MessageCircle className="w-4 h-4 mr-2" />
+                      )}
+                      Start Custom Session
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </Card>
+          </StaggerItem>
         </StaggerContainer>
       <LeadGateDialog gateState={gateState} />
       </div>
