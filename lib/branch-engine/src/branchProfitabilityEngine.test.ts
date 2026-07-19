@@ -400,3 +400,225 @@ describe("runEngine — at-target status when margin ≥ target", () => {
     expect(result.derived.operatingMarginPercent).toBeGreaterThanOrEqual(15);
   });
 });
+
+// ─── computeStaffingRows — ADC 20, 80, 150 ───────────────────────────────────
+//
+// Fixed roles (caseloadTrigger=9999) always contribute exactly 8 FTE / $745,000:
+//   Executive Director $140k + Supervisor RN $110k + After Hours RN $95k +
+//   Weekend RN $95k + Intake Coordinator $60k + Secretary $55k +
+//   Sales Rep $115k + Medical Director $75k = $745,000
+//
+// Caseload-triggered roles use: FTE = max(minFte, ceil(ADC / trigger))
+
+describe("computeStaffingRows — ADC 20", () => {
+  //   RN Case Manager : max(2, ceil(20/12)) = max(2, 2) = 2 FTE × $100k = $200k
+  //   Hospice Aide    : max(2, ceil(20/8))  = max(2, 3) = 3 FTE × $50k  = $150k
+  //   Social Worker   : max(1, ceil(20/15)) = max(1, 2) = 2 FTE × $75k  = $150k
+  //   Chaplain        : max(1, ceil(20/20)) = max(1, 1) = 1 FTE × $70k  =  $70k
+  //   Variable total                                                      = $570k
+  //   Total annual payroll                                                = $1,315,000
+
+  const rows = computeStaffingRows(STAFF_ROLES, 20);
+
+  it("RN Case Manager: 2 FTE, $200,000", () => {
+    const rn = rows.find((r) => r.role === "RN Case Manager")!;
+    expect(rn.fte).toBe(2);
+    expect(rn.annualCost).toBe(200_000);
+  });
+
+  it("Hospice Aide: 3 FTE, $150,000", () => {
+    const aide = rows.find((r) => r.role === "Hospice Aide")!;
+    expect(aide.fte).toBe(3);
+    expect(aide.annualCost).toBe(150_000);
+  });
+
+  it("Social Worker: 2 FTE, $150,000", () => {
+    const sw = rows.find((r) => r.role === "Social Worker")!;
+    expect(sw.fte).toBe(2);
+    expect(sw.annualCost).toBe(150_000);
+  });
+
+  it("Chaplain: 1 FTE, $70,000", () => {
+    const chap = rows.find((r) => r.role === "Chaplain")!;
+    expect(chap.fte).toBe(1);
+    expect(chap.annualCost).toBe(70_000);
+  });
+
+  it("total annual payroll = $1,315,000", () => {
+    const total = rows.reduce((s, r) => s + r.annualCost, 0);
+    expect(total).toBe(1_315_000);
+  });
+});
+
+describe("computeStaffingRows — ADC 80", () => {
+  //   RN Case Manager : max(2, ceil(80/12)) = max(2,  7) =  7 FTE × $100k = $700k
+  //   Hospice Aide    : max(2, ceil(80/8))  = max(2, 10) = 10 FTE × $50k  = $500k
+  //   Social Worker   : max(1, ceil(80/15)) = max(1,  6) =  6 FTE × $75k  = $450k
+  //   Chaplain        : max(1, ceil(80/20)) = max(1,  4) =  4 FTE × $70k  = $280k
+  //   Variable total                                                        = $1,930k
+  //   Total annual payroll                                                  = $2,675,000
+
+  const rows = computeStaffingRows(STAFF_ROLES, 80);
+
+  it("RN Case Manager: 7 FTE, $700,000", () => {
+    const rn = rows.find((r) => r.role === "RN Case Manager")!;
+    expect(rn.fte).toBe(7);
+    expect(rn.annualCost).toBe(700_000);
+  });
+
+  it("Hospice Aide: 10 FTE, $500,000", () => {
+    const aide = rows.find((r) => r.role === "Hospice Aide")!;
+    expect(aide.fte).toBe(10);
+    expect(aide.annualCost).toBe(500_000);
+  });
+
+  it("Social Worker: 6 FTE, $450,000", () => {
+    const sw = rows.find((r) => r.role === "Social Worker")!;
+    expect(sw.fte).toBe(6);
+    expect(sw.annualCost).toBe(450_000);
+  });
+
+  it("Chaplain: 4 FTE, $280,000", () => {
+    const chap = rows.find((r) => r.role === "Chaplain")!;
+    expect(chap.fte).toBe(4);
+    expect(chap.annualCost).toBe(280_000);
+  });
+
+  it("total annual payroll = $2,675,000", () => {
+    const total = rows.reduce((s, r) => s + r.annualCost, 0);
+    expect(total).toBe(2_675_000);
+  });
+});
+
+describe("computeStaffingRows — ADC 150", () => {
+  //   RN Case Manager : max(2, ceil(150/12)) = max(2, 13) = 13 FTE × $100k = $1,300k
+  //   Hospice Aide    : max(2, ceil(150/8))  = max(2, 19) = 19 FTE × $50k  =   $950k
+  //   Social Worker   : max(1, ceil(150/15)) = max(1, 10) = 10 FTE × $75k  =   $750k
+  //   Chaplain        : max(1, ceil(150/20)) = max(1,  8) =  8 FTE × $70k  =   $560k
+  //   Variable total                                                         = $3,560k
+  //   Total annual payroll                                                   = $4,305,000
+
+  const rows = computeStaffingRows(STAFF_ROLES, 150);
+
+  it("RN Case Manager: 13 FTE, $1,300,000", () => {
+    const rn = rows.find((r) => r.role === "RN Case Manager")!;
+    expect(rn.fte).toBe(13);
+    expect(rn.annualCost).toBe(1_300_000);
+  });
+
+  it("Hospice Aide: 19 FTE, $950,000", () => {
+    const aide = rows.find((r) => r.role === "Hospice Aide")!;
+    expect(aide.fte).toBe(19);
+    expect(aide.annualCost).toBe(950_000);
+  });
+
+  it("Social Worker: 10 FTE, $750,000", () => {
+    const sw = rows.find((r) => r.role === "Social Worker")!;
+    expect(sw.fte).toBe(10);
+    expect(sw.annualCost).toBe(750_000);
+  });
+
+  it("Chaplain: 8 FTE, $560,000", () => {
+    const chap = rows.find((r) => r.role === "Chaplain")!;
+    expect(chap.fte).toBe(8);
+    expect(chap.annualCost).toBe(560_000);
+  });
+
+  it("total annual payroll = $4,305,000", () => {
+    const total = rows.reduce((s, r) => s + r.annualCost, 0);
+    expect(total).toBe(4_305_000);
+  });
+});
+
+// ─── Caseload trigger boundary tests ─────────────────────────────────────────
+//
+// For each caseload-triggered role, verify the FTE step change fires at the
+// correct ADC so off-by-one errors in the formula are caught immediately.
+
+describe("computeStaffingRows — caseload trigger boundaries", () => {
+  // RN Case Manager: trigger=12, minFte=2
+  // ceil(24/12)=2 → max(2,2)=2; ceil(25/12)=3 → max(2,3)=3
+  it("RN Case Manager stays at 2 FTE at ADC 24 (just below first step above min)", () => {
+    const rows = computeStaffingRows(STAFF_ROLES, 24);
+    expect(rows.find((r) => r.role === "RN Case Manager")!.fte).toBe(2);
+  });
+
+  it("RN Case Manager jumps to 3 FTE at ADC 25 (just above first step above min)", () => {
+    const rows = computeStaffingRows(STAFF_ROLES, 25);
+    expect(rows.find((r) => r.role === "RN Case Manager")!.fte).toBe(3);
+  });
+
+  // Hospice Aide: trigger=8, minFte=2
+  // ceil(16/8)=2 → max(2,2)=2; ceil(17/8)=3 → max(2,3)=3
+  it("Hospice Aide stays at 2 FTE at ADC 16 (just below first step above min)", () => {
+    const rows = computeStaffingRows(STAFF_ROLES, 16);
+    expect(rows.find((r) => r.role === "Hospice Aide")!.fte).toBe(2);
+  });
+
+  it("Hospice Aide jumps to 3 FTE at ADC 17 (just above first step above min)", () => {
+    const rows = computeStaffingRows(STAFF_ROLES, 17);
+    expect(rows.find((r) => r.role === "Hospice Aide")!.fte).toBe(3);
+  });
+
+  // Social Worker: trigger=15, minFte=1
+  // ceil(15/15)=1 → max(1,1)=1; ceil(16/15)=2 → max(1,2)=2
+  it("Social Worker stays at 1 FTE at ADC 15 (at trigger boundary, exactly minFte)", () => {
+    const rows = computeStaffingRows(STAFF_ROLES, 15);
+    expect(rows.find((r) => r.role === "Social Worker")!.fte).toBe(1);
+  });
+
+  it("Social Worker jumps to 2 FTE at ADC 16 (first ADC above trigger)", () => {
+    const rows = computeStaffingRows(STAFF_ROLES, 16);
+    expect(rows.find((r) => r.role === "Social Worker")!.fte).toBe(2);
+  });
+
+  // Chaplain: trigger=20, minFte=1
+  // ceil(20/20)=1 → max(1,1)=1; ceil(21/20)=2 → max(1,2)=2
+  it("Chaplain stays at 1 FTE at ADC 20 (at trigger boundary, exactly minFte)", () => {
+    const rows = computeStaffingRows(STAFF_ROLES, 20);
+    expect(rows.find((r) => r.role === "Chaplain")!.fte).toBe(1);
+  });
+
+  it("Chaplain jumps to 2 FTE at ADC 21 (first ADC above trigger)", () => {
+    const rows = computeStaffingRows(STAFF_ROLES, 21);
+    expect(rows.find((r) => r.role === "Chaplain")!.fte).toBe(2);
+  });
+});
+
+// ─── Profit curve shape ───────────────────────────────────────────────────────
+
+describe("runEngine — profit curve shape", () => {
+  // Curve runs from ADC 10 to ADC 200 inclusive: 200 - 10 + 1 = 191 points
+  it("profitCurve has 191 points (ADC 10 to 200)", () => {
+    const result = runEngine(makeInputs("lean"), STAFF_ROLES);
+    expect(result.charts.profitCurve).toHaveLength(191);
+  });
+
+  it("operatingMarginCurve has 191 points (ADC 10 to 200)", () => {
+    const result = runEngine(makeInputs("lean"), STAFF_ROLES);
+    expect(result.charts.operatingMarginCurve).toHaveLength(191);
+  });
+
+  it("profit at ADC 200 is greater than profit at ADC 50 (Lean)", () => {
+    const result = runEngine(makeInputs("lean"), STAFF_ROLES);
+    const curve = result.charts.profitCurve;
+    const at50  = curve.find((p) => p.adc === 50)!;
+    const at200 = curve.find((p) => p.adc === 200)!;
+    expect(at200.annualProfit).toBeGreaterThan(at50.annualProfit);
+  });
+
+  it("profit at ADC 200 is greater than profit at ADC 50 (Base)", () => {
+    const result = runEngine(makeInputs("base"), STAFF_ROLES);
+    const curve = result.charts.profitCurve;
+    const at50  = curve.find((p) => p.adc === 50)!;
+    const at200 = curve.find((p) => p.adc === 200)!;
+    expect(at200.annualProfit).toBeGreaterThan(at50.annualProfit);
+  });
+
+  it("profitCurve first point is ADC 10 and last is ADC 200", () => {
+    const result = runEngine(makeInputs("base"), STAFF_ROLES);
+    const curve = result.charts.profitCurve;
+    expect(curve[0].adc).toBe(10);
+    expect(curve[curve.length - 1].adc).toBe(200);
+  });
+});
