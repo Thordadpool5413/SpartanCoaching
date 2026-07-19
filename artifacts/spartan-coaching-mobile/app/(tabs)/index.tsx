@@ -367,6 +367,30 @@ export default function HomeScreen() {
           </View>
           <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
         </Pressable>
+        <Pressable
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            router.push("/staffing");
+          }}
+          style={({ pressed }) => [
+            styles.toolCard,
+            { backgroundColor: colors.card, borderColor: colors.border, opacity: pressed ? 0.8 : 1, marginTop: 10 },
+          ]}
+          testID="button-open-staffing"
+        >
+          <View style={[styles.toolIcon, { backgroundColor: colors.accent }]}>
+            <Feather name="users" size={20} color={colors.primary} />
+          </View>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.toolLabel, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>
+              Branch Staffing
+            </Text>
+            <Text style={[styles.toolSub, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+              Required staffing and payroll by scenario and census
+            </Text>
+          </View>
+          <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
+        </Pressable>
       </View>
 
       {/* Mission — always rendered on dark brand background */}

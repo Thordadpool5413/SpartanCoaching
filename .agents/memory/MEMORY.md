@@ -1,1 +1,2 @@
 - [Spartan Coaching port](spartan-coaching-port.md) — key decisions and gotchas from porting this app to the monorepo
+- [Mobile jest setup](mobile-jest-setup.md) — jest 29 pin, pnpm-aware transformIgnorePatterns, RNTL 13, stale Expo typed routes

@@ -24,6 +24,7 @@ function RootLayoutNav() {
     <Stack screenOptions={{ headerBackTitle: "Back" }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="brand-video" options={{ title: "Brand Video" }} />
+      <Stack.Screen name="staffing" options={{ title: "Branch Staffing" }} />
       <Stack.Screen name="+not-found" />
     </Stack>
   );
