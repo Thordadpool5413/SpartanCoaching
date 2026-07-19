@@ -930,6 +930,7 @@ export default function ToolsScreen() {
                   title="Send your follow-up email"
                   body="Your email template is ready — set a reminder to send it and keep the relationship warm."
                   storageKey="email"
+                  contact={recipientName || undefined}
                 />
               )}
               <SavedSection
