@@ -24,14 +24,24 @@ TaskManager.defineTask(RESCHEDULE_TASK, async () => {
     const raw = await AsyncStorage.getItem(REMINDER_STORAGE_KEY);
     const all: PendingReminder[] = raw ? JSON.parse(raw) : [];
     const now = Date.now();
-    const still_pending = all.filter((r) => r.scheduledFor > now);
+
+    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
+    const scheduledIds = new Set(scheduled.map((n) => n.identifier));
+
+    // Remove past-due entries that no longer have a matching OS notification —
+    // they either already fired or were dropped after a reboot.
+    const live = all.filter(
+      (r) => r.scheduledFor > now || scheduledIds.has(r.id)
+    );
+    if (live.length !== all.length) {
+      await AsyncStorage.setItem(REMINDER_STORAGE_KEY, JSON.stringify(live));
+    }
+
+    const still_pending = live.filter((r) => r.scheduledFor > now);
 
     if (still_pending.length === 0) {
       return BackgroundFetch.BackgroundFetchResult.NoData;
     }
-
-    const scheduled = await Notifications.getAllScheduledNotificationsAsync();
-    const scheduledIds = new Set(scheduled.map((n) => n.identifier));
 
     for (const reminder of still_pending) {
       if (scheduledIds.has(reminder.id)) continue;
@@ -53,7 +63,7 @@ TaskManager.defineTask(RESCHEDULE_TASK, async () => {
       });
 
       if (newId !== reminder.id) {
-        const updated = all.map((r) =>
+        const updated = live.map((r) =>
           r.id === reminder.id ? { ...r, id: newId } : r
         );
         await AsyncStorage.setItem(
