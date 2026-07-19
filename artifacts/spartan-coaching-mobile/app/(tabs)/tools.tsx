@@ -315,6 +315,11 @@ export default function ToolsScreen() {
   // Scenario practice stats
   const [scenarioStats, setScenarioStats] = useState<Record<string, ScenarioStat>>({});
 
+  // Role-play history
+  const [roleplayHistory, setRoleplayHistory] = useState<RoleplaySession[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+  const [expandedHistoryId, setExpandedHistoryId] = useState<number | null>(null);
+
   useEffect(() => {
     if (activeTab !== "roleplay" || roleplayPhase !== "select") return;
     apiGet<{ scenarioId: string; count: number; lastPracticedAt: number | null }[]>("/api/roleplay/stats")
@@ -326,6 +331,18 @@ export default function ToolsScreen() {
         setScenarioStats(map);
       })
       .catch(() => {});
+
+    setHistoryLoading(true);
+    apiGet<RoleplaySession[]>("/api/roleplay/sessions")
+      .then((sessions) => {
+        setRoleplayHistory(
+          sessions
+            .filter((s) => s.status === "completed" && s.feedback)
+            .sort((a, b) => b.createdAt - a.createdAt)
+        );
+      })
+      .catch(() => {})
+      .finally(() => setHistoryLoading(false));
   }, [activeTab, roleplayPhase]);
 
   const handleObjection = async () => {
@@ -1061,6 +1078,67 @@ export default function ToolsScreen() {
                           </View>
                         )}
                       </View>
+                      {/* Past Sessions history */}
+                      {(historyLoading || roleplayHistory.length > 0) && (
+                        <View style={{ marginTop: 28 }}>
+                          <View style={[savedStyles.sectionHeader, { marginBottom: 12 }]}>
+                            <Feather name="clock" size={14} color={colors.mutedForeground} />
+                            <Text style={[savedStyles.sectionTitle, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
+                              Past Sessions{roleplayHistory.length > 0 ? ` (${roleplayHistory.length})` : ""}
+                            </Text>
+                          </View>
+
+                          {historyLoading ? (
+                            <ActivityIndicator color={colors.primary} size="small" style={{ marginVertical: 12 }} />
+                          ) : (
+                            roleplayHistory.map((session) => {
+                              const isOpen = expandedHistoryId === session.id;
+                              return (
+                                <View key={session.id} style={[savedStyles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                                  <Pressable
+                                    onPress={() => {
+                                      Haptics.selectionAsync();
+                                      setExpandedHistoryId(isOpen ? null : session.id);
+                                    }}
+                                    style={({ pressed }) => [savedStyles.cardHeader, { opacity: pressed ? 0.75 : 1 }]}
+                                  >
+                                    <View style={{ flex: 1 }}>
+                                      <Text style={[savedStyles.cardTitle, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]} numberOfLines={1}>
+                                        {session.scenarioTitle}
+                                      </Text>
+                                      <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 3 }}>
+                                        <Text style={[savedStyles.cardDate, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                                          {formatSavedDate(session.createdAt)}
+                                        </Text>
+                                        {session.rating !== null && (
+                                          <View style={{ flexDirection: "row", alignItems: "center", gap: 3 }}>
+                                            <Text style={{ fontSize: 12, color: "#F59E0B" }}>{"★".repeat(session.rating)}{"☆".repeat(5 - session.rating)}</Text>
+                                            <Text style={[savedStyles.cardDate, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
+                                              {session.rating}/5
+                                            </Text>
+                                          </View>
+                                        )}
+                                      </View>
+                                    </View>
+                                    <Feather name={isOpen ? "chevron-up" : "chevron-down"} size={16} color={colors.mutedForeground} />
+                                  </Pressable>
+
+                                  {isOpen && session.feedback && (
+                                    <View style={[savedStyles.cardBody, { borderTopColor: colors.border }]}>
+                                      <Text style={[savedStyles.sectionTitle, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold", marginBottom: 8 }]}>
+                                        Coach Feedback
+                                      </Text>
+                                      <Text style={[savedStyles.cardBodyText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>
+                                        {session.feedback}
+                                      </Text>
+                                    </View>
+                                  )}
+                                </View>
+                              );
+                            })
+                          )}
+                        </View>
+                      )}
                     </>
                   )}
                 </View>
