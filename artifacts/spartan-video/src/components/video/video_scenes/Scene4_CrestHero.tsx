@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import spartanStamp from "@assets/SpartanStamp_1774535240922.png";
+
+const spartanStamp = `${import.meta.env.BASE_URL}spartan-logo-stamp.png`;
 
 export function Scene4_CrestHero() {
   const [phase, setPhase] = useState(0);

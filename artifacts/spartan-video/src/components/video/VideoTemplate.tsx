@@ -7,7 +7,7 @@ import { Scene3_Kinetic } from './video_scenes/Scene3_Kinetic';
 import { Scene4_CrestHero } from './video_scenes/Scene4_CrestHero';
 import { Scene5_Outro } from './video_scenes/Scene5_Outro';
 
-import spartanStamp from "@assets/SpartanStamp_1774535240922.png";
+const spartanStamp = `${import.meta.env.BASE_URL}spartan-logo-stamp.png`;
 
 export const SCENE_DURATIONS: Record<string, number> = {
   intro: 7000,

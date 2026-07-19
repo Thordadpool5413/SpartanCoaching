@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
-import spartanLogo from "@assets/spartan-logo.png";
+
+const spartanLogo = `${import.meta.env.BASE_URL}spartan-logo.png`;
 
 export function Scene5_Outro() {
   const [phase, setPhase] = useState(0);
