@@ -100,9 +100,9 @@ export function Scene4_CrestHero() {
           style={{ transformPerspective: 1200 }}
         />
 
-        {/* Faster, higher-contrast drifting bg text */}
+        {/* Drifting bg text — ultra-faint texture only */}
         <motion.h1
-          className="absolute text-[18vw] font-display font-black text-white/10 uppercase whitespace-nowrap pointer-events-none"
+          className="absolute text-[18vw] font-display font-black text-white/[0.035] uppercase whitespace-nowrap pointer-events-none"
           initial={{ x: '25%' }}
           animate={{ x: '-25%' }}
           transition={{ duration: 6, ease: 'linear' }}
@@ -112,7 +112,7 @@ export function Scene4_CrestHero() {
 
         {/* Bold Statement + underline */}
         <motion.div
-          className="absolute bottom-20 flex flex-col items-center"
+          className="absolute bottom-12 flex flex-col items-center px-8"
           initial={{ opacity: 0, y: 40 }}
           animate={phase >= 2 ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
           transition={{ type: 'spring', stiffness: 500, damping: 28 }}
