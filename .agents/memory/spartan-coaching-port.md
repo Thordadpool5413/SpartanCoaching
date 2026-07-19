@@ -26,3 +26,10 @@ The copied `lib/db/src/schema/schema.ts` had `export * from "./models/chat"` but
 
 ## decimal.js missing
 `branchProfitabilityEngine.ts` imports `decimal.js` — must install it as a devDep in the frontend artifact.
+
+## Expo Go must use tunnel mode
+The Replit expo dev domain / shared path-proxy returns empty 404 for Expo-Go-flavored requests for this hand-ported mobile artifact, regardless of port or artifact.toml config. Fix: dev script runs `expo start --tunnel` (@expo/ngrok devDep); phone connects via the exp.direct URL/QR in the workflow console.
+
+**Why:** The artifact was ported by hand, and platform routing never registers an Expo route for it; Metro on 8081 (mockup-sandbox moved to 8082) didn't help.
+
+**How to apply:** Don't revert the dev script to `--localhost + EXPO_PACKAGER_PROXY_URL`. The tunnel URL rotates on restart — user must re-scan the QR from the expo workflow output after each restart.

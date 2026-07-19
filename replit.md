@@ -38,7 +38,7 @@ _Populate as you build — explicit user instructions worth remembering across s
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
+- Mobile app (Expo Go on a phone) runs in tunnel mode (`expo start --tunnel`). The exp.direct URL/QR rotates whenever the expo workflow restarts — re-scan the QR from the expo workflow console after each restart.
 
 ## Pointers
 

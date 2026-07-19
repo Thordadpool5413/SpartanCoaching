@@ -12,7 +12,8 @@ version = "1.0.0"
 [[services]]
 name = "expo"
 paths = [ "/mobile" ]
-localPort = 19006
+localPort = 8081
+ensurePreviewReachable = "/status"
 
 [services.development]
 run = "pnpm --filter @workspace/spartan-coaching-mobile run dev"
@@ -22,5 +23,5 @@ build = [ "pnpm", "--filter", "@workspace/spartan-coaching-mobile", "run", "buil
 run = [ "pnpm", "--filter", "@workspace/spartan-coaching-mobile", "run", "serve" ]
 
 [services.env]
-PORT = "19006"
+PORT = "8081"
 BASE_PATH = "/mobile"
