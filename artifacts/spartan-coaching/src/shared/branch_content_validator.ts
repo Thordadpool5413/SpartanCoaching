@@ -17,7 +17,7 @@ import {
   getAllClaims,
   type ContentClaim,
   type ClaimClass,
-} from "./branch_content_claim_registry";
+} from "@workspace/branch-engine/content";
 
 export interface ContentValidationError {
   claimId: string;

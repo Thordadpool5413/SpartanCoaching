@@ -22,7 +22,7 @@ _Replace the heading above with the project's name, and this line with one sente
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `lib/branch-engine` — canonical branch profitability engine (`@workspace/branch-engine/engine|presets|content`), imported by both the web app and api-server. Never duplicate these files into artifact `src/shared/` dirs.
 
 ## Architecture decisions
 

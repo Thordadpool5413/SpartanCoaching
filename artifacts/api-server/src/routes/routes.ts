@@ -1964,9 +1964,9 @@ The single most important skill to work on before the next conversation.`,
   // ─── Branch Profitability Calculator ─────────────────────────────────────
   app.post("/api/branch-profitability/calculate", async (req, res) => {
     try {
-      const { runEngine, validateInputs } = await import("../shared/branchProfitabilityEngine");
-      const { STAFF_ROLES } = await import("../shared/branchPresetConfigs");
-      const { CONTENT_VERSION } = await import("../shared/branch_content_claim_registry");
+      const { runEngine, validateInputs } = await import("@workspace/branch-engine/engine");
+      const { STAFF_ROLES } = await import("@workspace/branch-engine/presets");
+      const { CONTENT_VERSION } = await import("@workspace/branch-engine/content");
       const inputs = req.body;
       const errors = validateInputs(inputs);
       if (errors.length > 0) {

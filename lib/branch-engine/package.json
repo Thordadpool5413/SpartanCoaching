@@ -1,0 +1,14 @@
+{
+  "name": "@workspace/branch-engine",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./engine": "./src/branchProfitabilityEngine.ts",
+    "./presets": "./src/branchPresetConfigs.ts",
+    "./content": "./src/branch_content_claim_registry.ts"
+  },
+  "dependencies": {
+    "decimal.js": "^10.6.0"
+  }
+}

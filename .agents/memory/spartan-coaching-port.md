@@ -42,5 +42,10 @@ drizzle-zod 0.8 returns zod v4 schema objects; files that pair `createInsertSche
 ## Dynamic imports in api-server routes
 `src/routes/routes.ts` dynamic-imports must use `../resend`, `../openai` (files live in src/, not src/routes/). Wrong relative paths typecheck-fail AND crash at runtime when the endpoint is hit.
 
-## Duplicated shared engine files
-Branch profitability engine files exist in BOTH `artifacts/spartan-coaching/src/shared/` and `artifacts/api-server/src/shared/` (frontend can't import server pkg). Changes to the engine must be mirrored in both copies.
+## Branch engine lives in a shared lib
+The branch profitability engine (engine, presets, content claim registry) now lives in `lib/branch-engine` (`@workspace/branch-engine/engine|presets|content`) — one canonical copy imported by both web and api-server. Do NOT recreate copies under artifact `src/shared/`.
+
+**Why:** The duplicated copies drifted silently; a workspace lib with only pure code (no DB imports) is safe for the frontend to import.
+
+## Duplicate vite type instances after lockfile changes
+After pnpm add/remove in artifacts, typecheck can fail in an unrelated Vite artifact with "Plugin<any> is not assignable to PluginOption" caused by two vite instances keyed on different jiti versions. Fix: `pnpm dedupe jiti`.

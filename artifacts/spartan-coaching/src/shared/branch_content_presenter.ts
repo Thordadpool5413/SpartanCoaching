@@ -12,7 +12,7 @@
  *    caller must supply that number — this file does not recalculate.
  */
 
-import { getClaimText, getAllClaims, type ContentClaim } from "./branch_content_claim_registry";
+import { getClaimText, getAllClaims, type ContentClaim } from "@workspace/branch-engine/content";
 import { assertClaimRenderable } from "./branch_content_validator";
 
 // ─── Safe claim text retrieval ────────────────────────────────────────────────

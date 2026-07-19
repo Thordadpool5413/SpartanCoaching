@@ -42,10 +42,10 @@ import {
   Legend,
 } from "recharts";
 
-import { runEngine, type BranchInputs, type BranchResults } from "@shared/branchProfitabilityEngine";
-import { DEFAULT_INPUTS, PRESET_CONFIGS, STAFF_ROLES } from "@shared/branchPresetConfigs";
+import { runEngine, type BranchInputs, type BranchResults } from "@workspace/branch-engine/engine";
+import { DEFAULT_INPUTS, PRESET_CONFIGS, STAFF_ROLES } from "@workspace/branch-engine/presets";
 import { TOOLTIP_CONTENT, getGlossaryEntries } from "@shared/branch_content_presenter";
-import { CONTENT_VERSION } from "@shared/branch_content_claim_registry";
+import { CONTENT_VERSION } from "@workspace/branch-engine/content";
 
 // ─── Display helpers (for use in JSX only — never inside engine) ──────────────
 function fmtK(v: number) {
