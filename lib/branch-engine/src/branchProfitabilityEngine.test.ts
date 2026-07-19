@@ -622,3 +622,51 @@ describe("runEngine — profit curve shape", () => {
     expect(curve[curve.length - 1].adc).toBe(200);
   });
 });
+
+// ─── Cash runway edge cases ────────────────────────────────────────────────────
+
+describe("runEngine — cash runway edge cases", () => {
+  function makeRunwayInputs(overrides: Partial<BranchInputs> = {}): BranchInputs {
+    return {
+      ...makeInputs("lean", 1),
+      ...overrides,
+    };
+  }
+
+  it("monthsOfRunway is set to the last solvent month when capital is exhausted before month 18", () => {
+    const inputs = makeRunwayInputs({ startingCapital: 1, targetADC: 1 });
+    const result = runEngine(inputs, STAFF_ROLES);
+    expect(result.narrative.monthsOfRunway).toBeLessThan(18);
+    const runway = result.narrative.monthsOfRunway;
+    if (runway > 0) {
+      expect(result.tables.runwayMonths[runway - 1].cumulativeCash).toBeGreaterThan(0);
+    }
+    expect(result.tables.runwayMonths[runway].cumulativeCash).toBeLessThanOrEqual(0);
+  });
+
+  it("monthCashFlowTurnsPositive is -1 when cash flow never turns positive within 18 months", () => {
+    const inputs = makeRunwayInputs({ startingCapital: 1, targetADC: 1 });
+    const result = runEngine(inputs, STAFF_ROLES);
+    expect(result.narrative.monthCashFlowTurnsPositive).toBe(-1);
+    const allNegative = result.tables.runwayMonths.every((m) => m.monthlyProfitLoss <= 0);
+    expect(allNegative).toBe(true);
+  });
+
+  it("cashAtMonth12 equals runwayMonths[11].cumulativeCash", () => {
+    const result = runEngine(makeInputs("lean", 50), STAFF_ROLES);
+    expect(result.narrative.cashAtMonth12).toBe(result.tables.runwayMonths[11].cumulativeCash);
+  });
+
+  it("monthCashFlowTurnsPositive is recorded at the first month with positive P&L", () => {
+    const result = runEngine(makeInputs("lean", 200), STAFF_ROLES);
+    const { monthCashFlowTurnsPositive } = result.narrative;
+    expect(monthCashFlowTurnsPositive).toBeGreaterThanOrEqual(1);
+    expect(monthCashFlowTurnsPositive).toBeLessThanOrEqual(18);
+    const turnMonth = result.tables.runwayMonths[monthCashFlowTurnsPositive - 1];
+    expect(turnMonth.monthlyProfitLoss).toBeGreaterThan(0);
+    if (monthCashFlowTurnsPositive > 1) {
+      const prevMonth = result.tables.runwayMonths[monthCashFlowTurnsPositive - 2];
+      expect(prevMonth.monthlyProfitLoss).toBeLessThanOrEqual(0);
+    }
+  });
+});
