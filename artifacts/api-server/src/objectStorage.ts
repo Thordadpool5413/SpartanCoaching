@@ -175,6 +175,6 @@ async function signObjectURL({ bucketName, objectName, method, ttlSec }: { bucke
     body: JSON.stringify({ bucket_name: bucketName, object_name: objectName, method, expires_at: new Date(Date.now() + ttlSec * 1000).toISOString() }),
   });
   if (!response.ok) throw new Error(`Failed to sign object URL (${response.status})`);
-  const { signed_url: signedURL } = await response.json();
+  const { signed_url: signedURL } = (await response.json()) as { signed_url: string };
   return signedURL as string;
 }

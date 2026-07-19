@@ -86,7 +86,7 @@ function ScrollToTop() {
 function VisitorTracker() {
   const [location] = useLocation();
   const lastTrackedRef = useRef<string>("");
-  const timeoutRef = useRef<ReturnType<typeof setTimeout>>();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   
   useEffect(() => {
     if (lastTrackedRef.current === location) return;

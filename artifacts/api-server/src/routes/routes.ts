@@ -1428,7 +1428,7 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   app.post("/api/roleplay/sessions/:id/messages", roleplayMessageLimit, globalDailyAiCap, async (req, res) => {
     try {
-      const sessionId = parseInt(req.params.id);
+      const sessionId = parseInt(String(req.params.id));
       const { content } = roleplayMessageSchema.parse(req.body);
 
       const session = await storage.getRoleplaySession(sessionId);
@@ -1454,7 +1454,7 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   app.post("/api/roleplay/sessions/:id/feedback", roleplayMessageLimit, globalDailyAiCap, async (req, res) => {
     try {
-      const sessionId = parseInt(req.params.id);
+      const sessionId = parseInt(String(req.params.id));
       const session = await storage.getRoleplaySession(sessionId);
       if (!session) return res.status(404).json({ error: "Session not found" });
 
@@ -1988,7 +1988,7 @@ The single most important skill to work on before the next conversation.`,
     try {
       const buffer = await generatePdfBuffer(title, subtitle, sections);
       const safeFilename = ((filename || "spartan-document").replace(/[^a-z0-9\-_]/gi, "-")) + ".pdf";
-      const { sendPdfToUser } = await import("./resend");
+      const { sendPdfToUser } = await import("../resend");
       await sendPdfToUser(email, name, buffer, safeFilename, title);
       console.log(`[PDF email] Sent "${title}" to ${email}`);
       res.json({ success: true });
@@ -2402,7 +2402,7 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
   "hiringRecommendation": "<2-3 direct sentences telling Nick exactly what to do with this candidate, with your honest reasoning. Be a practitioner, not a diplomat.>"
 }`;
 
-          const { generateComplexResponse } = await import("./openai");
+          const { generateComplexResponse } = await import("../openai");
           const rawResult = await generateComplexResponse(prompt, systemPrompt);
 
           let parsedResult: any = null;
@@ -2452,7 +2452,7 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
         storage.markAssessmentInviteUsed(validatedInviteId).catch(err => console.error("Failed to mark invite used:", err));
       }
 
-      const { sendAssessmentConfirmation, sendSubmissionResultsToNick } = await import("./resend");
+      const { sendAssessmentConfirmation, sendSubmissionResultsToNick } = await import("../resend");
       const aiScoringFailed = aiFeedback === "AI scoring was unavailable. Please review scenario responses manually.";
 
       await Promise.all([
@@ -2546,7 +2546,7 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
         || (process.env.REPLIT_DEV_DOMAIN ? `https://${process.env.REPLIT_DEV_DOMAIN}` : "");
       const assessmentUrl = `${siteUrl}/assessment/${assessmentId}?token=${token}`;
 
-      const { sendAssessmentInvite } = await import("./resend");
+      const { sendAssessmentInvite } = await import("../resend");
       sendAssessmentInvite(candidateEmail, candidateName, assessment.name, assessmentUrl)
         .catch(err => console.error("Failed to send assessment invite email:", err));
 

@@ -33,3 +33,14 @@ The Replit expo dev domain / shared path-proxy returns empty 404 for Expo-Go-fla
 **Why:** The artifact was ported by hand, and platform routing never registers an Expo route for it; Metro on 8081 (mockup-sandbox moved to 8082) didn't help.
 
 **How to apply:** Don't revert the dev script to `--localhost + EXPO_PACKAGER_PROXY_URL`. The tunnel URL rotates on restart — user must re-scan the QR from the expo workflow output after each restart.
+
+## Zod v3/v4 dual API with drizzle-zod
+drizzle-zod 0.8 returns zod v4 schema objects; files that pair `createInsertSchema` with `z.infer` must import `z` from "zod/v4", not "zod" (zod 3.25.x ships both APIs).
+
+**How to apply:** Any new schema file using drizzle-zod should `import { z } from "zod/v4"`.
+
+## Dynamic imports in api-server routes
+`src/routes/routes.ts` dynamic-imports must use `../resend`, `../openai` (files live in src/, not src/routes/). Wrong relative paths typecheck-fail AND crash at runtime when the endpoint is hit.
+
+## Duplicated shared engine files
+Branch profitability engine files exist in BOTH `artifacts/spartan-coaching/src/shared/` and `artifacts/api-server/src/shared/` (frontend can't import server pkg). Changes to the engine must be mirrored in both copies.
