@@ -8,7 +8,13 @@
     "./presets": "./src/branchPresetConfigs.ts",
     "./content": "./src/branch_content_claim_registry.ts"
   },
+  "scripts": {
+    "test": "vitest run"
+  },
   "dependencies": {
     "decimal.js": "^10.6.0"
+  },
+  "devDependencies": {
+    "vitest": "catalog:"
   }
 }
