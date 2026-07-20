@@ -161,12 +161,12 @@ export default function Contact() {
 
         <FadeIn delay={0.1}>
           {submitted ? (
-            <Card className="spacing-card text-center" data-testid="card-contact-success">
-              <div className="flex flex-col items-center gap-4 py-8">
-                <div className="w-16 h-16 bg-green-100 dark:bg-green-900/30 rounded-full flex items-center justify-center">
-                  <CheckCircle className="w-8 h-8 text-green-600 dark:text-green-400" />
+            <Card className="spacing-card text-center dark:bg-[#0f0f0f] dark:border-white/8" data-testid="card-contact-success">
+              <div className="flex flex-col items-center gap-4 py-10">
+                <div className="w-16 h-16 bg-primary/10 border border-primary/30 rounded-full flex items-center justify-center">
+                  <CheckCircle className="w-8 h-8 text-primary" />
                 </div>
-                <h2 className="text-h2 text-foreground">You're In</h2>
+                <h2 className="font-display font-black text-foreground" style={{ fontSize: "clamp(1.75rem, 3vw, 2.5rem)" }}>You're In</h2>
                 <p className="text-body-lg text-muted-foreground max-w-md">
                   Nick will review your submission and reach out within one business day to schedule a 30-minute discovery call.
                 </p>

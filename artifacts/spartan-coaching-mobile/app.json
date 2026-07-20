@@ -9,7 +9,7 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/images/icon.png",
+      "image": "./assets/images/spartan-stamp.png",
       "resizeMode": "contain",
       "backgroundColor": "#050505"
     },

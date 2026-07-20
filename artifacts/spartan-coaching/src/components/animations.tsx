@@ -58,6 +58,42 @@ export function SlideUp({ children, className, delay = 0, duration = 0.4 }: Slid
   );
 }
 
+interface SlideUpFadeProps {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+  duration?: number;
+  yOffset?: number;
+}
+
+export function SlideUpFade({
+  children,
+  className,
+  delay = 0,
+  duration = 0.5,
+  yOffset = 24,
+}: SlideUpFadeProps) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true });
+
+  return (
+    <motion.div
+      ref={ref}
+      data-testid="animation-slide-up-fade"
+      className={className}
+      initial={{ opacity: 0, y: yOffset, filter: "blur(4px)" }}
+      animate={
+        isInView
+          ? { opacity: 1, y: 0, filter: "blur(0px)" }
+          : { opacity: 0, y: yOffset, filter: "blur(4px)" }
+      }
+      transition={{ duration, delay, ease: [0.22, 1, 0.36, 1] }}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
 interface SlideInProps {
   children: React.ReactNode;
   className?: string;

@@ -13,7 +13,7 @@ import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { SEO } from "@/components/SEO";
 import { apiRequest } from "@/lib/queryClient";
 import { MarkdownContent } from "@/components/MarkdownContent";
-import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
+import { FadeIn, StaggerContainer, StaggerItem, AnimatedCounter } from "@/components/animations";
 import { lazy, Suspense } from "react";
 const SpartanHeroAnimation = lazy(() => import("@/components/SpartanHeroAnimation").then(m => ({ default: m.SpartanHeroAnimation })));
 import { useReminderHistory } from "@/hooks/use-reminder-history";
@@ -245,13 +245,15 @@ export default function Home() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-0 md:divide-x md:divide-red-900/25">
             {[
-              { stat: "18 Days", label: "Avg. hospice length of stay", detail: "vs. 6-month Medicare benefit" },
-              { stat: "500K+", label: "Americans annually", detail: "who die without hospice they qualified for" },
-              { stat: "4 Hours", label: "Target response window", detail: "referral-to-first-contact" },
-              { stat: "6 Months", label: "Medicare benefit", detail: "the gap that trained reps exist to close" },
-            ].map(({ stat, label, detail }, i) => (
+              { target: 18, suffix: " Days", label: "Avg. hospice length of stay", detail: "vs. 6-month Medicare benefit" },
+              { target: 500, suffix: "K+", label: "Americans annually", detail: "who die without hospice they qualified for" },
+              { target: 4, suffix: " Hours", label: "Target response window", detail: "referral-to-first-contact" },
+              { target: 6, suffix: " Months", label: "Medicare benefit", detail: "the gap that trained reps exist to close" },
+            ].map(({ target, suffix, label, detail }, i) => (
               <div key={i} className="text-center md:px-8">
-                <p className="font-display text-4xl sm:text-5xl font-black text-primary tracking-tight leading-none mb-2">{stat}</p>
+                <p className="font-display text-4xl sm:text-5xl font-black text-primary tracking-tight leading-none mb-2">
+                  <AnimatedCounter target={target} suffix={suffix} duration={1.2} />
+                </p>
                 <p className="text-xs sm:text-sm font-bold text-white/80 uppercase tracking-wider mb-1">{label}</p>
                 <p className="text-xs text-white/45 leading-relaxed hidden sm:block">{detail}</p>
               </div>

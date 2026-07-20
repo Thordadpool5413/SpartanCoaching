@@ -15,26 +15,43 @@ function useHeroPlayer() {
   const sceneKeys = useRef(Object.keys(SCENE_DURATIONS)).current;
   const durationsArray = useRef(Object.values(SCENE_DURATIONS)).current;
   const totalScenes = sceneKeys.length;
-  const [currentScene, setCurrentScene] = useState(0);
-  const [hasPlayedOnce, setHasPlayedOnce] = useState(false);
   const crestHeroIndex = sceneKeys.indexOf("crestHero");
 
+  const [currentScene, setCurrentScene] = useState(0);
+  const [hasPlayedOnce, setHasPlayedOnce] = useState(false);
+  // Increments each CrestHero loop so AnimatePresence sees a new key and re-mounts the scene
+  const [crestLoopCount, setCrestLoopCount] = useState(0);
+
   useEffect(() => {
-    const duration = durationsArray[currentScene];
+    const duration = hasPlayedOnce
+      ? SCENE_DURATIONS.crestHero
+      : durationsArray[currentScene];
+
     const timer = setTimeout(() => {
-      const isLast = currentScene >= totalScenes - 1;
-      if (isLast) {
-        setHasPlayedOnce(true);
-        setCurrentScene(crestHeroIndex);
+      if (hasPlayedOnce) {
+        // Hard-lock: only increment loop counter — currentScene stays at crestHeroIndex
+        setCrestLoopCount((c) => c + 1);
       } else {
-        setCurrentScene((prev) => prev + 1);
+        const isLast = currentScene >= totalScenes - 1;
+        if (isLast) {
+          setHasPlayedOnce(true);
+          setCurrentScene(crestHeroIndex);
+          setCrestLoopCount(0);
+        } else {
+          setCurrentScene((prev) => prev + 1);
+        }
       }
     }, duration);
-    return () => clearTimeout(timer);
-  }, [currentScene, totalScenes, durationsArray, crestHeroIndex]);
 
-  const key = hasPlayedOnce ? `crestHero_loop_${currentScene}` : sceneKeys[currentScene];
-  return { currentSceneKey: key, sceneIndex: currentScene };
+    return () => clearTimeout(timer);
+  }, [currentScene, hasPlayedOnce, crestLoopCount, totalScenes, durationsArray, crestHeroIndex]);
+
+  const key = hasPlayedOnce
+    ? `crestHero_loop_${crestLoopCount}`
+    : sceneKeys[currentScene];
+  const sceneIndex = hasPlayedOnce ? crestHeroIndex : currentScene;
+
+  return { currentSceneKey: key, sceneIndex };
 }
 
 function Scene1_Intro() {

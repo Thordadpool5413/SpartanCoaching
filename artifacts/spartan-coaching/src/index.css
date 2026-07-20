@@ -331,6 +331,28 @@ body {
   button, a, input, textarea, select {
     -webkit-tap-highlight-color: transparent;
   }
+
+  /* Dark-authority form element overrides */
+  .dark input:not([type="checkbox"]):not([type="radio"]),
+  .dark textarea,
+  .dark [data-radix-select-trigger] {
+    background-color: #0a0a0a;
+    border-color: rgba(255, 255, 255, 0.1);
+    color: rgba(255, 255, 255, 0.9);
+  }
+
+  .dark input:not([type="checkbox"]):not([type="radio"]):focus,
+  .dark textarea:focus,
+  .dark [data-radix-select-trigger][data-state="open"] {
+    border-color: hsl(var(--primary));
+    outline: none;
+    box-shadow: 0 0 0 1px hsl(var(--primary) / 0.25);
+  }
+
+  .dark input::placeholder,
+  .dark textarea::placeholder {
+    color: rgba(255, 255, 255, 0.25);
+  }
 }
 
 @layer utilities {
