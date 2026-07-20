@@ -19,6 +19,12 @@ import {
   rejectAccessBodySchema,
   orgStatusBodySchema,
   inviteMemberBodySchema,
+  magicLinkRequestSchema,
+  changePasswordBodySchema,
+  extendEvaluationBodySchema,
+  adminBootstrapBodySchema,
+  adminLegacyLoginBodySchema,
+  inquiries,
 } from "@workspace/db";
 import { db } from "../db";
 import { generateToken, hashToken, hashPassword, verifyPassword } from "../auth/crypto";
@@ -27,6 +33,8 @@ import {
   SESSION_DAYS,
   requireAuth,
   requireOrgAdmin,
+  requireAdmin,
+  ADMIN_PASSWORD,
   type AuthedRequest,
 } from "../auth/middleware";
 import { getAccessForMemberId, publicMember, publicOrg } from "../auth/entitlement";
@@ -37,16 +45,6 @@ import {
   sendPasswordResetEmail,
   sendOrgInviteEmail,
 } from "../resend";
-
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "5413";
-
-function requireAdmin(req: any, res: any, next: any) {
-  const auth = req.headers["x-admin-auth"];
-  if (auth !== ADMIN_PASSWORD) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-  next();
-}
 
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -204,6 +202,30 @@ export function registerAuthRoutes(app: Express): void {
         seatsRequested: seats,
         message: body.message,
       }).catch(() => {});
+
+      // CRM: mirror into inquiries so Access Desk + Inquiries stay connected
+      try {
+        await db.insert(inquiries).values({
+          name: body.name.trim(),
+          email,
+          phone: "n/a",
+          company: body.companyName?.trim() || null,
+          serviceType: `Field Kit Access (${body.type})`,
+          message: [
+            body.role ? `Role: ${body.role}` : null,
+            body.primaryGoal ? `Goal: ${body.primaryGoal}` : null,
+            body.teamSize ? `Team size: ${body.teamSize}` : null,
+            body.market ? `Market: ${body.market}` : null,
+            body.message?.trim() || null,
+          ]
+            .filter(Boolean)
+            .join("\n") || "Field Kit access request",
+          submittedAt: Date.now(),
+          isRead: false,
+        });
+      } catch {
+        // non-fatal if inquiries insert fails
+      }
 
       return res.status(201).json({
         ok: true,
@@ -923,6 +945,455 @@ export function registerAuthRoutes(app: Express): void {
     } catch (err) {
       console.error("org invite error:", err);
       return res.status(500).json({ error: "Failed to send invite" });
+    }
+  });
+
+  // ── Platform admin bootstrap + legacy password login ───────────────
+  app.get("/api/admin/bootstrap-status", async (_req, res) => {
+    try {
+      const admins = await db
+        .select()
+        .from(clientMembers)
+        .where(eq(clientMembers.role, "platform_admin"))
+        .limit(1);
+      return res.json({ needsBootstrap: admins.length === 0 });
+    } catch (err) {
+      console.error("bootstrap-status error:", err);
+      return res.json({ needsBootstrap: true });
+    }
+  });
+
+  app.post("/api/admin/bootstrap", authLimiter, async (req, res) => {
+    try {
+      const parsed = adminBootstrapBodySchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid bootstrap payload" });
+      }
+      if (parsed.data.adminPassword !== ADMIN_PASSWORD) {
+        return res.status(401).json({ error: "Invalid admin password" });
+      }
+
+      const existing = await db
+        .select()
+        .from(clientMembers)
+        .where(eq(clientMembers.role, "platform_admin"))
+        .limit(1);
+      if (existing.length > 0) {
+        return res.status(409).json({ error: "Platform admin already exists. Sign in with that account." });
+      }
+
+      const email = parsed.data.email.toLowerCase().trim();
+      const [org] = await db
+        .insert(clientOrganizations)
+        .values({
+          name: "Spartan Platform",
+          type: "platform",
+          seatLimit: 10,
+          status: "active",
+          activatedAt: new Date(),
+        })
+        .returning();
+
+      const passwordHash = await hashPassword(parsed.data.password);
+      const [member] = await db
+        .insert(clientMembers)
+        .values({
+          email,
+          name: parsed.data.name.trim(),
+          role: "platform_admin",
+          organizationId: org.id,
+          status: "active",
+          passwordHash,
+          termsAcceptedAt: new Date(),
+          lastLoginAt: new Date(),
+        })
+        .returning();
+
+      const { token, expiresAt } = await createSession(
+        member.id,
+        req.headers["user-agent"] as string | undefined,
+      );
+      setSessionCookie(res, token, expiresAt);
+      await logEvent("admin_bootstrap", member.id, { email });
+
+      const access = await getAccessForMemberId(member.id);
+      return res.status(201).json({
+        ok: true,
+        member: publicMember(member),
+        organization: access.org ? publicOrg(access.org) : null,
+        fieldKit: {
+          allowed: access.allowed,
+          reason: access.reason ?? null,
+          trialEndsAt: access.trialEndsAt ?? null,
+          hoursRemaining: access.hoursRemaining ?? null,
+        },
+        token,
+        expiresAt,
+      });
+    } catch (err) {
+      console.error("admin bootstrap error:", err);
+      return res.status(500).json({ error: "Bootstrap failed" });
+    }
+  });
+
+  /** Legacy single-password admin unlock → session as first platform admin (if any) */
+  app.post("/api/admin/legacy-login", authLimiter, async (req, res) => {
+    try {
+      const parsed = adminLegacyLoginBodySchema.safeParse(req.body);
+      if (!parsed.success || parsed.data.password !== ADMIN_PASSWORD) {
+        return res.status(401).json({ error: "Invalid admin password" });
+      }
+
+      const [admin] = await db
+        .select()
+        .from(clientMembers)
+        .where(and(eq(clientMembers.role, "platform_admin"), eq(clientMembers.status, "active")))
+        .limit(1);
+
+      if (!admin) {
+        return res.status(409).json({
+          error: "No platform admin account yet. Complete bootstrap first.",
+          code: "NEEDS_BOOTSTRAP",
+        });
+      }
+
+      const { token, expiresAt } = await createSession(
+        admin.id,
+        req.headers["user-agent"] as string | undefined,
+      );
+      await db
+        .update(clientMembers)
+        .set({ lastLoginAt: new Date() })
+        .where(eq(clientMembers.id, admin.id));
+      setSessionCookie(res, token, expiresAt);
+      await logEvent("admin_legacy_login", admin.id);
+
+      const access = await getAccessForMemberId(admin.id);
+      return res.json({
+        member: publicMember(admin),
+        organization: access.org ? publicOrg(access.org) : null,
+        fieldKit: {
+          allowed: access.allowed,
+          reason: access.reason ?? null,
+          trialEndsAt: null,
+          hoursRemaining: null,
+        },
+        token,
+        expiresAt,
+        // Still return header value so existing admin UI can keep X-Admin-Auth during transition
+        legacyHeader: ADMIN_PASSWORD,
+      });
+    } catch (err) {
+      console.error("admin legacy-login error:", err);
+      return res.status(500).json({ error: "Login failed" });
+    }
+  });
+
+  // ── Magic link login ───────────────────────────────────────────────
+  app.post("/api/auth/magic-link", authLimiter, async (req, res) => {
+    try {
+      const parsed = magicLinkRequestSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Valid email required" });
+      }
+      const email = parsed.data.email.toLowerCase().trim();
+      const [member] = await db
+        .select()
+        .from(clientMembers)
+        .where(eq(clientMembers.email, email))
+        .limit(1);
+
+      // Always ok response (no enumeration)
+      if (member && member.status !== "disabled") {
+        const token = await createAuthToken(member.id, "magic_link", 1);
+        const url = `${getSiteUrl()}/magic-login?token=${encodeURIComponent(token)}`;
+        // Reuse password-reset style email
+        const { sendMagicLinkEmail } = await import("../resend");
+        await sendMagicLinkEmail(member.email, member.name, url);
+        await logEvent("magic_link_sent", member.id);
+      }
+
+      return res.json({
+        ok: true,
+        message: "If an account exists for that email, a sign-in link has been sent.",
+      });
+    } catch (err) {
+      console.error("magic-link error:", err);
+      return res.json({
+        ok: true,
+        message: "If an account exists for that email, a sign-in link has been sent.",
+      });
+    }
+  });
+
+  app.post("/api/auth/magic-login", authLimiter, async (req, res) => {
+    try {
+      const token = String(req.body?.token || "");
+      if (!token) return res.status(400).json({ error: "Token required" });
+      const tokenHash = hashToken(token);
+      const [row] = await db
+        .select()
+        .from(authTokens)
+        .where(and(eq(authTokens.tokenHash, tokenHash), isNull(authTokens.usedAt)))
+        .limit(1);
+      if (!row || row.purpose !== "magic_link" || row.expiresAt.getTime() < Date.now()) {
+        return res.status(400).json({ error: "This sign-in link is invalid or has expired." });
+      }
+
+      await db.update(authTokens).set({ usedAt: new Date() }).where(eq(authTokens.id, row.id));
+      const [member] = await db
+        .update(clientMembers)
+        .set({ status: "active", lastLoginAt: new Date() })
+        .where(eq(clientMembers.id, row.memberId))
+        .returning();
+      if (!member || member.status === "disabled") {
+        return res.status(400).json({ error: "Account unavailable" });
+      }
+
+      const { token: sessionToken, expiresAt } = await createSession(
+        member.id,
+        req.headers["user-agent"] as string | undefined,
+      );
+      setSessionCookie(res, sessionToken, expiresAt);
+      await logEvent("magic_login", member.id);
+
+      const access = await getAccessForMemberId(member.id);
+      return res.json({
+        member: publicMember(member),
+        organization: access.org ? publicOrg(access.org) : null,
+        fieldKit: {
+          allowed: access.allowed,
+          reason: access.reason ?? null,
+          trialEndsAt: access.trialEndsAt ?? null,
+          hoursRemaining: access.hoursRemaining ?? null,
+        },
+        token: sessionToken,
+        expiresAt,
+      });
+    } catch (err) {
+      console.error("magic-login error:", err);
+      return res.status(500).json({ error: "Sign-in failed" });
+    }
+  });
+
+  // ── Change password ────────────────────────────────────────────────
+  app.post("/api/auth/change-password", requireAuth, authLimiter, async (req: AuthedRequest, res) => {
+    try {
+      const parsed = changePasswordBodySchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid password payload" });
+      }
+      const member = req.fieldKit!.member!;
+      if (!member.passwordHash) {
+        return res.status(400).json({ error: "Set a password first via your invite link." });
+      }
+      const ok = await verifyPassword(parsed.data.currentPassword, member.passwordHash);
+      if (!ok) return res.status(401).json({ error: "Current password is incorrect" });
+
+      const passwordHash = await hashPassword(parsed.data.newPassword);
+      await db
+        .update(clientMembers)
+        .set({ passwordHash })
+        .where(eq(clientMembers.id, member.id));
+      await db.delete(clientSessions).where(eq(clientSessions.memberId, member.id));
+      const { token, expiresAt } = await createSession(
+        member.id,
+        req.headers["user-agent"] as string | undefined,
+      );
+      setSessionCookie(res, token, expiresAt);
+      await logEvent("password_changed", member.id);
+      return res.json({ ok: true, token, expiresAt });
+    } catch (err) {
+      console.error("change-password error:", err);
+      return res.status(500).json({ error: "Unable to change password" });
+    }
+  });
+
+  // ── Org: disable member ────────────────────────────────────────────
+  app.post("/api/org/members/:id/disable", requireAuth, requireOrgAdmin, async (req: AuthedRequest, res) => {
+    try {
+      const id = Number(req.params.id);
+      const orgId = req.fieldKit!.org!.id;
+      const [target] = await db
+        .select()
+        .from(clientMembers)
+        .where(and(eq(clientMembers.id, id), eq(clientMembers.organizationId, orgId)))
+        .limit(1);
+      if (!target) return res.status(404).json({ error: "Member not found" });
+      if (target.id === req.clientMemberId) {
+        return res.status(400).json({ error: "You cannot disable your own account" });
+      }
+      if (target.role === "platform_admin") {
+        return res.status(400).json({ error: "Cannot disable platform admin" });
+      }
+
+      await db
+        .update(clientMembers)
+        .set({ status: "disabled" })
+        .where(eq(clientMembers.id, id));
+      await db.delete(clientSessions).where(eq(clientSessions.memberId, id));
+      await logEvent("member_disabled", req.clientMemberId, { targetId: id, orgId });
+      return res.json({ ok: true });
+    } catch (err) {
+      console.error("disable member error:", err);
+      return res.status(500).json({ error: "Failed to disable member" });
+    }
+  });
+
+  // ── Request extended evaluation (from expired clients) ─────────────
+  app.post("/api/auth/request-extension", requireAuth, async (req: AuthedRequest, res) => {
+    try {
+      const parsed = extendEvaluationBodySchema.safeParse(req.body ?? {});
+      const message = parsed.success ? parsed.data.message : undefined;
+      const member = req.fieldKit!.member!;
+      const org = req.fieldKit!.org;
+
+      const [row] = await db
+        .insert(accessRequests)
+        .values({
+          type: org?.type === "company" ? "company" : "individual",
+          name: member.name,
+          email: member.email,
+          companyName: org?.name ?? null,
+          message: message?.trim() || "Requesting extended Field Kit evaluation.",
+          seatsRequested: org?.seatLimit ?? 1,
+          status: "pending",
+          adminNote: `extension_request orgId=${org?.id ?? "n/a"}`,
+        })
+        .returning();
+
+      // Also create inquiry for CRM visibility
+      try {
+        await db.insert(inquiries).values({
+          name: member.name,
+          email: member.email,
+          phone: "n/a",
+          company: org?.name ?? null,
+          serviceType: "Field Kit Extended Evaluation",
+          message: message?.trim() || "Requesting extended Field Kit evaluation.",
+          submittedAt: Date.now(),
+          isRead: false,
+        });
+      } catch {
+        // non-fatal
+      }
+
+      sendAccessRequestAdminAlert({
+        name: member.name,
+        email: member.email,
+        type: "extension",
+        companyName: org?.name,
+        message: message || "Extended evaluation requested",
+        seatsRequested: org?.seatLimit ?? 1,
+      }).catch(() => {});
+
+      await logEvent("extension_requested", member.id, { requestId: row.id });
+      return res.status(201).json({ ok: true, requestId: row.id });
+    } catch (err) {
+      console.error("request-extension error:", err);
+      return res.status(500).json({ error: "Unable to submit extension request" });
+    }
+  });
+
+  // ── Admin: resend set-password / create inquiry from request ───────
+  app.post("/api/admin/access-requests/:id/resend-invite", requireAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const [request] = await db
+        .select()
+        .from(accessRequests)
+        .where(eq(accessRequests.id, id))
+        .limit(1);
+      if (!request || request.status !== "approved" || !request.resultingMemberId) {
+        return res.status(400).json({ error: "Only approved requests with a member can be resent" });
+      }
+      const [member] = await db
+        .select()
+        .from(clientMembers)
+        .where(eq(clientMembers.id, request.resultingMemberId))
+        .limit(1);
+      if (!member) return res.status(404).json({ error: "Member not found" });
+
+      const token = await createAuthToken(member.id, "set_password", 48);
+      const url = `${getSiteUrl()}/set-password?token=${encodeURIComponent(token)}`;
+      await sendAccessApprovedEmail(member.email, member.name, url, 24);
+      await logEvent("invite_resent", member.id, { requestId: id });
+      return res.json({ ok: true });
+    } catch (err) {
+      console.error("resend-invite error:", err);
+      return res.status(500).json({ error: "Failed to resend" });
+    }
+  });
+
+  app.post("/api/admin/access-requests/:id/to-inquiry", requireAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const [request] = await db
+        .select()
+        .from(accessRequests)
+        .where(eq(accessRequests.id, id))
+        .limit(1);
+      if (!request) return res.status(404).json({ error: "Request not found" });
+
+      const [inquiry] = await db
+        .insert(inquiries)
+        .values({
+          name: request.name,
+          email: request.email,
+          phone: "n/a",
+          company: request.companyName ?? null,
+          serviceType: `Field Kit Access (${request.type})`,
+          message: [
+            request.primaryGoal ? `Goal: ${request.primaryGoal}` : null,
+            request.role ? `Role: ${request.role}` : null,
+            request.message || null,
+          ]
+            .filter(Boolean)
+            .join("\n") || "Field Kit access request",
+          submittedAt: Date.now(),
+          isRead: false,
+        })
+        .returning();
+
+      return res.status(201).json({ ok: true, inquiry });
+    } catch (err) {
+      console.error("to-inquiry error:", err);
+      return res.status(500).json({ error: "Failed to create inquiry" });
+    }
+  });
+
+  // On reject — notify requester
+  app.post("/api/admin/access-requests/:id/reject-and-notify", requireAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const note = typeof req.body?.adminNote === "string" ? req.body.adminNote : undefined;
+      const [request] = await db
+        .select()
+        .from(accessRequests)
+        .where(eq(accessRequests.id, id))
+        .limit(1);
+      if (!request) return res.status(404).json({ error: "Request not found" });
+      if (request.status !== "pending") {
+        return res.status(400).json({ error: `Request is already ${request.status}` });
+      }
+
+      await db
+        .update(accessRequests)
+        .set({
+          status: "rejected",
+          reviewedAt: new Date(),
+          reviewedBy: "admin",
+          adminNote: note ?? null,
+        })
+        .where(eq(accessRequests.id, id));
+
+      const { sendAccessRejectedEmail } = await import("../resend");
+      await sendAccessRejectedEmail(request.email, request.name, note);
+      await logEvent("access_rejected_notified", null, { requestId: id });
+      return res.json({ ok: true });
+    } catch (err) {
+      console.error("reject-and-notify error:", err);
+      return res.status(500).json({ error: "Failed to reject" });
     }
   });
 }

@@ -87,8 +87,26 @@ export function requireFieldKit(req: AuthedRequest, res: Response, next: NextFun
 }
 
 export function requireOrgAdmin(req: AuthedRequest, res: Response, next: NextFunction) {
-  if (!req.fieldKit?.member || req.fieldKit.member.role !== "org_admin") {
+  const role = req.fieldKit?.member?.role;
+  if (!req.fieldKit?.member || (role !== "org_admin" && role !== "platform_admin")) {
     return res.status(403).json({ error: "Organization admin required", code: "ORG_ADMIN_REQUIRED" });
   }
   next();
 }
+
+const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "5413";
+
+export function isAdminRequest(req: AuthedRequest | Request): boolean {
+  const header = (req as any).headers?.["x-admin-auth"];
+  if (typeof header === "string" && header === ADMIN_PASSWORD) return true;
+  const member = (req as AuthedRequest).fieldKit?.member;
+  return !!(member && member.status === "active" && member.role === "platform_admin");
+}
+
+/** Platform admin session OR legacy X-Admin-Auth header */
+export function requireAdmin(req: AuthedRequest, res: Response, next: NextFunction) {
+  if (isAdminRequest(req)) return next();
+  return res.status(401).json({ error: "Unauthorized", code: "ADMIN_REQUIRED" });
+}
+
+export { ADMIN_PASSWORD };

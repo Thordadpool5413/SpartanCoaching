@@ -26,6 +26,9 @@ export default function Account() {
     byTool: { toolName: string; count: number }[];
     byMember: { email: string; count: number }[];
   } | null>(null);
+  const [currentPassword, setCurrentPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [pwPending, setPwPending] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -170,12 +173,41 @@ export default function Account() {
 
           <ul className="space-y-2 text-sm">
             {members.map((m) => (
-              <li key={m.id} className="flex justify-between gap-2 border-b border-white/5 pb-2">
+              <li key={m.id} className="flex flex-wrap justify-between gap-2 border-b border-white/5 pb-2 items-center">
                 <span>
                   <span className="font-medium">{m.name}</span>
                   <span className="text-muted-foreground"> · {m.email}</span>
+                  <span className="text-muted-foreground"> · {m.status}</span>
                 </span>
-                <span className="text-muted-foreground capitalize">{m.role.replace("_", " ")}</span>
+                <span className="flex items-center gap-2">
+                  <span className="text-muted-foreground capitalize">{m.role.replace("_", " ")}</span>
+                  {m.id !== member.id && m.status !== "disabled" && (
+                    <Button
+                      size="sm"
+                      variant="ghost"
+                      className="h-7 text-xs text-destructive"
+                      onClick={async () => {
+                        if (!confirm(`Disable access for ${m.email}?`)) return;
+                        try {
+                          const res = await fetch(`/api/org/members/${m.id}/disable`, {
+                            method: "POST",
+                            credentials: "include",
+                          });
+                          const data = await res.json().catch(() => ({}));
+                          if (!res.ok) throw new Error(data.error || "Failed");
+                          toast({ title: "Member disabled" });
+                          setMembers((prev) =>
+                            prev.map((x) => (x.id === m.id ? { ...x, status: "disabled" } : x)),
+                          );
+                        } catch (err: any) {
+                          toast({ title: "Failed", description: err?.message, variant: "destructive" });
+                        }
+                      }}
+                    >
+                      Disable
+                    </Button>
+                  )}
+                </span>
               </li>
             ))}
           </ul>
@@ -215,6 +247,59 @@ export default function Account() {
           </p>
         </Card>
       )}
+
+      <Card className="border border-white/10 dark:bg-[#0c0c0c] p-6 space-y-4">
+        <h2 className="text-lg font-bold">Change password</h2>
+        <form
+          className="grid sm:grid-cols-2 gap-3"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            setPwPending(true);
+            try {
+              const res = await fetch("/api/auth/change-password", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ currentPassword, newPassword }),
+              });
+              const data = await res.json().catch(() => ({}));
+              if (!res.ok) throw new Error(data.error || "Failed");
+              toast({ title: "Password updated" });
+              setCurrentPassword("");
+              setNewPassword("");
+            } catch (err: any) {
+              toast({ title: "Could not update password", description: err?.message, variant: "destructive" });
+            } finally {
+              setPwPending(false);
+            }
+          }}
+        >
+          <div className="space-y-1">
+            <Label>Current password</Label>
+            <Input
+              type="password"
+              value={currentPassword}
+              onChange={(e) => setCurrentPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="space-y-1">
+            <Label>New password (min 8)</Label>
+            <Input
+              type="password"
+              minLength={8}
+              value={newPassword}
+              onChange={(e) => setNewPassword(e.target.value)}
+              required
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <Button type="submit" className="font-bold" disabled={pwPending}>
+              {pwPending ? "Saving…" : "Update password"}
+            </Button>
+          </div>
+        </form>
+      </Card>
 
       {member.role === "org_admin" && usage && (
         <Card className="border border-white/10 dark:bg-[#0c0c0c] p-6 space-y-4" data-testid="org-usage">

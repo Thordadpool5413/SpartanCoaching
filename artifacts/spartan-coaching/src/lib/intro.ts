@@ -24,6 +24,7 @@ export function shouldSkipIntro(path: string): boolean {
     "/set-password",
     "/forgot-password",
     "/reset-password",
+    "/magic-login",
     "/admin",
     "/sign/",
     "/assess/",

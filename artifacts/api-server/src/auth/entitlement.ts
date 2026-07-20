@@ -33,6 +33,17 @@ export function evaluateFieldKitAccess(member: ClientMember, org: ClientOrganiza
     return { allowed: false, reason: "disabled", member, org };
   }
 
+  // Platform operators always have tool + admin access
+  if (member.role === "platform_admin" || org.type === "platform") {
+    return {
+      allowed: true,
+      member,
+      org,
+      trialEndsAt: null,
+      hoursRemaining: null,
+    };
+  }
+
   if (org.status === "suspended") {
     return { allowed: false, reason: "suspended", member, org };
   }

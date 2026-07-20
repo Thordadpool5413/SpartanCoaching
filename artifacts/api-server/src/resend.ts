@@ -1093,3 +1093,61 @@ export async function sendTrialExpiredEmail(
     return false;
   }
 }
+
+export async function sendMagicLinkEmail(
+  toEmail: string,
+  toName: string,
+  magicUrl: string,
+): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    await sendEmail(client, {
+      from: fromEmail,
+      to: toEmail,
+      subject: "Your Spartan Field Kit sign-in link",
+      html: authEmailShell(`
+        <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Use this secure link to sign in to your Field Kit. It expires in one hour and can only be used once.</p>
+        <div style="text-align:center;margin:32px 0;">
+          <a href="${magicUrl}" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:16px;">Sign in to Field Kit</a>
+        </div>
+        <p style="margin:0;color:#555;font-size:14px;">If you did not request this, you can ignore this email.</p>
+      `),
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to send magic link email:", error);
+    return false;
+  }
+}
+
+export async function sendAccessRejectedEmail(
+  toEmail: string,
+  toName: string,
+  note?: string | null,
+): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    const siteUrl = getSiteUrl();
+    await sendEmail(client, {
+      from: fromEmail,
+      to: toEmail,
+      subject: "Update on your Field Kit access request — Spartan Coaching",
+      html: authEmailShell(`
+        <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Thank you for your interest in the Spartan Field Kit. We are not able to approve evaluation access at this time.</p>
+        ${note ? `<p style="margin:0 0 16px;line-height:1.6;background:#f9fafb;padding:12px;border-radius:6px;">${note}</p>` : ""}
+        <p style="margin:0 0 16px;line-height:1.6;">If coaching or a strategy conversation would help more than tools right now, I would welcome that conversation.</p>
+        <div style="text-align:center;margin:28px 0;">
+          <a href="${siteUrl}/contact" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;">Book a strategy call</a>
+        </div>
+        <p style="margin:0 0 4px;font-weight:bold;">Nick Lynch</p>
+        <p style="margin:0;color:#555;font-size:14px;">Founder, Spartan Coaching</p>
+      `),
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to send access rejected email:", error);
+    return false;
+  }
+}

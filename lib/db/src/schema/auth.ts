@@ -208,3 +208,27 @@ export const inviteMemberBodySchema = z.object({
   name: z.string().min(2).max(255),
   role: z.enum(["member", "org_admin"]).default("member"),
 });
+
+export const magicLinkRequestSchema = z.object({
+  email: z.string().email(),
+});
+
+export const changePasswordBodySchema = z.object({
+  currentPassword: z.string().min(1),
+  newPassword: z.string().min(8).max(128),
+});
+
+export const extendEvaluationBodySchema = z.object({
+  message: z.string().max(5000).optional(),
+});
+
+export const adminBootstrapBodySchema = z.object({
+  adminPassword: z.string().min(1),
+  email: z.string().email(),
+  name: z.string().min(2).max(255),
+  password: z.string().min(8).max(128),
+});
+
+export const adminLegacyLoginBodySchema = z.object({
+  password: z.string().min(1),
+});

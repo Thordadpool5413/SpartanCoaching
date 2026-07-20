@@ -207,11 +207,33 @@ export function AccessDesk() {
                     size="sm"
                     variant="outline"
                     disabled={rejectMut.isPending}
-                    onClick={() => rejectMut.mutate(r.id)}
+                    onClick={() => {
+                      // Prefer notify path
+                      adminFetch(`/api/admin/access-requests/${r.id}/reject-and-notify`, {
+                        method: "POST",
+                        body: JSON.stringify({}),
+                      })
+                        .then(() => {
+                          toast({ title: "Rejected", description: "Requester notified by email." });
+                          invalidate();
+                        })
+                        .catch(() => rejectMut.mutate(r.id));
+                    }}
                     data-testid={`button-reject-${r.id}`}
                   >
                     <XCircle className="w-4 h-4 mr-1" />
-                    Reject
+                    Reject & notify
+                  </Button>
+                  <Button
+                    size="sm"
+                    variant="ghost"
+                    onClick={() => {
+                      adminFetch(`/api/admin/access-requests/${r.id}/to-inquiry`, { method: "POST", body: "{}" })
+                        .then(() => toast({ title: "Inquiry created", description: "Also visible under Inquiries tab." }))
+                        .catch((e: Error) => toast({ title: "Failed", description: e.message, variant: "destructive" }));
+                    }}
+                  >
+                    Copy to inquiries
                   </Button>
                 </div>
               </div>
@@ -329,11 +351,32 @@ export function AccessDesk() {
                 .filter((r) => r.status !== "pending")
                 .slice(0, 20)
                 .map((r) => (
-                  <li key={r.id} className="flex justify-between gap-2 border-b border-border/50 pb-2">
+                  <li key={r.id} className="flex flex-wrap items-center justify-between gap-2 border-b border-border/50 pb-2">
                     <span>
                       {r.name} · {r.email}
                     </span>
-                    <Badge variant={r.status === "approved" ? "default" : "secondary"}>{r.status}</Badge>
+                    <span className="flex items-center gap-2">
+                      <Badge variant={r.status === "approved" ? "default" : "secondary"}>{r.status}</Badge>
+                      {r.status === "approved" && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          className="h-7 text-xs"
+                          onClick={() => {
+                            adminFetch(`/api/admin/access-requests/${r.id}/resend-invite`, {
+                              method: "POST",
+                              body: "{}",
+                            })
+                              .then(() => toast({ title: "Invite resent" }))
+                              .catch((e: Error) =>
+                                toast({ title: "Resend failed", description: e.message, variant: "destructive" }),
+                              );
+                          }}
+                        >
+                          Resend invite
+                        </Button>
+                      )}
+                    </span>
                   </li>
                 ))}
             </ul>

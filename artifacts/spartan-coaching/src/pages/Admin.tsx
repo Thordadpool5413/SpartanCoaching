@@ -25,9 +25,18 @@ import { SEO } from "@/components/SEO";
 const ADMIN_CODE = import.meta.env.VITE_ADMIN_PASSWORD || "5413";
 const ADMIN_AUTH_KEY = "spartan-admin-auth";
 
+/** Prefer session cookie (platform admin); fall back to legacy header during transition */
+const adminHeaders = (): HeadersInit => {
+  const headers: HeadersInit = {};
+  if (localStorage.getItem(ADMIN_AUTH_KEY) === "true") {
+    headers["X-Admin-Auth"] = ADMIN_CODE;
+  }
+  return headers;
+};
+
 const adminGet = async (url: string) => {
   const res = await fetch(url, {
-    headers: { "X-Admin-Auth": ADMIN_CODE },
+    headers: adminHeaders(),
     credentials: "include",
   });
   if (!res.ok) throw new Error(`${res.status}: ${await res.text()}`);
@@ -54,45 +63,137 @@ export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const [showPasswordDialog, setShowPasswordDialog] = useState(true);
+  const [needsBootstrap, setNeedsBootstrap] = useState(false);
+  const [bootEmail, setBootEmail] = useState("");
+  const [bootName, setBootName] = useState("Nick Lynch");
+  const [bootPassword, setBootPassword] = useState("");
+  const [authPending, setAuthPending] = useState(false);
   const { toast } = useToast();
 
-  // Check localStorage on mount
+  // Session platform admin OR legacy localStorage flag
   useEffect(() => {
-    const authStatus = localStorage.getItem(ADMIN_AUTH_KEY);
-    if (authStatus === "true") {
-      setIsAuthenticated(true);
-      setShowPasswordDialog(false);
-    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const status = await fetch("/api/admin/bootstrap-status", { credentials: "include" }).then((r) =>
+          r.json(),
+        );
+        if (!cancelled) setNeedsBootstrap(!!status.needsBootstrap);
+      } catch {
+        /* ignore */
+      }
+
+      try {
+        const me = await fetch("/api/auth/me", { credentials: "include" }).then(async (r) =>
+          r.ok ? r.json() : null,
+        );
+        if (me?.member?.role === "platform_admin") {
+          if (!cancelled) {
+            setIsAuthenticated(true);
+            setShowPasswordDialog(false);
+          }
+          return;
+        }
+      } catch {
+        /* ignore */
+      }
+
+      if (localStorage.getItem(ADMIN_AUTH_KEY) === "true" && !cancelled) {
+        setIsAuthenticated(true);
+        setShowPasswordDialog(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const handlePasswordSubmit = (e: React.FormEvent) => {
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (passwordInput === ADMIN_CODE) {
-      setIsAuthenticated(true);
-      setShowPasswordDialog(false);
-      localStorage.setItem(ADMIN_AUTH_KEY, "true");
-      toast({
-        title: "Access Granted",
-        description: "Welcome to the admin dashboard",
+    setAuthPending(true);
+    try {
+      if (needsBootstrap) {
+        const res = await fetch("/api/admin/bootstrap", {
+          method: "POST",
+          credentials: "include",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            adminPassword: passwordInput,
+            email: bootEmail.trim(),
+            name: bootName.trim() || "Platform Admin",
+            password: bootPassword,
+          }),
+        });
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) throw new Error(data.error || "Bootstrap failed");
+        localStorage.setItem(ADMIN_AUTH_KEY, "true");
+        setIsAuthenticated(true);
+        setShowPasswordDialog(false);
+        setNeedsBootstrap(false);
+        toast({
+          title: "Platform admin created",
+          description: "You are signed in. Use this email/password for future admin access.",
+        });
+        return;
+      }
+
+      // Prefer session via legacy password → platform admin account
+      const res = await fetch("/api/admin/legacy-login", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ password: passwordInput }),
       });
-      setPasswordInput("");
-    } else {
+      const data = await res.json().catch(() => ({}));
+
+      if (res.ok) {
+        localStorage.setItem(ADMIN_AUTH_KEY, "true");
+        setIsAuthenticated(true);
+        setShowPasswordDialog(false);
+        toast({ title: "Access granted", description: "Welcome to the admin dashboard" });
+        setPasswordInput("");
+        return;
+      }
+
+      if (data.code === "NEEDS_BOOTSTRAP") {
+        setNeedsBootstrap(true);
+        throw new Error("Create your platform admin account first (one-time setup).");
+      }
+
+      // Final fallback: header-only mode if password matches client env
+      if (passwordInput === ADMIN_CODE) {
+        localStorage.setItem(ADMIN_AUTH_KEY, "true");
+        setIsAuthenticated(true);
+        setShowPasswordDialog(false);
+        toast({ title: "Access granted", description: "Legacy admin mode" });
+        setPasswordInput("");
+        return;
+      }
+
+      throw new Error(data.error || "Incorrect password");
+    } catch (err: any) {
       toast({
-        title: "Access Denied",
-        description: "Incorrect password. Please try again.",
+        title: "Access denied",
+        description: err?.message || "Please try again.",
         variant: "destructive",
       });
       setPasswordInput("");
+    } finally {
+      setAuthPending(false);
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
+    } catch {
+      /* ignore */
+    }
     setIsAuthenticated(false);
     setShowPasswordDialog(true);
     localStorage.removeItem(ADMIN_AUTH_KEY);
     toast({
-      title: "Logged Out",
+      title: "Logged out",
       description: "You have been logged out of the admin dashboard",
     });
   };
@@ -113,7 +214,7 @@ export default function Admin() {
     mutationFn: async ({ id, isRead }: { id: number; isRead: boolean }) => {
       const res = await fetch(`/api/inquiries/${id}/read`, {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", "X-Admin-Auth": ADMIN_CODE },
+        headers: { "Content-Type": "application/json", ...(adminHeaders() as Record<string, string>) },
         credentials: "include",
         body: JSON.stringify({ isRead }),
       });
@@ -253,7 +354,7 @@ export default function Admin() {
     mutationFn: async ({ name, description }: { name: string; description: string }) => {
       const res = await fetch("/api/assessments", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Admin-Auth": ADMIN_CODE },
+        headers: { "Content-Type": "application/json", ...(adminHeaders() as Record<string, string>) },
         body: JSON.stringify({ name, description }),
       });
       if (!res.ok) throw new Error((await res.json()).error || "Failed");
@@ -275,7 +376,7 @@ export default function Admin() {
     mutationFn: async (id: number) => {
       const res = await fetch(`/api/assessments/${id}`, {
         method: "DELETE",
-        headers: { "X-Admin-Auth": ADMIN_CODE },
+        headers: { ...(adminHeaders() as Record<string, string>) },
       });
       if (!res.ok) throw new Error("Failed to delete");
       return res.json();
@@ -291,7 +392,7 @@ export default function Admin() {
     mutationFn: async (data: any) => {
       const res = await fetch(`/api/assessments/${selectedAssessmentId}/questions`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Admin-Auth": ADMIN_CODE },
+        headers: { "Content-Type": "application/json", ...(adminHeaders() as Record<string, string>) },
         body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error((await res.json()).error || "Failed");
@@ -314,7 +415,7 @@ export default function Admin() {
     mutationFn: async (id: number) => {
       const res = await fetch(`/api/assessments/questions/${id}`, {
         method: "DELETE",
-        headers: { "X-Admin-Auth": ADMIN_CODE },
+        headers: { ...(adminHeaders() as Record<string, string>) },
       });
       if (!res.ok) throw new Error("Failed to delete");
       return res.json();
@@ -347,7 +448,7 @@ export default function Admin() {
     mutationFn: async (data: { slug: string; companyName: string; logoUrl: string; accentColor: string; assessmentId: string }) => {
       const res = await fetch("/api/admin/assessment-clients", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Admin-Auth": ADMIN_CODE },
+        headers: { "Content-Type": "application/json", ...(adminHeaders() as Record<string, string>) },
         body: JSON.stringify(data),
       });
       if (!res.ok) {
@@ -375,7 +476,7 @@ export default function Admin() {
     mutationFn: async (id: number) => {
       const res = await fetch(`/api/admin/assessment-clients/${id}`, {
         method: "DELETE",
-        headers: { "X-Admin-Auth": ADMIN_CODE },
+        headers: { ...(adminHeaders() as Record<string, string>) },
       });
       if (!res.ok) throw new Error("Failed to delete");
       return res.json();
@@ -416,7 +517,7 @@ export default function Admin() {
     mutationFn: async (settings: Record<string, string>) => {
       const res = await fetch("/api/admin/site-settings", {
         method: "PATCH",
-        headers: { "Content-Type": "application/json", "X-Admin-Auth": ADMIN_CODE },
+        headers: { "Content-Type": "application/json", ...(adminHeaders() as Record<string, string>) },
         credentials: "include",
         body: JSON.stringify(settings),
       });
@@ -448,7 +549,7 @@ export default function Admin() {
     mutationFn: async ({ assessmentId, candidateName, candidateEmail }: { assessmentId: number; candidateName: string; candidateEmail: string }) => {
       const res = await fetch(`/api/assessments/${assessmentId}/invites`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Admin-Auth": ADMIN_CODE },
+        headers: { "Content-Type": "application/json", ...(adminHeaders() as Record<string, string>) },
         body: JSON.stringify({ candidateName, candidateEmail }),
       });
       if (!res.ok) {
@@ -508,7 +609,7 @@ export default function Admin() {
     mutationFn: async (data: { recipientEmail: string; recipientName: string; documentTypes: string[] }) => {
       const res = await fetch("/api/agreement-requests", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Admin-Auth": ADMIN_CODE },
+        headers: { "Content-Type": "application/json", ...(adminHeaders() as Record<string, string>) },
         credentials: "include",
         body: JSON.stringify(data),
       });
@@ -535,7 +636,7 @@ export default function Admin() {
     mutationFn: async (id: number) => {
       const res = await fetch(`/api/agreement-requests/${id}/resend`, {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Admin-Auth": ADMIN_CODE },
+        headers: { "Content-Type": "application/json", ...(adminHeaders() as Record<string, string>) },
         credentials: "include",
       });
       if (!res.ok) throw new Error("Failed to resend");
@@ -552,7 +653,7 @@ export default function Admin() {
   const handleDownloadPdf = async (agreementId: number, agreementType: string) => {
     try {
       const res = await fetch(`/api/signed-agreements/${agreementId}/pdf`, {
-        headers: { "X-Admin-Auth": ADMIN_CODE },
+        headers: { ...(adminHeaders() as Record<string, string>) },
         credentials: "include",
       });
       if (!res.ok) throw new Error("PDF not available");
@@ -580,7 +681,7 @@ export default function Admin() {
     mutationFn: async ({ to, name, subject, body }: { to: string; name: string; subject: string; body: string }) => {
       const res = await fetch("/api/admin/send-email", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Admin-Auth": ADMIN_CODE },
+        headers: { "Content-Type": "application/json", ...(adminHeaders() as Record<string, string>) },
         credentials: "include",
         body: JSON.stringify({ to, name, subject, body }),
       });
@@ -635,7 +736,7 @@ export default function Admin() {
     mutationFn: async ({ subject, body }: { subject: string; body: string }) => {
       const res = await fetch("/api/newsletter/broadcast", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-Admin-Auth": ADMIN_CODE },
+        headers: { "Content-Type": "application/json", ...(adminHeaders() as Record<string, string>) },
         credentials: "include",
         body: JSON.stringify({ subject, body }),
       });
@@ -793,7 +894,7 @@ export default function Admin() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Admin-Auth": ADMIN_CODE,
+        ...(adminHeaders() as Record<string, string>),
       },
       body: JSON.stringify({}),
     });
@@ -818,7 +919,7 @@ export default function Admin() {
             method: "POST",
             headers: {
               "Content-Type": "application/json",
-              "X-Admin-Auth": ADMIN_CODE,
+              ...(adminHeaders() as Record<string, string>),
             },
             body: JSON.stringify({ uploadURL }),
           });
@@ -868,7 +969,7 @@ export default function Admin() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Admin-Auth": ADMIN_CODE,
+          ...(adminHeaders() as Record<string, string>),
         },
         body: JSON.stringify(data),
       });
@@ -904,7 +1005,7 @@ export default function Admin() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "X-Admin-Auth": ADMIN_CODE,
+          ...(adminHeaders() as Record<string, string>),
         },
         body: JSON.stringify(data),
       });
@@ -938,7 +1039,7 @@ export default function Admin() {
       const response = await fetch(`/api/resources/${id}`, {
         method: "DELETE",
         headers: {
-          "X-Admin-Auth": ADMIN_CODE,
+          ...(adminHeaders() as Record<string, string>),
         },
       });
       
@@ -1025,7 +1126,7 @@ export default function Admin() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Admin-Auth": ADMIN_CODE,
+        ...(adminHeaders() as Record<string, string>),
       },
     });
 
@@ -1048,7 +1149,7 @@ export default function Admin() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Admin-Auth": ADMIN_CODE,
+          ...(adminHeaders() as Record<string, string>),
         },
         body: JSON.stringify({ uploadURL }),
       });
@@ -1090,7 +1191,7 @@ export default function Admin() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Admin-Auth": ADMIN_CODE,
+          ...(adminHeaders() as Record<string, string>),
         },
         body: JSON.stringify(data),
       });
@@ -1126,7 +1227,7 @@ export default function Admin() {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
-          "X-Admin-Auth": ADMIN_CODE,
+          ...(adminHeaders() as Record<string, string>),
         },
         body: JSON.stringify(data),
       });
@@ -1160,7 +1261,7 @@ export default function Admin() {
       const response = await fetch(`/api/podcasts/${id}`, {
         method: "DELETE",
         headers: {
-          "X-Admin-Auth": ADMIN_CODE,
+          ...(adminHeaders() as Record<string, string>),
         },
       });
       
@@ -1254,7 +1355,7 @@ export default function Admin() {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "X-Admin-Auth": ADMIN_CODE,
+        ...(adminHeaders() as Record<string, string>),
       },
     });
 
@@ -1277,7 +1378,7 @@ export default function Admin() {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "X-Admin-Auth": ADMIN_CODE,
+          ...(adminHeaders() as Record<string, string>),
         },
         body: JSON.stringify({ uploadURL }),
       });
@@ -1311,7 +1412,7 @@ export default function Admin() {
   const adminFetch = async (method: string, url: string, data?: unknown) => {
     const res = await fetch(url, {
       method,
-      headers: { "Content-Type": "application/json", "X-Admin-Auth": ADMIN_CODE },
+      headers: { "Content-Type": "application/json", ...(adminHeaders() as Record<string, string>) },
       body: data ? JSON.stringify(data) : undefined,
     });
     if (!res.ok) throw new Error(await res.text());
@@ -1401,28 +1502,56 @@ export default function Admin() {
                 <Lock className="w-8 h-8 text-primary" />
               </div>
             </div>
-            <DialogTitle className="text-center text-2xl">Admin Access Required</DialogTitle>
+            <DialogTitle className="text-center text-2xl">
+              {needsBootstrap ? "Create platform admin" : "Admin access"}
+            </DialogTitle>
             <DialogDescription className="text-center">
-              Please enter your admin password to continue
+              {needsBootstrap
+                ? "One-time setup: enter the site admin password, then create your platform admin email and password."
+                : "Sign in with your platform admin password, or the legacy site admin code."}
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handlePasswordSubmit} className="space-y-4 mt-4">
-            <Input
-              type="password"
-              placeholder="Enter admin code"
-              value={passwordInput}
-              onChange={(e) => setPasswordInput(e.target.value)}
-              className="text-center text-lg tracking-widest"
-              maxLength={4}
-              autoFocus
-              data-testid="input-admin-password"
-            />
-            <Button 
-              type="submit" 
+            <div className="space-y-2">
+              <Label className="text-xs">Site admin password</Label>
+              <Input
+                type="password"
+                placeholder="Admin password"
+                value={passwordInput}
+                onChange={(e) => setPasswordInput(e.target.value)}
+                autoFocus
+                data-testid="input-admin-password"
+              />
+            </div>
+            {needsBootstrap && (
+              <>
+                <div className="space-y-2">
+                  <Label className="text-xs">Your name</Label>
+                  <Input value={bootName} onChange={(e) => setBootName(e.target.value)} required />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs">Admin email</Label>
+                  <Input type="email" value={bootEmail} onChange={(e) => setBootEmail(e.target.value)} required />
+                </div>
+                <div className="space-y-2">
+                  <Label className="text-xs">New login password (min 8)</Label>
+                  <Input
+                    type="password"
+                    value={bootPassword}
+                    onChange={(e) => setBootPassword(e.target.value)}
+                    minLength={8}
+                    required
+                  />
+                </div>
+              </>
+            )}
+            <Button
+              type="submit"
               className="w-full bg-spartan-gradient hover:glow-primary"
+              disabled={authPending}
               data-testid="button-submit-password"
             >
-              Access Admin Dashboard
+              {authPending ? "Please wait…" : needsBootstrap ? "Create admin & enter" : "Access Admin Dashboard"}
             </Button>
           </form>
         </DialogContent>

@@ -11,7 +11,7 @@ import {
 const PORTAL_LINKS = [
   { href: "/portal", label: "Field Kit", icon: LayoutDashboard },
   { href: "/tools", label: "Tools", icon: Wrench },
-  { href: "/articles", label: "Learn", icon: BookOpen },
+  { href: "/portal/learn", label: "Learn", icon: BookOpen },
   { href: "/account", label: "Account", icon: UserCircle },
   { href: "/contact", label: "Coaching", icon: Phone },
 ];
@@ -19,8 +19,9 @@ const PORTAL_LINKS = [
 function isActive(location: string, href: string) {
   if (href === "/portal") return location === "/portal";
   if (href === "/tools") return location === "/tools" || location.startsWith("/tools/");
-  if (href === "/articles") {
+  if (href === "/portal/learn") {
     return (
+      location === "/portal/learn" ||
       location === "/articles" ||
       location === "/podcasts" ||
       location === "/resources" ||

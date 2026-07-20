@@ -30,10 +30,14 @@ Expert hospice growth coaching site + private Field Kit (web + iOS) for clients 
 - `artifacts/api-server/src/routes/authRoutes.ts` — login, request-access, Access Desk APIs
 - `artifacts/api-server/src/auth/` — crypto, entitlement, middleware (`requireFieldKit`)
 - Web portal: `/welcome`, `/login`, `/request-access`, `/portal`, `/account`
-- Logged-in nav shell: Field Kit · Tools · Learn · Account · Coaching
+- Logged-in nav shell: Field Kit · Tools · Learn · Account · Coaching (`/portal/learn`)
 - Trial lifecycle emails: midpoint (≤4h left) + expired (on status flip)
-- Admin **Access Desk** tab: approve/reject/extend/activate + metrics
-- Org admin: seat invites + 7-day usage summary (`/api/org/usage`)
+- Magic-link login (`/login` email link + `/magic-login`)
+- Platform admin: one-time bootstrap + session auth (legacy password still works)
+- Admin **Access Desk**: approve/reject+notify/extend/activate, resend invite, copy to inquiries, metrics
+- Access requests auto-create CRM inquiries
+- Org admin: seat invites, disable member, 7-day usage (`/api/org/usage`)
+- Account: change password; expired clients can request extension
 
 ## Architecture decisions
 

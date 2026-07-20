@@ -26,7 +26,9 @@ const SetPassword = lazy(() => import("@/pages/SetPassword"));
 const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 const Portal = lazy(() => import("@/pages/Portal"));
+const PortalLearn = lazy(() => import("@/pages/PortalLearn"));
 const Account = lazy(() => import("@/pages/Account"));
+const MagicLogin = lazy(() => import("@/pages/MagicLogin"));
 const Services = lazy(() => import("@/pages/Services"));
 const Programs = lazy(() => import("@/pages/Programs"));
 const Method = lazy(() => import("@/pages/Method"));
@@ -202,7 +204,9 @@ function Router() {
           <Route path="/forgot-password" component={ForgotPassword} />
           <Route path="/reset-password" component={ResetPassword} />
           <Route path="/portal" component={Portal} />
+          <Route path="/portal/learn" component={PortalLearn} />
           <Route path="/account" component={Account} />
+          <Route path="/magic-login" component={MagicLogin} />
           <Route path="/services" component={Services} />
           <Route path="/programs" component={Programs} />
           <Route path="/method" component={Method} />
@@ -272,7 +276,8 @@ function AppLayout() {
     location === "/login" ||
     location === "/set-password" ||
     location === "/forgot-password" ||
-    location === "/reset-password";
+    location === "/reset-password" ||
+    location === "/magic-login";
 
   if (isBrandedAssessment) {
     return (

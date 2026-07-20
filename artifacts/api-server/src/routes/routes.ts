@@ -55,19 +55,7 @@ import {
 import { sendInquiryNotification, sendNewsletterConfirmation, sendGeneratedEmail, sendAgreementConfirmation, sendResourceLeadNotification, sendNewsletterNotification, sendNewsletterBroadcast, sendDripDay3, sendDripDay7, sendSigningRequest, sendSignedAgreementPdf } from "../resend";
 import crypto from "crypto";
 import { AGREEMENT_TEXTS } from "../agreementTexts";
-import { requireFieldKit } from "../auth/middleware";
-
-// Get admin password from environment, default to secure value for development
-const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "5413";
-
-// Middleware that guards admin-only read endpoints
-function requireAdmin(req: any, res: any, next: any) {
-  const auth = req.headers["x-admin-auth"];
-  if (auth !== ADMIN_PASSWORD) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
-  next();
-}
+import { requireFieldKit, requireAdmin, isAdminRequest, ADMIN_PASSWORD } from "../auth/middleware";
 
 // Deferred initialization - call this AFTER server.listen()
 export async function deferredInit(app: Express): Promise<void> {
@@ -564,9 +552,7 @@ Subject: [subject line]
 
   // Create Resource (Admin only)
   app.post("/api/resources", async (req, res) => {
-    const adminAuth = req.headers["x-admin-auth"];
-    
-    if (adminAuth !== ADMIN_PASSWORD) {
+    if (!isAdminRequest(req)) {
       return res.status(401).json({ error: "Unauthorized" });
     }
     
@@ -590,9 +576,7 @@ Subject: [subject line]
 
   // Update Resource (Admin only)
   app.put("/api/resources/:id", async (req, res) => {
-    const adminAuth = req.headers["x-admin-auth"];
-    
-    if (adminAuth !== ADMIN_PASSWORD) {
+    if (!isAdminRequest(req)) {
       return res.status(401).json({ error: "Unauthorized" });
     }
     
@@ -1032,8 +1016,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   });
 
   app.post("/api/testimonials", async (req, res) => {
-    const adminAuth = req.headers["x-admin-auth"];
-    if (adminAuth !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
+    if (!isAdminRequest(req)) return res.status(401).json({ error: "Unauthorized" });
     try {
       const data = req.body;
       const item = await storage.createTestimonial(data);
@@ -1044,8 +1027,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   });
 
   app.put("/api/testimonials/:id", async (req, res) => {
-    const adminAuth = req.headers["x-admin-auth"];
-    if (adminAuth !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
+    if (!isAdminRequest(req)) return res.status(401).json({ error: "Unauthorized" });
     try {
       const item = await storage.updateTestimonial(parseInt(req.params.id), req.body);
       res.json({ testimonial: item });
@@ -1055,8 +1037,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   });
 
   app.delete("/api/testimonials/:id", async (req, res) => {
-    const adminAuth = req.headers["x-admin-auth"];
-    if (adminAuth !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
+    if (!isAdminRequest(req)) return res.status(401).json({ error: "Unauthorized" });
     try {
       await storage.deleteTestimonial(parseInt(req.params.id));
       res.json({ success: true });
@@ -1076,8 +1057,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   });
 
   app.post("/api/case-studies", async (req, res) => {
-    const adminAuth = req.headers["x-admin-auth"];
-    if (adminAuth !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
+    if (!isAdminRequest(req)) return res.status(401).json({ error: "Unauthorized" });
     try {
       const item = await storage.createCaseStudy(req.body);
       res.json({ caseStudy: item });
@@ -1087,8 +1067,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   });
 
   app.put("/api/case-studies/:id", async (req, res) => {
-    const adminAuth = req.headers["x-admin-auth"];
-    if (adminAuth !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
+    if (!isAdminRequest(req)) return res.status(401).json({ error: "Unauthorized" });
     try {
       const item = await storage.updateCaseStudy(parseInt(req.params.id), req.body);
       res.json({ caseStudy: item });
@@ -1098,8 +1077,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   });
 
   app.delete("/api/case-studies/:id", async (req, res) => {
-    const adminAuth = req.headers["x-admin-auth"];
-    if (adminAuth !== ADMIN_PASSWORD) return res.status(401).json({ error: "Unauthorized" });
+    if (!isAdminRequest(req)) return res.status(401).json({ error: "Unauthorized" });
     try {
       await storage.deleteCaseStudy(parseInt(req.params.id));
       res.json({ success: true });
@@ -1110,9 +1088,7 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   // Delete Resource (Admin only)
   app.delete("/api/resources/:id", async (req, res) => {
-    const adminAuth = req.headers["x-admin-auth"];
-    
-    if (adminAuth !== ADMIN_PASSWORD) {
+    if (!isAdminRequest(req)) {
       return res.status(401).json({ error: "Unauthorized" });
     }
     
@@ -1149,9 +1125,7 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   // Create Podcast (Admin only)
   app.post("/api/podcasts", async (req, res) => {
-    const adminAuth = req.headers["x-admin-auth"];
-    
-    if (adminAuth !== ADMIN_PASSWORD) {
+    if (!isAdminRequest(req)) {
       return res.status(401).json({ error: "Unauthorized" });
     }
     
@@ -1175,9 +1149,7 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   // Update Podcast (Admin only)
   app.put("/api/podcasts/:id", async (req, res) => {
-    const adminAuth = req.headers["x-admin-auth"];
-    
-    if (adminAuth !== ADMIN_PASSWORD) {
+    if (!isAdminRequest(req)) {
       return res.status(401).json({ error: "Unauthorized" });
     }
     
@@ -1212,9 +1184,7 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   // Delete Podcast (Admin only)
   app.delete("/api/podcasts/:id", async (req, res) => {
-    const adminAuth = req.headers["x-admin-auth"];
-    
-    if (adminAuth !== ADMIN_PASSWORD) {
+    if (!isAdminRequest(req)) {
       return res.status(401).json({ error: "Unauthorized" });
     }
     
@@ -1293,9 +1263,7 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   // Object Storage: Get upload URL for PDF (Admin only - requires password verification)
   app.post("/api/objects/upload", async (req, res) => {
-    const adminAuth = req.headers["x-admin-auth"];
-    
-    if (adminAuth !== ADMIN_PASSWORD) {
+    if (!isAdminRequest(req)) {
       return res.status(401).json({ error: "Unauthorized" });
     }
     
@@ -1341,9 +1309,7 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   // Normalize PDF upload URL and set ACL policy
   app.post("/api/articles/normalize-pdf", async (req, res) => {
-    const adminAuth = req.headers["x-admin-auth"];
-    
-    if (adminAuth !== ADMIN_PASSWORD) {
+    if (!isAdminRequest(req)) {
       return res.status(401).json({ error: "Unauthorized" });
     }
     

@@ -1,7 +1,10 @@
+import { useState } from "react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/hooks/use-toast";
 import { Lock, LogIn, KeyRound, Phone, Shield } from "lucide-react";
 
 type Props = {
@@ -14,6 +17,10 @@ type Props = {
  */
 export function FieldKitGate({ compact }: Props) {
   const { isAuthenticated, fieldKit, organization } = useAuth();
+  const { toast } = useToast();
+  const [extMessage, setExtMessage] = useState("");
+  const [extPending, setExtPending] = useState(false);
+  const [extSent, setExtSent] = useState(false);
 
   const reason = fieldKit?.reason;
   const expired = reason === "expired" || organization?.status === "expired";
@@ -34,6 +41,33 @@ export function FieldKitGate({ compact }: Props) {
     title = "Field Kit access is not active";
     body = "Your account is signed in, but Field Kit access is not currently active. Contact us to continue.";
   }
+
+  const requestExtension = async () => {
+    setExtPending(true);
+    try {
+      const res = await fetch("/api/auth/request-extension", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ message: extMessage.trim() || undefined }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Request failed");
+      setExtSent(true);
+      toast({
+        title: "Extension requested",
+        description: "We will review within one business day.",
+      });
+    } catch (err: any) {
+      toast({
+        title: "Could not submit",
+        description: err?.message || "Try again or book a call.",
+        variant: "destructive",
+      });
+    } finally {
+      setExtPending(false);
+    }
+  };
 
   return (
     <div
@@ -87,12 +121,44 @@ export function FieldKitGate({ compact }: Props) {
               </Link>
             </Button>
           )}
-          {expired && (
+        </div>
+
+        {expired && isAuthenticated && (
+          <div className="border border-white/10 rounded-md p-4 space-y-3 text-left">
+            <p className="text-sm font-semibold text-foreground">Request extended evaluation</p>
+            {extSent ? (
+              <p className="text-sm text-muted-foreground">
+                Request received. We will review within one business day.
+              </p>
+            ) : (
+              <>
+                <Textarea
+                  placeholder="Optional note for Nick (team size, what you still need to test)…"
+                  value={extMessage}
+                  onChange={(e) => setExtMessage(e.target.value)}
+                  rows={3}
+                />
+                <Button
+                  variant="outline"
+                  className="font-bold"
+                  disabled={extPending}
+                  onClick={requestExtension}
+                  data-testid="gate-extend"
+                >
+                  {extPending ? "Submitting…" : "Submit extension request"}
+                </Button>
+              </>
+            )}
+          </div>
+        )}
+
+        {expired && !isAuthenticated && (
+          <div className="text-center">
             <Button asChild variant="outline" className="font-bold">
               <Link href="/request-access">Request extended evaluation</Link>
             </Button>
-          )}
-        </div>
+          </div>
+        )}
 
         <div className="flex items-start gap-2 text-xs text-muted-foreground justify-center max-w-md mx-auto">
           <Shield className="w-3.5 h-3.5 mt-0.5 shrink-0 text-primary" />
