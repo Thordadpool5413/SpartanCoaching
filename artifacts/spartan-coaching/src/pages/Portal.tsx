@@ -14,6 +14,7 @@ import {
   BookOpen,
 } from "lucide-react";
 import { FieldKitGate } from "@/components/FieldKitGate";
+import { ToolDisclaimer } from "@/components/ToolDisclaimer";
 
 const CHECKLIST = [
   {
@@ -160,16 +161,7 @@ export default function Portal() {
         </Card>
       </section>
 
-      <p className="text-xs text-muted-foreground text-center">
-        Do not enter PHI into tools. Coaching aid only — not clinical advice.{" "}
-        <Link href="/compliance" className="text-primary hover:underline">
-          Compliance
-        </Link>
-        {" · "}
-        <Link href="/account" className="text-primary hover:underline">
-          Account
-        </Link>
-      </p>
+      <ToolDisclaimer className="mt-8 rounded-md border border-white/5 bg-black/20 py-3 px-4 text-center" />
     </div>
   );
 }

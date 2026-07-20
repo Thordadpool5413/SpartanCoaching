@@ -20,6 +20,12 @@ export default function Account() {
   const [invites, setInvites] = useState<any[]>([]);
   const [seatLimit, setSeatLimit] = useState<number | null>(null);
   const [invitePending, setInvitePending] = useState(false);
+  const [usage, setUsage] = useState<{
+    total: number;
+    days: number;
+    byTool: { toolName: string; count: number }[];
+    byMember: { email: string; count: number }[];
+  } | null>(null);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -36,6 +42,12 @@ export default function Account() {
           setMembers(data.members || []);
           setInvites(data.invites || []);
           setSeatLimit(data.seatLimit ?? null);
+        })
+        .catch(() => {});
+      fetch("/api/org/usage", { credentials: "include" })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (data) setUsage(data);
         })
         .catch(() => {});
     }
@@ -201,6 +213,45 @@ export default function Account() {
               Contact us
             </Link>
           </p>
+        </Card>
+      )}
+
+      {member.role === "org_admin" && usage && (
+        <Card className="border border-white/10 dark:bg-[#0c0c0c] p-6 space-y-4" data-testid="org-usage">
+          <div>
+            <h2 className="text-lg font-bold">Team usage (last {usage.days} days)</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              {usage.total} tool action{usage.total === 1 ? "" : "s"} across your seats
+            </p>
+          </div>
+          {usage.byTool.length === 0 ? (
+            <p className="text-sm text-muted-foreground">No tool activity yet this week.</p>
+          ) : (
+            <div className="grid sm:grid-cols-2 gap-6 text-sm">
+              <div>
+                <p className="font-semibold mb-2">By tool</p>
+                <ul className="space-y-1">
+                  {usage.byTool.slice(0, 8).map((t) => (
+                    <li key={t.toolName} className="flex justify-between gap-2 border-b border-white/5 pb-1">
+                      <span className="text-muted-foreground truncate">{t.toolName}</span>
+                      <span className="font-semibold">{t.count}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <p className="font-semibold mb-2">By member</p>
+                <ul className="space-y-1">
+                  {usage.byMember.slice(0, 8).map((m) => (
+                    <li key={m.email} className="flex justify-between gap-2 border-b border-white/5 pb-1">
+                      <span className="text-muted-foreground truncate">{m.email}</span>
+                      <span className="font-semibold">{m.count}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          )}
         </Card>
       )}
     </div>

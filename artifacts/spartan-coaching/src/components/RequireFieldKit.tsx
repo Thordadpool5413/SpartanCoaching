@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { useAuth } from "@/context/AuthContext";
 import { FieldKitGate } from "@/components/FieldKitGate";
+import { ToolDisclaimer } from "@/components/ToolDisclaimer";
 
 /** Wraps tool pages — shows consulting gate unless Field Kit entitlement is active. */
 export function RequireFieldKit({ children }: { children: ReactNode }) {
@@ -19,11 +20,9 @@ export function RequireFieldKit({ children }: { children: ReactNode }) {
   }
 
   return (
-    <>
-      {children}
-      <p className="text-center text-[11px] text-muted-foreground py-4 border-t border-white/5">
-        Do not enter PHI · Coaching aid only · Not clinical advice
-      </p>
-    </>
+    <div className="flex flex-col min-h-[50vh]">
+      <div className="flex-1">{children}</div>
+      <ToolDisclaimer />
+    </div>
   );
 }

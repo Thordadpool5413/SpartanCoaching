@@ -1,6 +1,6 @@
 import type { Express, Response } from "express";
 import rateLimit from "express-rate-limit";
-import { eq, desc, sql, and, isNull, ne } from "drizzle-orm";
+import { eq, desc, sql, and, isNull, ne, gte } from "drizzle-orm";
 import {
   accessRequests,
   clientMembers,
@@ -9,6 +9,7 @@ import {
   authTokens,
   authEvents,
   orgInvites,
+  usageEvents,
   requestAccessBodySchema,
   loginBodySchema,
   setPasswordBodySchema,
@@ -518,6 +519,50 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
+  /** Lightweight Access Desk metrics */
+  app.get("/api/admin/access-metrics", requireAdmin, async (_req, res) => {
+    try {
+      const allRequests = await db.select().from(accessRequests).limit(2000);
+      const allOrgs = await db.select().from(clientOrganizations).limit(2000);
+      const allMembers = await db.select().from(clientMembers).limit(5000);
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const [usageWeek] = await db
+        .select({ count: sql<number>`count(*)::int` })
+        .from(usageEvents)
+        .where(gte(usageEvents.createdAt, weekAgo));
+
+      const countBy = <T extends string>(items: { status: string }[], status: T) =>
+        items.filter((i) => i.status === status).length;
+
+      return res.json({
+        requests: {
+          total: allRequests.length,
+          pending: countBy(allRequests, "pending"),
+          approved: countBy(allRequests, "approved"),
+          rejected: countBy(allRequests, "rejected"),
+        },
+        organizations: {
+          total: allOrgs.length,
+          trial: countBy(allOrgs, "trial"),
+          active: countBy(allOrgs, "active"),
+          expired: countBy(allOrgs, "expired"),
+          suspended: countBy(allOrgs, "suspended"),
+        },
+        members: {
+          total: allMembers.length,
+          active: countBy(allMembers, "active"),
+          loggedIn7d: allMembers.filter(
+            (m) => m.lastLoginAt && m.lastLoginAt.getTime() > weekAgo.getTime(),
+          ).length,
+        },
+        toolUsesLast7Days: usageWeek?.count ?? 0,
+      });
+    } catch (err) {
+      console.error("access-metrics error:", err);
+      return res.status(500).json({ error: "Failed to load metrics" });
+    }
+  });
+
   app.post("/api/admin/access-requests/:id/approve", requireAdmin, async (req, res) => {
     try {
       const id = Number(req.params.id);
@@ -758,6 +803,52 @@ export function registerAuthRoutes(app: Express): void {
       })),
       seatLimit: req.fieldKit!.org!.seatLimit,
     });
+  });
+
+  /** Light org usage summary for company admins (last 7 days) */
+  app.get("/api/org/usage", requireAuth, requireOrgAdmin, async (req: AuthedRequest, res) => {
+    try {
+      const orgId = req.fieldKit!.org!.id;
+      const members = await db
+        .select()
+        .from(clientMembers)
+        .where(eq(clientMembers.organizationId, orgId));
+      const emailSet = new Set(members.map((m) => m.email.toLowerCase()));
+      if (emailSet.size === 0) {
+        return res.json({ total: 0, byTool: [], byMember: [], days: 7 });
+      }
+
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      const recent = await db
+        .select()
+        .from(usageEvents)
+        .where(gte(usageEvents.createdAt, weekAgo))
+        .limit(5000);
+
+      const rows = recent.filter((r) => emailSet.has(String(r.email || "").toLowerCase()));
+
+      const byToolMap = new Map<string, number>();
+      const byMemberMap = new Map<string, number>();
+      for (const r of rows) {
+        byToolMap.set(r.toolName, (byToolMap.get(r.toolName) || 0) + 1);
+        const key = String(r.email).toLowerCase();
+        byMemberMap.set(key, (byMemberMap.get(key) || 0) + 1);
+      }
+
+      return res.json({
+        total: rows.length,
+        days: 7,
+        byTool: [...byToolMap.entries()]
+          .map(([toolName, count]) => ({ toolName, count }))
+          .sort((a, b) => b.count - a.count),
+        byMember: [...byMemberMap.entries()]
+          .map(([email, count]) => ({ email, count }))
+          .sort((a, b) => b.count - a.count),
+      });
+    } catch (err) {
+      console.error("org usage error:", err);
+      return res.status(500).json({ error: "Failed to load usage" });
+    }
   });
 
   app.post("/api/org/invites", requireAuth, requireOrgAdmin, async (req: AuthedRequest, res) => {

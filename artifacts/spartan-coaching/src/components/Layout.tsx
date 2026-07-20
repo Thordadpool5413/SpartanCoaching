@@ -24,6 +24,7 @@ import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { navSections, allSearchablePages } from "@/lib/navigation";
+import { PortalNav, PortalMobileLinks } from "@/components/PortalNav";
 
 // Helper hook to determine if the screen is mobile
 function useIsMobile() {
@@ -175,50 +176,57 @@ export function Header() {
           </div>
         </Link>
 
-        {/* Desktop Navigation */}
+        {/* Desktop Navigation — portal shell when signed in */}
         <nav className="hidden lg:flex items-center gap-1 flex-shrink-0" aria-label="Main navigation">
-          <Button
-            variant="ghost"
-            size="sm"
-            className="gap-2 text-sm"
-            onClick={() => setSearchOpen(true)}
-            data-testid="button-search"
-          >
-            <Search className="w-4 h-4" />
-            <span className="font-medium">Search</span>
-          </Button>
-          {navSections.filter(section => section.title !== "Company").map(section => (
-            <NavDropdown
-              key={section.title}
-              label={section.title}
-              dataTestId={`dropdown-${section.title.toLowerCase().replace(/\s+/g, '-')}`}
-              items={section.items}
-            />
-          ))}
-          <NavLink href="/about">About</NavLink>
           {isAuthenticated ? (
-            <Button size="sm" variant="outline" asChild className="font-bold ml-1 gap-1.5" data-testid="button-account">
-              <Link href="/account">
-                <UserCircle className="w-4 h-4" />
-                {member?.name?.split(" ")[0] || "Account"}
-              </Link>
-            </Button>
+            <>
+              <PortalNav />
+              <Button
+                size="sm"
+                asChild
+                className="font-bold ml-2 px-5"
+                data-testid="button-book-call"
+              >
+                <Link href="/contact">Book a Call</Link>
+              </Button>
+            </>
           ) : (
-            <Button size="sm" variant="ghost" asChild className="font-medium ml-1 gap-1.5" data-testid="button-login">
-              <Link href="/login">
-                <LogIn className="w-4 h-4" />
-                Login
-              </Link>
-            </Button>
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2 text-sm"
+                onClick={() => setSearchOpen(true)}
+                data-testid="button-search"
+              >
+                <Search className="w-4 h-4" />
+                <span className="font-medium">Search</span>
+              </Button>
+              {navSections.filter(section => section.title !== "Company").map(section => (
+                <NavDropdown
+                  key={section.title}
+                  label={section.title}
+                  dataTestId={`dropdown-${section.title.toLowerCase().replace(/\s+/g, '-')}`}
+                  items={section.items}
+                />
+              ))}
+              <NavLink href="/about">About</NavLink>
+              <Button size="sm" variant="ghost" asChild className="font-medium ml-1 gap-1.5" data-testid="button-login">
+                <Link href="/login">
+                  <LogIn className="w-4 h-4" />
+                  Login
+                </Link>
+              </Button>
+              <Button
+                size="sm"
+                asChild
+                className="font-bold ml-1 px-5"
+                data-testid="button-book-call"
+              >
+                <Link href="/contact">Book a Call</Link>
+              </Button>
+            </>
           )}
-          <Button
-            size="sm"
-            asChild
-            className="font-bold ml-1 px-5"
-            data-testid="button-book-call"
-          >
-            <Link href="/contact">Book a Call</Link>
-          </Button>
         </nav>
 
         {/* Mobile Search Button */}
@@ -256,30 +264,31 @@ export function Header() {
               data-testid="mobile-menu-scroll-container"
             >
               <nav className="flex flex-col space-y-1" aria-label="Mobile navigation">
-                <MobileNavLink href={homeHref} label="Home" location={location} onClose={() => setMobileMenuOpen(false)} />
-                {isAuthenticated && canUseFieldKit && (
-                  <MobileNavLink href="/portal" label="Field Kit Home" location={location} onClose={() => setMobileMenuOpen(false)} />
+                {isAuthenticated ? (
+                  <>
+                    <PortalMobileLinks location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavSection title="Site" />
+                    <MobileNavLink href="/" label="Public home" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavLink href="/services" label="Services" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavLink href="/about" label="About" location={location} onClose={() => setMobileMenuOpen(false)} />
+                  </>
+                ) : (
+                  <>
+                    <MobileNavLink href={homeHref} label="Home" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavLink href="/login" label="Client Login" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavLink href="/request-access" label="Request Field Kit Access" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    {navSections.map((section) => (
+                      <div key={section.title}>
+                        <MobileNavSection title={section.title} />
+                        <div className="flex flex-col space-y-1">
+                          {section.items.map((item) => (
+                            <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
+                  </>
                 )}
-                <MobileNavLink
-                  href={isAuthenticated ? "/account" : "/login"}
-                  label={isAuthenticated ? "Account" : "Client Login"}
-                  location={location}
-                  onClose={() => setMobileMenuOpen(false)}
-                />
-                {!isAuthenticated && (
-                  <MobileNavLink href="/request-access" label="Request Field Kit Access" location={location} onClose={() => setMobileMenuOpen(false)} />
-                )}
-
-                {navSections.map((section) => (
-                  <div key={section.title}>
-                    <MobileNavSection title={section.title} />
-                    <div className="flex flex-col space-y-1">
-                      {section.items.map((item) => (
-                        <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
-                      ))}
-                    </div>
-                  </div>
-                ))}
               </nav>
             </div>
             <div className="shrink-0 border-t border-border px-5 py-4 space-y-2">

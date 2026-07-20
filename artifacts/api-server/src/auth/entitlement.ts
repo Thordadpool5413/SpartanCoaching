@@ -6,6 +6,7 @@ import {
 } from "@workspace/db";
 import { eq } from "drizzle-orm";
 import { db } from "../db";
+import { refreshOrgStatusWithLifecycle } from "./trialLifecycle";
 
 export type FieldKitAccess = {
   allowed: boolean;
@@ -16,17 +17,9 @@ export type FieldKitAccess = {
   hoursRemaining?: number | null;
 };
 
-/** Ensure trial orgs past trialEndsAt flip to expired. */
+/** Ensure trial orgs past trialEndsAt flip to expired (+ lifecycle emails). */
 export async function refreshOrgStatus(org: ClientOrganization): Promise<ClientOrganization> {
-  if (org.status === "trial" && org.trialEndsAt && org.trialEndsAt.getTime() <= Date.now()) {
-    const [updated] = await db
-      .update(clientOrganizations)
-      .set({ status: "expired" })
-      .where(eq(clientOrganizations.id, org.id))
-      .returning();
-    return updated ?? { ...org, status: "expired" };
-  }
-  return org;
+  return refreshOrgStatusWithLifecycle(org);
 }
 
 export function evaluateFieldKitAccess(member: ClientMember, org: ClientOrganization): FieldKitAccess {

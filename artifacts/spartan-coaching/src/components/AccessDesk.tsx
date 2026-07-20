@@ -43,9 +43,15 @@ export function AccessDesk() {
     queryFn: () => adminFetch("/api/admin/organizations"),
   });
 
+  const { data: metrics } = useQuery({
+    queryKey: ["/api/admin/access-metrics"],
+    queryFn: () => adminFetch("/api/admin/access-metrics"),
+  });
+
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ["/api/admin/access-requests"] });
     queryClient.invalidateQueries({ queryKey: ["/api/admin/organizations"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/admin/access-metrics"] });
   };
 
   const approveMut = useMutation({
@@ -104,8 +110,32 @@ export function AccessDesk() {
   const pending = requests.filter((r) => r.status === "pending");
   const orgs = (orgsData?.organizations || []) as any[];
 
+  const m = metrics as any;
+
   return (
     <div className="space-y-8" data-testid="access-desk">
+      {m && (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3" data-testid="access-metrics">
+          {[
+            { label: "Pending requests", value: m.requests?.pending ?? 0 },
+            { label: "Active clients", value: m.organizations?.active ?? 0 },
+            { label: "In trial", value: m.organizations?.trial ?? 0 },
+            { label: "Tool uses (7d)", value: m.toolUsesLast7Days ?? 0 },
+            { label: "Approved total", value: m.requests?.approved ?? 0 },
+            { label: "Expired orgs", value: m.organizations?.expired ?? 0 },
+            { label: "Members active", value: m.members?.active ?? 0 },
+            { label: "Logins (7d)", value: m.members?.loggedIn7d ?? 0 },
+          ].map((stat) => (
+            <Card key={stat.label} className="border border-white/10">
+              <CardContent className="p-4">
+                <p className="text-2xl font-black text-primary">{stat.value}</p>
+                <p className="text-xs text-muted-foreground mt-1">{stat.label}</p>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">

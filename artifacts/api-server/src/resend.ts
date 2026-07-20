@@ -1024,3 +1024,72 @@ export async function sendOrgInviteEmail(
     return false;
   }
 }
+
+export async function sendTrialMidpointEmail(
+  toEmail: string,
+  toName: string,
+  hoursLeft: number,
+): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    const siteUrl = getSiteUrl();
+    const hoursLabel =
+      hoursLeft < 1
+        ? "less than an hour"
+        : `about ${Math.max(1, Math.round(hoursLeft))} hour${Math.round(hoursLeft) === 1 ? "" : "s"}`;
+    await sendEmail(client, {
+      from: fromEmail,
+      to: toEmail,
+      subject: "Your Field Kit evaluation window is winding down — Spartan Coaching",
+      html: authEmailShell(`
+        <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
+        <p style="margin:0 0 16px;line-height:1.6;">You have <strong>${hoursLabel}</strong> left in your Field Kit evaluation.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">If you have not already: run one real objection, build this week's plan, and try a role-play on your toughest scenario. Then book a short debrief so we can turn what you are seeing into a clear next step.</p>
+        <div style="text-align:center;margin:28px 0;">
+          <a href="${siteUrl}/portal" style="display:inline-block;background:#b91c1c;color:white;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Open Field Kit</a>
+          <a href="${siteUrl}/contact" style="display:inline-block;background:#111827;color:white;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Book a debrief call</a>
+        </div>
+        <p style="margin:0 0 4px;font-weight:bold;">Nick Lynch</p>
+        <p style="margin:0;color:#555;font-size:14px;">Founder, Spartan Coaching</p>
+      `),
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to send trial midpoint email:", error);
+    return false;
+  }
+}
+
+export async function sendTrialExpiredEmail(
+  toEmail: string,
+  toName: string,
+): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    const siteUrl = getSiteUrl();
+    await sendEmail(client, {
+      from: fromEmail,
+      to: toEmail,
+      subject: "Your Field Kit evaluation has ended — next steps | Spartan Coaching",
+      html: authEmailShell(`
+        <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Your Field Kit evaluation window has ended. Thank you for putting real scenarios through the tools.</p>
+        <p style="margin:0 0 16px;line-height:1.6;"><strong>What you can do next:</strong></p>
+        <ul style="margin:0 0 16px;padding-left:20px;line-height:1.6;">
+          <li>Schedule a strategy call to continue as a client organization</li>
+          <li>Request an extended evaluation if your team still needs time</li>
+          <li>Reply to this email with questions — I read every note</li>
+        </ul>
+        <div style="text-align:center;margin:28px 0;">
+          <a href="${siteUrl}/contact" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;">Schedule a strategy call</a>
+        </div>
+        <p style="margin:0 0 4px;font-weight:bold;">Nick Lynch</p>
+        <p style="margin:0;color:#555;font-size:14px;">Founder, Spartan Coaching</p>
+      `),
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to send trial expired email:", error);
+    return false;
+  }
+}

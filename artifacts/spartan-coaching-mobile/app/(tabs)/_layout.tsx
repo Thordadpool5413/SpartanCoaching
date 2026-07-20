@@ -27,6 +27,10 @@ function NativeTabLayout() {
         <Icon sf={{ default: "envelope", selected: "envelope.fill" }} />
         <Label>Contact</Label>
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="account">
+        <Icon sf={{ default: "person", selected: "person.fill" }} />
+        <Label>Account</Label>
+      </NativeTabs.Trigger>
     </NativeTabs>
   );
 }
@@ -109,6 +113,18 @@ function ClassicTabLayout() {
               <SymbolView name="envelope" tintColor={color} size={24} />
             ) : (
               <Feather name="mail" size={22} color={color} />
+            ),
+        }}
+      />
+      <Tabs.Screen
+        name="account"
+        options={{
+          title: "Account",
+          tabBarIcon: ({ color }) =>
+            isIOS ? (
+              <SymbolView name="person" tintColor={color} size={24} />
+            ) : (
+              <Feather name="user" size={22} color={color} />
             ),
         }}
       />
