@@ -22,6 +22,7 @@ import { useColors } from "@/hooks/useColors";
 import { useReminderHistory } from "@/hooks/useReminderHistory";
 import { apiPost } from "@/lib/api";
 import { cancelReminder, removeReminderFromHistory } from "@/lib/notifications";
+import { useAuth } from "@/lib/AuthContext";
 
 const SUGGESTIONS = [
   "What are hospice eligibility criteria for heart failure?",
@@ -54,6 +55,7 @@ function formatScheduledTime(ts: number): string {
 export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const { canUseFieldKit, isAuthenticated, user, logout } = useAuth();
   const [query, setQuery] = useState("");
   const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
@@ -107,6 +109,10 @@ export default function HomeScreen() {
 
   const handleAsk = async (prompt: string) => {
     if (!prompt.trim()) return;
+    if (!canUseFieldKit) {
+      setError("Field Kit access required. Sign in or request evaluation access on the website.");
+      return;
+    }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setLoading(true);
     setResponse("");
@@ -117,8 +123,13 @@ export default function HomeScreen() {
         conversationHistory: [],
       });
       setResponse(data.response);
-    } catch {
-      setError("Something went wrong. Please try again.");
+    } catch (e: any) {
+      const msg = String(e?.message || "");
+      if (msg.startsWith("401") || msg.startsWith("403")) {
+        setError("Field Kit access required. Sign in with an approved client account.");
+      } else {
+        setError("Something went wrong. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
@@ -164,9 +175,21 @@ export default function HomeScreen() {
         <View style={[styles.heroBadge, { backgroundColor: colors.heroBadgeBg, borderColor: colors.heroBadgeBorder }]}>
           <View style={[styles.heroBadgeDot, { backgroundColor: colors.primary }]} />
           <Text style={[styles.heroBadgeText, { color: colors.heroBadgeText }]}>
-            2026 Programs Now Open
+            {canUseFieldKit
+              ? user?.organization?.status === "trial"
+                ? "Evaluation access active"
+                : "Client Field Kit"
+              : "Private Field Kit · Sign in to unlock AI"}
           </Text>
         </View>
+        <Pressable
+          onPress={() => (isAuthenticated ? logout() : router.push("/login"))}
+          style={{ marginTop: 16, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, borderWidth: 1, borderColor: "rgba(255,255,255,0.25)" }}
+        >
+          <Text style={{ color: "#fff", fontWeight: "700", textAlign: "center" }}>
+            {isAuthenticated ? `Sign out (${user?.member?.name?.split(" ")[0] || "Account"})` : "Client login"}
+          </Text>
+        </Pressable>
       </LinearGradient>
 
       {/* Pending Reminders */}

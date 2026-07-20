@@ -27,9 +27,34 @@ const seoDefaults: Record<string, SEOConfig> = {
     keywords: 'Spartan Method, sales methodology, hospice sales framework, discipline empathy strategy',
   },
   '/tools': {
-    title: 'Hospice Sales Tools | Spartan Coaching',
-    description: 'Try powerful AI-powered tools for hospice sales. Generate playbooks, handle objections, research territories, and craft winning emails instantly.',
-    keywords: 'hospice sales tools, sales playbook generator, objection handling, territory research, email templates',
+    title: 'Field Kit | Spartan Coaching',
+    description: 'Private AI Field Kit for Spartan clients and approved evaluators. Playbooks, objections, role-play, calculators, and weekly planning for hospice growth.',
+    keywords: 'hospice sales tools, sales playbook generator, objection handling, territory research, email templates, Field Kit',
+  },
+  '/welcome': {
+    title: 'Welcome | Spartan Coaching',
+    description: 'Practical coaching and a private Field Kit for hospice growth professionals.',
+    keywords: 'Spartan Coaching, hospice sales coaching',
+  },
+  '/login': {
+    title: 'Client Login | Spartan Coaching',
+    description: 'Sign in to your Spartan Field Kit account.',
+    keywords: 'client login, Field Kit access',
+  },
+  '/request-access': {
+    title: 'Request Field Kit Access | Spartan Coaching',
+    description: 'Request evaluation access to the private Spartan Field Kit for hospice growth professionals and organizations.',
+    keywords: 'Field Kit access, hospice sales tools evaluation',
+  },
+  '/portal': {
+    title: 'Field Kit Home | Spartan Coaching',
+    description: 'Your private Spartan Field Kit command center.',
+    keywords: 'Field Kit, client portal',
+  },
+  '/account': {
+    title: 'Account | Spartan Coaching',
+    description: 'Manage your Spartan Field Kit access and team seats.',
+    keywords: 'account, Field Kit membership',
   },
   '/tools/playbooks': {
     title: 'Sales Playbook Generator | Spartan Coaching',

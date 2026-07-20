@@ -1,45 +1,63 @@
-# [Project name]
+# Spartan Coaching
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Expert hospice growth coaching site + private Field Kit (web + iOS) for clients and approved evaluators.
 
 ## Run & Operate
 
 - `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
+- `pnpm --filter @workspace/spartan-coaching run dev` — web app
+- `pnpm --filter @workspace/spartan-coaching-mobile run dev` — Expo mobile
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
+- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only) — **required after Field Kit auth tables**
 - Required env: `DATABASE_URL` — Postgres connection string
+- Auth/email env: `OPENAI_API_KEY`, `RESEND_API_KEY` / connector, `ADMIN_PASSWORD`, `VITE_ADMIN_PASSWORD`, `NOTIFICATION_EMAIL`, `SITE_URL`
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
 - API: Express 5
 - DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- Web: Vite + React 19 + Wouter
+- Mobile: Expo Router
+- Field Kit auth: scrypt passwords, httpOnly cookie (web) + Bearer token (mobile)
+- AI: OpenAI; Email: Resend
 
 ## Where things live
 
-- `lib/branch-engine` — canonical branch profitability engine (`@workspace/branch-engine/engine|presets|content`), imported by both the web app and api-server. Never duplicate these files into artifact `src/shared/` dirs.
+- `lib/branch-engine` — canonical branch profitability engine
+- `lib/db/src/schema/auth.ts` — client orgs, members, sessions, access requests
+- `artifacts/api-server/src/routes/authRoutes.ts` — login, request-access, Access Desk APIs
+- `artifacts/api-server/src/auth/` — crypto, entitlement, middleware (`requireFieldKit`)
+- Web portal: `/welcome`, `/login`, `/request-access`, `/portal`, `/account`
+- Admin **Access Desk** tab: approve/reject/extend/activate
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- Field Kit AI tools are hard-gated server-side (`requireFieldKit`); UI gates are not enough
+- Access is request → Nick approves → trial (24h individual / 72h company) → admin activates paid/client
+- First-visit intro splash only (`spartan_intro_seen`); home content stays crawlable
+- Personal orgs are 1-seat shells so entitlement is always org-scoped
+- Platform admin remains shared `ADMIN_PASSWORD` / `X-Admin-Auth` (separate from client auth)
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Public: marketing, method, services, content, contact, compliance
+- Private Field Kit: AI tools, calculators, drills, portal checklist
+- Companies: multi-seat invites via org admin
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Consulting language (evaluation access / Field Kit), not SaaS “subscribe/paywall”
+- Human path (book call) on every gate
+- Additive changes preferred; home condensed not deleted
 
 ## Gotchas
 
-- Mobile app (Expo Go on a phone): scan the QR code from the **Replit URL bar** (not the Expo console). The Replit URL bar QR uses `REPLIT_EXPO_DEV_DOMAIN` which routes directly to the Metro server. The Expo console shows a LAN IP (`exp://172.x.x.x:8081`) which is NOT accessible from a phone — ignore it. Re-scan from the Replit URL bar after each workflow restart.
+- After pulling auth schema: run `pnpm --filter @workspace/db run push` on Replit before testing login
+- Mobile app (Expo Go): scan QR from the **Replit URL bar**, not the Expo LAN IP
+- Mobile session token stored in AsyncStorage; send `Authorization: Bearer <token>`
 
 ## Pointers
 
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- See the `pnpm-workspace` skill for workspace structure

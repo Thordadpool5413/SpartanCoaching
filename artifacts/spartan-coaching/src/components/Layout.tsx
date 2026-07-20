@@ -2,8 +2,9 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { MenuIcon, CloseIcon } from "./icons";
 import { Button } from "@/components/ui/button";
-import { Sun, Moon, Linkedin, Search, ChevronDown, Shield } from "lucide-react";
+import { Sun, Moon, Linkedin, Search, ChevronDown, Shield, LogIn, UserCircle } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
+import { useAuth } from "@/context/AuthContext";
 import {
   Sheet,
   SheetContent,
@@ -138,6 +139,7 @@ export function Header() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const { isAuthenticated, canUseFieldKit, member } = useAuth();
 
   // Close mobile menu on route change
   useEffect(() => {
@@ -147,6 +149,7 @@ export function Header() {
   const { mode: theme, toggleMode: toggleTheme } = useTheme();
 
   const allSearchItems = allSearchablePages;
+  const homeHref = isAuthenticated && canUseFieldKit ? "/portal" : "/";
 
   const filteredResults = searchQuery.trim()
     ? allSearchItems.filter(item =>
@@ -164,7 +167,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/40 dark:border-red-900/20 bg-background/90 dark:bg-[#040404]/92 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/80 dark:supports-[backdrop-filter]:bg-[#040404]/88 shadow-lg dark:shadow-[0_4px_32px_-2px_rgba(0,0,0,0.9),_0_0_1px_0_rgba(232,41,30,0.12)] safe-area-top">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-18 md:h-20 flex items-center justify-between gap-3 sm:gap-6 safe-area-x">
-        <Link href="/">
+        <Link href={homeHref}>
           <div className="flex items-center gap-2 sm:gap-4 hover:opacity-80 transition-opacity cursor-pointer touch-manipulation" data-testid="link-home">
             <div>
               <h1 className="font-black text-xl sm:text-2xl md:text-3xl text-primary tracking-tight font-display">SPARTAN COACHING</h1>
@@ -193,6 +196,21 @@ export function Header() {
             />
           ))}
           <NavLink href="/about">About</NavLink>
+          {isAuthenticated ? (
+            <Button size="sm" variant="outline" asChild className="font-bold ml-1 gap-1.5" data-testid="button-account">
+              <Link href="/account">
+                <UserCircle className="w-4 h-4" />
+                {member?.name?.split(" ")[0] || "Account"}
+              </Link>
+            </Button>
+          ) : (
+            <Button size="sm" variant="ghost" asChild className="font-medium ml-1 gap-1.5" data-testid="button-login">
+              <Link href="/login">
+                <LogIn className="w-4 h-4" />
+                Login
+              </Link>
+            </Button>
+          )}
           <Button
             size="sm"
             asChild
@@ -238,7 +256,19 @@ export function Header() {
               data-testid="mobile-menu-scroll-container"
             >
               <nav className="flex flex-col space-y-1" aria-label="Mobile navigation">
-                <MobileNavLink href="/" label="Home" location={location} onClose={() => setMobileMenuOpen(false)} />
+                <MobileNavLink href={homeHref} label="Home" location={location} onClose={() => setMobileMenuOpen(false)} />
+                {isAuthenticated && canUseFieldKit && (
+                  <MobileNavLink href="/portal" label="Field Kit Home" location={location} onClose={() => setMobileMenuOpen(false)} />
+                )}
+                <MobileNavLink
+                  href={isAuthenticated ? "/account" : "/login"}
+                  label={isAuthenticated ? "Account" : "Client Login"}
+                  location={location}
+                  onClose={() => setMobileMenuOpen(false)}
+                />
+                {!isAuthenticated && (
+                  <MobileNavLink href="/request-access" label="Request Field Kit Access" location={location} onClose={() => setMobileMenuOpen(false)} />
+                )}
 
                 {navSections.map((section) => (
                   <div key={section.title}>
@@ -252,12 +282,19 @@ export function Header() {
                 ))}
               </nav>
             </div>
-            <div className="shrink-0 border-t border-border px-5 py-4">
+            <div className="shrink-0 border-t border-border px-5 py-4 space-y-2">
               <Button size="lg" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-book-call">
                 <Link href="/contact" onClick={() => setMobileMenuOpen(false)}>
                   Book a Call
                 </Link>
               </Button>
+              {!isAuthenticated && (
+                <Button size="lg" variant="outline" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-request">
+                  <Link href="/request-access" onClick={() => setMobileMenuOpen(false)}>
+                    Request Field Kit Access
+                  </Link>
+                </Button>
+              )}
             </div>
           </SheetContent>
         </Sheet>
@@ -357,6 +394,9 @@ export function Footer() {
                   { href: "/services", label: "Services & Pricing" },
                   { href: "/about", label: "About" },
                   { href: "/manifesto", label: "The Spartan Ethos" },
+                  { href: "/tools", label: "Field Kit" },
+                  { href: "/request-access", label: "Request Access" },
+                  { href: "/login", label: "Client Login" },
                   { href: "/contact", label: "Contact" },
                   { href: "/compliance", label: "HIPAA Compliance" },
                   { href: "/admin", label: "Admin" },

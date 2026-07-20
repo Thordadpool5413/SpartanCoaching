@@ -15,6 +15,7 @@ import { useQuery } from "@tanstack/react-query";
 import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
 import { apiGet, apiPost } from "@/lib/api";
+import { useAuth } from "@/lib/AuthContext";
 
 type LearnTab = "articles" | "podcasts" | "resources";
 
@@ -55,6 +56,7 @@ const LEARN_TABS: { key: LearnTab; label: string; icon: "file-text" | "mic" | "s
 export default function LearnScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const { canUseFieldKit } = useAuth();
   const [activeTab, setActiveTab] = useState<LearnTab>("articles");
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
@@ -94,6 +96,10 @@ export default function LearnScreen() {
 
   const handleSearch = async () => {
     if (searchQuery.trim().length < 5) return;
+    if (!canUseFieldKit) {
+      setSearchError("Field Kit access required for AI research. Sign in from Home.");
+      return;
+    }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setSearchLoading(true);
     setSearchResult("");
@@ -104,8 +110,13 @@ export default function LearnScreen() {
         useGrounding: true,
       });
       setSearchResult(data.response);
-    } catch {
-      setSearchError("Could not complete the search. Please try again.");
+    } catch (e: any) {
+      const msg = String(e?.message || "");
+      if (msg.startsWith("401") || msg.startsWith("403")) {
+        setSearchError("Field Kit access required. Sign in from Home.");
+      } else {
+        setSearchError("Could not complete the search. Please try again.");
+      }
     } finally {
       setSearchLoading(false);
     }

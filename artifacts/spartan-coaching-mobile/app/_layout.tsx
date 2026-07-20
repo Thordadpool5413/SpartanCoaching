@@ -14,6 +14,7 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { registerRescheduleTask } from "@/lib/notifications";
+import { AuthProvider } from "@/lib/AuthContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -23,6 +24,7 @@ function RootLayoutNav() {
   return (
     <Stack screenOptions={{ headerBackTitle: "Back" }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+      <Stack.Screen name="login" options={{ title: "Sign in", presentation: "modal" }} />
       <Stack.Screen name="brand-video" options={{ title: "Brand Video" }} />
       <Stack.Screen name="staffing" options={{ title: "Branch Staffing" }} />
       <Stack.Screen name="+not-found" />
@@ -54,11 +56,13 @@ export default function RootLayout() {
     <SafeAreaProvider>
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
-          <GestureHandlerRootView>
-            <KeyboardProvider>
-              <RootLayoutNav />
-            </KeyboardProvider>
-          </GestureHandlerRootView>
+          <AuthProvider>
+            <GestureHandlerRootView>
+              <KeyboardProvider>
+                <RootLayoutNav />
+              </KeyboardProvider>
+            </GestureHandlerRootView>
+          </AuthProvider>
         </QueryClientProvider>
       </ErrorBoundary>
     </SafeAreaProvider>

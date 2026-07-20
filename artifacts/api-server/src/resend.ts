@@ -859,3 +859,168 @@ export async function sendGeneratedEmail(to: string, subject: string, body: stri
     return false;
   }
 }
+
+// ── Field Kit access emails ──────────────────────────────────────────
+
+function authEmailShell(inner: string): string {
+  return `
+    <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; color: #111827;">
+      ${emailHeader()}
+      <div style="padding: 32px 24px; background: #ffffff; border: 1px solid #e5e7eb; border-top: none;">
+        ${inner}
+      </div>
+      ${emailFooter()}
+    </div>
+  `;
+}
+
+export async function sendAccessRequestReceived(toEmail: string, toName: string): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    await sendEmail(client, {
+      from: fromEmail,
+      to: toEmail,
+      subject: "We received your Field Kit access request — Spartan Coaching",
+      html: authEmailShell(`
+        <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Thank you for requesting evaluation access to the Spartan Field Kit. We review every request personally.</p>
+        <p style="margin:0 0 16px;line-height:1.6;"><strong>What happens next:</strong> You will hear from us within one business day. If approved, you will receive a secure link to set your password and begin your evaluation window.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">If you need to speak with us sooner, reply to this email or book a strategy call on the site.</p>
+        <p style="margin:0 0 4px;font-weight:bold;">Nick Lynch</p>
+        <p style="margin:0;color:#555;font-size:14px;">Founder, Spartan Coaching</p>
+      `),
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to send access request received email:", error);
+    return false;
+  }
+}
+
+export async function sendAccessRequestAdminAlert(data: {
+  name: string;
+  email: string;
+  type: string;
+  companyName?: string | null;
+  role?: string | null;
+  primaryGoal?: string | null;
+  seatsRequested?: number | null;
+  message?: string | null;
+}): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    const notificationEmail = process.env.NOTIFICATION_EMAIL || fromEmail;
+    const siteUrl = getSiteUrl();
+    await sendEmail(client, {
+      from: fromEmail,
+      to: notificationEmail,
+      subject: `[Access Request] ${data.name} — ${data.type}`,
+      html: authEmailShell(`
+        <h2 style="margin-top:0;">New Field Kit Access Request</h2>
+        <table style="border-collapse:collapse;width:100%;">
+          <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #eee;">Name</td><td style="padding:8px;border-bottom:1px solid #eee;">${data.name}</td></tr>
+          <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #eee;">Email</td><td style="padding:8px;border-bottom:1px solid #eee;"><a href="mailto:${data.email}">${data.email}</a></td></tr>
+          <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #eee;">Type</td><td style="padding:8px;border-bottom:1px solid #eee;">${data.type}</td></tr>
+          ${data.companyName ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #eee;">Company</td><td style="padding:8px;border-bottom:1px solid #eee;">${data.companyName}</td></tr>` : ""}
+          ${data.role ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #eee;">Role</td><td style="padding:8px;border-bottom:1px solid #eee;">${data.role}</td></tr>` : ""}
+          ${data.primaryGoal ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #eee;">Goal</td><td style="padding:8px;border-bottom:1px solid #eee;">${data.primaryGoal}</td></tr>` : ""}
+          ${data.seatsRequested ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #eee;">Seats</td><td style="padding:8px;border-bottom:1px solid #eee;">${data.seatsRequested}</td></tr>` : ""}
+        </table>
+        ${data.message ? `<h3>Message</h3><p style="background:#f9f9f9;padding:16px;border-radius:8px;white-space:pre-wrap;">${data.message}</p>` : ""}
+        <p style="margin-top:24px;"><a href="${siteUrl}/admin" style="color:#b91c1c;">Open Access Desk in Admin</a></p>
+      `),
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to send access request admin alert:", error);
+    return false;
+  }
+}
+
+export async function sendAccessApprovedEmail(
+  toEmail: string,
+  toName: string,
+  setPasswordUrl: string,
+  trialHours: number,
+): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    await sendEmail(client, {
+      from: fromEmail,
+      to: toEmail,
+      subject: "Your Field Kit evaluation access is approved — Spartan Coaching",
+      html: authEmailShell(`
+        <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Your request for Field Kit evaluation access has been approved.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">You have a <strong>${trialHours}-hour evaluation window</strong> once you set your password. Use that time to run real scenarios — objections, weekly plans, role-play — the way you would in the field.</p>
+        <div style="text-align:center;margin:32px 0;">
+          <a href="${setPasswordUrl}" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:16px;">Set Your Password &amp; Enter</a>
+        </div>
+        <p style="margin:0 0 16px;line-height:1.6;font-size:14px;color:#555;">This link expires in 48 hours. If it expires, reply to this email and we will send a new one.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">While you evaluate, you can also <a href="${getSiteUrl()}/contact" style="color:#b91c1c;">book a strategy call</a> to debrief what you are seeing.</p>
+        <p style="margin:0 0 4px;font-weight:bold;">Nick Lynch</p>
+        <p style="margin:0;color:#555;font-size:14px;">Founder, Spartan Coaching</p>
+      `),
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to send access approved email:", error);
+    return false;
+  }
+}
+
+export async function sendPasswordResetEmail(
+  toEmail: string,
+  toName: string,
+  resetUrl: string,
+): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    await sendEmail(client, {
+      from: fromEmail,
+      to: toEmail,
+      subject: "Reset your Spartan Field Kit password",
+      html: authEmailShell(`
+        <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
+        <p style="margin:0 0 16px;line-height:1.6;">We received a request to reset your password. Use the button below within one hour.</p>
+        <div style="text-align:center;margin:32px 0;">
+          <a href="${resetUrl}" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:16px;">Reset Password</a>
+        </div>
+        <p style="margin:0 0 16px;line-height:1.6;font-size:14px;color:#555;">If you did not request this, you can ignore this email.</p>
+      `),
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to send password reset email:", error);
+    return false;
+  }
+}
+
+export async function sendOrgInviteEmail(
+  toEmail: string,
+  orgName: string,
+  setPasswordUrl: string,
+  inviterName: string,
+): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    await sendEmail(client, {
+      from: fromEmail,
+      to: toEmail,
+      subject: `You're invited to the ${orgName} Field Kit — Spartan Coaching`,
+      html: authEmailShell(`
+        <p style="margin:0 0 16px;line-height:1.6;">Hello,</p>
+        <p style="margin:0 0 16px;line-height:1.6;"><strong>${inviterName}</strong> has invited you to the Spartan Field Kit for <strong>${orgName}</strong>.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Set your password to join your team's private toolkit for hospice growth execution.</p>
+        <div style="text-align:center;margin:32px 0;">
+          <a href="${setPasswordUrl}" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:16px;">Accept Invite &amp; Set Password</a>
+        </div>
+        <p style="margin:0;color:#555;font-size:14px;">This invite expires in 7 days.</p>
+      `),
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to send org invite email:", error);
+    return false;
+  }
+}

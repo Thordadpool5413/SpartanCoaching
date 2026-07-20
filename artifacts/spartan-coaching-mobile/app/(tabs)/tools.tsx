@@ -20,6 +20,8 @@ import { useColors } from "@/hooks/useColors";
 import { apiGet, apiPost } from "@/lib/api";
 import { ReminderPicker } from "@/components/ReminderPicker";
 import { useSavedResponses, type SavedResponse } from "@/hooks/useSavedResponses";
+import { useAuth } from "@/lib/AuthContext";
+import { router } from "expo-router";
 
 type ToolTab = "objection" | "playbook" | "email" | "roleplay";
 
@@ -259,12 +261,18 @@ interface ScenarioStat {
 export default function ToolsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const { canUseFieldKit } = useAuth();
   const rnTabBarHeight = useContext(BottomTabBarHeightContext);
   const tabBarHeight = rnTabBarHeight ?? insets.bottom + 49;
   const [activeTab, setActiveTab] = useState<ToolTab>("objection");
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : tabBarHeight;
+
+  const requireAccess = (): boolean => {
+    if (canUseFieldKit) return true;
+    return false;
+  };
 
   // Saved responses hooks
   const objectionSaved = useSavedResponses("objection");
@@ -347,6 +355,10 @@ export default function ToolsScreen() {
 
   const handleObjection = async () => {
     if (objection.trim().length < 5) return;
+    if (!requireAccess()) {
+      setObjectionError("Field Kit access required. Sign in from Home.");
+      return;
+    }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setObjectionLoading(true);
     setObjectionResult("");
@@ -372,6 +384,10 @@ export default function ToolsScreen() {
 
   const handlePlaybook = async () => {
     if (scenario.trim().length < 10) return;
+    if (!requireAccess()) {
+      setPlaybookError("Field Kit access required. Sign in from Home.");
+      return;
+    }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setPlaybookLoading(true);
     setPlaybookResult("");
@@ -400,6 +416,10 @@ export default function ToolsScreen() {
 
   const handleEmail = async () => {
     if (emailContext.trim().length < 10) return;
+    if (!requireAccess()) {
+      setEmailError("Field Kit access required. Sign in from Home.");
+      return;
+    }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setEmailLoading(true);
     setEmailResult("");
@@ -429,6 +449,10 @@ export default function ToolsScreen() {
   };
 
   const startRoleplay = async (scenarioId: string, scenarioTitle: string, scenarioDescription?: string) => {
+    if (!requireAccess()) {
+      setRoleplayError("Field Kit access required. Sign in from Home.");
+      return;
+    }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setRoleplayLoading(true);
     setRoleplayError(null);
@@ -517,9 +541,33 @@ export default function ToolsScreen() {
           AI Tools
         </Text>
         <Text style={[styles.headerSubtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-          Powered by hospice expertise
+          {canUseFieldKit ? "Powered by hospice expertise" : "Private Field Kit — sign in to unlock"}
         </Text>
       </View>
+
+      {!canUseFieldKit && (
+        <Pressable
+          onPress={() => router.push("/login")}
+          style={{
+            marginHorizontal: 16,
+            marginTop: 12,
+            marginBottom: 4,
+            padding: 14,
+            borderRadius: 10,
+            borderWidth: 1,
+            borderColor: colors.primary,
+            backgroundColor: colors.card,
+          }}
+        >
+          <Text style={{ color: colors.foreground, fontWeight: "700", marginBottom: 4 }}>
+            Member access required
+          </Text>
+          <Text style={{ color: colors.mutedForeground, fontSize: 13, lineHeight: 18 }}>
+            Sign in with an approved client account to use AI tools. Request evaluation access on the website if you do not have a login yet.
+          </Text>
+          <Text style={{ color: colors.primary, fontWeight: "700", marginTop: 8 }}>Client login →</Text>
+        </Pressable>
+      )}
 
       {/* Tool tabs — always pinned */}
       <View style={[styles.tabBar, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>

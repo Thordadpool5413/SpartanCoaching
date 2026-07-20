@@ -10,7 +10,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
-import { Mail, Phone, Building, Calendar, Users, Lock, LogOut, Plus, Edit, Trash2, ExternalLink, Star, FileText as FileSignature, PlayCircle, Target, Quote, Award, ChevronDown, ChevronUp, Download, CheckCircle, Circle, Send, Loader2, ClipboardList, Copy, Link as LinkIcon, Printer } from "lucide-react";
+import { Mail, Phone, Building, Calendar, Users, Lock, LogOut, Plus, Edit, Trash2, ExternalLink, Star, FileText as FileSignature, PlayCircle, Target, Quote, Award, ChevronDown, ChevronUp, Download, CheckCircle, Circle, Send, Loader2, ClipboardList, Copy, Link as LinkIcon, Printer, KeyRound } from "lucide-react";
+import { AccessDesk } from "@/components/AccessDesk";
 import type { SelectInquiry, SelectNewsletterSubscriber, SelectArticle, InsertArticle, VisitorAnalytics, SelectResource, InsertResource, SelectPodcast, InsertPodcast, SelectSignedAgreement, SelectRoleplaySession, SelectDrillCompletion, SelectTestimonial, SelectCaseStudy, InsertTestimonial, InsertCaseStudy, SelectResourceLead, SelectAssessment, SelectAssessmentQuestion, SelectAssessmentSubmission, SelectAgreementRequest, SelectAssessmentInvite } from "@shared/schema";
 import type { SelectUsageEvent } from "@shared/schema";
 import { BackButton } from "@/components/BackButton";
@@ -1614,8 +1615,12 @@ export default function Admin() {
         )}
       </div>
 
-      <Tabs defaultValue="inquiries" className="space-y-6">
+      <Tabs defaultValue="access" className="space-y-6">
         <TabsList className="flex w-full max-w-6xl overflow-x-auto">
+          <TabsTrigger value="access" data-testid="tab-access" className="gap-2">
+            <KeyRound className="w-3.5 h-3.5" />
+            Access Desk
+          </TabsTrigger>
           <TabsTrigger value="inquiries" data-testid="tab-inquiries" className="gap-2">
             Inquiries ({inquiries.length})
             {inquiries.filter(i => !i.isRead).length > 0 && (
@@ -1663,6 +1668,10 @@ export default function Admin() {
             LinkedIn
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="access" className="space-y-4">
+          <AccessDesk />
+        </TabsContent>
 
         <TabsContent value="inquiries" className="space-y-4">
           {inquiriesLoading ? (

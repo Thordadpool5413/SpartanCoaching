@@ -1,5 +1,5 @@
 import { Switch, Route, useLocation, Router as WouterRouter } from "wouter";
-import { useEffect, useRef, lazy, Suspense } from "react";
+import { useEffect, useRef, lazy, Suspense, useState, type ComponentType, type ReactNode } from "react";
 import { pageView } from "./lib/ga";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -9,12 +9,24 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header, Footer } from "@/components/Layout";
 import { CommandPalette } from "@/components/CommandPalette";
 import { ThemeProvider } from "@/context/ThemeContext";
+import { AuthProvider, useAuth } from "@/context/AuthContext";
+import { RequireFieldKit } from "@/components/RequireFieldKit";
+import { TrialBanner } from "@/components/TrialBanner";
+import { hasSeenIntro, shouldSkipIntro } from "@/lib/intro";
 
 const ChatWidget = lazy(() => import("@/components/ChatWidget").then(m => ({ default: m.ChatWidget })));
 const StickyBookCall = lazy(() => import("@/components/StickyBookCall").then(m => ({ default: m.StickyBookCall })));
 
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/Home"));
+const Welcome = lazy(() => import("@/pages/Welcome"));
+const Login = lazy(() => import("@/pages/Login"));
+const RequestAccess = lazy(() => import("@/pages/RequestAccess"));
+const SetPassword = lazy(() => import("@/pages/SetPassword"));
+const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"));
+const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
+const Portal = lazy(() => import("@/pages/Portal"));
+const Account = lazy(() => import("@/pages/Account"));
 const Services = lazy(() => import("@/pages/Services"));
 const Programs = lazy(() => import("@/pages/Programs"));
 const Method = lazy(() => import("@/pages/Method"));
@@ -68,18 +80,43 @@ const AssessmentResultsPDF = lazy(() => import("@/pages/AssessmentResultsPDF"));
 const SignAgreements = lazy(() => import("@/pages/SignAgreements"));
 const BrandVideo = lazy(() => import("@/pages/BrandVideo"));
 
+function withFieldKit(Page: ComponentType): ComponentType {
+  return function GatedPage() {
+    return (
+      <RequireFieldKit>
+        <Page />
+      </RequireFieldKit>
+    );
+  };
+}
+
+const GatedPlaybooks = withFieldKit(Playbooks);
+const GatedObjections = withFieldKit(Objections);
+const GatedResearch = withFieldKit(Research);
+const GatedTranscribe = withFieldKit(Transcribe);
+const GatedEmailTemplates = withFieldKit(EmailTemplates);
+const GatedRolePlay = withFieldKit(RolePlay);
+const GatedROI = withFieldKit(ROICalculator);
+const GatedActivity = withFieldKit(ActivityCalculator);
+const GatedRepCost = withFieldKit(RepCostCalculator);
+const GatedBranch = withFieldKit(BranchProfitability);
+const GatedColdCall = withFieldKit(ColdCallScript);
+const GatedWeeklyPlan = withFieldKit(WeeklyPlanBuilder);
+const GatedDrills = withFieldKit(Drills);
+const GatedQuiz = withFieldKit(Quiz);
+const GatedKnowledgeBase = withFieldKit(KnowledgeBase);
+
 function AssessmentRoute() {
   return <Assessment />;
 }
 
-
 function ScrollToTop() {
   const [location] = useLocation();
-  
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [location]);
-  
+
   return null;
 }
 
@@ -87,29 +124,29 @@ function VisitorTracker() {
   const [location] = useLocation();
   const lastTrackedRef = useRef<string>("");
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
-  
+
   useEffect(() => {
     if (lastTrackedRef.current === location) return;
-    
+
     if (timeoutRef.current) {
       clearTimeout(timeoutRef.current);
     }
-    
+
     timeoutRef.current = setTimeout(() => {
       lastTrackedRef.current = location;
-      fetch('/api/analytics/track', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ pagePath: location })
+      fetch("/api/analytics/track", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pagePath: location }),
       }).catch(() => {});
       pageView(location);
     }, 500);
-    
+
     return () => {
       if (timeoutRef.current) clearTimeout(timeoutRef.current);
     };
   }, [location]);
-  
+
   return null;
 }
 
@@ -121,6 +158,35 @@ function PageLoader() {
   );
 }
 
+function IntroGate({ children }: { children: ReactNode }) {
+  const [location, setLocation] = useLocation();
+  const { isAuthenticated, isLoading } = useAuth();
+  const [ready, setReady] = useState(false);
+
+  useEffect(() => {
+    // Wait for auth so logged-in clients never hit the splash
+    if (isLoading) return;
+
+    if (shouldSkipIntro(location) || isAuthenticated) {
+      setReady(true);
+      return;
+    }
+    if (!hasSeenIntro() && location === "/") {
+      setLocation("/welcome");
+    }
+    setReady(true);
+  }, [location, setLocation, isAuthenticated, isLoading]);
+
+  if (!ready || isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen bg-[#050505]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      </div>
+    );
+  }
+  return <>{children}</>;
+}
+
 function Router() {
   return (
     <>
@@ -129,29 +195,37 @@ function Router() {
       <Suspense fallback={<PageLoader />}>
         <Switch>
           <Route path="/" component={Home} />
+          <Route path="/welcome" component={Welcome} />
+          <Route path="/login" component={Login} />
+          <Route path="/request-access" component={RequestAccess} />
+          <Route path="/set-password" component={SetPassword} />
+          <Route path="/forgot-password" component={ForgotPassword} />
+          <Route path="/reset-password" component={ResetPassword} />
+          <Route path="/portal" component={Portal} />
+          <Route path="/account" component={Account} />
           <Route path="/services" component={Services} />
           <Route path="/programs" component={Programs} />
           <Route path="/method" component={Method} />
           <Route path="/tools" component={Tools} />
-          <Route path="/tools/playbooks" component={Playbooks} />
-          <Route path="/tools/objections" component={Objections} />
-          <Route path="/tools/research" component={Research} />
-          <Route path="/tools/transcribe" component={Transcribe} />
-          <Route path="/tools/email-templates" component={EmailTemplates} />
-          <Route path="/tools/role-play" component={RolePlay} />
-          <Route path="/tools/roi-calculator" component={ROICalculator} />
-          <Route path="/tools/activity-calculator" component={ActivityCalculator} />
-          <Route path="/tools/rep-cost-calculator" component={RepCostCalculator} />
-          <Route path="/tools/branch-profitability" component={BranchProfitability} />
-          <Route path="/tools/cold-call-script" component={ColdCallScript} />
-          <Route path="/tools/weekly-plan-builder" component={WeeklyPlanBuilder} />
-          <Route path="/drills" component={Drills} />
+          <Route path="/tools/playbooks" component={GatedPlaybooks} />
+          <Route path="/tools/objections" component={GatedObjections} />
+          <Route path="/tools/research" component={GatedResearch} />
+          <Route path="/tools/transcribe" component={GatedTranscribe} />
+          <Route path="/tools/email-templates" component={GatedEmailTemplates} />
+          <Route path="/tools/role-play" component={GatedRolePlay} />
+          <Route path="/tools/roi-calculator" component={GatedROI} />
+          <Route path="/tools/activity-calculator" component={GatedActivity} />
+          <Route path="/tools/rep-cost-calculator" component={GatedRepCost} />
+          <Route path="/tools/branch-profitability" component={GatedBranch} />
+          <Route path="/tools/cold-call-script" component={GatedColdCall} />
+          <Route path="/tools/weekly-plan-builder" component={GatedWeeklyPlan} />
+          <Route path="/drills" component={GatedDrills} />
 
           <Route path="/resources" component={Resources} />
           <Route path="/admin" component={Admin} />
           <Route path="/resources/weekly-plan" component={WeeklyPlan} />
           <Route path="/resources/activity-tracker" component={ActivityTracker} />
-          <Route path="/quiz" component={Quiz} />
+          <Route path="/quiz" component={GatedQuiz} />
           <Route path="/resources/quick-start-guide" component={QuickStartGuide} />
           <Route path="/resources/objection-cards" component={ObjectionCards} />
           <Route path="/resources/territory-template" component={TerritoryTemplate} />
@@ -172,7 +246,7 @@ function Router() {
           <Route path="/testimonial-release" component={TestimonialRelease} />
           <Route path="/legal" component={LegalAgreements} />
           <Route path="/compliance" component={ComplianceEthics} />
-          <Route path="/learn/knowledge-base" component={KnowledgeBase} />
+          <Route path="/learn/knowledge-base" component={GatedKnowledgeBase} />
           <Route path="/about" component={About} />
           <Route path="/contact" component={Contact} />
           <Route path="/manifesto" component={Manifesto} />
@@ -192,6 +266,13 @@ function Router() {
 function AppLayout() {
   const [location] = useLocation();
   const isBrandedAssessment = location.startsWith("/assess/");
+  const isWelcome = location === "/welcome";
+  const isAuthShell =
+    isWelcome ||
+    location === "/login" ||
+    location === "/set-password" ||
+    location === "/forgot-password" ||
+    location === "/reset-password";
 
   if (isBrandedAssessment) {
     return (
@@ -203,14 +284,23 @@ function AppLayout() {
     );
   }
 
+  if (isWelcome) {
+    return (
+      <main className="min-h-screen">
+        <Router />
+      </main>
+    );
+  }
+
   return (
     <>
       <div className="flex flex-col min-h-screen safe-area-x">
         <Header />
+        <TrialBanner />
         <main className="flex-1">
           <Router />
         </main>
-        <Footer />
+        {!isAuthShell && <Footer />}
       </div>
       <Suspense fallback={null}>
         <ChatWidget />
@@ -227,10 +317,14 @@ function App() {
       <QueryClientProvider client={queryClient}>
         <ThemeProvider>
           <TooltipProvider>
-            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-              <AppLayout />
-              <Toaster />
-            </WouterRouter>
+            <AuthProvider>
+              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+                <IntroGate>
+                  <AppLayout />
+                  <Toaster />
+                </IntroGate>
+              </WouterRouter>
+            </AuthProvider>
           </TooltipProvider>
         </ThemeProvider>
       </QueryClientProvider>

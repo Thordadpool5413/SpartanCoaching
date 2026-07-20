@@ -132,12 +132,24 @@ function ChatWidgetContent() {
 
       const response = await fetch("/api/chat", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           prompt: userMessage.content,
           conversationHistory,
         }),
       });
+
+      if (response.status === 401 || response.status === 403) {
+        const aiMessage: ChatMessage = {
+          role: "model",
+          content:
+            "The AI coach is part of the private Field Kit. Request evaluation access or sign in as a client to continue — or book a strategy call if you prefer to talk with Nick directly.",
+          timestamp: Date.now(),
+        };
+        setMessages((prev) => [...prev, aiMessage]);
+        return;
+      }
 
       if (!response.ok) {
         throw new Error("Failed to get response");

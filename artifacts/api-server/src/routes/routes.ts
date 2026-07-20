@@ -55,6 +55,7 @@ import {
 import { sendInquiryNotification, sendNewsletterConfirmation, sendGeneratedEmail, sendAgreementConfirmation, sendResourceLeadNotification, sendNewsletterNotification, sendNewsletterBroadcast, sendDripDay3, sendDripDay7, sendSigningRequest, sendSignedAgreementPdf } from "../resend";
 import crypto from "crypto";
 import { AGREEMENT_TEXTS } from "../agreementTexts";
+import { requireFieldKit } from "../auth/middleware";
 
 // Get admin password from environment, default to secure value for development
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || "5413";
@@ -167,7 +168,7 @@ ${pages.map(p => `  <url>
   });
 
   // AI Playbook Generator
-  app.post("/api/playbooks", heavyAiLimit, globalDailyAiCap, async (req, res) => {
+  app.post("/api/playbooks", requireFieldKit, heavyAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const { scenario, desiredOutcomes } = playbookRequestSchema.parse(req.body);
       
@@ -196,7 +197,7 @@ Format the playbook in markdown with clear sections, bullet points, and quoted t
   });
 
   // AI Objection Handler
-  app.post("/api/objections", standardAiLimit, globalDailyAiCap, async (req, res) => {
+  app.post("/api/objections", requireFieldKit, standardAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const { objection } = objectionRequestSchema.parse(req.body);
       
@@ -219,7 +220,7 @@ Keep it under 100 words and use a warm, professional tone.`;
   });
 
   // AI Research Tool
-  app.post("/api/research", standardAiLimit, globalDailyAiCap, async (req, res) => {
+  app.post("/api/research", requireFieldKit, standardAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const { query } = researchRequestSchema.parse(req.body);
       
@@ -233,7 +234,7 @@ Keep it under 100 words and use a warm, professional tone.`;
   });
 
   // Daily Drill Generator
-  app.get("/api/daily-drill", lightAiLimit, globalDailyAiCap, async (req, res) => {
+  app.get("/api/daily-drill", requireFieldKit, lightAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const drillData = await generateDailyDrill();
       res.json(drillData);
@@ -250,7 +251,7 @@ Keep it under 100 words and use a warm, professional tone.`;
   });
 
   // AI Chat
-  app.post("/api/chat", standardAiLimit, globalDailyAiCap, async (req, res) => {
+  app.post("/api/chat", requireFieldKit, standardAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const { prompt, conversationHistory } = chatRequestSchema.parse(req.body);
 
@@ -380,7 +381,7 @@ Keep it under 100 words and use a warm, professional tone.`;
   });
 
   // Email Template Generator
-  app.post("/api/email-templates", heavyAiLimit, globalDailyAiCap, async (req, res) => {
+  app.post("/api/email-templates", requireFieldKit, heavyAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const { templateType, recipientName, context, customization } = emailTemplateRequestSchema.parse(req.body);
       
@@ -671,7 +672,7 @@ Subject: [subject line]
     }
   });
 
-  app.post("/api/cold-call-script", standardAiLimit, async (req, res) => {
+  app.post("/api/cold-call-script", requireFieldKit, standardAiLimit, async (req, res) => {
     try {
       const { prospectType, prospectName, situation, repName } = req.body;
       if (!prospectType || !situation || situation.length < 10) {
@@ -717,7 +718,7 @@ Generate a cold call script tailored to this exact situation.`;
     }
   });
 
-  app.post("/api/weekly-plan-builder", standardAiLimit, async (req, res) => {
+  app.post("/api/weekly-plan-builder", requireFieldKit, standardAiLimit, async (req, res) => {
     try {
       const { accounts, weeklyGoal, territoryFocus, challenges } = req.body;
       if (!accounts || accounts.length < 10 || !weeklyGoal) {
@@ -1371,7 +1372,7 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   // ===== ROLE-PLAY PRACTICE ROUTES =====
 
-  app.post("/api/roleplay/sessions", roleplayLimit, globalDailyAiCap, async (req, res) => {
+  app.post("/api/roleplay/sessions", requireFieldKit, roleplayLimit, globalDailyAiCap, async (req, res) => {
     try {
       const { scenarioId, scenarioTitle, scenarioDescription } = roleplayStartSchema.parse(req.body);
       const session = await storage.createRoleplaySession({ scenarioId, scenarioTitle, scenarioDescription: scenarioDescription || null, status: "active" });
@@ -1386,7 +1387,7 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
   });
 
-  app.get("/api/roleplay/sessions", async (_req, res) => {
+  app.get("/api/roleplay/sessions", requireFieldKit, async (_req, res) => {
     try {
       const sessions = await storage.getRoleplaySessions();
       res.json(sessions);
@@ -1396,7 +1397,7 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
   });
 
-  app.get("/api/roleplay/stats", async (_req, res) => {
+  app.get("/api/roleplay/stats", requireFieldKit, async (_req, res) => {
     try {
       const rows = await db
         .select({
@@ -1413,7 +1414,7 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
   });
 
-  app.get("/api/roleplay/sessions/:id", async (req, res) => {
+  app.get("/api/roleplay/sessions/:id", requireFieldKit, async (req, res) => {
     try {
       const id = parseInt(req.params.id);
       const session = await storage.getRoleplaySession(id);
@@ -1426,7 +1427,7 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
   });
 
-  app.post("/api/roleplay/sessions/:id/messages", roleplayMessageLimit, globalDailyAiCap, async (req, res) => {
+  app.post("/api/roleplay/sessions/:id/messages", requireFieldKit, roleplayMessageLimit, globalDailyAiCap, async (req, res) => {
     try {
       const sessionId = parseInt(String(req.params.id));
       const { content } = roleplayMessageSchema.parse(req.body);
@@ -1452,7 +1453,7 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
   });
 
-  app.post("/api/roleplay/sessions/:id/feedback", roleplayMessageLimit, globalDailyAiCap, async (req, res) => {
+  app.post("/api/roleplay/sessions/:id/feedback", requireFieldKit, roleplayMessageLimit, globalDailyAiCap, async (req, res) => {
     try {
       const sessionId = parseInt(String(req.params.id));
       const session = await storage.getRoleplaySession(sessionId);
@@ -1473,7 +1474,7 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   // ===== DAILY DRILL ROUTES =====
 
-  app.post("/api/drills/completions", async (req, res) => {
+  app.post("/api/drills/completions", requireFieldKit, async (req, res) => {
     try {
       const data = drillCompletionRequestSchema.parse(req.body);
       const completion = await storage.createDrillCompletion(data);
@@ -1488,7 +1489,7 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
   });
 
-  app.get("/api/drills/completions", async (_req, res) => {
+  app.get("/api/drills/completions", requireFieldKit, async (_req, res) => {
     try {
       const completions = await storage.getDrillCompletions();
       res.json(completions);
@@ -1500,7 +1501,7 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   // ===== SEND EMAIL ROUTE =====
 
-  app.post("/api/send-email", outboundEmailLimit, globalDailyEmailCap, async (req, res) => {
+  app.post("/api/send-email", requireFieldKit, outboundEmailLimit, globalDailyEmailCap, async (req, res) => {
     try {
       const { to, subject, body } = sendEmailRequestSchema.parse(req.body);
       const success = await sendGeneratedEmail(to, subject, body);
@@ -1520,7 +1521,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   });
 
   // Audio transcription endpoint
-  app.post("/api/transcribe", heavyAiLimit, globalDailyAiCap, async (req, res) => {
+  app.post("/api/transcribe", requireFieldKit, heavyAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const multer = (await import("multer")).default;
       const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
@@ -1554,7 +1555,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   });
 
   // Analyze transcript with AI coaching feedback
-  app.post("/api/transcribe/analyze", heavyAiLimit, globalDailyAiCap, async (req, res) => {
+  app.post("/api/transcribe/analyze", requireFieldKit, heavyAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const { transcript } = req.body;
       if (!transcript || typeof transcript !== "string") {
@@ -1926,7 +1927,7 @@ The single most important skill to work on before the next conversation.`,
     }
   }
 
-  app.post("/api/pdf/export", standardAiLimit, async (req, res) => {
+  app.post("/api/pdf/export", requireFieldKit, standardAiLimit, async (req, res) => {
     const { filename, title, subtitle, sections } = req.body;
     if (!title || !Array.isArray(sections)) {
       return res.status(400).json({ error: "title and sections are required" });
@@ -1962,7 +1963,7 @@ The single most important skill to work on before the next conversation.`,
   });
 
   // ─── Branch Profitability Calculator ─────────────────────────────────────
-  app.post("/api/branch-profitability/calculate", async (req, res) => {
+  app.post("/api/branch-profitability/calculate", requireFieldKit, async (req, res) => {
     try {
       const { runEngine, validateInputs } = await import("@workspace/branch-engine/engine");
       const { STAFF_ROLES } = await import("@workspace/branch-engine/presets");
@@ -1980,7 +1981,7 @@ The single most important skill to work on before the next conversation.`,
     }
   });
 
-  app.post("/api/pdf/email", outboundEmailLimit, globalDailyEmailCap, async (req, res) => {
+  app.post("/api/pdf/email", requireFieldKit, outboundEmailLimit, globalDailyEmailCap, async (req, res) => {
     const { email, name, title, filename, subtitle, sections } = req.body;
     if (!email || !name || !title || !Array.isArray(sections)) {
       return res.status(400).json({ error: "email, name, title, and sections are required" });

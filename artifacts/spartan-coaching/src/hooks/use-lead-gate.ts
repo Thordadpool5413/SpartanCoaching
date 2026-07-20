@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import { apiRequest } from "@/lib/queryClient";
 import type { EmailPdfPayload } from "@/lib/downloadPdf";
+import { useAuth } from "@/context/AuthContext";
 
 const STORAGE_KEY = "spartan_lead";
 
@@ -23,6 +24,7 @@ function storeLead(lead: StoredLead): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(lead));
   } catch {
+    // ignore
   }
 }
 
@@ -35,6 +37,7 @@ async function submitLead(name: string, email: string, toolName: string): Promis
       resourceId: 0,
     });
   } catch {
+    // ignore
   }
 }
 
@@ -42,10 +45,12 @@ async function trackUsage(name: string, email: string, toolName: string): Promis
   try {
     await fetch("/api/usage-events", {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ name, email, toolName }),
     });
   } catch {
+    // ignore
   }
 }
 
@@ -53,10 +58,12 @@ async function emailPdf(email: string, name: string, payload: EmailPdfPayload): 
   try {
     await fetch("/api/pdf/email", {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ email, name, ...payload }),
     });
   } catch {
+    // ignore
   }
 }
 
@@ -73,7 +80,12 @@ export interface LeadGateState {
   toolName: string;
 }
 
+/**
+ * Export/download gate. Authenticated Field Kit members skip the name/email dialog
+ * and run the action immediately (usage still tracked with their account).
+ */
 export function useLeadGate(toolName: string) {
+  const { isAuthenticated, member, canUseFieldKit } = useAuth();
   const [open, setOpen] = useState(false);
   const [nameVal, setNameVal] = useState("");
   const [emailVal, setEmailVal] = useState("");
@@ -82,14 +94,43 @@ export function useLeadGate(toolName: string) {
   const pendingFnRef = useRef<(() => void) | null>(null);
   const pendingEmailPdfRef = useRef<(() => EmailPdfPayload | null) | null>(null);
 
+  const runWithIdentity = useCallback(
+    async (name: string, email: string, fn: () => void, getEmailPdf?: (() => EmailPdfPayload | null) | null) => {
+      storeLead({ name, email });
+      trackUsage(name, email, toolName).catch(() => {});
+      // resource-leads only for non-members (avoid polluting lead CRM with clients)
+      if (!isAuthenticated) {
+        await submitLead(name, email, toolName);
+      }
+      if (getEmailPdf) {
+        const payload = getEmailPdf();
+        if (payload) {
+          emailPdf(email, name, payload).catch(() => {});
+        }
+      }
+      fn();
+    },
+    [toolName, isAuthenticated],
+  );
+
   const capture = useCallback(
     (fn: () => void, getEmailPdf?: () => EmailPdfPayload | null) => {
+      // Logged-in Field Kit clients: no second gate
+      if (isAuthenticated && member && canUseFieldKit) {
+        void runWithIdentity(member.name, member.email, fn, getEmailPdf ?? null);
+        return;
+      }
+
       const stored = getStoredLead();
       pendingFnRef.current = fn;
       pendingEmailPdfRef.current = getEmailPdf ?? null;
       if (stored) {
         setNameVal(stored.name);
         setEmailVal(stored.email);
+        setIsReturning(true);
+      } else if (member) {
+        setNameVal(member.name);
+        setEmailVal(member.email);
         setIsReturning(true);
       } else {
         setNameVal("");
@@ -98,35 +139,26 @@ export function useLeadGate(toolName: string) {
       }
       setOpen(true);
     },
-    []
+    [isAuthenticated, member, canUseFieldKit, runWithIdentity],
   );
 
   const onSubmit = useCallback(async () => {
     if (!nameVal.trim() || !emailVal.trim()) return;
     setIsPending(true);
     const lead = { name: nameVal.trim(), email: emailVal.trim() };
-
-    storeLead(lead);
-
-    trackUsage(lead.name, lead.email, toolName).catch(() => {});
-
-    await submitLead(lead.name, lead.email, toolName);
-
-    const getEmailPdfFn = pendingEmailPdfRef.current;
-    if (getEmailPdfFn) {
-      const payload = getEmailPdfFn();
-      if (payload) {
-        emailPdf(lead.email, lead.name, payload).catch(() => {});
-      }
-    }
-
-    setIsPending(false);
-    setOpen(false);
     const fn = pendingFnRef.current;
+    const getEmailPdfFn = pendingEmailPdfRef.current;
     pendingFnRef.current = null;
     pendingEmailPdfRef.current = null;
-    if (fn) fn();
-  }, [nameVal, emailVal, toolName]);
+
+    try {
+      await runWithIdentity(lead.name, lead.email, () => {}, getEmailPdfFn);
+      setOpen(false);
+      if (fn) fn();
+    } finally {
+      setIsPending(false);
+    }
+  }, [nameVal, emailVal, runWithIdentity]);
 
   const gateState: LeadGateState = {
     open,

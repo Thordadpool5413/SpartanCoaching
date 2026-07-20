@@ -98,6 +98,8 @@ export const navSections: SiteNavSection[] = [
     items: [
       { path: "/about", label: "About", description: "Learn about Spartan Coaching", icon: Info },
       { path: "/contact", label: "Contact", description: "Get in touch with Spartan Coaching", icon: Phone },
+      { path: "/request-access", label: "Request Field Kit Access", description: "Request evaluation access", icon: Lock },
+      { path: "/login", label: "Client Login", description: "Sign in to the Field Kit", icon: Lock },
     ],
   },
 ];
@@ -105,6 +107,10 @@ export const navSections: SiteNavSection[] = [
 // Navigable pages that aren't in the header menus but should still be searchable.
 export const additionalPages: SiteNavItem[] = [
   { path: "/", label: "Home", description: "Main landing page", icon: Home },
+  { path: "/portal", label: "Field Kit Home", description: "Client Field Kit command center", icon: Wrench },
+  { path: "/login", label: "Client Login", description: "Sign in to your Field Kit account", icon: Lock },
+  { path: "/request-access", label: "Request Field Kit Access", description: "Request evaluation access to the private Field Kit", icon: Lock },
+  { path: "/account", label: "Account", description: "Manage your Field Kit access and team", icon: Info },
   { path: "/resources/weekly-plan", label: "Weekly Plan Template", description: "Weekly sales planning template", icon: ClipboardList },
   { path: "/resources/activity-tracker", label: "Activity Tracker", description: "Track your daily sales activity", icon: ClipboardList },
   { path: "/resources/quick-start-guide", label: "Quick Start Guide", description: "Get started with Spartan Coaching", icon: BookOpen },
