@@ -36,9 +36,7 @@ export function getInitialTheme(): "light" | "dark" {
   if (typeof window === "undefined") return "dark";
   const saved = LS.get<string>("spartan_theme", "");
   if (saved === "light" || saved === "dark") return saved;
-  return window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches
-    ? "dark"
-    : "light";
+  return "dark";
 }
 
 export function applyTheme(theme: "light" | "dark") {

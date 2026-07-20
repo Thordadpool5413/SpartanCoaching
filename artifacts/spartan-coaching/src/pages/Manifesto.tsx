@@ -19,7 +19,7 @@ export default function Manifesto() {
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-28 md:py-36 text-center">
           <FadeIn>
             <p className="text-sm font-bold tracking-widest text-red-400 uppercase mb-6">The Spartan Ethos</p>
-            <h1 className="text-hero font-black text-white mb-8 leading-tight">
+            <h1 className="text-hero font-black text-white mb-8 leading-tight font-display">
               What It Means to Be{" "}
               <span className="bg-gradient-to-r from-red-500 via-red-400 to-red-500 bg-clip-text text-transparent">
                 Spartan

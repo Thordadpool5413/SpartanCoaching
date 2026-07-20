@@ -194,6 +194,7 @@ body {
   --font-sans: 'Inter', sans-serif;
   --font-serif: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', Menlo, monospace;
+  --font-display: 'Barlow Condensed', sans-serif;
   --radius: 0.75rem;
   
   /* Enhanced shadows with refined depth and red tint */

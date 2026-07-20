@@ -2,10 +2,8 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { MenuIcon, CloseIcon } from "./icons";
 import { Button } from "@/components/ui/button";
-import { Sun, Moon, Linkedin, Search, ChevronDown, Palette, Shield } from "lucide-react";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Sun, Moon, Linkedin, Search, ChevronDown, Shield } from "lucide-react";
 import { useTheme } from "@/context/ThemeContext";
-import { ACCENT_PRESETS } from "@/lib/theme";
 import {
   Sheet,
   SheetContent,
@@ -146,7 +144,7 @@ export function Header() {
     setMobileMenuOpen(false);
   }, [location]);
 
-  const { mode: theme, toggleMode: toggleTheme, accent, setAccent } = useTheme();
+  const { mode: theme, toggleMode: toggleTheme } = useTheme();
 
   const allSearchItems = allSearchablePages;
 
@@ -199,55 +197,15 @@ export function Header() {
           ))}
           <NavLink href="/about">About</NavLink>
           <NavLink href="/contact">Contact</NavLink>
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                variant="ghost"
-                size="icon"
-                aria-label="Appearance settings"
-                data-testid="button-theme-toggle"
-              >
-                <Palette className="w-5 h-5" />
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align="end" className="w-64 p-4" data-testid="popover-appearance">
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Appearance</p>
-              <div className="flex gap-2 mb-4">
-                <button
-                  onClick={() => theme === "dark" && toggleTheme()}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-colors border ${theme === "light" ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover-elevate"}`}
-                  data-testid="button-light-mode"
-                  aria-label="Light mode"
-                >
-                  <Sun className="w-4 h-4" />
-                  Light
-                </button>
-                <button
-                  onClick={() => theme === "light" && toggleTheme()}
-                  className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-sm font-medium transition-colors border ${theme === "dark" ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground hover-elevate"}`}
-                  data-testid="button-dark-mode"
-                  aria-label="Dark mode"
-                >
-                  <Moon className="w-4 h-4" />
-                  Dark
-                </button>
-              </div>
-              <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-3">Accent Color</p>
-              <div className="flex flex-wrap gap-2">
-                {ACCENT_PRESETS.map((preset) => (
-                  <button
-                    key={preset.key}
-                    onClick={() => setAccent(preset.key)}
-                    className={`w-8 h-8 rounded-full transition-transform hover:scale-110 focus:outline-none ${accent === preset.key ? "ring-2 ring-offset-2 ring-offset-popover ring-foreground scale-110" : ""}`}
-                    style={{ background: preset.swatch }}
-                    aria-label={preset.label}
-                    title={preset.label}
-                    data-testid={`button-accent-${preset.key}`}
-                  />
-                ))}
-              </div>
-            </PopoverContent>
-          </Popover>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={toggleTheme}
+            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            data-testid="button-theme-toggle"
+          >
+            {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
+          </Button>
         </nav>
 
         {/* Mobile Search Button */}
@@ -299,7 +257,7 @@ export function Header() {
                 ))}
               </nav>
             </div>
-            <div className="shrink-0 border-t border-border px-5 py-4 space-y-3">
+            <div className="shrink-0 border-t border-border px-5 py-4">
               <div className="flex items-center justify-between gap-2">
                 <span className="text-sm font-medium text-foreground">Appearance</span>
                 <div className="flex gap-1.5">
@@ -321,22 +279,6 @@ export function Header() {
                     <Moon className="w-3.5 h-3.5" />
                     Dark
                   </button>
-                </div>
-              </div>
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-sm font-medium text-foreground">Accent</span>
-                <div className="flex gap-2">
-                  {ACCENT_PRESETS.map((preset) => (
-                    <button
-                      key={preset.key}
-                      onClick={() => setAccent(preset.key)}
-                      className={`w-7 h-7 rounded-full touch-manipulation transition-transform ${accent === preset.key ? "ring-2 ring-offset-2 ring-offset-background ring-foreground scale-110" : ""}`}
-                      style={{ background: preset.swatch }}
-                      aria-label={preset.label}
-                      title={preset.label}
-                      data-testid={`button-mobile-accent-${preset.key}`}
-                    />
-                  ))}
                 </div>
               </div>
             </div>

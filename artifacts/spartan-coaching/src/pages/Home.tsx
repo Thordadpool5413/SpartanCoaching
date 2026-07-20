@@ -201,7 +201,7 @@ export default function Home() {
             <span className="text-green-300 text-base font-bold tracking-wide">2026 Coaching Programs Now Open</span>
             <ArrowRight className="w-4 h-4 text-green-300" />
           </Link>
-          <h1 className="text-hero mb-4 sm:mb-6 md:mb-8 animate-fade-in-up px-4">
+          <h1 className="text-hero mb-4 sm:mb-6 md:mb-8 animate-fade-in-up px-4 font-display">
             <span className="block bg-gradient-to-r from-red-600 via-red-500 to-red-600 bg-clip-text text-transparent font-black tracking-tighter drop-shadow-2xl">
               Hospice Sales Coaching
             </span>
