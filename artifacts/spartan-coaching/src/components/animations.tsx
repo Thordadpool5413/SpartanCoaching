@@ -81,12 +81,8 @@ export function SlideUpFade({
       ref={ref}
       data-testid="animation-slide-up-fade"
       className={className}
-      initial={{ opacity: 0, y: yOffset, filter: "blur(4px)" }}
-      animate={
-        isInView
-          ? { opacity: 1, y: 0, filter: "blur(0px)" }
-          : { opacity: 0, y: yOffset, filter: "blur(4px)" }
-      }
+      initial={{ opacity: 0, y: yOffset }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: yOffset }}
       transition={{ duration, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}

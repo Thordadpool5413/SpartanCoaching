@@ -152,11 +152,14 @@ export default function HomeScreen() {
           style={styles.logo}
           resizeMode="contain"
         />
-        <Text style={[styles.heroTitle, { color: colors.primary }]}>
-          Hospice Sales{"\n"}Coaching
+        <Text style={[styles.heroTitle, { color: colors.heroForeground }]}>
+          Hospice sales teams
+        </Text>
+        <Text style={[styles.heroTitle, styles.heroTitleAccent, { color: colors.primary }]}>
+          that consistently close.
         </Text>
         <Text style={[styles.heroTagline, { color: colors.heroMuted }]}>
-          The Authority in Hospice Excellence
+          Eligible patients aren't getting hospice care because{"\n"}the right conversations aren't happening.
         </Text>
         <View style={[styles.heroBadge, { backgroundColor: colors.heroBadgeBg, borderColor: colors.heroBadgeBorder }]}>
           <View style={[styles.heroBadgeDot, { backgroundColor: colors.primary }]} />
@@ -436,10 +439,15 @@ const styles = StyleSheet.create({
     letterSpacing: -1,
     lineHeight: 44,
   },
+  heroTitleAccent: {
+    marginTop: -4,
+  },
   heroTagline: {
     fontSize: 14,
-    marginTop: 8,
-    letterSpacing: 0.5,
+    marginTop: 10,
+    letterSpacing: 0.3,
+    textAlign: "center",
+    lineHeight: 20,
   },
   heroBadge: {
     flexDirection: "row",

@@ -200,21 +200,36 @@ export default function Contact() {
                   </button>
                 </div>
               )}
-              {/* Step progress */}
-              <div className="mb-8" data-testid="section-step-progress">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-semibold text-primary uppercase tracking-wide" data-testid="text-step-label">
-                    Step {step} of 3 — {STEP_LABELS[step - 1]}
-                  </span>
-                  <span className="text-xs text-muted-foreground">{step === 1 ? "30 sec" : step === 2 ? "45 sec" : "15 sec"}</span>
-                </div>
-                <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
-                  <div
-                    className="h-full bg-primary rounded-full transition-all duration-300"
-                    style={{ width: `${(step / 3) * 100}%` }}
-                    data-testid="progress-bar-step"
-                  />
-                </div>
+              {/* Step dot indicator */}
+              <div className="flex items-start mb-8" data-testid="section-step-progress">
+                {STEP_LABELS.map((label, i) => {
+                  const stepNum = i + 1;
+                  const isComplete = step > stepNum;
+                  const isActive = step === stepNum;
+                  return (
+                    <div key={stepNum} className="flex items-start flex-1">
+                      <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
+                        <div
+                          className={cn(
+                            "w-8 h-8 rounded-full border-2 flex items-center justify-center transition-all duration-300",
+                            isComplete ? "bg-primary border-primary" : isActive ? "border-primary bg-primary/10" : "border-border bg-transparent"
+                          )}
+                          data-testid={`step-dot-${stepNum}`}
+                        >
+                          {isComplete ? (
+                            <CheckCircle className="w-4 h-4 text-white" />
+                          ) : (
+                            <span className={cn("text-xs font-bold", isActive ? "text-primary" : "text-muted-foreground")}>{stepNum}</span>
+                          )}
+                        </div>
+                        <span className={cn("text-[10px] font-semibold uppercase tracking-wide text-center leading-tight max-w-[60px]", isActive ? "text-primary" : isComplete ? "text-white/50" : "text-muted-foreground/50")}>{label}</span>
+                      </div>
+                      {i < STEP_LABELS.length - 1 && (
+                        <div className={cn("flex-1 h-px mt-4 mx-1 transition-colors duration-300", step > stepNum ? "bg-primary" : "bg-border")} />
+                      )}
+                    </div>
+                  );
+                })}
               </div>
 
               <Form {...form}>

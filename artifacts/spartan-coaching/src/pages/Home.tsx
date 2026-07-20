@@ -311,7 +311,7 @@ export default function Home() {
       )}
 
       {/* 2. Ask Spartan AI Section */}
-      <section id="ask-spartan" className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-ask-spartan">
+      <section id="ask-spartan" className="relative bg-[#070707] spacing-section" data-testid="section-ask-spartan">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(239,68,68,0.08),transparent_50%)] pointer-events-none"></div>
 
         <div className="relative max-w-4xl mx-auto spacing-container">
@@ -419,7 +419,7 @@ export default function Home() {
 
 
       {/* 3. Trust Stack Section */}
-      <section className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-black dark:to-gray-950 spacing-section" data-testid="section-trust-stack">
+      <section className="relative bg-[#060606] spacing-section" data-testid="section-trust-stack">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(239,68,68,0.03),transparent_70%)]"></div>
 
         <div className="relative max-w-7xl mx-auto spacing-container">
@@ -497,7 +497,7 @@ export default function Home() {
       </section>
 
       {/* 3c. Coaching Video Section */}
-      <section className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-black dark:to-gray-950 py-20 sm:py-28" data-testid="section-coaching-video">
+      <section className="relative bg-[#060606] py-20 sm:py-28" data-testid="section-coaching-video">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(239,68,68,0.04),transparent_70%)] pointer-events-none" />
         <div className="relative max-w-5xl mx-auto px-4 sm:px-6">
           <FadeIn>
@@ -588,7 +588,7 @@ export default function Home() {
 
 
       {/* 4. The Problem and The Promise */}
-      <section className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-problem-promise">
+      <section className="relative bg-[#070707] spacing-section" data-testid="section-problem-promise">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(239,68,68,0.06),transparent_50%)] pointer-events-none"></div>
 
         <div className="relative max-w-7xl mx-auto spacing-container">
@@ -641,7 +641,7 @@ export default function Home() {
 
 
       {/* 5. What You Get */}
-      <section className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-black dark:to-gray-950 spacing-section" data-testid="section-what-you-get">
+      <section className="relative bg-[#060606] spacing-section" data-testid="section-what-you-get">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(239,68,68,0.03),transparent_70%)]"></div>
 
         <div className="relative max-w-5xl mx-auto spacing-container">
@@ -687,7 +687,7 @@ export default function Home() {
 
 
       {/* 6. Hospice Realities We Train For */}
-      <section className="relative bg-gradient-to-br from-accent/40 via-accent/20 to-accent/40 spacing-section" data-testid="section-hospice-realities">
+      <section className="relative bg-[#050505] spacing-section" data-testid="section-hospice-realities">
         <div className="max-w-5xl mx-auto spacing-container">
           <FadeIn>
             <div className="text-center mb-12 sm:mb-16">
@@ -721,7 +721,7 @@ export default function Home() {
 
 
       {/* 7. How It Works */}
-      <section className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-how-it-works">
+      <section className="relative bg-[#070707] spacing-section" data-testid="section-how-it-works">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(239,68,68,0.06),transparent_50%)] pointer-events-none"></div>
 
         <div className="relative max-w-5xl mx-auto spacing-container">
@@ -855,7 +855,7 @@ export default function Home() {
 
 
       {/* 8. Results and Proof */}
-      <section className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-black dark:to-gray-950 spacing-section" data-testid="section-results">
+      <section className="relative bg-[#060606] spacing-section" data-testid="section-results">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(239,68,68,0.03),transparent_70%)]"></div>
 
         <div className="relative max-w-7xl mx-auto spacing-container">
@@ -940,7 +940,7 @@ export default function Home() {
 
       {/* LinkedIn Social Proof */}
       {hasLinkedin && (
-        <section className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-linkedin">
+        <section className="relative bg-[#070707] spacing-section" data-testid="section-linkedin">
           <div className="relative max-w-5xl mx-auto spacing-container">
             <FadeIn>
               <div className="text-center mb-12 sm:mb-16">
@@ -1001,7 +1001,7 @@ export default function Home() {
       )}
 
       {/* Before and After Comparison */}
-      <section className="relative bg-gradient-to-br from-accent/40 via-accent/20 to-accent/40 spacing-section" data-testid="section-before-after">
+      <section className="relative bg-[#050505] spacing-section" data-testid="section-before-after">
         <div className="max-w-5xl mx-auto spacing-container">
           <FadeIn>
             <div className="text-center mb-12 sm:mb-16">
@@ -1057,7 +1057,7 @@ export default function Home() {
 
 
       {/* 9. Compliance and Ethics Block */}
-      <section className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-compliance">
+      <section className="relative bg-[#070707] spacing-section" data-testid="section-compliance">
         <div className="relative max-w-4xl mx-auto spacing-container">
           <FadeIn>
             <div className="text-center mb-12 sm:mb-16">
@@ -1093,7 +1093,7 @@ export default function Home() {
 
 
       {/* 10. Who This Is For and Who It Is Not For */}
-      <section className="relative bg-gradient-to-br from-gray-50 via-white to-gray-50 dark:from-gray-950 dark:via-black dark:to-gray-950 spacing-section" data-testid="section-who-for">
+      <section className="relative bg-[#060606] spacing-section" data-testid="section-who-for">
         <div className="relative max-w-7xl mx-auto spacing-container">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-sections">
             <FadeIn>
@@ -1143,7 +1143,7 @@ export default function Home() {
 
 
       {/* 11. Spartan Coaching Tools Showcase */}
-      <section className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-ai-tools">
+      <section className="relative bg-[#070707] spacing-section" data-testid="section-ai-tools">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(239,68,68,0.05),transparent_60%)] pointer-events-none"></div>
 
         <div className="relative max-w-7xl mx-auto spacing-container">
@@ -1353,7 +1353,7 @@ export default function Home() {
 
 
       {/* 12. Why Spartan Credibility Section */}
-      <section className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-why-spartan">
+      <section className="relative bg-[#070707] spacing-section" data-testid="section-why-spartan">
         <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(239,68,68,0.06),transparent_50%)] pointer-events-none"></div>
 
         <div className="relative max-w-7xl mx-auto spacing-container">
@@ -1434,7 +1434,7 @@ export default function Home() {
 
 
       {/* Lead Magnet Section */}
-      <section className="relative bg-gradient-to-br from-background via-background to-accent/5 spacing-section" data-testid="section-lead-magnet">
+      <section className="relative bg-[#070707] spacing-section" data-testid="section-lead-magnet">
         <div className="relative max-w-4xl mx-auto spacing-container">
           <FadeIn>
             <Card className="border-2 spacing-card shadow-lg" data-testid="card-lead-magnet">

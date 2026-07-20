@@ -98,7 +98,7 @@ function NavDropdown({ label, items, dataTestId }: {
       <button 
         className={cn(
           "px-3 py-2 rounded-lg text-sm font-medium transition-colors hover-elevate flex items-center gap-1 whitespace-nowrap",
-          isGroupActive ? "bg-primary text-primary-foreground" : "text-foreground"
+          isGroupActive ? "text-primary border-b-2 border-primary rounded-none" : "text-foreground"
         )}
         aria-haspopup="true"
         aria-label={`${label} menu`}
