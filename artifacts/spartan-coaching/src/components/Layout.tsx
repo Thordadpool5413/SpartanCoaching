@@ -162,9 +162,7 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b bg-background/90 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/75 shadow-lg safe-area-top" style={{
-      boxShadow: '0 4px 24px -2px rgba(0, 0, 0, 0.12), 0 2px 8px -2px rgba(0, 0, 0, 0.08), inset 0 -1px 0 0 rgba(255, 255, 255, 0.05)'
-    }}>
+    <header className="sticky top-0 z-50 w-full border-b border-border/40 dark:border-red-900/20 bg-background/90 dark:bg-[#040404]/92 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/80 dark:supports-[backdrop-filter]:bg-[#040404]/88 shadow-lg dark:shadow-[0_4px_32px_-2px_rgba(0,0,0,0.9),_0_0_1px_0_rgba(232,41,30,0.12)] safe-area-top">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-18 md:h-20 flex items-center justify-between gap-3 sm:gap-6 safe-area-x">
         <Link href="/">
           <div className="flex items-center gap-2 sm:gap-4 hover:opacity-80 transition-opacity cursor-pointer touch-manipulation" data-testid="link-home">
@@ -196,7 +194,14 @@ export function Header() {
             />
           ))}
           <NavLink href="/about">About</NavLink>
-          <NavLink href="/contact">Contact</NavLink>
+          <Button
+            size="sm"
+            asChild
+            className="font-bold ml-1 px-5"
+            data-testid="button-book-call"
+          >
+            <Link href="/contact">Book a Call</Link>
+          </Button>
           <Button
             variant="ghost"
             size="icon"
@@ -339,7 +344,7 @@ export function Footer() {
   const [location] = useLocation();
   return (
     <>
-      <footer className="mt-auto border-t border-border bg-background no-print safe-area-bottom">
+      <footer className="mt-auto border-t border-red-900/20 dark:border-red-900/20 bg-background dark:bg-[#030303] no-print safe-area-bottom">
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8" style={{ paddingBottom: location === '/contact' ? '2rem' : 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}>
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex flex-col items-center md:items-start gap-3">

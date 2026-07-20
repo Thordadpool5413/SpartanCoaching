@@ -208,7 +208,7 @@ export default function Services() {
       <BackButton />
       <div className="text-center max-w-4xl mx-auto mb-16 sm:mb-20 relative">
         <div className="absolute inset-0 bg-gradient-to-b from-red-500/5 via-transparent to-transparent blur-3xl -z-10"></div>
-        <h1 className="text-hero text-foreground mb-8 animate-fade-in-up" data-testid="text-services-title">
+        <h1 className="text-hero text-foreground mb-8 animate-fade-in-up font-display" data-testid="text-services-title">
           Work <span className="text-gradient-primary">With Us</span>
         </h1>
         <p className="text-body-lg text-muted-foreground mb-4 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>

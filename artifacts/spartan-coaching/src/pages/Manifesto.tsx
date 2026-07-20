@@ -69,11 +69,15 @@ export default function Manifesto() {
       </section>
 
       {/* Pull Quote 1 */}
-      <section className="bg-primary/5 border-y border-primary/10 py-14">
+      <section className="relative bg-[#040404] overflow-hidden py-20 sm:py-28">
+        <div className="absolute inset-0 bg-spartan-gradient-radial opacity-20 pointer-events-none" />
+        <div className="authority-separator absolute top-0 left-0 w-full" />
+        <div className="authority-separator absolute bottom-0 left-0 w-full" />
         <FadeIn>
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-            <p className="text-2xl sm:text-3xl font-bold text-foreground leading-snug">
-              "You do not wing it when the stakes are this high."
+          <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
+            <p className="font-display text-4xl sm:text-5xl md:text-6xl font-black text-white leading-tight tracking-tight">
+              "You do not wing it when the{" "}
+              <span className="text-primary">stakes are this high.</span>"
             </p>
           </div>
         </FadeIn>
@@ -89,7 +93,7 @@ export default function Manifesto() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground uppercase tracking-wide font-semibold mb-1">First Pillar</p>
-                <h2 className="text-h2 text-foreground">What Discipline Actually Means</h2>
+                <h2 className="text-h2 text-foreground font-display">What Discipline Actually Means</h2>
               </div>
             </div>
             <div className="space-y-6 text-body-lg text-muted-foreground leading-relaxed">
@@ -131,7 +135,7 @@ export default function Manifesto() {
       </section>
 
       {/* Section 3: Empathy */}
-      <section className="bg-muted/20 py-16 sm:py-20">
+      <section className="bg-muted/20 dark:bg-[#060606] py-16 sm:py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <FadeIn>
             <div className="space-y-8">
@@ -141,7 +145,7 @@ export default function Manifesto() {
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground uppercase tracking-wide font-semibold mb-1">Second Pillar</p>
-                  <h2 className="text-h2 text-foreground">What Empathy Actually Means</h2>
+                  <h2 className="text-h2 text-foreground font-display">What Empathy Actually Means</h2>
                 </div>
               </div>
               <div className="space-y-6 text-body-lg text-muted-foreground leading-relaxed">
@@ -197,7 +201,7 @@ export default function Manifesto() {
               </div>
               <div>
                 <p className="text-sm text-muted-foreground uppercase tracking-wide font-semibold mb-1">Third Pillar</p>
-                <h2 className="text-h2 text-foreground">What Strategy Actually Means</h2>
+                <h2 className="text-h2 text-foreground font-display">What Strategy Actually Means</h2>
               </div>
             </div>
             <div className="space-y-6 text-body-lg text-muted-foreground leading-relaxed">
@@ -219,11 +223,15 @@ export default function Manifesto() {
       </section>
 
       {/* Pull Quote 2 */}
-      <section className="bg-gray-950 py-14">
+      <section className="relative bg-[#040404] overflow-hidden py-20 sm:py-28">
+        <div className="absolute inset-0 bg-spartan-gradient-radial opacity-20 pointer-events-none" />
+        <div className="authority-separator absolute top-0 left-0 w-full" />
+        <div className="authority-separator absolute bottom-0 left-0 w-full" />
         <FadeIn>
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-            <p className="text-2xl sm:text-3xl font-bold text-white leading-snug">
-              "Every hour you spend on the wrong account is an hour you did not spend building the right one."
+          <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
+            <p className="font-display text-4xl sm:text-5xl md:text-6xl font-black text-white leading-tight tracking-tight">
+              "Every hour on the wrong account is an hour you did not spend building{" "}
+              <span className="text-primary">the right one.</span>"
             </p>
           </div>
         </FadeIn>
@@ -234,7 +242,7 @@ export default function Manifesto() {
         <FadeIn>
           <div className="space-y-8">
             <div className="border-l-4 border-primary pl-6">
-              <h2 className="text-h2 text-foreground mb-2">The Stakes</h2>
+              <h2 className="text-h2 text-foreground mb-2 font-display">The Stakes</h2>
               <p className="text-sm text-muted-foreground uppercase tracking-wide font-semibold">Why this work matters beyond a sales quota</p>
             </div>
             <div className="space-y-6 text-body-lg text-muted-foreground leading-relaxed">
@@ -262,10 +270,10 @@ export default function Manifesto() {
       </section>
 
       {/* Stakes visual cards */}
-      <section className="bg-muted/20 py-16 sm:py-20">
+      <section className="bg-muted/20 dark:bg-[#060606] py-16 sm:py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <FadeIn>
-            <h2 className="text-h2 text-foreground mb-10 text-center">One Visit. One Referral. What Changes.</h2>
+            <h2 className="text-h2 text-foreground mb-10 text-center font-display">One Visit. One Referral. What Changes.</h2>
             <StaggerContainer className="grid sm:grid-cols-3 gap-6">
               {[
                 {
@@ -307,7 +315,7 @@ export default function Manifesto() {
         <FadeIn>
           <div className="space-y-8">
             <div className="border-l-4 border-primary pl-6">
-              <h2 className="text-h2 text-foreground mb-2">What a Spartan Rep Looks Like</h2>
+              <h2 className="text-h2 text-foreground mb-2 font-display">What a Spartan Rep Looks Like</h2>
               <p className="text-sm text-muted-foreground uppercase tracking-wide font-semibold">Observable behaviors, not aspirational adjectives</p>
             </div>
             <div className="space-y-6 text-body-lg text-muted-foreground leading-relaxed">
@@ -353,12 +361,12 @@ export default function Manifesto() {
       </section>
 
       {/* Section 7: Ethics as Identity */}
-      <section className="bg-muted/20 py-16 sm:py-20">
+      <section className="bg-muted/20 dark:bg-[#060606] py-16 sm:py-20">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
           <FadeIn>
             <div className="space-y-8">
               <div className="border-l-4 border-primary pl-6">
-                <h2 className="text-h2 text-foreground mb-2">Ethics Is Not a Constraint</h2>
+                <h2 className="text-h2 text-foreground mb-2 font-display">Ethics Is Not a Constraint</h2>
                 <p className="text-sm text-muted-foreground uppercase tracking-wide font-semibold">It is the foundation</p>
               </div>
               <div className="space-y-6 text-body-lg text-muted-foreground leading-relaxed">
@@ -384,11 +392,15 @@ export default function Manifesto() {
       </section>
 
       {/* Pull Quote 3 */}
-      <section className="bg-primary/5 border-y border-primary/10 py-14">
+      <section className="relative bg-[#040404] overflow-hidden py-20 sm:py-28">
+        <div className="absolute inset-0 bg-spartan-gradient-radial opacity-20 pointer-events-none" />
+        <div className="authority-separator absolute top-0 left-0 w-full" />
+        <div className="authority-separator absolute bottom-0 left-0 w-full" />
         <FadeIn>
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-            <p className="text-2xl sm:text-3xl font-bold text-foreground leading-snug">
-              "Ethics is not a constraint. It is the reason the work is worth doing at all."
+          <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
+            <p className="font-display text-4xl sm:text-5xl md:text-6xl font-black text-white leading-tight tracking-tight">
+              "Ethics is not a constraint. It is the{" "}
+              <span className="text-primary">reason the work is worth doing at all.</span>"
             </p>
           </div>
         </FadeIn>
@@ -399,7 +411,7 @@ export default function Manifesto() {
         <FadeIn>
           <div className="space-y-8">
             <div className="border-l-4 border-primary pl-6">
-              <h2 className="text-h2 text-foreground mb-2">A Closing Statement</h2>
+              <h2 className="text-h2 text-foreground mb-2 font-display">A Closing Statement</h2>
             </div>
             <div className="space-y-6 text-body-lg text-muted-foreground leading-relaxed">
               <p>

@@ -196,6 +196,7 @@ body {
   --font-mono: 'JetBrains Mono', Menlo, monospace;
   --font-display: 'Barlow Condensed', sans-serif;
   --radius: 0.75rem;
+  --noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
   
   /* Enhanced shadows with refined depth and red tint */
   --shadow-2xs: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 0 1px 0 rgb(239 68 68 / 0.03);
@@ -290,6 +291,7 @@ body {
   --muted-border: hsl(from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
   --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
+  --radius: 0.5rem;
 }
 
 @layer base {
@@ -963,6 +965,36 @@ body {
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
     border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  /* Dark Authority header glass */
+  .dark-authority-header {
+    background: rgba(4, 4, 4, 0.92);
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    border-bottom: 1px solid rgba(232, 41, 30, 0.18);
+    box-shadow: 0 4px 32px -2px rgba(0, 0, 0, 0.9), 0 0 1px 0 rgba(232, 41, 30, 0.12);
+  }
+
+  /* Surface noise — fine grain texture for premium depth */
+  .surface-noise {
+    position: relative;
+  }
+  .surface-noise::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0.04;
+    background-image: var(--noise-texture);
+    z-index: 1;
+  }
+
+  /* Authority separator — thin red line divider */
+  .authority-separator {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(232, 41, 30, 0.4), transparent);
   }
 
   /* Enhanced glow effects with stronger presence */
