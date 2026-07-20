@@ -1,5 +1,4 @@
 import { Link } from "wouter";
-import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -34,62 +33,6 @@ export default function Home() {
         <Suspense fallback={<div className="absolute inset-0 bg-[#080808]" />}>
           <SpartanHeroAnimation />
         </Suspense>
-        <div className="absolute inset-0 bg-gradient-to-t from-[#080808]/80 via-transparent to-[#080808]/40 z-[5] pointer-events-none" />
-
-        <div className="relative z-10 max-w-4xl mx-auto px-6 py-24 text-center pointer-events-none">
-          <motion.p
-            className="text-white/50 text-xs sm:text-sm font-semibold tracking-[0.4em] uppercase mb-6"
-            initial={{ opacity: 0, y: -12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          >
-            Hospice Sales Excellence
-          </motion.p>
-          <motion.h1
-            className="font-display font-black text-white leading-[1.0] mb-6"
-            style={{ fontSize: "clamp(2.5rem, 6vw, 5rem)" }}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.65, ease: [0.22, 1, 0.36, 1] }}
-          >
-            Hospice sales teams<br /><span className="text-[#e8291e]">that consistently close.</span>
-          </motion.h1>
-          <motion.p
-            className="text-white/65 text-base sm:text-lg max-w-2xl mx-auto mb-10 leading-relaxed"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          >
-            Eligible patients aren't getting hospice care because the right conversations aren't happening. Spartan Coaching exists to close that gap.
-          </motion.p>
-          <motion.div
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto"
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.95, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <Button size="lg" asChild className="font-bold px-10 text-base" data-testid="button-hero-contact">
-              <Link href="/contact">Book a Strategy Call</Link>
-            </Button>
-            <Button size="lg" variant="ghost" asChild className="text-white/70 hover:text-white text-base gap-2" data-testid="button-hero-method">
-              <Link href="/manifesto">See our method <ArrowRight className="w-4 h-4" /></Link>
-            </Button>
-          </motion.div>
-        </div>
-
-        <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2, duration: 0.6 }}
-          aria-label="Scroll down"
-        >
-          <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 1.4, repeat: Infinity }}>
-            <div className="w-5 h-8 rounded-full border border-white/25 flex items-start justify-center p-1.5">
-              <div className="w-0.5 h-2 rounded-full bg-white/40" />
-            </div>
-          </motion.div>
-        </motion.div>
       </section>
 
       {/* ── 2. PROOF STRIP ── */}
