@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { CheckIcon } from "@/components/icons";
 import { BackButton } from "@/components/BackButton";
@@ -14,14 +13,6 @@ import {
 } from "@/components/ui/accordion";
 
 export default function Services() {
-  const [activeSegment, setActiveSegment] = useState<string>("individual");
-
-  const scrollTo = (id: string) => {
-    setActiveSegment(id);
-    const el = document.getElementById(id);
-    if (el) el.scrollIntoView({ behavior: "smooth" });
-  };
-
   const individualServices = [
     {
       title: "Virtual Coaching Sessions",
@@ -217,27 +208,6 @@ export default function Services() {
         <p className="text-body text-muted-foreground max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
           Every service here exists because eligible patients are not receiving hospice care. Not because hospice is the wrong choice, but because the right conversations are not happening. Trained reps have those conversations. Prepared teams make them consistent. That is what this work is for.
         </p>
-      </div>
-      {/* Audience Segment Selector */}
-      <div className="flex flex-wrap justify-center gap-3 mb-12" data-testid="section-segment-selector">
-        {[
-          { id: "individual", label: "Individual Rep", icon: UserCheck },
-          { id: "leadership", label: "Sales Leader", icon: Users },
-          { id: "corporate", label: "Corporate Provider", icon: Building2 },
-          { id: "technology", label: "Technology Solutions", icon: MonitorSmartphone },
-        ].map(({ id, label, icon: Icon }) => (
-          <Button
-            key={id}
-            variant={activeSegment === id ? "default" : "outline"}
-            size="sm"
-            onClick={() => scrollTo(id)}
-            className="font-semibold gap-2"
-            data-testid={`button-segment-${id}`}
-          >
-            <Icon className="w-4 h-4" />
-            {label}
-          </Button>
-        ))}
       </div>
 
       {/* Individual Sales Reps Section */}

@@ -202,15 +202,6 @@ export function Header() {
           >
             <Link href="/contact">Book a Call</Link>
           </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleTheme}
-            aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-            data-testid="button-theme-toggle"
-          >
-            {theme === "dark" ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-          </Button>
         </nav>
 
         {/* Mobile Search Button */}
@@ -263,29 +254,11 @@ export function Header() {
               </nav>
             </div>
             <div className="shrink-0 border-t border-border px-5 py-4">
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-sm font-medium text-foreground">Appearance</span>
-                <div className="flex gap-1.5">
-                  <button
-                    onClick={() => theme === "dark" && toggleTheme()}
-                    className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border touch-manipulation ${theme === "light" ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground"}`}
-                    data-testid="button-mobile-light-mode"
-                    aria-label="Light mode"
-                  >
-                    <Sun className="w-3.5 h-3.5" />
-                    Light
-                  </button>
-                  <button
-                    onClick={() => theme === "light" && toggleTheme()}
-                    className={`flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-colors border touch-manipulation ${theme === "dark" ? "bg-primary text-primary-foreground border-primary" : "border-border text-muted-foreground"}`}
-                    data-testid="button-mobile-dark-mode"
-                    aria-label="Dark mode"
-                  >
-                    <Moon className="w-3.5 h-3.5" />
-                    Dark
-                  </button>
-                </div>
-              </div>
+              <Button size="lg" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-book-call">
+                <Link href="/contact" onClick={() => setMobileMenuOpen(false)}>
+                  Book a Call
+                </Link>
+              </Button>
             </div>
           </SheetContent>
         </Sheet>
@@ -342,107 +315,109 @@ export function Header() {
 
 export function Footer() {
   const [location] = useLocation();
+  const { mode: theme, toggleMode: toggleTheme } = useTheme();
   return (
     <>
-      <footer className="mt-auto border-t border-red-900/20 dark:border-red-900/20 bg-background dark:bg-[#030303] no-print safe-area-bottom">
-        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8" style={{ paddingBottom: location === '/contact' ? '2rem' : 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}>
-          <div className="flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex flex-col items-center md:items-start gap-3">
-              <p className="text-sm text-muted-foreground">
-                © 2026 Spartan Coaching. All rights reserved.
+      <footer className="mt-auto border-t border-red-900/20 bg-background dark:bg-[#030303] no-print safe-area-bottom">
+        {/* 3-column main footer */}
+        <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-12 pb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 lg:gap-16">
+
+            {/* Column 1 — Brand + contact */}
+            <div className="flex flex-col gap-4">
+              <div>
+                <p className="font-display text-lg font-black text-foreground tracking-tight uppercase">Spartan Coaching</p>
+                <p className="text-xs text-muted-foreground mt-1 uppercase tracking-widest">The Authority in Hospice Excellence</p>
+              </div>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Structured coaching for hospice sales reps, directors, and organizations who want a repeatable system — not another motivational talk.
               </p>
-              <p className="text-xs text-muted-foreground max-w-md">
-                We respect your privacy. We do not sell or share your personal information. See our full Privacy Policy for details.
-              </p>
-              <p className="text-xs text-muted-foreground max-w-md">
-                All coaching services are subject to our Terms of Service. Refund eligibility is outlined in our terms.
-              </p>
-              <p className="text-xs text-muted-foreground max-w-md">
-                Questions? Reach us at nick@spartanhospicecoaching.com
-              </p>
-              <a
-                href="https://www.linkedin.com/in/nicholas-lynch-coaching?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BzPbXAWy3RZWKMT%2FppHgzbw%3D%3D"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors hover-elevate px-3 py-2 rounded-md group"
-                data-testid="link-linkedin-footer"
-                aria-label="Connect with Nick Lynch on LinkedIn"
-              >
-                <Linkedin className="w-4 h-4 group-hover:scale-110 transition-transform" />
-                <span className="text-sm">Connect with Nick Lynch</span>
-              </a>
+              <div className="flex flex-col gap-2">
+                <a href="mailto:nick@spartanhospicecoaching.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-email">
+                  nick@spartanhospicecoaching.com
+                </a>
+                <a
+                  href="https://www.linkedin.com/in/nicholas-lynch-coaching?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BzPbXAWy3RZWKMT%2FppHgzbw%3D%3D"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group"
+                  data-testid="link-linkedin-footer"
+                  aria-label="Connect with Nick Lynch on LinkedIn"
+                >
+                  <Linkedin className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                  Connect with Nick Lynch
+                </a>
+              </div>
             </div>
-            <div className="flex flex-col items-center md:items-start gap-2" data-testid="section-newsletter">
-              <h3 className="text-sm font-semibold text-foreground">Weekly Coaching Tips</h3>
-              <p className="text-xs text-muted-foreground max-w-xs text-center md:text-left">Get actionable hospice sales strategies delivered to your inbox.</p>
+
+            {/* Column 2 — Quick navigation */}
+            <div className="flex flex-col gap-4">
+              <p className="text-xs font-bold text-foreground uppercase tracking-widest">Quick Links</p>
+              <nav className="grid grid-cols-2 gap-x-4 gap-y-2">
+                {[
+                  { href: "/services", label: "Services & Pricing" },
+                  { href: "/about", label: "About" },
+                  { href: "/manifesto", label: "The Spartan Ethos" },
+                  { href: "/contact", label: "Contact" },
+                  { href: "/compliance", label: "HIPAA Compliance" },
+                  { href: "/admin", label: "Admin" },
+                ].map(({ href, label }) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    className="text-sm text-muted-foreground hover:text-foreground transition-colors py-0.5"
+                    data-testid={`link-footer-${href.replace("/", "")}`}
+                  >
+                    {label}
+                  </Link>
+                ))}
+              </nav>
+            </div>
+
+            {/* Column 3 — Newsletter */}
+            <div className="flex flex-col gap-4" data-testid="section-newsletter">
+              <p className="text-xs font-bold text-foreground uppercase tracking-widest">Weekly Coaching Tips</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Actionable hospice sales strategies delivered to your inbox. No fluff.
+              </p>
               <NewsletterSignup />
             </div>
-            <div className="flex flex-wrap gap-3 sm:gap-6 text-sm">
-              <Link
-                href="/privacy"
-                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
-                data-testid="link-privacy"
-                aria-label="Privacy Policy"
-              >
-                Privacy Policy
-              </Link>
-              <Link
-                href="/terms"
-                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
-                data-testid="link-terms"
-                aria-label="Terms of Service"
-              >
-                Terms of Service
-              </Link>
-              <Link
-                href="/disclaimer"
-                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
-                data-testid="link-disclaimer"
-                aria-label="Disclaimer"
-              >
-                Disclaimer
-              </Link>
-              <Link
-                href="/legal"
-                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
-                data-testid="link-legal"
-                aria-label="Legal Agreements"
-              >
-                Legal Agreements
-              </Link>
-              <Link
-                href="/compliance"
-                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center gap-1.5 justify-center touch-manipulation"
-                data-testid="link-compliance"
-                aria-label="Compliance and Data Practices"
-              >
-                <Shield className="w-3.5 h-3.5" />
-                HIPAA Compliance
-              </Link>
-              <Link
-                href="/manifesto"
-                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
-                data-testid="link-manifesto"
-                aria-label="The Spartan Ethos"
-              >
-                The Spartan Ethos
-              </Link>
-              <Link
-                href="/contact"
-                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
-                data-testid="link-footer-contact"
-                aria-label="Contact us"
-              >
-                Contact
-              </Link>
-              <Link
-                href="/admin"
-                className="text-muted-foreground hover:text-foreground transition-colors px-3 py-2 hover-elevate rounded-md flex items-center justify-center touch-manipulation"
-                data-testid="link-admin"
-                aria-label="Admin dashboard"
-              >
-                Admin
-              </Link>
+
+          </div>
+        </div>
+
+        {/* Legal bottom bar */}
+        <div className="border-t border-border/50 dark:border-red-900/10">
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-4" style={{ paddingBottom: location === '/contact' ? '1rem' : 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}>
+            <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+              <p className="text-xs text-muted-foreground order-last sm:order-first">
+                © 2026 Spartan Coaching. All rights reserved.
+              </p>
+              <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+                {[
+                  { href: "/privacy", label: "Privacy", testId: "link-privacy" },
+                  { href: "/terms", label: "Terms", testId: "link-terms" },
+                  { href: "/disclaimer", label: "Disclaimer", testId: "link-disclaimer" },
+                  { href: "/legal", label: "Legal", testId: "link-legal" },
+                ].map(({ href, label, testId }) => (
+                  <Link
+                    key={href}
+                    href={href}
+                    className="text-xs text-muted-foreground hover:text-foreground transition-colors touch-manipulation"
+                    data-testid={testId}
+                  >
+                    {label}
+                  </Link>
+                ))}
+                <button
+                  onClick={toggleTheme}
+                  aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                  data-testid="button-theme-toggle"
+                  className="ml-2 flex items-center justify-center w-7 h-7 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors touch-manipulation"
+                >
+                  {theme === "dark" ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+                </button>
+              </div>
             </div>
           </div>
         </div>
