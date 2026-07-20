@@ -1,39 +1,26 @@
 import { Link } from "wouter";
-import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { AlertCircle, CheckCircle, ArrowRight, Users, Briefcase, Building2, MonitorSmartphone, Target } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { FadeIn, StaggerContainer, StaggerItem, AnimatedCounter } from "@/components/animations";
-import { lazy, Suspense, Component, useCallback, useEffect, useState } from "react";
+import { lazy, Suspense, Component } from "react";
 import type { ReactNode } from "react";
 
 const SpartanHeroAnimation = lazy(() => import("@/components/SpartanHeroAnimation").then(m => ({ default: m.SpartanHeroAnimation })));
 
-class AnimationErrorBoundary extends Component<{ children: ReactNode; onError: () => void }, { failed: boolean }> {
+class AnimationErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
   state = { failed: false };
   componentDidCatch() {
     this.setState({ failed: true });
-    this.props.onError();
   }
   render() {
     return this.state.failed ? <div className="absolute inset-0 bg-[#080808]" /> : this.props.children;
   }
 }
 
-const ANIMATION_TOTAL_MS = 5000 + 5000 + 5000 + 6000 + 4000;
-const ANIMATION_FALLBACK_MS = ANIMATION_TOTAL_MS + 3000;
-
 export default function Home() {
-  const [heroReady, setHeroReady] = useState(false);
-
-  useEffect(() => {
-    const t = setTimeout(() => setHeroReady(true), ANIMATION_FALLBACK_MS);
-    return () => clearTimeout(t);
-  }, []);
-
-  const handleAnimationComplete = useCallback(() => setHeroReady(true), []);
 
   return (
     <div className="flex flex-col">
@@ -55,67 +42,11 @@ export default function Home() {
 
       {/* ── 1. HERO ── */}
       <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#080808]" data-testid="section-hero">
-        <AnimationErrorBoundary onError={handleAnimationComplete}>
+        <AnimationErrorBoundary>
           <Suspense fallback={<div className="absolute inset-0 bg-[#080808]" />}>
-            <SpartanHeroAnimation onComplete={handleAnimationComplete} />
+            <SpartanHeroAnimation />
           </Suspense>
         </AnimationErrorBoundary>
-        <div className="absolute inset-0 bg-gradient-to-t from-[#080808]/80 via-transparent to-[#080808]/40 z-[5] pointer-events-none" />
-
-        <div className="relative z-10 max-w-4xl mx-auto px-6 py-24 text-center pointer-events-none">
-          <motion.p
-            className="text-white/50 text-xs sm:text-sm font-semibold tracking-[0.4em] uppercase mb-6"
-            initial={{ opacity: 0, y: -12 }}
-            animate={heroReady ? { opacity: 1, y: 0 } : { opacity: 0, y: -12 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          >
-            Hospice Sales Excellence
-          </motion.p>
-          <motion.h1
-            className="font-display font-black text-white leading-[1.0] mb-6"
-            style={{ fontSize: "clamp(2.5rem, 6vw, 5rem)" }}
-            initial={{ opacity: 0, y: 16 }}
-            animate={heroReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
-            transition={{ duration: 0.5, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-          >
-            Hospice sales teams<br /><span className="text-[#e8291e]">that consistently close.</span>
-          </motion.h1>
-          <motion.p
-            className="text-white/65 text-base sm:text-lg max-w-2xl mx-auto mb-10 leading-relaxed"
-            initial={{ opacity: 0, y: 12 }}
-            animate={heroReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-            transition={{ duration: 0.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-          >
-            Eligible patients aren't getting hospice care because the right conversations aren't happening. Spartan Coaching exists to close that gap.
-          </motion.p>
-          <motion.div
-            className="flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto"
-            initial={{ opacity: 0, y: 12 }}
-            animate={heroReady ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-            transition={{ duration: 0.5, delay: 0.45, ease: [0.22, 1, 0.36, 1] }}
-          >
-            <Button size="lg" asChild className="font-bold px-10 text-base" data-testid="button-hero-contact">
-              <Link href="/contact">Book a Strategy Call</Link>
-            </Button>
-            <Button size="lg" variant="ghost" asChild className="text-white/70 hover:text-white text-base gap-2" data-testid="button-hero-method">
-              <Link href="/manifesto">See our method <ArrowRight className="w-4 h-4" /></Link>
-            </Button>
-          </motion.div>
-        </div>
-
-        <motion.div
-          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
-          initial={{ opacity: 0 }}
-          animate={heroReady ? { opacity: 1 } : { opacity: 0 }}
-          transition={{ duration: 0.6, delay: 0.6 }}
-          aria-label="Scroll down"
-        >
-          <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 1.4, repeat: Infinity }}>
-            <div className="w-5 h-8 rounded-full border border-white/25 flex items-start justify-center p-1.5">
-              <div className="w-0.5 h-2 rounded-full bg-white/40" />
-            </div>
-          </motion.div>
-        </motion.div>
       </section>
 
       {/* ── 2. PROOF STRIP ── */}
