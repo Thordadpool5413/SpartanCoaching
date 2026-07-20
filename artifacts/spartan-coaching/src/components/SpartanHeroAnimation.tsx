@@ -11,11 +11,13 @@ const SCENE_DURATIONS: Record<string, number> = {
   outro: 4000,
 };
 
-function useHeroPlayer() {
+function useHeroPlayer(onComplete?: () => void) {
   const sceneKeys = useRef(Object.keys(SCENE_DURATIONS)).current;
   const durationsArray = useRef(Object.values(SCENE_DURATIONS)).current;
   const totalScenes = sceneKeys.length;
   const crestHeroIndex = sceneKeys.indexOf("crestHero");
+  const onCompleteRef = useRef(onComplete);
+  onCompleteRef.current = onComplete;
 
   const [currentScene, setCurrentScene] = useState(0);
   const [hasPlayedOnce, setHasPlayedOnce] = useState(false);
@@ -45,6 +47,12 @@ function useHeroPlayer() {
 
     return () => clearTimeout(timer);
   }, [currentScene, hasPlayedOnce, crestLoopCount, totalScenes, durationsArray, crestHeroIndex]);
+
+  useEffect(() => {
+    if (hasPlayedOnce) {
+      onCompleteRef.current?.();
+    }
+  }, [hasPlayedOnce]);
 
   const key = hasPlayedOnce
     ? `crestHero_loop_${crestLoopCount}`
@@ -345,8 +353,8 @@ const SCENE_COMPONENTS: Record<string, React.ComponentType> = {
   outro: Scene5_Outro,
 };
 
-export function SpartanHeroAnimation() {
-  const { currentSceneKey, sceneIndex } = useHeroPlayer();
+export function SpartanHeroAnimation({ onComplete }: { onComplete?: () => void }) {
+  const { currentSceneKey, sceneIndex } = useHeroPlayer(onComplete);
   const baseKey = currentSceneKey.replace(/_loop_\d+$/, "");
   const SceneComponent = SCENE_COMPONENTS[baseKey];
 
