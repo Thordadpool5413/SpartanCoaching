@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { useState, useEffect, useRef } from "react";
+import { motion } from "framer-motion";
 import { Helmet } from "react-helmet-async";
 import { useQuery } from "@tanstack/react-query";
 import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
@@ -13,6 +14,8 @@ import { SEO } from "@/components/SEO";
 import { apiRequest } from "@/lib/queryClient";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
+import { lazy, Suspense } from "react";
+const SpartanHeroAnimation = lazy(() => import("@/components/SpartanHeroAnimation").then(m => ({ default: m.SpartanHeroAnimation })));
 import { useReminderHistory } from "@/hooks/use-reminder-history";
 
 function formatScheduledTime(ts: number): string {
@@ -168,85 +171,72 @@ export default function Home() {
         </script>
       </Helmet>
 
-      {/* 1. Hero Section */}
-      <section className="relative min-h-[50vh] sm:min-h-[60vh] md:h-[92vh] flex items-center justify-center overflow-hidden bg-gray-950">
-        <div className="absolute inset-0 z-0">
-          <div className="absolute inset-0 bg-gradient-to-br from-gray-950 via-gray-900 to-black"></div>
-          <div className="absolute inset-0 bg-spartan-gradient-radial opacity-40"></div>
-          <div className="absolute top-0 right-0 w-[800px] h-[800px] bg-gradient-radial from-red-950/20 via-transparent to-transparent blur-3xl"></div>
+      {/* 1. Hero Section — Logo reveal animation as living background */}
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-[#080808]" data-testid="section-hero">
+        {/* Animation background — lazy loaded, non-blocking */}
+        <Suspense fallback={<div className="absolute inset-0 bg-[#080808]" />}>
+          <SpartanHeroAnimation />
+        </Suspense>
+
+        {/* Gradient overlay so copy is readable over animation */}
+        <div className="absolute inset-0 bg-gradient-to-t from-[#080808]/80 via-transparent to-[#080808]/40 z-[5] pointer-events-none" />
+
+        {/* Hero copy layered over animation */}
+        <div className="relative z-10 max-w-4xl mx-auto px-6 py-24 text-center pointer-events-none">
+          <motion.p
+            className="text-white/50 text-xs sm:text-sm font-semibold tracking-[0.4em] uppercase mb-6"
+            initial={{ opacity: 0, y: -12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
+          >
+            Hospice Sales Excellence
+          </motion.p>
+          <motion.h1
+            className="font-display font-black text-white leading-[1.0] mb-6"
+            style={{ fontSize: "clamp(2.5rem, 6vw, 5rem)" }}
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.65, ease: [0.22, 1, 0.36, 1] }}
+          >
+            Hospice sales teams<br /><span className="text-[#e8291e]">that consistently close.</span>
+          </motion.h1>
+          <motion.p
+            className="text-white/65 text-base sm:text-lg max-w-2xl mx-auto mb-10 leading-relaxed"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          >
+            Eligible patients aren't getting hospice care because the right conversations aren't happening. Spartan Coaching exists to close that gap.
+          </motion.p>
+          <motion.div
+            className="flex flex-col sm:flex-row items-center justify-center gap-4 pointer-events-auto"
+            initial={{ opacity: 0, y: 12 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4, delay: 0.95, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <Button size="lg" asChild className="font-bold px-10 text-base" data-testid="button-hero-contact">
+              <Link href="/contact">Book a Strategy Call</Link>
+            </Button>
+            <Button size="lg" variant="ghost" asChild className="text-white/70 hover:text-white text-base gap-2" data-testid="button-hero-method">
+              <Link href="/manifesto">See our method <ArrowRight className="w-4 h-4" /></Link>
+            </Button>
+          </motion.div>
         </div>
 
-        <video
-          ref={videoRef}
-          autoPlay
-          muted
-          loop
-          playsInline
-          preload="auto"
-          poster="/hero-poster.jpg"
-          className="absolute inset-0 w-full h-full object-cover hero-video-mobile z-[1]"
-          data-testid="hero-video"
-          aria-label="Spartan Coaching hero video background"
-          style={{ pointerEvents: 'none' }}
+        {/* Scroll cue — fades in after 2s */}
+        <motion.div
+          className="absolute bottom-8 left-1/2 -translate-x-1/2 z-10"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2, duration: 0.6 }}
+          aria-label="Scroll down"
         >
-          <source src="/hero-video.mp4" type="video/mp4" />
-          Your browser does not support the video tag.
-        </video>
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black/65 via-black/50 to-black/60 md:from-black/60 md:via-black/45 md:to-black/55 z-[2]"></div>
-
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-20 lg:py-24 text-center">
-          <Link href="/services" className="inline-flex items-center gap-3 bg-green-500/20 border border-green-400/50 rounded-full px-6 py-2 mb-8 animate-fade-in-up hover:bg-green-500/30 transition-colors cursor-pointer" data-testid="link-hero-programs-badge">
-            <span className="w-3 h-3 rounded-full bg-green-400 shrink-0" style={{ animation: 'pulse 2s infinite' }} />
-            <span className="text-green-300 text-base font-bold tracking-wide">2026 Coaching Programs Now Open</span>
-            <ArrowRight className="w-4 h-4 text-green-300" />
-          </Link>
-          <h1 className="text-hero mb-4 sm:mb-6 md:mb-8 animate-fade-in-up px-4 font-display">
-            <span className="block bg-gradient-to-r from-red-600 via-red-500 to-red-600 bg-clip-text text-transparent font-black tracking-tighter drop-shadow-2xl">
-              Hospice Sales Coaching
-            </span>
-          </h1>
-
-          <p className="text-body-lg mb-6 sm:mb-10 md:mb-14 max-w-3xl mx-auto animate-fade-in-up px-6" style={{ animationDelay: '0.1s' }}>
-            <span className="text-white/90">Eligible patients are not receiving hospice care because the right conversations are not happening. Spartan Coaching exists to close that gap, one prepared visit at a time.</span>
-          </p>
-
-          <div className="flex flex-col items-center gap-4 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-            <div className="flex flex-col sm:flex-row items-center gap-4">
-              <Button
-                size="lg"
-                asChild
-                className="text-base sm:text-lg font-bold touch-manipulation group px-10"
-                data-testid="button-hero-services"
-              >
-                <Link href="/services">
-                  <span>See Services & Pricing</span>
-                  <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                </Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                asChild
-                className="text-base sm:text-lg font-bold glass border-white/30 transition-elegant touch-manipulation group px-10"
-                data-testid="button-hero-contact"
-              >
-                <Link href="/contact">
-                  <span>Get in Touch</span>
-                </Link>
-              </Button>
+          <motion.div animate={{ y: [0, 6, 0] }} transition={{ duration: 1.4, repeat: Infinity }}>
+            <div className="w-5 h-8 rounded-full border border-white/25 flex items-start justify-center p-1.5">
+              <div className="w-0.5 h-2 rounded-full bg-white/40" />
             </div>
-            <p className="text-white/70 text-sm font-semibold tracking-wide">
-              Coaching built for the people who show up to the hardest conversations in healthcare.
-            </p>
-          </div>
-        </div>
-
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce" aria-label="Scroll down">
-          <div className="w-6 h-10 rounded-full border-2 border-white/30 flex items-start justify-center p-2">
-            <div className="w-1 h-3 rounded-full bg-white/50"></div>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </section>
 
       {/* 1a. Authority Proof Strip */}

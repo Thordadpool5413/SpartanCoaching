@@ -195,8 +195,8 @@ body {
   --font-serif: 'Inter', sans-serif;
   --font-mono: 'JetBrains Mono', Menlo, monospace;
   --font-display: 'Barlow Condensed', sans-serif;
-  --radius: 0.75rem;
-  --noise-texture: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  --radius: 0.375rem;
+  --noise-bg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
   
   /* Enhanced shadows with refined depth and red tint */
   --shadow-2xs: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 0 1px 0 rgb(239 68 68 / 0.03);
@@ -229,12 +229,12 @@ body {
   --elevate-1: rgba(255,255,255, .06);
   --elevate-2: rgba(255,255,255, .12);
 
-  --background: 0 0% 3%;
+  --background: 0 0% 4%;
   --foreground: 0 0% 96%;
-  --border: 0 0% 15%;
+  --border: 0 0% 100% / 0.08;
 
-  --card: 0 0% 6%;
-  --card-foreground: 0 0% 94%;
+  --card: 0 0% 7%;
+  --card-foreground: 0 0% 95%;
   --card-border: 0 0% 13%;
 
   --sidebar: 0 0% 5%;
@@ -256,8 +256,8 @@ body {
   --secondary: 0 0% 15%;
   --secondary-foreground: 0 0% 96%;
 
-  --muted: 0 0% 13%;
-  --muted-foreground: 0 0% 62%;
+  --muted: 0 0% 9%;
+  --muted-foreground: 0 0% 58%;
 
   --accent: 0 85% 16%;
   --accent-foreground: 0 85% 94%;
@@ -291,7 +291,6 @@ body {
   --muted-border: hsl(from hsl(var(--muted)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
   --accent-border: hsl(from hsl(var(--accent)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
   --destructive-border: hsl(from hsl(var(--destructive)) h s calc(l + var(--opaque-button-border-intensity)) / alpha);
-  --radius: 0.375rem;
 }
 
 @layer base {
@@ -795,47 +794,29 @@ body {
     -webkit-text-fill-color: transparent;
   }
   
-  /* Refined typography scale with improved hierarchy */
+  /* Refined typography scale with display font and clamp sizing */
   .text-hero {
-    font-size: 4rem;       /* 64px mobile */
-    font-weight: 800;
-    line-height: 1.1;
-    letter-spacing: -0.03em;
-  }
-  
-  @media (min-width: 1024px) {
-    .text-hero {
-      font-size: 4.75rem;   /* 76px desktop */
-      letter-spacing: -0.035em;
-    }
-  }
-  
-  .text-h1 {
-    font-size: 2.5rem;     /* 40px mobile */
-    font-weight: 800;
-    line-height: 1.15;
-    letter-spacing: -0.025em;
-  }
-  
-  @media (min-width: 1024px) {
-    .text-h1 {
-      font-size: 3.25rem;     /* 52px desktop */
-      letter-spacing: -0.03em;
-    }
-  }
-  
-  .text-h2 {
-    font-size: 2rem;       /* 32px mobile */
-    font-weight: 700;
-    line-height: 1.25;
+    font-family: var(--font-display);
+    font-size: clamp(3rem, 7vw, 5.5rem);
+    font-weight: 900;
+    line-height: 1.05;
     letter-spacing: -0.02em;
   }
   
-  @media (min-width: 1024px) {
-    .text-h2 {
-      font-size: 2.5rem;  /* 40px desktop */
-      letter-spacing: -0.025em;
-    }
+  .text-h1 {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  
+  .text-h2 {
+    font-family: var(--font-display);
+    font-size: clamp(1.5rem, 3vw, 2.5rem);
+    font-weight: 700;
+    line-height: 1.2;
+    letter-spacing: -0.015em;
   }
   
   .text-h3 {
@@ -980,14 +961,14 @@ body {
   .surface-noise {
     position: relative;
   }
-  .surface-noise::after {
+  .surface-noise::before {
     content: '';
     position: absolute;
     inset: 0;
     border-radius: inherit;
     pointer-events: none;
-    opacity: 0.04;
-    background-image: var(--noise-texture);
+    opacity: 0.025;
+    background-image: var(--noise-bg);
     z-index: 1;
   }
 
@@ -995,6 +976,15 @@ body {
   .authority-separator {
     height: 1px;
     background: linear-gradient(90deg, transparent, rgba(232, 41, 30, 0.4), transparent);
+  }
+
+  /* Hover card lift — reusable card micro-interaction */
+  .hover-card {
+    transition: transform 150ms ease, border-color 150ms ease;
+  }
+  .hover-card:hover {
+    transform: translateY(-2px);
+    border-color: rgba(232, 41, 30, 0.35);
   }
 
   /* Enhanced glow effects with stronger presence */

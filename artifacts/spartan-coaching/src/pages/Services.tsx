@@ -224,7 +224,7 @@ export default function Services() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards">
           {individualServices.map((service, idx) => (
-            <Card key={idx} className="flex flex-col border-2 group relative spacing-card shadow-lg" data-testid={`card-individual-${idx}`}>
+            <Card key={idx} className="flex flex-col border group relative spacing-card shadow-lg hover-card dark:bg-[#0f0f0f] dark:border-white/8 border-l-4 border-l-primary" data-testid={`card-individual-${idx}`}>
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-radial from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-2xl"></div>
               <div className="flex-1 relative">
@@ -287,7 +287,7 @@ export default function Services() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards">
           {leadershipServices.map((service, idx) => (
-            <Card key={idx} className="flex flex-col border-2 group relative spacing-card shadow-lg" data-testid={`card-leadership-${idx}`}>
+            <Card key={idx} className="flex flex-col border group relative spacing-card shadow-lg hover-card dark:bg-[#0f0f0f] dark:border-white/8 border-l-4 border-l-primary" data-testid={`card-leadership-${idx}`}>
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-radial from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-2xl"></div>
               <div className="flex-1 relative">

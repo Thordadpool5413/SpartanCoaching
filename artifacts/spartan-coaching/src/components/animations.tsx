@@ -15,7 +15,7 @@ interface FadeInProps {
   duration?: number;
 }
 
-export function FadeIn({ children, className, delay = 0, duration = 0.6 }: FadeInProps) {
+export function FadeIn({ children, className, delay = 0, duration = 0.4 }: FadeInProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true });
 
@@ -26,7 +26,7 @@ export function FadeIn({ children, className, delay = 0, duration = 0.6 }: FadeI
       className={className}
       initial={{ opacity: 0 }}
       animate={isInView ? { opacity: 1 } : { opacity: 0 }}
-      transition={{ duration, delay, ease: "easeOut" }}
+      transition={{ duration, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </motion.div>
@@ -40,7 +40,7 @@ interface SlideUpProps {
   duration?: number;
 }
 
-export function SlideUp({ children, className, delay = 0, duration = 0.6 }: SlideUpProps) {
+export function SlideUp({ children, className, delay = 0, duration = 0.4 }: SlideUpProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true });
 
@@ -49,9 +49,9 @@ export function SlideUp({ children, className, delay = 0, duration = 0.6 }: Slid
       ref={ref}
       data-testid="animation-slide-up"
       className={className}
-      initial={{ opacity: 0, y: 40 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 40 }}
-      transition={{ duration, delay, ease: "easeOut" }}
+      initial={{ opacity: 0, y: 16 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 16 }}
+      transition={{ duration, delay, ease: [0.22, 1, 0.36, 1] }}
     >
       {children}
     </motion.div>
@@ -125,7 +125,7 @@ interface StaggerContainerProps {
 export function StaggerContainer({
   children,
   className,
-  staggerDelay = 0.1,
+  staggerDelay = 0.06,
 }: StaggerContainerProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true });
@@ -162,11 +162,11 @@ export function StaggerItem({ children, className }: StaggerItemProps) {
       data-testid="animation-stagger-item"
       className={className}
       variants={{
-        hidden: { opacity: 0, y: 20 },
+        hidden: { opacity: 0, y: 16 },
         visible: {
           opacity: 1,
           y: 0,
-          transition: { duration: 0.5, ease: "easeOut" },
+          transition: { duration: 0.4, ease: [0.22, 1, 0.36, 1] },
         },
       }}
     >

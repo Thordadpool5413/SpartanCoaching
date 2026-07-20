@@ -181,7 +181,7 @@ export default function Contact() {
               </div>
             </Card>
           ) : (
-            <Card className="spacing-card" data-testid="card-contact-form">
+            <Card className="spacing-card dark:bg-[#0f0f0f] dark:border-white/8" data-testid="card-contact-form">
               {/* Service context chip */}
               {serviceParam && (
                 <div className="flex items-center justify-between gap-2 bg-primary/10 border border-primary/20 rounded-lg px-4 py-3 mb-6" data-testid="chip-service-context">

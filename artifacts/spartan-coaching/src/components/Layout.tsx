@@ -48,10 +48,10 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
       href={href}
       onClick={onClick}
       className={cn(
-        "px-3 py-2 rounded-lg text-sm font-medium transition-colors hover-elevate block whitespace-nowrap",
+        "px-3 py-2 text-sm font-medium transition-colors hover-elevate block whitespace-nowrap",
         isActive
-          ? "bg-primary text-primary-foreground"
-          : "text-foreground"
+          ? "text-primary border-b-2 border-primary pb-0"
+          : "text-muted-foreground hover:text-foreground"
       )}
     >
       {children}
@@ -67,8 +67,8 @@ function MobileNavLink({ href, label, location, onClose }: { href: string; label
       className={cn(
         "px-4 py-3 rounded-lg text-sm font-medium touch-manipulation min-h-[44px] flex items-center transition-all",
         location === href
-          ? "bg-primary text-primary-foreground shadow-md"
-          : "text-foreground bg-muted/50 active-elevate-2"
+          ? "text-primary bg-primary/10 border-l-2 border-primary"
+          : "text-foreground bg-muted/30 active-elevate-2"
       )}
       data-testid={`link-mobile-${href}`}
     >
@@ -167,8 +167,7 @@ export function Header() {
         <Link href="/">
           <div className="flex items-center gap-2 sm:gap-4 hover:opacity-80 transition-opacity cursor-pointer touch-manipulation" data-testid="link-home">
             <div>
-              <h1 className="font-black text-xl sm:text-2xl md:text-3xl text-primary tracking-tight">SPARTAN COACHING</h1>
-              <p className="text-xs sm:text-sm md:text-base text-muted-foreground">The Authority in Hospice Excellence</p>
+              <h1 className="font-black text-xl sm:text-2xl md:text-3xl text-primary tracking-tight font-display">SPARTAN COACHING</h1>
             </div>
           </div>
         </Link>
@@ -229,7 +228,7 @@ export function Header() {
               <Menu className="w-6 h-6" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-[85vw] max-w-[350px] p-0 flex flex-col h-full max-h-[100dvh]">
+          <SheetContent side="right" className="w-[85vw] max-w-[350px] p-0 flex flex-col h-full max-h-[100dvh] dark:bg-[#080808] dark:border-white/10">
             <SheetHeader className="px-5 pt-5 pb-3 shrink-0">
               <SheetTitle>Menu</SheetTitle>
             </SheetHeader>

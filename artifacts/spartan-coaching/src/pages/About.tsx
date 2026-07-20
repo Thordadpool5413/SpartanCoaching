@@ -11,15 +11,47 @@ export default function About() {
     <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
       <SEO />
       <BackButton />
-      <div className="max-w-4xl mx-auto">
-        <div className="text-center mb-10 sm:mb-16">
-          <h1 className="text-h1 text-foreground mb-6 font-display" data-testid="text-about-title">
-            Why Spartan Coaching Exists
+
+      {/* Above-fold two-column authority layout */}
+      <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-stretch mb-16 sm:mb-24">
+        {/* Left: authority headline + credentials + CTA */}
+        <div className="flex flex-col justify-center">
+          <h1 className="text-h1 text-foreground mb-8 font-display leading-tight" data-testid="text-about-title">
+            Why Spartan<br /><span className="text-primary">Coaching Exists</span>
           </h1>
-          <p className="text-h3 text-muted-foreground leading-relaxed">
-            Hospice is not a mystery. It is a promise.
+          <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
+            Hospice is not a mystery. It is a promise — and Spartan Coaching exists to make sure sales teams can keep it.
           </p>
+          <ul className="space-y-4 mb-10">
+            {[
+              { num: "12+", text: "Years of hospice-specific sales & leadership expertise" },
+              { num: "500+", text: "Reps and leaders coached to consistent, measurable performance" },
+              { num: "4-wk", text: "Fastest documented program-to-results timeline" },
+            ].map(({ num, text }) => (
+              <li key={num} className="flex items-start gap-4">
+                <span className="font-display text-2xl font-black text-primary flex-shrink-0 leading-none mt-0.5 w-14">{num}</span>
+                <span className="text-foreground text-base leading-snug">{text}</span>
+              </li>
+            ))}
+          </ul>
+          <Button size="lg" asChild className="font-bold self-start px-8">
+            <Link href="/contact">Book a Strategy Call <ArrowRight className="ml-2 w-4 h-4" /></Link>
+          </Button>
         </div>
+
+        {/* Right: consultant photo */}
+        <div className="relative">
+          <div className="aspect-[4/5] overflow-hidden border-l-4 border-primary">
+            <img
+              src={nickPhoto}
+              alt="Nick Lynch — Spartan Coaching"
+              className="w-full h-full object-cover object-top"
+            />
+          </div>
+        </div>
+      </div>
+
+      <div className="max-w-4xl mx-auto">
 
         {/* The Why Section - Core Message */}
         <div className="space-y-8 md:space-y-12 lg:space-y-16">
