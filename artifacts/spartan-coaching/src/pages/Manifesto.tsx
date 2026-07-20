@@ -7,12 +7,12 @@ import { FadeIn, SlideUpFade, StaggerContainer, StaggerItem } from "@/components
 
 function PullQuote({ children }: { children: React.ReactNode }) {
   return (
-    <section className="relative bg-[#030303] overflow-hidden py-28 sm:py-36 md:py-44">
+    <section className="relative bg-[#030303] overflow-hidden min-h-screen flex items-center justify-center">
       <div className="absolute inset-0 bg-spartan-gradient-radial opacity-15 pointer-events-none" />
       <div className="authority-separator absolute top-0 left-0 w-full" />
       <div className="authority-separator absolute bottom-0 left-0 w-full" />
       <SlideUpFade>
-        <div className="relative max-w-5xl mx-auto px-6 sm:px-8 text-center">
+        <div className="relative max-w-5xl mx-auto px-6 sm:px-8 text-center py-20">
           <p
             className="font-display font-black text-white leading-[1.0] tracking-tight"
             style={{ fontSize: "clamp(2.2rem, 5.5vw, 5rem)" }}
