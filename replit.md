@@ -11,7 +11,8 @@ Expert hospice growth coaching site + private Field Kit (web + iOS) for clients 
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only) — **required after Field Kit auth tables**
 - Required env: `DATABASE_URL` — Postgres connection string
-- Auth/email env: `OPENAI_API_KEY`, `RESEND_API_KEY` / connector, `ADMIN_PASSWORD`, `VITE_ADMIN_PASSWORD`, `NOTIFICATION_EMAIL`, `SITE_URL`
+- Auth/email env: `OPENAI_API_KEY`, `RESEND_API_KEY` / connector, `ADMIN_PASSWORD` (server-only, 8+ chars recommended), `NOTIFICATION_EMAIL`, `SITE_URL`
+- Do **not** put admin passwords in `VITE_*` client env (removed from bundle)
 
 ## Stack
 
@@ -31,17 +32,17 @@ Expert hospice growth coaching site + private Field Kit (web + iOS) for clients 
 - `artifacts/api-server/src/auth/` — crypto, entitlement, middleware (`requireFieldKit`)
 - Web portal: `/welcome`, `/login`, `/request-access`, `/portal`, `/account`
 - Logged-in nav shell: Field Kit · Tools · Learn · Account · Coaching (`/portal/learn`)
-- Trial lifecycle emails: midpoint (≤4h left) + expired (on status flip)
+- Trial lifecycle emails: received, approved, rejected, midpoint (≤4h), expired, extended, membership activated
 - Magic-link login (`/login` email link + `/magic-login`)
-- Platform admin: one-time bootstrap + session auth (legacy password still works)
-- Admin **Access Desk**: approve/reject+notify/extend/activate, resend invite, copy to inquiries, metrics
+- Platform admin: one-time bootstrap + **session cookie** (legacy shared password unlocks session; no client-embedded admin code)
+- Admin **Access Desk**: one-click 24h/72h approve, reject templates, follow-ups due queue, extend presets, resend invite, metrics
 - Access requests auto-create CRM inquiries
 - Org admin: seat invites, disable member, 7-day usage (`/api/org/usage`)
-- Account: change password; expired clients can request extension
-- Access Desk ops: org detail (pipeline won/lost/follow-up, notes, timeline), metrics follow-ups due
-- Conversion: `/field-kit-membership` pricing page; stronger expired handoff CTAs
-- Portal onboarding: role-based start, checklist progress API, field context profile, admin “activated” flag
-- Mobile field companion: logged-in home checklist + trial banner, account profile sync, tools PHI strip
+- Account: change password, sign out other devices; expired clients can request extension
+- Conversion: `/request-access`, `/field-kit-membership`, FAQ Field Kit section, trust strip
+- Portal first-session: role → one tool → debrief; checklist API; field context
+- Mobile field companion: checklist + trial banner (lighter than web first-session panel)
+- Public trust/SEO: robots.txt, sitemap, noindex private shells, TrustStrip
 
 ## Architecture decisions
 
@@ -49,7 +50,8 @@ Expert hospice growth coaching site + private Field Kit (web + iOS) for clients 
 - Access is request → Nick approves → trial (24h individual / 72h company) → admin activates paid/client
 - First-visit intro splash only (`spartan_intro_seen`); home content stays crawlable
 - Personal orgs are 1-seat shells so entitlement is always org-scoped
-- Platform admin remains shared `ADMIN_PASSWORD` / `X-Admin-Auth` (separate from client auth)
+- Platform admin = `platform_admin` member session preferred; `X-Admin-Auth` only if `ADMIN_PASSWORD` set server-side (API tools / curl)
+- Rate limits: global API + login + forms; AI quotas keyed by member id when authed
 
 ## Product
 
