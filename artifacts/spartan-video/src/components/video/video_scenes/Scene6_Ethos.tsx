@@ -1,50 +1,66 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
-const ethosBg = `${import.meta.env.BASE_URL}ethos-bg.mp4`;
+const EASE = [0.16, 1, 0.3, 1] as const;
 
+// Scene 6 — The Stakes (emotional payoff)
+// "When a rep closes that gap — / a patient stops managing their own pain. / A family stops being alone."
 export function Scene6_Ethos() {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
-    const timers = [setTimeout(() => setPhase(1), 600)];
+    const timers = [
+      setTimeout(() => setPhase(1), 600),   // "When a rep closes that gap —"
+      setTimeout(() => setPhase(2), 2800),  // "a patient stops managing their own pain."
+      setTimeout(() => setPhase(3), 5200),  // "A family stops being alone."
+    ];
     return () => timers.forEach(t => clearTimeout(t));
   }, []);
 
-  const staggerChars = (text: string, delayOffset: number) =>
-    text.split('').map((char, i) => (
-      <span key={i} className="inline-block overflow-hidden relative">
-        <motion.span
-          className="inline-block"
-          initial={{ y: '105%' }}
-          animate={phase >= 1 ? { y: 0 } : { y: '105%' }}
-          transition={{ type: 'spring', stiffness: 170, damping: 34, delay: delayOffset + i * 0.045 }}
-        >
-          {char === ' ' ? '\u00A0' : char}
-        </motion.span>
-      </span>
-    ));
+  const lines: [string, string][] = [
+    ['When a rep closes that gap \u2014', '#9a9a8e'],
+    ['a patient stops managing their own pain.', '#f5f5f0'],
+    ['A family stops being alone.', '#e8291e'],
+  ];
 
   return (
     <motion.div
-      className="absolute inset-0 z-10"
+      className="absolute inset-0 z-10 bg-[#070707] flex flex-col justify-center px-[8vw]"
       initial={{ opacity: 1 }}
       exit={{ clipPath: 'circle(0% at 50% 50%)' }}
-      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.4, ease: EASE }}
     >
-      <video src={ethosBg} className="absolute inset-0 w-full h-full object-cover opacity-60" autoPlay muted playsInline loop />
-      <div className="absolute inset-0 bg-[#070707]/55 mix-blend-multiply pointer-events-none" />
+      {/* Warm glow */}
+      <div
+        className="absolute inset-0 pointer-events-none"
+        style={{ background: 'radial-gradient(ellipse at 40% 55%, rgba(232,41,30,0.08) 0%, transparent 60%)' }}
+      />
 
-      <div className="absolute inset-0 flex flex-col justify-center px-[7vw] z-10" style={{ lineHeight: '0.9' }}>
-        <div className="font-display text-[#f5f5f0] uppercase tracking-tight" style={{ fontSize: 'clamp(36px, 8vw, 120px)' }}>
-          {staggerChars('You don\u2019t wing it', 0.1)}
-        </div>
-        <div className="font-display text-[#f5f5f0] uppercase tracking-tight" style={{ fontSize: 'clamp(36px, 8vw, 120px)' }}>
-          {staggerChars('when the', 0.7)}
-        </div>
-        <div className="font-display uppercase tracking-tight" style={{ fontSize: 'clamp(36px, 8vw, 120px)', color: '#e8291e' }}>
-          {staggerChars('stakes are this high.', 1.2)}
-        </div>
+      {/* Label */}
+      <motion.p
+        className="font-body text-[#9a9a8e] uppercase mb-10"
+        style={{ fontSize: 'clamp(13px, 2.2vw, 32px)', letterSpacing: '0.22em' }}
+        initial={{ opacity: 0 }}
+        animate={phase >= 1 ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ duration: 1.0 }}
+      >
+        What actually changes.
+      </motion.p>
+
+      <div className="flex flex-col gap-[2.5vh]">
+        {lines.map(([text, color], i) => (
+          <div key={i} className="overflow-hidden">
+            <motion.p
+              className="font-display uppercase leading-tight"
+              style={{ fontSize: 'clamp(24px, 5vw, 76px)', color }}
+              initial={{ y: '110%' }}
+              animate={phase >= i + 1 ? { y: 0 } : { y: '110%' }}
+              transition={{ type: 'spring', stiffness: 220, damping: 30, delay: i === 0 ? 0 : 0 }}
+            >
+              {text}
+            </motion.p>
+          </div>
+        ))}
       </div>
     </motion.div>
   );

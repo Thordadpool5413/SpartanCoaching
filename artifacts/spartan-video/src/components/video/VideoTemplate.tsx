@@ -13,14 +13,14 @@ import { Scene8_Close } from './video_scenes/Scene8_Close';
 const spartanStamp = `${import.meta.env.BASE_URL}spartan-logo-stamp.png`;
 
 export const SCENE_DURATIONS: Record<string, number> = {
-  cold: 7000,
-  stats: 9000,
+  cold: 8000,
+  stats: 8000,
   gap: 8000,
   conversational: 7000,
-  fragments: 9000,
-  ethos: 9000,
-  pillars: 9000,
-  close: 8000,
+  fragments: 8000,
+  ethos: 8000,
+  pillars: 7000,
+  close: 7000,
 };
 
 const SCENE_COMPONENTS: Record<string, React.ComponentType> = {
