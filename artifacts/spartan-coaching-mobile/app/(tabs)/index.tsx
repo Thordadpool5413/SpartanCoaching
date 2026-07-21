@@ -758,7 +758,7 @@ export default function HomeScreen() {
       {/* Quick Tools */}
       <View style={[styles.section, { backgroundColor: colors.background }]}>
         <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold", marginBottom: 12 }]}>
-          AI Tools
+          Quick Actions
         </Text>
         <View style={styles.toolsGrid}>
           {QUICK_TOOLS.map((tool, i) => (
