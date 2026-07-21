@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect } from 'react';
-import { useVideoPlayer } from '@/lib/video';
+import { useVideoPlayer, VideoPlayerContext } from '@/lib/video';
 import { Scene1_ColdOpen } from './video_scenes/Scene1_ColdOpen';
 import { Scene2_Stats } from './video_scenes/Scene2_Stats';
 import { Scene3_Gap } from './video_scenes/Scene3_Gap';
@@ -72,13 +72,15 @@ const GEO2_POSITIONS = [
 export default function VideoTemplate({
   durations = SCENE_DURATIONS,
   loop = true,
+  paused = false,
   onSceneChange,
 }: {
   durations?: Record<string, number>;
   loop?: boolean;
+  paused?: boolean;
   onSceneChange?: (sceneKey: string) => void;
 } = {}) {
-  const { currentScene, currentSceneKey } = useVideoPlayer({ durations, loop });
+  const { currentScene, currentSceneKey } = useVideoPlayer({ durations, loop, paused });
 
   const baseSceneKey = currentSceneKey.replace(/_r[12]$/, '');
   const sceneIndex = SCENE_KEYS.indexOf(baseSceneKey);
@@ -153,10 +155,12 @@ export default function VideoTemplate({
         transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
       />
 
-      {/* ── z-10+: scene components (foreground layer) ── */}
-      <AnimatePresence mode="popLayout">
-        {SceneComponent && <SceneComponent key={currentSceneKey} />}
-      </AnimatePresence>
+      {/* ── z-10+: scene components (foreground layer) — wrapped in player context ── */}
+      <VideoPlayerContext.Provider value={{ paused }}>
+        <AnimatePresence mode="popLayout">
+          {SceneComponent && <SceneComponent key={currentSceneKey} />}
+        </AnimatePresence>
+      </VideoPlayerContext.Provider>
 
       {/* ── z-50: hard-cut white flash on every scene change ── */}
       <motion.div

@@ -1,22 +1,19 @@
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useScenePhases } from '@/lib/video';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
+
+const SCHEDULE = [
+  [300, 1],   // REPS
+  [3500, 2],  // LEADERS
+  [7000, 3],  // TEAMS
+] as const;
 
 // Scene 3 — The Specific Gaps (10s)
 // Three sequential full-screen beats: key word LARGE, descriptor below.
 // REPS → LEADERS → TEAMS — each gets its own moment before the next replaces it.
 export function Scene3_Gap() {
-  const [phase, setPhase] = useState(0);
-
-  useEffect(() => {
-    const timers = [
-      setTimeout(() => setPhase(1), 300),   // REPS
-      setTimeout(() => setPhase(2), 3500),  // LEADERS
-      setTimeout(() => setPhase(3), 7000),  // TEAMS
-    ];
-    return () => timers.forEach(t => clearTimeout(t));
-  }, []);
+  const phase = useScenePhases(SCHEDULE);
 
   const beats = [
     { key: 'REPS',    sub: 'with good values. And no system.',        phase: 1 },

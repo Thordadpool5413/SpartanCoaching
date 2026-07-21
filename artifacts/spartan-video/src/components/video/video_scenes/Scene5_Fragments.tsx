@@ -1,21 +1,18 @@
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useScenePhases } from '@/lib/video';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
+
+const SCHEDULE = [
+  [400,  1],  // DISCIPLINE
+  [3000, 2],  // EMPATHY
+  [5800, 3],  // STRATEGY
+] as const;
 
 // Scene 5 — The Three Pillars (with real meaning)
 // DISCIPLINE / EMPATHY / STRATEGY, each with a concrete sentence from the website
 export function Scene5_Fragments() {
-  const [phase, setPhase] = useState(0);
-
-  useEffect(() => {
-    const timers = [
-      setTimeout(() => setPhase(1), 400),   // DISCIPLINE
-      setTimeout(() => setPhase(2), 3000),  // EMPATHY
-      setTimeout(() => setPhase(3), 5800),  // STRATEGY
-    ];
-    return () => timers.forEach(t => clearTimeout(t));
-  }, []);
+  const phase = useScenePhases(SCHEDULE);
 
   const pillars = [
     {

@@ -1,23 +1,20 @@
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useScenePhases } from '@/lib/video';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
+
+const SCHEDULE = [
+  [300, 1],   // "Not a clinical failure."
+  [2800, 2],  // "A sales failure." replaces
+  [5500, 3],  // supporting detail
+] as const;
 
 // Scene 2 — The Cause (9s)
 // Phase 1: "Not a clinical failure." — hard cut, large, gray
 // Phase 2: "A SALES FAILURE." slams in with scale — red, dominant
 // Phase 3: Three supporting lines fade up below
 export function Scene2_Stats() {
-  const [phase, setPhase] = useState(0);
-
-  useEffect(() => {
-    const timers = [
-      setTimeout(() => setPhase(1), 300),   // "Not a clinical failure."
-      setTimeout(() => setPhase(2), 2800),  // "A sales failure." replaces
-      setTimeout(() => setPhase(3), 5500),  // supporting detail
-    ];
-    return () => timers.forEach(t => clearTimeout(t));
-  }, []);
+  const phase = useScenePhases(SCHEDULE);
 
   return (
     <motion.div

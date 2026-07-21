@@ -1,23 +1,20 @@
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useScenePhases } from '@/lib/video';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
+
+const SCHEDULE = [
+  [200,  1],  // "HOSPICE SALES"
+  [900,  2],  // "IS NOT A MYSTERY."
+  [3000, 3],  // "IT IS A PROMISE." (red, slams in)
+] as const;
 
 // Scene 4 — The Reframe (6s)
 // Pivot from "the gap exists" → "it is fixable"
 // "HOSPICE SALES / IS NOT A MYSTERY." → "IT IS A PROMISE."
 // Directly from the Spartan Coaching brand voice / website hero.
 export function Scene4_Conversational() {
-  const [phase, setPhase] = useState(0);
-
-  useEffect(() => {
-    const timers = [
-      setTimeout(() => setPhase(1), 200),   // "HOSPICE SALES"
-      setTimeout(() => setPhase(2), 900),   // "IS NOT A MYSTERY."
-      setTimeout(() => setPhase(3), 3000),  // "IT IS A PROMISE." (red, slams in)
-    ];
-    return () => timers.forEach(t => clearTimeout(t));
-  }, []);
+  const phase = useScenePhases(SCHEDULE);
 
   return (
     <motion.div

@@ -1,20 +1,17 @@
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useScenePhases } from '@/lib/video';
+
+const SCHEDULE = [
+  [400,  1],  // line 1
+  [1700, 2],  // line 2
+  [3200, 3],  // line 3 (red, slowest)
+] as const;
 
 // Scene 7 — The Ethos Line (7s)
 // "You do not wing it / when the stakes / are this high."
 // Each line enters at a different speed — line 1 fast, line 2 slower, line 3 (red) slowest.
 export function Scene7_Pillars() {
-  const [phase, setPhase] = useState(0);
-
-  useEffect(() => {
-    const timers = [
-      setTimeout(() => setPhase(1), 400),   // line 1
-      setTimeout(() => setPhase(2), 1700),  // line 2
-      setTimeout(() => setPhase(3), 3200),  // line 3 (red, slowest)
-    ];
-    return () => timers.forEach(t => clearTimeout(t));
-  }, []);
+  const phase = useScenePhases(SCHEDULE);
 
   return (
     <motion.div

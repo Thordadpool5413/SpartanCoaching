@@ -1,22 +1,19 @@
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useScenePhases } from '@/lib/video';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
+
+const SCHEDULE = [
+  [500,  1],  // label
+  [1400, 2],  // line 1
+  [3400, 3],  // line 2
+  [5600, 4],  // line 3 (red)
+] as const;
 
 // Scene 6 — The Stakes (8s) — emotional payoff, slow fades (no spring)
 // "When a rep closes that gap — / a patient stops managing their own pain. / A family stops being alone."
 export function Scene6_Ethos() {
-  const [phase, setPhase] = useState(0);
-
-  useEffect(() => {
-    const timers = [
-      setTimeout(() => setPhase(1), 500),   // label
-      setTimeout(() => setPhase(2), 1400),  // line 1
-      setTimeout(() => setPhase(3), 3400),  // line 2
-      setTimeout(() => setPhase(4), 5600),  // line 3 (red)
-    ];
-    return () => timers.forEach(t => clearTimeout(t));
-  }, []);
+  const phase = useScenePhases(SCHEDULE);
 
   return (
     <motion.div

@@ -1,22 +1,19 @@
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useScenePhases } from '@/lib/video';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
+
+const SCHEDULE = [
+  [400,  1],  // first two lines
+  [1400, 2],  // second line
+  [3000, 3],  // red separator
+  [4200, 4],  // "They qualified."
+] as const;
 
 // Scene 1 — The Reality
 // "Every year, hundreds of thousands of Americans die without hospice care. They qualified."
 export function Scene1_ColdOpen() {
-  const [phase, setPhase] = useState(0);
-
-  useEffect(() => {
-    const timers = [
-      setTimeout(() => setPhase(1), 400),   // first two lines
-      setTimeout(() => setPhase(2), 1400),  // second line
-      setTimeout(() => setPhase(3), 3000),  // red separator
-      setTimeout(() => setPhase(4), 4200),  // "They qualified."
-    ];
-    return () => timers.forEach(t => clearTimeout(t));
-  }, []);
+  const phase = useScenePhases(SCHEDULE);
 
   return (
     <motion.div

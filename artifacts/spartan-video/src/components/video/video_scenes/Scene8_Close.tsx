@@ -1,23 +1,20 @@
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useScenePhases } from '@/lib/video';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 const spartanLogo = `${import.meta.env.BASE_URL}spartan-logo.png`;
 
+const SCHEDULE = [
+  [0,    1],  // logo slam (immediate)
+  [1200, 2],  // red line draws
+  [2100, 3],  // tagline fades in
+  [3300, 4],  // CTA button
+] as const;
+
 // Scene 8 — Close (6s)
 // Logo SLAMS in from above with a hard spring impact, then line draws, tagline fades, CTA appears.
 export function Scene8_Close() {
-  const [phase, setPhase] = useState(0);
-
-  useEffect(() => {
-    const timers = [
-      setTimeout(() => setPhase(1), 0),     // logo slam (immediate)
-      setTimeout(() => setPhase(2), 1200),  // red line draws
-      setTimeout(() => setPhase(3), 2100),  // tagline fades in
-      setTimeout(() => setPhase(4), 3300),  // CTA button
-    ];
-    return () => timers.forEach(t => clearTimeout(t));
-  }, []);
+  const phase = useScenePhases(SCHEDULE);
 
   return (
     <motion.div

@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 
 const REPEAT_SUFFIX_RE = /_r[12]$/;
 
@@ -29,8 +29,15 @@ export function useSceneControls(baseDurations: Record<string, number>) {
 
   const [activeIndex, setActiveIndex] = useState(0);
   const [locked, setLocked] = useState(false);
+  const [paused, setPaused] = useState(false);
   const [mountKey, setMountKey] = useState(0);
   const [tick, setTick] = useState(0);
+
+  // Keep a ref so boundary checks in callbacks always read latest value
+  const activeIndexRef = useRef(0);
+  useEffect(() => { activeIndexRef.current = activeIndex; }, [activeIndex]);
+  const sceneCountRef = useRef(sceneKeys.length);
+  useEffect(() => { sceneCountRef.current = sceneKeys.length; }, [sceneKeys.length]);
 
   const durations = useMemo(() => {
     if (locked) {
@@ -62,10 +69,33 @@ export function useSceneControls(baseDurations: Record<string, number>) {
     setTick((t) => t + 1);
   }, []);
 
+  const togglePause = useCallback(() => {
+    setPaused((prev) => !prev);
+  }, []);
+
+  const prevScene = useCallback(() => {
+    const cur = activeIndexRef.current;
+    if (cur === 0) return; // no-op at first scene
+    setActiveIndex(cur - 1);
+    setMountKey((k) => k + 1);
+    setTick((t) => t + 1);
+    setPaused(false);
+  }, []);
+
+  const nextScene = useCallback(() => {
+    const cur = activeIndexRef.current;
+    if (cur >= sceneCountRef.current - 1) return; // no-op at last scene
+    setActiveIndex(cur + 1);
+    setMountKey((k) => k + 1);
+    setTick((t) => t + 1);
+    setPaused(false);
+  }, []);
+
   return {
     sceneKeys,
     activeIndex,
     locked,
+    paused,
     mountKey,
     tick,
     durations,
@@ -73,5 +103,8 @@ export function useSceneControls(baseDurations: Record<string, number>) {
     onSceneChange,
     jumpTo,
     toggleLock,
+    togglePause,
+    prevScene,
+    nextScene,
   };
 }
