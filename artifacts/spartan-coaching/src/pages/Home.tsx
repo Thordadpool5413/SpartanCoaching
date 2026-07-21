@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Users, Briefcase, Wrench, CheckCircle } from "lucide-react";
 import { SEO } from "@/components/SEO";
+import { TrustStrip } from "@/components/TrustStrip";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 import { lazy, Suspense, Component } from "react";
 import type { ReactNode } from "react";
@@ -30,24 +31,46 @@ export default function Home() {
         <script type="application/ld+json">
           {JSON.stringify({
             "@context": "https://schema.org",
-            "@type": "ProfessionalService",
-            name: "Spartan Coaching",
-            description:
-              "Practical coaching for hospice growth professionals. Build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and measurable weekly accountability.",
-            url: typeof window !== "undefined" ? window.location.origin : "",
-            serviceType: [
-              "Hospice Growth Coaching",
-              "Sales Training",
-              "Strategic Consulting",
-              "Leadership Coaching",
-            ],
-            areaServed: "US",
-            knowsAbout: [
-              "Hospice Sales",
-              "Healthcare Sales Training",
-              "Medicare Hospice Benefits",
-              "Referral Development",
-              "Territory Management",
+            "@graph": [
+              {
+                "@type": "ProfessionalService",
+                "@id":
+                  (typeof window !== "undefined" ? window.location.origin : "https://spartancoaching.com") +
+                  "/#organization",
+                name: "Spartan Coaching",
+                description:
+                  "Practical coaching for hospice growth professionals. Build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and measurable weekly accountability. Private Field Kit for clients and approved evaluators.",
+                url: typeof window !== "undefined" ? window.location.origin : "https://spartancoaching.com",
+                email: "nick@spartanhospicecoaching.com",
+                founder: {
+                  "@type": "Person",
+                  name: "Nick Lynch",
+                  jobTitle: "Founder",
+                  url: "https://www.linkedin.com/in/nicholas-lynch-coaching",
+                },
+                serviceType: [
+                  "Hospice Growth Coaching",
+                  "Sales Training",
+                  "Strategic Consulting",
+                  "Leadership Coaching",
+                  "Field Kit Tools",
+                ],
+                areaServed: "US",
+                knowsAbout: [
+                  "Hospice Sales",
+                  "Healthcare Sales Training",
+                  "Medicare Hospice Benefits",
+                  "Referral Development",
+                  "Territory Management",
+                ],
+              },
+              {
+                "@type": "WebSite",
+                name: "Spartan Coaching",
+                url: typeof window !== "undefined" ? window.location.origin : "https://spartancoaching.com",
+                description:
+                  "Hospice sales consulting and private Field Kit. Request access — not self-serve checkout.",
+              },
             ],
           })}
         </script>
@@ -208,7 +231,16 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 6. CLOSING ── */}
+      {/* ── 6. TRUST ── */}
+      <section className="relative bg-[#080808] py-14 sm:py-18" data-testid="section-trust">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <FadeIn>
+            <TrustStrip />
+          </FadeIn>
+        </div>
+      </section>
+
+      {/* ── 7. CLOSING ── */}
       <section className="relative bg-gray-950 py-20 sm:py-28" data-testid="section-closing">
         <div className="absolute inset-0 bg-spartan-gradient-radial opacity-20 pointer-events-none" />
         <FadeIn>

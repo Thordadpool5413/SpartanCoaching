@@ -1,3 +1,4 @@
+import { Link } from "wouter";
 import { SEO } from "@/components/SEO";
 import { BackButton } from "@/components/BackButton";
 import { FadeIn } from "@/components/animations";
@@ -66,16 +67,32 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">8. Changes to This Policy</h2>
+            <h2 className="text-h2 text-foreground mb-3">8. Field Kit Accounts &amp; Access Requests</h2>
+            <p className="text-body text-muted-foreground leading-relaxed mb-4">
+              When you request Field Kit evaluation access or create a client account, we collect information needed to review and operate that relationship. This typically includes your name, work email, organization, role, seat type (individual or company), and notes you provide about why you are requesting access.
+            </p>
+            <p className="text-body text-muted-foreground leading-relaxed mb-4">
+              Approved accounts use session-based sign-in. We store account credentials securely (password hashes — never plain-text passwords), session tokens, membership or trial status, optional organization membership, and light product usage needed to support coaching and access control (for example, onboarding checklist progress). Access is granted by request and approval — not by automated self-serve checkout on this site.
+            </p>
+            <p className="text-body text-muted-foreground leading-relaxed">
+              <strong className="text-foreground">No Protected Health Information (PHI).</strong> Field Kit tools are for planning, messaging practice, and operational coaching. Do not enter patient names, medical record numbers, diagnoses, or other PHI. We design the product so tools are not used as a clinical record system. For more detail, see our{" "}
+              <Link href="/compliance" className="text-primary font-semibold hover:underline">Compliance &amp; Data Practices</Link> page.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-h2 text-foreground mb-3">9. Changes to This Policy</h2>
             <p className="text-body text-muted-foreground leading-relaxed">
               Spartan Coaching reserves the right to update or modify this Privacy Policy at any time. Changes will be effective immediately upon posting on this website. Your continued use of our website following the posting of changes constitutes your acceptance of those changes. We encourage you to review this page periodically to stay informed about how we protect your information.
             </p>
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">9. Contact Us</h2>
+            <h2 className="text-h2 text-foreground mb-3">10. Contact Us</h2>
             <p className="text-body text-muted-foreground leading-relaxed">
-              If you have any questions about this Privacy Policy or our data practices, please contact us through the contact form on our website or reach out to Spartan Coaching directly via email. We are committed to addressing your privacy concerns in a timely and professional manner.
+              If you have any questions about this Privacy Policy or our data practices, please contact us through the{" "}
+              <Link href="/contact" className="text-primary font-semibold hover:underline">contact form</Link>
+              {" "}or email nick@spartanhospicecoaching.com. We are committed to addressing your privacy concerns in a timely and professional manner.
             </p>
           </section>
         </div>

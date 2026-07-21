@@ -1,10 +1,11 @@
 import { Card } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
-import { Target, Users, TrendingUp, Linkedin, BookOpen, Repeat, Heart, Handshake, ShieldCheck, ArrowRight } from "lucide-react";
+import { Target, Users, TrendingUp, Linkedin, BookOpen, Repeat, Heart, Handshake, ShieldCheck, ArrowRight, Wrench } from "lucide-react";
 import { Link } from "wouter";
 import nickPhoto from "@assets/nick-photo.jpg";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
+import { TrustStrip } from "@/components/TrustStrip";
 
 export default function About() {
   return (
@@ -34,9 +35,14 @@ export default function About() {
               </li>
             ))}
           </ul>
-          <Button size="lg" asChild className="font-bold self-start px-8">
-            <Link href="/contact">Book a Strategy Call <ArrowRight className="ml-2 w-4 h-4" /></Link>
-          </Button>
+          <div className="flex flex-col sm:flex-row gap-3 self-start">
+            <Button size="lg" asChild className="font-bold px-8">
+              <Link href="/contact">Book a Strategy Call <ArrowRight className="ml-2 w-4 h-4" /></Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild className="font-bold px-8">
+              <Link href="/request-access">Request Field Kit access</Link>
+            </Button>
+          </div>
         </div>
 
         {/* Right: consultant photo */}
@@ -399,6 +405,42 @@ export default function About() {
           </div>
         </div>
 
+        {/* How coaching + Field Kit fit together */}
+        <div className="mt-16 mb-12 space-y-6" data-testid="section-about-approach">
+          <h2 className="text-h2 text-foreground text-center">How we work with clients</h2>
+          <p className="text-body text-muted-foreground text-center max-w-2xl mx-auto leading-relaxed">
+            Spartan is a consulting practice first. Coaching and team systems are the core. The Field Kit is a private execution layer for people who are already in — or evaluating — that relationship.
+          </p>
+          <div className="grid md:grid-cols-3 gap-4">
+            {[
+              {
+                icon: Users,
+                title: "Human coaching",
+                text: "1:1, leadership, and field work that changes behavior on Tuesday — not another deck.",
+              },
+              {
+                icon: Wrench,
+                title: "Private Field Kit",
+                text: "AI tools for plans, objections, role-play, and calculators. Request → approve → timed trial → activate.",
+              },
+              {
+                icon: ShieldCheck,
+                title: "Ethics baked in",
+                text: "No PHI in tools. No inducement training. Compliance-aware messaging that protects patients and the profession.",
+              },
+            ].map(({ icon: Icon, title, text }) => (
+              <Card key={title} className="spacing-card border-2">
+                <div className="w-11 h-11 rounded-lg bg-primary/15 text-primary flex items-center justify-center mb-3">
+                  <Icon className="w-5 h-5" />
+                </div>
+                <h3 className="text-h3 font-bold text-foreground mb-2">{title}</h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">{text}</p>
+              </Card>
+            ))}
+          </div>
+          <TrustStrip compact className="mt-4" />
+        </div>
+
         {/* CTA */}
         <div className="bg-gray-950 rounded-2xl p-8 md:p-12 text-center mt-16">
           <h2 className="text-h2 font-bold text-white mb-4">
@@ -412,6 +454,11 @@ export default function About() {
               <Link href="/contact">
                 <span>Contact Spartan Coaching</span>
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </Link>
+            </Button>
+            <Button size="lg" variant="outline" asChild className="font-bold glass border-white/30 touch-manipulation px-10" data-testid="button-about-request">
+              <Link href="/request-access">
+                <span>Request Field Kit access</span>
               </Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="font-bold glass border-white/30 touch-manipulation px-10" data-testid="button-about-manifesto">

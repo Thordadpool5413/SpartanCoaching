@@ -122,8 +122,7 @@ export const additionalPages: SiteNavItem[] = [
   { path: "/terms", label: "Terms of Service", description: "Terms governing use of our services", icon: ScrollText },
   { path: "/disclaimer", label: "Disclaimer", description: "Important disclaimers and notices", icon: ScrollText },
   { path: "/legal", label: "Legal Agreements", description: "Contracts, NDAs, and legal documents", icon: Scale },
-  { path: "/compliance", label: "HIPAA Compliance", description: "Compliance and data practices", icon: Shield },
-  { path: "/admin", label: "Admin", description: "Admin dashboard", icon: Lock },
+  { path: "/compliance", label: "Compliance & Ethics", description: "No PHI stance and data practices", icon: Shield },
 ];
 
 function dedupeByPath(items: SiteNavItem[]): SiteNavItem[] {

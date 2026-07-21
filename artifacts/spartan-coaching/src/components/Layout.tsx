@@ -219,6 +219,15 @@ export function Header() {
               </Button>
               <Button
                 size="sm"
+                variant="outline"
+                asChild
+                className="font-bold ml-1 px-4"
+                data-testid="button-request-access-nav"
+              >
+                <Link href="/request-access">Request Access</Link>
+              </Button>
+              <Button
+                size="sm"
                 asChild
                 className="font-bold ml-1 px-5"
                 data-testid="button-book-call"
@@ -377,12 +386,15 @@ export function Footer() {
               <p className="text-sm text-muted-foreground leading-relaxed">
                 Structured coaching for hospice sales reps, directors, and organizations who want a repeatable system — not another motivational talk.
               </p>
+              <p className="text-xs text-muted-foreground/90 leading-relaxed border-l-2 border-primary/50 pl-3">
+                Private Field Kit · No PHI in tools · Access by request &amp; approval · Membership activated offline
+              </p>
               <div className="flex flex-col gap-2">
                 <a href="mailto:nick@spartanhospicecoaching.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-email">
                   nick@spartanhospicecoaching.com
                 </a>
                 <a
-                  href="https://www.linkedin.com/in/nicholas-lynch-coaching?lipi=urn%3Ali%3Apage%3Ad_flagship3_profile_view_base_contact_details%3BzPbXAWy3RZWKMT%2FppHgzbw%3D%3D"
+                  href="https://www.linkedin.com/in/nicholas-lynch-coaching"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground transition-colors group"
@@ -400,21 +412,22 @@ export function Footer() {
               <p className="text-xs font-bold text-foreground uppercase tracking-widest">Quick Links</p>
               <nav className="grid grid-cols-2 gap-x-4 gap-y-2">
                 {[
-                  { href: "/services", label: "Services & Pricing" },
+                  { href: "/services", label: "Services" },
                   { href: "/about", label: "About" },
                   { href: "/manifesto", label: "The Spartan Ethos" },
                   { href: "/tools", label: "Field Kit" },
                   { href: "/request-access", label: "Request Access" },
+                  { href: "/field-kit-membership", label: "Membership" },
                   { href: "/login", label: "Client Login" },
                   { href: "/contact", label: "Contact" },
-                  { href: "/compliance", label: "HIPAA Compliance" },
-                  { href: "/admin", label: "Admin" },
+                  { href: "/compliance", label: "Compliance" },
+                  { href: "/faq", label: "FAQ" },
                 ].map(({ href, label }) => (
                   <Link
                     key={href}
                     href={href}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors py-0.5"
-                    data-testid={`link-footer-${href.replace("/", "")}`}
+                    data-testid={`link-footer-${href.replace(/\//g, "-").replace(/^-/, "")}`}
                   >
                     {label}
                   </Link>
@@ -446,6 +459,7 @@ export function Footer() {
                   { href: "/privacy", label: "Privacy", testId: "link-privacy" },
                   { href: "/terms", label: "Terms", testId: "link-terms" },
                   { href: "/disclaimer", label: "Disclaimer", testId: "link-disclaimer" },
+                  { href: "/compliance", label: "Compliance", testId: "link-compliance-legal" },
                   { href: "/legal", label: "Legal", testId: "link-legal" },
                 ].map(({ href, label, testId }) => (
                   <Link

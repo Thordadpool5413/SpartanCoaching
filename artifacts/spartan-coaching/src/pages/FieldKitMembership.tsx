@@ -2,6 +2,7 @@ import { Link } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
+import { TrustStrip } from "@/components/TrustStrip";
 import { CheckCircle, ArrowRight, Building2, User, Users } from "lucide-react";
 
 const TIERS = [
@@ -123,10 +124,17 @@ export default function FieldKitMembership() {
             <Link href="/contact?service=Field+Kit+Membership">Talk through options</Link>
           </Button>
           <Button asChild variant="outline" className="font-bold">
+            <Link href="/request-access">Request evaluation access</Link>
+          </Button>
+          <Button asChild variant="outline" className="font-bold">
             <Link href="/tools">See the Field Kit</Link>
           </Button>
         </div>
       </Card>
+
+      <div className="mt-12 max-w-5xl mx-auto">
+        <TrustStrip compact />
+      </div>
     </div>
   );
 }

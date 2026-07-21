@@ -1,2 +1,34 @@
+# Spartan Coaching — public site
 User-agent: *
 Allow: /
+
+# Private app shells & auth flows
+Disallow: /admin
+Disallow: /portal
+Disallow: /account
+Disallow: /magic-login
+Disallow: /set-password
+Disallow: /forgot-password
+Disallow: /reset-password
+Disallow: /sign/
+Disallow: /assessment/
+Disallow: /assessment-results/
+Disallow: /assess/
+Disallow: /tools/playbooks
+Disallow: /tools/objections
+Disallow: /tools/research
+Disallow: /tools/transcribe
+Disallow: /tools/email-templates
+Disallow: /tools/role-play
+Disallow: /tools/roi-calculator
+Disallow: /tools/activity-calculator
+Disallow: /tools/rep-cost-calculator
+Disallow: /tools/branch-profitability
+Disallow: /tools/cold-call-script
+Disallow: /tools/weekly-plan-builder
+Disallow: /drills
+Disallow: /quiz
+Disallow: /learn/
+
+# Sitemap (update host if production domain differs)
+Sitemap: https://spartancoaching.com/sitemap.xml
