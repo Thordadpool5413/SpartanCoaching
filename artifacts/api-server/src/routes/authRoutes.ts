@@ -9,6 +9,7 @@ import {
   authTokens,
   authEvents,
   orgInvites,
+  orgTimelineEvents,
   usageEvents,
   requestAccessBodySchema,
   loginBodySchema,
@@ -24,6 +25,9 @@ import {
   extendEvaluationBodySchema,
   adminBootstrapBodySchema,
   adminLegacyLoginBodySchema,
+  orgPipelineBodySchema,
+  orgNoteBodySchema,
+  orgUpdateBodySchema,
   inquiries,
 } from "@workspace/db";
 import { db } from "../db";
@@ -120,6 +124,26 @@ async function logEvent(type: string, memberId?: number | null, meta?: Record<st
     });
   } catch {
     // non-fatal
+  }
+}
+
+async function addOrgTimeline(
+  organizationId: number,
+  type: string,
+  body: string,
+  createdBy?: string | null,
+  meta?: Record<string, unknown>,
+) {
+  try {
+    await db.insert(orgTimelineEvents).values({
+      organizationId,
+      type,
+      body,
+      createdBy: createdBy ?? "system",
+      meta: meta ?? null,
+    });
+  } catch (err) {
+    console.error("addOrgTimeline failed:", err);
   }
 }
 
@@ -541,6 +565,187 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
+  /** Full org detail for Access Desk */
+  app.get("/api/admin/organizations/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid id" });
+
+      const [org] = await db
+        .select()
+        .from(clientOrganizations)
+        .where(eq(clientOrganizations.id, id))
+        .limit(1);
+      if (!org) return res.status(404).json({ error: "Organization not found" });
+
+      const members = await db
+        .select()
+        .from(clientMembers)
+        .where(eq(clientMembers.organizationId, id));
+
+      const byOrg = await db
+        .select()
+        .from(accessRequests)
+        .where(eq(accessRequests.resultingOrgId, id))
+        .orderBy(desc(accessRequests.createdAt))
+        .limit(50);
+      const emails = new Set(members.map((m) => m.email.toLowerCase()));
+      let relatedRequests = byOrg;
+      if (emails.size > 0) {
+        const recentReqs = await db
+          .select()
+          .from(accessRequests)
+          .orderBy(desc(accessRequests.createdAt))
+          .limit(300);
+        const byEmail = recentReqs.filter((r) => emails.has(r.email.toLowerCase()));
+        const map = new Map<number, (typeof byOrg)[0]>();
+        for (const r of [...byOrg, ...byEmail]) map.set(r.id, r);
+        relatedRequests = [...map.values()].sort(
+          (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+        );
+      }
+
+      const timeline = await db
+        .select()
+        .from(orgTimelineEvents)
+        .where(eq(orgTimelineEvents.organizationId, id))
+        .orderBy(desc(orgTimelineEvents.createdAt))
+        .limit(100);
+
+      const emailSet = new Set(members.map((m) => m.email.toLowerCase()));
+      const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+      let usageTotal = 0;
+      if (emailSet.size > 0) {
+        const recent = await db
+          .select()
+          .from(usageEvents)
+          .where(gte(usageEvents.createdAt, weekAgo))
+          .limit(3000);
+        usageTotal = recent.filter((r) => emailSet.has(String(r.email || "").toLowerCase())).length;
+      }
+
+      return res.json({
+        organization: org,
+        members: members.map((m) => publicMember(m)),
+        requests: relatedRequests,
+        timeline,
+        usageLast7Days: usageTotal,
+      });
+    } catch (err) {
+      console.error("org detail error:", err);
+      return res.status(500).json({ error: "Failed to load organization" });
+    }
+  });
+
+  app.patch("/api/admin/organizations/:id/pipeline", requireAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const parsed = orgPipelineBodySchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid pipeline payload" });
+
+      const patch: Record<string, unknown> = {
+        pipelineStatus: parsed.data.pipelineStatus,
+      };
+      if (parsed.data.nextFollowUpAt !== undefined) {
+        patch.nextFollowUpAt = parsed.data.nextFollowUpAt
+          ? new Date(parsed.data.nextFollowUpAt)
+          : null;
+      }
+      if (parsed.data.lostReason !== undefined) {
+        patch.lostReason = parsed.data.lostReason;
+      }
+      // Sync technical status for common pipeline outcomes
+      if (parsed.data.pipelineStatus === "won") {
+        patch.status = "active";
+        patch.activatedAt = new Date();
+        patch.trialEndsAt = null;
+      }
+      if (parsed.data.pipelineStatus === "churned" || parsed.data.pipelineStatus === "lost") {
+        // don't auto-expire access on lost (might still be evaluating) — only churned suspends
+        if (parsed.data.pipelineStatus === "churned") {
+          patch.status = "suspended";
+        }
+      }
+
+      const [org] = await db
+        .update(clientOrganizations)
+        .set(patch as any)
+        .where(eq(clientOrganizations.id, id))
+        .returning();
+      if (!org) return res.status(404).json({ error: "Organization not found" });
+
+      await addOrgTimeline(
+        id,
+        "pipeline",
+        `Pipeline → ${parsed.data.pipelineStatus}${parsed.data.lostReason ? `: ${parsed.data.lostReason}` : ""}`,
+        "admin",
+        { pipelineStatus: parsed.data.pipelineStatus },
+      );
+      await logEvent("org_pipeline_updated", null, { orgId: id, ...parsed.data });
+
+      return res.json({ organization: org });
+    } catch (err) {
+      console.error("pipeline update error:", err);
+      return res.status(500).json({ error: "Failed to update pipeline" });
+    }
+  });
+
+  app.post("/api/admin/organizations/:id/notes", requireAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const parsed = orgNoteBodySchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Note body required" });
+
+      const [org] = await db
+        .select()
+        .from(clientOrganizations)
+        .where(eq(clientOrganizations.id, id))
+        .limit(1);
+      if (!org) return res.status(404).json({ error: "Organization not found" });
+
+      const stamp = new Date().toISOString().slice(0, 16).replace("T", " ");
+      const sticky = org.notes
+        ? `${stamp}\n${parsed.data.body.trim()}\n\n---\n${org.notes}`
+        : `${stamp}\n${parsed.data.body.trim()}`;
+
+      const [updated] = await db
+        .update(clientOrganizations)
+        .set({ notes: sticky.slice(0, 10000) })
+        .where(eq(clientOrganizations.id, id))
+        .returning();
+
+      await addOrgTimeline(id, "note", parsed.data.body.trim(), "admin");
+      return res.json({ organization: updated, ok: true });
+    } catch (err) {
+      console.error("org note error:", err);
+      return res.status(500).json({ error: "Failed to add note" });
+    }
+  });
+
+  app.patch("/api/admin/organizations/:id", requireAdmin, async (req, res) => {
+    try {
+      const id = Number(req.params.id);
+      const parsed = orgUpdateBodySchema.safeParse(req.body);
+      if (!parsed.success) return res.status(400).json({ error: "Invalid update" });
+      const patch: Record<string, unknown> = {};
+      if (parsed.data.name !== undefined) patch.name = parsed.data.name;
+      if (parsed.data.seatLimit !== undefined) patch.seatLimit = parsed.data.seatLimit;
+      if (parsed.data.notes !== undefined) patch.notes = parsed.data.notes;
+
+      const [org] = await db
+        .update(clientOrganizations)
+        .set(patch as any)
+        .where(eq(clientOrganizations.id, id))
+        .returning();
+      if (!org) return res.status(404).json({ error: "Organization not found" });
+      await addOrgTimeline(id, "system", `Organization updated: ${Object.keys(patch).join(", ")}`, "admin");
+      return res.json({ organization: org });
+    } catch (err) {
+      console.error("org update error:", err);
+      return res.status(500).json({ error: "Failed to update organization" });
+    }
+  });
+
   /** Lightweight Access Desk metrics */
   app.get("/api/admin/access-metrics", requireAdmin, async (_req, res) => {
     try {
@@ -553,26 +758,43 @@ export function registerAuthRoutes(app: Express): void {
         .from(usageEvents)
         .where(gte(usageEvents.createdAt, weekAgo));
 
-      const countBy = <T extends string>(items: { status: string }[], status: T) =>
-        items.filter((i) => i.status === status).length;
+      const countBy = <T extends string>(items: { status?: string; pipelineStatus?: string }[], key: "status" | "pipelineStatus", value: T) =>
+        items.filter((i) => i[key] === value).length;
+
+      const followUpsDue = allOrgs.filter(
+        (o) =>
+          o.nextFollowUpAt &&
+          o.nextFollowUpAt.getTime() <= Date.now() &&
+          o.pipelineStatus !== "won" &&
+          o.pipelineStatus !== "lost" &&
+          o.pipelineStatus !== "churned",
+      ).length;
 
       return res.json({
         requests: {
           total: allRequests.length,
-          pending: countBy(allRequests, "pending"),
-          approved: countBy(allRequests, "approved"),
-          rejected: countBy(allRequests, "rejected"),
+          pending: countBy(allRequests, "status", "pending"),
+          approved: countBy(allRequests, "status", "approved"),
+          rejected: countBy(allRequests, "status", "rejected"),
         },
         organizations: {
           total: allOrgs.length,
-          trial: countBy(allOrgs, "trial"),
-          active: countBy(allOrgs, "active"),
-          expired: countBy(allOrgs, "expired"),
-          suspended: countBy(allOrgs, "suspended"),
+          trial: countBy(allOrgs, "status", "trial"),
+          active: countBy(allOrgs, "status", "active"),
+          expired: countBy(allOrgs, "status", "expired"),
+          suspended: countBy(allOrgs, "status", "suspended"),
+        },
+        pipeline: {
+          trial: countBy(allOrgs, "pipelineStatus", "trial"),
+          follow_up: countBy(allOrgs, "pipelineStatus", "follow_up"),
+          won: countBy(allOrgs, "pipelineStatus", "won"),
+          lost: countBy(allOrgs, "pipelineStatus", "lost"),
+          churned: countBy(allOrgs, "pipelineStatus", "churned"),
+          followUpsDue,
         },
         members: {
           total: allMembers.length,
-          active: countBy(allMembers, "active"),
+          active: countBy(allMembers, "status", "active"),
           loggedIn7d: allMembers.filter(
             (m) => m.lastLoginAt && m.lastLoginAt.getTime() > weekAgo.getTime(),
           ).length,
@@ -620,10 +842,19 @@ export function registerAuthRoutes(app: Express): void {
           type: isCompany ? "company" : "personal",
           seatLimit: seats,
           status: "trial",
+          pipelineStatus: "trial",
           trialEndsAt,
           notes: body.adminNote ?? null,
         })
         .returning();
+
+      await addOrgTimeline(
+        org.id,
+        "system",
+        `Evaluation approved (${trialHours}h trial, ${seats} seat${seats === 1 ? "" : "s"}). Contact: ${request.name} <${request.email}>`,
+        "admin",
+        { requestId: id, trialHours },
+      );
 
       const email = request.email.toLowerCase();
       const [existingMember] = await db
@@ -747,13 +978,19 @@ export function registerAuthRoutes(app: Express): void {
       if (notes !== undefined) patch.notes = notes;
       if (status === "trial" && trialHours) {
         patch.trialEndsAt = new Date(Date.now() + trialHours * 60 * 60 * 1000);
+        patch.pipelineStatus = "trial";
       }
       if (status === "active") {
         patch.activatedAt = new Date();
         patch.trialEndsAt = null;
+        patch.pipelineStatus = "won";
       }
       if (status === "expired") {
         patch.trialEndsAt = new Date();
+        patch.pipelineStatus = "follow_up";
+      }
+      if (status === "suspended") {
+        patch.pipelineStatus = "churned";
       }
 
       const [org] = await db
@@ -762,6 +999,7 @@ export function registerAuthRoutes(app: Express): void {
         .where(eq(clientOrganizations.id, id))
         .returning();
       if (!org) return res.status(404).json({ error: "Organization not found" });
+      await addOrgTimeline(id, "status", `Access status → ${status}`, "admin", { status });
       await logEvent("org_status_changed", null, { orgId: id, status, trialHours });
       return res.json({ organization: publicOrg(org) });
     } catch (err) {
@@ -792,9 +1030,12 @@ export function registerAuthRoutes(app: Express): void {
 
       const [updated] = await db
         .update(clientOrganizations)
-        .set({ status: "trial", trialEndsAt })
+        .set({ status: "trial", pipelineStatus: "trial", trialEndsAt })
         .where(eq(clientOrganizations.id, id))
         .returning();
+      await addOrgTimeline(id, "status", `Trial extended by ${hours}h (ends ${trialEndsAt.toISOString()})`, "admin", {
+        hours,
+      });
       await logEvent("org_trial_extended", null, { orgId: id, hours });
       return res.json({ organization: publicOrg(updated) });
     } catch (err) {

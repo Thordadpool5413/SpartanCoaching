@@ -3,6 +3,7 @@ import {
   authEvents,
   clientMembers,
   clientOrganizations,
+  orgTimelineEvents,
   type ClientOrganization,
 } from "@workspace/db";
 import { db } from "../db";
@@ -85,12 +86,26 @@ export async function refreshOrgStatusWithLifecycle(
   if (org.status === "trial" && org.trialEndsAt && org.trialEndsAt.getTime() <= Date.now()) {
     const [updated] = await db
       .update(clientOrganizations)
-      .set({ status: "expired" })
+      .set({
+        status: "expired",
+        pipelineStatus: "follow_up",
+      })
       .where(eq(clientOrganizations.id, org.id))
       .returning();
-    const fresh = updated ?? { ...org, status: "expired" as const };
+    const fresh = updated ?? { ...org, status: "expired" as const, pipelineStatus: "follow_up" as const };
     // fire-and-forget
     void notifyTrialExpired(fresh);
+    try {
+      await db.insert(orgTimelineEvents).values({
+        organizationId: org.id,
+        type: "status",
+        body: "Trial ended automatically — pipeline set to follow_up",
+        createdBy: "system",
+        meta: { status: "expired" },
+      });
+    } catch {
+      /* non-fatal */
+    }
     return fresh;
   }
 

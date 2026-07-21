@@ -8,6 +8,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { CheckCircle, XCircle, Clock, Building2, User, Loader2 } from "lucide-react";
+import { OrgDetailPanel } from "@/components/OrgDetailPanel";
 
 const ADMIN_CODE = import.meta.env.VITE_ADMIN_PASSWORD || "5413";
 
@@ -31,7 +32,8 @@ const adminFetch = async (url: string, options: RequestInit = {}) => {
 export function AccessDesk() {
   const { toast } = useToast();
   const [trialHours, setTrialHours] = useState<Record<number, string>>({});
-  const [extendHours, setExtendHours] = useState<Record<number, string>>({});
+  const [selectedOrgId, setSelectedOrgId] = useState<number | null>(null);
+  const [orgFilter, setOrgFilter] = useState<string>("all");
 
   const { data: requestsData, isLoading: reqLoading } = useQuery({
     queryKey: ["/api/admin/access-requests"],
@@ -60,9 +62,10 @@ export function AccessDesk() {
         method: "POST",
         body: JSON.stringify(hours ? { trialHours: hours } : {}),
       }),
-    onSuccess: () => {
+    onSuccess: (data: any) => {
       toast({ title: "Approved", description: "Evaluation access started. Set-password email sent." });
       invalidate();
+      if (data?.organization?.id) setSelectedOrgId(data.organization.id);
     },
     onError: (e: Error) => toast({ title: "Approve failed", description: e.message, variant: "destructive" }),
   });
@@ -80,35 +83,26 @@ export function AccessDesk() {
     onError: (e: Error) => toast({ title: "Reject failed", description: e.message, variant: "destructive" }),
   });
 
-  const statusMut = useMutation({
-    mutationFn: ({ id, status }: { id: number; status: string }) =>
-      adminFetch(`/api/admin/organizations/${id}/status`, {
-        method: "PATCH",
-        body: JSON.stringify({ status }),
-      }),
-    onSuccess: () => {
-      toast({ title: "Organization updated" });
-      invalidate();
-    },
-    onError: (e: Error) => toast({ title: "Update failed", description: e.message, variant: "destructive" }),
-  });
-
-  const extendMut = useMutation({
-    mutationFn: ({ id, hours }: { id: number; hours: number }) =>
-      adminFetch(`/api/admin/organizations/${id}/extend-trial`, {
-        method: "POST",
-        body: JSON.stringify({ hours }),
-      }),
-    onSuccess: () => {
-      toast({ title: "Trial extended" });
-      invalidate();
-    },
-    onError: (e: Error) => toast({ title: "Extend failed", description: e.message, variant: "destructive" }),
-  });
+  if (selectedOrgId != null) {
+    return (
+      <OrgDetailPanel orgId={selectedOrgId} onBack={() => setSelectedOrgId(null)} />
+    );
+  }
 
   const requests = (requestsData?.requests || []) as any[];
   const pending = requests.filter((r) => r.status === "pending");
-  const orgs = (orgsData?.organizations || []) as any[];
+  const orgs = ((orgsData?.organizations || []) as any[]).filter((o) => o.type !== "platform");
+  const filteredOrgs =
+    orgFilter === "all"
+      ? orgs
+      : orgFilter === "follow_ups"
+        ? orgs.filter(
+            (o) =>
+              o.nextFollowUpAt &&
+              new Date(o.nextFollowUpAt).getTime() <= Date.now() &&
+              !["won", "lost", "churned"].includes(o.pipelineStatus),
+          )
+        : orgs.filter((o) => o.pipelineStatus === orgFilter || o.status === orgFilter);
 
   const m = metrics as any;
 
@@ -118,13 +112,13 @@ export function AccessDesk() {
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3" data-testid="access-metrics">
           {[
             { label: "Pending requests", value: m.requests?.pending ?? 0 },
-            { label: "Active clients", value: m.organizations?.active ?? 0 },
+            { label: "Follow-ups due", value: m.pipeline?.followUpsDue ?? 0 },
             { label: "In trial", value: m.organizations?.trial ?? 0 },
+            { label: "Won clients", value: m.pipeline?.won ?? 0 },
+            { label: "Follow-up pipeline", value: m.pipeline?.follow_up ?? 0 },
+            { label: "Expired access", value: m.organizations?.expired ?? 0 },
+            { label: "Lost", value: m.pipeline?.lost ?? 0 },
             { label: "Tool uses (7d)", value: m.toolUsesLast7Days ?? 0 },
-            { label: "Approved total", value: m.requests?.approved ?? 0 },
-            { label: "Expired orgs", value: m.organizations?.expired ?? 0 },
-            { label: "Members active", value: m.members?.active ?? 0 },
-            { label: "Logins (7d)", value: m.members?.loggedIn7d ?? 0 },
           ].map((stat) => (
             <Card key={stat.label} className="border border-white/10">
               <CardContent className="p-4">
@@ -143,7 +137,7 @@ export function AccessDesk() {
             Pending access requests ({pending.length})
           </CardTitle>
           <CardDescription>
-            Approve to create org + member and email a set-password link. Default trial: 24h individual / 72h company.
+            Approve to start evaluation. Opens the org detail so you can add notes and set follow-up.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -164,6 +158,9 @@ export function AccessDesk() {
                       {r.type === "company" ? <Building2 className="w-4 h-4" /> : <User className="w-4 h-4" />}
                       {r.name}
                       <Badge variant="secondary">{r.type}</Badge>
+                      {String(r.adminNote || "").includes("extension") && (
+                        <Badge className="bg-amber-500/20 text-amber-200">Extension</Badge>
+                      )}
                     </p>
                     <p className="text-sm text-muted-foreground">{r.email}</p>
                     {r.companyName && <p className="text-sm">Org: {r.companyName}</p>}
@@ -208,7 +205,6 @@ export function AccessDesk() {
                     variant="outline"
                     disabled={rejectMut.isPending}
                     onClick={() => {
-                      // Prefer notify path
                       adminFetch(`/api/admin/access-requests/${r.id}/reject-and-notify`, {
                         method: "POST",
                         body: JSON.stringify({}),
@@ -229,7 +225,7 @@ export function AccessDesk() {
                     variant="ghost"
                     onClick={() => {
                       adminFetch(`/api/admin/access-requests/${r.id}/to-inquiry`, { method: "POST", body: "{}" })
-                        .then(() => toast({ title: "Inquiry created", description: "Also visible under Inquiries tab." }))
+                        .then(() => toast({ title: "Inquiry created" }))
                         .catch((e: Error) => toast({ title: "Failed", description: e.message, variant: "destructive" }));
                     }}
                   >
@@ -244,17 +240,47 @@ export function AccessDesk() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Organizations & clients</CardTitle>
-          <CardDescription>Activate paid clients, extend evaluations, or suspend access.</CardDescription>
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <CardTitle>Clients & pipeline</CardTitle>
+              <CardDescription>Open a record for notes, timeline, won/lost, and follow-ups.</CardDescription>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {[
+                { id: "all", label: "All" },
+                { id: "follow_ups", label: "Follow-ups due" },
+                { id: "trial", label: "Trial" },
+                { id: "follow_up", label: "Follow-up" },
+                { id: "won", label: "Won" },
+                { id: "expired", label: "Expired access" },
+                { id: "lost", label: "Lost" },
+              ].map((f) => (
+                <Button
+                  key={f.id}
+                  size="sm"
+                  variant={orgFilter === f.id ? "default" : "outline"}
+                  onClick={() => setOrgFilter(f.id)}
+                >
+                  {f.label}
+                </Button>
+              ))}
+            </div>
+          </div>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3">
           {orgsLoading ? (
             <p className="text-muted-foreground text-sm">Loading…</p>
-          ) : orgs.length === 0 ? (
-            <p className="text-muted-foreground text-sm">No organizations yet</p>
+          ) : filteredOrgs.length === 0 ? (
+            <p className="text-muted-foreground text-sm">No organizations in this filter</p>
           ) : (
-            orgs.map((org) => (
-              <div key={org.id} className="border border-border rounded-lg p-4 space-y-3" data-testid={`org-${org.id}`}>
+            filteredOrgs.map((org) => (
+              <button
+                key={org.id}
+                type="button"
+                onClick={() => setSelectedOrgId(org.id)}
+                className="w-full text-left border border-border rounded-lg p-4 hover:border-primary/50 transition-colors"
+                data-testid={`org-row-${org.id}`}
+              >
                 <div className="flex flex-wrap justify-between gap-2">
                   <div>
                     <p className="font-bold">
@@ -269,72 +295,22 @@ export function AccessDesk() {
                         }
                       >
                         {org.status}
-                      </Badge>
+                      </Badge>{" "}
+                      <Badge variant="outline">{org.pipelineStatus || "—"}</Badge>
                     </p>
                     <p className="text-sm text-muted-foreground">
                       {org.type} · {org.memberCount}/{org.seatLimit} seats
                       {org.trialEndsAt && org.status === "trial" && (
                         <> · trial ends {new Date(org.trialEndsAt).toLocaleString()}</>
                       )}
+                      {org.nextFollowUpAt && (
+                        <> · follow-up {new Date(org.nextFollowUpAt).toLocaleString()}</>
+                      )}
                     </p>
-                    <ul className="text-xs text-muted-foreground mt-1 space-y-0.5">
-                      {(org.members || []).map((m: any) => (
-                        <li key={m.id}>
-                          {m.name} &lt;{m.email}&gt; · {m.status}
-                          {m.lastLoginAt ? ` · last login ${new Date(m.lastLoginAt).toLocaleDateString()}` : ""}
-                        </li>
-                      ))}
-                    </ul>
                   </div>
+                  <span className="text-sm text-primary font-semibold self-center">Open →</span>
                 </div>
-                <div className="flex flex-wrap gap-2 items-end">
-                  <Button
-                    size="sm"
-                    className="font-bold"
-                    onClick={() => statusMut.mutate({ id: org.id, status: "active" })}
-                    disabled={statusMut.isPending || org.status === "active"}
-                  >
-                    Activate client
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => statusMut.mutate({ id: org.id, status: "expired" })}
-                    disabled={statusMut.isPending}
-                  >
-                    End access
-                  </Button>
-                  <Button
-                    size="sm"
-                    variant="outline"
-                    onClick={() => statusMut.mutate({ id: org.id, status: "suspended" })}
-                    disabled={statusMut.isPending}
-                  >
-                    Suspend
-                  </Button>
-                  <div className="flex items-end gap-1">
-                    <div className="space-y-1">
-                      <Label className="text-xs">Extend hours</Label>
-                      <Input
-                        className="w-24 h-9"
-                        placeholder="24"
-                        value={extendHours[org.id] ?? ""}
-                        onChange={(e) => setExtendHours((h) => ({ ...h, [org.id]: e.target.value }))}
-                      />
-                    </div>
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      onClick={() => {
-                        const h = Number(extendHours[org.id] || 24);
-                        extendMut.mutate({ id: org.id, hours: h });
-                      }}
-                    >
-                      Extend trial
-                    </Button>
-                  </div>
-                </div>
-              </div>
+              </button>
             ))
           )}
         </CardContent>
@@ -357,6 +333,11 @@ export function AccessDesk() {
                     </span>
                     <span className="flex items-center gap-2">
                       <Badge variant={r.status === "approved" ? "default" : "secondary"}>{r.status}</Badge>
+                      {r.status === "approved" && r.resultingOrgId && (
+                        <Button size="sm" variant="ghost" className="h-7 text-xs" onClick={() => setSelectedOrgId(r.resultingOrgId)}>
+                          Open org
+                        </Button>
+                      )}
                       {r.status === "approved" && (
                         <Button
                           size="sm"

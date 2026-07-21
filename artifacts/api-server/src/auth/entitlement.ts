@@ -107,7 +107,11 @@ export function publicOrg(org: ClientOrganization) {
     type: org.type,
     seatLimit: org.seatLimit,
     status: org.status,
+    pipelineStatus: (org as any).pipelineStatus ?? null,
     trialEndsAt: org.trialEndsAt,
     activatedAt: org.activatedAt,
+    nextFollowUpAt: (org as any).nextFollowUpAt ?? null,
+    lostReason: (org as any).lostReason ?? null,
+    notes: org.notes ?? null,
   };
 }

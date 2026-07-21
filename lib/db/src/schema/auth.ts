@@ -17,17 +17,39 @@ import { createInsertSchema } from "drizzle-zod";
 export const clientOrganizations = pgTable("client_organizations", {
   id: serial("id").primaryKey(),
   name: varchar("name", { length: 255 }).notNull(),
-  type: varchar("type", { length: 32 }).notNull().default("personal"), // personal | company
+  type: varchar("type", { length: 32 }).notNull().default("personal"), // personal | company | platform
   seatLimit: integer("seat_limit").notNull().default(1),
   status: varchar("status", { length: 32 }).notNull().default("trial"), // trial | active | expired | suspended
+  /** Sales pipeline (ops), separate from technical access status */
+  pipelineStatus: varchar("pipeline_status", { length: 32 }).notNull().default("trial"),
+  // prospect | trial | follow_up | won | lost | churned
   trialEndsAt: timestamp("trial_ends_at"),
   activatedAt: timestamp("activated_at"),
-  notes: text("notes"),
+  nextFollowUpAt: timestamp("next_follow_up_at"),
+  lostReason: text("lost_reason"),
+  notes: text("notes"), // rolling summary / sticky notes
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
 export type ClientOrganization = typeof clientOrganizations.$inferSelect;
 export type InsertClientOrganization = typeof clientOrganizations.$inferInsert;
+
+/** Timeline / CRM activity on an organization */
+export const orgTimelineEvents = pgTable(
+  "org_timeline_events",
+  {
+    id: serial("id").primaryKey(),
+    organizationId: integer("organization_id").notNull(),
+    type: varchar("type", { length: 64 }).notNull(), // note | pipeline | status | system
+    body: text("body").notNull(),
+    meta: jsonb("meta"),
+    createdBy: varchar("created_by", { length: 128 }),
+    createdAt: timestamp("created_at").defaultNow().notNull(),
+  },
+  (table) => [index("IDX_org_timeline_org").on(table.organizationId)],
+);
+
+export type OrgTimelineEvent = typeof orgTimelineEvents.$inferSelect;
 
 /** Field Kit members (distinct from Replit Auth users table) */
 export const clientMembers = pgTable(
@@ -231,4 +253,20 @@ export const adminBootstrapBodySchema = z.object({
 
 export const adminLegacyLoginBodySchema = z.object({
   password: z.string().min(1),
+});
+
+export const orgPipelineBodySchema = z.object({
+  pipelineStatus: z.enum(["prospect", "trial", "follow_up", "won", "lost", "churned"]),
+  nextFollowUpAt: z.string().datetime().optional().nullable(),
+  lostReason: z.string().max(2000).optional().nullable(),
+});
+
+export const orgNoteBodySchema = z.object({
+  body: z.string().min(1).max(5000),
+});
+
+export const orgUpdateBodySchema = z.object({
+  name: z.string().min(1).max(255).optional(),
+  seatLimit: z.number().int().min(1).max(500).optional(),
+  notes: z.string().max(10000).optional().nullable(),
 });

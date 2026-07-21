@@ -152,6 +152,16 @@ export default function Account() {
               <Link href="/portal">Open Field Kit home</Link>
             </Button>
           )}
+          {!canUseFieldKit && organization?.status === "expired" && (
+            <>
+              <Button asChild className="font-bold">
+                <Link href="/contact?service=Field+Kit+Membership">Continue as a client</Link>
+              </Button>
+              <Button asChild variant="outline" className="font-bold">
+                <Link href="/field-kit-membership">Membership options</Link>
+              </Button>
+            </>
+          )}
           <Button asChild variant="outline" className="font-bold">
             <Link href="/contact">Book a strategy call</Link>
           </Button>

@@ -29,6 +29,7 @@ const Portal = lazy(() => import("@/pages/Portal"));
 const PortalLearn = lazy(() => import("@/pages/PortalLearn"));
 const Account = lazy(() => import("@/pages/Account"));
 const MagicLogin = lazy(() => import("@/pages/MagicLogin"));
+const FieldKitMembership = lazy(() => import("@/pages/FieldKitMembership"));
 const Services = lazy(() => import("@/pages/Services"));
 const Programs = lazy(() => import("@/pages/Programs"));
 const Method = lazy(() => import("@/pages/Method"));
@@ -207,6 +208,8 @@ function Router() {
           <Route path="/portal/learn" component={PortalLearn} />
           <Route path="/account" component={Account} />
           <Route path="/magic-login" component={MagicLogin} />
+          <Route path="/field-kit-membership" component={FieldKitMembership} />
+          <Route path="/pricing/field-kit" component={FieldKitMembership} />
           <Route path="/services" component={Services} />
           <Route path="/programs" component={Programs} />
           <Route path="/method" component={Method} />

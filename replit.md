@@ -38,6 +38,8 @@ Expert hospice growth coaching site + private Field Kit (web + iOS) for clients 
 - Access requests auto-create CRM inquiries
 - Org admin: seat invites, disable member, 7-day usage (`/api/org/usage`)
 - Account: change password; expired clients can request extension
+- Access Desk ops: org detail (pipeline won/lost/follow-up, notes, timeline), metrics follow-ups due
+- Conversion: `/field-kit-membership` pricing page; stronger expired handoff CTAs
 
 ## Architecture decisions
 

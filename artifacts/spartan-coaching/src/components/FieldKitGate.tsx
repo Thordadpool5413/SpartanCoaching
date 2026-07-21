@@ -33,7 +33,7 @@ export function FieldKitGate({ compact }: Props) {
   if (expired) {
     title = "Your evaluation window has ended";
     body =
-      "Thank you for evaluating the Field Kit. To continue access for yourself or your organization, schedule a strategy call or request an extended evaluation.";
+      "Thank you for putting real scenarios through the Field Kit. The next step is a short conversation — continue as a client, extend evaluation if your team needs more time, or close the loop.";
   } else if (suspended) {
     title = "Access is currently paused";
     body = "Your organization’s Field Kit access is paused. Contact Spartan Coaching to restore access.";
@@ -115,17 +115,37 @@ export function FieldKitGate({ compact }: Props) {
           )}
           {(expired || isAuthenticated) && (
             <Button asChild className="font-bold" data-testid="gate-contact">
-              <Link href="/contact">
+              <Link href="/contact?service=Field+Kit+Membership">
                 <Phone className="mr-2 w-4 h-4" />
-                Schedule a strategy call
+                Continue as a client — book a call
               </Link>
+            </Button>
+          )}
+          {expired && (
+            <Button asChild variant="outline" className="font-bold" data-testid="gate-pricing">
+              <Link href="/field-kit-membership">View membership options</Link>
             </Button>
           )}
         </div>
 
+        {expired && (
+          <div className="grid sm:grid-cols-3 gap-3 text-left text-sm">
+            {[
+              { t: "1. Debrief", d: "15–30 min call on what you tested and what stalled." },
+              { t: "2. Decide seats", d: "Individual, team, or enterprise + coaching." },
+              { t: "3. Activate", d: "We turn access on and invoice offline." },
+            ].map((s) => (
+              <div key={s.t} className="border border-white/8 rounded-md p-3">
+                <p className="font-bold text-foreground mb-1">{s.t}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">{s.d}</p>
+              </div>
+            ))}
+          </div>
+        )}
+
         {expired && isAuthenticated && (
           <div className="border border-white/10 rounded-md p-4 space-y-3 text-left">
-            <p className="text-sm font-semibold text-foreground">Request extended evaluation</p>
+            <p className="text-sm font-semibold text-foreground">Or request extended evaluation</p>
             {extSent ? (
               <p className="text-sm text-muted-foreground">
                 Request received. We will review within one business day.

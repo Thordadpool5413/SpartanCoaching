@@ -177,6 +177,9 @@ export default function Tools() {
                 <Button asChild variant="ghost" className="font-bold">
                   <Link href="/contact">Book a call</Link>
                 </Button>
+                <Button asChild variant="ghost" className="font-bold">
+                  <Link href="/field-kit-membership">Membership</Link>
+                </Button>
               </div>
             </div>
           </Card>

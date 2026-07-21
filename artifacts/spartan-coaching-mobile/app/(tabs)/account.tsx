@@ -138,13 +138,17 @@ export default function AccountScreen() {
       {!canUseFieldKit && (
         <View style={[styles.card, { borderColor: colors.primary, backgroundColor: colors.card, marginTop: 12 }]}>
           <Text style={{ color: colors.foreground, fontWeight: "700", marginBottom: 6 }}>
-            Access is not active
+            {org?.status === "expired" ? "Evaluation ended — continue as a client" : "Access is not active"}
           </Text>
           <Text style={{ color: colors.mutedForeground, lineHeight: 20, fontSize: 14 }}>
-            Schedule a strategy call to continue as a client, or request an extended evaluation.
+            {org?.status === "expired"
+              ? "Book a short debrief to activate membership, discuss seats, and keep the Field Kit on. Or contact us to request more evaluation time."
+              : "Schedule a strategy call to continue as a client, or request an extended evaluation."}
           </Text>
           <Pressable onPress={() => router.push("/(tabs)/contact")} style={{ marginTop: 12 }}>
-            <Text style={{ color: colors.primary, fontWeight: "700" }}>Contact Spartan →</Text>
+            <Text style={{ color: colors.primary, fontWeight: "700" }}>
+              {org?.status === "expired" ? "Continue as a client →" : "Contact Spartan →"}
+            </Text>
           </Pressable>
         </View>
       )}

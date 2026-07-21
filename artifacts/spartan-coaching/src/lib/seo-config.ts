@@ -56,6 +56,16 @@ const seoDefaults: Record<string, SEOConfig> = {
     description: 'Manage your Spartan Field Kit access and team seats.',
     keywords: 'account, Field Kit membership',
   },
+  '/field-kit-membership': {
+    title: 'Field Kit Membership | Spartan Coaching',
+    description: 'Continue Field Kit access for individuals, teams, and enterprise hospice organizations. Evaluation first, then custom membership.',
+    keywords: 'Field Kit membership, hospice sales tools pricing, team seats',
+  },
+  '/pricing/field-kit': {
+    title: 'Field Kit Membership | Spartan Coaching',
+    description: 'Field Kit membership options for hospice growth professionals and organizations.',
+    keywords: 'Field Kit pricing, hospice sales software',
+  },
   '/tools/playbooks': {
     title: 'Sales Playbook Generator | Spartan Coaching',
     description: 'Generate customized hospice sales playbooks instantly. Get proven strategies, talking points, and action plans for any sales scenario. Try free.',

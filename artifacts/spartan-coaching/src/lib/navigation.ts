@@ -110,6 +110,7 @@ export const additionalPages: SiteNavItem[] = [
   { path: "/portal", label: "Field Kit Home", description: "Client Field Kit command center", icon: Wrench },
   { path: "/login", label: "Client Login", description: "Sign in to your Field Kit account", icon: Lock },
   { path: "/request-access", label: "Request Field Kit Access", description: "Request evaluation access to the private Field Kit", icon: Lock },
+  { path: "/field-kit-membership", label: "Field Kit Membership", description: "Continue access — individual, team, or enterprise", icon: DollarSign },
   { path: "/account", label: "Account", description: "Manage your Field Kit access and team", icon: Info },
   { path: "/resources/weekly-plan", label: "Weekly Plan Template", description: "Weekly sales planning template", icon: ClipboardList },
   { path: "/resources/activity-tracker", label: "Activity Tracker", description: "Track your daily sales activity", icon: ClipboardList },
