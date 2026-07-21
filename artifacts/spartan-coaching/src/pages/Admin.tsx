@@ -120,26 +120,13 @@ export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passwordInput, setPasswordInput] = useState("");
   const [showPasswordDialog, setShowPasswordDialog] = useState(true);
-  const [needsBootstrap, setNeedsBootstrap] = useState(false);
-  const [bootEmail, setBootEmail] = useState("");
-  const [bootName, setBootName] = useState("Nick Lynch");
-  const [bootPassword, setBootPassword] = useState("");
   const [authPending, setAuthPending] = useState(false);
   const { toast } = useToast();
 
-  // Session platform admin OR legacy localStorage flag
+  // Session platform admin OR validated admin flag
   useEffect(() => {
     let cancelled = false;
     (async () => {
-      try {
-        const status = await fetch("/api/admin/bootstrap-status", {
-          credentials: "include",
-        }).then((r) => r.json());
-        if (!cancelled) setNeedsBootstrap(!!status.needsBootstrap);
-      } catch {
-        /* ignore */
-      }
-
       try {
         const me = await fetch("/api/auth/me", { credentials: "include" }).then(
           async (r) => (r.ok ? r.json() : null),
@@ -155,9 +142,7 @@ export default function Admin() {
         /* ignore */
       }
 
-      // UI-only flag — real auth is always the platform_admin session cookie
       if (hasAdminSessionFlag() && !cancelled) {
-        // Re-validate against server; flag alone is not enough
         try {
           await adminGet("/api/admin/access-metrics");
           if (!cancelled) {
@@ -178,33 +163,7 @@ export default function Admin() {
     e.preventDefault();
     setAuthPending(true);
     try {
-      if (needsBootstrap) {
-        const data = await adminFetch<{ error?: string }>(
-          "/api/admin/bootstrap",
-          {
-            method: "POST",
-            body: JSON.stringify({
-              adminPassword: passwordInput,
-              email: bootEmail.trim(),
-              name: bootName.trim() || "Platform Admin",
-              password: bootPassword,
-            }),
-          },
-        );
-        void data;
-        markAdminSession();
-        setIsAuthenticated(true);
-        setShowPasswordDialog(false);
-        setNeedsBootstrap(false);
-        toast({
-          title: "Platform admin created",
-          description:
-            "You are signed in. Use your admin email/password at Client Login next time.",
-        });
-        return;
-      }
-
-      // Shared ADMIN_PASSWORD → creates platform_admin session cookie (server-validated only)
+      // Passcode unlock (default 5413) — auto-creates full platform admin if needed
       await adminFetch("/api/admin/legacy-login", {
         method: "POST",
         body: JSON.stringify({ password: passwordInput }),
@@ -213,22 +172,14 @@ export default function Admin() {
       setIsAuthenticated(true);
       setShowPasswordDialog(false);
       toast({
-        title: "Access granted",
-        description: "Welcome to the admin dashboard",
+        title: "Full admin access",
+        description: "Access Desk, CMS, and all admin tools are unlocked.",
       });
       setPasswordInput("");
     } catch (err: any) {
-      const msg = err?.message || "Please try again.";
-      if (
-        msg.includes("bootstrap") ||
-        msg.includes("NEEDS_BOOTSTRAP") ||
-        msg.includes("No platform admin")
-      ) {
-        setNeedsBootstrap(true);
-      }
       toast({
         title: "Access denied",
-        description: msg,
+        description: err?.message || "Incorrect passcode.",
         variant: "destructive",
       });
       setPasswordInput("");
@@ -1912,68 +1863,32 @@ export default function Admin() {
               </div>
             </div>
             <DialogTitle className="text-center text-2xl">
-              {needsBootstrap ? "Create platform admin" : "Admin access"}
+              Admin unlock
             </DialogTitle>
             <DialogDescription className="text-center">
-              {needsBootstrap
-                ? "One-time setup: enter the site admin password, then create your platform admin email and password."
-                : "Sign in with your platform admin password, or the legacy site admin code."}
+              Enter your admin passcode for full Access Desk and CMS access.
             </DialogDescription>
           </DialogHeader>
           <form onSubmit={handlePasswordSubmit} className="space-y-4 mt-4">
             <div className="space-y-2">
-              <Label className="text-xs">Site admin password</Label>
+              <Label className="text-xs">Passcode</Label>
               <Input
                 type="password"
-                placeholder="Admin password"
+                inputMode="numeric"
+                placeholder="Admin passcode"
                 value={passwordInput}
                 onChange={(e) => setPasswordInput(e.target.value)}
                 autoFocus
                 data-testid="input-admin-password"
               />
             </div>
-            {needsBootstrap && (
-              <>
-                <div className="space-y-2">
-                  <Label className="text-xs">Your name</Label>
-                  <Input
-                    value={bootName}
-                    onChange={(e) => setBootName(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-xs">Admin email</Label>
-                  <Input
-                    type="email"
-                    value={bootEmail}
-                    onChange={(e) => setBootEmail(e.target.value)}
-                    required
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label className="text-xs">New login password (min 8)</Label>
-                  <Input
-                    type="password"
-                    value={bootPassword}
-                    onChange={(e) => setBootPassword(e.target.value)}
-                    minLength={8}
-                    required
-                  />
-                </div>
-              </>
-            )}
             <Button
               type="submit"
               className="w-full bg-spartan-gradient hover:glow-primary"
-              disabled={authPending}
+              disabled={authPending || !passwordInput}
               data-testid="button-submit-password"
             >
-              {authPending
-                ? "Please wait…"
-                : needsBootstrap
-                  ? "Create admin & enter"
-                  : "Access Admin Dashboard"}
+              {authPending ? "Unlocking…" : "Unlock full admin"}
             </Button>
           </form>
         </DialogContent>

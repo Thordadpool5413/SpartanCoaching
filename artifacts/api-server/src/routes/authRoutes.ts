@@ -41,6 +41,7 @@ import {
   requireAdmin,
   isAdminRequest,
   getAdminPassword,
+  getAdminEmail,
   useSecureCookies,
   type AuthedRequest,
 } from "../auth/middleware";
@@ -1481,17 +1482,92 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
+  /** Create platform org + admin member if missing. Returns the active platform admin. */
+  async function ensurePlatformAdmin(opts?: {
+    email?: string;
+    name?: string;
+    password?: string;
+  }) {
+    const [existing] = await db
+      .select()
+      .from(clientMembers)
+      .where(and(eq(clientMembers.role, "platform_admin"), eq(clientMembers.status, "active")))
+      .limit(1);
+    if (existing) return { member: existing, created: false as const };
+
+    const email = (opts?.email || getAdminEmail()).toLowerCase().trim();
+    const name = (opts?.name || "Nick Lynch").trim();
+    const password = opts?.password || getAdminPassword();
+
+    // Reuse existing org named Spartan Platform if present
+    let orgId: number;
+    const [existingOrg] = await db
+      .select()
+      .from(clientOrganizations)
+      .where(eq(clientOrganizations.type, "platform"))
+      .limit(1);
+    if (existingOrg) {
+      orgId = existingOrg.id;
+    } else {
+      const [org] = await db
+        .insert(clientOrganizations)
+        .values({
+          name: "Spartan Platform",
+          type: "platform",
+          seatLimit: 10,
+          status: "active",
+          activatedAt: new Date(),
+        })
+        .returning();
+      orgId = org.id;
+    }
+
+    // If email already exists as non-admin, promote
+    const [byEmail] = await db
+      .select()
+      .from(clientMembers)
+      .where(eq(clientMembers.email, email))
+      .limit(1);
+
+    const passwordHash = await hashPassword(password);
+    if (byEmail) {
+      const [promoted] = await db
+        .update(clientMembers)
+        .set({
+          role: "platform_admin",
+          organizationId: orgId,
+          status: "active",
+          passwordHash,
+          name: name || byEmail.name,
+          termsAcceptedAt: byEmail.termsAcceptedAt ?? new Date(),
+          lastLoginAt: new Date(),
+        })
+        .where(eq(clientMembers.id, byEmail.id))
+        .returning();
+      return { member: promoted!, created: true as const };
+    }
+
+    const [member] = await db
+      .insert(clientMembers)
+      .values({
+        email,
+        name,
+        role: "platform_admin",
+        organizationId: orgId,
+        status: "active",
+        passwordHash,
+        termsAcceptedAt: new Date(),
+        lastLoginAt: new Date(),
+      })
+      .returning();
+    return { member: member!, created: true as const };
+  }
+
   app.post("/api/admin/bootstrap", authLimit, async (req, res) => {
     try {
       const parsed = adminBootstrapBodySchema.safeParse(req.body);
       if (!parsed.success) {
         return res.status(400).json({ error: "Invalid bootstrap payload" });
-      }
-      if (!getAdminPassword()) {
-        return res.status(503).json({
-          error: "ADMIN_PASSWORD is not configured on the server. Set it in Secrets, then retry bootstrap.",
-          code: "ADMIN_PASSWORD_UNSET",
-        });
       }
       if (!adminPasswordMatches(parsed.data.adminPassword)) {
         return res.status(401).json({ error: "Invalid admin password" });
@@ -1503,42 +1579,21 @@ export function registerAuthRoutes(app: Express): void {
         .where(eq(clientMembers.role, "platform_admin"))
         .limit(1);
       if (existing.length > 0) {
-        return res.status(409).json({ error: "Platform admin already exists. Sign in with that account." });
+        return res.status(409).json({ error: "Platform admin already exists. Unlock with passcode 5413 or Client Login." });
       }
 
-      const email = parsed.data.email.toLowerCase().trim();
-      const [org] = await db
-        .insert(clientOrganizations)
-        .values({
-          name: "Spartan Platform",
-          type: "platform",
-          seatLimit: 10,
-          status: "active",
-          activatedAt: new Date(),
-        })
-        .returning();
-
-      const passwordHash = await hashPassword(parsed.data.password);
-      const [member] = await db
-        .insert(clientMembers)
-        .values({
-          email,
-          name: parsed.data.name.trim(),
-          role: "platform_admin",
-          organizationId: org.id,
-          status: "active",
-          passwordHash,
-          termsAcceptedAt: new Date(),
-          lastLoginAt: new Date(),
-        })
-        .returning();
+      const { member } = await ensurePlatformAdmin({
+        email: parsed.data.email,
+        name: parsed.data.name,
+        password: parsed.data.password,
+      });
 
       const { token, expiresAt } = await createSession(
         member.id,
         req.headers["user-agent"] as string | undefined,
       );
       setSessionCookie(res, token, expiresAt);
-      await logEvent("admin_bootstrap", member.id, { email });
+      await logEvent("admin_bootstrap", member.id, { email: member.email });
 
       const access = await getAccessForMemberId(member.id);
       return res.status(201).json({
@@ -1560,7 +1615,10 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
-  /** Legacy single-password admin unlock → session as first platform admin (if any) */
+  /**
+   * Single-passcode admin unlock (default 5413).
+   * Creates platform admin automatically on first use — full Access Desk + CMS access.
+   */
   app.post("/api/admin/legacy-login", loginLimit, async (req, res) => {
     try {
       const parsed = adminLegacyLoginBodySchema.safeParse(req.body);
@@ -1568,18 +1626,9 @@ export function registerAuthRoutes(app: Express): void {
         return res.status(401).json({ error: "Invalid admin password" });
       }
 
-      const [admin] = await db
-        .select()
-        .from(clientMembers)
-        .where(and(eq(clientMembers.role, "platform_admin"), eq(clientMembers.status, "active")))
-        .limit(1);
-
-      if (!admin) {
-        return res.status(409).json({
-          error: "No platform admin account yet. Complete bootstrap first.",
-          code: "NEEDS_BOOTSTRAP",
-        });
-      }
+      const { member: admin, created } = await ensurePlatformAdmin({
+        password: getAdminPassword(),
+      });
 
       const { token, expiresAt } = await createSession(
         admin.id,
@@ -1590,10 +1639,12 @@ export function registerAuthRoutes(app: Express): void {
         .set({ lastLoginAt: new Date() })
         .where(eq(clientMembers.id, admin.id));
       setSessionCookie(res, token, expiresAt);
-      await logEvent("admin_legacy_login", admin.id);
+      await logEvent(created ? "admin_auto_bootstrap" : "admin_legacy_login", admin.id);
 
       const access = await getAccessForMemberId(admin.id);
       return res.json({
+        ok: true,
+        created,
         member: publicMember(admin),
         organization: access.org ? publicOrg(access.org) : null,
         fieldKit: {

@@ -28,35 +28,32 @@ function isDeployedRuntime(): boolean {
 }
 
 /**
- * Platform admin shared secret for legacy X-Admin-Auth header.
- * - Production/deploy: must be set via ADMIN_PASSWORD (no weak default).
- * - Local dev only: falls back to DEV default so Nick can work offline.
- * Never return this value to clients.
+ * Platform admin shared passcode (Unlock Admin / X-Admin-Auth / bootstrap).
+ * Default: 5413 (Nick's chosen passcode).
+ * Override anytime with env ADMIN_PASSWORD in Replit Secrets.
+ * Never return this value to API clients.
  */
-function resolveAdminPassword(): string | null {
+export const DEFAULT_ADMIN_PASSCODE = "5413";
+
+function resolveAdminPassword(): string {
   const fromEnv = process.env.ADMIN_PASSWORD?.trim();
-  if (fromEnv) {
-    if (fromEnv.length < 8) {
-      console.warn(
-        "[auth] ADMIN_PASSWORD is shorter than 8 characters — strengthen it in Secrets when you can.",
-      );
-    }
-    return fromEnv;
-  }
-  if (isDeployedRuntime()) {
-    console.warn(
-      "[auth] ADMIN_PASSWORD not set in deployed environment — X-Admin-Auth disabled. Use platform_admin session login (Client Login as platform admin).",
-    );
-    return null;
-  }
-  // Local development convenience only — never relied on in production
-  return "5413";
+  if (fromEnv) return fromEnv;
+  return DEFAULT_ADMIN_PASSCODE;
 }
 
 const ADMIN_PASSWORD = resolveAdminPassword();
 
-export function getAdminPassword(): string | null {
+/** Always defined — defaults to 5413 when Secrets unset. */
+export function getAdminPassword(): string {
   return ADMIN_PASSWORD;
+}
+
+/** Default platform admin email used for auto-bootstrap. */
+export function getAdminEmail(): string {
+  return (
+    process.env.ADMIN_EMAIL?.trim().toLowerCase() ||
+    "nick@spartanhospicecoaching.com"
+  );
 }
 
 export function useSecureCookies(): boolean {

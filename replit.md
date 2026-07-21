@@ -11,8 +11,10 @@ Expert hospice growth coaching site + private Field Kit (web + iOS) for clients 
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only) — **required after Field Kit auth tables**
 - Required env: `DATABASE_URL` — Postgres connection string
-- Auth/email env: `OPENAI_API_KEY`, `RESEND_API_KEY` / connector, `ADMIN_PASSWORD` (server-only, 8+ chars recommended), `NOTIFICATION_EMAIL`, `SITE_URL`
-- Do **not** put admin passwords in `VITE_*` client env (removed from bundle)
+- Auth/email env: `OPENAI_API_KEY`, `RESEND_API_KEY` / connector, `NOTIFICATION_EMAIL`, `SITE_URL`
+- **Admin passcode:** default **`5413`** (Nick). Override with Secrets `ADMIN_PASSWORD` if desired. Optional `ADMIN_EMAIL` (default `nick@spartanhospicecoaching.com`) for auto-created platform admin.
+- Unlock: `/admin` or `/admin/access-desk` → enter **5413** → full Access Desk + CMS. First unlock auto-creates platform admin.
+- Do **not** put admin passwords in `VITE_*` client env
 
 ## Stack
 

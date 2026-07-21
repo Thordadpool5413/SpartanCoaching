@@ -255,7 +255,8 @@ export const adminBootstrapBodySchema = z.object({
   adminPassword: z.string().min(1),
   email: z.string().email(),
   name: z.string().min(2).max(255),
-  password: z.string().min(8).max(128),
+  /** Login password for the platform admin account (can match unlock passcode). */
+  password: z.string().min(4).max(128),
 });
 
 export const adminLegacyLoginBodySchema = z.object({
