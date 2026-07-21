@@ -114,18 +114,24 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
     onError: (e: Error) => toast({ title: "Failed", description: e.message, variant: "destructive" }),
   });
 
+  const toastEmail = (title: string, data: any, fallback: string) => {
+    const failed = (data?.email?.failed ?? 0) > 0;
+    toast({
+      title: failed ? `${title} · email issue` : title,
+      description: data?.emailMessage || fallback,
+      variant: failed ? "destructive" : undefined,
+    });
+  };
+
   const statusMut = useMutation({
     mutationFn: (status: string) =>
       adminFetch(`/api/admin/organizations/${orgId}/status`, {
         method: "PATCH",
         body: JSON.stringify({ status }),
       }),
-    onSuccess: (_data, status) => {
+    onSuccess: (data: any, status) => {
       if (status === "active") {
-        toast({
-          title: "Client activated · emails sent",
-          description: "Membership-active email sent to org members.",
-        });
+        toastEmail("Client activated", data, "Membership-active email sent to org members.");
       } else {
         toast({ title: "Access updated", description: `Status → ${status}` });
       }
@@ -140,11 +146,8 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
         method: "POST",
         body: JSON.stringify({ hours }),
       }),
-    onSuccess: (_data, hours) => {
-      toast({
-        title: "Trial extended · emails sent",
-        description: `+${hours}h. Members notified by email.`,
-      });
+    onSuccess: (data: any, hours) => {
+      toastEmail("Trial extended", data, `+${hours}h. Members notified by email.`);
       invalidateAll();
     },
     onError: (e: Error) => toast({ title: "Failed", description: e.message, variant: "destructive" }),

@@ -590,6 +590,43 @@ export default function Portal() {
         </section>
       )}
 
+      {/* Learn strip — guided context without burying tools */}
+      <section className="mb-10" data-testid="section-portal-learn">
+        <h2 className="text-lg font-bold text-foreground mb-3">Quick grounding</h2>
+        <div className="grid sm:grid-cols-3 gap-3">
+          {[
+            {
+              href: "/method",
+              title: "Spartan Method",
+              desc: "Discipline, empathy, strategy — the system behind every tool.",
+            },
+            {
+              href: "/manifesto",
+              title: "Ethos",
+              desc: "Why patient access and ethical messaging are non-negotiable.",
+            },
+            {
+              href: "/compliance",
+              title: "No PHI",
+              desc: "Planning and messaging only. Never put patient identifiers in tools.",
+            },
+          ].map((item) => (
+            <Card
+              key={item.href}
+              className="border border-white/10 dark:bg-[#0f0f0f] p-4 hover:border-primary/30 transition-colors"
+            >
+              <Link href={item.href} className="block space-y-1">
+                <p className="font-bold text-sm text-foreground">{item.title}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
+                <span className="text-xs font-bold text-primary inline-flex items-center gap-1 pt-1">
+                  Open <ArrowRight className="w-3 h-3" />
+                </span>
+              </Link>
+            </Card>
+          ))}
+        </div>
+      </section>
+
       {/* Full checklist */}
       <section className="mb-10" data-testid="section-checklist">
         <div className="flex flex-wrap items-end justify-between gap-3 mb-4">

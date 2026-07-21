@@ -103,7 +103,30 @@ export default function Account() {
         ? "Active client"
         : organization?.status === "expired"
           ? "Evaluation ended"
-          : organization?.status || "—";
+          : organization?.status === "suspended"
+            ? "Suspended"
+            : organization?.status || "—";
+
+  const membershipBlurb =
+    organization?.status === "trial"
+      ? "You are on a timed evaluation. Tools are unlocked until the window ends. Billing is not self-serve — continue as a client by debrief and invoice."
+      : organization?.status === "active"
+        ? "Continuing client access is active. Membership and seats are managed offline with Nick — no Stripe checkout on this site."
+        : organization?.status === "expired"
+          ? "Your evaluation window has ended. Tools are locked. Book a debrief, request an extension, or continue as a client."
+          : organization?.status === "suspended"
+            ? "Access is suspended. Contact Spartan Coaching to resolve."
+            : "Your membership status will appear here once access is assigned.";
+
+  const hoursLeft = fieldKit?.hoursRemaining;
+  const hoursLabel =
+    hoursLeft == null
+      ? null
+      : hoursLeft < 1
+        ? `${Math.max(1, Math.round(hoursLeft * 60))} minutes left`
+        : hoursLeft < 48
+          ? `${Math.round(hoursLeft)} hours left`
+          : `${Math.round(hoursLeft / 24)} days left`;
 
   return (
     <div className="w-full max-w-3xl mx-auto px-4 py-12 space-y-8" data-testid="page-account">
@@ -113,7 +136,7 @@ export default function Account() {
         <h1 className="text-h1 font-display font-black">Your access</h1>
       </div>
 
-      <Card className="border border-white/10 dark:bg-[#0c0c0c] p-6 space-y-4">
+      <Card className="border border-white/10 dark:bg-[#0c0c0c] p-6 space-y-4" data-testid="card-membership-status">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary">{statusLabel}</Badge>
           {canUseFieldKit ? (
@@ -121,7 +144,16 @@ export default function Account() {
           ) : (
             <Badge variant="destructive">Field Kit locked</Badge>
           )}
+          {organization?.type === "company" && (
+            <Badge variant="outline">Team / company</Badge>
+          )}
+          {organization?.type === "personal" && (
+            <Badge variant="outline">Individual</Badge>
+          )}
         </div>
+        <p className="text-sm text-muted-foreground leading-relaxed border-l-2 border-primary/40 pl-3">
+          {membershipBlurb}
+        </p>
         <dl className="grid sm:grid-cols-2 gap-4 text-sm">
           <div>
             <dt className="text-muted-foreground">Name</dt>
@@ -137,12 +169,29 @@ export default function Account() {
           </div>
           <div>
             <dt className="text-muted-foreground">Role</dt>
-            <dd className="font-semibold">{member.role === "org_admin" ? "Organization admin" : "Member"}</dd>
+            <dd className="font-semibold">
+              {member.role === "platform_admin"
+                ? "Platform admin"
+                : member.role === "org_admin"
+                  ? "Organization admin"
+                  : "Member"}
+            </dd>
           </div>
           {organization?.status === "trial" && fieldKit?.trialEndsAt && (
             <div className="sm:col-span-2">
               <dt className="text-muted-foreground">Evaluation ends</dt>
-              <dd className="font-semibold">{new Date(fieldKit.trialEndsAt).toLocaleString()}</dd>
+              <dd className="font-semibold">
+                {new Date(fieldKit.trialEndsAt).toLocaleString()}
+                {hoursLabel ? ` · ${hoursLabel}` : ""}
+              </dd>
+            </div>
+          )}
+          {organization?.status === "active" && (
+            <div className="sm:col-span-2">
+              <dt className="text-muted-foreground">Billing</dt>
+              <dd className="font-semibold text-muted-foreground">
+                Invoice / offline — contact Nick for seats, renewals, or BAA
+              </dd>
             </div>
           )}
         </dl>
@@ -161,6 +210,11 @@ export default function Account() {
                 <Link href="/field-kit-membership">Membership options</Link>
               </Button>
             </>
+          )}
+          {organization?.status === "trial" && (
+            <Button asChild variant="outline" className="font-bold">
+              <Link href="/contact?service=Field+Kit+Debrief">Book a debrief</Link>
+            </Button>
           )}
           <Button asChild variant="outline" className="font-bold">
             <Link href="/contact">Book a strategy call</Link>

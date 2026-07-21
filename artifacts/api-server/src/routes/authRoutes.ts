@@ -128,6 +128,45 @@ function adminPasswordMatches(input: string): boolean {
   return safeEqualString(input, expected);
 }
 
+type EmailDispatchResult = {
+  sent: number;
+  failed: number;
+  errors: string[];
+};
+
+async function dispatchEmails(
+  jobs: Array<() => Promise<boolean>>,
+): Promise<EmailDispatchResult> {
+  const result: EmailDispatchResult = { sent: 0, failed: 0, errors: [] };
+  for (const job of jobs) {
+    try {
+      const ok = await job();
+      if (ok) result.sent += 1;
+      else {
+        result.failed += 1;
+        result.errors.push("Email provider returned failure");
+      }
+    } catch (err: any) {
+      result.failed += 1;
+      result.errors.push(err?.message || "Email send failed");
+    }
+  }
+  return result;
+}
+
+function emailSummary(email: EmailDispatchResult): string {
+  if (email.failed === 0 && email.sent > 0) {
+    return email.sent === 1 ? "Email sent." : `${email.sent} emails sent.`;
+  }
+  if (email.sent === 0 && email.failed > 0) {
+    return `Email failed: ${email.errors[0] || "unknown error"}`;
+  }
+  if (email.sent > 0 && email.failed > 0) {
+    return `${email.sent} sent, ${email.failed} failed. ${email.errors[0] || ""}`.trim();
+  }
+  return "No email attempted.";
+}
+
 async function createAuthToken(memberId: number, purpose: string, hoursValid: number) {
   const token = generateToken(32);
   const tokenHash = hashToken(token);
@@ -897,26 +936,61 @@ export function registerAuthRoutes(app: Express): void {
           o.pipelineStatus !== "churned",
       ).length;
 
+      const pending = countBy(allRequests, "status", "pending");
+      const approved = countBy(allRequests, "status", "approved");
+      const rejected = countBy(allRequests, "status", "rejected");
+      const trialOrgs = countBy(allOrgs, "status", "trial");
+      const activeOrgs = countBy(allOrgs, "status", "active");
+      const expiredOrgs = countBy(allOrgs, "status", "expired");
+      const wonPipeline = countBy(allOrgs, "pipelineStatus", "won");
+      const decided = approved + rejected;
+      const conversionRate =
+        decided > 0 ? Math.round((approved / decided) * 100) : null;
+      const winRate =
+        approved > 0 ? Math.round((wonPipeline / approved) * 100) : null;
+
+      const trialsEndingSoon = allOrgs.filter(
+        (o) =>
+          o.status === "trial" &&
+          o.trialEndsAt &&
+          o.trialEndsAt.getTime() > Date.now() &&
+          o.trialEndsAt.getTime() <= Date.now() + 4 * 60 * 60 * 1000,
+      ).length;
+
       return res.json({
         requests: {
           total: allRequests.length,
-          pending: countBy(allRequests, "status", "pending"),
-          approved: countBy(allRequests, "status", "approved"),
-          rejected: countBy(allRequests, "status", "rejected"),
+          pending,
+          approved,
+          rejected,
         },
         organizations: {
           total: allOrgs.length,
-          trial: countBy(allOrgs, "status", "trial"),
-          active: countBy(allOrgs, "status", "active"),
-          expired: countBy(allOrgs, "status", "expired"),
+          trial: trialOrgs,
+          active: activeOrgs,
+          expired: expiredOrgs,
           suspended: countBy(allOrgs, "status", "suspended"),
         },
         pipeline: {
           trial: countBy(allOrgs, "pipelineStatus", "trial"),
           follow_up: countBy(allOrgs, "pipelineStatus", "follow_up"),
-          won: countBy(allOrgs, "pipelineStatus", "won"),
+          won: wonPipeline,
           lost: countBy(allOrgs, "pipelineStatus", "lost"),
           churned: countBy(allOrgs, "pipelineStatus", "churned"),
+          followUpsDue,
+        },
+        /** request → approve → trial/active → won */
+        funnel: {
+          pending,
+          approved,
+          rejected,
+          inTrial: trialOrgs,
+          activeClients: activeOrgs,
+          expired: expiredOrgs,
+          won: wonPipeline,
+          approvalRatePct: conversionRate,
+          winFromApprovedPct: winRate,
+          trialsEndingSoon4h: trialsEndingSoon,
           followUpsDue,
         },
         members: {
@@ -1040,11 +1114,14 @@ export function registerAuthRoutes(app: Express): void {
 
       const token = await createAuthToken(member.id, "set_password", 48);
       const setPasswordUrl = `${getSiteUrl()}/set-password?token=${encodeURIComponent(token)}`;
-      await sendAccessApprovedEmail(member.email, member.name, setPasswordUrl, trialHours);
+      const email = await dispatchEmails([
+        () => sendAccessApprovedEmail(member.email, member.name, setPasswordUrl, trialHours),
+      ]);
       await logEvent("access_approved", member.id, {
         requestId: id,
         orgId: org.id,
         trialHours,
+        email,
       });
 
       return res.json({
@@ -1052,6 +1129,8 @@ export function registerAuthRoutes(app: Express): void {
         organization: publicOrg(org),
         member: publicMember(member),
         trialHours,
+        email,
+        emailMessage: emailSummary(email),
       });
     } catch (err) {
       console.error("approve access error:", err);
@@ -1085,15 +1164,20 @@ export function registerAuthRoutes(app: Express): void {
         })
         .where(eq(accessRequests.id, id));
 
-      // Always notify requester (non-fatal if email fails)
-      try {
-        await sendAccessRejectedEmail(request.email, request.name, note);
-      } catch (emailErr) {
-        console.error("reject email failed:", emailErr);
-      }
-      await logEvent("access_rejected", null, { requestId: id, notified: true });
+      const email = await dispatchEmails([
+        () => sendAccessRejectedEmail(request.email, request.name, note),
+      ]);
+      await logEvent("access_rejected", null, {
+        requestId: id,
+        notified: email.sent > 0,
+        email,
+      });
 
-      return res.json({ ok: true });
+      return res.json({
+        ok: true,
+        email,
+        emailMessage: emailSummary(email),
+      });
     } catch (err) {
       console.error("reject access error:", err);
       return res.status(500).json({ error: "Failed to reject request" });
@@ -1136,27 +1220,30 @@ export function registerAuthRoutes(app: Express): void {
       await addOrgTimeline(id, "status", `Access status → ${status}`, "admin", { status });
       await logEvent("org_status_changed", null, { orgId: id, status, trialHours });
 
+      let email: EmailDispatchResult = { sent: 0, failed: 0, errors: [] };
       // Notify members when activated as continuing clients
       if (status === "active") {
-        try {
-          const members = await db
-            .select()
-            .from(clientMembers)
-            .where(
-              and(
-                eq(clientMembers.organizationId, id),
-                ne(clientMembers.status, "disabled"),
-              ),
-            );
-          for (const m of members) {
-            await sendMembershipActivatedEmail(m.email, m.name, org.name);
-          }
-        } catch (emailErr) {
-          console.error("activation emails failed:", emailErr);
-        }
+        const members = await db
+          .select()
+          .from(clientMembers)
+          .where(
+            and(
+              eq(clientMembers.organizationId, id),
+              ne(clientMembers.status, "disabled"),
+            ),
+          );
+        email = await dispatchEmails(
+          members.map(
+            (m) => () => sendMembershipActivatedEmail(m.email, m.name, org.name),
+          ),
+        );
       }
 
-      return res.json({ organization: publicOrg(org) });
+      return res.json({
+        organization: publicOrg(org),
+        email,
+        emailMessage: emailSummary(email),
+      });
     } catch (err) {
       console.error("org status error:", err);
       return res.status(500).json({ error: "Failed to update organization" });
@@ -1193,24 +1280,26 @@ export function registerAuthRoutes(app: Express): void {
       });
       await logEvent("org_trial_extended", null, { orgId: id, hours });
 
-      try {
-        const members = await db
-          .select()
-          .from(clientMembers)
-          .where(
-            and(
-              eq(clientMembers.organizationId, id),
-              ne(clientMembers.status, "disabled"),
-            ),
-          );
-        for (const m of members) {
-          await sendTrialExtendedEmail(m.email, m.name, hours, trialEndsAt);
-        }
-      } catch (emailErr) {
-        console.error("trial extended emails failed:", emailErr);
-      }
+      const members = await db
+        .select()
+        .from(clientMembers)
+        .where(
+          and(
+            eq(clientMembers.organizationId, id),
+            ne(clientMembers.status, "disabled"),
+          ),
+        );
+      const email = await dispatchEmails(
+        members.map(
+          (m) => () => sendTrialExtendedEmail(m.email, m.name, hours, trialEndsAt),
+        ),
+      );
 
-      return res.json({ organization: publicOrg(updated) });
+      return res.json({
+        organization: publicOrg(updated),
+        email,
+        emailMessage: emailSummary(email),
+      });
     } catch (err) {
       console.error("extend trial error:", err);
       return res.status(500).json({ error: "Failed to extend trial" });
@@ -1734,9 +1823,11 @@ export function registerAuthRoutes(app: Express): void {
 
       const token = await createAuthToken(member.id, "set_password", 48);
       const url = `${getSiteUrl()}/set-password?token=${encodeURIComponent(token)}`;
-      await sendAccessApprovedEmail(member.email, member.name, url, 24);
-      await logEvent("invite_resent", member.id, { requestId: id });
-      return res.json({ ok: true });
+      const email = await dispatchEmails([
+        () => sendAccessApprovedEmail(member.email, member.name, url, 24),
+      ]);
+      await logEvent("invite_resent", member.id, { requestId: id, email });
+      return res.json({ ok: true, email, emailMessage: emailSummary(email) });
     } catch (err) {
       console.error("resend-invite error:", err);
       return res.status(500).json({ error: "Failed to resend" });

@@ -66,6 +66,16 @@ export function AccessDesk() {
     queryClient.invalidateQueries({ queryKey: ["/api/admin/access-metrics"] });
   };
 
+  const toastEmail = (title: string, data: any, fallbackOk: string) => {
+    const failed = (data?.email?.failed ?? 0) > 0;
+    const msg = data?.emailMessage || fallbackOk;
+    toast({
+      title: failed ? `${title} · email issue` : title,
+      description: msg,
+      variant: failed ? "destructive" : undefined,
+    });
+  };
+
   const approveMut = useMutation({
     mutationFn: ({ id, hours, adminNote }: { id: number; hours: number; adminNote?: string }) =>
       adminFetch(`/api/admin/access-requests/${id}/approve`, {
@@ -73,10 +83,11 @@ export function AccessDesk() {
         body: JSON.stringify({ trialHours: hours, adminNote: adminNote || undefined }),
       }),
     onSuccess: (data: any, vars) => {
-      toast({
-        title: "Approved · email sent",
-        description: `${vars.hours}h evaluation started. Set-password email sent to the requester.`,
-      });
+      toastEmail(
+        `Approved · ${vars.hours}h trial`,
+        data,
+        `${vars.hours}h evaluation started. Set-password email sent.`,
+      );
       invalidate();
       if (data?.organization?.id) setSelectedOrgId(data.organization.id);
     },
@@ -91,13 +102,8 @@ export function AccessDesk() {
         method: "POST",
         body: JSON.stringify({ adminNote: adminNote || undefined }),
       }),
-    onSuccess: (_data, vars) => {
-      toast({
-        title: "Rejected · email sent",
-        description: vars.adminNote
-          ? "Requester notified with your note."
-          : "Requester notified by email.",
-      });
+    onSuccess: (data: any) => {
+      toastEmail("Rejected", data, "Requester notified by email.");
       setRejectOpen(null);
       invalidate();
     },
@@ -171,23 +177,35 @@ export function AccessDesk() {
           {[
             {
               label: "Pending requests",
-              value: m.requests?.pending ?? pending.length,
-              hot: (m.requests?.pending ?? pending.length) > 0,
+              value: m.funnel?.pending ?? m.requests?.pending ?? pending.length,
+              hot: (m.funnel?.pending ?? m.requests?.pending ?? pending.length) > 0,
               onClick: () => {
                 document.getElementById("pending-requests")?.scrollIntoView({ behavior: "smooth" });
               },
             },
             {
               label: "Follow-ups due",
-              value: m.pipeline?.followUpsDue ?? followUpsDue.length,
-              hot: (m.pipeline?.followUpsDue ?? followUpsDue.length) > 0,
+              value: m.funnel?.followUpsDue ?? m.pipeline?.followUpsDue ?? followUpsDue.length,
+              hot: (m.funnel?.followUpsDue ?? m.pipeline?.followUpsDue ?? followUpsDue.length) > 0,
               onClick: () => setOrgFilter("follow_ups"),
             },
-            { label: "In trial", value: m.organizations?.trial ?? 0 },
-            { label: "Won clients", value: m.pipeline?.won ?? 0 },
-            { label: "Follow-up pipeline", value: m.pipeline?.follow_up ?? 0 },
-            { label: "Expired access", value: m.organizations?.expired ?? 0 },
-            { label: "Lost", value: m.pipeline?.lost ?? 0 },
+            {
+              label: "Trials ending soon",
+              value: m.funnel?.trialsEndingSoon4h ?? 0,
+              hot: (m.funnel?.trialsEndingSoon4h ?? 0) > 0,
+            },
+            { label: "In trial", value: m.funnel?.inTrial ?? m.organizations?.trial ?? 0 },
+            { label: "Won clients", value: m.funnel?.won ?? m.pipeline?.won ?? 0 },
+            {
+              label: "Approve rate",
+              value:
+                m.funnel?.approvalRatePct != null ? `${m.funnel.approvalRatePct}%` : "—",
+            },
+            {
+              label: "Win from approved",
+              value:
+                m.funnel?.winFromApprovedPct != null ? `${m.funnel.winFromApprovedPct}%` : "—",
+            },
             { label: "Tool uses (7d)", value: m.toolUsesLast7Days ?? 0 },
           ].map((stat) => (
             <Card
@@ -655,11 +673,12 @@ export function AccessDesk() {
                               method: "POST",
                               body: "{}",
                             })
-                              .then(() =>
-                                toast({
-                                  title: "Invite resent · email sent",
-                                  description: "New set-password link emailed.",
-                                }),
+                              .then((data: any) =>
+                                toastEmail(
+                                  "Invite resent",
+                                  data,
+                                  "New set-password link emailed.",
+                                ),
                               )
                               .catch((e: Error) =>
                                 toast({

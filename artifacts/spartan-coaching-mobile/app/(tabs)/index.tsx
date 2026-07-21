@@ -191,7 +191,11 @@ export default function HomeScreen() {
   const openStart = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (startHere.route) router.push(startHere.route as any);
-    else router.push("/(tabs)/tools");
+    else if (startHere.toolTab) {
+      router.push({ pathname: "/(tabs)/tools", params: { tab: startHere.toolTab } } as any);
+    } else {
+      router.push("/(tabs)/tools");
+    }
   };
 
   const saveRole = async (role: string) => {
@@ -229,7 +233,11 @@ export default function HomeScreen() {
   const openChecklistItem = (item: (typeof items)[0]) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (item.route) router.push(item.route as any);
-    else router.push("/(tabs)/tools");
+    else if (item.toolTab) {
+      router.push({ pathname: "/(tabs)/tools", params: { tab: item.toolTab } } as any);
+    } else {
+      router.push("/(tabs)/tools");
+    }
   };
 
   // ── Logged-out marketing home ─────────────────────────────────────

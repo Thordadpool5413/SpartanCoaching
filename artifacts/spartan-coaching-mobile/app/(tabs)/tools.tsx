@@ -21,9 +21,11 @@ import { apiGet, apiPost } from "@/lib/api";
 import { ReminderPicker } from "@/components/ReminderPicker";
 import { useSavedResponses, type SavedResponse } from "@/hooks/useSavedResponses";
 import { useAuth } from "@/lib/AuthContext";
-import { router } from "expo-router";
+import { router, useLocalSearchParams } from "expo-router";
 
 type ToolTab = "objection" | "playbook" | "email" | "roleplay";
+
+const VALID_TABS = new Set<ToolTab>(["objection", "playbook", "email", "roleplay"]);
 
 const TOOL_TABS: { key: ToolTab; label: string; icon: "shield" | "book-open" | "mail" | "users" }[] = [
   { key: "objection", label: "Objections", icon: "shield" },
@@ -264,10 +266,19 @@ export default function ToolsScreen() {
   const { canUseFieldKit, isAuthenticated } = useAuth();
   const rnTabBarHeight = useContext(BottomTabBarHeightContext);
   const tabBarHeight = rnTabBarHeight ?? insets.bottom + 49;
+  const params = useLocalSearchParams<{ tab?: string | string[] }>();
   const [activeTab, setActiveTab] = useState<ToolTab>("objection");
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : tabBarHeight;
+
+  useEffect(() => {
+    const raw = params.tab;
+    const tab = Array.isArray(raw) ? raw[0] : raw;
+    if (tab && VALID_TABS.has(tab as ToolTab)) {
+      setActiveTab(tab as ToolTab);
+    }
+  }, [params.tab]);
 
   const requireAccess = (): boolean => {
     if (canUseFieldKit) return true;
