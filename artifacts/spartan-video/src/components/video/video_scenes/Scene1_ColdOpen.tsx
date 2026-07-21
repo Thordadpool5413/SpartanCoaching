@@ -8,9 +8,9 @@ export function Scene1_ColdOpen() {
 
   useEffect(() => {
     const timers = [
-      setTimeout(() => setPhase(1), 400),
-      setTimeout(() => setPhase(2), 2200),
-      setTimeout(() => setPhase(3), 4500),
+      setTimeout(() => setPhase(1), 300),
+      setTimeout(() => setPhase(2), 1800),
+      setTimeout(() => setPhase(3), 4000),
     ];
     return () => timers.forEach(t => clearTimeout(t));
   }, []);
@@ -28,17 +28,17 @@ export function Scene1_ColdOpen() {
       {/* Red line */}
       <motion.div
         className="absolute bg-[#e8291e] origin-left"
-        style={{ top: '50%', left: '8vw', right: '8vw', height: '3px' }}
+        style={{ top: '52%', left: '7vw', right: '7vw', height: '4px' }}
         initial={{ scaleX: 0 }}
         animate={phase >= 1 ? { scaleX: 1 } : { scaleX: 0 }}
         transition={{ duration: 1.1, ease: [0.16, 1, 0.3, 1] }}
       />
 
-      {/* Context — above the line */}
-      <div className="absolute inset-0 flex items-center pl-[8vw] pr-[8vw]" style={{ paddingBottom: '16vh' }}>
+      {/* Context line — above divider */}
+      <div className="absolute inset-0 flex items-center pl-[7vw] pr-[7vw]" style={{ paddingBottom: '10vh' }}>
         <motion.p
-          className="font-body text-[#9a9a8e] uppercase tracking-widest"
-          style={{ fontSize: 'clamp(22px, 3.5vw, 56px)', letterSpacing: '0.16em' }}
+          className="font-body text-[#9a9a8e] uppercase"
+          style={{ fontSize: 'clamp(24px, 4.5vw, 68px)', letterSpacing: '0.12em' }}
           initial={{ opacity: 0 }}
           animate={phase >= 2 ? { opacity: 1 } : { opacity: 0 }}
           transition={{ duration: 1.4, ease: 'easeOut' }}
@@ -47,15 +47,15 @@ export function Scene1_ColdOpen() {
         </motion.p>
       </div>
 
-      {/* THE GAP. — below the line */}
-      <div className="absolute inset-0 flex items-end pb-[4vh] pl-[5vw] pr-[5vw] overflow-hidden">
+      {/* THE GAP. — below divider, fills screen */}
+      <div className="absolute inset-0 flex items-end pb-[3vh] pl-[5vw] overflow-hidden">
         <div className="overflow-hidden w-full">
           <motion.h1
             className="font-display uppercase text-[#f5f5f0] leading-none"
-            style={{ fontSize: 'clamp(100px, 22vw, 340px)' }}
+            style={{ fontSize: 'clamp(120px, 26vw, 420px)' }}
             initial={{ y: '110%' }}
             animate={phase >= 3 ? { y: 0 } : { y: '110%' }}
-            transition={{ type: 'spring', stiffness: 180, damping: 28 }}
+            transition={{ type: 'spring', stiffness: 170, damping: 30 }}
           >
             THE GAP<span style={{ color: '#e8291e' }}>.</span>
           </motion.h1>
