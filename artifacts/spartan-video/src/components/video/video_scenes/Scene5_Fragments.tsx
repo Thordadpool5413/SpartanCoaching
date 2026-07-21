@@ -6,10 +6,10 @@ export function Scene5_Fragments() {
 
   useEffect(() => {
     const timers = [
-      setTimeout(() => setPhase(1), 400),
-      setTimeout(() => setPhase(2), 1800),
-      setTimeout(() => setPhase(3), 3200),
-      setTimeout(() => setPhase(4), 4400),
+      setTimeout(() => setPhase(1), 500),
+      setTimeout(() => setPhase(2), 2200),
+      setTimeout(() => setPhase(3), 4000),
+      setTimeout(() => setPhase(4), 5500),
     ];
     return () => timers.forEach(t => clearTimeout(t));
   }, []);
@@ -23,7 +23,7 @@ export function Scene5_Fragments() {
           opacity: dim ? 0.15 : active ? 1 : 0,
           filter: active ? 'blur(0px)' : 'blur(6px)',
         }}
-        transition={{ duration: 0.28, delay: i * 0.022 }}
+        transition={{ duration: 0.3, delay: i * 0.024 }}
       >
         {char}
       </motion.span>
@@ -32,7 +32,7 @@ export function Scene5_Fragments() {
 
   return (
     <motion.div
-      className="absolute inset-0 z-10 flex flex-col justify-center pl-[14vw] pr-[10vw] bg-[#070707]"
+      className="absolute inset-0 z-10 flex flex-col justify-center pl-[10vw] pr-[10vw] bg-[#070707]"
       initial={{ opacity: 1 }}
       exit={{ clipPath: 'circle(0% at 50% 50%)' }}
       transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
@@ -54,22 +54,22 @@ export function Scene5_Fragments() {
       {/* Label */}
       <motion.p
         className="font-body text-[#9a9a8e] tracking-widest uppercase mb-10 relative z-10"
-        style={{ fontSize: '1.4vw', letterSpacing: '0.3em' }}
+        style={{ fontSize: '2.4vw', letterSpacing: '0.22em' }}
         initial={{ opacity: 0 }}
         animate={phase >= 1 ? { opacity: 1 } : { opacity: 0 }}
-        transition={{ duration: 1, ease: 'easeOut' }}
+        transition={{ duration: 1.0, ease: 'easeOut' }}
       >
         The missed moments look like this:
       </motion.p>
 
-      <div className="flex flex-col gap-[3.5vh] relative z-10">
-        <h3 className="text-[3.6vw] font-body text-[#9a9a8e]">
+      <div className="flex flex-col gap-[4vh] relative z-10">
+        <h3 className="font-body text-[#9a9a8e]" style={{ fontSize: '5vw' }}>
           {staggerText('A stalled referral.', phase >= 1, phase >= 4)}
         </h3>
-        <h3 className="text-[3.1vw] font-body text-[#9a9a8e] pl-[2vw]">
+        <h3 className="font-body text-[#9a9a8e] pl-[2vw]" style={{ fontSize: '4.4vw' }}>
           {staggerText("A 'not yet' with no follow-up.", phase >= 2, phase >= 4)}
         </h3>
-        <h3 className="text-[2.6vw] font-body text-[#9a9a8e] pl-[4vw]">
+        <h3 className="font-body text-[#9a9a8e] pl-[4vw]" style={{ fontSize: '3.8vw' }}>
           {staggerText('A family who was never asked.', phase >= 3, false)}
         </h3>
       </div>

@@ -10,13 +10,13 @@ export function Scene2_Stats() {
   useEffect(() => {
     const timers = [
       setTimeout(() => setPhase(1), 400),
-      setTimeout(() => setPhase(2), 2400),
-      setTimeout(() => setPhase(3), 4200),
+      setTimeout(() => setPhase(2), 2800),
+      setTimeout(() => setPhase(3), 5200),
     ];
     return () => timers.forEach(t => clearTimeout(t));
   }, []);
 
-  const vis = (n: number) => ({ opacity: phase === n ? 1 : 0, transition: { duration: 0.25 } });
+  const vis = (n: number) => ({ opacity: phase === n ? 1 : 0, transition: { duration: 0.3 } });
 
   return (
     <motion.div
@@ -39,7 +39,7 @@ export function Scene2_Stats() {
       >
         <motion.h2
           className="font-display text-[#f5f5f0] leading-none text-center"
-          style={{ fontSize: '22vw' }}
+          style={{ fontSize: '24vw' }}
           initial={{ opacity: 0, scale: 0.92 }}
           animate={phase >= 1 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.92 }}
           transition={{ duration: 0.7, ease: EASE }}
@@ -47,11 +47,11 @@ export function Scene2_Stats() {
           500,000
         </motion.h2>
         <motion.p
-          className="font-body text-[#9a9a8e] tracking-widest uppercase mt-4 text-center"
-          style={{ fontSize: '2.2vw', letterSpacing: '0.2em' }}
-          initial={{ opacity: 0, y: 12 }}
-          animate={phase >= 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
-          transition={{ duration: 0.8, delay: 0.3, ease: EASE }}
+          className="font-body text-[#9a9a8e] tracking-widest uppercase mt-6 text-center"
+          style={{ fontSize: '3vw', letterSpacing: '0.18em' }}
+          initial={{ opacity: 0, y: 14 }}
+          animate={phase >= 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
+          transition={{ duration: 0.8, delay: 0.35, ease: EASE }}
         >
           Americans per year
         </motion.p>
@@ -64,10 +64,10 @@ export function Scene2_Stats() {
       >
         <motion.h2
           className="font-display text-[#f5f5f0] uppercase leading-[0.9]"
-          style={{ fontSize: '7.5vw' }}
-          initial={{ opacity: 0, y: 24 }}
-          animate={phase >= 2 ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
-          transition={{ duration: 0.6, ease: EASE }}
+          style={{ fontSize: '9vw' }}
+          initial={{ opacity: 0, y: 28 }}
+          animate={phase >= 2 ? { opacity: 1, y: 0 } : { opacity: 0, y: 28 }}
+          transition={{ duration: 0.7, ease: EASE }}
         >
           die without<br />
           <span className="text-[#e8291e]">hospice care</span>
@@ -81,9 +81,9 @@ export function Scene2_Stats() {
       >
         <motion.h2
           className="font-display text-[#9a9a8e] uppercase leading-[0.9]"
-          style={{ fontSize: '5.5vw' }}
-          initial={{ opacity: 0, y: 20 }}
-          animate={phase >= 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          style={{ fontSize: '7vw' }}
+          initial={{ opacity: 0, y: 22 }}
+          animate={phase >= 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 22 }}
           transition={{ duration: 0.7, ease: EASE }}
         >
           who would have<br />

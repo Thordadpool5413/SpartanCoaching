@@ -8,8 +8,8 @@ export function Scene3_Gap() {
 
   useEffect(() => {
     const timers = [
-      setTimeout(() => setPhase(1), 500),
-      setTimeout(() => setPhase(2), 2000),
+      setTimeout(() => setPhase(1), 600),
+      setTimeout(() => setPhase(2), 2500),
     ];
     return () => timers.forEach(t => clearTimeout(t));
   }, []);
@@ -23,31 +23,36 @@ export function Scene3_Gap() {
       transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
     >
       <div
-        className="absolute inset-0 opacity-45 mix-blend-overlay bg-cover bg-center"
+        className="absolute inset-0 opacity-40 mix-blend-overlay bg-cover bg-center"
         style={{ backgroundImage: `url(${gapTexture})` }}
       />
       <div className="absolute inset-0 bg-[#0d0d0b]/65" />
 
       <motion.div
         className="relative z-10 px-[10vw] w-full"
-        initial={{ y: 20 }}
+        initial={{ y: 24 }}
         animate={{ y: 0 }}
         transition={{ duration: 2, ease: 'easeOut' }}
       >
-        <p
-          className="font-body text-[#9a9a8e] font-light tracking-wide leading-relaxed text-center"
-          style={{ fontSize: '4.5vw' }}
-        >
+        <p className="font-display text-[#9a9a8e] uppercase leading-[1.0] text-center" style={{ fontSize: '7vw' }}>
           <motion.span
+            className="block"
             initial={{ opacity: 0 }}
             animate={phase >= 1 ? { opacity: 1 } : { opacity: 0 }}
             transition={{ duration: 1.2, ease: 'easeOut' }}
           >
-            This gap isn't a clinical failure.
+            This gap isn't
           </motion.span>
-          <br />
           <motion.span
-            className="font-normal"
+            className="block"
+            initial={{ opacity: 0 }}
+            animate={phase >= 1 ? { opacity: 1 } : { opacity: 0 }}
+            transition={{ duration: 1.2, delay: 0.2, ease: 'easeOut' }}
+          >
+            a clinical failure.
+          </motion.span>
+          <motion.span
+            className="block mt-4"
             style={{ color: '#e8291e' }}
             initial={{ opacity: 0 }}
             animate={phase >= 2 ? { opacity: 1 } : { opacity: 0 }}
