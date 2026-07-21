@@ -40,6 +40,7 @@ Expert hospice growth coaching site + private Field Kit (web + iOS) for clients 
 - Account: change password; expired clients can request extension
 - Access Desk ops: org detail (pipeline won/lost/follow-up, notes, timeline), metrics follow-ups due
 - Conversion: `/field-kit-membership` pricing page; stronger expired handoff CTAs
+- Portal onboarding: role-based start, checklist progress API, field context profile, admin “activated” flag
 
 ## Architecture decisions
 

@@ -60,9 +60,16 @@ export const clientMembers = pgTable(
     passwordHash: text("password_hash"),
     name: varchar("name", { length: 255 }).notNull(),
     title: varchar("title", { length: 255 }),
-    role: varchar("role", { length: 32 }).notNull().default("member"), // member | org_admin
+    role: varchar("role", { length: 32 }).notNull().default("member"), // member | org_admin | platform_admin
     organizationId: integer("organization_id").notNull(),
     status: varchar("status", { length: 32 }).notNull().default("invited"), // invited | active | disabled
+    /** Onboarding profile */
+    jobRole: varchar("job_role", { length: 64 }), // rep | director | vp | owner | other
+    territoryNote: text("territory_note"),
+    topObjections: text("top_objections"),
+    /** Checklist keys → completed boolean or ISO timestamp string */
+    checklistProgress: jsonb("checklist_progress").$type<Record<string, boolean | string>>().default({}),
+    onboardingStartedAt: timestamp("onboarding_started_at"),
     termsAcceptedAt: timestamp("terms_accepted_at"),
     lastLoginAt: timestamp("last_login_at"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
@@ -269,4 +276,28 @@ export const orgUpdateBodySchema = z.object({
   name: z.string().min(1).max(255).optional(),
   seatLimit: z.number().int().min(1).max(500).optional(),
   notes: z.string().max(10000).optional().nullable(),
+});
+
+export const CHECKLIST_IDS = [
+  "objection",
+  "weekly_plan",
+  "roleplay",
+  "debrief",
+  "director_scorecard",
+] as const;
+
+export const onboardingUpdateSchema = z.object({
+  jobRole: z.enum(["rep", "director", "vp", "owner", "other"]).optional().nullable(),
+  territoryNote: z.string().max(2000).optional().nullable(),
+  topObjections: z.string().max(2000).optional().nullable(),
+  checklist: z
+    .record(z.string(), z.union([z.boolean(), z.string()]))
+    .optional(),
+  /** Mark a single checklist item done/undone */
+  checklistItem: z
+    .object({
+      id: z.enum(CHECKLIST_IDS),
+      done: z.boolean(),
+    })
+    .optional(),
 });

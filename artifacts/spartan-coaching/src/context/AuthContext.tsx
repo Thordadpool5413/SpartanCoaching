@@ -17,6 +17,12 @@ export type AuthMember = {
   organizationId: number;
   status: string;
   lastLoginAt?: string | null;
+  jobRole?: string | null;
+  territoryNote?: string | null;
+  topObjections?: string | null;
+  checklistProgress?: Record<string, boolean | string>;
+  checklistDone?: number;
+  activated?: boolean;
 };
 
 export type AuthOrganization = {

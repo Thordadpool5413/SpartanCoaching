@@ -28,6 +28,7 @@ import {
   orgPipelineBodySchema,
   orgNoteBodySchema,
   orgUpdateBodySchema,
+  onboardingUpdateSchema,
   inquiries,
 } from "@workspace/db";
 import { db } from "../db";
@@ -306,7 +307,7 @@ export function registerAuthRoutes(app: Express): void {
       const access = await getAccessForMemberId(member.id);
 
       return res.json({
-        member: publicMember(member),
+        member: publicMember(access.member || member),
         organization: access.org ? publicOrg(access.org) : null,
         fieldKit: {
           allowed: access.allowed,
@@ -371,6 +372,76 @@ export function registerAuthRoutes(app: Express): void {
         hoursRemaining: access.hoursRemaining ?? null,
       },
     });
+  });
+
+  // ── Onboarding profile + checklist ─────────────────────────────────
+  app.get("/api/me/onboarding", requireAuth, async (req: AuthedRequest, res) => {
+    const member = req.fieldKit!.member!;
+    // re-fetch for latest checklist
+    const [fresh] = await db
+      .select()
+      .from(clientMembers)
+      .where(eq(clientMembers.id, member.id))
+      .limit(1);
+    return res.json({ member: publicMember(fresh || member) });
+  });
+
+  app.patch("/api/me/onboarding", requireAuth, async (req: AuthedRequest, res) => {
+    try {
+      const parsed = onboardingUpdateSchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid onboarding payload", details: parsed.error.flatten() });
+      }
+      const memberId = req.clientMemberId!;
+      const [current] = await db
+        .select()
+        .from(clientMembers)
+        .where(eq(clientMembers.id, memberId))
+        .limit(1);
+      if (!current) return res.status(404).json({ error: "Member not found" });
+
+      const patch: Record<string, unknown> = {};
+      if (parsed.data.jobRole !== undefined) patch.jobRole = parsed.data.jobRole;
+      if (parsed.data.territoryNote !== undefined) patch.territoryNote = parsed.data.territoryNote;
+      if (parsed.data.topObjections !== undefined) patch.topObjections = parsed.data.topObjections;
+
+      let checklist = {
+        ...(((current as any).checklistProgress || {}) as Record<string, boolean | string>),
+      };
+      if (parsed.data.checklist) {
+        checklist = { ...checklist, ...parsed.data.checklist };
+      }
+      if (parsed.data.checklistItem) {
+        const { id, done } = parsed.data.checklistItem;
+        if (done) {
+          checklist[id] = new Date().toISOString();
+        } else {
+          delete checklist[id];
+        }
+      }
+      if (parsed.data.checklist || parsed.data.checklistItem) {
+        patch.checklistProgress = checklist;
+      }
+      if (!(current as any).onboardingStartedAt) {
+        patch.onboardingStartedAt = new Date();
+      }
+
+      const [updated] = await db
+        .update(clientMembers)
+        .set(patch as any)
+        .where(eq(clientMembers.id, memberId))
+        .returning();
+
+      await logEvent("onboarding_updated", memberId, {
+        keys: Object.keys(patch),
+        checklistDone: publicMember(updated).checklistDone,
+      });
+
+      return res.json({ member: publicMember(updated) });
+    } catch (err) {
+      console.error("onboarding update error:", err);
+      return res.status(500).json({ error: "Failed to update onboarding" });
+    }
   });
 
   // ── Set password (from approval / invite) ──────────────────────────
@@ -545,16 +616,22 @@ export function registerAuthRoutes(app: Express): void {
       const members = await db.select().from(clientMembers).limit(1000);
       const enriched = orgs.map((org) => {
         const orgMembers = members.filter((m) => m.organizationId === org.id);
+        const pub = orgMembers.map((m) => publicMember(m));
         return {
           ...org,
           memberCount: orgMembers.filter((m) => m.status !== "disabled").length,
-          members: orgMembers.map((m) => ({
+          activatedCount: pub.filter((m) => m.activated).length,
+          activated: pub.some((m) => m.activated),
+          members: pub.map((m) => ({
             id: m.id,
             email: m.email,
             name: m.name,
             role: m.role,
             status: m.status,
             lastLoginAt: m.lastLoginAt,
+            activated: m.activated,
+            checklistDone: m.checklistDone,
+            jobRole: m.jobRole,
           })),
         };
       });
@@ -582,6 +659,9 @@ export function registerAuthRoutes(app: Express): void {
         .select()
         .from(clientMembers)
         .where(eq(clientMembers.organizationId, id));
+
+      const membersPublic = members.map((m) => publicMember(m));
+      const activatedCount = membersPublic.filter((m) => m.activated).length;
 
       const byOrg = await db
         .select()
@@ -626,7 +706,9 @@ export function registerAuthRoutes(app: Express): void {
 
       return res.json({
         organization: org,
-        members: members.map((m) => publicMember(m)),
+        members: membersPublic,
+        activatedCount,
+        activated: activatedCount > 0,
         requests: relatedRequests,
         timeline,
         usageLast7Days: usageTotal,

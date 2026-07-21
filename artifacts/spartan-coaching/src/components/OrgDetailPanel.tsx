@@ -174,6 +174,16 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
             <p>
               <span className="text-muted-foreground">Tool uses (7d):</span> {data.usageLast7Days ?? 0}
             </p>
+            <p>
+              <span className="text-muted-foreground">Onboarding activated:</span>{" "}
+              {data.activated ? (
+                <span className="text-green-500 font-semibold">
+                  Yes ({data.activatedCount}/{members.length} members)
+                </span>
+              ) : (
+                <span className="text-amber-400 font-semibold">Not yet</span>
+              )}
+            </p>
             {org.trialEndsAt && (
               <p>
                 <span className="text-muted-foreground">Trial ends:</span>{" "}
@@ -286,9 +296,18 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
                   <span>
                     <span className="font-medium">{m.name}</span>
                     <span className="text-muted-foreground"> · {m.email}</span>
+                    {m.activated && (
+                      <Badge className="ml-2 bg-green-600/20 text-green-400 border-green-600/30 text-[10px]">
+                        Activated
+                      </Badge>
+                    )}
+                    {m.jobRole && (
+                      <span className="text-muted-foreground text-xs"> · {m.jobRole}</span>
+                    )}
                   </span>
                   <span className="text-muted-foreground text-xs">
                     {m.role} · {m.status}
+                    {typeof m.checklistDone === "number" ? ` · ${m.checklistDone} checklist` : ""}
                     {m.lastLoginAt ? ` · ${new Date(m.lastLoginAt).toLocaleDateString()}` : ""}
                   </span>
                 </li>

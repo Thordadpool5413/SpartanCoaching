@@ -88,6 +88,8 @@ export async function getAccessForMemberId(memberId: number): Promise<FieldKitAc
 }
 
 export function publicMember(member: ClientMember) {
+  const checklist = ((member as any).checklistProgress || {}) as Record<string, boolean | string>;
+  const checklistDone = Object.values(checklist).filter((v) => v === true || (typeof v === "string" && v.length > 0)).length;
   return {
     id: member.id,
     email: member.email,
@@ -97,6 +99,12 @@ export function publicMember(member: ClientMember) {
     organizationId: member.organizationId,
     status: member.status,
     lastLoginAt: member.lastLoginAt,
+    jobRole: (member as any).jobRole ?? null,
+    territoryNote: (member as any).territoryNote ?? null,
+    topObjections: (member as any).topObjections ?? null,
+    checklistProgress: checklist,
+    checklistDone,
+    activated: checklistDone > 0,
   };
 }
 

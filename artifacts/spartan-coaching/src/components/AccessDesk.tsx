@@ -300,6 +300,11 @@ export function AccessDesk() {
                     </p>
                     <p className="text-sm text-muted-foreground">
                       {org.type} · {org.memberCount}/{org.seatLimit} seats
+                      {org.activated ? (
+                        <span className="text-green-500"> · activated</span>
+                      ) : (
+                        <span className="text-amber-400/90"> · not activated</span>
+                      )}
                       {org.trialEndsAt && org.status === "trial" && (
                         <> · trial ends {new Date(org.trialEndsAt).toLocaleString()}</>
                       )}
