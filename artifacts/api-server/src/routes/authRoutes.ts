@@ -1145,14 +1145,14 @@ export function registerAuthRoutes(app: Express): void {
 
       const token = await createAuthToken(member.id, "set_password", 48);
       const setPasswordUrl = `${getSiteUrl()}/set-password?token=${encodeURIComponent(token)}`;
-      const email = await dispatchEmails([
+      const emailResult = await dispatchEmails([
         () => sendAccessApprovedEmail(member.email, member.name, setPasswordUrl, trialHours),
       ]);
       await logEvent("access_approved", member.id, {
         requestId: id,
         orgId: org.id,
         trialHours,
-        email,
+        email: emailResult,
       });
 
       return res.json({
