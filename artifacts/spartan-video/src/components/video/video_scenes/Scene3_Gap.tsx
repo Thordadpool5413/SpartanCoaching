@@ -8,8 +8,8 @@ export function Scene3_Gap() {
 
   useEffect(() => {
     const timers = [
-      setTimeout(() => setPhase(1), 600),
-      setTimeout(() => setPhase(2), 2500),
+      setTimeout(() => setPhase(1), 800),
+      setTimeout(() => setPhase(2), 3800),
     ];
     return () => timers.forEach(t => clearTimeout(t));
   }, []);
@@ -20,47 +20,44 @@ export function Scene3_Gap() {
       initial={{ clipPath: 'circle(0% at 50% 50%)' }}
       animate={{ clipPath: 'circle(150% at 50% 50%)' }}
       exit={{ clipPath: 'circle(0% at 50% 50%)' }}
-      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
     >
-      <div
-        className="absolute inset-0 opacity-40 mix-blend-overlay bg-cover bg-center"
-        style={{ backgroundImage: `url(${gapTexture})` }}
-      />
+      <div className="absolute inset-0 opacity-40 mix-blend-overlay bg-cover bg-center" style={{ backgroundImage: `url(${gapTexture})` }} />
       <div className="absolute inset-0 bg-[#0d0d0b]/65" />
 
       <motion.div
-        className="relative z-10 px-[10vw] w-full"
-        initial={{ y: 24 }}
+        className="relative z-10 px-[8vw] w-full"
+        initial={{ y: 30 }}
         animate={{ y: 0 }}
-        transition={{ duration: 2, ease: 'easeOut' }}
+        transition={{ duration: 2.5, ease: 'easeOut' }}
       >
-        <p className="font-display text-[#9a9a8e] uppercase leading-[1.0] text-center" style={{ fontSize: '7vw' }}>
-          <motion.span
-            className="block"
+        <div className="font-display uppercase text-center leading-[1.0]" style={{ fontSize: 'clamp(52px, 9vw, 150px)' }}>
+          <motion.div
+            className="block text-[#9a9a8e]"
             initial={{ opacity: 0 }}
             animate={phase >= 1 ? { opacity: 1 } : { opacity: 0 }}
-            transition={{ duration: 1.2, ease: 'easeOut' }}
+            transition={{ duration: 1.4, ease: 'easeOut' }}
           >
             This gap isn't
-          </motion.span>
-          <motion.span
-            className="block"
+          </motion.div>
+          <motion.div
+            className="block text-[#9a9a8e]"
             initial={{ opacity: 0 }}
             animate={phase >= 1 ? { opacity: 1 } : { opacity: 0 }}
-            transition={{ duration: 1.2, delay: 0.2, ease: 'easeOut' }}
+            transition={{ duration: 1.4, delay: 0.25, ease: 'easeOut' }}
           >
             a clinical failure.
-          </motion.span>
-          <motion.span
-            className="block mt-4"
+          </motion.div>
+          <motion.div
+            className="block mt-6"
             style={{ color: '#e8291e' }}
             initial={{ opacity: 0 }}
             animate={phase >= 2 ? { opacity: 1 } : { opacity: 0 }}
-            transition={{ duration: 1.0, ease: 'easeOut' }}
+            transition={{ duration: 1.2, ease: 'easeOut' }}
           >
             It's a sales failure.
-          </motion.span>
-        </p>
+          </motion.div>
+        </div>
       </motion.div>
     </motion.div>
   );
