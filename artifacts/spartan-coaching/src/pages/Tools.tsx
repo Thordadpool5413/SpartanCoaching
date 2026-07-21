@@ -134,9 +134,9 @@ export default function Tools() {
       <BackButton />
       <SlideUp>
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
-          <p className="text-xs font-bold tracking-widest text-red-400 uppercase mb-3">Private toolkit</p>
+          <p className="text-xs font-bold tracking-widest text-red-400 uppercase mb-3">AI Field Kit</p>
           <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-tools-title">
-            AI Field Kit
+            Quick Actions
           </h1>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
             {showCatalogGate

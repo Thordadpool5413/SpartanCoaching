@@ -65,7 +65,7 @@ export const START_HERE: Record<string, { title: string; blurb: string; toolTab?
     route: "/staffing",
   },
   other: {
-    title: "Open AI Tools",
+    title: "Open Quick Actions",
     blurb: "Browse the Field Kit and mark checklist items as you go.",
     toolTab: "objection",
   },

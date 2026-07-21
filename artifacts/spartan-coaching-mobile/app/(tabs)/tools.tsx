@@ -549,7 +549,7 @@ export default function ToolsScreen() {
       {/* Header — always pinned above content */}
       <View style={[styles.header, { paddingTop: topPad + 12, backgroundColor: colors.background, borderBottomColor: colors.border }]}>
         <Text style={[styles.headerTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
-          AI Tools
+          Quick Actions
         </Text>
         <Text style={[styles.headerSubtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
           {canUseFieldKit ? "Powered by hospice expertise" : "Private Field Kit — sign in to unlock"}
