@@ -1,3 +1,4 @@
+import { useEffect, useMemo, useState } from "react";
 import { SEO } from "@/components/SEO";
 import { BackButton } from "@/components/BackButton";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
@@ -120,6 +121,23 @@ const faqCategories = [
 ];
 
 export default function FAQ() {
+  const allIds = useMemo(
+    () => faqCategories.flatMap((c) => c.questions.map((q) => q.id)),
+    [],
+  );
+  const [openItems, setOpenItems] = useState<string[]>([]);
+
+  useEffect(() => {
+    const hash = window.location.hash.replace(/^#/, "");
+    if (hash && allIds.includes(hash)) {
+      setOpenItems((prev) => (prev.includes(hash) ? prev : [...prev, hash]));
+      // Allow layout to paint, then scroll to the item
+      requestAnimationFrame(() => {
+        document.getElementById(hash)?.scrollIntoView({ behavior: "smooth", block: "start" });
+      });
+    }
+  }, [allIds]);
+
   return (
     <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
       <SEO />
@@ -145,9 +163,26 @@ export default function FAQ() {
             >
               {category.title}
             </h2>
-            <Accordion type="multiple" className="space-y-2">
+            <Accordion
+              type="multiple"
+              className="space-y-2"
+              value={openItems.filter((id) => category.questions.some((q) => q.id === id))}
+              onValueChange={(vals) => {
+                const categoryIds = category.questions.map((q) => q.id);
+                setOpenItems((prev) => {
+                  const outside = prev.filter((id) => !categoryIds.includes(id));
+                  return [...outside, ...vals];
+                });
+              }}
+            >
               {category.questions.map((item) => (
-                <AccordionItem key={item.id} value={item.id} data-testid={`accordion-item-${item.id}`}>
+                <AccordionItem
+                  key={item.id}
+                  value={item.id}
+                  id={item.id}
+                  className="scroll-mt-28"
+                  data-testid={`accordion-item-${item.id}`}
+                >
                   <AccordionTrigger
                     className="text-left text-base font-medium"
                     data-testid={`accordion-trigger-${item.id}`}

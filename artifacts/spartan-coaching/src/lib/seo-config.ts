@@ -81,8 +81,8 @@ const seoDefaults: Record<string, SEOConfig> = {
   '/request-access': {
     title: 'Request Field Kit Access | Spartan Coaching',
     description:
-      'Request evaluation access to the private Spartan Field Kit. Individual (24h) or company (72h) trials after Nick approves — then continue as a client by conversation.',
-    keywords: 'Field Kit access, hospice sales tools evaluation, request access',
+      'Request private Field Kit evaluation access. Nick reviews every request. Individual 24h or company 72h trial after approval — then continue as a client by conversation, not checkout.',
+    keywords: 'Field Kit access, request evaluation, hospice sales tools, 24 hour trial, company seats',
   },
   '/portal': {
     title: 'Field Kit Home | Spartan Coaching',
