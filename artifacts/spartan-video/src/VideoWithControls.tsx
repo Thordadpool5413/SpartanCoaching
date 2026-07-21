@@ -4,7 +4,8 @@ import VideoTemplate, { SCENE_DURATIONS } from './components/video/VideoTemplate
 import { useSceneControls } from './useSceneControls';
 
 const PROGRESS_TICK_MS = 60;
-const AUTO_HIDE_MS = 2000;
+const AUTO_HIDE_MOUSE_MS = 2000;
+const AUTO_HIDE_TOUCH_MS = 4000;
 
 function ProgressSegments({
   sceneKeys,
@@ -60,14 +61,16 @@ function ProgressSegments({
           <button
             key={key}
             onClick={() => onJumpTo(i)}
-            className="flex-1 h-3 bg-white/20 rounded-full overflow-hidden cursor-pointer hover:h-4 hover:bg-white/25 transition-all relative min-h-[12px]"
+            className="flex-1 min-h-[28px] flex items-center cursor-pointer group touch-manipulation"
             aria-label={`Jump to scene ${i + 1}`}
             aria-current={isActive ? 'true' : undefined}
           >
-            <div
-              className="absolute inset-y-0 left-0 bg-white/90 rounded-full transition-[width] duration-100"
-              style={{ width: `${fill}%` }}
-            />
+            <div className="w-full h-3 group-hover:h-4 bg-white/20 rounded-full overflow-hidden transition-all relative">
+              <div
+                className="absolute inset-y-0 left-0 bg-white/90 rounded-full transition-[width] duration-100"
+                style={{ width: `${fill}%` }}
+              />
+            </div>
           </button>
         );
       })}
@@ -120,7 +123,7 @@ function ControlBar({
       {/* Repeat / scene-lock */}
       <button
         onClick={onToggleLock}
-        className={`w-12 h-12 flex items-center justify-center transition-colors rounded-lg shrink-0 ${
+        className={`w-12 h-12 flex items-center justify-center transition-colors rounded-lg shrink-0 touch-manipulation ${
           locked
             ? 'text-white bg-white/15 hover:bg-white/25'
             : 'text-white/50 hover:text-white hover:bg-white/10'
@@ -138,7 +141,7 @@ function ControlBar({
       <button
         onClick={onPrevScene}
         disabled={activeIndex === 0}
-        className="w-12 h-12 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed transition-colors rounded-lg shrink-0"
+        className="w-12 h-12 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed transition-colors rounded-lg shrink-0 touch-manipulation"
         title="Previous scene (←)"
         aria-label="Previous scene"
       >
@@ -148,7 +151,7 @@ function ControlBar({
       {/* Pause / Play */}
       <button
         onClick={onTogglePause}
-        className="w-14 h-14 flex items-center justify-center text-white hover:bg-white/15 transition-colors rounded-full shrink-0 ring-1 ring-white/20"
+        className="w-14 h-14 flex items-center justify-center text-white hover:bg-white/15 transition-colors rounded-full shrink-0 ring-1 ring-white/20 touch-manipulation"
         title={paused ? 'Play (Space)' : 'Pause (Space)'}
         aria-label={paused ? 'Play' : 'Pause'}
         aria-pressed={paused}
@@ -160,7 +163,7 @@ function ControlBar({
       <button
         onClick={onNextScene}
         disabled={activeIndex === sceneKeys.length - 1}
-        className="w-12 h-12 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed transition-colors rounded-lg shrink-0"
+        className="w-12 h-12 flex items-center justify-center text-white/60 hover:text-white hover:bg-white/10 disabled:opacity-25 disabled:cursor-not-allowed transition-colors rounded-lg shrink-0 touch-manipulation"
         title="Next scene (→)"
         aria-label="Next scene"
       >
@@ -223,12 +226,12 @@ export default function VideoWithControls() {
   const [controlsVisible, setControlsVisible] = useState(false);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const showControls = useCallback(() => {
+  const showControls = useCallback((isTouch = false) => {
     setControlsVisible(true);
     if (hideTimerRef.current !== null) clearTimeout(hideTimerRef.current);
     hideTimerRef.current = setTimeout(() => {
       setControlsVisible(false);
-    }, AUTO_HIDE_MS);
+    }, isTouch ? AUTO_HIDE_TOUCH_MS : AUTO_HIDE_MOUSE_MS);
   }, []);
 
   useEffect(() => {
@@ -246,7 +249,7 @@ export default function VideoWithControls() {
 
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
-      if (e.pointerType !== 'mouse') showControls();
+      if (e.pointerType !== 'mouse') showControls(true);
     },
     [showControls],
   );
