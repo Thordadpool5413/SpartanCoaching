@@ -1,5 +1,16 @@
 uploads = []
-generated = []
+
+[[generated]]
+id = "MvYLWUXq0lYxiPvXjzgtJ"
+uri = "file://artifacts/spartan-video/public/pillars-texture.png"
+type = "image"
+title = "Dark concrete stone texture"
+
+[[generated]]
+id = "7rxtgMu4w5cNXosMdxNRZ"
+uri = "file://artifacts/spartan-video/public/gap-texture.png"
+type = "image"
+title = "Dark grain paper texture"
 
 [[outputs]]
 id = "NZwgXkN_6fvfgocI2hE8B"
