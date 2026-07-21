@@ -183,11 +183,28 @@ export default function HomeScreen() {
   const startHere = START_HERE[jobRole || "other"] || START_HERE.other;
   const trialLabel = formatTrialRemaining(user?.fieldKit?.hoursRemaining);
   const firstName = user?.member?.name?.split(" ")[0] || "";
+  const needsRole = !jobRole;
+  const isFirstSession = needsRole || doneCount === 0;
+  const incomplete = items.filter((i) => !isChecklistDone(checklist, i.id));
+  const nextItem = incomplete[0] ?? null;
 
   const openStart = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (startHere.route) router.push(startHere.route as any);
     else router.push("/(tabs)/tools");
+  };
+
+  const saveRole = async (role: string) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setJobRole(role);
+    try {
+      const data = await updateOnboardingMobile({ jobRole: role });
+      setJobRole(data.member.jobRole || role);
+      setChecklist(data.member.checklistProgress || checklist);
+      await refresh();
+    } catch {
+      // keep local role
+    }
   };
 
   const toggleItem = async (id: ChecklistId, done: boolean) => {
@@ -310,10 +327,14 @@ export default function HomeScreen() {
           FIELD KIT
         </Text>
         <Text style={{ color: "#fff", fontSize: 28, fontWeight: "900", marginTop: 8 }}>
-          Welcome{firstName ? `, ${firstName}` : ""}
+          {isFirstSession
+            ? `Make this session count${firstName ? `, ${firstName}` : ""}`
+            : `Welcome back${firstName ? `, ${firstName}` : ""}`}
         </Text>
         <Text style={{ color: "rgba(255,255,255,0.65)", marginTop: 6, fontSize: 14, lineHeight: 20 }}>
-          Discipline, empathy, strategy — in the field.
+          {isFirstSession
+            ? "Role → one real tool → debrief. That beats browsing every tab."
+            : "Discipline, empathy, strategy — in the field."}
         </Text>
         {user?.organization?.status === "trial" && trialLabel ? (
           <View
@@ -357,30 +378,151 @@ export default function HomeScreen() {
         )}
       </LinearGradient>
 
-      {/* Start here */}
-      <View style={[styles.section, { paddingTop: 20 }]}>
-        <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
-          Recommended first move
-        </Text>
-        <Pressable
-          onPress={openStart}
-          style={[
-            styles.startCard,
-            { backgroundColor: colors.card, borderColor: colors.primary },
-          ]}
-        >
-          <Text style={{ color: colors.primary, fontSize: 11, fontWeight: "800", letterSpacing: 1 }}>
-            START HERE
+      {/* First-session 3-step path */}
+      {isFirstSession && (
+        <View style={[styles.section, { paddingTop: 20 }]} testID="section-first-session">
+          <Text style={{ color: colors.primary, fontSize: 11, fontWeight: "800", letterSpacing: 1.5, marginBottom: 8 }}>
+            FIRST SESSION — DO THESE THREE
           </Text>
-          <Text style={{ color: colors.foreground, fontSize: 18, fontWeight: "800", marginTop: 6 }}>
-            {startHere.title}
+
+          {/* Step 1 role */}
+          <View
+            style={[
+              styles.startCard,
+              {
+                backgroundColor: colors.card,
+                borderColor: needsRole ? colors.primary : "rgba(74,222,128,0.4)",
+                marginBottom: 10,
+              },
+            ]}
+          >
+            <Text style={{ color: colors.mutedForeground, fontSize: 11, fontWeight: "800" }}>
+              {needsRole ? "1 · PICK YOUR ROLE" : "1 · ROLE SAVED"}
+            </Text>
+            <Text style={{ color: colors.foreground, fontSize: 15, fontWeight: "700", marginTop: 4 }}>
+              Sets your recommended tool and checklist
+            </Text>
+            {needsRole ? (
+              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
+                {(
+                  [
+                    { id: "rep", label: "Rep" },
+                    { id: "director", label: "Director" },
+                    { id: "vp", label: "VP" },
+                    { id: "owner", label: "Owner" },
+                    { id: "other", label: "Other" },
+                  ] as const
+                ).map((r) => (
+                  <Pressable
+                    key={r.id}
+                    onPress={() => saveRole(r.id)}
+                    style={{
+                      paddingVertical: 8,
+                      paddingHorizontal: 12,
+                      borderRadius: 8,
+                      backgroundColor: colors.primary,
+                    }}
+                    testID={`button-role-${r.id}`}
+                  >
+                    <Text style={{ color: "#fff", fontWeight: "800", fontSize: 13 }}>{r.label}</Text>
+                  </Pressable>
+                ))}
+              </View>
+            ) : (
+              <Text style={{ color: "#86efac", fontWeight: "700", marginTop: 8, textTransform: "capitalize" }}>
+                {jobRole}
+              </Text>
+            )}
+          </View>
+
+          {/* Step 2 tool */}
+          <Pressable
+            onPress={needsRole ? undefined : openStart}
+            disabled={needsRole}
+            style={[
+              styles.startCard,
+              {
+                backgroundColor: colors.card,
+                borderColor: !needsRole ? colors.primary : colors.border,
+                marginBottom: 10,
+                opacity: needsRole ? 0.55 : 1,
+              },
+            ]}
+          >
+            <Text style={{ color: colors.mutedForeground, fontSize: 11, fontWeight: "800" }}>
+              2 · RUN ONE REAL TOOL
+            </Text>
+            <Text style={{ color: colors.foreground, fontSize: 16, fontWeight: "800", marginTop: 6 }}>
+              {needsRole ? "Choose a role first" : startHere.title}
+            </Text>
+            <Text style={{ color: colors.mutedForeground, fontSize: 13, marginTop: 4, lineHeight: 18 }}>
+              {needsRole ? "Then we point you at the best first move." : startHere.blurb}
+            </Text>
+            {!needsRole && (
+              <Text style={{ color: colors.primary, fontWeight: "800", marginTop: 10 }}>Open →</Text>
+            )}
+          </Pressable>
+
+          {/* Step 3 debrief */}
+          <Pressable
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.push("/(tabs)/contact");
+            }}
+            style={[styles.startCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+          >
+            <Text style={{ color: colors.mutedForeground, fontSize: 11, fontWeight: "800" }}>
+              3 · BOOK A DEBRIEF
+            </Text>
+            <Text style={{ color: colors.foreground, fontSize: 16, fontWeight: "800", marginTop: 6 }}>
+              While evaluation is open
+            </Text>
+            <Text style={{ color: colors.mutedForeground, fontSize: 13, marginTop: 4, lineHeight: 18 }}>
+              Turn what you saw into seats, coaching, or a clear next step.
+            </Text>
+            <Text style={{ color: colors.primary, fontWeight: "800", marginTop: 10 }}>Contact →</Text>
+          </Pressable>
+        </View>
+      )}
+
+      {/* Next up when mid-session */}
+      {!isFirstSession && nextItem && (
+        <View style={[styles.section, { paddingTop: 20 }]}>
+          <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
+            Next up
           </Text>
-          <Text style={{ color: colors.mutedForeground, fontSize: 13, marginTop: 4, lineHeight: 18 }}>
-            {startHere.blurb}
+          <Pressable
+            onPress={() => openChecklistItem(nextItem)}
+            style={[styles.startCard, { backgroundColor: colors.card, borderColor: colors.primary }]}
+          >
+            <Text style={{ color: colors.primary, fontSize: 11, fontWeight: "800", letterSpacing: 1 }}>
+              CONTINUE
+            </Text>
+            <Text style={{ color: colors.foreground, fontSize: 17, fontWeight: "800", marginTop: 6 }}>
+              {nextItem.title}
+            </Text>
+            <Text style={{ color: colors.mutedForeground, fontSize: 13, marginTop: 4 }}>{nextItem.desc}</Text>
+            <Text style={{ color: colors.primary, fontWeight: "800", marginTop: 10 }}>Open →</Text>
+          </Pressable>
+        </View>
+      )}
+
+      {/* Recommended when past first session */}
+      {!isFirstSession && (
+        <View style={[styles.section, { paddingTop: 8 }]}>
+          <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
+            Recommended move
           </Text>
-          <Text style={{ color: colors.primary, fontWeight: "800", marginTop: 10 }}>Open →</Text>
-        </Pressable>
-      </View>
+          <Pressable
+            onPress={openStart}
+            style={[styles.startCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+          >
+            <Text style={{ color: colors.foreground, fontSize: 16, fontWeight: "800" }}>{startHere.title}</Text>
+            <Text style={{ color: colors.mutedForeground, fontSize: 13, marginTop: 4 }}>{startHere.blurb}</Text>
+            <Text style={{ color: colors.primary, fontWeight: "800", marginTop: 10 }}>Open →</Text>
+          </Pressable>
+        </View>
+      )}
 
       {/* Checklist */}
       <View style={[styles.section, { paddingTop: 8 }]}>

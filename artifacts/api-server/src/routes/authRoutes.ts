@@ -1780,7 +1780,10 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
-  // On reject — notify requester
+  /**
+   * @deprecated Use POST /api/admin/access-requests/:id/reject (emails requester).
+   * Kept as a thin alias so old clients do not 404.
+   */
   app.post("/api/admin/access-requests/:id/reject-and-notify", requireAdmin, async (req, res) => {
     try {
       const id = Number(req.params.id);
@@ -1794,7 +1797,6 @@ export function registerAuthRoutes(app: Express): void {
       if (request.status !== "pending") {
         return res.status(400).json({ error: `Request is already ${request.status}` });
       }
-
       await db
         .update(accessRequests)
         .set({
@@ -1804,10 +1806,12 @@ export function registerAuthRoutes(app: Express): void {
           adminNote: note ?? null,
         })
         .where(eq(accessRequests.id, id));
-
-      const { sendAccessRejectedEmail } = await import("../resend");
-      await sendAccessRejectedEmail(request.email, request.name, note);
-      await logEvent("access_rejected_notified", null, { requestId: id });
+      try {
+        await sendAccessRejectedEmail(request.email, request.name, note);
+      } catch (emailErr) {
+        console.error("reject-and-notify email failed:", emailErr);
+      }
+      await logEvent("access_rejected", null, { requestId: id, notified: true, legacyAlias: true });
       return res.json({ ok: true });
     } catch (err) {
       console.error("reject-and-notify error:", err);

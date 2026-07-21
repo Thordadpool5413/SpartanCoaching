@@ -1,7 +1,9 @@
 import { Card } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { BackButton } from "@/components/BackButton";
-import { Compass, Users, Target, CheckCircle, Shield, Heart, Eye, Lock, Database, UserCheck, ArrowDown, ArrowRight, Flame } from "lucide-react";
+import { Compass, Users, Target, CheckCircle, Shield, Heart, Eye, Lock, Database, UserCheck, ArrowDown, ArrowRight, Flame, Wrench } from "lucide-react";
+import { Link } from "wouter";
+import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 
 export default function Method() {
@@ -125,6 +127,9 @@ export default function Method() {
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
           A complete methodology for healthcare sales mastery. Value is discovered, translated, proven, and made official through four disciplined subjects, each governed by ethics that are non-negotiable.
+        </p>
+        <p className="text-sm text-muted-foreground mt-4 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
+          Coaching teaches the method. The private Field Kit helps you practice it between sessions — by request and approval, not self-serve checkout.
         </p>
       </div>
 
@@ -423,6 +428,36 @@ export default function Method() {
           </div>
         </section>
 
+        {/* Field Kit bridge */}
+        <Card className="border-2 border-primary/25 bg-primary/5 spacing-card" data-testid="section-method-field-kit">
+          <div className="flex flex-col sm:flex-row gap-5 items-start">
+            <div className="w-12 h-12 rounded-xl bg-primary/15 text-primary flex items-center justify-center shrink-0">
+              <Wrench className="w-6 h-6" />
+            </div>
+            <div className="space-y-3 flex-1">
+              <h2 className="text-h2 text-foreground">Practice the method in the Field Kit</h2>
+              <p className="text-body text-muted-foreground leading-relaxed">
+                Coaching installs the system. Between sessions, approved clients and evaluators use the private Field Kit —
+                objections, weekly plans, role-play, calculators — to run real territory work. Access is request → approve →
+                timed evaluation → continue as a client. Never enter PHI into tools.
+              </p>
+              <div className="flex flex-wrap gap-3">
+                <Button asChild className="font-bold">
+                  <Link href="/request-access">
+                    Request Field Kit access <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
+                </Button>
+                <Button asChild variant="outline" className="font-bold">
+                  <Link href="/tools">Field Kit overview</Link>
+                </Button>
+                <Button asChild variant="ghost" className="font-bold">
+                  <Link href="/services">View coaching services</Link>
+                </Button>
+              </div>
+            </div>
+          </div>
+        </Card>
+
         {/* Closing */}
         <Card className="relative overflow-hidden border-0 shadow-2xl spacing-card bg-gray-950">
           <div className="relative text-center">
@@ -432,21 +467,18 @@ export default function Method() {
             <p className="text-body-lg text-white/70 max-w-2xl mx-auto leading-relaxed mb-8">
               Every framework, every playbook, every drill we teach has been tested in real hospice markets. This is not theory. It is a traceable system where preparation maps to Discovery, practice maps to Connecting, measurement maps to Guiding, and finishing strong maps to Commitment. The ethics hold it all together.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <a
-                href="/contact"
-                className="inline-flex items-center justify-center gap-2 bg-primary text-primary-foreground font-bold px-8 py-3 rounded-md hover-elevate transition-all"
-                data-testid="button-method-contact"
-              >
-                Contact Spartan Coaching
-              </a>
-              <a
-                href="/manifesto"
-                className="inline-flex items-center justify-center gap-2 border border-white/30 text-white font-bold px-8 py-3 rounded-md hover-elevate transition-all"
-                data-testid="button-method-manifesto"
-              >
-                Read the Spartan Ethos
-              </a>
+            <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
+              <Button asChild className="font-bold" data-testid="button-method-contact">
+                <Link href="/contact">
+                  Book a strategy call <ArrowRight className="ml-2 w-4 h-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="font-bold border-white/30 text-white" data-testid="button-method-request">
+                <Link href="/request-access">Request evaluation access</Link>
+              </Button>
+              <Button asChild variant="ghost" className="font-bold text-white hover:bg-white/10" data-testid="button-method-manifesto">
+                <Link href="/manifesto">Read the Spartan Ethos</Link>
+              </Button>
             </div>
           </div>
         </Card>

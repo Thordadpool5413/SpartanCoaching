@@ -59,6 +59,18 @@ import { sendInquiryNotification, sendNewsletterConfirmation, sendGeneratedEmail
 import crypto from "crypto";
 import { AGREEMENT_TEXTS } from "../agreementTexts";
 import { requireFieldKit, requireAdmin, isAdminRequest } from "../auth/middleware";
+import type { Request } from "express";
+
+/** Express 5 params may be string | string[] — normalize for parseInt / lookups. */
+function paramStr(req: Request, key: string): string {
+  const raw = req.params[key];
+  if (Array.isArray(raw)) return String(raw[0] ?? "");
+  return String(raw ?? "");
+}
+
+function paramInt(req: Request, key: string): number {
+  return parseInt(paramStr(req, key), 10);
+}
 
 // Deferred initialization - call this AFTER server.listen()
 export async function deferredInit(app: Express): Promise<void> {
@@ -291,7 +303,7 @@ Keep it under 100 words and use a warm, professional tone.`;
   // Toggle inquiry read/unread (Admin)
   app.patch("/api/inquiries/:id/read", requireAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = paramInt(req, "id");
       const { isRead } = req.body;
       const updated = await storage.markInquiryRead(id, Boolean(isRead));
       res.json({ inquiry: updated });
@@ -471,7 +483,7 @@ Subject: [subject line]
   // Get Single Article
   app.get("/api/articles/:id", async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = paramInt(req, "id");
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid article ID" });
       }
@@ -492,7 +504,7 @@ Subject: [subject line]
   // Update Article
   app.put("/api/articles/:id", async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = paramInt(req, "id");
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid article ID" });
       }
@@ -523,7 +535,7 @@ Subject: [subject line]
   // Delete Article
   app.delete("/api/articles/:id", async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = paramInt(req, "id");
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid article ID" });
       }
@@ -584,7 +596,7 @@ Subject: [subject line]
     }
     
     try {
-      const id = parseInt(req.params.id);
+      const id = paramInt(req, "id");
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid resource ID" });
       }
@@ -852,7 +864,7 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   app.get("/api/signed-agreements/:id/pdf", requireAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = paramInt(req, "id");
       if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
       const agreement = await storage.getSignedAgreementById(id);
       if (!agreement) return res.status(404).json({ error: "Agreement not found" });
@@ -903,7 +915,7 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   app.post("/api/agreement-requests/:id/resend", requireAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = paramInt(req, "id");
       const requests = await storage.getAgreementRequests();
       const request = requests.find(r => r.id === id);
       if (!request) return res.status(404).json({ error: "Request not found" });
@@ -994,9 +1006,11 @@ Build a specific Monday–Friday territory plan for this week.`;
       }
 
       const allSigned = await storage.getSignedAgreementsByRequestId(request.id);
-      const allTypes = request.documentTypes;
-      const signedTypes = allSigned.map(a => a.agreementType);
-      const allCompleted = allTypes.every(t => signedTypes.includes(t));
+      const allTypes: string[] = Array.isArray(request.documentTypes)
+        ? (request.documentTypes as string[])
+        : [];
+      const signedTypes = allSigned.map((a: { agreementType: string }) => a.agreementType);
+      const allCompleted = allTypes.every((t: string) => signedTypes.includes(t));
       if (allCompleted) {
         await storage.updateAgreementRequestStatus(request.id, "completed", new Date());
       }
@@ -1032,7 +1046,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   app.put("/api/testimonials/:id", async (req, res) => {
     if (!isAdminRequest(req)) return res.status(401).json({ error: "Unauthorized" });
     try {
-      const item = await storage.updateTestimonial(parseInt(req.params.id), req.body);
+      const item = await storage.updateTestimonial(paramInt(req, "id"), req.body);
       res.json({ testimonial: item });
     } catch (error: any) {
       res.status(500).json({ error: "Failed to update testimonial" });
@@ -1042,7 +1056,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   app.delete("/api/testimonials/:id", async (req, res) => {
     if (!isAdminRequest(req)) return res.status(401).json({ error: "Unauthorized" });
     try {
-      await storage.deleteTestimonial(parseInt(req.params.id));
+      await storage.deleteTestimonial(paramInt(req, "id"));
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ error: "Failed to delete testimonial" });
@@ -1072,7 +1086,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   app.put("/api/case-studies/:id", async (req, res) => {
     if (!isAdminRequest(req)) return res.status(401).json({ error: "Unauthorized" });
     try {
-      const item = await storage.updateCaseStudy(parseInt(req.params.id), req.body);
+      const item = await storage.updateCaseStudy(paramInt(req, "id"), req.body);
       res.json({ caseStudy: item });
     } catch (error: any) {
       res.status(500).json({ error: "Failed to update case study" });
@@ -1082,7 +1096,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   app.delete("/api/case-studies/:id", async (req, res) => {
     if (!isAdminRequest(req)) return res.status(401).json({ error: "Unauthorized" });
     try {
-      await storage.deleteCaseStudy(parseInt(req.params.id));
+      await storage.deleteCaseStudy(paramInt(req, "id"));
       res.json({ success: true });
     } catch (error: any) {
       res.status(500).json({ error: "Failed to delete case study" });
@@ -1096,7 +1110,7 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
     
     try {
-      const id = parseInt(req.params.id);
+      const id = paramInt(req, "id");
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid resource ID" });
       }
@@ -1157,7 +1171,7 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
     
     try {
-      const id = parseInt(req.params.id);
+      const id = paramInt(req, "id");
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid podcast ID" });
       }
@@ -1192,7 +1206,7 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
     
     try {
-      const id = parseInt(req.params.id);
+      const id = paramInt(req, "id");
       if (isNaN(id)) {
         return res.status(400).json({ error: "Invalid podcast ID" });
       }
@@ -1385,7 +1399,7 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   app.get("/api/roleplay/sessions/:id", requireFieldKit, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = paramInt(req, "id");
       const session = await storage.getRoleplaySession(id);
       if (!session) return res.status(404).json({ error: "Session not found" });
       const messages = await storage.getRoleplayMessages(id);
@@ -1994,7 +2008,7 @@ The single most important skill to work on before the next conversation.`,
 
   app.delete("/api/assessments/:id", requireAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = paramInt(req, "id");
       if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
       await storage.deleteAssessment(id);
       res.json({ success: true });
@@ -2005,7 +2019,7 @@ The single most important skill to work on before the next conversation.`,
 
   app.get("/api/assessments/:id/questions", requireAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = paramInt(req, "id");
       if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
       const questions = await storage.getAssessmentQuestions(id);
       res.json({ questions });
@@ -2016,7 +2030,7 @@ The single most important skill to work on before the next conversation.`,
 
   app.post("/api/assessments/:id/questions", requireAdmin, async (req, res) => {
     try {
-      const assessmentId = parseInt(req.params.id);
+      const assessmentId = paramInt(req, "id");
       if (isNaN(assessmentId)) return res.status(400).json({ error: "Invalid ID" });
       const { type, text, options, correctAnswer, displayOrder } = req.body;
       if (!type || !text) return res.status(400).json({ error: "type and text are required" });
@@ -2042,7 +2056,7 @@ The single most important skill to work on before the next conversation.`,
 
   app.delete("/api/assessments/questions/:id", requireAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = paramInt(req, "id");
       if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
       await storage.deleteAssessmentQuestion(id);
       res.json({ success: true });
@@ -2053,7 +2067,7 @@ The single most important skill to work on before the next conversation.`,
 
   app.get("/api/assessments/:id/public", async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = paramInt(req, "id");
       if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
       const assessment = await storage.getAssessment(id);
       if (!assessment) return res.status(404).json({ error: "Assessment not found" });
@@ -2073,7 +2087,7 @@ The single most important skill to work on before the next conversation.`,
 
   app.post("/api/assessments/:id/submit", async (req, res) => {
     try {
-      const assessmentId = parseInt(req.params.id);
+      const assessmentId = paramInt(req, "id");
       if (isNaN(assessmentId)) return res.status(400).json({ error: "Invalid ID" });
 
       const { candidateName, candidateEmail, answers, inviteToken, clientSlug } = req.body;
@@ -2464,7 +2478,7 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
 
   app.get("/api/assessments/:id/submissions", requireAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = paramInt(req, "id");
       if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
       const submissions = await storage.getAssessmentSubmissions(id);
       res.json({ submissions });
@@ -2475,7 +2489,7 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
 
   app.get("/api/submissions/:id", requireAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = paramInt(req, "id");
       if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
       const submission = await storage.getAssessmentSubmission(id);
       if (!submission) return res.status(404).json({ error: "Submission not found" });
@@ -2490,7 +2504,7 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
   // Assessment Invites
   app.post("/api/assessments/:id/invites", requireAdmin, async (req, res) => {
     try {
-      const assessmentId = parseInt(req.params.id);
+      const assessmentId = paramInt(req, "id");
       if (isNaN(assessmentId)) return res.status(400).json({ error: "Invalid ID" });
 
       const { candidateEmail, candidateName } = req.body;
@@ -2529,7 +2543,7 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
 
   app.get("/api/assessments/:id/invites", requireAdmin, async (req, res) => {
     try {
-      const assessmentId = parseInt(req.params.id);
+      const assessmentId = paramInt(req, "id");
       if (isNaN(assessmentId)) return res.status(400).json({ error: "Invalid ID" });
       const invites = await storage.getAssessmentInvites(assessmentId);
       res.json({ invites });
@@ -2615,7 +2629,7 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
 
   app.delete("/api/admin/assessment-clients/:id", requireAdmin, async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = paramInt(req, "id");
       if (isNaN(id)) return res.status(400).json({ error: "Invalid ID" });
       await storage.deleteAssessmentClient(id);
       res.json({ success: true });

@@ -17,7 +17,7 @@ export default function Services() {
     {
       title: "Virtual Coaching Sessions",
       duration: "30 or 60 minutes",
-      price: "$40 / $70",
+      price: "Custom · session-based",
       problem: "You're stuck on a specific challenge, an objection you can't handle, a territory that isn't producing, or a referral partner who won't commit.",
       solution: "Get targeted, real-time coaching to break through the exact obstacle holding you back. No wasted time on theory you already know, just focused work on the one thing stopping you from moving forward right now.",
       includes: [
@@ -203,12 +203,60 @@ export default function Services() {
           Work <span className="text-gradient-primary">With Us</span>
         </h1>
         <p className="text-body-lg text-muted-foreground mb-4 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          Coaching options for individual reps, team leaders, and hospice organizations. Every engagement is structured, repeatable, and built around weekly accountability.
+          A consulting practice for hospice growth — human coaching, team systems, and a private Field Kit for clients and approved evaluators. Pricing is custom; there is no self-serve checkout.
         </p>
-        <p className="text-body text-muted-foreground max-w-3xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
-          Every service here exists because eligible patients are not receiving hospice care. Not because hospice is the wrong choice, but because the right conversations are not happening. Trained reps have those conversations. Prepared teams make them consistent. That is what this work is for.
+        <p className="text-body text-muted-foreground max-w-3xl mx-auto animate-fade-in-up mb-8" style={{ animationDelay: '0.2s' }}>
+          Every engagement exists because eligible patients miss care when the right conversations never happen. We build the structure and the field execution so those conversations become consistent.
         </p>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center animate-fade-in-up" style={{ animationDelay: '0.25s' }}>
+          <Button size="lg" asChild className="font-bold">
+            <Link href="/contact">
+              Book a strategy call <ArrowRight className="ml-2 w-4 h-4" />
+            </Link>
+          </Button>
+          <Button size="lg" variant="outline" asChild className="font-bold">
+            <Link href="/request-access">Request Field Kit evaluation</Link>
+          </Button>
+          <Button size="lg" variant="ghost" asChild className="font-bold">
+            <Link href="/field-kit-membership">Membership path</Link>
+          </Button>
+        </div>
       </div>
+
+      {/* Field Kit path */}
+      <Card
+        className="mb-16 border border-primary/30 bg-primary/5 p-6 sm:p-8 max-w-4xl mx-auto"
+        data-testid="section-services-field-kit"
+      >
+        <div className="flex flex-col sm:flex-row gap-6 items-start">
+          <div className="w-14 h-14 rounded-xl bg-primary/15 text-primary flex items-center justify-center shrink-0">
+            <MonitorSmartphone className="w-7 h-7" />
+          </div>
+          <div className="space-y-3 flex-1">
+            <p className="text-xs font-bold tracking-widest text-red-400 uppercase">Private Field Kit</p>
+            <h2 className="text-h2 text-foreground">Tools for clients and approved evaluators</h2>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              AI-assisted objections, plans, role-play, and calculators — gated behind request and approval.
+              Typical evaluation windows: <strong className="text-foreground">24 hours individual</strong> ·{" "}
+              <strong className="text-foreground">72 hours company</strong>. After evaluation, continue by
+              conversation and invoice — not a cart.
+            </p>
+            <ul className="text-sm text-muted-foreground space-y-1">
+              <li className="flex gap-2"><CheckIcon className="w-4 h-4 text-primary shrink-0 mt-0.5" /> No PHI in tools — planning and messaging only</li>
+              <li className="flex gap-2"><CheckIcon className="w-4 h-4 text-primary shrink-0 mt-0.5" /> Bundles cleanly with coaching or stands alone after evaluation</li>
+              <li className="flex gap-2"><CheckIcon className="w-4 h-4 text-primary shrink-0 mt-0.5" /> Team seats for organizations that need one playbook</li>
+            </ul>
+            <div className="flex flex-wrap gap-3 pt-1">
+              <Button asChild className="font-bold">
+                <Link href="/request-access">Request evaluation access</Link>
+              </Button>
+              <Button asChild variant="outline" className="font-bold">
+                <Link href="/tools">See Field Kit overview</Link>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Card>
 
       {/* Individual Sales Reps Section */}
       <div id="individual" className="space-y-8 md:space-y-12 lg:space-y-16 scroll-mt-24">
@@ -486,9 +534,19 @@ export default function Services() {
       {/* What This Is All For */}
       <div className="bg-gray-950 rounded-3xl p-10 md:p-16 text-center mt-16">
         <h2 className="text-h2 font-black text-white mb-6">What This Is All For</h2>
-        <p className="text-body-lg text-white/80 max-w-3xl mx-auto leading-relaxed">
+        <p className="text-body-lg text-white/80 max-w-3xl mx-auto leading-relaxed mb-8">
           Every coaching session, every field ride, every team workshop exists because eligible patients are not getting referred. Not because hospice is the wrong answer. Because the person who should have had that conversation was not prepared to have it. Spartan Coaching exists to fix that, one rep, one team, one market at a time.
         </p>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center">
+          <Button size="lg" asChild className="font-bold">
+            <Link href="/contact">
+              Book a strategy call <ArrowRight className="ml-2 w-4 h-4" />
+            </Link>
+          </Button>
+          <Button size="lg" variant="outline" asChild className="font-bold border-white/30 text-white">
+            <Link href="/request-access">Request Field Kit access</Link>
+          </Button>
+        </div>
       </div>
 
       {/* Application Process Section */}

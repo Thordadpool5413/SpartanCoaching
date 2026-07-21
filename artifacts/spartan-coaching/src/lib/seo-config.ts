@@ -46,8 +46,8 @@ const seoDefaults: Record<string, SEOConfig> = {
   '/services': {
     title: 'Coaching Services | Spartan Coaching',
     description:
-      'Individual and leadership coaching for hospice sales teams. Virtual sessions, field ridealongs, and rhythms that change Tuesday behavior — not just slide decks.',
-    keywords: 'hospice sales coaching, individual coaching, team coaching, leadership coaching',
+      'Hospice growth consulting: individual coaching, leadership systems, and private Field Kit evaluation access. Custom pricing — request access or book a strategy call.',
+    keywords: 'hospice sales coaching, Field Kit, leadership coaching, consulting services',
   },
   '/programs': {
     title: 'Training Programs | Spartan Coaching',
@@ -58,8 +58,8 @@ const seoDefaults: Record<string, SEOConfig> = {
   '/method': {
     title: 'The Spartan Method | Spartan Coaching',
     description:
-      'The Spartan Method: Discipline, Empathy, and Strategy — a field-tested framework for ethical hospice sales execution.',
-    keywords: 'Spartan Method, sales methodology, hospice sales framework',
+      'Discipline, Empathy, and Strategy — field-tested hospice sales method. Practice it in the private Field Kit after evaluation access.',
+    keywords: 'Spartan Method, sales methodology, hospice sales framework, Field Kit',
   },
   '/tools': {
     title: 'Field Kit | Spartan Coaching',
