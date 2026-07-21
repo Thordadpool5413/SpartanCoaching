@@ -39,10 +39,11 @@ const SUGGESTIONS = [
 ];
 
 const QUICK_TOOLS = [
-  { label: "Objection Handler", icon: "shield" as const },
-  { label: "Sales Playbooks", icon: "book-open" as const },
-  { label: "Email Templates", icon: "mail" as const },
-  { label: "Role-Play", icon: "users" as const },
+  { label: "Objection Handler", icon: "shield" as const, route: undefined },
+  { label: "Sales Playbooks", icon: "book-open" as const, route: undefined },
+  { label: "Email Templates", icon: "mail" as const, route: undefined },
+  { label: "Role-Play", icon: "users" as const, route: undefined },
+  { label: "Share Brand Film", icon: "film" as const, route: "/brand-video" as const },
 ];
 
 function formatScheduledTime(ts: number): string {
@@ -765,7 +766,8 @@ export default function HomeScreen() {
               key={i}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                router.push("/(tabs)/tools");
+                if (tool.route) router.push(tool.route as any);
+                else router.push("/(tabs)/tools");
               }}
               style={({ pressed }) => [
                 styles.toolCard,
