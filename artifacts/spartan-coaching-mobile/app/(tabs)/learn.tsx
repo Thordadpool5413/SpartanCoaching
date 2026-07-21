@@ -188,6 +188,45 @@ export default function LearnScreen() {
               keyExtractor={(item) => String(item.id)}
               contentContainerStyle={{ paddingHorizontal: 20, paddingVertical: 16, paddingBottom: bottomPad }}
               showsVerticalScrollIndicator={false}
+              ListHeaderComponent={
+                <View style={[styles.methodSection, { borderColor: colors.border }]}>
+                  <Text style={[styles.methodOverline, { color: colors.primary, fontFamily: "Inter_700Bold" }]}>
+                    THE SPARTAN METHOD
+                  </Text>
+                  <Text style={[styles.methodIntro, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                    Hospice sales is not a mystery. It is a promise — built on three things.
+                  </Text>
+                  {[
+                    {
+                      name: "Discipline",
+                      desc: "The system that holds on Tuesday when caring isn't enough.",
+                    },
+                    {
+                      name: "Empathy",
+                      desc: "The skill that hears what's underneath 'not yet.'",
+                    },
+                    {
+                      name: "Strategy",
+                      desc: "Knowing which five accounts in your territory actually refer.",
+                    },
+                  ].map((pillar) => (
+                    <View
+                      key={pillar.name}
+                      style={[styles.methodPillarCard, { backgroundColor: colors.card, borderColor: colors.border }]}
+                    >
+                      <View style={[styles.methodPillarAccent, { backgroundColor: colors.primary }]} />
+                      <View style={{ flex: 1 }}>
+                        <Text style={[styles.methodPillarName, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
+                          {pillar.name}
+                        </Text>
+                        <Text style={[styles.methodPillarDesc, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                          {pillar.desc}
+                        </Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              }
               ListEmptyComponent={
                 <View style={styles.centered}>
                   <Feather name="file-text" size={32} color={colors.mutedForeground} />
@@ -499,4 +538,38 @@ const styles = StyleSheet.create({
   resourceTitle: { fontSize: 15, fontWeight: "600" },
   resourceDesc: { fontSize: 13, lineHeight: 18, marginTop: 3 },
   resourceCategory: { fontSize: 12, marginTop: 4 },
+  methodSection: {
+    borderBottomWidth: 1,
+    paddingBottom: 20,
+    marginBottom: 8,
+  },
+  methodOverline: {
+    fontSize: 11,
+    fontWeight: "700",
+    letterSpacing: 1.5,
+    marginBottom: 6,
+  },
+  methodIntro: {
+    fontSize: 14,
+    lineHeight: 20,
+    marginBottom: 16,
+  },
+  methodPillarCard: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 12,
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 10,
+  },
+  methodPillarAccent: {
+    width: 3,
+    height: 40,
+    borderRadius: 2,
+    marginTop: 2,
+    flexShrink: 0,
+  },
+  methodPillarName: { fontSize: 16, fontWeight: "800", marginBottom: 3 },
+  methodPillarDesc: { fontSize: 13, lineHeight: 19 },
 });

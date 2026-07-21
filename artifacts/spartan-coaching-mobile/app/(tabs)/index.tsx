@@ -253,12 +253,13 @@ export default function HomeScreen() {
           style={[styles.hero, { paddingTop: topPad + 20 }]}
         >
           <Image source={require("@/assets/images/logo.png")} style={styles.logo} resizeMode="contain" />
-          <Text style={[styles.heroTitle, { color: colors.heroForeground }]}>Hospice sales teams</Text>
+          <Text style={[styles.heroTitle, { color: colors.heroForeground }]}>Hospice sales</Text>
+          <Text style={[styles.heroTitle, { color: "rgba(255,255,255,0.55)" }]}>is not a mystery.</Text>
           <Text style={[styles.heroTitle, styles.heroTitleAccent, { color: colors.primary }]}>
-            that consistently close.
+            It is a promise.
           </Text>
           <Text style={[styles.heroTagline, { color: colors.heroMuted }]}>
-            Private Field Kit for approved clients.{"\n"}Sign in to execute in the field.
+            Practical coaching for hospice growth professionals who execute in the field — not just in meetings.
           </Text>
           <View
             style={[
@@ -303,11 +304,28 @@ export default function HomeScreen() {
             Eligible patients are not receiving hospice care because the right conversations are not happening.
             Spartan Coaching exists to close that gap, one prepared visit at a time.
           </Text>
+          {[
+            { name: "Discipline", desc: "The system that holds on Tuesday when caring isn't enough." },
+            { name: "Empathy", desc: "The skill that hears what's underneath 'not yet.'" },
+            { name: "Strategy", desc: "Knowing which five accounts in your territory actually refer." },
+          ].map((pillar) => (
+            <View key={pillar.name} style={styles.pillarRow}>
+              <View style={[styles.pillarAccent, { backgroundColor: colors.primary }]} />
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.pillarName, { color: "rgba(255,255,255,0.92)", fontFamily: "Inter_700Bold" }]}>
+                  {pillar.name}
+                </Text>
+                <Text style={[styles.pillarDesc, { color: colors.heroMuted, fontFamily: "Inter_400Regular" }]}>
+                  {pillar.desc}
+                </Text>
+              </View>
+            </View>
+          ))}
           <Pressable
             onPress={() => router.push("/(tabs)/contact")}
             style={({ pressed }) => [
               styles.ctaBtn,
-              { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },
+              { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1, marginTop: 8 },
             ]}
           >
             <Text style={[styles.ctaBtnText, { color: colors.primaryForeground, fontFamily: "Inter_700Bold" }]}>
@@ -951,8 +969,23 @@ const styles = StyleSheet.create({
   missionBody: {
     fontSize: 15,
     lineHeight: 23,
-    marginBottom: 24,
+    marginBottom: 20,
   },
+  pillarRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 12,
+    marginBottom: 16,
+  },
+  pillarAccent: {
+    width: 3,
+    height: 44,
+    borderRadius: 2,
+    marginTop: 2,
+    flexShrink: 0,
+  },
+  pillarName: { fontSize: 17, fontWeight: "800", marginBottom: 3 },
+  pillarDesc: { fontSize: 14, lineHeight: 20 },
   ctaBtn: {
     flexDirection: "row",
     alignItems: "center",

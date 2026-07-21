@@ -38,14 +38,14 @@ export default function BrandVideoScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     await Share.share(
       Platform.OS === "ios"
-        ? { url: videoUrl, message: "Watch the Spartan Coaching brand video" }
-        : { message: `Watch the Spartan Coaching brand video: ${videoUrl}` }
+        ? { url: videoUrl, message: "Watch the Spartan Coaching brand film" }
+        : { message: `Watch the Spartan Coaching brand film: ${videoUrl}` }
     );
   };
 
   return (
     <>
-      <Stack.Screen options={{ title: "Brand Video" }} />
+      <Stack.Screen options={{ title: "Brand Film" }} />
       <ScrollView
         style={{ flex: 1, backgroundColor: colors.background }}
         contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
@@ -59,10 +59,10 @@ export default function BrandVideoScreen() {
             </Text>
           </View>
           <Text style={[styles.title, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
-            Spartan Brand Video
+            Spartan Brand Film
           </Text>
           <Text style={[styles.subtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-            Send this cinematic logo reveal to prospects as a credibility asset. Copy the link and share it — no login required to view.
+            A 68-second awareness film about the hospice gap — why it exists, who it costs, and why Spartan Coaching is here. Share with a prospect before a call. No login required to watch.
           </Text>
         </View>
 
@@ -140,8 +140,8 @@ export default function BrandVideoScreen() {
           </Text>
           {[
             "Tap Copy Share Link to copy the video URL.",
-            "Paste it into a text, email, or LinkedIn message — no account needed to watch.",
-            "Prospects see a clean, full-screen brand video — just the Spartan identity.",
+            "Paste it into a text, email, or LinkedIn message before a first call or meeting.",
+            "Prospects watch the full brand film — the gap, the method, and who Spartan is — no account needed.",
           ].map((step, i) => (
             <View key={i} style={styles.howRow}>
               <View style={[styles.howNum, { backgroundColor: colors.accent }]}>
