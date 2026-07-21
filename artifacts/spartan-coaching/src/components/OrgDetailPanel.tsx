@@ -15,9 +15,14 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
-import { ArrowLeft, Loader2 } from "lucide-react";
-
+import { ArrowLeft, Copy, Loader2, Mail } from "lucide-react";
 import { adminFetch } from "@/lib/adminApi";
+import {
+  ORG_NOTE_TEMPLATES,
+  copyText,
+  followUpPreset,
+  loginUrl,
+} from "@/lib/accessDeskTemplates";
 
 const PIPELINE = [
   { value: "prospect", label: "Prospect" },
@@ -52,7 +57,10 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
       setLostReason(data.organization.lostReason || "");
       if (data.organization.nextFollowUpAt) {
         const d = new Date(data.organization.nextFollowUpAt);
-        setFollowUp(d.toISOString().slice(0, 16));
+        const pad = (n: number) => String(n).padStart(2, "0");
+        setFollowUp(
+          `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`,
+        );
       } else {
         setFollowUp("");
       }
@@ -62,7 +70,17 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
   const invalidateAll = () => {
     queryClient.invalidateQueries({ queryKey: ["/api/admin/organizations"] });
     queryClient.invalidateQueries({ queryKey: ["/api/admin/access-metrics"] });
+    queryClient.invalidateQueries({ queryKey: ["/api/admin/access-requests"] });
     refetch();
+  };
+
+  const copy = async (label: string, text: string) => {
+    const ok = await copyText(text);
+    toast({
+      title: ok ? "Copied" : "Copy failed",
+      description: ok ? label : "Clipboard unavailable",
+      variant: ok ? undefined : "destructive",
+    });
   };
 
   const pipelineMut = useMutation({
@@ -83,10 +101,10 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
   });
 
   const noteMut = useMutation({
-    mutationFn: () =>
+    mutationFn: (body: string) =>
       adminFetch(`/api/admin/organizations/${orgId}/notes`, {
         method: "POST",
-        body: JSON.stringify({ body: note.trim() }),
+        body: JSON.stringify({ body }),
       }),
     onSuccess: () => {
       toast({ title: "Note added" });
@@ -102,8 +120,15 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
         method: "PATCH",
         body: JSON.stringify({ status }),
       }),
-    onSuccess: () => {
-      toast({ title: "Access updated" });
+    onSuccess: (_data, status) => {
+      if (status === "active") {
+        toast({
+          title: "Client activated · emails sent",
+          description: "Membership-active email sent to org members.",
+        });
+      } else {
+        toast({ title: "Access updated", description: `Status → ${status}` });
+      }
       invalidateAll();
     },
     onError: (e: Error) => toast({ title: "Failed", description: e.message, variant: "destructive" }),
@@ -115,8 +140,11 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
         method: "POST",
         body: JSON.stringify({ hours }),
       }),
-    onSuccess: () => {
-      toast({ title: "Trial extended" });
+    onSuccess: (_data, hours) => {
+      toast({
+        title: "Trial extended · emails sent",
+        description: `+${hours}h. Members notified by email.`,
+      });
       invalidateAll();
     },
     onError: (e: Error) => toast({ title: "Failed", description: e.message, variant: "destructive" }),
@@ -134,6 +162,7 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
   const members = data.members || [];
   const timeline = data.timeline || [];
   const requests = data.requests || [];
+  const primaryEmail = members.find((m: any) => m.status !== "disabled")?.email as string | undefined;
 
   return (
     <div className="space-y-6" data-testid="org-detail-panel">
@@ -145,6 +174,28 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
         <Badge variant="secondary">{org.status}</Badge>
         <Badge>{org.pipelineStatus || "—"}</Badge>
         <Badge variant="outline">{org.type}</Badge>
+        {primaryEmail && (
+          <>
+            <Button
+              size="sm"
+              variant="outline"
+              className="h-8 gap-1"
+              onClick={() => copy("Primary email", primaryEmail)}
+            >
+              <Copy className="w-3.5 h-3.5" />
+              Email
+            </Button>
+            <Button size="sm" variant="outline" className="h-8 gap-1" asChild>
+              <a href={`mailto:${primaryEmail}`}>
+                <Mail className="w-3.5 h-3.5" />
+                Mail
+              </a>
+            </Button>
+          </>
+        )}
+        <Button size="sm" variant="ghost" className="h-8" onClick={() => copy("Login URL", loginUrl())}>
+          Copy /login
+        </Button>
       </div>
 
       <div className="grid lg:grid-cols-3 gap-4">
@@ -185,19 +236,48 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
             <div className="pt-3 space-y-2">
               <p className="text-xs font-bold uppercase text-muted-foreground">Quick access</p>
               <div className="flex flex-wrap gap-2">
-                <Button size="sm" className="font-bold" onClick={() => statusMut.mutate("active")}>
+                <Button
+                  size="sm"
+                  className="font-bold"
+                  disabled={statusMut.isPending}
+                  onClick={() => statusMut.mutate("active")}
+                >
                   Activate client
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => statusMut.mutate("expired")}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={statusMut.isPending}
+                  onClick={() => statusMut.mutate("expired")}
+                >
                   End access
                 </Button>
-                <Button size="sm" variant="outline" onClick={() => statusMut.mutate("suspended")}>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  disabled={statusMut.isPending}
+                  onClick={() => statusMut.mutate("suspended")}
+                >
                   Suspend
                 </Button>
               </div>
-              <div className="flex items-end gap-2 pt-2">
+              <p className="text-xs font-bold uppercase text-muted-foreground pt-2">Extend trial</p>
+              <div className="flex flex-wrap items-end gap-2">
+                {[24, 48, 72].map((h) => (
+                  <Button
+                    key={h}
+                    size="sm"
+                    variant="secondary"
+                    disabled={extendMut.isPending}
+                    onClick={() => extendMut.mutate(h)}
+                  >
+                    +{h}h
+                  </Button>
+                ))}
+              </div>
+              <div className="flex items-end gap-2 pt-1">
                 <div className="space-y-1">
-                  <Label className="text-xs">Extend hours</Label>
+                  <Label className="text-xs">Custom hours</Label>
                   <Input
                     className="w-24 h-9"
                     value={extendHours}
@@ -206,10 +286,11 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
                 </div>
                 <Button
                   size="sm"
-                  variant="secondary"
+                  variant="outline"
+                  disabled={extendMut.isPending}
                   onClick={() => extendMut.mutate(Number(extendHours) || 24)}
                 >
-                  Extend trial
+                  Extend custom
                 </Button>
               </div>
             </div>
@@ -247,6 +328,34 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
                   value={followUp}
                   onChange={(e) => setFollowUp(e.target.value)}
                 />
+                <div className="flex flex-wrap gap-1.5 pt-1">
+                  {[
+                    { d: 1, label: "Tomorrow" },
+                    { d: 3, label: "+3d" },
+                    { d: 7, label: "+7d" },
+                    { d: 14, label: "+14d" },
+                  ].map((p) => (
+                    <Button
+                      key={p.d}
+                      type="button"
+                      size="sm"
+                      variant="secondary"
+                      className="h-7 text-xs"
+                      onClick={() => setFollowUp(followUpPreset(p.d))}
+                    >
+                      {p.label}
+                    </Button>
+                  ))}
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    className="h-7 text-xs"
+                    onClick={() => setFollowUp("")}
+                  >
+                    Clear
+                  </Button>
+                </div>
               </div>
             </div>
             {(pipeline === "lost" || pipeline === "churned") && (
@@ -278,10 +387,18 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
           <CardContent>
             <ul className="text-sm space-y-2">
               {members.map((m: any) => (
-                <li key={m.id} className="flex justify-between gap-2 border-b border-border/40 pb-2">
+                <li key={m.id} className="flex flex-wrap justify-between gap-2 border-b border-border/40 pb-2">
                   <span>
                     <span className="font-medium">{m.name}</span>
                     <span className="text-muted-foreground"> · {m.email}</span>
+                    <button
+                      type="button"
+                      className="ml-1 inline-flex text-primary hover:underline"
+                      onClick={() => copy("Email", m.email)}
+                      aria-label={`Copy ${m.email}`}
+                    >
+                      <Copy className="w-3 h-3 inline" />
+                    </button>
                     {m.activated && (
                       <Badge className="ml-2 bg-green-600/20 text-green-400 border-green-600/30 text-[10px]">
                         Activated
@@ -308,8 +425,23 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
         <Card className="border border-white/10">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Add note</CardTitle>
+            <CardDescription>Templates speed common CRM updates.</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
+            <div className="flex flex-wrap gap-1.5">
+              {ORG_NOTE_TEMPLATES.map((t) => (
+                <Button
+                  key={t.id}
+                  type="button"
+                  size="sm"
+                  variant="secondary"
+                  className="h-7 text-xs"
+                  onClick={() => setNote(t.body)}
+                >
+                  {t.label}
+                </Button>
+              ))}
+            </div>
             <Textarea
               rows={4}
               value={note}
@@ -319,7 +451,7 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
             <Button
               className="font-bold"
               disabled={!note.trim() || noteMut.isPending}
-              onClick={() => noteMut.mutate()}
+              onClick={() => noteMut.mutate(note.trim())}
             >
               Save note
             </Button>
@@ -364,9 +496,16 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
           <CardContent>
             <ul className="text-sm space-y-2">
               {requests.map((r: any) => (
-                <li key={r.id} className="flex justify-between gap-2 border-b border-border/40 pb-2">
+                <li key={r.id} className="flex flex-wrap justify-between gap-2 border-b border-border/40 pb-2">
                   <span>
                     {r.name} · {r.email} · {r.type}
+                    <button
+                      type="button"
+                      className="ml-1 text-primary"
+                      onClick={() => copy("Email", r.email)}
+                    >
+                      <Copy className="w-3 h-3 inline" />
+                    </button>
                   </span>
                   <Badge variant="secondary">{r.status}</Badge>
                 </li>
