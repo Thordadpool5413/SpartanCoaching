@@ -4,7 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Users, Briefcase, Wrench, CheckCircle } from "lucide-react";
 import { SEO } from "@/components/SEO";
-import { FadeIn, StaggerContainer, StaggerItem, AnimatedCounter } from "@/components/animations";
+import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 import { lazy, Suspense, Component } from "react";
 import type { ReactNode } from "react";
 
@@ -63,32 +63,6 @@ export default function Home() {
             <SpartanHeroAnimation />
           </Suspense>
         </AnimationErrorBoundary>
-      </section>
-
-      {/* ── 2. PROOF STRIP ── */}
-      <section
-        className="relative bg-[#040404] border-b border-red-900/20 py-7 sm:py-10 overflow-hidden"
-        data-testid="section-proof-strip"
-      >
-        <div className="absolute inset-0 bg-spartan-gradient-radial opacity-15 pointer-events-none" />
-        <div className="relative max-w-7xl mx-auto px-4 sm:px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-0 md:divide-x md:divide-red-900/25">
-            {[
-              { target: 18, suffix: " Days", label: "Avg. hospice LOS", detail: "vs. 6-month Medicare benefit" },
-              { target: 500, suffix: "K+", label: "Miss hospice annually", detail: "who would have qualified" },
-              { target: 12, suffix: "+", label: "Years in the work", detail: "hospice sales & leadership" },
-              { target: 500, suffix: "+", label: "Reps & leaders coached", detail: "measurable field performance" },
-            ].map(({ target, suffix, label, detail }, i) => (
-              <div key={i} className="text-center md:px-8">
-                <p className="font-display text-4xl sm:text-5xl font-black text-primary tracking-tight leading-none mb-2">
-                  <AnimatedCounter target={target} suffix={suffix} duration={1.2} />
-                </p>
-                <p className="text-xs sm:text-sm font-bold text-white/80 uppercase tracking-wider mb-1">{label}</p>
-                <p className="text-xs text-white/45 leading-relaxed hidden sm:block">{detail}</p>
-              </div>
-            ))}
-          </div>
-        </div>
       </section>
 
       {/* ── 3. PROBLEM (short) ── */}
