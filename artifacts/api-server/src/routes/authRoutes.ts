@@ -1152,7 +1152,7 @@ export function registerAuthRoutes(app: Express): void {
         requestId: id,
         orgId: org.id,
         trialHours,
-        email: emailResult,
+        email,
       });
 
       return res.json({
@@ -1161,7 +1161,7 @@ export function registerAuthRoutes(app: Express): void {
         member: publicMember(member),
         trialHours,
         email,
-        emailMessage: emailSummary(email),
+        emailMessage: emailSummary(emailResult),
       });
     } catch (err) {
       console.error("approve access error:", err);
