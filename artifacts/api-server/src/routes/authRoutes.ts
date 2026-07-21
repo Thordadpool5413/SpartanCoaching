@@ -41,7 +41,9 @@ import {
   requireAdmin,
   isAdminRequest,
   getAdminPassword,
+  getAdminPasscodeCandidates,
   getAdminEmail,
+  DEFAULT_ADMIN_PASSCODE,
   useSecureCookies,
   type AuthedRequest,
 } from "../auth/middleware";
@@ -139,12 +141,22 @@ async function createSession(memberId: number, userAgent?: string) {
 }
 
 function adminPasswordMatches(input: string): boolean {
-  const expected = getAdminPassword();
-  if (!expected) return false;
-  // Trim user input — secrets UIs sometimes add trailing spaces on paste
   const got = (input || "").trim();
   if (!got) return false;
-  return safeEqualString(got, expected);
+  // Accept ADMIN_PASSWORD secret and default 5413
+  for (const expected of getAdminPasscodeCandidates()) {
+    if (safeEqualString(got, expected)) return true;
+  }
+  return false;
+}
+
+/** Which accepted passcode the user typed (for syncing account password). */
+function matchedAdminPasscode(input: string): string {
+  const got = (input || "").trim();
+  for (const expected of getAdminPasscodeCandidates()) {
+    if (safeEqualString(got, expected)) return expected;
+  }
+  return DEFAULT_ADMIN_PASSCODE;
 }
 
 type EmailDispatchResult = {
@@ -1485,24 +1497,43 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
-  /** Create platform org + admin member if missing. Returns the active platform admin. */
+  /**
+   * Ensure a platform admin exists and password matches the unlock passcode.
+   * Always syncs password so Client Login (email + 5413) works after unlock.
+   */
   async function ensurePlatformAdmin(opts?: {
     email?: string;
     name?: string;
     password?: string;
   }) {
-    const [existing] = await db
+    const email = (opts?.email || getAdminEmail()).toLowerCase().trim();
+    const name = (opts?.name || "Nick Lynch").trim();
+    const password = opts?.password || DEFAULT_ADMIN_PASSCODE;
+    const passwordHash = await hashPassword(password);
+
+    // Prefer existing active platform admin
+    const [existingAdmin] = await db
       .select()
       .from(clientMembers)
       .where(and(eq(clientMembers.role, "platform_admin"), eq(clientMembers.status, "active")))
       .limit(1);
-    if (existing) return { member: existing, created: false as const };
 
-    const email = (opts?.email || getAdminEmail()).toLowerCase().trim();
-    const name = (opts?.name || "Nick Lynch").trim();
-    const password = opts?.password || getAdminPassword();
+    if (existingAdmin) {
+      // Reset password to passcode so /login works with same credentials
+      const [updated] = await db
+        .update(clientMembers)
+        .set({
+          passwordHash,
+          status: "active",
+          lastLoginAt: new Date(),
+          termsAcceptedAt: existingAdmin.termsAcceptedAt ?? new Date(),
+        })
+        .where(eq(clientMembers.id, existingAdmin.id))
+        .returning();
+      return { member: updated!, created: false as const };
+    }
 
-    // Reuse existing org named Spartan Platform if present
+    // Reuse platform org if present
     let orgId: number;
     const [existingOrg] = await db
       .select()
@@ -1525,14 +1556,13 @@ export function registerAuthRoutes(app: Express): void {
       orgId = org.id;
     }
 
-    // If email already exists as non-admin, promote
+    // Promote existing member with admin email, or create new
     const [byEmail] = await db
       .select()
       .from(clientMembers)
       .where(eq(clientMembers.email, email))
       .limit(1);
 
-    const passwordHash = await hashPassword(password);
     if (byEmail) {
       const [promoted] = await db
         .update(clientMembers)
@@ -1631,16 +1661,20 @@ export function registerAuthRoutes(app: Express): void {
       if (!adminPasswordMatches(parsed.data.password)) {
         return res.status(401).json({
           error:
-            "Invalid admin passcode. On Replit Secrets set ADMIN_PASSWORD exactly to 5413 (no quotes/spaces), then Restart. Or leave ADMIN_PASSWORD unset to use default 5413.",
+            "Invalid admin passcode. Use 5413. If Secrets has ADMIN_PASSWORD set to something else, change it to 5413 or delete it, then Restart the Repl.",
           code: "INVALID_ADMIN_PASSCODE",
         });
       }
+
+      const passcode = matchedAdminPasscode(parsed.data.password);
 
       let admin;
       let created = false;
       try {
         const ensured = await ensurePlatformAdmin({
-          password: getAdminPassword(),
+          email: getAdminEmail(),
+          name: "Nick Lynch",
+          password: passcode,
         });
         admin = ensured.member;
         created = ensured.created;
@@ -1658,17 +1692,20 @@ export function registerAuthRoutes(app: Express): void {
         admin.id,
         req.headers["user-agent"] as string | undefined,
       );
-      await db
-        .update(clientMembers)
-        .set({ lastLoginAt: new Date() })
-        .where(eq(clientMembers.id, admin.id));
       setSessionCookie(res, token, expiresAt);
-      await logEvent(created ? "admin_auto_bootstrap" : "admin_legacy_login", admin.id);
+      await logEvent(created ? "admin_auto_bootstrap" : "admin_legacy_login", admin.id, {
+        email: admin.email,
+      });
 
       const access = await getAccessForMemberId(admin.id);
       return res.json({
         ok: true,
         created,
+        /** So the UI can show Nick what to use on /login */
+        loginHint: {
+          email: admin.email,
+          note: "Client Login uses this email + the same passcode you just entered.",
+        },
         member: publicMember(admin),
         organization: access.org ? publicOrg(access.org) : null,
         fieldKit: {

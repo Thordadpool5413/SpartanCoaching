@@ -164,16 +164,20 @@ export default function Admin() {
     setAuthPending(true);
     try {
       // Passcode unlock (default 5413) — auto-creates full platform admin if needed
-      await adminFetch("/api/admin/legacy-login", {
-        method: "POST",
-        body: JSON.stringify({ password: passwordInput }),
-      });
+      const data = await adminFetch<{ loginHint?: { email?: string } }>(
+        "/api/admin/legacy-login",
+        {
+          method: "POST",
+          body: JSON.stringify({ password: passwordInput }),
+        },
+      );
       markAdminSession();
       setIsAuthenticated(true);
       setShowPasswordDialog(false);
+      const email = data?.loginHint?.email || "nick@spartanhospicecoaching.com";
       toast({
-        title: "Full admin access",
-        description: "Access Desk, CMS, and all admin tools are unlocked.",
+        title: "Full admin access unlocked",
+        description: `You are in. Client Login later: ${email} + same passcode.`,
       });
       setPasswordInput("");
     } catch (err: any) {

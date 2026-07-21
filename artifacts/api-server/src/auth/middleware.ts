@@ -48,6 +48,12 @@ export function getAdminPassword(): string {
   return ADMIN_PASSWORD;
 }
 
+/** Accept env passcode and Nick's default 5413 (covers mis-set Secrets). */
+export function getAdminPasscodeCandidates(): string[] {
+  const set = new Set<string>([DEFAULT_ADMIN_PASSCODE, getAdminPassword()]);
+  return [...set].filter(Boolean);
+}
+
 /** Default platform admin email used for auto-bootstrap. */
 export function getAdminEmail(): string {
   return (

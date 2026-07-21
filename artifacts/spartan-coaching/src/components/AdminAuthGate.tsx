@@ -84,16 +84,20 @@ export function AdminAuthGate({
     setAuthPending(true);
     try {
       // Single passcode unlock — server auto-creates platform admin if needed
-      await adminFetch("/api/admin/legacy-login", {
+      const data = await adminFetch<{
+        loginHint?: { email?: string; note?: string };
+        created?: boolean;
+      }>("/api/admin/legacy-login", {
         method: "POST",
         body: JSON.stringify({ password: passwordInput }),
       });
       markAdminSession();
       setIsAuthenticated(true);
       setShowPasswordDialog(false);
+      const email = data?.loginHint?.email || "nick@spartanhospicecoaching.com";
       toast({
-        title: "Full admin access",
-        description: "Access Desk, CMS, and all admin tools are unlocked.",
+        title: "Full admin access unlocked",
+        description: `You are in. For Client Login later use ${email} + the same passcode.`,
       });
       setPasswordInput("");
     } catch (err: any) {

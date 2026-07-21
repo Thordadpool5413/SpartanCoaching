@@ -66,7 +66,19 @@ export default function Login() {
           <p className="text-xs font-bold tracking-widest text-red-400 uppercase">Client access</p>
           <h1 className="text-2xl font-display font-black text-foreground">Sign in</h1>
           <p className="text-sm text-muted-foreground">
-            Access your private Field Kit. Evaluation and client accounts only.
+            Field Kit clients: use the email and password from your approval / set-password email.
+          </p>
+        </div>
+
+        <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm text-left space-y-1">
+          <p className="font-bold text-foreground">Site owner / admin?</p>
+          <p className="text-muted-foreground text-xs leading-relaxed">
+            Do <strong className="text-foreground">not</strong> use this Client Login screen first.
+            Go to{" "}
+            <Link href="/admin/access-desk" className="text-primary font-semibold hover:underline">
+              Admin unlock
+            </Link>{" "}
+            and enter passcode <strong className="text-foreground">5413</strong> only (no username).
           </p>
         </div>
 
@@ -140,6 +152,11 @@ export default function Login() {
         )}
 
         <div className="text-center text-sm text-muted-foreground space-y-2">
+          <p>
+            <Link href="/admin/access-desk" className="text-primary font-semibold hover:underline">
+              Admin unlock (passcode)
+            </Link>
+          </p>
           <p>
             Need access?{" "}
             <Link href="/request-access" className="text-primary font-semibold hover:underline" data-testid="link-login-request">
