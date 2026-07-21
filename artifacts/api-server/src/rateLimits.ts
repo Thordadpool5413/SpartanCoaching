@@ -2,62 +2,127 @@ import rateLimit from "express-rate-limit";
 import { sql } from "drizzle-orm";
 import { db } from "./db";
 import { aiUsageDaily, emailUsageDaily } from "@workspace/db";
+import type { AuthedRequest } from "./auth/middleware";
 
 const rateLimitHandler = (_req: any, res: any) => {
   res.status(429).json({ error: "Too many requests. Please wait and try again." });
 };
 
+/** Prefer member id for authenticated AI routes so one IP shared NAT doesn't starve teams. */
+function memberOrIpKey(req: any): string {
+  const memberId = (req as AuthedRequest).clientMemberId;
+  if (memberId) return `m:${memberId}`;
+  // express-rate-limit uses req.ip when behind trust proxy
+  return `ip:${req.ip || req.socket?.remoteAddress || "unknown"}`;
+}
+
+const common = {
+  standardHeaders: true as const,
+  legacyHeaders: false as const,
+  handler: rateLimitHandler,
+  // trust proxy is set on the app; member-keyed generators are intentional
+  validate: { xForwardedForHeader: false, keyGeneratorIpFallback: false },
+};
+
+/** Broad API abuse guard (per IP) */
+export const globalApiLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 600,
+  ...common,
+  message: { error: "Too many requests. Please slow down." },
+});
+
+/** Login / password / magic-link — tighter than general auth */
+export const loginLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 12,
+  ...common,
+  message: { error: "Too many sign-in attempts. Please try again in a few minutes." },
+});
+
+/** General auth mutations (set password, change password, etc.) */
+export const authLimit = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 25,
+  ...common,
+  message: { error: "Too many attempts. Please try again later." },
+});
+
+/** Access request intake */
+export const requestAccessLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 6,
+  ...common,
+  message: { error: "Too many access requests from this network. Please try again later." },
+});
+
+/** Contact / inquiry forms */
+export const publicFormLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  ...common,
+  message: { error: "Too many form submissions. Please try again later." },
+});
+
+/** Newsletter */
+export const newsletterLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 8,
+  ...common,
+  message: { error: "Too many subscription attempts. Please try again later." },
+});
+
+/** Lightweight analytics pings */
+export const analyticsLimit = rateLimit({
+  windowMs: 60 * 1000,
+  max: 60,
+  ...common,
+});
+
 export const heavyAiLimit = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 5,
-  standardHeaders: true,
-  legacyHeaders: false,
-  handler: rateLimitHandler,
+  max: 8,
+  keyGenerator: memberOrIpKey,
+  ...common,
 });
 
 export const standardAiLimit = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 10,
-  standardHeaders: true,
-  legacyHeaders: false,
-  handler: rateLimitHandler,
+  max: 20,
+  keyGenerator: memberOrIpKey,
+  ...common,
 });
 
 export const roleplayLimit = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 3,
-  standardHeaders: true,
-  legacyHeaders: false,
-  handler: rateLimitHandler,
+  max: 5,
+  keyGenerator: memberOrIpKey,
+  ...common,
 });
 
 export const roleplayMessageLimit = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 30,
-  standardHeaders: true,
-  legacyHeaders: false,
-  handler: rateLimitHandler,
+  max: 40,
+  keyGenerator: memberOrIpKey,
+  ...common,
 });
 
 export const lightAiLimit = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 30,
-  standardHeaders: true,
-  legacyHeaders: false,
-  handler: rateLimitHandler,
+  max: 40,
+  keyGenerator: memberOrIpKey,
+  ...common,
 });
 
 // Sending email from the Spartan domain is more sensitive than generating text.
-// Keep this deliberately tight while preserving the intended email-template flow.
 export const outboundEmailLimit = rateLimit({
   windowMs: 60 * 60 * 1000,
-  max: 3,
-  standardHeaders: true,
-  legacyHeaders: false,
-  handler: rateLimitHandler,
+  max: 5,
+  keyGenerator: memberOrIpKey,
+  ...common,
 });
 
-const GLOBAL_DAILY_CAP = 300;
+const GLOBAL_DAILY_CAP = 400;
 const GLOBAL_DAILY_EMAIL_CAP = 100;
 
 function getTodayStr() {

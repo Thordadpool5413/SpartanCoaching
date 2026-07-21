@@ -3,10 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Printer } from "lucide-react";
 
-const ADMIN_CODE = import.meta.env.VITE_ADMIN_PASSWORD || "5413";
+import { adminGet } from "@/lib/adminApi";
 
-const adminFetch = (url: string) =>
-  fetch(url, { headers: { "X-Admin-Auth": ADMIN_CODE } }).then(r => r.json());
+const adminFetch = <T = unknown>(url: string) => adminGet<T>(url);
 
 interface AiData {
   overallScore: number;

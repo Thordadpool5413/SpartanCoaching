@@ -9,25 +9,7 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { CheckCircle, XCircle, Clock, Building2, User, Loader2 } from "lucide-react";
 import { OrgDetailPanel } from "@/components/OrgDetailPanel";
-
-const ADMIN_CODE = import.meta.env.VITE_ADMIN_PASSWORD || "5413";
-
-const adminFetch = async (url: string, options: RequestInit = {}) => {
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      "X-Admin-Auth": ADMIN_CODE,
-      ...(options.headers || {}),
-    },
-    credentials: "include",
-  });
-  if (!res.ok) {
-    const text = await res.text();
-    throw new Error(text || res.statusText);
-  }
-  return res.json();
-};
+import { adminFetch } from "@/lib/adminApi";
 
 export function AccessDesk() {
   const { toast } = useToast();

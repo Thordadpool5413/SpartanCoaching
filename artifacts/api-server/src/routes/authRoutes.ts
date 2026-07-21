@@ -1,6 +1,5 @@
 import type { Express, Response } from "express";
-import rateLimit from "express-rate-limit";
-import { eq, desc, sql, and, isNull, ne, gte } from "drizzle-orm";
+import { eq, desc, sql, and, isNull, ne, gte, lt } from "drizzle-orm";
 import {
   accessRequests,
   clientMembers,
@@ -32,17 +31,24 @@ import {
   inquiries,
 } from "@workspace/db";
 import { db } from "../db";
-import { generateToken, hashToken, hashPassword, verifyPassword } from "../auth/crypto";
+import { generateToken, hashToken, hashPassword, verifyPassword, safeEqualString } from "../auth/crypto";
 import {
   COOKIE_NAME,
   SESSION_DAYS,
+  MAX_SESSIONS_PER_MEMBER,
   requireAuth,
   requireOrgAdmin,
   requireAdmin,
-  ADMIN_PASSWORD,
+  getAdminPassword,
+  useSecureCookies,
   type AuthedRequest,
 } from "../auth/middleware";
 import { getAccessForMemberId, publicMember, publicOrg } from "../auth/entitlement";
+import {
+  loginLimit,
+  authLimit,
+  requestAccessLimit,
+} from "../rateLimits";
 import {
   sendAccessRequestReceived,
   sendAccessRequestAdminAlert,
@@ -50,22 +56,6 @@ import {
   sendPasswordResetEmail,
   sendOrgInviteEmail,
 } from "../resend";
-
-const authLimiter = rateLimit({
-  windowMs: 15 * 60 * 1000,
-  max: 30,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: "Too many attempts. Please try again later." },
-});
-
-const requestAccessLimiter = rateLimit({
-  windowMs: 60 * 60 * 1000,
-  max: 8,
-  standardHeaders: true,
-  legacyHeaders: false,
-  message: { error: "Too many access requests from this network. Please try again later." },
-});
 
 function getSiteUrl(): string {
   return (
@@ -79,7 +69,7 @@ function getSiteUrl(): string {
 function setSessionCookie(res: Response, token: string, expiresAt: Date) {
   res.cookie(COOKIE_NAME, token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    secure: useSecureCookies(),
     sameSite: "lax",
     expires: expiresAt,
     path: "/",
@@ -87,10 +77,35 @@ function setSessionCookie(res: Response, token: string, expiresAt: Date) {
 }
 
 function clearSessionCookie(res: Response) {
-  res.clearCookie(COOKIE_NAME, { path: "/" });
+  res.clearCookie(COOKIE_NAME, {
+    path: "/",
+    httpOnly: true,
+    secure: useSecureCookies(),
+    sameSite: "lax",
+  });
+}
+
+async function pruneExpiredSessions(memberId: number) {
+  await db
+    .delete(clientSessions)
+    .where(and(eq(clientSessions.memberId, memberId), lt(clientSessions.expiresAt, new Date())));
+}
+
+async function pruneExcessSessions(memberId: number) {
+  const rows = await db
+    .select({ id: clientSessions.id })
+    .from(clientSessions)
+    .where(eq(clientSessions.memberId, memberId))
+    .orderBy(desc(clientSessions.createdAt));
+  if (rows.length <= MAX_SESSIONS_PER_MEMBER) return;
+  const toDrop = rows.slice(MAX_SESSIONS_PER_MEMBER).map((r) => r.id);
+  for (const id of toDrop) {
+    await db.delete(clientSessions).where(eq(clientSessions.id, id));
+  }
 }
 
 async function createSession(memberId: number, userAgent?: string) {
+  await pruneExpiredSessions(memberId);
   const token = generateToken(32);
   const tokenHash = hashToken(token);
   const expiresAt = new Date(Date.now() + SESSION_DAYS * 24 * 60 * 60 * 1000);
@@ -100,7 +115,14 @@ async function createSession(memberId: number, userAgent?: string) {
     expiresAt,
     userAgent: userAgent?.slice(0, 500) ?? null,
   });
+  await pruneExcessSessions(memberId);
   return { token, expiresAt };
+}
+
+function adminPasswordMatches(input: string): boolean {
+  const expected = getAdminPassword();
+  if (!expected) return false;
+  return safeEqualString(input, expected);
 }
 
 async function createAuthToken(memberId: number, purpose: string, hoursValid: number) {
@@ -155,7 +177,7 @@ export function registerAuthRoutes(app: Express): void {
   // loadSession is mounted globally in app.ts so requireFieldKit sees the session
 
   // ── Public: request access ─────────────────────────────────────────
-  app.post("/api/auth/request-access", requestAccessLimiter, async (req, res) => {
+  app.post("/api/auth/request-access", requestAccessLimit, async (req, res) => {
     try {
       const parsed = requestAccessBodySchema.safeParse(req.body);
       if (!parsed.success) {
@@ -264,7 +286,7 @@ export function registerAuthRoutes(app: Express): void {
   });
 
   // ── Auth: login / logout / me ──────────────────────────────────────
-  app.post("/api/auth/login", authLimiter, async (req, res) => {
+  app.post("/api/auth/login", loginLimit, async (req, res) => {
     try {
       const parsed = loginBodySchema.safeParse(req.body);
       if (!parsed.success) {
@@ -341,6 +363,26 @@ export function registerAuthRoutes(app: Express): void {
     } catch (err) {
       clearSessionCookie(res);
       return res.json({ ok: true });
+    }
+  });
+
+  /** End all sessions for the signed-in member (other devices). Keeps current session. */
+  app.post("/api/auth/logout-others", requireAuth, async (req: AuthedRequest, res) => {
+    try {
+      const memberId = req.clientMemberId!;
+      const currentId = req.sessionId;
+      if (currentId) {
+        await db
+          .delete(clientSessions)
+          .where(and(eq(clientSessions.memberId, memberId), ne(clientSessions.id, currentId)));
+      } else {
+        await db.delete(clientSessions).where(eq(clientSessions.memberId, memberId));
+      }
+      await logEvent("logout_others", memberId);
+      return res.json({ ok: true });
+    } catch (err) {
+      console.error("logout-others error:", err);
+      return res.status(500).json({ error: "Unable to end other sessions" });
     }
   });
 
@@ -445,7 +487,7 @@ export function registerAuthRoutes(app: Express): void {
   });
 
   // ── Set password (from approval / invite) ──────────────────────────
-  app.post("/api/auth/set-password", authLimiter, async (req, res) => {
+  app.post("/api/auth/set-password", authLimit, async (req, res) => {
     try {
       const parsed = setPasswordBodySchema.safeParse(req.body);
       if (!parsed.success) {
@@ -523,7 +565,7 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
-  app.post("/api/auth/forgot-password", authLimiter, async (req, res) => {
+  app.post("/api/auth/forgot-password", loginLimit, async (req, res) => {
     try {
       const parsed = forgotPasswordBodySchema.safeParse(req.body);
       if (!parsed.success) {
@@ -557,7 +599,7 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
-  app.post("/api/auth/reset-password", authLimiter, async (req, res) => {
+  app.post("/api/auth/reset-password", authLimit, async (req, res) => {
     try {
       const parsed = resetPasswordBodySchema.safeParse(req.body);
       if (!parsed.success) {
@@ -1286,13 +1328,19 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
-  app.post("/api/admin/bootstrap", authLimiter, async (req, res) => {
+  app.post("/api/admin/bootstrap", authLimit, async (req, res) => {
     try {
       const parsed = adminBootstrapBodySchema.safeParse(req.body);
       if (!parsed.success) {
         return res.status(400).json({ error: "Invalid bootstrap payload" });
       }
-      if (parsed.data.adminPassword !== ADMIN_PASSWORD) {
+      if (!getAdminPassword()) {
+        return res.status(503).json({
+          error: "ADMIN_PASSWORD is not configured on the server. Set it in Secrets, then retry bootstrap.",
+          code: "ADMIN_PASSWORD_UNSET",
+        });
+      }
+      if (!adminPasswordMatches(parsed.data.adminPassword)) {
         return res.status(401).json({ error: "Invalid admin password" });
       }
 
@@ -1360,10 +1408,10 @@ export function registerAuthRoutes(app: Express): void {
   });
 
   /** Legacy single-password admin unlock → session as first platform admin (if any) */
-  app.post("/api/admin/legacy-login", authLimiter, async (req, res) => {
+  app.post("/api/admin/legacy-login", loginLimit, async (req, res) => {
     try {
       const parsed = adminLegacyLoginBodySchema.safeParse(req.body);
-      if (!parsed.success || parsed.data.password !== ADMIN_PASSWORD) {
+      if (!parsed.success || !adminPasswordMatches(parsed.data.password)) {
         return res.status(401).json({ error: "Invalid admin password" });
       }
 
@@ -1403,8 +1451,6 @@ export function registerAuthRoutes(app: Express): void {
         },
         token,
         expiresAt,
-        // Still return header value so existing admin UI can keep X-Admin-Auth during transition
-        legacyHeader: ADMIN_PASSWORD,
       });
     } catch (err) {
       console.error("admin legacy-login error:", err);
@@ -1413,7 +1459,7 @@ export function registerAuthRoutes(app: Express): void {
   });
 
   // ── Magic link login ───────────────────────────────────────────────
-  app.post("/api/auth/magic-link", authLimiter, async (req, res) => {
+  app.post("/api/auth/magic-link", loginLimit, async (req, res) => {
     try {
       const parsed = magicLinkRequestSchema.safeParse(req.body);
       if (!parsed.success) {
@@ -1449,7 +1495,7 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
-  app.post("/api/auth/magic-login", authLimiter, async (req, res) => {
+  app.post("/api/auth/magic-login", loginLimit, async (req, res) => {
     try {
       const token = String(req.body?.token || "");
       if (!token) return res.status(400).json({ error: "Token required" });
@@ -1500,7 +1546,7 @@ export function registerAuthRoutes(app: Express): void {
   });
 
   // ── Change password ────────────────────────────────────────────────
-  app.post("/api/auth/change-password", requireAuth, authLimiter, async (req: AuthedRequest, res) => {
+  app.post("/api/auth/change-password", requireAuth, authLimit, async (req: AuthedRequest, res) => {
     try {
       const parsed = changePasswordBodySchema.safeParse(req.body);
       if (!parsed.success) {

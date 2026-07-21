@@ -25,3 +25,16 @@ export function generateToken(bytes = 32): string {
 export function hashToken(token: string): string {
   return createHash("sha256").update(token).digest("hex");
 }
+
+/** Constant-time string compare (padding-safe for unequal lengths). */
+export function safeEqualString(a: string, b: string): boolean {
+  const aBuf = Buffer.from(a);
+  const bBuf = Buffer.from(b);
+  if (aBuf.length !== bBuf.length) {
+    // Still run a compare to reduce trivial timing leaks on length
+    const dummy = Buffer.alloc(aBuf.length);
+    timingSafeEqual(aBuf, dummy);
+    return false;
+  }
+  return timingSafeEqual(aBuf, bBuf);
+}

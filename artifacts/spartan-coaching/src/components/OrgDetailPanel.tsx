@@ -17,21 +17,7 @@ import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
 import { ArrowLeft, Loader2 } from "lucide-react";
 
-const ADMIN_CODE = import.meta.env.VITE_ADMIN_PASSWORD || "5413";
-
-const adminFetch = async (url: string, options: RequestInit = {}) => {
-  const res = await fetch(url, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      "X-Admin-Auth": ADMIN_CODE,
-      ...(options.headers || {}),
-    },
-    credentials: "include",
-  });
-  if (!res.ok) throw new Error((await res.text()) || res.statusText);
-  return res.json();
-};
+import { adminFetch } from "@/lib/adminApi";
 
 const PIPELINE = [
   { value: "prospect", label: "Prospect" },

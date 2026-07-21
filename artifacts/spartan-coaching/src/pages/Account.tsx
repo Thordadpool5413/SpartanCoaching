@@ -259,6 +259,34 @@ export default function Account() {
       )}
 
       <Card className="border border-white/10 dark:bg-[#0c0c0c] p-6 space-y-4">
+        <h2 className="text-lg font-bold">Sessions &amp; security</h2>
+        <p className="text-sm text-muted-foreground">
+          Sessions last up to 14 days. Changing your password signs out other devices automatically.
+        </p>
+        <Button
+          type="button"
+          variant="outline"
+          className="font-bold w-full sm:w-auto"
+          data-testid="button-logout-others"
+          onClick={async () => {
+            try {
+              const res = await fetch("/api/auth/logout-others", {
+                method: "POST",
+                credentials: "include",
+              });
+              const data = await res.json().catch(() => ({}));
+              if (!res.ok) throw new Error(data.error || "Failed");
+              toast({ title: "Other sessions ended", description: "You stay signed in on this device." });
+            } catch (err: any) {
+              toast({ title: "Could not end sessions", description: err?.message, variant: "destructive" });
+            }
+          }}
+        >
+          Sign out other devices
+        </Button>
+      </Card>
+
+      <Card className="border border-white/10 dark:bg-[#0c0c0c] p-6 space-y-4">
         <h2 className="text-lg font-bold">Change password</h2>
         <form
           className="grid sm:grid-cols-2 gap-3"

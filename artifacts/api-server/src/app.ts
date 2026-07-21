@@ -6,9 +6,13 @@ import router from "./routes";
 import { registerRoutes } from "./routes/routes";
 import { registerAuthRoutes } from "./routes/authRoutes";
 import { loadSession } from "./auth/middleware";
+import { globalApiLimit } from "./rateLimits";
 import { logger } from "./lib/logger";
 
 const app: Express = express();
+
+// Correct client IPs behind Replit / reverse proxies (needed for rate limits)
+app.set("trust proxy", 1);
 
 app.use(
   pinoHttp({
@@ -41,6 +45,9 @@ app.use(express.urlencoded({ extended: true, limit: "50mb" }));
 
 // Load Field Kit session (cookie or Bearer) for every request before route handlers
 app.use(loadSession);
+
+// Global API abuse guard (auth + tools + public forms)
+app.use("/api", globalApiLimit);
 
 // Health + scaffold routes
 app.use("/api", router);

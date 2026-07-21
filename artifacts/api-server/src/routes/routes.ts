@@ -10,6 +10,9 @@ import {
   globalDailyAiCap,
   globalDailyEmailCap,
   getAiUsageToday,
+  publicFormLimit,
+  newsletterLimit,
+  analyticsLimit,
 } from "../rateLimits";
 
 import path from "path";
@@ -55,7 +58,7 @@ import {
 import { sendInquiryNotification, sendNewsletterConfirmation, sendGeneratedEmail, sendAgreementConfirmation, sendResourceLeadNotification, sendNewsletterNotification, sendNewsletterBroadcast, sendDripDay3, sendDripDay7, sendSigningRequest, sendSignedAgreementPdf } from "../resend";
 import crypto from "crypto";
 import { AGREEMENT_TEXTS } from "../agreementTexts";
-import { requireFieldKit, requireAdmin, isAdminRequest, ADMIN_PASSWORD } from "../auth/middleware";
+import { requireFieldKit, requireAdmin, isAdminRequest } from "../auth/middleware";
 
 // Deferred initialization - call this AFTER server.listen()
 export async function deferredInit(app: Express): Promise<void> {
@@ -253,7 +256,7 @@ Keep it under 100 words and use a warm, professional tone.`;
   });
 
   // Inquiry Form Submission
-  app.post("/api/inquiries", async (req, res) => {
+  app.post("/api/inquiries", publicFormLimit, async (req, res) => {
     try {
       const inquiryData = inquirySchema.parse(req.body);
       
@@ -299,7 +302,7 @@ Keep it under 100 words and use a warm, professional tone.`;
   });
 
   // Newsletter Subscription
-  app.post("/api/newsletter/subscribe", async (req, res) => {
+  app.post("/api/newsletter/subscribe", newsletterLimit, async (req, res) => {
     try {
       const subscriberData = insertNewsletterSubscriberSchema.parse(req.body);
       
@@ -1206,7 +1209,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   });
 
   // Track Visitor
-  app.post("/api/analytics/track", async (req, res) => {
+  app.post("/api/analytics/track", analyticsLimit, async (req, res) => {
     try {
       const visitorData = insertVisitorSchema.parse(req.body);
       
@@ -1231,7 +1234,7 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
   });
 
-  app.post("/api/analytics/events", async (req, res) => {
+  app.post("/api/analytics/events", analyticsLimit, async (req, res) => {
     try {
       const eventData = insertEventTrackingSchema.parse(req.body);
       await storage.trackEvent(eventData);
