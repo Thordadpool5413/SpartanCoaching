@@ -35,7 +35,8 @@ Expert hospice growth coaching site + private Field Kit (web + iOS) for clients 
 - Trial lifecycle emails: received, approved, rejected, midpoint (≤4h), expired, extended, membership activated
 - Magic-link login (`/login` email link + `/magic-login`)
 - Platform admin: one-time bootstrap + **session cookie** (legacy shared password unlocks session; no client-embedded admin code)
-- Admin **Access Desk**: one-click 24h/72h approve, reject templates, follow-ups due queue, extend presets, resend invite, metrics
+- Admin **Access Desk**: dedicated `/admin/access-desk` (fast) + tab inside `/admin`
+- Access Desk: one-click 24h/72h approve, reject templates, follow-ups due, ops jobs, extend presets
 - Access requests auto-create CRM inquiries
 - Org admin: seat invites, disable member, 7-day usage (`/api/org/usage`)
 - Account: change password, sign out other devices; expired clients can request extension
@@ -78,6 +79,8 @@ Expert hospice growth coaching site + private Field Kit (web + iOS) for clients 
 - Mobile app (Expo Go): scan QR from the **Replit URL bar**, not the Expo LAN IP
 - Mobile session token stored in AsyncStorage; send `Authorization: Bearer <token>`
 - Auth unit tests: `pnpm --filter @workspace/api-server run test`
+- Smoke checklist: `scripts/smoke-field-kit.md`
+- Live health smoke: `node scripts/smoke-health.mjs https://your-host`
 
 ## Pointers
 

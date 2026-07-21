@@ -938,7 +938,7 @@ export async function sendAccessRequestAdminAlert(data: {
           ${data.seatsRequested ? `<tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #eee;">Seats</td><td style="padding:8px;border-bottom:1px solid #eee;">${data.seatsRequested}</td></tr>` : ""}
         </table>
         ${data.message ? `<h3>Message</h3><p style="background:#f9f9f9;padding:16px;border-radius:8px;white-space:pre-wrap;">${data.message}</p>` : ""}
-        <p style="margin-top:24px;"><a href="${siteUrl}/admin" style="color:#b91c1c;">Open Access Desk in Admin</a></p>
+        <p style="margin-top:24px;"><a href="${siteUrl}/admin/access-desk" style="color:#b91c1c;">Open Access Desk</a></p>
       `),
     });
     return true;
@@ -1250,7 +1250,7 @@ export async function sendOpsDigestEmail(
           <tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold;">Tool uses (7d)</td><td style="padding:8px;border-bottom:1px solid #eee;">${snapshot.toolUsesLast7Days}</td></tr>
         </table>
         <div style="text-align:center;margin:24px 0;">
-          <a href="${siteUrl}/admin" style="display:inline-block;background:#b91c1c;color:white;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:bold;">Open Access Desk</a>
+          <a href="${siteUrl}/admin/access-desk" style="display:inline-block;background:#b91c1c;color:white;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:bold;">Open Access Desk</a>
         </div>
       `),
     });

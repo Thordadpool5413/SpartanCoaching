@@ -48,6 +48,7 @@ const MetricsDashboard = lazy(() => import("@/pages/resources/MetricsDashboard")
 const ActivityTracker = lazy(() => import("@/pages/resources/ActivityTracker"));
 const Quiz = lazy(() => import("@/pages/Quiz"));
 const Admin = lazy(() => import("@/pages/Admin"));
+const AdminAccessDesk = lazy(() => import("@/pages/AdminAccessDesk"));
 const EmailTemplates = lazy(() => import("@/pages/EmailTemplates"));
 const Testimonials = lazy(() => import("@/pages/Testimonials"));
 const Articles = lazy(() => import("@/pages/Articles"));
@@ -229,6 +230,7 @@ function Router() {
           <Route path="/drills" component={GatedDrills} />
 
           <Route path="/resources" component={Resources} />
+          <Route path="/admin/access-desk" component={AdminAccessDesk} />
           <Route path="/admin" component={Admin} />
           <Route path="/resources/weekly-plan" component={WeeklyPlan} />
           <Route path="/resources/activity-tracker" component={ActivityTracker} />

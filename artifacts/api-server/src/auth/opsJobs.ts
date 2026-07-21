@@ -1,8 +1,10 @@
-import { eq, gte, sql } from "drizzle-orm";
+import { eq, gte, lt, sql } from "drizzle-orm";
 import {
   accessRequests,
   authEvents,
+  authTokens,
   clientOrganizations,
+  clientSessions,
   usageEvents,
 } from "@workspace/db";
 import { db } from "../db";
@@ -128,15 +130,62 @@ export async function runOpsDigest(options?: {
   };
 }
 
+export type CleanupResult = {
+  expiredSessionsDeleted: number;
+  expiredTokensDeleted: number;
+  ranAt: string;
+};
+
+/** Remove expired Field Kit sessions and used/expired auth tokens. */
+export async function runSessionCleanup(): Promise<CleanupResult> {
+  const now = new Date();
+  const ranAt = now.toISOString();
+
+  const expiredSessions = await db
+    .delete(clientSessions)
+    .where(lt(clientSessions.expiresAt, now))
+    .returning({ id: clientSessions.id });
+
+  // Used tokens older than 7 days, or any token past expiry
+  const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  const expiredTokens = await db
+    .delete(authTokens)
+    .where(lt(authTokens.expiresAt, now))
+    .returning({ id: authTokens.id });
+
+  // Best-effort: also drop very old used tokens if still present (already covered by expiresAt usually)
+  void weekAgo;
+
+  const result: CleanupResult = {
+    expiredSessionsDeleted: expiredSessions.length,
+    expiredTokensDeleted: expiredTokens.length,
+    ranAt,
+  };
+
+  try {
+    await db.insert(authEvents).values({
+      memberId: null,
+      type: "job_session_cleanup",
+      meta: result as unknown as Record<string, unknown>,
+    });
+  } catch {
+    /* non-fatal */
+  }
+
+  return result;
+}
+
 export async function runScheduledJobs(options?: {
   forceDigest?: boolean;
 }): Promise<{
   trialSweep: TrialSweepResult;
   opsDigest: OpsDigestResult;
+  cleanup: CleanupResult;
 }> {
   const trialSweep = await runTrialLifecycleSweep();
+  const cleanup = await runSessionCleanup();
   const opsDigest = await runOpsDigest({ force: options?.forceDigest });
-  return { trialSweep, opsDigest };
+  return { trialSweep, opsDigest, cleanup };
 }
 
 /** Background interval for Replit / long-running servers. */
@@ -170,6 +219,14 @@ export function startBackgroundJobScheduler(): void {
         }
       })
       .catch((err) => console.error("[jobs] trial sweep failed", err));
+
+    void runSessionCleanup()
+      .then((r) => {
+        if (r.expiredSessionsDeleted || r.expiredTokensDeleted) {
+          console.log("[jobs] session cleanup", r);
+        }
+      })
+      .catch((err) => console.error("[jobs] session cleanup failed", err));
 
     // Digest once per day around first tick after 13:00 UTC (≈ morning US)
     const hour = new Date().getUTCHours();

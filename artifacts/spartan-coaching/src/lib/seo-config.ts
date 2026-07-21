@@ -221,6 +221,12 @@ const seoDefaults: Record<string, SEOConfig> = {
     keywords: 'admin',
     noIndex: true,
   },
+  '/admin/access-desk': {
+    title: 'Access Desk | Spartan Coaching',
+    description: 'Field Kit access operations.',
+    keywords: 'admin',
+    noIndex: true,
+  },
   '/faq': {
     title: 'FAQ | Spartan Coaching',
     description:

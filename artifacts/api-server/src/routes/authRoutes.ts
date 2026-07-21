@@ -46,7 +46,12 @@ import {
 } from "../auth/middleware";
 import { getAccessForMemberId, publicMember, publicOrg } from "../auth/entitlement";
 import { runTrialLifecycleSweep } from "../auth/trialLifecycle";
-import { runOpsDigest, runScheduledJobs, buildOpsSnapshot } from "../auth/opsJobs";
+import {
+  runOpsDigest,
+  runScheduledJobs,
+  runSessionCleanup,
+  buildOpsSnapshot,
+} from "../auth/opsJobs";
 import {
   loginLimit,
   authLimit,
@@ -1910,6 +1915,16 @@ export function registerAuthRoutes(app: Express): void {
     } catch (err) {
       console.error("ops-digest error:", err);
       return res.status(500).json({ error: "Ops digest failed" });
+    }
+  });
+
+  app.post("/api/admin/jobs/session-cleanup", requireAdmin, async (_req, res) => {
+    try {
+      const cleanup = await runSessionCleanup();
+      return res.json({ ok: true, cleanup });
+    } catch (err) {
+      console.error("session-cleanup error:", err);
+      return res.status(500).json({ error: "Session cleanup failed" });
     }
   });
 

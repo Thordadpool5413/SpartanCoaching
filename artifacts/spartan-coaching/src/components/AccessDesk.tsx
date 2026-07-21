@@ -169,7 +169,9 @@ export function AccessDesk() {
     });
   };
 
-  const runJob = async (kind: "trial-sweep" | "ops-digest" | "run-all") => {
+  const runJob = async (
+    kind: "trial-sweep" | "ops-digest" | "session-cleanup" | "run-all",
+  ) => {
     setJobBusy(kind);
     try {
       const path =
@@ -177,7 +179,9 @@ export function AccessDesk() {
           ? "/api/admin/jobs/trial-sweep"
           : kind === "ops-digest"
             ? "/api/admin/jobs/ops-digest"
-            : "/api/admin/jobs/run-all";
+            : kind === "session-cleanup"
+              ? "/api/admin/jobs/session-cleanup"
+              : "/api/admin/jobs/run-all";
       const body =
         kind === "ops-digest"
           ? { force: true }
@@ -201,12 +205,19 @@ export function AccessDesk() {
           description: d?.emailMessage || "Done",
           variant: d?.sent === false && d?.emailMessage?.includes("Failed") ? "destructive" : undefined,
         });
+      } else if (kind === "session-cleanup") {
+        const c = (data as any).cleanup;
+        toast({
+          title: "Session cleanup done",
+          description: `Removed ${c?.expiredSessionsDeleted ?? 0} sessions, ${c?.expiredTokensDeleted ?? 0} tokens.`,
+        });
       } else {
         const s = (data as any).trialSweep;
         const d = (data as any).opsDigest;
+        const c = (data as any).cleanup;
         toast({
           title: "Jobs finished",
-          description: `Sweep: expired ${s?.expired ?? 0}. Digest: ${d?.emailMessage || "ok"}`,
+          description: `Sweep expired ${s?.expired ?? 0}. Cleanup ${c?.expiredSessionsDeleted ?? 0} sessions. ${d?.emailMessage || ""}`,
         });
       }
       invalidate();
@@ -261,6 +272,18 @@ export function AccessDesk() {
               <Mail className="w-4 h-4" />
             )}
             Email ops digest now
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="font-bold"
+            disabled={!!jobBusy}
+            onClick={() => runJob("session-cleanup")}
+          >
+            {jobBusy === "session-cleanup" ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : null}
+            Clean expired sessions
           </Button>
           <Button
             size="sm"

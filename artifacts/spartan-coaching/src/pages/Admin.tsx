@@ -2253,6 +2253,18 @@ export default function Admin() {
         )}
       </div>
 
+      <div className="mb-4 flex flex-wrap gap-2">
+        <Button asChild size="sm" className="font-bold gap-1.5" data-testid="link-open-access-desk">
+          <a href="/admin/access-desk">
+            <KeyRound className="w-3.5 h-3.5" />
+            Open Access Desk (fast)
+          </a>
+        </Button>
+        <p className="text-xs text-muted-foreground self-center">
+          Prefer the dedicated ops page — loads without the full CMS.
+        </p>
+      </div>
+
       <Tabs defaultValue="access" className="space-y-6">
         <TabsList className="flex w-full max-w-6xl overflow-x-auto">
           <TabsTrigger
