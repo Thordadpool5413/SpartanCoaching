@@ -15,9 +15,8 @@ export function Scene4_Conversational() {
 
   return (
     <motion.div
-      className="absolute inset-0 z-20 flex items-center pl-[20vw] bg-[#070707]"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
+      className="absolute inset-0 z-10 flex items-center pl-[15vw] bg-[#070707]"
+      initial={{ opacity: 1 }}
       exit={{ opacity: 0, scale: 1.06, filter: 'blur(12px)' }}
       transition={{ duration: 0.4 }}
     >

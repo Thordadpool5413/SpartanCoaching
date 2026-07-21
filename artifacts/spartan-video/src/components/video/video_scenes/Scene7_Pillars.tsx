@@ -44,34 +44,33 @@ export function Scene7_Pillars() {
           DISCIPLINE.
         </motion.h1>
 
-        {/* EMPATHY */}
-        {phase >= 2 && (
-          <motion.h1 
-            className="font-display uppercase text-center w-full whitespace-nowrap overflow-hidden truncate"
-            style={{ fontSize: phase >= 3 ? '15vw' : '20vw' }}
-            initial={{ opacity: 0, y: 40, color: '#f5f5f0' }}
-            animate={{ 
-              opacity: 1, 
-              y: 0,
-              color: phase >= 3 ? '#e8291e' : '#f5f5f0'
-            }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
-          >
-            EMPATHY.
-          </motion.h1>
-        )}
+        {/* EMPATHY — always mounted, animated by phase */}
+        <motion.h1
+          className="font-display uppercase text-center w-full whitespace-nowrap overflow-hidden truncate"
+          initial={{ opacity: 0, y: 40, fontSize: '20vw', color: '#f5f5f0' }}
+          animate={{
+            opacity: phase >= 2 ? 1 : 0,
+            y: phase >= 2 ? 0 : 40,
+            fontSize: phase >= 3 ? '15vw' : '20vw',
+            color: phase >= 3 ? '#e8291e' : '#f5f5f0',
+          }}
+          transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+        >
+          EMPATHY.
+        </motion.h1>
 
-        {/* STRATEGY */}
-        {phase >= 3 && (
-          <motion.h1 
-            className="font-display text-[#e8291e] uppercase text-center w-full whitespace-nowrap text-[15vw] overflow-hidden truncate"
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: 'spring', stiffness: 300, damping: 25 }}
-          >
-            STRATEGY.
-          </motion.h1>
-        )}
+        {/* STRATEGY — always mounted, animated by phase */}
+        <motion.h1
+          className="font-display text-[#e8291e] uppercase text-center w-full whitespace-nowrap overflow-hidden truncate"
+          style={{ fontSize: '15vw' }}
+          animate={{
+            opacity: phase >= 3 ? 1 : 0,
+            scale: phase >= 3 ? 1 : 0.82,
+          }}
+          transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+        >
+          STRATEGY.
+        </motion.h1>
       </div>
     </motion.div>
   );
