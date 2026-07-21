@@ -63,42 +63,6 @@ export default function Home() {
             <SpartanHeroAnimation />
           </Suspense>
         </AnimationErrorBoundary>
-        <div className="absolute inset-x-0 bottom-0 z-10 pb-12 sm:pb-16 pt-24 bg-gradient-to-t from-[#080808] via-[#080808]/85 to-transparent">
-          <div className="max-w-3xl mx-auto px-4 text-center space-y-6">
-            <h1 className="font-display text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">
-              Close the gap between eligibility and care
-            </h1>
-            <p className="text-white/70 text-base sm:text-lg leading-relaxed max-w-2xl mx-auto">
-              Expert hospice growth coaching and a private Field Kit — discipline, empathy, and strategy that hold up on a Tuesday afternoon.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center flex-wrap">
-              <Button size="lg" asChild className="font-bold px-8" data-testid="button-hero-contact">
-                <Link href="/contact">
-                  Book a strategy call
-                  <ArrowRight className="ml-2 w-5 h-5" />
-                </Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                asChild
-                className="font-bold border-white/30 text-white hover:bg-white/5 px-8"
-                data-testid="button-hero-method"
-              >
-                <Link href="/method">Explore the method</Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="outline"
-                asChild
-                className="font-bold border-white/30 text-white hover:bg-white/5 px-8"
-                data-testid="button-hero-fieldkit"
-              >
-                <Link href="/tools">Field Kit access</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
       </section>
 
       {/* ── 2. PROOF STRIP ── */}
