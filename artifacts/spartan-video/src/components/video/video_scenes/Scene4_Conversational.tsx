@@ -3,19 +3,18 @@ import { useEffect, useState } from 'react';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-// Scene 4 — Spartan's Answer (6s)
-// "Not a conference. / Not motivation." → animated red lines draw across each → they fade out
-// → "A practical, repeatable system." slams in → "Built in the field. Built for hospice."
+// Scene 4 — The Reframe (6s)
+// Pivot from "the gap exists" → "it is fixable"
+// "HOSPICE SALES / IS NOT A MYSTERY." → "IT IS A PROMISE."
+// Directly from the Spartan Coaching brand voice / website hero.
 export function Scene4_Conversational() {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
     const timers = [
-      setTimeout(() => setPhase(1), 250),   // negatives appear
-      setTimeout(() => setPhase(2), 1100),  // strikethrough lines draw
-      setTimeout(() => setPhase(3), 2000),  // negatives fade out
-      setTimeout(() => setPhase(4), 2400),  // positive answer slams in
-      setTimeout(() => setPhase(5), 4000),  // subline fades in
+      setTimeout(() => setPhase(1), 200),   // "HOSPICE SALES"
+      setTimeout(() => setPhase(2), 900),   // "IS NOT A MYSTERY."
+      setTimeout(() => setPhase(3), 3000),  // "IT IS A PROMISE." (red, slams in)
     ];
     return () => timers.forEach(t => clearTimeout(t));
   }, []);
@@ -27,67 +26,55 @@ export function Scene4_Conversational() {
       exit={{ clipPath: 'circle(0% at 50% 50%)' }}
       transition={{ duration: 0.4, ease: EASE }}
     >
-      <div
+      {/* Subtle red glow that intensifies when the promise lands */}
+      <motion.div
         className="absolute inset-0 pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse at 60% 40%, rgba(232,41,30,0.06) 0%, transparent 65%)' }}
+        animate={{
+          background: phase >= 3
+            ? 'radial-gradient(ellipse at 50% 55%, rgba(232,41,30,0.18) 0%, transparent 65%)'
+            : 'radial-gradient(ellipse at 50% 55%, rgba(232,41,30,0.04) 0%, transparent 65%)',
+        }}
+        transition={{ duration: 0.9 }}
       />
 
-      {/* ── Negatives block — appears then gets struck through then fades ── */}
-      <motion.div
-        className="mb-8"
-        animate={{ opacity: phase >= 3 ? 0 : phase >= 1 ? 1 : 0 }}
-        transition={{ duration: 0.4 }}
-      >
-        {(['Not a conference.', 'Not motivation.'] as const).map((line, i) => (
-          <div key={line} className="relative inline-block mb-2 block">
-            <p
-              className="font-display uppercase text-[#9a9a8e] leading-tight"
-              style={{ fontSize: 'clamp(28px, 5.5vw, 84px)' }}
-            >
-              {line}
-            </p>
-            {/* Animated red strikethrough line drawn with scaleX */}
-            <motion.div
-              className="absolute bg-[#e8291e] origin-left pointer-events-none"
-              style={{
-                top: '50%',
-                left: 0,
-                right: 0,
-                height: '3px',
-                transform: 'translateY(-50%)',
-              }}
-              initial={{ scaleX: 0 }}
-              animate={phase >= 2 ? { scaleX: 1 } : { scaleX: 0 }}
-              transition={{ duration: 0.38, delay: i * 0.18, ease: EASE }}
-            />
-          </div>
-        ))}
-      </motion.div>
-
-      {/* ── Positive answer ── */}
-      <div className="overflow-hidden mb-5">
-        <motion.h2
+      {/* "HOSPICE SALES" */}
+      <div className="overflow-hidden">
+        <motion.h1
           className="font-display uppercase text-[#f5f5f0] leading-none"
-          style={{ fontSize: 'clamp(34px, 7vw, 108px)' }}
+          style={{ fontSize: 'clamp(48px, 11vw, 168px)' }}
           initial={{ y: '110%' }}
-          animate={phase >= 4 ? { y: 0 } : { y: '110%' }}
-          transition={{ type: 'spring', stiffness: 280, damping: 26 }}
+          animate={phase >= 1 ? { y: 0 } : { y: '110%' }}
+          transition={{ type: 'spring', stiffness: 340, damping: 26 }}
         >
-          A practical,{' '}
-          <span style={{ color: '#e8291e' }}>repeatable</span> system.
-        </motion.h2>
+          Hospice sales
+        </motion.h1>
       </div>
 
-      {/* ── Subline ── */}
-      <motion.p
-        className="font-body text-[#9a9a8e] uppercase"
-        style={{ fontSize: 'clamp(13px, 2.2vw, 34px)', letterSpacing: '0.14em' }}
-        initial={{ opacity: 0, y: 10 }}
-        animate={phase >= 5 ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-        transition={{ duration: 1.0 }}
-      >
-        Built in the field. Built for hospice.
-      </motion.p>
+      {/* "IS NOT A MYSTERY." */}
+      <div className="overflow-hidden mb-6">
+        <motion.h1
+          className="font-display uppercase text-[#9a9a8e] leading-none"
+          style={{ fontSize: 'clamp(48px, 11vw, 168px)' }}
+          initial={{ y: '110%' }}
+          animate={phase >= 2 ? { y: 0 } : { y: '110%' }}
+          transition={{ type: 'spring', stiffness: 280, damping: 28 }}
+        >
+          is not a mystery.
+        </motion.h1>
+      </div>
+
+      {/* "IT IS A PROMISE." — red, slams in with scale punch */}
+      <div className="overflow-hidden">
+        <motion.h1
+          className="font-display uppercase leading-none"
+          style={{ fontSize: 'clamp(52px, 12vw, 188px)', color: '#e8291e' }}
+          initial={{ y: '110%', scale: 0.88 }}
+          animate={phase >= 3 ? { y: 0, scale: 1 } : { y: '110%', scale: 0.88 }}
+          transition={{ type: 'spring', stiffness: 400, damping: 24 }}
+        >
+          It is a promise.
+        </motion.h1>
+      </div>
     </motion.div>
   );
 }

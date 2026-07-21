@@ -4,17 +4,17 @@ import { useEffect, useState } from 'react';
 const EASE = [0.16, 1, 0.3, 1] as const;
 const spartanLogo = `${import.meta.env.BASE_URL}spartan-logo.png`;
 
-// Scene 8 — Close
-// Logo on cream background, tagline, "Book a Strategy Call" CTA → /contact
+// Scene 8 — Close (6s)
+// Logo SLAMS in from above with a hard spring impact, then line draws, tagline fades, CTA appears.
 export function Scene8_Close() {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
     const timers = [
-      setTimeout(() => setPhase(1), 0),     // logo (immediate)
-      setTimeout(() => setPhase(2), 1600),  // red line
-      setTimeout(() => setPhase(3), 2600),  // tagline
-      setTimeout(() => setPhase(4), 3800),  // CTA button
+      setTimeout(() => setPhase(1), 0),     // logo slam (immediate)
+      setTimeout(() => setPhase(2), 1200),  // red line draws
+      setTimeout(() => setPhase(3), 2100),  // tagline fades in
+      setTimeout(() => setPhase(4), 3300),  // CTA button
     ];
     return () => timers.forEach(t => clearTimeout(t));
   }, []);
@@ -30,18 +30,18 @@ export function Scene8_Close() {
       {/* Soft edge vignette */}
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse at 50% 50%, transparent 38%, rgba(0,0,0,0.16) 100%)' }}
+        style={{ background: 'radial-gradient(ellipse at 50% 50%, transparent 38%, rgba(0,0,0,0.14) 100%)' }}
       />
 
-      {/* Logo */}
+      {/* Logo — slams down from above */}
       <motion.img
         src={spartanLogo}
         alt="Spartan Coaching"
         className="relative z-10 object-contain"
         style={{ width: 'min(58vw, 460px)', height: 'auto' }}
-        initial={{ opacity: 0, scale: 1.05 }}
-        animate={phase >= 1 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 1.05 }}
-        transition={{ duration: 1.2, ease: 'easeOut' }}
+        initial={{ y: '-60%', scale: 0.72, opacity: 0 }}
+        animate={phase >= 1 ? { y: 0, scale: 1, opacity: 1 } : { y: '-60%', scale: 0.72, opacity: 0 }}
+        transition={{ type: 'spring', stiffness: 420, damping: 28 }}
       />
 
       {/* Red accent line */}
@@ -50,7 +50,7 @@ export function Scene8_Close() {
         style={{ width: 'min(58vw, 460px)', height: '4px' }}
         initial={{ scaleX: 0 }}
         animate={phase >= 2 ? { scaleX: 1 } : { scaleX: 0 }}
-        transition={{ duration: 0.85, ease: EASE }}
+        transition={{ duration: 0.75, ease: EASE }}
       />
 
       {/* Tagline */}
@@ -61,14 +61,14 @@ export function Scene8_Close() {
           letterSpacing: '0.14em',
           color: '#3a2e20',
         }}
-        initial={{ opacity: 0, y: 10 }}
-        animate={phase >= 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 10 }}
-        transition={{ duration: 0.9 }}
+        initial={{ opacity: 0, y: 8 }}
+        animate={phase >= 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 8 }}
+        transition={{ duration: 0.85 }}
       >
         Hospice Growth Coaching · spartancoaching.com
       </motion.p>
 
-      {/* CTA button — "Book a Strategy Call" → /contact */}
+      {/* CTA button */}
       <motion.a
         href="/contact"
         target="_blank"
