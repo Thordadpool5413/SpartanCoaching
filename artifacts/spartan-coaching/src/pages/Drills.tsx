@@ -399,7 +399,7 @@ export default function Drills() {
         title="Daily Coaching Drills | Spartan"
         description="Sharpen your hospice sales skills with daily coaching drills. Build consistency and track your progress."
       />
-      <Breadcrumbs items={[{ label: "AI Tools", href: "/tools" }, { label: "Daily Drills" }]} />
+      <Breadcrumbs items={[{ label: "Quick Actions", href: "/tools" }, { label: "Daily Drills" }]} />
 
       <SlideUp>
         <h1 className="text-h1 font-black text-foreground mb-2" data-testid="text-drills-title">

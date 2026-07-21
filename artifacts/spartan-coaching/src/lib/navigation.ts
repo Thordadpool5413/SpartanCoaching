@@ -57,7 +57,7 @@ export const navSections: SiteNavSection[] = [
     ],
   },
   {
-    title: "AI Tools",
+    title: "Quick Actions",
     items: [
       { path: "/tools", label: "AI Field Kit", description: "Expert sales tools", icon: Wrench },
       { path: "/tools/playbooks", label: "Sales Playbooks", description: "Generate custom sales playbooks", icon: Lightbulb },

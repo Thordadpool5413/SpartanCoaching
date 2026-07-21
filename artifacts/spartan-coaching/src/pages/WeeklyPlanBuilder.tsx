@@ -110,7 +110,7 @@ export default function WeeklyPlanBuilder() {
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
       <SEO />
-      <Breadcrumbs items={[{ label: "AI Tools", href: "/tools" }, { label: "Weekly Plan Builder" }]} />
+      <Breadcrumbs items={[{ label: "Quick Actions", href: "/tools" }, { label: "Weekly Plan Builder" }]} />
 
       <h1 className="text-h1 font-black text-foreground mb-3" data-testid="text-plan-title">
         Weekly Plan Builder

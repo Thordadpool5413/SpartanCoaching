@@ -160,7 +160,7 @@ export default function Playbooks() {
         </div>
       )}
       <SEO />
-      <Breadcrumbs items={[{ label: "AI Tools", href: "/tools" }, { label: "Sales Playbooks" }]} />
+      <Breadcrumbs items={[{ label: "Quick Actions", href: "/tools" }, { label: "Sales Playbooks" }]} />
       <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-playbooks-title">
         AI Custom Playbook Generator
       </h1>

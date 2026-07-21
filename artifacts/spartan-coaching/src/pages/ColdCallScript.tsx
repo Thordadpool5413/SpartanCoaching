@@ -103,7 +103,7 @@ export default function ColdCallScript() {
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
       <SEO />
-      <Breadcrumbs items={[{ label: "AI Tools", href: "/tools" }, { label: "Cold Call Script Generator" }]} />
+      <Breadcrumbs items={[{ label: "Quick Actions", href: "/tools" }, { label: "Cold Call Script Generator" }]} />
 
       <h1 className="text-h1 font-black text-foreground mb-3" data-testid="text-script-title">
         Cold Call Script Generator

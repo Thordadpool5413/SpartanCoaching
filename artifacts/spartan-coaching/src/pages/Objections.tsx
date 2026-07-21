@@ -106,7 +106,7 @@ export default function Objections() {
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
       <SEO />
-      <Breadcrumbs items={[{ label: "AI Tools", href: "/tools" }, { label: "Objection Handler" }]} />
+      <Breadcrumbs items={[{ label: "Quick Actions", href: "/tools" }, { label: "Objection Handler" }]} />
       <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-objections-title">
         Objection Handling with AI
       </h1>
