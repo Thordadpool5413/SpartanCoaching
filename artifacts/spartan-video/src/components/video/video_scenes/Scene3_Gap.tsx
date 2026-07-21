@@ -3,71 +3,82 @@ import { useEffect, useState } from 'react';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-// Scene 3 — The Specific Gaps
-// "Reps with good values and no system." / "Leaders reviewing numbers they can't change." / "Teams with no shared playbook."
+// Scene 3 — The Specific Gaps (10s)
+// Three sequential full-screen beats: key word LARGE, descriptor below.
+// REPS → LEADERS → TEAMS — each gets its own moment before the next replaces it.
 export function Scene3_Gap() {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
     const timers = [
-      setTimeout(() => setPhase(1), 500),   // header
-      setTimeout(() => setPhase(2), 1800),  // line 1
-      setTimeout(() => setPhase(3), 3600),  // line 2
-      setTimeout(() => setPhase(4), 5600),  // line 3
+      setTimeout(() => setPhase(1), 300),   // REPS
+      setTimeout(() => setPhase(2), 3500),  // LEADERS
+      setTimeout(() => setPhase(3), 7000),  // TEAMS
     ];
     return () => timers.forEach(t => clearTimeout(t));
   }, []);
 
-  const gaps = [
-    'Reps with good values — and no system.',
-    "Leaders reviewing numbers they can't change.",
-    'Teams with no shared playbook to run.',
+  const beats = [
+    { key: 'REPS',    sub: 'with good values. And no system.',        phase: 1 },
+    { key: 'LEADERS', sub: "reviewing numbers they can't change.",    phase: 2 },
+    { key: 'TEAMS',   sub: 'with no shared playbook to run.',         phase: 3 },
   ];
 
   return (
     <motion.div
-      className="absolute inset-0 z-10 bg-[#070707] flex flex-col justify-center px-[8vw]"
+      className="absolute inset-0 z-10 bg-[#070707] overflow-hidden"
       initial={{ clipPath: 'circle(0% at 50% 50%)' }}
       animate={{ clipPath: 'circle(150% at 50% 50%)' }}
       exit={{ clipPath: 'circle(0% at 50% 50%)' }}
-      transition={{ duration: 0.7, ease: EASE }}
+      transition={{ duration: 0.6, ease: EASE }}
     >
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse at 30% 60%, rgba(232,41,30,0.07) 0%, transparent 60%)' }}
+        style={{ background: 'radial-gradient(ellipse at 35% 55%, rgba(232,41,30,0.07) 0%, transparent 65%)' }}
       />
 
-      {/* "The gaps are specific." */}
-      <motion.p
-        className="font-body text-[#9a9a8e] uppercase mb-10"
-        style={{ fontSize: 'clamp(13px, 2.2vw, 32px)', letterSpacing: '0.2em' }}
-        initial={{ opacity: 0 }}
-        animate={phase >= 1 ? { opacity: 1 } : { opacity: 0 }}
-        transition={{ duration: 1.0 }}
-      >
-        The gaps are specific.
-      </motion.p>
-
-      {/* Three gap lines */}
-      <div className="flex flex-col gap-[3.5vh]">
-        {gaps.map((line, i) => (
-          <div key={i} className="overflow-hidden">
-            <motion.p
-              className="font-display uppercase leading-tight"
-              style={{
-                fontSize: 'clamp(24px, 5vw, 76px)',
-                color: phase >= i + 2 ? '#f5f5f0' : '#f5f5f0',
-              }}
-              initial={{ y: '110%' }}
-              animate={phase >= i + 2 ? { y: 0 } : { y: '110%' }}
-              transition={{ type: 'spring', stiffness: 240, damping: 30 }}
+      {beats.map((beat) => (
+        <motion.div
+          key={beat.key}
+          className="absolute inset-0 flex flex-col justify-center px-[8vw]"
+          animate={{ opacity: phase === beat.phase ? 1 : 0 }}
+          transition={{ duration: 0.35 }}
+        >
+          {/* Key word — large display, slams in */}
+          <div className="overflow-hidden mb-4">
+            <motion.h1
+              className="font-display text-[#f5f5f0] uppercase leading-none"
+              style={{ fontSize: 'clamp(72px, 18vw, 280px)' }}
+              initial={{ y: '105%' }}
+              animate={phase >= beat.phase ? { y: 0 } : { y: '105%' }}
+              transition={{ type: 'spring', stiffness: 300, damping: 26 }}
             >
-              <span style={{ color: '#e8291e', marginRight: '0.3em' }}>—</span>
-              {line}
-            </motion.p>
+              {beat.key}
+              <span style={{ color: '#e8291e' }}>.</span>
+            </motion.h1>
           </div>
-        ))}
-      </div>
+
+          {/* Red underline */}
+          <motion.div
+            className="bg-[#e8291e] origin-left mb-6"
+            style={{ height: '3px', width: '45%' }}
+            initial={{ scaleX: 0 }}
+            animate={phase >= beat.phase ? { scaleX: 1 } : { scaleX: 0 }}
+            transition={{ duration: 0.6, delay: 0.18, ease: EASE }}
+          />
+
+          {/* Descriptor — body font, fades up */}
+          <motion.p
+            className="font-body text-[#9a9a8e]"
+            style={{ fontSize: 'clamp(18px, 3.8vw, 58px)' }}
+            initial={{ opacity: 0, y: 14 }}
+            animate={phase >= beat.phase ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
+            transition={{ duration: 0.9, delay: 0.3, ease: EASE }}
+          >
+            {beat.sub}
+          </motion.p>
+        </motion.div>
+      ))}
     </motion.div>
   );
 }

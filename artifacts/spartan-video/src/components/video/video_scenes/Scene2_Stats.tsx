@@ -3,16 +3,18 @@ import { useEffect, useState } from 'react';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
 
-// Scene 2 — The Cause
-// "Not a clinical failure." → "A sales failure." → "Conversations that never happened. Referrals never made."
+// Scene 2 — The Cause (9s)
+// Phase 1: "Not a clinical failure." — hard cut, large, gray
+// Phase 2: "A SALES FAILURE." slams in with scale — red, dominant
+// Phase 3: Three supporting lines fade up below
 export function Scene2_Stats() {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
     const timers = [
-      setTimeout(() => setPhase(1), 400),   // "Not a clinical failure."
-      setTimeout(() => setPhase(2), 2800),  // "A sales failure." (replaces)
-      setTimeout(() => setPhase(3), 5200),  // supporting detail
+      setTimeout(() => setPhase(1), 300),   // "Not a clinical failure."
+      setTimeout(() => setPhase(2), 2800),  // "A sales failure." replaces
+      setTimeout(() => setPhase(3), 5500),  // supporting detail
     ];
     return () => timers.forEach(t => clearTimeout(t));
   }, []);
@@ -26,61 +28,50 @@ export function Scene2_Stats() {
     >
       <div
         className="absolute inset-0 pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse at 55% 50%, rgba(232,41,30,0.05) 0%, transparent 65%)' }}
+        style={{ background: 'radial-gradient(ellipse at 55% 50%, rgba(232,41,30,0.06) 0%, transparent 65%)' }}
       />
 
-      {/* Phase 1 — "Not a clinical failure." */}
+      {/* Phase 1 — "Not a clinical failure." (hard, gray, instant) */}
       <motion.div
         className="absolute inset-0 flex items-center px-[8vw]"
         animate={{ opacity: phase === 1 ? 1 : 0 }}
-        transition={{ duration: 0.4 }}
+        transition={{ duration: 0.25 }}
       >
-        <div className="overflow-hidden">
-          <motion.h2
-            className="font-display uppercase text-[#9a9a8e] leading-none"
-            style={{ fontSize: 'clamp(36px, 8vw, 120px)' }}
-            initial={{ y: '110%' }}
-            animate={phase >= 1 ? { y: 0 } : { y: '110%' }}
-            transition={{ type: 'spring', stiffness: 260, damping: 30 }}
-          >
-            Not a clinical failure.
-          </motion.h2>
-        </div>
+        <motion.h2
+          className="font-display uppercase text-[#6a6a60] leading-none"
+          style={{ fontSize: 'clamp(32px, 7vw, 110px)' }}
+          initial={{ opacity: 0 }}
+          animate={phase >= 1 ? { opacity: 1 } : { opacity: 0 }}
+          transition={{ duration: 0.18 }}
+        >
+          Not a clinical failure.
+        </motion.h2>
       </motion.div>
 
-      {/* Phase 2 — "A sales failure." */}
+      {/* Phase 2 — "A SALES FAILURE." slams in large with scale */}
       <motion.div
         className="absolute inset-0 flex flex-col items-start justify-center px-[8vw]"
         animate={{ opacity: phase >= 2 && phase < 3 ? 1 : 0 }}
-        transition={{ duration: 0.4 }}
+        transition={{ duration: 0.3 }}
       >
-        <motion.p
-          className="font-body text-[#9a9a8e] uppercase mb-4"
-          style={{ fontSize: 'clamp(13px, 2.2vw, 32px)', letterSpacing: '0.18em' }}
-          initial={{ opacity: 0 }}
-          animate={phase >= 2 ? { opacity: 1 } : { opacity: 0 }}
-          transition={{ duration: 0.8 }}
-        >
-          The real problem
-        </motion.p>
         <div className="overflow-hidden">
           <motion.h2
             className="font-display uppercase leading-none"
-            style={{ fontSize: 'clamp(48px, 11vw, 170px)', color: '#e8291e' }}
-            initial={{ y: '110%' }}
-            animate={phase >= 2 ? { y: 0 } : { y: '110%' }}
-            transition={{ type: 'spring', stiffness: 260, damping: 28 }}
+            style={{ fontSize: 'clamp(52px, 12vw, 190px)', color: '#e8291e' }}
+            initial={{ y: '110%', scale: 0.88 }}
+            animate={phase >= 2 ? { y: 0, scale: 1 } : { y: '110%', scale: 0.88 }}
+            transition={{ type: 'spring', stiffness: 320, damping: 24 }}
           >
             A sales failure.
           </motion.h2>
         </div>
       </motion.div>
 
-      {/* Phase 3 — supporting detail */}
+      {/* Phase 3 — supporting detail, three lines stagger */}
       <motion.div
         className="absolute inset-0 flex flex-col justify-center px-[8vw]"
         animate={{ opacity: phase >= 3 ? 1 : 0 }}
-        transition={{ duration: 0.6 }}
+        transition={{ duration: 0.5 }}
       >
         {[
           'Conversations that never happened.',
@@ -91,9 +82,9 @@ export function Scene2_Stats() {
             key={i}
             className="font-body text-[#c8c8bc] leading-relaxed"
             style={{ fontSize: 'clamp(18px, 3.5vw, 54px)' }}
-            initial={{ opacity: 0, x: -16 }}
-            animate={phase >= 3 ? { opacity: 1, x: 0 } : { opacity: 0, x: -16 }}
-            transition={{ duration: 0.7, delay: i * 0.22, ease: EASE }}
+            initial={{ opacity: 0, x: -20 }}
+            animate={phase >= 3 ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
+            transition={{ duration: 0.8, delay: i * 0.25, ease: EASE }}
           >
             {line}
           </motion.p>
