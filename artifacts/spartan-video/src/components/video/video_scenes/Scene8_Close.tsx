@@ -8,11 +8,13 @@ const SCHEDULE = [
   [350,  1],  // logo slam — delayed past the white-flash transition so the slam is visible
   [1500, 2],  // red line draws
   [2400, 3],  // tagline fades in
-  [3600, 4],  // CTA button
+  [3500, 4],  // credentials reveal
+  [4600, 5],  // CTA button
 ] as const;
 
-// Scene 8 — Close (6s)
-// Logo SLAMS in from above with a hard spring impact, then line draws, tagline fades, CTA appears.
+// Scene 8 — Close (7s)
+// Logo SLAMS in from above with a hard spring impact, then line draws, tagline fades,
+// Nick's credentials appear, then CTA appears.
 export function Scene8_Close() {
   const phase = useScenePhases(SCHEDULE);
 
@@ -65,6 +67,21 @@ export function Scene8_Close() {
         Hospice Growth Coaching · spartancoaching.com
       </motion.p>
 
+      {/* Founder credentials */}
+      <motion.p
+        className="relative z-10 font-body text-center mt-3"
+        style={{
+          fontSize: 'clamp(10px, 1.7vw, 24px)',
+          letterSpacing: '0.06em',
+          color: '#6b5c44',
+        }}
+        initial={{ opacity: 0, y: 6 }}
+        animate={phase >= 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: 6 }}
+        transition={{ duration: 0.85 }}
+      >
+        Nick Lynch &nbsp;·&nbsp; 12+ years hospice-specific &nbsp;·&nbsp; 500+ reps coached
+      </motion.p>
+
       {/* CTA button */}
       <motion.a
         href="/contact"
@@ -81,7 +98,7 @@ export function Scene8_Close() {
           textDecoration: 'none',
         }}
         initial={{ opacity: 0, y: 14 }}
-        animate={phase >= 4 ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
+        animate={phase >= 5 ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
         transition={{ duration: 0.9 }}
         whileHover={{ backgroundColor: '#c0201a', scale: 1.02 }}
         whileTap={{ scale: 0.98 }}
