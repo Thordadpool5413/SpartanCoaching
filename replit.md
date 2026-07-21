@@ -65,11 +65,19 @@ Expert hospice growth coaching site + private Field Kit (web + iOS) for clients 
 - Human path (book call) on every gate
 - Additive changes preferred; home condensed not deleted
 
+## Background jobs
+
+- Production / Replit deploy starts a scheduler (~15m): trial lifecycle sweep + daily ops digest (13–15 UTC)
+- Manual: Access Desk → **Ops jobs**, or `POST /api/admin/jobs/trial-sweep` | `ops-digest` | `run-all`
+- External cron: `POST /api/cron/jobs` with header `X-Cron-Secret: $CRON_SECRET`
+- Env: `ENABLE_BACKGROUND_JOBS=1` (dev), `JOB_INTERVAL_MS`, `NOTIFICATION_EMAIL` / `OPS_DIGEST_EMAIL`, `CRON_SECRET`
+
 ## Gotchas
 
 - After pulling auth schema: run `pnpm --filter @workspace/db run push` on Replit before testing login
 - Mobile app (Expo Go): scan QR from the **Replit URL bar**, not the Expo LAN IP
 - Mobile session token stored in AsyncStorage; send `Authorization: Bearer <token>`
+- Auth unit tests: `pnpm --filter @workspace/api-server run test`
 
 ## Pointers
 

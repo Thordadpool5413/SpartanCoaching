@@ -39,11 +39,14 @@ import {
   requireAuth,
   requireOrgAdmin,
   requireAdmin,
+  isAdminRequest,
   getAdminPassword,
   useSecureCookies,
   type AuthedRequest,
 } from "../auth/middleware";
 import { getAccessForMemberId, publicMember, publicOrg } from "../auth/entitlement";
+import { runTrialLifecycleSweep } from "../auth/trialLifecycle";
+import { runOpsDigest, runScheduledJobs, buildOpsSnapshot } from "../auth/opsJobs";
 import {
   loginLimit,
   authLimit,
@@ -59,6 +62,13 @@ import {
   sendPasswordResetEmail,
   sendOrgInviteEmail,
 } from "../resend";
+
+function isCronAuthorized(req: { headers: Record<string, unknown> }): boolean {
+  const secret = process.env.CRON_SECRET?.trim();
+  if (!secret) return false;
+  const header = req.headers["x-cron-secret"];
+  return typeof header === "string" && safeEqualString(header, secret);
+}
 
 function getSiteUrl(): string {
   return (
@@ -1868,6 +1878,64 @@ export function registerAuthRoutes(app: Express): void {
     } catch (err) {
       console.error("to-inquiry error:", err);
       return res.status(500).json({ error: "Failed to create inquiry" });
+    }
+  });
+
+  // ── Scheduled / manual ops jobs ────────────────────────────────────
+  app.get("/api/admin/jobs/snapshot", requireAdmin, async (_req, res) => {
+    try {
+      const snapshot = await buildOpsSnapshot();
+      return res.json({ ok: true, snapshot, at: new Date().toISOString() });
+    } catch (err) {
+      console.error("jobs snapshot error:", err);
+      return res.status(500).json({ error: "Failed to build snapshot" });
+    }
+  });
+
+  app.post("/api/admin/jobs/trial-sweep", requireAdmin, async (_req, res) => {
+    try {
+      const trialSweep = await runTrialLifecycleSweep();
+      return res.json({ ok: true, trialSweep });
+    } catch (err) {
+      console.error("trial-sweep error:", err);
+      return res.status(500).json({ error: "Trial sweep failed" });
+    }
+  });
+
+  app.post("/api/admin/jobs/ops-digest", requireAdmin, async (req, res) => {
+    try {
+      const force = req.body?.force === true;
+      const opsDigest = await runOpsDigest({ force });
+      return res.json({ ok: true, opsDigest });
+    } catch (err) {
+      console.error("ops-digest error:", err);
+      return res.status(500).json({ error: "Ops digest failed" });
+    }
+  });
+
+  app.post("/api/admin/jobs/run-all", requireAdmin, async (req, res) => {
+    try {
+      const forceDigest = req.body?.forceDigest === true;
+      const result = await runScheduledJobs({ forceDigest });
+      return res.json({ ok: true, ...result });
+    } catch (err) {
+      console.error("run-all jobs error:", err);
+      return res.status(500).json({ error: "Jobs failed" });
+    }
+  });
+
+  /** External cron (Replit / GitHub Actions) — header X-Cron-Secret must match CRON_SECRET */
+  app.post("/api/cron/jobs", async (req, res) => {
+    if (!isCronAuthorized(req as any) && !isAdminRequest(req)) {
+      return res.status(401).json({ error: "Unauthorized", code: "CRON_OR_ADMIN_REQUIRED" });
+    }
+    try {
+      const forceDigest = req.body?.forceDigest === true;
+      const result = await runScheduledJobs({ forceDigest });
+      return res.json({ ok: true, ...result });
+    } catch (err) {
+      console.error("cron jobs error:", err);
+      return res.status(500).json({ error: "Cron jobs failed" });
     }
   });
 

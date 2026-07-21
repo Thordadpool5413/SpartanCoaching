@@ -1209,6 +1209,58 @@ export async function sendMembershipActivatedEmail(
   }
 }
 
+/** Daily ops snapshot for Nick (pending, follow-ups, trials). */
+export async function sendOpsDigestEmail(
+  toEmail: string,
+  snapshot: {
+    pendingRequests: number;
+    followUpsDue: number;
+    inTrial: number;
+    trialsEndingSoon4h: number;
+    expired: number;
+    won: number;
+    toolUsesLast7Days: number;
+  },
+): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    const siteUrl = getSiteUrl();
+    const hot =
+      snapshot.pendingRequests > 0 ||
+      snapshot.followUpsDue > 0 ||
+      snapshot.trialsEndingSoon4h > 0;
+    await sendEmail(client, {
+      from: fromEmail,
+      to: toEmail,
+      subject: hot
+        ? `[Action] Spartan ops — ${snapshot.pendingRequests} pending · ${snapshot.followUpsDue} follow-ups`
+        : `Spartan ops digest — quiet day`,
+      html: authEmailShell(`
+        <h2 style="margin:0 0 16px;">Access Desk snapshot</h2>
+        <p style="margin:0 0 16px;line-height:1.6;color:#555;font-size:14px;">
+          Generated ${new Date().toLocaleString("en-US", { dateStyle: "medium", timeStyle: "short" })}.
+        </p>
+        <table style="border-collapse:collapse;width:100%;margin-bottom:20px;">
+          <tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold;">Pending access requests</td><td style="padding:8px;border-bottom:1px solid #eee;">${snapshot.pendingRequests}</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold;">Follow-ups due</td><td style="padding:8px;border-bottom:1px solid #eee;">${snapshot.followUpsDue}</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold;">In trial</td><td style="padding:8px;border-bottom:1px solid #eee;">${snapshot.inTrial}</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold;">Trials ending ≤4h</td><td style="padding:8px;border-bottom:1px solid #eee;">${snapshot.trialsEndingSoon4h}</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold;">Expired access</td><td style="padding:8px;border-bottom:1px solid #eee;">${snapshot.expired}</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold;">Won clients</td><td style="padding:8px;border-bottom:1px solid #eee;">${snapshot.won}</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold;">Tool uses (7d)</td><td style="padding:8px;border-bottom:1px solid #eee;">${snapshot.toolUsesLast7Days}</td></tr>
+        </table>
+        <div style="text-align:center;margin:24px 0;">
+          <a href="${siteUrl}/admin" style="display:inline-block;background:#b91c1c;color:white;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:bold;">Open Access Desk</a>
+        </div>
+      `),
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to send ops digest email:", error);
+    return false;
+  }
+}
+
 /** Optional notice when trial is extended from Access Desk. */
 export async function sendTrialExtendedEmail(
   toEmail: string,

@@ -26,6 +26,8 @@ import {
   Mail,
   AlertTriangle,
   Zap,
+  Play,
+  RefreshCw,
 } from "lucide-react";
 import { OrgDetailPanel } from "@/components/OrgDetailPanel";
 import { adminFetch } from "@/lib/adminApi";
@@ -44,6 +46,7 @@ export function AccessDesk() {
   const [selectedOrgId, setSelectedOrgId] = useState<number | null>(null);
   const [orgFilter, setOrgFilter] = useState<string>("all");
   const [busyId, setBusyId] = useState<number | null>(null);
+  const [jobBusy, setJobBusy] = useState<string | null>(null);
 
   const { data: requestsData, isLoading: reqLoading } = useQuery({
     queryKey: ["/api/admin/access-requests"],
@@ -166,12 +169,112 @@ export function AccessDesk() {
     });
   };
 
+  const runJob = async (kind: "trial-sweep" | "ops-digest" | "run-all") => {
+    setJobBusy(kind);
+    try {
+      const path =
+        kind === "trial-sweep"
+          ? "/api/admin/jobs/trial-sweep"
+          : kind === "ops-digest"
+            ? "/api/admin/jobs/ops-digest"
+            : "/api/admin/jobs/run-all";
+      const body =
+        kind === "ops-digest"
+          ? { force: true }
+          : kind === "run-all"
+            ? { forceDigest: true }
+            : {};
+      const data = await adminFetch(path, {
+        method: "POST",
+        body: JSON.stringify(body),
+      });
+      if (kind === "trial-sweep") {
+        const s = (data as any).trialSweep;
+        toast({
+          title: "Trial sweep done",
+          description: `Scanned ${s?.scanned ?? 0}, expired ${s?.expired ?? 0}, midpoint-checked ${s?.midpointChecked ?? 0}.`,
+        });
+      } else if (kind === "ops-digest") {
+        const d = (data as any).opsDigest;
+        toast({
+          title: d?.sent ? "Ops digest emailed" : "Ops digest",
+          description: d?.emailMessage || "Done",
+          variant: d?.sent === false && d?.emailMessage?.includes("Failed") ? "destructive" : undefined,
+        });
+      } else {
+        const s = (data as any).trialSweep;
+        const d = (data as any).opsDigest;
+        toast({
+          title: "Jobs finished",
+          description: `Sweep: expired ${s?.expired ?? 0}. Digest: ${d?.emailMessage || "ok"}`,
+        });
+      }
+      invalidate();
+    } catch (e: any) {
+      toast({ title: "Job failed", description: e?.message, variant: "destructive" });
+    } finally {
+      setJobBusy(null);
+    }
+  };
+
   if (selectedOrgId != null) {
     return <OrgDetailPanel orgId={selectedOrgId} onBack={() => setSelectedOrgId(null)} />;
   }
 
   return (
     <div className="space-y-8" data-testid="access-desk">
+      <Card className="border border-white/10" data-testid="section-ops-jobs">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base flex items-center gap-2">
+            <RefreshCw className="w-4 h-4 text-primary" />
+            Ops jobs
+          </CardTitle>
+          <CardDescription>
+            Trial sweep expires past evaluations and sends midpoint emails. Ops digest emails your
+            daily snapshot (also runs on a background schedule in production).
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="flex flex-wrap gap-2">
+          <Button
+            size="sm"
+            className="font-bold gap-1"
+            disabled={!!jobBusy}
+            onClick={() => runJob("trial-sweep")}
+          >
+            {jobBusy === "trial-sweep" ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Play className="w-4 h-4" />
+            )}
+            Run trial sweep
+          </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="font-bold gap-1"
+            disabled={!!jobBusy}
+            onClick={() => runJob("ops-digest")}
+          >
+            {jobBusy === "ops-digest" ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Mail className="w-4 h-4" />
+            )}
+            Email ops digest now
+          </Button>
+          <Button
+            size="sm"
+            variant="secondary"
+            className="font-bold"
+            disabled={!!jobBusy}
+            onClick={() => runJob("run-all")}
+          >
+            {jobBusy === "run-all" ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
+            Run all jobs
+          </Button>
+        </CardContent>
+      </Card>
+
       {m && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3" data-testid="access-metrics">
           {[

@@ -115,3 +115,83 @@ export async function refreshOrgStatusWithLifecycle(
 
   return org;
 }
+
+export type TrialSweepResult = {
+  scanned: number;
+  expired: number;
+  midpointChecked: number;
+  errors: string[];
+  ranAt: string;
+};
+
+/**
+ * Scan all trial orgs: expire past windows + send midpoint nudges.
+ * Safe to run on a schedule (idempotent via authEvents). Awaits emails (unlike request-path refresh).
+ */
+export async function runTrialLifecycleSweep(): Promise<TrialSweepResult> {
+  const result: TrialSweepResult = {
+    scanned: 0,
+    expired: 0,
+    midpointChecked: 0,
+    errors: [],
+    ranAt: new Date().toISOString(),
+  };
+
+  const trials = await db
+    .select()
+    .from(clientOrganizations)
+    .where(eq(clientOrganizations.status, "trial"));
+
+  result.scanned = trials.length;
+  const now = Date.now();
+
+  for (const org of trials) {
+    try {
+      if (org.trialEndsAt && org.trialEndsAt.getTime() <= now) {
+        const [updated] = await db
+          .update(clientOrganizations)
+          .set({
+            status: "expired",
+            pipelineStatus: "follow_up",
+          })
+          .where(eq(clientOrganizations.id, org.id))
+          .returning();
+        const fresh = updated ?? {
+          ...org,
+          status: "expired" as const,
+          pipelineStatus: "follow_up" as const,
+        };
+        await notifyTrialExpired(fresh);
+        try {
+          await db.insert(orgTimelineEvents).values({
+            organizationId: org.id,
+            type: "status",
+            body: "Trial ended automatically (scheduled sweep) — pipeline set to follow_up",
+            createdBy: "system",
+            meta: { status: "expired", source: "sweep" },
+          });
+        } catch {
+          /* non-fatal */
+        }
+        result.expired += 1;
+      } else {
+        await maybeNotifyTrialMidpoint(org);
+        result.midpointChecked += 1;
+      }
+    } catch (err: any) {
+      result.errors.push(`org ${org.id}: ${err?.message || "unknown"}`);
+    }
+  }
+
+  try {
+    await db.insert(authEvents).values({
+      memberId: null,
+      type: "job_trial_lifecycle_sweep",
+      meta: result as unknown as Record<string, unknown>,
+    });
+  } catch {
+    /* non-fatal */
+  }
+
+  return result;
+}
