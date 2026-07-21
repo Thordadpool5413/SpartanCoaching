@@ -7,7 +7,7 @@ export function Scene6_Ethos() {
   const [phase, setPhase] = useState(0);
 
   useEffect(() => {
-    const timers = [setTimeout(() => setPhase(1), 700)];
+    const timers = [setTimeout(() => setPhase(1), 600)];
     return () => timers.forEach(t => clearTimeout(t));
   }, []);
 
@@ -18,7 +18,7 @@ export function Scene6_Ethos() {
           className="inline-block"
           initial={{ y: '105%' }}
           animate={phase >= 1 ? { y: 0 } : { y: '105%' }}
-          transition={{ type: 'spring', stiffness: 170, damping: 34, delay: delayOffset + i * 0.05 }}
+          transition={{ type: 'spring', stiffness: 170, damping: 34, delay: delayOffset + i * 0.045 }}
         >
           {char === ' ' ? '\u00A0' : char}
         </motion.span>
@@ -35,15 +35,15 @@ export function Scene6_Ethos() {
       <video src={ethosBg} className="absolute inset-0 w-full h-full object-cover opacity-60" autoPlay muted playsInline loop />
       <div className="absolute inset-0 bg-[#070707]/55 mix-blend-multiply pointer-events-none" />
 
-      <div className="absolute inset-0 flex flex-col justify-center px-[7vw] z-10" style={{ lineHeight: '0.88' }}>
-        <div className="font-display text-[#f5f5f0] uppercase tracking-tight" style={{ fontSize: 'clamp(64px, 12vw, 196px)' }}>
+      <div className="absolute inset-0 flex flex-col justify-center px-[7vw] z-10" style={{ lineHeight: '0.9' }}>
+        <div className="font-display text-[#f5f5f0] uppercase tracking-tight" style={{ fontSize: 'clamp(36px, 8vw, 120px)' }}>
           {staggerChars('You don\u2019t wing it', 0.1)}
         </div>
-        <div className="font-display text-[#f5f5f0] uppercase tracking-tight" style={{ fontSize: 'clamp(64px, 12vw, 196px)' }}>
-          {staggerChars('when the', 0.75)}
+        <div className="font-display text-[#f5f5f0] uppercase tracking-tight" style={{ fontSize: 'clamp(36px, 8vw, 120px)' }}>
+          {staggerChars('when the', 0.7)}
         </div>
-        <div className="font-display uppercase tracking-tight" style={{ fontSize: 'clamp(64px, 12vw, 196px)', color: '#e8291e' }}>
-          {staggerChars('stakes are this high.', 1.3)}
+        <div className="font-display uppercase tracking-tight" style={{ fontSize: 'clamp(36px, 8vw, 120px)', color: '#e8291e' }}>
+          {staggerChars('stakes are this high.', 1.2)}
         </div>
       </div>
     </motion.div>
