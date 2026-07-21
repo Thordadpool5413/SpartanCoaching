@@ -4,9 +4,9 @@ import { useScenePhases } from '@/lib/video';
 const EASE = [0.16, 1, 0.3, 1] as const;
 
 const SCHEDULE = [
-  [400,  1],  // DISCIPLINE
-  [3000, 2],  // EMPATHY
-  [5800, 3],  // STRATEGY
+  [500,   1],  // DISCIPLINE
+  [5500,  2],  // EMPATHY
+  [10500, 3],  // STRATEGY
 ] as const;
 
 // Scene 5 — The Three Pillars (with real meaning)

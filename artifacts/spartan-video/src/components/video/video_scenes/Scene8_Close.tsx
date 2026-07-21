@@ -5,10 +5,10 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 const spartanLogo = `${import.meta.env.BASE_URL}spartan-logo.png`;
 
 const SCHEDULE = [
-  [0,    1],  // logo slam (immediate)
-  [1200, 2],  // red line draws
-  [2100, 3],  // tagline fades in
-  [3300, 4],  // CTA button
+  [350,  1],  // logo slam — delayed past the white-flash transition so the slam is visible
+  [1500, 2],  // red line draws
+  [2400, 3],  // tagline fades in
+  [3600, 4],  // CTA button
 ] as const;
 
 // Scene 8 — Close (6s)

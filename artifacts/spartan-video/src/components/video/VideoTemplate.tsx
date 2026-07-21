@@ -17,7 +17,7 @@ export const SCENE_DURATIONS: Record<string, number> = {
   stats: 9000,
   gap: 10000,
   conversational: 6000,
-  fragments: 11000,
+  fragments: 15000,
   ethos: 8000,
   pillars: 7000,
   close: 6000,
