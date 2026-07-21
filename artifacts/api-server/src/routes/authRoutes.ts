@@ -141,7 +141,10 @@ async function createSession(memberId: number, userAgent?: string) {
 function adminPasswordMatches(input: string): boolean {
   const expected = getAdminPassword();
   if (!expected) return false;
-  return safeEqualString(input, expected);
+  // Trim user input — secrets UIs sometimes add trailing spaces on paste
+  const got = (input || "").trim();
+  if (!got) return false;
+  return safeEqualString(got, expected);
 }
 
 type EmailDispatchResult = {
@@ -1622,13 +1625,34 @@ export function registerAuthRoutes(app: Express): void {
   app.post("/api/admin/legacy-login", loginLimit, async (req, res) => {
     try {
       const parsed = adminLegacyLoginBodySchema.safeParse(req.body);
-      if (!parsed.success || !adminPasswordMatches(parsed.data.password)) {
-        return res.status(401).json({ error: "Invalid admin password" });
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Password required" });
+      }
+      if (!adminPasswordMatches(parsed.data.password)) {
+        return res.status(401).json({
+          error:
+            "Invalid admin passcode. On Replit Secrets set ADMIN_PASSWORD exactly to 5413 (no quotes/spaces), then Restart. Or leave ADMIN_PASSWORD unset to use default 5413.",
+          code: "INVALID_ADMIN_PASSCODE",
+        });
       }
 
-      const { member: admin, created } = await ensurePlatformAdmin({
-        password: getAdminPassword(),
-      });
+      let admin;
+      let created = false;
+      try {
+        const ensured = await ensurePlatformAdmin({
+          password: getAdminPassword(),
+        });
+        admin = ensured.member;
+        created = ensured.created;
+      } catch (setupErr: any) {
+        console.error("ensurePlatformAdmin failed:", setupErr);
+        return res.status(500).json({
+          error:
+            setupErr?.message ||
+            "Could not create platform admin. Check DATABASE_URL and try again.",
+          code: "ADMIN_SETUP_FAILED",
+        });
+      }
 
       const { token, expiresAt } = await createSession(
         admin.id,
