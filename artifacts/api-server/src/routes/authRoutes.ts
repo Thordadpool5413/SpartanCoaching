@@ -53,6 +53,9 @@ import {
   sendAccessRequestReceived,
   sendAccessRequestAdminAlert,
   sendAccessApprovedEmail,
+  sendAccessRejectedEmail,
+  sendMembershipActivatedEmail,
+  sendTrialExtendedEmail,
   sendPasswordResetEmail,
   sendOrgInviteEmail,
 } from "../resend";
@@ -1081,7 +1084,14 @@ export function registerAuthRoutes(app: Express): void {
           adminNote: note ?? null,
         })
         .where(eq(accessRequests.id, id));
-      await logEvent("access_rejected", null, { requestId: id });
+
+      // Always notify requester (non-fatal if email fails)
+      try {
+        await sendAccessRejectedEmail(request.email, request.name, note);
+      } catch (emailErr) {
+        console.error("reject email failed:", emailErr);
+      }
+      await logEvent("access_rejected", null, { requestId: id, notified: true });
 
       return res.json({ ok: true });
     } catch (err) {
@@ -1125,6 +1135,27 @@ export function registerAuthRoutes(app: Express): void {
       if (!org) return res.status(404).json({ error: "Organization not found" });
       await addOrgTimeline(id, "status", `Access status → ${status}`, "admin", { status });
       await logEvent("org_status_changed", null, { orgId: id, status, trialHours });
+
+      // Notify members when activated as continuing clients
+      if (status === "active") {
+        try {
+          const members = await db
+            .select()
+            .from(clientMembers)
+            .where(
+              and(
+                eq(clientMembers.organizationId, id),
+                ne(clientMembers.status, "disabled"),
+              ),
+            );
+          for (const m of members) {
+            await sendMembershipActivatedEmail(m.email, m.name, org.name);
+          }
+        } catch (emailErr) {
+          console.error("activation emails failed:", emailErr);
+        }
+      }
+
       return res.json({ organization: publicOrg(org) });
     } catch (err) {
       console.error("org status error:", err);
@@ -1161,6 +1192,24 @@ export function registerAuthRoutes(app: Express): void {
         hours,
       });
       await logEvent("org_trial_extended", null, { orgId: id, hours });
+
+      try {
+        const members = await db
+          .select()
+          .from(clientMembers)
+          .where(
+            and(
+              eq(clientMembers.organizationId, id),
+              ne(clientMembers.status, "disabled"),
+            ),
+          );
+        for (const m of members) {
+          await sendTrialExtendedEmail(m.email, m.name, hours, trialEndsAt);
+        }
+      } catch (emailErr) {
+        console.error("trial extended emails failed:", emailErr);
+      }
+
       return res.json({ organization: publicOrg(updated) });
     } catch (err) {
       console.error("extend trial error:", err);

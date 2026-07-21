@@ -224,8 +224,8 @@ const seoDefaults: Record<string, SEOConfig> = {
   '/faq': {
     title: 'FAQ | Spartan Coaching',
     description:
-      'Answers about hospice sales coaching, Field Kit access, evaluation trials, pricing, and how Spartan works with teams.',
-    keywords: 'hospice coaching FAQ, Field Kit questions, sales training FAQ',
+      'Field Kit access, 24h/72h evaluation trials, membership, coaching, and no-PHI compliance. How Spartan works as a consulting practice — not self-serve checkout.',
+    keywords: 'hospice coaching FAQ, Field Kit access, evaluation trial, sales training FAQ',
   },
   '/terms': {
     title: 'Terms of Service | Spartan Coaching',

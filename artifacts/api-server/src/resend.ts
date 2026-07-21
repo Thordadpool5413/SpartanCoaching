@@ -877,15 +877,26 @@ function authEmailShell(inner: string): string {
 export async function sendAccessRequestReceived(toEmail: string, toName: string): Promise<boolean> {
   try {
     const { client, fromEmail } = await getUncachableResendClient();
+    const siteUrl = getSiteUrl();
     await sendEmail(client, {
       from: fromEmail,
       to: toEmail,
       subject: "We received your Field Kit access request — Spartan Coaching",
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
-        <p style="margin:0 0 16px;line-height:1.6;">Thank you for requesting evaluation access to the Spartan Field Kit. We review every request personally.</p>
-        <p style="margin:0 0 16px;line-height:1.6;"><strong>What happens next:</strong> You will hear from us within one business day. If approved, you will receive a secure link to set your password and begin your evaluation window.</p>
-        <p style="margin:0 0 16px;line-height:1.6;">If you need to speak with us sooner, reply to this email or book a strategy call on the site.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Thank you for requesting evaluation access to the Spartan Field Kit. Every request is reviewed personally — this is not an automated checkout.</p>
+        <p style="margin:0 0 12px;line-height:1.6;"><strong>What happens next:</strong></p>
+        <ol style="margin:0 0 16px;padding-left:20px;line-height:1.7;color:#374151;">
+          <li>We review your request (usually within one business day).</li>
+          <li>If approved, you get a secure email to set your password.</li>
+          <li>Your timed evaluation starts (typically 24h individual / 72h company).</li>
+          <li>After the window, we decide seats and membership together — invoiced offline.</li>
+        </ol>
+        <p style="margin:0 0 16px;line-height:1.6;font-size:14px;color:#555;"><strong>Reminder:</strong> Field Kit tools are for planning and messaging only. Never enter patient names, MRNs, or other PHI.</p>
+        <div style="text-align:center;margin:28px 0;">
+          <a href="${siteUrl}/faq" style="display:inline-block;background:#111827;color:white;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Read FAQ</a>
+          <a href="${siteUrl}/contact" style="display:inline-block;background:#b91c1c;color:white;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Book a strategy call</a>
+        </div>
         <p style="margin:0 0 4px;font-weight:bold;">Nick Lynch</p>
         <p style="margin:0;color:#555;font-size:14px;">Founder, Spartan Coaching</p>
       `),
@@ -945,19 +956,28 @@ export async function sendAccessApprovedEmail(
 ): Promise<boolean> {
   try {
     const { client, fromEmail } = await getUncachableResendClient();
+    const siteUrl = getSiteUrl();
     await sendEmail(client, {
       from: fromEmail,
       to: toEmail,
-      subject: "Your Field Kit evaluation access is approved — Spartan Coaching",
+      subject: "Your Field Kit evaluation is approved — set password to start",
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
-        <p style="margin:0 0 16px;line-height:1.6;">Your request for Field Kit evaluation access has been approved.</p>
-        <p style="margin:0 0 16px;line-height:1.6;">You have a <strong>${trialHours}-hour evaluation window</strong> once you set your password. Use that time to run real scenarios — objections, weekly plans, role-play — the way you would in the field.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Your Field Kit evaluation access is approved.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">You have a <strong>${trialHours}-hour evaluation window</strong> after you set your password. Use real field scenarios — one tough objection, this week's plan, and a role-play on your hardest conversation.</p>
         <div style="text-align:center;margin:32px 0;">
-          <a href="${setPasswordUrl}" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:16px;">Set Your Password &amp; Enter</a>
+          <a href="${setPasswordUrl}" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:16px;">Set password &amp; enter Field Kit</a>
         </div>
-        <p style="margin:0 0 16px;line-height:1.6;font-size:14px;color:#555;">This link expires in 48 hours. If it expires, reply to this email and we will send a new one.</p>
-        <p style="margin:0 0 16px;line-height:1.6;">While you evaluate, you can also <a href="${getSiteUrl()}/contact" style="color:#b91c1c;">book a strategy call</a> to debrief what you are seeing.</p>
+        <p style="margin:0 0 12px;line-height:1.6;font-size:14px;color:#555;"><strong>Quick start once inside:</strong></p>
+        <ol style="margin:0 0 16px;padding-left:20px;line-height:1.7;color:#374151;font-size:14px;">
+          <li>Complete the short onboarding checklist on your Field Kit home.</li>
+          <li>Open Tools and run one workflow you would use this week.</li>
+          <li>Book a debrief so we can turn what you saw into a clear membership next step.</li>
+        </ol>
+        <p style="margin:0 0 16px;line-height:1.6;font-size:14px;color:#555;">This set-password link expires in 48 hours. If it expires, reply to this email and we will send a new one. <strong>Never enter PHI</strong> into any tool.</p>
+        <div style="text-align:center;margin:24px 0;">
+          <a href="${siteUrl}/contact" style="color:#b91c1c;font-weight:bold;text-decoration:none;">Book a strategy / debrief call →</a>
+        </div>
         <p style="margin:0 0 4px;font-weight:bold;">Nick Lynch</p>
         <p style="margin:0;color:#555;font-size:14px;">Founder, Spartan Coaching</p>
       `),
@@ -1070,19 +1090,21 @@ export async function sendTrialExpiredEmail(
     await sendEmail(client, {
       from: fromEmail,
       to: toEmail,
-      subject: "Your Field Kit evaluation has ended — next steps | Spartan Coaching",
+      subject: "Your Field Kit evaluation ended — clear next steps",
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
-        <p style="margin:0 0 16px;line-height:1.6;">Your Field Kit evaluation window has ended. Thank you for putting real scenarios through the tools.</p>
-        <p style="margin:0 0 16px;line-height:1.6;"><strong>What you can do next:</strong></p>
-        <ul style="margin:0 0 16px;padding-left:20px;line-height:1.6;">
-          <li>Schedule a strategy call to continue as a client organization</li>
-          <li>Request an extended evaluation if your team still needs time</li>
-          <li>Reply to this email with questions — I read every note</li>
+        <p style="margin:0 0 16px;line-height:1.6;">Your Field Kit evaluation window has ended. Thank you for running real scenarios through the tools.</p>
+        <p style="margin:0 0 12px;line-height:1.6;"><strong>Clear next steps:</strong></p>
+        <ul style="margin:0 0 16px;padding-left:20px;line-height:1.7;">
+          <li><strong>Continue as a client</strong> — book a short debrief; we agree seats, coaching, and terms, then activate offline.</li>
+          <li><strong>Need more evaluation time</strong> — sign in and request an extension, or reply to this email.</li>
+          <li><strong>Coaching without tools first</strong> — we can still help on a strategy call.</li>
         </ul>
         <div style="text-align:center;margin:28px 0;">
-          <a href="${siteUrl}/contact" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;">Schedule a strategy call</a>
+          <a href="${siteUrl}/contact?service=Field+Kit+Membership" style="display:inline-block;background:#b91c1c;color:white;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Book a debrief</a>
+          <a href="${siteUrl}/field-kit-membership" style="display:inline-block;background:#111827;color:white;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Membership path</a>
         </div>
+        <p style="margin:0 0 16px;line-height:1.6;font-size:14px;color:#555;">Your login still works for account info — tools stay gated until access is active again.</p>
         <p style="margin:0 0 4px;font-weight:bold;">Nick Lynch</p>
         <p style="margin:0;color:#555;font-size:14px;">Founder, Spartan Coaching</p>
       `),
@@ -1135,12 +1157,14 @@ export async function sendAccessRejectedEmail(
       subject: "Update on your Field Kit access request — Spartan Coaching",
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
-        <p style="margin:0 0 16px;line-height:1.6;">Thank you for your interest in the Spartan Field Kit. We are not able to approve evaluation access at this time.</p>
-        ${note ? `<p style="margin:0 0 16px;line-height:1.6;background:#f9fafb;padding:12px;border-radius:6px;">${note}</p>` : ""}
-        <p style="margin:0 0 16px;line-height:1.6;">If coaching or a strategy conversation would help more than tools right now, I would welcome that conversation.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Thank you for your interest in the Spartan Field Kit. We are not able to open evaluation access at this time.</p>
+        ${note ? `<p style="margin:0 0 16px;line-height:1.6;background:#f9fafb;padding:12px;border-left:3px solid #b91c1c;border-radius:4px;">${note}</p>` : ""}
+        <p style="margin:0 0 16px;line-height:1.6;">That does not mean we cannot help. Many teams start with a strategy conversation on coaching, territory systems, or leadership rhythms — then revisit tools when the fit is clear.</p>
         <div style="text-align:center;margin:28px 0;">
-          <a href="${siteUrl}/contact" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;">Book a strategy call</a>
+          <a href="${siteUrl}/contact" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Book a strategy call</a>
+          <a href="${siteUrl}/services" style="display:inline-block;background:#111827;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">View services</a>
         </div>
+        <p style="margin:0 0 16px;line-height:1.6;font-size:14px;color:#555;">You are welcome to request access again later if your situation changes.</p>
         <p style="margin:0 0 4px;font-weight:bold;">Nick Lynch</p>
         <p style="margin:0;color:#555;font-size:14px;">Founder, Spartan Coaching</p>
       `),
@@ -1148,6 +1172,79 @@ export async function sendAccessRejectedEmail(
     return true;
   } catch (error) {
     console.error("Failed to send access rejected email:", error);
+    return false;
+  }
+}
+
+/** Sent when Nick activates paid / ongoing client access (org status → active). */
+export async function sendMembershipActivatedEmail(
+  toEmail: string,
+  toName: string,
+  orgName: string,
+): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    const siteUrl = getSiteUrl();
+    await sendEmail(client, {
+      from: fromEmail,
+      to: toEmail,
+      subject: "Your Spartan Field Kit membership is active",
+      html: authEmailShell(`
+        <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Your Field Kit access for <strong>${orgName}</strong> is now <strong>active</strong> as a continuing client — not a timed evaluation.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Sign in anytime, run your weekly workflows, and reach out when you want coaching, more seats, or a leadership debrief.</p>
+        <div style="text-align:center;margin:28px 0;">
+          <a href="${siteUrl}/login" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Sign in to Field Kit</a>
+          <a href="${siteUrl}/portal" style="display:inline-block;background:#111827;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Open portal</a>
+        </div>
+        <p style="margin:0 0 16px;line-height:1.6;font-size:14px;color:#555;">Billing and seat changes stay human: reply here or book a call. Never enter PHI into tools.</p>
+        <p style="margin:0 0 4px;font-weight:bold;">Nick Lynch</p>
+        <p style="margin:0;color:#555;font-size:14px;">Founder, Spartan Coaching</p>
+      `),
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to send membership activated email:", error);
+    return false;
+  }
+}
+
+/** Optional notice when trial is extended from Access Desk. */
+export async function sendTrialExtendedEmail(
+  toEmail: string,
+  toName: string,
+  hoursAdded: number,
+  trialEndsAt: Date,
+): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    const siteUrl = getSiteUrl();
+    const endsLabel = trialEndsAt.toLocaleString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      timeZoneName: "short",
+    });
+    await sendEmail(client, {
+      from: fromEmail,
+      to: toEmail,
+      subject: `Field Kit evaluation extended (+${hoursAdded}h) — Spartan Coaching`,
+      html: authEmailShell(`
+        <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Your Field Kit evaluation has been extended by <strong>${hoursAdded} hour${hoursAdded === 1 ? "" : "s"}</strong>.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">New window end: <strong>${endsLabel}</strong>.</p>
+        <div style="text-align:center;margin:28px 0;">
+          <a href="${siteUrl}/login" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;">Continue in Field Kit</a>
+        </div>
+        <p style="margin:0 0 4px;font-weight:bold;">Nick Lynch</p>
+        <p style="margin:0;color:#555;font-size:14px;">Founder, Spartan Coaching</p>
+      `),
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to send trial extended email:", error);
     return false;
   }
 }
