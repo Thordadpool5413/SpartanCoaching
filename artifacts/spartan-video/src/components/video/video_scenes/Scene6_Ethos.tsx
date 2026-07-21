@@ -30,11 +30,10 @@ export function Scene6_Ethos() {
 
   return (
     <motion.div
-      className="absolute inset-0 z-20"
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0, scale: 1.06, filter: 'blur(12px)' }}
-      transition={{ duration: 0.4 }}
+      className="absolute inset-0 z-10"
+      initial={{ opacity: 1 }}
+      exit={{ clipPath: 'circle(0% at 50% 50%)' }}
+      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
     >
       <video
         src={ethosBg}

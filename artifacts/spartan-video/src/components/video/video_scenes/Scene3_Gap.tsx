@@ -19,7 +19,7 @@ export function Scene3_Gap() {
       className="absolute inset-0 z-10 flex items-center justify-center bg-[#070707]"
       initial={{ clipPath: 'circle(0% at 50% 50%)' }}
       animate={{ clipPath: 'circle(150% at 50% 50%)' }}
-      exit={{ opacity: 0, scale: 1.06, filter: 'blur(12px)' }}
+      exit={{ clipPath: 'circle(0% at 50% 50%)' }}
       transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
     >
       {/* Grain texture background */}

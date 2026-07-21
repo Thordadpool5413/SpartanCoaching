@@ -13,13 +13,13 @@ import { Scene8_Close } from './video_scenes/Scene8_Close';
 const spartanStamp = `${import.meta.env.BASE_URL}spartan-logo-stamp.png`;
 
 export const SCENE_DURATIONS: Record<string, number> = {
-  cold: 1800,
-  stats: 4000,
-  gap: 3500,
-  conversational: 2000,
-  fragments: 3200,
-  ethos: 4500,
-  pillars: 4200,
+  cold: 2000,
+  stats: 4500,
+  gap: 3800,
+  conversational: 2200,
+  fragments: 3500,
+  ethos: 5000,
+  pillars: 4500,
   close: 4500,
 };
 
