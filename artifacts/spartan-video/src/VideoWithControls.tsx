@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
-import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Pause, Play, Repeat } from 'lucide-react';
+import { ChevronDown, ChevronUp, ChevronLeft, ChevronRight, Maximize, Minimize, Pause, Play, Repeat } from 'lucide-react';
 import VideoTemplate, { SCENE_DURATIONS } from './components/video/VideoTemplate';
 import { useSceneControls } from './useSceneControls';
 
@@ -83,6 +83,7 @@ interface ControlBarProps {
   collapsed: boolean;
   locked: boolean;
   paused: boolean;
+  fullscreen: boolean;
   sceneKeys: string[];
   activeIndex: number;
   activeDuration: number;
@@ -93,6 +94,7 @@ interface ControlBarProps {
   onNextScene: () => void;
   onJumpTo: (index: number) => void;
   onToggleCollapsed: () => void;
+  onToggleFullscreen: () => void;
 }
 
 function ControlBar({
@@ -100,6 +102,7 @@ function ControlBar({
   collapsed,
   locked,
   paused,
+  fullscreen,
   sceneKeys,
   activeIndex,
   activeDuration,
@@ -110,6 +113,7 @@ function ControlBar({
   onNextScene,
   onJumpTo,
   onToggleCollapsed,
+  onToggleFullscreen,
 }: ControlBarProps) {
   return (
     <div
@@ -187,6 +191,19 @@ function ControlBar({
         {activeIndex + 1}/{sceneKeys.length}
       </div>
 
+      <div className="w-px self-stretch bg-white/15" aria-hidden="true" />
+
+      {/* Full-screen toggle */}
+      <button
+        onClick={onToggleFullscreen}
+        className="w-10 h-10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 transition-colors rounded-lg shrink-0 touch-manipulation"
+        title={fullscreen ? 'Exit full screen' : 'Full screen'}
+        aria-label={fullscreen ? 'Exit full screen' : 'Enter full screen'}
+        aria-pressed={fullscreen}
+      >
+        {fullscreen ? <Minimize className="w-5 h-5" /> : <Maximize className="w-5 h-5" />}
+      </button>
+
       {/* Collapse toggle */}
       <button
         onClick={onToggleCollapsed}
@@ -224,7 +241,70 @@ export default function VideoWithControls() {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const [collapsed, setCollapsed] = useState(false);
   const [controlsVisible, setControlsVisible] = useState(false);
+  const [fullscreen, setFullscreen] = useState(false);
+  // Faux-fullscreen: fixed overlay for platforms with no Fullscreen API (e.g. older iOS Safari)
+  const [fauxFullscreen, setFauxFullscreen] = useState(false);
   const hideTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Detect native Fullscreen API availability (standard + webkit prefix)
+  const fsSupported =
+    typeof document !== 'undefined' &&
+    (document.fullscreenEnabled ||
+      !!(document as Document & { webkitFullscreenEnabled?: boolean }).webkitFullscreenEnabled);
+
+  // Track native fullscreen state changes (Escape key exits fullscreen too)
+  useEffect(() => {
+    type WebkitDoc = Document & { webkitFullscreenElement?: Element | null };
+    const onFsChange = () => {
+      const active = !!(
+        document.fullscreenElement ||
+        (document as WebkitDoc).webkitFullscreenElement
+      );
+      setFullscreen(active);
+      // If native fullscreen just became active, clear faux-fullscreen so they don't stack
+      if (active) setFauxFullscreen(false);
+    };
+    document.addEventListener('fullscreenchange', onFsChange);
+    document.addEventListener('webkitfullscreenchange', onFsChange);
+    return () => {
+      document.removeEventListener('fullscreenchange', onFsChange);
+      document.removeEventListener('webkitfullscreenchange', onFsChange);
+    };
+  }, []);
+
+  const toggleFullscreen = useCallback(() => {
+    const el = containerRef.current;
+    if (!el) return;
+
+    type WebkitDoc = Document & {
+      webkitFullscreenElement?: Element | null;
+      webkitExitFullscreen?: () => Promise<void>;
+    };
+    type WebkitEl = HTMLDivElement & {
+      webkitRequestFullscreen?: () => Promise<void>;
+    };
+
+    const wDoc = document as WebkitDoc;
+    const wEl = el as WebkitEl;
+    const isActive = !!(document.fullscreenElement || wDoc.webkitFullscreenElement);
+
+    if (fsSupported) {
+      if (isActive) {
+        (document.exitFullscreen?.() ?? wDoc.webkitExitFullscreen?.())?.catch((err: unknown) => {
+          console.warn('[VideoWithControls] exitFullscreen failed:', err);
+        });
+      } else {
+        (el.requestFullscreen?.() ?? wEl.webkitRequestFullscreen?.())?.catch((err: unknown) => {
+          // Denied (e.g. not triggered by user gesture) — fall back to faux fullscreen
+          console.warn('[VideoWithControls] requestFullscreen denied, using faux fullscreen:', err);
+          setFauxFullscreen(true);
+        });
+      }
+    } else {
+      // No Fullscreen API (older iOS Safari, some in-app browsers): toggle faux fullscreen
+      setFauxFullscreen((v) => !v);
+    }
+  }, [fsSupported]);
 
   const showControls = useCallback((isTouch = false) => {
     setControlsVisible(true);
@@ -289,10 +369,12 @@ export default function VideoWithControls() {
     return <VideoTemplate />;
   }
 
+  const isFullscreen = fullscreen || fauxFullscreen;
+
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-screen"
+      className={`relative w-full ${fauxFullscreen ? 'fixed inset-0 z-[9999] bg-black' : 'h-screen'}`}
       onPointerMove={handlePointerMove}
       onPointerDown={handlePointerDown}
     >
@@ -323,6 +405,7 @@ export default function VideoWithControls() {
           collapsed={collapsed}
           locked={locked}
           paused={paused}
+          fullscreen={isFullscreen}
           sceneKeys={sceneKeys}
           activeIndex={activeIndex}
           activeDuration={activeDuration}
@@ -333,6 +416,7 @@ export default function VideoWithControls() {
           onNextScene={nextScene}
           onJumpTo={jumpTo}
           onToggleCollapsed={handleToggleCollapsed}
+          onToggleFullscreen={toggleFullscreen}
         />
       </div>
     </div>
