@@ -14,6 +14,7 @@ type AuthContextValue = {
   refresh: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  setUser: (user: MobileAuthUser | null) => void;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
@@ -60,6 +61,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       refresh,
       login,
       logout,
+      setUser,
     }),
     [user, isLoading, refresh, login, logout],
   );

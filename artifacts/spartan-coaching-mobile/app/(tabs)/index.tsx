@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   AppState,
@@ -20,9 +20,16 @@ import { router, useFocusEffect } from "expo-router";
 import * as Notifications from "expo-notifications";
 import { useColors } from "@/hooks/useColors";
 import { useReminderHistory } from "@/hooks/useReminderHistory";
-import { apiPost } from "@/lib/api";
+import { apiPost, fetchOnboardingMobile, updateOnboardingMobile } from "@/lib/api";
 import { cancelReminder, removeReminderFromHistory } from "@/lib/notifications";
 import { useAuth } from "@/lib/AuthContext";
+import {
+  formatTrialRemaining,
+  isChecklistDone,
+  START_HERE,
+  visibleChecklist,
+  type ChecklistId,
+} from "@/lib/onboarding";
 
 const SUGGESTIONS = [
   "What are hospice eligibility criteria for heart failure?",
@@ -35,6 +42,7 @@ const QUICK_TOOLS = [
   { label: "Objection Handler", icon: "shield" as const },
   { label: "Sales Playbooks", icon: "book-open" as const },
   { label: "Email Templates", icon: "mail" as const },
+  { label: "Role-Play", icon: "users" as const },
 ];
 
 function formatScheduledTime(ts: number): string {
@@ -55,20 +63,42 @@ function formatScheduledTime(ts: number): string {
 export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { canUseFieldKit, isAuthenticated, user, logout } = useAuth();
+  const { canUseFieldKit, isAuthenticated, user, logout, refresh } = useAuth();
   const [query, setQuery] = useState("");
   const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const { reminders, load: reloadReminders, removeReminder } = useReminderHistory();
 
+  const [jobRole, setJobRole] = useState<string>("");
+  const [checklist, setChecklist] = useState<Record<string, boolean | string>>({});
+  const [onboardingLoaded, setOnboardingLoaded] = useState(false);
+  const [toggling, setToggling] = useState<string | null>(null);
+
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 90;
+
+  const loadOnboarding = useCallback(async () => {
+    if (!canUseFieldKit) {
+      setOnboardingLoaded(true);
+      return;
+    }
+    try {
+      const data = await fetchOnboardingMobile();
+      setJobRole(data.member.jobRole || "");
+      setChecklist(data.member.checklistProgress || {});
+    } catch {
+      // keep local
+    } finally {
+      setOnboardingLoaded(true);
+    }
+  }, [canUseFieldKit]);
 
   useFocusEffect(
     useCallback(() => {
       reloadReminders();
-    }, [reloadReminders])
+      loadOnboarding();
+    }, [reloadReminders, loadOnboarding]),
   );
 
   useEffect(() => {
@@ -110,7 +140,7 @@ export default function HomeScreen() {
   const handleAsk = async (prompt: string) => {
     if (!prompt.trim()) return;
     if (!canUseFieldKit) {
-      setError("Field Kit access required. Sign in or request evaluation access on the website.");
+      setError("Field Kit access required. Sign in from the Account tab.");
       return;
     }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -147,58 +177,280 @@ export default function HomeScreen() {
     await removeReminder(id);
   };
 
+  const items = useMemo(() => visibleChecklist(jobRole), [jobRole]);
+  const doneCount = items.filter((i) => isChecklistDone(checklist, i.id)).length;
+  const progressPct = items.length ? Math.round((doneCount / items.length) * 100) : 0;
+  const startHere = START_HERE[jobRole || "other"] || START_HERE.other;
+  const trialLabel = formatTrialRemaining(user?.fieldKit?.hoursRemaining);
+  const firstName = user?.member?.name?.split(" ")[0] || "";
+
+  const openStart = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (startHere.route) router.push(startHere.route as any);
+    else router.push("/(tabs)/tools");
+  };
+
+  const toggleItem = async (id: ChecklistId, done: boolean) => {
+    setToggling(id);
+    setChecklist((prev) => {
+      const next = { ...prev };
+      if (done) next[id] = new Date().toISOString();
+      else delete next[id];
+      return next;
+    });
+    try {
+      const data = await updateOnboardingMobile({ checklistItem: { id, done } });
+      setChecklist(data.member.checklistProgress || {});
+      await refresh();
+    } catch {
+      await loadOnboarding();
+    } finally {
+      setToggling(null);
+    }
+  };
+
+  const openChecklistItem = (item: (typeof items)[0]) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (item.route) router.push(item.route as any);
+    else router.push("/(tabs)/tools");
+  };
+
+  // ── Logged-out marketing home ─────────────────────────────────────
+  if (!canUseFieldKit) {
+    return (
+      <ScrollView
+        style={[styles.container, { backgroundColor: colors.background }]}
+        contentContainerStyle={{ paddingBottom: bottomPad }}
+        showsVerticalScrollIndicator={false}
+      >
+        <LinearGradient
+          colors={[colors.heroBackground, "#0f0f0f", "#1a0404"]}
+          style={[styles.hero, { paddingTop: topPad + 20 }]}
+        >
+          <Image source={require("@/assets/images/logo.png")} style={styles.logo} resizeMode="contain" />
+          <Text style={[styles.heroTitle, { color: colors.heroForeground }]}>Hospice sales teams</Text>
+          <Text style={[styles.heroTitle, styles.heroTitleAccent, { color: colors.primary }]}>
+            that consistently close.
+          </Text>
+          <Text style={[styles.heroTagline, { color: colors.heroMuted }]}>
+            Private Field Kit for approved clients.{"\n"}Sign in to execute in the field.
+          </Text>
+          <View
+            style={[
+              styles.heroBadge,
+              { backgroundColor: colors.heroBadgeBg, borderColor: colors.heroBadgeBorder },
+            ]}
+          >
+            <View style={[styles.heroBadgeDot, { backgroundColor: colors.primary }]} />
+            <Text style={[styles.heroBadgeText, { color: colors.heroBadgeText }]}>
+              {isAuthenticated ? "Access locked — continue as a client" : "Client login required for AI tools"}
+            </Text>
+          </View>
+          <Pressable
+            onPress={() => (isAuthenticated ? router.push("/(tabs)/account") : router.push("/login"))}
+            style={{
+              marginTop: 16,
+              paddingVertical: 12,
+              paddingHorizontal: 20,
+              borderRadius: 10,
+              backgroundColor: colors.primary,
+            }}
+          >
+            <Text style={{ color: "#fff", fontWeight: "800", textAlign: "center" }}>
+              {isAuthenticated ? "Open account" : "Client login"}
+            </Text>
+          </Pressable>
+          <Pressable onPress={() => router.push("/(tabs)/contact")} style={{ marginTop: 12 }}>
+            <Text style={{ color: "rgba(255,255,255,0.7)", fontWeight: "600", textAlign: "center" }}>
+              Book a strategy call
+            </Text>
+          </Pressable>
+        </LinearGradient>
+
+        <View style={[styles.missionSection, { backgroundColor: colors.heroBackground }]}>
+          <Text style={[styles.missionOverline, { color: colors.primary, fontFamily: "Inter_700Bold" }]}>
+            The Real Problem
+          </Text>
+          <Text style={[styles.missionTitle, { color: colors.heroForeground, fontFamily: "Inter_700Bold" }]}>
+            The Gap Is Not Clinical. It Is Conversational.
+          </Text>
+          <Text style={[styles.missionBody, { color: colors.heroMuted, fontFamily: "Inter_400Regular" }]}>
+            Eligible patients are not receiving hospice care because the right conversations are not happening.
+            Spartan Coaching exists to close that gap, one prepared visit at a time.
+          </Text>
+          <Pressable
+            onPress={() => router.push("/(tabs)/contact")}
+            style={({ pressed }) => [
+              styles.ctaBtn,
+              { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },
+            ]}
+          >
+            <Text style={[styles.ctaBtnText, { color: colors.primaryForeground, fontFamily: "Inter_700Bold" }]}>
+              Get in Touch
+            </Text>
+            <Feather name="arrow-right" size={16} color={colors.primaryForeground} />
+          </Pressable>
+        </View>
+      </ScrollView>
+    );
+  }
+
+  // ── Field companion (logged-in + entitled) ────────────────────────
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={{ paddingBottom: bottomPad }}
       showsVerticalScrollIndicator={false}
     >
-      {/* Hero */}
       <LinearGradient
         colors={[colors.heroBackground, "#0f0f0f", "#1a0404"]}
-        style={[styles.hero, { paddingTop: topPad + 20 }]}
+        style={[styles.fieldHero, { paddingTop: topPad + 16 }]}
       >
-        <Image
-          source={require("@/assets/images/logo.png")}
-          style={styles.logo}
-          resizeMode="contain"
-        />
-        <Text style={[styles.heroTitle, { color: colors.heroForeground }]}>
-          Hospice sales teams
+        <Text style={{ color: colors.primary, fontSize: 11, fontWeight: "800", letterSpacing: 2 }}>
+          FIELD KIT
         </Text>
-        <Text style={[styles.heroTitle, styles.heroTitleAccent, { color: colors.primary }]}>
-          that consistently close.
+        <Text style={{ color: "#fff", fontSize: 28, fontWeight: "900", marginTop: 8 }}>
+          Welcome{firstName ? `, ${firstName}` : ""}
         </Text>
-        <Text style={[styles.heroTagline, { color: colors.heroMuted }]}>
-          Eligible patients aren't getting hospice care because{"\n"}the right conversations aren't happening.
+        <Text style={{ color: "rgba(255,255,255,0.65)", marginTop: 6, fontSize: 14, lineHeight: 20 }}>
+          Discipline, empathy, strategy — in the field.
         </Text>
-        <View style={[styles.heroBadge, { backgroundColor: colors.heroBadgeBg, borderColor: colors.heroBadgeBorder }]}>
-          <View style={[styles.heroBadgeDot, { backgroundColor: colors.primary }]} />
-          <Text style={[styles.heroBadgeText, { color: colors.heroBadgeText }]}>
-            {canUseFieldKit
-              ? user?.organization?.status === "trial"
-                ? "Evaluation access active"
-                : "Client Field Kit"
-              : "Private Field Kit · Sign in to unlock AI"}
-          </Text>
-        </View>
-        <Pressable
-          onPress={() => (isAuthenticated ? logout() : router.push("/login"))}
-          style={{ marginTop: 16, paddingVertical: 10, paddingHorizontal: 16, borderRadius: 8, borderWidth: 1, borderColor: "rgba(255,255,255,0.25)" }}
-        >
-          <Text style={{ color: "#fff", fontWeight: "700", textAlign: "center" }}>
-            {isAuthenticated ? `Sign out (${user?.member?.name?.split(" ")[0] || "Account"})` : "Client login"}
-          </Text>
-        </Pressable>
+        {user?.organization?.status === "trial" && trialLabel ? (
+          <View
+            style={{
+              marginTop: 14,
+              alignSelf: "flex-start",
+              backgroundColor: "rgba(251,191,36,0.15)",
+              borderColor: "rgba(251,191,36,0.35)",
+              borderWidth: 1,
+              borderRadius: 8,
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 8,
+            }}
+          >
+            <Feather name="clock" size={14} color="#fbbf24" />
+            <Text style={{ color: "#fde68a", fontWeight: "700", fontSize: 13 }}>{trialLabel}</Text>
+            <Pressable onPress={() => router.push("/(tabs)/contact")}>
+              <Text style={{ color: "#fff", fontWeight: "700", fontSize: 13, textDecorationLine: "underline" }}>
+                Debrief
+              </Text>
+            </Pressable>
+          </View>
+        ) : (
+          <View
+            style={{
+              marginTop: 14,
+              alignSelf: "flex-start",
+              backgroundColor: "rgba(74,222,128,0.12)",
+              borderColor: "rgba(74,222,128,0.3)",
+              borderWidth: 1,
+              borderRadius: 8,
+              paddingHorizontal: 12,
+              paddingVertical: 8,
+            }}
+          >
+            <Text style={{ color: "#86efac", fontWeight: "700", fontSize: 13 }}>Active client access</Text>
+          </View>
+        )}
       </LinearGradient>
 
-      {/* Pending Reminders */}
+      {/* Start here */}
+      <View style={[styles.section, { paddingTop: 20 }]}>
+        <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
+          Recommended first move
+        </Text>
+        <Pressable
+          onPress={openStart}
+          style={[
+            styles.startCard,
+            { backgroundColor: colors.card, borderColor: colors.primary },
+          ]}
+        >
+          <Text style={{ color: colors.primary, fontSize: 11, fontWeight: "800", letterSpacing: 1 }}>
+            START HERE
+          </Text>
+          <Text style={{ color: colors.foreground, fontSize: 18, fontWeight: "800", marginTop: 6 }}>
+            {startHere.title}
+          </Text>
+          <Text style={{ color: colors.mutedForeground, fontSize: 13, marginTop: 4, lineHeight: 18 }}>
+            {startHere.blurb}
+          </Text>
+          <Text style={{ color: colors.primary, fontWeight: "800", marginTop: 10 }}>Open →</Text>
+        </Pressable>
+      </View>
+
+      {/* Checklist */}
+      <View style={[styles.section, { paddingTop: 8 }]}>
+        <View style={styles.sectionHeader}>
+          <Feather name="check-square" size={18} color={colors.primary} />
+          <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
+            First-session checklist
+          </Text>
+        </View>
+        <Text style={{ color: colors.mutedForeground, fontSize: 13, marginBottom: 8 }}>
+          {doneCount} of {items.length} · {progressPct}%
+        </Text>
+        <View style={{ height: 6, borderRadius: 3, backgroundColor: colors.border, marginBottom: 14, overflow: "hidden" }}>
+          <View style={{ height: "100%", width: `${progressPct}%`, backgroundColor: colors.primary }} />
+        </View>
+
+        {items.map((item) => {
+          const done = isChecklistDone(checklist, item.id);
+          return (
+            <View
+              key={item.id}
+              style={[
+                styles.checkRow,
+                {
+                  backgroundColor: colors.card,
+                  borderColor: done ? "rgba(74,222,128,0.35)" : colors.border,
+                },
+              ]}
+            >
+              <Pressable
+                onPress={() => toggleItem(item.id, !done)}
+                disabled={toggling === item.id}
+                hitSlop={8}
+                style={{ padding: 4 }}
+              >
+                <Feather
+                  name={done ? "check-circle" : "circle"}
+                  size={22}
+                  color={done ? "#4ade80" : colors.mutedForeground}
+                />
+              </Pressable>
+              <Pressable onPress={() => openChecklistItem(item)} style={{ flex: 1 }}>
+                <Text
+                  style={{
+                    color: colors.foreground,
+                    fontWeight: "700",
+                    fontSize: 14,
+                    textDecorationLine: done ? "line-through" : "none",
+                    opacity: done ? 0.75 : 1,
+                  }}
+                >
+                  {item.title}
+                </Text>
+                <Text style={{ color: colors.mutedForeground, fontSize: 12, marginTop: 2, lineHeight: 16 }}>
+                  {item.desc}
+                </Text>
+              </Pressable>
+              <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
+            </View>
+          );
+        })}
+      </View>
+
+      {/* Reminders */}
       {Platform.OS !== "web" && reminders.length > 0 && (
         <View style={[styles.section, { backgroundColor: colors.background }]}>
           <View style={styles.sectionHeader}>
             <Feather name="clock" size={20} color={colors.primary} />
             <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
-              Pending Reminders
+              Follow-up reminders
             </Text>
           </View>
           <View style={styles.reminderList}>
@@ -249,15 +501,14 @@ export default function HomeScreen() {
           </Text>
         </View>
         <Text style={[styles.sectionSubtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-          Instant expert answers on any hospice topic
+          Instant field answers — no PHI
         </Text>
 
-        {/* Input */}
         <View style={[styles.inputRow, { borderColor: colors.border, backgroundColor: colors.card }]}>
           <Feather name="search" size={18} color={colors.mutedForeground} style={styles.inputIcon} />
           <TextInput
             style={[styles.input, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}
-            placeholder="Ask any hospice question..."
+            placeholder="Ask any hospice sales question..."
             placeholderTextColor={colors.mutedForeground}
             value={query}
             onChangeText={setQuery}
@@ -278,13 +529,15 @@ export default function HomeScreen() {
           )}
         </View>
 
-        {/* Suggestions */}
         {!response && !loading && (
           <View style={styles.suggestions}>
             {SUGGESTIONS.map((s, i) => (
               <Pressable
                 key={i}
-                onPress={() => { setQuery(s); handleAsk(s); }}
+                onPress={() => {
+                  setQuery(s);
+                  handleAsk(s);
+                }}
                 style={({ pressed }) => [
                   styles.suggestion,
                   { backgroundColor: colors.muted, borderColor: colors.border, opacity: pressed ? 0.75 : 1 },
@@ -298,7 +551,6 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* Loading */}
         {loading && (
           <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <ActivityIndicator color={colors.primary} size="small" />
@@ -308,14 +560,12 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* Error */}
         {!!error && (
           <View style={[styles.errorCard, { backgroundColor: colors.accent }]}>
             <Text style={[styles.errorText, { color: colors.primary, fontFamily: "Inter_400Regular" }]}>{error}</Text>
           </View>
         )}
 
-        {/* Response */}
         {!!response && !loading && (
           <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
             <Text style={[styles.responseText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>
@@ -347,7 +597,7 @@ export default function HomeScreen() {
               key={i}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                router.push("/tools");
+                router.push("/(tabs)/tools");
               }}
               style={({ pressed }) => [
                 styles.toolCard,
@@ -365,83 +615,22 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* Outreach */}
-      <View style={[styles.section, { backgroundColor: colors.background, paddingTop: 0 }]}>
-        <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold", marginBottom: 12 }]}>
-          Outreach
-        </Text>
+      <View style={[styles.section, { paddingTop: 0 }]}>
         <Pressable
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            router.push("/brand-video");
-          }}
-          style={({ pressed }) => [
-            styles.toolCard,
-            { backgroundColor: colors.card, borderColor: colors.border, opacity: pressed ? 0.8 : 1 },
-          ]}
-        >
-          <View style={[styles.toolIcon, { backgroundColor: colors.accent }]}>
-            <Feather name="film" size={20} color={colors.primary} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={[styles.toolLabel, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>
-              Brand Video
-            </Text>
-            <Text style={[styles.toolSub, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-              Preview and share the Spartan brand video with prospects
-            </Text>
-          </View>
-          <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
-        </Pressable>
-        <Pressable
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            router.push("/staffing");
-          }}
-          style={({ pressed }) => [
-            styles.toolCard,
-            { backgroundColor: colors.card, borderColor: colors.border, opacity: pressed ? 0.8 : 1, marginTop: 10 },
-          ]}
-          testID="button-open-staffing"
-        >
-          <View style={[styles.toolIcon, { backgroundColor: colors.accent }]}>
-            <Feather name="users" size={20} color={colors.primary} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={[styles.toolLabel, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>
-              Branch Staffing
-            </Text>
-            <Text style={[styles.toolSub, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-              Required staffing and payroll by scenario and census
-            </Text>
-          </View>
-          <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
-        </Pressable>
-      </View>
-
-      {/* Mission — always rendered on dark brand background */}
-      <View style={[styles.missionSection, { backgroundColor: colors.heroBackground }]}>
-        <Text style={[styles.missionOverline, { color: colors.primary, fontFamily: "Inter_700Bold" }]}>
-          The Real Problem
-        </Text>
-        <Text style={[styles.missionTitle, { color: colors.heroForeground, fontFamily: "Inter_700Bold" }]}>
-          The Gap Is Not Clinical. It Is Conversational.
-        </Text>
-        <Text style={[styles.missionBody, { color: colors.heroMuted, fontFamily: "Inter_400Regular" }]}>
-          Eligible patients are not receiving hospice care because the right conversations are not happening. Spartan Coaching exists to close that gap, one prepared visit at a time.
-        </Text>
-        <Pressable
-          onPress={() => router.push("/contact")}
+          onPress={() => router.push("/(tabs)/contact")}
           style={({ pressed }) => [
             styles.ctaBtn,
-            { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },
+            { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1, alignSelf: "stretch", justifyContent: "center" },
           ]}
         >
           <Text style={[styles.ctaBtnText, { color: colors.primaryForeground, fontFamily: "Inter_700Bold" }]}>
-            Get in Touch
+            Book a debrief call
           </Text>
-          <Feather name="arrow-right" size={16} color={colors.primaryForeground} />
+          <Feather name="phone" size={16} color={colors.primaryForeground} />
         </Pressable>
+        <Text style={{ color: colors.mutedForeground, fontSize: 11, textAlign: "center", marginTop: 12 }}>
+          Do not enter PHI · Coaching aid only
+        </Text>
       </View>
     </ScrollView>
   );
@@ -453,6 +642,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     paddingBottom: 40,
     paddingHorizontal: 24,
+  },
+  fieldHero: {
+    paddingBottom: 28,
+    paddingHorizontal: 20,
   },
   logo: { width: 64, height: 64, marginBottom: 20 },
   heroTitle: {
@@ -488,6 +681,21 @@ const styles = StyleSheet.create({
   sectionHeader: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 4 },
   sectionTitle: { fontSize: 20, fontWeight: "700" },
   sectionSubtitle: { fontSize: 14, marginBottom: 16 },
+  startCard: {
+    marginTop: 12,
+    borderWidth: 1.5,
+    borderRadius: 14,
+    padding: 16,
+  },
+  checkRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 8,
+  },
   reminderList: { gap: 8, marginTop: 12 },
   reminderRow: {
     flexDirection: "row",

@@ -58,15 +58,37 @@ export async function apiGet<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
+  const res = await fetch(`${getBase()}${path}`, {
+    method: "PATCH",
+    headers: await authHeaders(),
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => res.statusText);
+    throw new Error(`${res.status}: ${text}`);
+  }
+  return res.json() as Promise<T>;
+}
+
+export type MobileMember = {
+  id: number;
+  email: string;
+  name: string;
+  role: string;
+  organizationId: number;
+  status: string;
+  jobRole?: string | null;
+  territoryNote?: string | null;
+  topObjections?: string | null;
+  checklistProgress?: Record<string, boolean | string>;
+  checklistDone?: number;
+  activated?: boolean;
+  lastLoginAt?: string | null;
+};
+
 export type MobileAuthUser = {
-  member: {
-    id: number;
-    email: string;
-    name: string;
-    role: string;
-    organizationId: number;
-    status: string;
-  };
+  member: MobileMember;
   organization: {
     id: number;
     name: string;
@@ -74,6 +96,7 @@ export type MobileAuthUser = {
     seatLimit: number;
     status: string;
     trialEndsAt?: string | null;
+    pipelineStatus?: string | null;
   } | null;
   fieldKit: {
     allowed: boolean;
@@ -113,4 +136,17 @@ export async function fetchMeMobile(): Promise<MobileAuthUser | null> {
     await setSessionToken(null);
     return null;
   }
+}
+
+export async function fetchOnboardingMobile(): Promise<{ member: MobileMember }> {
+  return apiGet("/api/me/onboarding");
+}
+
+export async function updateOnboardingMobile(body: {
+  jobRole?: string | null;
+  territoryNote?: string | null;
+  topObjections?: string | null;
+  checklistItem?: { id: string; done: boolean };
+}): Promise<{ member: MobileMember }> {
+  return apiPatch("/api/me/onboarding", body);
 }

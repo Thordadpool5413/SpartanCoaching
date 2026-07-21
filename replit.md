@@ -41,6 +41,7 @@ Expert hospice growth coaching site + private Field Kit (web + iOS) for clients 
 - Access Desk ops: org detail (pipeline won/lost/follow-up, notes, timeline), metrics follow-ups due
 - Conversion: `/field-kit-membership` pricing page; stronger expired handoff CTAs
 - Portal onboarding: role-based start, checklist progress API, field context profile, admin “activated” flag
+- Mobile field companion: logged-in home checklist + trial banner, account profile sync, tools PHI strip
 
 ## Architecture decisions
 

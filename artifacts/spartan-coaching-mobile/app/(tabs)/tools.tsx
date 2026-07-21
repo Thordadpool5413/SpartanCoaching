@@ -261,7 +261,7 @@ interface ScenarioStat {
 export default function ToolsScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { canUseFieldKit } = useAuth();
+  const { canUseFieldKit, isAuthenticated } = useAuth();
   const rnTabBarHeight = useContext(BottomTabBarHeightContext);
   const tabBarHeight = rnTabBarHeight ?? insets.bottom + 49;
   const [activeTab, setActiveTab] = useState<ToolTab>("objection");
@@ -547,7 +547,7 @@ export default function ToolsScreen() {
 
       {!canUseFieldKit && (
         <Pressable
-          onPress={() => router.push("/login")}
+          onPress={() => router.push(isAuthenticated ? "/(tabs)/account" : "/login")}
           style={{
             marginHorizontal: 16,
             marginTop: 12,
@@ -560,13 +560,34 @@ export default function ToolsScreen() {
           }}
         >
           <Text style={{ color: colors.foreground, fontWeight: "700", marginBottom: 4 }}>
-            Member access required
+            {isAuthenticated ? "Field Kit access not active" : "Member access required"}
           </Text>
           <Text style={{ color: colors.mutedForeground, fontSize: 13, lineHeight: 18 }}>
-            Sign in with an approved client account to use AI tools. Request evaluation access on the website if you do not have a login yet.
+            {isAuthenticated
+              ? "Your evaluation may have ended. Open Account to continue as a client or book a debrief."
+              : "Sign in with an approved client account. Request evaluation access on the website if you need a login."}
           </Text>
-          <Text style={{ color: colors.primary, fontWeight: "700", marginTop: 8 }}>Client login →</Text>
+          <Text style={{ color: colors.primary, fontWeight: "700", marginTop: 8 }}>
+            {isAuthenticated ? "Open account →" : "Client login →"}
+          </Text>
         </Pressable>
+      )}
+      {canUseFieldKit && (
+        <View
+          style={{
+            marginHorizontal: 16,
+            marginTop: 10,
+            marginBottom: 2,
+            paddingVertical: 8,
+            paddingHorizontal: 12,
+            borderRadius: 8,
+            backgroundColor: "rgba(232,41,30,0.08)",
+          }}
+        >
+          <Text style={{ color: colors.mutedForeground, fontSize: 11, textAlign: "center" }}>
+            Field mode · Do not enter PHI · Coaching aid only
+          </Text>
+        </View>
       )}
 
       {/* Tool tabs — always pinned */}
