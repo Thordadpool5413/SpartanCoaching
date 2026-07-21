@@ -2,112 +2,93 @@ import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 
 const statsBg = `${import.meta.env.BASE_URL}stats-bg.mp4`;
-
 const EASE = [0.16, 1, 0.3, 1] as const;
 
 export function Scene2_Stats() {
   const [phase, setPhase] = useState(0);
-  const [flashKey, setFlashKey] = useState(0);
 
   useEffect(() => {
     const timers = [
-      setTimeout(() => { setPhase(1); setFlashKey(k => k + 1); }, 0),
-      setTimeout(() => { setPhase(2); setFlashKey(k => k + 1); }, 1333),
-      setTimeout(() => { setPhase(3); setFlashKey(k => k + 1); }, 2666),
+      setTimeout(() => setPhase(1), 400),
+      setTimeout(() => setPhase(2), 2400),
+      setTimeout(() => setPhase(3), 4200),
     ];
     return () => timers.forEach(t => clearTimeout(t));
   }, []);
 
-  const vis = (n: number) => ({ opacity: phase === n ? 1 : 0 });
-  const FAST = { duration: 0.12, ease: 'easeOut' } as const;
+  const vis = (n: number) => ({ opacity: phase === n ? 1 : 0, transition: { duration: 0.25 } });
 
   return (
     <motion.div
       className="absolute inset-0 z-10 overflow-hidden"
       initial={{ opacity: 1 }}
       exit={{ clipPath: 'circle(0% at 50% 50%)' }}
-      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.35, ease: EASE }}
     >
       <video
         src={statsBg}
-        className="absolute inset-0 w-full h-full object-cover opacity-30"
+        className="absolute inset-0 w-full h-full object-cover opacity-25"
         autoPlay muted playsInline loop
       />
-      <div className="absolute inset-0 bg-[#070707]/60" />
+      <div className="absolute inset-0 bg-[#070707]/65" />
 
-      {/* Hard-cut white flash on each phase boundary */}
+      {/* Phase 1: big number */}
       <motion.div
-        key={flashKey}
-        className="absolute inset-0 bg-white pointer-events-none"
-        style={{ zIndex: 40 }}
-        initial={{ opacity: 0.2 }}
-        animate={{ opacity: 0 }}
-        transition={FAST}
-      />
-
-      {/* All three stat groups always mounted — visibility animated by phase */}
-
-      {/* Phase 1: 500,000 Americans */}
-      <motion.div
-        className="absolute inset-0 flex items-center px-[10vw]"
+        className="absolute inset-0 flex flex-col items-center justify-center px-[8vw]"
         animate={vis(1)}
-        transition={FAST}
       >
-        <div className="flex justify-between items-end w-full">
-          <motion.p
-            className="text-[3.5vw] font-body text-[#9a9a8e] leading-tight pb-[2vw] w-[40%]"
-            animate={vis(1)}
-            transition={FAST}
-          >
-            Americans die without<br />hospice each year
-          </motion.p>
-          <motion.h2
-            className="font-display text-[#f5f5f0] leading-none text-right"
-            style={{ fontSize: '14vw' }}
-            animate={phase === 1 ? { opacity: 1, x: 0 } : { opacity: 0, x: 40 }}
-            transition={{ type: 'spring', stiffness: 340, damping: 26 }}
-          >
-            500,000
-          </motion.h2>
-        </div>
+        <motion.h2
+          className="font-display text-[#f5f5f0] leading-none text-center"
+          style={{ fontSize: '22vw' }}
+          initial={{ opacity: 0, scale: 0.92 }}
+          animate={phase >= 1 ? { opacity: 1, scale: 1 } : { opacity: 0, scale: 0.92 }}
+          transition={{ duration: 0.7, ease: EASE }}
+        >
+          500,000
+        </motion.h2>
+        <motion.p
+          className="font-body text-[#9a9a8e] tracking-widest uppercase mt-4 text-center"
+          style={{ fontSize: '2.2vw', letterSpacing: '0.2em' }}
+          initial={{ opacity: 0, y: 12 }}
+          animate={phase >= 1 ? { opacity: 1, y: 0 } : { opacity: 0, y: 12 }}
+          transition={{ duration: 0.8, delay: 0.3, ease: EASE }}
+        >
+          Americans per year
+        </motion.p>
       </motion.div>
 
-      {/* Phase 2: die without hospice each year */}
+      {/* Phase 2: the loss */}
       <motion.div
         className="absolute inset-0 flex items-center px-[10vw]"
         animate={vis(2)}
-        transition={FAST}
       >
-        <div className="w-full">
-          <motion.h2
-            className="font-display text-[#f5f5f0] uppercase leading-[0.9]"
-            style={{ fontSize: '8vw' }}
-            animate={phase === 2 ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }}
-            transition={{ type: 'spring', stiffness: 340, damping: 26 }}
-          >
-            die without<br />
-            <span className="text-[#e8291e]">hospice</span> each year
-          </motion.h2>
-        </div>
+        <motion.h2
+          className="font-display text-[#f5f5f0] uppercase leading-[0.9]"
+          style={{ fontSize: '7.5vw' }}
+          initial={{ opacity: 0, y: 24 }}
+          animate={phase >= 2 ? { opacity: 1, y: 0 } : { opacity: 0, y: 24 }}
+          transition={{ duration: 0.6, ease: EASE }}
+        >
+          die without<br />
+          <span className="text-[#e8291e]">hospice care</span>
+        </motion.h2>
       </motion.div>
 
-      {/* Phase 3: who would have qualified */}
+      {/* Phase 3: the qualifier */}
       <motion.div
         className="absolute inset-0 flex items-center px-[10vw]"
         animate={vis(3)}
-        transition={FAST}
       >
-        <div className="w-full">
-          <motion.h2
-            className="font-display text-[#9a9a8e] uppercase leading-[0.9]"
-            style={{ fontSize: '6vw' }}
-            animate={phase === 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
-            transition={{ type: 'spring', stiffness: 340, damping: 26 }}
-          >
-            who would have<br />
-            <span className="text-[#f5f5f0]">qualified.</span>
-          </motion.h2>
-        </div>
+        <motion.h2
+          className="font-display text-[#9a9a8e] uppercase leading-[0.9]"
+          style={{ fontSize: '5.5vw' }}
+          initial={{ opacity: 0, y: 20 }}
+          animate={phase >= 3 ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
+          transition={{ duration: 0.7, ease: EASE }}
+        >
+          who would have<br />
+          <span className="text-[#f5f5f0]">qualified for it.</span>
+        </motion.h2>
       </motion.div>
     </motion.div>
   );

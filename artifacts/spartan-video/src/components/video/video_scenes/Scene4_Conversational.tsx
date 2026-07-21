@@ -8,38 +8,53 @@ export function Scene4_Conversational() {
 
   useEffect(() => {
     const timers = [
-      setTimeout(() => setPhase(1), 0),
+      setTimeout(() => setPhase(1), 300),
+      setTimeout(() => setPhase(2), 1800),
     ];
     return () => timers.forEach(t => clearTimeout(t));
   }, []);
 
   return (
     <motion.div
-      className="absolute inset-0 z-10 flex items-center pl-[15vw] bg-[#070707]"
+      className="absolute inset-0 z-10 flex flex-col justify-center pl-[12vw] pr-[12vw] bg-[#070707]"
       initial={{ opacity: 1 }}
       exit={{ clipPath: 'circle(0% at 50% 50%)' }}
-      transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
     >
-      <div 
-        className="absolute inset-0 opacity-20 mix-blend-overlay bg-cover bg-center"
+      <div
+        className="absolute inset-0 opacity-15 mix-blend-overlay bg-cover bg-center"
         style={{ backgroundImage: `url(${gapTexture})` }}
       />
-      
+
+      {/* White flash on entry */}
       <motion.div
         className="absolute inset-0 bg-white z-50 pointer-events-none"
-        initial={{ opacity: 1 }}
+        initial={{ opacity: 0.6 }}
         animate={{ opacity: 0 }}
-        transition={{ duration: 0.15, ease: 'easeOut' }}
+        transition={{ duration: 0.2, ease: 'easeOut' }}
       />
 
-      <motion.h2 
-        className="text-[4vw] font-body text-[#f5f5f0] tracking-wide z-10"
-        initial={{ opacity: 0, x: -20 }}
-        animate={{ opacity: 1, x: 0 }}
-        transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+      <motion.p
+        className="font-body text-[#9a9a8e] tracking-widest uppercase relative z-10 mb-6"
+        style={{ fontSize: '1.6vw', letterSpacing: '0.25em' }}
+        initial={{ opacity: 0 }}
+        animate={phase >= 1 ? { opacity: 1 } : { opacity: 0 }}
+        transition={{ duration: 1, ease: 'easeOut' }}
       >
-        It is conversational<span className="text-[#e8291e]">.</span>
-      </motion.h2>
+        Referrals are won or lost in conversation.
+      </motion.p>
+
+      <div className="overflow-hidden relative z-10">
+        <motion.h2
+          className="font-display text-[#f5f5f0] leading-none uppercase"
+          style={{ fontSize: '9vw' }}
+          initial={{ y: '100%' }}
+          animate={phase >= 2 ? { y: 0 } : { y: '100%' }}
+          transition={{ type: 'spring', stiffness: 200, damping: 28 }}
+        >
+          Conversation<span className="text-[#e8291e]">.</span>
+        </motion.h2>
+      </div>
     </motion.div>
   );
 }
