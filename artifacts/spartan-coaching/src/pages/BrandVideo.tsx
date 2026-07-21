@@ -69,6 +69,7 @@ export default function BrandVideo() {
             className="w-full"
             style={{ height: "clamp(320px, 56.25vw, 720px)", border: "none", display: "block" }}
             allow="autoplay; fullscreen"
+            allowFullScreen
             data-testid="iframe-brand-video"
           />
         </div>
