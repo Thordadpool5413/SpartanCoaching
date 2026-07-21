@@ -55,7 +55,10 @@ export default function SetPassword() {
         organization: data.organization,
         fieldKit: data.fieldKit,
       });
-      toast({ title: "Welcome to the Field Kit", description: "Your account is ready." });
+      toast({
+        title: "Welcome to the Field Kit",
+        description: "Next: pick your role, run one real tool, then book a debrief.",
+      });
       setLocation("/portal");
     } catch (err: any) {
       toast({ title: "Could not set password", description: err?.message, variant: "destructive" });
@@ -72,7 +75,8 @@ export default function SetPassword() {
           <p className="text-xs font-bold tracking-widest text-red-400 uppercase">Secure setup</p>
           <h1 className="text-2xl font-display font-black">Set your password</h1>
           <p className="text-sm text-muted-foreground">
-            Create a password to enter your Field Kit evaluation or client workspace.
+            Create a password to enter your Field Kit. After this you will land on a short first-session
+            path: role → one real tool → debrief.
           </p>
         </div>
         <form onSubmit={onSubmit} className="space-y-4">

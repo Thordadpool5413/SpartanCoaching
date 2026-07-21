@@ -33,12 +33,15 @@ export function TrialBanner() {
           <Clock className="w-3.5 h-3.5" />
           {label}
         </span>
-        <Link href="/contact" className="underline font-semibold hover:text-white">
-          Book a debrief call
+        <Link
+          href="/contact?service=Field+Kit+Debrief"
+          className="underline font-semibold hover:text-white"
+        >
+          Book a debrief
         </Link>
         <span className="text-amber-100/50">·</span>
         <Link href="/portal" className="underline hover:text-white">
-          Field Kit home
+          First-session checklist
         </Link>
       </div>
     </div>
