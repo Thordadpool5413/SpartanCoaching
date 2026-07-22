@@ -31,23 +31,33 @@ export const LS = {
   },
 };
 
-// Theme management
+// Theme management (mode only — full appearance lives in lib/theme.ts)
 export function getInitialTheme(): "light" | "dark" {
   if (typeof window === "undefined") return "dark";
-  const saved = LS.get<string>("spartan_theme", "");
-  if (saved === "light" || saved === "dark") return saved;
+  try {
+    const raw = localStorage.getItem("spartan_theme");
+    if (!raw) return "dark";
+    try {
+      const parsed = JSON.parse(raw);
+      if (parsed === "light" || parsed === "dark") return parsed;
+    } catch {
+      if (raw === "light" || raw === "dark") return raw;
+    }
+    // LS helper may have stored JSON string
+    const viaLs = LS.get<string>("spartan_theme", "");
+    if (viaLs === "light" || viaLs === "dark") return viaLs;
+  } catch {
+    /* ignore */
+  }
   return "dark";
 }
 
 export function applyTheme(theme: "light" | "dark") {
   LS.set("spartan_theme", theme);
   const root = document.documentElement;
-  if (theme === "dark") {
-    root.classList.add("dark");
-  } else {
-    root.classList.remove("dark");
-  }
+  root.classList.toggle("dark", theme === "dark");
   root.dataset.themeMode = theme;
+  root.style.colorScheme = theme;
 }
 
 // Audio playback helper

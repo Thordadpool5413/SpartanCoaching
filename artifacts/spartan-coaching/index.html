@@ -55,39 +55,32 @@
           keys.forEach(function(k) { caches.delete(k); });
         });
       }
-      // Apply saved theme BEFORE React so first paint is never stuck pure black
+      // Apply saved theme BEFORE React — must match lib/theme.ts presets
       (function () {
         try {
           var root = document.documentElement;
           var bg = localStorage.getItem('spartan_bg') || 'default';
-          // Backgrounds that are actually light — force light mode class
-          var lightBgs = { soft: 1, warm: 1, cool: 1 };
-          var modeRaw = localStorage.getItem('spartan_theme');
-          var mode = 'dark';
-          if (modeRaw) {
-            try { var p = JSON.parse(modeRaw); if (p === 'light' || p === 'dark') mode = p; }
-            catch (e) { if (modeRaw === 'light' || modeRaw === 'dark') mode = modeRaw; }
-          }
-          if (lightBgs[bg]) mode = 'light';
-          if (mode === 'dark') root.classList.add('dark');
-          else root.classList.remove('dark');
-          // Absolute bg colors matching theme.ts presets
-          var bgMap = {
-            default: '0 0% 6%',
-            soft: '220 20% 97%',
-            warm: '40 40% 96%',
-            cool: '210 30% 96%',
-            ink: '0 0% 0%',
-            midnight: '222 40% 12%',
-            charcoal: '0 0% 18%',
-            forest: '150 25% 12%'
+          var surfaces = {
+            default:  { tone: 'dark',  bg: '0 0% 7%',     fg: '0 0% 96%' },
+            soft:     { tone: 'light', bg: '210 25% 98%', fg: '222 25% 12%' },
+            warm:     { tone: 'light', bg: '40 45% 96%',  fg: '25 30% 12%' },
+            cool:     { tone: 'light', bg: '200 35% 96%', fg: '210 30% 12%' },
+            ink:      { tone: 'dark',  bg: '0 0% 0%',     fg: '0 0% 98%' },
+            midnight: { tone: 'dark',  bg: '222 42% 14%', fg: '214 35% 96%' },
+            charcoal: { tone: 'dark',  bg: '0 0% 20%',    fg: '0 0% 97%' },
+            forest:   { tone: 'dark',  bg: '152 28% 13%', fg: '140 22% 96%' }
           };
-          var hsl = bgMap[bg] || bgMap.default;
-          root.style.setProperty('--background', hsl);
-          root.style.backgroundColor = 'hsl(' + hsl + ')';
+          var s = surfaces[bg] || surfaces.default;
+          var mode = s.tone;
+          root.classList.toggle('dark', mode === 'dark');
+          root.style.colorScheme = mode;
+          root.style.setProperty('--background', s.bg);
+          root.style.setProperty('--foreground', s.fg);
+          root.style.backgroundColor = 'hsl(' + s.bg + ')';
+          root.style.color = 'hsl(' + s.fg + ')';
           root.dataset.themeMode = mode;
-          root.dataset.accent = localStorage.getItem('spartan_accent') || 'red';
           root.dataset.bg = bg;
+          root.dataset.accent = localStorage.getItem('spartan_accent') || 'red';
         } catch (e) { /* private mode */ }
       })();
     </script>

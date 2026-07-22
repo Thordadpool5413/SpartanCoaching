@@ -302,16 +302,14 @@ body {
     scroll-behavior: smooth;
     -webkit-tap-highlight-color: transparent;
     width: 100%;
-  }
-
-  html {
     background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
     background-color: hsl(var(--background)) !important;
-    color: hsl(var(--foreground));
+    color: hsl(var(--foreground)) !important;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
@@ -331,11 +329,45 @@ body {
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
   }
-  
+
+  /* Professional readable type hierarchy — always uses theme tokens */
   h1, h2, h3, h4, h5, h6 {
     letter-spacing: -0.02em;
-    line-height: 1.2;
+    line-height: 1.25;
     font-weight: 700;
+    color: hsl(var(--foreground));
+  }
+
+  p, li, label, td, th, dd, dt {
+    color: inherit;
+  }
+
+  /* Muted copy stays readable (not washed-out gray-on-gray) */
+  .text-muted-foreground {
+    color: hsl(var(--muted-foreground)) !important;
+  }
+
+  .text-foreground {
+    color: hsl(var(--foreground)) !important;
+  }
+
+  /* Cards / elevated panels follow theme surfaces */
+  .bg-card {
+    background-color: hsl(var(--card)) !important;
+    color: hsl(var(--card-foreground));
+  }
+
+  .bg-background {
+    background-color: hsl(var(--background)) !important;
+  }
+
+  .bg-muted {
+    background-color: hsl(var(--muted)) !important;
+  }
+
+  .bg-popover {
+    background-color: hsl(var(--popover)) !important;
+    color: hsl(var(--popover-foreground)) !important;
   }
   
   button, a, input, textarea, select {

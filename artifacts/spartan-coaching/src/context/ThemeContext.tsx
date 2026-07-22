@@ -5,6 +5,7 @@ import {
   useEffect,
   useMemo,
   useState,
+  useSyncExternalStore,
   type ReactNode,
 } from "react";
 import {
@@ -15,212 +16,143 @@ import {
   BG_PRESETS,
   getInitialAccent,
   getInitialBackground,
+  getInitialMode,
   applyAppearance,
   modeForBackground,
-  getBgPreset,
+  defaultBgForMode,
 } from "@/lib/theme";
-import { getInitialTheme } from "@/lib/utils";
 
-interface ThemeContextValue {
+interface ThemeState {
   mode: ThemeMode;
   accent: AccentKey;
   background: BgKey;
+}
+
+interface ThemeContextValue extends ThemeState {
   setMode: (mode: ThemeMode) => void;
   setAccent: (accent: AccentKey) => void;
   setBackground: (bg: BgKey) => void;
   toggleMode: () => void;
 }
 
-const STORAGE_KEYS = {
-  mode: "spartan_theme",
-  accent: "spartan_accent",
-  background: "spartan_bg",
-} as const;
+/** Module store — single source of truth so clicks always work, even if React context hiccups */
+let store: ThemeState = {
+  mode: "dark",
+  accent: "red",
+  background: "default",
+};
 
-const BROADCAST_CHANNEL = "spartan-theme";
+const listeners = new Set<() => void>();
 
-function isMode(v: unknown): v is ThemeMode {
-  return v === "light" || v === "dark";
+function emit() {
+  listeners.forEach((l) => l());
 }
 
-function isAccent(v: unknown): v is AccentKey {
-  return typeof v === "string" && ACCENT_PRESETS.some((p) => p.key === v);
+function subscribe(listener: () => void) {
+  listeners.add(listener);
+  return () => listeners.delete(listener);
 }
 
-function isBg(v: unknown): v is BgKey {
-  return typeof v === "string" && BG_PRESETS.some((p) => p.key === v);
+function getSnapshot(): ThemeState {
+  return store;
 }
 
-function readModeFromStorage(): ThemeMode {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.mode);
-    if (!raw) return getInitialTheme();
-    try {
-      const parsed = JSON.parse(raw);
-      if (isMode(parsed)) return parsed;
-    } catch {
-      /* bare */
-    }
-    if (isMode(raw)) return raw;
-  } catch {
-    /* ignore */
-  }
-  return getInitialTheme();
+function commit(next: ThemeState) {
+  store = next;
+  applyAppearance(next.mode, next.accent, next.background);
+  emit();
 }
 
-function readAccentFromStorage(): AccentKey {
-  return getInitialAccent();
+function initStoreFromStorage() {
+  if (typeof window === "undefined") return;
+  const background = getInitialBackground();
+  const accent = getInitialAccent();
+  const mode = getInitialMode();
+  store = { mode, accent, background };
+  applyAppearance(mode, accent, background);
 }
 
-function readBgFromStorage(): BgKey {
-  return getInitialBackground();
-}
-
-function broadcastTheme(mode: ThemeMode, accent: AccentKey, background: BgKey) {
-  try {
-    localStorage.setItem(
-      "spartan_theme_sync",
-      JSON.stringify({ mode, accent, background, t: Date.now() }),
-    );
-    if (typeof BroadcastChannel !== "undefined") {
-      const ch = new BroadcastChannel(BROADCAST_CHANNEL);
-      ch.postMessage({ mode, accent, background });
-      ch.close();
-    }
-  } catch {
-    /* private mode */
-  }
-}
-
-/** Pick a matching background when user flips Light/Dark mode */
-function defaultBgForMode(mode: ThemeMode, current: BgKey): BgKey {
-  const cur = getBgPreset(current);
-  if (cur.tone === mode) return current;
-  return mode === "light" ? "soft" : "default";
+// Initialize as soon as this module loads in the browser
+if (typeof window !== "undefined") {
+  initStoreFromStorage();
 }
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [mode, setModeState] = useState<ThemeMode>(() => {
-    const bg = getInitialBackground();
-    // Prefer background tone if user previously picked a light paper etc.
-    const bgTone = modeForBackground(bg);
-    const saved = getInitialTheme();
-    // If bg is light-toned, force light so Soft White actually shows light
-    if (bg !== "default" && bgTone !== saved) return bgTone;
-    return saved;
-  });
-  const [accent, setAccentState] = useState<AccentKey>(getInitialAccent);
-  const [background, setBackgroundState] = useState<BgKey>(getInitialBackground);
+  // useSyncExternalStore keeps every consumer in lockstep with the module store
+  const state = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
 
-  // Apply on every change — paints html/body immediately
   useEffect(() => {
-    applyAppearance(mode, accent, background);
-  }, [mode, accent, background]);
+    // Re-apply on mount (covers hydration / late body)
+    applyAppearance(store.mode, store.accent, store.background);
 
-  // Apply once on mount before paint settles (belt + suspenders)
-  useEffect(() => {
-    applyAppearance(mode, accent, background);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  // Cross-tab sync
-  useEffect(() => {
-    const pull = () => {
-      const nextMode = readModeFromStorage();
-      const nextAccent = readAccentFromStorage();
-      const nextBg = readBgFromStorage();
-      setModeState((m) => (m !== nextMode ? nextMode : m));
-      setAccentState((a) => (a !== nextAccent ? nextAccent : a));
-      setBackgroundState((b) => (b !== nextBg ? nextBg : b));
+    const onCustom = (e: Event) => {
+      const detail = (e as CustomEvent).detail;
+      if (!detail) return;
+      const next: ThemeState = {
+        mode: detail.mode ?? store.mode,
+        accent: detail.accent ?? store.accent,
+        background: detail.background ?? store.background,
+      };
+      // Only sync state if something external changed (avoid loops)
+      if (
+        next.mode !== store.mode ||
+        next.accent !== store.accent ||
+        next.background !== store.background
+      ) {
+        store = next;
+        emit();
+      }
     };
 
     const onStorage = (e: StorageEvent) => {
       if (
-        !e.key ||
-        e.key === STORAGE_KEYS.mode ||
-        e.key === STORAGE_KEYS.accent ||
-        e.key === STORAGE_KEYS.background ||
+        e.key === "spartan_theme" ||
+        e.key === "spartan_bg" ||
+        e.key === "spartan_accent" ||
         e.key === "spartan_theme_sync"
       ) {
-        pull();
+        initStoreFromStorage();
+        emit();
       }
     };
 
+    window.addEventListener("spartan-theme-change", onCustom);
     window.addEventListener("storage", onStorage);
-
-    let ch: BroadcastChannel | null = null;
-    if (typeof BroadcastChannel !== "undefined") {
-      ch = new BroadcastChannel(BROADCAST_CHANNEL);
-      ch.onmessage = (ev) => {
-        const data = ev?.data;
-        if (!data || typeof data !== "object") return;
-        if (isMode(data.mode)) setModeState(data.mode);
-        if (isAccent(data.accent)) setAccentState(data.accent);
-        if (isBg(data.background)) setBackgroundState(data.background);
-      };
-    }
-
-    const onVisible = () => {
-      if (document.visibilityState === "visible") pull();
-    };
-    document.addEventListener("visibilitychange", onVisible);
-
     return () => {
+      window.removeEventListener("spartan-theme-change", onCustom);
       window.removeEventListener("storage", onStorage);
-      document.removeEventListener("visibilitychange", onVisible);
-      ch?.close();
     };
   }, []);
 
-  const setMode = useCallback(
-    (m: ThemeMode) => {
-      const nextBg = defaultBgForMode(m, background);
-      setModeState(m);
-      setBackgroundState(nextBg);
-      applyAppearance(m, accent, nextBg);
-      broadcastTheme(m, accent, nextBg);
-    },
-    [accent, background],
-  );
+  const setMode = useCallback((mode: ThemeMode) => {
+    const background = defaultBgForMode(mode, store.background);
+    commit({ mode, accent: store.accent, background });
+  }, []);
 
-  const setAccent = useCallback(
-    (a: AccentKey) => {
-      setAccentState(a);
-      applyAppearance(mode, a, background);
-      broadcastTheme(mode, a, background);
-    },
-    [mode, background],
-  );
+  const setAccent = useCallback((accent: AccentKey) => {
+    commit({ mode: store.mode, accent, background: store.background });
+  }, []);
 
-  const setBackground = useCallback(
-    (b: BgKey) => {
-      // Absolute background — also flip mode so contrast matches the surface
-      const tone = modeForBackground(b);
-      setBackgroundState(b);
-      setModeState(tone);
-      applyAppearance(tone, accent, b);
-      broadcastTheme(tone, accent, b);
-    },
-    [accent],
-  );
+  const setBackground = useCallback((background: BgKey) => {
+    const mode = modeForBackground(background);
+    commit({ mode, accent: store.accent, background });
+  }, []);
 
   const toggleMode = useCallback(() => {
-    setMode(mode === "dark" ? "light" : "dark");
-  }, [mode, setMode]);
+    setMode(store.mode === "dark" ? "light" : "dark");
+  }, [setMode]);
 
   const value = useMemo<ThemeContextValue>(
     () => ({
-      mode,
-      accent,
-      background,
+      ...state,
       setMode,
       setAccent,
       setBackground,
       toggleMode,
     }),
-    [mode, accent, background, setMode, setAccent, setBackground, toggleMode],
+    [state, setMode, setAccent, setBackground, toggleMode],
   );
 
   return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
@@ -228,36 +160,38 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
 export function useTheme(): ThemeContextValue {
   const ctx = useContext(ThemeContext);
-  if (!ctx) {
-    // Last-resort fallback — still paint from storage so UI is never stuck
-    const mode = readModeFromStorage();
-    const accent = readAccentFromStorage();
-    const background = readBgFromStorage();
-    return {
-      mode,
-      accent,
-      background,
-      setMode: (m) => {
-        const bg = defaultBgForMode(m, background);
-        applyAppearance(m, accent, bg);
-        broadcastTheme(m, accent, bg);
-      },
-      setAccent: (a) => {
-        applyAppearance(mode, a, background);
-        broadcastTheme(mode, a, background);
-      },
-      setBackground: (b) => {
-        const tone = modeForBackground(b);
-        applyAppearance(tone, accent, b);
-        broadcastTheme(tone, accent, b);
-      },
-      toggleMode: () => {
-        const next: ThemeMode = mode === "dark" ? "light" : "dark";
-        const bg = defaultBgForMode(next, background);
-        applyAppearance(next, accent, bg);
-        broadcastTheme(next, accent, bg);
-      },
-    };
-  }
-  return ctx;
+  // Always prefer live store so UI never goes stale
+  const state = useSyncExternalStore(subscribe, getSnapshot, getSnapshot);
+
+  const setMode = useCallback((mode: ThemeMode) => {
+    const background = defaultBgForMode(mode, store.background);
+    commit({ mode, accent: store.accent, background });
+  }, []);
+
+  const setAccent = useCallback((accent: AccentKey) => {
+    commit({ mode: store.mode, accent, background: store.background });
+  }, []);
+
+  const setBackground = useCallback((background: BgKey) => {
+    const mode = modeForBackground(background);
+    commit({ mode, accent: store.accent, background });
+  }, []);
+
+  const toggleMode = useCallback(() => {
+    setMode(store.mode === "dark" ? "light" : "dark");
+  }, [setMode]);
+
+  // Merge context (if any) with store-backed setters that always work
+  return {
+    mode: state.mode,
+    accent: state.accent,
+    background: state.background,
+    setMode: ctx?.setMode ?? setMode,
+    setAccent: ctx?.setAccent ?? setAccent,
+    setBackground: ctx?.setBackground ?? setBackground,
+    toggleMode: ctx?.toggleMode ?? toggleMode,
+  };
 }
+
+// Re-export for convenience
+export { ACCENT_PRESETS, BG_PRESETS };

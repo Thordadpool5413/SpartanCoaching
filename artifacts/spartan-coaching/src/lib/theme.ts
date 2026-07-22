@@ -14,32 +14,179 @@ export interface AccentPreset {
   key: AccentKey;
   label: string;
   swatch: string;
-  vars: {
-    light: Record<string, string>;
-    dark: Record<string, string>;
-  };
+  /** Used by CSS via data-accent — primary HSL for light + dark */
+  primaryLight: string;
+  primaryDark: string;
 }
 
 export interface BgPreset {
   key: BgKey;
   label: string;
-  /** Single swatch shown in the picker (the real color users get) */
   swatch: string;
-  /** Kept for back-compat with older UI */
-  swatchLight: string;
-  /**
-   * Absolute surface — NOT mode-tinted near-black.
-   * Picking a light preset paints a light site; dark presets paint a dark site.
-   * `tone` drives the html.dark class so text contrast matches.
-   */
+  /** light | dark — drives html.dark and readable text */
   tone: "light" | "dark";
-  /** HSL components without hsl() wrapper, e.g. "40 33% 97%" */
-  background: string;
-  vars: Record<string, string>;
+  /** Page background HSL components */
+  bg: string;
+  /** Primary body text — high contrast, professional */
+  fg: string;
+  card: string;
+  cardFg: string;
+  muted: string;
+  /** Secondary text — WCAG-friendly on this surface */
+  mutedFg: string;
+  secondary: string;
+  border: string;
+  sidebar: string;
 }
 
-/** Surface tokens a background preset may override */
-export const BG_SURFACE_PROPS = [
+export const ACCENT_PRESETS: AccentPreset[] = [
+  { key: "red", label: "Spartan Red", swatch: "hsl(0 85% 50%)", primaryLight: "0 85% 48%", primaryDark: "0 85% 58%" },
+  { key: "blue", label: "Steel Blue", swatch: "hsl(213 80% 48%)", primaryLight: "213 80% 42%", primaryDark: "213 80% 58%" },
+  { key: "green", label: "Forest", swatch: "hsl(142 65% 36%)", primaryLight: "142 65% 32%", primaryDark: "142 65% 48%" },
+  { key: "gold", label: "Gold", swatch: "hsl(38 90% 42%)", primaryLight: "38 90% 38%", primaryDark: "38 90% 55%" },
+  { key: "purple", label: "Purple", swatch: "hsl(270 65% 50%)", primaryLight: "270 65% 48%", primaryDark: "270 65% 62%" },
+  { key: "slate", label: "Slate", swatch: "hsl(215 30% 40%)", primaryLight: "215 30% 36%", primaryDark: "215 30% 58%" },
+];
+
+/**
+ * Absolute surface colors. Light presets are truly light; dark presets are
+ * clearly distinct. mutedFg is tuned for readable professional body copy.
+ */
+export const BG_PRESETS: BgPreset[] = [
+  {
+    key: "default",
+    label: "Brand Dark",
+    swatch: "hsl(0 0% 7%)",
+    tone: "dark",
+    bg: "0 0% 7%",
+    fg: "0 0% 96%",
+    card: "0 0% 11%",
+    cardFg: "0 0% 96%",
+    muted: "0 0% 14%",
+    mutedFg: "0 0% 72%",
+    secondary: "0 0% 16%",
+    border: "0 0% 22%",
+    sidebar: "0 0% 6%",
+  },
+  {
+    key: "soft",
+    label: "Soft White",
+    swatch: "hsl(210 25% 98%)",
+    tone: "light",
+    bg: "210 25% 98%",
+    fg: "222 25% 12%",
+    card: "0 0% 100%",
+    cardFg: "222 25% 10%",
+    muted: "210 18% 94%",
+    mutedFg: "220 12% 32%",
+    secondary: "210 14% 92%",
+    border: "214 14% 84%",
+    sidebar: "210 20% 96%",
+  },
+  {
+    key: "warm",
+    label: "Warm Paper",
+    swatch: "hsl(40 45% 96%)",
+    tone: "light",
+    bg: "40 45% 96%",
+    fg: "25 30% 12%",
+    card: "40 50% 99%",
+    cardFg: "25 30% 10%",
+    muted: "36 30% 91%",
+    mutedFg: "25 14% 30%",
+    secondary: "36 24% 89%",
+    border: "34 18% 82%",
+    sidebar: "38 35% 94%",
+  },
+  {
+    key: "cool",
+    label: "Cool Mist",
+    swatch: "hsl(200 35% 96%)",
+    tone: "light",
+    bg: "200 35% 96%",
+    fg: "210 30% 12%",
+    card: "0 0% 100%",
+    cardFg: "210 30% 10%",
+    muted: "200 22% 92%",
+    mutedFg: "210 14% 30%",
+    secondary: "200 18% 90%",
+    border: "200 16% 82%",
+    sidebar: "200 28% 95%",
+  },
+  {
+    key: "ink",
+    label: "Pure Black",
+    swatch: "hsl(0 0% 0%)",
+    tone: "dark",
+    bg: "0 0% 0%",
+    fg: "0 0% 98%",
+    card: "0 0% 8%",
+    cardFg: "0 0% 96%",
+    muted: "0 0% 12%",
+    mutedFg: "0 0% 74%",
+    secondary: "0 0% 14%",
+    border: "0 0% 20%",
+    sidebar: "0 0% 4%",
+  },
+  {
+    key: "midnight",
+    label: "Midnight Navy",
+    swatch: "hsl(222 42% 14%)",
+    tone: "dark",
+    bg: "222 42% 14%",
+    fg: "214 35% 96%",
+    card: "222 38% 18%",
+    cardFg: "214 30% 96%",
+    muted: "222 32% 20%",
+    mutedFg: "214 18% 74%",
+    secondary: "222 30% 22%",
+    border: "222 26% 28%",
+    sidebar: "222 44% 11%",
+  },
+  {
+    key: "charcoal",
+    label: "Charcoal",
+    swatch: "hsl(0 0% 20%)",
+    tone: "dark",
+    bg: "0 0% 20%",
+    fg: "0 0% 97%",
+    card: "0 0% 24%",
+    cardFg: "0 0% 97%",
+    muted: "0 0% 26%",
+    mutedFg: "0 0% 76%",
+    secondary: "0 0% 28%",
+    border: "0 0% 34%",
+    sidebar: "0 0% 16%",
+  },
+  {
+    key: "forest",
+    label: "Deep Forest",
+    swatch: "hsl(152 28% 13%)",
+    tone: "dark",
+    bg: "152 28% 13%",
+    fg: "140 22% 96%",
+    card: "152 24% 17%",
+    cardFg: "140 18% 96%",
+    muted: "152 20% 19%",
+    mutedFg: "140 14% 74%",
+    secondary: "152 18% 21%",
+    border: "152 16% 26%",
+    sidebar: "152 30% 10%",
+  },
+];
+
+const ACCENT_PROPS = [
+  "--primary",
+  "--primary-foreground",
+  "--ring",
+  "--sidebar-primary",
+  "--sidebar-primary-foreground",
+  "--sidebar-ring",
+  "--accent",
+  "--accent-foreground",
+] as const;
+
+const SURFACE_PROPS = [
   "--background",
   "--foreground",
   "--card",
@@ -59,472 +206,182 @@ export const BG_SURFACE_PROPS = [
   "--sidebar-border",
 ] as const;
 
-function surfaceVars(opts: {
-  bg: string;
-  fg: string;
-  card: string;
-  cardFg: string;
-  muted: string;
-  mutedFg: string;
-  secondary: string;
-  border: string;
-  sidebar: string;
-}): Record<string, string> {
-  return {
-    "--background": opts.bg,
-    "--foreground": opts.fg,
-    "--card": opts.card,
-    "--card-foreground": opts.cardFg,
-    "--card-border": opts.border,
-    "--muted": opts.muted,
-    "--muted-foreground": opts.mutedFg,
-    "--secondary": opts.secondary,
-    "--secondary-foreground": opts.fg,
-    "--popover": opts.card,
-    "--popover-foreground": opts.fg,
-    "--popover-border": opts.border,
-    "--border": opts.border,
-    "--input": opts.border,
-    "--sidebar": opts.sidebar,
-    "--sidebar-foreground": opts.fg,
-    "--sidebar-border": opts.border,
-  };
+export function getBgPreset(bg: BgKey): BgPreset {
+  return BG_PRESETS.find((p) => p.key === bg) ?? BG_PRESETS[0];
 }
 
-export const ACCENT_PRESETS: AccentPreset[] = [
-  {
-    key: "red",
-    label: "Spartan Red",
-    swatch: "hsl(0 85% 58%)",
-    vars: {
-      light: {
-        "--primary": "0 85% 58%",
-        "--primary-foreground": "0 0% 100%",
-        "--accent": "0 100% 97%",
-        "--accent-foreground": "0 84% 35%",
-        "--ring": "0 85% 58%",
-        "--sidebar-primary": "0 75% 55%",
-        "--sidebar-primary-foreground": "0 0% 100%",
-        "--sidebar-ring": "0 75% 55%",
-      },
-      dark: {
-        "--primary": "0 85% 62%",
-        "--primary-foreground": "0 0% 100%",
-        "--accent": "0 85% 16%",
-        "--accent-foreground": "0 85% 94%",
-        "--ring": "0 85% 62%",
-        "--sidebar-primary": "0 85% 62%",
-        "--sidebar-primary-foreground": "0 0% 100%",
-        "--sidebar-ring": "0 85% 62%",
-      },
-    },
-  },
-  {
-    key: "blue",
-    label: "Steel Blue",
-    swatch: "hsl(213 80% 50%)",
-    vars: {
-      light: {
-        "--primary": "213 80% 50%",
-        "--primary-foreground": "0 0% 100%",
-        "--accent": "213 80% 96%",
-        "--accent-foreground": "213 80% 28%",
-        "--ring": "213 80% 50%",
-        "--sidebar-primary": "213 75% 48%",
-        "--sidebar-primary-foreground": "0 0% 100%",
-        "--sidebar-ring": "213 75% 48%",
-      },
-      dark: {
-        "--primary": "213 80% 62%",
-        "--primary-foreground": "0 0% 100%",
-        "--accent": "213 80% 15%",
-        "--accent-foreground": "213 80% 92%",
-        "--ring": "213 80% 62%",
-        "--sidebar-primary": "213 80% 62%",
-        "--sidebar-primary-foreground": "0 0% 100%",
-        "--sidebar-ring": "213 80% 62%",
-      },
-    },
-  },
-  {
-    key: "green",
-    label: "Forest Green",
-    swatch: "hsl(142 65% 38%)",
-    vars: {
-      light: {
-        "--primary": "142 65% 38%",
-        "--primary-foreground": "0 0% 100%",
-        "--accent": "142 65% 95%",
-        "--accent-foreground": "142 65% 22%",
-        "--ring": "142 65% 38%",
-        "--sidebar-primary": "142 60% 36%",
-        "--sidebar-primary-foreground": "0 0% 100%",
-        "--sidebar-ring": "142 60% 36%",
-      },
-      dark: {
-        "--primary": "142 65% 52%",
-        "--primary-foreground": "0 0% 100%",
-        "--accent": "142 65% 14%",
-        "--accent-foreground": "142 65% 90%",
-        "--ring": "142 65% 52%",
-        "--sidebar-primary": "142 65% 52%",
-        "--sidebar-primary-foreground": "0 0% 100%",
-        "--sidebar-ring": "142 65% 52%",
-      },
-    },
-  },
-  {
-    key: "gold",
-    label: "Gold",
-    swatch: "hsl(38 90% 45%)",
-    vars: {
-      light: {
-        "--primary": "38 90% 45%",
-        "--primary-foreground": "0 0% 100%",
-        "--accent": "38 90% 96%",
-        "--accent-foreground": "38 90% 25%",
-        "--ring": "38 90% 45%",
-        "--sidebar-primary": "38 85% 43%",
-        "--sidebar-primary-foreground": "0 0% 100%",
-        "--sidebar-ring": "38 85% 43%",
-      },
-      dark: {
-        "--primary": "38 90% 58%",
-        "--primary-foreground": "0 0% 8%",
-        "--accent": "38 90% 14%",
-        "--accent-foreground": "38 90% 90%",
-        "--ring": "38 90% 58%",
-        "--sidebar-primary": "38 90% 58%",
-        "--sidebar-primary-foreground": "0 0% 8%",
-        "--sidebar-ring": "38 90% 58%",
-      },
-    },
-  },
-  {
-    key: "purple",
-    label: "Purple",
-    swatch: "hsl(270 65% 55%)",
-    vars: {
-      light: {
-        "--primary": "270 65% 55%",
-        "--primary-foreground": "0 0% 100%",
-        "--accent": "270 65% 96%",
-        "--accent-foreground": "270 65% 30%",
-        "--ring": "270 65% 55%",
-        "--sidebar-primary": "270 60% 53%",
-        "--sidebar-primary-foreground": "0 0% 100%",
-        "--sidebar-ring": "270 60% 53%",
-      },
-      dark: {
-        "--primary": "270 65% 65%",
-        "--primary-foreground": "0 0% 100%",
-        "--accent": "270 65% 16%",
-        "--accent-foreground": "270 65% 93%",
-        "--ring": "270 65% 65%",
-        "--sidebar-primary": "270 65% 65%",
-        "--sidebar-primary-foreground": "0 0% 100%",
-        "--sidebar-ring": "270 65% 65%",
-      },
-    },
-  },
-  {
-    key: "slate",
-    label: "Slate",
-    swatch: "hsl(215 30% 42%)",
-    vars: {
-      light: {
-        "--primary": "215 30% 42%",
-        "--primary-foreground": "0 0% 100%",
-        "--accent": "215 30% 95%",
-        "--accent-foreground": "215 30% 22%",
-        "--ring": "215 30% 42%",
-        "--sidebar-primary": "215 28% 40%",
-        "--sidebar-primary-foreground": "0 0% 100%",
-        "--sidebar-ring": "215 28% 40%",
-      },
-      dark: {
-        "--primary": "215 30% 58%",
-        "--primary-foreground": "0 0% 100%",
-        "--accent": "215 30% 14%",
-        "--accent-foreground": "215 30% 90%",
-        "--ring": "215 30% 58%",
-        "--sidebar-primary": "215 30% 58%",
-        "--sidebar-primary-foreground": "0 0% 100%",
-        "--sidebar-ring": "215 30% 58%",
-      },
-    },
-  },
-];
+export function getAccentPreset(accent: AccentKey): AccentPreset {
+  return ACCENT_PRESETS.find((p) => p.key === accent) ?? ACCENT_PRESETS[0];
+}
 
-export const BG_PRESETS: BgPreset[] = [
-  {
-    key: "default",
-    label: "Brand Dark",
-    swatch: "hsl(0 0% 6%)",
-    swatchLight: "hsl(0 0% 6%)",
-    tone: "dark",
-    background: "0 0% 6%",
-    vars: surfaceVars({
-      bg: "0 0% 6%",
-      fg: "0 0% 96%",
-      card: "0 0% 10%",
-      cardFg: "0 0% 96%",
-      muted: "0 0% 12%",
-      mutedFg: "0 0% 62%",
-      secondary: "0 0% 14%",
-      border: "0 0% 18%",
-      sidebar: "0 0% 5%",
-    }),
-  },
-  {
-    key: "soft",
-    label: "Soft White",
-    swatch: "hsl(220 20% 97%)",
-    swatchLight: "hsl(220 20% 97%)",
-    tone: "light",
-    background: "220 20% 97%",
-    vars: surfaceVars({
-      bg: "220 20% 97%",
-      fg: "220 20% 12%",
-      card: "0 0% 100%",
-      cardFg: "220 20% 10%",
-      muted: "220 14% 93%",
-      mutedFg: "220 10% 38%",
-      secondary: "220 12% 91%",
-      border: "220 12% 86%",
-      sidebar: "220 16% 95%",
-    }),
-  },
-  {
-    key: "warm",
-    label: "Warm Paper",
-    swatch: "hsl(40 40% 96%)",
-    swatchLight: "hsl(40 40% 96%)",
-    tone: "light",
-    background: "40 40% 96%",
-    vars: surfaceVars({
-      bg: "40 40% 96%",
-      fg: "25 25% 12%",
-      card: "40 50% 99%",
-      cardFg: "25 25% 10%",
-      muted: "36 28% 91%",
-      mutedFg: "25 12% 36%",
-      secondary: "36 22% 90%",
-      border: "35 18% 84%",
-      sidebar: "38 32% 94%",
-    }),
-  },
-  {
-    key: "cool",
-    label: "Cool Mist",
-    swatch: "hsl(210 30% 96%)",
-    swatchLight: "hsl(210 30% 96%)",
-    tone: "light",
-    background: "210 30% 96%",
-    vars: surfaceVars({
-      bg: "210 30% 96%",
-      fg: "215 28% 12%",
-      card: "0 0% 100%",
-      cardFg: "215 28% 10%",
-      muted: "210 22% 92%",
-      mutedFg: "215 14% 38%",
-      secondary: "210 18% 90%",
-      border: "210 16% 84%",
-      sidebar: "210 24% 94%",
-    }),
-  },
-  {
-    key: "ink",
-    label: "Pure Black",
-    swatch: "hsl(0 0% 0%)",
-    swatchLight: "hsl(0 0% 0%)",
-    tone: "dark",
-    background: "0 0% 0%",
-    vars: surfaceVars({
-      bg: "0 0% 0%",
-      fg: "0 0% 98%",
-      card: "0 0% 7%",
-      cardFg: "0 0% 96%",
-      muted: "0 0% 10%",
-      mutedFg: "0 0% 60%",
-      secondary: "0 0% 12%",
-      border: "0 0% 16%",
-      sidebar: "0 0% 3%",
-    }),
-  },
-  {
-    key: "midnight",
-    label: "Midnight Navy",
-    swatch: "hsl(222 40% 12%)",
-    swatchLight: "hsl(222 40% 12%)",
-    tone: "dark",
-    background: "222 40% 12%",
-    vars: surfaceVars({
-      bg: "222 40% 12%",
-      fg: "214 30% 96%",
-      card: "222 36% 16%",
-      cardFg: "214 28% 95%",
-      muted: "222 30% 18%",
-      mutedFg: "214 16% 68%",
-      secondary: "222 28% 20%",
-      border: "222 24% 24%",
-      sidebar: "222 42% 10%",
-    }),
-  },
-  {
-    key: "charcoal",
-    label: "Charcoal",
-    swatch: "hsl(0 0% 18%)",
-    swatchLight: "hsl(0 0% 18%)",
-    tone: "dark",
-    background: "0 0% 18%",
-    vars: surfaceVars({
-      bg: "0 0% 18%",
-      fg: "0 0% 96%",
-      card: "0 0% 22%",
-      cardFg: "0 0% 96%",
-      muted: "0 0% 24%",
-      mutedFg: "0 0% 70%",
-      secondary: "0 0% 26%",
-      border: "0 0% 30%",
-      sidebar: "0 0% 14%",
-    }),
-  },
-  {
-    key: "forest",
-    label: "Deep Forest",
-    swatch: "hsl(150 25% 12%)",
-    swatchLight: "hsl(150 25% 12%)",
-    tone: "dark",
-    background: "150 25% 12%",
-    vars: surfaceVars({
-      bg: "150 25% 12%",
-      fg: "140 20% 95%",
-      card: "150 22% 16%",
-      cardFg: "140 18% 94%",
-      muted: "150 18% 18%",
-      mutedFg: "140 12% 68%",
-      secondary: "150 16% 20%",
-      border: "150 14% 24%",
-      sidebar: "150 28% 10%",
-    }),
-  },
-];
+export function modeForBackground(bg: BgKey): ThemeMode {
+  return getBgPreset(bg).tone;
+}
 
 export function getInitialAccent(): AccentKey {
   if (typeof window === "undefined") return "red";
-  const saved = localStorage.getItem("spartan_accent");
-  if (saved && ACCENT_PRESETS.some((p) => p.key === saved)) return saved as AccentKey;
+  try {
+    const saved = localStorage.getItem("spartan_accent");
+    if (saved && ACCENT_PRESETS.some((p) => p.key === saved)) return saved as AccentKey;
+  } catch {
+    /* ignore */
+  }
   return "red";
 }
 
 export function getInitialBackground(): BgKey {
   if (typeof window === "undefined") return "default";
-  const saved = localStorage.getItem("spartan_bg");
-  if (saved && BG_PRESETS.some((p) => p.key === saved)) return saved as BgKey;
+  try {
+    const saved = localStorage.getItem("spartan_bg");
+    if (saved && BG_PRESETS.some((p) => p.key === saved)) return saved as BgKey;
+  } catch {
+    /* ignore */
+  }
   return "default";
 }
 
-export function getBgPreset(bg: BgKey): BgPreset {
-  return BG_PRESETS.find((p) => p.key === bg) ?? BG_PRESETS[0];
-}
-
-/** Mode implied by a background preset (light paper → light UI). */
-export function modeForBackground(bg: BgKey): ThemeMode {
-  return getBgPreset(bg).tone;
-}
-
-function setCssVars(vars: Record<string, string>) {
-  const root = document.documentElement;
-  for (const [prop, val] of Object.entries(vars)) {
-    root.style.setProperty(prop, val);
-  }
-}
-
-function clearCssVars(props: readonly string[]) {
-  const root = document.documentElement;
-  for (const prop of props) root.style.removeProperty(prop);
-}
-
-/**
- * Paint the entire document with the chosen surface color.
- * Sets CSS variables AND hard background-color on html/body so nothing stays stuck black.
- */
-export function paintDocumentBackground(hslComponents: string) {
-  const color = `hsl(${hslComponents})`;
-  const root = document.documentElement;
-  root.style.setProperty("--background", hslComponents);
-  root.style.backgroundColor = color;
-  if (document.body) {
-    document.body.style.backgroundColor = color;
-  }
-}
-
-export function applyAccent(accent: AccentKey, mode: ThemeMode) {
-  const preset = ACCENT_PRESETS.find((p) => p.key === accent);
-  if (!preset) return;
-  setCssVars(preset.vars[mode]);
-  localStorage.setItem("spartan_accent", accent);
-}
-
-/**
- * Apply a background preset. Absolute colors — Soft White is actually white.
- * Also returns the tone so callers can sync light/dark mode.
- */
-export function applyBackground(bg: BgKey, _mode?: ThemeMode): ThemeMode {
-  const preset = getBgPreset(bg);
-  const root = document.documentElement;
-  root.dataset.bg = bg;
-  localStorage.setItem("spartan_bg", bg);
-
-  clearCssVars(BG_SURFACE_PROPS);
-  setCssVars(preset.vars);
-  paintDocumentBackground(preset.background);
-
-  return preset.tone;
-}
-
-/**
- * Full appearance apply — mode class, background surfaces, accent.
- * Call this from ThemeProvider whenever any pref changes.
- */
-export function applyAppearance(mode: ThemeMode, accent: AccentKey, background: BgKey) {
-  const root = document.documentElement;
-  const preset = getBgPreset(background);
-
-  // Mode class drives Tailwind dark: variants
-  if (mode === "dark") root.classList.add("dark");
-  else root.classList.remove("dark");
-
+export function getInitialMode(): ThemeMode {
+  if (typeof window === "undefined") return "dark";
+  // Background tone wins — light paper must stay light
+  const bg = getInitialBackground();
+  const tone = modeForBackground(bg);
+  if (bg !== "default") return tone;
   try {
-    localStorage.setItem("spartan_theme", JSON.stringify(mode));
-  } catch { /* ignore */ }
-
-  root.dataset.themeMode = mode;
-  root.dataset.accent = accent;
-  root.dataset.bg = background;
-
-  // Surfaces from background preset (absolute)
-  clearCssVars(BG_SURFACE_PROPS);
-  setCssVars(preset.vars);
-  paintDocumentBackground(preset.background);
-  localStorage.setItem("spartan_bg", background);
-
-  // Accent last so primary wins
-  applyAccent(accent, mode);
+    const raw = localStorage.getItem("spartan_theme");
+    if (!raw) return "dark";
+    try {
+      const p = JSON.parse(raw);
+      if (p === "light" || p === "dark") return p;
+    } catch {
+      if (raw === "light" || raw === "dark") return raw;
+    }
+  } catch {
+    /* ignore */
+  }
+  return "dark";
 }
 
-export function clearAccentVars() {
-  clearCssVars([
-    "--primary", "--primary-foreground", "--accent", "--accent-foreground",
-    "--ring", "--sidebar-primary", "--sidebar-primary-foreground", "--sidebar-ring",
-  ]);
+function setVar(prop: string, value: string) {
+  document.documentElement.style.setProperty(prop, value);
 }
 
-export function clearBackgroundVars() {
-  clearCssVars(BG_SURFACE_PROPS);
+/**
+ * Apply theme to the live document. Safe to call outside React.
+ * Sets data attributes (for CSS), CSS variables, dark class, and body color.
+ */
+export function applyAppearance(mode: ThemeMode, accent: AccentKey, background: BgKey): void {
+  if (typeof document === "undefined") return;
+
   const root = document.documentElement;
-  delete root.dataset.bg;
-  root.style.removeProperty("background-color");
-  if (document.body) document.body.style.removeProperty("background-color");
+  const body = document.body;
+  const surface = getBgPreset(background);
+  const accentPreset = getAccentPreset(accent);
+  const effectiveMode: ThemeMode = surface.tone; // surface owns contrast
+
+  // 1) Mode class
+  root.classList.toggle("dark", effectiveMode === "dark");
+  root.style.colorScheme = effectiveMode;
+
+  // 2) Data attributes — CSS hooks + debugging
+  root.dataset.themeMode = effectiveMode;
+  root.dataset.bg = background;
+  root.dataset.accent = accent;
+
+  // 3) Surface CSS variables (drive Tailwind tokens)
+  setVar("--background", surface.bg);
+  setVar("--foreground", surface.fg);
+  setVar("--card", surface.card);
+  setVar("--card-foreground", surface.cardFg);
+  setVar("--card-border", surface.border);
+  setVar("--muted", surface.muted);
+  setVar("--muted-foreground", surface.mutedFg);
+  setVar("--secondary", surface.secondary);
+  setVar("--secondary-foreground", surface.fg);
+  setVar("--popover", surface.card);
+  setVar("--popover-foreground", surface.fg);
+  setVar("--popover-border", surface.border);
+  setVar("--border", surface.border);
+  setVar("--input", surface.border);
+  setVar("--sidebar", surface.sidebar);
+  setVar("--sidebar-foreground", surface.fg);
+  setVar("--sidebar-border", surface.border);
+
+  // 4) Accent / brand
+  const primary = effectiveMode === "dark" ? accentPreset.primaryDark : accentPreset.primaryLight;
+  const [ph, ps] = primary.split(" ");
+  setVar("--primary", primary);
+  setVar(
+    "--primary-foreground",
+    effectiveMode === "dark" && accent === "gold" ? "0 0% 8%" : "0 0% 100%",
+  );
+  setVar("--ring", primary);
+  setVar("--sidebar-primary", primary);
+  setVar("--sidebar-primary-foreground", "0 0% 100%");
+  setVar("--sidebar-ring", primary);
+  if (effectiveMode === "light") {
+    setVar("--accent", `${ph} ${ps} 96%`);
+    setVar("--accent-foreground", primary);
+  } else {
+    setVar("--accent", `${ph} ${ps} 16%`);
+    setVar("--accent-foreground", "0 0% 96%");
+  }
+
+  // 5) Hard paint html/body so nothing stays stuck black
+  const bgColor = `hsl(${surface.bg})`;
+  const fgColor = `hsl(${surface.fg})`;
+  root.style.backgroundColor = bgColor;
+  root.style.color = fgColor;
+  if (body) {
+    body.style.backgroundColor = bgColor;
+    body.style.color = fgColor;
+  }
+
+  // 6) Persist
+  try {
+    localStorage.setItem("spartan_theme", JSON.stringify(effectiveMode));
+    localStorage.setItem("spartan_bg", background);
+    localStorage.setItem("spartan_accent", accent);
+    localStorage.setItem(
+      "spartan_theme_sync",
+      JSON.stringify({ mode: effectiveMode, accent, background, t: Date.now() }),
+    );
+  } catch {
+    /* private mode */
+  }
+
+  // Notify same-tab listeners (custom event — more reliable than BroadcastChannel alone)
+  try {
+    window.dispatchEvent(
+      new CustomEvent("spartan-theme-change", {
+        detail: { mode: effectiveMode, accent, background },
+      }),
+    );
+  } catch {
+    /* ignore */
+  }
+}
+
+export function defaultBgForMode(mode: ThemeMode, current: BgKey): BgKey {
+  const cur = getBgPreset(current);
+  if (cur.tone === mode) return current;
+  return mode === "light" ? "soft" : "default";
+}
+
+// Back-compat exports used elsewhere
+export const BG_SURFACE_PROPS = SURFACE_PROPS;
+export function applyBackground(bg: BgKey): ThemeMode {
+  const accent = getInitialAccent();
+  const tone = modeForBackground(bg);
+  applyAppearance(tone, accent, bg);
+  return tone;
+}
+export function applyAccent(accent: AccentKey, mode: ThemeMode) {
+  const bg = getInitialBackground();
+  applyAppearance(mode, accent, bg);
+}
+export function clearAccentVars() {
+  for (const p of ACCENT_PROPS) document.documentElement.style.removeProperty(p);
+}
+export function clearBackgroundVars() {
+  for (const p of SURFACE_PROPS) document.documentElement.style.removeProperty(p);
 }
