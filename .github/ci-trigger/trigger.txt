@@ -1,0 +1,1 @@
+Trigger CI run after updating api-server test script to use Vitest.
