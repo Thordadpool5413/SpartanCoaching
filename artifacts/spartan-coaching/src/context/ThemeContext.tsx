@@ -1,4 +1,12 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from "react";
 import {
   type ThemeMode,
   type AccentKey,
@@ -20,9 +28,54 @@ interface ThemeContextValue {
   toggleMode: () => void;
 }
 
-const ThemeContext = createContext<ThemeContextValue | null>(null);
+/**
+ * Module-level fallback used when context is missing (Vite HMR can briefly
+ * desync Provider vs consumer module instances on Replit). Still applies
+ * theme tokens so the UI never hard-crashes.
+ */
+function buildFallbackApi(): ThemeContextValue {
+  const readMode = (): ThemeMode => getInitialTheme();
+  const readAccent = (): AccentKey => getInitialAccent();
+  const readBg = (): BgKey => getInitialBackground();
 
-export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  return {
+    get mode() {
+      return readMode();
+    },
+    get accent() {
+      return readAccent();
+    },
+    get background() {
+      return readBg();
+    },
+    setMode(m: ThemeMode) {
+      applyTheme(m);
+      applyBackground(readBg(), m);
+      applyAccent(readAccent(), m);
+    },
+    setAccent(a: AccentKey) {
+      const mode = readMode();
+      applyAccent(a, mode);
+    },
+    setBackground(b: BgKey) {
+      const mode = readMode();
+      applyBackground(b, mode);
+      applyAccent(readAccent(), mode);
+    },
+    toggleMode() {
+      const next: ThemeMode = readMode() === "dark" ? "light" : "dark";
+      applyTheme(next);
+      applyBackground(readBg(), next);
+      applyAccent(readAccent(), next);
+    },
+  };
+}
+
+const fallbackApi = buildFallbackApi();
+
+const ThemeContext = createContext<ThemeContextValue>(fallbackApi);
+
+export function ThemeProvider({ children }: { children: ReactNode }) {
   const [mode, setModeState] = useState<ThemeMode>(getInitialTheme);
   const [accent, setAccentState] = useState<AccentKey>(getInitialAccent);
   const [background, setBackgroundState] = useState<BgKey>(getInitialBackground);
@@ -34,22 +87,30 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     applyAccent(accent, mode);
   }, [mode, accent, background]);
 
-  const setMode = (m: ThemeMode) => setModeState(m);
-  const setAccent = (a: AccentKey) => setAccentState(a);
-  const setBackground = (b: BgKey) => setBackgroundState(b);
-  const toggleMode = () => setModeState((prev) => (prev === "dark" ? "light" : "dark"));
-
-  return (
-    <ThemeContext.Provider
-      value={{ mode, accent, background, setMode, setAccent, setBackground, toggleMode }}
-    >
-      {children}
-    </ThemeContext.Provider>
+  const setMode = useCallback((m: ThemeMode) => setModeState(m), []);
+  const setAccent = useCallback((a: AccentKey) => setAccentState(a), []);
+  const setBackground = useCallback((b: BgKey) => setBackgroundState(b), []);
+  const toggleMode = useCallback(
+    () => setModeState((prev) => (prev === "dark" ? "light" : "dark")),
+    [],
   );
+
+  const value = useMemo<ThemeContextValue>(
+    () => ({
+      mode,
+      accent,
+      background,
+      setMode,
+      setAccent,
+      setBackground,
+      toggleMode,
+    }),
+    [mode, accent, background, setMode, setAccent, setBackground, toggleMode],
+  );
+
+  return <ThemeContext.Provider value={value}>{children}</ThemeContext.Provider>;
 }
 
-export function useTheme() {
-  const ctx = useContext(ThemeContext);
-  if (!ctx) throw new Error("useTheme must be used within ThemeProvider");
-  return ctx;
+export function useTheme(): ThemeContextValue {
+  return useContext(ThemeContext);
 }

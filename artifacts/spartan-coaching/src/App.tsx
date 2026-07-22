@@ -8,7 +8,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header, Footer } from "@/components/Layout";
 import { CommandPalette } from "@/components/CommandPalette";
-import { ThemeProvider } from "@/context/ThemeContext";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { RequireFieldKit } from "@/components/RequireFieldKit";
 import { TrialBanner } from "@/components/TrialBanner";
@@ -322,21 +321,21 @@ function AppLayout() {
 }
 
 function App() {
+  // ThemeProvider wraps <App /> in main.tsx so Header/Footer appearance
+  // controls always sit under a single provider root (avoids HMR desync).
   return (
     <HelmetProvider>
       <QueryClientProvider client={queryClient}>
-        <ThemeProvider>
-          <TooltipProvider>
-            <AuthProvider>
-              <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-                <IntroGate>
-                  <AppLayout />
-                  <Toaster />
-                </IntroGate>
-              </WouterRouter>
-            </AuthProvider>
-          </TooltipProvider>
-        </ThemeProvider>
+        <TooltipProvider>
+          <AuthProvider>
+            <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
+              <IntroGate>
+                <AppLayout />
+                <Toaster />
+              </IntroGate>
+            </WouterRouter>
+          </AuthProvider>
+        </TooltipProvider>
       </QueryClientProvider>
     </HelmetProvider>
   );
