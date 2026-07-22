@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
+import { FieldKitChrome } from "@/components/FieldKitChrome";
+import { FIELD_KIT_WHAT, FIELD_KIT_HOW } from "@/lib/fieldKitCatalog";
 
 const tools = [
   {
@@ -132,17 +134,26 @@ export default function Tools() {
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
       <SEO />
       <BackButton />
+      {!showCatalogGate && <FieldKitChrome />}
       <SlideUp>
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
-          <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">AI Field Kit</p>
+          <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">Field Kit</p>
           <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-tools-title">
-            Quick Actions
+            Tools
           </h1>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
             {showCatalogGate
               ? "Reserved for Spartan clients and approved evaluators. Prepare, practice, plan, and measure — the same standards we coach in the field."
-              : "Your digital toolkit for hospice growth execution. Generate playbooks, practice objections, plan the week, and measure what matters."}
+              : FIELD_KIT_WHAT}
           </p>
+          {!showCatalogGate && (
+            <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed">
+              {FIELD_KIT_HOW}{" "}
+              <Link href="/portal" className="font-semibold text-primary hover:underline">
+                Back to Field Kit home
+              </Link>
+            </p>
+          )}
         </div>
       </SlideUp>
 

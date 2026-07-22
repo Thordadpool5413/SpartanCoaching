@@ -62,7 +62,7 @@ export default function Research() {
   return (
     <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
       <SEO />
-      <Breadcrumbs items={[{ label: "Quick Actions", href: "/tools" }, { label: "Territory Research" }]} />
+      <Breadcrumbs items={[{ label: "Field Kit", href: "/portal" }, { label: "Tools", href: "/tools" }, { label: "Territory Research" }]} />
       <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-research-title">
         Grounded Research Tool
       </h1>

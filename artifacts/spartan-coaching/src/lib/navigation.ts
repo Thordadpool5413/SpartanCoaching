@@ -57,9 +57,11 @@ export const navSections: SiteNavSection[] = [
     ],
   },
   {
-    title: "Quick Actions",
+    title: "Field Kit",
     items: [
-      { path: "/tools", label: "AI Field Kit", description: "Expert sales tools", icon: Wrench },
+      { path: "/portal", label: "Field Kit home", description: "Your private execution workspace", icon: Home },
+      { path: "/tools", label: "Tools", description: "Prepare, practice, plan, and measure", icon: Wrench },
+      { path: "/resources", label: "Resources", description: "Templates, scripts, checklists, guides", icon: FolderOpen },
       { path: "/tools/playbooks", label: "Sales Playbooks", description: "Generate custom sales playbooks", icon: Lightbulb },
       { path: "/tools/objections", label: "Objection Handler", description: "Get strategies for handling objections", icon: MessageCircle },
       { path: "/tools/research", label: "Territory Research", description: "Research facilities and territories", icon: Search },

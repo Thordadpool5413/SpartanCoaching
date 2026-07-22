@@ -261,7 +261,7 @@ export default function RolePlay() {
     return (
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
         <SEO />
-        <Breadcrumbs items={[{ label: "Quick Actions", href: "/tools" }, { label: "Role-Play Practice" }]} />
+        <Breadcrumbs items={[{ label: "Field Kit", href: "/portal" }, { label: "Tools", href: "/tools" }, { label: "Role-Play Practice" }]} />
         <SlideUp>
           <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-roleplay-title">
             Role-Play Practice
@@ -414,7 +414,7 @@ export default function RolePlay() {
     return (
       <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
         <SEO />
-        <Breadcrumbs items={[{ label: "Quick Actions", href: "/tools" }, { label: "Role-Play Practice" }]} />
+        <Breadcrumbs items={[{ label: "Field Kit", href: "/portal" }, { label: "Tools", href: "/tools" }, { label: "Role-Play Practice" }]} />
 
         <FadeIn>
           <Card className="spacing-card" data-testid="card-feedback">
@@ -555,7 +555,7 @@ export default function RolePlay() {
   return (
     <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-16 flex flex-col" style={{ minHeight: "80vh" }}>
       <SEO />
-      <Breadcrumbs items={[{ label: "Quick Actions", href: "/tools" }, { label: "Role-Play Practice" }]} />
+      <Breadcrumbs items={[{ label: "Field Kit", href: "/portal" }, { label: "Tools", href: "/tools" }, { label: "Role-Play Practice" }]} />
 
       <Card className="mb-4 spacing-card" data-testid="display-conversation-header">
         <div className="flex items-center justify-between gap-3 flex-wrap">

@@ -15,6 +15,9 @@ import { downloadPdf, markdownToSections, type EmailPdfPayload } from "@/lib/dow
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
 import { Copy, Download, Loader2, CalendarDays } from "lucide-react";
+import { FieldKitChrome } from "@/components/FieldKitChrome";
+import { ToolHowTo } from "@/components/ToolHowTo";
+import { markFieldKitChecklistDone } from "@/lib/fieldKitProgress";
 
 const WEEKLY_GOALS = [
   "Secure a new referral from a cold account",
@@ -80,6 +83,7 @@ export default function WeeklyPlanBuilder() {
         }
         const data = await res.json();
         setPlan(data.plan || "");
+        void markFieldKitChecklistDone("weekly_plan");
       } catch (err: any) {
         toast({ title: "Generation failed", description: err.message || "Please try again.", variant: "destructive" });
       } finally {
@@ -110,7 +114,9 @@ export default function WeeklyPlanBuilder() {
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
       <SEO />
-      <Breadcrumbs items={[{ label: "Quick Actions", href: "/tools" }, { label: "Weekly Plan Builder" }]} />
+      <FieldKitChrome />
+      <Breadcrumbs items={[{ label: "Field Kit", href: "/portal" }, { label: "Tools", href: "/tools" }, { label: "Weekly Plan Builder" }]} />
+      <ToolHowTo path="/tools/weekly-plan-builder" />
 
       <h1 className="text-h1 font-black text-foreground mb-3" data-testid="text-plan-title">
         Weekly Plan Builder

@@ -15,8 +15,11 @@ import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
 import { apiRequest } from "@/lib/queryClient";
 import { ContentNotice } from "@/components/ContentNotice";
+import { FieldKitChrome } from "@/components/FieldKitChrome";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Resources() {
+  const { canUseFieldKit } = useAuth();
   const { data: resourcesData, isLoading, isError } = useQuery<{ resources: SelectResource[] }>({
     queryKey: ["/api/resources"],
   });
@@ -27,6 +30,17 @@ export default function Resources() {
   const [selectedResource, setSelectedResource] = useState<SelectResource | null>(null);
   const [leadName, setLeadName] = useState("");
   const [leadEmail, setLeadEmail] = useState("");
+
+  const openDownload = (resource: SelectResource) => {
+    // Members already inside Field Kit — no lead gate
+    if (canUseFieldKit) {
+      trackEvent("resource_download", resource.title);
+      window.open(resource.fileUrl, "_blank");
+      return;
+    }
+    setSelectedResource(resource);
+    setGateOpen(true);
+  };
 
   const leadMutation = useMutation({
     mutationFn: async (data: { name: string; email: string; resourceId: number; resourceTitle: string }) => {
@@ -113,15 +127,30 @@ export default function Resources() {
     <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
       <SEO />
       <BackButton />
+      {canUseFieldKit && <FieldKitChrome />}
       <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
+        <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">
+          {canUseFieldKit ? "Field Kit" : "Training library"}
+        </p>
         <h1 className="text-h1 text-foreground mb-6" data-testid="text-resources-title">
-          Training Resources Library
+          {canUseFieldKit ? "Resources" : "Training Resources Library"}
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed">
-          Download field-tested templates, scripts, checklists, and guides to elevate your hospice sales performance.
+          {canUseFieldKit
+            ? "Templates, scripts, checklists, and guides for the field — part of your private Field Kit. No PHI in downloads you fill out."
+            : "Download field-tested templates, scripts, checklists, and guides to elevate your hospice sales performance."}
         </p>
+        {canUseFieldKit && (
+          <p className="text-sm text-muted-foreground mt-3">
+            Pair these with{" "}
+            <Link href="/tools" className="font-semibold text-primary hover:underline">
+              Field Kit tools
+            </Link>{" "}
+            (for example: objection cards → Objection Handler).
+          </p>
+        )}
       </div>
-      <ContentNotice />
+      {!canUseFieldKit && <ContentNotice />}
 
       <div className="space-y-12">
         {Object.entries(groupedResources).map(([category, categoryResources]) => (
@@ -156,10 +185,7 @@ export default function Resources() {
 
                     <Button
                       className="w-full gap-2"
-                      onClick={() => {
-                        setSelectedResource(resource);
-                        setGateOpen(true);
-                      }}
+                      onClick={() => openDownload(resource)}
                       data-testid={`button-download-${resource.id}`}
                     >
                       <Download className="w-4 h-4" />

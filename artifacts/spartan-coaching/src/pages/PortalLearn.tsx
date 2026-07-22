@@ -6,6 +6,7 @@ import { BookOpen, Headphones, FolderOpen, Flame, HelpCircle, ArrowRight } from 
 import { ToolDisclaimer } from "@/components/ToolDisclaimer";
 import { useAuth } from "@/context/AuthContext";
 import { FieldKitGate } from "@/components/FieldKitGate";
+import { FieldKitChrome } from "@/components/FieldKitChrome";
 
 const LINKS = [
   {
@@ -66,11 +67,12 @@ export default function PortalLearn() {
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-10 sm:py-14" data-testid="page-portal-learn">
       <SEO />
+      {canUseFieldKit && <FieldKitChrome />}
       <div className="mb-10 space-y-3">
-        <p className="text-xs font-bold tracking-widest text-primary uppercase">Learn</p>
+        <p className="text-xs font-bold tracking-widest text-primary uppercase">Field Kit · Learn</p>
         <h1 className="text-h1 font-display font-black">Build judgment between sessions</h1>
         <p className="text-muted-foreground max-w-2xl leading-relaxed">
-          Public proof and member practice in one place. Start with articles and resources; use drills and the knowledge base when your Field Kit is active.
+          Part of your Field Kit: articles and resources for everyone; drills, knowledge base, and quiz when access is active.
         </p>
       </div>
 

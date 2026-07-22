@@ -6,11 +6,13 @@ import {
   BookOpen,
   UserCircle,
   Phone,
+  FolderOpen,
 } from "lucide-react";
 
 const PORTAL_LINKS = [
-  { href: "/portal", label: "Field Kit", icon: LayoutDashboard },
+  { href: "/portal", label: "Home", icon: LayoutDashboard },
   { href: "/tools", label: "Tools", icon: Wrench },
+  { href: "/resources", label: "Resources", icon: FolderOpen },
   { href: "/portal/learn", label: "Learn", icon: BookOpen },
   { href: "/account", label: "Account", icon: UserCircle },
   { href: "/contact", label: "Coaching", icon: Phone },
@@ -19,12 +21,14 @@ const PORTAL_LINKS = [
 function isActive(location: string, href: string) {
   if (href === "/portal") return location === "/portal";
   if (href === "/tools") return location === "/tools" || location.startsWith("/tools/");
+  if (href === "/resources") {
+    return location === "/resources" || location.startsWith("/resources/");
+  }
   if (href === "/portal/learn") {
     return (
       location === "/portal/learn" ||
       location === "/articles" ||
       location === "/podcasts" ||
-      location === "/resources" ||
       location.startsWith("/learn/") ||
       location === "/drills" ||
       location === "/quiz"

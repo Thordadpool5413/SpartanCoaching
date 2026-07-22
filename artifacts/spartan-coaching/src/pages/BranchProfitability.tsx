@@ -218,7 +218,7 @@ export default function BranchProfitability() {
       <div className="no-print">
         <Breadcrumbs
           items={[
-            { label: "Quick Actions", href: "/tools" },
+            { label: "Field Kit", href: "/portal" }, { label: "Tools", href: "/tools" },
             { label: "Branch Profitability Simulator" },
           ]}
         />

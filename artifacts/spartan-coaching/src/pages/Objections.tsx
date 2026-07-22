@@ -10,6 +10,9 @@ import { trackEvent } from "@/lib/analytics";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { useToast } from "@/hooks/use-toast";
 import { ReminderPicker } from "@/components/ReminderPicker";
+import { ToolHowTo } from "@/components/ToolHowTo";
+import { FieldKitChrome } from "@/components/FieldKitChrome";
+import { markFieldKitChecklistDone } from "@/lib/fieldKitProgress";
 
 export default function Objections() {
   const objections = [
@@ -69,6 +72,7 @@ export default function Objections() {
 
       const data = await response.json();
       setAiResponses((prev) => ({ ...prev, [objection]: data.response }));
+      void markFieldKitChecklistDone("objection");
     } catch (error) {
       console.error("Objection response error:", error);
       setAiResponses((prev) => ({ ...prev, [objection]: "Sorry, I couldn't generate a response. Please try again." }));
@@ -106,12 +110,14 @@ export default function Objections() {
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
       <SEO />
-      <Breadcrumbs items={[{ label: "Quick Actions", href: "/tools" }, { label: "Objection Handler" }]} />
+      <FieldKitChrome />
+      <Breadcrumbs items={[{ label: "Field Kit", href: "/portal" }, { label: "Tools", href: "/tools" }, { label: "Objection Handler" }]} />
+      <ToolHowTo path="/tools/objections" />
       <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-objections-title">
-        Objection Handling with AI
+        Objection Handler
       </h1>
       <p className="text-body-lg text-muted-foreground mb-8 leading-relaxed">
-        Objections aren't roadblocks; they are opportunities to educate and build trust. Here are expert-crafted responses. Use the AI to generate alternative approaches for any situation.
+        Objections aren't roadblocks; they are opportunities to educate and build trust. Paste a real objection (no PHI), generate a field-ready response, then use it on the next visit.
       </p>
 
       <div className="grid gap-6">

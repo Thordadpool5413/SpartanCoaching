@@ -219,7 +219,7 @@ export default function EmailTemplates() {
     <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
       <SEO />
       <div className="max-w-4xl mx-auto">
-        <Breadcrumbs items={[{ label: "Quick Actions", href: "/tools" }, { label: "Email Templates" }]} />
+        <Breadcrumbs items={[{ label: "Field Kit", href: "/portal" }, { label: "Tools", href: "/tools" }, { label: "Email Templates" }]} />
         <div className="mb-8">
           <h1 className="text-h1 font-black mb-6">Email Templates</h1>
           <p className="text-body-lg text-muted-foreground leading-relaxed">

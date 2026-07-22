@@ -13,7 +13,7 @@ const TIERS = [
     price: "Custom monthly",
     blurb: "For the rep or director who wants private tools between coaching sessions.",
     features: [
-      "Full AI Field Kit access",
+      "Full Field Kit access",
       "Calculators & weekly plan builders",
       "Role-play and drills",
       "Email support",

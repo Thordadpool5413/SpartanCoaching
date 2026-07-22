@@ -33,6 +33,14 @@ import {
 } from "lucide-react";
 import { FieldKitGate } from "@/components/FieldKitGate";
 import { ToolDisclaimer } from "@/components/ToolDisclaimer";
+import { FieldKitChrome } from "@/components/FieldKitChrome";
+import {
+  FIELD_KIT_WHAT,
+  FIELD_KIT_WHY,
+  FIELD_KIT_HOW,
+  FIELD_KIT_TOOLS,
+  FIELD_KIT_CATEGORIES,
+} from "@/lib/fieldKitCatalog";
 import { cn } from "@/lib/utils";
 
 type ChecklistId = "objection" | "weekly_plan" | "roleplay" | "debrief" | "director_scorecard";
@@ -276,9 +284,17 @@ export default function Portal() {
 
   const firstName = member?.name?.split(" ")[0] || "";
 
+  const nextHint = nextItem
+    ? nextItem.title
+    : allDone
+      ? "Book a debrief or browse tools for this week’s work"
+      : startHere.title;
+
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-10 sm:py-14" data-testid="page-portal">
       <SEO />
+
+      <FieldKitChrome nextHint={nextHint} />
 
       {/* Welcome */}
       <div className="mb-6 space-y-3">
@@ -291,11 +307,11 @@ export default function Portal() {
         <p className="text-muted-foreground max-w-2xl leading-relaxed">
           {isFirstSession
             ? "Your evaluation produces signal when you run real field work — not when you browse every tool. Do three things below, then book a debrief."
-            : "Continue your checklist, open tools, or book a debrief while access is open."}
+            : "Continue your checklist, open tools or resources, or book a debrief while access is open."}
         </p>
         {trialLabel && (
           <div
-            className="inline-flex flex-wrap items-center gap-2 text-sm font-medium text-amber-200/90 bg-amber-500/10 border border-amber-500/25 rounded-md px-3 py-2"
+            className="inline-flex flex-wrap items-center gap-2 text-sm font-medium text-amber-800 dark:text-amber-200/90 bg-amber-500/10 border border-amber-500/25 rounded-md px-3 py-2"
             data-testid="banner-trial"
           >
             <Clock className="w-4 h-4 shrink-0" />
@@ -303,7 +319,7 @@ export default function Portal() {
             {organization?.status === "trial" && (
               <Link
                 href="/contact?service=Field+Kit+Debrief"
-                className="underline ml-1 hover:text-white font-semibold"
+                className="underline ml-1 hover:text-foreground font-semibold"
               >
                 Book a debrief
               </Link>
@@ -311,6 +327,23 @@ export default function Portal() {
           </div>
         )}
       </div>
+
+      {/* Permanent orientation — what / why / how */}
+      <section
+        className="mb-10 grid sm:grid-cols-3 gap-3"
+        data-testid="section-field-kit-orientation"
+      >
+        {[
+          { label: "What", body: FIELD_KIT_WHAT },
+          { label: "Why", body: FIELD_KIT_WHY },
+          { label: "How", body: FIELD_KIT_HOW },
+        ].map((item) => (
+          <Card key={item.label} className="border border-border bg-card p-4 space-y-2">
+            <p className="text-[10px] font-bold tracking-widest text-primary uppercase">{item.label}</p>
+            <p className="text-sm text-foreground leading-relaxed">{item.body}</p>
+          </Card>
+        ))}
+      </section>
 
       {/* ── First-session path: 3 clear steps ── */}
       {isFirstSession && (
@@ -590,9 +623,81 @@ export default function Portal() {
         </section>
       )}
 
-      {/* Learn strip — guided context without burying tools */}
+      {/* Tool map — full kit at a glance */}
+      <section className="mb-10" data-testid="section-tool-map">
+        <div className="flex flex-wrap items-end justify-between gap-2 mb-4">
+          <div>
+            <h2 className="text-lg font-bold text-foreground">Tool map</h2>
+            <p className="text-sm text-muted-foreground">
+              Prepare · Practice · Plan · Measure — open any tool, or start from your recommended move.
+            </p>
+          </div>
+          <Button asChild variant="outline" size="sm" className="font-bold">
+            <Link href="/tools">
+              All tools <ArrowRight className="ml-1 w-3.5 h-3.5" />
+            </Link>
+          </Button>
+        </div>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          {FIELD_KIT_CATEGORIES.filter((c) => c !== "Outreach" && c !== "Learn").map((cat) => {
+            const items = FIELD_KIT_TOOLS.filter((t) => t.category === cat).slice(0, 3);
+            return (
+              <Card key={cat} className="border border-border bg-card p-4 space-y-2">
+                <p className="text-[10px] font-bold tracking-widest text-primary uppercase">{cat}</p>
+                <ul className="space-y-2">
+                  {items.map((t) => (
+                    <li key={t.id}>
+                      <Link
+                        href={t.path}
+                        className="text-sm font-semibold text-foreground hover:text-primary block leading-snug"
+                      >
+                        {t.title}
+                      </Link>
+                      <p className="text-[11px] text-muted-foreground leading-snug line-clamp-2">
+                        {t.whenToUse}
+                      </p>
+                    </li>
+                  ))}
+                </ul>
+              </Card>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* Resources + Learn inside the kit */}
+      <section className="mb-10 grid sm:grid-cols-2 gap-3" data-testid="section-portal-kit-links">
+        <Card className="border border-border bg-card p-5 space-y-2">
+          <p className="text-[10px] font-bold tracking-widest text-primary uppercase">Resources</p>
+          <h2 className="font-bold text-foreground">Templates &amp; field downloads</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Scripts, checklists, planners, and guides — same kit, no lead form while you are unlocked.
+          </p>
+          <Button asChild size="sm" variant="outline" className="font-bold w-fit">
+            <Link href="/resources">
+              Open resources <ArrowRight className="ml-1 w-3.5 h-3.5" />
+            </Link>
+          </Button>
+        </Card>
+        <Card className="border border-border bg-card p-5 space-y-2">
+          <p className="text-[10px] font-bold tracking-widest text-primary uppercase">Learn</p>
+          <h2 className="font-bold text-foreground">Drills, articles, knowledge</h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Build judgment between sessions — drills and quiz when you want reps without a live account visit.
+          </p>
+          <Button asChild size="sm" variant="outline" className="font-bold w-fit">
+            <Link href="/portal/learn">
+              Open learn <ArrowRight className="ml-1 w-3.5 h-3.5" />
+            </Link>
+          </Button>
+        </Card>
+      </section>
+
+      {/* Ethics strip — secondary to kit map */}
       <section className="mb-10" data-testid="section-portal-learn">
-        <h2 className="text-lg font-bold text-foreground mb-3">Quick grounding</h2>
+        <h2 className="text-sm font-bold text-muted-foreground mb-3 uppercase tracking-wider">
+          Standards (always on)
+        </h2>
         <div className="grid sm:grid-cols-3 gap-3">
           {[
             {
@@ -613,7 +718,7 @@ export default function Portal() {
           ].map((item) => (
             <Card
               key={item.href}
-              className="border border-border bg-card p-4 hover:border-primary/30 transition-colors"
+              className="border border-border bg-card/60 p-4 hover:border-primary/30 transition-colors"
             >
               <Link href={item.href} className="block space-y-1">
                 <p className="font-bold text-sm text-foreground">{item.title}</p>

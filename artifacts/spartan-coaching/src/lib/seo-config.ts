@@ -64,7 +64,7 @@ const seoDefaults: Record<string, SEOConfig> = {
   '/tools': {
     title: 'Field Kit | Spartan Coaching',
     description:
-      'Private AI Field Kit for Spartan clients and approved evaluators. Playbooks, objections, role-play, calculators, and weekly planning. No PHI. Request evaluation access.',
+      'Private Field Kit for Spartan clients and approved evaluators. Playbooks, objections, role-play, calculators, and weekly planning. No PHI. Request evaluation access.',
     keywords: 'hospice Field Kit, sales playbooks, objection handling, territory research, AI coaching tools',
   },
   '/welcome': {
