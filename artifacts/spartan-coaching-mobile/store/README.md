@@ -81,15 +81,28 @@ Fill these in App Store Connect before submitting for review:
 | Category | Business |
 | Age rating | 4+ |
 
-### Screenshots required (iPhone 6.9" — iPhone 16 Pro Max)
+### Screenshots (iPhone 6.9" — iPhone 16 Pro Max)
 
-App Store Connect requires at least one set. Use a simulator or device at 1320×2868 px. Suggested screens to capture:
+**Ready-to-upload screenshots are in `store/screenshots/`** — all 5 at the required 1320×2868 px:
 
-1. **Checklist / Home** — the visit checklist with a sample day loaded
-2. **AI Scenario Coach** — an active coaching conversation
-3. **Branch Calculator** — calculator with sample numbers filled in
-4. **Drills** — drill list or an active drill
-5. **Portal / Login** — the portal welcome or account screen
+| File | Screen |
+|---|---|
+| `01-checklist.png` | Checklist / Home — visit checklist with a sample day |
+| `02-scenario-coach.png` | AI Scenario Coach — active coaching conversation |
+| `03-branch-calculator.png` | Branch Calculator — staffing table with sample ADC |
+| `04-drills.png` | Objection Handler — field-ready response generated |
+| `05-login.png` | Portal / Login — client access screen |
+
+**How to upload to App Store Connect:**
+
+1. Open [App Store Connect](https://appstoreconnect.apple.com) → your Field Kit app record.
+2. Go to **App Store → iOS App → iPhone screenshots**.
+3. Select the **6.9" (iPhone 16 Pro Max)** device size slot.
+4. Drag all 5 PNGs from `store/screenshots/` into the upload area (or click **+** to browse).
+5. Arrange them in the order 01 → 05.
+6. Click **Save** — then proceed to submit for review.
+
+To regenerate screenshots (e.g. after a UI update): `python3 scripts/generate-screenshots.py`
 
 Optional: iPad screenshots (12.9") — not required since `supportsTablet` is false.
 
