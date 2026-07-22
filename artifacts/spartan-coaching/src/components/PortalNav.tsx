@@ -53,7 +53,7 @@ export function PortalNav({ className }: { className?: string }) {
               "inline-flex items-center gap-1.5 px-3 py-2 rounded-md text-sm font-semibold transition-colors whitespace-nowrap",
               active
                 ? "bg-primary/15 text-primary"
-                : "text-muted-foreground hover:text-foreground hover:bg-white/5",
+                : "text-muted-foreground hover:text-foreground hover:bg-muted/60",
             )}
             data-testid={`portal-nav-${href.replace(/\//g, "") || "home"}`}
           >

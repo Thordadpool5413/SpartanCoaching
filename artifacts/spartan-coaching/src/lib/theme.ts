@@ -326,15 +326,23 @@ export function applyAppearance(mode: ThemeMode, accent: AccentKey, background: 
     setVar("--accent-foreground", "0 0% 96%");
   }
 
-  // 5) Hard paint html/body so nothing stays stuck black
+  // 5) Hard paint html/body/#root so text never stays invisible on a new surface
   const bgColor = `hsl(${surface.bg})`;
   const fgColor = `hsl(${surface.fg})`;
+  const mutedColor = `hsl(${surface.mutedFg})`;
   root.style.backgroundColor = bgColor;
   root.style.color = fgColor;
   if (body) {
     body.style.backgroundColor = bgColor;
     body.style.color = fgColor;
   }
+  const appRoot = document.getElementById("root");
+  if (appRoot) {
+    appRoot.style.backgroundColor = bgColor;
+    appRoot.style.color = fgColor;
+  }
+  // Expose muted for any inline consumers
+  root.style.setProperty("--theme-muted-fg", mutedColor);
 
   // 6) Persist
   try {

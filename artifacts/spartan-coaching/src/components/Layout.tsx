@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { MenuIcon, CloseIcon } from "./icons";
 import { Button } from "@/components/ui/button";
-import { Linkedin, Search, ChevronDown, Shield, LogIn, UserCircle } from "lucide-react";
+import { Linkedin, Search, ChevronDown, Shield, LogIn, UserCircle, Home } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { AppearanceControls, AppearancePanel } from "@/components/AppearanceControls";
 import {
@@ -100,7 +100,7 @@ function NavDropdown({ label, items, dataTestId }: {
       <button 
         className={cn(
           "px-3 py-2 rounded-lg text-sm font-medium transition-colors hover-elevate flex items-center gap-1 whitespace-nowrap",
-          isGroupActive ? "text-primary border-b-2 border-primary rounded-none" : "text-foreground"
+          isGroupActive ? "text-primary border-b-2 border-primary rounded-none" : "text-foreground hover:text-foreground"
         )}
         aria-haspopup="true"
         aria-label={`${label} menu`}
@@ -176,6 +176,18 @@ export function Header() {
 
         {/* Desktop Navigation — portal shell when signed in */}
         <nav className="hidden lg:flex items-center gap-1 flex-shrink-0" aria-label="Main navigation">
+          <Button
+            size="sm"
+            variant="ghost"
+            asChild
+            className="font-semibold gap-1.5 text-foreground"
+            data-testid="button-home-nav"
+          >
+            <Link href={homeHref}>
+              <Home className="w-4 h-4" />
+              Home
+            </Link>
+          </Button>
           {isAuthenticated ? (
             <>
               <PortalNav />
@@ -193,7 +205,7 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="gap-2 text-sm"
+                className="gap-2 text-sm text-foreground"
                 onClick={() => setSearchOpen(true)}
                 data-testid="button-search"
               >
@@ -209,7 +221,7 @@ export function Header() {
                 />
               ))}
               <NavLink href="/about">About</NavLink>
-              <Button size="sm" variant="ghost" asChild className="font-medium ml-1 gap-1.5" data-testid="button-login">
+              <Button size="sm" variant="ghost" asChild className="font-medium ml-1 gap-1.5 text-foreground" data-testid="button-login">
                 <Link href="/login">
                   <LogIn className="w-4 h-4" />
                   Login
@@ -236,8 +248,19 @@ export function Header() {
           )}
         </nav>
 
-        {/* Appearance + Mobile Search */}
+        {/* Home + Appearance + Mobile Search */}
         <div className="flex items-center gap-0.5 sm:gap-1">
+          <Button
+            variant="outline"
+            size="icon"
+            asChild
+            className="h-9 w-9 border-border bg-card/80 text-foreground hover:bg-muted touch-manipulation"
+            data-testid="button-home-toolbar"
+          >
+            <Link href={homeHref} aria-label="Go to home">
+              <Home className="w-4 h-4" />
+            </Link>
+          </Button>
           <AppearanceControls
             compact
             className="touch-manipulation"
@@ -246,7 +269,7 @@ export function Header() {
           <Button
             variant="ghost"
             size="icon"
-            className="lg:hidden touch-manipulation"
+            className="lg:hidden touch-manipulation text-foreground"
             onClick={() => setSearchOpen(true)}
             aria-label="Search"
             data-testid="button-mobile-search"
@@ -278,17 +301,21 @@ export function Header() {
               data-testid="mobile-menu-scroll-container"
             >
               <nav className="flex flex-col space-y-1" aria-label="Mobile navigation">
+                <MobileNavLink
+                  href={homeHref}
+                  label="Home"
+                  location={location}
+                  onClose={() => setMobileMenuOpen(false)}
+                />
                 {isAuthenticated ? (
                   <>
                     <PortalMobileLinks location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavSection title="Site" />
-                    <MobileNavLink href="/" label="Public home" location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavLink href="/services" label="Services" location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavLink href="/about" label="About" location={location} onClose={() => setMobileMenuOpen(false)} />
                   </>
                 ) : (
                   <>
-                    <MobileNavLink href={homeHref} label="Home" location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavLink href="/login" label="Client Login" location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavLink href="/request-access" label="Request Field Kit Access" location={location} onClose={() => setMobileMenuOpen(false)} />
                     {navSections.map((section) => (

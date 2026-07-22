@@ -117,7 +117,7 @@ export default function Home() {
                   conversations and weekly systems that move eligible patients into care — with ethics
                   and accountability in the same room.
                 </p>
-                <ul className="flex flex-wrap justify-center md:justify-start gap-x-6 gap-y-2 mb-8 text-sm font-semibold">
+                <ul className="flex flex-wrap justify-center md:justify-start gap-x-6 gap-y-2 mb-8 text-sm font-semibold text-foreground">
                   <li>12+ years hospice-specific</li>
                   <li>500+ reps &amp; leaders coached</li>
                   <li>Private Field Kit · no PHI</li>

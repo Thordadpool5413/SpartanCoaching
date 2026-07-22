@@ -338,11 +338,7 @@ body {
     color: hsl(var(--foreground));
   }
 
-  p, li, label, td, th, dd, dt {
-    color: inherit;
-  }
-
-  /* Muted copy stays readable (not washed-out gray-on-gray) */
+  /* Muted / main copy always follow theme tokens */
   .text-muted-foreground {
     color: hsl(var(--muted-foreground)) !important;
   }
@@ -351,23 +347,157 @@ body {
     color: hsl(var(--foreground)) !important;
   }
 
+  .text-card-foreground {
+    color: hsl(var(--card-foreground)) !important;
+  }
+
+  .text-popover-foreground {
+    color: hsl(var(--popover-foreground)) !important;
+  }
+
+  .text-primary {
+    color: hsl(var(--primary)) !important;
+  }
+
+  .text-secondary-foreground {
+    color: hsl(var(--secondary-foreground)) !important;
+  }
+
   /* Cards / elevated panels follow theme surfaces */
   .bg-card {
     background-color: hsl(var(--card)) !important;
-    color: hsl(var(--card-foreground));
+    color: hsl(var(--card-foreground)) !important;
   }
 
   .bg-background {
     background-color: hsl(var(--background)) !important;
+    color: hsl(var(--foreground));
   }
 
   .bg-muted {
     background-color: hsl(var(--muted)) !important;
+    color: hsl(var(--foreground));
   }
 
   .bg-popover {
     background-color: hsl(var(--popover)) !important;
     color: hsl(var(--popover-foreground)) !important;
+  }
+
+  .bg-secondary {
+    background-color: hsl(var(--secondary)) !important;
+    color: hsl(var(--secondary-foreground)) !important;
+  }
+
+  /*
+   * Remap hard-coded white/black/zinc text that was written for pure-black pages.
+   * Light themes: white body copy becomes dark foreground (readable on paper).
+   * Keep white text on brand gradients, primary buttons, and hero video.
+   */
+  html[data-theme-mode="light"] main .text-white,
+  html[data-theme-mode="light"] footer .text-white,
+  html[data-theme-mode="light"] header .text-white,
+  html[data-theme-mode="light"] .page-persuasion .text-white,
+  html[data-theme-mode="light"] .surface-band .text-white {
+    color: hsl(var(--foreground)) !important;
+  }
+
+  html[data-theme-mode="light"] main .text-white\/90,
+  html[data-theme-mode="light"] main .text-white\/80,
+  html[data-theme-mode="light"] main .text-white\/75,
+  html[data-theme-mode="light"] main .text-white\/70,
+  html[data-theme-mode="light"] main .text-white\/60,
+  html[data-theme-mode="light"] main .text-white\/55,
+  html[data-theme-mode="light"] main .text-white\/50,
+  html[data-theme-mode="light"] main .text-white\/40,
+  html[data-theme-mode="light"] main .text-white\/35,
+  html[data-theme-mode="light"] main .text-white\/30,
+  html[data-theme-mode="light"] footer .text-white\/80,
+  html[data-theme-mode="light"] footer .text-white\/70,
+  html[data-theme-mode="light"] footer .text-white\/55,
+  html[data-theme-mode="light"] .page-persuasion .text-white\/80,
+  html[data-theme-mode="light"] .page-persuasion .text-white\/70,
+  html[data-theme-mode="light"] .surface-band .text-white\/80,
+  html[data-theme-mode="light"] .surface-band .text-white\/70 {
+    color: hsl(var(--muted-foreground)) !important;
+  }
+
+  /* Zinc/gray utilities written for dark UIs */
+  html[data-theme-mode="light"] .text-zinc-50,
+  html[data-theme-mode="light"] .text-zinc-100,
+  html[data-theme-mode="light"] .text-zinc-200,
+  html[data-theme-mode="light"] .dark\:text-zinc-50 {
+    color: hsl(var(--foreground)) !important;
+  }
+  html[data-theme-mode="light"] .text-zinc-300,
+  html[data-theme-mode="light"] .text-zinc-400,
+  html[data-theme-mode="light"] .text-zinc-500,
+  html[data-theme-mode="light"] .text-zinc-600,
+  html[data-theme-mode="light"] .dark\:text-zinc-400 {
+    color: hsl(var(--muted-foreground)) !important;
+  }
+  html[data-theme-mode="light"] .text-gray-300,
+  html[data-theme-mode="light"] .text-gray-400,
+  html[data-theme-mode="light"] .text-gray-500 {
+    color: hsl(var(--muted-foreground)) !important;
+  }
+
+  /* Preserve white text on brand / primary / hero surfaces */
+  html[data-theme-mode="light"] .bg-primary,
+  html[data-theme-mode="light"] .bg-primary *,
+  html[data-theme-mode="light"] [class*="bg-spartan-gradient"],
+  html[data-theme-mode="light"] [class*="bg-spartan-gradient"] *,
+  html[data-theme-mode="light"] [class*="from-red-"],
+  html[data-theme-mode="light"] [class*="from-red-"] *,
+  html[data-theme-mode="light"] [class*="via-red-"],
+  html[data-theme-mode="light"] [class*="via-red-"] *,
+  html[data-theme-mode="light"] .surface-cta,
+  html[data-theme-mode="light"] .surface-cta *,
+  html[data-theme-mode="light"] [data-testid="section-hero"],
+  html[data-theme-mode="light"] [data-testid="section-hero"] *,
+  html[data-theme-mode="light"] [data-testid="section-faq-cta"],
+  html[data-theme-mode="light"] [data-testid="section-faq-cta"] *,
+  html[data-theme-mode="light"] button.bg-primary,
+  html[data-theme-mode="light"] button.bg-primary * {
+    color: inherit;
+  }
+  html[data-theme-mode="light"] .bg-primary,
+  html[data-theme-mode="light"] button[class*="bg-primary"],
+  html[data-theme-mode="light"] a[class*="bg-primary"] {
+    color: hsl(var(--primary-foreground)) !important;
+  }
+  html[data-theme-mode="light"] [class*="from-red-"] {
+    color: #fff !important;
+  }
+  html[data-theme-mode="light"] [class*="from-red-"] .text-white,
+  html[data-theme-mode="light"] [class*="from-red-"] .text-white\/80,
+  html[data-theme-mode="light"] [class*="from-red-"] .text-white\/70,
+  html[data-theme-mode="light"] [data-testid="section-faq-cta"] .text-white,
+  html[data-theme-mode="light"] [data-testid="section-faq-cta"] .text-white\/80,
+  html[data-theme-mode="light"] [data-testid="section-faq-cta"] .text-white\/70,
+  html[data-theme-mode="light"] [data-testid="section-hero"] .text-white,
+  html[data-theme-mode="light"] [data-testid="section-hero"] .text-white\/55,
+  html[data-theme-mode="light"] [data-testid="section-hero"] .text-white\/40 {
+    color: #fff !important;
+  }
+  html[data-theme-mode="light"] [data-testid="section-hero"] .text-white\/55,
+  html[data-theme-mode="light"] [data-testid="section-hero"] .text-white\/40 {
+    color: rgba(255, 255, 255, 0.7) !important;
+  }
+
+  /* Icons on primary gradient discs stay white */
+  html[data-theme-mode="light"] .bg-spartan-gradient .text-white,
+  html[data-theme-mode="light"] [class*="bg-spartan-gradient"] .text-white {
+    color: #fff !important;
+  }
+
+  /* Dark themes: ensure black text utilities don't go invisible on dark bg */
+  html[data-theme-mode="dark"] .text-black,
+  html[data-theme-mode="dark"] .text-zinc-900,
+  html[data-theme-mode="dark"] .text-zinc-800,
+  html[data-theme-mode="dark"] .text-gray-900,
+  html[data-theme-mode="dark"] .text-gray-800 {
+    color: hsl(var(--foreground)) !important;
   }
   
   button, a, input, textarea, select {
