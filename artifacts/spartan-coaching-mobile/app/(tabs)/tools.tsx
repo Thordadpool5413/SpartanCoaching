@@ -393,6 +393,11 @@ export default function ToolsScreen() {
     setObjectionSavedId("saved");
   };
 
+  const handleShareObjection = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    await Share.share({ message: objectionResult });
+  };
+
   const handlePlaybook = async () => {
     if (scenario.trim().length < 10) return;
     if (!requireAccess()) {
@@ -423,6 +428,11 @@ export default function ToolsScreen() {
     const title = scenario.length > 60 ? scenario.slice(0, 57) + "…" : scenario;
     await playbookSaved.saveResponse(title, playbookResult);
     setPlaybookSavedId("saved");
+  };
+
+  const handleSharePlaybook = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    await Share.share({ message: playbookResult });
   };
 
   const handleEmail = async () => {
@@ -457,6 +467,11 @@ export default function ToolsScreen() {
     const title = recipientName ? `${typeLabel} — ${recipientName}` : typeLabel;
     await emailSaved.saveResponse(title, emailResult);
     setEmailSavedId("saved");
+  };
+
+  const handleShareEmail = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    await Share.share({ message: emailResult });
   };
 
   const startRoleplay = async (scenarioId: string, scenarioTitle: string, scenarioDescription?: string) => {
@@ -818,21 +833,38 @@ export default function ToolsScreen() {
                 </View>
               )}
               {!!objectionResult && (
-                <Pressable
-                  onPress={handleSaveObjection}
-                  disabled={!!objectionSavedId}
-                  style={({ pressed }) => [
-                    styles.saveBtn,
-                    { borderColor: colors.primary },
-                    !!objectionSavedId && { opacity: 0.5 },
-                    pressed && { opacity: 0.75 },
-                  ]}
-                >
-                  <Feather name={objectionSavedId ? "check" : "bookmark"} size={15} color={colors.primary} />
-                  <Text style={[styles.saveBtnText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
-                    {objectionSavedId ? "Saved" : "Save Response"}
-                  </Text>
-                </Pressable>
+                <View style={styles.resultActionRow}>
+                  <Pressable
+                    onPress={handleSaveObjection}
+                    disabled={!!objectionSavedId}
+                    style={({ pressed }) => [
+                      styles.saveBtn,
+                      styles.resultActionBtn,
+                      { borderColor: colors.primary },
+                      !!objectionSavedId && { opacity: 0.5 },
+                      pressed && { opacity: 0.75 },
+                    ]}
+                  >
+                    <Feather name={objectionSavedId ? "check" : "bookmark"} size={15} color={colors.primary} />
+                    <Text style={[styles.saveBtnText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
+                      {objectionSavedId ? "Saved" : "Save"}
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={handleShareObjection}
+                    style={({ pressed }) => [
+                      styles.saveBtn,
+                      styles.resultActionBtn,
+                      { borderColor: colors.border },
+                      pressed && { opacity: 0.75 },
+                    ]}
+                  >
+                    <Feather name="share" size={15} color={colors.mutedForeground} />
+                    <Text style={[styles.saveBtnText, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
+                      Share
+                    </Text>
+                  </Pressable>
+                </View>
               )}
               {!!objectionResult && (
                 <ReminderPicker
@@ -898,21 +930,38 @@ export default function ToolsScreen() {
                 </View>
               )}
               {!!playbookResult && (
-                <Pressable
-                  onPress={handleSavePlaybook}
-                  disabled={!!playbookSavedId}
-                  style={({ pressed }) => [
-                    styles.saveBtn,
-                    { borderColor: colors.primary },
-                    !!playbookSavedId && { opacity: 0.5 },
-                    pressed && { opacity: 0.75 },
-                  ]}
-                >
-                  <Feather name={playbookSavedId ? "check" : "bookmark"} size={15} color={colors.primary} />
-                  <Text style={[styles.saveBtnText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
-                    {playbookSavedId ? "Saved" : "Save Playbook"}
-                  </Text>
-                </Pressable>
+                <View style={styles.resultActionRow}>
+                  <Pressable
+                    onPress={handleSavePlaybook}
+                    disabled={!!playbookSavedId}
+                    style={({ pressed }) => [
+                      styles.saveBtn,
+                      styles.resultActionBtn,
+                      { borderColor: colors.primary },
+                      !!playbookSavedId && { opacity: 0.5 },
+                      pressed && { opacity: 0.75 },
+                    ]}
+                  >
+                    <Feather name={playbookSavedId ? "check" : "bookmark"} size={15} color={colors.primary} />
+                    <Text style={[styles.saveBtnText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
+                      {playbookSavedId ? "Saved" : "Save"}
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={handleSharePlaybook}
+                    style={({ pressed }) => [
+                      styles.saveBtn,
+                      styles.resultActionBtn,
+                      { borderColor: colors.border },
+                      pressed && { opacity: 0.75 },
+                    ]}
+                  >
+                    <Feather name="share" size={15} color={colors.mutedForeground} />
+                    <Text style={[styles.saveBtnText, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
+                      Share
+                    </Text>
+                  </Pressable>
+                </View>
               )}
               {!!playbookResult && (
                 <ReminderPicker
@@ -1006,21 +1055,38 @@ export default function ToolsScreen() {
                 </View>
               )}
               {!!emailResult && (
-                <Pressable
-                  onPress={handleSaveEmail}
-                  disabled={!!emailSavedId}
-                  style={({ pressed }) => [
-                    styles.saveBtn,
-                    { borderColor: colors.primary },
-                    !!emailSavedId && { opacity: 0.5 },
-                    pressed && { opacity: 0.75 },
-                  ]}
-                >
-                  <Feather name={emailSavedId ? "check" : "bookmark"} size={15} color={colors.primary} />
-                  <Text style={[styles.saveBtnText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
-                    {emailSavedId ? "Saved" : "Save Email"}
-                  </Text>
-                </Pressable>
+                <View style={styles.resultActionRow}>
+                  <Pressable
+                    onPress={handleSaveEmail}
+                    disabled={!!emailSavedId}
+                    style={({ pressed }) => [
+                      styles.saveBtn,
+                      styles.resultActionBtn,
+                      { borderColor: colors.primary },
+                      !!emailSavedId && { opacity: 0.5 },
+                      pressed && { opacity: 0.75 },
+                    ]}
+                  >
+                    <Feather name={emailSavedId ? "check" : "bookmark"} size={15} color={colors.primary} />
+                    <Text style={[styles.saveBtnText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
+                      {emailSavedId ? "Saved" : "Save"}
+                    </Text>
+                  </Pressable>
+                  <Pressable
+                    onPress={handleShareEmail}
+                    style={({ pressed }) => [
+                      styles.saveBtn,
+                      styles.resultActionBtn,
+                      { borderColor: colors.border },
+                      pressed && { opacity: 0.75 },
+                    ]}
+                  >
+                    <Feather name="share" size={15} color={colors.mutedForeground} />
+                    <Text style={[styles.saveBtnText, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
+                      Share
+                    </Text>
+                  </Pressable>
+                </View>
               )}
               {!!emailResult && (
                 <ReminderPicker
@@ -1360,6 +1426,15 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     paddingVertical: 11,
     marginTop: 10,
+  },
+  resultActionRow: {
+    flexDirection: "row",
+    gap: 10,
+    marginTop: 10,
+  },
+  resultActionBtn: {
+    flex: 1,
+    marginTop: 0,
   },
   saveBtnText: { fontSize: 14 },
   emailTypePicker: { flexDirection: "row", gap: 8 },
