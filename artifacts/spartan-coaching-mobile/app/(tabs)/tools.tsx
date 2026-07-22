@@ -474,6 +474,15 @@ export default function ToolsScreen() {
     await Share.share({ message: emailResult });
   };
 
+  const handleShareRoleplay = async () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const parts: string[] = [];
+    if (roleplaySession?.scenarioTitle) parts.push(`Scenario: ${roleplaySession.scenarioTitle}`);
+    if (roleplayRating !== null) parts.push(`Rating: ${roleplayRating}/5`);
+    if (roleplayFeedback) parts.push(`\nCoach Feedback:\n${roleplayFeedback}`);
+    await Share.share({ message: parts.join("\n") });
+  };
+
   const startRoleplay = async (scenarioId: string, scenarioTitle: string, scenarioDescription?: string) => {
     if (!requireAccess()) {
       setRoleplayError("Field Kit access required. Sign in from Home.");
@@ -1328,6 +1337,25 @@ export default function ToolsScreen() {
                       </>
                     )}
                   </View>
+
+                  {roleplayFeedback && (
+                    <View style={styles.resultActionRow}>
+                      <Pressable
+                        onPress={handleShareRoleplay}
+                        style={({ pressed }) => [
+                          styles.saveBtn,
+                          styles.resultActionBtn,
+                          { borderColor: colors.border },
+                          pressed && { opacity: 0.75 },
+                        ]}
+                      >
+                        <Feather name="share" size={15} color={colors.mutedForeground} />
+                        <Text style={[styles.saveBtnText, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
+                          Share
+                        </Text>
+                      </Pressable>
+                    </View>
+                  )}
 
                   <ReminderPicker
                     title="Apply what you practiced"
