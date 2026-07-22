@@ -41,11 +41,13 @@ export function getInitialTheme(): "light" | "dark" {
 
 export function applyTheme(theme: "light" | "dark") {
   LS.set("spartan_theme", theme);
+  const root = document.documentElement;
   if (theme === "dark") {
-    document.documentElement.classList.add("dark");
+    root.classList.add("dark");
   } else {
-    document.documentElement.classList.remove("dark");
+    root.classList.remove("dark");
   }
+  root.dataset.themeMode = theme;
 }
 
 // Audio playback helper

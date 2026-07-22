@@ -304,8 +304,14 @@ body {
     width: 100%;
   }
 
+  html {
+    background-color: hsl(var(--background));
+  }
+
   body {
     @apply bg-background text-foreground font-sans antialiased;
+    background-color: hsl(var(--background)) !important;
+    color: hsl(var(--foreground));
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
@@ -315,11 +321,15 @@ body {
     position: relative;
     text-rendering: optimizeLegibility;
     font-variant-ligatures: common-ligatures;
+    transition: background-color 0.2s ease, color 0.15s ease;
   }
   
   #root {
     width: 100%;
     overflow-x: hidden;
+    min-height: 100vh;
+    background-color: hsl(var(--background));
+    color: hsl(var(--foreground));
   }
   
   h1, h2, h3, h4, h5, h6 {

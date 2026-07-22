@@ -15,10 +15,11 @@ import {
   BG_PRESETS,
   getInitialAccent,
   getInitialBackground,
-  applyAccent,
-  applyBackground,
+  applyAppearance,
+  modeForBackground,
+  getBgPreset,
 } from "@/lib/theme";
-import { getInitialTheme, applyTheme } from "@/lib/utils";
+import { getInitialTheme } from "@/lib/utils";
 
 interface ThemeContextValue {
   mode: ThemeMode;
@@ -54,12 +55,11 @@ function readModeFromStorage(): ThemeMode {
   try {
     const raw = localStorage.getItem(STORAGE_KEYS.mode);
     if (!raw) return getInitialTheme();
-    // LS helper JSON-encodes; also accept bare values
     try {
       const parsed = JSON.parse(raw);
       if (isMode(parsed)) return parsed;
     } catch {
-      /* bare string */
+      /* bare */
     }
     if (isMode(raw)) return raw;
   } catch {
@@ -76,88 +76,58 @@ function readBgFromStorage(): BgKey {
   return getInitialBackground();
 }
 
-function applyAll(mode: ThemeMode, accent: AccentKey, background: BgKey) {
-  applyTheme(mode);
-  applyBackground(background, mode);
-  applyAccent(accent, mode);
-  // Mark root so CSS / debug tools can see active prefs
-  if (typeof document !== "undefined") {
-    const root = document.documentElement;
-    root.dataset.themeMode = mode;
-    root.dataset.accent = accent;
-    root.dataset.bg = background;
-  }
-}
-
 function broadcastTheme(mode: ThemeMode, accent: AccentKey, background: BgKey) {
   try {
-    const payload = JSON.stringify({ mode, accent, background, t: Date.now() });
-    localStorage.setItem("spartan_theme_sync", payload);
+    localStorage.setItem(
+      "spartan_theme_sync",
+      JSON.stringify({ mode, accent, background, t: Date.now() }),
+    );
     if (typeof BroadcastChannel !== "undefined") {
       const ch = new BroadcastChannel(BROADCAST_CHANNEL);
       ch.postMessage({ mode, accent, background });
       ch.close();
     }
   } catch {
-    /* private mode / quota */
+    /* private mode */
   }
 }
 
-/**
- * Module-level fallback used when context is missing (Vite HMR can briefly
- * desync Provider vs consumer module instances on Replit). Still applies
- * theme tokens so the UI never hard-crashes.
- */
-function buildFallbackApi(): ThemeContextValue {
-  return {
-    get mode() {
-      return readModeFromStorage();
-    },
-    get accent() {
-      return readAccentFromStorage();
-    },
-    get background() {
-      return readBgFromStorage();
-    },
-    setMode(m: ThemeMode) {
-      applyAll(m, readAccentFromStorage(), readBgFromStorage());
-      broadcastTheme(m, readAccentFromStorage(), readBgFromStorage());
-    },
-    setAccent(a: AccentKey) {
-      const mode = readModeFromStorage();
-      applyAll(mode, a, readBgFromStorage());
-      broadcastTheme(mode, a, readBgFromStorage());
-    },
-    setBackground(b: BgKey) {
-      const mode = readModeFromStorage();
-      applyAll(mode, readAccentFromStorage(), b);
-      broadcastTheme(mode, readAccentFromStorage(), b);
-    },
-    toggleMode() {
-      const next: ThemeMode = readModeFromStorage() === "dark" ? "light" : "dark";
-      applyAll(next, readAccentFromStorage(), readBgFromStorage());
-      broadcastTheme(next, readAccentFromStorage(), readBgFromStorage());
-    },
-  };
+/** Pick a matching background when user flips Light/Dark mode */
+function defaultBgForMode(mode: ThemeMode, current: BgKey): BgKey {
+  const cur = getBgPreset(current);
+  if (cur.tone === mode) return current;
+  return mode === "light" ? "soft" : "default";
 }
 
-const fallbackApi = buildFallbackApi();
-
-const ThemeContext = createContext<ThemeContextValue>(fallbackApi);
+const ThemeContext = createContext<ThemeContextValue | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [mode, setModeState] = useState<ThemeMode>(getInitialTheme);
+  const [mode, setModeState] = useState<ThemeMode>(() => {
+    const bg = getInitialBackground();
+    // Prefer background tone if user previously picked a light paper etc.
+    const bgTone = modeForBackground(bg);
+    const saved = getInitialTheme();
+    // If bg is light-toned, force light so Soft White actually shows light
+    if (bg !== "default" && bgTone !== saved) return bgTone;
+    return saved;
+  });
   const [accent, setAccentState] = useState<AccentKey>(getInitialAccent);
   const [background, setBackgroundState] = useState<BgKey>(getInitialBackground);
 
-  // Apply tokens whenever prefs change
+  // Apply on every change — paints html/body immediately
   useEffect(() => {
-    applyAll(mode, accent, background);
+    applyAppearance(mode, accent, background);
   }, [mode, accent, background]);
 
-  // Cross-tab + same-origin sync (other browser tabs, iframes)
+  // Apply once on mount before paint settles (belt + suspenders)
   useEffect(() => {
-    const pullFromStorage = () => {
+    applyAppearance(mode, accent, background);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Cross-tab sync
+  useEffect(() => {
+    const pull = () => {
       const nextMode = readModeFromStorage();
       const nextAccent = readAccentFromStorage();
       const nextBg = readBgFromStorage();
@@ -174,7 +144,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
         e.key === STORAGE_KEYS.background ||
         e.key === "spartan_theme_sync"
       ) {
-        pullFromStorage();
+        pull();
       }
     };
 
@@ -192,9 +162,8 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       };
     }
 
-    // Re-apply when tab becomes visible (covers bfcache / multi-tab drift)
     const onVisible = () => {
-      if (document.visibilityState === "visible") pullFromStorage();
+      if (document.visibilityState === "visible") pull();
     };
     document.addEventListener("visibilitychange", onVisible);
 
@@ -207,10 +176,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const setMode = useCallback(
     (m: ThemeMode) => {
+      const nextBg = defaultBgForMode(m, background);
       setModeState(m);
-      // Apply + broadcast immediately so every open tab/page sees tokens now
-      applyAll(m, accent, background);
-      broadcastTheme(m, accent, background);
+      setBackgroundState(nextBg);
+      applyAppearance(m, accent, nextBg);
+      broadcastTheme(m, accent, nextBg);
     },
     [accent, background],
   );
@@ -218,7 +188,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const setAccent = useCallback(
     (a: AccentKey) => {
       setAccentState(a);
-      applyAll(mode, a, background);
+      applyAppearance(mode, a, background);
       broadcastTheme(mode, a, background);
     },
     [mode, background],
@@ -226,21 +196,19 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   const setBackground = useCallback(
     (b: BgKey) => {
+      // Absolute background — also flip mode so contrast matches the surface
+      const tone = modeForBackground(b);
       setBackgroundState(b);
-      applyAll(mode, accent, b);
-      broadcastTheme(mode, accent, b);
+      setModeState(tone);
+      applyAppearance(tone, accent, b);
+      broadcastTheme(tone, accent, b);
     },
-    [mode, accent],
+    [accent],
   );
 
   const toggleMode = useCallback(() => {
-    setModeState((prev) => {
-      const next: ThemeMode = prev === "dark" ? "light" : "dark";
-      applyAll(next, accent, background);
-      broadcastTheme(next, accent, background);
-      return next;
-    });
-  }, [accent, background]);
+    setMode(mode === "dark" ? "light" : "dark");
+  }, [mode, setMode]);
 
   const value = useMemo<ThemeContextValue>(
     () => ({
@@ -259,5 +227,37 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 }
 
 export function useTheme(): ThemeContextValue {
-  return useContext(ThemeContext);
+  const ctx = useContext(ThemeContext);
+  if (!ctx) {
+    // Last-resort fallback — still paint from storage so UI is never stuck
+    const mode = readModeFromStorage();
+    const accent = readAccentFromStorage();
+    const background = readBgFromStorage();
+    return {
+      mode,
+      accent,
+      background,
+      setMode: (m) => {
+        const bg = defaultBgForMode(m, background);
+        applyAppearance(m, accent, bg);
+        broadcastTheme(m, accent, bg);
+      },
+      setAccent: (a) => {
+        applyAppearance(mode, a, background);
+        broadcastTheme(mode, a, background);
+      },
+      setBackground: (b) => {
+        const tone = modeForBackground(b);
+        applyAppearance(tone, accent, b);
+        broadcastTheme(tone, accent, b);
+      },
+      toggleMode: () => {
+        const next: ThemeMode = mode === "dark" ? "light" : "dark";
+        const bg = defaultBgForMode(next, background);
+        applyAppearance(next, accent, bg);
+        broadcastTheme(next, accent, bg);
+      },
+    };
+  }
+  return ctx;
 }

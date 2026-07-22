@@ -10,11 +10,8 @@ import { ACCENT_PRESETS, BG_PRESETS, type AccentKey, type BgKey } from "@/lib/th
 import { cn } from "@/lib/utils";
 
 interface AppearanceControlsProps {
-  /** Compact icon-only trigger (header/footer). */
   compact?: boolean;
-  /** Extra class on the trigger button */
   className?: string;
-  /** test id prefix */
   testId?: string;
 }
 
@@ -34,25 +31,25 @@ function SwatchButton({
   return (
     <button
       type="button"
-      onClick={onClick}
+      onClick={(e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        onClick();
+      }}
       title={label}
       aria-label={label}
       aria-pressed={selected}
       data-testid={testId}
       className={cn(
-        "relative h-8 w-8 rounded-full border-2 transition-transform touch-manipulation",
+        "relative h-9 w-9 rounded-full border-2 transition-transform touch-manipulation shrink-0",
         "hover:scale-110 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background",
-        selected ? "border-foreground scale-110" : "border-transparent",
+        selected ? "border-primary scale-110 ring-2 ring-primary/40" : "border-border",
       )}
       style={{ backgroundColor: color }}
     >
       {selected && (
         <Check
-          className={cn(
-            "absolute inset-0 m-auto h-3.5 w-3.5 drop-shadow",
-            // light swatches need dark check
-            "text-white mix-blend-difference",
-          )}
+          className="absolute inset-0 m-auto h-3.5 w-3.5 text-white drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]"
           strokeWidth={3}
         />
       )}
@@ -62,6 +59,9 @@ function SwatchButton({
 
 export function AppearancePanel({ className }: { className?: string }) {
   const { mode, accent, background, setMode, setAccent, setBackground } = useTheme();
+
+  const lightBgs = BG_PRESETS.filter((p) => p.tone === "light");
+  const darkBgs = BG_PRESETS.filter((p) => p.tone === "dark");
 
   return (
     <div className={cn("space-y-5", className)} data-testid="appearance-panel">
@@ -93,36 +93,56 @@ export function AppearancePanel({ className }: { className?: string }) {
             Dark
           </Button>
         </div>
+        <p className="text-[11px] text-muted-foreground mt-2 leading-snug">
+          Light switches the whole site off black. Dark keeps the brand look.
+        </p>
       </div>
 
       <div>
-        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2.5">
-          Background
+        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">
+          Light backgrounds
         </p>
-        <div className="grid grid-cols-4 gap-2.5">
-          {BG_PRESETS.map((p) => (
-            <div key={p.key} className="flex flex-col items-center gap-1">
+        <div className="flex flex-wrap gap-3 mb-4">
+          {lightBgs.map((p) => (
+            <div key={p.key} className="flex flex-col items-center gap-1 w-14">
               <SwatchButton
                 label={p.label}
-                color={mode === "dark" ? p.swatch : p.swatchLight}
+                color={p.swatch}
                 selected={background === p.key}
                 onClick={() => setBackground(p.key as BgKey)}
                 testId={`button-bg-${p.key}`}
               />
-              <span className="text-[10px] text-muted-foreground leading-none text-center">
+              <span className="text-[10px] text-muted-foreground leading-tight text-center">
                 {p.label}
               </span>
             </div>
           ))}
         </div>
-        <p className="text-[11px] text-muted-foreground mt-2 leading-snug">
-          Changes the page surface color. Accent (brand) stays separate.
+
+        <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2">
+          Dark backgrounds
         </p>
+        <div className="flex flex-wrap gap-3">
+          {darkBgs.map((p) => (
+            <div key={p.key} className="flex flex-col items-center gap-1 w-14">
+              <SwatchButton
+                label={p.label}
+                color={p.swatch}
+                selected={background === p.key}
+                onClick={() => setBackground(p.key as BgKey)}
+                testId={`button-bg-${p.key}`}
+              />
+              <span className="text-[10px] text-muted-foreground leading-tight text-center">
+                {p.label}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
 
       <div>
         <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground mb-2.5">
-          Accent
+          Accent color
         </p>
         <div className="flex flex-wrap gap-2.5">
           {ACCENT_PRESETS.map((p) => (
@@ -136,6 +156,18 @@ export function AppearancePanel({ className }: { className?: string }) {
             />
           ))}
         </div>
+      </div>
+
+      <div className="rounded-md border border-border bg-muted/50 px-3 py-2 text-[11px] text-muted-foreground leading-snug">
+        Active: <strong className="text-foreground">{mode}</strong>
+        {" · "}
+        <strong className="text-foreground">
+          {BG_PRESETS.find((p) => p.key === background)?.label ?? background}
+        </strong>
+        {" · "}
+        <strong className="text-foreground">
+          {ACCENT_PRESETS.find((p) => p.key === accent)?.label ?? accent}
+        </strong>
       </div>
     </div>
   );
@@ -153,19 +185,19 @@ export function AppearanceControls({
       <PopoverTrigger asChild>
         <Button
           type="button"
-          variant="ghost"
+          variant={compact ? "outline" : "ghost"}
           size={compact ? "icon" : "sm"}
           className={cn(
             compact
-              ? "h-8 w-8 text-muted-foreground hover:text-foreground"
+              ? "h-9 w-9 border-border text-foreground hover:bg-muted"
               : "gap-1.5 font-medium",
             className,
           )}
-          aria-label="Appearance settings — theme, background, and accent"
+          aria-label="Change theme colors"
           data-testid={testId}
         >
           <Palette className="w-4 h-4" />
-          {!compact && <span>Appearance</span>}
+          {!compact && <span>Theme</span>}
           <span className="sr-only">
             {mode === "dark" ? "Dark mode" : "Light mode"} — open appearance
           </span>
@@ -173,13 +205,14 @@ export function AppearanceControls({
       </PopoverTrigger>
       <PopoverContent
         align="end"
-        className="w-72 sm:w-80 p-4"
+        sideOffset={8}
+        className="w-[min(92vw,22rem)] p-4 z-[100]"
         data-testid="popover-appearance"
       >
         <div className="mb-3">
-          <p className="font-display font-bold text-sm tracking-tight">Appearance</p>
+          <p className="font-display font-bold text-sm tracking-tight">Theme colors</p>
           <p className="text-xs text-muted-foreground mt-0.5">
-            Light or dark, background color, and brand accent.
+            Tap Light or a light background to leave black. Changes apply to every page.
           </p>
         </div>
         <AppearancePanel />
