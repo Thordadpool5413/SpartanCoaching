@@ -1,9 +1,10 @@
 import type { Request, Response, NextFunction } from "express";
 import { clientSessions, clientMembers, clientOrganizations } from "@workspace/db";
 import { eq, and, gt } from "drizzle-orm";
-import { hashToken, safeEqualString } from "./crypto";
+import { hashToken } from "./crypto";
 import { evaluateFieldKitAccess, refreshOrgStatus, type FieldKitAccess } from "./entitlement";
 import { db } from "../db";
+export { isAdminRequest, requireAdmin } from "./adminAuthorization";
 
 const COOKIE_NAME = "spartan_session";
 /** Session lifetime in days */
@@ -24,41 +25,6 @@ function isDeployedRuntime(): boolean {
     process.env.NODE_ENV === "production" ||
     process.env.REPLIT_DEPLOYMENT === "1" ||
     process.env.REPLIT_DEPLOYMENT === "true"
-  );
-}
-
-/**
- * Platform admin shared passcode (Unlock Admin / X-Admin-Auth / bootstrap).
- * Default: 5413 (Nick's chosen passcode).
- * Override anytime with env ADMIN_PASSWORD in Replit Secrets.
- * Never return this value to API clients.
- */
-export const DEFAULT_ADMIN_PASSCODE = "5413";
-
-function resolveAdminPassword(): string {
-  const fromEnv = process.env.ADMIN_PASSWORD?.trim();
-  if (fromEnv) return fromEnv;
-  return DEFAULT_ADMIN_PASSCODE;
-}
-
-const ADMIN_PASSWORD = resolveAdminPassword();
-
-/** Always defined — defaults to 5413 when Secrets unset. */
-export function getAdminPassword(): string {
-  return ADMIN_PASSWORD;
-}
-
-/** Accept env passcode and Nick's default 5413 (covers mis-set Secrets). */
-export function getAdminPasscodeCandidates(): string[] {
-  const set = new Set<string>([DEFAULT_ADMIN_PASSCODE, getAdminPassword()]);
-  return [...set].filter(Boolean);
-}
-
-/** Default platform admin email used for auto-bootstrap. */
-export function getAdminEmail(): string {
-  return (
-    process.env.ADMIN_EMAIL?.trim().toLowerCase() ||
-    "nick@spartanhospicecoaching.com"
   );
 }
 
@@ -149,32 +115,3 @@ export function requireOrgAdmin(req: AuthedRequest, res: Response, next: NextFun
   }
   next();
 }
-
-function headerAdminAuthorized(req: Request): boolean {
-  if (!ADMIN_PASSWORD) return false;
-  const header = req.headers?.["x-admin-auth"];
-  if (typeof header !== "string" || !header) return false;
-  return safeEqualString(header, ADMIN_PASSWORD);
-}
-
-export function isAdminRequest(req: AuthedRequest | Request): boolean {
-  // Prefer real platform admin sessions
-  const member = (req as AuthedRequest).fieldKit?.member;
-  if (member && member.status === "active" && member.role === "platform_admin") {
-    return true;
-  }
-  // Legacy header only when ADMIN_PASSWORD is configured
-  return headerAdminAuthorized(req);
-}
-
-/** Platform admin session OR configured X-Admin-Auth header */
-export function requireAdmin(req: AuthedRequest, res: Response, next: NextFunction) {
-  if (isAdminRequest(req)) return next();
-  return res.status(401).json({ error: "Unauthorized", code: "ADMIN_REQUIRED" });
-}
-
-/**
- * Compatibility export used by auth routes for bootstrap / legacy-login.
- * Null in production when unset — callers must handle.
- */
-export { ADMIN_PASSWORD };

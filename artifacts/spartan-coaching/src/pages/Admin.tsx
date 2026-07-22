@@ -92,6 +92,7 @@ import { ObjectUploader } from "@/components/ObjectUploader";
 import type { UploadResult } from "@uppy/core";
 import { FileText } from "lucide-react";
 import { SEO } from "@/components/SEO";
+import { Link } from "wouter";
 
 import {
   adminGet,
@@ -118,9 +119,6 @@ const downloadCSV = (rows: string[][], filename: string) => {
 
 export default function Admin() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [passwordInput, setPasswordInput] = useState("");
-  const [showPasswordDialog, setShowPasswordDialog] = useState(true);
-  const [authPending, setAuthPending] = useState(false);
   const { toast } = useToast();
 
   // Session platform admin OR validated admin flag
@@ -134,7 +132,6 @@ export default function Admin() {
         if (me?.member?.role === "platform_admin") {
           if (!cancelled) {
             setIsAuthenticated(true);
-            setShowPasswordDialog(false);
           }
           return;
         }
@@ -147,7 +144,6 @@ export default function Admin() {
           await adminGet("/api/admin/access-metrics");
           if (!cancelled) {
             setIsAuthenticated(true);
-            setShowPasswordDialog(false);
           }
         } catch {
           clearAdminSessionFlag();
@@ -159,39 +155,6 @@ export default function Admin() {
     };
   }, []);
 
-  const handlePasswordSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setAuthPending(true);
-    try {
-      // Passcode unlock (default 5413) — auto-creates full platform admin if needed
-      const data = await adminFetch<{ loginHint?: { email?: string } }>(
-        "/api/admin/legacy-login",
-        {
-          method: "POST",
-          body: JSON.stringify({ password: passwordInput }),
-        },
-      );
-      markAdminSession();
-      setIsAuthenticated(true);
-      setShowPasswordDialog(false);
-      const email = data?.loginHint?.email || "nick@spartanhospicecoaching.com";
-      toast({
-        title: "Full admin access unlocked",
-        description: `You are in. Client Login later: ${email} + same passcode.`,
-      });
-      setPasswordInput("");
-    } catch (err: any) {
-      toast({
-        title: "Access denied",
-        description: err?.message || "Incorrect passcode.",
-        variant: "destructive",
-      });
-      setPasswordInput("");
-    } finally {
-      setAuthPending(false);
-    }
-  };
-
   const handleLogout = async () => {
     try {
       await fetch("/api/auth/logout", {
@@ -202,7 +165,6 @@ export default function Admin() {
       /* ignore */
     }
     setIsAuthenticated(false);
-    setShowPasswordDialog(true);
     clearAdminSessionFlag();
     toast({
       title: "Logged out",
@@ -1851,10 +1813,10 @@ export default function Admin() {
     }
   };
 
-  // Show password dialog if not authenticated
+  // Platform administration requires a normal authenticated session.
   if (!isAuthenticated) {
     return (
-      <Dialog open={showPasswordDialog} onOpenChange={() => {}}>
+      <Dialog open onOpenChange={() => {}}>
         <DialogContent
           className="sm:max-w-md"
           onPointerDownOutside={(e) => e.preventDefault()}
@@ -1867,34 +1829,20 @@ export default function Admin() {
               </div>
             </div>
             <DialogTitle className="text-center text-2xl">
-              Admin unlock
+              Administrator sign-in required
             </DialogTitle>
             <DialogDescription className="text-center">
-              Enter your admin passcode for full Access Desk and CMS access.
+              Sign in with an active platform administrator account to continue.
             </DialogDescription>
           </DialogHeader>
-          <form onSubmit={handlePasswordSubmit} className="space-y-4 mt-4">
-            <div className="space-y-2">
-              <Label className="text-xs">Passcode</Label>
-              <Input
-                type="password"
-                inputMode="numeric"
-                placeholder="Admin passcode"
-                value={passwordInput}
-                onChange={(e) => setPasswordInput(e.target.value)}
-                autoFocus
-                data-testid="input-admin-password"
-              />
-            </div>
-            <Button
-              type="submit"
-              className="w-full bg-spartan-gradient hover:glow-primary"
-              disabled={authPending || !passwordInput}
-              data-testid="button-submit-password"
-            >
-              {authPending ? "Unlocking…" : "Unlock full admin"}
+          <div className="space-y-3 mt-4">
+            <Button asChild className="w-full bg-spartan-gradient hover:glow-primary">
+              <Link href="/login">Go to secure sign-in</Link>
             </Button>
-          </form>
+            <p className="text-center text-xs text-muted-foreground">
+              Shared passcode access has been retired.
+            </p>
+          </div>
         </DialogContent>
       </Dialog>
     );

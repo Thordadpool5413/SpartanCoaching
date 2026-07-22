@@ -8,6 +8,11 @@ import { registerAuthRoutes } from "./routes/authRoutes";
 import { loadSession } from "./auth/middleware";
 import { globalApiLimit } from "./rateLimits";
 import { logger } from "./lib/logger";
+import {
+  applySecurityHeaders,
+  isAllowedOrigin,
+  requireTrustedMutationOrigin,
+} from "./security/requestSecurity";
 
 const app: Express = express();
 
@@ -35,13 +40,17 @@ app.use(
 );
 app.use(
   cors({
-    origin: true,
+    origin(origin, callback) {
+      callback(null, isAllowedOrigin(origin));
+    },
     credentials: true,
   }),
 );
 app.use(cookieParser());
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+app.use(applySecurityHeaders);
+app.use(requireTrustedMutationOrigin);
+app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || "1mb" }));
+app.use(express.urlencoded({ extended: true, limit: process.env.FORM_BODY_LIMIT || "256kb" }));
 
 // Load Field Kit session (cookie or Bearer) for every request before route handlers
 app.use(loadSession);
