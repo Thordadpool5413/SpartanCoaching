@@ -3,8 +3,6 @@ import express from "express";
 import {
   heavyAiLimit,
   standardAiLimit,
-  roleplayLimit,
-  roleplayMessageLimit,
   lightAiLimit,
   outboundEmailLimit,
   globalDailyAiCap,
@@ -16,9 +14,9 @@ import {
 } from "../rateLimits";
 
 import path from "path";
-import { and, count, eq, gt, lt, max } from "drizzle-orm";
+import { and, eq, gt, lt } from "drizzle-orm";
 import { db } from "../db";
-import { objectUploadTokens, roleplaySessions } from "@workspace/db";
+import { objectUploadTokens } from "@workspace/db";
 import { storage } from "../storage";
 import {
   generateComplexResponse,
@@ -26,8 +24,6 @@ import {
   generateGroundedSearch,
   generateDailyDrill,
   generateChatResponse,
-  generateRoleplayResponse,
-  generateRoleplayFeedback,
   ALL_DRILLS,
 } from "../openai";
 import {
@@ -43,8 +39,6 @@ import {
   insertResourceSchema,
   insertPodcastSchema,
   insertEventTrackingSchema,
-  roleplayStartSchema,
-  roleplayMessageSchema,
   drillCompletionRequestSchema,
   sendEmailRequestSchema,
   insertResourceLeadSchema,
@@ -60,6 +54,7 @@ import crypto from "crypto";
 import { AGREEMENT_TEXTS } from "../agreementTexts";
 import { requireFieldKit, requireAdmin, isAdminRequest } from "../auth/middleware";
 import type { Request } from "express";
+import { legacyRoleplayRetired } from "../security/legacyRoleplay";
 
 /** Express 5 params may be string | string[] — normalize for parseInt / lookups. */
 function paramStr(req: Request, key: string): string {
@@ -449,7 +444,7 @@ Subject: [subject line]
   // Article Management Routes
   
   // Create Article
-  app.post("/api/articles", async (req, res) => {
+  app.post("/api/articles", requireAdmin, async (req, res) => {
     try {
       const articleData = insertArticleSchema.parse(req.body);
       
@@ -502,7 +497,7 @@ Subject: [subject line]
   });
 
   // Update Article
-  app.put("/api/articles/:id", async (req, res) => {
+  app.put("/api/articles/:id", requireAdmin, async (req, res) => {
     try {
       const id = paramInt(req, "id");
       if (isNaN(id)) {
@@ -533,7 +528,7 @@ Subject: [subject line]
   });
 
   // Delete Article
-  app.delete("/api/articles/:id", async (req, res) => {
+  app.delete("/api/articles/:id", requireAdmin, async (req, res) => {
     try {
       const id = paramInt(req, "id");
       if (isNaN(id)) {
@@ -1353,107 +1348,14 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
   });
 
-  // ===== ROLE-PLAY PRACTICE ROUTES =====
-
-  app.post("/api/roleplay/sessions", requireFieldKit, roleplayLimit, globalDailyAiCap, async (req, res) => {
-    try {
-      const { scenarioId, scenarioTitle, scenarioDescription } = roleplayStartSchema.parse(req.body);
-      const session = await storage.createRoleplaySession({ scenarioId, scenarioTitle, scenarioDescription: scenarioDescription || null, status: "active" });
-
-      const initialResponse = await generateRoleplayResponse(scenarioId, scenarioTitle, "Hello, I'm here to speak with you today.", [], scenarioDescription);
-      await storage.createRoleplayMessage({ sessionId: session.id, role: "character", content: initialResponse });
-
-      res.json({ session, initialMessage: initialResponse });
-    } catch (error: any) {
-      console.error("Roleplay session creation error:", error);
-      res.status(500).json({ error: error.message || "Failed to create roleplay session" });
-    }
-  });
-
-  app.get("/api/roleplay/sessions", requireFieldKit, async (_req, res) => {
-    try {
-      const sessions = await storage.getRoleplaySessions();
-      res.json(sessions);
-    } catch (error: any) {
-      console.error("Get roleplay sessions error:", error);
-      res.json([]);
-    }
-  });
-
-  app.get("/api/roleplay/stats", requireFieldKit, async (_req, res) => {
-    try {
-      const rows = await db
-        .select({
-          scenarioId: roleplaySessions.scenarioId,
-          count: count(),
-          lastPracticedAt: max(roleplaySessions.createdAt),
-        })
-        .from(roleplaySessions)
-        .groupBy(roleplaySessions.scenarioId);
-      res.json(rows);
-    } catch (error: any) {
-      console.error("Get roleplay stats error:", error);
-      res.json([]);
-    }
-  });
-
-  app.get("/api/roleplay/sessions/:id", requireFieldKit, async (req, res) => {
-    try {
-      const id = paramInt(req, "id");
-      const session = await storage.getRoleplaySession(id);
-      if (!session) return res.status(404).json({ error: "Session not found" });
-      const messages = await storage.getRoleplayMessages(id);
-      res.json({ session, messages });
-    } catch (error: any) {
-      console.error("Get roleplay session error:", error);
-      res.status(500).json({ error: error.message || "Failed to get session" });
-    }
-  });
-
-  app.post("/api/roleplay/sessions/:id/messages", requireFieldKit, roleplayMessageLimit, globalDailyAiCap, async (req, res) => {
-    try {
-      const sessionId = parseInt(String(req.params.id));
-      const { content } = roleplayMessageSchema.parse(req.body);
-
-      const session = await storage.getRoleplaySession(sessionId);
-      if (!session) return res.status(404).json({ error: "Session not found" });
-      if (session.status !== "active") return res.status(400).json({ error: "Session is no longer active" });
-
-      await storage.createRoleplayMessage({ sessionId, role: "user", content });
-
-      const messages = await storage.getRoleplayMessages(sessionId);
-      const history = messages.map(m => ({ role: m.role, content: m.content }));
-
-      const response = await generateRoleplayResponse(session.scenarioId, session.scenarioTitle, content, history.slice(0, -1), session.scenarioDescription ?? undefined);
-      await storage.createRoleplayMessage({ sessionId, role: "character", content: response });
-
-      storage.trackEvent({ eventType: "ai_tool_usage", eventName: "roleplay" }).catch(() => {});
-
-      res.json({ response });
-    } catch (error: any) {
-      console.error("Roleplay message error:", error);
-      res.status(500).json({ error: error.message || "Failed to send message" });
-    }
-  });
-
-  app.post("/api/roleplay/sessions/:id/feedback", requireFieldKit, roleplayMessageLimit, globalDailyAiCap, async (req, res) => {
-    try {
-      const sessionId = parseInt(String(req.params.id));
-      const session = await storage.getRoleplaySession(sessionId);
-      if (!session) return res.status(404).json({ error: "Session not found" });
-
-      const messages = await storage.getRoleplayMessages(sessionId);
-      const transcript = messages.map(m => ({ role: m.role, content: m.content }));
-
-      const { feedback, rating } = await generateRoleplayFeedback(session.scenarioTitle, transcript);
-      const updated = await storage.updateRoleplaySession(sessionId, { status: "completed", feedback, rating });
-
-      res.json({ session: updated, feedback, rating });
-    } catch (error: any) {
-      console.error("Roleplay feedback error:", error);
-      res.status(500).json({ error: error.message || "Failed to generate feedback" });
-    }
-  });
+  // ===== RETIRED LEGACY ROLE-PLAY ROUTES =====
+  // These records predate organization/member ownership. They must not be read,
+  // continued, aggregated, or mutated through member-facing endpoints.
+  app.all("/api/roleplay/sessions", legacyRoleplayRetired);
+  app.all("/api/roleplay/stats", legacyRoleplayRetired);
+  app.all("/api/roleplay/sessions/:id", legacyRoleplayRetired);
+  app.all("/api/roleplay/sessions/:id/messages", legacyRoleplayRetired);
+  app.all("/api/roleplay/sessions/:id/feedback", legacyRoleplayRetired);
 
   // ===== DAILY DRILL ROUTES =====
 

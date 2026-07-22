@@ -23,7 +23,6 @@ import {
   changePasswordBodySchema,
   extendEvaluationBodySchema,
   adminBootstrapBodySchema,
-  adminLegacyLoginBodySchema,
   orgPipelineBodySchema,
   orgNoteBodySchema,
   orgUpdateBodySchema,
@@ -40,10 +39,6 @@ import {
   requireOrgAdmin,
   requireAdmin,
   isAdminRequest,
-  getAdminPassword,
-  getAdminPasscodeCandidates,
-  getAdminEmail,
-  DEFAULT_ADMIN_PASSCODE,
   useSecureCookies,
   type AuthedRequest,
 } from "../auth/middleware";
@@ -91,7 +86,7 @@ function setSessionCookie(res: Response, token: string, expiresAt: Date) {
   res.cookie(COOKIE_NAME, token, {
     httpOnly: true,
     secure: useSecureCookies(),
-    sameSite: "lax",
+    sameSite: "strict",
     expires: expiresAt,
     path: "/",
   });
@@ -102,7 +97,7 @@ function clearSessionCookie(res: Response) {
     path: "/",
     httpOnly: true,
     secure: useSecureCookies(),
-    sameSite: "lax",
+    sameSite: "strict",
   });
 }
 
@@ -140,23 +135,10 @@ async function createSession(memberId: number, userAgent?: string) {
   return { token, expiresAt };
 }
 
-function adminPasswordMatches(input: string): boolean {
-  const got = (input || "").trim();
-  if (!got) return false;
-  // Accept ADMIN_PASSWORD secret and default 5413
-  for (const expected of getAdminPasscodeCandidates()) {
-    if (safeEqualString(got, expected)) return true;
-  }
-  return false;
-}
-
-/** Which accepted passcode the user typed (for syncing account password). */
-function matchedAdminPasscode(input: string): string {
-  const got = (input || "").trim();
-  for (const expected of getAdminPasscodeCandidates()) {
-    if (safeEqualString(got, expected)) return expected;
-  }
-  return DEFAULT_ADMIN_PASSCODE;
+function bootstrapTokenMatches(input: string): boolean {
+  const expected = process.env.ADMIN_BOOTSTRAP_TOKEN?.trim();
+  if (!expected || expected.length < 32) return false;
+  return safeEqualString((input || "").trim(), expected);
 }
 
 type EmailDispatchResult = {
@@ -1482,7 +1464,7 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
-  // ── Platform admin bootstrap + legacy password login ───────────────
+  // ── One-time platform admin bootstrap ─────────────────────────────
   app.get("/api/admin/bootstrap-status", async (_req, res) => {
     try {
       const admins = await db
@@ -1498,20 +1480,23 @@ export function registerAuthRoutes(app: Express): void {
   });
 
   /**
-   * Ensure a platform admin exists and password matches the unlock passcode.
-   * Always syncs password so Client Login (email + 5413) works after unlock.
+   * Create the first platform administrator. This function is called only after
+   * a strong, environment-held one-time bootstrap token is verified.
    */
   async function ensurePlatformAdmin(opts?: {
     email?: string;
     name?: string;
     password?: string;
   }) {
-    const email = (opts?.email || getAdminEmail()).toLowerCase().trim();
-    const name = (opts?.name || "Nick Lynch").trim();
-    const password = opts?.password || DEFAULT_ADMIN_PASSCODE;
+    if (!opts?.email || !opts?.name || !opts?.password) {
+      throw new Error("Bootstrap identity and password are required");
+    }
+    const email = opts.email.toLowerCase().trim();
+    const name = opts.name.trim();
+    const password = opts.password;
     const passwordHash = await hashPassword(password);
 
-    // Prefer existing active platform admin
+    // Never reset or replace an existing administrator through bootstrap.
     const [existingAdmin] = await db
       .select()
       .from(clientMembers)
@@ -1519,18 +1504,7 @@ export function registerAuthRoutes(app: Express): void {
       .limit(1);
 
     if (existingAdmin) {
-      // Reset password to passcode so /login works with same credentials
-      const [updated] = await db
-        .update(clientMembers)
-        .set({
-          passwordHash,
-          status: "active",
-          lastLoginAt: new Date(),
-          termsAcceptedAt: existingAdmin.termsAcceptedAt ?? new Date(),
-        })
-        .where(eq(clientMembers.id, existingAdmin.id))
-        .returning();
-      return { member: updated!, created: false as const };
+      throw new Error("Platform administrator already exists");
     }
 
     // Reuse platform org if present
@@ -1602,8 +1576,11 @@ export function registerAuthRoutes(app: Express): void {
       if (!parsed.success) {
         return res.status(400).json({ error: "Invalid bootstrap payload" });
       }
-      if (!adminPasswordMatches(parsed.data.adminPassword)) {
-        return res.status(401).json({ error: "Invalid admin password" });
+      if (!bootstrapTokenMatches(parsed.data.adminPassword)) {
+        return res.status(401).json({
+          error: "Invalid or unavailable bootstrap token",
+          code: "INVALID_BOOTSTRAP_TOKEN",
+        });
       }
 
       const existing = await db
@@ -1612,7 +1589,10 @@ export function registerAuthRoutes(app: Express): void {
         .where(eq(clientMembers.role, "platform_admin"))
         .limit(1);
       if (existing.length > 0) {
-        return res.status(409).json({ error: "Platform admin already exists. Unlock with passcode 5413 or Client Login." });
+        return res.status(409).json({
+          error: "Platform administrator already exists. Use the standard login.",
+          code: "BOOTSTRAP_ALREADY_COMPLETED",
+        });
       }
 
       const { member } = await ensurePlatformAdmin({
@@ -1648,79 +1628,11 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
-  /**
-   * Single-passcode admin unlock (default 5413).
-   * Creates platform admin automatically on first use — full Access Desk + CMS access.
-   */
-  app.post("/api/admin/legacy-login", loginLimit, async (req, res) => {
-    try {
-      const parsed = adminLegacyLoginBodySchema.safeParse(req.body);
-      if (!parsed.success) {
-        return res.status(400).json({ error: "Password required" });
-      }
-      if (!adminPasswordMatches(parsed.data.password)) {
-        return res.status(401).json({
-          error:
-            "Invalid admin passcode. Use 5413. If Secrets has ADMIN_PASSWORD set to something else, change it to 5413 or delete it, then Restart the Repl.",
-          code: "INVALID_ADMIN_PASSCODE",
-        });
-      }
-
-      const passcode = matchedAdminPasscode(parsed.data.password);
-
-      let admin;
-      let created = false;
-      try {
-        const ensured = await ensurePlatformAdmin({
-          email: getAdminEmail(),
-          name: "Nick Lynch",
-          password: passcode,
-        });
-        admin = ensured.member;
-        created = ensured.created;
-      } catch (setupErr: any) {
-        console.error("ensurePlatformAdmin failed:", setupErr);
-        return res.status(500).json({
-          error:
-            setupErr?.message ||
-            "Could not create platform admin. Check DATABASE_URL and try again.",
-          code: "ADMIN_SETUP_FAILED",
-        });
-      }
-
-      const { token, expiresAt } = await createSession(
-        admin.id,
-        req.headers["user-agent"] as string | undefined,
-      );
-      setSessionCookie(res, token, expiresAt);
-      await logEvent(created ? "admin_auto_bootstrap" : "admin_legacy_login", admin.id, {
-        email: admin.email,
-      });
-
-      const access = await getAccessForMemberId(admin.id);
-      return res.json({
-        ok: true,
-        created,
-        /** So the UI can show Nick what to use on /login */
-        loginHint: {
-          email: admin.email,
-          note: "Client Login uses this email + the same passcode you just entered.",
-        },
-        member: publicMember(admin),
-        organization: access.org ? publicOrg(access.org) : null,
-        fieldKit: {
-          allowed: access.allowed,
-          reason: access.reason ?? null,
-          trialEndsAt: null,
-          hoursRemaining: null,
-        },
-        token,
-        expiresAt,
-      });
-    } catch (err) {
-      console.error("admin legacy-login error:", err);
-      return res.status(500).json({ error: "Login failed" });
-    }
+  app.post("/api/admin/legacy-login", loginLimit, (_req, res) => {
+    return res.status(410).json({
+      error: "Passcode unlock has been retired. Sign in with your platform administrator account.",
+      code: "LEGACY_ADMIN_LOGIN_RETIRED",
+    });
   });
 
   // ── Magic link login ───────────────────────────────────────────────
