@@ -1,0 +1,1 @@
+Trigger PR Verify workflow run after vitest config and test script fixes.
