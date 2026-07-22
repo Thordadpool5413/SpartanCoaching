@@ -1000,6 +1000,68 @@ body {
     background: linear-gradient(90deg, transparent, rgba(232, 41, 30, 0.4), transparent);
   }
 
+  /*
+   * Hybrid persuasion surface — long hire pages get a soft light paper
+   * band even when the global theme is dark (better conversion readability).
+   * User-chosen backgrounds still tint via CSS variables on children that
+   * use semantic tokens; the shell itself locks a high-contrast paper look.
+   */
+  .page-persuasion {
+    --persuasion-bg: 40 28% 98%;
+    --persuasion-fg: 0 0% 8%;
+    --persuasion-muted: 25 8% 38%;
+    --persuasion-card: 0 0% 100%;
+    --persuasion-border: 30 12% 88%;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, hsl(var(--primary) / 0.06), transparent 55%),
+      hsl(var(--persuasion-bg));
+    color: hsl(var(--persuasion-fg));
+  }
+
+  .page-persuasion .text-foreground {
+    color: hsl(var(--persuasion-fg));
+  }
+  .page-persuasion .text-muted-foreground {
+    color: hsl(var(--persuasion-muted));
+  }
+  .page-persuasion [class*="bg-card"],
+  .page-persuasion .bg-card {
+    background-color: hsl(var(--persuasion-card));
+  }
+  .page-persuasion .border-border,
+  .page-persuasion [data-slot="card"] {
+    border-color: hsl(var(--persuasion-border));
+  }
+
+  /* When user picks a non-default background, keep persuasion on semantic tokens
+     so their chosen surface color shows through instead of forced paper. */
+  html[data-bg]:not([data-bg="default"]) .page-persuasion {
+    background: hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+  html[data-bg]:not([data-bg="default"]) .page-persuasion .text-foreground {
+    color: hsl(var(--foreground));
+  }
+  html[data-bg]:not([data-bg="default"]) .page-persuasion .text-muted-foreground {
+    color: hsl(var(--muted-foreground));
+  }
+  html[data-bg]:not([data-bg="default"]) .page-persuasion [class*="bg-card"],
+  html[data-bg]:not([data-bg="default"]) .page-persuasion .bg-card {
+    background-color: hsl(var(--card));
+  }
+
+  /* Light mode: persuasion blends with soft white site background */
+  html:not(.dark) .page-persuasion {
+    --persuasion-bg: 0 0% 100%;
+    --persuasion-fg: 0 0% 8%;
+    --persuasion-muted: 0 0% 40%;
+    --persuasion-card: 0 0% 100%;
+    --persuasion-border: 0 0% 90%;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -10%, hsl(var(--primary) / 0.05), transparent 55%),
+      hsl(var(--background));
+  }
+
   /* Hover card lift — reusable card micro-interaction */
   .hover-card {
     transition: transform 150ms ease, border-color 150ms ease;

@@ -2,9 +2,9 @@ import { useState, useEffect } from "react";
 import { Link, useLocation } from "wouter";
 import { MenuIcon, CloseIcon } from "./icons";
 import { Button } from "@/components/ui/button";
-import { Sun, Moon, Linkedin, Search, ChevronDown, Shield, LogIn, UserCircle } from "lucide-react";
-import { useTheme } from "@/context/ThemeContext";
+import { Linkedin, Search, ChevronDown, Shield, LogIn, UserCircle } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { AppearanceControls, AppearancePanel } from "@/components/AppearanceControls";
 import {
   Sheet,
   SheetContent,
@@ -147,8 +147,6 @@ export function Header() {
     setMobileMenuOpen(false);
   }, [location]);
 
-  const { mode: theme, toggleMode: toggleTheme } = useTheme();
-
   const allSearchItems = allSearchablePages;
   const homeHref = isAuthenticated && canUseFieldKit ? "/portal" : "/";
 
@@ -238,17 +236,24 @@ export function Header() {
           )}
         </nav>
 
-        {/* Mobile Search Button */}
-        <Button
-          variant="ghost"
-          size="icon"
-          className="lg:hidden touch-manipulation"
-          onClick={() => setSearchOpen(true)}
-          aria-label="Search"
-          data-testid="button-mobile-search"
-        >
-          <Search className="w-5 h-5" />
-        </Button>
+        {/* Appearance + Mobile Search */}
+        <div className="flex items-center gap-0.5 sm:gap-1">
+          <AppearanceControls
+            compact
+            className="touch-manipulation"
+            testId="button-appearance-header"
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden touch-manipulation"
+            onClick={() => setSearchOpen(true)}
+            aria-label="Search"
+            data-testid="button-mobile-search"
+          >
+            <Search className="w-5 h-5" />
+          </Button>
+        </div>
 
         {/* Mobile Menu Sheet */}
         <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
@@ -300,7 +305,8 @@ export function Header() {
                 )}
               </nav>
             </div>
-            <div className="shrink-0 border-t border-border px-5 py-4 space-y-2">
+            <div className="shrink-0 border-t border-border px-5 py-4 space-y-3 max-h-[45dvh] overflow-y-auto">
+              <AppearancePanel className="pb-1" />
               <Button size="lg" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-book-call">
                 <Link href="/contact" onClick={() => setMobileMenuOpen(false)}>
                   Book a Call
@@ -369,7 +375,6 @@ export function Header() {
 
 export function Footer() {
   const [location] = useLocation();
-  const { mode: theme, toggleMode: toggleTheme } = useTheme();
   return (
     <>
       <footer className="mt-auto border-t border-red-900/20 bg-background dark:bg-[#030303] no-print safe-area-bottom">
@@ -471,14 +476,11 @@ export function Footer() {
                     {label}
                   </Link>
                 ))}
-                <button
-                  onClick={toggleTheme}
-                  aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-                  data-testid="button-theme-toggle"
-                  className="ml-2 flex items-center justify-center w-7 h-7 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/50 transition-colors touch-manipulation"
-                >
-                  {theme === "dark" ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
-                </button>
+                <AppearanceControls
+                  compact
+                  className="ml-1 h-7 w-7"
+                  testId="button-appearance-footer"
+                />
               </div>
             </div>
           </div>

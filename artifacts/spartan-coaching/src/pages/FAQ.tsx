@@ -5,6 +5,7 @@ import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { ArrowRight } from "lucide-react";
+import { PersuasionShell } from "@/components/PersuasionShell";
 import {
   Accordion,
   AccordionContent,
@@ -139,7 +140,7 @@ export default function FAQ() {
   }, [allIds]);
 
   return (
-    <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
+    <PersuasionShell>
       <SEO />
       <BackButton />
 
@@ -215,13 +216,12 @@ export default function FAQ() {
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button
                 size="lg"
-                variant="outline"
                 asChild
-                className="font-bold glass border-white/30 touch-manipulation group px-10"
-                data-testid="button-faq-request"
+                className="font-bold bg-white text-red-700 hover:bg-white/90 touch-manipulation group px-10"
+                data-testid="button-faq-contact"
               >
-                <Link href="/request-access">
-                  <span>Request Field Kit access</span>
+                <Link href="/contact">
+                  <span>Book a strategy call</span>
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
@@ -229,24 +229,20 @@ export default function FAQ() {
                 size="lg"
                 variant="outline"
                 asChild
-                className="font-bold glass border-white/30 touch-manipulation px-10"
-                data-testid="button-faq-contact"
+                className="font-bold border-white/40 text-white bg-transparent hover:bg-white/10 touch-manipulation px-10"
+                data-testid="button-faq-request"
               >
-                <Link href="/contact">Book a strategy call</Link>
-              </Button>
-              <Button
-                size="lg"
-                variant="ghost"
-                asChild
-                className="font-bold text-white hover:bg-white/10 touch-manipulation px-8"
-                data-testid="button-faq-membership"
-              >
-                <Link href="/field-kit-membership">Membership path</Link>
+                <Link href="/request-access">Request Field Kit access</Link>
               </Button>
             </div>
+            <p className="mt-5 text-sm text-white/70">
+              <Link href="/field-kit-membership" className="underline underline-offset-4 hover:text-white" data-testid="button-faq-membership">
+                Membership path
+              </Link>
+            </p>
           </div>
         </section>
       </FadeIn>
-    </div>
+    </PersuasionShell>
   );
 }

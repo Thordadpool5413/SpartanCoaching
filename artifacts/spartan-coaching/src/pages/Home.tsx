@@ -8,6 +8,7 @@ import { TrustStrip } from "@/components/TrustStrip";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 import { lazy, Suspense, Component } from "react";
 import type { ReactNode } from "react";
+import nickPhoto from "@assets/nick-photo.jpg";
 
 const SpartanHeroAnimation = lazy(() =>
   import("@/components/SpartanHeroAnimation").then((m) => ({ default: m.SpartanHeroAnimation })),
@@ -76,7 +77,7 @@ export default function Home() {
         </script>
       </Helmet>
 
-      {/* ── 1. HERO ── */}
+      {/* ── 1. HERO (stays dark — brand authority) ── */}
       <section
         className="relative min-h-[85vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-[#080808]"
         data-testid="section-hero"
@@ -86,6 +87,56 @@ export default function Home() {
             <SpartanHeroAnimation />
           </Suspense>
         </AnimationErrorBoundary>
+      </section>
+
+      {/* ── 2. AUTHORITY STRIP (photo + credentials — hire confidence) ── */}
+      <section
+        className="relative border-y border-border/60 bg-[#f7f6f4] text-zinc-900 dark:bg-[#0c0c0c] dark:text-zinc-50 dark:border-white/10"
+        data-testid="section-authority"
+      >
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+          <FadeIn>
+            <div className="grid md:grid-cols-[200px_1fr] gap-8 md:gap-12 items-center">
+              <div className="relative mx-auto md:mx-0 w-40 sm:w-48 md:w-full aspect-[4/5] overflow-hidden border-l-4 border-primary shadow-lg">
+                <img
+                  src={nickPhoto}
+                  alt="Nick Lynch, founder of Spartan Coaching"
+                  className="w-full h-full object-cover object-top"
+                  loading="lazy"
+                />
+              </div>
+              <div className="text-center md:text-left">
+                <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">
+                  Hospice growth coaching · field systems
+                </p>
+                <h2 className="text-2xl sm:text-3xl font-display font-black tracking-tight mb-3">
+                  Built by someone who has run the territory — not a generic sales trainer.
+                </h2>
+                <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed mb-6 max-w-2xl">
+                  Nick Lynch coaches hospice liaisons, directors, and multi-market teams on the
+                  conversations and weekly systems that move eligible patients into care — with ethics
+                  and accountability in the same room.
+                </p>
+                <ul className="flex flex-wrap justify-center md:justify-start gap-x-6 gap-y-2 mb-8 text-sm font-semibold">
+                  <li>12+ years hospice-specific</li>
+                  <li>500+ reps &amp; leaders coached</li>
+                  <li>Private Field Kit · no PHI</li>
+                </ul>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
+                  <Button size="lg" asChild className="font-bold shadow-md" data-testid="button-authority-contact">
+                    <Link href="/contact">
+                      Book a strategy call
+                      <ArrowRight className="ml-2 w-4 h-4" />
+                    </Link>
+                  </Button>
+                  <Button size="lg" variant="outline" asChild className="font-bold border-2" data-testid="button-authority-about">
+                    <Link href="/about">About Nick Lynch</Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </FadeIn>
+        </div>
       </section>
 
       {/* ── 3. PROBLEM (short) ── */}
@@ -100,7 +151,7 @@ export default function Home() {
             <p className="text-body-lg text-white/75 leading-relaxed mb-8">
               Eligible patients miss hospice because the right conversations never happen — a stalled referral, a “not yet” without a response, a family who was never asked. Spartan exists to close that gap with structure and heart in the same room.
             </p>
-            <Button size="lg" variant="outline" asChild className="font-bold border-white/30" data-testid="button-stakes-manifesto">
+            <Button size="lg" variant="outline" asChild className="font-bold border-white/30 text-white bg-transparent hover:bg-white/10" data-testid="button-stakes-manifesto">
               <Link href="/manifesto">
                 Read the Spartan Ethos
                 <ArrowRight className="ml-2 w-5 h-5" />
@@ -110,12 +161,12 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 4. THREE PILLARS ── */}
-      <section className="relative bg-[#070707] py-16 sm:py-24" data-testid="section-pillars">
+      {/* ── 4. THREE PILLARS (soft hybrid band for scanability) ── */}
+      <section className="relative page-persuasion py-16 sm:py-24" data-testid="section-pillars">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <FadeIn>
             <div className="text-center mb-12">
-              <p className="text-sm font-bold tracking-widest text-red-400 uppercase mb-4">How Spartan helps</p>
+              <p className="text-sm font-bold tracking-widest text-primary uppercase mb-4">How Spartan helps</p>
               <h2 className="text-h2 text-foreground font-display">Coaching. Systems. Field execution.</h2>
             </div>
           </FadeIn>
@@ -146,7 +197,7 @@ export default function Home() {
               const Icon = p.icon;
               return (
                 <StaggerItem key={p.title}>
-                  <Card className="h-full border border-white/10 dark:bg-[#0f0f0f] p-6 flex flex-col" data-testid={`card-pillar-${p.title}`}>
+                  <Card className="h-full border-2 bg-card shadow-sm p-6 flex flex-col" data-testid={`card-pillar-${p.title}`}>
                     <div className="w-12 h-12 rounded-lg bg-primary/15 text-primary flex items-center justify-center mb-4">
                       <Icon className="w-6 h-6" />
                     </div>
@@ -162,7 +213,7 @@ export default function Home() {
           </StaggerContainer>
           <FadeIn>
             <div className="text-center mt-10">
-              <Button asChild variant="outline" className="font-bold">
+              <Button asChild variant="outline" className="font-bold border-2">
                 <Link href="/method">
                   See the Spartan Method
                   <ArrowRight className="ml-2 w-4 h-4" />
@@ -240,7 +291,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 7. CLOSING ── */}
+      {/* ── 7. CLOSING — two clear CTAs only ── */}
       <section className="relative bg-gray-950 py-20 sm:py-28" data-testid="section-closing">
         <div className="absolute inset-0 bg-spartan-gradient-radial opacity-20 pointer-events-none" />
         <FadeIn>
@@ -252,18 +303,15 @@ export default function Home() {
             <p className="text-body-lg text-white/75 max-w-2xl mx-auto mb-10 leading-relaxed">
               If you are ready to build a system that holds when the week is hard, reach out. Honest conversation — no pressure.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
-              <Button size="lg" asChild className="font-bold px-10" data-testid="button-closing-contact">
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+              <Button size="lg" asChild className="font-bold px-10 shadow-lg" data-testid="button-closing-contact">
                 <Link href="/contact">
                   Book a strategy call
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="font-bold border-white/30" data-testid="button-closing-request">
+              <Button size="lg" variant="outline" asChild className="font-bold border-white/30 text-white bg-transparent hover:bg-white/10" data-testid="button-closing-request">
                 <Link href="/request-access">Request Field Kit access</Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild className="font-bold border-white/30" data-testid="button-closing-about">
-                <Link href="/about">About Nick Lynch</Link>
               </Button>
             </div>
           </div>

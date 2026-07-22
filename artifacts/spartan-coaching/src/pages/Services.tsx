@@ -5,6 +5,7 @@ import { Users, Building2, UserCheck, ClipboardList, MessageCircleQuestion, Arro
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
+import { PersuasionShell } from "@/components/PersuasionShell";
 import {
   Accordion,
   AccordionContent,
@@ -194,7 +195,7 @@ export default function Services() {
   ];
 
   return (
-    <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
+    <PersuasionShell>
       <SEO />
       <BackButton />
       <div className="text-center max-w-4xl mx-auto mb-16 sm:mb-20 relative">
@@ -209,18 +210,21 @@ export default function Services() {
           Every engagement exists because eligible patients miss care when the right conversations never happen. We build the structure and the field execution so those conversations become consistent.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center animate-fade-in-up" style={{ animationDelay: '0.25s' }}>
-          <Button size="lg" asChild className="font-bold">
+          <Button size="lg" asChild className="font-bold shadow-md">
             <Link href="/contact">
               Book a strategy call <ArrowRight className="ml-2 w-4 h-4" />
             </Link>
           </Button>
-          <Button size="lg" variant="outline" asChild className="font-bold">
+          <Button size="lg" variant="outline" asChild className="font-bold border-2">
             <Link href="/request-access">Request Field Kit evaluation</Link>
           </Button>
-          <Button size="lg" variant="ghost" asChild className="font-bold">
-            <Link href="/field-kit-membership">Membership path</Link>
-          </Button>
         </div>
+        <p className="mt-4 text-sm text-muted-foreground animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+          Prefer membership details first?{" "}
+          <Link href="/field-kit-membership" className="font-semibold text-primary hover:underline">
+            See the membership path
+          </Link>
+        </p>
       </div>
 
       {/* Field Kit path */}
@@ -531,8 +535,8 @@ export default function Services() {
         </div>
       </div>
 
-      {/* What This Is All For */}
-      <div className="bg-gray-950 rounded-3xl p-10 md:p-16 text-center mt-16">
+      {/* What This Is All For — dark authority band inside hybrid page */}
+      <div className="bg-gray-950 rounded-3xl p-10 md:p-16 text-center mt-16 text-white">
         <h2 className="text-h2 font-black text-white mb-6">What This Is All For</h2>
         <p className="text-body-lg text-white/80 max-w-3xl mx-auto leading-relaxed mb-8">
           Every coaching session, every field ride, every team workshop exists because eligible patients are not getting referred. Not because hospice is the wrong answer. Because the person who should have had that conversation was not prepared to have it. Spartan Coaching exists to fix that, one rep, one team, one market at a time.
@@ -543,7 +547,7 @@ export default function Services() {
               Book a strategy call <ArrowRight className="ml-2 w-4 h-4" />
             </Link>
           </Button>
-          <Button size="lg" variant="outline" asChild className="font-bold border-white/30 text-white">
+          <Button size="lg" variant="outline" asChild className="font-bold border-white/30 text-white bg-transparent hover:bg-white/10">
             <Link href="/request-access">Request Field Kit access</Link>
           </Button>
         </div>
@@ -656,7 +660,7 @@ export default function Services() {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-gray-950 rounded-3xl p-10 md:p-16 text-center mt-16">
+      <div className="bg-gray-950 rounded-3xl p-10 md:p-16 text-center mt-16 text-white">
         <h2 className="text-h2 font-black text-white mb-6">
           Not Sure Which Service Fits?
         </h2>
@@ -665,11 +669,11 @@ export default function Services() {
         </p>
         <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10 bg-red-600 text-white border-red-600" data-testid="button-services-contact">
           <Link href="/contact">
-            <span>Contact Us</span>
+            <span>Book a strategy call</span>
             <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
           </Link>
         </Button>
       </div>
-    </div>
+    </PersuasionShell>
   );
 }

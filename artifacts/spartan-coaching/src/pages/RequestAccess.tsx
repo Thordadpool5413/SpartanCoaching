@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { SEO } from "@/components/SEO";
 import { TrustStrip } from "@/components/TrustStrip";
+import { PersuasionShell } from "@/components/PersuasionShell";
 import { useToast } from "@/hooks/use-toast";
 import {
   Select,
@@ -142,78 +143,77 @@ export default function RequestAccess() {
 
   if (submitted) {
     return (
-      <div
-        className="min-h-[70vh] flex items-center justify-center px-4 py-16"
-        data-testid="page-request-access-success"
-      >
+      <PersuasionShell className="min-h-[70vh]">
         <SEO />
-        <Card className="w-full max-w-xl border border-white/10 dark:bg-[#0c0c0c] p-8 sm:p-10 space-y-6">
-          <div className="text-center space-y-3">
-            <CheckCircle2 className="w-12 h-12 text-green-500 mx-auto" />
-            <h1 className="text-2xl font-display font-black">Request received</h1>
-            <p className="text-muted-foreground leading-relaxed">
-              Thank you. We review every Field Kit request personally and respond within{" "}
-              <strong className="text-foreground">one business day</strong>.
-            </p>
-            {submittedEmail && (
-              <p className="text-sm text-muted-foreground">
-                Confirmation sent to{" "}
-                <strong className="text-foreground">{submittedEmail}</strong> (check spam if needed).
+        <div
+          className="flex items-center justify-center py-8"
+          data-testid="page-request-access-success"
+        >
+          <Card className="w-full max-w-xl border-2 bg-card shadow-sm p-8 sm:p-10 space-y-6">
+            <div className="text-center space-y-3">
+              <CheckCircle2 className="w-12 h-12 text-green-600 mx-auto" />
+              <h1 className="text-2xl font-display font-black text-foreground">Request received</h1>
+              <p className="text-muted-foreground leading-relaxed">
+                Thank you. We review every Field Kit request personally and respond within{" "}
+                <strong className="text-foreground">one business day</strong>.
               </p>
-            )}
-          </div>
+              {submittedEmail && (
+                <p className="text-sm text-muted-foreground">
+                  Confirmation sent to{" "}
+                  <strong className="text-foreground">{submittedEmail}</strong> (check spam if needed).
+                </p>
+              )}
+            </div>
 
-          <div className="rounded-xl border border-white/10 bg-muted/20 p-5 space-y-3 text-left">
-            <p className="text-xs font-bold uppercase tracking-widest text-red-400">What to expect</p>
-            <ul className="space-y-3 text-sm text-muted-foreground">
-              <li className="flex gap-3">
-                <Mail className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                <span>
-                  You should already have a “we received your request” email with the full process.
-                </span>
-              </li>
-              <li className="flex gap-3">
-                <Clock className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                <span>
-                  If approved, you get a secure set-password link and a{" "}
-                  <strong className="text-foreground">
-                    {type === "company" ? "72-hour company" : "24-hour individual"}
-                  </strong>{" "}
-                  evaluation window.
-                </span>
-              </li>
-              <li className="flex gap-3">
-                <Shield className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                <span>Tools stay PHI-free — planning and messaging only, never clinical records.</span>
-              </li>
-            </ul>
-          </div>
+            <div className="rounded-xl border border-border bg-muted/40 p-5 space-y-3 text-left">
+              <p className="text-xs font-bold uppercase tracking-widest text-primary">What to expect</p>
+              <ul className="space-y-3 text-sm text-muted-foreground">
+                <li className="flex gap-3">
+                  <Mail className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <span>
+                    You should already have a “we received your request” email with the full process.
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <Clock className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <span>
+                    If approved, you get a secure set-password link and a{" "}
+                    <strong className="text-foreground">
+                      {type === "company" ? "72-hour company" : "24-hour individual"}
+                    </strong>{" "}
+                    evaluation window.
+                  </span>
+                </li>
+                <li className="flex gap-3">
+                  <Shield className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <span>Tools stay PHI-free — planning and messaging only, never clinical records.</span>
+                </li>
+              </ul>
+            </div>
 
-          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-1">
-            <Button asChild className="font-bold">
-              <Link href="/contact">
-                Book a strategy call
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </Button>
-            <Button asChild variant="outline" className="font-bold">
-              <Link href="/faq">Read FAQ</Link>
-            </Button>
-            <Button asChild variant="ghost" className="font-bold">
-              <Link href="/">Return home</Link>
-            </Button>
-          </div>
-        </Card>
-      </div>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-1">
+              <Button asChild className="font-bold">
+                <Link href="/contact">
+                  Book a strategy call
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="font-bold">
+                <Link href="/faq">Read FAQ</Link>
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </PersuasionShell>
     );
   }
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 py-12 sm:py-16" data-testid="page-request-access">
+    <PersuasionShell>
       <SEO />
 
-      <div className="text-center mb-10 sm:mb-12 space-y-3 max-w-2xl mx-auto">
-        <p className="text-xs font-bold tracking-widest text-red-400 uppercase">Field Kit</p>
+      <div className="text-center mb-10 sm:mb-12 space-y-3 max-w-2xl mx-auto" data-testid="page-request-access">
+        <p className="text-xs font-bold tracking-widest text-primary uppercase">Field Kit</p>
         <h1 className="text-h1 font-display font-black text-foreground">Request evaluation access</h1>
         <p className="text-muted-foreground leading-relaxed">
           Private tools for hospice growth — not a self-serve checkout. Request access, get approved, run a
@@ -229,7 +229,7 @@ export default function RequestAccess() {
         {STEPS.map((s) => (
           <div
             key={s.n}
-            className="rounded-xl border border-white/10 dark:bg-[#0c0c0c] p-4 flex gap-3"
+            className="rounded-xl border-2 border-border bg-card shadow-sm p-4 flex gap-3"
           >
             <span className="w-8 h-8 rounded-full bg-primary/15 text-primary font-black text-sm flex items-center justify-center shrink-0">
               {s.n}
@@ -244,7 +244,7 @@ export default function RequestAccess() {
 
       <div className="grid lg:grid-cols-5 gap-8 items-start">
         {/* Form */}
-        <Card className="lg:col-span-3 border border-white/10 dark:bg-[#0c0c0c] p-6 sm:p-8">
+        <Card className="lg:col-span-3 border-2 bg-card shadow-sm p-6 sm:p-8">
           <form onSubmit={onSubmit} className="space-y-6">
             <div className="flex gap-2 p-1 rounded-lg bg-muted/40">
               {(["individual", "company"] as const).map((t) => (
@@ -422,7 +422,7 @@ export default function RequestAccess() {
             </div>
 
             {type === "company" && (
-              <p className="text-xs text-muted-foreground leading-relaxed border border-white/10 rounded-md p-3">
+              <p className="text-xs text-muted-foreground leading-relaxed border border-border rounded-md p-3 bg-muted/30">
                 Company evaluations give leaders room to loop in the team.{" "}
                 <Link href="/compliance" className="text-primary hover:underline">
                   BAA and compliance details
@@ -491,7 +491,7 @@ export default function RequestAccess() {
 
         {/* Side rail */}
         <aside className="lg:col-span-2 space-y-5" data-testid="section-request-aside">
-          <Card className="border border-white/10 dark:bg-[#0c0c0c] p-5 space-y-3">
+          <Card className="border-2 bg-card shadow-sm p-5 space-y-3">
             <div className="flex items-center gap-2">
               <HelpCircle className="w-4 h-4 text-primary" />
               <p className="text-sm font-bold text-foreground">Quick answers</p>
@@ -511,7 +511,7 @@ export default function RequestAccess() {
             </ul>
           </Card>
 
-          <Card className="border border-white/10 dark:bg-[#0c0c0c] p-5 space-y-2">
+          <Card className="border-2 bg-card shadow-sm p-5 space-y-2">
             <p className="text-sm font-bold text-foreground">Prefer a conversation first?</p>
             <p className="text-xs text-muted-foreground leading-relaxed">
               Coaching, team systems, or enterprise scope often start with a strategy call — tools can
@@ -538,6 +538,6 @@ export default function RequestAccess() {
           </p>
         </aside>
       </div>
-    </div>
+    </PersuasionShell>
   );
 }

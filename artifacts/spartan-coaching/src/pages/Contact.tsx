@@ -30,6 +30,7 @@ import { SEO } from "@/components/SEO";
 import { Link } from "wouter";
 import { CheckCircle, Loader2, Mail, ChevronLeft, ChevronRight, X, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { PersuasionShell } from "@/components/PersuasionShell";
 
 const contactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -140,7 +141,7 @@ export default function Contact() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
+    <PersuasionShell>
       <SEO />
       <BackButton />
       <div className="max-w-2xl mx-auto">
@@ -161,7 +162,7 @@ export default function Contact() {
 
         <FadeIn delay={0.1}>
           {submitted ? (
-            <Card className="spacing-card text-center dark:bg-[#0f0f0f] dark:border-white/8" data-testid="card-contact-success">
+            <Card className="spacing-card text-center border-2 bg-card shadow-sm" data-testid="card-contact-success">
               <div className="flex flex-col items-center gap-4 py-10">
                 <div className="w-16 h-16 bg-primary/10 border border-primary/30 rounded-full flex items-center justify-center">
                   <CheckCircle className="w-8 h-8 text-primary" />
@@ -181,7 +182,7 @@ export default function Contact() {
               </div>
             </Card>
           ) : (
-            <Card className="spacing-card dark:bg-[#0f0f0f] dark:border-white/8" data-testid="card-contact-form">
+            <Card className="spacing-card border-2 bg-card shadow-sm" data-testid="card-contact-form">
               {/* Service context chip */}
               {serviceParam && (
                 <div className="flex items-center justify-between gap-2 bg-primary/10 border border-primary/20 rounded-lg px-4 py-3 mb-6" data-testid="chip-service-context">
@@ -546,6 +547,6 @@ export default function Contact() {
           </div>
         </FadeIn>
       </div>
-    </div>
+    </PersuasionShell>
   );
 }

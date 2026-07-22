@@ -6,10 +6,11 @@ import nickPhoto from "@assets/nick-photo.jpg";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { TrustStrip } from "@/components/TrustStrip";
+import { PersuasionShell } from "@/components/PersuasionShell";
 
 export default function About() {
   return (
-    <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
+    <PersuasionShell>
       <SEO />
       <BackButton />
 
@@ -441,8 +442,8 @@ export default function About() {
           <TrustStrip compact className="mt-4" />
         </div>
 
-        {/* CTA */}
-        <div className="bg-gray-950 rounded-2xl p-8 md:p-12 text-center mt-16">
+        {/* CTA — dark authority band; two primary actions only */}
+        <div className="bg-gray-950 rounded-2xl p-8 md:p-12 text-center mt-16 text-white">
           <h2 className="text-h2 font-bold text-white mb-4">
             If this resonates, reach out.
           </h2>
@@ -452,23 +453,23 @@ export default function About() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10" data-testid="button-about-contact">
               <Link href="/contact">
-                <span>Contact Spartan Coaching</span>
+                <span>Book a strategy call</span>
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" asChild className="font-bold glass border-white/30 touch-manipulation px-10" data-testid="button-about-request">
+            <Button size="lg" variant="outline" asChild className="font-bold border-white/30 text-white bg-transparent hover:bg-white/10 touch-manipulation px-10" data-testid="button-about-request">
               <Link href="/request-access">
                 <span>Request Field Kit access</span>
               </Link>
             </Button>
-            <Button size="lg" variant="outline" asChild className="font-bold glass border-white/30 touch-manipulation px-10" data-testid="button-about-manifesto">
-              <Link href="/manifesto">
-                <span>Read the Spartan Ethos</span>
-              </Link>
-            </Button>
           </div>
+          <p className="mt-5 text-sm text-white/55">
+            <Link href="/manifesto" className="underline underline-offset-4 hover:text-white" data-testid="button-about-manifesto">
+              Read the Spartan Ethos
+            </Link>
+          </p>
         </div>
       </div>
-    </div>
+    </PersuasionShell>
   );
 }
