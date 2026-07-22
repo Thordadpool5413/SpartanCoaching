@@ -49,7 +49,7 @@ export default function ResetPassword() {
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4 py-16">
       <SEO />
-      <Card className="w-full max-w-md border border-white/10 dark:bg-[#0c0c0c] p-8 space-y-6">
+      <Card className="w-full max-w-md border border-border bg-card p-8 space-y-6">
         <div className="text-center space-y-2">
           <h1 className="text-2xl font-display font-black">Choose a new password</h1>
         </div>

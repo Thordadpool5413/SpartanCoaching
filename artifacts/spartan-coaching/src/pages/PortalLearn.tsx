@@ -67,7 +67,7 @@ export default function PortalLearn() {
     <div className="w-full max-w-5xl mx-auto px-4 py-10 sm:py-14" data-testid="page-portal-learn">
       <SEO />
       <div className="mb-10 space-y-3">
-        <p className="text-xs font-bold tracking-widest text-red-400 uppercase">Learn</p>
+        <p className="text-xs font-bold tracking-widest text-primary uppercase">Learn</p>
         <h1 className="text-h1 font-display font-black">Build judgment between sessions</h1>
         <p className="text-muted-foreground max-w-2xl leading-relaxed">
           Public proof and member practice in one place. Start with articles and resources; use drills and the knowledge base when your Field Kit is active.
@@ -81,7 +81,7 @@ export default function PortalLearn() {
           const href = locked ? "/request-access" : item.href;
           return (
             <Link key={item.href} href={href}>
-              <Card className="h-full border border-white/10 dark:bg-[#0f0f0f] p-5 hover:border-primary/40 transition-colors">
+              <Card className="h-full border border-border bg-card p-5 hover:border-primary/40 transition-colors">
                 <div className="flex gap-4">
                   <div className="w-10 h-10 rounded-md bg-primary/15 text-primary flex items-center justify-center shrink-0">
                     <Icon className="w-5 h-5" />
@@ -119,7 +119,7 @@ export default function PortalLearn() {
         </Button>
       </div>
 
-      <ToolDisclaimer className="mt-10 rounded-md border border-white/5 bg-black/20 py-3 px-4 text-center" />
+      <ToolDisclaimer className="mt-10 rounded-md border border-border/60 bg-muted/40 py-3 px-4 text-center" />
     </div>
   );
 }

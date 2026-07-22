@@ -350,10 +350,10 @@ export default function Method() {
 
         {/* Why the Method Exists */}
         <section>
-          <Card className="relative border-2 shadow-lg spacing-card bg-gray-950 border-0">
+          <Card className="relative border-2 shadow-lg spacing-card bg-card">
             <div className="text-center mb-8">
-              <h2 className="text-h2 text-white mb-4">Why the Method Exists</h2>
-              <p className="text-body-lg text-white/70 max-w-2xl mx-auto leading-relaxed">
+              <h2 className="text-h2 text-foreground mb-4">Why the Method Exists</h2>
+              <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed">
                 The Spartan Method is not a sales training framework. It is a patient access framework.
               </p>
             </div>
@@ -376,14 +376,14 @@ export default function Method() {
                   outcome: "A patient who qualifies gets referred when the moment is right. Not someday. Not maybe. On a specific day with a specific next step.",
                 },
               ].map((item, i) => (
-                <div key={i} className="bg-white/5 rounded-lg p-5 space-y-2">
-                  <p className="text-sm font-bold text-red-400 uppercase tracking-wide">{item.heading}</p>
-                  <p className="text-body text-white/75 leading-relaxed">{item.outcome}</p>
+                <div key={i} className="bg-muted/60 border border-border rounded-lg p-5 space-y-2">
+                  <p className="text-sm font-bold text-primary uppercase tracking-wide">{item.heading}</p>
+                  <p className="text-body text-muted-foreground leading-relaxed">{item.outcome}</p>
                 </div>
               ))}
             </div>
             <div className="text-center mt-8">
-              <p className="text-body-lg text-white/80 font-semibold max-w-2xl mx-auto leading-relaxed">
+              <p className="text-body-lg text-muted-foreground font-semibold max-w-2xl mx-auto leading-relaxed">
                 Every step of the method exists to reduce the friction between a qualifying patient and the care team that can help them. The rep is the bridge. The method is what keeps the bridge standing.
               </p>
             </div>
@@ -459,12 +459,12 @@ export default function Method() {
         </Card>
 
         {/* Closing */}
-        <Card className="relative overflow-hidden border-0 shadow-2xl spacing-card bg-gray-950">
+        <Card className="relative overflow-hidden border border-border shadow-2xl spacing-card bg-card">
           <div className="relative text-center">
-            <h3 className="text-h3 text-white mb-6" data-testid="text-closing-title">
+            <h3 className="text-h3 text-foreground mb-6" data-testid="text-closing-title">
               Built in the Field. Proven in Practice.
             </h3>
-            <p className="text-body-lg text-white/70 max-w-2xl mx-auto leading-relaxed mb-8">
+            <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
               Every framework, every playbook, every drill we teach has been tested in real hospice markets. This is not theory. It is a traceable system where preparation maps to Discovery, practice maps to Connecting, measurement maps to Guiding, and finishing strong maps to Commitment. The ethics hold it all together.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center flex-wrap">
@@ -473,10 +473,10 @@ export default function Method() {
                   Book a strategy call <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="font-bold border-white/30 text-white" data-testid="button-method-request">
+              <Button asChild variant="outline" className="font-bold border-2" data-testid="button-method-request">
                 <Link href="/request-access">Request evaluation access</Link>
               </Button>
-              <Button asChild variant="ghost" className="font-bold text-white hover:bg-white/10" data-testid="button-method-manifesto">
+              <Button asChild variant="ghost" className="font-bold" data-testid="button-method-manifesto">
                 <Link href="/manifesto">Read the Spartan Ethos</Link>
               </Button>
             </div>

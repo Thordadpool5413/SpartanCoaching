@@ -456,7 +456,7 @@ export default function Programs() {
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards gap-sections">
         {hospicePrograms.map((program, idx) => (
-          <Card key={idx} className="flex flex-col hover-card dark:bg-[#0f0f0f] dark:border-white/8 border-l-4 border-l-primary group relative spacing-card" data-testid={`card-program-${idx}`}>
+          <Card key={idx} className="flex flex-col hover-card bg-card dark:border-border border-l-4 border-l-primary group relative spacing-card" data-testid={`card-program-${idx}`}>
             <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-5 transition-opacity" />
             <div className="relative flex-1">
               <h3 className="text-h3 font-bold text-foreground mb-3">{program.title}</h3>
@@ -504,7 +504,7 @@ export default function Programs() {
         </div>
         <div className="grid md:grid-cols-2 gap-cards">
           {strategicServices.map((service, idx) => (
-            <Card key={idx} className="flex flex-col hover-card dark:bg-[#0f0f0f] dark:border-white/8 border-l-4 border-l-primary group relative spacing-card" data-testid={`card-strategic-${idx}`}>
+            <Card key={idx} className="flex flex-col hover-card bg-card dark:border-border border-l-4 border-l-primary group relative spacing-card" data-testid={`card-strategic-${idx}`}>
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-5 transition-opacity"></div>
               <div className="flex-1">
                 <h3 className="text-h3 font-bold text-foreground mb-3">{service.title}</h3>

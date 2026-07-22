@@ -182,7 +182,7 @@ function IntroGate({ children }: { children: ReactNode }) {
 
   if (!ready || isLoading) {
     return (
-      <div className="flex items-center justify-center min-h-screen bg-[#050505]">
+      <div className="flex items-center justify-center min-h-screen bg-background">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
       </div>
     );
@@ -303,10 +303,10 @@ function AppLayout() {
 
   return (
     <>
-      <div className="flex flex-col min-h-screen safe-area-x">
+      <div className="flex flex-col min-h-screen bg-background text-foreground safe-area-x">
         <Header />
         <TrialBanner />
-        <main className="flex-1">
+        <main className="flex-1 bg-background">
           <Router />
         </main>
         {!isAuthShell && <Footer />}

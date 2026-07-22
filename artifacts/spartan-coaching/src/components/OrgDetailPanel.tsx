@@ -202,7 +202,7 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-4">
-        <Card className="lg:col-span-1 border border-white/10">
+        <Card className="lg:col-span-1 border border-border">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Snapshot</CardTitle>
           </CardHeader>
@@ -300,7 +300,7 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
           </CardContent>
         </Card>
 
-        <Card className="lg:col-span-2 border border-white/10">
+        <Card className="lg:col-span-2 border border-border">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Pipeline & follow-up</CardTitle>
             <CardDescription>
@@ -383,7 +383,7 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
       </div>
 
       <div className="grid lg:grid-cols-2 gap-4">
-        <Card className="border border-white/10">
+        <Card className="border border-border">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Members</CardTitle>
           </CardHeader>
@@ -425,7 +425,7 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
           </CardContent>
         </Card>
 
-        <Card className="border border-white/10">
+        <Card className="border border-border">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Add note</CardTitle>
             <CardDescription>Templates speed common CRM updates.</CardDescription>
@@ -470,7 +470,7 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
         </Card>
       </div>
 
-      <Card className="border border-white/10">
+      <Card className="border border-border">
         <CardHeader className="pb-2">
           <CardTitle className="text-base">Timeline</CardTitle>
         </CardHeader>
@@ -492,7 +492,7 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
       </Card>
 
       {requests.length > 0 && (
-        <Card className="border border-white/10">
+        <Card className="border border-border">
           <CardHeader className="pb-2">
             <CardTitle className="text-base">Related access requests</CardTitle>
           </CardHeader>

@@ -7,7 +7,7 @@ export function ToolDisclaimer({ className }: { className?: string }) {
     <div
       className={
         className ??
-        "border-t border-white/5 bg-[#050505]/80 py-3 px-4 text-center"
+        "border-t border-border/60 bg-background/80 py-3 px-4 text-center"
       }
       data-testid="tool-disclaimer"
     >

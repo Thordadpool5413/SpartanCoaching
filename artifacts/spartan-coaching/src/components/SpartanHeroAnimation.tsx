@@ -291,7 +291,7 @@ function Scene5_Outro() {
     return () => t.forEach(clearTimeout);
   }, []);
   return (
-    <motion.div className="absolute inset-0 flex flex-col items-center justify-center z-30 bg-[#080808]"
+    <motion.div className="absolute inset-0 flex flex-col items-center justify-center z-30 bg-background"
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
       transition={{ duration: 0.4 }}>
       <motion.div className="absolute inset-0 bg-[#e8291e] pointer-events-none"
@@ -340,7 +340,7 @@ export function SpartanHeroAnimation({ onComplete }: { onComplete?: () => void }
   const SceneComponent = SCENE_COMPONENTS[baseKey];
 
   return (
-    <div className="absolute inset-0 overflow-hidden bg-[#080808]">
+    <div className="absolute inset-0 overflow-hidden bg-background">
       {/* Persistent background glow orbs */}
       <div className="absolute inset-0 z-0">
         <motion.div

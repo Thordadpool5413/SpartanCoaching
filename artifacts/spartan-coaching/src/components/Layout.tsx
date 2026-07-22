@@ -164,7 +164,7 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border/40 dark:border-red-900/20 bg-background/90 dark:bg-[#040404]/92 backdrop-blur-2xl supports-[backdrop-filter]:bg-background/80 dark:supports-[backdrop-filter]:bg-[#040404]/88 shadow-lg dark:shadow-[0_4px_32px_-2px_rgba(0,0,0,0.9),_0_0_1px_0_rgba(232,41,30,0.12)] safe-area-top">
+    <header className="sticky top-0 z-50 w-full border-b border-border surface-chrome backdrop-blur-2xl supports-[backdrop-filter]:bg-background/80 shadow-lg safe-area-top">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-18 md:h-20 flex items-center justify-between gap-3 sm:gap-6 safe-area-x">
         <Link href={homeHref}>
           <div className="flex items-center gap-2 sm:gap-4 hover:opacity-80 transition-opacity cursor-pointer touch-manipulation" data-testid="link-home">
@@ -268,7 +268,7 @@ export function Header() {
               <Menu className="w-6 h-6" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="right" className="w-[85vw] max-w-[350px] p-0 flex flex-col h-full max-h-[100dvh] dark:bg-[#080808] dark:border-white/10">
+          <SheetContent side="right" className="w-[85vw] max-w-[350px] p-0 flex flex-col h-full max-h-[100dvh] bg-background border-border">
             <SheetHeader className="px-5 pt-5 pb-3 shrink-0">
               <SheetTitle>Menu</SheetTitle>
             </SheetHeader>
@@ -377,7 +377,7 @@ export function Footer() {
   const [location] = useLocation();
   return (
     <>
-      <footer className="mt-auto border-t border-red-900/20 bg-background dark:bg-[#030303] no-print safe-area-bottom">
+      <footer className="mt-auto border-t border-border bg-background no-print safe-area-bottom">
         {/* 3-column main footer */}
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-12 pb-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 lg:gap-16">

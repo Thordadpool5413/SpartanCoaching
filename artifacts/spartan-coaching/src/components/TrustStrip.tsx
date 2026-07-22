@@ -36,7 +36,7 @@ export function TrustStrip({ className, compact = false, showLinks = true }: Tru
   return (
     <section
       className={cn(
-        "border border-white/10 dark:bg-[#0a0a0a]/80 rounded-2xl",
+        "border border-border bg-card/80 rounded-2xl",
         compact ? "p-5 sm:p-6" : "p-6 sm:p-8",
         className,
       )}
@@ -45,7 +45,7 @@ export function TrustStrip({ className, compact = false, showLinks = true }: Tru
     >
       {!compact && (
         <div className="text-center mb-8 max-w-2xl mx-auto">
-          <p className="text-xs font-bold tracking-widest text-red-400 uppercase mb-3">How we work with you</p>
+          <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">How we work with you</p>
           <h2 className="text-h3 font-display font-bold text-foreground mb-2">
             A consulting practice — not a self-serve SaaS checkout
           </h2>
@@ -82,7 +82,7 @@ export function TrustStrip({ className, compact = false, showLinks = true }: Tru
       </div>
 
       {showLinks && (
-        <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-6 pt-5 border-t border-white/8 text-xs">
+        <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-6 pt-5 border-t border-border text-xs">
           <Link href="/compliance" className="text-muted-foreground hover:text-primary transition-colors font-medium">
             Compliance &amp; data practices
           </Link>

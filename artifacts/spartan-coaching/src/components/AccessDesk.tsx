@@ -234,7 +234,7 @@ export function AccessDesk() {
 
   return (
     <div className="space-y-8" data-testid="access-desk">
-      <Card className="border border-white/10" data-testid="section-ops-jobs">
+      <Card className="border border-border" data-testid="section-ops-jobs">
         <CardHeader className="pb-2">
           <CardTitle className="text-base flex items-center gap-2">
             <RefreshCw className="w-4 h-4 text-primary" />
@@ -336,7 +336,7 @@ export function AccessDesk() {
           ].map((stat) => (
             <Card
               key={stat.label}
-              className={`border ${stat.hot ? "border-amber-500/40 bg-amber-500/5" : "border-white/10"} ${
+              className={`border ${stat.hot ? "border-amber-500/40 bg-amber-500/5" : "border-border"} ${
                 stat.onClick ? "cursor-pointer hover:border-primary/40 transition-colors" : ""
               }`}
               onClick={stat.onClick}

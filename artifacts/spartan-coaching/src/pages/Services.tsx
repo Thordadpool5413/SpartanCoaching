@@ -237,7 +237,7 @@ export default function Services() {
             <MonitorSmartphone className="w-7 h-7" />
           </div>
           <div className="space-y-3 flex-1">
-            <p className="text-xs font-bold tracking-widest text-red-400 uppercase">Private Field Kit</p>
+            <p className="text-xs font-bold tracking-widest text-primary uppercase">Private Field Kit</p>
             <h2 className="text-h2 text-foreground">Tools for clients and approved evaluators</h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
               AI-assisted objections, plans, role-play, and calculators — gated behind request and approval.
@@ -276,7 +276,7 @@ export default function Services() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards">
           {individualServices.map((service, idx) => (
-            <Card key={idx} className="flex flex-col border group relative spacing-card shadow-lg hover-card dark:bg-[#0f0f0f] dark:border-white/8 border-l-4 border-l-primary" data-testid={`card-individual-${idx}`}>
+            <Card key={idx} className="flex flex-col border group relative spacing-card shadow-lg hover-card bg-card dark:border-border border-l-4 border-l-primary" data-testid={`card-individual-${idx}`}>
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-radial from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-2xl"></div>
               <div className="flex-1 relative">
@@ -339,7 +339,7 @@ export default function Services() {
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-cards">
           {leadershipServices.map((service, idx) => (
-            <Card key={idx} className="flex flex-col border group relative spacing-card shadow-lg hover-card dark:bg-[#0f0f0f] dark:border-white/8 border-l-4 border-l-primary" data-testid={`card-leadership-${idx}`}>
+            <Card key={idx} className="flex flex-col border group relative spacing-card shadow-lg hover-card bg-card dark:border-border border-l-4 border-l-primary" data-testid={`card-leadership-${idx}`}>
               <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500"></div>
               <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-radial from-red-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-700 blur-2xl"></div>
               <div className="flex-1 relative">
@@ -536,9 +536,9 @@ export default function Services() {
       </div>
 
       {/* What This Is All For — dark authority band inside hybrid page */}
-      <div className="bg-gray-950 rounded-3xl p-10 md:p-16 text-center mt-16 text-white">
-        <h2 className="text-h2 font-black text-white mb-6">What This Is All For</h2>
-        <p className="text-body-lg text-white/80 max-w-3xl mx-auto leading-relaxed mb-8">
+      <div className="surface-band rounded-3xl p-10 md:p-16 text-center mt-16 text-foreground border border-border">
+        <h2 className="text-h2 font-black text-foreground mb-6">What This Is All For</h2>
+        <p className="text-body-lg text-muted-foreground max-w-3xl mx-auto leading-relaxed mb-8">
           Every coaching session, every field ride, every team workshop exists because eligible patients are not getting referred. Not because hospice is the wrong answer. Because the person who should have had that conversation was not prepared to have it. Spartan Coaching exists to fix that, one rep, one team, one market at a time.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
@@ -547,7 +547,7 @@ export default function Services() {
               Book a strategy call <ArrowRight className="ml-2 w-4 h-4" />
             </Link>
           </Button>
-          <Button size="lg" variant="outline" asChild className="font-bold border-white/30 text-white bg-transparent hover:bg-white/10">
+          <Button size="lg" variant="outline" asChild className="font-bold border-2">
             <Link href="/request-access">Request Field Kit access</Link>
           </Button>
         </div>
@@ -660,11 +660,11 @@ export default function Services() {
       </div>
 
       {/* CTA Section */}
-      <div className="bg-gray-950 rounded-3xl p-10 md:p-16 text-center mt-16 text-white">
-        <h2 className="text-h2 font-black text-white mb-6">
+      <div className="surface-band rounded-3xl p-10 md:p-16 text-center mt-16 text-foreground border border-border">
+        <h2 className="text-h2 font-black text-foreground mb-6">
           Not Sure Which Service Fits?
         </h2>
-        <p className="text-body-lg text-white/80 max-w-2xl mx-auto mb-10 leading-relaxed">
+        <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
           Every engagement starts with understanding your specific challenge. Let's talk about what is not working and build a plan that fixes it.
         </p>
         <Button size="lg" asChild className="font-bold shadow-lg touch-manipulation group px-10 bg-red-600 text-white border-red-600" data-testid="button-services-contact">

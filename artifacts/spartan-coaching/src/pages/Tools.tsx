@@ -134,7 +134,7 @@ export default function Tools() {
       <BackButton />
       <SlideUp>
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
-          <p className="text-xs font-bold tracking-widest text-red-400 uppercase mb-3">AI Field Kit</p>
+          <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">AI Field Kit</p>
           <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-tools-title">
             Quick Actions
           </h1>
@@ -188,8 +188,8 @@ export default function Tools() {
 
       {showCatalogGate && (
         <SlideUp delay={0.08}>
-          <Card className="mb-10 border border-white/10 dark:bg-[#0c0c0c] p-6" data-testid="tools-static-sample">
-            <p className="text-xs font-bold tracking-widest text-red-400 uppercase mb-3">Sample — Objection Handler</p>
+          <Card className="mb-10 border border-border bg-card p-6" data-testid="tools-static-sample">
+            <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">Sample — Objection Handler</p>
             <p className="text-sm text-muted-foreground mb-2">
               <span className="font-semibold text-foreground">Objection: </span>
               {SAMPLE_OBJECTION.objection}
@@ -270,7 +270,7 @@ export default function Tools() {
       )}
 
       <SlideUp delay={0.2}>
-        <div className="mt-12 sm:mt-16 rounded-2xl p-8 md:p-12 text-center border border-white/10 dark:bg-[#0c0c0c]">
+        <div className="mt-12 sm:mt-16 rounded-2xl p-8 md:p-12 text-center border border-border bg-card">
           <h2 className="text-h2 font-bold text-foreground mb-4">Coaching stays human</h2>
           <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
             The Field Kit supports execution between sessions. Strategy calls and engagements are how organizations transform.

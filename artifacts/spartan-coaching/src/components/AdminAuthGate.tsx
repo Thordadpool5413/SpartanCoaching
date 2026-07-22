@@ -185,7 +185,7 @@ export function AdminAuthGate({
     <div className="w-full max-w-7xl mx-auto px-4 py-8 sm:py-10" data-testid="admin-authenticated-shell">
       <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
         <div>
-          <p className="text-xs font-bold tracking-widest text-red-400 uppercase mb-1">Admin</p>
+          <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">Admin</p>
           <h1 className="text-2xl font-display font-black text-foreground">{title}</h1>
         </div>
         <div className="flex flex-wrap items-center gap-2">

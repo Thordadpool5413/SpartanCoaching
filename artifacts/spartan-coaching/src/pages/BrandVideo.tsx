@@ -62,7 +62,7 @@ export default function BrandVideo() {
       </FadeIn>
 
       <FadeIn delay={0.1}>
-        <div className="rounded-2xl overflow-hidden bg-gray-950 shadow-2xl border border-white/10 mb-8" data-testid="container-brand-video">
+        <div className="rounded-2xl overflow-hidden bg-muted shadow-2xl border border-border mb-8" data-testid="container-brand-video">
           <iframe
             src="/spartan-video/"
             title="Spartan Coaching Brand Video"

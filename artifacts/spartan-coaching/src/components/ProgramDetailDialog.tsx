@@ -45,7 +45,7 @@ export function ProgramDetailDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto dark:bg-[#0d0d0d] dark:border-white/10" data-testid="dialog-program-detail">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto bg-card dark:border-border" data-testid="dialog-program-detail">
         <DialogHeader>
           <DialogTitle className="text-3xl font-black text-foreground">
             {program.title}

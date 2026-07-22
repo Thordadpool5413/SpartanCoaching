@@ -14,7 +14,7 @@ export default function Welcome() {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center bg-[#050505] px-6 relative overflow-hidden"
+      className="min-h-screen flex flex-col items-center justify-center bg-background px-6 relative overflow-hidden"
       data-testid="page-welcome"
     >
       <SEO />
@@ -22,15 +22,15 @@ export default function Welcome() {
 
       <div className="relative z-10 max-w-xl w-full text-center space-y-10">
         <div className="space-y-4">
-          <p className="text-xs font-bold tracking-[0.3em] text-red-400 uppercase">
+          <p className="text-xs font-bold tracking-[0.3em] text-primary uppercase">
             Spartan Coaching
           </p>
-          <h1 className="font-display text-4xl sm:text-5xl font-black text-white tracking-tight leading-tight">
+          <h1 className="font-display text-4xl sm:text-5xl font-black text-foreground tracking-tight leading-tight">
             Discipline. Empathy.
             <br />
             <span className="text-primary">Strategy.</span>
           </h1>
-          <p className="text-base sm:text-lg text-white/70 leading-relaxed max-w-md mx-auto">
+          <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-md mx-auto">
             Practical coaching and a private Field Kit for hospice growth professionals who execute in the field — not just in meetings.
           </p>
         </div>
@@ -48,7 +48,7 @@ export default function Welcome() {
           <Button
             size="lg"
             variant="outline"
-            className="font-bold border-white/25 text-white hover:bg-white/5"
+            className="font-bold border-2"
             asChild
             data-testid="button-welcome-login"
           >
@@ -63,7 +63,7 @@ export default function Welcome() {
           <Link
             href="/request-access"
             onClick={() => markIntroSeen()}
-            className="inline-flex items-center gap-2 text-sm text-white/55 hover:text-red-400 transition-colors"
+            className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
             data-testid="link-welcome-request"
           >
             <KeyRound className="w-4 h-4" />
@@ -71,7 +71,7 @@ export default function Welcome() {
           </Link>
         </div>
 
-        <p className="text-xs text-white/35 tracking-wide uppercase">
+        <p className="text-xs text-muted-foreground/80 tracking-wide uppercase">
           Hospice-specific · Ethics-first · Built for field execution
         </p>
       </div>

@@ -20,7 +20,7 @@ class AnimationErrorBoundary extends Component<{ children: ReactNode }, { failed
     this.setState({ failed: true });
   }
   render() {
-    return this.state.failed ? <div className="absolute inset-0 bg-[#080808]" /> : this.props.children;
+    return this.state.failed ? <div className="absolute inset-0 bg-background" /> : this.props.children;
   }
 }
 
@@ -79,11 +79,11 @@ export default function Home() {
 
       {/* ── 1. HERO (stays dark — brand authority) ── */}
       <section
-        className="relative min-h-[85vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-[#080808]"
+        className="relative min-h-[85vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-background"
         data-testid="section-hero"
       >
         <AnimationErrorBoundary>
-          <Suspense fallback={<div className="absolute inset-0 bg-[#080808]" />}>
+          <Suspense fallback={<div className="absolute inset-0 bg-background" />}>
             <SpartanHeroAnimation />
           </Suspense>
         </AnimationErrorBoundary>
@@ -91,7 +91,7 @@ export default function Home() {
 
       {/* ── 2. AUTHORITY STRIP (photo + credentials — hire confidence) ── */}
       <section
-        className="relative border-y border-border/60 bg-[#f7f6f4] text-zinc-900 dark:bg-[#0c0c0c] dark:text-zinc-50 dark:border-white/10"
+        className="relative border-y border-border bg-card text-card-foreground"
         data-testid="section-authority"
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
@@ -109,10 +109,10 @@ export default function Home() {
                 <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">
                   Hospice growth coaching · field systems
                 </p>
-                <h2 className="text-2xl sm:text-3xl font-display font-black tracking-tight mb-3">
+                <h2 className="text-2xl sm:text-3xl font-display font-black tracking-tight text-foreground mb-3">
                   Built by someone who has run the territory — not a generic sales trainer.
                 </h2>
-                <p className="text-base sm:text-lg text-zinc-600 dark:text-zinc-400 leading-relaxed mb-6 max-w-2xl">
+                <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-6 max-w-2xl">
                   Nick Lynch coaches hospice liaisons, directors, and multi-market teams on the
                   conversations and weekly systems that move eligible patients into care — with ethics
                   and accountability in the same room.
@@ -140,18 +140,18 @@ export default function Home() {
       </section>
 
       {/* ── 3. PROBLEM (short) ── */}
-      <section className="relative bg-gray-950 py-16 sm:py-20" data-testid="section-stakes">
+      <section className="relative surface-band py-16 sm:py-20" data-testid="section-stakes">
         <div className="absolute inset-0 bg-spartan-gradient-radial opacity-20 pointer-events-none" />
         <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <FadeIn>
-            <p className="text-sm font-bold tracking-widest text-red-400 uppercase mb-4">The real problem</p>
-            <h2 className="text-h2 font-bold text-white mb-6 font-display" data-testid="text-stakes-title">
+            <p className="text-sm font-bold tracking-widest text-primary uppercase mb-4">The real problem</p>
+            <h2 className="text-h2 font-bold text-foreground mb-6 font-display" data-testid="text-stakes-title">
               The gap is not clinical. It is conversational.
             </h2>
-            <p className="text-body-lg text-white/75 leading-relaxed mb-8">
+            <p className="text-body-lg text-muted-foreground leading-relaxed mb-8">
               Eligible patients miss hospice because the right conversations never happen — a stalled referral, a “not yet” without a response, a family who was never asked. Spartan exists to close that gap with structure and heart in the same room.
             </p>
-            <Button size="lg" variant="outline" asChild className="font-bold border-white/30 text-white bg-transparent hover:bg-white/10" data-testid="button-stakes-manifesto">
+            <Button size="lg" variant="outline" asChild className="font-bold border-2" data-testid="button-stakes-manifesto">
               <Link href="/manifesto">
                 Read the Spartan Ethos
                 <ArrowRight className="ml-2 w-5 h-5" />
@@ -225,11 +225,11 @@ export default function Home() {
       </section>
 
       {/* ── 5. OUTCOMES (compact) ── */}
-      <section className="relative bg-[#060606] py-16 sm:py-20" data-testid="section-results">
+      <section className="relative bg-background py-16 sm:py-20" data-testid="section-results">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <FadeIn>
             <div className="text-center mb-10">
-              <p className="text-sm font-bold tracking-widest text-red-400 uppercase mb-4">Outcomes</p>
+              <p className="text-sm font-bold tracking-widest text-primary uppercase mb-4">Outcomes</p>
               <h2 className="text-h2 text-gradient-elegant font-display" data-testid="text-results-title">
                 What changes look like
               </h2>
@@ -247,7 +247,7 @@ export default function Home() {
               },
             ].map((c) => (
               <StaggerItem key={c.title}>
-                <Card className="border border-white/8 dark:bg-[#0f0f0f] border-l-4 border-l-primary p-6 h-full">
+                <Card className="border border-border bg-card border-l-4 border-l-primary p-6 h-full">
                   <h3 className="text-lg font-bold text-foreground mb-2">{c.title}</h3>
                   <p className="text-sm text-muted-foreground leading-relaxed">{c.text}</p>
                 </Card>
@@ -263,7 +263,7 @@ export default function Home() {
               ].map((b) => (
                 <div
                   key={b}
-                  className="flex items-center gap-2 text-sm text-foreground/90 border border-white/8 rounded-full px-4 py-2"
+                  className="flex items-center gap-2 text-sm text-foreground/90 border border-border rounded-full px-4 py-2"
                 >
                   <CheckCircle className="w-4 h-4 text-primary shrink-0" />
                   {b}
@@ -283,7 +283,7 @@ export default function Home() {
       </section>
 
       {/* ── 6. TRUST ── */}
-      <section className="relative bg-[#080808] py-14 sm:py-18" data-testid="section-trust">
+      <section className="relative bg-background py-14 sm:py-18" data-testid="section-trust">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <FadeIn>
             <TrustStrip />
@@ -292,15 +292,15 @@ export default function Home() {
       </section>
 
       {/* ── 7. CLOSING — two clear CTAs only ── */}
-      <section className="relative bg-gray-950 py-20 sm:py-28" data-testid="section-closing">
+      <section className="relative surface-band py-20 sm:py-28" data-testid="section-closing">
         <div className="absolute inset-0 bg-spartan-gradient-radial opacity-20 pointer-events-none" />
         <FadeIn>
           <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
-            <p className="text-sm font-bold tracking-widest text-red-400 uppercase mb-6">Ready to close the gap?</p>
-            <h2 className="text-h2 font-bold text-white mb-6 font-display" data-testid="text-closing-title">
+            <p className="text-sm font-bold tracking-widest text-primary uppercase mb-6">Ready to close the gap?</p>
+            <h2 className="text-h2 font-bold text-foreground mb-6 font-display" data-testid="text-closing-title">
               Stop winging it.
             </h2>
-            <p className="text-body-lg text-white/75 max-w-2xl mx-auto mb-10 leading-relaxed">
+            <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
               If you are ready to build a system that holds when the week is hard, reach out. Honest conversation — no pressure.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -310,7 +310,7 @@ export default function Home() {
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="font-bold border-white/30 text-white bg-transparent hover:bg-white/10" data-testid="button-closing-request">
+              <Button size="lg" variant="outline" asChild className="font-bold border-2" data-testid="button-closing-request">
                 <Link href="/request-access">Request Field Kit access</Link>
               </Button>
             </div>

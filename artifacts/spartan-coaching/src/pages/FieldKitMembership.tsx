@@ -62,7 +62,7 @@ export default function FieldKitMembership() {
     <div className="w-full max-w-6xl mx-auto px-4 py-12 sm:py-16" data-testid="page-field-kit-membership">
       <SEO />
       <div className="text-center max-w-3xl mx-auto mb-12 space-y-4">
-        <p className="text-xs font-bold tracking-widest text-red-400 uppercase">Field Kit membership</p>
+        <p className="text-xs font-bold tracking-widest text-primary uppercase">Field Kit membership</p>
         <h1 className="text-h1 font-display font-black text-foreground">
           Private tools. Human coaching. Clear next step.
         </h1>
@@ -78,8 +78,8 @@ export default function FieldKitMembership() {
           return (
             <Card
               key={tier.id}
-              className={`flex flex-col border p-6 dark:bg-[#0f0f0f] ${
-                tier.highlight ? "border-primary shadow-lg" : "border-white/10"
+              className={`flex flex-col border p-6 bg-card ${
+                tier.highlight ? "border-primary shadow-lg" : "border-border"
               }`}
               data-testid={`card-tier-${tier.id}`}
             >
@@ -111,7 +111,7 @@ export default function FieldKitMembership() {
         })}
       </div>
 
-      <Card className="border border-white/10 dark:bg-[#0c0c0c] p-8 text-center space-y-4 max-w-3xl mx-auto">
+      <Card className="border border-border bg-card p-8 text-center space-y-4 max-w-3xl mx-auto">
         <h2 className="text-h3 font-bold">How continuation works</h2>
         <ol className="text-left text-sm text-muted-foreground space-y-2 max-w-xl mx-auto list-decimal list-inside">
           <li>Request evaluation access and get approved.</li>

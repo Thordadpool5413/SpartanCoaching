@@ -229,13 +229,13 @@ export default function FAQ() {
                 size="lg"
                 variant="outline"
                 asChild
-                className="font-bold border-white/40 text-white bg-transparent hover:bg-white/10 touch-manipulation px-10"
+                className="font-bold border-white/50 text-white bg-transparent hover:bg-white/10 touch-manipulation px-10"
                 data-testid="button-faq-request"
               >
                 <Link href="/request-access">Request Field Kit access</Link>
               </Button>
             </div>
-            <p className="mt-5 text-sm text-white/70">
+            <p className="mt-5 text-sm text-white/80">
               <Link href="/field-kit-membership" className="underline underline-offset-4 hover:text-white" data-testid="button-faq-membership">
                 Membership path
               </Link>

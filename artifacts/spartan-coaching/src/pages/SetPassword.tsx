@@ -70,9 +70,9 @@ export default function SetPassword() {
   return (
     <div className="min-h-[70vh] flex items-center justify-center px-4 py-16" data-testid="page-set-password">
       <SEO />
-      <Card className="w-full max-w-md border border-white/10 dark:bg-[#0c0c0c] p-8 space-y-6">
+      <Card className="w-full max-w-md border border-border bg-card p-8 space-y-6">
         <div className="text-center space-y-2">
-          <p className="text-xs font-bold tracking-widest text-red-400 uppercase">Secure setup</p>
+          <p className="text-xs font-bold tracking-widest text-primary uppercase">Secure setup</p>
           <h1 className="text-2xl font-display font-black">Set your password</h1>
           <p className="text-sm text-muted-foreground">
             Create a password to enter your Field Kit. After this you will land on a short first-session

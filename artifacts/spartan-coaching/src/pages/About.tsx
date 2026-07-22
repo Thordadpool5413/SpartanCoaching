@@ -168,9 +168,9 @@ export default function About() {
           </Card>
 
           <div className="mt-8 mb-8">
-            <Card className="spacing-card bg-gray-950 border-0">
+            <Card className="spacing-card bg-card border-2 border-primary/20">
               <div className="text-center">
-                <p className="text-xl sm:text-2xl font-bold text-white leading-snug">
+                <p className="text-xl sm:text-2xl font-bold text-foreground leading-snug">
                   "Ethics without structure does not scale. Structure without heart does not last. We teach both."
                 </p>
               </div>
@@ -443,11 +443,11 @@ export default function About() {
         </div>
 
         {/* CTA — dark authority band; two primary actions only */}
-        <div className="bg-gray-950 rounded-2xl p-8 md:p-12 text-center mt-16 text-white">
-          <h2 className="text-h2 font-bold text-white mb-4">
+        <div className="surface-band rounded-2xl p-8 md:p-12 text-center mt-16 text-foreground border border-border">
+          <h2 className="text-h2 font-bold text-foreground mb-4">
             If this resonates, reach out.
           </h2>
-          <p className="text-body-lg text-white/70 max-w-2xl mx-auto leading-relaxed mb-8">
+          <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
             No pressure. No obligation. Just an honest conversation about where your team is and what would actually help.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
@@ -457,14 +457,14 @@ export default function About() {
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" asChild className="font-bold border-white/30 text-white bg-transparent hover:bg-white/10 touch-manipulation px-10" data-testid="button-about-request">
+            <Button size="lg" variant="outline" asChild className="font-bold border-2 touch-manipulation px-10" data-testid="button-about-request">
               <Link href="/request-access">
                 <span>Request Field Kit access</span>
               </Link>
             </Button>
           </div>
-          <p className="mt-5 text-sm text-white/55">
-            <Link href="/manifesto" className="underline underline-offset-4 hover:text-white" data-testid="button-about-manifesto">
+          <p className="mt-5 text-sm text-muted-foreground">
+            <Link href="/manifesto" className="underline underline-offset-4 hover:text-primary" data-testid="button-about-manifesto">
               Read the Spartan Ethos
             </Link>
           </p>

@@ -55,6 +55,25 @@
           keys.forEach(function(k) { caches.delete(k); });
         });
       }
+      // Apply saved theme before React boots so every page paints with user prefs
+      (function () {
+        try {
+          var root = document.documentElement;
+          var modeRaw = localStorage.getItem('spartan_theme');
+          var mode = 'dark';
+          if (modeRaw) {
+            try { var p = JSON.parse(modeRaw); if (p === 'light' || p === 'dark') mode = p; }
+            catch (e) { if (modeRaw === 'light' || modeRaw === 'dark') mode = modeRaw; }
+          }
+          if (mode === 'dark') root.classList.add('dark');
+          else root.classList.remove('dark');
+          var accent = localStorage.getItem('spartan_accent') || 'red';
+          var bg = localStorage.getItem('spartan_bg') || 'default';
+          root.dataset.themeMode = mode;
+          root.dataset.accent = accent;
+          root.dataset.bg = bg;
+        } catch (e) { /* private mode */ }
+      })();
     </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>

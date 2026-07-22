@@ -132,11 +132,11 @@ export default function Account() {
     <div className="w-full max-w-3xl mx-auto px-4 py-12 space-y-8" data-testid="page-account">
       <SEO />
       <div>
-        <p className="text-xs font-bold tracking-widest text-red-400 uppercase mb-2">Account</p>
+        <p className="text-xs font-bold tracking-widest text-primary uppercase mb-2">Account</p>
         <h1 className="text-h1 font-display font-black">Your access</h1>
       </div>
 
-      <Card className="border border-white/10 dark:bg-[#0c0c0c] p-6 space-y-4" data-testid="card-membership-status">
+      <Card className="border border-border bg-card p-6 space-y-4" data-testid="card-membership-status">
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary">{statusLabel}</Badge>
           {canUseFieldKit ? (
@@ -226,7 +226,7 @@ export default function Account() {
       </Card>
 
       {member.role === "org_admin" && organization?.type === "company" && (
-        <Card className="border border-white/10 dark:bg-[#0c0c0c] p-6 space-y-6">
+        <Card className="border border-border bg-card p-6 space-y-6">
           <div>
             <h2 className="text-lg font-bold">Team seats</h2>
             <p className="text-sm text-muted-foreground mt-1">
@@ -237,7 +237,7 @@ export default function Account() {
 
           <ul className="space-y-2 text-sm">
             {members.map((m) => (
-              <li key={m.id} className="flex flex-wrap justify-between gap-2 border-b border-white/5 pb-2 items-center">
+              <li key={m.id} className="flex flex-wrap justify-between gap-2 border-b border-border/60 pb-2 items-center">
                 <span>
                   <span className="font-medium">{m.name}</span>
                   <span className="text-muted-foreground"> · {m.email}</span>
@@ -312,7 +312,7 @@ export default function Account() {
         </Card>
       )}
 
-      <Card className="border border-white/10 dark:bg-[#0c0c0c] p-6 space-y-4">
+      <Card className="border border-border bg-card p-6 space-y-4">
         <h2 className="text-lg font-bold">Sessions &amp; security</h2>
         <p className="text-sm text-muted-foreground">
           Sessions last up to 14 days. Changing your password signs out other devices automatically.
@@ -340,7 +340,7 @@ export default function Account() {
         </Button>
       </Card>
 
-      <Card className="border border-white/10 dark:bg-[#0c0c0c] p-6 space-y-4">
+      <Card className="border border-border bg-card p-6 space-y-4">
         <h2 className="text-lg font-bold">Change password</h2>
         <form
           className="grid sm:grid-cols-2 gap-3"
@@ -394,7 +394,7 @@ export default function Account() {
       </Card>
 
       {member.role === "org_admin" && usage && (
-        <Card className="border border-white/10 dark:bg-[#0c0c0c] p-6 space-y-4" data-testid="org-usage">
+        <Card className="border border-border bg-card p-6 space-y-4" data-testid="org-usage">
           <div>
             <h2 className="text-lg font-bold">Team usage (last {usage.days} days)</h2>
             <p className="text-sm text-muted-foreground mt-1">
@@ -409,7 +409,7 @@ export default function Account() {
                 <p className="font-semibold mb-2">By tool</p>
                 <ul className="space-y-1">
                   {usage.byTool.slice(0, 8).map((t) => (
-                    <li key={t.toolName} className="flex justify-between gap-2 border-b border-white/5 pb-1">
+                    <li key={t.toolName} className="flex justify-between gap-2 border-b border-border/60 pb-1">
                       <span className="text-muted-foreground truncate">{t.toolName}</span>
                       <span className="font-semibold">{t.count}</span>
                     </li>
@@ -420,7 +420,7 @@ export default function Account() {
                 <p className="font-semibold mb-2">By member</p>
                 <ul className="space-y-1">
                   {usage.byMember.slice(0, 8).map((m) => (
-                    <li key={m.email} className="flex justify-between gap-2 border-b border-white/5 pb-1">
+                    <li key={m.email} className="flex justify-between gap-2 border-b border-border/60 pb-1">
                       <span className="text-muted-foreground truncate">{m.email}</span>
                       <span className="font-semibold">{m.count}</span>
                     </li>

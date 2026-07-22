@@ -332,13 +332,13 @@ body {
     -webkit-tap-highlight-color: transparent;
   }
 
-  /* Dark-authority form element overrides */
+  /* Form elements follow theme surface tokens (not hard-coded black) */
   .dark input:not([type="checkbox"]):not([type="radio"]),
   .dark textarea,
   .dark [data-radix-select-trigger] {
-    background-color: #0a0a0a;
-    border-color: rgba(255, 255, 255, 0.1);
-    color: rgba(255, 255, 255, 0.9);
+    background-color: hsl(var(--card));
+    border-color: hsl(var(--border));
+    color: hsl(var(--foreground));
   }
 
   .dark input:not([type="checkbox"]):not([type="radio"]):focus,
@@ -351,7 +351,7 @@ body {
 
   .dark input::placeholder,
   .dark textarea::placeholder {
-    color: rgba(255, 255, 255, 0.25);
+    color: hsl(var(--muted-foreground) / 0.7);
   }
 }
 
@@ -1001,65 +1001,50 @@ body {
   }
 
   /*
-   * Hybrid persuasion surface — long hire pages get a soft light paper
-   * band even when the global theme is dark (better conversion readability).
-   * User-chosen backgrounds still tint via CSS variables on children that
-   * use semantic tokens; the shell itself locks a high-contrast paper look.
+   * Page shells always follow user theme tokens (mode + background + accent).
+   * Soft primary wash for depth; no hard-coded paper/black that fights prefs.
    */
-  .page-persuasion {
-    --persuasion-bg: 40 28% 98%;
-    --persuasion-fg: 0 0% 8%;
-    --persuasion-muted: 25 8% 38%;
-    --persuasion-card: 0 0% 100%;
-    --persuasion-border: 30 12% 88%;
+  .page-persuasion,
+  .surface-page {
     background:
-      radial-gradient(ellipse 80% 50% at 50% -10%, hsl(var(--primary) / 0.06), transparent 55%),
-      hsl(var(--persuasion-bg));
-    color: hsl(var(--persuasion-fg));
-  }
-
-  .page-persuasion .text-foreground {
-    color: hsl(var(--persuasion-fg));
-  }
-  .page-persuasion .text-muted-foreground {
-    color: hsl(var(--persuasion-muted));
-  }
-  .page-persuasion [class*="bg-card"],
-  .page-persuasion .bg-card {
-    background-color: hsl(var(--persuasion-card));
-  }
-  .page-persuasion .border-border,
-  .page-persuasion [data-slot="card"] {
-    border-color: hsl(var(--persuasion-border));
-  }
-
-  /* When user picks a non-default background, keep persuasion on semantic tokens
-     so their chosen surface color shows through instead of forced paper. */
-  html[data-bg]:not([data-bg="default"]) .page-persuasion {
-    background: hsl(var(--background));
-    color: hsl(var(--foreground));
-  }
-  html[data-bg]:not([data-bg="default"]) .page-persuasion .text-foreground {
-    color: hsl(var(--foreground));
-  }
-  html[data-bg]:not([data-bg="default"]) .page-persuasion .text-muted-foreground {
-    color: hsl(var(--muted-foreground));
-  }
-  html[data-bg]:not([data-bg="default"]) .page-persuasion [class*="bg-card"],
-  html[data-bg]:not([data-bg="default"]) .page-persuasion .bg-card {
-    background-color: hsl(var(--card));
-  }
-
-  /* Light mode: persuasion blends with soft white site background */
-  html:not(.dark) .page-persuasion {
-    --persuasion-bg: 0 0% 100%;
-    --persuasion-fg: 0 0% 8%;
-    --persuasion-muted: 0 0% 40%;
-    --persuasion-card: 0 0% 100%;
-    --persuasion-border: 0 0% 90%;
-    background:
-      radial-gradient(ellipse 80% 50% at 50% -10%, hsl(var(--primary) / 0.05), transparent 55%),
+      radial-gradient(ellipse 80% 50% at 50% -10%, hsl(var(--primary) / 0.07), transparent 55%),
       hsl(var(--background));
+    color: hsl(var(--foreground));
+  }
+
+  /* Elevated cards / panels */
+  .surface-card {
+    background-color: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+    border-color: hsl(var(--border));
+  }
+
+  /* Alternate section band (still themed) */
+  .surface-band {
+    background-color: hsl(var(--muted));
+    color: hsl(var(--foreground));
+  }
+
+  /* High-contrast CTA band — inverts with theme, not pure black */
+  .surface-cta {
+    background:
+      radial-gradient(ellipse 70% 80% at 50% 0%, hsl(var(--primary) / 0.22), transparent 55%),
+      hsl(var(--foreground));
+    color: hsl(var(--background));
+  }
+  .surface-cta .text-muted-foreground,
+  .surface-cta .text-white\/70,
+  .surface-cta .text-white\/75,
+  .surface-cta .text-white\/80,
+  .surface-cta .text-white\/55 {
+    color: hsl(var(--background) / 0.75) !important;
+  }
+
+  /* Sticky chrome (header/footer) */
+  .surface-chrome {
+    background-color: hsl(var(--background) / 0.92);
+    border-color: hsl(var(--border));
+    color: hsl(var(--foreground));
   }
 
   /* Hover card lift — reusable card micro-interaction */

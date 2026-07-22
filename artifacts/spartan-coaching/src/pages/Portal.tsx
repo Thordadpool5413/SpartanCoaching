@@ -282,7 +282,7 @@ export default function Portal() {
 
       {/* Welcome */}
       <div className="mb-6 space-y-3">
-        <p className="text-xs font-bold tracking-widest text-red-400 uppercase">Field Kit home</p>
+        <p className="text-xs font-bold tracking-widest text-primary uppercase">Field Kit home</p>
         <h1 className="text-h1 font-display font-black text-foreground">
           {isFirstSession
             ? `Let's make this session count${firstName ? `, ${firstName}` : ""}`
@@ -323,7 +323,7 @@ export default function Portal() {
               <Sparkles className="w-5 h-5" />
             </div>
             <div>
-              <p className="text-xs font-bold tracking-widest text-red-400 uppercase mb-1">
+              <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">
                 First session — do these three
               </p>
               <h2 className="text-lg sm:text-xl font-bold text-foreground">
@@ -396,7 +396,7 @@ export default function Portal() {
                   ? "border-primary bg-background/80 shadow-lg shadow-primary/10"
                   : !needsRole && (doneCount > 0 || !nextItem)
                     ? "border-green-500/30 bg-green-500/5"
-                    : "border-white/10 bg-background/40 opacity-90",
+                    : "border-border bg-background/40 opacity-90",
               )}
               data-testid="first-step-tool"
             >
@@ -438,7 +438,7 @@ export default function Portal() {
                 "rounded-xl border p-4 space-y-3",
                 isDone(checklist, "debrief")
                   ? "border-green-500/30 bg-green-500/5"
-                  : "border-white/10 bg-background/40",
+                  : "border-border bg-background/40",
               )}
               data-testid="first-step-debrief"
             >
@@ -502,7 +502,7 @@ export default function Portal() {
           data-testid="section-next-up"
         >
           <div className="space-y-1">
-            <p className="text-xs font-bold tracking-widest text-red-400 uppercase">Next up</p>
+            <p className="text-xs font-bold tracking-widest text-primary uppercase">Next up</p>
             <h2 className="text-lg font-bold text-foreground">{nextItem.title}</h2>
             <p className="text-sm text-muted-foreground">{nextItem.desc}</p>
           </div>
@@ -528,7 +528,7 @@ export default function Portal() {
       {/* Role + start here (compact when past first session) */}
       {!needsRole && (
         <section className="grid lg:grid-cols-5 gap-4 mb-10">
-          <Card className="lg:col-span-2 border border-white/10 dark:bg-[#0f0f0f] p-5 space-y-3">
+          <Card className="lg:col-span-2 border border-border bg-card p-5 space-y-3">
             <div className="flex items-center gap-2">
               <Flame className="w-5 h-5 text-primary" />
               <h2 className="font-bold">Your role</h2>
@@ -549,7 +549,7 @@ export default function Portal() {
           </Card>
 
           <Card className="lg:col-span-3 border border-primary/30 bg-primary/5 p-5 space-y-3">
-            <p className="text-xs font-bold tracking-widest text-red-400 uppercase">Recommended move</p>
+            <p className="text-xs font-bold tracking-widest text-primary uppercase">Recommended move</p>
             <h2 className="text-xl font-bold text-foreground">{startHere.title}</h2>
             <p className="text-sm text-muted-foreground leading-relaxed">{startHere.blurb}</p>
             <Button asChild className="font-bold w-fit">
@@ -571,7 +571,7 @@ export default function Portal() {
               return (
                 <Card
                   key={item.id}
-                  className="border border-white/10 dark:bg-[#0f0f0f] p-4 flex flex-col gap-2"
+                  className="border border-border bg-card p-4 flex flex-col gap-2"
                 >
                   <span className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
                     Focus {idx + 1}
@@ -613,7 +613,7 @@ export default function Portal() {
           ].map((item) => (
             <Card
               key={item.href}
-              className="border border-white/10 dark:bg-[#0f0f0f] p-4 hover:border-primary/30 transition-colors"
+              className="border border-border bg-card p-4 hover:border-primary/30 transition-colors"
             >
               <Link href={item.href} className="block space-y-1">
                 <p className="font-bold text-sm text-foreground">{item.title}</p>
@@ -654,12 +654,12 @@ export default function Portal() {
               <Card
                 key={item.id}
                 className={cn(
-                  "border p-4 dark:bg-[#0f0f0f]",
+                  "border p-4 bg-card",
                   done
                     ? "border-green-500/30 bg-green-500/5"
                     : isNext
                       ? "border-primary/40 bg-primary/5"
-                      : "border-white/10",
+                      : "border-border",
                 )}
                 data-testid={`checklist-${item.id}`}
               >
@@ -704,7 +704,7 @@ export default function Portal() {
 
       {/* Optional field context — collapsed by default */}
       <section className="mb-12">
-        <Card className="border border-white/10 dark:bg-[#0f0f0f] overflow-hidden">
+        <Card className="border border-border bg-card overflow-hidden">
           <button
             type="button"
             className="w-full flex items-center justify-between gap-3 p-5 text-left hover:bg-white/[0.02] transition-colors"
@@ -724,7 +724,7 @@ export default function Portal() {
             )}
           </button>
           {contextOpen && (
-            <div className="px-5 pb-5 space-y-4 border-t border-white/5 pt-4">
+            <div className="px-5 pb-5 space-y-4 border-t border-border/60 pt-4">
               <div className="grid sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="territory">Territory / market notes</Label>
@@ -758,7 +758,7 @@ export default function Portal() {
       </section>
 
       <section className="grid sm:grid-cols-3 gap-4 mb-12">
-        <Card className="border border-white/10 dark:bg-[#0f0f0f] p-5 space-y-3">
+        <Card className="border border-border bg-card p-5 space-y-3">
           <Shield className="w-5 h-5 text-primary" />
           <h3 className="font-bold">Full Field Kit</h3>
           <p className="text-sm text-muted-foreground">AI tools, calculators, drills, and practice scenarios.</p>
@@ -768,7 +768,7 @@ export default function Portal() {
             </Link>
           </Button>
         </Card>
-        <Card className="border border-white/10 dark:bg-[#0f0f0f] p-5 space-y-3">
+        <Card className="border border-border bg-card p-5 space-y-3">
           <BookOpen className="w-5 h-5 text-primary" />
           <h3 className="font-bold">Learn</h3>
           <p className="text-sm text-muted-foreground">Articles, method, and resources that back the work.</p>
@@ -778,7 +778,7 @@ export default function Portal() {
             </Link>
           </Button>
         </Card>
-        <Card className="border border-white/10 dark:bg-[#0f0f0f] p-5 space-y-3">
+        <Card className="border border-border bg-card p-5 space-y-3">
           <Phone className="w-5 h-5 text-primary" />
           <h3 className="font-bold">Coaching</h3>
           <p className="text-sm text-muted-foreground">Human path stays open — strategy calls and engagements.</p>
@@ -788,7 +788,7 @@ export default function Portal() {
         </Card>
       </section>
 
-      <ToolDisclaimer className="mt-8 rounded-md border border-white/5 bg-black/20 py-3 px-4 text-center" />
+      <ToolDisclaimer className="mt-8 rounded-md border border-border/60 bg-muted/40 py-3 px-4 text-center" />
     </div>
   );
 }

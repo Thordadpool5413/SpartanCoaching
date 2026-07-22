@@ -74,7 +74,7 @@ export function FieldKitGate({ compact }: Props) {
       className={compact ? "py-8" : "min-h-[60vh] flex items-center justify-center px-4 py-16"}
       data-testid="field-kit-gate"
     >
-      <Card className="w-full max-w-2xl border border-white/10 dark:bg-[#0c0c0c] p-8 sm:p-10 space-y-8">
+      <Card className="w-full max-w-2xl border border-border bg-card p-8 sm:p-10 space-y-8">
         <div className="space-y-4 text-center">
           <div className="mx-auto w-12 h-12 rounded-full bg-primary/15 text-primary flex items-center justify-center">
             <Lock className="w-6 h-6" />
@@ -89,7 +89,7 @@ export function FieldKitGate({ compact }: Props) {
             { label: "Practice", desc: "Objections, role-play, drills" },
             { label: "Plan & measure", desc: "Weekly plans, calculators" },
           ].map((c) => (
-            <div key={c.label} className="border border-white/8 rounded-md p-3">
+            <div key={c.label} className="border border-border rounded-md p-3">
               <p className="text-sm font-bold text-foreground">{c.label}</p>
               <p className="text-xs text-muted-foreground mt-1">{c.desc}</p>
             </div>
@@ -135,7 +135,7 @@ export function FieldKitGate({ compact }: Props) {
               { t: "2. Decide seats", d: "Individual, team, or enterprise + coaching." },
               { t: "3. Activate", d: "We turn access on and invoice offline." },
             ].map((s) => (
-              <div key={s.t} className="border border-white/8 rounded-md p-3">
+              <div key={s.t} className="border border-border rounded-md p-3">
                 <p className="font-bold text-foreground mb-1">{s.t}</p>
                 <p className="text-xs text-muted-foreground leading-relaxed">{s.d}</p>
               </div>
@@ -144,7 +144,7 @@ export function FieldKitGate({ compact }: Props) {
         )}
 
         {expired && isAuthenticated && (
-          <div className="border border-white/10 rounded-md p-4 space-y-3 text-left">
+          <div className="border border-border rounded-md p-4 space-y-3 text-left">
             <p className="text-sm font-semibold text-foreground">Or request extended evaluation</p>
             {extSent ? (
               <p className="text-sm text-muted-foreground">

@@ -7,7 +7,7 @@ import { FadeIn, SlideUpFade, StaggerContainer, StaggerItem } from "@/components
 
 function PullQuote({ children }: { children: React.ReactNode }) {
   return (
-    <section className="relative bg-[#030303] overflow-hidden min-h-screen flex items-center justify-center">
+    <section className="relative bg-background overflow-hidden min-h-screen flex items-center justify-center">
       <div className="absolute inset-0 bg-spartan-gradient-radial opacity-15 pointer-events-none" />
       <div className="authority-separator absolute top-0 left-0 w-full" />
       <div className="authority-separator absolute bottom-0 left-0 w-full" />
@@ -36,7 +36,7 @@ interface PillarProps {
 
 function Pillar({ number, label, title, Icon, dark = false, children }: PillarProps) {
   return (
-    <section className={dark ? "relative bg-[#060606] py-20 sm:py-28 overflow-hidden" : "relative py-20 sm:py-28 overflow-hidden"}>
+    <section className={dark ? "relative bg-background py-20 sm:py-28 overflow-hidden" : "relative py-20 sm:py-28 overflow-hidden"}>
       <div className="absolute inset-0 select-none pointer-events-none overflow-hidden" aria-hidden>
         <span
           className="absolute -right-8 top-1/2 -translate-y-1/2 font-display font-black leading-none text-white/[0.025]"
@@ -74,7 +74,7 @@ export default function Manifesto() {
       <SEO />
 
       {/* Hero — full viewport, stamp watermark, massive headline */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center bg-[#050505] overflow-hidden">
+      <section className="relative min-h-screen flex flex-col items-center justify-center bg-background overflow-hidden">
         <div className="absolute inset-0 bg-spartan-gradient-radial opacity-20 pointer-events-none" />
         <img
           src="/spartan-logo-stamp.png"
@@ -164,7 +164,7 @@ export default function Manifesto() {
             Discipline is the system that holds when caring is not enough. It is simple enough to run when the week is hard, and specific enough to produce results when the week is not.
           </p>
         </div>
-        <div className="border border-white/8 dark:bg-[#0d0d0d] bg-muted/40 rounded-sm p-6">
+        <div className="border border-border bg-card bg-muted/40 rounded-sm p-6">
           <h3 className="text-sm font-bold text-primary uppercase tracking-wider mb-5">What discipline looks like on Tuesday at 2pm</h3>
           <ul className="space-y-3">
             {[
@@ -198,7 +198,7 @@ export default function Manifesto() {
             { label: "Sympathy", description: "Feeling moved by someone's difficulty from a distance", note: "Closes conversations", muted: true },
             { label: "Spartan Empathy", description: "Clinical fluency plus the skill of asking what is actually in the way", note: "Opens conversations", muted: false },
           ].map((item, i) => (
-            <div key={i} className={`border rounded-sm p-5 ${i === 1 ? "border-primary/30 bg-primary/5" : "border-white/8 dark:bg-[#0d0d0d] bg-muted/40"}`}>
+            <div key={i} className={`border rounded-sm p-5 ${i === 1 ? "border-primary/30 bg-primary/5" : "border-border bg-card bg-muted/40"}`}>
               <p className={`text-xs font-bold uppercase tracking-wider mb-2 ${i === 1 ? "text-primary" : "text-muted-foreground"}`}>{item.label}</p>
               <p className="text-body text-foreground leading-relaxed mb-2">{item.description}</p>
               <p className="text-xs text-muted-foreground italic">{item.note}</p>
@@ -225,7 +225,7 @@ export default function Manifesto() {
       </PullQuote>
 
       {/* The Stakes */}
-      <section className="relative bg-[#060606] py-20 sm:py-28">
+      <section className="relative bg-background py-20 sm:py-28">
         <div className="max-w-4xl mx-auto px-6 sm:px-8">
           <SlideUpFade>
             <div className="border-l-4 border-primary pl-6 mb-10">
@@ -253,7 +253,7 @@ export default function Manifesto() {
                 { Icon: Eye, heading: "For the clinical partner", body: "A patient is transitioned to the right level of care at the right time. The relationship with hospice grows stronger." },
               ].map(({ Icon, heading, body }, i) => (
                 <StaggerItem key={i}>
-                  <div className="border border-white/8 dark:bg-[#0d0d0d] bg-muted/40 rounded-sm p-6 h-full">
+                  <div className="border border-border bg-card bg-muted/40 rounded-sm p-6 h-full">
                     <div className="w-10 h-10 rounded-sm bg-primary/10 border border-primary/25 flex items-center justify-center mb-4">
                       <Icon className="w-5 h-5 text-primary" />
                     </div>
@@ -302,7 +302,7 @@ export default function Manifesto() {
                 { label: "With clinical partners", items: ["First question is about them, not about referrals", "Their workflow understood and respected", "Commitments kept without prompting", "Educational value delivered consistently"] },
                 { label: "With their own performance", items: ["Scorecard filled out honestly, even the bad weeks", "Patterns reviewed not just numbers reported", "Practice done before conversations, not after failures", "Coaching received as information, not judgment"] },
               ].map((group, i) => (
-                <div key={i} className="border border-white/8 dark:bg-[#0d0d0d] bg-muted/40 rounded-sm p-5">
+                <div key={i} className="border border-border bg-card bg-muted/40 rounded-sm p-5">
                   <h3 className="text-xs font-bold text-primary uppercase tracking-wider mb-4">{group.label}</h3>
                   <ul className="space-y-2">
                     {group.items.map((item, j) => (
@@ -320,7 +320,7 @@ export default function Manifesto() {
       </section>
 
       {/* Ethics */}
-      <section className="relative bg-[#060606] py-20 sm:py-28">
+      <section className="relative bg-background py-20 sm:py-28">
         <div className="max-w-4xl mx-auto px-6 sm:px-8">
           <SlideUpFade>
             <div className="border-l-4 border-primary pl-6 mb-10">
@@ -368,7 +368,7 @@ export default function Manifesto() {
       </section>
 
       {/* CTA */}
-      <section className="relative bg-[#050505] py-28 sm:py-36 overflow-hidden">
+      <section className="relative bg-background py-28 sm:py-36 overflow-hidden">
         <div className="absolute inset-0 bg-spartan-gradient-radial opacity-20 pointer-events-none" />
         <img src="/spartan-logo-stamp.png" alt="" aria-hidden className="absolute inset-0 w-full h-full object-contain opacity-[0.03] select-none pointer-events-none" />
         <FadeIn>

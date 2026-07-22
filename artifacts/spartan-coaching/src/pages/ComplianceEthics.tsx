@@ -216,21 +216,21 @@ export default function ComplianceEthics() {
           </FadeIn>
 
           <FadeIn>
-            <div className="bg-gray-950 rounded-3xl p-10 md:p-16 text-center mt-16">
-              <h2 className="text-h2 font-black text-white mb-4">
+            <div className="surface-band rounded-3xl p-10 md:p-16 text-center mt-16 text-foreground border border-border">
+              <h2 className="text-h2 font-black text-foreground mb-4">
                 Compliance Questions?
               </h2>
-              <p className="text-body-lg text-white/80 max-w-2xl mx-auto leading-relaxed mb-10">
+              <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-10">
                 Our team is available to answer questions about data handling, HIPAA compliance posture, or BAA requests. Reach out and we will respond within one business day.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                <Button size="lg" asChild className="font-bold shadow-lg bg-red-600 text-white border-red-600 gap-2" data-testid="button-compliance-contact">
+                <Button size="lg" asChild className="font-bold shadow-lg gap-2" data-testid="button-compliance-contact">
                   <Link href="/contact?service=HIPAA+BAA+Request">
                     <Mail className="w-5 h-5" />
                     Contact Us About Compliance
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" asChild className="font-bold glass border-white/30 text-white" data-testid="link-compliance-manifesto">
+                <Button size="lg" variant="outline" asChild className="font-bold border-2" data-testid="link-compliance-manifesto">
                   <Link href="/legal">View All Legal Agreements</Link>
                 </Button>
               </div>
