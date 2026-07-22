@@ -8,8 +8,8 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { Clock, Mail, Copy, Loader2, Send, Download, X } from "lucide-react";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
+import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { trackEvent } from "@/lib/analytics";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { downloadPdf, cleanMarkdown, type EmailPdfPayload } from "@/lib/downloadPdf";
@@ -216,10 +216,8 @@ export default function EmailTemplates() {
   };
 
   return (
-    <div className="container mx-auto px-4 sm:px-6 py-8 sm:py-12">
+    <FieldKitToolLayout toolPath="/tools/email-templates" className="max-w-4xl">
       <SEO />
-      <div className="max-w-4xl mx-auto">
-        <Breadcrumbs items={[{ label: "Field Kit", href: "/portal" }, { label: "Tools", href: "/tools" }, { label: "Email Templates" }]} />
         <div className="mb-8">
           <h1 className="text-h1 font-black mb-6">Email Templates</h1>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
@@ -421,12 +419,11 @@ export default function EmailTemplates() {
             </CardContent>
           </Card>
         </div>
-      </div>
 
       {generatedTemplate && (
         <CoachingCTA className="mt-6" />
       )}
       <LeadGateDialog gateState={gateState} />
-    </div>
+    </FieldKitToolLayout>
   );
 }

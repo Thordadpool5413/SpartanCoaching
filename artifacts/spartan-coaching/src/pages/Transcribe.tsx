@@ -3,8 +3,8 @@ import { Card } from "@/components/ui/card";
 import { CoachingCTA } from "@/components/CoachingCTA";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
+import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { trackEvent } from "@/lib/analytics";
 import { Mic, MicOff, Upload, Copy, Download, Loader2, Sparkles } from "lucide-react";
@@ -144,9 +144,8 @@ export default function Transcribe() {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
+    <FieldKitToolLayout toolPath="/tools/transcribe">
       <SEO />
-      <Breadcrumbs items={[{ label: "Field Kit", href: "/portal" }, { label: "Tools", href: "/tools" }, { label: "Transcribe" }]} />
       <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-transcribe-title">
         Call Transcriber
       </h1>
@@ -344,6 +343,6 @@ export default function Transcribe() {
         </Card>
       )}
       <LeadGateDialog gateState={gateState} />
-    </div>
+    </FieldKitToolLayout>
   );
 }

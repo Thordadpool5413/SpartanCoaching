@@ -4,14 +4,12 @@ import { Button } from "@/components/ui/button";
 import { CoachingCTA } from "@/components/CoachingCTA";
 import { LightbulbIcon, SpeakerIcon, SpinnerIcon } from "@/components/icons";
 import { Copy } from "lucide-react";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { useToast } from "@/hooks/use-toast";
 import { ReminderPicker } from "@/components/ReminderPicker";
-import { ToolHowTo } from "@/components/ToolHowTo";
-import { FieldKitChrome } from "@/components/FieldKitChrome";
+import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { markFieldKitChecklistDone } from "@/lib/fieldKitProgress";
 
 export default function Objections() {
@@ -108,11 +106,8 @@ export default function Objections() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
+    <FieldKitToolLayout toolPath="/tools/objections">
       <SEO />
-      <FieldKitChrome />
-      <Breadcrumbs items={[{ label: "Field Kit", href: "/portal" }, { label: "Tools", href: "/tools" }, { label: "Objection Handler" }]} />
-      <ToolHowTo path="/tools/objections" />
       <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-objections-title">
         Objection Handler
       </h1>
@@ -187,6 +182,6 @@ export default function Objections() {
       {Object.keys(aiResponses).length > 0 && (
         <CoachingCTA className="mt-6" />
       )}
-    </div>
+    </FieldKitToolLayout>
   );
 }

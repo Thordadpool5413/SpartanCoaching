@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
+import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { FadeIn, SlideUp } from "@/components/animations";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
 import { useLeadGate } from "@/hooks/use-lead-gate";
@@ -197,15 +198,7 @@ export default function RepCostCalculator() {
         keywords="hospice sales cost calculator, cost per referral, cost per admission, hospice rep commission"
       />
 
-      <section className="screen-only max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
-        <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-8 flex-wrap" aria-label="Breadcrumb navigation">
-          <Link href="/" className="flex items-center gap-1 hover:text-foreground transition-colors"><Home className="w-4 h-4" /> Home</Link>
-          <ChevronRight className="w-4 h-4" />
-          <Link href="/tools" className="hover:text-foreground transition-colors">Tools</Link>
-          <ChevronRight className="w-4 h-4" />
-          <span className="text-foreground font-medium">Rep Cost Calculator</span>
-        </nav>
-
+      <FieldKitToolLayout toolPath="/tools/rep-cost-calculator" className="screen-only py-10 sm:py-16">
         <SlideUp>
           <div className="max-w-4xl mb-10 sm:mb-14">
             <div className="flex items-center gap-4 mb-5">
@@ -317,7 +310,7 @@ export default function RepCostCalculator() {
             </CardContent></Card></FadeIn>
           </main>
         </div>
-      </section>
+      </FieldKitToolLayout>
 
       <section className="print-report" aria-label="Printable Hospice Rep Cost Calculator report">
         <div className="print-header"><img src="/hospice-sales-moneyball-logo.png" alt="Hospice Sales Moneyball" /><div><p>Spartan Coaching | Hospice Sales Intelligence</p><h1>Hospice Rep Cost Calculator Report</h1></div><span>Generated {new Date().toLocaleDateString()}</span></div>

@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
+import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { FadeIn, SlideUp } from "@/components/animations";
 import { Calculator, TrendingUp, DollarSign, Users, ArrowRight, Home, ChevronRight, Printer } from "lucide-react";
 import { useLeadGate } from "@/hooks/use-lead-gate";
@@ -62,20 +63,7 @@ export default function ROICalculator() {
         keywords="ROI calculator, hospice ROI, sales coaching ROI, revenue calculator, hospice revenue growth"
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
-        <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-8 flex-wrap" data-testid="breadcrumb-roi" aria-label="Breadcrumb navigation">
-          <Link href="/" className="flex items-center gap-1 hover:text-foreground transition-colors" aria-label="Go to home page">
-            <Home className="w-4 h-4" />
-            <span>Home</span>
-          </Link>
-          <ChevronRight className="w-4 h-4" />
-          <Link href="/tools" className="hover:text-foreground transition-colors" aria-label="Go to tools page">
-            Tools
-          </Link>
-          <ChevronRight className="w-4 h-4" />
-          <span className="text-foreground font-medium">ROI Calculator</span>
-        </nav>
-
+      <FieldKitToolLayout toolPath="/tools/roi-calculator" className="py-10 sm:py-16">
         <SlideUp>
           <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
             <div className="flex justify-center mb-6">
@@ -318,7 +306,7 @@ export default function ROICalculator() {
             </div>
           </FadeIn>
         </div>
-      </div>
+      </FieldKitToolLayout>
 
       <style>{`
         @media print {

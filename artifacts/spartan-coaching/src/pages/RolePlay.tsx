@@ -6,8 +6,9 @@ import { CoachingCTA } from "@/components/CoachingCTA";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
+import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
+import { markFieldKitChecklistDone } from "@/lib/fieldKitProgress";
 import { useToast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
 import { MarkdownContent } from "@/components/MarkdownContent";
@@ -176,6 +177,7 @@ export default function RolePlay() {
       const data = await response.json();
       setFeedback({ text: data.feedback, rating: data.rating });
       setSessionStatus("feedback");
+      void markFieldKitChecklistDone("roleplay");
     } catch (err: any) {
       toast({ title: "Error", description: err.message || "Failed to get feedback", variant: "destructive" });
       setSessionStatus("active");
@@ -259,9 +261,8 @@ export default function RolePlay() {
 
   if (sessionStatus === "selecting") {
     return (
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
+      <FieldKitToolLayout toolPath="/tools/role-play">
         <SEO />
-        <Breadcrumbs items={[{ label: "Field Kit", href: "/portal" }, { label: "Tools", href: "/tools" }, { label: "Role-Play Practice" }]} />
         <SlideUp>
           <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-roleplay-title">
             Role-Play Practice
@@ -402,7 +403,7 @@ export default function RolePlay() {
           </StaggerItem>
         </StaggerContainer>
       <LeadGateDialog gateState={gateState} />
-      </div>
+      </FieldKitToolLayout>
     );
   }
 
@@ -412,9 +413,8 @@ export default function RolePlay() {
     const feedbackSections = parseFeedbackSections(feedback?.text || "");
 
     return (
-      <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
+      <FieldKitToolLayout toolPath="/tools/role-play" className="max-w-3xl">
         <SEO />
-        <Breadcrumbs items={[{ label: "Field Kit", href: "/portal" }, { label: "Tools", href: "/tools" }, { label: "Role-Play Practice" }]} />
 
         <FadeIn>
           <Card className="spacing-card" data-testid="card-feedback">
@@ -548,14 +548,13 @@ export default function RolePlay() {
           </Card>
         </FadeIn>
       <LeadGateDialog gateState={gateState} />
-      </div>
+      </FieldKitToolLayout>
     );
   }
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-16 flex flex-col" style={{ minHeight: "80vh" }}>
+    <FieldKitToolLayout toolPath="/tools/role-play" className="max-w-4xl flex flex-col" >
       <SEO />
-      <Breadcrumbs items={[{ label: "Field Kit", href: "/portal" }, { label: "Tools", href: "/tools" }, { label: "Role-Play Practice" }]} />
 
       <Card className="mb-4 spacing-card" data-testid="display-conversation-header">
         <div className="flex items-center justify-between gap-3 flex-wrap">
@@ -684,7 +683,7 @@ export default function RolePlay() {
         </div>
       </Card>
       <LeadGateDialog gateState={gateState} />
-    </div>
+    </FieldKitToolLayout>
   );
 }
 

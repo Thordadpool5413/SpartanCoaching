@@ -1,6 +1,21 @@
 import { Card } from "@/components/ui/card";
 import { LightbulbIcon, SearchIcon as CustomSearchIcon, ChatIcon, MicrophoneIcon } from "@/components/icons";
-import { Mail, Users, Search, ArrowRight, Calculator, DollarSign, TrendingUp, Building, Phone, CalendarDays, Video, Lock, LogIn, KeyRound } from "lucide-react";
+import {
+  Mail,
+  Users,
+  Search,
+  ArrowRight,
+  Calculator,
+  DollarSign,
+  TrendingUp,
+  Building,
+  Phone,
+  CalendarDays,
+  Video,
+  Lock,
+  LogIn,
+  KeyRound,
+} from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/BackButton";
@@ -8,106 +23,33 @@ import { SEO } from "@/components/SEO";
 import { SlideUp, StaggerContainer, StaggerItem } from "@/components/animations";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import { FieldKitChrome } from "@/components/FieldKitChrome";
-import { FIELD_KIT_WHAT, FIELD_KIT_HOW } from "@/lib/fieldKitCatalog";
+import {
+  FIELD_KIT_WHAT,
+  FIELD_KIT_HOW,
+  FIELD_KIT_TOOLS,
+  FIELD_KIT_CATEGORIES,
+  type FieldKitTool,
+} from "@/lib/fieldKitCatalog";
 
-const tools = [
-  {
-    title: "Playbook Generator",
-    description: "Custom strategic playbooks for any sales scenario — talking points and next steps.",
-    icon: <LightbulbIcon className="w-8 h-8" />,
-    path: "/tools/playbooks",
-    category: "Prepare",
-  },
-  {
-    title: "Objection Handler",
-    description: "Field-ready responses to hospice objections you hear this week.",
-    icon: <ChatIcon className="w-8 h-8" />,
-    path: "/tools/objections",
-    category: "Practice",
-  },
-  {
-    title: "Grounded Research",
-    description: "Territory and market questions with credible sources.",
-    icon: <CustomSearchIcon className="w-8 h-8" />,
-    path: "/tools/research",
-    category: "Prepare",
-  },
-  {
-    title: "Call Transcriber",
-    description: "Transcribe and review calls for coaching moments.",
-    icon: <MicrophoneIcon className="w-8 h-8" />,
-    path: "/tools/transcribe",
-    category: "Practice",
-  },
-  {
-    title: "Email Templates",
-    description: "Follow-ups, thank-yous, and value-adds that stay professional.",
-    icon: <Mail className="w-8 h-8" />,
-    path: "/tools/email-templates",
-    category: "Prepare",
-  },
-  {
-    title: "Role-Play Practice",
-    description: "Simulate physician and family conversations with feedback.",
-    icon: <Users className="w-8 h-8" />,
-    path: "/tools/role-play",
-    category: "Practice",
-  },
-  {
-    title: "Activity Calculator",
-    description: "Turn admission goals into daily conversation targets.",
-    icon: <Calculator className="w-8 h-8" />,
-    path: "/tools/activity-calculator",
-    category: "Measure",
-  },
-  {
-    title: "Rep Cost Calculator",
-    description: "Fully loaded cost per call, referral, and admission.",
-    icon: <DollarSign className="w-8 h-8" />,
-    path: "/tools/rep-cost-calculator",
-    category: "Measure",
-  },
-  {
-    title: "ROI Calculator",
-    description: "Estimate coaching impact on revenue and conversion.",
-    icon: <TrendingUp className="w-8 h-8" />,
-    path: "/tools/roi-calculator",
-    category: "Measure",
-  },
-  {
-    title: "Branch Profitability Simulator",
-    description: "Break-even ADC, staffing, and cash runway for your branch.",
-    icon: <Building className="w-8 h-8" />,
-    path: "/tools/branch-profitability",
-    category: "Measure",
-  },
-  {
-    title: "Cold Call Script Generator",
-    description: "Openers, objection handlers, and a clear next-step ask.",
-    icon: <Phone className="w-8 h-8" />,
-    path: "/tools/cold-call-script",
-    category: "Prepare",
-  },
-  {
-    title: "Weekly Plan Builder",
-    description: "Monday–Friday territory plan with win conditions.",
-    icon: <CalendarDays className="w-8 h-8" />,
-    path: "/tools/weekly-plan-builder",
-    category: "Plan",
-  },
-  {
-    title: "Brand Video",
-    description: "Share the Spartan brand video with prospects — public link.",
-    icon: <Video className="w-8 h-8" />,
-    path: "/brand-video",
-    category: "Outreach",
-    public: true,
-  },
-];
+const TOOL_ICONS: Record<string, ReactNode> = {
+  playbooks: <LightbulbIcon className="w-8 h-8" />,
+  objections: <ChatIcon className="w-8 h-8" />,
+  research: <CustomSearchIcon className="w-8 h-8" />,
+  transcribe: <MicrophoneIcon className="w-8 h-8" />,
+  "email-templates": <Mail className="w-8 h-8" />,
+  "role-play": <Users className="w-8 h-8" />,
+  "activity-calculator": <Calculator className="w-8 h-8" />,
+  "rep-cost": <DollarSign className="w-8 h-8" />,
+  roi: <TrendingUp className="w-8 h-8" />,
+  branch: <Building className="w-8 h-8" />,
+  "cold-call": <Phone className="w-8 h-8" />,
+  "weekly-plan": <CalendarDays className="w-8 h-8" />,
+  "brand-video": <Video className="w-8 h-8" />,
+};
 
 const SAMPLE_OBJECTION = {
   objection: "We're not ready for hospice yet.",
@@ -119,16 +61,77 @@ export default function Tools() {
   const [searchQuery, setSearchQuery] = useState("");
   const { canUseFieldKit, isAuthenticated, isLoading } = useAuth();
 
-  const filteredTools = tools.filter((tool) => {
-    const query = searchQuery.toLowerCase();
-    return (
-      tool.title.toLowerCase().includes(query) ||
-      tool.description.toLowerCase().includes(query) ||
-      tool.category.toLowerCase().includes(query)
-    );
-  });
+  const filteredTools = useMemo(() => {
+    const query = searchQuery.toLowerCase().trim();
+    return FIELD_KIT_TOOLS.filter((tool) => {
+      if (!query) return true;
+      return (
+        tool.title.toLowerCase().includes(query) ||
+        tool.description.toLowerCase().includes(query) ||
+        tool.category.toLowerCase().includes(query) ||
+        tool.whenToUse.toLowerCase().includes(query) ||
+        tool.why.toLowerCase().includes(query)
+      );
+    });
+  }, [searchQuery]);
 
   const showCatalogGate = !isLoading && !canUseFieldKit;
+
+  const byCategory = useMemo(() => {
+    const map = new Map<string, FieldKitTool[]>();
+    for (const cat of FIELD_KIT_CATEGORIES) {
+      const items = filteredTools.filter((t) => t.category === cat);
+      if (items.length) map.set(cat, items);
+    }
+    return map;
+  }, [filteredTools]);
+
+  const renderCard = (tool: FieldKitTool, idx: number) => {
+    const locked = showCatalogGate && !tool.public;
+    const href = locked ? "/request-access" : tool.path;
+    return (
+      <StaggerItem key={tool.path}>
+        <Card
+          className={cn(
+            "flex flex-col border-2 group relative spacing-card shadow-lg h-full",
+            locked && "opacity-95",
+          )}
+          data-testid={`card-tool-${tool.id}`}
+        >
+          <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500" />
+          <div className="relative flex-1 flex flex-col">
+            <div className="flex items-start justify-between gap-4 mb-4">
+              <div className="flex items-center gap-4">
+                <div className="p-3 rounded-lg bg-primary/10 text-primary">
+                  {TOOL_ICONS[tool.id] ?? <Calculator className="w-8 h-8" />}
+                </div>
+                <h3 className="text-h3 font-bold text-foreground">{tool.title}</h3>
+              </div>
+              {locked && <Lock className="w-4 h-4 text-muted-foreground shrink-0" />}
+            </div>
+            <div className="mb-3">
+              <Badge variant="secondary">{tool.category}</Badge>
+            </div>
+            <p className="text-body text-muted-foreground leading-relaxed mb-2">{tool.description}</p>
+            <p className="text-xs text-muted-foreground leading-relaxed flex-1 mb-6">
+              <span className="font-semibold text-foreground">When: </span>
+              {tool.whenToUse}
+            </p>
+            <Button asChild className="w-full font-bold touch-manipulation py-3 min-h-[44px]" size="lg">
+              <Link
+                href={href}
+                data-testid={`button-tool-${idx}`}
+                aria-label={locked ? `Request access for ${tool.title}` : `Launch ${tool.title}`}
+              >
+                {locked ? "Request access to use" : tool.public ? "Open" : "Launch tool"}
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Link>
+            </Button>
+          </div>
+        </Card>
+      </StaggerItem>
+    );
+  };
 
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
@@ -168,7 +171,8 @@ export default function Tools() {
                 <div>
                   <h2 className="text-lg font-bold text-foreground mb-1">Member access required</h2>
                   <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
-                    Request evaluation access for a timed window, or sign in if you are already a client. Prefer a human path? Book a strategy call anytime.
+                    Request evaluation access for a timed window, or sign in if you are already a client. Prefer a
+                    human path? Book a strategy call anytime.
                   </p>
                 </div>
               </div>
@@ -188,9 +192,6 @@ export default function Tools() {
                 <Button asChild variant="ghost" className="font-bold">
                   <Link href="/contact">Book a call</Link>
                 </Button>
-                <Button asChild variant="ghost" className="font-bold">
-                  <Link href="/field-kit-membership">Membership</Link>
-                </Button>
               </div>
             </div>
           </Card>
@@ -200,7 +201,9 @@ export default function Tools() {
       {showCatalogGate && (
         <SlideUp delay={0.08}>
           <Card className="mb-10 border border-border bg-card p-6" data-testid="tools-static-sample">
-            <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">Sample — Objection Handler</p>
+            <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">
+              Sample — Objection Handler
+            </p>
             <p className="text-sm text-muted-foreground mb-2">
               <span className="font-semibold text-foreground">Objection: </span>
               {SAMPLE_OBJECTION.objection}
@@ -209,7 +212,7 @@ export default function Tools() {
               {SAMPLE_OBJECTION.response}
             </p>
             <p className="text-xs text-muted-foreground mt-4">
-              Live AI tools unlock after approval. This is a static example only.
+              Live tools unlock after approval. This is a static example only.
             </p>
           </Card>
         </SlideUp>
@@ -221,7 +224,7 @@ export default function Tools() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
             <Input
               type="text"
-              placeholder="Search tools..."
+              placeholder="Search by name, when to use, or category..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               data-testid="input-tools-search"
@@ -229,54 +232,35 @@ export default function Tools() {
               aria-label="Search tools"
             />
           </div>
-          <p className="text-sm text-muted-foreground">
-            {filteredTools.length} tools
-          </p>
+          <p className="text-sm text-muted-foreground">{filteredTools.length} tools</p>
         </div>
       </SlideUp>
 
-      <StaggerContainer className="grid md:grid-cols-2 gap-cards">
-        {filteredTools.map((tool, idx) => {
-          const locked = showCatalogGate && !tool.public;
-          const href = locked ? "/request-access" : tool.path;
-          return (
-            <StaggerItem key={tool.path}>
-              <Card
-                className={cn(
-                  "flex flex-col border-2 group relative spacing-card shadow-lg",
-                  locked && "opacity-95",
-                )}
-                data-testid={`card-tool-${idx}`}
-              >
-                <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500" />
-                <div className="relative flex-1 flex flex-col">
-                  <div className="flex items-start justify-between gap-4 mb-4">
-                    <div className="flex items-center gap-4">
-                      <div className="p-3 rounded-lg bg-primary/10 text-primary">{tool.icon}</div>
-                      <h3 className="text-h3 font-bold text-foreground">{tool.title}</h3>
-                    </div>
-                    {locked && <Lock className="w-4 h-4 text-muted-foreground shrink-0" />}
-                  </div>
-                  <div className="mb-4">
-                    <Badge variant="secondary">{tool.category}</Badge>
-                  </div>
-                  <p className="text-body text-muted-foreground leading-relaxed flex-1 mb-6">{tool.description}</p>
-                  <Button asChild className="w-full font-bold touch-manipulation py-3 min-h-[44px]" size="lg">
-                    <Link href={href} data-testid={`button-tool-${idx}`} aria-label={locked ? `Request access for ${tool.title}` : `Launch ${tool.title}`}>
-                      {locked ? "Request access to use" : tool.public ? "Open" : "Launch tool"}
-                      <ArrowRight className="ml-2 w-4 h-4" />
-                    </Link>
-                  </Button>
-                </div>
-              </Card>
-            </StaggerItem>
-          );
-        })}
-      </StaggerContainer>
+      {!searchQuery.trim() ? (
+        <div className="space-y-10">
+          {Array.from(byCategory.entries()).map(([cat, items]) => (
+            <section key={cat} data-testid={`tools-category-${cat.toLowerCase()}`}>
+              <h2 className="text-lg font-bold text-foreground mb-4">{cat}</h2>
+              <StaggerContainer className="grid md:grid-cols-2 gap-cards">
+                {items.map((tool, idx) => renderCard(tool, idx))}
+              </StaggerContainer>
+            </section>
+          ))}
+        </div>
+      ) : (
+        <StaggerContainer className="grid md:grid-cols-2 gap-cards">
+          {filteredTools.map((tool, idx) => renderCard(tool, idx))}
+        </StaggerContainer>
+      )}
 
       {filteredTools.length === 0 && (
-        <div className="text-center py-12 mt-10">
-          <p className="text-body-lg text-muted-foreground">No tools found matching &quot;{searchQuery}&quot;.</p>
+        <div className="text-center py-12 mt-10 space-y-3">
+          <p className="text-body-lg text-muted-foreground">
+            No tools found matching &quot;{searchQuery}&quot;.
+          </p>
+          <Button asChild variant="outline" className="font-bold">
+            <Link href="/portal">Go to Field Kit home</Link>
+          </Button>
         </div>
       )}
 
@@ -284,7 +268,8 @@ export default function Tools() {
         <div className="mt-12 sm:mt-16 rounded-2xl p-8 md:p-12 text-center border border-border bg-card">
           <h2 className="text-h2 font-bold text-foreground mb-4">Coaching stays human</h2>
           <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
-            The Field Kit supports execution between sessions. Strategy calls and engagements are how organizations transform.
+            The Field Kit supports execution between sessions. Strategy calls and engagements are how
+            organizations transform.
           </p>
           <Button size="lg" asChild className="font-bold" data-testid="button-tools-contact">
             <Link href="/contact">

@@ -7,8 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { SpinnerIcon, DownloadIcon } from "@/components/icons";
 import { Copy } from "lucide-react";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
+import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { trackEvent } from "@/lib/analytics";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { useToast } from "@/hooks/use-toast";
@@ -144,7 +144,8 @@ export default function Playbooks() {
   `;
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
+    <FieldKitToolLayout toolPath="/tools/playbooks">
+      <SEO />
       <style dangerouslySetInnerHTML={{ __html: printStyles }} />
       {generatedPlaybook && (
         <div id="playbook-print-area">
@@ -159,10 +160,8 @@ export default function Playbooks() {
           </div>
         </div>
       )}
-      <SEO />
-      <Breadcrumbs items={[{ label: "Field Kit", href: "/portal" }, { label: "Tools", href: "/tools" }, { label: "Sales Playbooks" }]} />
       <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-playbooks-title">
-        AI Custom Playbook Generator
+        Playbook Generator
       </h1>
       <p className="text-body-lg text-muted-foreground mb-8 leading-relaxed">
         A playbook is not just a script; it's a strategic battle plan. Describe any sales scenario, and the Spartan AI will generate a complete, strategic playbook to guide you to success.
@@ -319,6 +318,6 @@ export default function Playbooks() {
         </DialogContent>
       </Dialog>
       <LeadGateDialog gateState={gateState} />
-    </div>
+    </FieldKitToolLayout>
   );
 }

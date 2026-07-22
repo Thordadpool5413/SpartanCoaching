@@ -328,22 +328,24 @@ export default function Portal() {
         )}
       </div>
 
-      {/* Permanent orientation — what / why / how */}
-      <section
-        className="mb-10 grid sm:grid-cols-3 gap-3"
-        data-testid="section-field-kit-orientation"
-      >
-        {[
-          { label: "What", body: FIELD_KIT_WHAT },
-          { label: "Why", body: FIELD_KIT_WHY },
-          { label: "How", body: FIELD_KIT_HOW },
-        ].map((item) => (
-          <Card key={item.label} className="border border-border bg-card p-4 space-y-2">
-            <p className="text-[10px] font-bold tracking-widest text-primary uppercase">{item.label}</p>
-            <p className="text-sm text-foreground leading-relaxed">{item.body}</p>
-          </Card>
-        ))}
-      </section>
+      {/* Orientation — full What/Why/How only on first session; chrome covers returning users */}
+      {isFirstSession && (
+        <section
+          className="mb-8 grid sm:grid-cols-3 gap-3"
+          data-testid="section-field-kit-orientation"
+        >
+          {[
+            { label: "What", body: FIELD_KIT_WHAT },
+            { label: "Why", body: FIELD_KIT_WHY },
+            { label: "How", body: FIELD_KIT_HOW },
+          ].map((item) => (
+            <Card key={item.label} className="border border-border bg-card p-4 space-y-2">
+              <p className="text-[10px] font-bold tracking-widest text-primary uppercase">{item.label}</p>
+              <p className="text-sm text-foreground leading-relaxed">{item.body}</p>
+            </Card>
+          ))}
+        </section>
+      )}
 
       {/* ── First-session path: 3 clear steps ── */}
       {isFirstSession && (
@@ -363,7 +365,7 @@ export default function Portal() {
                 Role → one real tool → debrief on the calendar
               </h2>
               <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-                That sequence beats opening ten tabs. Mark checklist items done as you finish them.
+                That sequence beats opening ten tabs. Using a tool (objections, weekly plan, role-play, activity math) marks the checklist for you.
               </p>
             </div>
           </div>
@@ -738,7 +740,7 @@ export default function Portal() {
           <div>
             <h2 className="text-lg font-bold text-foreground">First-session checklist</h2>
             <p className="text-sm text-muted-foreground">
-              {doneCount} of {totalCount} complete — mark items done as you finish them.
+              {doneCount} of {totalCount} complete — tools can mark items done automatically; you can also toggle manually.
             </p>
           </div>
           <div className="text-sm font-bold text-primary">{progressPct}%</div>

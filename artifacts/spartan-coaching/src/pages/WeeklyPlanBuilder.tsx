@@ -6,7 +6,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CoachingCTA } from "@/components/CoachingCTA";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { useToast } from "@/hooks/use-toast";
@@ -15,8 +14,7 @@ import { downloadPdf, markdownToSections, type EmailPdfPayload } from "@/lib/dow
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
 import { Copy, Download, Loader2, CalendarDays } from "lucide-react";
-import { FieldKitChrome } from "@/components/FieldKitChrome";
-import { ToolHowTo } from "@/components/ToolHowTo";
+import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { markFieldKitChecklistDone } from "@/lib/fieldKitProgress";
 
 const WEEKLY_GOALS = [
@@ -112,11 +110,8 @@ export default function WeeklyPlanBuilder() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
+    <FieldKitToolLayout toolPath="/tools/weekly-plan-builder">
       <SEO />
-      <FieldKitChrome />
-      <Breadcrumbs items={[{ label: "Field Kit", href: "/portal" }, { label: "Tools", href: "/tools" }, { label: "Weekly Plan Builder" }]} />
-      <ToolHowTo path="/tools/weekly-plan-builder" />
 
       <h1 className="text-h1 font-black text-foreground mb-3" data-testid="text-plan-title">
         Weekly Plan Builder
@@ -273,6 +268,6 @@ export default function WeeklyPlanBuilder() {
       )}
 
       <LeadGateDialog gateState={gateState} />
-    </div>
+    </FieldKitToolLayout>
   );
 }

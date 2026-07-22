@@ -9,8 +9,9 @@ import { Textarea } from "@/components/ui/textarea";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useToast } from "@/hooks/use-toast";
 import { Flame, CheckCircle, Loader2, Calendar, BookOpen, ChevronDown, ChevronRight, Library } from "lucide-react";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
+import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
+// Daily drills live under Learn in the Field Kit map
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
 import {
@@ -394,12 +395,11 @@ export default function Drills() {
   };
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
+    <FieldKitToolLayout title="Daily Drills" section="learn" className="max-w-3xl" showHowTo={false}>
       <SEO
         title="Daily Coaching Drills | Spartan"
         description="Sharpen your hospice sales skills with daily coaching drills. Build consistency and track your progress."
       />
-      <Breadcrumbs items={[{ label: "Field Kit", href: "/portal" }, { label: "Tools", href: "/tools" }, { label: "Daily Drills" }]} />
 
       <SlideUp>
         <h1 className="text-h1 font-black text-foreground mb-2" data-testid="text-drills-title">
@@ -742,6 +742,6 @@ export default function Drills() {
       <FadeIn>
         <CoachingCTA />
       </FadeIn>
-    </div>
+    </FieldKitToolLayout>
   );
 }

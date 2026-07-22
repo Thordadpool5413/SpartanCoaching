@@ -204,7 +204,11 @@ export default function Resources() {
           Printable Fill-In Templates
           <Badge variant="secondary" className="text-sm">5</Badge>
         </h2>
-        <p className="text-muted-foreground mb-6">Open in your browser, fill in, and print. No account required.</p>
+        <p className="text-muted-foreground mb-6">
+          {canUseFieldKit
+            ? "Open in your browser, fill in, and print — part of your Field Kit resources."
+            : "Open in your browser, fill in, and print. No account required."}
+        </p>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
           {[
             { href: "/resources/weekly-plan", title: "Weekly Activity Planner", desc: "Daily schedule grid, priority accounts, follow-up tracker, and end-of-week review for any sales rep." },

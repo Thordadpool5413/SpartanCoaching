@@ -6,8 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { CoachingCTA } from "@/components/CoachingCTA";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
+import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { useToast } from "@/hooks/use-toast";
 import { trackEvent } from "@/lib/analytics";
@@ -101,9 +101,8 @@ export default function ColdCallScript() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
+    <FieldKitToolLayout toolPath="/tools/cold-call-script">
       <SEO />
-      <Breadcrumbs items={[{ label: "Field Kit", href: "/portal" }, { label: "Tools", href: "/tools" }, { label: "Cold Call Script Generator" }]} />
 
       <h1 className="text-h1 font-black text-foreground mb-3" data-testid="text-script-title">
         Cold Call Script Generator
@@ -250,6 +249,6 @@ export default function ColdCallScript() {
       )}
 
       <LeadGateDialog gateState={gateState} />
-    </div>
+    </FieldKitToolLayout>
   );
 }

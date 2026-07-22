@@ -11,6 +11,7 @@ import { CommandPalette } from "@/components/CommandPalette";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { RequireFieldKit } from "@/components/RequireFieldKit";
 import { TrialBanner } from "@/components/TrialBanner";
+import { FieldKitChecklistToast } from "@/components/FieldKitChecklistToast";
 import { hasSeenIntro, shouldSkipIntro } from "@/lib/intro";
 
 const ChatWidget = lazy(() => import("@/components/ChatWidget").then(m => ({ default: m.ChatWidget })));
@@ -331,6 +332,7 @@ function App() {
             <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
               <IntroGate>
                 <AppLayout />
+                <FieldKitChecklistToast />
                 <Toaster />
               </IntroGate>
             </WouterRouter>

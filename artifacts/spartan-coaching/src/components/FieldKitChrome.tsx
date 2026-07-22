@@ -1,30 +1,55 @@
-import { Link } from "wouter";
-import { Shield, Home, Wrench, FolderOpen, BookOpen, Phone, ArrowRight } from "lucide-react";
+import { Link, useLocation } from "wouter";
+import { Shield, Home, Wrench, FolderOpen, BookOpen, Phone } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FIELD_KIT_WHAT } from "@/lib/fieldKitCatalog";
 import { useAuth } from "@/context/AuthContext";
 
 const LINKS = [
-  { href: "/portal", label: "Home", icon: Home },
-  { href: "/tools", label: "Tools", icon: Wrench },
-  { href: "/resources", label: "Resources", icon: FolderOpen },
-  { href: "/portal/learn", label: "Learn", icon: BookOpen },
-  { href: "/contact?service=Field+Kit+Debrief", label: "Debrief", icon: Phone },
+  { href: "/portal", label: "Home", icon: Home, match: (loc: string) => loc === "/portal" },
+  {
+    href: "/tools",
+    label: "Tools",
+    icon: Wrench,
+    match: (loc: string) => loc === "/tools" || loc.startsWith("/tools/"),
+  },
+  {
+    href: "/resources",
+    label: "Resources",
+    icon: FolderOpen,
+    match: (loc: string) => loc === "/resources" || loc.startsWith("/resources/"),
+  },
+  {
+    href: "/portal/learn",
+    label: "Learn",
+    icon: BookOpen,
+    match: (loc: string) =>
+      loc === "/portal/learn" ||
+      loc === "/drills" ||
+      loc === "/quiz" ||
+      loc.startsWith("/learn/") ||
+      loc === "/articles" ||
+      loc === "/podcasts",
+  },
+  {
+    href: "/contact?service=Field+Kit+Debrief",
+    label: "Debrief",
+    icon: Phone,
+    match: (loc: string) => loc.startsWith("/contact"),
+  },
 ];
 
 /**
  * Persistent orientation strip for Field Kit surfaces.
- * Answers what this is + where to go next without leaving the page frame.
  */
 export function FieldKitChrome({
   className,
   nextHint,
 }: {
   className?: string;
-  /** Optional “do this next” line from portal context */
   nextHint?: string | null;
 }) {
   const { canUseFieldKit, organization, fieldKit } = useAuth();
+  const [location] = useLocation();
 
   if (!canUseFieldKit) return null;
 
@@ -73,18 +98,26 @@ export function FieldKitChrome({
         className="flex flex-wrap gap-1.5 pt-1 border-t border-border/60"
         aria-label="Field Kit sections"
       >
-        {LINKS.map(({ href, label, icon: Icon }) => (
-          <Link
-            key={href}
-            href={href}
-            className="inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-md text-muted-foreground hover:text-foreground hover:bg-muted/70 transition-colors"
-            data-testid={`field-kit-chrome-${label.toLowerCase()}`}
-          >
-            <Icon className="w-3.5 h-3.5" />
-            {label}
-            {label === "Home" && <ArrowRight className="w-3 h-3 opacity-50" />}
-          </Link>
-        ))}
+        {LINKS.map(({ href, label, icon: Icon, match }) => {
+          const active = match(location);
+          return (
+            <Link
+              key={href}
+              href={href}
+              className={cn(
+                "inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-md transition-colors",
+                active
+                  ? "bg-primary/15 text-primary"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/70",
+              )}
+              data-testid={`field-kit-chrome-${label.toLowerCase()}`}
+              aria-current={active ? "page" : undefined}
+            >
+              <Icon className="w-3.5 h-3.5" />
+              {label}
+            </Link>
+          );
+        })}
       </nav>
     </div>
   );

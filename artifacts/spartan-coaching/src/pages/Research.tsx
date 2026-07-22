@@ -4,8 +4,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { SearchIcon, SpinnerIcon } from "@/components/icons";
 import { CoachingCTA } from "@/components/CoachingCTA";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { SEO } from "@/components/SEO";
+import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { trackEvent } from "@/lib/analytics";
 import { MarkdownContent } from "@/components/MarkdownContent";
 
@@ -60,11 +60,10 @@ export default function Research() {
   };
 
   return (
-    <div className="w-full max-w-4xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
+    <FieldKitToolLayout toolPath="/tools/research" className="max-w-4xl">
       <SEO />
-      <Breadcrumbs items={[{ label: "Field Kit", href: "/portal" }, { label: "Tools", href: "/tools" }, { label: "Territory Research" }]} />
       <h1 className="text-h1 font-black text-foreground mb-6" data-testid="text-research-title">
-        Grounded Research Tool
+        Grounded Research
       </h1>
       <p className="text-body-lg text-muted-foreground mb-8 leading-relaxed">
         Get expert insights with real web sources. Ask questions about hospice trends, regulations, or competitive intelligence, and receive answers backed by credible citations.
@@ -193,6 +192,6 @@ export default function Research() {
           <CoachingCTA className="mt-2" />
         </div>
       )}
-    </div>
+    </FieldKitToolLayout>
   );
 }

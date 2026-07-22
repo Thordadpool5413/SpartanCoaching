@@ -10,6 +10,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SEO } from "@/components/SEO";
+import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
+import { markFieldKitChecklistDone } from "@/lib/fieldKitProgress";
 import { FadeIn, SlideUp, AnimatedCounter } from "@/components/animations";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
@@ -514,6 +516,7 @@ export default function ActivityCalculator() {
     );
     setResult(calc);
     setShowResult(true);
+    void markFieldKitChecklistDone("director_scorecard");
   }, [repName, repStatus, monthlyGoal, lastCycleAdmissions, lastCycleConversations, isFormValid]);
 
   const handleReset = useCallback(() => {
@@ -536,32 +539,7 @@ export default function ActivityCalculator() {
         keywords="hospice activity calculator, sales activity planner, admission goal calculator, referral conversations, hospice sales targets"
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
-        <nav
-          className="flex items-center gap-2 text-sm text-muted-foreground mb-8 flex-wrap"
-          data-testid="breadcrumb-activity"
-          aria-label="Breadcrumb navigation"
-        >
-          <Link
-            href="/"
-            className="flex items-center gap-1 hover:text-foreground transition-colors"
-            aria-label="Go to home page"
-          >
-            <Home className="w-4 h-4" />
-            <span>Home</span>
-          </Link>
-          <ChevronRight className="w-4 h-4" />
-          <Link
-            href="/tools"
-            className="hover:text-foreground transition-colors"
-            aria-label="Go to tools page"
-          >
-            Tools
-          </Link>
-          <ChevronRight className="w-4 h-4" />
-          <span className="text-foreground font-medium">Activity Calculator</span>
-        </nav>
-
+      <FieldKitToolLayout toolPath="/tools/activity-calculator" className="py-10 sm:py-16">
         <SlideUp>
           <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
             <div className="flex justify-center mb-6">
@@ -1004,7 +982,7 @@ export default function ActivityCalculator() {
             </motion.div>
           ) : null}
         </AnimatePresence>
-      </div>
+      </FieldKitToolLayout>
 
       <style>{`
         @media print {

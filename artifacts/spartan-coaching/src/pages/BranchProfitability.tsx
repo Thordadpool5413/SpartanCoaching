@@ -13,8 +13,8 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { SEO } from "@/components/SEO";
+import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { SlideUp } from "@/components/animations";
-import { Breadcrumbs } from "@/components/Breadcrumbs";
 import {
   Building,
   TrendingUp,
@@ -202,7 +202,7 @@ export default function BranchProfitability() {
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16">
+    <FieldKitToolLayout toolPath="/tools/branch-profitability">
       <SEO
         title="Branch Profitability Simulator | Spartan Coaching"
         description="Model hospice branch profitability across any ADC. Enter your revenue rates, clinical costs, and staffing assumptions to find your break-even point and target margin ADC."
@@ -214,15 +214,6 @@ export default function BranchProfitability() {
           body { font-size: 11pt; }
         }
       `}</style>
-
-      <div className="no-print">
-        <Breadcrumbs
-          items={[
-            { label: "Field Kit", href: "/portal" }, { label: "Tools", href: "/tools" },
-            { label: "Branch Profitability Simulator" },
-          ]}
-        />
-      </div>
 
       <SlideUp>
         <div className="flex flex-wrap items-start justify-between gap-4 mb-8">
@@ -1059,6 +1050,6 @@ export default function BranchProfitability() {
       </div>
 
       <LeadGateDialog gateState={gateState} />
-    </div>
+    </FieldKitToolLayout>
   );
 }
