@@ -8,9 +8,14 @@
     "build": "node scripts/build.js",
     "serve": "node server/serve.js",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "jest"
+    "test": "jest",
+    "build:ios:dev": "pnpm exec eas build --platform ios --profile development",
+    "build:ios:preview": "pnpm exec eas build --platform ios --profile preview",
+    "build:ios": "pnpm exec eas build --platform ios --profile production",
+    "submit:ios": "pnpm exec eas submit --platform ios --profile production --latest"
   },
   "devDependencies": {
+    "eas-cli": "^21.0.2",
     "@babel/core": "^7.25.2",
     "@expo-google-fonts/inter": "^0.4.0",
     "@expo/cli": "54.0.23",
