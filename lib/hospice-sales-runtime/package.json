@@ -38,5 +38,9 @@
   "peerDependenciesMeta": {
     "pg": { "optional": true }
   },
+  "devDependencies": {
+    "@types/express": "^5.0.6",
+    "@types/react": "catalog:"
+  },
   "license": "LicenseRef-Proprietary"
 }
