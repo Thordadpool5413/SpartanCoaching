@@ -11,8 +11,9 @@
     "test": "jest",
     "build:ios:dev": "pnpm exec eas build --platform ios --profile development",
     "build:ios:preview": "pnpm exec eas build --platform ios --profile preview",
-    "build:ios": "pnpm exec eas build --platform ios --profile production",
-    "submit:ios": "pnpm exec eas submit --platform ios --profile production --latest"
+    "build:ios:testflight": "pnpm exec eas build --platform ios --profile testflight --non-interactive",
+    "build:ios": "pnpm exec eas build --platform ios --profile production --non-interactive",
+    "submit:ios": "pnpm exec eas submit --platform ios --profile production --latest --non-interactive"
   },
   "devDependencies": {
     "eas-cli": "^21.0.2",

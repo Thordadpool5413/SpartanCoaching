@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Spartan Coaching",
-    "slug": "spartan-coaching-mobile",
+    "slug": "spartan-coaching",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
@@ -15,10 +15,10 @@
     },
     "ios": {
       "bundleIdentifier": "com.spartancoaching.fieldkit",
-      "buildNumber": "1",
       "supportsTablet": false,
       "infoPlist": {
-        "NSUserNotificationsUsageDescription": "Spartan Coaching uses notifications to remind you to follow up with contacts after visits."
+        "NSUserNotificationsUsageDescription": "Spartan Coaching uses notifications to remind you to follow up with contacts after visits.",
+        "ITSAppUsesNonExemptEncryption": false
       }
     },
     "android": {
@@ -54,6 +54,12 @@
     "experiments": {
       "typedRoutes": true,
       "reactCompiler": true
-    }
+    },
+    "extra": {
+      "eas": {
+        "projectId": "bafdaa6f-80f5-4fb0-baef-324fa376c44c"
+      }
+    },
+    "owner": "thordadpool"
   }
 }

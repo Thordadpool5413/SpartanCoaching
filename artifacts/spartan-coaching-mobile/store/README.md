@@ -4,63 +4,84 @@
 
 ### 1. One-time Expo / EAS account setup
 
-1. Create an account at [expo.dev](https://expo.dev) if you don't have one.
-2. From `artifacts/spartan-coaching-mobile/`, run the interactive setup script:
-   ```
-   chmod +x setup-eas.sh
-   ./setup-eas.sh
-   ```
-   The script will log you in to Expo, link the EAS project, collect your Apple
-   Developer credentials, and print the five **Replit Secrets** you must set.
+The Replit Secrets are already set:
 
-3. In Replit, open **Tools → Secrets** and add:
+| Secret key | Value |
+|---|---|
+| `EAS_PROJECT_ID` | ✅ Set |
+| `EXPO_ACCOUNT_SLUG` | ✅ Set (`thordadpool`) |
+| `EXPO_TOKEN` | ✅ Set |
+| `APPLE_ID` | ✅ Set |
+| `APPLE_TEAM_ID` | ✅ Set |
+| `ASC_APP_ID` | ✅ Set |
 
-   | Secret key | Where to find it |
-   |---|---|
-   | `EAS_PROJECT_ID` | Printed by `setup-eas.sh` after `eas init` |
-   | `EXPO_ACCOUNT_SLUG` | Your Expo username at expo.dev/accounts |
-   | `APPLE_ID` | Your Apple ID email (Apple Developer account) |
-   | `APPLE_TEAM_ID` | 10-char team ID in Certificates, Identifiers & Profiles |
-   | `ASC_APP_ID` | Numeric App Store Connect App ID (see step 2 below) |
+### 2. One-time credential setup (run once from your Mac)
 
-### 2. Apple Developer Program
+EAS needs to create an iOS Distribution certificate and App Store provisioning profile on your behalf. This requires Apple login — it **must be run interactively from a Mac terminal**, not from Replit.
+
+```bash
+# From your Mac terminal:
+cd <path-to-workspace>/artifacts/spartan-coaching-mobile
+
+# Log in with the EXPO_TOKEN
+export EXPO_TOKEN=<paste your token from expo.dev>
+
+# This launches the interactive credential wizard.
+# Choose: "App Store" distribution (for TestFlight + production).
+# Let EAS create/manage the certificate and provisioning profile.
+pnpm exec eas credentials --platform ios
+```
+
+Once that completes, EAS stores the credentials on its servers and all subsequent builds — including from Replit — run non-interactively without touching your Mac.
+
+### 3. Apple Developer Program
 
 You need an active [Apple Developer Program](https://developer.apple.com/programs/) membership ($99/yr).
 
-From App Store Connect, create a new app record:
+From App Store Connect, create a new app record (if not done already):
 - **Bundle ID**: `com.spartancoaching.fieldkit`  _(register this in your Apple Developer portal first)_
 - **SKU**: `spartan-field-kit`
 - **Primary language**: English (U.S.)
 - **Category**: Business
 
-After creating the app record, the **App Store Connect App ID** is the numeric ID in the URL of the app detail page. Set it as the `ASC_APP_ID` secret.
-
 ---
 
-## Building for TestFlight (internal testing)
+## Building for TestFlight
 
-From `artifacts/spartan-coaching-mobile/`:
-
-```bash
-pnpm run build:ios:preview
-```
-
-EAS handles certificates and provisioning automatically (managed workflow). The build link appears in your [Expo dashboard](https://expo.dev/builds). Submit to TestFlight from the dashboard, or run:
+After credentials are set up (step 2 above), run this from the **Replit shell**:
 
 ```bash
-pnpm run submit:ios
+pnpm --filter @workspace/spartan-coaching-mobile run build:ios:testflight
 ```
+
+Or from `artifacts/spartan-coaching-mobile/`:
+
+```bash
+pnpm run build:ios:testflight
+```
+
+This queues a cloud build on Expo's servers (`testflight` profile → `distribution: store` → Release). The build link appears in your [Expo dashboard](https://expo.dev/builds). You don't need to wait — it runs in the cloud.
+
+### Submit to TestFlight
+
+From the [Expo dashboard](https://expo.dev/builds), click **Submit** on the completed build, or run:
+
+```bash
+pnpm --filter @workspace/spartan-coaching-mobile run submit:ios
+```
+
+This pushes the `.ipa` to App Store Connect. In App Store Connect → **TestFlight → Internal Testing**, add yourself and any reps as internal testers and distribute the build.
 
 ---
 
 ## Production build + App Store submission
 
 ```bash
-# Build a production binary
-pnpm run build:ios
+# Build a production binary (same as testflight profile but tracked separately)
+pnpm --filter @workspace/spartan-coaching-mobile run build:ios
 
 # Submit to App Store Connect (triggers review queue)
-pnpm run submit:ios
+pnpm --filter @workspace/spartan-coaching-mobile run submit:ios
 ```
 
 ---
