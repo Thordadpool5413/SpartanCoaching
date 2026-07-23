@@ -32,6 +32,7 @@ jobs:
     env:
       PORT: "5000"
       BASE_PATH: "/"
+      EXPO_PUBLIC_DOMAIN: "spartan-coaching-ci.invalid"
     steps:
       - uses: actions/checkout@v4
         with:
