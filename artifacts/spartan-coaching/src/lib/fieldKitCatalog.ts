@@ -40,6 +40,20 @@ export const FIELD_KIT_HOW =
 
 export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   {
+    id: "sales-workflow",
+    title: "Sales Command Center",
+    description: "Plan each account call, practice, capture outcomes, review coaching, and schedule the next step.",
+    path: "/tools/sales-workflow",
+    category: "Plan",
+    whenToUse: "Every day—from pre-call preparation through the confirmed next appointment.",
+    howSteps: [
+      "Add the account, contacts, and meeting time",
+      "Build and practice the connected call plan",
+      "Complete the call and approve the next action",
+    ],
+    why: "Every visit becomes part of one continuous, coachable account workflow.",
+  },
+  {
     id: "playbooks",
     title: "Playbook Generator",
     description: "Custom strategic playbooks for any sales scenario — talking points and next steps.",
