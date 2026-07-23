@@ -304,6 +304,7 @@ export default function ToolsScreen() {
   const objectionSaved = useSavedResponses("objection");
   const playbookSaved = useSavedResponses("playbook");
   const emailSaved = useSavedResponses("email");
+  const roleplaySaved = useSavedResponses("roleplay");
 
   // Objection Handler state
   const [objection, setObjection] = useState("");
@@ -362,6 +363,7 @@ export default function ToolsScreen() {
   const [roleplayError, setRoleplayError] = useState<string | null>(null);
   const [roleplayFeedback, setRoleplayFeedback] = useState<string | null>(null);
   const [roleplayRating, setRoleplayRating] = useState<number | null>(null);
+  const [roleplaySavedId, setRoleplaySavedId] = useState<string | null>(null);
   const [endingSession, setEndingSession] = useState(false);
   const scrollRef = useRef<ScrollView>(null);
 
@@ -511,6 +513,17 @@ export default function ToolsScreen() {
   const handleShareEmail = async () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     await Share.share({ message: emailResult });
+  };
+
+  const handleSaveRoleplay = async () => {
+    if (!roleplayFeedback || roleplaySavedId) return;
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    const title = roleplaySession?.scenarioTitle ?? "Role-Play Session";
+    const parts: string[] = [];
+    if (roleplayRating !== null) parts.push(`Rating: ${roleplayRating}/5`);
+    parts.push(`Coach Feedback:\n${roleplayFeedback}`);
+    await roleplaySaved.saveResponse(title, parts.join("\n"));
+    setRoleplaySavedId("saved");
   };
 
   const handleShareRoleplay = async () => {
@@ -681,6 +694,7 @@ export default function ToolsScreen() {
     setRoleplayInput("");
     setRoleplayFeedback(null);
     setRoleplayRating(null);
+    setRoleplaySavedId(null);
     setRoleplayError(null);
     setCustomScenarioExpanded(false);
     setCustomTitle("");
@@ -1713,6 +1727,23 @@ export default function ToolsScreen() {
                   {roleplayFeedback && (
                     <View style={styles.resultActionRow}>
                       <Pressable
+                        onPress={handleSaveRoleplay}
+                        style={({ pressed }) => [
+                          styles.saveBtn,
+                          styles.resultActionBtn,
+                          {
+                            borderColor: roleplaySavedId ? colors.primary : colors.border,
+                            backgroundColor: roleplaySavedId ? colors.primary + "18" : "transparent",
+                          },
+                          pressed && { opacity: 0.75 },
+                        ]}
+                      >
+                        <Feather name={roleplaySavedId ? "check" : "bookmark"} size={15} color={roleplaySavedId ? colors.primary : colors.mutedForeground} />
+                        <Text style={[styles.saveBtnText, { color: roleplaySavedId ? colors.primary : colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
+                          {roleplaySavedId ? "Saved" : "Save"}
+                        </Text>
+                      </Pressable>
+                      <Pressable
                         onPress={handleShareRoleplay}
                         style={({ pressed }) => [
                           styles.saveBtn,
@@ -1749,6 +1780,11 @@ export default function ToolsScreen() {
               )}
             </View>
           )}
+          <SavedSection
+            items={roleplaySaved.savedItems}
+            onDelete={roleplaySaved.deleteResponse}
+            colors={colors}
+          />
         </View>
           </ScrollView>
         </KeyboardAvoidingView>

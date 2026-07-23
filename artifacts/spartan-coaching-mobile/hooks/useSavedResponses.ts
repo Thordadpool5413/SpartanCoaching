@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback, useEffect, useState } from "react";
 
-export type ToolType = "objection" | "playbook" | "email";
+export type ToolType = "objection" | "playbook" | "email" | "roleplay";
 
 export interface SavedResponse {
   id: string;
