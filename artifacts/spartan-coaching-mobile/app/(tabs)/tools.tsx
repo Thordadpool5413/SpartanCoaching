@@ -175,9 +175,18 @@ function SavedSection({ items, onDelete, colors }: SavedSectionProps) {
                 <Text style={[savedStyles.cardTitle, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]} numberOfLines={2}>
                   {item.title}
                 </Text>
-                <Text style={[savedStyles.cardDate, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                  {formatSavedDate(item.savedAt)}
-                </Text>
+                <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 2 }}>
+                  {item.toolType === "roleplay" && (
+                    <View style={[savedStyles.roleplayBadge, { backgroundColor: colors.primary + "18", borderColor: colors.primary + "40" }]}>
+                      <Text style={[savedStyles.roleplayBadgeText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
+                        Role-Play
+                      </Text>
+                    </View>
+                  )}
+                  <Text style={[savedStyles.cardDate, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                    {formatSavedDate(item.savedAt)}
+                  </Text>
+                </View>
               </View>
               <View style={savedStyles.cardActions}>
                 <Pressable
@@ -253,6 +262,13 @@ const savedStyles = StyleSheet.create({
     paddingVertical: 7,
   },
   actionBtnText: { fontSize: 13 },
+  roleplayBadge: {
+    borderWidth: 1,
+    borderRadius: 4,
+    paddingHorizontal: 5,
+    paddingVertical: 1,
+  },
+  roleplayBadgeText: { fontSize: 10, letterSpacing: 0.3 },
 });
 
 interface ChatMessage {
