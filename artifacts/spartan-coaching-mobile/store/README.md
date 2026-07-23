@@ -237,12 +237,36 @@ Then upload to App Store Connect as described above.
 
 ## App Review notes (paste into App Store Connect → Review Notes)
 
-> This app is available to approved users only. It is a professional tool for hospice census growth representatives working with Spartan Coaching. To test the app, use the following credentials:
+> This app is a professional tool for hospice census growth representatives working with Spartan Coaching clients. Access is gated by an evaluation/approval workflow — users request access, and a Spartan Coaching advisor approves each account individually before granting entry to the Field Kit.
 >
-> Email: [PROVIDE A TEST ACCOUNT EMAIL]  
-> Password: [PROVIDE A TEST ACCOUNT PASSWORD]
+> A pre-approved test account has been set up specifically for App Review. Credentials are in App Store Connect → App Review Information → Sign-in required (see setup steps below).
 >
-> Request access via the "Request Access" flow on the login screen, or contact nick@spartanhospicecoaching.com to have a test account pre-approved.
+> Log in on the "Field Kit Login" screen and you will land directly in the portal with all tools enabled: Checklist, Scenario Coach, Branch Calculator, Objection Handler, Playbook, and Email Templates.
+>
+> If you encounter any login issues, please contact nick@spartanhospicecoaching.com and we will resolve them immediately.
+
+---
+
+### How to seed / reset the reviewer account
+
+The reviewer account lives in the production database. Run this script before each App Store review submission:
+
+```bash
+# Generates a new random password and prints it — copy it straight into App Store Connect
+DATABASE_URL=<prod-connection-string> pnpm --filter @workspace/scripts run seed:apple-reviewer
+```
+
+The script is idempotent — it creates the org + member on first run, resets the password + re-activates on subsequent runs, and prints the credentials at the end. The reviewer email is always `apple-reviewer@spartanhospicecoaching.com`.
+
+**After running:**
+1. Copy the printed email + password into **App Store Connect → your app → App Review Information → Sign-in required**.
+2. Do not commit the password to source control — it only needs to live in App Store Connect.
+
+To pin a specific password instead of generating one:
+
+```bash
+DATABASE_URL=<prod-connection-string> REVIEWER_PASSWORD=<your-password> pnpm --filter @workspace/scripts run seed:apple-reviewer
+```
 
 ---
 
