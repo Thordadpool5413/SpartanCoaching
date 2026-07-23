@@ -34,10 +34,18 @@ async function authHeaders(extra?: Record<string, string>): Promise<Record<strin
   return headers;
 }
 
-export async function apiPost<T>(path: string, body: unknown): Promise<T> {
+export async function apiPost<T>(
+  path: string,
+  body: unknown,
+  options?: { idempotencyKey?: string },
+): Promise<T> {
   const res = await fetch(`${getBase()}${path}`, {
     method: "POST",
-    headers: await authHeaders(),
+    headers: await authHeaders(
+      options?.idempotencyKey
+        ? { "Idempotency-Key": options.idempotencyKey }
+        : undefined,
+    ),
     body: JSON.stringify(body),
   });
   if (!res.ok) {

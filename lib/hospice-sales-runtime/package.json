@@ -1,0 +1,42 @@
+{
+  "name": "@workspace/hospice-sales-runtime",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "files": ["dist", "server", "react", "migrations", "README.md", "LICENSE"],
+  "sideEffects": false,
+  "scripts": {
+    "build": "node -e \"import('./dist/sales-workflow.js')\"",
+    "test": "node -e \"Promise.all([import('./dist/sales-workflow.js'),import('./dist/pre-call-planner.js')])\""
+  },
+  "exports": {
+    "./pre-call-planner": { "types": "./dist/pre-call-planner.d.ts", "import": "./dist/pre-call-planner.js" },
+    "./discovery-coach": { "types": "./dist/discovery-coach.d.ts", "import": "./dist/discovery-coach.js" },
+    "./objection-coach": { "types": "./dist/objection-coach.d.ts", "import": "./dist/objection-coach.js" },
+    "./roleplay-scenario-coach": { "types": "./dist/roleplay-scenario-coach.d.ts", "import": "./dist/roleplay-scenario-coach.js" },
+    "./adaptive-roleplay-response": { "types": "./dist/adaptive-roleplay-response.d.ts", "import": "./dist/adaptive-roleplay-response.js" },
+    "./call-performance-coach": { "types": "./dist/call-performance-coach.d.ts", "import": "./dist/call-performance-coach.js" },
+    "./coaching-feedback": { "types": "./dist/coaching-feedback.d.ts", "import": "./dist/coaching-feedback.js" },
+    "./email-optimizer": { "types": "./dist/email-optimizer.d.ts", "import": "./dist/email-optimizer.js" },
+    "./sales-workflow": { "types": "./dist/sales-workflow.d.ts", "import": "./dist/sales-workflow.js" },
+    "./sales-workflow/express": "./server/express.ts",
+    "./sales-workflow/http-client": "./react/http-client.ts",
+    "./sales-workflow/react": "./react/react.tsx",
+    "./sales-workflow/styles.css": "./react/styles.css",
+    "./migrations/001_sales_workflow.sql": "./migrations/001_sales_workflow.sql"
+  },
+  "dependencies": {
+    "csv-parse": "^6.1.0",
+    "express": "^5.2.1",
+    "openai": "^6.48.0",
+    "react": "catalog:",
+    "zod": "^4.4.3"
+  },
+  "peerDependencies": {
+    "pg": ">=8"
+  },
+  "peerDependenciesMeta": {
+    "pg": { "optional": true }
+  },
+  "license": "LicenseRef-Proprietary"
+}

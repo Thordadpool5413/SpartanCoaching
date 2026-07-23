@@ -8,13 +8,14 @@
     "build": "node ./build.mjs",
     "start": "node --enable-source-maps ./dist/index.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run --reporter verbose src/auth/crypto.test.ts src/auth/entitlement.test.ts src/auth/middleware.test.ts src/security/requestSecurity.test.ts src/security/legacyRoleplay.test.ts"
+    "test": "node --test src/auth/crypto.test.ts src/auth/entitlement.test.ts src/auth/middleware.test.ts src/security/requestSecurity.test.ts src/security/legacyRoleplay.test.ts"
   },
   "dependencies": {
     "@google-cloud/storage": "^7.21.0",
     "@workspace/api-zod": "workspace:*",
     "@workspace/branch-engine": "workspace:*",
     "@workspace/db": "workspace:*",
+    "@workspace/hospice-sales-runtime": "workspace:*",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
     "drizzle-orm": "catalog:",

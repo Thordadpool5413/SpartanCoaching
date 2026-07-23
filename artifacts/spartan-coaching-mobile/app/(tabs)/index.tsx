@@ -39,6 +39,7 @@ const SUGGESTIONS = [
 ];
 
 const QUICK_TOOLS = [
+  { label: "Sales Command Center", icon: "calendar" as const, route: "/sales-workflow" as const },
   { label: "Objection Handler", icon: "shield" as const, route: undefined },
   { label: "Sales Playbooks", icon: "book-open" as const, route: undefined },
   { label: "Email Templates", icon: "mail" as const, route: undefined },

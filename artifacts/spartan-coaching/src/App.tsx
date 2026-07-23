@@ -74,6 +74,7 @@ const TestimonialRelease = lazy(() => import("@/pages/TestimonialRelease"));
 const LegalAgreements = lazy(() => import("@/pages/LegalAgreements"));
 const ColdCallScript = lazy(() => import("@/pages/ColdCallScript"));
 const WeeklyPlanBuilder = lazy(() => import("@/pages/WeeklyPlanBuilder"));
+const SalesWorkflow = lazy(() => import("@/pages/SalesWorkflow"));
 const ComplianceEthics = lazy(() => import("@/pages/ComplianceEthics"));
 const Contact = lazy(() => import("@/pages/Contact"));
 const Manifesto = lazy(() => import("@/pages/Manifesto"));
@@ -106,6 +107,7 @@ const GatedRepCost = withFieldKit(RepCostCalculator);
 const GatedBranch = withFieldKit(BranchProfitability);
 const GatedColdCall = withFieldKit(ColdCallScript);
 const GatedWeeklyPlan = withFieldKit(WeeklyPlanBuilder);
+const GatedSalesWorkflow = withFieldKit(SalesWorkflow);
 const GatedDrills = withFieldKit(Drills);
 const GatedQuiz = withFieldKit(Quiz);
 const GatedKnowledgeBase = withFieldKit(KnowledgeBase);
@@ -227,6 +229,7 @@ function Router() {
           <Route path="/tools/branch-profitability" component={GatedBranch} />
           <Route path="/tools/cold-call-script" component={GatedColdCall} />
           <Route path="/tools/weekly-plan-builder" component={GatedWeeklyPlan} />
+          <Route path="/tools/sales-workflow" component={GatedSalesWorkflow} />
           <Route path="/drills" component={GatedDrills} />
 
           <Route path="/resources" component={Resources} />
