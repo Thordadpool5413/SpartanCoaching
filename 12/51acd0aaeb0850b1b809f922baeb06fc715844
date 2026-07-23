@@ -1,0 +1,19 @@
+artifacts/api-server/package.json
+  s_49726d5d67fecc::t_14345c3bab7264 11,46
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "1251acd0aaeb0850b1b809f922baeb06fc715844",
+  "prompts": {},
+  "sessions": {
+    "s_49726d5d67fecc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f8276-13fc-7fc3-bfe9-2af07f6183ba",
+        "model": "unknown"
+      },
+      "human_author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
