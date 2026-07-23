@@ -114,6 +114,8 @@ Fill these in App Store Connect before submitting for review:
 | `04-drills.png` | Objection Handler — field-ready response generated |
 | `05-login.png` | Portal / Login — client access screen |
 
+> **Note:** The current PNGs were generated programmatically to unblock submission. Replace them with real simulator captures (see below) before the next App Store review cycle for a more polished listing.
+
 **How to upload to App Store Connect:**
 
 1. Open [App Store Connect](https://appstoreconnect.apple.com) → your Field Kit app record.
@@ -123,9 +125,113 @@ Fill these in App Store Connect before submitting for review:
 5. Arrange them in the order 01 → 05.
 6. Click **Save** — then proceed to submit for review.
 
-To regenerate screenshots (e.g. after a UI update): `python3 scripts/generate-screenshots.py`
-
 Optional: iPad screenshots (12.9") — not required since `supportsTablet` is false.
+
+---
+
+## Capturing Real Screenshots from the iPhone 16 Pro Max Simulator
+
+Run this once after the app is available on TestFlight (or any time you do a UI refresh).
+Requires: **Mac with Xcode 16+** and the app running locally via Expo.
+
+### Quick method — automated script
+
+From your Mac terminal, in the repo root:
+
+```bash
+# Install deps once (if not already running)
+cd artifacts/spartan-coaching-mobile
+pnpm install
+
+# In one terminal — start the Expo dev server
+pnpm run dev
+
+# In another terminal — run the capture script
+# This boots the simulator, navigates to each screen,
+# captures at 1320×2868, and saves to store/screenshots/
+bash store/capture-screenshots.sh
+```
+
+After the script finishes, verify the 5 PNGs in `store/screenshots/` look correct,
+then follow the "How to upload to App Store Connect" steps above.
+
+### Manual method — step by step
+
+Use this if the script fails or you want to capture a specific screen yourself.
+
+#### 1. Boot the iPhone 16 Pro Max simulator
+
+```bash
+# List available simulators
+xcrun simctl list devices available | grep "iPhone 16 Pro Max"
+
+# Boot it (replace <UDID> with the one from the list above)
+xcrun simctl boot <UDID>
+
+# Open Simulator.app so you can see it
+open -a Simulator
+```
+
+#### 2. Start the Expo dev server and open the app
+
+```bash
+# From artifacts/spartan-coaching-mobile/
+pnpm run dev
+
+# Press 'i' in the Expo CLI to open in the iOS simulator
+# OR run:
+pnpm exec expo run:ios --simulator "iPhone 16 Pro Max"
+```
+
+#### 3. Log in and navigate to each screen
+
+Use the test account credentials from the App Review notes section below.
+Navigate to each of the 5 screens in order — give each screen a moment to fully load AI responses or data before capturing.
+
+**Screens and suggested state:**
+| Screen | What to show |
+|---|---|
+| Checklist (01) | A sample day filled in — at least 2–3 tasks checked |
+| Scenario Coach (02) | An active AI coaching conversation with a response visible |
+| Branch Calculator (03) | Staffing table populated with sample ADC numbers |
+| Objection Handler (04) | A field-ready objection response fully generated |
+| Login (05) | The portal login screen (log out first to see it) |
+
+#### 4. Capture each screen
+
+```bash
+# Capture to a temp file first, then move to the right slot
+xcrun simctl io booted screenshot /tmp/screenshot.png
+
+# Verify dimensions — must be 1320×2868
+sips -g pixelWidth -g pixelHeight /tmp/screenshot.png
+
+# Copy to the screenshots folder (replace NN with 01–05)
+cp /tmp/screenshot.png store/screenshots/NN-<name>.png
+```
+
+Or use **⌘+S** inside Simulator.app to save a screenshot to your Desktop, then
+resize to exactly 1320×2868 with Preview (Tools → Adjust Size) before copying it in.
+
+#### 5. Confirm all 5 are correct
+
+```bash
+# Quick check — all should be 1320 × 2868
+for f in store/screenshots/*.png; do
+  echo "$f: $(sips -g pixelWidth -g pixelHeight "$f" | awk '/pixel/{printf $2" "}')"
+done
+```
+
+Expected output:
+```
+01-checklist.png: 1320 2868
+02-scenario-coach.png: 1320 2868
+03-branch-calculator.png: 1320 2868
+04-drills.png: 1320 2868
+05-login.png: 1320 2868
+```
+
+Then upload to App Store Connect as described above.
 
 ---
 
