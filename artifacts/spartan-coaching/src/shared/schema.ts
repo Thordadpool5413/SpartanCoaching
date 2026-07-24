@@ -348,17 +348,28 @@ export const emailTemplateRequestSchema = z.object({
 
 export type EmailTemplateRequest = z.infer<typeof emailTemplateRequestSchema>;
 
-// Role-play practice sessions
-export const roleplaySessions = pgTable("roleplay_sessions", {
-  id: serial("id").primaryKey(),
-  scenarioId: text("scenario_id").notNull(),
-  scenarioTitle: text("scenario_title").notNull(),
-  scenarioDescription: text("scenario_description"),
-  status: text("status").notNull().default("active"), // "active" | "completed"
-  feedback: text("feedback"),
-  rating: integer("rating"),
-  createdAt: bigint("created_at", { mode: "number" }).notNull(),
-});
+// Role-play practice sessions (tenant-safe: memberId + organizationId required for new rows)
+export const roleplaySessions = pgTable(
+  "roleplay_sessions",
+  {
+    id: serial("id").primaryKey(),
+    /** Owning Field Kit member. Null only on pre-tenant legacy rows (never exposed). */
+    memberId: integer("member_id"),
+    /** Owning org. Null only on pre-tenant legacy rows (never exposed). */
+    organizationId: integer("organization_id"),
+    scenarioId: text("scenario_id").notNull(),
+    scenarioTitle: text("scenario_title").notNull(),
+    scenarioDescription: text("scenario_description"),
+    status: text("status").notNull().default("active"), // "active" | "completed"
+    feedback: text("feedback"),
+    rating: integer("rating"),
+    createdAt: bigint("created_at", { mode: "number" }).notNull(),
+  },
+  (table) => [
+    index("IDX_roleplay_sessions_member").on(table.memberId),
+    index("IDX_roleplay_sessions_org").on(table.organizationId),
+  ],
+);
 
 export const insertRoleplaySessionSchema = createInsertSchema(roleplaySessions).omit({
   id: true,

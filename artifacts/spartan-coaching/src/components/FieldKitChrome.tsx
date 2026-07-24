@@ -1,5 +1,5 @@
 import { Link, useLocation } from "wouter";
-import { Shield, Home, Wrench, FolderOpen, BookOpen, Phone } from "lucide-react";
+import { Shield, Home, Wrench, FolderOpen, BookOpen, Phone, Crosshair } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FIELD_KIT_WHAT } from "@/lib/fieldKitCatalog";
 import { useAuth } from "@/context/AuthContext";
@@ -7,10 +7,17 @@ import { useAuth } from "@/context/AuthContext";
 const LINKS = [
   { href: "/portal", label: "Home", icon: Home, match: (loc: string) => loc === "/portal" },
   {
+    href: "/tools/sales-workflow",
+    label: "Command",
+    icon: Crosshair,
+    match: (loc: string) => loc.startsWith("/tools/sales-workflow"),
+  },
+  {
     href: "/tools",
     label: "Tools",
     icon: Wrench,
-    match: (loc: string) => loc === "/tools" || loc.startsWith("/tools/"),
+    match: (loc: string) =>
+      (loc === "/tools" || loc.startsWith("/tools/")) && !loc.startsWith("/tools/sales-workflow"),
   },
   {
     href: "/resources",

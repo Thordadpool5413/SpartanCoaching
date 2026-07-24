@@ -47,22 +47,31 @@ If a new installation has no platform administrator, set a random
 store, call the one-time bootstrap endpoint, and delete the token immediately.
 Bootstrap refuses to reset or replace an existing administrator.
 
-## Legacy roleplay archive
+## Role-play: tenant-safe vs legacy
 
-Member-facing legacy roleplay routes return `410 LEGACY_ROLEPLAY_RETIRED` because
-the old records do not contain reliable tenant or owner identity. Do not assign
-those rows to members by inference. Before deleting the legacy tables, export
-them into the KMS-encrypted, platform-admin-only archive introduced by the
-workflow data migration, verify row counts and ciphertext recovery in a test
-environment, then delete the plaintext rows under an approved retention ticket.
+**Current product path:** `/api/roleplay/*` is tenant-safe. New sessions always
+store `memberId` + `organizationId`. Members only list/read/mutate their own
+sessions. Platform admins may list owned sessions for ops analytics. Pre-tenant
+rows with null ownership are never returned, continued, or mutated.
+
+**Legacy archive (operator):** Rows without ownership must not be assigned to
+members by inference. Before deleting those plaintext rows, export them into a
+KMS-encrypted, platform-admin-only archive, verify row counts and ciphertext
+recovery in a test environment, then delete under an approved retention ticket.
+
+**DB migrate:** after pull, run `pnpm --filter @workspace/db run push` so
+`member_id` / `organization_id` columns exist on `roleplay_sessions`.
 
 ## Production enablement evidence
 
 - Root CI and full-history secret scan pass.
 - Gemini revocation is recorded.
 - Platform-admin and article authorization regression tests pass.
-- Legacy roleplay endpoints return 410 for every method and object identifier.
+- Tenant-safe roleplay rejects unowned (legacy) session IDs with 404; new sessions always carry member + org ownership.
+- Operator has completed or scheduled the legacy roleplay archive ticket (if any pre-tenant rows remain).
 - Allowed production origins are explicitly configured through `SITE_URL` and
   optional `APP_URL`.
 - `ADMIN_BOOTSTRAP_TOKEN` is absent after bootstrap.
 - Database backup restoration succeeds before workflow migrations begin.
+
+See also: `docs/operator-checklist.md` and `scripts/smoke-field-kit.md`.

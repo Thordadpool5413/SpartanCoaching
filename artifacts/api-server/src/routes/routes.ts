@@ -11,6 +11,8 @@ import {
   publicFormLimit,
   newsletterLimit,
   analyticsLimit,
+  roleplayLimit,
+  roleplayMessageLimit,
 } from "../rateLimits";
 
 import path from "path";
@@ -24,6 +26,8 @@ import {
   generateGroundedSearch,
   generateDailyDrill,
   generateChatResponse,
+  generateRoleplayResponse,
+  generateRoleplayFeedback,
   ALL_DRILLS,
 } from "../openai";
 import {
@@ -43,6 +47,8 @@ import {
   sendEmailRequestSchema,
   insertResourceLeadSchema,
   insertSignedAgreementSchema,
+  roleplayStartSchema,
+  roleplayMessageSchema,
 } from "@workspace/db";
 
 import {
@@ -52,9 +58,13 @@ import {
 import { sendInquiryNotification, sendNewsletterConfirmation, sendGeneratedEmail, sendAgreementConfirmation, sendResourceLeadNotification, sendNewsletterNotification, sendNewsletterBroadcast, sendDripDay3, sendDripDay7, sendSigningRequest, sendSignedAgreementPdf } from "../resend";
 import crypto from "crypto";
 import { AGREEMENT_TEXTS } from "../agreementTexts";
-import { requireFieldKit, requireAdmin, isAdminRequest } from "../auth/middleware";
+import { requireFieldKit, requireAdmin, isAdminRequest, type AuthedRequest } from "../auth/middleware";
 import type { Request } from "express";
-import { legacyRoleplayRetired } from "../security/legacyRoleplay";
+import {
+  searchSpartanKnowledge,
+  formatCitationsForPrompt,
+} from "../knowledge/spartanCorpus";
+import { searchNpiProviders } from "../knowledge/npiLookup";
 
 /** Express 5 params may be string | string[] — normalize for parseInt / lookups. */
 function paramStr(req: Request, key: string): string {
@@ -194,40 +204,100 @@ Format the playbook in markdown with clear sections, bullet points, and quoted t
     }
   });
 
-  // AI Objection Handler
+  // AI Objection Handler (Spartan corpus-cited)
   app.post("/api/objections", requireFieldKit, standardAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const { objection } = objectionRequestSchema.parse(req.body);
-      
+
+      const corpusHits = searchSpartanKnowledge(objection, 3);
+      const corpusBlock = formatCitationsForPrompt(corpusHits);
+
       const prompt = `A family or referral source says: "${objection}"
 
-Provide a concise, empathetic response that:
+Provide a concise, empathetic field response that:
 1. Acknowledges their concern
-2. Addresses the objection with compassion
-3. Offers a next step or question to continue the conversation
+2. Addresses the objection with compassion using Spartan Method (Discipline, Empathy, Strategy)
+3. Offers a specific next step or question to continue the conversation
 
-Keep it under 100 words and use a warm, professional tone.`;
+Keep it under 120 words and use a warm, professional tone.
+Do not invent clinical claims. Do not request or include PHI.
+${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corpusBlock}` : ""}`;
 
       const response = await generateQuickResponse(prompt);
-      
-      res.json({ response });
+
+      res.json({
+        response,
+        citations: corpusHits.map((c) => ({
+          id: c.id,
+          title: c.title,
+          category: c.category,
+        })),
+      });
     } catch (error: any) {
       console.error("Objection handling error:", error);
       res.status(500).json({ error: error.message || "Failed to generate response" });
     }
   });
 
-  // AI Research Tool
+  // AI Research Tool — public web + Spartan corpus citations
   app.post("/api/research", requireFieldKit, standardAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const { query } = researchRequestSchema.parse(req.body);
-      
+
+      const corpusHits = searchSpartanKnowledge(query, 3);
       const result = await generateGroundedSearch(query);
-      
-      res.json(result);
+
+      res.json({
+        ...result,
+        spartanCitations: corpusHits.map((c) => ({
+          id: c.id,
+          title: c.title,
+          category: c.category,
+          excerpt: c.body.slice(0, 280),
+        })),
+      });
     } catch (error: any) {
       console.error("Research error:", error);
       res.status(500).json({ error: error.message || "Failed to perform research" });
+    }
+  });
+
+  // Spartan knowledge search (citable corpus — no model call)
+  app.get("/api/knowledge/search", requireFieldKit, lightAiLimit, async (req, res) => {
+    try {
+      const q = String(req.query.q || "").trim();
+      if (q.length < 2) {
+        return res.status(400).json({ error: "Query q must be at least 2 characters" });
+      }
+      const limit = Math.min(parseInt(String(req.query.limit || "5"), 10) || 5, 10);
+      const results = searchSpartanKnowledge(q, limit);
+      res.json({ query: q, results });
+    } catch (error: any) {
+      console.error("Knowledge search error:", error);
+      res.status(500).json({ error: error.message || "Knowledge search failed" });
+    }
+  });
+
+  // Free public NPI registry lookup (no PHI — names/orgs only)
+  app.get("/api/reference/npi", requireFieldKit, lightAiLimit, async (req, res) => {
+    try {
+      const results = await searchNpiProviders({
+        firstName: req.query.firstName ? String(req.query.firstName) : undefined,
+        lastName: req.query.lastName ? String(req.query.lastName) : undefined,
+        organizationName: req.query.organization
+          ? String(req.query.organization)
+          : req.query.organizationName
+            ? String(req.query.organizationName)
+            : undefined,
+        city: req.query.city ? String(req.query.city) : undefined,
+        state: req.query.state ? String(req.query.state) : undefined,
+        number: req.query.number ? String(req.query.number) : undefined,
+        limit: req.query.limit ? parseInt(String(req.query.limit), 10) : 5,
+      });
+      res.json({ results });
+    } catch (error: any) {
+      console.error("NPI lookup error:", error);
+      res.status(400).json({ error: error.message || "NPI lookup failed" });
     }
   });
 
@@ -1348,14 +1418,186 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
   });
 
-  // ===== RETIRED LEGACY ROLE-PLAY ROUTES =====
-  // These records predate organization/member ownership. They must not be read,
-  // continued, aggregated, or mutated through member-facing endpoints.
-  app.all("/api/roleplay/sessions", legacyRoleplayRetired);
-  app.all("/api/roleplay/stats", legacyRoleplayRetired);
-  app.all("/api/roleplay/sessions/:id", legacyRoleplayRetired);
-  app.all("/api/roleplay/sessions/:id/messages", legacyRoleplayRetired);
-  app.all("/api/roleplay/sessions/:id/feedback", legacyRoleplayRetired);
+  // ===== TENANT-SAFE ROLE-PLAY PRACTICE =====
+  // New sessions always store memberId + organizationId. Pre-tenant legacy rows
+  // (null ownership) are never listed, read, continued, or mutated here.
+
+  app.post(
+    "/api/roleplay/sessions",
+    requireFieldKit,
+    roleplayLimit,
+    globalDailyAiCap,
+    async (req: AuthedRequest, res) => {
+      try {
+        const member = req.fieldKit?.member;
+        const org = req.fieldKit?.org;
+        if (!member || !org) {
+          return res.status(401).json({ error: "Authentication required", code: "UNAUTHENTICATED" });
+        }
+
+        const { scenarioId, scenarioTitle, scenarioDescription } = roleplayStartSchema.parse(req.body);
+        const session = await storage.createRoleplaySession({
+          memberId: member.id,
+          organizationId: org.id,
+          scenarioId,
+          scenarioTitle,
+          scenarioDescription: scenarioDescription ?? null,
+          status: "active",
+        });
+
+        const initialResponse = await generateRoleplayResponse(
+          scenarioId,
+          scenarioTitle,
+          "Hello, I'm here to speak with you today.",
+          [],
+          scenarioDescription,
+        );
+        await storage.createRoleplayMessage({
+          sessionId: session.id,
+          role: "character",
+          content: initialResponse,
+        });
+
+        storage.trackEvent({ eventType: "ai_tool_usage", eventName: "roleplay_start" }).catch(() => {});
+        res.json({ session, initialMessage: initialResponse });
+      } catch (error: any) {
+        console.error("Roleplay session creation error:", error);
+        if (error?.name === "ZodError") {
+          return res.status(400).json({ error: "Invalid role-play start data" });
+        }
+        res.status(500).json({ error: error.message || "Failed to create roleplay session" });
+      }
+    },
+  );
+
+  /**
+   * List sessions as a JSON array (mobile + web).
+   * Members: own sessions only. Platform admin: all tenant-owned sessions.
+   * Unowned legacy rows are never included.
+   */
+  app.get("/api/roleplay/sessions", requireFieldKit, async (req: AuthedRequest, res) => {
+    try {
+      if (isAdminRequest(req)) {
+        return res.json(await storage.getOwnedRoleplaySessions());
+      }
+      res.json(await storage.getRoleplaySessionsForMember(req.clientMemberId!));
+    } catch (error: any) {
+      console.error("Get roleplay sessions error:", error);
+      res.json([]);
+    }
+  });
+
+  app.get("/api/roleplay/stats", requireFieldKit, async (req: AuthedRequest, res) => {
+    try {
+      const memberId = req.clientMemberId!;
+      const stats = await storage.getRoleplayStatsForMember(memberId);
+      res.json(stats);
+    } catch (error: any) {
+      console.error("Get roleplay stats error:", error);
+      res.json([]);
+    }
+  });
+
+  app.get("/api/roleplay/sessions/:id", requireFieldKit, async (req: AuthedRequest, res) => {
+    try {
+      const id = paramInt(req, "id");
+      if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid session id" });
+
+      const session = await storage.getRoleplaySession(id);
+      if (!session) return res.status(404).json({ error: "Session not found" });
+
+      const memberId = req.clientMemberId!;
+      const isOwner = session.memberId === memberId;
+      if (!isOwner && !isAdminRequest(req)) {
+        return res.status(404).json({ error: "Session not found" });
+      }
+
+      const messages = await storage.getRoleplayMessages(id);
+      res.json({ session, messages });
+    } catch (error: any) {
+      console.error("Get roleplay session error:", error);
+      res.status(500).json({ error: error.message || "Failed to get session" });
+    }
+  });
+
+  app.post(
+    "/api/roleplay/sessions/:id/messages",
+    requireFieldKit,
+    roleplayMessageLimit,
+    globalDailyAiCap,
+    async (req: AuthedRequest, res) => {
+      try {
+        const sessionId = paramInt(req, "id");
+        if (!Number.isFinite(sessionId)) return res.status(400).json({ error: "Invalid session id" });
+
+        const { content } = roleplayMessageSchema.parse(req.body);
+        const session = await storage.getRoleplaySession(sessionId);
+        if (!session || session.memberId !== req.clientMemberId) {
+          return res.status(404).json({ error: "Session not found" });
+        }
+        if (session.status !== "active") {
+          return res.status(400).json({ error: "Session is no longer active" });
+        }
+
+        await storage.createRoleplayMessage({ sessionId, role: "user", content });
+
+        const messages = await storage.getRoleplayMessages(sessionId);
+        const history = messages.map((m) => ({ role: m.role, content: m.content }));
+
+        const response = await generateRoleplayResponse(
+          session.scenarioId,
+          session.scenarioTitle,
+          content,
+          history.slice(0, -1),
+          session.scenarioDescription ?? undefined,
+        );
+        await storage.createRoleplayMessage({ sessionId, role: "character", content: response });
+
+        storage.trackEvent({ eventType: "ai_tool_usage", eventName: "roleplay" }).catch(() => {});
+        res.json({ response });
+      } catch (error: any) {
+        console.error("Roleplay message error:", error);
+        if (error?.name === "ZodError") {
+          return res.status(400).json({ error: "Invalid message" });
+        }
+        res.status(500).json({ error: error.message || "Failed to send message" });
+      }
+    },
+  );
+
+  app.post(
+    "/api/roleplay/sessions/:id/feedback",
+    requireFieldKit,
+    roleplayMessageLimit,
+    globalDailyAiCap,
+    async (req: AuthedRequest, res) => {
+      try {
+        const sessionId = paramInt(req, "id");
+        if (!Number.isFinite(sessionId)) return res.status(400).json({ error: "Invalid session id" });
+
+        const session = await storage.getRoleplaySession(sessionId);
+        if (!session || session.memberId !== req.clientMemberId) {
+          return res.status(404).json({ error: "Session not found" });
+        }
+
+        const messages = await storage.getRoleplayMessages(sessionId);
+        const transcript = messages.map((m) => ({ role: m.role, content: m.content }));
+
+        const { feedback, rating } = await generateRoleplayFeedback(session.scenarioTitle, transcript);
+        const updated = await storage.updateRoleplaySession(sessionId, {
+          status: "completed",
+          feedback,
+          rating,
+        });
+
+        storage.trackEvent({ eventType: "ai_tool_usage", eventName: "roleplay_feedback" }).catch(() => {});
+        res.json({ session: updated, feedback, rating });
+      } catch (error: any) {
+        console.error("Roleplay feedback error:", error);
+        res.status(500).json({ error: error.message || "Failed to generate feedback" });
+      }
+    },
+  );
 
   // ===== DAILY DRILL ROUTES =====
 

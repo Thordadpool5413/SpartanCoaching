@@ -1,6 +1,6 @@
 /**
  * Single inventory for Field Kit tools (and how-to copy).
- * Portal, tools page, and tool headers should pull from here over time.
+ * Portal, tools page, and tool headers should use this catalog.
  */
 
 export type FieldKitCategory = "Prepare" | "Practice" | "Plan" | "Measure" | "Outreach" | "Learn";
@@ -36,7 +36,7 @@ export const FIELD_KIT_WHY =
   "So Tuesday behavior improves: better conversations, clearer weeks, and fewer eligible patients left without a referral path.";
 
 export const FIELD_KIT_HOW =
-  "Pick your role → run this week’s recommended actions → open the matching tool or download → book a debrief while access is open.";
+  "Open Sales Command Center for the next call → prepare and practice → capture the outcome → use satellite tools as needed → book a debrief while access is open.";
 
 export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   {
