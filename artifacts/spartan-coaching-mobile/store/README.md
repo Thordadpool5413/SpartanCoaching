@@ -164,7 +164,11 @@ Fill these in App Store Connect before submitting for review:
 | Category | Business |
 | Age rating | 4+ |
 
-### Screenshots (iPhone 6.9" — iPhone 16 Pro Max)
+### Screenshots
+
+App Store Connect requires at least the **6.9"** slot. The **6.7"** slot is strongly recommended — it covers the large installed base of iPhone 15 / 14 Plus users and appears automatically for iPhone 15 Plus devices browsing the store.
+
+#### 6.9" slot — iPhone 16 Pro Max (1320×2868 px)
 
 **Ready-to-upload screenshots are in `store/screenshots/`** — all 5 at the required 1320×2868 px:
 
@@ -178,12 +182,39 @@ Fill these in App Store Connect before submitting for review:
 
 > **Note:** The current PNGs were generated programmatically to unblock submission. Replace them with real simulator captures (see below) before the next App Store review cycle for a more polished listing.
 
-**How to upload to App Store Connect:**
+**How to upload (6.9" slot):**
 
 1. Open [App Store Connect](https://appstoreconnect.apple.com) → your Field Kit app record.
 2. Go to **App Store → iOS App → iPhone screenshots**.
 3. Select the **6.9" (iPhone 16 Pro Max)** device size slot.
 4. Drag all 5 PNGs from `store/screenshots/` into the upload area (or click **+** to browse).
+5. Arrange them in the order 01 → 05.
+6. Click **Save**.
+
+---
+
+#### 6.7" slot — iPhone 15 Plus (1290×2796 px)
+
+**Ready-to-upload placeholder screenshots are in `store/screenshots/6.7/`** — all 5 at the required 1290×2796 px:
+
+| File | Screen |
+|---|---|
+| `01-checklist.png` | Checklist / Home |
+| `02-scenario-coach.png` | AI Scenario Coach |
+| `03-branch-calculator.png` | Branch Calculator |
+| `04-drills.png` | Objection Handler |
+| `05-login.png` | Portal / Login |
+
+> **Note:** The current 6.7" PNGs are placeholder fills. Replace them with real iPhone 15 Plus simulator captures (see "Capturing Real Screenshots" below) before the next App Store review cycle.
+>
+> App Store Connect will use the 6.9" set as a fallback for 6.7" if you skip this slot — but uploading dedicated 6.7" images gives iPhone 15/14 Plus users a pixel-perfect preview.
+
+**How to upload (6.7" slot):**
+
+1. Open [App Store Connect](https://appstoreconnect.apple.com) → your Field Kit app record.
+2. Go to **App Store → iOS App → iPhone screenshots**.
+3. Select the **6.7" (iPhone 15 Plus)** device size slot.
+4. Drag all 5 PNGs from `store/screenshots/6.7/` into the upload area (or click **+** to browse).
 5. Arrange them in the order 01 → 05.
 6. Click **Save** — then proceed to submit for review.
 
@@ -191,7 +222,7 @@ Optional: iPad screenshots (12.9") — not required since `supportsTablet` is fa
 
 ---
 
-## Capturing Real Screenshots from the iPhone 16 Pro Max Simulator
+## Capturing Real Screenshots from the Simulator
 
 Run this once after the app is available on TestFlight (or any time you do a UI refresh).
 Requires: **Mac with Xcode 16+** and the app running locally via Expo.
@@ -208,49 +239,79 @@ pnpm install
 # In one terminal — start the Expo dev server
 pnpm run dev
 
-# In another terminal — run the capture script
-# This boots the simulator, navigates to each screen,
-# captures at 1320×2868, and saves to store/screenshots/
+# In another terminal — capture 6.9" only (iPhone 16 Pro Max → store/screenshots/):
 bash store/capture-screenshots.sh
+
+# OR capture both 6.9" AND 6.7" in one run:
+CAPTURE_67=1 bash store/capture-screenshots.sh
 ```
 
-After the script finishes, verify the 5 PNGs in `store/screenshots/` look correct,
-then follow the "How to upload to App Store Connect" steps above.
+The script prompts you to navigate to each screen and press ENTER before capturing.
+When `CAPTURE_67=1` is set it runs a full 5-screen pass on the iPhone 16 Pro Max first,
+then asks you to switch to the iPhone 15 Plus simulator and repeats the same 5 screens,
+saving the second set to `store/screenshots/6.7/` at 1290×2796 px.
+
+After the script finishes, verify the PNGs look correct, then follow the upload steps above.
 
 ### Manual method — step by step
 
 Use this if the script fails or you want to capture a specific screen yourself.
 
-#### 1. Boot the iPhone 16 Pro Max simulator
+#### 6.9" (iPhone 16 Pro Max — 1320×2868)
 
 ```bash
-# List available simulators
+# 1. Boot the simulator
 xcrun simctl list devices available | grep "iPhone 16 Pro Max"
-
-# Boot it (replace <UDID> with the one from the list above)
 xcrun simctl boot <UDID>
-
-# Open Simulator.app so you can see it
 open -a Simulator
+
+# 2. Open the app
+pnpm exec expo run:ios --simulator "iPhone 16 Pro Max"
+
+# 3. Capture each screen
+xcrun simctl io booted screenshot /tmp/screenshot.png
+sips -g pixelWidth -g pixelHeight /tmp/screenshot.png   # must be 1320×2868
+cp /tmp/screenshot.png store/screenshots/NN-<name>.png
 ```
 
-#### 2. Start the Expo dev server and open the app
+Or use **⌘+S** inside Simulator.app → resize to exactly 1320×2868 with Preview
+(Tools → Adjust Size) before copying in.
+
+**Dimension check:**
+```bash
+for f in store/screenshots/*.png; do
+  echo "$f: $(sips -g pixelWidth -g pixelHeight "$f" | awk '/pixel/{printf $2" "}')"
+done
+# Expected: 1320 2868 for each file
+```
+
+#### 6.7" (iPhone 15 Plus — 1290×2796)
 
 ```bash
-# From artifacts/spartan-coaching-mobile/
-pnpm run dev
+# 1. Boot the simulator
+xcrun simctl list devices available | grep "iPhone 15 Plus"
+xcrun simctl boot <UDID>
+open -a Simulator
 
-# Press 'i' in the Expo CLI to open in the iOS simulator
-# OR run:
-pnpm exec expo run:ios --simulator "iPhone 16 Pro Max"
+# 2. Open the app
+pnpm exec expo run:ios --simulator "iPhone 15 Plus"
+
+# 3. Capture each screen
+xcrun simctl io booted screenshot /tmp/screenshot.png
+sips -g pixelWidth -g pixelHeight /tmp/screenshot.png   # must be 1290×2796
+cp /tmp/screenshot.png store/screenshots/6.7/NN-<name>.png
 ```
 
-#### 3. Log in and navigate to each screen
+**Dimension check:**
+```bash
+for f in store/screenshots/6.7/*.png; do
+  echo "$f: $(sips -g pixelWidth -g pixelHeight "$f" | awk '/pixel/{printf $2" "}')"
+done
+# Expected: 1290 2796 for each file
+```
 
-Use the test account credentials from the App Review notes section below.
-Navigate to each of the 5 screens in order — give each screen a moment to fully load AI responses or data before capturing.
+**Screens and suggested state (both device sizes):**
 
-**Screens and suggested state:**
 | Screen | What to show |
 |---|---|
 | Checklist (01) | A sample day filled in — at least 2–3 tasks checked |
@@ -259,41 +320,7 @@ Navigate to each of the 5 screens in order — give each screen a moment to full
 | Objection Handler (04) | A field-ready objection response fully generated |
 | Login (05) | The portal login screen (log out first to see it) |
 
-#### 4. Capture each screen
-
-```bash
-# Capture to a temp file first, then move to the right slot
-xcrun simctl io booted screenshot /tmp/screenshot.png
-
-# Verify dimensions — must be 1320×2868
-sips -g pixelWidth -g pixelHeight /tmp/screenshot.png
-
-# Copy to the screenshots folder (replace NN with 01–05)
-cp /tmp/screenshot.png store/screenshots/NN-<name>.png
-```
-
-Or use **⌘+S** inside Simulator.app to save a screenshot to your Desktop, then
-resize to exactly 1320×2868 with Preview (Tools → Adjust Size) before copying it in.
-
-#### 5. Confirm all 5 are correct
-
-```bash
-# Quick check — all should be 1320 × 2868
-for f in store/screenshots/*.png; do
-  echo "$f: $(sips -g pixelWidth -g pixelHeight "$f" | awk '/pixel/{printf $2" "}')"
-done
-```
-
-Expected output:
-```
-01-checklist.png: 1320 2868
-02-scenario-coach.png: 1320 2868
-03-branch-calculator.png: 1320 2868
-04-drills.png: 1320 2868
-05-login.png: 1320 2868
-```
-
-Then upload to App Store Connect as described above.
+Then upload to App Store Connect as described in the Screenshots section above.
 
 ---
 
