@@ -1,0 +1,128 @@
+lib/hospice-sales-runtime/react/http-client.ts
+  s_49726d5d67fecc::t_fc602bf7a823ed 1-62
+artifacts/api-server/src/routes/salesWorkflowRoutes.ts
+  s_49726d5d67fecc::t_d95cdeb03e25a3 1-7,9,11-25,29-41,43-52,74-88,90-104,106-108
+  s_49726d5d67fecc::t_c97c12a4d57f85 10,42,53-55,57-58,64-65,67-68,70-73,89,105
+  s_49726d5d67fecc::t_8751fadc905c4f 8,56,59-63,66,69
+  s_49726d5d67fecc::t_e310bba0197151 26-28
+lib/db/src/schema/salesWorkflow.ts
+  s_49726d5d67fecc::t_a85443d2926d7c 1-92
+artifacts/spartan-coaching/src/pages/SalesWorkflow.tsx
+  s_49726d5d67fecc::t_c97c12a4d57f85 33
+  s_49726d5d67fecc::t_fc602bf7a823ed 5
+  s_49726d5d67fecc::t_e310bba0197151 1-4,6-32,34-57
+lib/hospice-sales-runtime/package.json
+  s_49726d5d67fecc::t_7d2a35fac8928e 1-8,11-22,24-42
+  s_49726d5d67fecc::t_fc602bf7a823ed 23
+  s_49726d5d67fecc::t_a85443d2926d7c 9-10
+lib/hospice-sales-runtime/server/express.ts
+  s_49726d5d67fecc::t_7d2a35fac8928e 1-75
+artifacts/spartan-coaching-mobile/app/sales-workflow.tsx
+  s_49726d5d67fecc::t_e1cc46b66d5d01 1-331
+docs/sales-workflow.md
+  s_49726d5d67fecc::t_c97c12a4d57f85 1-29
+artifacts/api-server/scripts/apply-sales-workflow-migration.mjs
+  s_49726d5d67fecc::t_a85443d2926d7c 1-23
+lib/hospice-sales-runtime/react/react.tsx
+  s_49726d5d67fecc::t_04c428b4d7beb5 25-30,35-36
+  s_49726d5d67fecc::t_4ee779c34f4f62 19,42
+  s_49726d5d67fecc::t_7d2a35fac8928e 1-18,20-24,31-34,37-41,43-54
+artifacts/api-server/package.json
+  s_49726d5d67fecc::t_e0e768435ebb21 11,18
+artifacts/api-server/src/app.ts
+  s_49726d5d67fecc::t_f3587b3518b6c7 8,68-70
+artifacts/spartan-coaching-mobile/app/(tabs)/index.tsx
+  s_49726d5d67fecc::t_21d8f72792c74b 42
+artifacts/spartan-coaching-mobile/lib/api.ts
+  s_49726d5d67fecc::t_966985cc334b1b 37-41,44-48
+artifacts/spartan-coaching/package.json
+  s_49726d5d67fecc::t_97ad0e5a93c5a5 54
+artifacts/spartan-coaching/src/App.tsx
+  s_49726d5d67fecc::t_5cbedb1f2a6229 77,110,232
+artifacts/spartan-coaching/src/lib/fieldKitCatalog.ts
+  s_49726d5d67fecc::t_65a317829b9a22 42-55
+lib/db/src/schema/index.ts
+  s_49726d5d67fecc::t_3656c00a460ac0 22-23
+lib/hospice-sales-runtime/LICENSE
+  s_49726d5d67fecc::t_ef3cb9a30d0e1a 1-5
+lib/hospice-sales-runtime/README.md
+  s_49726d5d67fecc::t_37b1b2e10655e3 1-14
+lib/hospice-sales-runtime/dist/adaptive-roleplay-response.d.ts
+  s_49726d5d67fecc::t_462947856da856 1-222
+lib/hospice-sales-runtime/dist/adaptive-roleplay-response.js
+  s_49726d5d67fecc::t_f9b40f037ac9c8 1-154
+lib/hospice-sales-runtime/dist/adaptive-roleplay-response.js.map
+  s_49726d5d67fecc::t_02b36ccd4462db 1
+lib/hospice-sales-runtime/dist/call-performance-coach.d.ts
+  s_49726d5d67fecc::t_4a9b5afc02415d 1-215
+lib/hospice-sales-runtime/dist/call-performance-coach.js
+  s_49726d5d67fecc::t_95c65ca3a64994 1-153
+lib/hospice-sales-runtime/dist/call-performance-coach.js.map
+  s_49726d5d67fecc::t_4d9d95c52cb5b6 1
+lib/hospice-sales-runtime/dist/coaching-feedback.d.ts
+  s_49726d5d67fecc::t_abd5d7c20b0df8 1-200
+lib/hospice-sales-runtime/dist/coaching-feedback.js
+  s_49726d5d67fecc::t_265c1f3f762f5e 1-154
+lib/hospice-sales-runtime/dist/coaching-feedback.js.map
+  s_49726d5d67fecc::t_2c75ca37ed7e12 1
+lib/hospice-sales-runtime/dist/discovery-coach.d.ts
+  s_49726d5d67fecc::t_b170550a147e71 1-238
+lib/hospice-sales-runtime/dist/discovery-coach.js
+  s_49726d5d67fecc::t_8bca2f61b28752 1-158
+lib/hospice-sales-runtime/dist/discovery-coach.js.map
+  s_49726d5d67fecc::t_4841f17d07afcb 1
+lib/hospice-sales-runtime/dist/email-optimizer.d.ts
+  s_49726d5d67fecc::t_c40a2cef540476 1-218
+lib/hospice-sales-runtime/dist/email-optimizer.js
+  s_49726d5d67fecc::t_e974d6ab1c21e9 1-156
+lib/hospice-sales-runtime/dist/email-optimizer.js.map
+  s_49726d5d67fecc::t_43d0d5d3aec507 1
+lib/hospice-sales-runtime/dist/objection-coach.d.ts
+  s_49726d5d67fecc::t_2ace4c33f5f368 1-203
+lib/hospice-sales-runtime/dist/objection-coach.js
+  s_49726d5d67fecc::t_6772a8d2046345 1-153
+lib/hospice-sales-runtime/dist/objection-coach.js.map
+  s_49726d5d67fecc::t_9323050ef7472f 1
+lib/hospice-sales-runtime/dist/pre-call-planner.d.ts
+  s_49726d5d67fecc::t_bca5b472afb8f8 1-289
+lib/hospice-sales-runtime/dist/pre-call-planner.js
+  s_49726d5d67fecc::t_273f6d1b24a306 1-196
+lib/hospice-sales-runtime/dist/pre-call-planner.js.map
+  s_49726d5d67fecc::t_74c89213a82cba 1
+lib/hospice-sales-runtime/dist/roleplay-scenario-coach.d.ts
+  s_49726d5d67fecc::t_85f3227df1c1a8 1-192
+lib/hospice-sales-runtime/dist/roleplay-scenario-coach.js
+  s_49726d5d67fecc::t_80ba7beca4b2b7 1-154
+lib/hospice-sales-runtime/dist/roleplay-scenario-coach.js.map
+  s_49726d5d67fecc::t_62b471b401c6b1 1
+lib/hospice-sales-runtime/dist/sales-workflow.d.ts
+  s_49726d5d67fecc::t_8816dc14de464d 1-1303
+lib/hospice-sales-runtime/dist/sales-workflow.js
+  s_49726d5d67fecc::t_0f588fe820db2b 1-1355
+lib/hospice-sales-runtime/dist/sales-workflow.js.map
+  s_49726d5d67fecc::t_4a443d64e4c961 1
+lib/hospice-sales-runtime/migrations/001_sales_workflow.sql
+  s_49726d5d67fecc::t_b58c6bdb8b8178 1-37
+lib/hospice-sales-runtime/react/styles.css
+  s_49726d5d67fecc::t_5cb0928561ef7c 1-8
+pnpm-lock.yaml
+  s_49726d5d67fecc::t_25ec00fc267c9f 187-189,266-268,597-599,988-1005,4333-4335,13816-13817
+scripts/post-merge.sh
+  s_49726d5d67fecc::t_946f90e9ead063 5
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "d13f9674d5ef8a89435ff0ba73822a3114c89441",
+  "prompts": {},
+  "sessions": {
+    "s_49726d5d67fecc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f8276-13fc-7fc3-bfe9-2af07f6183ba",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}

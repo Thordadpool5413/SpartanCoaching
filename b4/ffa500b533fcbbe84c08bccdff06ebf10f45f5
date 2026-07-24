@@ -1,0 +1,60 @@
+docs/security-foundation.md
+  s_49726d5d67fecc::t_bc361a4e950f85 1-68
+artifacts/api-server/src/security/requestSecurity.test.ts
+  s_49726d5d67fecc::t_095c69337cd292 1-3,5-36,38-62,64-72
+  s_49726d5d67fecc::t_1ca9a603248fb6 4,37,63
+artifacts/api-server/src/app.ts
+  s_49726d5d67fecc::t_13b7dc81866a35 11
+  s_49726d5d67fecc::t_77731e49bf60ab 12-14
+  s_49726d5d67fecc::t_295211b5c57429 15,43-45,50-53
+artifacts/api-server/src/security/requestSecurity.ts
+  s_49726d5d67fecc::t_13b7dc81866a35 1-2,4-64,66-85
+  s_49726d5d67fecc::t_1ca9a603248fb6 3,65
+artifacts/spartan-coaching/src/components/AdminAuthGate.tsx
+  s_49726d5d67fecc::t_fabcd399665747 13
+  s_49726d5d67fecc::t_ccafeb7f6aa17d 22,90,98,101,104-106,109,111
+.github/workflows/ci.yml
+  s_49726d5d67fecc::t_bc361a4e950f85 1-46
+artifacts/api-server/src/auth/middleware.ts
+  s_49726d5d67fecc::t_3141a47b9e86c7 7
+  s_49726d5d67fecc::t_eaa555ffed6a07 4
+artifacts/api-server/src/security/legacyRoleplay.ts
+  s_49726d5d67fecc::t_43a3566bbb9cab 1-8
+artifacts/api-server/src/auth/middleware.test.ts
+  s_49726d5d67fecc::t_1ca9a603248fb6 4-8,26,34,42
+  s_49726d5d67fecc::t_095c69337cd292 1-3,9-25,27-33,35-41,43-54
+artifacts/api-server/src/security/legacyRoleplay.test.ts
+  s_49726d5d67fecc::t_43a3566bbb9cab 1-25
+artifacts/api-server/src/auth/adminAuthorization.ts
+  s_49726d5d67fecc::t_1ca9a603248fb6 1-28
+.gitignore
+  s_49726d5d67fecc::t_2ae633d94824a8 31-35
+artifacts/api-server/package.json
+  s_49726d5d67fecc::t_7dea2740eb862c 11
+artifacts/api-server/src/routes/authRoutes.ts
+  s_49726d5d67fecc::t_6c79777a1e7583 89,100,138-141,1467,1483-1484,1491-1496,1499,1507,1579-1583,1592-1595,1631-1635
+artifacts/api-server/src/routes/routes.ts
+  s_49726d5d67fecc::t_9a4580d668accd 17,19,57,447,500,531,1351-1358
+artifacts/api-server/tsconfig.json
+  s_49726d5d67fecc::t_001b1e9971a8a7 12
+artifacts/spartan-coaching/src/pages/Admin.tsx
+  s_49726d5d67fecc::t_09bb32b51c31a4 95,1816,1819,1832,1835,1838-1840,1842-1845
+artifacts/spartan-coaching/vite.config.ts
+  s_49726d5d67fecc::t_b92b3c7e244afc 7,15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.15",
+  "base_commit_sha": "b4ffa500b533fcbbe84c08bccdff06ebf10f45f5",
+  "prompts": {},
+  "sessions": {
+    "s_49726d5d67fecc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f8276-13fc-7fc3-bfe9-2af07f6183ba",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
