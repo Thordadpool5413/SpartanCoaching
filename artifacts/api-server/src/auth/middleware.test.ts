@@ -1,5 +1,4 @@
-import assert from "node:assert/strict";
-import test from "node:test";
+import { test, expect } from "vitest";
 import type { NextFunction, Response } from "express";
 import {
   isAdminRequest,
@@ -24,7 +23,7 @@ function responseRecorder() {
 
 test("admin header cannot authorize a request", () => {
   const req = { headers: { "x-admin-auth": "5413" } } as unknown as AdminAuthorizationRequest;
-  assert.equal(isAdminRequest(req), false);
+  expect(isAdminRequest(req)).toBe(false);
 });
 
 test("active platform admin session is authorized", () => {
@@ -32,7 +31,7 @@ test("active platform admin session is authorized", () => {
     clientMemberId: 7,
     fieldKit: { member: { status: "active", role: "platform_admin" } },
   } as unknown as AdminAuthorizationRequest;
-  assert.equal(isAdminRequest(req), true);
+  expect(isAdminRequest(req)).toBe(true);
 });
 
 test("ordinary authenticated member receives forbidden", () => {
@@ -45,9 +44,9 @@ test("ordinary authenticated member receives forbidden", () => {
   requireAdmin(req, response, (() => {
     called = true;
   }) as NextFunction);
-  assert.equal(called, false);
-  assert.equal(state.status, 403);
-  assert.deepEqual(state.body, {
+  expect(called).toBe(false);
+  expect(state.status).toBe(403);
+  expect(state.body).toEqual({
     error: "Platform administrator session required",
     code: "ADMIN_REQUIRED",
   });

@@ -1,10 +1,8 @@
-import assert from "node:assert/strict";
-import { test } from "node:test";
+import { test, expect } from "vitest";
 
 /**
  * Pure ownership helpers mirrored by the tenant-safe roleplay route layer.
  * Keeps the security contract unit-testable without a live DB.
- * Uses node:test so it runs under both `node --test` and vitest (when configured).
  */
 
 type OwnedSession = {
@@ -43,10 +41,10 @@ test("legacy unowned sessions are never readable", () => {
     organizationId: null,
     status: "completed",
   };
-  assert.equal(isTenantOwned(legacy), false);
-  assert.equal(canMemberAccess(legacy, 42, false), false);
-  assert.equal(canMemberAccess(legacy, 42, true), false);
-  assert.equal(canMemberMutate(legacy, 42), false);
+  expect(isTenantOwned(legacy)).toBe(false);
+  expect(canMemberAccess(legacy, 42, false)).toBe(false);
+  expect(canMemberAccess(legacy, 42, true)).toBe(false);
+  expect(canMemberMutate(legacy, 42)).toBe(false);
 });
 
 test("member can only access own tenant-owned sessions", () => {
@@ -62,10 +60,10 @@ test("member can only access own tenant-owned sessions", () => {
     organizationId: 5,
     status: "active",
   };
-  assert.equal(canMemberAccess(own, 10, false), true);
-  assert.equal(canMemberAccess(other, 10, false), false);
-  assert.equal(canMemberMutate(own, 10), true);
-  assert.equal(canMemberMutate(other, 10), false);
+  expect(canMemberAccess(own, 10, false)).toBe(true);
+  expect(canMemberAccess(other, 10, false)).toBe(false);
+  expect(canMemberMutate(own, 10)).toBe(true);
+  expect(canMemberMutate(other, 10)).toBe(false);
 });
 
 test("platform admin can read owned sessions but mutate only as owner", () => {
@@ -75,13 +73,12 @@ test("platform admin can read owned sessions but mutate only as owner", () => {
     organizationId: 5,
     status: "completed",
   };
-  assert.equal(canMemberAccess(session, 1, true), true);
-  // Mutations always require ownership — admin analytics are read-only here.
-  assert.equal(canMemberMutate(session, 1), false);
-  assert.equal(canMemberMutate(session, 10), true);
+  expect(canMemberAccess(session, 1, true)).toBe(true);
+  expect(canMemberMutate(session, 1)).toBe(false);
+  expect(canMemberMutate(session, 10)).toBe(true);
 });
 
 test("missing session is denied", () => {
-  assert.equal(canMemberAccess(undefined, 1, true), false);
-  assert.equal(canMemberMutate(null, 1), false);
+  expect(canMemberAccess(undefined, 1, true)).toBe(false);
+  expect(canMemberMutate(null, 1)).toBe(false);
 });

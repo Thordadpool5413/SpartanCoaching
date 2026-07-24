@@ -1,5 +1,4 @@
-import { describe, it } from "node:test";
-import assert from "node:assert/strict";
+import { describe, it, expect } from "vitest";
 import { evaluateFieldKitAccess } from "./evaluateAccess.ts";
 
 describe("evaluateFieldKitAccess", () => {
@@ -15,8 +14,8 @@ describe("evaluateFieldKitAccess", () => {
       status: "active",
       trialEndsAt: null,
     });
-    assert.equal(access.allowed, true);
-    assert.equal(access.hoursRemaining, null);
+    expect(access.allowed).toBe(true);
+    expect(access.hoursRemaining).toBe(null);
   });
 
   it("allows trial members with time remaining", () => {
@@ -25,8 +24,8 @@ describe("evaluateFieldKitAccess", () => {
       status: "trial",
       trialEndsAt: new Date(Date.now() + 12 * 60 * 60 * 1000),
     });
-    assert.equal(access.allowed, true);
-    assert.ok((access.hoursRemaining ?? 0) > 0);
+    expect(access.allowed).toBe(true);
+    expect((access.hoursRemaining ?? 0) > 0).toBe(true);
   });
 
   it("denies expired trials", () => {
@@ -35,8 +34,8 @@ describe("evaluateFieldKitAccess", () => {
       status: "expired",
       trialEndsAt: new Date(Date.now() - 1000),
     });
-    assert.equal(access.allowed, false);
-    assert.equal(access.reason, "expired");
+    expect(access.allowed).toBe(false);
+    expect(access.reason).toBe("expired");
   });
 
   it("denies trial past trialEndsAt even if status still trial", () => {
@@ -45,8 +44,8 @@ describe("evaluateFieldKitAccess", () => {
       status: "trial",
       trialEndsAt: new Date(Date.now() - 60_000),
     });
-    assert.equal(access.allowed, false);
-    assert.equal(access.reason, "expired");
+    expect(access.allowed).toBe(false);
+    expect(access.reason).toBe("expired");
   });
 
   it("denies disabled members", () => {
@@ -54,8 +53,8 @@ describe("evaluateFieldKitAccess", () => {
       { status: "disabled", role: "member", passwordHash: "x" },
       { type: "personal", status: "active", trialEndsAt: null },
     );
-    assert.equal(access.allowed, false);
-    assert.equal(access.reason, "disabled");
+    expect(access.allowed).toBe(false);
+    expect(access.reason).toBe("disabled");
   });
 
   it("denies invited / pending password", () => {
@@ -63,8 +62,8 @@ describe("evaluateFieldKitAccess", () => {
       { status: "invited", role: "member", passwordHash: null },
       { type: "personal", status: "trial", trialEndsAt: new Date(Date.now() + 3600_000) },
     );
-    assert.equal(access.allowed, false);
-    assert.equal(access.reason, "pending_password");
+    expect(access.allowed).toBe(false);
+    expect(access.reason).toBe("pending_password");
   });
 
   it("denies suspended orgs", () => {
@@ -73,8 +72,8 @@ describe("evaluateFieldKitAccess", () => {
       status: "suspended",
       trialEndsAt: null,
     });
-    assert.equal(access.allowed, false);
-    assert.equal(access.reason, "suspended");
+    expect(access.allowed).toBe(false);
+    expect(access.reason).toBe("suspended");
   });
 
   it("always allows platform admins", () => {
@@ -82,6 +81,6 @@ describe("evaluateFieldKitAccess", () => {
       { status: "active", role: "platform_admin", passwordHash: "x" },
       { type: "platform", status: "expired", trialEndsAt: null },
     );
-    assert.equal(access.allowed, true);
+    expect(access.allowed).toBe(true);
   });
 });

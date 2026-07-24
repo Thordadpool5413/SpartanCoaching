@@ -12,8 +12,7 @@
  *   scripts/src/smoke-reviewer-reset.mts
  */
 
-import assert from "node:assert/strict";
-import { describe, it } from "node:test";
+import { describe, it, expect } from "vitest";
 import { isAdminRequest, type AdminAuthorizationRequest } from "../auth/adminAuthorization.ts";
 import { safeEqualString } from "../auth/crypto.ts";
 
@@ -51,37 +50,37 @@ function gateAllowed(
 describe("reviewer reset-password — authorization gate", () => {
   it("allows an active platform_admin session", () => {
     const req = makeAdminReq("platform_admin");
-    assert.equal(gateAllowed(req, null, null), true);
+    expect(gateAllowed(req, null, null)).toBe(true);
   });
 
   it("rejects a plain member session (no admin role)", () => {
     const req = makeAdminReq("member");
-    assert.equal(gateAllowed(req, null, null), false);
+    expect(gateAllowed(req, null, null)).toBe(false);
   });
 
   it("rejects a disabled platform_admin account", () => {
     const req = makeAdminReq("platform_admin", "disabled");
-    assert.equal(gateAllowed(req, null, null), false);
+    expect(gateAllowed(req, null, null)).toBe(false);
   });
 
   it("allows a correct X-Admin-Auth header when ADMIN_PASSWORD is configured", () => {
     const req = makeAnonReq();
-    assert.equal(gateAllowed(req, "s3cr3t!", "s3cr3t!"), true);
+    expect(gateAllowed(req, "s3cr3t!", "s3cr3t!")).toBe(true);
   });
 
   it("rejects a wrong X-Admin-Auth header even when ADMIN_PASSWORD is configured", () => {
     const req = makeAnonReq();
-    assert.equal(gateAllowed(req, "s3cr3t!", "wrong-value"), false);
+    expect(gateAllowed(req, "s3cr3t!", "wrong-value")).toBe(false);
   });
 
   it("rejects X-Admin-Auth when ADMIN_PASSWORD is not configured (fails closed)", () => {
     const req = makeAnonReq();
-    assert.equal(gateAllowed(req, null, "anything"), false);
+    expect(gateAllowed(req, null, "anything")).toBe(false);
   });
 
   it("rejects a completely unauthenticated request with no header", () => {
     const req = makeAnonReq();
-    assert.equal(gateAllowed(req, null, null), false);
+    expect(gateAllowed(req, null, null)).toBe(false);
   });
 });
 
@@ -93,14 +92,14 @@ describe("reviewer reset-password — response shape contract", () => {
       password: "AbCd1234!@#$EfGh5678",
       created: false,
     };
-    assert.equal(mockResponse.ok, true);
-    assert.ok(typeof mockResponse.email === "string" && mockResponse.email.length > 0, "email must be non-empty string");
-    assert.ok(typeof mockResponse.password === "string" && mockResponse.password.length >= 8, "password must be ≥8 chars");
-    assert.equal(typeof mockResponse.created, "boolean");
+    expect(mockResponse.ok).toBe(true);
+    expect(typeof mockResponse.email === "string" && mockResponse.email.length > 0).toBeTruthy();
+    expect(typeof mockResponse.password === "string" && mockResponse.password.length >= 8).toBeTruthy();
+    expect(typeof mockResponse.created).toBe("boolean");
   });
 
   it("reviewer email is the expected App Store account address", () => {
     const REVIEWER_EMAIL = "apple-reviewer@spartanhospicecoaching.com";
-    assert.equal(REVIEWER_EMAIL, "apple-reviewer@spartanhospicecoaching.com");
+    expect(REVIEWER_EMAIL).toBe("apple-reviewer@spartanhospicecoaching.com");
   });
 });

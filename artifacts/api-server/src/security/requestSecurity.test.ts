@@ -1,5 +1,4 @@
-import assert from "node:assert/strict";
-import test from "node:test";
+import { test, expect } from "vitest";
 import type { NextFunction, Request, Response } from "express";
 import { configuredOrigins, isAllowedOrigin, requireTrustedMutationOrigin } from "./requestSecurity.ts";
 
@@ -20,9 +19,9 @@ function responseRecorder() {
 
 test("production origin allowlist is explicit", () => {
   const env = { NODE_ENV: "production", SITE_URL: "https://spartan.example/path" } as NodeJS.ProcessEnv;
-  assert.deepEqual([...configuredOrigins(env)], ["https://spartan.example"]);
-  assert.equal(isAllowedOrigin("https://spartan.example", env), true);
-  assert.equal(isAllowedOrigin("https://evil.example", env), false);
+  expect([...configuredOrigins(env)]).toEqual(["https://spartan.example"]);
+  expect(isAllowedOrigin("https://spartan.example", env)).toBe(true);
+  expect(isAllowedOrigin("https://evil.example", env)).toBe(false);
 });
 
 test("rejects cross-origin cookie mutation", () => {
@@ -42,9 +41,9 @@ test("rejects cross-origin cookie mutation", () => {
     requireTrustedMutationOrigin(req, response, (() => {
       called = true;
     }) as NextFunction);
-    assert.equal(called, false);
-    assert.equal(state.status, 403);
-    assert.deepEqual(state.body, {
+    expect(called).toBe(false);
+    expect(state.status).toBe(403);
+    expect(state.body).toEqual({
       error: "Request origin is not allowed",
       code: "CSRF_ORIGIN_REJECTED",
     });
@@ -68,5 +67,5 @@ test("bearer-authenticated provider mutation is not treated as cookie CSRF", () 
   requireTrustedMutationOrigin(req, response, (() => {
     called = true;
   }) as NextFunction);
-  assert.equal(called, true);
+  expect(called).toBe(true);
 });

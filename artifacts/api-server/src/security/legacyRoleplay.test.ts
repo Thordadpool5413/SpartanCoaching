@@ -1,5 +1,4 @@
-import assert from "node:assert/strict";
-import test from "node:test";
+import { test, expect } from "vitest";
 import type { Request, Response } from "express";
 import { legacyRoleplayRetired } from "./legacyRoleplay.ts";
 
@@ -17,8 +16,8 @@ test("legacy roleplay never exposes an unowned record", () => {
   } as unknown as Response;
 
   legacyRoleplayRetired({} as Request, response);
-  assert.equal(state.status, 410);
-  assert.deepEqual(state.body, {
+  expect(state.status).toBe(410);
+  expect(state.body).toEqual({
     error: "Legacy roleplay has been retired while tenant-safe roleplay is being introduced.",
     code: "LEGACY_ROLEPLAY_RETIRED",
   });

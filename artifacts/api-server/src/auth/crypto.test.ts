@@ -1,31 +1,30 @@
-import { describe, it } from "node:test";
-import assert from "node:assert/strict";
+import { describe, it, expect } from "vitest";
 import { hashPassword, verifyPassword, hashToken, generateToken, safeEqualString } from "./crypto.ts";
 
 describe("auth/crypto", () => {
   it("hashes and verifies passwords", async () => {
     const hash = await hashPassword("Spartan-Test-Pass-99");
-    assert.ok(hash.includes(":"));
-    assert.equal(await verifyPassword("Spartan-Test-Pass-99", hash), true);
-    assert.equal(await verifyPassword("wrong-password", hash), false);
+    expect(hash.includes(":")).toBe(true);
+    expect(await verifyPassword("Spartan-Test-Pass-99", hash)).toBe(true);
+    expect(await verifyPassword("wrong-password", hash)).toBe(false);
   });
 
   it("rejects malformed stored hashes", async () => {
-    assert.equal(await verifyPassword("x", "not-a-hash"), false);
-    assert.equal(await verifyPassword("x", ""), false);
+    expect(await verifyPassword("x", "not-a-hash")).toBe(false);
+    expect(await verifyPassword("x", "")).toBe(false);
   });
 
   it("generates unique tokens and stable token hashes", () => {
     const a = generateToken(16);
     const b = generateToken(16);
-    assert.notEqual(a, b);
-    assert.equal(hashToken(a), hashToken(a));
-    assert.notEqual(hashToken(a), hashToken(b));
+    expect(a).not.toBe(b);
+    expect(hashToken(a)).toBe(hashToken(a));
+    expect(hashToken(a)).not.toBe(hashToken(b));
   });
 
   it("compares strings safely", () => {
-    assert.equal(safeEqualString("admin-secret", "admin-secret"), true);
-    assert.equal(safeEqualString("admin-secret", "admin-secreX"), false);
-    assert.equal(safeEqualString("short", "longer-value"), false);
+    expect(safeEqualString("admin-secret", "admin-secret")).toBe(true);
+    expect(safeEqualString("admin-secret", "admin-secreX")).toBe(false);
+    expect(safeEqualString("short", "longer-value")).toBe(false);
   });
 });
