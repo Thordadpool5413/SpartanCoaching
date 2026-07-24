@@ -23,6 +23,10 @@ export type OrgBillingPatch = {
   trialEndsAt?: Date | null;
   pipelineStatus?: string;
   billableSeats?: number | null;
+  /** Corporate: weekly unit price per seat (cents) */
+  contractUnitAmountCents?: number | null;
+  contractCurrency?: string | null;
+  contractRef?: string | null;
 };
 
 function periodEndFromSubscription(sub: Stripe.Subscription): Date | null {
