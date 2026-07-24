@@ -28,7 +28,16 @@ import {
   Zap,
   Play,
   RefreshCw,
+  ShieldCheck,
 } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { OrgDetailPanel } from "@/components/OrgDetailPanel";
 import { adminFetch } from "@/lib/adminApi";
 import {
@@ -47,6 +56,8 @@ export function AccessDesk() {
   const [orgFilter, setOrgFilter] = useState<string>("all");
   const [busyId, setBusyId] = useState<number | null>(null);
   const [jobBusy, setJobBusy] = useState<string | null>(null);
+  const [reviewerBusy, setReviewerBusy] = useState(false);
+  const [reviewerResult, setReviewerResult] = useState<{ email: string; password: string; created: boolean } | null>(null);
 
   const { data: requestsData, isLoading: reqLoading } = useQuery({
     queryKey: ["/api/admin/access-requests"],
@@ -228,6 +239,21 @@ export function AccessDesk() {
     }
   };
 
+  const resetReviewerPassword = async () => {
+    setReviewerBusy(true);
+    try {
+      const data = await adminFetch("/api/admin/reviewer/reset-password", {
+        method: "POST",
+        body: JSON.stringify({}),
+      });
+      setReviewerResult(data as { email: string; password: string; created: boolean });
+    } catch (e: any) {
+      toast({ title: "Reviewer reset failed", description: e?.message, variant: "destructive" });
+    } finally {
+      setReviewerBusy(false);
+    }
+  };
+
   if (selectedOrgId != null) {
     return <OrgDetailPanel orgId={selectedOrgId} onBack={() => setSelectedOrgId(null)} />;
   }
@@ -295,8 +321,77 @@ export function AccessDesk() {
             {jobBusy === "run-all" ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
             Run all jobs
           </Button>
+          <Button
+            size="sm"
+            variant="outline"
+            className="font-bold gap-1 border-dashed"
+            disabled={reviewerBusy || !!jobBusy}
+            onClick={resetReviewerPassword}
+            data-testid="button-reviewer-reset"
+          >
+            {reviewerBusy ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <ShieldCheck className="w-4 h-4" />
+            )}
+            Reset Apple Reviewer Password
+          </Button>
         </CardContent>
       </Card>
+
+      <Dialog open={!!reviewerResult} onOpenChange={(open) => { if (!open) setReviewerResult(null); }}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-primary" />
+              Apple Reviewer Account {reviewerResult?.created ? "Created" : "Reset"}
+            </DialogTitle>
+            <DialogDescription>
+              Use these credentials in App Store Connect for the reviewer test account. Copy and store
+              them before dismissing.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-3 py-2">
+            <div className="rounded-lg border border-border bg-muted/40 p-3 space-y-2">
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide font-bold">Email</p>
+                  <p className="text-sm font-mono select-all">{reviewerResult?.email}</p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 gap-1 shrink-0"
+                  onClick={() => copy("Email", reviewerResult?.email ?? "")}
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  Copy
+                </Button>
+              </div>
+              <div className="border-t border-border/50 pt-2 flex items-center justify-between gap-2">
+                <div>
+                  <p className="text-xs text-muted-foreground uppercase tracking-wide font-bold">Password</p>
+                  <p className="text-sm font-mono select-all">{reviewerResult?.password}</p>
+                </div>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 gap-1 shrink-0"
+                  onClick={() => copy("Password", reviewerResult?.password ?? "")}
+                >
+                  <Copy className="w-3.5 h-3.5" />
+                  Copy
+                </Button>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setReviewerResult(null)}>
+              Done
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       {m && (
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3" data-testid="access-metrics">
