@@ -132,8 +132,8 @@ export function FieldKitGate({ compact }: Props) {
           <div className="grid sm:grid-cols-3 gap-3 text-left text-sm">
             {[
               { t: "1. Debrief", d: "15–30 min call on what you tested and what stalled." },
-              { t: "2. Decide seats", d: "Individual, team, or enterprise + coaching." },
-              { t: "3. Activate", d: "We turn access on and invoice offline." },
+              { t: "2. Choose a path", d: "Individual $14.99/wk, team seats under contract, or coaching." },
+              { t: "3. Activate", d: "Subscribe from Account, or we activate your team under contract." },
             ].map((s) => (
               <div key={s.t} className="border border-border rounded-md p-3">
                 <p className="font-bold text-foreground mb-1">{s.t}</p>
