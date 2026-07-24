@@ -6,6 +6,7 @@
   "scripts": {
     "hello": "tsx ./src/hello.ts",
     "seed:apple-reviewer": "tsx ./src/seed-apple-reviewer.ts",
+    "smoke:reviewer-reset": "tsx ./src/smoke-reviewer-reset.mts",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

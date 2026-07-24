@@ -45,6 +45,21 @@ Run after `git pull` and a deploy. Use a real inbox you control.
 - [ ] **Email ops digest now** — arrives at NOTIFICATION_EMAIL
 - [ ] **Clean expired sessions** — completes
 
+## 5a. Apple reviewer reset (pre-submission check)
+
+- [ ] Access Desk → click **Reset Apple Reviewer Password**
+- [ ] Dialog opens showing non-empty **Email** (`apple-reviewer@spartanhospicecoaching.com`) and **Password**
+- [ ] Copy both and paste into App Store Connect → App Review Information → Sign-in required
+
+Or run the smoke script (requires `ADMIN_PASSWORD` env var):
+
+```bash
+ADMIN_PASSWORD=<your-password> SITE_URL=http://localhost:80 \
+  pnpm --filter @workspace/scripts run smoke:reviewer-reset
+```
+
+Expected: `3 passed, 0 failed`
+
 ## 6. Activation
 
 - [ ] Org detail → **Activate client**
