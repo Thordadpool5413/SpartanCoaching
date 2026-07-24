@@ -34,6 +34,15 @@ export type AuthOrganization = {
   trialEndsAt?: string | null;
   activatedAt?: string | null;
   seatCount?: number;
+  // Billing (Phase 1+)
+  billingPlan?: string | null;
+  billingStatus?: string | null;
+  currentPeriodEnd?: string | null;
+  cancelAtPeriodEnd?: boolean;
+  billableSeats?: number | null;
+  contractRef?: string | null;
+  hasStripeCustomer?: boolean;
+  hasStripeSubscription?: boolean;
 };
 
 export type FieldKitState = {

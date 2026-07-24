@@ -8,6 +8,33 @@ import { SEO } from "@/components/SEO";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
+import { CreditCard, ExternalLink, Loader2 } from "lucide-react";
+
+type BillingStatus = {
+  configured: boolean;
+  individualWeeklyPriceConfigured: boolean;
+  canCheckoutIndividual: boolean;
+  canOpenPortal: boolean;
+  organization: {
+    id: number;
+    type: string;
+    status: string;
+    billingPlan: string | null;
+    billingStatus: string | null;
+    currentPeriodEnd: string | null;
+    cancelAtPeriodEnd: boolean;
+    hasStripeCustomer: boolean;
+    hasStripeSubscription: boolean;
+    billableSeats: number | null;
+    seatLimit: number;
+    contractRef: string | null;
+  };
+};
+
+function queryParam(name: string): string | null {
+  if (typeof window === "undefined") return null;
+  return new URLSearchParams(window.location.search).get(name);
+}
 
 export default function Account() {
   const { member, organization, fieldKit, isAuthenticated, isLoading, logout, canUseFieldKit, refresh } =
@@ -29,12 +56,51 @@ export default function Account() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [pwPending, setPwPending] = useState(false);
+  const [billing, setBilling] = useState<BillingStatus | null>(null);
+  const [billingLoading, setBillingLoading] = useState(true);
+  const [checkoutPending, setCheckoutPending] = useState(false);
+  const [portalPending, setPortalPending] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
       setLocation("/login");
     }
   }, [isLoading, isAuthenticated, setLocation]);
+
+  // Post-checkout / portal return banners
+  useEffect(() => {
+    const billingQ = queryParam("billing");
+    if (!billingQ) return;
+    if (billingQ === "success") {
+      toast({
+        title: "Payment received",
+        description: "Refreshing your membership — Field Kit unlocks when the subscription is active.",
+      });
+      void refresh();
+    } else if (billingQ === "canceled") {
+      toast({
+        title: "Checkout canceled",
+        description: "No charge was made. You can subscribe anytime from this page.",
+      });
+    } else if (billingQ === "portal") {
+      void refresh();
+    }
+    // Clean query string without full reload
+    const url = new URL(window.location.href);
+    url.searchParams.delete("billing");
+    url.searchParams.delete("session_id");
+    window.history.replaceState({}, "", url.pathname + url.search);
+  }, [toast, refresh]);
+
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    setBillingLoading(true);
+    fetch("/api/billing/status", { credentials: "include" })
+      .then((r) => (r.ok ? r.json() : null))
+      .then((data) => setBilling(data))
+      .catch(() => setBilling(null))
+      .finally(() => setBillingLoading(false));
+  }, [isAuthenticated, organization?.status, organization?.billingStatus]);
 
   useEffect(() => {
     if (member?.role === "org_admin" && canUseFieldKit) {
@@ -59,6 +125,52 @@ export default function Account() {
   const handleLogout = async () => {
     await logout();
     setLocation("/");
+  };
+
+  const startCheckout = async () => {
+    setCheckoutPending(true);
+    try {
+      const res = await fetch("/api/billing/checkout", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Could not start checkout");
+      if (!data.url) throw new Error("Checkout URL missing");
+      window.location.href = data.url;
+    } catch (err: any) {
+      toast({
+        title: "Checkout unavailable",
+        description: err?.message || "Try again or contact support.",
+        variant: "destructive",
+      });
+      setCheckoutPending(false);
+    }
+  };
+
+  const openPortal = async () => {
+    setPortalPending(true);
+    try {
+      const res = await fetch("/api/billing/portal", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Could not open billing portal");
+      if (!data.url) throw new Error("Portal URL missing");
+      window.location.href = data.url;
+    } catch (err: any) {
+      toast({
+        title: "Billing portal unavailable",
+        description: err?.message || "Try again or contact support.",
+        variant: "destructive",
+      });
+      setPortalPending(false);
+    }
   };
 
   const sendInvite = async (e: React.FormEvent) => {
@@ -96,27 +208,70 @@ export default function Account() {
     );
   }
 
+  const org = organization;
+  const billingOrg = billing?.organization;
+  const isPersonal = org?.type === "personal";
+  const isCompany = org?.type === "company";
+  const isPlatform = org?.type === "platform" || member.role === "platform_admin";
+  const isComp = billingOrg?.billingPlan === "comp" || org?.billingPlan === "comp";
+  const hasPaidSub =
+    Boolean(billingOrg?.hasStripeSubscription || org?.hasStripeSubscription) &&
+    (billingOrg?.billingStatus === "active" ||
+      billingOrg?.billingStatus === "trialing" ||
+      org?.billingStatus === "active" ||
+      org?.billingStatus === "trialing" ||
+      (org?.status === "active" && (billingOrg?.hasStripeSubscription || org?.hasStripeSubscription)));
+  const cancelAtPeriodEnd = Boolean(
+    billingOrg?.cancelAtPeriodEnd ?? org?.cancelAtPeriodEnd,
+  );
+  const periodEnd = billingOrg?.currentPeriodEnd || org?.currentPeriodEnd;
+  const canCheckout =
+    Boolean(billing?.canCheckoutIndividual) &&
+    isPersonal &&
+    !isPlatform &&
+    !isComp &&
+    !hasPaidSub &&
+    (org?.status === "trial" ||
+      org?.status === "expired" ||
+      org?.status === "suspended" ||
+      (org?.status === "active" && !hasPaidSub));
+  const canPortal = Boolean(billing?.canOpenPortal) || Boolean(org?.hasStripeCustomer);
+
   const statusLabel =
-    organization?.status === "trial"
+    org?.status === "trial"
       ? "Evaluation"
-      : organization?.status === "active"
-        ? "Active client"
-        : organization?.status === "expired"
-          ? "Evaluation ended"
-          : organization?.status === "suspended"
+      : org?.status === "active"
+        ? cancelAtPeriodEnd
+          ? "Active · canceling"
+          : hasPaidSub
+            ? "Active · weekly"
+            : isComp
+              ? "Active · complimentary"
+              : "Active client"
+        : org?.status === "expired"
+          ? "Ended"
+          : org?.status === "suspended"
             ? "Suspended"
-            : organization?.status || "—";
+            : org?.status || "—";
 
   const membershipBlurb =
-    organization?.status === "trial"
-      ? "You are on a timed evaluation. Tools are unlocked until the window ends. Billing is not self-serve — continue as a client by debrief and invoice."
-      : organization?.status === "active"
-        ? "Continuing client access is active. Membership and seats are managed offline with Nick — no Stripe checkout on this site."
-        : organization?.status === "expired"
-          ? "Your evaluation window has ended. Tools are locked. Book a debrief, request an extension, or continue as a client."
-          : organization?.status === "suspended"
-            ? "Access is suspended. Contact Spartan Coaching to resolve."
-            : "Your membership status will appear here once access is assigned.";
+    org?.status === "trial"
+      ? "You are on a timed evaluation. Tools stay unlocked until the window ends. Individuals can continue for $14.99/week — cancel anytime from Manage billing."
+      : org?.status === "active" && hasPaidSub
+        ? cancelAtPeriodEnd
+          ? "Your subscription is set to cancel at the end of the current period. You keep Field Kit access until then. You can reverse cancel in Manage billing."
+          : "Your weekly Field Kit subscription is active. Use Manage billing to update payment method or cancel (access continues until the period ends)."
+        : org?.status === "active" && isComp
+          ? "Complimentary access is active. No self-serve charge. Contact Nick if you need changes."
+        : org?.status === "active" && isCompany
+          ? "Team access is active under your provider contract (per-seat weekly). Seat changes go through your org admin or Nick."
+        : org?.status === "active"
+          ? "Continuing client access is active."
+        : org?.status === "expired"
+          ? "Access has ended. Individuals can re-subscribe for $14.99/week. Teams: contact us to renew under contract."
+        : org?.status === "suspended"
+          ? "Access is suspended (often a failed payment). Update your card in Manage billing or contact support."
+          : "Your membership status will appear here once access is assigned.";
 
   const hoursLeft = fieldKit?.hoursRemaining;
   const hoursLabel =
@@ -144,12 +299,9 @@ export default function Account() {
           ) : (
             <Badge variant="destructive">Field Kit locked</Badge>
           )}
-          {organization?.type === "company" && (
-            <Badge variant="outline">Team / company</Badge>
-          )}
-          {organization?.type === "personal" && (
-            <Badge variant="outline">Individual</Badge>
-          )}
+          {isCompany && <Badge variant="outline">Team / company</Badge>}
+          {isPersonal && <Badge variant="outline">Individual</Badge>}
+          {hasPaidSub && <Badge variant="outline">$14.99/wk</Badge>}
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed border-l-2 border-primary/40 pl-3">
           {membershipBlurb}
@@ -165,7 +317,7 @@ export default function Account() {
           </div>
           <div>
             <dt className="text-muted-foreground">Organization</dt>
-            <dd className="font-semibold">{organization?.name || "—"}</dd>
+            <dd className="font-semibold">{org?.name || "—"}</dd>
           </div>
           <div>
             <dt className="text-muted-foreground">Role</dt>
@@ -177,7 +329,7 @@ export default function Account() {
                   : "Member"}
             </dd>
           </div>
-          {organization?.status === "trial" && fieldKit?.trialEndsAt && (
+          {org?.status === "trial" && fieldKit?.trialEndsAt && (
             <div className="sm:col-span-2">
               <dt className="text-muted-foreground">Evaluation ends</dt>
               <dd className="font-semibold">
@@ -186,22 +338,120 @@ export default function Account() {
               </dd>
             </div>
           )}
-          {organization?.status === "active" && (
+          {(periodEnd || billingOrg?.billingStatus || org?.billingStatus) && (
             <div className="sm:col-span-2">
               <dt className="text-muted-foreground">Billing</dt>
-              <dd className="font-semibold text-muted-foreground">
-                Invoice / offline — contact Nick for seats, renewals, or BAA
+              <dd className="font-semibold">
+                {isComp
+                  ? "Complimentary (no card on file)"
+                  : hasPaidSub
+                    ? cancelAtPeriodEnd
+                      ? `Cancels ${periodEnd ? new Date(periodEnd).toLocaleDateString() : "at period end"}`
+                      : `Weekly · renews ${periodEnd ? new Date(periodEnd).toLocaleDateString() : "automatically"}`
+                    : isCompany
+                      ? org?.contractRef
+                        ? `Contract ${org.contractRef}`
+                        : "Contract / team seats"
+                      : billing?.configured === false
+                        ? "Billing not configured on server yet"
+                        : "No active subscription"}
+                {(billingOrg?.billingStatus || org?.billingStatus) && !isComp && (
+                  <span className="text-muted-foreground font-normal">
+                    {" "}
+                    · status: {billingOrg?.billingStatus || org?.billingStatus}
+                  </span>
+                )}
               </dd>
             </div>
           )}
         </dl>
+
+        {/* Billing actions */}
+        <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3" data-testid="card-billing-actions">
+          <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+            <CreditCard className="w-4 h-4 text-primary" />
+            Membership &amp; billing
+          </div>
+          {billingLoading ? (
+            <p className="text-sm text-muted-foreground flex items-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin" /> Loading billing…
+            </p>
+          ) : (
+            <>
+              {isPersonal && !isPlatform && (
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Individual plan: <strong className="text-foreground">$14.99 per week</strong>. Cancel anytime in
+                  Manage billing — you keep access until the paid period ends.
+                </p>
+              )}
+              {isCompany && (
+                <p className="text-xs text-muted-foreground leading-relaxed">
+                  Team seats are billed under your provider contract (weekly per seat). For seat or rate changes,{" "}
+                  <Link href="/contact?service=Field+Kit+Membership" className="text-primary hover:underline">
+                    contact Nick
+                  </Link>
+                  .
+                </p>
+              )}
+              <div className="flex flex-wrap gap-2">
+                {canCheckout && (
+                  <Button
+                    className="font-bold"
+                    onClick={startCheckout}
+                    disabled={checkoutPending}
+                    data-testid="button-subscribe"
+                  >
+                    {checkoutPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Redirecting…
+                      </>
+                    ) : (
+                      <>Subscribe · $14.99/week</>
+                    )}
+                  </Button>
+                )}
+                {canPortal && (
+                  <Button
+                    variant={canCheckout ? "outline" : "default"}
+                    className="font-bold"
+                    onClick={openPortal}
+                    disabled={portalPending}
+                    data-testid="button-manage-billing"
+                  >
+                    {portalPending ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Opening…
+                      </>
+                    ) : (
+                      <>
+                        Manage billing / cancel
+                        <ExternalLink className="w-3.5 h-3.5 ml-2" />
+                      </>
+                    )}
+                  </Button>
+                )}
+                {!canCheckout && !canPortal && isPersonal && !isPlatform && (
+                  <p className="text-sm text-muted-foreground">
+                    {billing?.configured === false || !billing?.individualWeeklyPriceConfigured
+                      ? "Self-serve billing is not fully configured yet. Contact Nick to continue as a client."
+                      : "Billing actions will appear when your account is eligible."}
+                  </p>
+                )}
+                {isPlatform && (
+                  <p className="text-sm text-muted-foreground">Platform admin accounts are not billed.</p>
+                )}
+              </div>
+            </>
+          )}
+        </div>
+
         <div className="flex flex-wrap gap-3 pt-2">
           {canUseFieldKit && (
             <Button asChild className="font-bold">
               <Link href="/portal">Open Field Kit home</Link>
             </Button>
           )}
-          {!canUseFieldKit && organization?.status === "expired" && (
+          {!canUseFieldKit && org?.status === "expired" && !canCheckout && (
             <>
               <Button asChild className="font-bold">
                 <Link href="/contact?service=Field+Kit+Membership">Continue as a client</Link>
@@ -211,12 +461,15 @@ export default function Account() {
               </Button>
             </>
           )}
-          {organization?.status === "trial" && (
+          {org?.status === "trial" && (
             <Button asChild variant="outline" className="font-bold">
               <Link href="/contact?service=Field+Kit+Debrief">Book a debrief</Link>
             </Button>
           )}
           <Button asChild variant="outline" className="font-bold">
+            <Link href="/field-kit-membership">View plans</Link>
+          </Button>
+          <Button asChild variant="ghost" className="font-bold">
             <Link href="/contact">Book a strategy call</Link>
           </Button>
           <Button variant="ghost" onClick={handleLogout} data-testid="button-logout">
@@ -232,6 +485,7 @@ export default function Account() {
             <p className="text-sm text-muted-foreground mt-1">
               {members.filter((m) => m.status !== "disabled").length}
               {seatLimit != null ? ` / ${seatLimit}` : ""} seats in use
+              {billingOrg?.billableSeats != null ? ` · ${billingOrg.billableSeats} billed` : ""}
             </p>
           </div>
 

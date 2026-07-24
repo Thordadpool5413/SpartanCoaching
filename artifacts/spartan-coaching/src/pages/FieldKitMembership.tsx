@@ -4,34 +4,41 @@ import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { TrustStrip } from "@/components/TrustStrip";
 import { CheckCircle, ArrowRight, Building2, User, Users } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 const TIERS = [
   {
     id: "individual",
     icon: User,
     name: "Individual Field Kit",
-    price: "Custom monthly",
-    blurb: "For the rep or director who wants private tools between coaching sessions.",
+    price: "$14.99",
+    priceSuffix: "/ week",
+    blurb:
+      "For the rep or director who wants private tools between coaching sessions. Cancel anytime from your account.",
     features: [
       "Full Field Kit access",
       "Calculators & weekly plan builders",
-      "Role-play and drills",
-      "Email support",
+      "Role-play, drills, and Command Center",
+      "Cancel yourself anytime (access until period ends)",
       "Optional 1:1 coaching add-on",
     ],
-    cta: "Request individual access",
+    cta: "Start with evaluation",
     href: "/request-access",
+    secondaryCta: "I already have access — go to account",
+    secondaryHref: "/account",
   },
   {
     id: "team",
     icon: Users,
-    name: "Team seats",
-    price: "Per-seat · custom",
-    blurb: "For hospice sales teams that need one playbook and shared accountability.",
+    name: "Provider / team seats",
+    price: "Contract",
+    priceSuffix: " · per seat / week",
+    blurb:
+      "Weekly pricing per end user, set under your hospice contract. Org admin manages seats after activation.",
     features: [
       "Multi-seat organization account",
+      "Per-seat weekly rate on contract",
       "Org admin invites & seat control",
-      "Shared evaluation window options",
       "Usage visibility for leaders",
       "BAA path for corporate accounts",
     ],
@@ -43,11 +50,12 @@ const TIERS = [
     id: "enterprise",
     icon: Building2,
     name: "Enterprise + coaching",
-    price: "Engagement-based",
+    price: "Engagement",
+    priceSuffix: "-based",
     blurb: "Field Kit bundled with leadership coaching, workshops, and growth systems.",
     features: [
-      "Everything in Team",
-      "Custom seat packs",
+      "Everything in Team seats",
+      "Custom seat packs under contract",
       "Leadership coaching & workshops",
       "Territory and pipeline systems",
       "Priority strategy access with Nick",
@@ -58,17 +66,20 @@ const TIERS = [
 ];
 
 export default function FieldKitMembership() {
+  const { isAuthenticated, canUseFieldKit } = useAuth();
+
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-12 sm:py-16" data-testid="page-field-kit-membership">
       <SEO />
       <div className="text-center max-w-3xl mx-auto mb-12 space-y-4">
         <p className="text-xs font-bold tracking-widest text-primary uppercase">Field Kit membership</p>
         <h1 className="text-h1 font-display font-black text-foreground">
-          Private tools. Human coaching. Clear next step.
+          Private tools. Clear pricing. Human coaching when you need it.
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed">
-          Pricing is custom — hospice orgs differ by census, seats, and coaching intensity. Start with an
-          evaluation, then continue as a client. Payment is handled offline or by invoice until you choose a plan.
+          Individuals pay <strong className="text-foreground">$14.99 per week</strong> and can cancel in Account →
+          Manage billing. Provider and enterprise seats use <strong className="text-foreground">contract
+          weekly rates per seat</strong>. Most people start with a short evaluation.
         </p>
       </div>
 
@@ -86,11 +97,19 @@ export default function FieldKitMembership() {
               {tier.highlight && (
                 <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-3">Most teams</p>
               )}
+              {tier.id === "individual" && (
+                <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-3">Self-serve</p>
+              )}
               <div className="w-11 h-11 rounded-lg bg-primary/15 text-primary flex items-center justify-center mb-4">
                 <Icon className="w-5 h-5" />
               </div>
               <h2 className="text-lg font-bold text-foreground mb-1">{tier.name}</h2>
-              <p className="text-2xl font-black text-primary mb-3">{tier.price}</p>
+              <p className="mb-3">
+                <span className="text-2xl font-black text-primary">{tier.price}</span>
+                {tier.priceSuffix && (
+                  <span className="text-sm font-semibold text-muted-foreground">{tier.priceSuffix}</span>
+                )}
+              </p>
               <p className="text-sm text-muted-foreground leading-relaxed mb-5 flex-1">{tier.blurb}</p>
               <ul className="space-y-2 mb-6">
                 {tier.features.map((f) => (
@@ -101,30 +120,47 @@ export default function FieldKitMembership() {
                 ))}
               </ul>
               <Button asChild className="w-full font-bold" variant={tier.highlight ? "default" : "outline"}>
-                <Link href={tier.href}>
+                <Link href={tier.href} data-testid={`button-tier-${tier.id}`}>
                   {tier.cta}
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
               </Button>
+              {tier.secondaryHref && isAuthenticated && (
+                <Button asChild variant="ghost" className="w-full font-semibold mt-2 text-sm">
+                  <Link href={tier.secondaryHref}>{tier.secondaryCta}</Link>
+                </Button>
+              )}
             </Card>
           );
         })}
       </div>
 
       <Card className="border border-border bg-card p-8 text-center space-y-4 max-w-3xl mx-auto">
-        <h2 className="text-h3 font-bold">How continuation works</h2>
+        <h2 className="text-h3 font-bold">How it works</h2>
         <ol className="text-left text-sm text-muted-foreground space-y-2 max-w-xl mx-auto list-decimal list-inside">
-          <li>Request evaluation access and get approved.</li>
-          <li>Use the Field Kit during your timed window.</li>
-          <li>Book a debrief — we decide seats, coaching, and terms together.</li>
-          <li>You are activated as a client. Invoicing is handled offline for now.</li>
+          <li>Request evaluation access and get approved (timed Field Kit window).</li>
+          <li>Use the tools — same product on web and in the field app.</li>
+          <li>
+            <strong className="text-foreground">Individuals:</strong> subscribe for $14.99/week from Account when ready.
+            Cancel anytime in Manage billing; access continues until the period ends.
+          </li>
+          <li>
+            <strong className="text-foreground">Teams / providers:</strong> we set seats and weekly per-user rate under
+            contract, then activate your org.
+          </li>
         </ol>
         <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-          <Button asChild className="font-bold">
-            <Link href="/contact?service=Field+Kit+Membership">Talk through options</Link>
-          </Button>
+          {canUseFieldKit ? (
+            <Button asChild className="font-bold">
+              <Link href="/account">Manage membership</Link>
+            </Button>
+          ) : (
+            <Button asChild className="font-bold">
+              <Link href="/request-access">Request evaluation access</Link>
+            </Button>
+          )}
           <Button asChild variant="outline" className="font-bold">
-            <Link href="/request-access">Request evaluation access</Link>
+            <Link href="/contact?service=Field+Kit+Membership">Talk through options</Link>
           </Button>
           <Button asChild variant="outline" className="font-bold">
             <Link href="/tools">See the Field Kit</Link>

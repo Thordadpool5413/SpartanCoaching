@@ -44,9 +44,13 @@ pnpm --filter @workspace/db run push
 5. `POST /api/billing/portal` → cancel at period end → `cancelAtPeriodEnd=true`.
 6. After period end (or test clock), org should become `expired` and tools lock.
 
+## Phase 2 UI (shipped)
+
+- `/field-kit-membership` — $14.99/week individual, contract language for teams
+- `/account` — Subscribe · $14.99/week, Manage billing / cancel, post-checkout banners
+
 ## Out of scope (later phases)
 
-- Account / Membership UI buttons (Phase 2)
 - Corporate contract activate + seat quantity (Phase 3)
 - Mobile IAP
 
