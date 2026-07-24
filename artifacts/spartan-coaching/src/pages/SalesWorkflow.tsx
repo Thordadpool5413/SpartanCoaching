@@ -7,6 +7,7 @@ import { SalesWorkflowPanel } from "@workspace/hospice-sales-runtime/sales-workf
 import "@workspace/hospice-sales-runtime/sales-workflow/styles.css";
 import { useAuth } from "@/context/AuthContext";
 import { SEO } from "@/components/SEO";
+import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 
 function workflowUuid(kind: "organization" | "member", value: number): string {
   const suffix = value.toString(16).padStart(12, "0").slice(-12);
@@ -36,11 +37,20 @@ export default function SalesWorkflow() {
   };
 
   return (
-    <>
+    <FieldKitToolLayout toolPath="/tools/sales-workflow">
       <SEO
         title="Sales Command Center | Spartan Coaching"
         description="Plan calls, practice objections, complete visits, review coaching, and schedule the next step."
       />
+      <div className="mb-4 space-y-1">
+        <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
+          Field Kit · Daily spine
+        </p>
+        <p className="text-sm text-muted-foreground max-w-3xl leading-relaxed">
+          Run every account through this workflow. Satellite tools (objections, role-play, email, weekly plan)
+          support the next call—they do not replace it.
+        </p>
+      </div>
       <SalesWorkflowPanel
         api={api}
         actor={actor}
@@ -52,6 +62,6 @@ export default function SalesWorkflow() {
           "--hsw-border": "hsl(var(--border))",
         }}
       />
-    </>
+    </FieldKitToolLayout>
   );
 }

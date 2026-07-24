@@ -60,6 +60,11 @@ import crypto from "crypto";
 import { AGREEMENT_TEXTS } from "../agreementTexts";
 import { requireFieldKit, requireAdmin, isAdminRequest, type AuthedRequest } from "../auth/middleware";
 import type { Request } from "express";
+import {
+  searchSpartanKnowledge,
+  formatCitationsForPrompt,
+} from "../knowledge/spartanCorpus";
+import { searchNpiProviders } from "../knowledge/npiLookup";
 
 /** Express 5 params may be string | string[] — normalize for parseInt / lookups. */
 function paramStr(req: Request, key: string): string {
@@ -199,40 +204,100 @@ Format the playbook in markdown with clear sections, bullet points, and quoted t
     }
   });
 
-  // AI Objection Handler
+  // AI Objection Handler (Spartan corpus-cited)
   app.post("/api/objections", requireFieldKit, standardAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const { objection } = objectionRequestSchema.parse(req.body);
-      
+
+      const corpusHits = searchSpartanKnowledge(objection, 3);
+      const corpusBlock = formatCitationsForPrompt(corpusHits);
+
       const prompt = `A family or referral source says: "${objection}"
 
-Provide a concise, empathetic response that:
+Provide a concise, empathetic field response that:
 1. Acknowledges their concern
-2. Addresses the objection with compassion
-3. Offers a next step or question to continue the conversation
+2. Addresses the objection with compassion using Spartan Method (Discipline, Empathy, Strategy)
+3. Offers a specific next step or question to continue the conversation
 
-Keep it under 100 words and use a warm, professional tone.`;
+Keep it under 120 words and use a warm, professional tone.
+Do not invent clinical claims. Do not request or include PHI.
+${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corpusBlock}` : ""}`;
 
       const response = await generateQuickResponse(prompt);
-      
-      res.json({ response });
+
+      res.json({
+        response,
+        citations: corpusHits.map((c) => ({
+          id: c.id,
+          title: c.title,
+          category: c.category,
+        })),
+      });
     } catch (error: any) {
       console.error("Objection handling error:", error);
       res.status(500).json({ error: error.message || "Failed to generate response" });
     }
   });
 
-  // AI Research Tool
+  // AI Research Tool — public web + Spartan corpus citations
   app.post("/api/research", requireFieldKit, standardAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const { query } = researchRequestSchema.parse(req.body);
-      
+
+      const corpusHits = searchSpartanKnowledge(query, 3);
       const result = await generateGroundedSearch(query);
-      
-      res.json(result);
+
+      res.json({
+        ...result,
+        spartanCitations: corpusHits.map((c) => ({
+          id: c.id,
+          title: c.title,
+          category: c.category,
+          excerpt: c.body.slice(0, 280),
+        })),
+      });
     } catch (error: any) {
       console.error("Research error:", error);
       res.status(500).json({ error: error.message || "Failed to perform research" });
+    }
+  });
+
+  // Spartan knowledge search (citable corpus — no model call)
+  app.get("/api/knowledge/search", requireFieldKit, lightAiLimit, async (req, res) => {
+    try {
+      const q = String(req.query.q || "").trim();
+      if (q.length < 2) {
+        return res.status(400).json({ error: "Query q must be at least 2 characters" });
+      }
+      const limit = Math.min(parseInt(String(req.query.limit || "5"), 10) || 5, 10);
+      const results = searchSpartanKnowledge(q, limit);
+      res.json({ query: q, results });
+    } catch (error: any) {
+      console.error("Knowledge search error:", error);
+      res.status(500).json({ error: error.message || "Knowledge search failed" });
+    }
+  });
+
+  // Free public NPI registry lookup (no PHI — names/orgs only)
+  app.get("/api/reference/npi", requireFieldKit, lightAiLimit, async (req, res) => {
+    try {
+      const results = await searchNpiProviders({
+        firstName: req.query.firstName ? String(req.query.firstName) : undefined,
+        lastName: req.query.lastName ? String(req.query.lastName) : undefined,
+        organizationName: req.query.organization
+          ? String(req.query.organization)
+          : req.query.organizationName
+            ? String(req.query.organizationName)
+            : undefined,
+        city: req.query.city ? String(req.query.city) : undefined,
+        state: req.query.state ? String(req.query.state) : undefined,
+        number: req.query.number ? String(req.query.number) : undefined,
+        limit: req.query.limit ? parseInt(String(req.query.limit), 10) : 5,
+      });
+      res.json({ results });
+    } catch (error: any) {
+      console.error("NPI lookup error:", error);
+      res.status(400).json({ error: error.message || "NPI lookup failed" });
     }
   });
 

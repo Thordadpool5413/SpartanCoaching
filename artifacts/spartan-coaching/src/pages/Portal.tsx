@@ -30,6 +30,7 @@ import {
   Sparkles,
   ChevronDown,
   ChevronUp,
+  Crosshair,
 } from "lucide-react";
 import { FieldKitGate } from "@/components/FieldKitGate";
 import { ToolDisclaimer } from "@/components/ToolDisclaimer";
@@ -102,29 +103,34 @@ const ALL_CHECKLIST: ChecklistItem[] = [
 
 const START_HERE: Record<string, { title: string; href: string; blurb: string }> = {
   rep: {
-    title: "Start with objections",
-    href: "/tools/objections",
-    blurb: "Reps win the week on live conversations. Get one tough objection handled first.",
+    title: "Open Sales Command Center",
+    href: "/tools/sales-workflow",
+    blurb:
+      "Your daily spine: pick the next account, prepare the call, practice if needed, capture the outcome, and lock the next step.",
   },
   director: {
-    title: "Start with the weekly plan",
-    href: "/tools/weekly-plan-builder",
-    blurb: "Leaders set the rhythm. Build one clear week, then coach from it.",
+    title: "Open Sales Command Center",
+    href: "/tools/sales-workflow",
+    blurb:
+      "See the team’s account rhythm. Coach from real calls—then use weekly plan and activity math as support tools.",
   },
   vp: {
-    title: "Start with activity math",
-    href: "/tools/activity-calculator",
-    blurb: "Connect admissions goals to daily conversations before you inspect the field.",
+    title: "Open Sales Command Center",
+    href: "/tools/sales-workflow",
+    blurb:
+      "Inspect execution quality on live accounts. Use activity and ROI tools when you need the economic story.",
   },
   owner: {
-    title: "Start with branch economics",
-    href: "/tools/branch-profitability",
-    blurb: "See how census, staffing, and growth pressure connect — then coach the team.",
+    title: "Open Sales Command Center",
+    href: "/tools/sales-workflow",
+    blurb:
+      "Growth runs on Tuesday behavior. Start with the call workflow; open branch economics when you need the P&L frame.",
   },
   other: {
-    title: "Start with the Field Kit hub",
-    href: "/tools",
-    blurb: "Browse the full toolkit, then mark checklist items as you complete them.",
+    title: "Open Sales Command Center",
+    href: "/tools/sales-workflow",
+    blurb:
+      "One continuous workflow beats opening ten tabs. Plan → practice → complete → next action.",
   },
 };
 
@@ -306,8 +312,8 @@ export default function Portal() {
         </h1>
         <p className="text-muted-foreground max-w-2xl leading-relaxed">
           {isFirstSession
-            ? "Your evaluation produces signal when you run real field work — not when you browse every tool. Do three things below, then book a debrief."
-            : "Continue your checklist, open tools or resources, or book a debrief while access is open."}
+            ? "Your evaluation produces signal when you run real field work — not when you browse every tool. Start in Sales Command Center, complete the three steps below, then book a debrief."
+            : "Run the day from Sales Command Center. Support tools, checklist, and debrief stay one click away."}
         </p>
         {trialLabel && (
           <div
@@ -327,6 +333,53 @@ export default function Portal() {
           </div>
         )}
       </div>
+
+      {/* Daily spine — Sales Command Center */}
+      <Card
+        className="mb-8 border border-primary/35 bg-gradient-to-br from-primary/15 via-card to-card p-5 sm:p-7"
+        data-testid="section-command-center-hub"
+      >
+        <div className="flex flex-col lg:flex-row lg:items-center gap-5 justify-between">
+          <div className="flex items-start gap-3 min-w-0">
+            <div className="w-11 h-11 rounded-lg bg-primary text-primary-foreground flex items-center justify-center shrink-0 shadow-md shadow-primary/25">
+              <Crosshair className="w-5 h-5" />
+            </div>
+            <div className="space-y-2 min-w-0">
+              <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
+                Daily operating system
+              </p>
+              <h2 className="text-xl sm:text-2xl font-display font-black text-foreground">
+                Sales Command Center
+              </h2>
+              <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
+                What call is next → how you prepare → what you practiced → what happened → what is next.
+                Objections, role-play, email, and plans plug into this spine instead of living as random tabs.
+              </p>
+              <ul className="flex flex-wrap gap-2 pt-1">
+                {["Pre-call plan", "Practice", "Capture outcome", "Next step"].map((step) => (
+                  <li
+                    key={step}
+                    className="text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-md border border-border bg-background/60 text-foreground"
+                  >
+                    {step}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+            <Button asChild size="lg" className="font-bold">
+              <Link href="/tools/sales-workflow" data-testid="button-open-command-center">
+                Open Command Center
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Link>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="font-bold">
+              <Link href="/tools">All tools</Link>
+            </Button>
+          </div>
+        </div>
+      </Card>
 
       {/* Orientation — full What/Why/How only on first session; chrome covers returning users */}
       {isFirstSession && (
@@ -365,7 +418,8 @@ export default function Portal() {
                 Role → one real tool → debrief on the calendar
               </h2>
               <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
-                That sequence beats opening ten tabs. Using a tool (objections, weekly plan, role-play, activity math) marks the checklist for you.
+                That sequence beats opening ten tabs. Prefer Sales Command Center first; objections, weekly plan,
+                role-play, and activity math still mark the checklist when you complete them.
               </p>
             </div>
           </div>

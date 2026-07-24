@@ -50,6 +50,9 @@ export default function Objections() {
 
   const { toast } = useToast();
   const [aiResponses, setAiResponses] = useState<Record<string, string>>({});
+  const [citations, setCitations] = useState<
+    Record<string, Array<{ id: string; title: string; category: string }>>
+  >({});
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [playing, setPlaying] = useState<string | null>(null);
 
@@ -62,6 +65,7 @@ export default function Objections() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ objection }),
+        credentials: "include",
       });
 
       if (!response.ok) {
@@ -70,10 +74,12 @@ export default function Objections() {
 
       const data = await response.json();
       setAiResponses((prev) => ({ ...prev, [objection]: data.response }));
+      setCitations((prev) => ({ ...prev, [objection]: data.citations || [] }));
       void markFieldKitChecklistDone("objection");
     } catch (error) {
       console.error("Objection response error:", error);
       setAiResponses((prev) => ({ ...prev, [objection]: "Sorry, I couldn't generate a response. Please try again." }));
+      setCitations((prev) => ({ ...prev, [objection]: [] }));
     } finally {
       setLoading((prev) => ({ ...prev, [objection]: false }));
     }
@@ -148,6 +154,24 @@ export default function Objections() {
                   <div className="text-foreground" data-testid={`text-ai-response-${idx}`}>
                     <MarkdownContent content={aiResponses[obj.q]} />
                   </div>
+                  {citations[obj.q]?.length > 0 && (
+                    <div
+                      className="rounded-md border border-border/80 bg-background/50 px-3 py-2 space-y-1"
+                      data-testid={`citations-${idx}`}
+                    >
+                      <p className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground">
+                        Spartan sources
+                      </p>
+                      <ul className="space-y-0.5">
+                        {citations[obj.q].map((c) => (
+                          <li key={c.id} className="text-xs text-muted-foreground">
+                            <span className="font-semibold text-foreground">{c.title}</span>
+                            <span className="text-muted-foreground"> · {c.category}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
                   <div className="flex items-center gap-4">
                     <button
                       onClick={() => readAloud(aiResponses[obj.q], obj.q)}
