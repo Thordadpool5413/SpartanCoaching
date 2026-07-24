@@ -14,6 +14,12 @@
     },
     {
       "path": "./lib/branch-engine"
+    },
+    {
+      "path": "./lib/design-tokens"
+    },
+    {
+      "path": "./lib/field-kit-catalog"
     }
   ]
 }

@@ -20,6 +20,9 @@
   "references": [
     {
       "path": "../../lib/api-client-react"
+    },
+    {
+      "path": "../../lib/field-kit-catalog"
     }
   ]
 }

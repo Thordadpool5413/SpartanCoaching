@@ -980,7 +980,10 @@ export default function ToolsScreen() {
       )}
 
       {/* Active roleplay chat — flex layout with sticky input bar */}
-      {!browseMode && activeTab === "roleplay" && roleplayPhase === "active" && roleplaySession ? (
+      {!browseMode &&
+      activeTab === "roleplay" &&
+      roleplayPhase === "active" &&
+      roleplaySession ? (
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -1972,7 +1975,7 @@ export default function ToolsScreen() {
         </View>
           </ScrollView>
         </KeyboardAvoidingView>
-      )}
+      ) : null}
     </View>
   );
 }

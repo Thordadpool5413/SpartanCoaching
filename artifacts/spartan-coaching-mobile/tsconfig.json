@@ -20,6 +20,12 @@
   "references": [
     {
       "path": "../../lib/api-client-react"
+    },
+    {
+      "path": "../../lib/design-tokens"
+    },
+    {
+      "path": "../../lib/field-kit-catalog"
     }
   ]
 }
