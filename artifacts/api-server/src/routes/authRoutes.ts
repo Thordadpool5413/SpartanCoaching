@@ -1,3 +1,4 @@
+import { randomBytes } from "node:crypto";
 import type { Express, Response } from "express";
 import { eq, desc, sql, and, isNull, ne, gte, lt } from "drizzle-orm";
 import {
@@ -1975,6 +1976,150 @@ export function registerAuthRoutes(app: Express): void {
     } catch (err) {
       console.error("cron jobs error:", err);
       return res.status(500).json({ error: "Cron jobs failed" });
+    }
+  });
+
+  /**
+   * Reset (or seed) the Apple App Store reviewer test account.
+   *
+   * Safe to call before every review cycle — idempotent.
+   * - If the account already exists: resets password + re-activates.
+   * - If it does not exist: creates the org + member from scratch.
+   *
+   * Auth (either is accepted):
+   *   1. Active platform_admin session cookie / Bearer token (preferred).
+   *   2. X-Admin-Auth: <secret> header where <secret> matches the ADMIN_PASSWORD
+   *      Replit Secret (must be explicitly set; fails closed if unset).
+   *
+   * Body (all optional):
+   *   { password?: string }   — omit to auto-generate a secure random password
+   *
+   * Returns:
+   *   { ok: true, email, password, created: boolean }
+   *
+   * Shell usage (ADMIN_PASSWORD must be set as a Replit Secret):
+   *   curl -s -X POST localhost:80/api/admin/reviewer/reset-password \
+   *     -H "X-Admin-Auth: $ADMIN_PASSWORD" \
+   *     -H "Content-Type: application/json" \
+   *     -d '{}' | jq .
+   */
+  app.post("/api/admin/reviewer/reset-password", authLimit, async (req: AuthedRequest, res) => {
+    // Accept a platform_admin session OR an X-Admin-Auth header matched
+    // against the ADMIN_PASSWORD env var (shell/curl fallback per replit.md).
+    // Fails closed — no fallback default — when ADMIN_PASSWORD is not configured.
+    const sessionOk = isAdminRequest(req);
+    const headerSecret = process.env.ADMIN_PASSWORD?.trim() || null;
+    const headerValue = typeof req.headers["x-admin-auth"] === "string"
+      ? req.headers["x-admin-auth"].trim()
+      : null;
+    const headerOk = !!(headerSecret && headerValue && safeEqualString(headerValue, headerSecret));
+
+    if (!sessionOk && !headerOk) {
+      await logEvent("reviewer_reset_denied", req.clientMemberId ?? null, {
+        reason: headerSecret ? "bad_header" : "no_admin_password_configured",
+        ip: req.ip,
+      });
+      return res.status(req.clientMemberId ? 403 : 401).json({
+        error: "Platform administrator session or valid X-Admin-Auth header required",
+        code: "ADMIN_REQUIRED",
+      });
+    }
+    const REVIEWER_EMAIL = "apple-reviewer@spartanhospicecoaching.com";
+    const REVIEWER_NAME = "Apple App Reviewer";
+    const REVIEWER_ORG = "Apple App Review (Test Account)";
+
+    function generateReviewerPassword(): string {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZabcdefghjkmnpqrstuvwxyz23456789!@#$%";
+      return Array.from(randomBytes(20))
+        .map((b: number) => chars[b % chars.length])
+        .join("");
+    }
+
+    try {
+      const rawPassword =
+        typeof req.body?.password === "string" && req.body.password.trim().length >= 8
+          ? req.body.password.trim()
+          : generateReviewerPassword();
+
+      const passwordHash = await hashPassword(rawPassword);
+
+      const [existing] = await db
+        .select()
+        .from(clientMembers)
+        .where(eq(clientMembers.email, REVIEWER_EMAIL))
+        .limit(1);
+
+      let created = false;
+
+      if (existing) {
+        await db
+          .update(clientMembers)
+          .set({ passwordHash, status: "active", name: REVIEWER_NAME })
+          .where(eq(clientMembers.id, existing.id));
+
+        await db
+          .update(clientOrganizations)
+          .set({ status: "active", trialEndsAt: null })
+          .where(eq(clientOrganizations.id, existing.organizationId));
+
+        await addOrgTimeline(
+          existing.organizationId,
+          "system",
+          "Apple reviewer test account password reset and re-activated via admin endpoint.",
+          "admin",
+        );
+
+        await logEvent("reviewer_password_reset", existing.id, { via: "admin-endpoint" });
+      } else {
+        const [org] = await db
+          .insert(clientOrganizations)
+          .values({
+            name: REVIEWER_ORG,
+            type: "personal",
+            seatLimit: 1,
+            status: "active",
+            pipelineStatus: "won",
+            trialEndsAt: null,
+            activatedAt: new Date(),
+            notes: "Permanent test account for Apple App Store reviewers. Do not expire or delete.",
+          })
+          .returning();
+
+        const [member] = await db
+          .insert(clientMembers)
+          .values({
+            email: REVIEWER_EMAIL,
+            passwordHash,
+            name: REVIEWER_NAME,
+            title: "App Reviewer",
+            role: "member",
+            organizationId: org.id,
+            status: "active",
+            termsAcceptedAt: new Date(),
+          })
+          .returning();
+
+        await addOrgTimeline(
+          org.id,
+          "system",
+          "Apple reviewer test account seeded for App Store review via admin endpoint.",
+          "admin",
+        );
+
+        await logEvent("reviewer_account_created", member.id, { via: "admin-endpoint" });
+        created = true;
+      }
+
+      return res.json({
+        ok: true,
+        email: REVIEWER_EMAIL,
+        password: rawPassword,
+        created,
+        note: "Copy email + password into App Store Connect → App Review Information → Sign-in required. Do not commit the password.",
+      });
+    } catch (err) {
+      console.error("reviewer reset-password error:", err);
+      return res.status(500).json({ error: "Failed to reset reviewer account" });
     }
   });
 

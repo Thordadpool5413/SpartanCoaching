@@ -338,24 +338,41 @@ Then upload to App Store Connect as described in the Screenshots section above.
 
 ### How to seed / reset the reviewer account
 
-The reviewer account lives in the production database. Run this script before each App Store review submission:
+The reviewer account lives in the production database. Reset it **from the Replit shell** — no database URL required.
+
+#### One-time prerequisite: set the `ADMIN_PASSWORD` Replit Secret
+
+The reset endpoint requires the `ADMIN_PASSWORD` Secret to be configured (it fails closed if unset). Set it once in the [Replit Secrets panel](https://docs.replit.com/replit-workspace/workspace-features/secrets) — use any strong value you choose.
+
+You only need to do this once. Once set, the shell variable `$ADMIN_PASSWORD` is available automatically in any Replit deployment shell.
+
+#### Reset the password
 
 ```bash
-# Generates a new random password and prints it — copy it straight into App Store Connect
-DATABASE_URL=<prod-connection-string> pnpm --filter @workspace/scripts run seed:apple-reviewer
+# From the Replit shell — generates a new random password and prints it
+curl -s -X POST localhost:80/api/admin/reviewer/reset-password \
+  -H "X-Admin-Auth: $ADMIN_PASSWORD" \
+  -H "Content-Type: application/json" \
+  -d '{}' | jq .
 ```
 
-The script is idempotent — it creates the org + member on first run, resets the password + re-activates on subsequent runs, and prints the credentials at the end. The reviewer email is always `apple-reviewer@spartanhospicecoaching.com`.
+The endpoint is idempotent — it creates the org + member on first call, resets the password + re-activates on subsequent calls. The reviewer email is always `apple-reviewer@spartanhospicecoaching.com`.
+
+To pin a specific password instead of generating one, add it to the request body:
+
+```bash
+curl -s -X POST localhost:80/api/admin/reviewer/reset-password \
+  -H "X-Admin-Auth: $ADMIN_PASSWORD" \
+  -H "Content-Type: application/json" \
+  -d '{"password":"YourChosenPassword1!"}' | jq .
+```
 
 **After running:**
-1. Copy the printed email + password into **App Store Connect → your app → App Review Information → Sign-in required**.
+1. Copy the `email` + `password` from the JSON response into **App Store Connect → your app → App Review Information → Sign-in required**.
 2. Do not commit the password to source control — it only needs to live in App Store Connect.
 
-To pin a specific password instead of generating one:
-
-```bash
-DATABASE_URL=<prod-connection-string> REVIEWER_PASSWORD=<your-password> pnpm --filter @workspace/scripts run seed:apple-reviewer
-```
+> **Legacy alternative (requires production DATABASE_URL):** `DATABASE_URL=<prod-connection-string> pnpm --filter @workspace/scripts run seed:apple-reviewer`  
+> Prefer the curl method above — it works from any Replit shell without manual DB credential lookup.
 
 #### Reviewer account seed log
 
