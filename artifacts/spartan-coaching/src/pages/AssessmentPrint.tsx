@@ -50,8 +50,14 @@ export default function AssessmentPrint() {
       <style>{`
         @media print {
           header, footer, nav, .no-print { display: none !important; }
-          body { font-size: 11pt; color: #000; }
-          .print-page { padding: 0.5in; }
+          body { font-size: 11pt; color: #111; line-height: 1.45; }
+          .print-page { padding: 0.5in; color: #111; }
+          .print-page p, .print-page li, .print-page span, .print-page div {
+            overflow-wrap: anywhere;
+            word-break: break-word;
+          }
+          .text-muted-foreground { color: #374151 !important; }
+          .text-xs { font-size: 9.5pt !important; }
           .page-break { page-break-before: always; }
           .scenario-lines { border-bottom: 1px solid #ccc; height: 22px; margin-top: 8px; }
           a { text-decoration: none; color: inherit; }

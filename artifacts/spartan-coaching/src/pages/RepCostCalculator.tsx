@@ -327,29 +327,29 @@ export default function RepCostCalculator() {
       <style>{`
         .print-report { display: none; }
         @media print {
-          @page { size: letter landscape; margin: .28in; }
+          @page { size: letter landscape; margin: .35in; }
           body { background: #fff !important; color: #172033 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
           .screen-only, header, footer, [role="dialog"], [data-radix-popper-content-wrapper] { display: none !important; }
-          .print-report { display: block !important; font-family: Arial, Helvetica, sans-serif; }
-          .print-header { display: grid; grid-template-columns: .62in 1fr 1.25in; gap: .14in; align-items: center; padding-bottom: .07in; border-bottom: 2pt solid #c91d31; }
+          .print-report { display: block !important; font-family: Arial, Helvetica, sans-serif; color: #172033; }
+          .print-header { display: grid; grid-template-columns: .62in 1fr 1.25in; gap: .14in; align-items: center; padding-bottom: .08in; border-bottom: 2pt solid #c91d31; }
           .print-header img { width: .55in; height: .55in; object-fit: contain; }
-          .print-header p { margin: 0; color: #667085; font-size: 7pt; font-weight: 800; letter-spacing: .1em; text-transform: uppercase; }
-          .print-header h1 { margin: .03in 0 0; color: #172033; font-family: Georgia, serif; font-size: 17pt; }
-          .print-header > span { color: #667085; font-size: 7pt; text-align: right; }
-          .print-metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: .06in; margin: .08in 0; }
-          .print-metric { min-height: .55in; padding: .06in; border: 1pt solid #d7dce5; border-radius: 4pt; background: #f6f8fb; }
+          .print-header p { margin: 0; color: #475569; font-size: 9pt; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+          .print-header h1 { margin: .03in 0 0; color: #172033; font-family: Georgia, serif; font-size: 16pt; line-height: 1.2; }
+          .print-header > span { color: #475569; font-size: 9pt; text-align: right; }
+          .print-metrics { display: grid; grid-template-columns: repeat(5, 1fr); gap: .07in; margin: .1in 0; }
+          .print-metric { min-height: .6in; padding: .07in; border: 1pt solid #d7dce5; border-radius: 4pt; background: #f6f8fb; }
           .print-metric.critical { border-color: #c91d31; background: #fff4f5; }
-          .print-metric label { display: block; color: #667085; font-size: 6.2pt; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
+          .print-metric label { display: block; color: #334155; font-size: 8pt; font-weight: 800; letter-spacing: .05em; text-transform: uppercase; line-height: 1.25; }
           .print-metric strong { display: block; margin-top: .03in; color: #172033; font-size: 12pt; }
-          .print-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .07in; }
+          .print-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: .08in; }
           .print-panel { border: 1pt solid #d7dce5; border-radius: 4pt; overflow: hidden; break-inside: avoid; }
-          .print-panel h2 { margin: 0; padding: .055in .07in; background: #172033; color: #fff; font-size: 7pt; font-weight: 800; letter-spacing: .07em; text-transform: uppercase; }
-          .print-table { width: 100%; border-collapse: collapse; font-size: 7pt; }
-          .print-table th, .print-table td { padding: .045in .07in; border-bottom: 1pt solid #e5e9ef; text-align: right; }
-          .print-table th { background: #f0f3f7; color: #667085; font-size: 6pt; letter-spacing: .06em; text-transform: uppercase; }
+          .print-panel h2 { margin: 0; padding: .06in .08in; background: #172033; color: #fff; font-size: 9pt; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+          .print-table { width: 100%; border-collapse: collapse; font-size: 9.5pt; }
+          .print-table th, .print-table td { padding: .05in .07in; border-bottom: 1pt solid #e5e9ef; text-align: right; vertical-align: top; line-height: 1.3; overflow-wrap: anywhere; }
+          .print-table th { background: #f0f3f7; color: #334155; font-size: 8pt; letter-spacing: .05em; text-transform: uppercase; }
           .print-table th:first-child, .print-table td:first-child { text-align: left; }
           .print-table tr:last-child td { border-bottom: 0; }
-          .print-footer { display: flex; justify-content: space-between; margin-top: .08in; padding-top: .05in; border-top: 1pt solid #c91d31; color: #667085; font-size: 6.5pt; }
+          .print-footer { display: flex; justify-content: space-between; margin-top: .1in; padding-top: .06in; border-top: 1pt solid #c91d31; color: #475569; font-size: 8.5pt; }
         }
       `}</style>
       <LeadGateDialog gateState={gateState} />

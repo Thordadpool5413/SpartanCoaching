@@ -1342,42 +1342,87 @@ body {
   display: none;
 }
 
-/* Print styles for AI generated content */
+/* Print styles for AI generated content + downloadable worksheets */
 @media print {
   * {
     print-color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;
   }
 
-  body {
+  html, body {
     background: white !important;
-    color: black !important;
+    color: #111 !important;
+    font-size: 11pt !important;
+    line-height: 1.45 !important;
+    -webkit-font-smoothing: antialiased;
   }
-  
+
   .dark {
     background: white !important;
-    color: black !important;
+    color: #111 !important;
   }
 
   :root, .dark {
     --background: 0 0% 100% !important;
-    --foreground: 0 0% 5% !important;
+    --foreground: 0 0% 7% !important;
     --card: 0 0% 100% !important;
-    --card-foreground: 0 0% 5% !important;
+    --card-foreground: 0 0% 7% !important;
     --muted: 0 0% 94% !important;
-    --muted-foreground: 0 0% 30% !important;
+    --muted-foreground: 0 0% 22% !important;
     --accent: 0 0% 94% !important;
-    --accent-foreground: 0 0% 5% !important;
+    --accent-foreground: 0 0% 7% !important;
     --secondary: 0 0% 94% !important;
-    --secondary-foreground: 0 0% 5% !important;
+    --secondary-foreground: 0 0% 7% !important;
     --primary-foreground: 0 0% 100% !important;
     --popover: 0 0% 100% !important;
-    --popover-foreground: 0 0% 5% !important;
+    --popover-foreground: 0 0% 7% !important;
+  }
+
+  /* Keep body copy readable; never drop below ~9pt for print */
+  p, li, td, th, label, span, div {
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .text-xs, .text-\[10px\], .text-\[9px\], .text-\[8px\] {
+    font-size: 9pt !important;
+    line-height: 1.35 !important;
+  }
+
+  .text-sm {
+    font-size: 10pt !important;
+  }
+
+  .text-muted-foreground {
+    color: #374151 !important;
+  }
+
+  h1, h2, h3, h4 {
+    color: #111 !important;
+    break-after: avoid;
+    page-break-after: avoid;
+  }
+
+  table {
+    width: 100% !important;
+    border-collapse: collapse !important;
+  }
+
+  th, td {
+    font-size: 9.5pt !important;
+    line-height: 1.35 !important;
+    padding: 4pt 6pt !important;
+    vertical-align: top !important;
+  }
+
+  img, svg {
+    max-width: 100% !important;
+    height: auto !important;
   }
 
   .bg-gray-50, .bg-gray-100, .bg-blue-50, .bg-yellow-50,
   .bg-red-600, .bg-red-100, .bg-green-100, .bg-yellow-100,
-  .border-l-4, .border-2 {
+  .border-l-4, .border-2, .print-panel, .print-metric {
     break-inside: avoid !important;
     page-break-inside: avoid !important;
   }
@@ -1391,8 +1436,8 @@ body {
     content: "\00A9 Spartan Coaching \00B7 spartanhospicecoaching.com";
     display: block;
     text-align: center;
-    font-size: 9px;
-    color: #666;
+    font-size: 9pt;
+    color: #4b5563;
     border-top: 1px solid #ccc;
     padding: 8px 0 4px;
     margin-top: 24px;

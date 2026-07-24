@@ -138,8 +138,9 @@ export default function AssessmentResultsPDF() {
       <style>{`
         @media print {
           header, footer, nav, .no-print { display: none !important; }
-          body { margin: 0; font-size: 10pt; }
-          .pdf-root { padding: 0.4in 0.5in; }
+          body { margin: 0; font-size: 11pt; color: #111; line-height: 1.45; }
+          .pdf-root { padding: 0.45in 0.55in; color: #111; }
+          .pdf-root p, .pdf-root li, .pdf-root td, .pdf-root div { overflow-wrap: anywhere; word-break: break-word; }
           .page-break { page-break-before: always; }
         }
         @media screen {

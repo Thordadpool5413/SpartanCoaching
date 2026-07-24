@@ -1772,8 +1772,11 @@ The single most important skill to work on before the next conversation.`,
       for (const [label, value] of fields) {
         const fieldY = doc.y;
         doc.fontSize(10).font("Helvetica-Bold").fillColor(MUTED).text(label + ":", MARGIN, fieldY, { width: 120, lineBreak: false });
-        doc.fontSize(10.5).font("Helvetica").fillColor(DARK).text(value, MARGIN + 125, fieldY, { width: CW - 125 });
-        doc.moveDown(0.3);
+        doc.fontSize(11).font("Helvetica").fillColor(DARK).text(String(value || "—"), MARGIN + 125, fieldY, {
+          width: CW - 125,
+          lineGap: 2,
+        });
+        doc.moveDown(0.4);
       }
 
       if (signer.signatureImage) {
@@ -1803,15 +1806,22 @@ The single most important skill to work on before the next conversation.`,
         doc.moveDown(0.8);
 
         for (const section of agreementContent.sections) {
-          if (doc.y > doc.page.height - 120) {
+          // Keep full sections readable — never clip mid-block against the page edge
+          if (doc.y > doc.page.height - 140) {
             doc.addPage();
           }
           if (section.heading) {
-            doc.fontSize(11).font("Helvetica-Bold").fillColor(DARK).text(section.heading, MARGIN, doc.y, { width: CW });
-            doc.moveDown(0.3);
+            doc.fontSize(12).font("Helvetica-Bold").fillColor(DARK).text(section.heading, MARGIN, doc.y, { width: CW });
+            doc.moveDown(0.35);
           }
-          doc.fontSize(9.5).font("Helvetica").fillColor(MUTED).text(section.body, MARGIN, doc.y, { width: CW, lineGap: 2, paragraphGap: 3 });
-          doc.moveDown(0.7);
+          // Agreement body must be dark enough to print and read fully
+          doc.fontSize(10.5).font("Helvetica").fillColor(DARK).text(section.body, MARGIN, doc.y, {
+            width: CW,
+            lineGap: 3,
+            paragraphGap: 4,
+            align: "left",
+          });
+          doc.moveDown(0.8);
         }
       }
 
@@ -1834,7 +1844,8 @@ The single most important skill to work on before the next conversation.`,
   async function generatePdfBuffer(title: string, subtitle: string | undefined, sections: Array<{ heading?: string; body: string }>): Promise<Buffer> {
     const PDFDocument = (await import("pdfkit")).default;
     return new Promise((resolve, reject) => {
-      const MARGIN = 60;
+      const MARGIN = 54;
+      const FOOTER_RESERVE = 48;
       const doc = new PDFDocument({
         margin: MARGIN,
         size: "LETTER",
@@ -1851,50 +1862,51 @@ The single most important skill to work on before the next conversation.`,
       const RED        = "#C8102E";
       const RED_DEEP   = "#9B0E23";
       const DARK       = "#111827";
-      const MUTED      = "#6B7280";
+      const MUTED      = "#4B5563";
       const WHITE      = "#FFFFFF";
       const LIGHT_RULE = "#E5E7EB";
-      const BANNER_SUB = "#E8899A"; // muted rose for secondary text on red banner
+      const BANNER_SUB = "#FECACA";
+      const BODY_SIZE  = 11;
+      const BODY_GAP   = 3.5;
 
       const PAGE_W   = doc.page.width;   // 612 pt
       const PAGE_H   = doc.page.height;  // 792 pt
-      const CW       = PAGE_W - MARGIN * 2; // content width = 492 pt
+      const CW       = PAGE_W - MARGIN * 2; // content width
       const YEAR     = new Date().getFullYear();
       const DATE_STR = new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" });
 
+      const measure = (text: string, width: number, size: number, font: string, lineGap = BODY_GAP) => {
+        doc.fontSize(size).font(font);
+        return doc.heightOfString(text || " ", { width: Math.max(20, width), lineGap });
+      };
+
       // ── Page-1 cover header ──────────────────────────────────────────────
       const BANNER_H1 = 82;
-      const ACCENT_H  = 5; // thin dark stripe at top
+      const ACCENT_H  = 5;
       doc.rect(0, 0, PAGE_W, BANNER_H1).fill(RED);
       doc.rect(0, 0, PAGE_W, ACCENT_H).fill(RED_DEEP);
-      // Company name
       doc.fontSize(13).font("Helvetica-Bold").fillColor(WHITE)
-        .text("SPARTAN COACHING", MARGIN, 22, { lineBreak: false });
-      // Tagline
-      doc.fontSize(8).font("Helvetica").fillColor(BANNER_SUB)
-        .text("HOSPICE SALES TRAINING", MARGIN, 42, { lineBreak: false });
-      // Date (right side of banner)
+        .text("SPARTAN COACHING", MARGIN, 22, { width: CW * 0.6, lineBreak: false });
+      doc.fontSize(8.5).font("Helvetica").fillColor(BANNER_SUB)
+        .text("HOSPICE SALES TRAINING", MARGIN, 42, { width: CW * 0.6, lineBreak: false });
       doc.fontSize(8.5).font("Helvetica").fillColor(BANNER_SUB)
         .text(DATE_STR, MARGIN, 27, { width: CW, align: "right", lineBreak: false });
-      // Vertical rule accent on right edge
       doc.rect(PAGE_W - ACCENT_H, 0, ACCENT_H, BANNER_H1).fill(RED_DEEP);
 
-      // Start content below banner + padding
       doc.y = BANNER_H1 + 22;
 
       // ── Title block ─────────────────────────────────────────────────────
-      doc.fontSize(24).font("Helvetica-Bold").fillColor(DARK)
-        .text(title, MARGIN, doc.y, { width: CW });
+      doc.fontSize(22).font("Helvetica-Bold").fillColor(DARK)
+        .text(title, MARGIN, doc.y, { width: CW, lineGap: 3 });
       if (subtitle) {
-        doc.moveDown(0.3);
-        doc.fontSize(11.5).font("Helvetica").fillColor(MUTED)
-          .text(subtitle, MARGIN, doc.y, { width: CW });
+        doc.moveDown(0.35);
+        doc.fontSize(12).font("Helvetica").fillColor(MUTED)
+          .text(subtitle, MARGIN, doc.y, { width: CW, lineGap: 3 });
       }
       doc.moveDown(0.7);
-      // Red rule beneath title block
       doc.moveTo(MARGIN, doc.y).lineTo(MARGIN + CW, doc.y)
         .strokeColor(RED).lineWidth(2).stroke();
-      doc.moveDown(1.2);
+      doc.moveDown(1.1);
 
       // ── Mini header on subsequent pages ─────────────────────────────────
       const MINI_H = 30;
@@ -1903,16 +1915,17 @@ The single most important skill to work on before the next conversation.`,
         doc.rect(0, 0, PAGE_W, 3).fill(RED_DEEP);
         doc.rect(PAGE_W - 3, 0, 3, MINI_H).fill(RED_DEEP);
         doc.fontSize(9).font("Helvetica-Bold").fillColor(WHITE)
-          .text("SPARTAN COACHING", MARGIN, 10, { lineBreak: false });
-        const shortTitle = title.length > 52 ? title.substring(0, 49) + "\u2026" : title;
+          .text("SPARTAN COACHING", MARGIN, 10, { width: CW * 0.45, lineBreak: false });
+        const shortTitle = title.length > 48 ? title.substring(0, 45) + "\u2026" : title;
         doc.fontSize(8.5).font("Helvetica").fillColor(BANNER_SUB)
           .text(shortTitle, MARGIN, 11, { width: CW, align: "right", lineBreak: false });
         doc.y = MINI_H + 18;
       });
 
-      // ── Space guard ─────────────────────────────────────────────────────
+      const contentBottom = () => PAGE_H - MARGIN - FOOTER_RESERVE;
+
       const ensureSpace = (minPts: number) => {
-        if (doc.y + minPts > PAGE_H - MARGIN) {
+        if (doc.y + minPts > contentBottom()) {
           doc.addPage();
         }
       };
@@ -1926,8 +1939,10 @@ The single most important skill to work on before the next conversation.`,
           if (paraLines.length === 0) return;
           const para = paraLines.join(" ").trim();
           if (para) {
-            doc.fontSize(10.5).font("Helvetica").fillColor(DARK)
-              .text(para, MARGIN, doc.y, { width: CW, lineGap: 2.5, paragraphGap: 0 });
+            const h = measure(para, CW, BODY_SIZE, "Helvetica", BODY_GAP);
+            ensureSpace(Math.min(h + 8, 140));
+            doc.fontSize(BODY_SIZE).font("Helvetica").fillColor(DARK)
+              .text(para, MARGIN, doc.y, { width: CW, lineGap: BODY_GAP, paragraphGap: 0, align: "left" });
             doc.moveDown(0.55);
           }
           paraLines = [];
@@ -1939,31 +1954,36 @@ The single most important skill to work on before the next conversation.`,
           // Bullet line (• from cleanMarkdown, or - / * originals)
           if (/^[•\-\*]\s/.test(line)) {
             flushPara();
-            ensureSpace(30); // must come before capturing bulletY
             const bulletText = line.replace(/^[•\-\*]\s+/, "").trim();
+            const textW = CW - 18;
+            const h = measure(bulletText, textW, BODY_SIZE, "Helvetica", BODY_GAP);
+            ensureSpace(Math.min(h + 10, 120));
             const bulletY = doc.y;
-            doc.fontSize(10.5).font("Helvetica-Bold").fillColor(RED)
+            doc.fontSize(BODY_SIZE).font("Helvetica-Bold").fillColor(RED)
               .text("\u2022", MARGIN + 2, bulletY, { lineBreak: false, width: 14 });
-            doc.fontSize(10.5).font("Helvetica").fillColor(DARK)
-              .text(bulletText, MARGIN + 16, bulletY, { width: CW - 16, lineGap: 2.5 });
-            doc.moveDown(0.25);
+            doc.fontSize(BODY_SIZE).font("Helvetica").fillColor(DARK)
+              .text(bulletText, MARGIN + 16, bulletY, { width: textW, lineGap: BODY_GAP });
+            doc.moveDown(0.3);
             continue;
           }
 
           // Numbered list line
           if (/^\d+\.\s/.test(line)) {
             flushPara();
-            ensureSpace(30); // must come before capturing numY
-            const match = line.match(/^(\d+\.\s+)(.*)/);
+            const match = line.match(/^(\d+\.)\s*(.*)/);
             if (match) {
-              const numLabel = match[1].trim();
+              const numLabel = match[1];
               const numText  = match[2].trim();
+              const labelW = Math.max(22, doc.fontSize(BODY_SIZE).font("Helvetica-Bold").widthOfString(numLabel) + 6);
+              const textW = CW - labelW - 4;
+              const h = measure(numText || " ", textW, BODY_SIZE, "Helvetica", BODY_GAP);
+              ensureSpace(Math.min(h + 10, 120));
               const numY = doc.y;
-              doc.fontSize(10.5).font("Helvetica-Bold").fillColor(RED)
-                .text(numLabel, MARGIN + 2, numY, { lineBreak: false, width: 22 });
-              doc.fontSize(10.5).font("Helvetica").fillColor(DARK)
-                .text(numText, MARGIN + 26, numY, { width: CW - 26, lineGap: 2.5 });
-              doc.moveDown(0.25);
+              doc.fontSize(BODY_SIZE).font("Helvetica-Bold").fillColor(RED)
+                .text(numLabel, MARGIN + 2, numY, { lineBreak: false, width: labelW });
+              doc.fontSize(BODY_SIZE).font("Helvetica").fillColor(DARK)
+                .text(numText, MARGIN + 2 + labelW, numY, { width: textW, lineGap: BODY_GAP });
+              doc.moveDown(0.3);
             }
             continue;
           }
@@ -1984,15 +2004,13 @@ The single most important skill to work on before the next conversation.`,
         const safeBody = typeof section.body === "string" ? section.body.trim() : "";
 
         if (section.heading) {
-          ensureSpace(90);
+          const headingH = measure(section.heading, CW - 11, 13, "Helvetica-Bold", 2);
+          ensureSpace(headingH + 40);
           const hY = doc.y;
-          // Red left accent bar
-          doc.rect(MARGIN, hY, 4, 17).fill(RED);
-          // Heading text
+          doc.rect(MARGIN, hY, 4, Math.max(17, headingH)).fill(RED);
           doc.fontSize(13).font("Helvetica-Bold").fillColor(DARK)
-            .text(section.heading, MARGIN + 11, hY, { width: CW - 11 });
-          doc.moveDown(0.3);
-          // Subtle rule under heading
+            .text(section.heading, MARGIN + 11, hY, { width: CW - 11, lineGap: 2 });
+          doc.moveDown(0.35);
           doc.moveTo(MARGIN, doc.y).lineTo(MARGIN + CW, doc.y)
             .strokeColor(LIGHT_RULE).lineWidth(0.5).stroke();
           doc.moveDown(0.55);
@@ -2000,23 +2018,23 @@ The single most important skill to work on before the next conversation.`,
 
         if (safeBody) {
           renderBody(safeBody);
-          doc.moveDown(0.3);
+          doc.moveDown(0.35);
         }
       }
 
       // ── Disclaimer ──────────────────────────────────────────────────────
-      ensureSpace(210);
+      ensureSpace(180);
       doc.moveDown(0.6);
       doc.moveTo(MARGIN, doc.y).lineTo(MARGIN + CW, doc.y)
         .strokeColor(LIGHT_RULE).lineWidth(0.5).stroke();
       doc.moveDown(0.65);
-      doc.fontSize(9).font("Helvetica-Bold").fillColor(DARK)
+      doc.fontSize(10).font("Helvetica-Bold").fillColor(DARK)
         .text("Disclaimer & Legal Notice", MARGIN, doc.y, { width: CW });
       doc.moveDown(0.4);
-      doc.fontSize(8).font("Helvetica").fillColor(MUTED)
+      doc.fontSize(8.5).font("Helvetica").fillColor(MUTED)
         .text(
           "This document was generated using artificial intelligence (OpenAI GPT-4o) through the Spartan Coaching platform and is provided for educational and training purposes only. It does not constitute professional, legal, clinical, regulatory, or compliance advice. Content should be reviewed, verified, and adapted to your specific organizational policies, state regulations, and individual patient circumstances before use.\n\nIntellectual Property: All AI-generated content produced through Spartan Coaching\u2019s platform is the exclusive property of Spartan Coaching. Unauthorized reproduction, redistribution, or commercial use is strictly prohibited.\n\n\u00A9 " + YEAR + " Spartan Coaching. All rights reserved. | spartanhospicecoaching.com",
-          MARGIN, doc.y, { width: CW, lineGap: 2, paragraphGap: 4 }
+          MARGIN, doc.y, { width: CW, lineGap: 2.5, paragraphGap: 4 }
         );
 
       // ── Footer on every page ─────────────────────────────────────────────
@@ -2025,14 +2043,14 @@ The single most important skill to work on before the next conversation.`,
       for (let i = 0; i < totalPages; i++) {
         doc.switchToPage(pageRange.start + i);
         doc.page.margins.bottom = 0;
-        const footerY = PAGE_H - MARGIN + 12;
-        doc.moveTo(MARGIN, footerY - 6).lineTo(MARGIN + CW, footerY - 6)
+        const footerY = PAGE_H - 36;
+        doc.moveTo(MARGIN, footerY - 8).lineTo(MARGIN + CW, footerY - 8)
           .strokeColor(LIGHT_RULE).lineWidth(0.5).stroke();
-        doc.fontSize(7).font("Helvetica").fillColor(MUTED)
+        doc.fontSize(8).font("Helvetica").fillColor(MUTED)
           .text(`\u00A9 ${YEAR} Spartan Coaching  \u00B7  spartanhospicecoaching.com`, MARGIN, footerY, {
-            width: Math.floor(CW * 0.65), lineBreak: false,
+            width: Math.floor(CW * 0.7), lineBreak: false,
           });
-        doc.fontSize(7).font("Helvetica").fillColor(MUTED)
+        doc.fontSize(8).font("Helvetica").fillColor(MUTED)
           .text(`Page ${i + 1} of ${totalPages}`, MARGIN, footerY, {
             width: CW, align: "right", lineBreak: false,
           });

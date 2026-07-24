@@ -1,5 +1,6 @@
 import PDFDocument from 'pdfkit';
 import fs from 'fs';
+import path from 'path';
 import { fileURLToPath } from 'url';
 
 const SPARTAN_RED = '#DC2626';
@@ -7,9 +8,9 @@ const SPARTAN_RED_LIGHT = '#EF4444';
 const SPARTAN_RED_DARK = '#991B1B';
 const BLACK = '#0F172A';
 const DARK_GRAY = '#1E293B';
-const MEDIUM_GRAY = '#475569';
+const MEDIUM_GRAY = '#334155';
 const LIGHT_GRAY = '#64748B';
-const PALE_GRAY = '#94A3B8';
+const PALE_GRAY = '#64748B';
 const BORDER_LIGHT = '#E2E8F0';
 const SURFACE_LIGHT = '#F8FAFC';
 const WHITE = '#FFFFFF';
@@ -19,7 +20,10 @@ const PAGE_HEIGHT = 792;
 const MARGIN = 54;
 const CONTENT_WIDTH = PAGE_WIDTH - (MARGIN * 2);
 const HEADER_HEIGHT = 72;
-const FOOTER_HEIGHT = 36;
+const FOOTER_HEIGHT = 40;
+const BODY_SIZE = 10.5;
+const BODY_LINE_GAP = 3.5;
+const MIN_BODY_COLOR = DARK_GRAY;
 
 interface PDFState {
   doc: InstanceType<typeof PDFDocument>;
@@ -27,8 +31,21 @@ interface PDFState {
   pageNum: number;
 }
 
+function measureText(
+  doc: InstanceType<typeof PDFDocument>,
+  text: string,
+  width: number,
+  fontSize: number,
+  font: string,
+  lineGap = BODY_LINE_GAP
+): number {
+  doc.fontSize(fontSize).font(font);
+  return doc.heightOfString(text || ' ', { width: Math.max(20, width), lineGap });
+}
+
 function ensureSpace(state: PDFState, needed: number): boolean {
-  const availableSpace = PAGE_HEIGHT - FOOTER_HEIGHT - 20 - state.y;
+  const bottomLimit = PAGE_HEIGHT - FOOTER_HEIGHT - 16;
+  const availableSpace = bottomLimit - state.y;
   if (availableSpace < needed) {
     addFooter(state);
     state.doc.addPage();
@@ -44,11 +61,11 @@ function addHeader(state: PDFState): void {
   const { doc } = state;
   doc.rect(0, 0, PAGE_WIDTH, 4).fill(SPARTAN_RED);
   doc.rect(0, 4, PAGE_WIDTH, HEADER_HEIGHT - 4).fill(WHITE);
+  // Avoid continued:true — it can corrupt text layout across color/font changes
   doc.fontSize(18).font('Helvetica-Bold').fillColor(SPARTAN_RED);
-  doc.text('SPARTAN', MARGIN, 20, { continued: true });
-  doc.fillColor(BLACK).text(' COACHING');
-  doc.fontSize(8).font('Helvetica').fillColor(LIGHT_GRAY);
-  doc.text('DISCIPLINE  |  EMPATHY  |  STRATEGY', MARGIN, 42);
+  doc.text('SPARTAN COACHING', MARGIN, 20, { width: CONTENT_WIDTH, lineBreak: false });
+  doc.fontSize(8.5).font('Helvetica').fillColor(LIGHT_GRAY);
+  doc.text('DISCIPLINE  |  EMPATHY  |  STRATEGY', MARGIN, 42, { width: CONTENT_WIDTH, lineBreak: false });
   doc.strokeColor(BORDER_LIGHT).lineWidth(0.5);
   doc.moveTo(0, HEADER_HEIGHT).lineTo(PAGE_WIDTH, HEADER_HEIGHT).stroke();
 }
@@ -58,9 +75,14 @@ function addFooter(state: PDFState): void {
   const footerY = PAGE_HEIGHT - FOOTER_HEIGHT;
   doc.strokeColor(BORDER_LIGHT).lineWidth(0.5);
   doc.moveTo(MARGIN, footerY).lineTo(PAGE_WIDTH - MARGIN, footerY).stroke();
-  doc.fontSize(7).font('Helvetica').fillColor(PALE_GRAY);
-  doc.text('Spartan Coaching  |  Hospice Sales Excellence  |  Confidential Training Material', MARGIN, footerY + 12);
-  doc.text(`${pageNum}`, PAGE_WIDTH - MARGIN - 20, footerY + 12, { width: 20, align: 'right' });
+  doc.fontSize(7.5).font('Helvetica').fillColor(PALE_GRAY);
+  doc.text(
+    'Spartan Coaching  |  Hospice Sales Excellence  |  Confidential Training Material',
+    MARGIN,
+    footerY + 12,
+    { width: CONTENT_WIDTH - 36, lineBreak: false }
+  );
+  doc.text(`${pageNum}`, PAGE_WIDTH - MARGIN - 28, footerY + 12, { width: 28, align: 'right', lineBreak: false });
   doc.rect(0, PAGE_HEIGHT - 3, PAGE_WIDTH, 3).fill(SPARTAN_RED);
 }
 
@@ -70,36 +92,38 @@ function addCoverPage(state: PDFState, title: string, subtitle: string, purpose:
   doc.rect(0, PAGE_HEIGHT - 120, PAGE_WIDTH, 120).fill(SPARTAN_RED_DARK);
   doc.rect(0, PAGE_HEIGHT - 122, PAGE_WIDTH, 2).fill(WHITE);
   doc.rect(MARGIN, 100, 3, 60).fill(WHITE);
-  doc.fontSize(32).font('Helvetica-Bold').fillColor(WHITE);
-  doc.text('SPARTAN', MARGIN + 16, 100, { continued: true });
-  doc.font('Helvetica').text(' COACHING');
-  doc.fontSize(10).font('Helvetica').fillColor('rgba(255,255,255,0.75)');
-  doc.text('DISCIPLINE  |  EMPATHY  |  STRATEGY', MARGIN + 16, 144);
-  doc.rect(MARGIN, 200, CONTENT_WIDTH, 1).fill('rgba(255,255,255,0.3)');
   doc.fontSize(28).font('Helvetica-Bold').fillColor(WHITE);
-  doc.text(title.toUpperCase(), MARGIN, 224, { width: CONTENT_WIDTH, lineGap: 4 });
+  doc.text('SPARTAN COACHING', MARGIN + 16, 100, { width: CONTENT_WIDTH - 16 });
+  doc.fontSize(10).font('Helvetica').fillColor('#FECACA');
+  doc.text('DISCIPLINE  |  EMPATHY  |  STRATEGY', MARGIN + 16, 140, { width: CONTENT_WIDTH - 16 });
+  doc.rect(MARGIN, 200, CONTENT_WIDTH, 1).fill('#FCA5A5');
+  doc.fontSize(26).font('Helvetica-Bold').fillColor(WHITE);
+  doc.text(title.toUpperCase(), MARGIN, 224, { width: CONTENT_WIDTH, lineGap: 5 });
   const titleBottom = doc.y + 16;
-  doc.fontSize(14).font('Helvetica').fillColor('rgba(255,255,255,0.85)');
+  doc.fontSize(13).font('Helvetica').fillColor('#FEE2E2');
   doc.text(subtitle, MARGIN, titleBottom, { width: CONTENT_WIDTH, lineGap: 4 });
   const subtitleBottom = doc.y + 24;
-  doc.rect(MARGIN, subtitleBottom, CONTENT_WIDTH, 1).fill('rgba(255,255,255,0.3)');
-  doc.fontSize(10).font('Helvetica').fillColor('rgba(255,255,255,0.7)');
+  doc.rect(MARGIN, subtitleBottom, CONTENT_WIDTH, 1).fill('#FCA5A5');
+  doc.fontSize(11).font('Helvetica').fillColor('#FEE2E2');
   doc.text(purpose, MARGIN, subtitleBottom + 20, { width: CONTENT_WIDTH, lineGap: 4 });
-  doc.fontSize(9).font('Helvetica').fillColor('rgba(255,255,255,0.6)');
-  doc.text('spartanhospicecoaching.com', MARGIN, PAGE_HEIGHT - 80);
-  doc.text('nick@spartanhospicecoaching.com', MARGIN, PAGE_HEIGHT - 64);
-  doc.text('2026 Edition  |  Confidential Training Material', PAGE_WIDTH - MARGIN - 160, PAGE_HEIGHT - 64, { width: 160, align: 'right' });
+  doc.fontSize(9.5).font('Helvetica').fillColor('#FECACA');
+  doc.text('spartanhospicecoaching.com', MARGIN, PAGE_HEIGHT - 80, { width: CONTENT_WIDTH * 0.55 });
+  doc.text('nick@spartanhospicecoaching.com', MARGIN, PAGE_HEIGHT - 64, { width: CONTENT_WIDTH * 0.55 });
+  doc.text('2026 Edition  |  Confidential Training Material', PAGE_WIDTH - MARGIN - 200, PAGE_HEIGHT - 64, {
+    width: 200,
+    align: 'right',
+  });
 }
 
 function addDocumentTitle(state: PDFState, title: string, subtitle?: string): void {
   const { doc } = state;
   state.y = HEADER_HEIGHT + 36;
-  doc.fontSize(24).font('Helvetica-Bold').fillColor(BLACK);
-  doc.text(title, MARGIN, state.y, { width: CONTENT_WIDTH });
+  doc.fontSize(22).font('Helvetica-Bold').fillColor(BLACK);
+  doc.text(title, MARGIN, state.y, { width: CONTENT_WIDTH, lineGap: 3 });
   state.y = doc.y + 8;
   if (subtitle) {
-    doc.fontSize(11).font('Helvetica').fillColor(MEDIUM_GRAY);
-    doc.text(subtitle, MARGIN, state.y, { width: CONTENT_WIDTH });
+    doc.fontSize(11.5).font('Helvetica').fillColor(MEDIUM_GRAY);
+    doc.text(subtitle, MARGIN, state.y, { width: CONTENT_WIDTH, lineGap: 3 });
     state.y = doc.y + 6;
   }
   doc.strokeColor(SPARTAN_RED).lineWidth(2);
@@ -108,127 +132,154 @@ function addDocumentTitle(state: PDFState, title: string, subtitle?: string): vo
 }
 
 function addSection(state: PDFState, title: string): void {
-  ensureSpace(state, 50);
   const { doc } = state;
+  const titleH = measureText(doc, title.toUpperCase(), CONTENT_WIDTH - 14, 13, 'Helvetica-Bold', 2);
+  ensureSpace(state, titleH + 36);
   state.y += 8;
-  doc.rect(MARGIN, state.y, 3, 20).fill(SPARTAN_RED);
+  doc.rect(MARGIN, state.y, 3, Math.max(20, titleH + 4)).fill(SPARTAN_RED);
   doc.fontSize(13).font('Helvetica-Bold').fillColor(BLACK);
-  doc.text(title.toUpperCase(), MARGIN + 14, state.y + 3, { width: CONTENT_WIDTH - 14 });
+  doc.text(title.toUpperCase(), MARGIN + 14, state.y + 3, { width: CONTENT_WIDTH - 14, lineGap: 2 });
   state.y = doc.y + 16;
 }
 
 function addSubsection(state: PDFState, title: string): void {
-  ensureSpace(state, 30);
   const { doc } = state;
-  doc.fontSize(11).font('Helvetica-Bold').fillColor(SPARTAN_RED_DARK);
-  doc.text(title, MARGIN, state.y, { width: CONTENT_WIDTH });
-  state.y = doc.y + 6;
+  const h = measureText(doc, title, CONTENT_WIDTH, 11.5, 'Helvetica-Bold', 2);
+  ensureSpace(state, h + 16);
+  doc.fontSize(11.5).font('Helvetica-Bold').fillColor(SPARTAN_RED_DARK);
+  doc.text(title, MARGIN, state.y, { width: CONTENT_WIDTH, lineGap: 2 });
+  state.y = doc.y + 8;
 }
 
 function addParagraph(state: PDFState, text: string, indent: number = 0): void {
-  ensureSpace(state, 40);
   const { doc } = state;
-  doc.fontSize(10).font('Helvetica').fillColor(DARK_GRAY);
-  doc.text(text, MARGIN + indent, state.y, { width: CONTENT_WIDTH - indent, lineGap: 3 });
+  const width = CONTENT_WIDTH - indent;
+  const h = measureText(doc, text, width, BODY_SIZE, 'Helvetica', BODY_LINE_GAP);
+  ensureSpace(state, Math.min(h + 12, 120));
+  doc.fontSize(BODY_SIZE).font('Helvetica').fillColor(MIN_BODY_COLOR);
+  doc.text(text, MARGIN + indent, state.y, { width, lineGap: BODY_LINE_GAP });
   state.y = doc.y + 10;
 }
 
 function addBullet(state: PDFState, text: string, indent: number = 0): void {
-  ensureSpace(state, 24);
   const { doc } = state;
+  const textWidth = CONTENT_WIDTH - indent - 18;
+  const h = measureText(doc, text, textWidth, BODY_SIZE, 'Helvetica', 2.5);
+  ensureSpace(state, Math.min(h + 10, 100));
   const bulletX = MARGIN + indent + 8;
   doc.circle(bulletX, state.y + 5, 2).fill(SPARTAN_RED);
-  doc.fontSize(10).font('Helvetica').fillColor(DARK_GRAY);
-  doc.text(text, MARGIN + indent + 18, state.y, { width: CONTENT_WIDTH - indent - 18, lineGap: 2 });
-  state.y = doc.y + 6;
+  doc.fontSize(BODY_SIZE).font('Helvetica').fillColor(MIN_BODY_COLOR);
+  doc.text(text, MARGIN + indent + 18, state.y, { width: textWidth, lineGap: 2.5 });
+  state.y = doc.y + 7;
 }
 
 function addNumberedItem(state: PDFState, num: number, title: string, desc?: string): void {
-  ensureSpace(state, 36);
   const { doc } = state;
+  const titleH = measureText(doc, title, CONTENT_WIDTH - 28, 10.5, 'Helvetica-Bold', 2);
+  const descH = desc ? measureText(doc, desc, CONTENT_WIDTH - 28, 10, 'Helvetica', 2.5) : 0;
+  ensureSpace(state, titleH + descH + 24);
   doc.circle(MARGIN + 10, state.y + 6, 10).fill(SPARTAN_RED);
   doc.fontSize(10).font('Helvetica-Bold').fillColor(WHITE);
-  doc.text(`${num}`, MARGIN + 5, state.y + 2, { width: 11, align: 'center' });
-  doc.fontSize(10).font('Helvetica-Bold').fillColor(BLACK);
-  doc.text(title, MARGIN + 28, state.y + 2, { width: CONTENT_WIDTH - 28 });
+  doc.text(`${num}`, MARGIN + 5, state.y + 2, { width: 11, align: 'center', lineBreak: false });
+  doc.fontSize(10.5).font('Helvetica-Bold').fillColor(BLACK);
+  doc.text(title, MARGIN + 28, state.y + 2, { width: CONTENT_WIDTH - 28, lineGap: 2 });
   if (desc) {
-    state.y = doc.y + 2;
-    doc.fontSize(9).font('Helvetica').fillColor(MEDIUM_GRAY);
-    doc.text(desc, MARGIN + 28, state.y, { width: CONTENT_WIDTH - 28, lineGap: 2 });
+    state.y = doc.y + 3;
+    doc.fontSize(10).font('Helvetica').fillColor(MEDIUM_GRAY);
+    doc.text(desc, MARGIN + 28, state.y, { width: CONTENT_WIDTH - 28, lineGap: 2.5 });
   }
-  state.y = doc.y + 10;
+  state.y = doc.y + 12;
 }
 
 function addSalesStage(state: PDFState, stageNum: number, stageName: string, stageDesc: string): void {
-  ensureSpace(state, 52);
   const { doc } = state;
-  const boxHeight = 44;
   const numWidth = 44;
-  doc.rect(MARGIN, state.y, numWidth, boxHeight).fill(SPARTAN_RED);
+  const textWidth = CONTENT_WIDTH - numWidth - 28;
+  const nameH = measureText(doc, stageName.toUpperCase(), textWidth, 12, 'Helvetica-Bold', 2);
+  const descH = measureText(doc, stageDesc, textWidth, 10, 'Helvetica', 2.5);
+  const boxHeight = Math.max(48, 12 + nameH + 4 + descH + 12);
+  ensureSpace(state, boxHeight + 10);
+  const startY = state.y;
+  doc.rect(MARGIN, startY, numWidth, boxHeight).fill(SPARTAN_RED);
   doc.fontSize(22).font('Helvetica-Bold').fillColor(WHITE);
-  doc.text(`${stageNum}`, MARGIN, state.y + 11, { width: numWidth, align: 'center' });
-  doc.rect(MARGIN + numWidth, state.y, CONTENT_WIDTH - numWidth, boxHeight)
+  doc.text(`${stageNum}`, MARGIN, startY + (boxHeight - 22) / 2, { width: numWidth, align: 'center', lineBreak: false });
+  doc.rect(MARGIN + numWidth, startY, CONTENT_WIDTH - numWidth, boxHeight)
     .fillAndStroke(SURFACE_LIGHT, BORDER_LIGHT);
   doc.fontSize(12).font('Helvetica-Bold').fillColor(BLACK);
-  doc.text(stageName.toUpperCase(), MARGIN + numWidth + 14, state.y + 10, { width: CONTENT_WIDTH - numWidth - 28 });
-  doc.fontSize(9).font('Helvetica').fillColor(MEDIUM_GRAY);
-  doc.text(stageDesc, MARGIN + numWidth + 14, state.y + 26, { width: CONTENT_WIDTH - numWidth - 28 });
-  state.y += boxHeight + 8;
+  doc.text(stageName.toUpperCase(), MARGIN + numWidth + 14, startY + 10, { width: textWidth, lineGap: 2 });
+  doc.fontSize(10).font('Helvetica').fillColor(MEDIUM_GRAY);
+  doc.text(stageDesc, MARGIN + numWidth + 14, startY + 10 + nameH + 4, { width: textWidth, lineGap: 2.5 });
+  state.y = startY + boxHeight + 10;
 }
 
 function addScriptBox(state: PDFState, script: string): void {
-  const lineCount = script.split('\n').length;
-  const charCount = script.length;
-  const estimatedHeight = Math.max(72, lineCount * 15 + Math.ceil(charCount / 80) * 14 + 28);
-  ensureSpace(state, estimatedHeight);
   const { doc } = state;
-  doc.rect(MARGIN, state.y, 3, estimatedHeight - 8).fill(SPARTAN_RED_LIGHT);
-  doc.rect(MARGIN + 3, state.y, CONTENT_WIDTH - 3, estimatedHeight - 8).fill('#FEF2F2');
-  doc.fontSize(10).font('Helvetica-Oblique').fillColor(DARK_GRAY);
-  doc.text(script, MARGIN + 16, state.y + 12, { width: CONTENT_WIDTH - 32, lineGap: 3 });
-  state.y = doc.y + 16;
+  const textWidth = CONTENT_WIDTH - 32;
+  const textH = measureText(doc, script, textWidth, 10.5, 'Helvetica-Oblique', 3.5);
+  const boxHeight = Math.max(56, textH + 28);
+  ensureSpace(state, boxHeight + 12);
+  const startY = state.y;
+  doc.rect(MARGIN, startY, 3, boxHeight).fill(SPARTAN_RED_LIGHT);
+  doc.rect(MARGIN + 3, startY, CONTENT_WIDTH - 3, boxHeight).fill('#FEF2F2');
+  doc.fontSize(10.5).font('Helvetica-Oblique').fillColor(MIN_BODY_COLOR);
+  doc.text(script, MARGIN + 16, startY + 12, { width: textWidth, lineGap: 3.5 });
+  state.y = startY + boxHeight + 12;
 }
 
-function addTipBox(state: PDFState, tipTitle: string, tipContent: string, tall: boolean = false): void {
-  const charCount = tipContent.length;
-  const boxHeight = tall ? Math.max(68, Math.ceil(charCount / 70) * 13 + 36) : 58;
-  ensureSpace(state, boxHeight + 10);
+function addTipBox(state: PDFState, tipTitle: string, tipContent: string, _tall: boolean = false): void {
   const { doc } = state;
-  doc.rect(MARGIN, state.y, CONTENT_WIDTH, boxHeight).fillAndStroke('#FEF2F2', SPARTAN_RED);
-  doc.rect(MARGIN, state.y, 4, boxHeight).fill(SPARTAN_RED);
-  doc.fontSize(9).font('Helvetica-Bold').fillColor(SPARTAN_RED);
-  doc.text(tipTitle.toUpperCase(), MARGIN + 16, state.y + 12, { width: CONTENT_WIDTH - 32 });
-  doc.fontSize(9).font('Helvetica').fillColor(DARK_GRAY);
-  doc.text(tipContent, MARGIN + 16, state.y + 28, { width: CONTENT_WIDTH - 32, lineGap: 2 });
-  state.y += boxHeight + 12;
+  const textWidth = CONTENT_WIDTH - 32;
+  const titleH = measureText(doc, tipTitle.toUpperCase(), textWidth, 9.5, 'Helvetica-Bold', 2);
+  const contentH = measureText(doc, tipContent, textWidth, 10, 'Helvetica', 2.5);
+  const boxHeight = Math.max(64, 12 + titleH + 6 + contentH + 14);
+  ensureSpace(state, boxHeight + 12);
+  const startY = state.y;
+  doc.rect(MARGIN, startY, CONTENT_WIDTH, boxHeight).fillAndStroke('#FEF2F2', SPARTAN_RED);
+  doc.rect(MARGIN, startY, 4, boxHeight).fill(SPARTAN_RED);
+  doc.fontSize(9.5).font('Helvetica-Bold').fillColor(SPARTAN_RED);
+  doc.text(tipTitle.toUpperCase(), MARGIN + 16, startY + 12, { width: textWidth, lineGap: 2 });
+  doc.fontSize(10).font('Helvetica').fillColor(MIN_BODY_COLOR);
+  doc.text(tipContent, MARGIN + 16, startY + 12 + titleH + 6, { width: textWidth, lineGap: 2.5 });
+  state.y = startY + boxHeight + 12;
 }
 
 function addCalloutBox(state: PDFState, text: string): void {
-  const charCount = text.length;
-  const boxHeight = Math.max(48, Math.ceil(charCount / 65) * 13 + 28);
-  ensureSpace(state, boxHeight + 10);
   const { doc } = state;
-  doc.rect(MARGIN, state.y, CONTENT_WIDTH, boxHeight).fill(SURFACE_LIGHT);
+  const textWidth = CONTENT_WIDTH - 28;
+  const textH = measureText(doc, text, textWidth, 10.5, 'Helvetica-Bold', 3);
+  const boxHeight = Math.max(48, textH + 28);
+  ensureSpace(state, boxHeight + 12);
+  const startY = state.y;
+  doc.rect(MARGIN, startY, CONTENT_WIDTH, boxHeight).fill(SURFACE_LIGHT);
   doc.strokeColor(BORDER_LIGHT).lineWidth(1);
-  doc.rect(MARGIN, state.y, CONTENT_WIDTH, boxHeight).stroke();
-  doc.fontSize(10).font('Helvetica-Bold').fillColor(DARK_GRAY);
-  doc.text(text, MARGIN + 14, state.y + 14, { width: CONTENT_WIDTH - 28, lineGap: 3 });
-  state.y = doc.y + 18;
+  doc.rect(MARGIN, startY, CONTENT_WIDTH, boxHeight).stroke();
+  doc.fontSize(10.5).font('Helvetica-Bold').fillColor(MIN_BODY_COLOR);
+  doc.text(text, MARGIN + 14, startY + 14, { width: textWidth, lineGap: 3 });
+  state.y = startY + boxHeight + 12;
 }
 
 function addCheckbox(state: PDFState, text: string): void {
-  ensureSpace(state, 22);
   const { doc } = state;
+  const textH = measureText(doc, text, CONTENT_WIDTH - 28, BODY_SIZE, 'Helvetica', 2.5);
+  ensureSpace(state, Math.max(22, textH + 8));
   doc.rect(MARGIN + 8, state.y + 1, 12, 12).lineWidth(1).strokeColor(SPARTAN_RED).stroke();
-  doc.fontSize(10).font('Helvetica').fillColor(DARK_GRAY);
-  doc.text(text, MARGIN + 28, state.y, { width: CONTENT_WIDTH - 28 });
-  state.y = doc.y + 6;
+  doc.fontSize(BODY_SIZE).font('Helvetica').fillColor(MIN_BODY_COLOR);
+  doc.text(text, MARGIN + 28, state.y, { width: CONTENT_WIDTH - 28, lineGap: 2.5 });
+  state.y = doc.y + 7;
 }
 
 function addTableRow(state: PDFState, cells: string[], widths: number[], isHeader: boolean = false): void {
-  ensureSpace(state, 28);
   const { doc } = state;
-  const rowHeight = 24;
+  const font = isHeader ? 'Helvetica-Bold' : 'Helvetica';
+  const fontSize = isHeader ? 9.5 : 9.5;
+  let maxH = 12;
+  cells.forEach((cell, i) => {
+    const cellWidth = widths[i] || 100;
+    const h = measureText(doc, cell || ' ', cellWidth - 16, fontSize, font, 2);
+    maxH = Math.max(maxH, h);
+  });
+  const rowHeight = Math.max(26, maxH + 14);
+  ensureSpace(state, rowHeight + 4);
   let x = MARGIN;
   if (isHeader) {
     doc.rect(MARGIN, state.y, CONTENT_WIDTH, rowHeight).fill(SURFACE_LIGHT);
@@ -240,42 +291,57 @@ function addTableRow(state: PDFState, cells: string[], widths: number[], isHeade
     if (i > 0) {
       doc.moveTo(x, state.y).lineTo(x, state.y + rowHeight).stroke();
     }
-    doc.fontSize(9)
-      .font(isHeader ? 'Helvetica-Bold' : 'Helvetica')
-      .fillColor(isHeader ? DARK_GRAY : MEDIUM_GRAY);
-    doc.text(cell, x + 8, state.y + 7, { width: cellWidth - 16 });
+    doc.fontSize(fontSize)
+      .font(font)
+      .fillColor(isHeader ? DARK_GRAY : MIN_BODY_COLOR);
+    doc.text(cell, x + 8, state.y + 7, { width: cellWidth - 16, lineGap: 2 });
     x += cellWidth;
   });
   state.y += rowHeight;
 }
 
 function addFormField(state: PDFState, label: string, wide: boolean = false): void {
-  ensureSpace(state, 28);
   const { doc } = state;
-  doc.fontSize(10).font('Helvetica').fillColor(DARK_GRAY);
-  doc.text(`${label}:`, MARGIN, state.y);
-  const labelWidth = doc.widthOfString(`${label}:`);
-  const lineStart = MARGIN + labelWidth + 8;
-  const lineEnd = wide ? PAGE_WIDTH - MARGIN : Math.min(MARGIN + 260, PAGE_WIDTH - MARGIN);
-  doc.strokeColor(BORDER_LIGHT).lineWidth(0.5);
+  const labelText = `${label}:`;
+  doc.fontSize(BODY_SIZE).font('Helvetica');
+  const fullLabelW = doc.widthOfString(labelText);
+  // Long labels stack above a full-width write-in line so nothing is clipped
+  if (fullLabelW > CONTENT_WIDTH * 0.45 || wide) {
+    const labelH = measureText(doc, labelText, CONTENT_WIDTH, BODY_SIZE, 'Helvetica', 2);
+    ensureSpace(state, labelH + 28);
+    doc.fontSize(BODY_SIZE).font('Helvetica').fillColor(MIN_BODY_COLOR);
+    doc.text(labelText, MARGIN, state.y, { width: CONTENT_WIDTH, lineGap: 2 });
+    state.y = doc.y + 4;
+    doc.strokeColor(BORDER_LIGHT).lineWidth(0.75);
+    doc.moveTo(MARGIN, state.y + 14).lineTo(PAGE_WIDTH - MARGIN, state.y + 14).stroke();
+    state.y += 28;
+    return;
+  }
+  ensureSpace(state, 28);
+  doc.fontSize(BODY_SIZE).font('Helvetica').fillColor(MIN_BODY_COLOR);
+  doc.text(labelText, MARGIN, state.y, { width: fullLabelW + 2, lineBreak: false });
+  const lineStart = MARGIN + fullLabelW + 8;
+  const lineEnd = Math.min(MARGIN + 300, PAGE_WIDTH - MARGIN);
+  doc.strokeColor(BORDER_LIGHT).lineWidth(0.75);
   doc.moveTo(lineStart, state.y + 12).lineTo(lineEnd, state.y + 12).stroke();
-  state.y += 24;
+  state.y += 26;
 }
 
 function addEmailTemplate(state: PDFState, subject: string, body: string): void {
-  const lineCount = body.split('\n').length;
-  const estimatedHeight = Math.max(120, lineCount * 14 + 50);
-  ensureSpace(state, estimatedHeight);
   const { doc } = state;
+  const subjectH = measureText(doc, subject, CONTENT_WIDTH - 52, 10, 'Helvetica', 2);
+  const bodyH = measureText(doc, body, CONTENT_WIDTH, BODY_SIZE, 'Helvetica', 3.5);
+  const blockH = 8 + Math.max(14, subjectH) + 10 + bodyH + 16;
+  ensureSpace(state, Math.min(blockH, 200));
   doc.rect(MARGIN, state.y, CONTENT_WIDTH, 1).fill(BORDER_LIGHT);
   state.y += 8;
-  doc.fontSize(9).font('Helvetica-Bold').fillColor(MEDIUM_GRAY);
-  doc.text('Subject:', MARGIN, state.y);
-  doc.font('Helvetica').fillColor(DARK_GRAY);
-  doc.text(subject, MARGIN + 52, state.y, { width: CONTENT_WIDTH - 52 });
+  doc.fontSize(10).font('Helvetica-Bold').fillColor(MEDIUM_GRAY);
+  doc.text('Subject:', MARGIN, state.y, { lineBreak: false });
+  doc.font('Helvetica').fillColor(MIN_BODY_COLOR);
+  doc.text(subject, MARGIN + 52, state.y, { width: CONTENT_WIDTH - 52, lineGap: 2 });
   state.y = doc.y + 10;
-  doc.fontSize(10).font('Helvetica').fillColor(DARK_GRAY);
-  doc.text(body, MARGIN, state.y, { width: CONTENT_WIDTH, lineGap: 3 });
+  doc.fontSize(BODY_SIZE).font('Helvetica').fillColor(MIN_BODY_COLOR);
+  doc.text(body, MARGIN, state.y, { width: CONTENT_WIDTH, lineGap: 3.5 });
   state.y = doc.y + 16;
 }
 
@@ -301,14 +367,52 @@ function createDocument(withCover: boolean = false): PDFState {
   return state;
 }
 
+function resolveResourcePath(filename: string): string {
+  // Prefer the web app public folder (served as static assets)
+  const webPublic = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    '../../spartan-coaching/public/resources',
+    filename
+  );
+  const apiPublic = path.resolve(
+    path.dirname(fileURLToPath(import.meta.url)),
+    '../public/resources',
+    filename
+  );
+  // Always write web public; also mirror to api-server public when possible
+  return webPublic.includes('spartan-coaching') ? webPublic : apiPublic;
+}
+
 function finishDocument(state: PDFState, outputPath: string): Promise<void> {
   return new Promise((resolve, reject) => {
     addFooter(state);
-    const stream = fs.createWriteStream(outputPath);
-    state.doc.pipe(stream);
+    const filename = path.basename(outputPath);
+    const targets = new Set<string>([
+      resolveResourcePath(filename),
+      path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../public/resources', filename),
+    ]);
+
+    // Support relative paths like public/resources/foo.pdf when run from api-server root
+    if (!path.isAbsolute(outputPath)) {
+      targets.add(path.resolve(process.cwd(), outputPath));
+    }
+
+    const buffers: Buffer[] = [];
+    state.doc.on('data', (chunk: Buffer) => buffers.push(chunk));
+    state.doc.on('error', reject);
+    state.doc.on('end', () => {
+      try {
+        const data = Buffer.concat(buffers);
+        for (const target of targets) {
+          fs.mkdirSync(path.dirname(target), { recursive: true });
+          fs.writeFileSync(target, data);
+        }
+        resolve();
+      } catch (err) {
+        reject(err);
+      }
+    });
     state.doc.end();
-    stream.on('finish', resolve);
-    stream.on('error', reject);
   });
 }
 
@@ -1888,12 +1992,17 @@ async function createDifficultConversationGuide(): Promise<void> {
 // ─── MAIN EXPORT ──────────────────────────────────────────────────────────
 
 export async function generateAllPDFs(): Promise<void> {
-  const resourceDir = 'public/resources';
-  if (!fs.existsSync(resourceDir)) {
-    fs.mkdirSync(resourceDir, { recursive: true });
+  const resourceDirs = [
+    path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../../spartan-coaching/public/resources'),
+    path.resolve(path.dirname(fileURLToPath(import.meta.url)), '../public/resources'),
+  ];
+  for (const resourceDir of resourceDirs) {
+    if (!fs.existsSync(resourceDir)) {
+      fs.mkdirSync(resourceDir, { recursive: true });
+    }
   }
 
-  console.log('Generating professional training PDFs...');
+  console.log('Generating professional training PDFs (readable layout)...');
 
   await createColdCallScript();
   console.log('  Created: cold-call-script.pdf');
