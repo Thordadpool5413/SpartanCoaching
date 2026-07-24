@@ -151,11 +151,19 @@ export async function activateCorporateContract(
       if (existing.status !== "canceled" && existing.status !== "incomplete_expired") {
         const item = existing.items.data[0];
         // Create a new price for the new unit amount if it changed
+        const product = await stripe.products.create({
+          name: productName,
+          metadata: {
+            organizationId: String(org.id),
+            billingPlan: "corporate_contract",
+            contractRef: contractRef || "",
+          },
+        });
         const price = await stripe.prices.create({
           currency,
           unit_amount: unitAmountCents,
           recurring: { interval: "week" },
-          product_data: { name: productName },
+          product: product.id,
           metadata: {
             organizationId: String(org.id),
             billingPlan: "corporate_contract",
@@ -216,11 +224,19 @@ export async function activateCorporateContract(
   }
 
   // New subscription
+  const product = await stripe.products.create({
+    name: productName,
+    metadata: {
+      organizationId: String(org.id),
+      billingPlan: "corporate_contract",
+      contractRef: contractRef || "",
+    },
+  });
   const price = await stripe.prices.create({
     currency,
     unit_amount: unitAmountCents,
     recurring: { interval: "week" },
-    product_data: { name: productName },
+    product: product.id,
     metadata: {
       organizationId: String(org.id),
       billingPlan: "corporate_contract",
