@@ -31,14 +31,26 @@ export default function Resources() {
   const [leadName, setLeadName] = useState("");
   const [leadEmail, setLeadEmail] = useState("");
 
+  /** Prefer /resources/files/* so PDF downloads never hit the SPA /resources page. */
+  const resolveResourceUrl = (fileUrl: string): string => {
+    if (!fileUrl) return fileUrl;
+    if (fileUrl.startsWith("/resources/files/")) return fileUrl;
+    if (fileUrl.startsWith("/resources/") && fileUrl.toLowerCase().endsWith(".pdf")) {
+      const name = fileUrl.split("/").pop() || "";
+      return `/resources/files/${name}`;
+    }
+    return fileUrl;
+  };
+
   const openDownload = (resource: SelectResource) => {
+    const url = resolveResourceUrl(resource.fileUrl);
     // Members already inside Field Kit — no lead gate
     if (canUseFieldKit) {
       trackEvent("resource_download", resource.title);
-      window.open(resource.fileUrl, "_blank");
+      window.open(url, "_blank");
       return;
     }
-    setSelectedResource(resource);
+    setSelectedResource({ ...resource, fileUrl: url });
     setGateOpen(true);
   };
 

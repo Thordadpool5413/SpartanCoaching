@@ -267,7 +267,11 @@ export default function BranchProfitability() {
               size="default"
               onClick={() =>
                 capture(
-                  () => window.open("/resources/files/branch-profitability-education.pdf", "_blank"),
+                  () => {
+                    // Prefer API-served path; fall back to static public path
+                    const primary = "/resources/files/branch-profitability-education.pdf";
+                    window.open(primary, "_blank");
+                  },
                   () => null
                 )
               }

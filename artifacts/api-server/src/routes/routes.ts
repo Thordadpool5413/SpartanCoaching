@@ -16,6 +16,7 @@ import {
 } from "../rateLimits";
 
 import path from "path";
+import fs from "fs";
 import { and, eq, gt, lt } from "drizzle-orm";
 import { db } from "../db";
 import { objectUploadTokens } from "@workspace/db";
@@ -84,17 +85,44 @@ export async function deferredInit(app: Express): Promise<void> {
 
 export function registerRoutes(app: Express): void {
   // Serve training resources files (PDFs, etc.)
-  // Uses /resources/files path to avoid conflict with frontend /resources route
-  // In development: ./public/resources (from project root)
-  // In production: ./dist/public/resources (bundled with the build)
-  const resourcesPath = process.env.NODE_ENV === 'production'
-    ? path.join(import.meta.dirname, 'public', 'resources')
-    : path.join(import.meta.dirname, '..', 'public', 'resources');
-  app.use('/resources/files', express.static(resourcesPath));
+  // Prefer /resources/files/* so it never collides with the SPA /resources page.
+  // Check multiple install layouts (dev, dist, monorepo web public).
+  const resourceDirCandidates = [
+    path.join(import.meta.dirname, "public", "resources"),
+    path.join(import.meta.dirname, "..", "public", "resources"),
+    path.join(import.meta.dirname, "..", "..", "spartan-coaching", "public", "resources"),
+    path.join(process.cwd(), "public", "resources"),
+    path.join(process.cwd(), "artifacts", "spartan-coaching", "public", "resources"),
+    path.join(process.cwd(), "artifacts", "api-server", "public", "resources"),
+  ];
+  const resourcesPath =
+    resourceDirCandidates.find((dir) => {
+      try {
+        return fs.existsSync(dir);
+      } catch {
+        return false;
+      }
+    }) ?? resourceDirCandidates[0];
+  app.use(
+    "/resources/files",
+    express.static(resourcesPath, {
+      fallthrough: true,
+      maxAge: "1d",
+      setHeaders(res) {
+        res.setHeader("Content-Disposition", "inline");
+      },
+    }),
+  );
 
-  // Backwards-compatible redirect: old /resources/*.pdf paths -> /resources/files/*.pdf
-  app.get(/^\/resources\/(.+\.pdf)$/, (req, res) => {
-    res.redirect(301, `/resources/files/${req.params[0]}`);
+  // Backwards-compatible: /resources/*.pdf -> serve file or redirect to /resources/files/*
+  app.get(/^\/resources\/(.+\.pdf)$/, (req, res, next) => {
+    const filename = String(req.params[0] || "").replace(/\\/g, "/").split("/").pop() || "";
+    if (!filename || filename.includes("..")) return next();
+    const absolute = path.join(resourcesPath, filename);
+    if (fs.existsSync(absolute)) {
+      return res.sendFile(absolute);
+    }
+    return res.redirect(301, `/resources/files/${encodeURIComponent(filename)}`);
   });
 
   // robots.txt route
@@ -622,8 +650,20 @@ Subject: [subject line]
   app.get("/api/resources", async (req, res) => {
     try {
       const resources = await storage.getAllResources();
-      
-      res.json({ resources });
+      // Normalize legacy /resources/*.pdf URLs so downloads never hit the SPA route
+      const normalized = (resources || []).map((r: any) => {
+        const fileUrl = String(r?.fileUrl || "");
+        if (
+          fileUrl.startsWith("/resources/") &&
+          !fileUrl.startsWith("/resources/files/") &&
+          fileUrl.toLowerCase().endsWith(".pdf")
+        ) {
+          const name = fileUrl.split("/").pop();
+          return { ...r, fileUrl: `/resources/files/${name}` };
+        }
+        return r;
+      });
+      res.json({ resources: normalized });
     } catch (error: any) {
       console.error("Get resources error (DB may be unavailable):", error);
       res.json({ resources: [] });

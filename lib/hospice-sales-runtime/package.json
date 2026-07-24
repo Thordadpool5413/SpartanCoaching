@@ -19,7 +19,11 @@
     "./coaching-feedback": { "types": "./dist/coaching-feedback.d.ts", "import": "./dist/coaching-feedback.js" },
     "./email-optimizer": { "types": "./dist/email-optimizer.d.ts", "import": "./dist/email-optimizer.js" },
     "./sales-workflow": { "types": "./dist/sales-workflow.d.ts", "import": "./dist/sales-workflow.js" },
-    "./sales-workflow/express": "./server/express.ts",
+    "./sales-workflow/express": {
+      "types": "./server/express.d.ts",
+      "import": "./server/express.ts",
+      "default": "./server/express.ts"
+    },
     "./sales-workflow/http-client": "./react/http-client.ts",
     "./sales-workflow/react": "./react/react.tsx",
     "./sales-workflow/styles.css": "./react/styles.css",
