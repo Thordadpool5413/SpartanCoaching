@@ -909,8 +909,44 @@ export function registerAuthRoutes(app: Express): void {
       if (!parsed.success) return res.status(400).json({ error: "Invalid update" });
       const patch: Record<string, unknown> = {};
       if (parsed.data.name !== undefined) patch.name = parsed.data.name;
-      if (parsed.data.seatLimit !== undefined) patch.seatLimit = parsed.data.seatLimit;
+      if (parsed.data.seatLimit !== undefined) {
+        patch.seatLimit = parsed.data.seatLimit;
+        patch.billableSeats = parsed.data.seatLimit;
+      }
       if (parsed.data.notes !== undefined) patch.notes = parsed.data.notes;
+
+      // If seats changed and org has Stripe corporate sub, prefer dedicated seats endpoint semantics
+      if (parsed.data.seatLimit !== undefined) {
+        try {
+          const { updateCorporateSeats } = await import("../billing/corporateBilling");
+          const result = await updateCorporateSeats(id, parsed.data.seatLimit);
+          if (parsed.data.name !== undefined || parsed.data.notes !== undefined) {
+            const extra: Record<string, unknown> = {};
+            if (parsed.data.name !== undefined) extra.name = parsed.data.name;
+            if (parsed.data.notes !== undefined) extra.notes = parsed.data.notes;
+            if (Object.keys(extra).length) {
+              await db
+                .update(clientOrganizations)
+                .set(extra as any)
+                .where(eq(clientOrganizations.id, id));
+            }
+          }
+          await addOrgTimeline(
+            id,
+            "system",
+            `Seats → ${parsed.data.seatLimit}${result.message ? ` (${result.message})` : ""}`,
+            "admin",
+          );
+          const [fresh] = await db
+            .select()
+            .from(clientOrganizations)
+            .where(eq(clientOrganizations.id, id))
+            .limit(1);
+          return res.json({ organization: fresh, message: result.message });
+        } catch (seatErr) {
+          console.warn("seat sync via Stripe failed, applying DB seatLimit only:", seatErr);
+        }
+      }
 
       const [org] = await db
         .update(clientOrganizations)
@@ -1409,9 +1445,16 @@ export function registerAuthRoutes(app: Express): void {
           ),
         );
       const activeCount = countRow?.count ?? 0;
-      if (activeCount >= org.seatLimit) {
+      // Prefer billable seats from contract when set; fall back to seatLimit
+      const seatCap =
+        typeof (org as any).billableSeats === "number" && (org as any).billableSeats > 0
+          ? (org as any).billableSeats
+          : org.seatLimit;
+      if (activeCount >= seatCap) {
         return res.status(400).json({
-          error: `Seat limit reached (${org.seatLimit}). Contact Spartan Coaching to add seats.`,
+          error: `Seat limit reached (${seatCap}). Contact Spartan Coaching to add seats under your contract.`,
+          code: "SEAT_LIMIT_REACHED",
+          seatLimit: seatCap,
         });
       }
 

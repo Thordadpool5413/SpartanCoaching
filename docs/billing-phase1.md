@@ -49,10 +49,26 @@ pnpm --filter @workspace/db run push
 - `/field-kit-membership` — $14.99/week individual, contract language for teams
 - `/account` — Subscribe · $14.99/week, Manage billing / cancel, post-checkout banners
 
-## Out of scope (later phases)
+## Phase 3 — Corporate contract (shipped)
 
-- Corporate contract activate + seat quantity (Phase 3)
+Access Desk → open an organization → **Corporate / provider contract**:
+
+- Seats (billable) × **$ / seat / week** (contract rate)
+- Contract ref (optional)
+- Mode: **Stripe invoice (weekly)** or **Offline**
+- **Update seats** syncs Stripe subscription quantity when a sub exists
+
+APIs:
+
+- `POST /api/admin/organizations/:id/billing/contract`
+- `PATCH /api/admin/organizations/:id/billing/seats`
+
+Invites enforce seat cap (`billableSeats` or `seatLimit`).
+
+## Out of scope (later)
+
 - Mobile IAP
+- Org-admin self-serve seat purchase
 
 ## Comp / offline accounts
 

@@ -45,6 +45,12 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
   const [followUp, setFollowUp] = useState("");
   const [lostReason, setLostReason] = useState("");
   const [extendHours, setExtendHours] = useState("24");
+  // Corporate contract form (Phase 3)
+  const [contractSeats, setContractSeats] = useState("5");
+  const [contractWeeklyUsd, setContractWeeklyUsd] = useState("14.99");
+  const [contractRef, setContractRef] = useState("");
+  const [contractMode, setContractMode] = useState<"send_invoice" | "offline">("send_invoice");
+  const [seatEdit, setSeatEdit] = useState("");
 
   const { data, isLoading, refetch } = useQuery({
     queryKey: ["/api/admin/organizations", orgId],
@@ -55,6 +61,12 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
     if (data?.organization) {
       setPipeline(data.organization.pipelineStatus || "trial");
       setLostReason(data.organization.lostReason || "");
+      setContractSeats(String(data.organization.billableSeats || data.organization.seatLimit || 5));
+      setSeatEdit(String(data.organization.seatLimit || 1));
+      if (data.organization.contractUnitAmountCents) {
+        setContractWeeklyUsd((data.organization.contractUnitAmountCents / 100).toFixed(2));
+      }
+      if (data.organization.contractRef) setContractRef(data.organization.contractRef);
       if (data.organization.nextFollowUpAt) {
         const d = new Date(data.organization.nextFollowUpAt);
         const pad = (n: number) => String(n).padStart(2, "0");
@@ -140,6 +152,48 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
     onError: (e: Error) => toast({ title: "Failed", description: e.message, variant: "destructive" }),
   });
 
+  const contractMut = useMutation({
+    mutationFn: () => {
+      const seats = Math.max(1, Math.floor(Number(contractSeats) || 1));
+      const dollars = Number(contractWeeklyUsd);
+      if (!Number.isFinite(dollars) || dollars < 0.5) {
+        return Promise.reject(new Error("Weekly per-seat price must be at least $0.50"));
+      }
+      const unitAmountCents = Math.round(dollars * 100);
+      return adminFetch(`/api/admin/organizations/${orgId}/billing/contract`, {
+        method: "POST",
+        body: JSON.stringify({
+          seats,
+          unitAmountCents,
+          contractRef: contractRef.trim() || undefined,
+          collectionMode: contractMode,
+          currency: "usd",
+        }),
+      });
+    },
+    onSuccess: (data: any) => {
+      toast({
+        title: "Corporate contract activated",
+        description: data?.message || "Seats and weekly rate saved.",
+      });
+      invalidateAll();
+    },
+    onError: (e: Error) => toast({ title: "Contract failed", description: e.message, variant: "destructive" }),
+  });
+
+  const seatsMut = useMutation({
+    mutationFn: (seats: number) =>
+      adminFetch(`/api/admin/organizations/${orgId}/billing/seats`, {
+        method: "PATCH",
+        body: JSON.stringify({ seats }),
+      }),
+    onSuccess: (data: any) => {
+      toast({ title: "Seats updated", description: data?.message || "Seat limit saved." });
+      invalidateAll();
+    },
+    onError: (e: Error) => toast({ title: "Seats update failed", description: e.message, variant: "destructive" }),
+  });
+
   const extendMut = useMutation({
     mutationFn: (hours: number) =>
       adminFetch(`/api/admin/organizations/${orgId}/extend-trial`, {
@@ -210,6 +264,7 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
             <p>
               <span className="text-muted-foreground">Seats:</span>{" "}
               {members.filter((m: any) => m.status !== "disabled").length}/{org.seatLimit}
+              {org.billableSeats != null ? ` · billed ${org.billableSeats}` : ""}
             </p>
             <p>
               <span className="text-muted-foreground">Tool uses (7d):</span> {data.usageLast7Days ?? 0}
@@ -224,6 +279,22 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
                 <span className="text-amber-400 font-semibold">Not yet</span>
               )}
             </p>
+            {org.billingPlan && (
+              <p>
+                <span className="text-muted-foreground">Billing plan:</span>{" "}
+                <span className="font-semibold">{org.billingPlan}</span>
+                {org.billingStatus ? ` · ${org.billingStatus}` : ""}
+              </p>
+            )}
+            {org.contractUnitAmountCents != null && (
+              <p>
+                <span className="text-muted-foreground">Contract rate:</span>{" "}
+                <span className="font-semibold">
+                  ${(org.contractUnitAmountCents / 100).toFixed(2)}/seat/week
+                </span>
+                {org.contractRef ? ` · ${org.contractRef}` : ""}
+              </p>
+            )}
             {org.trialEndsAt && (
               <p>
                 <span className="text-muted-foreground">Trial ends:</span>{" "}
@@ -244,8 +315,9 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
                   className="font-bold"
                   disabled={statusMut.isPending}
                   onClick={() => statusMut.mutate("active")}
+                  title="Complimentary / offline active — no Stripe charge"
                 >
-                  Activate client
+                  Activate (comp)
                 </Button>
                 <Button
                   size="sm"
@@ -296,6 +368,123 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
                   Extend custom
                 </Button>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="lg:col-span-2 border border-primary/30 bg-primary/5" data-testid="card-corporate-contract">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-base">Corporate / provider contract</CardTitle>
+            <CardDescription>
+              Weekly price per seat under contract. Activates the org as a paying client and sets seat
+              capacity. Use invoice mode to bill via Stripe, or offline if you invoice outside Stripe.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              <div className="space-y-1">
+                <Label>Seats (billable)</Label>
+                <Input
+                  type="number"
+                  min={1}
+                  max={500}
+                  value={contractSeats}
+                  onChange={(e) => setContractSeats(e.target.value)}
+                  data-testid="input-contract-seats"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>$ / seat / week</Label>
+                <Input
+                  type="number"
+                  min={0.5}
+                  step={0.01}
+                  value={contractWeeklyUsd}
+                  onChange={(e) => setContractWeeklyUsd(e.target.value)}
+                  data-testid="input-contract-rate"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>Contract ref</Label>
+                <Input
+                  placeholder="e.g. 2026-ACME-01"
+                  value={contractRef}
+                  onChange={(e) => setContractRef(e.target.value)}
+                  data-testid="input-contract-ref"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label>Billing mode</Label>
+                <Select
+                  value={contractMode}
+                  onValueChange={(v) => setContractMode(v as "send_invoice" | "offline")}
+                >
+                  <SelectTrigger data-testid="select-contract-mode">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="send_invoice">Stripe invoice (weekly)</SelectItem>
+                    <SelectItem value="offline">Offline / no Stripe charge</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+            <div className="flex flex-wrap gap-2 items-center">
+              <Button
+                className="font-bold"
+                disabled={contractMut.isPending}
+                onClick={() => contractMut.mutate()}
+                data-testid="button-activate-contract"
+              >
+                {contractMut.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Activating…
+                  </>
+                ) : org.billingPlan === "corporate_contract" ? (
+                  "Update contract"
+                ) : (
+                  "Activate corporate contract"
+                )}
+              </Button>
+              <p className="text-xs text-muted-foreground max-w-md">
+                Total ≈ $
+                {(
+                  Math.max(1, Number(contractSeats) || 1) * Math.max(0.5, Number(contractWeeklyUsd) || 0)
+                ).toFixed(2)}
+                /week for {Math.max(1, Number(contractSeats) || 1)} seat
+                {Math.max(1, Number(contractSeats) || 1) === 1 ? "" : "s"}.
+              </p>
+            </div>
+
+            <div className="border-t border-border pt-4 space-y-2">
+              <p className="text-xs font-bold uppercase text-muted-foreground">Adjust seats only</p>
+              <div className="flex flex-wrap items-end gap-2">
+                <div className="space-y-1">
+                  <Label className="text-xs">New seat limit</Label>
+                  <Input
+                    className="w-28 h-9"
+                    type="number"
+                    min={1}
+                    value={seatEdit}
+                    onChange={(e) => setSeatEdit(e.target.value)}
+                    data-testid="input-seat-edit"
+                  />
+                </div>
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="font-bold"
+                  disabled={seatsMut.isPending}
+                  onClick={() => seatsMut.mutate(Math.max(1, Math.floor(Number(seatEdit) || 1)))}
+                  data-testid="button-update-seats"
+                >
+                  {seatsMut.isPending ? "Saving…" : "Update seats"}
+                </Button>
+              </div>
+              <p className="text-xs text-muted-foreground">
+                Syncs Stripe quantity when a corporate subscription exists. Invites cannot exceed seat
+                limit.
+              </p>
             </div>
           </CardContent>
         </Card>

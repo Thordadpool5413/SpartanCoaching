@@ -5,6 +5,7 @@ import { clientOrganizations } from "@workspace/db";
 import { db } from "../db";
 import {
   requireAuth,
+  requireAdmin,
   type AuthedRequest,
 } from "../auth/middleware";
 import { authLimit } from "../rateLimits";
@@ -21,6 +22,10 @@ import {
   findOrgByStripeCustomerId,
   findOrgByStripeSubscriptionId,
 } from "./subscriptionSync";
+import {
+  activateCorporateContract,
+  updateCorporateSeats,
+} from "./corporateBilling";
 
 function orgIdFromMetadata(meta: Stripe.Metadata | null | undefined): number | null {
   if (!meta?.organizationId) return null;
@@ -256,6 +261,107 @@ export function registerBillingRoutes(app: Express): void {
       });
     }
   });
+
+  // ── Admin: corporate / provider contract (Phase 3) ─────────────────
+
+  /**
+   * POST /api/admin/organizations/:id/billing/contract
+   * Activate corporate contract: seats × weekly unit price (cents).
+   * Body: { seats, unitAmountCents, contractRef?, currency?, collectionMode?, billingEmail?, billingName?, daysUntilDue? }
+   */
+  app.post(
+    "/api/admin/organizations/:id/billing/contract",
+    requireAdmin,
+    authLimit,
+    async (req: AuthedRequest, res) => {
+      try {
+        const id = Number(req.params.id);
+        if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid organization id" });
+
+        const seats = Number(req.body?.seats);
+        const unitAmountCents = Number(req.body?.unitAmountCents);
+        if (!Number.isFinite(seats) || seats < 1) {
+          return res.status(400).json({ error: "seats must be a positive integer" });
+        }
+        if (!Number.isFinite(unitAmountCents) || unitAmountCents < 50) {
+          return res.status(400).json({
+            error: "unitAmountCents must be at least 50 ($0.50 weekly per seat)",
+          });
+        }
+
+        const collectionMode = (req.body?.collectionMode || "send_invoice") as
+          | "send_invoice"
+          | "charge_automatically"
+          | "offline";
+        if (!["send_invoice", "charge_automatically", "offline"].includes(collectionMode)) {
+          return res.status(400).json({ error: "Invalid collectionMode" });
+        }
+
+        const result = await activateCorporateContract(id, {
+          seats,
+          unitAmountCents,
+          currency: typeof req.body?.currency === "string" ? req.body.currency : "usd",
+          contractRef: typeof req.body?.contractRef === "string" ? req.body.contractRef : undefined,
+          billingEmail:
+            typeof req.body?.billingEmail === "string" ? req.body.billingEmail : undefined,
+          billingName: typeof req.body?.billingName === "string" ? req.body.billingName : undefined,
+          collectionMode,
+          daysUntilDue:
+            req.body?.daysUntilDue != null ? Number(req.body.daysUntilDue) : undefined,
+        });
+
+        // Notify members of activation (reuse membership email path via status=active side effect already set)
+        return res.json({
+          ok: true,
+          organization: result.organization,
+          stripeSubscriptionId: result.stripeSubscriptionId,
+          stripeCustomerId: result.stripeCustomerId,
+          mode: result.mode,
+          message: result.message,
+        });
+      } catch (err: any) {
+        console.error("corporate contract activate error:", err);
+        return res.status(500).json({
+          error: err?.message || "Failed to activate corporate contract",
+          code: "CORPORATE_CONTRACT_FAILED",
+        });
+      }
+    },
+  );
+
+  /**
+   * PATCH /api/admin/organizations/:id/billing/seats
+   * Update billable seat count; syncs Stripe quantity when subscription exists.
+   * Body: { seats: number }
+   */
+  app.patch(
+    "/api/admin/organizations/:id/billing/seats",
+    requireAdmin,
+    authLimit,
+    async (req: AuthedRequest, res) => {
+      try {
+        const id = Number(req.params.id);
+        if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid organization id" });
+        const seats = Number(req.body?.seats);
+        if (!Number.isFinite(seats) || seats < 1) {
+          return res.status(400).json({ error: "seats must be a positive integer" });
+        }
+
+        const result = await updateCorporateSeats(id, seats);
+        return res.json({
+          ok: true,
+          organization: result.organization,
+          message: result.message,
+        });
+      } catch (err: any) {
+        console.error("corporate seats update error:", err);
+        return res.status(500).json({
+          error: err?.message || "Failed to update seats",
+          code: "SEATS_UPDATE_FAILED",
+        });
+      }
+    },
+  );
 }
 
 /**
