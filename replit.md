@@ -12,9 +12,12 @@ Expert hospice growth coaching site + private Field Kit (web + iOS) for clients 
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only) — **required after Field Kit auth tables**
 - Required env: `DATABASE_URL` — Postgres connection string
 - Auth/email env: `OPENAI_API_KEY`, `RESEND_API_KEY` / connector, `NOTIFICATION_EMAIL`, `SITE_URL`
-- **Admin passcode:** default **`5413`** (Nick). Override with Secrets `ADMIN_PASSWORD` if desired. Optional `ADMIN_EMAIL` (default `nick@spartanhospicecoaching.com`) for auto-created platform admin.
-- Unlock: `/admin` or `/admin/access-desk` → enter **5413** → full Access Desk + CMS. First unlock auto-creates platform admin.
-- Do **not** put admin passwords in `VITE_*` client env
+- **Platform admin:** shared passcode unlock is **retired**. Use a real `platform_admin` member session (email/password).
+  - First install only: set random `ADMIN_BOOTSTRAP_TOKEN` (≥32 chars), call one-time bootstrap, then **delete** the token.
+  - Optional seed email: `ADMIN_EMAIL` (default `nick@spartanhospicecoaching.com`) when bootstrap creates the first admin.
+- Admin UI: `/admin` or `/admin/access-desk` after signing in as platform admin.
+- Do **not** put admin secrets in `VITE_*` client env
+- After roleplay ownership columns: `pnpm --filter @workspace/db run push`
 
 ## Stack
 
@@ -36,7 +39,8 @@ Expert hospice growth coaching site + private Field Kit (web + iOS) for clients 
 - Logged-in nav shell: Field Kit · Tools · Learn · Account · Coaching (`/portal/learn`)
 - Trial lifecycle emails: received, approved, rejected, midpoint (≤4h), expired, extended, membership activated
 - Magic-link login (`/login` email link + `/magic-login`)
-- Platform admin: one-time bootstrap + **session cookie** (legacy shared password unlocks session; no client-embedded admin code)
+- Platform admin: one-time bootstrap + **session cookie** only (no shared passcode / no client-embedded admin code)
+- Role-play: tenant-safe (`memberId` + `organizationId`); unowned legacy rows never exposed
 - Admin **Access Desk**: dedicated `/admin/access-desk` (fast) + tab inside `/admin`
 - Access Desk: one-click 24h/72h approve, reject templates, follow-ups due, ops jobs, extend presets
 - Access requests auto-create CRM inquiries
@@ -44,7 +48,7 @@ Expert hospice growth coaching site + private Field Kit (web + iOS) for clients 
 - Account: change password, sign out other devices; expired clients can request extension
 - Conversion: `/request-access`, `/field-kit-membership`, FAQ Field Kit section, trust strip
 - Portal first-session: role → one tool → debrief; checklist API; field context
-- Mobile field companion: checklist + trial banner (lighter than web first-session panel)
+- Mobile field companion: checklist + trial banner; Quick Actions include objections, playbooks, email, role-play, research, weekly plan, cold call
 - Public trust/SEO: robots.txt, sitemap, noindex private shells, TrustStrip
 
 ## Architecture decisions

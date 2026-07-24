@@ -1,6 +1,6 @@
 /**
  * Single inventory for Field Kit tools (and how-to copy).
- * Portal, tools page, and tool headers should pull from here over time.
+ * Portal, tools page, and tool headers should use this catalog.
  */
 
 export type FieldKitCategory = "Prepare" | "Practice" | "Plan" | "Measure" | "Outreach" | "Learn";

@@ -29,7 +29,8 @@ Run after `git pull` and a deploy. Use a real inbox you control.
 - [ ] Set password → lands on `/portal`
 - [ ] First-session: pick role → open tool → debrief CTA
 - [ ] Run one AI tool (objections) — no 401/403
-- [ ] Checklist toggle saves
+- [ ] **Role-play:** start a scenario → send 2 messages → end session for feedback (must not 410)
+- [ ] Checklist toggle saves (objection / roleplay when tools complete)
 - [ ] Account page shows evaluation status + time remaining
 
 ## 4. Reject path (second request or different email)

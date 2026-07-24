@@ -70,7 +70,7 @@ import {
   type SelectAssessmentClient,
 } from "@workspace/db";
 import { db } from "./db";
-import { desc, eq, gte, count, ilike } from "drizzle-orm";
+import { and, desc, eq, gte, count, ilike, isNotNull, sql } from "drizzle-orm";
 
 // Storage interface for CRUD operations
 export interface IStorage {
@@ -104,10 +104,12 @@ export interface IStorage {
   trackEvent(event: InsertEventTracking): Promise<SelectEventTracking>;
   getEventCounts(eventType: string): Promise<Array<{ eventName: string; count: number }>>;
   getEventAnalytics(): Promise<{ aiToolUsage: Array<{ eventName: string; count: number }>; resourceDownloads: Array<{ eventName: string; count: number }>; contactSubmissions: number }>;
-  // Role-play operations
+  // Role-play operations (tenant-safe — never returns unowned legacy rows)
   createRoleplaySession(session: InsertRoleplaySession): Promise<SelectRoleplaySession>;
   getRoleplaySession(id: number): Promise<SelectRoleplaySession | undefined>;
-  getRoleplaySessions(): Promise<SelectRoleplaySession[]>;
+  getRoleplaySessionsForMember(memberId: number): Promise<SelectRoleplaySession[]>;
+  getOwnedRoleplaySessions(): Promise<SelectRoleplaySession[]>;
+  getRoleplayStatsForMember(memberId: number): Promise<Array<{ scenarioId: string; count: number; lastPracticedAt: number | null }>>;
   updateRoleplaySession(id: number, updates: Partial<{ status: string; feedback: string; rating: number }>): Promise<SelectRoleplaySession>;
   createRoleplayMessage(message: InsertRoleplayMessage): Promise<SelectRoleplayMessage>;
   getRoleplayMessages(sessionId: number): Promise<SelectRoleplayMessage[]>;
@@ -450,6 +452,9 @@ export class DatabaseStorage implements IStorage {
     };
   }
   async createRoleplaySession(session: InsertRoleplaySession): Promise<SelectRoleplaySession> {
+    if (session.memberId == null || session.organizationId == null) {
+      throw new Error("Role-play sessions require memberId and organizationId");
+    }
     const [created] = await db
       .insert(roleplaySessions)
       .values({ ...session, createdAt: Date.now() })
@@ -459,18 +464,54 @@ export class DatabaseStorage implements IStorage {
 
   async getRoleplaySession(id: number): Promise<SelectRoleplaySession | undefined> {
     const [session] = await db.select().from(roleplaySessions).where(eq(roleplaySessions.id, id));
+    // Never surface unowned legacy rows through the normal read path.
+    if (!session || session.memberId == null || session.organizationId == null) {
+      return undefined;
+    }
     return session;
   }
 
-  async getRoleplaySessions(): Promise<SelectRoleplaySession[]> {
-    return await db.select().from(roleplaySessions).orderBy(desc(roleplaySessions.createdAt));
+  async getRoleplaySessionsForMember(memberId: number): Promise<SelectRoleplaySession[]> {
+    return await db
+      .select()
+      .from(roleplaySessions)
+      .where(and(eq(roleplaySessions.memberId, memberId), isNotNull(roleplaySessions.organizationId)))
+      .orderBy(desc(roleplaySessions.createdAt));
+  }
+
+  /** Platform-admin view: only tenant-owned sessions (excludes pre-tenant legacy). */
+  async getOwnedRoleplaySessions(): Promise<SelectRoleplaySession[]> {
+    return await db
+      .select()
+      .from(roleplaySessions)
+      .where(and(isNotNull(roleplaySessions.memberId), isNotNull(roleplaySessions.organizationId)))
+      .orderBy(desc(roleplaySessions.createdAt));
+  }
+
+  async getRoleplayStatsForMember(
+    memberId: number,
+  ): Promise<Array<{ scenarioId: string; count: number; lastPracticedAt: number | null }>> {
+    const rows = await db
+      .select({
+        scenarioId: roleplaySessions.scenarioId,
+        count: count(),
+        lastPracticedAt: sql<number | null>`max(${roleplaySessions.createdAt})`,
+      })
+      .from(roleplaySessions)
+      .where(and(eq(roleplaySessions.memberId, memberId), isNotNull(roleplaySessions.organizationId)))
+      .groupBy(roleplaySessions.scenarioId);
+    return rows.map((r) => ({
+      scenarioId: r.scenarioId,
+      count: Number(r.count) || 0,
+      lastPracticedAt: r.lastPracticedAt ?? null,
+    }));
   }
 
   async updateRoleplaySession(id: number, updates: Partial<{ status: string; feedback: string; rating: number }>): Promise<SelectRoleplaySession> {
     const [updated] = await db
       .update(roleplaySessions)
       .set(updates)
-      .where(eq(roleplaySessions.id, id))
+      .where(and(eq(roleplaySessions.id, id), isNotNull(roleplaySessions.memberId)))
       .returning();
     return updated;
   }

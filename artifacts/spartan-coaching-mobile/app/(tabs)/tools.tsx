@@ -23,15 +23,30 @@ import { useSavedResponses, type SavedResponse } from "@/hooks/useSavedResponses
 import { useAuth } from "@/lib/AuthContext";
 import { router, useLocalSearchParams } from "expo-router";
 
-type ToolTab = "objection" | "playbook" | "email" | "roleplay";
+type ToolTab = "objection" | "playbook" | "email" | "roleplay" | "research" | "weekly" | "cold";
 
-const VALID_TABS = new Set<ToolTab>(["objection", "playbook", "email", "roleplay"]);
+const VALID_TABS = new Set<ToolTab>([
+  "objection",
+  "playbook",
+  "email",
+  "roleplay",
+  "research",
+  "weekly",
+  "cold",
+]);
 
-const TOOL_TABS: { key: ToolTab; label: string; icon: "shield" | "book-open" | "mail" | "users" }[] = [
+const TOOL_TABS: {
+  key: ToolTab;
+  label: string;
+  icon: "shield" | "book-open" | "mail" | "users" | "search" | "calendar" | "phone";
+}[] = [
   { key: "objection", label: "Objections", icon: "shield" },
   { key: "playbook", label: "Playbooks", icon: "book-open" },
   { key: "email", label: "Email", icon: "mail" },
   { key: "roleplay", label: "Role-Play", icon: "users" },
+  { key: "research", label: "Research", icon: "search" },
+  { key: "weekly", label: "Weekly", icon: "calendar" },
+  { key: "cold", label: "Cold Call", icon: "phone" },
 ];
 
 const EMAIL_TYPES = [
@@ -314,6 +329,30 @@ export default function ToolsScreen() {
   const [emailError, setEmailError] = useState<string | null>(null);
   const [emailSavedId, setEmailSavedId] = useState<string | null>(null);
 
+  // Research state
+  const [researchQuery, setResearchQuery] = useState("");
+  const [researchResult, setResearchResult] = useState("");
+  const [researchSources, setResearchSources] = useState<Array<{ title: string; uri: string }>>([]);
+  const [researchLoading, setResearchLoading] = useState(false);
+  const [researchError, setResearchError] = useState<string | null>(null);
+
+  // Weekly plan state
+  const [weeklyAccounts, setWeeklyAccounts] = useState("");
+  const [weeklyGoal, setWeeklyGoal] = useState("");
+  const [weeklyFocus, setWeeklyFocus] = useState("");
+  const [weeklyChallenges, setWeeklyChallenges] = useState("");
+  const [weeklyResult, setWeeklyResult] = useState("");
+  const [weeklyLoading, setWeeklyLoading] = useState(false);
+  const [weeklyError, setWeeklyError] = useState<string | null>(null);
+
+  // Cold call state
+  const [coldProspectType, setColdProspectType] = useState("");
+  const [coldProspectName, setColdProspectName] = useState("");
+  const [coldSituation, setColdSituation] = useState("");
+  const [coldResult, setColdResult] = useState("");
+  const [coldLoading, setColdLoading] = useState(false);
+  const [coldError, setColdError] = useState<string | null>(null);
+
   // Role-Play state
   const [roleplayPhase, setRoleplayPhase] = useState<RoleplayPhase>("select");
   const [roleplaySession, setRoleplaySession] = useState<RoleplaySession | null>(null);
@@ -483,6 +522,86 @@ export default function ToolsScreen() {
     await Share.share({ message: parts.join("\n") });
   };
 
+  const handleResearch = async () => {
+    if (researchQuery.trim().length < 5) return;
+    if (!requireAccess()) {
+      setResearchError("Field Kit access required. Sign in from Home.");
+      return;
+    }
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setResearchLoading(true);
+    setResearchResult("");
+    setResearchSources([]);
+    setResearchError(null);
+    try {
+      const data = await apiPost<{ text: string; sources?: Array<{ title: string; uri: string }> }>(
+        "/api/research",
+        { query: researchQuery, useGrounding: true },
+      );
+      setResearchResult(data.text || "");
+      setResearchSources(data.sources || []);
+    } catch {
+      setResearchError("Something went wrong. Please try again.");
+    } finally {
+      setResearchLoading(false);
+    }
+  };
+
+  const handleWeeklyPlan = async () => {
+    if (weeklyAccounts.trim().length < 10 || !weeklyGoal.trim()) return;
+    if (!requireAccess()) {
+      setWeeklyError("Field Kit access required. Sign in from Home.");
+      return;
+    }
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setWeeklyLoading(true);
+    setWeeklyResult("");
+    setWeeklyError(null);
+    try {
+      const data = await apiPost<{ plan?: string; text?: string; result?: string }>(
+        "/api/weekly-plan-builder",
+        {
+          accounts: weeklyAccounts,
+          weeklyGoal,
+          territoryFocus: weeklyFocus || undefined,
+          challenges: weeklyChallenges || undefined,
+        },
+      );
+      setWeeklyResult(data.plan || data.text || data.result || JSON.stringify(data));
+    } catch {
+      setWeeklyError("Something went wrong. Please try again.");
+    } finally {
+      setWeeklyLoading(false);
+    }
+  };
+
+  const handleColdCall = async () => {
+    if (!coldProspectType.trim() || coldSituation.trim().length < 10) return;
+    if (!requireAccess()) {
+      setColdError("Field Kit access required. Sign in from Home.");
+      return;
+    }
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setColdLoading(true);
+    setColdResult("");
+    setColdError(null);
+    try {
+      const data = await apiPost<{ script?: string; text?: string; result?: string }>(
+        "/api/cold-call-script",
+        {
+          prospectType: coldProspectType,
+          prospectName: coldProspectName || undefined,
+          situation: coldSituation,
+        },
+      );
+      setColdResult(data.script || data.text || data.result || JSON.stringify(data));
+    } catch {
+      setColdError("Something went wrong. Please try again.");
+    } finally {
+      setColdLoading(false);
+    }
+  };
+
   const startRoleplay = async (scenarioId: string, scenarioTitle: string, scenarioDescription?: string) => {
     if (!requireAccess()) {
       setRoleplayError("Field Kit access required. Sign in from Home.");
@@ -625,8 +744,13 @@ export default function ToolsScreen() {
         </View>
       )}
 
-      {/* Tool tabs — always pinned */}
-      <View style={[styles.tabBar, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+      {/* Tool tabs — horizontal scroll for field companion parity */}
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        style={[styles.tabBar, { backgroundColor: colors.background, borderBottomColor: colors.border }]}
+        contentContainerStyle={{ paddingHorizontal: 4 }}
+      >
         {TOOL_TABS.map((tab) => (
           <Pressable
             key={tab.key}
@@ -638,7 +762,7 @@ export default function ToolsScreen() {
               styles.tabBtn,
               activeTab === tab.key && styles.tabBtnActive,
               activeTab === tab.key && { borderBottomColor: colors.primary },
-              { opacity: pressed ? 0.75 : 1 },
+              { opacity: pressed ? 0.75 : 1, flex: 0, paddingHorizontal: 12, minWidth: 88 },
             ]}
           >
             <Feather
@@ -657,7 +781,7 @@ export default function ToolsScreen() {
             </Text>
           </Pressable>
         ))}
-      </View>
+      </ScrollView>
 
       {/* Active roleplay chat — flex layout with sticky input bar */}
       {activeTab === "roleplay" && roleplayPhase === "active" && roleplaySession ? (
@@ -1110,6 +1234,254 @@ export default function ToolsScreen() {
                 onDelete={emailSaved.deleteResponse}
                 colors={colors}
               />
+            </View>
+          )}
+
+          {/* Research */}
+          {activeTab === "research" && (
+            <View>
+              <Text style={[styles.label, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>
+                Territory or market question
+              </Text>
+              <TextInput
+                style={[styles.textarea, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, fontFamily: "Inter_400Regular" }]}
+                placeholder="e.g. 'Latest Medicare hospice regulations on continuous care'"
+                placeholderTextColor={colors.mutedForeground}
+                value={researchQuery}
+                onChangeText={setResearchQuery}
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+              />
+              <Pressable
+                onPress={handleResearch}
+                disabled={researchLoading || researchQuery.trim().length < 5}
+                style={({ pressed }) => [
+                  styles.submitBtn,
+                  { backgroundColor: colors.primary },
+                  (researchLoading || researchQuery.trim().length < 5) && { opacity: 0.5 },
+                  pressed && { opacity: 0.85 },
+                ]}
+              >
+                {researchLoading ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold" }]}>Research</Text>
+                )}
+              </Pressable>
+              {!!researchError && (
+                <Text style={[styles.errorText, { color: colors.primary, fontFamily: "Inter_400Regular" }]}>
+                  {researchError}
+                </Text>
+              )}
+              {!!researchResult && (
+                <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                  <Text style={[styles.resultText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>
+                    {researchResult}
+                  </Text>
+                  {researchSources.length > 0 && (
+                    <View style={{ marginTop: 12, gap: 6 }}>
+                      <Text style={{ color: colors.mutedForeground, fontFamily: "Inter_600SemiBold", fontSize: 12 }}>
+                        Sources
+                      </Text>
+                      {researchSources.slice(0, 5).map((s, i) => (
+                        <Text key={i} style={{ color: colors.primary, fontSize: 12, fontFamily: "Inter_400Regular" }}>
+                          • {s.title}
+                        </Text>
+                      ))}
+                    </View>
+                  )}
+                </View>
+              )}
+              {!!researchResult && (
+                <Pressable
+                  onPress={() => Share.share({ message: researchResult })}
+                  style={({ pressed }) => [
+                    styles.saveBtn,
+                    { borderColor: colors.border, marginTop: 12 },
+                    pressed && { opacity: 0.75 },
+                  ]}
+                >
+                  <Feather name="share" size={15} color={colors.mutedForeground} />
+                  <Text style={[styles.saveBtnText, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
+                    Share
+                  </Text>
+                </Pressable>
+              )}
+            </View>
+          )}
+
+          {/* Weekly Plan */}
+          {activeTab === "weekly" && (
+            <View>
+              <Text style={[styles.label, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>
+                Priority accounts this week
+              </Text>
+              <TextInput
+                style={[styles.textarea, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, fontFamily: "Inter_400Regular" }]}
+                placeholder="List accounts and why they matter this week (no PHI)"
+                placeholderTextColor={colors.mutedForeground}
+                value={weeklyAccounts}
+                onChangeText={setWeeklyAccounts}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+              />
+              <Text style={[styles.label, { color: colors.foreground, fontFamily: "Inter_600SemiBold", marginTop: 16 }]}>
+                Weekly win condition
+              </Text>
+              <TextInput
+                style={[styles.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, fontFamily: "Inter_400Regular" }]}
+                placeholder="e.g. '2 facility tours booked, 1 new champion conversation'"
+                placeholderTextColor={colors.mutedForeground}
+                value={weeklyGoal}
+                onChangeText={setWeeklyGoal}
+              />
+              <Text style={[styles.label, { color: colors.foreground, fontFamily: "Inter_600SemiBold", marginTop: 16 }]}>
+                Territory focus (optional)
+              </Text>
+              <TextInput
+                style={[styles.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, fontFamily: "Inter_400Regular" }]}
+                placeholder="e.g. 'South corridor SNFs'"
+                placeholderTextColor={colors.mutedForeground}
+                value={weeklyFocus}
+                onChangeText={setWeeklyFocus}
+              />
+              <Text style={[styles.label, { color: colors.foreground, fontFamily: "Inter_600SemiBold", marginTop: 16 }]}>
+                Biggest challenge (optional)
+              </Text>
+              <TextInput
+                style={[styles.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, fontFamily: "Inter_400Regular" }]}
+                placeholder="e.g. 'Competitor locked in at hospital A'"
+                placeholderTextColor={colors.mutedForeground}
+                value={weeklyChallenges}
+                onChangeText={setWeeklyChallenges}
+              />
+              <Pressable
+                onPress={handleWeeklyPlan}
+                disabled={weeklyLoading || weeklyAccounts.trim().length < 10 || !weeklyGoal.trim()}
+                style={({ pressed }) => [
+                  styles.submitBtn,
+                  { backgroundColor: colors.primary },
+                  (weeklyLoading || weeklyAccounts.trim().length < 10 || !weeklyGoal.trim()) && { opacity: 0.5 },
+                  pressed && { opacity: 0.85 },
+                ]}
+              >
+                {weeklyLoading ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold" }]}>Build Week Plan</Text>
+                )}
+              </Pressable>
+              {!!weeklyError && (
+                <Text style={[styles.errorText, { color: colors.primary, fontFamily: "Inter_400Regular" }]}>
+                  {weeklyError}
+                </Text>
+              )}
+              {!!weeklyResult && (
+                <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                  <Text style={[styles.resultText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>
+                    {weeklyResult}
+                  </Text>
+                </View>
+              )}
+              {!!weeklyResult && (
+                <Pressable
+                  onPress={() => Share.share({ message: weeklyResult })}
+                  style={({ pressed }) => [
+                    styles.saveBtn,
+                    { borderColor: colors.border, marginTop: 12 },
+                    pressed && { opacity: 0.75 },
+                  ]}
+                >
+                  <Feather name="share" size={15} color={colors.mutedForeground} />
+                  <Text style={[styles.saveBtnText, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
+                    Share
+                  </Text>
+                </Pressable>
+              )}
+            </View>
+          )}
+
+          {/* Cold Call Script */}
+          {activeTab === "cold" && (
+            <View>
+              <Text style={[styles.label, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>
+                Prospect type
+              </Text>
+              <TextInput
+                style={[styles.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, fontFamily: "Inter_400Regular" }]}
+                placeholder="e.g. SNF DON, hospitalist, home health agency"
+                placeholderTextColor={colors.mutedForeground}
+                value={coldProspectType}
+                onChangeText={setColdProspectType}
+              />
+              <Text style={[styles.label, { color: colors.foreground, fontFamily: "Inter_600SemiBold", marginTop: 16 }]}>
+                Prospect name (optional)
+              </Text>
+              <TextInput
+                style={[styles.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, fontFamily: "Inter_400Regular" }]}
+                placeholder="e.g. Director Martinez"
+                placeholderTextColor={colors.mutedForeground}
+                value={coldProspectName}
+                onChangeText={setColdProspectName}
+              />
+              <Text style={[styles.label, { color: colors.foreground, fontFamily: "Inter_600SemiBold", marginTop: 16 }]}>
+                Situation
+              </Text>
+              <TextInput
+                style={[styles.textarea, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, fontFamily: "Inter_400Regular" }]}
+                placeholder="Why you are calling and what you know about them (no PHI)"
+                placeholderTextColor={colors.mutedForeground}
+                value={coldSituation}
+                onChangeText={setColdSituation}
+                multiline
+                numberOfLines={4}
+                textAlignVertical="top"
+              />
+              <Pressable
+                onPress={handleColdCall}
+                disabled={coldLoading || !coldProspectType.trim() || coldSituation.trim().length < 10}
+                style={({ pressed }) => [
+                  styles.submitBtn,
+                  { backgroundColor: colors.primary },
+                  (coldLoading || !coldProspectType.trim() || coldSituation.trim().length < 10) && { opacity: 0.5 },
+                  pressed && { opacity: 0.85 },
+                ]}
+              >
+                {coldLoading ? (
+                  <ActivityIndicator color="#fff" size="small" />
+                ) : (
+                  <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold" }]}>Generate Script</Text>
+                )}
+              </Pressable>
+              {!!coldError && (
+                <Text style={[styles.errorText, { color: colors.primary, fontFamily: "Inter_400Regular" }]}>
+                  {coldError}
+                </Text>
+              )}
+              {!!coldResult && (
+                <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                  <Text style={[styles.resultText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>
+                    {coldResult}
+                  </Text>
+                </View>
+              )}
+              {!!coldResult && (
+                <Pressable
+                  onPress={() => Share.share({ message: coldResult })}
+                  style={({ pressed }) => [
+                    styles.saveBtn,
+                    { borderColor: colors.border, marginTop: 12 },
+                    pressed && { opacity: 0.75 },
+                  ]}
+                >
+                  <Feather name="share" size={15} color={colors.mutedForeground} />
+                  <Text style={[styles.saveBtnText, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
+                    Share
+                  </Text>
+                </Pressable>
+              )}
             </View>
           )}
 

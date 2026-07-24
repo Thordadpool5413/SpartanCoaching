@@ -4,7 +4,7 @@ export type ChecklistDef = {
   id: ChecklistId;
   title: string;
   desc: string;
-  toolTab?: "objection" | "playbook" | "email" | "roleplay";
+  toolTab?: "objection" | "playbook" | "email" | "roleplay" | "research" | "weekly" | "cold";
   route?: string;
   roles?: Array<"rep" | "director" | "vp" | "owner" | "other">;
 };
@@ -19,8 +19,8 @@ export const CHECKLIST: ChecklistDef[] = [
   {
     id: "weekly_plan",
     title: "Build this week’s plan",
-    desc: "Open tools and run Weekly Plan on web, or practice objections first in-app.",
-    toolTab: "playbook",
+    desc: "Open Weekly in Quick Actions and build Mon–Fri priority accounts.",
+    toolTab: "weekly",
   },
   {
     id: "roleplay",

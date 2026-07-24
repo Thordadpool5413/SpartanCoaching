@@ -249,7 +249,7 @@ export default function Admin() {
     });
 
   const { data: roleplaySessionsData, isLoading: roleplaySessionsLoading } =
-    useQuery<{ sessions: SelectRoleplaySession[] }>({
+    useQuery<SelectRoleplaySession[]>({
       queryKey: ["/api/roleplay/sessions"],
       enabled: isAuthenticated,
     });
@@ -327,7 +327,9 @@ export default function Admin() {
   const podcasts = podcastsData?.podcasts || [];
   const agreements = agreementsData?.agreements || [];
   const agreementRequests = agreementRequestsData?.requests || [];
-  const roleplaySessions = roleplaySessionsData?.sessions || [];
+  const roleplaySessions: SelectRoleplaySession[] = Array.isArray(roleplaySessionsData)
+    ? roleplaySessionsData
+    : [];
   const drillCompletions = drillCompletionsData?.completions || [];
   const testimonialsList = testimonialsData?.testimonials || [];
   const caseStudiesList = caseStudiesData?.caseStudies || [];

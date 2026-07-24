@@ -11,6 +11,8 @@ import {
   publicFormLimit,
   newsletterLimit,
   analyticsLimit,
+  roleplayLimit,
+  roleplayMessageLimit,
 } from "../rateLimits";
 
 import path from "path";
@@ -24,6 +26,8 @@ import {
   generateGroundedSearch,
   generateDailyDrill,
   generateChatResponse,
+  generateRoleplayResponse,
+  generateRoleplayFeedback,
   ALL_DRILLS,
 } from "../openai";
 import {
@@ -43,6 +47,8 @@ import {
   sendEmailRequestSchema,
   insertResourceLeadSchema,
   insertSignedAgreementSchema,
+  roleplayStartSchema,
+  roleplayMessageSchema,
 } from "@workspace/db";
 
 import {
@@ -52,9 +58,8 @@ import {
 import { sendInquiryNotification, sendNewsletterConfirmation, sendGeneratedEmail, sendAgreementConfirmation, sendResourceLeadNotification, sendNewsletterNotification, sendNewsletterBroadcast, sendDripDay3, sendDripDay7, sendSigningRequest, sendSignedAgreementPdf } from "../resend";
 import crypto from "crypto";
 import { AGREEMENT_TEXTS } from "../agreementTexts";
-import { requireFieldKit, requireAdmin, isAdminRequest } from "../auth/middleware";
+import { requireFieldKit, requireAdmin, isAdminRequest, type AuthedRequest } from "../auth/middleware";
 import type { Request } from "express";
-import { legacyRoleplayRetired } from "../security/legacyRoleplay";
 
 /** Express 5 params may be string | string[] — normalize for parseInt / lookups. */
 function paramStr(req: Request, key: string): string {
@@ -1348,14 +1353,186 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
   });
 
-  // ===== RETIRED LEGACY ROLE-PLAY ROUTES =====
-  // These records predate organization/member ownership. They must not be read,
-  // continued, aggregated, or mutated through member-facing endpoints.
-  app.all("/api/roleplay/sessions", legacyRoleplayRetired);
-  app.all("/api/roleplay/stats", legacyRoleplayRetired);
-  app.all("/api/roleplay/sessions/:id", legacyRoleplayRetired);
-  app.all("/api/roleplay/sessions/:id/messages", legacyRoleplayRetired);
-  app.all("/api/roleplay/sessions/:id/feedback", legacyRoleplayRetired);
+  // ===== TENANT-SAFE ROLE-PLAY PRACTICE =====
+  // New sessions always store memberId + organizationId. Pre-tenant legacy rows
+  // (null ownership) are never listed, read, continued, or mutated here.
+
+  app.post(
+    "/api/roleplay/sessions",
+    requireFieldKit,
+    roleplayLimit,
+    globalDailyAiCap,
+    async (req: AuthedRequest, res) => {
+      try {
+        const member = req.fieldKit?.member;
+        const org = req.fieldKit?.org;
+        if (!member || !org) {
+          return res.status(401).json({ error: "Authentication required", code: "UNAUTHENTICATED" });
+        }
+
+        const { scenarioId, scenarioTitle, scenarioDescription } = roleplayStartSchema.parse(req.body);
+        const session = await storage.createRoleplaySession({
+          memberId: member.id,
+          organizationId: org.id,
+          scenarioId,
+          scenarioTitle,
+          scenarioDescription: scenarioDescription ?? null,
+          status: "active",
+        });
+
+        const initialResponse = await generateRoleplayResponse(
+          scenarioId,
+          scenarioTitle,
+          "Hello, I'm here to speak with you today.",
+          [],
+          scenarioDescription,
+        );
+        await storage.createRoleplayMessage({
+          sessionId: session.id,
+          role: "character",
+          content: initialResponse,
+        });
+
+        storage.trackEvent({ eventType: "ai_tool_usage", eventName: "roleplay_start" }).catch(() => {});
+        res.json({ session, initialMessage: initialResponse });
+      } catch (error: any) {
+        console.error("Roleplay session creation error:", error);
+        if (error?.name === "ZodError") {
+          return res.status(400).json({ error: "Invalid role-play start data" });
+        }
+        res.status(500).json({ error: error.message || "Failed to create roleplay session" });
+      }
+    },
+  );
+
+  /**
+   * List sessions as a JSON array (mobile + web).
+   * Members: own sessions only. Platform admin: all tenant-owned sessions.
+   * Unowned legacy rows are never included.
+   */
+  app.get("/api/roleplay/sessions", requireFieldKit, async (req: AuthedRequest, res) => {
+    try {
+      if (isAdminRequest(req)) {
+        return res.json(await storage.getOwnedRoleplaySessions());
+      }
+      res.json(await storage.getRoleplaySessionsForMember(req.clientMemberId!));
+    } catch (error: any) {
+      console.error("Get roleplay sessions error:", error);
+      res.json([]);
+    }
+  });
+
+  app.get("/api/roleplay/stats", requireFieldKit, async (req: AuthedRequest, res) => {
+    try {
+      const memberId = req.clientMemberId!;
+      const stats = await storage.getRoleplayStatsForMember(memberId);
+      res.json(stats);
+    } catch (error: any) {
+      console.error("Get roleplay stats error:", error);
+      res.json([]);
+    }
+  });
+
+  app.get("/api/roleplay/sessions/:id", requireFieldKit, async (req: AuthedRequest, res) => {
+    try {
+      const id = paramInt(req, "id");
+      if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid session id" });
+
+      const session = await storage.getRoleplaySession(id);
+      if (!session) return res.status(404).json({ error: "Session not found" });
+
+      const memberId = req.clientMemberId!;
+      const isOwner = session.memberId === memberId;
+      if (!isOwner && !isAdminRequest(req)) {
+        return res.status(404).json({ error: "Session not found" });
+      }
+
+      const messages = await storage.getRoleplayMessages(id);
+      res.json({ session, messages });
+    } catch (error: any) {
+      console.error("Get roleplay session error:", error);
+      res.status(500).json({ error: error.message || "Failed to get session" });
+    }
+  });
+
+  app.post(
+    "/api/roleplay/sessions/:id/messages",
+    requireFieldKit,
+    roleplayMessageLimit,
+    globalDailyAiCap,
+    async (req: AuthedRequest, res) => {
+      try {
+        const sessionId = paramInt(req, "id");
+        if (!Number.isFinite(sessionId)) return res.status(400).json({ error: "Invalid session id" });
+
+        const { content } = roleplayMessageSchema.parse(req.body);
+        const session = await storage.getRoleplaySession(sessionId);
+        if (!session || session.memberId !== req.clientMemberId) {
+          return res.status(404).json({ error: "Session not found" });
+        }
+        if (session.status !== "active") {
+          return res.status(400).json({ error: "Session is no longer active" });
+        }
+
+        await storage.createRoleplayMessage({ sessionId, role: "user", content });
+
+        const messages = await storage.getRoleplayMessages(sessionId);
+        const history = messages.map((m) => ({ role: m.role, content: m.content }));
+
+        const response = await generateRoleplayResponse(
+          session.scenarioId,
+          session.scenarioTitle,
+          content,
+          history.slice(0, -1),
+          session.scenarioDescription ?? undefined,
+        );
+        await storage.createRoleplayMessage({ sessionId, role: "character", content: response });
+
+        storage.trackEvent({ eventType: "ai_tool_usage", eventName: "roleplay" }).catch(() => {});
+        res.json({ response });
+      } catch (error: any) {
+        console.error("Roleplay message error:", error);
+        if (error?.name === "ZodError") {
+          return res.status(400).json({ error: "Invalid message" });
+        }
+        res.status(500).json({ error: error.message || "Failed to send message" });
+      }
+    },
+  );
+
+  app.post(
+    "/api/roleplay/sessions/:id/feedback",
+    requireFieldKit,
+    roleplayMessageLimit,
+    globalDailyAiCap,
+    async (req: AuthedRequest, res) => {
+      try {
+        const sessionId = paramInt(req, "id");
+        if (!Number.isFinite(sessionId)) return res.status(400).json({ error: "Invalid session id" });
+
+        const session = await storage.getRoleplaySession(sessionId);
+        if (!session || session.memberId !== req.clientMemberId) {
+          return res.status(404).json({ error: "Session not found" });
+        }
+
+        const messages = await storage.getRoleplayMessages(sessionId);
+        const transcript = messages.map((m) => ({ role: m.role, content: m.content }));
+
+        const { feedback, rating } = await generateRoleplayFeedback(session.scenarioTitle, transcript);
+        const updated = await storage.updateRoleplaySession(sessionId, {
+          status: "completed",
+          feedback,
+          rating,
+        });
+
+        storage.trackEvent({ eventType: "ai_tool_usage", eventName: "roleplay_feedback" }).catch(() => {});
+        res.json({ session: updated, feedback, rating });
+      } catch (error: any) {
+        console.error("Roleplay feedback error:", error);
+        res.status(500).json({ error: error.message || "Failed to generate feedback" });
+      }
+    },
+  );
 
   // ===== DAILY DRILL ROUTES =====
 
