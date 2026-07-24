@@ -1,0 +1,19 @@
+.gitignore
+  s_49726d5d67fecc::t_1ef342ca6e2dc4 55-57
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "0f93cd874fc01b527b7029978bb70655d5bf51d8",
+  "prompts": {},
+  "sessions": {
+    "s_49726d5d67fecc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f8276-13fc-7fc3-bfe9-2af07f6183ba",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
