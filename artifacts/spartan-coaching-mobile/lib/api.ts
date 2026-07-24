@@ -2,6 +2,14 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const TOKEN_KEY = "spartan_session_token";
 
+if (!process.env.EXPO_PUBLIC_DOMAIN) {
+  console.error(
+    "[Spartan] EXPO_PUBLIC_DOMAIN is not set — all API calls will fail. " +
+    "Set it as an EAS secret before building for TestFlight or production. " +
+    "See artifacts/spartan-coaching-mobile/store/README.md for setup steps."
+  );
+}
+
 const getBase = () =>
   process.env.EXPO_PUBLIC_DOMAIN
     ? `https://${process.env.EXPO_PUBLIC_DOMAIN}`

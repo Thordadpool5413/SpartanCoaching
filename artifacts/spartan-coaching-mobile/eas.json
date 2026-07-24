@@ -22,12 +22,18 @@
       "autoIncrement": true,
       "ios": {
         "buildConfiguration": "Release"
+      },
+      "env": {
+        "EXPO_PUBLIC_DOMAIN": "$EXPO_PUBLIC_DOMAIN"
       }
     },
     "production": {
       "autoIncrement": true,
       "ios": {
         "buildConfiguration": "Release"
+      },
+      "env": {
+        "EXPO_PUBLIC_DOMAIN": "$EXPO_PUBLIC_DOMAIN"
       }
     }
   },

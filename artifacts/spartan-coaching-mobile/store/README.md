@@ -15,6 +15,33 @@ The Replit Secrets are already set:
 | `APPLE_TEAM_ID` | ✅ Set |
 | `ASC_APP_ID` | ✅ Set |
 
+### 1b. Set the production API domain (required before any store build)
+
+The app determines where to send API requests from the `EXPO_PUBLIC_DOMAIN` environment variable. This must be set as an **EAS secret** before running a TestFlight or production build — otherwise every login attempt and tool call will fail silently on device.
+
+**Get your production domain:**
+Your production Replit deployment domain is listed in the Replit dashboard under the "Deployments" tab, or available as `REPLIT_INTERNAL_APP_DOMAIN` in the deployment environment. It typically looks like `<your-repl>.replit.app` or a custom domain.
+
+**Set it once (run from your Mac or the Replit shell):**
+
+```bash
+# Replace <your-production-domain> with just the hostname — no https://, no trailing slash
+# Example: my-app.replit.app  OR  spartanhospicecoaching.com
+eas secret:create \
+  --scope project \
+  --name EXPO_PUBLIC_DOMAIN \
+  --value <your-production-domain> \
+  --type string
+```
+
+To verify the secret is set:
+
+```bash
+eas secret:list
+```
+
+You should see `EXPO_PUBLIC_DOMAIN` in the list. All subsequent TestFlight and production builds will pull it automatically — you only need to redo this if you move to a new deployment domain.
+
 ### 2. One-time credential setup (run once from your Mac)
 
 EAS needs to create an iOS Distribution certificate and App Store provisioning profile on your behalf. This requires Apple login — it **must be run interactively from a Mac terminal**, not from Replit.
@@ -71,6 +98,41 @@ pnpm --filter @workspace/spartan-coaching-mobile run submit:ios
 ```
 
 This pushes the `.ipa` to App Store Connect. In App Store Connect → **TestFlight → Internal Testing**, add yourself and any reps as internal testers and distribute the build.
+
+---
+
+## TestFlight smoke test (run before inviting beta testers)
+
+After TestFlight notifies you that the build is ready, install it on a physical iPhone and run through this checklist. Common first-build failures are noted on each item.
+
+### Pre-flight
+- [ ] `EXPO_PUBLIC_DOMAIN` EAS secret is set (see step 1b above) — if you skipped this, all login attempts will fail with a network error
+- [ ] The production API server is deployed and reachable: `curl https://<your-domain>/api/health` returns `{"ok":true}`
+- [ ] A real Field Kit account exists in production (or use the reviewer account — see "How to seed / reset the reviewer account" below)
+
+### Launch
+- [ ] App installs from TestFlight without any entitlement or provisioning error
+- [ ] Splash screen shows the Spartan stamp on a black background, then transitions to the login screen
+- [ ] No "network request failed" or blank screen on launch — if it appears immediately, `EXPO_PUBLIC_DOMAIN` is missing or wrong
+
+### Login
+- [ ] Enter a valid Field Kit email and password → lands on the portal home
+- [ ] Wrong password shows an error message (not a crash)
+- [ ] Sign out, then sign back in — session persists between app launches (stored in AsyncStorage)
+
+### Core screens
+- [ ] **Checklist** — loads visit checklist items; toggling a checkbox saves without error
+- [ ] **Scenario Coach** — opens a new conversation; sending a message returns an AI response (requires `OPENAI_API_KEY` set on the production server)
+- [ ] **Branch Calculator** — staffing table renders; inputs update the ADC and RN/aide split totals
+- [ ] **Objection Handler** (Drills tab) — generates a field-ready response without a 401 or 403 error
+- [ ] **Playbook / Email Templates** — content loads (requires Field Kit entitlement)
+
+### Account
+- [ ] Account screen shows correct name, email, and evaluation/membership status
+- [ ] "Sign out of all devices" works and returns to the login screen
+
+### Pass criteria
+All boxes checked. If `EXPO_PUBLIC_DOMAIN` was missing, re-create the EAS secret and rebuild. If a tool returns 401/403, confirm the test account has `fieldKit.allowed: true` on the production server.
 
 ---
 
