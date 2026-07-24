@@ -330,6 +330,16 @@ To pin a specific password instead of generating one:
 DATABASE_URL=<prod-connection-string> REVIEWER_PASSWORD=<your-password> pnpm --filter @workspace/scripts run seed:apple-reviewer
 ```
 
+#### Reviewer account seed log
+
+| Date | Result | DB record | Action required |
+|---|---|---|---|
+| 2026-07-24 | ✅ Created org id=2, member id=2 | active member, active org, no trial expiry | Enter credentials in App Store Connect → App Review Information |
+
+**Credentials last seeded:** `apple-reviewer@spartanhospicecoaching.com` — password is in App Store Connect (do not commit it here).
+
+> Next submission: re-run the seed script to reset the password, then update the log row above with the new date.
+
 ---
 
 ## Updating the app after launch
