@@ -70,18 +70,6 @@ export default function Login() {
           </p>
         </div>
 
-        <div className="rounded-lg border border-primary/30 bg-primary/5 p-3 text-sm text-left space-y-1">
-          <p className="font-bold text-foreground">Site owner / admin?</p>
-          <p className="text-muted-foreground text-xs leading-relaxed">
-            Do <strong className="text-foreground">not</strong> use this Client Login screen first.
-            Go to{" "}
-            <Link href="/admin/access-desk" className="text-primary font-semibold hover:underline">
-              Admin unlock
-            </Link>{" "}
-            and enter passcode <strong className="text-foreground">5413</strong> only (no username).
-          </p>
-        </div>
-
         <div className="flex gap-2 p-1 rounded-lg bg-muted/40">
           <button
             type="button"
@@ -152,11 +140,6 @@ export default function Login() {
         )}
 
         <div className="text-center text-sm text-muted-foreground space-y-2">
-          <p>
-            <Link href="/admin/access-desk" className="text-primary font-semibold hover:underline">
-              Admin unlock (passcode)
-            </Link>
-          </p>
           <p>
             Need access?{" "}
             <Link href="/request-access" className="text-primary font-semibold hover:underline" data-testid="link-login-request">
