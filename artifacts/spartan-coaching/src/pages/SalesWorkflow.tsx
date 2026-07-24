@@ -8,6 +8,7 @@ import "@workspace/hospice-sales-runtime/sales-workflow/styles.css";
 import { useAuth } from "@/context/AuthContext";
 import { SEO } from "@/components/SEO";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
+import { NpiLookupPanel } from "@/components/NpiLookupPanel";
 
 function workflowUuid(kind: "organization" | "member", value: number): string {
   const suffix = value.toString(16).padStart(12, "0").slice(-12);
@@ -64,6 +65,22 @@ export default function SalesWorkflow() {
         }}
       />
     </>
+      <div className="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
+        <SalesWorkflowPanel
+          api={api}
+          actor={actor}
+          theme={{
+            "--hsw-accent": "hsl(var(--primary))",
+            "--hsw-ink": "hsl(var(--foreground))",
+            "--hsw-muted": "hsl(var(--muted-foreground))",
+            "--hsw-surface": "hsl(var(--card))",
+            "--hsw-border": "hsl(var(--border))",
+          }}
+        />
+        <div className="lg:sticky lg:top-4 space-y-4">
+          <NpiLookupPanel />
+        </div>
+      </div>
     </FieldKitToolLayout>
   );
 }

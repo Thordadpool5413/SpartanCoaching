@@ -45,29 +45,29 @@ export const CHECKLIST: ChecklistDef[] = [
 
 export const START_HERE: Record<string, { title: string; blurb: string; toolTab?: string; route?: string }> = {
   rep: {
-    title: "Start with objections",
-    blurb: "Reps win the week on live conversations.",
-    toolTab: "objection",
+    title: "Open Sales Command Center",
+    blurb: "Plan the next call, practice if needed, capture the outcome, lock the next step.",
+    route: "/sales-workflow",
   },
   director: {
-    title: "Start with a playbook",
-    blurb: "Leaders set the message, then coach the team.",
-    toolTab: "playbook",
+    title: "Open Sales Command Center",
+    blurb: "Coach from real account workflows—then use weekly plan and activity tools as support.",
+    route: "/sales-workflow",
   },
   vp: {
-    title: "Start with staffing economics",
-    blurb: "Connect growth pressure to the model, then coach execution.",
-    route: "/staffing",
+    title: "Open Sales Command Center",
+    blurb: "Inspect execution quality on live accounts before you open economics tools.",
+    route: "/sales-workflow",
   },
   owner: {
-    title: "Start with branch staffing",
-    blurb: "See census and payroll pressure, then align the team.",
-    route: "/staffing",
+    title: "Open Sales Command Center",
+    blurb: "Growth is Tuesday behavior. Start with the call spine, then staffing economics.",
+    route: "/sales-workflow",
   },
   other: {
-    title: "Open Quick Actions",
-    blurb: "Browse the Field Kit and mark checklist items as you go.",
-    toolTab: "objection",
+    title: "Open Sales Command Center",
+    blurb: "One continuous workflow beats opening ten tabs.",
+    route: "/sales-workflow",
   },
 };
 

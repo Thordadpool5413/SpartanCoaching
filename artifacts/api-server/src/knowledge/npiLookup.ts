@@ -92,6 +92,9 @@ export async function searchNpiProviders(input: {
     throw new Error("Provide NPI number, last name, or organization name");
   }
 
+  // Ask registry for a wider page, then filter client-side — NPPES fuzzy match is noisy.
+  params.set("limit", String(Math.min(limit * 5, 50)));
+
   const url = `https://npiregistry.cms.hhs.gov/api/?${params.toString()}`;
   const res = await fetch(url, {
     headers: { Accept: "application/json" },
@@ -101,8 +104,32 @@ export async function searchNpiProviders(input: {
     throw new Error(`NPI registry returned ${res.status}`);
   }
   const data = (await res.json()) as NppesResponse;
-  const results = (data.results || [])
+  let results = (data.results || [])
     .map(mapResult)
     .filter((x): x is NpiResult => Boolean(x));
+
+  const last = input.lastName?.trim().toLowerCase();
+  const first = input.firstName?.trim().toLowerCase();
+  const org = input.organizationName?.trim().toLowerCase();
+  if (last || first || org) {
+    results = results.filter((r) => {
+      const name = r.name.toLowerCase();
+      const parts = name.split(/[\s,]+/).filter(Boolean);
+      if (org) return name.includes(org) || parts.some((p) => p.startsWith(org.slice(0, 4)));
+      // Prefer last-name match (common registry noise when only city/state set).
+      if (last && !parts.some((p) => p === last || p.startsWith(last))) return false;
+      // First name is soft: only apply when present and no last-name word match alone.
+      if (first && last) {
+        const hasLast = parts.some((p) => p === last);
+        const hasFirst = parts.some((p) => p === first || p.startsWith(first));
+        if (hasLast && hasFirst) return true;
+        if (hasLast) return true; // last name is the strong key
+        return false;
+      }
+      if (first && !parts.some((p) => p === first || p.startsWith(first))) return false;
+      return true;
+    });
+  }
+
   return results.slice(0, limit);
 }

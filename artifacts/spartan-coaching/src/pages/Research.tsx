@@ -9,9 +9,22 @@ import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { trackEvent } from "@/lib/analytics";
 import { MarkdownContent } from "@/components/MarkdownContent";
 
+type SpartanCitation = {
+  id: string;
+  title: string;
+  category: string;
+  excerpt?: string;
+};
+
+type ResearchResult = {
+  text: string;
+  sources?: Array<{ title: string; uri: string }>;
+  spartanCitations?: SpartanCitation[];
+};
+
 export default function Research() {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<{ text: string; sources?: Array<{ title: string; uri: string }> } | null>(null);
+  const [results, setResults] = useState<ResearchResult | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [validationError, setValidationError] = useState<string | null>(null);
 
@@ -22,14 +35,12 @@ export default function Research() {
     "How do I explain the difference between palliative care and hospice?",
   ];
 
-  const handleSearch = async () => {
-    if (query.length < 5) {
+  const runSearch = async (q: string) => {
+    if (q.length < 5) {
       setValidationError("Query must be at least 5 characters");
       return;
     }
-    
-    if (!query) return;
-    
+
     trackEvent("ai_tool_usage", "research");
     setIsLoading(true);
     setResults(null);
@@ -39,7 +50,8 @@ export default function Research() {
       const response = await fetch("/api/research", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ query }),
+        credentials: "include",
+        body: JSON.stringify({ query: q }),
       });
 
       if (!response.ok) {
@@ -53,11 +65,14 @@ export default function Research() {
       setResults({
         text: "Sorry, I couldn't complete the research. Please try again.",
         sources: [],
+        spartanCitations: [],
       });
     } finally {
       setIsLoading(false);
     }
   };
+
+  const handleSearch = () => runSearch(query);
 
   return (
     <FieldKitToolLayout toolPath="/tools/research" className="max-w-4xl">
@@ -66,7 +81,8 @@ export default function Research() {
         Grounded Research
       </h1>
       <p className="text-body-lg text-muted-foreground mb-8 leading-relaxed">
-        Get expert insights with real web sources. Ask questions about hospice trends, regulations, or competitive intelligence, and receive answers backed by credible citations.
+        Get expert insights with real web sources plus Spartan Method grounding. Ask about hospice trends,
+        regulations, or competitive intelligence — never include PHI.
       </p>
 
       <Card className="mb-8 border-2 shadow-lg spacing-card">
@@ -84,7 +100,13 @@ export default function Research() {
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             data-testid="input-research-query"
           />
-          <Button onClick={handleSearch} disabled={isLoading || !query || query.length < 5} size="lg" className="font-bold touch-manipulation" data-testid="button-search">
+          <Button
+            onClick={handleSearch}
+            disabled={isLoading || !query || query.length < 5}
+            size="lg"
+            className="font-bold touch-manipulation"
+            data-testid="button-search"
+          >
             {isLoading ? (
               <SpinnerIcon className="w-5 h-5 animate-spin" />
             ) : (
@@ -111,35 +133,7 @@ export default function Research() {
                 key={idx}
                 onClick={() => {
                   setQuery(example);
-                  setTimeout(() => {
-                    setIsLoading(true);
-                    setResults(null);
-                    setValidationError(null);
-                    fetch("/api/research", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify({ query: example }),
-                    })
-                      .then((response) => {
-                        if (!response.ok) {
-                          throw new Error("Failed to perform research");
-                        }
-                        return response.json();
-                      })
-                      .then((data) => {
-                        setResults(data);
-                      })
-                      .catch((error) => {
-                        console.error("Research error:", error);
-                        setResults({
-                          text: "Sorry, I couldn't complete the research. Please try again.",
-                          sources: [],
-                        });
-                      })
-                      .finally(() => {
-                        setIsLoading(false);
-                      });
-                  }, 0);
+                  void runSearch(example);
                 }}
                 className="text-left p-4 rounded-lg bg-accent hover-elevate active-elevate-2 transition-all text-foreground touch-manipulation"
                 data-testid={`button-example-${idx}`}
@@ -167,9 +161,31 @@ export default function Research() {
             <div className="mb-6" data-testid="text-research-results">
               <MarkdownContent content={results.text} />
             </div>
+
+            {results.spartanCitations && results.spartanCitations.length > 0 && (
+              <div className="mb-6 rounded-lg border border-primary/25 bg-primary/5 p-4 space-y-2" data-testid="spartan-citations">
+                <h3 className="text-xs font-bold tracking-widest uppercase text-primary">
+                  Spartan Method grounding
+                </h3>
+                <ul className="space-y-2">
+                  {results.spartanCitations.map((c) => (
+                    <li key={c.id} className="text-sm">
+                      <span className="font-semibold text-foreground">{c.title}</span>
+                      <span className="text-muted-foreground"> · {c.category}</span>
+                      {c.excerpt && (
+                        <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed line-clamp-2">
+                          {c.excerpt}
+                        </p>
+                      )}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
             {results.sources && results.sources.length > 0 && (
               <div>
-                <h3 className="text-h3 font-bold text-muted-foreground mb-4">Sources:</h3>
+                <h3 className="text-h3 font-bold text-muted-foreground mb-4">Web sources</h3>
                 <ul className="space-y-2">
                   {results.sources.map((source, idx) => (
                     <li key={idx}>
