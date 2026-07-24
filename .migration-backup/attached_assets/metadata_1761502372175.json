@@ -1,8 +1,0 @@
-{
-  "name": "Copy of Spartan Ultra AI Coaching",
-  "description": "An AI-enhanced web application for hospice sales coaching, providing tools, metrics, playbooks, and direct AI assistance for research, content generation, and audio transcription.",
-  "requestFramePermissions": [
-    "microphone",
-    "geolocation"
-  ]
-}
