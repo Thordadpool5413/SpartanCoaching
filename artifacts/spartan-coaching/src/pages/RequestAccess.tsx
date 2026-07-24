@@ -47,7 +47,7 @@ const STEPS = [
   {
     n: "4",
     title: "Continue as client",
-    body: "Debrief, agree seats and terms, activate offline — no cart checkout.",
+    body: "Individuals: subscribe $14.99/wk from Account. Teams: seats under contract.",
   },
 ];
 
@@ -216,8 +216,8 @@ export default function RequestAccess() {
         <p className="text-xs font-bold tracking-widest text-primary uppercase">Field Kit</p>
         <h1 className="text-h1 font-display font-black text-foreground">Request evaluation access</h1>
         <p className="text-muted-foreground leading-relaxed">
-          Private tools for hospice growth — not a self-serve checkout. Request access, get approved, run a
-          timed evaluation, then continue as a client by conversation.
+          Private tools for hospice growth. Request access, get approved, run a timed evaluation — then
+          individuals subscribe for $14.99/week (cancel anytime) or teams continue under a provider contract.
         </p>
       </div>
 
@@ -427,8 +427,8 @@ export default function RequestAccess() {
                 <Link href="/compliance" className="text-primary hover:underline">
                   BAA and compliance details
                 </Link>{" "}
-                are available for corporate accounts. After evaluation, seats and coaching are agreed
-                manually — not via self-serve billing.
+                are available for corporate accounts. After evaluation, seat counts and weekly per-user rates
+                are set under your provider contract (Stripe invoice or offline terms as agreed).
               </p>
             )}
 

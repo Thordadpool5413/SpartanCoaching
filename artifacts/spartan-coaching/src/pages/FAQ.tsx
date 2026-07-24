@@ -45,12 +45,12 @@ const faqCategories = [
       {
         id: "what-is-field-kit",
         q: "What is the Field Kit?",
-        a: "The Field Kit is a private set of AI-assisted tools for hospice growth work: objections, playbooks, role-play, calculators, weekly plans, and more. It is not a self-serve SaaS product. Access is by request and approval — reserved for coaching clients and people Nick approves for a timed evaluation.",
+        a: "The Field Kit is a private set of AI-assisted tools for hospice growth work: objections, playbooks, role-play, calculators, weekly plans, Sales Command Center, and more. Access starts with evaluation approval, then individuals can subscribe self-serve and teams continue under contract.",
       },
       {
         id: "how-to-get-access",
         q: "How do I get Field Kit access?",
-        a: "Request access on the site. Nick reviews every request. If approved, you receive a secure email to set your password and start a timed evaluation (typically 24 hours for individuals, 72 hours for company teams). After the window, continue as a client by conversation and invoice — there is no checkout cart on the site.",
+        a: "Request access on the site. Nick reviews every request. If approved, you receive a secure email to set your password and start a timed evaluation (typically 24 hours for individuals, 72 hours for company teams). After the window, individuals can continue for $14.99/week from Account; teams continue under a provider contract.",
       },
       {
         id: "trial-hours",
@@ -60,17 +60,22 @@ const faqCategories = [
       {
         id: "tools-without-coaching",
         q: "Can I use the tools without a coaching engagement?",
-        a: "You can request a short evaluation without buying coaching first. Ongoing Field Kit membership is custom (individual, team seats, or enterprise with coaching). Many clients combine tools with coaching; others continue tools-only after evaluation. Either path is activated manually after we agree on seats and terms — not via self-serve billing.",
+        a: "Yes. You can request a short evaluation without buying coaching first. After evaluation, individuals can subscribe to Field Kit only for $14.99/week. Many clients also add coaching; teams and enterprise packages combine seats with leadership work under contract.",
       },
       {
         id: "already-have-account",
         q: "I already have an account. How do I sign in?",
-        a: "Use Client Login with the email that was approved. You can also request a magic sign-in link from the login page. If your evaluation expired, you will see a clear message with options to request an extension or book a strategy call.",
+        a: "Use Client Login with the email that was approved. You can also request a magic sign-in link from the login page. If your evaluation expired, sign in and use Subscribe ($14.99/week) on Account, request an extension, or book a strategy call for team contracts.",
       },
       {
         id: "company-seats",
         q: "How do company seats work?",
-        a: "Company access creates an organization with a seat limit. An org admin can invite teammates. Leaders can see seat usage and keep one playbook across the team. Enterprise packages can bundle seats with leadership coaching and workshops.",
+        a: "Company access creates an organization with a seat limit. Seats are billed weekly per end user at a rate set under your contract. An org admin can invite teammates up to the seat limit. Leaders can see seat usage. Enterprise packages can bundle seats with leadership coaching and workshops.",
+      },
+      {
+        id: "cancel-subscription",
+        q: "How do I cancel individual membership?",
+        a: "Sign in → Account → Manage billing / cancel. You cancel yourself in the secure billing portal. Access continues until the end of the week you already paid for (cancel at period end). Provider contracts follow the terms you signed with Spartan Coaching.",
       },
     ],
   },
@@ -100,12 +105,12 @@ const faqCategories = [
       {
         id: "how-to-start",
         q: "How do I get started?",
-        a: "Two paths: (1) Request Field Kit evaluation access if you want to test the tools first, or (2) Book a strategy call if you want coaching, team systems, or enterprise scope. There is no pressure and no automated checkout.",
+        a: "Two paths: (1) Request Field Kit evaluation access if you want to test the tools first, or (2) Book a strategy call if you want coaching, team systems, or enterprise scope. Individuals who finish evaluation can subscribe for $14.99/week from Account.",
       },
       {
         id: "cost",
         q: "How much does it cost?",
-        a: "Pricing is custom. Individual Field Kit membership, multi-seat teams, and enterprise + coaching each differ by census, seats, and intensity. We discuss numbers openly after evaluation or on a strategy call. Payment is handled offline or by invoice for now — Stripe is not on the site yet.",
+        a: "Individual Field Kit membership is $14.99 per week (auto-renew; cancel anytime from Account). Provider and team seats use weekly per-user pricing set under your contract. Enterprise + coaching is engagement-based. See Membership for details.",
       },
       {
         id: "virtual-or-inperson",
@@ -115,7 +120,7 @@ const faqCategories = [
       {
         id: "what-after-trial",
         q: "What happens when my evaluation ends?",
-        a: "Tool access pauses when the window ends. You will get a clear next-step path: book a debrief, request an extension if you still need time, or continue as an activated client with agreed seats and terms. Your account remains so we can pick up cleanly — you are not left guessing.",
+        a: "Tool access pauses when the window ends. Individuals can subscribe for $14.99/week from Account (or the lock screen) and cancel anytime. Teams book a debrief or request contract activation for seats. You can also request an extension if you still need evaluation time.",
       },
     ],
   },
@@ -150,7 +155,7 @@ export default function FAQ() {
             Frequently Asked Questions
           </h1>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
-            Coaching, Field Kit access, evaluation trials, compliance, and how Spartan works as a consulting practice — not a self-serve checkout.
+            Coaching, Field Kit access, evaluation trials, individual $14.99/week membership, team contracts, and compliance.
           </p>
         </div>
       </FadeIn>

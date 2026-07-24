@@ -204,7 +204,7 @@ export default function Services() {
           Work <span className="text-gradient-primary">With Us</span>
         </h1>
         <p className="text-body-lg text-muted-foreground mb-4 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          A consulting practice for hospice growth — human coaching, team systems, and a private Field Kit for clients and approved evaluators. Pricing is custom; there is no self-serve checkout.
+          A consulting practice for hospice growth — human coaching, team systems, and a private Field Kit for clients and approved evaluators. Individuals continue at $14.99/week after evaluation; team seats and coaching are scoped under contract.
         </p>
         <p className="text-body text-muted-foreground max-w-3xl mx-auto animate-fade-in-up mb-8" style={{ animationDelay: '0.2s' }}>
           Every engagement exists because eligible patients miss care when the right conversations never happen. We build the structure and the field execution so those conversations become consistent.

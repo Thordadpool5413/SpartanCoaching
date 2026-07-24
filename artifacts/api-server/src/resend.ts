@@ -890,7 +890,7 @@ export async function sendAccessRequestReceived(toEmail: string, toName: string)
           <li>We review your request (usually within one business day).</li>
           <li>If approved, you get a secure email to set your password.</li>
           <li>Your timed evaluation starts (typically 24h individual / 72h company).</li>
-          <li>After the window, we decide seats and membership together — invoiced offline.</li>
+          <li>After the window: individuals can continue for $14.99/week from Account (cancel anytime); teams continue under a provider contract.</li>
         </ol>
         <p style="margin:0 0 16px;line-height:1.6;font-size:14px;color:#555;"><strong>Reminder:</strong> Field Kit tools are for planning and messaging only. Never enter patient names, MRNs, or other PHI.</p>
         <div style="text-align:center;margin:28px 0;">

@@ -419,7 +419,7 @@ export function Footer() {
                 Structured coaching for hospice sales reps, directors, and organizations who want a repeatable system — not another motivational talk.
               </p>
               <p className="text-xs text-muted-foreground/90 leading-relaxed border-l-2 border-primary/50 pl-3">
-                Private Field Kit · No PHI in tools · Access by request &amp; approval · Membership activated offline
+                Private Field Kit · No PHI in tools · Request &amp; approval first · Individuals $14.99/wk · Teams under contract
               </p>
               <div className="flex flex-col gap-2">
                 <a href="mailto:nick@spartanhospicecoaching.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-email">

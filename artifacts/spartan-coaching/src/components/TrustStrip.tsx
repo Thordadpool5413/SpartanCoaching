@@ -11,12 +11,12 @@ const DEFAULT_ITEMS = [
   {
     icon: UserCheck,
     title: "Request → approve → trial",
-    body: "Access is not self-serve checkout. Nick reviews every request, then opens a timed evaluation.",
+    body: "Nick reviews every access request, then opens a timed evaluation (24h individual / 72h company).",
   },
   {
     icon: Lock,
-    title: "Manual paid activation",
-    body: "No Stripe on the site. Membership continues by conversation and invoice after evaluation.",
+    title: "Clear membership path",
+    body: "Individuals continue at $14.99/week and cancel anytime. Teams activate seats under contract.",
   },
   {
     icon: FileCheck,
@@ -47,10 +47,11 @@ export function TrustStrip({ className, compact = false, showLinks = true }: Tru
         <div className="text-center mb-8 max-w-2xl mx-auto">
           <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">How we work with you</p>
           <h2 className="text-h3 font-display font-bold text-foreground mb-2">
-            A consulting practice — not a self-serve SaaS checkout
+            Evaluation first. Clear pricing after.
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Field Kit is private. Coaching is human. You request access; we approve, evaluate, and activate when it is a fit.
+            Field Kit is private. Coaching is human. You request access; we approve a timed evaluation. Individuals then
+            subscribe for $14.99/week; teams continue under contract.
           </p>
         </div>
       )}

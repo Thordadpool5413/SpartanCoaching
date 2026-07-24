@@ -7,29 +7,13 @@ import { Label } from "@/components/ui/label";
 import { SEO } from "@/components/SEO";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { useBillingActions } from "@/hooks/useBillingActions";
+import {
+  fetchBillingStatus,
+  type BillingStatusResponse,
+} from "@/lib/billingClient";
 import { Badge } from "@/components/ui/badge";
 import { CreditCard, ExternalLink, Loader2 } from "lucide-react";
-
-type BillingStatus = {
-  configured: boolean;
-  individualWeeklyPriceConfigured: boolean;
-  canCheckoutIndividual: boolean;
-  canOpenPortal: boolean;
-  organization: {
-    id: number;
-    type: string;
-    status: string;
-    billingPlan: string | null;
-    billingStatus: string | null;
-    currentPeriodEnd: string | null;
-    cancelAtPeriodEnd: boolean;
-    hasStripeCustomer: boolean;
-    hasStripeSubscription: boolean;
-    billableSeats: number | null;
-    seatLimit: number;
-    contractRef: string | null;
-  };
-};
 
 function queryParam(name: string): string | null {
   if (typeof window === "undefined") return null;
@@ -41,6 +25,7 @@ export default function Account() {
     useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
+  const { startCheckout, openPortal, checkoutPending, portalPending } = useBillingActions();
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteName, setInviteName] = useState("");
   const [members, setMembers] = useState<any[]>([]);
@@ -56,10 +41,8 @@ export default function Account() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [pwPending, setPwPending] = useState(false);
-  const [billing, setBilling] = useState<BillingStatus | null>(null);
+  const [billing, setBilling] = useState<BillingStatusResponse | null>(null);
   const [billingLoading, setBillingLoading] = useState(true);
-  const [checkoutPending, setCheckoutPending] = useState(false);
-  const [portalPending, setPortalPending] = useState(false);
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -95,8 +78,7 @@ export default function Account() {
   useEffect(() => {
     if (!isAuthenticated) return;
     setBillingLoading(true);
-    fetch("/api/billing/status", { credentials: "include" })
-      .then((r) => (r.ok ? r.json() : null))
+    fetchBillingStatus()
       .then((data) => setBilling(data))
       .catch(() => setBilling(null))
       .finally(() => setBillingLoading(false));
@@ -125,52 +107,6 @@ export default function Account() {
   const handleLogout = async () => {
     await logout();
     setLocation("/");
-  };
-
-  const startCheckout = async () => {
-    setCheckoutPending(true);
-    try {
-      const res = await fetch("/api/billing/checkout", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || "Could not start checkout");
-      if (!data.url) throw new Error("Checkout URL missing");
-      window.location.href = data.url;
-    } catch (err: any) {
-      toast({
-        title: "Checkout unavailable",
-        description: err?.message || "Try again or contact support.",
-        variant: "destructive",
-      });
-      setCheckoutPending(false);
-    }
-  };
-
-  const openPortal = async () => {
-    setPortalPending(true);
-    try {
-      const res = await fetch("/api/billing/portal", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({}),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) throw new Error(data.error || "Could not open billing portal");
-      if (!data.url) throw new Error("Portal URL missing");
-      window.location.href = data.url;
-    } catch (err: any) {
-      toast({
-        title: "Billing portal unavailable",
-        description: err?.message || "Try again or contact support.",
-        variant: "destructive",
-      });
-      setPortalPending(false);
-    }
   };
 
   const sendInvite = async (e: React.FormEvent) => {

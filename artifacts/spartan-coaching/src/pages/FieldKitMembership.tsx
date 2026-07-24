@@ -3,8 +3,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { TrustStrip } from "@/components/TrustStrip";
-import { CheckCircle, ArrowRight, Building2, User, Users } from "lucide-react";
+import { CheckCircle, ArrowRight, Building2, User, Users, CreditCard, Loader2 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
+import { useBillingActions } from "@/hooks/useBillingActions";
 
 const TIERS = [
   {
@@ -66,7 +67,13 @@ const TIERS = [
 ];
 
 export default function FieldKitMembership() {
-  const { isAuthenticated, canUseFieldKit } = useAuth();
+  const { isAuthenticated, canUseFieldKit, organization, member } = useAuth();
+  const { startCheckout, checkoutPending } = useBillingActions();
+  const canSubscribe =
+    isAuthenticated &&
+    organization?.type === "personal" &&
+    member?.role !== "platform_admin" &&
+    organization?.status !== "active";
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-12 sm:py-16" data-testid="page-field-kit-membership">
@@ -119,12 +126,32 @@ export default function FieldKitMembership() {
                   </li>
                 ))}
               </ul>
-              <Button asChild className="w-full font-bold" variant={tier.highlight ? "default" : "outline"}>
-                <Link href={tier.href} data-testid={`button-tier-${tier.id}`}>
-                  {tier.cta}
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Link>
-              </Button>
+              {tier.id === "individual" && canSubscribe ? (
+                <Button
+                  className="w-full font-bold"
+                  onClick={startCheckout}
+                  disabled={checkoutPending}
+                  data-testid="button-tier-individual-subscribe"
+                >
+                  {checkoutPending ? (
+                    <>
+                      <Loader2 className="mr-2 w-4 h-4 animate-spin" /> Redirecting…
+                    </>
+                  ) : (
+                    <>
+                      <CreditCard className="mr-2 w-4 h-4" />
+                      Subscribe · $14.99/week
+                    </>
+                  )}
+                </Button>
+              ) : (
+                <Button asChild className="w-full font-bold" variant={tier.highlight ? "default" : "outline"}>
+                  <Link href={tier.href} data-testid={`button-tier-${tier.id}`}>
+                    {tier.cta}
+                    <ArrowRight className="ml-2 w-4 h-4" />
+                  </Link>
+                </Button>
+              )}
               {tier.secondaryHref && isAuthenticated && (
                 <Button asChild variant="ghost" className="w-full font-semibold mt-2 text-sm">
                   <Link href={tier.secondaryHref}>{tier.secondaryCta}</Link>
@@ -149,13 +176,32 @@ export default function FieldKitMembership() {
             contract, then activate your org.
           </li>
         </ol>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 flex-wrap">
+          {canSubscribe && (
+            <Button
+              className="font-bold"
+              onClick={startCheckout}
+              disabled={checkoutPending}
+              data-testid="membership-subscribe"
+            >
+              {checkoutPending ? (
+                <>
+                  <Loader2 className="mr-2 w-4 h-4 animate-spin" /> Redirecting…
+                </>
+              ) : (
+                <>
+                  <CreditCard className="mr-2 w-4 h-4" />
+                  Subscribe · $14.99/week
+                </>
+              )}
+            </Button>
+          )}
           {canUseFieldKit ? (
-            <Button asChild className="font-bold">
+            <Button asChild className="font-bold" variant={canSubscribe ? "outline" : "default"}>
               <Link href="/account">Manage membership</Link>
             </Button>
           ) : (
-            <Button asChild className="font-bold">
+            <Button asChild className="font-bold" variant={canSubscribe ? "outline" : "default"}>
               <Link href="/request-access">Request evaluation access</Link>
             </Button>
           )}

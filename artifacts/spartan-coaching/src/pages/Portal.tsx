@@ -31,10 +31,13 @@ import {
   ChevronDown,
   ChevronUp,
   Crosshair,
+  CreditCard,
+  Loader2,
 } from "lucide-react";
 import { FieldKitGate } from "@/components/FieldKitGate";
 import { ToolDisclaimer } from "@/components/ToolDisclaimer";
 import { FieldKitChrome } from "@/components/FieldKitChrome";
+import { useBillingActions } from "@/hooks/useBillingActions";
 import {
   FIELD_KIT_WHAT,
   FIELD_KIT_WHY,
@@ -157,6 +160,7 @@ function isDone(progress: Record<string, unknown> | undefined, id: string): bool
 export default function Portal() {
   const { member, organization, fieldKit, canUseFieldKit, isLoading, refresh } = useAuth();
   const { toast } = useToast();
+  const { startCheckout, checkoutPending } = useBillingActions();
   const [jobRole, setJobRole] = useState<string>("");
   const [territoryNote, setTerritoryNote] = useState("");
   const [topObjections, setTopObjections] = useState("");
@@ -288,6 +292,11 @@ export default function Portal() {
         ? "Active client access"
         : null;
 
+  const isPersonalTrial =
+    organization?.status === "trial" &&
+    organization?.type === "personal" &&
+    member?.role !== "platform_admin";
+
   const firstName = member?.name?.split(" ")[0] || "";
 
   const nextHint = nextItem
@@ -322,12 +331,33 @@ export default function Portal() {
           >
             <Clock className="w-4 h-4 shrink-0" />
             <span>{trialLabel}</span>
+            {isPersonalTrial && (
+              <button
+                type="button"
+                onClick={startCheckout}
+                disabled={checkoutPending}
+                className="inline-flex items-center gap-1 underline ml-1 hover:text-foreground font-semibold disabled:opacity-60"
+                data-testid="portal-trial-subscribe"
+              >
+                {checkoutPending ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <CreditCard className="w-3.5 h-3.5" />
+                )}
+                Continue $14.99/wk
+              </button>
+            )}
             {organization?.status === "trial" && (
               <Link
                 href="/contact?service=Field+Kit+Debrief"
                 className="underline ml-1 hover:text-foreground font-semibold"
               >
                 Book a debrief
+              </Link>
+            )}
+            {organization?.status === "trial" && (
+              <Link href="/account" className="underline ml-1 hover:text-foreground font-semibold">
+                Account
               </Link>
             )}
           </div>

@@ -44,10 +44,14 @@ pnpm --filter @workspace/db run push
 5. `POST /api/billing/portal` → cancel at period end → `cancelAtPeriodEnd=true`.
 6. After period end (or test clock), org should become `expired` and tools lock.
 
-## Phase 2 UI (shipped)
+## Phase 2 UI + full website (shipped)
 
-- `/field-kit-membership` — $14.99/week individual, contract language for teams
+- `/field-kit-membership` — $14.99/week individual, contract language for teams, Subscribe CTA when signed in
 - `/account` — Subscribe · $14.99/week, Manage billing / cancel, post-checkout banners
+- `FieldKitGate` — Subscribe / Manage billing when evaluation ended or suspended
+- `TrialBanner` + Portal trial chip — Continue $14.99/wk during personal evaluation
+- FAQ, Terms, Privacy, Request Access, Services, Home SEO, TrustStrip, footer — aligned with self-serve individual + contract teams
+- Shared `billingClient.ts` + `useBillingActions` for checkout/portal CTAs
 
 ## Phase 3 — Corporate contract (shipped)
 

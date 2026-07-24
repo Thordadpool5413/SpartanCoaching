@@ -70,7 +70,7 @@ export default function Home() {
                 name: "Spartan Coaching",
                 url: typeof window !== "undefined" ? window.location.origin : "https://spartancoaching.com",
                 description:
-                  "Hospice sales consulting and private Field Kit. Request access — not self-serve checkout.",
+                  "Hospice sales consulting and private Field Kit. Evaluation first; individuals $14.99/week after approval.",
               },
             ],
           })}

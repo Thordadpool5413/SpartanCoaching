@@ -39,14 +39,14 @@ const seoDefaults: Record<string, SEOConfig> = {
   '/': {
     title: 'Spartan Coaching | Hospice Sales Consulting & Field Coaching',
     description:
-      'Practical hospice growth coaching from Nick Lynch. Discipline, empathy, and strategy — plus a private Field Kit for approved clients and evaluators. Request access; no self-serve checkout.',
+      'Practical hospice growth coaching from Nick Lynch. Discipline, empathy, and strategy — plus a private Field Kit for clients and evaluators. Individuals $14.99/week after evaluation.',
     keywords:
       'hospice sales consulting, hospice sales coaching, hospice growth coaching, Field Kit, Nick Lynch, referral development',
   },
   '/services': {
     title: 'Coaching Services | Spartan Coaching',
     description:
-      'Hospice growth consulting: individual coaching, leadership systems, and private Field Kit evaluation access. Custom pricing — request access or book a strategy call.',
+      'Hospice growth consulting: individual coaching, leadership systems, and private Field Kit access. Individual membership $14.99/week; team seats under contract.',
     keywords: 'hospice sales coaching, Field Kit, leadership coaching, consulting services',
   },
   '/programs': {
@@ -81,8 +81,8 @@ const seoDefaults: Record<string, SEOConfig> = {
   '/request-access': {
     title: 'Request Field Kit Access | Spartan Coaching',
     description:
-      'Request private Field Kit evaluation access. Nick reviews every request. Individual 24h or company 72h trial after approval — then continue as a client by conversation, not checkout.',
-    keywords: 'Field Kit access, request evaluation, hospice sales tools, 24 hour trial, company seats',
+      'Request private Field Kit evaluation access. Nick reviews every request. Individual 24h or company 72h trial after approval — then individuals subscribe $14.99/week or teams continue under contract.',
+    keywords: 'Field Kit access, request evaluation, hospice sales tools, 24 hour trial, company seats, $14.99 week',
   },
   '/portal': {
     title: 'Field Kit Home | Spartan Coaching',
@@ -92,20 +92,21 @@ const seoDefaults: Record<string, SEOConfig> = {
   },
   '/account': {
     title: 'Account | Spartan Coaching',
-    description: 'Manage your Spartan Field Kit access and team seats.',
-    keywords: 'account, Field Kit membership',
+    description: 'Manage Field Kit membership, subscribe $14.99/week, cancel anytime, and team seats.',
+    keywords: 'account, Field Kit membership, cancel subscription',
     noIndex: true,
   },
   '/field-kit-membership': {
-    title: 'Field Kit Membership | Spartan Coaching',
+    title: 'Field Kit Membership $14.99/week | Spartan Coaching',
     description:
-      'Continue Field Kit access for individuals, teams, and enterprise hospice organizations. Evaluation first, then custom membership — invoiced offline.',
-    keywords: 'Field Kit membership, hospice sales tools, team seats',
+      'Individual Field Kit membership $14.99/week — cancel anytime after evaluation. Provider seats weekly under contract. Enterprise + coaching engagement-based.',
+    keywords: 'Field Kit membership, $14.99 week, hospice sales tools, team seats, cancel anytime',
   },
   '/pricing/field-kit': {
-    title: 'Field Kit Membership | Spartan Coaching',
-    description: 'Field Kit membership options for hospice growth professionals and organizations.',
-    keywords: 'Field Kit pricing, hospice consulting tools',
+    title: 'Field Kit Membership $14.99/week | Spartan Coaching',
+    description:
+      'Field Kit pricing: individuals $14.99/week self-serve after evaluation; team seats under hospice contract.',
+    keywords: 'Field Kit pricing, hospice consulting tools, weekly membership',
   },
   '/tools/playbooks': {
     title: 'Sales Playbook Generator | Spartan Coaching',
@@ -230,8 +231,8 @@ const seoDefaults: Record<string, SEOConfig> = {
   '/faq': {
     title: 'FAQ | Spartan Coaching',
     description:
-      'Field Kit access, 24h/72h evaluation trials, membership, coaching, and no-PHI compliance. How Spartan works as a consulting practice — not self-serve checkout.',
-    keywords: 'hospice coaching FAQ, Field Kit access, evaluation trial, sales training FAQ',
+      'Field Kit access, 24h/72h evaluation trials, $14.99/week individual membership, team contracts, cancel anytime, and no-PHI compliance.',
+    keywords: 'hospice coaching FAQ, Field Kit access, evaluation trial, $14.99 week, cancel subscription',
   },
   '/terms': {
     title: 'Terms of Service | Spartan Coaching',

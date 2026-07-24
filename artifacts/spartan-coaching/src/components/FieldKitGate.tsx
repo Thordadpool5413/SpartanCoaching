@@ -5,7 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
-import { Lock, LogIn, KeyRound, Phone, Shield } from "lucide-react";
+import { useBillingActions } from "@/hooks/useBillingActions";
+import { Lock, LogIn, KeyRound, Phone, CreditCard, Loader2, Shield } from "lucide-react";
 
 type Props = {
   /** Compact mode for embedding above a tool */
@@ -16,8 +17,9 @@ type Props = {
  * Consulting-grade gate when Field Kit is locked (logged out, expired, suspended).
  */
 export function FieldKitGate({ compact }: Props) {
-  const { isAuthenticated, fieldKit, organization } = useAuth();
+  const { isAuthenticated, fieldKit, organization, member } = useAuth();
   const { toast } = useToast();
+  const { startCheckout, openPortal, checkoutPending, portalPending } = useBillingActions();
   const [extMessage, setExtMessage] = useState("");
   const [extPending, setExtPending] = useState(false);
   const [extSent, setExtSent] = useState(false);
@@ -25,6 +27,9 @@ export function FieldKitGate({ compact }: Props) {
   const reason = fieldKit?.reason;
   const expired = reason === "expired" || organization?.status === "expired";
   const suspended = reason === "suspended" || organization?.status === "suspended";
+  const isPersonal = organization?.type === "personal";
+  const isPlatform = member?.role === "platform_admin" || organization?.type === "platform";
+  const canSelfServe = isAuthenticated && isPersonal && !isPlatform;
 
   let title = "Private Field Kit";
   let body =
@@ -32,14 +37,17 @@ export function FieldKitGate({ compact }: Props) {
 
   if (expired) {
     title = "Your evaluation window has ended";
-    body =
-      "Thank you for putting real scenarios through the Field Kit. The next step is a short conversation — continue as a client, extend evaluation if your team needs more time, or close the loop.";
+    body = canSelfServe
+      ? "Thank you for testing the Field Kit. Individuals can continue for $14.99/week from your account — cancel anytime. Teams continue under a provider contract."
+      : "Thank you for putting real scenarios through the Field Kit. Continue as a client under contract, request an extension, or close the loop with a short debrief.";
   } else if (suspended) {
     title = "Access is currently paused";
-    body = "Your organization’s Field Kit access is paused. Contact Spartan Coaching to restore access.";
+    body = canSelfServe
+      ? "Often this is a failed payment. Update your card under Manage billing to restore Field Kit access."
+      : "Your organization’s Field Kit access is paused. Update billing or contact Spartan Coaching to restore access.";
   } else if (isAuthenticated && !fieldKit?.allowed) {
     title = "Field Kit access is not active";
-    body = "Your account is signed in, but Field Kit access is not currently active. Contact us to continue.";
+    body = "Your account is signed in, but Field Kit access is not currently active. Subscribe, renew, or contact us to continue.";
   }
 
   const requestExtension = async () => {
@@ -113,17 +121,52 @@ export function FieldKitGate({ compact }: Props) {
               </Button>
             </>
           )}
+          {canSelfServe && (expired || suspended) && (
+            <Button
+              className="font-bold"
+              onClick={startCheckout}
+              disabled={checkoutPending}
+              data-testid="gate-subscribe"
+            >
+              {checkoutPending ? (
+                <>
+                  <Loader2 className="mr-2 w-4 h-4 animate-spin" /> Redirecting…
+                </>
+              ) : (
+                <>
+                  <CreditCard className="mr-2 w-4 h-4" />
+                  Subscribe · $14.99/week
+                </>
+              )}
+            </Button>
+          )}
+          {canSelfServe && suspended && (
+            <Button
+              variant="outline"
+              className="font-bold"
+              onClick={openPortal}
+              disabled={portalPending}
+              data-testid="gate-manage-billing"
+            >
+              {portalPending ? "Opening…" : "Manage billing"}
+            </Button>
+          )}
           {(expired || isAuthenticated) && (
-            <Button asChild className="font-bold" data-testid="gate-contact">
+            <Button asChild className={canSelfServe && (expired || suspended) ? "font-bold" : "font-bold"} variant={canSelfServe && (expired || suspended) ? "outline" : "default"} data-testid="gate-contact">
               <Link href="/contact?service=Field+Kit+Membership">
                 <Phone className="mr-2 w-4 h-4" />
-                Continue as a client — book a call
+                {canSelfServe ? "Talk to Nick" : "Continue as a client — book a call"}
               </Link>
             </Button>
           )}
           {expired && (
             <Button asChild variant="outline" className="font-bold" data-testid="gate-pricing">
               <Link href="/field-kit-membership">View membership options</Link>
+            </Button>
+          )}
+          {isAuthenticated && (
+            <Button asChild variant="ghost" className="font-bold" data-testid="gate-account">
+              <Link href="/account">Account</Link>
             </Button>
           )}
         </div>

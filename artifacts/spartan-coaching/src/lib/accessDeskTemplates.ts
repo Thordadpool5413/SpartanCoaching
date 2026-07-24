@@ -48,12 +48,12 @@ export const ORG_NOTE_TEMPLATES: NoteTemplate[] = [
   {
     id: "expired-follow",
     label: "Trial ended — follow up",
-    body: "Trial ended. Follow-up for debrief / membership / seats. No self-serve checkout — manual activation when ready.",
+    body: "Trial ended. Individual: point to Account Subscribe $14.99/wk. Team: debrief + corporate contract seats.",
   },
   {
     id: "won",
     label: "Won / activated",
-    body: "Activated as continuing client. Seats and terms agreed offline. Membership email sent.",
+    body: "Activated as continuing client (self-serve weekly or corporate contract). Membership email / Stripe as applicable.",
   },
   {
     id: "lost",
