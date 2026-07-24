@@ -38,6 +38,7 @@ export default function SalesWorkflow() {
   };
 
   return (
+    <>
     <FieldKitToolLayout toolPath="/tools/sales-workflow">
       <SEO
         title="Sales Command Center | Spartan Coaching"
@@ -52,6 +53,18 @@ export default function SalesWorkflow() {
           support the next call—they do not replace it.
         </p>
       </div>
+      <SalesWorkflowPanel
+        api={api}
+        actor={actor}
+        theme={{
+          "--hsw-accent": "hsl(var(--primary))",
+          "--hsw-ink": "hsl(var(--foreground))",
+          "--hsw-muted": "hsl(var(--muted-foreground))",
+          "--hsw-surface": "hsl(var(--card))",
+          "--hsw-border": "hsl(var(--border))",
+        }}
+      />
+    </>
       <div className="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
         <SalesWorkflowPanel
           api={api}
