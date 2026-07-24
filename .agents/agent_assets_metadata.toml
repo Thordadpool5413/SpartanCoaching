@@ -17,3 +17,15 @@ id = "NZwgXkN_6fvfgocI2hE8B"
 uri = "file://artifacts/spartan-video/public/audio/bg_music.mp3"
 type = "audio"
 title = "background music"
+
+[[outputs]]
+id = "Axtk9L3snsKumHA3SSgac"
+uri = "file://artifacts/spartan-coaching-mobile/store/screenshots/6.7/05-login.png"
+type = "image"
+title = "Login screen mockup (6.7\")"
+
+[[outputs]]
+id = "Eh2osNwNA9kYQ5buyNXnO"
+uri = "file://artifacts/spartan-coaching-mobile/store/screenshots/6.7/01-checklist.png"
+type = "image"
+title = "Checklist screen mockup (6.7\")"

@@ -195,7 +195,7 @@ App Store Connect requires at least the **6.9"** slot. The **6.7"** slot is stro
 
 #### 6.7" slot — iPhone 15 Plus (1290×2796 px)
 
-**Ready-to-upload placeholder screenshots are in `store/screenshots/6.7/`** — all 5 at the required 1290×2796 px:
+**Ready-to-upload screenshots are in `store/screenshots/6.7/`** — all 5 at the required 1290×2796 px:
 
 | File | Screen |
 |---|---|
@@ -205,7 +205,7 @@ App Store Connect requires at least the **6.9"** slot. The **6.7"** slot is stro
 | `04-drills.png` | Objection Handler |
 | `05-login.png` | Portal / Login |
 
-> **Note:** The current 6.7" PNGs are placeholder fills. Replace them with real iPhone 15 Plus simulator captures (see "Capturing Real Screenshots" below) before the next App Store review cycle.
+> **Note:** The current 6.7" PNGs are rendered app-UI mockups (dark theme, Spartan Red accent, realistic screen content) at the correct 1290×2796 px — an improvement over the previous blank placeholders but still not real simulator captures. Replace them with real iPhone 15 Plus simulator captures (see "Capturing Real Screenshots" below) before the next App Store review cycle for a pixel-perfect listing.
 >
 > App Store Connect will use the 6.9" set as a fallback for 6.7" if you skip this slot — but uploading dedicated 6.7" images gives iPhone 15/14 Plus users a pixel-perfect preview.
 
