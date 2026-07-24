@@ -1,0 +1,23 @@
+package.json
+  s_49726d5d67fecc::t_098e6bffbf1ec0 7
+  s_49726d5d67fecc::t_43a53bf7e6cd80 4
+scripts/require-pnpm.mjs
+  s_49726d5d67fecc::t_098e6bffbf1ec0 1-10,16,18-20
+  s_49726d5d67fecc::t_43a53bf7e6cd80 11-15,17
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "c3a5c11be767e0b3a4a3f4e401328b57fcf3bac5",
+  "prompts": {},
+  "sessions": {
+    "s_49726d5d67fecc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f8276-13fc-7fc3-bfe9-2af07f6183ba",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
