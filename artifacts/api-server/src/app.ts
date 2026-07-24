@@ -5,7 +5,6 @@ import pinoHttp from "pino-http";
 import router from "./routes";
 import { registerRoutes } from "./routes/routes";
 import { registerAuthRoutes } from "./routes/authRoutes";
-import { registerSalesWorkflowRoutes } from "./routes/salesWorkflowRoutes";
 import { loadSession } from "./auth/middleware";
 import { globalApiLimit } from "./rateLimits";
 import { logger } from "./lib/logger";
@@ -64,9 +63,6 @@ app.use("/api", router);
 
 // Field Kit auth (request-access, login, Access Desk)
 registerAuthRoutes(app);
-
-// Continuous rep workflow (accounts → plans → roleplay → coaching → next call)
-registerSalesWorkflowRoutes(app);
 
 // Legacy app routes (AI tools gated with requireFieldKit)
 registerRoutes(app);
