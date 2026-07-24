@@ -361,11 +361,43 @@ DATABASE_URL=<prod-connection-string> REVIEWER_PASSWORD=<your-password> pnpm --f
 
 | Date | Result | DB record | Action required |
 |---|---|---|---|
-| 2026-07-24 | ✅ Created org id=2, member id=2 | active member, active org, no trial expiry | Enter credentials in App Store Connect → App Review Information |
+| 2026-07-24 | ⏳ Account exists in production (invited, null password) | prod: member id=2, org id=2 (24h trial) | **Publish the latest build, then run the activation steps below** |
 
-**Credentials last seeded:** `apple-reviewer@spartanhospicecoaching.com` — password is in App Store Connect (do not commit it here).
+> Credentials are stored in App Store Connect → App Review Information → Sign-in required. Do not commit them here.
+>
+> Next review cycle: re-run the seed script with the production DATABASE_URL to reset to a new password, update the log, and re-enter credentials in App Store Connect.
 
-> Next submission: re-run the seed script to reset the password, then update the log row above with the new date.
+#### Activating the reviewer on production (one-time, after next publish)
+
+The production database has the reviewer account in "invited" status with no password set. After Nick publishes the latest build:
+
+**Step 1 — Get an admin Bearer token** (log in as platform admin):
+```bash
+curl -s -X POST https://spartanhospicecoaching.com/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"<admin-email>","password":"<admin-password>"}' \
+  | jq -r .token
+```
+
+**Step 2 — Activate the reviewer account** (supply the reviewer password from App Store Connect):
+```bash
+curl -X POST https://spartanhospicecoaching.com/api/admin/activate-reviewer \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer <admin-token-from-step-1>" \
+  -d '{"password":"<reviewer-password-from-app-store-connect>"}'
+# Expected: {"ok":true,"message":"Reviewer account activated.",...}
+```
+
+**Step 3 — Verify login works**:
+```bash
+curl -s -X POST https://spartanhospicecoaching.com/api/auth/login \
+  -H "Content-Type: application/json" \
+  -d '{"email":"apple-reviewer@spartanhospicecoaching.com","password":"<reviewer-password>"}' \
+  | jq '{allowed: .fieldKit.allowed, orgStatus: .organization.status, trialEndsAt: .organization.trialEndsAt}'
+# Expected: {"allowed":true,"orgStatus":"active","trialEndsAt":null}
+```
+
+**Step 4** — Update the seed log row above to ✅ and delete the "Activating the reviewer on production" section from this README, then merge the cleanup PR (task #141).
 
 ---
 
