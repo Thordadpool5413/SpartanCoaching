@@ -361,8 +361,8 @@ export default function HomeScreen() {
         </Text>
         <Text style={{ color: "rgba(255,255,255,0.65)", marginTop: 6, fontSize: 14, lineHeight: 20 }}>
           {isFirstSession
-            ? "Role → one real tool → debrief. That beats browsing every tab."
-            : "Discipline, empathy, strategy — in the field."}
+            ? "Role → Sales Command Center → debrief. That beats browsing every tab."
+            : "Run the day from Sales Command Center — then use satellite tools."}
         </Text>
         {user?.organization?.status === "trial" && trialLabel ? (
           <View
@@ -406,9 +406,39 @@ export default function HomeScreen() {
         )}
       </LinearGradient>
 
+      {/* Daily spine — Sales Command Center */}
+      <View style={[styles.section, { paddingTop: 16 }]} testID="section-command-center-hub">
+        <Pressable
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+            router.push("/sales-workflow" as any);
+          }}
+          style={[
+            styles.startCard,
+            {
+              backgroundColor: colors.card,
+              borderColor: colors.primary,
+              borderWidth: 1.5,
+            },
+          ]}
+          testID="button-open-command-center"
+        >
+          <Text style={{ color: colors.primary, fontSize: 11, fontWeight: "800", letterSpacing: 1.2 }}>
+            DAILY OPERATING SYSTEM
+          </Text>
+          <Text style={{ color: colors.foreground, fontSize: 18, fontWeight: "900", marginTop: 6 }}>
+            Sales Command Center
+          </Text>
+          <Text style={{ color: colors.mutedForeground, fontSize: 13, marginTop: 4, lineHeight: 18 }}>
+            Next call → prepare → practice → capture outcome → next step. Satellite tools support this spine.
+          </Text>
+          <Text style={{ color: colors.primary, fontWeight: "800", marginTop: 12 }}>Open Command Center →</Text>
+        </Pressable>
+      </View>
+
       {/* First-session 3-step path */}
       {isFirstSession && (
-        <View style={[styles.section, { paddingTop: 20 }]} testID="section-first-session">
+        <View style={[styles.section, { paddingTop: 8 }]} testID="section-first-session">
           <Text style={{ color: colors.primary, fontSize: 11, fontWeight: "800", letterSpacing: 1.5, marginBottom: 8 }}>
             FIRST SESSION — DO THESE THREE
           </Text>

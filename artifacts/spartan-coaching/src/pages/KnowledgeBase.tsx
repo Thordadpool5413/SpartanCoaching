@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { Link } from "wouter";
 import { CoachingCTA } from "@/components/CoachingCTA";
 import { Card, CardContent } from "@/components/ui/card";
@@ -7,7 +7,7 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { SEO } from "@/components/SEO";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
-import { Search, BookOpen, ChevronRight, Home } from "lucide-react";
+import { Search, BookOpen, ChevronRight, Home, Shield } from "lucide-react";
 
 type Category =
   | "Clinical Terms"
@@ -354,9 +354,18 @@ function categorySlug(cat: string): string {
   return cat.toLowerCase().replace(/[^a-z0-9]+/g, "-");
 }
 
+type SpartanHit = {
+  id: string;
+  title: string;
+  category: string;
+  body: string;
+  score?: number;
+};
+
 export default function KnowledgeBase() {
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [spartanHits, setSpartanHits] = useState<SpartanHit[]>([]);
 
   const filteredEntries = useMemo(() => {
     const query = searchQuery.toLowerCase().trim();
@@ -369,6 +378,26 @@ export default function KnowledgeBase() {
       return matchesCategory && matchesSearch;
     });
   }, [searchQuery, selectedCategory]);
+
+  useEffect(() => {
+    const q = searchQuery.trim();
+    if (q.length < 3) {
+      setSpartanHits([]);
+      return;
+    }
+    const t = setTimeout(() => {
+      fetch(`/api/knowledge/search?q=${encodeURIComponent(q)}&limit=4`, {
+        credentials: "include",
+      })
+        .then((r) => (r.ok ? r.json() : null))
+        .then((data) => {
+          if (data?.results) setSpartanHits(data.results);
+          else setSpartanHits([]);
+        })
+        .catch(() => setSpartanHits([]));
+    }, 280);
+    return () => clearTimeout(t);
+  }, [searchQuery]);
 
   return (
     <div className="flex flex-col" data-testid="section-knowledge-base">
@@ -419,6 +448,33 @@ export default function KnowledgeBase() {
                 />
               </div>
             </div>
+
+            {spartanHits.length > 0 && (
+              <div className="max-w-3xl mx-auto mb-10" data-testid="spartan-knowledge-hits">
+                <Card className="border border-primary/30 bg-primary/5 p-5 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Shield className="w-4 h-4 text-primary" />
+                    <p className="text-xs font-bold tracking-widest uppercase text-primary">
+                      Spartan Method sources (Field Kit)
+                    </p>
+                  </div>
+                  <ul className="space-y-3">
+                    {spartanHits.map((hit) => (
+                      <li key={hit.id} className="text-sm">
+                        <p className="font-bold text-foreground">{hit.title}</p>
+                        <p className="text-[11px] text-muted-foreground uppercase tracking-wide mb-1">
+                          {hit.category}
+                        </p>
+                        <p className="text-muted-foreground leading-relaxed">{hit.body}</p>
+                      </li>
+                    ))}
+                  </ul>
+                  <p className="text-[11px] text-muted-foreground">
+                    Sign in with Field Kit access to retrieve these live. Glossary terms below remain public.
+                  </p>
+                </Card>
+              </div>
+            )}
 
             <div className="flex items-center justify-center gap-2 flex-wrap mb-4">
               <Badge

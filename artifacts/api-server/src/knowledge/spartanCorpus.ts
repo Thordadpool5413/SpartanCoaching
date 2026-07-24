@@ -108,6 +108,54 @@ export const SPARTAN_CORPUS: KnowledgeChunk[] = [
     body:
       "Top reps earn the right to educate by discovering process friction, coverage gaps, and what \"good\" looks like for that referral source. Two strong discovery questions beat a monologue about features.",
   },
+  {
+    id: "eligibility-palliative-vs-hospice",
+    title: "Palliative care vs hospice",
+    category: "eligibility",
+    tags: ["palliative", "hospice", "difference", "concurrent"],
+    body:
+      "Palliative care can run alongside curative treatment at any stage. Hospice is a Medicare benefit for patients with a terminal prognosis who elect comfort-focused care related to the hospice diagnosis. Expert reps educate without shaming families who still want aggressive treatment.",
+  },
+  {
+    id: "objection-coverage-cost",
+    title: "Objection: cost and coverage",
+    category: "objection",
+    tags: ["cost", "medicare", "coverage", "expensive", "billing"],
+    body:
+      "Most patients with Medicare Part A have the hospice benefit covered with little or no out-of-pocket for care related to the terminal diagnosis. Still verify payer specifics and never promise zero cost for non-covered items. Offer a benefits education call with clinical/admin partners.",
+  },
+  {
+    id: "territory-snf-rhythm",
+    title: "SNF / facility visit rhythm",
+    category: "territory",
+    tags: ["snf", "facility", "don", "case management", "visit"],
+    body:
+      "Facility relationships compound with consistent presence: short value touches (education, case review, after-hours support) beat quarterly pitches. Always leave with a named next touch and an internal champion update.",
+  },
+  {
+    id: "ops-activity-math",
+    title: "Activity math discipline",
+    category: "operations",
+    tags: ["activity", "conversations", "admissions", "conversion", "scorecard"],
+    body:
+      "Admissions goals without conversation math are hope. Convert admissions target × conversations-per-admission into weekly and daily talk targets, then coach the gap. Directors manage conversations and quality of those conversations—not only census.",
+  },
+  {
+    id: "ethics-claims",
+    title: "Claim discipline",
+    category: "ethics",
+    tags: ["claims", "marketing", "compliance", "language"],
+    body:
+      "Never overstate outcomes, guarantee admissions, or disparage competitors. Use verifiable operational claims (response times, coverage, services) and educational clinical framing. When in doubt, under-claim and document sources.",
+  },
+  {
+    id: "method-follow-through",
+    title: "Follow-through is the differentiator",
+    category: "method",
+    tags: ["follow-up", "discipline", "crm", "reliability"],
+    body:
+      "Referral sources remember who did what they said. Same-day thank-yous, documented next steps, and reliable after-hours paths outperform clever scripts. Capture commitments in the Command Center so nothing lives only in memory.",
+  },
 ];
 
 function tokenize(text: string): string[] {
