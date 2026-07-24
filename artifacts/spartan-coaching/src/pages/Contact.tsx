@@ -75,7 +75,7 @@ export default function Contact() {
   }, []);
 
   const form = useForm<ContactFormData>({
-    resolver: zodResolver(contactFormSchema),
+    resolver: zodResolver(contactFormSchema as any),
     defaultValues: {
       name: "",
       email: "",
