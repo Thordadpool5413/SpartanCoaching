@@ -28,6 +28,22 @@ export const clientOrganizations = pgTable("client_organizations", {
   nextFollowUpAt: timestamp("next_follow_up_at"),
   lostReason: text("lost_reason"),
   notes: text("notes"), // rolling summary / sticky notes
+  // ── Billing / Stripe (Phase 1) ──────────────────────────────────────
+  /** individual_weekly | corporate_contract | comp | null (trial/none) */
+  billingPlan: varchar("billing_plan", { length: 64 }),
+  /** Stripe-ish status: active | past_due | canceled | incomplete | trialing | unpaid | null */
+  billingStatus: varchar("billing_status", { length: 64 }),
+  stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
+  stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
+  stripePriceId: varchar("stripe_price_id", { length: 255 }),
+  currentPeriodEnd: timestamp("current_period_end"),
+  cancelAtPeriodEnd: boolean("cancel_at_period_end").notNull().default(false),
+  /** Corporate contract: negotiated weekly unit price in cents (per seat) */
+  contractUnitAmountCents: integer("contract_unit_amount_cents"),
+  contractCurrency: varchar("contract_currency", { length: 8 }).default("usd"),
+  contractRef: varchar("contract_ref", { length: 128 }),
+  /** Seats billed (may match seatLimit); corporate quantity source of truth for Stripe */
+  billableSeats: integer("billable_seats"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 

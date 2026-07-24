@@ -12,6 +12,10 @@ Expert hospice growth coaching site + private Field Kit (web + iOS) for clients 
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only) — **required after Field Kit auth tables**
 - Required env: `DATABASE_URL` — Postgres connection string
 - Auth/email env: `OPENAI_API_KEY`, `RESEND_API_KEY` / connector, `NOTIFICATION_EMAIL`, `SITE_URL`
+- **Billing (Phase 1 Stripe):** `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_INDIVIDUAL_WEEKLY` (Dashboard price id for $14.99/week)
+  - Webhook URL: `POST /api/billing/webhook` (raw body; Customer Portal for self-cancel)
+  - Checkout: `POST /api/billing/checkout` · Portal: `POST /api/billing/portal` · Status: `GET /api/billing/status`
+  - After schema pull: `pnpm --filter @workspace/db run push`
 - **Platform admin:** shared passcode unlock is **retired**. Use a real `platform_admin` member session (email/password).
   - First install only: set random `ADMIN_BOOTSTRAP_TOKEN` (≥32 chars), call one-time bootstrap, then **delete** the token.
   - Optional seed email: `ADMIN_EMAIL` (default `nick@spartanhospicecoaching.com`) when bootstrap creates the first admin.

@@ -75,5 +75,14 @@ export function publicOrg(org: ClientOrganization) {
     nextFollowUpAt: (org as any).nextFollowUpAt ?? null,
     lostReason: (org as any).lostReason ?? null,
     notes: org.notes ?? null,
+    // Billing (safe for client UI — no secret Stripe keys)
+    billingPlan: (org as any).billingPlan ?? null,
+    billingStatus: (org as any).billingStatus ?? null,
+    currentPeriodEnd: (org as any).currentPeriodEnd ?? null,
+    cancelAtPeriodEnd: Boolean((org as any).cancelAtPeriodEnd),
+    billableSeats: (org as any).billableSeats ?? null,
+    contractRef: (org as any).contractRef ?? null,
+    hasStripeCustomer: Boolean((org as any).stripeCustomerId),
+    hasStripeSubscription: Boolean((org as any).stripeSubscriptionId),
   };
 }

@@ -32,7 +32,10 @@ Use this after deploys and when clearing the security release gate.
 - [ ] `ENABLE_BACKGROUND_JOBS=1` (or deploy default) + `NOTIFICATION_EMAIL` / `OPS_DIGEST_EMAIL`.
 - [ ] Optional external cron: `POST /api/cron/jobs` with `X-Cron-Secret`.
 
-## Membership
+## Membership / billing
 
-- [ ] Paid conversion remains offline/invoiced unless you later add billing.
+- [ ] Stripe secrets set: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_INDIVIDUAL_WEEKLY` (see `docs/billing-phase1.md`).
+- [ ] Webhook endpoint live: `POST /api/billing/webhook`.
+- [ ] Customer Portal allows cancel at period end.
+- [ ] Access Desk activate client still works for **comp / offline** orgs (`billing_plan=comp` or no Stripe).
 - [ ] Access Desk activate client → membership email received.

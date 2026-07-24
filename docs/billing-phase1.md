@@ -1,0 +1,55 @@
+# Field Kit billing — Phase 1 (Stripe)
+
+## What shipped
+
+- DB columns on `client_organizations` for Stripe customer/subscription, plan, period end, cancel flag, corporate contract fields (for Phase 3)
+- APIs:
+  - `GET /api/billing/status` — signed-in org billing summary
+  - `POST /api/billing/checkout` — individual weekly Checkout Session
+  - `POST /api/billing/portal` — Stripe Customer Portal (self-cancel / payment method)
+  - `POST /api/billing/webhook` — Stripe events → org entitlement
+- Entitlement still uses `org.status` (`active` / `suspended` / `expired`); webhooks set those fields
+
+## Replit / production secrets
+
+| Secret | Purpose |
+|--------|---------|
+| `STRIPE_SECRET_KEY` | Stripe secret key (`sk_live_…` or `sk_test_…`) |
+| `STRIPE_WEBHOOK_SECRET` | Signing secret from Stripe webhook endpoint (`whsec_…`) |
+| `STRIPE_PRICE_INDIVIDUAL_WEEKLY` | Price id for **$14.99 / week** recurring (`price_…`) |
+| `SITE_URL` | Public HTTPS origin (success/cancel/portal return URLs) |
+
+## Stripe Dashboard setup
+
+1. Create Product **Field Kit Individual** with recurring **weekly** price **$14.99 USD**.
+2. Copy Price id → `STRIPE_PRICE_INDIVIDUAL_WEEKLY`.
+3. Developers → Webhooks → Add endpoint:
+   - URL: `https://YOUR_HOST/api/billing/webhook`
+   - Events: `checkout.session.completed`, `customer.subscription.created`, `customer.subscription.updated`, `customer.subscription.deleted`, `invoice.paid`, `invoice.payment_failed`
+4. Copy webhook signing secret → `STRIPE_WEBHOOK_SECRET`.
+5. Settings → Customer portal: enable **Cancel subscription** (prefer **at period end**).
+
+## Database
+
+```bash
+pnpm --filter @workspace/db run push
+```
+
+## Manual smoke (after secrets)
+
+1. Log in as a **personal** trial member (not platform admin).
+2. `POST /api/billing/checkout` with session cookie → open returned `url`.
+3. Complete test card `4242…` in Checkout.
+4. Confirm org `status=active`, `billingPlan=individual_weekly`.
+5. `POST /api/billing/portal` → cancel at period end → `cancelAtPeriodEnd=true`.
+6. After period end (or test clock), org should become `expired` and tools lock.
+
+## Out of scope (later phases)
+
+- Account / Membership UI buttons (Phase 2)
+- Corporate contract activate + seat quantity (Phase 3)
+- Mobile IAP
+
+## Comp / offline accounts
+
+Set `billing_plan = 'comp'` and `status = 'active'` in Access Desk (manual activate) so complimentary orgs skip checkout.

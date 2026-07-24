@@ -6,6 +6,7 @@ import router from "./routes";
 import { registerRoutes } from "./routes/routes";
 import { registerAuthRoutes } from "./routes/authRoutes";
 import { registerSalesWorkflowRoutes } from "./routes/salesWorkflowRoutes";
+import { registerBillingRoutes, handleStripeWebhook } from "./billing/billingRoutes";
 import { loadSession } from "./auth/middleware";
 import { globalApiLimit } from "./rateLimits";
 import { logger } from "./lib/logger";
@@ -50,6 +51,16 @@ app.use(
 app.use(cookieParser());
 app.use(applySecurityHeaders);
 app.use(requireTrustedMutationOrigin);
+
+// Stripe webhooks need the raw body for signature verification — mount BEFORE json parser
+app.post(
+  "/api/billing/webhook",
+  express.raw({ type: "application/json", limit: "1mb" }),
+  (req, res) => {
+    void handleStripeWebhook(req, res);
+  },
+);
+
 app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || "1mb" }));
 app.use(express.urlencoded({ extended: true, limit: process.env.FORM_BODY_LIMIT || "256kb" }));
 
@@ -64,6 +75,9 @@ app.use("/api", router);
 
 // Field Kit auth (request-access, login, Access Desk)
 registerAuthRoutes(app);
+
+// Stripe billing (checkout, portal, status) — Phase 1
+registerBillingRoutes(app);
 
 // Continuous rep workflow (Sales Command Center)
 registerSalesWorkflowRoutes(app);
