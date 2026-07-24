@@ -27,6 +27,11 @@ function RootLayoutNav() {
       <Stack.Screen name="login" options={{ title: "Sign in", presentation: "modal" }} />
       <Stack.Screen name="brand-video" options={{ title: "Brand Video" }} />
       <Stack.Screen name="staffing" options={{ title: "Branch Staffing" }} />
+      <Stack.Screen
+        name="sales-workflow"
+        options={{ title: "Sales Command Center", headerBackTitle: "Back" }}
+      />
+      <Stack.Screen name="tool-web" options={{ title: "Field Kit", headerBackTitle: "Back" }} />
       <Stack.Screen name="+not-found" />
     </Stack>
   );

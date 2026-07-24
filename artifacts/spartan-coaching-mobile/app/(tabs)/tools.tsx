@@ -22,6 +22,13 @@ import { ReminderPicker } from "@/components/ReminderPicker";
 import { useSavedResponses, type SavedResponse } from "@/hooks/useSavedResponses";
 import { useAuth } from "@/lib/AuthContext";
 import { router, useLocalSearchParams } from "expo-router";
+import {
+  FIELD_KIT_CATEGORIES,
+  FIELD_KIT_TOOLS,
+  type FieldKitTool,
+} from "@workspace/field-kit-catalog";
+import { SpartanCard } from "@/components/ui/SpartanCard";
+import { SectionKicker } from "@/components/ui/SectionKicker";
 
 type ToolTab = "objection" | "playbook" | "email" | "roleplay" | "research" | "weekly" | "cold";
 
@@ -319,7 +326,8 @@ export default function ToolsScreen() {
   const rnTabBarHeight = useContext(BottomTabBarHeightContext);
   const tabBarHeight = rnTabBarHeight ?? insets.bottom + 49;
   const params = useLocalSearchParams<{ tab?: string | string[] }>();
-  const [activeTab, setActiveTab] = useState<ToolTab>("objection");
+  const [activeTab, setActiveTab] = useState<ToolTab | null>(null);
+  const [browseMode, setBrowseMode] = useState(true);
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : tabBarHeight;
@@ -329,8 +337,32 @@ export default function ToolsScreen() {
     const tab = Array.isArray(raw) ? raw[0] : raw;
     if (tab && VALID_TABS.has(tab as ToolTab)) {
       setActiveTab(tab as ToolTab);
+      setBrowseMode(false);
+    } else if (!tab) {
+      setBrowseMode(true);
+      setActiveTab(null);
     }
   }, [params.tab]);
+
+  const openCatalogTool = (tool: FieldKitTool) => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    if (tool.mobile === "webview") {
+      router.push({
+        pathname: "/tool-web",
+        params: { toolId: tool.id, path: tool.path },
+      } as any);
+      return;
+    }
+    if (tool.mobileRoute && !tool.mobileToolTab) {
+      router.push(tool.mobileRoute as any);
+      return;
+    }
+    if (tool.mobileToolTab && VALID_TABS.has(tool.mobileToolTab as ToolTab)) {
+      setActiveTab(tool.mobileToolTab as ToolTab);
+      setBrowseMode(false);
+      router.setParams({ tab: tool.mobileToolTab });
+    }
+  };
 
   const requireAccess = (): boolean => {
     if (canUseFieldKit) return true;
@@ -795,47 +827,149 @@ export default function ToolsScreen() {
         </View>
       )}
 
-      {/* Tool tabs — horizontal scroll for field companion parity */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        style={[styles.tabBar, { backgroundColor: colors.background, borderBottomColor: colors.border }]}
-        contentContainerStyle={{ paddingHorizontal: 4 }}
-      >
-        {TOOL_TABS.map((tab) => (
-          <Pressable
-            key={tab.key}
-            onPress={() => {
-              Haptics.selectionAsync();
-              setActiveTab(tab.key);
+      {/* Catalog browse — matches web Tools map by category */}
+      {browseMode && (
+        <ScrollView
+          style={{ flex: 1, backgroundColor: colors.background }}
+          contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: bottomPad + 24, paddingTop: 12 }}
+          showsVerticalScrollIndicator={false}
+        >
+          <SectionKicker>Field Kit · All tools</SectionKicker>
+          <Text
+            style={{
+              color: colors.foreground,
+              fontSize: 22,
+              fontWeight: "900",
+              marginTop: 8,
+              marginBottom: 6,
+              fontFamily: "Inter_700Bold",
             }}
-            style={({ pressed }) => [
-              styles.tabBtn,
-              activeTab === tab.key && styles.tabBtnActive,
-              activeTab === tab.key && { borderBottomColor: colors.primary },
-              { opacity: pressed ? 0.75 : 1, flex: 0, paddingHorizontal: 12, minWidth: 88 },
-            ]}
           >
-            <Feather
-              name={tab.icon}
-              size={15}
-              color={activeTab === tab.key ? colors.primary : colors.mutedForeground}
-            />
-            <Text
-              style={[
-                styles.tabLabel,
-                { color: activeTab === tab.key ? colors.primary : colors.mutedForeground },
-                { fontFamily: activeTab === tab.key ? "Inter_600SemiBold" : "Inter_400Regular" },
-              ]}
+            Same kit as the web
+          </Text>
+          <Text style={{ color: colors.mutedForeground, fontSize: 13, lineHeight: 19, marginBottom: 16 }}>
+            Prepare · Practice · Plan · Measure. Native tools open here; calculators open the full Field Kit when
+            needed.
+          </Text>
+
+          {FIELD_KIT_CATEGORIES.filter((c) => c !== "Learn").map((cat) => {
+            const items = FIELD_KIT_TOOLS.filter((t) => t.category === cat);
+            if (!items.length) return null;
+            return (
+              <View key={cat} style={{ marginBottom: 18 }}>
+                <Text
+                  style={{
+                    color: colors.primary,
+                    fontSize: 11,
+                    fontWeight: "800",
+                    letterSpacing: 1.4,
+                    marginBottom: 8,
+                    fontFamily: "Inter_700Bold",
+                  }}
+                >
+                  {cat.toUpperCase()}
+                </Text>
+                {items.map((tool) => (
+                  <Pressable key={tool.id} onPress={() => openCatalogTool(tool)} style={{ marginBottom: 8 }}>
+                    <SpartanCard emphasized={tool.id === "sales-workflow"}>
+                      <View style={{ flexDirection: "row", justifyContent: "space-between", gap: 8 }}>
+                        <View style={{ flex: 1 }}>
+                          <Text style={{ color: colors.foreground, fontWeight: "800", fontSize: 15 }}>
+                            {tool.title}
+                          </Text>
+                          <Text
+                            style={{
+                              color: colors.mutedForeground,
+                              fontSize: 12,
+                              marginTop: 4,
+                              lineHeight: 17,
+                            }}
+                            numberOfLines={2}
+                          >
+                            {tool.description}
+                          </Text>
+                          {tool.mobile === "webview" && (
+                            <Text style={{ color: colors.primary, fontSize: 11, fontWeight: "700", marginTop: 6 }}>
+                              Full Field Kit view
+                            </Text>
+                          )}
+                        </View>
+                        <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
+                      </View>
+                    </SpartanCard>
+                  </Pressable>
+                ))}
+              </View>
+            );
+          })}
+        </ScrollView>
+      )}
+
+      {/* Tool tabs — only when a native tool is open */}
+      {!browseMode && (
+        <>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              borderBottomWidth: 1,
+              borderBottomColor: colors.border,
+            }}
+          >
+            <Pressable
+              onPress={() => {
+                setBrowseMode(true);
+                setActiveTab(null);
+                router.setParams({ tab: undefined as any });
+              }}
+              style={{ paddingHorizontal: 12, paddingVertical: 12 }}
             >
-              {tab.label}
-            </Text>
-          </Pressable>
-        ))}
-      </ScrollView>
+              <Text style={{ color: colors.primary, fontWeight: "700", fontSize: 13 }}>← All tools</Text>
+            </Pressable>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              style={[styles.tabBar, { backgroundColor: colors.background, borderBottomWidth: 0, flex: 1 }]}
+              contentContainerStyle={{ paddingHorizontal: 4 }}
+            >
+              {TOOL_TABS.map((tab) => (
+                <Pressable
+                  key={tab.key}
+                  onPress={() => {
+                    Haptics.selectionAsync();
+                    setActiveTab(tab.key);
+                    setBrowseMode(false);
+                  }}
+                  style={({ pressed }) => [
+                    styles.tabBtn,
+                    activeTab === tab.key && styles.tabBtnActive,
+                    activeTab === tab.key && { borderBottomColor: colors.primary },
+                    { opacity: pressed ? 0.75 : 1, flex: 0, paddingHorizontal: 12, minWidth: 88 },
+                  ]}
+                >
+                  <Feather
+                    name={tab.icon}
+                    size={15}
+                    color={activeTab === tab.key ? colors.primary : colors.mutedForeground}
+                  />
+                  <Text
+                    style={[
+                      styles.tabLabel,
+                      { color: activeTab === tab.key ? colors.primary : colors.mutedForeground },
+                      { fontFamily: activeTab === tab.key ? "Inter_600SemiBold" : "Inter_400Regular" },
+                    ]}
+                  >
+                    {tab.label}
+                  </Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+          </View>
+        </>
+      )}
 
       {/* Active roleplay chat — flex layout with sticky input bar */}
-      {activeTab === "roleplay" && roleplayPhase === "active" && roleplaySession ? (
+      {!browseMode && activeTab === "roleplay" && roleplayPhase === "active" && roleplaySession ? (
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -964,7 +1098,7 @@ export default function ToolsScreen() {
             </Text>
           </View>
         </KeyboardAvoidingView>
-      ) : (
+      ) : !browseMode && activeTab ? (
         /* All other tabs + roleplay select/feedback — normal scrollable layout */
         <KeyboardAvoidingView
           style={{ flex: 1 }}

@@ -2,18 +2,32 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const TOKEN_KEY = "spartan_session_token";
 
-if (!process.env.EXPO_PUBLIC_DOMAIN) {
+/**
+ * Production builds must set EXPO_PUBLIC_API_URL (full origin) or EXPO_PUBLIC_DOMAIN (host only).
+ * Prefer EXPO_PUBLIC_API_URL=https://your-host.example
+ * See artifacts/spartan-coaching-mobile/store/README.md for EAS secrets.
+ */
+export function getBaseUrl(): string {
+  const full = process.env.EXPO_PUBLIC_API_URL?.trim();
+  if (full) return full.replace(/\/$/, "");
+  const domain = process.env.EXPO_PUBLIC_DOMAIN?.trim();
+  if (domain) {
+    if (domain.startsWith("http://") || domain.startsWith("https://")) {
+      return domain.replace(/\/$/, "");
+    }
+    return `https://${domain}`;
+  }
+  return "";
+}
+
+if (!getBaseUrl()) {
   console.error(
-    "[Spartan] EXPO_PUBLIC_DOMAIN is not set — all API calls will fail. " +
-    "Set it as an EAS secret before building for TestFlight or production. " +
-    "See artifacts/spartan-coaching-mobile/store/README.md for setup steps."
+    "[Spartan] EXPO_PUBLIC_API_URL / EXPO_PUBLIC_DOMAIN is not set — API calls will fail. " +
+      "Set an EAS secret before TestFlight/production builds.",
   );
 }
 
-const getBase = () =>
-  process.env.EXPO_PUBLIC_DOMAIN
-    ? `https://${process.env.EXPO_PUBLIC_DOMAIN}`
-    : "";
+const getBase = () => getBaseUrl();
 
 export async function getSessionToken(): Promise<string | null> {
   try {

@@ -5,7 +5,7 @@ import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
 import { SymbolView } from "expo-symbols";
 import { Feather } from "@expo/vector-icons";
 import React from "react";
-import { Platform, StyleSheet, View, useColorScheme } from "react-native";
+import { Platform, StyleSheet, View } from "react-native";
 import { useColors } from "@/hooks/useColors";
 
 function NativeTabLayout() {
@@ -15,6 +15,10 @@ function NativeTabLayout() {
         <Icon sf={{ default: "house", selected: "house.fill" }} />
         <Label>Home</Label>
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="command">
+        <Icon sf={{ default: "target", selected: "target" }} />
+        <Label>Command</Label>
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="tools">
         <Icon sf={{ default: "wand.and.stars", selected: "wand.and.stars" }} />
         <Label>Tools</Label>
@@ -23,13 +27,13 @@ function NativeTabLayout() {
         <Icon sf={{ default: "book", selected: "book.fill" }} />
         <Label>Learn</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="contact">
-        <Icon sf={{ default: "envelope", selected: "envelope.fill" }} />
-        <Label>Contact</Label>
-      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="account">
         <Icon sf={{ default: "person", selected: "person.fill" }} />
         <Label>Account</Label>
+      </NativeTabs.Trigger>
+      {/* Contact remains a route but is hidden from primary shell (match web chrome). */}
+      <NativeTabs.Trigger name="contact" hidden>
+        <Label>Contact</Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );
@@ -37,22 +41,20 @@ function NativeTabLayout() {
 
 function ClassicTabLayout() {
   const colors = useColors();
-  const colorScheme = useColorScheme();
-  const isDark = colorScheme === "dark";
   const isIOS = Platform.OS === "ios";
   const isWeb = Platform.OS === "web";
 
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "#e8291e",
-        tabBarInactiveTintColor: "rgba(255,255,255,0.35)",
+        tabBarActiveTintColor: colors.primary,
+        tabBarInactiveTintColor: colors.mutedForeground,
         headerShown: false,
         tabBarStyle: {
           position: "absolute",
-          backgroundColor: isIOS ? "transparent" : "#0a0a0a",
+          backgroundColor: isIOS ? "transparent" : colors.background,
           borderTopWidth: 0,
-          borderTopColor: "rgba(255,255,255,0.08)",
+          borderTopColor: colors.border,
           elevation: 0,
           ...(isWeb ? { height: 84 } : {}),
         },
@@ -64,7 +66,7 @@ function ClassicTabLayout() {
               style={StyleSheet.absoluteFill}
             />
           ) : isWeb ? (
-            <View style={[StyleSheet.absoluteFill, { backgroundColor: "#0a0a0a" }]} />
+            <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.background }]} />
           ) : null,
       }}
     >
@@ -77,6 +79,18 @@ function ClassicTabLayout() {
               <SymbolView name="house" tintColor={color} size={24} />
             ) : (
               <Feather name="home" size={22} color={color} />
+            ),
+        }}
+      />
+      <Tabs.Screen
+        name="command"
+        options={{
+          title: "Command",
+          tabBarIcon: ({ color }) =>
+            isIOS ? (
+              <SymbolView name="target" tintColor={color} size={24} />
+            ) : (
+              <Feather name="navigation" size={22} color={color} />
             ),
         }}
       />
@@ -105,18 +119,6 @@ function ClassicTabLayout() {
         }}
       />
       <Tabs.Screen
-        name="contact"
-        options={{
-          title: "Contact",
-          tabBarIcon: ({ color }) =>
-            isIOS ? (
-              <SymbolView name="envelope" tintColor={color} size={24} />
-            ) : (
-              <Feather name="mail" size={22} color={color} />
-            ),
-        }}
-      />
-      <Tabs.Screen
         name="account"
         options={{
           title: "Account",
@@ -126,6 +128,13 @@ function ClassicTabLayout() {
             ) : (
               <Feather name="user" size={22} color={color} />
             ),
+        }}
+      />
+      <Tabs.Screen
+        name="contact"
+        options={{
+          href: null,
+          title: "Contact",
         }}
       />
     </Tabs>
