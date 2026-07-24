@@ -29,6 +29,7 @@ import {
 } from "@workspace/field-kit-catalog";
 import { SpartanCard } from "@/components/ui/SpartanCard";
 import { SectionKicker } from "@/components/ui/SectionKicker";
+import { CitationsBlock, type CitationItem } from "@/components/ui/CitationsBlock";
 
 type ToolTab = "objection" | "playbook" | "email" | "roleplay" | "research" | "weekly" | "cold";
 
@@ -378,6 +379,7 @@ export default function ToolsScreen() {
   // Objection Handler state
   const [objection, setObjection] = useState("");
   const [objectionResult, setObjectionResult] = useState("");
+  const [objectionCitations, setObjectionCitations] = useState<CitationItem[]>([]);
   const [objectionLoading, setObjectionLoading] = useState(false);
   const [objectionError, setObjectionError] = useState<string | null>(null);
   const [objectionSavedId, setObjectionSavedId] = useState<string | null>(null);
@@ -403,6 +405,7 @@ export default function ToolsScreen() {
   const [researchQuery, setResearchQuery] = useState("");
   const [researchResult, setResearchResult] = useState("");
   const [researchSources, setResearchSources] = useState<Array<{ title: string; uri: string }>>([]);
+  const [researchCitations, setResearchCitations] = useState<CitationItem[]>([]);
   const [researchLoading, setResearchLoading] = useState(false);
   const [researchError, setResearchError] = useState<string | null>(null);
 
@@ -483,11 +486,16 @@ export default function ToolsScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setObjectionLoading(true);
     setObjectionResult("");
+    setObjectionCitations([]);
     setObjectionError(null);
     setObjectionSavedId(null);
     try {
-      const data = await apiPost<{ response: string }>("/api/objections", { objection });
+      const data = await apiPost<{
+        response: string;
+        citations?: CitationItem[];
+      }>("/api/objections", { objection });
       setObjectionResult(data.response);
+      setObjectionCitations(data.citations || []);
     } catch {
       setObjectionError("Something went wrong. Please try again.");
     } finally {
@@ -614,14 +622,17 @@ export default function ToolsScreen() {
     setResearchLoading(true);
     setResearchResult("");
     setResearchSources([]);
+    setResearchCitations([]);
     setResearchError(null);
     try {
-      const data = await apiPost<{ text: string; sources?: Array<{ title: string; uri: string }> }>(
-        "/api/research",
-        { query: researchQuery, useGrounding: true },
-      );
+      const data = await apiPost<{
+        text: string;
+        sources?: Array<{ title: string; uri: string }>;
+        spartanCitations?: CitationItem[];
+      }>("/api/research", { query: researchQuery, useGrounding: true });
       setResearchResult(data.text || "");
       setResearchSources(data.sources || []);
+      setResearchCitations(data.spartanCitations || []);
     } catch {
       setResearchError("Something went wrong. Please try again.");
     } finally {
@@ -1148,6 +1159,7 @@ export default function ToolsScreen() {
               {!!objectionResult && (
                 <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
                   <Text style={[styles.resultText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>{objectionResult}</Text>
+                  <CitationsBlock items={objectionCitations} title="Spartan Method sources" />
                 </View>
               )}
               {!!objectionResult && (
@@ -1464,10 +1476,11 @@ export default function ToolsScreen() {
                   <Text style={[styles.resultText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>
                     {researchResult}
                   </Text>
+                  <CitationsBlock items={researchCitations} title="Spartan Method grounding" />
                   {researchSources.length > 0 && (
                     <View style={{ marginTop: 12, gap: 6 }}>
                       <Text style={{ color: colors.mutedForeground, fontFamily: "Inter_600SemiBold", fontSize: 12 }}>
-                        Sources
+                        Web sources
                       </Text>
                       {researchSources.slice(0, 5).map((s, i) => (
                         <Text key={i} style={{ color: colors.primary, fontSize: 12, fontFamily: "Inter_400Regular" }}>

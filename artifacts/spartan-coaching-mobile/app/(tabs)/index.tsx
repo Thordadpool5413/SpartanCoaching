@@ -30,6 +30,10 @@ import {
   visibleChecklist,
   type ChecklistId,
 } from "@/lib/onboarding";
+import { SectionKicker } from "@/components/ui/SectionKicker";
+import { SpartanCard } from "@/components/ui/SpartanCard";
+import { SpartanButton } from "@/components/ui/SpartanButton";
+import { FIELD_KIT_WHAT } from "@workspace/field-kit-catalog";
 
 const SUGGESTIONS = [
   "What are hospice eligibility criteria for heart failure?",
@@ -348,21 +352,36 @@ export default function HomeScreen() {
       showsVerticalScrollIndicator={false}
     >
       <LinearGradient
-        colors={[colors.heroBackground, "#0f0f0f", "#1a0404"]}
+        colors={[colors.heroBackground, colors.background, "#1a0404"]}
         style={[styles.fieldHero, { paddingTop: topPad + 16 }]}
       >
-        <Text style={{ color: colors.primary, fontSize: 11, fontWeight: "800", letterSpacing: 2 }}>
-          FIELD KIT
-        </Text>
-        <Text style={{ color: "#fff", fontSize: 28, fontWeight: "900", marginTop: 8 }}>
+        <SectionKicker>Field Kit home</SectionKicker>
+        <Text
+          style={{
+            color: colors.heroForeground,
+            fontSize: 28,
+            fontWeight: "900",
+            marginTop: 8,
+            letterSpacing: -0.4,
+            fontFamily: "Inter_700Bold",
+          }}
+        >
           {isFirstSession
             ? `Make this session count${firstName ? `, ${firstName}` : ""}`
             : `Welcome back${firstName ? `, ${firstName}` : ""}`}
         </Text>
-        <Text style={{ color: "rgba(255,255,255,0.65)", marginTop: 6, fontSize: 14, lineHeight: 20 }}>
+        <Text
+          style={{
+            color: colors.heroMuted,
+            marginTop: 6,
+            fontSize: 14,
+            lineHeight: 20,
+            fontFamily: "Inter_400Regular",
+          }}
+        >
           {isFirstSession
-            ? "Role → Sales Command Center → debrief. That beats browsing every tab."
-            : "Run the day from Sales Command Center — then use satellite tools."}
+            ? "Same Field Kit as the web: role → Command Center → debrief."
+            : FIELD_KIT_WHAT}
         </Text>
         {user?.organization?.status === "trial" && trialLabel ? (
           <View
@@ -406,34 +425,43 @@ export default function HomeScreen() {
         )}
       </LinearGradient>
 
-      {/* Daily spine — Sales Command Center */}
+      {/* Daily spine — Sales Command Center (matches web portal hub) */}
       <View style={[styles.section, { paddingTop: 16 }]} testID="section-command-center-hub">
-        <Pressable
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-            router.push("/sales-workflow" as any);
-          }}
-          style={[
-            styles.startCard,
-            {
-              backgroundColor: colors.card,
-              borderColor: colors.primary,
-              borderWidth: 1.5,
-            },
-          ]}
-          testID="button-open-command-center"
-        >
-          <Text style={{ color: colors.primary, fontSize: 11, fontWeight: "800", letterSpacing: 1.2 }}>
-            DAILY OPERATING SYSTEM
-          </Text>
-          <Text style={{ color: colors.foreground, fontSize: 18, fontWeight: "900", marginTop: 6 }}>
+        <SpartanCard emphasized>
+          <SectionKicker>Daily operating system</SectionKicker>
+          <Text
+            style={{
+              color: colors.foreground,
+              fontSize: 20,
+              fontWeight: "900",
+              marginTop: 8,
+              fontFamily: "Inter_700Bold",
+            }}
+          >
             Sales Command Center
           </Text>
-          <Text style={{ color: colors.mutedForeground, fontSize: 13, marginTop: 4, lineHeight: 18 }}>
-            Next call → prepare → practice → capture outcome → next step. Satellite tools support this spine.
+          <Text
+            style={{
+              color: colors.mutedForeground,
+              fontSize: 13,
+              marginTop: 6,
+              lineHeight: 19,
+              fontFamily: "Inter_400Regular",
+            }}
+          >
+            Next call → prepare → practice → capture outcome → next step. Satellite tools support this spine — same
+            kit as the website.
           </Text>
-          <Text style={{ color: colors.primary, fontWeight: "800", marginTop: 12 }}>Open Command Center →</Text>
-        </Pressable>
+          <SpartanButton
+            title="Open Command Center"
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              router.push("/sales-workflow" as any);
+            }}
+            style={{ marginTop: 14 }}
+            testID="button-open-command-center"
+          />
+        </SpartanCard>
       </View>
 
       {/* First-session 3-step path */}

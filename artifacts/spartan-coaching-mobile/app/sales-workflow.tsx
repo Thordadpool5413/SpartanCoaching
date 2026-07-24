@@ -14,6 +14,10 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
 import { apiGet, apiPost } from "@/lib/api";
+import { SectionKicker } from "@/components/ui/SectionKicker";
+import { SpartanCard } from "@/components/ui/SpartanCard";
+import { SpartanButton } from "@/components/ui/SpartanButton";
+import { getToolById } from "@workspace/field-kit-catalog";
 
 type WorkflowCall = {
   id: string;
@@ -184,13 +188,17 @@ export default function SalesWorkflowScreen() {
     }
   };
 
+  const tool = getToolById("sales-workflow");
+
   if (!canUseFieldKit) {
     return (
-      <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <Text style={[styles.title, { color: colors.foreground }]}>Field Kit access required</Text>
-        <Pressable onPress={() => router.push("/(tabs)/account")} style={[styles.primary, { backgroundColor: colors.primary }]}>
-          <Text style={styles.primaryText}>Open account</Text>
-        </Pressable>
+      <View style={[styles.center, { backgroundColor: colors.background, padding: 24 }]}>
+        <SectionKicker>Field Kit</SectionKicker>
+        <Text style={[styles.title, { color: colors.foreground, marginTop: 8 }]}>Access required</Text>
+        <Text style={{ color: colors.mutedForeground, textAlign: "center", marginTop: 8, marginBottom: 16 }}>
+          Sign in with an active evaluation or client account to use Command Center.
+        </Text>
+        <SpartanButton title="Open account" onPress={() => router.push("/(tabs)/account")} />
       </View>
     );
   }
@@ -202,17 +210,22 @@ export default function SalesWorkflowScreen() {
         style={{ flex: 1, backgroundColor: colors.background }}
         contentContainerStyle={{ padding: 18, paddingBottom: insets.bottom + 32 }}
       >
-        <View style={styles.heading}>
-          <View style={[styles.icon, { backgroundColor: colors.accent }]}>
-            <Feather name="calendar" size={20} color={colors.primary} />
-          </View>
-          <View style={{ flex: 1 }}>
-            <Text style={[styles.title, { color: colors.foreground }]}>Your sales day</Text>
-            <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
-              Plan, practice, complete, coach, and schedule the next step.
-            </Text>
-          </View>
-        </View>
+        <SectionKicker>Field Kit · Daily spine</SectionKicker>
+        <Text style={[styles.title, { color: colors.foreground, marginTop: 8 }]}>
+          {tool?.title || "Sales Command Center"}
+        </Text>
+        <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
+          {tool?.description || "Plan, practice, complete, coach, and schedule the next step."}
+        </Text>
+
+        <SpartanCard style={{ marginTop: 12, marginBottom: 14 }}>
+          <Text style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 17 }}>
+            When: {tool?.whenToUse}
+          </Text>
+          <Text style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 17, marginTop: 6 }}>
+            Why: {tool?.why}
+          </Text>
+        </SpartanCard>
 
         <View style={styles.dateRow}>
           <TextInput
@@ -222,9 +235,11 @@ export default function SalesWorkflowScreen() {
             placeholderTextColor={colors.mutedForeground}
             style={[styles.input, { color: colors.foreground, borderColor: colors.border, backgroundColor: colors.card }]}
           />
-          <Pressable onPress={() => setShowSchedule((value) => !value)} style={[styles.primary, { backgroundColor: colors.primary }]}>
-            <Text style={styles.primaryText}>{showSchedule ? "Close" : "Add call"}</Text>
-          </Pressable>
+          <SpartanButton
+            title={showSchedule ? "Close" : "Add call"}
+            onPress={() => setShowSchedule((value) => !value)}
+            style={{ minWidth: 110 }}
+          />
         </View>
 
         {showSchedule && (
