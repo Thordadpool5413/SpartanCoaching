@@ -597,6 +597,9 @@ importers:
       '@workspace/api-client-react':
         specifier: workspace:*
         version: link:../../lib/api-client-react
+      '@workspace/field-kit-catalog':
+        specifier: workspace:*
+        version: link:../../lib/field-kit-catalog
       '@workspace/hospice-sales-runtime':
         specifier: workspace:*
         version: link:../../lib/hospice-sales-runtime
@@ -757,6 +760,12 @@ importers:
       '@workspace/branch-engine':
         specifier: workspace:*
         version: link:../../lib/branch-engine
+      '@workspace/design-tokens':
+        specifier: workspace:*
+        version: link:../../lib/design-tokens
+      '@workspace/field-kit-catalog':
+        specifier: workspace:*
+        version: link:../../lib/field-kit-catalog
       babel-plugin-react-compiler:
         specifier: ^19.0.0-beta-e993439-20250117
         version: 19.0.0-beta-ebf51a3-20250411
@@ -987,6 +996,10 @@ importers:
       drizzle-kit:
         specifier: ^0.31.10
         version: 0.31.10
+
+  lib/design-tokens: {}
+
+  lib/field-kit-catalog: {}
 
   lib/hospice-sales-runtime:
     dependencies:
