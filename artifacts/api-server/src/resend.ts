@@ -1209,7 +1209,7 @@ export async function sendMembershipActivatedEmail(
   }
 }
 
-/** Daily ops snapshot for Nick (pending, follow-ups, trials). */
+/** Daily ops snapshot for Nick (pending, follow-ups, trials, billing). */
 export async function sendOpsDigestEmail(
   toEmail: string,
   snapshot: {
@@ -1220,20 +1220,26 @@ export async function sendOpsDigestEmail(
     expired: number;
     won: number;
     toolUsesLast7Days: number;
+    billingPastDue?: number;
+    billingCanceled?: number;
+    billingActivePaid?: number;
   },
 ): Promise<boolean> {
   try {
     const { client, fromEmail } = await getUncachableResendClient();
     const siteUrl = getSiteUrl();
+    const pastDue = snapshot.billingPastDue ?? 0;
+    const canceled = snapshot.billingCanceled ?? 0;
     const hot =
       snapshot.pendingRequests > 0 ||
       snapshot.followUpsDue > 0 ||
-      snapshot.trialsEndingSoon4h > 0;
+      snapshot.trialsEndingSoon4h > 0 ||
+      pastDue > 0;
     await sendEmail(client, {
       from: fromEmail,
       to: toEmail,
       subject: hot
-        ? `[Action] Spartan ops — ${snapshot.pendingRequests} pending · ${snapshot.followUpsDue} follow-ups`
+        ? `[Action] Spartan ops — ${snapshot.pendingRequests} pending · ${pastDue} past due`
         : `Spartan ops digest — quiet day`,
       html: authEmailShell(`
         <h2 style="margin:0 0 16px;">Access Desk snapshot</h2>
@@ -1247,6 +1253,9 @@ export async function sendOpsDigestEmail(
           <tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold;">Trials ending ≤4h</td><td style="padding:8px;border-bottom:1px solid #eee;">${snapshot.trialsEndingSoon4h}</td></tr>
           <tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold;">Expired access</td><td style="padding:8px;border-bottom:1px solid #eee;">${snapshot.expired}</td></tr>
           <tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold;">Won clients</td><td style="padding:8px;border-bottom:1px solid #eee;">${snapshot.won}</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold;">Paid active (billing)</td><td style="padding:8px;border-bottom:1px solid #eee;">${snapshot.billingActivePaid ?? 0}</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold;color:#b91c1c;">Billing past due</td><td style="padding:8px;border-bottom:1px solid #eee;color:#b91c1c;">${pastDue}</td></tr>
+          <tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold;">Billing canceled</td><td style="padding:8px;border-bottom:1px solid #eee;">${canceled}</td></tr>
           <tr><td style="padding:8px;border-bottom:1px solid #eee;font-weight:bold;">Tool uses (7d)</td><td style="padding:8px;border-bottom:1px solid #eee;">${snapshot.toolUsesLast7Days}</td></tr>
         </table>
         <div style="text-align:center;margin:24px 0;">
@@ -1257,6 +1266,117 @@ export async function sendOpsDigestEmail(
     return true;
   } catch (error) {
     console.error("Failed to send ops digest email:", error);
+    return false;
+  }
+}
+
+/** Member: payment failed — update card via Account → Manage billing. */
+export async function sendBillingPaymentFailedEmail(
+  toEmail: string,
+  toName: string,
+  orgName: string,
+): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    const siteUrl = getSiteUrl();
+    await sendEmail(client, {
+      from: fromEmail,
+      to: toEmail,
+      subject: "Action needed: Field Kit payment failed",
+      html: authEmailShell(`
+        <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
+        <p style="margin:0 0 16px;line-height:1.6;">We could not process the latest payment for <strong>${orgName}</strong> Field Kit access. Tools may be locked until billing is updated.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Update your payment method under <strong>Account → Manage billing</strong>. If you already fixed this, you can ignore this message.</p>
+        <div style="text-align:center;margin:28px 0;">
+          <a href="${siteUrl}/account" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;">Open Account</a>
+        </div>
+        <p style="margin:0 0 16px;line-height:1.6;font-size:14px;color:#555;">Need help? Reply to this email or book a call. Never enter PHI into tools.</p>
+        <p style="margin:0 0 4px;font-weight:bold;">Nick Lynch</p>
+        <p style="margin:0;color:#555;font-size:14px;">Founder, Spartan Coaching</p>
+      `),
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to send payment failed email:", error);
+    return false;
+  }
+}
+
+/** Member: subscription canceled (immediate or at period end). */
+export async function sendBillingCanceledEmail(
+  toEmail: string,
+  toName: string,
+  orgName: string,
+  opts: { atPeriodEnd?: boolean; periodEnd?: Date | null },
+): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    const siteUrl = getSiteUrl();
+    const periodLabel = opts.periodEnd
+      ? opts.periodEnd.toLocaleDateString("en-US", {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+          year: "numeric",
+        })
+      : null;
+    const body = opts.atPeriodEnd
+      ? `<p style="margin:0 0 16px;line-height:1.6;">Your Field Kit subscription for <strong>${orgName}</strong> is set to <strong>cancel at period end</strong>${periodLabel ? ` (${periodLabel})` : ""}. You keep access until then. You can reverse the cancel in Account → Manage billing before that date.</p>`
+      : `<p style="margin:0 0 16px;line-height:1.6;">Your Field Kit subscription for <strong>${orgName}</strong> has been <strong>canceled</strong>. Tools are locked. You can re-subscribe anytime from Account (individuals $14.99/week) or contact us for team contracts.</p>`;
+    await sendEmail(client, {
+      from: fromEmail,
+      to: toEmail,
+      subject: opts.atPeriodEnd
+        ? "Field Kit: cancellation scheduled"
+        : "Field Kit subscription canceled",
+      html: authEmailShell(`
+        <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
+        ${body}
+        <div style="text-align:center;margin:28px 0;">
+          <a href="${siteUrl}/account" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;">Manage membership</a>
+        </div>
+        <p style="margin:0 0 4px;font-weight:bold;">Nick Lynch</p>
+        <p style="margin:0;color:#555;font-size:14px;">Founder, Spartan Coaching</p>
+      `),
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to send billing canceled email:", error);
+    return false;
+  }
+}
+
+/** Admin: past-due org needs attention. */
+export async function sendBillingPastDueAdminAlert(
+  toEmail: string,
+  data: {
+    orgId: number;
+    orgName: string;
+    billingPlan?: string | null;
+    billingStatus?: string | null;
+    memberEmails: string[];
+  },
+): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    const siteUrl = getSiteUrl();
+    await sendEmail(client, {
+      from: fromEmail,
+      to: toEmail,
+      subject: `[Billing] Past due — ${data.orgName}`,
+      html: authEmailShell(`
+        <h2 style="margin:0 0 16px;">Payment failed / past due</h2>
+        <p style="margin:0 0 12px;line-height:1.6;"><strong>${data.orgName}</strong> (org #${data.orgId})</p>
+        <p style="margin:0 0 8px;font-size:14px;color:#555;">Plan: ${data.billingPlan || "—"} · Status: ${data.billingStatus || "past_due"}</p>
+        <p style="margin:0 0 16px;font-size:14px;color:#555;">Members: ${data.memberEmails.join(", ") || "—"}</p>
+        <div style="text-align:center;margin:24px 0;">
+          <a href="${siteUrl}/admin/access-desk" style="display:inline-block;background:#b91c1c;color:white;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:bold;">Open Access Desk</a>
+        </div>
+      `),
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to send past-due admin alert:", error);
     return false;
   }
 }

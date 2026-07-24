@@ -146,12 +146,32 @@ export function AccessDesk() {
     [orgs],
   );
 
+  const billingPastDue = useMemo(
+    () =>
+      orgs.filter(
+        (o) =>
+          o.billingStatus === "past_due" ||
+          o.billingStatus === "unpaid" ||
+          o.status === "suspended",
+      ),
+    [orgs],
+  );
+  const billingCanceled = useMemo(
+    () =>
+      orgs.filter((o) => o.billingStatus === "canceled" || o.cancelAtPeriodEnd),
+    [orgs],
+  );
+
   const filteredOrgs =
     orgFilter === "all"
       ? orgs
       : orgFilter === "follow_ups"
         ? followUpsDue
-        : orgs.filter((o) => o.pipelineStatus === orgFilter || o.status === orgFilter);
+        : orgFilter === "past_due"
+          ? billingPastDue
+          : orgFilter === "billing_canceled"
+            ? billingCanceled
+            : orgs.filter((o) => o.pipelineStatus === orgFilter || o.status === orgFilter);
 
   const m = metrics as any;
 
@@ -417,6 +437,18 @@ export function AccessDesk() {
             },
             { label: "In trial", value: m.funnel?.inTrial ?? m.organizations?.trial ?? 0 },
             { label: "Won clients", value: m.funnel?.won ?? m.pipeline?.won ?? 0 },
+            {
+              label: "Billing past due",
+              value: billingPastDue.length,
+              hot: billingPastDue.length > 0,
+              onClick: () => setOrgFilter("past_due"),
+            },
+            {
+              label: "Billing canceling",
+              value: billingCanceled.length,
+              hot: billingCanceled.length > 0,
+              onClick: () => setOrgFilter("billing_canceled"),
+            },
             {
               label: "Approve rate",
               value:
@@ -753,6 +785,14 @@ export function AccessDesk() {
                 { id: "trial", label: "Trial" },
                 { id: "follow_up", label: "Follow-up" },
                 { id: "won", label: "Won" },
+                {
+                  id: "past_due",
+                  label: `Past due${billingPastDue.length ? ` (${billingPastDue.length})` : ""}`,
+                },
+                {
+                  id: "billing_canceled",
+                  label: `Billing cancel${billingCanceled.length ? ` (${billingCanceled.length})` : ""}`,
+                },
                 { id: "expired", label: "Expired access" },
                 { id: "lost", label: "Lost" },
               ].map((f) => (
@@ -785,7 +825,11 @@ export function AccessDesk() {
                   type="button"
                   onClick={() => setSelectedOrgId(org.id)}
                   className={`w-full text-left border rounded-lg p-4 hover:border-primary/50 transition-colors ${
-                    due ? "border-amber-500/40 bg-amber-500/5" : "border-border"
+                    org.billingStatus === "past_due" || org.status === "suspended"
+                      ? "border-red-500/40 bg-red-500/5"
+                      : due
+                        ? "border-amber-500/40 bg-amber-500/5"
+                        : "border-border"
                   }`}
                   data-testid={`org-row-${org.id}`}
                 >
@@ -808,6 +852,22 @@ export function AccessDesk() {
                         {due && (
                           <Badge className="ml-1 bg-amber-500/20 text-amber-200">Follow-up due</Badge>
                         )}
+                        {(org.billingStatus === "past_due" || org.billingStatus === "unpaid") && (
+                          <Badge className="ml-1 bg-red-500/20 text-red-200">Past due</Badge>
+                        )}
+                        {org.cancelAtPeriodEnd && (
+                          <Badge className="ml-1 bg-amber-500/20 text-amber-200">Canceling</Badge>
+                        )}
+                        {org.billingPlan === "corporate_contract" && (
+                          <Badge className="ml-1" variant="outline">
+                            Contract
+                          </Badge>
+                        )}
+                        {org.billingPlan === "individual_weekly" && (
+                          <Badge className="ml-1" variant="outline">
+                            $14.99/wk
+                          </Badge>
+                        )}
                       </p>
                       <p className="text-sm text-muted-foreground">
                         {org.type} · {org.memberCount}/{org.seatLimit} seats
@@ -816,6 +876,7 @@ export function AccessDesk() {
                         ) : (
                           <span className="text-amber-400/90"> · not activated</span>
                         )}
+                        {org.billingStatus && <> · billing {org.billingStatus}</>}
                         {org.trialEndsAt && org.status === "trial" && (
                           <> · trial ends {new Date(org.trialEndsAt).toLocaleString()}</>
                         )}

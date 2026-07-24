@@ -26,6 +26,12 @@ import {
   activateCorporateContract,
   updateCorporateSeats,
 } from "./corporateBilling";
+import {
+  logBillingEvent,
+  notifyPaymentFailed,
+  notifySubscriptionActive,
+  notifySubscriptionCanceled,
+} from "./billingNotifications";
 
 function orgIdFromMetadata(meta: Stripe.Metadata | null | undefined): number | null {
   if (!meta?.organizationId) return null;
@@ -442,6 +448,8 @@ export async function handleStripeWebhook(req: Request, res: Response): Promise<
               resolvedOrgId,
               billingPatchFromSubscription(sub, { billingPlan: plan }),
             );
+            const orgAfter = await findOrgById(resolvedOrgId);
+            if (orgAfter) await notifySubscriptionActive(orgAfter);
           }
         }
         break;
@@ -463,6 +471,8 @@ export async function handleStripeWebhook(req: Request, res: Response): Promise<
           console.warn("Stripe subscription event with no matching org", sub.id, customerId);
           break;
         }
+        const prevCancelAtEnd = Boolean(org.cancelAtPeriodEnd);
+        const prevStatus = org.billingStatus;
         const plan =
           sub.metadata?.billingPlan || org.billingPlan || "individual_weekly";
         const patch = billingPatchFromSubscription(sub, { billingPlan: plan });
@@ -476,7 +486,44 @@ export async function handleStripeWebhook(req: Request, res: Response): Promise<
             cancelAtPeriodEnd: false,
           });
         }
-        await applyBillingPatch(org.id, patch);
+        const updated = await applyBillingPatch(org.id, patch);
+        const fresh = updated || (await findOrgById(org.id));
+
+        await logBillingEvent(`billing_stripe_${event.type}`, org.id, {
+          stripeStatus: sub.status,
+          cancelAtPeriodEnd: sub.cancel_at_period_end,
+        });
+
+        if (event.type === "customer.subscription.deleted" && fresh) {
+          await notifySubscriptionCanceled(fresh, { atPeriodEnd: false });
+        } else if (
+          event.type === "customer.subscription.updated" &&
+          fresh &&
+          sub.cancel_at_period_end &&
+          !prevCancelAtEnd
+        ) {
+          await notifySubscriptionCanceled(fresh, {
+            atPeriodEnd: true,
+            periodEnd: fresh.currentPeriodEnd,
+          });
+        } else if (
+          event.type === "customer.subscription.updated" &&
+          fresh &&
+          (sub.status === "past_due" || sub.status === "unpaid") &&
+          prevStatus !== "past_due" &&
+          prevStatus !== "unpaid"
+        ) {
+          await notifyPaymentFailed(fresh);
+        } else if (
+          (event.type === "customer.subscription.created" ||
+            event.type === "customer.subscription.updated") &&
+          fresh &&
+          (sub.status === "active" || sub.status === "trialing") &&
+          prevStatus !== "active" &&
+          prevStatus !== "trialing"
+        ) {
+          await notifySubscriptionActive(fresh);
+        }
         break;
       }
 
@@ -497,6 +544,10 @@ export async function handleStripeWebhook(req: Request, res: Response): Promise<
             billingPlan: sub.metadata?.billingPlan || org.billingPlan || undefined,
           }),
         );
+        await logBillingEvent("billing_invoice_paid", org.id, {
+          invoiceId: invoice.id,
+          amountPaid: (invoice as { amount_paid?: number }).amount_paid,
+        });
         break;
       }
 
@@ -507,11 +558,13 @@ export async function handleStripeWebhook(req: Request, res: Response): Promise<
         if (!customerId) break;
         const org = await findOrgByStripeCustomerId(customerId);
         if (!org) break;
-        await applyBillingPatch(org.id, {
+        const updated = await applyBillingPatch(org.id, {
           billingStatus: "past_due",
           status: "suspended",
           pipelineStatus: "follow_up",
         });
+        const fresh = updated || (await findOrgById(org.id));
+        if (fresh) await notifyPaymentFailed(fresh);
         break;
       }
 

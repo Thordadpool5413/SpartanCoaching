@@ -22,6 +22,9 @@ export type OpsDigestResult = {
     expired: number;
     won: number;
     toolUsesLast7Days: number;
+    billingPastDue: number;
+    billingCanceled: number;
+    billingActivePaid: number;
   };
   ranAt: string;
 };
@@ -76,6 +79,21 @@ export async function buildOpsSnapshot() {
       o.trialEndsAt.getTime() > Date.now() &&
       o.trialEndsAt.getTime() <= Date.now() + 4 * 60 * 60 * 1000,
   ).length;
+  const billingPastDue = allOrgs.filter(
+    (o) =>
+      o.billingStatus === "past_due" ||
+      o.billingStatus === "unpaid" ||
+      o.status === "suspended",
+  ).length;
+  const billingCanceled = allOrgs.filter(
+    (o) => o.billingStatus === "canceled" || Boolean(o.cancelAtPeriodEnd),
+  ).length;
+  const billingActivePaid = allOrgs.filter(
+    (o) =>
+      o.status === "active" &&
+      (o.billingStatus === "active" || o.billingStatus === "trialing") &&
+      Boolean(o.stripeSubscriptionId),
+  ).length;
 
   return {
     pendingRequests,
@@ -85,6 +103,9 @@ export async function buildOpsSnapshot() {
     expired,
     won,
     toolUsesLast7Days: usageWeek?.count ?? 0,
+    billingPastDue,
+    billingCanceled,
+    billingActivePaid,
   };
 }
 

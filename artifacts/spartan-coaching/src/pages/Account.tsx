@@ -380,8 +380,9 @@ export default function Account() {
             <>
               {isPersonal && !isPlatform && (
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Individual plan: <strong className="text-foreground">$14.99 per week</strong>. Cancel anytime in
-                  Manage billing — you keep access until the paid period ends.
+                  Individual plan: <strong className="text-foreground">$14.99 per week</strong>, auto-renews until you
+                  cancel. Cancel anytime in Manage billing — you keep access until the paid period ends. Failed payments
+                  may lock tools until the card is updated.
                 </p>
               )}
               {isCompany && (
@@ -390,7 +391,7 @@ export default function Account() {
                   <Link href="/contact?service=Field+Kit+Membership" className="text-primary hover:underline">
                     contact Nick
                   </Link>
-                  .
+                  . Past-due invoices may suspend access for the whole org.
                 </p>
               )}
               <div className="flex flex-wrap gap-2">
@@ -476,6 +477,18 @@ export default function Account() {
             Sign out
           </Button>
         </div>
+        <p className="text-[11px] text-muted-foreground leading-relaxed pt-2 border-t border-border/60">
+          Auto-renew and cancel: individuals cancel anytime via Manage billing (access through period end). Corporate
+          terms follow your contract. See{" "}
+          <Link href="/terms" className="text-primary hover:underline">
+            Terms
+          </Link>
+          {" · "}
+          <Link href="/field-kit-membership" className="text-primary hover:underline">
+            Membership
+          </Link>
+          .
+        </p>
       </Card>
 
       {member.role === "org_admin" && organization?.type === "company" && (

@@ -65,6 +65,16 @@ APIs:
 
 Invites enforce seat cap (`billableSeats` or `seatLimit`).
 
+## Phase 4 — Lifecycle polish (shipped)
+
+- Payment failed → member email + admin alert; org `suspended` / `past_due`
+- Cancel at period end → member email; Access Desk “Canceling” badge
+- Subscription deleted → member canceled email; org `expired`
+- Ops digest includes past due / canceled / paid active counts
+- Access Desk filters: Past due, Billing cancel
+- Audit events: `billing_*` in `auth_events`
+- Membership + Account legal summary (auto-renew, cancel at period end)
+
 ## Out of scope (later)
 
 - Mobile IAP

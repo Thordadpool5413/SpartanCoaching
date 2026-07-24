@@ -166,6 +166,38 @@ export default function FieldKitMembership() {
             <Link href="/tools">See the Field Kit</Link>
           </Button>
         </div>
+        <div
+          className="text-left text-xs text-muted-foreground leading-relaxed border-t border-border pt-4 mt-2 max-w-2xl mx-auto space-y-2"
+          data-testid="membership-legal"
+        >
+          <p className="font-semibold text-foreground text-sm">Billing terms (summary)</p>
+          <ul className="list-disc list-inside space-y-1">
+            <li>
+              <strong className="text-foreground">Individual:</strong> $14.99 USD per week, billed automatically until
+              you cancel. Cancel anytime from Account → Manage billing. Access continues through the end of the paid
+              week you already paid for (cancel at period end).
+            </li>
+            <li>
+              <strong className="text-foreground">Provider / corporate:</strong> weekly price per seat is set in your
+              contract. Seat counts and invoices are managed with Spartan Coaching; payment may be Stripe invoice or
+              offline terms as agreed.
+            </li>
+            <li>
+              Failed payments may suspend Field Kit access until the payment method is updated. No PHI belongs in tools.
+            </li>
+            <li>
+              Full legal terms:{" "}
+              <Link href="/terms" className="text-primary hover:underline">
+                Terms of Service
+              </Link>
+              {" · "}
+              <Link href="/privacy" className="text-primary hover:underline">
+                Privacy
+              </Link>
+              .
+            </li>
+          </ul>
+        </div>
       </Card>
 
       <div className="mt-12 max-w-5xl mx-auto">
