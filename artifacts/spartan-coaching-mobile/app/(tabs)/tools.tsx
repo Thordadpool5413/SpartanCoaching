@@ -183,6 +183,27 @@ function SavedSection({ items, onDelete, colors }: SavedSectionProps) {
                       </Text>
                     </View>
                   )}
+                  {item.toolType === "objection" && (
+                    <View style={[savedStyles.roleplayBadge, { backgroundColor: colors.mutedForeground + "18", borderColor: colors.mutedForeground + "40" }]}>
+                      <Text style={[savedStyles.roleplayBadgeText, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
+                        Objection
+                      </Text>
+                    </View>
+                  )}
+                  {item.toolType === "playbook" && (
+                    <View style={[savedStyles.roleplayBadge, { backgroundColor: colors.mutedForeground + "18", borderColor: colors.mutedForeground + "40" }]}>
+                      <Text style={[savedStyles.roleplayBadgeText, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
+                        Playbook
+                      </Text>
+                    </View>
+                  )}
+                  {item.toolType === "email" && (
+                    <View style={[savedStyles.roleplayBadge, { backgroundColor: colors.mutedForeground + "18", borderColor: colors.mutedForeground + "40" }]}>
+                      <Text style={[savedStyles.roleplayBadgeText, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
+                        Email
+                      </Text>
+                    </View>
+                  )}
                   <Text style={[savedStyles.cardDate, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
                     {formatSavedDate(item.savedAt)}
                   </Text>
