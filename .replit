@@ -62,3 +62,4 @@ channel = "stable-25_05"
 [userenv.shared]
 SITE_URL = "https://spartanhospicecoaching.com"
 STRIPE_PRICE_INDIVIDUAL_WEEKLY = "price_1TwvuBLF4JQdUFsUjbKVeeU2"
+RESEND_FROM_EMAIL = "Spartan Coaching <onboarding@resend.dev>"

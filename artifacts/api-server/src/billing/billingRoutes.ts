@@ -1,7 +1,7 @@
 import type { Express, Request, Response } from "express";
 import type Stripe from "stripe";
-import { eq } from "drizzle-orm";
-import { clientOrganizations } from "@workspace/db";
+import { eq, and, ne } from "drizzle-orm";
+import { clientOrganizations, clientMembers } from "@workspace/db";
 import { db } from "../db";
 import {
   requireAuth,
@@ -32,6 +32,7 @@ import {
   notifySubscriptionActive,
   notifySubscriptionCanceled,
 } from "./billingNotifications";
+import { sendBillingActiveAdminAlert } from "../resend";
 import { checkWebhookSecret } from "./webhookSecretCheck";
 
 function orgIdFromMetadata(meta: Stripe.Metadata | null | undefined): number | null {
@@ -288,6 +289,96 @@ export function registerBillingRoutes(app: Express): void {
       return res.status(500).json({
         error: err?.message || "Failed to open billing portal",
         code: "PORTAL_FAILED",
+      });
+    }
+  });
+
+  /**
+   * POST /api/admin/billing/test-alert
+   * Fires a real billing-active admin alert email via Resend so you can confirm
+   * it arrives in the configured inbox with correct org/plan/member data.
+   * Accepts optional body: { orgId?: number } — defaults to the first org with
+   * an active subscription, or a synthetic placeholder if none exist.
+   * Requires platform-admin role.
+   */
+  app.post("/api/admin/billing/test-alert", requireAdmin, async (req: AuthedRequest, res) => {
+    try {
+      const requestedOrgId = req.body?.orgId ? Number(req.body.orgId) : null;
+
+      let org = null;
+      if (requestedOrgId && Number.isFinite(requestedOrgId)) {
+        org = await findOrgById(requestedOrgId);
+        if (!org) {
+          return res.status(404).json({ error: `Organization #${requestedOrgId} not found` });
+        }
+      }
+
+      if (!org) {
+        // No orgId specified — fall back to first org with an active subscription
+        const rows = await db
+          .select()
+          .from(clientOrganizations)
+          .where(eq(clientOrganizations.billingStatus, "active"))
+          .limit(1);
+        org = rows[0] ?? null;
+      }
+
+      const adminTo =
+        process.env.NOTIFICATION_EMAIL ||
+        process.env.OPS_DIGEST_EMAIL ||
+        "nick@spartanhospicecoaching.com";
+
+      if (org) {
+        // Fetch real member emails — same query activeMembers() uses in billingNotifications
+        const members = await db
+          .select()
+          .from(clientMembers)
+          .where(and(eq(clientMembers.organizationId, org.id), ne(clientMembers.status, "disabled")));
+
+        // Use real org data — same path as the live webhook handler
+        console.log(
+          `[billing test-alert] Firing alert for real org #${org.id} (${org.name}) → ${adminTo}` +
+          ` | members: ${members.map(m => m.email).join(", ") || "(none)"}`,
+        );
+        const ok = await sendBillingActiveAdminAlert(adminTo, {
+          orgId: org.id,
+          orgName: org.name,
+          billingPlan: org.billingPlan,
+          memberEmails: members.map(m => m.email),
+        });
+        return res.json({
+          ok,
+          recipient: adminTo,
+          orgId: org.id,
+          orgName: org.name,
+          billingPlan: org.billingPlan,
+          note: ok
+            ? "Alert sent. Check the inbox listed in recipient."
+            : "Resend call failed — check server logs for details.",
+        });
+      } else {
+        // No active org in DB — send a synthetic test email
+        console.log(`[billing test-alert] No active org found; sending synthetic test alert → ${adminTo}`);
+        const ok = await sendBillingActiveAdminAlert(adminTo, {
+          orgId: 0,
+          orgName: "Test Organization (synthetic)",
+          billingPlan: "individual_weekly",
+          memberEmails: ["test-member@example.com"],
+        });
+        return res.json({
+          ok,
+          recipient: adminTo,
+          synthetic: true,
+          note: ok
+            ? "Synthetic alert sent (no active org in DB). Check the inbox listed in recipient."
+            : "Resend call failed — check server logs for details.",
+        });
+      }
+    } catch (err: any) {
+      console.error("[billing test-alert] Unexpected error:", err?.message || err);
+      return res.status(500).json({
+        ok: false,
+        error: err?.message || "Unexpected error",
       });
     }
   });
