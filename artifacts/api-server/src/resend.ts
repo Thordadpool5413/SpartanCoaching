@@ -1346,6 +1346,37 @@ export async function sendBillingCanceledEmail(
   }
 }
 
+/** Member: subscription is now active / payment succeeded (welcome / reactivation). */
+export async function sendBillingActiveEmail(
+  toEmail: string,
+  toName: string,
+  orgName: string,
+): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    const siteUrl = getSiteUrl();
+    await sendEmail(client, {
+      from: fromEmail,
+      to: toEmail,
+      subject: "Field Kit access confirmed — Spartan Coaching",
+      html: authEmailShell(`
+        <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Your Field Kit subscription for <strong>${orgName}</strong> is active. All tools are unlocked and ready to use.</p>
+        <div style="text-align:center;margin:28px 0;">
+          <a href="${siteUrl}/login" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;">Open Field Kit</a>
+        </div>
+        <p style="margin:0 0 16px;line-height:1.6;font-size:14px;color:#555;">Questions? Reply to this email or book a strategy call anytime. <strong>Reminder:</strong> never enter PHI into any tool.</p>
+        <p style="margin:0 0 4px;font-weight:bold;">Nick Lynch</p>
+        <p style="margin:0;color:#555;font-size:14px;">Founder, Spartan Coaching</p>
+      `),
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to send billing active email:", error);
+    return false;
+  }
+}
+
 /** Admin: past-due org needs attention. */
 export async function sendBillingPastDueAdminAlert(
   toEmail: string,

@@ -8,6 +8,7 @@ import {
   sendBillingPaymentFailedEmail,
   sendBillingCanceledEmail,
   sendBillingPastDueAdminAlert,
+  sendBillingActiveEmail,
 } from "../resend";
 
 export async function logBillingEvent(
@@ -103,4 +104,13 @@ export async function notifySubscriptionActive(org: ClientOrganization): Promise
     billingStatus: org.billingStatus,
     stripeSubscriptionId: org.stripeSubscriptionId,
   });
+
+  const members = await activeMembers(org.id);
+  for (const m of members) {
+    try {
+      await sendBillingActiveEmail(m.email, m.name, org.name);
+    } catch (err) {
+      console.warn("subscription active email to member failed:", m.email, err);
+    }
+  }
 }
