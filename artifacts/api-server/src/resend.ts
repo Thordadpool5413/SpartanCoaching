@@ -1412,6 +1412,40 @@ export async function sendBillingPastDueAdminAlert(
   }
 }
 
+/** Admin: new subscription activated — a new paid member is live. */
+export async function sendBillingActiveAdminAlert(
+  toEmail: string,
+  data: {
+    orgId: number;
+    orgName: string;
+    billingPlan?: string | null;
+    memberEmails: string[];
+  },
+): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    const siteUrl = getSiteUrl();
+    await sendEmail(client, {
+      from: fromEmail,
+      to: toEmail,
+      subject: `[Billing] New subscriber active — ${data.orgName}`,
+      html: authEmailShell(`
+        <h2 style="margin:0 0 16px;">New subscription activated</h2>
+        <p style="margin:0 0 12px;line-height:1.6;"><strong>${data.orgName}</strong> (org #${data.orgId})</p>
+        <p style="margin:0 0 8px;font-size:14px;color:#555;">Plan: ${data.billingPlan || "—"} · Status: active</p>
+        <p style="margin:0 0 16px;font-size:14px;color:#555;">Members: ${data.memberEmails.join(", ") || "—"}</p>
+        <div style="text-align:center;margin:24px 0;">
+          <a href="${siteUrl}/admin/access-desk" style="display:inline-block;background:#b91c1c;color:white;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:bold;">Open Access Desk</a>
+        </div>
+      `),
+    });
+    return true;
+  } catch (error) {
+    console.error("Failed to send billing active admin alert:", error);
+    return false;
+  }
+}
+
 /** Optional notice when trial is extended from Access Desk. */
 export async function sendTrialExtendedEmail(
   toEmail: string,

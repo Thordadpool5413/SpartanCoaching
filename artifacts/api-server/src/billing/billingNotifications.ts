@@ -9,6 +9,7 @@ import {
   sendBillingCanceledEmail,
   sendBillingPastDueAdminAlert,
   sendBillingActiveEmail,
+  sendBillingActiveAdminAlert,
 } from "../resend";
 
 export async function logBillingEvent(
@@ -112,5 +113,20 @@ export async function notifySubscriptionActive(org: ClientOrganization): Promise
     } catch (err) {
       console.warn("subscription active email to member failed:", m.email, err);
     }
+  }
+
+  const adminTo =
+    process.env.NOTIFICATION_EMAIL ||
+    process.env.OPS_DIGEST_EMAIL ||
+    "nick@spartanhospicecoaching.com";
+  try {
+    await sendBillingActiveAdminAlert(adminTo, {
+      orgId: org.id,
+      orgName: org.name,
+      billingPlan: org.billingPlan,
+      memberEmails: members.map((m) => m.email),
+    });
+  } catch (err) {
+    console.warn("billing active admin alert failed:", err);
   }
 }
