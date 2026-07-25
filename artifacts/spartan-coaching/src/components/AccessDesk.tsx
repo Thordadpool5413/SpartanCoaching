@@ -29,6 +29,7 @@ import {
   Play,
   RefreshCw,
   ShieldCheck,
+  Activity,
 } from "lucide-react";
 import {
   Dialog,
@@ -73,6 +74,24 @@ export function AccessDesk() {
     queryKey: ["/api/admin/access-metrics"],
     queryFn: () => adminFetch("/api/admin/access-metrics"),
   });
+
+  const { data: billingEmailHealth, isLoading: billingEmailLoading, refetch: refetchBillingEmail } = useQuery({
+    queryKey: ["/api/admin/billing-email-health"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/billing-email-health");
+      return res.json();
+    },
+    refetchInterval: 60_000,
+  });
+  const beh = billingEmailHealth as {
+    ok: boolean;
+    failures1h: number;
+    failures24h: number;
+    threshold1h: number;
+    threshold24h: number;
+    byType: Record<string, number>;
+    lastFailureAt: string | null;
+  } | undefined;
 
   const invalidate = () => {
     queryClient.invalidateQueries({ queryKey: ["/api/admin/access-requests"] });
@@ -356,6 +375,97 @@ export function AccessDesk() {
             )}
             Reset Apple Reviewer Password
           </Button>
+        </CardContent>
+      </Card>
+
+      {/* ── Service health ─────────────────────────────────────────────── */}
+      <Card className="border border-border" data-testid="section-billing-email-health">
+        <CardHeader className="pb-2">
+          <CardTitle className="text-base flex items-center gap-2">
+            <Activity className="w-4 h-4 text-primary" />
+            Billing email health
+          </CardTitle>
+          <CardDescription>
+            Sliding-window failure counts for Resend billing emails (payment_failed, canceled,
+            active). Resets on server restart. Refreshes every 60 s.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          {billingEmailLoading ? (
+            <p className="text-sm text-muted-foreground flex items-center gap-2">
+              <Loader2 className="w-4 h-4 animate-spin" /> Loading…
+            </p>
+          ) : beh ? (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                {beh.ok ? (
+                  <CheckCircle className="w-5 h-5 text-green-500" />
+                ) : (
+                  <XCircle className="w-5 h-5 text-red-500" />
+                )}
+                <span
+                  className={`font-bold text-sm ${beh.ok ? "text-green-600 dark:text-green-400" : "text-red-600 dark:text-red-400"}`}
+                  data-testid="billing-email-health-status"
+                >
+                  {beh.ok ? "Healthy" : "⚠ Threshold exceeded — check Resend"}
+                </span>
+                <button
+                  type="button"
+                  className="ml-auto text-xs text-muted-foreground hover:text-foreground flex items-center gap-1"
+                  onClick={() => refetchBillingEmail()}
+                >
+                  <RefreshCw className="w-3 h-3" />
+                  Refresh
+                </button>
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div
+                  className={`rounded-lg border p-3 ${
+                    beh.failures1h >= beh.threshold1h
+                      ? "border-red-500/40 bg-red-500/5"
+                      : "border-border"
+                  }`}
+                  data-testid="billing-email-health-1h"
+                >
+                  <p className="text-2xl font-black text-primary">{beh.failures1h}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    failures / 1 h
+                    <span className="ml-1 opacity-60">(limit {beh.threshold1h})</span>
+                  </p>
+                </div>
+                <div
+                  className={`rounded-lg border p-3 ${
+                    beh.failures24h >= beh.threshold24h
+                      ? "border-red-500/40 bg-red-500/5"
+                      : "border-border"
+                  }`}
+                  data-testid="billing-email-health-24h"
+                >
+                  <p className="text-2xl font-black text-primary">{beh.failures24h}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">
+                    failures / 24 h
+                    <span className="ml-1 opacity-60">(limit {beh.threshold24h})</span>
+                  </p>
+                </div>
+              </div>
+              {beh.lastFailureAt && (
+                <p className="text-xs text-muted-foreground">
+                  Last failure:{" "}
+                  <span className="font-mono">{new Date(beh.lastFailureAt).toLocaleString()}</span>
+                </p>
+              )}
+              {Object.keys(beh.byType).length > 0 && (
+                <p className="text-xs text-muted-foreground">
+                  By type (24 h):{" "}
+                  {Object.entries(beh.byType)
+                    .map(([t, n]) => `${t} ×${n}`)
+                    .join(" · ")}
+                </p>
+              )}
+            </div>
+          ) : (
+            <p className="text-sm text-muted-foreground">Unable to load billing email metrics.</p>
+          )}
         </CardContent>
       </Card>
 

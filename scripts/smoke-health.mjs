@@ -75,6 +75,10 @@ await checkJsonEndpoint("/api/admin/bootstrap-status");
 // the actionable reason+hint when it fails so the fix is clear in deploy logs.
 await checkJsonEndpoint("/api/admin/stripe-webhook-health", { checkBodyOk: true });
 
+// Billing-email health: fail if ok:false (≥3 failures in 1h or ≥10 in 24h).
+// HTTP 503 or ok:false in JSON body both count as failures.
+await checkJsonEndpoint("/api/admin/billing-email-health", { checkBodyOk: true });
+
 // ── Public HTML shells (SPA) ──────────────────────────────────────────────
 for (const p of ["/", "/request-access", "/login", "/admin/access-desk", "/faq"]) {
   const url = `${base}${p}`;
