@@ -18,6 +18,11 @@ Expert hospice growth coaching site + private Field Kit (web + iOS) for clients 
   - After schema pull: `pnpm --filter @workspace/db run push`
   - **Bootstrap script:** `node scripts/stripe-bootstrap.mjs` — idempotent, creates/reuses Product + Price + Portal + Webhook
     - Re-run safely after domain changes; output IDs in `scripts/stripe-bootstrap.out.json` (gitignored)
+    - **Re-run after a new production deploy or domain change:**
+      ```
+      SITE_URL=https://your-new-domain.com pnpm --filter @workspace/api-server exec node ../../scripts/stripe-bootstrap.mjs
+      ```
+      The script detects and deletes any stale webhook pointing to the old domain, then registers a fresh one at the new URL. Copy the new `STRIPE_WEBHOOK_SECRET` from the Stripe Dashboard and update Replit Secrets.
     - Webhook registered at `https://spartanhospicecoaching.com/api/billing/webhook` (we_1TwvuuLF4JQdUFsUNGNQh0cH)
     - Price ID: `price_1TwvuBLF4JQdUFsUjbKVeeU2` · Product: `prod_UwpZ5fOVA5SerY`
 - **Platform admin:** shared passcode unlock is **retired**. Use a real `platform_admin` member session (email/password).

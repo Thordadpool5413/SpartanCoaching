@@ -178,9 +178,30 @@ const REQUIRED_EVENTS = [
   "invoice.payment_failed",
 ];
 
+const WEBHOOK_PATH = "/api/billing/webhook";
+
 let webhookEndpoint;
 let webhookSecret = null;
 const existingWebhooks = await stripe.webhookEndpoints.list({ limit: 100 });
+
+// Detect stale webhooks: same path, different domain
+const staleEndpoints = existingWebhooks.data.filter(
+  (w) => w.url !== WEBHOOK_URL && w.url.endsWith(WEBHOOK_PATH),
+);
+
+if (staleEndpoints.length > 0) {
+  console.log(`\n  ⚠️  WARNING: Found ${staleEndpoints.length} stale webhook(s) pointing to a different domain:`);
+  for (const stale of staleEndpoints) {
+    console.log(`     - ${stale.id}: ${stale.url}`);
+  }
+  console.log(`  ℹ️  These point to a different domain than the current SITE_URL (${SITE_URL}).`);
+  console.log(`  🗑️  Deleting stale webhooks and creating a fresh one at the current URL...\n`);
+  for (const stale of staleEndpoints) {
+    await stripe.webhookEndpoints.del(stale.id);
+    console.log(`  ✓ Deleted stale webhook: ${stale.id} (${stale.url})`);
+  }
+}
+
 const existingEndpoint = existingWebhooks.data.find((w) => w.url === WEBHOOK_URL);
 
 if (existingEndpoint) {
