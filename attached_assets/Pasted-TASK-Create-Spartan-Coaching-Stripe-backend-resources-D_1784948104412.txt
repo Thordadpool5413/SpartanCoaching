@@ -1,0 +1,204 @@
+TASK: Create Spartan Coaching Stripe backend resources DIRECTLY via the Stripe API (Node SDK). Do NOT invent a new billing app. Do NOT redesign checkout. The app already has billing code; it only needs Stripe Product/Price/Portal/Webhook created and secrets wired.
+
+CONSTRAINTS
+- Use existing STRIPE_SECRET_KEY from Replit Secrets (sk_test_… preferred first). If missing, STOP and ask human to paste sk_test_… only — do not invent keys.
+- Create resources with Stripe Node SDK (package `stripe` is already a dependency under the monorepo; use pnpm exec / node from project root).
+- Individual plan must be: recurring WEEKLY, unit_amount 1499 cents, currency usd.
+- Product name: "Field Kit Individual"
+- Price nickname: "individual_weekly_1499"
+- Do NOT print full secret keys in the final report (mask middle of whsec_/sk_).
+- Idempotent: if a matching active product/price already exists, REUSE it; do not create duplicates every run.
+- Write a small one-shot script under scripts/ (e.g. scripts/stripe-bootstrap.mjs) that can be re-run safely.
+
+═══════════════════════════════════════
+STEP 0 — PREFLIGHT
+═══════════════════════════════════════
+1. cd project root
+2. git fetch origin && git checkout main && git pull origin main (or reset --hard origin/main if dirty)
+3. Confirm process.env.STRIPE_SECRET_KEY is available in shell (Replit secrets inject automatically). If empty: stop.
+4. Ensure SITE_URL or public host is known:
+   - Prefer process.env.SITE_URL
+   - Else https://$REPLIT_DEV_DOMAIN or https://$REPLIT_DEPLOYMENT_URL
+   - Webhook URL MUST be: `${SITE_URL}/api/billing/webhook` (no trailing slash on SITE_URL)
+
+═══════════════════════════════════════
+STEP 1 — CREATE / REUSE PRODUCT + WEEKLY PRICE (API)
+═══════════════════════════════════════
+Using Stripe Node SDK with STRIPE_SECRET_KEY:
+
+1) List products (active). Find one named exactly "Field Kit Individual" OR metadata.spartan_plan = "individual_weekly".
+   - If found → use it
+   - Else create:
+     stripe.products.create({
+       name: "Field Kit Individual",
+       description: "Spartan Field Kit individual membership — weekly, cancel anytime",
+       metadata: {
+         spartan_plan: "individual_weekly",
+         app: "spartan_coaching"
+       }
+     })
+
+2) List prices for that product (active). Find recurring weekly price with unit_amount=1499, currency=usd.
+   - If found → use price.id
+   - Else create:
+     stripe.prices.create({
+       product: product.id,
+       unit_amount: 1499,
+       currency: "usd",
+       recurring: { interval: "week", interval_count: 1 },
+       nickname: "individual_weekly_1499",
+       metadata: {
+         spartan_plan: "individual_weekly",
+         app: "spartan_coaching"
+       }
+     })
+
+3) Output: PRICE_ID = price.id  → this becomes STRIPE_PRICE_INDIVIDUAL_WEEKLY
+
+═══════════════════════════════════════
+STEP 2 — CUSTOMER PORTAL CONFIG (API)
+═══════════════════════════════════════
+Configure Billing Customer Portal so members can cancel themselves:
+
+stripe.billingPortal.configurations.create({
+  business_profile: {
+    headline: "Spartan Coaching — Field Kit membership"
+  },
+  features: {
+    customer_update: {
+      enabled: true,
+      allowed_updates: ["email", "address"]
+    },
+    invoice_history: { enabled: true },
+    payment_method_update: { enabled: true },
+    subscription_cancel: {
+      enabled: true,
+      mode: "at_period_end",
+      proration_behavior: "none"
+    },
+    subscription_update: { enabled: false }
+  },
+  default_return_url: `${SITE_URL}/account?billing=portal`
+})
+
+If a default configuration already exists, update it via configurations.update if needed so subscription_cancel mode is at_period_end. Goal: Manage billing / cancel works from /account and mobile.
+
+═══════════════════════════════════════
+STEP 3 — WEBHOOK ENDPOINT (API)
+═══════════════════════════════════════
+Create (or reuse) webhook endpoint for this app:
+
+const webhookUrl = `${SITE_URL}/api/billing/webhook`
+const enabledEvents = [
+  "checkout.session.completed",
+  "customer.subscription.created",
+  "customer.subscription.updated",
+  "customer.subscription.deleted",
+  "invoice.paid",
+  "invoice.payment_failed"
+]
+
+1) stripe.webhookEndpoints.list({ limit: 100 })
+2) If an endpoint already exists with exact url === webhookUrl → reuse it; ensure enabled_events include all of the above (update if missing)
+3) Else create:
+   stripe.webhookEndpoints.create({
+     url: webhookUrl,
+     enabled_events: enabledEvents,
+     description: "Spartan Coaching Field Kit billing",
+     metadata: { app: "spartan_coaching" }
+   })
+
+4) IMPORTANT: Stripe only returns the signing secret (secret: whsec_…) on CREATE.
+   - If newly created: capture endpoint.secret → STRIPE_WEBHOOK_SECRET
+   - If reused and secret not returned: tell human to open Stripe Dashboard → Webhooks → that endpoint → Reveal secret, OR delete+recreate endpoint via API only if human approves
+
+═══════════════════════════════════════
+STEP 4 — WRITE SECRETS / ENV ON REPLIT
+═══════════════════════════════════════
+Set or update Replit Secrets (use Replit secret tooling / ask human to paste if API cannot write secrets):
+
+- STRIPE_PRICE_INDIVIDUAL_WEEKLY = <price.id from Step 1>
+- STRIPE_WEBHOOK_SECRET = <whsec_… from Step 3 if available>
+- STRIPE_SECRET_KEY = already set (do not rotate)
+- SITE_URL = public https origin used above
+
+Also print a short file scripts/stripe-bootstrap.out.json (gitignored if possible) with:
+{
+  "productId": "...",
+  "priceId": "...",
+  "webhookEndpointId": "...",
+  "webhookUrl": "...",
+  "portalConfigId": "...",
+  "mode": "test|live",
+  "createdAt": "ISO"
+}
+Do NOT write secret keys into git-tracked files.
+
+Restart the Replit server after secrets are set.
+
+═══════════════════════════════════════
+STEP 5 — VERIFY AGAINST EXISTING APP CODE
+═══════════════════════════════════════
+Confirm app already expects:
+- STRIPE_SECRET_KEY
+- STRIPE_PRICE_INDIVIDUAL_WEEKLY
+- STRIPE_WEBHOOK_SECRET
+- SITE_URL
+Routes already exist:
+- POST /api/billing/checkout
+- POST /api/billing/portal
+- GET  /api/billing/status
+- POST /api/billing/webhook (raw body)
+
+Run: pnpm --filter @workspace/db run push  (billing columns on client_organizations)
+
+Do NOT rewrite billing routes unless a clear bug blocks bootstrap.
+
+═══════════════════════════════════════
+STEP 6 — AUTOMATED API SMOKE (no card UI required)
+═══════════════════════════════════════
+With Node + Stripe SDK after bootstrap:
+
+1) Retrieve price: stripe.prices.retrieve(PRICE_ID)
+   assert unit_amount===1499, recurring.interval==="week", active===true
+2) Retrieve product: active
+3) Retrieve webhook endpoint: url matches, events include all 6
+4) Optional: create a short-lived checkout session ONLY if you have a test personal org + auth path; otherwise skip and instruct human UI smoke
+
+Human UI smoke after you finish:
+1. Log in as personal trial (not platform_admin)
+2. /account → Subscribe · $14.99/week
+3. Test card 4242 4242 4242 4242
+4. Confirm webhook delivers and org becomes active
+
+═══════════════════════════════════════
+IMPLEMENTATION SHAPE (required)
+═══════════════════════════════════════
+Create scripts/stripe-bootstrap.mjs that:
+- reads STRIPE_SECRET_KEY, SITE_URL (or Replit domain env)
+- is idempotent (reuse product/price/webhook by metadata/url)
+- prints:
+  STRIPE_PRICE_INDIVIDUAL_WEEKLY=price_xxx
+  STRIPE_WEBHOOK_SECRET=whsec_xxx (only if Stripe returned it)
+  SITE_URL=https://...
+  WEBHOOK_URL=https://.../api/billing/webhook
+- exit 0 on success
+
+Run it:
+  node scripts/stripe-bootstrap.mjs
+
+If stripe package not resolvable from root, run via:
+  pnpm --filter @workspace/api-server exec node ../../scripts/stripe-bootstrap.mjs
+or install stripe at root for the script only.
+
+═══════════════════════════════════════
+FINAL REPORT (to human)
+═══════════════════════════════════════
+Return ONLY:
+1. productId, priceId, webhookEndpointId, portalConfigId
+2. Whether STRIPE_PRICE_INDIVIDUAL_WEEKLY and STRIPE_WEBHOOK_SECRET were written to Replit Secrets (Y/N)
+3. Masked secret confirmation (first 8 + last 4)
+4. Exact command re-run: node scripts/stripe-bootstrap.mjs
+5. Next human click path: /account → Subscribe with 4242…
+
+Do not create Apple IAP. Do not change $14.99 weekly amount. Corporate seats stay Access Desk contract flow (separate Stripe products may be created at contract activation time by existing corporateBilling.ts).
