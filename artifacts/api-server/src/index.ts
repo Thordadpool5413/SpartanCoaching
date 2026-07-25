@@ -2,6 +2,7 @@ import app from "./app";
 import { logger } from "./lib/logger";
 import { startBackgroundJobScheduler } from "./auth/opsJobs";
 import { checkWebhookSecretOnStartup } from "./billing/webhookSecretCheck";
+import { hydrateBillingEmailMetrics } from "./billing/billingEmailMetrics";
 
 const rawPort = process.env["PORT"];
 
@@ -30,5 +31,11 @@ app.listen(port, (err) => {
   // the endpoint registered in Stripe. Logs a warning if stale; never crashes.
   checkWebhookSecretOnStartup().catch((e) => {
     logger.warn({ err: e?.message || String(e) }, "[stripe] Webhook secret check failed unexpectedly");
+  });
+
+  // Backfill in-memory billing-email failure counter from the last 24 h of
+  // persisted events so counts survive a redeploy during an active outage.
+  hydrateBillingEmailMetrics().catch((e) => {
+    logger.warn({ err: (e as Error)?.message || String(e) }, "[billingEmailMetrics] Hydration failed unexpectedly");
   });
 });

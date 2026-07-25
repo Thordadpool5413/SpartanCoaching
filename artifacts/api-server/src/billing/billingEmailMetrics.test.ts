@@ -2,9 +2,28 @@
  * Unit tests for the billingEmailMetrics sliding-window counter.
  */
 import { describe, it, expect, beforeEach, vi, afterEach } from "vitest";
+
+// ── mock the DB module so no real connection is required ─────────────────────
+vi.mock("../db", () => ({
+  db: {
+    insert: () => ({ values: () => Promise.resolve() }),
+    select: () => ({
+      from: () => ({
+        where: () => Promise.resolve([]),
+      }),
+    }),
+  },
+}));
+
+// ── mock the @workspace/db schema import ─────────────────────────────────────
+vi.mock("@workspace/db", () => ({
+  authEvents: {},
+}));
+
 import {
   recordBillingEmailFailure,
   getBillingEmailMetrics,
+  hydrateBillingEmailMetrics,
   _resetMetrics,
   _failures,
   FAILURE_THRESHOLD_1H,
