@@ -794,31 +794,67 @@ export default function ToolsScreen() {
       </View>
 
       {!canUseFieldKit && (
-        <Pressable
-          onPress={() => router.push(isAuthenticated ? "/(tabs)/account" : "/login")}
+        <View
           style={{
             marginHorizontal: 16,
             marginTop: 12,
             marginBottom: 4,
-            padding: 14,
-            borderRadius: 10,
-            borderWidth: 1,
+            borderRadius: 12,
+            borderWidth: 1.5,
             borderColor: colors.primary,
             backgroundColor: colors.card,
+            overflow: "hidden",
           }}
         >
-          <Text style={{ color: colors.foreground, fontWeight: "700", marginBottom: 4 }}>
-            {isAuthenticated ? "Field Kit access not active" : "Member access required"}
-          </Text>
-          <Text style={{ color: colors.mutedForeground, fontSize: 13, lineHeight: 18 }}>
-            {isAuthenticated
-              ? "Your evaluation may have ended. Open Account to continue as a client or book a debrief."
-              : "Sign in with an approved client account. Request evaluation access on the website if you need a login."}
-          </Text>
-          <Text style={{ color: colors.primary, fontWeight: "700", marginTop: 8 }}>
-            {isAuthenticated ? "Open account →" : "Client login →"}
-          </Text>
-        </Pressable>
+          {/* Header */}
+          <View style={{ backgroundColor: "rgba(232,41,30,0.08)", paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: "rgba(232,41,30,0.15)" }}>
+            <Text style={{ color: colors.primary, fontSize: 10, fontWeight: "800", letterSpacing: 1.6, textTransform: "uppercase", marginBottom: 3 }}>
+              Private Field Kit
+            </Text>
+            <Text style={{ color: colors.foreground, fontSize: 16, fontWeight: "900", lineHeight: 22 }}>
+              {isAuthenticated ? "Unlock 13 hospice-specific tools" : "Tools built for the conversations that matter"}
+            </Text>
+          </View>
+
+          {/* Tool rows */}
+          <View style={{ paddingHorizontal: 14, paddingTop: 10, paddingBottom: 4, gap: 8 }}>
+            {[
+              { title: "Objection Handler", desc: "Field-ready responses to every objection you hear this week" },
+              { title: "Weekly Plan Builder", desc: "Monday–Friday territory plan with win conditions" },
+              { title: "Playbook Generator", desc: "Talking points and a clear ask for any account visit" },
+              { title: "Role-Play Practice", desc: "Simulate hard conversations before you're in the room" },
+            ].map((t) => (
+              <View key={t.title} style={{ flexDirection: "row", gap: 10, alignItems: "flex-start" }}>
+                <Feather name="check-circle" size={14} color={colors.primary} style={{ marginTop: 2 }} />
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: colors.foreground, fontSize: 13, fontWeight: "700" }}>{t.title}</Text>
+                  <Text style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 17, marginTop: 1 }}>{t.desc}</Text>
+                </View>
+              </View>
+            ))}
+            <Text style={{ color: colors.mutedForeground, fontSize: 11, marginTop: 2 }}>
+              + Cold Call Scripts, Activity Calculator, ROI Calculator, and more
+            </Text>
+          </View>
+
+          {/* Price + CTA */}
+          <View style={{ paddingHorizontal: 14, paddingBottom: 14, paddingTop: 8, borderTopWidth: 1, borderTopColor: colors.border, marginTop: 8 }}>
+            <Text style={{ color: colors.primary, fontSize: 22, fontWeight: "900" }}>
+              $14.99<Text style={{ fontSize: 13, fontWeight: "700", color: colors.mutedForeground }}> / week · cancel anytime</Text>
+            </Text>
+            <Text style={{ color: colors.mutedForeground, fontSize: 11, marginTop: 2, marginBottom: 10 }}>
+              Less than one incomplete referral conversation per week.
+            </Text>
+            <Pressable
+              onPress={() => router.push(isAuthenticated ? "/(tabs)/account" : "/login")}
+              style={{ backgroundColor: colors.primary, borderRadius: 8, paddingVertical: 11, alignItems: "center" }}
+            >
+              <Text style={{ color: "#fff", fontWeight: "800", fontSize: 14 }}>
+                {isAuthenticated ? "Open Account to subscribe →" : "Client login →"}
+              </Text>
+            </Pressable>
+          </View>
+        </View>
       )}
       {canUseFieldKit && (
         <View

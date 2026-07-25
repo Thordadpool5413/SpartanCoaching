@@ -31,6 +31,10 @@ import {
   isChecklistDone,
   visibleChecklist,
 } from "@/lib/onboarding";
+import { FIELD_KIT_TOOLS } from "@workspace/field-kit-catalog";
+
+// Key gated tools to surface in value cards (no PHI, no public tools)
+const VALUE_TOOLS = FIELD_KIT_TOOLS.filter((t) => !t.public).slice(0, 7);
 
 const ROLES = [
   { id: "rep", label: "Rep / liaison" },
@@ -153,19 +157,28 @@ export default function AccountScreen() {
           Individuals continue at $14.99/week after evaluation (cancel anytime).
         </Text>
 
-        <View style={[styles.card, { borderColor: colors.border, backgroundColor: colors.card }]}>
+        <View style={[styles.card, { borderColor: colors.primary, backgroundColor: colors.card, borderWidth: 1.5 }]}>
+          <Text style={{ color: colors.primary, fontSize: 10, fontWeight: "800", letterSpacing: 1.4, textTransform: "uppercase", marginBottom: 8 }}>
+            What you unlock
+          </Text>
           {[
-            "Hospice-specific tools, not generic sales AI",
-            "Ethics-first · no PHI in tools",
-            "Same access as the web Field Kit",
-            "Individual membership $14.99/week · cancel anytime",
-            "First-session checklist syncs with the website",
-          ].map((line) => (
-            <View key={line} style={styles.bulletRow}>
-              <Feather name="check-circle" size={16} color={colors.primary} />
-              <Text style={[styles.bulletText, { color: colors.foreground }]}>{line}</Text>
+            { title: "Objection Handler", desc: "Field-ready responses to 'not ready yet' and every objection you hear this week" },
+            { title: "Playbook Generator", desc: "Custom talking points and a clear next-step ask for any account visit" },
+            { title: "Role-Play Practice", desc: "Simulate physician and family conversations before you're in the room" },
+            { title: "Weekly Plan Builder", desc: "Monday–Friday territory plan with win conditions for every account" },
+            { title: "Cold Call Script Generator", desc: "Openers and next-step asks for a full block of new outreach calls" },
+          ].map((t) => (
+            <View key={t.title} style={[styles.bulletRow, { marginBottom: 8, alignItems: "flex-start" }]}>
+              <Feather name="check-circle" size={15} color={colors.primary} style={{ marginTop: 2 }} />
+              <View style={{ flex: 1 }}>
+                <Text style={{ color: colors.foreground, fontWeight: "700", fontSize: 13 }}>{t.title}</Text>
+                <Text style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 17, marginTop: 1 }}>{t.desc}</Text>
+              </View>
             </View>
           ))}
+          <Text style={{ color: colors.mutedForeground, fontSize: 11, marginTop: 4, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }}>
+            + Activity Calculator, ROI Calculator, Email Templates, Grounded Research — 13 tools total · $14.99/week · cancel anytime
+          </Text>
         </View>
 
         <Pressable
@@ -496,22 +509,84 @@ export default function AccountScreen() {
             styles.card,
             { borderColor: colors.border, backgroundColor: colors.card, marginTop: 12 },
           ]}
+          testID="card-field-kit-locked"
         >
-          <Text style={{ color: colors.foreground, fontWeight: "700", marginBottom: 6 }}>
+          <Text style={{ color: colors.primary, fontSize: 10, fontWeight: "800", letterSpacing: 1.4, textTransform: "uppercase", marginBottom: 6 }}>
+            {org?.status === "expired" ? "Evaluation ended" : "Field Kit locked"}
+          </Text>
+          <Text style={{ color: colors.foreground, fontWeight: "900", fontSize: 15, lineHeight: 21, marginBottom: 10 }}>
             {org?.status === "expired"
-              ? "Evaluation ended — continue as a client"
-              : "Access is not active"}
+              ? "You had access — here's what you were using"
+              : "Here's what unlocks at $14.99/week"}
           </Text>
-          <Text style={{ color: colors.mutedForeground, lineHeight: 20, fontSize: 14 }}>
-            {isPersonal
-              ? "Subscribe for $14.99/week above, or contact Spartan for team contracts."
-              : "Book a short debrief to activate seats under contract."}
+
+          {[
+            { title: "Objection Handler", desc: "Turn a stalled 'not ready' into an education moment that moves referrals" },
+            { title: "Weekly Plan Builder", desc: "Priority accounts get time; low-value busyness loses it" },
+            { title: "Role-Play Practice", desc: "Muscle memory shows up when the clinic is short-staffed" },
+            { title: "Playbook Generator", desc: "Stop winging visits — leave with a specific commitment" },
+          ].map((t) => (
+            <View key={t.title} style={{ flexDirection: "row", gap: 10, alignItems: "flex-start", marginBottom: 8 }}>
+              <Feather name="lock" size={13} color={colors.primary} style={{ marginTop: 2 }} />
+              <View style={{ flex: 1 }}>
+                <Text style={{ color: colors.foreground, fontSize: 13, fontWeight: "700" }}>{t.title}</Text>
+                <Text style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 17, marginTop: 1 }}>{t.desc}</Text>
+              </View>
+            </View>
+          ))}
+
+          <View style={{ borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 10, marginTop: 4 }}>
+            <Text style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 18 }}>
+              {isPersonal
+                ? "At $14.99/week, one better conversation pays for the month. Subscribe above, or contact Spartan for team contracts."
+                : "Book a short debrief to activate seats under contract."}
+            </Text>
+            {!canCheckout && (
+              <Pressable onPress={() => router.push("/(tabs)/contact")} style={{ marginTop: 10 }}>
+                <Text style={{ color: colors.primary, fontWeight: "700", fontSize: 13 }}>Contact Spartan →</Text>
+              </Pressable>
+            )}
+          </View>
+        </View>
+      )}
+
+      {canUseFieldKit && (
+        <View
+          style={[
+            styles.card,
+            { borderColor: colors.border, backgroundColor: colors.card, marginTop: 12 },
+          ]}
+          testID="card-your-field-kit"
+        >
+          <Text style={{ color: colors.primary, fontSize: 10, fontWeight: "800", letterSpacing: 1.4, textTransform: "uppercase", marginBottom: 6 }}>
+            Your Field Kit
           </Text>
-          {!canCheckout && (
-            <Pressable onPress={() => router.push("/(tabs)/contact")} style={{ marginTop: 12 }}>
-              <Text style={{ color: colors.primary, fontWeight: "700" }}>Contact Spartan →</Text>
-            </Pressable>
-          )}
+          <Text style={{ color: colors.foreground, fontWeight: "800", fontSize: 15, marginBottom: 10 }}>
+            7 AI tools — all unlocked
+          </Text>
+          {[
+            { icon: "shield" as const, label: "Objections", desc: "Field-ready responses to this week's objections" },
+            { icon: "book-open" as const, label: "Playbooks", desc: "Talking points and a clear ask for any visit" },
+            { icon: "mail" as const, label: "Email", desc: "Follow-ups and thank-yous that stay professional" },
+            { icon: "users" as const, label: "Role-Play", desc: "Simulate hard conversations before you're in the room" },
+            { icon: "search" as const, label: "Research", desc: "Territory questions with credible sources" },
+            { icon: "calendar" as const, label: "Weekly Plan", desc: "Monday–Friday territory plan with win conditions" },
+            { icon: "phone" as const, label: "Cold Call", desc: "Openers and next-step asks for new outreach" },
+          ].map((t) => (
+            <View key={t.label} style={{ flexDirection: "row", gap: 10, alignItems: "flex-start", marginBottom: 8 }}>
+              <Feather name={t.icon} size={14} color={colors.primary} style={{ marginTop: 2 }} />
+              <View style={{ flex: 1 }}>
+                <Text style={{ color: colors.foreground, fontSize: 13, fontWeight: "700" }}>{t.label}</Text>
+                <Text style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 17, marginTop: 1 }}>{t.desc}</Text>
+              </View>
+            </View>
+          ))}
+          <Pressable
+            onPress={() => router.push("/(tabs)/tools")}
+            style={{ marginTop: 6, backgroundColor: colors.primary, borderRadius: 8, paddingVertical: 10, alignItems: "center" }}
+          >
+            <Text style={{ color: "#fff", fontWeight: "800", fontSize: 13 }}>Open Field Kit →</Text>
+          </Pressable>
         </View>
       )}
 
