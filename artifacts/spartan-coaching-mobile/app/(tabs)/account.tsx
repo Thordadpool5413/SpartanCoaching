@@ -61,6 +61,10 @@ export default function AccountScreen() {
   const billingLastFetchedRef = useRef<number>(0);
   const BILLING_STALE_MS = 30_000;
 
+  // Set to true whenever the user opens a Stripe URL (checkout or portal) so
+  // the foreground-return handler knows to skip the staleness check.
+  const stripeOpenedRef = useRef<boolean>(false);
+
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 90;
 
@@ -100,14 +104,22 @@ export default function AccountScreen() {
   // Re-check billing when the app comes back to the foreground (e.g. returning
   // from Stripe Checkout or the billing portal in the browser).
   // Skip the fetch if billing data was loaded less than 30 s ago to avoid a
-  // loading-spinner flash when the user just briefly switches apps.
+  // loading-spinner flash when the user just briefly switches apps —
+  // UNLESS the user was sent to a Stripe URL, in which case always reload
+  // so the card reflects the completed checkout immediately.
   const appStateRef = useRef(AppState.currentState);
   useEffect(() => {
     const sub = AppState.addEventListener("change", (nextState) => {
       if (appStateRef.current !== "active" && nextState === "active") {
-        const age = Date.now() - billingLastFetchedRef.current;
-        if (age >= BILLING_STALE_MS) {
+        const fromStripe = stripeOpenedRef.current;
+        if (fromStripe) {
+          stripeOpenedRef.current = false;
           loadBilling();
+        } else {
+          const age = Date.now() - billingLastFetchedRef.current;
+          if (age >= BILLING_STALE_MS) {
+            loadBilling();
+          }
         }
         void refresh();
       }
@@ -253,6 +265,7 @@ export default function AccountScreen() {
       const { url } = await startIndividualCheckout();
       const supported = await Linking.canOpenURL(url);
       if (!supported) throw new Error("Cannot open checkout URL");
+      stripeOpenedRef.current = true;
       await Linking.openURL(url);
     } catch (e: any) {
       const raw = e?.message || "Checkout unavailable";
@@ -271,6 +284,7 @@ export default function AccountScreen() {
     setPortalPending(true);
     try {
       const { url } = await openBillingPortal();
+      stripeOpenedRef.current = true;
       await Linking.openURL(url);
     } catch (e: any) {
       Alert.alert(
