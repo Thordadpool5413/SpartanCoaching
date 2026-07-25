@@ -72,7 +72,8 @@ const workflowAuthorization: AuthorizationAdapter = {
 };
 
 export function registerSalesWorkflowRoutes(app: Express): void {
-  const storage = new PostgresWorkflowStorage(pool);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const storage = new PostgresWorkflowStorage(pool as any);
   const orchestrator = new SalesWorkflowOrchestrator({
     storage,
     tools: {
@@ -100,7 +101,7 @@ export function registerSalesWorkflowRoutes(app: Express): void {
       storage,
       resolveActor,
       importAdapter: new CsvAccountImportAdapter(storage),
-      idempotencyStore: new PostgresIdempotencyStore(pool),
+      idempotencyStore: new PostgresIdempotencyStore(pool as any),
       maxBodyBytes: 1_000_000,
       authorization: workflowAuthorization,
     }),

@@ -53,5 +53,8 @@ Thumbs.db
 .cache/
 .local/
 
+# Stripe bootstrap output (contains resource IDs, no secrets)
+scripts/stripe-bootstrap.out.json
+
 # Archived migration snapshots are intentionally kept outside Git.
 /.migration-backup/

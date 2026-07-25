@@ -16,6 +16,10 @@ Expert hospice growth coaching site + private Field Kit (web + iOS) for clients 
   - Individual: Checkout + Customer Portal cancel · Corporate: Access Desk contract form (seats × weekly rate)
   - Webhook: `POST /api/billing/webhook` · Admin contract: `POST /api/admin/organizations/:id/billing/contract`
   - After schema pull: `pnpm --filter @workspace/db run push`
+  - **Bootstrap script:** `node scripts/stripe-bootstrap.mjs` — idempotent, creates/reuses Product + Price + Portal + Webhook
+    - Re-run safely after domain changes; output IDs in `scripts/stripe-bootstrap.out.json` (gitignored)
+    - Webhook registered at `https://spartanhospicecoaching.com/api/billing/webhook` (we_1TwvuuLF4JQdUFsUNGNQh0cH)
+    - Price ID: `price_1TwvuBLF4JQdUFsUjbKVeeU2` · Product: `prod_UwpZ5fOVA5SerY`
 - **Platform admin:** shared passcode unlock is **retired**. Use a real `platform_admin` member session (email/password).
   - First install only: set random `ADMIN_BOOTSTRAP_TOKEN` (≥32 chars), call one-time bootstrap, then **delete** the token.
   - Optional seed email: `ADMIN_EMAIL` (default `nick@spartanhospicecoaching.com`) when bootstrap creates the first admin.
