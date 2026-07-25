@@ -1,6 +1,8 @@
 import React, { useCallback, useState } from "react";
 import {
   ActivityIndicator,
+  Alert,
+  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -15,8 +17,13 @@ import { Feather } from "@expo/vector-icons";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
 import {
+  fetchBillingStatus,
   fetchOnboardingMobile,
+  getWebSiteUrl,
+  openBillingPortal,
+  startIndividualCheckout,
   updateOnboardingMobile,
+  type BillingStatus,
 } from "@/lib/api";
 import {
   formatTrialRemaining,
@@ -43,6 +50,10 @@ export default function AccountScreen() {
   const [checklist, setChecklist] = useState<Record<string, boolean | string>>({});
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState<string | null>(null);
+  const [billing, setBilling] = useState<BillingStatus | null>(null);
+  const [billingLoading, setBillingLoading] = useState(false);
+  const [checkoutPending, setCheckoutPending] = useState(false);
+  const [portalPending, setPortalPending] = useState(false);
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 90;
@@ -60,10 +71,23 @@ export default function AccountScreen() {
     }
   }, [canUseFieldKit]);
 
+  const loadBilling = useCallback(async () => {
+    if (!isAuthenticated) return;
+    setBillingLoading(true);
+    try {
+      const data = await fetchBillingStatus();
+      setBilling(data);
+    } finally {
+      setBillingLoading(false);
+    }
+  }, [isAuthenticated]);
+
   useFocusEffect(
     useCallback(() => {
       load();
-    }, [load]),
+      loadBilling();
+      void refresh();
+    }, [load, loadBilling, refresh]),
   );
 
   if (isLoading) {
@@ -88,7 +112,7 @@ export default function AccountScreen() {
         <Text style={[styles.title, { color: colors.foreground }]}>Your Field Kit</Text>
         <Text style={[styles.body, { color: colors.mutedForeground }]}>
           Sign in to use the private AI Field Kit on the go — objections, playbooks, role-play, and more.
-          Evaluation access is approved by Spartan Coaching.
+          Individuals continue at $14.99/week after evaluation (cancel anytime).
         </Text>
 
         <View style={[styles.card, { borderColor: colors.border, backgroundColor: colors.card }]}>
@@ -96,6 +120,7 @@ export default function AccountScreen() {
             "Hospice-specific tools, not generic sales AI",
             "Ethics-first · no PHI in tools",
             "Same access as the web Field Kit",
+            "Individual membership $14.99/week · cancel anytime",
             "First-session checklist syncs with the website",
           ].map((line) => (
             <View key={line} style={styles.bulletRow}>
@@ -111,8 +136,16 @@ export default function AccountScreen() {
         >
           <Text style={styles.primaryBtnText}>Client login</Text>
         </Pressable>
-        <Pressable onPress={() => router.push("/(tabs)/contact")} style={{ marginTop: 16 }}>
+        <Pressable
+          onPress={() => Linking.openURL(`${getWebSiteUrl()}/field-kit-membership`)}
+          style={{ marginTop: 16 }}
+        >
           <Text style={{ color: colors.primary, textAlign: "center", fontWeight: "700" }}>
+            View membership pricing →
+          </Text>
+        </Pressable>
+        <Pressable onPress={() => router.push("/(tabs)/contact")} style={{ marginTop: 12 }}>
+          <Text style={{ color: colors.mutedForeground, textAlign: "center", fontWeight: "600" }}>
             Request access or book a call
           </Text>
         </Pressable>
@@ -122,18 +155,114 @@ export default function AccountScreen() {
 
   const org = user.organization;
   const fk = user.fieldKit;
+  const billingOrg = billing?.organization;
+  const isPersonal = org?.type === "personal";
+  const isCompany = org?.type === "company";
+  const isPlatform = org?.type === "platform" || user.member.role === "platform_admin";
+  const isComp =
+    billingOrg?.billingPlan === "comp" || org?.billingPlan === "comp";
+  const hasPaidSub =
+    Boolean(billingOrg?.hasStripeSubscription || org?.hasStripeSubscription) &&
+    (billingOrg?.billingStatus === "active" ||
+      billingOrg?.billingStatus === "trialing" ||
+      org?.billingStatus === "active" ||
+      org?.billingStatus === "trialing" ||
+      (org?.status === "active" &&
+        (billingOrg?.hasStripeSubscription || org?.hasStripeSubscription)));
+  const cancelAtPeriodEnd = Boolean(
+    billingOrg?.cancelAtPeriodEnd ?? org?.cancelAtPeriodEnd,
+  );
+  const periodEnd = billingOrg?.currentPeriodEnd || org?.currentPeriodEnd;
+
+  const canCheckout =
+    isPersonal &&
+    !isPlatform &&
+    !isComp &&
+    !hasPaidSub &&
+    (org?.status === "trial" ||
+      org?.status === "expired" ||
+      org?.status === "suspended" ||
+      org?.status === "active");
+
+  const canPortal =
+    Boolean(billing?.canOpenPortal) ||
+    Boolean(billingOrg?.hasStripeCustomer || org?.hasStripeCustomer);
+
   const statusLabel =
     org?.status === "trial"
       ? "Evaluation"
       : org?.status === "active"
-        ? "Active client"
+        ? cancelAtPeriodEnd
+          ? "Active · canceling"
+          : hasPaidSub
+            ? "Active · $14.99/wk"
+            : isComp
+              ? "Active · complimentary"
+              : "Active client"
         : org?.status === "expired"
           ? "Evaluation ended"
-          : org?.status || "—";
+          : org?.status === "suspended"
+            ? "Suspended"
+            : org?.status || "—";
 
   const trialLine = formatTrialRemaining(fk?.hoursRemaining);
   const items = visibleChecklist(jobRole);
   const doneCount = items.filter((i) => isChecklistDone(checklist, i.id)).length;
+
+  const membershipBlurb = isPersonal
+    ? hasPaidSub
+      ? cancelAtPeriodEnd
+        ? "Subscription ends at the current period. You keep access until then. You can reverse cancel in Manage billing."
+        : "Weekly Field Kit membership is active. Cancel anytime — access continues through the paid period."
+      : isComp
+        ? "Complimentary access. Contact Nick if you need changes."
+        : "Individual plan: $14.99 per week. Subscribe securely (Stripe). Cancel anytime from Manage billing."
+    : isCompany
+      ? "Team seats are billed under your provider contract (weekly per seat)."
+      : "Membership status for this account.";
+
+  const onSubscribe = async () => {
+    setCheckoutPending(true);
+    try {
+      const { url } = await startIndividualCheckout();
+      const supported = await Linking.canOpenURL(url);
+      if (!supported) throw new Error("Cannot open checkout URL");
+      await Linking.openURL(url);
+    } catch (e: any) {
+      const raw = e?.message || "Checkout unavailable";
+      Alert.alert(
+        "Checkout unavailable",
+        raw.includes("STRIPE") || raw.includes("not configured")
+          ? "Billing is not fully configured on the server yet. Contact Nick or try Account on the website."
+          : raw.replace(/^\d+:\s*/, "").slice(0, 280),
+      );
+    } finally {
+      setCheckoutPending(false);
+    }
+  };
+
+  const onManageBilling = async () => {
+    setPortalPending(true);
+    try {
+      const { url } = await openBillingPortal();
+      await Linking.openURL(url);
+    } catch (e: any) {
+      Alert.alert(
+        "Billing portal unavailable",
+        (e?.message || "Try again from the website Account page.").replace(/^\d+:\s*/, "").slice(0, 280),
+      );
+    } finally {
+      setPortalPending(false);
+    }
+  };
+
+  const openWebAccount = () => {
+    void Linking.openURL(`${getWebSiteUrl()}/account`);
+  };
+
+  const openWebMembership = () => {
+    void Linking.openURL(`${getWebSiteUrl()}/field-kit-membership`);
+  };
 
   const saveProfile = async () => {
     setSaving(true);
@@ -199,27 +328,163 @@ export default function AccountScreen() {
         )}
       </View>
 
+      {/* ── Membership & billing ───────────────────────────────────── */}
+      <View
+        style={[
+          styles.card,
+          { borderColor: colors.primary, backgroundColor: colors.card, marginTop: 12 },
+        ]}
+        testID="card-membership-billing"
+      >
+        <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 8 }}>
+          <Feather name="credit-card" size={18} color={colors.primary} />
+          <Text style={{ color: colors.foreground, fontWeight: "800", fontSize: 16 }}>
+            Membership &amp; billing
+          </Text>
+        </View>
+
+        {isPersonal && !isPlatform && (
+          <View style={{ marginBottom: 10 }}>
+            <Text style={{ color: colors.primary, fontWeight: "900", fontSize: 28 }}>
+              $14.99
+              <Text style={{ fontSize: 14, fontWeight: "700", color: colors.mutedForeground }}>
+                {" "}
+                / week
+              </Text>
+            </Text>
+            <Text style={{ color: colors.mutedForeground, fontSize: 12, marginTop: 2 }}>
+              Individual Field Kit · auto-renew · cancel anytime
+            </Text>
+          </View>
+        )}
+
+        <Text style={{ color: colors.mutedForeground, lineHeight: 20, fontSize: 14 }}>
+          {membershipBlurb}
+        </Text>
+
+        {periodEnd && hasPaidSub ? (
+          <Text style={{ color: colors.foreground, fontSize: 13, marginTop: 8, fontWeight: "600" }}>
+            {cancelAtPeriodEnd
+              ? `Access until ${new Date(periodEnd).toLocaleDateString()}`
+              : `Renews ${new Date(periodEnd).toLocaleDateString()}`}
+          </Text>
+        ) : null}
+
+        {billingLoading ? (
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 12 }}>
+            <ActivityIndicator size="small" color={colors.primary} />
+            <Text style={{ color: colors.mutedForeground, fontSize: 13 }}>Loading billing…</Text>
+          </View>
+        ) : (
+          <View style={{ marginTop: 14, gap: 10 }}>
+            {canCheckout && (
+              <Pressable
+                onPress={onSubscribe}
+                disabled={checkoutPending}
+                style={[
+                  styles.primaryBtn,
+                  {
+                    backgroundColor: colors.primary,
+                    marginTop: 0,
+                    opacity: checkoutPending ? 0.7 : 1,
+                  },
+                ]}
+                testID="button-subscribe"
+              >
+                <Text style={styles.primaryBtnText}>
+                  {checkoutPending ? "Opening checkout…" : "Subscribe · $14.99/week"}
+                </Text>
+              </Pressable>
+            )}
+            {canPortal && (
+              <Pressable
+                onPress={onManageBilling}
+                disabled={portalPending}
+                style={[
+                  styles.outlineBtn,
+                  {
+                    borderColor: colors.border,
+                    opacity: portalPending ? 0.7 : 1,
+                  },
+                ]}
+                testID="button-manage-billing"
+              >
+                <Text style={{ color: colors.foreground, fontWeight: "700" }}>
+                  {portalPending ? "Opening…" : "Manage billing / cancel"}
+                </Text>
+              </Pressable>
+            )}
+            {isCompany && (
+              <Text style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 18 }}>
+                Seat changes and contract billing go through your org admin or Nick. Not self-serve on
+                mobile.
+              </Text>
+            )}
+            {isPlatform && (
+              <Text style={{ color: colors.mutedForeground, fontSize: 12 }}>
+                Platform admin accounts are not billed.
+              </Text>
+            )}
+            {isPersonal &&
+              !isPlatform &&
+              !canCheckout &&
+              !canPortal &&
+              billing &&
+              !billing.configured && (
+                <Text style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 18 }}>
+                  Self-serve billing is not fully configured on the server yet (Stripe secrets). You can
+                  still use Account on the website once secrets are set.
+                </Text>
+              )}
+            <Pressable onPress={openWebAccount} style={{ paddingVertical: 4 }}>
+              <Text style={{ color: colors.primary, fontWeight: "700", fontSize: 13 }}>
+                Open website Account →
+              </Text>
+            </Pressable>
+            <Pressable onPress={openWebMembership} style={{ paddingVertical: 2 }}>
+              <Text style={{ color: colors.mutedForeground, fontWeight: "600", fontSize: 13 }}>
+                View membership plans →
+              </Text>
+            </Pressable>
+          </View>
+        )}
+      </View>
+
       {!canUseFieldKit && (
-        <View style={[styles.card, { borderColor: colors.primary, backgroundColor: colors.card, marginTop: 12 }]}>
+        <View
+          style={[
+            styles.card,
+            { borderColor: colors.border, backgroundColor: colors.card, marginTop: 12 },
+          ]}
+        >
           <Text style={{ color: colors.foreground, fontWeight: "700", marginBottom: 6 }}>
-            {org?.status === "expired" ? "Evaluation ended — continue as a client" : "Access is not active"}
+            {org?.status === "expired"
+              ? "Evaluation ended — continue as a client"
+              : "Access is not active"}
           </Text>
           <Text style={{ color: colors.mutedForeground, lineHeight: 20, fontSize: 14 }}>
-            {org?.status === "expired"
-              ? "Book a short debrief to activate membership, discuss seats, and keep the Field Kit on."
-              : "Schedule a strategy call to continue as a client."}
+            {isPersonal
+              ? "Subscribe for $14.99/week above, or contact Spartan for team contracts."
+              : "Book a short debrief to activate seats under contract."}
           </Text>
-          <Pressable onPress={() => router.push("/(tabs)/contact")} style={{ marginTop: 12 }}>
-            <Text style={{ color: colors.primary, fontWeight: "700" }}>
-              {org?.status === "expired" ? "Continue as a client →" : "Contact Spartan →"}
-            </Text>
-          </Pressable>
+          {!canCheckout && (
+            <Pressable onPress={() => router.push("/(tabs)/contact")} style={{ marginTop: 12 }}>
+              <Text style={{ color: colors.primary, fontWeight: "700" }}>Contact Spartan →</Text>
+            </Pressable>
+          )}
         </View>
       )}
 
       {canUseFieldKit && (
-        <View style={[styles.card, { borderColor: colors.border, backgroundColor: colors.card, marginTop: 12 }]}>
-          <Text style={{ color: colors.foreground, fontWeight: "800", marginBottom: 10 }}>Field profile</Text>
+        <View
+          style={[
+            styles.card,
+            { borderColor: colors.border, backgroundColor: colors.card, marginTop: 12 },
+          ]}
+        >
+          <Text style={{ color: colors.foreground, fontWeight: "800", marginBottom: 10 }}>
+            Field profile
+          </Text>
           <Text style={[styles.cardLabel, { color: colors.mutedForeground }]}>Role</Text>
           <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 8, marginBottom: 12 }}>
             {ROLES.map((r) => (
@@ -279,7 +544,10 @@ export default function AccountScreen() {
           <Pressable
             onPress={saveProfile}
             disabled={saving}
-            style={[styles.primaryBtn, { backgroundColor: colors.primary, opacity: saving ? 0.7 : 1, marginTop: 14 }]}
+            style={[
+              styles.primaryBtn,
+              { backgroundColor: colors.primary, opacity: saving ? 0.7 : 1, marginTop: 14 },
+            ]}
           >
             <Text style={styles.primaryBtnText}>{saving ? "Saving…" : "Save profile"}</Text>
           </Pressable>

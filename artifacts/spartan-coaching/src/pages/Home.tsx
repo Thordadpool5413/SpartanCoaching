@@ -224,6 +224,40 @@ export default function Home() {
         </div>
       </section>
 
+      {/* ── MEMBERSHIP PRICING ── */}
+      <section
+        className="relative border-y border-border bg-card py-14 sm:py-16"
+        data-testid="section-membership-pricing"
+      >
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-5">
+          <FadeIn>
+            <p className="text-sm font-bold tracking-widest text-primary uppercase">Field Kit membership</p>
+            <h2 className="text-h2 font-display font-black text-foreground">
+              Individuals: <span className="text-primary">$14.99</span>
+              <span className="text-lg font-semibold text-muted-foreground"> / week</span>
+            </h2>
+            <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+              Cancel anytime from Account → Manage billing. Access continues through the paid week.
+              Teams use weekly per-seat rates under contract. Start with a short evaluation.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+              <Button size="lg" asChild className="font-bold shadow-md" data-testid="button-home-membership">
+                <Link href="/field-kit-membership">
+                  View membership &amp; subscribe
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild className="font-bold border-2">
+                <Link href="/request-access">Request evaluation</Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild className="font-bold border-2">
+                <Link href="/account">Account / billing</Link>
+              </Button>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
       {/* ── 5. OUTCOMES (compact) ── */}
       <section className="relative bg-background py-16 sm:py-20" data-testid="section-results">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">

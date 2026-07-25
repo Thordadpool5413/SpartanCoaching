@@ -52,6 +52,7 @@ export const navSections: SiteNavSection[] = [
     items: [
       { path: "/services", label: "Services", description: "Strategic services and consulting", icon: Briefcase },
       { path: "/programs", label: "Programs", description: "Training programs for hospice providers", icon: GraduationCap },
+      { path: "/field-kit-membership", label: "Membership $14.99/wk", description: "Individual weekly membership and team seats", icon: DollarSign },
       { path: "/method", label: "The Spartan Method", description: "Our proven sales methodology", icon: Shield },
       { path: "/manifesto", label: "The Spartan Ethos", description: "What it means to be Spartan", icon: Flame },
     ],
@@ -60,6 +61,7 @@ export const navSections: SiteNavSection[] = [
     title: "Field Kit",
     items: [
       { path: "/portal", label: "Field Kit home", description: "Your private execution workspace", icon: Home },
+      { path: "/account", label: "Account & billing", description: "Subscribe, cancel, and manage membership", icon: DollarSign },
       { path: "/tools", label: "Tools", description: "Prepare, practice, plan, and measure", icon: Wrench },
       { path: "/resources", label: "Resources", description: "Templates, scripts, checklists, guides", icon: FolderOpen },
       { path: "/tools/playbooks", label: "Sales Playbooks", description: "Generate custom sales playbooks", icon: Lightbulb },

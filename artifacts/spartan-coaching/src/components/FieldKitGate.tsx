@@ -121,7 +121,7 @@ export function FieldKitGate({ compact }: Props) {
               </Button>
             </>
           )}
-          {canSelfServe && (expired || suspended) && (
+          {canSelfServe && (expired || suspended || !fieldKit?.allowed) && (
             <Button
               className="font-bold"
               onClick={startCheckout}

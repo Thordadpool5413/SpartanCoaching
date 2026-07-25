@@ -69,11 +69,18 @@ const TIERS = [
 export default function FieldKitMembership() {
   const { isAuthenticated, canUseFieldKit, organization, member } = useAuth();
   const { startCheckout, checkoutPending } = useBillingActions();
+  const isPersonal = organization?.type === "personal";
+  const isPlatform = member?.role === "platform_admin" || organization?.type === "platform";
   const canSubscribe =
     isAuthenticated &&
-    organization?.type === "personal" &&
-    member?.role !== "platform_admin" &&
-    organization?.status !== "active";
+    isPersonal &&
+    !isPlatform &&
+    organization?.billingPlan !== "comp" &&
+    !(
+      organization?.status === "active" &&
+      organization?.hasStripeSubscription &&
+      (organization?.billingStatus === "active" || organization?.billingStatus === "trialing")
+    );
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-12 sm:py-16" data-testid="page-field-kit-membership">
@@ -88,6 +95,40 @@ export default function FieldKitMembership() {
           Manage billing. Provider and enterprise seats use <strong className="text-foreground">contract
           weekly rates per seat</strong>. Most people start with a short evaluation.
         </p>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+          {canSubscribe ? (
+            <Button
+              className="font-bold"
+              onClick={startCheckout}
+              disabled={checkoutPending}
+              data-testid="membership-hero-subscribe"
+            >
+              {checkoutPending ? (
+                <>
+                  <Loader2 className="mr-2 w-4 h-4 animate-spin" /> Redirecting…
+                </>
+              ) : (
+                <>
+                  <CreditCard className="mr-2 w-4 h-4" />
+                  Subscribe · $14.99/week
+                </>
+              )}
+            </Button>
+          ) : isAuthenticated ? (
+            <Button asChild className="font-bold">
+              <Link href="/account">Open Account · manage billing</Link>
+            </Button>
+          ) : (
+            <>
+              <Button asChild className="font-bold">
+                <Link href="/login">Log in to subscribe · $14.99/wk</Link>
+              </Button>
+              <Button asChild variant="outline" className="font-bold">
+                <Link href="/request-access">Request evaluation first</Link>
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="grid md:grid-cols-3 gap-6 mb-14">

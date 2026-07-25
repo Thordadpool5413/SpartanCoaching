@@ -56,6 +56,17 @@ async function authHeaders(extra?: Record<string, string>): Promise<Record<strin
   return headers;
 }
 
+async function readErrorMessage(res: Response): Promise<string> {
+  const text = await res.text().catch(() => res.statusText);
+  try {
+    const json = JSON.parse(text) as { error?: string; code?: string };
+    if (json?.error) return json.error;
+  } catch {
+    // not JSON
+  }
+  return text || res.statusText;
+}
+
 export async function apiPost<T>(
   path: string,
   body: unknown,
@@ -71,8 +82,7 @@ export async function apiPost<T>(
     body: JSON.stringify(body),
   });
   if (!res.ok) {
-    const text = await res.text().catch(() => res.statusText);
-    throw new Error(`${res.status}: ${text}`);
+    throw new Error(await readErrorMessage(res));
   }
   return res.json() as Promise<T>;
 }
@@ -117,17 +127,27 @@ export type MobileMember = {
   lastLoginAt?: string | null;
 };
 
+export type MobileOrganization = {
+  id: number;
+  name: string;
+  type: string;
+  seatLimit: number;
+  status: string;
+  trialEndsAt?: string | null;
+  pipelineStatus?: string | null;
+  billingPlan?: string | null;
+  billingStatus?: string | null;
+  currentPeriodEnd?: string | null;
+  cancelAtPeriodEnd?: boolean;
+  billableSeats?: number | null;
+  contractRef?: string | null;
+  hasStripeCustomer?: boolean;
+  hasStripeSubscription?: boolean;
+};
+
 export type MobileAuthUser = {
   member: MobileMember;
-  organization: {
-    id: number;
-    name: string;
-    type: string;
-    seatLimit: number;
-    status: string;
-    trialEndsAt?: string | null;
-    pipelineStatus?: string | null;
-  } | null;
+  organization: MobileOrganization | null;
   fieldKit: {
     allowed: boolean;
     reason?: string | null;
@@ -135,6 +155,51 @@ export type MobileAuthUser = {
     hoursRemaining?: number | null;
   };
 };
+
+/** Billing status from GET /api/billing/status */
+export type BillingStatus = {
+  configured: boolean;
+  individualWeeklyPriceConfigured: boolean;
+  canCheckoutIndividual: boolean;
+  canOpenPortal: boolean;
+  organization: {
+    id: number;
+    type: string;
+    status: string;
+    billingPlan: string | null;
+    billingStatus: string | null;
+    currentPeriodEnd: string | null;
+    cancelAtPeriodEnd: boolean;
+    hasStripeCustomer: boolean;
+    hasStripeSubscription: boolean;
+    billableSeats: number | null;
+    seatLimit: number;
+    contractRef: string | null;
+  };
+};
+
+export async function fetchBillingStatus(): Promise<BillingStatus | null> {
+  try {
+    return await apiGet<BillingStatus>("/api/billing/status");
+  } catch {
+    return null;
+  }
+}
+
+/** Start individual weekly Checkout ($14.99/wk). Returns Stripe-hosted URL. */
+export async function startIndividualCheckout(): Promise<{ url: string }> {
+  return apiPost<{ url: string }>("/api/billing/checkout", {});
+}
+
+/** Open Stripe Customer Portal (cancel / update card). */
+export async function openBillingPortal(): Promise<{ url: string }> {
+  return apiPost<{ url: string }>("/api/billing/portal", {});
+}
+
+/** Site origin for membership / account deep links in the browser. */
+export function getWebSiteUrl(): string {
+  return getBaseUrl() || "https://spartancoaching.com";
+}
 
 export async function loginMobile(email: string, password: string): Promise<MobileAuthUser & { token: string }> {
   const res = await fetch(`${getBase()}/api/auth/login`, {

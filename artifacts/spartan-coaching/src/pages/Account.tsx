@@ -161,8 +161,9 @@ export default function Account() {
     billingOrg?.cancelAtPeriodEnd ?? org?.cancelAtPeriodEnd,
   );
   const periodEnd = billingOrg?.currentPeriodEnd || org?.currentPeriodEnd;
+  // Show Subscribe for personal accounts even if billing/status is still loading —
+  // checkout API will return a clear error if Stripe secrets are missing.
   const canCheckout =
-    Boolean(billing?.canCheckoutIndividual) &&
     isPersonal &&
     !isPlatform &&
     !isComp &&
@@ -170,8 +171,11 @@ export default function Account() {
     (org?.status === "trial" ||
       org?.status === "expired" ||
       org?.status === "suspended" ||
-      (org?.status === "active" && !hasPaidSub));
-  const canPortal = Boolean(billing?.canOpenPortal) || Boolean(org?.hasStripeCustomer);
+      org?.status === "active" ||
+      !org?.status);
+  const canPortal =
+    Boolean(billing?.canOpenPortal) ||
+    Boolean(billingOrg?.hasStripeCustomer || org?.hasStripeCustomer);
 
   const statusLabel =
     org?.status === "trial"
@@ -303,11 +307,25 @@ export default function Account() {
         </dl>
 
         {/* Billing actions */}
-        <div className="rounded-lg border border-border bg-muted/30 p-4 space-y-3" data-testid="card-billing-actions">
+        <div
+          className="rounded-lg border-2 border-primary/40 bg-primary/5 p-4 space-y-3"
+          data-testid="card-billing-actions"
+        >
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <CreditCard className="w-4 h-4 text-primary" />
             Membership &amp; billing
           </div>
+          {isPersonal && !isPlatform && (
+            <div>
+              <p className="text-3xl font-black text-primary tracking-tight">
+                $14.99
+                <span className="text-sm font-semibold text-muted-foreground"> / week</span>
+              </p>
+              <p className="text-xs text-muted-foreground mt-1">
+                Individual Field Kit · auto-renew · cancel anytime from Manage billing
+              </p>
+            </div>
+          )}
           {billingLoading ? (
             <p className="text-sm text-muted-foreground flex items-center gap-2">
               <Loader2 className="w-4 h-4 animate-spin" /> Loading billing…
@@ -316,9 +334,8 @@ export default function Account() {
             <>
               {isPersonal && !isPlatform && (
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Individual plan: <strong className="text-foreground">$14.99 per week</strong>, auto-renews until you
-                  cancel. Cancel anytime in Manage billing — you keep access until the paid period ends. Failed payments
-                  may lock tools until the card is updated.
+                  Subscribe securely with Stripe. Cancel anytime — you keep access until the paid period ends. Failed
+                  payments may lock tools until the card is updated.
                 </p>
               )}
               {isCompany && (
