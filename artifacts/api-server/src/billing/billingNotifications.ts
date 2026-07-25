@@ -51,7 +51,13 @@ export async function notifyPaymentFailed(org: ClientOrganization): Promise<void
     try {
       await sendBillingPaymentFailedEmail(m.email, m.name, org.name);
     } catch (err) {
-      console.warn("payment failed email to member failed:", m.email, err);
+      console.error("billing_email_failed", {
+        event: "billing_email_failed",
+        type: "payment_failed",
+        orgId: org.id,
+        email: m.email,
+        err,
+      });
     }
   }
 
@@ -99,7 +105,13 @@ export async function notifySubscriptionCanceled(
         periodEnd: opts?.periodEnd ?? org.currentPeriodEnd ?? null,
       });
     } catch (err) {
-      console.warn("canceled email to member failed:", m.email, err);
+      console.error("billing_email_failed", {
+        event: "billing_email_failed",
+        type: "canceled",
+        orgId: org.id,
+        email: m.email,
+        err,
+      });
     }
   }
 }
@@ -116,7 +128,13 @@ export async function notifySubscriptionActive(org: ClientOrganization): Promise
     try {
       await sendBillingActiveEmail(m.email, m.name, org.name);
     } catch (err) {
-      console.warn("subscription active email to member failed:", m.email, err);
+      console.error("billing_email_failed", {
+        event: "billing_email_failed",
+        type: "active",
+        orgId: org.id,
+        email: m.email,
+        err,
+      });
     }
   }
 
