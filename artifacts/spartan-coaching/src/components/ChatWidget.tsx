@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
+import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { MessageCircle, X, Send, Minimize2, ShieldCheck, Trash2, User } from "lucide-react";
@@ -477,12 +478,22 @@ function ChatWidgetContent() {
 
 export function ChatWidget() {
   const [mounted, setMounted] = useState(false);
+  const [location] = useLocation();
 
   useEffect(() => {
     setMounted(true);
   }, []);
 
   if (!mounted) {
+    return null;
+  }
+
+  // Keep Field Kit board + Command Center focused (no marketing chat overlay)
+  if (
+    location === "/portal" ||
+    location.startsWith("/tools/sales-workflow") ||
+    location.startsWith("/account")
+  ) {
     return null;
   }
 

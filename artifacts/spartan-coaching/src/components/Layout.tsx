@@ -191,14 +191,16 @@ export function Header() {
           {isAuthenticated ? (
             <>
               <PortalNav />
-              <Button
-                size="sm"
-                asChild
-                className="font-bold ml-2 px-5"
-                data-testid="button-book-call"
-              >
-                <Link href="/contact">Book a Call</Link>
-              </Button>
+              {!canUseFieldKit && (
+                <Button
+                  size="sm"
+                  asChild
+                  className="font-bold ml-2 px-5"
+                  data-testid="button-book-call"
+                >
+                  <Link href="/contact">Book a Call</Link>
+                </Button>
+              )}
             </>
           ) : (
             <>

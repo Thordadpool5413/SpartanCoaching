@@ -66,7 +66,13 @@ export function FieldKitChrome({
         ? `${Math.max(1, Math.round(fieldKit.hoursRemaining))}h left in evaluation`
         : `${Math.round(fieldKit.hoursRemaining / 24)}d left in evaluation`
       : organization?.status === "active"
-        ? "Active client access"
+        ? organization?.billingPlan === "individual_weekly"
+          ? "Member · $14.99/wk"
+          : organization?.billingPlan === "corporate_contract"
+            ? "Member · Team"
+            : organization?.billingPlan === "comp"
+              ? "Member · Comp"
+              : "Field Kit Member"
         : null;
 
   return (
@@ -79,7 +85,9 @@ export function FieldKitChrome({
     >
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div className="min-w-0 space-y-1">
-          <p className="text-[10px] font-bold tracking-widest text-primary uppercase">Field Kit</p>
+          <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
+            Field Kit · private operating system
+          </p>
           <p className="text-sm text-foreground leading-relaxed max-w-2xl">{FIELD_KIT_WHAT}</p>
           {nextHint && (
             <p className="text-xs text-muted-foreground pt-0.5">

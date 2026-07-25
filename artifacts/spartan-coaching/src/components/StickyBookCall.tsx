@@ -5,10 +5,12 @@ import { Phone } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { cn } from "@/lib/utils";
 import { Link, useLocation } from "wouter";
+import { useAuth } from "@/context/AuthContext";
 
 function StickyBookCallContent() {
   const isMobile = useIsMobile();
   const [location] = useLocation();
+  const { canUseFieldKit } = useAuth();
   const [isVisible, setIsVisible] = useState(false);
   const [mounted, setMounted] = useState(false);
 
@@ -27,6 +29,11 @@ function StickyBookCallContent() {
   }, []);
 
   if (!mounted) {
+    return null;
+  }
+
+  // Quiet paid/member product mode — no sticky sales FAB over Field Kit work
+  if (canUseFieldKit) {
     return null;
   }
 

@@ -1191,13 +1191,18 @@ export async function sendMembershipActivatedEmail(
       subject: "Your Spartan Field Kit membership is active",
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
-        <p style="margin:0 0 16px;line-height:1.6;">Your Field Kit access for <strong>${orgName}</strong> is now <strong>active</strong> as a continuing client — not a timed evaluation.</p>
-        <p style="margin:0 0 16px;line-height:1.6;">Sign in anytime, run your weekly workflows, and reach out when you want coaching, more seats, or a leadership debrief.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">You're in. Field Kit access for <strong>${orgName}</strong> is <strong>active</strong> — your private operating system for hospice growth work between coaching sessions.</p>
+        <p style="margin:0 0 12px;line-height:1.6;"><strong>Start here (90 seconds):</strong></p>
+        <ol style="margin:0 0 16px;padding-left:20px;line-height:1.7;color:#374151;">
+          <li>Open Sales Command Center</li>
+          <li>Add your next facility account (no patient names / no PHI)</li>
+          <li>Build the call plan and run the day from there</li>
+        </ol>
         <div style="text-align:center;margin:28px 0;">
-          <a href="${siteUrl}/login" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Sign in to Field Kit</a>
-          <a href="${siteUrl}/portal" style="display:inline-block;background:#111827;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Open portal</a>
+          <a href="${siteUrl}/tools/sales-workflow" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Open Command Center</a>
+          <a href="${siteUrl}/portal" style="display:inline-block;background:#111827;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Field Kit home</a>
         </div>
-        <p style="margin:0 0 16px;line-height:1.6;font-size:14px;color:#555;">Billing and seat changes stay human: reply here or book a call. Never enter PHI into tools.</p>
+        <p style="margin:0 0 16px;line-height:1.6;font-size:14px;color:#555;">Individuals: manage or cancel anytime under Account → Manage billing. Teams: seats stay under your contract. Never enter PHI into tools.</p>
         <p style="margin:0 0 4px;font-weight:bold;">Nick Lynch</p>
         <p style="margin:0;color:#555;font-size:14px;">Founder, Spartan Coaching</p>
       `),

@@ -7,20 +7,28 @@ import {
   UserCircle,
   Phone,
   FolderOpen,
+  Crosshair,
 } from "lucide-react";
 
 const PORTAL_LINKS = [
-  { href: "/portal", label: "Home", icon: LayoutDashboard },
-  { href: "/tools", label: "Tools", icon: Wrench },
+  { href: "/portal", label: "Board", icon: LayoutDashboard },
+  { href: "/tools/sales-workflow", label: "Command", icon: Crosshair },
+  { href: "/tools", label: "All tools", icon: Wrench },
   { href: "/resources", label: "Resources", icon: FolderOpen },
   { href: "/portal/learn", label: "Learn", icon: BookOpen },
   { href: "/account", label: "Account", icon: UserCircle },
-  { href: "/contact", label: "Coaching", icon: Phone },
+  { href: "/contact?service=Field+Kit+Debrief", label: "Coach", icon: Phone },
 ];
 
 function isActive(location: string, href: string) {
   if (href === "/portal") return location === "/portal";
-  if (href === "/tools") return location === "/tools" || location.startsWith("/tools/");
+  if (href === "/tools/sales-workflow") return location.startsWith("/tools/sales-workflow");
+  if (href === "/tools") {
+    return (
+      (location === "/tools" || location.startsWith("/tools/")) &&
+      !location.startsWith("/tools/sales-workflow")
+    );
+  }
   if (href === "/resources") {
     return location === "/resources" || location.startsWith("/resources/");
   }
@@ -34,6 +42,7 @@ function isActive(location: string, href: string) {
       location === "/quiz"
     );
   }
+  if (href.startsWith("/contact")) return location.startsWith("/contact");
   return location === href || location.startsWith(href + "/");
 }
 

@@ -8,8 +8,8 @@ import {
   sendBillingPaymentFailedEmail,
   sendBillingCanceledEmail,
   sendBillingPastDueAdminAlert,
-  sendBillingActiveEmail,
   sendBillingActiveAdminAlert,
+  sendMembershipActivatedEmail,
 } from "../resend";
 import { recordBillingEmailFailure } from "./billingEmailMetrics";
 
@@ -120,6 +120,11 @@ export async function notifySubscriptionCanceled(
   }
 }
 
+/**
+ * Stripe path: welcome members when subscription becomes active.
+ * Uses membership-activated copy (Command Center first) + admin alert.
+ * Note: Stripe redeliveries may re-send email; audit event always logged.
+ */
 export async function notifySubscriptionActive(org: ClientOrganization): Promise<void> {
   await logBillingEvent("billing_subscription_active", org.id, {
     billingPlan: org.billingPlan,
@@ -130,7 +135,7 @@ export async function notifySubscriptionActive(org: ClientOrganization): Promise
   const members = await activeMembers(org.id);
   for (const m of members) {
     try {
-      await sendBillingActiveEmail(m.email, m.name, org.name);
+      await sendMembershipActivatedEmail(m.email, m.name, org.name);
     } catch (err) {
       recordBillingEmailFailure("active", org.id);
       console.error("billing_email_failed", {

@@ -37,6 +37,7 @@ import {
 import { FieldKitGate } from "@/components/FieldKitGate";
 import { ToolDisclaimer } from "@/components/ToolDisclaimer";
 import { FieldKitChrome } from "@/components/FieldKitChrome";
+import { MembershipActivation } from "@/components/MembershipActivation";
 import { useBillingActions } from "@/hooks/useBillingActions";
 import {
   FIELD_KIT_WHAT,
@@ -285,11 +286,17 @@ export default function Portal() {
     return <FieldKitGate />;
   }
 
-  const trialLabel =
+  const memberStatusLabel =
     organization?.status === "trial"
       ? formatTrialRemaining(fieldKit?.hoursRemaining)
       : organization?.status === "active"
-        ? "Active client access"
+        ? organization?.billingPlan === "individual_weekly"
+          ? "Field Kit Member · $14.99/wk"
+          : organization?.billingPlan === "corporate_contract"
+            ? "Field Kit Member · Team"
+            : organization?.billingPlan === "comp"
+              ? "Field Kit Member · Complimentary"
+              : "Field Kit Member"
         : null;
 
   const isPersonalTrial =
@@ -305,15 +312,20 @@ export default function Portal() {
       ? "Book a debrief or browse tools for this week’s work"
       : startHere.title;
 
+  const isPaidMember = organization?.status === "active";
+
   return (
     <div className="w-full max-w-5xl mx-auto px-4 py-10 sm:py-14" data-testid="page-portal">
       <SEO />
+      <MembershipActivation />
 
       <FieldKitChrome nextHint={nextHint} />
 
       {/* Welcome */}
       <div className="mb-6 space-y-3">
-        <p className="text-xs font-bold tracking-widest text-primary uppercase">Field Kit home</p>
+        <p className="text-xs font-bold tracking-widest text-primary uppercase">
+          {isPaidMember ? "Field Kit board" : "Field Kit home"}
+        </p>
         <h1 className="text-h1 font-display font-black text-foreground">
           {isFirstSession
             ? `Let's make this session count${firstName ? `, ${firstName}` : ""}`
@@ -321,16 +333,22 @@ export default function Portal() {
         </h1>
         <p className="text-muted-foreground max-w-2xl leading-relaxed">
           {isFirstSession
-            ? "Your evaluation produces signal when you run real field work — not when you browse every tool. Start in Sales Command Center, complete the three steps below, then book a debrief."
-            : "Run the day from Sales Command Center. Support tools, checklist, and debrief stay one click away."}
+            ? isPaidMember
+              ? "You're a member. Signal comes from real field work — start in Sales Command Center, add your next facility account (no PHI), and run the day from there."
+              : "Your evaluation produces signal when you run real field work — not when you browse every tool. Start in Sales Command Center, complete the three steps below, then book a debrief."
+            : "Run the day from Sales Command Center. Support tools and coach stay one click away."}
         </p>
-        {trialLabel && (
+        {memberStatusLabel && (
           <div
-            className="inline-flex flex-wrap items-center gap-2 text-sm font-medium text-amber-800 dark:text-amber-200/90 bg-amber-500/10 border border-amber-500/25 rounded-md px-3 py-2"
-            data-testid="banner-trial"
+            className={
+              isPaidMember
+                ? "inline-flex flex-wrap items-center gap-2 text-sm font-medium text-emerald-800 dark:text-emerald-200/90 bg-emerald-500/10 border border-emerald-500/25 rounded-md px-3 py-2"
+                : "inline-flex flex-wrap items-center gap-2 text-sm font-medium text-amber-800 dark:text-amber-200/90 bg-amber-500/10 border border-amber-500/25 rounded-md px-3 py-2"
+            }
+            data-testid={isPaidMember ? "banner-member" : "banner-trial"}
           >
             <Clock className="w-4 h-4 shrink-0" />
-            <span>{trialLabel}</span>
+            <span>{memberStatusLabel}</span>
             {isPersonalTrial && (
               <button
                 type="button"

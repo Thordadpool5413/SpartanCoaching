@@ -56,11 +56,16 @@ export default function Account() {
     const billingQ = queryParam("billing");
     if (!billingQ) return;
     if (billingQ === "success") {
+      // Prefer product path; older Stripe sessions may still return here.
       toast({
         title: "Payment received",
-        description: "Refreshing your membership — Field Kit unlocks when the subscription is active.",
+        description: "Opening Field Kit — start in Command Center.",
       });
       void refresh();
+      window.setTimeout(() => {
+        window.location.href = "/portal?activated=1";
+      }, 400);
+      return;
     } else if (billingQ === "canceled") {
       toast({
         title: "Checkout canceled",
@@ -402,9 +407,14 @@ export default function Account() {
 
         <div className="flex flex-wrap gap-3 pt-2">
           {canUseFieldKit && (
-            <Button asChild className="font-bold">
-              <Link href="/portal">Open Field Kit home</Link>
-            </Button>
+            <>
+              <Button asChild className="font-bold">
+                <Link href="/tools/sales-workflow">Open Command Center</Link>
+              </Button>
+              <Button asChild variant="outline" className="font-bold">
+                <Link href="/portal">Field Kit board</Link>
+              </Button>
+            </>
           )}
           {!canUseFieldKit && org?.status === "expired" && !canCheckout && (
             <>

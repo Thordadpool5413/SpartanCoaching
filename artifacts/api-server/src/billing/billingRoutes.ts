@@ -191,10 +191,11 @@ export function registerBillingRoutes(app: Express): void {
       const stripe = getStripe();
       const priceId = getIndividualWeeklyPriceId();
       const site = getSiteUrl();
+      // Land on Field Kit product (activation ceremony), not billing Account page.
       const successUrl =
         (typeof req.body?.successUrl === "string" && req.body.successUrl.startsWith(site)
           ? req.body.successUrl
-          : null) || `${site}/account?billing=success`;
+          : null) || `${site}/portal?activated=1`;
       const cancelUrl =
         (typeof req.body?.cancelUrl === "string" && req.body.cancelUrl.startsWith(site)
           ? req.body.cancelUrl
