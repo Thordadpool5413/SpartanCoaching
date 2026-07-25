@@ -34,6 +34,7 @@ import {
 } from "./billingNotifications";
 import { sendBillingActiveAdminAlert } from "../resend";
 import { checkWebhookSecret } from "./webhookSecretCheck";
+import { getBillingEmailMetrics } from "./billingEmailMetrics";
 
 function orgIdFromMetadata(meta: Stripe.Metadata | null | undefined): number | null {
   if (!meta?.organizationId) return null;
@@ -65,6 +66,27 @@ export function registerBillingRoutes(app: Express): void {
         reason: "INTERNAL_ERROR",
         hint: "Unexpected error running webhook health check.",
         detail: { error: err?.message || String(err) },
+      });
+    }
+  });
+
+  /**
+   * GET /api/admin/billing-email-health
+   * Returns in-process counts of billing_email_failed events in the last 1h and 24h.
+   * HTTP 200 when below thresholds, 503 when either threshold is breached.
+   * No auth required so smoke-health scripts can call it without credentials.
+   * Does NOT return any PII — only counts and email types.
+   */
+  app.get("/api/admin/billing-email-health", (_req, res) => {
+    try {
+      const metrics = getBillingEmailMetrics();
+      const status = metrics.ok ? 200 : 503;
+      return res.status(status).json(metrics);
+    } catch (err: any) {
+      return res.status(500).json({
+        ok: false,
+        error: "INTERNAL_ERROR",
+        detail: err?.message || String(err),
       });
     }
   });

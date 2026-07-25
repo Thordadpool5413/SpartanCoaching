@@ -11,6 +11,7 @@ import {
   sendBillingActiveEmail,
   sendBillingActiveAdminAlert,
 } from "../resend";
+import { recordBillingEmailFailure } from "./billingEmailMetrics";
 
 export async function logBillingEvent(
   type: string,
@@ -51,6 +52,7 @@ export async function notifyPaymentFailed(org: ClientOrganization): Promise<void
     try {
       await sendBillingPaymentFailedEmail(m.email, m.name, org.name);
     } catch (err) {
+      recordBillingEmailFailure("payment_failed", org.id);
       console.error("billing_email_failed", {
         event: "billing_email_failed",
         type: "payment_failed",
@@ -74,6 +76,7 @@ export async function notifyPaymentFailed(org: ClientOrganization): Promise<void
       memberEmails: members.map((m) => m.email),
     });
   } catch (err) {
+    recordBillingEmailFailure("past_due_admin_alert", org.id);
     console.error("billing_email_failed", {
       event: "billing_email_failed",
       type: "past_due_admin_alert",
@@ -105,6 +108,7 @@ export async function notifySubscriptionCanceled(
         periodEnd: opts?.periodEnd ?? org.currentPeriodEnd ?? null,
       });
     } catch (err) {
+      recordBillingEmailFailure("canceled", org.id);
       console.error("billing_email_failed", {
         event: "billing_email_failed",
         type: "canceled",
@@ -128,6 +132,7 @@ export async function notifySubscriptionActive(org: ClientOrganization): Promise
     try {
       await sendBillingActiveEmail(m.email, m.name, org.name);
     } catch (err) {
+      recordBillingEmailFailure("active", org.id);
       console.error("billing_email_failed", {
         event: "billing_email_failed",
         type: "active",
@@ -150,6 +155,7 @@ export async function notifySubscriptionActive(org: ClientOrganization): Promise
       memberEmails: members.map((m) => m.email),
     });
   } catch (err) {
+    recordBillingEmailFailure("active_admin_alert", org.id);
     console.error("billing_email_failed", {
       event: "billing_email_failed",
       type: "active_admin_alert",
