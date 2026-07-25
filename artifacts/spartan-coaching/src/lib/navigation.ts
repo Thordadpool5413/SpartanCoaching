@@ -60,6 +60,7 @@ export const navSections: SiteNavSection[] = [
   {
     title: "Field Kit",
     items: [
+      { path: "/field-kit", label: "What's in the Field Kit", description: "The sales page — tools, scenarios, and pricing for hospice reps", icon: Flame },
       { path: "/portal", label: "Field Kit home", description: "Your private execution workspace", icon: Home },
       { path: "/account", label: "Account & billing", description: "Subscribe, cancel, and manage membership", icon: DollarSign },
       { path: "/tools", label: "Tools", description: "Prepare, practice, plan, and measure", icon: Wrench },

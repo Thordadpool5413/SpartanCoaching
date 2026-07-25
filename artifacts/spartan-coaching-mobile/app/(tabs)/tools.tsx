@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
+  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -17,7 +18,7 @@ import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { BottomTabBarHeightContext } from "@react-navigation/bottom-tabs";
 import { useColors } from "@/hooks/useColors";
-import { apiGet, apiPost } from "@/lib/api";
+import { apiGet, apiPost, getWebSiteUrl } from "@/lib/api";
 import { ReminderPicker } from "@/components/ReminderPicker";
 import { useSavedResponses, type SavedResponse } from "@/hooks/useSavedResponses";
 import { useAuth } from "@/lib/AuthContext";
@@ -853,6 +854,16 @@ export default function ToolsScreen() {
                 {isAuthenticated ? "Open Account to subscribe →" : "Client login →"}
               </Text>
             </Pressable>
+            {!isAuthenticated && (
+              <Pressable
+                onPress={() => Linking.openURL(`${getWebSiteUrl()}/field-kit`)}
+                style={{ marginTop: 10, alignItems: "center" }}
+              >
+                <Text style={{ color: colors.primary, fontWeight: "700", fontSize: 13 }}>
+                  See what's in the Field Kit →
+                </Text>
+              </Pressable>
+            )}
           </View>
         </View>
       )}

@@ -126,6 +126,11 @@ export default function FieldKitMembership() {
               </Button>
             </>
           )}
+          <Button asChild variant="ghost" className="font-medium" size="lg">
+            <Link href="/field-kit">
+              See how it works →
+            </Link>
+          </Button>
         </div>
       </div>
 

@@ -270,14 +270,14 @@ export default function Home() {
             </p>
 
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button size="lg" asChild className="font-bold shadow-md" data-testid="button-home-membership">
-                <Link href="/field-kit-membership">
-                  View membership &amp; subscribe
+              <Button size="lg" asChild className="font-bold shadow-md" data-testid="button-home-field-kit">
+                <Link href="/field-kit">
+                  See how it works
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="font-bold border-2">
-                <Link href="/request-access">Request evaluation</Link>
+              <Button size="lg" variant="outline" asChild className="font-bold border-2" data-testid="button-home-membership">
+                <Link href="/field-kit-membership">View pricing</Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="font-bold border-2">
                 <Link href="/account">Account / billing</Link>
