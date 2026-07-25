@@ -195,9 +195,18 @@ export default function AccountScreen() {
             View membership pricing →
           </Text>
         </Pressable>
+        <Pressable
+          onPress={() => Linking.openURL(`${getWebSiteUrl()}/register`)}
+          style={{ marginTop: 12 }}
+          testID="button-create-account"
+        >
+          <Text style={{ color: colors.primary, textAlign: "center", fontWeight: "700" }}>
+            New? Create an account →
+          </Text>
+        </Pressable>
         <Pressable onPress={() => router.push("/(tabs)/contact")} style={{ marginTop: 12 }}>
           <Text style={{ color: colors.mutedForeground, textAlign: "center", fontWeight: "600" }}>
-            Request access or book a call
+            Request team access or book a call
           </Text>
         </Pressable>
       </ScrollView>

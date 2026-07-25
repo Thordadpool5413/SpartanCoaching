@@ -267,6 +267,14 @@ export const extendEvaluationBodySchema = z.object({
   message: z.string().max(5000).optional(),
 });
 
+export const selfRegisterBodySchema = z.object({
+  name: z.string().min(2).max(200),
+  email: z.string().email(),
+  password: z.string().min(8).max(200),
+  acceptTerms: z.boolean().optional(),
+  noPhi: z.boolean().optional(),
+});
+
 export const adminBootstrapBodySchema = z.object({
   adminPassword: z.string().min(1),
   email: z.string().email(),

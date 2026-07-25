@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { KeyboardAvoidingView, Linking, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
@@ -84,8 +84,17 @@ export default function LoginScreen() {
           />
         </SpartanCard>
 
-        <Pressable onPress={() => router.push("/(tabs)/contact")} style={{ marginTop: 20 }}>
+        <Pressable
+          onPress={() => Linking.openURL(`${process.env.EXPO_PUBLIC_API_URL?.replace(/\/api$/, "") ?? "https://spartanhospicecoaching.com"}/register`)}
+          style={{ marginTop: 20 }}
+          testID="button-create-account"
+        >
           <Text style={{ color: colors.primary, textAlign: "center", fontWeight: "700", fontFamily: "Inter_600SemiBold" }}>
+            New? Create an account →
+          </Text>
+        </Pressable>
+        <Pressable onPress={() => router.push("/(tabs)/contact")} style={{ marginTop: 12 }}>
+          <Text style={{ color: colors.mutedForeground, textAlign: "center", fontWeight: "600", fontFamily: "Inter_400Regular" }}>
             Prefer a strategy call? Contact us
           </Text>
         </Pressable>

@@ -119,10 +119,10 @@ export default function FieldKitMembership() {
           ) : (
             <>
               <Button asChild className="font-bold" size="lg">
-                <Link href="/login">Log in to subscribe · $14.99/wk</Link>
+                <Link href="/register" data-testid="membership-hero-register">Create account · start free trial</Link>
               </Button>
               <Button asChild variant="outline" className="font-bold" size="lg">
-                <Link href="/request-access">Request evaluation first</Link>
+                <Link href="/login">Already have an account? Sign in</Link>
               </Button>
             </>
           )}
@@ -190,9 +190,9 @@ export default function FieldKitMembership() {
           {canSubscribe ? (
             <SubscribeBtn testId="button-tier-individual-subscribe" />
           ) : (
-            <Button asChild className="w-full font-bold" variant="outline">
-              <Link href="/request-access" data-testid="button-tier-individual">
-                Start with evaluation
+            <Button asChild className="w-full font-bold" data-testid="button-tier-individual">
+              <Link href="/register">
+                Create account — start free trial
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Link>
             </Button>
@@ -337,10 +337,10 @@ export default function FieldKitMembership() {
         {!isAuthenticated && (
           <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
             <Button asChild className="font-bold" size="lg">
-              <Link href="/request-access">Request evaluation access</Link>
+              <Link href="/register">Create account — start free trial</Link>
             </Button>
             <Button asChild variant="outline" className="font-bold" size="lg">
-              <Link href="/login">Log in to subscribe</Link>
+              <Link href="/login">Sign in</Link>
             </Button>
           </div>
         )}

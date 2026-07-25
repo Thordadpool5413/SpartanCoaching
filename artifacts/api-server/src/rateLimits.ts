@@ -48,6 +48,14 @@ export const authLimit = rateLimit({
   message: { error: "Too many attempts. Please try again later." },
 });
 
+/** Self-serve registration — tighter than general API but more generous than login */
+export const registerLimit = rateLimit({
+  windowMs: 60 * 60 * 1000,
+  max: 10,
+  ...common,
+  message: { error: "Too many registration attempts from this network. Please try again later." },
+});
+
 /** Access request intake */
 export const requestAccessLimit = rateLimit({
   windowMs: 60 * 60 * 1000,

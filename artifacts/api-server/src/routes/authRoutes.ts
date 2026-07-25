@@ -28,6 +28,7 @@ import {
   orgNoteBodySchema,
   orgUpdateBodySchema,
   onboardingUpdateSchema,
+  selfRegisterBodySchema,
   inquiries,
 } from "@workspace/db";
 import { db } from "../db";
@@ -55,6 +56,7 @@ import {
   loginLimit,
   authLimit,
   requestAccessLimit,
+  registerLimit,
 } from "../rateLimits";
 import {
   sendAccessRequestReceived,
@@ -338,6 +340,104 @@ export function registerAuthRoutes(app: Express): void {
     } catch (err) {
       console.error("request-access error:", err);
       return res.status(500).json({ error: "Unable to submit request" });
+    }
+  });
+
+  // ── Public: self-service individual registration ───────────────────
+  app.post("/api/auth/register", registerLimit, async (req, res) => {
+    try {
+      const parsed = selfRegisterBodySchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Invalid registration data", details: parsed.error.flatten() });
+      }
+      const { name, email: rawEmail, password } = parsed.data;
+      const email = rawEmail.toLowerCase().trim();
+
+      // Reject if member already exists
+      const [existingMember] = await db
+        .select()
+        .from(clientMembers)
+        .where(eq(clientMembers.email, email))
+        .limit(1);
+      if (existingMember && existingMember.status !== "disabled") {
+        return res.status(409).json({
+          error: "An account with this email already exists. Please sign in instead.",
+          code: "ACCOUNT_EXISTS",
+        });
+      }
+
+      const passwordHash = await hashPassword(password);
+      const trialEndsAt = new Date(Date.now() + DEFAULT_INDIVIDUAL_TRIAL_HOURS * 60 * 60 * 1000);
+      const orgName = `${name.trim()}'s Field Kit`;
+
+      // Create personal org in trial state
+      const [org] = await db
+        .insert(clientOrganizations)
+        .values({
+          name: orgName,
+          type: "personal",
+          seatLimit: 1,
+          status: "trial",
+          pipelineStatus: "trial",
+          trialEndsAt,
+        })
+        .returning();
+
+      if (!org) {
+        return res.status(500).json({ error: "Failed to create organization" });
+      }
+
+      // Create member with password already set (status active, not invited)
+      let member;
+      if (existingMember) {
+        // Re-enable a previously disabled account onto the new org
+        const [updated] = await db
+          .update(clientMembers)
+          .set({ name: name.trim(), role: "org_admin", organizationId: org.id, status: "active", passwordHash })
+          .where(eq(clientMembers.id, existingMember.id))
+          .returning();
+        member = updated;
+      } else {
+        const [created] = await db
+          .insert(clientMembers)
+          .values({ email, name: name.trim(), role: "org_admin", organizationId: org.id, status: "active", passwordHash })
+          .returning();
+        member = created;
+      }
+
+      if (!member) {
+        return res.status(500).json({ error: "Failed to create member account" });
+      }
+
+      await addOrgTimeline(org.id, "system", `Self-registered: ${name.trim()} <${email}>`, "system", {
+        trialHours: DEFAULT_INDIVIDUAL_TRIAL_HOURS,
+      });
+      await logEvent("self_register", member.id, { email, orgId: org.id });
+
+      const { token, expiresAt } = await createSession(
+        member.id,
+        req.headers["user-agent"] as string | undefined,
+      );
+      await db.update(clientMembers).set({ lastLoginAt: new Date() }).where(eq(clientMembers.id, member.id));
+
+      setSessionCookie(res, token, expiresAt);
+      const access = await getAccessForMemberId(member.id);
+
+      return res.status(201).json({
+        member: publicMember(access.member || member),
+        organization: access.org ? publicOrg(access.org) : null,
+        fieldKit: {
+          allowed: access.allowed,
+          reason: access.reason ?? null,
+          trialEndsAt: access.trialEndsAt ?? null,
+          hoursRemaining: access.hoursRemaining ?? null,
+        },
+        token,
+        expiresAt,
+      });
+    } catch (err) {
+      console.error("register error:", err);
+      return res.status(500).json({ error: "Registration failed" });
     }
   });
 

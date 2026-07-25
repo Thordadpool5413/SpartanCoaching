@@ -141,9 +141,15 @@ export default function Login() {
 
         <div className="text-center text-sm text-muted-foreground space-y-2">
           <p>
-            Need access?{" "}
+            New individual subscriber?{" "}
+            <Link href="/register" className="text-primary font-semibold hover:underline" data-testid="link-login-register">
+              Create account
+            </Link>
+          </p>
+          <p>
+            Team or company seats?{" "}
             <Link href="/request-access" className="text-primary font-semibold hover:underline" data-testid="link-login-request">
-              Request evaluation access
+              Request team access
             </Link>
           </p>
           <p>
