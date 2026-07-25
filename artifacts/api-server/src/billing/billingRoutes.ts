@@ -32,6 +32,7 @@ import {
   notifySubscriptionActive,
   notifySubscriptionCanceled,
 } from "./billingNotifications";
+import { checkWebhookSecret } from "./webhookSecretCheck";
 
 function orgIdFromMetadata(meta: Stripe.Metadata | null | undefined): number | null {
   if (!meta?.organizationId) return null;
@@ -44,6 +45,29 @@ function orgIdFromMetadata(meta: Stripe.Metadata | null | undefined): number | n
  * Webhook must be mounted with express.raw BEFORE global express.json — see app.ts.
  */
 export function registerBillingRoutes(app: Express): void {
+  /**
+   * GET /api/admin/stripe-webhook-health
+   * On-demand check: verifies STRIPE_WEBHOOK_SECRET is consistent with the
+   * webhook endpoint registered in Stripe for this deployment's SITE_URL.
+   * Returns { ok, reason?, hint?, detail?, webhookId?, webhookUrl?, webhookStatus? }.
+   * Does NOT require auth so smoke-health.mjs can call it without credentials.
+   * Does NOT reveal any secret values.
+   */
+  app.get("/api/admin/stripe-webhook-health", async (_req, res) => {
+    try {
+      const result = await checkWebhookSecret();
+      const status = result.ok ? 200 : 503;
+      return res.status(status).json(result);
+    } catch (err: any) {
+      return res.status(500).json({
+        ok: false,
+        reason: "INTERNAL_ERROR",
+        hint: "Unexpected error running webhook health check.",
+        detail: { error: err?.message || String(err) },
+      });
+    }
+  });
+
   /**
    * GET /api/billing/status
    * Client-facing billing summary for the signed-in member's org.

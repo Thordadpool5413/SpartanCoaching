@@ -11,6 +11,7 @@ if (!base) {
 const paths = [
   "/api/health",
   "/api/admin/bootstrap-status",
+  "/api/admin/stripe-webhook-health",
 ];
 
 let failed = 0;

@@ -1,6 +1,7 @@
 import app from "./app";
 import { logger } from "./lib/logger";
 import { startBackgroundJobScheduler } from "./auth/opsJobs";
+import { checkWebhookSecretOnStartup } from "./billing/webhookSecretCheck";
 
 const rawPort = process.env["PORT"];
 
@@ -24,4 +25,10 @@ app.listen(port, (err) => {
 
   logger.info({ port }, "Server listening");
   startBackgroundJobScheduler();
+
+  // Non-blocking startup guard: verify webhook secret looks consistent with
+  // the endpoint registered in Stripe. Logs a warning if stale; never crashes.
+  checkWebhookSecretOnStartup().catch((e) => {
+    logger.warn({ err: e?.message || String(e) }, "[stripe] Webhook secret check failed unexpectedly");
+  });
 });
