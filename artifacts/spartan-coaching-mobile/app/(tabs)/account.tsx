@@ -56,6 +56,11 @@ export default function AccountScreen() {
   const [checkoutPending, setCheckoutPending] = useState(false);
   const [portalPending, setPortalPending] = useState(false);
 
+  // Tracks when billing data was last successfully fetched, used to skip
+  // unnecessary refreshes when the app briefly goes to the background.
+  const billingLastFetchedRef = useRef<number>(0);
+  const BILLING_STALE_MS = 30_000;
+
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 90;
 
@@ -78,6 +83,7 @@ export default function AccountScreen() {
     try {
       const data = await fetchBillingStatus();
       setBilling(data);
+      billingLastFetchedRef.current = Date.now();
     } finally {
       setBillingLoading(false);
     }
@@ -93,11 +99,16 @@ export default function AccountScreen() {
 
   // Re-check billing when the app comes back to the foreground (e.g. returning
   // from Stripe Checkout or the billing portal in the browser).
+  // Skip the fetch if billing data was loaded less than 30 s ago to avoid a
+  // loading-spinner flash when the user just briefly switches apps.
   const appStateRef = useRef(AppState.currentState);
   useEffect(() => {
     const sub = AppState.addEventListener("change", (nextState) => {
       if (appStateRef.current !== "active" && nextState === "active") {
-        loadBilling();
+        const age = Date.now() - billingLastFetchedRef.current;
+        if (age >= BILLING_STALE_MS) {
+          loadBilling();
+        }
         void refresh();
       }
       appStateRef.current = nextState;
