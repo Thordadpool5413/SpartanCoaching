@@ -13,7 +13,8 @@ import {
   type BillingStatusResponse,
 } from "@/lib/billingClient";
 import { Badge } from "@/components/ui/badge";
-import { CreditCard, ExternalLink, Loader2 } from "lucide-react";
+import { CreditCard, ExternalLink, Loader2, CheckCircle } from "lucide-react";
+import { FIELD_KIT_TOOLS, FIELD_KIT_CATEGORIES } from "@workspace/field-kit-catalog";
 
 function queryParam(name: string): string | null {
   if (typeof window === "undefined") return null;
@@ -443,6 +444,56 @@ export default function Account() {
           .
         </p>
       </Card>
+
+      {/* ── Your Field Kit — active subscriber confirmation card ── */}
+      {canUseFieldKit && hasPaidSub && (
+        <Card className="border border-border bg-card p-6 space-y-4" data-testid="card-your-field-kit">
+          <div>
+            <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">Your Field Kit</p>
+            <h2 className="text-lg font-bold text-foreground">13 private tools — all unlocked</h2>
+            <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+              Access everything below from the{" "}
+              <Link href="/portal" className="text-primary hover:underline font-semibold">
+                Field Kit home
+              </Link>{" "}
+              or directly via the links.
+            </p>
+          </div>
+          <div className="space-y-4">
+            {FIELD_KIT_CATEGORIES.filter((cat) =>
+              FIELD_KIT_TOOLS.some((t) => !t.public && t.category === cat),
+            ).map((cat) => {
+              const tools = FIELD_KIT_TOOLS.filter((t) => !t.public && t.category === cat);
+              return (
+                <div key={cat}>
+                  <p className="text-xs font-bold uppercase tracking-wider text-muted-foreground mb-2">{cat}</p>
+                  <div className="grid sm:grid-cols-2 gap-1.5">
+                    {tools.map((tool) => (
+                      <Link
+                        key={tool.id}
+                        href={tool.path}
+                        className="flex items-start gap-2 p-2.5 rounded-md border border-border hover:border-primary/40 hover:bg-primary/5 transition-colors"
+                        data-testid={`field-kit-tool-${tool.id}`}
+                      >
+                        <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-semibold text-foreground leading-tight">{tool.title}</p>
+                          <p className="text-xs text-muted-foreground leading-relaxed mt-0.5">{tool.description}</p>
+                        </div>
+                      </Link>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          <div className="pt-2 border-t border-border/60">
+            <Button asChild className="font-bold">
+              <Link href="/portal">Open Field Kit home</Link>
+            </Button>
+          </div>
+        </Card>
+      )}
 
       {member.role === "org_admin" && organization?.type === "company" && (
         <Card className="border border-border bg-card p-6 space-y-6">

@@ -91,17 +91,51 @@ export function FieldKitGate({ compact }: Props) {
           <p className="text-muted-foreground leading-relaxed max-w-lg mx-auto">{body}</p>
         </div>
 
-        <div className="grid sm:grid-cols-3 gap-3 text-left">
-          {[
-            { label: "Prepare", desc: "Playbooks, cold calls, emails" },
-            { label: "Practice", desc: "Objections, role-play, drills" },
-            { label: "Plan & measure", desc: "Weekly plans, calculators" },
-          ].map((c) => (
-            <div key={c.label} className="border border-border rounded-md p-3">
-              <p className="text-sm font-bold text-foreground">{c.label}</p>
-              <p className="text-xs text-muted-foreground mt-1">{c.desc}</p>
-            </div>
-          ))}
+        <div className="space-y-2 text-left">
+          <p className="text-xs font-bold tracking-widest text-primary uppercase text-center">What's locked behind this gate</p>
+          <div className="grid sm:grid-cols-2 gap-2">
+            {[
+              {
+                title: "Objection Handler",
+                desc: "Field-ready responses to every objection you hear this week — 'not ready,' 'already have a provider,' and more.",
+                cat: "Practice",
+              },
+              {
+                title: "Playbook Generator",
+                desc: "Custom talking points and a specific next-step ask for any account visit, generated in seconds.",
+                cat: "Prepare",
+              },
+              {
+                title: "Weekly Plan Builder",
+                desc: "Monday–Friday territory plan with win conditions for every account before the week runs you.",
+                cat: "Plan",
+              },
+              {
+                title: "Role-Play Practice",
+                desc: "Simulate physician and family conversations with AI feedback before you're in the room.",
+                cat: "Practice",
+              },
+              {
+                title: "Cold Call Script Generator",
+                desc: "Openers, objection handlers, and a clear next-step ask — for a full block of new outreach.",
+                cat: "Prepare",
+              },
+              {
+                title: "Sales Command Center",
+                desc: "Pre-call prep, outcome capture, coaching review, and next-step scheduling in one continuous workflow.",
+                cat: "Plan",
+              },
+            ].map((t) => (
+              <div key={t.title} className="border border-border rounded-md p-3 space-y-1">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="text-sm font-bold text-foreground">{t.title}</p>
+                  <span className="text-[10px] font-bold uppercase tracking-wider text-primary/70 shrink-0">{t.cat}</span>
+                </div>
+                <p className="text-xs text-muted-foreground leading-relaxed">{t.desc}</p>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground text-center pt-1">+ Activity Calculator, ROI Calculator, Email Templates, Grounded Research, and more</p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-3 justify-center flex-wrap">

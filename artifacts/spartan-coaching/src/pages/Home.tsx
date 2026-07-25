@@ -224,23 +224,52 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── MEMBERSHIP PRICING ── */}
+      {/* ── FIELD KIT SUBSCRIPTION ── */}
       <section
-        className="relative border-y border-border bg-card py-14 sm:py-16"
+        className="relative border-y border-border bg-card py-14 sm:py-20"
         data-testid="section-membership-pricing"
       >
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-5">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <FadeIn>
-            <p className="text-sm font-bold tracking-widest text-primary uppercase">Field Kit membership</p>
-            <h2 className="text-h2 font-display font-black text-foreground">
-              Individuals: <span className="text-primary">$14.99</span>
-              <span className="text-lg font-semibold text-muted-foreground"> / week</span>
-            </h2>
-            <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-              Cancel anytime from Account → Manage billing. Access continues through the paid week.
-              Teams use weekly per-seat rates under contract. Start with a short evaluation.
+            <div className="text-center mb-10 space-y-3">
+              <p className="text-sm font-bold tracking-widest text-primary uppercase">Private Field Kit</p>
+              <h2 className="text-h2 font-display font-black text-foreground">
+                13 private tools. One weekly price.
+              </h2>
+              <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto">
+                Built for the conversations that move eligible patients into care — not generic sales AI.
+                Individuals subscribe at{" "}
+                <strong className="text-foreground">$14.99/week</strong>, cancel anytime.
+                Teams use weekly per-seat rates under contract.
+              </p>
+            </div>
+
+            {/* Compact 2-col tool grid */}
+            <div className="grid sm:grid-cols-2 gap-2 max-w-3xl mx-auto mb-10">
+              {[
+                { title: "Objection Handler", desc: "Field-ready responses to every objection you hear this week" },
+                { title: "Weekly Plan Builder", desc: "Monday–Friday territory plan with win conditions" },
+                { title: "Playbook Generator", desc: "Talking points and a clear ask for any account visit" },
+                { title: "Role-Play Practice", desc: "Simulate hard conversations before you're in the room" },
+                { title: "Cold Call Script Generator", desc: "Openers and next-step asks for new outreach" },
+                { title: "Sales Command Center", desc: "Pre-call prep, outcomes, and next-step scheduling" },
+                { title: "Activity Calculator", desc: "Turn an admission goal into daily conversation targets" },
+                { title: "ROI Calculator", desc: "Put a revenue number next to every coaching conversation" },
+              ].map((tool) => (
+                <div key={tool.title} className="flex gap-2.5 p-3 rounded-lg border border-border">
+                  <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <div>
+                    <span className="text-sm font-semibold text-foreground">{tool.title}</span>
+                    <span className="text-xs text-muted-foreground"> — {tool.desc}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+            <p className="text-center text-xs text-muted-foreground mb-8">
+              + Email Templates, Grounded Research, Call Transcriber, Rep Cost Calculator, Branch Profitability Simulator
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button size="lg" asChild className="font-bold shadow-md" data-testid="button-home-membership">
                 <Link href="/field-kit-membership">
                   View membership &amp; subscribe
