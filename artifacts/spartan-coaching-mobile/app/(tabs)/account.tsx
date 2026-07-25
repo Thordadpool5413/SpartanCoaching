@@ -1,7 +1,8 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
+  AppState,
   Linking,
   Platform,
   Pressable,
@@ -89,6 +90,20 @@ export default function AccountScreen() {
       void refresh();
     }, [load, loadBilling, refresh]),
   );
+
+  // Re-check billing when the app comes back to the foreground (e.g. returning
+  // from Stripe Checkout or the billing portal in the browser).
+  const appStateRef = useRef(AppState.currentState);
+  useEffect(() => {
+    const sub = AppState.addEventListener("change", (nextState) => {
+      if (appStateRef.current !== "active" && nextState === "active") {
+        loadBilling();
+        void refresh();
+      }
+      appStateRef.current = nextState;
+    });
+    return () => sub.remove();
+  }, [loadBilling, refresh]);
 
   if (isLoading) {
     return (
