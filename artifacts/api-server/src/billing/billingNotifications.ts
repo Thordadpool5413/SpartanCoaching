@@ -68,7 +68,12 @@ export async function notifyPaymentFailed(org: ClientOrganization): Promise<void
       memberEmails: members.map((m) => m.email),
     });
   } catch (err) {
-    console.warn("payment failed admin alert failed:", err);
+    console.error("billing_email_failed", {
+      event: "billing_email_failed",
+      type: "past_due_admin_alert",
+      orgId: org.id,
+      err,
+    });
   }
 }
 
@@ -127,6 +132,11 @@ export async function notifySubscriptionActive(org: ClientOrganization): Promise
       memberEmails: members.map((m) => m.email),
     });
   } catch (err) {
-    console.warn("billing active admin alert failed:", err);
+    console.error("billing_email_failed", {
+      event: "billing_email_failed",
+      type: "active_admin_alert",
+      orgId: org.id,
+      err,
+    });
   }
 }
