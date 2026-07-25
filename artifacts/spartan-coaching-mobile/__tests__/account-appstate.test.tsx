@@ -1,10 +1,11 @@
 /**
  * Tests for the AppState-based billing refresh logic in AccountScreen.
  *
- * Three paths under test:
- *   1. Returning from Stripe (stripeOpenedRef=true) → loadBilling always fires, flag reset to false
- *   2. Normal app-switch within 30 s (stripeOpenedRef=false, age < BILLING_STALE_MS) → loadBilling NOT called
- *   3. Normal app-switch after 30 s (stripeOpenedRef=false, age ≥ BILLING_STALE_MS) → loadBilling IS called
+ * Four paths under test:
+ *   1. Returning from Stripe via Manage Billing (stripeOpenedRef=true) → loadBilling always fires, flag reset to false
+ *   2. Returning from Stripe via Subscribe checkout (stripeOpenedRef=true) → loadBilling fires, flag reset to false
+ *   3. Normal app-switch within 30 s (stripeOpenedRef=false, age < BILLING_STALE_MS) → loadBilling NOT called
+ *   4. Normal app-switch after 30 s (stripeOpenedRef=false, age ≥ BILLING_STALE_MS) → loadBilling IS called
  */
 
 import React from "react";
@@ -56,11 +57,42 @@ const mockUser = {
   fieldKit: { allowed: true, reason: null, hoursRemaining: null },
 };
 
+// Personal user with no active subscription — canCheckout is true so the
+// "Subscribe" button renders, letting us trigger stripeOpenedRef via that path.
+const mockUnsubscribedUser = {
+  member: {
+    id: 2,
+    email: "free@example.com",
+    name: "Free User",
+    role: "member",
+    organizationId: 11,
+    status: "active",
+  },
+  organization: {
+    id: 11,
+    name: "Free Hospice",
+    type: "personal",
+    seatLimit: 1,
+    status: "active",
+    billingPlan: "individual",
+    billingStatus: null,
+    currentPeriodEnd: null,
+    cancelAtPeriodEnd: false,
+    hasStripeCustomer: false,
+    hasStripeSubscription: false,
+  },
+  fieldKit: { allowed: true, reason: null, hoursRemaining: null },
+};
+
+// Mutable reference so individual tests can swap the active user fixture.
+// Must be prefixed with "mock" so Jest's jest.mock() factory hoisting allows it.
+let mockCurrentAuthUser: typeof mockUser = mockUser;
+
 const mockRefresh = jest.fn().mockResolvedValue(undefined);
 
 jest.mock("@/lib/AuthContext", () => ({
   useAuth: () => ({
-    user: mockUser,
+    user: mockCurrentAuthUser,
     isLoading: false,
     isAuthenticated: true,
     canUseFieldKit: true,
@@ -130,11 +162,37 @@ afterEach(() => {
   appStateListenerSpy.mockRestore();
   cleanup();
   jest.clearAllMocks();
+  // Reset to the default subscribed user so other tests are unaffected.
+  mockCurrentAuthUser = mockUser;
 });
 
 // ---------------------------------------------------------------------------
 // Helpers
 // ---------------------------------------------------------------------------
+
+/** Billing response for a personal account with no active subscription (Subscribe button visible). */
+function makeBillingUnsubscribed() {
+  return {
+    configured: true,
+    individualWeeklyPriceConfigured: true,
+    canCheckoutIndividual: true,
+    canOpenPortal: false,
+    organization: {
+      id: 11,
+      type: "personal",
+      status: "active",
+      billingPlan: "individual",
+      billingStatus: null,
+      currentPeriodEnd: null,
+      cancelAtPeriodEnd: false,
+      hasStripeCustomer: false,
+      hasStripeSubscription: false,
+      billableSeats: null,
+      seatLimit: 1,
+      contractRef: null,
+    },
+  };
+}
 
 /** Billing response for an active, auto-renewing subscription. */
 function makeBillingActive() {
@@ -213,6 +271,50 @@ describe("Account screen — AppState billing refresh", () => {
     simulateBackgroundThenForeground();
     // Still only 2 calls (age < 30 s and stripeOpenedRef is now false)
     expect(mockFetchBillingStatus).toHaveBeenCalledTimes(2);
+  });
+
+  it("calls loadBilling when returning from Stripe (stripeOpenedRef=true via Subscribe) and resets the flag", async () => {
+    // Swap to a personal user with no active subscription so the Subscribe button renders.
+    mockCurrentAuthUser = mockUnsubscribedUser as unknown as typeof mockUser;
+    mockFetchBillingStatus.mockResolvedValue(makeBillingUnsubscribed());
+
+    // Linking.canOpenURL must return true so onSubscribe sets stripeOpenedRef before openURL.
+    const canOpenSpy = jest
+      .spyOn(require("react-native").Linking, "canOpenURL")
+      .mockResolvedValue(true);
+    const openURLSpy = jest
+      .spyOn(require("react-native").Linking, "openURL")
+      .mockResolvedValue(undefined);
+
+    try {
+      const { getByTestId } = render(<AccountScreen />);
+
+      // Wait for the initial billing load triggered by useFocusEffect.
+      await waitFor(() => expect(mockFetchBillingStatus).toHaveBeenCalledTimes(1));
+
+      // Press "Subscribe" to set stripeOpenedRef = true via the checkout path.
+      const subscribeBtn = getByTestId("button-subscribe");
+      await act(async () => {
+        fireEvent.press(subscribeBtn);
+        // Drain the micro-task queue so startIndividualCheckout resolves.
+        await new Promise((r) => setTimeout(r, 0));
+      });
+
+      // Simulate returning from the Stripe browser checkout page.
+      simulateBackgroundThenForeground();
+
+      // loadBilling must fire again because stripeOpenedRef was true.
+      await waitFor(() => expect(mockFetchBillingStatus).toHaveBeenCalledTimes(2));
+
+      // A second foreground return (without re-pressing Subscribe) must NOT trigger
+      // another fetch — confirming the flag was reset after the first return.
+      simulateBackgroundThenForeground();
+      // Still only 2 calls (age < 30 s and stripeOpenedRef is now false).
+      expect(mockFetchBillingStatus).toHaveBeenCalledTimes(2);
+    } finally {
+      canOpenSpy.mockRestore();
+      openURLSpy.mockRestore();
+    }
   });
 
   it("does NOT call loadBilling on normal app-switch within 30 s (stripeOpenedRef=false, age < BILLING_STALE_MS)", async () => {
