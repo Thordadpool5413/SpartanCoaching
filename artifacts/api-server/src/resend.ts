@@ -1452,6 +1452,96 @@ export async function sendBillingActiveAdminAlert(
 }
 
 /** Optional notice when trial is extended from Access Desk. */
+export async function sendBillingEmailOutageAlert(
+  to: string,
+  metrics: {
+    failures1h: number;
+    failures24h: number;
+    threshold1h: number;
+    threshold24h: number;
+    byType: Record<string, number>;
+    lastFailureAt: string | null;
+  },
+): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    const siteUrl = getSiteUrl();
+    const detectedAt = new Date().toLocaleString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      hour: "numeric",
+      minute: "2-digit",
+      timeZoneName: "short",
+    });
+
+    const byTypeRows = Object.entries(metrics.byType)
+      .map(
+        ([type, count]) =>
+          `<tr><td style="padding:6px 10px;border-bottom:1px solid #fecaca;color:#7f1d1d;">${type}</td><td style="padding:6px 10px;border-bottom:1px solid #fecaca;text-align:right;font-weight:bold;color:#dc2626;">${count}</td></tr>`,
+      )
+      .join("");
+
+    await sendEmail(client, {
+      from: fromEmail,
+      to,
+      subject: `[ALERT] Billing-email outage detected — ${metrics.failures1h} failure(s) in last hour`,
+      html: `
+        <div style="max-width:600px;margin:0 auto;font-family:Arial,sans-serif;">
+          ${emailHeader()}
+          <div style="padding:24px;background:#fff3f3;border:2px solid #dc2626;border-top:none;">
+            <h2 style="margin:0 0 8px;color:#b91c1c;">⚠️ Billing Email Outage Detected</h2>
+            <p style="margin:0 0 16px;color:#374151;font-size:14px;">The billing-email health check has flipped <strong>ok → false</strong>. One or more billing notification emails have been failing. This may indicate a Resend outage or misconfiguration.</p>
+
+            <table style="width:100%;border-collapse:collapse;margin:0 0 20px;background:#fff;border-radius:6px;overflow:hidden;border:1px solid #fecaca;">
+              <tr style="background:#fef2f2;">
+                <td style="padding:8px 10px;font-weight:bold;color:#7f1d1d;font-size:13px;">Metric</td>
+                <td style="padding:8px 10px;font-weight:bold;color:#7f1d1d;font-size:13px;text-align:right;">Value</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 10px;border-bottom:1px solid #fecaca;color:#374151;">Failures in last 1 hour</td>
+                <td style="padding:6px 10px;border-bottom:1px solid #fecaca;text-align:right;font-weight:bold;color:#dc2626;">${metrics.failures1h} / threshold ${metrics.threshold1h}</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 10px;border-bottom:1px solid #fecaca;color:#374151;">Failures in last 24 hours</td>
+                <td style="padding:6px 10px;border-bottom:1px solid #fecaca;text-align:right;font-weight:bold;color:#dc2626;">${metrics.failures24h} / threshold ${metrics.threshold24h}</td>
+              </tr>
+              <tr>
+                <td style="padding:6px 10px;color:#374151;">Last failure at</td>
+                <td style="padding:6px 10px;text-align:right;color:#374151;">${metrics.lastFailureAt ?? "—"}</td>
+              </tr>
+            </table>
+
+            ${
+              byTypeRows
+                ? `<h3 style="margin:0 0 8px;font-size:14px;color:#7f1d1d;">Failures by email type (last 24h)</h3>
+              <table style="width:100%;border-collapse:collapse;margin:0 0 20px;background:#fff;border:1px solid #fecaca;border-radius:6px;overflow:hidden;">
+                ${byTypeRows}
+              </table>`
+                : ""
+            }
+
+            <p style="margin:0 0 12px;color:#374151;font-size:13px;"><strong>Detected at:</strong> ${detectedAt}</p>
+
+            <div style="text-align:center;margin:20px 0;">
+              <a href="${siteUrl}/admin/access-desk" style="display:inline-block;background:#b91c1c;color:white;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:14px;">Open Access Desk</a>
+            </div>
+
+            <p style="margin:0;color:#9ca3af;font-size:12px;">This alert is rate-limited to once per 2 hours. Check Resend status, API key validity, and server logs for details.</p>
+          </div>
+          ${emailFooter()}
+        </div>
+      `,
+    });
+
+    console.log(`[Resend] Billing-email outage alert sent to ${to}`);
+    return true;
+  } catch (error: any) {
+    console.error(`[Resend] FAILED billing-email outage alert to ${to}:`, error?.message || error);
+    return false;
+  }
+}
+
 export async function sendTrialExtendedEmail(
   toEmail: string,
   toName: string,

@@ -8,7 +8,8 @@ import {
   usageEvents,
 } from "@workspace/db";
 import { db } from "../db";
-import { sendOpsDigestEmail } from "../resend";
+import { sendOpsDigestEmail, sendBillingEmailOutageAlert } from "../resend";
+import { getBillingEmailMetrics } from "../billing/billingEmailMetrics";
 import { runTrialLifecycleSweep, type TrialSweepResult } from "./trialLifecycle";
 
 export type OpsDigestResult = {
@@ -151,6 +152,91 @@ export async function runOpsDigest(options?: {
   };
 }
 
+// ── Billing-email outage monitor ─────────────────────────────────────────────
+
+/** Minimum ms between outage alert emails (2 hours). */
+const OUTAGE_ALERT_COOLDOWN_MS = 2 * 60 * 60 * 1000;
+
+/** In-memory state for the outage monitor (resets on server restart, which is fine — a fresh start re-evaluates). */
+let _lastOk: boolean | null = null;
+let _lastAlertSentAt: number | null = null;
+
+export type BillingEmailOutageCheckResult = {
+  ok: boolean;
+  alertSent: boolean;
+  rateLimited: boolean;
+  skippedNoChange: boolean;
+  metrics: {
+    failures1h: number;
+    failures24h: number;
+    threshold1h: number;
+    threshold24h: number;
+  };
+  ranAt: string;
+};
+
+/**
+ * Poll billing-email metrics and send a one-off outage alert when ok flips
+ * false → true edge, rate-limited to once per 2-hour window.
+ */
+export async function runBillingEmailOutageCheck(): Promise<BillingEmailOutageCheckResult> {
+  const ranAt = new Date().toISOString();
+  const metrics = getBillingEmailMetrics();
+  const { ok } = metrics;
+
+  const base: BillingEmailOutageCheckResult = {
+    ok,
+    alertSent: false,
+    rateLimited: false,
+    skippedNoChange: false,
+    metrics: {
+      failures1h: metrics.failures1h,
+      failures24h: metrics.failures24h,
+      threshold1h: metrics.threshold1h,
+      threshold24h: metrics.threshold24h,
+    },
+    ranAt,
+  };
+
+  // First call after startup: seed state without alerting (we don't know the prior state).
+  if (_lastOk === null) {
+    _lastOk = ok;
+    return { ...base, skippedNoChange: true };
+  }
+
+  // ok is still true (or already false with no change) — nothing to do.
+  if (ok) {
+    _lastOk = true;
+    return { ...base, skippedNoChange: true };
+  }
+
+  // ok is false. Check if we already alerted recently.
+  if (_lastAlertSentAt !== null && Date.now() - _lastAlertSentAt < OUTAGE_ALERT_COOLDOWN_MS) {
+    _lastOk = ok;
+    return { ...base, rateLimited: true };
+  }
+
+  // Send the alert.
+  const to =
+    process.env.NOTIFICATION_EMAIL ||
+    process.env.OPS_DIGEST_EMAIL ||
+    "nick@spartanhospicecoaching.com";
+
+  const sent = await sendBillingEmailOutageAlert(to, metrics);
+  if (sent) {
+    _lastAlertSentAt = Date.now();
+  }
+  _lastOk = ok;
+
+  return { ...base, alertSent: sent };
+}
+
+/** Reset outage-monitor state. Only used in tests. */
+export function _resetOutageMonitorState(): void {
+  _lastOk = null;
+  _lastAlertSentAt = null;
+}
+
 export type CleanupResult = {
   expiredSessionsDeleted: number;
   expiredTokensDeleted: number;
@@ -230,7 +316,13 @@ export function startBackgroundJobScheduler(): void {
     Number(process.env.JOB_INTERVAL_MS || 15 * 60 * 1000) || 15 * 60 * 1000,
   );
 
-  console.log(`[jobs] Starting background scheduler every ${Math.round(intervalMs / 60000)}m`);
+  /** Billing-email outage check runs every 5 minutes regardless of the main interval. */
+  const OUTAGE_CHECK_INTERVAL_MS = 5 * 60 * 1000;
+
+  console.log(
+    `[jobs] Starting background scheduler every ${Math.round(intervalMs / 60000)}m; ` +
+      `billing-email outage check every ${Math.round(OUTAGE_CHECK_INTERVAL_MS / 60000)}m`,
+  );
 
   const tick = () => {
     void runTrialLifecycleSweep()
@@ -260,7 +352,23 @@ export function startBackgroundJobScheduler(): void {
     }
   };
 
+  const outageCheckTick = () => {
+    void runBillingEmailOutageCheck()
+      .then((r) => {
+        if (r.alertSent) {
+          console.log("[jobs] billing-email outage alert sent", r.metrics);
+        } else if (!r.ok && r.rateLimited) {
+          console.log("[jobs] billing-email outage alert rate-limited (already sent within 2h)");
+        }
+      })
+      .catch((err) => console.error("[jobs] billing-email outage check failed", err));
+  };
+
   // First run shortly after boot
   setTimeout(tick, 45_000);
   setInterval(tick, intervalMs);
+
+  // Billing-email outage monitor: first seed runs at 60 s, then every 5 min
+  setTimeout(outageCheckTick, 60_000);
+  setInterval(outageCheckTick, OUTAGE_CHECK_INTERVAL_MS);
 }
