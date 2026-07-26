@@ -7,7 +7,7 @@
  * headlines or CTA labels to generic commerce language.
  */
 import { describe, it, expect, beforeAll, afterEach, vi } from "vitest";
-import { render, cleanup, screen, within } from "@testing-library/react";
+import { render, cleanup, screen, within, fireEvent } from "@testing-library/react";
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
@@ -622,3 +622,108 @@ describe("FieldKit FAQ section — markup consistency across auth states", () =>
     }
   });
 });
+
+// ── FAQ accordion interaction ──────────────────────────────────────────────────
+//
+// The accordion is auth-agnostic in its logic, but we verify the open/close
+// behaviour explicitly for every auth state so a regression in any branch is
+// caught immediately.
+
+const FAQ_ACCORDION_CASES = [
+  { label: "unauthenticated", state: UNAUTHED },
+  { label: "can-subscribe", state: CAN_SUBSCRIBE },
+  { label: "already subscribed", state: ALREADY_SUBSCRIBED },
+] as const;
+
+for (const { label, state } of FAQ_ACCORDION_CASES) {
+  describe(`FieldKit FAQ accordion — open/close interaction (${label})`, () => {
+    it("all FAQ items start collapsed (no answer text visible)", async () => {
+      await renderFieldKit(state);
+      const section = screen.getByTestId("section-faq");
+      // Answers must not be in the DOM before any interaction
+      expect(
+        within(section).queryByText(/No\. You can create an individual account/i),
+      ).toBeNull();
+      expect(
+        within(section).queryByText(/Both\. Individual reps use the Objection Handler/i),
+      ).toBeNull();
+    });
+
+    it("clicking a FAQ item button reveals its answer", async () => {
+      await renderFieldKit(state);
+      const section = screen.getByTestId("section-faq");
+      const firstItem = within(section).getByTestId("faq-item-0");
+      const button = within(firstItem).getByRole("button");
+
+      // Initially collapsed
+      expect(button.getAttribute("aria-expanded")).toBe("false");
+      expect(within(firstItem).queryByText(/No\. You can create an individual account/i)).toBeNull();
+
+      fireEvent.click(button);
+
+      // Answer is now visible
+      expect(button.getAttribute("aria-expanded")).toBe("true");
+      expect(
+        within(firstItem).getByText(/No\. You can create an individual account/i),
+      ).toBeTruthy();
+    });
+
+    it("clicking the same FAQ item again hides the answer", async () => {
+      await renderFieldKit(state);
+      const section = screen.getByTestId("section-faq");
+      const firstItem = within(section).getByTestId("faq-item-0");
+      const button = within(firstItem).getByRole("button");
+
+      // Open then close
+      fireEvent.click(button);
+      expect(button.getAttribute("aria-expanded")).toBe("true");
+
+      fireEvent.click(button);
+      expect(button.getAttribute("aria-expanded")).toBe("false");
+      expect(within(firstItem).queryByText(/No\. You can create an individual account/i)).toBeNull();
+    });
+
+    it("opening a second item closes the first", async () => {
+      await renderFieldKit(state);
+      const section = screen.getByTestId("section-faq");
+      const firstItem = within(section).getByTestId("faq-item-0");
+      const secondItem = within(section).getByTestId("faq-item-1");
+      const firstButton = within(firstItem).getByRole("button");
+      const secondButton = within(secondItem).getByRole("button");
+
+      // Open first item
+      fireEvent.click(firstButton);
+      expect(firstButton.getAttribute("aria-expanded")).toBe("true");
+
+      // Open second item — first should now be collapsed
+      fireEvent.click(secondButton);
+      expect(secondButton.getAttribute("aria-expanded")).toBe("true");
+      expect(firstButton.getAttribute("aria-expanded")).toBe("false");
+      expect(within(firstItem).queryByText(/No\. You can create an individual account/i)).toBeNull();
+      expect(
+        within(secondItem).getByText(/Both\. Individual reps use the Objection Handler/i),
+      ).toBeTruthy();
+    });
+
+    it("each FAQ item button toggles only its own answer", async () => {
+      await renderFieldKit(state);
+      const section = screen.getByTestId("section-faq");
+
+      // Open the third item (index 2)
+      const thirdItem = within(section).getByTestId("faq-item-2");
+      const thirdButton = within(thirdItem).getByRole("button");
+      fireEvent.click(thirdButton);
+
+      expect(thirdButton.getAttribute("aria-expanded")).toBe("true");
+      expect(within(thirdItem).getByText(/Access stops at the end of the period/i)).toBeTruthy();
+
+      // Other items must still be collapsed
+      const firstItem = within(section).getByTestId("faq-item-0");
+      const secondItem = within(section).getByTestId("faq-item-1");
+      const fourthItem = within(section).getByTestId("faq-item-3");
+      expect(within(firstItem).getByRole("button").getAttribute("aria-expanded")).toBe("false");
+      expect(within(secondItem).getByRole("button").getAttribute("aria-expanded")).toBe("false");
+      expect(within(fourthItem).getByRole("button").getAttribute("aria-expanded")).toBe("false");
+    });
+  });
+}
