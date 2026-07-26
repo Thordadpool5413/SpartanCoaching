@@ -1,4 +1,4 @@
-import { eq, gte, lt, sql } from "drizzle-orm";
+import { and, eq, gte, lt, sql } from "drizzle-orm";
 import {
   accessRequests,
   authEvents,
@@ -237,6 +237,39 @@ export function _resetOutageMonitorState(): void {
   _lastAlertSentAt = null;
 }
 
+// ── Billing-failure DB pruning ────────────────────────────────────────────────
+
+/** Maximum age of billing_email_failed rows to keep (24 hours). */
+const BILLING_FAILURE_MAX_AGE_MS = 24 * 60 * 60 * 1000;
+
+/** Event type used by billingEmailMetrics for persisted failure rows. */
+const BILLING_FAILURE_EVENT_TYPE = "billing_email_failed";
+
+export type BillingFailureCleanupResult = {
+  billingFailureRowsDeleted: number;
+  ranAt: string;
+};
+
+/**
+ * Delete `billing_email_failed` rows from authEvents that are older than 24 hours.
+ * These rows are only useful within the active metrics window and would otherwise
+ * accumulate unbounded.
+ */
+export async function runBillingFailureCleanup(): Promise<BillingFailureCleanupResult> {
+  const ranAt = new Date().toISOString();
+  const cutoff = new Date(Date.now() - BILLING_FAILURE_MAX_AGE_MS);
+
+  const deleted = await db
+    .delete(authEvents)
+    .where(and(eq(authEvents.type, BILLING_FAILURE_EVENT_TYPE), lt(authEvents.createdAt, cutoff)))
+    .returning({ id: authEvents.id });
+
+  return {
+    billingFailureRowsDeleted: deleted.length,
+    ranAt,
+  };
+}
+
 export type CleanupResult = {
   expiredSessionsDeleted: number;
   expiredTokensDeleted: number;
@@ -288,11 +321,13 @@ export async function runScheduledJobs(options?: {
   trialSweep: TrialSweepResult;
   opsDigest: OpsDigestResult;
   cleanup: CleanupResult;
+  billingFailureCleanup: BillingFailureCleanupResult;
 }> {
   const trialSweep = await runTrialLifecycleSweep();
   const cleanup = await runSessionCleanup();
+  const billingFailureCleanup = await runBillingFailureCleanup();
   const opsDigest = await runOpsDigest({ force: options?.forceDigest });
-  return { trialSweep, opsDigest, cleanup };
+  return { trialSweep, opsDigest, cleanup, billingFailureCleanup };
 }
 
 /** Background interval for Replit / long-running servers. */
@@ -340,6 +375,14 @@ export function startBackgroundJobScheduler(): void {
         }
       })
       .catch((err) => console.error("[jobs] session cleanup failed", err));
+
+    void runBillingFailureCleanup()
+      .then((r) => {
+        if (r.billingFailureRowsDeleted) {
+          console.log("[jobs] billing-failure cleanup", r);
+        }
+      })
+      .catch((err) => console.error("[jobs] billing-failure cleanup failed", err));
 
     // Digest once per day around first tick after 13:00 UTC (≈ morning US)
     const hour = new Date().getUTCHours();
