@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { MessageCircle, X, Send, Minimize2, ShieldCheck, Trash2, User } from "lucide-react";
 import type { ChatMessage } from "@shared/schema";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
 import { Card } from "@/components/ui/card";
 import {
@@ -479,6 +480,7 @@ function ChatWidgetContent() {
 export function ChatWidget() {
   const [mounted, setMounted] = useState(false);
   const [location] = useLocation();
+  const { canUseFieldKit } = useAuth();
 
   useEffect(() => {
     setMounted(true);
@@ -488,11 +490,14 @@ export function ChatWidget() {
     return null;
   }
 
-  // Keep Field Kit board + Command Center focused (no marketing chat overlay)
+  // Quiet product mode for Field Kit members — no floating chat over the OS
   if (
+    canUseFieldKit ||
     location === "/portal" ||
-    location.startsWith("/tools/sales-workflow") ||
-    location.startsWith("/account")
+    location.startsWith("/tools") ||
+    location.startsWith("/resources") ||
+    location.startsWith("/account") ||
+    location.startsWith("/drills")
   ) {
     return null;
   }

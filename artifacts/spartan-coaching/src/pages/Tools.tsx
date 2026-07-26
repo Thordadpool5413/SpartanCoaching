@@ -184,7 +184,7 @@ export default function Tools() {
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="font-bold" data-testid="button-tools-login">
-                  <Link href="/login">
+                  <Link href={isAuthenticated ? "/account" : "/login"}>
                     <LogIn className="mr-2 w-4 h-4" />
                     {isAuthenticated ? "Account" : "Client login"}
                   </Link>

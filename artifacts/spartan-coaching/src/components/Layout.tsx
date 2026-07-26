@@ -336,11 +336,19 @@ export function Header() {
             </div>
             <div className="shrink-0 border-t border-border px-5 py-4 space-y-3 max-h-[45dvh] overflow-y-auto">
               <AppearancePanel className="pb-1" />
-              <Button size="lg" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-book-call">
-                <Link href="/contact" onClick={() => setMobileMenuOpen(false)}>
-                  Book a Call
-                </Link>
-              </Button>
+              {canUseFieldKit ? (
+                <Button size="lg" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-command">
+                  <Link href="/tools/sales-workflow" onClick={() => setMobileMenuOpen(false)}>
+                    Open Command Center
+                  </Link>
+                </Button>
+              ) : (
+                <Button size="lg" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-book-call">
+                  <Link href="/contact" onClick={() => setMobileMenuOpen(false)}>
+                    Book a Call
+                  </Link>
+                </Button>
+              )}
               {!isAuthenticated && (
                 <Button size="lg" variant="outline" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-request">
                   <Link href="/request-access" onClick={() => setMobileMenuOpen(false)}>
@@ -404,24 +412,66 @@ export function Header() {
 
 export function Footer() {
   const [location] = useLocation();
+  const { canUseFieldKit } = useAuth();
+  const padBottom =
+    location === "/contact" || canUseFieldKit
+      ? "1rem"
+      : "calc(5rem + env(safe-area-inset-bottom, 0px))";
+
+  const memberLinks = [
+    { href: "/portal", label: "Board" },
+    { href: "/tools/sales-workflow", label: "Command Center" },
+    { href: "/tools", label: "All tools" },
+    { href: "/resources", label: "Resources" },
+    { href: "/portal/learn", label: "Learn" },
+    { href: "/account", label: "Account" },
+    { href: "/contact?service=Field+Kit+Debrief", label: "Coach" },
+    { href: "/compliance", label: "Compliance" },
+    { href: "/faq", label: "FAQ" },
+  ];
+
+  const publicLinks = [
+    { href: "/services", label: "Services" },
+    { href: "/about", label: "About" },
+    { href: "/manifesto", label: "The Spartan Ethos" },
+    { href: "/portal", label: "Field Kit home" },
+    { href: "/tools", label: "Tools" },
+    { href: "/resources", label: "Resources" },
+    { href: "/request-access", label: "Request Access" },
+    { href: "/field-kit", label: "Field Kit overview" },
+    { href: "/field-kit-membership", label: "Membership & pricing" },
+    { href: "/login", label: "Client Login" },
+    { href: "/contact", label: "Contact" },
+    { href: "/compliance", label: "Compliance" },
+    { href: "/faq", label: "FAQ" },
+  ];
+
+  const links = canUseFieldKit ? memberLinks : publicLinks;
+
   return (
     <>
       <footer className="mt-auto border-t border-border bg-background no-print safe-area-bottom">
         {/* 3-column main footer */}
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-12 pb-8">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8 lg:gap-16">
+          <div className={`grid grid-cols-1 gap-10 md:gap-8 lg:gap-16 ${canUseFieldKit ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
 
             {/* Column 1 — Brand + contact */}
             <div className="flex flex-col gap-4">
               <div>
                 <p className="font-display text-lg font-black text-foreground tracking-tight uppercase">Spartan Coaching</p>
-                <p className="text-xs text-muted-foreground mt-1 uppercase tracking-widest">The Authority in Hospice Excellence</p>
+                <p className="text-xs text-muted-foreground mt-1 uppercase tracking-widest">
+                  {canUseFieldKit ? "Field Kit · Member" : "The Authority in Hospice Excellence"}
+                </p>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                Structured coaching for hospice sales reps, directors, and organizations who want a repeatable system — not another motivational talk.
+                {canUseFieldKit
+                  ? "Private operating system for hospice growth — Command Center, tools, and coaching when you need a human."
+                  : "Structured coaching for hospice sales reps, directors, and organizations who want a repeatable system — not another motivational talk."}
               </p>
               <p className="text-xs text-muted-foreground/90 leading-relaxed border-l-2 border-primary/50 pl-3">
-                Private Field Kit · No PHI in tools · Request &amp; approval first · Individuals $14.99/wk · Teams under contract
+                {canUseFieldKit
+                  ? "No PHI in tools · Cancel anytime from Account · Ethics-first field work"
+                  : "Private Field Kit · No PHI in tools · Request & approval first · Individuals $14.99/wk · Teams under contract"}
               </p>
               <div className="flex flex-col gap-2">
                 <a href="mailto:nick@spartanhospicecoaching.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-email">
@@ -443,28 +493,16 @@ export function Footer() {
 
             {/* Column 2 — Quick navigation */}
             <div className="flex flex-col gap-4">
-              <p className="text-xs font-bold text-foreground uppercase tracking-widest">Quick Links</p>
+              <p className="text-xs font-bold text-foreground uppercase tracking-widest">
+                {canUseFieldKit ? "Field Kit" : "Quick Links"}
+              </p>
               <nav className="grid grid-cols-2 gap-x-4 gap-y-2">
-                {[
-                  { href: "/services", label: "Services" },
-                  { href: "/about", label: "About" },
-                  { href: "/manifesto", label: "The Spartan Ethos" },
-                  { href: "/portal", label: "Field Kit home" },
-                  { href: "/tools", label: "Tools" },
-                  { href: "/resources", label: "Resources" },
-                  { href: "/request-access", label: "Request Access" },
-                  { href: "/field-kit", label: "Field Kit overview" },
-                  { href: "/field-kit-membership", label: "Membership & pricing" },
-                  { href: "/login", label: "Client Login" },
-                  { href: "/contact", label: "Contact" },
-                  { href: "/compliance", label: "Compliance" },
-                  { href: "/faq", label: "FAQ" },
-                ].map(({ href, label }) => (
+                {links.map(({ href, label }) => (
                   <Link
                     key={href}
                     href={href}
                     className="text-sm text-muted-foreground hover:text-foreground transition-colors py-0.5"
-                    data-testid={`link-footer-${href.replace(/\//g, "-").replace(/^-/, "")}`}
+                    data-testid={`link-footer-${href.replace(/\//g, "-").replace(/^-/, "").slice(0, 40)}`}
                   >
                     {label}
                   </Link>
@@ -472,21 +510,23 @@ export function Footer() {
               </nav>
             </div>
 
-            {/* Column 3 — Newsletter */}
-            <div className="flex flex-col gap-4" data-testid="section-newsletter">
-              <p className="text-xs font-bold text-foreground uppercase tracking-widest">Weekly Coaching Tips</p>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                Actionable hospice sales strategies delivered to your inbox. No fluff.
-              </p>
-              <NewsletterSignup />
-            </div>
+            {/* Column 3 — Newsletter (public only) */}
+            {!canUseFieldKit && (
+              <div className="flex flex-col gap-4" data-testid="section-newsletter">
+                <p className="text-xs font-bold text-foreground uppercase tracking-widest">Weekly Coaching Tips</p>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Actionable hospice sales strategies delivered to your inbox. No fluff.
+                </p>
+                <NewsletterSignup />
+              </div>
+            )}
 
           </div>
         </div>
 
         {/* Legal bottom bar */}
         <div className="border-t border-border/50 dark:border-red-900/10">
-          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-4" style={{ paddingBottom: location === '/contact' ? '1rem' : 'calc(5rem + env(safe-area-inset-bottom, 0px))' }}>
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-4" style={{ paddingBottom: padBottom }}>
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
               <p className="text-xs text-muted-foreground order-last sm:order-first">
                 © 2026 Spartan Coaching. All rights reserved.

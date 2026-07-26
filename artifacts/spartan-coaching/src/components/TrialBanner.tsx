@@ -46,20 +46,20 @@ export function TrialBanner() {
 
   return (
     <div
-      className="w-full bg-amber-500/10 border-b border-amber-500/25 text-amber-100/90 text-sm"
+      className="w-full bg-amber-500/15 border-b border-amber-600/30 text-amber-950 dark:text-amber-100 text-sm"
       data-testid="trial-banner"
     >
       <div className="max-w-7xl mx-auto px-4 py-2 flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
         <span className="inline-flex items-center gap-1.5 font-medium">
-          <Clock className="w-3.5 h-3.5" />
+          <Clock className="w-3.5 h-3.5 shrink-0" />
           {hasTimeInfo ? (
             <>
               <span>{timeLabel} in your evaluation</span>
-              <span className="text-amber-100/50 mx-1">—</span>
+              <span className="text-amber-800/60 dark:text-amber-100/50 mx-1">—</span>
               <span>have you tried the</span>{" "}
               <Link
                 href={rotatingTool.path}
-                className="underline font-semibold hover:text-white"
+                className="underline font-semibold hover:text-foreground"
                 data-testid="trial-banner-tool-nudge"
               >
                 {rotatingTool.title}
@@ -72,12 +72,12 @@ export function TrialBanner() {
         </span>
         {isPersonal && (
           <>
-            <span className="text-amber-100/50">·</span>
+            <span className="text-amber-800/60 dark:text-amber-100/50">·</span>
             <button
               type="button"
               onClick={startCheckout}
               disabled={checkoutPending}
-              className="inline-flex items-center gap-1 underline font-semibold hover:text-white disabled:opacity-60"
+              className="inline-flex items-center gap-1 underline font-semibold hover:text-foreground disabled:opacity-60"
               data-testid="trial-banner-subscribe"
             >
               {checkoutPending ? (
@@ -89,14 +89,14 @@ export function TrialBanner() {
             </button>
           </>
         )}
-        <span className="text-amber-100/50">·</span>
-        <Link href="/account" className="underline font-semibold hover:text-white">
+        <span className="text-amber-800/60 dark:text-amber-100/50">·</span>
+        <Link href="/account" className="underline font-semibold hover:text-foreground">
           Account
         </Link>
-        <span className="text-amber-100/50">·</span>
+        <span className="text-amber-800/60 dark:text-amber-100/50">·</span>
         <Link
           href="/contact?service=Field+Kit+Debrief"
-          className="underline font-semibold hover:text-white"
+          className="underline font-semibold hover:text-foreground"
         >
           Book a debrief
         </Link>

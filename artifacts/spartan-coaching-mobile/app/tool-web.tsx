@@ -29,12 +29,13 @@ export default function ToolWebScreen() {
   }, []);
 
   const base = getBaseUrl();
+  // Never put session tokens in the URL (logs, history, Referer). Auth is injected only.
   const uri = useMemo(() => {
     if (!base) return "";
     const url = new URL(webPath.startsWith("http") ? webPath : `${base}${webPath}`);
-    if (token) url.searchParams.set("mobile_token", token);
+    url.searchParams.delete("mobile_token");
     return url.toString();
-  }, [base, webPath, token]);
+  }, [base, webPath]);
 
   const injected = token
     ? `
@@ -53,6 +54,14 @@ export default function ToolWebScreen() {
           if (init.credentials === undefined) init.credentials = 'include';
           return originalFetch(input, init);
         };
+        // Strip any legacy token that might remain in the address bar after inject
+        try {
+          if (window.history && window.location.search.indexOf('mobile_token') !== -1) {
+            var u = new URL(window.location.href);
+            u.searchParams.delete('mobile_token');
+            window.history.replaceState({}, '', u.pathname + u.search + u.hash);
+          }
+        } catch (e2) {}
       } catch (e) {}
       true;
     })();

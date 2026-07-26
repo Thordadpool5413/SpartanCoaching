@@ -396,13 +396,16 @@ export const insertRoleplayMessageSchema = createInsertSchema(roleplayMessages).
 export type InsertRoleplayMessage = z.infer<typeof insertRoleplayMessageSchema>;
 export type SelectRoleplayMessage = typeof roleplayMessages.$inferSelect;
 
-// Daily drill completions
+// Daily drill completions (tenant-scoped — memberId required for new rows)
 export const drillCompletions = pgTable("drill_completions", {
   id: serial("id").primaryKey(),
   drillIndex: integer("drill_index").notNull(),
   drillTitle: text("drill_title").notNull(),
   notes: text("notes"),
   completedAt: bigint("completed_at", { mode: "number" }).notNull(),
+  /** Field Kit member who completed the drill (null = legacy pre-tenancy row) */
+  memberId: integer("member_id"),
+  organizationId: integer("organization_id"),
 });
 
 export const insertDrillCompletionSchema = createInsertSchema(drillCompletions).omit({

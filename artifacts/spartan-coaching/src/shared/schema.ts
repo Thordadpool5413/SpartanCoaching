@@ -403,6 +403,8 @@ export const drillCompletions = pgTable("drill_completions", {
   drillTitle: text("drill_title").notNull(),
   notes: text("notes"),
   completedAt: bigint("completed_at", { mode: "number" }).notNull(),
+  memberId: integer("member_id"),
+  organizationId: integer("organization_id"),
 });
 
 export const insertDrillCompletionSchema = createInsertSchema(drillCompletions).omit({

@@ -1641,10 +1641,18 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   // ===== DAILY DRILL ROUTES =====
 
-  app.post("/api/drills/completions", requireFieldKit, async (req, res) => {
+  app.post("/api/drills/completions", requireFieldKit, async (req: AuthedRequest, res) => {
     try {
       const data = drillCompletionRequestSchema.parse(req.body);
-      const completion = await storage.createDrillCompletion(data);
+      const member = req.fieldKit?.member;
+      if (!member) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      const completion = await storage.createDrillCompletion({
+        ...data,
+        memberId: member.id,
+        organizationId: member.organizationId,
+      });
       storage.trackEvent({ eventType: "ai_tool_usage", eventName: "drill_completion" }).catch(() => {});
       res.json(completion);
     } catch (error: any) {
@@ -1656,9 +1664,18 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
   });
 
-  app.get("/api/drills/completions", requireFieldKit, async (_req, res) => {
+  app.get("/api/drills/completions", requireFieldKit, async (req: AuthedRequest, res) => {
     try {
-      const completions = await storage.getDrillCompletions();
+      const member = req.fieldKit?.member;
+      if (!member) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      // Members only see their own completions (no cross-tenant history).
+      // Platform admins can use Access Desk / admin drill views for ops.
+      const completions =
+        member.role === "platform_admin"
+          ? await storage.getDrillCompletions()
+          : await storage.getDrillCompletionsForMember(member.id);
       res.json(completions);
     } catch (error: any) {
       console.error("Get drill completions error:", error);
@@ -1668,21 +1685,37 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   // ===== SEND EMAIL ROUTE =====
 
-  app.post("/api/send-email", requireFieldKit, outboundEmailLimit, globalDailyEmailCap, async (req, res) => {
+  app.post("/api/send-email", requireFieldKit, outboundEmailLimit, globalDailyEmailCap, async (req: AuthedRequest, res) => {
     try {
       const { to, subject, body } = sendEmailRequestSchema.parse(req.body);
-      const success = await sendGeneratedEmail(to, subject, body);
+      const member = req.fieldKit?.member;
+      if (!member) {
+        return res.status(401).json({ error: "Not authenticated" });
+      }
+      // Abuse controls: size caps + accountable footer (relay stays member-usable for outreach drafts)
+      if (subject.length > 200 || body.length > 20000) {
+        return res.status(400).json({ error: "Subject or body too long" });
+      }
+      const footer = `\n\n---\nSent via Spartan Field Kit by ${member.name} <${member.email}>. Do not include PHI.`;
+      const safeBody = body.includes("Sent via Spartan Field Kit") ? body : `${body}${footer}`;
+      const success = await sendGeneratedEmail(to, subject.slice(0, 200), safeBody);
       if (!success) {
         return res.status(500).json({ error: "Failed to send email" });
       }
-      storage.trackEvent({ eventType: "ai_tool_usage", eventName: "email_sent" }).catch(() => {});
+      storage
+        .trackEvent({
+          eventType: "ai_tool_usage",
+          eventName: "email_sent",
+          metadata: JSON.stringify({ memberId: member.id, organizationId: member.organizationId }),
+        })
+        .catch(() => {});
       res.json({ success: true, message: "Email sent successfully" });
     } catch (error: any) {
       console.error("Send email error:", error);
       if (error.name === "ZodError") {
         res.status(400).json({ error: "Invalid email data" });
       } else {
-        res.status(500).json({ error: error.message || "Failed to send email" });
+        res.status(500).json({ error: "Failed to send email" });
       }
     }
   });

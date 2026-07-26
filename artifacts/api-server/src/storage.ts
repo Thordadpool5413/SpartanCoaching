@@ -113,9 +113,10 @@ export interface IStorage {
   updateRoleplaySession(id: number, updates: Partial<{ status: string; feedback: string; rating: number }>): Promise<SelectRoleplaySession>;
   createRoleplayMessage(message: InsertRoleplayMessage): Promise<SelectRoleplayMessage>;
   getRoleplayMessages(sessionId: number): Promise<SelectRoleplayMessage[]>;
-  // Drill operations
+  // Drill operations (tenant-scoped for members; admin lists all)
   createDrillCompletion(completion: InsertDrillCompletion): Promise<SelectDrillCompletion>;
   getDrillCompletions(): Promise<SelectDrillCompletion[]>;
+  getDrillCompletionsForMember(memberId: number): Promise<SelectDrillCompletion[]>;
   // Resource lead operations
   captureResourceLead(lead: InsertResourceLead): Promise<SelectResourceLead>;
   getResourceLeads(): Promise<SelectResourceLead[]>;
@@ -544,6 +545,14 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(drillCompletions)
+      .orderBy(desc(drillCompletions.completedAt));
+  }
+
+  async getDrillCompletionsForMember(memberId: number): Promise<SelectDrillCompletion[]> {
+    return await db
+      .select()
+      .from(drillCompletions)
+      .where(eq(drillCompletions.memberId, memberId))
       .orderBy(desc(drillCompletions.completedAt));
   }
 

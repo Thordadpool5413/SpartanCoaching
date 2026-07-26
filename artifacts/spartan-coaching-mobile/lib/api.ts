@@ -198,7 +198,7 @@ export async function openBillingPortal(): Promise<{ url: string }> {
 
 /** Site origin for membership / account deep links in the browser. */
 export function getWebSiteUrl(): string {
-  return getBaseUrl() || "https://spartancoaching.com";
+  return getBaseUrl() || "https://spartanhospicecoaching.com";
 }
 
 export async function loginMobile(email: string, password: string): Promise<MobileAuthUser & { token: string }> {

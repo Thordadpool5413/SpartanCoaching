@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { Link } from "wouter";
 import {
   type Actor,
 } from "@workspace/hospice-sales-runtime/sales-workflow";
@@ -9,6 +10,8 @@ import { useAuth } from "@/context/AuthContext";
 import { SEO } from "@/components/SEO";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { NpiLookupPanel } from "@/components/NpiLookupPanel";
+import { Button } from "@/components/ui/button";
+import { Loader2 } from "lucide-react";
 
 function workflowUuid(kind: "organization" | "member", value: number): string {
   const suffix = value.toString(16).padStart(12, "0").slice(-12);
@@ -16,7 +19,7 @@ function workflowUuid(kind: "organization" | "member", value: number): string {
 }
 
 export default function SalesWorkflow() {
-  const { member } = useAuth();
+  const { member, isLoading, isAuthenticated } = useAuth();
   const api = useMemo(
     () =>
       createWorkflowHttpClient({
@@ -26,7 +29,36 @@ export default function SalesWorkflow() {
     [],
   );
 
-  if (!member) return null;
+  if (isLoading) {
+    return (
+      <FieldKitToolLayout toolPath="/tools/sales-workflow">
+        <SEO title="Sales Command Center | Spartan Coaching" />
+        <div className="flex flex-col items-center justify-center py-24 gap-3" data-testid="command-loading">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <p className="text-sm text-muted-foreground">Loading Command Center…</p>
+        </div>
+      </FieldKitToolLayout>
+    );
+  }
+
+  if (!member) {
+    return (
+      <FieldKitToolLayout toolPath="/tools/sales-workflow">
+        <SEO title="Sales Command Center | Spartan Coaching" />
+        <div className="max-w-md mx-auto py-16 text-center space-y-4" data-testid="command-no-member">
+          <h1 className="text-xl font-bold text-foreground">Sign in required</h1>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Sales Command Center is part of your Field Kit membership. Sign in to continue.
+          </p>
+          <Button asChild className="font-bold">
+            <Link href={isAuthenticated ? "/account" : "/login"}>
+              {isAuthenticated ? "Open Account" : "Client login"}
+            </Link>
+          </Button>
+        </div>
+      </FieldKitToolLayout>
+    );
+  }
 
   const administrator = member.role === "org_admin" || member.role === "platform_admin";
   const actor: Actor = {
