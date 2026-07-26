@@ -72,12 +72,17 @@ export function AccountDayZero({ firstName, isWelcome, isExpired, isSuspended }:
       className="border-2 border-primary/40 bg-primary/5 p-6 sm:p-8 space-y-6 shadow-md"
       data-testid="card-account-day-zero"
       id="day-zero"
+      role="region"
+      aria-labelledby="day-zero-heading"
     >
       <div className="space-y-2">
         <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
           {isWelcome ? "Almost there" : "Unlock Field Kit"}
         </p>
-        <h2 className="text-2xl sm:text-3xl font-display font-black text-foreground leading-tight">
+        <h2
+          id="day-zero-heading"
+          className="text-2xl sm:text-3xl font-display font-black text-foreground leading-tight"
+        >
           {headline}
         </h2>
         <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">{sub}</p>

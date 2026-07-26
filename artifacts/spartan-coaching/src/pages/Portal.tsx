@@ -325,11 +325,14 @@ export default function Portal() {
       <Card
         className="mb-6 border-2 border-primary/40 bg-primary/5 p-4 sm:p-5"
         data-testid="section-mission-next"
+        role="region"
+        aria-labelledby="portal-next-action-heading"
+        aria-live="polite"
       >
         <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
           <div className="min-w-0 space-y-1">
             <p className="text-[10px] font-bold tracking-widest text-primary uppercase">Next action</p>
-            <p className="text-lg font-bold text-foreground">
+            <p id="portal-next-action-heading" className="text-lg font-bold text-foreground">
               {needsRole
                 ? "Pick your role to personalize the checklist"
                 : nextItem
