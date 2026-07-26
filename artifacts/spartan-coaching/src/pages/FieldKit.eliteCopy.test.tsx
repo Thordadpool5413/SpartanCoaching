@@ -208,19 +208,17 @@ describe("FieldKit hero headline — all states", () => {
 describe("FieldKit eyebrow copy — all states", () => {
   it("shows the elite eyebrow copy when unauthenticated", async () => {
     await renderFieldKit(UNAUTHED);
-    expect(
-      screen.getByText(/Private Field Kit/i),
-    ).toBeTruthy();
+    expect(screen.getAllByText(/Private Field Kit/i).length).toBeGreaterThan(0);
   });
 
   it("shows the elite eyebrow copy when can-subscribe", async () => {
     await renderFieldKit(CAN_SUBSCRIBE);
-    expect(screen.getByText(/Private Field Kit/i)).toBeTruthy();
+    expect(screen.getAllByText(/Private Field Kit/i).length).toBeGreaterThan(0);
   });
 
   it("shows the elite eyebrow copy when already subscribed", async () => {
     await renderFieldKit(ALREADY_SUBSCRIBED);
-    expect(screen.getByText(/Private Field Kit/i)).toBeTruthy();
+    expect(screen.getAllByText(/Private Field Kit/i).length).toBeGreaterThan(0);
   });
 });
 
@@ -509,13 +507,14 @@ describe("FieldKit FAQ section — unauthenticated", () => {
     expect(within(section).getByTestId("faq-item-0")).toBeTruthy();
   });
 
-  it("renders all four FAQ items inside the FAQ section", async () => {
+  it("renders all five FAQ items inside the FAQ section", async () => {
     await renderFieldKit(UNAUTHED);
     const section = screen.getByTestId("section-faq");
     expect(within(section).getByTestId("faq-item-0")).toBeTruthy();
     expect(within(section).getByTestId("faq-item-1")).toBeTruthy();
     expect(within(section).getByTestId("faq-item-2")).toBeTruthy();
     expect(within(section).getByTestId("faq-item-3")).toBeTruthy();
+    expect(within(section).getByTestId("faq-item-4")).toBeTruthy();
   });
 });
 
@@ -537,13 +536,14 @@ describe("FieldKit FAQ section — can-subscribe", () => {
     expect(within(section).getByTestId("faq-item-0")).toBeTruthy();
   });
 
-  it("renders all four FAQ items inside the FAQ section", async () => {
+  it("renders all five FAQ items inside the FAQ section", async () => {
     await renderFieldKit(CAN_SUBSCRIBE);
     const section = screen.getByTestId("section-faq");
     expect(within(section).getByTestId("faq-item-0")).toBeTruthy();
     expect(within(section).getByTestId("faq-item-1")).toBeTruthy();
     expect(within(section).getByTestId("faq-item-2")).toBeTruthy();
     expect(within(section).getByTestId("faq-item-3")).toBeTruthy();
+    expect(within(section).getByTestId("faq-item-4")).toBeTruthy();
   });
 });
 
@@ -565,13 +565,14 @@ describe("FieldKit FAQ section — already subscribed", () => {
     expect(within(section).getByTestId("faq-item-0")).toBeTruthy();
   });
 
-  it("renders all four FAQ items inside the FAQ section", async () => {
+  it("renders all five FAQ items inside the FAQ section", async () => {
     await renderFieldKit(ALREADY_SUBSCRIBED);
     const section = screen.getByTestId("section-faq");
     expect(within(section).getByTestId("faq-item-0")).toBeTruthy();
     expect(within(section).getByTestId("faq-item-1")).toBeTruthy();
     expect(within(section).getByTestId("faq-item-2")).toBeTruthy();
     expect(within(section).getByTestId("faq-item-3")).toBeTruthy();
+    expect(within(section).getByTestId("faq-item-4")).toBeTruthy();
   });
 });
 
@@ -591,9 +592,9 @@ describe("FieldKit FAQ section — markup consistency across auth states", () =>
     const subscribedSection = screen.getByTestId("section-faq");
     const subscribedItems = within(subscribedSection).queryAllByTestId(/^faq-item-/);
 
-    expect(unauthedItems.length).toBe(4);
-    expect(canSubscribeItems.length).toBe(4);
-    expect(subscribedItems.length).toBe(4);
+    expect(unauthedItems.length).toBe(5);
+    expect(canSubscribeItems.length).toBe(5);
+    expect(subscribedItems.length).toBe(5);
   });
 
   it("FAQ section heading is present for all auth states", async () => {

@@ -292,9 +292,9 @@ describe("FieldKitMembership how-to-access — honest funnel", () => {
   it("lists preview → create account → subscribe steps", async () => {
     await renderMembership(UNAUTHED);
     expect(screen.getByText(/How to get access/i)).toBeTruthy();
-    expect(screen.getByText(/Preview free/i)).toBeTruthy();
-    expect(screen.getByText(/Create your account/i)).toBeTruthy();
-    expect(screen.getByText(/Subscribe/i)).toBeTruthy();
+    expect(screen.getAllByText(/Preview free/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Create your account/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Subscribe/i).length).toBeGreaterThan(0);
   });
 
   it("does NOT claim immediate access after register alone", async () => {

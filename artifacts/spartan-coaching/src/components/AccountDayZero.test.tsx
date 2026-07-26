@@ -48,8 +48,7 @@ describe("AccountDayZero", () => {
     expect(screen.getByTestId("card-account-day-zero")).toBeTruthy();
     expect(screen.getByText(/Welcome, Nick/i)).toBeTruthy();
     expect(screen.getByText(/Step 1/i)).toBeTruthy();
-    expect(screen.getByText(/Subscribe/i)).toBeTruthy();
-    expect(screen.getByTestId("button-day-zero-subscribe")).toBeTruthy();
+    expect(screen.getByTestId("button-day-zero-subscribe").textContent).toMatch(/Subscribe/i);
     expect(screen.getByText(/Preview tools first/i)).toBeTruthy();
     expect(screen.getByText(/Objection Handler/i)).toBeTruthy();
     expect(screen.getByText(/Open Command Center/i)).toBeTruthy();
@@ -57,12 +56,14 @@ describe("AccountDayZero", () => {
 
   it("shows resubscribe framing when expired", () => {
     render(<AccountDayZero firstName="Alex" isExpired isWelcome={false} />);
-    expect(screen.getByText(/evaluation window ended|Resubscribe/i)).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /evaluation window ended/i })).toBeTruthy();
+    expect(screen.getByTestId("button-day-zero-subscribe").textContent).toMatch(/Resubscribe/i);
   });
 
   it("shows update billing when suspended", () => {
     render(<AccountDayZero isSuspended />);
     expect(screen.getByTestId("button-day-zero-portal")).toBeTruthy();
-    expect(screen.getByText(/Update billing|Restore access/i)).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /Restore access/i })).toBeTruthy();
+    expect(screen.getByTestId("button-day-zero-portal").textContent).toMatch(/Update billing/i);
   });
 });
