@@ -41,7 +41,7 @@ export default function About() {
               <Link href="/contact">Book a Strategy Call <ArrowRight className="ml-2 w-4 h-4" /></Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="font-bold px-8">
-              <Link href="/request-access">Request Field Kit access</Link>
+              <Link href="/register">Create account · Field Kit</Link>
             </Button>
           </div>
         </div>
@@ -457,9 +457,14 @@ export default function About() {
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" asChild className="font-bold border-2 touch-manipulation px-10" data-testid="button-about-request">
+            <Button size="lg" variant="outline" asChild className="font-bold border-2 touch-manipulation px-10" data-testid="button-about-register">
+              <Link href="/register">
+                <span>Create account · Field Kit</span>
+              </Link>
+            </Button>
+            <Button size="lg" variant="ghost" asChild className="font-bold touch-manipulation px-10" data-testid="button-about-request">
               <Link href="/request-access">
-                <span>Request Field Kit access</span>
+                <span>Team / evaluation access</span>
               </Link>
             </Button>
           </div>

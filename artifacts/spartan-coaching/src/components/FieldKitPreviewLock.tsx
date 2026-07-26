@@ -256,8 +256,8 @@ export function FieldKitPreviewLock({ children }: Props) {
                       Client login
                     </Link>
                   </Button>
-                  <Button variant="outline" className="w-full font-bold" asChild>
-                    <Link href="/request-access">Request evaluation access</Link>
+                  <Button variant="ghost" className="w-full font-semibold" asChild>
+                    <Link href="/request-access">Team / evaluation access</Link>
                   </Button>
                 </>
               )}

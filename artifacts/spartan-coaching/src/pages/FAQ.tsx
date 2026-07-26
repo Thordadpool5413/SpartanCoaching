@@ -105,7 +105,7 @@ const faqCategories = [
       {
         id: "how-to-start",
         q: "How do I get started?",
-        a: "Two paths: (1) Request Field Kit evaluation access if you want to test the tools first, or (2) Book a strategy call if you want coaching, team systems, or enterprise scope. Individuals who finish evaluation can subscribe for $14.99/week from Account.",
+        a: "Three paths: (1) Preview tools free, create an account, then subscribe for $14.99/week to unlock live tools; (2) Request team/evaluation access for provider seats or arranged trials; (3) Book a strategy call for coaching, team systems, or enterprise scope.",
       },
       {
         id: "cost",
@@ -216,17 +216,18 @@ export default function FAQ() {
               Ready for a clear next step?
             </h2>
             <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto leading-relaxed mb-8">
-              Request a timed Field Kit evaluation, or book a strategy call about coaching and team systems. Honest conversation — no pressure.
+              Preview tools free, create an account and subscribe ($14.99/week), request team access, or book a strategy call
+              about coaching. Honest conversation — no pressure.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button
                 size="lg"
                 asChild
                 className="font-bold bg-white text-red-700 hover:bg-white/90 touch-manipulation group px-10"
-                data-testid="button-faq-contact"
+                data-testid="button-faq-register"
               >
-                <Link href="/contact">
-                  <span>Book a strategy call</span>
+                <Link href="/register">
+                  <span>Create account to subscribe</span>
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
@@ -235,14 +236,18 @@ export default function FAQ() {
                 variant="outline"
                 asChild
                 className="font-bold border-white/50 text-white bg-transparent hover:bg-white/10 touch-manipulation px-10"
-                data-testid="button-faq-request"
+                data-testid="button-faq-contact"
               >
-                <Link href="/request-access">Request Field Kit access</Link>
+                <Link href="/contact">Book a strategy call</Link>
               </Button>
             </div>
-            <p className="mt-5 text-sm text-white/80">
+            <p className="mt-5 text-sm text-white/80 space-x-3">
               <Link href="/field-kit-membership" className="underline underline-offset-4 hover:text-white" data-testid="button-faq-membership">
-                Membership path
+                Pricing · $14.99/wk
+              </Link>
+              <span aria-hidden="true">·</span>
+              <Link href="/request-access" className="underline underline-offset-4 hover:text-white" data-testid="button-faq-request">
+                Team / evaluation
               </Link>
             </p>
           </div>

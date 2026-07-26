@@ -8,13 +8,11 @@ import {
   Building2,
   User,
   Users,
-  CreditCard,
-  Loader2,
   TrendingUp,
   Award,
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import { useBillingActions } from "@/hooks/useBillingActions";
+import { SubscribeCTA } from "@/components/SubscribeCTA";
 import { FIELD_KIT_TOOLS, FIELD_KIT_CATEGORIES, FIELD_KIT_CAT_BLURBS } from "@workspace/field-kit-catalog";
 
 // Gated tools only (exclude brand-video which is public)
@@ -37,41 +35,7 @@ const TIER_ENTERPRISE_FEATURES = [
 ];
 
 export default function FieldKitMembership() {
-  const { isAuthenticated, canUseFieldKit, organization, member } = useAuth();
-  const { startCheckout, checkoutPending } = useBillingActions();
-  const isPersonal = organization?.type === "personal";
-  const isPlatform = member?.role === "platform_admin" || organization?.type === "platform";
-  const canSubscribe =
-    isAuthenticated &&
-    isPersonal &&
-    !isPlatform &&
-    organization?.billingPlan !== "comp" &&
-    !(
-      organization?.status === "active" &&
-      organization?.hasStripeSubscription &&
-      (organization?.billingStatus === "active" || organization?.billingStatus === "trialing")
-    );
-
-  const SubscribeBtn = ({ testId, size }: { testId: string; size?: "default" | "lg" }) => (
-    <Button
-      className="font-bold"
-      size={size}
-      onClick={startCheckout}
-      disabled={checkoutPending}
-      data-testid={testId}
-    >
-      {checkoutPending ? (
-        <>
-          <Loader2 className="mr-2 w-4 h-4 animate-spin" /> Redirecting…
-        </>
-      ) : (
-        <>
-          <CreditCard className="mr-2 w-4 h-4" />
-          Get access · $14.99/week
-        </>
-      )}
-    </Button>
-  );
+  const { canUseFieldKit } = useAuth();
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 py-12 sm:py-16" data-testid="page-field-kit-membership">
@@ -84,31 +48,19 @@ export default function FieldKitMembership() {
           The tools the top reps in your market use.<br />Not every rep has access.
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed">
-          Individual access starts at <strong className="text-foreground">$14.99 per week</strong> — the cost of one incomplete referral conversation.
-          Provider and enterprise seats use{" "}
+          Individual access is <strong className="text-foreground">$14.99 per week</strong> — create account, then
+          subscribe (cancel anytime). Preview tools free first. Provider seats use{" "}
           <strong className="text-foreground">contract weekly rates per seat</strong>.
         </p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-          {canSubscribe ? (
-            <SubscribeBtn testId="membership-hero-subscribe" size="lg" />
-          ) : isAuthenticated ? (
-            <Button asChild className="font-bold" size="lg">
-              <Link href="/account">Open Account · manage billing</Link>
-            </Button>
-          ) : (
-            <>
-              <Button asChild className="font-bold" size="lg">
-                <Link href="/register" data-testid="membership-hero-register">Get access · join the Field Kit</Link>
-              </Button>
-              <Button asChild variant="outline" className="font-bold" size="lg">
-                <Link href="/login">Already have an account? Sign in</Link>
-              </Button>
-            </>
-          )}
-          <Button asChild variant="ghost" className="font-medium" size="lg">
-            <Link href="/field-kit">
-              See what's inside →
-            </Link>
+        <div className="flex flex-col items-center gap-3 pt-2" data-testid="membership-hero-cta">
+          <SubscribeCTA
+            surface="field_kit_pricing"
+            showPreview
+            showHint
+            testId="membership-hero-subscribe"
+          />
+          <Button asChild variant="ghost" className="font-medium" size="sm">
+            <Link href="/field-kit">See what&apos;s inside →</Link>
           </Button>
         </div>
       </div>
@@ -171,21 +123,9 @@ export default function FieldKitMembership() {
               </li>
             ))}
           </ul>
-          {canSubscribe ? (
-            <SubscribeBtn testId="button-tier-individual-subscribe" />
-          ) : (
-            <Button asChild className="w-full font-bold" data-testid="button-tier-individual">
-              <Link href="/register">
-                Get access · join the Field Kit
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </Button>
-          )}
-          {isAuthenticated && (
-            <Button asChild variant="ghost" className="w-full font-semibold mt-2 text-sm">
-              <Link href="/account">I already have access — go to account</Link>
-            </Button>
-          )}
+          <div data-testid="button-tier-individual-subscribe">
+            <SubscribeCTA surface="field_kit_pricing" showHint={false} testId="button-tier-individual" />
+          </div>
         </Card>
 
         {/* Team */}
@@ -297,71 +237,67 @@ export default function FieldKitMembership() {
         </div>
       </div>
 
-      {/* ── ROI framing ── */}
-      <div className="rounded-xl border border-primary/30 bg-primary/5 p-8 sm:p-10 mb-14 text-center max-w-3xl mx-auto" data-testid="section-roi">
+      {/* ── Why subscribe (end-user edge — not provider revenue) ── */}
+      <div
+        className="rounded-xl border border-primary/30 bg-primary/5 p-8 sm:p-10 mb-14 text-center max-w-3xl mx-auto"
+        data-testid="section-why-membership"
+      >
         <TrendingUp className="w-8 h-8 text-primary mx-auto mb-4" />
         <h2 className="text-h3 font-bold text-foreground mb-3">
-          One converted referral. One won account. One admission the other rep lost.<br />
-          <span className="text-primary">That's what $14.99 a week is worth.</span>
+          Walk in with the answer the other rep doesn&apos;t have.
+          <br />
+          <span className="text-primary">That&apos;s what $14.99 a week buys you.</span>
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
-          The Activity Calculator turns a vague admission goal into a specific number of conversations per day — so you know exactly what performing at the top of your agency actually requires.
-          The ROI Calculator puts a revenue number next to every percentage-point improvement in conversion.
-          The Objection Handler gives you the answer before you walk into the room, not after you've already lost the conversation.
+          The Objection Handler gives you the response before you walk into the room. Weekly Plan Builder makes Monday
+          intentional. Command Center turns every visit into a continuous, coachable account workflow — not ten random
+          tabs.
         </p>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          A single hospice admission is typically worth $10,000–$20,000 in Medicare revenue to the provider.
-          The reps who consistently win those referrals don't wing the objection. They don't figure out the ask in the parking lot.
-          At $14.99/week, this is the edge. The math is obvious.
+          Preview tools free. Subscribe to generate, save, and run live. Cancel anytime from Account — access continues
+          through the period you already paid for.
         </p>
-        {canSubscribe && (
-          <div className="mt-6">
-            <SubscribeBtn testId="membership-roi-subscribe" size="lg" />
-          </div>
-        )}
-        {!isAuthenticated && (
-          <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-            <Button asChild className="font-bold" size="lg">
-              <Link href="/register">Create account · subscribe to access</Link>
-            </Button>
-            <Button asChild variant="outline" className="font-bold" size="lg">
-              <Link href="/login">Sign in</Link>
-            </Button>
-          </div>
-        )}
+        <div className="mt-6 flex justify-center" data-testid="membership-roi-subscribe">
+          <SubscribeCTA surface="field_kit_pricing" showPreview showHint={false} testId="membership-why-cta" />
+        </div>
       </div>
 
       {/* ── How it works ── */}
       <Card className="border border-border bg-card p-8 text-center space-y-4 max-w-3xl mx-auto mb-10">
         <h2 className="text-h3 font-bold">How to get access</h2>
         <ol className="text-left text-sm text-muted-foreground space-y-2 max-w-xl mx-auto list-decimal list-inside">
-          <li>Create your account — takes two minutes, no admin approval required for individual seats.</li>
-          <li>Get immediate access to all 13 tools on web and in the mobile field app.</li>
           <li>
-            <strong className="text-foreground">Individuals:</strong> subscribe for $14.99/week from Account.
-            Cancel anytime in Manage billing; access continues through the paid period.
+            <strong className="text-foreground">Preview free</strong> — open any tool UI on the Tools page without
+            paying.
           </li>
           <li>
-            <strong className="text-foreground">Teams / providers:</strong> we set seats and weekly per-user rate
-            under contract, then activate your org.
+            <strong className="text-foreground">Create your account</strong> — two minutes, no admin approval for
+            individual seats.
+          </li>
+          <li>
+            <strong className="text-foreground">Subscribe</strong> for $14.99/week from Account to unlock live generation
+            and saves. Cancel anytime; access continues through the paid period.
+          </li>
+          <li>
+            <strong className="text-foreground">Teams / providers:</strong> request team access — seats and weekly
+            per-user rate under contract.
           </li>
         </ol>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 flex-wrap">
-          {canSubscribe && <SubscribeBtn testId="membership-subscribe" />}
-          {canUseFieldKit ? (
-            <Button asChild className="font-bold" variant={canSubscribe ? "outline" : "default"}>
+        <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 flex-wrap items-center">
+          <SubscribeCTA surface="field_kit_pricing" showHint={false} testId="membership-subscribe" />
+          {canUseFieldKit && (
+            <Button asChild className="font-bold" variant="outline">
               <Link href="/account">Manage membership</Link>
             </Button>
-          ) : (
-            <Button asChild className="font-bold" variant={canSubscribe ? "outline" : "default"}>
-              <Link href="/request-access">Get access now</Link>
-            </Button>
           )}
+          <Button asChild variant="outline" className="font-bold">
+            <Link href="/request-access">Team / evaluation</Link>
+          </Button>
           <Button asChild variant="outline" className="font-bold">
             <Link href="/contact?service=Field+Kit+Membership">Talk through options</Link>
           </Button>
           <Button asChild variant="outline" className="font-bold">
-            <Link href="/tools">See the Field Kit</Link>
+            <Link href="/tools">Preview tools</Link>
           </Button>
         </div>
         <div

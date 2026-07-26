@@ -332,7 +332,8 @@ export function Header() {
                 ) : (
                   <>
                     <MobileNavLink href="/login" label="Client Login" location={location} onClose={() => setMobileMenuOpen(false)} />
-                    <MobileNavLink href="/request-access" label="Request Field Kit Access" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavLink href="/register" label="Create account · Field Kit" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavLink href="/request-access" label="Team / evaluation access" location={location} onClose={() => setMobileMenuOpen(false)} />
                     {navSections.map((section) => (
                       <div key={section.title}>
                         <MobileNavSection title={section.title} />
@@ -363,11 +364,18 @@ export function Header() {
                 </Button>
               )}
               {!isAuthenticated && (
-                <Button size="lg" variant="outline" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-request">
-                  <Link href="/request-access" onClick={() => setMobileMenuOpen(false)}>
-                    Request Field Kit Access
-                  </Link>
-                </Button>
+                <>
+                  <Button size="lg" variant="outline" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-register">
+                    <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
+                      Create account · Field Kit
+                    </Link>
+                  </Button>
+                  <Button size="lg" variant="ghost" asChild className="w-full font-semibold touch-manipulation" data-testid="button-mobile-request">
+                    <Link href="/request-access" onClick={() => setMobileMenuOpen(false)}>
+                      Team / evaluation access
+                    </Link>
+                  </Button>
+                </>
               )}
             </div>
           </SheetContent>

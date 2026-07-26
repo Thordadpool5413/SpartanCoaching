@@ -90,11 +90,14 @@ export function TrustStrip({ className, compact = false, showLinks = true }: Tru
           <Link href="/privacy" className="text-muted-foreground hover:text-primary transition-colors font-medium">
             Privacy policy
           </Link>
-          <Link href="/request-access" className="text-primary hover:underline font-bold">
-            Request Field Kit access
+          <Link href="/register" className="text-primary hover:underline font-bold">
+            Create account · Field Kit
           </Link>
           <Link href="/field-kit-membership" className="text-muted-foreground hover:text-primary transition-colors font-medium">
-            Membership path
+            Pricing · $14.99/wk
+          </Link>
+          <Link href="/request-access" className="text-muted-foreground hover:text-primary transition-colors font-medium">
+            Team / evaluation
           </Link>
         </div>
       )}

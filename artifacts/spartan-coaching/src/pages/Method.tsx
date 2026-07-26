@@ -437,21 +437,21 @@ export default function Method() {
             <div className="space-y-3 flex-1">
               <h2 className="text-h2 text-foreground">Practice the method in the Field Kit</h2>
               <p className="text-body text-muted-foreground leading-relaxed">
-                Coaching installs the system. Between sessions, approved clients and evaluators use the private Field Kit —
-                objections, weekly plans, role-play, calculators — to run real territory work. Access is request → approve →
-                timed evaluation → continue as a client. Never enter PHI into tools.
+                Coaching installs the system. Between sessions, members use the private Field Kit — objections, weekly plans,
+                role-play, calculators — to run real territory work. Individuals: preview free, create account, subscribe
+                $14.99/week. Teams: request access under contract. Never enter PHI into tools.
               </p>
               <div className="flex flex-wrap gap-3">
                 <Button asChild className="font-bold">
-                  <Link href="/request-access">
-                    Request Field Kit access <ArrowRight className="ml-2 w-4 h-4" />
+                  <Link href="/register">
+                    Create account to subscribe <ArrowRight className="ml-2 w-4 h-4" />
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="font-bold">
-                  <Link href="/tools">Field Kit overview</Link>
+                  <Link href="/tools">Preview tools</Link>
                 </Button>
                 <Button asChild variant="ghost" className="font-bold">
-                  <Link href="/services">View coaching services</Link>
+                  <Link href="/request-access">Team / evaluation access</Link>
                 </Button>
               </div>
             </div>
@@ -473,8 +473,11 @@ export default function Method() {
                   Book a strategy call <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="font-bold border-2" data-testid="button-method-request">
-                <Link href="/request-access">Request evaluation access</Link>
+              <Button asChild variant="outline" className="font-bold border-2" data-testid="button-method-register">
+                <Link href="/register">Create account · Field Kit</Link>
+              </Button>
+              <Button asChild variant="ghost" className="font-bold" data-testid="button-method-request">
+                <Link href="/request-access">Team / evaluation access</Link>
               </Button>
               <Button asChild variant="ghost" className="font-bold" data-testid="button-method-manifesto">
                 <Link href="/manifesto">Read the Spartan Ethos</Link>

@@ -384,8 +384,11 @@ export default function Home() {
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="font-bold border-2" data-testid="button-closing-request">
-                <Link href="/request-access">Request Field Kit access</Link>
+              <Button size="lg" variant="outline" asChild className="font-bold border-2" data-testid="button-closing-register">
+                <Link href="/register">Create account · Field Kit</Link>
+              </Button>
+              <Button size="lg" variant="ghost" asChild className="font-bold" data-testid="button-closing-request">
+                <Link href="/request-access">Team / evaluation access</Link>
               </Button>
             </div>
           </div>
