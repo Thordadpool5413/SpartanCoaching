@@ -275,7 +275,7 @@ export default function Account() {
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary">{statusLabel}</Badge>
           {canUseFieldKit ? (
-            <Badge className="bg-green-600/20 text-green-400 border-green-600/30">Field Kit unlocked</Badge>
+            <Badge className="bg-primary/15 text-primary border-primary/30">Field Kit unlocked</Badge>
           ) : (
             <Badge variant="destructive">Field Kit locked</Badge>
           )}

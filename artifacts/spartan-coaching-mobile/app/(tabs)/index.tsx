@@ -320,7 +320,7 @@ export default function HomeScreen() {
             <View key={pillar.name} style={styles.pillarRow}>
               <View style={[styles.pillarAccent, { backgroundColor: colors.primary }]} />
               <View style={{ flex: 1 }}>
-                <Text style={[styles.pillarName, { color: "rgba(255,255,255,0.92)", fontFamily: "Inter_700Bold" }]}>
+                <Text style={[styles.pillarName, { color: colors.heroForeground, fontFamily: "Inter_700Bold" }]}>
                   {pillar.name}
                 </Text>
                 <Text style={[styles.pillarDesc, { color: colors.heroMuted, fontFamily: "Inter_400Regular" }]}>
@@ -354,7 +354,7 @@ export default function HomeScreen() {
       showsVerticalScrollIndicator={false}
     >
       <LinearGradient
-        colors={[colors.heroBackground, colors.background, "#1a0404"]}
+        colors={[colors.heroBackground, colors.background, colors.card]}
         style={[styles.fieldHero, { paddingTop: topPad + 16 }]}
       >
         <SectionKicker>Field Kit home</SectionKicker>
@@ -390,8 +390,8 @@ export default function HomeScreen() {
             style={{
               marginTop: 14,
               alignSelf: "flex-start",
-              backgroundColor: "rgba(251,191,36,0.15)",
-              borderColor: "rgba(251,191,36,0.35)",
+              backgroundColor: colors.warning ? `${colors.warning}22` : colors.muted,
+              borderColor: colors.border,
               borderWidth: 1,
               borderRadius: 8,
               paddingHorizontal: 12,
@@ -401,10 +401,10 @@ export default function HomeScreen() {
               gap: 8,
             }}
           >
-            <Feather name="clock" size={14} color="#fbbf24" />
-            <Text style={{ color: "#fde68a", fontWeight: "700", fontSize: 13 }}>{trialLabel}</Text>
+            <Feather name="clock" size={14} color={colors.warning || colors.primary} />
+            <Text style={{ color: colors.heroForeground, fontWeight: "700", fontSize: 13 }}>{trialLabel}</Text>
             <Pressable onPress={() => router.push("/(tabs)/contact")}>
-              <Text style={{ color: "#fff", fontWeight: "700", fontSize: 13, textDecorationLine: "underline" }}>
+              <Text style={{ color: colors.primary, fontWeight: "700", fontSize: 13, textDecorationLine: "underline" }}>
                 Debrief
               </Text>
             </Pressable>
@@ -414,15 +414,17 @@ export default function HomeScreen() {
             style={{
               marginTop: 14,
               alignSelf: "flex-start",
-              backgroundColor: "rgba(74,222,128,0.12)",
-              borderColor: "rgba(74,222,128,0.3)",
+              backgroundColor: colors.muted,
+              borderColor: colors.border,
               borderWidth: 1,
               borderRadius: 8,
               paddingHorizontal: 12,
               paddingVertical: 8,
             }}
           >
-            <Text style={{ color: "#86efac", fontWeight: "700", fontSize: 13 }}>Active client access</Text>
+            <Text style={{ color: colors.success || colors.primary, fontWeight: "700", fontSize: 13 }}>
+              Active client access
+            </Text>
           </View>
         )}
       </LinearGradient>
@@ -512,12 +514,12 @@ export default function HomeScreen() {
                     }}
                     testID={`button-role-${r.id}`}
                   >
-                    <Text style={{ color: "#fff", fontWeight: "800", fontSize: 13 }}>{r.label}</Text>
+                    <Text style={{ color: colors.primaryForeground, fontWeight: "800", fontSize: 13 }}>{r.label}</Text>
                   </Pressable>
                 ))}
               </View>
             ) : (
-              <Text style={{ color: "#86efac", fontWeight: "700", marginTop: 8, textTransform: "capitalize" }}>
+              <Text style={{ color: colors.success || colors.primary, fontWeight: "700", marginTop: 8, textTransform: "capitalize" }}>
                 {jobRole}
               </Text>
             )}
@@ -636,7 +638,7 @@ export default function HomeScreen() {
                 styles.checkRow,
                 {
                   backgroundColor: colors.card,
-                  borderColor: done ? "rgba(74,222,128,0.35)" : colors.border,
+                  borderColor: done ? colors.success || colors.primary : colors.border,
                 },
               ]}
             >
@@ -649,7 +651,7 @@ export default function HomeScreen() {
                 <Feather
                   name={done ? "check-circle" : "circle"}
                   size={22}
-                  color={done ? "#4ade80" : colors.mutedForeground}
+                  color={done ? colors.success || colors.primary : colors.mutedForeground}
                 />
               </Pressable>
               <Pressable onPress={() => openChecklistItem(item)} style={{ flex: 1 }}>

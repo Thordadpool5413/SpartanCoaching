@@ -32,14 +32,30 @@ function StickyBookCallContent() {
     return null;
   }
 
-  // Quiet paid/member product mode — no sticky sales FAB over Field Kit work
-  if (canUseFieldKit) {
+  // Quiet product / conversion shells — one primary CTA max, no FAB noise
+  const quietPaths =
+    canUseFieldKit ||
+    location === "/contact" ||
+    location === "/login" ||
+    location === "/register" ||
+    location === "/account" ||
+    location.startsWith("/account") ||
+    location === "/portal" ||
+    location.startsWith("/portal") ||
+    location.startsWith("/tools") ||
+    location.startsWith("/resources") ||
+    location.startsWith("/drills") ||
+    location === "/field-kit" ||
+    location.startsWith("/field-kit-membership") ||
+    location.startsWith("/pricing/");
+
+  if (quietPaths) {
     return null;
   }
 
   return (
     <>
-      {isVisible && location !== "/contact" && (
+      {isVisible && (
         <Button
           asChild
           className={cn(

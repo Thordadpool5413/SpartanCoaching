@@ -330,7 +330,7 @@ export function applyAppearance(mode: ThemeMode, accent: AccentKey, background: 
   // Destructive always keeps readable on-fill text
   setVar("--destructive-foreground", "0 0% 100%");
 
-  // 5) Hard paint html/body/#root so text never stays invisible on a new surface
+  // 5) Hard paint html/body/#root so first paint matches surface (FOUC-safe)
   const bgColor = `hsl(${surface.bg})`;
   const fgColor = `hsl(${surface.fg})`;
   const mutedColor = `hsl(${surface.mutedFg})`;
@@ -348,7 +348,11 @@ export function applyAppearance(mode: ThemeMode, accent: AccentKey, background: 
   }
   root.style.setProperty("--theme-muted-fg", mutedColor);
   root.style.setProperty("--theme-card", cardColor);
-  // Help any unscoped content inherit readable colors with the surface
+  // Semantic status tokens (shared by badges / trial chips)
+  setVar("--success", effectiveMode === "dark" ? "142 70% 45%" : "142 65% 32%");
+  setVar("--success-foreground", effectiveMode === "dark" ? "140 30% 96%" : "0 0% 100%");
+  setVar("--warning", effectiveMode === "dark" ? "38 92% 55%" : "32 90% 42%");
+  setVar("--warning-foreground", effectiveMode === "dark" ? "40 30% 10%" : "0 0% 100%");
   root.style.setProperty("color-scheme", effectiveMode);
 
   // 6) Persist

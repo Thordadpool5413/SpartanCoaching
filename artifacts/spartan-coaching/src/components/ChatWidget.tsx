@@ -490,14 +490,22 @@ export function ChatWidget() {
     return null;
   }
 
-  // Quiet product mode for Field Kit members — no floating chat over the OS
+  // Quiet member OS + conversion/auth shells (no floating chat over product)
   if (
     canUseFieldKit ||
     location === "/portal" ||
+    location.startsWith("/portal") ||
     location.startsWith("/tools") ||
     location.startsWith("/resources") ||
     location.startsWith("/account") ||
-    location.startsWith("/drills")
+    location.startsWith("/drills") ||
+    location === "/login" ||
+    location === "/register" ||
+    location === "/field-kit" ||
+    location.startsWith("/field-kit-membership") ||
+    location.startsWith("/pricing/") ||
+    location.startsWith("/quiz") ||
+    location.startsWith("/learn/")
   ) {
     return null;
   }
