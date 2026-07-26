@@ -208,7 +208,7 @@ export default function Tools() {
                   <h2 className="text-lg font-bold text-foreground mb-1">Preview open · use locked</h2>
                   <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
                     See the actual tools and resources below. To generate responses, save work, or run live
-                    calculators end-to-end, start a free trial or subscribe ($14.99/week, cancel anytime).
+                    calculators end-to-end, create an account and subscribe ($14.99/week, cancel anytime).
                   </p>
                 </div>
               </div>
@@ -216,7 +216,7 @@ export default function Tools() {
                 <Button asChild className="font-bold" data-testid="button-tools-request">
                   <Link href="/register">
                     <KeyRound className="mr-2 w-4 h-4" />
-                    Start free trial
+                    Create account to subscribe
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="font-bold" data-testid="button-tools-login">

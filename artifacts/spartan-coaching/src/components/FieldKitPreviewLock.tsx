@@ -139,7 +139,7 @@ export function FieldKitPreviewLock({ children }: Props) {
                 <Button size="sm" className="font-bold" asChild data-testid="preview-banner-register">
                   <Link href="/register">
                     <KeyRound className="mr-1.5 w-3.5 h-3.5" />
-                    Start free trial
+                    Create account to subscribe
                   </Link>
                 </Button>
                 <Button size="sm" variant="outline" className="font-bold" asChild>
@@ -247,7 +247,7 @@ export function FieldKitPreviewLock({ children }: Props) {
                   <Button className="w-full font-bold" asChild data-testid="preview-nudge-register">
                     <Link href="/register">
                       <KeyRound className="mr-2 w-4 h-4" />
-                      Create account — start free trial
+                      Create account to subscribe
                     </Link>
                   </Button>
                   <Button variant="outline" className="w-full font-bold" asChild>

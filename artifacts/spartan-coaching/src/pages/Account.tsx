@@ -312,14 +312,15 @@ export default function Account() {
           )}
         </dl>
 
-        {/* Billing actions */}
+        {/* Billing actions — money moment after register */}
         <div
           className="rounded-lg border-2 border-primary/40 bg-primary/5 p-4 space-y-3"
           data-testid="card-billing-actions"
+          id="subscribe"
         >
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <CreditCard className="w-4 h-4 text-primary" />
-            Membership &amp; billing
+            {canCheckout ? "Subscribe to unlock Field Kit" : "Membership & billing"}
           </div>
           {isPersonal && !isPlatform && (
             <div>
@@ -328,8 +329,30 @@ export default function Account() {
                 <span className="text-sm font-semibold text-muted-foreground"> / week</span>
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                Individual Field Kit · auto-renew · cancel anytime from Manage billing
+                Individual Field Kit · your tools, your edge · cancel anytime from Manage billing
               </p>
+              {canCheckout && (
+                <ul className="mt-3 space-y-1.5">
+                  {FIELD_KIT_TOOLS.filter((t) => t.id !== "brand-video")
+                    .slice(0, 6)
+                    .map((t) => (
+                      <li key={t.id} className="flex gap-2 text-xs text-muted-foreground">
+                        <CheckCircle className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
+                        <span>
+                          <span className="font-semibold text-foreground">{t.title}</span>
+                          {" — "}
+                          {t.whenToUse}
+                        </span>
+                      </li>
+                    ))}
+                  <li className="text-xs text-muted-foreground pl-5">
+                    + more tools ·{" "}
+                    <Link href="/tools" className="text-primary font-semibold hover:underline">
+                      Preview first
+                    </Link>
+                  </li>
+                </ul>
+              )}
             </div>
           )}
           {billingLoading ? (

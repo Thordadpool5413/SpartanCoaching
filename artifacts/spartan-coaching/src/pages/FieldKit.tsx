@@ -2,14 +2,11 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
-import { useAuth } from "@/context/AuthContext";
-import { useBillingActions } from "@/hooks/useBillingActions";
+import { SubscribeCTA } from "@/components/SubscribeCTA";
 import { FIELD_KIT_TOOLS } from "@workspace/field-kit-catalog";
 import {
   CheckCircle,
   ArrowRight,
-  CreditCard,
-  Loader2,
   Award,
   Users,
   TrendingUp,
@@ -20,6 +17,11 @@ import {
   Package,
   Sparkles,
   X,
+  Lock,
+  CalendarDays,
+  MessageSquare,
+  Crosshair,
+  Mail,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -61,28 +63,54 @@ const FAQ_ITEMS = [
   },
   {
     q: "Is there a team or company option?",
-    a: "Yes. Team and provider accounts use a weekly per-seat rate set under contract — different from the self-serve $14.99 individual price. Request team access and we'll set up an evaluation and seats together.",
+    a: "Yes. Team and provider accounts use a weekly per-seat rate set under contract — different from the self-serve $14.99 individual price. Request team access and we'll set up seats under your provider agreement.",
+  },
+  {
+    q: "Can I try tools before I pay?",
+    a: "Yes. Open any tool in preview to see the real interface. Live generation, saves, and runs unlock when you subscribe. Self-serve accounts create first, then subscribe from Account — timed evaluations are arranged separately when you request team or approved evaluation access.",
   },
 ];
 
+/** Your week with Field Kit — personal motivation beats (not provider revenue). */
+const DAY_MAP = [
+  {
+    beat: "1",
+    when: "Sunday night",
+    title: "The week already has a plan",
+    toolId: "weekly-plan",
+    icon: CalendarDays,
+    feel: "You know who to call first Monday — not 15 tabs of hope.",
+  },
+  {
+    beat: "2",
+    when: "Before the visit",
+    title: "Walk in prepared",
+    toolId: "sales-workflow",
+    icon: Crosshair,
+    feel: "Command Center + playbook: one ask, one path, no parking-lot scramble.",
+  },
+  {
+    beat: "3",
+    when: "Objection hits",
+    title: "You already have the answer",
+    toolId: "objections",
+    icon: MessageSquare,
+    feel: "Preferred hospice. Not ready. Practice once — sound like you, not a script robot.",
+  },
+  {
+    beat: "4",
+    when: "After the visit",
+    title: "Relationship stays warm",
+    toolId: "email-templates",
+    icon: Mail,
+    feel: "Specific follow-up the same day. You're the rep they remember.",
+  },
+] as const;
+
 export default function FieldKit() {
-  const { isAuthenticated, organization, member } = useAuth();
-  const { startCheckout, checkoutPending } = useBillingActions();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [showMoreTools, setShowMoreTools] = useState(false);
-
-  const isPersonal = organization?.type === "personal";
-  const isPlatform = member?.role === "platform_admin" || organization?.type === "platform";
-  const canSubscribe =
-    isAuthenticated &&
-    isPersonal &&
-    !isPlatform &&
-    organization?.billingPlan !== "comp" &&
-    !(
-      organization?.status === "active" &&
-      organization?.hasStripeSubscription &&
-      (organization?.billingStatus === "active" || organization?.billingStatus === "trialing")
-    );
+  const [showAllUnlock, setShowAllUnlock] = useState(false);
 
   const primaryTools = PRIMARY_TOOL_IDS.map((id) =>
     FIELD_KIT_TOOLS.find((t) => t.id === id),
@@ -92,43 +120,8 @@ export default function FieldKit() {
     Boolean,
   ) as (typeof FIELD_KIT_TOOLS)[number][];
 
-  const HeroCTA = () => {
-    if (canSubscribe) {
-      return (
-        <Button className="font-bold" size="lg" onClick={startCheckout} disabled={checkoutPending}>
-          {checkoutPending ? (
-            <>
-              <Loader2 className="mr-2 w-4 h-4 animate-spin" /> Redirecting…
-            </>
-          ) : (
-            <>
-              <CreditCard className="mr-2 w-4 h-4" /> Get access · $14.99/week
-            </>
-          )}
-        </Button>
-      );
-    }
-    if (isAuthenticated) {
-      return (
-        <Button asChild className="font-bold" size="lg">
-          <Link href="/account">Go to your account</Link>
-        </Button>
-      );
-    }
-    return (
-      <>
-        <Button asChild className="font-bold" size="lg">
-          <Link href="/register" data-testid="field-kit-hero-register">
-            Get access
-            <ArrowRight className="ml-2 w-4 h-4" />
-          </Link>
-        </Button>
-        <Button asChild variant="outline" className="font-bold" size="lg">
-          <Link href="/login">Sign in</Link>
-        </Button>
-      </>
-    );
-  };
+  const unlockTools = FIELD_KIT_TOOLS.filter((t) => t.id !== "brand-video");
+  const unlockVisible = showAllUnlock ? unlockTools : unlockTools.slice(0, 8);
 
   return (
     <div className="w-full" data-testid="page-field-kit">
@@ -139,31 +132,29 @@ export default function FieldKit() {
         <div className="absolute inset-0 bg-spartan-gradient-radial opacity-15 pointer-events-none" />
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-6">
           <p className="text-xs font-bold tracking-widest text-primary uppercase">
-            Private Field Kit · Built for the rep who refuses to leave a referral on the table
+            Private Field Kit · Built for the rep who refuses to wing Tuesday
           </p>
           <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-black text-foreground leading-[1.05] tracking-tight">
-            The edge that converts<br />
-            conversations into admissions.<br />
+            The edge that wins the room.
+            <br />
             <span className="text-primary">Not every rep has access.</span>
           </h1>
           <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-            Built by someone who ran the territory and coached the reps who consistently rank at the top of their agencies.
-            Every tool was designed for the exact conversations hospice consultants have in SNFs, physician offices, and
-            family meetings — not adapted from generic sales AI.
+            Built by someone who ran the territory and coached the reps who consistently rank at the top of their
+            agencies. Every tool is for the conversations you have in SNFs, physician offices, and family meetings —
+            not generic sales AI. Preview free. Live use with a subscription.
           </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
-            <HeroCTA />
-            {!isAuthenticated && (
-              <Button asChild variant="ghost" className="font-medium" size="lg">
-                <Link href="/field-kit-membership">
-                  See what's inside
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Link>
-              </Button>
-            )}
+          <div className="flex flex-col items-center gap-3 pt-2">
+            <SubscribeCTA surface="field_kit_hero" showPreview showHint testId="field-kit-hero-cta" />
+            <Button asChild variant="ghost" className="font-medium" size="sm">
+              <a href="#why-subscribe">
+                See why reps subscribe
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </a>
+            </Button>
           </div>
-          <p className="text-xs text-muted-foreground pt-2">
-            $14.99/week · the cost of one incomplete referral conversation · cancel anytime
+          <p className="text-xs text-muted-foreground pt-1">
+            $14.99/week · your tools, your edge · cancel anytime from Account
           </p>
         </div>
       </section>
@@ -391,9 +382,13 @@ export default function FieldKit() {
         </div>
       </section>
 
-      {/* ── WHY SUBSCRIBE (end-user Why / How / What / WIIFM) ── */}
-      <section className="py-16 sm:py-20 bg-background" data-testid="section-why-subscribe">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 space-y-10">
+      {/* ── WHY SUBSCRIBE (desire + unlock + day map + honest CTA) ── */}
+      <section
+        id="why-subscribe"
+        className="py-16 sm:py-20 bg-background scroll-mt-20"
+        data-testid="section-why-subscribe"
+      >
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 space-y-12">
           <div className="text-center max-w-3xl mx-auto space-y-4">
             <p className="text-xs font-bold tracking-widest text-primary uppercase">Why Field Kit</p>
             <h2 className="text-3xl sm:text-4xl font-display font-black text-foreground">
@@ -413,25 +408,25 @@ export default function FieldKit() {
                 label: "Why",
                 title: "Why you need this",
                 icon: Target,
-                body: "Tuesday is real: “we already have a preferred hospice,” “not ready,” no plan for fifteen accounts, follow-up that slips until Thursday. Hoping is not a system. Most people in the territory are winging the same moments you are.",
+                body: "Tuesday is real: preferred hospice, not ready, no plan for fifteen accounts, follow-up that slips until Thursday. Hoping is not a system. Most people in the territory are winging the same moments you are.",
               },
               {
                 label: "How",
                 title: "How it works for you",
                 icon: Route,
-                body: "Prepare → Practice → Plan → Measure around your next visit, objection, and week — not generic “sales AI.” Hospice growth conversations only. Ethics-first. No PHI in the tools. Built by someone who ran the territory.",
+                body: "Prepare → Practice → Plan → Measure around your next visit, objection, and week — not generic sales AI. Hospice growth conversations only. Ethics-first. No PHI in the tools.",
               },
               {
                 label: "What",
-                title: "What’s in the kit",
+                title: "What's in the kit",
                 icon: Package,
-                body: "Thirteen private tools and resources: Sales Command Center as the daily spine, plus satellites for objections, playbooks, role-play, weekly plan, scripts, email, research, and more. Web and mobile. Preview the real UI anytime — live runs unlock with access.",
+                body: "Thirteen private tools: Sales Command Center as the daily spine, plus objections, playbooks, role-play, weekly plan, scripts, email, research, and more. Web and mobile. Preview the real UI — live runs unlock when you subscribe.",
               },
               {
                 label: "For you",
-                title: "What’s in it for you",
+                title: "What's in it for you",
                 icon: Sparkles,
-                body: "Confidence when the charge nurse pushes back. A Monday that already has a plan. Fewer fumbling moments. The reputation of the rep who showed up prepared. Your agency sets the goals — this is your edge between coaching sessions.",
+                body: "Confidence when the charge nurse pushes back. A Monday that already has a plan. Fewer fumbling moments. The reputation of the rep who showed up prepared. Your agency sets goals — this is your edge between sessions.",
               },
             ].map((pillar) => {
               const Icon = pillar.icon;
@@ -439,7 +434,7 @@ export default function FieldKit() {
                 <Card
                   key={pillar.label}
                   className="border border-border bg-card p-5 sm:p-6 space-y-3 text-left"
-                  data-testid={`why-subscribe-pillar-${pillar.label.toLowerCase().replace(/\s+/g, "-")}`}
+                  data-testid={`why-subscribe-pillar-${pillar.label.toLowerCase()}`}
                 >
                   <div className="flex items-center gap-2.5">
                     <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-primary/15 text-primary">
@@ -458,6 +453,113 @@ export default function FieldKit() {
             })}
           </div>
 
+          <div className="space-y-5" data-testid="field-kit-day-map">
+            <div className="text-center space-y-2 max-w-2xl mx-auto">
+              <p className="text-xs font-bold tracking-widest text-primary uppercase">Your week with the kit</p>
+              <h3 className="text-xl sm:text-2xl font-display font-black text-foreground">
+                Four moments. Four tools. One reputation.
+              </h3>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+              {DAY_MAP.map((step) => {
+                const tool = FIELD_KIT_TOOLS.find((t) => t.id === step.toolId);
+                const Icon = step.icon;
+                return (
+                  <Card
+                    key={step.beat}
+                    className="border border-border bg-card p-4 flex flex-col gap-3 text-left"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-primary">
+                        {step.when}
+                      </span>
+                      <span className="text-[10px] font-bold text-muted-foreground">{step.beat}/4</span>
+                    </div>
+                    <div className="flex items-start gap-2">
+                      <span className="inline-flex h-8 w-8 items-center justify-center rounded-md bg-primary/15 text-primary shrink-0">
+                        <Icon className="h-4 w-4" aria-hidden />
+                      </span>
+                      <div>
+                        <p className="text-sm font-bold text-foreground leading-snug">{step.title}</p>
+                        <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{step.feel}</p>
+                      </div>
+                    </div>
+                    {tool && (
+                      <Link
+                        href={tool.path}
+                        className="mt-auto text-xs font-bold text-primary hover:underline inline-flex items-center gap-1"
+                      >
+                        Preview {tool.title}
+                        <ArrowRight className="w-3 h-3" />
+                      </Link>
+                    )}
+                  </Card>
+                );
+              })}
+            </div>
+          </div>
+
+          <div className="space-y-5" data-testid="field-kit-unlock-showcase">
+            <div className="text-center space-y-2 max-w-2xl mx-auto">
+              <p className="text-xs font-bold tracking-widest text-primary uppercase">What you unlock</p>
+              <h3 className="text-xl sm:text-2xl font-display font-black text-foreground">
+                See the tools. Then run them live when you subscribe.
+              </h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Every tile opens a real preview. Generate, save, and run need an active membership. Training resources
+                stay in the library — better with the kit, not a secret paid-only vault.
+              </p>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-2">
+              {unlockVisible.map((tool) => (
+                <Link
+                  key={tool.id}
+                  href={tool.path}
+                  className="group flex items-start gap-3 rounded-lg border border-border bg-card p-3 hover:border-primary/40 hover:bg-primary/[0.03] transition-colors text-left"
+                  data-testid={`unlock-tile-${tool.id}`}
+                >
+                  <Lock className="w-3.5 h-3.5 text-primary shrink-0 mt-1" aria-hidden />
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="text-sm font-bold text-foreground group-hover:text-primary">
+                        {tool.title}
+                      </span>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-primary/80">
+                        {tool.category}
+                      </span>
+                    </div>
+                    <p className="text-xs text-muted-foreground leading-relaxed mt-0.5 line-clamp-2">
+                      {tool.whenToUse}
+                    </p>
+                  </div>
+                  <ArrowRight className="w-3.5 h-3.5 text-muted-foreground group-hover:text-primary shrink-0 mt-1" />
+                </Link>
+              ))}
+            </div>
+            {unlockTools.length > 8 && (
+              <div className="flex justify-center">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  className="font-semibold"
+                  onClick={() => setShowAllUnlock((v) => !v)}
+                  data-testid="button-toggle-unlock-tools"
+                >
+                  {showAllUnlock ? (
+                    <>
+                      Show fewer tools <ChevronUp className="ml-1.5 w-4 h-4" />
+                    </>
+                  ) : (
+                    <>
+                      Show all {unlockTools.length} tools <ChevronDown className="ml-1.5 w-4 h-4" />
+                    </>
+                  )}
+                </Button>
+              </div>
+            )}
+          </div>
+
           <Card
             className="border border-primary/25 bg-primary/5 p-5 sm:p-8 space-y-5"
             data-testid="why-subscribe-uniqueness"
@@ -468,8 +570,8 @@ export default function FieldKit() {
                 Your employer has tools. They don&apos;t have this kit.
               </h3>
               <p className="text-sm text-muted-foreground leading-relaxed">
-                There isn&apos;t another private operating kit built only for hospice growth execution between
-                sessions — for the conversations and weeks that decide who the facility remembers.
+                A private operating kit for hospice growth execution between sessions — for the conversations and weeks
+                that decide who the facility remembers.
               </p>
             </div>
             <div className="grid sm:grid-cols-2 gap-3 max-w-3xl mx-auto">
@@ -480,14 +582,14 @@ export default function FieldKit() {
                 },
                 {
                   not: "Corporate training / LMS",
-                  is: "Always-on tools for this week’s accounts, not a one-off slide deck",
+                  is: "Always-on tools for this week's accounts, not a one-off slide deck",
                 },
                 {
                   not: "CRM or census dashboards",
                   is: "Execution between visits: answers, practice, plans — not another report",
                 },
                 {
-                  not: "“We already have tools” at work",
+                  not: '"We already have tools" at work',
                   is: "A private Field Kit your employer did not build for you",
                 },
               ].map((row) => (
@@ -514,25 +616,36 @@ export default function FieldKit() {
             </div>
           </Card>
 
-          <div className="text-center space-y-4 max-w-xl mx-auto">
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Individual access is{" "}
-              <strong className="text-foreground">$14.99/week</strong>
-              {" · "}
-              cancel anytime
-              {" — "}
-              <span className="text-foreground font-medium">your tools, your edge</span>
-              — not another line on the agency budget story.
+          <div className="max-w-xl mx-auto space-y-6 text-center">
+            <ul className="space-y-2 text-left text-sm text-muted-foreground">
+              {[
+                "Company should pay? Request team access — seats under contract.",
+                "Not sure yet? Preview every tool first. Subscribe when you're ready.",
+                "Cancel anytime from Account — access continues through the period you paid for.",
+              ].map((line) => (
+                <li key={line} className="flex gap-2">
+                  <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <span>{line}</span>
+                </li>
+              ))}
+            </ul>
+            <SubscribeCTA
+              surface="field_kit_why"
+              showPreview
+              showHint
+              testId="field-kit-why-subscribe"
+            />
+            <p className="text-xs text-muted-foreground">
+              Team or company seats?{" "}
+              <Link href="/request-access" className="text-primary font-semibold hover:underline">
+                Request team access
+              </Link>{" "}
+              or{" "}
+              <Link href="/contact?service=Field+Kit+Membership" className="text-primary font-semibold hover:underline">
+                talk to Nick
+              </Link>
+              .
             </p>
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <HeroCTA />
-              <Button asChild variant="outline" className="font-bold" size="lg">
-                <Link href="/tools">
-                  Preview the tools
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Link>
-              </Button>
-            </div>
           </div>
         </div>
       </section>
@@ -556,9 +669,9 @@ export default function FieldKit() {
               {[
                 "All 13 Field Kit tools — every stage of the growth cycle",
                 "Web app + mobile app — in the field and at the desk",
-                "Access starts immediately after registration",
+                "Create account, then subscribe — live tools unlock after checkout",
                 "Cancel from Account — access continues through the paid period",
-                "No admin approval, no waitlist — individual accounts are self-serve",
+                "Preview any tool first — no guesswork about what's inside",
               ].map((f) => (
                 <li key={f} className="flex gap-2.5 text-sm text-foreground">
                   <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
@@ -567,7 +680,7 @@ export default function FieldKit() {
               ))}
             </ul>
             <div className="flex flex-col gap-3">
-              <HeroCTA />
+              <SubscribeCTA surface="field_kit_pricing" showHint={false} testId="field-kit-pricing-cta" />
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">
               Setting up <strong className="text-foreground">team or company seats</strong>?{" "}
@@ -628,11 +741,11 @@ export default function FieldKit() {
             The rep the facility calls first<br />is the one who already had the answer.
           </h2>
           <p className="text-muted-foreground leading-relaxed max-w-xl mx-auto">
-            Create your account in two minutes and get access to all 13 tools for $14.99/week.
-            The reps who consistently rank at the top of their agencies don't wing it.
+            Create your account, subscribe for $14.99/week, and unlock all 13 tools.
+            The reps who consistently rank at the top of their agencies don&apos;t wing it.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <HeroCTA />
+            <SubscribeCTA surface="field_kit_why" showHint={false} testId="field-kit-closing-cta" />
             <Button asChild variant="outline" className="font-bold" size="lg">
               <Link href="/contact">Talk through options first</Link>
             </Button>
