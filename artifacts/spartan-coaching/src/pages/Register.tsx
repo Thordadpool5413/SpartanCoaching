@@ -73,13 +73,13 @@ export default function Register() {
         throw new Error(data.error || "Registration failed");
       }
 
-      // Account created + session cookie set — refresh auth state then navigate
+      // Account created + session cookie set — Day Zero ceremony on Account
       await refresh();
       toast({
         title: "Account created",
-        description: "Subscribe to access Field Kit tools — $14.99/week, cancel anytime.",
+        description: "Next: subscribe to unlock live tools — $14.99/week, cancel anytime.",
       });
-      setLocation("/account");
+      setLocation("/account?welcome=1");
     } catch (err: any) {
       toast({
         title: "Registration failed",

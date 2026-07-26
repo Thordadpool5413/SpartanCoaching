@@ -153,8 +153,8 @@ export default function AccountScreen() {
         <Text style={[styles.kicker, { color: colors.primary }]}>CLIENT ACCESS</Text>
         <Text style={[styles.title, { color: colors.foreground }]}>Your Field Kit</Text>
         <Text style={[styles.body, { color: colors.mutedForeground }]}>
-          Sign in to use the private AI Field Kit on the go — objections, playbooks, role-play, and more.
-          Individuals continue at $14.99/week after evaluation (cancel anytime).
+          Sign in to use the private Field Kit on the go — objections, playbooks, role-play, and more.
+          Individuals: create an account on the web, then subscribe for $14.99/week (cancel anytime). Preview tools free first.
         </Text>
 
         <View style={[styles.card, { borderColor: colors.primary, backgroundColor: colors.card, borderWidth: 1.5 }]}>
@@ -363,7 +363,7 @@ export default function AccountScreen() {
         <Text style={[styles.cardLabel, { color: colors.mutedForeground }]}>Status</Text>
         <Text style={[styles.cardValue, { color: colors.foreground }]}>{statusLabel}</Text>
         {trialLine && org?.status === "trial" ? (
-          <Text style={{ color: "#fbbf24", marginTop: 6, fontWeight: "600" }}>{trialLine}</Text>
+          <Text style={{ color: colors.warning ?? "#fbbf24", marginTop: 6, fontWeight: "600" }}>{trialLine}</Text>
         ) : null}
         <Text style={[styles.cardLabel, { color: colors.mutedForeground, marginTop: 14 }]}>
           Organization
@@ -373,7 +373,7 @@ export default function AccountScreen() {
           Field Kit
         </Text>
         <Text
-          style={[styles.cardValue, { color: canUseFieldKit ? "#4ade80" : colors.primary }]}
+          style={[styles.cardValue, { color: canUseFieldKit ? colors.success : colors.primary }]}
         >
           {canUseFieldKit ? "Unlocked" : "Locked"}
         </Text>
@@ -390,6 +390,68 @@ export default function AccountScreen() {
         )}
       </View>
 
+      {/* Day Zero — locked personal path (register → subscribe) */}
+      {!canUseFieldKit && canCheckout && (
+        <View
+          style={[
+            styles.card,
+            {
+              borderColor: colors.primary,
+              backgroundColor: colors.card,
+              marginTop: 12,
+              borderWidth: 1.5,
+            },
+          ]}
+          testID="card-day-zero"
+        >
+          <Text style={{ color: colors.primary, fontSize: 10, fontWeight: "800", letterSpacing: 1.4 }}>
+            FINISH SETUP
+          </Text>
+          <Text style={{ color: colors.foreground, fontSize: 20, fontWeight: "900", marginTop: 6 }}>
+            {org?.status === "expired" ? "Subscribe to unlock" : "One step left"}
+          </Text>
+          <Text style={{ color: colors.mutedForeground, fontSize: 14, lineHeight: 20, marginTop: 6 }}>
+            Account ready. Subscribe for $14.99/week to run tools live. Cancel anytime.
+          </Text>
+          <View style={{ marginTop: 12, gap: 8 }}>
+            {[
+              "1 · Account — done",
+              "2 · Subscribe — unlock all tools",
+              "3 · Day Zero — Command Center + one objection",
+            ].map((line) => (
+              <View key={line} style={[styles.bulletRow, { alignItems: "center" }]}>
+                <Feather name="check-circle" size={14} color={colors.primary} />
+                <Text style={{ color: colors.foreground, fontSize: 13, fontWeight: "600", flex: 1 }}>
+                  {line}
+                </Text>
+              </View>
+            ))}
+          </View>
+          <Pressable
+            onPress={onSubscribe}
+            disabled={checkoutPending}
+            style={[
+              styles.primaryBtn,
+              { backgroundColor: colors.primary, marginTop: 14, opacity: checkoutPending ? 0.7 : 1 },
+            ]}
+            testID="button-day-zero-subscribe"
+          >
+            {checkoutPending ? (
+              <ActivityIndicator color={colors.primaryForeground} />
+            ) : (
+              <Text style={styles.primaryBtnText}>
+                {org?.status === "expired" ? "Resubscribe · $14.99/wk" : "Subscribe · $14.99/wk"}
+              </Text>
+            )}
+          </Pressable>
+          <Pressable onPress={openWebMembership} style={{ marginTop: 12 }}>
+            <Text style={{ color: colors.primary, textAlign: "center", fontWeight: "700" }}>
+              Preview tools on web →
+            </Text>
+          </Pressable>
+        </View>
+      )}
+
       {/* ── Membership & billing ───────────────────────────────────── */}
       <View
         style={[
@@ -401,7 +463,7 @@ export default function AccountScreen() {
         <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 8 }}>
           <Feather name="credit-card" size={18} color={colors.primary} />
           <Text style={{ color: colors.foreground, fontWeight: "800", fontSize: 16 }}>
-            Membership &amp; billing
+            {canCheckout && !canUseFieldKit ? "Subscribe to unlock" : "Membership & billing"}
           </Text>
         </View>
 

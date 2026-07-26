@@ -15,6 +15,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { CreditCard, ExternalLink, Loader2, CheckCircle } from "lucide-react";
 import { FIELD_KIT_TOOLS, FIELD_KIT_CATEGORIES } from "@workspace/field-kit-catalog";
+import { AccountDayZero } from "@/components/AccountDayZero";
 
 function queryParam(name: string): string | null {
   if (typeof window === "undefined") return null;
@@ -80,6 +81,15 @@ export default function Account() {
     url.searchParams.delete("session_id");
     window.history.replaceState({}, "", url.pathname + url.search);
   }, [toast, refresh]);
+
+  // Post-register ceremony: scroll to Day Zero unlock card
+  useEffect(() => {
+    if (queryParam("welcome") !== "1" && queryParam("subscribe") !== "1") return;
+    const t = window.setTimeout(() => {
+      document.getElementById("day-zero")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    }, 200);
+    return () => window.clearTimeout(t);
+  }, []);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -229,13 +239,37 @@ export default function Account() {
           ? `${Math.round(hoursLeft)} hours left`
           : `${Math.round(hoursLeft / 24)} days left`;
 
+  const isWelcome =
+    queryParam("welcome") === "1" || queryParam("subscribe") === "1";
+  const showDayZero =
+    !canUseFieldKit &&
+    isPersonal &&
+    !isPlatform &&
+    (canCheckout || org?.status === "suspended" || org?.status === "expired");
+
   return (
     <div className="w-full max-w-3xl mx-auto px-4 py-12 space-y-8" data-testid="page-account">
       <SEO />
       <div>
         <p className="text-xs font-bold tracking-widest text-primary uppercase mb-2">Account</p>
-        <h1 className="text-h1 font-display font-black">Your access</h1>
+        <h1 className="text-h1 font-display font-black">
+          {showDayZero ? "Finish setup" : "Your access"}
+        </h1>
+        {showDayZero && (
+          <p className="text-sm text-muted-foreground mt-2 leading-relaxed max-w-xl">
+            One checkout unlocks every Field Kit tool. Preview is free; live runs need membership.
+          </p>
+        )}
       </div>
+
+      {showDayZero && (
+        <AccountDayZero
+          firstName={member.name?.split(" ")[0]}
+          isWelcome={isWelcome || org?.status === "expired"}
+          isExpired={org?.status === "expired"}
+          isSuspended={org?.status === "suspended"}
+        />
+      )}
 
       <Card className="border border-border bg-card p-6 space-y-4" data-testid="card-membership-status">
         <div className="flex flex-wrap items-center gap-2">
