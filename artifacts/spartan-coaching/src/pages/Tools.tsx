@@ -95,31 +95,39 @@ export default function Tools() {
       <StaggerItem key={tool.path}>
         <Card
           className={cn(
-            "flex flex-col border-2 group relative spacing-card shadow-lg h-full",
+            "flex flex-col group relative spacing-card h-full hover-card overflow-hidden",
             locked && "opacity-95",
           )}
           data-testid={`card-tool-${tool.id}`}
         >
-          <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-all duration-500" />
+          <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
           <div className="relative flex-1 flex flex-col">
             <div className="flex items-start justify-between gap-4 mb-4">
-              <div className="flex items-center gap-4">
-                <div className="p-3 rounded-lg bg-primary/10 text-primary">
-                  {TOOL_ICONS[tool.id] ?? <Calculator className="w-8 h-8" />}
+              <div className="flex items-center gap-3.5 min-w-0">
+                <div className="p-3 rounded-xl bg-primary/12 text-primary ring-1 ring-primary/15 shrink-0 group-hover:bg-primary/18 transition-colors">
+                  {TOOL_ICONS[tool.id] ?? <Calculator className="w-7 h-7" />}
                 </div>
-                <h3 className="text-h3 font-bold text-foreground">{tool.title}</h3>
+                <h3 className="text-lg sm:text-xl font-display font-bold text-foreground leading-tight tracking-tight">
+                  {tool.title}
+                </h3>
               </div>
-              {locked && <Lock className="w-4 h-4 text-muted-foreground shrink-0" />}
+              {locked && (
+                <span className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider text-muted-foreground bg-muted/80 border border-border/70 rounded-full px-2 py-1 shrink-0">
+                  <Lock className="w-3 h-3" /> Preview
+                </span>
+              )}
             </div>
             <div className="mb-3">
-              <Badge variant="secondary">{tool.category}</Badge>
+              <Badge variant="secondary" className="rounded-full font-semibold">
+                {tool.category}
+              </Badge>
             </div>
-            <p className="text-body text-muted-foreground leading-relaxed mb-2">{tool.description}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-2">{tool.description}</p>
             <p className="text-xs text-muted-foreground leading-relaxed flex-1 mb-6">
               <span className="font-semibold text-foreground">When: </span>
               {tool.whenToUse}
             </p>
-            <Button asChild className="w-full font-bold touch-manipulation py-3 min-h-[44px]" size="lg">
+            <Button asChild className="w-full font-bold touch-manipulation py-3 min-h-[48px]" size="lg">
               <Link
                 href={href}
                 data-testid={`button-tool-${idx}`}
@@ -138,13 +146,13 @@ export default function Tools() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16 surface-page min-h-[70vh]">
       <SEO />
       <BackButton />
       <FieldKitChrome />
       <SlideUp>
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
-          <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">Field Kit</p>
+          <p className="text-kicker mb-3">Field Kit</p>
           <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-tools-title">
             Tools
           </h1>
@@ -172,14 +180,14 @@ export default function Tools() {
 
       {!showCatalogGate && (
         <SlideUp delay={0.05}>
-          <Card className="mb-10 border border-border bg-card p-5 sm:p-6">
+          <Card className="mb-10 border border-border/80 bg-card/90 p-5 sm:p-6 shadow-elite">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex gap-3 min-w-0">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-primary">
+              <div className="flex gap-3.5 min-w-0">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary ring-1 ring-primary/15">
                   <BrainCircuit className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-foreground">Advanced library</h2>
+                  <h2 className="text-base font-display font-bold text-foreground tracking-tight">Advanced library</h2>
                   <p className="mt-0.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
                     Specialized runs and clinical vault — secondary to the daily Field Kit tools below.
                   </p>
@@ -197,14 +205,14 @@ export default function Tools() {
 
       {showCatalogGate && (
         <SlideUp delay={0.05}>
-          <Card className="mb-10 border border-primary/30 bg-primary/5 p-6 sm:p-8" data-testid="tools-access-banner">
+          <Card className="mb-10 border border-primary/35 bg-gradient-to-br from-primary/[0.08] to-card p-6 sm:p-8 shadow-elite-red" data-testid="tools-access-banner">
             <div className="flex flex-col lg:flex-row lg:items-center gap-6 justify-between">
               <div className="flex gap-4">
-                <div className="w-11 h-11 rounded-full bg-primary/20 text-primary flex items-center justify-center shrink-0">
+                <div className="w-12 h-12 rounded-2xl bg-primary/15 text-primary flex items-center justify-center shrink-0 ring-1 ring-primary/20">
                   <Lock className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-foreground mb-1">Preview open · use locked</h2>
+                  <h2 className="text-xl font-display font-bold text-foreground mb-1 tracking-tight">Preview open · use locked</h2>
                   <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
                     See the actual tools and resources below. To generate responses, save work, or run live
                     calculators end-to-end, create an account and subscribe ($14.99/week, cancel anytime).
@@ -275,21 +283,24 @@ export default function Tools() {
         <div className="space-y-10">
           {Array.from(byCategory.entries()).map(([cat, items]) => (
             <section key={cat} data-testid={`tools-category-${cat.toLowerCase()}`}>
-              <h2 className="text-lg font-bold text-foreground mb-4">{cat}</h2>
-              <StaggerContainer className="grid md:grid-cols-2 gap-cards">
+              <div className="flex items-end justify-between gap-3 mb-5 border-b border-border/60 pb-3">
+                <h2 className="text-xl font-display font-bold text-foreground tracking-tight">{cat}</h2>
+                <span className="text-xs font-semibold text-muted-foreground tabular-nums">{items.length}</span>
+              </div>
+              <StaggerContainer className="grid md:grid-cols-2 gap-5">
                 {items.map((tool, idx) => renderCard(tool, idx))}
               </StaggerContainer>
             </section>
           ))}
         </div>
       ) : (
-        <StaggerContainer className="grid md:grid-cols-2 gap-cards">
+        <StaggerContainer className="grid md:grid-cols-2 gap-5">
           {filteredTools.map((tool, idx) => renderCard(tool, idx))}
         </StaggerContainer>
       )}
 
       {filteredTools.length === 0 && (
-        <div className="text-center py-12 mt-10 space-y-3">
+        <div className="text-center py-14 mt-10 space-y-4 rounded-2xl border border-border/70 bg-card/50">
           <p className="text-body-lg text-muted-foreground">
             No tools found matching &quot;{searchQuery}&quot;.
           </p>
@@ -300,7 +311,7 @@ export default function Tools() {
       )}
 
       <SlideUp delay={0.2}>
-        <div className="mt-12 sm:mt-16 rounded-2xl p-8 md:p-12 text-center border border-border bg-card">
+        <div className="mt-12 sm:mt-16 rounded-2xl p-8 md:p-12 text-center border border-border/80 bg-card shadow-elite surface-noise">
           <h2 className="text-h2 font-bold text-foreground mb-4">Coaching stays human</h2>
           <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
             The Field Kit supports execution between sessions. Strategy calls and engagements are how

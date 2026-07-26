@@ -785,7 +785,10 @@ export default function ToolsScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       {/* Header — always pinned above content */}
-      <View style={[styles.header, { paddingTop: topPad + 12, backgroundColor: colors.background, borderBottomColor: colors.border }]}>
+      <View style={[styles.header, { paddingTop: topPad + 14, backgroundColor: colors.heroBackground ?? colors.background, borderBottomColor: colors.border }]}>
+        <Text style={{ color: colors.primary, fontSize: 11, fontWeight: "800", letterSpacing: 1.8, textTransform: "uppercase", fontFamily: "Inter_700Bold" }}>
+          Field Kit
+        </Text>
         <Text style={[styles.headerTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
           Quick Actions
         </Text>
@@ -2075,14 +2078,14 @@ const styles = StyleSheet.create({
   container: { flex: 1 },
   header: {
     paddingHorizontal: 20,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
+    paddingBottom: 16,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
-  headerTitle: { fontSize: 28, fontWeight: "700" },
-  headerSubtitle: { fontSize: 14, marginTop: 2 },
+  headerTitle: { fontSize: 30, fontWeight: "800", letterSpacing: -0.5, marginTop: 4 },
+  headerSubtitle: { fontSize: 14, marginTop: 4, lineHeight: 20 },
   tabBar: {
     flexDirection: "row",
-    borderBottomWidth: 1,
+    borderBottomWidth: StyleSheet.hairlineWidth,
   },
   tabBtn: {
     flex: 1,
@@ -2090,21 +2093,21 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
     gap: 4,
-    paddingVertical: 11,
+    paddingVertical: 12,
     borderBottomWidth: 2,
     borderBottomColor: "transparent",
   },
   tabBtnActive: {},
-  tabLabel: { fontSize: 12 },
+  tabLabel: { fontSize: 11, fontWeight: "700", letterSpacing: 0.2 },
   content: { padding: 20 },
   label: { fontSize: 15, marginBottom: 8 },
   input: {
     borderWidth: 1,
-    borderRadius: 10,
+    borderRadius: 12,
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 15,
-    minHeight: 48,
+    minHeight: 50,
   },
   textarea: {
     borderWidth: 1,

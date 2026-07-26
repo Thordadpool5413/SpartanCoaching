@@ -116,11 +116,11 @@ export function AdminAuthGate({
   }
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-8 sm:py-10" data-testid="admin-authenticated-shell">
-      <div className="flex flex-wrap items-center justify-between gap-3 mb-8">
+    <div className="w-full max-w-7xl mx-auto px-4 py-8 sm:py-10 surface-page min-h-[70vh]" data-testid="admin-authenticated-shell">
+      <div className="flex flex-wrap items-center justify-between gap-4 mb-8 rounded-2xl border border-border/80 bg-card/70 backdrop-blur-md p-4 sm:p-5 shadow-elite">
         <div>
-          <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">Admin</p>
-          <h1 className="text-2xl font-display font-black text-foreground">{title}</h1>
+          <p className="text-kicker mb-1">Admin</p>
+          <h1 className="text-2xl sm:text-3xl font-display font-black text-foreground tracking-tight">{title}</h1>
         </div>
         <div className="flex flex-wrap items-center gap-2">
           {headerExtra}

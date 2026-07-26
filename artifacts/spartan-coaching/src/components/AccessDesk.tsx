@@ -299,9 +299,9 @@ export function AccessDesk() {
 
   return (
     <div className="space-y-8" data-testid="access-desk">
-      <Card className="border border-border" data-testid="section-ops-jobs">
+      <Card className="border border-border/80 shadow-elite" data-testid="section-ops-jobs">
         <CardHeader className="pb-2">
-          <CardTitle className="text-base flex items-center gap-2">
+          <CardTitle className="text-base font-display font-bold tracking-tight flex items-center gap-2">
             <RefreshCw className="w-4 h-4 text-primary" />
             Ops jobs
           </CardTitle>
@@ -573,14 +573,14 @@ export function AccessDesk() {
           ].map((stat) => (
             <Card
               key={stat.label}
-              className={`border ${stat.hot ? "border-amber-500/40 bg-amber-500/5" : "border-border"} ${
-                stat.onClick ? "cursor-pointer hover:border-primary/40 transition-colors" : ""
+              className={`border shadow-sm ${stat.hot ? "border-amber-500/45 bg-amber-500/[0.07]" : "border-border/80"} ${
+                stat.onClick ? "cursor-pointer hover:border-primary/45 hover:shadow-elite transition-all duration-200" : ""
               }`}
               onClick={stat.onClick}
             >
               <CardContent className="p-4">
-                <p className="text-2xl font-black text-primary">{stat.value}</p>
-                <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                <p className="text-2xl font-display font-black text-primary tabular-nums tracking-tight">{stat.value}</p>
+                <p className="text-[11px] font-medium text-muted-foreground mt-1.5 flex items-center gap-1 uppercase tracking-wide">
                   {stat.hot && <AlertTriangle className="w-3 h-3 text-amber-400" />}
                   {stat.label}
                 </p>
