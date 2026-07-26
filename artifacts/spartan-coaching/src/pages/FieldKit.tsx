@@ -135,7 +135,7 @@ export default function FieldKit() {
       <SEO />
 
       {/* ── HERO ── */}
-      <section className="relative overflow-hidden bg-background py-20 sm:py-28">
+      <section className="relative overflow-hidden bg-background py-20 sm:py-28" data-testid="section-hero">
         <div className="absolute inset-0 bg-spartan-gradient-radial opacity-15 pointer-events-none" />
         <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-6">
           <p className="text-xs font-bold tracking-widest text-primary uppercase">

@@ -295,6 +295,77 @@ describe("FieldKit pricing framing — all states", () => {
   });
 });
 
+describe("FieldKit hero section — unauthenticated", () => {
+  it("shows a 'Get access' register link in the hero section", async () => {
+    await renderFieldKit(UNAUTHED);
+    const section = screen.getByTestId("section-hero");
+    const registerLinks = within(section).getAllByTestId("field-kit-hero-register");
+    expect(registerLinks.length).toBeGreaterThan(0);
+    expect(registerLinks[0].textContent).toMatch(/Get access/i);
+  });
+
+  it("shows a 'Sign in' link in the hero section", async () => {
+    await renderFieldKit(UNAUTHED);
+    const section = screen.getByTestId("section-hero");
+    const signInLinks = within(section).getAllByText(/Sign in/i);
+    expect(signInLinks.length).toBeGreaterThan(0);
+  });
+
+  it("does NOT show the subscribe button in the hero section when unauthenticated", async () => {
+    await renderFieldKit(UNAUTHED);
+    const section = screen.getByTestId("section-hero");
+    expect(within(section).queryAllByText(/Get access · \$14\.99\/week/i).length).toBe(0);
+  });
+
+  it("does NOT show 'Go to your account' in the hero section when unauthenticated", async () => {
+    await renderFieldKit(UNAUTHED);
+    const section = screen.getByTestId("section-hero");
+    expect(within(section).queryAllByText(/Go to your account/i).length).toBe(0);
+  });
+});
+
+describe("FieldKit hero section — can-subscribe", () => {
+  it("shows the subscribe button with 'Get access · $14.99/week' in the hero section", async () => {
+    await renderFieldKit(CAN_SUBSCRIBE);
+    const section = screen.getByTestId("section-hero");
+    const buttons = within(section).getAllByText(/Get access · \$14\.99\/week/i);
+    expect(buttons.length).toBeGreaterThan(0);
+  });
+
+  it("does NOT show the /register link in the hero section when can-subscribe", async () => {
+    await renderFieldKit(CAN_SUBSCRIBE);
+    const section = screen.getByTestId("section-hero");
+    expect(within(section).queryByTestId("field-kit-hero-register")).toBeNull();
+  });
+
+  it("does NOT show 'Go to your account' in the hero section when can-subscribe", async () => {
+    await renderFieldKit(CAN_SUBSCRIBE);
+    const section = screen.getByTestId("section-hero");
+    expect(within(section).queryAllByText(/Go to your account/i).length).toBe(0);
+  });
+});
+
+describe("FieldKit hero section — already subscribed", () => {
+  it("shows 'Go to your account' link in the hero section", async () => {
+    await renderFieldKit(ALREADY_SUBSCRIBED);
+    const section = screen.getByTestId("section-hero");
+    const links = within(section).getAllByText(/Go to your account/i);
+    expect(links.length).toBeGreaterThan(0);
+  });
+
+  it("does NOT show the subscribe button in the hero section when already subscribed", async () => {
+    await renderFieldKit(ALREADY_SUBSCRIBED);
+    const section = screen.getByTestId("section-hero");
+    expect(within(section).queryAllByText(/Get access · \$14\.99\/week/i).length).toBe(0);
+  });
+
+  it("does NOT show the /register link in the hero section when already subscribed", async () => {
+    await renderFieldKit(ALREADY_SUBSCRIBED);
+    const section = screen.getByTestId("section-hero");
+    expect(within(section).queryByTestId("field-kit-hero-register")).toBeNull();
+  });
+});
+
 describe("FieldKit pricing-CTA section — unauthenticated", () => {
   it("shows a 'Get access' register link in the pricing-cta section", async () => {
     await renderFieldKit(UNAUTHED);
