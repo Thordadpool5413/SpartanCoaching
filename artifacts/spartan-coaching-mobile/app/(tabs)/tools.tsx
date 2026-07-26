@@ -912,7 +912,7 @@ export default function ToolsScreen() {
 
           <Pressable
             accessibilityRole="button"
-            onPress={() => router.push("/ai-tools")}
+            onPress={() => router.push("/ai-tools" as any)}
             style={({ pressed }) => ({
               opacity: pressed ? 0.8 : 1,
               backgroundColor: colors.card,

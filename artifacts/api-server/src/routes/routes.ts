@@ -51,6 +51,7 @@ import {
   roleplayStartSchema,
   roleplayMessageSchema,
   eventAnalyticsSchema,
+  visitorAnalyticsSchema,
 } from "@workspace/db";
 
 import {
@@ -1345,8 +1346,8 @@ Build a specific Monday–Friday territory plan for this week.`;
   // Get Visitor Analytics
   app.get("/api/analytics/visitors", requireAdmin, async (req, res) => {
     try {
-      const analytics = await storage.getVisitorAnalytics();
-      
+      const raw = await storage.getVisitorAnalytics();
+      const analytics = visitorAnalyticsSchema.parse(raw);
       res.json({ analytics });
     } catch (error: any) {
       console.error("Get analytics error:", error);
