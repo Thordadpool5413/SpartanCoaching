@@ -170,7 +170,10 @@ export function Header() {
         <Link href={homeHref}>
           <div className="flex items-center gap-2 sm:gap-4 hover:opacity-80 transition-opacity cursor-pointer touch-manipulation" data-testid="link-home">
             <div>
-              <h1 className="font-black text-xl sm:text-2xl md:text-3xl text-primary tracking-tight font-display">SPARTAN COACHING</h1>
+              {/* Not h1 — page content owns the document title heading (a11y) */}
+              <span className="font-black text-xl sm:text-2xl md:text-3xl text-primary tracking-tight font-display block">
+                SPARTAN COACHING
+              </span>
             </div>
           </div>
         </Link>

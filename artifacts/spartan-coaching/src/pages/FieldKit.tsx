@@ -528,8 +528,9 @@ export default function FieldKit() {
                   className="w-full h-full object-cover max-h-[280px] lg:max-h-none lg:absolute lg:inset-0"
                   controls
                   playsInline
-                  preload="metadata"
+                  preload="none"
                   poster="/videos/hero-poster.jpg"
+                  aria-label="Spartan Coaching brand film"
                 >
                   <source src="/spartan-coaching-video.mp4" type="video/mp4" />
                   <source src="/videos/hero-video.mp4" type="video/mp4" />

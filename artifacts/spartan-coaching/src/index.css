@@ -299,12 +299,56 @@ body {
     @apply border-border;
   }
 
+  /* Keyboard focus — elite a11y default (never remove outline without replacement) */
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+  :focus:not(:focus-visible) {
+    outline: none;
+  }
+
+  /* Skip link — visible only on keyboard focus */
+  .skip-link {
+    position: absolute;
+    left: 0.75rem;
+    top: -100%;
+    z-index: 100;
+    padding: 0.625rem 1rem;
+    border-radius: var(--radius);
+    background: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    font-weight: 700;
+    font-size: 0.875rem;
+    text-decoration: none;
+    transition: top 0.15s ease;
+  }
+  .skip-link:focus,
+  .skip-link:focus-visible {
+    top: 0.75rem;
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+  }
+
   html {
     scroll-behavior: smooth;
     -webkit-tap-highlight-color: transparent;
     width: 100%;
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  #main-content:focus {
+    outline: none;
+  }
+  #main-content:focus-visible {
+    outline: none;
   }
 
   body {

@@ -112,6 +112,18 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    // Wave 4 performance: split heavy vendor graphs for better long-term caching
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return;
+          if (id.includes("framer-motion")) return "vendor-motion";
+          if (id.includes("recharts")) return "vendor-charts";
+          if (id.includes("@radix-ui")) return "vendor-radix";
+          if (id.includes("lucide-react")) return "vendor-icons";
+        },
+      },
+    },
   },
   server: {
     port,

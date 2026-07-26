@@ -9,6 +9,15 @@ export default defineConfig({
       "@": path.resolve(import.meta.dirname, "src"),
       "@shared": path.resolve(import.meta.dirname, "src/shared"),
       "@assets": path.resolve(import.meta.dirname, "..", "..", "attached_assets"),
+      "@workspace/field-kit-catalog": path.resolve(
+        import.meta.dirname,
+        "..",
+        "..",
+        "lib",
+        "field-kit-catalog",
+        "src",
+        "index.ts",
+      ),
     },
   },
   test: {

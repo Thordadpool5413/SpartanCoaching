@@ -317,10 +317,13 @@ function AppLayout() {
 
   return (
     <>
+      <a href="#main-content" className="skip-link">
+        Skip to main content
+      </a>
       <div className="flex flex-col min-h-screen bg-background text-foreground safe-area-x">
         <Header />
         <TrialBanner />
-        <main className="flex-1 bg-background">
+        <main id="main-content" className="flex-1 bg-background" tabIndex={-1}>
           <Router />
         </main>
         {!isAuthShell && <Footer />}

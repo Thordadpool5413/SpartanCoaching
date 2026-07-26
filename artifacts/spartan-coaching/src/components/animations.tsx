@@ -15,9 +15,23 @@ interface FadeInProps {
   duration?: number;
 }
 
+function prefersReducedMotion(): boolean {
+  if (typeof window === "undefined" || !window.matchMedia) return false;
+  return window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+}
+
 export function FadeIn({ children, className, delay = 0, duration = 0.4 }: FadeInProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true });
+  const reduce = prefersReducedMotion();
+
+  if (reduce) {
+    return (
+      <div ref={ref} data-testid="animation-fade-in" className={className}>
+        {children}
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -43,6 +57,15 @@ interface SlideUpProps {
 export function SlideUp({ children, className, delay = 0, duration = 0.4 }: SlideUpProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true });
+  const reduce = prefersReducedMotion();
+
+  if (reduce) {
+    return (
+      <div ref={ref} data-testid="animation-slide-up" className={className}>
+        {children}
+      </div>
+    );
+  }
 
   return (
     <motion.div
