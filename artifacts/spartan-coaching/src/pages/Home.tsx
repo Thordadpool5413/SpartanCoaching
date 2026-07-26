@@ -79,7 +79,7 @@ export default function Home() {
 
       {/* ── 1. HERO (stays dark — brand authority) ── */}
       <section
-        className="relative min-h-[85vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-background"
+        className="relative min-h-[85vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-background surface-page"
         data-testid="section-hero"
       >
         <AnimationErrorBoundary>
@@ -91,13 +91,13 @@ export default function Home() {
 
       {/* ── 2. AUTHORITY STRIP (photo + credentials — hire confidence) ── */}
       <section
-        className="relative border-y border-border bg-card text-card-foreground"
+        className="relative border-y border-border/80 bg-card text-card-foreground surface-noise"
         data-testid="section-authority"
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-12 sm:py-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
           <FadeIn>
             <div className="grid md:grid-cols-[200px_1fr] gap-8 md:gap-12 items-center">
-              <div className="relative mx-auto md:mx-0 w-40 sm:w-48 md:w-full aspect-[4/5] overflow-hidden border-l-4 border-primary shadow-lg">
+              <div className="relative mx-auto md:mx-0 w-40 sm:w-48 md:w-full aspect-[4/5] overflow-hidden rounded-2xl border border-border/70 border-l-4 border-l-primary shadow-elite">
                 <img
                   src={nickPhoto}
                   alt="Nick Lynch, founder of Spartan Coaching"
