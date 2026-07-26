@@ -103,7 +103,8 @@ export interface IStorage {
   deletePodcast(id: number): Promise<void>;
   trackEvent(event: InsertEventTracking): Promise<SelectEventTracking>;
   getEventCounts(eventType: string): Promise<Array<{ eventName: string; count: number }>>;
-  getEventAnalytics(): Promise<{ aiToolUsage: Array<{ eventName: string; count: number }>; resourceDownloads: Array<{ eventName: string; count: number }>; contactSubmissions: number }>;
+  getEventAnalytics(): Promise<{ aiToolUsage: Array<{ eventName: string; count: number }>; resourceDownloads: Array<{ eventName: string; count: number }>; contactSubmissions: number; mobileAiToolUsage: Array<{ eventName: string; count: number }>; mobileToolViews: Array<{ eventName: string; count: number }> }>;
+  getMobileUsagePerMember(): Promise<Array<{ memberId: number; mobileEvents: number; webEvents: number }>>;
   // Role-play operations (tenant-safe — never returns unowned legacy rows)
   createRoleplaySession(session: InsertRoleplaySession): Promise<SelectRoleplaySession>;
   getRoleplaySession(id: number): Promise<SelectRoleplaySession | undefined>;
@@ -440,17 +441,46 @@ export class DatabaseStorage implements IStorage {
     return results;
   }
 
-  async getEventAnalytics(): Promise<{ aiToolUsage: Array<{ eventName: string; count: number }>; resourceDownloads: Array<{ eventName: string; count: number }>; contactSubmissions: number }> {
-    const [aiToolUsage, resourceDownloads, contactResults] = await Promise.all([
+  async getEventAnalytics(): Promise<{ aiToolUsage: Array<{ eventName: string; count: number }>; resourceDownloads: Array<{ eventName: string; count: number }>; contactSubmissions: number; mobileAiToolUsage: Array<{ eventName: string; count: number }>; mobileToolViews: Array<{ eventName: string; count: number }>; mobileAppOpens: number }> {
+    const [aiToolUsage, resourceDownloads, contactResults, mobileAiToolUsage, mobileToolViews, mobileAppOpenResults] = await Promise.all([
       this.getEventCounts("ai_tool_usage"),
       this.getEventCounts("resource_download"),
       db.select({ count: count() }).from(eventTracking).where(eq(eventTracking.eventType, "contact_form_submission")),
+      this.getEventCounts("mobile_ai_tool_usage"),
+      this.getEventCounts("mobile_tool_view"),
+      db.select({ count: count() }).from(eventTracking).where(eq(eventTracking.eventType, "mobile_app_open")),
     ]);
     return {
       aiToolUsage,
       resourceDownloads,
       contactSubmissions: contactResults[0]?.count || 0,
+      mobileAiToolUsage,
+      mobileToolViews,
+      mobileAppOpens: mobileAppOpenResults[0]?.count || 0,
     };
+  }
+
+  async getMobileUsagePerMember(): Promise<Array<{ memberId: number; mobileEvents: number; webEvents: number }>> {
+    const [mobileRows, webRows] = await Promise.all([
+      db
+        .select({ memberId: eventTracking.memberId, cnt: count() })
+        .from(eventTracking)
+        .where(and(isNotNull(eventTracking.memberId), sql`${eventTracking.eventType} LIKE 'mobile_%'`))
+        .groupBy(eventTracking.memberId),
+      db
+        .select({ memberId: eventTracking.memberId, cnt: count() })
+        .from(eventTracking)
+        .where(and(isNotNull(eventTracking.memberId), sql`${eventTracking.eventType} NOT LIKE 'mobile_%'`))
+        .groupBy(eventTracking.memberId),
+    ]);
+    const mobileMap = new Map(mobileRows.map((r) => [r.memberId as number, r.cnt]));
+    const webMap = new Map(webRows.map((r) => [r.memberId as number, r.cnt]));
+    const allIds = new Set([...mobileMap.keys(), ...webMap.keys()]);
+    return Array.from(allIds).map((memberId) => ({
+      memberId,
+      mobileEvents: mobileMap.get(memberId) ?? 0,
+      webEvents: webMap.get(memberId) ?? 0,
+    }));
   }
   async createRoleplaySession(session: InsertRoleplaySession): Promise<SelectRoleplaySession> {
     if (session.memberId == null || session.organizationId == null) {

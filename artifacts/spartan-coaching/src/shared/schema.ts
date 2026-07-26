@@ -279,6 +279,8 @@ export const eventTracking = pgTable("event_tracking", {
   eventName: text("event_name").notNull(),
   metadata: text("metadata"),
   createdAt: bigint("created_at", { mode: "number" }).notNull(),
+  /** Owning Field Kit member — populated by mobile clients; null for anonymous/web events. */
+  memberId: integer("member_id"),
 });
 
 export const insertEventTrackingSchema = createInsertSchema(eventTracking).omit({

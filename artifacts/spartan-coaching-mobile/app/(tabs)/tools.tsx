@@ -790,7 +790,7 @@ export default function ToolsScreen() {
           Quick Actions
         </Text>
         <Text style={[styles.headerSubtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-          {canUseFieldKit ? "Powered by hospice expertise" : "Private Field Kit — sign in to unlock"}
+          {canUseFieldKit ? "Powered by hospice expertise" : "Private Field Kit — the edge the top reps carry"}
         </Text>
       </View>
 
@@ -810,20 +810,20 @@ export default function ToolsScreen() {
           {/* Header */}
           <View style={{ backgroundColor: "rgba(232,41,30,0.08)", paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: "rgba(232,41,30,0.15)" }}>
             <Text style={{ color: colors.primary, fontSize: 10, fontWeight: "800", letterSpacing: 1.6, textTransform: "uppercase", marginBottom: 3 }}>
-              Private Field Kit
+              Private Field Kit · Not every rep has access
             </Text>
             <Text style={{ color: colors.foreground, fontSize: 16, fontWeight: "900", lineHeight: 22 }}>
-              {isAuthenticated ? "Unlock 13 hospice-specific tools" : "Tools built for the conversations that matter"}
+              {isAuthenticated ? "Join the reps who refuse to leave a referral on the table" : "The edge that converts conversations into admissions"}
             </Text>
           </View>
 
           {/* Tool rows */}
           <View style={{ paddingHorizontal: 14, paddingTop: 10, paddingBottom: 4, gap: 8 }}>
             {[
-              { title: "Objection Handler", desc: "Field-ready responses to every objection you hear this week" },
-              { title: "Weekly Plan Builder", desc: "Monday–Friday territory plan with win conditions" },
-              { title: "Playbook Generator", desc: "Talking points and a clear ask for any account visit" },
-              { title: "Role-Play Practice", desc: "Simulate hard conversations before you're in the room" },
+              { title: "Objection Handler", desc: "The answer the other rep didn't have — field-ready in 30 seconds" },
+              { title: "Weekly Plan Builder", desc: "The top reps planned their week on Sunday. Win conditions, every day." },
+              { title: "Playbook Generator", desc: "The right ask for this account at this stage — not a generic approach" },
+              { title: "Role-Play Practice", desc: "Win the hard conversation before you're in the room" },
             ].map((t) => (
               <View key={t.title} style={{ flexDirection: "row", gap: 10, alignItems: "flex-start" }}>
                 <Feather name="check-circle" size={14} color={colors.primary} style={{ marginTop: 2 }} />
@@ -844,14 +844,14 @@ export default function ToolsScreen() {
               $14.99<Text style={{ fontSize: 13, fontWeight: "700", color: colors.mutedForeground }}> / week · cancel anytime</Text>
             </Text>
             <Text style={{ color: colors.mutedForeground, fontSize: 11, marginTop: 2, marginBottom: 10 }}>
-              Less than one incomplete referral conversation per week.
+              The cost of one incomplete referral conversation. The reps who rank at the top of their agencies don't wing it.
             </Text>
             <Pressable
               onPress={() => router.push(isAuthenticated ? "/(tabs)/account" : "/login")}
               style={{ backgroundColor: colors.primary, borderRadius: 8, paddingVertical: 11, alignItems: "center" }}
             >
               <Text style={{ color: "#fff", fontWeight: "800", fontSize: 14 }}>
-                {isAuthenticated ? "Open Account to subscribe →" : "Client login →"}
+                {isAuthenticated ? "Open Account to get access →" : "Sign in to get access →"}
               </Text>
             </Pressable>
             {!isAuthenticated && (
@@ -860,7 +860,7 @@ export default function ToolsScreen() {
                 style={{ marginTop: 10, alignItems: "center" }}
               >
                 <Text style={{ color: colors.primary, fontWeight: "700", fontSize: 13 }}>
-                  See what's in the Field Kit →
+                  Built for the rep who wins. See what's inside →
                 </Text>
               </Pressable>
             )}

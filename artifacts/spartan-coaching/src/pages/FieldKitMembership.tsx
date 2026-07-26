@@ -15,30 +15,10 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { useBillingActions } from "@/hooks/useBillingActions";
-import { FIELD_KIT_TOOLS, FIELD_KIT_CATEGORIES } from "@workspace/field-kit-catalog";
+import { FIELD_KIT_TOOLS, FIELD_KIT_CATEGORIES, FIELD_KIT_CAT_BLURBS } from "@workspace/field-kit-catalog";
 
 // Gated tools only (exclude brand-video which is public)
 const GATED_TOOLS = FIELD_KIT_TOOLS.filter((t) => !t.public);
-
-// Category display order and labels
-const CAT_CONFIG: Record<string, { label: string; blurb: string }> = {
-  Prepare: {
-    label: "Prepare",
-    blurb: "Build the right approach before every visit",
-  },
-  Practice: {
-    label: "Practice",
-    blurb: "Sharpen the conversations that move referrals",
-  },
-  Plan: {
-    label: "Plan",
-    blurb: "Structure every week and every account call",
-  },
-  Measure: {
-    label: "Measure",
-    blurb: "Connect field behavior to business outcomes",
-  },
-};
 
 const TIER_TEAM_FEATURES = [
   "Multi-seat organization account",
@@ -87,7 +67,7 @@ export default function FieldKitMembership() {
       ) : (
         <>
           <CreditCard className="mr-2 w-4 h-4" />
-          Subscribe · $14.99/week
+          Get access · $14.99/week
         </>
       )}
     </Button>
@@ -99,15 +79,14 @@ export default function FieldKitMembership() {
 
       {/* ── Hero ── */}
       <div className="text-center max-w-3xl mx-auto mb-10 space-y-4">
-        <p className="text-xs font-bold tracking-widest text-primary uppercase">Field Kit membership</p>
+        <p className="text-xs font-bold tracking-widest text-primary uppercase">Join the Field Kit</p>
         <h1 className="text-h1 font-display font-black text-foreground">
-          Private tools. Clear pricing. Human coaching when you need it.
+          The tools the top reps in your market use.<br />Not every rep has access.
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed">
-          Individuals pay <strong className="text-foreground">$14.99 per week</strong> and can cancel in Account →
-          Manage billing. Provider and enterprise seats use{" "}
-          <strong className="text-foreground">contract weekly rates per seat</strong>. Most people start with a short
-          evaluation.
+          Individual access starts at <strong className="text-foreground">$14.99 per week</strong> — the cost of one incomplete referral conversation.
+          Provider and enterprise seats use{" "}
+          <strong className="text-foreground">contract weekly rates per seat</strong>.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2">
           {canSubscribe ? (
@@ -119,7 +98,7 @@ export default function FieldKitMembership() {
           ) : (
             <>
               <Button asChild className="font-bold" size="lg">
-                <Link href="/register" data-testid="membership-hero-register">Create account · start free trial</Link>
+                <Link href="/register" data-testid="membership-hero-register">Get access · join the Field Kit</Link>
               </Button>
               <Button asChild variant="outline" className="font-bold" size="lg">
                 <Link href="/login">Already have an account? Sign in</Link>
@@ -128,7 +107,7 @@ export default function FieldKitMembership() {
           )}
           <Button asChild variant="ghost" className="font-medium" size="lg">
             <Link href="/field-kit">
-              See how it works →
+              See what's inside →
             </Link>
           </Button>
         </div>
@@ -139,22 +118,22 @@ export default function FieldKitMembership() {
         <div className="flex flex-wrap justify-center items-center gap-6 text-sm">
           <div className="flex items-center gap-2">
             <Award className="w-4 h-4 text-primary shrink-0" />
-            <span className="font-semibold text-foreground">12+ years hospice-specific</span>
+            <span className="font-semibold text-foreground">Built by reps who ran the territory</span>
           </div>
           <div className="h-4 w-px bg-border hidden sm:block" />
           <div className="flex items-center gap-2">
             <Users className="w-4 h-4 text-primary shrink-0" />
-            <span className="font-semibold text-foreground">500+ reps &amp; leaders coached</span>
+            <span className="font-semibold text-foreground">Used by the reps who rank at the top</span>
           </div>
           <div className="h-4 w-px bg-border hidden sm:block" />
           <div className="flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-primary shrink-0" />
-            <span className="font-semibold text-foreground">Ethics-first · no PHI in tools</span>
+            <span className="font-semibold text-foreground">12+ years hospice-specific · 500+ coached</span>
           </div>
           <div className="h-4 w-px bg-border hidden sm:block" />
           <div className="flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-primary shrink-0" />
-            <span className="font-semibold text-foreground">Built by someone who ran the territory</span>
+            <span className="font-semibold text-foreground">Hospice-only · not generic sales AI</span>
           </div>
         </div>
       </div>
@@ -166,25 +145,25 @@ export default function FieldKitMembership() {
           className="flex flex-col border p-6 bg-card border-border"
           data-testid="card-tier-individual"
         >
-          <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-3">Self-serve</p>
+          <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-3">Individual access</p>
           <div className="w-11 h-11 rounded-lg bg-primary/15 text-primary flex items-center justify-center mb-4">
             <User className="w-5 h-5" />
           </div>
-          <h2 className="text-lg font-bold text-foreground mb-1">Individual Field Kit</h2>
+          <h2 className="text-lg font-bold text-foreground mb-1">Join the Field Kit</h2>
           <p className="mb-3">
             <span className="text-2xl font-black text-primary">$14.99</span>
             <span className="text-sm font-semibold text-muted-foreground"> / week</span>
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-            For the rep or director who wants private tools between coaching sessions. Cancel anytime from your account.
+            For the rep or director who refuses to leave a referral on the table. The same kit used by the reps who consistently rank at the top of their agencies. Cancel anytime.
           </p>
           <ul className="space-y-2 mb-6 flex-1">
             {[
-              "All 13 gated Field Kit tools",
-              "Objection Handler, Role-Play, Playbooks",
+              "All 13 Field Kit tools — every stage of the growth cycle",
+              "Objection Handler, Role-Play, Playbook Generator",
               "Weekly Plan Builder & Sales Command Center",
               "Activity, ROI & Rep Cost Calculators",
-              "Cancel anytime — access through paid period",
+              "Cancel anytime — access continues through the paid period",
             ].map((f) => (
               <li key={f} className="flex gap-2 text-sm text-foreground">
                 <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
@@ -197,7 +176,7 @@ export default function FieldKitMembership() {
           ) : (
             <Button asChild className="w-full font-bold" data-testid="button-tier-individual">
               <Link href="/register">
-                Create account — start free trial
+                Get access · join the Field Kit
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Link>
             </Button>
@@ -278,21 +257,21 @@ export default function FieldKitMembership() {
       {/* ── What's inside the Field Kit ── */}
       <div className="mb-14" data-testid="section-tool-grid">
         <div className="text-center mb-8">
-          <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">What you're getting</p>
+          <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">What's inside</p>
           <h2 className="text-h2 font-display font-black text-foreground mb-3">
-            13 private tools. Every one built for hospice.
+            13 tools. Every one built for the hospice consultant who competes to win.
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Generic sales AI doesn't know the difference between a skeptical oncologist and a long-term care
-            director. Every tool here was built on the real conversations that hospice growth professionals
-            have on Tuesday mornings.
+            director. Every tool here was built on the real conversations hospice growth professionals
+            have in the field — and designed to give the rep who uses them a durable edge over the one who doesn't.
           </p>
         </div>
 
         <div className="space-y-8">
           {FIELD_KIT_CATEGORIES.filter((cat) => GATED_TOOLS.some((t) => t.category === cat)).map((cat) => {
             const tools = GATED_TOOLS.filter((t) => t.category === cat);
-            const config = CAT_CONFIG[cat];
+            const config = FIELD_KIT_CAT_BLURBS[cat];
             return (
               <div key={cat}>
                 <div className="flex items-baseline gap-3 mb-3 border-b border-border pb-2">
@@ -322,17 +301,18 @@ export default function FieldKitMembership() {
       <div className="rounded-xl border border-primary/30 bg-primary/5 p-8 sm:p-10 mb-14 text-center max-w-3xl mx-auto" data-testid="section-roi">
         <TrendingUp className="w-8 h-8 text-primary mx-auto mb-4" />
         <h2 className="text-h3 font-bold text-foreground mb-3">
-          At $14.99 a week, one better conversation pays for the month.
+          One converted referral. One won account. One admission the other rep lost.<br />
+          <span className="text-primary">That's what $14.99 a week is worth.</span>
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
-          The Activity Calculator turns a vague admission goal into a specific number of conversations per day.
+          The Activity Calculator turns a vague admission goal into a specific number of conversations per day — so you know exactly what performing at the top of your agency actually requires.
           The ROI Calculator puts a revenue number next to every percentage-point improvement in conversion.
-          The Objection Handler turns a stalled "not ready" into an education moment that keeps the relationship moving.
+          The Objection Handler gives you the answer before you walk into the room, not after you've already lost the conversation.
         </p>
         <p className="text-sm text-muted-foreground leading-relaxed">
           A single hospice admission is typically worth $10,000–$20,000 in Medicare revenue to the provider.
-          The tools in this kit exist to reduce the number of eligible patients who never get that conversation.
-          At $14.99/week, the math is obvious.
+          The reps who consistently win those referrals don't wing the objection. They don't figure out the ask in the parking lot.
+          At $14.99/week, this is the edge. The math is obvious.
         </p>
         {canSubscribe && (
           <div className="mt-6">
@@ -342,7 +322,7 @@ export default function FieldKitMembership() {
         {!isAuthenticated && (
           <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
             <Button asChild className="font-bold" size="lg">
-              <Link href="/register">Create account — start free trial</Link>
+              <Link href="/register">Create account · subscribe to access</Link>
             </Button>
             <Button asChild variant="outline" className="font-bold" size="lg">
               <Link href="/login">Sign in</Link>
@@ -353,13 +333,13 @@ export default function FieldKitMembership() {
 
       {/* ── How it works ── */}
       <Card className="border border-border bg-card p-8 text-center space-y-4 max-w-3xl mx-auto mb-10">
-        <h2 className="text-h3 font-bold">How it works</h2>
+        <h2 className="text-h3 font-bold">How to get access</h2>
         <ol className="text-left text-sm text-muted-foreground space-y-2 max-w-xl mx-auto list-decimal list-inside">
-          <li>Request evaluation access and get approved (timed Field Kit window).</li>
-          <li>Use the tools — same product on web and in the field app.</li>
+          <li>Create your account — takes two minutes, no admin approval required for individual seats.</li>
+          <li>Get immediate access to all 13 tools on web and in the mobile field app.</li>
           <li>
-            <strong className="text-foreground">Individuals:</strong> subscribe for $14.99/week from Account when
-            ready. Cancel anytime in Manage billing; access continues until the period ends.
+            <strong className="text-foreground">Individuals:</strong> subscribe for $14.99/week from Account.
+            Cancel anytime in Manage billing; access continues through the paid period.
           </li>
           <li>
             <strong className="text-foreground">Teams / providers:</strong> we set seats and weekly per-user rate
@@ -374,7 +354,7 @@ export default function FieldKitMembership() {
             </Button>
           ) : (
             <Button asChild className="font-bold" variant={canSubscribe ? "outline" : "default"}>
-              <Link href="/request-access">Request evaluation access</Link>
+              <Link href="/request-access">Get access now</Link>
             </Button>
           )}
           <Button asChild variant="outline" className="font-bold">

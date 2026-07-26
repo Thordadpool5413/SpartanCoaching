@@ -1355,7 +1355,12 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   app.post("/api/analytics/events", analyticsLimit, async (req, res) => {
     try {
-      const eventData = insertEventTrackingSchema.parse(req.body);
+      // Never trust client-supplied memberId — derive it from the authenticated session.
+      // loadSession runs globally and populates req.clientMemberId when a valid Bearer
+      // token or session cookie is present (mobile app and web app both set this).
+      const { memberId: _stripped, ...bodyWithoutMemberId } = req.body as Record<string, unknown>;
+      const sessionMemberId = (req as import("../auth/middleware").AuthedRequest).clientMemberId ?? null;
+      const eventData = insertEventTrackingSchema.parse({ ...bodyWithoutMemberId, memberId: sessionMemberId });
       await storage.trackEvent(eventData);
       res.json({ success: true });
     } catch (error: any) {

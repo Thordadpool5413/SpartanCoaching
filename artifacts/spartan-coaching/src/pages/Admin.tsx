@@ -280,6 +280,9 @@ export default function Admin() {
         aiToolUsage: Array<{ eventName: string; count: number }>;
         resourceDownloads: Array<{ eventName: string; count: number }>;
         contactSubmissions: number;
+        mobileAiToolUsage: Array<{ eventName: string; count: number }>;
+        mobileToolViews: Array<{ eventName: string; count: number }>;
+        mobileAppOpens: number;
       };
     }>({
       queryKey: ["/api/analytics/events"],
@@ -2109,6 +2112,85 @@ export default function Admin() {
                 </div>
                 <p className="text-xs text-muted-foreground mt-1">
                   total submissions tracked
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-mobile-ai-tool-usage">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Mobile AI Tool Usage
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {eventAnalyticsData.analytics.mobileAiToolUsage.length > 0 ? (
+                  <div className="space-y-2">
+                    {eventAnalyticsData.analytics.mobileAiToolUsage.map((item) => (
+                      <div
+                        key={item.eventName}
+                        className="flex items-center justify-between"
+                        data-testid={`mobile-ai-tool-${item.eventName}`}
+                      >
+                        <span className="text-sm capitalize">
+                          {item.eventName.replace(/_/g, " ")}
+                        </span>
+                        <Badge variant="secondary">{item.count}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No mobile AI tool usage recorded yet
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-mobile-tool-views">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Mobile Browse Views
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {eventAnalyticsData.analytics.mobileToolViews.length > 0 ? (
+                  <div className="space-y-2">
+                    {eventAnalyticsData.analytics.mobileToolViews.map((item) => (
+                      <div
+                        key={item.eventName}
+                        className="flex items-center justify-between"
+                        data-testid={`mobile-tool-view-${item.eventName}`}
+                      >
+                        <span className="text-sm capitalize">
+                          {item.eventName.replace(/_/g, " ")}
+                        </span>
+                        <Badge variant="secondary">{item.count}</Badge>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-sm text-muted-foreground">
+                    No mobile browse views recorded yet
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            <Card data-testid="card-mobile-app-opens">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  Mobile App Opens
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div
+                  className="text-3xl font-bold"
+                  data-testid="text-mobile-app-opens"
+                >
+                  {eventAnalyticsData.analytics.mobileAppOpens}
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">
+                  total device launches tracked
                 </p>
               </CardContent>
             </Card>

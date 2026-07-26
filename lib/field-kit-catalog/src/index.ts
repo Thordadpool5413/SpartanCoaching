@@ -32,6 +32,15 @@ export interface FieldKitTool {
   mobile: MobileDelivery;
   /** Optional tool tab key inside tools.tsx flow */
   mobileToolTab?: string;
+  /**
+   * Competitive-edge framing for the Field Kit marketing page.
+   * scenario: the real-world pressure moment this tool resolves.
+   * outcome: the concrete edge the rep gains by having the answer.
+   * When present, both pages (FieldKit, FieldKitMembership) use these
+   * strings so copy never drifts from the catalog definition.
+   */
+  scenario?: string;
+  outcome?: string;
 }
 
 export const FIELD_KIT_WHAT =
@@ -59,6 +68,10 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
     why: "Every visit becomes part of one continuous, coachable account workflow.",
     mobileRoute: "/sales-workflow",
     mobile: "native",
+    scenario:
+      "You're 10 minutes from a visit at a new SNF. The rep who walks in prepared gets the next call. The one running on memory and hope gets a polite 'we'll be in touch.'",
+    outcome:
+      "Pre-call plan, practice mode, outcome capture, and next step confirmed — all in one continuous workflow. Preparation is the edge most reps skip.",
   },
   {
     id: "playbooks",
@@ -76,6 +89,10 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
     mobileRoute: "/(tabs)/tools",
     mobileToolTab: "playbook",
     mobile: "native",
+    scenario:
+      "You're heading into St. Mary's for the third visit. No referral yet. The rep who shows up without a specific ask leaves with another 'we'll keep you in mind.'",
+    outcome:
+      "A custom playbook with the right talking points for this stage of the relationship and one precise ask. You walk in as the consultant they want to call — not another vendor in the waiting room.",
   },
   {
     id: "objections",
@@ -94,6 +111,10 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
     mobileRoute: "/(tabs)/tools",
     mobileToolTab: "objection",
     mobile: "native",
+    scenario:
+      "You just heard 'we already have a preferred hospice' for the third time this month. The rep who doesn't have an answer loses the account. You have 20 minutes before the next call.",
+    outcome:
+      "A field-ready response in 30 seconds — grounded in the actual concern, not a canned comeback. The rep who walks in with this wins the conversation the other rep fumbles.",
   },
   {
     id: "research",
@@ -132,6 +153,10 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
     mobileRoute: "/(tabs)/tools",
     mobileToolTab: "email",
     mobile: "native",
+    scenario:
+      "You left St. Mary's with a verbal 'maybe.' The follow-up keeps the relationship warm or lets it go cold. Most reps send something generic on Thursday. The best ones send something specific that afternoon.",
+    outcome:
+      "A professional, account-specific email in two minutes — written at the right tone for a referral relationship, not a sales pitch. The rep the facility remembers is the one who followed up first.",
   },
   {
     id: "role-play",
@@ -146,6 +171,10 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
     mobileRoute: "/(tabs)/tools",
     mobileToolTab: "roleplay",
     mobile: "native",
+    scenario:
+      "The charge nurse keeps saying 'I'll pass it along.' The rep who practices this conversation once wins it. The one who wings it loses the referral.",
+    outcome:
+      "Simulated back-and-forth with coaching feedback before you're in the room. When it counts, you're not searching for words — you already know how this ends.",
   },
   {
     id: "activity-calculator",
@@ -208,6 +237,10 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
     mobileRoute: "/(tabs)/tools",
     mobileToolTab: "cold",
     mobile: "native",
+    scenario:
+      "You have a two-hour block for new outreach. The opener makes the difference. The rep who earns 30 seconds gets a referral relationship. The one who wings it gets a voicemail.",
+    outcome:
+      "A consistent script with an opener that earns the conversation, an objection handler built in, and one clear next-step ask. Cold to warm in a single call.",
   },
   {
     id: "weekly-plan",
@@ -222,6 +255,10 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
     mobileRoute: "/(tabs)/tools",
     mobileToolTab: "weekly",
     mobile: "native",
+    scenario:
+      "It's Sunday night. You have 15 accounts, one open referral, three pending conversations. The rep who plans wins. The one who starts reactive loses to the rep who already called.",
+    outcome:
+      "A Monday–Friday plan with win conditions per day. Priority accounts get your best hours. Low-value busyness loses them. The top reps in your market planned their week on Sunday.",
   },
   {
     id: "brand-video",
@@ -261,3 +298,26 @@ export const FIELD_KIT_CATEGORIES: FieldKitCategory[] = [
   "Measure",
   "Outreach",
 ];
+
+/**
+ * Category display labels and elite-positioning blurbs for the membership page.
+ * Kept here so a new category added to FIELD_KIT_TOOLS is visible in one place.
+ */
+export const FIELD_KIT_CAT_BLURBS: Partial<Record<FieldKitCategory, { label: string; blurb: string }>> = {
+  Prepare: {
+    label: "Prepare",
+    blurb: "Build the right approach before every visit",
+  },
+  Practice: {
+    label: "Practice",
+    blurb: "Sharpen the conversations that move referrals",
+  },
+  Plan: {
+    label: "Plan",
+    blurb: "Structure every week and every account call",
+  },
+  Measure: {
+    label: "Measure",
+    blurb: "Connect field behavior to business outcomes",
+  },
+};

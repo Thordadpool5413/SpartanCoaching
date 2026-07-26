@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { queryClient } from "@/lib/queryClient";
-import { ArrowLeft, Copy, Loader2, Mail } from "lucide-react";
+import { ArrowLeft, Copy, Loader2, Mail, Smartphone } from "lucide-react";
 import { adminFetch } from "@/lib/adminApi";
 import {
   ORG_NOTE_TEMPLATES,
@@ -56,6 +56,15 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
     queryKey: ["/api/admin/organizations", orgId],
     queryFn: () => adminFetch(`/api/admin/organizations/${orgId}`),
   });
+
+  const { data: mobileUsageData } = useQuery<{ usage: Array<{ memberId: number; mobileEvents: number; webEvents: number }> }>({
+    queryKey: ["/api/admin/subscriber-mobile-usage"],
+    queryFn: () => adminFetch("/api/admin/subscriber-mobile-usage"),
+  });
+
+  const mobileUsageMap = new Map<number, { mobileEvents: number; webEvents: number }>(
+    (mobileUsageData?.usage ?? []).map((r) => [r.memberId, { mobileEvents: r.mobileEvents, webEvents: r.webEvents }]),
+  );
 
   useEffect(() => {
     if (data?.organization) {
@@ -578,7 +587,11 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
           </CardHeader>
           <CardContent>
             <ul className="text-sm space-y-2">
-              {members.map((m: any) => (
+              {members.map((m: any) => {
+                const usage = mobileUsageMap.get(m.id);
+                const mobile = usage?.mobileEvents ?? 0;
+                const web = usage?.webEvents ?? 0;
+                return (
                 <li key={m.id} className="flex flex-wrap justify-between gap-2 border-b border-border/40 pb-2">
                   <span>
                     <span className="font-medium">{m.name}</span>
@@ -600,13 +613,21 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
                       <span className="text-muted-foreground text-xs"> · {m.jobRole}</span>
                     )}
                   </span>
-                  <span className="text-muted-foreground text-xs">
+                  <span className="text-muted-foreground text-xs flex items-center gap-1.5 flex-wrap">
                     {m.role} · {m.status}
                     {typeof m.checklistDone === "number" ? ` · ${m.checklistDone} checklist` : ""}
                     {m.lastLoginAt ? ` · ${new Date(m.lastLoginAt).toLocaleDateString()}` : ""}
+                    <span
+                      className={mobile > 0 ? "inline-flex items-center gap-0.5 text-blue-400 font-medium" : "inline-flex items-center gap-0.5 text-muted-foreground/40"}
+                      title={`Mobile: ${mobile} event${mobile === 1 ? "" : "s"} · Web: ${web} event${web === 1 ? "" : "s"}`}
+                    >
+                      <Smartphone className="w-3 h-3" />
+                      {mobile > 0 || web > 0 ? `${mobile}m / ${web}w` : "—"}
+                    </span>
                   </span>
                 </li>
-              ))}
+                );
+              })}
               {members.length === 0 && (
                 <p className="text-muted-foreground text-sm">No members</p>
               )}

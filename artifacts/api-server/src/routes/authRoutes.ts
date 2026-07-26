@@ -68,6 +68,7 @@ import {
   sendPasswordResetEmail,
   sendOrgInviteEmail,
 } from "../resend";
+import { storage } from "../storage";
 
 function isCronAuthorized(req: { headers: Record<string, unknown> }): boolean {
   const secret = process.env.CRON_SECRET?.trim();
@@ -228,7 +229,6 @@ async function addOrgTimeline(
   }
 }
 
-const DEFAULT_INDIVIDUAL_TRIAL_HOURS = 24;
 const DEFAULT_COMPANY_TRIAL_HOURS = 72;
 
 export function registerAuthRoutes(app: Express): void {
@@ -367,19 +367,17 @@ export function registerAuthRoutes(app: Express): void {
       }
 
       const passwordHash = await hashPassword(password);
-      const trialEndsAt = new Date(Date.now() + DEFAULT_INDIVIDUAL_TRIAL_HOURS * 60 * 60 * 1000);
       const orgName = `${name.trim()}'s Field Kit`;
 
-      // Create personal org in trial state
+      // Create personal org in expired state — requires subscription before accessing tools
       const [org] = await db
         .insert(clientOrganizations)
         .values({
           name: orgName,
           type: "personal",
           seatLimit: 1,
-          status: "trial",
-          pipelineStatus: "trial",
-          trialEndsAt,
+          status: "expired",
+          pipelineStatus: "self_registered",
         })
         .returning();
 
@@ -409,9 +407,7 @@ export function registerAuthRoutes(app: Express): void {
         return res.status(500).json({ error: "Failed to create member account" });
       }
 
-      await addOrgTimeline(org.id, "system", `Self-registered: ${name.trim()} <${email}>`, "system", {
-        trialHours: DEFAULT_INDIVIDUAL_TRIAL_HOURS,
-      });
+      await addOrgTimeline(org.id, "system", `Self-registered: ${name.trim()} <${email}>`, "system");
       await logEvent("self_register", member.id, { email, orgId: org.id });
 
       const { token, expiresAt } = await createSession(
@@ -1158,6 +1154,17 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
+  /** Per-member mobile event counts — used by admin UI to show mobile vs web activity */
+  app.get("/api/admin/subscriber-mobile-usage", requireAdmin, async (_req, res) => {
+    try {
+      const rows = await storage.getMobileUsagePerMember();
+      return res.json({ usage: rows });
+    } catch (err) {
+      console.error("subscriber-mobile-usage error:", err);
+      return res.status(500).json({ error: "Failed to load mobile usage" });
+    }
+  });
+
   app.post("/api/admin/access-requests/:id/approve", requireAdmin, async (req, res) => {
     try {
       const id = Number(req.params.id);
@@ -1179,7 +1186,7 @@ export function registerAuthRoutes(app: Express): void {
       const isCompany = request.type === "company";
       const trialHours =
         body.trialHours ??
-        (isCompany ? DEFAULT_COMPANY_TRIAL_HOURS : DEFAULT_INDIVIDUAL_TRIAL_HOURS);
+        (isCompany ? DEFAULT_COMPANY_TRIAL_HOURS : 24);
       const seats = body.seats ?? request.seatsRequested ?? (isCompany ? 5 : 1);
       const trialEndsAt = new Date(Date.now() + trialHours * 60 * 60 * 1000);
       const orgName =

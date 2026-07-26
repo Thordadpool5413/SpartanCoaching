@@ -14,11 +14,24 @@ import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { registerRescheduleTask } from "@/lib/notifications";
-import { AuthProvider } from "@/lib/AuthContext";
+import { AuthProvider, useAuth } from "@/lib/AuthContext";
+import { trackMobileEvent } from "@/lib/analytics";
 
 SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
+
+/** Fires a single app_open event when the authenticated user is known. */
+function AppOpenTracker() {
+  const { user } = useAuth();
+  useEffect(() => {
+    if (user?.member?.id) {
+      // memberId is derived server-side from the Bearer session token — don't pass it here.
+      trackMobileEvent("mobile_app_open", "app_open");
+    }
+  }, [user?.member?.id]);
+  return null;
+}
 
 function RootLayoutNav() {
   return (
@@ -62,6 +75,7 @@ export default function RootLayout() {
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
+            <AppOpenTracker />
             <GestureHandlerRootView>
               <KeyboardProvider>
                 <RootLayoutNav />

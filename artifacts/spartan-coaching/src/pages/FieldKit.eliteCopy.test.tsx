@@ -1,0 +1,296 @@
+/**
+ * Asserts that the elite positioning copy on the /field-kit page renders
+ * correctly for every subscriber state: unauthenticated, authenticated and
+ * able to subscribe, and already subscribed.
+ *
+ * This prevents future copy changes from accidentally reverting hero
+ * headlines or CTA labels to generic commerce language.
+ */
+import { describe, it, expect, beforeAll, afterEach, vi } from "vitest";
+import { render, cleanup, screen } from "@testing-library/react";
+
+// ── Mocks ─────────────────────────────────────────────────────────────────────
+
+vi.mock("wouter", () => ({
+  Link: ({ href, children, ...props }: { href: string; children: React.ReactNode; [k: string]: unknown }) => (
+    <a href={href} {...props}>{children}</a>
+  ),
+}));
+
+vi.mock("@/components/SEO", () => ({ SEO: () => null }));
+
+// Stub the catalog so the tool cards section renders without crashing.
+vi.mock("@workspace/field-kit-catalog", () => ({
+  FIELD_KIT_TOOLS: [
+    {
+      id: "objections",
+      title: "Objection Handler",
+      category: "conversation",
+      scenario: "Scenario stub",
+      outcome: "Outcome stub",
+      whenToUse: "Stub",
+      description: "Stub",
+      public: false,
+    },
+    {
+      id: "playbooks",
+      title: "Playbook Generator",
+      category: "conversation",
+      scenario: "Scenario stub",
+      outcome: "Outcome stub",
+      whenToUse: "Stub",
+      description: "Stub",
+      public: false,
+    },
+    {
+      id: "role-play",
+      title: "Role-Play",
+      category: "conversation",
+      scenario: "Scenario stub",
+      outcome: "Outcome stub",
+      whenToUse: "Stub",
+      description: "Stub",
+      public: false,
+    },
+    {
+      id: "sales-workflow",
+      title: "Sales Workflow",
+      category: "planning",
+      scenario: "Scenario stub",
+      outcome: "Outcome stub",
+      whenToUse: "Stub",
+      description: "Stub",
+      public: false,
+    },
+    {
+      id: "weekly-plan",
+      title: "Weekly Plan Builder",
+      category: "planning",
+      scenario: "Scenario stub",
+      outcome: "Outcome stub",
+      whenToUse: "Stub",
+      description: "Stub",
+      public: false,
+    },
+    {
+      id: "cold-call",
+      title: "Cold Call Script",
+      category: "conversation",
+      scenario: "Scenario stub",
+      outcome: "Outcome stub",
+      whenToUse: "Stub",
+      description: "Stub",
+      public: false,
+    },
+    {
+      id: "email-templates",
+      title: "Email Templates",
+      category: "conversation",
+      scenario: "Scenario stub",
+      outcome: "Outcome stub",
+      whenToUse: "Stub",
+      description: "Stub",
+      public: false,
+    },
+  ],
+}));
+
+// ── Auth & billing mocks (overridden per-test) ─────────────────────────────────
+
+const mockUseAuth = vi.fn();
+const mockStartCheckout = vi.fn();
+
+vi.mock("@/context/AuthContext", () => ({
+  useAuth: () => mockUseAuth(),
+}));
+
+vi.mock("@/hooks/useBillingActions", () => ({
+  useBillingActions: () => ({
+    startCheckout: mockStartCheckout,
+    checkoutPending: false,
+  }),
+}));
+
+// ── Browser API stubs ─────────────────────────────────────────────────────────
+
+beforeAll(() => {
+  if (!window.matchMedia) {
+    window.matchMedia = ((query: string) => ({
+      matches: false,
+      media: query,
+      onchange: null,
+      addListener: () => {},
+      removeListener: () => {},
+      addEventListener: () => {},
+      removeEventListener: () => {},
+      dispatchEvent: () => false,
+    })) as typeof window.matchMedia;
+  }
+});
+
+afterEach(() => {
+  cleanup();
+  vi.clearAllMocks();
+});
+
+// ── Shared auth fixtures ───────────────────────────────────────────────────────
+
+const UNAUTHED = {
+  isAuthenticated: false,
+  organization: null,
+  member: null,
+  canUseFieldKit: false,
+};
+
+const CAN_SUBSCRIBE = {
+  isAuthenticated: true,
+  canUseFieldKit: false,
+  organization: {
+    type: "personal",
+    billingPlan: "standard",
+    status: "pending",
+    hasStripeSubscription: false,
+    billingStatus: null,
+  },
+  member: { role: "member" },
+};
+
+const ALREADY_SUBSCRIBED = {
+  isAuthenticated: true,
+  canUseFieldKit: true,
+  organization: {
+    type: "personal",
+    billingPlan: "standard",
+    status: "active",
+    hasStripeSubscription: true,
+    billingStatus: "active",
+  },
+  member: { role: "member" },
+};
+
+async function renderFieldKit(authState: object) {
+  mockUseAuth.mockReturnValue(authState);
+  const { default: FieldKit } = await import("./FieldKit");
+  return render(<FieldKit />);
+}
+
+// ── Tests ─────────────────────────────────────────────────────────────────────
+
+describe("FieldKit hero headline — all states", () => {
+  it("renders the elite hero headline regardless of auth state (unauthenticated)", async () => {
+    await renderFieldKit(UNAUTHED);
+    // The page-level container must be present
+    expect(screen.getByTestId("page-field-kit")).toBeTruthy();
+    // Elite headline fragments
+    expect(screen.getByText(/The edge that converts/i)).toBeTruthy();
+    expect(screen.getByText(/Not every rep has access/i)).toBeTruthy();
+  });
+
+  it("renders the elite hero headline when can-subscribe", async () => {
+    await renderFieldKit(CAN_SUBSCRIBE);
+    expect(screen.getByText(/The edge that converts/i)).toBeTruthy();
+    expect(screen.getByText(/Not every rep has access/i)).toBeTruthy();
+  });
+
+  it("renders the elite hero headline when already subscribed", async () => {
+    await renderFieldKit(ALREADY_SUBSCRIBED);
+    expect(screen.getByText(/The edge that converts/i)).toBeTruthy();
+    expect(screen.getByText(/Not every rep has access/i)).toBeTruthy();
+  });
+});
+
+describe("FieldKit eyebrow copy — all states", () => {
+  it("shows the elite eyebrow copy when unauthenticated", async () => {
+    await renderFieldKit(UNAUTHED);
+    expect(
+      screen.getByText(/Private Field Kit/i),
+    ).toBeTruthy();
+  });
+
+  it("shows the elite eyebrow copy when can-subscribe", async () => {
+    await renderFieldKit(CAN_SUBSCRIBE);
+    expect(screen.getByText(/Private Field Kit/i)).toBeTruthy();
+  });
+
+  it("shows the elite eyebrow copy when already subscribed", async () => {
+    await renderFieldKit(ALREADY_SUBSCRIBED);
+    expect(screen.getByText(/Private Field Kit/i)).toBeTruthy();
+  });
+});
+
+describe("FieldKit hero CTA — unauthenticated", () => {
+  it("shows a 'Get access' link to /register", async () => {
+    await renderFieldKit(UNAUTHED);
+    // HeroCTA is rendered in hero, pricing-cta, and closing-cta — all three
+    // carry the register link when unauthenticated
+    const registerLinks = screen.getAllByTestId("field-kit-hero-register");
+    expect(registerLinks.length).toBeGreaterThan(0);
+    expect(registerLinks[0].textContent).toMatch(/Get access/i);
+  });
+
+  it("shows a 'Sign in' link for existing users", async () => {
+    await renderFieldKit(UNAUTHED);
+    // "Sign in" appears in the hero CTA; there may be multiple instances
+    const links = screen.getAllByText(/Sign in/i);
+    expect(links.length).toBeGreaterThan(0);
+  });
+
+  it("does NOT show the subscribe CTA when unauthenticated", async () => {
+    await renderFieldKit(UNAUTHED);
+    // $14.99/week subscribe button should not appear in the hero CTA
+    const heroCTAs = screen.queryAllByText(/Get access · \$14\.99\/week/i);
+    // Any matches should NOT have the checkout click handler — there should be
+    // zero rendered SubscribeBtn elements for the hero area
+    expect(heroCTAs.length).toBe(0);
+  });
+});
+
+describe("FieldKit hero CTA — can-subscribe", () => {
+  it("shows a subscribe button with 'Get access · $14.99/week' copy", async () => {
+    await renderFieldKit(CAN_SUBSCRIBE);
+    const buttons = screen.getAllByText(/Get access · \$14\.99\/week/i);
+    expect(buttons.length).toBeGreaterThan(0);
+  });
+
+  it("does NOT show a link to /register as the primary CTA when can-subscribe", async () => {
+    await renderFieldKit(CAN_SUBSCRIBE);
+    expect(screen.queryByTestId("field-kit-hero-register")).toBeNull();
+  });
+});
+
+describe("FieldKit hero CTA — already subscribed", () => {
+  it("shows 'Go to your account' link", async () => {
+    await renderFieldKit(ALREADY_SUBSCRIBED);
+    // HeroCTA renders in hero, pricing-cta, and closing-cta sections
+    const links = screen.getAllByText(/Go to your account/i);
+    expect(links.length).toBeGreaterThan(0);
+  });
+
+  it("does NOT show the subscribe button when already subscribed", async () => {
+    await renderFieldKit(ALREADY_SUBSCRIBED);
+    expect(screen.queryAllByText(/Get access · \$14\.99\/week/i).length).toBe(0);
+  });
+
+  it("does NOT show the /register CTA when already subscribed", async () => {
+    await renderFieldKit(ALREADY_SUBSCRIBED);
+    expect(screen.queryByTestId("field-kit-hero-register")).toBeNull();
+  });
+});
+
+describe("FieldKit pricing framing — all states", () => {
+  it("shows '$14.99/week' pricing copy when unauthenticated", async () => {
+    await renderFieldKit(UNAUTHED);
+    // Multiple elements contain $14.99 copy across sections
+    expect(screen.getAllByText(/\$14\.99\/week/i).length).toBeGreaterThan(0);
+  });
+
+  it("shows '$14.99/week' pricing copy when can-subscribe", async () => {
+    await renderFieldKit(CAN_SUBSCRIBE);
+    expect(screen.getAllByText(/\$14\.99/i).length).toBeGreaterThan(0);
+  });
+
+  it("shows '$14.99/week' pricing copy when already subscribed", async () => {
+    await renderFieldKit(ALREADY_SUBSCRIBED);
+    expect(screen.getAllByText(/\$14\.99/i).length).toBeGreaterThan(0);
+  });
+});

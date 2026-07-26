@@ -77,7 +77,7 @@ export default function Register() {
       await refresh();
       toast({
         title: "Account created",
-        description: "You have a 24-hour evaluation window. Subscribe on this page to keep full access.",
+        description: "Subscribe to access Field Kit tools — $14.99/week, cancel anytime.",
       });
       setLocation("/account");
     } catch (err: any) {
@@ -102,8 +102,8 @@ export default function Register() {
           <p className="text-xs font-bold tracking-widest text-primary uppercase">Individual Field Kit</p>
           <h1 className="text-2xl font-display font-black text-foreground">Create your account</h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Start with a 24-hour evaluation — no credit card needed. Subscribe for{" "}
-            <strong className="text-foreground">$14.99/week</strong> when ready; cancel anytime.
+            Create your account, then subscribe for{" "}
+            <strong className="text-foreground">$14.99/week</strong> to access Field Kit tools. Cancel anytime.
           </p>
         </div>
 
@@ -206,7 +206,7 @@ export default function Register() {
                 <Loader2 className="mr-2 w-4 h-4 animate-spin" /> Creating account…
               </>
             ) : (
-              "Create account — start evaluation"
+              "Create account"
             )}
           </Button>
         </form>
