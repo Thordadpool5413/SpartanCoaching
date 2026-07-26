@@ -2,6 +2,9 @@
 
 # compiled output
 dist
+# Keep Sales Command Center runtime dist (prebuilt package has no TS sources)
+!lib/hospice-sales-runtime/dist/
+!lib/hospice-sales-runtime/dist/**
 tmp
 out-tsc
 *.tsbuildinfo
