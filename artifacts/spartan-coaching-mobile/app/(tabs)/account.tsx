@@ -150,14 +150,14 @@ export default function AccountScreen() {
           paddingHorizontal: 20,
         }}
       >
-        <Text style={[styles.kicker, { color: colors.primary }]}>CLIENT ACCESS</Text>
+        <Text style={[styles.kicker, { color: colors.primary }]}>Client access</Text>
         <Text style={[styles.title, { color: colors.foreground }]}>Your Field Kit</Text>
         <Text style={[styles.body, { color: colors.mutedForeground }]}>
           Sign in to use the private Field Kit on the go — objections, playbooks, role-play, and more.
           Individuals: create an account on the web, then subscribe for $14.99/week (cancel anytime). Preview tools free first.
         </Text>
 
-        <View style={[styles.card, { borderColor: colors.primary, backgroundColor: colors.card, borderWidth: 1.5 }]}>
+        <View style={[styles.card, { borderColor: colors.primary, backgroundColor: colors.cardElevated ?? colors.card, borderWidth: 1.5 }]}>
           <Text style={{ color: colors.primary, fontSize: 10, fontWeight: "800", letterSpacing: 1.4, textTransform: "uppercase", marginBottom: 8 }}>
             What you unlock
           </Text>
@@ -763,39 +763,44 @@ export default function AccountScreen() {
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
-  kicker: { fontSize: 11, fontWeight: "800", letterSpacing: 2, marginBottom: 8 },
-  title: { fontSize: 30, fontWeight: "900", marginBottom: 8 },
-  body: { fontSize: 15, lineHeight: 22, marginBottom: 8 },
+  kicker: { fontSize: 11, fontWeight: "800", letterSpacing: 1.8, marginBottom: 10, textTransform: "uppercase" },
+  title: { fontSize: 30, fontWeight: "800", marginBottom: 10, letterSpacing: -0.5 },
+  body: { fontSize: 15, lineHeight: 23, marginBottom: 10 },
   card: {
     borderWidth: 1,
-    borderRadius: 12,
-    padding: 16,
-    marginTop: 8,
+    borderRadius: 14,
+    padding: 18,
+    marginTop: 10,
   },
   bulletRow: { flexDirection: "row", gap: 10, alignItems: "flex-start", marginBottom: 10 },
   bulletText: { flex: 1, fontSize: 14, lineHeight: 20 },
   primaryBtn: {
     marginTop: 24,
-    borderRadius: 10,
-    paddingVertical: 14,
+    borderRadius: 12,
+    paddingVertical: 16,
     alignItems: "center",
+    shadowColor: "#e8291e",
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 4,
   },
-  primaryBtnText: { fontWeight: "800", fontSize: 16 },
+  primaryBtnText: { fontWeight: "800", fontSize: 16, letterSpacing: 0.2 },
   outlineBtn: {
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingVertical: 14,
+    borderWidth: 1.5,
+    borderRadius: 12,
+    paddingVertical: 15,
     alignItems: "center",
   },
-  cardLabel: { fontSize: 12, fontWeight: "600", textTransform: "uppercase", letterSpacing: 0.5 },
-  cardValue: { fontSize: 16, fontWeight: "700", marginTop: 2 },
+  cardLabel: { fontSize: 11, fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.8 },
+  cardValue: { fontSize: 16, fontWeight: "700", marginTop: 4 },
   input: {
     borderWidth: 1,
-    borderRadius: 10,
-    padding: 12,
-    marginTop: 6,
-    minHeight: 72,
+    borderRadius: 12,
+    padding: 14,
+    marginTop: 8,
+    minHeight: 76,
     textAlignVertical: "top",
-    fontSize: 14,
+    fontSize: 15,
   },
 });

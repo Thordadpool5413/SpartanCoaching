@@ -146,7 +146,7 @@ function ChatWidgetContent() {
         const aiMessage: ChatMessage = {
           role: "model",
           content:
-            "The AI coach is part of the private Field Kit. Request evaluation access or sign in as a client to continue — or book a strategy call if you prefer to talk with Nick directly.",
+            "The AI coach is part of the private Field Kit. Create an account and subscribe ($14.99/week), sign in if you already have access, or book a strategy call for team seats.",
           timestamp: Date.now(),
         };
         setMessages((prev) => [...prev, aiMessage]);

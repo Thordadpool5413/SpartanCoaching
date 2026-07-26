@@ -315,7 +315,7 @@ export default function Portal() {
   const isPaidMember = organization?.status === "active";
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 py-10 sm:py-14" data-testid="page-portal">
+    <div className="w-full max-w-5xl mx-auto px-4 py-10 sm:py-14 surface-page min-h-[70vh]" data-testid="page-portal">
       <SEO />
       <MembershipActivation />
 
@@ -323,16 +323,16 @@ export default function Portal() {
 
       {/* Mission control — always one clear next action */}
       <Card
-        className="mb-6 border-2 border-primary/40 bg-primary/5 p-4 sm:p-5"
+        className="mb-8 border border-primary/35 bg-gradient-to-br from-primary/[0.09] via-card to-card p-5 sm:p-6 shadow-elite-red"
         data-testid="section-mission-next"
         role="region"
         aria-labelledby="portal-next-action-heading"
         aria-live="polite"
       >
-        <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
-          <div className="min-w-0 space-y-1">
-            <p className="text-[10px] font-bold tracking-widest text-primary uppercase">Next action</p>
-            <p id="portal-next-action-heading" className="text-lg font-bold text-foreground">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-5 justify-between">
+          <div className="min-w-0 space-y-1.5">
+            <p className="text-kicker">Next action</p>
+            <p id="portal-next-action-heading" className="text-xl sm:text-2xl font-display font-bold text-foreground tracking-tight">
               {needsRole
                 ? "Pick your role to personalize the checklist"
                 : nextItem
@@ -371,16 +371,16 @@ export default function Portal() {
           </div>
         </div>
         {totalCount > 0 && (
-          <div className="mt-4 pt-3 border-t border-border/60">
-            <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
-              <span>Session checklist</span>
-              <span className="font-semibold text-foreground">
+          <div className="mt-5 pt-4 border-t border-border/50">
+            <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+              <span className="font-medium tracking-wide uppercase">Session checklist</span>
+              <span className="font-semibold text-foreground tabular-nums">
                 {doneCount}/{totalCount}
               </span>
             </div>
-            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+            <div className="h-2 rounded-full bg-muted/80 overflow-hidden">
               <div
-                className="h-full rounded-full bg-primary transition-all"
+                className="h-full rounded-full bg-primary transition-all duration-500 ease-out"
                 style={{ width: `${progressPct}%` }}
               />
             </div>
@@ -389,8 +389,8 @@ export default function Portal() {
       </Card>
 
       {/* Welcome */}
-      <div className="mb-6 space-y-3">
-        <p className="text-xs font-bold tracking-widest text-primary uppercase">
+      <div className="mb-8 space-y-3">
+        <p className="text-kicker">
           {isPaidMember ? "Field Kit board" : "Field Kit home"}
         </p>
         <h1 className="text-h1 font-display font-black text-foreground">
@@ -398,7 +398,7 @@ export default function Portal() {
             ? `Let's make this session count${firstName ? `, ${firstName}` : ""}`
             : `Welcome back${firstName ? `, ${firstName}` : ""}`}
         </h1>
-        <p className="text-muted-foreground max-w-2xl leading-relaxed">
+        <p className="text-muted-foreground max-w-2xl leading-relaxed text-body">
           {isFirstSession
             ? isPaidMember
               ? "You're a member. Signal comes from real field work — start in Sales Command Center, add your next facility account (no PHI), and run the day from there."
@@ -407,7 +407,7 @@ export default function Portal() {
         </p>
         {memberStatusLabel && (
           <div
-            className="inline-flex flex-wrap items-center gap-2 text-sm font-medium text-foreground bg-muted border border-border rounded-md px-3 py-2"
+            className="inline-flex flex-wrap items-center gap-2 text-sm font-medium text-foreground bg-card/80 border border-border/80 rounded-full px-3.5 py-2 shadow-sm"
             data-testid={isPaidMember ? "banner-member" : "banner-trial"}
           >
             <Clock className="w-4 h-4 shrink-0 text-primary" />

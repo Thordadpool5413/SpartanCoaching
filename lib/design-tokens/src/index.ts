@@ -3,6 +3,7 @@ export {
   spartanLight,
   radius,
   spacing,
+  elevation,
   typeScale,
   cssDarkHsl,
   type SpartanColorPalette,

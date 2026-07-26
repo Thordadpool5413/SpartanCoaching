@@ -79,10 +79,10 @@ const seoDefaults: Record<string, SEOConfig> = {
     noIndex: true,
   },
   '/request-access': {
-    title: 'Request Field Kit Access | Spartan Coaching',
+    title: 'Team & Evaluation Access | Spartan Coaching',
     description:
-      'Request team or evaluation access for the private Field Kit. Individuals can also create an account and subscribe self-serve for $14.99/week. Teams continue under contract.',
-    keywords: 'Field Kit access, request evaluation, hospice sales tools, company seats, $14.99 week',
+      'Request team or evaluation access for the private Field Kit. Individuals can create an account and subscribe self-serve for $14.99/week. Teams continue under contract.',
+    keywords: 'Field Kit team access, request evaluation, hospice sales tools, company seats, $14.99 week',
   },
   '/portal': {
     title: 'Field Kit Home | Spartan Coaching',

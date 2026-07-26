@@ -1,4 +1,4 @@
-import { spartanDark, radius as tokenRadius } from "@workspace/design-tokens";
+import { spartanDark, radius as tokenRadius, elevation } from "@workspace/design-tokens";
 
 /**
  * Mobile color map — sourced from shared @workspace/design-tokens.
@@ -10,9 +10,11 @@ const darkAuthority = {
   background: spartanDark.background,
   foreground: spartanDark.foreground,
   card: spartanDark.card,
+  cardElevated: spartanDark.cardElevated,
   cardForeground: spartanDark.cardForeground,
   primary: spartanDark.primary,
   primaryForeground: spartanDark.primaryForeground,
+  primaryMuted: spartanDark.primaryMuted,
   secondary: spartanDark.secondary,
   secondaryForeground: spartanDark.secondaryForeground,
   muted: spartanDark.muted,
@@ -22,6 +24,7 @@ const darkAuthority = {
   destructive: spartanDark.destructive,
   destructiveForeground: spartanDark.destructiveForeground,
   border: spartanDark.border,
+  borderStrong: spartanDark.borderStrong,
   input: spartanDark.input,
   heroBackground: spartanDark.heroBackground,
   heroForeground: spartanDark.heroForeground,
@@ -31,12 +34,16 @@ const darkAuthority = {
   heroBadgeText: spartanDark.heroBadgeText,
   success: spartanDark.success,
   warning: spartanDark.warning,
+  tabBar: spartanDark.tabBar,
+  tabInactive: spartanDark.tabInactive,
+  overlay: spartanDark.overlay,
 };
 
 const colors = {
   light: darkAuthority,
   dark: darkAuthority,
-  radius: tokenRadius.md,
+  radius: tokenRadius.lg,
+  elevation,
 };
 
 export default colors;

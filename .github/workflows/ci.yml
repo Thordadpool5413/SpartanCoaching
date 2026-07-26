@@ -65,9 +65,12 @@ jobs:
       - run: pnpm run typecheck
       - run: pnpm --filter @workspace/spartan-ai-tools test
       - run: pnpm --filter @workspace/api-server test
-      # Wave 4 — frontend contracts (theme contrast, funnel CTA matrix, Day Zero)
-      - run: pnpm --filter @workspace/spartan-coaching test
-      - run: pnpm --filter @workspace/spartan-coaching-mobile test -- --runInBand
+      # Wave 4 — frontend contracts (theme contrast, funnel CTA matrix, Day Zero, elite copy)
+      - name: Wave 4 web contracts (spartan-coaching)
+        run: pnpm --filter @workspace/spartan-coaching test
+      - name: Native AI tool and account contracts
+        run: pnpm --filter @workspace/spartan-coaching-mobile test -- --runInBand
       - run: pnpm run build
       # Wave 4 — bundle size budgets after production build
-      - run: node scripts/performance-budget.mjs
+      - name: Wave 4 performance budgets
+        run: node scripts/performance-budget.mjs

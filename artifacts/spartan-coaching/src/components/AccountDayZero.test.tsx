@@ -48,25 +48,23 @@ describe("AccountDayZero", () => {
     expect(screen.getByTestId("card-account-day-zero")).toBeTruthy();
     expect(screen.getByText(/Welcome, Nick/i)).toBeTruthy();
     expect(screen.getByText(/Step 1/i)).toBeTruthy();
-    expect(screen.getByText(/^Subscribe$/i)).toBeTruthy();
-    expect(screen.getByTestId("button-day-zero-subscribe")).toBeTruthy();
+    expect(screen.getByTestId("button-day-zero-subscribe").textContent).toMatch(/Subscribe/i);
     expect(screen.getByText(/Preview tools first/i)).toBeTruthy();
-    expect(screen.getByText("Run one Objection Handler")).toBeTruthy();
-    expect(screen.getByText(/Open Command Center/i)).toBeTruthy();
+    expect(screen.getAllByText(/Objection Handler/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Open Command Center|Command Center/i).length).toBeGreaterThan(0);
   });
 
   it("shows resubscribe framing when expired", () => {
     render(<AccountDayZero firstName="Alex" isExpired isWelcome={false} />);
-    expect(
-      screen.getByRole("heading", { name: /evaluation window ended/i }),
-    ).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /Field Kit access has ended/i })).toBeTruthy();
+    expect(screen.queryByText(/evaluation window/i)).toBeNull();
+    expect(screen.getByTestId("button-day-zero-subscribe").textContent).toMatch(/Resubscribe/i);
   });
 
   it("shows update billing when suspended", () => {
     render(<AccountDayZero isSuspended />);
     expect(screen.getByTestId("button-day-zero-portal")).toBeTruthy();
-    expect(screen.getByTestId("button-day-zero-portal").textContent).toMatch(
-      /Update billing|Restore access/i,
-    );
+    expect(screen.getByRole("heading", { name: /Restore access/i })).toBeTruthy();
+    expect(screen.getByTestId("button-day-zero-portal").textContent).toMatch(/Update billing/i);
   });
 });

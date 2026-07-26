@@ -124,17 +124,18 @@ export default function FieldKit() {
   const unlockVisible = showAllUnlock ? unlockTools : unlockTools.slice(0, 8);
 
   return (
-    <div className="w-full" data-testid="page-field-kit">
+    <div className="w-full surface-page" data-testid="page-field-kit">
       <SEO />
 
       {/* ── HERO ── */}
       <section className="relative overflow-hidden bg-background py-20 sm:py-28" data-testid="section-hero">
-        <div className="absolute inset-0 bg-spartan-gradient-radial opacity-15 pointer-events-none" />
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-6">
-          <p className="text-xs font-bold tracking-widest text-primary uppercase">
+        <div className="absolute inset-0 bg-spartan-gradient-radial opacity-20 pointer-events-none" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-7">
+          <p className="text-kicker">
             Private Field Kit · Built for the rep who refuses to wing Tuesday
           </p>
-          <h1 className="text-4xl sm:text-5xl md:text-6xl font-display font-black text-foreground leading-[1.05] tracking-tight">
+          <h1 className="text-hero text-foreground">
             The edge that wins the room.
             <br />
             <span className="text-primary">Not every rep has access.</span>
@@ -153,16 +154,16 @@ export default function FieldKit() {
               </a>
             </Button>
           </div>
-          <p className="text-xs text-muted-foreground pt-1">
+          <p className="text-xs text-muted-foreground pt-1 tracking-wide">
             $14.99/week · your tools, your edge · cancel anytime from Account
           </p>
         </div>
       </section>
 
       {/* ── SOCIAL PROOF STRIP ── */}
-      <div className="border-y border-border bg-card py-5">
+      <div className="border-y border-border/80 bg-card/90 py-6 backdrop-blur-sm">
         <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="flex flex-wrap justify-center items-center gap-6 text-sm">
+          <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4 text-sm">
             <div className="flex items-center gap-2">
               <Award className="w-4 h-4 text-primary shrink-0" />
               <span className="font-semibold text-foreground">Built by reps who ran the territory</span>
@@ -190,8 +191,8 @@ export default function FieldKit() {
       <section className="py-16 sm:py-20 bg-background" data-testid="section-before-after">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12 space-y-3">
-            <p className="text-xs font-bold tracking-widest text-primary uppercase">The difference</p>
-            <h2 className="text-3xl sm:text-4xl font-display font-black text-foreground">
+            <p className="text-kicker">The difference</p>
+            <h2 className="text-h2 text-foreground">
               The rep the facility calls.<br />The rep who shows up hoping.
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
@@ -201,8 +202,8 @@ export default function FieldKit() {
 
           <div className="grid md:grid-cols-2 gap-6">
             {/* Before */}
-            <Card className="border border-border bg-card p-6 sm:p-8 space-y-5" data-testid="card-before">
-              <div className="inline-flex items-center gap-2 rounded-full border border-border px-3 py-1 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+            <Card className="border border-border/80 bg-card p-6 sm:p-8 space-y-5" data-testid="card-before">
+              <div className="inline-flex items-center gap-2 rounded-full border border-border/80 bg-muted/40 px-3 py-1 text-xs font-bold text-muted-foreground uppercase tracking-wider">
                 The rep who shows up hoping
               </div>
               <ul className="space-y-4">
@@ -222,10 +223,10 @@ export default function FieldKit() {
 
             {/* After */}
             <Card
-              className="border border-primary/40 bg-primary/5 p-6 sm:p-8 space-y-5"
+              className="border border-primary/40 bg-gradient-to-br from-primary/[0.1] to-card p-6 sm:p-8 space-y-5 shadow-elite-red"
               data-testid="card-after"
             >
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/10 px-3 py-1 text-xs font-bold text-primary uppercase tracking-wider">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-primary/12 px-3 py-1 text-xs font-bold text-primary uppercase tracking-wider">
                 The rep the facility calls
               </div>
               <ul className="space-y-4">
@@ -247,13 +248,13 @@ export default function FieldKit() {
       </section>
 
       {/* ── TOOL CARDS ── */}
-      <section className="py-16 sm:py-20 bg-card border-y border-border" data-testid="section-tool-cards">
+      <section className="py-16 sm:py-20 bg-card/80 border-y border-border/80 surface-noise" data-testid="section-tool-cards">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12 space-y-3">
-            <p className="text-xs font-bold tracking-widest text-primary uppercase">
+            <p className="text-kicker">
               {showMoreTools ? "All 13 tools" : "7 primary tools · +6 more in the kit"}
             </p>
-            <h2 className="text-3xl sm:text-4xl font-display font-black text-foreground">
+            <h2 className="text-h2 text-foreground">
               Every tool answers one question:<br />what does the rep who has this win?
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">

@@ -216,13 +216,17 @@ export default function Services() {
             </Link>
           </Button>
           <Button size="lg" variant="outline" asChild className="font-bold border-2">
-            <Link href="/request-access">Request Field Kit evaluation</Link>
+            <Link href="/register">Create account · Field Kit</Link>
           </Button>
         </div>
         <p className="mt-4 text-sm text-muted-foreground animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
           Prefer membership details first?{" "}
           <Link href="/field-kit-membership" className="font-semibold text-primary hover:underline">
-            See the membership path
+            See pricing · $14.99/wk
+          </Link>
+          {" · "}
+          <Link href="/request-access" className="font-semibold text-primary hover:underline">
+            Team access
           </Link>
         </p>
       </div>
@@ -240,22 +244,22 @@ export default function Services() {
             <p className="text-xs font-bold tracking-widest text-primary uppercase">Private Field Kit</p>
             <h2 className="text-h2 text-foreground">Tools for members and teams</h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              AI-assisted objections, plans, role-play, and calculators — gated behind request and approval.
-              Typical evaluation windows: <strong className="text-foreground">24 hours individual</strong> ·{" "}
-              <strong className="text-foreground">72 hours company</strong>. After evaluation, continue by
-              conversation and invoice — not a cart.
+              AI-assisted objections, plans, role-play, and calculators.{" "}
+              <strong className="text-foreground">Preview free</strong>, then individuals subscribe for{" "}
+              <strong className="text-foreground">$14.99/week</strong> (cancel anytime). Teams and arranged evaluations
+              use request access under contract.
             </p>
             <ul className="text-sm text-muted-foreground space-y-1">
-              <li className="flex gap-2"><CheckIcon className="w-4 h-4 text-primary shrink-0 mt-0.5" /> No PHI in tools — planning and messaging only</li>
-              <li className="flex gap-2"><CheckIcon className="w-4 h-4 text-primary shrink-0 mt-0.5" /> Bundles cleanly with coaching or stands alone after evaluation</li>
+              <li className="flex gap-2"><CheckIcon className="w-4 h-4 text-primary shrink-0 mt-0.5" /> No PHI in consumer tools — planning and messaging only</li>
+              <li className="flex gap-2"><CheckIcon className="w-4 h-4 text-primary shrink-0 mt-0.5" /> Bundles cleanly with coaching or stands alone as membership</li>
               <li className="flex gap-2"><CheckIcon className="w-4 h-4 text-primary shrink-0 mt-0.5" /> Team seats for organizations that need one playbook</li>
             </ul>
             <div className="flex flex-wrap gap-3 pt-1">
               <Button asChild className="font-bold">
-                <Link href="/request-access">Request evaluation access</Link>
+                <Link href="/register">Create account to subscribe</Link>
               </Button>
               <Button asChild variant="outline" className="font-bold">
-                <Link href="/tools">See Field Kit overview</Link>
+                <Link href="/tools">Preview tools</Link>
               </Button>
             </div>
           </div>
@@ -548,7 +552,10 @@ export default function Services() {
             </Link>
           </Button>
           <Button size="lg" variant="outline" asChild className="font-bold border-2">
-            <Link href="/request-access">Request Field Kit access</Link>
+            <Link href="/register">Create account · Field Kit</Link>
+          </Button>
+          <Button size="lg" variant="ghost" asChild className="font-bold">
+            <Link href="/request-access">Team / evaluation access</Link>
           </Button>
         </div>
       </div>

@@ -361,10 +361,11 @@ export default function HomeScreen() {
         <Text
           style={{
             color: colors.heroForeground,
-            fontSize: 28,
-            fontWeight: "900",
-            marginTop: 8,
-            letterSpacing: -0.4,
+            fontSize: 30,
+            fontWeight: "800",
+            marginTop: 10,
+            letterSpacing: -0.6,
+            lineHeight: 36,
             fontFamily: "Inter_700Bold",
           }}
         >
@@ -375,9 +376,9 @@ export default function HomeScreen() {
         <Text
           style={{
             color: colors.heroMuted,
-            marginTop: 6,
-            fontSize: 14,
-            lineHeight: 20,
+            marginTop: 8,
+            fontSize: 15,
+            lineHeight: 22,
             fontFamily: "Inter_400Regular",
           }}
         >
@@ -881,8 +882,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
   },
   fieldHero: {
-    paddingBottom: 28,
+    paddingBottom: 32,
     paddingHorizontal: 20,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    borderBottomColor: "rgba(200,214,240,0.12)",
   },
   logo: { width: 64, height: 64, marginBottom: 20 },
   heroTitle: {
@@ -920,9 +923,9 @@ const styles = StyleSheet.create({
   sectionSubtitle: { fontSize: 14, marginBottom: 16 },
   startCard: {
     marginTop: 12,
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderRadius: 14,
-    padding: 16,
+    padding: 18,
   },
   checkRow: {
     flexDirection: "row",

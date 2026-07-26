@@ -3,9 +3,8 @@
  * renders correctly for every subscriber state: unauthenticated, authenticated
  * and able to subscribe, and already subscribed.
  *
- * Specifically verifies "Join the Field Kit" and "Get access" language per
- * state so a future copy change cannot silently revert to generic commerce
- * language.
+ * Verifies "Join the Field Kit" positioning and SubscribeCTA honest funnel
+ * (Create account → Subscribe · $14.99/wk → Open Field Kit).
  */
 import { describe, it, expect, beforeAll, afterEach, vi } from "vitest";
 import { render, cleanup, screen } from "@testing-library/react";
@@ -73,8 +72,14 @@ vi.mock("@/context/AuthContext", () => ({
 vi.mock("@/hooks/useBillingActions", () => ({
   useBillingActions: () => ({
     startCheckout: mockStartCheckout,
+    openPortal: vi.fn(),
     checkoutPending: false,
+    portalPending: false,
   }),
+}));
+
+vi.mock("@/lib/analytics", () => ({
+  trackEvent: vi.fn(),
 }));
 
 // ── Browser API stubs ─────────────────────────────────────────────────────────
@@ -106,6 +111,7 @@ const UNAUTHED = {
   canUseFieldKit: false,
   organization: null,
   member: null,
+  fieldKit: null,
 };
 
 const CAN_SUBSCRIBE = {
@@ -114,11 +120,12 @@ const CAN_SUBSCRIBE = {
   organization: {
     type: "personal",
     billingPlan: "standard",
-    status: "pending",
+    status: "expired",
     hasStripeSubscription: false,
     billingStatus: null,
   },
   member: { role: "member" },
+  fieldKit: { allowed: false, reason: "expired" },
 };
 
 const ALREADY_SUBSCRIBED = {
@@ -132,6 +139,7 @@ const ALREADY_SUBSCRIBED = {
     billingStatus: "active",
   },
   member: { role: "member" },
+  fieldKit: { allowed: true },
 };
 
 async function renderMembership(authState: object) {
@@ -199,73 +207,70 @@ describe("FieldKitMembership hero headline — elite positioning", () => {
 });
 
 describe("FieldKitMembership CTA — unauthenticated", () => {
-  it("shows a 'Get access' link to /register in the hero", async () => {
+  it("shows Create account to subscribe via SubscribeCTA in the hero", async () => {
     await renderMembership(UNAUTHED);
-    const registerLink = screen.getByTestId("membership-hero-register");
-    expect(registerLink).toBeTruthy();
-    expect(registerLink.textContent).toMatch(/Get access/i);
+    const cta = screen.getByTestId("membership-hero-subscribe");
+    expect(cta).toBeTruthy();
+    expect(cta.textContent).toMatch(/Create account to subscribe/i);
   });
 
-  it("includes 'join the Field Kit' in the /register link copy", async () => {
+  it("shows Sign in for existing users", async () => {
     await renderMembership(UNAUTHED);
-    const registerLink = screen.getByTestId("membership-hero-register");
-    expect(registerLink.textContent).toMatch(/join the Field Kit/i);
+    expect(screen.getAllByText(/Sign in/i).length).toBeGreaterThan(0);
   });
 
-  it("shows 'Already have an account? Sign in' for existing users", async () => {
+  it("does NOT show Stripe Subscribe · $14.99/wk when unauthenticated", async () => {
     await renderMembership(UNAUTHED);
-    expect(screen.getByText(/Already have an account/i)).toBeTruthy();
+    expect(screen.queryByText(/^Subscribe · \$14\.99\/wk$/i)).toBeNull();
   });
 
-  it("does NOT show the subscribe button when unauthenticated", async () => {
+  it("does NOT promise free trial in the hero", async () => {
     await renderMembership(UNAUTHED);
-    expect(
-      screen.queryByTestId("membership-hero-subscribe"),
-    ).toBeNull();
+    expect(screen.queryByText(/free trial/i)).toBeNull();
   });
 });
 
 describe("FieldKitMembership CTA — can-subscribe", () => {
-  it("shows the subscribe button in the hero with 'Get access · $14.99/week' copy", async () => {
+  it("shows Subscribe · $14.99/wk in the hero", async () => {
     await renderMembership(CAN_SUBSCRIBE);
     const btn = screen.getByTestId("membership-hero-subscribe");
     expect(btn).toBeTruthy();
-    expect(btn.textContent).toMatch(/Get access/i);
-    expect(btn.textContent).toMatch(/\$14\.99\/week/i);
+    expect(btn.textContent).toMatch(/Subscribe · \$14\.99\/wk|Resubscribe · \$14\.99\/wk/i);
   });
 
-  it("shows the subscribe button in the individual tier card", async () => {
+  it("shows subscribe CTA in the individual tier card", async () => {
     await renderMembership(CAN_SUBSCRIBE);
-    const tierBtn = screen.getByTestId("button-tier-individual-subscribe");
+    const tierBtn = screen.getByTestId("button-tier-individual");
     expect(tierBtn).toBeTruthy();
-    expect(tierBtn.textContent).toMatch(/Get access/i);
+    expect(tierBtn.textContent).toMatch(/Subscribe · \$14\.99\/wk|Resubscribe · \$14\.99\/wk/i);
   });
 
-  it("does NOT show the /register link as the hero CTA when can-subscribe", async () => {
+  it("does NOT show Create account as the hero CTA when can-subscribe", async () => {
     await renderMembership(CAN_SUBSCRIBE);
-    expect(screen.queryByTestId("membership-hero-register")).toBeNull();
+    expect(screen.queryByText(/Create account to subscribe/i)).toBeNull();
   });
 
-  it("does NOT show 'Open Account' when can-subscribe", async () => {
+  it("does NOT show Open Field Kit when can-subscribe", async () => {
     await renderMembership(CAN_SUBSCRIBE);
-    expect(screen.queryByText(/Open Account · manage billing/i)).toBeNull();
+    expect(screen.queryByText(/Open Field Kit/i)).toBeNull();
   });
 });
 
 describe("FieldKitMembership CTA — already subscribed", () => {
-  it("shows 'Open Account · manage billing' in the hero", async () => {
+  it("shows Open Field Kit in the hero", async () => {
     await renderMembership(ALREADY_SUBSCRIBED);
-    expect(screen.getByText(/Open Account · manage billing/i)).toBeTruthy();
+    const cta = screen.getByTestId("membership-hero-subscribe");
+    expect(cta.textContent).toMatch(/Open Field Kit/i);
   });
 
-  it("does NOT show the hero subscribe button when already subscribed", async () => {
+  it("does NOT show Subscribe · $14.99/wk when already subscribed", async () => {
     await renderMembership(ALREADY_SUBSCRIBED);
-    expect(screen.queryByTestId("membership-hero-subscribe")).toBeNull();
+    expect(screen.queryByText(/Subscribe · \$14\.99\/wk/i)).toBeNull();
   });
 
-  it("does NOT show the /register CTA when already subscribed", async () => {
+  it("does NOT show Create account CTA when already subscribed", async () => {
     await renderMembership(ALREADY_SUBSCRIBED);
-    expect(screen.queryByTestId("membership-hero-register")).toBeNull();
+    expect(screen.queryByText(/Create account to subscribe/i)).toBeNull();
   });
 });
 
@@ -283,25 +288,50 @@ describe("FieldKitMembership individual tier card — 'Join the Field Kit'", () 
   });
 });
 
+describe("FieldKitMembership how-to-access — honest funnel", () => {
+  it("lists preview → create account → subscribe steps", async () => {
+    await renderMembership(UNAUTHED);
+    expect(screen.getByText(/How to get access/i)).toBeTruthy();
+    expect(screen.getAllByText(/Preview free/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Create your account/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Subscribe/i).length).toBeGreaterThan(0);
+  });
+
+  it("does NOT claim immediate access after register alone", async () => {
+    await renderMembership(UNAUTHED);
+    expect(screen.queryByText(/immediate access after register/i)).toBeNull();
+    expect(screen.queryByText(/free trial starts automatically/i)).toBeNull();
+  });
+});
+
+describe("FieldKitMembership end-user why section", () => {
+  it("frames value as personal edge, not provider Medicare revenue", async () => {
+    await renderMembership(UNAUTHED);
+    const section = screen.getByTestId("section-why-membership");
+    expect(section.textContent).toMatch(/Walk in with the answer/i);
+    expect(section.textContent).not.toMatch(/Medicare revenue/i);
+    expect(section.textContent).not.toMatch(/admit rate.*annual/i);
+  });
+});
+
 describe("FieldKitMembership pricing framing — $14.99/week", () => {
-  it("shows '$14.99/week' pricing copy when unauthenticated", async () => {
+  it("shows '$14.99' pricing copy when unauthenticated", async () => {
     await renderMembership(UNAUTHED);
     expect(screen.getAllByText(/\$14\.99/i).length).toBeGreaterThan(0);
   });
 
-  it("shows '$14.99/week' pricing copy when can-subscribe", async () => {
+  it("shows '$14.99' pricing copy when can-subscribe", async () => {
     await renderMembership(CAN_SUBSCRIBE);
     expect(screen.getAllByText(/\$14\.99/i).length).toBeGreaterThan(0);
   });
 
-  it("shows '$14.99/week' pricing copy when already subscribed", async () => {
+  it("shows '$14.99' pricing copy when already subscribed", async () => {
     await renderMembership(ALREADY_SUBSCRIBED);
     expect(screen.getAllByText(/\$14\.99/i).length).toBeGreaterThan(0);
   });
 
   it("shows 'Individual access' label on the pricing section", async () => {
     await renderMembership(UNAUTHED);
-    // The tier card has an "Individual access" label
     const card = screen.getByTestId("card-tier-individual");
     expect(card.textContent).toMatch(/Individual access/i);
   });

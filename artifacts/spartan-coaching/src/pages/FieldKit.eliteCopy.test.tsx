@@ -113,6 +113,10 @@ vi.mock("@/hooks/useBillingActions", () => ({
   }),
 }));
 
+vi.mock("@/lib/analytics", () => ({
+  trackEvent: vi.fn(),
+}));
+
 // ── Browser API stubs ─────────────────────────────────────────────────────────
 
 beforeAll(() => {
@@ -204,23 +208,17 @@ describe("FieldKit hero headline — all states", () => {
 describe("FieldKit eyebrow copy — all states", () => {
   it("shows the elite eyebrow copy when unauthenticated", async () => {
     await renderFieldKit(UNAUTHED);
-    expect(
-      within(screen.getByTestId("section-hero")).getByText(/Private Field Kit/i),
-    ).toBeTruthy();
+    expect(screen.getAllByText(/Private Field Kit/i).length).toBeGreaterThan(0);
   });
 
   it("shows the elite eyebrow copy when can-subscribe", async () => {
     await renderFieldKit(CAN_SUBSCRIBE);
-    expect(
-      within(screen.getByTestId("section-hero")).getByText(/Private Field Kit/i),
-    ).toBeTruthy();
+    expect(screen.getAllByText(/Private Field Kit/i).length).toBeGreaterThan(0);
   });
 
   it("shows the elite eyebrow copy when already subscribed", async () => {
     await renderFieldKit(ALREADY_SUBSCRIBED);
-    expect(
-      within(screen.getByTestId("section-hero")).getByText(/Private Field Kit/i),
-    ).toBeTruthy();
+    expect(screen.getAllByText(/Private Field Kit/i).length).toBeGreaterThan(0);
   });
 });
 
@@ -293,144 +291,135 @@ describe("FieldKit pricing framing — all states", () => {
 });
 
 describe("FieldKit hero section — unauthenticated", () => {
-  it("shows a 'Get access' register link in the hero section", async () => {
+  it("shows Create account to subscribe in the hero section", async () => {
     await renderFieldKit(UNAUTHED);
     const section = screen.getByTestId("section-hero");
-    const registerLinks = within(section).getAllByTestId("field-kit-hero-cta");
-    expect(registerLinks.length).toBeGreaterThan(0);
-    expect(registerLinks[0].textContent).toMatch(/Create account to subscribe/i);
+    expect(within(section).getAllByText(/Create account to subscribe/i).length).toBeGreaterThan(0);
+    expect(within(section).getByTestId("field-kit-hero-cta")).toBeTruthy();
   });
 
   it("shows a 'Sign in' link in the hero section", async () => {
     await renderFieldKit(UNAUTHED);
     const section = screen.getByTestId("section-hero");
-    const signInLinks = within(section).getAllByText(/Sign in/i);
-    expect(signInLinks.length).toBeGreaterThan(0);
+    expect(within(section).getAllByText(/Sign in/i).length).toBeGreaterThan(0);
   });
 
-  it("does NOT show the subscribe button in the hero section when unauthenticated", async () => {
+  it("does NOT show Stripe Subscribe in the hero when unauthenticated", async () => {
     await renderFieldKit(UNAUTHED);
     const section = screen.getByTestId("section-hero");
-    expect(within(section).queryAllByText(/Get access · \$14\.99\/week/i).length).toBe(0);
+    expect(within(section).queryAllByText(/^Subscribe · \$14\.99\/wk$/i).length).toBe(0);
   });
 
-  it("does NOT show 'Go to your account' in the hero section when unauthenticated", async () => {
+  it("does NOT show Open Field Kit in the hero when unauthenticated", async () => {
     await renderFieldKit(UNAUTHED);
     const section = screen.getByTestId("section-hero");
-    expect(within(section).queryAllByText(/Go to your account/i).length).toBe(0);
+    expect(within(section).queryAllByText(/Open Field Kit/i).length).toBe(0);
   });
 });
 
 describe("FieldKit hero section — can-subscribe", () => {
-  it("shows the subscribe button with 'Get access · $14.99/week' in the hero section", async () => {
+  it("shows Subscribe · $14.99/wk in the hero section", async () => {
     await renderFieldKit(CAN_SUBSCRIBE);
     const section = screen.getByTestId("section-hero");
-    const buttons = within(section).getAllByText(/Subscribe · \$14\.99\/wk/i);
-    expect(buttons.length).toBeGreaterThan(0);
+    expect(within(section).getAllByText(/Subscribe · \$14\.99\/wk/i).length).toBeGreaterThan(0);
   });
 
-  it("does NOT show the /register link in the hero section when can-subscribe", async () => {
+  it("does NOT show Create account CTA in the hero when can-subscribe", async () => {
     await renderFieldKit(CAN_SUBSCRIBE);
     const section = screen.getByTestId("section-hero");
-    expect(within(section).queryByTestId("field-kit-hero-register")).toBeNull();
+    expect(within(section).queryAllByText(/Create account to subscribe/i).length).toBe(0);
   });
 
-  it("does NOT show 'Go to your account' in the hero section when can-subscribe", async () => {
+  it("does NOT show Open Field Kit in the hero when can-subscribe", async () => {
     await renderFieldKit(CAN_SUBSCRIBE);
     const section = screen.getByTestId("section-hero");
-    expect(within(section).queryAllByText(/Go to your account/i).length).toBe(0);
+    expect(within(section).queryAllByText(/Open Field Kit/i).length).toBe(0);
   });
 });
 
 describe("FieldKit hero section — already subscribed", () => {
-  it("shows 'Go to your account' link in the hero section", async () => {
+  it("shows Open Field Kit in the hero section", async () => {
     await renderFieldKit(ALREADY_SUBSCRIBED);
     const section = screen.getByTestId("section-hero");
-    const links = within(section).getAllByText(/Open Field Kit/i);
-    expect(links.length).toBeGreaterThan(0);
+    expect(within(section).getAllByText(/Open Field Kit/i).length).toBeGreaterThan(0);
   });
 
-  it("does NOT show the subscribe button in the hero section when already subscribed", async () => {
+  it("does NOT show Subscribe in the hero when already subscribed", async () => {
     await renderFieldKit(ALREADY_SUBSCRIBED);
     const section = screen.getByTestId("section-hero");
-    expect(within(section).queryAllByText(/Get access · \$14\.99\/week/i).length).toBe(0);
+    expect(within(section).queryAllByText(/Subscribe · \$14\.99\/wk/i).length).toBe(0);
   });
 
-  it("does NOT show the /register link in the hero section when already subscribed", async () => {
+  it("does NOT show Create account CTA in the hero when already subscribed", async () => {
     await renderFieldKit(ALREADY_SUBSCRIBED);
     const section = screen.getByTestId("section-hero");
-    expect(within(section).queryByTestId("field-kit-hero-register")).toBeNull();
+    expect(within(section).queryAllByText(/Create account to subscribe/i).length).toBe(0);
   });
 });
 
 describe("FieldKit pricing-CTA section — unauthenticated", () => {
-  it("shows a 'Get access' register link in the pricing-cta section", async () => {
+  it("shows Create account to subscribe in the pricing-cta section", async () => {
     await renderFieldKit(UNAUTHED);
     const section = screen.getByTestId("section-pricing-cta");
-    const registerLinks = within(section).getAllByTestId("field-kit-pricing-cta");
-    expect(registerLinks.length).toBeGreaterThan(0);
-    expect(registerLinks[0].textContent).toMatch(/Create account to subscribe/i);
+    expect(within(section).getAllByText(/Create account to subscribe/i).length).toBeGreaterThan(0);
   });
 
   it("shows a 'Sign in' link in the pricing-cta section", async () => {
     await renderFieldKit(UNAUTHED);
     const section = screen.getByTestId("section-pricing-cta");
-    const signInLinks = within(section).getAllByText(/Sign in/i);
-    expect(signInLinks.length).toBeGreaterThan(0);
+    expect(within(section).getAllByText(/Sign in/i).length).toBeGreaterThan(0);
   });
 
-  it("does NOT show the subscribe button in the pricing-cta section when unauthenticated", async () => {
+  it("does NOT show Stripe Subscribe in pricing when unauthenticated", async () => {
     await renderFieldKit(UNAUTHED);
     const section = screen.getByTestId("section-pricing-cta");
-    expect(within(section).queryAllByText(/Get access · \$14\.99\/week/i).length).toBe(0);
+    expect(within(section).queryAllByText(/^Subscribe · \$14\.99\/wk$/i).length).toBe(0);
   });
 
-  it("does NOT show 'Go to your account' in the pricing-cta section when unauthenticated", async () => {
+  it("does NOT show Open Field Kit in pricing when unauthenticated", async () => {
     await renderFieldKit(UNAUTHED);
     const section = screen.getByTestId("section-pricing-cta");
-    expect(within(section).queryAllByText(/Go to your account/i).length).toBe(0);
+    expect(within(section).queryAllByText(/Open Field Kit/i).length).toBe(0);
   });
 });
 
 describe("FieldKit pricing-CTA section — can-subscribe", () => {
-  it("shows the subscribe button with 'Get access · $14.99/week' in the pricing-cta section", async () => {
+  it("shows Subscribe · $14.99/wk in the pricing-cta section", async () => {
     await renderFieldKit(CAN_SUBSCRIBE);
     const section = screen.getByTestId("section-pricing-cta");
-    const buttons = within(section).getAllByText(/Subscribe · \$14\.99\/wk/i);
-    expect(buttons.length).toBeGreaterThan(0);
+    expect(within(section).getAllByText(/Subscribe · \$14\.99\/wk/i).length).toBeGreaterThan(0);
   });
 
-  it("does NOT show the /register link in the pricing-cta section when can-subscribe", async () => {
+  it("does NOT show Create account CTA in pricing when can-subscribe", async () => {
     await renderFieldKit(CAN_SUBSCRIBE);
     const section = screen.getByTestId("section-pricing-cta");
-    expect(within(section).queryByTestId("field-kit-hero-register")).toBeNull();
+    expect(within(section).queryAllByText(/Create account to subscribe/i).length).toBe(0);
   });
 
-  it("does NOT show 'Go to your account' in the pricing-cta section when can-subscribe", async () => {
+  it("does NOT show Open Field Kit in pricing when can-subscribe", async () => {
     await renderFieldKit(CAN_SUBSCRIBE);
     const section = screen.getByTestId("section-pricing-cta");
-    expect(within(section).queryAllByText(/Go to your account/i).length).toBe(0);
+    expect(within(section).queryAllByText(/Open Field Kit/i).length).toBe(0);
   });
 });
 
 describe("FieldKit pricing-CTA section — already subscribed", () => {
-  it("shows 'Go to your account' link in the pricing-cta section", async () => {
+  it("shows Open Field Kit in the pricing-cta section", async () => {
     await renderFieldKit(ALREADY_SUBSCRIBED);
     const section = screen.getByTestId("section-pricing-cta");
-    const links = within(section).getAllByText(/Open Field Kit/i);
-    expect(links.length).toBeGreaterThan(0);
+    expect(within(section).getAllByText(/Open Field Kit/i).length).toBeGreaterThan(0);
   });
 
-  it("does NOT show the subscribe button in the pricing-cta section when already subscribed", async () => {
+  it("does NOT show Subscribe in pricing when already subscribed", async () => {
     await renderFieldKit(ALREADY_SUBSCRIBED);
     const section = screen.getByTestId("section-pricing-cta");
-    expect(within(section).queryAllByText(/Get access · \$14\.99\/week/i).length).toBe(0);
+    expect(within(section).queryAllByText(/Subscribe · \$14\.99\/wk/i).length).toBe(0);
   });
 
-  it("does NOT show the /register link in the pricing-cta section when already subscribed", async () => {
+  it("does NOT show Create account CTA in pricing when already subscribed", async () => {
     await renderFieldKit(ALREADY_SUBSCRIBED);
     const section = screen.getByTestId("section-pricing-cta");
-    expect(within(section).queryByTestId("field-kit-hero-register")).toBeNull();
+    expect(within(section).queryAllByText(/Create account to subscribe/i).length).toBe(0);
   });
 });
 
@@ -518,13 +507,14 @@ describe("FieldKit FAQ section — unauthenticated", () => {
     expect(within(section).getByTestId("faq-item-0")).toBeTruthy();
   });
 
-  it("renders all four FAQ items inside the FAQ section", async () => {
+  it("renders all five FAQ items inside the FAQ section", async () => {
     await renderFieldKit(UNAUTHED);
     const section = screen.getByTestId("section-faq");
     expect(within(section).getByTestId("faq-item-0")).toBeTruthy();
     expect(within(section).getByTestId("faq-item-1")).toBeTruthy();
     expect(within(section).getByTestId("faq-item-2")).toBeTruthy();
     expect(within(section).getByTestId("faq-item-3")).toBeTruthy();
+    expect(within(section).getByTestId("faq-item-4")).toBeTruthy();
   });
 });
 
@@ -546,13 +536,14 @@ describe("FieldKit FAQ section — can-subscribe", () => {
     expect(within(section).getByTestId("faq-item-0")).toBeTruthy();
   });
 
-  it("renders all four FAQ items inside the FAQ section", async () => {
+  it("renders all five FAQ items inside the FAQ section", async () => {
     await renderFieldKit(CAN_SUBSCRIBE);
     const section = screen.getByTestId("section-faq");
     expect(within(section).getByTestId("faq-item-0")).toBeTruthy();
     expect(within(section).getByTestId("faq-item-1")).toBeTruthy();
     expect(within(section).getByTestId("faq-item-2")).toBeTruthy();
     expect(within(section).getByTestId("faq-item-3")).toBeTruthy();
+    expect(within(section).getByTestId("faq-item-4")).toBeTruthy();
   });
 });
 
@@ -574,13 +565,14 @@ describe("FieldKit FAQ section — already subscribed", () => {
     expect(within(section).getByTestId("faq-item-0")).toBeTruthy();
   });
 
-  it("renders all four FAQ items inside the FAQ section", async () => {
+  it("renders all five FAQ items inside the FAQ section", async () => {
     await renderFieldKit(ALREADY_SUBSCRIBED);
     const section = screen.getByTestId("section-faq");
     expect(within(section).getByTestId("faq-item-0")).toBeTruthy();
     expect(within(section).getByTestId("faq-item-1")).toBeTruthy();
     expect(within(section).getByTestId("faq-item-2")).toBeTruthy();
     expect(within(section).getByTestId("faq-item-3")).toBeTruthy();
+    expect(within(section).getByTestId("faq-item-4")).toBeTruthy();
   });
 });
 

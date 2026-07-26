@@ -6,13 +6,17 @@ export default {
   theme: {
     extend: {
       borderRadius: {
-        '2xl': '1rem', /* 16px */
-        'xl': '.75rem', /* 12px */
-        lg: '.5625rem', /* 9px */
-        md: '.375rem', /* 6px */
-        sm: '.1875rem', /* 3px */
+        '2xl': '1.125rem', /* 18px */
+        'xl': '0.875rem', /* 14px */
+        lg: '0.75rem', /* 12px */
+        md: '0.625rem', /* 10px */
+        sm: '0.375rem', /* 6px */
         '3xl': '1.5rem', /* 24px */
         '4xl': '2rem', /* 32px */
+      },
+      boxShadow: {
+        elite: "0 12px 40px -14px rgba(0,0,0,0.5), 0 0 0 1px hsl(var(--border) / 0.6)",
+        "elite-red": "0 14px 36px -12px hsl(var(--primary) / 0.45), 0 0 0 1px hsl(var(--primary) / 0.2)",
       },
       colors: {
         // Flat / base colors (regular buttons)

@@ -110,21 +110,21 @@ export function FieldKitChrome({
   return (
     <div
       className={cn(
-        "mb-8 rounded-xl border border-border bg-card/80 p-4 sm:p-5 space-y-3",
-        isPreview && "border-primary/25 bg-primary/[0.03]",
+        "mb-8 rounded-2xl border border-border/80 bg-card/70 backdrop-blur-md p-4 sm:p-5 space-y-3.5 shadow-elite surface-noise",
+        isPreview && "border-primary/30 bg-primary/[0.04]",
         className,
       )}
       data-testid="field-kit-chrome"
       data-preview={isPreview ? "true" : "false"}
     >
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-        <div className="min-w-0 space-y-1">
-          <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
+        <div className="min-w-0 space-y-1.5">
+          <p className="text-kicker">
             {isPreview
               ? "Field Kit · preview browse"
               : "Field Kit · private operating system"}
           </p>
-          <p className="text-sm text-foreground leading-relaxed max-w-2xl">
+          <p className="text-sm text-foreground/95 leading-relaxed max-w-2xl">
             {isPreview
               ? "See every tool’s real layout. Live generation and saves unlock with membership."
               : FIELD_KIT_WHAT}
@@ -138,16 +138,16 @@ export function FieldKitChrome({
         </div>
         <div className="flex flex-wrap items-center gap-2 shrink-0">
           {isPreview && (
-            <span className="text-[11px] font-semibold text-primary bg-primary/10 border border-primary/25 rounded-md px-2.5 py-1">
+            <span className="text-[11px] font-semibold text-primary bg-primary/12 border border-primary/30 rounded-full px-3 py-1">
               View only
             </span>
           )}
           {trial && (
-            <span className="text-[11px] font-semibold text-foreground bg-muted border border-border rounded-md px-2.5 py-1">
+            <span className="text-[11px] font-semibold text-foreground bg-muted/80 border border-border/80 rounded-full px-3 py-1">
               {trial}
             </span>
           )}
-          <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground border border-border rounded-md px-2.5 py-1">
+          <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground border border-border/80 rounded-full px-3 py-1 bg-background/40">
             <Shield className="w-3 h-3 text-primary" />
             No PHI
           </span>
@@ -155,7 +155,7 @@ export function FieldKitChrome({
       </div>
 
       <nav
-        className="flex flex-wrap gap-1.5 pt-1 border-t border-border/60"
+        className="flex flex-wrap gap-1.5 pt-2 border-t border-border/50"
         aria-label="Field Kit sections"
       >
         {links.map(({ href, label, icon: Icon, match }) => {
@@ -165,10 +165,10 @@ export function FieldKitChrome({
               key={href}
               href={href}
               className={cn(
-                "inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1.5 rounded-md transition-colors",
+                "inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-all duration-200",
                 active
-                  ? "bg-primary/15 text-primary"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/70",
+                  ? "bg-primary text-primary-foreground shadow-elite-red"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/70 border border-transparent hover:border-border/60",
               )}
               data-testid={`field-kit-chrome-${label.toLowerCase()}`}
               aria-current={active ? "page" : undefined}

@@ -50,10 +50,10 @@ function NavLink({ href, children, onClick }: { href: string; children: React.Re
       href={href}
       onClick={onClick}
       className={cn(
-        "px-3 py-2 text-sm font-medium transition-colors hover-elevate block whitespace-nowrap",
+        "relative px-3 py-2 text-sm font-semibold tracking-wide transition-colors block whitespace-nowrap rounded-lg",
         isActive
-          ? "text-primary border-b-2 border-primary pb-0"
-          : "text-muted-foreground hover:text-foreground"
+          ? "text-primary after:absolute after:left-3 after:right-3 after:bottom-0 after:h-0.5 after:rounded-full after:bg-primary after:content-['']"
+          : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
       )}
     >
       {children}
@@ -67,10 +67,10 @@ function MobileNavLink({ href, label, location, onClose }: { href: string; label
       href={href}
       onClick={onClose}
       className={cn(
-        "px-4 py-3 rounded-lg text-sm font-medium touch-manipulation min-h-[44px] flex items-center transition-all",
+        "px-4 py-3.5 rounded-xl text-sm font-semibold touch-manipulation min-h-[48px] flex items-center transition-all border",
         location === href
-          ? "text-primary bg-primary/10 border-l-2 border-primary"
-          : "text-foreground bg-muted/30 active-elevate-2"
+          ? "text-primary bg-primary/12 border-primary/30 shadow-[inset_3px_0_0_0_hsl(var(--primary))]"
+          : "text-foreground bg-card/50 border-border/50 active:bg-muted/50"
       )}
       data-testid={`link-mobile-${href}`}
     >
@@ -332,7 +332,8 @@ export function Header() {
                 ) : (
                   <>
                     <MobileNavLink href="/login" label="Client Login" location={location} onClose={() => setMobileMenuOpen(false)} />
-                    <MobileNavLink href="/request-access" label="Request Field Kit Access" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavLink href="/register" label="Create account · Field Kit" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavLink href="/request-access" label="Team / evaluation access" location={location} onClose={() => setMobileMenuOpen(false)} />
                     {navSections.map((section) => (
                       <div key={section.title}>
                         <MobileNavSection title={section.title} />
@@ -363,11 +364,18 @@ export function Header() {
                 </Button>
               )}
               {!isAuthenticated && (
-                <Button size="lg" variant="outline" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-request">
-                  <Link href="/request-access" onClick={() => setMobileMenuOpen(false)}>
-                    Request Field Kit Access
-                  </Link>
-                </Button>
+                <>
+                  <Button size="lg" variant="outline" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-register">
+                    <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
+                      Create account · Field Kit
+                    </Link>
+                  </Button>
+                  <Button size="lg" variant="ghost" asChild className="w-full font-semibold touch-manipulation" data-testid="button-mobile-request">
+                    <Link href="/request-access" onClick={() => setMobileMenuOpen(false)}>
+                      Team / evaluation access
+                    </Link>
+                  </Button>
+                </>
               )}
             </div>
           </SheetContent>

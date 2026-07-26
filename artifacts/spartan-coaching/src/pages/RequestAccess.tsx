@@ -214,10 +214,13 @@ export default function RequestAccess() {
 
       <div className="text-center mb-10 sm:mb-12 space-y-3 max-w-2xl mx-auto" data-testid="page-request-access">
         <p className="text-xs font-bold tracking-widest text-primary uppercase">Field Kit</p>
-        <h1 className="text-h1 font-display font-black text-foreground">Request evaluation access</h1>
+        <h1 className="text-h1 font-display font-black text-foreground">Request team or evaluation access</h1>
         <p className="text-muted-foreground leading-relaxed">
-          Private tools for hospice growth. Request access, get approved, run a timed evaluation — then
-          individuals subscribe for $14.99/week (cancel anytime) or teams continue under a provider contract.
+          For provider seats, arranged evaluation windows, and team onboarding. Individuals who want self-serve should{" "}
+          <Link href="/register" className="text-primary font-semibold hover:underline">
+            create an account
+          </Link>{" "}
+          and subscribe for $14.99/week (cancel anytime) — preview tools free first.
         </p>
       </div>
 

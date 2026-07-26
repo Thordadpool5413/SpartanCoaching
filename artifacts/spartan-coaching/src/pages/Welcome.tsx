@@ -59,15 +59,23 @@ export default function Welcome() {
           </Button>
         </div>
 
-        <div className="pt-2">
+        <div className="pt-2 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-5">
+          <Link
+            href="/register"
+            onClick={() => markIntroSeen()}
+            className="inline-flex items-center gap-2 text-sm text-primary font-semibold hover:underline transition-colors"
+            data-testid="link-welcome-register"
+          >
+            <KeyRound className="w-4 h-4" />
+            Create account · Field Kit · $14.99/wk
+          </Link>
           <Link
             href="/request-access"
             onClick={() => markIntroSeen()}
             className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
             data-testid="link-welcome-request"
           >
-            <KeyRound className="w-4 h-4" />
-            Request Field Kit evaluation access
+            Team / evaluation access
           </Link>
         </div>
 

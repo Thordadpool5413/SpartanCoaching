@@ -9,6 +9,7 @@ import {
   type ViewStyle,
 } from "react-native";
 import { useColors } from "@/hooks/useColors";
+import { radius } from "@workspace/design-tokens";
 
 type Variant = "primary" | "outline" | "ghost";
 
@@ -38,7 +39,8 @@ export function SpartanButton({
       : variant === "outline"
         ? "transparent"
         : "transparent";
-  const borderColor = variant === "outline" ? colors.border : "transparent";
+  const borderColor =
+    variant === "outline" ? colors.borderStrong ?? colors.border : "transparent";
   const textColor =
     variant === "primary" ? colors.primaryForeground : colors.foreground;
 
@@ -52,9 +54,11 @@ export function SpartanButton({
         {
           backgroundColor: bg,
           borderColor,
-          borderWidth: variant === "outline" ? 1 : 0,
-          opacity: isDisabled ? 0.55 : pressed ? 0.85 : 1,
+          borderWidth: variant === "outline" ? 1.5 : 0,
+          opacity: isDisabled ? 0.55 : pressed ? 0.88 : 1,
+          transform: [{ scale: pressed && !isDisabled ? 0.98 : 1 }],
         },
+        variant === "primary" && styles.primaryShadow,
         style,
       ]}
     >
@@ -69,15 +73,23 @@ export function SpartanButton({
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 48,
-    paddingHorizontal: 16,
-    borderRadius: 8,
+    minHeight: 50,
+    paddingHorizontal: 18,
+    borderRadius: radius.md,
     alignItems: "center",
     justifyContent: "center",
+  },
+  primaryShadow: {
+    shadowColor: "#e8291e",
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 6 },
+    elevation: 5,
   },
   label: {
     fontSize: 15,
     fontWeight: "700",
+    letterSpacing: 0.2,
     fontFamily: "Inter_700Bold",
   },
 });

@@ -36,9 +36,9 @@ export function FieldKitGate({ compact }: Props) {
     "The Spartan Field Kit is a private toolkit for hospice growth execution between coaching sessions. Preview free — subscribe or use team/evaluation access to run tools live.";
 
   if (expired) {
-    title = "Your evaluation window has ended";
+    title = "Field Kit access has ended";
     body = canSelfServe
-      ? "Thank you for testing the Field Kit. Individuals can continue for $14.99/week from your account — cancel anytime. Teams continue under a provider contract."
+      ? "Your access window ended. Individuals can re-subscribe for $14.99/week from Account — cancel anytime. Teams continue under a provider contract."
       : "Thank you for putting real scenarios through the Field Kit. Continue as a client under contract, request an extension, or close the loop with a short debrief.";
   } else if (suspended) {
     title = "Access is currently paused";
@@ -141,10 +141,10 @@ export function FieldKitGate({ compact }: Props) {
         <div className="flex flex-col sm:flex-row gap-3 justify-center flex-wrap">
           {!isAuthenticated && (
             <>
-              <Button asChild className="font-bold" data-testid="gate-request">
-                <Link href="/request-access">
+              <Button asChild className="font-bold" data-testid="gate-register">
+                <Link href="/register">
                   <KeyRound className="mr-2 w-4 h-4" />
-                  Request evaluation access
+                  Create account to subscribe
                 </Link>
               </Button>
               <Button asChild variant="outline" className="font-bold" data-testid="gate-login">
@@ -152,6 +152,9 @@ export function FieldKitGate({ compact }: Props) {
                   <LogIn className="mr-2 w-4 h-4" />
                   Client login
                 </Link>
+              </Button>
+              <Button asChild variant="ghost" className="font-semibold" data-testid="gate-request">
+                <Link href="/request-access">Team / evaluation access</Link>
               </Button>
             </>
           )}
