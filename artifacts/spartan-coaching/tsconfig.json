@@ -14,7 +14,10 @@
     "types": ["node", "vite/client"],
     "paths": {
       "@/*": ["./src/*"],
-      "@shared/*": ["./src/shared/*"]
+      "@shared/*": ["./src/shared/*"],
+      "@workspace/spartan-ai-tools": [
+        "../../lib/spartan-ai-tools/src/index.ts"
+      ]
     }
   },
   "references": [
