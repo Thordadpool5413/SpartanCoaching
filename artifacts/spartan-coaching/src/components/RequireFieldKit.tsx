@@ -1,12 +1,17 @@
 import type { ReactNode } from "react";
 import { useAuth } from "@/context/AuthContext";
-import { FieldKitGate } from "@/components/FieldKitGate";
+import { FieldKitPreviewLock } from "@/components/FieldKitPreviewLock";
 import { ToolDisclaimer } from "@/components/ToolDisclaimer";
 import { ClinicalToolDisclaimer } from "@/components/ClinicalToolDisclaimer";
 import { getSpartanAiTool } from "@workspace/spartan-ai-tools";
 import { useLocation } from "wouter";
 
-/** Wraps tool pages — shows consulting gate unless Field Kit entitlement is active. */
+/**
+ * Wraps tool pages.
+ * - Active Field Kit: full interactive tool + disclaimer
+ * - No access: real tool UI in view-only preview (cannot submit / generate / save)
+ *   Server routes remain requireFieldKit-gated.
+ */
 export function RequireFieldKit({ children }: { children: ReactNode }) {
   const { isLoading, canUseFieldKit } = useAuth();
   const [location] = useLocation();
@@ -22,7 +27,7 @@ export function RequireFieldKit({ children }: { children: ReactNode }) {
   }
 
   if (!canUseFieldKit) {
-    return <FieldKitGate />;
+    return <FieldKitPreviewLock>{children}</FieldKitPreviewLock>;
   }
 
   return (

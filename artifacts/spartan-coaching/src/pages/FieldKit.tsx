@@ -31,6 +31,16 @@ const PRIMARY_TOOL_IDS = [
   "email-templates",
 ];
 
+/** Secondary tools shown when the user expands "+6 more tools in the kit" */
+const MORE_TOOL_IDS = [
+  "research",
+  "transcribe",
+  "activity-calculator",
+  "roi",
+  "rep-cost",
+  "branch",
+] as const;
+
 const FAQ_ITEMS = [
   {
     q: "Do I need to already be a Spartan coaching client?",
@@ -54,6 +64,7 @@ export default function FieldKit() {
   const { isAuthenticated, organization, member } = useAuth();
   const { startCheckout, checkoutPending } = useBillingActions();
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [showMoreTools, setShowMoreTools] = useState(false);
 
   const isPersonal = organization?.type === "personal";
   const isPlatform = member?.role === "platform_admin" || organization?.type === "platform";
@@ -71,6 +82,10 @@ export default function FieldKit() {
   const primaryTools = PRIMARY_TOOL_IDS.map((id) =>
     FIELD_KIT_TOOLS.find((t) => t.id === id),
   ).filter(Boolean) as (typeof FIELD_KIT_TOOLS)[number][];
+
+  const moreTools = MORE_TOOL_IDS.map((id) => FIELD_KIT_TOOLS.find((t) => t.id === id)).filter(
+    Boolean,
+  ) as (typeof FIELD_KIT_TOOLS)[number][];
 
   const HeroCTA = () => {
     if (canSubscribe) {
@@ -239,7 +254,9 @@ export default function FieldKit() {
       <section className="py-16 sm:py-20 bg-card border-y border-border" data-testid="section-tool-cards">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-12 space-y-3">
-            <p className="text-xs font-bold tracking-widest text-primary uppercase">7 primary tools</p>
+            <p className="text-xs font-bold tracking-widest text-primary uppercase">
+              {showMoreTools ? "All 13 tools" : "7 primary tools · +6 more in the kit"}
+            </p>
             <h2 className="text-3xl sm:text-4xl font-display font-black text-foreground">
               Every tool answers one question:<br />what does the rep who has this win?
             </h2>
@@ -278,23 +295,93 @@ export default function FieldKit() {
                 <p className="text-xs text-muted-foreground leading-relaxed mt-auto pt-2 border-t border-border">
                   <strong className="text-foreground/70">When to use:</strong> {tool.whenToUse}
                 </p>
+                <Link
+                  href={tool.path}
+                  className="text-xs text-primary font-bold hover:underline inline-flex items-center gap-1"
+                  data-testid={`tool-card-preview-${tool.id}`}
+                >
+                  Preview this tool <ArrowRight className="w-3 h-3" />
+                </Link>
               </Card>
             ))}
 
-            {/* +6 more tools teaser */}
-            <Card className="border border-dashed border-border bg-background/50 p-5 flex flex-col items-center justify-center text-center gap-2 min-h-[120px]">
-              <p className="text-sm font-semibold text-muted-foreground">+6 more tools in the kit</p>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                Grounded Research, Call Transcriber, Activity Calculator, ROI Calculator, Rep Cost
-                Calculator, Branch Profitability Simulator
-              </p>
-              <Link
-                href="/field-kit-membership"
-                className="text-xs text-primary font-bold hover:underline inline-flex items-center gap-1 mt-1"
+            {/* Expand: stay on Field Kit and show the other 6 offerings (no membership redirect) */}
+            {!showMoreTools ? (
+              <Card
+                className="border border-dashed border-primary/40 bg-primary/5 p-5 flex flex-col items-center justify-center text-center gap-3 min-h-[120px] sm:col-span-2"
+                data-testid="card-more-tools-teaser"
               >
-                See the full list <ArrowRight className="w-3 h-3" />
-              </Link>
-            </Card>
+                <p className="text-sm font-semibold text-foreground">+6 more tools in the kit</p>
+                <p className="text-xs text-muted-foreground leading-relaxed max-w-xl">
+                  Grounded Research, Call Transcriber, Activity Calculator, ROI Calculator, Rep Cost
+                  Calculator, Branch Profitability Simulator
+                </p>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="font-bold border-primary/40 text-primary"
+                  onClick={() => setShowMoreTools(true)}
+                  data-testid="button-show-more-tools"
+                >
+                  See what else is in the kit
+                  <ChevronDown className="ml-1.5 w-4 h-4" />
+                </Button>
+              </Card>
+            ) : (
+              <>
+                {moreTools.map((tool) => (
+                  <Card
+                    key={tool.id}
+                    className="border border-border bg-background p-5 flex flex-col gap-3"
+                    data-testid={`tool-card-${tool.id}`}
+                  >
+                    <div className="flex items-start justify-between gap-2">
+                      <div>
+                        <span className="text-[10px] font-bold uppercase tracking-widest text-primary">
+                          {tool.category}
+                        </span>
+                        <h3 className="text-base font-bold text-foreground mt-0.5">{tool.title}</h3>
+                      </div>
+                    </div>
+                    {tool.scenario && (
+                      <>
+                        <p className="text-sm text-muted-foreground leading-relaxed italic border-l-2 border-primary/30 pl-3">
+                          "{tool.scenario}"
+                        </p>
+                        <div className="flex gap-2 text-sm text-foreground">
+                          <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                          <span className="leading-relaxed">{tool.outcome}</span>
+                        </div>
+                      </>
+                    )}
+                    <p className="text-xs text-muted-foreground leading-relaxed mt-auto pt-2 border-t border-border">
+                      <strong className="text-foreground/70">When to use:</strong> {tool.whenToUse}
+                    </p>
+                    <Link
+                      href={tool.path}
+                      className="text-xs text-primary font-bold hover:underline inline-flex items-center gap-1"
+                      data-testid={`tool-card-preview-${tool.id}`}
+                    >
+                      Preview this tool <ArrowRight className="w-3 h-3" />
+                    </Link>
+                  </Card>
+                ))}
+                <div className="sm:col-span-2 flex justify-center pt-1">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="font-semibold text-muted-foreground"
+                    onClick={() => setShowMoreTools(false)}
+                    data-testid="button-hide-more-tools"
+                  >
+                    Show fewer tools
+                    <ChevronUp className="ml-1.5 w-4 h-4" />
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </section>

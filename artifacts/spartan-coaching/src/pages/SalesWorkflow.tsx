@@ -42,19 +42,89 @@ export default function SalesWorkflow() {
   }
 
   if (!member) {
+    // View-only shell so non-subscribers still see what Command Center looks like
+    // (RequireFieldKit preview lock blocks real use when gated).
     return (
       <FieldKitToolLayout toolPath="/tools/sales-workflow">
         <SEO title="Sales Command Center | Spartan Coaching" />
-        <div className="max-w-md mx-auto py-16 text-center space-y-4" data-testid="command-no-member">
-          <h1 className="text-xl font-bold text-foreground">Sign in required</h1>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Sales Command Center is part of your Field Kit membership. Sign in to continue.
-          </p>
-          <Button asChild className="font-bold">
-            <Link href={isAuthenticated ? "/account" : "/login"}>
-              {isAuthenticated ? "Open Account" : "Client login"}
-            </Link>
-          </Button>
+        <div className="space-y-6" data-testid="command-preview-shell">
+          <div className="mb-2 space-y-1">
+            <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
+              Field Kit · Daily spine
+            </p>
+            <h1 className="text-2xl font-black text-foreground">Sales Command Center</h1>
+            <p className="text-sm text-muted-foreground max-w-3xl leading-relaxed">
+              Plan calls, practice objections, complete visits, review coaching, and schedule the next
+              step — one continuous account workflow.
+            </p>
+          </div>
+          <div className="grid lg:grid-cols-[1fr_320px] gap-6 items-start">
+            <div className="rounded-xl border border-border bg-card overflow-hidden shadow-sm">
+              <div className="border-b border-border px-4 py-3 flex flex-wrap gap-2 bg-muted/40">
+                {["Queue", "Pre-call", "Practice", "Visit", "Debrief", "Next step"].map((tab, i) => (
+                  <span
+                    key={tab}
+                    className={
+                      i === 0
+                        ? "text-xs font-bold px-2.5 py-1 rounded-md bg-primary/15 text-primary"
+                        : "text-xs font-semibold px-2.5 py-1 rounded-md text-muted-foreground"
+                    }
+                  >
+                    {tab}
+                  </span>
+                ))}
+              </div>
+              <div className="p-5 space-y-4">
+                <div className="flex items-center justify-between gap-3">
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-primary">
+                      Today&apos;s queue
+                    </p>
+                    <p className="text-sm font-bold text-foreground mt-0.5">3 accounts · 1 high priority</p>
+                  </div>
+                  <span className="text-[11px] font-semibold text-muted-foreground border border-border rounded-md px-2 py-1">
+                    Sample data
+                  </span>
+                </div>
+                {[
+                  { name: "St. Mary's SNF", meta: "Follow-up · Objection: preferred hospice", tag: "High" },
+                  { name: "Riverside Home Health", meta: "First visit · Cold opener ready", tag: "Warm" },
+                  { name: "Dr. Chen clinic", meta: "Debrief pending · Next step open", tag: "Open" },
+                ].map((row) => (
+                  <div
+                    key={row.name}
+                    className="rounded-lg border border-border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-2"
+                  >
+                    <div>
+                      <p className="text-sm font-bold text-foreground">{row.name}</p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{row.meta}</p>
+                    </div>
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-primary/80 shrink-0">
+                      {row.tag}
+                    </span>
+                  </div>
+                ))}
+                <p className="text-xs text-muted-foreground leading-relaxed border-t border-border pt-3">
+                  Live queue, prep, practice, and outcome capture unlock with Field Kit membership.
+                </p>
+              </div>
+            </div>
+            <div className="rounded-xl border border-dashed border-border bg-muted/20 p-5 space-y-3">
+              <p className="text-xs font-bold uppercase tracking-widest text-primary">NPI lookup</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Pull facility context before the visit — available when Command Center is unlocked.
+              </p>
+              <div className="h-9 rounded-md border border-border bg-background/80" />
+              <div className="h-9 rounded-md border border-border bg-background/50 w-2/3" />
+            </div>
+          </div>
+          {!isAuthenticated && (
+            <div className="flex justify-center">
+              <Button asChild className="font-bold" variant="outline">
+                <Link href="/login">Sign in to run live Command Center</Link>
+              </Button>
+            </div>
+          )}
         </div>
       </FieldKitToolLayout>
     );

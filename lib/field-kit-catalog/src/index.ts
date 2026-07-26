@@ -128,6 +128,10 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
     mobileRoute: "/(tabs)/tools",
     mobileToolTab: "research",
     mobile: "native",
+    scenario:
+      "You're opening a new SNF in a market you don't know well. The rep who walks in with one credible insight earns the handshake. The one who wings it looks like every other vendor.",
+    outcome:
+      "Territory and market answers with sources you can cite — homework that builds trust in the room, not hope.",
   },
   {
     id: "transcribe",
@@ -140,6 +144,10 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
     why: "Self-coaching beats guessing what happened on the call.",
     mobileRoute: "/tool-web",
     mobile: "webview",
+    scenario:
+      "You just left a hard conversation and want to coach yourself (or a rep) without relying on memory alone.",
+    outcome:
+      "Transcript plus coaching moments — one phrase or pivot to reuse on the next call. No PHI in the tool.",
   },
   {
     id: "email-templates",
@@ -188,6 +196,10 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
     checklistId: "director_scorecard",
     mobileRoute: "/tool-web",
     mobile: "webview",
+    scenario:
+      "Leadership set an admission goal. The team hears 'work harder' but no one has the daily conversation math.",
+    outcome:
+      "Admission goal broken into conversations per day — a number you can coach to, not a vague stretch target.",
   },
   {
     id: "rep-cost",
@@ -200,6 +212,10 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
     why: "Clear economics support better coaching investment decisions.",
     mobileRoute: "/tool-web",
     mobile: "webview",
+    scenario:
+      "Someone asked what a rep actually costs per call, referral, and admission. Spreadsheet theater isn't cutting it.",
+    outcome:
+      "Fully loaded unit costs you can use in staffing and coaching investment conversations.",
   },
   {
     id: "roi",
@@ -212,6 +228,10 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
     why: "Puts a business case next to the coaching conversation.",
     mobileRoute: "/tool-web",
     mobile: "webview",
+    scenario:
+      "You're justifying coaching or Field Kit access to a CFO who only responds to dollars and conversion.",
+    outcome:
+      "A revenue range next to each percentage-point improvement — a business case, not a feature list.",
   },
   {
     id: "branch",
@@ -224,6 +244,10 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
     why: "Owners and VPs connect field behavior to branch economics.",
     mobileRoute: "/staffing",
     mobile: "native",
+    scenario:
+      "Census is soft, staffing is tight, and leadership wants one model that ties field behavior to branch economics.",
+    outcome:
+      "Break-even ADC, staffing, and cash runway in one simulator — so coaching focus maps to the real gap.",
   },
   {
     id: "cold-call",

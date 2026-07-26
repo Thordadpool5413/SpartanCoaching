@@ -89,7 +89,8 @@ export default function Tools() {
 
   const renderCard = (tool: FieldKitTool, idx: number) => {
     const locked = showCatalogGate && !tool.public;
-    const href = locked ? "/request-access" : tool.path;
+    // Non-members can open the real tool UI in view-only preview (interaction blocked).
+    const href = tool.path;
     return (
       <StaggerItem key={tool.path}>
         <Card
@@ -122,9 +123,11 @@ export default function Tools() {
               <Link
                 href={href}
                 data-testid={`button-tool-${idx}`}
-                aria-label={locked ? `Request access for ${tool.title}` : `Launch ${tool.title}`}
+                aria-label={
+                  locked ? `Preview ${tool.title} (view only)` : `Launch ${tool.title}`
+                }
               >
-                {locked ? "Request access to use" : tool.public ? "Open" : "Launch tool"}
+                {locked ? "Preview tool" : tool.public ? "Open" : "Launch tool"}
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Link>
             </Button>
@@ -138,7 +141,7 @@ export default function Tools() {
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16">
       <SEO />
       <BackButton />
-      {!showCatalogGate && <FieldKitChrome />}
+      <FieldKitChrome />
       <SlideUp>
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
           <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">Field Kit</p>
@@ -147,7 +150,7 @@ export default function Tools() {
           </h1>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
             {showCatalogGate
-              ? "Reserved for Spartan clients and approved evaluators. Prepare, practice, plan, and measure — the same standards we coach in the field."
+              ? "Browse every tool’s real interface. Live generation, saves, and AI runs unlock with a Field Kit membership or evaluation."
               : FIELD_KIT_WHAT}
           </p>
           {!showCatalogGate && (
@@ -156,6 +159,12 @@ export default function Tools() {
               <Link href="/portal" className="font-semibold text-primary hover:underline">
                 Back to Field Kit home
               </Link>
+            </p>
+          )}
+          {showCatalogGate && (
+            <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed">
+              Open any tool to preview the full UI. Tap or click inside a locked tool for subscribe / trial
+              options.
             </p>
           )}
         </div>
@@ -196,18 +205,18 @@ export default function Tools() {
                   <Lock className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-lg font-bold text-foreground mb-1">Member access required</h2>
+                  <h2 className="text-lg font-bold text-foreground mb-1">Preview open · use locked</h2>
                   <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
-                    Request evaluation access for a timed window, or sign in if you are already a client. Prefer a
-                    human path? Book a strategy call anytime.
+                    See the actual tools and resources below. To generate responses, save work, or run live
+                    calculators end-to-end, start a free trial or subscribe ($14.99/week, cancel anytime).
                   </p>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 shrink-0">
                 <Button asChild className="font-bold" data-testid="button-tools-request">
-                  <Link href="/request-access">
+                  <Link href="/register">
                     <KeyRound className="mr-2 w-4 h-4" />
-                    Request access
+                    Start free trial
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="font-bold" data-testid="button-tools-login">
@@ -217,7 +226,7 @@ export default function Tools() {
                   </Link>
                 </Button>
                 <Button asChild variant="ghost" className="font-bold">
-                  <Link href="/contact">Book a call</Link>
+                  <Link href="/field-kit-membership">Pricing</Link>
                 </Button>
               </div>
             </div>
@@ -229,7 +238,7 @@ export default function Tools() {
         <SlideUp delay={0.08}>
           <Card className="mb-10 border border-border bg-card p-6" data-testid="tools-static-sample">
             <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">
-              Sample — Objection Handler
+              Sample output — Objection Handler
             </p>
             <p className="text-sm text-muted-foreground mb-2">
               <span className="font-semibold text-foreground">Objection: </span>
@@ -239,7 +248,7 @@ export default function Tools() {
               {SAMPLE_OBJECTION.response}
             </p>
             <p className="text-xs text-muted-foreground mt-4">
-              Live tools unlock after approval. This is a static example only.
+              Open any tool card for the full interface. Live AI generation unlocks with membership.
             </p>
           </Card>
         </SlideUp>

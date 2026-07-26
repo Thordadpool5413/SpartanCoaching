@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { FIELD_KIT_WHAT } from "@/lib/fieldKitCatalog";
 import { useAuth } from "@/context/AuthContext";
 
-const LINKS = [
+const MEMBER_LINKS = [
   { href: "/portal", label: "Home", icon: Home, match: (loc: string) => loc === "/portal" },
   {
     href: "/tools/sales-workflow",
@@ -45,8 +45,39 @@ const LINKS = [
   },
 ];
 
+/** Browse-only nav for visitors previewing tools without a subscription */
+const PREVIEW_LINKS = [
+  {
+    href: "/field-kit",
+    label: "Overview",
+    icon: Home,
+    match: (loc: string) => loc === "/field-kit",
+  },
+  {
+    href: "/tools",
+    label: "Tools",
+    icon: Wrench,
+    match: (loc: string) => loc === "/tools" || loc.startsWith("/tools/"),
+  },
+  {
+    href: "/resources",
+    label: "Resources",
+    icon: FolderOpen,
+    match: (loc: string) => loc === "/resources" || loc.startsWith("/resources/"),
+  },
+  {
+    href: "/field-kit-membership",
+    label: "Pricing",
+    icon: Phone,
+    match: (loc: string) =>
+      loc === "/field-kit-membership" || loc.startsWith("/pricing/field-kit"),
+  },
+];
+
 /**
  * Persistent orientation strip for Field Kit surfaces.
+ * Members get full nav; non-members get a preview browse strip so they can
+ * move between tool UIs without live access.
  */
 export function FieldKitChrome({
   className,
@@ -58,14 +89,15 @@ export function FieldKitChrome({
   const { canUseFieldKit, organization, fieldKit } = useAuth();
   const [location] = useLocation();
 
-  if (!canUseFieldKit) return null;
+  const isPreview = !canUseFieldKit;
+  const links = isPreview ? PREVIEW_LINKS : MEMBER_LINKS;
 
   const trial =
-    organization?.status === "trial" && fieldKit?.hoursRemaining != null
+    !isPreview && organization?.status === "trial" && fieldKit?.hoursRemaining != null
       ? fieldKit.hoursRemaining < 24
         ? `${Math.max(1, Math.round(fieldKit.hoursRemaining))}h left in evaluation`
         : `${Math.round(fieldKit.hoursRemaining / 24)}d left in evaluation`
-      : organization?.status === "active"
+      : !isPreview && organization?.status === "active"
         ? organization?.billingPlan === "individual_weekly"
           ? "Member · $14.99/wk"
           : organization?.billingPlan === "corporate_contract"
@@ -79,17 +111,25 @@ export function FieldKitChrome({
     <div
       className={cn(
         "mb-8 rounded-xl border border-border bg-card/80 p-4 sm:p-5 space-y-3",
+        isPreview && "border-primary/25 bg-primary/[0.03]",
         className,
       )}
       data-testid="field-kit-chrome"
+      data-preview={isPreview ? "true" : "false"}
     >
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
         <div className="min-w-0 space-y-1">
           <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
-            Field Kit · private operating system
+            {isPreview
+              ? "Field Kit · preview browse"
+              : "Field Kit · private operating system"}
           </p>
-          <p className="text-sm text-foreground leading-relaxed max-w-2xl">{FIELD_KIT_WHAT}</p>
-          {nextHint && (
+          <p className="text-sm text-foreground leading-relaxed max-w-2xl">
+            {isPreview
+              ? "See every tool’s real layout. Live generation and saves unlock with membership."
+              : FIELD_KIT_WHAT}
+          </p>
+          {nextHint && !isPreview && (
             <p className="text-xs text-muted-foreground pt-0.5">
               <span className="font-semibold text-foreground">Next: </span>
               {nextHint}
@@ -97,6 +137,11 @@ export function FieldKitChrome({
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2 shrink-0">
+          {isPreview && (
+            <span className="text-[11px] font-semibold text-primary bg-primary/10 border border-primary/25 rounded-md px-2.5 py-1">
+              View only
+            </span>
+          )}
           {trial && (
             <span className="text-[11px] font-semibold text-amber-700 dark:text-amber-200 bg-amber-500/10 border border-amber-500/25 rounded-md px-2.5 py-1">
               {trial}
@@ -113,7 +158,7 @@ export function FieldKitChrome({
         className="flex flex-wrap gap-1.5 pt-1 border-t border-border/60"
         aria-label="Field Kit sections"
       >
-        {LINKS.map(({ href, label, icon: Icon, match }) => {
+        {links.map(({ href, label, icon: Icon, match }) => {
           const active = match(location);
           return (
             <Link
