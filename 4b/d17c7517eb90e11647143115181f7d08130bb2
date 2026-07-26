@@ -1,0 +1,221 @@
+artifacts/spartan-coaching-mobile/app/ai-tools/content-gap-analyzer.tsx
+  s_859dc7aa6bfb87::t_adc13f7856f318 1-2
+artifacts/spartan-coaching/src/components/ClinicalToolDisclaimer.tsx
+  s_859dc7aa6bfb87::t_db5db52b000419 1-20
+artifacts/api-server/src/routes/aiToolRoutes.ts
+  s_859dc7aa6bfb87::t_f251888c829e81 1-2,4-13,15-43,45-56,58-343,349-490,497-506,539-570,576-577,688-1288,1290-1295,1319-1333,1340-1544
+  s_859dc7aa6bfb87::t_ea8436ff31978e 491-496,571-575
+  s_859dc7aa6bfb87::t_0b42a586716d6c 1289,1296-1318,1334-1339
+  s_859dc7aa6bfb87::t_7f024a7395c7c1 3
+  s_859dc7aa6bfb87::t_5d5a8ae43e05fe 44,57,507-538,578-687
+  s_859dc7aa6bfb87::t_947da03487fd71 14,344-348
+  s_859dc7aa6bfb87::t_ac891e5ef6d207 1545-1547
+  s_859dc7aa6bfb87::t_ed9fe316b411a2 1548-1619
+artifacts/spartan-coaching-mobile/app/_layout.tsx
+  s_859dc7aa6bfb87::t_adc13f7856f318 48
+artifacts/api-server/src/auth/middleware.ts
+  s_859dc7aa6bfb87::t_b36284b39f1e85 21-25
+artifacts/spartan-coaching/src/pages/AiToolsHub.tsx
+  s_859dc7aa6bfb87::t_db5db52b000419 1-55
+artifacts/spartan-coaching-mobile/app/ai-tools/admission-eligibility.tsx
+  s_859dc7aa6bfb87::t_adc13f7856f318 1-2
+artifacts/spartan-coaching-mobile/app/ai-tools/lcd-policy-sales-playbook.tsx
+  s_859dc7aa6bfb87::t_adc13f7856f318 1-2
+lib/db/src/schema/aiTools.ts
+  s_859dc7aa6bfb87::t_1f2b7260bc8115 75,92-95
+  s_859dc7aa6bfb87::t_da7550cd16ea93 37-54,243
+  s_859dc7aa6bfb87::t_4893741506804d 1-36,55-74,76-91,96-242,244-246
+lib/spartan-ai-tools/src/registry.test.ts
+  s_859dc7aa6bfb87::t_8e4577c6360292 1-6,8-20
+  s_859dc7aa6bfb87::t_90eb72c8a90d58 7
+artifacts/spartan-coaching/package.json
+  s_859dc7aa6bfb87::t_db5db52b000419 56
+artifacts/api-server/src/auth/opsJobs.ts
+  s_859dc7aa6bfb87::t_46ffacae0ddf44 14,388-393
+artifacts/spartan-coaching-mobile/app/ai-tools/family-meeting-simulator.tsx
+  s_859dc7aa6bfb87::t_adc13f7856f318 1-2
+artifacts/spartan-coaching-mobile/components/ai-tool-screen.tsx
+  s_859dc7aa6bfb87::t_6ab914aa70949c 29,341-388,539-545,607-627
+  s_859dc7aa6bfb87::t_21c2f3bdec24db 1-28,30-340,389-538,546-606,628-684
+  s_859dc7aa6bfb87::t_7e3b9265f882da 685-687
+  s_859dc7aa6bfb87::t_d39f8fab0dc789 688-1025
+.github/workflows/ci.yml
+  s_859dc7aa6bfb87::t_1ab845c3391763 47
+artifacts/spartan-coaching/src/App.tsx
+  s_859dc7aa6bfb87::t_db5db52b000419 89-90,118-119,241-242
+lib/spartan-ai-tools/package.json
+  s_859dc7aa6bfb87::t_8e4577c6360292 1-24
+artifacts/spartan-coaching-mobile/app/ai-tools/medical-record-lcd-verifier.tsx
+  s_859dc7aa6bfb87::t_adc13f7856f318 1-2
+artifacts/spartan-coaching-mobile/app/(tabs)/tools.tsx
+  s_859dc7aa6bfb87::t_d1f870e27cda0b 913-950
+  s_859dc7aa6bfb87::t_077722e26cf174 951
+artifacts/spartan-coaching/src/pages/Tools.tsx
+  s_859dc7aa6bfb87::t_c7936799977ba6 18,164-184
+  s_859dc7aa6bfb87::t_d7d9806497611f 185-187
+  s_859dc7aa6bfb87::t_4571324f5ab6b0 188-189
+artifacts/spartan-coaching-mobile/app/ai-tools/microlearning-generator.tsx
+  s_859dc7aa6bfb87::t_adc13f7856f318 1-2
+artifacts/spartan-coaching-mobile/tsconfig.json
+  s_859dc7aa6bfb87::t_8a28ef1260d493 31
+  s_859dc7aa6bfb87::t_d5a5e8406a0d93 29-30
+artifacts/api-server/src/security/phiEncryption.test.ts
+  s_859dc7aa6bfb87::t_90eb72c8a90d58 1-20
+artifacts/api-server/src/resend.ts
+  s_859dc7aa6bfb87::t_3d0a3d6fe3c7a6 6-18
+  s_859dc7aa6bfb87::t_e33800343e0d4f 65-96
+docs/clinical-security-controls.md
+  s_859dc7aa6bfb87::t_90eb72c8a90d58 1-28
+artifacts/spartan-coaching-mobile/app/ai-tools/content-categorizer.tsx
+  s_859dc7aa6bfb87::t_adc13f7856f318 1-2
+artifacts/spartan-coaching-mobile/app/ai-tools/medicare-lcd-advisor.tsx
+  s_859dc7aa6bfb87::t_adc13f7856f318 1-2
+lib/spartan-ai-tools/src/server.test.ts
+  s_859dc7aa6bfb87::t_90eb72c8a90d58 1-65
+artifacts/api-server/package.json
+  s_859dc7aa6bfb87::t_f251888c829e81 19
+  s_859dc7aa6bfb87::t_a879c102c7e6e9 11
+artifacts/spartan-coaching/src/components/RequireFieldKit.tsx
+  s_859dc7aa6bfb87::t_db5db52b000419 5-7,12-14,31
+artifacts/spartan-coaching-mobile/lib/api.ts
+  s_859dc7aa6bfb87::t_7f3760da6045b7 78-88
+  s_859dc7aa6bfb87::t_958a19defccc72 1,34,42-48,64-75,90,109,119,131,136-158
+docs/ai-tools-production-runbook.md
+  s_859dc7aa6bfb87::t_90eb72c8a90d58 1-64
+artifacts/spartan-coaching-mobile/app/ai-tools/content-recommender.tsx
+  s_859dc7aa6bfb87::t_adc13f7856f318 1-2
+lib/db/migrations/0001_spartan_ai_tools.sql
+  s_859dc7aa6bfb87::t_1f2b7260bc8115 63,124
+  s_859dc7aa6bfb87::t_4893741506804d 1-2,6-16,28-62,64-123,126-130
+  s_859dc7aa6bfb87::t_da7550cd16ea93 3-5,17-27,125
+artifacts/api-server/src/clinical/access.ts
+  s_859dc7aa6bfb87::t_1f2b7260bc8115 1-101
+artifacts/api-server/src/clinical/storage.ts
+  s_859dc7aa6bfb87::t_5d5a8ae43e05fe 83-87
+  s_859dc7aa6bfb87::t_1f2b7260bc8115 1-82,88-110
+lib/spartan-ai-tools/src/tools/territory-account-discovery/schema.ts
+  s_859dc7aa6bfb87::t_ba62b9361fbe4a 1-18
+artifacts/spartan-coaching/src/pages/AiTool.tsx
+  s_859dc7aa6bfb87::t_1b3df39a59cdf0 717,728
+  s_859dc7aa6bfb87::t_6ab914aa70949c 16,426-465,644-652,737-757
+  s_859dc7aa6bfb87::t_300ef29dd64551 8-9,522-552,712-716,718-727
+  s_859dc7aa6bfb87::t_db5db52b000419 1-7,10-15,17-425,466-521,553-643,653-711,729-736,758-797
+  s_859dc7aa6bfb87::t_88cd6f7e98bb5a 798-800
+  s_859dc7aa6bfb87::t_c6960920f858a0 801-900
+artifacts/spartan-coaching-mobile/app/ai-tools/_layout.tsx
+  s_859dc7aa6bfb87::t_21c2f3bdec24db 1-5
+artifacts/api-server/src/providers/territoryPlaces.ts
+  s_859dc7aa6bfb87::t_947da03487fd71 1-92
+tsconfig.json
+  s_859dc7aa6bfb87::t_4893741506804d 25
+  s_859dc7aa6bfb87::t_9b5d5c3798a40e 23-24
+lib/spartan-ai-tools/src/index.ts
+  s_859dc7aa6bfb87::t_8e4577c6360292 1
+lib/spartan-ai-tools/src/server.ts
+  s_859dc7aa6bfb87::t_8e4577c6360292 1-235
+artifacts/api-server/src/clinical/retention.ts
+  s_859dc7aa6bfb87::t_46ffacae0ddf44 1-126
+artifacts/spartan-coaching-mobile/app/ai-tools/documentation-gap-analyzer.tsx
+  s_859dc7aa6bfb87::t_adc13f7856f318 1-2
+artifacts/spartan-coaching-mobile/app/ai-tools/content-generator.tsx
+  s_859dc7aa6bfb87::t_adc13f7856f318 1-2
+lib/spartan-ai-tools/tsconfig.json
+  s_859dc7aa6bfb87::t_8e4577c6360292 1-12
+lib/spartan-ai-tools/src/registry.ts
+  s_859dc7aa6bfb87::t_8e4577c6360292 1-372,375-506
+  s_859dc7aa6bfb87::t_ba62b9361fbe4a 373-374
+lib/db/src/schema/index.ts
+  s_859dc7aa6bfb87::t_4893741506804d 24
+artifacts/spartan-coaching-mobile/app/ai-tools/development-plan-generator.tsx
+  s_859dc7aa6bfb87::t_adc13f7856f318 1-2
+artifacts/api-server/src/app.ts
+  s_859dc7aa6bfb87::t_f251888c829e81 9,86-87
+  s_859dc7aa6bfb87::t_e9cb0bb4687650 88
+lib/db/src/schema/auth.ts
+  s_859dc7aa6bfb87::t_da7550cd16ea93 108
+artifacts/spartan-coaching-mobile/app/ai-tools/index.tsx
+  s_859dc7aa6bfb87::t_21c2f3bdec24db 1-61
+artifacts/spartan-coaching-mobile/app.json
+  s_859dc7aa6bfb87::t_8a28ef1260d493 21-22,44,52-55
+  s_859dc7aa6bfb87::t_958a19defccc72 45-51,56-57
+artifacts/spartan-coaching-mobile/app/ai-tools/email-optimizer.tsx
+  s_859dc7aa6bfb87::t_adc13f7856f318 1-2
+artifacts/spartan-coaching-mobile/app/ai-tools/territory-account-discovery.tsx
+  s_859dc7aa6bfb87::t_adc13f7856f318 1-2
+artifacts/api-server/src/security/phiEncryption.ts
+  s_859dc7aa6bfb87::t_1f2b7260bc8115 1-2,4-17,19,21-26,33-37,59-60,64-69,71-72,84-112
+  s_859dc7aa6bfb87::t_e35ce25797a34d 3,18,20,27-32,38-58,61-63,70,73-83
+artifacts/spartan-coaching-mobile/package.json
+  s_859dc7aa6bfb87::t_8a28ef1260d493 38,79-81,83
+  s_859dc7aa6bfb87::t_958a19defccc72 50
+lib/spartan-ai-tools/src/tools/admission-eligibility/prompt.ts
+  s_859dc7aa6bfb87::t_3a58f5d6309592 1-8
+lib/spartan-ai-tools/src/tools/admission-eligibility/schema.ts
+  s_859dc7aa6bfb87::t_070ac5300eaef6 1-23
+lib/spartan-ai-tools/src/tools/content-categorizer/prompt.ts
+  s_859dc7aa6bfb87::t_395fd0125e4184 1-8
+lib/spartan-ai-tools/src/tools/content-categorizer/schema.ts
+  s_859dc7aa6bfb87::t_ada5e136899353 1-18
+lib/spartan-ai-tools/src/tools/content-gap-analyzer/prompt.ts
+  s_859dc7aa6bfb87::t_7b521f59ba5ec0 1-8
+lib/spartan-ai-tools/src/tools/content-gap-analyzer/schema.ts
+  s_859dc7aa6bfb87::t_bd2ae286970b91 1-17
+lib/spartan-ai-tools/src/tools/content-generator/prompt.ts
+  s_859dc7aa6bfb87::t_3d6ec5e5f085d1 1-8
+lib/spartan-ai-tools/src/tools/content-generator/schema.ts
+  s_859dc7aa6bfb87::t_921aae7c3056ae 1-20
+lib/spartan-ai-tools/src/tools/content-recommender/prompt.ts
+  s_859dc7aa6bfb87::t_f4ccbc8eef0019 1-8
+lib/spartan-ai-tools/src/tools/content-recommender/schema.ts
+  s_859dc7aa6bfb87::t_361446e3ec302b 1-17
+lib/spartan-ai-tools/src/tools/development-plan-generator/prompt.ts
+  s_859dc7aa6bfb87::t_70cb097a76be23 1-8
+lib/spartan-ai-tools/src/tools/development-plan-generator/schema.ts
+  s_859dc7aa6bfb87::t_c7a78311401742 1-20
+lib/spartan-ai-tools/src/tools/documentation-gap-analyzer/prompt.ts
+  s_859dc7aa6bfb87::t_76ca50b07b9b88 1-8
+lib/spartan-ai-tools/src/tools/documentation-gap-analyzer/schema.ts
+  s_859dc7aa6bfb87::t_26a70bfe80e078 1-18
+lib/spartan-ai-tools/src/tools/email-optimizer/prompt.ts
+  s_859dc7aa6bfb87::t_97c3fa7f786834 1-3
+lib/spartan-ai-tools/src/tools/email-optimizer/schema.ts
+  s_859dc7aa6bfb87::t_9c7cb53ecf8b44 1-6
+lib/spartan-ai-tools/src/tools/family-meeting-simulator/prompt.ts
+  s_859dc7aa6bfb87::t_6b9f24434960d5 1-8
+lib/spartan-ai-tools/src/tools/family-meeting-simulator/schema.ts
+  s_859dc7aa6bfb87::t_a6a1ff8deb8627 1-18
+lib/spartan-ai-tools/src/tools/lcd-policy-sales-playbook/prompt.ts
+  s_859dc7aa6bfb87::t_771a8cbf1af531 1-8
+lib/spartan-ai-tools/src/tools/lcd-policy-sales-playbook/schema.ts
+  s_859dc7aa6bfb87::t_70dceb7737fe67 1-21
+lib/spartan-ai-tools/src/tools/medical-record-lcd-verifier/prompt.ts
+  s_859dc7aa6bfb87::t_1bc6c763f31db4 1-8
+lib/spartan-ai-tools/src/tools/medical-record-lcd-verifier/schema.ts
+  s_859dc7aa6bfb87::t_4c3c46bf08d98c 1-21
+lib/spartan-ai-tools/src/tools/medicare-lcd-advisor/prompt.ts
+  s_859dc7aa6bfb87::t_0ef308a659b03d 1-8
+lib/spartan-ai-tools/src/tools/medicare-lcd-advisor/schema.ts
+  s_859dc7aa6bfb87::t_b836dd9dacaf4e 1-23
+lib/spartan-ai-tools/src/tools/microlearning-generator/prompt.ts
+  s_859dc7aa6bfb87::t_afe0f98ff7d46f 1-8
+lib/spartan-ai-tools/src/tools/microlearning-generator/schema.ts
+  s_859dc7aa6bfb87::t_d77cb196084a94 1-22
+lib/spartan-ai-tools/src/tools/territory-account-discovery/prompt.ts
+  s_859dc7aa6bfb87::t_a09d1933a8a9a3 1-8
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "4bd17c7517eb90e11647143115181f7d08130bb2",
+  "prompts": {},
+  "sessions": {
+    "s_859dc7aa6bfb87": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f9d0c-9aad-7ef2-8adc-7a4afb18da6e",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
