@@ -49,6 +49,7 @@ jobs:
       DATABASE_URL: "postgres://ci:ci@localhost:5432/ci"
       RUN_POSTGRES_INTEGRATION: "true"
       AI_TOOL_ENCRYPTION_KEY: "BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc="
+      OPENAI_API_KEY: "ci-placeholder-no-network-calls"
       EXPO_PUBLIC_DOMAIN: "spartan-coaching-ci.invalid"
     steps:
       - uses: actions/checkout@v4
