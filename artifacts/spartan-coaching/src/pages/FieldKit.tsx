@@ -15,6 +15,11 @@ import {
   TrendingUp,
   ChevronDown,
   ChevronUp,
+  Target,
+  Route,
+  Package,
+  Sparkles,
+  X,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -386,44 +391,149 @@ export default function FieldKit() {
         </div>
       </section>
 
-      {/* ── ROI MATH ── */}
-      <section className="py-16 sm:py-20 bg-background" data-testid="section-roi">
-        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center space-y-6">
-          <p className="text-xs font-bold tracking-widest text-primary uppercase">The investment</p>
-          <h2 className="text-3xl sm:text-4xl font-display font-black text-foreground">
-            One admission. One converted referral. One account.<br />
-            <span className="text-primary">That's what $14.99 a week is worth.</span>
-          </h2>
-          <div className="grid sm:grid-cols-3 gap-4 text-left">
+      {/* ── WHY SUBSCRIBE (end-user Why / How / What / WIIFM) ── */}
+      <section className="py-16 sm:py-20 bg-background" data-testid="section-why-subscribe">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6 space-y-10">
+          <div className="text-center max-w-3xl mx-auto space-y-4">
+            <p className="text-xs font-bold tracking-widest text-primary uppercase">Why Field Kit</p>
+            <h2 className="text-3xl sm:text-4xl font-display font-black text-foreground">
+              Your hospice gave you a territory.
+              <br />
+              <span className="text-primary">It didn&apos;t give you the kit that wins the room.</span>
+            </h2>
+            <p className="text-muted-foreground leading-relaxed">
+              You become the rep facilities call first — because you already had the answer when everyone else
+              stalled. Nothing else in your stack is built for that.
+            </p>
+          </div>
+
+          <div className="grid sm:grid-cols-2 gap-4">
             {[
               {
-                stat: "$10K–$20K",
-                label: "Revenue value of a single admission",
-                sub: "Every eligible patient who doesn't get the right conversation is that much the provider doesn't collect. The rep with the right answer in the room wins that referral.",
+                label: "Why",
+                title: "Why you need this",
+                icon: Target,
+                body: "Tuesday is real: “we already have a preferred hospice,” “not ready,” no plan for fifteen accounts, follow-up that slips until Thursday. Hoping is not a system. Most people in the territory are winging the same moments you are.",
               },
               {
-                stat: "$14.99/wk",
-                label: "The price of the edge",
-                sub: "Not the cost of software. The cost of walking into every account with the answer the other rep doesn't have. One converted objection pays for a month.",
+                label: "How",
+                title: "How it works for you",
+                icon: Route,
+                body: "Prepare → Practice → Plan → Measure around your next visit, objection, and week — not generic “sales AI.” Hospice growth conversations only. Ethics-first. No PHI in the tools. Built by someone who ran the territory.",
               },
               {
-                stat: "13 tools",
-                label: "Every stage. One kit.",
-                sub: "Prepare before the visit. Practice before the objection. Plan the week before Monday. Measure what the territory is worth. The top reps don't skip steps.",
+                label: "What",
+                title: "What’s in the kit",
+                icon: Package,
+                body: "Thirteen private tools and resources: Sales Command Center as the daily spine, plus satellites for objections, playbooks, role-play, weekly plan, scripts, email, research, and more. Web and mobile. Preview the real UI anytime — live runs unlock with access.",
               },
-            ].map((item) => (
-              <Card key={item.stat} className="border border-border bg-card p-5 space-y-2">
-                <p className="text-2xl font-black text-primary">{item.stat}</p>
-                <p className="text-sm font-bold text-foreground">{item.label}</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">{item.sub}</p>
-              </Card>
-            ))}
+              {
+                label: "For you",
+                title: "What’s in it for you",
+                icon: Sparkles,
+                body: "Confidence when the charge nurse pushes back. A Monday that already has a plan. Fewer fumbling moments. The reputation of the rep who showed up prepared. Your agency sets the goals — this is your edge between coaching sessions.",
+              },
+            ].map((pillar) => {
+              const Icon = pillar.icon;
+              return (
+                <Card
+                  key={pillar.label}
+                  className="border border-border bg-card p-5 sm:p-6 space-y-3 text-left"
+                  data-testid={`why-subscribe-pillar-${pillar.label.toLowerCase().replace(/\s+/g, "-")}`}
+                >
+                  <div className="flex items-center gap-2.5">
+                    <span className="inline-flex h-9 w-9 items-center justify-center rounded-lg bg-primary/15 text-primary">
+                      <Icon className="h-4 w-4" aria-hidden />
+                    </span>
+                    <div>
+                      <p className="text-[10px] font-bold uppercase tracking-widest text-primary">
+                        {pillar.label}
+                      </p>
+                      <h3 className="text-base font-bold text-foreground">{pillar.title}</h3>
+                    </div>
+                  </div>
+                  <p className="text-sm text-muted-foreground leading-relaxed">{pillar.body}</p>
+                </Card>
+              );
+            })}
           </div>
-          <p className="text-sm text-muted-foreground leading-relaxed max-w-xl mx-auto">
-            The Activity Calculator turns a vague admission goal into daily conversation targets. The ROI Calculator
-            puts a revenue number next to every percentage-point improvement in your close rate. The Objection Handler
-            keeps the relationship moving when 'not ready' would have ended it for every other rep in the territory.
-          </p>
+
+          <Card
+            className="border border-primary/25 bg-primary/5 p-5 sm:p-8 space-y-5"
+            data-testid="why-subscribe-uniqueness"
+          >
+            <div className="text-center space-y-2 max-w-2xl mx-auto">
+              <p className="text-xs font-bold tracking-widest text-primary uppercase">Nothing else is this</p>
+              <h3 className="text-xl sm:text-2xl font-display font-black text-foreground">
+                Your employer has tools. They don&apos;t have this kit.
+              </h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                There isn&apos;t another private operating kit built only for hospice growth execution between
+                sessions — for the conversations and weeks that decide who the facility remembers.
+              </p>
+            </div>
+            <div className="grid sm:grid-cols-2 gap-3 max-w-3xl mx-auto">
+              {[
+                {
+                  not: "ChatGPT / generic AI",
+                  is: "Hospice growth moments — objections, visits, weeks — not open-ended chat",
+                },
+                {
+                  not: "Corporate training / LMS",
+                  is: "Always-on tools for this week’s accounts, not a one-off slide deck",
+                },
+                {
+                  not: "CRM or census dashboards",
+                  is: "Execution between visits: answers, practice, plans — not another report",
+                },
+                {
+                  not: "“We already have tools” at work",
+                  is: "A private Field Kit your employer did not build for you",
+                },
+              ].map((row) => (
+                <div
+                  key={row.not}
+                  className="rounded-lg border border-border bg-background/80 p-4 space-y-2 text-left"
+                >
+                  <p className="text-xs text-muted-foreground flex items-start gap-2">
+                    <X className="w-3.5 h-3.5 mt-0.5 shrink-0 text-muted-foreground/70" aria-hidden />
+                    <span>
+                      <span className="font-semibold text-foreground/80">Not </span>
+                      {row.not}
+                    </span>
+                  </p>
+                  <p className="text-xs text-foreground flex items-start gap-2">
+                    <CheckCircle className="w-3.5 h-3.5 mt-0.5 shrink-0 text-primary" aria-hidden />
+                    <span>
+                      <span className="font-semibold text-primary">Field Kit: </span>
+                      {row.is}
+                    </span>
+                  </p>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          <div className="text-center space-y-4 max-w-xl mx-auto">
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              Individual access is{" "}
+              <strong className="text-foreground">$14.99/week</strong>
+              {" · "}
+              cancel anytime
+              {" — "}
+              <span className="text-foreground font-medium">your tools, your edge</span>
+              — not another line on the agency budget story.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <HeroCTA />
+              <Button asChild variant="outline" className="font-bold" size="lg">
+                <Link href="/tools">
+                  Preview the tools
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Link>
+              </Button>
+            </div>
+          </div>
         </div>
       </section>
 
