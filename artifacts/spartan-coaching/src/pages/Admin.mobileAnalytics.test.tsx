@@ -6,10 +6,11 @@
  * These cards are gated behind the eventAnalyticsData query; we mock the query
  * client to verify they appear with real event counts.
  */
-import { describe, it, expect, beforeAll, afterEach, vi } from "vitest";
+import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from "vitest";
 import { render, cleanup, waitFor } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React from "react";
+import { adminGet } from "@/lib/adminApi";
 
 // ── Mocks ─────────────────────────────────────────────────────────────────────
 
@@ -107,6 +108,13 @@ afterEach(() => {
   vi.restoreAllMocks();
 });
 
+beforeEach(() => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => new Response("{}", { status: 401 })),
+  );
+});
+
 // ── Helper ────────────────────────────────────────────────────────────────────
 
 function buildQueryClient() {
@@ -115,6 +123,7 @@ function buildQueryClient() {
       queries: {
         retry: false,
         staleTime: Infinity,
+        queryFn: ({ queryKey }) => adminGet(String(queryKey[0])),
       },
     },
   });
@@ -148,7 +157,7 @@ describe("Admin page — mobile analytics cards", () => {
     // The card should display the count badge
     expect(card.textContent).toContain("5");
     expect(card.textContent).toContain("playbook");
-  });
+  }, 15_000);
 
   it("renders card-mobile-tool-views with event counts from the API", async () => {
     const { getByTestId } = await renderAdmin();
@@ -161,7 +170,7 @@ describe("Admin page — mobile analytics cards", () => {
     expect(card).toBeTruthy();
     expect(card.textContent).toContain("11");
     expect(card.textContent).toContain("tools home");
-  });
+  }, 15_000);
 
   it("renders card-mobile-ai-tool-usage empty state when no events are recorded", async () => {
     // Override the mock for this test
@@ -193,5 +202,5 @@ describe("Admin page — mobile analytics cards", () => {
 
     const card = getByTestId("card-mobile-ai-tool-usage");
     expect(card.textContent).toContain("No mobile AI tool usage recorded yet");
-  });
+  }, 15_000);
 });

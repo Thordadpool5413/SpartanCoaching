@@ -29,10 +29,26 @@ jobs:
     name: Typecheck, test, and build
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: ci
+          POSTGRES_PASSWORD: ci
+          POSTGRES_DB: ci
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci -d ci"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     env:
       PORT: "5000"
       BASE_PATH: "/"
       DATABASE_URL: "postgres://ci:ci@localhost:5432/ci"
+      RUN_POSTGRES_INTEGRATION: "true"
+      AI_TOOL_ENCRYPTION_KEY: "BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc="
       EXPO_PUBLIC_DOMAIN: "spartan-coaching-ci.invalid"
     steps:
       - uses: actions/checkout@v4
@@ -44,11 +60,14 @@ jobs:
           node-version: 24
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - run: pnpm audit --audit-level high
+      - run: pnpm --filter @workspace/db push-force
       - run: pnpm run typecheck
       - run: pnpm --filter @workspace/spartan-ai-tools test
       - run: pnpm --filter @workspace/api-server test
       # Wave 4 — frontend contracts (theme contrast, funnel CTA matrix, Day Zero)
       - run: pnpm --filter @workspace/spartan-coaching test
+      - run: pnpm --filter @workspace/spartan-coaching-mobile test -- --runInBand
       - run: pnpm run build
       # Wave 4 — bundle size budgets after production build
       - run: node scripts/performance-budget.mjs

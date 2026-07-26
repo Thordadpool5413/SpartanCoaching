@@ -8,11 +8,13 @@ import {
   publicToolManifest,
 } from "@workspace/spartan-ai-tools";
 import {
+  isToolFeatureEnabled,
   runSpartanAiTool,
   SpartanAiToolError,
 } from "@workspace/spartan-ai-tools/server";
 import { hydrateTerritoryFacilities } from "../providers/territoryPlaces";
 import {
+  aiToolOrganizationFlags,
   aiToolRuns,
   clinicalAuditEvents,
   clinicalCases,
@@ -65,6 +67,64 @@ type ToolRunEnvelope = {
   clinicalCaseId?: string;
   coverageSnapshotId?: string;
 };
+
+function requirePhiRuntimeReady(): void {
+  const requiredGates = [
+    "HIPAA_PHI_ENABLED",
+    "OPENAI_BAA_CONFIRMED",
+    "OPENAI_MODIFIED_RETENTION_CONFIRMED",
+    "GOOGLE_CLOUD_BAA_CONFIRMED",
+    "PHI_STORAGE_BAA_CONFIRMED",
+  ] as const;
+  if (requiredGates.some((gate) => process.env[gate] !== "true")) {
+    throw new SpartanAiToolError(
+      "PHI_PROCESSING_DISABLED",
+      503,
+      "Clinical AI processing is disabled until all required BAA, retention, and HIPAA runtime controls are confirmed.",
+    );
+  }
+}
+
+async function toolAvailability(
+  organizationId: number,
+  tool: NonNullable<ReturnType<typeof getSpartanAiTool>>,
+) {
+  const [organizationFlag] = await db
+    .select({
+      enabled: aiToolOrganizationFlags.enabled,
+      updatedAt: aiToolOrganizationFlags.updatedAt,
+    })
+    .from(aiToolOrganizationFlags)
+    .where(
+      and(
+        eq(aiToolOrganizationFlags.organizationId, organizationId),
+        eq(aiToolOrganizationFlags.toolId, tool.id),
+      ),
+    )
+    .limit(1);
+  const globalEnabled = isToolFeatureEnabled(tool);
+  const organizationEnabled = organizationFlag?.enabled === true;
+  return {
+    enabled: globalEnabled && organizationEnabled,
+    globalEnabled,
+    organizationEnabled,
+    updatedAt: organizationFlag?.updatedAt ?? null,
+  };
+}
+
+async function requireToolEnabled(
+  organizationId: number,
+  tool: NonNullable<ReturnType<typeof getSpartanAiTool>>,
+): Promise<void> {
+  const availability = await toolAvailability(organizationId, tool);
+  if (!availability.enabled) {
+    throw new SpartanAiToolError(
+      "TOOL_DISABLED",
+      503,
+      "This AI tool is not enabled for the organization.",
+    );
+  }
+}
 
 function memberContext(request: AuthedRequest) {
   const member = request.fieldKit?.member;
@@ -226,6 +286,25 @@ function exposeRun(run: typeof aiToolRuns.$inferSelect) {
           `ai-tool-run:${run.organizationId}:${run.id}`,
         )
       : { output: run.output };
+  const tool = getSpartanAiTool(run.toolId);
+  const output =
+    payload.output && typeof payload.output === "object"
+      ? (payload.output as Record<string, unknown>)
+      : null;
+  const outputCitations = Array.isArray(output?.citations)
+    ? output.citations
+    : [];
+  const policyCitation = run.coverageSnapshotId
+    ? [
+        {
+          source: "CMS_MCD",
+          snapshotId: run.coverageSnapshotId,
+          documentId: run.coverageDocumentId,
+          version: run.coverageVersion,
+          contentHash: run.coverageContentHash,
+        },
+      ]
+    : [];
   return {
     id: run.id,
     toolId: run.toolId,
@@ -234,13 +313,25 @@ function exposeRun(run: typeof aiToolRuns.$inferSelect) {
     promptVersion: run.promptVersion,
     status: run.status,
     output: payload.output,
+    warnings: tool?.safetyWarnings ?? [],
+    evidenceCitations: [...outputCitations, ...policyCitation],
+    modelConfigurationVersion: `${run.model}:${run.promptVersion}`,
     reviewStatus: run.reviewStatus,
     clinicalCaseId: run.clinicalCaseId,
     coverageSnapshotId: run.coverageSnapshotId,
+    coveragePolicy: run.coverageSnapshotId
+      ? {
+          snapshotId: run.coverageSnapshotId,
+          documentId: run.coverageDocumentId,
+          version: run.coverageVersion,
+          contentHash: run.coverageContentHash,
+        }
+      : null,
     durationMs: run.durationMs,
     createdAt: run.createdAt,
     completedAt: run.completedAt,
     errorCode: run.errorCode,
+    safeErrorCode: run.errorCode,
   };
 }
 
@@ -248,14 +339,19 @@ export function registerAiToolRoutes(app: Express): void {
   app.get("/api/ai-tools", requireFieldKit, async (request, response, next) => {
     try {
       const authed = request as AuthedRequest;
+      const context = memberContext(authed);
       const access = await resolveClinicalAccess(authed);
-      response.json({
-        tools: SPARTAN_AI_TOOLS.filter(
-          (tool) => !isClinicalTool(tool) || access?.canUse,
-        ).map((tool) => ({
+      const authorizedTools = SPARTAN_AI_TOOLS.filter(
+        (tool) => !isClinicalTool(tool) || access?.canUse,
+      );
+      const tools = await Promise.all(
+        authorizedTools.map(async (tool) => ({
           ...publicToolManifest(tool),
-          enabled: process.env[tool.featureFlag] !== "false",
+          availability: await toolAvailability(context.organizationId, tool),
         })),
+      );
+      response.json({
+        tools,
         clinical: access ?? {
           canUse: false,
           canReview: false,
@@ -266,6 +362,98 @@ export function registerAiToolRoutes(app: Express): void {
       next(error);
     }
   });
+
+  app.get(
+    "/api/ai-tools/organization-flags",
+    requireFieldKit,
+    requireOrgAdmin,
+    async (request, response) => {
+      const id = requestId(request);
+      try {
+        const context = memberContext(request as AuthedRequest);
+        const flags = await Promise.all(
+          SPARTAN_AI_TOOLS.map(async (tool) => ({
+            toolId: tool.id,
+            name: tool.name,
+            containsPhi: tool.containsPhi,
+            ...(await toolAvailability(context.organizationId, tool)),
+          })),
+        );
+        response.setHeader("X-Request-Id", id).json({ flags });
+      } catch (error) {
+        safeError(response, error, id);
+      }
+    },
+  );
+
+  app.put(
+    "/api/ai-tools/organization-flags/:toolId",
+    requireFieldKit,
+    requireOrgAdmin,
+    async (request, response) => {
+      const id = requestId(request);
+      try {
+        const authed = request as AuthedRequest;
+        const context = memberContext(authed);
+        const tool = getSpartanAiTool(String(request.params.toolId));
+        if (!tool) {
+          throw new SpartanAiToolError(
+            "TOOL_NOT_FOUND",
+            404,
+            "AI tool was not found.",
+          );
+        }
+        if (typeof request.body?.enabled !== "boolean") {
+          throw new SpartanAiToolError(
+            "INVALID_FEATURE_FLAG",
+            400,
+            "The enabled field must be a boolean.",
+          );
+        }
+        if (isClinicalTool(tool)) {
+          const access = await resolveClinicalAccess(authed);
+          if (!access?.canAdmin) {
+            throw new SpartanAiToolError(
+              "CLINICAL_ADMIN_REQUIRED",
+              403,
+              "Clinical administrator access is required.",
+            );
+          }
+        }
+        const [flag] = await db
+          .insert(aiToolOrganizationFlags)
+          .values({
+            organizationId: context.organizationId,
+            toolId: tool.id,
+            enabled: request.body.enabled,
+            updatedByMemberId: context.memberId,
+            updatedAt: new Date(),
+          })
+          .onConflictDoUpdate({
+            target: [
+              aiToolOrganizationFlags.organizationId,
+              aiToolOrganizationFlags.toolId,
+            ],
+            set: {
+              enabled: request.body.enabled,
+              updatedByMemberId: context.memberId,
+              updatedAt: new Date(),
+            },
+          })
+          .returning();
+        await audit(authed, "ai_tool.feature_flag.updated", "ai_tool", null, {
+          toolId: tool.id,
+          enabled: flag.enabled,
+        });
+        response.setHeader("X-Request-Id", id).json({
+          toolId: tool.id,
+          ...(await toolAvailability(context.organizationId, tool)),
+        });
+      } catch (error) {
+        safeError(response, error, id);
+      }
+    },
+  );
 
   app.post(
     "/api/ai-tools/:toolId/runs",
@@ -285,7 +473,11 @@ export function registerAiToolRoutes(app: Express): void {
             "AI tool was not found.",
           );
         }
-        if (isClinicalTool(tool)) await requireDynamicClinicalAccess(authed);
+        if (isClinicalTool(tool)) {
+          await requireDynamicClinicalAccess(authed);
+          requirePhiRuntimeReady();
+        }
+        await requireToolEnabled(context.organizationId, tool);
 
         const idempotencyKey = request.header("Idempotency-Key") ?? "";
         if (!IDEMPOTENCY_PATTERN.test(idempotencyKey)) {
@@ -370,6 +562,9 @@ export function registerAiToolRoutes(app: Express): void {
             reviewStatus: tool.containsPhi ? "pending" : "not_required",
             clinicalCaseId: clinicalCaseId ?? null,
             coverageSnapshotId: snapshot?.id ?? null,
+            coverageDocumentId: snapshot?.documentId ?? null,
+            coverageVersion: snapshot?.version ?? null,
+            coverageContentHash: snapshot?.contentHash ?? null,
           })
           .onConflictDoNothing()
           .returning();
@@ -609,6 +804,76 @@ export function registerAiToolRoutes(app: Express): void {
     },
   );
 
+  app.get(
+    "/api/ai-tool-runs/:runId/export",
+    requireFieldKit,
+    async (request, response) => {
+      const id = requestId(request);
+      try {
+        const authed = request as AuthedRequest;
+        const context = memberContext(authed);
+        const runId = String(request.params.runId);
+        if (!UUID_PATTERN.test(runId)) {
+          throw new SpartanAiToolError(
+            "INVALID_RUN_ID",
+            400,
+            "Run ID is invalid.",
+          );
+        }
+        const [run] = await db
+          .select()
+          .from(aiToolRuns)
+          .where(
+            and(
+              eq(aiToolRuns.id, runId),
+              eq(aiToolRuns.organizationId, context.organizationId),
+            ),
+          )
+          .limit(1);
+        if (!run) {
+          throw new SpartanAiToolError(
+            "RUN_NOT_FOUND",
+            404,
+            "Run was not found.",
+          );
+        }
+        if (run.containsPhi) {
+          await requireDynamicClinicalAccess(authed);
+          if (run.reviewStatus !== "approved") {
+            throw new SpartanAiToolError(
+              "CLINICAL_REVIEW_REQUIRED",
+              409,
+              "Clinical results must be approved before export.",
+            );
+          }
+          await audit(authed, "clinical.run.exported", "ai_tool_run", run.id, {
+            toolId: run.toolId,
+          });
+        } else if (
+          run.memberId !== context.memberId &&
+          context.member.role !== "org_admin" &&
+          context.member.role !== "platform_admin"
+        ) {
+          throw new SpartanAiToolError(
+            "FORBIDDEN",
+            403,
+            "Run export access was denied.",
+          );
+        }
+        response
+          .setHeader("X-Request-Id", id)
+          .setHeader("Cache-Control", "no-store")
+          .setHeader(
+            "Content-Disposition",
+            `attachment; filename="${run.toolId}-${run.id}.json"`,
+          )
+          .json({ run: exposeRun(run) });
+      } catch (error) {
+        safeError(response, error, id);
+      }
+    },
+  );
+
   app.post(
     "/api/clinical/documents/:documentId/extract",
     requireFieldKit,
@@ -618,16 +883,7 @@ export function registerAiToolRoutes(app: Express): void {
     async (request, response) => {
       const id = requestId(request);
       try {
-        if (
-          process.env.HIPAA_PHI_ENABLED !== "true" ||
-          process.env.OPENAI_BAA_CONFIRMED !== "true"
-        ) {
-          throw new SpartanAiToolError(
-            "PHI_PROCESSING_DISABLED",
-            503,
-            "Clinical extraction is disabled until HIPAA and OpenAI BAA controls are confirmed.",
-          );
-        }
+        requirePhiRuntimeReady();
         const authed = request as AuthedRequest;
         const context = memberContext(authed);
         const documentId = String(request.params.documentId);
@@ -1525,9 +1781,10 @@ export function registerAiToolRoutes(app: Express): void {
             "Document type, ID, and version are required.",
           );
         }
+        const cmsToken = process.env.CMS_COVERAGE_API_TOKEN?.trim();
         const cmsResponse = await fetch(sourceUrl, {
-          headers: request.body?.licenseToken
-            ? { Authorization: `Bearer ${String(request.body.licenseToken)}` }
+          headers: cmsToken
+            ? { Authorization: `Bearer ${cmsToken}` }
             : undefined,
           signal: AbortSignal.timeout(30_000),
         });

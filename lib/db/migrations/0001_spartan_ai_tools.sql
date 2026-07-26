@@ -3,6 +3,16 @@ CREATE EXTENSION IF NOT EXISTS pgcrypto;
 ALTER TABLE client_sessions
   ADD COLUMN IF NOT EXISTS mfa_verified_at timestamptz;
 
+CREATE TABLE IF NOT EXISTS ai_tool_organization_flags (
+  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
+  organization_id integer NOT NULL,
+  tool_id varchar(96) NOT NULL,
+  enabled boolean NOT NULL DEFAULT false,
+  updated_by_member_id integer NOT NULL,
+  updated_at timestamptz NOT NULL DEFAULT now(),
+  CONSTRAINT ai_tool_org_flag_tenant_tool UNIQUE (organization_id, tool_id)
+);
+
 CREATE TABLE IF NOT EXISTS clinical_permissions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   organization_id integer NOT NULL,
@@ -62,11 +72,19 @@ CREATE TABLE IF NOT EXISTS ai_tool_runs (
   review_status varchar(32) NOT NULL DEFAULT 'not_required' CHECK (review_status IN ('not_required','pending','approved','changes_requested')),
   clinical_case_id uuid,
   coverage_snapshot_id uuid REFERENCES coverage_snapshots(id),
+  coverage_document_id varchar(96),
+  coverage_version varchar(64),
+  coverage_content_hash varchar(64),
   duration_ms integer,
   created_at timestamptz NOT NULL DEFAULT now(),
   completed_at timestamptz,
   CONSTRAINT ai_tool_runs_idempotency UNIQUE (organization_id, member_id, tool_id, idempotency_key_hash)
 );
+
+ALTER TABLE ai_tool_runs
+  ADD COLUMN IF NOT EXISTS coverage_document_id varchar(96),
+  ADD COLUMN IF NOT EXISTS coverage_version varchar(64),
+  ADD COLUMN IF NOT EXISTS coverage_content_hash varchar(64);
 
 CREATE TABLE IF NOT EXISTS clinical_cases (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -121,6 +139,7 @@ CREATE TABLE IF NOT EXISTS clinical_audit_events (
 );
 
 CREATE INDEX IF NOT EXISTS ai_tool_runs_tenant_member_time ON ai_tool_runs (organization_id, member_id, created_at);
+CREATE INDEX IF NOT EXISTS ai_tool_org_flag_enabled ON ai_tool_organization_flags (organization_id, enabled);
 CREATE INDEX IF NOT EXISTS ai_tool_runs_clinical_case ON ai_tool_runs (organization_id, clinical_case_id);
 CREATE INDEX IF NOT EXISTS clinical_mfa_member_expiry ON clinical_mfa_challenges (member_id, expires_at);
 CREATE INDEX IF NOT EXISTS clinical_cases_tenant_status ON clinical_cases (organization_id, status);

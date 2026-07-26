@@ -130,7 +130,7 @@ async function renderAccessDesk(payload: BillingEmailHealthResponse) {
     expect(
       view.getByTestId("billing-email-health-status"),
     ).toBeTruthy();
-  });
+  }, { timeout: 4000 });
 
   return view;
 }

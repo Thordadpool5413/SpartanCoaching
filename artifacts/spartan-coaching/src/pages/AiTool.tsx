@@ -588,30 +588,37 @@ export default function AiToolPage() {
     await navigator.clipboard.writeText(JSON.stringify(run.output, null, 2));
   }
 
-  function downloadResult() {
+  async function downloadResult() {
     if (!run?.output) return;
-    const blob = new Blob(
-      [
-        JSON.stringify(
-          {
-            tool: tool?.name,
-            runId: run.id,
-            reviewStatus: run.reviewStatus,
-            createdAt: run.createdAt,
-            output: run.output,
-          },
-          null,
-          2,
-        ),
-      ],
-      { type: "application/json" },
-    );
-    const href = URL.createObjectURL(blob);
-    const anchor = document.createElement("a");
-    anchor.href = href;
-    anchor.download = `${tool?.id ?? "ai-tool"}-${run.id}.json`;
-    anchor.click();
-    URL.revokeObjectURL(href);
+    setBusy(true);
+    setError("");
+    try {
+      const response = await fetch(`/api/ai-tool-runs/${run.id}/export`, {
+        credentials: "include",
+        headers: { Accept: "application/json" },
+      });
+      if (!response.ok) {
+        const body = (await response.json().catch(() => ({}))) as ApiErrorBody;
+        throw new Error(
+          body.error?.message ?? "The result could not be exported.",
+        );
+      }
+      const blob = await response.blob();
+      const href = URL.createObjectURL(blob);
+      const anchor = document.createElement("a");
+      anchor.href = href;
+      anchor.download = `${tool?.id ?? "ai-tool"}-${run.id}.json`;
+      anchor.click();
+      URL.revokeObjectURL(href);
+    } catch (caught) {
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : "The result could not be exported.",
+      );
+    } finally {
+      setBusy(false);
+    }
   }
 
   if (!tool) {
@@ -816,7 +823,7 @@ export default function AiToolPage() {
                     type="button"
                     variant="ghost"
                     size="icon"
-                    onClick={downloadResult}
+                    onClick={() => void downloadResult()}
                     aria-label="Download result"
                   >
                     <Download className="h-4 w-4" />

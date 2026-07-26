@@ -3,7 +3,7 @@ import type { ToolInput } from "./schema";
 export const SYSTEM_PROMPT =
   "You are a documentation quality assistant, not a clinical decision maker. Identify gaps only from supplied criteria and evidence.";
 export const TASK_INSTRUCTIONS =
-  "Return evidence-linked gaps, priority documentation actions, questions for the clinical team, confidence, and mandatory human review.";
+  "Return evidence-linked gaps, exact supplied-document citations, missing evidence, priority documentation actions, questions for the clinical team, bounded confidence from 0 to 1, and humanReviewRequired set to true.";
 
 export function buildPrompt(input: ToolInput): string {
   return [

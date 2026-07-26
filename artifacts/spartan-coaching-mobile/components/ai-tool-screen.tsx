@@ -162,7 +162,12 @@ function Field({
         <Text style={[styles.label, { color: colors.foreground }]}>
           {field.label}
         </Text>
-        <Switch value={value === true} onValueChange={onChange} />
+        <Switch
+          accessibilityLabel={field.label}
+          accessibilityRole="switch"
+          value={value === true}
+          onValueChange={onChange}
+        />
       </View>
     );
   }
@@ -177,6 +182,7 @@ function Field({
             <Pressable
               key={option}
               accessibilityRole="radio"
+              accessibilityLabel={`${field.label}: ${option}`}
               accessibilityState={{ selected: value === option }}
               onPress={() => onChange(option)}
               style={[
@@ -355,6 +361,26 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         caught instanceof Error
           ? caught.message
           : "The tool could not complete this run.",
+      );
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function shareResult() {
+    if (!run?.id) return;
+    setBusy(true);
+    setError("");
+    try {
+      const exported = await apiGet<{ run: ToolRun }>(
+        `/api/ai-tool-runs/${run.id}/export`,
+      );
+      await Share.share({ message: JSON.stringify(exported.run, null, 2) });
+    } catch (caught) {
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : "The result could not be exported.",
       );
     } finally {
       setBusy(false);
@@ -576,7 +602,12 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
       style={{ flex: 1, backgroundColor: colors.background }}
       contentContainerStyle={styles.container}
     >
-      <Pressable onPress={() => router.back()} style={styles.back}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Back to AI Tool Library"
+        onPress={() => router.back()}
+        style={styles.back}
+      >
         <Feather name="arrow-left" size={18} color={colors.primary} />
         <Text
           style={{ color: colors.primary, fontFamily: "Inter_600SemiBold" }}
@@ -815,6 +846,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         {!!error && <Text style={styles.error}>{error}</Text>}
         <Pressable
           accessibilityRole="button"
+          accessibilityLabel={`Run ${tool.name}`}
           disabled={busy || needsMfa || (tool.containsPhi && !snapshotId)}
           onPress={runTool}
           style={[
@@ -846,9 +878,10 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
           </Text>
           {run?.output != null && (
             <Pressable
-              onPress={() =>
-                Share.share({ message: JSON.stringify(run.output, null, 2) })
-              }
+              accessibilityRole="button"
+              accessibilityLabel="Export and share result"
+              disabled={busy}
+              onPress={() => void shareResult()}
             >
               <Feather name="share-2" size={19} color={colors.primary} />
             </Pressable>

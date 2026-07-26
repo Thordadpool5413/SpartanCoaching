@@ -205,18 +205,22 @@ describe("FieldKit eyebrow copy — all states", () => {
   it("shows the elite eyebrow copy when unauthenticated", async () => {
     await renderFieldKit(UNAUTHED);
     expect(
-      screen.getByText(/Private Field Kit/i),
+      within(screen.getByTestId("section-hero")).getByText(/Private Field Kit/i),
     ).toBeTruthy();
   });
 
   it("shows the elite eyebrow copy when can-subscribe", async () => {
     await renderFieldKit(CAN_SUBSCRIBE);
-    expect(screen.getByText(/Private Field Kit/i)).toBeTruthy();
+    expect(
+      within(screen.getByTestId("section-hero")).getByText(/Private Field Kit/i),
+    ).toBeTruthy();
   });
 
   it("shows the elite eyebrow copy when already subscribed", async () => {
     await renderFieldKit(ALREADY_SUBSCRIBED);
-    expect(screen.getByText(/Private Field Kit/i)).toBeTruthy();
+    expect(
+      within(screen.getByTestId("section-hero")).getByText(/Private Field Kit/i),
+    ).toBeTruthy();
   });
 });
 
@@ -292,9 +296,9 @@ describe("FieldKit hero section — unauthenticated", () => {
   it("shows a 'Get access' register link in the hero section", async () => {
     await renderFieldKit(UNAUTHED);
     const section = screen.getByTestId("section-hero");
-    const registerLinks = within(section).getAllByTestId("field-kit-hero-register");
+    const registerLinks = within(section).getAllByTestId("field-kit-hero-cta");
     expect(registerLinks.length).toBeGreaterThan(0);
-    expect(registerLinks[0].textContent).toMatch(/Get access/i);
+    expect(registerLinks[0].textContent).toMatch(/Create account to subscribe/i);
   });
 
   it("shows a 'Sign in' link in the hero section", async () => {
@@ -321,7 +325,7 @@ describe("FieldKit hero section — can-subscribe", () => {
   it("shows the subscribe button with 'Get access · $14.99/week' in the hero section", async () => {
     await renderFieldKit(CAN_SUBSCRIBE);
     const section = screen.getByTestId("section-hero");
-    const buttons = within(section).getAllByText(/Get access · \$14\.99\/week/i);
+    const buttons = within(section).getAllByText(/Subscribe · \$14\.99\/wk/i);
     expect(buttons.length).toBeGreaterThan(0);
   });
 
@@ -342,7 +346,7 @@ describe("FieldKit hero section — already subscribed", () => {
   it("shows 'Go to your account' link in the hero section", async () => {
     await renderFieldKit(ALREADY_SUBSCRIBED);
     const section = screen.getByTestId("section-hero");
-    const links = within(section).getAllByText(/Go to your account/i);
+    const links = within(section).getAllByText(/Open Field Kit/i);
     expect(links.length).toBeGreaterThan(0);
   });
 
@@ -363,9 +367,9 @@ describe("FieldKit pricing-CTA section — unauthenticated", () => {
   it("shows a 'Get access' register link in the pricing-cta section", async () => {
     await renderFieldKit(UNAUTHED);
     const section = screen.getByTestId("section-pricing-cta");
-    const registerLinks = within(section).getAllByTestId("field-kit-hero-register");
+    const registerLinks = within(section).getAllByTestId("field-kit-pricing-cta");
     expect(registerLinks.length).toBeGreaterThan(0);
-    expect(registerLinks[0].textContent).toMatch(/Get access/i);
+    expect(registerLinks[0].textContent).toMatch(/Create account to subscribe/i);
   });
 
   it("shows a 'Sign in' link in the pricing-cta section", async () => {
@@ -392,7 +396,7 @@ describe("FieldKit pricing-CTA section — can-subscribe", () => {
   it("shows the subscribe button with 'Get access · $14.99/week' in the pricing-cta section", async () => {
     await renderFieldKit(CAN_SUBSCRIBE);
     const section = screen.getByTestId("section-pricing-cta");
-    const buttons = within(section).getAllByText(/Get access · \$14\.99\/week/i);
+    const buttons = within(section).getAllByText(/Subscribe · \$14\.99\/wk/i);
     expect(buttons.length).toBeGreaterThan(0);
   });
 
@@ -413,7 +417,7 @@ describe("FieldKit pricing-CTA section — already subscribed", () => {
   it("shows 'Go to your account' link in the pricing-cta section", async () => {
     await renderFieldKit(ALREADY_SUBSCRIBED);
     const section = screen.getByTestId("section-pricing-cta");
-    const links = within(section).getAllByText(/Go to your account/i);
+    const links = within(section).getAllByText(/Open Field Kit/i);
     expect(links.length).toBeGreaterThan(0);
   });
 
@@ -596,9 +600,9 @@ describe("FieldKit FAQ section — markup consistency across auth states", () =>
     const subscribedSection = screen.getByTestId("section-faq");
     const subscribedItems = within(subscribedSection).queryAllByTestId(/^faq-item-/);
 
-    expect(unauthedItems.length).toBe(4);
-    expect(canSubscribeItems.length).toBe(4);
-    expect(subscribedItems.length).toBe(4);
+    expect(unauthedItems.length).toBe(5);
+    expect(canSubscribeItems.length).toBe(5);
+    expect(subscribedItems.length).toBe(5);
   });
 
   it("FAQ section heading is present for all auth states", async () => {

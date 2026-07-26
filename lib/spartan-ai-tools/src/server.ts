@@ -46,6 +46,58 @@ export interface SpartanAiToolResult {
   };
 }
 
+const MAX_INPUT_BYTES = 256 * 1024;
+const FORBIDDEN_INPUT_KEYS = new Set(["__proto__", "prototype", "constructor"]);
+
+export function isToolFeatureEnabled(
+  tool: AiToolSpec,
+  environment: NodeJS.ProcessEnv = process.env,
+): boolean {
+  return environment[tool.featureFlag] === "true";
+}
+
+function assertSafeInput(value: unknown): void {
+  let serialized: string;
+  try {
+    serialized = JSON.stringify(value);
+  } catch {
+    throw new SpartanAiToolError(
+      "INVALID_INPUT",
+      400,
+      "Tool input must be valid JSON.",
+    );
+  }
+  if (Buffer.byteLength(serialized, "utf8") > MAX_INPUT_BYTES) {
+    throw new SpartanAiToolError(
+      "INPUT_TOO_LARGE",
+      413,
+      "Tool input exceeds the 256 KB safety limit.",
+    );
+  }
+
+  const inspect = (current: unknown, depth: number): void => {
+    if (depth > 20) {
+      throw new SpartanAiToolError(
+        "INPUT_TOO_DEEP",
+        400,
+        "Tool input contains excessive nesting.",
+      );
+    }
+    if (!current || typeof current !== "object") return;
+    for (const [key, child] of Object.entries(current)) {
+      if (FORBIDDEN_INPUT_KEYS.has(key)) {
+        throw new SpartanAiToolError(
+          "UNSAFE_INPUT",
+          400,
+          "Tool input contains a forbidden object key.",
+        );
+      }
+      inspect(child, depth + 1);
+    }
+  };
+  inspect(value, 0);
+}
+
 function assertClinicalLaunchGate(tool: AiToolSpec): void {
   if (!isClinicalTool(tool)) return;
   if (process.env.HIPAA_PHI_ENABLED !== "true") {
@@ -105,6 +157,19 @@ function runTerritory(input: unknown): unknown {
 
 function mapProviderError(error: unknown): SpartanAiToolError {
   if (error instanceof SpartanAiToolError) return error;
+  if (
+    error instanceof DOMException &&
+    (error.name === "AbortError" || error.name === "TimeoutError")
+  ) {
+    return new SpartanAiToolError(
+      error.name === "AbortError" ? "PROVIDER_CANCELLED" : "PROVIDER_TIMEOUT",
+      error.name === "AbortError" ? 499 : 504,
+      error.name === "AbortError"
+        ? "AI request was cancelled."
+        : "AI service timed out.",
+      error.name !== "AbortError",
+    );
+  }
   const status =
     typeof error === "object" &&
     error !== null &&
@@ -157,10 +222,11 @@ export async function runSpartanAiTool(
       "AI tool was not found.",
     );
   }
-  if (process.env[tool.featureFlag] === "false") {
+  if (!isToolFeatureEnabled(tool)) {
     throw new SpartanAiToolError("TOOL_DISABLED", 503, "AI tool is disabled.");
   }
   assertClinicalLaunchGate(tool);
+  assertSafeInput(input);
   const parsed = tool.inputSchema.safeParse(input);
   if (!parsed.success) {
     throw new SpartanAiToolError(
