@@ -20,6 +20,7 @@ const mockEventAnalytics = {
     contactSubmissions: 0,
     mobileAiToolUsage: [{ eventName: "playbook", count: 5 }],
     mobileToolViews: [{ eventName: "tools_home", count: 11 }],
+    mobileAppOpens: { day: 1, week: 4, month: 9 },
   },
 };
 
@@ -174,6 +175,7 @@ describe("Admin page — mobile analytics cards", () => {
             contactSubmissions: 0,
             mobileAiToolUsage: [],
             mobileToolViews: [],
+            mobileAppOpens: { day: 0, week: 0, month: 0 },
           },
         };
       }
