@@ -1,6 +1,33 @@
-import { describe, it, expect, beforeAll, afterEach } from "vitest";
+import { describe, it, expect, beforeAll, afterEach, vi } from "vitest";
 import { render, cleanup, fireEvent, within } from "@testing-library/react";
 import { HelmetProvider } from "react-helmet-async";
+
+// ── Minimal stubs required for rendering BranchProfitability in jsdom ──────────
+
+vi.mock("@/context/AuthContext", () => ({
+  useAuth: () => ({
+    isAuthenticated: false,
+    member: null,
+    organization: null,
+    canUseFieldKit: false,
+    isLoading: false,
+    fieldKit: null,
+    refresh: async () => {},
+    login: async () => { throw new Error("not implemented"); },
+    logout: async () => {},
+    setSessionFromResponse: () => {},
+  }),
+}));
+
+vi.mock("wouter", () => ({
+  useLocation: () => ["/tools/branch-profitability", () => {}],
+  Link: ({ href, children, ...props }: { href: string; children: React.ReactNode; [k: string]: unknown }) => (
+    <a href={href} {...props}>{children}</a>
+  ),
+}));
+
+vi.mock("@/components/SEO", () => ({ SEO: () => null }));
+
 import BranchProfitability from "./BranchProfitability";
 import { runEngine, type BranchInputs } from "@workspace/branch-engine/engine";
 import { DEFAULT_INPUTS, STAFF_ROLES, PRESET_CONFIGS } from "@workspace/branch-engine/presets";
