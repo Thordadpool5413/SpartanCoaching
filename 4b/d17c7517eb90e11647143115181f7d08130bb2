@@ -74,6 +74,7 @@ lib/spartan-ai-tools/src/server.test.ts
   s_859dc7aa6bfb87::t_90eb72c8a90d58 1-65
 artifacts/api-server/package.json
   s_859dc7aa6bfb87::t_f251888c829e81 19
+  s_859dc7aa6bfb87::t_a879c102c7e6e9 11
 artifacts/spartan-coaching/src/components/RequireFieldKit.tsx
   s_859dc7aa6bfb87::t_db5db52b000419 5-7,12-14,31
 artifacts/spartan-coaching-mobile/lib/api.ts
