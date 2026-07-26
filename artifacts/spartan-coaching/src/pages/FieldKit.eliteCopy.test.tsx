@@ -507,3 +507,118 @@ describe("FieldKit closing-CTA section — already subscribed", () => {
     expect(within(section).queryByTestId("field-kit-hero-register")).toBeNull();
   });
 });
+
+describe("FieldKit FAQ section — unauthenticated", () => {
+  it("renders the FAQ section", async () => {
+    await renderFieldKit(UNAUTHED);
+    expect(screen.getByTestId("section-faq")).toBeTruthy();
+  });
+
+  it("renders the faq-list inside the FAQ section", async () => {
+    await renderFieldKit(UNAUTHED);
+    const section = screen.getByTestId("section-faq");
+    expect(within(section).getByTestId("faq-list")).toBeTruthy();
+  });
+
+  it("renders at least the first FAQ item inside the FAQ section", async () => {
+    await renderFieldKit(UNAUTHED);
+    const section = screen.getByTestId("section-faq");
+    expect(within(section).getByTestId("faq-item-0")).toBeTruthy();
+  });
+
+  it("renders all four FAQ items inside the FAQ section", async () => {
+    await renderFieldKit(UNAUTHED);
+    const section = screen.getByTestId("section-faq");
+    expect(within(section).getByTestId("faq-item-0")).toBeTruthy();
+    expect(within(section).getByTestId("faq-item-1")).toBeTruthy();
+    expect(within(section).getByTestId("faq-item-2")).toBeTruthy();
+    expect(within(section).getByTestId("faq-item-3")).toBeTruthy();
+  });
+});
+
+describe("FieldKit FAQ section — can-subscribe", () => {
+  it("renders the FAQ section", async () => {
+    await renderFieldKit(CAN_SUBSCRIBE);
+    expect(screen.getByTestId("section-faq")).toBeTruthy();
+  });
+
+  it("renders the faq-list inside the FAQ section", async () => {
+    await renderFieldKit(CAN_SUBSCRIBE);
+    const section = screen.getByTestId("section-faq");
+    expect(within(section).getByTestId("faq-list")).toBeTruthy();
+  });
+
+  it("renders at least the first FAQ item inside the FAQ section", async () => {
+    await renderFieldKit(CAN_SUBSCRIBE);
+    const section = screen.getByTestId("section-faq");
+    expect(within(section).getByTestId("faq-item-0")).toBeTruthy();
+  });
+
+  it("renders all four FAQ items inside the FAQ section", async () => {
+    await renderFieldKit(CAN_SUBSCRIBE);
+    const section = screen.getByTestId("section-faq");
+    expect(within(section).getByTestId("faq-item-0")).toBeTruthy();
+    expect(within(section).getByTestId("faq-item-1")).toBeTruthy();
+    expect(within(section).getByTestId("faq-item-2")).toBeTruthy();
+    expect(within(section).getByTestId("faq-item-3")).toBeTruthy();
+  });
+});
+
+describe("FieldKit FAQ section — already subscribed", () => {
+  it("renders the FAQ section", async () => {
+    await renderFieldKit(ALREADY_SUBSCRIBED);
+    expect(screen.getByTestId("section-faq")).toBeTruthy();
+  });
+
+  it("renders the faq-list inside the FAQ section", async () => {
+    await renderFieldKit(ALREADY_SUBSCRIBED);
+    const section = screen.getByTestId("section-faq");
+    expect(within(section).getByTestId("faq-list")).toBeTruthy();
+  });
+
+  it("renders at least the first FAQ item inside the FAQ section", async () => {
+    await renderFieldKit(ALREADY_SUBSCRIBED);
+    const section = screen.getByTestId("section-faq");
+    expect(within(section).getByTestId("faq-item-0")).toBeTruthy();
+  });
+
+  it("renders all four FAQ items inside the FAQ section", async () => {
+    await renderFieldKit(ALREADY_SUBSCRIBED);
+    const section = screen.getByTestId("section-faq");
+    expect(within(section).getByTestId("faq-item-0")).toBeTruthy();
+    expect(within(section).getByTestId("faq-item-1")).toBeTruthy();
+    expect(within(section).getByTestId("faq-item-2")).toBeTruthy();
+    expect(within(section).getByTestId("faq-item-3")).toBeTruthy();
+  });
+});
+
+describe("FieldKit FAQ section — markup consistency across auth states", () => {
+  it("renders the same number of FAQ items regardless of auth state", async () => {
+    await renderFieldKit(UNAUTHED);
+    const unauthedSection = screen.getByTestId("section-faq");
+    const unauthedItems = within(unauthedSection).queryAllByTestId(/^faq-item-/);
+    cleanup();
+
+    await renderFieldKit(CAN_SUBSCRIBE);
+    const canSubscribeSection = screen.getByTestId("section-faq");
+    const canSubscribeItems = within(canSubscribeSection).queryAllByTestId(/^faq-item-/);
+    cleanup();
+
+    await renderFieldKit(ALREADY_SUBSCRIBED);
+    const subscribedSection = screen.getByTestId("section-faq");
+    const subscribedItems = within(subscribedSection).queryAllByTestId(/^faq-item-/);
+
+    expect(unauthedItems.length).toBe(4);
+    expect(canSubscribeItems.length).toBe(4);
+    expect(subscribedItems.length).toBe(4);
+  });
+
+  it("FAQ section heading is present for all auth states", async () => {
+    for (const state of [UNAUTHED, CAN_SUBSCRIBE, ALREADY_SUBSCRIBED]) {
+      await renderFieldKit(state);
+      const section = screen.getByTestId("section-faq");
+      expect(within(section).getByText(/Questions prospects actually ask/i)).toBeTruthy();
+      cleanup();
+    }
+  });
+});
