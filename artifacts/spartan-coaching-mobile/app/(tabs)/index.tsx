@@ -43,12 +43,12 @@ const SUGGESTIONS = [
 ];
 
 const QUICK_TOOLS = [
-  { label: "Sales Command Center", icon: "calendar" as const, route: "/sales-workflow" as const },
-  { label: "Objection Handler", icon: "shield" as const, route: undefined },
-  { label: "Sales Playbooks", icon: "book-open" as const, route: undefined },
-  { label: "Email Templates", icon: "mail" as const, route: undefined },
-  { label: "Role-Play", icon: "users" as const, route: undefined },
-  { label: "Share Brand Film", icon: "film" as const, route: "/brand-video" as const },
+  { label: "Sales Command Center", icon: "calendar" as const, route: "/sales-workflow" as const, toolTab: undefined },
+  { label: "Objection Handler", icon: "shield" as const, route: undefined, toolTab: "objection" },
+  { label: "Sales Playbooks", icon: "book-open" as const, route: undefined, toolTab: "playbook" },
+  { label: "Email Templates", icon: "mail" as const, route: undefined, toolTab: "email" },
+  { label: "Role-Play", icon: "users" as const, route: undefined, toolTab: "roleplay" },
+  { label: "Share Brand Film", icon: "film" as const, route: "/brand-video" as const, toolTab: undefined },
 ];
 
 function formatScheduledTime(ts: number): string {
@@ -255,17 +255,17 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
       >
         <LinearGradient
-          colors={[colors.heroBackground, "#0f0f0f", "#1a0404"]}
+          colors={[colors.heroBackground, colors.background, colors.card]}
           style={[styles.hero, { paddingTop: topPad + 20 }]}
         >
           <Image source={require("@/assets/images/logo.png")} style={styles.logo} resizeMode="contain" />
           <Text style={[styles.heroTitle, { color: colors.heroForeground }]}>Hospice sales</Text>
-          <Text style={[styles.heroTitle, { color: "rgba(255,255,255,0.55)" }]}>is not a mystery.</Text>
+          <Text style={[styles.heroTitle, { color: colors.heroMuted }]}>is not a mystery.</Text>
           <Text style={[styles.heroTitle, styles.heroTitleAccent, { color: colors.primary }]}>
             It is a promise.
           </Text>
           <Text style={[styles.heroTagline, { color: colors.heroMuted }]}>
-            Practical coaching for hospice growth professionals who execute in the field — not just in meetings.
+            Practical coaching and a private Field Kit for hospice growth professionals who execute in the field.
           </Text>
           <View
             style={[
@@ -275,7 +275,9 @@ export default function HomeScreen() {
           >
             <View style={[styles.heroBadgeDot, { backgroundColor: colors.primary }]} />
             <Text style={[styles.heroBadgeText, { color: colors.heroBadgeText }]}>
-              {isAuthenticated ? "Access locked — continue as a client" : "Client login required for AI tools"}
+              {isAuthenticated
+                ? "Subscribe from Account to unlock live tools · $14.99/wk"
+                : "Preview on the web · Subscribe $14.99/wk · Cancel anytime"}
             </Text>
           </View>
           <Pressable
@@ -288,13 +290,13 @@ export default function HomeScreen() {
               backgroundColor: colors.primary,
             }}
           >
-            <Text style={{ color: "#fff", fontWeight: "800", textAlign: "center" }}>
-              {isAuthenticated ? "Open account" : "Client login"}
+            <Text style={{ color: colors.primaryForeground, fontWeight: "800", textAlign: "center" }}>
+              {isAuthenticated ? "Open account · subscribe" : "Client login"}
             </Text>
           </Pressable>
           <Pressable onPress={() => router.push("/(tabs)/contact")} style={{ marginTop: 12 }}>
-            <Text style={{ color: "rgba(255,255,255,0.7)", fontWeight: "600", textAlign: "center" }}>
-              Book a strategy call
+            <Text style={{ color: colors.heroMuted, fontWeight: "600", textAlign: "center" }}>
+              Book a strategy call · team access
             </Text>
           </Pressable>
         </LinearGradient>
@@ -826,7 +828,11 @@ export default function HomeScreen() {
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 if (tool.route) router.push(tool.route as any);
-                else router.push("/(tabs)/tools");
+                else if (tool.toolTab) {
+                  router.push({ pathname: "/(tabs)/tools", params: { tab: tool.toolTab } } as any);
+                } else {
+                  router.push("/(tabs)/tools");
+                }
               }}
               style={({ pressed }) => [
                 styles.toolCard,

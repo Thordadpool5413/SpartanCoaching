@@ -33,7 +33,7 @@ export function FieldKitGate({ compact }: Props) {
 
   let title = "Private Field Kit";
   let body =
-    "The Spartan Field Kit is reserved for clients and approved evaluators — a private toolkit for hospice growth execution between coaching sessions.";
+    "The Spartan Field Kit is a private toolkit for hospice growth execution between coaching sessions. Preview free — subscribe or use team/evaluation access to run tools live.";
 
   if (expired) {
     title = "Your evaluation window has ended";

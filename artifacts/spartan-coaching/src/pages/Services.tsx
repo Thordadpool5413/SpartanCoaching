@@ -204,7 +204,7 @@ export default function Services() {
           Work <span className="text-gradient-primary">With Us</span>
         </h1>
         <p className="text-body-lg text-muted-foreground mb-4 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          A consulting practice for hospice growth — human coaching, team systems, and a private Field Kit for clients and approved evaluators. Individuals continue at $14.99/week after evaluation; team seats and coaching are scoped under contract.
+          A consulting practice for hospice growth — human coaching, team systems, and a private Field Kit. Individuals subscribe at $14.99/week; team seats and coaching are scoped under contract.
         </p>
         <p className="text-body text-muted-foreground max-w-3xl mx-auto animate-fade-in-up mb-8" style={{ animationDelay: '0.2s' }}>
           Every engagement exists because eligible patients miss care when the right conversations never happen. We build the structure and the field execution so those conversations become consistent.
@@ -238,7 +238,7 @@ export default function Services() {
           </div>
           <div className="space-y-3 flex-1">
             <p className="text-xs font-bold tracking-widest text-primary uppercase">Private Field Kit</p>
-            <h2 className="text-h2 text-foreground">Tools for clients and approved evaluators</h2>
+            <h2 className="text-h2 text-foreground">Tools for members and teams</h2>
             <p className="text-sm text-muted-foreground leading-relaxed">
               AI-assisted objections, plans, role-play, and calculators — gated behind request and approval.
               Typical evaluation windows: <strong className="text-foreground">24 hours individual</strong> ·{" "}

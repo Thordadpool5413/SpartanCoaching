@@ -232,20 +232,29 @@ export function Header() {
               </Button>
               <Button
                 size="sm"
+                asChild
+                className="font-bold ml-1 px-4"
+                data-testid="button-subscribe-nav"
+              >
+                <Link href="/register">Create account</Link>
+              </Button>
+              <Button
+                size="sm"
                 variant="outline"
                 asChild
                 className="font-bold ml-1 px-4"
                 data-testid="button-request-access-nav"
               >
-                <Link href="/request-access">Request Access</Link>
+                <Link href="/request-access">Team access</Link>
               </Button>
               <Button
                 size="sm"
+                variant="ghost"
                 asChild
-                className="font-bold ml-1 px-5"
+                className="font-bold ml-1 px-4"
                 data-testid="button-book-call"
               >
-                <Link href="/contact">Book a Call</Link>
+                <Link href="/contact">Book a call</Link>
               </Button>
             </>
           )}
@@ -432,17 +441,16 @@ export function Footer() {
   ];
 
   const publicLinks = [
+    { href: "/field-kit", label: "Field Kit" },
+    { href: "/tools", label: "Preview tools" },
+    { href: "/field-kit-membership", label: "Membership $14.99/wk" },
+    { href: "/register", label: "Create account" },
     { href: "/services", label: "Services" },
     { href: "/about", label: "About" },
-    { href: "/manifesto", label: "The Spartan Ethos" },
-    { href: "/portal", label: "Field Kit home" },
-    { href: "/tools", label: "Tools" },
-    { href: "/resources", label: "Resources" },
-    { href: "/request-access", label: "Request Access" },
-    { href: "/field-kit", label: "Field Kit overview" },
-    { href: "/field-kit-membership", label: "Membership & pricing" },
+    { href: "/contact", label: "Book a call" },
+    { href: "/request-access", label: "Team access" },
     { href: "/login", label: "Client Login" },
-    { href: "/contact", label: "Contact" },
+    { href: "/resources", label: "Resources" },
     { href: "/compliance", label: "Compliance" },
     { href: "/faq", label: "FAQ" },
   ];
@@ -472,7 +480,7 @@ export function Footer() {
               <p className="text-xs text-muted-foreground/90 leading-relaxed border-l-2 border-primary/50 pl-3">
                 {canUseFieldKit
                   ? "No PHI in tools · Cancel anytime from Account · Ethics-first field work"
-                  : "Private Field Kit · No PHI in tools · Request & approval first · Individuals $14.99/wk · Teams under contract"}
+                  : "Private Field Kit · Preview free · Individuals $14.99/wk · Cancel anytime · Teams under contract · No PHI in consumer tools"}
               </p>
               <div className="flex flex-col gap-2">
                 <a href="mailto:nick@spartanhospicecoaching.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-email">

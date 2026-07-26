@@ -129,7 +129,7 @@ export default function Method() {
           A complete methodology for healthcare sales mastery. Value is discovered, translated, proven, and made official through four disciplined subjects, each governed by ethics that are non-negotiable.
         </p>
         <p className="text-sm text-muted-foreground mt-4 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
-          Coaching teaches the method. The private Field Kit helps you practice it between sessions — request evaluation access first; individuals continue at $14.99/week after approval.
+          Coaching teaches the method. The private Field Kit helps you practice it between sessions — preview free; individuals subscribe at $14.99/week; teams under contract.
         </p>
       </div>
 

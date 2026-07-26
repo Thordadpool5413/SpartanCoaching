@@ -20,7 +20,7 @@ const faqCategories = [
       {
         id: "what-is-spartan",
         q: "What is Spartan Coaching?",
-        a: "Spartan Coaching is a practical consulting practice for hospice growth professionals. We help liaisons, business development reps, and growth leaders build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and measurable weekly accountability. Coaching is human-first. The Field Kit is a private execution layer for clients and approved evaluators.",
+        a: "Spartan Coaching is a practical consulting practice for hospice growth professionals. We help liaisons, business development reps, and growth leaders build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and measurable weekly accountability. Coaching is human-first. The Field Kit is the private execution layer — preview free, individuals subscribe for $14.99/week, teams under contract.",
       },
       {
         id: "who-is-this-for",
@@ -45,27 +45,27 @@ const faqCategories = [
       {
         id: "what-is-field-kit",
         q: "What is the Field Kit?",
-        a: "The Field Kit is a private set of AI-assisted tools for hospice growth work: objections, playbooks, role-play, calculators, weekly plans, Sales Command Center, and more. Access starts with evaluation approval, then individuals can subscribe self-serve and teams continue under contract.",
+        a: "The Field Kit is a private set of AI-assisted tools for hospice growth work: objections, playbooks, role-play, calculators, weekly plans, Sales Command Center, and more. You can preview tool interfaces free. Live generation and saves unlock with membership ($14.99/week individual) or team/evaluation access.",
       },
       {
         id: "how-to-get-access",
         q: "How do I get Field Kit access?",
-        a: "Request access on the site. Nick reviews every request. If approved, you receive a secure email to set your password and start a timed evaluation (typically 24 hours for individuals, 72 hours for company teams). After the window, individuals can continue for $14.99/week from Account; teams continue under a provider contract.",
+        a: "Individuals: create an account, then subscribe for $14.99/week from Account (cancel anytime). You can preview tools before paying. Teams and arranged evaluations: request access or book a strategy call — Nick sets seats under contract or a timed evaluation when appropriate.",
       },
       {
         id: "trial-hours",
-        q: "How long is the evaluation trial?",
-        a: "Individual evaluations are usually 24 hours. Company / multi-seat evaluations are usually 72 hours. Windows can be extended from the Access Desk when a real evaluation needs more time. The clock starts when your account is approved and you are set up to sign in.",
+        q: "Is there a free evaluation trial?",
+        a: "Self-serve individual accounts subscribe to unlock live tools (you can still preview the UI free). Timed evaluation windows are arranged when you request team access or Nick approves an evaluation path — typically 24 hours for individuals and 72 hours for company teams when used.",
       },
       {
         id: "tools-without-coaching",
         q: "Can I use the tools without a coaching engagement?",
-        a: "Yes. You can request a short evaluation without buying coaching first. After evaluation, individuals can subscribe to Field Kit only for $14.99/week. Many clients also add coaching; teams and enterprise packages combine seats with leadership work under contract.",
+        a: "Yes. Individuals can subscribe to Field Kit only for $14.99/week without buying coaching. Many clients also add coaching; teams and enterprise packages combine seats with leadership work under contract.",
       },
       {
         id: "already-have-account",
         q: "I already have an account. How do I sign in?",
-        a: "Use Client Login with the email that was approved. You can also request a magic sign-in link from the login page. If your evaluation expired, sign in and use Subscribe ($14.99/week) on Account, request an extension, or book a strategy call for team contracts.",
+        a: "Use Client Login with your email. You can also request a magic sign-in link from the login page. If access expired, sign in and use Subscribe ($14.99/week) on Account, request an extension for evaluation orgs, or book a strategy call for team contracts.",
       },
       {
         id: "company-seats",

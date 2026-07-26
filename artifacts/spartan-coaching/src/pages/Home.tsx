@@ -40,7 +40,7 @@ export default function Home() {
                   "/#organization",
                 name: "Spartan Coaching",
                 description:
-                  "Practical coaching for hospice growth professionals. Build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and measurable weekly accountability. Private Field Kit for clients and approved evaluators.",
+                  "Practical coaching for hospice growth professionals. Build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and measurable weekly accountability. Private Field Kit: preview free, individuals $14.99/week.",
                 url: typeof window !== "undefined" ? window.location.origin : "https://spartancoaching.com",
                 email: "nick@spartanhospicecoaching.com",
                 founder: {
@@ -70,7 +70,7 @@ export default function Home() {
                 name: "Spartan Coaching",
                 url: typeof window !== "undefined" ? window.location.origin : "https://spartancoaching.com",
                 description:
-                  "Hospice sales consulting and private Field Kit. Evaluation first; individuals $14.99/week after approval.",
+                  "Hospice sales consulting and private Field Kit. Preview tools free; individuals subscribe $14.99/week. Teams under contract.",
               },
             ],
           })}
@@ -189,9 +189,9 @@ export default function Home() {
               {
                 icon: Wrench,
                 title: "Private Field Kit",
-                desc: "AI tools for objections, plans, role-play, and calculators — reserved for clients and approved evaluators.",
-                href: "/tools",
-                cta: "Explore Field Kit",
+                desc: "AI tools for objections, plans, role-play, and calculators. Preview free — subscribe $14.99/week to run them live.",
+                href: "/field-kit",
+                cta: "See Field Kit",
               },
             ].map((p) => {
               const Icon = p.icon;
@@ -269,20 +269,31 @@ export default function Home() {
               + Email Templates, Grounded Research, Call Transcriber, Rep Cost Calculator, Branch Profitability Simulator
             </p>
 
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
               <Button size="lg" asChild className="font-bold shadow-md" data-testid="button-home-field-kit">
-                <Link href="/field-kit">
-                  See how it works
+                <Link href="/register">
+                  Create account · $14.99/wk
                   <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="font-bold border-2" data-testid="button-home-membership">
-                <Link href="/field-kit-membership">View pricing</Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild className="font-bold border-2">
-                <Link href="/account">Account / billing</Link>
+              <Button size="lg" variant="outline" asChild className="font-bold border-2" data-testid="button-home-preview">
+                <Link href="/tools">Preview tools first</Link>
               </Button>
             </div>
+            <p className="text-center text-xs text-muted-foreground mt-4">
+              Already a member?{" "}
+              <Link href="/login" className="text-primary font-semibold hover:underline">
+                Sign in
+              </Link>
+              {" · "}
+              <Link href="/field-kit" className="text-primary font-semibold hover:underline">
+                See how it works
+              </Link>
+              {" · "}
+              <Link href="/contact" className="text-primary font-semibold hover:underline">
+                Book a call
+              </Link>
+            </p>
           </FadeIn>
         </div>
       </section>
