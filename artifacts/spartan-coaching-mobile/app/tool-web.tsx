@@ -1,8 +1,17 @@
 import React, { useMemo } from "react";
-import { ActivityIndicator, Platform, StyleSheet, Text, View } from "react-native";
+import {
+  ActivityIndicator,
+  Linking,
+  Platform,
+  Pressable,
+  StyleSheet,
+  Text,
+  View,
+} from "react-native";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { WebView } from "react-native-webview";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Feather } from "@expo/vector-icons";
 import { useColors } from "@/hooks/useColors";
 import { getBaseUrl, getSessionToken } from "@/lib/api";
 import { getToolById } from "@workspace/field-kit-catalog";
@@ -10,7 +19,7 @@ import { useEffect, useState } from "react";
 
 /**
  * Authenticated WebView bridge for Field Kit tools not yet native.
- * Passes session token so web Field Kit routes work on mobile.
+ * Session via Bearer inject only — never in URL.
  */
 export default function ToolWebScreen() {
   const colors = useColors();
@@ -20,6 +29,7 @@ export default function ToolWebScreen() {
   const webPath = params.path || tool?.path || "/portal";
   const [token, setToken] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
   useEffect(() => {
     getSessionToken().then((t) => {
@@ -29,7 +39,6 @@ export default function ToolWebScreen() {
   }, []);
 
   const base = getBaseUrl();
-  // Never put session tokens in the URL (logs, history, Referer). Auth is injected only.
   const uri = useMemo(() => {
     if (!base) return "";
     const url = new URL(webPath.startsWith("http") ? webPath : `${base}${webPath}`);
@@ -54,7 +63,6 @@ export default function ToolWebScreen() {
           if (init.credentials === undefined) init.credentials = 'include';
           return originalFetch(input, init);
         };
-        // Strip any legacy token that might remain in the address bar after inject
         try {
           if (window.history && window.location.search.indexOf('mobile_token') !== -1) {
             var u = new URL(window.location.href);
@@ -72,10 +80,14 @@ export default function ToolWebScreen() {
 
   if (!base) {
     return (
-      <View style={[styles.center, { backgroundColor: colors.background, paddingTop: insets.top }]}>
+      <View style={[styles.center, { backgroundColor: colors.background, paddingTop: insets.top, paddingHorizontal: 24 }]}>
         <Stack.Screen options={{ title }} />
-        <Text style={{ color: colors.foreground, fontWeight: "700", textAlign: "center", padding: 24 }}>
-          API host not configured. Set EXPO_PUBLIC_DOMAIN or EXPO_PUBLIC_API_URL for this build.
+        <Feather name="wifi-off" size={28} color={colors.primary} />
+        <Text style={{ color: colors.foreground, fontWeight: "800", textAlign: "center", marginTop: 12, fontSize: 16 }}>
+          API host not configured
+        </Text>
+        <Text style={{ color: colors.mutedForeground, textAlign: "center", marginTop: 8, lineHeight: 20 }}>
+          Set EXPO_PUBLIC_DOMAIN or EXPO_PUBLIC_API_URL for this build so full Field Kit tools can load.
         </Text>
       </View>
     );
@@ -86,13 +98,67 @@ export default function ToolWebScreen() {
       <View style={[styles.center, { backgroundColor: colors.background }]}>
         <Stack.Screen options={{ title }} />
         <ActivityIndicator color={colors.primary} />
+        <Text style={{ color: colors.mutedForeground, marginTop: 12, fontSize: 13 }}>Securing session…</Text>
+      </View>
+    );
+  }
+
+  if (loadError) {
+    return (
+      <View style={[styles.center, { backgroundColor: colors.background, paddingHorizontal: 24 }]}>
+        <Stack.Screen options={{ title }} />
+        <Text style={{ color: colors.foreground, fontWeight: "800", textAlign: "center" }}>{loadError}</Text>
+        <Pressable
+          onPress={() => {
+            setLoadError(null);
+          }}
+          style={{
+            marginTop: 16,
+            backgroundColor: colors.primary,
+            paddingVertical: 12,
+            paddingHorizontal: 20,
+            borderRadius: 10,
+          }}
+        >
+          <Text style={{ color: colors.primaryForeground, fontWeight: "800" }}>Try again</Text>
+        </Pressable>
+        {uri ? (
+          <Pressable onPress={() => Linking.openURL(uri)} style={{ marginTop: 12 }}>
+            <Text style={{ color: colors.primary, fontWeight: "700" }}>Open in browser →</Text>
+          </Pressable>
+        ) : null}
       </View>
     );
   }
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background, paddingTop: Platform.OS === "ios" ? 0 : insets.top }}>
-      <Stack.Screen options={{ title, headerBackTitle: "Back" }} />
+      <Stack.Screen options={{ title, headerBackTitle: "Tools" }} />
+      <View
+        style={{
+          borderBottomWidth: 1,
+          borderBottomColor: colors.border,
+          backgroundColor: colors.card,
+          paddingHorizontal: 14,
+          paddingVertical: 10,
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 10,
+        }}
+      >
+        <Feather name="monitor" size={16} color={colors.primary} />
+        <View style={{ flex: 1 }}>
+          <Text style={{ color: colors.foreground, fontWeight: "800", fontSize: 13 }}>{title}</Text>
+          <Text style={{ color: colors.mutedForeground, fontSize: 11, marginTop: 2 }}>
+            Full Field Kit web tool · session secured on this device
+          </Text>
+        </View>
+        {uri ? (
+          <Pressable onPress={() => Linking.openURL(uri)} hitSlop={8}>
+            <Feather name="external-link" size={18} color={colors.primary} />
+          </Pressable>
+        ) : null}
+      </View>
       <WebView
         source={{ uri }}
         style={{ flex: 1, backgroundColor: colors.background }}
@@ -100,9 +166,12 @@ export default function ToolWebScreen() {
         sharedCookiesEnabled
         thirdPartyCookiesEnabled
         startInLoadingState
+        onError={() => setLoadError("Could not load this tool. Check your connection and try again.")}
+        onHttpError={() => setLoadError("Tool page returned an error. Try again or open in browser.")}
         renderLoading={() => (
           <View style={[styles.center, StyleSheet.absoluteFill, { backgroundColor: colors.background }]}>
             <ActivityIndicator color={colors.primary} />
+            <Text style={{ color: colors.mutedForeground, marginTop: 10, fontSize: 13 }}>Loading {title}…</Text>
           </View>
         )}
       />

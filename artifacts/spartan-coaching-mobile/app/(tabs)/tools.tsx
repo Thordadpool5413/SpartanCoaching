@@ -987,7 +987,12 @@ export default function ToolsScreen() {
                           </Text>
                           {tool.mobile === "webview" && (
                             <Text style={{ color: colors.primary, fontSize: 11, fontWeight: "700", marginTop: 6 }}>
-                              Full Field Kit view
+                              Full web tool · secured session
+                            </Text>
+                          )}
+                          {tool.mobile === "native" && tool.id === "sales-workflow" && (
+                            <Text style={{ color: colors.mutedForeground, fontSize: 11, fontWeight: "700", marginTop: 6 }}>
+                              Daily spine
                             </Text>
                           )}
                         </View>

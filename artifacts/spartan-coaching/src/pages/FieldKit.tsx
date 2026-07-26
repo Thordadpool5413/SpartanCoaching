@@ -499,6 +499,45 @@ export default function FieldKit() {
             </div>
           </div>
 
+          {/* Product proof — brand film + path to real tool previews */}
+          <Card
+            className="border border-border bg-card overflow-hidden"
+            data-testid="field-kit-product-demo"
+          >
+            <div className="grid lg:grid-cols-2 gap-0">
+              <div className="p-5 sm:p-8 space-y-3 flex flex-col justify-center">
+                <p className="text-xs font-bold tracking-widest text-primary uppercase">See the standard</p>
+                <h3 className="text-xl sm:text-2xl font-display font-black text-foreground">
+                  Built for the field — not a pitch deck.
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Preview live tool interfaces free on the Tools page. This film is the brand standard behind
+                  the kit — ethics, territory discipline, and the promise you execute Tuesday.
+                </p>
+                <div className="flex flex-wrap gap-2 pt-1">
+                  <Button asChild className="font-bold" size="sm">
+                    <Link href="/tools">Preview tools</Link>
+                  </Button>
+                  <Button asChild variant="outline" className="font-bold" size="sm">
+                    <Link href="/brand-video">Share brand film</Link>
+                  </Button>
+                </div>
+              </div>
+              <div className="bg-muted relative min-h-[200px] lg:min-h-full">
+                <video
+                  className="w-full h-full object-cover max-h-[280px] lg:max-h-none lg:absolute lg:inset-0"
+                  controls
+                  playsInline
+                  preload="metadata"
+                  poster="/videos/hero-poster.jpg"
+                >
+                  <source src="/spartan-coaching-video.mp4" type="video/mp4" />
+                  <source src="/videos/hero-video.mp4" type="video/mp4" />
+                </video>
+              </div>
+            </div>
+          </Card>
+
           <div className="space-y-5" data-testid="field-kit-unlock-showcase">
             <div className="text-center space-y-2 max-w-2xl mx-auto">
               <p className="text-xs font-bold tracking-widest text-primary uppercase">What you unlock</p>

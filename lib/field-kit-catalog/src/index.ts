@@ -315,6 +315,20 @@ export function mobileParityDebt(): FieldKitTool[] {
   return FIELD_KIT_TOOLS.filter((t) => t.mobile === "missing" || t.mobile === "webview");
 }
 
+/** Human label for mobile delivery — used in catalog UI */
+export function mobileDeliveryLabel(mobile: MobileDelivery): string {
+  switch (mobile) {
+    case "native":
+      return "Native app";
+    case "webview":
+      return "Full web tool in app";
+    case "missing":
+      return "Web only";
+    default:
+      return mobile;
+  }
+}
+
 export const FIELD_KIT_CATEGORIES: FieldKitCategory[] = [
   "Prepare",
   "Practice",

@@ -172,23 +172,22 @@ export default function Tools() {
 
       {!showCatalogGate && (
         <SlideUp delay={0.05}>
-          <Card className="mb-10 border-2 border-primary/30 bg-primary/5 p-6 sm:p-8">
-            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex gap-4">
-                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
-                  <BrainCircuit className="h-6 w-6" />
+          <Card className="mb-10 border border-border bg-card p-5 sm:p-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex gap-3 min-w-0">
+                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-muted text-primary">
+                  <BrainCircuit className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-bold text-foreground">AI Tool Library</h2>
-                  <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                    Open 14 purpose-built tools for sales enablement, learning, content, and
-                    permission-controlled clinical decision support.
+                  <h2 className="text-base font-bold text-foreground">Advanced library</h2>
+                  <p className="mt-0.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                    Specialized runs and clinical vault — secondary to the daily Field Kit tools below.
                   </p>
                 </div>
               </div>
-              <Button asChild className="shrink-0">
+              <Button asChild variant="outline" className="shrink-0 font-bold">
                 <Link href="/tools/ai">
-                  Open AI tools <ArrowRight className="ml-2 h-4 w-4" />
+                  Open advanced library <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </div>

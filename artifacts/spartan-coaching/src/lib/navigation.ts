@@ -87,6 +87,7 @@ export const additionalPages: SiteNavItem[] = [
   { path: "/account", label: "Account & billing", description: "Subscribe, cancel, manage membership", icon: DollarSign },
   { path: "/login", label: "Client Login", description: "Sign in to Field Kit", icon: Lock },
   { path: "/tools/sales-workflow", label: "Sales Command Center", description: "Daily account workflow spine", icon: Wrench },
+  { path: "/tools/ai", label: "Advanced library", description: "Specialized runs and clinical vault", icon: BookOpen },
   { path: "/tools/playbooks", label: "Sales Playbooks", description: "Generate custom sales playbooks", icon: Lightbulb },
   { path: "/tools/objections", label: "Objection Handler", description: "Field-ready objection responses", icon: MessageCircle },
   { path: "/tools/research", label: "Territory Research", description: "Research facilities and territories", icon: Search },

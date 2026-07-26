@@ -321,6 +321,70 @@ export default function Portal() {
 
       <FieldKitChrome nextHint={nextHint} />
 
+      {/* Mission control — always one clear next action */}
+      <Card
+        className="mb-6 border-2 border-primary/40 bg-primary/5 p-4 sm:p-5"
+        data-testid="section-mission-next"
+      >
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
+          <div className="min-w-0 space-y-1">
+            <p className="text-[10px] font-bold tracking-widest text-primary uppercase">Next action</p>
+            <p className="text-lg font-bold text-foreground">
+              {needsRole
+                ? "Pick your role to personalize the checklist"
+                : nextItem
+                  ? nextItem.title
+                  : allDone
+                    ? "Run Command Center for today’s accounts"
+                    : startHere.title}
+            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
+              {needsRole
+                ? "Rep, director, VP, or owner — sets recommended tools and checklist."
+                : nextItem
+                  ? nextItem.desc
+                  : "Plan → prepare → practice → capture outcome → next step."}
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-2 shrink-0">
+            {needsRole ? (
+              <Button asChild className="font-bold" size="lg">
+                <a href="#section-first-session">Choose role</a>
+              </Button>
+            ) : (
+              <Button asChild className="font-bold" size="lg">
+                <Link
+                  href={nextItem?.href || startHere.href}
+                  data-testid="button-mission-next"
+                >
+                  {nextItem ? "Do this next" : "Open Command Center"}
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Link>
+              </Button>
+            )}
+            <Button asChild variant="outline" className="font-bold" size="lg">
+              <Link href="/tools">All tools</Link>
+            </Button>
+          </div>
+        </div>
+        {totalCount > 0 && (
+          <div className="mt-4 pt-3 border-t border-border/60">
+            <div className="flex items-center justify-between text-xs text-muted-foreground mb-1.5">
+              <span>Session checklist</span>
+              <span className="font-semibold text-foreground">
+                {doneCount}/{totalCount}
+              </span>
+            </div>
+            <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+              <div
+                className="h-full rounded-full bg-primary transition-all"
+                style={{ width: `${progressPct}%` }}
+              />
+            </div>
+          </div>
+        )}
+      </Card>
+
       {/* Welcome */}
       <div className="mb-6 space-y-3">
         <p className="text-xs font-bold tracking-widest text-primary uppercase">
@@ -340,21 +404,17 @@ export default function Portal() {
         </p>
         {memberStatusLabel && (
           <div
-            className={
-              isPaidMember
-                ? "inline-flex flex-wrap items-center gap-2 text-sm font-medium text-emerald-800 dark:text-emerald-200/90 bg-emerald-500/10 border border-emerald-500/25 rounded-md px-3 py-2"
-                : "inline-flex flex-wrap items-center gap-2 text-sm font-medium text-amber-800 dark:text-amber-200/90 bg-amber-500/10 border border-amber-500/25 rounded-md px-3 py-2"
-            }
+            className="inline-flex flex-wrap items-center gap-2 text-sm font-medium text-foreground bg-muted border border-border rounded-md px-3 py-2"
             data-testid={isPaidMember ? "banner-member" : "banner-trial"}
           >
-            <Clock className="w-4 h-4 shrink-0" />
+            <Clock className="w-4 h-4 shrink-0 text-primary" />
             <span>{memberStatusLabel}</span>
             {isPersonalTrial && (
               <button
                 type="button"
                 onClick={startCheckout}
                 disabled={checkoutPending}
-                className="inline-flex items-center gap-1 underline ml-1 hover:text-foreground font-semibold disabled:opacity-60"
+                className="inline-flex items-center gap-1 underline ml-1 hover:text-primary font-semibold disabled:opacity-60 text-primary"
                 data-testid="portal-trial-subscribe"
               >
                 {checkoutPending ? (
@@ -368,13 +428,13 @@ export default function Portal() {
             {organization?.status === "trial" && (
               <Link
                 href="/contact?service=Field+Kit+Debrief"
-                className="underline ml-1 hover:text-foreground font-semibold"
+                className="underline ml-1 hover:text-primary font-semibold text-primary"
               >
                 Book a debrief
               </Link>
             )}
             {organization?.status === "trial" && (
-              <Link href="/account" className="underline ml-1 hover:text-foreground font-semibold">
+              <Link href="/account" className="underline ml-1 hover:text-primary font-semibold text-primary">
                 Account
               </Link>
             )}
@@ -384,7 +444,7 @@ export default function Portal() {
 
       {/* Daily spine — Sales Command Center */}
       <Card
-        className="mb-8 border border-primary/35 bg-gradient-to-br from-primary/15 via-card to-card p-5 sm:p-7"
+        className="mb-8 border border-primary/35 bg-card p-5 sm:p-7"
         data-testid="section-command-center-hub"
       >
         <div className="flex flex-col lg:flex-row lg:items-center gap-5 justify-between">
@@ -451,7 +511,8 @@ export default function Portal() {
       {/* ── First-session path: 3 clear steps ── */}
       {isFirstSession && (
         <section
-          className="mb-10 rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/10 via-transparent to-transparent p-5 sm:p-7"
+          id="section-first-session"
+          className="mb-10 rounded-2xl border border-primary/30 bg-card p-5 sm:p-7"
           data-testid="section-first-session"
         >
           <div className="flex items-start gap-3 mb-5">
