@@ -282,7 +282,7 @@ export default function Admin() {
         contactSubmissions: number;
         mobileAiToolUsage: Array<{ eventName: string; count: number }>;
         mobileToolViews: Array<{ eventName: string; count: number }>;
-        mobileAppOpens: number;
+        mobileAppOpens: { day: number; week: number; month: number };
       };
     }>({
       queryKey: ["/api/analytics/events"],
@@ -2184,14 +2184,37 @@ export default function Admin() {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div
-                  className="text-3xl font-bold"
-                  data-testid="text-mobile-app-opens"
-                >
-                  {eventAnalyticsData.analytics.mobileAppOpens}
+                <div className="grid grid-cols-3 gap-3 text-center">
+                  <div>
+                    <div
+                      className="text-2xl font-bold"
+                      data-testid="text-mobile-app-opens-day"
+                    >
+                      {eventAnalyticsData.analytics.mobileAppOpens.day}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">Today</p>
+                  </div>
+                  <div>
+                    <div
+                      className="text-2xl font-bold"
+                      data-testid="text-mobile-app-opens-week"
+                    >
+                      {eventAnalyticsData.analytics.mobileAppOpens.week}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">7 days</p>
+                  </div>
+                  <div>
+                    <div
+                      className="text-2xl font-bold"
+                      data-testid="text-mobile-app-opens-month"
+                    >
+                      {eventAnalyticsData.analytics.mobileAppOpens.month}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">30 days</p>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground mt-1">
-                  total device launches tracked
+                <p className="text-xs text-muted-foreground mt-2">
+                  device launches by time window
                 </p>
               </CardContent>
             </Card>

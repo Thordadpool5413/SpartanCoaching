@@ -14,7 +14,7 @@ const VALID_ANALYTICS = {
   contactSubmissions: 5,
   mobileAiToolUsage: [{ eventName: "chat", count: 7 }],
   mobileToolViews: [{ eventName: "tools_home", count: 12 }],
-  mobileAppOpens: 42,
+  mobileAppOpens: { day: 4, week: 18, month: 42 },
 };
 
 describe("eventAnalyticsSchema — shape contract", () => {
@@ -30,6 +30,7 @@ describe("eventAnalyticsSchema — shape contract", () => {
     expect(result).toHaveProperty("mobileAiToolUsage");
     expect(result).toHaveProperty("mobileToolViews");
     expect(result).toHaveProperty("mobileAppOpens");
+    expect(result.mobileAppOpens).toEqual({ day: 4, week: 18, month: 42 });
   });
 
   it.each([

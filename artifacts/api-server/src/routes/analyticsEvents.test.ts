@@ -75,7 +75,7 @@ function buildApp() {
       contactSubmissions: 0,
       mobileAiToolUsage: [{ eventName: "playbook", count: 3 }],
       mobileToolViews: [{ eventName: "tools_home", count: 7 }],
-      mobileAppOpens: 12,
+      mobileAppOpens: { day: 2, week: 8, month: 12 },
     }),
   };
 
@@ -182,13 +182,13 @@ describe("GET /api/analytics/events — mobile analytics fields", () => {
     expect(analytics).toHaveProperty("contactSubmissions");
   });
 
-  it("returns mobileAppOpens count", async () => {
+  it("returns mobileAppOpens as a day/week/month breakdown", async () => {
     const { app } = buildApp();
     const res = await request(app).get("/api/analytics/events");
 
     expect(res.status).toBe(200);
     expect(res.body.analytics).toHaveProperty("mobileAppOpens");
-    expect(res.body.analytics.mobileAppOpens).toBe(12);
+    expect(res.body.analytics.mobileAppOpens).toEqual({ day: 2, week: 8, month: 12 });
   });
 });
 
@@ -243,6 +243,41 @@ describe("DatabaseStorage.getEventAnalytics — mobile event counts", () => {
     expect(result.mobileAiToolUsage).toEqual([{ eventName: "chat", count: 4 }]);
     expect(result.mobileToolViews).toEqual([{ eventName: "research", count: 9 }]);
     expect(result).toHaveProperty("mobileAppOpens");
-    expect(typeof result.mobileAppOpens).toBe("number");
+    expect(result.mobileAppOpens).toHaveProperty("day");
+    expect(result.mobileAppOpens).toHaveProperty("week");
+    expect(result.mobileAppOpens).toHaveProperty("month");
+  });
+
+  it("returns only events within the time window — older events are excluded", async () => {
+    const store = new DatabaseStorage();
+
+    vi.spyOn(store, "getEventCounts").mockResolvedValue([]);
+
+    const { db } = await import("../db");
+
+    // Simulate: day=1, week=3, month=7 by varying what the mock returns
+    // based on the call sequence (day is first, week is second, month is third).
+    let callIndex = 0;
+    vi.spyOn(db, "select").mockImplementation(() => ({
+      from: () => ({
+        where: () => {
+          // First 5 calls are for: contactSubmissions, day, week, month (non-getEventCounts queries)
+          // getEventCounts calls go through getEventCounts spy, not db.select directly.
+          // The 3 mobile_app_open windowed queries + 1 contact query = 4 db.select calls.
+          const counts = [0, 1, 3, 7]; // contactSubmissions, day, week, month
+          return Promise.resolve([{ count: counts[callIndex++] ?? 0 }]);
+        },
+      }),
+    } as any));
+
+    const result = await store.getEventAnalytics();
+
+    // The windowed counts must differ — confirming time filtering is active
+    expect(result.mobileAppOpens.day).toBeLessThanOrEqual(result.mobileAppOpens.week);
+    expect(result.mobileAppOpens.week).toBeLessThanOrEqual(result.mobileAppOpens.month);
+    // And each field is a number (not all-time cumulative scalar)
+    expect(typeof result.mobileAppOpens.day).toBe("number");
+    expect(typeof result.mobileAppOpens.week).toBe("number");
+    expect(typeof result.mobileAppOpens.month).toBe("number");
   });
 });

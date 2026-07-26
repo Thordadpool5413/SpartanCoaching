@@ -443,13 +443,30 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getEventAnalytics(): Promise<EventAnalytics> {
-    const [aiToolUsage, resourceDownloads, contactResults, mobileAiToolUsage, mobileToolViews, mobileAppOpenResults] = await Promise.all([
+    const now = Date.now();
+    const msPerDay = 24 * 60 * 60 * 1000;
+    const dayAgo = now - msPerDay;
+    const weekAgo = now - 7 * msPerDay;
+    const monthAgo = now - 30 * msPerDay;
+
+    const [
+      aiToolUsage,
+      resourceDownloads,
+      contactResults,
+      mobileAiToolUsage,
+      mobileToolViews,
+      mobileAppOpenDay,
+      mobileAppOpenWeek,
+      mobileAppOpenMonth,
+    ] = await Promise.all([
       this.getEventCounts("ai_tool_usage"),
       this.getEventCounts("resource_download"),
       db.select({ count: count() }).from(eventTracking).where(eq(eventTracking.eventType, "contact_form_submission")),
       this.getEventCounts("mobile_ai_tool_usage"),
       this.getEventCounts("mobile_tool_view"),
-      db.select({ count: count() }).from(eventTracking).where(eq(eventTracking.eventType, "mobile_app_open")),
+      db.select({ count: count() }).from(eventTracking).where(and(eq(eventTracking.eventType, "mobile_app_open"), gte(eventTracking.createdAt, dayAgo))),
+      db.select({ count: count() }).from(eventTracking).where(and(eq(eventTracking.eventType, "mobile_app_open"), gte(eventTracking.createdAt, weekAgo))),
+      db.select({ count: count() }).from(eventTracking).where(and(eq(eventTracking.eventType, "mobile_app_open"), gte(eventTracking.createdAt, monthAgo))),
     ]);
     return {
       aiToolUsage,
@@ -457,7 +474,11 @@ export class DatabaseStorage implements IStorage {
       contactSubmissions: contactResults[0]?.count || 0,
       mobileAiToolUsage,
       mobileToolViews,
-      mobileAppOpens: mobileAppOpenResults[0]?.count || 0,
+      mobileAppOpens: {
+        day: mobileAppOpenDay[0]?.count || 0,
+        week: mobileAppOpenWeek[0]?.count || 0,
+        month: mobileAppOpenMonth[0]?.count || 0,
+      },
     };
   }
 

@@ -354,7 +354,11 @@ export const eventAnalyticsSchema = z.object({
   contactSubmissions: z.number(),
   mobileAiToolUsage: z.array(eventCountItemSchema),
   mobileToolViews: z.array(eventCountItemSchema),
-  mobileAppOpens: z.number(),
+  mobileAppOpens: z.object({
+    day: z.number(),
+    week: z.number(),
+    month: z.number(),
+  }),
 });
 
 export type EventAnalytics = z.infer<typeof eventAnalyticsSchema>;
