@@ -29,6 +29,7 @@ import {
   FAILURE_THRESHOLD_1H,
   FAILURE_THRESHOLD_24H,
 } from "./billingEmailMetrics";
+import { db } from "../db";
 
 describe("billingEmailMetrics", () => {
   beforeEach(() => {
@@ -151,6 +152,85 @@ describe("billingEmailMetrics", () => {
       recordBillingEmailFailure("active", 2);
       expect(_failures).toHaveLength(1);
       expect(_failures[0]!.type).toBe("active");
+    });
+  });
+
+  describe("hydrateBillingEmailMetrics", () => {
+    it("normal path: buffer starts empty and count equals the number of DB rows", async () => {
+      // buffer is empty (reset in beforeEach)
+      vi.setSystemTime(new Date("2026-07-25T12:00:00.000Z"));
+      const now = Date.now();
+
+      const mockRows = [
+        {
+          createdAt: new Date(now - 10_000),
+          type: "billing_email_failed",
+          meta: { emailType: "payment_failed", orgId: 1 },
+        },
+        {
+          createdAt: new Date(now - 20_000),
+          type: "billing_email_failed",
+          meta: { emailType: "canceled", orgId: 2 },
+        },
+        {
+          createdAt: new Date(now - 30_000),
+          type: "billing_email_failed",
+          meta: { emailType: "active", orgId: 3 },
+        },
+      ];
+
+      vi.spyOn(db, "select").mockReturnValue({
+        from: () => ({ where: () => Promise.resolve(mockRows) }),
+      } as ReturnType<typeof db.select>);
+
+      await hydrateBillingEmailMetrics();
+
+      expect(_failures).toHaveLength(3);
+      expect(getBillingEmailMetrics().failures24h).toBe(3);
+    });
+
+    it("deduplication: timestamps already in buffer are not double-counted", async () => {
+      // Record two failures so they live in the buffer with known timestamps
+      vi.setSystemTime(new Date("2026-07-25T10:00:00.000Z"));
+      recordBillingEmailFailure("payment_failed", 1);
+      vi.setSystemTime(new Date("2026-07-25T10:01:00.000Z"));
+      recordBillingEmailFailure("canceled", 2);
+
+      expect(_failures).toHaveLength(2);
+
+      // DB returns those same two rows PLUS one new one
+      const existingTs1 = new Date("2026-07-25T10:00:00.000Z");
+      const existingTs2 = new Date("2026-07-25T10:01:00.000Z");
+      const newTs = new Date("2026-07-25T10:02:00.000Z");
+
+      const mockRows = [
+        {
+          createdAt: existingTs1,
+          type: "billing_email_failed",
+          meta: { emailType: "payment_failed", orgId: 1 },
+        },
+        {
+          createdAt: existingTs2,
+          type: "billing_email_failed",
+          meta: { emailType: "canceled", orgId: 2 },
+        },
+        {
+          createdAt: newTs,
+          type: "billing_email_failed",
+          meta: { emailType: "active", orgId: 3 },
+        },
+      ];
+
+      vi.spyOn(db, "select").mockReturnValue({
+        from: () => ({ where: () => Promise.resolve(mockRows) }),
+      } as ReturnType<typeof db.select>);
+
+      vi.setSystemTime(new Date("2026-07-25T10:03:00.000Z"));
+      await hydrateBillingEmailMetrics();
+
+      // Should be 3 total (2 already in buffer + 1 new from DB), not 5 (doubled)
+      expect(_failures).toHaveLength(3);
+      expect(getBillingEmailMetrics().failures24h).toBe(3);
     });
   });
 });
