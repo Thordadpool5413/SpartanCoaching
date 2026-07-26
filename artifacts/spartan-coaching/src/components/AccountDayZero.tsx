@@ -54,7 +54,7 @@ export function AccountDayZero({ firstName, isWelcome, isExpired, isSuspended }:
   const headline = isSuspended
     ? "Restore access"
     : isExpired && !isWelcome
-      ? "Your evaluation window ended"
+      ? "Field Kit access has ended"
       : isWelcome
         ? `Welcome, ${name}`
         : `You're one step from the Field Kit, ${name}`;
@@ -62,7 +62,7 @@ export function AccountDayZero({ firstName, isWelcome, isExpired, isSuspended }:
   const sub = isSuspended
     ? "Update your card to unlock live tools again. Preview still works while you're here."
     : isExpired && !isWelcome
-      ? "Subscribe to unlock live tools again — or preview interfaces free anytime."
+      ? "Resubscribe for $14.99/week to unlock live tools again — or preview interfaces free anytime. Cancel anytime."
       : "Account created. Subscribe to generate, save, and run tools live. Cancel anytime from Manage billing.";
 
   const unlockTools = FIELD_KIT_TOOLS.filter((t) => t.id !== "brand-video").slice(0, 8);

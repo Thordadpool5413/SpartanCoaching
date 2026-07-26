@@ -56,7 +56,8 @@ describe("AccountDayZero", () => {
 
   it("shows resubscribe framing when expired", () => {
     render(<AccountDayZero firstName="Alex" isExpired isWelcome={false} />);
-    expect(screen.getByRole("heading", { name: /evaluation window ended/i })).toBeTruthy();
+    expect(screen.getByRole("heading", { name: /Field Kit access has ended/i })).toBeTruthy();
+    expect(screen.queryByText(/evaluation window/i)).toBeNull();
     expect(screen.getByTestId("button-day-zero-subscribe").textContent).toMatch(/Resubscribe/i);
   });
 
