@@ -143,7 +143,7 @@ export function FieldKitChrome({
             </span>
           )}
           {trial && (
-            <span className="text-[11px] font-semibold text-amber-700 dark:text-amber-200 bg-amber-500/10 border border-amber-500/25 rounded-md px-2.5 py-1">
+            <span className="text-[11px] font-semibold text-foreground bg-muted border border-border rounded-md px-2.5 py-1">
               {trial}
             </span>
           )}

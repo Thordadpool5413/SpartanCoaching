@@ -262,7 +262,11 @@ export default function SalesWorkflowScreen() {
               />
             ))}
             <Pressable disabled={saving} onPress={schedule} style={[styles.primary, { backgroundColor: colors.primary, opacity: saving ? 0.6 : 1 }]}>
-              {saving ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryText}>Save call</Text>}
+              {saving ? (
+                <ActivityIndicator color={colors.primaryForeground} />
+              ) : (
+                <Text style={[styles.primaryText, { color: colors.primaryForeground }]}>Save call</Text>
+              )}
             </Pressable>
           </View>
         )}
@@ -339,7 +343,7 @@ const styles = StyleSheet.create({
   card: { borderWidth: 1, borderRadius: 14, padding: 16, marginBottom: 14 },
   cardTitle: { fontSize: 17, fontWeight: "800", marginBottom: 5 },
   primary: { minHeight: 46, borderRadius: 10, paddingHorizontal: 16, alignItems: "center", justifyContent: "center" },
-  primaryText: { color: "#fff", fontWeight: "800" },
+  primaryText: { fontWeight: "800" },
   secondary: { minHeight: 42, borderWidth: 1, borderRadius: 10, alignItems: "center", justifyContent: "center", marginTop: 12 },
   error: { marginBottom: 14, lineHeight: 20 },
   safety: { fontSize: 11, lineHeight: 17, textAlign: "center", marginTop: 8 },

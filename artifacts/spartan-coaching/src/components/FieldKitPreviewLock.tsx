@@ -185,7 +185,7 @@ export function FieldKitPreviewLock({ children }: Props) {
 
       {nudgeOpen && (
         <div
-          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-black/50"
+          className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-background/80 backdrop-blur-sm"
           role="dialog"
           aria-modal="true"
           aria-labelledby="preview-unlock-title"

@@ -185,7 +185,7 @@ export default function AccountScreen() {
           onPress={() => router.push("/login")}
           style={[styles.primaryBtn, { backgroundColor: colors.primary }]}
         >
-          <Text style={styles.primaryBtnText}>Client login</Text>
+          <Text style={[styles.primaryBtnText, { color: colors.primaryForeground }]}>Client login</Text>
         </Pressable>
         <Pressable
           onPress={() => Linking.openURL(`${getWebSiteUrl()}/field-kit-membership`)}
@@ -439,7 +439,7 @@ export default function AccountScreen() {
             {checkoutPending ? (
               <ActivityIndicator color={colors.primaryForeground} />
             ) : (
-              <Text style={styles.primaryBtnText}>
+              <Text style={[styles.primaryBtnText, { color: colors.primaryForeground }]}>
                 {org?.status === "expired" ? "Resubscribe · $14.99/wk" : "Subscribe · $14.99/wk"}
               </Text>
             )}
@@ -515,7 +515,7 @@ export default function AccountScreen() {
                 ]}
                 testID="button-subscribe"
               >
-                <Text style={styles.primaryBtnText}>
+                <Text style={[styles.primaryBtnText, { color: colors.primaryForeground }]}>
                   {checkoutPending ? "Opening checkout…" : "Subscribe · $14.99/week"}
                 </Text>
               </Pressable>
@@ -656,7 +656,7 @@ export default function AccountScreen() {
             onPress={() => router.push("/(tabs)/tools")}
             style={{ marginTop: 6, backgroundColor: colors.primary, borderRadius: 8, paddingVertical: 10, alignItems: "center" }}
           >
-            <Text style={{ color: "#fff", fontWeight: "800", fontSize: 13 }}>Open Field Kit →</Text>
+            <Text style={{ color: colors.primaryForeground, fontWeight: "800", fontSize: 13 }}>Open Field Kit →</Text>
           </Pressable>
         </View>
       )}
@@ -735,7 +735,9 @@ export default function AccountScreen() {
               { backgroundColor: colors.primary, opacity: saving ? 0.7 : 1, marginTop: 14 },
             ]}
           >
-            <Text style={styles.primaryBtnText}>{saving ? "Saving…" : "Save profile"}</Text>
+            <Text style={[styles.primaryBtnText, { color: colors.primaryForeground }]}>
+              {saving ? "Saving…" : "Save profile"}
+            </Text>
           </Pressable>
           {msg ? (
             <Text style={{ color: colors.mutedForeground, marginTop: 8, fontSize: 13 }}>{msg}</Text>
@@ -778,7 +780,7 @@ const styles = StyleSheet.create({
     paddingVertical: 14,
     alignItems: "center",
   },
-  primaryBtnText: { color: "#fff", fontWeight: "800", fontSize: 16 },
+  primaryBtnText: { fontWeight: "800", fontSize: 16 },
   outlineBtn: {
     borderWidth: 1,
     borderRadius: 10,

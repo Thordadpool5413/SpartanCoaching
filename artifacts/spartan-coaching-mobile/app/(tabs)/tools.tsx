@@ -850,7 +850,7 @@ export default function ToolsScreen() {
               onPress={() => router.push(isAuthenticated ? "/(tabs)/account" : "/login")}
               style={{ backgroundColor: colors.primary, borderRadius: 8, paddingVertical: 11, alignItems: "center" }}
             >
-              <Text style={{ color: "#fff", fontWeight: "800", fontSize: 14 }}>
+              <Text style={{ color: colors.primaryForeground, fontWeight: "800", fontSize: 14 }}>
                 {isAuthenticated ? "Open Account to get access →" : "Sign in to get access →"}
               </Text>
             </Pressable>
@@ -1239,9 +1239,9 @@ export default function ToolsScreen() {
                 ]}
               >
                 {objectionLoading ? (
-                  <ActivityIndicator color="#fff" size="small" />
+                  <ActivityIndicator color={colors.primaryForeground} size="small" />
                 ) : (
-                  <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold" }]}>Generate Response</Text>
+                  <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold", color: colors.primaryForeground }]}>Generate Response</Text>
                 )}
               </Pressable>
               {!!objectionError && <Text style={[styles.errorText, { color: colors.primary, fontFamily: "Inter_400Regular" }]}>{objectionError}</Text>}
@@ -1337,9 +1337,9 @@ export default function ToolsScreen() {
                 ]}
               >
                 {playbookLoading ? (
-                  <ActivityIndicator color="#fff" size="small" />
+                  <ActivityIndicator color={colors.primaryForeground} size="small" />
                 ) : (
-                  <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold" }]}>Build Playbook</Text>
+                  <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold", color: colors.primaryForeground }]}>Build Playbook</Text>
                 )}
               </Pressable>
               {!!playbookError && <Text style={[styles.errorText, { color: colors.primary, fontFamily: "Inter_400Regular" }]}>{playbookError}</Text>}
@@ -1462,9 +1462,9 @@ export default function ToolsScreen() {
                 ]}
               >
                 {emailLoading ? (
-                  <ActivityIndicator color="#fff" size="small" />
+                  <ActivityIndicator color={colors.primaryForeground} size="small" />
                 ) : (
-                  <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold" }]}>Generate Email</Text>
+                  <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold", color: colors.primaryForeground }]}>Generate Email</Text>
                 )}
               </Pressable>
               {!!emailError && <Text style={[styles.errorText, { color: colors.primary, fontFamily: "Inter_400Regular" }]}>{emailError}</Text>}
@@ -1550,9 +1550,9 @@ export default function ToolsScreen() {
                 ]}
               >
                 {researchLoading ? (
-                  <ActivityIndicator color="#fff" size="small" />
+                  <ActivityIndicator color={colors.primaryForeground} size="small" />
                 ) : (
-                  <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold" }]}>Research</Text>
+                  <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold", color: colors.primaryForeground }]}>Research</Text>
                 )}
               </Pressable>
               {!!researchError && (
@@ -1655,9 +1655,9 @@ export default function ToolsScreen() {
                 ]}
               >
                 {weeklyLoading ? (
-                  <ActivityIndicator color="#fff" size="small" />
+                  <ActivityIndicator color={colors.primaryForeground} size="small" />
                 ) : (
-                  <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold" }]}>Build Week Plan</Text>
+                  <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold", color: colors.primaryForeground }]}>Build Week Plan</Text>
                 )}
               </Pressable>
               {!!weeklyError && (
@@ -1737,9 +1737,9 @@ export default function ToolsScreen() {
                 ]}
               >
                 {coldLoading ? (
-                  <ActivityIndicator color="#fff" size="small" />
+                  <ActivityIndicator color={colors.primaryForeground} size="small" />
                 ) : (
-                  <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold" }]}>Generate Script</Text>
+                  <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold", color: colors.primaryForeground }]}>Generate Script</Text>
                 )}
               </Pressable>
               {!!coldError && (
@@ -1887,7 +1887,7 @@ export default function ToolsScreen() {
                                 pressed && { opacity: 0.85 },
                               ]}
                             >
-                              <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold" }]}>Start Custom Session</Text>
+                              <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold", color: colors.primaryForeground }]}>Start Custom Session</Text>
                             </Pressable>
                           </View>
                         )}
@@ -2047,7 +2047,7 @@ export default function ToolsScreen() {
                       pressed && { opacity: 0.85 },
                     ]}
                   >
-                    <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold" }]}>Practice Another Scenario</Text>
+                    <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold", color: colors.primaryForeground }]}>Practice Another Scenario</Text>
                   </Pressable>
                 </View>
               )}
@@ -2117,7 +2117,7 @@ const styles = StyleSheet.create({
     marginTop: 16,
     minHeight: 50,
   },
-  submitBtnText: { color: "#fff", fontSize: 16, fontWeight: "700" },
+  submitBtnText: { fontSize: 16, fontWeight: "700" },
   errorText: { fontSize: 14, marginTop: 8 },
   resultCard: {
     marginTop: 16,
