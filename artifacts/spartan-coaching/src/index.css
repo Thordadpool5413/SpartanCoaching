@@ -174,7 +174,7 @@ body {
   --secondary-foreground: 0 0% 10%;
 
   --muted: 0 0% 95%;
-  --muted-foreground: 0 0% 42%;
+  --muted-foreground: 220 12% 28%;
 
   --accent: 0 100% 97%;
   --accent-foreground: 0 84% 35%;
@@ -229,38 +229,39 @@ body {
   --elevate-1: rgba(255,255,255, .06);
   --elevate-2: rgba(255,255,255, .12);
 
-  --background: 0 0% 4%;
-  --foreground: 0 0% 96%;
-  --border: 0 0% 100% / 0.08;
+  /* Default dark surface = Midnight Navy (overridden live by appearance picker) */
+  --background: 222 42% 14%;
+  --foreground: 214 40% 97%;
+  --border: 222 26% 30%;
 
-  --card: 0 0% 7%;
-  --card-foreground: 0 0% 95%;
-  --card-border: 0 0% 13%;
+  --card: 222 38% 18%;
+  --card-foreground: 214 35% 97%;
+  --card-border: 222 26% 28%;
 
-  --sidebar: 0 0% 5%;
-  --sidebar-foreground: 0 0% 92%;
-  --sidebar-border: 0 0% 15%;
+  --sidebar: 222 44% 11%;
+  --sidebar-foreground: 214 35% 97%;
+  --sidebar-border: 222 26% 28%;
   --sidebar-primary: 0 85% 62%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 0 0% 13%;
-  --sidebar-accent-foreground: 0 0% 92%;
+  --sidebar-accent: 222 32% 20%;
+  --sidebar-accent-foreground: 214 35% 97%;
   --sidebar-ring: 0 85% 62%;
 
-  --popover: 0 0% 5%;
-  --popover-foreground: 0 0% 96%;
-  --popover-border: 0 0% 15%;
+  --popover: 222 38% 18%;
+  --popover-foreground: 214 35% 97%;
+  --popover-border: 222 26% 28%;
 
   --primary: 0 85% 62%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 0 0% 15%;
-  --secondary-foreground: 0 0% 96%;
+  --secondary: 222 30% 22%;
+  --secondary-foreground: 214 40% 97%;
 
-  --muted: 0 0% 9%;
-  --muted-foreground: 0 0% 58%;
+  --muted: 222 32% 20%;
+  --muted-foreground: 214 22% 80%;
 
-  --accent: 0 85% 16%;
-  --accent-foreground: 0 85% 94%;
+  --accent: 0 85% 18%;
+  --accent-foreground: 214 40% 97%;
 
   --destructive: 0 85% 62%;
   --destructive-foreground: 0 0% 100%;
@@ -328,6 +329,33 @@ body {
     min-height: 100vh;
     background-color: hsl(var(--background));
     color: hsl(var(--foreground));
+  }
+
+  /* Surfaces carry their own readable ink when background tokens change */
+  .bg-background {
+    background-color: hsl(var(--background)) !important;
+    color: hsl(var(--foreground));
+  }
+  .bg-card {
+    background-color: hsl(var(--card)) !important;
+    color: hsl(var(--card-foreground));
+  }
+  .bg-muted {
+    background-color: hsl(var(--muted)) !important;
+    color: hsl(var(--muted-foreground));
+  }
+  .bg-popover {
+    background-color: hsl(var(--popover)) !important;
+    color: hsl(var(--popover-foreground));
+  }
+  .text-foreground {
+    color: hsl(var(--foreground)) !important;
+  }
+  .text-muted-foreground {
+    color: hsl(var(--muted-foreground)) !important;
+  }
+  .text-card-foreground {
+    color: hsl(var(--card-foreground)) !important;
   }
 
   /* Professional readable type hierarchy — always uses theme tokens */

@@ -148,7 +148,8 @@ export function Header() {
   }, [location]);
 
   const allSearchItems = allSearchablePages;
-  const homeHref = isAuthenticated && canUseFieldKit ? "/portal" : "/";
+  // Marketing home always — Field Kit board is reached via Field Kit / Portal links.
+  const homeHref = "/";
 
   const filteredResults = searchQuery.trim()
     ? allSearchItems.filter(item =>

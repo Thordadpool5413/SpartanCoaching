@@ -23,7 +23,7 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover, interactive-widget=resizes-content" />
     <meta name="theme-color" content="#dc2626" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#151e33" media="(prefers-color-scheme: dark)" />
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
@@ -59,18 +59,18 @@
       (function () {
         try {
           var root = document.documentElement;
-          var bg = localStorage.getItem('spartan_bg') || 'default';
+          var bg = localStorage.getItem('spartan_bg') || 'midnight';
           var surfaces = {
-            default:  { tone: 'dark',  bg: '0 0% 7%',     fg: '0 0% 96%' },
-            soft:     { tone: 'light', bg: '210 25% 98%', fg: '222 25% 12%' },
-            warm:     { tone: 'light', bg: '40 45% 96%',  fg: '25 30% 12%' },
-            cool:     { tone: 'light', bg: '200 35% 96%', fg: '210 30% 12%' },
+            default:  { tone: 'dark',  bg: '0 0% 7%',     fg: '0 0% 97%' },
+            soft:     { tone: 'light', bg: '210 25% 98%', fg: '222 30% 10%' },
+            warm:     { tone: 'light', bg: '40 45% 96%',  fg: '25 35% 10%' },
+            cool:     { tone: 'light', bg: '200 35% 96%', fg: '210 35% 10%' },
             ink:      { tone: 'dark',  bg: '0 0% 0%',     fg: '0 0% 98%' },
-            midnight: { tone: 'dark',  bg: '222 42% 14%', fg: '214 35% 96%' },
-            charcoal: { tone: 'dark',  bg: '0 0% 20%',    fg: '0 0% 97%' },
-            forest:   { tone: 'dark',  bg: '152 28% 13%', fg: '140 22% 96%' }
+            midnight: { tone: 'dark',  bg: '222 42% 14%', fg: '214 40% 97%' },
+            charcoal: { tone: 'dark',  bg: '0 0% 18%',    fg: '0 0% 98%' },
+            forest:   { tone: 'dark',  bg: '152 28% 13%', fg: '140 25% 97%' }
           };
-          var s = surfaces[bg] || surfaces.default;
+          var s = surfaces[bg] || surfaces.midnight;
           var mode = s.tone;
           root.classList.toggle('dark', mode === 'dark');
           root.style.colorScheme = mode;

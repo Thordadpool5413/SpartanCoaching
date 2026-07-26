@@ -1,42 +1,44 @@
 /**
  * Spartan Field Kit visual tokens — shared by web and mobile.
- * Dark Field Kit authority palette (primary red on near-black).
+ * Default surface: Midnight Navy (readable light text on deep navy).
  */
 
 export const spartanDark = {
-  text: "#f5f5f5",
+  text: "#f0f4fc",
   tint: "#e8291e",
 
-  background: "#0a0a0a",
-  foreground: "#f5f5f5",
+  /** Midnight navy — matches web BG preset "midnight" */
+  background: "#151e33",
+  foreground: "#f0f4fc",
 
-  card: "#111111",
-  cardForeground: "#f0f0f0",
+  card: "#1c2740",
+  cardForeground: "#f0f4fc",
 
   primary: "#e8291e",
   primaryForeground: "#ffffff",
 
-  secondary: "#1e1e1e",
-  secondaryForeground: "#f5f5f5",
+  secondary: "#243049",
+  secondaryForeground: "#f0f4fc",
 
-  muted: "#161616",
-  mutedForeground: "rgba(255,255,255,0.45)",
+  muted: "#1f2a42",
+  /** High-contrast secondary text (readable on navy) */
+  mutedForeground: "rgba(226, 232, 245, 0.82)",
 
-  accent: "#2a0808",
-  accentForeground: "#f5a5a2",
+  accent: "#2a1020",
+  accentForeground: "#f5b8b4",
 
   destructive: "#e8291e",
   destructiveForeground: "#ffffff",
 
-  border: "rgba(255,255,255,0.08)",
-  input: "#1a1a1a",
+  border: "rgba(200, 214, 240, 0.18)",
+  input: "#1a2438",
 
-  heroBackground: "#050505",
+  heroBackground: "#10182b",
   heroForeground: "#ffffff",
-  heroMuted: "rgba(255,255,255,0.6)",
-  heroBadgeBg: "rgba(255,255,255,0.08)",
-  heroBadgeBorder: "rgba(255,255,255,0.2)",
-  heroBadgeText: "rgba(255,255,255,0.85)",
+  heroMuted: "rgba(226, 232, 245, 0.75)",
+  heroBadgeBg: "rgba(255,255,255,0.1)",
+  heroBadgeBorder: "rgba(255,255,255,0.22)",
+  heroBadgeText: "rgba(255,255,255,0.9)",
 
   success: "#4ade80",
   warning: "#fbbf24",
@@ -60,7 +62,8 @@ export const spartanLight = {
   secondaryForeground: "#1a1a1a",
 
   muted: "#f2f2f2",
-  mutedForeground: "rgba(0,0,0,0.45)",
+  /** Stronger than 0.45 black so body copy stays legible on light cards */
+  mutedForeground: "rgba(15, 23, 42, 0.72)",
 
   accent: "#fff5f5",
   accentForeground: "#b91c1c",
@@ -112,17 +115,17 @@ export const typeScale = {
   button: { fontSize: 15, fontWeight: "700" as const },
 } as const;
 
-/** CSS custom property values (HSL components without hsl()) for web dark Field Kit */
+/** CSS custom property values (HSL components without hsl()) — Midnight Navy default */
 export const cssDarkHsl = {
-  background: "0 0% 4%",
-  foreground: "0 0% 96%",
-  card: "0 0% 7%",
-  "card-foreground": "0 0% 94%",
+  background: "222 42% 14%",
+  foreground: "214 35% 96%",
+  card: "222 38% 18%",
+  "card-foreground": "214 30% 96%",
   primary: "0 85% 58%",
   "primary-foreground": "0 0% 100%",
-  muted: "0 0% 9%",
-  "muted-foreground": "0 0% 55%",
-  border: "0 0% 16%",
-  input: "0 0% 10%",
+  muted: "222 32% 20%",
+  "muted-foreground": "214 18% 78%",
+  border: "222 26% 28%",
+  input: "222 32% 18%",
   ring: "0 85% 58%",
 } as const;

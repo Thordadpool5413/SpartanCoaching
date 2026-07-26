@@ -69,7 +69,11 @@ export function AppearancePanel({
 }) {
   const { mode, accent, background, setMode, setAccent, setBackground } = useTheme();
   const lightBgs = BG_PRESETS.filter((p) => p.tone === "light");
-  const darkBgs = BG_PRESETS.filter((p) => p.tone === "dark");
+  // Midnight Navy first — product default for dark surfaces
+  const darkBgs = [
+    ...BG_PRESETS.filter((p) => p.key === "midnight"),
+    ...BG_PRESETS.filter((p) => p.tone === "dark" && p.key !== "midnight"),
+  ];
   const activeBg = BG_PRESETS.find((p) => p.key === background);
   const activeAccent = ACCENT_PRESETS.find((p) => p.key === accent);
 

@@ -50,7 +50,8 @@ export const ACCENT_PRESETS: AccentPreset[] = [
 
 /**
  * Absolute surface colors. Light presets are truly light; dark presets are
- * clearly distinct. mutedFg is tuned for readable professional body copy.
+ * clearly distinct. fg / cardFg / mutedFg stay high-contrast so body and
+ * secondary copy remain readable on every background.
  */
 export const BG_PRESETS: BgPreset[] = [
   {
@@ -59,13 +60,13 @@ export const BG_PRESETS: BgPreset[] = [
     swatch: "hsl(0 0% 7%)",
     tone: "dark",
     bg: "0 0% 7%",
-    fg: "0 0% 96%",
-    card: "0 0% 11%",
-    cardFg: "0 0% 96%",
-    muted: "0 0% 14%",
-    mutedFg: "0 0% 72%",
-    secondary: "0 0% 16%",
-    border: "0 0% 22%",
+    fg: "0 0% 97%",
+    card: "0 0% 12%",
+    cardFg: "0 0% 97%",
+    muted: "0 0% 15%",
+    mutedFg: "0 0% 80%",
+    secondary: "0 0% 17%",
+    border: "0 0% 24%",
     sidebar: "0 0% 6%",
   },
   {
@@ -74,13 +75,13 @@ export const BG_PRESETS: BgPreset[] = [
     swatch: "hsl(210 25% 98%)",
     tone: "light",
     bg: "210 25% 98%",
-    fg: "222 25% 12%",
+    fg: "222 30% 10%",
     card: "0 0% 100%",
-    cardFg: "222 25% 10%",
-    muted: "210 18% 94%",
-    mutedFg: "220 12% 32%",
-    secondary: "210 14% 92%",
-    border: "214 14% 84%",
+    cardFg: "222 30% 10%",
+    muted: "210 18% 93%",
+    mutedFg: "220 16% 26%",
+    secondary: "210 14% 91%",
+    border: "214 14% 80%",
     sidebar: "210 20% 96%",
   },
   {
@@ -89,13 +90,13 @@ export const BG_PRESETS: BgPreset[] = [
     swatch: "hsl(40 45% 96%)",
     tone: "light",
     bg: "40 45% 96%",
-    fg: "25 30% 12%",
+    fg: "25 35% 10%",
     card: "40 50% 99%",
-    cardFg: "25 30% 10%",
-    muted: "36 30% 91%",
-    mutedFg: "25 14% 30%",
-    secondary: "36 24% 89%",
-    border: "34 18% 82%",
+    cardFg: "25 35% 10%",
+    muted: "36 30% 90%",
+    mutedFg: "25 18% 24%",
+    secondary: "36 24% 88%",
+    border: "34 18% 78%",
     sidebar: "38 35% 94%",
   },
   {
@@ -104,13 +105,13 @@ export const BG_PRESETS: BgPreset[] = [
     swatch: "hsl(200 35% 96%)",
     tone: "light",
     bg: "200 35% 96%",
-    fg: "210 30% 12%",
+    fg: "210 35% 10%",
     card: "0 0% 100%",
-    cardFg: "210 30% 10%",
-    muted: "200 22% 92%",
-    mutedFg: "210 14% 30%",
-    secondary: "200 18% 90%",
-    border: "200 16% 82%",
+    cardFg: "210 35% 10%",
+    muted: "200 22% 91%",
+    mutedFg: "210 18% 24%",
+    secondary: "200 18% 89%",
+    border: "200 16% 78%",
     sidebar: "200 28% 95%",
   },
   {
@@ -120,12 +121,12 @@ export const BG_PRESETS: BgPreset[] = [
     tone: "dark",
     bg: "0 0% 0%",
     fg: "0 0% 98%",
-    card: "0 0% 8%",
-    cardFg: "0 0% 96%",
+    card: "0 0% 9%",
+    cardFg: "0 0% 97%",
     muted: "0 0% 12%",
-    mutedFg: "0 0% 74%",
+    mutedFg: "0 0% 80%",
     secondary: "0 0% 14%",
-    border: "0 0% 20%",
+    border: "0 0% 22%",
     sidebar: "0 0% 4%",
   },
   {
@@ -134,13 +135,13 @@ export const BG_PRESETS: BgPreset[] = [
     swatch: "hsl(222 42% 14%)",
     tone: "dark",
     bg: "222 42% 14%",
-    fg: "214 35% 96%",
+    fg: "214 40% 97%",
     card: "222 38% 18%",
-    cardFg: "214 30% 96%",
+    cardFg: "214 35% 97%",
     muted: "222 32% 20%",
-    mutedFg: "214 18% 74%",
+    mutedFg: "214 22% 80%",
     secondary: "222 30% 22%",
-    border: "222 26% 28%",
+    border: "222 26% 30%",
     sidebar: "222 44% 11%",
   },
   {
@@ -148,15 +149,15 @@ export const BG_PRESETS: BgPreset[] = [
     label: "Charcoal",
     swatch: "hsl(0 0% 20%)",
     tone: "dark",
-    bg: "0 0% 20%",
-    fg: "0 0% 97%",
-    card: "0 0% 24%",
-    cardFg: "0 0% 97%",
-    muted: "0 0% 26%",
-    mutedFg: "0 0% 76%",
-    secondary: "0 0% 28%",
+    bg: "0 0% 18%",
+    fg: "0 0% 98%",
+    card: "0 0% 22%",
+    cardFg: "0 0% 98%",
+    muted: "0 0% 24%",
+    mutedFg: "0 0% 82%",
+    secondary: "0 0% 26%",
     border: "0 0% 34%",
-    sidebar: "0 0% 16%",
+    sidebar: "0 0% 14%",
   },
   {
     key: "forest",
@@ -164,13 +165,13 @@ export const BG_PRESETS: BgPreset[] = [
     swatch: "hsl(152 28% 13%)",
     tone: "dark",
     bg: "152 28% 13%",
-    fg: "140 22% 96%",
+    fg: "140 25% 97%",
     card: "152 24% 17%",
-    cardFg: "140 18% 96%",
+    cardFg: "140 20% 97%",
     muted: "152 20% 19%",
-    mutedFg: "140 14% 74%",
+    mutedFg: "140 16% 80%",
     secondary: "152 18% 21%",
-    border: "152 16% 26%",
+    border: "152 16% 28%",
     sidebar: "152 30% 10%",
   },
 ];
@@ -230,14 +231,15 @@ export function getInitialAccent(): AccentKey {
 }
 
 export function getInitialBackground(): BgKey {
-  if (typeof window === "undefined") return "default";
+  if (typeof window === "undefined") return "midnight";
   try {
     const saved = localStorage.getItem("spartan_bg");
     if (saved && BG_PRESETS.some((p) => p.key === saved)) return saved as BgKey;
   } catch {
     /* ignore */
   }
-  return "default";
+  // Product default: Midnight Navy across the site
+  return "midnight";
 }
 
 export function getInitialMode(): ThemeMode {
@@ -306,30 +308,33 @@ export function applyAppearance(mode: ThemeMode, accent: AccentKey, background: 
   setVar("--sidebar-foreground", surface.fg);
   setVar("--sidebar-border", surface.border);
 
-  // 4) Accent / brand
+  // 4) Accent / brand — primary-foreground always contrasts with primary fill
   const primary = effectiveMode === "dark" ? accentPreset.primaryDark : accentPreset.primaryLight;
   const [ph, ps] = primary.split(" ");
   setVar("--primary", primary);
-  setVar(
-    "--primary-foreground",
-    effectiveMode === "dark" && accent === "gold" ? "0 0% 8%" : "0 0% 100%",
-  );
+  // Gold is light on dark surfaces → dark label; otherwise white on brand color
+  const primaryOnAccent =
+    accent === "gold" || accent === "green" ? (effectiveMode === "dark" ? "0 0% 8%" : "0 0% 100%") : "0 0% 100%";
+  setVar("--primary-foreground", primaryOnAccent);
   setVar("--ring", primary);
   setVar("--sidebar-primary", primary);
-  setVar("--sidebar-primary-foreground", "0 0% 100%");
+  setVar("--sidebar-primary-foreground", primaryOnAccent);
   setVar("--sidebar-ring", primary);
   if (effectiveMode === "light") {
-    setVar("--accent", `${ph} ${ps} 96%`);
+    setVar("--accent", `${ph} ${ps} 94%`);
     setVar("--accent-foreground", primary);
   } else {
-    setVar("--accent", `${ph} ${ps} 16%`);
-    setVar("--accent-foreground", "0 0% 96%");
+    setVar("--accent", `${ph} ${ps} 18%`);
+    setVar("--accent-foreground", surface.fg);
   }
+  // Destructive always keeps readable on-fill text
+  setVar("--destructive-foreground", "0 0% 100%");
 
   // 5) Hard paint html/body/#root so text never stays invisible on a new surface
   const bgColor = `hsl(${surface.bg})`;
   const fgColor = `hsl(${surface.fg})`;
   const mutedColor = `hsl(${surface.mutedFg})`;
+  const cardColor = `hsl(${surface.card})`;
   root.style.backgroundColor = bgColor;
   root.style.color = fgColor;
   if (body) {
@@ -341,8 +346,10 @@ export function applyAppearance(mode: ThemeMode, accent: AccentKey, background: 
     appRoot.style.backgroundColor = bgColor;
     appRoot.style.color = fgColor;
   }
-  // Expose muted for any inline consumers
   root.style.setProperty("--theme-muted-fg", mutedColor);
+  root.style.setProperty("--theme-card", cardColor);
+  // Help any unscoped content inherit readable colors with the surface
+  root.style.setProperty("color-scheme", effectiveMode);
 
   // 6) Persist
   try {
@@ -372,7 +379,7 @@ export function applyAppearance(mode: ThemeMode, accent: AccentKey, background: 
 export function defaultBgForMode(mode: ThemeMode, current: BgKey): BgKey {
   const cur = getBgPreset(current);
   if (cur.tone === mode) return current;
-  return mode === "light" ? "soft" : "default";
+  return mode === "light" ? "soft" : "midnight";
 }
 
 // Back-compat exports used elsewhere
