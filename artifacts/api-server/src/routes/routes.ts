@@ -50,6 +50,7 @@ import {
   insertSignedAgreementSchema,
   roleplayStartSchema,
   roleplayMessageSchema,
+  eventAnalyticsSchema,
 } from "@workspace/db";
 
 import {
@@ -1371,7 +1372,11 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   app.get("/api/analytics/events", requireAdmin, async (req, res) => {
     try {
-      const analytics = await storage.getEventAnalytics();
+      const raw = await storage.getEventAnalytics();
+      // Validate at the boundary so a future refactor that drops a field
+      // breaks the build or throws at runtime rather than silently serving
+      // an incomplete response.
+      const analytics = eventAnalyticsSchema.parse(raw);
       res.json({ analytics });
     } catch (error: any) {
       console.error("Get event analytics error:", error);

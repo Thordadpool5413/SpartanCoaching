@@ -340,6 +340,25 @@ export const visitorAnalyticsSchema = z.object({
 
 export type VisitorAnalytics = z.infer<typeof visitorAnalyticsSchema>;
 
+// Shared schema for the event-analytics API response.
+// All fields here are required — removing or renaming one is a build-time error
+// in both the IStorage interface and the DatabaseStorage implementation.
+const eventCountItemSchema = z.object({
+  eventName: z.string(),
+  count: z.number(),
+});
+
+export const eventAnalyticsSchema = z.object({
+  aiToolUsage: z.array(eventCountItemSchema),
+  resourceDownloads: z.array(eventCountItemSchema),
+  contactSubmissions: z.number(),
+  mobileAiToolUsage: z.array(eventCountItemSchema),
+  mobileToolViews: z.array(eventCountItemSchema),
+  mobileAppOpens: z.number(),
+});
+
+export type EventAnalytics = z.infer<typeof eventAnalyticsSchema>;
+
 // Email template request schema
 export const emailTemplateRequestSchema = z.object({
   templateType: z.enum(["follow_up", "thank_you", "value_add"]),

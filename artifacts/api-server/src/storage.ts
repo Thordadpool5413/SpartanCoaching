@@ -58,6 +58,7 @@ import {
   assessmentClients,
   siteSettings,
   type SelectSiteSetting,
+  type EventAnalytics,
   type InsertAssessment,
   type SelectAssessment,
   type InsertAssessmentQuestion,
@@ -103,7 +104,7 @@ export interface IStorage {
   deletePodcast(id: number): Promise<void>;
   trackEvent(event: InsertEventTracking): Promise<SelectEventTracking>;
   getEventCounts(eventType: string): Promise<Array<{ eventName: string; count: number }>>;
-  getEventAnalytics(): Promise<{ aiToolUsage: Array<{ eventName: string; count: number }>; resourceDownloads: Array<{ eventName: string; count: number }>; contactSubmissions: number; mobileAiToolUsage: Array<{ eventName: string; count: number }>; mobileToolViews: Array<{ eventName: string; count: number }> }>;
+  getEventAnalytics(): Promise<EventAnalytics>;
   getMobileUsagePerMember(): Promise<Array<{ memberId: number; mobileEvents: number; webEvents: number }>>;
   // Role-play operations (tenant-safe — never returns unowned legacy rows)
   createRoleplaySession(session: InsertRoleplaySession): Promise<SelectRoleplaySession>;
@@ -441,7 +442,7 @@ export class DatabaseStorage implements IStorage {
     return results;
   }
 
-  async getEventAnalytics(): Promise<{ aiToolUsage: Array<{ eventName: string; count: number }>; resourceDownloads: Array<{ eventName: string; count: number }>; contactSubmissions: number; mobileAiToolUsage: Array<{ eventName: string; count: number }>; mobileToolViews: Array<{ eventName: string; count: number }>; mobileAppOpens: number }> {
+  async getEventAnalytics(): Promise<EventAnalytics> {
     const [aiToolUsage, resourceDownloads, contactResults, mobileAiToolUsage, mobileToolViews, mobileAppOpenResults] = await Promise.all([
       this.getEventCounts("ai_tool_usage"),
       this.getEventCounts("resource_download"),
