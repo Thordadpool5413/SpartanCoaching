@@ -59,6 +59,7 @@ import {
   siteSettings,
   type SelectSiteSetting,
   type EventAnalytics,
+  type MobileUsagePerMember,
   type InsertAssessment,
   type SelectAssessment,
   type InsertAssessmentQuestion,
@@ -105,7 +106,7 @@ export interface IStorage {
   trackEvent(event: InsertEventTracking): Promise<SelectEventTracking>;
   getEventCounts(eventType: string): Promise<Array<{ eventName: string; count: number }>>;
   getEventAnalytics(): Promise<EventAnalytics>;
-  getMobileUsagePerMember(): Promise<Array<{ memberId: number; mobileEvents: number; webEvents: number }>>;
+  getMobileUsagePerMember(): Promise<MobileUsagePerMember[]>;
   // Role-play operations (tenant-safe — never returns unowned legacy rows)
   createRoleplaySession(session: InsertRoleplaySession): Promise<SelectRoleplaySession>;
   getRoleplaySession(id: number): Promise<SelectRoleplaySession | undefined>;
@@ -482,7 +483,7 @@ export class DatabaseStorage implements IStorage {
     };
   }
 
-  async getMobileUsagePerMember(): Promise<Array<{ memberId: number; mobileEvents: number; webEvents: number }>> {
+  async getMobileUsagePerMember(): Promise<MobileUsagePerMember[]> {
     const [mobileRows, webRows] = await Promise.all([
       db
         .select({ memberId: eventTracking.memberId, cnt: count() })

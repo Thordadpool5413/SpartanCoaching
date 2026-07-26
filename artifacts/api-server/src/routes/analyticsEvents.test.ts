@@ -46,7 +46,12 @@ vi.mock("@workspace/db", () => {
     enum: (vals: string[]) => ({ optional: () => ({}), values: vals }),
   };
   return {
-    eventTracking: { eventType: "event_type", eventName: "event_name", createdAt: "created_at" },
+    eventTracking: {
+      eventType: "event_type",
+      eventName: "event_name",
+      createdAt: "created_at",
+      memberId: "member_id",
+    },
     insertEventTrackingSchema: {
       parse: (data: unknown) => data,
     },
@@ -279,5 +284,137 @@ describe("DatabaseStorage.getEventAnalytics — mobile event counts", () => {
     expect(typeof result.mobileAppOpens.day).toBe("number");
     expect(typeof result.mobileAppOpens.week).toBe("number");
     expect(typeof result.mobileAppOpens.month).toBe("number");
+  });
+});
+
+// ── DatabaseStorage.getMobileUsagePerMember (unit) ────────────────────────────
+
+describe("DatabaseStorage.getMobileUsagePerMember", () => {
+  beforeEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it("excludes rows where memberId is null — only non-null members appear", async () => {
+    const store = new DatabaseStorage();
+    const { db } = await import("../db");
+
+    // Simulate: mobile query returns member 1 & 2; web query returns member 2 only.
+    // Member with null memberId would never appear because the query filters with isNotNull.
+    let callCount = 0;
+    vi.spyOn(db, "select").mockImplementation(() => ({
+      from: () => ({
+        where: () => ({
+          groupBy: () =>
+            callCount++ === 0
+              ? // First call: mobile rows — members 1 and 2
+                Promise.resolve([
+                  { memberId: 1, cnt: 3 },
+                  { memberId: 2, cnt: 5 },
+                ])
+              : // Second call: web rows — member 2 only
+                Promise.resolve([{ memberId: 2, cnt: 7 }]),
+        }),
+      }),
+    } as any));
+
+    const result = await store.getMobileUsagePerMember();
+
+    // Both members from the non-null set are returned
+    const memberIds = result.map((r) => r.memberId);
+    expect(memberIds).toContain(1);
+    expect(memberIds).toContain(2);
+
+    // No null memberId entries in the result
+    expect(result.every((r) => r.memberId !== null && r.memberId !== undefined)).toBe(true);
+  });
+
+  it("aggregates mobile and web events separately per member", async () => {
+    const store = new DatabaseStorage();
+    const { db } = await import("../db");
+
+    let callCount = 0;
+    vi.spyOn(db, "select").mockImplementation(() => ({
+      from: () => ({
+        where: () => ({
+          groupBy: () =>
+            callCount++ === 0
+              ? Promise.resolve([{ memberId: 10, cnt: 4 }])   // mobile rows
+              : Promise.resolve([{ memberId: 10, cnt: 9 }]),  // web rows
+        }),
+      }),
+    } as any));
+
+    const result = await store.getMobileUsagePerMember();
+
+    expect(result).toHaveLength(1);
+    expect(result[0].memberId).toBe(10);
+    expect(result[0].mobileEvents).toBe(4);
+    expect(result[0].webEvents).toBe(9);
+  });
+
+  it("returns mobileEvents=0 for a member who has only web events", async () => {
+    const store = new DatabaseStorage();
+    const { db } = await import("../db");
+
+    let callCount = 0;
+    vi.spyOn(db, "select").mockImplementation(() => ({
+      from: () => ({
+        where: () => ({
+          groupBy: () =>
+            callCount++ === 0
+              ? Promise.resolve([])                            // no mobile rows
+              : Promise.resolve([{ memberId: 7, cnt: 6 }]),   // web rows only
+        }),
+      }),
+    } as any));
+
+    const result = await store.getMobileUsagePerMember();
+
+    expect(result).toHaveLength(1);
+    expect(result[0].memberId).toBe(7);
+    expect(result[0].mobileEvents).toBe(0);
+    expect(result[0].webEvents).toBe(6);
+  });
+
+  it("returns webEvents=0 for a member who has only mobile events", async () => {
+    const store = new DatabaseStorage();
+    const { db } = await import("../db");
+
+    let callCount = 0;
+    vi.spyOn(db, "select").mockImplementation(() => ({
+      from: () => ({
+        where: () => ({
+          groupBy: () =>
+            callCount++ === 0
+              ? Promise.resolve([{ memberId: 3, cnt: 11 }])   // mobile rows only
+              : Promise.resolve([]),                           // no web rows
+        }),
+      }),
+    } as any));
+
+    const result = await store.getMobileUsagePerMember();
+
+    expect(result).toHaveLength(1);
+    expect(result[0].memberId).toBe(3);
+    expect(result[0].mobileEvents).toBe(11);
+    expect(result[0].webEvents).toBe(0);
+  });
+
+  it("returns an empty array when all event rows have null memberIds", async () => {
+    const store = new DatabaseStorage();
+    const { db } = await import("../db");
+
+    // Both queries return empty because isNotNull filtered everything out
+    vi.spyOn(db, "select").mockImplementation(() => ({
+      from: () => ({
+        where: () => ({
+          groupBy: () => Promise.resolve([]),
+        }),
+      }),
+    } as any));
+
+    const result = await store.getMobileUsagePerMember();
+
+    expect(result).toEqual([]);
   });
 });

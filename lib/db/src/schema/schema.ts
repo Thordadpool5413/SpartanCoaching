@@ -363,6 +363,14 @@ export const eventAnalyticsSchema = z.object({
 
 export type EventAnalytics = z.infer<typeof eventAnalyticsSchema>;
 
+export const mobileUsagePerMemberSchema = z.object({
+  memberId: z.number(),
+  mobileEvents: z.number(),
+  webEvents: z.number(),
+});
+
+export type MobileUsagePerMember = z.infer<typeof mobileUsagePerMemberSchema>;
+
 // Email template request schema
 export const emailTemplateRequestSchema = z.object({
   templateType: z.enum(["follow_up", "thank_you", "value_add"]),
