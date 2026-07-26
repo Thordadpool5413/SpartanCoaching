@@ -1,0 +1,163 @@
+/**
+ * Tests for the /healthz route with a focus on billing-email hydration state.
+ *
+ * The core concern: there is a short window after startup where
+ * `hydrateBillingEmailMetrics()` has not yet completed, so the in-memory
+ * failure buffer contains zero entries.  The health route must expose the
+ * `billingEmail.hydrated` flag so callers can tell the difference between
+ * "no failures on record" and "not yet checked the database".
+ */
+import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
+import express from "express";
+import request from "supertest";
+
+// ── mock DB before any module import that touches it ──────────────────────────
+vi.mock("../db", () => ({
+  db: {
+    insert: () => ({ values: () => Promise.resolve() }),
+    select: () => ({
+      from: () => ({
+        where: () => Promise.resolve([]),
+      }),
+    }),
+  },
+}));
+
+vi.mock("@workspace/db", () => ({ authEvents: {} }));
+
+import healthRouter from "./health";
+import {
+  _resetMetrics,
+  hydrateBillingEmailMetrics,
+  recordBillingEmailFailure,
+} from "../billing/billingEmailMetrics";
+import { db } from "../db";
+
+function buildApp() {
+  const app = express();
+  app.use(healthRouter);
+  return app;
+}
+
+describe("GET /healthz — billing-email hydration", () => {
+  beforeEach(() => {
+    _resetMetrics();
+    vi.useFakeTimers();
+  });
+
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
+  it("returns billingEmail.hydrated: false before hydration runs", async () => {
+    const app = buildApp();
+    const res = await request(app).get("/healthz");
+
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe("ok");
+    expect(res.body.billingEmail.hydrated).toBe(false);
+    // Before hydration, in-memory counts are zero regardless of DB state
+    expect(res.body.billingEmail.failures24h).toBe(0);
+    expect(res.body.billingEmail.failures1h).toBe(0);
+    expect(res.body.billingEmail.ok).toBe(true);
+  });
+
+  it("returns billingEmail.hydrated: true and the correct count after hydration", async () => {
+    const now = new Date("2026-07-26T12:00:00.000Z");
+    vi.setSystemTime(now);
+
+    const mockRows = [
+      {
+        createdAt: new Date(now.getTime() - 10_000),
+        type: "billing_email_failed",
+        meta: { emailType: "payment_failed", orgId: 1 },
+      },
+      {
+        createdAt: new Date(now.getTime() - 20_000),
+        type: "billing_email_failed",
+        meta: { emailType: "canceled", orgId: 2 },
+      },
+      {
+        createdAt: new Date(now.getTime() - 30_000),
+        type: "billing_email_failed",
+        meta: { emailType: "active", orgId: 3 },
+      },
+    ];
+
+    vi.spyOn(db, "select").mockReturnValue({
+      from: () => ({ where: () => Promise.resolve(mockRows) }),
+    } as ReturnType<typeof db.select>);
+
+    // Simulate startup hydration completing
+    await hydrateBillingEmailMetrics();
+
+    const app = buildApp();
+    const res = await request(app).get("/healthz");
+
+    expect(res.status).toBe(200);
+    expect(res.body.status).toBe("ok");
+    expect(res.body.billingEmail.hydrated).toBe(true);
+    // After hydration, the count must reflect the DB rows (not zero)
+    expect(res.body.billingEmail.failures24h).toBe(3);
+    expect(res.body.billingEmail.failures1h).toBe(3);
+    // 3 failures ≥ FAILURE_THRESHOLD_1H (3) → ok is false
+    expect(res.body.billingEmail.ok).toBe(false);
+  });
+
+  it("returns zero counts but hydrated:true when DB has no recent failures", async () => {
+    // DB returns empty → hydration completes but buffer stays empty
+    vi.spyOn(db, "select").mockReturnValue({
+      from: () => ({ where: () => Promise.resolve([]) }),
+    } as ReturnType<typeof db.select>);
+
+    await hydrateBillingEmailMetrics();
+
+    const app = buildApp();
+    const res = await request(app).get("/healthz");
+
+    expect(res.status).toBe(200);
+    expect(res.body.billingEmail.hydrated).toBe(true);
+    expect(res.body.billingEmail.failures24h).toBe(0);
+    expect(res.body.billingEmail.ok).toBe(true);
+  });
+
+  it("marks hydrated:true even when the DB query fails (documents the failure-safe path)", async () => {
+    vi.spyOn(db, "select").mockReturnValue({
+      from: () => ({
+        where: () => Promise.reject(new Error("DB connection refused")),
+      }),
+    } as ReturnType<typeof db.select>);
+
+    // hydrateBillingEmailMetrics must not throw; it catches internally
+    await expect(hydrateBillingEmailMetrics()).resolves.toBeUndefined();
+
+    const app = buildApp();
+    const res = await request(app).get("/healthz");
+
+    expect(res.status).toBe(200);
+    // hydrated is true: startup pass ran (and caught the error)
+    expect(res.body.billingEmail.hydrated).toBe(true);
+    // Buffer is empty because hydration failed — caller sees zero, not false data
+    expect(res.body.billingEmail.failures24h).toBe(0);
+  });
+
+  it("reflects in-memory failures recorded after hydration", async () => {
+    vi.setSystemTime(new Date("2026-07-26T12:00:00.000Z"));
+
+    // Hydration finds nothing in DB
+    vi.spyOn(db, "select").mockReturnValue({
+      from: () => ({ where: () => Promise.resolve([]) }),
+    } as ReturnType<typeof db.select>);
+    await hydrateBillingEmailMetrics();
+
+    // A new failure arrives after hydration (e.g., Resend goes down post-deploy)
+    recordBillingEmailFailure("payment_failed", 42);
+
+    const app = buildApp();
+    const res = await request(app).get("/healthz");
+
+    expect(res.body.billingEmail.hydrated).toBe(true);
+    expect(res.body.billingEmail.failures1h).toBe(1);
+    expect(res.body.billingEmail.failures24h).toBe(1);
+  });
+});

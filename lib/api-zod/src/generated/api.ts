@@ -13,4 +13,21 @@ import * as zod from "zod";
  */
 export const HealthCheckResponse = zod.object({
   status: zod.string(),
+  /**
+   * Billing-email failure metrics, populated once startup hydration
+   * from the database has completed.  The `hydrated` flag distinguishes
+   * "no failures on record" from "not yet checked the database".
+   */
+  billingEmail: zod
+    .object({
+      /** True once the startup DB hydration pass has finished (or failed). */
+      hydrated: zod.boolean(),
+      /** True when both window counts are below their respective thresholds. */
+      ok: zod.boolean(),
+      /** Number of failures in the last 60 minutes. */
+      failures1h: zod.number(),
+      /** Number of failures in the last 24 hours. */
+      failures24h: zod.number(),
+    })
+    .optional(),
 });

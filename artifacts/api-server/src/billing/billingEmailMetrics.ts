@@ -45,6 +45,21 @@ export interface FailureEntry {
 /** Internal ring-buffer.  Exported only for tests. */
 export const _failures: FailureEntry[] = [];
 
+/**
+ * Whether `hydrateBillingEmailMetrics` has completed its first run.
+ *
+ * There is a short window after the server starts listening where this is
+ * `false` and `getBillingEmailMetrics()` may therefore return zero counts even
+ * if failures exist in the database.  The health route exposes this flag so
+ * callers can distinguish "no failures" from "not yet hydrated".
+ */
+let _hydrationComplete = false;
+
+/** Returns true once the startup hydration pass has finished (or failed). */
+export function isHydrationComplete(): boolean {
+  return _hydrationComplete;
+}
+
 /** Prune entries older than MAX_AGE_MS.  Called automatically on write and read. */
 function prune(now: number): void {
   const cutoff = now - MAX_AGE_MS;
@@ -130,6 +145,10 @@ export async function hydrateBillingEmailMetrics(): Promise<void> {
       "[billingEmailMetrics] Hydration from DB failed (in-memory counter starts at zero):",
       (err as Error)?.message ?? err,
     );
+  } finally {
+    // Always mark hydration complete — even on failure — so the health route
+    // can distinguish "no failures" from "not yet checked the DB".
+    _hydrationComplete = true;
   }
 }
 
@@ -185,7 +204,8 @@ export function getBillingEmailMetrics(): BillingEmailMetrics {
   };
 }
 
-/** Reset the counter.  Only used in tests. */
+/** Reset the counter and hydration state.  Only used in tests. */
 export function _resetMetrics(): void {
   _failures.length = 0;
+  _hydrationComplete = false;
 }
