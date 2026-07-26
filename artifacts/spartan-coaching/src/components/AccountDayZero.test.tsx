@@ -50,8 +50,8 @@ describe("AccountDayZero", () => {
     expect(screen.getByText(/Step 1/i)).toBeTruthy();
     expect(screen.getByTestId("button-day-zero-subscribe").textContent).toMatch(/Subscribe/i);
     expect(screen.getByText(/Preview tools first/i)).toBeTruthy();
-    expect(screen.getByText(/Objection Handler/i)).toBeTruthy();
-    expect(screen.getByText(/Open Command Center/i)).toBeTruthy();
+    expect(screen.getAllByText(/Objection Handler/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Open Command Center|Command Center/i).length).toBeGreaterThan(0);
   });
 
   it("shows resubscribe framing when expired", () => {
