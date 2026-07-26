@@ -1,12 +1,17 @@
 /**
  * Smoke tests for billing notification emails.
  *
- * These tests verify that notifySubscriptionActive, notifyPaymentFailed, and
- * notifySubscriptionCanceled call through to the Resend send helpers without
- * throwing delivery errors.  The Resend client and the database are mocked so
- * no real emails are sent and no database connection is required.
+ * Resend + DB are mocked — no real emails or database connection required.
  */
 import { describe, it, expect, vi, beforeEach } from "vitest";
+
+// Provide a dummy URL before any module that imports @workspace/db runs.
+// (vitest hoists vi.mock / vi.hoisted above imports.)
+vi.hoisted(() => {
+  if (!process.env.DATABASE_URL) {
+    process.env.DATABASE_URL = "postgresql://ci:ci@127.0.0.1:5432/ci";
+  }
+});
 
 // ── mock the DB module so activeMembers() returns a test member ──────────────
 vi.mock("../db", () => ({
@@ -49,6 +54,17 @@ vi.mock("../resend", () => ({
     mockSendBillingCanceledEmail(...args),
 }));
 
+// Avoid real DB writes from metrics if anything reaches the real module
+vi.mock("./billingEmailMetrics", () => ({
+  recordBillingEmailFailure: vi.fn(),
+  getBillingEmailMetrics: vi.fn(() => ({
+    ok: true,
+    failures1h: 0,
+    failures24h: 0,
+  })),
+  isHydrationComplete: vi.fn(() => true),
+}));
+
 import {
   notifySubscriptionActive,
   notifyPaymentFailed,
@@ -80,7 +96,6 @@ describe("billing notification smoke tests", () => {
     vi.clearAllMocks();
   });
 
-  // ── notifySubscriptionActive ─────────────────────────────────────────────
   describe("notifySubscriptionActive", () => {
     it("sends member email without throwing", async () => {
       const org = makeTestOrg();
@@ -115,12 +130,10 @@ describe("billing notification smoke tests", () => {
       mockSendMembershipActivatedEmail.mockRejectedValueOnce(
         new Error("Resend delivery error [validation_error]: domain not verified"),
       );
-      // billingNotifications catches per-member errors — should still resolve
       await expect(notifySubscriptionActive(makeTestOrg())).resolves.toBeUndefined();
     });
   });
 
-  // ── notifyPaymentFailed ──────────────────────────────────────────────────
   describe("notifyPaymentFailed", () => {
     it("sends member email without throwing", async () => {
       const org = makeTestOrg({ billingStatus: "past_due" });
@@ -157,7 +170,6 @@ describe("billing notification smoke tests", () => {
     });
   });
 
-  // ── notifySubscriptionCanceled ───────────────────────────────────────────
   describe("notifySubscriptionCanceled", () => {
     it("sends member email without throwing", async () => {
       const org = makeTestOrg({ billingStatus: "canceled" });
@@ -188,9 +200,7 @@ describe("billing notification smoke tests", () => {
       mockSendBillingCanceledEmail.mockRejectedValueOnce(
         new Error("Resend delivery error [validation_error]: domain not verified"),
       );
-      await expect(
-        notifySubscriptionCanceled(makeTestOrg()),
-      ).resolves.toBeUndefined();
+      await expect(notifySubscriptionCanceled(makeTestOrg())).resolves.toBeUndefined();
     });
   });
 });
