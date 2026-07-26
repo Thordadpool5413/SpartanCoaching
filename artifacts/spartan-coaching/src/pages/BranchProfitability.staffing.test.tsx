@@ -1,22 +1,30 @@
-import { describe, it, expect, beforeAll, afterEach, vi } from "vitest";
-import { render, cleanup, fireEvent, within } from "@testing-library/react";
+import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from "vitest";
+import { render, cleanup, fireEvent, within, screen, waitFor } from "@testing-library/react";
 import { HelmetProvider } from "react-helmet-async";
+import type { AuthMember } from "@/context/AuthContext";
+
+// ── Shared auth fixture type ─────────────────────────────────────────────────
+// Mirrors AuthContextValue without importing the unexported type directly.
+type MockAuth = {
+  isAuthenticated: boolean;
+  member: AuthMember | null;
+  organization: null;
+  canUseFieldKit: boolean;
+  isLoading: boolean;
+  fieldKit: null;
+  refresh: () => Promise<void>;
+  login: () => Promise<never>;
+  logout: () => Promise<void>;
+  setSessionFromResponse: () => void;
+};
+
+// ── Configurable auth mock (must be hoisted so vi.mock can reference it) ────────
+const mockUseAuth = vi.hoisted(() => vi.fn<() => MockAuth>());
 
 // ── Minimal stubs required for rendering BranchProfitability in jsdom ──────────
 
 vi.mock("@/context/AuthContext", () => ({
-  useAuth: () => ({
-    isAuthenticated: false,
-    member: null,
-    organization: null,
-    canUseFieldKit: false,
-    isLoading: false,
-    fieldKit: null,
-    refresh: async () => {},
-    login: async () => { throw new Error("not implemented"); },
-    logout: async () => {},
-    setSessionFromResponse: () => {},
-  }),
+  useAuth: mockUseAuth,
 }));
 
 vi.mock("wouter", () => ({
@@ -28,6 +36,13 @@ vi.mock("wouter", () => ({
 
 vi.mock("@/components/SEO", () => ({ SEO: () => null }));
 
+// Mock downloadPdf so Print tests don't attempt real network calls
+const mockDownloadPdf = vi.hoisted(() => vi.fn(() => Promise.resolve()));
+vi.mock("@/lib/downloadPdf", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/downloadPdf")>();
+  return { ...actual, downloadPdf: mockDownloadPdf };
+});
+
 import BranchProfitability from "./BranchProfitability";
 import { runEngine, type BranchInputs } from "@workspace/branch-engine/engine";
 import { DEFAULT_INPUTS, STAFF_ROLES, PRESET_CONFIGS } from "@workspace/branch-engine/presets";
@@ -37,6 +52,41 @@ function fmtK(v: number) {
   const sign = v < 0 ? "-" : "";
   return sign + "$" + Math.abs(Math.round(v)).toLocaleString("en-US");
 }
+
+// ── Auth fixture: guest ──────────────────────────────────────────────────────
+const GUEST_AUTH: MockAuth = {
+  isAuthenticated: false,
+  member: null,
+  organization: null,
+  canUseFieldKit: false,
+  isLoading: false,
+  fieldKit: null,
+  refresh: async () => {},
+  login: async () => { throw new Error("not implemented"); },
+  logout: async () => {},
+  setSessionFromResponse: () => {},
+};
+
+// ── Auth fixture: authenticated Field Kit member ─────────────────────────────
+const MEMBER_AUTH: MockAuth = {
+  isAuthenticated: true,
+  member: {
+    id: 1,
+    name: "Ada Spartan",
+    email: "ada@spartan.test",
+    role: "member",
+    organizationId: 1,
+    status: "active",
+  },
+  organization: null,
+  canUseFieldKit: true,
+  isLoading: false,
+  fieldKit: null,
+  refresh: async () => {},
+  login: async () => { throw new Error("not implemented"); },
+  logout: async () => {},
+  setSessionFromResponse: () => {},
+};
 
 beforeAll(() => {
   class ResizeObserverStub {
@@ -75,7 +125,23 @@ beforeAll(() => {
   }
 });
 
-afterEach(cleanup);
+beforeEach(() => {
+  // Default: guest
+  mockUseAuth.mockReturnValue(GUEST_AUTH);
+  mockDownloadPdf.mockClear();
+  // Stub fetch so trackUsage/submitLead don't throw in jsdom
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(() =>
+      Promise.resolve({ ok: true, json: async () => ({ downloadUrl: "/fake.pdf" }) })
+    )
+  );
+});
+
+afterEach(() => {
+  cleanup();
+  vi.unstubAllGlobals();
+});
 
 function renderPage() {
   return render(
@@ -138,4 +204,40 @@ describe("staffing table matches engine output", () => {
       }
     });
   }
+});
+
+// ── Lead-gate / export button tests ─────────────────────────────────────────
+
+describe("Print button — lead-gate behavior", () => {
+  it("opens the lead-gate dialog when a guest clicks Print", () => {
+    // Guest auth is already set in beforeEach
+    renderPage();
+
+    // Dialog inputs must not exist before the button is clicked
+    expect(screen.queryByTestId("input-gate-name")).toBeNull();
+    expect(screen.queryByTestId("input-gate-email")).toBeNull();
+
+    fireEvent.click(screen.getByTestId("button-print"));
+
+    // After click the gate dialog must be visible
+    expect(screen.getByTestId("input-gate-name")).toBeTruthy();
+    expect(screen.getByTestId("input-gate-email")).toBeTruthy();
+    expect(screen.getByTestId("button-gate-submit")).toBeTruthy();
+  });
+
+  it("does not open the lead-gate dialog when an authenticated Field Kit member clicks Print", async () => {
+    mockUseAuth.mockReturnValue(MEMBER_AUTH);
+    renderPage();
+
+    fireEvent.click(screen.getByTestId("button-print"));
+
+    // Dialog must never appear for authenticated Field Kit members
+    expect(screen.queryByTestId("input-gate-name")).toBeNull();
+    expect(screen.queryByTestId("input-gate-email")).toBeNull();
+
+    // downloadPdf should be called directly without a gate
+    await waitFor(() => {
+      expect(mockDownloadPdf).toHaveBeenCalledTimes(1);
+    });
+  });
 });
