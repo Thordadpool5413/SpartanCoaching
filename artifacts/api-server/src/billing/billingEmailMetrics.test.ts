@@ -189,6 +189,51 @@ describe("billingEmailMetrics", () => {
       expect(getBillingEmailMetrics().failures24h).toBe(3);
     });
 
+    it("restart-during-outage: count equals N after _resetMetrics + hydrate", async () => {
+      // Simulate an active Resend outage: record N failures before the restart
+      const N = 5;
+      const baseTime = new Date("2026-07-25T11:00:00.000Z");
+
+      const mockDbRows: Array<{
+        createdAt: Date;
+        type: string;
+        meta: { emailType: string; orgId: number };
+      }> = [];
+
+      for (let i = 0; i < N; i++) {
+        const t = new Date(baseTime.getTime() + i * 60_000); // 1 minute apart
+        vi.setSystemTime(t);
+        recordBillingEmailFailure("payment_failed", i + 1);
+        // Capture what the DB row would look like for this failure
+        mockDbRows.push({
+          createdAt: t,
+          type: "billing_email_failed",
+          meta: { emailType: "payment_failed", orgId: i + 1 },
+        });
+      }
+
+      expect(_failures).toHaveLength(N); // sanity-check before restart
+
+      // ── Simulate server restart ───────────────────────────────────────────
+      // _resetMetrics clears the in-memory buffer (equivalent to process restart).
+      // The DB still holds the N persisted rows.
+      _resetMetrics();
+      expect(_failures).toHaveLength(0);
+
+      // hydrateBillingEmailMetrics reads the DB rows back into memory.
+      vi.spyOn(db, "select").mockReturnValue({
+        from: () => ({ where: () => Promise.resolve(mockDbRows) }),
+      } as ReturnType<typeof db.select>);
+
+      vi.setSystemTime(new Date(baseTime.getTime() + N * 60_000)); // "now" is after last failure
+      await hydrateBillingEmailMetrics();
+
+      // Post-restart count must equal the pre-restart count
+      expect(_failures).toHaveLength(N);
+      expect(getBillingEmailMetrics().failures24h).toBe(N);
+      expect(getBillingEmailMetrics().ok).toBe(false); // N=5 ≥ FAILURE_THRESHOLD_1H=3
+    });
+
     it("deduplication: timestamps already in buffer are not double-counted", async () => {
       // Record two failures so they live in the buffer with known timestamps
       vi.setSystemTime(new Date("2026-07-25T10:00:00.000Z"));

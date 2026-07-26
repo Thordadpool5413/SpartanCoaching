@@ -30,15 +30,15 @@ vi.mock("../db", () => ({
 }));
 
 // ── mock the resend module so no real HTTP calls are made ────────────────────
-const mockSendBillingActiveEmail = vi.fn().mockResolvedValue(undefined);
+const mockSendMembershipActivatedEmail = vi.fn().mockResolvedValue(undefined);
 const mockSendBillingActiveAdminAlert = vi.fn().mockResolvedValue(undefined);
 const mockSendBillingPaymentFailedEmail = vi.fn().mockResolvedValue(undefined);
 const mockSendBillingPastDueAdminAlert = vi.fn().mockResolvedValue(undefined);
 const mockSendBillingCanceledEmail = vi.fn().mockResolvedValue(undefined);
 
 vi.mock("../resend", () => ({
-  sendBillingActiveEmail: (...args: unknown[]) =>
-    mockSendBillingActiveEmail(...args),
+  sendMembershipActivatedEmail: (...args: unknown[]) =>
+    mockSendMembershipActivatedEmail(...args),
   sendBillingActiveAdminAlert: (...args: unknown[]) =>
     mockSendBillingActiveAdminAlert(...args),
   sendBillingPaymentFailedEmail: (...args: unknown[]) =>
@@ -87,11 +87,11 @@ describe("billing notification smoke tests", () => {
       await expect(notifySubscriptionActive(org)).resolves.toBeUndefined();
     });
 
-    it("calls sendBillingActiveEmail for each active member", async () => {
+    it("calls sendMembershipActivatedEmail for each active member", async () => {
       const org = makeTestOrg({ name: "Acme Corp" });
       await notifySubscriptionActive(org);
-      expect(mockSendBillingActiveEmail).toHaveBeenCalledTimes(1);
-      expect(mockSendBillingActiveEmail).toHaveBeenCalledWith(
+      expect(mockSendMembershipActivatedEmail).toHaveBeenCalledTimes(1);
+      expect(mockSendMembershipActivatedEmail).toHaveBeenCalledWith(
         "test-member@example.com",
         "Test Member",
         "Acme Corp",
@@ -112,7 +112,7 @@ describe("billing notification smoke tests", () => {
     });
 
     it("does not throw even if the send helper rejects", async () => {
-      mockSendBillingActiveEmail.mockRejectedValueOnce(
+      mockSendMembershipActivatedEmail.mockRejectedValueOnce(
         new Error("Resend delivery error [validation_error]: domain not verified"),
       );
       // billingNotifications catches per-member errors — should still resolve
