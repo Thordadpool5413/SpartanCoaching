@@ -288,6 +288,7 @@ export default function Admin() {
       queryKey: ["/api/analytics/events"],
       queryFn: () => adminGet("/api/analytics/events"),
       enabled: isAuthenticated,
+      refetchInterval: 60000,
     });
 
   const { data: aiUsageData } = useQuery<{
