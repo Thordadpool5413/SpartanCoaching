@@ -1,0 +1,27 @@
+artifacts/spartan-coaching/src/components/Layout.tsx
+  s_859dc7aa6bfb87::t_d39f6ccdfdfcdb 53,55-56,70,72-73
+artifacts/spartan-coaching/src/components/ui/input.tsx
+  s_859dc7aa6bfb87::t_d9ff719eea72b3 11
+artifacts/spartan-coaching/src/index.css
+  s_859dc7aa6bfb87::t_973e5d67205b49 194-198,233,235,237,239,241,243-244,246,248,250,252,254,257,260-261,263,266,269-270,302-319,1020,1022-1024,1029,1031-1033,1038,1040-1042,1046-1047,1049,1177-1183,1214-1215,1222-1224,1226-1227,1232-1234,1238-1253,1271-1274,1280,1283-1285,1288,1290-1293,1297-1300,1303,1305,1310-1313,1316-1319,1323,1325-1327,1331-1333,1337-1338,1343-1344,1348-1349
+artifacts/spartan-coaching/src/lib/theme.ts
+  s_859dc7aa6bfb87::t_54ca0536bb5c86 135,137,139,141-145
+artifacts/spartan-coaching/tailwind.config.ts
+  s_859dc7aa6bfb87::t_201cb8d8860feb 9-13,17-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "73fdc113d7164f4558493c4ac6496ffffe38fcc1",
+  "prompts": {},
+  "sessions": {
+    "s_859dc7aa6bfb87": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f9d0c-9aad-7ef2-8adc-7a4afb18da6e",
+        "model": "unknown"
+      },
+      "human_author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
