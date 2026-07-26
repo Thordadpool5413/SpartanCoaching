@@ -70,7 +70,7 @@ jobs:
       - name: Wave 4 web contracts (spartan-coaching)
         run: pnpm --filter @workspace/spartan-coaching test
       - name: Native AI tool and account contracts
-        run: pnpm --filter @workspace/spartan-coaching-mobile test -- --runInBand
+        run: pnpm --filter @workspace/spartan-coaching-mobile exec jest --runInBand
       - run: pnpm run build
       # Wave 4 — bundle size budgets after production build
       - name: Wave 4 performance budgets
