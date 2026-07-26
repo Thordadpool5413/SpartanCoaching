@@ -3,6 +3,19 @@ import { Resend } from 'resend';
 
 let connectionSettings: any;
 
+function escapeHtml(value: string): string {
+  return value.replace(/[&<>"']/g, (character) => {
+    const entities: Record<string, string> = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;",
+    };
+    return entities[character] ?? character;
+  });
+}
+
 async function getCredentials() {
   const fromEmail = process.env.RESEND_FROM_EMAIL || 'Spartan Coaching <nick@spartanhospicecoaching.com>';
 
@@ -46,6 +59,38 @@ export async function checkResendHealth(): Promise<void> {
     console.log('[Resend] Health check OK — ready to send from:', fromEmail);
   } catch (err: any) {
     console.error('[Resend] WARNING: Email sending will NOT work —', err?.message || err);
+  }
+}
+
+export async function sendClinicalMfaCode(
+  toEmail: string,
+  toName: string,
+  code: string,
+): Promise<boolean> {
+  try {
+    const { client, fromEmail } = await getUncachableResendClient();
+    await sendEmail(client, {
+      from: fromEmail,
+      to: toEmail,
+      subject: "Your Spartan Clinical verification code",
+      html: `
+        <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif;">
+          ${emailHeader()}
+          <div style="padding: 32px 24px;">
+            <h1 style="font-size: 22px; color: #111827;">Clinical access verification</h1>
+            <p style="color: #374151;">Hello ${escapeHtml(toName)},</p>
+            <p style="color: #374151;">Enter this one-time code to open PHI-capable clinical tools:</p>
+            <p style="font-size: 34px; font-weight: 700; letter-spacing: 8px; color: #b91c1c;">${escapeHtml(code)}</p>
+            <p style="color: #6b7280;">This code expires in 10 minutes. Spartan Coaching will never ask you to send this code by email or text.</p>
+          </div>
+          ${emailFooter()}
+        </div>
+      `,
+    });
+    return true;
+  } catch (error) {
+    console.error("Clinical MFA email failed:", error);
+    return false;
   }
 }
 

@@ -1,0 +1,27 @@
+import { z } from "zod";
+
+export const inputSchema = z
+  .object({
+    diagnosis: z.string().min(1),
+    patientCondition: z.string().min(1),
+    functionStatus: z.string().min(1),
+    comorbidities: z.array(z.string()),
+    recentHospitalizations: z.string().min(1),
+    jurisdiction: z.string().min(1).optional(),
+    criteria: z.array(z.record(z.string(), z.unknown())).optional(),
+  })
+  .strict();
+
+export const outputSchema = z
+  .object({
+    eligibilityAssessment: z.string().min(1),
+    criteriaAnalysis: z.array(z.record(z.string(), z.unknown())),
+    missingDocumentation: z.array(z.string()),
+    recommendedActions: z.array(z.string()),
+    prognosisGuidance: z.string().min(1),
+    complianceNotes: z.array(z.string()),
+  })
+  .strict();
+
+export type ToolInput = z.infer<typeof inputSchema>;
+export type ToolOutput = z.infer<typeof outputSchema>;

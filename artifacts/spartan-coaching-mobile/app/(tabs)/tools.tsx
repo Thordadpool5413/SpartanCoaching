@@ -910,6 +910,45 @@ export default function ToolsScreen() {
             needed.
           </Text>
 
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.push("/ai-tools")}
+            style={({ pressed }) => ({
+              opacity: pressed ? 0.8 : 1,
+              backgroundColor: colors.card,
+              borderColor: colors.primary,
+              borderWidth: 1.5,
+              borderRadius: 14,
+              padding: 16,
+              marginBottom: 20,
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 14,
+            })}
+          >
+            <View
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 12,
+                alignItems: "center",
+                justifyContent: "center",
+                backgroundColor: `${colors.primary}20`,
+              }}
+            >
+              <Feather name="cpu" size={22} color={colors.primary} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: colors.foreground, fontSize: 17, fontFamily: "Inter_700Bold" }}>
+                AI Tool Library
+              </Text>
+              <Text style={{ color: colors.mutedForeground, fontSize: 13, lineHeight: 19, marginTop: 3 }}>
+                14 dedicated native tools with structured results and saved history
+              </Text>
+            </View>
+            <Feather name="arrow-right" size={19} color={colors.primary} />
+          </Pressable>
+
           {FIELD_KIT_CATEGORIES.filter((c) => c !== "Learn").map((cat) => {
             const items = FIELD_KIT_TOOLS.filter((t) => t.category === cat);
             if (!items.length) return null;

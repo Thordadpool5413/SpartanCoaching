@@ -1,4 +1,4 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import * as SecureStore from "expo-secure-store";
 
 const TOKEN_KEY = "spartan_session_token";
 
@@ -31,7 +31,7 @@ const getBase = () => getBaseUrl();
 
 export async function getSessionToken(): Promise<string | null> {
   try {
-    return await AsyncStorage.getItem(TOKEN_KEY);
+    return await SecureStore.getItemAsync(TOKEN_KEY);
   } catch {
     return null;
   }
@@ -39,8 +39,13 @@ export async function getSessionToken(): Promise<string | null> {
 
 export async function setSessionToken(token: string | null): Promise<void> {
   try {
-    if (token) await AsyncStorage.setItem(TOKEN_KEY, token);
-    else await AsyncStorage.removeItem(TOKEN_KEY);
+    if (token) {
+      await SecureStore.setItemAsync(TOKEN_KEY, token, {
+        keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
+      });
+    } else {
+      await SecureStore.deleteItemAsync(TOKEN_KEY);
+    }
   } catch {
     // ignore
   }
@@ -56,15 +61,34 @@ async function authHeaders(extra?: Record<string, string>): Promise<Record<strin
   return headers;
 }
 
-async function readErrorMessage(res: Response): Promise<string> {
+export class ApiError extends Error {
+  constructor(
+    message: string,
+    readonly status: number,
+    readonly code?: string,
+  ) {
+    super(message);
+    this.name = "ApiError";
+  }
+}
+
+async function readApiError(res: Response): Promise<ApiError> {
   const text = await res.text().catch(() => res.statusText);
   try {
-    const json = JSON.parse(text) as { error?: string; code?: string };
-    if (json?.error) return json.error;
+    const json = JSON.parse(text) as {
+      error?: string | { message?: string; code?: string };
+      code?: string;
+    };
+    const message =
+      typeof json.error === "string"
+        ? json.error
+        : json.error?.message || res.statusText;
+    const code =
+      typeof json.error === "object" ? json.error?.code : json.code;
+    return new ApiError(message, res.status, code);
   } catch {
-    // not JSON
+    return new ApiError(text || res.statusText, res.status);
   }
-  return text || res.statusText;
 }
 
 export async function apiPost<T>(
@@ -82,7 +106,7 @@ export async function apiPost<T>(
     body: JSON.stringify(body),
   });
   if (!res.ok) {
-    throw new Error(await readErrorMessage(res));
+    throw await readApiError(res);
   }
   return res.json() as Promise<T>;
 }
@@ -92,8 +116,7 @@ export async function apiGet<T>(path: string): Promise<T> {
     headers: await authHeaders(),
   });
   if (!res.ok) {
-    const text = await res.text().catch(() => res.statusText);
-    throw new Error(`${res.status}: ${text}`);
+    throw await readApiError(res);
   }
   return res.json() as Promise<T>;
 }
@@ -105,10 +128,32 @@ export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
     body: JSON.stringify(body),
   });
   if (!res.ok) {
-    const text = await res.text().catch(() => res.statusText);
-    throw new Error(`${res.status}: ${text}`);
+    throw await readApiError(res);
   }
   return res.json() as Promise<T>;
+}
+
+export async function apiDelete<T>(path: string): Promise<T> {
+  const res = await fetch(`${getBase()}${path}`, {
+    method: "DELETE",
+    headers: await authHeaders(),
+  });
+  if (!res.ok) throw await readApiError(res);
+  if (res.status === 204) return undefined as T;
+  return res.json() as Promise<T>;
+}
+
+export async function uploadToSignedUrl(
+  url: string,
+  body: Blob,
+  contentType: string,
+): Promise<void> {
+  const res = await fetch(url, {
+    method: "PUT",
+    headers: { "Content-Type": contentType },
+    body,
+  });
+  if (!res.ok) throw new ApiError("Secure upload failed", res.status, "UPLOAD_FAILED");
 }
 
 export type MobileMember = {

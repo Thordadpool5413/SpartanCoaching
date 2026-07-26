@@ -15,6 +15,7 @@ import {
   Lock,
   LogIn,
   KeyRound,
+  BrainCircuit,
 } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -159,6 +160,32 @@ export default function Tools() {
           )}
         </div>
       </SlideUp>
+
+      {!showCatalogGate && (
+        <SlideUp delay={0.05}>
+          <Card className="mb-10 border-2 border-primary/30 bg-primary/5 p-6 sm:p-8">
+            <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+                  <BrainCircuit className="h-6 w-6" />
+                </div>
+                <div>
+                  <h2 className="text-xl font-bold text-foreground">AI Tool Library</h2>
+                  <p className="mt-1 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                    Open 14 purpose-built tools for sales enablement, learning, content, and
+                    permission-controlled clinical decision support.
+                  </p>
+                </div>
+              </div>
+              <Button asChild className="shrink-0">
+                <Link href="/tools/ai">
+                  Open AI tools <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </Card>
+        </SlideUp>
+      )}
 
       {showCatalogGate && (
         <SlideUp delay={0.05}>

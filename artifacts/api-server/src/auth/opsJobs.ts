@@ -11,6 +11,7 @@ import { db } from "../db";
 import { sendOpsDigestEmail, sendBillingEmailOutageAlert } from "../resend";
 import { getBillingEmailMetrics } from "../billing/billingEmailMetrics";
 import { runTrialLifecycleSweep, type TrialSweepResult } from "./trialLifecycle";
+import { runClinicalRetentionSweep } from "../clinical/retention";
 
 export type OpsDigestResult = {
   sent: boolean;
@@ -383,6 +384,12 @@ export function startBackgroundJobScheduler(): void {
         }
       })
       .catch((err) => console.error("[jobs] billing-failure cleanup failed", err));
+
+    void runClinicalRetentionSweep()
+      .then((r) => {
+        if (r.purged || r.failed) console.log("[jobs] clinical retention", r);
+      })
+      .catch((err) => console.error("[jobs] clinical retention failed", err));
 
     // Digest once per day around first tick after 13:00 UTC (≈ morning US)
     const hour = new Date().getUTCHours();

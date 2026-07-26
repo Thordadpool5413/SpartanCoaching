@@ -32,6 +32,7 @@ jobs:
     env:
       PORT: "5000"
       BASE_PATH: "/"
+      DATABASE_URL: "postgres://ci:ci@localhost:5432/ci"
       EXPO_PUBLIC_DOMAIN: "spartan-coaching-ci.invalid"
     steps:
       - uses: actions/checkout@v4
@@ -44,5 +45,6 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm run typecheck
+      - run: pnpm --filter @workspace/spartan-ai-tools test
       - run: pnpm --filter @workspace/api-server test
       - run: pnpm run build

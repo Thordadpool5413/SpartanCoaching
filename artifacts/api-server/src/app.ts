@@ -6,6 +6,7 @@ import router from "./routes";
 import { registerRoutes } from "./routes/routes";
 import { registerAuthRoutes } from "./routes/authRoutes";
 import { registerSalesWorkflowRoutes } from "./routes/salesWorkflowRoutes";
+import { registerAiToolRoutes } from "./routes/aiToolRoutes";
 import { registerBillingRoutes, handleStripeWebhook } from "./billing/billingRoutes";
 import { loadSession } from "./auth/middleware";
 import { globalApiLimit } from "./rateLimits";
@@ -81,6 +82,9 @@ registerBillingRoutes(app);
 
 // Continuous rep workflow (Sales Command Center)
 registerSalesWorkflowRoutes(app);
+
+// Shared Spartan AI tools and clinical case workspace.
+registerAiToolRoutes(app);
 
 // Legacy app routes (AI tools gated with requireFieldKit)
 registerRoutes(app);
