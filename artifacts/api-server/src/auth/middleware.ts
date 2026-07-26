@@ -18,6 +18,11 @@ export type AuthedRequest = Request & {
   clientMemberId?: number;
   fieldKit?: FieldKitAccess;
   sessionId?: number;
+  clinicalAccess?: {
+    canUse: boolean;
+    canReview: boolean;
+    canAdmin: boolean;
+  };
 };
 
 function isDeployedRuntime(): boolean {

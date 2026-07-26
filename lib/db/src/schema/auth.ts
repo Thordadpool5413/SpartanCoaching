@@ -105,6 +105,7 @@ export const clientSessions = pgTable(
     tokenHash: varchar("token_hash", { length: 128 }).notNull().unique(),
     expiresAt: timestamp("expires_at").notNull(),
     userAgent: text("user_agent"),
+    mfaVerifiedAt: timestamp("mfa_verified_at", { withTimezone: true }),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [

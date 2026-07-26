@@ -10,6 +10,8 @@ out-tsc
 *.tsbuildinfo
 .expo
 .expo-shared
+artifacts/spartan-coaching-mobile/.expo-export-check/
+artifacts/spartan-coaching-mobile/static-build/
 
 # dependencies
 node_modules

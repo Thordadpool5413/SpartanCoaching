@@ -26,6 +26,9 @@
     },
     {
       "path": "../../lib/field-kit-catalog"
+    },
+    {
+      "path": "../../lib/spartan-ai-tools"
     }
   ]
 }

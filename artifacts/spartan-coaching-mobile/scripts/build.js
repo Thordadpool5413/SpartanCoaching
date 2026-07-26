@@ -44,6 +44,18 @@ function setupSignalHandlers() {
   process.on("SIGHUP", cleanup);
 }
 
+async function stopMetro() {
+  const processToStop = metroProcess;
+  metroProcess = null;
+  if (!processToStop || processToStop.exitCode !== null) return;
+
+  processToStop.kill();
+  await Promise.race([
+    new Promise((resolve) => processToStop.once("exit", resolve)),
+    new Promise((resolve) => setTimeout(resolve, 5_000)),
+  ]);
+}
+
 function stripProtocol(domain) {
   let urlString = domain.trim();
 
@@ -146,16 +158,15 @@ async function startMetro(expoPublicDomain, expoPublicReplId) {
     console.log(`Setting EXPO_PUBLIC_REPL_ID=${expoPublicReplId}`);
   }
 
+  const pnpmCli = process.env.npm_execpath;
+  const command = pnpmCli ? process.execPath : process.platform === "win32" ? "pnpm.cmd" : "pnpm";
+  const commandArgs = pnpmCli
+    ? [pnpmCli, "exec", "expo", "start", "--no-dev", "--minify", "--localhost"]
+    : ["exec", "expo", "start", "--no-dev", "--minify", "--localhost"];
+
   metroProcess = spawn(
-    "pnpm",
-    [
-      "exec",
-      "expo",
-      "start",
-      "--no-dev",
-      "--minify",
-      "--localhost",
-    ],
+    command,
+    commandArgs,
     {
       stdio: ["ignore", "pipe", "pipe"],
       detached: false,
@@ -236,6 +247,10 @@ async function downloadBundle(platform, timestamp) {
   url.searchParams.set("hot", "false");
   url.searchParams.set("lazy", "false");
   url.searchParams.set("minify", "true");
+  // This endpoint serves Expo Go-compatible JavaScript, not an embedded native
+  // Hermes asset. Avoid invoking hermesc here; native EAS builds still generate
+  // bytecode through Expo's native build pipeline.
+  url.searchParams.set("transform.bytecode", "false");
 
   const output = path.join(
     "static-build",
@@ -558,9 +573,7 @@ async function main() {
 
   console.log("Build complete! Deploy to:", baseUrl);
 
-  if (metroProcess) {
-    metroProcess.kill();
-  }
+  await stopMetro();
   process.exit(0);
 }
 
