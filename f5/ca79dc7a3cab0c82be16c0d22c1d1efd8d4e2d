@@ -1,0 +1,99 @@
+.github/workflows/ci.yml
+  s_859dc7aa6bfb87::t_7e3689820e455f 68-72,75-76
+artifacts/spartan-coaching/src/components/AccountDayZero.test.tsx
+  s_859dc7aa6bfb87::t_7e3689820e455f 51,53-54,59-61,67-68
+artifacts/spartan-coaching/src/pages/FieldKit.eliteCopy.test.tsx
+  s_859dc7aa6bfb87::t_7e3689820e455f 116-119,211,216,221,294,297-298,304,307,310,313,316,321,324,327,330,333,336,341,344,347,350,353,356,361,364,370,373,376,379,382,387,390,393,396,399,402,407,410,413,416,419,422,510,517,539,546,568,575
+artifacts/spartan-coaching-mobile/app/(tabs)/_layout.tsx
+  s_859dc7aa6bfb87::t_932433af9ecd07 51-57,61-62,65-67,72,74-85,87
+artifacts/spartan-coaching-mobile/app/(tabs)/account.tsx
+  s_859dc7aa6bfb87::t_0c23a3ad99c5a5 153,160,766-768,771-773,779-780,782-786,788,790-792,795-796,799-802,804
+artifacts/spartan-coaching-mobile/app/(tabs)/index.tsx
+  s_859dc7aa6bfb87::t_4087f9f5898b9e 364-368,379-381,885,887-888,926,928
+artifacts/spartan-coaching-mobile/app/(tabs)/tools.tsx
+  s_859dc7aa6bfb87::t_d4228b8bad606a 788-791,2081-2082,2084-2085,2088,2096,2101,2106,2110
+artifacts/spartan-coaching-mobile/components/ui/SectionKicker.tsx
+  s_859dc7aa6bfb87::t_64b1902bfaedbe 4,8-12,17-19
+artifacts/spartan-coaching-mobile/components/ui/SpartanButton.tsx
+  s_859dc7aa6bfb87::t_12ea4762532584 12,42-43,57-59,61,76-78,82-88,92
+artifacts/spartan-coaching-mobile/components/ui/SpartanCard.tsx
+  s_859dc7aa6bfb87::t_9b9f6ab4f3306a 2,4,10,16,26,28-36,48-49
+artifacts/spartan-coaching-mobile/constants/colors.ts
+  s_859dc7aa6bfb87::t_3907c57a531492 1,13,17,27,37-39,45-46
+artifacts/spartan-coaching/src/components/AccessDesk.tsx
+  s_859dc7aa6bfb87::t_123dbfa047ac8a 302,304,576-577,582-583
+artifacts/spartan-coaching/src/components/AccountDayZero.tsx
+  s_859dc7aa6bfb87::t_2b2a9dffa26769 57,65
+artifacts/spartan-coaching/src/components/AdminAuthGate.tsx
+  s_859dc7aa6bfb87::t_12c8ed64cca540 119-120,122-123
+artifacts/spartan-coaching/src/components/ChatWidget.tsx
+  s_859dc7aa6bfb87::t_14eb7059294826 149
+artifacts/spartan-coaching/src/components/FieldKitChrome.tsx
+  s_859dc7aa6bfb87::t_61631d4e877ce3 113-114,121-122,127,141,146,150,158,168,170-171
+artifacts/spartan-coaching/src/components/FieldKitGate.tsx
+  s_859dc7aa6bfb87::t_773bede2d3df19 39,41,144-145,147,156-158
+artifacts/spartan-coaching/src/components/FieldKitPreviewLock.tsx
+  s_859dc7aa6bfb87::t_17d7b44975c30c 259-260
+artifacts/spartan-coaching/src/components/Layout.tsx
+  s_859dc7aa6bfb87::t_0cada324b73ca7 53,55-56,70,72-73,335-336,367-378
+artifacts/spartan-coaching/src/components/TrustStrip.tsx
+  s_859dc7aa6bfb87::t_53e3506df352b7 93-94,97-100
+artifacts/spartan-coaching/src/components/ui/button.tsx
+  s_859dc7aa6bfb87::t_15684578aa5cdd 8,13,15,17-21,24-25
+artifacts/spartan-coaching/src/components/ui/card.tsx
+  s_859dc7aa6bfb87::t_0f1757cc406f1e 12,53
+artifacts/spartan-coaching/src/components/ui/input.tsx
+  s_859dc7aa6bfb87::t_f82094e6dc8721 11
+artifacts/spartan-coaching/src/index.css
+  s_859dc7aa6bfb87::t_ec60db56aa9ce1 194-198,233,235,237,239,241,243-244,246,248,250,252,254,257,260-261,263,266,269-270,302-319,1020,1022-1024,1029,1031-1033,1038,1040-1042,1046-1047,1049,1177-1183,1214-1215,1222-1224,1226-1227,1232-1234,1238-1253,1271-1274,1280,1283-1285,1288,1290-1293,1297-1300,1303,1305,1310-1313,1316-1319,1323,1325-1327,1331-1333,1337-1338,1343-1344,1348-1349
+artifacts/spartan-coaching/src/lib/seo-config.ts
+  s_859dc7aa6bfb87::t_71534be71d32a1 82,84-85
+artifacts/spartan-coaching/src/lib/theme.ts
+  s_859dc7aa6bfb87::t_8c851ec2c04192 135,137,139,141-145
+artifacts/spartan-coaching/src/pages/About.tsx
+  s_859dc7aa6bfb87::t_81a558713a790d 44,460-465,467
+artifacts/spartan-coaching/src/pages/FAQ.tsx
+  s_859dc7aa6bfb87::t_61b9527478cbcf 108,219-220,227,229-230,239,241,244,246-250
+artifacts/spartan-coaching/src/pages/FieldKit.tsx
+  s_859dc7aa6bfb87::t_edd6b04083a6eb 127,132-135,138,157,164,166,194-195,205-206,226,229,251,254,257
+artifacts/spartan-coaching/src/pages/FieldKitMembership.eliteCopy.test.tsx
+  s_859dc7aa6bfb87::t_cbfbd117fac9a2 6-7,75,77,81-84,114,123,128,142,210,212-214,217,219,222,224,227,229,234,238,241,243,245,248,250,253,255,260,262-263,266,268,271,273,291-316,318,323,328
+artifacts/spartan-coaching/src/pages/FieldKitMembership.tsx
+  s_859dc7aa6bfb87::t_ec9c320cf52e5a 15,38,51-52,55-63,126-128,240-244,247-249,252-254,257-258,260-262,270-275,278-283,286-289,293-295,300
+artifacts/spartan-coaching/src/pages/Home.tsx
+  s_859dc7aa6bfb87::t_843080c6af5864 82,94,97,100,387-391
+artifacts/spartan-coaching/src/pages/Method.tsx
+  s_859dc7aa6bfb87::t_6649b4c8b21a3d 440-442,446-447,451,454,476-480
+artifacts/spartan-coaching/src/pages/Portal.tsx
+  s_859dc7aa6bfb87::t_5fc14c7dc7ed93 318,326,332-335,374-377,381,383,392-393,401,410
+artifacts/spartan-coaching/src/pages/RequestAccess.tsx
+  s_859dc7aa6bfb87::t_cceed864fa3d71 217,219-223
+artifacts/spartan-coaching/src/pages/Services.tsx
+  s_859dc7aa6bfb87::t_6c1f3668524c0a 219,225-229,247-250,253-254,259,262,555-558
+artifacts/spartan-coaching/src/pages/Tools.tsx
+  s_859dc7aa6bfb87::t_98d4465cd7205a 98,103,106-108,110-112,114-118,121-123,125,130,149,155,183,185-186,190,208,211,215,286-290,297,303,314
+artifacts/spartan-coaching/src/pages/Welcome.tsx
+  s_859dc7aa6bfb87::t_70e2d14afa6d79 62-71,78
+artifacts/spartan-coaching/tailwind.config.ts
+  s_859dc7aa6bfb87::t_147c4857a9169c 9-13,17-20
+lib/design-tokens/src/colors.ts
+  s_859dc7aa6bfb87::t_f87e50812aa0f1 4,12-13,15-17,21,26,28,36-38,40,42-44,49-53,58,61-62,65-66,68,70,72-73,75-76,81,84-86,88,90,92-93,97-100,106-110,121-130,135-146,151-153,157-160
+lib/design-tokens/src/index.ts
+  s_859dc7aa6bfb87::t_c161f4fb9debe5 6
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "f5ca79dc7a3cab0c82be16c0d22c1d1efd8d4e2d",
+  "prompts": {},
+  "sessions": {
+    "s_859dc7aa6bfb87": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f9d0c-9aad-7ef2-8adc-7a4afb18da6e",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
