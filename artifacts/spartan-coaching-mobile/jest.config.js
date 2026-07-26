@@ -19,6 +19,7 @@ const packagesToTransform = [
 module.exports = {
   preset: "jest-expo",
   testMatch: ["**/__tests__/**/*.test.tsx", "**/__tests__/**/*.test.ts"],
+  setupFilesAfterEnv: ["<rootDir>/test/jest.setup.js"],
   transformIgnorePatterns: [
     `node_modules/(?!(\\.pnpm/)?(${packagesToTransform.join("|")})(@|/|$))`,
   ],

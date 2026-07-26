@@ -1,4 +1,9 @@
 import { z } from "zod";
+import {
+  clinicalConfidenceSchema,
+  clinicalReviewRequiredSchema,
+  evidenceCitationSchema,
+} from "../../clinical-contract";
 
 export const inputSchema = z
   .object({
@@ -18,7 +23,10 @@ export const outputSchema = z
     declineIndicators: z.array(z.string()),
     medicareRequirements: z.string().min(1),
     jurisdictionNotes: z.string().min(1).optional(),
-    citations: z.array(z.record(z.string(), z.unknown())),
+    citations: z.array(evidenceCitationSchema),
+    missingEvidence: z.array(z.string()),
+    confidence: clinicalConfidenceSchema,
+    humanReviewRequired: clinicalReviewRequiredSchema,
     complianceReminder: z.string().min(1),
   })
   .strict();

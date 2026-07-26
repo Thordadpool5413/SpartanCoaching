@@ -543,7 +543,7 @@ export const SPARTAN_AI_TOOLS: readonly AiToolSpec[] = [
       diagnosis: "Example diagnosis",
       patientCondition: "Documented current condition",
       functionStatus: "Documented functional status",
-      comorbidities: [],
+      comorbidities: ["Example documented comorbidity"],
       recentHospitalizations: "Documented recent utilization",
       jurisdiction: "US",
     },

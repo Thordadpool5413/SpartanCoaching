@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Link } from "wouter";
 import { BrainCircuit, ChevronRight, ShieldCheck, Wrench, ArrowLeft } from "lucide-react";
 import { SPARTAN_AI_TOOLS } from "@workspace/spartan-ai-tools";
@@ -14,8 +15,86 @@ import { FIELD_KIT_TOOLS } from "@workspace/field-kit-catalog";
  * PHI tools are clearly vaulted as clinical access.
  */
 export default function AiToolsHub() {
-  const fieldFacing = SPARTAN_AI_TOOLS.filter((t) => !t.containsPhi);
-  const clinical = SPARTAN_AI_TOOLS.filter((t) => t.containsPhi);
+  const [availability, setAvailability] = useState<
+    Map<string, { enabled: boolean }> | null
+  >(null);
+  const [catalogError, setCatalogError] = useState("");
+  const loadCatalog = useCallback(async () => {
+    setCatalogError("");
+    try {
+      const response = await fetch("/api/ai-tools", {
+        credentials: "include",
+      });
+      if (!response.ok) throw new Error("Catalog unavailable");
+      const body = (await response.json()) as {
+        tools: Array<{ id: string; availability: { enabled: boolean } }>;
+      };
+      setAvailability(
+        new Map(body.tools.map((tool) => [tool.id, tool.availability])),
+      );
+    } catch {
+      setAvailability(new Map());
+      setCatalogError(
+        "The authorized tool catalog could not be loaded. Tools remain locked.",
+      );
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadCatalog();
+  }, [loadCatalog]);
+
+  const authorizedTools = useMemo(
+    () =>
+      availability
+        ? SPARTAN_AI_TOOLS.filter((tool) => availability.has(tool.id))
+        : [],
+    [availability],
+  );
+  const fieldFacing = authorizedTools.filter((t) => !t.containsPhi);
+  const clinical = authorizedTools.filter((t) => t.containsPhi);
+
+  const toolCard = (tool: (typeof SPARTAN_AI_TOOLS)[number]) => {
+    const enabled = availability?.get(tool.id)?.enabled === true;
+    const card = (
+      <Card
+        className={`h-full border-border p-5 transition-colors ${
+          enabled
+            ? "group-hover:border-primary/60 group-hover:bg-muted/30"
+            : "opacity-70"
+        }`}
+      >
+        <div className="flex items-start justify-between gap-3">
+          <div>
+            <div className="mb-3 flex flex-wrap gap-2">
+              <Badge variant="outline">{tool.category}</Badge>
+              {tool.containsPhi && (
+                <Badge variant="secondary" className="gap-1">
+                  <ShieldCheck className="h-3 w-3" />
+                  Clinical
+                </Badge>
+              )}
+              {!enabled && <Badge variant="secondary">Not enabled</Badge>}
+            </div>
+            <h3 className="text-lg font-semibold text-foreground">{tool.name}</h3>
+            <p className="mt-2 text-sm leading-6 text-muted-foreground">{tool.description}</p>
+          </div>
+          {enabled && (
+            <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
+          )}
+        </div>
+      </Card>
+    );
+    return enabled ? (
+      <Link key={tool.id} href={tool.webPath} className="group">
+        {card}
+      </Link>
+    ) : (
+      <div key={tool.id} aria-disabled="true">
+        {card}
+      </div>
+    );
+  };
 
   return (
     <FieldKitToolLayout title="Advanced library" showHowTo={false}>
@@ -50,6 +129,20 @@ export default function AiToolsHub() {
         </Button>
       </div>
 
+      {availability === null && (
+        <p role="status" className="mb-8 text-sm text-muted-foreground">
+          Loading your authorized tool catalog…
+        </p>
+      )}
+      {catalogError && (
+        <div role="alert" className="mb-8 rounded-xl border border-destructive/40 p-4">
+          <p className="text-sm text-destructive">{catalogError}</p>
+          <Button className="mt-3" variant="outline" onClick={() => void loadCatalog()}>
+            Retry
+          </Button>
+        </div>
+      )}
+
       {fieldFacing.length > 0 && (
         <section className="mb-12" data-testid="section-ai-field-tools">
           <h2 className="text-lg font-bold text-foreground mb-1">Field & enablement</h2>
@@ -57,22 +150,7 @@ export default function AiToolsHub() {
             No PHI. Same ethics as the main Field Kit.
           </p>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {fieldFacing.map((tool) => (
-              <Link key={tool.id} href={tool.webPath} className="group">
-                <Card className="h-full border-border p-5 transition-colors hover:border-primary/60 hover:bg-muted/30">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <Badge variant="outline" className="mb-3">
-                        {tool.category}
-                      </Badge>
-                      <h3 className="text-lg font-semibold text-foreground">{tool.name}</h3>
-                      <p className="mt-2 text-sm leading-6 text-muted-foreground">{tool.description}</p>
-                    </div>
-                    <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
-                  </div>
-                </Card>
-              </Link>
-            ))}
+            {fieldFacing.map(toolCard)}
           </div>
         </section>
       )}
@@ -93,26 +171,7 @@ export default function AiToolsHub() {
             </div>
           </div>
           <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {clinical.map((tool) => (
-              <Link key={tool.id} href={tool.webPath} className="group">
-                <Card className="h-full border-border p-5 transition-colors hover:border-primary/60 hover:bg-muted/30">
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="mb-3 flex flex-wrap gap-2">
-                        <Badge variant="outline">{tool.category}</Badge>
-                        <Badge variant="secondary" className="gap-1">
-                          <ShieldCheck className="h-3 w-3" />
-                          Clinical
-                        </Badge>
-                      </div>
-                      <h3 className="text-lg font-semibold text-foreground">{tool.name}</h3>
-                      <p className="mt-2 text-sm leading-6 text-muted-foreground">{tool.description}</p>
-                    </div>
-                    <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
-                  </div>
-                </Card>
-              </Link>
-            ))}
+            {clinical.map(toolCard)}
           </div>
         </section>
       )}

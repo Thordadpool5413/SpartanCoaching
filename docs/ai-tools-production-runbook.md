@@ -27,15 +27,20 @@ AI_TOOL_ENCRYPTION_KEY
 CLINICAL_GCS_BUCKET
 CLINICAL_FILE_SCANNER_URL
 CLINICAL_FILE_SCANNER_TOKEN
+CMS_COVERAGE_API_TOKEN
 GOOGLE_PLACES_API_KEY
 HIPAA_PHI_ENABLED=true
 OPENAI_BAA_CONFIRMED=true
+OPENAI_MODIFIED_RETENTION_CONFIRMED=true
+GOOGLE_CLOUD_BAA_CONFIRMED=true
 PHI_STORAGE_BAA_CONFIRMED=true
 ```
 
-Set each `AI_TOOL_*` feature flag to `false` for the emergency kill switch. OpenAI
-requests use `store: false`; the account must also have its approved HIPAA/Modified
-Retention configuration.
+Global `AI_TOOL_*` flags are fail-closed: a tool is runnable only when its environment
+flag is exactly `true` and its tenant-scoped database flag is enabled. Set either flag
+to `false` for the emergency kill switch. OpenAI requests use `store: false`; the
+account must also have its approved HIPAA/Modified Retention configuration. CMS API
+credentials are server-side only and must never be accepted in request bodies.
 
 ## Deployment sequence
 
@@ -48,7 +53,8 @@ Retention configuration.
 5. Explicitly grant clinical permissions; sales membership alone never grants access.
 6. Run tests, web E2E, Expo device tests, authorization isolation tests, deletion/audit
    drill, restore drill, and PHI-free observability inspection.
-7. Pilot one organization at a time and monitor only operational, PHI-free metrics.
+7. Enable the global flag, then the organization flag, one tool and one pilot
+   organization at a time. Monitor only operational, PHI-free metrics.
 
 ## Rollback
 

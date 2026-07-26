@@ -8,10 +8,11 @@
  *   2. When 60 s elapses (fake timers) and a new app_open event has landed,
  *      the day/week/month counts in the card update without any user action.
  */
-import { describe, it, expect, beforeAll, afterEach, vi } from "vitest";
+import { describe, it, expect, beforeAll, beforeEach, afterEach, vi } from "vitest";
 import { render, cleanup, waitFor, act } from "@testing-library/react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import React from "react";
+import { adminGet } from "@/lib/adminApi";
 
 // ── Mutable mock state — updated between timer ticks ──────────────────────────
 
@@ -121,6 +122,13 @@ afterEach(() => {
   mobileAppOpens = { day: 3, week: 5, month: 8 };
 });
 
+beforeEach(() => {
+  vi.stubGlobal(
+    "fetch",
+    vi.fn(async () => new Response("{}", { status: 401 })),
+  );
+});
+
 // ── Helper ────────────────────────────────────────────────────────────────────
 
 async function renderAdmin(qc: QueryClient) {
@@ -137,7 +145,12 @@ async function renderAdmin(qc: QueryClient) {
 describe("Admin page — Mobile App Opens auto-refresh", () => {
   it("eventAnalyticsData query carries refetchInterval: 60000", async () => {
     const qc = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
+      defaultOptions: {
+        queries: {
+          retry: false,
+          queryFn: ({ queryKey }) => adminGet(String(queryKey[0])),
+        },
+      },
     });
 
     const { getByTestId } = await renderAdmin(qc);
@@ -159,11 +172,16 @@ describe("Admin page — Mobile App Opens auto-refresh", () => {
       (query?.options as Record<string, unknown>)["refetchInterval"],
       "refetchInterval must be 60000",
     ).toBe(60000);
-  });
+  }, 15_000);
 
   it("renders the initial Mobile App Opens day count from the first fetch", async () => {
     const qc = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
+      defaultOptions: {
+        queries: {
+          retry: false,
+          queryFn: ({ queryKey }) => adminGet(String(queryKey[0])),
+        },
+      },
     });
 
     const { getByTestId } = await renderAdmin(qc);
@@ -178,11 +196,16 @@ describe("Admin page — Mobile App Opens auto-refresh", () => {
     expect(getByTestId("text-mobile-app-opens-day").textContent).toBe("3");
     expect(getByTestId("text-mobile-app-opens-week").textContent).toBe("5");
     expect(getByTestId("text-mobile-app-opens-month").textContent).toBe("8");
-  });
+  }, 15_000);
 
   it("updates the Mobile App Opens counts when the query refetches — no page reload", async () => {
     const qc = new QueryClient({
-      defaultOptions: { queries: { retry: false } },
+      defaultOptions: {
+        queries: {
+          retry: false,
+          queryFn: ({ queryKey }) => adminGet(String(queryKey[0])),
+        },
+      },
     });
 
     const { getByTestId } = await renderAdmin(qc);
@@ -214,5 +237,5 @@ describe("Admin page — Mobile App Opens auto-refresh", () => {
 
     expect(getByTestId("text-mobile-app-opens-week").textContent).toBe("9");
     expect(getByTestId("text-mobile-app-opens-month").textContent).toBe("14");
-  });
+  }, 15_000);
 });

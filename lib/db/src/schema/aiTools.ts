@@ -34,6 +34,30 @@ export const clinicalPermissions = pgTable(
   ],
 );
 
+export const aiToolOrganizationFlags = pgTable(
+  "ai_tool_organization_flags",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: integer("organization_id").notNull(),
+    toolId: varchar("tool_id", { length: 96 }).notNull(),
+    enabled: boolean("enabled").notNull().default(false),
+    updatedByMemberId: integer("updated_by_member_id").notNull(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("ai_tool_org_flag_tenant_tool").on(
+      table.organizationId,
+      table.toolId,
+    ),
+    index("ai_tool_org_flag_enabled").on(
+      table.organizationId,
+      table.enabled,
+    ),
+  ],
+);
+
 export const clinicalMfaChallenges = pgTable(
   "clinical_mfa_challenges",
   {
@@ -74,6 +98,9 @@ export const aiToolRuns = pgTable(
       .default("not_required"),
     clinicalCaseId: uuid("clinical_case_id"),
     coverageSnapshotId: uuid("coverage_snapshot_id"),
+    coverageDocumentId: varchar("coverage_document_id", { length: 96 }),
+    coverageVersion: varchar("coverage_version", { length: 64 }),
+    coverageContentHash: varchar("coverage_content_hash", { length: 64 }),
     durationMs: integer("duration_ms"),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
     completedAt: timestamp("completed_at", { withTimezone: true }),
@@ -237,6 +264,8 @@ export const clinicalAuditEvents = pgTable(
 );
 
 export type AiToolRun = typeof aiToolRuns.$inferSelect;
+export type AiToolOrganizationFlag =
+  typeof aiToolOrganizationFlags.$inferSelect;
 export type ClinicalCase = typeof clinicalCases.$inferSelect;
 export type ClinicalDocument = typeof clinicalDocuments.$inferSelect;
 export type ClinicalPermission = typeof clinicalPermissions.$inferSelect;

@@ -3,7 +3,7 @@ import type { ToolInput } from "./schema";
 export const SYSTEM_PROMPT =
   "You provide educational hospice eligibility guidance only. A qualified physician must make all prognosis and admission decisions.";
 export const TASK_INSTRUCTIONS =
-  "Compare supplied facts to supplied criteria, show evidence for each item, identify missing documentation, and provide compliant next actions.";
+  "Compare supplied facts to supplied criteria, cite every policy-supported claim using the supplied document metadata, identify missing evidence, report bounded confidence, set humanReviewRequired to true, and provide compliant next actions.";
 
 export function buildPrompt(input: ToolInput): string {
   return [
