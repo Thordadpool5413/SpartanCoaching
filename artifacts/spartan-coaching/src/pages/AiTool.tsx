@@ -378,6 +378,9 @@ export default function AiToolPage() {
         setNeedsMfa(false);
       }
     } catch (caught) {
+      if (caught instanceof ApiError && caught.status === 401) {
+        return;
+      }
       if (
         caught instanceof ApiError &&
         caught.code === "CLINICAL_MFA_REQUIRED"
