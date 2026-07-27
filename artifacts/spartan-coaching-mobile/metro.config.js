@@ -6,7 +6,9 @@ const projectRoot = __dirname;
 
 const config = getDefaultConfig(projectRoot);
 
-config.watchFolders = [workspaceRoot];
+config.watchFolders = [
+  ...new Set([...(config.watchFolders ?? []), workspaceRoot]),
+];
 
 config.resolver = {
   ...config.resolver,

@@ -1,15 +1,97 @@
-const appJson = require('./app.json');
+const productionOrigin = "https://spartanhospicecoaching.com";
 
-const base = appJson.expo;
+function getRouterOrigin() {
+  const configuredOrigin =
+    process.env.EXPO_PUBLIC_WEB_ORIGIN || process.env.EXPO_PUBLIC_DOMAIN;
+
+  if (!configuredOrigin) return productionOrigin;
+
+  const normalized = configuredOrigin.replace(/\/+$/, "");
+  return /^https?:\/\//i.test(normalized)
+    ? normalized
+    : `https://${normalized}`;
+}
 
 module.exports = {
   expo: {
-    ...base,
-    extra: {
-      ...base.extra,
-      eas: {
-        projectId: process.env.EAS_PROJECT_ID || base.extra?.eas?.projectId,
+    name: "Spartan Coaching",
+    slug: "spartan-coaching",
+    version: "1.0.0",
+    orientation: "portrait",
+    icon: "./assets/images/icon.png",
+    scheme: "spartan-coaching-mobile",
+    userInterfaceStyle: "dark",
+    newArchEnabled: true,
+    splash: {
+      image: "./assets/images/spartan-stamp.png",
+      resizeMode: "contain",
+      backgroundColor: "#050505",
+    },
+    ios: {
+      bundleIdentifier: "com.spartancoaching.fieldkit",
+      supportsTablet: false,
+      infoPlist: {
+        NSUserNotificationsUsageDescription:
+          "Spartan Coaching uses notifications to remind you to follow up with contacts after visits.",
+        NSCameraUsageDescription:
+          "Spartan Coaching uses the camera to capture documents you explicitly add to a protected clinical case.",
+        NSPhotoLibraryUsageDescription:
+          "Spartan Coaching uses your photo library only to select documents you explicitly add to a protected clinical case.",
+        ITSAppUsesNonExemptEncryption: false,
       },
     },
+    android: {
+      permissions: [
+        "android.permission.RECEIVE_BOOT_COMPLETED",
+        "android.permission.SCHEDULE_EXACT_ALARM",
+        "android.permission.USE_EXACT_ALARM",
+      ],
+    },
+    web: {
+      favicon: "./assets/images/icon.png",
+    },
+    plugins: [
+      ["expo-router", { origin: getRouterOrigin() }],
+      "expo-font",
+      "expo-secure-store",
+      [
+        "expo-local-authentication",
+        {
+          faceIDPermission: "Use Face ID to reopen protected clinical cases.",
+        },
+      ],
+      [
+        "expo-image-picker",
+        {
+          photosPermission:
+            "Select a document image to add to your protected clinical case.",
+          cameraPermission:
+            "Capture a document image to add to your protected clinical case.",
+        },
+      ],
+      "expo-web-browser",
+      [
+        "expo-notifications",
+        {
+          icon: "./assets/images/icon.png",
+          color: "#C8102E",
+          sounds: [],
+          androidMode: "default",
+          androidCollapsedTitle: "Spartan Coaching",
+        },
+      ],
+    ],
+    experiments: {
+      typedRoutes: true,
+      reactCompiler: true,
+    },
+    extra: {
+      eas: {
+        projectId:
+          process.env.EAS_PROJECT_ID ||
+          "bafdaa6f-80f5-4fb0-baef-324fa376c44c",
+      },
+    },
+    owner: "thordadpool",
   },
 };
