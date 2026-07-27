@@ -22,7 +22,11 @@ Use this after deploys and when clearing the security release gate.
 
 ## Mobile / App Store
 
-- [ ] Set `APPLE_ID`, `ASC_APP_ID`, `APPLE_TEAM_ID` in EAS secrets.
+- [ ] Verify the Apple Developer team and App Store Connect app interactively
+      during the first EAS submit; never commit Apple credentials or unresolved
+      `$APPLE_*` placeholders.
+- [x] EAS production environment points `EXPO_PUBLIC_API_URL` and
+      `EXPO_PUBLIC_DOMAIN` at `https://spartanhospicecoaching.com`.
 - [ ] `pnpm --filter @workspace/spartan-coaching-mobile run build:ios` then `submit:ios`.
 - [ ] Production binary points at the real `SITE_URL` / API host (not Replit LAN).
 - [ ] TestFlight internal test, then App Store listing (screenshots, privacy nutrition labels).

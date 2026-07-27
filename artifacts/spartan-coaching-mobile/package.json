@@ -13,7 +13,7 @@
     "build:ios:preview": "pnpm dlx eas-cli@21.0.2 build --platform ios --profile preview",
     "build:ios:testflight": "pnpm dlx eas-cli@21.0.2 build --platform ios --profile testflight --non-interactive",
     "build:ios": "pnpm dlx eas-cli@21.0.2 build --platform ios --profile production --non-interactive",
-    "submit:ios": "pnpm dlx eas-cli@21.0.2 submit --platform ios --profile production --latest --non-interactive"
+    "submit:ios": "pnpm dlx eas-cli@21.0.2 submit --platform ios --profile production --latest"
   },
   "devDependencies": {
     "@babel/core": "^7.25.2",
