@@ -16,44 +16,35 @@ export default function About() {
 
       {/* Above-fold two-column authority layout */}
       <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-stretch mb-16 sm:mb-24">
-        {/* Left: authority headline + credentials + CTA */}
         <div className="flex flex-col justify-center">
-          <h1 className="text-h1 text-foreground mb-8 font-display leading-tight" data-testid="text-about-title">
+          <p className="text-kicker mb-4">About Spartan Coaching</p>
+          <h1 className="text-h1 text-foreground mb-6 font-display leading-[1.05] tracking-tight" data-testid="text-about-title">
             Why Spartan<br /><span className="text-primary">Coaching Exists</span>
           </h1>
           <p className="text-lg text-muted-foreground mb-8 leading-relaxed">
             Hospice is not a mystery. It is a promise — and Spartan Coaching exists to make sure sales teams can keep it.
           </p>
-          <ul className="space-y-4 mb-10">
-            {[
-              { num: "12+", text: "Years of hospice-specific sales & leadership expertise" },
-              { num: "500+", text: "Reps and leaders coached to consistent, measurable performance" },
-              { num: "4-wk", text: "Fastest documented program-to-results timeline" },
-            ].map(({ num, text }) => (
-              <li key={num} className="flex items-start gap-4">
-                <span className="font-display text-2xl font-black text-primary flex-shrink-0 leading-none mt-0.5 w-14">{num}</span>
-                <span className="text-foreground text-base leading-snug">{text}</span>
-              </li>
-            ))}
-          </ul>
+          <p className="text-base text-muted-foreground mb-10 leading-relaxed">
+            Built in the field by Nick Lynch: hospice-specific sales and leadership coaching for liaisons, directors, and multi-market teams who need structure and heart in the same room.
+          </p>
           <div className="flex flex-col sm:flex-row gap-3 self-start">
             <Button size="lg" asChild className="font-bold px-8">
               <Link href="/contact">Book a Strategy Call <ArrowRight className="ml-2 w-4 h-4" /></Link>
             </Button>
             <Button size="lg" variant="outline" asChild className="font-bold px-8">
-              <Link href="/register">Create account · Field Kit</Link>
+              <Link href="/services">View coaching services</Link>
             </Button>
           </div>
         </div>
 
-        {/* Right: consultant photo */}
         <div className="relative">
-          <div className="aspect-[4/5] overflow-hidden border-l-4 border-primary">
+          <div className="aspect-[4/5] overflow-hidden rounded-2xl border border-border shadow-elite">
             <img
               src={nickPhoto}
               alt="Nick Lynch — Spartan Coaching"
               className="w-full h-full object-cover object-top"
             />
+            <div className="absolute bottom-0 inset-x-0 h-1 bg-primary" />
           </div>
         </div>
       </div>
@@ -62,7 +53,7 @@ export default function About() {
 
         {/* The Why Section - Core Message */}
         <div className="space-y-8 md:space-y-12 lg:space-y-16">
-          <Card className="spacing-card bg-gradient-to-br from-primary/5 to-destructive/5 border-2">
+          <Card className="spacing-card bg-gradient-to-br from-primary/[0.07] to-card border border-border/80 shadow-elite">
             <div className="space-y-6 text-body-lg leading-relaxed">
               <p className="text-foreground">
                 The promise is simple. When a person is eligible, they should receive expert, compassionate care without delay, and their family should feel supported at every step. That promise breaks when sales teams are left with vague goals, light coaching, and a calendar full of activity that does not move referrals.
@@ -457,14 +448,9 @@ export default function About() {
                 <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </Link>
             </Button>
-            <Button size="lg" variant="outline" asChild className="font-bold border-2 touch-manipulation px-10" data-testid="button-about-register">
-              <Link href="/register">
-                <span>Create account · Field Kit</span>
-              </Link>
-            </Button>
-            <Button size="lg" variant="ghost" asChild className="font-bold touch-manipulation px-10" data-testid="button-about-request">
-              <Link href="/request-access">
-                <span>Team / evaluation access</span>
+            <Button size="lg" variant="outline" asChild className="font-bold border-2 touch-manipulation px-10" data-testid="button-about-services">
+              <Link href="/services">
+                <span>View coaching services</span>
               </Link>
             </Button>
           </div>

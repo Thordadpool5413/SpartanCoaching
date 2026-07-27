@@ -27,7 +27,8 @@ Set one of:
 | Coaching marketing | Home, Services, Method, About, Contact | Home (coaching-first), Contact tab |
 | Sales Command Center | `/tools/sales-workflow` | **Command** tab → native |
 | Core Field tools | Tools grid | **Tools** tab catalog (native tabs + secured WebView) |
-| Calculators (activity, ROI, rep cost, transcribe) | Native web pages | **WebView** same routes (`/tool-web`) |
+| Calculators (activity, ROI, rep cost) | Native web pages | **Native** app screens |
+| Call Transcriber | Native web page | **WebView** secured session (`/tool-web`) |
 | Advanced AI library | `/tools/ai/*` | `/ai-tools/*` native screens |
 | Learn | articles, podcasts, resources, drills, quiz, method | Learn tab + WebView shortcuts for method/drills/quiz |
 | Account / billing | `/account` Stripe | Account tab + Stripe links |

@@ -194,8 +194,8 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
     howSteps: ["Enter the admission goal", "Review daily targets", "Coach the team to the number"],
     why: "Leaders stop managing hope and start managing conversations.",
     checklistId: "director_scorecard",
-    mobileRoute: "/tool-web",
-    mobile: "webview",
+    mobileRoute: "/activity-calculator",
+    mobile: "native",
     scenario:
       "Leadership set an admission goal. The team hears 'work harder' but no one has the daily conversation math.",
     outcome:
@@ -210,8 +210,8 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
     whenToUse: "When you need economics for staffing or coaching ROI.",
     howSteps: ["Enter loaded cost inputs", "Review unit costs", "Use numbers in a leadership conversation"],
     why: "Clear economics support better coaching investment decisions.",
-    mobileRoute: "/tool-web",
-    mobile: "webview",
+    mobileRoute: "/rep-cost-calculator",
+    mobile: "native",
     scenario:
       "Someone asked what a rep actually costs per call, referral, and admission. Spreadsheet theater isn't cutting it.",
     outcome:
@@ -226,8 +226,8 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
     whenToUse: "Before or after a coaching engagement discussion.",
     howSteps: ["Enter baseline metrics", "Model improvement", "Share the range with leadership"],
     why: "Puts a business case next to the coaching conversation.",
-    mobileRoute: "/tool-web",
-    mobile: "webview",
+    mobileRoute: "/roi-calculator",
+    mobile: "native",
     scenario:
       "You're justifying coaching or Field Kit access to a CFO who only responds to dollars and conversion.",
     outcome:

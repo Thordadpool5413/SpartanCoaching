@@ -40,6 +40,9 @@ function RootLayoutNav() {
       <Stack.Screen name="login" options={{ title: "Sign in", presentation: "modal" }} />
       <Stack.Screen name="brand-video" options={{ title: "Brand Video" }} />
       <Stack.Screen name="staffing" options={{ title: "Branch Staffing" }} />
+      <Stack.Screen name="activity-calculator" options={{ title: "Activity Calculator" }} />
+      <Stack.Screen name="roi-calculator" options={{ title: "ROI Calculator" }} />
+      <Stack.Screen name="rep-cost-calculator" options={{ title: "Rep Cost Calculator" }} />
       <Stack.Screen
         name="sales-workflow"
         options={{ title: "Sales Command Center", headerBackTitle: "Back" }}

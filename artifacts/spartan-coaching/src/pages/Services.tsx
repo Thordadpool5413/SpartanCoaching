@@ -198,83 +198,53 @@ export default function Services() {
     <PersuasionShell>
       <SEO />
       <BackButton />
-      <div className="text-center max-w-4xl mx-auto mb-16 sm:mb-20 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-red-500/5 via-transparent to-transparent blur-3xl -z-10"></div>
-        <h1 className="text-hero text-foreground mb-8 animate-fade-in-up font-display" data-testid="text-services-title">
-          Work <span className="text-gradient-primary">With Us</span>
+      <div className="text-center max-w-4xl mx-auto mb-14 sm:mb-20 relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/8 via-transparent to-transparent blur-3xl -z-10" />
+        <p className="text-kicker mb-4 animate-fade-in-up">Hospice growth consulting</p>
+        <h1 className="text-hero text-foreground mb-6 animate-fade-in-up font-display" data-testid="text-services-title">
+          Work <span className="text-primary">With Us</span>
         </h1>
-        <p className="text-body-lg text-muted-foreground mb-4 animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          A consulting practice for hospice growth — human coaching, team systems, and a private Field Kit. Individuals subscribe at $14.99/week; team seats and coaching are scoped under contract.
+        <p className="text-body-lg text-muted-foreground mb-4 animate-fade-in-up max-w-2xl mx-auto" style={{ animationDelay: "0.1s" }}>
+          Human coaching, team systems, and leadership rhythms for hospice growth — so the right conversations happen when eligible patients need care.
         </p>
-        <p className="text-body text-muted-foreground max-w-3xl mx-auto animate-fade-in-up mb-8" style={{ animationDelay: '0.2s' }}>
-          Every engagement exists because eligible patients miss care when the right conversations never happen. We build the structure and the field execution so those conversations become consistent.
+        <p className="text-body text-muted-foreground max-w-3xl mx-auto animate-fade-in-up mb-8" style={{ animationDelay: "0.2s" }}>
+          Every engagement exists because good people still miss referrals without structure. We install the coaching and the weekly system — not a slide deck you forget on Monday.
         </p>
-        <div className="flex flex-col sm:flex-row gap-3 justify-center animate-fade-in-up" style={{ animationDelay: '0.25s' }}>
-          <Button size="lg" asChild className="font-bold shadow-md">
+        <div className="flex flex-col sm:flex-row gap-3 justify-center animate-fade-in-up" style={{ animationDelay: "0.25s" }}>
+          <Button size="lg" asChild className="font-bold">
             <Link href="/contact">
               Book a strategy call <ArrowRight className="ml-2 w-4 h-4" />
             </Link>
           </Button>
-          <Button size="lg" variant="outline" asChild className="font-bold border-2">
-            <Link href="/register">Create account · Field Kit</Link>
+          <Button size="lg" variant="outline" asChild className="font-bold">
+            <Link href="/method">See the Spartan Method</Link>
           </Button>
         </div>
-        <p className="mt-4 text-sm text-muted-foreground animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
-          Prefer membership details first?{" "}
-          <Link href="/field-kit-membership" className="font-semibold text-primary hover:underline">
-            See pricing · $14.99/wk
-          </Link>
-          {" · "}
-          <Link href="/request-access" className="font-semibold text-primary hover:underline">
-            Team access
-          </Link>
-        </p>
       </div>
 
-      {/* Field Kit path */}
-      <Card
-        className="mb-16 border border-primary/30 bg-primary/5 p-6 sm:p-8 max-w-4xl mx-auto"
-        data-testid="section-services-field-kit"
-      >
-        <div className="flex flex-col sm:flex-row gap-6 items-start">
-          <div className="w-14 h-14 rounded-xl bg-primary/15 text-primary flex items-center justify-center shrink-0">
-            <MonitorSmartphone className="w-7 h-7" />
-          </div>
-          <div className="space-y-3 flex-1">
-            <p className="text-xs font-bold tracking-widest text-primary uppercase">Private Field Kit</p>
-            <h2 className="text-h2 text-foreground">Tools for members and teams</h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              AI-assisted objections, plans, role-play, and calculators.{" "}
-              <strong className="text-foreground">Preview free</strong>, then individuals subscribe for{" "}
-              <strong className="text-foreground">$14.99/week</strong> (cancel anytime). Teams and arranged evaluations
-              use request access under contract.
-            </p>
-            <ul className="text-sm text-muted-foreground space-y-1">
-              <li className="flex gap-2"><CheckIcon className="w-4 h-4 text-primary shrink-0 mt-0.5" /> No PHI in consumer tools — planning and messaging only</li>
-              <li className="flex gap-2"><CheckIcon className="w-4 h-4 text-primary shrink-0 mt-0.5" /> Bundles cleanly with coaching or stands alone as membership</li>
-              <li className="flex gap-2"><CheckIcon className="w-4 h-4 text-primary shrink-0 mt-0.5" /> Team seats for organizations that need one playbook</li>
-            </ul>
-            <div className="flex flex-wrap gap-3 pt-1">
-              <Button asChild className="font-bold">
-                <Link href="/register">Create account to subscribe</Link>
-              </Button>
-              <Button asChild variant="outline" className="font-bold">
-                <Link href="/tools">Preview tools</Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </Card>
+      {/* How engagements work — craft strip, coaching-first */}
+      <div className="grid sm:grid-cols-3 gap-4 max-w-4xl mx-auto mb-16 sm:mb-20">
+        {[
+          { t: "Diagnose", d: "Territory, team, and referral pattern — honest read, no fluff." },
+          { t: "Install", d: "Coaching, workshops, and a weekly rhythm the team can run without you." },
+          { t: "Sustain", d: "Scorecards, ridealongs, and leadership coaching that hold through busy season." },
+        ].map((s) => (
+          <Card key={s.t} className="border border-border/80 bg-card p-5 shadow-elite text-center sm:text-left">
+            <p className="text-kicker mb-2">{s.t}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed">{s.d}</p>
+          </Card>
+        ))}
+      </div>
 
       {/* Individual Sales Reps Section */}
       <div id="individual" className="space-y-8 md:space-y-12 lg:space-y-16 scroll-mt-24">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-10">
-          <div className="w-16 h-16 rounded-2xl bg-spartan-gradient flex items-center justify-center shadow-2xl flex-shrink-0">
-            <UserCheck className="w-8 h-8 text-white" />
+          <div className="w-14 h-14 rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/20 flex items-center justify-center flex-shrink-0">
+            <UserCheck className="w-7 h-7" />
           </div>
           <div>
-            <h2 className="text-h2 text-foreground mb-1">For Individual Sales Reps</h2>
-            <p className="text-body text-muted-foreground">Get better at the job you're doing right now.</p>
+            <h2 className="text-h2 text-foreground mb-1 font-display tracking-tight">For Individual Sales Reps</h2>
+            <p className="text-body text-muted-foreground">Get better at the job you&apos;re doing right now.</p>
           </div>
         </div>
 
@@ -551,11 +521,8 @@ export default function Services() {
               Book a strategy call <ArrowRight className="ml-2 w-4 h-4" />
             </Link>
           </Button>
-          <Button size="lg" variant="outline" asChild className="font-bold border-2">
-            <Link href="/register">Create account · Field Kit</Link>
-          </Button>
-          <Button size="lg" variant="ghost" asChild className="font-bold">
-            <Link href="/request-access">Team / evaluation access</Link>
+          <Button size="lg" variant="outline" asChild className="font-bold">
+            <Link href="/method">See the Spartan Method</Link>
           </Button>
         </div>
       </div>
@@ -563,11 +530,11 @@ export default function Services() {
       {/* Application Process Section */}
       <div className="mt-16 sm:mt-20">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 sm:gap-6 mb-10">
-          <div className="w-16 h-16 rounded-2xl bg-spartan-gradient flex items-center justify-center shadow-2xl flex-shrink-0">
-            <ClipboardList className="w-8 h-8 text-white" />
+          <div className="w-14 h-14 rounded-2xl bg-primary/15 text-primary ring-1 ring-primary/20 flex items-center justify-center flex-shrink-0">
+            <ClipboardList className="w-7 h-7" />
           </div>
           <div>
-            <h2 className="text-h2 text-foreground mb-1">Application Process</h2>
+            <h2 className="text-h2 text-foreground mb-1 font-display tracking-tight">How we start</h2>
             <p className="text-body text-muted-foreground">Four steps from first contact to weekly coaching.</p>
           </div>
         </div>

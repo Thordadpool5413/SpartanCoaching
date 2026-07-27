@@ -115,31 +115,31 @@ export default function Method() {
   ];
 
   return (
-    <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
+    <div className="w-full max-w-7xl mx-auto spacing-container spacing-section surface-page">
       <SEO />
       <BackButton />
       
       {/* Header */}
       <div className="text-center max-w-3xl mx-auto mb-16 sm:mb-20 relative">
-        <div className="absolute inset-0 bg-gradient-to-b from-red-500/5 via-transparent to-transparent blur-3xl -z-10"></div>
-        <h1 className="text-hero text-foreground mb-8 animate-fade-in-up" data-testid="text-method-title">
-          The <span className="text-gradient-primary">Spartan Method</span>
+        <div className="absolute inset-0 bg-gradient-to-b from-primary/8 via-transparent to-transparent blur-3xl -z-10" />
+        <p className="text-kicker mb-4 animate-fade-in-up">Methodology</p>
+        <h1 className="text-hero text-foreground mb-6 animate-fade-in-up" data-testid="text-method-title">
+          The <span className="text-primary">Spartan Method</span>
         </h1>
-        <p className="text-body-lg text-muted-foreground leading-relaxed animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
-          A complete methodology for healthcare sales mastery. Value is discovered, translated, proven, and made official through four disciplined subjects, each governed by ethics that are non-negotiable.
+        <p className="text-body-lg text-muted-foreground leading-relaxed animate-fade-in-up" style={{ animationDelay: "0.1s" }}>
+          A complete methodology for hospice sales mastery. Value is discovered, translated, proven, and made official through four disciplined subjects — each governed by ethics that are non-negotiable.
         </p>
-        <p className="text-sm text-muted-foreground mt-4 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: '0.15s' }}>
-          Coaching teaches the method. The private Field Kit helps you practice it between sessions — preview free; individuals subscribe at $14.99/week; teams under contract.
+        <p className="text-sm text-muted-foreground mt-4 max-w-2xl mx-auto animate-fade-in-up" style={{ animationDelay: "0.15s" }}>
+          Coaching installs the method. Practice happens in the field — with human accountability, not a software pitch.
         </p>
       </div>
 
       <div className="max-w-5xl mx-auto space-y-8 md:space-y-12 lg:space-y-16">
         {/* Mission */}
-        <Card className="relative border-2 shadow-lg spacing-card">
-          <div className="absolute inset-0 bg-gradient-to-br from-red-500/10 via-red-500/5 to-transparent"></div>
-          <div className="absolute top-0 right-0 w-64 h-64 bg-red-500/5 rounded-full blur-3xl"></div>
+        <Card className="relative border border-border/80 shadow-elite spacing-card overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.08] via-transparent to-transparent" />
           <div className="relative">
-            <h2 className="text-h2 text-foreground mb-6">The Spartan Mission</h2>
+            <h2 className="text-h2 text-foreground mb-6 font-display tracking-tight">The Spartan Mission</h2>
             <p className="text-body-lg text-foreground/90 leading-relaxed mb-6">
               Spartan Coaching was born in the field. We built teams, ran routes, and sat with clinicians. A pattern emerged: good people failed not because they cared too little, but because the system around them was noisy, complex, and rewarded the wrong activities. We fixed the system. We kept what worked and cut the rest.
             </p>
@@ -428,40 +428,10 @@ export default function Method() {
           </div>
         </section>
 
-        {/* Field Kit bridge */}
-        <Card className="border-2 border-primary/25 bg-primary/5 spacing-card" data-testid="section-method-field-kit">
-          <div className="flex flex-col sm:flex-row gap-5 items-start">
-            <div className="w-12 h-12 rounded-xl bg-primary/15 text-primary flex items-center justify-center shrink-0">
-              <Wrench className="w-6 h-6" />
-            </div>
-            <div className="space-y-3 flex-1">
-              <h2 className="text-h2 text-foreground">Practice the method in the Field Kit</h2>
-              <p className="text-body text-muted-foreground leading-relaxed">
-                Coaching installs the system. Between sessions, members use the private Field Kit — objections, weekly plans,
-                role-play, calculators — to run real territory work. Individuals: preview free, create account, subscribe
-                $14.99/week. Teams: request access under contract. Never enter PHI into tools.
-              </p>
-              <div className="flex flex-wrap gap-3">
-                <Button asChild className="font-bold">
-                  <Link href="/register">
-                    Create account to subscribe <ArrowRight className="ml-2 w-4 h-4" />
-                  </Link>
-                </Button>
-                <Button asChild variant="outline" className="font-bold">
-                  <Link href="/tools">Preview tools</Link>
-                </Button>
-                <Button asChild variant="ghost" className="font-bold">
-                  <Link href="/request-access">Team / evaluation access</Link>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </Card>
-
         {/* Closing */}
-        <Card className="relative overflow-hidden border border-border shadow-2xl spacing-card bg-card">
+        <Card className="relative overflow-hidden border border-border/80 shadow-elite spacing-card bg-card">
           <div className="relative text-center">
-            <h3 className="text-h3 text-foreground mb-6" data-testid="text-closing-title">
+            <h3 className="text-h3 text-foreground mb-6 font-display tracking-tight" data-testid="text-closing-title">
               Built in the Field. Proven in Practice.
             </h3>
             <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
@@ -473,11 +443,8 @@ export default function Method() {
                   Book a strategy call <ArrowRight className="ml-2 w-4 h-4" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="font-bold border-2" data-testid="button-method-register">
-                <Link href="/register">Create account · Field Kit</Link>
-              </Button>
-              <Button asChild variant="ghost" className="font-bold" data-testid="button-method-request">
-                <Link href="/request-access">Team / evaluation access</Link>
+              <Button asChild variant="outline" className="font-bold" data-testid="button-method-services">
+                <Link href="/services">View coaching services</Link>
               </Button>
               <Button asChild variant="ghost" className="font-bold" data-testid="button-method-manifesto">
                 <Link href="/manifesto">Read the Spartan Ethos</Link>
