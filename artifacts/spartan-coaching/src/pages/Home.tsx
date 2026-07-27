@@ -40,7 +40,7 @@ export default function Home() {
                   "/#organization",
                 name: "Spartan Coaching",
                 description:
-                  "Practical coaching for hospice growth professionals. Build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and measurable weekly accountability. Private Field Kit: preview free, individuals $14.99/week.",
+                  "Practical coaching for hospice growth professionals. Build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and measurable weekly accountability.",
                 url: typeof window !== "undefined" ? window.location.origin : "https://spartancoaching.com",
                 email: "nick@spartanhospicecoaching.com",
                 founder: {
@@ -54,7 +54,6 @@ export default function Home() {
                   "Sales Training",
                   "Strategic Consulting",
                   "Leadership Coaching",
-                  "Field Kit Tools",
                 ],
                 areaServed: "US",
                 knowsAbout: [
@@ -70,7 +69,7 @@ export default function Home() {
                 name: "Spartan Coaching",
                 url: typeof window !== "undefined" ? window.location.origin : "https://spartancoaching.com",
                 description:
-                  "Hospice sales consulting and private Field Kit. Preview tools free; individuals subscribe $14.99/week. Teams under contract.",
+                  "Hospice sales consulting and growth coaching for liaisons, directors, and multi-market teams.",
               },
             ],
           })}
@@ -89,70 +88,26 @@ export default function Home() {
         </AnimationErrorBoundary>
       </section>
 
-      {/* ── FIELD KIT STRIKE BAND (impossible to miss redesign cue) ── */}
-      <section
-        className="relative overflow-hidden bg-primary text-primary-foreground border-y-4 border-primary"
-        data-testid="section-field-kit-strike"
-      >
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_0%,rgba(255,255,255,0.18),transparent_55%)] pointer-events-none" />
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-12 flex flex-col lg:flex-row items-center justify-between gap-6">
-          <div className="text-center lg:text-left space-y-2">
-            <p className="text-[11px] font-black uppercase tracking-[0.25em] text-white/85">
-              Private Field Kit · live now
-            </p>
-            <h2 className="text-2xl sm:text-4xl font-display font-black tracking-tight text-white leading-[1.05]">
-              Preview free. Unlock live tools for{" "}
-              <span className="underline decoration-white/50 underline-offset-4">$14.99/week</span>.
-            </h2>
-            <p className="text-sm sm:text-base text-white/85 max-w-xl">
-              Objection Handler · Command Center · Weekly Plan · Role-Play — cancel anytime.
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row gap-3 shrink-0">
-            <Button
-              size="lg"
-              asChild
-              className="font-black bg-white text-primary hover:bg-white/90 border-0 shadow-2xl min-h-12 px-8"
-              data-testid="button-home-strike-register"
-            >
-              <Link href="/register">
-                Create account to subscribe
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Link>
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              asChild
-              className="font-bold border-2 border-white/70 bg-transparent text-white hover:bg-white/10 min-h-12"
-              data-testid="button-home-strike-tools"
-            >
-              <Link href="/tools">Preview tools</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
-
       {/* ── 2. AUTHORITY STRIP (photo + credentials — hire confidence) ── */}
       <section
-        className="relative border-b border-border bg-card text-card-foreground"
+        className="relative border-y border-border bg-card text-card-foreground"
         data-testid="section-authority"
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
           <FadeIn>
             <div className="grid md:grid-cols-[220px_1fr] gap-8 md:gap-12 items-center">
-              <div className="relative mx-auto md:mx-0 w-44 sm:w-52 md:w-full aspect-[4/5] overflow-hidden rounded-2xl ring-2 ring-primary/50 shadow-[0_20px_50px_-12px_rgba(232,41,30,0.45)]">
+              <div className="relative mx-auto md:mx-0 w-44 sm:w-52 md:w-full aspect-[4/5] overflow-hidden rounded-2xl border border-border shadow-elite">
                 <img
                   src={nickPhoto}
                   alt="Nick Lynch, founder of Spartan Coaching"
                   className="w-full h-full object-cover object-top"
                   loading="lazy"
                 />
-                <div className="absolute bottom-0 inset-x-0 h-1.5 bg-primary" />
+                <div className="absolute bottom-0 inset-x-0 h-1 bg-primary" />
               </div>
               <div className="text-center md:text-left">
                 <p className="text-kicker mb-3">
-                  Hospice growth coaching · field systems
+                  Hospice growth coaching
                 </p>
                 <h2 className="text-2xl sm:text-4xl font-display font-black tracking-tight text-foreground mb-4 leading-[1.08]">
                   Built by someone who has run the territory — not a generic sales trainer.
@@ -163,10 +118,10 @@ export default function Home() {
                   and accountability in the same room.
                 </p>
                 <ul className="flex flex-wrap justify-center md:justify-start gap-3 mb-8 text-sm font-bold text-foreground">
-                  {["12+ years hospice-specific", "500+ coached", "Private Field Kit · no PHI"].map((s) => (
+                  {["12+ years hospice-specific", "500+ reps & leaders coached", "Ethics-first execution"].map((s) => (
                     <li
                       key={s}
-                      className="rounded-full border border-primary/35 bg-primary/10 text-primary px-3.5 py-1.5"
+                      className="rounded-full border border-border bg-muted/50 text-foreground px-3.5 py-1.5"
                     >
                       {s}
                     </li>
@@ -238,10 +193,10 @@ export default function Home() {
               },
               {
                 icon: Wrench,
-                title: "Private Field Kit",
-                desc: "AI tools for objections, plans, role-play, and calculators. Preview free — subscribe $14.99/week to run them live.",
-                href: "/field-kit",
-                cta: "See Field Kit",
+                title: "Field execution support",
+                desc: "Optional private tools between coaching sessions — for clients who want structure in the week, not a product pitch as the whole offer.",
+                href: "/services",
+                cta: "See how we work",
               },
             ].map((p) => {
               const Icon = p.icon;
@@ -270,80 +225,6 @@ export default function Home() {
                 </Link>
               </Button>
             </div>
-          </FadeIn>
-        </div>
-      </section>
-
-      {/* ── FIELD KIT SUBSCRIPTION ── */}
-      <section
-        className="relative border-y border-border bg-card py-14 sm:py-20"
-        data-testid="section-membership-pricing"
-      >
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
-          <FadeIn>
-            <div className="text-center mb-10 space-y-3">
-              <p className="text-sm font-bold tracking-widest text-primary uppercase">Private Field Kit</p>
-              <h2 className="text-h2 font-display font-black text-foreground">
-                13 private tools. One weekly price.
-              </h2>
-              <p className="text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-                Built for the conversations that move eligible patients into care — not generic sales AI.
-                Individuals subscribe at{" "}
-                <strong className="text-foreground">$14.99/week</strong>, cancel anytime.
-                Teams use weekly per-seat rates under contract.
-              </p>
-            </div>
-
-            {/* Compact 2-col tool grid */}
-            <div className="grid sm:grid-cols-2 gap-2 max-w-3xl mx-auto mb-10">
-              {[
-                { title: "Objection Handler", desc: "Field-ready responses to every objection you hear this week" },
-                { title: "Weekly Plan Builder", desc: "Monday–Friday territory plan with win conditions" },
-                { title: "Playbook Generator", desc: "Talking points and a clear ask for any account visit" },
-                { title: "Role-Play Practice", desc: "Simulate hard conversations before you're in the room" },
-                { title: "Cold Call Script Generator", desc: "Openers and next-step asks for new outreach" },
-                { title: "Sales Command Center", desc: "Pre-call prep, outcomes, and next-step scheduling" },
-                { title: "Activity Calculator", desc: "Turn an admission goal into daily conversation targets" },
-                { title: "ROI Calculator", desc: "Put a revenue number next to every coaching conversation" },
-              ].map((tool) => (
-                <div key={tool.title} className="flex gap-2.5 p-3 rounded-lg border border-border">
-                  <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                  <div>
-                    <span className="text-sm font-semibold text-foreground">{tool.title}</span>
-                    <span className="text-xs text-muted-foreground"> — {tool.desc}</span>
-                  </div>
-                </div>
-              ))}
-            </div>
-            <p className="text-center text-xs text-muted-foreground mb-8">
-              + Email Templates, Grounded Research, Call Transcriber, Rep Cost Calculator, Branch Profitability Simulator
-            </p>
-
-            <div className="flex flex-col sm:flex-row gap-3 justify-center items-center">
-              <Button size="lg" asChild className="font-bold shadow-md" data-testid="button-home-field-kit">
-                <Link href="/register">
-                  Create account · $14.99/wk
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Link>
-              </Button>
-              <Button size="lg" variant="outline" asChild className="font-bold border-2" data-testid="button-home-preview">
-                <Link href="/tools">Preview tools first</Link>
-              </Button>
-            </div>
-            <p className="text-center text-xs text-muted-foreground mt-4">
-              Already a member?{" "}
-              <Link href="/login" className="text-primary font-semibold hover:underline">
-                Sign in
-              </Link>
-              {" · "}
-              <Link href="/field-kit" className="text-primary font-semibold hover:underline">
-                See how it works
-              </Link>
-              {" · "}
-              <Link href="/contact" className="text-primary font-semibold hover:underline">
-                Book a call
-              </Link>
-            </p>
           </FadeIn>
         </div>
       </section>
@@ -434,11 +315,11 @@ export default function Home() {
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="font-bold border-2" data-testid="button-closing-register">
-                <Link href="/register">Create account · Field Kit</Link>
+              <Button size="lg" variant="outline" asChild className="font-bold border-2" data-testid="button-closing-services">
+                <Link href="/services">View coaching services</Link>
               </Button>
-              <Button size="lg" variant="ghost" asChild className="font-bold" data-testid="button-closing-request">
-                <Link href="/request-access">Team / evaluation access</Link>
+              <Button size="lg" variant="ghost" asChild className="font-bold" data-testid="button-closing-method">
+                <Link href="/method">See the Spartan Method</Link>
               </Button>
             </div>
           </div>

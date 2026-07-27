@@ -254,75 +254,61 @@ export default function HomeScreen() {
         contentContainerStyle={{ paddingBottom: bottomPad }}
         showsVerticalScrollIndicator={false}
       >
-        {/* Solid red strike band — unmistakable redesign cue */}
-        <View style={{ backgroundColor: colors.primary, paddingTop: topPad + 10, paddingBottom: 14, paddingHorizontal: 20 }}>
-          <Text style={{ color: "#fff", fontSize: 11, fontWeight: "900", letterSpacing: 2, textTransform: "uppercase", fontFamily: "Inter_700Bold" }}>
-            Field Kit · $14.99/wk · cancel anytime
-          </Text>
-          <Text style={{ color: "#fff", fontSize: 18, fontWeight: "800", marginTop: 4, fontFamily: "Inter_700Bold" }}>
-            Preview free · unlock live tools after subscribe
-          </Text>
-        </View>
-
         <LinearGradient
-          colors={["#080e1a", colors.heroBackground, colors.background]}
-          style={[styles.hero, { paddingTop: 28 }]}
+          colors={[colors.heroBackground, colors.background, colors.card]}
+          style={[styles.hero, { paddingTop: topPad + 20 }]}
         >
-          <Image source={require("@/assets/images/logo.png")} style={[styles.logo, { width: 80, height: 80 }]} resizeMode="contain" />
-          <Text style={[styles.heroTitle, { color: colors.heroForeground, fontSize: 42, lineHeight: 46 }]}>Hospice sales</Text>
-          <Text style={[styles.heroTitle, { color: colors.heroMuted, fontSize: 36, lineHeight: 40 }]}>is not a mystery.</Text>
-          <Text style={[styles.heroTitle, styles.heroTitleAccent, { color: colors.primary, fontSize: 40, lineHeight: 44 }]}>
+          <Image source={require("@/assets/images/logo.png")} style={styles.logo} resizeMode="contain" />
+          <Text style={[styles.heroTitle, { color: colors.heroForeground }]}>Hospice sales</Text>
+          <Text style={[styles.heroTitle, { color: colors.heroMuted }]}>is not a mystery.</Text>
+          <Text style={[styles.heroTitle, styles.heroTitleAccent, { color: colors.primary }]}>
             It is a promise.
           </Text>
-          <Text style={[styles.heroTagline, { color: colors.heroMuted, fontSize: 15, lineHeight: 22 }]}>
-            Practical coaching and a private Field Kit for hospice growth professionals who execute in the field.
+          <Text style={[styles.heroTagline, { color: colors.heroMuted }]}>
+            Practical coaching for hospice growth professionals — conversations, territory systems, and weekly accountability that hold in the field.
           </Text>
           <View
             style={[
               styles.heroBadge,
-              { backgroundColor: colors.heroBadgeBg, borderColor: colors.heroBadgeBorder, borderWidth: 1.5 },
+              { backgroundColor: colors.heroBadgeBg, borderColor: colors.heroBadgeBorder },
             ]}
           >
             <View style={[styles.heroBadgeDot, { backgroundColor: colors.primary }]} />
             <Text style={[styles.heroBadgeText, { color: colors.heroBadgeText }]}>
-              {isAuthenticated
-                ? "Subscribe from Account to unlock live tools · $14.99/wk"
-                : "Preview on the web · Subscribe $14.99/wk · Cancel anytime"}
+              Coaching · programs · strategy for hospice growth teams
             </Text>
           </View>
           <Pressable
-            onPress={() => (isAuthenticated ? router.push("/(tabs)/account") : router.push("/login"))}
+            onPress={() => router.push("/(tabs)/contact")}
             style={{
-              marginTop: 20,
-              paddingVertical: 16,
-              paddingHorizontal: 28,
-              borderRadius: 14,
+              marginTop: 16,
+              paddingVertical: 14,
+              paddingHorizontal: 24,
+              borderRadius: 12,
               backgroundColor: colors.primary,
               width: "100%",
               maxWidth: 320,
-              shadowColor: "#e8291e",
-              shadowOpacity: 0.5,
-              shadowRadius: 16,
-              shadowOffset: { width: 0, height: 8 },
-              elevation: 8,
             }}
           >
-            <Text style={{ color: colors.primaryForeground, fontWeight: "900", textAlign: "center", fontSize: 16, letterSpacing: 0.3 }}>
-              {isAuthenticated ? "Open account · subscribe" : "Client login"}
+            <Text style={{ color: colors.primaryForeground, fontWeight: "800", textAlign: "center", fontSize: 16 }}>
+              Book a strategy call
             </Text>
           </Pressable>
-          <Pressable onPress={() => router.push("/(tabs)/contact")} style={{ marginTop: 14 }}>
+          <Pressable
+            onPress={() => (isAuthenticated ? router.push("/(tabs)/account") : router.push("/login"))}
+            style={{ marginTop: 14 }}
+          >
             <Text style={{ color: colors.heroMuted, fontWeight: "700", textAlign: "center", fontSize: 14 }}>
-              Book a strategy call · team access
+              {isAuthenticated ? "Open account" : "Client login"}
             </Text>
           </Pressable>
         </LinearGradient>
 
-        <View style={[styles.missionSection, { backgroundColor: "#080e1a", borderTopWidth: 3, borderTopColor: colors.primary }]}>
-          <Text style={[styles.missionOverline, { color: colors.primary, fontFamily: "Inter_700Bold", letterSpacing: 2 }]}>
+        <View style={[styles.missionSection, { backgroundColor: colors.heroBackground }]}>
+          <Text style={[styles.missionOverline, { color: colors.primary, fontFamily: "Inter_700Bold" }]}>
             The Real Problem
           </Text>
-          <Text style={[styles.missionTitle, { color: colors.heroForeground, fontFamily: "Inter_700Bold", fontSize: 26 }]}>
+          <Text style={[styles.missionTitle, { color: colors.heroForeground, fontFamily: "Inter_700Bold" }]}>
             The Gap Is Not Clinical. It Is Conversational.
           </Text>
           <Text style={[styles.missionBody, { color: colors.heroMuted, fontFamily: "Inter_400Regular" }]}>
@@ -370,16 +356,11 @@ export default function HomeScreen() {
       contentContainerStyle={{ paddingBottom: bottomPad }}
       showsVerticalScrollIndicator={false}
     >
-      <View style={{ backgroundColor: colors.primary, paddingTop: topPad + 8, paddingBottom: 10, paddingHorizontal: 20 }}>
-        <Text style={{ color: "#fff", fontSize: 11, fontWeight: "900", letterSpacing: 1.6, textTransform: "uppercase" }}>
-          Field Kit member · live tools unlocked
-        </Text>
-      </View>
       <LinearGradient
-        colors={["#080e1a", colors.heroBackground, colors.background]}
-        style={[styles.fieldHero, { paddingTop: 20 }]}
+        colors={[colors.heroBackground, colors.background, colors.card]}
+        style={[styles.fieldHero, { paddingTop: topPad + 16 }]}
       >
-        <SectionKicker>Field Kit home</SectionKicker>
+        <SectionKicker>Your home base</SectionKicker>
         <Text
           style={{
             color: colors.heroForeground,

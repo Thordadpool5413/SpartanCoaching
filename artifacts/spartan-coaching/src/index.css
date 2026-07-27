@@ -312,42 +312,27 @@ body {
     letter-spacing: -0.011em;
   }
 
-  /* ═══ UNMISSABLE SIGNATURE — elite 2026 rail ═══ */
+  /* Quiet brand accent rail — craft, not a product banner */
   body::before {
     content: "";
     position: fixed;
     top: 0;
     left: 0;
     right: 0;
-    height: 4px;
+    height: 2px;
     z-index: 99999;
     pointer-events: none;
     background: linear-gradient(
       90deg,
-      hsl(0 88% 50%) 0%,
-      hsl(0 95% 62%) 35%,
-      hsl(28 95% 55%) 55%,
-      hsl(0 88% 52%) 100%
+      transparent 0%,
+      hsl(var(--primary) / 0.85) 40%,
+      hsl(var(--primary) / 0.85) 60%,
+      transparent 100%
     );
-    box-shadow: 0 0 20px hsl(0 88% 50% / 0.55);
-  }
-
-  html.spartan-elite-2026 .shadcn-card,
-  html.spartan-elite-2026 [class*="rounded-2xl"].border {
-    border-radius: 1.125rem;
-  }
-
-  /* Primary CTAs pop harder site-wide */
-  html.spartan-elite-2026 button.bg-primary,
-  html.spartan-elite-2026 a.bg-primary,
-  html.spartan-elite-2026 .bg-primary.border {
-    box-shadow:
-      0 0 0 1px hsl(0 88% 45% / 0.5),
-      0 12px 32px -8px hsl(0 88% 50% / 0.55) !important;
   }
 
   ::selection {
-    background: hsl(var(--primary) / 0.35);
+    background: hsl(var(--primary) / 0.28);
     color: hsl(var(--foreground));
   }
 

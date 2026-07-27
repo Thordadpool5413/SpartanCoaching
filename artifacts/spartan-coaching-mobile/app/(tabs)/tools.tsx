@@ -785,17 +785,12 @@ export default function ToolsScreen() {
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       {/* Header — always pinned above content */}
-      <View style={[styles.header, { paddingTop: topPad + 10, backgroundColor: "#080e1a", borderBottomColor: colors.primary, borderBottomWidth: 3 }]}>
-        <View style={{ backgroundColor: colors.primary, marginHorizontal: -20, marginTop: -10, paddingHorizontal: 20, paddingVertical: 8, marginBottom: 12 }}>
-          <Text style={{ color: "#fff", fontSize: 11, fontWeight: "900", letterSpacing: 1.8, textTransform: "uppercase", fontFamily: "Inter_700Bold" }}>
-            Field Kit · Quick Actions
-          </Text>
-        </View>
+      <View style={[styles.header, { paddingTop: topPad + 12, backgroundColor: colors.background, borderBottomColor: colors.border }]}>
         <Text style={[styles.headerTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
-          Tools that win the room
+          Quick Actions
         </Text>
         <Text style={[styles.headerSubtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-          {canUseFieldKit ? "Live generation unlocked · no PHI" : "Preview free · subscribe $14.99/wk for live runs"}
+          {canUseFieldKit ? "Field tools for between coaching sessions" : "Sign in for live tools · coaching stays human"}
         </Text>
       </View>
 
