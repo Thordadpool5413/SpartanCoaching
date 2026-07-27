@@ -112,21 +112,11 @@ export default function Home() {
                 <h2 className="text-2xl sm:text-4xl font-display font-black tracking-tight text-foreground mb-4 leading-[1.08]">
                   Built by someone who has run the territory — not a generic sales trainer.
                 </h2>
-                <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-6 max-w-2xl">
+                <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-8 max-w-2xl">
                   Nick Lynch coaches hospice liaisons, directors, and multi-market teams on the
                   conversations and weekly systems that move eligible patients into care — with ethics
                   and accountability in the same room.
                 </p>
-                <ul className="flex flex-wrap justify-center md:justify-start gap-3 mb-8 text-sm font-bold text-foreground">
-                  {["12+ years hospice-specific", "500+ reps & leaders coached", "Ethics-first execution"].map((s) => (
-                    <li
-                      key={s}
-                      className="rounded-full border border-border bg-muted/50 text-foreground px-3.5 py-1.5"
-                    >
-                      {s}
-                    </li>
-                  ))}
-                </ul>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
                   <Button size="lg" asChild className="font-bold" data-testid="button-authority-contact">
                     <Link href="/contact">
