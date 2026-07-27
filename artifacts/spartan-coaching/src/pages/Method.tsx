@@ -1,7 +1,7 @@
 import { Card } from "@/components/ui/card";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { BackButton } from "@/components/BackButton";
-import { Compass, Users, Target, CheckCircle, Shield, Heart, Eye, Lock, Database, UserCheck, ArrowDown, ArrowRight, Flame, Wrench } from "lucide-react";
+import { Compass, Users, Target, CheckCircle, Shield, Heart, Eye, Lock, Database, UserCheck, ArrowDown, ArrowRight, Flame } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
