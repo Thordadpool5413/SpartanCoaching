@@ -1,6 +1,6 @@
 {
   "cli": {
-    "version": ">= 12.0.0",
+    "version": ">= 21.0.2",
     "appVersionSource": "remote"
   },
   "build": {
@@ -20,20 +20,16 @@
     "testflight": {
       "distribution": "store",
       "autoIncrement": true,
+      "environment": "production",
       "ios": {
         "buildConfiguration": "Release"
-      },
-      "env": {
-        "EXPO_PUBLIC_DOMAIN": "$EXPO_PUBLIC_DOMAIN"
       }
     },
     "production": {
       "autoIncrement": true,
+      "environment": "production",
       "ios": {
         "buildConfiguration": "Release"
-      },
-      "env": {
-        "EXPO_PUBLIC_DOMAIN": "$EXPO_PUBLIC_DOMAIN"
       }
     }
   },
