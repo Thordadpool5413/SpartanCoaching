@@ -1,0 +1,19 @@
+artifacts/spartan-coaching/src/pages/AiToolsHub.tsx
+  s_859dc7aa6bfb87::t_6c5b7ca801d717 28-38
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "6fb9de59c749b79a396f278f578535106b3bd202",
+  "prompts": {},
+  "sessions": {
+    "s_859dc7aa6bfb87": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f9d0c-9aad-7ef2-8adc-7a4afb18da6e",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
