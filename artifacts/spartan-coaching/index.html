@@ -67,10 +67,12 @@
             warm:     { tone: 'light', bg: '40 45% 96%',  fg: '25 35% 10%' },
             cool:     { tone: 'light', bg: '200 35% 96%', fg: '210 35% 10%' },
             ink:      { tone: 'dark',  bg: '0 0% 0%',     fg: '0 0% 98%' },
-            midnight: { tone: 'dark',  bg: '222 42% 14%', fg: '214 40% 97%' },
+            midnight: { tone: 'dark',  bg: '222 48% 9%',  fg: '214 40% 97%' },
             charcoal: { tone: 'dark',  bg: '0 0% 18%',    fg: '0 0% 98%' },
             forest:   { tone: 'dark',  bg: '152 28% 13%', fg: '140 25% 97%' }
           };
+          /* Force cache-bust class so new CSS is obvious after deploy */
+          root.classList.add('spartan-elite-2026');
           var s = surfaces[bg] || surfaces.midnight;
           var mode = s.tone;
           root.classList.toggle('dark', mode === 'dark');

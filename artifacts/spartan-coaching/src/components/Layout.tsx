@@ -165,10 +165,17 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border surface-chrome backdrop-blur-2xl supports-[backdrop-filter]:bg-background/80 shadow-lg safe-area-top">
+    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-xl shadow-lg safe-area-top">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-18 md:h-20 flex items-center justify-between gap-3 sm:gap-6 safe-area-x">
         <Link href={homeHref}>
-          <div className="flex items-center gap-2 sm:gap-4 hover:opacity-80 transition-opacity cursor-pointer touch-manipulation" data-testid="link-home">
+          <div className="flex items-center gap-2 sm:gap-3 hover:opacity-90 transition-opacity cursor-pointer touch-manipulation" data-testid="link-home">
+            <img
+              src="/spartan-logo-stamp.png"
+              alt=""
+              className="h-8 w-8 sm:h-10 sm:w-10 object-contain"
+              width={40}
+              height={40}
+            />
             <div>
               {/* Not h1 — page content owns the document title heading (a11y) */}
               <span className="font-black text-xl sm:text-2xl md:text-3xl text-primary tracking-tight font-display block">

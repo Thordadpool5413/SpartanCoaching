@@ -265,7 +265,7 @@ export default function HomeScreen() {
             It is a promise.
           </Text>
           <Text style={[styles.heroTagline, { color: colors.heroMuted }]}>
-            Practical coaching and a private Field Kit for hospice growth professionals who execute in the field.
+            Practical coaching for hospice growth professionals — conversations, territory systems, and weekly accountability that hold in the field.
           </Text>
           <View
             style={[
@@ -275,28 +275,31 @@ export default function HomeScreen() {
           >
             <View style={[styles.heroBadgeDot, { backgroundColor: colors.primary }]} />
             <Text style={[styles.heroBadgeText, { color: colors.heroBadgeText }]}>
-              {isAuthenticated
-                ? "Subscribe from Account to unlock live tools · $14.99/wk"
-                : "Preview on the web · Subscribe $14.99/wk · Cancel anytime"}
+              Coaching · programs · strategy for hospice growth teams
             </Text>
           </View>
           <Pressable
-            onPress={() => (isAuthenticated ? router.push("/(tabs)/account") : router.push("/login"))}
+            onPress={() => router.push("/(tabs)/contact")}
             style={{
               marginTop: 16,
-              paddingVertical: 12,
-              paddingHorizontal: 20,
-              borderRadius: 10,
+              paddingVertical: 14,
+              paddingHorizontal: 24,
+              borderRadius: 12,
               backgroundColor: colors.primary,
+              width: "100%",
+              maxWidth: 320,
             }}
           >
-            <Text style={{ color: colors.primaryForeground, fontWeight: "800", textAlign: "center" }}>
-              {isAuthenticated ? "Open account · subscribe" : "Client login"}
+            <Text style={{ color: colors.primaryForeground, fontWeight: "800", textAlign: "center", fontSize: 16 }}>
+              Book a strategy call
             </Text>
           </Pressable>
-          <Pressable onPress={() => router.push("/(tabs)/contact")} style={{ marginTop: 12 }}>
-            <Text style={{ color: colors.heroMuted, fontWeight: "600", textAlign: "center" }}>
-              Book a strategy call · team access
+          <Pressable
+            onPress={() => (isAuthenticated ? router.push("/(tabs)/account") : router.push("/login"))}
+            style={{ marginTop: 14 }}
+          >
+            <Text style={{ color: colors.heroMuted, fontWeight: "700", textAlign: "center", fontSize: 14 }}>
+              {isAuthenticated ? "Open account" : "Client login"}
             </Text>
           </Pressable>
         </LinearGradient>
@@ -357,7 +360,7 @@ export default function HomeScreen() {
         colors={[colors.heroBackground, colors.background, colors.card]}
         style={[styles.fieldHero, { paddingTop: topPad + 16 }]}
       >
-        <SectionKicker>Field Kit home</SectionKicker>
+        <SectionKicker>Your home base</SectionKicker>
         <Text
           style={{
             color: colors.heroForeground,
