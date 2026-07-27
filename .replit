@@ -63,3 +63,23 @@ channel = "stable-25_05"
 SITE_URL = "https://spartanhospicecoaching.com"
 STRIPE_PRICE_INDIVIDUAL_WEEKLY = "price_1TwvuBLF4JQdUFsUjbKVeeU2"
 RESEND_FROM_EMAIL = "Spartan Coaching <onboarding@resend.dev>"
+
+[[ports]]
+localPort = 8080
+externalPort = 8080
+
+[[ports]]
+localPort = 8081
+externalPort = 8081
+
+[[ports]]
+localPort = 8082
+externalPort = 80
+
+[[ports]]
+localPort = 21869
+externalPort = 3001
+
+[[ports]]
+localPort = 23436
+externalPort = 3000
