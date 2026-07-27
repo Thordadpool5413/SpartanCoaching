@@ -229,45 +229,45 @@ body {
   --elevate-1: rgba(255,255,255, .06);
   --elevate-2: rgba(255,255,255, .12);
 
-  /* Default dark surface = Midnight Navy (overridden live by appearance picker) */
-  --background: 222 42% 12%;
-  --foreground: 214 40% 97%;
-  --border: 222 26% 26%;
+  /* Default dark surface = Midnight Navy — deep ink (visibly darker than legacy 14%) */
+  --background: 222 48% 9%;
+  --foreground: 214 40% 98%;
+  --border: 222 28% 22%;
 
-  --card: 222 38% 16%;
-  --card-foreground: 214 35% 97%;
-  --card-border: 222 26% 24%;
+  --card: 222 40% 13%;
+  --card-foreground: 214 35% 98%;
+  --card-border: 222 28% 20%;
 
-  --sidebar: 222 44% 10%;
-  --sidebar-foreground: 214 35% 97%;
-  --sidebar-border: 222 26% 24%;
-  --sidebar-primary: 0 85% 60%;
+  --sidebar: 222 50% 7%;
+  --sidebar-foreground: 214 35% 98%;
+  --sidebar-border: 222 28% 20%;
+  --sidebar-primary: 0 88% 56%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 222 32% 18%;
-  --sidebar-accent-foreground: 214 35% 97%;
-  --sidebar-ring: 0 85% 60%;
+  --sidebar-accent: 222 36% 15%;
+  --sidebar-accent-foreground: 214 35% 98%;
+  --sidebar-ring: 0 88% 56%;
 
-  --popover: 222 38% 16%;
-  --popover-foreground: 214 35% 97%;
-  --popover-border: 222 26% 24%;
+  --popover: 222 40% 13%;
+  --popover-foreground: 214 35% 98%;
+  --popover-border: 222 28% 20%;
 
-  --primary: 0 85% 60%;
+  --primary: 0 88% 56%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 222 30% 20%;
-  --secondary-foreground: 214 40% 97%;
+  --secondary: 222 32% 17%;
+  --secondary-foreground: 214 40% 98%;
 
-  --muted: 222 32% 18%;
-  --muted-foreground: 214 20% 76%;
+  --muted: 222 36% 15%;
+  --muted-foreground: 214 22% 78%;
 
   --accent: 0 70% 14%;
-  --accent-foreground: 214 40% 97%;
+  --accent-foreground: 214 40% 98%;
 
-  --destructive: 0 85% 60%;
+  --destructive: 0 88% 56%;
   --destructive-foreground: 0 0% 100%;
 
-  --input: 222 32% 15%;
-  --ring: 0 85% 60%;
+  --input: 222 36% 12%;
+  --ring: 0 88% 56%;
 
   --chart-1: 203.8863 88.2845% 53.1373%;
   --chart-2: 159.7826 100% 36.0784%;
@@ -312,8 +312,42 @@ body {
     letter-spacing: -0.011em;
   }
 
+  /* ═══ UNMISSABLE SIGNATURE — elite 2026 rail ═══ */
+  body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    z-index: 99999;
+    pointer-events: none;
+    background: linear-gradient(
+      90deg,
+      hsl(0 88% 50%) 0%,
+      hsl(0 95% 62%) 35%,
+      hsl(28 95% 55%) 55%,
+      hsl(0 88% 52%) 100%
+    );
+    box-shadow: 0 0 20px hsl(0 88% 50% / 0.55);
+  }
+
+  html.spartan-elite-2026 .shadcn-card,
+  html.spartan-elite-2026 [class*="rounded-2xl"].border {
+    border-radius: 1.125rem;
+  }
+
+  /* Primary CTAs pop harder site-wide */
+  html.spartan-elite-2026 button.bg-primary,
+  html.spartan-elite-2026 a.bg-primary,
+  html.spartan-elite-2026 .bg-primary.border {
+    box-shadow:
+      0 0 0 1px hsl(0 88% 45% / 0.5),
+      0 12px 32px -8px hsl(0 88% 50% / 0.55) !important;
+  }
+
   ::selection {
-    background: hsl(var(--primary) / 0.28);
+    background: hsl(var(--primary) / 0.35);
     color: hsl(var(--foreground));
   }
 

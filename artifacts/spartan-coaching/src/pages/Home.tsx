@@ -89,27 +89,72 @@ export default function Home() {
         </AnimationErrorBoundary>
       </section>
 
+      {/* ── FIELD KIT STRIKE BAND (impossible to miss redesign cue) ── */}
+      <section
+        className="relative overflow-hidden bg-primary text-primary-foreground border-y-4 border-primary"
+        data-testid="section-field-kit-strike"
+      >
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_30%_0%,rgba(255,255,255,0.18),transparent_55%)] pointer-events-none" />
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-10 sm:py-12 flex flex-col lg:flex-row items-center justify-between gap-6">
+          <div className="text-center lg:text-left space-y-2">
+            <p className="text-[11px] font-black uppercase tracking-[0.25em] text-white/85">
+              Private Field Kit · live now
+            </p>
+            <h2 className="text-2xl sm:text-4xl font-display font-black tracking-tight text-white leading-[1.05]">
+              Preview free. Unlock live tools for{" "}
+              <span className="underline decoration-white/50 underline-offset-4">$14.99/week</span>.
+            </h2>
+            <p className="text-sm sm:text-base text-white/85 max-w-xl">
+              Objection Handler · Command Center · Weekly Plan · Role-Play — cancel anytime.
+            </p>
+          </div>
+          <div className="flex flex-col sm:flex-row gap-3 shrink-0">
+            <Button
+              size="lg"
+              asChild
+              className="font-black bg-white text-primary hover:bg-white/90 border-0 shadow-2xl min-h-12 px-8"
+              data-testid="button-home-strike-register"
+            >
+              <Link href="/register">
+                Create account to subscribe
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              asChild
+              className="font-bold border-2 border-white/70 bg-transparent text-white hover:bg-white/10 min-h-12"
+              data-testid="button-home-strike-tools"
+            >
+              <Link href="/tools">Preview tools</Link>
+            </Button>
+          </div>
+        </div>
+      </section>
+
       {/* ── 2. AUTHORITY STRIP (photo + credentials — hire confidence) ── */}
       <section
-        className="relative border-y border-border/80 bg-card text-card-foreground surface-noise"
+        className="relative border-b border-border bg-card text-card-foreground"
         data-testid="section-authority"
       >
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
           <FadeIn>
-            <div className="grid md:grid-cols-[200px_1fr] gap-8 md:gap-12 items-center">
-              <div className="relative mx-auto md:mx-0 w-40 sm:w-48 md:w-full aspect-[4/5] overflow-hidden rounded-2xl border border-border/70 border-l-4 border-l-primary shadow-elite">
+            <div className="grid md:grid-cols-[220px_1fr] gap-8 md:gap-12 items-center">
+              <div className="relative mx-auto md:mx-0 w-44 sm:w-52 md:w-full aspect-[4/5] overflow-hidden rounded-2xl ring-2 ring-primary/50 shadow-[0_20px_50px_-12px_rgba(232,41,30,0.45)]">
                 <img
                   src={nickPhoto}
                   alt="Nick Lynch, founder of Spartan Coaching"
                   className="w-full h-full object-cover object-top"
                   loading="lazy"
                 />
+                <div className="absolute bottom-0 inset-x-0 h-1.5 bg-primary" />
               </div>
               <div className="text-center md:text-left">
-                <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">
+                <p className="text-kicker mb-3">
                   Hospice growth coaching · field systems
                 </p>
-                <h2 className="text-2xl sm:text-3xl font-display font-black tracking-tight text-foreground mb-3">
+                <h2 className="text-2xl sm:text-4xl font-display font-black tracking-tight text-foreground mb-4 leading-[1.08]">
                   Built by someone who has run the territory — not a generic sales trainer.
                 </h2>
                 <p className="text-base sm:text-lg text-muted-foreground leading-relaxed mb-6 max-w-2xl">
@@ -117,19 +162,24 @@ export default function Home() {
                   conversations and weekly systems that move eligible patients into care — with ethics
                   and accountability in the same room.
                 </p>
-                <ul className="flex flex-wrap justify-center md:justify-start gap-x-6 gap-y-2 mb-8 text-sm font-semibold text-foreground">
-                  <li>12+ years hospice-specific</li>
-                  <li>500+ reps &amp; leaders coached</li>
-                  <li>Private Field Kit · no PHI</li>
+                <ul className="flex flex-wrap justify-center md:justify-start gap-3 mb-8 text-sm font-bold text-foreground">
+                  {["12+ years hospice-specific", "500+ coached", "Private Field Kit · no PHI"].map((s) => (
+                    <li
+                      key={s}
+                      className="rounded-full border border-primary/35 bg-primary/10 text-primary px-3.5 py-1.5"
+                    >
+                      {s}
+                    </li>
+                  ))}
                 </ul>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
-                  <Button size="lg" asChild className="font-bold shadow-md" data-testid="button-authority-contact">
+                  <Button size="lg" asChild className="font-bold" data-testid="button-authority-contact">
                     <Link href="/contact">
                       Book a strategy call
                       <ArrowRight className="ml-2 w-4 h-4" />
                     </Link>
                   </Button>
-                  <Button size="lg" variant="outline" asChild className="font-bold border-2" data-testid="button-authority-about">
+                  <Button size="lg" variant="outline" asChild className="font-bold" data-testid="button-authority-about">
                     <Link href="/about">About Nick Lynch</Link>
                   </Button>
                 </div>

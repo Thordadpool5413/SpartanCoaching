@@ -8,13 +8,13 @@ export const spartanDark = {
   text: "#f0f4fc",
   tint: "#e8291e",
 
-  /** Midnight navy — matches web BG preset "midnight" */
-  background: "#121a2c",
-  foreground: "#f2f5fc",
+  /** Midnight navy — deep ink (matches web elite midnight) */
+  background: "#0c1220",
+  foreground: "#f4f7fd",
 
-  card: "#1a2438",
-  cardElevated: "#1f2b42",
-  cardForeground: "#f2f5fc",
+  card: "#141d30",
+  cardElevated: "#1a2540",
+  cardForeground: "#f4f7fd",
 
   primary: "#e8291e",
   primaryForeground: "#ffffff",
@@ -37,20 +37,20 @@ export const spartanDark = {
   borderStrong: "rgba(200, 214, 240, 0.22)",
   input: "#171f32",
 
-  heroBackground: "#0d1424",
+  heroBackground: "#080e1a",
   heroForeground: "#ffffff",
   heroMuted: "rgba(226, 232, 245, 0.72)",
-  heroBadgeBg: "rgba(255,255,255,0.08)",
-  heroBadgeBorder: "rgba(255,255,255,0.18)",
-  heroBadgeText: "rgba(255,255,255,0.9)",
+  heroBadgeBg: "rgba(232,41,30,0.12)",
+  heroBadgeBorder: "rgba(232,41,30,0.45)",
+  heroBadgeText: "rgba(255,255,255,0.95)",
 
   success: "#4ade80",
   warning: "#fbbf24",
 
   /** Tab / chrome */
-  tabBar: "#0f1628",
-  tabInactive: "rgba(226, 232, 245, 0.55)",
-  overlay: "rgba(8, 12, 22, 0.72)",
+  tabBar: "#0a101c",
+  tabInactive: "rgba(226, 232, 245, 0.5)",
+  overlay: "rgba(8, 12, 22, 0.78)",
 } as const;
 
 /** Light marketing surfaces (web public); Field Kit prefers dark. */

@@ -165,14 +165,23 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border surface-chrome backdrop-blur-2xl supports-[backdrop-filter]:bg-background/80 shadow-lg safe-area-top">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-18 md:h-20 flex items-center justify-between gap-3 sm:gap-6 safe-area-x">
+    <header className="sticky top-0 z-50 w-full border-b-2 border-primary/30 bg-background/95 backdrop-blur-xl shadow-[0_12px_40px_-12px_rgba(0,0,0,0.65)] safe-area-top pt-1">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-[4.25rem] sm:h-20 flex items-center justify-between gap-3 sm:gap-6 safe-area-x">
         <Link href={homeHref}>
-          <div className="flex items-center gap-2 sm:gap-4 hover:opacity-80 transition-opacity cursor-pointer touch-manipulation" data-testid="link-home">
-            <div>
-              {/* Not h1 — page content owns the document title heading (a11y) */}
-              <span className="font-black text-xl sm:text-2xl md:text-3xl text-primary tracking-tight font-display block">
-                SPARTAN COACHING
+          <div className="flex items-center gap-2.5 sm:gap-3 hover:opacity-90 transition-opacity cursor-pointer touch-manipulation" data-testid="link-home">
+            <img
+              src="/spartan-logo-stamp.png"
+              alt=""
+              className="h-9 w-9 sm:h-11 sm:w-11 object-contain drop-shadow-[0_0_12px_hsl(0_88%_50%/0.45)]"
+              width={44}
+              height={44}
+            />
+            <div className="leading-none">
+              <span className="font-black text-lg sm:text-2xl md:text-3xl text-primary tracking-tight font-display block">
+                SPARTAN
+              </span>
+              <span className="text-[9px] sm:text-[10px] font-bold uppercase tracking-[0.28em] text-muted-foreground">
+                Coaching · Field Kit
               </span>
             </div>
           </div>
