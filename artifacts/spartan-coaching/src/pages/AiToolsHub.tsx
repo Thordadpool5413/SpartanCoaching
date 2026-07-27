@@ -25,6 +25,17 @@ export default function AiToolsHub() {
       const response = await fetch("/api/ai-tools", {
         credentials: "include",
       });
+      if (response.status === 401 || response.status === 403) {
+        setAvailability(
+          new Map(
+            SPARTAN_AI_TOOLS.map((tool) => [
+              tool.id,
+              { enabled: false },
+            ]),
+          ),
+        );
+        return;
+      }
       if (!response.ok) throw new Error("Catalog unavailable");
       const body = (await response.json()) as {
         tools: Array<{ id: string; availability: { enabled: boolean } }>;
