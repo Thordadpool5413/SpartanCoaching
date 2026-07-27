@@ -16,11 +16,19 @@ describe("Field Kit funnel + catalog contracts", () => {
     }
   });
 
-  it("mobile parity debt is only webview or missing (documented)", () => {
+  it("mobile parity: no catalog tool is 'missing' (native or webview only)", () => {
+    const missing = FIELD_KIT_TOOLS.filter((t) => t.mobile === "missing");
+    expect(missing).toEqual([]);
     const debt = mobileParityDebt();
     for (const t of debt) {
-      expect(t.mobile === "webview" || t.mobile === "missing").toBe(true);
+      expect(t.mobile).toBe("webview");
       expect(mobileDeliveryLabel(t.mobile).length).toBeGreaterThan(3);
+    }
+  });
+
+  it("native tools have mobileRoute or mobileToolTab", () => {
+    for (const t of FIELD_KIT_TOOLS.filter((x) => x.mobile === "native")) {
+      expect(Boolean(t.mobileRoute || t.mobileToolTab)).toBe(true);
     }
   });
 

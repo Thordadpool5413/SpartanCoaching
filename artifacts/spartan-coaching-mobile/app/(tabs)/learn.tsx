@@ -13,11 +13,20 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { useQuery } from "@tanstack/react-query";
 import * as Haptics from "expo-haptics";
+import { router } from "expo-router";
 import { useColors } from "@/hooks/useColors";
 import { apiGet, apiPost } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 
 type LearnTab = "articles" | "podcasts" | "resources";
+
+/** Web surfaces that complete mobile ↔ website Learn parity */
+const WEB_LEARN_LINKS: { label: string; path: string; blurb: string }[] = [
+  { label: "Spartan Method", path: "/method", blurb: "The system behind coaching" },
+  { label: "Drills", path: "/drills", blurb: "Practice reps between sessions" },
+  { label: "Quiz", path: "/quiz", blurb: "Knowledge check" },
+  { label: "Manifesto", path: "/manifesto", blurb: "The Spartan Ethos" },
+];
 
 type Article = {
   id: number;
@@ -135,8 +144,42 @@ export default function LearnScreen() {
           Learn
         </Text>
         <Text style={[styles.headerSubtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-          Articles, podcasts and knowledge base
+          Same content as the website — articles, podcasts, drills, method
         </Text>
+      </View>
+
+      {/* Website parity shortcuts */}
+      <View style={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 4, flexDirection: "row", flexWrap: "wrap", gap: 8 }}>
+        {WEB_LEARN_LINKS.map((link) => (
+          <Pressable
+            key={link.path}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.push({
+                pathname: "/tool-web",
+                params: { path: link.path, toolId: "brand-video" },
+              } as any);
+            }}
+            style={({ pressed }) => ({
+              borderWidth: 1,
+              borderColor: colors.border,
+              backgroundColor: colors.card,
+              borderRadius: 12,
+              paddingHorizontal: 12,
+              paddingVertical: 10,
+              opacity: pressed ? 0.85 : 1,
+              minWidth: "46%" as any,
+              flexGrow: 1,
+            })}
+          >
+            <Text style={{ color: colors.foreground, fontWeight: "800", fontSize: 13, fontFamily: "Inter_700Bold" }}>
+              {link.label}
+            </Text>
+            <Text style={{ color: colors.mutedForeground, fontSize: 11, marginTop: 2, fontFamily: "Inter_400Regular" }}>
+              {link.blurb}
+            </Text>
+          </Pressable>
+        ))}
       </View>
 
       {/* Tab bar */}

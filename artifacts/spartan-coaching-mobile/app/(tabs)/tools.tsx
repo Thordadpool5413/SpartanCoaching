@@ -348,22 +348,31 @@ export default function ToolsScreen() {
 
   const openCatalogTool = (tool: FieldKitTool) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (tool.mobile === "webview") {
+    // Full web tool in-app (session via tool-web) — same product surface as website
+    if (tool.mobile === "webview" || tool.mobileRoute === "/tool-web") {
       router.push({
         pathname: "/tool-web",
         params: { toolId: tool.id, path: tool.path },
       } as any);
       return;
     }
+    // Dedicated native screen (Command Center, staffing, brand video, …)
     if (tool.mobileRoute && !tool.mobileToolTab) {
       router.push(tool.mobileRoute as any);
       return;
     }
+    // Native tool tab inside this screen
     if (tool.mobileToolTab && VALID_TABS.has(tool.mobileToolTab as ToolTab)) {
       setActiveTab(tool.mobileToolTab as ToolTab);
       setBrowseMode(false);
       router.setParams({ tab: tool.mobileToolTab });
+      return;
     }
+    // Fallback: never dead-end — open web path secured
+    router.push({
+      pathname: "/tool-web",
+      params: { toolId: tool.id, path: tool.path },
+    } as any);
   };
 
   const requireAccess = (): boolean => {
@@ -987,12 +996,17 @@ export default function ToolsScreen() {
                           </Text>
                           {tool.mobile === "webview" && (
                             <Text style={{ color: colors.primary, fontSize: 11, fontWeight: "700", marginTop: 6 }}>
-                              Full web tool · secured session
+                              Full web experience · same as website
                             </Text>
                           )}
                           {tool.mobile === "native" && tool.id === "sales-workflow" && (
                             <Text style={{ color: colors.mutedForeground, fontSize: 11, fontWeight: "700", marginTop: 6 }}>
-                              Daily spine
+                              Daily spine · native
+                            </Text>
+                          )}
+                          {tool.mobile === "native" && tool.id !== "sales-workflow" && (
+                            <Text style={{ color: colors.mutedForeground, fontSize: 11, fontWeight: "600", marginTop: 6 }}>
+                              Native app
                             </Text>
                           )}
                         </View>

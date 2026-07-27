@@ -20,9 +20,23 @@ Set one of:
 - `EXPO_PUBLIC_API_URL=https://your-host.example` (preferred)
 - `EXPO_PUBLIC_DOMAIN=your-host.example` (https assumed)
 
+## Delivery map (current)
+
+| Area | Website | Mobile |
+|------|---------|--------|
+| Coaching marketing | Home, Services, Method, About, Contact | Home (coaching-first), Contact tab |
+| Sales Command Center | `/tools/sales-workflow` | **Command** tab → native |
+| Core Field tools | Tools grid | **Tools** tab catalog (native tabs + secured WebView) |
+| Calculators (activity, ROI, rep cost, transcribe) | Native web pages | **WebView** same routes (`/tool-web`) |
+| Advanced AI library | `/tools/ai/*` | `/ai-tools/*` native screens |
+| Learn | articles, podcasts, resources, drills, quiz, method | Learn tab + WebView shortcuts for method/drills/quiz |
+| Account / billing | `/account` Stripe | Account tab + Stripe links |
+| Auth | register / login | login + open register on web |
+
 ## Parity checklist (every mobile UI PR)
 
 - [ ] Colors from `@workspace/design-tokens` / `useColors()` only
 - [ ] Tool listed in `@workspace/field-kit-catalog` with correct `mobile` field
 - [ ] Command Center reachable as a primary tab
+- [ ] No tool left as `mobile: "missing"`
 - [ ] No PHI in tool copy; Field mode banner where AI is used
