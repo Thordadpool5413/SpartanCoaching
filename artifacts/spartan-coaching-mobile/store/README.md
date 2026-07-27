@@ -2,45 +2,55 @@
 
 ## Before You Submit
 
-### 1. One-time Expo / EAS account setup
+### 1. Verify Expo / EAS account access
 
-The Replit Secrets are already set:
+Do not assume Replit secrets are available to EAS Build. Verify the active Expo
+account and EAS project from this app directory:
 
-| Secret key | Value |
-|---|---|
-| `EAS_PROJECT_ID` | ✅ Set |
-| `EXPO_ACCOUNT_SLUG` | ✅ Set (`thordadpool`) |
-| `EXPO_TOKEN` | ✅ Set |
-| `APPLE_ID` | ✅ Set |
-| `APPLE_TEAM_ID` | ✅ Set |
-| `ASC_APP_ID` | ✅ Set |
+```bash
+pnpm dlx eas-cli@21.0.2 whoami
+pnpm dlx eas-cli@21.0.2 project:info
+pnpm dlx eas-cli@21.0.2 env:list --environment production
+```
+
+The expected project is `@thordadpool/spartan-coaching`
+(`bafdaa6f-80f5-4fb0-baef-324fa376c44c`). Apple credentials are obtained
+interactively by EAS and must not be committed or represented by unresolved
+`$APPLE_*` placeholders in `eas.json`.
 
 ### 1b. Set the production API domain (required before any store build)
 
-The app determines where to send API requests from the `EXPO_PUBLIC_DOMAIN` environment variable. This must be set as an **EAS secret** before running a TestFlight or production build — otherwise every login attempt and tool call will fail silently on device.
+The app determines where to send API requests from `EXPO_PUBLIC_API_URL`
+(preferred) or `EXPO_PUBLIC_DOMAIN`. These must be project variables in the EAS
+`production` environment before a TestFlight or production build.
 
 **Get your production domain:**
 Your production Replit deployment domain is listed in the Replit dashboard under the "Deployments" tab, or available as `REPLIT_INTERNAL_APP_DOMAIN` in the deployment environment. It typically looks like `<your-repl>.replit.app` or a custom domain.
 
-**Set it once (run from your Mac or the Replit shell):**
+**Set it once:**
 
 ```bash
-# Replace <your-production-domain> with just the hostname — no https://, no trailing slash
-# Example: my-app.replit.app  OR  spartanhospicecoaching.com
-eas secret:create \
+pnpm dlx eas-cli@21.0.2 env:create production \
+  --scope project \
+  --name EXPO_PUBLIC_API_URL \
+  --value https://spartanhospicecoaching.com \
+  --visibility plaintext
+
+pnpm dlx eas-cli@21.0.2 env:create production \
   --scope project \
   --name EXPO_PUBLIC_DOMAIN \
-  --value <your-production-domain> \
-  --type string
+  --value spartanhospicecoaching.com \
+  --visibility plaintext
 ```
 
-To verify the secret is set:
+To verify the variables:
 
 ```bash
-eas secret:list
+pnpm dlx eas-cli@21.0.2 env:list --environment production
 ```
 
-You should see `EXPO_PUBLIC_DOMAIN` in the list. All subsequent TestFlight and production builds will pull it automatically — you only need to redo this if you move to a new deployment domain.
+Both variables should resolve to the production host. The `testflight` and
+`production` profiles explicitly use the EAS `production` environment.
 
 ### 2. One-time credential setup (run once from your Mac)
 
