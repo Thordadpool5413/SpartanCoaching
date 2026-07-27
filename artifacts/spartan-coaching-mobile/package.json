@@ -73,6 +73,7 @@
     "zod-validation-error": "^3.4.0"
   },
   "dependencies": {
+    "@expo/metro-runtime": "~6.1.2",
     "expo-background-fetch": "^14.0.9",
     "expo-clipboard": "^8.0.8",
     "expo-crypto": "~15.0.8",
