@@ -31,7 +31,6 @@ describe.runIf(integrationEnabled)("AI tool PostgreSQL tenant isolation", () => 
   let foreignDocumentId = "";
 
   beforeAll(async () => {
-    process.env.AI_TOOL_EMAIL_OPTIMIZER = "true";
     process.env.AI_TOOL_ENCRYPTION_KEY = Buffer.alloc(32, 7).toString("base64");
 
     [firstOrgId, secondOrgId] = (
@@ -92,13 +91,6 @@ describe.runIf(integrationEnabled)("AI tool PostgreSQL tenant isolation", () => 
       canAdmin: true,
       grantedByMemberId: firstMemberId,
     });
-    await db.insert(aiToolOrganizationFlags).values({
-      organizationId: firstOrgId,
-      toolId: "email-optimizer",
-      enabled: true,
-      updatedByMemberId: firstMemberId,
-    });
-
     [foreignRunId] = (
       await db
         .insert(aiToolRuns)
@@ -186,6 +178,22 @@ describe.runIf(integrationEnabled)("AI tool PostgreSQL tenant isolation", () => 
     await db
       .delete(clientOrganizations)
       .where(inArray(clientOrganizations.id, orgIds));
+  });
+
+  it("makes nonclinical tools available without manual feature-flag rows", async () => {
+    const catalog = await request(app)
+      .get("/api/ai-tools")
+      .set("Authorization", `Bearer ${token}`);
+    expect(catalog.status).toBe(200);
+    expect(
+      catalog.body.tools.find(
+        (tool: { id: string }) => tool.id === "email-optimizer",
+      )?.availability,
+    ).toMatchObject({
+      enabled: true,
+      globalEnabled: true,
+      organizationEnabled: true,
+    });
   });
 
   it("never exposes another organization's run in history, detail, or export", async () => {

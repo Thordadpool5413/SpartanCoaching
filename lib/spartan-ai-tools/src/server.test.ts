@@ -11,8 +11,19 @@ afterEach(() => {
 });
 
 describe("Spartan AI tool runner boundaries", () => {
-  it("keeps every tool disabled unless its release flag is explicitly true", () => {
+  it("enables nonclinical tools by default while preserving the kill switch", () => {
     const tool = getSpartanAiTool("email-optimizer")!;
+    expect(isToolFeatureEnabled(tool, {})).toBe(true);
+    expect(isToolFeatureEnabled(tool, { [tool.featureFlag]: "false" })).toBe(
+      false,
+    );
+    expect(isToolFeatureEnabled(tool, { [tool.featureFlag]: "true" })).toBe(
+      true,
+    );
+  });
+
+  it("keeps clinical tools fail-closed until explicitly released", () => {
+    const tool = getSpartanAiTool("medicare-lcd-advisor")!;
     expect(isToolFeatureEnabled(tool, {})).toBe(false);
     expect(isToolFeatureEnabled(tool, { [tool.featureFlag]: "false" })).toBe(
       false,

@@ -103,7 +103,11 @@ async function toolAvailability(
     )
     .limit(1);
   const globalEnabled = isToolFeatureEnabled(tool);
-  const organizationEnabled = organizationFlag?.enabled === true;
+  // Nonclinical tools are available to entitled organizations unless an
+  // administrator explicitly disables them. Clinical tools remain opt-in.
+  const organizationEnabled = organizationFlag
+    ? organizationFlag.enabled === true
+    : !isClinicalTool(tool);
   return {
     enabled: globalEnabled && organizationEnabled,
     globalEnabled,

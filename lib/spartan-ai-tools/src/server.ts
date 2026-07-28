@@ -53,7 +53,14 @@ export function isToolFeatureEnabled(
   tool: AiToolSpec,
   environment: NodeJS.ProcessEnv = process.env,
 ): boolean {
-  return environment[tool.featureFlag] === "true";
+  const configured = environment[tool.featureFlag];
+  if (configured === "true") return true;
+  if (configured === "false") return false;
+
+  // Sales, content, and learning tools ship ready for entitled members.
+  // Clinical tools remain fail-closed until their release flag and PHI gates
+  // are explicitly enabled in the production environment.
+  return !isClinicalTool(tool);
 }
 
 function assertSafeInput(value: unknown): void {
