@@ -35,7 +35,11 @@
   },
   "submit": {
     "production": {
-      "ios": {}
+      "ios": {
+        "appleId": "nick.lynch5413@gmail.com",
+        "ascAppId": "6795266551",
+        "appleTeamId": "65C25YHCX9"
+      }
     }
   }
 }
