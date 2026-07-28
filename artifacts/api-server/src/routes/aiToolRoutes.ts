@@ -558,7 +558,7 @@ export function registerAiToolRoutes(app: Express): void {
             toolVersion: tool.version,
             model: tool.deterministic
               ? "deterministic-v1"
-              : (process.env.OPENAI_MODEL ?? "gpt-5.2"),
+              : (process.env.OPENAI_MODEL ?? "gpt-5"),
             promptVersion: `${tool.id}-v1`,
             inputHash,
             idempotencyKeyHash,
@@ -948,7 +948,7 @@ export function registerAiToolRoutes(app: Express): void {
                   },
                 ];
         const extraction = await client.responses.create({
-          model: process.env.OPENAI_MODEL ?? "gpt-5.2",
+          model: process.env.OPENAI_MODEL ?? "gpt-5",
           store: false,
           input: [
             {

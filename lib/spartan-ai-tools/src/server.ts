@@ -245,7 +245,7 @@ export async function runSpartanAiTool(
 
   const model = tool.deterministic
     ? "deterministic-v1"
-    : (options.model ?? process.env.OPENAI_MODEL ?? "gpt-5.2");
+    : (options.model ?? process.env.OPENAI_MODEL ?? "gpt-5");
   try {
     const output = tool.deterministic
       ? runTerritory(parsed.data)
