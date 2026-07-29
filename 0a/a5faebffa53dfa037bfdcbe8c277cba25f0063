@@ -1,0 +1,49 @@
+lib/spartan-ai-tools/src/tools/lcd-policy-sales-playbook/schema.ts
+  s_859dc7aa6bfb87::t_53ffb6160a206b 18-70
+lib/spartan-ai-tools/src/tools/family-meeting-simulator/schema.ts
+  s_859dc7aa6bfb87::t_bc732c8f60b3bc 15-33
+artifacts/spartan-coaching/src/pages/AiToolsHub.tsx
+  s_859dc7aa6bfb87::t_466141b8fc8594 11,19,72-73,77,92-96,101,107
+lib/spartan-ai-tools/src/server.test.ts
+  s_859dc7aa6bfb87::t_1a8ada6e620150 2,8,37-49
+artifacts/spartan-coaching/src/pages/AiToolsHub.test.tsx
+  s_859dc7aa6bfb87::t_7c99b574bee958 56-60
+  s_859dc7aa6bfb87::t_466141b8fc8594 1-55,61-97
+lib/spartan-ai-tools/src/clinical-contract.ts
+  s_859dc7aa6bfb87::t_7d2fabb4a754c6 9
+  s_859dc7aa6bfb87::t_bc732c8f60b3bc 10
+lib/spartan-ai-tools/src/tools/content-recommender/schema.ts
+  s_859dc7aa6bfb87::t_bc732c8f60b3bc 14-23
+lib/spartan-ai-tools/src/tools/admission-eligibility/schema.ts
+  s_859dc7aa6bfb87::t_bc732c8f60b3bc 23-32
+lib/spartan-ai-tools/src/tools/development-plan-generator/schema.ts
+  s_859dc7aa6bfb87::t_bc732c8f60b3bc 16-42
+lib/spartan-ai-tools/src/tools/content-gap-analyzer/schema.ts
+  s_859dc7aa6bfb87::t_bc732c8f60b3bc 14-34
+lib/spartan-ai-tools/src/tools/content-generator/schema.ts
+  s_859dc7aa6bfb87::t_bc732c8f60b3bc 18-26
+lib/spartan-ai-tools/src/tools/microlearning-generator/schema.ts
+  s_859dc7aa6bfb87::t_bc732c8f60b3bc 21-29
+lib/spartan-ai-tools/src/tools/documentation-gap-analyzer/schema.ts
+  s_859dc7aa6bfb87::t_bc732c8f60b3bc 18-27
+lib/spartan-ai-tools/src/tools/medicare-lcd-advisor/schema.ts
+  s_859dc7aa6bfb87::t_bc732c8f60b3bc 25
+lib/spartan-ai-tools/src/tools/medical-record-lcd-verifier/schema.ts
+  s_859dc7aa6bfb87::t_53ffb6160a206b 19-53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "0aa5faebffa53dfa037bfdcbe8c277cba25f0063",
+  "prompts": {},
+  "sessions": {
+    "s_859dc7aa6bfb87": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f9d0c-9aad-7ef2-8adc-7a4afb18da6e",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
