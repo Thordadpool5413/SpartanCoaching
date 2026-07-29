@@ -6,8 +6,11 @@
   mode. All entitled Field Kit members can open the five clinical education
   tools without organization provisioning, email MFA, a coverage-snapshot
   seed, or a clinical storage bucket. The user must confirm that every input is
-  de-identified. Results are ephemeral, human review remains mandatory, and
-  document/photo upload is unavailable.
+  de-identified. The API also rejects common direct identifiers (email, phone,
+  SSN, MRN, labeled date of birth, labeled patient name, and postal address)
+  before any OpenAI request. This screening is a safety backstop rather than a
+  certification that arbitrary text is de-identified. Results are ephemeral,
+  human review remains mandatory, and document/photo upload is unavailable.
 - `CLINICAL_OPERATION_MODE=phi` is the controlled PHI mode described below. It
   is only operational after the BAA, retention, storage, scanner, encryption,
   permission, MFA, evidence, deletion, and audit gates are configured and

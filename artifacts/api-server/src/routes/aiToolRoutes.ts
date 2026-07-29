@@ -65,6 +65,8 @@ import {
   purgeEphemeralClinicalSession,
   type EphemeralPurgeReason,
 } from "../clinical/ephemeral";
+import { findPotentialIdentifiers } from "../clinical/deidentification";
+import { clinicalRuntimeReadiness } from "../clinical/runtimeReadiness";
 import {
   decryptPhi,
   encryptPhi,
@@ -110,15 +112,8 @@ function clinicalResultNotRetained(): never {
 }
 
 function requirePhiRuntimeReady(): void {
-  if (!isPhiClinicalMode()) return;
-  const requiredGates = [
-    "HIPAA_PHI_ENABLED",
-    "OPENAI_BAA_CONFIRMED",
-    "OPENAI_MODIFIED_RETENTION_CONFIRMED",
-    "GOOGLE_CLOUD_BAA_CONFIRMED",
-    "PHI_STORAGE_BAA_CONFIRMED",
-  ] as const;
-  if (requiredGates.some((gate) => process.env[gate] !== "true")) {
+  const readiness = clinicalRuntimeReadiness();
+  if (!readiness.ready) {
     throw new SpartanAiToolError(
       "PHI_PROCESSING_DISABLED",
       503,
@@ -582,6 +577,7 @@ export function registerAiToolRoutes(app: Express): void {
       const authorizedTools = SPARTAN_AI_TOOLS.filter(
         (tool) => !isClinicalTool(tool) || access?.canUse,
       );
+      const clinicalReadiness = clinicalRuntimeReadiness();
       const tools = await Promise.all(
         authorizedTools.map(async (tool) => ({
           ...publicToolManifest(tool),
@@ -601,6 +597,10 @@ export function registerAiToolRoutes(app: Express): void {
           requiresMfa: isPhiClinicalMode(),
           requiresCoverageSnapshot: isPhiClinicalMode(),
           allowsDocumentUpload: isPhiClinicalMode(),
+          runtimeReady: clinicalReadiness.ready,
+          missingControls: access?.canAdmin
+            ? clinicalReadiness.missingControls
+            : [],
         },
       });
     } catch (error) {
@@ -743,6 +743,16 @@ export function registerAiToolRoutes(app: Express): void {
             400,
             "Confirm that the input contains no patient names, dates of birth, record numbers, contact details, or other identifying information.",
           );
+        }
+        if (!isPhiClinicalMode()) {
+          const potentialIdentifiers = findPotentialIdentifiers(envelope?.input);
+          if (potentialIdentifiers.length > 0) {
+            throw new SpartanAiToolError(
+              "POTENTIAL_PHI_DETECTED",
+              400,
+              `Remove possible direct identifiers before using de-identified mode (${potentialIdentifiers.join(", ")}).`,
+            );
+          }
         }
         const snapshot = await loadCoverage(
           context.organizationId,

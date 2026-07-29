@@ -30,6 +30,10 @@ describe("ephemeral clinical source contracts", () => {
     expect(ephemeralRoute).not.toContain("inputHash");
     expect(ephemeralRoute).toContain("setNoStore(response)");
     expect(ephemeralRoute).toContain("retainedClinicalContent: false");
+    expect(ephemeralRoute).toContain(
+      "findPotentialIdentifiers(envelope?.input)",
+    );
+    expect(ephemeralRoute).toContain("POTENTIAL_PHI_DETECTED");
   });
 
   it("requires verified deletion before returning a medical-record result", () => {
