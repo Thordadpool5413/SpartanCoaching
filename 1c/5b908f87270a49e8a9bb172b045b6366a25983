@@ -1,0 +1,82 @@
+lib/spartan-ai-tools/src/connections.ts
+  s_49726d5d67fecc::t_08c79bf69facf1 1-200
+  s_49726d5d67fecc::t_ff33a740e4dc98 201-202
+docs/ai-tools-production-runbook.md
+  s_49726d5d67fecc::t_2f67f3e3c6dbd9 5-10,39,42-44
+artifacts/api-server/scripts/verify-ai-tools-schema.mjs
+  s_49726d5d67fecc::t_bcf1b4cea7f9c1 1-35
+  s_49726d5d67fecc::t_992b1b8edf9d37 36-37
+package.json
+  s_49726d5d67fecc::t_e1417a5e8ecd9e 9
+  s_49726d5d67fecc::t_6ef1fdf7efc17f 20
+artifacts/spartan-coaching-mobile/__tests__/ai-tools.acceptance.test.tsx
+  s_49726d5d67fecc::t_bf1bdcfde59991 13,93-95
+lib/spartan-ai-tools/src/server.test.ts
+  s_49726d5d67fecc::t_6cd8ce851b0d13 26,28,74
+  s_49726d5d67fecc::t_0d75e2efe89779 112-140
+docs/clinical-security-controls.md
+  s_49726d5d67fecc::t_2f67f3e3c6dbd9 3-16
+lib/spartan-ai-tools/src/connections.test.ts
+  s_49726d5d67fecc::t_08c79bf69facf1 1-36
+  s_49726d5d67fecc::t_d21e7018167f2a 37
+docs/tool-connection-map.md
+  s_49726d5d67fecc::t_403747fa5ba6af 1-56
+scripts/smoke-built-api.mjs
+  s_49726d5d67fecc::t_e1417a5e8ecd9e 1-47
+artifacts/api-server/src/openai.ts
+  s_49726d5d67fecc::t_263f27820260d7 3-19,133-136,138,141-145,162,166,186,202-205,207-210,229-418,424-428,430-433,448,451-455,460,464,467,481-504,512,519-520,534-537,550,569,572-577,606
+scripts/post-merge.sh
+  s_49726d5d67fecc::t_bcf1b4cea7f9c1 5
+artifacts/spartan-coaching-mobile/lib/aiToolHandoff.ts
+  s_49726d5d67fecc::t_accc21eba0c517 1-22
+lib/spartan-ai-tools/src/server.ts
+  s_49726d5d67fecc::t_5aa052eaee7975 110
+  s_49726d5d67fecc::t_03334198a9e18b 168-180,263-264,281,303
+  s_49726d5d67fecc::t_0d1076ca9f0cd5 60-63
+artifacts/spartan-coaching/src/lib/aiToolHandoff.ts
+  s_49726d5d67fecc::t_5bc551bb3434bb 1-22
+artifacts/api-server/src/clinical/access.ts
+  s_49726d5d67fecc::t_5aa052eaee7975 13-17,21-24,72-75
+  s_49726d5d67fecc::t_8d9d25e077d7dd 18,32-38,71
+  s_49726d5d67fecc::t_eb38e0940acd2c 19-20
+  s_49726d5d67fecc::t_bbcd19de3c0487 25-26
+artifacts/api-server/src/routes/aiToolRoutes.ts
+  s_49726d5d67fecc::t_5aa052eaee7975 40-41,91,113,148-150,153,301,472,481-492,501-508,594-603,742-746,751,767-768,1088-1091
+  s_49726d5d67fecc::t_fdfbdd4d04d1ea 509-510,729,740,1060-1068,1092
+  s_49726d5d67fecc::t_4f54f58c8598a4 6,588
+  s_49726d5d67fecc::t_0d25f5d5597b54 741
+  s_49726d5d67fecc::t_c57862944c376d 1087
+lib/spartan-ai-tools/src/index.ts
+  s_49726d5d67fecc::t_08c79bf69facf1 3
+artifacts/spartan-coaching/src/pages/AiTool.acceptance.test.tsx
+  s_49726d5d67fecc::t_6cd8ce851b0d13 18,94-96
+artifacts/spartan-coaching-mobile/components/ai-tool-screen.tsx
+  s_49726d5d67fecc::t_fa6e89e5c26a43 321
+  s_49726d5d67fecc::t_4950c79b71b8cc 772-774,776-781,865-869,879-883,898-945
+  s_49726d5d67fecc::t_accc21eba0c517 22-23,29,52-58,61,276-281,298-299,324,326-328,357-369,398,404,409-410,412-418,782-784,786-792,795-839,870-872,884-886,946-947
+  s_49726d5d67fecc::t_e58e0860a71e2c 320
+  s_49726d5d67fecc::t_58f477fc10128c 322
+artifacts/spartan-coaching/src/pages/AiTool.tsx
+  s_49726d5d67fecc::t_16277501f80351 8,969
+  s_49726d5d67fecc::t_907f9896eda5ac 737-739,741,830-834,947-968,970-979
+  s_49726d5d67fecc::t_5bc551bb3434bb 23-24,29,97-103,106,346,363-368,372-388,398-400,403-405,485,745,747,749,751-755,758-803,835-837,980-981
+  s_49726d5d67fecc::t_376fa3484d4cd0 462,465-469,476-477,479-484
+  s_49726d5d67fecc::t_42144e06f1d9d5 742
+  s_49726d5d67fecc::t_8fde3e06686060 744
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "1c5b908f87270a49e8a9bb172b045b6366a25983",
+  "prompts": {},
+  "sessions": {
+    "s_49726d5d67fecc": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f8276-13fc-7fc3-bfe9-2af07f6183ba",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
