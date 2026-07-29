@@ -11,7 +11,16 @@ export const inputSchema = z
 
 export const outputSchema = z
   .object({
-    recommendations: z.array(z.record(z.string(), z.unknown())),
+    recommendations: z.array(
+      z
+        .object({
+          contentId: z.string().min(1),
+          title: z.string().min(1),
+          reason: z.string().min(1),
+          rank: z.number().int().positive(),
+        })
+        .strict(),
+    ),
     reasoning: z.array(z.string()),
     diversityNotes: z.array(z.string()),
   })

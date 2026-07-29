@@ -20,7 +20,16 @@ export const inputSchema = z
 export const outputSchema = z
   .object({
     eligibilityAssessment: z.string().min(1),
-    criteriaAnalysis: z.array(z.record(z.string(), z.unknown())),
+    criteriaAnalysis: z.array(
+      z
+        .object({
+          criterion: z.string().min(1),
+          status: z.enum(["supported", "not_supported", "unclear"]),
+          evidence: z.string().min(1),
+          rationale: z.string().min(1),
+        })
+        .strict(),
+    ),
     missingDocumentation: z.array(z.string()),
     recommendedActions: z.array(z.string()),
     prognosisGuidance: z.string().min(1),

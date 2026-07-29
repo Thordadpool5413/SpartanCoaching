@@ -16,10 +16,41 @@ export const inputSchema = z
 
 export const outputSchema = z
   .object({
-    extractedData: z.record(z.string(), z.unknown()),
-    diagnoses: z.array(z.record(z.string(), z.unknown())),
-    declineMetrics: z.array(z.record(z.string(), z.unknown())),
-    criteriaAnalysis: z.array(z.record(z.string(), z.unknown())),
+    extractedData: z
+      .object({
+        recordSummary: z.string().min(1),
+        functionalStatus: z.string().min(1),
+        nutrition: z.string().min(1),
+        recentUtilization: z.string().min(1),
+      })
+      .strict(),
+    diagnoses: z.array(
+      z
+        .object({
+          diagnosis: z.string().min(1),
+          sourceText: z.string().min(1),
+        })
+        .strict(),
+    ),
+    declineMetrics: z.array(
+      z
+        .object({
+          metric: z.string().min(1),
+          value: z.string().min(1),
+          sourceText: z.string().min(1),
+        })
+        .strict(),
+    ),
+    criteriaAnalysis: z.array(
+      z
+        .object({
+          criterion: z.string().min(1),
+          status: z.enum(["supported", "not_supported", "unclear"]),
+          evidence: z.string().min(1),
+          rationale: z.string().min(1),
+        })
+        .strict(),
+    ),
     citations: z.array(evidenceCitationSchema),
     confidence: clinicalConfidenceSchema,
     missingInformation: z.array(z.string()),

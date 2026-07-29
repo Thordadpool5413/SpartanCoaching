@@ -15,7 +15,16 @@ export const inputSchema = z
 
 export const outputSchema = z
   .object({
-    gaps: z.array(z.record(z.string(), z.unknown())),
+    gaps: z.array(
+      z
+        .object({
+          criterion: z.string().min(1),
+          gap: z.string().min(1),
+          evidenceNeeded: z.string().min(1),
+          priority: z.enum(["high", "medium", "low"]),
+        })
+        .strict(),
+    ),
     priorityActions: z.array(z.string()),
     questionsForClinicalTeam: z.array(z.string()),
     citations: z.array(evidenceCitationSchema),

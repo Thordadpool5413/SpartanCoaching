@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { SEO } from "@/components/SEO";
 import { FIELD_KIT_TOOLS } from "@workspace/field-kit-catalog";
+import { useAuth } from "@/context/AuthContext";
 
 /**
  * Advanced library under Field Kit — not a second competing product.
@@ -15,6 +16,7 @@ import { FIELD_KIT_TOOLS } from "@workspace/field-kit-catalog";
  * PHI tools are clearly vaulted as clinical access.
  */
 export default function AiToolsHub() {
+  const { isAuthenticated, canUseFieldKit } = useAuth();
   const [availability, setAvailability] = useState<
     Map<string, { enabled: boolean }> | null
   >(null);
@@ -67,10 +69,12 @@ export default function AiToolsHub() {
 
   const toolCard = (tool: (typeof SPARTAN_AI_TOOLS)[number]) => {
     const enabled = availability?.get(tool.id)?.enabled === true;
+    const previewAvailable = !isAuthenticated || !canUseFieldKit;
+    const canOpen = enabled || previewAvailable;
     const card = (
       <Card
         className={`h-full border-border p-5 transition-colors ${
-          enabled
+          canOpen
             ? "group-hover:border-primary/60 group-hover:bg-muted/30"
             : "opacity-70"
         }`}
@@ -85,18 +89,22 @@ export default function AiToolsHub() {
                   Clinical
                 </Badge>
               )}
-              {!enabled && <Badge variant="secondary">Not enabled</Badge>}
+              {!enabled && (
+                <Badge variant="secondary">
+                  {previewAvailable ? "Preview · sign in to run" : "Not enabled"}
+                </Badge>
+              )}
             </div>
             <h3 className="text-lg font-semibold text-foreground">{tool.name}</h3>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">{tool.description}</p>
           </div>
-          {enabled && (
+          {canOpen && (
             <ChevronRight className="mt-1 h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-1 group-hover:text-primary" />
           )}
         </div>
       </Card>
     );
-    return enabled ? (
+    return canOpen ? (
       <Link key={tool.id} href={tool.webPath} className="group">
         {card}
       </Link>
