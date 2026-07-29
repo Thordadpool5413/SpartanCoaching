@@ -3,6 +3,7 @@ import type { Express, Request, Response } from "express";
 import { and, desc, eq, gt, inArray, isNull } from "drizzle-orm";
 import {
   SPARTAN_AI_TOOLS,
+  getSpartanAiToolConnections,
   getSpartanAiTool,
   isClinicalTool,
   publicToolManifest,
@@ -36,6 +37,8 @@ import {
 } from "../auth/middleware";
 import { generateToken, hashToken, safeEqualString } from "../auth/crypto";
 import {
+  clinicalOperationMode,
+  isPhiClinicalMode,
   requireClinicalReview,
   requireClinicalUse,
   resolveClinicalAccess,
@@ -85,6 +88,7 @@ type ToolRunEnvelope = {
 type EphemeralToolRunEnvelope = {
   input?: unknown;
   coverageSnapshotId?: string;
+  confirmedDeidentified?: boolean;
 };
 
 const CLINICAL_WATERMARK =
@@ -106,6 +110,7 @@ function clinicalResultNotRetained(): never {
 }
 
 function requirePhiRuntimeReady(): void {
+  if (!isPhiClinicalMode()) return;
   const requiredGates = [
     "HIPAA_PHI_ENABLED",
     "OPENAI_BAA_CONFIRMED",
@@ -140,11 +145,12 @@ async function toolAvailability(
     )
     .limit(1);
   const globalEnabled = isToolFeatureEnabled(tool);
-  // Nonclinical tools are available to entitled organizations unless an
-  // administrator explicitly disables them. Clinical tools remain opt-in.
+  // Every tool is available to entitled organizations unless an administrator
+  // explicitly disables it. PHI mode retains its separate permission and
+  // infrastructure gates; de-identified mode is safe-by-default and ephemeral.
   const organizationEnabled = organizationFlag
     ? organizationFlag.enabled === true
-    : !isClinicalTool(tool);
+    : true;
   return {
     enabled: globalEnabled && organizationEnabled,
     globalEnabled,
@@ -292,6 +298,7 @@ async function requireDynamicClinicalAccess(
       "Clinical tool access has not been granted.",
     );
   }
+  if (!isPhiClinicalMode()) return;
   if (!request.sessionId) {
     throw new SpartanAiToolError(
       "UNAUTHENTICATED",
@@ -462,7 +469,7 @@ function addCoverageEvidence(
 
 function exposeEphemeralResult(
   result: Awaited<ReturnType<typeof runSpartanAiTool>>,
-  snapshot: typeof coverageSnapshots.$inferSelect,
+  snapshot: typeof coverageSnapshots.$inferSelect | null,
 ) {
   const output =
     result.output && typeof result.output === "object"
@@ -471,14 +478,18 @@ function exposeEphemeralResult(
   const outputCitations = Array.isArray(output?.citations)
     ? output.citations
     : [];
-  const policyCitation = {
-    source: snapshot.source,
-    snapshotId: snapshot.id,
-    documentId: snapshot.documentId,
-    version: snapshot.version,
-    contentHash: snapshot.contentHash,
-    sourceUrl: snapshot.sourceUrl,
-  };
+  const policyCitation = snapshot
+    ? [
+        {
+          source: snapshot.source,
+          snapshotId: snapshot.id,
+          documentId: snapshot.documentId,
+          version: snapshot.version,
+          contentHash: snapshot.contentHash,
+          sourceUrl: snapshot.sourceUrl,
+        },
+      ]
+    : [];
   return {
     toolId: result.metadata.toolId,
     toolVersion: result.metadata.toolVersion,
@@ -487,14 +498,16 @@ function exposeEphemeralResult(
     modelConfigurationVersion: `${result.metadata.model}:${result.metadata.promptVersion}`,
     output: result.output,
     warnings: result.metadata.safetyWarnings,
-    evidenceCitations: [...outputCitations, policyCitation],
-    coveragePolicy: {
-      snapshotId: snapshot.id,
-      documentId: snapshot.documentId,
-      version: snapshot.version,
-      contentHash: snapshot.contentHash,
-      sourceUrl: snapshot.sourceUrl,
-    },
+    evidenceCitations: [...outputCitations, ...policyCitation],
+    coveragePolicy: snapshot
+      ? {
+          snapshotId: snapshot.id,
+          documentId: snapshot.documentId,
+          version: snapshot.version,
+          contentHash: snapshot.contentHash,
+          sourceUrl: snapshot.sourceUrl,
+        }
+      : null,
     durationMs: result.metadata.durationMs,
     createdAt: new Date().toISOString(),
     retention: "ephemeral" as const,
@@ -572,15 +585,22 @@ export function registerAiToolRoutes(app: Express): void {
       const tools = await Promise.all(
         authorizedTools.map(async (tool) => ({
           ...publicToolManifest(tool),
+          connections: getSpartanAiToolConnections(tool.id),
           availability: await toolAvailability(context.organizationId, tool),
         })),
       );
       response.json({
         tools,
-        clinical: access ?? {
-          canUse: false,
-          canReview: false,
-          canAdmin: false,
+        clinical: {
+          ...(access ?? {
+            canUse: false,
+            canReview: false,
+            canAdmin: false,
+          }),
+          operationMode: clinicalOperationMode(),
+          requiresMfa: isPhiClinicalMode(),
+          requiresCoverageSnapshot: isPhiClinicalMode(),
+          allowsDocumentUpload: isPhiClinicalMode(),
         },
       });
     } catch (error) {
@@ -706,7 +726,7 @@ export function registerAiToolRoutes(app: Express): void {
             "The ephemeral execution endpoint is reserved for clinical tools.",
           );
         }
-        if (tool.id === "medical-record-lcd-verifier") {
+        if (tool.id === "medical-record-lcd-verifier" && isPhiClinicalMode()) {
           throw new SpartanAiToolError(
             "EPHEMERAL_SESSION_REQUIRED",
             400,
@@ -717,11 +737,18 @@ export function registerAiToolRoutes(app: Express): void {
         requirePhiRuntimeReady();
         await requireToolEnabled(context.organizationId, tool);
         const envelope = request.body as EphemeralToolRunEnvelope;
+        if (!isPhiClinicalMode() && envelope?.confirmedDeidentified !== true) {
+          throw new SpartanAiToolError(
+            "DEIDENTIFICATION_CONFIRMATION_REQUIRED",
+            400,
+            "Confirm that the input contains no patient names, dates of birth, record numbers, contact details, or other identifying information.",
+          );
+        }
         const snapshot = await loadCoverage(
           context.organizationId,
           envelope?.coverageSnapshotId,
         );
-        if (!snapshot) {
+        if (isPhiClinicalMode() && !snapshot) {
           throw new SpartanAiToolError(
             "COVERAGE_SNAPSHOT_REQUIRED",
             400,
@@ -737,7 +764,8 @@ export function registerAiToolRoutes(app: Express): void {
           model: result.metadata.model,
           toolVersion: result.metadata.toolVersion,
           promptVersion: result.metadata.promptVersion,
-          coverageSnapshotId: snapshot.id,
+          coverageSnapshotId: snapshot?.id ?? null,
+          operationMode: clinicalOperationMode(),
           outcome: "completed",
           durationMs: result.metadata.durationMs,
           retainedClinicalContent: false,
@@ -1029,6 +1057,15 @@ export function registerAiToolRoutes(app: Express): void {
     async (request, response) => {
       const id = requestId(request);
       try {
+        if (!isPhiClinicalMode()) {
+          response.setHeader("X-Request-Id", id).json({
+            snapshots: [],
+            operationMode: clinicalOperationMode(),
+            required: false,
+            allowsDocumentUpload: false,
+          });
+          return;
+        }
         const snapshots = await db
           .select({
             id: coverageSnapshots.id,
@@ -1047,7 +1084,12 @@ export function registerAiToolRoutes(app: Express): void {
           .from(coverageSnapshots)
           .orderBy(desc(coverageSnapshots.fetchedAt))
           .limit(200);
-        response.setHeader("X-Request-Id", id).json({ snapshots });
+        response.setHeader("X-Request-Id", id).json({
+          snapshots,
+          operationMode: clinicalOperationMode(),
+          required: isPhiClinicalMode(),
+          allowsDocumentUpload: isPhiClinicalMode(),
+        });
       } catch (error) {
         safeError(response, error, id);
       }

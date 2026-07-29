@@ -10,7 +10,7 @@ import { AiToolScreen } from "../components/ai-tool-screen";
 import { apiGet, apiPost } from "../lib/api";
 
 jest.mock("expo-router", () => ({
-  router: { back: jest.fn() },
+  router: { back: jest.fn(), push: jest.fn() },
 }));
 
 jest.mock("@expo/vector-icons", () => ({
@@ -90,6 +90,9 @@ beforeEach(() => {
   apiGetMock.mockImplementation(async (path: string) => {
     if (path === "/api/clinical/coverage/snapshots") {
       return {
+        operationMode: "phi",
+        required: true,
+        allowsDocumentUpload: true,
         snapshots: [
           {
             id: "20000000-0000-4000-8000-000000000001",

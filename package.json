@@ -6,6 +6,7 @@
   "scripts": {
     "preinstall": "node scripts/require-pnpm.mjs",
     "build": "pnpm run typecheck && pnpm -r --if-present run build",
+    "smoke:api": "node scripts/smoke-built-api.mjs",
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck",
     "test:web": "pnpm --filter @workspace/spartan-coaching test",
@@ -16,6 +17,7 @@
     "@replit/connectors-sdk": "^0.4.1"
   },
   "devDependencies": {
+    "@types/node": "catalog:",
     "prettier": "^3.9.5",
     "typescript": "~5.9.3",
     "vitest": "^4.1.10"

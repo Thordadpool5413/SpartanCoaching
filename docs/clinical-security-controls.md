@@ -1,6 +1,19 @@
 # Clinical Security Controls
 
-- Explicit clinical authorization is tenant-scoped and independent of paid sales
+## Operating modes
+
+- `CLINICAL_OPERATION_MODE=deidentified` is the default website and mobile
+  mode. All entitled Field Kit members can open the five clinical education
+  tools without organization provisioning, email MFA, a coverage-snapshot
+  seed, or a clinical storage bucket. The user must confirm that every input is
+  de-identified. Results are ephemeral, human review remains mandatory, and
+  document/photo upload is unavailable.
+- `CLINICAL_OPERATION_MODE=phi` is the controlled PHI mode described below. It
+  is only operational after the BAA, retention, storage, scanner, encryption,
+  permission, MFA, evidence, deletion, and audit gates are configured and
+  verified.
+
+- In PHI mode, explicit clinical authorization is tenant-scoped and independent of paid sales
   membership. Clinical API access requires recent email MFA; mobile clinical screens
   also require device biometric or credential verification.
 - Patient inputs, generated clinical results, extracted text, original filenames,

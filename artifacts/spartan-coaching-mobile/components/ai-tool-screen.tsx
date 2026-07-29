@@ -19,11 +19,14 @@ import {
   View,
 } from "react-native";
 import {
+  buildConnectedToolInput,
+  getSpartanAiToolConnections,
   getSpartanAiTool,
   type AiToolField,
   type AiToolSpec,
   type SpartanAiToolId,
 } from "@workspace/spartan-ai-tools";
+import { consumeAiToolHandoff, stageAiToolHandoff } from "@/lib/aiToolHandoff";
 import { useColors } from "@/hooks/useColors";
 import {
   ApiError,
@@ -46,10 +49,16 @@ type ToolRun = {
 };
 type CoverageSnapshot = { id: string; title: string; version: string };
 
-function initialForm(tool: AiToolSpec): Record<string, FormValue> {
+function initialForm(
+  tool: AiToolSpec,
+  source: Record<string, unknown> = tool.exampleInput as Record<
+    string,
+    unknown
+  >,
+): Record<string, FormValue> {
   const result: Record<string, FormValue> = {};
   for (const field of tool.fields) {
-    const example = tool.exampleInput[field.key];
+    const example = source[field.key];
     if (field.kind === "boolean") result[field.key] = Boolean(example);
     else if (field.kind === "string-list") {
       result[field.key] = Array.isArray(example) ? example.join("\n") : "";
@@ -264,6 +273,12 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
   const [needsMfa, setNeedsMfa] = useState(false);
+  const [clinicalMode, setClinicalMode] = useState<"deidentified" | "phi">(
+    "deidentified",
+  );
+  const [coverageRequired, setCoverageRequired] = useState(false);
+  const [allowsDocumentUpload, setAllowsDocumentUpload] = useState(false);
+  const [confirmedDeidentified, setConfirmedDeidentified] = useState(false);
   const [challenge, setChallenge] = useState<{
     challengeId: string;
     challengeToken: string;
@@ -280,8 +295,8 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
     setEphemeralSession(session);
   }
 
-  async function unlockClinical() {
-    if (!tool.containsPhi) return true;
+  async function unlockClinical(mode: "deidentified" | "phi") {
+    if (!tool.containsPhi || mode !== "phi") return true;
     const available = await LocalAuthentication.hasHardwareAsync();
     if (!available) return true;
     const result = await LocalAuthentication.authenticateAsync({
@@ -299,12 +314,18 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
   async function loadData() {
     setError("");
     try {
-      if (!(await unlockClinical())) return;
       if (tool.containsPhi) {
         const snapshotResponse = await apiGet<{
           snapshots: CoverageSnapshot[];
+          operationMode: "deidentified" | "phi";
+          required: boolean;
+          allowsDocumentUpload: boolean;
         }>("/api/clinical/coverage/snapshots");
+        if (!(await unlockClinical(snapshotResponse.operationMode))) return;
         setSnapshots(snapshotResponse.snapshots);
+        setClinicalMode(snapshotResponse.operationMode);
+        setCoverageRequired(snapshotResponse.required);
+        setAllowsDocumentUpload(snapshotResponse.allowsDocumentUpload);
         setSnapshotId(
           (current) => current || snapshotResponse.snapshots[0]?.id || "",
         );
@@ -333,6 +354,19 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
   }
 
   useEffect(() => {
+    const handoff = consumeAiToolHandoff(tool.id);
+    if (handoff) {
+      setValues(
+        initialForm(
+          tool,
+          buildConnectedToolInput(
+            handoff.sourceToolId,
+            tool.id,
+            handoff.output,
+          ),
+        ),
+      );
+    }
     void loadData();
   }, [tool.id]);
 
@@ -361,19 +395,27 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
       if (tool.containsPhi) {
         if (
           tool.id === "medical-record-lcd-verifier" &&
+          clinicalMode === "phi" &&
           !ephemeralSessionRef.current
         ) {
           throw new Error("Upload at least one record before finalizing.");
         }
         const path =
-          tool.id === "medical-record-lcd-verifier"
+          tool.id === "medical-record-lcd-verifier" && clinicalMode === "phi"
             ? `/api/clinical/ephemeral-sessions/${ephemeralSessionRef.current?.id}/finalize`
             : `/api/ai-tools/${tool.id}/ephemeral-runs`;
         const response = await apiPost<{ result: ToolRun }>(path, {
           input,
-          ...(tool.id === "medical-record-lcd-verifier"
+          ...(tool.id === "medical-record-lcd-verifier" &&
+          clinicalMode === "phi"
             ? {}
-            : { coverageSnapshotId: snapshotId }),
+            : {
+                coverageSnapshotId: snapshotId || undefined,
+                confirmedDeidentified:
+                  clinicalMode === "deidentified"
+                    ? confirmedDeidentified
+                    : undefined,
+              }),
         });
         setRun(response.result);
         updateEphemeralSession(null);
@@ -727,51 +769,74 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
             Ephemeral clinical workspace
           </Text>
           <Text style={{ color: colors.mutedForeground, lineHeight: 20 }}>
-            Patient inputs and generated results are not saved. Closing, signing
-            out, or restarting permanently loses this work.
+            {clinicalMode === "phi"
+              ? "Patient inputs and generated results are not saved. Closing, signing out, or restarting permanently loses this work."
+              : "This live workspace accepts de-identified information only. Inputs and generated results are not saved, and qualified clinical review remains required."}
           </Text>
-          <Pressable
-            style={[styles.selector, { borderColor: colors.border }]}
-            onPress={() => {
-              setSnapshotId(cycle(snapshots, snapshotId));
-              setRun(null);
-            }}
-          >
-            <Text style={{ color: colors.foreground, flex: 1 }}>
-              {selectedSnapshot
-                ? `${selectedSnapshot.title} · v${selectedSnapshot.version}`
-                : "Select CMS evidence"}
-            </Text>
-            <Feather
-              name="chevron-down"
-              size={18}
-              color={colors.mutedForeground}
-            />
-          </Pressable>
-          {tool.id === "medical-record-lcd-verifier" && (
-            <View style={styles.inline}>
-              <Pressable
-                disabled={uploading || !snapshotId}
-                style={[
-                  styles.secondaryButton,
-                  { flex: 1, borderColor: colors.border },
-                ]}
-                onPress={() => chooseDocument(false)}
+          {clinicalMode === "deidentified" && (
+            <View style={[styles.switchRow, { borderColor: colors.border }]}>
+              <Text
+                style={{
+                  color: colors.foreground,
+                  flex: 1,
+                  lineHeight: 20,
+                  paddingRight: 12,
+                }}
               >
-                <Text style={{ color: colors.foreground }}>Choose files</Text>
-              </Pressable>
-              <Pressable
-                disabled={uploading || !snapshotId}
-                style={[
-                  styles.secondaryButton,
-                  { flex: 1, borderColor: colors.border },
-                ]}
-                onPress={() => chooseDocument(true)}
-              >
-                <Text style={{ color: colors.foreground }}>Take photo</Text>
-              </Pressable>
+                I confirm there are no patient identifiers in this input.
+              </Text>
+              <Switch
+                accessibilityLabel="Confirm input is de-identified"
+                value={confirmedDeidentified}
+                onValueChange={setConfirmedDeidentified}
+              />
             </View>
           )}
+          {coverageRequired && (
+            <Pressable
+              style={[styles.selector, { borderColor: colors.border }]}
+              onPress={() => {
+                setSnapshotId(cycle(snapshots, snapshotId));
+                setRun(null);
+              }}
+            >
+              <Text style={{ color: colors.foreground, flex: 1 }}>
+                {selectedSnapshot
+                  ? `${selectedSnapshot.title} · v${selectedSnapshot.version}`
+                  : "Select CMS evidence"}
+              </Text>
+              <Feather
+                name="chevron-down"
+                size={18}
+                color={colors.mutedForeground}
+              />
+            </Pressable>
+          )}
+          {tool.id === "medical-record-lcd-verifier" &&
+            allowsDocumentUpload && (
+              <View style={styles.inline}>
+                <Pressable
+                  disabled={uploading || !snapshotId}
+                  style={[
+                    styles.secondaryButton,
+                    { flex: 1, borderColor: colors.border },
+                  ]}
+                  onPress={() => chooseDocument(false)}
+                >
+                  <Text style={{ color: colors.foreground }}>Choose files</Text>
+                </Pressable>
+                <Pressable
+                  disabled={uploading || !snapshotId}
+                  style={[
+                    styles.secondaryButton,
+                    { flex: 1, borderColor: colors.border },
+                  ]}
+                  onPress={() => chooseDocument(true)}
+                >
+                  <Text style={{ color: colors.foreground }}>Take photo</Text>
+                </Pressable>
+              </View>
+            )}
           {uploading && <ActivityIndicator color={colors.primary} />}
         </View>
       )}
@@ -797,14 +862,28 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Run ${tool.name}`}
-          disabled={busy || needsMfa || (tool.containsPhi && !snapshotId)}
+          disabled={
+            busy ||
+            needsMfa ||
+            (tool.containsPhi && coverageRequired && !snapshotId) ||
+            (tool.containsPhi &&
+              clinicalMode === "deidentified" &&
+              !confirmedDeidentified)
+          }
           onPress={runTool}
           style={[
             styles.primaryButton,
             {
               backgroundColor: colors.primary,
               opacity:
-                busy || needsMfa || (tool.containsPhi && !snapshotId) ? 0.5 : 1,
+                busy ||
+                needsMfa ||
+                (tool.containsPhi && coverageRequired && !snapshotId) ||
+                (tool.containsPhi &&
+                  clinicalMode === "deidentified" &&
+                  !confirmedDeidentified)
+                  ? 0.5
+                  : 1,
             },
           ]}
         >
@@ -815,6 +894,56 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
           )}
         </Pressable>
       </View>
+
+      {run?.output != null &&
+        getSpartanAiToolConnections(tool.id).length > 0 && (
+          <View
+            style={[
+              styles.card,
+              { borderColor: colors.border, backgroundColor: colors.card },
+            ]}
+          >
+            <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
+              Continue this workflow
+            </Text>
+            <Text style={{ color: colors.mutedForeground, lineHeight: 20 }}>
+              Prefill a compatible tool from this result. The handoff stays in
+              memory and is not saved on the device.
+            </Text>
+            {getSpartanAiToolConnections(tool.id).map((connection) => {
+              const target = getSpartanAiTool(connection.to);
+              if (!target) return null;
+              return (
+                <Pressable
+                  key={connection.to}
+                  accessibilityRole="button"
+                  accessibilityLabel={connection.label}
+                  onPress={() => {
+                    stageAiToolHandoff({
+                      sourceToolId: tool.id,
+                      targetToolId: connection.to,
+                      output: run.output,
+                    });
+                    router.push(target.mobilePath as never);
+                  }}
+                  style={[
+                    styles.secondaryButton,
+                    { borderColor: colors.border },
+                  ]}
+                >
+                  <Text
+                    style={{
+                      color: colors.primary,
+                      fontFamily: "Inter_600SemiBold",
+                    }}
+                  >
+                    {connection.label}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </View>
+        )}
 
       <View
         style={[

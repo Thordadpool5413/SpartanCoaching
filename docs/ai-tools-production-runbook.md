@@ -2,11 +2,12 @@
 
 ## Release gates
 
-All fourteen tools ship disabled by organization/tool feature flags until package, API,
-web, native-device, authorization, production-smoke, monitoring, support, and rollback
-checks pass. Clinical flags remain off until vendor BAAs, the security risk assessment,
-privacy/retention procedures, clinical sign-off, and a production deletion/audit drill
-are complete.
+All fourteen tools are available to entitled Field Kit members by default.
+An explicit `AI_TOOL_* = false` remains the per-tool emergency kill switch.
+Clinical tools default to ephemeral, de-identified education mode. PHI mode
+remains gated until vendor BAAs, the security risk assessment,
+privacy/retention procedures, clinical sign-off, and a production deletion/audit
+drill are complete.
 
 Clinical outputs are decision support. They are not diagnoses, coverage determinations,
 or autonomous eligibility decisions.
@@ -35,11 +36,12 @@ OPENAI_BAA_CONFIRMED=true
 OPENAI_MODIFIED_RETENTION_CONFIRMED=true
 GOOGLE_CLOUD_BAA_CONFIRMED=true
 PHI_STORAGE_BAA_CONFIRMED=true
+CLINICAL_OPERATION_MODE=phi
 ```
 
-Global `AI_TOOL_*` flags are fail-closed: a tool is runnable only when its environment
-flag is exactly `true` and its tenant-scoped database flag is enabled. Set either flag
-to `false` for the emergency kill switch. OpenAI requests use `store: false`; the
+Global and tenant `AI_TOOL_*` flags default to enabled. Set either flag to
+`false` for the emergency kill switch. PHI runtime gates apply only when
+`CLINICAL_OPERATION_MODE=phi`. OpenAI requests use `store: false`; the
 account must also have its approved HIPAA/Modified Retention configuration. CMS API
 credentials are server-side only and must never be accepted in request bodies.
 

@@ -23,9 +23,9 @@ describe("Spartan AI tool runner boundaries", () => {
     );
   });
 
-  it("keeps clinical tools fail-closed until explicitly released", () => {
+  it("enables de-identified clinical tools by default while preserving the kill switch", () => {
     const tool = getSpartanAiTool("medicare-lcd-advisor")!;
-    expect(isToolFeatureEnabled(tool, {})).toBe(false);
+    expect(isToolFeatureEnabled(tool, {})).toBe(true);
     expect(isToolFeatureEnabled(tool, { [tool.featureFlag]: "false" })).toBe(
       false,
     );
@@ -71,6 +71,7 @@ describe("Spartan AI tool runner boundaries", () => {
 
   it("blocks PHI tools until all BAA launch gates are active", async () => {
     vi.stubEnv("AI_TOOL_MEDICARE_LCD_ADVISOR", "true");
+    vi.stubEnv("CLINICAL_OPERATION_MODE", "phi");
     vi.stubEnv("HIPAA_PHI_ENABLED", "false");
     await expect(
       runSpartanAiTool("medicare-lcd-advisor", {
@@ -106,6 +107,35 @@ describe("Spartan AI tool runner boundaries", () => {
         retryable: true,
       }),
     );
+  });
+
+  it("maps OpenAI connection timeouts to a retryable timeout", async () => {
+    vi.stubEnv("AI_TOOL_EMAIL_OPTIMIZER", "true");
+    const timeout = Object.assign(new Error("request timed out"), {
+      name: "APIConnectionTimeoutError",
+    });
+    const client = {
+      responses: {
+        parse: vi.fn().mockRejectedValue(timeout),
+      },
+    };
+    await expect(
+      runSpartanAiTool(
+        "email-optimizer",
+        {
+          prospectType: "Hospital",
+          situation: "Follow-up after meeting",
+          objective: "Schedule education",
+          tone: "warm",
+          includeSequence: false,
+        },
+        { client: client as never },
+      ),
+    ).rejects.toMatchObject({
+      code: "PROVIDER_TIMEOUT",
+      status: 504,
+      retryable: true,
+    });
   });
 
   it("maps provider timeouts and cancellation to safe errors", async () => {

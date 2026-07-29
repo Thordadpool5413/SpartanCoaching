@@ -10,11 +10,32 @@ export type ClinicalAccess = {
   canAdmin: boolean;
 };
 
+export type ClinicalOperationMode = "deidentified" | "phi";
+
+export function clinicalOperationMode(
+  environment: NodeJS.ProcessEnv = process.env,
+): ClinicalOperationMode {
+  return environment.CLINICAL_OPERATION_MODE === "phi" ? "phi" : "deidentified";
+}
+
+export function isPhiClinicalMode(
+  environment: NodeJS.ProcessEnv = process.env,
+): boolean {
+  return clinicalOperationMode(environment) === "phi";
+}
+
 export async function resolveClinicalAccess(
   request: AuthedRequest,
 ): Promise<ClinicalAccess | null> {
   const member = request.fieldKit?.member;
   if (!member || !request.clientMemberId) return null;
+  if (!isPhiClinicalMode()) {
+    return {
+      canUse: true,
+      canReview: false,
+      canAdmin: member.role === "org_admin" || member.role === "platform_admin",
+    };
+  }
   const [permission] = await db
     .select()
     .from(clinicalPermissions)
@@ -46,6 +67,11 @@ export async function requireClinicalUse(
         error: "Clinical tool access has not been granted.",
         code: "CLINICAL_ACCESS_REQUIRED",
       });
+    }
+    if (!isPhiClinicalMode()) {
+      request.clinicalAccess = access;
+      next();
+      return;
     }
     if (!request.sessionId) {
       return response.status(401).json({
