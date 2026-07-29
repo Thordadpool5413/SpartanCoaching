@@ -22,7 +22,7 @@ export const outputSchema = z
     supportingDocumentation: z.array(z.string()),
     declineIndicators: z.array(z.string()),
     medicareRequirements: z.string().min(1),
-    jurisdictionNotes: z.string().min(1).optional(),
+    jurisdictionNotes: z.string().min(1),
     citations: z.array(evidenceCitationSchema),
     missingEvidence: z.array(z.string()),
     confidence: clinicalConfidenceSchema,

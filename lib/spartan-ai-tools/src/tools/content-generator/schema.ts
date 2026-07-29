@@ -15,7 +15,15 @@ export const outputSchema = z
     title: z.string().min(1),
     content: z.string().min(1),
     keyPoints: z.array(z.string()),
-    citations: z.array(z.record(z.string(), z.unknown())),
+    citations: z.array(
+      z
+        .object({
+          source: z.string().min(1),
+          title: z.string().min(1),
+          supportedClaim: z.string().min(1),
+        })
+        .strict(),
+    ),
     reviewNotes: z.array(z.string()),
   })
   .strict();

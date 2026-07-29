@@ -12,8 +12,25 @@ export const inputSchema = z
 export const outputSchema = z
   .object({
     scenarioSetup: z.string().min(1),
-    familyMembers: z.array(z.record(z.string(), z.unknown())),
-    conversationFlow: z.array(z.record(z.string(), z.unknown())),
+    familyMembers: z.array(
+      z
+        .object({
+          role: z.string().min(1),
+          perspective: z.string().min(1),
+          concern: z.string().min(1),
+        })
+        .strict(),
+    ),
+    conversationFlow: z.array(
+      z
+        .object({
+          stage: z.string().min(1),
+          prompt: z.string().min(1),
+          challenge: z.string().min(1),
+          coachingTip: z.string().min(1),
+        })
+        .strict(),
+    ),
     successMetrics: z.array(z.string()),
   })
   .strict();

@@ -1,10 +1,11 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
+import { zodTextFormat } from "openai/helpers/zod";
 import {
   isToolFeatureEnabled,
   runSpartanAiTool,
   SpartanAiToolError,
 } from "./server";
-import { getSpartanAiTool } from "./registry";
+import { getSpartanAiTool, SPARTAN_AI_TOOLS } from "./registry";
 
 afterEach(() => {
   vi.unstubAllEnvs();
@@ -32,6 +33,19 @@ describe("Spartan AI tool runner boundaries", () => {
       true,
     );
   });
+
+  it.each(SPARTAN_AI_TOOLS.filter((tool) => !tool.deterministic))(
+    "emits an OpenAI-compatible strict output schema for $id",
+    (tool) => {
+      const format = zodTextFormat(
+        tool.outputSchema,
+        tool.id.replaceAll("-", "_"),
+      );
+      const serialized = JSON.stringify(format);
+      expect(serialized).not.toContain('"propertyNames"');
+      expect(serialized).not.toContain('"format":"uri"');
+    },
+  );
 
   it("runs territory discovery deterministically without an AI provider", async () => {
     vi.stubEnv("AI_TOOL_TERRITORY_DISCOVERY", "true");

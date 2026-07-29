@@ -15,13 +15,59 @@ export const inputSchema = z
 
 export const outputSchema = z
   .object({
-    whyItMatters: z.record(z.string(), z.unknown()),
-    howToPosition: z.record(z.string(), z.unknown()),
-    whatToSay: z.record(z.string(), z.unknown()),
-    discoveryQuestions: z.array(z.record(z.string(), z.unknown())),
-    objectionHandling: z.array(z.record(z.string(), z.unknown())),
-    educationalBrief: z.record(z.string(), z.unknown()),
-    valueProposition: z.record(z.string(), z.unknown()),
+    whyItMatters: z
+      .object({
+        summary: z.string().min(1),
+        operationalImpact: z.string().min(1),
+        complianceImpact: z.string().min(1),
+      })
+      .strict(),
+    howToPosition: z
+      .object({
+        coreMessage: z.string().min(1),
+        compliantFraming: z.string().min(1),
+        languageToAvoid: z.array(z.string()),
+      })
+      .strict(),
+    whatToSay: z
+      .object({
+        opening: z.string().min(1),
+        explanation: z.string().min(1),
+        close: z.string().min(1),
+      })
+      .strict(),
+    discoveryQuestions: z.array(
+      z
+        .object({
+          audience: z.string().min(1),
+          question: z.string().min(1),
+          purpose: z.string().min(1),
+        })
+        .strict(),
+    ),
+    objectionHandling: z.array(
+      z
+        .object({
+          objection: z.string().min(1),
+          response: z.string().min(1),
+          evidenceBoundary: z.string().min(1),
+        })
+        .strict(),
+    ),
+    educationalBrief: z
+      .object({
+        title: z.string().min(1),
+        summary: z.string().min(1),
+        keyPoints: z.array(z.string()),
+      })
+      .strict(),
+    valueProposition: z
+      .object({
+        headline: z.string().min(1),
+        value: z.string().min(1),
+        proofBoundary: z.string().min(1),
+      })
+      .strict(),
     citations: z.array(evidenceCitationSchema),
     missingEvidence: z.array(z.string()),
     confidence: clinicalConfidenceSchema,

@@ -18,7 +18,15 @@ export const outputSchema = z
     difficulty: z.string().min(1),
     estimatedTime: z.number().finite(),
     category: z.string().min(1),
-    content: z.record(z.string(), z.unknown()),
+    content: z
+      .object({
+        instructions: z.string().min(1),
+        scenario: z.string().min(1),
+        question: z.string().min(1),
+        answer: z.string().min(1),
+        explanation: z.string().min(1),
+      })
+      .strict(),
   })
   .strict();
 

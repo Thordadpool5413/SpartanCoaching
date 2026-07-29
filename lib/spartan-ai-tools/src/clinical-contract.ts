@@ -6,8 +6,8 @@ export const evidenceCitationSchema = z
     documentId: z.string().min(1),
     version: z.string().min(1),
     contentHash: z.string().min(1),
-    sourceUrl: z.string().url().optional(),
-    locator: z.string().min(1).optional(),
+    sourceUrl: z.string().min(1),
+    locator: z.string().min(1),
     supportedClaim: z.string().min(1),
   })
   .strict();
