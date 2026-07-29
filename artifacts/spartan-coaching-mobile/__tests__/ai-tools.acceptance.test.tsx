@@ -84,7 +84,7 @@ const apiGetMock = apiGet as jest.MockedFunction<typeof apiGet>;
 const apiPostMock = apiPost as jest.MockedFunction<typeof apiPost>;
 
 beforeEach(() => {
-  global.fetch = jest.fn(async () => ({
+  globalThis.fetch = jest.fn(async () => ({
     blob: async () => new Blob(["de-identified"]),
   })) as never;
   apiGetMock.mockImplementation(async (path: string) => {
