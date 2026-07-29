@@ -16,10 +16,8 @@ import {
   FileUp,
   Loader2,
   Play,
-  Plus,
   RefreshCw,
   ShieldCheck,
-  Trash2,
 } from "lucide-react";
 import {
   getSpartanAiTool,
@@ -40,17 +38,19 @@ type ApiErrorBody = {
 };
 
 type Run = {
-  id: string;
+  id?: string;
   toolId: string;
-  status: string;
+  status?: string;
   output: unknown;
-  reviewStatus: string;
+  reviewStatus?: string;
   durationMs?: number | null;
   createdAt: string;
   coverageSnapshotId?: string | null;
+  watermark?: string;
+  retention?: "ephemeral";
+  recoverable?: boolean;
 };
 
-type ClinicalCase = { id: string; label: string; retentionUntil: string };
 type CoverageSnapshot = {
   id: string;
   title: string;
@@ -340,11 +340,13 @@ export default function AiToolPage() {
   );
   const [run, setRun] = useState<Run | null>(null);
   const [history, setHistory] = useState<Run[]>([]);
-  const [cases, setCases] = useState<ClinicalCase[]>([]);
   const [snapshots, setSnapshots] = useState<CoverageSnapshot[]>([]);
-  const [caseId, setCaseId] = useState("");
   const [snapshotId, setSnapshotId] = useState("");
-  const [newCaseLabel, setNewCaseLabel] = useState("");
+  const [ephemeralSession, setEphemeralSession] = useState<{
+    id: string;
+    coverageSnapshotId: string;
+    expiresAt: string;
+  } | null>(null);
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [needsMfa, setNeedsMfa] = useState(false);
@@ -358,24 +360,21 @@ export default function AiToolPage() {
     if (!tool) return;
     setError("");
     try {
-      const historyResponse = await apiJson<{ runs: Run[] }>(
-        `/api/ai-tools/${tool.id}/runs`,
-      );
-      setHistory(historyResponse.runs);
       if (tool.containsPhi) {
-        const [caseResponse, snapshotResponse] = await Promise.all([
-          apiJson<{ cases: ClinicalCase[] }>("/api/clinical/cases"),
-          apiJson<{ snapshots: CoverageSnapshot[] }>(
-            "/api/clinical/coverage/snapshots",
-          ),
-        ]);
-        setCases(caseResponse.cases);
+        const snapshotResponse = await apiJson<{
+          snapshots: CoverageSnapshot[];
+        }>("/api/clinical/coverage/snapshots");
         setSnapshots(snapshotResponse.snapshots);
-        setCaseId((current) => current || caseResponse.cases[0]?.id || "");
         setSnapshotId(
           (current) => current || snapshotResponse.snapshots[0]?.id || "",
         );
+        setHistory([]);
         setNeedsMfa(false);
+      } else {
+        const historyResponse = await apiJson<{ runs: Run[] }>(
+          `/api/ai-tools/${tool.id}/runs`,
+        );
+        setHistory(historyResponse.runs);
       }
     } catch (caught) {
       if (caught instanceof ApiError && caught.status === 401) {
@@ -400,6 +399,19 @@ export default function AiToolPage() {
     void loadData();
   }, [tool?.id]);
 
+  useEffect(() => {
+    const sessionId = ephemeralSession?.id;
+    if (!sessionId) return;
+    return () => {
+      void fetch(`/api/clinical/ephemeral-sessions/${sessionId}`, {
+        method: "DELETE",
+        credentials: "include",
+        keepalive: true,
+        headers: { "Cache-Control": "no-store" },
+      });
+    };
+  }, [ephemeralSession?.id]);
+
   async function submit(event: FormEvent) {
     event.preventDefault();
     if (!tool) return;
@@ -407,27 +419,40 @@ export default function AiToolPage() {
     setError("");
     try {
       const input = formToInput(tool, values);
-      const response = await apiJson<{ run: Run }>(
-        `/api/ai-tools/${tool.id}/runs`,
-        {
+      if (tool.containsPhi) {
+        const path =
+          tool.id === "medical-record-lcd-verifier"
+            ? `/api/clinical/ephemeral-sessions/${ephemeralSession?.id ?? ""}/finalize`
+            : `/api/ai-tools/${tool.id}/ephemeral-runs`;
+        if (tool.id === "medical-record-lcd-verifier" && !ephemeralSession) {
+          throw new Error("Upload at least one record before finalizing.");
+        }
+        const response = await apiJson<{ result: Run }>(path, {
           method: "POST",
-          headers: { "Idempotency-Key": crypto.randomUUID() },
           body: JSON.stringify({
             input,
-            ...(tool.containsPhi
-              ? {
-                  clinicalCaseId: caseId || undefined,
-                  coverageSnapshotId: snapshotId || undefined,
-                }
-              : {}),
+            ...(tool.id === "medical-record-lcd-verifier"
+              ? {}
+              : { coverageSnapshotId: snapshotId }),
           }),
-        },
-      );
-      setRun(response.run);
-      setHistory((current) => [
-        response.run,
-        ...current.filter((item) => item.id !== response.run.id),
-      ]);
+        });
+        setRun(response.result);
+        setEphemeralSession(null);
+      } else {
+        const response = await apiJson<{ run: Run }>(
+          `/api/ai-tools/${tool.id}/runs`,
+          {
+            method: "POST",
+            headers: { "Idempotency-Key": crypto.randomUUID() },
+            body: JSON.stringify({ input }),
+          },
+        );
+        setRun(response.run);
+        setHistory((current) => [
+          response.run,
+          ...current.filter((item) => item.id !== response.run.id),
+        ]);
+      }
     } catch (caught) {
       if (
         caught instanceof ApiError &&
@@ -441,130 +466,69 @@ export default function AiToolPage() {
     }
   }
 
-  async function createCase() {
-    if (!newCaseLabel.trim()) return;
-    setBusy(true);
-    try {
-      const response = await apiJson<{ case: ClinicalCase }>(
-        "/api/clinical/cases",
-        {
-          method: "POST",
-          body: JSON.stringify({
-            label: newCaseLabel.trim(),
-            retentionDays: 30,
-          }),
-        },
-      );
-      setCases((current) => [response.case, ...current]);
-      setCaseId(response.case.id);
-      setNewCaseLabel("");
-    } catch (caught) {
-      setError(
-        caught instanceof Error ? caught.message : "Case could not be created.",
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function deleteCase() {
-    if (
-      !caseId ||
-      !window.confirm(
-        "Delete this case and schedule its protected data for permanent purge?",
-      )
-    ) {
-      return;
-    }
-    setBusy(true);
-    setError("");
-    try {
-      await apiJson(`/api/clinical/cases/${caseId}`, { method: "DELETE" });
-      const remaining = cases.filter((item) => item.id !== caseId);
-      setCases(remaining);
-      setCaseId(remaining[0]?.id ?? "");
-    } catch (caught) {
-      setError(
-        caught instanceof Error ? caught.message : "Case could not be deleted.",
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function reviewRun(decision: "approved" | "changes_requested") {
-    if (!run) return;
-    setBusy(true);
-    setError("");
-    try {
-      await apiJson(`/api/clinical/runs/${run.id}/review`, {
-        method: "POST",
-        body: JSON.stringify({ decision }),
-      });
-      setRun((current) =>
-        current ? { ...current, reviewStatus: decision } : current,
-      );
-      setHistory((current) =>
-        current.map((item) =>
-          item.id === run.id ? { ...item, reviewStatus: decision } : item,
-        ),
-      );
-    } catch (caught) {
-      setError(
-        caught instanceof Error ? caught.message : "Review could not be saved.",
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
-
   async function uploadRecords(files: FileList | null) {
     if (
       !tool ||
       tool.id !== "medical-record-lcd-verifier" ||
       !files?.length ||
-      !caseId
+      !snapshotId
     )
       return;
     setUploading(true);
     setError("");
     try {
+      let activeSession = ephemeralSession;
+      if (!activeSession || activeSession.coverageSnapshotId !== snapshotId) {
+        if (activeSession) {
+          await apiJson(
+            `/api/clinical/ephemeral-sessions/${activeSession.id}`,
+            { method: "DELETE" },
+          ).catch(() => undefined);
+        }
+        const created = await apiJson<{
+          session: {
+            id: string;
+            coverageSnapshotId: string;
+            expiresAt: string;
+          };
+        }>("/api/clinical/ephemeral-sessions", {
+          method: "POST",
+          body: JSON.stringify({ coverageSnapshotId: snapshotId }),
+        });
+        activeSession = created.session;
+        setEphemeralSession(activeSession);
+      }
       const extracted: string[] = [];
       for (const file of Array.from(files)) {
         const authorization = await apiJson<{
-          documentId: string;
+          documentToken: string;
           uploadUrl: string;
           requiredHeaders: Record<string, string>;
-        }>(`/api/clinical/cases/${caseId}/documents/upload-url`, {
-          method: "POST",
-          body: JSON.stringify({
-            filename: file.name,
-            contentType: file.type || "application/octet-stream",
-            sizeBytes: file.size,
-          }),
-        });
+        }>(
+          `/api/clinical/ephemeral-sessions/${activeSession.id}/documents/upload-url`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              contentType: file.type || "application/octet-stream",
+              sizeBytes: file.size,
+            }),
+          },
+        );
         const upload = await fetch(authorization.uploadUrl, {
           method: "PUT",
           headers: authorization.requiredHeaders,
           body: file,
         });
         if (!upload.ok) throw new Error(`Upload failed for ${file.name}.`);
-        const digest = await crypto.subtle.digest(
-          "SHA-256",
-          await file.arrayBuffer(),
-        );
-        const sha256 = Array.from(new Uint8Array(digest))
-          .map((byte) => byte.toString(16).padStart(2, "0"))
-          .join("");
         await apiJson(
-          `/api/clinical/documents/${authorization.documentId}/finalize`,
+          `/api/clinical/ephemeral-sessions/${activeSession.id}/documents/${authorization.documentToken}/complete`,
           {
             method: "POST",
-            body: JSON.stringify({ sha256 }),
+            body: "{}",
           },
         );
         const extraction = await apiJson<{ text: string }>(
-          `/api/clinical/documents/${authorization.documentId}/extract`,
+          `/api/clinical/ephemeral-sessions/${activeSession.id}/documents/${authorization.documentToken}/extract`,
           { method: "POST", body: "{}" },
         );
         extracted.push(`--- ${file.name} ---\n${extraction.text}`);
@@ -588,7 +552,15 @@ export default function AiToolPage() {
 
   async function copyResult() {
     if (!run?.output) return;
-    await navigator.clipboard.writeText(JSON.stringify(run.output, null, 2));
+    await navigator.clipboard.writeText(
+      JSON.stringify(
+        tool?.containsPhi
+          ? { watermark: run.watermark, result: run.output }
+          : run.output,
+        null,
+        2,
+      ),
+    );
   }
 
   async function downloadResult() {
@@ -596,6 +568,34 @@ export default function AiToolPage() {
     setBusy(true);
     setError("");
     try {
+      if (tool?.containsPhi) {
+        const blob = new Blob(
+          [
+            JSON.stringify(
+              {
+                watermark: run.watermark,
+                retention: "ephemeral",
+                generatedAt: run.createdAt,
+                result: run.output,
+              },
+              null,
+              2,
+            ),
+          ],
+          { type: "application/json" },
+        );
+        const href = URL.createObjectURL(blob);
+        try {
+          const anchor = document.createElement("a");
+          anchor.href = href;
+          anchor.download = `${tool.id}-one-time-result.json`;
+          anchor.click();
+        } finally {
+          URL.revokeObjectURL(href);
+        }
+        return;
+      }
+      if (!run.id) throw new Error("The saved result is unavailable.");
       const response = await fetch(`/api/ai-tool-runs/${run.id}/export`, {
         credentials: "include",
         headers: { Accept: "application/json" },
@@ -682,30 +682,21 @@ export default function AiToolPage() {
               <div className="space-y-5 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
                 <div className="flex items-center gap-2 font-semibold">
                   <ShieldCheck className="h-4 w-4 text-amber-600" />
-                  Protected clinical context
+                  Ephemeral clinical workspace
                 </div>
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="space-y-2">
-                    <Label>Clinical case</Label>
-                    <select
-                      value={caseId}
-                      onChange={(event) => setCaseId(event.target.value)}
-                      className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                      required={tool.id === "medical-record-lcd-verifier"}
-                    >
-                      <option value="">Select a case</option>
-                      {cases.map((clinicalCase) => (
-                        <option key={clinicalCase.id} value={clinicalCase.id}>
-                          {clinicalCase.label}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+                <p className="text-sm text-muted-foreground">
+                  Patient inputs and generated results are not saved. Closing,
+                  refreshing, or signing out permanently loses this work.
+                </p>
+                <div className="grid gap-4">
                   <div className="space-y-2">
                     <Label>CMS coverage snapshot</Label>
                     <select
                       value={snapshotId}
-                      onChange={(event) => setSnapshotId(event.target.value)}
+                      onChange={(event) => {
+                        setSnapshotId(event.target.value);
+                        setRun(null);
+                      }}
                       className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                       required
                     >
@@ -717,31 +708,6 @@ export default function AiToolPage() {
                       ))}
                     </select>
                   </div>
-                </div>
-                <div className="flex gap-2">
-                  <Input
-                    value={newCaseLabel}
-                    onChange={(event) => setNewCaseLabel(event.target.value)}
-                    placeholder="New case label"
-                    maxLength={200}
-                  />
-                  <Button
-                    type="button"
-                    variant="secondary"
-                    onClick={createCase}
-                  >
-                    <Plus className="mr-2 h-4 w-4" />
-                    Case
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    disabled={!caseId || busy}
-                    onClick={deleteCase}
-                  >
-                    <Trash2 className="mr-2 h-4 w-4" />
-                    Delete
-                  </Button>
                 </div>
                 {tool.id === "medical-record-lcd-verifier" && (
                   <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-amber-500/50 p-4 text-sm font-medium hover:bg-amber-500/10">
@@ -758,7 +724,7 @@ export default function AiToolPage() {
                       accept=".pdf,.jpg,.jpeg,.png,.txt"
                       multiple
                       className="sr-only"
-                      disabled={uploading || !caseId}
+                      disabled={uploading || !snapshotId}
                       onChange={(event) =>
                         void uploadRecords(event.target.files)
                       }
@@ -836,36 +802,26 @@ export default function AiToolPage() {
             </div>
             {run?.output != null ? (
               <div className="mt-5">
+                {tool.containsPhi && (
+                  <div className="mb-5 rounded-lg border-2 border-amber-600 bg-amber-500/10 p-3 text-sm font-semibold text-amber-900 dark:text-amber-100">
+                    {run.watermark}
+                  </div>
+                )}
                 <ResultValue value={run.output} />
                 <div className="mt-5 flex flex-wrap gap-2 text-xs text-muted-foreground">
                   <Badge variant="outline">
-                    {run.reviewStatus.replaceAll("_", " ")}
+                    {tool.containsPhi
+                      ? "one-time · not retained"
+                      : (
+                          run.reviewStatus ??
+                          run.status ??
+                          "completed"
+                        ).replaceAll("_", " ")}
                   </Badge>
                   {run.durationMs != null && (
                     <span>{(run.durationMs / 1000).toFixed(1)}s</span>
                   )}
                 </div>
-                {tool.containsPhi && (
-                  <div className="mt-4 flex flex-wrap gap-2">
-                    <Button
-                      type="button"
-                      size="sm"
-                      disabled={busy}
-                      onClick={() => void reviewRun("approved")}
-                    >
-                      Approve review
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      variant="outline"
-                      disabled={busy}
-                      onClick={() => void reviewRun("changes_requested")}
-                    >
-                      Request changes
-                    </Button>
-                  </div>
-                )}
               </div>
             ) : (
               <p className="mt-4 text-sm text-muted-foreground">
@@ -877,10 +833,16 @@ export default function AiToolPage() {
           <Card className="p-5">
             <h2 className="flex items-center gap-2 font-semibold">
               <Clock3 className="h-4 w-4" />
-              Recent runs
+              {tool.containsPhi ? "No clinical history" : "Recent runs"}
             </h2>
             <div className="mt-4 space-y-2">
-              {history.length === 0 ? (
+              {tool.containsPhi ? (
+                <p className="text-sm text-muted-foreground">
+                  Clinical inputs and results are never added to history. Local
+                  exports are generated from this page and their Blob URLs are
+                  immediately revoked.
+                </p>
+              ) : history.length === 0 ? (
                 <p className="text-sm text-muted-foreground">
                   No saved runs yet.
                 </p>
@@ -896,7 +858,9 @@ export default function AiToolPage() {
                       <span className="text-sm font-medium">
                         {new Date(item.createdAt).toLocaleString()}
                       </span>
-                      <Badge variant="outline">{item.status}</Badge>
+                      <Badge variant="outline">
+                        {item.status ?? "completed"}
+                      </Badge>
                     </div>
                   </button>
                 ))

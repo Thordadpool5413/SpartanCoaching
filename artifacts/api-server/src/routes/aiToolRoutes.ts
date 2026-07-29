@@ -19,6 +19,8 @@ import {
   clinicalAuditEvents,
   clinicalCases,
   clinicalDocuments,
+  clinicalEphemeralObjects,
+  clinicalEphemeralSessions,
   clinicalMfaChallenges,
   clinicalPermissions,
   clinicalReviews,
@@ -42,12 +44,24 @@ import {
   createClinicalDownloadUrl,
   createClinicalObjectKey,
   createClinicalUploadUrl,
+  createEphemeralClinicalObjectKey,
+  createEphemeralClinicalUploadUrl,
   deleteClinicalObject,
+  deleteEphemeralClinicalObject,
+  downloadEphemeralClinicalObject,
   downloadClinicalObject,
+  inspectEphemeralClinicalObject,
   inspectClinicalObject,
+  assertEphemeralBucketConfiguration,
+  scanEphemeralClinicalObject,
   scanClinicalObject,
   validateClinicalUpload,
 } from "../clinical/storage";
+import {
+  EPHEMERAL_CLINICAL_TTL_MS,
+  purgeEphemeralClinicalSession,
+  type EphemeralPurgeReason,
+} from "../clinical/ephemeral";
 import {
   decryptPhi,
   encryptPhi,
@@ -67,6 +81,29 @@ type ToolRunEnvelope = {
   clinicalCaseId?: string;
   coverageSnapshotId?: string;
 };
+
+type EphemeralToolRunEnvelope = {
+  input?: unknown;
+  coverageSnapshotId?: string;
+};
+
+const CLINICAL_WATERMARK =
+  "Educational decision support only. Not a diagnosis, coverage determination, or autonomous eligibility or admission decision.";
+
+function setNoStore(response: Response): Response {
+  return response
+    .setHeader("Cache-Control", "no-store, no-cache, must-revalidate, private")
+    .setHeader("Pragma", "no-cache")
+    .setHeader("Expires", "0");
+}
+
+function clinicalResultNotRetained(): never {
+  throw new SpartanAiToolError(
+    "CLINICAL_RESULT_NOT_RETAINED",
+    410,
+    "Clinical results are one-time only and are not retained. Run the tool again from its ephemeral workspace.",
+  );
+}
 
 function requirePhiRuntimeReady(): void {
   const requiredGates = [
@@ -192,6 +229,58 @@ async function audit(
   });
 }
 
+async function purgeEphemeralAfterFailure(
+  request: AuthedRequest,
+  sessionId: string,
+  error: unknown,
+): Promise<void> {
+  if (
+    !UUID_PATTERN.test(sessionId) ||
+    !request.fieldKit?.member ||
+    !request.clientMemberId
+  ) {
+    return;
+  }
+  const context = memberContext(request);
+  const [ownedSession] = await db
+    .select({ id: clinicalEphemeralSessions.id })
+    .from(clinicalEphemeralSessions)
+    .where(
+      and(
+        eq(clinicalEphemeralSessions.id, sessionId),
+        eq(clinicalEphemeralSessions.organizationId, context.organizationId),
+        eq(clinicalEphemeralSessions.createdByMemberId, context.memberId),
+      ),
+    )
+    .limit(1);
+  if (!ownedSession) return;
+  let deletionVerified = false;
+  let objectCount = 0;
+  try {
+    objectCount = await purgeEphemeralClinicalSession(
+      context.organizationId,
+      sessionId,
+    );
+    deletionVerified = true;
+  } finally {
+    await audit(
+      request,
+      "clinical.ephemeral.purged",
+      "clinical_ephemeral_session",
+      sessionId,
+      {
+        reason: "failed" satisfies EphemeralPurgeReason,
+        outcome: "failed",
+        errorCode:
+          error instanceof SpartanAiToolError ? error.code : "INTERNAL_ERROR",
+        objectCount,
+        deletionVerified,
+        retainedClinicalContent: false,
+      },
+    ).catch(() => undefined);
+  }
+}
+
 async function requireDynamicClinicalAccess(
   request: AuthedRequest,
 ): Promise<void> {
@@ -255,6 +344,95 @@ async function loadCoverage(
   return snapshot;
 }
 
+async function loadEphemeralSession(
+  organizationId: number,
+  memberId: number,
+  sessionId: string,
+) {
+  if (!UUID_PATTERN.test(sessionId)) {
+    throw new SpartanAiToolError(
+      "INVALID_EPHEMERAL_SESSION",
+      400,
+      "Ephemeral session ID is invalid.",
+    );
+  }
+  const [session] = await db
+    .select()
+    .from(clinicalEphemeralSessions)
+    .where(
+      and(
+        eq(clinicalEphemeralSessions.id, sessionId),
+        eq(clinicalEphemeralSessions.organizationId, organizationId),
+        eq(clinicalEphemeralSessions.createdByMemberId, memberId),
+        gt(clinicalEphemeralSessions.expiresAt, new Date()),
+      ),
+    )
+    .limit(1);
+  if (!session) {
+    throw new SpartanAiToolError(
+      "EPHEMERAL_SESSION_EXPIRED",
+      410,
+      "The ephemeral clinical workspace is unavailable or has expired.",
+    );
+  }
+  return session;
+}
+
+async function extractClinicalDocument(
+  contentType: string,
+  file: Buffer,
+): Promise<string> {
+  const client = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+    timeout: 60_000,
+    maxRetries: 1,
+  });
+  const content =
+    contentType === "application/pdf"
+      ? [
+          {
+            type: "input_file",
+            filename: "clinical-record.pdf",
+            file_data: `data:application/pdf;base64,${file.toString("base64")}`,
+          },
+          {
+            type: "input_text",
+            text: "Extract the document text faithfully. Do not summarize, diagnose, or infer missing text. Mark unreadable sections as [UNREADABLE].",
+          },
+        ]
+      : contentType.startsWith("image/")
+        ? [
+            {
+              type: "input_image",
+              image_url: `data:${contentType};base64,${file.toString("base64")}`,
+              detail: "high",
+            },
+            {
+              type: "input_text",
+              text: "Transcribe the visible document text faithfully. Do not summarize, diagnose, or infer missing text. Mark unreadable sections as [UNREADABLE].",
+            },
+          ]
+        : [
+            {
+              type: "input_text",
+              text: `Transcribe this clinical document faithfully without adding or inferring content:\n\n${file.toString("utf8")}`,
+            },
+          ];
+  const extraction = await client.responses.create({
+    model: process.env.OPENAI_MODEL ?? "gpt-5",
+    store: false,
+    input: [
+      {
+        role: "system",
+        content:
+          "You are a high-fidelity medical document transcription system. Return source text only and preserve section structure.",
+      },
+      { role: "user", content: content as never },
+    ],
+  });
+  return extraction.output_text;
+}
+
 function addCoverageEvidence(
   toolId: string,
   input: unknown,
@@ -280,6 +458,49 @@ function addCoverageEvidence(
   if (toolId === "medicare-lcd-advisor") record.evidence = [evidence];
   if (toolId === "medical-record-lcd-verifier") record.lcdEvidence = [evidence];
   return record;
+}
+
+function exposeEphemeralResult(
+  result: Awaited<ReturnType<typeof runSpartanAiTool>>,
+  snapshot: typeof coverageSnapshots.$inferSelect,
+) {
+  const output =
+    result.output && typeof result.output === "object"
+      ? (result.output as Record<string, unknown>)
+      : null;
+  const outputCitations = Array.isArray(output?.citations)
+    ? output.citations
+    : [];
+  const policyCitation = {
+    source: snapshot.source,
+    snapshotId: snapshot.id,
+    documentId: snapshot.documentId,
+    version: snapshot.version,
+    contentHash: snapshot.contentHash,
+    sourceUrl: snapshot.sourceUrl,
+  };
+  return {
+    toolId: result.metadata.toolId,
+    toolVersion: result.metadata.toolVersion,
+    model: result.metadata.model,
+    promptVersion: result.metadata.promptVersion,
+    modelConfigurationVersion: `${result.metadata.model}:${result.metadata.promptVersion}`,
+    output: result.output,
+    warnings: result.metadata.safetyWarnings,
+    evidenceCitations: [...outputCitations, policyCitation],
+    coveragePolicy: {
+      snapshotId: snapshot.id,
+      documentId: snapshot.documentId,
+      version: snapshot.version,
+      contentHash: snapshot.contentHash,
+      sourceUrl: snapshot.sourceUrl,
+    },
+    durationMs: result.metadata.durationMs,
+    createdAt: new Date().toISOString(),
+    retention: "ephemeral" as const,
+    recoverable: false,
+    watermark: CLINICAL_WATERMARK,
+  };
 }
 
 function exposeRun(run: typeof aiToolRuns.$inferSelect) {
@@ -460,6 +681,90 @@ export function registerAiToolRoutes(app: Express): void {
   );
 
   app.post(
+    "/api/ai-tools/:toolId/ephemeral-runs",
+    requireFieldKit,
+    standardAiLimit,
+    globalDailyAiCap,
+    async (request, response) => {
+      const id = requestId(request);
+      setNoStore(response);
+      try {
+        const authed = request as AuthedRequest;
+        const context = memberContext(authed);
+        const tool = getSpartanAiTool(String(request.params.toolId));
+        if (!tool) {
+          throw new SpartanAiToolError(
+            "TOOL_NOT_FOUND",
+            404,
+            "AI tool was not found.",
+          );
+        }
+        if (!isClinicalTool(tool)) {
+          throw new SpartanAiToolError(
+            "EPHEMERAL_CLINICAL_ONLY",
+            400,
+            "The ephemeral execution endpoint is reserved for clinical tools.",
+          );
+        }
+        if (tool.id === "medical-record-lcd-verifier") {
+          throw new SpartanAiToolError(
+            "EPHEMERAL_SESSION_REQUIRED",
+            400,
+            "Medical-record verification must be finalized from an ephemeral clinical session.",
+          );
+        }
+        await requireDynamicClinicalAccess(authed);
+        requirePhiRuntimeReady();
+        await requireToolEnabled(context.organizationId, tool);
+        const envelope = request.body as EphemeralToolRunEnvelope;
+        const snapshot = await loadCoverage(
+          context.organizationId,
+          envelope?.coverageSnapshotId,
+        );
+        if (!snapshot) {
+          throw new SpartanAiToolError(
+            "COVERAGE_SNAPSHOT_REQUIRED",
+            400,
+            "Clinical tools require a versioned CMS coverage snapshot.",
+          );
+        }
+        const input = addCoverageEvidence(tool.id, envelope?.input, snapshot);
+        const result = await runSpartanAiTool(tool.id, input, {
+          requestId: id,
+        });
+        await audit(authed, "clinical.ephemeral.completed", "ai_tool", null, {
+          toolId: tool.id,
+          model: result.metadata.model,
+          toolVersion: result.metadata.toolVersion,
+          promptVersion: result.metadata.promptVersion,
+          coverageSnapshotId: snapshot.id,
+          outcome: "completed",
+          durationMs: result.metadata.durationMs,
+          retainedClinicalContent: false,
+        });
+        response
+          .setHeader("X-Request-Id", id)
+          .status(200)
+          .json({ result: exposeEphemeralResult(result, snapshot) });
+      } catch (error) {
+        const authed = request as AuthedRequest;
+        if (authed.fieldKit?.member && authed.clientMemberId) {
+          await audit(authed, "clinical.ephemeral.failed", "ai_tool", null, {
+            toolId: String(request.params.toolId),
+            outcome: "failed",
+            errorCode:
+              error instanceof SpartanAiToolError
+                ? error.code
+                : "INTERNAL_ERROR",
+            retainedClinicalContent: false,
+          }).catch(() => undefined);
+        }
+        safeError(response, error, id);
+      }
+    },
+  );
+
+  app.post(
     "/api/ai-tools/:toolId/runs",
     requireFieldKit,
     standardAiLimit,
@@ -478,8 +783,7 @@ export function registerAiToolRoutes(app: Express): void {
           );
         }
         if (isClinicalTool(tool)) {
-          await requireDynamicClinicalAccess(authed);
-          requirePhiRuntimeReady();
+          clinicalResultNotRetained();
         }
         await requireToolEnabled(context.organizationId, tool);
 
@@ -684,7 +988,7 @@ export function registerAiToolRoutes(app: Express): void {
             "AI tool was not found.",
           );
         }
-        if (isClinicalTool(tool)) await requireDynamicClinicalAccess(authed);
+        if (isClinicalTool(tool)) clinicalResultNotRetained();
         const runs = await db
           .select()
           .from(aiToolRuns)
@@ -750,6 +1054,561 @@ export function registerAiToolRoutes(app: Express): void {
     },
   );
 
+  app.post(
+    "/api/clinical/ephemeral-sessions",
+    requireFieldKit,
+    requireClinicalUse,
+    standardAiLimit,
+    async (request, response) => {
+      const id = requestId(request);
+      setNoStore(response);
+      try {
+        requirePhiRuntimeReady();
+        await assertEphemeralBucketConfiguration();
+        const authed = request as AuthedRequest;
+        const context = memberContext(authed);
+        const tool = getSpartanAiTool("medical-record-lcd-verifier");
+        if (!tool) {
+          throw new SpartanAiToolError(
+            "TOOL_NOT_FOUND",
+            404,
+            "Medical-record verification tool was not found.",
+          );
+        }
+        await requireToolEnabled(context.organizationId, tool);
+        const snapshot = await loadCoverage(
+          context.organizationId,
+          String(request.body?.coverageSnapshotId ?? ""),
+        );
+        if (!snapshot) {
+          throw new SpartanAiToolError(
+            "COVERAGE_SNAPSHOT_REQUIRED",
+            400,
+            "A versioned CMS coverage snapshot is required.",
+          );
+        }
+        const now = new Date();
+        const [session] = await db
+          .insert(clinicalEphemeralSessions)
+          .values({
+            organizationId: context.organizationId,
+            createdByMemberId: context.memberId,
+            coverageSnapshotId: snapshot.id,
+            expiresAt: new Date(now.getTime() + EPHEMERAL_CLINICAL_TTL_MS),
+          })
+          .returning();
+        await audit(
+          authed,
+          "clinical.ephemeral.session_created",
+          "clinical_ephemeral_session",
+          session.id,
+          {
+            toolId: tool.id,
+            coverageSnapshotId: snapshot.id,
+            outcome: "created",
+            expiresAt: session.expiresAt.toISOString(),
+            retainedClinicalContent: false,
+          },
+        );
+        response
+          .setHeader("X-Request-Id", id)
+          .status(201)
+          .json({
+            session: {
+              id: session.id,
+              coverageSnapshotId: session.coverageSnapshotId,
+              expiresAt: session.expiresAt,
+              retention: "ephemeral",
+            },
+          });
+      } catch (error) {
+        safeError(response, error, id);
+      }
+    },
+  );
+
+  app.post(
+    "/api/clinical/ephemeral-sessions/:sessionId/documents/upload-url",
+    requireFieldKit,
+    requireClinicalUse,
+    standardAiLimit,
+    async (request, response) => {
+      const id = requestId(request);
+      setNoStore(response);
+      try {
+        requirePhiRuntimeReady();
+        await assertEphemeralBucketConfiguration();
+        const authed = request as AuthedRequest;
+        const context = memberContext(authed);
+        const session = await loadEphemeralSession(
+          context.organizationId,
+          context.memberId,
+          String(request.params.sessionId),
+        );
+        if (session.status !== "open") {
+          throw new SpartanAiToolError(
+            "EPHEMERAL_SESSION_CLOSED",
+            409,
+            "The ephemeral clinical workspace is no longer accepting uploads.",
+          );
+        }
+        if (
+          Object.prototype.hasOwnProperty.call(request.body ?? {}, "filename")
+        ) {
+          throw new SpartanAiToolError(
+            "FILENAME_NOT_ACCEPTED",
+            400,
+            "Original filenames must remain on the device and cannot be transmitted.",
+          );
+        }
+        const contentType = String(request.body?.contentType ?? "");
+        const sizeBytes = Number(request.body?.sizeBytes ?? 0);
+        validateClinicalUpload(contentType, sizeBytes);
+        const objects = await db
+          .select({
+            id: clinicalEphemeralObjects.id,
+            sizeBytes: clinicalEphemeralObjects.sizeBytes,
+          })
+          .from(clinicalEphemeralObjects)
+          .where(
+            and(
+              eq(
+                clinicalEphemeralObjects.organizationId,
+                context.organizationId,
+              ),
+              eq(clinicalEphemeralObjects.sessionId, session.id),
+            ),
+          );
+        if (objects.length >= 25) {
+          throw new SpartanAiToolError(
+            "SESSION_FILE_LIMIT",
+            400,
+            "An ephemeral session supports at most 25 documents.",
+          );
+        }
+        if (
+          objects.reduce((total, object) => total + object.sizeBytes, 0) +
+            sizeBytes >
+          250 * 1024 * 1024
+        ) {
+          throw new SpartanAiToolError(
+            "SESSION_SIZE_LIMIT",
+            400,
+            "An ephemeral session supports at most 250 MB of documents.",
+          );
+        }
+        const documentToken = randomUUID();
+        const objectKey = createEphemeralClinicalObjectKey(
+          context.organizationId,
+          session.id,
+        );
+        const uploadUrl = await createEphemeralClinicalUploadUrl(
+          objectKey,
+          contentType,
+        );
+        await db.insert(clinicalEphemeralObjects).values({
+          id: documentToken,
+          sessionId: session.id,
+          organizationId: context.organizationId,
+          objectKey,
+          contentType,
+          sizeBytes,
+          expiresAt: session.expiresAt,
+        });
+        await audit(
+          authed,
+          "clinical.ephemeral.upload_authorized",
+          "clinical_ephemeral_session",
+          session.id,
+          {
+            documentToken,
+            contentType,
+            sizeBytes,
+            outcome: "authorized",
+            retainedClinicalContent: false,
+          },
+        );
+        response
+          .setHeader("X-Request-Id", id)
+          .status(201)
+          .json({
+            documentToken,
+            uploadUrl,
+            expiresInSeconds: 300,
+            requiredHeaders: { "Content-Type": contentType },
+          });
+      } catch (error) {
+        await purgeEphemeralAfterFailure(
+          request as AuthedRequest,
+          String(request.params.sessionId),
+          error,
+        ).catch(() => undefined);
+        safeError(response, error, id);
+      }
+    },
+  );
+
+  app.post(
+    "/api/clinical/ephemeral-sessions/:sessionId/documents/:documentToken/complete",
+    requireFieldKit,
+    requireClinicalUse,
+    heavyAiLimit,
+    async (request, response) => {
+      const id = requestId(request);
+      setNoStore(response);
+      try {
+        requirePhiRuntimeReady();
+        const authed = request as AuthedRequest;
+        const context = memberContext(authed);
+        const session = await loadEphemeralSession(
+          context.organizationId,
+          context.memberId,
+          String(request.params.sessionId),
+        );
+        const documentToken = String(request.params.documentToken);
+        if (!UUID_PATTERN.test(documentToken)) {
+          throw new SpartanAiToolError(
+            "INVALID_DOCUMENT_TOKEN",
+            400,
+            "Document token is invalid.",
+          );
+        }
+        const [document] = await db
+          .select()
+          .from(clinicalEphemeralObjects)
+          .where(
+            and(
+              eq(clinicalEphemeralObjects.id, documentToken),
+              eq(clinicalEphemeralObjects.sessionId, session.id),
+              eq(
+                clinicalEphemeralObjects.organizationId,
+                context.organizationId,
+              ),
+            ),
+          )
+          .limit(1);
+        if (!document) {
+          throw new SpartanAiToolError(
+            "DOCUMENT_NOT_FOUND",
+            404,
+            "Ephemeral clinical document was not found.",
+          );
+        }
+        const inspected = await inspectEphemeralClinicalObject(
+          document.objectKey,
+        );
+        if (
+          inspected.sizeBytes !== document.sizeBytes ||
+          inspected.contentType !== document.contentType
+        ) {
+          await deleteEphemeralClinicalObject(document.objectKey);
+          await db
+            .delete(clinicalEphemeralObjects)
+            .where(eq(clinicalEphemeralObjects.id, document.id));
+          throw new SpartanAiToolError(
+            "UPLOAD_METADATA_MISMATCH",
+            400,
+            "Uploaded document did not match the authorized metadata.",
+          );
+        }
+        await db
+          .update(clinicalEphemeralObjects)
+          .set({ scanStatus: "scanning" })
+          .where(eq(clinicalEphemeralObjects.id, document.id));
+        const scanStatus = await scanEphemeralClinicalObject(
+          document.objectKey,
+        );
+        if (scanStatus !== "safe") {
+          await deleteEphemeralClinicalObject(document.objectKey);
+          await db
+            .delete(clinicalEphemeralObjects)
+            .where(eq(clinicalEphemeralObjects.id, document.id));
+          await audit(
+            authed,
+            "clinical.ephemeral.malware_rejected",
+            "clinical_ephemeral_session",
+            session.id,
+            {
+              documentToken,
+              outcome: "rejected",
+              deletionVerified: true,
+              retainedClinicalContent: false,
+            },
+          );
+          throw new SpartanAiToolError(
+            "DOCUMENT_REJECTED",
+            400,
+            "The uploaded document did not pass the security scan.",
+          );
+        }
+        await db
+          .update(clinicalEphemeralObjects)
+          .set({ scanStatus: "safe" })
+          .where(eq(clinicalEphemeralObjects.id, document.id));
+        await audit(
+          authed,
+          "clinical.ephemeral.document_ready",
+          "clinical_ephemeral_session",
+          session.id,
+          {
+            documentToken,
+            outcome: "safe",
+            retainedClinicalContent: false,
+          },
+        );
+        response
+          .setHeader("X-Request-Id", id)
+          .json({ documentToken, scanStatus: "safe" });
+      } catch (error) {
+        await purgeEphemeralAfterFailure(
+          request as AuthedRequest,
+          String(request.params.sessionId),
+          error,
+        ).catch(() => undefined);
+        safeError(response, error, id);
+      }
+    },
+  );
+
+  app.post(
+    "/api/clinical/ephemeral-sessions/:sessionId/documents/:documentToken/extract",
+    requireFieldKit,
+    requireClinicalUse,
+    heavyAiLimit,
+    globalDailyAiCap,
+    async (request, response) => {
+      const id = requestId(request);
+      setNoStore(response);
+      try {
+        requirePhiRuntimeReady();
+        const authed = request as AuthedRequest;
+        const context = memberContext(authed);
+        const session = await loadEphemeralSession(
+          context.organizationId,
+          context.memberId,
+          String(request.params.sessionId),
+        );
+        const documentToken = String(request.params.documentToken);
+        const [document] = await db
+          .select()
+          .from(clinicalEphemeralObjects)
+          .where(
+            and(
+              eq(clinicalEphemeralObjects.id, documentToken),
+              eq(clinicalEphemeralObjects.sessionId, session.id),
+              eq(
+                clinicalEphemeralObjects.organizationId,
+                context.organizationId,
+              ),
+              eq(clinicalEphemeralObjects.scanStatus, "safe"),
+            ),
+          )
+          .limit(1);
+        if (!document) {
+          throw new SpartanAiToolError(
+            "DOCUMENT_NOT_FOUND",
+            404,
+            "A scanned ephemeral clinical document was not found.",
+          );
+        }
+        const file = await downloadEphemeralClinicalObject(document.objectKey);
+        const text = await extractClinicalDocument(document.contentType, file);
+        await audit(
+          authed,
+          "clinical.ephemeral.document_extracted",
+          "clinical_ephemeral_session",
+          session.id,
+          {
+            documentToken,
+            model: process.env.OPENAI_MODEL ?? "gpt-5",
+            outcome: "completed",
+            retainedClinicalContent: false,
+          },
+        );
+        response.setHeader("X-Request-Id", id).json({
+          documentToken,
+          text,
+          warning:
+            "Review extracted text against the source. It exists only in this app session.",
+        });
+      } catch (error) {
+        await purgeEphemeralAfterFailure(
+          request as AuthedRequest,
+          String(request.params.sessionId),
+          error,
+        ).catch(() => undefined);
+        safeError(response, error, id);
+      }
+    },
+  );
+
+  app.post(
+    "/api/clinical/ephemeral-sessions/:sessionId/finalize",
+    requireFieldKit,
+    requireClinicalUse,
+    heavyAiLimit,
+    globalDailyAiCap,
+    async (request, response) => {
+      const id = requestId(request);
+      setNoStore(response);
+      const authed = request as AuthedRequest;
+      let session: typeof clinicalEphemeralSessions.$inferSelect | undefined;
+      try {
+        requirePhiRuntimeReady();
+        const context = memberContext(authed);
+        session = await loadEphemeralSession(
+          context.organizationId,
+          context.memberId,
+          String(request.params.sessionId),
+        );
+        const tool = getSpartanAiTool("medical-record-lcd-verifier");
+        if (!tool) {
+          throw new SpartanAiToolError(
+            "TOOL_NOT_FOUND",
+            404,
+            "Medical-record verification tool was not found.",
+          );
+        }
+        await requireToolEnabled(context.organizationId, tool);
+        const snapshot = await loadCoverage(
+          context.organizationId,
+          session.coverageSnapshotId ?? undefined,
+        );
+        if (!snapshot) {
+          throw new SpartanAiToolError(
+            "COVERAGE_SNAPSHOT_REQUIRED",
+            400,
+            "A versioned CMS coverage snapshot is required.",
+          );
+        }
+        await db
+          .update(clinicalEphemeralSessions)
+          .set({ status: "processing", updatedAt: new Date() })
+          .where(eq(clinicalEphemeralSessions.id, session.id));
+        const input = addCoverageEvidence(
+          tool.id,
+          request.body?.input,
+          snapshot,
+        );
+        const result = await runSpartanAiTool(tool.id, input, {
+          requestId: id,
+        });
+        const objectCount = await purgeEphemeralClinicalSession(
+          context.organizationId,
+          session.id,
+        );
+        await audit(
+          authed,
+          "clinical.ephemeral.purged",
+          "clinical_ephemeral_session",
+          session.id,
+          {
+            toolId: tool.id,
+            model: result.metadata.model,
+            toolVersion: result.metadata.toolVersion,
+            promptVersion: result.metadata.promptVersion,
+            coverageSnapshotId: snapshot.id,
+            reason: "completed" satisfies EphemeralPurgeReason,
+            outcome: "completed",
+            durationMs: result.metadata.durationMs,
+            objectCount,
+            deletionVerified: true,
+            retainedClinicalContent: false,
+          },
+        );
+        response.setHeader("X-Request-Id", id).json({
+          result: exposeEphemeralResult(result, snapshot),
+        });
+      } catch (error) {
+        if (session && authed.fieldKit?.member && authed.clientMemberId) {
+          const context = memberContext(authed);
+          let deletionVerified = false;
+          let objectCount = 0;
+          try {
+            objectCount = await purgeEphemeralClinicalSession(
+              context.organizationId,
+              session.id,
+            );
+            deletionVerified = true;
+          } catch {
+            // The expiry sweeper will retry an incomplete purge.
+          }
+          await audit(
+            authed,
+            "clinical.ephemeral.purged",
+            "clinical_ephemeral_session",
+            session.id,
+            {
+              toolId: "medical-record-lcd-verifier",
+              reason: "failed" satisfies EphemeralPurgeReason,
+              outcome: "failed",
+              errorCode:
+                error instanceof SpartanAiToolError
+                  ? error.code
+                  : "INTERNAL_ERROR",
+              objectCount,
+              deletionVerified,
+              retainedClinicalContent: false,
+            },
+          ).catch(() => undefined);
+          if (!deletionVerified) {
+            safeError(
+              response,
+              new SpartanAiToolError(
+                "EPHEMERAL_PURGE_PENDING",
+                503,
+                "The result was discarded and secure cleanup is being retried.",
+                true,
+              ),
+              id,
+            );
+            return;
+          }
+        }
+        safeError(response, error, id);
+      }
+    },
+  );
+
+  app.delete(
+    "/api/clinical/ephemeral-sessions/:sessionId",
+    requireFieldKit,
+    requireClinicalUse,
+    async (request, response) => {
+      const id = requestId(request);
+      setNoStore(response);
+      try {
+        const authed = request as AuthedRequest;
+        const context = memberContext(authed);
+        const session = await loadEphemeralSession(
+          context.organizationId,
+          context.memberId,
+          String(request.params.sessionId),
+        );
+        const objectCount = await purgeEphemeralClinicalSession(
+          context.organizationId,
+          session.id,
+        );
+        await audit(
+          authed,
+          "clinical.ephemeral.purged",
+          "clinical_ephemeral_session",
+          session.id,
+          {
+            reason: "cancelled" satisfies EphemeralPurgeReason,
+            outcome: "cancelled",
+            objectCount,
+            deletionVerified: true,
+            retainedClinicalContent: false,
+          },
+        );
+        response.setHeader("X-Request-Id", id).status(204).send();
+      } catch (error) {
+        safeError(response, error, id);
+      }
+    },
+  );
+
   app.get(
     "/api/ai-tool-runs/:runId",
     requireFieldKit,
@@ -783,7 +1642,7 @@ export function registerAiToolRoutes(app: Express): void {
             "Run was not found.",
           );
         }
-        if (run.containsPhi) await requireDynamicClinicalAccess(authed);
+        if (run.containsPhi) clinicalResultNotRetained();
         const role = context.member.role;
         if (
           run.memberId !== context.memberId &&
@@ -842,17 +1701,7 @@ export function registerAiToolRoutes(app: Express): void {
           );
         }
         if (run.containsPhi) {
-          await requireDynamicClinicalAccess(authed);
-          if (run.reviewStatus !== "approved") {
-            throw new SpartanAiToolError(
-              "CLINICAL_REVIEW_REQUIRED",
-              409,
-              "Clinical results must be approved before export.",
-            );
-          }
-          await audit(authed, "clinical.run.exported", "ai_tool_run", run.id, {
-            toolId: run.toolId,
-          });
+          clinicalResultNotRetained();
         } else if (
           run.memberId !== context.memberId &&
           context.member.role !== "org_admin" &&
@@ -887,6 +1736,7 @@ export function registerAiToolRoutes(app: Express): void {
     async (request, response) => {
       const id = requestId(request);
       try {
+        clinicalResultNotRetained();
         requirePhiRuntimeReady();
         const authed = request as AuthedRequest;
         const context = memberContext(authed);
@@ -1200,6 +2050,7 @@ export function registerAiToolRoutes(app: Express): void {
     async (request, response) => {
       const id = requestId(request);
       try {
+        clinicalResultNotRetained();
         const authed = request as AuthedRequest;
         const context = memberContext(authed);
         const label = String(request.body?.label ?? "").trim();
@@ -1271,6 +2122,7 @@ export function registerAiToolRoutes(app: Express): void {
     async (request, response) => {
       const id = requestId(request);
       try {
+        clinicalResultNotRetained();
         const context = memberContext(request as AuthedRequest);
         const cases = await db
           .select()
@@ -1306,6 +2158,7 @@ export function registerAiToolRoutes(app: Express): void {
     async (request, response) => {
       const id = requestId(request);
       try {
+        clinicalResultNotRetained();
         const authed = request as AuthedRequest;
         const context = memberContext(authed);
         const caseId = String(request.params.caseId);
@@ -1423,6 +2276,7 @@ export function registerAiToolRoutes(app: Express): void {
     async (request, response) => {
       const id = requestId(request);
       try {
+        clinicalResultNotRetained();
         const authed = request as AuthedRequest;
         const context = memberContext(authed);
         const documentId = String(request.params.documentId);
@@ -1503,6 +2357,7 @@ export function registerAiToolRoutes(app: Express): void {
     async (request, response) => {
       const id = requestId(request);
       try {
+        clinicalResultNotRetained();
         const authed = request as AuthedRequest;
         const context = memberContext(authed);
         const documentId = String(request.params.documentId);
@@ -1674,6 +2529,7 @@ export function registerAiToolRoutes(app: Express): void {
     async (request, response) => {
       const id = requestId(request);
       try {
+        clinicalResultNotRetained();
         const authed = request as AuthedRequest;
         const context = memberContext(authed);
         const runId = String(request.params.runId);

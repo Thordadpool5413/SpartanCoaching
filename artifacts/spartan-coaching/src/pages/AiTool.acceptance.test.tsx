@@ -18,11 +18,9 @@ vi.mock("wouter", () => ({
 }));
 
 vi.mock("@/components/FieldKitToolLayout", () => ({
-  FieldKitToolLayout: ({
-    children,
-  }: {
-    children: React.ReactNode;
-  }) => <main>{children}</main>,
+  FieldKitToolLayout: ({ children }: { children: React.ReactNode }) => (
+    <main>{children}</main>
+  ),
 }));
 
 vi.mock("@/components/SEO", () => ({
@@ -40,51 +38,89 @@ function jsonResponse(body: unknown, status = 200) {
 }
 
 describe("AI tool web acceptance", () => {
-  const fetchMock = vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
-    const path = String(input);
-    if (path === "/api/clinical/cases") {
-      return jsonResponse({
-        cases: [
+  const fetchMock = vi.fn(
+    async (input: RequestInfo | URL, init?: RequestInit) => {
+      const path = String(input);
+      if (
+        path === "/api/clinical/ephemeral-sessions" &&
+        init?.method === "POST"
+      ) {
+        return jsonResponse(
           {
-            id: "10000000-0000-4000-8000-000000000001",
-            label: "De-identified acceptance case",
-            retentionUntil: "2030-01-01T00:00:00.000Z",
+            session: {
+              id: "10000000-0000-4000-8000-000000000001",
+              coverageSnapshotId: "20000000-0000-4000-8000-000000000001",
+              expiresAt: "2030-01-01T00:00:00.000Z",
+            },
           },
-        ],
-      });
-    }
-    if (path === "/api/clinical/coverage/snapshots") {
-      return jsonResponse({
-        snapshots: [
+          201,
+        );
+      }
+      if (path.endsWith("/documents/upload-url")) {
+        return jsonResponse(
           {
-            id: "20000000-0000-4000-8000-000000000001",
-            title: "Acceptance LCD",
-            documentId: "L00001",
-            version: "1",
+            documentToken: "50000000-0000-4000-8000-000000000001",
+            uploadUrl: "https://upload.example.invalid/opaque",
+            requiredHeaders: { "Content-Type": "text/plain" },
           },
-        ],
-      });
-    }
-    if (path.endsWith("/runs") && init?.method === "POST") {
-      return jsonResponse(
-        {
-          run: {
-            id: "30000000-0000-4000-8000-000000000001",
+          201,
+        );
+      }
+      if (path === "https://upload.example.invalid/opaque") {
+        return jsonResponse({});
+      }
+      if (path.endsWith("/complete"))
+        return jsonResponse({ scanStatus: "safe" });
+      if (path.endsWith("/extract")) {
+        return jsonResponse({
+          text: "De-identified extracted acceptance text",
+        });
+      }
+      if (path.endsWith("/finalize") || path.endsWith("/ephemeral-runs")) {
+        return jsonResponse({
+          result: {
             toolId: routeState.toolId,
-            status: "completed",
             output: { acceptance: "passed" },
-            reviewStatus: routeState.toolId.includes("lcd")
-              ? "pending"
-              : "not_required",
             createdAt: "2030-01-01T00:00:00.000Z",
+            watermark: "Educational decision support only.",
+            retention: "ephemeral",
+            recoverable: false,
           },
-        },
-        201,
-      );
-    }
-    if (path.endsWith("/runs")) return jsonResponse({ runs: [] });
-    return jsonResponse({});
-  });
+        });
+      }
+      if (path === "/api/clinical/coverage/snapshots") {
+        return jsonResponse({
+          snapshots: [
+            {
+              id: "20000000-0000-4000-8000-000000000001",
+              title: "Acceptance LCD",
+              documentId: "L00001",
+              version: "1",
+            },
+          ],
+        });
+      }
+      if (path.endsWith("/runs") && init?.method === "POST") {
+        return jsonResponse(
+          {
+            run: {
+              id: "30000000-0000-4000-8000-000000000001",
+              toolId: routeState.toolId,
+              status: "completed",
+              output: { acceptance: "passed" },
+              reviewStatus: routeState.toolId.includes("lcd")
+                ? "pending"
+                : "not_required",
+              createdAt: "2030-01-01T00:00:00.000Z",
+            },
+          },
+          201,
+        );
+      }
+      if (path.endsWith("/runs")) return jsonResponse({ runs: [] });
+      return jsonResponse({});
+    },
+  );
 
   beforeEach(() => {
     vi.stubGlobal("fetch", fetchMock);
@@ -122,17 +158,42 @@ describe("AI tool web acceptance", () => {
       await waitFor(() =>
         expect((runButton as HTMLButtonElement).disabled).toBe(false),
       );
+      if (tool.id === "medical-record-lcd-verifier") {
+        const upload = document.querySelector(
+          'input[type="file"]',
+        ) as HTMLInputElement;
+        const file = new File(["de-identified"], "local-only.txt", {
+          type: "text/plain",
+        });
+        fireEvent.change(upload, { target: { files: [file] } });
+        await waitFor(() =>
+          expect(fetchMock).toHaveBeenCalledWith(
+            expect.stringContaining(
+              "/documents/50000000-0000-4000-8000-000000000001/extract",
+            ),
+            expect.objectContaining({ method: "POST" }),
+          ),
+        );
+      }
       fireEvent.click(runButton);
 
       await waitFor(() => {
+        const expectedPath = tool.containsPhi
+          ? tool.id === "medical-record-lcd-verifier"
+            ? "/api/clinical/ephemeral-sessions/10000000-0000-4000-8000-000000000001/finalize"
+            : `/api/ai-tools/${tool.id}/ephemeral-runs`
+          : `/api/ai-tools/${tool.id}/runs`;
         expect(fetchMock).toHaveBeenCalledWith(
-          `/api/ai-tools/${tool.id}/runs`,
+          expectedPath,
           expect.objectContaining({
             method: "POST",
-            headers: expect.objectContaining({
-              "Idempotency-Key":
-                "40000000-0000-4000-8000-000000000001",
-            }),
+            ...(tool.containsPhi
+              ? {}
+              : {
+                  headers: expect.objectContaining({
+                    "Idempotency-Key": "40000000-0000-4000-8000-000000000001",
+                  }),
+                }),
           }),
         );
       });

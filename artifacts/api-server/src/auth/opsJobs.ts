@@ -10,8 +10,12 @@ import {
 import { db } from "../db";
 import { sendOpsDigestEmail, sendBillingEmailOutageAlert } from "../resend";
 import { getBillingEmailMetrics } from "../billing/billingEmailMetrics";
-import { runTrialLifecycleSweep, type TrialSweepResult } from "./trialLifecycle";
+import {
+  runTrialLifecycleSweep,
+  type TrialSweepResult,
+} from "./trialLifecycle";
 import { runClinicalRetentionSweep } from "../clinical/retention";
+import { runEphemeralClinicalSweep } from "../clinical/ephemeral";
 
 export type OpsDigestResult = {
   sent: boolean;
@@ -62,7 +66,9 @@ export async function buildOpsSnapshot() {
     .from(usageEvents)
     .where(gte(usageEvents.createdAt, weekAgo));
 
-  const pendingRequests = allRequests.filter((r) => r.status === "pending").length;
+  const pendingRequests = allRequests.filter(
+    (r) => r.status === "pending",
+  ).length;
   const followUpsDue = allOrgs.filter(
     (o) =>
       o.nextFollowUpAt &&
@@ -212,7 +218,10 @@ export async function runBillingEmailOutageCheck(): Promise<BillingEmailOutageCh
   }
 
   // ok is false. Check if we already alerted recently.
-  if (_lastAlertSentAt !== null && Date.now() - _lastAlertSentAt < OUTAGE_ALERT_COOLDOWN_MS) {
+  if (
+    _lastAlertSentAt !== null &&
+    Date.now() - _lastAlertSentAt < OUTAGE_ALERT_COOLDOWN_MS
+  ) {
     _lastOk = ok;
     return { ...base, rateLimited: true };
   }
@@ -262,7 +271,12 @@ export async function runBillingFailureCleanup(): Promise<BillingFailureCleanupR
 
   const deleted = await db
     .delete(authEvents)
-    .where(and(eq(authEvents.type, BILLING_FAILURE_EVENT_TYPE), lt(authEvents.createdAt, cutoff)))
+    .where(
+      and(
+        eq(authEvents.type, BILLING_FAILURE_EVENT_TYPE),
+        lt(authEvents.createdAt, cutoff),
+      ),
+    )
     .returning({ id: authEvents.id });
 
   return {
@@ -354,6 +368,8 @@ export function startBackgroundJobScheduler(): void {
 
   /** Billing-email outage check runs every 5 minutes regardless of the main interval. */
   const OUTAGE_CHECK_INTERVAL_MS = 5 * 60 * 1000;
+  /** Ephemeral clinical cleanup has an independent hard-ceiling cadence. */
+  const EPHEMERAL_CLEANUP_INTERVAL_MS = 5 * 60 * 1000;
 
   console.log(
     `[jobs] Starting background scheduler every ${Math.round(intervalMs / 60000)}m; ` +
@@ -383,7 +399,9 @@ export function startBackgroundJobScheduler(): void {
           console.log("[jobs] billing-failure cleanup", r);
         }
       })
-      .catch((err) => console.error("[jobs] billing-failure cleanup failed", err));
+      .catch((err) =>
+        console.error("[jobs] billing-failure cleanup failed", err),
+      );
 
     void runClinicalRetentionSweep()
       .then((r) => {
@@ -408,15 +426,33 @@ export function startBackgroundJobScheduler(): void {
         if (r.alertSent) {
           console.log("[jobs] billing-email outage alert sent", r.metrics);
         } else if (!r.ok && r.rateLimited) {
-          console.log("[jobs] billing-email outage alert rate-limited (already sent within 2h)");
+          console.log(
+            "[jobs] billing-email outage alert rate-limited (already sent within 2h)",
+          );
         }
       })
-      .catch((err) => console.error("[jobs] billing-email outage check failed", err));
+      .catch((err) =>
+        console.error("[jobs] billing-email outage check failed", err),
+      );
+  };
+
+  const ephemeralCleanupTick = () => {
+    void runEphemeralClinicalSweep()
+      .then((r) => {
+        if (r.purged || r.failed) {
+          console.log("[jobs] ephemeral clinical cleanup", r);
+        }
+      })
+      .catch((err) =>
+        console.error("[jobs] ephemeral clinical cleanup failed", err),
+      );
   };
 
   // First run shortly after boot
   setTimeout(tick, 45_000);
+  setTimeout(ephemeralCleanupTick, 30_000);
   setInterval(tick, intervalMs);
+  setInterval(ephemeralCleanupTick, EPHEMERAL_CLEANUP_INTERVAL_MS);
 
   // Billing-email outage monitor: first seed runs at 60 s, then every 5 min
   setTimeout(outageCheckTick, 60_000);

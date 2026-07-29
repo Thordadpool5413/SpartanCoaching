@@ -1,4 +1,4 @@
-import { and, eq, inArray, isNull, lte, or } from "drizzle-orm";
+import { and, eq, inArray, isNull } from "drizzle-orm";
 import {
   aiToolRuns,
   clinicalAuditEvents,
@@ -25,10 +25,6 @@ export async function runClinicalRetentionSweep(): Promise<ClinicalRetentionResu
       and(
         eq(clinicalCases.legalHold, false),
         isNull(clinicalCases.purgeCompletedAt),
-        or(
-          lte(clinicalCases.retentionUntil, now),
-          eq(clinicalCases.status, "deleting"),
-        ),
       ),
     )
     .limit(100);
@@ -43,7 +39,11 @@ export async function runClinicalRetentionSweep(): Promise<ClinicalRetentionResu
     try {
       await db
         .update(clinicalCases)
-        .set({ status: "deleting", deletedAt: clinicalCase.deletedAt ?? now, updatedAt: now })
+        .set({
+          status: "deleting",
+          deletedAt: clinicalCase.deletedAt ?? now,
+          updatedAt: now,
+        })
         .where(eq(clinicalCases.id, clinicalCase.id));
       const documents = await db
         .select()
@@ -54,7 +54,9 @@ export async function runClinicalRetentionSweep(): Promise<ClinicalRetentionResu
             eq(clinicalDocuments.caseId, clinicalCase.id),
           ),
         );
-      await Promise.all(documents.map((document) => deleteClinicalObject(document.objectKey)));
+      await Promise.all(
+        documents.map((document) => deleteClinicalObject(document.objectKey)),
+      );
       const runIds = (
         await db
           .select({ id: aiToolRuns.id })
@@ -79,7 +81,11 @@ export async function runClinicalRetentionSweep(): Promise<ClinicalRetentionResu
       }
       await db
         .update(clinicalDocuments)
-        .set({ encryptedMetadata: "purged", scanStatus: "deleted", deletedAt: now })
+        .set({
+          encryptedMetadata: "purged",
+          scanStatus: "deleted",
+          deletedAt: now,
+        })
         .where(
           and(
             eq(clinicalDocuments.organizationId, clinicalCase.organizationId),
