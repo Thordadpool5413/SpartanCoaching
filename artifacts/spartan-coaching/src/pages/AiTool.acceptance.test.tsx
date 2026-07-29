@@ -15,6 +15,7 @@ const routeState = vi.hoisted(() => ({ toolId: "" }));
 vi.mock("wouter", () => ({
   Link: ({ children }: { children: React.ReactNode }) => <>{children}</>,
   useParams: () => ({ toolId: routeState.toolId }),
+  useLocation: () => ["/tools/ai/test", vi.fn()],
 }));
 
 vi.mock("@/components/FieldKitToolLayout", () => ({
@@ -90,6 +91,9 @@ describe("AI tool web acceptance", () => {
       }
       if (path === "/api/clinical/coverage/snapshots") {
         return jsonResponse({
+          operationMode: "phi",
+          required: true,
+          allowsDocumentUpload: true,
           snapshots: [
             {
               id: "20000000-0000-4000-8000-000000000001",

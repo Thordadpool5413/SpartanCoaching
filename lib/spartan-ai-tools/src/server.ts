@@ -57,10 +57,10 @@ export function isToolFeatureEnabled(
   if (configured === "true") return true;
   if (configured === "false") return false;
 
-  // Sales, content, and learning tools ship ready for entitled members.
-  // Clinical tools remain fail-closed until their release flag and PHI gates
-  // are explicitly enabled in the production environment.
-  return !isClinicalTool(tool);
+  // Tools ship ready for entitled members. An explicit false remains the
+  // emergency kill switch. Clinical PHI mode has independent runtime,
+  // permission, MFA, evidence, and storage gates.
+  return true;
 }
 
 function assertSafeInput(value: unknown): void {
@@ -107,6 +107,7 @@ function assertSafeInput(value: unknown): void {
 
 function assertClinicalLaunchGate(tool: AiToolSpec): void {
   if (!isClinicalTool(tool)) return;
+  if (process.env.CLINICAL_OPERATION_MODE !== "phi") return;
   if (process.env.HIPAA_PHI_ENABLED !== "true") {
     throw new SpartanAiToolError(
       "PHI_PROCESSING_DISABLED",
@@ -164,6 +165,19 @@ function runTerritory(input: unknown): unknown {
 
 function mapProviderError(error: unknown): SpartanAiToolError {
   if (error instanceof SpartanAiToolError) return error;
+  if (
+    typeof error === "object" &&
+    error !== null &&
+    "name" in error &&
+    error.name === "APIConnectionTimeoutError"
+  ) {
+    return new SpartanAiToolError(
+      "PROVIDER_TIMEOUT",
+      504,
+      "AI service timed out.",
+      true,
+    );
+  }
   if (
     error instanceof DOMException &&
     (error.name === "AbortError" || error.name === "TimeoutError")
@@ -246,6 +260,8 @@ export async function runSpartanAiTool(
   const model = tool.deterministic
     ? "deterministic-v1"
     : (options.model ?? process.env.OPENAI_MODEL ?? "gpt-5");
+  const timeoutMs =
+    options.timeoutMs ?? (isClinicalTool(tool) ? 120_000 : 90_000);
   try {
     const output = tool.deterministic
       ? runTerritory(parsed.data)
@@ -262,7 +278,7 @@ export async function runSpartanAiTool(
             options.client ??
             new OpenAI({
               apiKey,
-              timeout: options.timeoutMs ?? 45_000,
+              timeout: timeoutMs,
               maxRetries: 1,
             });
           const response = await client.responses.parse(
@@ -284,7 +300,7 @@ export async function runSpartanAiTool(
               },
             },
             {
-              timeout: options.timeoutMs ?? 45_000,
+              timeout: timeoutMs,
               signal: options.signal,
               headers: options.requestId
                 ? { "X-Client-Request-Id": options.requestId }

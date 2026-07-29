@@ -5,7 +5,7 @@ import {
   type FormEvent,
   type ReactNode,
 } from "react";
-import { Link, useParams } from "wouter";
+import { Link, useLocation, useParams } from "wouter";
 import {
   AlertCircle,
   ArrowLeft,
@@ -20,10 +20,13 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import {
+  buildConnectedToolInput,
+  getSpartanAiToolConnections,
   getSpartanAiTool,
   type AiToolField,
   type AiToolSpec,
 } from "@workspace/spartan-ai-tools";
+import { consumeAiToolHandoff, stageAiToolHandoff } from "@/lib/aiToolHandoff";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -91,10 +94,16 @@ async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-function inputToForm(tool: AiToolSpec): Record<string, string | boolean> {
+function inputToForm(
+  tool: AiToolSpec,
+  source: Record<string, unknown> = tool.exampleInput as Record<
+    string,
+    unknown
+  >,
+): Record<string, string | boolean> {
   const values: Record<string, string | boolean> = {};
   for (const field of tool.fields) {
-    const value = tool.exampleInput[field.key];
+    const value = source[field.key];
     if (field.kind === "boolean") values[field.key] = value !== false;
     else if (field.kind === "string-list")
       values[field.key] = Array.isArray(value) ? value.join("\n") : "";
@@ -334,6 +343,7 @@ function MfaPanel({ onVerified }: { onVerified: () => void }) {
 
 export default function AiToolPage() {
   const { toolId = "" } = useParams<{ toolId: string }>();
+  const [, navigate] = useLocation();
   const tool = getSpartanAiTool(toolId);
   const [values, setValues] = useState<Record<string, string | boolean>>(
     tool ? inputToForm(tool) : {},
@@ -350,10 +360,32 @@ export default function AiToolPage() {
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [needsMfa, setNeedsMfa] = useState(false);
+  const [clinicalMode, setClinicalMode] = useState<"deidentified" | "phi">(
+    "deidentified",
+  );
+  const [coverageRequired, setCoverageRequired] = useState(false);
+  const [allowsDocumentUpload, setAllowsDocumentUpload] = useState(false);
+  const [confirmedDeidentified, setConfirmedDeidentified] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
-    if (tool) setValues(inputToForm(tool));
+    if (!tool) return;
+    const handoff = consumeAiToolHandoff(tool.id);
+    if (handoff) {
+      setValues(
+        inputToForm(
+          tool,
+          buildConnectedToolInput(
+            handoff.sourceToolId,
+            tool.id,
+            handoff.output,
+          ),
+        ),
+      );
+      setRun(null);
+      return;
+    }
+    setValues(inputToForm(tool));
   }, [tool?.id]);
 
   async function loadData() {
@@ -363,8 +395,14 @@ export default function AiToolPage() {
       if (tool.containsPhi) {
         const snapshotResponse = await apiJson<{
           snapshots: CoverageSnapshot[];
+          operationMode: "deidentified" | "phi";
+          required: boolean;
+          allowsDocumentUpload: boolean;
         }>("/api/clinical/coverage/snapshots");
         setSnapshots(snapshotResponse.snapshots);
+        setClinicalMode(snapshotResponse.operationMode);
+        setCoverageRequired(snapshotResponse.required);
+        setAllowsDocumentUpload(snapshotResponse.allowsDocumentUpload);
         setSnapshotId(
           (current) => current || snapshotResponse.snapshots[0]?.id || "",
         );
@@ -421,19 +459,30 @@ export default function AiToolPage() {
       const input = formToInput(tool, values);
       if (tool.containsPhi) {
         const path =
-          tool.id === "medical-record-lcd-verifier"
+          tool.id === "medical-record-lcd-verifier" && clinicalMode === "phi"
             ? `/api/clinical/ephemeral-sessions/${ephemeralSession?.id ?? ""}/finalize`
             : `/api/ai-tools/${tool.id}/ephemeral-runs`;
-        if (tool.id === "medical-record-lcd-verifier" && !ephemeralSession) {
+        if (
+          tool.id === "medical-record-lcd-verifier" &&
+          clinicalMode === "phi" &&
+          !ephemeralSession
+        ) {
           throw new Error("Upload at least one record before finalizing.");
         }
         const response = await apiJson<{ result: Run }>(path, {
           method: "POST",
           body: JSON.stringify({
             input,
-            ...(tool.id === "medical-record-lcd-verifier"
+            ...(tool.id === "medical-record-lcd-verifier" &&
+            clinicalMode === "phi"
               ? {}
-              : { coverageSnapshotId: snapshotId }),
+              : {
+                  coverageSnapshotId: snapshotId || undefined,
+                  confirmedDeidentified:
+                    clinicalMode === "deidentified"
+                      ? confirmedDeidentified
+                      : undefined,
+                }),
           }),
         });
         setRun(response.result);
@@ -685,52 +734,73 @@ export default function AiToolPage() {
                   Ephemeral clinical workspace
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  Patient inputs and generated results are not saved. Closing,
-                  refreshing, or signing out permanently loses this work.
+                  {clinicalMode === "phi"
+                    ? "Patient inputs and generated results are not saved. Closing, refreshing, or signing out permanently loses this work."
+                    : "This live workspace accepts de-identified information only. Inputs and generated results are not saved, and qualified clinical review remains required."}
                 </p>
-                <div className="grid gap-4">
-                  <div className="space-y-2">
-                    <Label>CMS coverage snapshot</Label>
-                    <select
-                      value={snapshotId}
-                      onChange={(event) => {
-                        setSnapshotId(event.target.value);
-                        setRun(null);
-                      }}
-                      className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                      required
-                    >
-                      <option value="">Select CMS evidence</option>
-                      {snapshots.map((snapshot) => (
-                        <option key={snapshot.id} value={snapshot.id}>
-                          {snapshot.title} · v{snapshot.version}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-                </div>
-                {tool.id === "medical-record-lcd-verifier" && (
-                  <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-amber-500/50 p-4 text-sm font-medium hover:bg-amber-500/10">
-                    {uploading ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <FileUp className="h-4 w-4" />
-                    )}
-                    {uploading
-                      ? "Scanning and extracting…"
-                      : "Upload PDF, JPEG, PNG, or text records"}
+                {clinicalMode === "deidentified" && (
+                  <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-amber-500/30 bg-background/70 p-3">
                     <input
-                      type="file"
-                      accept=".pdf,.jpg,.jpeg,.png,.txt"
-                      multiple
-                      className="sr-only"
-                      disabled={uploading || !snapshotId}
+                      type="checkbox"
+                      checked={confirmedDeidentified}
                       onChange={(event) =>
-                        void uploadRecords(event.target.files)
+                        setConfirmedDeidentified(event.target.checked)
                       }
+                      className="mt-1 h-4 w-4 accent-primary"
                     />
+                    <span className="text-sm leading-6">
+                      I confirm this input contains no patient names, dates of
+                      birth, record numbers, contact details, or other
+                      identifying information.
+                    </span>
                   </label>
                 )}
+                {coverageRequired && (
+                  <div className="grid gap-4">
+                    <div className="space-y-2">
+                      <Label>CMS coverage snapshot</Label>
+                      <select
+                        value={snapshotId}
+                        onChange={(event) => {
+                          setSnapshotId(event.target.value);
+                          setRun(null);
+                        }}
+                        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
+                        required
+                      >
+                        <option value="">Select CMS evidence</option>
+                        {snapshots.map((snapshot) => (
+                          <option key={snapshot.id} value={snapshot.id}>
+                            {snapshot.title} · v{snapshot.version}
+                          </option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                )}
+                {tool.id === "medical-record-lcd-verifier" &&
+                  allowsDocumentUpload && (
+                    <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-amber-500/50 p-4 text-sm font-medium hover:bg-amber-500/10">
+                      {uploading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <FileUp className="h-4 w-4" />
+                      )}
+                      {uploading
+                        ? "Scanning and extracting…"
+                        : "Upload PDF, JPEG, PNG, or text records"}
+                      <input
+                        type="file"
+                        accept=".pdf,.jpg,.jpeg,.png,.txt"
+                        multiple
+                        className="sr-only"
+                        disabled={uploading || !snapshotId}
+                        onChange={(event) =>
+                          void uploadRecords(event.target.files)
+                        }
+                      />
+                    </label>
+                  )}
               </div>
             )}
 
@@ -757,7 +827,14 @@ export default function AiToolPage() {
             <Button
               type="submit"
               size="lg"
-              disabled={busy || needsMfa || (tool.containsPhi && !snapshotId)}
+              disabled={
+                busy ||
+                needsMfa ||
+                (tool.containsPhi && coverageRequired && !snapshotId) ||
+                (tool.containsPhi &&
+                  clinicalMode === "deidentified" &&
+                  !confirmedDeidentified)
+              }
               className="w-full sm:w-auto"
             >
               {busy ? (
@@ -867,6 +944,41 @@ export default function AiToolPage() {
               )}
             </div>
           </Card>
+
+          {run?.output != null &&
+            getSpartanAiToolConnections(tool.id).length > 0 && (
+              <Card className="p-5">
+                <h2 className="font-semibold">Continue this workflow</h2>
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Prefill a compatible tool from this result. The handoff stays
+                  in memory and is never written to browser storage.
+                </p>
+                <div className="mt-4 flex flex-col gap-2">
+                  {getSpartanAiToolConnections(tool.id).map((connection) => {
+                    const target = getSpartanAiTool(connection.to);
+                    if (!target) return null;
+                    return (
+                      <Button
+                        key={connection.to}
+                        variant="outline"
+                        className="justify-start"
+                        title={connection.description}
+                        onClick={() => {
+                          stageAiToolHandoff({
+                            sourceToolId: tool.id,
+                            targetToolId: connection.to,
+                            output: run.output,
+                          });
+                          navigate(target.webPath);
+                        }}
+                      >
+                        {connection.label}
+                      </Button>
+                    );
+                  })}
+                </div>
+              </Card>
+            )}
         </div>
       </div>
     </FieldKitToolLayout>
