@@ -178,30 +178,37 @@ export default function Tools() {
         </div>
       </SlideUp>
 
-      {!showCatalogGate && (
-        <SlideUp delay={0.05}>
-          <Card className="mb-10 border border-border/80 bg-card/90 p-5 sm:p-6 shadow-elite">
+      <SlideUp delay={0.05}>
+          <Card
+            className="mb-10 border border-primary/35 bg-gradient-to-br from-primary/[0.08] to-card p-5 sm:p-6 shadow-elite-red"
+            data-testid="advanced-ai-tools-library"
+          >
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div className="flex gap-3.5 min-w-0">
                 <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary ring-1 ring-primary/15">
                   <BrainCircuit className="h-5 w-5" />
                 </div>
                 <div>
-                  <h2 className="text-base font-display font-bold text-foreground tracking-tight">Advanced library</h2>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <h2 className="text-base font-display font-bold text-foreground tracking-tight">
+                      AI Tool Library
+                    </h2>
+                    <Badge variant="secondary">14 AI tools</Badge>
+                  </div>
                   <p className="mt-0.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                    Specialized runs and clinical vault — secondary to the daily Field Kit tools below.
+                    Content, learning, sales, and permission-controlled clinical workflows. Preview every
+                    tool now; live generation unlocks with authorized Field Kit access.
                   </p>
                 </div>
               </div>
               <Button asChild variant="outline" className="shrink-0 font-bold">
                 <Link href="/tools/ai">
-                  Open advanced library <ArrowRight className="ml-2 h-4 w-4" />
+                  View all 14 AI tools <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>
             </div>
           </Card>
         </SlideUp>
-      )}
 
       {showCatalogGate && (
         <SlideUp delay={0.05}>
