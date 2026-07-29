@@ -1,13 +1,14 @@
 import { Feather } from "@expo/vector-icons";
 import * as Crypto from "expo-crypto";
 import * as DocumentPicker from "expo-document-picker";
+import * as FileSystem from "expo-file-system/legacy";
 import * as ImagePicker from "expo-image-picker";
 import * as LocalAuthentication from "expo-local-authentication";
 import { router } from "expo-router";
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
+  AppState,
   Pressable,
   ScrollView,
   Share,
@@ -34,13 +35,15 @@ import {
 
 type FormValue = string | boolean;
 type ToolRun = {
-  id: string;
-  status: string;
-  reviewStatus: string;
+  id?: string;
+  status?: string;
+  reviewStatus?: string;
   output?: unknown;
   createdAt: string;
+  watermark?: string;
+  retention?: "ephemeral";
+  recoverable?: boolean;
 };
-type ClinicalCase = { id: string; label: string };
 type CoverageSnapshot = { id: string; title: string; version: string };
 
 function initialForm(tool: AiToolSpec): Record<string, FormValue> {
@@ -249,11 +252,14 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
   const [values, setValues] = useState(() => initialForm(tool));
   const [run, setRun] = useState<ToolRun | null>(null);
   const [history, setHistory] = useState<ToolRun[]>([]);
-  const [cases, setCases] = useState<ClinicalCase[]>([]);
   const [snapshots, setSnapshots] = useState<CoverageSnapshot[]>([]);
-  const [caseId, setCaseId] = useState("");
   const [snapshotId, setSnapshotId] = useState("");
-  const [caseLabel, setCaseLabel] = useState("");
+  const [ephemeralSession, setEphemeralSession] = useState<{
+    id: string;
+    coverageSnapshotId: string;
+    expiresAt: string;
+  } | null>(null);
+  const ephemeralSessionRef = useRef(ephemeralSession);
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
@@ -263,14 +269,16 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
     challengeToken: string;
   } | null>(null);
   const [mfaCode, setMfaCode] = useState("");
-  const selectedCase = useMemo(
-    () => cases.find((item) => item.id === caseId),
-    [cases, caseId],
-  );
+  const [clinicalScreenObscured, setClinicalScreenObscured] = useState(false);
   const selectedSnapshot = useMemo(
     () => snapshots.find((item) => item.id === snapshotId),
     [snapshots, snapshotId],
   );
+
+  function updateEphemeralSession(session: typeof ephemeralSession): void {
+    ephemeralSessionRef.current = session;
+    setEphemeralSession(session);
+  }
 
   async function unlockClinical() {
     if (!tool.containsPhi) return true;
@@ -292,23 +300,20 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
     setError("");
     try {
       if (!(await unlockClinical())) return;
-      const response = await apiGet<{ runs: ToolRun[] }>(
-        `/api/ai-tools/${tool.id}/runs`,
-      );
-      setHistory(response.runs);
       if (tool.containsPhi) {
-        const [caseResponse, snapshotResponse] = await Promise.all([
-          apiGet<{ cases: ClinicalCase[] }>("/api/clinical/cases"),
-          apiGet<{ snapshots: CoverageSnapshot[] }>(
-            "/api/clinical/coverage/snapshots",
-          ),
-        ]);
-        setCases(caseResponse.cases);
+        const snapshotResponse = await apiGet<{
+          snapshots: CoverageSnapshot[];
+        }>("/api/clinical/coverage/snapshots");
         setSnapshots(snapshotResponse.snapshots);
-        setCaseId((current) => current || caseResponse.cases[0]?.id || "");
         setSnapshotId(
           (current) => current || snapshotResponse.snapshots[0]?.id || "",
         );
+        setHistory([]);
+      } else {
+        const response = await apiGet<{ runs: ToolRun[] }>(
+          `/api/ai-tools/${tool.id}/runs`,
+        );
+        setHistory(response.runs);
       }
       setNeedsMfa(false);
     } catch (caught) {
@@ -331,29 +336,59 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
     void loadData();
   }, [tool.id]);
 
+  useEffect(() => {
+    const subscription = AppState.addEventListener("change", (state) => {
+      if (tool.containsPhi) setClinicalScreenObscured(state !== "active");
+    });
+    return () => subscription.remove();
+  }, [tool.containsPhi]);
+
+  useEffect(() => {
+    const sessionId = ephemeralSession?.id;
+    if (!sessionId) return;
+    return () => {
+      void apiDelete(`/api/clinical/ephemeral-sessions/${sessionId}`).catch(
+        () => undefined,
+      );
+    };
+  }, [ephemeralSession?.id]);
+
   async function runTool() {
     setBusy(true);
     setError("");
     try {
       const input = parsedInput(tool, values);
-      const response = await apiPost<{ run: ToolRun }>(
-        `/api/ai-tools/${tool.id}/runs`,
-        {
+      if (tool.containsPhi) {
+        if (
+          tool.id === "medical-record-lcd-verifier" &&
+          !ephemeralSessionRef.current
+        ) {
+          throw new Error("Upload at least one record before finalizing.");
+        }
+        const path =
+          tool.id === "medical-record-lcd-verifier"
+            ? `/api/clinical/ephemeral-sessions/${ephemeralSessionRef.current?.id}/finalize`
+            : `/api/ai-tools/${tool.id}/ephemeral-runs`;
+        const response = await apiPost<{ result: ToolRun }>(path, {
           input,
-          ...(tool.containsPhi
-            ? {
-                clinicalCaseId: caseId || undefined,
-                coverageSnapshotId: snapshotId || undefined,
-              }
-            : {}),
-        },
-        { idempotencyKey: Crypto.randomUUID() },
-      );
-      setRun(response.run);
-      setHistory((current) => [
-        response.run,
-        ...current.filter((item) => item.id !== response.run.id),
-      ]);
+          ...(tool.id === "medical-record-lcd-verifier"
+            ? {}
+            : { coverageSnapshotId: snapshotId }),
+        });
+        setRun(response.result);
+        updateEphemeralSession(null);
+      } else {
+        const response = await apiPost<{ run: ToolRun }>(
+          `/api/ai-tools/${tool.id}/runs`,
+          { input },
+          { idempotencyKey: Crypto.randomUUID() },
+        );
+        setRun(response.run);
+        setHistory((current) => [
+          response.run,
+          ...current.filter((item) => item.id !== response.run.id),
+        ]);
+      }
     } catch (caught) {
       if (caught instanceof ApiError && caught.code === "CLINICAL_MFA_REQUIRED")
         setNeedsMfa(true);
@@ -368,14 +403,30 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
   }
 
   async function shareResult() {
-    if (!run?.id) return;
+    if (!run?.output) return;
     setBusy(true);
     setError("");
     try {
-      const exported = await apiGet<{ run: ToolRun }>(
-        `/api/ai-tool-runs/${run.id}/export`,
-      );
-      await Share.share({ message: JSON.stringify(exported.run, null, 2) });
+      if (tool.containsPhi) {
+        await Share.share({
+          message: JSON.stringify(
+            {
+              watermark: run.watermark,
+              retention: "ephemeral",
+              generatedAt: run.createdAt,
+              result: run.output,
+            },
+            null,
+            2,
+          ),
+        });
+      } else {
+        if (!run.id) throw new Error("The saved result is unavailable.");
+        const exported = await apiGet<{ run: ToolRun }>(
+          `/api/ai-tool-runs/${run.id}/export`,
+        );
+        await Share.share({ message: JSON.stringify(exported.run, null, 2) });
+      }
     } catch (caught) {
       setError(
         caught instanceof Error
@@ -421,134 +472,72 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
     }
   }
 
-  async function createCase() {
-    if (!caseLabel.trim()) return;
-    setBusy(true);
-    try {
-      const response = await apiPost<{ case: ClinicalCase }>(
-        "/api/clinical/cases",
-        {
-          label: caseLabel.trim(),
-          retentionDays: 30,
-        },
-      );
-      setCases((current) => [response.case, ...current]);
-      setCaseId(response.case.id);
-      setCaseLabel("");
-    } catch (caught) {
-      setError(
-        caught instanceof Error ? caught.message : "Case could not be created.",
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  function confirmDeleteCase() {
-    if (!caseId) return;
-    Alert.alert(
-      "Delete clinical case?",
-      "The case will disappear immediately and its protected data will be scheduled for permanent purge.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Delete",
-          style: "destructive",
-          onPress: () => {
-            void (async () => {
-              setBusy(true);
-              setError("");
-              try {
-                await apiDelete(`/api/clinical/cases/${caseId}`);
-                const remaining = cases.filter((item) => item.id !== caseId);
-                setCases(remaining);
-                setCaseId(remaining[0]?.id ?? "");
-              } catch (caught) {
-                setError(
-                  caught instanceof Error
-                    ? caught.message
-                    : "Case could not be deleted.",
-                );
-              } finally {
-                setBusy(false);
-              }
-            })();
-          },
-        },
-      ],
-    );
-  }
-
-  async function reviewRun(decision: "approved" | "changes_requested") {
-    if (!run) return;
-    setBusy(true);
-    setError("");
-    try {
-      await apiPost(`/api/clinical/runs/${run.id}/review`, { decision });
-      setRun((current) =>
-        current ? { ...current, reviewStatus: decision } : current,
-      );
-      setHistory((current) =>
-        current.map((item) =>
-          item.id === run.id ? { ...item, reviewStatus: decision } : item,
-        ),
-      );
-    } catch (caught) {
-      setError(
-        caught instanceof Error ? caught.message : "Review could not be saved.",
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
-
   async function uploadAsset(asset: {
     uri: string;
     name?: string | null;
     mimeType?: string | null;
     size?: number;
   }) {
-    if (!caseId) throw new Error("Create or select a clinical case first.");
+    if (!snapshotId) throw new Error("Select CMS evidence first.");
     const contentType = asset.mimeType || "application/octet-stream";
-    const filename =
+    const displayLabel =
       asset.name ||
       `document-${Date.now()}.${contentType.split("/")[1] || "bin"}`;
-    const blob = await (await fetch(asset.uri)).blob();
-    const sizeBytes = asset.size ?? blob.size;
-    const authorization = await apiPost<{
-      documentId: string;
-      uploadUrl: string;
-      requiredHeaders: Record<string, string>;
-    }>(`/api/clinical/cases/${caseId}/documents/upload-url`, {
-      filename,
-      contentType,
-      sizeBytes,
-    });
-    await uploadToSignedUrl(authorization.uploadUrl, blob, contentType);
-    const digest = await Crypto.digest(
-      Crypto.CryptoDigestAlgorithm.SHA256,
-      await blob.arrayBuffer(),
-    );
-    const sha256 = Array.from(new Uint8Array(digest), (byte) =>
-      byte.toString(16).padStart(2, "0"),
-    ).join("");
-    await apiPost(
-      `/api/clinical/documents/${authorization.documentId}/finalize`,
-      { sha256 },
-    );
-    const extraction = await apiPost<{ text: string }>(
-      `/api/clinical/documents/${authorization.documentId}/extract`,
-      {},
-    );
-    setValues((current) => ({
-      ...current,
-      recordText: [
-        String(current.recordText ?? ""),
-        `--- ${filename} ---\n${extraction.text}`,
-      ]
-        .filter(Boolean)
-        .join("\n\n"),
-    }));
+    try {
+      let session = ephemeralSessionRef.current;
+      if (!session || session.coverageSnapshotId !== snapshotId) {
+        if (session) {
+          await apiDelete(
+            `/api/clinical/ephemeral-sessions/${session.id}`,
+          ).catch(() => undefined);
+        }
+        const created = await apiPost<{
+          session: {
+            id: string;
+            coverageSnapshotId: string;
+            expiresAt: string;
+          };
+        }>("/api/clinical/ephemeral-sessions", {
+          coverageSnapshotId: snapshotId,
+        });
+        session = created.session;
+        updateEphemeralSession(session);
+      }
+      const blob = await (await fetch(asset.uri)).blob();
+      const sizeBytes = asset.size ?? blob.size;
+      const authorization = await apiPost<{
+        documentToken: string;
+        uploadUrl: string;
+        requiredHeaders: Record<string, string>;
+      }>(
+        `/api/clinical/ephemeral-sessions/${session.id}/documents/upload-url`,
+        { contentType, sizeBytes },
+      );
+      await uploadToSignedUrl(authorization.uploadUrl, blob, contentType);
+      await apiPost(
+        `/api/clinical/ephemeral-sessions/${session.id}/documents/${authorization.documentToken}/complete`,
+        {},
+      );
+      const extraction = await apiPost<{ text: string }>(
+        `/api/clinical/ephemeral-sessions/${session.id}/documents/${authorization.documentToken}/extract`,
+        {},
+      );
+      setValues((current) => ({
+        ...current,
+        recordText: [
+          String(current.recordText ?? ""),
+          `--- ${displayLabel} ---\n${extraction.text}`,
+        ]
+          .filter(Boolean)
+          .join("\n\n"),
+      }));
+    } finally {
+      if (asset.uri.startsWith("file:")) {
+        await FileSystem.deleteAsync(asset.uri, {
+          idempotent: true,
+        }).catch(() => undefined);
+      }
+    }
   }
 
   async function chooseDocument(camera: boolean) {
@@ -593,6 +582,22 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
     if (!items.length) return "";
     const index = items.findIndex((item) => item.id === current);
     return items[(index + 1) % items.length].id;
+  }
+
+  if (tool.containsPhi && clinicalScreenObscured) {
+    return (
+      <View
+        style={[styles.privacyOverlay, { backgroundColor: colors.background }]}
+      >
+        <Feather name="shield" size={42} color={colors.primary} />
+        <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
+          Clinical workspace protected
+        </Text>
+        <Text style={{ color: colors.mutedForeground, textAlign: "center" }}>
+          Return to Spartan Coaching to reauthenticate and continue.
+        </Text>
+      </View>
+    );
   }
 
   return (
@@ -719,24 +724,18 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
           ]}
         >
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
-            Protected clinical context
+            Ephemeral clinical workspace
+          </Text>
+          <Text style={{ color: colors.mutedForeground, lineHeight: 20 }}>
+            Patient inputs and generated results are not saved. Closing, signing
+            out, or restarting permanently loses this work.
           </Text>
           <Pressable
             style={[styles.selector, { borderColor: colors.border }]}
-            onPress={() => setCaseId(cycle(cases, caseId))}
-          >
-            <Text style={{ color: colors.foreground }}>
-              {selectedCase?.label || "Select a clinical case"}
-            </Text>
-            <Feather
-              name="chevron-down"
-              size={18}
-              color={colors.mutedForeground}
-            />
-          </Pressable>
-          <Pressable
-            style={[styles.selector, { borderColor: colors.border }]}
-            onPress={() => setSnapshotId(cycle(snapshots, snapshotId))}
+            onPress={() => {
+              setSnapshotId(cycle(snapshots, snapshotId));
+              setRun(null);
+            }}
           >
             <Text style={{ color: colors.foreground, flex: 1 }}>
               {selectedSnapshot
@@ -749,59 +748,10 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
               color={colors.mutedForeground}
             />
           </Pressable>
-          <View style={styles.inline}>
-            <TextInput
-              value={caseLabel}
-              onChangeText={setCaseLabel}
-              placeholder="New case label"
-              placeholderTextColor={colors.mutedForeground}
-              style={[
-                styles.input,
-                {
-                  flex: 1,
-                  color: colors.foreground,
-                  borderColor: colors.border,
-                },
-              ]}
-            />
-            <Pressable
-              style={[styles.secondaryButton, { borderColor: colors.border }]}
-              onPress={createCase}
-            >
-              <Text
-                style={{
-                  color: colors.foreground,
-                  fontFamily: "Inter_600SemiBold",
-                }}
-              >
-                Create
-              </Text>
-            </Pressable>
-            <Pressable
-              disabled={!caseId || busy}
-              style={[
-                styles.secondaryButton,
-                {
-                  borderColor: colors.border,
-                  opacity: !caseId || busy ? 0.5 : 1,
-                },
-              ]}
-              onPress={confirmDeleteCase}
-            >
-              <Text
-                style={{
-                  color: colors.destructive,
-                  fontFamily: "Inter_600SemiBold",
-                }}
-              >
-                Delete
-              </Text>
-            </Pressable>
-          </View>
           {tool.id === "medical-record-lcd-verifier" && (
             <View style={styles.inline}>
               <Pressable
-                disabled={uploading || !caseId}
+                disabled={uploading || !snapshotId}
                 style={[
                   styles.secondaryButton,
                   { flex: 1, borderColor: colors.border },
@@ -811,7 +761,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
                 <Text style={{ color: colors.foreground }}>Choose files</Text>
               </Pressable>
               <Pressable
-                disabled={uploading || !caseId}
+                disabled={uploading || !snapshotId}
                 style={[
                   styles.secondaryButton,
                   { flex: 1, borderColor: colors.border },
@@ -889,33 +839,25 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         </View>
         {run?.output != null ? (
           <>
-            <ResultValue value={run.output} colors={colors} />
             {tool.containsPhi && (
-              <View style={[styles.inline, { marginTop: 14 }]}>
-                <Pressable
-                  disabled={busy}
-                  style={[
-                    styles.primaryButton,
-                    { flex: 1, backgroundColor: colors.primary },
-                  ]}
-                  onPress={() => reviewRun("approved")}
+              <View
+                style={[
+                  styles.watermark,
+                  { borderColor: "#D97706", backgroundColor: "#D9770614" },
+                ]}
+              >
+                <Text
+                  style={{
+                    color: colors.foreground,
+                    fontFamily: "Inter_700Bold",
+                    lineHeight: 19,
+                  }}
                 >
-                  <Text style={styles.primaryButtonText}>Approve</Text>
-                </Pressable>
-                <Pressable
-                  disabled={busy}
-                  style={[
-                    styles.secondaryButton,
-                    { flex: 1, borderColor: colors.border },
-                  ]}
-                  onPress={() => reviewRun("changes_requested")}
-                >
-                  <Text style={{ color: colors.foreground }}>
-                    Request changes
-                  </Text>
-                </Pressable>
+                  {run.watermark}
+                </Text>
               </View>
             )}
+            <ResultValue value={run.output} colors={colors} />
           </>
         ) : (
           <Text style={{ color: colors.mutedForeground }}>
@@ -931,9 +873,14 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         ]}
       >
         <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
-          Recent runs
+          {tool.containsPhi ? "No clinical history" : "Recent runs"}
         </Text>
-        {history.length === 0 ? (
+        {tool.containsPhi ? (
+          <Text style={{ color: colors.mutedForeground, lineHeight: 20 }}>
+            Clinical inputs and results are never added to history. Sharing uses
+            the in-memory result and creates no server export.
+          </Text>
+        ) : history.length === 0 ? (
           <Text style={{ color: colors.mutedForeground }}>
             No saved runs yet.
           </Text>
@@ -948,7 +895,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
                 {new Date(item.createdAt).toLocaleString()}
               </Text>
               <Text style={{ color: colors.mutedForeground }}>
-                {item.status}
+                {item.status ?? "completed"}
               </Text>
             </Pressable>
           ))
@@ -959,6 +906,13 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
 }
 
 const styles = StyleSheet.create({
+  privacyOverlay: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 14,
+    padding: 32,
+  },
   container: { padding: 20, paddingBottom: 64, gap: 16 },
   back: { flexDirection: "row", alignItems: "center", gap: 8, minHeight: 44 },
   badges: { flexDirection: "row", gap: 8 },
@@ -980,6 +934,11 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   warningText: { flex: 1, fontSize: 13, lineHeight: 19 },
+  watermark: {
+    borderWidth: 2,
+    borderRadius: 12,
+    padding: 12,
+  },
   card: { borderWidth: 1, borderRadius: 16, padding: 16, gap: 16 },
   sectionHeading: {
     flexDirection: "row",

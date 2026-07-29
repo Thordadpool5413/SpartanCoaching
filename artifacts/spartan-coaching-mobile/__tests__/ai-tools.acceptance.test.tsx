@@ -24,7 +24,21 @@ jest.mock("expo-crypto", () => ({
 }));
 
 jest.mock("expo-document-picker", () => ({
-  getDocumentAsync: jest.fn(),
+  getDocumentAsync: jest.fn(async () => ({
+    canceled: false,
+    assets: [
+      {
+        uri: "file:///cache/de-identified.txt",
+        name: "local-only.txt",
+        mimeType: "text/plain",
+        size: 16,
+      },
+    ],
+  })),
+}));
+
+jest.mock("expo-file-system/legacy", () => ({
+  deleteAsync: jest.fn(async () => undefined),
 }));
 
 jest.mock("expo-image-picker", () => ({
@@ -60,7 +74,7 @@ jest.mock("../lib/api", () => ({
       this.status = httpStatus;
     }
   },
-  apiDelete: jest.fn(),
+  apiDelete: jest.fn(async () => undefined),
   apiGet: jest.fn(),
   apiPost: jest.fn(),
   uploadToSignedUrl: jest.fn(),
@@ -70,17 +84,10 @@ const apiGetMock = apiGet as jest.MockedFunction<typeof apiGet>;
 const apiPostMock = apiPost as jest.MockedFunction<typeof apiPost>;
 
 beforeEach(() => {
+  globalThis.fetch = jest.fn(async () => ({
+    blob: async () => new Blob(["de-identified"]),
+  })) as never;
   apiGetMock.mockImplementation(async (path: string) => {
-    if (path === "/api/clinical/cases") {
-      return {
-        cases: [
-          {
-            id: "10000000-0000-4000-8000-000000000001",
-            label: "De-identified acceptance case",
-          },
-        ],
-      } as never;
-    }
     if (path === "/api/clinical/coverage/snapshots") {
       return {
         snapshots: [
@@ -95,6 +102,35 @@ beforeEach(() => {
     return { runs: [] } as never;
   });
   apiPostMock.mockImplementation(async (path: string) => {
+    if (path === "/api/clinical/ephemeral-sessions") {
+      return {
+        session: {
+          id: "10000000-0000-4000-8000-000000000001",
+          coverageSnapshotId: "20000000-0000-4000-8000-000000000001",
+          expiresAt: "2030-01-01T00:00:00.000Z",
+        },
+      } as never;
+    }
+    if (path.endsWith("/documents/upload-url")) {
+      return {
+        documentToken: "50000000-0000-4000-8000-000000000001",
+        uploadUrl: "https://upload.example.invalid/opaque",
+        requiredHeaders: { "Content-Type": "text/plain" },
+      } as never;
+    }
+    if (path.endsWith("/extract")) {
+      return { text: "De-identified extracted acceptance text" } as never;
+    }
+    if (path.endsWith("/finalize") || path.endsWith("/ephemeral-runs")) {
+      return {
+        result: {
+          output: { acceptance: "passed" },
+          createdAt: "2030-01-01T00:00:00.000Z",
+          watermark: "Educational decision support only.",
+          retention: "ephemeral",
+        },
+      } as never;
+    }
     if (path.includes("/runs")) {
       return {
         run: {
@@ -132,25 +168,42 @@ describe("native AI tool acceptance", () => {
 
       if (tool.containsPhi) {
         await waitFor(() => {
-          expect(
-            view.getByText("De-identified acceptance case"),
-          ).toBeTruthy();
+          expect(view.getByText("Ephemeral clinical workspace")).toBeTruthy();
           expect(view.getByText("Acceptance LCD · v1")).toBeTruthy();
         });
       }
 
       const runButton = view.getByLabelText(`Run ${tool.name}`);
       await waitFor(() => expect(runButton.props.disabled).not.toBe(true));
+      if (tool.id === "medical-record-lcd-verifier") {
+        fireEvent.press(view.getByText("Choose files"));
+        await waitFor(() =>
+          expect(apiPostMock).toHaveBeenCalledWith(
+            expect.stringContaining(
+              "/documents/50000000-0000-4000-8000-000000000001/extract",
+            ),
+            {},
+          ),
+        );
+      }
       fireEvent.press(runButton);
 
       await waitFor(() => {
-        expect(apiPostMock).toHaveBeenCalledWith(
-          `/api/ai-tools/${tool.id}/runs`,
-          expect.objectContaining({ input: expect.any(Object) }),
-          {
+        const expectedPath = tool.containsPhi
+          ? tool.id === "medical-record-lcd-verifier"
+            ? "/api/clinical/ephemeral-sessions/10000000-0000-4000-8000-000000000001/finalize"
+            : `/api/ai-tools/${tool.id}/ephemeral-runs`
+          : `/api/ai-tools/${tool.id}/runs`;
+        const expectedBody = expect.objectContaining({
+          input: expect.any(Object),
+        });
+        if (tool.containsPhi) {
+          expect(apiPostMock).toHaveBeenCalledWith(expectedPath, expectedBody);
+        } else {
+          expect(apiPostMock).toHaveBeenCalledWith(expectedPath, expectedBody, {
             idempotencyKey: "40000000-0000-4000-8000-000000000001",
-          },
-        );
+          });
+        }
       });
       expect(view.getByText("acceptance")).toBeTruthy();
       expect(view.getByText("passed")).toBeTruthy();

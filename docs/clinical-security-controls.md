@@ -1,28 +1,41 @@
 # Clinical Security Controls
 
-- Explicit `clinical:use`, `clinical:review`, and `clinical:admin` authorization is
-  tenant-scoped and independent of paid sales membership.
-- Clinical API access requires a recent six-digit email MFA challenge; mobile clinical
-  screens also require device biometric or credential verification when opened.
-- Mobile session credentials use device-only SecureStore.
-- PHI values use AES-256-GCM envelope encryption with random per-record data keys and
-  authenticated tenant/record context.
-- Clinical documents use random object keys in a dedicated private GCS bucket, five-minute
-  signed URLs, allowlisted types, 25 MB/file and 250 MB/case limits, and required malware
-  scanning in production.
-- Clinical database queries bind organization ID and resource ID. Run history, cases,
-  documents, reviews, signed URLs, and deletion paths never use an unscoped lookup.
-- CMS evidence is versioned and content-hashed. Clinical runs pin the exact snapshot.
-- Cases retain data for 30 days by default (organization input: 1–365 days). Legal hold
-  blocks deletion. User deletion is immediately hidden; object and encrypted payload
-  purge is verified, and the scheduled sweep retries expired/deleting cases.
-- Audit events are append-only and contain identifiers/actions only, never clinical
-  content. User-facing errors expose safe codes; server logs must not include request
-  bodies, filenames, extracted text, or model output.
-- Backups must be encrypted and have documented expiration. A purge does not claim
-  instantaneous removal from immutable backups; the retention policy defines their
-  maximum lifetime.
+- Explicit clinical authorization is tenant-scoped and independent of paid sales
+  membership. Clinical API access requires recent email MFA; mobile clinical screens
+  also require device biometric or credential verification.
+- Patient inputs, generated clinical results, extracted text, original filenames,
+  reviewer notes, and input hashes are never inserted into retained run or case
+  history. Clinical responses use `Cache-Control: no-store` and cannot be replayed.
+- The four text clinical tools execute synchronously in memory. The Medical Record
+  LCD Verifier uses a temporary session with random object tokens and a dedicated,
+  private GCS bucket. Its result is returned only after every object is deleted and
+  post-delete existence checks succeed.
+- Temporary sessions support PDF, JPEG, PNG, and text, with limits of 25 files,
+  25 MB per file, and 250 MB per session. Upload URLs expire after five minutes.
+  Malware scanning is fail-closed when PHI is enabled.
+- The temporary bucket must have public access prevention and uniform bucket-level
+  access enabled, with object versioning and retention policies disabled. An object
+  lifecycle rule is an additional infrastructure backstop. Application sessions
+  expire after 55 minutes and an independent five-minute sweeper enforces the
+  60-minute application-level orphan ceiling.
+- Failure, cancellation, and successful finalization all invoke the same verified
+  purge. Device camera and picker cache copies are removed after upload. The user's
+  original source document is never deleted.
+- Web clinical exports are generated from the current in-memory result and immediately
+  revoke the Blob URL. Native sharing uses the in-memory result and creates no
+  retained server export. All clinical results include a permanent educational
+  decision-support watermark.
+- The iOS clinical screen is replaced with an opaque privacy view whenever the app
+  becomes inactive, preventing patient content from appearing in app-switcher
+  snapshots. Clinical values are held only in component memory.
+- CMS coverage snapshots remain retained because they contain public policy data.
+  Audit events retain only organization/user/tool identifiers, timestamps,
+  model/policy versions, outcome codes, object counts, and deletion confirmation.
+- Logs, analytics, crash reports, push notifications, filenames, and support tooling
+  must never receive PHI or model output.
 
-Operational policies, workforce training, risk assessment, incident response, vendor
-BAAs, restore drills, and qualified clinical validation remain required release gates;
-software controls alone do not establish HIPAA compliance.
+Immediate deletion reduces exposure but does not remove HIPAA obligations. Real-PHI
+activation requires the applicable BAA and ZDR or Modified Abuse Monitoring on the
+specific OpenAI API organization/project, HIPAA-eligible endpoints, covered hosting,
+storage and scanning services, a security risk assessment, and a successful
+production deletion and leak-scan drill.

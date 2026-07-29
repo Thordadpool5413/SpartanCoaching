@@ -23,7 +23,9 @@ export const clinicalPermissions = pgTable(
     canReview: boolean("can_review").notNull().default(false),
     canAdmin: boolean("can_admin").notNull().default(false),
     grantedByMemberId: integer("granted_by_member_id").notNull(),
-    grantedAt: timestamp("granted_at", { withTimezone: true }).notNull().defaultNow(),
+    grantedAt: timestamp("granted_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
     revokedAt: timestamp("revoked_at", { withTimezone: true }),
   },
   (table) => [
@@ -51,10 +53,7 @@ export const aiToolOrganizationFlags = pgTable(
       table.organizationId,
       table.toolId,
     ),
-    index("ai_tool_org_flag_enabled").on(
-      table.organizationId,
-      table.enabled,
-    ),
+    index("ai_tool_org_flag_enabled").on(table.organizationId, table.enabled),
   ],
 );
 
@@ -68,7 +67,9 @@ export const clinicalMfaChallenges = pgTable(
     expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
     attempts: integer("attempts").notNull().default(0),
     usedAt: timestamp("used_at", { withTimezone: true }),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (table) => [
     index("clinical_mfa_member_expiry").on(table.memberId, table.expiresAt),
@@ -87,7 +88,9 @@ export const aiToolRuns = pgTable(
     model: varchar("model", { length: 128 }).notNull(),
     promptVersion: varchar("prompt_version", { length: 128 }).notNull(),
     inputHash: varchar("input_hash", { length: 64 }).notNull(),
-    idempotencyKeyHash: varchar("idempotency_key_hash", { length: 64 }).notNull(),
+    idempotencyKeyHash: varchar("idempotency_key_hash", {
+      length: 64,
+    }).notNull(),
     containsPhi: boolean("contains_phi").notNull().default(false),
     status: varchar("status", { length: 32 }).notNull().default("processing"),
     output: jsonb("output"),
@@ -102,7 +105,9 @@ export const aiToolRuns = pgTable(
     coverageVersion: varchar("coverage_version", { length: 64 }),
     coverageContentHash: varchar("coverage_content_hash", { length: 64 }),
     durationMs: integer("duration_ms"),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
     completedAt: timestamp("completed_at", { withTimezone: true }),
   },
   (table) => [
@@ -141,15 +146,24 @@ export const clinicalCases = pgTable(
     encryptedLabel: text("encrypted_label").notNull(),
     status: varchar("status", { length: 32 }).notNull().default("open"),
     retentionDays: integer("retention_days").notNull().default(30),
-    retentionUntil: timestamp("retention_until", { withTimezone: true }).notNull(),
+    retentionUntil: timestamp("retention_until", {
+      withTimezone: true,
+    }).notNull(),
     legalHold: boolean("legal_hold").notNull().default(false),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
-    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
     purgeCompletedAt: timestamp("purge_completed_at", { withTimezone: true }),
   },
   (table) => [
-    index("clinical_cases_tenant_status").on(table.organizationId, table.status),
+    index("clinical_cases_tenant_status").on(
+      table.organizationId,
+      table.status,
+    ),
     check(
       "clinical_cases_retention_range",
       sql`${table.retentionDays} between 1 and 365`,
@@ -157,6 +171,71 @@ export const clinicalCases = pgTable(
     check(
       "clinical_cases_status",
       sql`${table.status} in ('open', 'review', 'closed', 'deleting', 'deleted')`,
+    ),
+  ],
+);
+
+export const clinicalEphemeralSessions = pgTable(
+  "clinical_ephemeral_sessions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    organizationId: integer("organization_id").notNull(),
+    createdByMemberId: integer("created_by_member_id").notNull(),
+    coverageSnapshotId: uuid("coverage_snapshot_id").references(
+      () => coverageSnapshots.id,
+    ),
+    status: varchar("status", { length: 32 }).notNull().default("open"),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (table) => [
+    index("clinical_ephemeral_sessions_tenant_expiry").on(
+      table.organizationId,
+      table.expiresAt,
+    ),
+    check(
+      "clinical_ephemeral_sessions_status",
+      sql`${table.status} in ('open', 'processing', 'purging')`,
+    ),
+  ],
+);
+
+export const clinicalEphemeralObjects = pgTable(
+  "clinical_ephemeral_objects",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    sessionId: uuid("session_id")
+      .notNull()
+      .references(() => clinicalEphemeralSessions.id, { onDelete: "cascade" }),
+    organizationId: integer("organization_id").notNull(),
+    objectKey: varchar("object_key", { length: 255 }).notNull().unique(),
+    contentType: varchar("content_type", { length: 128 }).notNull(),
+    sizeBytes: integer("size_bytes").notNull(),
+    scanStatus: varchar("scan_status", { length: 32 })
+      .notNull()
+      .default("pending"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    expiresAt: timestamp("expires_at", { withTimezone: true }).notNull(),
+  },
+  (table) => [
+    index("clinical_ephemeral_objects_session").on(
+      table.organizationId,
+      table.sessionId,
+    ),
+    check(
+      "clinical_ephemeral_objects_scan_status",
+      sql`${table.scanStatus} in ('pending', 'scanning', 'safe')`,
+    ),
+    check(
+      "clinical_ephemeral_objects_size",
+      sql`${table.sizeBytes} > 0 and ${table.sizeBytes} <= 26214400`,
     ),
   ],
 );
@@ -173,8 +252,12 @@ export const clinicalDocuments = pgTable(
     contentType: varchar("content_type", { length: 128 }).notNull(),
     sizeBytes: integer("size_bytes").notNull(),
     sha256: varchar("sha256", { length: 64 }),
-    scanStatus: varchar("scan_status", { length: 32 }).notNull().default("pending"),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    scanStatus: varchar("scan_status", { length: 32 })
+      .notNull()
+      .default("pending"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
     deletedAt: timestamp("deleted_at", { withTimezone: true }),
   },
   (table) => [
@@ -199,7 +282,9 @@ export const clinicalReviews = pgTable(
     reviewerMemberId: integer("reviewer_member_id").notNull(),
     decision: varchar("decision", { length: 32 }).notNull(),
     encryptedNotes: text("encrypted_notes"),
-    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (table) => [
     index("clinical_reviews_run").on(table.organizationId, table.runId),
@@ -225,7 +310,9 @@ export const coverageSnapshots = pgTable(
     effectiveAt: timestamp("effective_at", { withTimezone: true }),
     retiredAt: timestamp("retired_at", { withTimezone: true }),
     payload: jsonb("payload").notNull(),
-    fetchedAt: timestamp("fetched_at", { withTimezone: true }).notNull().defaultNow(),
+    fetchedAt: timestamp("fetched_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (table) => [
     uniqueIndex("coverage_snapshots_document_version").on(
@@ -253,7 +340,9 @@ export const clinicalAuditEvents = pgTable(
     targetId: uuid("target_id"),
     requestId: varchar("request_id", { length: 128 }).notNull(),
     metadata: jsonb("metadata").notNull().default({}),
-    occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull().defaultNow(),
+    occurredAt: timestamp("occurred_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
   },
   (table) => [
     index("clinical_audit_tenant_time").on(
@@ -267,6 +356,10 @@ export type AiToolRun = typeof aiToolRuns.$inferSelect;
 export type AiToolOrganizationFlag =
   typeof aiToolOrganizationFlags.$inferSelect;
 export type ClinicalCase = typeof clinicalCases.$inferSelect;
+export type ClinicalEphemeralSession =
+  typeof clinicalEphemeralSessions.$inferSelect;
+export type ClinicalEphemeralObject =
+  typeof clinicalEphemeralObjects.$inferSelect;
 export type ClinicalDocument = typeof clinicalDocuments.$inferSelect;
 export type ClinicalPermission = typeof clinicalPermissions.$inferSelect;
 export type ClinicalMfaChallenge = typeof clinicalMfaChallenges.$inferSelect;
