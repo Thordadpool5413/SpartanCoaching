@@ -1,0 +1,38 @@
+artifacts/api-server/src/clinical/deidentification.test.ts
+  s_859dc7aa6bfb87::t_5789decd7dbace 1-40
+artifacts/api-server/src/clinical/runtimeReadiness.ts
+  s_859dc7aa6bfb87::t_4f7fa8ec791567 27-28
+  s_859dc7aa6bfb87::t_5789decd7dbace 1-26,29-46
+artifacts/api-server/src/clinical/deidentification.ts
+  s_859dc7aa6bfb87::t_5789decd7dbace 1-41,43-88
+  s_859dc7aa6bfb87::t_dd7f7c7fb5ade8 42
+artifacts/api-server/package.json
+  s_859dc7aa6bfb87::t_5789decd7dbace 11
+artifacts/api-server/src/routes/aiToolRoutes.ts
+  s_859dc7aa6bfb87::t_5789decd7dbace 68-69,115-116,748-753
+  s_859dc7aa6bfb87::t_ad2979fb8f481a 580,600-603
+  s_859dc7aa6bfb87::t_41bd7197e998a6 747
+  s_859dc7aa6bfb87::t_cff0ce9ea6f69b 754-756
+artifacts/api-server/src/clinical/runtimeReadiness.test.ts
+  s_859dc7aa6bfb87::t_5789decd7dbace 1-48
+docs/clinical-security-controls.md
+  s_859dc7aa6bfb87::t_5789decd7dbace 9-13
+artifacts/api-server/src/routes/ephemeralClinicalContract.test.ts
+  s_859dc7aa6bfb87::t_c673b2c56e19b9 33-36
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "6473257a6f2e3dc8fc50b498c9de406fc6938b63",
+  "prompts": {},
+  "sessions": {
+    "s_859dc7aa6bfb87": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f9d0c-9aad-7ef2-8adc-7a4afb18da6e",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
