@@ -1,0 +1,45 @@
+artifacts/spartan-coaching/src/components/ChatWidget.tsx
+  s_859dc7aa6bfb87::t_cb1fb47169951f 149
+artifacts/spartan-coaching/src/components/FieldKitGate.tsx
+  s_859dc7aa6bfb87::t_b602a7f0c6af5e 39,41,144-145,147,156-158
+artifacts/spartan-coaching/src/components/FieldKitPreviewLock.tsx
+  s_859dc7aa6bfb87::t_5cd35d8f4e010d 259-260
+artifacts/spartan-coaching/src/components/Layout.tsx
+  s_859dc7aa6bfb87::t_fff7f5fee2e8da 335-336,367-378
+artifacts/spartan-coaching/src/components/TrustStrip.tsx
+  s_859dc7aa6bfb87::t_4a6c4caa75e8e7 93-94,97-100
+artifacts/spartan-coaching/src/pages/About.tsx
+  s_859dc7aa6bfb87::t_c1f0cef73a5903 44,460-465,467
+artifacts/spartan-coaching/src/pages/FAQ.tsx
+  s_859dc7aa6bfb87::t_9db868a947d600 108,219-220,227,229-230,239,241,244,246-250
+artifacts/spartan-coaching/src/pages/FieldKit.eliteCopy.test.tsx
+  s_859dc7aa6bfb87::t_ccefe777e55188 116-119,296,299-300,306,309,312,315,318,323,326,329,332,335,338,343,346,349,352,355,358,363,366,372,375,378,381,384,389,392,395,398,401,404,409,412,415,418,421,424
+artifacts/spartan-coaching/src/pages/FieldKitMembership.eliteCopy.test.tsx
+  s_859dc7aa6bfb87::t_3de2cd520dfd48 6-7,75,77,81-84,114,123,128,142,210,212-214,217,219,222,224,227,229,234,238,241,243,245,248,250,253,255,260,262-263,266,268,271,273,291-316,318,323,328
+artifacts/spartan-coaching/src/pages/FieldKitMembership.tsx
+  s_859dc7aa6bfb87::t_d99c157a039c0c 15,38,51-52,55-63,126-128,240-244,247-249,252-254,257-258,260-262,270-275,278-283,286-289,293-295,300
+artifacts/spartan-coaching/src/pages/Home.tsx
+  s_859dc7aa6bfb87::t_a2b688b0f46c7b 387-391
+artifacts/spartan-coaching/src/pages/Method.tsx
+  s_859dc7aa6bfb87::t_4795e80ed54132 440-442,446-447,451,454,476-480
+artifacts/spartan-coaching/src/pages/RequestAccess.tsx
+  s_859dc7aa6bfb87::t_71162ea6f24180 217,219-223
+artifacts/spartan-coaching/src/pages/Services.tsx
+  s_859dc7aa6bfb87::t_e58f9c76fa11f6 219,225-229,247-250,253-254,259,262,555-558
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "91f24a277185bbd18b8323bfe3aa8a9d8d2746b4",
+  "prompts": {},
+  "sessions": {
+    "s_859dc7aa6bfb87": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f9d0c-9aad-7ef2-8adc-7a4afb18da6e",
+        "model": "unknown"
+      },
+      "human_author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}

@@ -1,0 +1,21 @@
+pnpm-workspace.yaml
+  s_859dc7aa6bfb87::t_0981b7861779e5 47
+pnpm-lock.yaml
+  s_859dc7aa6bfb87::t_5990b8b1760efb 77,15630,15634
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "5ff304bfbcd0afafcb31d228b751fb12eb8c6224",
+  "prompts": {},
+  "sessions": {
+    "s_859dc7aa6bfb87": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f9d0c-9aad-7ef2-8adc-7a4afb18da6e",
+        "model": "gpt-5.6-sol"
+      },
+      "human_author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}

@@ -1,0 +1,23 @@
+.github/workflows/ci.yml
+  s_859dc7aa6bfb87::t_4a3faac7ce9815 50-52,55-56
+artifacts/spartan-coaching/src/components/AccountDayZero.test.tsx
+  s_859dc7aa6bfb87::t_428ccc4d8bea5e 59-60
+artifacts/spartan-coaching/src/components/AccountDayZero.tsx
+  s_859dc7aa6bfb87::t_cff5b94e1a1601 57,65
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.16",
+  "base_commit_sha": "707eef698295ddd92afe669cb1ba89b0ac8fe95e",
+  "prompts": {},
+  "sessions": {
+    "s_859dc7aa6bfb87": {
+      "agent_id": {
+        "tool": "codex",
+        "id": "019f9d0c-9aad-7ef2-8adc-7a4afb18da6e",
+        "model": "unknown"
+      },
+      "human_author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
