@@ -5,6 +5,7 @@ import {
   isHydrationComplete,
 } from "../billing/billingEmailMetrics";
 import { clinicalRuntimeReadiness } from "../clinical/runtimeReadiness";
+import { coverageUsesEducationalBaseline } from "../clinical/coverageBootstrap";
 
 const router: IRouter = Router();
 
@@ -44,7 +45,7 @@ router.get("/healthz", (_req, res) => {
  * - operationMode phi + ready → ok:true (BAAs + infrastructure configured)
  * - operationMode phi + !ready → HTTP 503 + ok:false + missingControls
  */
-function clinicalRuntimeHealthResponse() {
+async function clinicalRuntimeHealthResponse() {
   const readiness = clinicalRuntimeReadiness();
   const optionalPresent = {
     CMS_COVERAGE_API_TOKEN: Boolean(
@@ -56,6 +57,10 @@ function clinicalRuntimeHealthResponse() {
     ),
     OPENAI_MODEL: Boolean(process.env.OPENAI_MODEL?.trim()),
   };
+  const usingEducationalBaseline =
+    readiness.operationMode === "phi" && readiness.ready
+      ? await coverageUsesEducationalBaseline()
+      : false;
 
   if (readiness.operationMode === "deidentified") {
     return {
@@ -65,6 +70,7 @@ function clinicalRuntimeHealthResponse() {
       ready: true,
       baasConfirmed: readiness.baasConfirmed,
       missingControls: [] as string[],
+      usingEducationalBaseline: false,
       optionalPresent,
       hint: readiness.baasConfirmed
         ? "BAAs are confirmed but CLINICAL_OPERATION_MODE=deidentified forces education mode."
@@ -80,8 +86,11 @@ function clinicalRuntimeHealthResponse() {
       ready: true,
       baasConfirmed: readiness.baasConfirmed,
       missingControls: [] as string[],
+      usingEducationalBaseline,
       optionalPresent,
-      hint: "PHI clinical runtime is operational. MFA + ephemeral workflows apply.",
+      hint: usingEducationalBaseline
+        ? "PHI clinical runtime is operational, but coverage is still the educational baseline. Sync a live CMS MCD snapshot for policy fidelity."
+        : "PHI clinical runtime is operational. MFA + ephemeral workflows apply.",
     };
   }
 
@@ -92,16 +101,17 @@ function clinicalRuntimeHealthResponse() {
     ready: false,
     baasConfirmed: readiness.baasConfirmed,
     missingControls: readiness.missingControls,
+    usingEducationalBaseline: false,
     optionalPresent,
     hint: "PHI mode is selected but required production controls are missing. Set every name in missingControls.",
   };
 }
 
-function sendClinicalRuntimeHealth(
+async function sendClinicalRuntimeHealth(
   _req: import("express").Request,
   res: import("express").Response,
 ) {
-  const body = clinicalRuntimeHealthResponse();
+  const body = await clinicalRuntimeHealthResponse();
   res.status(body.ok ? 200 : 503).json(body);
 }
 

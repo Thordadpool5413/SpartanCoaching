@@ -81,13 +81,14 @@ describe("Spartan AI tool runner boundaries", () => {
     ).rejects.toMatchObject({ code: "PHI_PROCESSING_DISABLED", status: 503 });
   });
 
-  it("auto-enables PHI launch gates when BAAs are confirmed without explicit mode", async () => {
+  it("enforces full BAA launch gates when PHI mode is active", async () => {
     vi.stubEnv("AI_TOOL_MEDICARE_LCD_ADVISOR", "true");
+    vi.stubEnv("CLINICAL_OPERATION_MODE", "phi");
     vi.stubEnv("HIPAA_PHI_ENABLED", "true");
     vi.stubEnv("OPENAI_BAA_CONFIRMED", "true");
     vi.stubEnv("OPENAI_MODIFIED_RETENTION_CONFIRMED", "true");
     vi.stubEnv("GOOGLE_CLOUD_BAA_CONFIRMED", "true");
-    // Missing PHI_STORAGE_BAA_CONFIRMED → still blocked
+    // Missing PHI_STORAGE_BAA_CONFIRMED → blocked before provider call
     await expect(
       runSpartanAiTool("medicare-lcd-advisor", {
         diagnosis: "Example",
@@ -95,6 +96,25 @@ describe("Spartan AI tool runner boundaries", () => {
       }),
     ).rejects.toMatchObject({
       code: "PHI_STORAGE_BAA_REQUIRED",
+      status: 503,
+    });
+  });
+
+  it("auto-selects PHI mode when all BAA gates are true without explicit mode", async () => {
+    vi.stubEnv("AI_TOOL_MEDICARE_LCD_ADVISOR", "true");
+    vi.stubEnv("HIPAA_PHI_ENABLED", "true");
+    vi.stubEnv("OPENAI_BAA_CONFIRMED", "true");
+    vi.stubEnv("OPENAI_MODIFIED_RETENTION_CONFIRMED", "true");
+    vi.stubEnv("GOOGLE_CLOUD_BAA_CONFIRMED", "true");
+    vi.stubEnv("PHI_STORAGE_BAA_CONFIRMED", "true");
+    // All BAAs true → PHI mode; still fails without a provider key (proves gates passed)
+    await expect(
+      runSpartanAiTool("medicare-lcd-advisor", {
+        diagnosis: "Example",
+        question: "Example question",
+      }),
+    ).rejects.toMatchObject({
+      code: "PROVIDER_NOT_CONFIGURED",
       status: 503,
     });
   });

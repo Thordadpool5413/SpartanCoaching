@@ -59,9 +59,18 @@ type CoverageSnapshot = {
   title: string;
   documentId: string;
   version: string;
+  source?: string | null;
   jurisdiction?: string | null;
   effectiveAt?: string | null;
 };
+
+function isEducationalCoverage(snapshot: CoverageSnapshot | undefined): boolean {
+  if (!snapshot) return false;
+  return (
+    snapshot.source === "EDUCATIONAL_BASELINE" ||
+    snapshot.documentId === "SPARTAN-HOSPICE-BASELINE"
+  );
+}
 
 class ApiError extends Error {
   constructor(
@@ -796,7 +805,7 @@ export default function AiToolPage() {
                 {coverageRequired && (
                   <div className="grid gap-4">
                     <div className="space-y-2">
-                      <Label>CMS coverage snapshot</Label>
+                      <Label>Coverage snapshot</Label>
                       <select
                         value={snapshotId}
                         onChange={(event) => {
@@ -806,13 +815,25 @@ export default function AiToolPage() {
                         className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
                         required
                       >
-                        <option value="">Select CMS evidence</option>
+                        <option value="">Select coverage evidence</option>
                         {snapshots.map((snapshot) => (
                           <option key={snapshot.id} value={snapshot.id}>
+                            {isEducationalCoverage(snapshot)
+                              ? "[Educational baseline] "
+                              : ""}
                             {snapshot.title} · v{snapshot.version}
                           </option>
                         ))}
                       </select>
+                      {isEducationalCoverage(
+                        snapshots.find((s) => s.id === snapshotId),
+                      ) && (
+                        <p className="text-xs text-amber-700 dark:text-amber-400">
+                          Educational baseline only — not official CMS LCD text.
+                          An administrator should sync a live CMS MCD snapshot
+                          for production policy fidelity.
+                        </p>
+                      )}
                     </div>
                   </div>
                 )}

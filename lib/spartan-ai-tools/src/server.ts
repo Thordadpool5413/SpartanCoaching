@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 import type { ZodType } from "zod";
+import { isPhiClinicalOperationMode } from "./clinical-runtime";
 import {
   getSpartanAiTool,
   isClinicalTool,
@@ -103,22 +104,6 @@ function assertSafeInput(value: unknown): void {
     }
   };
   inspect(value, 0);
-}
-
-function isPhiClinicalOperationMode(
-  environment: NodeJS.ProcessEnv = process.env,
-): boolean {
-  const explicit = environment.CLINICAL_OPERATION_MODE?.trim().toLowerCase();
-  if (explicit === "deidentified") return false;
-  if (explicit === "phi") return true;
-  // Auto-enable PHI when vendor BAAs are confirmed (matches API runtime readiness).
-  return (
-    environment.HIPAA_PHI_ENABLED === "true" &&
-    environment.OPENAI_BAA_CONFIRMED === "true" &&
-    environment.OPENAI_MODIFIED_RETENTION_CONFIRMED === "true" &&
-    environment.GOOGLE_CLOUD_BAA_CONFIRMED === "true" &&
-    environment.PHI_STORAGE_BAA_CONFIRMED === "true"
-  );
 }
 
 function assertClinicalLaunchGate(tool: AiToolSpec): void {

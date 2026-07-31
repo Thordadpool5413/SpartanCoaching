@@ -77,4 +77,23 @@ describe("ephemeral clinical source contracts", () => {
     expect(native).toContain("FileSystem.deleteAsync");
     expect(native).toContain("clinicalScreenObscured");
   });
+
+  it("sends PDF extracts as application/pdf data URLs without placeholder prefixes", () => {
+    expect(routes).toContain("data:application/pdf;base64,");
+    expect(routes).not.toContain("PDF attachment removed");
+    // Image path already used data URLs; PDF must match that pattern.
+    const pdfDataUrlCount = (
+      routes.match(/data:application\/pdf;base64,/g) ?? []
+    ).length;
+    expect(pdfDataUrlCount).toBeGreaterThanOrEqual(2);
+  });
+
+  it("does not label the educational coverage seed as CMS_MCD", () => {
+    const bootstrap = source("../clinical/coverageBootstrap.ts");
+    expect(bootstrap).toContain('EDUCATIONAL_BASELINE_SOURCE = "EDUCATIONAL_BASELINE"');
+    expect(bootstrap).toContain("source: EDUCATIONAL_BASELINE_SOURCE");
+    expect(bootstrap).not.toMatch(
+      /source:\s*"CMS_MCD"[\s\S]{0,80}SPARTAN-HOSPICE-BASELINE/,
+    );
+  });
 });

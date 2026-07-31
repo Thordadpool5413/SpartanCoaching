@@ -74,14 +74,19 @@ Live after deploy (no secret values returned):
 curl -sS https://YOUR_HOST/api/admin/clinical-runtime-health
 # or
 curl -sS https://YOUR_HOST/api/healthz/clinical
-# or full post-deploy smoke (includes clinical):
+# soft post-deploy smoke (clinical WARN if PHI incomplete; does not fail):
 node scripts/smoke-health.mjs https://YOUR_HOST
+# hard fail when PHI must be fully ready:
+REQUIRE_PHI_SMOKE=1 node scripts/smoke-health.mjs https://YOUR_HOST
+# or: node scripts/smoke-health.mjs https://YOUR_HOST --require-phi
 ```
 
 Expect `ok: true`, `operationMode: "phi"`, `ready: true`, and an empty
-`missingControls` array when PHI production is fully configured. De-identified
-mode returns `ok: true` with a hint to enable BAAs — that is intentional, not a
-failure, unless you pass `--require-phi` offline.
+`missingControls` array when PHI production is fully configured. When coverage
+is still the educational seed, `usingEducationalBaseline: true` — sync live CMS
+via `/api/clinical/coverage/sync`. De-identified mode returns `ok: true` with a
+hint to enable BAAs — that is intentional, not a failure, unless you pass
+`--require-phi` offline or `REQUIRE_PHI_SMOKE=1` on smoke.
 
 ## Deployment sequence
 

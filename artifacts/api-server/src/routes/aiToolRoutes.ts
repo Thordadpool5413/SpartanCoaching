@@ -67,7 +67,10 @@ import {
 } from "../clinical/ephemeral";
 import { findPotentialIdentifiers } from "../clinical/deidentification";
 import { clinicalRuntimeReadiness } from "../clinical/runtimeReadiness";
-import { loadLatestCoverageSnapshot } from "../clinical/coverageBootstrap";
+import {
+  isEducationalBaselineSnapshot,
+  loadLatestCoverageSnapshot,
+} from "../clinical/coverageBootstrap";
 import {
   decryptPhi,
   encryptPhi,
@@ -1107,13 +1110,21 @@ export function registerAiToolRoutes(app: Express): void {
           .orderBy(desc(coverageSnapshots.fetchedAt))
           .limit(200);
         const readiness = clinicalRuntimeReadiness();
+        const hasLiveCoverage = snapshots.some(
+          (snapshot) => !isEducationalBaselineSnapshot(snapshot),
+        );
         response.setHeader("X-Request-Id", id).json({
-          snapshots,
+          snapshots: snapshots.map((snapshot) => ({
+            ...snapshot,
+            educationalBaseline: isEducationalBaselineSnapshot(snapshot),
+          })),
           operationMode: clinicalOperationMode(),
           required: true,
           allowsDocumentUpload: readiness.ready,
           runtimeReady: readiness.ready,
           missingControls: readiness.missingControls,
+          usingEducationalBaseline:
+            snapshots.length > 0 && !hasLiveCoverage,
         });
       } catch (error) {
         safeError(response, error, id);

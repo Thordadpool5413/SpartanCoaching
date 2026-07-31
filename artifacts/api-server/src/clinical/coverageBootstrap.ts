@@ -1,18 +1,22 @@
-import { desc, isNull } from "drizzle-orm";
+import { and, desc, eq, isNull, ne } from "drizzle-orm";
 import { coverageSnapshots } from "@workspace/db";
 import { db } from "../db";
 import { sha256Value } from "../security/phiEncryption";
+
+/** Provenance for the synthetic first-boot seed — never claim CMS_MCD. */
+export const EDUCATIONAL_BASELINE_SOURCE = "EDUCATIONAL_BASELINE";
+export const EDUCATIONAL_BASELINE_DOCUMENT_ID = "SPARTAN-HOSPICE-BASELINE";
 
 /**
  * Public educational baseline for hospice LCD-oriented tools.
  * Used only when the coverage_snapshots table has no rows so PHI-mode tools
  * can run without a manual CMS sync on first deploy. Live CMS sync remains
- * preferred and overwrites via the admin sync endpoint.
+ * preferred and is selected over this seed when present.
  */
 const BASELINE_PAYLOAD = {
-  source: "Spartan educational baseline",
+  source: EDUCATIONAL_BASELINE_SOURCE,
   documentType: "lcd",
-  documentId: "SPARTAN-HOSPICE-BASELINE",
+  documentId: EDUCATIONAL_BASELINE_DOCUMENT_ID,
   title: "Hospice educational coverage baseline (public policy summary)",
   note:
     "Educational decision support only. Not a CMS LCD text, coverage determination, diagnosis, or admission decision. Replace with a live CMS MCD snapshot via /api/clinical/coverage/sync for production policy fidelity.",
@@ -40,6 +44,16 @@ const BASELINE_PAYLOAD = {
 
 let bootstrapPromise: Promise<string | null> | null = null;
 
+export function isEducationalBaselineSnapshot(snapshot: {
+  source?: string | null;
+  documentId?: string | null;
+}): boolean {
+  return (
+    snapshot.source === EDUCATIONAL_BASELINE_SOURCE ||
+    snapshot.documentId === EDUCATIONAL_BASELINE_DOCUMENT_ID
+  );
+}
+
 export async function ensureBaselineCoverageSnapshot(): Promise<string | null> {
   if (!bootstrapPromise) {
     bootstrapPromise = (async () => {
@@ -55,9 +69,9 @@ export async function ensureBaselineCoverageSnapshot(): Promise<string | null> {
         const [created] = await db
           .insert(coverageSnapshots)
           .values({
-            source: "CMS_MCD",
+            source: EDUCATIONAL_BASELINE_SOURCE,
             documentType: "lcd",
-            documentId: "SPARTAN-HOSPICE-BASELINE",
+            documentId: EDUCATIONAL_BASELINE_DOCUMENT_ID,
             version: "baseline-1",
             jurisdiction: "US",
             title: BASELINE_PAYLOAD.title,
@@ -82,7 +96,6 @@ export async function ensureBaselineCoverageSnapshot(): Promise<string | null> {
         // DB may be unavailable during unit tests without integration flag.
         return null;
       } finally {
-        // Allow a later retry if the first attempt found nothing usable.
         setTimeout(() => {
           bootstrapPromise = null;
         }, 30_000);
@@ -92,19 +105,63 @@ export async function ensureBaselineCoverageSnapshot(): Promise<string | null> {
   return bootstrapPromise;
 }
 
+/**
+ * Prefer live (non-educational) snapshots over the educational baseline.
+ */
 export async function loadLatestCoverageSnapshot() {
   await ensureBaselineCoverageSnapshot();
-  const [snapshot] = await db
+
+  const [preferred] = await db
     .select()
     .from(coverageSnapshots)
-    .where(isNull(coverageSnapshots.retiredAt))
+    .where(
+      and(
+        isNull(coverageSnapshots.retiredAt),
+        ne(coverageSnapshots.source, EDUCATIONAL_BASELINE_SOURCE),
+      ),
+    )
     .orderBy(desc(coverageSnapshots.fetchedAt))
     .limit(1);
-  if (snapshot) return snapshot;
+  if (preferred) return preferred;
+
+  const [baseline] = await db
+    .select()
+    .from(coverageSnapshots)
+    .where(
+      and(
+        isNull(coverageSnapshots.retiredAt),
+        eq(coverageSnapshots.source, EDUCATIONAL_BASELINE_SOURCE),
+      ),
+    )
+    .orderBy(desc(coverageSnapshots.fetchedAt))
+    .limit(1);
+  if (baseline) return baseline;
+
   const [any] = await db
     .select()
     .from(coverageSnapshots)
     .orderBy(desc(coverageSnapshots.fetchedAt))
     .limit(1);
   return any ?? null;
+}
+
+/** True when the only available snapshot is the educational seed. */
+export async function coverageUsesEducationalBaseline(): Promise<boolean> {
+  try {
+    const [live] = await db
+      .select({ id: coverageSnapshots.id })
+      .from(coverageSnapshots)
+      .where(
+        and(
+          isNull(coverageSnapshots.retiredAt),
+          ne(coverageSnapshots.source, EDUCATIONAL_BASELINE_SOURCE),
+        ),
+      )
+      .limit(1);
+    if (live) return false;
+    const latest = await loadLatestCoverageSnapshot();
+    return latest ? isEducationalBaselineSnapshot(latest) : false;
+  } catch {
+    return false;
+  }
 }

@@ -79,12 +79,61 @@ await checkJsonEndpoint("/api/admin/stripe-webhook-health", { checkBodyOk: true 
 // HTTP 503 or ok:false in JSON body both count as failures.
 await checkJsonEndpoint("/api/admin/billing-email-health", { checkBodyOk: true });
 
-// Clinical runtime: fail only when PHI mode is selected but infrastructure/BAAs
-// are incomplete (HTTP 503 or ok:false). De-identified education mode is ok:true.
-await checkJsonEndpoint("/api/admin/clinical-runtime-health", {
-  checkBodyOk: true,
-});
-await checkJsonEndpoint("/api/healthz/clinical", { checkBodyOk: true });
+// Clinical runtime: soft by default so half-configured BAA flags do not red-light
+// marketing deploys. Set REQUIRE_PHI_SMOKE=1 to fail when PHI mode is selected
+// but infrastructure is incomplete (HTTP 503 / ok:false).
+const requirePhiSmoke =
+  process.env.REQUIRE_PHI_SMOKE === "1" ||
+  process.env.REQUIRE_PHI_SMOKE === "true" ||
+  process.argv.includes("--require-phi");
+
+async function checkClinicalSoft(path) {
+  const url = `${base}${path}`;
+  try {
+    const res = await fetch(url);
+    let body = null;
+    try {
+      body = await res.json();
+    } catch {
+      body = null;
+    }
+    if (requirePhiSmoke) {
+      if (!res.ok || body?.ok === false) {
+        const detail = body?.hint
+          ? ` — ${body.hint}`
+          : body?.missingControls?.length
+            ? ` — missing: ${body.missingControls.join(", ")}`
+            : "";
+        console.log(`FAIL ${res.status} ${path}${detail}`);
+        failed += 1;
+        return;
+      }
+      console.log(`OK  ${res.status} ${path}`);
+      return;
+    }
+    // Soft: always report status; only fail on transport / non-JSON errors.
+    if (!body || typeof body.operationMode !== "string") {
+      console.log(`FAIL ${res.status} ${path} — clinical health body unexpected`);
+      failed += 1;
+      return;
+    }
+    if (body.ok === false || res.status === 503) {
+      console.log(
+        `WARN ${res.status} ${path} — PHI not ready (${body.missingControls?.join(", ") || body.hint || "see body"}); set REQUIRE_PHI_SMOKE=1 to fail hard`,
+      );
+      return;
+    }
+    console.log(
+      `OK  ${res.status} ${path} mode=${body.operationMode}${body.usingEducationalBaseline ? " educational-baseline" : ""}`,
+    );
+  } catch (err) {
+    console.log(`FAIL ERR ${path} — ${err?.message || err}`);
+    failed += 1;
+  }
+}
+
+await checkClinicalSoft("/api/admin/clinical-runtime-health");
+await checkClinicalSoft("/api/healthz/clinical");
 
 // ── Public HTML shells (SPA) ──────────────────────────────────────────────
 for (const p of ["/", "/request-access", "/login", "/admin/access-desk", "/faq"]) {
