@@ -171,7 +171,11 @@ describe("native AI tool acceptance", () => {
 
       if (tool.containsPhi) {
         await waitFor(() => {
-          expect(view.getByText("Ephemeral clinical workspace")).toBeTruthy();
+          // Title appends " · PHI operational" when coverage snapshots report
+          // operationMode "phi" and runtime is ready (substring / regex match).
+          expect(
+            view.getByText(/Ephemeral clinical workspace/),
+          ).toBeTruthy();
           expect(view.getByText("Acceptance LCD · v1")).toBeTruthy();
         });
       }
