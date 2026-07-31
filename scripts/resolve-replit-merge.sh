@@ -27,7 +27,9 @@ if [[ -f .git/MERGE_HEAD ]]; then
       # Current branch (usually main) wins for AiTool.tsx
       git checkout --ours -- artifacts/spartan-coaching/src/pages/AiTool.tsx || true
       # Strip any leftover conflict markers just in case
-      if grep -qE '^(<<<<<<<|=======|>>>>>>>)' artifacts/spartan-coaching/src/pages/AiTool.tsx 2>/dev/null; then
+      # Real markers: <<<<<<< / >>>>>>> / ======= (exactly 7 equals on its own line)
+      if grep -qE '^(<<<<<<<|>>>>>>>|=======)$' artifacts/spartan-coaching/src/pages/AiTool.tsx 2>/dev/null \
+        || grep -qE '^(<<<<<<< |>>>>>>> )' artifacts/spartan-coaching/src/pages/AiTool.tsx 2>/dev/null; then
         echo "Conflict markers still present — falling back to origin/main version."
         git show origin/main:artifacts/spartan-coaching/src/pages/AiTool.tsx \
           > artifacts/spartan-coaching/src/pages/AiTool.tsx
@@ -66,11 +68,27 @@ git checkout main 2>/dev/null || git checkout -B main origin/main
 git reset --hard origin/main
 git clean -fd
 
-# Drop conflict markers if any file still has them (should not after reset)
-if grep -rE '^(<<<<<<<|=======|>>>>>>>)' --include='*.tsx' --include='*.ts' artifacts lib 2>/dev/null | head -5; then
-  echo "WARNING: conflict markers still found after reset — investigate."
+# Real git conflict markers only (not decorative ===== comment banners in routes.ts).
+# Matches: "<<<<<<< anything", ">>>>>>> anything", or a line that is exactly "======="
+if git grep -nE '^(<<<<<<<|>>>>>>>|=======)$' -- \
+  ':(glob)artifacts/**/*.{ts,tsx}' ':(glob)lib/**/*.{ts,tsx}' 2>/dev/null \
+  | head -20; then
+  # Also check markers with a label after the chevrons (<<<<<<< HEAD)
+  if git grep -nE '^(<<<<<<< |>>>>>>> )' -- \
+    ':(glob)artifacts/**/*.{ts,tsx}' ':(glob)lib/**/*.{ts,tsx}' 2>/dev/null \
+    | head -20; then
+    echo "WARNING: real conflict markers still found after reset — investigate."
+    exit 1
+  fi
+fi
+
+if git grep -nE '^(<<<<<<< |>>>>>>> )' -- \
+  ':(glob)artifacts/**/*.{ts,tsx}' ':(glob)lib/**/*.{ts,tsx}' 2>/dev/null \
+  | head -5; then
+  echo "WARNING: real conflict markers still found after reset — investigate."
   exit 1
 fi
 
 echo "OK: clean tree at $(git rev-parse --short HEAD) ($(git log -1 --format=%s))"
+echo "(Decorative ===== comment lines in source are NOT merge conflicts.)"
 git status -sb
