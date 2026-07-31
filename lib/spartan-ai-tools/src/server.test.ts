@@ -107,7 +107,9 @@ describe("Spartan AI tool runner boundaries", () => {
     vi.stubEnv("OPENAI_MODIFIED_RETENTION_CONFIRMED", "true");
     vi.stubEnv("GOOGLE_CLOUD_BAA_CONFIRMED", "true");
     vi.stubEnv("PHI_STORAGE_BAA_CONFIRMED", "true");
-    // All BAAs true → PHI mode; still fails without a provider key (proves gates passed)
+    // CI sets a placeholder OPENAI_API_KEY; clear it so this assertion is
+    // deterministic (gates passed → fail at missing provider, not fake-key auth).
+    vi.stubEnv("OPENAI_API_KEY", "");
     await expect(
       runSpartanAiTool("medicare-lcd-advisor", {
         diagnosis: "Example",
