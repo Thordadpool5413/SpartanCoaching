@@ -6,7 +6,7 @@
  * rather than silently serving an incomplete API response.
  */
 import { describe, it, expect } from "vitest";
-import { eventAnalyticsSchema } from "@workspace/db";
+import { eventAnalyticsSchema } from "@workspace/db/schema";
 
 const VALID_ANALYTICS = {
   aiToolUsage: [{ eventName: "playbook", count: 3 }],

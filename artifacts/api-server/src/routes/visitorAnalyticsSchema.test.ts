@@ -6,7 +6,7 @@
  * rather than silently serving an incomplete API response.
  */
 import { describe, it, expect } from "vitest";
-import { visitorAnalyticsSchema } from "@workspace/db";
+import { visitorAnalyticsSchema } from "@workspace/db/schema";
 
 const VALID_ANALYTICS = {
   day: 10,
