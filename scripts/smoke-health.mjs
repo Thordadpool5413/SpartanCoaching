@@ -79,6 +79,13 @@ await checkJsonEndpoint("/api/admin/stripe-webhook-health", { checkBodyOk: true 
 // HTTP 503 or ok:false in JSON body both count as failures.
 await checkJsonEndpoint("/api/admin/billing-email-health", { checkBodyOk: true });
 
+// Clinical runtime: fail only when PHI mode is selected but infrastructure/BAAs
+// are incomplete (HTTP 503 or ok:false). De-identified education mode is ok:true.
+await checkJsonEndpoint("/api/admin/clinical-runtime-health", {
+  checkBodyOk: true,
+});
+await checkJsonEndpoint("/api/healthz/clinical", { checkBodyOk: true });
+
 // ── Public HTML shells (SPA) ──────────────────────────────────────────────
 for (const p of ["/", "/request-access", "/login", "/admin/access-desk", "/faq"]) {
   const url = `${base}${p}`;

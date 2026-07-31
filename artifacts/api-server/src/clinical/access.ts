@@ -1,8 +1,13 @@
 import type { NextFunction, Response } from "express";
-import { and, eq, isNull } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { clinicalPermissions, clientSessions } from "@workspace/db";
 import { db } from "../db";
 import type { AuthedRequest } from "../auth/middleware";
+import {
+  clinicalRuntimeReadiness,
+  resolveClinicalOperationMode,
+  type ClinicalOperationMode,
+} from "./runtimeReadiness";
 
 export type ClinicalAccess = {
   canUse: boolean;
@@ -10,12 +15,12 @@ export type ClinicalAccess = {
   canAdmin: boolean;
 };
 
-export type ClinicalOperationMode = "deidentified" | "phi";
+export type { ClinicalOperationMode };
 
 export function clinicalOperationMode(
   environment: NodeJS.ProcessEnv = process.env,
 ): ClinicalOperationMode {
-  return environment.CLINICAL_OPERATION_MODE === "phi" ? "phi" : "deidentified";
+  return resolveClinicalOperationMode(environment);
 }
 
 export function isPhiClinicalMode(
@@ -24,18 +29,33 @@ export function isPhiClinicalMode(
   return clinicalOperationMode(environment) === "phi";
 }
 
+function isOrgClinicalAdmin(role: string | undefined): boolean {
+  return role === "org_admin" || role === "platform_admin";
+}
+
+/**
+ * Resolve clinical tool access for the current Field Kit member.
+ *
+ * De-identified mode: all entitled Field Kit members may use clinical education tools.
+ * PHI mode: explicit permission rows win (including revokes). When no row exists and
+ * the PHI runtime is fully ready (BAAs + infrastructure), entitled members receive
+ * operational canUse access so production is not blocked on manual grants. Org and
+ * platform admins also receive review/admin when auto-granted.
+ */
 export async function resolveClinicalAccess(
   request: AuthedRequest,
 ): Promise<ClinicalAccess | null> {
   const member = request.fieldKit?.member;
   if (!member || !request.clientMemberId) return null;
+
   if (!isPhiClinicalMode()) {
     return {
       canUse: true,
       canReview: false,
-      canAdmin: member.role === "org_admin" || member.role === "platform_admin",
+      canAdmin: isOrgClinicalAdmin(member.role),
     };
   }
+
   const [permission] = await db
     .select()
     .from(clinicalPermissions)
@@ -43,15 +63,30 @@ export async function resolveClinicalAccess(
       and(
         eq(clinicalPermissions.organizationId, member.organizationId),
         eq(clinicalPermissions.memberId, request.clientMemberId),
-        isNull(clinicalPermissions.revokedAt),
       ),
     )
     .limit(1);
-  if (!permission) return null;
+
+  if (permission) {
+    if (permission.revokedAt) return null;
+    if (!permission.canUse && !permission.canReview && !permission.canAdmin) {
+      return null;
+    }
+    return {
+      canUse: permission.canUse,
+      canReview: permission.canReview,
+      canAdmin: permission.canAdmin,
+    };
+  }
+
+  const readiness = clinicalRuntimeReadiness();
+  if (!readiness.ready) return null;
+
+  const admin = isOrgClinicalAdmin(member.role);
   return {
-    canUse: permission.canUse,
-    canReview: permission.canReview,
-    canAdmin: permission.canAdmin,
+    canUse: true,
+    canReview: admin,
+    canAdmin: admin,
   };
 }
 

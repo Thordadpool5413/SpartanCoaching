@@ -43,3 +43,16 @@ Use this after deploys and when clearing the security release gate.
 - [ ] Customer Portal allows cancel at period end.
 - [ ] Access Desk activate client still works for **comp / offline** orgs (`billing_plan=comp` or no Stripe).
 - [ ] Access Desk activate client → membership email received.
+
+## Clinical / AI tools (PHI production)
+
+When BAAs are signed and you want live PHI mode (auto when the five confirmation
+flags are `true`; see `docs/ai-tools-production-runbook.md`):
+
+- [ ] Set: `HIPAA_PHI_ENABLED`, `OPENAI_BAA_CONFIRMED`, `OPENAI_MODIFIED_RETENTION_CONFIRMED`, `GOOGLE_CLOUD_BAA_CONFIRMED`, `PHI_STORAGE_BAA_CONFIRMED` all to `true`.
+- [ ] Set runtime: `AI_TOOL_ENCRYPTION_KEY`, `CLINICAL_EPHEMERAL_GCS_BUCKET`, `CLINICAL_FILE_SCANNER_URL` (+ recommended scanner token / `CLINICAL_GCS_BUCKET`).
+- [ ] Offline check: `node scripts/verify-clinical-production-env.mjs --require-phi` (exit 0).
+- [ ] Live check after deploy: `GET /api/admin/clinical-runtime-health` or `GET /api/healthz/clinical` returns `ok:true`, `operationMode:"phi"`, `ready:true`.
+- [ ] Or full smoke: `node scripts/smoke-health.mjs https://YOUR_HOST` (includes clinical runtime).
+- [ ] Apply DB migrations including `0002_ephemeral_clinical_tools.sql` / `pnpm --filter @workspace/db run push`.
+- [ ] Optional: replace educational coverage baseline via `/api/clinical/coverage/sync` with a live CMS MCD snapshot.

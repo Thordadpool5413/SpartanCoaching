@@ -105,9 +105,25 @@ function assertSafeInput(value: unknown): void {
   inspect(value, 0);
 }
 
+function isPhiClinicalOperationMode(
+  environment: NodeJS.ProcessEnv = process.env,
+): boolean {
+  const explicit = environment.CLINICAL_OPERATION_MODE?.trim().toLowerCase();
+  if (explicit === "deidentified") return false;
+  if (explicit === "phi") return true;
+  // Auto-enable PHI when vendor BAAs are confirmed (matches API runtime readiness).
+  return (
+    environment.HIPAA_PHI_ENABLED === "true" &&
+    environment.OPENAI_BAA_CONFIRMED === "true" &&
+    environment.OPENAI_MODIFIED_RETENTION_CONFIRMED === "true" &&
+    environment.GOOGLE_CLOUD_BAA_CONFIRMED === "true" &&
+    environment.PHI_STORAGE_BAA_CONFIRMED === "true"
+  );
+}
+
 function assertClinicalLaunchGate(tool: AiToolSpec): void {
   if (!isClinicalTool(tool)) return;
-  if (process.env.CLINICAL_OPERATION_MODE !== "phi") return;
+  if (!isPhiClinicalOperationMode()) return;
   if (process.env.HIPAA_PHI_ENABLED !== "true") {
     throw new SpartanAiToolError(
       "PHI_PROCESSING_DISABLED",
@@ -120,6 +136,20 @@ function assertClinicalLaunchGate(tool: AiToolSpec): void {
       "OPENAI_BAA_REQUIRED",
       503,
       "Clinical AI processing requires a confirmed OpenAI Business Associate Agreement.",
+    );
+  }
+  if (process.env.OPENAI_MODIFIED_RETENTION_CONFIRMED !== "true") {
+    throw new SpartanAiToolError(
+      "OPENAI_RETENTION_REQUIRED",
+      503,
+      "Clinical AI processing requires confirmed OpenAI modified retention / ZDR controls.",
+    );
+  }
+  if (process.env.GOOGLE_CLOUD_BAA_CONFIRMED !== "true") {
+    throw new SpartanAiToolError(
+      "GOOGLE_CLOUD_BAA_REQUIRED",
+      503,
+      "Clinical AI processing requires a confirmed Google Cloud Business Associate Agreement.",
     );
   }
   if (process.env.PHI_STORAGE_BAA_CONFIRMED !== "true") {

@@ -81,6 +81,24 @@ describe("Spartan AI tool runner boundaries", () => {
     ).rejects.toMatchObject({ code: "PHI_PROCESSING_DISABLED", status: 503 });
   });
 
+  it("auto-enables PHI launch gates when BAAs are confirmed without explicit mode", async () => {
+    vi.stubEnv("AI_TOOL_MEDICARE_LCD_ADVISOR", "true");
+    vi.stubEnv("HIPAA_PHI_ENABLED", "true");
+    vi.stubEnv("OPENAI_BAA_CONFIRMED", "true");
+    vi.stubEnv("OPENAI_MODIFIED_RETENTION_CONFIRMED", "true");
+    vi.stubEnv("GOOGLE_CLOUD_BAA_CONFIRMED", "true");
+    // Missing PHI_STORAGE_BAA_CONFIRMED → still blocked
+    await expect(
+      runSpartanAiTool("medicare-lcd-advisor", {
+        diagnosis: "Example",
+        question: "Example question",
+      }),
+    ).rejects.toMatchObject({
+      code: "PHI_STORAGE_BAA_REQUIRED",
+      status: 503,
+    });
+  });
+
   it("maps provider rate limits to a retryable safe error", async () => {
     vi.stubEnv("AI_TOOL_EMAIL_OPTIMIZER", "true");
     const client = {

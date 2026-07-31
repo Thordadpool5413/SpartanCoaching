@@ -278,6 +278,8 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
   );
   const [coverageRequired, setCoverageRequired] = useState(false);
   const [allowsDocumentUpload, setAllowsDocumentUpload] = useState(false);
+  const [runtimeReady, setRuntimeReady] = useState(true);
+  const [missingControls, setMissingControls] = useState<string[]>([]);
   const [confirmedDeidentified, setConfirmedDeidentified] = useState(false);
   const [challenge, setChallenge] = useState<{
     challengeId: string;
@@ -320,12 +322,16 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
           operationMode: "deidentified" | "phi";
           required: boolean;
           allowsDocumentUpload: boolean;
+          runtimeReady?: boolean;
+          missingControls?: string[];
         }>("/api/clinical/coverage/snapshots");
         if (!(await unlockClinical(snapshotResponse.operationMode))) return;
         setSnapshots(snapshotResponse.snapshots);
         setClinicalMode(snapshotResponse.operationMode);
         setCoverageRequired(snapshotResponse.required);
         setAllowsDocumentUpload(snapshotResponse.allowsDocumentUpload);
+        setRuntimeReady(snapshotResponse.runtimeReady !== false);
+        setMissingControls(snapshotResponse.missingControls ?? []);
         setSnapshotId(
           (current) => current || snapshotResponse.snapshots[0]?.id || "",
         );
@@ -758,6 +764,31 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         </View>
       )}
 
+      {tool.containsPhi && clinicalMode === "phi" && !runtimeReady && (
+        <View
+          style={[
+            styles.card,
+            { borderColor: colors.destructive, backgroundColor: colors.card },
+          ]}
+        >
+          <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
+            PHI runtime is not fully configured
+          </Text>
+          <Text style={{ color: colors.mutedForeground, lineHeight: 20 }}>
+            BAA gates may be set, but required infrastructure is still missing.
+            Clinical runs stay fail-closed until every control is present.
+          </Text>
+          {missingControls.map((control) => (
+            <Text
+              key={control}
+              style={{ color: colors.mutedForeground, marginTop: 6 }}
+            >
+              • {control}
+            </Text>
+          ))}
+        </View>
+      )}
+
       {tool.containsPhi && !needsMfa && (
         <View
           style={[
@@ -767,6 +798,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         >
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
             Ephemeral clinical workspace
+            {clinicalMode === "phi" && runtimeReady ? " · PHI operational" : ""}
           </Text>
           <Text style={{ color: colors.mutedForeground, lineHeight: 20 }}>
             {clinicalMode === "phi"
@@ -865,6 +897,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
           disabled={
             busy ||
             needsMfa ||
+            (tool.containsPhi && clinicalMode === "phi" && !runtimeReady) ||
             (tool.containsPhi && coverageRequired && !snapshotId) ||
             (tool.containsPhi &&
               clinicalMode === "deidentified" &&
@@ -878,6 +911,9 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
               opacity:
                 busy ||
                 needsMfa ||
+                (tool.containsPhi &&
+                  clinicalMode === "phi" &&
+                  !runtimeReady) ||
                 (tool.containsPhi && coverageRequired && !snapshotId) ||
                 (tool.containsPhi &&
                   clinicalMode === "deidentified" &&

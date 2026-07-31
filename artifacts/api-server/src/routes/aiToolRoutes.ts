@@ -67,6 +67,7 @@ import {
 } from "../clinical/ephemeral";
 import { findPotentialIdentifiers } from "../clinical/deidentification";
 import { clinicalRuntimeReadiness } from "../clinical/runtimeReadiness";
+import { loadLatestCoverageSnapshot } from "../clinical/coverageBootstrap";
 import {
   decryptPhi,
   encryptPhi,
@@ -322,28 +323,36 @@ async function loadCoverage(
   organizationId: number,
   snapshotId?: string,
 ): Promise<typeof coverageSnapshots.$inferSelect | null> {
-  if (!snapshotId) return null;
-  if (!UUID_PATTERN.test(snapshotId)) {
-    throw new SpartanAiToolError(
-      "INVALID_COVERAGE_SNAPSHOT",
-      400,
-      "Coverage snapshot ID is invalid.",
-    );
-  }
-  const [snapshot] = await db
-    .select()
-    .from(coverageSnapshots)
-    .where(eq(coverageSnapshots.id, snapshotId))
-    .limit(1);
-  if (!snapshot) {
-    throw new SpartanAiToolError(
-      "COVERAGE_SNAPSHOT_NOT_FOUND",
-      404,
-      "Coverage snapshot was not found.",
-    );
-  }
   void organizationId;
-  return snapshot;
+  const requested = snapshotId?.trim() ?? "";
+  if (requested) {
+    if (!UUID_PATTERN.test(requested)) {
+      throw new SpartanAiToolError(
+        "INVALID_COVERAGE_SNAPSHOT",
+        400,
+        "Coverage snapshot ID is invalid.",
+      );
+    }
+    const [snapshot] = await db
+      .select()
+      .from(coverageSnapshots)
+      .where(eq(coverageSnapshots.id, requested))
+      .limit(1);
+    if (!snapshot) {
+      throw new SpartanAiToolError(
+        "COVERAGE_SNAPSHOT_NOT_FOUND",
+        404,
+        "Coverage snapshot was not found.",
+      );
+    }
+    return snapshot;
+  }
+  // PHI mode: auto-select the newest snapshot (seeds an educational baseline
+  // when the table is empty) so tools are operational without a manual pick.
+  if (isPhiClinicalMode()) {
+    return loadLatestCoverageSnapshot();
+  }
+  return null;
 }
 
 async function loadEphemeralSession(
@@ -598,6 +607,7 @@ export function registerAiToolRoutes(app: Express): void {
           requiresCoverageSnapshot: isPhiClinicalMode(),
           allowsDocumentUpload: isPhiClinicalMode(),
           runtimeReady: clinicalReadiness.ready,
+          baasConfirmed: clinicalReadiness.baasConfirmed,
           missingControls: access?.canAdmin
             ? clinicalReadiness.missingControls
             : [],
@@ -1073,9 +1083,11 @@ export function registerAiToolRoutes(app: Express): void {
             operationMode: clinicalOperationMode(),
             required: false,
             allowsDocumentUpload: false,
+            runtimeReady: clinicalRuntimeReadiness().ready,
           });
           return;
         }
+        await loadLatestCoverageSnapshot();
         const snapshots = await db
           .select({
             id: coverageSnapshots.id,
@@ -1094,11 +1106,14 @@ export function registerAiToolRoutes(app: Express): void {
           .from(coverageSnapshots)
           .orderBy(desc(coverageSnapshots.fetchedAt))
           .limit(200);
+        const readiness = clinicalRuntimeReadiness();
         response.setHeader("X-Request-Id", id).json({
           snapshots,
           operationMode: clinicalOperationMode(),
-          required: isPhiClinicalMode(),
-          allowsDocumentUpload: isPhiClinicalMode(),
+          required: true,
+          allowsDocumentUpload: readiness.ready,
+          runtimeReady: readiness.ready,
+          missingControls: readiness.missingControls,
         });
       } catch (error) {
         safeError(response, error, id);

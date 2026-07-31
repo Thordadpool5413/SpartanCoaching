@@ -365,6 +365,8 @@ export default function AiToolPage() {
   );
   const [coverageRequired, setCoverageRequired] = useState(false);
   const [allowsDocumentUpload, setAllowsDocumentUpload] = useState(false);
+  const [runtimeReady, setRuntimeReady] = useState(true);
+  const [missingControls, setMissingControls] = useState<string[]>([]);
   const [confirmedDeidentified, setConfirmedDeidentified] = useState(false);
   const [error, setError] = useState("");
 
@@ -398,11 +400,15 @@ export default function AiToolPage() {
           operationMode: "deidentified" | "phi";
           required: boolean;
           allowsDocumentUpload: boolean;
+          runtimeReady?: boolean;
+          missingControls?: string[];
         }>("/api/clinical/coverage/snapshots");
         setSnapshots(snapshotResponse.snapshots);
         setClinicalMode(snapshotResponse.operationMode);
         setCoverageRequired(snapshotResponse.required);
         setAllowsDocumentUpload(snapshotResponse.allowsDocumentUpload);
+        setRuntimeReady(snapshotResponse.runtimeReady !== false);
+        setMissingControls(snapshotResponse.missingControls ?? []);
         setSnapshotId(
           (current) => current || snapshotResponse.snapshots[0]?.id || "",
         );
@@ -724,6 +730,33 @@ export default function AiToolPage() {
 
       {needsMfa && <MfaPanel onVerified={() => void loadData()} />}
 
+      {tool.containsPhi && clinicalMode === "phi" && !runtimeReady && (
+        <Card className="mb-6 border-destructive/40 bg-destructive/5 p-5">
+          <div className="flex gap-3">
+            <AlertCircle className="mt-0.5 h-5 w-5 text-destructive" />
+            <div>
+              <h2 className="font-semibold text-foreground">
+                PHI runtime is not fully configured
+              </h2>
+              <p className="mt-1 text-sm text-muted-foreground">
+                BAA gates may be set, but required infrastructure is still
+                missing. Clinical runs stay fail-closed until every control is
+                present.
+              </p>
+              {missingControls.length > 0 && (
+                <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
+                  {missingControls.map((control) => (
+                    <li key={control}>
+                      <code className="text-xs">{control}</code>
+                    </li>
+                  ))}
+                </ul>
+              )}
+            </div>
+          </div>
+        </Card>
+      )}
+
       <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(340px,0.9fr)]">
         <Card className="p-5 sm:p-7">
           <form onSubmit={submit} className="space-y-6">
@@ -732,6 +765,11 @@ export default function AiToolPage() {
                 <div className="flex items-center gap-2 font-semibold">
                   <ShieldCheck className="h-4 w-4 text-amber-600" />
                   Ephemeral clinical workspace
+                  {clinicalMode === "phi" && runtimeReady && (
+                    <Badge variant="outline" className="ml-1 font-normal">
+                      PHI operational
+                    </Badge>
+                  )}
                 </div>
                 <p className="text-sm text-muted-foreground">
                   {clinicalMode === "phi"
@@ -830,6 +868,9 @@ export default function AiToolPage() {
               disabled={
                 busy ||
                 needsMfa ||
+                (tool.containsPhi &&
+                  clinicalMode === "phi" &&
+                  !runtimeReady) ||
                 (tool.containsPhi && coverageRequired && !snapshotId) ||
                 (tool.containsPhi &&
                   clinicalMode === "deidentified" &&
