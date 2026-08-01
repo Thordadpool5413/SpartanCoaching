@@ -321,6 +321,43 @@ export default function Portal() {
 
       <FieldKitChrome nextHint={nextHint} />
 
+      {/* Welcome — short, then one mission action */}
+      <div className="mb-6 space-y-2">
+        <p className="text-kicker">
+          {isPaidMember ? "Field Kit board" : "Field Kit home"}
+        </p>
+        <h1 className="text-h1 font-display font-black text-foreground">
+          {isFirstSession
+            ? `Let's make this session count${firstName ? `, ${firstName}` : ""}`
+            : `Welcome back${firstName ? `, ${firstName}` : ""}`}
+        </h1>
+        {memberStatusLabel && (
+          <div
+            className="inline-flex flex-wrap items-center gap-2 text-sm font-medium text-foreground bg-card/80 border border-border/80 rounded-full px-3.5 py-2 shadow-sm"
+            data-testid={isPaidMember ? "banner-member" : "banner-trial"}
+          >
+            <Clock className="w-4 h-4 shrink-0 text-primary" />
+            <span>{memberStatusLabel}</span>
+            {isPersonalTrial && (
+              <button
+                type="button"
+                onClick={startCheckout}
+                disabled={checkoutPending}
+                className="inline-flex items-center gap-1 underline ml-1 hover:text-primary font-semibold disabled:opacity-60 text-primary cursor-pointer"
+                data-testid="portal-trial-subscribe"
+              >
+                {checkoutPending ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <CreditCard className="w-3.5 h-3.5" />
+                )}
+                Continue $14.99/wk
+              </button>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Mission control — always one clear next action */}
       <Card
         className="mb-8 border border-primary/35 bg-gradient-to-br from-primary/[0.09] via-card to-card p-5 sm:p-6 shadow-elite-red"
@@ -388,62 +425,28 @@ export default function Portal() {
         )}
       </Card>
 
-      {/* Welcome */}
-      <div className="mb-8 space-y-3">
-        <p className="text-kicker">
-          {isPaidMember ? "Field Kit board" : "Field Kit home"}
-        </p>
-        <h1 className="text-h1 font-display font-black text-foreground">
-          {isFirstSession
-            ? `Let's make this session count${firstName ? `, ${firstName}` : ""}`
-            : `Welcome back${firstName ? `, ${firstName}` : ""}`}
-        </h1>
-        <p className="text-muted-foreground max-w-2xl leading-relaxed text-body">
-          {isFirstSession
-            ? isPaidMember
-              ? "You're a member. Signal comes from real field work — start in Sales Command Center, add your next facility account (no PHI), and run the day from there."
-              : "Your evaluation produces signal when you run real field work — not when you browse every tool. Start in Sales Command Center, complete the three steps below, then book a debrief."
-            : "Run the day from Sales Command Center. Support tools and coach stay one click away."}
-        </p>
-        {memberStatusLabel && (
-          <div
-            className="inline-flex flex-wrap items-center gap-2 text-sm font-medium text-foreground bg-card/80 border border-border/80 rounded-full px-3.5 py-2 shadow-sm"
-            data-testid={isPaidMember ? "banner-member" : "banner-trial"}
-          >
-            <Clock className="w-4 h-4 shrink-0 text-primary" />
-            <span>{memberStatusLabel}</span>
-            {isPersonalTrial && (
-              <button
-                type="button"
-                onClick={startCheckout}
-                disabled={checkoutPending}
-                className="inline-flex items-center gap-1 underline ml-1 hover:text-primary font-semibold disabled:opacity-60 text-primary"
-                data-testid="portal-trial-subscribe"
-              >
-                {checkoutPending ? (
-                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                ) : (
-                  <CreditCard className="w-3.5 h-3.5" />
-                )}
-                Continue $14.99/wk
-              </button>
-            )}
-            {organization?.status === "trial" && (
-              <Link
-                href="/contact?service=Field+Kit+Debrief"
-                className="underline ml-1 hover:text-primary font-semibold text-primary"
-              >
-                Book a debrief
-              </Link>
-            )}
-            {organization?.status === "trial" && (
-              <Link href="/account" className="underline ml-1 hover:text-primary font-semibold text-primary">
-                Account
-              </Link>
-            )}
-          </div>
+      <p className="text-muted-foreground max-w-2xl leading-relaxed text-body mb-8 -mt-2">
+        {isFirstSession
+          ? isPaidMember
+            ? "You're a member. Signal comes from real field work — start in Sales Command Center, add your next facility account (no PHI), and run the day from there."
+            : "Your evaluation produces signal when you run real field work — not when you browse every tool. Start in Sales Command Center, complete the three steps below, then book a debrief."
+          : "Run the day from Sales Command Center. Support tools stay one click away."}
+        {organization?.status === "trial" && (
+          <>
+            {" "}
+            <Link
+              href="/contact?service=Field+Kit+Debrief"
+              className="underline hover:text-primary font-semibold text-primary"
+            >
+              Book a debrief
+            </Link>
+            {" · "}
+            <Link href="/account" className="underline hover:text-primary font-semibold text-primary">
+              Account
+            </Link>
+          </>
         )}
-      </div>
+      </p>
 
       {/* Daily spine — Sales Command Center */}
       <Card

@@ -490,9 +490,16 @@ export function ChatWidget() {
     return null;
   }
 
-  // Quiet member OS + conversion/auth shells (no floating chat over product)
+  // Quiet member OS + primary conversion shells.
+  // On Home / services / programs, StickyBookCall owns the single floating CTA
+  // (coaching-first) — no competing chat FAB.
   if (
     canUseFieldKit ||
+    location === "/" ||
+    location === "/services" ||
+    location === "/programs" ||
+    location === "/about" ||
+    location === "/contact" ||
     location === "/portal" ||
     location.startsWith("/portal") ||
     location.startsWith("/tools") ||

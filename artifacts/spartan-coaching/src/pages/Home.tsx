@@ -183,10 +183,10 @@ export default function Home() {
               },
               {
                 icon: Wrench,
-                title: "Field execution support",
-                desc: "Optional private tools between coaching sessions — for clients who want structure in the week, not a product pitch as the whole offer.",
-                href: "/services",
-                cta: "See how we work",
+                title: "Field Kit membership",
+                desc: "Private execution tools between coaching sessions — objections, plans, role-play, Command Center. Preview free; live use from $14.99/week.",
+                href: "/field-kit",
+                cta: "Preview Field Kit",
               },
             ].map((p) => {
               const Icon = p.icon;
@@ -207,7 +207,13 @@ export default function Home() {
             })}
           </StaggerContainer>
           <FadeIn>
-            <div className="text-center mt-10">
+            <div className="text-center mt-10 flex flex-col sm:flex-row gap-3 justify-center">
+              <Button asChild className="font-bold" data-testid="button-pillars-contact">
+                <Link href="/contact">
+                  Book a strategy call
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Link>
+              </Button>
               <Button asChild variant="outline" className="font-bold border-2">
                 <Link href="/method">
                   See the Spartan Method
@@ -219,7 +225,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 5. OUTCOMES (compact) ── */}
+      {/* ── 5. PROOF + OUTCOMES ── */}
       <section className="relative bg-background py-16 sm:py-20" data-testid="section-results">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <FadeIn>
@@ -230,15 +236,19 @@ export default function Home() {
               </h2>
             </div>
           </FadeIn>
-          <StaggerContainer className="grid md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-10">
+          <StaggerContainer className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto mb-10">
             {[
               {
-                title: "Clarity and follow-through",
-                text: "Priority accounts become clear. Follow-up stops slipping. Weekly focus holds when the week is hard.",
+                title: "Priority accounts get clear",
+                text: "Reps stop spraying activity. The week has a plan, a next ask, and a debrief loop.",
               },
               {
-                title: "Better next steps",
-                text: "Conversations move. Post-visit plans stick. Leaders coach one skill at a time instead of firefighting.",
+                title: "Objections stop freezing the room",
+                text: "Preferred hospice, not ready, insurance fear — practiced answers that still sound like the rep.",
+              },
+              {
+                title: "Leaders coach one skill at a time",
+                text: "Directors replace firefighting with a shared spine: Command Center, weekly plans, activity math.",
               },
             ].map((c) => (
               <StaggerItem key={c.title}>
@@ -250,6 +260,37 @@ export default function Home() {
             ))}
           </StaggerContainer>
           <FadeIn>
+            <div
+              className="grid sm:grid-cols-2 gap-4 max-w-4xl mx-auto mb-10"
+              data-testid="section-proof-quotes"
+            >
+              {[
+                {
+                  quote:
+                    "We finally had a shared language for hard conversations — not another binder no one opens.",
+                  who: "Director of Growth",
+                  where: "Multi-site hospice provider",
+                },
+                {
+                  quote:
+                    "Tuesday stopped being chaos. I know who to call first and what to say when they push back.",
+                  who: "Hospice liaison",
+                  where: "Field sales",
+                },
+              ].map((q) => (
+                <Card
+                  key={q.who}
+                  className="border border-border bg-card p-6 h-full flex flex-col"
+                >
+                  <p className="text-sm sm:text-base text-foreground leading-relaxed flex-1 italic">
+                    “{q.quote}”
+                  </p>
+                  <p className="mt-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
+                    {q.who} · {q.where}
+                  </p>
+                </Card>
+              ))}
+            </div>
             <div className="flex flex-wrap justify-center gap-3 max-w-3xl mx-auto mb-8">
               {[
                 "Hospice-specific, not generic sales training",
@@ -305,13 +346,20 @@ export default function Home() {
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="font-bold border-2" data-testid="button-closing-services">
-                <Link href="/services">View coaching services</Link>
-              </Button>
-              <Button size="lg" variant="ghost" asChild className="font-bold" data-testid="button-closing-method">
-                <Link href="/method">See the Spartan Method</Link>
+              <Button size="lg" variant="outline" asChild className="font-bold border-2" data-testid="button-closing-field-kit">
+                <Link href="/field-kit">Preview Field Kit</Link>
               </Button>
             </div>
+            <p className="mt-6 text-sm text-muted-foreground">
+              Prefer detail first?{" "}
+              <Link href="/services" className="font-semibold text-primary hover:underline" data-testid="button-closing-services">
+                View coaching services
+              </Link>
+              {" · "}
+              <Link href="/method" className="font-semibold text-primary hover:underline" data-testid="button-closing-method">
+                Spartan Method
+              </Link>
+            </p>
           </div>
         </FadeIn>
       </section>

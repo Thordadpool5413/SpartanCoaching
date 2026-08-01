@@ -16,6 +16,7 @@ import {
   LogIn,
   KeyRound,
   BrainCircuit,
+  Crosshair,
 } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -37,6 +38,7 @@ import {
 } from "@/lib/fieldKitCatalog";
 
 const TOOL_ICONS: Record<string, ReactNode> = {
+  "sales-workflow": <Crosshair className="w-8 h-8" />,
   playbooks: <LightbulbIcon className="w-8 h-8" />,
   objections: <ChatIcon className="w-8 h-8" />,
   research: <CustomSearchIcon className="w-8 h-8" />,
@@ -57,6 +59,24 @@ const SAMPLE_OBJECTION = {
   response:
     "I hear you — and many families feel that way at first. Hospice is not about giving up; it is about adding a team that supports comfort and clarity. Would it help if we walked through what support could look like while you keep the options that still matter to you?",
 };
+
+/** Daily field tools — prioritized above calculators */
+const DAILY_TOOL_IDS = [
+  "sales-workflow",
+  "objections",
+  "playbooks",
+  "role-play",
+  "weekly-plan",
+  "cold-call",
+  "email-templates",
+] as const;
+
+const LEADER_TOOL_IDS = [
+  "activity-calculator",
+  "roi",
+  "rep-cost",
+  "branch",
+] as const;
 
 export default function Tools() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -178,38 +198,6 @@ export default function Tools() {
         </div>
       </SlideUp>
 
-      <SlideUp delay={0.05}>
-          <Card
-            className="mb-10 border border-primary/35 bg-gradient-to-br from-primary/[0.08] to-card p-5 sm:p-6 shadow-elite-red"
-            data-testid="advanced-ai-tools-library"
-          >
-            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
-              <div className="flex gap-3.5 min-w-0">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-primary/12 text-primary ring-1 ring-primary/15">
-                  <BrainCircuit className="h-5 w-5" />
-                </div>
-                <div>
-                  <div className="flex flex-wrap items-center gap-2">
-                    <h2 className="text-base font-display font-bold text-foreground tracking-tight">
-                      AI Tool Library
-                    </h2>
-                    <Badge variant="secondary">14 AI tools</Badge>
-                  </div>
-                  <p className="mt-0.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                    Content, learning, sales, and permission-controlled clinical workflows. Preview every
-                    tool now; live generation unlocks with authorized Field Kit access.
-                  </p>
-                </div>
-              </div>
-              <Button asChild variant="outline" className="shrink-0 font-bold">
-                <Link href="/tools/ai">
-                  View all 14 AI tools <ArrowRight className="ml-2 h-4 w-4" />
-                </Link>
-              </Button>
-            </div>
-          </Card>
-        </SlideUp>
-
       {showCatalogGate && (
         <SlideUp delay={0.05}>
           <Card className="mb-10 border border-primary/35 bg-gradient-to-br from-primary/[0.08] to-card p-6 sm:p-8 shadow-elite-red" data-testid="tools-access-banner">
@@ -287,18 +275,140 @@ export default function Tools() {
       </SlideUp>
 
       {!searchQuery.trim() ? (
-        <div className="space-y-10">
-          {Array.from(byCategory.entries()).map(([cat, items]) => (
-            <section key={cat} data-testid={`tools-category-${cat.toLowerCase()}`}>
-              <div className="flex items-end justify-between gap-3 mb-5 border-b border-border/60 pb-3">
-                <h2 className="text-xl font-display font-bold text-foreground tracking-tight">{cat}</h2>
-                <span className="text-xs font-semibold text-muted-foreground tabular-nums">{items.length}</span>
+        <div className="space-y-12">
+          {/* Hero: Command Center */}
+          {(() => {
+            const command = filteredTools.find((t) => t.id === "sales-workflow");
+            if (!command) return null;
+            const locked = showCatalogGate && !command.public;
+            return (
+              <section data-testid="tools-hero-command">
+                <Card className="border border-primary/40 bg-gradient-to-br from-primary/[0.1] via-card to-card p-6 sm:p-8 shadow-elite-red overflow-hidden relative">
+                  <div className="relative flex flex-col lg:flex-row lg:items-center gap-6 justify-between">
+                    <div className="flex gap-4 min-w-0">
+                      <div className="p-3.5 rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/30 shrink-0">
+                        {TOOL_ICONS["sales-workflow"] ?? <Calculator className="w-8 h-8" />}
+                      </div>
+                      <div className="space-y-2">
+                        <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
+                          Daily operating system
+                        </p>
+                        <h2 className="text-2xl sm:text-3xl font-display font-black text-foreground tracking-tight">
+                          {command.title}
+                        </h2>
+                        <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-2xl">
+                          {command.description} Plan the call, practice if needed, capture the outcome,
+                          lock the next step.
+                        </p>
+                        <div className="flex flex-wrap gap-2 pt-1">
+                          {["Prepare", "Practice", "Capture", "Next step"].map((s) => (
+                            <span
+                              key={s}
+                              className="text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-md border border-border bg-background/60"
+                            >
+                              {s}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <Button asChild size="lg" className="font-bold shrink-0">
+                      <Link href={command.path} data-testid="button-tools-command-center">
+                        {locked ? "Preview Command Center" : "Open Command Center"}
+                        <ArrowRight className="ml-2 w-4 h-4" />
+                      </Link>
+                    </Button>
+                  </div>
+                </Card>
+              </section>
+            );
+          })()}
+
+          {/* Daily field tools */}
+          <section data-testid="tools-daily">
+            <div className="flex items-end justify-between gap-3 mb-5 border-b border-border/60 pb-3">
+              <div>
+                <h2 className="text-xl font-display font-bold text-foreground tracking-tight">
+                  Daily field tools
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  The tools reps open before and after visits
+                </p>
               </div>
-              <StaggerContainer className="grid md:grid-cols-2 gap-5">
-                {items.map((tool, idx) => renderCard(tool, idx))}
-              </StaggerContainer>
-            </section>
-          ))}
+            </div>
+            <StaggerContainer className="grid md:grid-cols-2 gap-5">
+              {filteredTools
+                .filter((t) => (DAILY_TOOL_IDS as readonly string[]).includes(t.id) && t.id !== "sales-workflow")
+                .map((tool, idx) => renderCard(tool, idx))}
+            </StaggerContainer>
+          </section>
+
+          {/* Leader math */}
+          <section data-testid="tools-leaders">
+            <div className="flex items-end justify-between gap-3 mb-5 border-b border-border/60 pb-3">
+              <div>
+                <h2 className="text-xl font-display font-bold text-foreground tracking-tight">
+                  For directors &amp; leaders
+                </h2>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Activity, economics, and branch runway
+                </p>
+              </div>
+            </div>
+            <StaggerContainer className="grid md:grid-cols-2 gap-5">
+              {filteredTools
+                .filter((t) => (LEADER_TOOL_IDS as readonly string[]).includes(t.id))
+                .map((tool, idx) => renderCard(tool, idx + 20))}
+            </StaggerContainer>
+          </section>
+
+          {/* Remaining by category */}
+          {Array.from(byCategory.entries()).map(([cat, items]) => {
+            const rest = items.filter(
+              (t) =>
+                !(DAILY_TOOL_IDS as readonly string[]).includes(t.id) &&
+                !(LEADER_TOOL_IDS as readonly string[]).includes(t.id),
+            );
+            if (!rest.length) return null;
+            return (
+              <section key={cat} data-testid={`tools-category-${cat.toLowerCase()}`}>
+                <div className="flex items-end justify-between gap-3 mb-5 border-b border-border/60 pb-3">
+                  <h2 className="text-xl font-display font-bold text-foreground tracking-tight">{cat}</h2>
+                  <span className="text-xs font-semibold text-muted-foreground tabular-nums">{rest.length}</span>
+                </div>
+                <StaggerContainer className="grid md:grid-cols-2 gap-5">
+                  {rest.map((tool, idx) => renderCard(tool, idx + 40))}
+                </StaggerContainer>
+              </section>
+            );
+          })}
+
+          {/* Advanced library — de-emphasized footer of catalog */}
+          <section data-testid="advanced-ai-tools-library">
+            <Card className="border border-border bg-card p-5 sm:p-6">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="flex gap-3.5 min-w-0">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground ring-1 ring-border">
+                    <BrainCircuit className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <h2 className="text-base font-display font-bold text-foreground tracking-tight">
+                      Advanced library
+                    </h2>
+                    <p className="mt-0.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
+                      Specialized AI workflows and permission-controlled clinical tools — secondary to
+                      your daily Field Kit.
+                    </p>
+                  </div>
+                </div>
+                <Button asChild variant="outline" className="shrink-0 font-bold">
+                  <Link href="/tools/ai">
+                    Open advanced library <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+            </Card>
+          </section>
         </div>
       ) : (
         <StaggerContainer className="grid md:grid-cols-2 gap-5">

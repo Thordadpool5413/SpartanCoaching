@@ -187,6 +187,61 @@ export default function FieldKit() {
         </div>
       </div>
 
+      {/* ── WHO IT'S FOR ── */}
+      <section className="py-14 sm:py-16 bg-background" data-testid="section-audience-split">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <div className="text-center mb-10 space-y-3">
+            <p className="text-kicker">Built for both</p>
+            <h2 className="text-h2 text-foreground">Reps run Tuesday. Leaders coach the system.</h2>
+          </div>
+          <div className="grid md:grid-cols-2 gap-5">
+            <Card className="border border-border bg-card p-6 sm:p-7 space-y-4 h-full">
+              <div className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-bold text-primary uppercase tracking-wider">
+                Field reps
+              </div>
+              <h3 className="text-xl font-display font-bold text-foreground">Walk in prepared</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Objection Handler, Role-Play, Command Center, Weekly Plan, cold-call and email tools —
+                built for the SNF door, the physician office, and the family conversation.
+              </p>
+              <ul className="space-y-2 text-sm text-foreground">
+                {["One clear ask before every visit", "Practice the hard line once", "Same-day follow-up that stays warm"].map(
+                  (line) => (
+                    <li key={line} className="flex gap-2">
+                      <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                      <span>{line}</span>
+                    </li>
+                  ),
+                )}
+              </ul>
+            </Card>
+            <Card className="border border-border bg-card p-6 sm:p-7 space-y-4 h-full">
+              <div className="inline-flex items-center gap-2 rounded-full border border-border bg-muted/50 px-3 py-1 text-xs font-bold text-muted-foreground uppercase tracking-wider">
+                Directors &amp; leaders
+              </div>
+              <h3 className="text-xl font-display font-bold text-foreground">Coach from the same spine</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                Activity Calculator, ROI, Branch Profitability, and Command Center debriefs —
+                so growth conversations stay on Tuesday behavior, not slide decks.
+              </p>
+              <ul className="space-y-2 text-sm text-foreground">
+                {["Goals → daily conversation targets", "Shared language with the field team", "Team seats under provider agreement"].map(
+                  (line) => (
+                    <li key={line} className="flex gap-2">
+                      <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                      <span>{line}</span>
+                    </li>
+                  ),
+                )}
+              </ul>
+              <Button asChild variant="outline" size="sm" className="font-bold w-fit">
+                <Link href="/request-access">Request team access</Link>
+              </Button>
+            </Card>
+          </div>
+        </div>
+      </section>
+
       {/* ── BEFORE / AFTER ── */}
       <section className="py-16 sm:py-20 bg-background" data-testid="section-before-after">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
