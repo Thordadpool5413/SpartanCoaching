@@ -49,6 +49,8 @@ jobs:
       DATABASE_URL: "postgres://ci:ci@localhost:5432/ci"
       RUN_POSTGRES_INTEGRATION: "true"
       AI_TOOL_ENCRYPTION_KEY: "BwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwcHBwc="
+      # Non-secret stand-in only. Product code rejects placeholder keys as
+      # PROVIDER_NOT_CONFIGURED (never attempts live OpenAI calls in CI).
       OPENAI_API_KEY: "ci-placeholder-no-network-calls"
       EXPO_PUBLIC_DOMAIN: "spartan-coaching-ci.invalid"
     steps:

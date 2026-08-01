@@ -2,6 +2,7 @@ import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 import type { ZodType } from "zod";
 import { isPhiClinicalOperationMode } from "./clinical-runtime";
+import { isUsableOpenAiApiKey } from "./provider-config";
 import {
   getSpartanAiTool,
   isClinicalTool,
@@ -282,7 +283,7 @@ export async function runSpartanAiTool(
       ? runTerritory(parsed.data)
       : await (async () => {
           const apiKey = options.apiKey ?? process.env.OPENAI_API_KEY;
-          if (!options.client && !apiKey) {
+          if (!options.client && !isUsableOpenAiApiKey(apiKey)) {
             throw new SpartanAiToolError(
               "PROVIDER_NOT_CONFIGURED",
               503,

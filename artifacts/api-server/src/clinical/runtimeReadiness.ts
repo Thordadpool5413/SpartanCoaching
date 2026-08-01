@@ -1,5 +1,6 @@
 import {
   clinicalBaasConfirmed,
+  isUsableOpenAiApiKey,
   resolveClinicalOperationMode,
   PHI_CONFIRMATION_GATES,
   type ClinicalOperationMode,
@@ -45,9 +46,13 @@ export function clinicalRuntimeReadiness(
     ...PHI_CONFIRMATION_GATES.filter(
       (name) => environment[name] !== "true",
     ),
-    ...PHI_RUNTIME_CONFIGURATION.filter(
-      (name) => !environment[name]?.trim(),
-    ),
+    ...PHI_RUNTIME_CONFIGURATION.filter((name) => {
+      const value = environment[name];
+      if (name === "OPENAI_API_KEY") {
+        return !isUsableOpenAiApiKey(value);
+      }
+      return !value?.trim();
+    }),
   ];
   return {
     operationMode,

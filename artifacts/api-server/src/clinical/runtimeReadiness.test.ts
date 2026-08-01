@@ -82,4 +82,13 @@ describe("clinical runtime readiness", () => {
       baasConfirmed: true,
     });
   });
+
+  it("treats CI placeholder OpenAI keys as a missing runtime control", () => {
+    const readiness = clinicalRuntimeReadiness({
+      ...readyPhiEnvironment,
+      OPENAI_API_KEY: "ci-placeholder-no-network-calls",
+    });
+    expect(readiness.ready).toBe(false);
+    expect(readiness.missingControls).toContain("OPENAI_API_KEY");
+  });
 });

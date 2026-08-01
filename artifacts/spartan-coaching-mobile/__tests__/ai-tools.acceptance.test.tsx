@@ -212,8 +212,10 @@ describe("native AI tool acceptance", () => {
           });
         }
       });
-      expect(view.getByText("acceptance")).toBeTruthy();
-      expect(view.getByText("passed")).toBeTruthy();
+      await waitFor(() => {
+        expect(view.getByText("acceptance")).toBeTruthy();
+        expect(view.getByText("passed")).toBeTruthy();
+      });
     },
   );
 });

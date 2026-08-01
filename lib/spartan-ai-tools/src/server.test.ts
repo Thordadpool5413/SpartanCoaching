@@ -107,9 +107,9 @@ describe("Spartan AI tool runner boundaries", () => {
     vi.stubEnv("OPENAI_MODIFIED_RETENTION_CONFIRMED", "true");
     vi.stubEnv("GOOGLE_CLOUD_BAA_CONFIRMED", "true");
     vi.stubEnv("PHI_STORAGE_BAA_CONFIRMED", "true");
-    // CI sets a placeholder OPENAI_API_KEY; clear it so this assertion is
-    // deterministic (gates passed → fail at missing provider, not fake-key auth).
-    vi.stubEnv("OPENAI_API_KEY", "");
+    // Even CI's non-secret stand-in must fail closed as not configured
+    // (not PROVIDER_AUTH from a doomed network call).
+    vi.stubEnv("OPENAI_API_KEY", "ci-placeholder-no-network-calls");
     await expect(
       runSpartanAiTool("medicare-lcd-advisor", {
         diagnosis: "Example",
@@ -119,6 +119,31 @@ describe("Spartan AI tool runner boundaries", () => {
       code: "PROVIDER_NOT_CONFIGURED",
       status: 503,
     });
+  });
+
+  it("treats missing and placeholder OpenAI keys as not configured", async () => {
+    vi.stubEnv("AI_TOOL_EMAIL_OPTIMIZER", "true");
+    vi.stubEnv("OPENAI_API_KEY", "");
+    await expect(
+      runSpartanAiTool("email-optimizer", {
+        prospectType: "Hospital",
+        situation: "Follow-up after meeting",
+        objective: "Schedule education",
+        tone: "warm",
+        includeSequence: false,
+      }),
+    ).rejects.toMatchObject({ code: "PROVIDER_NOT_CONFIGURED", status: 503 });
+
+    vi.stubEnv("OPENAI_API_KEY", "ci-placeholder-no-network-calls");
+    await expect(
+      runSpartanAiTool("email-optimizer", {
+        prospectType: "Hospital",
+        situation: "Follow-up after meeting",
+        objective: "Schedule education",
+        tone: "warm",
+        includeSequence: false,
+      }),
+    ).rejects.toMatchObject({ code: "PROVIDER_NOT_CONFIGURED", status: 503 });
   });
 
   it("maps provider rate limits to a retryable safe error", async () => {

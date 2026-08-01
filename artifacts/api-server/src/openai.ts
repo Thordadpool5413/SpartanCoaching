@@ -1,11 +1,12 @@
 import OpenAI from "openai";
+import { isUsableOpenAiApiKey } from "@workspace/spartan-ai-tools";
 
 let openaiClient: OpenAI | null = null;
 
 function getOpenAI(): OpenAI {
   if (openaiClient) return openaiClient;
   const apiKey = process.env.OPENAI_API_KEY?.trim();
-  if (!apiKey) {
+  if (!isUsableOpenAiApiKey(apiKey)) {
     throw new Error("AI service is not configured.");
   }
   openaiClient = new OpenAI({
