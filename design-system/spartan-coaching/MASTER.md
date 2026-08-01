@@ -60,3 +60,11 @@
 - Web tokens: `artifacts/spartan-coaching/src/index.css`, `tailwind.config.ts`, `lib/theme.ts`  
 - Shells: `Layout.tsx`, `FieldKitToolLayout.tsx`, `Portal.tsx`, `Tools.tsx`  
 - Primitives: `components/ui/button.tsx`, `card.tsx`, `empty.tsx`, `ToolResultPanel.tsx`  
+- Advanced library: `AiToolsHub.tsx` (Field AI vs Clinical vault)  
+- AI tool run: `AiTool.tsx` (no Field Kit chrome in PHI; vault banner; result panel)  
+
+## Wave status
+
+- Waves 0–2: marketing + member shell shipped  
+- Wave 3: AI hub + clinical vault UI shipped  
+- Waves 4–5: deferred (mobile elite pass, deep motion/a11y)  

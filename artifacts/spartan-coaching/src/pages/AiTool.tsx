@@ -9,9 +9,7 @@ import { Link, useLocation, useParams } from "wouter";
 import {
   AlertCircle,
   ArrowLeft,
-  CheckCircle2,
   Clock3,
-  Copy,
   Download,
   FileUp,
   Loader2,
@@ -34,7 +32,9 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
+import { ToolResultPanel } from "@/components/ToolResultPanel";
 import { SEO } from "@/components/SEO";
+import { cn } from "@/lib/utils";
 
 type ApiErrorBody = {
   error?: { code?: string; message?: string; retryable?: boolean };
@@ -70,6 +70,34 @@ function isEducationalCoverage(snapshot: CoverageSnapshot | undefined): boolean 
     snapshot.source === "EDUCATIONAL_BASELINE" ||
     snapshot.documentId === "SPARTAN-HOSPICE-BASELINE"
   );
+}
+
+function errorNextSteps(code: string): { label: string; href?: string; retry?: boolean }[] {
+  const upper = code.toUpperCase();
+  if (
+    upper.includes("PROVIDER_NOT_CONFIGURED") ||
+    upper.includes("BAA") ||
+    upper.includes("PHI_") ||
+    upper.includes("RUNTIME")
+  ) {
+    return [
+      { label: "Retry", retry: true },
+      { label: "Contact support", href: "/contact" },
+    ];
+  }
+  if (upper.includes("AUTH") || upper.includes("401") || upper.includes("403")) {
+    return [
+      { label: "Sign in", href: "/login" },
+      { label: "Account", href: "/account" },
+    ];
+  }
+  if (upper.includes("RATE") || upper.includes("TIMEOUT") || upper.includes("BUSY")) {
+    return [{ label: "Try again", retry: true }];
+  }
+  return [
+    { label: "Retry", retry: true },
+    { label: "Back to library", href: "/tools/ai" },
+  ];
 }
 
 class ApiError extends Error {
@@ -614,19 +642,6 @@ export default function AiToolPage() {
     }
   }
 
-  async function copyResult() {
-    if (!run?.output) return;
-    await navigator.clipboard.writeText(
-      JSON.stringify(
-        tool?.containsPhi
-          ? { watermark: run.watermark, result: run.output }
-          : run.output,
-        null,
-        2,
-      ),
-    );
-  }
-
   async function downloadResult() {
     if (!run?.output) return;
     setBusy(true);
@@ -705,28 +720,52 @@ export default function AiToolPage() {
     );
   }
 
+  const runDisabled =
+    busy ||
+    needsMfa ||
+    (tool.containsPhi && clinicalMode === "phi" && !runtimeReady) ||
+    (tool.containsPhi && coverageRequired && !snapshotId) ||
+    (tool.containsPhi &&
+      clinicalMode === "deidentified" &&
+      !confirmedDeidentified);
+
+  const errorCode =
+    error.match(/\b[A-Z][A-Z0-9_]{3,}\b/)?.[0] ??
+    (error.toLowerCase().includes("not configured")
+      ? "PROVIDER_NOT_CONFIGURED"
+      : "UNKNOWN");
+
   return (
-    <FieldKitToolLayout title={tool.name} showHowTo={false}>
+    <FieldKitToolLayout
+      title={tool.name}
+      showHowTo={false}
+      showChrome={!tool.containsPhi}
+    >
       <SEO
         title={`${tool.name} | Spartan Coaching`}
         description={tool.description}
       />
       <Link
         href="/tools/ai"
-        className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground"
+        className="mb-6 inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-foreground font-semibold"
       >
         <ArrowLeft className="h-4 w-4" />
-        AI Tool Library
+        {tool.containsPhi ? "Clinical vault" : "Advanced library"}
       </Link>
-      <div className="mb-8 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+      <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
         <div className="max-w-3xl">
-          <div className="mb-3 flex gap-2">
+          <div className="mb-3 flex flex-wrap gap-2">
             <Badge variant="outline">{tool.category}</Badge>
             {tool.containsPhi && (
-              <Badge className="bg-amber-600">Clinical</Badge>
+              <Badge className="gap-1 bg-amber-600 hover:bg-amber-600">
+                <ShieldCheck className="h-3 w-3" />
+                Clinical vault
+              </Badge>
             )}
           </div>
-          <h1 className="text-3xl font-bold tracking-tight">{tool.name}</h1>
+          <h1 className="text-3xl font-display font-black tracking-tight text-foreground">
+            {tool.name}
+          </h1>
           <p className="mt-3 leading-7 text-muted-foreground">
             {tool.description}
           </p>
@@ -743,7 +782,7 @@ export default function AiToolPage() {
         <Card className="mb-6 border-destructive/40 bg-destructive/5 p-5">
           <div className="flex gap-3">
             <AlertCircle className="mt-0.5 h-5 w-5 text-destructive" />
-            <div>
+            <div className="min-w-0">
               <h2 className="font-semibold text-foreground">
                 PHI runtime is not fully configured
               </h2>
@@ -761,22 +800,54 @@ export default function AiToolPage() {
                   ))}
                 </ul>
               )}
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => void loadData()}
+                >
+                  Retry readiness check
+                </Button>
+                <Button asChild variant="ghost" size="sm">
+                  <Link href="/contact">Contact support</Link>
+                </Button>
+              </div>
             </div>
           </div>
         </Card>
       )}
 
-      <div className="mt-6 grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(340px,0.9fr)]">
-        <Card className="p-5 sm:p-7">
-          <form onSubmit={submit} className="space-y-6">
+      <div className="mt-2 grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(340px,0.9fr)]">
+        <Card
+          className={cn(
+            "p-5 sm:p-7",
+            tool.containsPhi && "border-amber-500/20",
+          )}
+        >
+          <form id="ai-tool-run-form" onSubmit={submit} className="space-y-6">
+            <div className="space-y-1 border-b border-border/60 pb-4">
+              <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
+                1 · Inputs
+              </p>
+              <p className="text-sm text-muted-foreground">
+                Complete required fields, then run. Results appear on the right
+                (below on mobile).
+              </p>
+            </div>
             {tool.containsPhi && !needsMfa && (
-              <div className="space-y-5 rounded-xl border border-amber-500/30 bg-amber-500/5 p-4">
-                <div className="flex items-center gap-2 font-semibold">
+              <div className="space-y-5 rounded-xl border border-amber-500/35 bg-gradient-to-br from-amber-500/[0.08] to-transparent p-4">
+                <div className="flex flex-wrap items-center gap-2 font-semibold text-foreground">
                   <ShieldCheck className="h-4 w-4 text-amber-600" />
                   Ephemeral clinical workspace
                   {clinicalMode === "phi" && runtimeReady && (
-                    <Badge variant="outline" className="ml-1 font-normal">
+                    <Badge variant="outline" className="ml-1 font-normal border-amber-500/40">
                       PHI operational
+                    </Badge>
+                  )}
+                  {clinicalMode === "deidentified" && (
+                    <Badge variant="outline" className="font-normal">
+                      De-identified only
                     </Badge>
                   )}
                 </div>
@@ -877,77 +948,80 @@ export default function AiToolPage() {
             ))}
 
             {error && (
-              <div className="flex gap-2 rounded-lg border border-destructive/40 bg-destructive/5 p-3 text-sm text-destructive">
-                <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
-                <span>{error}</span>
+              <div
+                role="alert"
+                className="rounded-xl border border-destructive/40 bg-destructive/5 p-4 space-y-3"
+              >
+                <div className="flex gap-2 text-sm text-destructive">
+                  <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span className="font-medium leading-relaxed">{error}</span>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {errorNextSteps(errorCode).map((step) =>
+                    step.href ? (
+                      <Button key={step.label} asChild variant="outline" size="sm">
+                        <Link href={step.href}>{step.label}</Link>
+                      </Button>
+                    ) : (
+                      <Button
+                        key={step.label}
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setError("");
+                          if (step.retry) void loadData();
+                        }}
+                      >
+                        {step.label}
+                      </Button>
+                    ),
+                  )}
+                </div>
               </div>
             )}
 
-            <Button
-              type="submit"
-              size="lg"
-              disabled={
-                busy ||
-                needsMfa ||
-                (tool.containsPhi &&
-                  clinicalMode === "phi" &&
-                  !runtimeReady) ||
-                (tool.containsPhi && coverageRequired && !snapshotId) ||
-                (tool.containsPhi &&
-                  clinicalMode === "deidentified" &&
-                  !confirmedDeidentified)
-              }
-              className="w-full sm:w-auto"
-            >
-              {busy ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              ) : (
-                <Play className="mr-2 h-4 w-4" />
-              )}
-              Run {tool.name}
-            </Button>
+            <div className="sticky bottom-0 z-10 -mx-5 sm:-mx-7 mt-2 border-t border-border/80 bg-card/95 px-5 py-3 sm:px-7 backdrop-blur-sm sm:static sm:border-0 sm:bg-transparent sm:p-0 sm:backdrop-blur-none">
+              <Button
+                type="submit"
+                size="lg"
+                disabled={runDisabled}
+                className="w-full sm:w-auto font-bold min-h-12"
+                data-testid="ai-tool-run"
+              >
+                {busy ? (
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                  <Play className="mr-2 h-4 w-4" />
+                )}
+                Run {tool.name}
+              </Button>
+            </div>
           </form>
         </Card>
 
-        <div className="space-y-6">
-          <Card className="p-5 sm:p-7">
-            <div className="flex items-center justify-between gap-3">
-              <h2 className="flex items-center gap-2 text-lg font-semibold">
-                <CheckCircle2 className="h-5 w-5 text-primary" />
-                Result
-              </h2>
-              {run?.output != null && (
-                <div className="flex gap-1">
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={copyResult}
-                    aria-label="Copy result"
-                  >
-                    <Copy className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => void downloadResult()}
-                    aria-label="Download result"
-                  >
-                    <Download className="h-4 w-4" />
-                  </Button>
-                </div>
-              )}
-            </div>
-            {run?.output != null ? (
-              <div className="mt-5">
-                {tool.containsPhi && (
-                  <div className="mb-5 rounded-lg border-2 border-amber-600 bg-amber-500/10 p-3 text-sm font-semibold text-amber-900 dark:text-amber-100">
-                    {run.watermark}
-                  </div>
-                )}
-                <ResultValue value={run.output} />
-                <div className="mt-5 flex flex-wrap gap-2 text-xs text-muted-foreground">
+        <div className="space-y-6" id="ai-tool-result">
+          <div className="space-y-1 mb-1">
+            <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
+              2 · Result
+            </p>
+          </div>
+          <ToolResultPanel
+            title={run?.output != null ? "Generated result" : "Result"}
+            loading={busy}
+            empty={!busy && run?.output == null}
+            copyText={
+              run?.output != null ? JSON.stringify(run.output, null, 2) : undefined
+            }
+            disclaimer={
+              tool.containsPhi
+                ? run?.watermark ||
+                  "Educational decision support only. Qualified clinical review required. Not retained."
+                : "Field-ready draft — review before use with referral partners or families."
+            }
+            footer={
+              run?.output != null ? (
+                <div className="flex flex-wrap items-center gap-2">
                   <Badge variant="outline">
                     {tool.containsPhi
                       ? "one-time · not retained"
@@ -958,16 +1032,35 @@ export default function AiToolPage() {
                         ).replaceAll("_", " ")}
                   </Badge>
                   {run.durationMs != null && (
-                    <span>{(run.durationMs / 1000).toFixed(1)}s</span>
+                    <span className="text-xs text-muted-foreground">
+                      {(run.durationMs / 1000).toFixed(1)}s
+                    </span>
                   )}
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => void downloadResult()}
+                    className="ml-auto"
+                  >
+                    <Download className="h-4 w-4 mr-1" />
+                    Download
+                  </Button>
                 </div>
-              </div>
-            ) : (
-              <p className="mt-4 text-sm text-muted-foreground">
-                Complete the form to generate a structured result.
-              </p>
+              ) : undefined
+            }
+          >
+            {run?.output != null && (
+              <>
+                {tool.containsPhi && run.watermark && (
+                  <div className="mb-5 rounded-lg border-2 border-amber-600 bg-amber-500/10 p-3 text-sm font-semibold text-amber-900 dark:text-amber-100">
+                    {run.watermark}
+                  </div>
+                )}
+                <ResultValue value={run.output} />
+              </>
             )}
-          </Card>
+          </ToolResultPanel>
 
           <Card className="p-5">
             <h2 className="flex items-center gap-2 font-semibold">
