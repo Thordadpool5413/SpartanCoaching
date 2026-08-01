@@ -24,7 +24,6 @@ import { useSavedResponses, type SavedResponse } from "@/hooks/useSavedResponses
 import { useAuth } from "@/lib/AuthContext";
 import { router, useLocalSearchParams } from "expo-router";
 import {
-  FIELD_KIT_CATEGORIES,
   FIELD_KIT_TOOLS,
   type FieldKitTool,
 } from "@workspace/field-kit-catalog";
@@ -796,10 +795,12 @@ export default function ToolsScreen() {
       {/* Header — always pinned above content */}
       <View style={[styles.header, { paddingTop: topPad + 12, backgroundColor: colors.background, borderBottomColor: colors.border }]}>
         <Text style={[styles.headerTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
-          Quick Actions
+          Field Kit tools
         </Text>
         <Text style={[styles.headerSubtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-          {canUseFieldKit ? "Field tools for between coaching sessions" : "Sign in for live tools · coaching stays human"}
+          {canUseFieldKit
+            ? "Command Center first · satellite tools below"
+            : "Sign in for live tools · coaching stays human"}
         </Text>
       </View>
 
@@ -901,7 +902,7 @@ export default function ToolsScreen() {
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: bottomPad + 24, paddingTop: 12 }}
           showsVerticalScrollIndicator={false}
         >
-          <SectionKicker>Field Kit · All tools</SectionKicker>
+          <SectionKicker>Field Kit · Prioritized</SectionKicker>
           <Text
             style={{
               color: colors.foreground,
@@ -912,12 +913,147 @@ export default function ToolsScreen() {
               fontFamily: "Inter_700Bold",
             }}
           >
-            Same kit as the web
+            Same hierarchy as the web
           </Text>
           <Text style={{ color: colors.mutedForeground, fontSize: 13, lineHeight: 19, marginBottom: 16 }}>
-            Prepare · Practice · Plan · Measure. Native tools open here; calculators open the full Field Kit when
-            needed.
+            Command Center first, then daily field tools, then leader math. Advanced library is secondary.
           </Text>
+
+          {(() => {
+            const command = FIELD_KIT_TOOLS.find((t) => t.id === "sales-workflow");
+            const dailyIds = [
+              "objections",
+              "playbooks",
+              "role-play",
+              "weekly-plan",
+              "cold-call",
+              "email-templates",
+            ];
+            const leaderIds = ["activity-calculator", "roi", "rep-cost", "branch"];
+            const daily = FIELD_KIT_TOOLS.filter((t) => dailyIds.includes(t.id));
+            const leaders = FIELD_KIT_TOOLS.filter((t) => leaderIds.includes(t.id));
+            const rest = FIELD_KIT_TOOLS.filter(
+              (t) =>
+                t.id !== "sales-workflow" &&
+                !dailyIds.includes(t.id) &&
+                !leaderIds.includes(t.id) &&
+                t.category !== "Learn",
+            );
+            const renderTool = (tool: FieldKitTool, emphasized = false) => (
+              <Pressable key={tool.id} onPress={() => openCatalogTool(tool)} style={{ marginBottom: 8 }}>
+                <SpartanCard emphasized={emphasized}>
+                  <View style={{ flexDirection: "row", justifyContent: "space-between", gap: 8 }}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={{ color: colors.foreground, fontWeight: "800", fontSize: 15 }}>
+                        {tool.title}
+                      </Text>
+                      <Text
+                        style={{
+                          color: colors.mutedForeground,
+                          fontSize: 12,
+                          marginTop: 4,
+                          lineHeight: 17,
+                        }}
+                        numberOfLines={2}
+                      >
+                        {tool.description}
+                      </Text>
+                      {tool.mobile === "webview" && (
+                        <Text style={{ color: colors.primary, fontSize: 11, fontWeight: "700", marginTop: 6 }}>
+                          Full web experience · same as website
+                        </Text>
+                      )}
+                    </View>
+                    <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
+                  </View>
+                </SpartanCard>
+              </Pressable>
+            );
+            return (
+              <>
+                {command && (
+                  <View style={{ marginBottom: 20 }} testID="tools-hero-command">
+                    <Pressable onPress={() => openCatalogTool(command)}>
+                      <SpartanCard emphasized>
+                        <SectionKicker>Daily operating system</SectionKicker>
+                        <Text
+                          style={{
+                            color: colors.foreground,
+                            fontSize: 20,
+                            fontWeight: "900",
+                            marginTop: 8,
+                            fontFamily: "Inter_700Bold",
+                          }}
+                        >
+                          {command.title}
+                        </Text>
+                        <Text
+                          style={{
+                            color: colors.mutedForeground,
+                            fontSize: 13,
+                            marginTop: 6,
+                            lineHeight: 19,
+                          }}
+                        >
+                          {command.description}
+                        </Text>
+                        <Text style={{ color: colors.primary, fontWeight: "800", marginTop: 12 }}>
+                          Open Command Center →
+                        </Text>
+                      </SpartanCard>
+                    </Pressable>
+                  </View>
+                )}
+                <View style={{ marginBottom: 18 }} testID="tools-daily">
+                  <Text
+                    style={{
+                      color: colors.primary,
+                      fontSize: 11,
+                      fontWeight: "800",
+                      letterSpacing: 1.4,
+                      marginBottom: 8,
+                      fontFamily: "Inter_700Bold",
+                    }}
+                  >
+                    DAILY FIELD TOOLS
+                  </Text>
+                  {daily.map((t) => renderTool(t))}
+                </View>
+                <View style={{ marginBottom: 18 }} testID="tools-leaders">
+                  <Text
+                    style={{
+                      color: colors.primary,
+                      fontSize: 11,
+                      fontWeight: "800",
+                      letterSpacing: 1.4,
+                      marginBottom: 8,
+                      fontFamily: "Inter_700Bold",
+                    }}
+                  >
+                    FOR DIRECTORS &amp; LEADERS
+                  </Text>
+                  {leaders.map((t) => renderTool(t))}
+                </View>
+                {rest.length > 0 && (
+                  <View style={{ marginBottom: 18 }}>
+                    <Text
+                      style={{
+                        color: colors.primary,
+                        fontSize: 11,
+                        fontWeight: "800",
+                        letterSpacing: 1.4,
+                        marginBottom: 8,
+                        fontFamily: "Inter_700Bold",
+                      }}
+                    >
+                      MORE IN THE KIT
+                    </Text>
+                    {rest.map((t) => renderTool(t))}
+                  </View>
+                )}
+              </>
+            );
+          })()}
 
           <Pressable
             accessibilityRole="button"
@@ -925,15 +1061,16 @@ export default function ToolsScreen() {
             style={({ pressed }) => ({
               opacity: pressed ? 0.8 : 1,
               backgroundColor: colors.card,
-              borderColor: colors.primary,
-              borderWidth: 1.5,
+              borderColor: colors.border,
+              borderWidth: StyleSheet.hairlineWidth * 2,
               borderRadius: 14,
               padding: 16,
-              marginBottom: 20,
+              marginBottom: 12,
               flexDirection: "row",
               alignItems: "center",
               gap: 14,
             })}
+            testID="advanced-ai-tools-library"
           >
             <View
               style={{
@@ -942,82 +1079,21 @@ export default function ToolsScreen() {
                 borderRadius: 12,
                 alignItems: "center",
                 justifyContent: "center",
-                backgroundColor: `${colors.primary}20`,
+                backgroundColor: colors.muted,
               }}
             >
-              <Feather name="cpu" size={22} color={colors.primary} />
+              <Feather name="cpu" size={22} color={colors.foreground} />
             </View>
             <View style={{ flex: 1 }}>
-              <Text style={{ color: colors.foreground, fontSize: 17, fontFamily: "Inter_700Bold" }}>
-                AI Tool Library
+              <Text style={{ color: colors.foreground, fontSize: 16, fontFamily: "Inter_700Bold" }}>
+                Advanced library
               </Text>
               <Text style={{ color: colors.mutedForeground, fontSize: 13, lineHeight: 19, marginTop: 3 }}>
-                14 dedicated native tools with structured results and saved history
+                Specialized AI + clinical vault — secondary to daily Field Kit
               </Text>
             </View>
-            <Feather name="arrow-right" size={19} color={colors.primary} />
+            <Feather name="arrow-right" size={19} color={colors.mutedForeground} />
           </Pressable>
-
-          {FIELD_KIT_CATEGORIES.filter((c) => c !== "Learn").map((cat) => {
-            const items = FIELD_KIT_TOOLS.filter((t) => t.category === cat);
-            if (!items.length) return null;
-            return (
-              <View key={cat} style={{ marginBottom: 18 }}>
-                <Text
-                  style={{
-                    color: colors.primary,
-                    fontSize: 11,
-                    fontWeight: "800",
-                    letterSpacing: 1.4,
-                    marginBottom: 8,
-                    fontFamily: "Inter_700Bold",
-                  }}
-                >
-                  {cat.toUpperCase()}
-                </Text>
-                {items.map((tool) => (
-                  <Pressable key={tool.id} onPress={() => openCatalogTool(tool)} style={{ marginBottom: 8 }}>
-                    <SpartanCard emphasized={tool.id === "sales-workflow"}>
-                      <View style={{ flexDirection: "row", justifyContent: "space-between", gap: 8 }}>
-                        <View style={{ flex: 1 }}>
-                          <Text style={{ color: colors.foreground, fontWeight: "800", fontSize: 15 }}>
-                            {tool.title}
-                          </Text>
-                          <Text
-                            style={{
-                              color: colors.mutedForeground,
-                              fontSize: 12,
-                              marginTop: 4,
-                              lineHeight: 17,
-                            }}
-                            numberOfLines={2}
-                          >
-                            {tool.description}
-                          </Text>
-                          {tool.mobile === "webview" && (
-                            <Text style={{ color: colors.primary, fontSize: 11, fontWeight: "700", marginTop: 6 }}>
-                              Full web experience · same as website
-                            </Text>
-                          )}
-                          {tool.mobile === "native" && tool.id === "sales-workflow" && (
-                            <Text style={{ color: colors.mutedForeground, fontSize: 11, fontWeight: "700", marginTop: 6 }}>
-                              Daily spine · native
-                            </Text>
-                          )}
-                          {tool.mobile === "native" && tool.id !== "sales-workflow" && (
-                            <Text style={{ color: colors.mutedForeground, fontSize: 11, fontWeight: "600", marginTop: 6 }}>
-                              Native app
-                            </Text>
-                          )}
-                        </View>
-                        <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
-                      </View>
-                    </SpartanCard>
-                  </Pressable>
-                ))}
-              </View>
-            );
-          })}
         </ScrollView>
       )}
 

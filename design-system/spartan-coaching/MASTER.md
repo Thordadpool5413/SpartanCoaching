@@ -67,4 +67,5 @@
 
 - Waves 0–2: marketing + member shell shipped  
 - Wave 3: AI hub + clinical vault UI shipped  
-- Waves 4–5: deferred (mobile elite pass, deep motion/a11y)  
+- Wave 4: mobile elite pass (home hierarchy, tools bento, vault) shipped  
+- Wave 5: deferred (deep motion/a11y)  

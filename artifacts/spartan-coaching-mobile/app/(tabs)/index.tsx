@@ -80,6 +80,8 @@ export default function HomeScreen() {
   const [checklist, setChecklist] = useState<Record<string, boolean | string>>({});
   const [onboardingLoaded, setOnboardingLoaded] = useState(false);
   const [toggling, setToggling] = useState<string | null>(null);
+  /** Coach query is secondary — collapsed by default so one primary path wins */
+  const [coachOpen, setCoachOpen] = useState(false);
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 90;
@@ -149,7 +151,6 @@ export default function HomeScreen() {
       setError("Field Kit access required. Sign in from the Account tab.");
       return;
     }
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setLoading(true);
     setResponse("");
     setError(null);
@@ -159,6 +160,9 @@ export default function HomeScreen() {
         conversationHistory: [],
       });
       setResponse(data.response);
+      if (Platform.OS !== "web") {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
     } catch (e: any) {
       const msg = String(e?.message || "");
       if (msg.startsWith("401") || msg.startsWith("403")) {
@@ -433,14 +437,84 @@ export default function HomeScreen() {
         )}
       </LinearGradient>
 
-      {/* Daily spine — Sales Command Center (matches web portal hub) */}
-      <View style={[styles.section, { paddingTop: 16 }]} testID="section-command-center-hub">
+      {/* Mission next — one primary action above the fold */}
+      <View style={[styles.section, { paddingTop: 16 }]} testID="section-mission-next">
         <SpartanCard emphasized>
-          <SectionKicker>Daily operating system</SectionKicker>
+          <SectionKicker>Next action</SectionKicker>
           <Text
             style={{
               color: colors.foreground,
               fontSize: 20,
+              fontWeight: "900",
+              marginTop: 8,
+              fontFamily: "Inter_700Bold",
+            }}
+          >
+            {needsRole
+              ? "Pick your role"
+              : nextItem
+                ? nextItem.title
+                : "Open Sales Command Center"}
+          </Text>
+          <Text
+            style={{
+              color: colors.mutedForeground,
+              fontSize: 13,
+              marginTop: 6,
+              lineHeight: 19,
+              fontFamily: "Inter_400Regular",
+            }}
+          >
+            {needsRole
+              ? "Personalizes checklist and recommended tools."
+              : nextItem
+                ? nextItem.desc
+                : "Plan → prepare → practice → capture outcome → next step."}
+          </Text>
+          <SpartanButton
+            title={
+              needsRole
+                ? "Choose role below"
+                : nextItem
+                  ? "Do this next"
+                  : "Open Command Center"
+            }
+            onPress={() => {
+              if (needsRole) return;
+              if (nextItem) openChecklistItem(nextItem);
+              else {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                router.push("/sales-workflow" as any);
+              }
+            }}
+            disabled={needsRole}
+            style={{ marginTop: 14 }}
+            testID="button-mission-next"
+          />
+          {!needsRole && (
+            <SpartanButton
+              title={nextItem ? "Open Command Center" : "All tools"}
+              variant="outline"
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                if (nextItem) router.push("/sales-workflow" as any);
+                else router.push("/(tabs)/tools" as any);
+              }}
+              style={{ marginTop: 10 }}
+              testID="button-open-command-center"
+            />
+          )}
+        </SpartanCard>
+      </View>
+
+      {/* Daily spine — compact when mission already points here */}
+      <View style={[styles.section, { paddingTop: 8 }]} testID="section-command-center-hub">
+        <SpartanCard>
+          <SectionKicker>Daily operating system</SectionKicker>
+          <Text
+            style={{
+              color: colors.foreground,
+              fontSize: 18,
               fontWeight: "900",
               marginTop: 8,
               fontFamily: "Inter_700Bold",
@@ -457,18 +531,8 @@ export default function HomeScreen() {
               fontFamily: "Inter_400Regular",
             }}
           >
-            Next call → prepare → practice → capture outcome → next step. Satellite tools support this spine — same
-            kit as the website.
+            Plan → prepare → practice → capture → next step. Same spine as the website.
           </Text>
-          <SpartanButton
-            title="Open Command Center"
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              router.push("/sales-workflow" as any);
-            }}
-            style={{ marginTop: 14 }}
-            testID="button-open-command-center"
-          />
         </SpartanCard>
       </View>
 
@@ -728,104 +792,13 @@ export default function HomeScreen() {
         </View>
       )}
 
-      {/* Ask Spartan */}
+      {/* Quick Tools — satellite to Command Center */}
       <View style={[styles.section, { backgroundColor: colors.background }]}>
-        <View style={styles.sectionHeader}>
-          <Feather name="zap" size={20} color={colors.primary} />
-          <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
-            Ask Spartan
-          </Text>
-        </View>
-        <Text style={[styles.sectionSubtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-          Instant field answers — no PHI
+        <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold", marginBottom: 4 }]}>
+          Satellite tools
         </Text>
-
-        <View style={[styles.inputRow, { borderColor: colors.border, backgroundColor: colors.card }]}>
-          <Feather name="search" size={18} color={colors.mutedForeground} style={styles.inputIcon} />
-          <TextInput
-            style={[styles.input, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}
-            placeholder="Ask any hospice sales question..."
-            placeholderTextColor={colors.mutedForeground}
-            value={query}
-            onChangeText={setQuery}
-            onSubmitEditing={() => handleAsk(query)}
-            returnKeyType="send"
-            multiline={false}
-          />
-          {query.trim().length > 0 && (
-            <Pressable
-              onPress={() => handleAsk(query)}
-              style={({ pressed }) => [
-                styles.sendBtn,
-                { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },
-              ]}
-            >
-              <Feather name="arrow-right" size={16} color={colors.primaryForeground} />
-            </Pressable>
-          )}
-        </View>
-
-        {!response && !loading && (
-          <View style={styles.suggestions}>
-            {SUGGESTIONS.map((s, i) => (
-              <Pressable
-                key={i}
-                onPress={() => {
-                  setQuery(s);
-                  handleAsk(s);
-                }}
-                style={({ pressed }) => [
-                  styles.suggestion,
-                  { backgroundColor: colors.muted, borderColor: colors.border, opacity: pressed ? 0.75 : 1 },
-                ]}
-              >
-                <Text style={[styles.suggestionText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>
-                  {s}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-        )}
-
-        {loading && (
-          <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <ActivityIndicator color={colors.primary} size="small" />
-            <Text style={[styles.loadingText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-              Finding the best answer...
-            </Text>
-          </View>
-        )}
-
-        {!!error && (
-          <View style={[styles.errorCard, { backgroundColor: colors.accent }]}>
-            <Text style={[styles.errorText, { color: colors.primary, fontFamily: "Inter_400Regular" }]}>{error}</Text>
-          </View>
-        )}
-
-        {!!response && !loading && (
-          <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <Text style={[styles.responseText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>
-              {response}
-            </Text>
-            <Pressable
-              onPress={reset}
-              style={({ pressed }) => [
-                styles.resetBtn,
-                { borderColor: colors.border, opacity: pressed ? 0.75 : 1 },
-              ]}
-            >
-              <Text style={[styles.resetBtnText, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
-                Ask another question
-              </Text>
-            </Pressable>
-          </View>
-        )}
-      </View>
-
-      {/* Quick Tools */}
-      <View style={[styles.section, { backgroundColor: colors.background }]}>
-        <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold", marginBottom: 12 }]}>
-          Quick Actions
+        <Text style={{ color: colors.mutedForeground, fontSize: 13, marginBottom: 12, fontFamily: "Inter_400Regular" }}>
+          Support the spine — not a second product
         </Text>
         <View style={styles.toolsGrid}>
           {QUICK_TOOLS.map((tool, i) => (
@@ -854,6 +827,121 @@ export default function HomeScreen() {
             </Pressable>
           ))}
         </View>
+      </View>
+
+      {/* Ask Spartan — secondary, collapsed by default */}
+      <View style={[styles.section, { backgroundColor: colors.background, paddingTop: 8 }]}>
+        <Pressable
+          onPress={() => setCoachOpen((o) => !o)}
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            minHeight: 44,
+          }}
+          accessibilityRole="button"
+          accessibilityState={{ expanded: coachOpen }}
+        >
+          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
+            <Feather name="zap" size={18} color={colors.primary} />
+            <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold", fontSize: 17 }]}>
+              Ask Spartan
+            </Text>
+          </View>
+          <Feather
+            name={coachOpen ? "chevron-up" : "chevron-down"}
+            size={20}
+            color={colors.mutedForeground}
+          />
+        </Pressable>
+        <Text style={{ color: colors.mutedForeground, fontSize: 13, marginTop: 4, fontFamily: "Inter_400Regular" }}>
+          Instant field answers — no PHI · optional
+        </Text>
+
+        {coachOpen && (
+          <View style={{ marginTop: 14 }}>
+            <View style={[styles.inputRow, { borderColor: colors.border, backgroundColor: colors.card }]}>
+              <Feather name="search" size={18} color={colors.mutedForeground} style={styles.inputIcon} />
+              <TextInput
+                style={[styles.input, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}
+                placeholder="Ask any hospice sales question..."
+                placeholderTextColor={colors.mutedForeground}
+                value={query}
+                onChangeText={setQuery}
+                onSubmitEditing={() => handleAsk(query)}
+                returnKeyType="send"
+                multiline={false}
+              />
+              {query.trim().length > 0 && (
+                <Pressable
+                  onPress={() => handleAsk(query)}
+                  style={({ pressed }) => [
+                    styles.sendBtn,
+                    { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },
+                  ]}
+                >
+                  <Feather name="arrow-right" size={16} color={colors.primaryForeground} />
+                </Pressable>
+              )}
+            </View>
+
+            {!response && !loading && (
+              <View style={styles.suggestions}>
+                {SUGGESTIONS.map((s, i) => (
+                  <Pressable
+                    key={i}
+                    onPress={() => {
+                      setQuery(s);
+                      handleAsk(s);
+                    }}
+                    style={({ pressed }) => [
+                      styles.suggestion,
+                      { backgroundColor: colors.muted, borderColor: colors.border, opacity: pressed ? 0.75 : 1 },
+                    ]}
+                  >
+                    <Text style={[styles.suggestionText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>
+                      {s}
+                    </Text>
+                  </Pressable>
+                ))}
+              </View>
+            )}
+
+            {loading && (
+              <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <ActivityIndicator color={colors.primary} size="small" />
+                <Text style={[styles.loadingText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                  Finding the best answer...
+                </Text>
+              </View>
+            )}
+
+            {!!error && (
+              <View style={[styles.errorCard, { backgroundColor: colors.accent }]}>
+                <Text style={[styles.errorText, { color: colors.primary, fontFamily: "Inter_400Regular" }]}>{error}</Text>
+              </View>
+            )}
+
+            {!!response && !loading && (
+              <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+                <Text style={[styles.responseText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>
+                  {response}
+                </Text>
+                <Pressable
+                  onPress={reset}
+                  style={({ pressed }) => [
+                    styles.resetBtn,
+                    { borderColor: colors.border, opacity: pressed ? 0.75 : 1 },
+                  ]}
+                >
+                  <Text style={[styles.resetBtnText, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
+                    Ask another question
+                  </Text>
+                </Pressable>
+              </View>
+            )}
+          </View>
+        )}
       </View>
 
       <View style={[styles.section, { paddingTop: 0 }]}>

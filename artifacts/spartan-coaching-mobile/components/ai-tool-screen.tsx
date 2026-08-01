@@ -9,6 +9,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   AppState,
+  Platform,
   Pressable,
   ScrollView,
   Share,
@@ -18,6 +19,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import * as Haptics from "expo-haptics";
 import {
   buildConnectedToolInput,
   getSpartanAiToolConnections,
@@ -425,6 +427,11 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         });
         setRun(response.result);
         updateEphemeralSession(null);
+        if (Platform.OS !== "web") {
+          void Haptics.notificationAsync(
+            Haptics.NotificationFeedbackType.Success,
+          );
+        }
       } else {
         const response = await apiPost<{ run: ToolRun }>(
           `/api/ai-tools/${tool.id}/runs`,
@@ -436,6 +443,11 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
           response.run,
           ...current.filter((item) => item.id !== response.run.id),
         ]);
+        if (Platform.OS !== "web") {
+          void Haptics.notificationAsync(
+            Haptics.NotificationFeedbackType.Success,
+          );
+        }
       }
     } catch (caught) {
       if (caught instanceof ApiError && caught.code === "CLINICAL_MFA_REQUIRED")
@@ -681,7 +693,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
           <Text
             style={[styles.badge, { color: "#B45309", borderColor: "#D97706" }]}
           >
-            Clinical
+            Clinical vault
           </Text>
         )}
       </View>
@@ -700,11 +712,22 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
           ]}
         >
           <Feather name="shield" size={18} color="#D97706" />
-          <Text style={[styles.warningText, { color: colors.foreground }]}>
-            Educational decision support only. Qualified clinical review is
-            required. This is not a diagnosis, coverage determination, or
-            autonomous eligibility decision.
-          </Text>
+          <View style={{ flex: 1, gap: 6 }}>
+            <Text
+              style={{
+                color: colors.foreground,
+                fontFamily: "Inter_700Bold",
+                fontSize: 14,
+              }}
+            >
+              Clinical vault · authorized access only
+            </Text>
+            <Text style={[styles.warningText, { color: colors.foreground }]}>
+              Educational decision support only. Qualified clinical review is
+              required. Not a diagnosis, coverage determination, or autonomous
+              eligibility decision. Runs are ephemeral when live.
+            </Text>
+          </View>
         </View>
       )}
 
@@ -793,7 +816,12 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         <View
           style={[
             styles.card,
-            { borderColor: colors.border, backgroundColor: colors.card },
+            {
+              borderColor: "#D9770655",
+              backgroundColor: colors.card,
+              borderLeftWidth: 3,
+              borderLeftColor: "#D97706",
+            },
           ]}
         >
           <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
@@ -1002,7 +1030,35 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
             </Pressable>
           )}
         </View>
-        {run?.output != null ? (
+        {busy ? (
+          <View style={{ gap: 10, paddingVertical: 8 }}>
+            <View
+              style={{
+                height: 12,
+                borderRadius: 6,
+                backgroundColor: colors.muted,
+                width: "70%",
+              }}
+            />
+            <View
+              style={{
+                height: 12,
+                borderRadius: 6,
+                backgroundColor: colors.muted,
+                width: "100%",
+              }}
+            />
+            <View
+              style={{
+                height: 12,
+                borderRadius: 6,
+                backgroundColor: colors.muted,
+                width: "85%",
+              }}
+            />
+            <ActivityIndicator color={colors.primary} style={{ marginTop: 8 }} />
+          </View>
+        ) : run?.output != null ? (
           <>
             {tool.containsPhi && (
               <View
@@ -1025,9 +1081,29 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
             <ResultValue value={run.output} colors={colors} />
           </>
         ) : (
-          <Text style={{ color: colors.mutedForeground }}>
-            Complete the form to generate a structured result.
-          </Text>
+          <View
+            style={{
+              borderWidth: 1,
+              borderStyle: "dashed",
+              borderColor: colors.border,
+              borderRadius: 12,
+              padding: 20,
+              alignItems: "center",
+            }}
+          >
+            <Feather name="file-text" size={22} color={colors.mutedForeground} />
+            <Text
+              style={{
+                color: colors.mutedForeground,
+                textAlign: "center",
+                marginTop: 10,
+                lineHeight: 20,
+              }}
+            >
+              Complete the form and run the tool to generate a field-ready
+              result.
+            </Text>
+          </View>
         )}
       </View>
 
