@@ -75,12 +75,20 @@
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
-/* Performance: Reduce animations on low-end devices */
+/* Reduced motion — keep focus rings usable; kill decorative motion only */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  /* Preserve immediate keyboard focus feedback */
+  :focus-visible {
+    transition: none !important;
   }
 }
 

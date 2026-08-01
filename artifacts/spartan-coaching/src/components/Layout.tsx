@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { MenuIcon, CloseIcon } from "./icons";
 import { Button } from "@/components/ui/button";
@@ -93,35 +93,102 @@ function NavDropdown({ label, items, dataTestId }: {
   dataTestId: string;
 }) {
   const [location] = useLocation();
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const menuId = `nav-menu-${dataTestId}`;
   const isGroupActive = items.some(item => location === item.path || location.startsWith(item.path + '/'));
+
+  // Close on route change
+  useEffect(() => {
+    setOpen(false);
+  }, [location]);
+
+  // Close on outside click / Escape
+  useEffect(() => {
+    if (!open) return;
+    const onPointer = (event: MouseEvent | PointerEvent) => {
+      if (!rootRef.current?.contains(event.target as Node)) {
+        setOpen(false);
+      }
+    };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        setOpen(false);
+        const btn = rootRef.current?.querySelector("button");
+        btn?.focus();
+      }
+    };
+    document.addEventListener("pointerdown", onPointer);
+    document.addEventListener("keydown", onKey);
+    return () => {
+      document.removeEventListener("pointerdown", onPointer);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
   
   return (
-    <div className="relative group" data-testid={dataTestId}>
+    <div
+      ref={rootRef}
+      className="relative"
+      data-testid={dataTestId}
+      onMouseEnter={() => setOpen(true)}
+      onMouseLeave={() => setOpen(false)}
+    >
       <button 
+        type="button"
         className={cn(
-          "px-3 py-2 rounded-lg text-sm font-medium transition-colors hover-elevate flex items-center gap-1 whitespace-nowrap",
-          isGroupActive ? "text-primary border-b-2 border-primary rounded-none" : "text-foreground hover:text-foreground"
+          "px-3 py-2 rounded-lg text-sm font-medium transition-colors hover-elevate flex items-center gap-1 whitespace-nowrap cursor-pointer",
+          isGroupActive || open
+            ? "text-primary border-b-2 border-primary rounded-none"
+            : "text-foreground hover:text-foreground"
         )}
-        aria-haspopup="true"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-controls={menuId}
         aria-label={`${label} menu`}
+        onClick={() => setOpen((v) => !v)}
+        onKeyDown={(event) => {
+          if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
+            event.preventDefault();
+            setOpen(true);
+          }
+        }}
       >
         {label}
-        <ChevronDown className="w-3 h-3 transition-transform group-hover:rotate-180 group-focus-within:rotate-180" />
+        <ChevronDown
+          className={cn(
+            "w-3 h-3 transition-transform duration-200",
+            open && "rotate-180",
+          )}
+          aria-hidden
+        />
       </button>
-      <div className="invisible group-hover:visible group-focus-within:visible opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-all duration-200 absolute top-full left-0 pt-2 z-50">
-        <div className="bg-popover border rounded-lg shadow-lg py-2 min-w-[220px]">
+      <div
+        id={menuId}
+        role="menu"
+        aria-label={label}
+        hidden={!open}
+        className={cn(
+          "absolute top-full left-0 pt-2 z-50 min-w-[220px]",
+          open ? "visible opacity-100" : "invisible opacity-0 pointer-events-none",
+          "transition-opacity duration-150",
+        )}
+      >
+        <div className="bg-popover border rounded-lg shadow-lg py-2">
           {items.map(item => (
             <Link
               key={item.path}
               href={item.path}
-              tabIndex={0}
+              role="menuitem"
+              tabIndex={open ? 0 : -1}
               className={cn(
-                "block px-4 py-2.5 text-sm hover-elevate transition-colors",
+                "block px-4 py-2.5 text-sm hover-elevate transition-colors focus-visible:bg-muted/60 focus-visible:outline-none",
                 location === item.path
                   ? "bg-primary/10 text-primary font-medium"
                   : "text-foreground"
               )}
               data-testid={`link-nav-${item.path.replace(/\//g, '-')}`}
+              onClick={() => setOpen(false)}
             >
               <div className="font-medium">{item.label}</div>
               <div className="text-xs text-muted-foreground mt-0.5">{item.description}</div>
@@ -175,6 +242,7 @@ export function Header() {
               className="h-8 w-8 sm:h-10 sm:w-10 object-contain"
               width={40}
               height={40}
+              decoding="async"
             />
             <div>
               {/* Not h1 — page content owns the document title heading (a11y) */}

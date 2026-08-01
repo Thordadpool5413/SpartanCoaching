@@ -98,6 +98,15 @@ export function SlideUpFade({
 }: SlideUpFadeProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true });
+  const reduce = prefersReducedMotion();
+
+  if (reduce) {
+    return (
+      <div ref={ref} data-testid="animation-slide-up-fade" className={className}>
+        {children}
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -130,7 +139,16 @@ export function SlideIn({
 }: SlideInProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true });
+  const reduce = prefersReducedMotion();
   const xOffset = direction === "left" ? -40 : 40;
+
+  if (reduce) {
+    return (
+      <div ref={ref} data-testid="animation-slide-in" className={className}>
+        {children}
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -156,6 +174,15 @@ interface ScaleInProps {
 export function ScaleIn({ children, className, delay = 0, duration = 0.5 }: ScaleInProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true });
+  const reduce = prefersReducedMotion();
+
+  if (reduce) {
+    return (
+      <div ref={ref} data-testid="animation-scale-in" className={className}>
+        {children}
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -184,6 +211,15 @@ export function StaggerContainer({
 }: StaggerContainerProps) {
   const ref = useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { once: true });
+  const reduce = prefersReducedMotion();
+
+  if (reduce) {
+    return (
+      <div ref={ref} data-testid="animation-stagger-container" className={className}>
+        {children}
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -212,6 +248,14 @@ interface StaggerItemProps {
 }
 
 export function StaggerItem({ children, className }: StaggerItemProps) {
+  const reduce = prefersReducedMotion();
+  if (reduce) {
+    return (
+      <div data-testid="animation-stagger-item" className={className}>
+        {children}
+      </div>
+    );
+  }
   return (
     <motion.div
       data-testid="animation-stagger-item"
@@ -250,24 +294,28 @@ export function AnimatedCounter({
   const motionValue = useMotionValue(0);
   const rounded = useTransform(motionValue, (v) => Math.round(v));
   const [displayValue, setDisplayValue] = useState(0);
+  const reduce = prefersReducedMotion();
 
   useEffect(() => {
-    if (isInView) {
-      const controls = animate(motionValue, target, {
-        duration,
-        ease: "easeOut",
-      });
-      return controls.stop;
+    if (!isInView) return undefined;
+    if (reduce) {
+      setDisplayValue(target);
+      return undefined;
     }
-    return undefined;
-  }, [isInView, target, duration, motionValue]);
+    const controls = animate(motionValue, target, {
+      duration,
+      ease: "easeOut",
+    });
+    return controls.stop;
+  }, [isInView, target, duration, motionValue, reduce]);
 
   useEffect(() => {
+    if (reduce) return undefined;
     const unsubscribe = rounded.on("change", (v) => {
       setDisplayValue(v);
     });
     return unsubscribe;
-  }, [rounded]);
+  }, [rounded, reduce]);
 
   return (
     <span ref={ref} data-testid="animation-counter" className={className}>

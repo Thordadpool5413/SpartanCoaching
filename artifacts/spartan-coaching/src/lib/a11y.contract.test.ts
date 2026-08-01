@@ -46,4 +46,34 @@ describe("a11y contracts (source-level)", () => {
     expect(day).toMatch(/day-zero-heading/);
     expect(day).toMatch(/role="region"/);
   });
+
+  it("nav dropdowns are keyboard-operable (aria-expanded + menu)", () => {
+    const layout = read("components/Layout.tsx");
+    expect(layout).toMatch(/aria-expanded/);
+    expect(layout).toMatch(/aria-haspopup="menu"/);
+    expect(layout).toMatch(/role="menu"/);
+    expect(layout).toMatch(/role="menuitem"/);
+    expect(layout).toMatch(/Escape/);
+  });
+
+  it("Home founder photo reserves layout space (CLS)", () => {
+    const home = read("pages/Home.tsx");
+    expect(home).toMatch(/Nick Lynch, founder/);
+    expect(home).toMatch(/width=\{416\}/);
+    expect(home).toMatch(/height=\{520\}/);
+    expect(home).toMatch(/decoding="async"/);
+  });
+
+  it("animation primitives honor prefers-reduced-motion", () => {
+    const anim = read("components/animations.tsx");
+    expect(anim).toMatch(/prefersReducedMotion/);
+    // All major motion wrappers short-circuit when reduce is true
+    expect(anim).toMatch(/if \(reduce\)/);
+    expect((anim.match(/if \(reduce\)/g) || []).length).toBeGreaterThanOrEqual(4);
+  });
+
+  it("AI tool clinical pages hide marketing chrome when PHI", () => {
+    const tool = read("pages/AiTool.tsx");
+    expect(tool).toMatch(/showChrome=\{!tool\.containsPhi\}/);
+  });
 });

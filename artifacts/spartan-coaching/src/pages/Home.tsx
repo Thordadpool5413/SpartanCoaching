@@ -101,7 +101,10 @@ export default function Home() {
                   src={nickPhoto}
                   alt="Nick Lynch, founder of Spartan Coaching"
                   className="w-full h-full object-cover object-top"
+                  width={416}
+                  height={520}
                   loading="lazy"
+                  decoding="async"
                 />
                 <div className="absolute bottom-0 inset-x-0 h-1 bg-primary" />
               </div>
