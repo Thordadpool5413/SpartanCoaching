@@ -13,8 +13,8 @@ import nickPhoto from "@assets/nick-photo.jpg";
 const CANONICAL_ORIGIN = "https://spartanhospicecoaching.com";
 
 /**
- * Full-bleed brand hero video only — no text overlay.
- * Copy and CTAs live in the authority strip below for skim/SEO.
+ * Full-bleed brand hero video only — no HTML text overlay, no kinetic animation.
+ * Uses public/hero-video.mp4 (logo reveal). CTAs live in the authority strip below.
  */
 function HeroVideo() {
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -23,46 +23,56 @@ function HeroVideo() {
     const el = videoRef.current;
     if (!el) return;
 
-    const reduced =
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduced) {
       el.pause();
       el.removeAttribute("autoplay");
       return;
     }
 
+    // Safari / iOS autoplay: muted + playsInline before play()
     el.muted = true;
     el.defaultMuted = true;
+    el.setAttribute("muted", "");
+    el.setAttribute("playsinline", "");
+    el.setAttribute("webkit-playsinline", "true");
     el.playsInline = true;
+    el.volume = 0;
+
     const tryPlay = () => {
-      void el.play().catch(() => {
-        /* autoplay may be blocked until gesture — muted usually ok */
-      });
+      void el.play().catch(() => {});
     };
+
     tryPlay();
-    const t = window.setTimeout(tryPlay, 200);
-    return () => window.clearTimeout(t);
+    el.addEventListener("loadeddata", tryPlay);
+    el.addEventListener("canplay", tryPlay);
+    const t = window.setTimeout(tryPlay, 150);
+    const t2 = window.setTimeout(tryPlay, 800);
+
+    return () => {
+      el.removeEventListener("loadeddata", tryPlay);
+      el.removeEventListener("canplay", tryPlay);
+      window.clearTimeout(t);
+      window.clearTimeout(t2);
+    };
   }, []);
 
   return (
     <video
       ref={videoRef}
+      src="/hero-video.mp4"
       autoPlay
       muted
       loop
       playsInline
       preload="auto"
       poster="/hero-poster.jpg"
-      className="absolute inset-0 h-full w-full object-cover hero-video-mobile"
+      className="absolute inset-0 z-[1] h-full w-full object-cover hero-video-mobile"
       data-testid="hero-video"
       aria-label="Spartan Coaching brand hero video"
       style={{ pointerEvents: "none" }}
-    >
-      {/* Prefer lighter mobile encode when available; desktop falls through to full hero. */}
-      <source src="/hero-video-mobile.mp4" type="video/mp4" media="(max-width: 767px)" />
-      <source src="/hero-video.mp4" type="video/mp4" />
-    </video>
+      {...({ "webkit-playsinline": "true" } as object)}
+    />
   );
 }
 
@@ -116,13 +126,14 @@ export default function Home() {
         </script>
       </Helmet>
 
-      {/* ── 1. HERO — brand video only, no text overlay ── */}
+      {/* ── 1. HERO — brand video only (no text, no Framer kinetic copy) ── */}
       <section
-        className="relative min-h-[70vh] sm:min-h-[85vh] md:min-h-[92vh] flex items-center justify-center overflow-hidden bg-black"
+        className="relative min-h-[70vh] sm:min-h-[85vh] md:min-h-[92vh] w-full overflow-hidden bg-black"
         data-testid="section-hero"
       >
+        <div className="absolute inset-0 z-0 bg-black" aria-hidden />
         <HeroVideo />
-        {/* Visually hidden H1 for SEO / a11y — visible thesis is in authority strip */}
+        {/* SEO/a11y only — must not paint on the video */}
         <h1 className="sr-only" data-testid="text-home-hero-title">
           Close the conversational gap. Get eligible patients into care earlier.
         </h1>
