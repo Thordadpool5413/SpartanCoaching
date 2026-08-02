@@ -12,6 +12,12 @@ import {
 } from "react-native";
 import { useColors } from "@/hooks/useColors";
 import { apiGet } from "@/lib/api";
+import { font } from "@/lib/typography";
+import { VAULT } from "@/lib/clinicalVaultTheme";
+import {
+  ClinicalVaultBadge,
+  ClinicalVaultHubBanner,
+} from "@/components/ClinicalVaultChrome";
 
 export default function AiToolsIndex() {
   const colors = useColors();
@@ -66,12 +72,12 @@ export default function AiToolsIndex() {
         style={[
           styles.card,
           {
-            borderColor: vault ? "#D9770655" : colors.border,
-            backgroundColor: colors.card,
+            borderColor: vault ? VAULT.border : colors.border,
+            backgroundColor: vault ? VAULT.surface : colors.card,
             opacity: enabled ? 1 : 0.65,
-            borderLeftWidth: 3,
+            borderLeftWidth: vault ? 3 : 3,
             borderLeftColor: vault
-              ? "#D97706"
+              ? VAULT.accent
               : tool.category === "Sales"
                 ? colors.primary
                 : tool.category === "Content"
@@ -83,38 +89,41 @@ export default function AiToolsIndex() {
         ]}
       >
         <View style={styles.cardTop}>
-          <Text style={[styles.category, { color: colors.primary }]}>
+          <Text
+            style={[
+              styles.category,
+              { color: vault ? VAULT.accent : colors.primary },
+              font("bold"),
+            ]}
+          >
             {tool.category}
           </Text>
-          {tool.containsPhi && (
-            <View style={styles.vaultBadge}>
-              <Feather name="shield" size={12} color="#B45309" />
-              <Text style={styles.vaultBadgeText}>Vault</Text>
-            </View>
-          )}
+          {tool.containsPhi ? <ClinicalVaultBadge /> : null}
         </View>
-        <Text style={[styles.name, { color: colors.foreground }]}>
+        <Text style={[styles.name, { color: colors.foreground }, font("bold")]}>
           {tool.name}
         </Text>
-        <Text style={[styles.summary, { color: colors.mutedForeground }]}>
+        <Text style={[styles.summary, { color: colors.mutedForeground }, font("regular")]}>
           {tool.description}
         </Text>
         {enabled ? (
           <View style={styles.openRow}>
             <Text
-              style={{ color: colors.primary, fontFamily: "Inter_600SemiBold" }}
+              style={[
+                { color: vault ? VAULT.accent : colors.primary },
+                font("semibold"),
+              ]}
             >
-              Open tool
+              {vault ? "Open vault tool" : "Open tool"}
             </Text>
-            <Feather name="arrow-right" size={17} color={colors.primary} />
+            <Feather
+              name="arrow-right"
+              size={17}
+              color={vault ? VAULT.accent : colors.primary}
+            />
           </View>
         ) : (
-          <Text
-            style={{
-              color: colors.mutedForeground,
-              fontFamily: "Inter_600SemiBold",
-            }}
-          >
+          <Text style={[{ color: colors.mutedForeground }, font("semibold")]}>
             Not enabled
           </Text>
         )}
@@ -134,12 +143,12 @@ export default function AiToolsIndex() {
           Field Kit
         </Text>
       </Pressable>
-      <Text style={[styles.title, { color: colors.foreground }]}>
+      <Text style={[styles.title, { color: colors.foreground }, font("bold")]}>
         Advanced library
       </Text>
-      <Text style={[styles.description, { color: colors.mutedForeground }]}>
-        Specialized Field AI plus a separate clinical vault. Daily tools stay on
-        the Tools tab.
+      <Text style={[styles.description, { color: colors.mutedForeground }, font("regular")]}>
+        Field AI for specialized enablement (no PHI). Clinical vault is a separate
+        authorized workspace — not marketed with Field Kit sales tools.
       </Text>
       {availability === null && (
         <View accessibilityRole="progressbar" style={styles.statusRow}>
@@ -188,25 +197,7 @@ export default function AiToolsIndex() {
 
       {clinical.length > 0 && (
         <View style={styles.section} testID="section-ai-clinical-vault">
-          <View
-            style={[
-              styles.vaultBanner,
-              { borderColor: "#D9770655", backgroundColor: "#D9770614" },
-            ]}
-          >
-            <Feather name="shield" size={20} color="#D97706" />
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
-                Clinical access vault
-              </Text>
-              <Text
-                style={[styles.sectionDesc, { color: colors.mutedForeground, marginBottom: 0 }]}
-              >
-                Authorized roles only. Ephemeral runs. Not the consumer Field Kit
-                no-PHI tools.
-              </Text>
-            </View>
-          </View>
+          <ClinicalVaultHubBanner />
           <View style={styles.grid}>
             {clinical.map((t) => renderCard(t, true))}
           </View>
@@ -267,15 +258,6 @@ const styles = StyleSheet.create({
   sectionHead: { flexDirection: "row", alignItems: "center", gap: 8 },
   sectionTitle: { fontSize: 18, fontFamily: "Inter_700Bold" },
   sectionDesc: { fontSize: 14, lineHeight: 21, marginBottom: 4 },
-  vaultBanner: {
-    borderWidth: 1,
-    borderRadius: 16,
-    padding: 14,
-    flexDirection: "row",
-    gap: 12,
-    alignItems: "flex-start",
-    marginBottom: 4,
-  },
   card: { borderWidth: 1, borderRadius: 16, padding: 18, gap: 9 },
   cardTop: {
     flexDirection: "row",
@@ -286,23 +268,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     textTransform: "uppercase",
     letterSpacing: 0.8,
-    fontFamily: "Inter_700Bold",
   },
-  vaultBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 4,
-    backgroundColor: "#D9770622",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 8,
-  },
-  vaultBadgeText: {
-    color: "#B45309",
-    fontSize: 11,
-    fontFamily: "Inter_700Bold",
-  },
-  name: { fontSize: 19, fontFamily: "Inter_700Bold" },
+  name: { fontSize: 19 },
   summary: { fontSize: 14, lineHeight: 21 },
   openRow: {
     flexDirection: "row",

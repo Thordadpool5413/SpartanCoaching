@@ -7,6 +7,7 @@
 - **Results:** `components/FieldResultPanel.tsx` — copy, share, save, loading skeleton, PHI disclaimer.
 - **Saved:** `components/SavedResponsesSection.tsx`.
 - **Tab keys:** `lib/toolTabs.ts`.
+- **Clinical vault (D6):** `lib/clinicalVaultTheme.ts` + `ClinicalVaultChrome` — calm amber instrument chrome, no Field Kit marketing language on vault tools.
 
 ## Shared packages
 

@@ -117,7 +117,7 @@ Light mode: prefer slightly deeper primary (`primaryLight` ~48% L) so red text/i
 |-------|--------|
 | A–B Trust + Home + header | Shipped |
 | C Product web craft | Shipped |
-| D iOS craft (SF type, icons, short guest home) | Shipped (D1–D3); D4–D5 RolePlay extract + FieldResultPanel |
+| D iOS craft | D1–D6 shipped (vault polish); D7 TestFlight open |
 | E Tokens, light mode, QA checklist | Shipped |
 | F Content / compliance (code pass) | Shipped — Nick proof sign-off still open |
 | D4–D7 Tools split / TestFlight | Backlog |

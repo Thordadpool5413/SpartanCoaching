@@ -37,6 +37,12 @@ import {
   apiPost,
   uploadToSignedUrl,
 } from "@/lib/api";
+import { font } from "@/lib/typography";
+import { VAULT, VAULT_COPY } from "@/lib/clinicalVaultTheme";
+import {
+  ClinicalVaultBadge,
+  ClinicalVaultToolBanner,
+} from "@/components/ClinicalVaultChrome";
 
 type FormValue = string | boolean;
 type ToolRun = {
@@ -646,100 +652,82 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
 
   if (tool.containsPhi && clinicalScreenObscured) {
     return (
-      <View
-        style={[styles.privacyOverlay, { backgroundColor: colors.background }]}
-      >
-        <Feather name="shield" size={42} color={colors.primary} />
-        <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
-          Clinical workspace protected
+      <View style={[styles.privacyOverlay, { backgroundColor: VAULT.privacyBg }]}>
+        <Feather name="shield" size={40} color={VAULT.accentSoft} />
+        <Text style={[{ color: VAULT.privacyFg, fontSize: 18 }, font("bold")]}>
+          {VAULT_COPY.privacyTitle}
         </Text>
-        <Text style={{ color: colors.mutedForeground, textAlign: "center" }}>
-          Return to Spartan Coaching to reauthenticate and continue.
+        <Text
+          style={[
+            { color: VAULT.privacyMuted, textAlign: "center", lineHeight: 22, maxWidth: 280 },
+            font("regular"),
+          ]}
+        >
+          {VAULT_COPY.privacyBody}
         </Text>
       </View>
     );
   }
+
+  const vault = tool.containsPhi;
+  const chromeAccent = vault ? VAULT.accent : colors.primary;
+  const fg = colors.foreground;
+  const muted = colors.mutedForeground;
+  const cardBorder = vault ? VAULT.borderSubtle : colors.border;
+  const cardBg = vault ? colors.card : colors.card;
 
   return (
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
       keyboardShouldPersistTaps="handled"
       style={{ flex: 1, backgroundColor: colors.background }}
-      contentContainerStyle={styles.container}
+      contentContainerStyle={[
+        styles.container,
+        vault && { borderTopWidth: 3, borderTopColor: VAULT.accent },
+      ]}
     >
       <Pressable
         accessibilityRole="button"
-        accessibilityLabel="Back to AI Tool Library"
+        accessibilityLabel="Back to Advanced library"
         onPress={() => router.back()}
         style={styles.back}
       >
-        <Feather name="arrow-left" size={18} color={colors.primary} />
-        <Text
-          style={{ color: colors.primary, fontFamily: "Inter_600SemiBold" }}
-        >
-          AI Tool Library
+        <Feather name="arrow-left" size={18} color={chromeAccent} />
+        <Text style={[{ color: chromeAccent }, font("semibold")]}>
+          {vault ? VAULT_COPY.backLibrary : "AI Tool Library"}
         </Text>
       </Pressable>
       <View style={styles.badges}>
         <Text
           style={[
             styles.badge,
-            { color: colors.primary, borderColor: colors.primary },
+            {
+              color: chromeAccent,
+              borderColor: vault ? VAULT.border : colors.primary,
+              backgroundColor: vault ? VAULT.surface : "transparent",
+            },
+            font("semibold"),
           ]}
         >
           {tool.category}
         </Text>
-        {tool.containsPhi && (
-          <Text
-            style={[styles.badge, { color: "#B45309", borderColor: "#D97706" }]}
-          >
-            Clinical vault
-          </Text>
-        )}
+        {vault ? <ClinicalVaultBadge /> : null}
       </View>
-      <Text style={[styles.title, { color: colors.foreground }]}>
-        {tool.name}
-      </Text>
-      <Text style={[styles.description, { color: colors.mutedForeground }]}>
+      <Text style={[styles.title, { color: fg }, font("bold")]}>{tool.name}</Text>
+      <Text style={[styles.description, { color: muted }, font("regular")]}>
         {tool.description}
       </Text>
 
-      {tool.containsPhi && (
-        <View
-          style={[
-            styles.warning,
-            { borderColor: "#D97706", backgroundColor: "#D9770614" },
-          ]}
-        >
-          <Feather name="shield" size={18} color="#D97706" />
-          <View style={{ flex: 1, gap: 6 }}>
-            <Text
-              style={{
-                color: colors.foreground,
-                fontFamily: "Inter_700Bold",
-                fontSize: 14,
-              }}
-            >
-              Clinical vault · authorized access only
-            </Text>
-            <Text style={[styles.warningText, { color: colors.foreground }]}>
-              Educational decision support only. Qualified clinical review is
-              required. Not a diagnosis, coverage determination, or autonomous
-              eligibility decision. Runs are ephemeral when live. Authorized
-              access only — not consumer Field Kit tools.
-            </Text>
-          </View>
-        </View>
-      )}
+      {vault ? <ClinicalVaultToolBanner /> : null}
 
       {needsMfa && (
         <View
           style={[
             styles.card,
-            { borderColor: "#D97706", backgroundColor: colors.card },
+            { borderColor: VAULT.border, backgroundColor: cardBg },
           ]}
         >
-          <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
+          <Text style={[styles.sectionTitle, { color: fg }, font("bold")]}>
             Clinical verification
           </Text>
           {!challenge ? (
@@ -818,18 +806,18 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
           style={[
             styles.card,
             {
-              borderColor: "#D9770655",
-              backgroundColor: colors.card,
+              borderColor: VAULT.borderSubtle,
+              backgroundColor: VAULT.surface,
               borderLeftWidth: 3,
-              borderLeftColor: "#D97706",
+              borderLeftColor: VAULT.accent,
             },
           ]}
         >
-          <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
-            Ephemeral clinical workspace
+          <Text style={[styles.sectionTitle, { color: fg }, font("bold")]}>
+            {VAULT_COPY.workspaceTitle}
             {clinicalMode === "phi" && runtimeReady ? " · PHI operational" : ""}
           </Text>
-          <Text style={{ color: colors.mutedForeground, lineHeight: 20 }}>
+          <Text style={[{ color: muted, lineHeight: 20 }, font("regular")]}>
             {clinicalMode === "phi"
               ? "Patient inputs and generated results are not saved. Closing, signing out, or restarting permanently loses this work."
               : "This live workspace accepts de-identified information only. Inputs and generated results are not saved, and qualified clinical review remains required."}
@@ -1065,16 +1053,10 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
               <View
                 style={[
                   styles.watermark,
-                  { borderColor: "#D97706", backgroundColor: "#D9770614" },
+                  { borderColor: VAULT.border, backgroundColor: VAULT.surface },
                 ]}
               >
-                <Text
-                  style={{
-                    color: colors.foreground,
-                    fontFamily: "Inter_700Bold",
-                    lineHeight: 19,
-                  }}
-                >
+                <Text style={[{ color: fg, lineHeight: 19 }, font("bold")]}>
                   {run.watermark}
                 </Text>
               </View>
@@ -1086,23 +1068,32 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
             style={{
               borderWidth: 1,
               borderStyle: "dashed",
-              borderColor: colors.border,
+              borderColor: vault ? VAULT.borderSubtle : colors.border,
               borderRadius: 12,
               padding: 20,
               alignItems: "center",
+              backgroundColor: vault ? VAULT.surface : "transparent",
             }}
           >
-            <Feather name="file-text" size={22} color={colors.mutedForeground} />
+            <Feather
+              name={vault ? "shield" : "file-text"}
+              size={22}
+              color={vault ? VAULT.accent : colors.mutedForeground}
+            />
             <Text
-              style={{
-                color: colors.mutedForeground,
-                textAlign: "center",
-                marginTop: 10,
-                lineHeight: 20,
-              }}
+              style={[
+                {
+                  color: muted,
+                  textAlign: "center",
+                  marginTop: 10,
+                  lineHeight: 20,
+                },
+                font("regular"),
+              ]}
             >
-              Complete the form and run the tool to generate a field-ready
-              result.
+              {vault
+                ? VAULT_COPY.emptyResult
+                : "Complete the form and run the tool to generate a field-ready result."}
             </Text>
           </View>
         )}
@@ -1111,16 +1102,15 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
       <View
         style={[
           styles.card,
-          { borderColor: colors.border, backgroundColor: colors.card },
+          { borderColor: cardBorder, backgroundColor: cardBg },
         ]}
       >
-        <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
+        <Text style={[styles.sectionTitle, { color: fg }, font("bold")]}>
           {tool.containsPhi ? "No clinical history" : "Recent runs"}
         </Text>
         {tool.containsPhi ? (
-          <Text style={{ color: colors.mutedForeground, lineHeight: 20 }}>
-            Clinical inputs and results are never added to history. Sharing uses
-            the in-memory result and creates no server export.
+          <Text style={[{ color: muted, lineHeight: 20 }, font("regular")]}>
+            {VAULT_COPY.noHistory}
           </Text>
         ) : history.length === 0 ? (
           <Text style={{ color: colors.mutedForeground }}>
