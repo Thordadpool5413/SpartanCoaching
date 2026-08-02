@@ -1,0 +1,14 @@
+artifacts/spartan-coaching/src/pages/Home.tsx
+  h_0446834f150a71 16-17,26,33,36-38,40-41,43,45,47-57,63,70,74-75,129,131,134,136
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "2a685264def90435fc054f6913f2c8f5fa765bcb",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
