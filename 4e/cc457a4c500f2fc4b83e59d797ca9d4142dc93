@@ -1,0 +1,46 @@
+artifacts/spartan-coaching-mobile/app/(tabs)/tools.tsx
+  h_0446834f150a71 863
+artifacts/spartan-coaching-mobile/components/ai-tool-screen.tsx
+  h_0446834f150a71 728-729
+artifacts/spartan-coaching-mobile/store/description.txt
+  h_0446834f150a71 3,5,9,11,13,15,17,21,23,27
+artifacts/spartan-coaching/src/components/ClinicalToolDisclaimer.tsx
+  h_0446834f150a71 3,11
+artifacts/spartan-coaching/src/components/FieldTalkTrack.tsx
+  h_0446834f150a71 5,41
+artifacts/spartan-coaching/src/components/ToolDisclaimer.tsx
+  h_0446834f150a71 3,18-19
+artifacts/spartan-coaching/src/components/TrustStrip.tsx
+  h_0446834f150a71 13-14,19,50,53-54
+artifacts/spartan-coaching/src/lib/complianceCopy.test.ts
+  h_0446834f150a71 1-25
+artifacts/spartan-coaching/src/lib/complianceCopy.ts
+  h_0446834f150a71 1-46
+artifacts/spartan-coaching/src/lib/proof.ts
+  h_0446834f150a71 42
+artifacts/spartan-coaching/src/pages/AiTool.tsx
+  h_0446834f150a71 38,1054
+artifacts/spartan-coaching/src/pages/AiToolsHub.tsx
+  h_0446834f150a71 21,284,287
+artifacts/spartan-coaching/src/pages/FieldKit.tsx
+  h_0446834f150a71 144-145,831
+artifacts/spartan-coaching/src/pages/FieldKitMembership.tsx
+  h_0446834f150a71 78,83,110
+design-system/spartan-coaching/MASTER.md
+  h_0446834f150a71 122
+docs/content-compliance.md
+  h_0446834f150a71 1-40
+docs/operator-checklist.md
+  h_0446834f150a71 8-10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "4ecc457a4c500f2fc4b83e59d797ca9d4142dc93",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
