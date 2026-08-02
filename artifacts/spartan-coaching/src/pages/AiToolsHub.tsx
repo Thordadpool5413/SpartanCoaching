@@ -18,6 +18,7 @@ import { SEO } from "@/components/SEO";
 import { FIELD_KIT_TOOLS } from "@workspace/field-kit-catalog";
 import { useAuth } from "@/context/AuthContext";
 import { cn } from "@/lib/utils";
+import { CLINICAL_VAULT } from "@/lib/complianceCopy";
 
 /** Left accent rail by tool category — instrument feel, not rainbow noise */
 const CATEGORY_RAIL: Record<string, string> = {
@@ -280,18 +281,10 @@ export default function AiToolsHub() {
                   Clinical access vault
                 </h2>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-3xl">
-                  These workflows may process clinical content under authorized access
-                  only. They are <strong className="text-foreground">not</strong> the
-                  consumer Field Kit tools marketed as no-PHI field execution. Runs are
-                  ephemeral when live — use only when your role and organization permit.
+                  {CLINICAL_VAULT.hubIntro}
                 </p>
                 <ul className="flex flex-wrap gap-2 pt-1">
-                  {[
-                    "Authorized roles only",
-                    "Ephemeral by design",
-                    "BAA-gated PHI mode",
-                    "No sales chrome inside tools",
-                  ].map((chip) => (
+                  {CLINICAL_VAULT.chips.map((chip) => (
                     <li
                       key={chip}
                       className="text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-md border border-amber-500/25 bg-background/60 text-foreground"

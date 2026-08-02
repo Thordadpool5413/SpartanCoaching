@@ -75,12 +75,12 @@ export default function FieldKitMembership() {
           <div className="h-4 w-px bg-border hidden sm:block" />
           <div className="flex items-center gap-2">
             <Users className="w-4 h-4 text-primary shrink-0" />
-            <span className="font-semibold text-foreground">Used by the reps who rank at the top</span>
+            <span className="font-semibold text-foreground">Field-tested coaching, not theory</span>
           </div>
           <div className="h-4 w-px bg-border hidden sm:block" />
           <div className="flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-primary shrink-0" />
-            <span className="font-semibold text-foreground">12+ years hospice-specific · 500+ coached</span>
+            <span className="font-semibold text-foreground">12+ years hospice-specific · ethics-first</span>
           </div>
           <div className="h-4 w-px bg-border hidden sm:block" />
           <div className="flex items-center gap-2">
@@ -107,7 +107,7 @@ export default function FieldKitMembership() {
             <span className="text-sm font-semibold text-muted-foreground"> / week</span>
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-            For the rep or director who refuses to leave a referral on the table. The same kit used by the reps who consistently rank at the top of their agencies. Cancel anytime.
+            For the rep or director who refuses to leave a referral on the table. The same kit used in live coaching and weekly field work. Cancel anytime.
           </p>
           <ul className="space-y-2 mb-6 flex-1">
             {[

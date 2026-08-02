@@ -860,7 +860,7 @@ export default function ToolsScreen() {
               $14.99<Text style={{ fontSize: 13, fontWeight: "700", color: colors.mutedForeground }}> / week · cancel anytime</Text>
             </Text>
             <Text style={{ color: colors.mutedForeground, fontSize: 11, marginTop: 2, marginBottom: 10 }}>
-              The cost of one incomplete referral conversation. The reps who rank at the top of their agencies don't wing it.
+              The cost of one incomplete referral conversation. Prepared conversations win the room — winging Tuesday does not.
             </Text>
             <Pressable
               onPress={() => router.push(isAuthenticated ? "/(tabs)/account" : "/login")}

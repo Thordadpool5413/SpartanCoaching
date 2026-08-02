@@ -5,6 +5,9 @@ Use this after deploys and when clearing the security release gate.
 **Design / UI release live check:** also complete `docs/production-verification.md`
 (SHA match, hard refresh on spartanhospicecoaching.com, light-mode spot-check).
 
+**Public claim / PHI wording:** see `docs/content-compliance.md` before publishing
+hard metrics or named testimonials.
+
 ## Credential / secret hygiene
 
 - [ ] Revoke any Gemini API key that ever lived in a tracked `.env*` file (Google Cloud console).

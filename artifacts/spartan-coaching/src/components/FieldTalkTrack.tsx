@@ -2,6 +2,7 @@ import { SpeakerIcon } from "@/components/icons";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { ToolResultPanel } from "@/components/ToolResultPanel";
 import { ReminderPicker } from "@/components/ReminderPicker";
+import { FIELD_KIT_PHI } from "@/lib/complianceCopy";
 
 /**
  * Field-ready talk-track presentation for objection-style AI outputs.
@@ -37,7 +38,7 @@ export function FieldTalkTrack({
       copyText={copyText ?? content}
       loading={loading}
       empty={empty && !content && !loading}
-      disclaimer="Educational coaching aid only. No PHI. Adapt to your voice and the relationship — do not sound scripted."
+      disclaimer={`${FIELD_KIT_PHI.result} Do not sound scripted.`}
       className="shadow-sm"
       copyTestId={copyTestId}
       footer={

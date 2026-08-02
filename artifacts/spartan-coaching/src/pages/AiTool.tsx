@@ -35,6 +35,7 @@ import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { ToolResultPanel } from "@/components/ToolResultPanel";
 import { SEO } from "@/components/SEO";
 import { cn } from "@/lib/utils";
+import { CLINICAL_VAULT } from "@/lib/complianceCopy";
 
 type ApiErrorBody = {
   error?: { code?: string; message?: string; retryable?: boolean };
@@ -1050,8 +1051,7 @@ export default function AiToolPage() {
             }
             disclaimer={
               tool.containsPhi
-                ? run?.watermark ||
-                  "Educational decision support only. Qualified clinical review required. Not retained."
+                ? run?.watermark || CLINICAL_VAULT.runWatermark
                 : "Field-ready draft — review before use with referral partners or families."
             }
             footer={

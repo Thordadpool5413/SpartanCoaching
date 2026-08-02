@@ -39,6 +39,7 @@ export const PROOF_PACK: ProofItem[] = [
   },
 ];
 
+/** Process/tenure stats only — no ranking or headcount claims without Nick approval. */
 export const PROOF_STATS: { label: string; value: string }[] = [
   { value: "12+", label: "Years hospice-specific" },
   { value: "Field", label: "Built for SNFs & MD offices" },

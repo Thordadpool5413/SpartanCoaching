@@ -1,5 +1,6 @@
 import { Link } from "wouter";
 import { ShieldCheck } from "lucide-react";
+import { CLINICAL_VAULT } from "@/lib/complianceCopy";
 
 export function ClinicalToolDisclaimer() {
   return (
@@ -7,9 +8,7 @@ export function ClinicalToolDisclaimer() {
       <p className="mx-auto max-w-4xl text-xs text-muted-foreground inline-flex items-start justify-center gap-2 leading-relaxed">
         <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-amber-600" />
         <span>
-          PHI-capable clinical workspace. Use only with organization authorization and
-          qualified clinical review. Results are educational decision support—not a diagnosis,
-          prognosis, coverage determination, or autonomous admission decision.{" "}
+          {CLINICAL_VAULT.banner}{" "}
           <Link href="/compliance" className="text-primary hover:underline">
             Compliance controls
           </Link>

@@ -141,8 +141,8 @@ export default function FieldKit() {
             <span className="text-gradient-primary">Not every rep has access.</span>
           </h1>
           <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
-            Built by someone who ran the territory and coached the reps who consistently rank at the top of their
-            agencies. Every tool is for the conversations you have in SNFs, physician offices, and family meetings —
+            Built by someone who ran the territory and still coaches hospice growth teams in the field.
+            Every tool is for the conversations you have in SNFs, physician offices, and family meetings —
             not generic sales AI. Preview free. Live use with a subscription.
           </p>
           <div className="flex flex-col items-center gap-3 pt-2">
@@ -828,7 +828,7 @@ export default function FieldKit() {
           </h2>
           <p className="text-muted-foreground leading-relaxed max-w-xl mx-auto">
             Create your account, subscribe for $14.99/week, and unlock all 13 tools.
-            The reps who consistently rank at the top of their agencies don&apos;t wing it.
+            Prepared conversations win the room — winging Tuesday does not.
           </p>
           <div className="flex flex-col sm:flex-row gap-3 justify-center">
             <SubscribeCTA surface="field_kit_why" showHint={false} testId="field-kit-closing-cta" />

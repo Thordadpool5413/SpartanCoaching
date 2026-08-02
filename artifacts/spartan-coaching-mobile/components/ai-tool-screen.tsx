@@ -725,7 +725,8 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
             <Text style={[styles.warningText, { color: colors.foreground }]}>
               Educational decision support only. Qualified clinical review is
               required. Not a diagnosis, coverage determination, or autonomous
-              eligibility decision. Runs are ephemeral when live.
+              eligibility decision. Runs are ephemeral when live. Authorized
+              access only — not consumer Field Kit tools.
             </Text>
           </View>
         </View>

@@ -10,13 +10,13 @@ const DEFAULT_ITEMS = [
   },
   {
     icon: UserCheck,
-    title: "Request → approve → trial",
-    body: "Nick reviews every access request, then opens a timed evaluation (24h individual / 72h company).",
+    title: "Two clear access paths",
+    body: "Individuals create an account and subscribe. Teams and evaluations request access; Nick opens a timed trial.",
   },
   {
     icon: Lock,
     title: "Clear membership path",
-    body: "Individuals continue at $14.99/week and cancel anytime. Teams activate seats under contract.",
+    body: "Individuals at $14.99/week, cancel anytime. Teams activate seats under contract after evaluation.",
   },
   {
     icon: FileCheck,
@@ -47,11 +47,11 @@ export function TrustStrip({ className, compact = false, showLinks = true }: Tru
         <div className="text-center mb-8 max-w-2xl mx-auto">
           <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">How we work with you</p>
           <h2 className="text-h3 font-display font-bold text-foreground mb-2">
-            Evaluation first. Clear pricing after.
+            Private Field Kit. Human coaching.
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Field Kit is private. Coaching is human. You request access; we approve a timed evaluation. Individuals then
-            subscribe for $14.99/week; teams continue under contract.
+            Field Kit is private. Coaching is human. Individuals self-serve at $14.99/week; teams and evaluations
+            request access first, then continue under contract when it fits.
           </p>
         </div>
       )}
