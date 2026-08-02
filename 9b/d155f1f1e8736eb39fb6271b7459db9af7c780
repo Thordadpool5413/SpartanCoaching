@@ -1,0 +1,24 @@
+artifacts/spartan-coaching-mobile/app/ai-tools/index.tsx
+  h_0446834f150a71 15-20,75-76,78,80,92-98,101,103,106,112-115,117,119-123,126,146,149-151,200,272
+artifacts/spartan-coaching-mobile/components/ClinicalVaultChrome.tsx
+  h_0446834f150a71 1-116
+artifacts/spartan-coaching-mobile/components/ai-tool-screen.tsx
+  h_0446834f150a71 40-45,655-658,660-666,672-678,684-687,691,695-697,704-709,714,716-717,721,727,730,809-810,812,816-817,820,1056,1059,1071,1075,1078-1082,1084-1092,1094-1096,1105,1108,1112-1113
+artifacts/spartan-coaching-mobile/lib/clinicalVaultTheme.ts
+  h_0446834f150a71 1-42
+design-system/spartan-coaching/MASTER.md
+  h_0446834f150a71 120
+docs/mobile-web-parity.md
+  h_0446834f150a71 10
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "9bd155f1f1e8736eb39fb6271b7459db9af7c780",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
