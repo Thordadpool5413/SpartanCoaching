@@ -1,0 +1,34 @@
+artifacts/spartan-coaching/src/components/AccessPaths.tsx
+  h_0446834f150a71 1-80
+artifacts/spartan-coaching/src/components/FieldTalkTrack.tsx
+  h_0446834f150a71 1-92
+artifacts/spartan-coaching/src/components/ToolResultPanel.tsx
+  h_0446834f150a71 21,32,72
+artifacts/spartan-coaching/src/pages/AiTool.acceptance.test.tsx
+  h_0446834f150a71 204-205
+artifacts/spartan-coaching/src/pages/AiTool.tsx
+  h_0446834f150a71 183-189,195-197,200,205-220,222,226,228-230,238,240-247,251-252,255
+artifacts/spartan-coaching/src/pages/FieldKit.tsx
+  h_0446834f150a71 7,777-782
+artifacts/spartan-coaching/src/pages/Login.tsx
+  h_0446834f150a71 62,64-86
+artifacts/spartan-coaching/src/pages/Objections.tsx
+  h_0446834f150a71 5,10,149-161
+artifacts/spartan-coaching/src/pages/Portal.tsx
+  h_0446834f150a71 363
+artifacts/spartan-coaching/src/pages/Register.tsx
+  h_0446834f150a71 96,100-112,114-119
+artifacts/spartan-coaching/src/pages/Services.tsx
+  h_0446834f150a71 225-256,264-265
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "3f56163c31299b72acef225b1dc17d34bda335ce",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
