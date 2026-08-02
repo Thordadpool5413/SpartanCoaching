@@ -315,18 +315,18 @@ export default function Portal() {
   const isPaidMember = organization?.status === "active";
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 py-10 sm:py-14 surface-page min-h-[70vh]" data-testid="page-portal">
+    <div className="w-full max-w-5xl mx-auto px-4 py-10 sm:py-16 surface-page min-h-[70vh]" data-testid="page-portal">
       <SEO />
       <MembershipActivation />
 
       <FieldKitChrome nextHint={nextHint} />
 
       {/* Welcome — short, then one mission action */}
-      <div className="mb-6 space-y-2">
+      <div className="mb-8 space-y-3">
         <p className="text-kicker">
           {isPaidMember ? "Field Kit board" : "Field Kit home"}
         </p>
-        <h1 className="text-h1 font-display font-black text-foreground">
+        <h1 className="text-h1 font-display font-black text-foreground tracking-tight">
           {isFirstSession
             ? `Let's make this session count${firstName ? `, ${firstName}` : ""}`
             : `Welcome back${firstName ? `, ${firstName}` : ""}`}
@@ -360,7 +360,7 @@ export default function Portal() {
 
       {/* Mission control — always one clear next action */}
       <Card
-        className="mb-8 border border-primary/35 bg-gradient-to-br from-primary/[0.09] via-card to-card p-5 sm:p-6 shadow-elite-red"
+        className="mb-8 border border-primary/40 bg-gradient-to-br from-primary/[0.14] via-card to-card p-6 sm:p-8 shadow-elite-red elite-panel"
         data-testid="section-mission-next"
         role="region"
         aria-labelledby="portal-next-action-heading"

@@ -237,45 +237,45 @@ body {
   --elevate-1: rgba(255,255,255, .06);
   --elevate-2: rgba(255,255,255, .12);
 
-  /* Default dark surface = Midnight Navy — deep ink (visibly darker than legacy 14%) */
-  --background: 222 48% 9%;
-  --foreground: 214 40% 98%;
-  --border: 222 28% 22%;
+  /* Default dark surface = Command midnight — deeper ink, hotter Spartan red */
+  --background: 222 55% 6%;
+  --foreground: 214 45% 98%;
+  --border: 222 30% 20%;
 
-  --card: 222 40% 13%;
-  --card-foreground: 214 35% 98%;
-  --card-border: 222 28% 20%;
+  --card: 222 42% 11%;
+  --card-foreground: 214 40% 98%;
+  --card-border: 222 30% 18%;
 
-  --sidebar: 222 50% 7%;
-  --sidebar-foreground: 214 35% 98%;
-  --sidebar-border: 222 28% 20%;
-  --sidebar-primary: 0 88% 56%;
+  --sidebar: 222 55% 5%;
+  --sidebar-foreground: 214 40% 98%;
+  --sidebar-border: 222 30% 18%;
+  --sidebar-primary: 0 92% 58%;
   --sidebar-primary-foreground: 0 0% 100%;
-  --sidebar-accent: 222 36% 15%;
-  --sidebar-accent-foreground: 214 35% 98%;
-  --sidebar-ring: 0 88% 56%;
+  --sidebar-accent: 222 38% 13%;
+  --sidebar-accent-foreground: 214 40% 98%;
+  --sidebar-ring: 0 92% 58%;
 
-  --popover: 222 40% 13%;
-  --popover-foreground: 214 35% 98%;
-  --popover-border: 222 28% 20%;
+  --popover: 222 42% 11%;
+  --popover-foreground: 214 40% 98%;
+  --popover-border: 222 30% 18%;
 
-  --primary: 0 88% 56%;
+  --primary: 0 92% 58%;
   --primary-foreground: 0 0% 100%;
 
-  --secondary: 222 32% 17%;
-  --secondary-foreground: 214 40% 98%;
+  --secondary: 222 34% 15%;
+  --secondary-foreground: 214 45% 98%;
 
-  --muted: 222 36% 15%;
-  --muted-foreground: 214 22% 78%;
+  --muted: 222 38% 13%;
+  --muted-foreground: 214 24% 80%;
 
-  --accent: 0 70% 14%;
-  --accent-foreground: 214 40% 98%;
+  --accent: 0 72% 12%;
+  --accent-foreground: 214 45% 98%;
 
-  --destructive: 0 88% 56%;
+  --destructive: 0 92% 58%;
   --destructive-foreground: 0 0% 100%;
 
-  --input: 222 36% 12%;
-  --ring: 0 88% 56%;
+  --input: 222 38% 10%;
+  --ring: 0 92% 58%;
 
   --chart-1: 203.8863 88.2845% 53.1373%;
   --chart-2: 159.7826 100% 36.0784%;
@@ -1044,37 +1044,107 @@ body {
   /* Refined typography scale with display font and clamp sizing */
   .text-hero {
     font-family: var(--font-display);
-    font-size: clamp(2.75rem, 6.5vw, 5.25rem);
+    font-size: clamp(2.9rem, 7vw, 5.75rem);
     font-weight: 900;
-    line-height: 0.98;
-    letter-spacing: -0.03em;
+    line-height: 0.94;
+    letter-spacing: -0.035em;
     text-wrap: balance;
+    text-shadow: 0 2px 40px hsl(var(--primary) / 0.12);
   }
   
   .text-h1 {
     font-family: var(--font-display);
-    font-size: clamp(2rem, 4vw, 3.35rem);
+    font-size: clamp(2.15rem, 4.4vw, 3.55rem);
     font-weight: 800;
-    line-height: 1.05;
-    letter-spacing: -0.025em;
+    line-height: 1.02;
+    letter-spacing: -0.03em;
     text-wrap: balance;
   }
   
   .text-h2 {
     font-family: var(--font-display);
-    font-size: clamp(1.45rem, 2.8vw, 2.35rem);
+    font-size: clamp(1.55rem, 3vw, 2.5rem);
     font-weight: 700;
-    line-height: 1.12;
-    letter-spacing: -0.02em;
+    line-height: 1.08;
+    letter-spacing: -0.025em;
     text-wrap: balance;
   }
   
   .text-h3 {
     font-family: var(--font-display);
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     font-weight: 700;
-    line-height: 1.2;
-    letter-spacing: -0.015em;
+    line-height: 1.18;
+    letter-spacing: -0.02em;
+  }
+
+  /* Elite panel — command-surface cards used sitewide */
+  .elite-panel {
+    position: relative;
+    overflow: hidden;
+    border-radius: 1.125rem;
+    border: 1px solid hsl(var(--border) / 0.85);
+    background:
+      linear-gradient(155deg, hsl(var(--card)) 0%, hsl(var(--card) / 0.92) 55%, hsl(var(--muted) / 0.35) 100%);
+    box-shadow:
+      0 0 0 1px hsl(var(--primary) / 0.06) inset,
+      0 18px 48px -20px rgba(0, 0, 0, 0.55),
+      0 0 40px -18px hsl(var(--primary) / 0.18);
+  }
+  .elite-panel::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      hsl(var(--primary) / 0.35) 20%,
+      hsl(var(--primary) / 0.95) 50%,
+      hsl(var(--primary) / 0.35) 80%,
+      transparent 100%
+    );
+    pointer-events: none;
+  }
+  .elite-panel::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    pointer-events: none;
+    opacity: 0.035;
+    background-image: var(--noise-bg);
+  }
+
+  /* Left command rail for featured blocks */
+  .elite-rail {
+    border-left: 3px solid hsl(var(--primary));
+    padding-left: 1rem;
+  }
+
+  /* shadcn cards get the same command presence */
+  .shadcn-card {
+    background:
+      linear-gradient(160deg, hsl(var(--card)) 0%, hsl(var(--card) / 0.97) 100%);
+  }
+  .shadcn-card::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 12%;
+    right: 12%;
+    height: 1.5px;
+    border-radius: 999px;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--primary) / 0.75),
+      transparent
+    );
+    pointer-events: none;
+    z-index: 1;
   }
   
   @media (min-width: 1024px) {
@@ -1231,19 +1301,6 @@ body {
     background: linear-gradient(90deg, transparent, rgba(232, 41, 30, 0.4), transparent);
   }
 
-  /*
-   * Page shells always follow user theme tokens (mode + background + accent).
-   * Soft primary wash for depth; no hard-coded paper/black that fights prefs.
-   */
-  .page-persuasion,
-  .surface-page {
-    background:
-      radial-gradient(ellipse 90% 55% at 50% -12%, hsl(var(--primary) / 0.09), transparent 58%),
-      radial-gradient(ellipse 50% 40% at 100% 0%, hsl(var(--primary) / 0.04), transparent 50%),
-      hsl(var(--background));
-    color: hsl(var(--foreground));
-  }
-
   /* Elevated cards / panels */
   .surface-card {
     background:
@@ -1254,21 +1311,48 @@ body {
     box-shadow: 0 1px 0 hsl(var(--foreground) / 0.03) inset;
   }
 
-  /* Alternate section band (still themed) */
-  .surface-band {
+  /* Elite kicker / eyebrow — command label */
+  .text-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: hsl(var(--primary));
+  }
+  .text-kicker::before {
+    content: "";
+    display: inline-block;
+    width: 1.25rem;
+    height: 2px;
+    border-radius: 999px;
+    background: hsl(var(--primary));
+    box-shadow: 0 0 10px hsl(var(--primary) / 0.65);
+  }
+
+  /*
+   * Page shells always follow user theme tokens (mode + background + accent).
+   * Stronger atmospheric depth so the product reads premium at a glance.
+   */
+  .page-persuasion,
+  .surface-page {
     background:
-      linear-gradient(180deg, hsl(var(--muted) / 0.9), hsl(var(--muted))),
-      hsl(var(--muted));
+      radial-gradient(ellipse 100% 70% at 50% -18%, hsl(var(--primary) / 0.16), transparent 55%),
+      radial-gradient(ellipse 55% 45% at 100% 0%, hsl(var(--primary) / 0.08), transparent 48%),
+      radial-gradient(ellipse 40% 35% at 0% 100%, hsl(var(--primary) / 0.05), transparent 45%),
+      hsl(var(--background));
     color: hsl(var(--foreground));
   }
 
-  /* Elite kicker / eyebrow */
-  .text-kicker {
-    font-size: 0.6875rem;
-    font-weight: 700;
-    letter-spacing: 0.16em;
-    text-transform: uppercase;
-    color: hsl(var(--primary));
+  .surface-band {
+    background:
+      linear-gradient(180deg, hsl(var(--muted) / 0.55), hsl(var(--muted) / 0.92)),
+      radial-gradient(ellipse 80% 60% at 50% 0%, hsl(var(--primary) / 0.08), transparent 60%),
+      hsl(var(--muted));
+    color: hsl(var(--foreground));
+    border-block: 1px solid hsl(var(--border) / 0.55);
   }
 
   /* Panel inset for tools / membership interiors */

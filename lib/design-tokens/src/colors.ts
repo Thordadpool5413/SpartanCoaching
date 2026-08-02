@@ -5,52 +5,52 @@
  */
 
 export const spartanDark = {
-  text: "#f0f4fc",
-  tint: "#e8291e",
+  text: "#f4f7fd",
+  tint: "#ff2d20",
 
-  /** Midnight navy — deep ink (matches web elite midnight) */
-  background: "#0c1220",
-  foreground: "#f4f7fd",
+  /** Midnight navy — deeper command surface */
+  background: "#070b14",
+  foreground: "#f7f9fd",
 
-  card: "#141d30",
+  card: "#121a2c",
   cardElevated: "#1a2540",
-  cardForeground: "#f4f7fd",
+  cardForeground: "#f7f9fd",
 
-  primary: "#e8291e",
+  primary: "#ff2d20",
   primaryForeground: "#ffffff",
-  primaryMuted: "rgba(232, 41, 30, 0.14)",
+  primaryMuted: "rgba(255, 45, 32, 0.16)",
 
-  secondary: "#243049",
-  secondaryForeground: "#f0f4fc",
+  secondary: "#1e2a42",
+  secondaryForeground: "#f4f7fd",
 
-  muted: "#1c273c",
+  muted: "#172033",
   /** High-contrast secondary text (readable on navy) */
-  mutedForeground: "rgba(226, 232, 245, 0.78)",
+  mutedForeground: "rgba(230, 236, 248, 0.82)",
 
   accent: "#2a1020",
   accentForeground: "#f5b8b4",
 
-  destructive: "#e8291e",
+  destructive: "#ff2d20",
   destructiveForeground: "#ffffff",
 
-  border: "rgba(200, 214, 240, 0.14)",
-  borderStrong: "rgba(200, 214, 240, 0.22)",
-  input: "#171f32",
+  border: "rgba(200, 214, 240, 0.16)",
+  borderStrong: "rgba(200, 214, 240, 0.28)",
+  input: "#141c2e",
 
-  heroBackground: "#080e1a",
+  heroBackground: "#050912",
   heroForeground: "#ffffff",
-  heroMuted: "rgba(226, 232, 245, 0.72)",
-  heroBadgeBg: "rgba(232,41,30,0.12)",
-  heroBadgeBorder: "rgba(232,41,30,0.45)",
-  heroBadgeText: "rgba(255,255,255,0.95)",
+  heroMuted: "rgba(226, 232, 245, 0.74)",
+  heroBadgeBg: "rgba(255,45,32,0.14)",
+  heroBadgeBorder: "rgba(255,45,32,0.5)",
+  heroBadgeText: "rgba(255,255,255,0.96)",
 
   success: "#4ade80",
   warning: "#fbbf24",
 
   /** Tab / chrome */
-  tabBar: "#0a101c",
-  tabInactive: "rgba(226, 232, 245, 0.5)",
-  overlay: "rgba(8, 12, 22, 0.78)",
+  tabBar: "#080d18",
+  tabInactive: "rgba(226, 232, 245, 0.48)",
+  overlay: "rgba(5, 8, 16, 0.82)",
 } as const;
 
 /** Light marketing surfaces (web public); Field Kit prefers dark. */

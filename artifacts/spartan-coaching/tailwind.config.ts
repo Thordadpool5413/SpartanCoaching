@@ -15,8 +15,10 @@ export default {
         '4xl': '2rem', /* 32px */
       },
       boxShadow: {
-        elite: "0 12px 40px -14px rgba(0,0,0,0.5), 0 0 0 1px hsl(var(--border) / 0.6)",
-        "elite-red": "0 14px 36px -12px hsl(var(--primary) / 0.45), 0 0 0 1px hsl(var(--primary) / 0.2)",
+        elite:
+          "0 16px 48px -16px rgba(0,0,0,0.65), 0 0 0 1px hsl(var(--border) / 0.55), 0 0 40px -20px hsl(var(--primary) / 0.2)",
+        "elite-red":
+          "0 18px 44px -12px hsl(var(--primary) / 0.55), 0 0 0 1px hsl(var(--primary) / 0.28), 0 0 48px -16px hsl(var(--primary) / 0.35)",
       },
       colors: {
         // Flat / base colors (regular buttons)

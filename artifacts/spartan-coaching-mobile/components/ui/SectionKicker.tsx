@@ -7,6 +7,7 @@ export function SectionKicker({ children }: { children: string }) {
   const colors = useColors();
   return (
     <Text style={[styles.kicker, { color: colors.primary }]} accessibilityRole="text">
+      {"━  "}
       {children}
     </Text>
   );
@@ -15,8 +16,8 @@ export function SectionKicker({ children }: { children: string }) {
 const styles = StyleSheet.create({
   kicker: {
     fontSize: typeScale.kicker.fontSize,
-    fontWeight: typeScale.kicker.fontWeight,
-    letterSpacing: typeScale.kicker.letterSpacing,
+    fontWeight: "800" as const,
+    letterSpacing: 1.8,
     textTransform: "uppercase",
     fontFamily: "Inter_700Bold",
   },

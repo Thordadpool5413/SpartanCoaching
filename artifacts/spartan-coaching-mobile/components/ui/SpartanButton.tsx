@@ -1,6 +1,7 @@
 import React from "react";
 import {
   ActivityIndicator,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -54,9 +55,19 @@ export function SpartanButton({
         {
           backgroundColor: bg,
           borderColor,
-          borderWidth: variant === "outline" ? 1.5 : 0,
-          opacity: isDisabled ? 0.55 : pressed ? 0.88 : 1,
-          transform: [{ scale: pressed && !isDisabled ? 0.98 : 1 }],
+          borderWidth: variant === "outline" ? 2 : 0,
+          opacity: isDisabled ? 0.55 : pressed ? 0.9 : 1,
+          transform: [{ scale: pressed && !isDisabled ? 0.97 : 1 }],
+          ...(variant === "primary" && Platform.OS === "ios"
+            ? {
+                shadowColor: colors.primary,
+                shadowOpacity: 0.45,
+                shadowRadius: 14,
+                shadowOffset: { width: 0, height: 6 },
+              }
+            : variant === "primary"
+              ? { elevation: 6 }
+              : null),
         },
         variant === "primary" && styles.primaryShadow,
         style,

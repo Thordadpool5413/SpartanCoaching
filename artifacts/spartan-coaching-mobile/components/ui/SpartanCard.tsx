@@ -29,15 +29,26 @@ export function SpartanCard({
           ...(Platform.OS === "ios"
             ? {
                 shadowColor: emphasized ? colors.primary : "#000",
-                shadowOpacity: emphasized ? 0.22 : 0.28,
-                shadowRadius: emphasized ? 14 : 12,
-                shadowOffset: { width: 0, height: 6 },
+                shadowOpacity: emphasized ? 0.35 : 0.4,
+                shadowRadius: emphasized ? 18 : 14,
+                shadowOffset: { width: 0, height: 8 },
               }
-            : { elevation: emphasized ? 6 : 3 }),
+            : { elevation: emphasized ? 8 : 4 }),
         },
         style,
       ]}
     >
+      {/* Top command rail — elite signature */}
+      <View
+        pointerEvents="none"
+        style={[
+          styles.topRail,
+          {
+            backgroundColor: emphasized ? colors.primary : `${colors.primary}99`,
+            opacity: emphasized ? 1 : 0.65,
+          },
+        ]}
+      />
       {children}
     </View>
   );
@@ -47,5 +58,14 @@ const styles = StyleSheet.create({
   card: {
     borderRadius: radius.lg,
     padding: 18,
+    overflow: "hidden",
+  },
+  topRail: {
+    position: "absolute",
+    top: 0,
+    left: "12%",
+    right: "12%",
+    height: 2,
+    borderRadius: 999,
   },
 });

@@ -90,13 +90,14 @@ export default function Home() {
 
       {/* ── 2. AUTHORITY STRIP (photo + credentials — hire confidence) ── */}
       <section
-        className="relative border-y border-border bg-card text-card-foreground"
+        className="relative border-y border-border bg-card text-card-foreground surface-noise"
         data-testid="section-authority"
       >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-14 sm:py-20">
+        <div className="absolute inset-0 bg-spartan-gradient-radial opacity-30 pointer-events-none" />
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
           <FadeIn>
-            <div className="grid md:grid-cols-[220px_1fr] gap-8 md:gap-12 items-center">
-              <div className="relative mx-auto md:mx-0 w-44 sm:w-52 md:w-full aspect-[4/5] overflow-hidden rounded-2xl border border-border shadow-elite">
+            <div className="grid md:grid-cols-[240px_1fr] gap-10 md:gap-14 items-center">
+              <div className="relative mx-auto md:mx-0 w-44 sm:w-52 md:w-full aspect-[4/5] overflow-hidden rounded-2xl border border-primary/30 shadow-elite-red ring-1 ring-primary/20">
                 <img
                   src={nickPhoto}
                   alt="Nick Lynch, founder of Spartan Coaching"
@@ -106,7 +107,7 @@ export default function Home() {
                   loading="lazy"
                   decoding="async"
                 />
-                <div className="absolute bottom-0 inset-x-0 h-1 bg-primary" />
+                <div className="absolute bottom-0 inset-x-0 h-1.5 bg-primary shadow-[0_0_20px_hsl(var(--primary))]" />
               </div>
               <div className="text-center md:text-left">
                 <p className="text-kicker mb-3">
@@ -195,11 +196,11 @@ export default function Home() {
               const Icon = p.icon;
               return (
                 <StaggerItem key={p.title}>
-                  <Card className="h-full border-2 bg-card shadow-sm p-6 flex flex-col" data-testid={`card-pillar-${p.title}`}>
-                    <div className="w-12 h-12 rounded-lg bg-primary/15 text-primary flex items-center justify-center mb-4">
+                  <Card className="h-full p-6 sm:p-7 flex flex-col elite-panel border-0" data-testid={`card-pillar-${p.title}`}>
+                    <div className="w-12 h-12 rounded-xl bg-primary/15 text-primary flex items-center justify-center mb-5 ring-1 ring-primary/25 shadow-[0_0_24px_-6px_hsl(var(--primary)/0.5)]">
                       <Icon className="w-6 h-6" />
                     </div>
-                    <h3 className="text-lg font-bold text-foreground mb-2">{p.title}</h3>
+                    <h3 className="text-lg sm:text-xl font-display font-bold text-foreground mb-2 tracking-tight">{p.title}</h3>
                     <p className="text-sm text-muted-foreground leading-relaxed flex-1 mb-4">{p.desc}</p>
                     <Link href={p.href} className="text-sm font-bold text-primary inline-flex items-center gap-1 hover:underline">
                       {p.cta} <ArrowRight className="w-4 h-4" />
@@ -331,12 +332,12 @@ export default function Home() {
       </section>
 
       {/* ── 7. CLOSING — two clear CTAs only ── */}
-      <section className="relative surface-band py-20 sm:py-28" data-testid="section-closing">
-        <div className="absolute inset-0 bg-spartan-gradient-radial opacity-20 pointer-events-none" />
+      <section className="relative surface-band py-20 sm:py-32" data-testid="section-closing">
+        <div className="absolute inset-0 bg-spartan-gradient-radial opacity-40 pointer-events-none" />
         <FadeIn>
-          <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center">
-            <p className="text-sm font-bold tracking-widest text-primary uppercase mb-6">Ready to close the gap?</p>
-            <h2 className="text-h2 font-bold text-foreground mb-6 font-display" data-testid="text-closing-title">
+          <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center elite-panel p-8 sm:p-12">
+            <p className="text-kicker mb-6 justify-center">Ready to close the gap?</p>
+            <h2 className="text-h1 font-bold text-foreground mb-6 font-display" data-testid="text-closing-title">
               Stop winging it.
             </h2>
             <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">

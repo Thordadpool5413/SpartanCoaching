@@ -128,17 +128,18 @@ export default function FieldKit() {
       <SEO />
 
       {/* ── HERO ── */}
-      <section className="relative overflow-hidden bg-background py-20 sm:py-28" data-testid="section-hero">
-        <div className="absolute inset-0 bg-spartan-gradient-radial opacity-20 pointer-events-none" />
-        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/40 to-transparent" />
-        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-7">
-          <p className="text-kicker">
+      <section className="relative overflow-hidden bg-background py-20 sm:py-32" data-testid="section-hero">
+        <div className="absolute inset-0 bg-spartan-gradient-radial opacity-45 pointer-events-none" />
+        <div className="absolute inset-0 surface-noise pointer-events-none opacity-80" />
+        <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-primary/55 to-transparent" />
+        <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center space-y-8">
+          <p className="text-kicker justify-center">
             Private Field Kit · Built for the rep who refuses to wing Tuesday
           </p>
           <h1 className="text-hero text-foreground">
             The edge that wins the room.
             <br />
-            <span className="text-primary">Not every rep has access.</span>
+            <span className="text-gradient-primary">Not every rep has access.</span>
           </h1>
           <p className="text-lg sm:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto">
             Built by someone who ran the territory and coached the reps who consistently rank at the top of their

@@ -171,8 +171,8 @@ export default function Tools() {
       <BackButton />
       <FieldKitChrome />
       <SlideUp>
-        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-12">
-          <p className="text-kicker mb-3">Field Kit</p>
+        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
+          <p className="text-kicker mb-4 justify-center">Field Kit</p>
           <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-tools-title">
             Tools
           </h1>

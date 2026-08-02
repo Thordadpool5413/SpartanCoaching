@@ -232,22 +232,27 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur-xl shadow-lg safe-area-top">
+    <header className="sticky top-0 z-50 w-full dark-authority-header safe-area-top">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-18 md:h-20 flex items-center justify-between gap-3 sm:gap-6 safe-area-x">
         <Link href={homeHref}>
-          <div className="flex items-center gap-2 sm:gap-3 hover:opacity-90 transition-opacity cursor-pointer touch-manipulation" data-testid="link-home">
-            <img
-              src="/spartan-logo-stamp.png"
-              alt=""
-              className="h-8 w-8 sm:h-10 sm:w-10 object-contain"
-              width={40}
-              height={40}
-              decoding="async"
-            />
+          <div className="flex items-center gap-2.5 sm:gap-3.5 hover:opacity-95 transition-opacity cursor-pointer touch-manipulation group" data-testid="link-home">
+            <div className="relative">
+              <img
+                src="/spartan-logo-stamp.png"
+                alt=""
+                className="h-9 w-9 sm:h-11 sm:w-11 object-contain drop-shadow-[0_0_12px_hsl(var(--primary)/0.45)]"
+                width={44}
+                height={44}
+                decoding="async"
+              />
+            </div>
             <div>
               {/* Not h1 — page content owns the document title heading (a11y) */}
-              <span className="font-black text-xl sm:text-2xl md:text-3xl text-primary tracking-tight font-display block">
+              <span className="font-black text-xl sm:text-2xl md:text-[1.85rem] text-primary tracking-tight font-display block leading-none group-hover:text-primary">
                 SPARTAN COACHING
+              </span>
+              <span className="hidden sm:block text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground mt-1">
+                Hospice growth · Field command
               </span>
             </div>
           </div>
