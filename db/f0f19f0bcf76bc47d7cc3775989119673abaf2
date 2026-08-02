@@ -1,0 +1,28 @@
+artifacts/spartan-coaching-mobile/app/(tabs)/index.tsx
+  h_0446834f150a71 7,38-39,256,258,262-266,268,271-272,275-277,279-280,282-284,286-289,292-293,295,301-305,307-308,311
+artifacts/spartan-coaching-mobile/app/(tabs)/tools.tsx
+  h_0446834f150a71 66-72,77,83,89,95,101,107,113,119,125,131,1914-1921,1923,1926,1932,1952-1959,1961,1964,2044-2052,2094,2098-2103,2105,2298-2305,2386
+artifacts/spartan-coaching-mobile/app/_layout.tsx
+  h_0446834f150a71 12,59-69,76,81
+artifacts/spartan-coaching-mobile/app/login.tsx
+  h_0446834f150a71 11,93,98,115,117-118
+artifacts/spartan-coaching-mobile/components/ui/SectionKicker.tsx
+  h_0446834f150a71 5,22
+artifacts/spartan-coaching-mobile/components/ui/SpartanButton.tsx
+  h_0446834f150a71 14,104
+artifacts/spartan-coaching-mobile/components/ui/SpartanInput.tsx
+  h_0446834f150a71 4,42,50,52
+artifacts/spartan-coaching-mobile/lib/typography.ts
+  h_0446834f150a71 1-32
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "dbf0f19f0bcf76bc47d7cc3775989119673abaf2",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
