@@ -1,9 +1,15 @@
 /**
  * Theme surface contract — every BG preset must keep high-contrast ink.
- * Wave 4 visual-regression guard (unit-level lightness check).
+ * Phase E: expanded light-mode + primary-on-paper guards.
  */
 import { describe, it, expect } from "vitest";
-import { BG_PRESETS, ACCENT_PRESETS, getBgPreset, type BgKey } from "./theme";
+import {
+  BG_PRESETS,
+  ACCENT_PRESETS,
+  getBgPreset,
+  modeForBackground,
+  type BgKey,
+} from "./theme";
 
 /** Parse HSL component string "H S% L%" → lightness 0–100 */
 function lightness(hslComponents: string): number {
@@ -60,5 +66,35 @@ describe("BG_PRESETS contrast contract", () => {
     const keys: BgKey[] = BG_PRESETS.map((p) => p.key);
     expect(keys).toContain("midnight");
     expect(keys).toContain("soft");
+  });
+
+  it("light marketing presets (soft/warm/cool) stay paper-bright", () => {
+    for (const key of ["soft", "warm", "cool"] as const) {
+      const p = getBgPreset(key);
+      expect(p.tone).toBe("light");
+      expect(modeForBackground(key)).toBe("light");
+      expect(lightness(p.bg)).toBeGreaterThan(90);
+      expect(lightness(p.card)).toBeGreaterThan(95);
+      expect(lightness(p.border)).toBeLessThan(90);
+    }
+  });
+
+  it("Spartan red primaryLight is dark enough for text on soft white", () => {
+    const red = ACCENT_PRESETS.find((a) => a.key === "red")!;
+    // ~48% L on paper needs to stay under ~55 for body-sized red labels
+    expect(lightness(red.primaryLight)).toBeLessThan(55);
+    expect(lightness(red.primaryLight)).toBeGreaterThan(35);
+  });
+
+  it("primaryDark stays vivid (not muddy) on midnight", () => {
+    const red = ACCENT_PRESETS.find((a) => a.key === "red")!;
+    expect(lightness(red.primaryDark)).toBeGreaterThan(50);
+    expect(lightness(red.primaryDark)).toBeLessThan(70);
+  });
+
+  it("modeForBackground matches preset tone for every key", () => {
+    for (const p of BG_PRESETS) {
+      expect(modeForBackground(p.key)).toBe(p.tone);
+    }
   });
 });

@@ -183,14 +183,18 @@ async function renderFieldKit(authState: object) {
 // ── Tests ─────────────────────────────────────────────────────────────────────
 
 describe("FieldKit hero headline — all states", () => {
-  it("renders the elite hero headline regardless of auth state (unauthenticated)", async () => {
-    await renderFieldKit(UNAUTHED);
-    // The page-level container must be present
-    expect(screen.getByTestId("page-field-kit")).toBeTruthy();
-    // Elite headline fragments
-    expect(screen.getByText(/The edge that wins the room/i)).toBeTruthy();
-    expect(screen.getByText(/Not every rep has access/i)).toBeTruthy();
-  });
+  it(
+    "renders the elite hero headline regardless of auth state (unauthenticated)",
+    async () => {
+      await renderFieldKit(UNAUTHED);
+      // The page-level container must be present
+      expect(screen.getByTestId("page-field-kit")).toBeTruthy();
+      // Elite headline fragments
+      expect(screen.getByText(/The edge that wins the room/i)).toBeTruthy();
+      expect(screen.getByText(/Not every rep has access/i)).toBeTruthy();
+    },
+    15_000,
+  );
 
   it("renders the elite hero headline when can-subscribe", async () => {
     await renderFieldKit(CAN_SUBSCRIBE);

@@ -15,6 +15,7 @@ export default {
         '4xl': '2rem', /* 32px */
       },
       boxShadow: {
+        /** Dark-authority default; light mode overridden in index.css */
         elite:
           "0 16px 48px -16px rgba(0,0,0,0.65), 0 0 0 1px hsl(var(--border) / 0.55), 0 0 40px -20px hsl(var(--primary) / 0.2)",
         "elite-red":

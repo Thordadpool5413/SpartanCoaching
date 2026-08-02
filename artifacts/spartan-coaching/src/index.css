@@ -511,8 +511,16 @@ body {
   html[data-theme-mode="light"] [data-testid="section-faq-cta"],
   html[data-theme-mode="light"] [data-testid="section-faq-cta"] *,
   html[data-theme-mode="light"] button.bg-primary,
-  html[data-theme-mode="light"] button.bg-primary * {
+  html[data-theme-mode="light"] button.bg-primary *,
+  html[data-theme-mode="light"] .text-primary-foreground,
+  html[data-theme-mode="light"] .text-primary-foreground * {
     color: inherit;
+  }
+  /* Explicit primary-foreground on primary fills (buttons, badges) */
+  html[data-theme-mode="light"] .bg-primary .text-primary-foreground,
+  html[data-theme-mode="light"] button.bg-primary,
+  html[data-theme-mode="light"] a.bg-primary {
+    color: hsl(var(--primary-foreground)) !important;
   }
   html[data-theme-mode="light"] .bg-primary,
   html[data-theme-mode="light"] button[class*="bg-primary"],
@@ -1078,7 +1086,7 @@ body {
     letter-spacing: -0.02em;
   }
 
-  /* Elite panel — command-surface cards used sitewide */
+  /* Elite panel — emphasis tier only (mission / primary CTA cards) */
   .elite-panel {
     position: relative;
     overflow: hidden;
@@ -1124,7 +1132,20 @@ body {
     padding-left: 1rem;
   }
 
-  /* Quiet cards by default — emphasis only when requested */
+  /* Surface tiers: quiet | default | emphasis */
+  .surface-quiet {
+    background: hsl(var(--card));
+    color: hsl(var(--card-foreground));
+    border: 1px solid hsl(var(--border) / 0.75);
+    border-radius: 1rem;
+    box-shadow: none;
+  }
+  .surface-quiet::before,
+  .surface-quiet::after {
+    display: none !important;
+  }
+
+  /* Default cards — quiet gradient, no automatic red rail */
   .shadcn-card {
     background:
       linear-gradient(160deg, hsl(var(--card)) 0%, hsl(var(--card) / 0.97) 100%);
@@ -1146,6 +1167,39 @@ body {
     );
     pointer-events: none;
     z-index: 1;
+  }
+
+  /* Light mode: calmer depth so CEO screenshots read as paper, not nightclub */
+  html[data-theme-mode="light"] .elite-panel {
+    box-shadow:
+      0 0 0 1px hsl(var(--primary) / 0.08) inset,
+      0 12px 32px -16px rgba(15, 23, 42, 0.14),
+      0 0 28px -18px hsl(var(--primary) / 0.12);
+  }
+  html[data-theme-mode="light"] .elite-panel::after {
+    opacity: 0.02;
+  }
+  html[data-theme-mode="light"] .dark-authority-header {
+    box-shadow:
+      0 1px 0 hsl(var(--primary) / 0.08),
+      0 8px 24px -16px rgba(15, 23, 42, 0.12);
+  }
+  html[data-theme-mode="light"] .page-persuasion,
+  html[data-theme-mode="light"] .surface-page {
+    background:
+      radial-gradient(ellipse 100% 70% at 50% -18%, hsl(var(--primary) / 0.07), transparent 55%),
+      radial-gradient(ellipse 55% 45% at 100% 0%, hsl(var(--primary) / 0.04), transparent 48%),
+      hsl(var(--background));
+  }
+  html[data-theme-mode="light"] .hover-card:hover,
+  html[data-theme-mode="light"] .card-lift:hover {
+    box-shadow: 0 12px 28px -14px rgba(15, 23, 42, 0.16);
+  }
+  html[data-theme-mode="light"] .shadow-elite,
+  html[data-theme-mode="light"] .shadow-elite-red {
+    box-shadow:
+      0 1px 0 hsl(var(--foreground) / 0.04) inset,
+      0 10px 28px -12px rgba(15, 23, 42, 0.12) !important;
   }
   
   @media (min-width: 1024px) {
