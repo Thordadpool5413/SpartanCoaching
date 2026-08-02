@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, TextInput, View, type TextInputProps } from "react-native";
 import { useColors } from "@/hooks/useColors";
+import { font } from "@/lib/typography";
 
 export function SpartanInput({
   label,
@@ -36,10 +37,9 @@ const styles = StyleSheet.create({
   wrap: { marginBottom: 4 },
   label: {
     fontSize: 12,
-    fontWeight: "600",
     marginBottom: 6,
     marginTop: 12,
-    fontFamily: "Inter_600SemiBold",
+    ...font("semibold"),
   },
   input: {
     borderWidth: 1,
@@ -47,7 +47,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 14,
     paddingVertical: 12,
     fontSize: 16,
-    fontFamily: "Inter_400Regular",
+    ...font("regular"),
   },
-  error: { marginTop: 8, fontSize: 13, fontFamily: "Inter_400Regular" },
+  error: { marginTop: 8, fontSize: 13, ...font("regular") },
 });

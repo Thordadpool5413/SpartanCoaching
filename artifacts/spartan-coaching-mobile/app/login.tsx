@@ -8,6 +8,7 @@ import { SectionKicker } from "@/components/ui/SectionKicker";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { SpartanInput } from "@/components/ui/SpartanInput";
 import { SpartanCard } from "@/components/ui/SpartanCard";
+import { font } from "@/lib/typography";
 
 export default function LoginScreen() {
   const colors = useColors();
@@ -89,12 +90,12 @@ export default function LoginScreen() {
           style={{ marginTop: 20 }}
           testID="button-create-account"
         >
-          <Text style={{ color: colors.primary, textAlign: "center", fontWeight: "700", fontFamily: "Inter_600SemiBold" }}>
+          <Text style={[{ color: colors.primary, textAlign: "center" }, font("semibold")]}>
             New? Create an account →
           </Text>
         </Pressable>
         <Pressable onPress={() => router.push("/(tabs)/contact")} style={{ marginTop: 12 }}>
-          <Text style={{ color: colors.mutedForeground, textAlign: "center", fontWeight: "600", fontFamily: "Inter_400Regular" }}>
+          <Text style={[{ color: colors.mutedForeground, textAlign: "center" }, font("regular")]}>
             Prefer a strategy call? Contact us
           </Text>
         </Pressable>
@@ -108,11 +109,10 @@ const styles = StyleSheet.create({
   inner: { paddingHorizontal: 24, maxWidth: 480, width: "100%", alignSelf: "center" },
   title: {
     fontSize: 32,
-    fontWeight: "900",
     marginTop: 8,
     marginBottom: 8,
     letterSpacing: -0.4,
-    fontFamily: "Inter_700Bold",
+    ...font("heavy"),
   },
-  sub: { fontSize: 15, lineHeight: 22, marginBottom: 20, fontFamily: "Inter_400Regular" },
+  sub: { fontSize: 15, lineHeight: 22, marginBottom: 20, ...font("regular") },
 });

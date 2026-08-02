@@ -11,6 +11,7 @@ import {
 } from "react-native";
 import { useColors } from "@/hooks/useColors";
 import { radius } from "@workspace/design-tokens";
+import { font } from "@/lib/typography";
 
 type Variant = "primary" | "outline" | "ghost";
 
@@ -99,8 +100,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 15,
-    fontWeight: "700",
     letterSpacing: 0.2,
-    fontFamily: "Inter_700Bold",
+    ...font("bold"),
   },
 });

@@ -4,6 +4,7 @@ import {
   AppState,
   AppStateStatus,
   Image,
+  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -34,6 +35,8 @@ import { SectionKicker } from "@/components/ui/SectionKicker";
 import { SpartanCard } from "@/components/ui/SpartanCard";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { FIELD_KIT_WHAT } from "@workspace/field-kit-catalog";
+import { font } from "@/lib/typography";
+import { getWebSiteUrl } from "@/lib/api";
 
 const SUGGESTIONS = [
   "What are hospice eligibility criteria for heart failure?",
@@ -250,105 +253,62 @@ export default function HomeScreen() {
     }
   };
 
-  // ── Logged-out marketing home ─────────────────────────────────────
+  // ── Logged-out: short pitch (not a website port) ──────────────────
   if (!canUseFieldKit) {
+    const siteUrl = getWebSiteUrl();
     return (
       <ScrollView
         style={[styles.container, { backgroundColor: colors.background }]}
-        contentContainerStyle={{ paddingBottom: bottomPad }}
+        contentContainerStyle={{
+          paddingBottom: bottomPad,
+          flexGrow: 1,
+          justifyContent: "center",
+        }}
         showsVerticalScrollIndicator={false}
+        testID="screen-logged-out-home"
       >
         <LinearGradient
-          colors={[colors.heroBackground, colors.background, colors.card]}
-          style={[styles.hero, { paddingTop: topPad + 20 }]}
+          colors={[colors.heroBackground, colors.background]}
+          style={[styles.hero, { paddingTop: topPad + 28, paddingBottom: 48 }]}
         >
           <Image source={require("@/assets/images/logo.png")} style={styles.logo} resizeMode="contain" />
-          <Text style={[styles.heroTitle, { color: colors.heroForeground }]}>Hospice sales</Text>
-          <Text style={[styles.heroTitle, { color: colors.heroMuted }]}>is not a mystery.</Text>
-          <Text style={[styles.heroTitle, styles.heroTitleAccent, { color: colors.primary }]}>
-            It is a promise.
+          <SectionKicker>Spartan Coaching</SectionKicker>
+          <Text style={[styles.heroTitle, { color: colors.heroForeground, marginTop: 12 }, font("heavy")]}>
+            Field-ready hospice sales coaching.
           </Text>
-          <Text style={[styles.heroTagline, { color: colors.heroMuted }]}>
-            Practical coaching for hospice growth professionals — conversations, territory systems, and weekly accountability that hold in the field.
+          <Text style={[styles.heroTagline, { color: colors.heroMuted, marginTop: 12 }, font("regular")]}>
+            Conversations, territory systems, and weekly accountability — for the parking lot, not the boardroom deck.
           </Text>
-          <View
-            style={[
-              styles.heroBadge,
-              { backgroundColor: colors.heroBadgeBg, borderColor: colors.heroBadgeBorder },
-            ]}
-          >
-            <View style={[styles.heroBadgeDot, { backgroundColor: colors.primary }]} />
-            <Text style={[styles.heroBadgeText, { color: colors.heroBadgeText }]}>
-              Coaching · programs · strategy for hospice growth teams
-            </Text>
-          </View>
-          <Pressable
+
+          <SpartanButton
+            title="Book a strategy call"
             onPress={() => router.push("/(tabs)/contact")}
-            style={{
-              marginTop: 16,
-              paddingVertical: 14,
-              paddingHorizontal: 24,
-              borderRadius: 12,
-              backgroundColor: colors.primary,
-              width: "100%",
-              maxWidth: 320,
-            }}
-          >
-            <Text style={{ color: colors.primaryForeground, fontWeight: "800", textAlign: "center", fontSize: 16 }}>
-              Book a strategy call
-            </Text>
-          </Pressable>
+            style={{ marginTop: 28, width: "100%", maxWidth: 320 }}
+            testID="button-book-call-logged-out"
+          />
+
           <Pressable
             onPress={() => (isAuthenticated ? router.push("/(tabs)/account") : router.push("/login"))}
-            style={{ marginTop: 14 }}
+            style={{ marginTop: 18, minHeight: 44, justifyContent: "center" }}
+            testID="button-client-login"
           >
-            <Text style={{ color: colors.heroMuted, fontWeight: "700", textAlign: "center", fontSize: 14 }}>
+            <Text style={[{ color: colors.heroForeground, textAlign: "center", fontSize: 16 }, font("semibold")]}>
               {isAuthenticated ? "Open account" : "Client login"}
             </Text>
           </Pressable>
-        </LinearGradient>
 
-        <View style={[styles.missionSection, { backgroundColor: colors.heroBackground }]}>
-          <Text style={[styles.missionOverline, { color: colors.primary, fontFamily: "Inter_700Bold" }]}>
-            The Real Problem
-          </Text>
-          <Text style={[styles.missionTitle, { color: colors.heroForeground, fontFamily: "Inter_700Bold" }]}>
-            The Gap Is Not Clinical. It Is Conversational.
-          </Text>
-          <Text style={[styles.missionBody, { color: colors.heroMuted, fontFamily: "Inter_400Regular" }]}>
-            Eligible patients are not receiving hospice care because the right conversations are not happening.
-            Spartan Coaching exists to close that gap, one prepared visit at a time.
-          </Text>
-          {[
-            { name: "Discipline", desc: "The system that holds on Tuesday when caring isn't enough." },
-            { name: "Empathy", desc: "The skill that hears what's underneath 'not yet.'" },
-            { name: "Strategy", desc: "Knowing which five accounts in your territory actually refer." },
-          ].map((pillar) => (
-            <View key={pillar.name} style={styles.pillarRow}>
-              <View style={[styles.pillarAccent, { backgroundColor: colors.primary }]} />
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.pillarName, { color: colors.heroForeground, fontFamily: "Inter_700Bold" }]}>
-                  {pillar.name}
-                </Text>
-                <Text style={[styles.pillarDesc, { color: colors.heroMuted, fontFamily: "Inter_400Regular" }]}>
-                  {pillar.desc}
-                </Text>
-              </View>
-            </View>
-          ))}
           <Pressable
-            onPress={() => router.push("/(tabs)/contact")}
-            style={({ pressed }) => [
-              styles.ctaBtn,
-              { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1, marginTop: 8 },
-            ]}
+            onPress={() => {
+              void Linking.openURL(`${siteUrl}/field-kit`);
+            }}
+            style={{ marginTop: 10, minHeight: 40, justifyContent: "center" }}
+            testID="link-what-is-field-kit"
           >
-            <Text style={[styles.ctaBtnText, { color: colors.primaryForeground, fontFamily: "Inter_700Bold" }]}>
-              Get in Touch
+            <Text style={[{ color: colors.heroMuted, textAlign: "center", fontSize: 14 }, font("regular")]}>
+              What is Field Kit? →
             </Text>
-            <Feather name="arrow-right" size={16} color={colors.primaryForeground} />
           </Pressable>
-        </View>
+        </LinearGradient>
       </ScrollView>
     );
   }

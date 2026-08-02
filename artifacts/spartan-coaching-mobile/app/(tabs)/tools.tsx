@@ -63,66 +63,72 @@ const EMAIL_TYPES = [
   { value: "value_add", label: "Value Add" },
 ];
 
-const ROLEPLAY_SCENARIOS = [
+/** Feather icons only — no emoji chrome (App Store / elite native craft). */
+const ROLEPLAY_SCENARIOS: {
+  id: string;
+  title: string;
+  description: string;
+  icon: React.ComponentProps<typeof Feather>["name"];
+}[] = [
   {
     id: "skeptical_oncologist",
     title: "Skeptical Oncologist",
     description: "Push through hesitation about hospice timing with a doubting specialist.",
-    icon: "🩺",
+    icon: "activity",
   },
   {
     id: "family_not_ready",
     title: "Family Not Ready",
     description: "Navigate grief and resistance when a patient's family resists the conversation.",
-    icon: "👨‍👩‍👧",
+    icon: "users",
   },
   {
     id: "busy_hospitalist",
     title: "Busy Hospitalist",
     description: "Capture attention and earn referrals from a time-pressed hospital doctor.",
-    icon: "⏱️",
+    icon: "clock",
   },
   {
     id: "insurance_concerns",
     title: "Insurance Concerns",
     description: "Address fears about coverage, costs, and what hospice actually covers.",
-    icon: "📋",
+    icon: "file-text",
   },
   {
     id: "ltc_facility_director",
     title: "LTC Facility Director",
     description: "Break through gatekeeping at a long-term care facility and earn a trial referral.",
-    icon: "🏠",
+    icon: "home",
   },
   {
     id: "hospital_social_worker",
     title: "Hospital Social Worker",
     description: "Connect with an overwhelmed social worker juggling discharge deadlines and referral choices.",
-    icon: "👩‍⚕️",
+    icon: "heart",
   },
   {
     id: "reluctant_pcp",
     title: "Reluctant Primary Care Physician",
     description: "Persuade a PCP who resists hospice referrals for fear of upsetting long-standing patients.",
-    icon: "🩻",
+    icon: "user",
   },
   {
     id: "veteran_family",
     title: "Veteran's Family",
     description: "Navigate VA benefit confusion and emotional resistance with a proud veteran's family.",
-    icon: "🎖️",
+    icon: "award",
   },
   {
     id: "palliative_care_coordinator",
     title: "Palliative Care Coordinator",
     description: "Collaborate — not compete — with a palliative coordinator who guards her patient relationships.",
-    icon: "💊",
+    icon: "plus-circle",
   },
   {
     id: "home_health_rn",
     title: "Home Health RN",
     description: "Build a cross-referral partnership with a home health nurse who has overlapping patients.",
-    icon: "🏥",
+    icon: "briefcase",
   },
 ];
 
@@ -1905,18 +1911,25 @@ export default function ToolsScreen() {
                               pressed && { opacity: 0.8 },
                             ]}
                           >
-                            <Text style={styles.scenarioEmoji}>{s.icon}</Text>
+                            <View
+                              style={[
+                                styles.scenarioIconWrap,
+                                { backgroundColor: colors.accent ?? colors.muted },
+                              ]}
+                            >
+                              <Feather name={s.icon} size={22} color={colors.primary} />
+                            </View>
                             <View style={styles.scenarioTextWrap}>
-                              <Text style={[styles.scenarioTitle, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>
+                              <Text style={[styles.scenarioTitle, { color: colors.foreground, fontWeight: "600" }]}>
                                 {s.title}
                               </Text>
-                              <Text style={[styles.scenarioDesc, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                              <Text style={[styles.scenarioDesc, { color: colors.mutedForeground }]}>
                                 {s.description}
                               </Text>
                               {stat && stat.count > 0 && (
                                 <View style={styles.scenarioStatRow}>
                                   <Feather name="check-circle" size={11} color={colors.primary} />
-                                  <Text style={[styles.scenarioStatText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
+                                  <Text style={[styles.scenarioStatText, { color: colors.primary, fontWeight: "600" }]}>
                                     {stat.count}×{stat.lastPracticedAt ? ` · ${formatSavedDate(stat.lastPracticedAt)}` : ""}
                                   </Text>
                                 </View>
@@ -1936,12 +1949,19 @@ export default function ToolsScreen() {
                           }}
                           style={({ pressed }) => [{ flexDirection: "row", alignItems: "center", gap: 14, opacity: pressed ? 0.8 : 1 }]}
                         >
-                          <Text style={styles.scenarioEmoji}>✏️</Text>
+                          <View
+                            style={[
+                              styles.scenarioIconWrap,
+                              { backgroundColor: colors.accent ?? colors.muted },
+                            ]}
+                          >
+                            <Feather name="edit-3" size={22} color={colors.primary} />
+                          </View>
                           <View style={styles.scenarioTextWrap}>
-                            <Text style={[styles.scenarioTitle, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>
+                            <Text style={[styles.scenarioTitle, { color: colors.foreground, fontWeight: "600" }]}>
                               Custom Scenario
                             </Text>
-                            <Text style={[styles.scenarioDesc, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                            <Text style={[styles.scenarioDesc, { color: colors.mutedForeground }]}>
                               Describe your own situation and practice it live.
                             </Text>
                           </View>
@@ -2021,8 +2041,15 @@ export default function ToolsScreen() {
                                         </Text>
                                         {session.rating !== null && (
                                           <View style={{ flexDirection: "row", alignItems: "center", gap: 3 }}>
-                                            <Text style={{ fontSize: 12, color: "#F59E0B" }}>{"★".repeat(session.rating)}{"☆".repeat(5 - session.rating)}</Text>
-                                            <Text style={[savedStyles.cardDate, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
+                                            {[1, 2, 3, 4, 5].map((n) => (
+                                              <Feather
+                                                key={n}
+                                                name="star"
+                                                size={12}
+                                                color={n <= session.rating! ? "#F59E0B" : colors.mutedForeground}
+                                              />
+                                            ))}
+                                            <Text style={[savedStyles.cardDate, { color: colors.mutedForeground, fontWeight: "600" }]}>
                                               {session.rating}/5
                                             </Text>
                                           </View>
@@ -2064,15 +2091,18 @@ export default function ToolsScreen() {
                       {roleplaySession?.scenarioTitle}
                     </Text>
 
-                    {/* Rating stars */}
+                    {/* Rating stars — Feather icons, not emoji */}
                     {roleplayRating !== null && (
                       <View style={styles.starsRow}>
                         {[1, 2, 3, 4, 5].map((star) => (
-                          <Text key={star} style={styles.star}>
-                            {star <= roleplayRating ? "★" : "☆"}
-                          </Text>
+                          <Feather
+                            key={star}
+                            name="star"
+                            size={22}
+                            color={star <= roleplayRating ? "#F59E0B" : colors.mutedForeground}
+                          />
                         ))}
-                        <Text style={[styles.ratingNum, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
+                        <Text style={[styles.ratingNum, { color: colors.mutedForeground, fontWeight: "600" }]}>
                           {roleplayRating}/5
                         </Text>
                       </View>
@@ -2265,7 +2295,14 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     gap: 14,
   },
-  scenarioEmoji: { fontSize: 28 },
+  scenarioIconWrap: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
   scenarioTextWrap: { flex: 1 },
   scenarioTitle: { fontSize: 16, marginBottom: 3 },
   scenarioDesc: { fontSize: 13, lineHeight: 19 },
@@ -2346,8 +2383,7 @@ const styles = StyleSheet.create({
   },
   feedbackTitle: { fontSize: 20, marginBottom: 4 },
   feedbackScenario: { fontSize: 14, marginBottom: 16 },
-  starsRow: { flexDirection: "row", alignItems: "center", gap: 4, marginBottom: 4 },
-  star: { fontSize: 26, color: "#F59E0B" },
+  starsRow: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 4 },
   ratingNum: { fontSize: 16, marginLeft: 6 },
   feedbackDivider: { height: 1, marginVertical: 16 },
   feedbackLabel: { fontSize: 13, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 },

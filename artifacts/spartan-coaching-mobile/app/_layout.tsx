@@ -9,6 +9,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import React, { useEffect } from "react";
+import { Platform } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -55,24 +56,29 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
-  const [fontsLoaded, fontError] = useFonts({
-    Inter_400Regular,
-    Inter_500Medium,
-    Inter_600SemiBold,
-    Inter_700Bold,
-  });
+  // iOS uses SF Pro (system). Load Inter only on Android/web for brand parity.
+  const [fontsLoaded, fontError] = useFonts(
+    Platform.OS === "ios"
+      ? {}
+      : {
+          Inter_400Regular,
+          Inter_500Medium,
+          Inter_600SemiBold,
+          Inter_700Bold,
+        },
+  );
 
   useEffect(() => {
     registerRescheduleTask();
   }, []);
 
   useEffect(() => {
-    if (fontsLoaded || fontError) {
+    if (Platform.OS === "ios" || fontsLoaded || fontError) {
       SplashScreen.hideAsync();
     }
   }, [fontsLoaded, fontError]);
 
-  if (!fontsLoaded && !fontError) return null;
+  if (Platform.OS !== "ios" && !fontsLoaded && !fontError) return null;
 
   return (
     <SafeAreaProvider>
