@@ -7,25 +7,63 @@ import { SEO } from "@/components/SEO";
 import { TrustStrip } from "@/components/TrustStrip";
 import { ProofStrip } from "@/components/ProofStrip";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
-import { lazy, Suspense, Component } from "react";
-import type { ReactNode } from "react";
+import { useEffect, useRef } from "react";
 import nickPhoto from "@assets/nick-photo.jpg";
-import { PROOF_STATS } from "@/lib/proof";
 
 const CANONICAL_ORIGIN = "https://spartanhospicecoaching.com";
 
-const SpartanHeroAnimation = lazy(() =>
-  import("@/components/SpartanHeroAnimation").then((m) => ({ default: m.SpartanHeroAnimation })),
-);
+/**
+ * Full-bleed brand hero video only — no text overlay.
+ * Copy and CTAs live in the authority strip below for skim/SEO.
+ */
+function HeroVideo() {
+  const videoRef = useRef<HTMLVideoElement>(null);
 
-class AnimationErrorBoundary extends Component<{ children: ReactNode }, { failed: boolean }> {
-  state = { failed: false };
-  componentDidCatch() {
-    this.setState({ failed: true });
-  }
-  render() {
-    return this.state.failed ? <div className="absolute inset-0 bg-background" /> : this.props.children;
-  }
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+
+    const reduced =
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduced) {
+      el.pause();
+      el.removeAttribute("autoplay");
+      return;
+    }
+
+    el.muted = true;
+    el.defaultMuted = true;
+    el.playsInline = true;
+    const tryPlay = () => {
+      void el.play().catch(() => {
+        /* autoplay may be blocked until gesture — muted usually ok */
+      });
+    };
+    tryPlay();
+    const t = window.setTimeout(tryPlay, 200);
+    return () => window.clearTimeout(t);
+  }, []);
+
+  return (
+    <video
+      ref={videoRef}
+      autoPlay
+      muted
+      loop
+      playsInline
+      preload="auto"
+      poster="/hero-poster.jpg"
+      className="absolute inset-0 h-full w-full object-cover hero-video-mobile"
+      data-testid="hero-video"
+      aria-label="Spartan Coaching brand hero video"
+      style={{ pointerEvents: "none" }}
+    >
+      {/* Prefer lighter mobile encode when available; desktop falls through to full hero. */}
+      <source src="/hero-video-mobile.mp4" type="video/mp4" media="(max-width: 767px)" />
+      <source src="/hero-video.mp4" type="video/mp4" />
+    </video>
+  );
 }
 
 export default function Home() {
@@ -78,66 +116,16 @@ export default function Home() {
         </script>
       </Helmet>
 
-      {/* ── 1. HERO — permanent thesis + CTAs (animation is atmosphere only) ── */}
+      {/* ── 1. HERO — brand video only, no text overlay ── */}
       <section
-        className="relative min-h-[88vh] sm:min-h-[92vh] flex items-center justify-center overflow-hidden bg-background"
+        className="relative min-h-[70vh] sm:min-h-[85vh] md:min-h-[92vh] flex items-center justify-center overflow-hidden bg-black"
         data-testid="section-hero"
       >
-        <div className="absolute inset-0 pointer-events-none" aria-hidden>
-          <AnimationErrorBoundary>
-            <Suspense fallback={<div className="absolute inset-0 bg-background" />}>
-              <SpartanHeroAnimation />
-            </Suspense>
-          </AnimationErrorBoundary>
-        </div>
-        <div
-          className="absolute inset-0 bg-gradient-to-b from-background/75 via-background/55 to-background pointer-events-none"
-          aria-hidden
-        />
-        <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-28 text-center">
-          <p className="text-kicker justify-center mb-5">Hospice growth coaching</p>
-          <h1
-            className="text-hero text-foreground mb-6"
-            data-testid="text-home-hero-title"
-          >
-            Close the conversational gap.
-            <br />
-            <span className="text-primary">Get eligible patients into care earlier.</span>
-          </h1>
-          <p className="text-base sm:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-8">
-            Practical coaching for hospice liaisons, directors, and multi-market teams —
-            plus an optional Field Kit for Tuesday execution. Ethics and accountability
-            in the same room.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-8">
-            <Button size="lg" asChild className="font-bold px-8 min-w-[220px]" data-testid="button-hero-contact">
-              <Link href="/contact">
-                Book a strategy call
-                <ArrowRight className="ml-2 w-5 h-5" />
-              </Link>
-            </Button>
-            <Button
-              size="lg"
-              variant="outline"
-              asChild
-              className="font-bold border-2 min-w-[220px] bg-background/40 backdrop-blur-sm"
-              data-testid="button-hero-field-kit"
-            >
-              <Link href="/field-kit">Preview Field Kit</Link>
-            </Button>
-          </div>
-          <div className="flex flex-wrap justify-center gap-2 sm:gap-3" data-testid="hero-proof-chips">
-            {PROOF_STATS.map((s) => (
-              <div
-                key={s.label}
-                className="rounded-full border border-border/80 bg-card/70 backdrop-blur-sm px-3.5 py-1.5 text-xs font-semibold text-foreground"
-              >
-                <span className="text-primary font-black mr-1.5">{s.value}</span>
-                {s.label}
-              </div>
-            ))}
-          </div>
-        </div>
+        <HeroVideo />
+        {/* Visually hidden H1 for SEO / a11y — visible thesis is in authority strip */}
+        <h1 className="sr-only" data-testid="text-home-hero-title">
+          Close the conversational gap. Get eligible patients into care earlier.
+        </h1>
       </section>
 
       {/* ── 2. AUTHORITY STRIP (photo + credentials — hire confidence) ── */}
