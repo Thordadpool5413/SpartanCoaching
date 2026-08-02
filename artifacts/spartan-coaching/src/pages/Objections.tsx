@@ -2,14 +2,12 @@ import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CoachingCTA } from "@/components/CoachingCTA";
-import { LightbulbIcon, SpeakerIcon, SpinnerIcon } from "@/components/icons";
-import { Copy } from "lucide-react";
+import { LightbulbIcon, SpinnerIcon } from "@/components/icons";
 import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
-import { MarkdownContent } from "@/components/MarkdownContent";
 import { useToast } from "@/hooks/use-toast";
-import { ReminderPicker } from "@/components/ReminderPicker";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
+import { FieldTalkTrack } from "@/components/FieldTalkTrack";
 import { markFieldKitChecklistDone } from "@/lib/fieldKitProgress";
 
 export default function Objections() {
@@ -148,54 +146,19 @@ export default function Objections() {
                   </>
                 )}
               </Button>
-              {aiResponses[obj.q] && (
-                <div className="p-4 bg-accent rounded-lg space-y-3">
-                  <p className="font-semibold text-sm mb-2 text-primary">AI Generated Response:</p>
-                  <div className="text-foreground" data-testid={`text-ai-response-${idx}`}>
-                    <MarkdownContent content={aiResponses[obj.q]} />
-                  </div>
-                  {citations[obj.q]?.length > 0 && (
-                    <div
-                      className="rounded-md border border-border/80 bg-background/50 px-3 py-2 space-y-1"
-                      data-testid={`citations-${idx}`}
-                    >
-                      <p className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground">
-                        Spartan sources
-                      </p>
-                      <ul className="space-y-0.5">
-                        {citations[obj.q].map((c) => (
-                          <li key={c.id} className="text-xs text-muted-foreground">
-                            <span className="font-semibold text-foreground">{c.title}</span>
-                            <span className="text-muted-foreground"> · {c.category}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                  )}
-                  <div className="flex items-center gap-4">
-                    <button
-                      onClick={() => readAloud(aiResponses[obj.q], obj.q)}
-                      disabled={playing === obj.q}
-                      className="flex items-center gap-2 text-sm text-primary hover:underline disabled:opacity-50"
-                      data-testid={`button-read-aloud-${idx}`}
-                    >
-                      <SpeakerIcon className="w-4 h-4" />
-                      {playing === obj.q ? "Playing..." : "Read Aloud"}
-                    </button>
-                    <button
-                      onClick={() => {
-                        navigator.clipboard.writeText(aiResponses[obj.q]).then(() => {
-                          toast({ title: "Copied to clipboard", description: "AI response is ready to paste." });
-                        });
-                      }}
-                      className="flex items-center gap-2 text-sm text-primary hover:underline"
-                      data-testid={`button-copy-response-${idx}`}
-                    >
-                      <Copy className="w-4 h-4" />
-                      Copy
-                    </button>
-                  </div>
-                  <ReminderPicker title={`Follow up: ${obj.q}`} />
+              {(aiResponses[obj.q] || loading[obj.q]) && (
+                <div data-testid={`text-ai-response-${idx}`}>
+                  <FieldTalkTrack
+                    title="Talk track for the room"
+                    content={aiResponses[obj.q]}
+                    loading={loading[obj.q]}
+                    citations={citations[obj.q]}
+                    reminderTitle={`Follow up: ${obj.q}`}
+                    reading={playing === obj.q}
+                    onReadAloud={() => readAloud(aiResponses[obj.q], obj.q)}
+                    copyTestId={`button-copy-response-${idx}`}
+                    readAloudTestId={`button-read-aloud-${idx}`}
+                  />
                 </div>
               )}
             </div>

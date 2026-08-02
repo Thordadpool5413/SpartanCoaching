@@ -93,17 +93,30 @@ export default function Register() {
 
   return (
     <div
-      className="min-h-[70vh] flex items-center justify-center px-4 py-16 bg-background"
+      className="min-h-[70vh] flex items-center justify-center px-4 py-16 surface-page"
       data-testid="page-register"
     >
       <SEO />
-      <Card className="w-full max-w-md border border-border bg-card p-8 space-y-6">
-        <div className="text-center space-y-2">
-          <p className="text-xs font-bold tracking-widest text-primary uppercase">Individual Field Kit</p>
-          <h1 className="text-2xl font-display font-black text-foreground">Create your account</h1>
+      <Card className="w-full max-w-md border border-border bg-card p-8 sm:p-10 space-y-6 shadow-elite">
+        <div className="text-center space-y-3">
+          <img
+            src="/spartan-logo-stamp.png"
+            alt=""
+            className="h-12 w-12 mx-auto object-contain"
+            width={48}
+            height={48}
+          />
+          <p className="text-kicker justify-center">Path A · Individual Field Kit</p>
+          <h1 className="text-2xl font-display font-black text-foreground tracking-tight">
+            Create your account
+          </h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Create your account, then subscribe for{" "}
-            <strong className="text-foreground">$14.99/week</strong> to access Field Kit tools. Cancel anytime.
+            Then subscribe for{" "}
+            <strong className="text-foreground">$14.99/week</strong> to unlock live tools. Cancel
+            anytime.{" "}
+            <Link href="/request-access" className="font-semibold text-primary hover:underline">
+              Need team access instead?
+            </Link>
           </p>
         </div>
 

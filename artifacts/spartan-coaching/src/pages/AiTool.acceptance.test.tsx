@@ -201,7 +201,8 @@ describe("AI tool web acceptance", () => {
           }),
         );
       });
-      expect(await screen.findByText("acceptance")).toBeTruthy();
+      // ResultValue humanizes object keys ("acceptance" → "Acceptance")
+      expect(await screen.findByText(/^Acceptance$/i)).toBeTruthy();
       expect(screen.getByText("passed")).toBeTruthy();
     },
   );

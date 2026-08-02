@@ -360,7 +360,7 @@ export default function Portal() {
 
       {/* Mission control — always one clear next action */}
       <Card
-        className="mb-8 border border-primary/40 bg-gradient-to-br from-primary/[0.14] via-card to-card p-6 sm:p-8 shadow-elite-red elite-panel"
+        className="mb-8 border border-primary/35 bg-gradient-to-br from-primary/[0.1] via-card to-card p-6 sm:p-8 elite-emphasis elite-panel"
         data-testid="section-mission-next"
         role="region"
         aria-labelledby="portal-next-action-heading"

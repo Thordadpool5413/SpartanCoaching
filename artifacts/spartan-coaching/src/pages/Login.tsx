@@ -59,14 +59,31 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center px-4 py-16 bg-background" data-testid="page-login">
+    <div className="min-h-[70vh] flex items-center justify-center px-4 py-16 surface-page" data-testid="page-login">
       <SEO />
-      <Card className="w-full max-w-md border border-border bg-card p-8 space-y-6">
-        <div className="text-center space-y-2">
-          <p className="text-xs font-bold tracking-widest text-primary uppercase">Client access</p>
-          <h1 className="text-2xl font-display font-black text-foreground">Sign in</h1>
-          <p className="text-sm text-muted-foreground">
-            Field Kit clients: use the email and password from your approval / set-password email.
+      <Card className="w-full max-w-md border border-border bg-card p-8 sm:p-10 space-y-6 shadow-elite">
+        <div className="text-center space-y-3">
+          <img
+            src="/spartan-logo-stamp.png"
+            alt=""
+            className="h-12 w-12 mx-auto object-contain"
+            width={48}
+            height={48}
+          />
+          <p className="text-kicker justify-center">Client access</p>
+          <h1 className="text-2xl font-display font-black text-foreground tracking-tight">
+            Sign in
+          </h1>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Field Kit members: use the email and password from your set-password email.
+            Need an account?{" "}
+            <Link href="/register" className="font-semibold text-primary hover:underline">
+              Create one
+            </Link>
+            {" · "}
+            <Link href="/request-access" className="font-semibold text-primary hover:underline">
+              Team access
+            </Link>
           </p>
         </div>
 

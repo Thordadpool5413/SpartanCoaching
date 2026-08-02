@@ -222,6 +222,38 @@ export default function Services() {
         </div>
       </div>
 
+      {/* Engagement frames — trust without fake price lists */}
+      <div
+        className="grid sm:grid-cols-3 gap-4 max-w-5xl mx-auto mb-12 sm:mb-16"
+        data-testid="section-engagement-frames"
+      >
+        {[
+          {
+            t: "Individual coaching",
+            frame: "Session-based",
+            d: "Virtual sessions and ridealongs scoped to one rep’s real obstacles. Investment discussed on the call.",
+          },
+          {
+            t: "Team workshops",
+            frame: "Typically 1–2 days",
+            d: "Shared language and practice for the whole team. Scoped to your market and diagnosis mix.",
+          },
+          {
+            t: "Leadership & strategy",
+            frame: "Monthly or multi-month",
+            d: "Director coaching, growth systems, and multi-market installs. Proposal after a strategy conversation.",
+          },
+        ].map((s) => (
+          <Card key={s.t} className="border border-border/80 bg-card p-5 text-left h-full">
+            <p className="text-[10px] font-bold tracking-widest uppercase text-primary mb-1">
+              {s.frame}
+            </p>
+            <h3 className="text-base font-display font-bold text-foreground mb-2">{s.t}</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">{s.d}</p>
+          </Card>
+        ))}
+      </div>
+
       {/* How engagements work — craft strip, coaching-first */}
       <div className="grid sm:grid-cols-3 gap-4 max-w-4xl mx-auto mb-16 sm:mb-20">
         {[
@@ -229,8 +261,8 @@ export default function Services() {
           { t: "Install", d: "Coaching, workshops, and a weekly rhythm the team can run without you." },
           { t: "Sustain", d: "Scorecards, ridealongs, and leadership coaching that hold through busy season." },
         ].map((s) => (
-          <Card key={s.t} className="border border-border/80 bg-card p-5 shadow-elite text-center sm:text-left">
-            <p className="text-kicker mb-2">{s.t}</p>
+          <Card key={s.t} className="border border-border/80 bg-card p-5 text-center sm:text-left">
+            <p className="text-kicker mb-2 justify-center sm:justify-start">{s.t}</p>
             <p className="text-sm text-muted-foreground leading-relaxed">{s.d}</p>
           </Card>
         ))}

@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
 import { SubscribeCTA } from "@/components/SubscribeCTA";
 import { ProofStrip } from "@/components/ProofStrip";
+import { AccessPaths } from "@/components/AccessPaths";
 import { FIELD_KIT_TOOLS } from "@workspace/field-kit-catalog";
 import {
   CheckCircle,
@@ -773,6 +774,12 @@ export default function FieldKit() {
       </section>
 
       {/* ── FAQ ── */}
+      <section className="py-14 sm:py-16 bg-background border-y border-border/60">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <AccessPaths />
+        </div>
+      </section>
+
       <section className="py-16 sm:py-20 bg-background" data-testid="section-faq">
         <div className="max-w-2xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-10 space-y-3">

@@ -180,26 +180,54 @@ function formToInput(
   return input;
 }
 
+function humanKey(key: string): string {
+  return key
+    .replace(/([a-z])([A-Z])/g, "$1 $2")
+    .replaceAll("_", " ")
+    .replace(/^\w/, (c) => c.toUpperCase());
+}
+
 function ResultValue({ value, depth = 0 }: { value: unknown; depth?: number }) {
   if (value === null || value === undefined) {
     return <span className="text-muted-foreground">Not provided</span>;
   }
   if (typeof value === "string") {
-    return <p className="whitespace-pre-wrap leading-7">{value}</p>;
+    return (
+      <p className="whitespace-pre-wrap leading-7 text-foreground/95">{value}</p>
+    );
   }
   if (typeof value === "number" || typeof value === "boolean") {
-    return <span className="font-medium">{String(value)}</span>;
+    return <span className="font-semibold tabular-nums">{String(value)}</span>;
   }
   if (Array.isArray(value)) {
     if (value.length === 0)
       return <span className="text-muted-foreground">None</span>;
+    // String lists as field bullets
+    if (value.every((item) => typeof item === "string")) {
+      return (
+        <ul className="space-y-2">
+          {value.map((item, index) => (
+            <li
+              key={index}
+              className="flex gap-2 text-sm leading-relaxed rounded-lg border border-border/50 bg-background/60 px-3 py-2"
+            >
+              <span className="text-primary font-bold shrink-0">·</span>
+              <span>{item as string}</span>
+            </li>
+          ))}
+        </ul>
+      );
+    }
     return (
-      <div className="space-y-2">
+      <div className="space-y-3">
         {value.map((item, index) => (
           <div
             key={index}
-            className="rounded-lg border border-border/60 bg-background/70 p-3"
+            className="rounded-xl border border-border/60 bg-background/70 p-4"
           >
+            <p className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground mb-2">
+              Item {index + 1}
+            </p>
             <ResultValue value={item} depth={depth + 1} />
           </div>
         ))}
@@ -207,17 +235,24 @@ function ResultValue({ value, depth = 0 }: { value: unknown; depth?: number }) {
     );
   }
   return (
-    <div className="space-y-4">
+    <div className={depth === 0 ? "space-y-5" : "space-y-3"}>
       {Object.entries(value as Record<string, unknown>).map(([key, child]) => (
-        <div key={key}>
+        <div
+          key={key}
+          className={
+            depth === 0
+              ? "rounded-xl border border-border/70 bg-muted/20 p-4"
+              : undefined
+          }
+        >
           <h3
             className={
               depth === 0
-                ? "mb-2 text-base font-semibold"
-                : "mb-1 text-sm font-semibold"
+                ? "mb-2 text-sm font-bold tracking-wide text-primary uppercase"
+                : "mb-1 text-sm font-semibold text-foreground"
             }
           >
-            {key.replace(/([a-z])([A-Z])/g, "$1 $2").replaceAll("_", " ")}
+            {humanKey(key)}
           </h3>
           <ResultValue value={child} depth={depth + 1} />
         </div>

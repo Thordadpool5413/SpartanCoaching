@@ -18,6 +18,7 @@ export function ToolResultPanel({
   className,
   empty,
   loading,
+  copyTestId,
 }: {
   title?: string;
   children?: ReactNode;
@@ -28,6 +29,7 @@ export function ToolResultPanel({
   className?: string;
   empty?: boolean;
   loading?: boolean;
+  copyTestId?: string;
 }) {
   const [copied, setCopied] = useState(false);
 
@@ -67,6 +69,7 @@ export function ToolResultPanel({
             className="shrink-0 font-semibold"
             onClick={handleCopy}
             aria-label={copied ? "Copied" : "Copy result"}
+            data-testid={copyTestId}
           >
             {copied ? (
               <>
