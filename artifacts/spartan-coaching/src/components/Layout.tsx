@@ -233,38 +233,45 @@ export function Header() {
 
   return (
     <header className="sticky top-0 z-50 w-full dark-authority-header safe-area-top">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 h-16 sm:h-18 md:h-20 flex items-center justify-between gap-3 sm:gap-6 safe-area-x">
-        <Link href={homeHref}>
-          <div className="flex items-center gap-2.5 sm:gap-3.5 hover:opacity-95 transition-opacity cursor-pointer touch-manipulation group" data-testid="link-home">
-            <div className="relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[4.25rem] sm:h-[4.5rem] md:h-20 flex items-center safe-area-x">
+        {/* Brand — fixed footprint, never collides with nav */}
+        <div className="shrink-0 flex items-center pr-4 sm:pr-6 lg:pr-8 lg:mr-2 lg:border-r lg:border-border/50">
+          <Link href={homeHref}>
+            <div
+              className="flex items-center gap-3 sm:gap-3.5 hover:opacity-95 transition-opacity cursor-pointer touch-manipulation group"
+              data-testid="link-home"
+            >
               <img
                 src="/spartan-logo-stamp.png"
                 alt=""
-                className="h-9 w-9 sm:h-11 sm:w-11 object-contain drop-shadow-[0_0_12px_hsl(var(--primary)/0.45)]"
-                width={44}
-                height={44}
+                className="h-8 w-8 sm:h-9 sm:w-9 object-contain drop-shadow-[0_0_12px_hsl(var(--primary)/0.45)] shrink-0"
+                width={36}
+                height={36}
                 decoding="async"
               />
+              <div className="min-w-0">
+                {/* Not h1 — page content owns the document title heading (a11y) */}
+                <span className="font-black text-lg sm:text-xl md:text-[1.35rem] text-primary tracking-tight font-display block leading-none group-hover:text-primary whitespace-nowrap">
+                  SPARTAN COACHING
+                </span>
+                <span className="hidden md:block text-[9px] font-bold uppercase tracking-[0.16em] text-muted-foreground mt-1.5 whitespace-nowrap">
+                  Hospice growth · Field command
+                </span>
+              </div>
             </div>
-            <div>
-              {/* Not h1 — page content owns the document title heading (a11y) */}
-              <span className="font-black text-xl sm:text-2xl md:text-[1.85rem] text-primary tracking-tight font-display block leading-none group-hover:text-primary">
-                SPARTAN COACHING
-              </span>
-              <span className="hidden sm:block text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground mt-1">
-                Hospice growth · Field command
-              </span>
-            </div>
-          </div>
-        </Link>
+          </Link>
+        </div>
 
-        {/* Desktop Navigation — portal shell when signed in */}
-        <nav className="hidden lg:flex items-center gap-1 flex-shrink-0" aria-label="Main navigation">
+        {/* Desktop Navigation — centered in remaining space */}
+        <nav
+          className="hidden lg:flex flex-1 items-center justify-center gap-0.5 xl:gap-1 min-w-0 px-4 xl:px-6"
+          aria-label="Main navigation"
+        >
           <Button
             size="sm"
             variant="ghost"
             asChild
-            className="font-semibold gap-1.5 text-foreground"
+            className="font-semibold gap-1.5 text-foreground shrink-0"
             data-testid="button-home-nav"
           >
             <Link href={homeHref}>
@@ -279,7 +286,7 @@ export function Header() {
                 <Button
                   size="sm"
                   asChild
-                  className="font-bold ml-2 px-5"
+                  className="font-bold ml-3 px-5 shrink-0"
                   data-testid="button-book-call"
                 >
                   <Link href="/contact">Book a Call</Link>
@@ -291,7 +298,7 @@ export function Header() {
               <Button
                 variant="ghost"
                 size="sm"
-                className="gap-2 text-sm text-foreground"
+                className="gap-2 text-sm text-foreground shrink-0"
                 onClick={() => setSearchOpen(true)}
                 data-testid="button-search"
               >
@@ -307,7 +314,8 @@ export function Header() {
                 />
               ))}
               <NavLink href="/about">About</NavLink>
-              <Button size="sm" variant="ghost" asChild className="font-medium ml-1 gap-1.5 text-foreground" data-testid="button-login">
+              <div className="w-px h-5 bg-border/70 mx-2 shrink-0" aria-hidden />
+              <Button size="sm" variant="ghost" asChild className="font-medium gap-1.5 text-foreground shrink-0" data-testid="button-login">
                 <Link href="/login">
                   <LogIn className="w-4 h-4" />
                   Login
@@ -316,7 +324,7 @@ export function Header() {
               <Button
                 size="sm"
                 asChild
-                className="font-bold ml-1 px-4"
+                className="font-bold px-4 shrink-0"
                 data-testid="button-subscribe-nav"
               >
                 <Link href="/register">Create account</Link>
@@ -325,7 +333,7 @@ export function Header() {
                 size="sm"
                 variant="outline"
                 asChild
-                className="font-bold ml-1 px-4"
+                className="font-bold px-4 shrink-0"
                 data-testid="button-request-access-nav"
               >
                 <Link href="/request-access">Team access</Link>
@@ -334,7 +342,7 @@ export function Header() {
                 size="sm"
                 variant="ghost"
                 asChild
-                className="font-bold ml-1 px-4"
+                className="font-bold px-4 shrink-0"
                 data-testid="button-book-call"
               >
                 <Link href="/contact">Book a call</Link>
@@ -343,8 +351,8 @@ export function Header() {
           )}
         </nav>
 
-        {/* Home + Appearance + Mobile Search */}
-        <div className="flex items-center gap-0.5 sm:gap-1">
+        {/* Utility actions — always clear of brand + nav */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto lg:ml-0 pl-3 sm:pl-4 lg:pl-6 lg:border-l lg:border-border/50">
           <Button
             variant="outline"
             size="icon"
@@ -371,22 +379,21 @@ export function Header() {
           >
             <Search className="w-5 h-5" />
           </Button>
-        </div>
 
-        {/* Mobile Menu Sheet */}
-        <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
-          <SheetTrigger asChild>
-            <Button
-              variant="ghost"
-              size="icon"
-              className="lg:hidden touch-manipulation -mr-2"
-              aria-label="Toggle menu"
-              data-testid="button-mobile-menu"
-            >
-              <Menu className="w-6 h-6" />
-            </Button>
-          </SheetTrigger>
-          <SheetContent side="right" className="w-[85vw] max-w-[350px] p-0 flex flex-col h-full max-h-[100dvh] bg-background border-border">
+          {/* Mobile Menu Sheet */}
+          <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+            <SheetTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="lg:hidden touch-manipulation"
+                aria-label="Toggle menu"
+                data-testid="button-mobile-menu"
+              >
+                <Menu className="w-6 h-6" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[85vw] max-w-[350px] p-0 flex flex-col h-full max-h-[100dvh] bg-background border-border">
             <SheetHeader className="px-5 pt-5 pb-3 shrink-0">
               <SheetTitle>Menu</SheetTitle>
             </SheetHeader>
@@ -459,7 +466,8 @@ export function Header() {
               )}
             </div>
           </SheetContent>
-        </Sheet>
+          </Sheet>
+        </div>
       </div>
 
       {/* Search Modal */}
