@@ -5,10 +5,14 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Users, Briefcase, Wrench, CheckCircle } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { TrustStrip } from "@/components/TrustStrip";
+import { ProofStrip } from "@/components/ProofStrip";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 import { lazy, Suspense, Component } from "react";
 import type { ReactNode } from "react";
 import nickPhoto from "@assets/nick-photo.jpg";
+import { PROOF_STATS } from "@/lib/proof";
+
+const CANONICAL_ORIGIN = "https://spartanhospicecoaching.com";
 
 const SpartanHeroAnimation = lazy(() =>
   import("@/components/SpartanHeroAnimation").then((m) => ({ default: m.SpartanHeroAnimation })),
@@ -35,13 +39,11 @@ export default function Home() {
             "@graph": [
               {
                 "@type": "ProfessionalService",
-                "@id":
-                  (typeof window !== "undefined" ? window.location.origin : "https://spartancoaching.com") +
-                  "/#organization",
+                "@id": `${CANONICAL_ORIGIN}/#organization`,
                 name: "Spartan Coaching",
                 description:
                   "Practical coaching for hospice growth professionals. Build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and measurable weekly accountability.",
-                url: typeof window !== "undefined" ? window.location.origin : "https://spartancoaching.com",
+                url: CANONICAL_ORIGIN,
                 email: "nick@spartanhospicecoaching.com",
                 founder: {
                   "@type": "Person",
@@ -67,7 +69,7 @@ export default function Home() {
               {
                 "@type": "WebSite",
                 name: "Spartan Coaching",
-                url: typeof window !== "undefined" ? window.location.origin : "https://spartancoaching.com",
+                url: CANONICAL_ORIGIN,
                 description:
                   "Hospice sales consulting and growth coaching for liaisons, directors, and multi-market teams.",
               },
@@ -76,16 +78,66 @@ export default function Home() {
         </script>
       </Helmet>
 
-      {/* ── 1. HERO (stays dark — brand authority) ── */}
+      {/* ── 1. HERO — permanent thesis + CTAs (animation is atmosphere only) ── */}
       <section
-        className="relative min-h-[85vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-background surface-page"
+        className="relative min-h-[88vh] sm:min-h-[92vh] flex items-center justify-center overflow-hidden bg-background"
         data-testid="section-hero"
       >
-        <AnimationErrorBoundary>
-          <Suspense fallback={<div className="absolute inset-0 bg-background" />}>
-            <SpartanHeroAnimation />
-          </Suspense>
-        </AnimationErrorBoundary>
+        <div className="absolute inset-0 pointer-events-none" aria-hidden>
+          <AnimationErrorBoundary>
+            <Suspense fallback={<div className="absolute inset-0 bg-background" />}>
+              <SpartanHeroAnimation />
+            </Suspense>
+          </AnimationErrorBoundary>
+        </div>
+        <div
+          className="absolute inset-0 bg-gradient-to-b from-background/75 via-background/55 to-background pointer-events-none"
+          aria-hidden
+        />
+        <div className="relative z-10 w-full max-w-4xl mx-auto px-4 sm:px-6 py-20 sm:py-28 text-center">
+          <p className="text-kicker justify-center mb-5">Hospice growth coaching</p>
+          <h1
+            className="text-hero text-foreground mb-6"
+            data-testid="text-home-hero-title"
+          >
+            Close the conversational gap.
+            <br />
+            <span className="text-primary">Get eligible patients into care earlier.</span>
+          </h1>
+          <p className="text-base sm:text-xl text-muted-foreground leading-relaxed max-w-2xl mx-auto mb-8">
+            Practical coaching for hospice liaisons, directors, and multi-market teams —
+            plus an optional Field Kit for Tuesday execution. Ethics and accountability
+            in the same room.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-3 justify-center items-center mb-8">
+            <Button size="lg" asChild className="font-bold px-8 min-w-[220px]" data-testid="button-hero-contact">
+              <Link href="/contact">
+                Book a strategy call
+                <ArrowRight className="ml-2 w-5 h-5" />
+              </Link>
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              asChild
+              className="font-bold border-2 min-w-[220px] bg-background/40 backdrop-blur-sm"
+              data-testid="button-hero-field-kit"
+            >
+              <Link href="/field-kit">Preview Field Kit</Link>
+            </Button>
+          </div>
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3" data-testid="hero-proof-chips">
+            {PROOF_STATS.map((s) => (
+              <div
+                key={s.label}
+                className="rounded-full border border-border/80 bg-card/70 backdrop-blur-sm px-3.5 py-1.5 text-xs font-semibold text-foreground"
+              >
+                <span className="text-primary font-black mr-1.5">{s.value}</span>
+                {s.label}
+              </div>
+            ))}
+          </div>
+        </div>
       </section>
 
       {/* ── 2. AUTHORITY STRIP (photo + credentials — hire confidence) ── */}
@@ -196,8 +248,8 @@ export default function Home() {
               const Icon = p.icon;
               return (
                 <StaggerItem key={p.title}>
-                  <Card className="h-full p-6 sm:p-7 flex flex-col elite-panel border-0" data-testid={`card-pillar-${p.title}`}>
-                    <div className="w-12 h-12 rounded-xl bg-primary/15 text-primary flex items-center justify-center mb-5 ring-1 ring-primary/25 shadow-[0_0_24px_-6px_hsl(var(--primary)/0.5)]">
+                  <Card className="h-full p-6 sm:p-7 flex flex-col" data-testid={`card-pillar-${p.title}`}>
+                    <div className="w-12 h-12 rounded-xl bg-primary/12 text-primary flex items-center justify-center mb-5 ring-1 ring-primary/20">
                       <Icon className="w-6 h-6" />
                     </div>
                     <h3 className="text-lg sm:text-xl font-display font-bold text-foreground mb-2 tracking-tight">{p.title}</h3>
@@ -229,96 +281,27 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 5. PROOF + OUTCOMES ── */}
-      <section className="relative bg-background py-16 sm:py-20" data-testid="section-results">
+      {/* ── 5. PROOF (trust, not hollow claims) ── */}
+      <section className="relative bg-background py-16 sm:py-24" data-testid="section-results">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <FadeIn>
-            <div className="text-center mb-10">
-              <p className="text-sm font-bold tracking-widest text-primary uppercase mb-4">Outcomes</p>
-              <h2 className="text-h2 text-gradient-elegant font-display" data-testid="text-results-title">
-                What changes look like
-              </h2>
-            </div>
+            <ProofStrip />
           </FadeIn>
-          <StaggerContainer className="grid md:grid-cols-3 gap-5 max-w-5xl mx-auto mb-10">
+          <div className="flex flex-wrap justify-center gap-3 max-w-3xl mx-auto mt-10">
             {[
-              {
-                title: "Priority accounts get clear",
-                text: "Reps stop spraying activity. The week has a plan, a next ask, and a debrief loop.",
-              },
-              {
-                title: "Objections stop freezing the room",
-                text: "Preferred hospice, not ready, insurance fear — practiced answers that still sound like the rep.",
-              },
-              {
-                title: "Leaders coach one skill at a time",
-                text: "Directors replace firefighting with a shared spine: Command Center, weekly plans, activity math.",
-              },
-            ].map((c) => (
-              <StaggerItem key={c.title}>
-                <Card className="border border-border bg-card border-l-4 border-l-primary p-6 h-full">
-                  <h3 className="text-lg font-bold text-foreground mb-2">{c.title}</h3>
-                  <p className="text-sm text-muted-foreground leading-relaxed">{c.text}</p>
-                </Card>
-              </StaggerItem>
+              "Hospice-specific, not generic sales training",
+              "Compliance-aware messaging",
+              "Field-tested frameworks",
+            ].map((b) => (
+              <div
+                key={b}
+                className="flex items-center gap-2 text-sm text-foreground/90 border border-border rounded-full px-4 py-2"
+              >
+                <CheckCircle className="w-4 h-4 text-primary shrink-0" />
+                {b}
+              </div>
             ))}
-          </StaggerContainer>
-          <FadeIn>
-            <div
-              className="grid sm:grid-cols-2 gap-4 max-w-4xl mx-auto mb-10"
-              data-testid="section-proof-quotes"
-            >
-              {[
-                {
-                  quote:
-                    "We finally had a shared language for hard conversations — not another binder no one opens.",
-                  who: "Director of Growth",
-                  where: "Multi-site hospice provider",
-                },
-                {
-                  quote:
-                    "Tuesday stopped being chaos. I know who to call first and what to say when they push back.",
-                  who: "Hospice liaison",
-                  where: "Field sales",
-                },
-              ].map((q) => (
-                <Card
-                  key={q.who}
-                  className="border border-border bg-card p-6 h-full flex flex-col"
-                >
-                  <p className="text-sm sm:text-base text-foreground leading-relaxed flex-1 italic">
-                    “{q.quote}”
-                  </p>
-                  <p className="mt-4 text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                    {q.who} · {q.where}
-                  </p>
-                </Card>
-              ))}
-            </div>
-            <div className="flex flex-wrap justify-center gap-3 max-w-3xl mx-auto mb-8">
-              {[
-                "Hospice-specific, not generic sales training",
-                "Compliance-aware messaging",
-                "Field-tested frameworks",
-              ].map((b) => (
-                <div
-                  key={b}
-                  className="flex items-center gap-2 text-sm text-foreground/90 border border-border rounded-full px-4 py-2"
-                >
-                  <CheckCircle className="w-4 h-4 text-primary shrink-0" />
-                  {b}
-                </div>
-              ))}
-            </div>
-            <div className="text-center">
-              <Button asChild variant="outline" className="font-bold">
-                <Link href="/testimonials">
-                  Read outcomes & testimonials
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Link>
-              </Button>
-            </div>
-          </FadeIn>
+          </div>
         </div>
       </section>
 

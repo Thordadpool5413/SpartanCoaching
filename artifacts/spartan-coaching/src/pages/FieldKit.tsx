@@ -3,13 +3,11 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
 import { SubscribeCTA } from "@/components/SubscribeCTA";
+import { ProofStrip } from "@/components/ProofStrip";
 import { FIELD_KIT_TOOLS } from "@workspace/field-kit-catalog";
 import {
   CheckCircle,
   ArrowRight,
-  Award,
-  Users,
-  TrendingUp,
   ChevronDown,
   ChevronUp,
   Target,
@@ -161,32 +159,16 @@ export default function FieldKit() {
         </div>
       </section>
 
-      {/* ── SOCIAL PROOF STRIP ── */}
-      <div className="border-y border-border/80 bg-card/90 py-6 backdrop-blur-sm">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6">
-          <div className="flex flex-wrap justify-center items-center gap-x-8 gap-y-4 text-sm">
-            <div className="flex items-center gap-2">
-              <Award className="w-4 h-4 text-primary shrink-0" />
-              <span className="font-semibold text-foreground">Built by reps who ran the territory</span>
-            </div>
-            <div className="h-4 w-px bg-border hidden sm:block" />
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-primary shrink-0" />
-              <span className="font-semibold text-foreground">Used by the reps who rank at the top</span>
-            </div>
-            <div className="h-4 w-px bg-border hidden sm:block" />
-            <div className="flex items-center gap-2">
-              <CheckCircle className="w-4 h-4 text-primary shrink-0" />
-              <span className="font-semibold text-foreground">12+ years hospice-specific · 500+ coached</span>
-            </div>
-            <div className="h-4 w-px bg-border hidden sm:block" />
-            <div className="flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-primary shrink-0" />
-              <span className="font-semibold text-foreground">Hospice-only · not generic sales AI</span>
-            </div>
-          </div>
+      {/* ── PROOF (honest, not hollow claims) ── */}
+      <section className="border-y border-border/80 bg-card/50 py-14 sm:py-16">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <ProofStrip
+            kicker="Why operators trust the kit"
+            title="Built for the field — not generic sales AI"
+            showStats
+          />
         </div>
-      </div>
+      </section>
 
       {/* ── WHO IT'S FOR ── */}
       <section className="py-14 sm:py-16 bg-background" data-testid="section-audience-split">

@@ -6,6 +6,7 @@ import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { FadeIn } from "@/components/animations";
+import { ProofStrip } from "@/components/ProofStrip";
 import type { SelectTestimonial, SelectCaseStudy } from "@shared/schema";
 
 export default function Testimonials() {
@@ -40,6 +41,13 @@ export default function Testimonials() {
         </div>
       ) : (
         <>
+          {/* Never show a hollow Success Stories page */}
+          {testimonials.length === 0 && caseStudies.length === 0 && (
+            <div className="mb-16" data-testid="section-proof-fallback">
+              <ProofStrip showLink={false} title="Outcomes operators describe" />
+            </div>
+          )}
+
           {/* Testimonials Section */}
           {testimonials.length > 0 && (
             <div className="space-y-8 md:space-y-12 lg:space-y-16">

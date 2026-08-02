@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "wouter";
 import { MenuIcon, CloseIcon } from "./icons";
 import { Button } from "@/components/ui/button";
-import { Linkedin, Search, ChevronDown, Shield, LogIn, UserCircle, Home } from "lucide-react";
+import { Linkedin, Search, ChevronDown, LogIn } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { AppearanceControls, AppearancePanel } from "@/components/AppearanceControls";
 import {
@@ -262,108 +262,34 @@ export function Header() {
           </Link>
         </div>
 
-        {/* Desktop Navigation — centered in remaining space */}
+        {/* Desktop Navigation — elite restraint: few labels + one CTA */}
         <nav
-          className="hidden lg:flex flex-1 items-center justify-center gap-0.5 xl:gap-1 min-w-0 px-4 xl:px-6"
+          className="hidden lg:flex flex-1 items-center justify-center gap-1 xl:gap-1.5 min-w-0 px-4 xl:px-8"
           aria-label="Main navigation"
         >
-          <Button
-            size="sm"
-            variant="ghost"
-            asChild
-            className="font-semibold gap-1.5 text-foreground shrink-0"
-            data-testid="button-home-nav"
-          >
-            <Link href={homeHref}>
-              <Home className="w-4 h-4" />
-              Home
-            </Link>
-          </Button>
           {isAuthenticated ? (
             <>
               <PortalNav />
-              {!canUseFieldKit && (
-                <Button
-                  size="sm"
-                  asChild
-                  className="font-bold ml-3 px-5 shrink-0"
-                  data-testid="button-book-call"
-                >
-                  <Link href="/contact">Book a Call</Link>
-                </Button>
-              )}
             </>
           ) : (
             <>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="gap-2 text-sm text-foreground shrink-0"
-                onClick={() => setSearchOpen(true)}
-                data-testid="button-search"
-              >
-                <Search className="w-4 h-4" />
-                <span className="font-medium">Search</span>
-              </Button>
-              {navSections.filter(section => section.title !== "Company").map(section => (
-                <NavDropdown
-                  key={section.title}
-                  label={section.title}
-                  dataTestId={`dropdown-${section.title.toLowerCase().replace(/\s+/g, '-')}`}
-                  items={section.items}
-                />
-              ))}
+              {navSections
+                .filter((section) => section.title !== "Company")
+                .map((section) => (
+                  <NavDropdown
+                    key={section.title}
+                    label={section.title}
+                    dataTestId={`dropdown-${section.title.toLowerCase().replace(/\s+/g, "-")}`}
+                    items={section.items}
+                  />
+                ))}
               <NavLink href="/about">About</NavLink>
-              <div className="w-px h-5 bg-border/70 mx-2 shrink-0" aria-hidden />
-              <Button size="sm" variant="ghost" asChild className="font-medium gap-1.5 text-foreground shrink-0" data-testid="button-login">
-                <Link href="/login">
-                  <LogIn className="w-4 h-4" />
-                  Login
-                </Link>
-              </Button>
-              <Button
-                size="sm"
-                asChild
-                className="font-bold px-4 shrink-0"
-                data-testid="button-subscribe-nav"
-              >
-                <Link href="/register">Create account</Link>
-              </Button>
-              <Button
-                size="sm"
-                variant="outline"
-                asChild
-                className="font-bold px-4 shrink-0"
-                data-testid="button-request-access-nav"
-              >
-                <Link href="/request-access">Team access</Link>
-              </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                asChild
-                className="font-bold px-4 shrink-0"
-                data-testid="button-book-call"
-              >
-                <Link href="/contact">Book a call</Link>
-              </Button>
             </>
           )}
         </nav>
 
-        {/* Utility actions — always clear of brand + nav */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto lg:ml-0 pl-3 sm:pl-4 lg:pl-6 lg:border-l lg:border-border/50">
-          <Button
-            variant="outline"
-            size="icon"
-            asChild
-            className="h-9 w-9 border-border bg-card/80 text-foreground hover:bg-muted touch-manipulation"
-            data-testid="button-home-toolbar"
-          >
-            <Link href={homeHref} aria-label="Go to home">
-              <Home className="w-4 h-4" />
-            </Link>
-          </Button>
+        {/* Utility actions — Login + single primary CTA (no duplicate Home) */}
+        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 ml-auto pl-3 sm:pl-4 lg:pl-6 lg:border-l lg:border-border/50">
           <AppearanceControls
             compact
             className="touch-manipulation"
@@ -378,6 +304,28 @@ export function Header() {
             data-testid="button-mobile-search"
           >
             <Search className="w-5 h-5" />
+          </Button>
+          {!isAuthenticated && (
+            <Button
+              size="sm"
+              variant="ghost"
+              asChild
+              className="hidden lg:inline-flex font-semibold text-foreground"
+              data-testid="button-login"
+            >
+              <Link href="/login">
+                <LogIn className="w-4 h-4" />
+                Login
+              </Link>
+            </Button>
+          )}
+          <Button
+            size="sm"
+            asChild
+            className="hidden sm:inline-flex font-bold px-4 shrink-0"
+            data-testid="button-book-call"
+          >
+            <Link href="/contact">Book a strategy call</Link>
           </Button>
 
           {/* Mobile Menu Sheet */}

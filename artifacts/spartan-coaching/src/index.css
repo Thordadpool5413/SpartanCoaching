@@ -1124,12 +1124,13 @@ body {
     padding-left: 1rem;
   }
 
-  /* shadcn cards get the same command presence */
+  /* Quiet cards by default — emphasis only when requested */
   .shadcn-card {
     background:
       linear-gradient(160deg, hsl(var(--card)) 0%, hsl(var(--card) / 0.97) 100%);
   }
-  .shadcn-card::before {
+  .elite-emphasis.shadcn-card::before,
+  .elite-panel::before {
     content: "";
     position: absolute;
     top: 0;
