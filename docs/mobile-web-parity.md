@@ -1,5 +1,13 @@
 # Web ↔ iOS Field Kit parity
 
+## Mobile tools architecture (D4–D5)
+
+- **Catalog:** `(tabs)/tools.tsx` browse mode — `FIELD_KIT_TOOLS` priority, opens native tab / dedicated route / tool-web.
+- **Role-Play:** `components/RolePlayTool.tsx` (extracted from monolith).
+- **Results:** `components/FieldResultPanel.tsx` — copy, share, save, loading skeleton, PHI disclaimer.
+- **Saved:** `components/SavedResponsesSection.tsx`.
+- **Tab keys:** `lib/toolTabs.ts`.
+
 ## Shared packages
 
 | Package | Purpose |

@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -12,15 +12,14 @@ import {
   TextInput,
   View,
 } from "react-native";
-import * as Clipboard from "expo-clipboard";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { BottomTabBarHeightContext } from "@react-navigation/bottom-tabs";
 import { useColors } from "@/hooks/useColors";
-import { apiGet, apiPost, getWebSiteUrl } from "@/lib/api";
+import { apiPost, getWebSiteUrl } from "@/lib/api";
 import { ReminderPicker } from "@/components/ReminderPicker";
-import { useSavedResponses, type SavedResponse } from "@/hooks/useSavedResponses";
+import { useSavedResponses } from "@/hooks/useSavedResponses";
 import { useAuth } from "@/lib/AuthContext";
 import { router, useLocalSearchParams } from "expo-router";
 import {
@@ -30,301 +29,16 @@ import {
 import { SpartanCard } from "@/components/ui/SpartanCard";
 import { SectionKicker } from "@/components/ui/SectionKicker";
 import { CitationsBlock, type CitationItem } from "@/components/ui/CitationsBlock";
-
-type ToolTab = "objection" | "playbook" | "email" | "roleplay" | "research" | "weekly" | "cold";
-
-const VALID_TABS = new Set<ToolTab>([
-  "objection",
-  "playbook",
-  "email",
-  "roleplay",
-  "research",
-  "weekly",
-  "cold",
-]);
-
-const TOOL_TABS: {
-  key: ToolTab;
-  label: string;
-  icon: "shield" | "book-open" | "mail" | "users" | "search" | "calendar" | "phone";
-}[] = [
-  { key: "objection", label: "Objections", icon: "shield" },
-  { key: "playbook", label: "Playbooks", icon: "book-open" },
-  { key: "email", label: "Email", icon: "mail" },
-  { key: "roleplay", label: "Role-Play", icon: "users" },
-  { key: "research", label: "Research", icon: "search" },
-  { key: "weekly", label: "Weekly", icon: "calendar" },
-  { key: "cold", label: "Cold Call", icon: "phone" },
-];
+import { FieldResultPanel } from "@/components/FieldResultPanel";
+import { SavedResponsesSection } from "@/components/SavedResponsesSection";
+import { RolePlayTool } from "@/components/RolePlayTool";
+import { TOOL_TABS, VALID_TABS, type ToolTab } from "@/lib/toolTabs";
 
 const EMAIL_TYPES = [
   { value: "follow_up", label: "Follow-Up" },
   { value: "thank_you", label: "Thank You" },
   { value: "value_add", label: "Value Add" },
 ];
-
-/** Feather icons only — no emoji chrome (App Store / elite native craft). */
-const ROLEPLAY_SCENARIOS: {
-  id: string;
-  title: string;
-  description: string;
-  icon: React.ComponentProps<typeof Feather>["name"];
-}[] = [
-  {
-    id: "skeptical_oncologist",
-    title: "Skeptical Oncologist",
-    description: "Push through hesitation about hospice timing with a doubting specialist.",
-    icon: "activity",
-  },
-  {
-    id: "family_not_ready",
-    title: "Family Not Ready",
-    description: "Navigate grief and resistance when a patient's family resists the conversation.",
-    icon: "users",
-  },
-  {
-    id: "busy_hospitalist",
-    title: "Busy Hospitalist",
-    description: "Capture attention and earn referrals from a time-pressed hospital doctor.",
-    icon: "clock",
-  },
-  {
-    id: "insurance_concerns",
-    title: "Insurance Concerns",
-    description: "Address fears about coverage, costs, and what hospice actually covers.",
-    icon: "file-text",
-  },
-  {
-    id: "ltc_facility_director",
-    title: "LTC Facility Director",
-    description: "Break through gatekeeping at a long-term care facility and earn a trial referral.",
-    icon: "home",
-  },
-  {
-    id: "hospital_social_worker",
-    title: "Hospital Social Worker",
-    description: "Connect with an overwhelmed social worker juggling discharge deadlines and referral choices.",
-    icon: "heart",
-  },
-  {
-    id: "reluctant_pcp",
-    title: "Reluctant Primary Care Physician",
-    description: "Persuade a PCP who resists hospice referrals for fear of upsetting long-standing patients.",
-    icon: "user",
-  },
-  {
-    id: "veteran_family",
-    title: "Veteran's Family",
-    description: "Navigate VA benefit confusion and emotional resistance with a proud veteran's family.",
-    icon: "award",
-  },
-  {
-    id: "palliative_care_coordinator",
-    title: "Palliative Care Coordinator",
-    description: "Collaborate — not compete — with a palliative coordinator who guards her patient relationships.",
-    icon: "plus-circle",
-  },
-  {
-    id: "home_health_rn",
-    title: "Home Health RN",
-    description: "Build a cross-referral partnership with a home health nurse who has overlapping patients.",
-    icon: "briefcase",
-  },
-];
-
-type RoleplayPhase = "select" | "active" | "feedback";
-
-function formatSavedDate(ts: number): string {
-  const d = new Date(ts);
-  const now = new Date();
-  const diffMs = now.getTime() - d.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "Yesterday";
-  if (diffDays < 7) return `${diffDays} days ago`;
-  return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-}
-
-interface SavedSectionProps {
-  items: SavedResponse[];
-  onDelete: (id: string) => Promise<void>;
-  colors: ReturnType<typeof import("@/hooks/useColors").useColors>;
-}
-
-function SavedSection({ items, onDelete, colors }: SavedSectionProps) {
-  const [expanded, setExpanded] = useState<string | null>(null);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
-
-  const handleCopy = async (item: SavedResponse) => {
-    await Clipboard.setStringAsync(item.response);
-    Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    setCopiedId(item.id);
-    setTimeout(() => setCopiedId((prev) => (prev === item.id ? null : prev)), 2000);
-  };
-
-  const handleShare = async (item: SavedResponse) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    await Share.share({ message: item.response, title: item.title });
-  };
-
-  if (items.length === 0) return null;
-  return (
-    <View style={{ marginTop: 28 }}>
-      <View style={savedStyles.sectionHeader}>
-        <Feather name="bookmark" size={14} color={colors.mutedForeground} />
-        <Text style={[savedStyles.sectionTitle, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
-          Saved ({items.length})
-        </Text>
-      </View>
-      {items.map((item) => {
-        const isOpen = expanded === item.id;
-        const isCopied = copiedId === item.id;
-        return (
-          <View key={item.id} style={[savedStyles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-            <Pressable
-              onPress={() => setExpanded(isOpen ? null : item.id)}
-              style={({ pressed }) => [savedStyles.cardHeader, { opacity: pressed ? 0.75 : 1 }]}
-            >
-              <View style={{ flex: 1 }}>
-                <Text style={[savedStyles.cardTitle, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]} numberOfLines={2}>
-                  {item.title}
-                </Text>
-                <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginTop: 2 }}>
-                  {item.toolType === "roleplay" && (
-                    <View style={[savedStyles.roleplayBadge, { backgroundColor: colors.primary + "18", borderColor: colors.primary + "40" }]}>
-                      <Text style={[savedStyles.roleplayBadgeText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
-                        Role-Play
-                      </Text>
-                    </View>
-                  )}
-                  {item.toolType === "objection" && (
-                    <View style={[savedStyles.roleplayBadge, { backgroundColor: colors.mutedForeground + "18", borderColor: colors.mutedForeground + "40" }]}>
-                      <Text style={[savedStyles.roleplayBadgeText, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
-                        Objection
-                      </Text>
-                    </View>
-                  )}
-                  {item.toolType === "playbook" && (
-                    <View style={[savedStyles.roleplayBadge, { backgroundColor: colors.mutedForeground + "18", borderColor: colors.mutedForeground + "40" }]}>
-                      <Text style={[savedStyles.roleplayBadgeText, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
-                        Playbook
-                      </Text>
-                    </View>
-                  )}
-                  {item.toolType === "email" && (
-                    <View style={[savedStyles.roleplayBadge, { backgroundColor: colors.mutedForeground + "18", borderColor: colors.mutedForeground + "40" }]}>
-                      <Text style={[savedStyles.roleplayBadgeText, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
-                        Email
-                      </Text>
-                    </View>
-                  )}
-                  <Text style={[savedStyles.cardDate, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                    {formatSavedDate(item.savedAt)}
-                  </Text>
-                </View>
-              </View>
-              <View style={savedStyles.cardActions}>
-                <Pressable
-                  onPress={() => onDelete(item.id)}
-                  hitSlop={8}
-                  style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
-                >
-                  <Feather name="trash-2" size={15} color={colors.mutedForeground} />
-                </Pressable>
-                <Feather name={isOpen ? "chevron-up" : "chevron-down"} size={16} color={colors.mutedForeground} />
-              </View>
-            </Pressable>
-            {isOpen && (
-              <View style={[savedStyles.cardBody, { borderTopColor: colors.border }]}>
-                <Text style={[savedStyles.cardBodyText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>
-                  {item.response}
-                </Text>
-                <View style={savedStyles.cardBodyActions}>
-                  <Pressable
-                    onPress={() => handleCopy(item)}
-                    style={({ pressed }) => [
-                      savedStyles.actionBtn,
-                      { borderColor: isCopied ? colors.primary : colors.border, backgroundColor: isCopied ? colors.primary + "18" : "transparent" },
-                      { opacity: pressed ? 0.7 : 1 },
-                    ]}
-                  >
-                    <Feather name={isCopied ? "check" : "copy"} size={14} color={isCopied ? colors.primary : colors.mutedForeground} />
-                    <Text style={[savedStyles.actionBtnText, { color: isCopied ? colors.primary : colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
-                      {isCopied ? "Copied!" : "Copy"}
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={() => handleShare(item)}
-                    style={({ pressed }) => [
-                      savedStyles.actionBtn,
-                      { borderColor: colors.border },
-                      { opacity: pressed ? 0.7 : 1 },
-                    ]}
-                  >
-                    <Feather name="share" size={14} color={colors.mutedForeground} />
-                    <Text style={[savedStyles.actionBtnText, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
-                      Share
-                    </Text>
-                  </Pressable>
-                </View>
-              </View>
-            )}
-          </View>
-        );
-      })}
-    </View>
-  );
-}
-
-const savedStyles = StyleSheet.create({
-  sectionHeader: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 12 },
-  sectionTitle: { fontSize: 13, textTransform: "uppercase", letterSpacing: 0.5 },
-  card: { borderWidth: 1, borderRadius: 12, marginBottom: 10, overflow: "hidden" },
-  cardHeader: { flexDirection: "row", alignItems: "center", padding: 14, gap: 10 },
-  cardTitle: { fontSize: 14, marginBottom: 2 },
-  cardDate: { fontSize: 12 },
-  cardActions: { flexDirection: "row", alignItems: "center", gap: 14 },
-  cardBody: { borderTopWidth: 1, padding: 14 },
-  cardBodyText: { fontSize: 14, lineHeight: 21 },
-  cardBodyActions: { flexDirection: "row", gap: 8, marginTop: 12 },
-  actionBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 5,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-  },
-  actionBtnText: { fontSize: 13 },
-  roleplayBadge: {
-    borderWidth: 1,
-    borderRadius: 4,
-    paddingHorizontal: 5,
-    paddingVertical: 1,
-  },
-  roleplayBadgeText: { fontSize: 10, letterSpacing: 0.3 },
-});
-
-interface ChatMessage {
-  role: "user" | "character";
-  content: string;
-}
-
-interface RoleplaySession {
-  id: number;
-  scenarioId: string;
-  scenarioTitle: string;
-  status: string;
-  feedback: string | null;
-  rating: number | null;
-  createdAt: number;
-}
-
-interface ScenarioStat {
-  count: number;
-  lastPracticedAt: number | null;
-}
 
 export default function ToolsScreen() {
   const colors = useColors();
@@ -389,7 +103,6 @@ export default function ToolsScreen() {
   const objectionSaved = useSavedResponses("objection");
   const playbookSaved = useSavedResponses("playbook");
   const emailSaved = useSavedResponses("email");
-  const roleplaySaved = useSavedResponses("roleplay");
 
   // Objection Handler state
   const [objection, setObjection] = useState("");
@@ -440,57 +153,6 @@ export default function ToolsScreen() {
   const [coldResult, setColdResult] = useState("");
   const [coldLoading, setColdLoading] = useState(false);
   const [coldError, setColdError] = useState<string | null>(null);
-
-  // Role-Play state
-  const [roleplayPhase, setRoleplayPhase] = useState<RoleplayPhase>("select");
-  const [roleplaySession, setRoleplaySession] = useState<RoleplaySession | null>(null);
-  const [roleplayMessages, setRoleplayMessages] = useState<ChatMessage[]>([]);
-  const [roleplayInput, setRoleplayInput] = useState("");
-  const [roleplayLoading, setRoleplayLoading] = useState(false);
-  const [roleplayError, setRoleplayError] = useState<string | null>(null);
-  const [roleplayFeedback, setRoleplayFeedback] = useState<string | null>(null);
-  const [roleplayRating, setRoleplayRating] = useState<number | null>(null);
-  const [roleplaySavedId, setRoleplaySavedId] = useState<string | null>(null);
-  const [endingSession, setEndingSession] = useState(false);
-  const scrollRef = useRef<ScrollView>(null);
-
-  // Custom scenario state
-  const [customScenarioExpanded, setCustomScenarioExpanded] = useState(false);
-  const [customTitle, setCustomTitle] = useState("");
-  const [customDescription, setCustomDescription] = useState("");
-
-  // Scenario practice stats
-  const [scenarioStats, setScenarioStats] = useState<Record<string, ScenarioStat>>({});
-
-  // Role-play history
-  const [roleplayHistory, setRoleplayHistory] = useState<RoleplaySession[]>([]);
-  const [historyLoading, setHistoryLoading] = useState(false);
-  const [expandedHistoryId, setExpandedHistoryId] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (activeTab !== "roleplay" || roleplayPhase !== "select") return;
-    apiGet<{ scenarioId: string; count: number; lastPracticedAt: number | null }[]>("/api/roleplay/stats")
-      .then((rows) => {
-        const map: Record<string, ScenarioStat> = {};
-        for (const row of rows) {
-          map[row.scenarioId] = { count: row.count, lastPracticedAt: row.lastPracticedAt };
-        }
-        setScenarioStats(map);
-      })
-      .catch(() => {});
-
-    setHistoryLoading(true);
-    apiGet<RoleplaySession[]>("/api/roleplay/sessions")
-      .then((sessions) => {
-        setRoleplayHistory(
-          sessions
-            .filter((s) => s.status === "completed" && s.feedback)
-            .sort((a, b) => b.createdAt - a.createdAt)
-        );
-      })
-      .catch(() => {})
-      .finally(() => setHistoryLoading(false));
-  }, [activeTab, roleplayPhase]);
 
   const handleObjection = async () => {
     if (objection.trim().length < 5) return;
@@ -607,26 +269,6 @@ export default function ToolsScreen() {
     await Share.share({ message: emailResult });
   };
 
-  const handleSaveRoleplay = async () => {
-    if (!roleplayFeedback || roleplaySavedId) return;
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    const title = roleplaySession?.scenarioTitle ?? "Role-Play Session";
-    const parts: string[] = [];
-    if (roleplayRating !== null) parts.push(`Rating: ${roleplayRating}/5`);
-    parts.push(`Coach Feedback:\n${roleplayFeedback}`);
-    await roleplaySaved.saveResponse(title, parts.join("\n"));
-    setRoleplaySavedId("saved");
-  };
-
-  const handleShareRoleplay = async () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    const parts: string[] = [];
-    if (roleplaySession?.scenarioTitle) parts.push(`Scenario: ${roleplaySession.scenarioTitle}`);
-    if (roleplayRating !== null) parts.push(`Rating: ${roleplayRating}/5`);
-    if (roleplayFeedback) parts.push(`\nCoach Feedback:\n${roleplayFeedback}`);
-    await Share.share({ message: parts.join("\n") });
-  };
-
   const handleResearch = async () => {
     if (researchQuery.trim().length < 5) return;
     if (!requireAccess()) {
@@ -708,92 +350,6 @@ export default function ToolsScreen() {
     } finally {
       setColdLoading(false);
     }
-  };
-
-  const startRoleplay = async (scenarioId: string, scenarioTitle: string, scenarioDescription?: string) => {
-    if (!requireAccess()) {
-      setRoleplayError("Field Kit access required. Sign in from Home.");
-      return;
-    }
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setRoleplayLoading(true);
-    setRoleplayError(null);
-    setRoleplayMessages([]);
-    setRoleplayFeedback(null);
-    setRoleplayRating(null);
-    try {
-      const body: Record<string, string> = { scenarioId, scenarioTitle };
-      if (scenarioDescription) body.scenarioDescription = scenarioDescription;
-      const data = await apiPost<{ session: RoleplaySession; initialMessage: string }>(
-        "/api/roleplay/sessions",
-        body
-      );
-      setRoleplaySession(data.session);
-      setRoleplayMessages([{ role: "character", content: data.initialMessage }]);
-      setRoleplayPhase("active");
-    } catch {
-      setRoleplayError("Could not start the session. Please try again.");
-    } finally {
-      setRoleplayLoading(false);
-    }
-  };
-
-  const sendRoleplayMessage = async () => {
-    const content = roleplayInput.trim();
-    if (!content || !roleplaySession || roleplayLoading) return;
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setRoleplayInput("");
-    const userMsg: ChatMessage = { role: "user", content };
-    setRoleplayMessages((prev) => [...prev, userMsg]);
-    setRoleplayLoading(true);
-    setRoleplayError(null);
-    setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
-    try {
-      const data = await apiPost<{ response: string }>(
-        `/api/roleplay/sessions/${roleplaySession.id}/messages`,
-        { content }
-      );
-      setRoleplayMessages((prev) => [...prev, { role: "character", content: data.response }]);
-      setTimeout(() => scrollRef.current?.scrollToEnd({ animated: true }), 100);
-    } catch {
-      setRoleplayError("Failed to get a response. Please try again.");
-    } finally {
-      setRoleplayLoading(false);
-    }
-  };
-
-  const endRoleplaySession = async () => {
-    if (!roleplaySession) return;
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-    setEndingSession(true);
-    setRoleplayError(null);
-    try {
-      const data = await apiPost<{ feedback: string; rating: number }>(
-        `/api/roleplay/sessions/${roleplaySession.id}/feedback`,
-        {}
-      );
-      setRoleplayFeedback(data.feedback);
-      setRoleplayRating(data.rating);
-      setRoleplayPhase("feedback");
-    } catch {
-      setRoleplayError("Could not generate feedback. Please try again.");
-    } finally {
-      setEndingSession(false);
-    }
-  };
-
-  const resetRoleplay = () => {
-    setRoleplayPhase("select");
-    setRoleplaySession(null);
-    setRoleplayMessages([]);
-    setRoleplayInput("");
-    setRoleplayFeedback(null);
-    setRoleplayRating(null);
-    setRoleplaySavedId(null);
-    setRoleplayError(null);
-    setCustomScenarioExpanded(false);
-    setCustomTitle("");
-    setCustomDescription("");
   };
 
   return (
@@ -1166,141 +722,13 @@ export default function ToolsScreen() {
         </>
       )}
 
-      {/* Active roleplay chat — flex layout with sticky input bar */}
-      {!browseMode &&
-      activeTab === "roleplay" &&
-      roleplayPhase === "active" &&
-      roleplaySession ? (
-        <KeyboardAvoidingView
-          style={{ flex: 1 }}
-          behavior={Platform.OS === "ios" ? "padding" : undefined}
-          keyboardVerticalOffset={tabBarHeight}
-        >
-          {/* Session header */}
-          <View style={[styles.sessionHeader, { marginHorizontal: 20, marginTop: 16, borderColor: colors.border }]}>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.sessionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
-                {roleplaySession.scenarioTitle}
-              </Text>
-              <Text style={[styles.sessionSubtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                Live practice session
-              </Text>
-            </View>
-            <Pressable
-              onPress={endRoleplaySession}
-              disabled={endingSession || roleplayMessages.length < 3}
-              style={({ pressed }) => [
-                styles.endBtn,
-                { borderColor: colors.primary },
-                (endingSession || roleplayMessages.length < 3) && { opacity: 0.45 },
-                pressed && { opacity: 0.7 },
-              ]}
-            >
-              {endingSession ? (
-                <ActivityIndicator color={colors.primary} size="small" />
-              ) : (
-                <Text style={[styles.endBtnText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
-                  End
-                </Text>
-              )}
-            </Pressable>
-          </View>
-
-          {/* Scrollable message list */}
-          <ScrollView
-            ref={scrollRef}
-            style={{ flex: 1 }}
-            contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 12, paddingBottom: 8 }}
-            keyboardShouldPersistTaps="handled"
-            showsVerticalScrollIndicator={false}
-          >
-            <View style={styles.chatList}>
-              {roleplayMessages.map((msg, idx) => (
-                <View
-                  key={idx}
-                  style={[
-                    styles.bubbleWrap,
-                    msg.role === "user" ? styles.bubbleWrapUser : styles.bubbleWrapChar,
-                  ]}
-                >
-                  {msg.role === "character" && (
-                    <View style={[styles.avatarDot, { backgroundColor: colors.primary }]}>
-                      <Feather name="user" size={11} color="#fff" />
-                    </View>
-                  )}
-                  <View
-                    style={[
-                      styles.bubble,
-                      msg.role === "user"
-                        ? [styles.bubbleUser, { backgroundColor: colors.primary }]
-                        : [styles.bubbleChar, { backgroundColor: colors.card, borderColor: colors.border }],
-                    ]}
-                  >
-                    <Text
-                      style={[
-                        styles.bubbleText,
-                        { color: msg.role === "user" ? "#fff" : colors.foreground, fontFamily: "Inter_400Regular" },
-                      ]}
-                    >
-                      {msg.content}
-                    </Text>
-                  </View>
-                </View>
-              ))}
-              {roleplayLoading && (
-                <View style={[styles.bubbleWrap, styles.bubbleWrapChar]}>
-                  <View style={[styles.avatarDot, { backgroundColor: colors.primary }]}>
-                    <Feather name="user" size={11} color="#fff" />
-                  </View>
-                  <View style={[styles.bubble, styles.bubbleChar, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                    <ActivityIndicator color={colors.primary} size="small" />
-                  </View>
-                </View>
-              )}
-            </View>
-          </ScrollView>
-
-          {!!roleplayError && (
-            <Text style={[styles.errorText, { color: colors.primary, fontFamily: "Inter_400Regular", marginHorizontal: 20, marginBottom: 4 }]}>
-              {roleplayError}
-            </Text>
-          )}
-
-          {/* Sticky input bar — sits just above the tab bar */}
-          <View style={{ paddingHorizontal: 12, paddingTop: 6, paddingBottom: tabBarHeight + 8 }}>
-            <View style={[styles.chatInputRow, { borderColor: colors.border, backgroundColor: colors.card }]}>
-              <TextInput
-                style={[styles.chatInput, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}
-                placeholder="Your response…"
-                placeholderTextColor={colors.mutedForeground}
-                value={roleplayInput}
-                onChangeText={setRoleplayInput}
-                multiline
-                maxLength={800}
-                returnKeyType="send"
-                blurOnSubmit={false}
-                onSubmitEditing={sendRoleplayMessage}
-              />
-              <Pressable
-                onPress={sendRoleplayMessage}
-                disabled={roleplayLoading || roleplayInput.trim().length === 0}
-                style={({ pressed }) => [
-                  styles.sendBtn,
-                  { backgroundColor: colors.primary },
-                  (roleplayLoading || roleplayInput.trim().length === 0) && { opacity: 0.45 },
-                  pressed && { opacity: 0.75 },
-                ]}
-              >
-                <Feather name="send" size={18} color="#fff" />
-              </Pressable>
-            </View>
-            <Text style={[styles.endHint, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-              Tap "End" after a few exchanges to get your feedback and rating.
-            </Text>
-          </View>
-        </KeyboardAvoidingView>
+      {!browseMode && activeTab === "roleplay" ? (
+        <RolePlayTool
+          canUseFieldKit={canUseFieldKit}
+          tabBarHeight={tabBarHeight}
+          bottomPad={bottomPad}
+        />
       ) : !browseMode && activeTab ? (
-        /* All other tabs + roleplay select/feedback — normal scrollable layout */
         <KeyboardAvoidingView
           style={{ flex: 1 }}
           behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -1345,47 +773,18 @@ export default function ToolsScreen() {
                   <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold", color: colors.primaryForeground }]}>Generate Response</Text>
                 )}
               </Pressable>
-              {!!objectionError && <Text style={[styles.errorText, { color: colors.primary, fontFamily: "Inter_400Regular" }]}>{objectionError}</Text>}
-              {!!objectionResult && (
-                <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                  <Text style={[styles.resultText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>{objectionResult}</Text>
+              <FieldResultPanel
+                title="Talk track"
+                content={objectionResult || undefined}
+                loading={objectionLoading && !objectionResult}
+                error={objectionError}
+                onSave={objectionResult ? handleSaveObjection : undefined}
+                saved={!!objectionSavedId}
+              >
+                {objectionResult ? (
                   <CitationsBlock items={objectionCitations} title="Spartan Method sources" />
-                </View>
-              )}
-              {!!objectionResult && (
-                <View style={styles.resultActionRow}>
-                  <Pressable
-                    onPress={handleSaveObjection}
-                    disabled={!!objectionSavedId}
-                    style={({ pressed }) => [
-                      styles.saveBtn,
-                      styles.resultActionBtn,
-                      { borderColor: colors.primary },
-                      !!objectionSavedId && { opacity: 0.5 },
-                      pressed && { opacity: 0.75 },
-                    ]}
-                  >
-                    <Feather name={objectionSavedId ? "check" : "bookmark"} size={15} color={colors.primary} />
-                    <Text style={[styles.saveBtnText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
-                      {objectionSavedId ? "Saved" : "Save"}
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={handleShareObjection}
-                    style={({ pressed }) => [
-                      styles.saveBtn,
-                      styles.resultActionBtn,
-                      { borderColor: colors.border },
-                      pressed && { opacity: 0.75 },
-                    ]}
-                  >
-                    <Feather name="share" size={15} color={colors.mutedForeground} />
-                    <Text style={[styles.saveBtnText, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
-                      Share
-                    </Text>
-                  </Pressable>
-                </View>
-              )}
+                ) : null}
+              </FieldResultPanel>
               {!!objectionResult && (
                 <ReminderPicker
                   title="Follow up after your visit"
@@ -1393,10 +792,9 @@ export default function ToolsScreen() {
                   storageKey="objection"
                 />
               )}
-              <SavedSection
+              <SavedResponsesSection
                 items={objectionSaved.savedItems}
                 onDelete={objectionSaved.deleteResponse}
-                colors={colors}
               />
             </View>
           )}
@@ -1443,46 +841,14 @@ export default function ToolsScreen() {
                   <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold", color: colors.primaryForeground }]}>Build Playbook</Text>
                 )}
               </Pressable>
-              {!!playbookError && <Text style={[styles.errorText, { color: colors.primary, fontFamily: "Inter_400Regular" }]}>{playbookError}</Text>}
-              {!!playbookResult && (
-                <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                  <Text style={[styles.resultText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>{playbookResult}</Text>
-                </View>
-              )}
-              {!!playbookResult && (
-                <View style={styles.resultActionRow}>
-                  <Pressable
-                    onPress={handleSavePlaybook}
-                    disabled={!!playbookSavedId}
-                    style={({ pressed }) => [
-                      styles.saveBtn,
-                      styles.resultActionBtn,
-                      { borderColor: colors.primary },
-                      !!playbookSavedId && { opacity: 0.5 },
-                      pressed && { opacity: 0.75 },
-                    ]}
-                  >
-                    <Feather name={playbookSavedId ? "check" : "bookmark"} size={15} color={colors.primary} />
-                    <Text style={[styles.saveBtnText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
-                      {playbookSavedId ? "Saved" : "Save"}
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={handleSharePlaybook}
-                    style={({ pressed }) => [
-                      styles.saveBtn,
-                      styles.resultActionBtn,
-                      { borderColor: colors.border },
-                      pressed && { opacity: 0.75 },
-                    ]}
-                  >
-                    <Feather name="share" size={15} color={colors.mutedForeground} />
-                    <Text style={[styles.saveBtnText, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
-                      Share
-                    </Text>
-                  </Pressable>
-                </View>
-              )}
+              <FieldResultPanel
+                title="Playbook"
+                content={playbookResult || undefined}
+                loading={playbookLoading && !playbookResult}
+                error={playbookError}
+                onSave={playbookResult ? handleSavePlaybook : undefined}
+                saved={!!playbookSavedId}
+              />
               {!!playbookResult && (
                 <ReminderPicker
                   title="Execute your playbook"
@@ -1490,11 +856,7 @@ export default function ToolsScreen() {
                   storageKey="playbook"
                 />
               )}
-              <SavedSection
-                items={playbookSaved.savedItems}
-                onDelete={playbookSaved.deleteResponse}
-                colors={colors}
-              />
+              <SavedResponsesSection items={playbookSaved.savedItems} onDelete={playbookSaved.deleteResponse} />
             </View>
           )}
 
@@ -1568,46 +930,14 @@ export default function ToolsScreen() {
                   <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold", color: colors.primaryForeground }]}>Generate Email</Text>
                 )}
               </Pressable>
-              {!!emailError && <Text style={[styles.errorText, { color: colors.primary, fontFamily: "Inter_400Regular" }]}>{emailError}</Text>}
-              {!!emailResult && (
-                <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                  <Text style={[styles.resultText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>{emailResult}</Text>
-                </View>
-              )}
-              {!!emailResult && (
-                <View style={styles.resultActionRow}>
-                  <Pressable
-                    onPress={handleSaveEmail}
-                    disabled={!!emailSavedId}
-                    style={({ pressed }) => [
-                      styles.saveBtn,
-                      styles.resultActionBtn,
-                      { borderColor: colors.primary },
-                      !!emailSavedId && { opacity: 0.5 },
-                      pressed && { opacity: 0.75 },
-                    ]}
-                  >
-                    <Feather name={emailSavedId ? "check" : "bookmark"} size={15} color={colors.primary} />
-                    <Text style={[styles.saveBtnText, { color: colors.primary, fontFamily: "Inter_600SemiBold" }]}>
-                      {emailSavedId ? "Saved" : "Save"}
-                    </Text>
-                  </Pressable>
-                  <Pressable
-                    onPress={handleShareEmail}
-                    style={({ pressed }) => [
-                      styles.saveBtn,
-                      styles.resultActionBtn,
-                      { borderColor: colors.border },
-                      pressed && { opacity: 0.75 },
-                    ]}
-                  >
-                    <Feather name="share" size={15} color={colors.mutedForeground} />
-                    <Text style={[styles.saveBtnText, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
-                      Share
-                    </Text>
-                  </Pressable>
-                </View>
-              )}
+              <FieldResultPanel
+                title="Email draft"
+                content={emailResult || undefined}
+                loading={emailLoading && !emailResult}
+                error={emailError}
+                onSave={emailResult ? handleSaveEmail : undefined}
+                saved={!!emailSavedId}
+              />
               {!!emailResult && (
                 <ReminderPicker
                   title="Send your follow-up email"
@@ -1616,11 +946,7 @@ export default function ToolsScreen() {
                   contact={recipientName || undefined}
                 />
               )}
-              <SavedSection
-                items={emailSaved.savedItems}
-                onDelete={emailSaved.deleteResponse}
-                colors={colors}
-              />
+              <SavedResponsesSection items={emailSaved.savedItems} onDelete={emailSaved.deleteResponse} />
             </View>
           )}
 
@@ -1873,316 +1199,7 @@ export default function ToolsScreen() {
             </View>
           )}
 
-          {/* Role-Play */}
-          {activeTab === "roleplay" && (
-            <View>
-              {/* Phase: Select scenario */}
-              {roleplayPhase === "select" && (
-                <View>
-                  <Text style={[styles.roleplayIntroTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
-                    Choose a Scenario
-                  </Text>
-                  <Text style={[styles.roleplayIntroSub, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                    Practice a live sales conversation with an AI character. Get feedback and a rating when you're done.
-                  </Text>
-                  {!!roleplayError && (
-                    <Text style={[styles.errorText, { color: colors.primary, fontFamily: "Inter_400Regular", marginBottom: 8 }]}>
-                      {roleplayError}
-                    </Text>
-                  )}
-                  {roleplayLoading ? (
-                    <View style={styles.roleplayLoadingWrap}>
-                      <ActivityIndicator color={colors.primary} size="large" />
-                      <Text style={[styles.roleplayLoadingText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                        Starting session…
-                      </Text>
-                    </View>
-                  ) : (
-                    <>
-                      {ROLEPLAY_SCENARIOS.map((s) => {
-                        const stat = scenarioStats[s.id];
-                        return (
-                          <Pressable
-                            key={s.id}
-                            onPress={() => startRoleplay(s.id, s.title)}
-                            style={({ pressed }) => [
-                              styles.scenarioCard,
-                              { backgroundColor: colors.card, borderColor: colors.border },
-                              pressed && { opacity: 0.8 },
-                            ]}
-                          >
-                            <View
-                              style={[
-                                styles.scenarioIconWrap,
-                                { backgroundColor: colors.accent ?? colors.muted },
-                              ]}
-                            >
-                              <Feather name={s.icon} size={22} color={colors.primary} />
-                            </View>
-                            <View style={styles.scenarioTextWrap}>
-                              <Text style={[styles.scenarioTitle, { color: colors.foreground, fontWeight: "600" }]}>
-                                {s.title}
-                              </Text>
-                              <Text style={[styles.scenarioDesc, { color: colors.mutedForeground }]}>
-                                {s.description}
-                              </Text>
-                              {stat && stat.count > 0 && (
-                                <View style={styles.scenarioStatRow}>
-                                  <Feather name="check-circle" size={11} color={colors.primary} />
-                                  <Text style={[styles.scenarioStatText, { color: colors.primary, fontWeight: "600" }]}>
-                                    {stat.count}×{stat.lastPracticedAt ? ` · ${formatSavedDate(stat.lastPracticedAt)}` : ""}
-                                  </Text>
-                                </View>
-                              )}
-                            </View>
-                            <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
-                          </Pressable>
-                        );
-                      })}
 
-                      {/* Custom Scenario card */}
-                      <View style={[styles.scenarioCard, { backgroundColor: colors.card, borderColor: colors.border, flexDirection: "column", alignItems: "stretch", gap: 0 }]}>
-                        <Pressable
-                          onPress={() => {
-                            Haptics.selectionAsync();
-                            setCustomScenarioExpanded((v) => !v);
-                          }}
-                          style={({ pressed }) => [{ flexDirection: "row", alignItems: "center", gap: 14, opacity: pressed ? 0.8 : 1 }]}
-                        >
-                          <View
-                            style={[
-                              styles.scenarioIconWrap,
-                              { backgroundColor: colors.accent ?? colors.muted },
-                            ]}
-                          >
-                            <Feather name="edit-3" size={22} color={colors.primary} />
-                          </View>
-                          <View style={styles.scenarioTextWrap}>
-                            <Text style={[styles.scenarioTitle, { color: colors.foreground, fontWeight: "600" }]}>
-                              Custom Scenario
-                            </Text>
-                            <Text style={[styles.scenarioDesc, { color: colors.mutedForeground }]}>
-                              Describe your own situation and practice it live.
-                            </Text>
-                          </View>
-                          <Feather name={customScenarioExpanded ? "chevron-up" : "chevron-down"} size={18} color={colors.mutedForeground} />
-                        </Pressable>
-
-                        {customScenarioExpanded && (
-                          <View style={{ marginTop: 14, gap: 10 }}>
-                            <TextInput
-                              style={[styles.textarea, { color: colors.foreground, backgroundColor: colors.background, borderColor: colors.border, fontFamily: "Inter_400Regular", minHeight: 44, marginBottom: 0 }]}
-                              placeholder="Scenario title (e.g. Reluctant SNF Administrator)"
-                              placeholderTextColor={colors.mutedForeground}
-                              value={customTitle}
-                              onChangeText={setCustomTitle}
-                              maxLength={80}
-                            />
-                            <TextInput
-                              style={[styles.textarea, { color: colors.foreground, backgroundColor: colors.background, borderColor: colors.border, fontFamily: "Inter_400Regular", marginBottom: 0 }]}
-                              placeholder="Describe the character and situation (e.g. A nursing home administrator who already works with two hospice companies and is satisfied with both…)"
-                              placeholderTextColor={colors.mutedForeground}
-                              value={customDescription}
-                              onChangeText={setCustomDescription}
-                              multiline
-                              numberOfLines={4}
-                              textAlignVertical="top"
-                              maxLength={500}
-                            />
-                            <Pressable
-                              onPress={() => {
-                                if (customTitle.trim().length < 3) return;
-                                startRoleplay("custom", customTitle.trim(), customDescription.trim() || undefined);
-                              }}
-                              disabled={customTitle.trim().length < 3}
-                              style={({ pressed }) => [
-                                styles.submitBtn,
-                                { backgroundColor: colors.primary, marginTop: 2 },
-                                customTitle.trim().length < 3 && { opacity: 0.45 },
-                                pressed && { opacity: 0.85 },
-                              ]}
-                            >
-                              <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold", color: colors.primaryForeground }]}>Start Custom Session</Text>
-                            </Pressable>
-                          </View>
-                        )}
-                      </View>
-                      {/* Past Sessions history */}
-                      {(historyLoading || roleplayHistory.length > 0) && (
-                        <View style={{ marginTop: 28 }}>
-                          <View style={[savedStyles.sectionHeader, { marginBottom: 12 }]}>
-                            <Feather name="clock" size={14} color={colors.mutedForeground} />
-                            <Text style={[savedStyles.sectionTitle, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
-                              Past Sessions{roleplayHistory.length > 0 ? ` (${roleplayHistory.length})` : ""}
-                            </Text>
-                          </View>
-
-                          {historyLoading ? (
-                            <ActivityIndicator color={colors.primary} size="small" style={{ marginVertical: 12 }} />
-                          ) : (
-                            roleplayHistory.map((session) => {
-                              const isOpen = expandedHistoryId === session.id;
-                              return (
-                                <View key={session.id} style={[savedStyles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                                  <Pressable
-                                    onPress={() => {
-                                      Haptics.selectionAsync();
-                                      setExpandedHistoryId(isOpen ? null : session.id);
-                                    }}
-                                    style={({ pressed }) => [savedStyles.cardHeader, { opacity: pressed ? 0.75 : 1 }]}
-                                  >
-                                    <View style={{ flex: 1 }}>
-                                      <Text style={[savedStyles.cardTitle, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]} numberOfLines={1}>
-                                        {session.scenarioTitle}
-                                      </Text>
-                                      <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 3 }}>
-                                        <Text style={[savedStyles.cardDate, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                                          {formatSavedDate(session.createdAt)}
-                                        </Text>
-                                        {session.rating !== null && (
-                                          <View style={{ flexDirection: "row", alignItems: "center", gap: 3 }}>
-                                            {[1, 2, 3, 4, 5].map((n) => (
-                                              <Feather
-                                                key={n}
-                                                name="star"
-                                                size={12}
-                                                color={n <= session.rating! ? "#F59E0B" : colors.mutedForeground}
-                                              />
-                                            ))}
-                                            <Text style={[savedStyles.cardDate, { color: colors.mutedForeground, fontWeight: "600" }]}>
-                                              {session.rating}/5
-                                            </Text>
-                                          </View>
-                                        )}
-                                      </View>
-                                    </View>
-                                    <Feather name={isOpen ? "chevron-up" : "chevron-down"} size={16} color={colors.mutedForeground} />
-                                  </Pressable>
-
-                                  {isOpen && session.feedback && (
-                                    <View style={[savedStyles.cardBody, { borderTopColor: colors.border }]}>
-                                      <Text style={[savedStyles.sectionTitle, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold", marginBottom: 8 }]}>
-                                        Coach Feedback
-                                      </Text>
-                                      <Text style={[savedStyles.cardBodyText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>
-                                        {session.feedback}
-                                      </Text>
-                                    </View>
-                                  )}
-                                </View>
-                              );
-                            })
-                          )}
-                        </View>
-                      )}
-                    </>
-                  )}
-                </View>
-              )}
-
-              {/* Phase: Feedback */}
-              {roleplayPhase === "feedback" && (
-                <View>
-                  <View style={[styles.feedbackCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                    <Text style={[styles.feedbackTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
-                      Session Complete
-                    </Text>
-                    <Text style={[styles.feedbackScenario, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                      {roleplaySession?.scenarioTitle}
-                    </Text>
-
-                    {/* Rating stars — Feather icons, not emoji */}
-                    {roleplayRating !== null && (
-                      <View style={styles.starsRow}>
-                        {[1, 2, 3, 4, 5].map((star) => (
-                          <Feather
-                            key={star}
-                            name="star"
-                            size={22}
-                            color={star <= roleplayRating ? "#F59E0B" : colors.mutedForeground}
-                          />
-                        ))}
-                        <Text style={[styles.ratingNum, { color: colors.mutedForeground, fontWeight: "600" }]}>
-                          {roleplayRating}/5
-                        </Text>
-                      </View>
-                    )}
-
-                    {/* Feedback text */}
-                    {roleplayFeedback && (
-                      <>
-                        <View style={[styles.feedbackDivider, { backgroundColor: colors.border }]} />
-                        <Text style={[styles.feedbackLabel, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
-                          Coach Feedback
-                        </Text>
-                        <Text style={[styles.feedbackBody, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>
-                          {roleplayFeedback}
-                        </Text>
-                      </>
-                    )}
-                  </View>
-
-                  {roleplayFeedback && (
-                    <View style={styles.resultActionRow}>
-                      <Pressable
-                        onPress={handleSaveRoleplay}
-                        style={({ pressed }) => [
-                          styles.saveBtn,
-                          styles.resultActionBtn,
-                          {
-                            borderColor: roleplaySavedId ? colors.primary : colors.border,
-                            backgroundColor: roleplaySavedId ? colors.primary + "18" : "transparent",
-                          },
-                          pressed && { opacity: 0.75 },
-                        ]}
-                      >
-                        <Feather name={roleplaySavedId ? "check" : "bookmark"} size={15} color={roleplaySavedId ? colors.primary : colors.mutedForeground} />
-                        <Text style={[styles.saveBtnText, { color: roleplaySavedId ? colors.primary : colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
-                          {roleplaySavedId ? "Saved" : "Save"}
-                        </Text>
-                      </Pressable>
-                      <Pressable
-                        onPress={handleShareRoleplay}
-                        style={({ pressed }) => [
-                          styles.saveBtn,
-                          styles.resultActionBtn,
-                          { borderColor: colors.border },
-                          pressed && { opacity: 0.75 },
-                        ]}
-                      >
-                        <Feather name="share" size={15} color={colors.mutedForeground} />
-                        <Text style={[styles.saveBtnText, { color: colors.mutedForeground, fontFamily: "Inter_600SemiBold" }]}>
-                          Share
-                        </Text>
-                      </Pressable>
-                    </View>
-                  )}
-
-                  <ReminderPicker
-                    title="Apply what you practiced"
-                    body="You just completed a role-play — set a reminder to use these techniques in your next call."
-                    storageKey="roleplay"
-                  />
-
-                  <Pressable
-                    onPress={resetRoleplay}
-                    style={({ pressed }) => [
-                      styles.submitBtn,
-                      { backgroundColor: colors.primary, marginTop: 16 },
-                      pressed && { opacity: 0.85 },
-                    ]}
-                  >
-                    <Text style={[styles.submitBtnText, { fontFamily: "Inter_700Bold", color: colors.primaryForeground }]}>Practice Another Scenario</Text>
-                  </Pressable>
-                </View>
-              )}
-            </View>
-          )}
-          <SavedSection
-            items={roleplaySaved.savedItems}
-            onDelete={roleplaySaved.deleteResponse}
-            colors={colors}
-          />
         </View>
           </ScrollView>
         </KeyboardAvoidingView>
@@ -2281,111 +1298,4 @@ const styles = StyleSheet.create({
   },
   emailTypeBtnText: { fontSize: 13 },
 
-  // Role-Play: Scenario selection
-  roleplayIntroTitle: { fontSize: 20, marginBottom: 6 },
-  roleplayIntroSub: { fontSize: 14, lineHeight: 21, marginBottom: 20 },
-  roleplayLoadingWrap: { alignItems: "center", paddingVertical: 40, gap: 12 },
-  roleplayLoadingText: { fontSize: 14 },
-  scenarioCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-    gap: 14,
-  },
-  scenarioIconWrap: {
-    width: 44,
-    height: 44,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-  },
-  scenarioTextWrap: { flex: 1 },
-  scenarioTitle: { fontSize: 16, marginBottom: 3 },
-  scenarioDesc: { fontSize: 13, lineHeight: 19 },
-  scenarioStatRow: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 5 },
-  scenarioStatText: { fontSize: 11 },
-
-  // Role-Play: Active session
-  sessionHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderBottomWidth: 1,
-    paddingBottom: 12,
-    marginBottom: 16,
-    gap: 12,
-  },
-  sessionTitle: { fontSize: 17 },
-  sessionSubtitle: { fontSize: 12, marginTop: 2 },
-  endBtn: {
-    borderWidth: 1.5,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    minWidth: 56,
-    alignItems: "center",
-  },
-  endBtnText: { fontSize: 14 },
-  chatList: { gap: 12, marginBottom: 16 },
-  bubbleWrap: { flexDirection: "row", alignItems: "flex-end", gap: 8 },
-  bubbleWrapUser: { justifyContent: "flex-end" },
-  bubbleWrapChar: { justifyContent: "flex-start" },
-  avatarDot: {
-    width: 26,
-    height: 26,
-    borderRadius: 13,
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-  },
-  bubble: {
-    maxWidth: "80%",
-    borderRadius: 16,
-    paddingHorizontal: 14,
-    paddingVertical: 10,
-  },
-  bubbleUser: { borderBottomRightRadius: 4 },
-  bubbleChar: { borderWidth: 1, borderBottomLeftRadius: 4 },
-  bubbleText: { fontSize: 15, lineHeight: 22 },
-  chatInputRow: {
-    flexDirection: "row",
-    borderWidth: 1,
-    borderRadius: 14,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    alignItems: "flex-end",
-    gap: 8,
-  },
-  chatInput: {
-    flex: 1,
-    fontSize: 15,
-    maxHeight: 100,
-    paddingVertical: 4,
-  },
-  sendBtn: {
-    width: 38,
-    height: 38,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
-  },
-  endHint: { fontSize: 12, textAlign: "center", marginTop: 10 },
-
-  // Role-Play: Feedback
-  feedbackCard: {
-    borderWidth: 1,
-    borderRadius: 14,
-    padding: 20,
-  },
-  feedbackTitle: { fontSize: 20, marginBottom: 4 },
-  feedbackScenario: { fontSize: 14, marginBottom: 16 },
-  starsRow: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 4 },
-  ratingNum: { fontSize: 16, marginLeft: 6 },
-  feedbackDivider: { height: 1, marginVertical: 16 },
-  feedbackLabel: { fontSize: 13, textTransform: "uppercase", letterSpacing: 0.5, marginBottom: 8 },
-  feedbackBody: { fontSize: 15, lineHeight: 23 },
 });
