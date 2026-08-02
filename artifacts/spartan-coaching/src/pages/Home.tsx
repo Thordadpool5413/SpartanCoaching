@@ -7,73 +7,34 @@ import { SEO } from "@/components/SEO";
 import { TrustStrip } from "@/components/TrustStrip";
 import { ProofStrip } from "@/components/ProofStrip";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
-import { useEffect, useRef } from "react";
+import { lazy, Suspense, Component } from "react";
+import type { ReactNode } from "react";
 import nickPhoto from "@assets/nick-photo.jpg";
 
 const CANONICAL_ORIGIN = "https://spartanhospicecoaching.com";
 
-/**
- * Full-bleed brand hero video only — no HTML text overlay, no kinetic animation.
- * Uses public/hero-video.mp4 (logo reveal). CTAs live in the authority strip below.
- */
-function HeroVideo() {
-  const videoRef = useRef<HTMLVideoElement>(null);
+/** Kinetic brand hero (SpartanHeroAnimation) — full-bleed, no HTML text overlay. */
+const SpartanHeroAnimation = lazy(() =>
+  import("@/components/SpartanHeroAnimation").then((m) => ({
+    default: m.SpartanHeroAnimation,
+  })),
+);
 
-  useEffect(() => {
-    const el = videoRef.current;
-    if (!el) return;
-
-    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-    if (reduced) {
-      el.pause();
-      el.removeAttribute("autoplay");
-      return;
-    }
-
-    // Safari / iOS autoplay: muted + playsInline before play()
-    el.muted = true;
-    el.defaultMuted = true;
-    el.setAttribute("muted", "");
-    el.setAttribute("playsinline", "");
-    el.setAttribute("webkit-playsinline", "true");
-    el.playsInline = true;
-    el.volume = 0;
-
-    const tryPlay = () => {
-      void el.play().catch(() => {});
-    };
-
-    tryPlay();
-    el.addEventListener("loadeddata", tryPlay);
-    el.addEventListener("canplay", tryPlay);
-    const t = window.setTimeout(tryPlay, 150);
-    const t2 = window.setTimeout(tryPlay, 800);
-
-    return () => {
-      el.removeEventListener("loadeddata", tryPlay);
-      el.removeEventListener("canplay", tryPlay);
-      window.clearTimeout(t);
-      window.clearTimeout(t2);
-    };
-  }, []);
-
-  return (
-    <video
-      ref={videoRef}
-      src="/hero-video.mp4"
-      autoPlay
-      muted
-      loop
-      playsInline
-      preload="auto"
-      poster="/hero-poster.jpg"
-      className="absolute inset-0 z-[1] h-full w-full object-cover hero-video-mobile"
-      data-testid="hero-video"
-      aria-label="Spartan Coaching brand hero video"
-      style={{ pointerEvents: "none" }}
-      {...({ "webkit-playsinline": "true" } as object)}
-    />
-  );
+class AnimationErrorBoundary extends Component<
+  { children: ReactNode },
+  { failed: boolean }
+> {
+  state = { failed: false };
+  componentDidCatch() {
+    this.setState({ failed: true });
+  }
+  render() {
+    return this.state.failed ? (
+      <div className="absolute inset-0 bg-black" />
+    ) : (
+      this.props.children
+    );
+  }
 }
 
 export default function Home() {
@@ -126,14 +87,17 @@ export default function Home() {
         </script>
       </Helmet>
 
-      {/* ── 1. HERO — brand video only (no text, no Framer kinetic copy) ── */}
+      {/* ── 1. HERO — SpartanHeroAnimation only (no HTML text overlay) ── */}
       <section
-        className="relative min-h-[70vh] sm:min-h-[85vh] md:min-h-[92vh] w-full overflow-hidden bg-black"
+        className="relative min-h-[85vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-background"
         data-testid="section-hero"
       >
-        <div className="absolute inset-0 z-0 bg-black" aria-hidden />
-        <HeroVideo />
-        {/* SEO/a11y only — must not paint on the video */}
+        <AnimationErrorBoundary>
+          <Suspense fallback={<div className="absolute inset-0 bg-background" />}>
+            <SpartanHeroAnimation />
+          </Suspense>
+        </AnimationErrorBoundary>
+        {/* SEO/a11y only — not painted over the animation */}
         <h1 className="sr-only" data-testid="text-home-hero-title">
           Close the conversational gap. Get eligible patients into care earlier.
         </h1>
