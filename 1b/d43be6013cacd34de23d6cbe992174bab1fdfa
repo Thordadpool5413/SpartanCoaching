@@ -1,0 +1,28 @@
+artifacts/spartan-coaching/src/components/ui/card.tsx
+  h_0446834f150a71 41-42
+artifacts/spartan-coaching/src/index.css
+  h_0446834f150a71 514-516,519-524,1089,1135-1148,1171-1203
+artifacts/spartan-coaching/src/lib/theme.contrast.test.ts
+  h_0446834f150a71 3,6-12,70-99
+artifacts/spartan-coaching/src/pages/FieldKit.eliteCopy.test.tsx
+  h_0446834f150a71 186-197
+artifacts/spartan-coaching/tailwind.config.ts
+  h_0446834f150a71 18
+design-system/spartan-coaching/MASTER.md
+  h_0446834f150a71 3,11-30,35-39,43,46-55,57-74,84,89,93,102,111-128,130,132
+docs/operator-checklist.md
+  h_0446834f150a71 5-7
+docs/production-verification.md
+  h_0446834f150a71 1-53
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "1bd43be6013cacd34de23d6cbe992174bab1fdfa",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
