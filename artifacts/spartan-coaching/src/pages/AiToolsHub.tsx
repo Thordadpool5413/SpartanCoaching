@@ -171,14 +171,14 @@ export default function AiToolsHub() {
   return (
     <FieldKitToolLayout title="Advanced library" showHowTo={false}>
       <SEO
-        title="Advanced Membership Library | Spartan Coaching"
-        description="Advanced membership tools plus permission-controlled clinical workflows. Primary daily tools live in the main tools catalog."
+        title="Advanced Library | Spartan Coaching"
+        description="Advanced Hospice Sales Pro tools plus permission-controlled clinical workflows. Primary daily tools live in the main tools catalog."
       />
       <div className="mb-8 max-w-3xl space-y-4">
         <Button asChild variant="ghost" size="sm" className="font-semibold -ml-2">
           <Link href="/tools">
             <ArrowLeft className="mr-1.5 h-4 w-4" />
-            Back to membership tools
+            Back to tools
           </Link>
         </Button>
         <div className="mb-2 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
@@ -198,7 +198,7 @@ export default function AiToolsHub() {
           <Button asChild className="font-bold">
             <Link href="/tools">
               <Wrench className="mr-2 h-4 w-4" />
-              Open primary membership tools
+              Open primary tools
             </Link>
           </Button>
           {clinical.length > 0 && (
@@ -255,7 +255,7 @@ export default function AiToolsHub() {
               </h2>
               <p className="text-sm text-muted-foreground mt-1 leading-relaxed max-w-2xl">
                 Content, learning, and sales enablement — no PHI. Same ethics as the
-                main membership tools. Use these between coaching sessions for specialized runs.
+                main Hospice Sales Pro tools. Use these between coaching sessions for specialized runs.
               </p>
             </div>
           </div>

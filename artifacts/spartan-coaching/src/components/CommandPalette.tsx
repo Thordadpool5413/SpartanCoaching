@@ -30,7 +30,7 @@ const commandItems = [
     })),
   },
   {
-    category: "Membership tools",
+    category: "Hospice Sales Pro",
     items: [
       {
         title: "Start a Role-Play",

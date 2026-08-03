@@ -212,11 +212,11 @@ export default function Account() {
 
   const membershipBlurb =
     org?.status === "trial"
-      ? "You are on a timed evaluation. Tools stay unlocked until the window ends. Individuals can continue for $14.99/week — cancel anytime from Manage billing."
+      ? "You are on a timed evaluation. Tools stay unlocked until the window ends. Individuals can continue Hospice Sales Pro for $14.99/week — cancel anytime from Manage billing."
       : org?.status === "active" && hasPaidSub
         ? cancelAtPeriodEnd
-          ? "Your subscription is set to cancel at the end of the current period. You keep membership access until then. You can reverse cancel in Manage billing."
-          : "Your weekly membership is active. Use Manage billing to update payment method or cancel (access continues until the period ends)."
+          ? "Your subscription is set to cancel at the end of the current period. You keep Hospice Sales Pro access until then. You can reverse cancel in Manage billing."
+          : "Your weekly Hospice Sales Pro subscription is active. Use Manage billing to update payment method or cancel (access continues until the period ends)."
         : org?.status === "active" && isComp
           ? "Complimentary access is active. No self-serve charge. Contact Nick if you need changes."
         : org?.status === "active" && isCompany
@@ -227,7 +227,7 @@ export default function Account() {
           ? "Access has ended. Individuals can re-subscribe for $14.99/week. Teams: contact us to renew under contract."
         : org?.status === "suspended"
           ? "Access is suspended (often a failed payment). Update your card in Manage billing or contact support."
-          : "Your membership status will appear here once access is assigned.";
+          : "Your Hospice Sales Pro status will appear here once access is assigned.";
 
   const hoursLeft = fieldKit?.hoursRemaining;
   const hoursLabel =
@@ -257,7 +257,7 @@ export default function Account() {
         </h1>
         {showDayZero && (
           <p className="text-sm text-muted-foreground mt-2 leading-relaxed max-w-xl">
-            One checkout unlocks membership tools and resources. Preview is free; live runs need membership.
+            One checkout unlocks Hospice Sales Pro tools and resources. Preview is free; live runs need an active subscription.
           </p>
         )}
       </div>
@@ -275,9 +275,9 @@ export default function Account() {
         <div className="flex flex-wrap items-center gap-2">
           <Badge variant="secondary">{statusLabel}</Badge>
           {canUseFieldKit ? (
-            <Badge className="bg-primary/15 text-primary border-primary/30">Membership unlocked</Badge>
+            <Badge className="bg-primary/15 text-primary border-primary/30">Hospice Sales Pro unlocked</Badge>
           ) : (
-            <Badge variant="destructive">Membership locked</Badge>
+            <Badge variant="destructive">Hospice Sales Pro locked</Badge>
           )}
           {isCompany && <Badge variant="outline">Team / company</Badge>}
           {isPersonal && <Badge variant="outline">Individual</Badge>}
@@ -354,7 +354,7 @@ export default function Account() {
         >
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <CreditCard className="w-4 h-4 text-primary" />
-            {canCheckout ? "Start Hospice Sales Pro" : "Membership & billing"}
+            {canCheckout ? "Start Hospice Sales Pro" : "Hospice Sales Pro & billing"}
           </div>
           {isPersonal && !isPlatform && (
             <div>
@@ -363,7 +363,7 @@ export default function Account() {
                 <span className="text-sm font-semibold text-muted-foreground"> / week</span>
               </p>
               <p className="text-xs text-muted-foreground mt-1">
-                Individual membership · your tools, your edge · cancel anytime from Manage billing
+                Individual Hospice Sales Pro · your tools, your edge · cancel anytime from Manage billing
               </p>
               {canCheckout && (
                 <ul className="mt-3 space-y-1.5">
@@ -404,7 +404,7 @@ export default function Account() {
               {isCompany && (
                 <p className="text-xs text-muted-foreground leading-relaxed">
                   Team seats are billed under your provider contract (weekly per seat). For seat or rate changes,{" "}
-                  <Link href="/contact?service=Membership" className="text-primary hover:underline">
+                  <Link href="/contact?service=Hospice+Sales+Pro" className="text-primary hover:underline">
                     contact Nick
                   </Link>
                   . Past-due invoices may suspend access for the whole org.
@@ -476,16 +476,16 @@ export default function Account() {
           {!canUseFieldKit && org?.status === "expired" && !canCheckout && (
             <>
               <Button asChild className="font-bold">
-                <Link href="/contact?service=Membership">Continue as a client</Link>
+                <Link href="/contact?service=Hospice+Sales+Pro">Continue as a client</Link>
               </Button>
               <Button asChild variant="outline" className="font-bold">
-                <Link href="/hospice-sales-pro">Membership options</Link>
+                <Link href="/hospice-sales-pro">Hospice Sales Pro options</Link>
               </Button>
             </>
           )}
           {org?.status === "trial" && (
             <Button asChild variant="outline" className="font-bold">
-              <Link href="/contact?service=Membership+Debrief">Book a debrief</Link>
+              <Link href="/contact?service=Hospice+Sales+Pro+Debrief">Book a debrief</Link>
             </Button>
           )}
           <Button asChild variant="outline" className="font-bold">
@@ -506,17 +506,17 @@ export default function Account() {
           </Link>
           {" · "}
           <Link href="/hospice-sales-pro" className="text-primary hover:underline">
-            Membership
+            Hospice Sales Pro
           </Link>
           .
         </p>
       </Card>
 
-      {/* ── Your membership — active subscriber confirmation card ── */}
+      {/* ── Active subscriber confirmation card ── */}
       {canUseFieldKit && hasPaidSub && (
         <Card className="border border-border bg-card p-6 space-y-4" data-testid="card-your-membership">
           <div>
-            <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">Your membership</p>
+            <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">Your Hospice Sales Pro</p>
             <h2 className="text-lg font-bold text-foreground">13 private tools — all unlocked</h2>
             <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
               Access everything below from the{" "}

@@ -277,14 +277,14 @@ export default function FieldKitMembership() {
           <SubscribeCTA surface="membership_pricing" showHint={false} testId="membership-subscribe" />
           {canUseFieldKit && (
             <Button asChild className="font-bold" variant="outline">
-              <Link href="/account">Manage membership</Link>
+              <Link href="/account">Manage billing</Link>
             </Button>
           )}
           <Button asChild variant="outline" className="font-bold">
             <Link href="/request-access">Team / evaluation</Link>
           </Button>
           <Button asChild variant="outline" className="font-bold">
-            <Link href="/contact?service=Membership">Talk through options</Link>
+            <Link href="/contact?service=Hospice+Sales+Pro">Talk through options</Link>
           </Button>
           <Button asChild variant="outline" className="font-bold">
             <Link href="/tools">Preview tools</Link>
@@ -307,7 +307,7 @@ export default function FieldKitMembership() {
               invoice or offline terms as agreed.
             </li>
             <li>
-              Failed payments may suspend membership access until the payment method is updated. No PHI belongs in
+              Failed payments may suspend Hospice Sales Pro access until the payment method is updated. No PHI belongs in
               tools.
             </li>
             <li>

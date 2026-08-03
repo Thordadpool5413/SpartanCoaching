@@ -37,7 +37,7 @@ export function isNoIndexPath(path: string): boolean {
 
 const seoDefaults: Record<string, SEOConfig> = {
   '/': {
-    title: 'Spartan Coaching | Hospice Sales Consulting & Membership',
+    title: 'Spartan Coaching | Hospice Sales Consulting & Hospice Sales Pro',
     description:
       'Practical hospice growth coaching from Nick Lynch. Consulting for teams — and Hospice Sales Pro for tools & resources on web and iPhone ($14.99/week, cancel anytime).',
     keywords:
@@ -46,7 +46,7 @@ const seoDefaults: Record<string, SEOConfig> = {
   '/services': {
     title: 'Coaching Services | Spartan Coaching',
     description:
-      'Hospice growth consulting: individual coaching, leadership systems, and Hospice Sales Pro tools. Individual membership $14.99/week; team seats under contract.',
+      'Hospice growth consulting: individual coaching, leadership systems, and Hospice Sales Pro tools. Individual $14.99/week; team seats under contract.',
     keywords: 'hospice sales coaching, Hospice Sales Pro, leadership coaching, consulting services',
   },
   '/programs': {
@@ -58,14 +58,14 @@ const seoDefaults: Record<string, SEOConfig> = {
   '/method': {
     title: 'The Spartan Method | Spartan Coaching',
     description:
-      'Discipline, Empathy, and Strategy — field-tested hospice sales method. Practice it with membership tools between sessions.',
+      'Discipline, Empathy, and Strategy — field-tested hospice sales method. Practice it with Hospice Sales Pro tools between sessions.',
     keywords: 'Spartan Method, sales methodology, hospice sales framework, Hospice Sales Pro',
   },
   '/tools': {
-    title: 'Membership Tools | Spartan Coaching',
+    title: 'Hospice Sales Pro Tools | Spartan Coaching',
     description:
-      'Preview membership tools free. Subscribe for $14.99/week to run playbooks, objections, role-play, calculators, and weekly planning live. No PHI in consumer tools.',
-    keywords: 'hospice membership tools, sales playbooks, objection handling, territory research, AI coaching tools',
+      'Preview Hospice Sales Pro tools free. Subscribe for $14.99/week to run playbooks, objections, role-play, calculators, and weekly planning live. No PHI in consumer tools.',
+    keywords: 'Hospice Sales Pro tools, sales playbooks, objection handling, territory research, AI coaching tools',
   },
   '/welcome': {
     title: 'Welcome | Spartan Coaching',
@@ -75,19 +75,19 @@ const seoDefaults: Record<string, SEOConfig> = {
   '/login': {
     title: 'Client Login | Spartan Coaching',
     description: 'Sign in to your Hospice Sales Pro account and portal.',
-    keywords: 'client login, membership access, portal',
+    keywords: 'client login, Hospice Sales Pro access, portal',
     noIndex: true,
   },
   '/request-access': {
     title: 'Team & Evaluation Access | Spartan Coaching',
     description:
       'Request team or evaluation access for Hospice Sales Pro. Individuals can create an account and subscribe self-serve for $14.99/week. Teams continue under contract.',
-    keywords: 'membership team access, request evaluation, hospice sales tools, company seats, $14.99 week',
+    keywords: 'Hospice Sales Pro team access, request evaluation, hospice sales tools, company seats, $14.99 week',
   },
   '/portal': {
     title: 'Portal | Spartan Coaching',
     description: 'Your Hospice Sales Pro portal — next action, tools, and resources.',
-    keywords: 'portal, membership, client home',
+    keywords: 'portal, Hospice Sales Pro, client home',
     noIndex: true,
   },
   '/account': {
@@ -111,8 +111,8 @@ const seoDefaults: Record<string, SEOConfig> = {
   '/pricing/field-kit': {
     title: 'Hospice Sales Pro $14.99/week | Spartan Coaching',
     description:
-      'Membership pricing: individuals $14.99/week self-serve; team seats under hospice contract.',
-    keywords: 'Hospice Sales Pro pricing, hospice consulting tools, weekly membership',
+      'Hospice Sales Pro pricing: individuals $14.99/week self-serve; team seats under hospice contract.',
+    keywords: 'Hospice Sales Pro pricing, hospice consulting tools, $14.99 week',
   },
   '/tools/playbooks': {
     title: 'Sales Playbook Generator | Spartan Coaching',
@@ -230,19 +230,19 @@ const seoDefaults: Record<string, SEOConfig> = {
   },
   '/admin/access-desk': {
     title: 'Access Desk | Spartan Coaching',
-    description: 'Membership access operations.',
+    description: 'Hospice Sales Pro access operations.',
     keywords: 'admin',
     noIndex: true,
   },
   '/faq': {
     title: 'FAQ | Spartan Coaching',
     description:
-      'Hospice Sales Pro access, 24h/72h evaluation trials, $14.99/week individual membership, team contracts, cancel anytime, and no-PHI compliance.',
-    keywords: 'hospice coaching FAQ, membership access, evaluation trial, $14.99 week, cancel subscription',
+      'Hospice Sales Pro access, 24h/72h evaluation trials, $14.99/week individual, team contracts, cancel anytime, and no-PHI compliance.',
+    keywords: 'hospice coaching FAQ, Hospice Sales Pro access, evaluation trial, $14.99 week, cancel subscription',
   },
   '/terms': {
     title: 'Terms of Service | Spartan Coaching',
-    description: 'Terms governing use of the Spartan Coaching website, membership tools, and consulting services.',
+    description: 'Terms governing use of the Spartan Coaching website, Hospice Sales Pro tools, and consulting services.',
     keywords: 'terms of service, Spartan Coaching terms',
   },
   '/disclaimer': {
@@ -254,8 +254,8 @@ const seoDefaults: Record<string, SEOConfig> = {
   '/privacy': {
     title: 'Privacy Policy | Spartan Coaching',
     description:
-      'How Spartan Coaching collects and protects information — contact forms, membership accounts, access requests. No PHI in tools.',
-    keywords: 'privacy policy, data protection, membership privacy',
+      'How Spartan Coaching collects and protects information — contact forms, Hospice Sales Pro accounts, access requests. No PHI in tools.',
+    keywords: 'privacy policy, data protection, Hospice Sales Pro privacy',
   },
   '/baa': {
     title: 'HIPAA Business Associate Agreement | Spartan Coaching',
@@ -389,7 +389,7 @@ const seoDefaults: Record<string, SEOConfig> = {
 const defaultConfig: SEOConfig = {
   title: 'Spartan Coaching | Hospice Sales Consulting',
   description:
-    'Expert hospice sales consulting and membership tools. Coaching that holds when the week is hard.',
+    'Expert hospice sales consulting and Hospice Sales Pro tools. Coaching that holds when the week is hard.',
   keywords: 'hospice sales, sales coaching, consulting, Hospice Sales Pro',
   ogImage: DEFAULT_OG_IMAGE,
 };

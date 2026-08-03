@@ -67,7 +67,7 @@ export function SubscribeCTA({
 
   const hint = (() => {
     if (!showHint) return null;
-    if (canUseFieldKit) return "Your membership is unlocked.";
+    if (canUseFieldKit) return "Hospice Sales Pro is unlocked.";
     if (!isAuthenticated) {
       return "Create your account, then Start Hospice Sales Pro · $14.99/week · cancel anytime";
     }

@@ -23,7 +23,7 @@ export const CLINICAL_VAULT = {
   runWatermark:
     "Educational decision support only. Qualified clinical review required. Not retained.",
   hubIntro:
-    "These workflows may process clinical content under authorized access only. They are not consumer membership tools. Results are educational decision support — not diagnosis, coverage determination, or autonomous admission decisions. Runs are ephemeral when live; use only when your role and organization permit.",
+    "These workflows may process clinical content under authorized access only. They are not consumer Hospice Sales Pro tools. Results are educational decision support — not diagnosis, coverage determination, or autonomous admission decisions. Runs are ephemeral when live; use only when your role and organization permit.",
   chips: [
     "Authorized roles only",
     "Ephemeral by design",
@@ -39,7 +39,7 @@ export const CLINICAL_VAULT = {
 export const PUBLIC_CLAIM_SAFE = {
   yearsHospice: "12+ years hospice-specific",
   fieldBuilt: "Built for SNFs & MD offices",
-  ethics: "No PHI in membership tools",
+  ethics: "No PHI in Hospice Sales Pro tools",
   /** Prefer this over “reps who rank at the top” */
   fieldCraft: "Field-tested coaching, not generic sales AI",
   prepareNotWing: "Prepared conversations — not winging Tuesday",

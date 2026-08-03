@@ -470,7 +470,7 @@ export default function KnowledgeBase() {
                     ))}
                   </ul>
                   <p className="text-[11px] text-muted-foreground">
-                    Sign in with membership access to retrieve these live. Glossary terms below remain public.
+                    Sign in with Hospice Sales Pro access to retrieve these live. Glossary terms below remain public.
                   </p>
                 </Card>
               </div>

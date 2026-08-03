@@ -482,7 +482,7 @@ export function Footer() {
     { href: "/resources", label: "Resources" },
     { href: "/portal/learn", label: "Learn" },
     { href: "/account", label: "Account" },
-    { href: "/contact?service=Membership+Debrief", label: "Coach" },
+    { href: "/contact?service=Hospice+Sales+Pro+Debrief", label: "Coach" },
     { href: "/compliance", label: "Compliance" },
     { href: "/faq", label: "FAQ" },
   ];

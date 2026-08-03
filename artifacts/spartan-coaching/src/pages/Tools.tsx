@@ -396,7 +396,7 @@ export default function Tools() {
                     </h2>
                     <p className="mt-0.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
                       Specialized AI workflows and permission-controlled clinical tools — secondary to
-                      your daily membership spine.
+                      your daily Hospice Sales Pro spine.
                     </p>
                   </div>
                 </div>
@@ -430,7 +430,7 @@ export default function Tools() {
         <div className="mt-12 sm:mt-16 rounded-2xl p-8 md:p-12 text-center border border-border/80 bg-card shadow-elite surface-noise">
           <h2 className="text-h2 font-bold text-foreground mb-4">Coaching stays human</h2>
           <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
-            Membership tools support execution between sessions. Strategy calls and consulting engagements
+            Hospice Sales Pro tools support execution between sessions. Strategy calls and consulting engagements
             are how organizations transform.
           </p>
           <Button size="lg" asChild className="font-bold" data-testid="button-tools-contact">

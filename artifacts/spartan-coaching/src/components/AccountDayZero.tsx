@@ -29,7 +29,7 @@ const DAY_ZERO = [
   {
     icon: Crosshair,
     title: "Open Command Center",
-    body: "Add one real account visit for this week — spine of your membership tools.",
+    body: "Add one real account visit for this week — spine of your Hospice Sales Pro tools.",
   },
   {
     icon: MessageSquare,
@@ -54,16 +54,16 @@ export function AccountDayZero({ firstName, isWelcome, isExpired, isSuspended }:
   const headline = isSuspended
     ? "Restore access"
     : isExpired && !isWelcome
-      ? "Membership access has ended"
+      ? "Hospice Sales Pro access has ended"
       : isWelcome
         ? `Welcome, ${name}`
-        : `You're one step from membership, ${name}`;
+        : `You're one step from Hospice Sales Pro, ${name}`;
 
   const sub = isSuspended
     ? "Update your card to unlock live tools again. Preview still works while you're here."
     : isExpired && !isWelcome
       ? "Resubscribe for $14.99/week to unlock live tools again — or preview interfaces free anytime. Cancel anytime."
-      : "Account created. Subscribe to generate, save, and run tools live. Cancel anytime from Manage billing.";
+      : "Account created. Subscribe to generate, save, and run Hospice Sales Pro tools live. Cancel anytime from Manage billing.";
 
   const unlockTools = FIELD_KIT_TOOLS.filter((t) => t.id !== "brand-video").slice(0, 8);
 
@@ -77,7 +77,7 @@ export function AccountDayZero({ firstName, isWelcome, isExpired, isSuspended }:
     >
       <div className="space-y-2">
         <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
-          {isWelcome ? "Almost there" : "Unlock membership"}
+          {isWelcome ? "Almost there" : "Unlock Hospice Sales Pro"}
         </p>
         <h2
           id="day-zero-heading"
@@ -214,7 +214,7 @@ export function AccountDayZero({ firstName, isWelcome, isExpired, isSuspended }:
       <p className="text-[11px] text-muted-foreground leading-relaxed">
         Secure Stripe checkout · cancel anytime · access continues through the period you paid for ·{" "}
         <Link href="/hospice-sales-pro" className="text-primary font-semibold hover:underline inline-flex items-center gap-0.5">
-          Why membership <ArrowRight className="w-3 h-3" />
+          Why Hospice Sales Pro <ArrowRight className="w-3 h-3" />
         </Link>
       </p>
     </Card>

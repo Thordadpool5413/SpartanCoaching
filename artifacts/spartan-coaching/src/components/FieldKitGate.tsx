@@ -36,18 +36,18 @@ export function FieldKitGate({ compact }: Props) {
     "Tools and resources for hospice growth — Command Center, practice, plans, and learn on web and iPhone. Preview free — Start Hospice Sales Pro or use team/evaluation access to run tools live.";
 
   if (expired) {
-    title = "Membership access has ended";
+    title = "Hospice Sales Pro access has ended";
     body = canSelfServe
       ? "Your access window ended. Individuals can re-subscribe for $14.99/week from Account — cancel anytime. Teams continue under a provider contract."
-      : "Thank you for putting real scenarios through the membership tools. Continue as a client under contract, request an extension, or close the loop with a short debrief.";
+      : "Thank you for putting real scenarios through Hospice Sales Pro. Continue as a client under contract, request an extension, or close the loop with a short debrief.";
   } else if (suspended) {
     title = "Access is currently paused";
     body = canSelfServe
-      ? "Often this is a failed payment. Update your card under Manage billing to restore membership access."
-      : "Your organization’s membership access is paused. Update billing or contact Spartan Coaching to restore access.";
+      ? "Often this is a failed payment. Update your card under Manage billing to restore Hospice Sales Pro access."
+      : "Your organization’s Hospice Sales Pro access is paused. Update billing or contact Spartan Coaching to restore access.";
   } else if (isAuthenticated && !fieldKit?.allowed) {
-    title = "Membership access is not active";
-    body = "Your account is signed in, but membership access is not currently active. Subscribe, renew, or contact us to continue.";
+    title = "Hospice Sales Pro access is not active";
+    body = "Your account is signed in, but Hospice Sales Pro access is not currently active. Subscribe, renew, or contact us to continue.";
   }
 
   const requestExtension = async () => {
@@ -190,7 +190,7 @@ export function FieldKitGate({ compact }: Props) {
           )}
           {(expired || isAuthenticated) && (
             <Button asChild className={canSelfServe && (expired || suspended) ? "font-bold" : "font-bold"} variant={canSelfServe && (expired || suspended) ? "outline" : "default"} data-testid="gate-contact">
-              <Link href="/contact?service=Membership">
+              <Link href="/contact?service=Hospice+Sales+Pro">
                 <Phone className="mr-2 w-4 h-4" />
                 {canSelfServe ? "Talk to Nick" : "Continue as a client — book a call"}
               </Link>
@@ -198,7 +198,7 @@ export function FieldKitGate({ compact }: Props) {
           )}
           {expired && (
             <Button asChild variant="outline" className="font-bold" data-testid="gate-pricing">
-              <Link href="/hospice-sales-pro">View membership options</Link>
+              <Link href="/hospice-sales-pro">View Hospice Sales Pro</Link>
             </Button>
           )}
           {isAuthenticated && (

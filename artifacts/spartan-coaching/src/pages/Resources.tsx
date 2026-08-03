@@ -149,14 +149,14 @@ export default function Resources() {
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed">
           {canUseFieldKit
-            ? "Templates, scripts, checklists, and guides for the field — part of your membership. No PHI in downloads you fill out."
+            ? "Templates, scripts, checklists, and guides for the field — part of Hospice Sales Pro. No PHI in downloads you fill out."
             : "Download field-tested templates, scripts, checklists, and guides to elevate your hospice sales performance."}
         </p>
         {canUseFieldKit && (
           <p className="text-sm text-muted-foreground mt-3">
             Pair these with{" "}
             <Link href="/tools" className="font-semibold text-primary hover:underline">
-              membership tools
+              Hospice Sales Pro tools
             </Link>{" "}
             (for example: objection cards → Objection Handler).
           </p>

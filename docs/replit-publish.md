@@ -45,13 +45,13 @@ Hard refresh or private window on https://spartanhospicecoaching.com
 
 ```
 [ ] View source (or curl) on / — meta description mentions Hospice Sales Pro / Consulting, NOT “Private Field Kit”
-[ ] Home: dual doors — Consulting + Membership (or “Two clear offers”)
-[ ] Nav: Consulting · Membership · Learn (no top-level “Field Kit”)
-[ ] /membership loads Hospice Sales Pro lander ($14.99/week)
-[ ] /field-kit redirects to /membership (or briefly “Redirecting…”)
-[ ] /tools kicker says Hospice Sales Pro (or Membership tools)
-[ ] Footer: Consulting · Membership — not “Private Field Kit”
-[ ] FAQ section titled Hospice Sales Pro (or membership access)
+[ ] Home: dual doors — Consulting + Hospice Sales Pro (or “Two clear offers”)
+[ ] Nav: Consulting · Hospice Sales Pro · Learn (no top-level “Field Kit”)
+[ ] /hospice-sales-pro loads lander ($14.99/week); /membership redirects there
+[ ] /field-kit redirects to /hospice-sales-pro (or briefly “Redirecting…”)
+[ ] /tools kicker says Hospice Sales Pro
+[ ] Footer: Consulting · Hospice Sales Pro — not “Private Field Kit”
+[ ] FAQ section titled Hospice Sales Pro
 ```
 
 ### Copy markers (search live HTML or built JS)
@@ -60,25 +60,25 @@ Hard refresh or private window on https://spartanhospicecoaching.com
 |---------------|-------------------------------|
 | `Hospice Sales Pro` | `Private Field Kit` (hero/nav/footer) |
 | `Two clear offers` or dual door CTAs | `Open Field Kit` as primary CTA |
-| `/membership` | Primary CTAs to `/field-kit-membership` only |
+| `/hospice-sales-pro` | Primary CTAs only to legacy `/field-kit-membership` |
 
 ```bash
-curl -sL "https://spartanhospicecoaching.com/" | findstr /i "Field Kit Membership Consulting"
-# Prefer Membership / Consulting in title+description after publish.
+curl -sL "https://spartanhospicecoaching.com/" | findstr /i "Hospice Sales Pro Consulting Field Kit"
+# Prefer Hospice Sales Pro / Consulting in title+description after publish.
 ```
 
 ---
 
-## C. Product smoke (membership)
+## C. Product smoke (Hospice Sales Pro)
 
 After publish, run **`scripts/smoke-membership.md`** on the live host (request access → portal → one tool).
 
 Short path if time is tight:
 
 ```
-[ ] /register → account → Day Zero / subscribe copy uses Membership language
-[ ] Logged-out tool preview shows membership lock, not “Field Kit”
-[ ] /portal when entitled shows Portal · Membership (not Field Kit board)
+[ ] /register → account → Day Zero / subscribe copy uses Hospice Sales Pro language
+[ ] Logged-out tool preview shows HSP lock, not “Field Kit”
+[ ] /portal when entitled shows Portal · Hospice Sales Pro (not Field Kit board)
 ```
 
 ---

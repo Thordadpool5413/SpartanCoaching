@@ -111,14 +111,14 @@ export function MembershipActivation() {
             {confirmed
               ? `You're in${firstName ? `, ${firstName}` : ""}`
               : confirming
-                ? "Confirming membership…"
+                ? "Confirming Hospice Sales Pro…"
                 : `Welcome${firstName ? `, ${firstName}` : ""}`}
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
             {confirmed
-              ? "Your membership is active. Start in Sales Command Center — add your next facility account (no PHI) and run the day from there."
+              ? "Hospice Sales Pro is active. Start in Sales Command Center — add your next facility account (no PHI) and run the day from there."
               : confirming
-                ? "Payment received. Unlocking membership tools — this usually takes a few seconds."
+                ? "Payment received. Unlocking Hospice Sales Pro tools — this usually takes a few seconds."
                 : "If tools stay locked, refresh in a moment or open Account. Support can confirm billing if needed."}
           </p>
           {confirmed && (

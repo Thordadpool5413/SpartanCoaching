@@ -6,7 +6,7 @@ const DEFAULT_ITEMS = [
   {
     icon: Shield,
     title: "No PHI in tools",
-    body: "Membership tools are for planning and messaging — never patient identifiers or clinical records.",
+    body: "Hospice Sales Pro tools are for planning and messaging — never patient identifiers or clinical records.",
   },
   {
     icon: UserCheck,
@@ -15,7 +15,7 @@ const DEFAULT_ITEMS = [
   },
   {
     icon: Lock,
-    title: "Clear membership path",
+    title: "Clear Hospice Sales Pro path",
     body: "Individuals at $14.99/week, cancel anytime. Teams activate seats under contract after evaluation.",
   },
   {
@@ -47,10 +47,10 @@ export function TrustStrip({ className, compact = false, showLinks = true }: Tru
         <div className="text-center mb-8 max-w-2xl mx-auto">
           <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">How we work with you</p>
           <h2 className="text-h3 font-display font-bold text-foreground mb-2">
-            Membership tools. Human consulting.
+            Hospice Sales Pro tools. Human consulting.
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Two clear offers: consulting stays human; membership tools unlock on web and iPhone. Individuals self-serve
+            Two clear offers: consulting stays human; Hospice Sales Pro unlocks tools on web and iPhone. Individuals self-serve
             at $14.99/week; teams and evaluations request access first, then continue under contract when it fits.
           </p>
         </div>

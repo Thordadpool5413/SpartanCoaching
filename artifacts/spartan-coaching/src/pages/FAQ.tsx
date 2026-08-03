@@ -45,11 +45,11 @@ const faqCategories = [
       {
         id: "what-is-membership",
         q: "What is Hospice Sales Pro?",
-        a: "Hospice Sales Pro is the subscription for tools and resources on web and iPhone: Sales Command Center, objections, playbooks, role-play, calculators, weekly plans, and more. Preview interfaces free. Live generation and saves unlock with membership ($14.99/week individual) or team/evaluation access.",
+        a: "Hospice Sales Pro is the subscription for tools and resources on web and iPhone: Sales Command Center, objections, playbooks, role-play, calculators, weekly plans, and more. Preview interfaces free. Live generation and saves unlock with Hospice Sales Pro ($14.99/week individual) or team/evaluation access.",
       },
       {
         id: "how-to-get-access",
-        q: "How do I get membership access?",
+        q: "How do I get Hospice Sales Pro access?",
         a: "Individuals: create an account, then subscribe for $14.99/week from Account (cancel anytime). You can preview tools before paying. Teams and arranged evaluations: request access or book a strategy call — Nick sets seats under contract or a timed evaluation when appropriate.",
       },
       {
@@ -74,7 +74,7 @@ const faqCategories = [
       },
       {
         id: "cancel-subscription",
-        q: "How do I cancel individual membership?",
+        q: "How do I cancel individual Hospice Sales Pro?",
         a: "Sign in → Account → Manage billing / cancel. You cancel yourself in the secure billing portal. Access continues until the end of the week you already paid for (cancel at period end). Provider contracts follow the terms you signed with Spartan Coaching.",
       },
     ],
@@ -90,7 +90,7 @@ const faqCategories = [
       {
         id: "patient-data",
         q: "Is patient data safe? Do you store PHI?",
-        a: "No. Membership tools are for planning and messaging workflows — not clinical documentation. Do not enter patient names, MRNs, diagnoses, or other PHI. We do not use your tool inputs to train public models. See Compliance & Data Practices and the Privacy Policy for detail. Corporate accounts can request a BAA path for procurement.",
+        a: "No. Hospice Sales Pro tools are for planning and messaging workflows — not clinical documentation. Do not enter patient names, MRNs, diagnoses, or other PHI. We do not use your tool inputs to train public models. See Compliance & Data Practices and the Privacy Policy for detail. Corporate accounts can request a BAA path for procurement.",
       },
       {
         id: "guarantee-results",
@@ -110,7 +110,7 @@ const faqCategories = [
       {
         id: "cost",
         q: "How much does it cost?",
-        a: "Hospice Sales Pro is $14.99 per week for individuals (auto-renew; cancel anytime from Account). Provider and team seats use weekly per-user pricing set under your contract. Enterprise + coaching is engagement-based. See Membership for details.",
+        a: "Hospice Sales Pro is $14.99 per week for individuals (auto-renew; cancel anytime from Account). Provider and team seats use weekly per-user pricing set under your contract. Enterprise + coaching is engagement-based. See Hospice Sales Pro for details.",
       },
       {
         id: "virtual-or-inperson",
@@ -155,7 +155,7 @@ export default function FAQ() {
             Frequently Asked Questions
           </h1>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
-            Consulting, Hospice Sales Pro, evaluation trials, individual $14.99/week membership, team contracts, and compliance.
+            Consulting, Hospice Sales Pro, evaluation trials, individual $14.99/week, team contracts, and compliance.
           </p>
         </div>
       </FadeIn>
@@ -216,18 +216,17 @@ export default function FAQ() {
               Ready for a clear next step?
             </h2>
             <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto leading-relaxed mb-8">
-              Preview tools free, create an account and subscribe ($14.99/week), request team access, or book a strategy call
-              about coaching. Honest conversation — no pressure.
+              Two offers: book consulting, or start Hospice Sales Pro for tools ($14.99/week). Preview free. Honest conversation — no pressure.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button
                 size="lg"
                 asChild
-                className="font-bold bg-white text-red-700 hover:bg-white/90 touch-manipulation group px-10"
-                data-testid="button-faq-register"
+                className="font-bold bg-white text-red-700 hover:bg-white/90 touch-manipulation group px-10 min-h-12"
+                data-testid="button-faq-contact"
               >
-                <Link href="/register">
-                  <span>Create account to subscribe</span>
+                <Link href="/contact">
+                  <span>Book a strategy call</span>
                   <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </Link>
               </Button>
@@ -235,15 +234,15 @@ export default function FAQ() {
                 size="lg"
                 variant="outline"
                 asChild
-                className="font-bold border-white/50 text-white bg-transparent hover:bg-white/10 touch-manipulation px-10"
-                data-testid="button-faq-contact"
+                className="font-bold border-white/50 text-white bg-transparent hover:bg-white/10 touch-manipulation px-10 min-h-12"
+                data-testid="button-faq-register"
               >
-                <Link href="/contact">Book a strategy call</Link>
+                <Link href="/hospice-sales-pro">Explore Hospice Sales Pro</Link>
               </Button>
             </div>
             <p className="mt-5 text-sm text-white/80 space-x-3">
-              <Link href="/hospice-sales-pro" className="underline underline-offset-4 hover:text-white" data-testid="button-faq-membership">
-                Pricing · $14.99/wk
+              <Link href="/register" className="underline underline-offset-4 hover:text-white" data-testid="button-faq-membership">
+                Create account · $14.99/wk
               </Link>
               <span aria-hidden="true">·</span>
               <Link href="/request-access" className="underline underline-offset-4 hover:text-white" data-testid="button-faq-request">

@@ -137,4 +137,15 @@ Header brand zone must never collide with nav; utility collapses to sheet &lt; m
 
 ## Production verification
 
-See `docs/production-verification.md` (required per design release).
+See `docs/production-verification.md` (required per design release).  
+Elite matrix (Phase 5 dual-offer + light/dark + breakpoints) is in that doc.
+
+## Understandability QA (ship gate)
+
+| Check | Pass if |
+|-------|---------|
+| Dual offer | Visitor can name Consulting vs Hospice Sales Pro in &lt;10s |
+| Product map | Command Center is the only full-emphasis tool block on HSP + Portal |
+| CTAs | ≤2 competing primary actions per marketing viewport |
+| Cards | ≤1 `elite-emphasis` per viewport |
+| iOS/web labels | Same product nouns |

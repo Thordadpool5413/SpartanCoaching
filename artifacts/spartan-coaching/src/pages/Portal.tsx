@@ -95,7 +95,7 @@ const ALL_CHECKLIST: ChecklistItem[] = [
     title: "Book a debrief call",
     short: "Debrief call",
     desc: "While your evaluation is open, talk through what you are seeing.",
-    href: "/contact?service=Membership+Debrief",
+    href: "/contact?service=Hospice+Sales+Pro+Debrief",
     icon: Phone,
   },
 ];
@@ -658,7 +658,7 @@ export default function Portal() {
                 Convert evaluation signal into seats, coaching, or a clear no — while the window is open.
               </p>
               <Button asChild size="sm" variant="outline" className="font-bold w-full">
-                <Link href="/contact?service=Membership+Debrief" data-testid="button-first-debrief">
+                <Link href="/contact?service=Hospice+Sales+Pro+Debrief" data-testid="button-first-debrief">
                   Schedule call
                   <Phone className="ml-2 w-3.5 h-3.5" />
                 </Link>
@@ -682,13 +682,13 @@ export default function Portal() {
           </p>
           <div className="flex flex-wrap justify-center gap-3 pt-1">
             <Button asChild className="font-bold">
-              <Link href="/contact?service=Membership+Debrief">
+              <Link href="/contact?service=Hospice+Sales+Pro+Debrief">
                 Book debrief
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Link>
             </Button>
             <Button asChild variant="outline" className="font-bold">
-              <Link href="/tools">Browse membership tools</Link>
+              <Link href="/tools">Browse Hospice Sales Pro tools</Link>
             </Button>
           </div>
         </Card>

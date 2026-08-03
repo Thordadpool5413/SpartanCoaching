@@ -13,12 +13,12 @@ export function AccessPaths({ className }: { className?: string }) {
     <section
       className={cn("w-full", className)}
       data-testid="section-access-paths"
-      aria-label="How to get membership access"
+      aria-label="How to get Hospice Sales Pro access"
     >
       <div className="text-center max-w-2xl mx-auto mb-8 space-y-2">
         <p className="text-kicker justify-center">Two clear paths</p>
         <h2 className="text-h2 text-foreground font-display">
-          How membership access works
+          How Hospice Sales Pro access works
         </h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
           Individuals self-serve. Teams and evaluations request access — so pricing never feels mixed up.
@@ -31,7 +31,7 @@ export function AccessPaths({ className }: { className?: string }) {
           </div>
           <div>
             <p className="text-[10px] font-bold tracking-widest uppercase text-primary mb-1">
-              Path A · Individual membership
+              Path A · Individual · Hospice Sales Pro
             </p>
             <h3 className="text-lg font-display font-bold text-foreground">
               Create account → subscribe

@@ -62,7 +62,7 @@ export function FieldKitPreviewLock({ children }: Props) {
   let bannerTitle = "Preview only — subscription required to use";
   if (expired) bannerTitle = "Evaluation ended — subscribe to unlock live tools";
   else if (suspended) bannerTitle = "Access paused — update billing to unlock";
-  else if (isAuthenticated) bannerTitle = "Preview only — activate membership to use";
+  else if (isAuthenticated) bannerTitle = "Preview only — activate Hospice Sales Pro to use";
 
   const blockAndNudge = useCallback((e: SyntheticEvent) => {
     if (isAllowedPreviewTarget(e.target)) return;
@@ -98,7 +98,7 @@ export function FieldKitPreviewLock({ children }: Props) {
             <div className="min-w-0">
               <p className="text-sm font-bold text-foreground leading-snug">{bannerTitle}</p>
               <p className="text-xs text-muted-foreground leading-snug">
-                Full tool layout is visible. Generate, save, edit, and run require an active membership.
+                Full tool layout is visible. Generate, save, edit, and run require active Hospice Sales Pro access.
               </p>
             </div>
           </div>
@@ -207,8 +207,8 @@ export function FieldKitPreviewLock({ children }: Props) {
                     Unlock this tool
                   </h2>
                   <p className="text-sm text-muted-foreground leading-relaxed mt-1">
-                    You&apos;re viewing the real membership tool interface. Live runs, AI generation, saves, and
-                    exports require an active membership or evaluation window.
+                    You&apos;re viewing the real Hospice Sales Pro tool interface. Live runs, AI generation, saves, and
+                    exports require active access or an evaluation window.
                   </p>
                 </div>
               </div>
@@ -267,13 +267,13 @@ export function FieldKitPreviewLock({ children }: Props) {
                 </Button>
               )}
               <Button variant="ghost" className="w-full font-semibold" asChild>
-                <Link href="/contact?service=Membership">
+                <Link href="/contact?service=Hospice+Sales+Pro">
                   <Phone className="mr-2 w-4 h-4" />
                   Talk to Nick
                 </Link>
               </Button>
               <Button variant="ghost" className="w-full font-semibold" asChild>
-                <Link href="/hospice-sales-pro">View membership options</Link>
+                <Link href="/hospice-sales-pro">View Hospice Sales Pro</Link>
               </Button>
             </div>
 

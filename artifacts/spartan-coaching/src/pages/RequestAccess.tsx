@@ -56,7 +56,7 @@ const FAQ_LINKS = [
   { href: "/faq#trial-hours", label: "How long is the trial?" },
   { href: "/faq#patient-data", label: "PHI / privacy" },
   { href: "/faq#what-after-trial", label: "After evaluation ends" },
-  { href: "/membership", label: "Membership path" },
+  { href: "/hospice-sales-pro", label: "Hospice Sales Pro path" },
   { href: "/compliance", label: "Compliance details" },
 ];
 
@@ -461,7 +461,7 @@ export default function RequestAccess() {
                   data-testid="check-nophi"
                 />
                 <span>
-                  I will not enter protected health information (PHI) into membership tools.{" "}
+                  I will not enter protected health information (PHI) into Hospice Sales Pro tools.{" "}
                   <Link href="/compliance" className="text-primary hover:underline">
                     Compliance details
                   </Link>

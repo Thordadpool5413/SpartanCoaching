@@ -17,7 +17,7 @@ const PORTAL_LINKS = [
   { href: "/resources", label: "Resources", icon: FolderOpen },
   { href: "/portal/learn", label: "Learn", icon: BookOpen },
   { href: "/account", label: "Account", icon: UserCircle },
-  { href: "/contact?service=Membership+Debrief", label: "Coach", icon: Phone },
+  { href: "/contact?service=Hospice+Sales+Pro+Debrief", label: "Coach", icon: Phone },
 ];
 
 function isActive(location: string, href: string) {
@@ -53,7 +53,7 @@ export function PortalNav({ className }: { className?: string }) {
   return (
     <nav
       className={cn("flex items-center gap-0.5 flex-wrap", className)}
-      aria-label="Membership portal navigation"
+      aria-label="Hospice Sales Pro portal navigation"
       data-testid="portal-nav"
     >
       {PORTAL_LINKS.map(({ href, label, icon: Icon }) => {

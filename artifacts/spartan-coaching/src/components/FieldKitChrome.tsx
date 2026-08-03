@@ -38,7 +38,7 @@ const MEMBER_LINKS = [
       loc === "/podcasts",
   },
   {
-    href: "/contact?service=Membership+Debrief",
+    href: "/contact?service=Hospice+Sales+Pro+Debrief",
     label: "Debrief",
     icon: Phone,
     match: (loc: string) => loc.startsWith("/contact"),
