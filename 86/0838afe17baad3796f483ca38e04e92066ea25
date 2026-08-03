@@ -1,0 +1,32 @@
+artifacts/spartan-coaching-mobile/app/(tabs)/account.tsx
+  h_0446834f150a71 154,156-157,195,282,373,466,480,586
+artifacts/spartan-coaching-mobile/app/(tabs)/index.tsx
+  h_0446834f150a71 37,154,172,338,364-365,405,411,481,484,507-515
+artifacts/spartan-coaching-mobile/app/(tabs)/learn.tsx
+  h_0446834f150a71 109,125
+artifacts/spartan-coaching-mobile/app/(tabs)/tools.tsx
+  h_0446834f150a71 160,199,236,275,303,331,360,364-365,467,481
+artifacts/spartan-coaching-mobile/app/_layout.tsx
+  h_0446834f150a71 51
+artifacts/spartan-coaching-mobile/app/ai-tools/index.tsx
+  h_0446834f150a71 143
+artifacts/spartan-coaching-mobile/app/sales-workflow.tsx
+  h_0446834f150a71 196,213
+artifacts/spartan-coaching-mobile/app/tool-web.tsx
+  h_0446834f150a71 21,79,90,153
+artifacts/spartan-coaching-mobile/components/RolePlayTool.tsx
+  h_0446834f150a71 197
+artifacts/spartan-coaching-mobile/components/ui/ToolScreen.tsx
+  h_0446834f150a71 34
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "860838afe17baad3796f483ca38e04e92066ea25",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
