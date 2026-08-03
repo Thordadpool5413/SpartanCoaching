@@ -1,0 +1,56 @@
+artifacts/spartan-coaching/src/components/ChatWidget.tsx
+  h_0446834f150a71 511
+artifacts/spartan-coaching/src/components/ToolHowTo.tsx
+  h_0446834f150a71 82
+artifacts/spartan-coaching/src/components/TrustStrip.tsx
+  h_0446834f150a71 9,50,53-54
+artifacts/spartan-coaching/src/pages/About.tsx
+  h_0446834f150a71 400
+artifacts/spartan-coaching/src/pages/AiToolsHub.tsx
+  h_0446834f150a71 33
+artifacts/spartan-coaching/src/pages/FAQ.tsx
+  h_0446834f150a71 23,43,47-48,52,63,93,113,158
+artifacts/spartan-coaching/src/pages/FieldKit.eliteCopy.test.tsx
+  h_0446834f150a71 2-3,5,7-9
+artifacts/spartan-coaching/src/pages/FieldKit.scenarios.test.ts
+  h_0446834f150a71 2-3,18
+artifacts/spartan-coaching/src/pages/FieldKit.tsx
+  h_0446834f150a71 1-6
+artifacts/spartan-coaching/src/pages/KnowledgeBase.tsx
+  h_0446834f150a71 458,473
+artifacts/spartan-coaching/src/pages/Login.tsx
+  h_0446834f150a71 78
+artifacts/spartan-coaching/src/pages/Portal.tsx
+  h_0446834f150a71 103,294,296,298-299,327,666,690,696,797,801,803,812-830,833-836,861,867,1061-1062
+artifacts/spartan-coaching/src/pages/PortalLearn.tsx
+  h_0446834f150a71 36,72,75,96,120
+artifacts/spartan-coaching/src/pages/PrivacyPolicy.tsx
+  h_0446834f150a71 70,72,75,78
+artifacts/spartan-coaching/src/pages/Register.tsx
+  h_0446834f150a71 109,205
+artifacts/spartan-coaching/src/pages/RequestAccess.tsx
+  h_0446834f150a71 157,216,464
+artifacts/spartan-coaching/src/pages/Resources.tsx
+  h_0446834f150a71 145,152,159,221
+artifacts/spartan-coaching/src/pages/SalesWorkflow.tsx
+  h_0446834f150a71 53,108,150
+artifacts/spartan-coaching/src/pages/SetPassword.tsx
+  h_0446834f150a71 59,78
+artifacts/spartan-coaching/src/pages/TermsOfService.tsx
+  h_0446834f150a71 64,67,84
+artifacts/spartan-coaching/src/pages/Tools.tsx
+  h_0446834f150a71 175,177,181,188,231,400,425,434-435
+artifacts/spartan-coaching/src/pages/Welcome.tsx
+  h_0446834f150a71 34,70
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "307887005de4c3a02399fa4f940b66847fe627a0",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
