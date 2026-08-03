@@ -1,0 +1,22 @@
+artifacts/spartan-coaching/index.html
+  h_0446834f150a71 5-6,14-15,20-21,46
+docs/operator-checklist.md
+  h_0446834f150a71 8-10
+docs/production-verification.md
+  h_0446834f150a71 19-20,24-31,37-38,41-42
+docs/replit-publish.md
+  h_0446834f150a71 1-103
+replit.md
+  h_0446834f150a71 99
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "80c55be069116ec23c3854690832bc1eedf1544e",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
