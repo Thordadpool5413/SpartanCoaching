@@ -1,17 +1,10 @@
 /**
- * Ensures every tool listed in PRIMARY_TOOL_IDS on the Field Kit marketing
- * page has a corresponding catalog entry with scenario + outcome copy.
- *
- * When a new primary tool is added to PRIMARY_TOOL_IDS, this test will fail
- * until the catalog entry also carries scenario and outcome — preventing
- * silent fallback to a blank card.
+ * Ensures primary membership tools have scenario + outcome copy in the catalog.
+ * Contract used by membership marketing and portal tool hierarchy.
  */
 import { describe, it, expect } from "vitest";
 import { FIELD_KIT_TOOLS } from "@workspace/field-kit-catalog";
 
-// Keep this list in sync with FieldKit.tsx PRIMARY_TOOL_IDS.
-// The test is the contract: every id here must exist in the catalog with
-// both scenario and outcome populated.
 const PRIMARY_TOOL_IDS = [
   "objections",
   "playbooks",
@@ -22,7 +15,7 @@ const PRIMARY_TOOL_IDS = [
   "email-templates",
 ];
 
-describe("FieldKit primary tool scenarios", () => {
+describe("Membership primary tool scenarios", () => {
   it("every PRIMARY_TOOL_ID resolves to a catalog entry", () => {
     const missing = PRIMARY_TOOL_IDS.filter(
       (id) => !FIELD_KIT_TOOLS.find((t) => t.id === id),

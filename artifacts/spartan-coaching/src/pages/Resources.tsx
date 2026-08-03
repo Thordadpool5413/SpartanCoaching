@@ -142,21 +142,21 @@ export default function Resources() {
       {canUseFieldKit && <FieldKitChrome />}
       <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
         <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">
-          {canUseFieldKit ? "Field Kit" : "Training library"}
+          {canUseFieldKit ? "Membership · Resources" : "Training library"}
         </p>
         <h1 className="text-h1 text-foreground mb-6" data-testid="text-resources-title">
           {canUseFieldKit ? "Resources" : "Training Resources Library"}
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed">
           {canUseFieldKit
-            ? "Templates, scripts, checklists, and guides for the field — part of your private Field Kit. No PHI in downloads you fill out."
+            ? "Templates, scripts, checklists, and guides for the field — part of your membership. No PHI in downloads you fill out."
             : "Download field-tested templates, scripts, checklists, and guides to elevate your hospice sales performance."}
         </p>
         {canUseFieldKit && (
           <p className="text-sm text-muted-foreground mt-3">
             Pair these with{" "}
             <Link href="/tools" className="font-semibold text-primary hover:underline">
-              Field Kit tools
+              membership tools
             </Link>{" "}
             (for example: objection cards → Objection Handler).
           </p>
@@ -218,7 +218,7 @@ export default function Resources() {
         </h2>
         <p className="text-muted-foreground mb-6">
           {canUseFieldKit
-            ? "Open in your browser, fill in, and print — part of your Field Kit resources."
+            ? "Open in your browser, fill in, and print — part of your membership resources."
             : "Open in your browser, fill in, and print. No account required."}
         </p>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">

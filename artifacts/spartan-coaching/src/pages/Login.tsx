@@ -75,7 +75,7 @@ export default function Login() {
             Sign in
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Field Kit members: use the email and password from your set-password email.
+            Members: use the email and password from your set-password email.
             Need an account?{" "}
             <Link href="/register" className="font-semibold text-primary hover:underline">
               Create one

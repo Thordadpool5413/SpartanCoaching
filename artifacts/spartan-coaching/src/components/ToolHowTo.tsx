@@ -79,7 +79,7 @@ export function ToolHowTo({
           className="text-xs font-semibold text-muted-foreground hover:text-primary inline-flex items-center gap-1"
         >
           <ArrowLeft className="w-3 h-3" />
-          Field Kit home
+          Portal
         </Link>
       </div>
 

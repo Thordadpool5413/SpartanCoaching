@@ -20,7 +20,7 @@ const faqCategories = [
       {
         id: "what-is-spartan",
         q: "What is Spartan Coaching?",
-        a: "Spartan Coaching is a practical consulting practice for hospice growth professionals. We help liaisons, business development reps, and growth leaders build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and measurable weekly accountability. Coaching is human-first. The Field Kit is the private execution layer — preview free, individuals subscribe for $14.99/week, teams under contract.",
+        a: "Spartan Coaching is a practical consulting practice for hospice growth professionals. We help liaisons, business development reps, and growth leaders build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and measurable weekly accountability. Two clear offers: human consulting, and Spartan Membership for tools and resources (preview free; individuals $14.99/week; teams under contract).",
       },
       {
         id: "who-is-this-for",
@@ -40,16 +40,16 @@ const faqCategories = [
     ],
   },
   {
-    title: "Field Kit access",
+    title: "Spartan Membership",
     questions: [
       {
         id: "what-is-field-kit",
-        q: "What is the Field Kit?",
-        a: "The Field Kit is a private set of AI-assisted tools for hospice growth work: objections, playbooks, role-play, calculators, weekly plans, Sales Command Center, and more. You can preview tool interfaces free. Live generation and saves unlock with membership ($14.99/week individual) or team/evaluation access.",
+        q: "What is Spartan Membership?",
+        a: "Spartan Membership is the subscription for tools and resources on web and iPhone: Sales Command Center, objections, playbooks, role-play, calculators, weekly plans, and more. Preview interfaces free. Live generation and saves unlock with membership ($14.99/week individual) or team/evaluation access.",
       },
       {
         id: "how-to-get-access",
-        q: "How do I get Field Kit access?",
+        q: "How do I get membership access?",
         a: "Individuals: create an account, then subscribe for $14.99/week from Account (cancel anytime). You can preview tools before paying. Teams and arranged evaluations: request access or book a strategy call — Nick sets seats under contract or a timed evaluation when appropriate.",
       },
       {
@@ -60,7 +60,7 @@ const faqCategories = [
       {
         id: "tools-without-coaching",
         q: "Can I use the tools without a coaching engagement?",
-        a: "Yes. Individuals can subscribe to Field Kit only for $14.99/week without buying coaching. Many clients also add coaching; teams and enterprise packages combine seats with leadership work under contract.",
+        a: "Yes. Individuals can start membership for $14.99/week without buying coaching. Many clients also add consulting; teams and enterprise packages combine seats with leadership work under contract.",
       },
       {
         id: "already-have-account",
@@ -90,7 +90,7 @@ const faqCategories = [
       {
         id: "patient-data",
         q: "Is patient data safe? Do you store PHI?",
-        a: "No. Field Kit tools are for planning and messaging workflows — not clinical documentation. Do not enter patient names, MRNs, diagnoses, or other PHI. We do not use your tool inputs to train public models. See Compliance & Data Practices and the Privacy Policy for detail. Corporate accounts can request a BAA path for procurement.",
+        a: "No. Membership tools are for planning and messaging workflows — not clinical documentation. Do not enter patient names, MRNs, diagnoses, or other PHI. We do not use your tool inputs to train public models. See Compliance & Data Practices and the Privacy Policy for detail. Corporate accounts can request a BAA path for procurement.",
       },
       {
         id: "guarantee-results",
@@ -110,7 +110,7 @@ const faqCategories = [
       {
         id: "cost",
         q: "How much does it cost?",
-        a: "Individual Field Kit membership is $14.99 per week (auto-renew; cancel anytime from Account). Provider and team seats use weekly per-user pricing set under your contract. Enterprise + coaching is engagement-based. See Membership for details.",
+        a: "Spartan Membership is $14.99 per week for individuals (auto-renew; cancel anytime from Account). Provider and team seats use weekly per-user pricing set under your contract. Enterprise + coaching is engagement-based. See Membership for details.",
       },
       {
         id: "virtual-or-inperson",
@@ -155,7 +155,7 @@ export default function FAQ() {
             Frequently Asked Questions
           </h1>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
-            Coaching, Field Kit access, evaluation trials, individual $14.99/week membership, team contracts, and compliance.
+            Consulting, Spartan Membership, evaluation trials, individual $14.99/week membership, team contracts, and compliance.
           </p>
         </div>
       </FadeIn>

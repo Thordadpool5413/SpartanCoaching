@@ -100,7 +100,7 @@ const ALL_CHECKLIST: ChecklistItem[] = [
     title: "Book a debrief call",
     short: "Debrief call",
     desc: "While your evaluation is open, talk through what you are seeing.",
-    href: "/contact?service=Field+Kit+Debrief",
+    href: "/contact?service=Membership+Debrief",
     icon: Phone,
   },
 ];
@@ -291,12 +291,12 @@ export default function Portal() {
       ? formatTrialRemaining(fieldKit?.hoursRemaining)
       : organization?.status === "active"
         ? organization?.billingPlan === "individual_weekly"
-          ? "Field Kit Member · $14.99/wk"
+          ? "Member · $14.99/wk"
           : organization?.billingPlan === "corporate_contract"
-            ? "Field Kit Member · Team"
+            ? "Member · Team"
             : organization?.billingPlan === "comp"
-              ? "Field Kit Member · Complimentary"
-              : "Field Kit Member"
+              ? "Member · Complimentary"
+              : "Member"
         : null;
 
   const isPersonalTrial =
@@ -324,7 +324,7 @@ export default function Portal() {
       {/* Welcome — short, then one mission action */}
       <div className="mb-8 space-y-3">
         <p className="text-kicker">
-          {isPaidMember ? "Field Kit board" : "Field Kit home"}
+          {isPaidMember ? "Portal · Membership" : "Portal · first session"}
         </p>
         <h1 className="text-h1 font-display font-black text-foreground tracking-tight">
           {isFirstSession
@@ -663,7 +663,7 @@ export default function Portal() {
                 Convert evaluation signal into seats, coaching, or a clear no — while the window is open.
               </p>
               <Button asChild size="sm" variant="outline" className="font-bold w-full">
-                <Link href="/contact?service=Field+Kit+Debrief" data-testid="button-first-debrief">
+                <Link href="/contact?service=Membership+Debrief" data-testid="button-first-debrief">
                   Schedule call
                   <Phone className="ml-2 w-3.5 h-3.5" />
                 </Link>
@@ -687,13 +687,13 @@ export default function Portal() {
           </p>
           <div className="flex flex-wrap justify-center gap-3 pt-1">
             <Button asChild className="font-bold">
-              <Link href="/contact?service=Field+Kit+Debrief">
+              <Link href="/contact?service=Membership+Debrief">
                 Book debrief
                 <ArrowRight className="ml-2 w-4 h-4" />
               </Link>
             </Button>
             <Button asChild variant="outline" className="font-bold">
-              <Link href="/tools">Browse full Field Kit</Link>
+              <Link href="/tools">Browse membership tools</Link>
             </Button>
           </div>
         </Card>
@@ -794,13 +794,13 @@ export default function Portal() {
         </section>
       )}
 
-      {/* Tool map — full kit at a glance */}
+      {/* Tool map — spine first, then satellites */}
       <section className="mb-10" data-testid="section-tool-map">
         <div className="flex flex-wrap items-end justify-between gap-2 mb-4">
           <div>
-            <h2 className="text-lg font-bold text-foreground">Tool map</h2>
+            <h2 className="text-lg font-bold text-foreground">Membership tools</h2>
             <p className="text-sm text-muted-foreground">
-              Prepare · Practice · Plan · Measure — open any tool, or start from your recommended move.
+              One daily spine. Practice, plan, and measure tools as satellites — not equal tabs.
             </p>
           </div>
           <Button asChild variant="outline" size="sm" className="font-bold">
@@ -809,9 +809,31 @@ export default function Portal() {
             </Link>
           </Button>
         </div>
+        <Card className="border border-primary/35 bg-primary/5 p-5 mb-4 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
+          <div className="flex gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shrink-0">
+              <Crosshair className="w-5 h-5" />
+            </div>
+            <div>
+              <p className="text-[10px] font-bold tracking-widest text-primary uppercase">Daily spine</p>
+              <p className="font-bold text-foreground">Sales Command Center</p>
+              <p className="text-xs text-muted-foreground leading-relaxed max-w-xl">
+                Plan the visit → practice if needed → capture outcome → lock the next step.
+              </p>
+            </div>
+          </div>
+          <Button asChild className="font-bold shrink-0" data-testid="portal-open-command-map">
+            <Link href="/tools/sales-workflow">
+              Open Command Center <ArrowRight className="ml-1 w-4 h-4" />
+            </Link>
+          </Button>
+        </Card>
         <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
           {FIELD_KIT_CATEGORIES.filter((c) => c !== "Outreach" && c !== "Learn").map((cat) => {
-            const items = FIELD_KIT_TOOLS.filter((t) => t.category === cat).slice(0, 3);
+            const items = FIELD_KIT_TOOLS.filter(
+              (t) => t.category === cat && t.id !== "sales-workflow",
+            ).slice(0, 3);
+            if (!items.length) return null;
             return (
               <Card key={cat} className="border border-border bg-card p-4 space-y-2">
                 <p className="text-[10px] font-bold tracking-widest text-primary uppercase">{cat}</p>
@@ -836,13 +858,13 @@ export default function Portal() {
         </div>
       </section>
 
-      {/* Resources + Learn inside the kit */}
+      {/* Resources + Learn */}
       <section className="mb-10 grid sm:grid-cols-2 gap-3" data-testid="section-portal-kit-links">
         <Card className="border border-border bg-card p-5 space-y-2">
           <p className="text-[10px] font-bold tracking-widest text-primary uppercase">Resources</p>
           <h2 className="font-bold text-foreground">Templates &amp; field downloads</h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Scripts, checklists, planners, and guides — same kit, no lead form while you are unlocked.
+            Scripts, checklists, planners, and guides — part of membership, no lead form while unlocked.
           </p>
           <Button asChild size="sm" variant="outline" className="font-bold w-fit">
             <Link href="/resources">
@@ -1036,8 +1058,8 @@ export default function Portal() {
       <section className="grid sm:grid-cols-3 gap-4 mb-12">
         <Card className="border border-border bg-card p-5 space-y-3">
           <Shield className="w-5 h-5 text-primary" />
-          <h3 className="font-bold">Full Field Kit</h3>
-          <p className="text-sm text-muted-foreground">AI tools, calculators, drills, and practice scenarios.</p>
+          <h3 className="font-bold">All membership tools</h3>
+          <p className="text-sm text-muted-foreground">Command Center, practice, plans, calculators, and more.</p>
           <Button asChild variant="outline" size="sm" className="font-bold">
             <Link href="/tools">
               Open tools <ArrowRight className="ml-1 w-4 h-4" />

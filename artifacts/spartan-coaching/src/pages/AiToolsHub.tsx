@@ -30,7 +30,7 @@ const CATEGORY_RAIL: Record<string, string> = {
 };
 
 /**
- * Advanced library under Field Kit — not a second competing product.
+ * Advanced library under membership tools — not a second competing product.
  * Field AI vs Clinical vault are visually distinct surfaces.
  */
 export default function AiToolsHub() {

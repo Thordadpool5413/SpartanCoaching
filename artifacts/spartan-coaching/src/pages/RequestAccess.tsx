@@ -154,7 +154,7 @@ export default function RequestAccess() {
               <CheckCircle2 className="w-12 h-12 text-green-600 mx-auto" />
               <h1 className="text-2xl font-display font-black text-foreground">Request received</h1>
               <p className="text-muted-foreground leading-relaxed">
-                Thank you. We review every Field Kit request personally and respond within{" "}
+                Thank you. We review every membership request personally and respond within{" "}
                 <strong className="text-foreground">one business day</strong>.
               </p>
               {submittedEmail && (
@@ -213,7 +213,7 @@ export default function RequestAccess() {
       <SEO />
 
       <div className="text-center mb-10 sm:mb-12 space-y-3 max-w-2xl mx-auto" data-testid="page-request-access">
-        <p className="text-xs font-bold tracking-widest text-primary uppercase">Field Kit</p>
+        <p className="text-xs font-bold tracking-widest text-primary uppercase">Spartan Membership</p>
         <h1 className="text-h1 font-display font-black text-foreground">Request team or evaluation access</h1>
         <p className="text-muted-foreground leading-relaxed">
           For provider seats, arranged evaluation windows, and team onboarding. Individuals who want self-serve should{" "}
@@ -461,7 +461,7 @@ export default function RequestAccess() {
                   data-testid="check-nophi"
                 />
                 <span>
-                  I will not enter protected health information (PHI) into Field Kit tools.{" "}
+                  I will not enter protected health information (PHI) into membership tools.{" "}
                   <Link href="/compliance" className="text-primary hover:underline">
                     Compliance details
                   </Link>

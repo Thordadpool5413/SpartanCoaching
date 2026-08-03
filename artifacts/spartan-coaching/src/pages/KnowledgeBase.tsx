@@ -455,7 +455,7 @@ export default function KnowledgeBase() {
                   <div className="flex items-center gap-2">
                     <Shield className="w-4 h-4 text-primary" />
                     <p className="text-xs font-bold tracking-widest uppercase text-primary">
-                      Spartan Method sources (Field Kit)
+                      Spartan Method sources (membership)
                     </p>
                   </div>
                   <ul className="space-y-3">
@@ -470,7 +470,7 @@ export default function KnowledgeBase() {
                     ))}
                   </ul>
                   <p className="text-[11px] text-muted-foreground">
-                    Sign in with Field Kit access to retrieve these live. Glossary terms below remain public.
+                    Sign in with membership access to retrieve these live. Glossary terms below remain public.
                   </p>
                 </Card>
               </div>

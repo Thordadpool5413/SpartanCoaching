@@ -397,7 +397,7 @@ export default function About() {
           </div>
         </div>
 
-        {/* How coaching + Field Kit fit together */}
+        {/* How consulting + Membership fit together */}
         <div className="mt-16 mb-12 space-y-6" data-testid="section-about-approach">
           <h2 className="text-h2 text-foreground text-center">How we work with clients</h2>
           <p className="text-body text-muted-foreground text-center max-w-2xl mx-auto leading-relaxed">

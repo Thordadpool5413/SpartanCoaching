@@ -6,7 +6,7 @@ const DEFAULT_ITEMS = [
   {
     icon: Shield,
     title: "No PHI in tools",
-    body: "Field Kit is for planning and messaging — never patient identifiers or clinical records.",
+    body: "Membership tools are for planning and messaging — never patient identifiers or clinical records.",
   },
   {
     icon: UserCheck,
@@ -47,11 +47,11 @@ export function TrustStrip({ className, compact = false, showLinks = true }: Tru
         <div className="text-center mb-8 max-w-2xl mx-auto">
           <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">How we work with you</p>
           <h2 className="text-h3 font-display font-bold text-foreground mb-2">
-            Private Field Kit. Human coaching.
+            Membership tools. Human consulting.
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Field Kit is private. Coaching is human. Individuals self-serve at $14.99/week; teams and evaluations
-            request access first, then continue under contract when it fits.
+            Two clear offers: consulting stays human; membership tools unlock on web and iPhone. Individuals self-serve
+            at $14.99/week; teams and evaluations request access first, then continue under contract when it fits.
           </p>
         </div>
       )}

@@ -31,7 +31,7 @@ export default function Welcome() {
             <span className="text-primary">Strategy.</span>
           </h1>
           <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-md mx-auto">
-            Practical coaching and a private Field Kit for hospice growth professionals who execute in the field — not just in meetings.
+            Practical consulting and Spartan Membership tools for hospice growth professionals who execute in the field — not just in meetings.
           </p>
         </div>
 
@@ -67,7 +67,7 @@ export default function Welcome() {
             data-testid="link-welcome-register"
           >
             <KeyRound className="w-4 h-4" />
-            Create account · Field Kit · $14.99/wk
+            Create account · Membership · $14.99/wk
           </Link>
           <Link
             href="/request-access"

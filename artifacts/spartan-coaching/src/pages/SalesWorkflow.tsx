@@ -50,7 +50,7 @@ export default function SalesWorkflow() {
         <div className="space-y-6" data-testid="command-preview-shell">
           <div className="mb-2 space-y-1">
             <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
-              Field Kit · Daily spine
+              Membership · Daily spine
             </p>
             <h1 className="text-2xl font-black text-foreground">Sales Command Center</h1>
             <p className="text-sm text-muted-foreground max-w-3xl leading-relaxed">
@@ -105,7 +105,7 @@ export default function SalesWorkflow() {
                   </div>
                 ))}
                 <p className="text-xs text-muted-foreground leading-relaxed border-t border-border pt-3">
-                  Live queue, prep, practice, and outcome capture unlock with Field Kit membership.
+                  Live queue, prep, practice, and outcome capture unlock with membership.
                 </p>
               </div>
             </div>
@@ -147,7 +147,7 @@ export default function SalesWorkflow() {
       />
       <div className="mb-4 space-y-1">
         <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
-          Field Kit · Daily spine
+          Membership · Daily spine
         </p>
         <p className="text-sm text-muted-foreground max-w-3xl leading-relaxed">
           Run every account through this workflow. Satellite tools (objections, role-play, email, weekly plan)

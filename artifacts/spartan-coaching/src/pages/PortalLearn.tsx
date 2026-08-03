@@ -33,7 +33,7 @@ const LINKS = [
   {
     href: "/learn/knowledge-base",
     title: "Knowledge base",
-    desc: "Hospice terminology and regulations reference (Field Kit).",
+    desc: "Hospice terminology and regulations reference (membership).",
     icon: BookOpen,
     memberOnly: true,
   },
@@ -69,10 +69,10 @@ export default function PortalLearn() {
       <SEO />
       {canUseFieldKit && <FieldKitChrome />}
       <div className="mb-10 space-y-3">
-        <p className="text-xs font-bold tracking-widest text-primary uppercase">Field Kit · Learn</p>
+        <p className="text-xs font-bold tracking-widest text-primary uppercase">Portal · Learn</p>
         <h1 className="text-h1 font-display font-black">Build judgment between sessions</h1>
         <p className="text-muted-foreground max-w-2xl leading-relaxed">
-          Part of your Field Kit: articles and resources for everyone; drills, knowledge base, and quiz when access is active.
+          Part of membership: articles and resources for everyone; drills, knowledge base, and quiz when access is active.
         </p>
       </div>
 
@@ -93,7 +93,7 @@ export default function PortalLearn() {
                       <h3 className="font-bold text-foreground">{item.title}</h3>
                       {item.memberOnly && (
                         <span className="text-[10px] uppercase tracking-wide text-primary font-bold">
-                          {locked ? "Members" : "Field Kit"}
+                          {locked ? "Members" : "Membership"}
                         </span>
                       )}
                     </div>
@@ -117,7 +117,7 @@ export default function PortalLearn() {
 
       <div className="text-center">
         <Button asChild variant="outline" className="font-bold">
-          <Link href="/portal">Back to Field Kit home</Link>
+          <Link href="/portal">Back to Portal</Link>
         </Button>
       </div>
 

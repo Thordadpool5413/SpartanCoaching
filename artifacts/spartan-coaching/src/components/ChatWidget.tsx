@@ -508,6 +508,7 @@ export function ChatWidget() {
     location.startsWith("/drills") ||
     location === "/login" ||
     location === "/register" ||
+    location === "/membership" ||
     location === "/field-kit" ||
     location.startsWith("/field-kit-membership") ||
     location.startsWith("/pricing/") ||

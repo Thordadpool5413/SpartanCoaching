@@ -56,7 +56,7 @@ export default function SetPassword() {
         fieldKit: data.fieldKit,
       });
       toast({
-        title: "Welcome to the Field Kit",
+        title: "Welcome to the Portal",
         description: "Next: pick your role, run one real tool, then book a debrief.",
       });
       setLocation("/portal");
@@ -75,7 +75,7 @@ export default function SetPassword() {
           <p className="text-xs font-bold tracking-widest text-primary uppercase">Secure setup</p>
           <h1 className="text-2xl font-display font-black">Set your password</h1>
           <p className="text-sm text-muted-foreground">
-            Create a password to enter your Field Kit. After this you will land on a short first-session
+            Create a password to enter your membership portal. After this you will land on a short first-session
             path: role → one real tool → debrief.
           </p>
         </div>

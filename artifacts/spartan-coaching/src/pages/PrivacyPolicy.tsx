@@ -67,15 +67,15 @@ export default function PrivacyPolicy() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">8. Field Kit Accounts &amp; Access Requests</h2>
+            <h2 className="text-h2 text-foreground mb-3">8. Membership Accounts &amp; Access Requests</h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-4">
-              When you request Field Kit evaluation access or create a client account, we collect information needed to review and operate that relationship. This typically includes your name, work email, organization, role, seat type (individual or company), and notes you provide about why you are requesting access.
+              When you request membership evaluation access or create a client account, we collect information needed to review and operate that relationship. This typically includes your name, work email, organization, role, seat type (individual or company), and notes you provide about why you are requesting access.
             </p>
             <p className="text-body text-muted-foreground leading-relaxed mb-4">
-              Approved accounts use session-based sign-in. We store account credentials securely (password hashes — never plain-text passwords), session tokens, membership or trial status, optional organization membership, and light product usage needed to support coaching and access control (for example, onboarding checklist progress). Evaluation access starts by request and approval. Individuals may then subscribe for weekly Field Kit membership through our secure Stripe checkout; we store Stripe customer and subscription identifiers needed to manage billing, cancelation, and access — not full card numbers (those stay with Stripe). Team seats are activated under contract.
+              Approved accounts use session-based sign-in. We store account credentials securely (password hashes — never plain-text passwords), session tokens, membership or trial status, optional organization membership, and light product usage needed to support coaching and access control (for example, onboarding checklist progress). Evaluation access starts by request and approval. Individuals may then subscribe for weekly Spartan Membership through our secure Stripe checkout; we store Stripe customer and subscription identifiers needed to manage billing, cancelation, and access — not full card numbers (those stay with Stripe). Team seats are activated under contract.
             </p>
             <p className="text-body text-muted-foreground leading-relaxed">
-              <strong className="text-foreground">No Protected Health Information (PHI).</strong> Field Kit tools are for planning, messaging practice, and operational coaching. Do not enter patient names, medical record numbers, diagnoses, or other PHI. We design the product so tools are not used as a clinical record system. For more detail, see our{" "}
+              <strong className="text-foreground">No Protected Health Information (PHI).</strong> Membership tools are for planning, messaging practice, and operational coaching. Do not enter patient names, medical record numbers, diagnoses, or other PHI. We design the product so tools are not used as a clinical record system. For more detail, see our{" "}
               <Link href="/compliance" className="text-primary font-semibold hover:underline">Compliance &amp; Data Practices</Link> page.
             </p>
           </section>

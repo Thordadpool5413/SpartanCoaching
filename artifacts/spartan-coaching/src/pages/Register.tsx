@@ -106,7 +106,7 @@ export default function Register() {
             width={48}
             height={48}
           />
-          <p className="text-kicker justify-center">Path A · Individual Field Kit</p>
+          <p className="text-kicker justify-center">Path A · Individual membership</p>
           <h1 className="text-2xl font-display font-black text-foreground tracking-tight">
             Create your account
           </h1>
@@ -202,7 +202,7 @@ export default function Register() {
                 data-testid="check-register-nophi"
               />
               <span>
-                I will not enter protected health information (PHI) into Field Kit tools.
+                I will not enter protected health information (PHI) into membership tools.
               </span>
             </label>
           </div>
