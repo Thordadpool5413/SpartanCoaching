@@ -89,7 +89,7 @@ should see **two** emails:
 | # | To | Subject pattern |
 |---|-----|----------------|
 | 1 | Admin inbox | `[Billing] New active subscription — <Org Name>` |
-| 2 | Member email | `Your Spartan Field Kit subscription is active` |
+| 2 | Member email | `Your Spartan Membership subscription is active` / membership active subject |
 
 > **If emails do not arrive within 5 minutes:**
 > 1. Check API server logs for `billing_subscription_active` event and any
@@ -111,7 +111,7 @@ declines).  This fires `invoice.payment_failed` and should produce:
 | # | To | Subject pattern |
 |---|-----|----------------|
 | 1 | Admin inbox | `[Billing Alert] Payment failed — <Org Name>` |
-| 2 | Member email | `Action required: payment failed for your Spartan Field Kit` |
+| 2 | Member email | `Action needed: Membership payment failed` (or similar) |
 
 ---
 

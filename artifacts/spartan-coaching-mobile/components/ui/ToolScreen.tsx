@@ -31,7 +31,7 @@ export function ToolScreen({
       keyboardShouldPersistTaps="handled"
       showsVerticalScrollIndicator={false}
     >
-      <SectionKicker>{`Field Kit · ${tool.category}`}</SectionKicker>
+      <SectionKicker>{`Membership · ${tool.category}`}</SectionKicker>
       <Text style={[styles.title, { color: colors.foreground }]}>{tool.title}</Text>
       <Text style={[styles.desc, { color: colors.mutedForeground }]}>{tool.description}</Text>
 

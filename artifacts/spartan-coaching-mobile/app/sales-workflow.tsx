@@ -193,7 +193,7 @@ export default function SalesWorkflowScreen() {
   if (!canUseFieldKit) {
     return (
       <View style={[styles.center, { backgroundColor: colors.background, padding: 24 }]}>
-        <SectionKicker>Field Kit</SectionKicker>
+        <SectionKicker>Membership</SectionKicker>
         <Text style={[styles.title, { color: colors.foreground, marginTop: 8 }]}>Access required</Text>
         <Text style={{ color: colors.mutedForeground, textAlign: "center", marginTop: 8, marginBottom: 16 }}>
           Sign in with an active evaluation or client account to use Command Center.
@@ -210,7 +210,7 @@ export default function SalesWorkflowScreen() {
         style={{ flex: 1, backgroundColor: colors.background }}
         contentContainerStyle={{ padding: 18, paddingBottom: insets.bottom + 32 }}
       >
-        <SectionKicker>Field Kit · Daily spine</SectionKicker>
+        <SectionKicker>Membership · Daily spine</SectionKicker>
         <Text style={[styles.title, { color: colors.foreground, marginTop: 8 }]}>
           {tool?.title || "Sales Command Center"}
         </Text>

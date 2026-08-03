@@ -905,7 +905,7 @@ export async function sendGeneratedEmail(to: string, subject: string, body: stri
   }
 }
 
-// ── Field Kit access emails ──────────────────────────────────────────
+// ── Membership access emails ──────────────────────────────────────────
 
 function authEmailShell(inner: string): string {
   return `
@@ -926,10 +926,10 @@ export async function sendAccessRequestReceived(toEmail: string, toName: string)
     await sendEmail(client, {
       from: fromEmail,
       to: toEmail,
-      subject: "We received your Field Kit access request — Spartan Coaching",
+      subject: "We received your membership access request — Spartan Coaching",
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
-        <p style="margin:0 0 16px;line-height:1.6;">Thank you for requesting evaluation access to the Spartan Field Kit. Every request is reviewed personally — this is not an automated checkout.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Thank you for requesting evaluation access to the Spartan Membership. Every request is reviewed personally — this is not an automated checkout.</p>
         <p style="margin:0 0 12px;line-height:1.6;"><strong>What happens next:</strong></p>
         <ol style="margin:0 0 16px;padding-left:20px;line-height:1.7;color:#374151;">
           <li>We review your request (usually within one business day).</li>
@@ -937,7 +937,7 @@ export async function sendAccessRequestReceived(toEmail: string, toName: string)
           <li>Your timed evaluation starts (typically 24h individual / 72h company).</li>
           <li>After the window: individuals can continue for $14.99/week from Account (cancel anytime); teams continue under a provider contract.</li>
         </ol>
-        <p style="margin:0 0 16px;line-height:1.6;font-size:14px;color:#555;"><strong>Reminder:</strong> Field Kit tools are for planning and messaging only. Never enter patient names, MRNs, or other PHI.</p>
+        <p style="margin:0 0 16px;line-height:1.6;font-size:14px;color:#555;"><strong>Reminder:</strong> Membership tools are for planning and messaging only. Never enter patient names, MRNs, or other PHI.</p>
         <div style="text-align:center;margin:28px 0;">
           <a href="${siteUrl}/faq" style="display:inline-block;background:#111827;color:white;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Read FAQ</a>
           <a href="${siteUrl}/contact" style="display:inline-block;background:#b91c1c;color:white;padding:12px 24px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Book a strategy call</a>
@@ -972,7 +972,7 @@ export async function sendAccessRequestAdminAlert(data: {
       to: notificationEmail,
       subject: `[Access Request] ${data.name} — ${data.type}`,
       html: authEmailShell(`
-        <h2 style="margin-top:0;">New Field Kit Access Request</h2>
+        <h2 style="margin-top:0;">New Membership Access Request</h2>
         <table style="border-collapse:collapse;width:100%;">
           <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #eee;">Name</td><td style="padding:8px;border-bottom:1px solid #eee;">${data.name}</td></tr>
           <tr><td style="padding:8px;font-weight:bold;border-bottom:1px solid #eee;">Email</td><td style="padding:8px;border-bottom:1px solid #eee;"><a href="mailto:${data.email}">${data.email}</a></td></tr>
@@ -1005,17 +1005,17 @@ export async function sendAccessApprovedEmail(
     await sendEmail(client, {
       from: fromEmail,
       to: toEmail,
-      subject: "Your Field Kit evaluation is approved — set password to start",
+      subject: "Your membership evaluation is approved — set password to start",
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
-        <p style="margin:0 0 16px;line-height:1.6;">Your Field Kit evaluation access is approved.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Your membership evaluation access is approved.</p>
         <p style="margin:0 0 16px;line-height:1.6;">You have a <strong>${trialHours}-hour evaluation window</strong> after you set your password. Use real field scenarios — one tough objection, this week's plan, and a role-play on your hardest conversation.</p>
         <div style="text-align:center;margin:32px 0;">
-          <a href="${setPasswordUrl}" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:16px;">Set password &amp; enter Field Kit</a>
+          <a href="${setPasswordUrl}" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:16px;">Set password &amp; enter Portal</a>
         </div>
         <p style="margin:0 0 12px;line-height:1.6;font-size:14px;color:#555;"><strong>Quick start once inside:</strong></p>
         <ol style="margin:0 0 16px;padding-left:20px;line-height:1.7;color:#374151;font-size:14px;">
-          <li>Complete the short onboarding checklist on your Field Kit home.</li>
+          <li>Complete the short onboarding checklist on your Portal home.</li>
           <li>Open Tools and run one workflow you would use this week.</li>
           <li>Book a debrief so we can turn what you saw into a clear membership next step.</li>
         </ol>
@@ -1044,7 +1044,7 @@ export async function sendPasswordResetEmail(
     await sendEmail(client, {
       from: fromEmail,
       to: toEmail,
-      subject: "Reset your Spartan Field Kit password",
+      subject: "Reset your Spartan Membership password",
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
         <p style="margin:0 0 16px;line-height:1.6;">We received a request to reset your password. Use the button below within one hour.</p>
@@ -1072,10 +1072,10 @@ export async function sendOrgInviteEmail(
     await sendEmail(client, {
       from: fromEmail,
       to: toEmail,
-      subject: `You're invited to the ${orgName} Field Kit — Spartan Coaching`,
+      subject: `You're invited to  membership — Spartan Coaching`,
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hello,</p>
-        <p style="margin:0 0 16px;line-height:1.6;"><strong>${inviterName}</strong> has invited you to the Spartan Field Kit for <strong>${orgName}</strong>.</p>
+        <p style="margin:0 0 16px;line-height:1.6;"><strong>${inviterName}</strong> has invited you to the Spartan Membership for <strong>${orgName}</strong>.</p>
         <p style="margin:0 0 16px;line-height:1.6;">Set your password to join your team's private toolkit for hospice growth execution.</p>
         <div style="text-align:center;margin:32px 0;">
           <a href="${setPasswordUrl}" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:16px;">Accept Invite &amp; Set Password</a>
@@ -1105,13 +1105,13 @@ export async function sendTrialMidpointEmail(
     await sendEmail(client, {
       from: fromEmail,
       to: toEmail,
-      subject: "Your Field Kit evaluation window is winding down — Spartan Coaching",
+      subject: "Your membership evaluation window is winding down — Spartan Coaching",
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
-        <p style="margin:0 0 16px;line-height:1.6;">You have <strong>${hoursLabel}</strong> left in your Field Kit evaluation.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">You have <strong>${hoursLabel}</strong> left in your membership evaluation.</p>
         <p style="margin:0 0 16px;line-height:1.6;">If you have not already: run one real objection, build this week's plan, and try a role-play on your toughest scenario. Then book a short debrief so we can turn what you are seeing into a clear next step.</p>
         <div style="text-align:center;margin:28px 0;">
-          <a href="${siteUrl}/portal" style="display:inline-block;background:#b91c1c;color:white;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Open Field Kit</a>
+          <a href="${siteUrl}/portal" style="display:inline-block;background:#b91c1c;color:white;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Open Portal</a>
           <a href="${siteUrl}/contact" style="display:inline-block;background:#111827;color:white;padding:12px 28px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Book a debrief call</a>
         </div>
         <p style="margin:0 0 4px;font-weight:bold;">Nick Lynch</p>
@@ -1135,10 +1135,10 @@ export async function sendTrialExpiredEmail(
     await sendEmail(client, {
       from: fromEmail,
       to: toEmail,
-      subject: "Your Field Kit evaluation ended — clear next steps",
+      subject: "Your membership evaluation ended — clear next steps",
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
-        <p style="margin:0 0 16px;line-height:1.6;">Your Field Kit evaluation window has ended. Thank you for running real scenarios through the tools.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Your membership evaluation window has ended. Thank you for running real scenarios through the tools.</p>
         <p style="margin:0 0 12px;line-height:1.6;"><strong>Clear next steps:</strong></p>
         <ul style="margin:0 0 16px;padding-left:20px;line-height:1.7;">
           <li><strong>Continue as a client</strong> — book a short debrief; we agree seats, coaching, and terms, then activate offline.</li>
@@ -1146,8 +1146,8 @@ export async function sendTrialExpiredEmail(
           <li><strong>Coaching without tools first</strong> — we can still help on a strategy call.</li>
         </ul>
         <div style="text-align:center;margin:28px 0;">
-          <a href="${siteUrl}/contact?service=Field+Kit+Membership" style="display:inline-block;background:#b91c1c;color:white;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Book a debrief</a>
-          <a href="${siteUrl}/field-kit-membership" style="display:inline-block;background:#111827;color:white;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Membership path</a>
+          <a href="${siteUrl}/contact?service=Membership" style="display:inline-block;background:#b91c1c;color:white;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Book a debrief</a>
+          <a href="${siteUrl}/membership" style="display:inline-block;background:#111827;color:white;padding:14px 28px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Membership path</a>
         </div>
         <p style="margin:0 0 16px;line-height:1.6;font-size:14px;color:#555;">Your login still works for account info — tools stay gated until access is active again.</p>
         <p style="margin:0 0 4px;font-weight:bold;">Nick Lynch</p>
@@ -1171,12 +1171,12 @@ export async function sendMagicLinkEmail(
     await sendEmail(client, {
       from: fromEmail,
       to: toEmail,
-      subject: "Your Spartan Field Kit sign-in link",
+      subject: "Your Spartan Membership sign-in link",
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
-        <p style="margin:0 0 16px;line-height:1.6;">Use this secure link to sign in to your Field Kit. It expires in one hour and can only be used once.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Use this secure link to sign in to your membership portal. It expires in one hour and can only be used once.</p>
         <div style="text-align:center;margin:32px 0;">
-          <a href="${magicUrl}" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:16px;">Sign in to Field Kit</a>
+          <a href="${magicUrl}" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:16px;">Sign in to Portal</a>
         </div>
         <p style="margin:0;color:#555;font-size:14px;">If you did not request this, you can ignore this email.</p>
       `),
@@ -1199,10 +1199,10 @@ export async function sendAccessRejectedEmail(
     await sendEmail(client, {
       from: fromEmail,
       to: toEmail,
-      subject: "Update on your Field Kit access request — Spartan Coaching",
+      subject: "Update on your membership access request — Spartan Coaching",
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
-        <p style="margin:0 0 16px;line-height:1.6;">Thank you for your interest in the Spartan Field Kit. We are not able to open evaluation access at this time.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Thank you for your interest in Spartan Membership. We are not able to open evaluation access at this time.</p>
         ${note ? `<p style="margin:0 0 16px;line-height:1.6;background:#f9fafb;padding:12px;border-left:3px solid #b91c1c;border-radius:4px;">${note}</p>` : ""}
         <p style="margin:0 0 16px;line-height:1.6;">That does not mean we cannot help. Many teams start with a strategy conversation on coaching, territory systems, or leadership rhythms — then revisit tools when the fit is clear.</p>
         <div style="text-align:center;margin:28px 0;">
@@ -1233,10 +1233,10 @@ export async function sendMembershipActivatedEmail(
     await sendEmail(client, {
       from: fromEmail,
       to: toEmail,
-      subject: "Your Spartan Field Kit membership is active",
+      subject: "Your Spartan Membership is active",
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
-        <p style="margin:0 0 16px;line-height:1.6;">You're in. Field Kit access for <strong>${orgName}</strong> is <strong>active</strong> — your private operating system for hospice growth work between coaching sessions.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">You're in. Membership access for <strong>${orgName}</strong> is <strong>active</strong> — your private operating system for hospice growth work between coaching sessions.</p>
         <p style="margin:0 0 12px;line-height:1.6;"><strong>Start here (90 seconds):</strong></p>
         <ol style="margin:0 0 16px;padding-left:20px;line-height:1.7;color:#374151;">
           <li>Open Sales Command Center</li>
@@ -1245,7 +1245,7 @@ export async function sendMembershipActivatedEmail(
         </ol>
         <div style="text-align:center;margin:28px 0;">
           <a href="${siteUrl}/tools/sales-workflow" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Open Command Center</a>
-          <a href="${siteUrl}/portal" style="display:inline-block;background:#111827;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Field Kit home</a>
+          <a href="${siteUrl}/portal" style="display:inline-block;background:#111827;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;margin:4px;">Portal home</a>
         </div>
         <p style="margin:0 0 16px;line-height:1.6;font-size:14px;color:#555;">Individuals: manage or cancel anytime under Account → Manage billing. Teams: seats stay under your contract. Never enter PHI into tools.</p>
         <p style="margin:0 0 4px;font-weight:bold;">Nick Lynch</p>
@@ -1332,10 +1332,10 @@ export async function sendBillingPaymentFailedEmail(
     await sendEmail(client, {
       from: fromEmail,
       to: toEmail,
-      subject: "Action needed: Field Kit payment failed",
+      subject: "Action needed: Membership payment failed",
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
-        <p style="margin:0 0 16px;line-height:1.6;">We could not process the latest payment for <strong>${orgName}</strong> Field Kit access. Tools may be locked until billing is updated.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">We could not process the latest payment for <strong>${orgName}</strong> membership Kit access. Tools may be locked until billing is updated.</p>
         <p style="margin:0 0 16px;line-height:1.6;">Update your payment method under <strong>Account → Manage billing</strong>. If you already fixed this, you can ignore this message.</p>
         <div style="text-align:center;margin:28px 0;">
           <a href="${siteUrl}/account" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;">Open Account</a>
@@ -1371,14 +1371,14 @@ export async function sendBillingCanceledEmail(
         })
       : null;
     const body = opts.atPeriodEnd
-      ? `<p style="margin:0 0 16px;line-height:1.6;">Your Field Kit subscription for <strong>${orgName}</strong> is set to <strong>cancel at period end</strong>${periodLabel ? ` (${periodLabel})` : ""}. You keep access until then. You can reverse the cancel in Account → Manage billing before that date.</p>`
-      : `<p style="margin:0 0 16px;line-height:1.6;">Your Field Kit subscription for <strong>${orgName}</strong> has been <strong>canceled</strong>. Tools are locked. You can re-subscribe anytime from Account (individuals $14.99/week) or contact us for team contracts.</p>`;
+      ? `<p style="margin:0 0 16px;line-height:1.6;">Your membership subscription for <strong>${orgName}</strong> is set to <strong>cancel at period end</strong>${periodLabel ? ` (${periodLabel})` : ""}. You keep access until then. You can reverse the cancel in Account → Manage billing before that date.</p>`
+      : `<p style="margin:0 0 16px;line-height:1.6;">Your membership subscription for <strong>${orgName}</strong> has been <strong>canceled</strong>. Tools are locked. You can re-subscribe anytime from Account (individuals $14.99/week) or contact us for team contracts.</p>`;
     await sendEmail(client, {
       from: fromEmail,
       to: toEmail,
       subject: opts.atPeriodEnd
-        ? "Field Kit: cancellation scheduled"
-        : "Field Kit subscription canceled",
+        ? "Membership: cancellation scheduled"
+        : "Membership subscription canceled",
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
         ${body}
@@ -1408,12 +1408,12 @@ export async function sendBillingActiveEmail(
     await sendEmail(client, {
       from: fromEmail,
       to: toEmail,
-      subject: "Field Kit access confirmed — Spartan Coaching",
+      subject: "Membership access confirmed — Spartan Coaching",
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
-        <p style="margin:0 0 16px;line-height:1.6;">Your Field Kit subscription for <strong>${orgName}</strong> is active. All tools are unlocked and ready to use.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Your membership subscription for <strong>${orgName}</strong> is active. All tools are unlocked and ready to use.</p>
         <div style="text-align:center;margin:28px 0;">
-          <a href="${siteUrl}/login" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;">Open Field Kit</a>
+          <a href="${siteUrl}/login" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;">Open Portal</a>
         </div>
         <p style="margin:0 0 16px;line-height:1.6;font-size:14px;color:#555;">Questions? Reply to this email or book a strategy call anytime. <strong>Reminder:</strong> never enter PHI into any tool.</p>
         <p style="margin:0 0 4px;font-weight:bold;">Nick Lynch</p>
@@ -1607,13 +1607,13 @@ export async function sendTrialExtendedEmail(
     await sendEmail(client, {
       from: fromEmail,
       to: toEmail,
-      subject: `Field Kit evaluation extended (+${hoursAdded}h) — Spartan Coaching`,
+      subject: `Membership evaluation extended (+${hoursAdded}h) — Spartan Coaching`,
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
-        <p style="margin:0 0 16px;line-height:1.6;">Your Field Kit evaluation has been extended by <strong>${hoursAdded} hour${hoursAdded === 1 ? "" : "s"}</strong>.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Your membership evaluation has been extended by <strong>${hoursAdded} hour${hoursAdded === 1 ? "" : "s"}</strong>.</p>
         <p style="margin:0 0 16px;line-height:1.6;">New window end: <strong>${endsLabel}</strong>.</p>
         <div style="text-align:center;margin:28px 0;">
-          <a href="${siteUrl}/login" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;">Continue in Field Kit</a>
+          <a href="${siteUrl}/login" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;">Continue in Membership</a>
         </div>
         <p style="margin:0 0 4px;font-weight:bold;">Nick Lynch</p>
         <p style="margin:0;color:#555;font-size:14px;">Founder, Spartan Coaching</p>

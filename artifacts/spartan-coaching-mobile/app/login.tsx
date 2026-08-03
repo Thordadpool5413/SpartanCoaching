@@ -36,7 +36,7 @@ export default function LoginScreen() {
       if (msg.includes("401") || msg.toLowerCase().includes("invalid")) {
         setError("Email or password is incorrect.");
       } else if (msg.includes("EXPO_PUBLIC") || msg.includes("Failed to fetch") || msg.includes("Network")) {
-        setError("Cannot reach the Field Kit server. Check connection or API configuration.");
+        setError("Cannot reach the membership server. Check connection or API configuration.");
       } else {
         setError(msg.replace(/^\d+:\s*/, "").slice(0, 160));
       }
@@ -54,7 +54,7 @@ export default function LoginScreen() {
         <SectionKicker>Client access</SectionKicker>
         <Text style={[styles.title, { color: colors.foreground }]}>Sign in</Text>
         <Text style={[styles.sub, { color: colors.mutedForeground }]}>
-          Private Field Kit for clients and approved evaluators — same product as the web, built for the field.
+          Spartan Membership for clients and approved evaluators — same product as the web, built for the field.
         </Text>
 
         <SpartanCard style={{ marginTop: 8 }}>

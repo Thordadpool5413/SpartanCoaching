@@ -1,10 +1,12 @@
-Spartan Coaching Field Kit
+Spartan Coaching Membership
 
-The private field companion for hospice growth professionals — clients and approved evaluators of Spartan Coaching.
+Tools and resources for hospice growth professionals — web and iPhone. Consulting stays human; membership unlocks Command Center, practice tools, plans, and calculators.
 
-The Field Kit puts your Spartan playbook in your pocket. Before a visit, during a debrief, or between stops — structured tools and drills that help you prepare referral conversations in real time. Coaching aid only. Do not enter PHI.
+Before a visit, during a debrief, or between stops — structured tools and drills that help you prepare referral conversations in real time. Coaching aid only. Do not enter PHI.
 
 WHAT'S INSIDE
+
+• Sales Command Center — Daily spine: plan the call, practice, capture the outcome, lock the next step.
 
 • AI Scenario Coach — Practice tough referral conversations with an AI role-play partner. Get feedback on approach and language.
 
@@ -14,14 +16,14 @@ WHAT'S INSIDE
 
 • Visit Checklist — Structure field days: pre-call prep, post-visit notes, and follow-ups.
 
-• Coaching Portal — Membership resources and progress for active clients and evaluators.
+• Membership Portal — Next action, tools, and resources for active members and evaluators.
 
 WHO IT'S FOR
 
-Field Kit access is for Spartan Coaching clients and approved evaluators. Individuals can create an account and subscribe at spartanhospicecoaching.com. Teams and evaluations request access through Nick.
+Spartan Membership is for hospice growth professionals who want execution tools between coaching sessions — or on their own. Individuals create an account and subscribe ($14.99/week, cancel anytime) at spartanhospicecoaching.com. Teams and evaluations request access through Nick. Consulting engagements are separate.
 
 This is not a general consumer app — it is a professional coaching tool for hospice growth work.
 
 PRIVACY
 
-Field Kit tools are for planning and messaging — never patient identifiers or clinical records. Do not enter PHI. Clinical vault tools (when authorized) are educational decision support only, not diagnosis or coverage determinations. AI conversations are not sold to third parties. Operated by Spartan Coaching.
+Membership tools are for planning and messaging — never patient identifiers or clinical records. Do not enter PHI. Clinical vault tools (when authorized) are educational decision support only, not diagnosis or coverage determinations. AI conversations are not sold to third parties. Operated by Spartan Coaching.

@@ -1,4 +1,4 @@
-# App Store Submission Guide — Spartan Coaching Field Kit
+# App Store Submission Guide — Spartan Coaching Membership
 
 ## Before You Submit
 
@@ -77,7 +77,7 @@ You need an active [Apple Developer Program](https://developer.apple.com/program
 
 From App Store Connect, create a new app record (if not done already):
 - **Bundle ID**: `com.spartancoaching.fieldkit`  _(register this in your Apple Developer portal first)_
-- **SKU**: `spartan-field-kit`
+- **SKU**: `spartan-membership`
 - **Primary language**: English (U.S.)
 - **Category**: Business
 
@@ -118,7 +118,7 @@ After TestFlight notifies you that the build is ready, install it on a physical 
 ### Pre-flight
 - [ ] `EXPO_PUBLIC_DOMAIN` EAS secret is set (see step 1b above) — if you skipped this, all login attempts will fail with a network error
 - [ ] The production API server is deployed and reachable: `curl https://<your-domain>/api/health` returns `{"ok":true}`
-- [ ] A real Field Kit account exists in production (or use the reviewer account — see "How to seed / reset the reviewer account" below)
+- [ ] A real membership account exists in production (or use the reviewer account — see "How to seed / reset the reviewer account" below)
 
 ### Launch
 - [ ] App installs from TestFlight without any entitlement or provisioning error
@@ -126,7 +126,7 @@ After TestFlight notifies you that the build is ready, install it on a physical 
 - [ ] No "network request failed" or blank screen on launch — if it appears immediately, `EXPO_PUBLIC_DOMAIN` is missing or wrong
 
 ### Login
-- [ ] Enter a valid Field Kit email and password → lands on the portal home
+- [ ] Enter a valid membership email and password → lands on the portal home
 - [ ] Wrong password shows an error message (not a crash)
 - [ ] Sign out, then sign back in — session persists between app launches (stored in AsyncStorage)
 
@@ -135,7 +135,7 @@ After TestFlight notifies you that the build is ready, install it on a physical 
 - [ ] **Scenario Coach** — opens a new conversation; sending a message returns an AI response (requires `OPENAI_API_KEY` set on the production server)
 - [ ] **Branch Calculator** — staffing table renders; inputs update the ADC and RN/aide split totals
 - [ ] **Objection Handler** (Drills tab) — generates a field-ready response without a 401 or 403 error
-- [ ] **Playbook / Email Templates** — content loads (requires Field Kit entitlement)
+- [ ] **Playbook / Email Templates** — content loads (requires membership entitlement)
 
 ### Account
 - [ ] Account screen shows correct name, email, and evaluation/membership status
@@ -164,12 +164,12 @@ Fill these in App Store Connect before submitting for review:
 
 | Field | Value / Notes |
 |---|---|
-| App name | Spartan Coaching Field Kit |
-| Subtitle | Hospice Census Growth Tools |
+| App name | Spartan Coaching |
+| Subtitle | Hospice Membership Tools |
 | Description | See `store/description.txt` |
 | Keywords | See `store/keywords.txt` (100 char limit) |
 | Support URL | https://spartanhospicecoaching.com/contact |
-| Marketing URL | https://spartanhospicecoaching.com/field-kit |
+| Marketing URL | https://spartanhospicecoaching.com/membership |
 | Privacy Policy URL | https://spartanhospicecoaching.com/privacy |
 | Category | Business |
 | Age rating | 4+ |
@@ -194,7 +194,7 @@ App Store Connect requires at least the **6.9"** slot. The **6.7"** slot is stro
 
 **How to upload (6.9" slot):**
 
-1. Open [App Store Connect](https://appstoreconnect.apple.com) → your Field Kit app record.
+1. Open [App Store Connect](https://appstoreconnect.apple.com) → your Spartan Coaching app record.
 2. Go to **App Store → iOS App → iPhone screenshots**.
 3. Select the **6.9" (iPhone 16 Pro Max)** device size slot.
 4. Drag all 5 PNGs from `store/screenshots/` into the upload area (or click **+** to browse).
@@ -221,7 +221,7 @@ App Store Connect requires at least the **6.9"** slot. The **6.7"** slot is stro
 
 **How to upload (6.7" slot):**
 
-1. Open [App Store Connect](https://appstoreconnect.apple.com) → your Field Kit app record.
+1. Open [App Store Connect](https://appstoreconnect.apple.com) → your Spartan Coaching app record.
 2. Go to **App Store → iOS App → iPhone screenshots**.
 3. Select the **6.7" (iPhone 15 Plus)** device size slot.
 4. Drag all 5 PNGs from `store/screenshots/6.7/` into the upload area (or click **+** to browse).
@@ -336,11 +336,11 @@ Then upload to App Store Connect as described in the Screenshots section above.
 
 ## App Review notes (paste into App Store Connect → Review Notes)
 
-> This app is a professional tool for hospice census growth representatives working with Spartan Coaching clients. Access is gated by an evaluation/approval workflow — users request access, and a Spartan Coaching advisor approves each account individually before granting entry to the Field Kit.
+> This app is a professional tool for hospice census growth representatives working with Spartan Coaching clients. Access is gated by an evaluation/approval workflow — users request access, and a Spartan Coaching advisor approves each account individually before granting entry to membership tools.
 >
 > A pre-approved test account has been set up specifically for App Review. Credentials are in App Store Connect → App Review Information → Sign-in required (see setup steps below).
 >
-> Log in on the "Field Kit Login" screen and you will land directly in the portal with all tools enabled: Checklist, Scenario Coach, Branch Calculator, Objection Handler, Playbook, and Email Templates.
+> Log in on the "Client Login" screen and you will land directly in the portal with all tools enabled: Checklist, Scenario Coach, Branch Calculator, Objection Handler, Playbook, and Email Templates.
 >
 > If you encounter any login issues, please contact nick@spartanhospicecoaching.com and we will resolve them immediately.
 

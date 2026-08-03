@@ -18,7 +18,7 @@ export const SPARTAN_CORPUS: KnowledgeChunk[] = [
     category: "method",
     tags: ["discipline", "empathy", "strategy", "method", "spartan"],
     body:
-      "The Spartan Method rests on three non-negotiables: Discipline (preparation, structure, follow-through), Empathy (hearing what is under the words), and Strategy (value positioning, objections, specific next steps). Every Field Kit tool should reinforce Tuesday behavior—not generic motivation.",
+      "The Spartan Method rests on three non-negotiables: Discipline (preparation, structure, follow-through), Empathy (hearing what is under the words), and Strategy (value positioning, objections, specific next steps). Every membership tool should reinforce Tuesday behavior—not generic motivation.",
   },
   {
     id: "method-tuesday",
@@ -34,7 +34,7 @@ export const SPARTAN_CORPUS: KnowledgeChunk[] = [
     category: "ethics",
     tags: ["phi", "hipaa", "compliance", "privacy"],
     body:
-      "Field Kit tools are for planning and messaging only. Never enter patient names, MRNs, DOBs, addresses, or other identifiers. Describe situations in general clinical and operational terms. Patient access and ethical messaging are non-negotiable.",
+      "Membership tools are for planning and messaging only. Never enter patient names, MRNs, DOBs, addresses, or other identifiers. Describe situations in general clinical and operational terms. Patient access and ethical messaging are non-negotiable.",
   },
   {
     id: "eligibility-six-month",

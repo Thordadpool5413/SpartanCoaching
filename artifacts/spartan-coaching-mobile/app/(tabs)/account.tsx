@@ -151,9 +151,9 @@ export default function AccountScreen() {
         }}
       >
         <Text style={[styles.kicker, { color: colors.primary }]}>Client access</Text>
-        <Text style={[styles.title, { color: colors.foreground }]}>Your Field Kit</Text>
+        <Text style={[styles.title, { color: colors.foreground }]}>Your Portal</Text>
         <Text style={[styles.body, { color: colors.mutedForeground }]}>
-          Sign in to use the private Field Kit on the go — objections, playbooks, role-play, and more.
+          Sign in to use the Spartan Membership on the go — objections, playbooks, role-play, and more.
           Individuals: create an account on the web, then subscribe for $14.99/week (cancel anytime). Preview tools free first.
         </Text>
 
@@ -188,7 +188,7 @@ export default function AccountScreen() {
           <Text style={[styles.primaryBtnText, { color: colors.primaryForeground }]}>Client login</Text>
         </Pressable>
         <Pressable
-          onPress={() => Linking.openURL(`${getWebSiteUrl()}/field-kit-membership`)}
+          onPress={() => Linking.openURL(`${getWebSiteUrl()}/membership`)}
           style={{ marginTop: 16 }}
         >
           <Text style={{ color: colors.primary, textAlign: "center", fontWeight: "700" }}>
@@ -273,7 +273,7 @@ export default function AccountScreen() {
     ? hasPaidSub
       ? cancelAtPeriodEnd
         ? "Subscription ends at the current period. You keep access until then. You can reverse cancel in Manage billing."
-        : "Weekly Field Kit membership is active. Cancel anytime — access continues through the paid period."
+        : "Weekly Spartan Membership is active. Cancel anytime — access continues through the paid period."
       : isComp
         ? "Complimentary access. Contact Nick if you need changes."
         : "Individual plan: $14.99 per week. Subscribe securely (Stripe). Cancel anytime from Manage billing."
@@ -323,7 +323,7 @@ export default function AccountScreen() {
   };
 
   const openWebMembership = () => {
-    void Linking.openURL(`${getWebSiteUrl()}/field-kit-membership`);
+    void Linking.openURL(`${getWebSiteUrl()}/membership`);
   };
 
   const saveProfile = async () => {
@@ -370,7 +370,7 @@ export default function AccountScreen() {
         </Text>
         <Text style={[styles.cardValue, { color: colors.foreground }]}>{org?.name || "—"}</Text>
         <Text style={[styles.cardLabel, { color: colors.mutedForeground, marginTop: 14 }]}>
-          Field Kit
+          Membership
         </Text>
         <Text
           style={[styles.cardValue, { color: canUseFieldKit ? colors.success : colors.primary }]}
@@ -477,7 +477,7 @@ export default function AccountScreen() {
               </Text>
             </Text>
             <Text style={{ color: colors.mutedForeground, fontSize: 12, marginTop: 2 }}>
-              Individual Field Kit · auto-renew · cancel anytime
+              Individual Membership · auto-renew · cancel anytime
             </Text>
           </View>
         )}
@@ -583,7 +583,7 @@ export default function AccountScreen() {
           testID="card-field-kit-locked"
         >
           <Text style={{ color: colors.primary, fontSize: 10, fontWeight: "800", letterSpacing: 1.4, textTransform: "uppercase", marginBottom: 6 }}>
-            {org?.status === "expired" ? "Evaluation ended" : "Field Kit locked"}
+            {org?.status === "expired" ? "Evaluation ended" : "Membership locked"}
           </Text>
           <Text style={{ color: colors.foreground, fontWeight: "900", fontSize: 15, lineHeight: 21, marginBottom: 10 }}>
             {org?.status === "expired"
@@ -630,7 +630,7 @@ export default function AccountScreen() {
           testID="card-your-field-kit"
         >
           <Text style={{ color: colors.primary, fontSize: 10, fontWeight: "800", letterSpacing: 1.4, textTransform: "uppercase", marginBottom: 6 }}>
-            Your Field Kit
+            Your Portal
           </Text>
           <Text style={{ color: colors.foreground, fontWeight: "800", fontSize: 15, marginBottom: 10 }}>
             7 AI tools — all unlocked
@@ -656,7 +656,7 @@ export default function AccountScreen() {
             onPress={() => router.push("/(tabs)/tools")}
             style={{ marginTop: 6, backgroundColor: colors.primary, borderRadius: 8, paddingVertical: 10, alignItems: "center" }}
           >
-            <Text style={{ color: colors.primaryForeground, fontWeight: "800", fontSize: 13 }}>Open Field Kit →</Text>
+            <Text style={{ color: colors.primaryForeground, fontWeight: "800", fontSize: 13 }}>Open Portal →</Text>
           </Pressable>
         </View>
       )}

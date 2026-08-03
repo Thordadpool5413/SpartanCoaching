@@ -140,7 +140,7 @@ export default function AiToolsIndex() {
       <Pressable onPress={() => router.back()} style={styles.back}>
         <Feather name="arrow-left" size={18} color={colors.primary} />
         <Text style={{ color: colors.primary, fontFamily: "Inter_600SemiBold" }}>
-          Field Kit
+          Membership
         </Text>
       </Pressable>
       <Text style={[styles.title, { color: colors.foreground }, font("bold")]}>
@@ -148,7 +148,7 @@ export default function AiToolsIndex() {
       </Text>
       <Text style={[styles.description, { color: colors.mutedForeground }, font("regular")]}>
         Field AI for specialized enablement (no PHI). Clinical vault is a separate
-        authorized workspace — not marketed with Field Kit sales tools.
+        authorized workspace — not marketed with consumer membership sales tools.
       </Text>
       {availability === null && (
         <View accessibilityRole="progressbar" style={styles.statusRow}>
@@ -232,7 +232,7 @@ export default function AiToolsIndex() {
               style={[styles.emptyBtn, { backgroundColor: colors.primary }]}
             >
               <Text style={{ color: "#fff", fontFamily: "Inter_700Bold" }}>
-                Open Field Kit tools
+                Open Portal tools
               </Text>
             </Pressable>
           </View>

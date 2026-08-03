@@ -157,7 +157,7 @@ export default function ToolsScreen() {
   const handleObjection = async () => {
     if (objection.trim().length < 5) return;
     if (!requireAccess()) {
-      setObjectionError("Field Kit access required. Sign in from Home.");
+      setObjectionError("Membership access required. Sign in from Home.");
       return;
     }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -196,7 +196,7 @@ export default function ToolsScreen() {
   const handlePlaybook = async () => {
     if (scenario.trim().length < 10) return;
     if (!requireAccess()) {
-      setPlaybookError("Field Kit access required. Sign in from Home.");
+      setPlaybookError("Membership access required. Sign in from Home.");
       return;
     }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -233,7 +233,7 @@ export default function ToolsScreen() {
   const handleEmail = async () => {
     if (emailContext.trim().length < 10) return;
     if (!requireAccess()) {
-      setEmailError("Field Kit access required. Sign in from Home.");
+      setEmailError("Membership access required. Sign in from Home.");
       return;
     }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -272,7 +272,7 @@ export default function ToolsScreen() {
   const handleResearch = async () => {
     if (researchQuery.trim().length < 5) return;
     if (!requireAccess()) {
-      setResearchError("Field Kit access required. Sign in from Home.");
+      setResearchError("Membership access required. Sign in from Home.");
       return;
     }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -300,7 +300,7 @@ export default function ToolsScreen() {
   const handleWeeklyPlan = async () => {
     if (weeklyAccounts.trim().length < 10 || !weeklyGoal.trim()) return;
     if (!requireAccess()) {
-      setWeeklyError("Field Kit access required. Sign in from Home.");
+      setWeeklyError("Membership access required. Sign in from Home.");
       return;
     }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -328,7 +328,7 @@ export default function ToolsScreen() {
   const handleColdCall = async () => {
     if (!coldProspectType.trim() || coldSituation.trim().length < 10) return;
     if (!requireAccess()) {
-      setColdError("Field Kit access required. Sign in from Home.");
+      setColdError("Membership access required. Sign in from Home.");
       return;
     }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -357,7 +357,7 @@ export default function ToolsScreen() {
       {/* Header — always pinned above content */}
       <View style={[styles.header, { paddingTop: topPad + 12, backgroundColor: colors.background, borderBottomColor: colors.border }]}>
         <Text style={[styles.headerTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
-          Field Kit tools
+          Membership tools
         </Text>
         <Text style={[styles.headerSubtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
           {canUseFieldKit
@@ -382,7 +382,7 @@ export default function ToolsScreen() {
           {/* Header */}
           <View style={{ backgroundColor: "rgba(232,41,30,0.08)", paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: "rgba(232,41,30,0.15)" }}>
             <Text style={{ color: colors.primary, fontSize: 10, fontWeight: "800", letterSpacing: 1.6, textTransform: "uppercase", marginBottom: 3 }}>
-              Private Field Kit · Not every rep has access
+              Spartan Membership · Not every rep has access
             </Text>
             <Text style={{ color: colors.foreground, fontSize: 16, fontWeight: "900", lineHeight: 22 }}>
               {isAuthenticated ? "Join the reps who refuse to leave a referral on the table" : "The edge that converts conversations into admissions"}
@@ -428,7 +428,7 @@ export default function ToolsScreen() {
             </Pressable>
             {!isAuthenticated && (
               <Pressable
-                onPress={() => Linking.openURL(`${getWebSiteUrl()}/field-kit`)}
+                onPress={() => Linking.openURL(`${getWebSiteUrl()}/membership`)}
                 style={{ marginTop: 10, alignItems: "center" }}
               >
                 <Text style={{ color: colors.primary, fontWeight: "700", fontSize: 13 }}>
@@ -464,7 +464,7 @@ export default function ToolsScreen() {
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: bottomPad + 24, paddingTop: 12 }}
           showsVerticalScrollIndicator={false}
         >
-          <SectionKicker>Field Kit · Prioritized</SectionKicker>
+          <SectionKicker>Membership · Prioritized</SectionKicker>
           <Text
             style={{
               color: colors.foreground,
@@ -651,7 +651,7 @@ export default function ToolsScreen() {
                 Advanced library
               </Text>
               <Text style={{ color: colors.mutedForeground, fontSize: 13, lineHeight: 19, marginTop: 3 }}>
-                Specialized AI + clinical vault — secondary to daily Field Kit
+                Specialized AI + clinical vault — secondary to daily membership tools
               </Text>
             </View>
             <Feather name="arrow-right" size={19} color={colors.mutedForeground} />

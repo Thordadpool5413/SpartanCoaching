@@ -1,6 +1,6 @@
 # Spartan Coaching
 
-Expert hospice growth coaching site + private Field Kit (web + iOS) for clients and approved evaluators.
+Expert hospice growth consulting site + Spartan Membership tools (web + iOS). Two offers: human consulting, and membership for tools/resources.
 
 ## Run & Operate
 
@@ -49,7 +49,7 @@ Expert hospice growth coaching site + private Field Kit (web + iOS) for clients 
 - `artifacts/api-server/src/routes/authRoutes.ts` — login, request-access, Access Desk APIs
 - `artifacts/api-server/src/auth/` — crypto, entitlement, middleware (`requireFieldKit`)
 - Web portal: `/welcome`, `/login`, `/request-access`, `/portal`, `/account`
-- Logged-in nav shell: Field Kit · Tools · Learn · Account · Coaching (`/portal/learn`)
+- Logged-in nav shell: Portal · Command · Tools · Learn · Account · Coaching (`/portal/learn`)
 - Trial lifecycle emails: received, approved, rejected, midpoint (≤4h), expired, extended, membership activated
 - Magic-link login (`/login` email link + `/magic-login`)
 - Platform admin: one-time bootstrap + **session cookie** only (no shared passcode / no client-embedded admin code)
@@ -59,15 +59,15 @@ Expert hospice growth coaching site + private Field Kit (web + iOS) for clients 
 - Access requests auto-create CRM inquiries
 - Org admin: seat invites, disable member, 7-day usage (`/api/org/usage`)
 - Account: change password, sign out other devices; expired clients can request extension
-- Conversion: `/request-access`, `/field-kit-membership`, FAQ Field Kit section, trust strip
+- Conversion: `/request-access`, `/membership`, FAQ Membership section, trust strip
 - Portal first-session: role → one tool → debrief; checklist API; field context
 - Mobile field companion: checklist + trial banner; Quick Actions include objections, playbooks, email, role-play, research, weekly plan, cold call
 - Public trust/SEO: robots.txt, sitemap, noindex private shells, TrustStrip
 
 ## Architecture decisions
 
-- Field Kit AI tools are hard-gated server-side (`requireFieldKit`); UI gates are not enough
-- Access is request → Nick approves → trial (24h individual / 72h company) → admin activates paid/client
+- Membership AI tools are hard-gated server-side (`requireFieldKit`); UI gates are not enough
+- Access is request → Nick approves → trial (24h individual / 72h company) → admin activates paid/client (or self-serve individual subscribe)
 - First-visit intro splash only (`spartan_intro_seen`); home content stays crawlable
 - Personal orgs are 1-seat shells so entitlement is always org-scoped
 - Platform admin = `platform_admin` member session preferred; `X-Admin-Auth` only if `ADMIN_PASSWORD` set server-side (API tools / curl)
@@ -76,12 +76,13 @@ Expert hospice growth coaching site + private Field Kit (web + iOS) for clients 
 ## Product
 
 - Public: marketing, method, services, content, contact, compliance
-- Private Field Kit: AI tools, calculators, drills, portal checklist
+- Two offers: **Consulting** (human) · **Spartan Membership** (tools & resources, web + iOS)
+- Logged-in **Portal**: Command Center spine, tools, drills, checklist
 - Companies: multi-seat invites via org admin
 
 ## User preferences
 
-- Consulting language (evaluation access / Field Kit), not SaaS “subscribe/paywall”
+- Dual product language (Consulting + Membership / Portal), not “Field Kit” as brand
 - Human path (book call) on every gate
 - Additive changes preferred; home condensed not deleted
 

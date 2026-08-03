@@ -194,7 +194,7 @@ export function RolePlayTool({
     scenarioDescription?: string,
   ) => {
     if (!requireAccess()) {
-      setRoleplayError("Field Kit access required. Sign in from Home.");
+      setRoleplayError("Membership access required. Sign in from Home.");
       return;
     }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);

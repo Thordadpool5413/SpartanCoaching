@@ -151,7 +151,7 @@ export default function HomeScreen() {
   const handleAsk = async (prompt: string) => {
     if (!prompt.trim()) return;
     if (!canUseFieldKit) {
-      setError("Field Kit access required. Sign in from the Account tab.");
+      setError("Membership access required. Sign in from the Account tab.");
       return;
     }
     setLoading(true);
@@ -169,7 +169,7 @@ export default function HomeScreen() {
     } catch (e: any) {
       const msg = String(e?.message || "");
       if (msg.startsWith("401") || msg.startsWith("403")) {
-        setError("Field Kit access required. Sign in with an approved client account.");
+        setError("Membership access required. Sign in with an approved client account.");
       } else {
         setError("Something went wrong. Please try again.");
       }
@@ -299,13 +299,13 @@ export default function HomeScreen() {
 
           <Pressable
             onPress={() => {
-              void Linking.openURL(`${siteUrl}/field-kit`);
+              void Linking.openURL(`${siteUrl}/membership`);
             }}
             style={{ marginTop: 10, minHeight: 40, justifyContent: "center" }}
             testID="link-what-is-field-kit"
           >
             <Text style={[{ color: colors.heroMuted, textAlign: "center", fontSize: 14 }, font("regular")]}>
-              What is Field Kit? →
+              What is Membership? →
             </Text>
           </Pressable>
         </LinearGradient>
@@ -350,7 +350,7 @@ export default function HomeScreen() {
           }}
         >
           {isFirstSession
-            ? "Same Field Kit as the web: role → Command Center → debrief."
+            ? "Same membership tools as the web: role → Command Center → debrief."
             : FIELD_KIT_WHAT}
         </Text>
         {user?.organization?.status === "trial" && trialLabel ? (
