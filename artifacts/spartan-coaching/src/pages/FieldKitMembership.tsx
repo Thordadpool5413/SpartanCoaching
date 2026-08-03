@@ -13,6 +13,8 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { SubscribeCTA } from "@/components/SubscribeCTA";
+import { ProductMap } from "@/components/elite/ProductMap";
+import { SectionHeader } from "@/components/elite/SectionHeader";
 import { FIELD_KIT_TOOLS, FIELD_KIT_CATEGORIES, FIELD_KIT_CAT_BLURBS } from "@workspace/field-kit-catalog";
 
 // Gated tools only (exclude brand-video which is public)
@@ -67,161 +69,31 @@ export default function FieldKitMembership() {
         </div>
       </div>
 
-      {/* ── Social proof strip ── */}
-      <div className="border border-border rounded-xl bg-card px-6 py-5 mb-12 max-w-3xl mx-auto">
-        <div className="flex flex-wrap justify-center items-center gap-6 text-sm">
-          <div className="flex items-center gap-2">
-            <Award className="w-4 h-4 text-primary shrink-0" />
-            <span className="font-semibold text-foreground">Built by reps who ran the territory</span>
-          </div>
-          <div className="h-4 w-px bg-border hidden sm:block" />
-          <div className="flex items-center gap-2">
-            <Users className="w-4 h-4 text-primary shrink-0" />
-            <span className="font-semibold text-foreground">Field-tested coaching, not theory</span>
-          </div>
-          <div className="h-4 w-px bg-border hidden sm:block" />
-          <div className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-primary shrink-0" />
-            <span className="font-semibold text-foreground">12+ years hospice-specific · ethics-first</span>
-          </div>
-          <div className="h-4 w-px bg-border hidden sm:block" />
-          <div className="flex items-center gap-2">
-            <TrendingUp className="w-4 h-4 text-primary shrink-0" />
-            <span className="font-semibold text-foreground">Hospice-only · not generic sales AI</span>
-          </div>
-        </div>
-      </div>
-
-      {/* ── Tier cards ── */}
-      <div className="grid md:grid-cols-3 gap-6 mb-14">
-        {/* Individual */}
-        <Card
-          className="flex flex-col border p-6 bg-card border-border"
-          data-testid="card-tier-individual"
-        >
-          <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-3">Individual access</p>
-          <div className="w-11 h-11 rounded-lg bg-primary/15 text-primary flex items-center justify-center mb-4">
-            <User className="w-5 h-5" />
-          </div>
-          <h2 className="text-lg font-bold text-foreground mb-1">Hospice Sales Pro</h2>
-          <p className="mb-3">
-            <span className="text-2xl font-black text-primary">$14.99</span>
-            <span className="text-sm font-semibold text-muted-foreground"> / week</span>
-          </p>
-          <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-            For the rep or director who needs tools and resources every week — not a binder that never opens. Cancel anytime.
-          </p>
-          <ul className="space-y-2 mb-6 flex-1">
-            {[
-              "Sales Command Center (daily spine)",
-              "Practice: objections, role-play, email, playbooks",
-              "Plan & measure: weekly plan, activity, ROI, branch math",
-              "Web portal + iOS app — same Hospice Sales Pro product",
-              "Cancel anytime — access continues through the paid period",
-            ].map((f) => (
-              <li key={f} className="flex gap-2 text-sm text-foreground">
-                <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                <span>{f}</span>
-              </li>
-            ))}
-          </ul>
-          <div data-testid="button-tier-individual-subscribe">
-            <SubscribeCTA surface="membership_pricing" showHint={false} testId="button-tier-individual" />
-          </div>
-        </Card>
-
-        {/* Team */}
-        <Card
-          className="flex flex-col border border-primary shadow-lg p-6 bg-card"
-          data-testid="card-tier-team"
-        >
-          <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-3">Most teams</p>
-          <div className="w-11 h-11 rounded-lg bg-primary/15 text-primary flex items-center justify-center mb-4">
-            <Users className="w-5 h-5" />
-          </div>
-          <h2 className="text-lg font-bold text-foreground mb-1">Provider / team seats</h2>
-          <p className="mb-3">
-            <span className="text-2xl font-black text-primary">Contract</span>
-            <span className="text-sm font-semibold text-muted-foreground"> · per seat / week</span>
-          </p>
-          <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-            Weekly pricing per end user, set under your hospice contract. Org admin manages seats after activation.
-          </p>
-          <ul className="space-y-2 mb-6 flex-1">
-            {TIER_TEAM_FEATURES.map((f) => (
-              <li key={f} className="flex gap-2 text-sm text-foreground">
-                <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                <span>{f}</span>
-              </li>
-            ))}
-          </ul>
-          <Button asChild className="w-full font-bold">
-            <Link href="/request-access" data-testid="button-tier-team">
-              Request team evaluation
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </Link>
-          </Button>
-        </Card>
-
-        {/* Enterprise */}
-        <Card
-          className="flex flex-col border p-6 bg-card border-border"
-          data-testid="card-tier-enterprise"
-        >
-          <div className="w-11 h-11 rounded-lg bg-primary/15 text-primary flex items-center justify-center mb-4 mt-[22px]">
-            <Building2 className="w-5 h-5" />
-          </div>
-          <h2 className="text-lg font-bold text-foreground mb-1">Enterprise + coaching</h2>
-          <p className="mb-3">
-            <span className="text-2xl font-black text-primary">Engagement</span>
-            <span className="text-sm font-semibold text-muted-foreground">-based</span>
-          </p>
-          <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-            Membership seats bundled with leadership coaching, workshops, and growth systems.
-          </p>
-          <ul className="space-y-2 mb-6 flex-1">
-            {TIER_ENTERPRISE_FEATURES.map((f) => (
-              <li key={f} className="flex gap-2 text-sm text-foreground">
-                <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                <span>{f}</span>
-              </li>
-            ))}
-          </ul>
-          <Button asChild className="w-full font-bold" variant="outline">
-            <Link href="/contact?service=Consulting+%2B+Membership" data-testid="button-tier-enterprise">
-              Book a strategy call
-              <ArrowRight className="ml-2 w-4 h-4" />
-            </Link>
-          </Button>
-        </Card>
-      </div>
-
-      {/* ── What's included — hierarchy, not 13 equal cards ── */}
-      <div className="mb-14" data-testid="section-tool-grid">
-        <div className="text-center mb-8">
-          <p className="text-kicker justify-center mb-3">What&apos;s included</p>
-          <h2 className="text-h2 font-display font-black text-foreground mb-3">
-            One daily spine. Clear tool groups. Web and iPhone.
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Membership is not a laundry list of equal features. You open <strong className="text-foreground">Command Center</strong> for
-            the day, then use practice, plan, and measure tools as satellites — same product on the website and the iOS app.
-          </p>
-        </div>
-
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+      {/* ── Trust strip (quiet) ── */}
+      <div className="border border-border/80 rounded-xl bg-card/80 px-5 py-4 mb-12 max-w-3xl mx-auto">
+        <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-3 text-sm">
           {[
-            { t: "Daily spine", d: "Sales Command Center — plan the visit, practice, capture the next step." },
-            { t: "Practice", d: "Objections, role-play, email, playbooks — before you walk in." },
-            { t: "Plan & measure", d: "Weekly plan, activity, ROI, rep cost, branch math." },
-            { t: "Learn", d: "Articles, podcasts, brand film, resources for the week." },
-          ].map((g) => (
-            <Card key={g.t} className="p-5 border border-border bg-card h-full">
-              <p className="text-[10px] font-bold tracking-widest uppercase text-primary mb-2">{g.t}</p>
-              <p className="text-sm text-muted-foreground leading-relaxed">{g.d}</p>
-            </Card>
+            { icon: Award, t: "Built by territory reps" },
+            { icon: CheckCircle, t: "12+ years hospice-specific" },
+            { icon: TrendingUp, t: "Not generic sales AI" },
+            { icon: Users, t: "Ethics-first · no PHI" },
+          ].map(({ icon: Icon, t }) => (
+            <div key={t} className="flex items-center gap-2 text-muted-foreground">
+              <Icon className="w-3.5 h-3.5 text-primary shrink-0" />
+              <span className="font-medium text-foreground text-xs sm:text-sm">{t}</span>
+            </div>
           ))}
         </div>
+      </div>
+
+      {/* ── Product map BEFORE pricing (understandability) ── */}
+      <div className="mb-14" data-testid="section-tool-grid">
+        <SectionHeader
+          kicker="What's inside"
+          title="One daily spine. Clear tool groups."
+          description="Hospice Sales Pro is not thirteen equal features. Open Command Center for the day, then use practice, plan, and resources as satellites — same product on web and iPhone."
+        />
+        <ProductMap className="mb-8" />
 
         <details className="rounded-xl border border-border bg-card/50 p-4 sm:p-5">
           <summary className="cursor-pointer text-sm font-bold text-foreground">
@@ -257,9 +129,107 @@ export default function FieldKitMembership() {
         </details>
       </div>
 
-      {/* ── Why subscribe (end-user edge — not provider revenue) ── */}
+      {/* ── Access options (pricing after product understanding) ── */}
+      <div className="mb-14">
+        <SectionHeader
+          kicker="Access"
+          title="How people get Hospice Sales Pro"
+          description="Individuals self-serve weekly. Teams and consulting-plus-seats use contract paths."
+        />
+        <div className="grid md:grid-cols-3 gap-5">
+          <Card className="flex flex-col border border-primary/30 p-6 bg-card elite-emphasis" data-testid="card-tier-individual">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-3">Most individuals</p>
+            <div className="w-11 h-11 rounded-lg bg-primary/15 text-primary flex items-center justify-center mb-4">
+              <User className="w-5 h-5" />
+            </div>
+            <h2 className="text-lg font-bold text-foreground mb-1">Hospice Sales Pro</h2>
+            <p className="mb-3">
+              <span className="text-2xl font-black text-primary">$14.99</span>
+              <span className="text-sm font-semibold text-muted-foreground"> / week</span>
+            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-5">
+              Full tools and resources every week. Cancel anytime — access through the paid period.
+            </p>
+            <ul className="space-y-2 mb-6 flex-1">
+              {[
+                "Command Center + practice tools",
+                "Plans, calculators, resources",
+                "Web + iPhone same product",
+              ].map((f) => (
+                <li key={f} className="flex gap-2 text-sm text-foreground">
+                  <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
+            <div data-testid="button-tier-individual-subscribe">
+              <SubscribeCTA surface="membership_pricing" showHint={false} testId="button-tier-individual" />
+            </div>
+          </Card>
+
+          <Card className="flex flex-col border border-border p-6 bg-card" data-testid="card-tier-team">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">Teams</p>
+            <div className="w-11 h-11 rounded-lg bg-muted text-foreground flex items-center justify-center mb-4">
+              <Users className="w-5 h-5" />
+            </div>
+            <h2 className="text-lg font-bold text-foreground mb-1">Provider seats</h2>
+            <p className="mb-3">
+              <span className="text-2xl font-black text-foreground">Contract</span>
+              <span className="text-sm font-semibold text-muted-foreground"> · per seat / week</span>
+            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-5">
+              Multi-seat org under your hospice contract. Admin invites and seat control.
+            </p>
+            <ul className="space-y-2 mb-6 flex-1">
+              {TIER_TEAM_FEATURES.slice(0, 3).map((f) => (
+                <li key={f} className="flex gap-2 text-sm text-foreground">
+                  <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
+            <Button asChild className="w-full font-bold" variant="outline">
+              <Link href="/request-access" data-testid="button-tier-team">
+                Request team evaluation
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Link>
+            </Button>
+          </Card>
+
+          <Card className="flex flex-col border border-border p-6 bg-card" data-testid="card-tier-enterprise">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-3">With consulting</p>
+            <div className="w-11 h-11 rounded-lg bg-muted text-foreground flex items-center justify-center mb-4">
+              <Building2 className="w-5 h-5" />
+            </div>
+            <h2 className="text-lg font-bold text-foreground mb-1">Enterprise + coaching</h2>
+            <p className="mb-3">
+              <span className="text-2xl font-black text-foreground">Engagement</span>
+              <span className="text-sm font-semibold text-muted-foreground">-based</span>
+            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-5">
+              Hospice Sales Pro seats bundled with leadership coaching and workshops.
+            </p>
+            <ul className="space-y-2 mb-6 flex-1">
+              {TIER_ENTERPRISE_FEATURES.slice(0, 3).map((f) => (
+                <li key={f} className="flex gap-2 text-sm text-foreground">
+                  <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
+            <Button asChild className="w-full font-bold" variant="outline">
+              <Link href="/contact?service=Consulting+%2B+Hospice+Sales+Pro" data-testid="button-tier-enterprise">
+                Book a strategy call
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Link>
+            </Button>
+          </Card>
+        </div>
+      </div>
+
+      {/* ── Why (end-user edge) ── */}
       <div
-        className="rounded-xl border border-primary/30 bg-primary/5 p-8 sm:p-10 mb-14 text-center max-w-3xl mx-auto"
+        className="rounded-xl border border-primary/25 bg-primary/[0.04] p-8 sm:p-10 mb-14 text-center max-w-3xl mx-auto"
         data-testid="section-why-membership"
       >
         <TrendingUp className="w-8 h-8 text-primary mx-auto mb-4" />

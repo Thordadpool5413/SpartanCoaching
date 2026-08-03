@@ -115,19 +115,18 @@ export default function Tools() {
       <StaggerItem key={tool.path}>
         <Card
           className={cn(
-            "flex flex-col group relative spacing-card h-full hover-card overflow-hidden",
+            "flex flex-col group relative p-5 sm:p-6 h-full border border-border/80 bg-card shadow-none hover:shadow-sm hover:border-border overflow-hidden",
             locked && "opacity-95",
           )}
           data-testid={`card-tool-${tool.id}`}
         >
-          <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none" />
           <div className="relative flex-1 flex flex-col">
-            <div className="flex items-start justify-between gap-4 mb-4">
-              <div className="flex items-center gap-3.5 min-w-0">
-                <div className="p-3 rounded-xl bg-primary/12 text-primary ring-1 ring-primary/15 shrink-0 group-hover:bg-primary/18 transition-colors">
-                  {TOOL_ICONS[tool.id] ?? <Calculator className="w-7 h-7" />}
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="p-2.5 rounded-xl bg-muted/80 text-foreground shrink-0">
+                  {TOOL_ICONS[tool.id] ?? <Calculator className="w-6 h-6" />}
                 </div>
-                <h3 className="text-lg sm:text-xl font-display font-bold text-foreground leading-tight tracking-tight">
+                <h3 className="text-base sm:text-lg font-semibold text-foreground leading-tight tracking-tight">
                   {tool.title}
                 </h3>
               </div>
@@ -200,17 +199,17 @@ export default function Tools() {
 
       {showCatalogGate && (
         <SlideUp delay={0.05}>
-          <Card className="mb-10 border border-primary/35 bg-gradient-to-br from-primary/[0.08] to-card p-6 sm:p-8 shadow-elite-red" data-testid="tools-access-banner">
-            <div className="flex flex-col lg:flex-row lg:items-center gap-6 justify-between">
-              <div className="flex gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-primary/15 text-primary flex items-center justify-center shrink-0 ring-1 ring-primary/20">
-                  <Lock className="w-5 h-5" />
+          <Card className="mb-10 border border-border p-5 sm:p-6" data-testid="tools-access-banner">
+            <div className="flex flex-col lg:flex-row lg:items-center gap-5 justify-between">
+              <div className="flex gap-3">
+                <div className="w-10 h-10 rounded-xl bg-muted text-foreground flex items-center justify-center shrink-0">
+                  <Lock className="w-4 h-4" />
                 </div>
                 <div>
-                  <h2 className="text-xl font-display font-bold text-foreground mb-1 tracking-tight">Preview open · use locked</h2>
+                  <h2 className="text-base font-bold text-foreground mb-1 tracking-tight">Preview open · live use locked</h2>
                   <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
-                    See the actual tools and resources below. To generate responses, save work, or run live
-                    calculators end-to-end, create an account and subscribe ($14.99/week, cancel anytime).
+                    Browse every real interface below. Generate, save, and run live with Hospice Sales Pro
+                    ($14.99/week, cancel anytime).
                   </p>
                 </div>
               </div>
@@ -218,7 +217,7 @@ export default function Tools() {
                 <Button asChild className="font-bold" data-testid="button-tools-request">
                   <Link href="/register">
                     <KeyRound className="mr-2 w-4 h-4" />
-                    Create account to subscribe
+                    Create account · Hospice Sales Pro
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="font-bold" data-testid="button-tools-login">
@@ -250,7 +249,7 @@ export default function Tools() {
               {SAMPLE_OBJECTION.response}
             </p>
             <p className="text-xs text-muted-foreground mt-4">
-              Open any tool card for the full interface. Live AI generation unlocks with membership.
+              Open any tool card for the full interface. Live AI generation unlocks with Hospice Sales Pro.
             </p>
           </Card>
         </SlideUp>

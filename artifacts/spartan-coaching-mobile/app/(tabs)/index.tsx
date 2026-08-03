@@ -287,6 +287,17 @@ export default function HomeScreen() {
             testID="button-book-call-logged-out"
           />
 
+          <SpartanButton
+            title="Hospice Sales Pro tools"
+            variant="outline"
+            onPress={() => {
+              if (isAuthenticated) router.push("/(tabs)/tools");
+              else void Linking.openURL(`${siteUrl}/hospice-sales-pro`);
+            }}
+            style={{ marginTop: 12, width: "100%", maxWidth: 320 }}
+            testID="button-hospice-sales-pro-logged-out"
+          />
+
           <Pressable
             onPress={() => (isAuthenticated ? router.push("/(tabs)/account") : router.push("/login"))}
             style={{ marginTop: 18, minHeight: 44, justifyContent: "center" }}
@@ -302,10 +313,10 @@ export default function HomeScreen() {
               void Linking.openURL(`${siteUrl}/hospice-sales-pro`);
             }}
             style={{ marginTop: 10, minHeight: 40, justifyContent: "center" }}
-            testID="link-what-is-membership"
+            testID="link-what-is-hospice-sales-pro"
           >
             <Text style={[{ color: colors.heroMuted, textAlign: "center", fontSize: 14 }, font("regular")]}>
-              What is Membership? →
+              What is Hospice Sales Pro? →
             </Text>
           </Pressable>
         </LinearGradient>

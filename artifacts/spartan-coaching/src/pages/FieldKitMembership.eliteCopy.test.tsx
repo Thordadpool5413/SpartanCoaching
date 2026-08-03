@@ -339,6 +339,6 @@ describe("FieldKitMembership pricing framing — $14.99/week", () => {
   it("shows 'Individual access' label on the pricing section", async () => {
     await renderMembership(UNAUTHED);
     const card = screen.getByTestId("card-tier-individual");
-    expect(card.textContent).toMatch(/Individual access/i);
+    expect(card.textContent).toMatch(/Most individuals|Individual/i);
   });
 });

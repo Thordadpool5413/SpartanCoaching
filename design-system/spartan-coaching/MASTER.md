@@ -73,14 +73,22 @@ Light mode: prefer slightly deeper primary (`primaryLight` ~48% L) so red text/i
 | Kicker | `.text-kicker` | Section labels |
 | Card titles | `CardTitle` | **Sans semibold** (not condensed) for calmer product UI |
 
+## Product offers
+
+| Offer | Name | Job |
+|-------|------|-----|
+| A | **Consulting** | Human coaching, workshops, strategy |
+| B | **Hospice Sales Pro** | Tools & resources product · web + iPhone · $14.99/wk |
+| Shell | **Portal** | Logged-in next action (not a third brand) |
+
 ## CTA hierarchy
 
 | Surface | Primary | Secondary |
 |---------|---------|-----------|
-| Home | Book a strategy call | Preview Membership tools |
-| Membership | Subscribe / create account | Preview tools |
-| Portal | Next checklist / Command Center | All tools |
-| Tools | Launch tool | Advanced library (de-emphasized) |
+| Home | Book a strategy call | Explore Hospice Sales Pro |
+| Hospice Sales Pro lander | Create account / subscribe | Preview tools |
+| Portal | Open Command Center | All tools |
+| Tools | Launch / Open Command | Advanced library (de-emphasized) |
 | Services | Book a strategy call | — |
 
 ## Do
