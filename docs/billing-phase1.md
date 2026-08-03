@@ -21,7 +21,7 @@
 
 ## Stripe Dashboard setup
 
-1. Create Product **Spartan Membership Individual** with recurring **weekly** price **$14.99 USD**.
+1. Create Product **Hospice Sales Pro Individual** with recurring **weekly** price **$14.99 USD**.
 2. Copy Price id → `STRIPE_PRICE_INDIVIDUAL_WEEKLY`.
 3. Developers → Webhooks → Add endpoint:
    - URL: `https://YOUR_HOST/api/billing/webhook`

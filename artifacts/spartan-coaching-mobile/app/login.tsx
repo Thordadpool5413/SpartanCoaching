@@ -54,7 +54,7 @@ export default function LoginScreen() {
         <SectionKicker>Client access</SectionKicker>
         <Text style={[styles.title, { color: colors.foreground }]}>Sign in</Text>
         <Text style={[styles.sub, { color: colors.mutedForeground }]}>
-          Spartan Membership for clients and approved evaluators — same product as the web, built for the field.
+          Hospice Sales Pro for clients and approved evaluators — same product as the web, built for the field.
         </Text>
 
         <SpartanCard style={{ marginTop: 8 }}>

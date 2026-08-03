@@ -382,7 +382,7 @@ export default function ToolsScreen() {
           {/* Header */}
           <View style={{ backgroundColor: "rgba(232,41,30,0.08)", paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: "rgba(232,41,30,0.15)" }}>
             <Text style={{ color: colors.primary, fontSize: 10, fontWeight: "800", letterSpacing: 1.6, textTransform: "uppercase", marginBottom: 3 }}>
-              Spartan Membership · Not every rep has access
+              Hospice Sales Pro · Not every rep has access
             </Text>
             <Text style={{ color: colors.foreground, fontSize: 16, fontWeight: "900", lineHeight: 22 }}>
               {isAuthenticated ? "Join the reps who refuse to leave a referral on the table" : "The edge that converts conversations into admissions"}
@@ -428,7 +428,7 @@ export default function ToolsScreen() {
             </Pressable>
             {!isAuthenticated && (
               <Pressable
-                onPress={() => Linking.openURL(`${getWebSiteUrl()}/membership`)}
+                onPress={() => Linking.openURL(`${getWebSiteUrl()}/hospice-sales-pro`)}
                 style={{ marginTop: 10, alignItems: "center" }}
               >
                 <Text style={{ color: colors.primary, fontWeight: "700", fontSize: 13 }}>

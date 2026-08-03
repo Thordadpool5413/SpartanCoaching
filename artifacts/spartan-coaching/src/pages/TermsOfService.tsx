@@ -61,10 +61,10 @@ export default function TermsOfService() {
           </section>
 
           <section>
-            <h2 className="text-h2 text-foreground mb-3">6. Spartan Membership &amp; Billing</h2>
+            <h2 className="text-h2 text-foreground mb-3">6. Hospice Sales Pro &amp; Billing</h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               <strong className="text-foreground">Individual membership:</strong> When you subscribe to the individual
-              Spartan Membership plan, you authorize recurring charges of <strong className="text-foreground">$14.99 USD per week</strong>{" "}
+              Hospice Sales Pro plan, you authorize recurring charges of <strong className="text-foreground">$14.99 USD per week</strong>{" "}
               (or the then-current posted individual rate) via our payment processor (Stripe). Subscriptions renew
               automatically each week until you cancel.
             </p>

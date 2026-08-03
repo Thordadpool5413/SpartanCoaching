@@ -93,7 +93,7 @@ export function TrustStrip({ className, compact = false, showLinks = true }: Tru
           <Link href="/register" className="text-primary hover:underline font-bold">
             Create account · Membership
           </Link>
-          <Link href="/membership" className="text-muted-foreground hover:text-primary transition-colors font-medium">
+          <Link href="/hospice-sales-pro" className="text-muted-foreground hover:text-primary transition-colors font-medium">
             Pricing · $14.99/wk
           </Link>
           <Link href="/request-access" className="text-muted-foreground hover:text-primary transition-colors font-medium">

@@ -1707,8 +1707,8 @@ Build a specific Monday–Friday territory plan for this week.`;
       if (subject.length > 200 || body.length > 20000) {
         return res.status(400).json({ error: "Subject or body too long" });
       }
-      const footer = `\n\n---\nSent via Spartan Membership by ${member.name} <${member.email}>. Do not include PHI.`;
-      const safeBody = body.includes("Sent via Spartan Membership") || body.includes("Sent via Spartan Field Kit")
+      const footer = `\n\n---\nSent via Hospice Sales Pro by ${member.name} <${member.email}>. Do not include PHI.`;
+      const safeBody = body.includes("Sent via Hospice Sales Pro") || body.includes("Sent via Spartan Field Kit")
         ? body
         : `${body}${footer}`;
       const success = await sendGeneratedEmail(to, subject.slice(0, 200), safeBody);

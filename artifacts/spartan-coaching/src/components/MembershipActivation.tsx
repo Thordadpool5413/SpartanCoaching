@@ -102,7 +102,7 @@ export function MembershipActivation() {
             )}
           </div>
           <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
-            Spartan Membership
+            Hospice Sales Pro
           </p>
           <h2
             id="membership-activation-title"

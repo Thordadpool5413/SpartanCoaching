@@ -44,7 +44,7 @@ describe("Membership funnel + catalog contracts", () => {
       "/portal",
       "/tools/sales-workflow",
       "/tools",
-      "/membership",
+      "/hospice-sales-pro",
     ];
     for (const p of path) {
       expect(p.startsWith("/")).toBe(true);

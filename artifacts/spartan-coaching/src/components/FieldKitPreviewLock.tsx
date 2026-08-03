@@ -156,7 +156,7 @@ export function FieldKitPreviewLock({ children }: Props) {
               </Button>
             )}
             <Button size="sm" variant="ghost" className="font-semibold" asChild>
-              <Link href="/membership">Pricing</Link>
+              <Link href="/hospice-sales-pro">Pricing</Link>
             </Button>
           </div>
         </div>
@@ -273,7 +273,7 @@ export function FieldKitPreviewLock({ children }: Props) {
                 </Link>
               </Button>
               <Button variant="ghost" className="w-full font-semibold" asChild>
-                <Link href="/membership">View membership options</Link>
+                <Link href="/hospice-sales-pro">View membership options</Link>
               </Button>
             </div>
 

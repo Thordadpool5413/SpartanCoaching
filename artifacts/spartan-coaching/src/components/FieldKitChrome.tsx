@@ -48,10 +48,11 @@ const MEMBER_LINKS = [
 /** Browse-only nav for visitors previewing tools without a subscription */
 const PREVIEW_LINKS = [
   {
-    href: "/membership",
-    label: "Membership",
+    href: "/hospice-sales-pro",
+    label: "Hospice Sales Pro",
     icon: Home,
     match: (loc: string) =>
+      loc === "/hospice-sales-pro" ||
       loc === "/membership" ||
       loc === "/field-kit" ||
       loc === "/field-kit-membership" ||
@@ -78,7 +79,7 @@ const PREVIEW_LINKS = [
 ];
 
 /**
- * Persistent orientation strip for membership tool surfaces.
+ * Persistent orientation strip for Hospice Sales Pro tool surfaces.
  * Members get full nav; non-members get a preview browse strip so they can
  * move between tool UIs without live access.
  */
@@ -124,8 +125,8 @@ export function FieldKitChrome({
         <div className="min-w-0 space-y-1.5">
           <p className="text-kicker">
             {isPreview
-              ? "Membership · preview browse"
-              : "Membership · tools & resources"}
+              ? "Hospice Sales Pro · preview"
+              : "Hospice Sales Pro · tools & resources"}
           </p>
           <p className="text-sm text-foreground/95 leading-relaxed max-w-2xl">
             {isPreview

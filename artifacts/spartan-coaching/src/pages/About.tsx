@@ -401,7 +401,7 @@ export default function About() {
         <div className="mt-16 mb-12 space-y-6" data-testid="section-about-approach">
           <h2 className="text-h2 text-foreground text-center">How we work with clients</h2>
           <p className="text-body text-muted-foreground text-center max-w-2xl mx-auto leading-relaxed">
-            Spartan is a consulting practice first. Coaching and team systems are the core. Spartan Membership is the tools and resources layer — web and iPhone — for people who want execution between sessions or on their own.
+            Spartan is a consulting practice first. Coaching and team systems are the core. Hospice Sales Pro is the tools and resources layer — web and iPhone — for people who want execution between sessions or on their own.
           </p>
           <div className="grid md:grid-cols-3 gap-4">
             {[
@@ -412,7 +412,7 @@ export default function About() {
               },
               {
                 icon: Wrench,
-                title: "Spartan Membership",
+                title: "Hospice Sales Pro",
                 text: "Command Center, practice tools, plans, and calculators. Preview free · $14.99/wk self-serve · team seats under contract.",
               },
               {

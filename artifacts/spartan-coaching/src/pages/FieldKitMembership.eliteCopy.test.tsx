@@ -1,10 +1,10 @@
 /**
- * Asserts that the elite positioning copy on the /membership page
+ * Asserts that the elite positioning copy on the /hospice-sales-pro page
  * renders correctly for every subscriber state: unauthenticated, authenticated
  * and able to subscribe, and already subscribed.
  *
- * Verifies "Spartan Membership" positioning and SubscribeCTA honest funnel
- * (Create account → Start membership · $14.99/wk → Open portal).
+ * Verifies "Hospice Sales Pro" positioning and SubscribeCTA honest funnel
+ * (Create account → Start Hospice Sales Pro · $14.99/wk → Open portal).
  */
 import { describe, it, expect, beforeAll, afterEach, vi } from "vitest";
 import { render, cleanup, screen } from "@testing-library/react";
@@ -153,51 +153,51 @@ async function renderMembership(authState: object) {
 describe("FieldKitMembership page container", () => {
   it("renders the page wrapper for unauthenticated users", async () => {
     await renderMembership(UNAUTHED);
-    expect(screen.getByTestId("page-membership")).toBeTruthy();
+    expect(screen.getByTestId("page-hospice-sales-pro")).toBeTruthy();
   });
 
   it("renders the page wrapper when can-subscribe", async () => {
     await renderMembership(CAN_SUBSCRIBE);
-    expect(screen.getByTestId("page-membership")).toBeTruthy();
+    expect(screen.getByTestId("page-hospice-sales-pro")).toBeTruthy();
   });
 
   it("renders the page wrapper when already subscribed", async () => {
     await renderMembership(ALREADY_SUBSCRIBED);
-    expect(screen.getByTestId("page-membership")).toBeTruthy();
+    expect(screen.getByTestId("page-hospice-sales-pro")).toBeTruthy();
   });
 });
 
-describe("FieldKitMembership hero copy — 'Spartan Membership'", () => {
-  it("shows 'Spartan Membership' eyebrow when unauthenticated", async () => {
+describe("FieldKitMembership hero copy — 'Hospice Sales Pro'", () => {
+  it("shows 'Hospice Sales Pro' eyebrow when unauthenticated", async () => {
     await renderMembership(UNAUTHED);
-    expect(screen.getAllByText(/Spartan Membership/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Hospice Sales Pro/i).length).toBeGreaterThan(0);
   });
 
-  it("shows 'Spartan Membership' eyebrow when can-subscribe", async () => {
+  it("shows 'Hospice Sales Pro' eyebrow when can-subscribe", async () => {
     await renderMembership(CAN_SUBSCRIBE);
-    expect(screen.getAllByText(/Spartan Membership/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Hospice Sales Pro/i).length).toBeGreaterThan(0);
   });
 
-  it("shows 'Spartan Membership' eyebrow when already subscribed", async () => {
+  it("shows 'Hospice Sales Pro' eyebrow when already subscribed", async () => {
     await renderMembership(ALREADY_SUBSCRIBED);
-    expect(screen.getAllByText(/Spartan Membership/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Hospice Sales Pro/i).length).toBeGreaterThan(0);
   });
 });
 
 describe("FieldKitMembership hero headline — elite positioning", () => {
-  it("shows 'Tools and resources for hospice growth' in the hero when unauthenticated", async () => {
+  it("shows 'The tools product for hospice growth' in the hero when unauthenticated", async () => {
     await renderMembership(UNAUTHED);
-    expect(screen.getByText(/Tools and resources for hospice growth/i)).toBeTruthy();
+    expect(screen.getByText(/The tools product for hospice growth/i)).toBeTruthy();
   });
 
-  it("shows 'Tools and resources for hospice growth' in the hero when can-subscribe", async () => {
+  it("shows 'The tools product for hospice growth' in the hero when can-subscribe", async () => {
     await renderMembership(CAN_SUBSCRIBE);
-    expect(screen.getByText(/Tools and resources for hospice growth/i)).toBeTruthy();
+    expect(screen.getByText(/The tools product for hospice growth/i)).toBeTruthy();
   });
 
-  it("shows 'Tools and resources for hospice growth' in the hero when already subscribed", async () => {
+  it("shows 'The tools product for hospice growth' in the hero when already subscribed", async () => {
     await renderMembership(ALREADY_SUBSCRIBED);
-    expect(screen.getByText(/Tools and resources for hospice growth/i)).toBeTruthy();
+    expect(screen.getByText(/The tools product for hospice growth/i)).toBeTruthy();
   });
 
   it("shows web and iPhone + $14.99/week framing in the hero", async () => {
@@ -208,11 +208,11 @@ describe("FieldKitMembership hero headline — elite positioning", () => {
 });
 
 describe("FieldKitMembership CTA — unauthenticated", () => {
-  it("shows Create account for membership via SubscribeCTA in the hero", async () => {
+  it("shows Create account · Hospice Sales Pro via SubscribeCTA in the hero", async () => {
     await renderMembership(UNAUTHED);
     const cta = screen.getByTestId("membership-hero-subscribe");
     expect(cta).toBeTruthy();
-    expect(cta.textContent).toMatch(/Create account for membership/i);
+    expect(cta.textContent).toMatch(/Create account · Hospice Sales Pro/i);
   });
 
   it("shows Sign in for existing users", async () => {
@@ -232,12 +232,12 @@ describe("FieldKitMembership CTA — unauthenticated", () => {
 });
 
 describe("FieldKitMembership CTA — can-subscribe", () => {
-  it("shows Start membership / Resubscribe · $14.99/wk in the hero", async () => {
+  it("shows Start Hospice Sales Pro / Resubscribe · Hospice Sales Pro · $14.99/wk in the hero", async () => {
     await renderMembership(CAN_SUBSCRIBE);
     const btn = screen.getByTestId("membership-hero-subscribe");
     expect(btn).toBeTruthy();
     expect(btn.textContent).toMatch(
-      /Start membership · \$14\.99\/wk|Resubscribe · \$14\.99\/wk|Subscribe · \$14\.99\/wk/i,
+      /Start Hospice Sales Pro · \$14\.99\/wk|Resubscribe · Hospice Sales Pro · \$14\.99\/wk|Resubscribe · \$14\.99\/wk|Subscribe · \$14\.99\/wk/i,
     );
   });
 
@@ -246,13 +246,13 @@ describe("FieldKitMembership CTA — can-subscribe", () => {
     const tierBtn = screen.getByTestId("button-tier-individual");
     expect(tierBtn).toBeTruthy();
     expect(tierBtn.textContent).toMatch(
-      /Start membership · \$14\.99\/wk|Resubscribe · \$14\.99\/wk|Subscribe · \$14\.99\/wk/i,
+      /Start Hospice Sales Pro · \$14\.99\/wk|Resubscribe · Hospice Sales Pro · \$14\.99\/wk|Resubscribe · \$14\.99\/wk|Subscribe · \$14\.99\/wk/i,
     );
   });
 
   it("does NOT show Create account as the hero CTA when can-subscribe", async () => {
     await renderMembership(CAN_SUBSCRIBE);
-    expect(screen.queryByText(/Create account for membership/i)).toBeNull();
+    expect(screen.queryByText(/Create account · Hospice Sales Pro/i)).toBeNull();
   });
 
   it("does NOT show Open portal when can-subscribe", async () => {
@@ -271,26 +271,26 @@ describe("FieldKitMembership CTA — already subscribed", () => {
   it("does NOT show paid subscribe CTAs when already subscribed", async () => {
     await renderMembership(ALREADY_SUBSCRIBED);
     expect(screen.queryByText(/Subscribe · \$14\.99\/wk/i)).toBeNull();
-    expect(screen.queryByText(/Start membership · \$14\.99\/wk/i)).toBeNull();
+    expect(screen.queryByText(/Start Hospice Sales Pro · \$14\.99\/wk/i)).toBeNull();
   });
 
   it("does NOT show Create account CTA when already subscribed", async () => {
     await renderMembership(ALREADY_SUBSCRIBED);
-    expect(screen.queryByText(/Create account for membership/i)).toBeNull();
+    expect(screen.queryByText(/Create account · Hospice Sales Pro/i)).toBeNull();
   });
 });
 
-describe("FieldKitMembership individual tier card — 'Spartan Membership'", () => {
-  it("shows 'Spartan Membership' as the individual tier card heading", async () => {
+describe("FieldKitMembership individual tier card — 'Hospice Sales Pro'", () => {
+  it("shows 'Hospice Sales Pro' as the individual tier card heading", async () => {
     await renderMembership(UNAUTHED);
     const card = screen.getByTestId("card-tier-individual");
-    expect(card.textContent).toMatch(/Spartan Membership/i);
+    expect(card.textContent).toMatch(/Hospice Sales Pro/i);
   });
 
-  it("individual tier card heading shows 'Spartan Membership' when can-subscribe", async () => {
+  it("individual tier card heading shows 'Hospice Sales Pro' when can-subscribe", async () => {
     await renderMembership(CAN_SUBSCRIBE);
     const card = screen.getByTestId("card-tier-individual");
-    expect(card.textContent).toMatch(/Spartan Membership/i);
+    expect(card.textContent).toMatch(/Hospice Sales Pro/i);
   });
 });
 

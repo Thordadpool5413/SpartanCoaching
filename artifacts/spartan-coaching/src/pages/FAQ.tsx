@@ -20,7 +20,7 @@ const faqCategories = [
       {
         id: "what-is-spartan",
         q: "What is Spartan Coaching?",
-        a: "Spartan Coaching is a practical consulting practice for hospice growth professionals. We help liaisons, business development reps, and growth leaders build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and measurable weekly accountability. Two clear offers: human consulting, and Spartan Membership for tools and resources (preview free; individuals $14.99/week; teams under contract).",
+        a: "Spartan Coaching is a practical consulting practice for hospice growth professionals. We help liaisons, business development reps, and growth leaders build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and measurable weekly accountability. Two clear offers: human consulting, and Hospice Sales Pro for tools and resources (preview free; individuals $14.99/week; teams under contract).",
       },
       {
         id: "who-is-this-for",
@@ -40,12 +40,12 @@ const faqCategories = [
     ],
   },
   {
-    title: "Spartan Membership",
+    title: "Hospice Sales Pro",
     questions: [
       {
         id: "what-is-membership",
-        q: "What is Spartan Membership?",
-        a: "Spartan Membership is the subscription for tools and resources on web and iPhone: Sales Command Center, objections, playbooks, role-play, calculators, weekly plans, and more. Preview interfaces free. Live generation and saves unlock with membership ($14.99/week individual) or team/evaluation access.",
+        q: "What is Hospice Sales Pro?",
+        a: "Hospice Sales Pro is the subscription for tools and resources on web and iPhone: Sales Command Center, objections, playbooks, role-play, calculators, weekly plans, and more. Preview interfaces free. Live generation and saves unlock with membership ($14.99/week individual) or team/evaluation access.",
       },
       {
         id: "how-to-get-access",
@@ -60,7 +60,7 @@ const faqCategories = [
       {
         id: "tools-without-coaching",
         q: "Can I use the tools without a coaching engagement?",
-        a: "Yes. Individuals can start membership for $14.99/week without buying coaching. Many clients also add consulting; teams and enterprise packages combine seats with leadership work under contract.",
+        a: "Yes. Individuals can Start Hospice Sales Pro for $14.99/week without buying coaching. Many clients also add consulting; teams and enterprise packages combine seats with leadership work under contract.",
       },
       {
         id: "already-have-account",
@@ -110,7 +110,7 @@ const faqCategories = [
       {
         id: "cost",
         q: "How much does it cost?",
-        a: "Spartan Membership is $14.99 per week for individuals (auto-renew; cancel anytime from Account). Provider and team seats use weekly per-user pricing set under your contract. Enterprise + coaching is engagement-based. See Membership for details.",
+        a: "Hospice Sales Pro is $14.99 per week for individuals (auto-renew; cancel anytime from Account). Provider and team seats use weekly per-user pricing set under your contract. Enterprise + coaching is engagement-based. See Membership for details.",
       },
       {
         id: "virtual-or-inperson",
@@ -155,7 +155,7 @@ export default function FAQ() {
             Frequently Asked Questions
           </h1>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
-            Consulting, Spartan Membership, evaluation trials, individual $14.99/week membership, team contracts, and compliance.
+            Consulting, Hospice Sales Pro, evaluation trials, individual $14.99/week membership, team contracts, and compliance.
           </p>
         </div>
       </FadeIn>
@@ -242,7 +242,7 @@ export default function FAQ() {
               </Button>
             </div>
             <p className="mt-5 text-sm text-white/80 space-x-3">
-              <Link href="/membership" className="underline underline-offset-4 hover:text-white" data-testid="button-faq-membership">
+              <Link href="/hospice-sales-pro" className="underline underline-offset-4 hover:text-white" data-testid="button-faq-membership">
                 Pricing · $14.99/wk
               </Link>
               <span aria-hidden="true">·</span>

@@ -1,6 +1,6 @@
 # Spartan Coaching
 
-Expert hospice growth consulting site + Spartan Membership tools (web + iOS). Two offers: human consulting, and membership for tools/resources.
+Expert hospice growth consulting site + Hospice Sales Pro (web + iOS tools product). Two offers: human consulting, and Hospice Sales Pro for tools/resources.
 
 ## Run & Operate
 
@@ -76,13 +76,14 @@ Expert hospice growth consulting site + Spartan Membership tools (web + iOS). Tw
 ## Product
 
 - Public: marketing, method, services, content, contact, compliance
-- Two offers: **Consulting** (human) · **Spartan Membership** (tools & resources, web + iOS)
+- Two offers: **Consulting** (human) · **Hospice Sales Pro** (tools & resources product, web + iOS)
+- Primary lander: `/hospice-sales-pro` (legacy `/membership` and `/field-kit*` redirect here)
 - Logged-in **Portal**: Command Center spine, tools, drills, checklist
 - Companies: multi-seat invites via org admin
 
 ## User preferences
 
-- Dual product language (Consulting + Membership / Portal), not “Field Kit” as brand
+- Dual product: Consulting + Hospice Sales Pro (not “Field Kit”, not generic “Membership” as the product name)
 - Human path (book call) on every gate
 - Additive changes preferred; home condensed not deleted
 

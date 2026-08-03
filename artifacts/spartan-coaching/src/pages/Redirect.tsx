@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
 
-/** Client-side redirect for legacy product URLs → Membership. */
+/** Client-side redirect for legacy product URLs → Hospice Sales Pro. */
 export default function Redirect({ to }: { to: string }) {
   const [, setLocation] = useLocation();
   useEffect(() => {
@@ -14,6 +14,11 @@ export default function Redirect({ to }: { to: string }) {
   );
 }
 
+export function RedirectToHospiceSalesPro() {
+  return <Redirect to="/hospice-sales-pro" />;
+}
+
+/** @deprecated use RedirectToHospiceSalesPro */
 export function RedirectToMembership() {
-  return <Redirect to="/membership" />;
+  return <RedirectToHospiceSalesPro />;
 }

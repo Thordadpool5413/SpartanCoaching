@@ -39,7 +39,7 @@ export function AccessPaths({ className }: { className?: string }) {
           </div>
           <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside leading-relaxed flex-1">
             <li>Create your account</li>
-            <li>Start membership at $14.99/week (cancel anytime)</li>
+            <li>Start Hospice Sales Pro at $14.99/week (cancel anytime)</li>
             <li>Unlock live tools the same day — web + iOS</li>
           </ol>
           <Button asChild className="font-bold w-full sm:w-auto">

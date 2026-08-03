@@ -44,21 +44,21 @@ node scripts/smoke-health.mjs https://spartanhospicecoaching.com
 Hard refresh or private window on https://spartanhospicecoaching.com
 
 ```
-[ ] View source (or curl) on / — meta description mentions Spartan Membership / Consulting, NOT “Private Field Kit”
+[ ] View source (or curl) on / — meta description mentions Hospice Sales Pro / Consulting, NOT “Private Field Kit”
 [ ] Home: dual doors — Consulting + Membership (or “Two clear offers”)
 [ ] Nav: Consulting · Membership · Learn (no top-level “Field Kit”)
-[ ] /membership loads Spartan Membership lander ($14.99/week)
+[ ] /membership loads Hospice Sales Pro lander ($14.99/week)
 [ ] /field-kit redirects to /membership (or briefly “Redirecting…”)
-[ ] /tools kicker says Spartan Membership (or Membership tools)
+[ ] /tools kicker says Hospice Sales Pro (or Membership tools)
 [ ] Footer: Consulting · Membership — not “Private Field Kit”
-[ ] FAQ section titled Spartan Membership (or membership access)
+[ ] FAQ section titled Hospice Sales Pro (or membership access)
 ```
 
 ### Copy markers (search live HTML or built JS)
 
 | Should appear | Should not appear (public UI) |
 |---------------|-------------------------------|
-| `Spartan Membership` | `Private Field Kit` (hero/nav/footer) |
+| `Hospice Sales Pro` | `Private Field Kit` (hero/nav/footer) |
 | `Two clear offers` or dual door CTAs | `Open Field Kit` as primary CTA |
 | `/membership` | Primary CTAs to `/field-kit-membership` only |
 

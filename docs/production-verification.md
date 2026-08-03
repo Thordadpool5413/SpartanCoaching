@@ -16,7 +16,7 @@ Canonical product host: **https://spartanhospicecoaching.com**
 [ ] Spot-check: Home hero thesis + CTAs visible above the fold
 [ ] Spot-check: Appearance → Soft White (light) — body text readable, no white-on-white
 [ ] Spot-check: Membership access paths (Path A / Path B) if that release shipped
-[ ] Spot-check: dual product — Consulting + Spartan Membership (no public “Field Kit” product name)
+[ ] Spot-check: dual product — Consulting + Hospice Sales Pro (no public “Field Kit” product name)
 [ ] Spot-check: /membership lander; /field-kit redirects to membership
 [ ] Spot-check: header brand spacing; no nav collision at 390px and 1280px
 ```

@@ -929,7 +929,7 @@ export async function sendAccessRequestReceived(toEmail: string, toName: string)
       subject: "We received your membership access request — Spartan Coaching",
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
-        <p style="margin:0 0 16px;line-height:1.6;">Thank you for requesting evaluation access to the Spartan Membership. Every request is reviewed personally — this is not an automated checkout.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Thank you for requesting evaluation access to the Hospice Sales Pro. Every request is reviewed personally — this is not an automated checkout.</p>
         <p style="margin:0 0 12px;line-height:1.6;"><strong>What happens next:</strong></p>
         <ol style="margin:0 0 16px;padding-left:20px;line-height:1.7;color:#374151;">
           <li>We review your request (usually within one business day).</li>
@@ -1044,7 +1044,7 @@ export async function sendPasswordResetEmail(
     await sendEmail(client, {
       from: fromEmail,
       to: toEmail,
-      subject: "Reset your Spartan Membership password",
+      subject: "Reset your Hospice Sales Pro password",
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
         <p style="margin:0 0 16px;line-height:1.6;">We received a request to reset your password. Use the button below within one hour.</p>
@@ -1075,7 +1075,7 @@ export async function sendOrgInviteEmail(
       subject: `You're invited to  membership — Spartan Coaching`,
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hello,</p>
-        <p style="margin:0 0 16px;line-height:1.6;"><strong>${inviterName}</strong> has invited you to the Spartan Membership for <strong>${orgName}</strong>.</p>
+        <p style="margin:0 0 16px;line-height:1.6;"><strong>${inviterName}</strong> has invited you to the Hospice Sales Pro for <strong>${orgName}</strong>.</p>
         <p style="margin:0 0 16px;line-height:1.6;">Set your password to join your team's private toolkit for hospice growth execution.</p>
         <div style="text-align:center;margin:32px 0;">
           <a href="${setPasswordUrl}" style="display:inline-block;background:#b91c1c;color:white;padding:14px 32px;border-radius:6px;text-decoration:none;font-weight:bold;font-size:16px;">Accept Invite &amp; Set Password</a>
@@ -1171,7 +1171,7 @@ export async function sendMagicLinkEmail(
     await sendEmail(client, {
       from: fromEmail,
       to: toEmail,
-      subject: "Your Spartan Membership sign-in link",
+      subject: "Your Hospice Sales Pro sign-in link",
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
         <p style="margin:0 0 16px;line-height:1.6;">Use this secure link to sign in to your membership portal. It expires in one hour and can only be used once.</p>
@@ -1202,7 +1202,7 @@ export async function sendAccessRejectedEmail(
       subject: "Update on your membership access request — Spartan Coaching",
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
-        <p style="margin:0 0 16px;line-height:1.6;">Thank you for your interest in Spartan Membership. We are not able to open evaluation access at this time.</p>
+        <p style="margin:0 0 16px;line-height:1.6;">Thank you for your interest in Hospice Sales Pro. We are not able to open evaluation access at this time.</p>
         ${note ? `<p style="margin:0 0 16px;line-height:1.6;background:#f9fafb;padding:12px;border-left:3px solid #b91c1c;border-radius:4px;">${note}</p>` : ""}
         <p style="margin:0 0 16px;line-height:1.6;">That does not mean we cannot help. Many teams start with a strategy conversation on coaching, territory systems, or leadership rhythms — then revisit tools when the fit is clear.</p>
         <div style="text-align:center;margin:28px 0;">
@@ -1233,7 +1233,7 @@ export async function sendMembershipActivatedEmail(
     await sendEmail(client, {
       from: fromEmail,
       to: toEmail,
-      subject: "Your Spartan Membership is active",
+      subject: "Your Hospice Sales Pro is active",
       html: authEmailShell(`
         <p style="margin:0 0 16px;line-height:1.6;">Hi ${toName},</p>
         <p style="margin:0 0 16px;line-height:1.6;">You're in. Membership access for <strong>${orgName}</strong> is <strong>active</strong> — your private operating system for hospice growth work between coaching sessions.</p>

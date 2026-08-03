@@ -69,7 +69,7 @@ export function SubscribeCTA({
     if (!showHint) return null;
     if (canUseFieldKit) return "Your membership is unlocked.";
     if (!isAuthenticated) {
-      return "Create your account, then start membership · $14.99/week · cancel anytime";
+      return "Create your account, then Start Hospice Sales Pro · $14.99/week · cancel anytime";
     }
     if (canSelfServeCheckout) {
       return expired
@@ -98,7 +98,7 @@ export function SubscribeCTA({
         <>
           <Button asChild variant={variant} size={size} className={cn("font-bold", className)} data-testid={testId}>
             <Link href="/register" onClick={() => track("register")}>
-              Create account for membership
+              Create account · Hospice Sales Pro
               <ArrowRight className="ml-2 w-4 h-4" />
             </Link>
           </Button>
@@ -166,7 +166,7 @@ export function SubscribeCTA({
             ) : (
               <>
                 <CreditCard className="mr-2 w-4 h-4" />
-                {expired ? "Resubscribe · $14.99/wk" : "Start membership · $14.99/wk"}
+                {expired ? "Resubscribe · Hospice Sales Pro · $14.99/wk" : "Start Hospice Sales Pro · $14.99/wk"}
               </>
             )}
           </Button>

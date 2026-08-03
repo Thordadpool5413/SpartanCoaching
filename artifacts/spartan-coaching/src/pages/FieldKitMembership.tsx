@@ -38,21 +38,21 @@ export default function FieldKitMembership() {
   const { canUseFieldKit } = useAuth();
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 py-12 sm:py-16" data-testid="page-membership">
+    <div className="w-full max-w-6xl mx-auto px-4 py-12 sm:py-16" data-testid="page-hospice-sales-pro">
       <SEO />
 
-      {/* ── Hero — subscription for tools & resources ── */}
+      {/* ── Hero — Hospice Sales Pro product ── */}
       <div className="text-center max-w-3xl mx-auto mb-10 space-y-4">
-        <p className="text-kicker justify-center">Spartan Membership</p>
+        <p className="text-kicker justify-center">Hospice Sales Pro</p>
         <h1 className="text-h1 font-display font-black text-foreground">
-          Tools and resources for hospice growth.
+          The tools product for hospice growth.
           <br />
-          <span className="text-primary">Web and iPhone · $14.99/week.</span>
+          <span className="text-primary">Command Center · practice · plans · resources.</span>
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed">
-          A paid membership for Command Center, practice tools, plans, calculators, and learn resources —
-          between coaching sessions or on their own. Create an account, then subscribe (cancel anytime).
-          Preview interfaces free; live runs need membership. Teams use contract seats.
+          Hospice Sales Pro is what you open on web and iPhone between coaching sessions — or on its own:
+          Sales Command Center, objections, role-play, playbooks, weekly plans, calculators, and field resources.
+          Preview free. Live tools $14.99/week (cancel anytime). Teams under contract. Consulting is a separate offer.
         </p>
         <div className="flex flex-col items-center gap-3 pt-2" data-testid="membership-hero-cta">
           <SubscribeCTA
@@ -103,7 +103,7 @@ export default function FieldKitMembership() {
           <div className="w-11 h-11 rounded-lg bg-primary/15 text-primary flex items-center justify-center mb-4">
             <User className="w-5 h-5" />
           </div>
-          <h2 className="text-lg font-bold text-foreground mb-1">Spartan Membership</h2>
+          <h2 className="text-lg font-bold text-foreground mb-1">Hospice Sales Pro</h2>
           <p className="mb-3">
             <span className="text-2xl font-black text-primary">$14.99</span>
             <span className="text-sm font-semibold text-muted-foreground"> / week</span>
@@ -116,7 +116,7 @@ export default function FieldKitMembership() {
               "Sales Command Center (daily spine)",
               "Practice: objections, role-play, email, playbooks",
               "Plan & measure: weekly plan, activity, ROI, branch math",
-              "Web portal + iOS app with the same membership",
+              "Web portal + iOS app — same Hospice Sales Pro product",
               "Cancel anytime — access continues through the paid period",
             ].map((f) => (
               <li key={f} className="flex gap-2 text-sm text-foreground">

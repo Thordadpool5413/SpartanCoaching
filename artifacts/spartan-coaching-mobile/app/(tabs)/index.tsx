@@ -299,7 +299,7 @@ export default function HomeScreen() {
 
           <Pressable
             onPress={() => {
-              void Linking.openURL(`${siteUrl}/membership`);
+              void Linking.openURL(`${siteUrl}/hospice-sales-pro`);
             }}
             style={{ marginTop: 10, minHeight: 40, justifyContent: "center" }}
             testID="link-what-is-membership"

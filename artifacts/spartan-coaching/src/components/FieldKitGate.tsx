@@ -31,9 +31,9 @@ export function FieldKitGate({ compact }: Props) {
   const isPlatform = member?.role === "platform_admin" || organization?.type === "platform";
   const canSelfServe = isAuthenticated && isPersonal && !isPlatform;
 
-  let title = "Spartan Membership";
+  let title = "Hospice Sales Pro";
   let body =
-    "Tools and resources for hospice growth — Command Center, practice, plans, and learn on web and iPhone. Preview free — start membership or use team/evaluation access to run tools live.";
+    "Tools and resources for hospice growth — Command Center, practice, plans, and learn on web and iPhone. Preview free — Start Hospice Sales Pro or use team/evaluation access to run tools live.";
 
   if (expired) {
     title = "Membership access has ended";
@@ -198,7 +198,7 @@ export function FieldKitGate({ compact }: Props) {
           )}
           {expired && (
             <Button asChild variant="outline" className="font-bold" data-testid="gate-pricing">
-              <Link href="/membership">View membership options</Link>
+              <Link href="/hospice-sales-pro">View membership options</Link>
             </Button>
           )}
           {isAuthenticated && (

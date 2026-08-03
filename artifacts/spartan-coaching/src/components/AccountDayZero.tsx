@@ -162,7 +162,7 @@ export function AccountDayZero({ firstName, isWelcome, isExpired, isSuspended }:
             ) : (
               <>
                 <CreditCard className="mr-2 w-4 h-4" />
-                {isExpired && !isWelcome ? "Resubscribe · $14.99/wk" : "Subscribe · $14.99/wk"}
+                {isExpired && !isWelcome ? "Resubscribe · Hospice Sales Pro · $14.99/wk" : "Subscribe · $14.99/wk"}
               </>
             )}
           </Button>
@@ -213,7 +213,7 @@ export function AccountDayZero({ firstName, isWelcome, isExpired, isSuspended }:
 
       <p className="text-[11px] text-muted-foreground leading-relaxed">
         Secure Stripe checkout · cancel anytime · access continues through the period you paid for ·{" "}
-        <Link href="/membership" className="text-primary font-semibold hover:underline inline-flex items-center gap-0.5">
+        <Link href="/hospice-sales-pro" className="text-primary font-semibold hover:underline inline-flex items-center gap-0.5">
           Why membership <ArrowRight className="w-3 h-3" />
         </Link>
       </p>

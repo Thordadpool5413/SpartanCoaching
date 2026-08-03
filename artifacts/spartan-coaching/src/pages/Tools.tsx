@@ -172,13 +172,13 @@ export default function Tools() {
       <FieldKitChrome />
       <SlideUp>
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
-          <p className="text-kicker mb-4 justify-center">Spartan Membership</p>
+          <p className="text-kicker mb-4 justify-center">Hospice Sales Pro</p>
           <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-tools-title">
             Tools &amp; resources
           </h1>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
             {showCatalogGate
-              ? "Browse every tool’s real interface. Live generation, saves, and AI runs unlock with Spartan Membership or evaluation access."
+              ? "Browse every tool’s real interface. Live generation, saves, and AI runs unlock with Hospice Sales Pro or evaluation access."
               : FIELD_KIT_WHAT}
           </p>
           {!showCatalogGate && (
@@ -228,7 +228,7 @@ export default function Tools() {
                   </Link>
                 </Button>
                 <Button asChild variant="ghost" className="font-bold">
-                  <Link href="/membership">Pricing</Link>
+                  <Link href="/hospice-sales-pro">Pricing</Link>
                 </Button>
               </div>
             </div>

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Stripe bootstrap script for Spartan Coaching.
- * Creates (or reuses) the Spartan Membership Individual product, weekly price,
+ * Creates (or reuses) the Hospice Sales Pro Individual product, weekly price,
  * billing portal configuration, and webhook endpoint.
  *
  * Usage:
@@ -79,15 +79,15 @@ console.log("Step 1: Product...");
 let product;
 const productList = await stripe.products.list({ active: true, limit: 100 });
 product = productList.data.find(
-  (p) => p.name === "Spartan Membership Individual" || p.metadata?.spartan_plan === "individual_weekly",
+  (p) => p.name === "Hospice Sales Pro Individual" || p.metadata?.spartan_plan === "individual_weekly",
 );
 
 if (product) {
   console.log(`  ✓ Reusing product: ${product.id} (${product.name})`);
 } else {
   product = await stripe.products.create({
-    name: "Spartan Membership Individual",
-    description: "Spartan Spartan Membership Individual membership — weekly, cancel anytime",
+    name: "Hospice Sales Pro Individual",
+    description: "Spartan Hospice Sales Pro Individual membership — weekly, cancel anytime",
     metadata: {
       spartan_plan: "individual_weekly",
       app: "spartan_coaching",

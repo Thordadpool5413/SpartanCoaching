@@ -255,7 +255,7 @@ export function Header() {
                   SPARTAN COACHING
                 </span>
                 <span className="hidden md:block text-[9px] font-bold uppercase tracking-[0.16em] text-muted-foreground mt-1.5 whitespace-nowrap">
-                  Consulting · Membership tools
+                  Consulting · Hospice Sales Pro
                 </span>
               </div>
             </div>
@@ -367,7 +367,7 @@ export function Header() {
                 ) : (
                   <>
                     <MobileNavLink href="/login" label="Client Login" location={location} onClose={() => setMobileMenuOpen(false)} />
-                    <MobileNavLink href="/register" label="Create account · Membership" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavLink href="/register" label="Create account · Hospice Sales Pro" location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavLink href="/request-access" label="Team / evaluation access" location={location} onClose={() => setMobileMenuOpen(false)} />
                     {navSections.map((section) => (
                       <div key={section.title}>
@@ -402,7 +402,7 @@ export function Header() {
                 <>
                   <Button size="lg" variant="outline" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-register">
                     <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
-                      Create account · Membership
+                      Create account · Hospice Sales Pro
                     </Link>
                   </Button>
                   <Button size="lg" variant="ghost" asChild className="w-full font-semibold touch-manipulation" data-testid="button-mobile-request">
@@ -488,7 +488,7 @@ export function Footer() {
   ];
 
   const publicLinks = [
-    { href: "/membership", label: "Spartan Membership" },
+    { href: "/hospice-sales-pro", label: "Hospice Sales Pro" },
     { href: "/tools", label: "Preview tools" },
     { href: "/services", label: "Consulting" },
     { href: "/register", label: "Create account" },
@@ -515,18 +515,18 @@ export function Footer() {
               <div>
                 <p className="font-display text-lg font-black text-foreground tracking-tight uppercase">Spartan Coaching</p>
                 <p className="text-xs text-muted-foreground mt-1 uppercase tracking-widest">
-                  {canUseFieldKit ? "Membership · Portal" : "Consulting · Membership"}
+                  {canUseFieldKit ? "Hospice Sales Pro · Portal" : "Consulting · Hospice Sales Pro"}
                 </p>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {canUseFieldKit
-                  ? "Your membership portal — Command Center, tools, resources, and coaching when you need a human."
-                  : "Hospice growth consulting and a tools membership for web and iPhone — two clear offers, one firm."}
+                  ? "Your Hospice Sales Pro portal — Command Center, tools, resources, and coaching when you need a human."
+                  : "Hospice growth consulting and Hospice Sales Pro (tools & resources) on web and iPhone — two clear offers, one firm."}
               </p>
               <p className="text-xs text-muted-foreground/90 leading-relaxed border-l-2 border-primary/50 pl-3">
                 {canUseFieldKit
                   ? "No PHI in tools · Cancel anytime from Account · Ethics-first field work"
-                  : "Consulting for teams · Membership $14.99/wk · Preview free · Cancel anytime · No PHI in consumer tools"}
+                  : "Consulting for teams · Hospice Sales Pro $14.99/wk · Preview free · Cancel anytime · No PHI in tools"}
               </p>
               <div className="flex flex-col gap-2">
                 <a href="mailto:nick@spartanhospicecoaching.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-email">

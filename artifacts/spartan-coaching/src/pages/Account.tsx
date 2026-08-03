@@ -354,7 +354,7 @@ export default function Account() {
         >
           <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
             <CreditCard className="w-4 h-4 text-primary" />
-            {canCheckout ? "Start membership" : "Membership & billing"}
+            {canCheckout ? "Start Hospice Sales Pro" : "Membership & billing"}
           </div>
           {isPersonal && !isPlatform && (
             <div>
@@ -479,7 +479,7 @@ export default function Account() {
                 <Link href="/contact?service=Membership">Continue as a client</Link>
               </Button>
               <Button asChild variant="outline" className="font-bold">
-                <Link href="/membership">Membership options</Link>
+                <Link href="/hospice-sales-pro">Membership options</Link>
               </Button>
             </>
           )}
@@ -489,7 +489,7 @@ export default function Account() {
             </Button>
           )}
           <Button asChild variant="outline" className="font-bold">
-            <Link href="/membership">View plans</Link>
+            <Link href="/hospice-sales-pro">View plans</Link>
           </Button>
           <Button asChild variant="ghost" className="font-bold">
             <Link href="/contact">Book a strategy call</Link>
@@ -505,7 +505,7 @@ export default function Account() {
             Terms
           </Link>
           {" · "}
-          <Link href="/membership" className="text-primary hover:underline">
+          <Link href="/hospice-sales-pro" className="text-primary hover:underline">
             Membership
           </Link>
           .

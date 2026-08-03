@@ -44,7 +44,7 @@ export interface SiteNavSection {
 
 /**
  * Marketing header nav — dual product restraint:
- * Consulting (human) · Membership (tools & resources subscription) · Learn
+ * Consulting (human) · Hospice Sales Pro (tools product) · Learn
  * Full tool list remains searchable via additionalPages / allSearchablePages.
  */
 export const navSections: SiteNavSection[] = [
@@ -59,10 +59,11 @@ export const navSections: SiteNavSection[] = [
     ],
   },
   {
-    title: "Membership",
+    title: "Hospice Sales Pro",
     items: [
-      { path: "/membership", label: "Spartan Membership", description: "Tools & resources · $14.99/wk · web + iOS", icon: DollarSign },
-      { path: "/tools", label: "Preview tools", description: "See the interfaces — live use with membership", icon: Wrench },
+      { path: "/hospice-sales-pro", label: "Hospice Sales Pro", description: "Command Center, tools & resources · $14.99/wk · web + iOS", icon: Wrench },
+      { path: "/tools", label: "All tools", description: "Command Center, practice, plans, calculators — preview free", icon: Calculator },
+      { path: "/resources", label: "Field resources", description: "Templates, scripts, checklists", icon: FolderOpen },
       { path: "/register", label: "Create account", description: "Then subscribe to unlock live tools", icon: Lock },
       { path: "/request-access", label: "Team / evaluation", description: "Company seats or arranged evaluation", icon: Users },
     ],
@@ -84,11 +85,12 @@ export const additionalPages: SiteNavItem[] = [
   { path: "/", label: "Home", description: "Main landing page", icon: Home },
   { path: "/about", label: "About", description: "About Spartan Coaching and Nick Lynch", icon: Info },
   { path: "/contact", label: "Contact", description: "Book a strategy call", icon: Phone },
-  { path: "/portal", label: "Portal", description: "Member home — next action & tools", icon: Home },
-  { path: "/membership", label: "Spartan Membership", description: "Tools & resources · $14.99/wk", icon: DollarSign },
-  { path: "/field-kit", label: "Membership (legacy)", description: "Redirects to Membership", icon: Flame },
-  { path: "/account", label: "Account & billing", description: "Subscribe, cancel, manage membership", icon: DollarSign },
-  { path: "/login", label: "Client Login", description: "Sign in to your membership / portal", icon: Lock },
+  { path: "/portal", label: "Portal", description: "Hospice Sales Pro home — next action & tools", icon: Home },
+  { path: "/hospice-sales-pro", label: "Hospice Sales Pro", description: "Tools & resources product · $14.99/wk", icon: Wrench },
+  { path: "/membership", label: "Hospice Sales Pro (legacy URL)", description: "Redirects to Hospice Sales Pro", icon: DollarSign },
+  { path: "/field-kit", label: "Legacy product URL", description: "Redirects to Hospice Sales Pro", icon: Flame },
+  { path: "/account", label: "Account & billing", description: "Subscribe, cancel, manage Hospice Sales Pro", icon: DollarSign },
+  { path: "/login", label: "Client Login", description: "Sign in to Hospice Sales Pro / portal", icon: Lock },
   { path: "/tools/sales-workflow", label: "Sales Command Center", description: "Daily account workflow spine", icon: Wrench },
   { path: "/tools/ai", label: "Advanced library", description: "Specialized runs and clinical vault", icon: BookOpen },
   { path: "/tools/playbooks", label: "Sales Playbooks", description: "Generate custom sales playbooks", icon: Lightbulb },

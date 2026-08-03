@@ -31,7 +31,7 @@ export default function Welcome() {
             <span className="text-primary">Strategy.</span>
           </h1>
           <p className="text-base sm:text-lg text-muted-foreground leading-relaxed max-w-md mx-auto">
-            Practical consulting and Spartan Membership tools for hospice growth professionals who execute in the field — not just in meetings.
+            Practical consulting and Hospice Sales Pro tools for hospice growth professionals who execute in the field — not just in meetings.
           </p>
         </div>
 

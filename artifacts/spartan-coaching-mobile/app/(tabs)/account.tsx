@@ -153,7 +153,7 @@ export default function AccountScreen() {
         <Text style={[styles.kicker, { color: colors.primary }]}>Client access</Text>
         <Text style={[styles.title, { color: colors.foreground }]}>Your Portal</Text>
         <Text style={[styles.body, { color: colors.mutedForeground }]}>
-          Sign in to use the Spartan Membership on the go — objections, playbooks, role-play, and more.
+          Sign in to use the Hospice Sales Pro on the go — objections, playbooks, role-play, and more.
           Individuals: create an account on the web, then subscribe for $14.99/week (cancel anytime). Preview tools free first.
         </Text>
 
@@ -188,7 +188,7 @@ export default function AccountScreen() {
           <Text style={[styles.primaryBtnText, { color: colors.primaryForeground }]}>Client login</Text>
         </Pressable>
         <Pressable
-          onPress={() => Linking.openURL(`${getWebSiteUrl()}/membership`)}
+          onPress={() => Linking.openURL(`${getWebSiteUrl()}/hospice-sales-pro`)}
           style={{ marginTop: 16 }}
         >
           <Text style={{ color: colors.primary, textAlign: "center", fontWeight: "700" }}>
@@ -273,7 +273,7 @@ export default function AccountScreen() {
     ? hasPaidSub
       ? cancelAtPeriodEnd
         ? "Subscription ends at the current period. You keep access until then. You can reverse cancel in Manage billing."
-        : "Weekly Spartan Membership is active. Cancel anytime — access continues through the paid period."
+        : "Weekly Hospice Sales Pro is active. Cancel anytime — access continues through the paid period."
       : isComp
         ? "Complimentary access. Contact Nick if you need changes."
         : "Individual plan: $14.99 per week. Subscribe securely (Stripe). Cancel anytime from Manage billing."
@@ -323,7 +323,7 @@ export default function AccountScreen() {
   };
 
   const openWebMembership = () => {
-    void Linking.openURL(`${getWebSiteUrl()}/membership`);
+    void Linking.openURL(`${getWebSiteUrl()}/hospice-sales-pro`);
   };
 
   const saveProfile = async () => {
@@ -440,7 +440,7 @@ export default function AccountScreen() {
               <ActivityIndicator color={colors.primaryForeground} />
             ) : (
               <Text style={[styles.primaryBtnText, { color: colors.primaryForeground }]}>
-                {org?.status === "expired" ? "Resubscribe · $14.99/wk" : "Subscribe · $14.99/wk"}
+                {org?.status === "expired" ? "Resubscribe · Hospice Sales Pro · $14.99/wk" : "Subscribe · $14.99/wk"}
               </Text>
             )}
           </Pressable>

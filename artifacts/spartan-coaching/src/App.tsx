@@ -220,8 +220,9 @@ function Router() {
           <Route path="/portal/learn" component={PortalLearn} />
           <Route path="/account" component={Account} />
           <Route path="/magic-login" component={MagicLogin} />
-          <Route path="/membership" component={FieldKitMembership} />
-          {/* Legacy product URLs → Membership lander */}
+          <Route path="/hospice-sales-pro" component={FieldKitMembership} />
+          {/* Legacy URLs → Hospice Sales Pro lander */}
+          <Route path="/membership" component={RedirectToMembership} />
           <Route path="/field-kit" component={RedirectToMembership} />
           <Route path="/field-kit-membership" component={RedirectToMembership} />
           <Route path="/pricing/field-kit" component={RedirectToMembership} />

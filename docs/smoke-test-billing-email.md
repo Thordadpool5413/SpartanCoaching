@@ -89,7 +89,7 @@ should see **two** emails:
 | # | To | Subject pattern |
 |---|-----|----------------|
 | 1 | Admin inbox | `[Billing] New active subscription — <Org Name>` |
-| 2 | Member email | `Your Spartan Membership subscription is active` / membership active subject |
+| 2 | Member email | `Your Hospice Sales Pro subscription is active` / membership active subject |
 
 > **If emails do not arrive within 5 minutes:**
 > 1. Check API server logs for `billing_subscription_active` event and any

@@ -213,7 +213,7 @@ export default function RequestAccess() {
       <SEO />
 
       <div className="text-center mb-10 sm:mb-12 space-y-3 max-w-2xl mx-auto" data-testid="page-request-access">
-        <p className="text-xs font-bold tracking-widest text-primary uppercase">Spartan Membership</p>
+        <p className="text-xs font-bold tracking-widest text-primary uppercase">Hospice Sales Pro</p>
         <h1 className="text-h1 font-display font-black text-foreground">Request team or evaluation access</h1>
         <p className="text-muted-foreground leading-relaxed">
           For provider seats, arranged evaluation windows, and team onboarding. Individuals who want self-serve should{" "}
@@ -535,7 +535,7 @@ export default function RequestAccess() {
               Privacy
             </Link>
             {" · "}
-            <Link href="/membership" className="hover:text-primary">
+            <Link href="/hospice-sales-pro" className="hover:text-primary">
               Membership
             </Link>
           </p>

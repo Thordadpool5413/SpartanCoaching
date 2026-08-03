@@ -175,7 +175,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 4. TWO DOORS — Consulting vs Membership ── */}
+      {/* ── 4. TWO DOORS — Consulting vs Hospice Sales Pro ── */}
       <section className="relative page-persuasion py-16 sm:py-24" data-testid="section-pillars">
         <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <FadeIn>
@@ -183,7 +183,9 @@ export default function Home() {
               <p className="text-kicker justify-center mb-4">How Spartan helps</p>
               <h2 className="text-h2 text-foreground font-display">Two clear offers. One firm.</h2>
               <p className="text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed">
-                Hire Spartan Coaching for human consulting — or start a membership for tools and resources on web and iPhone.
+                Hire Spartan for human consulting — or run{" "}
+                <strong className="text-foreground">Hospice Sales Pro</strong> for Command Center, tools, and
+                resources on web and iPhone.
               </p>
             </div>
           </FadeIn>
@@ -194,6 +196,7 @@ export default function Home() {
                 kicker: "Offer A · Consulting",
                 title: "Human coaching & programs",
                 desc: "Strategy calls, individual coaching, ridealongs, team workshops, and leadership systems for hospice growth teams.",
+                features: ["1:1 & leadership coaching", "Team workshops", "Territory systems"],
                 href: "/services",
                 cta: "Book a strategy call",
                 primary: true,
@@ -201,13 +204,19 @@ export default function Home() {
               },
               {
                 icon: Wrench,
-                kicker: "Offer B · Membership",
-                title: "Tools & resources subscription",
-                desc: "Command Center, practice tools, plans, calculators, and learn resources. Preview free. Live use $14.99/week — cancel anytime.",
-                href: "/membership",
-                cta: "Start membership",
+                kicker: "Offer B · Hospice Sales Pro",
+                title: "The tools product — web + iPhone",
+                desc: "What you actually get: daily Command Center, practice tools, plans, calculators, and field resources.",
+                features: [
+                  "Sales Command Center",
+                  "Objections · role-play · email · playbooks",
+                  "Weekly plan · activity · ROI · branch math",
+                  "Resources & learn · $14.99/wk · cancel anytime",
+                ],
+                href: "/hospice-sales-pro",
+                cta: "Explore Hospice Sales Pro",
                 primary: false,
-                testId: "card-door-membership",
+                testId: "card-door-hospice-sales-pro",
               },
             ].map((p) => {
               const Icon = p.icon;
@@ -224,7 +233,15 @@ export default function Home() {
                     <h3 className="text-xl sm:text-2xl font-display font-bold text-foreground mb-2 tracking-tight">
                       {p.title}
                     </h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed flex-1 mb-6">{p.desc}</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed mb-4">{p.desc}</p>
+                    <ul className="space-y-2 mb-6 flex-1">
+                      {p.features.map((f) => (
+                        <li key={f} className="flex gap-2 text-sm text-foreground">
+                          <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                          <span>{f}</span>
+                        </li>
+                      ))}
+                    </ul>
                     <Button asChild className="font-bold w-full sm:w-auto" variant={p.primary ? "default" : "outline"}>
                       <Link href={p.href}>
                         {p.cta}
@@ -291,8 +308,8 @@ export default function Home() {
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>
-              <Button size="lg" variant="outline" asChild className="font-bold border-2" data-testid="button-closing-field-kit">
-                <Link href="/membership">Start membership</Link>
+              <Button size="lg" variant="outline" asChild className="font-bold border-2" data-testid="button-closing-hospice-sales-pro">
+                <Link href="/hospice-sales-pro">Explore Hospice Sales Pro</Link>
               </Button>
             </div>
             <p className="mt-6 text-sm text-muted-foreground">
@@ -301,8 +318,8 @@ export default function Home() {
                 View consulting services
               </Link>
               {" · "}
-              <Link href="/membership" className="font-semibold text-primary hover:underline" data-testid="button-closing-method">
-                Membership tools &amp; resources
+              <Link href="/tools" className="font-semibold text-primary hover:underline" data-testid="button-closing-tools">
+                Preview tools
               </Link>
             </p>
           </div>
