@@ -1,0 +1,18 @@
+artifacts/spartan-coaching/src/components/FieldKitChrome.tsx
+  h_0446834f150a71 117-118,124-126,129,131-136,140-143,166,175,177-178,180
+artifacts/spartan-coaching/src/components/ToolHowTo.tsx
+  h_0446834f150a71 11-12,28
+artifacts/spartan-coaching/src/pages/Portal.tsx
+  h_0446834f150a71 42-43,322,792,796,798,807,810,812,814-815,821,823-824,832,834-850,852-900,903-907,965-977
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "46b18458cf2bd452625e5be78eff577de775f23a",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
