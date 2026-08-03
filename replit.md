@@ -96,6 +96,7 @@ Expert hospice growth consulting site + Spartan Membership tools (web + iOS). Tw
 ## Gotchas
 
 - After pulling auth schema: run `pnpm --filter @workspace/db run push` on Replit before testing login
+- **Git push ≠ live site.** After `origin/main` updates, open Replit → pull `main` → **Publish / Redeploy**. See `docs/replit-publish.md`.
 - Mobile app (Expo Go): scan QR from the **Replit URL bar**, not the Expo LAN IP
 - Mobile session token stored in AsyncStorage; send `Authorization: Bearer <token>`
 - Auth unit tests: `pnpm --filter @workspace/api-server run test`

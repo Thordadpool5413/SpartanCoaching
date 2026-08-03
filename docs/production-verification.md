@@ -16,7 +16,17 @@ Canonical product host: **https://spartanhospicecoaching.com**
 [ ] Spot-check: Home hero thesis + CTAs visible above the fold
 [ ] Spot-check: Appearance → Soft White (light) — body text readable, no white-on-white
 [ ] Spot-check: Membership access paths (Path A / Path B) if that release shipped
+[ ] Spot-check: dual product — Consulting + Spartan Membership (no public “Field Kit” product name)
+[ ] Spot-check: /membership lander; /field-kit redirects to membership
 [ ] Spot-check: header brand spacing; no nav collision at 390px and 1280px
+```
+
+### Dual-product release markers (after R1–R3 rebrand)
+
+```
+[ ] index.html / view-source: title or description mentions Membership / Consulting (not “Private Field Kit”)
+[ ] Home dual doors or “Two clear offers”
+[ ] Nav: Membership (not Field Kit as a product label)
 ```
 
 ### Quick live marker check
@@ -24,9 +34,11 @@ Canonical product host: **https://spartanhospicecoaching.com**
 ```bash
 # From a machine with network access:
 git rev-parse origin/main
-curl -sL "https://spartanhospicecoaching.com" | head -c 2000
-# Search built assets for a known string from the release when HTML is a shell SPA.
+curl -sL "https://spartanhospicecoaching.com" | head -c 2500
+# After Replit Publish, meta should not lead with "Private Field Kit".
 ```
+
+**Replit how-to for this release:** `docs/replit-publish.md`
 
 ## iOS / mobile
 

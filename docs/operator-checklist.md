@@ -5,6 +5,9 @@ Use this after deploys and when clearing the security release gate.
 **Design / UI release live check:** also complete `docs/production-verification.md`
 (SHA match, hard refresh on spartanhospicecoaching.com, light-mode spot-check).
 
+**Replit Publish after dual-product rebrand:** `docs/replit-publish.md`
+(pull `main` → Publish → verify Membership markers on live host).
+
 **Public claim / PHI wording:** see `docs/content-compliance.md` before publishing
 hard metrics or named testimonials.
 
