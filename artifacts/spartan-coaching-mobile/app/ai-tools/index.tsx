@@ -140,7 +140,7 @@ export default function AiToolsIndex() {
       <Pressable onPress={() => router.back()} style={styles.back}>
         <Feather name="arrow-left" size={18} color={colors.primary} />
         <Text style={{ color: colors.primary, fontFamily: "Inter_600SemiBold" }}>
-          Membership
+          Hospice Sales Pro
         </Text>
       </Pressable>
       <Text style={[styles.title, { color: colors.foreground }, font("bold")]}>

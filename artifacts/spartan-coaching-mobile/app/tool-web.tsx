@@ -18,7 +18,7 @@ import { getToolById } from "@workspace/field-kit-catalog";
 import { useEffect, useState } from "react";
 
 /**
- * Authenticated WebView bridge for Membership tools not yet native.
+ * Authenticated WebView bridge for Hospice Sales Pro tools not yet native.
  * Session via Bearer inject only — never in URL.
  */
 export default function ToolWebScreen() {
@@ -76,7 +76,7 @@ export default function ToolWebScreen() {
   `
     : undefined;
 
-  const title = tool?.title || "Membership";
+  const title = tool?.title || "Hospice Sales Pro";
 
   if (!base) {
     return (
@@ -87,7 +87,7 @@ export default function ToolWebScreen() {
           API host not configured
         </Text>
         <Text style={{ color: colors.mutedForeground, textAlign: "center", marginTop: 8, lineHeight: 20 }}>
-          Set EXPO_PUBLIC_DOMAIN or EXPO_PUBLIC_API_URL for this build so Membership tools can load.
+          Set EXPO_PUBLIC_DOMAIN or EXPO_PUBLIC_API_URL for this build so Hospice Sales Pro tools can load.
         </Text>
       </View>
     );
@@ -150,7 +150,7 @@ export default function ToolWebScreen() {
         <View style={{ flex: 1 }}>
           <Text style={{ color: colors.foreground, fontWeight: "800", fontSize: 13 }}>{title}</Text>
           <Text style={{ color: colors.mutedForeground, fontSize: 11, marginTop: 2 }}>
-            Membership web tool · session secured on this device
+            Hospice Sales Pro · session secured on this device
           </Text>
         </View>
         {uri ? (

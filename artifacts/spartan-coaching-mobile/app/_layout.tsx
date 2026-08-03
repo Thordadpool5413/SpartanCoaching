@@ -48,7 +48,7 @@ function RootLayoutNav() {
         name="sales-workflow"
         options={{ title: "Sales Command Center", headerBackTitle: "Back" }}
       />
-      <Stack.Screen name="tool-web" options={{ title: "Membership", headerBackTitle: "Back" }} />
+      <Stack.Screen name="tool-web" options={{ title: "Hospice Sales Pro", headerBackTitle: "Back" }} />
       <Stack.Screen name="ai-tools" options={{ headerShown: false }} />
       <Stack.Screen name="+not-found" />
     </Stack>

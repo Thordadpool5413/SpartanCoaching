@@ -34,7 +34,7 @@ import {
 import { SectionKicker } from "@/components/ui/SectionKicker";
 import { SpartanCard } from "@/components/ui/SpartanCard";
 import { SpartanButton } from "@/components/ui/SpartanButton";
-import { FIELD_KIT_WHAT } from "@workspace/field-kit-catalog";
+
 import { font } from "@/lib/typography";
 import { getWebSiteUrl } from "@/lib/api";
 
@@ -151,7 +151,7 @@ export default function HomeScreen() {
   const handleAsk = async (prompt: string) => {
     if (!prompt.trim()) return;
     if (!canUseFieldKit) {
-      setError("Membership access required. Sign in from the Account tab.");
+      setError("Hospice Sales Pro access required. Sign in from the Account tab.");
       return;
     }
     setLoading(true);
@@ -169,7 +169,7 @@ export default function HomeScreen() {
     } catch (e: any) {
       const msg = String(e?.message || "");
       if (msg.startsWith("401") || msg.startsWith("403")) {
-        setError("Membership access required. Sign in with an approved client account.");
+        setError("Hospice Sales Pro access required. Sign in with an approved client account.");
       } else {
         setError("Something went wrong. Please try again.");
       }
@@ -335,7 +335,7 @@ export default function HomeScreen() {
         colors={[colors.heroBackground, colors.background, colors.card]}
         style={[styles.fieldHero, { paddingTop: topPad + 16 }]}
       >
-        <SectionKicker>Your home base</SectionKicker>
+        <SectionKicker>Portal · Hospice Sales Pro</SectionKicker>
         <Text
           style={{
             color: colors.heroForeground,
@@ -361,8 +361,8 @@ export default function HomeScreen() {
           }}
         >
           {isFirstSession
-            ? "Same membership tools as the web: role → Command Center → debrief."
-            : FIELD_KIT_WHAT}
+            ? "Same as the web: role → Command Center → one real tool → debrief."
+            : "Today starts in Command Center. Practice and plan tools support the next visit."}
         </Text>
         {user?.organization?.status === "trial" && trialLabel ? (
           <View
@@ -402,13 +402,13 @@ export default function HomeScreen() {
             }}
           >
             <Text style={{ color: colors.success || colors.primary, fontWeight: "700", fontSize: 13 }}>
-              Active client access
+              Hospice Sales Pro · active
             </Text>
           </View>
         )}
       </LinearGradient>
 
-      {/* Mission next — one primary action above the fold */}
+      {/* Mission next — one primary action above the fold (matches web portal) */}
       <View style={[styles.section, { paddingTop: 16 }]} testID="section-mission-next">
         <SpartanCard emphasized>
           <SectionKicker>Next action</SectionKicker>
@@ -478,10 +478,10 @@ export default function HomeScreen() {
         </SpartanCard>
       </View>
 
-      {/* Daily spine — compact when mission already points here */}
+      {/* Daily spine — always one tap to Command */}
       <View style={[styles.section, { paddingTop: 8 }]} testID="section-command-center-hub">
         <SpartanCard>
-          <SectionKicker>Daily operating system</SectionKicker>
+          <SectionKicker>Daily spine</SectionKicker>
           <Text
             style={{
               color: colors.foreground,
@@ -504,6 +504,15 @@ export default function HomeScreen() {
           >
             Plan → prepare → practice → capture → next step. Same spine as the website.
           </Text>
+          <SpartanButton
+            title="Open Command Center"
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              router.push("/sales-workflow" as any);
+            }}
+            style={{ marginTop: 12 }}
+            testID="button-command-center-hub"
+          />
         </SpartanCard>
       </View>
 

@@ -157,7 +157,7 @@ export default function ToolsScreen() {
   const handleObjection = async () => {
     if (objection.trim().length < 5) return;
     if (!requireAccess()) {
-      setObjectionError("Membership access required. Sign in from Home.");
+      setObjectionError("Hospice Sales Pro access required. Sign in from Home.");
       return;
     }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -196,7 +196,7 @@ export default function ToolsScreen() {
   const handlePlaybook = async () => {
     if (scenario.trim().length < 10) return;
     if (!requireAccess()) {
-      setPlaybookError("Membership access required. Sign in from Home.");
+      setPlaybookError("Hospice Sales Pro access required. Sign in from Home.");
       return;
     }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -233,7 +233,7 @@ export default function ToolsScreen() {
   const handleEmail = async () => {
     if (emailContext.trim().length < 10) return;
     if (!requireAccess()) {
-      setEmailError("Membership access required. Sign in from Home.");
+      setEmailError("Hospice Sales Pro access required. Sign in from Home.");
       return;
     }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -272,7 +272,7 @@ export default function ToolsScreen() {
   const handleResearch = async () => {
     if (researchQuery.trim().length < 5) return;
     if (!requireAccess()) {
-      setResearchError("Membership access required. Sign in from Home.");
+      setResearchError("Hospice Sales Pro access required. Sign in from Home.");
       return;
     }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -300,7 +300,7 @@ export default function ToolsScreen() {
   const handleWeeklyPlan = async () => {
     if (weeklyAccounts.trim().length < 10 || !weeklyGoal.trim()) return;
     if (!requireAccess()) {
-      setWeeklyError("Membership access required. Sign in from Home.");
+      setWeeklyError("Hospice Sales Pro access required. Sign in from Home.");
       return;
     }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -328,7 +328,7 @@ export default function ToolsScreen() {
   const handleColdCall = async () => {
     if (!coldProspectType.trim() || coldSituation.trim().length < 10) return;
     if (!requireAccess()) {
-      setColdError("Membership access required. Sign in from Home.");
+      setColdError("Hospice Sales Pro access required. Sign in from Home.");
       return;
     }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -357,12 +357,12 @@ export default function ToolsScreen() {
       {/* Header — always pinned above content */}
       <View style={[styles.header, { paddingTop: topPad + 12, backgroundColor: colors.background, borderBottomColor: colors.border }]}>
         <Text style={[styles.headerTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
-          Membership tools
+          Hospice Sales Pro
         </Text>
         <Text style={[styles.headerSubtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
           {canUseFieldKit
-            ? "Command Center first · satellite tools below"
-            : "Sign in for live tools · coaching stays human"}
+            ? "Command Center first · satellites below"
+            : "Preview free · live tools with subscription"}
         </Text>
       </View>
 
@@ -464,7 +464,7 @@ export default function ToolsScreen() {
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: bottomPad + 24, paddingTop: 12 }}
           showsVerticalScrollIndicator={false}
         >
-          <SectionKicker>Membership · Prioritized</SectionKicker>
+          <SectionKicker>Hospice Sales Pro · map</SectionKicker>
           <Text
             style={{
               color: colors.foreground,
@@ -478,7 +478,7 @@ export default function ToolsScreen() {
             Same hierarchy as the web
           </Text>
           <Text style={{ color: colors.mutedForeground, fontSize: 13, lineHeight: 19, marginBottom: 16 }}>
-            Command Center first, then daily field tools, then leader math. Advanced library is secondary.
+            Command Center first, then practice tools, then leader math. Advanced library is secondary.
           </Text>
 
           {(() => {

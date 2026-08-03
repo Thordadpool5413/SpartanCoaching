@@ -106,7 +106,7 @@ export default function LearnScreen() {
   const handleSearch = async () => {
     if (searchQuery.trim().length < 5) return;
     if (!canUseFieldKit) {
-      setSearchError("Membership access required for AI research. Sign in from Home.");
+      setSearchError("Hospice Sales Pro access required for AI research. Sign in from Home.");
       return;
     }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -122,7 +122,7 @@ export default function LearnScreen() {
     } catch (e: any) {
       const msg = String(e?.message || "");
       if (msg.startsWith("401") || msg.startsWith("403")) {
-        setSearchError("Membership access required. Sign in from Home.");
+        setSearchError("Hospice Sales Pro access required. Sign in from Home.");
       } else {
         setSearchError("Could not complete the search. Please try again.");
       }

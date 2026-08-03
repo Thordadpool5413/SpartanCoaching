@@ -151,10 +151,10 @@ export default function AccountScreen() {
         }}
       >
         <Text style={[styles.kicker, { color: colors.primary }]}>Client access</Text>
-        <Text style={[styles.title, { color: colors.foreground }]}>Your Portal</Text>
+        <Text style={[styles.title, { color: colors.foreground }]}>Hospice Sales Pro</Text>
         <Text style={[styles.body, { color: colors.mutedForeground }]}>
-          Sign in to use the Hospice Sales Pro on the go — objections, playbooks, role-play, and more.
-          Individuals: create an account on the web, then subscribe for $14.99/week (cancel anytime). Preview tools free first.
+          Sign in for Command Center, practice tools, plans, and resources on the go.
+          Create an account on the web, subscribe for $14.99/week (cancel anytime). Preview free first.
         </Text>
 
         <View style={[styles.card, { borderColor: colors.primary, backgroundColor: colors.cardElevated ?? colors.card, borderWidth: 1.5 }]}>
@@ -192,7 +192,7 @@ export default function AccountScreen() {
           style={{ marginTop: 16 }}
         >
           <Text style={{ color: colors.primary, textAlign: "center", fontWeight: "700" }}>
-            View membership pricing →
+            View Hospice Sales Pro →
           </Text>
         </Pressable>
         <Pressable
@@ -279,7 +279,7 @@ export default function AccountScreen() {
         : "Individual plan: $14.99 per week. Subscribe securely (Stripe). Cancel anytime from Manage billing."
     : isCompany
       ? "Team seats are billed under your provider contract (weekly per seat)."
-      : "Membership status for this account.";
+      : "Hospice Sales Pro status for this account.";
 
   const onSubscribe = async () => {
     setCheckoutPending(true);
@@ -370,7 +370,7 @@ export default function AccountScreen() {
         </Text>
         <Text style={[styles.cardValue, { color: colors.foreground }]}>{org?.name || "—"}</Text>
         <Text style={[styles.cardLabel, { color: colors.mutedForeground, marginTop: 14 }]}>
-          Membership
+          Hospice Sales Pro
         </Text>
         <Text
           style={[styles.cardValue, { color: canUseFieldKit ? colors.success : colors.primary }]}
@@ -463,7 +463,7 @@ export default function AccountScreen() {
         <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 8 }}>
           <Feather name="credit-card" size={18} color={colors.primary} />
           <Text style={{ color: colors.foreground, fontWeight: "800", fontSize: 16 }}>
-            {canCheckout && !canUseFieldKit ? "Subscribe to unlock" : "Membership & billing"}
+            {canCheckout && !canUseFieldKit ? "Subscribe to unlock" : "Billing & access"}
           </Text>
         </View>
 
@@ -477,7 +477,7 @@ export default function AccountScreen() {
               </Text>
             </Text>
             <Text style={{ color: colors.mutedForeground, fontSize: 12, marginTop: 2 }}>
-              Individual Membership · auto-renew · cancel anytime
+              Hospice Sales Pro · auto-renew · cancel anytime
             </Text>
           </View>
         )}
@@ -583,7 +583,7 @@ export default function AccountScreen() {
           testID="card-membership-locked"
         >
           <Text style={{ color: colors.primary, fontSize: 10, fontWeight: "800", letterSpacing: 1.4, textTransform: "uppercase", marginBottom: 6 }}>
-            {org?.status === "expired" ? "Evaluation ended" : "Membership locked"}
+            {org?.status === "expired" ? "Evaluation ended" : "Hospice Sales Pro locked"}
           </Text>
           <Text style={{ color: colors.foreground, fontWeight: "900", fontSize: 15, lineHeight: 21, marginBottom: 10 }}>
             {org?.status === "expired"
