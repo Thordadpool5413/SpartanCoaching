@@ -8,8 +8,8 @@ import { cn } from "@/lib/utils";
 const STORAGE_KEY = "spartan.toolHowTo.open";
 
 /**
- * When / how / why block for individual Membership tools.
- * Collapsible after first visit so power users keep an instrument layout.
+ * When / how / why for Hospice Sales Pro tools.
+ * Defaults collapsed for power users after first visit.
  */
 export function ToolHowTo({
   path,
@@ -25,7 +25,7 @@ export function ToolHowTo({
   defaultOpen?: boolean;
 }) {
   const tool = toolProp ?? (path ? getToolByPath(path) : undefined);
-  const [open, setOpen] = useState(defaultOpen ?? true);
+  const [open, setOpen] = useState(defaultOpen ?? false);
 
   useEffect(() => {
     if (defaultOpen != null) return;

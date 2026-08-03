@@ -39,13 +39,8 @@ import { ToolDisclaimer } from "@/components/ToolDisclaimer";
 import { FieldKitChrome } from "@/components/FieldKitChrome";
 import { MembershipActivation } from "@/components/MembershipActivation";
 import { useBillingActions } from "@/hooks/useBillingActions";
-import {
-  FIELD_KIT_WHAT,
-  FIELD_KIT_WHY,
-  FIELD_KIT_HOW,
-  FIELD_KIT_TOOLS,
-  FIELD_KIT_CATEGORIES,
-} from "@/lib/fieldKitCatalog";
+import { ProductMap } from "@/components/elite/ProductMap";
+import { FIELD_KIT_WHAT, FIELD_KIT_WHY, FIELD_KIT_HOW } from "@/lib/fieldKitCatalog";
 import { cn } from "@/lib/utils";
 
 type ChecklistId = "objection" | "weekly_plan" | "roleplay" | "debrief" | "director_scorecard";
@@ -324,7 +319,7 @@ export default function Portal() {
       {/* Welcome — short, then one mission action */}
       <div className="mb-8 space-y-3">
         <p className="text-kicker">
-          {isPaidMember ? "Portal · Membership" : "Portal · first session"}
+          {isPaidMember ? "Portal · Hospice Sales Pro" : "Portal · first session"}
         </p>
         <h1 className="text-h1 font-display font-black text-foreground tracking-tight">
           {isFirstSession
@@ -794,13 +789,13 @@ export default function Portal() {
         </section>
       )}
 
-      {/* Tool map — spine first, then satellites */}
+      {/* Hospice Sales Pro map — spine + satellites (compact) */}
       <section className="mb-10" data-testid="section-tool-map">
         <div className="flex flex-wrap items-end justify-between gap-2 mb-4">
           <div>
-            <h2 className="text-lg font-bold text-foreground">Membership tools</h2>
+            <h2 className="text-lg font-bold text-foreground">Hospice Sales Pro</h2>
             <p className="text-sm text-muted-foreground">
-              One daily spine. Practice, plan, and measure tools as satellites — not equal tabs.
+              Today starts in Command Center. Everything else is optional support.
             </p>
           </div>
           <Button asChild variant="outline" size="sm" className="font-bold">
@@ -809,76 +804,24 @@ export default function Portal() {
             </Link>
           </Button>
         </div>
-        <Card className="border border-primary/35 bg-primary/5 p-5 mb-4 flex flex-col sm:flex-row sm:items-center gap-4 justify-between">
-          <div className="flex gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-primary text-primary-foreground flex items-center justify-center shrink-0">
-              <Crosshair className="w-5 h-5" />
-            </div>
-            <div>
-              <p className="text-[10px] font-bold tracking-widest text-primary uppercase">Daily spine</p>
-              <p className="font-bold text-foreground">Sales Command Center</p>
-              <p className="text-xs text-muted-foreground leading-relaxed max-w-xl">
-                Plan the visit → practice if needed → capture outcome → lock the next step.
-              </p>
-            </div>
-          </div>
-          <Button asChild className="font-bold shrink-0" data-testid="portal-open-command-map">
-            <Link href="/tools/sales-workflow">
-              Open Command Center <ArrowRight className="ml-1 w-4 h-4" />
-            </Link>
-          </Button>
-        </Card>
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
-          {FIELD_KIT_CATEGORIES.filter((c) => c !== "Outreach" && c !== "Learn").map((cat) => {
-            const items = FIELD_KIT_TOOLS.filter(
-              (t) => t.category === cat && t.id !== "sales-workflow",
-            ).slice(0, 3);
-            if (!items.length) return null;
-            return (
-              <Card key={cat} className="border border-border bg-card p-4 space-y-2">
-                <p className="text-[10px] font-bold tracking-widest text-primary uppercase">{cat}</p>
-                <ul className="space-y-2">
-                  {items.map((t) => (
-                    <li key={t.id}>
-                      <Link
-                        href={t.path}
-                        className="text-sm font-semibold text-foreground hover:text-primary block leading-snug"
-                      >
-                        {t.title}
-                      </Link>
-                      <p className="text-[11px] text-muted-foreground leading-snug line-clamp-2">
-                        {t.whenToUse}
-                      </p>
-                    </li>
-                  ))}
-                </ul>
-              </Card>
-            );
-          })}
-        </div>
+        <ProductMap />
       </section>
 
-      {/* Resources + Learn */}
+      {/* Quick links — quiet */}
       <section className="mb-10 grid sm:grid-cols-2 gap-3" data-testid="section-portal-kit-links">
-        <Card className="border border-border bg-card p-5 space-y-2">
+        <Card className="border border-border/80 bg-card p-4 space-y-1.5 shadow-none">
           <p className="text-[10px] font-bold tracking-widest text-primary uppercase">Resources</p>
-          <h2 className="font-bold text-foreground">Templates &amp; field downloads</h2>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Scripts, checklists, planners, and guides — part of membership, no lead form while unlocked.
-          </p>
-          <Button asChild size="sm" variant="outline" className="font-bold w-fit">
+          <p className="text-sm font-semibold text-foreground">Templates &amp; field downloads</p>
+          <Button asChild size="sm" variant="ghost" className="font-bold w-fit px-0 h-8">
             <Link href="/resources">
               Open resources <ArrowRight className="ml-1 w-3.5 h-3.5" />
             </Link>
           </Button>
         </Card>
-        <Card className="border border-border bg-card p-5 space-y-2">
+        <Card className="border border-border/80 bg-card p-4 space-y-1.5 shadow-none">
           <p className="text-[10px] font-bold tracking-widest text-primary uppercase">Learn</p>
-          <h2 className="font-bold text-foreground">Drills, articles, knowledge</h2>
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            Build judgment between sessions — drills and quiz when you want reps without a live account visit.
-          </p>
-          <Button asChild size="sm" variant="outline" className="font-bold w-fit">
+          <p className="text-sm font-semibold text-foreground">Drills, articles, knowledge</p>
+          <Button asChild size="sm" variant="ghost" className="font-bold w-fit px-0 h-8">
             <Link href="/portal/learn">
               Open learn <ArrowRight className="ml-1 w-3.5 h-3.5" />
             </Link>
@@ -886,118 +829,82 @@ export default function Portal() {
         </Card>
       </section>
 
-      {/* Ethics strip — secondary to kit map */}
-      <section className="mb-10" data-testid="section-portal-learn">
-        <h2 className="text-sm font-bold text-muted-foreground mb-3 uppercase tracking-wider">
-          Standards (always on)
-        </h2>
-        <div className="grid sm:grid-cols-3 gap-3">
-          {[
-            {
-              href: "/method",
-              title: "Spartan Method",
-              desc: "Discipline, empathy, strategy — the system behind every tool.",
-            },
-            {
-              href: "/manifesto",
-              title: "Ethos",
-              desc: "Why patient access and ethical messaging are non-negotiable.",
-            },
-            {
-              href: "/compliance",
-              title: "No PHI",
-              desc: "Planning and messaging only. Never put patient identifiers in tools.",
-            },
-          ].map((item) => (
-            <Card
-              key={item.href}
-              className="border border-border bg-card/60 p-4 hover:border-primary/30 transition-colors"
-            >
-              <Link href={item.href} className="block space-y-1">
-                <p className="font-bold text-sm text-foreground">{item.title}</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">{item.desc}</p>
-                <span className="text-xs font-bold text-primary inline-flex items-center gap-1 pt-1">
-                  Open <ArrowRight className="w-3 h-3" />
-                </span>
-              </Link>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* Full checklist */}
+      {/* Checklist — collapsed for returning members; open for first session */}
       <section className="mb-10" data-testid="section-checklist">
-        <div className="flex flex-wrap items-end justify-between gap-3 mb-4">
-          <div>
-            <h2 className="text-lg font-bold text-foreground">First-session checklist</h2>
-            <p className="text-sm text-muted-foreground">
-              {doneCount} of {totalCount} complete — tools can mark items done automatically; you can also toggle manually.
-            </p>
+        <details className="rounded-xl border border-border bg-card/80 p-4 sm:p-5" open={isFirstSession && !allDone}>
+          <summary className="cursor-pointer list-none flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <h2 className="text-base font-bold text-foreground">Session checklist</h2>
+              <p className="text-sm text-muted-foreground">
+                {doneCount} of {totalCount} complete · {progressPct}%
+              </p>
+            </div>
+            <span className="text-xs font-bold text-primary uppercase tracking-wide">
+              {isFirstSession ? "Recommended" : "Expand"}
+            </span>
+          </summary>
+          <div className="h-2 rounded-full bg-muted mt-4 mb-4 overflow-hidden">
+            <div
+              className="h-full bg-primary transition-all duration-300"
+              style={{ width: `${progressPct}%` }}
+            />
           </div>
-          <div className="text-sm font-bold text-primary">{progressPct}%</div>
-        </div>
-        <div className="h-2 rounded-full bg-white/10 mb-5 overflow-hidden">
-          <div
-            className="h-full bg-primary transition-all duration-300"
-            style={{ width: `${progressPct}%` }}
-          />
-        </div>
-
-        <div className="grid sm:grid-cols-2 gap-3">
-          {visibleChecklist.map((item) => {
-            const Icon = item.icon;
-            const done = isDone(checklist, item.id);
-            const isNext = nextItem?.id === item.id;
-            return (
-              <Card
-                key={item.id}
-                className={cn(
-                  "border p-4 bg-card",
-                  done
-                    ? "border-green-500/30 bg-green-500/5"
-                    : isNext
-                      ? "border-primary/40 bg-primary/5"
-                      : "border-border",
-                )}
-                data-testid={`checklist-${item.id}`}
-              >
-                <div className="flex gap-3">
-                  <button
-                    type="button"
-                    className="shrink-0 mt-0.5 text-primary disabled:opacity-50"
-                    disabled={toggling === item.id}
-                    onClick={() => toggleItem(item.id, !done)}
-                    aria-label={done ? `Mark ${item.title} incomplete` : `Mark ${item.title} complete`}
-                    data-testid={`toggle-${item.id}`}
-                  >
-                    {done ? (
-                      <CheckCircle2 className="w-6 h-6 text-green-500" />
-                    ) : (
-                      <Circle className="w-6 h-6 text-muted-foreground" />
-                    )}
-                  </button>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start gap-2 mb-1">
-                      <Icon className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                      <h3 className={cn("font-bold text-sm", done && "line-through opacity-80")}>
-                        {item.title}
-                        {isNext && !done && (
-                          <span className="ml-2 text-[10px] font-bold uppercase tracking-wide text-primary not-italic no-underline">
-                            Next
-                          </span>
-                        )}
-                      </h3>
+          <div className="grid sm:grid-cols-2 gap-3">
+            {visibleChecklist.map((item) => {
+              const Icon = item.icon;
+              const done = isDone(checklist, item.id);
+              const isNext = nextItem?.id === item.id;
+              return (
+                <Card
+                  key={item.id}
+                  className={cn(
+                    "border p-4 bg-card shadow-none",
+                    done
+                      ? "border-green-500/30 bg-green-500/5"
+                      : isNext
+                        ? "border-primary/40 bg-primary/5"
+                        : "border-border",
+                  )}
+                  data-testid={`checklist-${item.id}`}
+                >
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      className="shrink-0 mt-0.5 text-primary disabled:opacity-50"
+                      disabled={toggling === item.id}
+                      onClick={() => toggleItem(item.id, !done)}
+                      aria-label={done ? `Mark ${item.title} incomplete` : `Mark ${item.title} complete`}
+                      data-testid={`toggle-${item.id}`}
+                    >
+                      {done ? (
+                        <CheckCircle2 className="w-6 h-6 text-green-500" />
+                      ) : (
+                        <Circle className="w-6 h-6 text-muted-foreground" />
+                      )}
+                    </button>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start gap-2 mb-1">
+                        <Icon className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <h3 className={cn("font-bold text-sm", done && "line-through opacity-80")}>
+                          {item.title}
+                          {isNext && !done && (
+                            <span className="ml-2 text-[10px] font-bold uppercase tracking-wide text-primary not-italic no-underline">
+                              Next
+                            </span>
+                          )}
+                        </h3>
+                      </div>
+                      <p className="text-xs text-muted-foreground leading-relaxed mb-3">{item.desc}</p>
+                      <Button asChild size="sm" variant="outline" className="font-bold h-8 text-xs">
+                        <Link href={item.href}>{item.id === "debrief" ? "Book call" : "Open tool"}</Link>
+                      </Button>
                     </div>
-                    <p className="text-xs text-muted-foreground leading-relaxed mb-3">{item.desc}</p>
-                    <Button asChild size="sm" variant="outline" className="font-bold h-8 text-xs">
-                      <Link href={item.href}>{item.id === "debrief" ? "Book call" : "Open tool"}</Link>
-                    </Button>
                   </div>
-                </div>
-              </Card>
-            );
-          })}
-        </div>
+                </Card>
+              );
+            })}
+          </div>
+        </details>
       </section>
 
       {/* Optional field context — collapsed by default */}
@@ -1055,35 +962,19 @@ export default function Portal() {
         </Card>
       </section>
 
-      <section className="grid sm:grid-cols-3 gap-4 mb-12">
-        <Card className="border border-border bg-card p-5 space-y-3">
-          <Shield className="w-5 h-5 text-primary" />
-          <h3 className="font-bold">All membership tools</h3>
-          <p className="text-sm text-muted-foreground">Command Center, practice, plans, calculators, and more.</p>
-          <Button asChild variant="outline" size="sm" className="font-bold">
-            <Link href="/tools">
-              Open tools <ArrowRight className="ml-1 w-4 h-4" />
-            </Link>
-          </Button>
-        </Card>
-        <Card className="border border-border bg-card p-5 space-y-3">
-          <BookOpen className="w-5 h-5 text-primary" />
-          <h3 className="font-bold">Learn</h3>
-          <p className="text-sm text-muted-foreground">Articles, method, and resources that back the work.</p>
-          <Button asChild variant="outline" size="sm" className="font-bold">
-            <Link href="/portal/learn">
-              Browse <ArrowRight className="ml-1 w-4 h-4" />
-            </Link>
-          </Button>
-        </Card>
-        <Card className="border border-border bg-card p-5 space-y-3">
-          <Phone className="w-5 h-5 text-primary" />
-          <h3 className="font-bold">Coaching</h3>
-          <p className="text-sm text-muted-foreground">Human path stays open — strategy calls and engagements.</p>
-          <Button asChild size="sm" className="font-bold">
-            <Link href="/contact">Book a call</Link>
-          </Button>
-        </Card>
+      <section className="flex flex-wrap gap-3 mb-10 text-sm">
+        <Button asChild variant="outline" size="sm" className="font-bold">
+          <Link href="/tools">All tools</Link>
+        </Button>
+        <Button asChild variant="outline" size="sm" className="font-bold">
+          <Link href="/account">Account &amp; billing</Link>
+        </Button>
+        <Button asChild variant="ghost" size="sm" className="font-semibold">
+          <Link href="/contact?service=Hospice+Sales+Pro+Debrief">Book a debrief</Link>
+        </Button>
+        <Button asChild variant="ghost" size="sm" className="font-semibold">
+          <Link href="/compliance">No PHI · compliance</Link>
+        </Button>
       </section>
 
       <ToolDisclaimer className="mt-8 rounded-md border border-border/60 bg-muted/40 py-3 px-4 text-center" />

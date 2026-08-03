@@ -114,29 +114,32 @@ export function FieldKitChrome({
   return (
     <div
       className={cn(
-        "mb-8 rounded-2xl border border-border/80 bg-card/70 backdrop-blur-md p-4 sm:p-5 space-y-3.5 shadow-elite surface-noise",
-        isPreview && "border-primary/30 bg-primary/[0.04]",
+        "mb-6 rounded-xl border border-border/70 bg-card/60 backdrop-blur-sm p-3 sm:p-4 space-y-3",
+        isPreview && "border-primary/25 bg-primary/[0.03]",
         className,
       )}
       data-testid="membership-chrome"
       data-preview={isPreview ? "true" : "false"}
     >
-      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
-        <div className="min-w-0 space-y-1.5">
-          <p className="text-kicker">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+        <div className="min-w-0 space-y-1">
+          <p className="text-[10px] font-bold tracking-widest uppercase text-primary">
             {isPreview
               ? "Hospice Sales Pro · preview"
-              : "Hospice Sales Pro · tools & resources"}
+              : "Hospice Sales Pro"}
           </p>
-          <p className="text-sm text-foreground/95 leading-relaxed max-w-2xl">
-            {isPreview
-              ? "See every tool’s real layout. Live generation and saves unlock with membership."
-              : FIELD_KIT_WHAT}
-          </p>
-          {nextHint && !isPreview && (
-            <p className="text-xs text-muted-foreground pt-0.5">
+          {isPreview ? (
+            <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
+              Preview real tool layouts. Live runs unlock with a Hospice Sales Pro subscription.
+            </p>
+          ) : nextHint ? (
+            <p className="text-sm text-muted-foreground">
               <span className="font-semibold text-foreground">Next: </span>
               {nextHint}
+            </p>
+          ) : (
+            <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed">
+              {FIELD_KIT_WHAT}
             </p>
           )}
         </div>
@@ -160,7 +163,7 @@ export function FieldKitChrome({
 
       <nav
         className="flex flex-wrap gap-1.5 pt-2 border-t border-border/50"
-        aria-label="Membership sections"
+        aria-label="Hospice Sales Pro sections"
       >
         {links.map(({ href, label, icon: Icon, match }) => {
           const active = match(location);
@@ -169,12 +172,12 @@ export function FieldKitChrome({
               key={`${label}-${href}`}
               href={href}
               className={cn(
-                "inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-all duration-200",
+                "inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg transition-colors duration-200",
                 active
-                  ? "bg-primary text-primary-foreground shadow-elite-red"
-                  : "text-muted-foreground hover:text-foreground hover:bg-muted/70 border border-transparent hover:border-border/60",
+                  ? "bg-primary text-primary-foreground"
+                  : "text-muted-foreground hover:text-foreground hover:bg-muted/70",
               )}
-              data-testid={`membership-chrome-${label.toLowerCase()}`}
+              data-testid={`membership-chrome-${label.toLowerCase().replace(/\s+/g, "-")}`}
               aria-current={active ? "page" : undefined}
             >
               <Icon className="w-3.5 h-3.5" />
