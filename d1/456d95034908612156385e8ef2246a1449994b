@@ -1,0 +1,16 @@
+pnpm-lock.yaml
+  h_0446834f150a71 73-77,3691-3693,3746-3751,4036-4038,11888-11889,11940-11948,12238-12239,15108,15112
+pnpm-workspace.yaml
+  h_0446834f150a71 50-56
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "d1456d95034908612156385e8ef2246a1449994b",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
