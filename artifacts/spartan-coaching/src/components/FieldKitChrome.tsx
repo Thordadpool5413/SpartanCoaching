@@ -117,7 +117,7 @@ export function FieldKitChrome({
         isPreview && "border-primary/30 bg-primary/[0.04]",
         className,
       )}
-      data-testid="field-kit-chrome"
+      data-testid="membership-chrome"
       data-preview={isPreview ? "true" : "false"}
     >
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3">
@@ -173,7 +173,7 @@ export function FieldKitChrome({
                   ? "bg-primary text-primary-foreground shadow-elite-red"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/70 border border-transparent hover:border-border/60",
               )}
-              data-testid={`field-kit-chrome-${label.toLowerCase()}`}
+              data-testid={`membership-chrome-${label.toLowerCase()}`}
               aria-current={active ? "page" : undefined}
             >
               <Icon className="w-3.5 h-3.5" />

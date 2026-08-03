@@ -7,9 +7,9 @@ import { cn } from "@/lib/utils";
 import { ArrowRight, CreditCard, Loader2, ExternalLink } from "lucide-react";
 
 export type SubscribeSurface =
-  | "field_kit_hero"
-  | "field_kit_why"
-  | "field_kit_pricing"
+  | "membership_hero"
+  | "membership_why"
+  | "membership_pricing"
   | "preview_lock"
   | "account"
   | "other";

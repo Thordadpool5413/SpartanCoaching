@@ -38,7 +38,7 @@ export default function FieldKitMembership() {
   const { canUseFieldKit } = useAuth();
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 py-12 sm:py-16" data-testid="page-field-kit-membership">
+    <div className="w-full max-w-6xl mx-auto px-4 py-12 sm:py-16" data-testid="page-membership">
       <SEO />
 
       {/* ── Hero — subscription for tools & resources ── */}
@@ -56,7 +56,7 @@ export default function FieldKitMembership() {
         </p>
         <div className="flex flex-col items-center gap-3 pt-2" data-testid="membership-hero-cta">
           <SubscribeCTA
-            surface="field_kit_pricing"
+            surface="membership_pricing"
             showPreview
             showHint
             testId="membership-hero-subscribe"
@@ -126,7 +126,7 @@ export default function FieldKitMembership() {
             ))}
           </ul>
           <div data-testid="button-tier-individual-subscribe">
-            <SubscribeCTA surface="field_kit_pricing" showHint={false} testId="button-tier-individual" />
+            <SubscribeCTA surface="membership_pricing" showHint={false} testId="button-tier-individual" />
           </div>
         </Card>
 
@@ -278,7 +278,7 @@ export default function FieldKitMembership() {
           through the period you already paid for.
         </p>
         <div className="mt-6 flex justify-center" data-testid="membership-roi-subscribe">
-          <SubscribeCTA surface="field_kit_pricing" showPreview showHint={false} testId="membership-why-cta" />
+          <SubscribeCTA surface="membership_pricing" showPreview showHint={false} testId="membership-why-cta" />
         </div>
       </div>
 
@@ -304,7 +304,7 @@ export default function FieldKitMembership() {
           </li>
         </ol>
         <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 flex-wrap items-center">
-          <SubscribeCTA surface="field_kit_pricing" showHint={false} testId="membership-subscribe" />
+          <SubscribeCTA surface="membership_pricing" showHint={false} testId="membership-subscribe" />
           {canUseFieldKit && (
             <Button asChild className="font-bold" variant="outline">
               <Link href="/account">Manage membership</Link>

@@ -80,7 +80,7 @@ export function FieldKitGate({ compact }: Props) {
   return (
     <div
       className={compact ? "py-8" : "min-h-[60vh] flex items-center justify-center px-4 py-16"}
-      data-testid="field-kit-gate"
+      data-testid="membership-gate"
     >
       <Card className="w-full max-w-2xl border border-border bg-card p-8 sm:p-10 space-y-8">
         <div className="space-y-4 text-center">

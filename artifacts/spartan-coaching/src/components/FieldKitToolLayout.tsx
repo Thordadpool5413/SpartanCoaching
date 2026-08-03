@@ -51,7 +51,7 @@ export function FieldKitToolLayout({
   return (
     <div
       className={cn("w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16", className)}
-      data-testid="field-kit-tool-layout"
+      data-testid="membership-tool-layout"
     >
       {showChrome && <FieldKitChrome />}
       <Breadcrumbs items={crumbs} />

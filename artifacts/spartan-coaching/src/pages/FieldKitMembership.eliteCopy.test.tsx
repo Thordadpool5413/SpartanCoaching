@@ -153,17 +153,17 @@ async function renderMembership(authState: object) {
 describe("FieldKitMembership page container", () => {
   it("renders the page wrapper for unauthenticated users", async () => {
     await renderMembership(UNAUTHED);
-    expect(screen.getByTestId("page-field-kit-membership")).toBeTruthy();
+    expect(screen.getByTestId("page-membership")).toBeTruthy();
   });
 
   it("renders the page wrapper when can-subscribe", async () => {
     await renderMembership(CAN_SUBSCRIBE);
-    expect(screen.getByTestId("page-field-kit-membership")).toBeTruthy();
+    expect(screen.getByTestId("page-membership")).toBeTruthy();
   });
 
   it("renders the page wrapper when already subscribed", async () => {
     await renderMembership(ALREADY_SUBSCRIBED);
-    expect(screen.getByTestId("page-field-kit-membership")).toBeTruthy();
+    expect(screen.getByTestId("page-membership")).toBeTruthy();
   });
 });
 

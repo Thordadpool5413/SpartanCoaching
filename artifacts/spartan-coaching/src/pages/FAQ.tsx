@@ -43,7 +43,7 @@ const faqCategories = [
     title: "Spartan Membership",
     questions: [
       {
-        id: "what-is-field-kit",
+        id: "what-is-membership",
         q: "What is Spartan Membership?",
         a: "Spartan Membership is the subscription for tools and resources on web and iPhone: Sales Command Center, objections, playbooks, role-play, calculators, weekly plans, and more. Preview interfaces free. Live generation and saves unlock with membership ($14.99/week individual) or team/evaluation access.",
       },

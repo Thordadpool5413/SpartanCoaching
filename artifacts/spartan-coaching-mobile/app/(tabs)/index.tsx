@@ -302,7 +302,7 @@ export default function HomeScreen() {
               void Linking.openURL(`${siteUrl}/membership`);
             }}
             style={{ marginTop: 10, minHeight: 40, justifyContent: "center" }}
-            testID="link-what-is-field-kit"
+            testID="link-what-is-membership"
           >
             <Text style={[{ color: colors.heroMuted, textAlign: "center", fontSize: 14 }, font("regular")]}>
               What is Membership? →

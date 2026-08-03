@@ -514,7 +514,7 @@ export default function Account() {
 
       {/* ── Your membership — active subscriber confirmation card ── */}
       {canUseFieldKit && hasPaidSub && (
-        <Card className="border border-border bg-card p-6 space-y-4" data-testid="card-your-field-kit">
+        <Card className="border border-border bg-card p-6 space-y-4" data-testid="card-your-membership">
           <div>
             <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">Your membership</p>
             <h2 className="text-lg font-bold text-foreground">13 private tools — all unlocked</h2>
@@ -540,7 +540,7 @@ export default function Account() {
                         key={tool.id}
                         href={tool.path}
                         className="flex items-start gap-2 p-2.5 rounded-md border border-border hover:border-primary/40 hover:bg-primary/5 transition-colors"
-                        data-testid={`field-kit-tool-${tool.id}`}
+                        data-testid={`membership-tool-${tool.id}`}
                       >
                         <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                         <div>

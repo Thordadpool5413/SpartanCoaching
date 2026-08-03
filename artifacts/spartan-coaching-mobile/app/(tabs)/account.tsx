@@ -580,7 +580,7 @@ export default function AccountScreen() {
             styles.card,
             { borderColor: colors.border, backgroundColor: colors.card, marginTop: 12 },
           ]}
-          testID="card-field-kit-locked"
+          testID="card-membership-locked"
         >
           <Text style={{ color: colors.primary, fontSize: 10, fontWeight: "800", letterSpacing: 1.4, textTransform: "uppercase", marginBottom: 6 }}>
             {org?.status === "expired" ? "Evaluation ended" : "Membership locked"}
@@ -627,7 +627,7 @@ export default function AccountScreen() {
             styles.card,
             { borderColor: colors.border, backgroundColor: colors.card, marginTop: 12 },
           ]}
-          testID="card-your-field-kit"
+          testID="card-your-membership"
         >
           <Text style={{ color: colors.primary, fontSize: 10, fontWeight: "800", letterSpacing: 1.4, textTransform: "uppercase", marginBottom: 6 }}>
             Your Portal

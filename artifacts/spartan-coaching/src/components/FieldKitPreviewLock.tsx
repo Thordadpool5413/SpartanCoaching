@@ -23,8 +23,8 @@ function isAllowedPreviewTarget(target: EventTarget | null): boolean {
   if (!(target instanceof Element)) return false;
   // Banner, unlock dialog, Membership chrome nav, pure links (breadcrumbs, etc.)
   if (target.closest("[data-preview-interactive]")) return true;
-  if (target.closest('[data-testid="field-kit-chrome"]')) return true;
-  if (target.closest('[data-testid="field-kit-preview-nudge"]')) return true;
+  if (target.closest('[data-testid="membership-chrome"]')) return true;
+  if (target.closest('[data-testid="membership-preview-nudge"]')) return true;
   const anchor = target.closest("a[href]");
   if (anchor) {
     const href = anchor.getAttribute("href") || "";
@@ -84,10 +84,10 @@ export function FieldKitPreviewLock({ children }: Props) {
   }, []);
 
   return (
-    <div className="flex flex-col min-h-[50vh]" data-testid="field-kit-preview-lock">
+    <div className="flex flex-col min-h-[50vh]" data-testid="membership-preview-lock">
       <div
         className="sticky top-0 z-40 border-b border-primary/25 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/90 shadow-sm"
-        data-testid="field-kit-preview-banner"
+        data-testid="membership-preview-banner"
         data-preview-interactive
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-2.5 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 justify-between">
@@ -164,7 +164,7 @@ export function FieldKitPreviewLock({ children }: Props) {
 
       <div
         className="relative flex-1"
-        data-testid="field-kit-preview-content"
+        data-testid="membership-preview-content"
         onClickCapture={blockAndNudge}
         onSubmitCapture={blockAndNudge}
         onChangeCapture={blockAndNudge}
@@ -189,7 +189,7 @@ export function FieldKitPreviewLock({ children }: Props) {
           role="dialog"
           aria-modal="true"
           aria-labelledby="preview-unlock-title"
-          data-testid="field-kit-preview-nudge"
+          data-testid="membership-preview-nudge"
           data-preview-interactive
           onClick={() => setNudgeOpen(false)}
         >

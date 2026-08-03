@@ -49,7 +49,7 @@ describe("SubscribeCTA — state matrix", () => {
       member: null,
       fieldKit: null,
     });
-    render(<SubscribeCTA surface="field_kit_why" showPreview testId="cta" />);
+    render(<SubscribeCTA surface="membership_why" showPreview testId="cta" />);
     expect(screen.getByText(/Create account for membership/i)).toBeTruthy();
     expect(screen.queryByText(/free trial/i)).toBeNull();
     expect(screen.getByText(/Preview tools/i)).toBeTruthy();
@@ -90,7 +90,7 @@ describe("SubscribeCTA — state matrix", () => {
       member: { role: "member" },
       fieldKit: { allowed: true },
     });
-    render(<SubscribeCTA surface="field_kit_hero" testId="cta" />);
+    render(<SubscribeCTA surface="membership_hero" testId="cta" />);
     expect(screen.getByText(/Open portal/i)).toBeTruthy();
     expect(screen.queryByText(/Subscribe · \$14\.99/i)).toBeNull();
   });
