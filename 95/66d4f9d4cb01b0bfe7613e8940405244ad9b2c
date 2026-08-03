@@ -1,0 +1,42 @@
+artifacts/spartan-coaching-mobile/app/(tabs)/account.tsx
+  h_0446834f150a71 583,630
+artifacts/spartan-coaching-mobile/app/(tabs)/index.tsx
+  h_0446834f150a71 305
+artifacts/spartan-coaching-mobile/store/capture-screenshots.sh
+  h_0446834f150a71 159
+artifacts/spartan-coaching/public/sitemap.xml
+  h_0446834f150a71 3-24
+artifacts/spartan-coaching/src/components/FieldKitChrome.tsx
+  h_0446834f150a71 120,176
+artifacts/spartan-coaching/src/components/FieldKitGate.tsx
+  h_0446834f150a71 83
+artifacts/spartan-coaching/src/components/FieldKitPreviewLock.tsx
+  h_0446834f150a71 26-27,87,90,167,192
+artifacts/spartan-coaching/src/components/FieldKitToolLayout.tsx
+  h_0446834f150a71 54
+artifacts/spartan-coaching/src/components/SubscribeCTA.test.tsx
+  h_0446834f150a71 52,93
+artifacts/spartan-coaching/src/components/SubscribeCTA.tsx
+  h_0446834f150a71 10-12
+artifacts/spartan-coaching/src/lib/seo-config.ts
+  h_0446834f150a71 425
+artifacts/spartan-coaching/src/pages/Account.tsx
+  h_0446834f150a71 517,543
+artifacts/spartan-coaching/src/pages/FAQ.tsx
+  h_0446834f150a71 46
+artifacts/spartan-coaching/src/pages/FieldKitMembership.eliteCopy.test.tsx
+  h_0446834f150a71 156,161,166
+artifacts/spartan-coaching/src/pages/FieldKitMembership.tsx
+  h_0446834f150a71 41,59,129,281,307
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "9566d4f9d4cb01b0bfe7613e8940405244ad9b2c",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
