@@ -1,0 +1,54 @@
+artifacts/api-server/src/knowledge/spartanCorpus.ts
+  h_0446834f150a71 21,37
+artifacts/api-server/src/resend.ts
+  h_0446834f150a71 908,929,932,940,975,1008,1011,1014,1018,1047,1075,1078,1108,1111,1114,1138,1141,1149-1150,1174,1177,1179,1202,1205,1236,1239,1248,1335,1338,1374-1375,1380-1381,1411,1414,1416,1610,1613,1616
+artifacts/spartan-coaching-mobile/app/(tabs)/account.tsx
+  h_0446834f150a71 154,156,191,276,326,373,480,586,633,659
+artifacts/spartan-coaching-mobile/app/(tabs)/command.tsx
+  h_0446834f150a71 5
+artifacts/spartan-coaching-mobile/app/(tabs)/index.tsx
+  h_0446834f150a71 154,172,302,308,353
+artifacts/spartan-coaching-mobile/app/(tabs)/learn.tsx
+  h_0446834f150a71 109,125
+artifacts/spartan-coaching-mobile/app/(tabs)/tools.tsx
+  h_0446834f150a71 160,199,236,275,303,331,360,385,431,467,654
+artifacts/spartan-coaching-mobile/app/_layout.tsx
+  h_0446834f150a71 51
+artifacts/spartan-coaching-mobile/app/activity-calculator.tsx
+  h_0446834f150a71 55
+artifacts/spartan-coaching-mobile/app/ai-tools/index.tsx
+  h_0446834f150a71 143,151,235
+artifacts/spartan-coaching-mobile/app/login.tsx
+  h_0446834f150a71 39,57
+artifacts/spartan-coaching-mobile/app/sales-workflow.tsx
+  h_0446834f150a71 196,213
+artifacts/spartan-coaching-mobile/app/tool-web.tsx
+  h_0446834f150a71 21,79,90,153
+artifacts/spartan-coaching-mobile/components/RolePlayTool.tsx
+  h_0446834f150a71 197
+artifacts/spartan-coaching-mobile/components/ui/ToolScreen.tsx
+  h_0446834f150a71 34
+artifacts/spartan-coaching-mobile/lib/clinicalVaultTheme.ts
+  h_0446834f150a71 23
+artifacts/spartan-coaching-mobile/store/README.md
+  h_0446834f150a71 1,80,121,129,138,167-168,172,197,224,339,343
+artifacts/spartan-coaching-mobile/store/description.txt
+  h_0446834f150a71 1,3,5,9-10,19,23,29
+artifacts/spartan-coaching-mobile/store/keywords.txt
+  h_0446834f150a71 1
+docs/smoke-test-billing-email.md
+  h_0446834f150a71 92,114
+replit.md
+  h_0446834f150a71 3,52,62,69-70,79-80,85
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "40605a54a4cdc55785c0d6b17831324edae14d2c",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
