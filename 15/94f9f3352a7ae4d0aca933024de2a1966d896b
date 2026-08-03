@@ -1,0 +1,130 @@
+artifacts/api-server/src/app.ts
+  h_0446834f150a71 68,77
+artifacts/api-server/src/auth/evaluateAccess.ts
+  h_0446834f150a71 1
+artifacts/api-server/src/auth/middleware.ts
+  h_0446834f150a71 93,101,108
+artifacts/api-server/src/auth/opsJobs.ts
+  h_0446834f150a71 294
+artifacts/api-server/src/billing/billingRoutes.ts
+  h_0446834f150a71 194
+artifacts/api-server/src/billing/corporateBilling.ts
+  h_0446834f150a71 145
+artifacts/api-server/src/billing/entitlementMap.test.ts
+  h_0446834f150a71 5
+artifacts/api-server/src/billing/entitlementMap.ts
+  h_0446834f150a71 2,14
+artifacts/api-server/src/clinical/access.ts
+  h_0446834f150a71 37,39
+artifacts/api-server/src/routes/authRoutes.ts
+  h_0446834f150a71 318,327,370,1955,1969-1970,2044,2051
+artifacts/api-server/src/routes/routes.ts
+  h_0446834f150a71 1710-1713
+artifacts/api-server/src/routes/salesWorkflowRoutes.ts
+  h_0446834f150a71 35
+artifacts/spartan-coaching-mobile/constants/colors.ts
+  h_0446834f150a71 5
+artifacts/spartan-coaching-mobile/lib/calculators.ts
+  h_0446834f150a71 1
+artifacts/spartan-coaching-mobile/lib/clinicalVaultTheme.ts
+  h_0446834f150a71 2
+artifacts/spartan-coaching-mobile/lib/toolTabs.ts
+  h_0446834f150a71 3
+artifacts/spartan-coaching/src/App.tsx
+  h_0446834f150a71 224
+artifacts/spartan-coaching/src/components/FieldKitPreviewLock.tsx
+  h_0446834f150a71 24,47
+artifacts/spartan-coaching/src/components/RequireFieldKit.tsx
+  h_0446834f150a71 11
+artifacts/spartan-coaching/src/components/StickyBookCall.tsx
+  h_0446834f150a71 48
+artifacts/spartan-coaching/src/components/SubscribeCTA.tsx
+  h_0446834f150a71 31
+artifacts/spartan-coaching/src/components/ToolDisclaimer.tsx
+  h_0446834f150a71 5
+artifacts/spartan-coaching/src/components/ToolHowTo.tsx
+  h_0446834f150a71 11
+artifacts/spartan-coaching/src/components/ToolResultPanel.tsx
+  h_0446834f150a71 9
+artifacts/spartan-coaching/src/components/TrustStrip.tsx
+  h_0446834f150a71 94,96
+artifacts/spartan-coaching/src/hooks/use-lead-gate.ts
+  h_0446834f150a71 84,118
+artifacts/spartan-coaching/src/lib/billingClient.ts
+  h_0446834f150a71 2
+artifacts/spartan-coaching/src/lib/complianceCopy.test.ts
+  h_0446834f150a71 5
+artifacts/spartan-coaching/src/lib/fieldKitCatalog.ts
+  h_0446834f150a71 2
+artifacts/spartan-coaching/src/lib/funnel.contract.test.ts
+  h_0446834f150a71 9
+artifacts/spartan-coaching/src/pages/BranchProfitability.staffing.test.tsx
+  h_0446834f150a71 70,228,234
+artifacts/spartan-coaching/src/pages/Drills.tsx
+  h_0446834f150a71 14
+artifacts/spartan-coaching/src/pages/FAQ.tsx
+  h_0446834f150a71 245
+artifacts/spartan-coaching/src/pages/Redirect.tsx
+  h_0446834f150a71 4
+artifacts/spartan-coaching/src/pages/RequestAccess.tsx
+  h_0446834f150a71 59,538
+artifacts/spartan-coaching/src/pages/Resources.tsx
+  h_0446834f150a71 47
+artifacts/spartan-coaching/src/shared/schema.ts
+  h_0446834f150a71 282,358
+design-system/spartan-coaching/MASTER.md
+  h_0446834f150a71 80-81,110
+docs/ai-tools-production-runbook.md
+  h_0446834f150a71 5,19
+docs/billing-phase1.md
+  h_0446834f150a71 1,24,49
+docs/clinical-security-controls.md
+  h_0446834f150a71 6,19
+docs/content-compliance.md
+  h_0446834f150a71 11,29,38
+docs/mobile-web-parity.md
+  h_0446834f150a71 1,10,22
+docs/operator-checklist.md
+  h_0446834f150a71 23,25
+docs/production-verification.md
+  h_0446834f150a71 18,52
+docs/sales-workflow.md
+  h_0446834f150a71 7
+docs/security-foundation.md
+  h_0446834f150a71 77
+lib/db/src/schema/auth.ts
+  h_0446834f150a71 70,99
+lib/db/src/schema/schema.ts
+  h_0446834f150a71 282,389,439
+lib/design-tokens/src/colors.ts
+  h_0446834f150a71 2,56
+lib/field-kit-catalog/src/index.ts
+  h_0446834f150a71 2,36,232
+lib/field-kit-catalog/src/parity.test.ts
+  h_0446834f150a71 2,13
+replit.md
+  h_0446834f150a71 12,42,102
+scripts/generate-67-mockups.py
+  h_0446834f150a71 3,152
+scripts/generate-screenshots.py
+  h_0446834f150a71 3,126,443
+scripts/performance-budget.mjs
+  h_0446834f150a71 6
+scripts/smoke-membership.md
+  h_0446834f150a71 1
+scripts/src/seed-apple-reviewer.ts
+  h_0446834f150a71 2
+scripts/stripe-bootstrap.mjs
+  h_0446834f150a71 4,82,89-90,153,162,235
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "1594f9f3352a7ae4d0aca933024de2a1966d896b",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
