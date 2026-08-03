@@ -1,0 +1,56 @@
+# EAS Build ignore — keep archive small; monorepo only needs mobile + workspace libs.
+# When this file exists, it replaces .gitignore for the upload (include what EAS needs).
+
+# Dependencies (reinstalled on EAS)
+**/node_modules/
+
+# Git / IDE / agents
+.git/
+.agents/
+.grok/
+.cursor/
+.vscode/
+.idea/
+.cache/
+.local/
+
+# Media & design dumps (hundreds of MB; not needed for native build)
+attached_assets/
+*.mp4
+*.mov
+*.webm
+SpartanCoaching-*.mp4
+design-system/
+
+# Other apps / web site (not the iOS target)
+artifacts/spartan-coaching/
+artifacts/api-server/
+artifacts/spartan-video/
+artifacts/mockup-sandbox/
+
+# Web build output & docs
+**/dist/
+!lib/hospice-sales-runtime/dist/
+!lib/hospice-sales-runtime/dist/**
+docs/
+*.md
+!artifacts/spartan-coaching-mobile/**/*.md
+
+# Tests & misc
+**/__tests__/
+**/*.test.ts
+**/*.test.tsx
+**/*.tsbuildinfo
+coverage/
+tmp/
+out-tsc/
+
+# Env / secrets patterns
+.env
+.env.*
+!.env.example
+
+# Replit
+.replit
+.replitignore
+**/.replit-artifact/
