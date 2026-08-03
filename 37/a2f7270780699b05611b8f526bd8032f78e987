@@ -1,0 +1,42 @@
+artifacts/spartan-coaching-mobile/app/(tabs)/account.tsx
+  h_0446834f150a71 455
+artifacts/spartan-coaching-mobile/constants/colors.ts
+  h_0446834f150a71 5
+artifacts/spartan-coaching-mobile/lib/calculators.ts
+  h_0446834f150a71 1
+artifacts/spartan-coaching-mobile/lib/clinicalVaultTheme.ts
+  h_0446834f150a71 2,23
+artifacts/spartan-coaching-mobile/store/README.md
+  h_0446834f150a71 1,168,172
+artifacts/spartan-coaching-mobile/store/capture-screenshots.sh
+  h_0446834f150a71 159
+artifacts/spartan-coaching-mobile/store/description.txt
+  h_0446834f150a71 1,3,19,29
+artifacts/spartan-coaching/src/components/OrgDetailPanel.tsx
+  h_0446834f150a71 155
+artifacts/spartan-coaching/src/lib/accessDeskTemplates.ts
+  h_0446834f150a71 56
+design-system/spartan-coaching/MASTER.md
+  h_0446834f150a71 131-133
+docs/content-compliance.md
+  h_0446834f150a71 11,13,30-31,39,41
+docs/operator-checklist.md
+  h_0446834f150a71 9-10,27,32-33,35,45,52,58
+docs/production-verification.md
+  h_0446834f150a71 52,54-55
+docs/replit-publish.md
+  h_0446834f150a71 1,3
+replit.md
+  h_0446834f150a71 62,69
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "37a2f7270780699b05611b8f526bd8032f78e987",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
