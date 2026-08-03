@@ -1,4 +1,4 @@
-/** Pure calculator engines — match website Membership calculators. */
+/** Pure calculator engines — match website Hospice Sales Pro calculators. */
 
 export function calculateActivityTargets(input: {
   repName: string;

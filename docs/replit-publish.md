@@ -1,6 +1,6 @@
-# Replit publish — dual product release (Consulting + Membership)
+# Replit publish — dual product release (Consulting + Hospice Sales Pro)
 
-GitHub `main` already has the dual-product rebrand. **Live visitors still see old “Field Kit” until Replit pulls and redeploys.**
+GitHub `main` already has the dual-product rebrand (elite Phases 1–6). **Live visitors still see old “Field Kit” / generic Membership until Replit pulls and redeploys.**
 
 **Release SHA (as of this doc):** check with `git rev-parse origin/main`  
 **Canonical host:** https://spartanhospicecoaching.com

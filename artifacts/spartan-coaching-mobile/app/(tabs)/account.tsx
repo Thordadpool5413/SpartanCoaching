@@ -452,7 +452,7 @@ export default function AccountScreen() {
         </View>
       )}
 
-      {/* ── Membership & billing ───────────────────────────────────── */}
+      {/* ── Hospice Sales Pro & billing ───────────────────────────────────── */}
       <View
         style={[
           styles.card,

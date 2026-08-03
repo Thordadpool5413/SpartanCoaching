@@ -1,5 +1,5 @@
 /**
- * Clinical vault visual language — calm instrument, not Membership marketing.
+ * Clinical vault visual language — calm instrument, not Hospice Sales Pro marketing.
  * Distinct from Spartan red primary used on consumer tools.
  */
 export const VAULT = {
@@ -20,7 +20,7 @@ export const VAULT = {
 export const VAULT_COPY = {
   hubTitle: "Clinical access vault",
   hubBody:
-    "Authorized roles only. Educational decision support — not diagnosis, coverage determination, or autonomous admission. Runs are ephemeral when live. Not consumer Membership tools.",
+    "Authorized roles only. Educational decision support — not diagnosis, coverage determination, or autonomous admission. Runs are ephemeral when live. Not consumer Hospice Sales Pro tools.",
   chips: [
     "Authorized only",
     "Ephemeral",

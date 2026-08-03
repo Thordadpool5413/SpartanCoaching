@@ -128,7 +128,9 @@ Light mode: prefer slightly deeper primary (`primaryLight` ~48% L) so red text/i
 | D iOS craft | D1–D6 shipped (vault polish); D7 TestFlight open |
 | E Tokens, light mode, QA checklist | Shipped |
 | F Content / compliance (code pass) | Shipped — Nick proof sign-off still open |
-| D4–D7 Tools split / TestFlight | Backlog |
+| Elite 1–5 (dual offer + HSP product map + Portal + iOS + QA) | Shipped on `main` |
+| Elite 6 Ship readiness (residual nouns + ops docs) | Shipped on `main` — **Replit Redeploy required** |
+| D4–D7 Tools split / TestFlight | Backlog (ops) |
 
 ## QA matrix (responsive)
 

@@ -2,7 +2,7 @@ import { spartanDark, radius as tokenRadius, elevation } from "@workspace/design
 
 /**
  * Mobile color map — sourced from shared @workspace/design-tokens.
- * Membership ships dark authority only (matches product feel).
+ * Hospice Sales Pro ships dark authority only (matches product feel).
  */
 const darkAuthority = {
   text: spartanDark.text,

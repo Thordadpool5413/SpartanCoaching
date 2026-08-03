@@ -59,14 +59,14 @@ Expert hospice growth consulting site + Hospice Sales Pro (web + iOS tools produ
 - Access requests auto-create CRM inquiries
 - Org admin: seat invites, disable member, 7-day usage (`/api/org/usage`)
 - Account: change password, sign out other devices; expired clients can request extension
-- Conversion: `/request-access`, `/membership`, FAQ Membership section, trust strip
+- Conversion: `/request-access`, `/hospice-sales-pro` (legacy `/membership` redirects), FAQ Hospice Sales Pro section, trust strip
 - Portal first-session: role → one tool → debrief; checklist API; field context
 - Mobile field companion: checklist + trial banner; Quick Actions include objections, playbooks, email, role-play, research, weekly plan, cold call
 - Public trust/SEO: robots.txt, sitemap, noindex private shells, TrustStrip
 
 ## Architecture decisions
 
-- Membership AI tools are hard-gated server-side (`requireFieldKit`); UI gates are not enough
+- Hospice Sales Pro AI tools are hard-gated server-side (`requireFieldKit`); UI gates are not enough
 - Access is request → Nick approves → trial (24h individual / 72h company) → admin activates paid/client (or self-serve individual subscribe)
 - First-visit intro splash only (`spartan_intro_seen`); home content stays crawlable
 - Personal orgs are 1-seat shells so entitlement is always org-scoped

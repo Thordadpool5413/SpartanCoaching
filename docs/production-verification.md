@@ -49,9 +49,10 @@ curl -sL "https://spartanhospicecoaching.com" | head -c 2500
 [ ] SF system type on device (not forced Inter) when running on iPhone
 ```
 
-## Elite UI/UX matrix (Phase 5)
+## Elite UI/UX matrix (Phases 5–6)
 
-Check after design releases that touch Home, Hospice Sales Pro, Tools, Portal, or iOS:
+Check after design releases that touch Home, Hospice Sales Pro, Tools, Portal, or iOS.
+Phase 6 = ship readiness (residual product nouns + ops docs). **Redeploy still required for live.**
 
 ```
 [ ] Dual offer named: Consulting + Hospice Sales Pro (not Field Kit, not generic Membership product)

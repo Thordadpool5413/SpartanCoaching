@@ -152,7 +152,7 @@ export function OrgDetailPanel({ orgId, onBack }: Props) {
       }),
     onSuccess: (data: any, status) => {
       if (status === "active") {
-        toastEmail("Client activated", data, "Membership-active email sent to org members.");
+        toastEmail("Client activated", data, "Hospice Sales Pro access email sent to org members.");
       } else {
         toast({ title: "Access updated", description: `Status → ${status}` });
       }

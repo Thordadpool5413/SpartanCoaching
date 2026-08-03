@@ -1,6 +1,6 @@
-Spartan Coaching Membership
+Spartan Coaching — Hospice Sales Pro
 
-Tools and resources for hospice growth professionals — web and iPhone. Consulting stays human; membership unlocks Command Center, practice tools, plans, and calculators.
+Tools and resources for hospice growth professionals — web and iPhone. Consulting stays human; Hospice Sales Pro unlocks Command Center, practice tools, plans, and calculators.
 
 Before a visit, during a debrief, or between stops — structured tools and drills that help you prepare referral conversations in real time. Coaching aid only. Do not enter PHI.
 
@@ -16,7 +16,7 @@ WHAT'S INSIDE
 
 • Visit Checklist — Structure field days: pre-call prep, post-visit notes, and follow-ups.
 
-• Membership Portal — Next action, tools, and resources for active members and evaluators.
+• Portal — Next action, tools, and resources for active Hospice Sales Pro members and evaluators.
 
 WHO IT'S FOR
 
@@ -26,4 +26,4 @@ This is not a general consumer app — it is a professional coaching tool for ho
 
 PRIVACY
 
-Membership tools are for planning and messaging — never patient identifiers or clinical records. Do not enter PHI. Clinical vault tools (when authorized) are educational decision support only, not diagnosis or coverage determinations. AI conversations are not sold to third parties. Operated by Spartan Coaching.
+Hospice Sales Pro tools are for planning and messaging — never patient identifiers or clinical records. Do not enter PHI. Clinical vault tools (when authorized) are educational decision support only, not diagnosis or coverage determinations. AI conversations are not sold to third parties. Operated by Spartan Coaching.

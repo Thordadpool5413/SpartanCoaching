@@ -6,7 +6,8 @@ Use this after deploys and when clearing the security release gate.
 (SHA match, hard refresh on spartanhospicecoaching.com, light-mode spot-check).
 
 **Replit Publish after dual-product rebrand:** `docs/replit-publish.md`
-(pull `main` → Publish → verify Membership markers on live host).
+(pull `main` → Publish → verify **Hospice Sales Pro / Consulting** markers on live host —
+not Field Kit, not generic Membership / “Spartan Membership”).
 
 **Public claim / PHI wording:** see `docs/content-compliance.md` before publishing
 hard metrics or named testimonials.
@@ -23,13 +24,15 @@ hard metrics or named testimonials.
 - [ ] `pnpm --filter @workspace/db run push` after schema pulls (auth + roleplay ownership columns).
 - [ ] Backup restore drill completed before large migrations.
 
-## Membership smoke
+## Hospice Sales Pro smoke
 
 - [ ] Run `scripts/smoke-membership.md` end-to-end on the live host.
 - [ ] Role-play: start session → 2+ messages → feedback (must not return 410).
 - [ ] Logged-out AI tools return 401/403, not data.
+- [ ] Gates / Day Zero / Account use **Hospice Sales Pro** (not Field Kit, not generic Membership product).
+- [ ] Live meta/title mentions Hospice Sales Pro / Consulting (curl or view-source).
 
-## Mobile / App Store
+## Mobile / App Store (D7)
 
 - [ ] Verify the Apple Developer team and App Store Connect app interactively
       during the first EAS submit; never commit Apple credentials or unresolved
@@ -39,19 +42,20 @@ hard metrics or named testimonials.
 - [ ] `pnpm --filter @workspace/spartan-coaching-mobile run build:ios` then `submit:ios`.
 - [ ] Production binary points at the real `SITE_URL` / API host (not Replit LAN).
 - [ ] TestFlight internal test, then App Store listing (screenshots, privacy nutrition labels).
+- [ ] Store copy uses Hospice Sales Pro (see `store/description.txt`).
 
 ## Background jobs
 
 - [ ] `ENABLE_BACKGROUND_JOBS=1` (or deploy default) + `NOTIFICATION_EMAIL` / `OPS_DIGEST_EMAIL`.
 - [ ] Optional external cron: `POST /api/cron/jobs` with `X-Cron-Secret`.
 
-## Membership / billing
+## Hospice Sales Pro / billing
 
 - [ ] Stripe secrets set: `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_INDIVIDUAL_WEEKLY` (see `docs/billing-phase1.md`).
 - [ ] Webhook endpoint live: `POST /api/billing/webhook`.
 - [ ] Customer Portal allows cancel at period end.
 - [ ] Access Desk activate client still works for **comp / offline** orgs (`billing_plan=comp` or no Stripe).
-- [ ] Access Desk activate client → membership email received.
+- [ ] Access Desk activate client → access email received.
 
 ## Clinical / AI tools (PHI production)
 

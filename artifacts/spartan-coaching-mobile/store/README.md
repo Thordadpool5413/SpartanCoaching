@@ -1,4 +1,4 @@
-# App Store Submission Guide — Spartan Coaching Membership
+# App Store Submission Guide — Spartan Coaching (Hospice Sales Pro)
 
 ## Before You Submit
 
@@ -165,11 +165,11 @@ Fill these in App Store Connect before submitting for review:
 | Field | Value / Notes |
 |---|---|
 | App name | Spartan Coaching |
-| Subtitle | Hospice Membership Tools |
+| Subtitle | Hospice Sales Pro Tools |
 | Description | See `store/description.txt` |
 | Keywords | See `store/keywords.txt` (100 char limit) |
 | Support URL | https://spartanhospicecoaching.com/contact |
-| Marketing URL | https://spartanhospicecoaching.com/membership |
+| Marketing URL | https://spartanhospicecoaching.com/hospice-sales-pro |
 | Privacy Policy URL | https://spartanhospicecoaching.com/privacy |
 | Category | Business |
 | Age rating | 4+ |

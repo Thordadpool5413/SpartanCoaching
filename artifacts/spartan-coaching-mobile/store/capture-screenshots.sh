@@ -156,7 +156,7 @@ run_pass() {
 # --------------------------------------------------------------------------
 # Main
 # --------------------------------------------------------------------------
-echo "=== Spartan Coaching Membership — Screenshot Capture ==="
+echo "=== Spartan Coaching Hospice Sales Pro — Screenshot Capture ==="
 
 # --- Pass 1: 6.9" iPhone 16 Pro Max → store/screenshots/ ---
 run_pass "iPhone 16 Pro Max" "$SCRIPT_DIR/screenshots" 1320 2868

@@ -53,7 +53,7 @@ export const ORG_NOTE_TEMPLATES: NoteTemplate[] = [
   {
     id: "won",
     label: "Won / activated",
-    body: "Activated as continuing client (self-serve weekly or corporate contract). Membership email / Stripe as applicable.",
+    body: "Activated as continuing client (self-serve weekly or corporate contract). Hospice Sales Pro email / Stripe as applicable.",
   },
   {
     id: "lost",
