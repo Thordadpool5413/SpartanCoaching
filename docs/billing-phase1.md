@@ -1,4 +1,4 @@
-# Field Kit billing — Phase 1 (Stripe)
+# Membership billing — Phase 1 (Stripe)
 
 ## What shipped
 
@@ -21,7 +21,7 @@
 
 ## Stripe Dashboard setup
 
-1. Create Product **Field Kit Individual** with recurring **weekly** price **$14.99 USD**.
+1. Create Product **Spartan Membership Individual** with recurring **weekly** price **$14.99 USD**.
 2. Copy Price id → `STRIPE_PRICE_INDIVIDUAL_WEEKLY`.
 3. Developers → Webhooks → Add endpoint:
    - URL: `https://YOUR_HOST/api/billing/webhook`
@@ -46,7 +46,7 @@ pnpm --filter @workspace/db run push
 
 ## Phase 2 UI + full website (shipped)
 
-- `/field-kit-membership` — $14.99/week individual, contract language for teams, Subscribe CTA when signed in
+- `/membership` — $14.99/week individual, contract language for teams, Subscribe CTA when signed in
 - `/account` — Subscribe · $14.99/week, Manage billing / cancel, post-checkout banners
 - `FieldKitGate` — Subscribe / Manage billing when evaluation ended or suspended
 - `TrialBanner` + Portal trial chip — Continue $14.99/wk during personal evaluation

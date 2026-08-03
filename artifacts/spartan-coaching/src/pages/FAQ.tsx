@@ -242,7 +242,7 @@ export default function FAQ() {
               </Button>
             </div>
             <p className="mt-5 text-sm text-white/80 space-x-3">
-              <Link href="/field-kit-membership" className="underline underline-offset-4 hover:text-white" data-testid="button-faq-membership">
+              <Link href="/membership" className="underline underline-offset-4 hover:text-white" data-testid="button-faq-membership">
                 Pricing · $14.99/wk
               </Link>
               <span aria-hidden="true">·</span>

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Generate App Store screenshots for the Spartan Coaching Field Kit
+Generate App Store screenshots for the Spartan Coaching Membership
 iPhone 16 Pro Max / 6.9" — 1320 × 2868 px
 """
 
@@ -123,7 +123,7 @@ def card_bg(d, x, y, w, h, r=24):
 def screen_checklist():
     img, d = new_screen()
     status_bar(d, "9:41")
-    nav_bar(d, "Field Kit")
+    nav_bar(d, "Membership")
     tab_bar(d, "home")
 
     y = STATUS_H + NAV_H + 40
@@ -440,7 +440,7 @@ def screen_login():
     # App name
     name_y = logo_y + 360
     d.text((W // 2, name_y), "Spartan Coaching", font=font(64, bold=True), fill=FG, anchor="mm")
-    d.text((W // 2, name_y + 76), "Field Kit", font=font(48), fill=MUT_FG, anchor="mm")
+    d.text((W // 2, name_y + 76), "Membership", font=font(48), fill=MUT_FG, anchor="mm")
 
     y = name_y + 180
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
  * Stripe bootstrap script for Spartan Coaching.
- * Creates (or reuses) the Field Kit Individual product, weekly price,
+ * Creates (or reuses) the Spartan Membership Individual product, weekly price,
  * billing portal configuration, and webhook endpoint.
  *
  * Usage:
@@ -79,15 +79,15 @@ console.log("Step 1: Product...");
 let product;
 const productList = await stripe.products.list({ active: true, limit: 100 });
 product = productList.data.find(
-  (p) => p.name === "Field Kit Individual" || p.metadata?.spartan_plan === "individual_weekly",
+  (p) => p.name === "Spartan Membership Individual" || p.metadata?.spartan_plan === "individual_weekly",
 );
 
 if (product) {
   console.log(`  ✓ Reusing product: ${product.id} (${product.name})`);
 } else {
   product = await stripe.products.create({
-    name: "Field Kit Individual",
-    description: "Spartan Field Kit individual membership — weekly, cancel anytime",
+    name: "Spartan Membership Individual",
+    description: "Spartan Spartan Membership Individual membership — weekly, cancel anytime",
     metadata: {
       spartan_plan: "individual_weekly",
       app: "spartan_coaching",
@@ -150,7 +150,7 @@ const defaultConfig = portalList.data.find((c) => c.is_default);
 if (defaultConfig) {
   portalConfig = await stripe.billingPortal.configurations.update(defaultConfig.id, {
     business_profile: {
-      headline: "Spartan Coaching — Field Kit membership",
+      headline: "Spartan Coaching — Membership",
     },
     features: PORTAL_FEATURES,
     default_return_url: `${SITE_URL}/account?billing=portal`,
@@ -159,7 +159,7 @@ if (defaultConfig) {
 } else {
   portalConfig = await stripe.billingPortal.configurations.create({
     business_profile: {
-      headline: "Spartan Coaching — Field Kit membership",
+      headline: "Spartan Coaching — Membership",
     },
     features: PORTAL_FEATURES,
     default_return_url: `${SITE_URL}/account?billing=portal`,
@@ -232,7 +232,7 @@ if (existingEndpoint) {
   webhookEndpoint = await stripe.webhookEndpoints.create({
     url: WEBHOOK_URL,
     enabled_events: REQUIRED_EVENTS,
-    description: "Spartan Coaching Field Kit billing",
+    description: "Spartan Coaching Membership billing",
     metadata: { app: "spartan_coaching" },
   });
   webhookSecret = webhookEndpoint.secret ?? null;

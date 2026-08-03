@@ -74,4 +74,4 @@ recovery in a test environment, then delete under an approved retention ticket.
 - `ADMIN_BOOTSTRAP_TOKEN` is absent after bootstrap.
 - Database backup restoration succeeds before workflow migrations begin.
 
-See also: `docs/operator-checklist.md` and `scripts/smoke-field-kit.md`.
+See also: `docs/operator-checklist.md` and `scripts/smoke-membership.md`.

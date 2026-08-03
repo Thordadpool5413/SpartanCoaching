@@ -8,7 +8,7 @@ import { cn } from "@/lib/utils";
 const STORAGE_KEY = "spartan.toolHowTo.open";
 
 /**
- * When / how / why block for individual Field Kit tools.
+ * When / how / why block for individual Membership tools.
  * Collapsible after first visit so power users keep an instrument layout.
  */
 export function ToolHowTo({

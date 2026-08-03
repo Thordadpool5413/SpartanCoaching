@@ -2,7 +2,7 @@
 
 ## Release gates
 
-All fourteen tools are available to entitled Field Kit members by default.
+All fourteen tools are available to entitled members by default.
 An explicit `AI_TOOL_* = false` remains the per-tool emergency kill switch.
 
 **Mode selection**
@@ -16,7 +16,7 @@ An explicit `AI_TOOL_* = false` remains the per-tool emergency kill switch.
 Clinical tools always run ephemerally (no retained clinical payloads). PHI mode
 adds MFA, document upload (medical-record verifier), and full BAA/storage gates.
 
-When PHI runtime is **ready**, entitled Field Kit members receive operational
+When PHI runtime is **ready**, entitled members receive operational
 `canUse` access automatically (explicit permission rows still win, including
 revokes). Org/platform admins also receive review/admin when auto-granted.
 

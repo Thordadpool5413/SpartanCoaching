@@ -1,4 +1,4 @@
-/** Pure calculator engines — match website Field Kit calculators. */
+/** Pure calculator engines — match website Membership calculators. */
 
 export function calculateActivityTargets(input: {
   repName: string;

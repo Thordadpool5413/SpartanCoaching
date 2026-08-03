@@ -1,5 +1,5 @@
 /**
- * Seed the Apple App Review test account in the Field Kit database.
+ * Seed the Apple App Review test account in the membership database.
  *
  * Idempotent — safe to run multiple times. If the account already exists,
  * it resets the password and re-activates it so credentials stay current.

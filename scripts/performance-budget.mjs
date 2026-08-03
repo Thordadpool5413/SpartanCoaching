@@ -3,7 +3,7 @@
  * Wave 4 — elite performance budgets for the web client.
  * Fails CI if main JS/CSS assets exceed soft limits after `pnpm run build`.
  *
- * Budgets are intentional ceilings for a monorepo marketing + Field Kit SPA.
+ * Budgets are intentional ceilings for a monorepo marketing + membership SPA.
  * Tighten over time as dead weight is removed.
  */
 import fs from "node:fs";

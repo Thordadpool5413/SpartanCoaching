@@ -28,7 +28,7 @@ type Props = {
 };
 
 /**
- * Honest Field Kit conversion CTA.
+ * Honest Membership conversion CTA.
  * Self-serve individuals: register → expired org → Stripe subscribe.
  * Evaluation trials are admin/request-access only — never promised here.
  */

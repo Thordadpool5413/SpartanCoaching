@@ -15,7 +15,7 @@ Canonical product host: **https://spartanhospicecoaching.com**
 [ ] Hard refresh (or empty cache) on https://spartanhospicecoaching.com
 [ ] Spot-check: Home hero thesis + CTAs visible above the fold
 [ ] Spot-check: Appearance → Soft White (light) — body text readable, no white-on-white
-[ ] Spot-check: Field Kit access paths (Path A / Path B) if that release shipped
+[ ] Spot-check: Membership access paths (Path A / Path B) if that release shipped
 [ ] Spot-check: header brand spacing; no nav collision at 390px and 1280px
 ```
 
@@ -49,5 +49,5 @@ curl -sL "https://spartanhospicecoaching.com" | head -c 2000
 ## Related
 
 - Operator secrets / smoke: `docs/operator-checklist.md`
-- Field Kit smoke: `scripts/smoke-field-kit.md`
+- Membership smoke: `scripts/smoke-membership.md`
 - Design tokens: `design-system/spartan-coaching/MASTER.md`

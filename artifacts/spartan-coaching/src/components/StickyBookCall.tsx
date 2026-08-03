@@ -45,6 +45,7 @@ function StickyBookCallContent() {
     location.startsWith("/tools") ||
     location.startsWith("/resources") ||
     location.startsWith("/drills") ||
+    location === "/membership" ||
     location === "/field-kit" ||
     location.startsWith("/field-kit-membership") ||
     location.startsWith("/pricing/");

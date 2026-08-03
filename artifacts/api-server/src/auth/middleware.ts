@@ -90,7 +90,7 @@ export async function loadSession(req: AuthedRequest, _res: Response, next: Next
   }
 }
 
-/** Requires a valid login session (member present). Does not require Field Kit entitlement. */
+/** Requires a valid login session (member present). Does not require membership entitlement. */
 export function requireAuth(req: AuthedRequest, res: Response, next: NextFunction) {
   if (!req.clientMemberId || !req.fieldKit?.member) {
     return res.status(401).json({ error: "Authentication required", code: "UNAUTHENTICATED" });
@@ -98,14 +98,14 @@ export function requireAuth(req: AuthedRequest, res: Response, next: NextFunctio
   next();
 }
 
-/** Requires active Field Kit access (trial or active org). */
+/** Requires active membership access (trial or active org). */
 export function requireFieldKit(req: AuthedRequest, res: Response, next: NextFunction) {
   if (!req.clientMemberId || !req.fieldKit?.member) {
     return res.status(401).json({ error: "Authentication required", code: "UNAUTHENTICATED" });
   }
   if (!req.fieldKit.allowed) {
     return res.status(403).json({
-      error: "Field Kit access is not active",
+      error: "Membership access is not active",
       code: "FIELD_KIT_DENIED",
       reason: req.fieldKit.reason,
     });

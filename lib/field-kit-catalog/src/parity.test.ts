@@ -1,5 +1,5 @@
 /**
- * Web ↔ mobile Field Kit inventory contract.
+ * Web ↔ mobile membership inventory contract.
  * Fails if any tool is marked missing or lacks a delivery path.
  */
 import { describe, it, expect } from "vitest";
@@ -10,7 +10,7 @@ import {
   mobileDeliveryLabel,
 } from "./index";
 
-describe("Field Kit mobile parity", () => {
+describe("Membership mobile parity", () => {
   it("ships at least 12 catalog tools", () => {
     expect(FIELD_KIT_TOOLS.length).toBeGreaterThanOrEqual(12);
   });

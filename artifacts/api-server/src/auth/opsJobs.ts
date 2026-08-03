@@ -291,7 +291,7 @@ export type CleanupResult = {
   ranAt: string;
 };
 
-/** Remove expired Field Kit sessions and used/expired auth tokens. */
+/** Remove expired Membership sessions and used/expired auth tokens. */
 export async function runSessionCleanup(): Promise<CleanupResult> {
   const now = new Date();
   const ranAt = now.toISOString();

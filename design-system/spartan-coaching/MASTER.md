@@ -77,8 +77,8 @@ Light mode: prefer slightly deeper primary (`primaryLight` ~48% L) so red text/i
 
 | Surface | Primary | Secondary |
 |---------|---------|-----------|
-| Home | Book a strategy call | Preview Field Kit |
-| Field Kit | Subscribe / create account | Preview tools |
+| Home | Book a strategy call | Preview Membership tools |
+| Membership | Subscribe / create account | Preview tools |
 | Portal | Next checklist / Command Center | All tools |
 | Tools | Launch tool | Advanced library (de-emphasized) |
 | Services | Book a strategy call | — |
@@ -107,7 +107,7 @@ Light mode: prefer slightly deeper primary (`primaryLight` ~48% L) so red text/i
 - Shells: `Layout.tsx`, `FieldKitToolLayout.tsx`, `Portal.tsx`, `Tools.tsx`  
 - Primitives: `components/ui/button.tsx`, `card.tsx`, `empty.tsx`, `ToolResultPanel.tsx`  
 - Advanced library: `AiToolsHub.tsx` (Field AI vs Clinical vault)  
-- AI tool run: `AiTool.tsx` (no Field Kit chrome in PHI; vault banner; result panel)  
+- AI tool run: `AiTool.tsx` (no membership chrome in PHI; vault banner; result panel)  
 - Mobile type: `artifacts/spartan-coaching-mobile/lib/typography.ts`  
 - Mobile icons: Feather / SF Symbols (no emoji)  
 

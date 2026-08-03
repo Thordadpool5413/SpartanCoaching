@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Flame, CheckCircle, Loader2, Calendar, BookOpen, ChevronDown, ChevronRight, Library } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
-// Daily drills live under Learn in the Field Kit map
+// Daily drills live under Learn in the Membership map
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { cn } from "@/lib/utils";
 import {

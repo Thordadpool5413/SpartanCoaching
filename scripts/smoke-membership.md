@@ -1,4 +1,4 @@
-# Field Kit smoke test (Replit)
+# Membership smoke test (Replit)
 
 Run after `git pull` and a deploy. Use a real inbox you control.
 

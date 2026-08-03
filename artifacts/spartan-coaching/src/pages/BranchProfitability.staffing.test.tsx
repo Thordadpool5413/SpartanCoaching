@@ -67,7 +67,7 @@ const GUEST_AUTH: MockAuth = {
   setSessionFromResponse: () => {},
 };
 
-// ── Auth fixture: authenticated Field Kit member ─────────────────────────────
+// ── Auth fixture: authenticated membership member ────────────────────────────
 const MEMBER_AUTH: MockAuth = {
   isAuthenticated: true,
   member: {
@@ -225,13 +225,13 @@ describe("Print button — lead-gate behavior", () => {
     expect(screen.getByTestId("button-gate-submit")).toBeTruthy();
   });
 
-  it("does not open the lead-gate dialog when an authenticated Field Kit member clicks Print", async () => {
+  it("does not open the lead-gate dialog when an authenticated member clicks Print", async () => {
     mockUseAuth.mockReturnValue(MEMBER_AUTH);
     renderPage();
 
     fireEvent.click(screen.getByTestId("button-print"));
 
-    // Dialog must never appear for authenticated Field Kit members
+    // Dialog must never appear for authenticated members
     expect(screen.queryByTestId("input-gate-name")).toBeNull();
     expect(screen.queryByTestId("input-gate-email")).toBeNull();
 

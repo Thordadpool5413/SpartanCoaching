@@ -1,5 +1,5 @@
 /**
- * Pure mapping: Stripe subscription status → Field Kit org access fields.
+ * Pure mapping: Stripe subscription status → Membership org access fields.
  * Kept free of DB imports so unit tests stay light.
  */
 
@@ -11,7 +11,7 @@ export type EntitlementSlice = {
 };
 
 /**
- * - active / trialing → active Field Kit
+ * - active / trialing → active Membership
  * - past_due / unpaid → suspended
  * - canceled / incomplete_expired → expired
  * - incomplete / paused → no forced status change

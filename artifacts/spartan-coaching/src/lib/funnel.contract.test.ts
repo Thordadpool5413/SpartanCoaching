@@ -6,7 +6,7 @@ import { describe, it, expect } from "vitest";
 import { FIELD_KIT_TOOLS, mobileDeliveryLabel, mobileParityDebt } from "@workspace/field-kit-catalog";
 import { BG_PRESETS } from "./theme";
 
-describe("Field Kit funnel + catalog contracts", () => {
+describe("Membership funnel + catalog contracts", () => {
   it("catalog has primary tools and no empty paths", () => {
     expect(FIELD_KIT_TOOLS.length).toBeGreaterThanOrEqual(12);
     for (const t of FIELD_KIT_TOOLS) {

@@ -32,7 +32,7 @@ function resolveActor(request: Request): Actor {
   const authed = request as AuthedRequest;
   const member = authed.fieldKit?.member;
   if (!member || !authed.clientMemberId) {
-    throw new Error("Field Kit session was not resolved");
+    throw new Error("Membership session was not resolved");
   }
 
   const administrator = member.role === "org_admin" || member.role === "platform_admin";

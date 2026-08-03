@@ -1,5 +1,5 @@
 /**
- * Browser helpers for Field Kit billing (Phase 2+ website).
+ * Browser helpers for Membership billing (Phase 2+ website).
  */
 
 export type BillingStatusResponse = {

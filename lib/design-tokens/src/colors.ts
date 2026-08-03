@@ -1,5 +1,5 @@
 /**
- * Spartan Field Kit visual tokens — shared by web and mobile.
+ * Spartan Membership visual tokens — shared by web and mobile.
  * Default surface: Midnight Navy (readable light text on deep navy).
  * Elite craft: layered elevation, disciplined type, restrained Spartan red.
  */
@@ -53,7 +53,7 @@ export const spartanDark = {
   overlay: "rgba(5, 8, 16, 0.82)",
 } as const;
 
-/** Light marketing surfaces (web public); Field Kit prefers dark. */
+/** Light marketing surfaces (web public); Membership prefers dark. */
 export const spartanLight = {
   text: "#0c1220",
   tint: "#e8291e",

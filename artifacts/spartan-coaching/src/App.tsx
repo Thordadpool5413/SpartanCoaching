@@ -221,7 +221,7 @@ function Router() {
           <Route path="/account" component={Account} />
           <Route path="/magic-login" component={MagicLogin} />
           <Route path="/membership" component={FieldKitMembership} />
-          {/* Legacy Field Kit URLs → Membership lander */}
+          {/* Legacy product URLs → Membership lander */}
           <Route path="/field-kit" component={RedirectToMembership} />
           <Route path="/field-kit-membership" component={RedirectToMembership} />
           <Route path="/pricing/field-kit" component={RedirectToMembership} />

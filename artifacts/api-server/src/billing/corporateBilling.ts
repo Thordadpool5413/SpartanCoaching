@@ -142,7 +142,7 @@ export async function activateCorporateContract(
     });
   }
 
-  const productName = `Field Kit seats · ${org.name}${contractRef ? ` · ${contractRef}` : ""}`;
+  const productName = `Membership seats · ${org.name}${contractRef ? ` · ${contractRef}` : ""}`;
 
   // Update existing subscription quantity/price if present
   if (org.stripeSubscriptionId) {

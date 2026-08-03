@@ -56,7 +56,7 @@ const FAQ_LINKS = [
   { href: "/faq#trial-hours", label: "How long is the trial?" },
   { href: "/faq#patient-data", label: "PHI / privacy" },
   { href: "/faq#what-after-trial", label: "After evaluation ends" },
-  { href: "/field-kit-membership", label: "Membership path" },
+  { href: "/membership", label: "Membership path" },
   { href: "/compliance", label: "Compliance details" },
 ];
 
@@ -535,7 +535,7 @@ export default function RequestAccess() {
               Privacy
             </Link>
             {" · "}
-            <Link href="/field-kit-membership" className="hover:text-primary">
+            <Link href="/membership" className="hover:text-primary">
               Membership
             </Link>
           </p>

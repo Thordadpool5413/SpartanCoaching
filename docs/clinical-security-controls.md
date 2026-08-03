@@ -3,7 +3,7 @@
 ## Operating modes
 
 - **De-identified (default when BAAs are not confirmed, or forced with
-  `CLINICAL_OPERATION_MODE=deidentified`)**: All entitled Field Kit members can
+  `CLINICAL_OPERATION_MODE=deidentified`)**: All entitled members can
   open the five clinical education tools without organization provisioning,
   email MFA, a coverage-snapshot seed, or a clinical storage bucket. The user
   must confirm that every input is de-identified. The API also rejects common
@@ -16,7 +16,7 @@
   envs are `true`)**: Controlled PHI mode described below. It is only
   **operational** after BAA, retention, storage, scanner, encryption, MFA,
   evidence, deletion, and audit gates are configured and verified. Entitled
-  Field Kit members receive operational `canUse` when the runtime is ready
+  members receive operational `canUse` when the runtime is ready
   (explicit permission rows and revokes still win). Coverage snapshots are
   auto-selected; an educational baseline is seeded if none exist.
 

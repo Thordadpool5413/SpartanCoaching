@@ -1,4 +1,4 @@
-/** Pure Field Kit entitlement rules — no DB imports (unit-testable). */
+/** Pure Membership entitlement rules — no DB imports (unit-testable). */
 
 export type AccessMember = {
   status: string;

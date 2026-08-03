@@ -1,6 +1,6 @@
 /**
  * Native satellite tool tabs inside the Tools screen.
- * Priority order matches Field Kit catalog emphasis (practice → prepare → plan).
+ * Priority order matches Membership catalog emphasis (practice → prepare → plan).
  */
 export type ToolTab =
   | "objection"

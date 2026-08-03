@@ -2,7 +2,7 @@ import { spartanDark, radius as tokenRadius, elevation } from "@workspace/design
 
 /**
  * Mobile color map — sourced from shared @workspace/design-tokens.
- * Field Kit ships dark authority only (matches product feel).
+ * Membership ships dark authority only (matches product feel).
  */
 const darkAuthority = {
   text: spartanDark.text,

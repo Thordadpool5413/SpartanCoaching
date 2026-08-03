@@ -315,7 +315,7 @@ export function registerAuthRoutes(app: Express): void {
           email,
           phone: "n/a",
           company: body.companyName?.trim() || null,
-          serviceType: `Field Kit Access (${body.type})`,
+          serviceType: `Membership Access (${body.type})`,
           message: [
             body.role ? `Role: ${body.role}` : null,
             body.primaryGoal ? `Goal: ${body.primaryGoal}` : null,
@@ -324,7 +324,7 @@ export function registerAuthRoutes(app: Express): void {
             body.message?.trim() || null,
           ]
             .filter(Boolean)
-            .join("\n") || "Field Kit access request",
+            .join("\n") || "Membership access request",
           submittedAt: Date.now(),
           isRead: false,
         });
@@ -367,7 +367,7 @@ export function registerAuthRoutes(app: Express): void {
       }
 
       const passwordHash = await hashPassword(password);
-      const orgName = `${name.trim()}'s Field Kit`;
+      const orgName = `${name.trim()}'s Membership`;
 
       // Create personal org in expired state — requires subscription before accessing tools
       const [org] = await db
@@ -1952,7 +1952,7 @@ export function registerAuthRoutes(app: Express): void {
           name: member.name,
           email: member.email,
           companyName: org?.name ?? null,
-          message: message?.trim() || "Requesting extended Field Kit evaluation.",
+          message: message?.trim() || "Requesting extended membership evaluation.",
           seatsRequested: org?.seatLimit ?? 1,
           status: "pending",
           adminNote: `extension_request orgId=${org?.id ?? "n/a"}`,
@@ -1966,8 +1966,8 @@ export function registerAuthRoutes(app: Express): void {
           email: member.email,
           phone: "n/a",
           company: org?.name ?? null,
-          serviceType: "Field Kit Extended Evaluation",
-          message: message?.trim() || "Requesting extended Field Kit evaluation.",
+          serviceType: "Membership Extended Evaluation",
+          message: message?.trim() || "Requesting extended membership evaluation.",
           submittedAt: Date.now(),
           isRead: false,
         });
@@ -2041,14 +2041,14 @@ export function registerAuthRoutes(app: Express): void {
           email: request.email,
           phone: "n/a",
           company: request.companyName ?? null,
-          serviceType: `Field Kit Access (${request.type})`,
+          serviceType: `Membership Access (${request.type})`,
           message: [
             request.primaryGoal ? `Goal: ${request.primaryGoal}` : null,
             request.role ? `Role: ${request.role}` : null,
             request.message || null,
           ]
             .filter(Boolean)
-            .join("\n") || "Field Kit access request",
+            .join("\n") || "Membership access request",
           submittedAt: Date.now(),
           isRead: false,
         })

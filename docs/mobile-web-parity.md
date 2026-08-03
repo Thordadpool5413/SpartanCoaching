@@ -1,4 +1,4 @@
-# Web ↔ iOS Field Kit parity
+# Web ↔ iOS membership parity
 
 ## Mobile tools architecture (D4–D5)
 
@@ -7,7 +7,7 @@
 - **Results:** `components/FieldResultPanel.tsx` — copy, share, save, loading skeleton, PHI disclaimer.
 - **Saved:** `components/SavedResponsesSection.tsx`.
 - **Tab keys:** `lib/toolTabs.ts`.
-- **Clinical vault (D6):** `lib/clinicalVaultTheme.ts` + `ClinicalVaultChrome` — calm amber instrument chrome, no Field Kit marketing language on vault tools.
+- **Clinical vault (D6):** `lib/clinicalVaultTheme.ts` + `ClinicalVaultChrome` — calm amber instrument chrome, no membership marketing language on vault tools.
 
 ## Shared packages
 
@@ -19,7 +19,7 @@
 ## Mobile delivery
 
 - **native** — Expo screen / tools tab
-- **webview** — `app/tool-web.tsx` loads full Field Kit route with session token
+- **webview** — `app/tool-web.tsx` loads full membership tool route with session token
 - **missing** — treat as a bug; do not ship silently incomplete
 
 ## Production API

@@ -91,9 +91,9 @@ export function TrustStrip({ className, compact = false, showLinks = true }: Tru
             Privacy policy
           </Link>
           <Link href="/register" className="text-primary hover:underline font-bold">
-            Create account · Field Kit
+            Create account · Membership
           </Link>
-          <Link href="/field-kit-membership" className="text-muted-foreground hover:text-primary transition-colors font-medium">
+          <Link href="/membership" className="text-muted-foreground hover:text-primary transition-colors font-medium">
             Pricing · $14.99/wk
           </Link>
           <Link href="/request-access" className="text-muted-foreground hover:text-primary transition-colors font-medium">

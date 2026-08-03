@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { entitlementFromStripeStatus } from "./entitlementMap";
 
 describe("entitlementFromStripeStatus", () => {
-  it("maps active and trialing to Field Kit active", () => {
+  it("maps active and trialing to membership active", () => {
     expect(entitlementFromStripeStatus("active").status).toBe("active");
     expect(entitlementFromStripeStatus("trialing").status).toBe("active");
     expect(entitlementFromStripeStatus("active").trialEndsAt).toBeNull();

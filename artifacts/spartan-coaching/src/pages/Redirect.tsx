@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useLocation } from "wouter";
 
-/** Client-side redirect for legacy Field Kit URLs → Membership. */
+/** Client-side redirect for legacy product URLs → Membership. */
 export default function Redirect({ to }: { to: string }) {
   const [, setLocation] = useLocation();
   useEffect(() => {

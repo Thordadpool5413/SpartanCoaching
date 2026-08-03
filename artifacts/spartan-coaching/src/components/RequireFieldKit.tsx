@@ -8,7 +8,7 @@ import { useLocation } from "wouter";
 
 /**
  * Wraps tool pages.
- * - Active Field Kit: full interactive tool + disclaimer
+ * - Active Membership: full interactive tool + disclaimer
  * - No access: real tool UI in view-only preview (cannot submit / generate / save)
  *   Server routes remain requireFieldKit-gated.
  */

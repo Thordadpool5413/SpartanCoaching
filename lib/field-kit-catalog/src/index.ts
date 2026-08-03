@@ -1,5 +1,5 @@
 /**
- * Single Field Kit tool inventory — web + mobile.
+ * Single Membership tool inventory — web + mobile.
  * mobile: "native" | "webview" | "missing" tracks parity debt.
  */
 
@@ -33,7 +33,7 @@ export interface FieldKitTool {
   /** Optional tool tab key inside tools.tsx flow */
   mobileToolTab?: string;
   /**
-   * Competitive-edge framing for the Field Kit marketing page.
+   * Competitive-edge framing for the Membership marketing page.
    * scenario: the real-world pressure moment this tool resolves.
    * outcome: the concrete edge the rep gains by having the answer.
    * When present, both pages (FieldKit, FieldKitMembership) use these
@@ -229,7 +229,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
     mobileRoute: "/roi-calculator",
     mobile: "native",
     scenario:
-      "You're justifying coaching or Field Kit access to a CFO who only responds to dollars and conversion.",
+      "You're justifying coaching or Membership access to a CFO who only responds to dollars and conversion.",
     outcome:
       "A revenue range next to each percentage-point improvement — a business case, not a feature list.",
   },

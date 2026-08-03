@@ -4,7 +4,7 @@ The connected hospice sales workflow is built directly into SpartanCoaching.
 
 ## Where to find it
 
-- Website: sign in with an active Field Kit membership, open **Tools**, then choose **Sales Command Center**.
+- Website: sign in with an active membership, open **Tools**, then choose **Sales Command Center**.
 - Direct website route: `/tools/sales-workflow`
 - Mobile app: sign in, open **Home**, then choose **Sales Command Center** under Quick Tools.
 - API health: `/api/v1/sales-workflow/health`

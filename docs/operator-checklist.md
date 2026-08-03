@@ -20,9 +20,9 @@ hard metrics or named testimonials.
 - [ ] `pnpm --filter @workspace/db run push` after schema pulls (auth + roleplay ownership columns).
 - [ ] Backup restore drill completed before large migrations.
 
-## Field Kit smoke
+## Membership smoke
 
-- [ ] Run `scripts/smoke-field-kit.md` end-to-end on the live host.
+- [ ] Run `scripts/smoke-membership.md` end-to-end on the live host.
 - [ ] Role-play: start session → 2+ messages → feedback (must not return 410).
 - [ ] Logged-out AI tools return 401/403, not data.
 

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
 /**
- * Shared elite result shell for Field Kit tool outputs.
+ * Shared elite result shell for Membership tool outputs.
  * Title → body → optional actions → disclaimer.
  */
 export function ToolResultPanel({

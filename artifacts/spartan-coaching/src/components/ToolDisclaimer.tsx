@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { Shield } from "lucide-react";
 import { FIELD_KIT_PHI } from "@/lib/complianceCopy";
 
-/** Persistent compliance chrome for Field Kit surfaces */
+/** Persistent compliance chrome for Membership surfaces */
 export function ToolDisclaimer({ className }: { className?: string }) {
   return (
     <div

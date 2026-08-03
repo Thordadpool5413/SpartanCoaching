@@ -34,9 +34,9 @@ function isOrgClinicalAdmin(role: string | undefined): boolean {
 }
 
 /**
- * Resolve clinical tool access for the current Field Kit member.
+ * Resolve clinical tool access for the current Membership member.
  *
- * De-identified mode: all entitled Field Kit members may use clinical education tools.
+ * De-identified mode: all entitled Membership members may use clinical education tools.
  * PHI mode: explicit permission rows win (including revokes). When no row exists and
  * the PHI runtime is fully ready (BAAs + infrastructure), entitled members receive
  * operational canUse access so production is not blocked on manual grants. Org and

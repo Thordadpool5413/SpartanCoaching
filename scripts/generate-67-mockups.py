@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Generate realistic 6.7" (1290x2796) App Store mockup PNGs for Spartan Coaching Field Kit.
+Generate realistic 6.7" (1290x2796) App Store mockup PNGs for Spartan Coaching Membership.
 These match the actual app UI (dark theme, Spartan Red accent) for all 5 required screens.
 """
 
@@ -149,7 +149,7 @@ def make_checklist():
     y_cur += 64
 
     items = [
-        ("Introduced Field Kit workflow",      True),
+        ("Introduced Membership workflow",      True),
         ("Reviewed branch staffing model",     True),
         ("Ran scenario coach drill",           True),
         ("Reviewed objection responses",       False),

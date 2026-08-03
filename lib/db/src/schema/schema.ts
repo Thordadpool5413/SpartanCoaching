@@ -279,7 +279,7 @@ export const eventTracking = pgTable("event_tracking", {
   eventName: text("event_name").notNull(),
   metadata: text("metadata"),
   createdAt: bigint("created_at", { mode: "number" }).notNull(),
-  /** Owning Field Kit member — populated by mobile clients; null for anonymous/web events. */
+  /** Owning Membership member — populated by mobile clients; null for anonymous/web events. */
   memberId: integer("member_id"),
 });
 
@@ -386,7 +386,7 @@ export const roleplaySessions = pgTable(
   "roleplay_sessions",
   {
     id: serial("id").primaryKey(),
-    /** Owning Field Kit member. Null only on pre-tenant legacy rows (never exposed). */
+    /** Owning Membership member. Null only on pre-tenant legacy rows (never exposed). */
     memberId: integer("member_id"),
     /** Owning org. Null only on pre-tenant legacy rows (never exposed). */
     organizationId: integer("organization_id"),
@@ -436,7 +436,7 @@ export const drillCompletions = pgTable("drill_completions", {
   drillTitle: text("drill_title").notNull(),
   notes: text("notes"),
   completedAt: bigint("completed_at", { mode: "number" }).notNull(),
-  /** Field Kit member who completed the drill (null = legacy pre-tenancy row) */
+  /** Membership member who completed the drill (null = legacy pre-tenancy row) */
   memberId: integer("member_id"),
   organizationId: integer("organization_id"),
 });

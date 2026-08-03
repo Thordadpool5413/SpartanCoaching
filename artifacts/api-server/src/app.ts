@@ -65,7 +65,7 @@ app.post(
 app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || "1mb" }));
 app.use(express.urlencoded({ extended: true, limit: process.env.FORM_BODY_LIMIT || "256kb" }));
 
-// Load Field Kit session (cookie or Bearer) for every request before route handlers
+// Load Membership session (cookie or Bearer) for every request before route handlers
 app.use(loadSession);
 
 // Global API abuse guard (auth + tools + public forms)
@@ -74,7 +74,7 @@ app.use("/api", globalApiLimit);
 // Health + scaffold routes
 app.use("/api", router);
 
-// Field Kit auth (request-access, login, Access Desk)
+// Membership auth (request-access, login, Access Desk)
 registerAuthRoutes(app);
 
 // Stripe billing (checkout, portal, status) — Phase 1

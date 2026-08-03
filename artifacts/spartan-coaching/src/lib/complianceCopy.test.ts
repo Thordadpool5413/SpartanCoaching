@@ -2,7 +2,7 @@ import { describe, expect, it } from "vitest";
 import { CLINICAL_VAULT, FIELD_KIT_PHI, PUBLIC_CLAIM_SAFE } from "./complianceCopy";
 
 describe("compliance copy contract", () => {
-  it("Field Kit strings forbid PHI entry", () => {
+  it("membership PHI strings forbid PHI entry", () => {
     expect(FIELD_KIT_PHI.short.toLowerCase()).toContain("phi");
     expect(FIELD_KIT_PHI.banner.toLowerCase()).toContain("do not enter phi");
     expect(FIELD_KIT_PHI.banner.toLowerCase()).toMatch(/coaching aid|not clinical/);

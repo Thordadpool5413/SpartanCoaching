@@ -44,7 +44,7 @@ export default function Resources() {
 
   const openDownload = (resource: SelectResource) => {
     const url = resolveResourceUrl(resource.fileUrl);
-    // Members already inside Field Kit — no lead gate
+    // Members already inside Membership — no lead gate
     if (canUseFieldKit) {
       trackEvent("resource_download", resource.title);
       window.open(url, "_blank");

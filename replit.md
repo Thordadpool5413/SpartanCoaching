@@ -9,7 +9,7 @@ Expert hospice growth consulting site + Spartan Membership tools (web + iOS). Tw
 - `pnpm --filter @workspace/spartan-coaching-mobile run dev` — Expo mobile
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only) — **required after Field Kit auth tables**
+- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only) — **required after membership auth tables**
 - Required env: `DATABASE_URL` — Postgres connection string
 - Auth/email env: `OPENAI_API_KEY`, `RESEND_API_KEY` / connector, `NOTIFICATION_EMAIL`, `SITE_URL`
 - **Billing (Stripe):** `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PRICE_INDIVIDUAL_WEEKLY` ($14.99/week price id)
@@ -39,7 +39,7 @@ Expert hospice growth consulting site + Spartan Membership tools (web + iOS). Tw
 - DB: PostgreSQL + Drizzle ORM
 - Web: Vite + React 19 + Wouter
 - Mobile: Expo Router
-- Field Kit auth: scrypt passwords, httpOnly cookie (web) + Bearer token (mobile)
+- Membership auth: scrypt passwords, httpOnly cookie (web) + Bearer token (mobile)
 - AI: OpenAI; Email: Resend
 
 ## Where things live
@@ -99,7 +99,7 @@ Expert hospice growth consulting site + Spartan Membership tools (web + iOS). Tw
 - Mobile app (Expo Go): scan QR from the **Replit URL bar**, not the Expo LAN IP
 - Mobile session token stored in AsyncStorage; send `Authorization: Bearer <token>`
 - Auth unit tests: `pnpm --filter @workspace/api-server run test`
-- Smoke checklist: `scripts/smoke-field-kit.md`
+- Smoke checklist: `scripts/smoke-membership.md`
 - Live health smoke: `node scripts/smoke-health.mjs https://your-host`
 
 ## Pointers

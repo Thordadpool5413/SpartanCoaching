@@ -81,7 +81,7 @@ export interface LeadGateState {
 }
 
 /**
- * Export/download gate. Authenticated Field Kit members skip the name/email dialog
+ * Export/download gate. Authenticated Membership members skip the name/email dialog
  * and run the action immediately (usage still tracked with their account).
  */
 export function useLeadGate(toolName: string) {
@@ -115,7 +115,7 @@ export function useLeadGate(toolName: string) {
 
   const capture = useCallback(
     (fn: () => void, getEmailPdf?: () => EmailPdfPayload | null) => {
-      // Logged-in Field Kit clients: no second gate
+      // Logged-in Membership clients: no second gate
       if (isAuthenticated && member && canUseFieldKit) {
         void runWithIdentity(member.name, member.email, fn, getEmailPdf ?? null);
         return;

@@ -1,5 +1,5 @@
 /**
- * Clinical vault visual language — calm instrument, not Field Kit marketing.
+ * Clinical vault visual language — calm instrument, not Membership marketing.
  * Distinct from Spartan red primary used on consumer tools.
  */
 export const VAULT = {

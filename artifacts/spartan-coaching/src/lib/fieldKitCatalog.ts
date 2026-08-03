@@ -1,5 +1,5 @@
 /**
- * Re-export shared Field Kit catalog (web + mobile single source of truth).
+ * Re-export shared Membership catalog (web + mobile single source of truth).
  */
 export {
   type FieldKitCategory,

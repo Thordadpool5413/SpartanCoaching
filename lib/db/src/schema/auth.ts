@@ -67,7 +67,7 @@ export const orgTimelineEvents = pgTable(
 
 export type OrgTimelineEvent = typeof orgTimelineEvents.$inferSelect;
 
-/** Field Kit members (distinct from Replit Auth users table) */
+/** Membership members (distinct from Replit Auth users table) */
 export const clientMembers = pgTable(
   "client_members",
   {
@@ -96,7 +96,7 @@ export const clientMembers = pgTable(
 export type ClientMember = typeof clientMembers.$inferSelect;
 export type InsertClientMember = typeof clientMembers.$inferInsert;
 
-/** Browser / mobile sessions for Field Kit auth */
+/** Browser / mobile sessions for Membership auth */
 export const clientSessions = pgTable(
   "client_sessions",
   {

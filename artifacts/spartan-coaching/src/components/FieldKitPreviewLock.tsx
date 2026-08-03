@@ -21,7 +21,7 @@ type Props = {
 
 function isAllowedPreviewTarget(target: EventTarget | null): boolean {
   if (!(target instanceof Element)) return false;
-  // Banner, unlock dialog, Field Kit chrome nav, pure links (breadcrumbs, etc.)
+  // Banner, unlock dialog, Membership chrome nav, pure links (breadcrumbs, etc.)
   if (target.closest("[data-preview-interactive]")) return true;
   if (target.closest('[data-testid="field-kit-chrome"]')) return true;
   if (target.closest('[data-testid="field-kit-preview-nudge"]')) return true;
@@ -44,7 +44,7 @@ function isToolInteractionTarget(target: EventTarget | null): boolean {
 }
 
 /**
- * Lets non-subscribers see the real Field Kit tool UI (layout, copy, defaults)
+ * Lets non-subscribers see the real Membership tool UI (layout, copy, defaults)
  * while blocking generate/save/run interactions. Server APIs stay requireFieldKit-gated.
  * Navigation (chrome, breadcrumbs, links) still works so users can browse tools.
  */
