@@ -215,7 +215,7 @@ export function Header() {
   }, [location]);
 
   const allSearchItems = allSearchablePages;
-  // Marketing home always — Field Kit board is reached via Field Kit / Portal links.
+  // Marketing home always — Portal is for signed-in members.
   const homeHref = "/";
 
   const filteredResults = searchQuery.trim()
@@ -255,7 +255,7 @@ export function Header() {
                   SPARTAN COACHING
                 </span>
                 <span className="hidden md:block text-[9px] font-bold uppercase tracking-[0.16em] text-muted-foreground mt-1.5 whitespace-nowrap">
-                  Hospice growth · Field command
+                  Consulting · Membership tools
                 </span>
               </div>
             </div>
@@ -367,7 +367,7 @@ export function Header() {
                 ) : (
                   <>
                     <MobileNavLink href="/login" label="Client Login" location={location} onClose={() => setMobileMenuOpen(false)} />
-                    <MobileNavLink href="/register" label="Create account · Field Kit" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavLink href="/register" label="Create account · Membership" location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavLink href="/request-access" label="Team / evaluation access" location={location} onClose={() => setMobileMenuOpen(false)} />
                     {navSections.map((section) => (
                       <div key={section.title}>
@@ -402,7 +402,7 @@ export function Header() {
                 <>
                   <Button size="lg" variant="outline" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-register">
                     <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
-                      Create account · Field Kit
+                      Create account · Membership
                     </Link>
                   </Button>
                   <Button size="lg" variant="ghost" asChild className="w-full font-semibold touch-manipulation" data-testid="button-mobile-request">
@@ -476,23 +476,22 @@ export function Footer() {
       : "calc(5rem + env(safe-area-inset-bottom, 0px))";
 
   const memberLinks = [
-    { href: "/portal", label: "Board" },
+    { href: "/portal", label: "Portal" },
     { href: "/tools/sales-workflow", label: "Command Center" },
     { href: "/tools", label: "All tools" },
     { href: "/resources", label: "Resources" },
     { href: "/portal/learn", label: "Learn" },
     { href: "/account", label: "Account" },
-    { href: "/contact?service=Field+Kit+Debrief", label: "Coach" },
+    { href: "/contact?service=Membership+Debrief", label: "Coach" },
     { href: "/compliance", label: "Compliance" },
     { href: "/faq", label: "FAQ" },
   ];
 
   const publicLinks = [
-    { href: "/field-kit", label: "Field Kit" },
+    { href: "/membership", label: "Spartan Membership" },
     { href: "/tools", label: "Preview tools" },
-    { href: "/field-kit-membership", label: "Membership $14.99/wk" },
+    { href: "/services", label: "Consulting" },
     { href: "/register", label: "Create account" },
-    { href: "/services", label: "Services" },
     { href: "/about", label: "About" },
     { href: "/contact", label: "Book a call" },
     { href: "/request-access", label: "Team access" },
@@ -516,18 +515,18 @@ export function Footer() {
               <div>
                 <p className="font-display text-lg font-black text-foreground tracking-tight uppercase">Spartan Coaching</p>
                 <p className="text-xs text-muted-foreground mt-1 uppercase tracking-widest">
-                  {canUseFieldKit ? "Field Kit · Member" : "The Authority in Hospice Excellence"}
+                  {canUseFieldKit ? "Membership · Portal" : "Consulting · Membership"}
                 </p>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {canUseFieldKit
-                  ? "Private operating system for hospice growth — Command Center, tools, and coaching when you need a human."
-                  : "Structured coaching for hospice sales reps, directors, and organizations who want a repeatable system — not another motivational talk."}
+                  ? "Your membership portal — Command Center, tools, resources, and coaching when you need a human."
+                  : "Hospice growth consulting and a tools membership for web and iPhone — two clear offers, one firm."}
               </p>
               <p className="text-xs text-muted-foreground/90 leading-relaxed border-l-2 border-primary/50 pl-3">
                 {canUseFieldKit
                   ? "No PHI in tools · Cancel anytime from Account · Ethics-first field work"
-                  : "Private Field Kit · Preview free · Individuals $14.99/wk · Cancel anytime · Teams under contract · No PHI in consumer tools"}
+                  : "Consulting for teams · Membership $14.99/wk · Preview free · Cancel anytime · No PHI in consumer tools"}
               </p>
               <div className="flex flex-col gap-2">
                 <a href="mailto:nick@spartanhospicecoaching.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-email">
@@ -550,7 +549,7 @@ export function Footer() {
             {/* Column 2 — Quick navigation */}
             <div className="flex flex-col gap-4">
               <p className="text-xs font-bold text-foreground uppercase tracking-widest">
-                {canUseFieldKit ? "Field Kit" : "Quick Links"}
+                {canUseFieldKit ? "Portal" : "Quick Links"}
               </p>
               <nav className="grid grid-cols-2 gap-x-4 gap-y-2">
                 {links.map(({ href, label }) => (

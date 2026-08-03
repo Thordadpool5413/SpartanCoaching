@@ -11,13 +11,13 @@ import {
 } from "lucide-react";
 
 const PORTAL_LINKS = [
-  { href: "/portal", label: "Board", icon: LayoutDashboard },
+  { href: "/portal", label: "Portal", icon: LayoutDashboard },
   { href: "/tools/sales-workflow", label: "Command", icon: Crosshair },
-  { href: "/tools", label: "All tools", icon: Wrench },
+  { href: "/tools", label: "Tools", icon: Wrench },
   { href: "/resources", label: "Resources", icon: FolderOpen },
   { href: "/portal/learn", label: "Learn", icon: BookOpen },
   { href: "/account", label: "Account", icon: UserCircle },
-  { href: "/contact?service=Field+Kit+Debrief", label: "Coach", icon: Phone },
+  { href: "/contact?service=Membership+Debrief", label: "Coach", icon: Phone },
 ];
 
 function isActive(location: string, href: string) {
@@ -53,7 +53,7 @@ export function PortalNav({ className }: { className?: string }) {
   return (
     <nav
       className={cn("flex items-center gap-0.5 flex-wrap", className)}
-      aria-label="Field Kit navigation"
+      aria-label="Membership portal navigation"
       data-testid="portal-nav"
     >
       {PORTAL_LINKS.map(({ href, label, icon: Icon }) => {
@@ -89,7 +89,7 @@ export function PortalMobileLinks({
   return (
     <div className="flex flex-col space-y-1 pb-2" data-testid="portal-mobile-nav">
       <p className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider pt-2 pb-1">
-        Field Kit
+        Portal
       </p>
       {PORTAL_LINKS.map(({ href, label }) => (
         <Link

@@ -9,9 +9,9 @@ export function useFieldKitChecklistToast() {
     const onDone = (e: Event) => {
       const detail = (e as CustomEvent).detail as { label?: string } | undefined;
       toast({
-        title: "Field Kit progress updated",
+        title: "Portal progress updated",
         description: detail?.label
-          ? `Marked complete: ${detail.label}. See Field Kit home for what's next.`
+          ? `Marked complete: ${detail.label}. See Portal for what's next.`
           : "Checklist item marked complete.",
       });
     };

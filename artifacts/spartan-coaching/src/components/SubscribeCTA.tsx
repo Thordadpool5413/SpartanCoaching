@@ -67,14 +67,14 @@ export function SubscribeCTA({
 
   const hint = (() => {
     if (!showHint) return null;
-    if (canUseFieldKit) return "Your Field Kit is unlocked.";
+    if (canUseFieldKit) return "Your membership is unlocked.";
     if (!isAuthenticated) {
-      return "Create your account, then subscribe · $14.99/week · cancel anytime";
+      return "Create your account, then start membership · $14.99/week · cancel anytime";
     }
     if (canSelfServeCheckout) {
       return expired
         ? "Resubscribe to unlock live tools again · cancel anytime"
-        : "Unlock all tools after checkout · cancel anytime from Account";
+        : "Unlock tools & resources after checkout · cancel anytime from Account";
     }
     if (suspended && isPersonal) return "Update your card to restore access.";
     if (isCompany) return "Team seats are activated under contract — not self-serve individual checkout.";
@@ -86,7 +86,7 @@ export function SubscribeCTA({
       return (
         <Button asChild variant={variant} size={size} className={cn("font-bold", className)} data-testid={testId}>
           <Link href="/portal" onClick={() => track("open_field_kit")}>
-            Open Field Kit
+            Open portal
             <ArrowRight className="ml-2 w-4 h-4" />
           </Link>
         </Button>
@@ -98,7 +98,7 @@ export function SubscribeCTA({
         <>
           <Button asChild variant={variant} size={size} className={cn("font-bold", className)} data-testid={testId}>
             <Link href="/register" onClick={() => track("register")}>
-              Create account to subscribe
+              Create account for membership
               <ArrowRight className="ml-2 w-4 h-4" />
             </Link>
           </Button>
@@ -166,7 +166,7 @@ export function SubscribeCTA({
             ) : (
               <>
                 <CreditCard className="mr-2 w-4 h-4" />
-                {expired ? "Resubscribe · $14.99/wk" : "Subscribe · $14.99/wk"}
+                {expired ? "Resubscribe · $14.99/wk" : "Start membership · $14.99/wk"}
               </>
             )}
           </Button>

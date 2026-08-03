@@ -1,11 +1,11 @@
 /**
- * Canonical compliance and PHI language for Field Kit surfaces.
+ * Canonical compliance and PHI language for membership tool surfaces.
  * Keep web + mobile wording aligned; change here first, then mirror mobile.
  *
  * Nick should approve material public claim changes (see docs/content-compliance.md).
  */
 
-/** Consumer Field Kit / no-PHI tools */
+/** Consumer membership / no-PHI tools */
 export const FIELD_KIT_PHI = {
   short: "Do not enter PHI",
   banner:
@@ -23,7 +23,7 @@ export const CLINICAL_VAULT = {
   runWatermark:
     "Educational decision support only. Qualified clinical review required. Not retained.",
   hubIntro:
-    "These workflows may process clinical content under authorized access only. They are not consumer Field Kit tools. Results are educational decision support — not diagnosis, coverage determination, or autonomous admission decisions. Runs are ephemeral when live; use only when your role and organization permit.",
+    "These workflows may process clinical content under authorized access only. They are not consumer membership tools. Results are educational decision support — not diagnosis, coverage determination, or autonomous admission decisions. Runs are ephemeral when live; use only when your role and organization permit.",
   chips: [
     "Authorized roles only",
     "Ephemeral by design",
@@ -39,7 +39,7 @@ export const CLINICAL_VAULT = {
 export const PUBLIC_CLAIM_SAFE = {
   yearsHospice: "12+ years hospice-specific",
   fieldBuilt: "Built for SNFs & MD offices",
-  ethics: "No PHI in Field Kit tools",
+  ethics: "No PHI in membership tools",
   /** Prefer this over “reps who rank at the top” */
   fieldCraft: "Field-tested coaching, not generic sales AI",
   prepareNotWing: "Prepared conversations — not winging Tuesday",

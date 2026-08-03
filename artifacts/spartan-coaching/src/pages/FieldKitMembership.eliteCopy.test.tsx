@@ -1,10 +1,10 @@
 /**
- * Asserts that the elite positioning copy on the /field-kit-membership page
+ * Asserts that the elite positioning copy on the /membership page
  * renders correctly for every subscriber state: unauthenticated, authenticated
  * and able to subscribe, and already subscribed.
  *
- * Verifies "Join the Field Kit" positioning and SubscribeCTA honest funnel
- * (Create account → Subscribe · $14.99/wk → Open Field Kit).
+ * Verifies "Spartan Membership" positioning and SubscribeCTA honest funnel
+ * (Create account → Start membership · $14.99/wk → Open portal).
  */
 import { describe, it, expect, beforeAll, afterEach, vi } from "vitest";
 import { render, cleanup, screen } from "@testing-library/react";
@@ -167,51 +167,52 @@ describe("FieldKitMembership page container", () => {
   });
 });
 
-describe("FieldKitMembership hero copy — 'Join the Field Kit'", () => {
-  it("shows 'Join the Field Kit' eyebrow when unauthenticated", async () => {
+describe("FieldKitMembership hero copy — 'Spartan Membership'", () => {
+  it("shows 'Spartan Membership' eyebrow when unauthenticated", async () => {
     await renderMembership(UNAUTHED);
-    expect(screen.getAllByText(/Join the Field Kit/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Spartan Membership/i).length).toBeGreaterThan(0);
   });
 
-  it("shows 'Join the Field Kit' eyebrow when can-subscribe", async () => {
+  it("shows 'Spartan Membership' eyebrow when can-subscribe", async () => {
     await renderMembership(CAN_SUBSCRIBE);
-    expect(screen.getAllByText(/Join the Field Kit/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Spartan Membership/i).length).toBeGreaterThan(0);
   });
 
-  it("shows 'Join the Field Kit' eyebrow when already subscribed", async () => {
+  it("shows 'Spartan Membership' eyebrow when already subscribed", async () => {
     await renderMembership(ALREADY_SUBSCRIBED);
-    expect(screen.getAllByText(/Join the Field Kit/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Spartan Membership/i).length).toBeGreaterThan(0);
   });
 });
 
 describe("FieldKitMembership hero headline — elite positioning", () => {
-  it("shows 'Not every rep has access' in the hero when unauthenticated", async () => {
+  it("shows 'Tools and resources for hospice growth' in the hero when unauthenticated", async () => {
     await renderMembership(UNAUTHED);
-    expect(screen.getByText(/Not every rep has access/i)).toBeTruthy();
+    expect(screen.getByText(/Tools and resources for hospice growth/i)).toBeTruthy();
   });
 
-  it("shows 'Not every rep has access' in the hero when can-subscribe", async () => {
+  it("shows 'Tools and resources for hospice growth' in the hero when can-subscribe", async () => {
     await renderMembership(CAN_SUBSCRIBE);
-    expect(screen.getByText(/Not every rep has access/i)).toBeTruthy();
+    expect(screen.getByText(/Tools and resources for hospice growth/i)).toBeTruthy();
   });
 
-  it("shows 'Not every rep has access' in the hero when already subscribed", async () => {
+  it("shows 'Tools and resources for hospice growth' in the hero when already subscribed", async () => {
     await renderMembership(ALREADY_SUBSCRIBED);
-    expect(screen.getByText(/Not every rep has access/i)).toBeTruthy();
+    expect(screen.getByText(/Tools and resources for hospice growth/i)).toBeTruthy();
   });
 
-  it("shows 'the top reps in your market use' copy in the hero", async () => {
+  it("shows web and iPhone + $14.99/week framing in the hero", async () => {
     await renderMembership(UNAUTHED);
-    expect(screen.getByText(/the top reps in your market use/i)).toBeTruthy();
+    expect(screen.getAllByText(/Web and iPhone/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/\$14\.99/i).length).toBeGreaterThan(0);
   });
 });
 
 describe("FieldKitMembership CTA — unauthenticated", () => {
-  it("shows Create account to subscribe via SubscribeCTA in the hero", async () => {
+  it("shows Create account for membership via SubscribeCTA in the hero", async () => {
     await renderMembership(UNAUTHED);
     const cta = screen.getByTestId("membership-hero-subscribe");
     expect(cta).toBeTruthy();
-    expect(cta.textContent).toMatch(/Create account to subscribe/i);
+    expect(cta.textContent).toMatch(/Create account for membership/i);
   });
 
   it("shows Sign in for existing users", async () => {
@@ -231,60 +232,65 @@ describe("FieldKitMembership CTA — unauthenticated", () => {
 });
 
 describe("FieldKitMembership CTA — can-subscribe", () => {
-  it("shows Subscribe · $14.99/wk in the hero", async () => {
+  it("shows Start membership / Resubscribe · $14.99/wk in the hero", async () => {
     await renderMembership(CAN_SUBSCRIBE);
     const btn = screen.getByTestId("membership-hero-subscribe");
     expect(btn).toBeTruthy();
-    expect(btn.textContent).toMatch(/Subscribe · \$14\.99\/wk|Resubscribe · \$14\.99\/wk/i);
+    expect(btn.textContent).toMatch(
+      /Start membership · \$14\.99\/wk|Resubscribe · \$14\.99\/wk|Subscribe · \$14\.99\/wk/i,
+    );
   });
 
   it("shows subscribe CTA in the individual tier card", async () => {
     await renderMembership(CAN_SUBSCRIBE);
     const tierBtn = screen.getByTestId("button-tier-individual");
     expect(tierBtn).toBeTruthy();
-    expect(tierBtn.textContent).toMatch(/Subscribe · \$14\.99\/wk|Resubscribe · \$14\.99\/wk/i);
+    expect(tierBtn.textContent).toMatch(
+      /Start membership · \$14\.99\/wk|Resubscribe · \$14\.99\/wk|Subscribe · \$14\.99\/wk/i,
+    );
   });
 
   it("does NOT show Create account as the hero CTA when can-subscribe", async () => {
     await renderMembership(CAN_SUBSCRIBE);
-    expect(screen.queryByText(/Create account to subscribe/i)).toBeNull();
+    expect(screen.queryByText(/Create account for membership/i)).toBeNull();
   });
 
-  it("does NOT show Open Field Kit when can-subscribe", async () => {
+  it("does NOT show Open portal when can-subscribe", async () => {
     await renderMembership(CAN_SUBSCRIBE);
-    expect(screen.queryByText(/Open Field Kit/i)).toBeNull();
+    expect(screen.queryByText(/Open portal/i)).toBeNull();
   });
 });
 
 describe("FieldKitMembership CTA — already subscribed", () => {
-  it("shows Open Field Kit in the hero", async () => {
+  it("shows Open portal in the hero", async () => {
     await renderMembership(ALREADY_SUBSCRIBED);
     const cta = screen.getByTestId("membership-hero-subscribe");
-    expect(cta.textContent).toMatch(/Open Field Kit/i);
+    expect(cta.textContent).toMatch(/Open portal/i);
   });
 
-  it("does NOT show Subscribe · $14.99/wk when already subscribed", async () => {
+  it("does NOT show paid subscribe CTAs when already subscribed", async () => {
     await renderMembership(ALREADY_SUBSCRIBED);
     expect(screen.queryByText(/Subscribe · \$14\.99\/wk/i)).toBeNull();
+    expect(screen.queryByText(/Start membership · \$14\.99\/wk/i)).toBeNull();
   });
 
   it("does NOT show Create account CTA when already subscribed", async () => {
     await renderMembership(ALREADY_SUBSCRIBED);
-    expect(screen.queryByText(/Create account to subscribe/i)).toBeNull();
+    expect(screen.queryByText(/Create account for membership/i)).toBeNull();
   });
 });
 
-describe("FieldKitMembership individual tier card — 'Join the Field Kit'", () => {
-  it("shows 'Join the Field Kit' as the individual tier card heading", async () => {
+describe("FieldKitMembership individual tier card — 'Spartan Membership'", () => {
+  it("shows 'Spartan Membership' as the individual tier card heading", async () => {
     await renderMembership(UNAUTHED);
     const card = screen.getByTestId("card-tier-individual");
-    expect(card.textContent).toMatch(/Join the Field Kit/i);
+    expect(card.textContent).toMatch(/Spartan Membership/i);
   });
 
-  it("individual tier card heading shows 'Join the Field Kit' when can-subscribe", async () => {
+  it("individual tier card heading shows 'Spartan Membership' when can-subscribe", async () => {
     await renderMembership(CAN_SUBSCRIBE);
     const card = screen.getByTestId("card-tier-individual");
-    expect(card.textContent).toMatch(/Join the Field Kit/i);
+    expect(card.textContent).toMatch(/Spartan Membership/i);
   });
 });
 

@@ -7,7 +7,7 @@ import { getToolByPath } from "@/lib/fieldKitCatalog";
 import { cn } from "@/lib/utils";
 
 /**
- * Standard shell for every Field Kit tool page:
+ * Standard shell for every membership tool page:
  * chrome (what + nav) → breadcrumbs → when/how/why → page content.
  */
 export function FieldKitToolLayout({
@@ -38,12 +38,12 @@ export function FieldKitToolLayout({
   const crumbs =
     section === "learn"
       ? [
-          { label: "Field Kit", href: "/portal" },
+          { label: "Portal", href: "/portal" },
           { label: "Learn", href: "/portal/learn" },
           ...(crumbTitle ? [{ label: crumbTitle }] : []),
         ]
       : [
-          { label: "Field Kit", href: "/portal" },
+          { label: "Portal", href: "/portal" },
           { label: "Tools", href: "/tools" },
           ...(crumbTitle ? [{ label: crumbTitle }] : []),
         ];

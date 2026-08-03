@@ -98,7 +98,7 @@ export function FieldKitPreviewLock({ children }: Props) {
             <div className="min-w-0">
               <p className="text-sm font-bold text-foreground leading-snug">{bannerTitle}</p>
               <p className="text-xs text-muted-foreground leading-snug">
-                Full tool layout is visible. Generate, save, edit, and run require an active Field Kit.
+                Full tool layout is visible. Generate, save, edit, and run require an active membership.
               </p>
             </div>
           </div>
@@ -156,7 +156,7 @@ export function FieldKitPreviewLock({ children }: Props) {
               </Button>
             )}
             <Button size="sm" variant="ghost" className="font-semibold" asChild>
-              <Link href="/field-kit-membership">Pricing</Link>
+              <Link href="/membership">Pricing</Link>
             </Button>
           </div>
         </div>
@@ -207,7 +207,7 @@ export function FieldKitPreviewLock({ children }: Props) {
                     Unlock this tool
                   </h2>
                   <p className="text-sm text-muted-foreground leading-relaxed mt-1">
-                    You&apos;re viewing the real Field Kit interface. Live runs, AI generation, saves, and
+                    You&apos;re viewing the real membership tool interface. Live runs, AI generation, saves, and
                     exports require an active membership or evaluation window.
                   </p>
                 </div>
@@ -267,13 +267,13 @@ export function FieldKitPreviewLock({ children }: Props) {
                 </Button>
               )}
               <Button variant="ghost" className="w-full font-semibold" asChild>
-                <Link href="/contact?service=Field+Kit+Membership">
+                <Link href="/contact?service=Membership">
                   <Phone className="mr-2 w-4 h-4" />
                   Talk to Nick
                 </Link>
               </Button>
               <Button variant="ghost" className="w-full font-semibold" asChild>
-                <Link href="/field-kit-membership">View membership options</Link>
+                <Link href="/membership">View membership options</Link>
               </Button>
             </div>
 

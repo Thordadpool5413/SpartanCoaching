@@ -1,6 +1,6 @@
 /**
  * Wave 4 — conversion CTA state matrix (happy-path unit tests).
- * Register → Subscribe → Open Field Kit must never show false free-trial copy.
+ * Register → Start membership → Open portal must never show false free-trial copy.
  */
 import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { render, screen, cleanup } from "@testing-library/react";
@@ -41,7 +41,7 @@ afterEach(() => {
 });
 
 describe("SubscribeCTA — state matrix", () => {
-  it("logged out: Create account to subscribe (not free trial)", () => {
+  it("logged out: Create account for membership (not free trial)", () => {
     mockUseAuth.mockReturnValue({
       isAuthenticated: false,
       canUseFieldKit: false,
@@ -50,13 +50,13 @@ describe("SubscribeCTA — state matrix", () => {
       fieldKit: null,
     });
     render(<SubscribeCTA surface="field_kit_why" showPreview testId="cta" />);
-    expect(screen.getByText(/Create account to subscribe/i)).toBeTruthy();
+    expect(screen.getByText(/Create account for membership/i)).toBeTruthy();
     expect(screen.queryByText(/free trial/i)).toBeNull();
     expect(screen.getByText(/Preview tools/i)).toBeTruthy();
     expect(screen.getByText(/Sign in/i)).toBeTruthy();
   });
 
-  it("can subscribe personal: Subscribe · $14.99/wk", () => {
+  it("can subscribe personal: Resubscribe · $14.99/wk when expired", () => {
     mockUseAuth.mockReturnValue({
       isAuthenticated: true,
       canUseFieldKit: false,
@@ -71,10 +71,12 @@ describe("SubscribeCTA — state matrix", () => {
       fieldKit: { allowed: false, reason: "expired" },
     });
     render(<SubscribeCTA surface="account" testId="cta" />);
-    expect(screen.getByText(/Resubscribe · \$14\.99\/wk|Subscribe · \$14\.99\/wk/i)).toBeTruthy();
+    expect(
+      screen.getByText(/Resubscribe · \$14\.99\/wk|Start membership · \$14\.99\/wk|Subscribe · \$14\.99\/wk/i),
+    ).toBeTruthy();
   });
 
-  it("active member: Open Field Kit", () => {
+  it("active member: Open portal", () => {
     mockUseAuth.mockReturnValue({
       isAuthenticated: true,
       canUseFieldKit: true,
@@ -89,7 +91,7 @@ describe("SubscribeCTA — state matrix", () => {
       fieldKit: { allowed: true },
     });
     render(<SubscribeCTA surface="field_kit_hero" testId="cta" />);
-    expect(screen.getByText(/Open Field Kit/i)).toBeTruthy();
+    expect(screen.getByText(/Open portal/i)).toBeTruthy();
     expect(screen.queryByText(/Subscribe · \$14\.99/i)).toBeNull();
   });
 

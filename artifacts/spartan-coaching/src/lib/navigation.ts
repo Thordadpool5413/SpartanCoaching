@@ -43,25 +43,26 @@ export interface SiteNavSection {
 }
 
 /**
- * Marketing header nav — intentionally short (elite restraint).
+ * Marketing header nav — dual product restraint:
+ * Consulting (human) · Membership (tools & resources subscription) · Learn
  * Full tool list remains searchable via additionalPages / allSearchablePages.
  */
 export const navSections: SiteNavSection[] = [
   {
-    title: "Solutions",
+    title: "Consulting",
     items: [
       { path: "/services", label: "Services", description: "Coaching and consulting for hospice growth", icon: Briefcase },
       { path: "/programs", label: "Programs", description: "Team workshops and growth systems", icon: GraduationCap },
       { path: "/method", label: "The Spartan Method", description: "Discipline, empathy, and strategy", icon: Shield },
       { path: "/manifesto", label: "The Spartan Ethos", description: "What it means to be Spartan", icon: Flame },
+      { path: "/contact", label: "Book a strategy call", description: "Talk with Nick about coaching", icon: Phone },
     ],
   },
   {
-    title: "Field Kit",
+    title: "Membership",
     items: [
-      { path: "/field-kit", label: "What's in the Field Kit", description: "Tools, scenarios, and why reps subscribe", icon: Flame },
-      { path: "/tools", label: "Preview tools", description: "See the real interfaces — live use with membership", icon: Wrench },
-      { path: "/field-kit-membership", label: "Membership $14.99/wk", description: "Individual weekly · cancel anytime", icon: DollarSign },
+      { path: "/membership", label: "Spartan Membership", description: "Tools & resources · $14.99/wk · web + iOS", icon: DollarSign },
+      { path: "/tools", label: "Preview tools", description: "See the interfaces — live use with membership", icon: Wrench },
       { path: "/register", label: "Create account", description: "Then subscribe to unlock live tools", icon: Lock },
       { path: "/request-access", label: "Team / evaluation", description: "Company seats or arranged evaluation", icon: Users },
     ],
@@ -83,9 +84,11 @@ export const additionalPages: SiteNavItem[] = [
   { path: "/", label: "Home", description: "Main landing page", icon: Home },
   { path: "/about", label: "About", description: "About Spartan Coaching and Nick Lynch", icon: Info },
   { path: "/contact", label: "Contact", description: "Book a strategy call", icon: Phone },
-  { path: "/portal", label: "Field Kit Board", description: "Member execution home", icon: Home },
+  { path: "/portal", label: "Portal", description: "Member home — next action & tools", icon: Home },
+  { path: "/membership", label: "Spartan Membership", description: "Tools & resources · $14.99/wk", icon: DollarSign },
+  { path: "/field-kit", label: "Membership (legacy)", description: "Redirects to Membership", icon: Flame },
   { path: "/account", label: "Account & billing", description: "Subscribe, cancel, manage membership", icon: DollarSign },
-  { path: "/login", label: "Client Login", description: "Sign in to Field Kit", icon: Lock },
+  { path: "/login", label: "Client Login", description: "Sign in to your membership / portal", icon: Lock },
   { path: "/tools/sales-workflow", label: "Sales Command Center", description: "Daily account workflow spine", icon: Wrench },
   { path: "/tools/ai", label: "Advanced library", description: "Specialized runs and clinical vault", icon: BookOpen },
   { path: "/tools/playbooks", label: "Sales Playbooks", description: "Generate custom sales playbooks", icon: Lightbulb },

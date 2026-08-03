@@ -38,7 +38,7 @@ const MEMBER_LINKS = [
       loc === "/podcasts",
   },
   {
-    href: "/contact?service=Field+Kit+Debrief",
+    href: "/contact?service=Membership+Debrief",
     label: "Debrief",
     icon: Phone,
     match: (loc: string) => loc.startsWith("/contact"),
@@ -48,10 +48,14 @@ const MEMBER_LINKS = [
 /** Browse-only nav for visitors previewing tools without a subscription */
 const PREVIEW_LINKS = [
   {
-    href: "/field-kit",
-    label: "Overview",
+    href: "/membership",
+    label: "Membership",
     icon: Home,
-    match: (loc: string) => loc === "/field-kit",
+    match: (loc: string) =>
+      loc === "/membership" ||
+      loc === "/field-kit" ||
+      loc === "/field-kit-membership" ||
+      loc.startsWith("/pricing/field-kit"),
   },
   {
     href: "/tools",
@@ -66,16 +70,15 @@ const PREVIEW_LINKS = [
     match: (loc: string) => loc === "/resources" || loc.startsWith("/resources/"),
   },
   {
-    href: "/field-kit-membership",
-    label: "Pricing",
+    href: "/register",
+    label: "Join",
     icon: Phone,
-    match: (loc: string) =>
-      loc === "/field-kit-membership" || loc.startsWith("/pricing/field-kit"),
+    match: (loc: string) => loc === "/register" || loc === "/login",
   },
 ];
 
 /**
- * Persistent orientation strip for Field Kit surfaces.
+ * Persistent orientation strip for membership tool surfaces.
  * Members get full nav; non-members get a preview browse strip so they can
  * move between tool UIs without live access.
  */
@@ -104,7 +107,7 @@ export function FieldKitChrome({
             ? "Member · Team"
             : organization?.billingPlan === "comp"
               ? "Member · Comp"
-              : "Field Kit Member"
+              : "Member"
         : null;
 
   return (
@@ -121,8 +124,8 @@ export function FieldKitChrome({
         <div className="min-w-0 space-y-1.5">
           <p className="text-kicker">
             {isPreview
-              ? "Field Kit · preview browse"
-              : "Field Kit · private operating system"}
+              ? "Membership · preview browse"
+              : "Membership · tools & resources"}
           </p>
           <p className="text-sm text-foreground/95 leading-relaxed max-w-2xl">
             {isPreview
@@ -156,13 +159,13 @@ export function FieldKitChrome({
 
       <nav
         className="flex flex-wrap gap-1.5 pt-2 border-t border-border/50"
-        aria-label="Field Kit sections"
+        aria-label="Membership sections"
       >
         {links.map(({ href, label, icon: Icon, match }) => {
           const active = match(location);
           return (
             <Link
-              key={href}
+              key={`${label}-${href}`}
               href={href}
               className={cn(
                 "inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-xl transition-all duration-200",

@@ -71,7 +71,7 @@ export function MembershipActivation() {
         ? "Team · under contract"
         : organization?.billingPlan === "comp"
           ? "Complimentary member"
-          : "Field Kit Member";
+          : "Spartan Member";
 
   const dismiss = () => setShow(false);
 
@@ -102,7 +102,7 @@ export function MembershipActivation() {
             )}
           </div>
           <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
-            Field Kit membership
+            Spartan Membership
           </p>
           <h2
             id="membership-activation-title"
@@ -116,9 +116,9 @@ export function MembershipActivation() {
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
             {confirmed
-              ? "Your private operating system for hospice growth is active. Start in Sales Command Center — add your next facility account (no PHI) and run the day from there."
+              ? "Your membership is active. Start in Sales Command Center — add your next facility account (no PHI) and run the day from there."
               : confirming
-                ? "Payment received. Unlocking Field Kit — this usually takes a few seconds."
+                ? "Payment received. Unlocking membership tools — this usually takes a few seconds."
                 : "If tools stay locked, refresh in a moment or open Account. Support can confirm billing if needed."}
           </p>
           {confirmed && (
@@ -136,7 +136,7 @@ export function MembershipActivation() {
             </Link>
           </Button>
           <Button asChild variant="outline" className="font-bold w-full" onClick={dismiss}>
-            <Link href="/portal">Stay on Field Kit board</Link>
+            <Link href="/portal">Stay on portal</Link>
           </Button>
           <Button asChild variant="ghost" className="font-semibold w-full text-sm">
             <Link href="/account" onClick={dismiss}>

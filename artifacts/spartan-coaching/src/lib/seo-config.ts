@@ -37,17 +37,17 @@ export function isNoIndexPath(path: string): boolean {
 
 const seoDefaults: Record<string, SEOConfig> = {
   '/': {
-    title: 'Spartan Coaching | Hospice Sales Consulting & Field Coaching',
+    title: 'Spartan Coaching | Hospice Sales Consulting & Membership',
     description:
-      'Practical hospice growth coaching from Nick Lynch. Private Field Kit: preview tools free, then subscribe for $14.99/week (cancel anytime). Teams and coaching under contract.',
+      'Practical hospice growth coaching from Nick Lynch. Consulting for teams — and Spartan Membership for tools & resources on web and iPhone ($14.99/week, cancel anytime).',
     keywords:
-      'hospice sales consulting, hospice sales coaching, hospice growth coaching, Field Kit, Nick Lynch, referral development',
+      'hospice sales consulting, hospice sales coaching, hospice growth coaching, Spartan Membership, Nick Lynch, referral development',
   },
   '/services': {
     title: 'Coaching Services | Spartan Coaching',
     description:
-      'Hospice growth consulting: individual coaching, leadership systems, and private Field Kit access. Individual membership $14.99/week; team seats under contract.',
-    keywords: 'hospice sales coaching, Field Kit, leadership coaching, consulting services',
+      'Hospice growth consulting: individual coaching, leadership systems, and Spartan Membership tools. Individual membership $14.99/week; team seats under contract.',
+    keywords: 'hospice sales coaching, Spartan Membership, leadership coaching, consulting services',
   },
   '/programs': {
     title: 'Training Programs | Spartan Coaching',
@@ -58,55 +58,61 @@ const seoDefaults: Record<string, SEOConfig> = {
   '/method': {
     title: 'The Spartan Method | Spartan Coaching',
     description:
-      'Discipline, Empathy, and Strategy — field-tested hospice sales method. Practice it in the private Field Kit between sessions.',
-    keywords: 'Spartan Method, sales methodology, hospice sales framework, Field Kit',
+      'Discipline, Empathy, and Strategy — field-tested hospice sales method. Practice it with membership tools between sessions.',
+    keywords: 'Spartan Method, sales methodology, hospice sales framework, Spartan Membership',
   },
   '/tools': {
-    title: 'Field Kit | Spartan Coaching',
+    title: 'Membership Tools | Spartan Coaching',
     description:
-      'Preview the private Field Kit free. Subscribe for $14.99/week to run playbooks, objections, role-play, calculators, and weekly planning live. No PHI in consumer tools.',
-    keywords: 'hospice Field Kit, sales playbooks, objection handling, territory research, AI coaching tools',
+      'Preview membership tools free. Subscribe for $14.99/week to run playbooks, objections, role-play, calculators, and weekly planning live. No PHI in consumer tools.',
+    keywords: 'hospice membership tools, sales playbooks, objection handling, territory research, AI coaching tools',
   },
   '/welcome': {
     title: 'Welcome | Spartan Coaching',
-    description: 'Practical coaching and a private Field Kit for hospice growth professionals.',
+    description: 'Practical consulting and Spartan Membership tools for hospice growth professionals.',
     keywords: 'Spartan Coaching, hospice sales coaching',
   },
   '/login': {
     title: 'Client Login | Spartan Coaching',
-    description: 'Sign in to your Spartan Field Kit account.',
-    keywords: 'client login, Field Kit access',
+    description: 'Sign in to your Spartan Membership account and portal.',
+    keywords: 'client login, membership access, portal',
     noIndex: true,
   },
   '/request-access': {
     title: 'Team & Evaluation Access | Spartan Coaching',
     description:
-      'Request team or evaluation access for the private Field Kit. Individuals can create an account and subscribe self-serve for $14.99/week. Teams continue under contract.',
-    keywords: 'Field Kit team access, request evaluation, hospice sales tools, company seats, $14.99 week',
+      'Request team or evaluation access for Spartan Membership. Individuals can create an account and subscribe self-serve for $14.99/week. Teams continue under contract.',
+    keywords: 'membership team access, request evaluation, hospice sales tools, company seats, $14.99 week',
   },
   '/portal': {
-    title: 'Field Kit Home | Spartan Coaching',
-    description: 'Your private Spartan Field Kit command center.',
-    keywords: 'Field Kit, client portal',
+    title: 'Portal | Spartan Coaching',
+    description: 'Your Spartan Membership portal — next action, tools, and resources.',
+    keywords: 'portal, membership, client home',
     noIndex: true,
   },
   '/account': {
     title: 'Account | Spartan Coaching',
-    description: 'Manage Field Kit membership, subscribe $14.99/week, cancel anytime, and team seats.',
-    keywords: 'account, Field Kit membership, cancel subscription',
+    description: 'Manage Spartan Membership, subscribe $14.99/week, cancel anytime, and team seats.',
+    keywords: 'account, Spartan Membership, cancel subscription',
     noIndex: true,
   },
-  '/field-kit-membership': {
-    title: 'Field Kit Membership $14.99/week | Spartan Coaching',
+  '/membership': {
+    title: 'Spartan Membership $14.99/week | Spartan Coaching',
     description:
-      'Individual Field Kit membership $14.99/week — create account, subscribe, cancel anytime. Provider seats weekly under contract. Coaching engagement-based.',
-    keywords: 'Field Kit membership, $14.99 week, hospice sales tools, team seats, cancel anytime',
+      'Spartan Membership $14.99/week — tools & resources on web and iPhone. Create account, subscribe, cancel anytime. Provider seats weekly under contract. Coaching engagement-based.',
+    keywords: 'Spartan Membership, $14.99 week, hospice sales tools, team seats, cancel anytime',
+  },
+  '/field-kit-membership': {
+    title: 'Spartan Membership $14.99/week | Spartan Coaching',
+    description:
+      'Spartan Membership $14.99/week — create account, subscribe, cancel anytime. Provider seats weekly under contract. Coaching engagement-based.',
+    keywords: 'Spartan Membership, $14.99 week, hospice sales tools, team seats, cancel anytime',
   },
   '/pricing/field-kit': {
-    title: 'Field Kit Membership $14.99/week | Spartan Coaching',
+    title: 'Spartan Membership $14.99/week | Spartan Coaching',
     description:
-      'Field Kit pricing: individuals $14.99/week self-serve; team seats under hospice contract.',
-    keywords: 'Field Kit pricing, hospice consulting tools, weekly membership',
+      'Membership pricing: individuals $14.99/week self-serve; team seats under hospice contract.',
+    keywords: 'Spartan Membership pricing, hospice consulting tools, weekly membership',
   },
   '/tools/playbooks': {
     title: 'Sales Playbook Generator | Spartan Coaching',
@@ -224,19 +230,19 @@ const seoDefaults: Record<string, SEOConfig> = {
   },
   '/admin/access-desk': {
     title: 'Access Desk | Spartan Coaching',
-    description: 'Field Kit access operations.',
+    description: 'Membership access operations.',
     keywords: 'admin',
     noIndex: true,
   },
   '/faq': {
     title: 'FAQ | Spartan Coaching',
     description:
-      'Field Kit access, 24h/72h evaluation trials, $14.99/week individual membership, team contracts, cancel anytime, and no-PHI compliance.',
-    keywords: 'hospice coaching FAQ, Field Kit access, evaluation trial, $14.99 week, cancel subscription',
+      'Spartan Membership access, 24h/72h evaluation trials, $14.99/week individual membership, team contracts, cancel anytime, and no-PHI compliance.',
+    keywords: 'hospice coaching FAQ, membership access, evaluation trial, $14.99 week, cancel subscription',
   },
   '/terms': {
     title: 'Terms of Service | Spartan Coaching',
-    description: 'Terms governing use of the Spartan Coaching website, Field Kit, and consulting services.',
+    description: 'Terms governing use of the Spartan Coaching website, membership tools, and consulting services.',
     keywords: 'terms of service, Spartan Coaching terms',
   },
   '/disclaimer': {
@@ -248,8 +254,8 @@ const seoDefaults: Record<string, SEOConfig> = {
   '/privacy': {
     title: 'Privacy Policy | Spartan Coaching',
     description:
-      'How Spartan Coaching collects and protects information — contact forms, Field Kit accounts, access requests. No PHI in tools.',
-    keywords: 'privacy policy, data protection, Field Kit privacy',
+      'How Spartan Coaching collects and protects information — contact forms, membership accounts, access requests. No PHI in tools.',
+    keywords: 'privacy policy, data protection, membership privacy',
   },
   '/baa': {
     title: 'HIPAA Business Associate Agreement | Spartan Coaching',
@@ -302,7 +308,7 @@ const seoDefaults: Record<string, SEOConfig> = {
   '/contact': {
     title: 'Contact | Spartan Coaching',
     description:
-      'Book a strategy call or ask about coaching and Field Kit access. No pressure — honest conversation about what would help your team.',
+      'Book a strategy call or ask about consulting and Spartan Membership. No pressure — honest conversation about what would help your team.',
     keywords: 'contact Spartan Coaching, hospice consulting inquiry',
   },
   '/compliance': {
@@ -356,19 +362,19 @@ const seoDefaults: Record<string, SEOConfig> = {
   },
   '/set-password': {
     title: 'Set Password | Spartan Coaching',
-    description: 'Set your Field Kit password.',
+    description: 'Set your membership account password.',
     keywords: 'set password',
     noIndex: true,
   },
   '/forgot-password': {
     title: 'Forgot Password | Spartan Coaching',
-    description: 'Reset your Field Kit password.',
+    description: 'Reset your membership account password.',
     keywords: 'forgot password',
     noIndex: true,
   },
   '/reset-password': {
     title: 'Reset Password | Spartan Coaching',
-    description: 'Reset your Field Kit password.',
+    description: 'Reset your membership account password.',
     keywords: 'reset password',
     noIndex: true,
   },
@@ -383,8 +389,8 @@ const seoDefaults: Record<string, SEOConfig> = {
 const defaultConfig: SEOConfig = {
   title: 'Spartan Coaching | Hospice Sales Consulting',
   description:
-    'Expert hospice sales consulting and Field Kit tools. Coaching that holds when the week is hard.',
-  keywords: 'hospice sales, sales coaching, consulting',
+    'Expert hospice sales consulting and membership tools. Coaching that holds when the week is hard.',
+  keywords: 'hospice sales, sales coaching, consulting, Spartan Membership',
   ogImage: DEFAULT_OG_IMAGE,
 };
 

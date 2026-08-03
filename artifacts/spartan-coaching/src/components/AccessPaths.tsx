@@ -13,16 +13,15 @@ export function AccessPaths({ className }: { className?: string }) {
     <section
       className={cn("w-full", className)}
       data-testid="section-access-paths"
-      aria-label="How to get Field Kit access"
+      aria-label="How to get membership access"
     >
       <div className="text-center max-w-2xl mx-auto mb-8 space-y-2">
         <p className="text-kicker justify-center">Two clear paths</p>
         <h2 className="text-h2 text-foreground font-display">
-          How access works
+          How membership access works
         </h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          Individuals can self-serve. Teams and evaluations go through request and
-          approval — so nothing feels like mixed messaging.
+          Individuals self-serve. Teams and evaluations request access — so pricing never feels mixed up.
         </p>
       </div>
       <div className="grid md:grid-cols-2 gap-5 max-w-4xl mx-auto">
@@ -32,7 +31,7 @@ export function AccessPaths({ className }: { className?: string }) {
           </div>
           <div>
             <p className="text-[10px] font-bold tracking-widest uppercase text-primary mb-1">
-              Path A · Individual
+              Path A · Individual membership
             </p>
             <h3 className="text-lg font-display font-bold text-foreground">
               Create account → subscribe
@@ -40,8 +39,8 @@ export function AccessPaths({ className }: { className?: string }) {
           </div>
           <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside leading-relaxed flex-1">
             <li>Create your account</li>
-            <li>Subscribe at $14.99/week (cancel anytime)</li>
-            <li>Unlock live tools the same day</li>
+            <li>Start membership at $14.99/week (cancel anytime)</li>
+            <li>Unlock live tools the same day — web + iOS</li>
           </ol>
           <Button asChild className="font-bold w-full sm:w-auto">
             <Link href="/register">

@@ -29,7 +29,7 @@ const DAY_ZERO = [
   {
     icon: Crosshair,
     title: "Open Command Center",
-    body: "Add one real account visit for this week — spine of the Field Kit.",
+    body: "Add one real account visit for this week — spine of your membership tools.",
   },
   {
     icon: MessageSquare,
@@ -45,7 +45,7 @@ const DAY_ZERO = [
 
 /**
  * Ceremonial money-moment for personal accounts that can subscribe
- * but do not yet have Field Kit access (register → expired → pay).
+ * but do not yet have membership access (register → expired → pay).
  */
 export function AccountDayZero({ firstName, isWelcome, isExpired, isSuspended }: Props) {
   const { startCheckout, openPortal, checkoutPending, portalPending } = useBillingActions();
@@ -54,10 +54,10 @@ export function AccountDayZero({ firstName, isWelcome, isExpired, isSuspended }:
   const headline = isSuspended
     ? "Restore access"
     : isExpired && !isWelcome
-      ? "Field Kit access has ended"
+      ? "Membership access has ended"
       : isWelcome
         ? `Welcome, ${name}`
-        : `You're one step from the Field Kit, ${name}`;
+        : `You're one step from membership, ${name}`;
 
   const sub = isSuspended
     ? "Update your card to unlock live tools again. Preview still works while you're here."
@@ -77,7 +77,7 @@ export function AccountDayZero({ firstName, isWelcome, isExpired, isSuspended }:
     >
       <div className="space-y-2">
         <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
-          {isWelcome ? "Almost there" : "Unlock Field Kit"}
+          {isWelcome ? "Almost there" : "Unlock membership"}
         </p>
         <h2
           id="day-zero-heading"
@@ -213,8 +213,8 @@ export function AccountDayZero({ firstName, isWelcome, isExpired, isSuspended }:
 
       <p className="text-[11px] text-muted-foreground leading-relaxed">
         Secure Stripe checkout · cancel anytime · access continues through the period you paid for ·{" "}
-        <Link href="/field-kit" className="text-primary font-semibold hover:underline inline-flex items-center gap-0.5">
-          Why Field Kit <ArrowRight className="w-3 h-3" />
+        <Link href="/membership" className="text-primary font-semibold hover:underline inline-flex items-center gap-0.5">
+          Why membership <ArrowRight className="w-3 h-3" />
         </Link>
       </p>
     </Card>

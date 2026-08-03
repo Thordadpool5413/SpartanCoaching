@@ -30,7 +30,7 @@ const commandItems = [
     })),
   },
   {
-    category: "Field Kit",
+    category: "Membership tools",
     items: [
       {
         title: "Start a Role-Play",

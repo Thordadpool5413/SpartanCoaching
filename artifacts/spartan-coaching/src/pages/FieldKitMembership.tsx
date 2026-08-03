@@ -41,16 +41,18 @@ export default function FieldKitMembership() {
     <div className="w-full max-w-6xl mx-auto px-4 py-12 sm:py-16" data-testid="page-field-kit-membership">
       <SEO />
 
-      {/* ── Hero ── */}
+      {/* ── Hero — subscription for tools & resources ── */}
       <div className="text-center max-w-3xl mx-auto mb-10 space-y-4">
-        <p className="text-xs font-bold tracking-widest text-primary uppercase">Join the Field Kit</p>
+        <p className="text-kicker justify-center">Spartan Membership</p>
         <h1 className="text-h1 font-display font-black text-foreground">
-          The tools the top reps in your market use.<br />Not every rep has access.
+          Tools and resources for hospice growth.
+          <br />
+          <span className="text-primary">Web and iPhone · $14.99/week.</span>
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed">
-          Individual access is <strong className="text-foreground">$14.99 per week</strong> — create account, then
-          subscribe (cancel anytime). Preview tools free first. Provider seats use{" "}
-          <strong className="text-foreground">contract weekly rates per seat</strong>.
+          A paid membership for Command Center, practice tools, plans, calculators, and learn resources —
+          between coaching sessions or on their own. Create an account, then subscribe (cancel anytime).
+          Preview interfaces free; live runs need membership. Teams use contract seats.
         </p>
         <div className="flex flex-col items-center gap-3 pt-2" data-testid="membership-hero-cta">
           <SubscribeCTA
@@ -60,7 +62,7 @@ export default function FieldKitMembership() {
             testId="membership-hero-subscribe"
           />
           <Button asChild variant="ghost" className="font-medium" size="sm">
-            <Link href="/field-kit">See what&apos;s inside →</Link>
+            <Link href="/tools">Preview tools →</Link>
           </Button>
         </div>
       </div>
@@ -101,20 +103,20 @@ export default function FieldKitMembership() {
           <div className="w-11 h-11 rounded-lg bg-primary/15 text-primary flex items-center justify-center mb-4">
             <User className="w-5 h-5" />
           </div>
-          <h2 className="text-lg font-bold text-foreground mb-1">Join the Field Kit</h2>
+          <h2 className="text-lg font-bold text-foreground mb-1">Spartan Membership</h2>
           <p className="mb-3">
             <span className="text-2xl font-black text-primary">$14.99</span>
             <span className="text-sm font-semibold text-muted-foreground"> / week</span>
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-            For the rep or director who refuses to leave a referral on the table. The same kit used in live coaching and weekly field work. Cancel anytime.
+            For the rep or director who needs tools and resources every week — not a binder that never opens. Cancel anytime.
           </p>
           <ul className="space-y-2 mb-6 flex-1">
             {[
-              "All 13 Field Kit tools — every stage of the growth cycle",
-              "Objection Handler, Role-Play, Playbook Generator",
-              "Weekly Plan Builder & Sales Command Center",
-              "Activity, ROI & Rep Cost Calculators",
+              "Sales Command Center (daily spine)",
+              "Practice: objections, role-play, email, playbooks",
+              "Plan & measure: weekly plan, activity, ROI, branch math",
+              "Web portal + iOS app with the same membership",
               "Cancel anytime — access continues through the paid period",
             ].map((f) => (
               <li key={f} className="flex gap-2 text-sm text-foreground">
@@ -175,7 +177,7 @@ export default function FieldKitMembership() {
             <span className="text-sm font-semibold text-muted-foreground">-based</span>
           </p>
           <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-            Field Kit bundled with leadership coaching, workshops, and growth systems.
+            Membership seats bundled with leadership coaching, workshops, and growth systems.
           </p>
           <ul className="space-y-2 mb-6 flex-1">
             {TIER_ENTERPRISE_FEATURES.map((f) => (
@@ -186,7 +188,7 @@ export default function FieldKitMembership() {
             ))}
           </ul>
           <Button asChild className="w-full font-bold" variant="outline">
-            <Link href="/contact?service=Field+Kit+Enterprise" data-testid="button-tier-enterprise">
+            <Link href="/contact?service=Consulting+%2B+Membership" data-testid="button-tier-enterprise">
               Book a strategy call
               <ArrowRight className="ml-2 w-4 h-4" />
             </Link>
@@ -194,47 +196,65 @@ export default function FieldKitMembership() {
         </Card>
       </div>
 
-      {/* ── What's inside the Field Kit ── */}
+      {/* ── What's included — hierarchy, not 13 equal cards ── */}
       <div className="mb-14" data-testid="section-tool-grid">
         <div className="text-center mb-8">
-          <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">What's inside</p>
+          <p className="text-kicker justify-center mb-3">What&apos;s included</p>
           <h2 className="text-h2 font-display font-black text-foreground mb-3">
-            13 tools. Every one built for the hospice consultant who competes to win.
+            One daily spine. Clear tool groups. Web and iPhone.
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Generic sales AI doesn't know the difference between a skeptical oncologist and a long-term care
-            director. Every tool here was built on the real conversations hospice growth professionals
-            have in the field — and designed to give the rep who uses them a durable edge over the one who doesn't.
+            Membership is not a laundry list of equal features. You open <strong className="text-foreground">Command Center</strong> for
+            the day, then use practice, plan, and measure tools as satellites — same product on the website and the iOS app.
           </p>
         </div>
 
-        <div className="space-y-8">
-          {FIELD_KIT_CATEGORIES.filter((cat) => GATED_TOOLS.some((t) => t.category === cat)).map((cat) => {
-            const tools = GATED_TOOLS.filter((t) => t.category === cat);
-            const config = FIELD_KIT_CAT_BLURBS[cat];
-            return (
-              <div key={cat}>
-                <div className="flex items-baseline gap-3 mb-3 border-b border-border pb-2">
-                  <h3 className="text-base font-bold text-foreground">{config?.label ?? cat}</h3>
-                  {config?.blurb && (
-                    <p className="text-sm text-muted-foreground">{config.blurb}</p>
-                  )}
-                </div>
-                <div className="grid sm:grid-cols-2 gap-3">
-                  {tools.map((tool) => (
-                    <div key={tool.id} className="flex gap-3 p-3 rounded-lg border border-border bg-card">
-                      <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-bold text-foreground">{tool.title}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{tool.description}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            );
-          })}
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {[
+            { t: "Daily spine", d: "Sales Command Center — plan the visit, practice, capture the next step." },
+            { t: "Practice", d: "Objections, role-play, email, playbooks — before you walk in." },
+            { t: "Plan & measure", d: "Weekly plan, activity, ROI, rep cost, branch math." },
+            { t: "Learn", d: "Articles, podcasts, brand film, resources for the week." },
+          ].map((g) => (
+            <Card key={g.t} className="p-5 border border-border bg-card h-full">
+              <p className="text-[10px] font-bold tracking-widest uppercase text-primary mb-2">{g.t}</p>
+              <p className="text-sm text-muted-foreground leading-relaxed">{g.d}</p>
+            </Card>
+          ))}
         </div>
+
+        <details className="rounded-xl border border-border bg-card/50 p-4 sm:p-5">
+          <summary className="cursor-pointer text-sm font-bold text-foreground">
+            Full tool list ({GATED_TOOLS.length})
+          </summary>
+          <div className="space-y-6 mt-4">
+            {FIELD_KIT_CATEGORIES.filter((cat) => GATED_TOOLS.some((t) => t.category === cat)).map((cat) => {
+              const tools = GATED_TOOLS.filter((t) => t.category === cat);
+              const config = FIELD_KIT_CAT_BLURBS[cat];
+              return (
+                <div key={cat}>
+                  <div className="flex items-baseline gap-3 mb-3 border-b border-border pb-2">
+                    <h3 className="text-base font-bold text-foreground">{config?.label ?? cat}</h3>
+                    {config?.blurb && (
+                      <p className="text-sm text-muted-foreground">{config.blurb}</p>
+                    )}
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    {tools.map((tool) => (
+                      <div key={tool.id} className="flex gap-3 p-3 rounded-lg border border-border bg-card">
+                        <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                        <div>
+                          <p className="text-sm font-bold text-foreground">{tool.title}</p>
+                          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{tool.description}</p>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </details>
       </div>
 
       {/* ── Why subscribe (end-user edge — not provider revenue) ── */}
@@ -294,7 +314,7 @@ export default function FieldKitMembership() {
             <Link href="/request-access">Team / evaluation</Link>
           </Button>
           <Button asChild variant="outline" className="font-bold">
-            <Link href="/contact?service=Field+Kit+Membership">Talk through options</Link>
+            <Link href="/contact?service=Membership">Talk through options</Link>
           </Button>
           <Button asChild variant="outline" className="font-bold">
             <Link href="/tools">Preview tools</Link>
@@ -317,7 +337,7 @@ export default function FieldKitMembership() {
               invoice or offline terms as agreed.
             </li>
             <li>
-              Failed payments may suspend Field Kit access until the payment method is updated. No PHI belongs in
+              Failed payments may suspend membership access until the payment method is updated. No PHI belongs in
               tools.
             </li>
             <li>

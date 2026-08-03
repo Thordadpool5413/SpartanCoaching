@@ -44,7 +44,7 @@ describe("Field Kit funnel + catalog contracts", () => {
       "/portal",
       "/tools/sales-workflow",
       "/tools",
-      "/field-kit",
+      "/membership",
     ];
     for (const p of path) {
       expect(p.startsWith("/")).toBe(true);

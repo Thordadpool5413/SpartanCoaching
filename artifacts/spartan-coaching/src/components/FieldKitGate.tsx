@@ -14,7 +14,7 @@ type Props = {
 };
 
 /**
- * Consulting-grade gate when Field Kit is locked (logged out, expired, suspended).
+ * Gate when membership tools are locked (logged out, expired, suspended).
  */
 export function FieldKitGate({ compact }: Props) {
   const { isAuthenticated, fieldKit, organization, member } = useAuth();
@@ -31,23 +31,23 @@ export function FieldKitGate({ compact }: Props) {
   const isPlatform = member?.role === "platform_admin" || organization?.type === "platform";
   const canSelfServe = isAuthenticated && isPersonal && !isPlatform;
 
-  let title = "Private Field Kit";
+  let title = "Spartan Membership";
   let body =
-    "The Spartan Field Kit is a private toolkit for hospice growth execution between coaching sessions. Preview free — subscribe or use team/evaluation access to run tools live.";
+    "Tools and resources for hospice growth — Command Center, practice, plans, and learn on web and iPhone. Preview free — start membership or use team/evaluation access to run tools live.";
 
   if (expired) {
-    title = "Field Kit access has ended";
+    title = "Membership access has ended";
     body = canSelfServe
       ? "Your access window ended. Individuals can re-subscribe for $14.99/week from Account — cancel anytime. Teams continue under a provider contract."
-      : "Thank you for putting real scenarios through the Field Kit. Continue as a client under contract, request an extension, or close the loop with a short debrief.";
+      : "Thank you for putting real scenarios through the membership tools. Continue as a client under contract, request an extension, or close the loop with a short debrief.";
   } else if (suspended) {
     title = "Access is currently paused";
     body = canSelfServe
-      ? "Often this is a failed payment. Update your card under Manage billing to restore Field Kit access."
-      : "Your organization’s Field Kit access is paused. Update billing or contact Spartan Coaching to restore access.";
+      ? "Often this is a failed payment. Update your card under Manage billing to restore membership access."
+      : "Your organization’s membership access is paused. Update billing or contact Spartan Coaching to restore access.";
   } else if (isAuthenticated && !fieldKit?.allowed) {
-    title = "Field Kit access is not active";
-    body = "Your account is signed in, but Field Kit access is not currently active. Subscribe, renew, or contact us to continue.";
+    title = "Membership access is not active";
+    body = "Your account is signed in, but membership access is not currently active. Subscribe, renew, or contact us to continue.";
   }
 
   const requestExtension = async () => {
@@ -190,7 +190,7 @@ export function FieldKitGate({ compact }: Props) {
           )}
           {(expired || isAuthenticated) && (
             <Button asChild className={canSelfServe && (expired || suspended) ? "font-bold" : "font-bold"} variant={canSelfServe && (expired || suspended) ? "outline" : "default"} data-testid="gate-contact">
-              <Link href="/contact?service=Field+Kit+Membership">
+              <Link href="/contact?service=Membership">
                 <Phone className="mr-2 w-4 h-4" />
                 {canSelfServe ? "Talk to Nick" : "Continue as a client — book a call"}
               </Link>
@@ -198,7 +198,7 @@ export function FieldKitGate({ compact }: Props) {
           )}
           {expired && (
             <Button asChild variant="outline" className="font-bold" data-testid="gate-pricing">
-              <Link href="/field-kit-membership">View membership options</Link>
+              <Link href="/membership">View membership options</Link>
             </Button>
           )}
           {isAuthenticated && (

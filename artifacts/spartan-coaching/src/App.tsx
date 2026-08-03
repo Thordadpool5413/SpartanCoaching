@@ -31,7 +31,9 @@ const PortalLearn = lazy(() => import("@/pages/PortalLearn"));
 const Account = lazy(() => import("@/pages/Account"));
 const MagicLogin = lazy(() => import("@/pages/MagicLogin"));
 const FieldKitMembership = lazy(() => import("@/pages/FieldKitMembership"));
-const FieldKit = lazy(() => import("@/pages/FieldKit"));
+const RedirectToMembership = lazy(() =>
+  import("@/pages/Redirect").then((m) => ({ default: m.RedirectToMembership })),
+);
 const Services = lazy(() => import("@/pages/Services"));
 const Programs = lazy(() => import("@/pages/Programs"));
 const Method = lazy(() => import("@/pages/Method"));
@@ -218,9 +220,11 @@ function Router() {
           <Route path="/portal/learn" component={PortalLearn} />
           <Route path="/account" component={Account} />
           <Route path="/magic-login" component={MagicLogin} />
-          <Route path="/field-kit" component={FieldKit} />
-          <Route path="/field-kit-membership" component={FieldKitMembership} />
-          <Route path="/pricing/field-kit" component={FieldKitMembership} />
+          <Route path="/membership" component={FieldKitMembership} />
+          {/* Legacy Field Kit URLs → Membership lander */}
+          <Route path="/field-kit" component={RedirectToMembership} />
+          <Route path="/field-kit-membership" component={RedirectToMembership} />
+          <Route path="/pricing/field-kit" component={RedirectToMembership} />
           <Route path="/services" component={Services} />
           <Route path="/programs" component={Programs} />
           <Route path="/method" component={Method} />

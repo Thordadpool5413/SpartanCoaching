@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { Helmet } from "react-helmet-async";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Users, Briefcase, Wrench, CheckCircle } from "lucide-react";
+import { ArrowRight, Briefcase, Wrench, CheckCircle } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { TrustStrip } from "@/components/TrustStrip";
 import { ProofStrip } from "@/components/ProofStrip";
@@ -175,72 +175,67 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 4. THREE PILLARS (soft hybrid band for scanability) ── */}
+      {/* ── 4. TWO DOORS — Consulting vs Membership ── */}
       <section className="relative page-persuasion py-16 sm:py-24" data-testid="section-pillars">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
           <FadeIn>
             <div className="text-center mb-12">
-              <p className="text-sm font-bold tracking-widest text-primary uppercase mb-4">How Spartan helps</p>
-              <h2 className="text-h2 text-foreground font-display">Coaching. Systems. Field execution.</h2>
+              <p className="text-kicker justify-center mb-4">How Spartan helps</p>
+              <h2 className="text-h2 text-foreground font-display">Two clear offers. One firm.</h2>
+              <p className="text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed">
+                Hire Spartan Coaching for human consulting — or start a membership for tools and resources on web and iPhone.
+              </p>
             </div>
           </FadeIn>
-          <StaggerContainer className="grid md:grid-cols-3 gap-6">
+          <StaggerContainer className="grid md:grid-cols-2 gap-6">
             {[
               {
-                icon: Users,
-                title: "Individual & leadership coaching",
-                desc: "Virtual sessions, field ridealongs, and leadership rhythms that change Tuesday behavior — not just slide decks.",
-                href: "/services",
-                cta: "View services",
-              },
-              {
                 icon: Briefcase,
-                title: "Team systems & programs",
-                desc: "Workshops, growth strategy, and programs built for hospice providers who need one playbook the whole team runs.",
-                href: "/programs",
-                cta: "View programs",
+                kicker: "Offer A · Consulting",
+                title: "Human coaching & programs",
+                desc: "Strategy calls, individual coaching, ridealongs, team workshops, and leadership systems for hospice growth teams.",
+                href: "/services",
+                cta: "Book a strategy call",
+                primary: true,
+                testId: "card-door-consulting",
               },
               {
                 icon: Wrench,
-                title: "Field Kit membership",
-                desc: "Private execution tools between coaching sessions — objections, plans, role-play, Command Center. Preview free; live use from $14.99/week.",
-                href: "/field-kit",
-                cta: "Preview Field Kit",
+                kicker: "Offer B · Membership",
+                title: "Tools & resources subscription",
+                desc: "Command Center, practice tools, plans, calculators, and learn resources. Preview free. Live use $14.99/week — cancel anytime.",
+                href: "/membership",
+                cta: "Start membership",
+                primary: false,
+                testId: "card-door-membership",
               },
             ].map((p) => {
               const Icon = p.icon;
               return (
                 <StaggerItem key={p.title}>
-                  <Card className="h-full p-6 sm:p-7 flex flex-col" data-testid={`card-pillar-${p.title}`}>
+                  <Card
+                    className={`h-full p-6 sm:p-8 flex flex-col ${p.primary ? "border-primary/40 elite-emphasis" : "border-border"}`}
+                    data-testid={p.testId}
+                  >
+                    <p className="text-[10px] font-bold tracking-widest uppercase text-primary mb-3">{p.kicker}</p>
                     <div className="w-12 h-12 rounded-xl bg-primary/12 text-primary flex items-center justify-center mb-5 ring-1 ring-primary/20">
                       <Icon className="w-6 h-6" />
                     </div>
-                    <h3 className="text-lg sm:text-xl font-display font-bold text-foreground mb-2 tracking-tight">{p.title}</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed flex-1 mb-4">{p.desc}</p>
-                    <Link href={p.href} className="text-sm font-bold text-primary inline-flex items-center gap-1 hover:underline">
-                      {p.cta} <ArrowRight className="w-4 h-4" />
-                    </Link>
+                    <h3 className="text-xl sm:text-2xl font-display font-bold text-foreground mb-2 tracking-tight">
+                      {p.title}
+                    </h3>
+                    <p className="text-sm text-muted-foreground leading-relaxed flex-1 mb-6">{p.desc}</p>
+                    <Button asChild className="font-bold w-full sm:w-auto" variant={p.primary ? "default" : "outline"}>
+                      <Link href={p.href}>
+                        {p.cta}
+                        <ArrowRight className="ml-2 w-4 h-4" />
+                      </Link>
+                    </Button>
                   </Card>
                 </StaggerItem>
               );
             })}
           </StaggerContainer>
-          <FadeIn>
-            <div className="text-center mt-10 flex flex-col sm:flex-row gap-3 justify-center">
-              <Button asChild className="font-bold" data-testid="button-pillars-contact">
-                <Link href="/contact">
-                  Book a strategy call
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="font-bold border-2">
-                <Link href="/method">
-                  See the Spartan Method
-                  <ArrowRight className="ml-2 w-4 h-4" />
-                </Link>
-              </Button>
-            </div>
-          </FadeIn>
         </div>
       </section>
 
@@ -297,17 +292,17 @@ export default function Home() {
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="font-bold border-2" data-testid="button-closing-field-kit">
-                <Link href="/field-kit">Preview Field Kit</Link>
+                <Link href="/membership">Start membership</Link>
               </Button>
             </div>
             <p className="mt-6 text-sm text-muted-foreground">
               Prefer detail first?{" "}
               <Link href="/services" className="font-semibold text-primary hover:underline" data-testid="button-closing-services">
-                View coaching services
+                View consulting services
               </Link>
               {" · "}
-              <Link href="/method" className="font-semibold text-primary hover:underline" data-testid="button-closing-method">
-                Spartan Method
+              <Link href="/membership" className="font-semibold text-primary hover:underline" data-testid="button-closing-method">
+                Membership tools &amp; resources
               </Link>
             </p>
           </div>

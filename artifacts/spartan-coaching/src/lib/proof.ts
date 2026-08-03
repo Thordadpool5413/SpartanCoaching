@@ -43,5 +43,5 @@ export const PROOF_PACK: ProofItem[] = [
 export const PROOF_STATS: { label: string; value: string }[] = [
   { value: "12+", label: "Years hospice-specific" },
   { value: "Field", label: "Built for SNFs & MD offices" },
-  { value: "Ethics", label: "No PHI in Field Kit tools" },
+  { value: "Ethics", label: "No PHI in membership tools" },
 ];
