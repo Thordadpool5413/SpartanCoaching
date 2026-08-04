@@ -1,0 +1,18 @@
+artifacts/spartan-coaching-mobile/app/(tabs)/learn.tsx
+  h_0446834f150a71 1-5,9,12,23,25-31,62,65,68-86,90,96-105,107-116,118-127,132,135-148,152-157,162,168,173,175-177,179,182,184,189-193,197,208,220,222-233,240,243-251,253-259,262,264,266,269-274,283,288-291,294-296,298-304,309-318,330,332-342,349,352,357,360-373,377-383,394,396-397,399-412,414-428,430-434,437-469,480,482-483,491,496-497,499,514-516,518,520-521,523-524,529-531
+artifacts/spartan-coaching-mobile/lib/resourceGroups.ts
+  h_0446834f150a71 1-83
+design-system/spartan-coaching/MASTER.md
+  h_0446834f150a71 135-136
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "a9c05a2973c385eb63985779806d17f797eac4d2",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
