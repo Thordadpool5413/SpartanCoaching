@@ -4,7 +4,6 @@
  */
 import React, { useEffect, useState } from "react";
 import {
-  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -14,19 +13,17 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
 import { useColors } from "@/hooks/useColors";
-import { getWebSiteUrl } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 import { FIELD_KIT_TOOLS, type FieldKitTool } from "@workspace/field-kit-catalog";
 import { SpartanCard } from "@/components/ui/SpartanCard";
 import { SectionKicker } from "@/components/ui/SectionKicker";
 import { ListRow } from "@/components/ui/ListRow";
-import { SpartanButton } from "@/components/ui/SpartanButton";
 import { font } from "@/lib/typography";
 import { CATALOG_ID_TO_TAB, isToolTab, openToolHref } from "@/lib/toolDeepLinks";
+import { PaywallCard } from "@/components/ui/PaywallCard";
 
 export default function ToolsCatalogScreen() {
   const colors = useColors();
@@ -92,8 +89,6 @@ export default function ToolsCatalogScreen() {
       matches(t),
   );
 
-  const siteUrl = getWebSiteUrl();
-
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }} testID="screen-tools-catalog">
       <View
@@ -132,37 +127,11 @@ export default function ToolsCatalogScreen() {
       </View>
 
       {!canUseFieldKit && (
-        <View
-          style={{
-            marginHorizontal: 16,
-            marginTop: 12,
-            borderRadius: 12,
-            borderWidth: 1.5,
-            borderColor: colors.primary,
-            backgroundColor: colors.card,
-            padding: 14,
-          }}
-          testID="tools-paywall"
-        >
-          <Text style={[{ color: colors.primary, fontSize: 10, letterSpacing: 1.4 }, font("bold")]}>
-            HOSPICE SALES PRO
-          </Text>
-          <Text style={[{ color: colors.foreground, fontSize: 16, marginTop: 6 }, font("bold")]}>
-            $14.99/week · cancel anytime
-          </Text>
-          <Text style={[{ color: colors.mutedForeground, fontSize: 12, marginTop: 4, lineHeight: 17 }, font("regular")]}>
-            Unlock live generation. Browse the map free.
-          </Text>
-          <SpartanButton
-            title={isAuthenticated ? "Open Account" : "Sign in to subscribe"}
-            onPress={() => router.push(isAuthenticated ? "/(tabs)/account" : "/login")}
-            style={{ marginTop: 12 }}
+        <View style={{ marginHorizontal: 16, marginTop: 12 }} testID="tools-paywall">
+          <PaywallCard
+            isAuthenticated={isAuthenticated}
+            body="Unlock live generation. Browse the map free."
           />
-          <Pressable onPress={() => void Linking.openURL(`${siteUrl}/hospice-sales-pro`)} style={{ marginTop: 10 }}>
-            <Text style={[{ color: colors.primary, fontSize: 13, textAlign: "center" }, font("semibold")]}>
-              See full product →
-            </Text>
-          </Pressable>
         </View>
       )}
 

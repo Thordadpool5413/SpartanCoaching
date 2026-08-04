@@ -38,6 +38,7 @@ import { SpartanButton } from "@/components/ui/SpartanButton";
 import { font } from "@/lib/typography";
 import { getWebSiteUrl } from "@/lib/api";
 import { useMission } from "@/lib/useMission";
+import { PaywallCard } from "@/components/ui/PaywallCard";
 
 const SUGGESTIONS = [
   "What are hospice eligibility criteria for heart failure?",
@@ -353,33 +354,31 @@ export default function HomeScreen() {
           Preview is free. Generate, save, and run tools live with an active subscription or evaluation.
         </Text>
 
-        <SpartanCard variant="emphasis" style={{ marginTop: 20 }}>
-          <SectionKicker>Next action</SectionKicker>
-          <Text style={[{ color: colors.foreground, fontSize: 18, marginTop: 8 }, font("bold")]}>
-            Open Account to subscribe
-          </Text>
-          <Text style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 6, lineHeight: 18 }, font("regular")]}>
-            $14.99/week · cancel anytime · same product as the web.
-          </Text>
-          <SpartanButton
-            title="Go to Account"
-            onPress={() => router.push("/(tabs)/account")}
-            style={{ marginTop: 14 }}
+        <View style={{ marginTop: 20 }}>
+          <PaywallCard
+            isAuthenticated
+            title={
+              user?.organization?.status === "suspended"
+                ? "Update billing to restore access"
+                : "$14.99/week · cancel anytime"
+            }
+            body="Subscribe on Account (Stripe). When you return to the app, access refreshes automatically."
+            primaryLabel="Go to Account"
+            onPrimary={() => router.push("/(tabs)/account")}
             testID="button-locked-account"
           />
-          <SpartanButton
-            title="Preview tool map"
-            variant="outline"
-            onPress={() => router.push("/(tabs)/tools")}
-            style={{ marginTop: 10 }}
-          />
-        </SpartanCard>
-
+        </View>
+        <SpartanButton
+          title="Preview tool map"
+          variant="outline"
+          onPress={() => router.push("/(tabs)/tools")}
+          style={{ marginTop: 12 }}
+        />
         <SpartanButton
           title="Book a strategy call"
           variant="ghost"
           onPress={() => router.push("/(tabs)/contact")}
-          style={{ marginTop: 16 }}
+          style={{ marginTop: 8 }}
         />
       </ScrollView>
     );

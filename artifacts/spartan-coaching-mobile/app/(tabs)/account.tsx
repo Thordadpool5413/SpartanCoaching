@@ -26,6 +26,7 @@ import {
   updateOnboardingMobile,
   type BillingStatus,
 } from "@/lib/api";
+import { markCheckoutPending } from "@/lib/activationCeremony";
 import {
   formatTrialRemaining,
   isChecklistDone,
@@ -288,6 +289,7 @@ export default function AccountScreen() {
       const supported = await Linking.canOpenURL(url);
       if (!supported) throw new Error("Cannot open checkout URL");
       stripeOpenedRef.current = true;
+      await markCheckoutPending();
       await Linking.openURL(url);
     } catch (e: any) {
       const raw = e?.message || "Checkout unavailable";
@@ -307,6 +309,7 @@ export default function AccountScreen() {
     try {
       const { url } = await openBillingPortal();
       stripeOpenedRef.current = true;
+      await markCheckoutPending();
       await Linking.openURL(url);
     } catch (e: any) {
       Alert.alert(
