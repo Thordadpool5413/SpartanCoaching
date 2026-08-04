@@ -253,11 +253,26 @@ export default function ToolsCatalogScreen() {
 
         <ListRow
           title="Advanced library"
-          subtitle="Specialized AI + clinical vault"
+          subtitle="Field AI + clinical vault · authorized tools only"
           icon="cpu"
           onPress={() => router.push("/ai-tools" as any)}
           testID="advanced-ai-tools-library"
         />
+        <Text
+          style={[
+            {
+              color: colors.mutedForeground,
+              fontSize: 11,
+              lineHeight: 16,
+              marginTop: 4,
+              marginBottom: 8,
+              textAlign: "center",
+            },
+            font("regular"),
+          ]}
+        >
+          Daily tools are native. Some specialty tools open as Web tools (same site, session secured).
+        </Text>
       </ScrollView>
     </View>
   );

@@ -137,19 +137,35 @@ export default function AiToolsIndex() {
       style={{ flex: 1, backgroundColor: colors.background }}
       contentContainerStyle={styles.container}
     >
-      <Pressable onPress={() => router.back()} style={styles.back}>
+      <Pressable onPress={() => router.back()} style={styles.back} testID="advanced-back">
         <Feather name="arrow-left" size={18} color={colors.primary} />
-        <Text style={{ color: colors.primary, fontFamily: "Inter_600SemiBold" }}>
-          Hospice Sales Pro
-        </Text>
+        <Text style={[{ color: colors.primary }, font("semibold")]}>Tools</Text>
       </Pressable>
       <Text style={[styles.title, { color: colors.foreground }, font("bold")]}>
         Advanced library
       </Text>
       <Text style={[styles.description, { color: colors.mutedForeground }, font("regular")]}>
-        Field AI for specialized enablement (no PHI). Clinical vault is a separate
-        authorized workspace — not marketed with consumer membership sales tools.
+        Specialized Field AI (no PHI in consumer tools). Clinical vault is a separate
+        authorized workspace — not sold as daily Hospice Sales Pro marketing.
       </Text>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          gap: 6,
+          alignSelf: "flex-start",
+          backgroundColor: colors.primaryMuted,
+          paddingHorizontal: 8,
+          paddingVertical: 4,
+          borderRadius: 6,
+          marginBottom: 12,
+        }}
+      >
+        <Feather name="shield" size={12} color={colors.primary} />
+        <Text style={[{ color: colors.primary, fontSize: 10, letterSpacing: 0.6 }, font("bold")]}>
+          ROLE-GATED · SECONDARY TO DAILY TOOLS
+        </Text>
+      </View>
       {availability === null && (
         <View accessibilityRole="progressbar" style={styles.statusRow}>
           <ActivityIndicator color={colors.primary} />
@@ -169,11 +185,7 @@ export default function AiToolsIndex() {
             accessibilityLabel="Retry tool catalog"
             onPress={() => void loadCatalog()}
           >
-            <Text
-              style={{ color: colors.primary, fontFamily: "Inter_600SemiBold" }}
-            >
-              Retry
-            </Text>
+            <Text style={[{ color: colors.primary }, font("semibold")]}>Retry</Text>
           </Pressable>
         </View>
       )}
@@ -213,7 +225,7 @@ export default function AiToolsIndex() {
               { borderColor: colors.border, backgroundColor: colors.card },
             ]}
           >
-            <Text style={{ color: colors.foreground, fontFamily: "Inter_700Bold", fontSize: 16 }}>
+            <Text style={[{ color: colors.foreground, fontSize: 16 }, font("bold")]}>
               No tools available yet
             </Text>
             <Text

@@ -1,4 +1,4 @@
-import React, { useMemo } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Linking,
@@ -8,18 +8,22 @@ import {
   Text,
   View,
 } from "react-native";
-import { Stack, useLocalSearchParams } from "expo-router";
-import { WebView } from "react-native-webview";
+import { Stack, router, useLocalSearchParams } from "expo-router";
+import { WebView, type WebViewNavigation } from "react-native-webview";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
 import { getBaseUrl, getSessionToken } from "@/lib/api";
 import { getToolById } from "@workspace/field-kit-catalog";
-import { useEffect, useState } from "react";
+import { font } from "@/lib/typography";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { SpartanButton } from "@/components/ui/SpartanButton";
 
 /**
- * Authenticated WebView bridge for Hospice Sales Pro tools not yet native.
+ * Tier-B WebView bridge for Hospice Sales Pro tools not yet native.
  * Session via Bearer inject only — never in URL.
+ * QA bar: badge, loading, retry, Safari escape, session expiry → login.
  */
 export default function ToolWebScreen() {
   const colors = useColors();
@@ -30,20 +34,35 @@ export default function ToolWebScreen() {
   const [token, setToken] = useState<string | null>(null);
   const [ready, setReady] = useState(false);
   const [loadError, setLoadError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [reloadKey, setReloadKey] = useState(0);
+  const [sessionExpired, setSessionExpired] = useState(false);
+  const webRef = useRef<WebView>(null);
+
+  const loadToken = useCallback(async () => {
+    setReady(false);
+    try {
+      const t = await getSessionToken();
+      setToken(t);
+    } finally {
+      setReady(true);
+    }
+  }, []);
 
   useEffect(() => {
-    getSessionToken().then((t) => {
-      setToken(t);
-      setReady(true);
-    });
-  }, []);
+    void loadToken();
+  }, [loadToken, reloadKey]);
 
   const base = getBaseUrl();
   const uri = useMemo(() => {
     if (!base) return "";
-    const url = new URL(webPath.startsWith("http") ? webPath : `${base}${webPath}`);
-    url.searchParams.delete("mobile_token");
-    return url.toString();
+    try {
+      const url = new URL(webPath.startsWith("http") ? webPath : `${base}${webPath}`);
+      url.searchParams.delete("mobile_token");
+      return url.toString();
+    } catch {
+      return "";
+    }
   }, [base, webPath]);
 
   const injected = token
@@ -61,7 +80,12 @@ export default function ToolWebScreen() {
           }
           init.headers = headers;
           if (init.credentials === undefined) init.credentials = 'include';
-          return originalFetch(input, init);
+          return originalFetch(input, init).then(function(res) {
+            if (res.status === 401 || res.status === 403) {
+              window.ReactNativeWebView && window.ReactNativeWebView.postMessage(JSON.stringify({ type: 'auth_expired', status: res.status }));
+            }
+            return res;
+          });
         };
         try {
           if (window.history && window.location.search.indexOf('mobile_token') !== -1) {
@@ -77,18 +101,90 @@ export default function ToolWebScreen() {
     : undefined;
 
   const title = tool?.title || "Hospice Sales Pro";
+  const pathLabel = (() => {
+    try {
+      return new URL(uri || "https://local").pathname;
+    } catch {
+      return webPath;
+    }
+  })();
+
+  const openSafari = () => {
+    if (!uri) return;
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    void Linking.openURL(uri);
+  };
+
+  const retry = () => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setLoadError(null);
+    setSessionExpired(false);
+    setLoading(true);
+    setReloadKey((k) => k + 1);
+  };
+
+  const onNavChange = (nav: WebViewNavigation) => {
+    // Login / register pages often mean session dropped
+    if (/\/(login|register|magic)/i.test(nav.url) && !nav.loading) {
+      setSessionExpired(true);
+    }
+  };
+
+  const onMessage = (event: { nativeEvent: { data: string } }) => {
+    try {
+      const msg = JSON.parse(event.nativeEvent.data) as { type?: string };
+      if (msg.type === "auth_expired") setSessionExpired(true);
+    } catch {
+      // ignore non-JSON
+    }
+  };
+
+  const chrome = (
+    <View
+      style={[
+        styles.chrome,
+        {
+          borderBottomColor: colors.border,
+          backgroundColor: colors.card,
+          paddingTop: Platform.OS === "ios" ? 0 : 0,
+        },
+      ]}
+      testID="tool-web-chrome"
+    >
+      <View style={styles.chromeTop}>
+        <View style={[styles.badge, { backgroundColor: colors.primaryMuted }]}>
+          <Feather name="globe" size={12} color={colors.primary} />
+          <Text style={[{ color: colors.primary, fontSize: 10, letterSpacing: 0.6 }, font("bold")]}>
+            WEB TOOL
+          </Text>
+        </View>
+        <Pressable onPress={openSafari} hitSlop={10} style={styles.iconBtn} testID="tool-web-safari">
+          <Feather name="external-link" size={18} color={colors.primary} />
+        </Pressable>
+        <Pressable onPress={retry} hitSlop={10} style={styles.iconBtn} testID="tool-web-retry">
+          <Feather name="refresh-cw" size={17} color={colors.mutedForeground} />
+        </Pressable>
+      </View>
+      <Text style={[{ color: colors.foreground, fontSize: 15 }, font("bold")]} numberOfLines={1}>
+        {title}
+      </Text>
+      <Text style={[{ color: colors.mutedForeground, fontSize: 11, marginTop: 2 }, font("regular")]} numberOfLines={1}>
+        {pathLabel} · same product as website · session on device
+      </Text>
+    </View>
+  );
 
   if (!base) {
     return (
-      <View style={[styles.center, { backgroundColor: colors.background, paddingTop: insets.top, paddingHorizontal: 24 }]}>
-        <Stack.Screen options={{ title }} />
-        <Feather name="wifi-off" size={28} color={colors.primary} />
-        <Text style={{ color: colors.foreground, fontWeight: "800", textAlign: "center", marginTop: 12, fontSize: 16 }}>
-          API host not configured
-        </Text>
-        <Text style={{ color: colors.mutedForeground, textAlign: "center", marginTop: 8, lineHeight: 20 }}>
-          Set EXPO_PUBLIC_DOMAIN or EXPO_PUBLIC_API_URL for this build so Hospice Sales Pro tools can load.
-        </Text>
+      <View style={[styles.flex, { backgroundColor: colors.background, paddingTop: insets.top }]}>
+        <Stack.Screen options={{ title, headerBackTitle: "Back" }} />
+        <View style={styles.pad}>
+          <EmptyState
+            icon="wifi-off"
+            title="API host not configured"
+            body="Set EXPO_PUBLIC_DOMAIN or EXPO_PUBLIC_API_URL for this build so web tools can load."
+          />
+        </View>
       </View>
     );
   }
@@ -96,89 +192,150 @@ export default function ToolWebScreen() {
   if (!ready) {
     return (
       <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <Stack.Screen options={{ title }} />
+        <Stack.Screen options={{ title, headerBackTitle: "Back" }} />
         <ActivityIndicator color={colors.primary} />
-        <Text style={{ color: colors.mutedForeground, marginTop: 12, fontSize: 13 }}>Securing session…</Text>
+        <Text style={[{ color: colors.mutedForeground, marginTop: 12, fontSize: 13 }, font("regular")]}>
+          Securing session…
+        </Text>
+      </View>
+    );
+  }
+
+  if (sessionExpired) {
+    return (
+      <View style={[styles.flex, { backgroundColor: colors.background, paddingTop: insets.top }]}>
+        <Stack.Screen options={{ title, headerBackTitle: "Back" }} />
+        {chrome}
+        <View style={styles.pad}>
+          <EmptyState
+            icon="lock"
+            title="Session expired"
+            body="Sign in again to open this web tool with your Hospice Sales Pro access."
+            ctaTitle="Sign in"
+            onCta={() => router.replace("/login")}
+          />
+          <SpartanButton title="Retry with current session" variant="outline" onPress={retry} style={{ marginTop: 12 }} />
+          {uri ? (
+            <SpartanButton title="Open in Safari" variant="ghost" onPress={openSafari} style={{ marginTop: 8 }} />
+          ) : null}
+        </View>
       </View>
     );
   }
 
   if (loadError) {
     return (
-      <View style={[styles.center, { backgroundColor: colors.background, paddingHorizontal: 24 }]}>
-        <Stack.Screen options={{ title }} />
-        <Text style={{ color: colors.foreground, fontWeight: "800", textAlign: "center" }}>{loadError}</Text>
-        <Pressable
-          onPress={() => {
-            setLoadError(null);
-          }}
-          style={{
-            marginTop: 16,
-            backgroundColor: colors.primary,
-            paddingVertical: 12,
-            paddingHorizontal: 20,
-            borderRadius: 10,
-          }}
-        >
-          <Text style={{ color: colors.primaryForeground, fontWeight: "800" }}>Try again</Text>
-        </Pressable>
-        {uri ? (
-          <Pressable onPress={() => Linking.openURL(uri)} style={{ marginTop: 12 }}>
-            <Text style={{ color: colors.primary, fontWeight: "700" }}>Open in browser →</Text>
-          </Pressable>
-        ) : null}
+      <View style={[styles.flex, { backgroundColor: colors.background, paddingTop: insets.top }]}>
+        <Stack.Screen options={{ title, headerBackTitle: "Back" }} />
+        {chrome}
+        <View style={styles.pad}>
+          <EmptyState
+            icon="alert-circle"
+            title="Could not load web tool"
+            body={loadError}
+            ctaTitle="Try again"
+            onCta={retry}
+          />
+          {uri ? (
+            <SpartanButton title="Open in Safari" variant="outline" onPress={openSafari} style={{ marginTop: 12 }} />
+          ) : null}
+          <SpartanButton
+            title="Back to Tools"
+            variant="ghost"
+            onPress={() => router.back()}
+            style={{ marginTop: 8 }}
+          />
+        </View>
       </View>
     );
   }
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background, paddingTop: Platform.OS === "ios" ? 0 : insets.top }}>
-      <Stack.Screen options={{ title, headerBackTitle: "Tools" }} />
-      <View
-        style={{
-          borderBottomWidth: 1,
-          borderBottomColor: colors.border,
-          backgroundColor: colors.card,
-          paddingHorizontal: 14,
-          paddingVertical: 10,
-          flexDirection: "row",
-          alignItems: "center",
-          gap: 10,
-        }}
-      >
-        <Feather name="monitor" size={16} color={colors.primary} />
-        <View style={{ flex: 1 }}>
-          <Text style={{ color: colors.foreground, fontWeight: "800", fontSize: 13 }}>{title}</Text>
-          <Text style={{ color: colors.mutedForeground, fontSize: 11, marginTop: 2 }}>
-            Hospice Sales Pro · session secured on this device
-          </Text>
-        </View>
-        {uri ? (
-          <Pressable onPress={() => Linking.openURL(uri)} hitSlop={8}>
-            <Feather name="external-link" size={18} color={colors.primary} />
-          </Pressable>
-        ) : null}
-      </View>
-      <WebView
-        source={{ uri }}
-        style={{ flex: 1, backgroundColor: colors.background }}
-        injectedJavaScriptBeforeContentLoaded={injected}
-        sharedCookiesEnabled
-        thirdPartyCookiesEnabled
-        startInLoadingState
-        onError={() => setLoadError("Could not load this tool. Check your connection and try again.")}
-        onHttpError={() => setLoadError("Tool page returned an error. Try again or open in browser.")}
-        renderLoading={() => (
-          <View style={[styles.center, StyleSheet.absoluteFill, { backgroundColor: colors.background }]}>
-            <ActivityIndicator color={colors.primary} />
-            <Text style={{ color: colors.mutedForeground, marginTop: 10, fontSize: 13 }}>Loading {title}…</Text>
+    <View style={[styles.flex, { backgroundColor: colors.background }]}>
+      <Stack.Screen options={{ title, headerBackTitle: "Back" }} />
+      {chrome}
+      <View style={{ flex: 1 }}>
+        <WebView
+          key={reloadKey}
+          ref={webRef}
+          source={{ uri }}
+          style={{ flex: 1, backgroundColor: colors.background }}
+          injectedJavaScriptBeforeContentLoaded={injected}
+          sharedCookiesEnabled
+          thirdPartyCookiesEnabled
+          startInLoadingState
+          onLoadStart={() => setLoading(true)}
+          onLoadEnd={() => setLoading(false)}
+          onNavigationStateChange={onNavChange}
+          onMessage={onMessage}
+          onError={() => {
+            setLoading(false);
+            setLoadError("Could not load this tool. Check your connection and try again.");
+          }}
+          onHttpError={(e) => {
+            setLoading(false);
+            const status = e.nativeEvent.statusCode;
+            if (status === 401 || status === 403) {
+              setSessionExpired(true);
+              return;
+            }
+            setLoadError(`Tool page returned ${status}. Try again or open in Safari.`);
+          }}
+        />
+        {loading && (
+          <View
+            style={[styles.loadingOverlay, { backgroundColor: colors.background }]}
+            pointerEvents="none"
+            testID="tool-web-loading"
+          >
+            <ActivityIndicator color={colors.primary} size="large" />
+            <Text style={[{ color: colors.mutedForeground, marginTop: 12, fontSize: 13 }, font("regular")]}>
+              Loading {title}…
+            </Text>
+            <Text style={[{ color: colors.mutedForeground, marginTop: 6, fontSize: 11 }, font("regular")]}>
+              Web experience · prefer native tools when available
+            </Text>
           </View>
         )}
-      />
+      </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  flex: { flex: 1 },
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
+  pad: { padding: 16, flex: 1, justifyContent: "center" },
+  chrome: {
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderBottomWidth: StyleSheet.hairlineWidth,
+    gap: 4,
+  },
+  chromeTop: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    marginBottom: 4,
+  },
+  badge: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 5,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    marginRight: "auto",
+  },
+  iconBtn: {
+    minWidth: 40,
+    minHeight: 40,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  loadingOverlay: {
+    ...StyleSheet.absoluteFillObject,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });

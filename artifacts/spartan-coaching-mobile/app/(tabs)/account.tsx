@@ -633,7 +633,7 @@ export default function AccountScreen() {
             Your Portal
           </Text>
           <Text style={{ color: colors.foreground, fontWeight: "800", fontSize: 15, marginBottom: 10 }}>
-            7 AI tools — all unlocked
+            Daily tools unlocked
           </Text>
           {[
             { icon: "shield" as const, label: "Objections", desc: "Field-ready responses to this week's objections" },
@@ -654,9 +654,35 @@ export default function AccountScreen() {
           ))}
           <Pressable
             onPress={() => router.push("/(tabs)/tools")}
-            style={{ marginTop: 6, backgroundColor: colors.primary, borderRadius: 8, paddingVertical: 10, alignItems: "center" }}
+            style={{ marginTop: 6, backgroundColor: colors.primary, borderRadius: 8, paddingVertical: 10, alignItems: "center", minHeight: 44, justifyContent: "center" }}
+            testID="account-open-tools"
           >
-            <Text style={{ color: colors.primaryForeground, fontWeight: "800", fontSize: 13 }}>Open Portal →</Text>
+            <Text style={{ color: colors.primaryForeground, fontWeight: "800", fontSize: 13 }}>Open Tools →</Text>
+          </Pressable>
+          <Pressable
+            onPress={() => router.push("/ai-tools" as any)}
+            style={{
+              marginTop: 10,
+              borderWidth: 1,
+              borderColor: colors.border,
+              borderRadius: 8,
+              paddingVertical: 12,
+              paddingHorizontal: 12,
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 10,
+              minHeight: 48,
+            }}
+            testID="account-advanced-library"
+          >
+            <Feather name="cpu" size={18} color={colors.primary} />
+            <View style={{ flex: 1 }}>
+              <Text style={{ color: colors.foreground, fontWeight: "800", fontSize: 14 }}>Advanced library</Text>
+              <Text style={{ color: colors.mutedForeground, fontSize: 12, marginTop: 2, lineHeight: 16 }}>
+                Specialized Field AI + clinical vault (authorized roles only)
+              </Text>
+            </View>
+            <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
           </Pressable>
         </View>
       )}
