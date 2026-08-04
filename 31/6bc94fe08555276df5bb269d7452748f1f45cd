@@ -1,0 +1,28 @@
+artifacts/spartan-coaching-mobile/app/(tabs)/account.tsx
+  h_0446834f150a71 29,292,312
+artifacts/spartan-coaching-mobile/app/(tabs)/index.tsx
+  h_0446834f150a71 41,357-367,370-376,381
+artifacts/spartan-coaching-mobile/app/(tabs)/tools.tsx
+  h_0446834f150a71 26,130-133
+artifacts/spartan-coaching-mobile/app/_layout.tsx
+  h_0446834f150a71 20,91
+artifacts/spartan-coaching-mobile/components/ActivationCeremony.tsx
+  h_0446834f150a71 1-170
+artifacts/spartan-coaching-mobile/components/ui/PaywallCard.tsx
+  h_0446834f150a71 1-89
+artifacts/spartan-coaching-mobile/lib/activationCeremony.ts
+  h_0446834f150a71 1-63
+design-system/spartan-coaching/MASTER.md
+  h_0446834f150a71 137-138
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "316bc94fe08555276df5bb269d7452748f1f45cd",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
