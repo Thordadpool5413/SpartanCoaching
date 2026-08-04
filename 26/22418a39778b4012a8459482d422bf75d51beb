@@ -1,0 +1,46 @@
+artifacts/spartan-coaching-mobile/app/(tabs)/index.tsx
+  h_0446834f150a71 214,256,517-519
+artifacts/spartan-coaching-mobile/app/(tabs)/tools.tsx
+  h_0446834f150a71 1-5,19,21,23,26-29,31,36,39,41,45-46,51-56,74-93,95,98-110,115-131,143,145,147-148,150-151,153-154,156-164,166,169-174,176-180,182-185,187-188,190,192-193,195-208,210-212,214-224,226-242,244-246,248-261,269,272-273,279,281-285
+artifacts/spartan-coaching-mobile/app/_layout.tsx
+  h_0446834f150a71 52
+artifacts/spartan-coaching-mobile/app/tool/[tab].tsx
+  h_0446834f150a71 1-76
+artifacts/spartan-coaching-mobile/components/tools/ColdCallTool.tsx
+  h_0446834f150a71 1-132
+artifacts/spartan-coaching-mobile/components/tools/EmailTool.tsx
+  h_0446834f150a71 1-153
+artifacts/spartan-coaching-mobile/components/tools/ObjectionTool.tsx
+  h_0446834f150a71 1-157
+artifacts/spartan-coaching-mobile/components/tools/PlaybookTool.tsx
+  h_0446834f150a71 1-164
+artifacts/spartan-coaching-mobile/components/tools/ResearchTool.tsx
+  h_0446834f150a71 1-118
+artifacts/spartan-coaching-mobile/components/tools/RolePlayToolScreen.tsx
+  h_0446834f150a71 1-38
+artifacts/spartan-coaching-mobile/components/tools/ToolShell.tsx
+  h_0446834f150a71 1-227
+artifacts/spartan-coaching-mobile/components/tools/WeeklyTool.tsx
+  h_0446834f150a71 1-203
+artifacts/spartan-coaching-mobile/components/tools/toolStyles.ts
+  h_0446834f150a71 1-46
+artifacts/spartan-coaching-mobile/lib/toolDeepLinks.ts
+  h_0446834f150a71 2,5,7-9,11-15,17,22-25,27,31-41
+artifacts/spartan-coaching-mobile/lib/toolDraftCache.ts
+  h_0446834f150a71 1-48
+artifacts/spartan-coaching-mobile/lib/toolTabs.ts
+  h_0446834f150a71 2-3
+design-system/spartan-coaching/MASTER.md
+  h_0446834f150a71 133-135
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "2622418a39778b4012a8459482d422bf75d51beb",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
