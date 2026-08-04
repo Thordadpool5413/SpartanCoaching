@@ -1,0 +1,28 @@
+artifacts/spartan-coaching-mobile/store/README.md
+  h_0446834f150a71 116-118,121-131,134,159,167,169,171,173,177-181,183
+artifacts/spartan-coaching-mobile/store/capture-screenshots.sh
+  h_0446834f150a71 129,131,133,135,137,139
+artifacts/spartan-coaching-mobile/store/description.txt
+  h_0446834f150a71 3,5,7,9,11,13,15,17,19,21,23,25,27,29
+artifacts/spartan-coaching-mobile/store/keywords.txt
+  h_0446834f150a71 1
+artifacts/spartan-coaching-mobile/store/promotional.txt
+  h_0446834f150a71 1
+artifacts/spartan-coaching-mobile/store/screenshot-shot-list.md
+  h_0446834f150a71 1-78
+artifacts/spartan-coaching-mobile/store/testflight-smoke.md
+  h_0446834f150a71 1-84
+design-system/spartan-coaching/MASTER.md
+  h_0446834f150a71 138-139
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "6b5c4e139499e62b9651e41b8eae85e973805618",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
