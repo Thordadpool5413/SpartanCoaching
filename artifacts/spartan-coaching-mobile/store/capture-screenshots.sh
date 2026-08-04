@@ -126,16 +126,17 @@ run_pass() {
   echo "Tip: log in with your test account before starting."
   echo
 
+  # Elite shot list — see store/screenshot-shot-list.md
   capture_screen "$udid" "$out_dir" "$required_w" "$required_h" \
-    "01-checklist"        "Checklist / Home — show a sample day with 2-3 tasks checked"
+    "01-home-mission"     "Entitled Home — ONE Next action emphasis card + today chips (log in first)"
   capture_screen "$udid" "$out_dir" "$required_w" "$required_h" \
-    "02-scenario-coach"   "AI Scenario Coach — show an active coaching conversation with a response visible"
+    "02-command-hub"      "Command tab hub — next visit or empty Schedule first visit"
   capture_screen "$udid" "$out_dir" "$required_w" "$required_h" \
-    "03-branch-calculator" "Branch Calculator — show the staffing table with sample ADC numbers filled in"
+    "03-tools-catalog"    "Tools catalog — Command hero + Practice/Prepare list (not a form)"
   capture_screen "$udid" "$out_dir" "$required_w" "$required_h" \
-    "04-drills"           "Objection Handler — show a fully generated field-ready response"
+    "04-objection-result" "Objection Handler with generated talk track + sticky Generate"
   capture_screen "$udid" "$out_dir" "$required_w" "$required_h" \
-    "05-login"            "Login screen — log out first so the portal login screen is visible"
+    "05-dual-doors"       "Logged-out Home — Consulting | Hospice Sales Pro dual doors (sign out first)"
 
   echo "-------------------------------------------------------"
   echo "All 5 screenshots saved to: $out_dir"

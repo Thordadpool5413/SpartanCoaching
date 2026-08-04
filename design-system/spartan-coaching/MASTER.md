@@ -135,7 +135,8 @@ Light mode: prefer slightly deeper primary (`primaryLight` ~48% L) so red text/i
 | **iOS Elite I4** (Learn: Articles/Podcasts/Resources groups; research in Tools) | Shipped |
 | **iOS Elite I5** (WebView tier-B bar + Advanced library entry) | Shipped |
 | **iOS Elite I6** (PaywallCard, checkout return, activation ceremony) | Shipped |
-| iOS Elite I7–I8 (ASO, retention extras) | Backlog |
+| **iOS Elite I7** (ASO copy, screenshot shot list, TestFlight smoke) | Shipped |
+| iOS Elite I8 (retention extras) | Backlog |
 | D4–D7 Tools split / TestFlight | Backlog (ops) |
 
 ## iOS elite rules (quick)

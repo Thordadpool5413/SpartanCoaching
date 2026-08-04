@@ -113,36 +113,25 @@ This pushes the `.ipa` to App Store Connect. In App Store Connect → **TestFlig
 
 ## TestFlight smoke test (run before inviting beta testers)
 
-After TestFlight notifies you that the build is ready, install it on a physical iPhone and run through this checklist. Common first-build failures are noted on each item.
+**Canonical elite checklist (I0–I6):** [`testflight-smoke.md`](./testflight-smoke.md)
+
+Short path:
 
 ### Pre-flight
-- [ ] `EXPO_PUBLIC_DOMAIN` EAS secret is set (see step 1b above) — if you skipped this, all login attempts will fail with a network error
-- [ ] The production API server is deployed and reachable: `curl https://<your-domain>/api/health` returns `{"ok":true}`
-- [ ] A real membership account exists in production (or use the reviewer account — see "How to seed / reset the reviewer account" below)
+- [ ] `EXPO_PUBLIC_API_URL` / `EXPO_PUBLIC_DOMAIN` set for production
+- [ ] Production API healthy
+- [ ] Entitled demo account + a locked/logged-out path to test
 
-### Launch
-- [ ] App installs from TestFlight without any entitlement or provisioning error
-- [ ] Splash screen shows the Spartan stamp on a black background, then transitions to the login screen
-- [ ] No "network request failed" or blank screen on launch — if it appears immediately, `EXPO_PUBLIC_DOMAIN` is missing or wrong
-
-### Login
-- [ ] Enter a valid membership email and password → lands on the portal home
-- [ ] Wrong password shows an error message (not a crash)
-- [ ] Sign out, then sign back in — session persists between app launches (stored in AsyncStorage)
-
-### Core screens
-- [ ] **Checklist** — loads visit checklist items; toggling a checkbox saves without error
-- [ ] **Scenario Coach** — opens a new conversation; sending a message returns an AI response (requires `OPENAI_API_KEY` set on the production server)
-- [ ] **Branch Calculator** — staffing table renders; inputs update the ADC and RN/aide split totals
-- [ ] **Objection Handler** (Drills tab) — generates a field-ready response without a 401 or 403 error
-- [ ] **Playbook / Email Templates** — content loads (requires membership entitlement)
-
-### Account
-- [ ] Account screen shows correct name, email, and evaluation/membership status
-- [ ] "Sign out of all devices" works and returns to the login screen
+### Must-pass product paths
+- [ ] Logged-out Home: dual doors (Consulting | Hospice Sales Pro)
+- [ ] Entitled Home: **one** Next action card
+- [ ] Command hub (not bare form-only tab)
+- [ ] Tools catalog → Objection → sticky Generate → result
+- [ ] Learn: Articles / Podcasts / Resources (grouped PDFs)
+- [ ] Subscribe return → unlock refresh → activation ceremony once
 
 ### Pass criteria
-All boxes checked. If `EXPO_PUBLIC_DOMAIN` was missing, re-create the EAS secret and rebuild. If a tool returns 401/403, confirm the test account has `fieldKit.allowed: true` on the production server.
+`testflight-smoke.md` critical rows green. 401/403 on tools → check `fieldKit.allowed` on the demo org.
 
 ---
 
@@ -167,6 +156,7 @@ Fill these in App Store Connect before submitting for review:
 | App name | Spartan Coaching |
 | Subtitle | Hospice Sales Pro Tools |
 | Description | See `store/description.txt` |
+| Promotional text | See `store/promotional.txt` (170 char) |
 | Keywords | See `store/keywords.txt` (100 char limit) |
 | Support URL | https://spartanhospicecoaching.com/contact |
 | Marketing URL | https://spartanhospicecoaching.com/hospice-sales-pro |
@@ -174,23 +164,23 @@ Fill these in App Store Connect before submitting for review:
 | Category | Business |
 | Age rating | 4+ |
 
-### Screenshots
+### Screenshots (elite story)
 
-App Store Connect requires at least the **6.9"** slot. The **6.7"** slot is strongly recommended — it covers the large installed base of iPhone 15 / 14 Plus users and appears automatically for iPhone 15 Plus devices browsing the store.
+**Shot list + captions:** [`screenshot-shot-list.md`](./screenshot-shot-list.md)
 
-#### 6.9" slot — iPhone 16 Pro Max (1320×2868 px)
+App Store Connect requires at least the **6.9"** slot. **6.7"** strongly recommended.
 
-**Ready-to-upload screenshots are in `store/screenshots/`** — all 5 at the required 1320×2868 px:
+#### Target 5-frame sequence (replace legacy names)
 
 | File | Screen |
 |---|---|
-| `01-checklist.png` | Checklist / Home — visit checklist with a sample day |
-| `02-scenario-coach.png` | AI Scenario Coach — active coaching conversation |
-| `03-branch-calculator.png` | Branch Calculator — staffing table with sample ADC |
-| `04-drills.png` | Objection Handler — field-ready response generated |
-| `05-login.png` | Portal / Login — client access screen |
+| `01-home-mission.png` | Entitled Home — one Next action card |
+| `02-command-hub.png` | Command hub |
+| `03-tools-catalog.png` | Tools catalog (Command hero) |
+| `04-objection-result.png` | Objection result (3-tap heat) |
+| `05-dual-doors.png` | Logged-out dual doors |
 
-> **Note:** The current PNGs were generated programmatically to unblock submission. Replace them with real simulator captures (see below) before the next App Store review cycle for a more polished listing.
+Legacy files (`01-checklist.png`, etc.) in `store/screenshots/` are placeholders — **re-capture with `capture-screenshots.sh` after I0–I6 UI** before review.
 
 **How to upload (6.9" slot):**
 
