@@ -18,6 +18,7 @@ import {
   saveToolDraft,
   saveToolLastResult,
 } from "@/lib/toolDraftCache";
+import { enqueueGenerate } from "@/lib/offlineQueue";
 
 const TOOL_ID = "objection";
 
@@ -72,7 +73,13 @@ export function ObjectionTool() {
       await saveToolLastResult(TOOL_ID, data.response);
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch {
-      setError("Something went wrong. Showing last saved result if available.");
+      await enqueueGenerate({
+        toolId: TOOL_ID,
+        path: "/api/objections",
+        body: { objection },
+        label: "Objection Handler",
+      });
+      setError("Offline or network error — queued to retry. Showing last result if available.");
       const last = await loadToolLastResult(TOOL_ID);
       if (last) {
         setResult(last);

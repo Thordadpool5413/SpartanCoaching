@@ -511,12 +511,17 @@ export default function HomeScreen() {
           style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 }}
           testID="section-today-stack"
         >
-          {(
-            [
-              { label: "Command", path: "/(tabs)/command" as const },
-              { label: "Objections", path: "/tool/[tab]" as const, params: { tab: "objection" } },
-              { label: "Weekly", path: "/tool/[tab]" as const, params: { tab: "weekly" } },
-            ] as const
+          {(jobRole === "director" || jobRole === "vp" || jobRole === "owner"
+            ? ([
+                { label: "Command", path: "/(tabs)/command" as const },
+                { label: "Staffing", path: "/staffing" as const },
+                { label: "Weekly", path: "/tool/[tab]" as const, params: { tab: "weekly" } },
+              ] as const)
+            : ([
+                { label: "Command", path: "/(tabs)/command" as const },
+                { label: "Objections", path: "/tool/[tab]" as const, params: { tab: "objection" } },
+                { label: "Weekly", path: "/tool/[tab]" as const, params: { tab: "weekly" } },
+              ] as const)
           ).map((chip) => (
             <Pressable
               key={chip.label}

@@ -19,6 +19,7 @@ import {
   REMINDER_PRESETS,
   scheduleFollowUpReminder,
 } from "@/lib/notifications";
+import { buildToolDeepLink, REMINDER_KEY_TO_TAB } from "@/lib/deepLinks";
 
 interface Props {
   title: string;
@@ -72,10 +73,14 @@ export function ReminderPicker({ title, body, label = "Set follow-up reminder", 
       await removeReminderFromHistory(scheduledId);
     }
 
+    const tab = storageKey ? REMINDER_KEY_TO_TAB[storageKey] : undefined;
     const id = await scheduleFollowUpReminder({
       title,
       body: buildBody(),
       delayMinutes: minutes,
+      data: tab
+        ? { deepLink: buildToolDeepLink(tab), tab, toolTab: tab }
+        : { deepLink: "spartan-coaching-mobile://command" },
     });
     setLoading(null);
 

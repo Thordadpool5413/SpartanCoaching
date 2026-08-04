@@ -30,7 +30,7 @@ function formatCallTime(iso: string): string {
 export default function CommandHubScreen() {
   const colors = useColors();
   const { canUseFieldKit, isAuthenticated } = useAuth();
-  const { today, todayLoading, todayError, primary, secondary, refreshAll } = useMission();
+  const { today, todayLoading, todayError, primary, secondary, refreshAll, jobRole } = useMission();
 
   const dateLabel = new Date().toLocaleDateString(undefined, {
     weekday: "long",
@@ -149,7 +149,7 @@ export default function CommandHubScreen() {
       ) : null}
 
       <Text style={[{ color: colors.foreground, fontSize: 13, marginTop: 20, marginBottom: 8 }, font("bold")]}>
-        Prep for the room
+        {["director", "vp", "owner"].includes(jobRole) ? "Lead the day" : "Prep for the room"}
       </Text>
       {secondary
         .filter((s) => s.title !== "Full Command workflow")
@@ -157,7 +157,11 @@ export default function CommandHubScreen() {
           <ListRow
             key={s.title}
             title={s.title}
-            subtitle="Supports the next visit"
+            subtitle={
+              s.title.includes("staffing")
+                ? "Leader math · educational planning"
+                : "Supports the next visit"
+            }
             onPress={() => router.push(s.href as any)}
           />
         ))}

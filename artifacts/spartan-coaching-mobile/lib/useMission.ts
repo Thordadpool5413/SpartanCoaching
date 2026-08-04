@@ -204,6 +204,27 @@ export function useMission(): MissionState {
 
   const secondary = useMemo(() => {
     if (shell !== "entitled") return [];
+    const leader = ["director", "vp", "owner"].includes(jobRole);
+    if (leader) {
+      return [
+        {
+          title: "Branch / staffing math",
+          href: { pathname: "/staffing" },
+        },
+        {
+          title: "Weekly plan",
+          href: openToolHref("weekly"),
+        },
+        {
+          title: "Full Command workflow",
+          href: { pathname: "/sales-workflow" },
+        },
+        {
+          title: "Objection Handler",
+          href: openToolHref("objection"),
+        },
+      ];
+    }
     return [
       {
         title: "Objection Handler",
@@ -218,7 +239,7 @@ export function useMission(): MissionState {
         href: { pathname: "/sales-workflow" },
       },
     ];
-  }, [shell]);
+  }, [shell, jobRole]);
 
   return {
     shell,

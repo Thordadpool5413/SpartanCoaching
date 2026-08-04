@@ -38,6 +38,35 @@ module.exports = {
         NSPhotoLibraryUsageDescription:
           "Spartan Coaching uses your photo library only to select documents you explicitly add to a protected clinical case.",
         ITSAppUsesNonExemptEncryption: false,
+        // Home-screen quick actions (open app; deep links via scheme when supported)
+        UIApplicationShortcutItems: [
+          {
+            UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.command",
+            UIApplicationShortcutItemTitle: "Command Center",
+            UIApplicationShortcutItemSubtitle: "Today's field spine",
+            UIApplicationShortcutItemIconType: "UIApplicationShortcutIconTypeCompose",
+            UIApplicationShortcutItemUserInfo: {
+              url: "spartan-coaching-mobile://command",
+            },
+          },
+          {
+            UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.objection",
+            UIApplicationShortcutItemTitle: "Objection Handler",
+            UIApplicationShortcutItemSubtitle: "3-tap talk track",
+            UIApplicationShortcutItemIconType: "UIApplicationShortcutIconTypeSearch",
+            UIApplicationShortcutItemUserInfo: {
+              url: "spartan-coaching-mobile://tool/objection",
+            },
+          },
+          {
+            UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.tools",
+            UIApplicationShortcutItemTitle: "Tools map",
+            UIApplicationShortcutItemIconType: "UIApplicationShortcutIconTypeFavorite",
+            UIApplicationShortcutItemUserInfo: {
+              url: "spartan-coaching-mobile://tools",
+            },
+          },
+        ],
       },
     },
     android: {

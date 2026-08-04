@@ -18,6 +18,7 @@ import { registerRescheduleTask } from "@/lib/notifications";
 import { AuthProvider, useAuth } from "@/lib/AuthContext";
 import { trackMobileEvent } from "@/lib/analytics";
 import { ActivationCeremony } from "@/components/ActivationCeremony";
+import { DeepLinkRouter } from "@/components/DeepLinkRouter";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -88,6 +89,7 @@ export default function RootLayout() {
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
             <AppOpenTracker />
+            <DeepLinkRouter />
             <ActivationCeremony />
             <GestureHandlerRootView>
               <KeyboardProvider>

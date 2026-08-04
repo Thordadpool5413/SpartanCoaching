@@ -55,6 +55,7 @@ TaskManager.defineTask(RESCHEDULE_TASK, async () => {
           title: reminder.title,
           body: reminder.body,
           sound: true,
+          data: { deepLink: "spartan-coaching-mobile://command" },
         },
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.DATE,
@@ -117,6 +118,8 @@ export interface ScheduleReminderOptions {
   title: string;
   body: string;
   delayMinutes: number;
+  /** Deep link payload — opened when user taps the notification */
+  data?: Record<string, unknown>;
 }
 
 export async function scheduleFollowUpReminder(
@@ -134,6 +137,7 @@ export async function scheduleFollowUpReminder(
       title: opts.title,
       body: opts.body,
       sound: true,
+      data: opts.data ?? {},
     },
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.DATE,

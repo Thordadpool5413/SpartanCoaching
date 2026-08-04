@@ -24,6 +24,7 @@ import { ListRow } from "@/components/ui/ListRow";
 import { font } from "@/lib/typography";
 import { CATALOG_ID_TO_TAB, isToolTab, openToolHref } from "@/lib/toolDeepLinks";
 import { PaywallCard } from "@/components/ui/PaywallCard";
+import { OfflineQueueBanner } from "@/components/OfflineQueueBanner";
 
 export default function ToolsCatalogScreen() {
   const colors = useColors();
@@ -134,6 +135,8 @@ export default function ToolsCatalogScreen() {
           />
         </View>
       )}
+
+      <OfflineQueueBanner />
 
       <ScrollView
         style={{ flex: 1 }}

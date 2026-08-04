@@ -73,6 +73,14 @@ Run on a **physical iPhone** after each TestFlight build. Demo account with enti
 - [ ] Sign out returns to logged-out Home  
 - [ ] No crash on billing portal if Stripe configured  
 
+## Retention (I8)
+
+- [ ] Fail a generate offline → banner “queued offline”; retry after signal  
+- [ ] Schedule reminder on Objection → when it fires, tap opens Objection tool  
+- [ ] Deep link: `spartan-coaching-mobile://command` opens Command hub  
+- [ ] Director role: Home chips include Staffing; Command prep shows leader math  
+- [ ] Long-press app icon: quick actions show Command / Objection / Tools (native build)  
+
 ## Failures — capture
 
 | Issue | Screen | Notes |

@@ -17,6 +17,7 @@ import {
   saveToolDraft,
   saveToolLastResult,
 } from "@/lib/toolDraftCache";
+import { enqueueGenerate } from "@/lib/offlineQueue";
 
 const TOOL_ID = "playbook";
 
@@ -72,7 +73,13 @@ export function PlaybookTool() {
       await saveToolLastResult(TOOL_ID, data.playbook);
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch {
-      setError("Something went wrong. Showing last saved result if available.");
+      await enqueueGenerate({
+        toolId: TOOL_ID,
+        path: "/api/playbooks",
+        body: { scenario, desiredOutcomes: desiredOutcomes || undefined },
+        label: "Playbook Generator",
+      });
+      setError("Offline or network error — queued to retry. Showing last result if available.");
       const last = await loadToolLastResult(TOOL_ID);
       if (last) {
         setResult(last);
