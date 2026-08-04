@@ -130,8 +130,9 @@ Light mode: prefer slightly deeper primary (`primaryLight` ~48% L) so red text/i
 | F Content / compliance (code pass) | Shipped — Nick proof sign-off still open |
 | Elite 1–5 (dual offer + HSP product map + Portal + iOS + QA) | Shipped on `main` |
 | Elite 6 Ship readiness (residual nouns + ops docs) | Shipped on `main` — **Replit Redeploy required** |
-| **iOS Elite I0–I2** (UI kit tiers, `useMission`, 3-shell Home, Command hub) | **In progress on `main`** |
-| iOS Elite I3–I8 (tools split, learn, webview bar, ASO) | Backlog |
+| **iOS Elite I0–I2** (UI kit tiers, `useMission`, 3-shell Home, Command hub) | Shipped |
+| **iOS Elite I3** (Tools catalog + `/tool/[tab]` + ToolShell + draft cache) | Shipped |
+| iOS Elite I4–I8 (learn, webview bar, activation, ASO) | Backlog |
 | D4–D7 Tools split / TestFlight | Backlog (ops) |
 
 ## iOS elite rules (quick)

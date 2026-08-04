@@ -1,6 +1,6 @@
 /**
- * Native satellite tool tabs inside the Tools screen.
- * Priority order matches Membership catalog emphasis (practice → prepare → plan).
+ * Native satellite tool routes under /tool/[tab].
+ * Priority order: practice → prepare → plan.
  */
 export type ToolTab =
   | "objection"

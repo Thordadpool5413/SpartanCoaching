@@ -211,7 +211,7 @@ export default function HomeScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (startHere.route) router.push(startHere.route as any);
     else if (startHere.toolTab) {
-      router.push({ pathname: "/(tabs)/tools", params: { tab: startHere.toolTab } } as any);
+      router.push({ pathname: "/tool/[tab]", params: { tab: startHere.toolTab } } as any);
     } else {
       router.push("/(tabs)/tools");
     }
@@ -253,7 +253,7 @@ export default function HomeScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     if (item.route) router.push(item.route as any);
     else if (item.toolTab) {
-      router.push({ pathname: "/(tabs)/tools", params: { tab: item.toolTab } } as any);
+      router.push({ pathname: "/tool/[tab]", params: { tab: item.toolTab } } as any);
     } else {
       router.push("/(tabs)/tools");
     }
@@ -514,9 +514,9 @@ export default function HomeScreen() {
         >
           {(
             [
-              { label: "Command", path: "/(tabs)/command" },
-              { label: "Objections", path: "/(tabs)/tools", params: { tab: "objection" } },
-              { label: "Weekly", path: "/(tabs)/tools", params: { tab: "weekly" } },
+              { label: "Command", path: "/(tabs)/command" as const },
+              { label: "Objections", path: "/tool/[tab]" as const, params: { tab: "objection" } },
+              { label: "Weekly", path: "/tool/[tab]" as const, params: { tab: "weekly" } },
             ] as const
           ).map((chip) => (
             <Pressable
