@@ -70,8 +70,8 @@ export function MembershipActivation() {
       : organization?.billingPlan === "corporate_contract"
         ? "Team · under contract"
         : organization?.billingPlan === "comp"
-          ? "Complimentary member"
-          : "Spartan Member";
+          ? "Complimentary access"
+          : "Hospice Sales Pro";
 
   const dismiss = () => setShow(false);
 

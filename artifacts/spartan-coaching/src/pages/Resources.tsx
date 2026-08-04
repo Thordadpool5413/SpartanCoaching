@@ -142,7 +142,7 @@ export default function Resources() {
       {canUseFieldKit && <FieldKitChrome />}
       <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
         <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">
-          {canUseFieldKit ? "Membership · Resources" : "Training library"}
+          {canUseFieldKit ? "Hospice Sales Pro · Resources" : "Training library"}
         </p>
         <h1 className="text-h1 text-foreground mb-6" data-testid="text-resources-title">
           {canUseFieldKit ? "Resources" : "Training Resources Library"}

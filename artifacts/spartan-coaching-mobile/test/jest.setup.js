@@ -22,3 +22,8 @@ jest.mock("react-native", () => {
   }
   return reactNative;
 });
+
+/** AsyncStorage is a native module — in-memory mock for unit tests. */
+jest.mock("@react-native-async-storage/async-storage", () =>
+  require("@react-native-async-storage/async-storage/jest/async-storage-mock"),
+);

@@ -93,7 +93,7 @@ export default function PortalLearn() {
                       <h3 className="font-bold text-foreground">{item.title}</h3>
                       {item.memberOnly && (
                         <span className="text-[10px] uppercase tracking-wide text-primary font-bold">
-                          {locked ? "Members" : "Membership"}
+                          {locked ? "Pro" : "Hospice Sales Pro"}
                         </span>
                       )}
                     </div>

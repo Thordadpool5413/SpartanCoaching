@@ -50,7 +50,7 @@ export default function SalesWorkflow() {
         <div className="space-y-6" data-testid="command-preview-shell">
           <div className="mb-2 space-y-1">
             <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
-              Membership · Daily spine
+              Hospice Sales Pro · Daily spine
             </p>
             <h1 className="text-2xl font-black text-foreground">Sales Command Center</h1>
             <p className="text-sm text-muted-foreground max-w-3xl leading-relaxed">
@@ -147,7 +147,7 @@ export default function SalesWorkflow() {
       />
       <div className="mb-4 space-y-1">
         <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
-          Membership · Daily spine
+          Hospice Sales Pro · Daily spine
         </p>
         <p className="text-sm text-muted-foreground max-w-3xl leading-relaxed">
           Run every account through this workflow. Satellite tools (objections, role-play, email, weekly plan)

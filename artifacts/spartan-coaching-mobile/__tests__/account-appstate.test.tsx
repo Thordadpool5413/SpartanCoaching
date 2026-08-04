@@ -237,6 +237,9 @@ function simulateBackgroundThenForeground() {
 // ---------------------------------------------------------------------------
 
 describe("Account screen — AppState billing refresh", () => {
+  // Full-suite runs on Windows can exceed the default 5s under worker contention.
+  jest.setTimeout(15_000);
+
   beforeEach(() => {
     mockFetchOnboardingMobile.mockResolvedValue({
       member: { ...mockUser.member, checklistProgress: {} },

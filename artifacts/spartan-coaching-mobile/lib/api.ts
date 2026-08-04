@@ -252,10 +252,26 @@ export async function loginMobile(email: string, password: string): Promise<Mobi
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email, password }),
   });
-  const data = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(data.error || "Login failed");
+  const data = (await res.json().catch(() => ({}))) as {
+    error?: string | { message?: string; code?: string };
+    code?: string;
+    token?: string;
+    member?: MobileMember;
+    organization?: MobileOrganization | null;
+    fieldKit?: MobileAuthUser["fieldKit"];
+    expiresAt?: string;
+  };
+  if (!res.ok) {
+    const message =
+      typeof data.error === "string"
+        ? data.error
+        : data.error?.message || "Login failed";
+    const code =
+      typeof data.error === "object" ? data.error?.code : data.code;
+    throw new ApiError(message, res.status, code);
+  }
   if (data.token) await setSessionToken(data.token);
-  return data;
+  return data as MobileAuthUser & { token: string };
 }
 
 export async function logoutMobile(): Promise<void> {

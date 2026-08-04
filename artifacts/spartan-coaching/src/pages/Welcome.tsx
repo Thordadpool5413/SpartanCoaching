@@ -67,7 +67,7 @@ export default function Welcome() {
             data-testid="link-welcome-register"
           >
             <KeyRound className="w-4 h-4" />
-            Create account · Membership · $14.99/wk
+            Create account · Hospice Sales Pro · $14.99/wk
           </Link>
           <Link
             href="/request-access"

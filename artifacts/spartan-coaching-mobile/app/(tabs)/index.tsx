@@ -21,7 +21,7 @@ import { router, useFocusEffect } from "expo-router";
 import * as Notifications from "expo-notifications";
 import { useColors } from "@/hooks/useColors";
 import { useReminderHistory } from "@/hooks/useReminderHistory";
-import { apiPost, fetchOnboardingMobile, updateOnboardingMobile } from "@/lib/api";
+import { ApiError, apiPost, fetchOnboardingMobile, updateOnboardingMobile } from "@/lib/api";
 import { cancelReminder, removeReminderFromHistory } from "@/lib/notifications";
 import { useAuth } from "@/lib/AuthContext";
 import {
@@ -173,9 +173,10 @@ export default function HomeScreen() {
       if (Platform.OS !== "web") {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
-    } catch (e: any) {
-      const msg = String(e?.message || "");
-      if (msg.startsWith("401") || msg.startsWith("403")) {
+    } catch (e: unknown) {
+      // ApiError exposes HTTP status on `.status` (message is the server text, not "401: …").
+      const status = e instanceof ApiError ? e.status : undefined;
+      if (status === 401 || status === 403) {
         setError("Hospice Sales Pro access required. Sign in with an approved client account.");
       } else {
         setError("Something went wrong. Please try again.");

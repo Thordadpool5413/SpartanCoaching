@@ -91,7 +91,7 @@ export function TrustStrip({ className, compact = false, showLinks = true }: Tru
             Privacy policy
           </Link>
           <Link href="/register" className="text-primary hover:underline font-bold">
-            Create account · Membership
+            Create account · Hospice Sales Pro
           </Link>
           <Link href="/hospice-sales-pro" className="text-muted-foreground hover:text-primary transition-colors font-medium">
             Pricing · $14.99/wk

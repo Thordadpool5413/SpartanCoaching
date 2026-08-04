@@ -166,6 +166,9 @@ afterEach(() => {
 });
 
 describe("native AI tool acceptance", () => {
+  // Clinical + multi-field tools can exceed the default 5s under Jest on Windows.
+  jest.setTimeout(20_000);
+
   it.each(SPARTAN_AI_TOOLS)(
     "$id renders a native form and submits through the shared API contract",
     async (tool) => {

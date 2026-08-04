@@ -4,6 +4,7 @@ import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
+import { ApiError } from "@/lib/api";
 import { SectionKicker } from "@/components/ui/SectionKicker";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { SpartanInput } from "@/components/ui/SpartanInput";
@@ -31,12 +32,15 @@ export default function LoginScreen() {
     try {
       await login(email.trim(), password);
       router.replace("/(tabs)");
-    } catch (e: any) {
-      const msg = String(e?.message || "Sign in failed");
-      if (msg.includes("401") || msg.toLowerCase().includes("invalid")) {
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Sign in failed";
+      const status = e instanceof ApiError ? e.status : undefined;
+      if (status === 401 || msg.toLowerCase().includes("invalid")) {
         setError("Email or password is incorrect.");
+      } else if (status === 403) {
+        setError(msg.slice(0, 160) || "Set your password from the approval email first.");
       } else if (msg.includes("EXPO_PUBLIC") || msg.includes("Failed to fetch") || msg.includes("Network")) {
-        setError("Cannot reach the membership server. Check connection or API configuration.");
+        setError("Cannot reach Hospice Sales Pro. Check connection or API configuration.");
       } else {
         setError(msg.replace(/^\d+:\s*/, "").slice(0, 160));
       }

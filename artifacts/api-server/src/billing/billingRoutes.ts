@@ -191,7 +191,7 @@ export function registerBillingRoutes(app: Express): void {
       const stripe = getStripe();
       const priceId = getIndividualWeeklyPriceId();
       const site = getSiteUrl();
-      // Land on Membership product (activation ceremony), not billing Account page.
+      // Land on portal activation ceremony after successful checkout.
       const successUrl =
         (typeof req.body?.successUrl === "string" && req.body.successUrl.startsWith(site)
           ? req.body.successUrl

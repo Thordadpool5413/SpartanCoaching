@@ -536,7 +536,7 @@ export default function RequestAccess() {
             </Link>
             {" · "}
             <Link href="/hospice-sales-pro" className="hover:text-primary">
-              Membership
+              Hospice Sales Pro
             </Link>
           </p>
         </aside>
