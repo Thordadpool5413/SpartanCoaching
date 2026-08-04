@@ -1,0 +1,46 @@
+artifacts/spartan-coaching-mobile/app.config.js
+  h_0446834f150a71 41-69
+artifacts/spartan-coaching-mobile/app/(tabs)/command.tsx
+  h_0446834f150a71 33,152,160-164
+artifacts/spartan-coaching-mobile/app/(tabs)/index.tsx
+  h_0446834f150a71 514-524
+artifacts/spartan-coaching-mobile/app/(tabs)/tools.tsx
+  h_0446834f150a71 27,139-140
+artifacts/spartan-coaching-mobile/app/_layout.tsx
+  h_0446834f150a71 21,92
+artifacts/spartan-coaching-mobile/components/DeepLinkRouter.tsx
+  h_0446834f150a71 1-80
+artifacts/spartan-coaching-mobile/components/OfflineQueueBanner.tsx
+  h_0446834f150a71 1-81
+artifacts/spartan-coaching-mobile/components/ReminderPicker.tsx
+  h_0446834f150a71 22,76,81-83
+artifacts/spartan-coaching-mobile/components/tools/ObjectionTool.tsx
+  h_0446834f150a71 21,76-82
+artifacts/spartan-coaching-mobile/components/tools/PlaybookTool.tsx
+  h_0446834f150a71 20,76-82
+artifacts/spartan-coaching-mobile/components/tools/WeeklyTool.tsx
+  h_0446834f150a71 17,85-96
+artifacts/spartan-coaching-mobile/lib/deepLinks.ts
+  h_0446834f150a71 1-94
+artifacts/spartan-coaching-mobile/lib/notifications.ts
+  h_0446834f150a71 58,121-122,140
+artifacts/spartan-coaching-mobile/lib/offlineQueue.ts
+  h_0446834f150a71 1-100
+artifacts/spartan-coaching-mobile/lib/useMission.ts
+  h_0446834f150a71 207-227,242
+artifacts/spartan-coaching-mobile/store/testflight-smoke.md
+  h_0446834f150a71 76-83
+design-system/spartan-coaching/MASTER.md
+  h_0446834f150a71 139
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "4fc19c0719e68aa3a385666d6cc69c0d5e8ce82f",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
