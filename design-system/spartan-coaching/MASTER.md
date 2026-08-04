@@ -130,7 +130,17 @@ Light mode: prefer slightly deeper primary (`primaryLight` ~48% L) so red text/i
 | F Content / compliance (code pass) | Shipped — Nick proof sign-off still open |
 | Elite 1–5 (dual offer + HSP product map + Portal + iOS + QA) | Shipped on `main` |
 | Elite 6 Ship readiness (residual nouns + ops docs) | Shipped on `main` — **Replit Redeploy required** |
+| **iOS Elite I0–I2** (UI kit tiers, `useMission`, 3-shell Home, Command hub) | **In progress on `main`** |
+| iOS Elite I3–I8 (tools split, learn, webview bar, ASO) | Backlog |
 | D4–D7 Tools split / TestFlight | Backlog (ops) |
+
+## iOS elite rules (quick)
+
+- Three shells: logged-out dual doors · auth-locked Day Zero · entitled mission-only  
+- One `useMission()` engine for Home + Command + empty workflow language  
+- `SpartanCard` variants: `quiet` | `default` | `emphasis` (rail only on emphasis)  
+- Command tab = hub from `/api/v1/sales-workflow/today`, not bare redirect  
+- 3-tap field jobs; sticky thumb-zone primary on tool runs (I3)
 
 ## QA matrix (responsive)
 

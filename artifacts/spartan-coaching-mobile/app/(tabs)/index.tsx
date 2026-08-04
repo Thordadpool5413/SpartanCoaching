@@ -37,6 +37,7 @@ import { SpartanButton } from "@/components/ui/SpartanButton";
 
 import { font } from "@/lib/typography";
 import { getWebSiteUrl } from "@/lib/api";
+import { useMission } from "@/lib/useMission";
 
 const SUGGESTIONS = [
   "What are hospice eligibility criteria for heart failure?",
@@ -73,6 +74,7 @@ export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { canUseFieldKit, isAuthenticated, user, logout, refresh } = useAuth();
+  const mission = useMission();
   const [query, setQuery] = useState("");
   const [response, setResponse] = useState("");
   const [loading, setLoading] = useState(false);
@@ -98,18 +100,22 @@ export default function HomeScreen() {
       const data = await fetchOnboardingMobile();
       setJobRole(data.member.jobRole || "");
       setChecklist(data.member.checklistProgress || {});
+      mission.setJobRoleLocal(data.member.jobRole || "");
+      mission.setChecklistLocal(data.member.checklistProgress || {});
     } catch {
       // keep local
     } finally {
       setOnboardingLoaded(true);
     }
-  }, [canUseFieldKit]);
+  }, [canUseFieldKit, mission.setJobRoleLocal, mission.setChecklistLocal]);
 
   useFocusEffect(
     useCallback(() => {
       reloadReminders();
       loadOnboarding();
-    }, [reloadReminders, loadOnboarding]),
+      // Entitlement may have changed after web checkout
+      void refresh();
+    }, [reloadReminders, loadOnboarding, refresh]),
   );
 
   useEffect(() => {
@@ -253,23 +259,24 @@ export default function HomeScreen() {
     }
   };
 
-  // ── Logged-out: short pitch (not a website port) ──────────────────
-  if (!canUseFieldKit) {
-    const siteUrl = getWebSiteUrl();
+  const siteUrl = getWebSiteUrl();
+
+  // ── Shell A: Logged-out — dual doors ──────────────────────────────
+  if (!isAuthenticated) {
     return (
       <ScrollView
         style={[styles.container, { backgroundColor: colors.background }]}
         contentContainerStyle={{
           paddingBottom: bottomPad,
           flexGrow: 1,
-          justifyContent: "center",
+          paddingHorizontal: 16,
         }}
         showsVerticalScrollIndicator={false}
         testID="screen-logged-out-home"
       >
         <LinearGradient
           colors={[colors.heroBackground, colors.background]}
-          style={[styles.hero, { paddingTop: topPad + 28, paddingBottom: 48 }]}
+          style={[styles.hero, { paddingTop: topPad + 28, paddingBottom: 32, marginHorizontal: -16 }]}
         >
           <Image source={require("@/assets/images/logo.png")} style={styles.logo} resizeMode="contain" />
           <SectionKicker>Spartan Coaching</SectionKicker>
@@ -277,49 +284,103 @@ export default function HomeScreen() {
             Field-ready hospice sales coaching.
           </Text>
           <Text style={[styles.heroTagline, { color: colors.heroMuted, marginTop: 12 }, font("regular")]}>
-            Conversations, territory systems, and weekly accountability — for the parking lot, not the boardroom deck.
+            Two clear offers: human consulting, or Hospice Sales Pro tools on this iPhone.
           </Text>
-
-          <SpartanButton
-            title="Book a strategy call"
-            onPress={() => router.push("/(tabs)/contact")}
-            style={{ marginTop: 28, width: "100%", maxWidth: 320 }}
-            testID="button-book-call-logged-out"
-          />
-
-          <SpartanButton
-            title="Hospice Sales Pro tools"
-            variant="outline"
-            onPress={() => {
-              if (isAuthenticated) router.push("/(tabs)/tools");
-              else void Linking.openURL(`${siteUrl}/hospice-sales-pro`);
-            }}
-            style={{ marginTop: 12, width: "100%", maxWidth: 320 }}
-            testID="button-hospice-sales-pro-logged-out"
-          />
-
-          <Pressable
-            onPress={() => (isAuthenticated ? router.push("/(tabs)/account") : router.push("/login"))}
-            style={{ marginTop: 18, minHeight: 44, justifyContent: "center" }}
-            testID="button-client-login"
-          >
-            <Text style={[{ color: colors.heroForeground, textAlign: "center", fontSize: 16 }, font("semibold")]}>
-              {isAuthenticated ? "Open account" : "Client login"}
-            </Text>
-          </Pressable>
-
-          <Pressable
-            onPress={() => {
-              void Linking.openURL(`${siteUrl}/hospice-sales-pro`);
-            }}
-            style={{ marginTop: 10, minHeight: 40, justifyContent: "center" }}
-            testID="link-what-is-hospice-sales-pro"
-          >
-            <Text style={[{ color: colors.heroMuted, textAlign: "center", fontSize: 14 }, font("regular")]}>
-              What is Hospice Sales Pro? →
-            </Text>
-          </Pressable>
         </LinearGradient>
+
+        <View style={{ gap: 12, marginTop: 8 }}>
+          <SpartanCard variant="emphasis" testID="door-consulting">
+            <SectionKicker>Offer 1 · Human</SectionKicker>
+            <Text style={[{ color: colors.foreground, fontSize: 18, marginTop: 8 }, font("bold")]}>
+              Consulting
+            </Text>
+            <Text style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 6, lineHeight: 19 }, font("regular")]}>
+              Strategy calls, team systems, and coaching that holds when the week is hard.
+            </Text>
+            <SpartanButton
+              title="Book a strategy call"
+              onPress={() => router.push("/(tabs)/contact")}
+              style={{ marginTop: 14 }}
+              testID="button-book-call-logged-out"
+            />
+          </SpartanCard>
+
+          <SpartanCard variant="default" testID="door-hospice-sales-pro">
+            <SectionKicker>Offer 2 · Tools</SectionKicker>
+            <Text style={[{ color: colors.foreground, fontSize: 18, marginTop: 8 }, font("bold")]}>
+              Hospice Sales Pro
+            </Text>
+            <Text style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 6, lineHeight: 19 }, font("regular")]}>
+              Command Center, objections, role-play, weekly plans — $14.99/wk · cancel anytime.
+            </Text>
+            <SpartanButton
+              title="Client login"
+              onPress={() => router.push("/login")}
+              style={{ marginTop: 14 }}
+              testID="button-client-login"
+            />
+            <SpartanButton
+              title="See what's inside"
+              variant="outline"
+              onPress={() => void Linking.openURL(`${siteUrl}/hospice-sales-pro`)}
+              style={{ marginTop: 10 }}
+              testID="button-hospice-sales-pro-logged-out"
+            />
+          </SpartanCard>
+        </View>
+      </ScrollView>
+    );
+  }
+
+  // ── Shell B: Authenticated but locked ─────────────────────────────
+  if (!canUseFieldKit) {
+    return (
+      <ScrollView
+        style={[styles.container, { backgroundColor: colors.background }]}
+        contentContainerStyle={{ paddingBottom: bottomPad, paddingHorizontal: 16, paddingTop: topPad + 16 }}
+        showsVerticalScrollIndicator={false}
+        testID="screen-locked-home"
+      >
+        <SectionKicker>Hospice Sales Pro</SectionKicker>
+        <Text style={[{ color: colors.foreground, fontSize: 26, marginTop: 10 }, font("heavy")]}>
+          {user?.organization?.status === "suspended"
+            ? "Restore access"
+            : user?.organization?.status === "expired"
+              ? "Access ended"
+              : "One step to live tools"}
+        </Text>
+        <Text style={[{ color: colors.mutedForeground, fontSize: 14, marginTop: 8, lineHeight: 20 }, font("regular")]}>
+          Preview is free. Generate, save, and run tools live with an active subscription or evaluation.
+        </Text>
+
+        <SpartanCard variant="emphasis" style={{ marginTop: 20 }}>
+          <SectionKicker>Next action</SectionKicker>
+          <Text style={[{ color: colors.foreground, fontSize: 18, marginTop: 8 }, font("bold")]}>
+            Open Account to subscribe
+          </Text>
+          <Text style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 6, lineHeight: 18 }, font("regular")]}>
+            $14.99/week · cancel anytime · same product as the web.
+          </Text>
+          <SpartanButton
+            title="Go to Account"
+            onPress={() => router.push("/(tabs)/account")}
+            style={{ marginTop: 14 }}
+            testID="button-locked-account"
+          />
+          <SpartanButton
+            title="Preview tool map"
+            variant="outline"
+            onPress={() => router.push("/(tabs)/tools")}
+            style={{ marginTop: 10 }}
+          />
+        </SpartanCard>
+
+        <SpartanButton
+          title="Book a strategy call"
+          variant="ghost"
+          onPress={() => router.push("/(tabs)/contact")}
+          style={{ marginTop: 16 }}
+        />
       </ScrollView>
     );
   }
@@ -408,112 +469,81 @@ export default function HomeScreen() {
         )}
       </LinearGradient>
 
-      {/* Mission next — one primary action above the fold (matches web portal) */}
+      {/* Mission next — ONE emphasis card; secondary Command is a quiet chip row */}
       <View style={[styles.section, { paddingTop: 16 }]} testID="section-mission-next">
-        <SpartanCard emphasized>
+        <SpartanCard variant="emphasis">
           <SectionKicker>Next action</SectionKicker>
-          <Text
-            style={{
-              color: colors.foreground,
-              fontSize: 20,
-              fontWeight: "900",
-              marginTop: 8,
-              fontFamily: "Inter_700Bold",
-            }}
-          >
-            {needsRole
-              ? "Pick your role"
-              : nextItem
-                ? nextItem.title
-                : "Open Sales Command Center"}
+          <Text style={[{ color: colors.foreground, fontSize: 20, marginTop: 8 }, font("heavy")]}>
+            {mission.primary?.title ??
+              (needsRole ? "Pick your role" : nextItem ? nextItem.title : "Open Sales Command Center")}
           </Text>
-          <Text
-            style={{
-              color: colors.mutedForeground,
-              fontSize: 13,
-              marginTop: 6,
-              lineHeight: 19,
-              fontFamily: "Inter_400Regular",
-            }}
-          >
-            {needsRole
-              ? "Personalizes checklist and recommended tools."
-              : nextItem
-                ? nextItem.desc
-                : "Plan → prepare → practice → capture outcome → next step."}
+          <Text style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 6, lineHeight: 19 }, font("regular")]}>
+            {mission.primary?.subtitle ??
+              (needsRole
+                ? "Personalizes checklist and recommended tools."
+                : nextItem
+                  ? nextItem.desc
+                  : "Plan → prepare → practice → capture outcome → next step.")}
           </Text>
           <SpartanButton
             title={
-              needsRole
-                ? "Choose role below"
-                : nextItem
-                  ? "Do this next"
-                  : "Open Command Center"
+              mission.primary?.ctaLabel ??
+              (needsRole ? "Choose role below" : nextItem ? "Do this next" : "Open Command Center")
             }
             onPress={() => {
               if (needsRole) return;
               if (nextItem) openChecklistItem(nextItem);
-              else {
+              else if (mission.primary?.href) {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                router.push("/sales-workflow" as any);
+                router.push(mission.primary.href as any);
+              } else {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+                router.push("/(tabs)/command" as any);
               }
             }}
             disabled={needsRole}
             style={{ marginTop: 14 }}
             testID="button-mission-next"
           />
-          {!needsRole && (
-            <SpartanButton
-              title={nextItem ? "Open Command Center" : "All tools"}
-              variant="outline"
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                if (nextItem) router.push("/sales-workflow" as any);
-                else router.push("/(tabs)/tools" as any);
-              }}
-              style={{ marginTop: 10 }}
-              testID="button-open-command-center"
-            />
-          )}
         </SpartanCard>
-      </View>
 
-      {/* Daily spine — always one tap to Command */}
-      <View style={[styles.section, { paddingTop: 8 }]} testID="section-command-center-hub">
-        <SpartanCard>
-          <SectionKicker>Daily spine</SectionKicker>
-          <Text
-            style={{
-              color: colors.foreground,
-              fontSize: 18,
-              fontWeight: "900",
-              marginTop: 8,
-              fontFamily: "Inter_700Bold",
-            }}
-          >
-            Sales Command Center
-          </Text>
-          <Text
-            style={{
-              color: colors.mutedForeground,
-              fontSize: 13,
-              marginTop: 6,
-              lineHeight: 19,
-              fontFamily: "Inter_400Regular",
-            }}
-          >
-            Plan → prepare → practice → capture → next step. Same spine as the website.
-          </Text>
-          <SpartanButton
-            title="Open Command Center"
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-              router.push("/sales-workflow" as any);
-            }}
-            style={{ marginTop: 12 }}
-            testID="button-command-center-hub"
-          />
-        </SpartanCard>
+        {/* Today stack — max 3 quiet chips (not second emphasis cards) */}
+        <View
+          style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 }}
+          testID="section-today-stack"
+        >
+          {(
+            [
+              { label: "Command", path: "/(tabs)/command" },
+              { label: "Objections", path: "/(tabs)/tools", params: { tab: "objection" } },
+              { label: "Weekly", path: "/(tabs)/tools", params: { tab: "weekly" } },
+            ] as const
+          ).map((chip) => (
+            <Pressable
+              key={chip.label}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                if ("params" in chip && chip.params) {
+                  router.push({ pathname: chip.path, params: chip.params } as any);
+                } else {
+                  router.push(chip.path as any);
+                }
+              }}
+              style={{
+                minHeight: 40,
+                paddingHorizontal: 14,
+                paddingVertical: 8,
+                borderRadius: 20,
+                borderWidth: StyleSheet.hairlineWidth * 2,
+                borderColor: colors.border,
+                backgroundColor: colors.card,
+                justifyContent: "center",
+              }}
+            >
+              <Text style={[{ color: colors.foreground, fontSize: 13 }, font("semibold")]}>{chip.label}</Text>
+            </Pressable>
+          ))}
+        </View>
       </View>
 
       {/* First-session 3-step path */}
