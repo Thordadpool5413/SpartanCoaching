@@ -1,0 +1,44 @@
+artifacts/api-server/src/app.ts
+  h_0446834f150a71 68,77
+artifacts/api-server/src/billing/billingRoutes.ts
+  h_0446834f150a71 194
+artifacts/spartan-coaching-mobile/__tests__/account-appstate.test.tsx
+  h_0446834f150a71 240-242
+artifacts/spartan-coaching-mobile/__tests__/ai-tools.acceptance.test.tsx
+  h_0446834f150a71 169-171
+artifacts/spartan-coaching-mobile/app/(tabs)/index.tsx
+  h_0446834f150a71 24,176-179
+artifacts/spartan-coaching-mobile/app/login.tsx
+  h_0446834f150a71 7,35-38,40-41,43
+artifacts/spartan-coaching-mobile/lib/api.ts
+  h_0446834f150a71 255-272,274
+artifacts/spartan-coaching-mobile/test/jest.setup.js
+  h_0446834f150a71 25-29
+artifacts/spartan-coaching/src/components/MembershipActivation.tsx
+  h_0446834f150a71 73-74
+artifacts/spartan-coaching/src/components/TrustStrip.tsx
+  h_0446834f150a71 94
+artifacts/spartan-coaching/src/pages/PortalLearn.tsx
+  h_0446834f150a71 96
+artifacts/spartan-coaching/src/pages/PrivacyPolicy.tsx
+  h_0446834f150a71 70,72,75
+artifacts/spartan-coaching/src/pages/RequestAccess.tsx
+  h_0446834f150a71 539
+artifacts/spartan-coaching/src/pages/Resources.tsx
+  h_0446834f150a71 145
+artifacts/spartan-coaching/src/pages/SalesWorkflow.tsx
+  h_0446834f150a71 53,150
+artifacts/spartan-coaching/src/pages/Welcome.tsx
+  h_0446834f150a71 70
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.20",
+  "base_commit_sha": "76019fb48d3f3b68fa045c16321bb2f436c5c334",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
