@@ -132,7 +132,8 @@ Light mode: prefer slightly deeper primary (`primaryLight` ~48% L) so red text/i
 | Elite 6 Ship readiness (residual nouns + ops docs) | Shipped on `main` — **Replit Redeploy required** |
 | **iOS Elite I0–I2** (UI kit tiers, `useMission`, 3-shell Home, Command hub) | Shipped |
 | **iOS Elite I3** (Tools catalog + `/tool/[tab]` + ToolShell + draft cache) | Shipped |
-| iOS Elite I4–I8 (learn, webview bar, activation, ASO) | Backlog |
+| **iOS Elite I4** (Learn: Articles/Podcasts/Resources groups; research in Tools) | Shipped |
+| iOS Elite I5–I8 (webview bar, activation, ASO) | Backlog |
 | D4–D7 Tools split / TestFlight | Backlog (ops) |
 
 ## iOS elite rules (quick)
