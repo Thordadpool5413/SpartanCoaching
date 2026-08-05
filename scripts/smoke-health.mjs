@@ -68,7 +68,29 @@ async function checkJsonEndpoint(path, { checkBodyOk = false } = {}) {
 }
 
 // ── JSON API health endpoints ──────────────────────────────────────────────
-await checkJsonEndpoint("/api/health");
+// Canonical route is /api/healthz. /api/health is an optional alias (added
+// for deploy monitors); treat 404 as WARN until the host is redeployed.
+await checkJsonEndpoint("/api/healthz");
+{
+  const path = "/api/health";
+  const url = `${base}${path}`;
+  try {
+    const res = await fetch(url);
+    if (res.ok) {
+      console.log(`OK  ${res.status} ${path}`);
+    } else if (res.status === 404) {
+      console.log(
+        `WARN ${res.status} ${path} — alias not deployed yet (healthz is canonical; redeploy main to add /api/health)`,
+      );
+    } else {
+      console.log(`FAIL ${res.status} ${path}`);
+      failed += 1;
+    }
+  } catch (err) {
+    console.log(`FAIL ERR ${path} — ${err?.message || err}`);
+    failed += 1;
+  }
+}
 await checkJsonEndpoint("/api/admin/bootstrap-status");
 
 // Webhook health: check both HTTP status AND JSON body ok field, and print

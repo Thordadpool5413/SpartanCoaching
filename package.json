@@ -10,7 +10,9 @@
     "typecheck:libs": "tsc --build",
     "typecheck": "pnpm run typecheck:libs && pnpm -r --filter \"./artifacts/**\" --filter \"./scripts\" --if-present run typecheck",
     "test:web": "pnpm --filter @workspace/spartan-coaching test",
-    "budget": "node scripts/performance-budget.mjs"
+    "budget": "node scripts/performance-budget.mjs",
+    "smoke:health": "node scripts/smoke-health.mjs",
+    "smoke:parity": "node scripts/smoke-parity.mjs"
   },
   "private": true,
   "dependencies": {

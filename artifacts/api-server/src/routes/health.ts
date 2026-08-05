@@ -20,7 +20,7 @@ const router: IRouter = Router();
  * started, not the full 24-hour history from the database.  Callers should
  * treat `hydrated: false` as "data not yet available" rather than "all clear".
  */
-router.get("/healthz", (_req, res) => {
+function sendHealthz(_req: import("express").Request, res: import("express").Response) {
   const metrics = getBillingEmailMetrics();
   const data = HealthCheckResponse.parse({
     status: "ok",
@@ -32,7 +32,11 @@ router.get("/healthz", (_req, res) => {
     },
   });
   res.json(data);
-});
+}
+
+router.get("/healthz", sendHealthz);
+/** Alias used by some deploy smokes and external monitors */
+router.get("/health", sendHealthz);
 
 /**
  * GET /healthz/clinical

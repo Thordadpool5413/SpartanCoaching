@@ -50,3 +50,33 @@ Set one of:
 - [ ] Command Center reachable as a primary tab
 - [ ] No tool left as `mobile: "missing"`
 - [ ] No PHI in tool copy; Field mode banner where AI is used
+
+## Live parity smoke (post-deploy)
+
+After Replit is on `origin/main` and **Published**, prove web + iOS share the host:
+
+```bash
+# From repo root (no secrets required)
+node scripts/smoke-health.mjs https://spartanhospicecoaching.com
+node scripts/smoke-parity.mjs https://spartanhospicecoaching.com
+```
+
+`smoke-parity` checks:
+
+1. `/api/healthz` live  
+2. Public Learn feeds (`articles` / `podcasts` / `resources`) shaped for mobile Learn  
+3. Gated routes return **401/403** without session (`/api/auth/me`, billing, onboarding, AI tools, sales-workflow today, objections, chat)  
+4. HTML landers include **Hospice Sales Pro**  
+5. Legacy `/membership` and `/field-kit` still resolve (redirect or SPA)
+
+### Authenticated cross-surface (manual, same seat)
+
+```
+[ ] Web login → /portal entitled
+[ ] iOS TestFlight login → Home entitled shell
+[ ] Same Account status (trial / active / billing) on both
+[ ] Objection (or Command today) works on both
+[ ] Checklist tick on one surface appears after refresh on the other
+```
+
+iOS production builds must set `EXPO_PUBLIC_API_URL=https://spartanhospicecoaching.com` (EAS secret).

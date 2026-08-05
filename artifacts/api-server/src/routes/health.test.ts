@@ -49,6 +49,15 @@ describe("GET /healthz — billing-email hydration", () => {
     vi.useRealTimers();
   });
 
+  it("exposes /health as an alias of /healthz", async () => {
+    const app = buildApp();
+    const a = await request(app).get("/healthz");
+    const b = await request(app).get("/health");
+    expect(a.status).toBe(200);
+    expect(b.status).toBe(200);
+    expect(b.body).toEqual(a.body);
+  });
+
   it("returns billingEmail.hydrated: false before hydration runs", async () => {
     const app = buildApp();
     const res = await request(app).get("/healthz");
