@@ -1,0 +1,24 @@
+docs/mobile-web-parity.md
+  h_0446834f150a71 72-88,99-108
+docs/production-verification.md
+  h_0446834f150a71 50-52
+lib/field-kit-catalog/src/index.ts
+  h_0446834f150a71 47
+package.json
+  h_0446834f150a71 15-16
+scripts/package.json
+  h_0446834f150a71 12
+scripts/smoke-parity-auth.mjs
+  h_0446834f150a71 1-221
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "1f058faa607b4e3f1a84d1d07340a68ae06d2f7b",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
