@@ -44,7 +44,7 @@ export interface FieldKitTool {
 }
 
 export const FIELD_KIT_WHAT =
-  "Membership tools and resources for hospice growth — prepare, practice, plan, and measure on web and iPhone.";
+  "Hospice Sales Pro tools and resources for hospice growth — prepare, practice, plan, and measure on web and iPhone.";
 
 export const FIELD_KIT_WHY =
   "So Tuesday behavior improves: better conversations, clearer weeks, and fewer eligible patients left without a referral path.";

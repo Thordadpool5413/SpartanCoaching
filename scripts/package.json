@@ -9,6 +9,7 @@
     "smoke:reviewer-reset": "tsx ./src/smoke-reviewer-reset.mts",
     "smoke:health": "node ./smoke-health.mjs",
     "smoke:parity": "node ./smoke-parity.mjs",
+    "smoke:parity:auth": "node ./smoke-parity-auth.mjs",
     "typecheck": "tsc -p tsconfig.json --noEmit"
   },
   "dependencies": {

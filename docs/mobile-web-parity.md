@@ -69,7 +69,23 @@ node scripts/smoke-parity.mjs https://spartanhospicecoaching.com
 4. HTML landers include **Hospice Sales Pro**  
 5. Legacy `/membership` and `/field-kit` still resolve (redirect or SPA)
 
-### Authenticated cross-surface (manual, same seat)
+### Authenticated cross-surface (same seat)
+
+**Automated (Bearer token path — same as iOS):**
+
+```bash
+SITE_URL=https://spartanhospicecoaching.com \
+PARITY_EMAIL=you@your-org.com \
+PARITY_PASSWORD='your-password' \
+node scripts/smoke-parity-auth.mjs
+
+# Avoid AI quota:
+PARITY_SKIP_AI=1 SITE_URL=… PARITY_EMAIL=… PARITY_PASSWORD=… node scripts/smoke-parity-auth.mjs
+```
+
+This proves login, `/api/auth/me`, onboarding, billing, Command `today`, AI tools list, optional objection generate, and logout — the contracts **both** web and iOS use after sign-in.
+
+**Manual UI (after automated pass):**
 
 ```
 [ ] Web login → /portal entitled
@@ -80,3 +96,13 @@ node scripts/smoke-parity.mjs https://spartanhospicecoaching.com
 ```
 
 iOS production builds must set `EXPO_PUBLIC_API_URL=https://spartanhospicecoaching.com` (EAS secret).
+
+### Sign-off matrix
+
+| Layer | Command / action | Owner |
+|-------|------------------|--------|
+| Public API | `node scripts/smoke-parity.mjs $SITE_URL` | Ops / CI optional |
+| Health | `node scripts/smoke-health.mjs $SITE_URL` | Ops post-deploy |
+| Entitled seat | `smoke-parity-auth.mjs` with `PARITY_*` | Ops |
+| Web UI | `/portal` + one tool | Human |
+| iOS UI | TestFlight login + same tool | Human |

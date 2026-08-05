@@ -47,6 +47,9 @@ curl -sL "https://spartanhospicecoaching.com" | head -c 2500
 [ ] TestFlight or Expo Go: logged-out home is short (Book call + Login), not a website scroll
 [ ] Role-play scenarios use Feather icons — no emoji chrome
 [ ] SF system type on device (not forced Inter) when running on iPhone
+[ ] EXPO_PUBLIC_API_URL points at production (same host as website)
+[ ] Optional API seat proof: node scripts/smoke-parity-auth.mjs with PARITY_EMAIL/PASSWORD
+[ ] Same seat: web /portal and TestFlight Account show matching access
 ```
 
 ## Elite UI/UX matrix (Phases 5–6)

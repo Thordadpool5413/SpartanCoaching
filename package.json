@@ -12,7 +12,8 @@
     "test:web": "pnpm --filter @workspace/spartan-coaching test",
     "budget": "node scripts/performance-budget.mjs",
     "smoke:health": "node scripts/smoke-health.mjs",
-    "smoke:parity": "node scripts/smoke-parity.mjs"
+    "smoke:parity": "node scripts/smoke-parity.mjs",
+    "smoke:parity:auth": "node scripts/smoke-parity-auth.mjs"
   },
   "private": true,
   "dependencies": {
