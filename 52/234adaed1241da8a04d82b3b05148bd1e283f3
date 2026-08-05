@@ -1,0 +1,26 @@
+artifacts/spartan-coaching-mobile/store/README.md
+  h_0446834f150a71 116-125
+artifacts/spartan-coaching-mobile/store/testflight-smoke.md
+  h_0446834f150a71 1,8,10-20
+docs/operator-checklist.md
+  h_0446834f150a71 29-31,44,46-47,49
+docs/ship-readiness.md
+  h_0446834f150a71 1-113
+package.json
+  h_0446834f150a71 16-17
+replit.md
+  h_0446834f150a71 106
+scripts/ship-check.mjs
+  h_0446834f150a71 1-65
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "52234adaed1241da8a04d82b3b05148bd1e283f3",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
