@@ -13,7 +13,8 @@
     "budget": "node scripts/performance-budget.mjs",
     "smoke:health": "node scripts/smoke-health.mjs",
     "smoke:parity": "node scripts/smoke-parity.mjs",
-    "smoke:parity:auth": "node scripts/smoke-parity-auth.mjs"
+    "smoke:parity:auth": "node scripts/smoke-parity-auth.mjs",
+    "ship:check": "node scripts/ship-check.mjs"
   },
   "private": true,
   "dependencies": {

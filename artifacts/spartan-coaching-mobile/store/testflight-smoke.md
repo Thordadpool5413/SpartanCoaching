@@ -1,14 +1,23 @@
-# TestFlight smoke — elite Hospice Sales Pro (I0–I6)
+# TestFlight smoke — elite Hospice Sales Pro (I0–I8)
 
 Run on a **physical iPhone** after each TestFlight build. Demo account with entitlement preferred.
 
 **Build / commit under test:** _______________  
 **Date / tester:** _______________
 
-## Pre-flight
+## Pre-flight (API + same host as website)
 
-- [ ] Production API: `https://spartanhospicecoaching.com` (or current host) healthy  
-- [ ] EAS env: `EXPO_PUBLIC_API_URL` + `EXPO_PUBLIC_DOMAIN` set for production  
+From a laptop (not the phone):
+
+```bash
+node scripts/ship-check.mjs https://spartanhospicecoaching.com
+# with seat:
+PARITY_EMAIL=… PARITY_PASSWORD=… node scripts/ship-check.mjs https://spartanhospicecoaching.com
+```
+
+- [ ] `ship-check` health + public parity green  
+- [ ] Optional: auth parity green for the **same email** you will use on TestFlight  
+- [ ] EAS env: `EXPO_PUBLIC_API_URL` + `EXPO_PUBLIC_DOMAIN` → production host  
 - [ ] Demo user: login works; `fieldKit.allowed` true when testing entitled paths  
 - [ ] Second user or signed-out state available for dual-door Home  
 

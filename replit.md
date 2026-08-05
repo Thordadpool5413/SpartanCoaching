@@ -103,6 +103,7 @@ Expert hospice growth consulting site + Hospice Sales Pro (web + iOS tools produ
 - Auth unit tests: `pnpm --filter @workspace/api-server run test`
 - Smoke checklist: `scripts/smoke-membership.md`
 - Live health smoke: `node scripts/smoke-health.mjs https://your-host`
+- Ship readiness (web + iOS API): `node scripts/ship-check.mjs https://spartanhospicecoaching.com` — see `docs/ship-readiness.md`
 
 ## Pointers
 

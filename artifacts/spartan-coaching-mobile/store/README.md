@@ -113,7 +113,16 @@ This pushes the `.ipa` to App Store Connect. In App Store Connect → **TestFlig
 
 ## TestFlight smoke test (run before inviting beta testers)
 
-**Canonical elite checklist (I0–I6):** [`testflight-smoke.md`](./testflight-smoke.md)
+**Canonical elite checklist (I0–I8):** [`testflight-smoke.md`](./testflight-smoke.md)  
+**Full web + iOS ship matrix:** [`docs/ship-readiness.md`](../../../docs/ship-readiness.md)
+
+Pre-flight on a laptop:
+
+```bash
+node scripts/ship-check.mjs https://spartanhospicecoaching.com
+PARITY_EMAIL=… PARITY_PASSWORD=… node scripts/ship-check.mjs https://spartanhospicecoaching.com
+```
+
 
 Short path:
 

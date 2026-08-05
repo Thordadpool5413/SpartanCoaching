@@ -26,7 +26,9 @@ hard metrics or named testimonials.
 
 ## Hospice Sales Pro smoke
 
-- [ ] Run `scripts/smoke-membership.md` end-to-end on the live host.
+- [ ] **Ship stack (preferred):** `node scripts/ship-check.mjs https://spartanhospicecoaching.com`
+- [ ] With seat: `PARITY_EMAIL` + `PARITY_PASSWORD` on `ship-check` or `smoke-parity-auth.mjs`
+- [ ] Full funnel (optional): `scripts/smoke-membership.md` on the live host
 - [ ] Role-play: start session → 2+ messages → feedback (must not return 410).
 - [ ] Logged-out AI tools return 401/403, not data.
 - [ ] Gates / Day Zero / Account use **Hospice Sales Pro** (not Field Kit, not generic Membership product).
@@ -39,10 +41,12 @@ hard metrics or named testimonials.
       `$APPLE_*` placeholders.
 - [x] EAS production environment points `EXPO_PUBLIC_API_URL` and
       `EXPO_PUBLIC_DOMAIN` at `https://spartanhospicecoaching.com`.
-- [ ] `pnpm --filter @workspace/spartan-coaching-mobile run build:ios` then `submit:ios`.
+- [ ] `pnpm --filter @workspace/spartan-coaching-mobile run build:ios:testflight` then `submit:ios`.
 - [ ] Production binary points at the real `SITE_URL` / API host (not Replit LAN).
-- [ ] TestFlight internal test, then App Store listing (screenshots, privacy nutrition labels).
+- [ ] TestFlight: complete `artifacts/spartan-coaching-mobile/store/testflight-smoke.md`
+- [ ] App Store listing: screenshots per `store/screenshot-shot-list.md`, privacy labels
 - [ ] Store copy uses Hospice Sales Pro (see `store/description.txt`).
+- [ ] Full matrix: `docs/ship-readiness.md`
 
 ## Background jobs
 
