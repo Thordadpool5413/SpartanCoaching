@@ -1,0 +1,14 @@
+artifacts/spartan-coaching-mobile/scripts/build.js
+  h_0446834f150a71 241-245,255-269,282-294
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "fdcafa1f76a7666bf625e030c44c8b118d2b5a49",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
