@@ -1,0 +1,16 @@
+.gitignore
+  h_0446834f150a71 41-47
+lib/db/src/schema/auth.ts
+  h_0446834f150a71 276,279
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "bb60d55647848341b74c8a9d1016eae27f1228d8",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
