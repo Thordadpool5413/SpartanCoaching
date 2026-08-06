@@ -1,0 +1,54 @@
+artifacts/api-server/src/auth/entitlement.test.ts
+  h_0446834f150a71 86-93
+artifacts/api-server/src/auth/entitlement.ts
+  h_0446834f150a71 76
+artifacts/api-server/src/auth/evaluateAccess.ts
+  h_0446834f150a71 38-39
+artifacts/api-server/src/clinical/access.ts
+  h_0446834f150a71 40-41,80-84
+artifacts/api-server/src/routes/authRoutes.ts
+  h_0446834f150a71 41,1468,1492,1537,1804-1805,1841-1859,1863-1864,1866,1930
+artifacts/api-server/src/routes/routes.ts
+  h_0446834f150a71 734,889,913,1526,1558,1560-1561,1585-1590,1634-1639,1693-1694
+artifacts/api-server/src/routes/salesWorkflowRoutes.ts
+  h_0446834f150a71 50-61
+artifacts/api-server/src/storage.ts
+  h_0446834f150a71 215-216,619,633
+artifacts/spartan-coaching-mobile/__tests__/offline-queue.test.ts
+  h_0446834f150a71 1-25
+artifacts/spartan-coaching-mobile/app/(tabs)/index.tsx
+  h_0446834f150a71 826
+artifacts/spartan-coaching-mobile/app/login.tsx
+  h_0446834f150a71 17,24,26,28
+artifacts/spartan-coaching-mobile/components/tools/ObjectionTool.tsx
+  h_0446834f150a71 21,75-86
+artifacts/spartan-coaching-mobile/components/tools/PlaybookTool.tsx
+  h_0446834f150a71 20,75-86
+artifacts/spartan-coaching-mobile/components/tools/ToolShell.tsx
+  h_0446834f150a71 27-29,183
+artifacts/spartan-coaching-mobile/components/tools/WeeklyTool.tsx
+  h_0446834f150a71 17,84-100
+artifacts/spartan-coaching-mobile/lib/AuthContext.tsx
+  h_0446834f150a71 31
+artifacts/spartan-coaching-mobile/lib/api.ts
+  h_0446834f150a71 291-298
+artifacts/spartan-coaching-mobile/lib/offlineQueue.ts
+  h_0446834f150a71 3,6,10,20-22,40-54,56,58,63-64,67-71,87-88,91,94-101,112-114,124-134,139-150,161-177
+artifacts/spartan-coaching/src/context/AuthContext.tsx
+  h_0446834f150a71 119
+artifacts/spartan-coaching/src/lib/queryClient.ts
+  h_0446834f150a71 47-48,50-51
+lib/db/src/schema/auth.ts
+  h_0446834f150a71 275-280,288
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "0cff5635db52d7471de3ca66ecf87fa3b188d0a6",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
