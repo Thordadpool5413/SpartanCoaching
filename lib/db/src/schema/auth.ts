@@ -273,10 +273,10 @@ export const selfRegisterBodySchema = z.object({
   email: z.string().email(),
   password: z.string().min(8).max(200),
   acceptTerms: z.literal(true, {
-    errorMap: () => ({ message: "You must accept the terms to create an account" }),
+    message: "You must accept the terms to create an account",
   }),
   noPhi: z.literal(true, {
-    errorMap: () => ({ message: "You must confirm you will not enter PHI" }),
+    message: "You must confirm you will not enter PHI",
   }),
 });
 

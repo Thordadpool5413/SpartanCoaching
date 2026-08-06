@@ -38,6 +38,13 @@ node_modules
 !.env.example
 .env
 .env.local
+**/__pycache__/
+*.py[cod]
+# Local one-off junk (not product sources)
+/app.json
+/scripts/fetch-eas-log.py
+/scripts/parse-eas-log.py
+
 /.sass-cache
 /connect.lock
 /coverage
