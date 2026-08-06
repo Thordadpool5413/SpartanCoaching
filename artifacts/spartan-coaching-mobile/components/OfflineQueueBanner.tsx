@@ -49,6 +49,9 @@ export function OfflineQueueBanner() {
       onPress={onRetry}
       style={[styles.bar, { backgroundColor: colors.primaryMuted, borderColor: colors.primary }]}
       testID="offline-queue-banner"
+      accessibilityRole="button"
+      accessibilityLabel={`${queue.length} tools queued offline. Tap to retry.`}
+      accessibilityState={{ busy: flushing }}
     >
       <Feather name="cloud-off" size={16} color={colors.primary} />
       <View style={{ flex: 1 }}>

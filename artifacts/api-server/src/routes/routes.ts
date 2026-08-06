@@ -14,6 +14,7 @@ import {
   roleplayLimit,
   roleplayMessageLimit,
 } from "../rateLimits";
+import { clientErrorMessage } from "../lib/httpErrors";
 
 import path from "path";
 import fs from "fs";
@@ -48,6 +49,7 @@ import {
   sendEmailRequestSchema,
   insertResourceLeadSchema,
   insertSignedAgreementSchema,
+  insertTestimonialSchema,
   roleplayStartSchema,
   roleplayMessageSchema,
   eventAnalyticsSchema,
@@ -230,7 +232,7 @@ Format the playbook in markdown with clear sections, bullet points, and quoted t
       res.json({ playbook });
     } catch (error: any) {
       console.error("Playbook generation error:", error);
-      res.status(500).json({ error: error.message || "Failed to generate playbook" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to generate playbook") });
     }
   });
 
@@ -265,7 +267,7 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
       });
     } catch (error: any) {
       console.error("Objection handling error:", error);
-      res.status(500).json({ error: error.message || "Failed to generate response" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to generate response") });
     }
   });
 
@@ -288,7 +290,7 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
       });
     } catch (error: any) {
       console.error("Research error:", error);
-      res.status(500).json({ error: error.message || "Failed to perform research" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to perform research") });
     }
   });
 
@@ -304,7 +306,7 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
       res.json({ query: q, results });
     } catch (error: any) {
       console.error("Knowledge search error:", error);
-      res.status(500).json({ error: error.message || "Knowledge search failed" });
+      res.status(500).json({ error: clientErrorMessage(error, "Knowledge search failed") });
     }
   });
 
@@ -338,7 +340,7 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
       res.json(drillData);
     } catch (error: any) {
       console.error("Daily drill error:", error);
-      res.status(500).json({ error: error.message || "Failed to generate daily drill" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to generate daily drill") });
     }
   });
 
@@ -358,7 +360,7 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
       res.json({ response });
     } catch (error: any) {
       console.error("Chat error:", error);
-      res.status(500).json({ error: error.message || "Failed to generate chat response" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to generate chat response") });
     }
   });
 
@@ -379,7 +381,7 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
       res.json({ success: true, inquiry });
     } catch (error: any) {
       console.error("Inquiry submission error:", error);
-      res.status(500).json({ error: error.message || "Failed to submit inquiry" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to submit inquiry") });
     }
   });
 
@@ -391,7 +393,7 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
       res.json({ inquiries });
     } catch (error: any) {
       console.error("Get inquiries error:", error);
-      res.status(500).json({ error: error.message || "Failed to retrieve inquiries" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to retrieve inquiries") });
     }
   });
 
@@ -404,7 +406,7 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
       res.json({ inquiry: updated });
     } catch (error: any) {
       console.error("Mark inquiry read error:", error);
-      res.status(500).json({ error: error.message || "Failed to update inquiry" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to update inquiry") });
     }
   });
 
@@ -438,7 +440,7 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
       if (error.name === "ZodError") {
         res.status(400).json({ error: error.message || "Invalid email address" });
       } else {
-        res.status(500).json({ error: error.message || "Failed to subscribe to newsletter" });
+        res.status(500).json({ error: clientErrorMessage(error, "Failed to subscribe to newsletter") });
       }
     }
   });
@@ -451,7 +453,7 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
       res.json({ subscribers });
     } catch (error: any) {
       console.error("Get subscribers error:", error);
-      res.status(500).json({ error: error.message || "Failed to retrieve subscribers" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to retrieve subscribers") });
     }
   });
 
@@ -474,7 +476,7 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
       res.json({ success: true, ...result });
     } catch (error: any) {
       console.error("Newsletter broadcast error:", error);
-      res.status(500).json({ error: error.message || "Failed to send broadcast" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to send broadcast") });
     }
   });
 
@@ -537,7 +539,7 @@ Subject: [subject line]
       res.json({ template });
     } catch (error: any) {
       console.error("Email template generation error:", error);
-      res.status(500).json({ error: error.message || "Failed to generate email template" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to generate email template") });
     }
   });
 
@@ -558,7 +560,7 @@ Subject: [subject line]
       if (error.name === "ZodError") {
         res.status(400).json({ error: error.message || "Invalid article data" });
       } else {
-        res.status(500).json({ error: error.message || "Failed to create article" });
+        res.status(500).json({ error: clientErrorMessage(error, "Failed to create article") });
       }
     }
   });
@@ -622,7 +624,7 @@ Subject: [subject line]
       if (error.name === "ZodError") {
         res.status(400).json({ error: error.message || "Invalid article data" });
       } else {
-        res.status(500).json({ error: error.message || "Failed to update article" });
+        res.status(500).json({ error: clientErrorMessage(error, "Failed to update article") });
       }
     }
   });
@@ -642,7 +644,7 @@ Subject: [subject line]
       res.json({ success: true });
     } catch (error: any) {
       console.error("Delete article error:", error);
-      res.status(500).json({ error: error.message || "Failed to delete article" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to delete article") });
     }
   });
 
@@ -691,7 +693,7 @@ Subject: [subject line]
       if (error.name === "ZodError") {
         res.status(400).json({ error: error.message || "Invalid resource data" });
       } else {
-        res.status(500).json({ error: error.message || "Failed to create resource" });
+        res.status(500).json({ error: clientErrorMessage(error, "Failed to create resource") });
       }
     }
   });
@@ -726,7 +728,7 @@ Subject: [subject line]
       if (error.name === "ZodError") {
         res.status(400).json({ error: error.message || "Invalid resource data" });
       } else {
-        res.status(500).json({ error: error.message || "Failed to update resource" });
+        res.status(500).json({ error: clientErrorMessage(error, "Failed to update resource") });
       }
     }
   });
@@ -774,7 +776,7 @@ Subject: [subject line]
       }
     } catch (error: any) {
       console.error("Admin send email error:", error);
-      res.status(500).json({ error: error.message || "Failed to send email" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to send email") });
     }
   });
 
@@ -820,7 +822,7 @@ Generate a cold call script tailored to this exact situation.`;
       res.json({ script });
     } catch (error: any) {
       console.error("Cold call script error:", error);
-      res.status(500).json({ error: error.message || "Failed to generate script" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to generate script") });
     }
   });
 
@@ -882,7 +884,7 @@ Build a specific Monday–Friday territory plan for this week.`;
       res.json({ plan });
     } catch (error: any) {
       console.error("Weekly plan builder error:", error);
-      res.status(500).json({ error: error.message || "Failed to generate plan" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to generate plan") });
     }
   });
 
@@ -1142,21 +1144,28 @@ Build a specific Monday–Friday territory plan for this week.`;
   app.post("/api/testimonials", async (req, res) => {
     if (!isAdminRequest(req)) return res.status(401).json({ error: "Unauthorized" });
     try {
-      const data = req.body;
+      const data = insertTestimonialSchema.parse(req.body);
       const item = await storage.createTestimonial(data);
       res.json({ testimonial: item });
     } catch (error: any) {
-      res.status(500).json({ error: "Failed to create testimonial" });
+      if (error?.name === "ZodError") {
+        return res.status(400).json({ error: "Invalid testimonial data" });
+      }
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to create testimonial") });
     }
   });
 
   app.put("/api/testimonials/:id", async (req, res) => {
     if (!isAdminRequest(req)) return res.status(401).json({ error: "Unauthorized" });
     try {
-      const item = await storage.updateTestimonial(paramInt(req, "id"), req.body);
+      const data = insertTestimonialSchema.partial().parse(req.body);
+      const item = await storage.updateTestimonial(paramInt(req, "id"), data);
       res.json({ testimonial: item });
     } catch (error: any) {
-      res.status(500).json({ error: "Failed to update testimonial" });
+      if (error?.name === "ZodError") {
+        return res.status(400).json({ error: "Invalid testimonial data" });
+      }
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to update testimonial") });
     }
   });
 
@@ -1229,7 +1238,7 @@ Build a specific Monday–Friday territory plan for this week.`;
       res.json({ success: true });
     } catch (error: any) {
       console.error("Delete resource error:", error);
-      res.status(500).json({ error: error.message || "Failed to delete resource" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to delete resource") });
     }
   });
 
@@ -1266,7 +1275,7 @@ Build a specific Monday–Friday territory plan for this week.`;
       if (error.name === "ZodError") {
         res.status(400).json({ error: error.message || "Invalid podcast data" });
       } else {
-        res.status(500).json({ error: error.message || "Failed to create podcast" });
+        res.status(500).json({ error: clientErrorMessage(error, "Failed to create podcast") });
       }
     }
   });
@@ -1301,7 +1310,7 @@ Build a specific Monday–Friday territory plan for this week.`;
       if (error.name === "ZodError") {
         res.status(400).json({ error: error.message || "Invalid podcast data" });
       } else {
-        res.status(500).json({ error: error.message || "Failed to update podcast" });
+        res.status(500).json({ error: clientErrorMessage(error, "Failed to update podcast") });
       }
     }
   });
@@ -1325,7 +1334,7 @@ Build a specific Monday–Friday territory plan for this week.`;
       res.json({ success: true });
     } catch (error: any) {
       console.error("Delete podcast error:", error);
-      res.status(500).json({ error: error.message || "Failed to delete podcast" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to delete podcast") });
     }
   });
 
@@ -1339,7 +1348,7 @@ Build a specific Monday–Friday territory plan for this week.`;
       res.json({ success: true });
     } catch (error: any) {
       console.error("Track visitor error:", error);
-      res.status(500).json({ error: error.message || "Failed to track visitor" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to track visitor") });
     }
   });
 
@@ -1351,7 +1360,7 @@ Build a specific Monday–Friday territory plan for this week.`;
       res.json({ analytics });
     } catch (error: any) {
       console.error("Get analytics error:", error);
-      res.status(500).json({ error: error.message || "Failed to retrieve analytics" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to retrieve analytics") });
     }
   });
 
@@ -1367,7 +1376,7 @@ Build a specific Monday–Friday territory plan for this week.`;
       res.json({ success: true });
     } catch (error: any) {
       console.error("Track event error:", error);
-      res.status(500).json({ error: error.message || "Failed to track event" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to track event") });
     }
   });
 
@@ -1381,7 +1390,7 @@ Build a specific Monday–Friday territory plan for this week.`;
       res.json({ analytics });
     } catch (error: any) {
       console.error("Get event analytics error:", error);
-      res.status(500).json({ error: error.message || "Failed to retrieve event analytics" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to retrieve event analytics") });
     }
   });
 
@@ -1412,7 +1421,7 @@ Build a specific Monday–Friday territory plan for this week.`;
       res.json({ uploadURL });
     } catch (error: any) {
       console.error("Upload URL generation error:", error);
-      res.status(500).json({ error: error.message || "Failed to generate upload URL" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to generate upload URL") });
     }
   });
 
@@ -1465,7 +1474,7 @@ Build a specific Monday–Friday territory plan for this week.`;
       res.json({ normalizedPath });
     } catch (error: any) {
       console.error("Error normalizing PDF path:", error);
-      res.status(500).json({ error: error.message || "Failed to normalize PDF path" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to normalize PDF path") });
     }
   });
 
@@ -1516,7 +1525,7 @@ Build a specific Monday–Friday territory plan for this week.`;
         if (error?.name === "ZodError") {
           return res.status(400).json({ error: "Invalid role-play start data" });
         }
-        res.status(500).json({ error: error.message || "Failed to create roleplay session" });
+        res.status(500).json({ error: clientErrorMessage(error, "Failed to create roleplay session") });
       }
     },
   );
@@ -1566,7 +1575,7 @@ Build a specific Monday–Friday territory plan for this week.`;
       res.json({ session, messages });
     } catch (error: any) {
       console.error("Get roleplay session error:", error);
-      res.status(500).json({ error: error.message || "Failed to get session" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to get session") });
     }
   });
 
@@ -1615,7 +1624,7 @@ Build a specific Monday–Friday territory plan for this week.`;
         if (error?.name === "ZodError") {
           return res.status(400).json({ error: "Invalid message" });
         }
-        res.status(500).json({ error: error.message || "Failed to send message" });
+        res.status(500).json({ error: clientErrorMessage(error, "Failed to send message") });
       }
     },
   );
@@ -1654,7 +1663,7 @@ Build a specific Monday–Friday territory plan for this week.`;
         res.json({ session: updated, feedback, rating });
       } catch (error: any) {
         console.error("Roleplay feedback error:", error);
-        res.status(500).json({ error: error.message || "Failed to generate feedback" });
+        res.status(500).json({ error: clientErrorMessage(error, "Failed to generate feedback") });
       }
     },
   );
@@ -1802,7 +1811,7 @@ The single most important skill to work on before the next conversation.`,
       res.json({ analysis });
     } catch (error: any) {
       console.error("Transcript analysis error:", error);
-      res.status(500).json({ error: error.message });
+      res.status(500).json({ error: clientErrorMessage(error, "Request failed") });
     }
   });
 
@@ -2242,7 +2251,7 @@ The single most important skill to work on before the next conversation.`,
       const list = await storage.getAssessments();
       res.json({ assessments: list });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || "Failed to fetch assessments" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to fetch assessments") });
     }
   });
 
@@ -2255,7 +2264,7 @@ The single most important skill to work on before the next conversation.`,
       const assessment = await storage.createAssessment({ name: name.trim(), description: description?.trim() || null });
       res.json({ assessment });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || "Failed to create assessment" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to create assessment") });
     }
   });
 
@@ -2266,7 +2275,7 @@ The single most important skill to work on before the next conversation.`,
       await storage.deleteAssessment(id);
       res.json({ success: true });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || "Failed to delete assessment" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to delete assessment") });
     }
   });
 
@@ -2277,7 +2286,7 @@ The single most important skill to work on before the next conversation.`,
       const questions = await storage.getAssessmentQuestions(id);
       res.json({ questions });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || "Failed to fetch questions" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to fetch questions") });
     }
   });
 
@@ -2303,7 +2312,7 @@ The single most important skill to work on before the next conversation.`,
       });
       res.json({ question });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || "Failed to add question" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to add question") });
     }
   });
 
@@ -2314,7 +2323,7 @@ The single most important skill to work on before the next conversation.`,
       await storage.deleteAssessmentQuestion(id);
       res.json({ success: true });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || "Failed to delete question" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to delete question") });
     }
   });
 
@@ -2334,7 +2343,7 @@ The single most important skill to work on before the next conversation.`,
       }));
       res.json({ assessment: { id: assessment.id, name: assessment.name, description: assessment.description }, questions: publicQuestions });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || "Failed to fetch assessment" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to fetch assessment") });
     }
   });
 
@@ -2725,7 +2734,7 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
       });
     } catch (error: any) {
       console.error("Assessment submission error:", error);
-      res.status(500).json({ error: error.message || "Failed to submit assessment" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to submit assessment") });
     }
   });
 
@@ -2736,7 +2745,7 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
       const submissions = await storage.getAssessmentSubmissions(id);
       res.json({ submissions });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || "Failed to fetch submissions" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to fetch submissions") });
     }
   });
 
@@ -2750,7 +2759,7 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
       const questions = await storage.getAssessmentQuestions(submission.assessmentId);
       res.json({ submission, assessment, questions });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || "Failed to fetch submission" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to fetch submission") });
     }
   });
 
@@ -2790,7 +2799,7 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
       res.json({ invite, assessmentUrl });
     } catch (error: any) {
       console.error("Create invite error:", error);
-      res.status(500).json({ error: error.message || "Failed to create invite" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to create invite") });
     }
   });
 
@@ -2801,7 +2810,7 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
       const invites = await storage.getAssessmentInvites(assessmentId);
       res.json({ invites });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || "Failed to fetch invites" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to fetch invites") });
     }
   });
 
@@ -2823,7 +2832,7 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
         used: false,
       });
     } catch (error: any) {
-      res.status(500).json({ error: error.message || "Failed to validate invite" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to validate invite") });
     }
   });
 
@@ -2859,7 +2868,7 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
       res.json({ client });
     } catch (error: any) {
       console.error("Create assessment client error:", error);
-      res.status(500).json({ error: error.message || "Failed to create client" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to create client") });
     }
   });
 
@@ -2888,7 +2897,7 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
       res.json({ success: true });
     } catch (error: any) {
       console.error("Delete assessment client error:", error);
-      res.status(500).json({ error: error.message || "Failed to delete client" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to delete client") });
     }
   });
 
@@ -2926,7 +2935,7 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
       });
     } catch (error: any) {
       console.error("Get branded assessment error:", error);
-      res.status(500).json({ error: error.message || "Failed to load assessment" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to load assessment") });
     }
   });
 
@@ -2957,7 +2966,7 @@ REQUIRED OUTPUT — RETURN ONLY VALID JSON, NO MARKDOWN, NO EXTRA TEXT
       res.json({ success: true });
     } catch (error: any) {
       console.error("Update site settings error:", error);
-      res.status(500).json({ error: error.message || "Failed to update settings" });
+      res.status(500).json({ error: clientErrorMessage(error, "Failed to update settings") });
     }
   });
 

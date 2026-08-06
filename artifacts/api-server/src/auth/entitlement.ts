@@ -69,11 +69,9 @@ export function publicOrg(org: ClientOrganization) {
     type: org.type,
     seatLimit: org.seatLimit,
     status: org.status,
-    pipelineStatus: (org as any).pipelineStatus ?? null,
     trialEndsAt: org.trialEndsAt,
     activatedAt: org.activatedAt,
-    nextFollowUpAt: (org as any).nextFollowUpAt ?? null,
-    // Internal Access Desk notes stay off public member payloads (admin org detail only).
+    // Internal Access Desk fields (notes, pipeline, follow-up, lost reason) stay off public payloads.
     // Billing (safe for client UI — no secret Stripe keys)
     billingPlan: (org as any).billingPlan ?? null,
     billingStatus: (org as any).billingStatus ?? null,

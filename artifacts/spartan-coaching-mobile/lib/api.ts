@@ -233,7 +233,12 @@ export async function fetchBillingStatus(): Promise<BillingStatus | null> {
 
 /** Start individual weekly Checkout ($14.99/wk). Returns Stripe-hosted URL. */
 export async function startIndividualCheckout(): Promise<{ url: string }> {
-  return apiPost<{ url: string }>("/api/billing/checkout", {});
+  const site = getWebSiteUrl();
+  // Bridge page opens app deep link after Stripe (see CheckoutReturn.tsx).
+  return apiPost<{ url: string }>("/api/billing/checkout", {
+    successUrl: `${site}/checkout-return?from=app&activated=1`,
+    cancelUrl: `${site}/account?billing=canceled&from=app`,
+  });
 }
 
 /** Open Stripe Customer Portal (cancel / update card). */

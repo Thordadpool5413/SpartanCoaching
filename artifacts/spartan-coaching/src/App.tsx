@@ -30,6 +30,7 @@ const Portal = lazy(() => import("@/pages/Portal"));
 const PortalLearn = lazy(() => import("@/pages/PortalLearn"));
 const Account = lazy(() => import("@/pages/Account"));
 const MagicLogin = lazy(() => import("@/pages/MagicLogin"));
+const CheckoutReturn = lazy(() => import("@/pages/CheckoutReturn"));
 const FieldKitMembership = lazy(() => import("@/pages/FieldKitMembership"));
 const RedirectToMembership = lazy(() =>
   import("@/pages/Redirect").then((m) => ({ default: m.RedirectToMembership })),
@@ -220,6 +221,7 @@ function Router() {
           <Route path="/portal/learn" component={PortalLearn} />
           <Route path="/account" component={Account} />
           <Route path="/magic-login" component={MagicLogin} />
+          <Route path="/checkout-return" component={CheckoutReturn} />
           <Route path="/hospice-sales-pro" component={FieldKitMembership} />
           {/* Legacy URLs → Hospice Sales Pro lander */}
           <Route path="/membership" component={RedirectToMembership} />

@@ -9,6 +9,8 @@ import { useSavedResponses } from "@/hooks/useSavedResponses";
 import { FieldResultPanel } from "@/components/FieldResultPanel";
 import { ReminderPicker } from "@/components/ReminderPicker";
 import { SavedResponsesSection } from "@/components/SavedResponsesSection";
+import { enqueueGenerate, shouldEnqueueOnError, userFacingApiError } from "@/lib/offlineQueue";
+import { saveToolLastResult } from "@/lib/toolDraftCache";
 import { ToolShell } from "./ToolShell";
 import { toolStyles as styles } from "./toolStyles";
 
@@ -47,9 +49,24 @@ export function EmailTool() {
         context: emailContext,
       });
       setResult(data.template);
+      await saveToolLastResult("email", data.template);
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    } catch {
-      setError("Something went wrong. Please try again.");
+    } catch (e: unknown) {
+      if (shouldEnqueueOnError(e)) {
+        await enqueueGenerate({
+          toolId: "email",
+          path: "/api/email-templates",
+          body: {
+            templateType: emailType,
+            recipientName: recipientName || undefined,
+            context: emailContext,
+          },
+          label: "Email Templates",
+        });
+        setError("Offline or network error — queued to retry.");
+      } else {
+        setError(userFacingApiError(e));
+      }
     } finally {
       setLoading(false);
     }

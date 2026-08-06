@@ -6,6 +6,8 @@ import { useColors } from "@/hooks/useColors";
 import { apiPost } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
+import { enqueueGenerate, shouldEnqueueOnError, userFacingApiError } from "@/lib/offlineQueue";
+import { saveToolLastResult } from "@/lib/toolDraftCache";
 import { ToolShell } from "./ToolShell";
 import { toolStyles as styles } from "./toolStyles";
 
@@ -37,10 +39,27 @@ export function ColdCallTool() {
           situation,
         },
       );
-      setResult(data.script || data.text || data.result || JSON.stringify(data));
+      const text = data.script || data.text || data.result || "";
+      if (!text) throw new Error("Empty script response");
+      setResult(text);
+      await saveToolLastResult("cold", text);
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    } catch {
-      setError("Something went wrong. Please try again.");
+    } catch (e: unknown) {
+      if (shouldEnqueueOnError(e)) {
+        await enqueueGenerate({
+          toolId: "cold",
+          path: "/api/cold-call-script",
+          body: {
+            prospectType,
+            prospectName: prospectName || undefined,
+            situation,
+          },
+          label: "Cold Call Script",
+        });
+        setError("Offline or network error — queued to retry.");
+      } else {
+        setError(userFacingApiError(e));
+      }
     } finally {
       setLoading(false);
     }

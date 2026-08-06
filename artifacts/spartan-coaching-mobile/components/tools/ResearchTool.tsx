@@ -7,6 +7,8 @@ import { apiPost } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
 import { CitationsBlock, type CitationItem } from "@/components/ui/CitationsBlock";
+import { enqueueGenerate, shouldEnqueueOnError, userFacingApiError } from "@/lib/offlineQueue";
+import { saveToolLastResult } from "@/lib/toolDraftCache";
 import { ToolShell } from "./ToolShell";
 import { toolStyles as styles } from "./toolStyles";
 
@@ -35,11 +37,23 @@ export function ResearchTool() {
         sources?: Array<{ title: string; uri: string }>;
         spartanCitations?: CitationItem[];
       }>("/api/research", { query, useGrounding: true });
-      setResult(data.text || "");
+      const text = data.text || "";
+      setResult(text);
       setSources(data.sources || []);
       setCitations(data.spartanCitations || []);
-    } catch {
-      setError("Something went wrong. Please try again.");
+      if (text) await saveToolLastResult("research", text);
+    } catch (e: unknown) {
+      if (shouldEnqueueOnError(e)) {
+        await enqueueGenerate({
+          toolId: "research",
+          path: "/api/research",
+          body: { query, useGrounding: true },
+          label: "Grounded Research",
+        });
+        setError("Offline or network error — queued to retry.");
+      } else {
+        setError(userFacingApiError(e));
+      }
     } finally {
       setLoading(false);
     }

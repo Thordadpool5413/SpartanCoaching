@@ -65,6 +65,8 @@ export function ToolShell({
           style={styles.backBtn}
           hitSlop={8}
           testID="tool-back"
+          accessibilityRole="button"
+          accessibilityLabel="Back to Tools"
         >
           <Feather name="chevron-left" size={22} color={colors.primary} />
           <Text style={[{ color: colors.primary, fontSize: 15 }, font("bold")]}>Tools</Text>
