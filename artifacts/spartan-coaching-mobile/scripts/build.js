@@ -275,17 +275,12 @@ async function downloadBundle(platform, timestamp) {
   const candidates = [
     "index",
     "expo-router/entry",
-    entry.fromProject,
     "node_modules/expo-router/entry",
+    entry.fromProject,
     entry.fromWorkspace,
   ]
     .map((p) => (p || "").replace(/\\/g, "/").replace(/^\.\//, ""))
-    .filter((p, i, arr) => p && !p.startsWith("..") && arr.indexOf(p) === i);
-
-  // Allow workspace-relative if it doesn't escape with ..
-  if (entry.fromWorkspace && !entry.fromWorkspace.startsWith("..")) {
-    if (!candidates.includes(entry.fromWorkspace)) candidates.push(entry.fromWorkspace);
-  }
+    .filter((p, i, arr) => p && arr.indexOf(p) === i);
 
   const output = path.join(
     "static-build",
