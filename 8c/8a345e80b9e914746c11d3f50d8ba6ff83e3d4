@@ -1,0 +1,42 @@
+artifacts/api-server/src/auth/entitlement.ts
+  h_0446834f150a71 74
+artifacts/api-server/src/lib/httpErrors.ts
+  h_0446834f150a71 1-18
+artifacts/api-server/src/routes/routes.ts
+  h_0446834f150a71 17,52,235,270,293,309,343,363,384,396,409,443,456,479,542,563,627,647,696,731,779,825,887,1147,1151-1154,1161-1162,1165-1168,1241,1278,1313,1337,1351,1363,1379,1393,1424,1477,1528,1578,1627,1666,1814,2254,2267,2278,2289,2315,2326,2346,2737,2748,2762,2802,2813,2835,2871,2900,2938,2969
+artifacts/spartan-coaching-mobile/components/OfflineQueueBanner.tsx
+  h_0446834f150a71 52-54
+artifacts/spartan-coaching-mobile/components/tools/ColdCallTool.tsx
+  h_0446834f150a71 9-10,42-45,47-62
+artifacts/spartan-coaching-mobile/components/tools/EmailTool.tsx
+  h_0446834f150a71 12-13,52,54-69
+artifacts/spartan-coaching-mobile/components/tools/ResearchTool.tsx
+  h_0446834f150a71 10-11,40-41,44-56
+artifacts/spartan-coaching-mobile/components/tools/ToolShell.tsx
+  h_0446834f150a71 68-69
+artifacts/spartan-coaching-mobile/components/ui/SpartanButton.tsx
+  h_0446834f150a71 54-56
+artifacts/spartan-coaching-mobile/lib/api.ts
+  h_0446834f150a71 236-241
+artifacts/spartan-coaching/src/App.tsx
+  h_0446834f150a71 33,224
+artifacts/spartan-coaching/src/pages/CheckoutReturn.tsx
+  h_0446834f150a71 1-59
+docs/schema-ops.md
+  h_0446834f150a71 1-33
+docs/ship-readiness.md
+  h_0446834f150a71 47,53
+scripts/patch-500-errors.py
+  h_0446834f150a71 1-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "8c8a345e80b9e914746c11d3f50d8ba6ff83e3d4",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
