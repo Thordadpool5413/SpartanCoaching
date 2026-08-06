@@ -238,10 +238,11 @@ async function downloadFile(url, outputPath) {
   }
 }
 
-async function downloadBundle(platform, timestamp) {
-  const entryPath = path.resolve(projectRoot, "node_modules", "expo-router", "entry");
-  const bundlePath = path.relative(workspaceRoot, entryPath);
-  const url = new URL(`http://localhost:8081/${bundlePath}.bundle`);
+function buildBundleUrl(bundlePath, platform) {
+  // Metro projectRoot is the mobile package — use paths relative to that root.
+  // (Workspace-relative "artifacts/..." paths 404 after monorepo-root watch was removed.)
+  const normalized = bundlePath.replace(/\\/g, "/").replace(/^\.\//, "");
+  const url = new URL(`http://localhost:8081/${normalized}.bundle`);
   url.searchParams.set("platform", platform);
   url.searchParams.set("dev", "false");
   url.searchParams.set("hot", "false");
@@ -251,6 +252,21 @@ async function downloadBundle(platform, timestamp) {
   // Hermes asset. Avoid invoking hermesc here; native EAS builds still generate
   // bytecode through Expo's native build pipeline.
   url.searchParams.set("transform.bytecode", "false");
+  return url.toString();
+}
+
+async function downloadBundle(platform, timestamp) {
+  const entryPath = path.resolve(projectRoot, "node_modules", "expo-router", "entry");
+  // Prefer package-root relative path (matches metro.config.js projectRoot).
+  const fromProject = path.relative(projectRoot, entryPath);
+  // Fallback candidates if pnpm layout differs
+  const candidates = [
+    fromProject,
+    "node_modules/expo-router/entry",
+    path.relative(workspaceRoot, entryPath),
+  ]
+    .map((p) => p.replace(/\\/g, "/").replace(/^\.\//, ""))
+    .filter((p, i, arr) => p && arr.indexOf(p) === i);
 
   const output = path.join(
     "static-build",
@@ -263,8 +279,19 @@ async function downloadBundle(platform, timestamp) {
   );
 
   console.log(`Fetching ${platform} bundle...`);
-  await downloadFile(url.toString(), output);
-  console.log(`${platform} bundle ready`);
+  let lastError = null;
+  for (const candidate of candidates) {
+    const url = buildBundleUrl(candidate, platform);
+    try {
+      await downloadFile(url, output);
+      console.log(`${platform} bundle ready (${candidate})`);
+      return;
+    } catch (error) {
+      lastError = error;
+      console.warn(`Bundle candidate failed (${candidate}): ${error.message}`);
+    }
+  }
+  throw lastError || new Error(`No bundle URL worked for ${platform}`);
 }
 
 async function downloadManifest(platform) {
