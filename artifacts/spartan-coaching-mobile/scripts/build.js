@@ -188,11 +188,13 @@ async function startMetro(expoPublicDomain, expoPublicReplId) {
     });
   }
 
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < 90; i++) {
     await new Promise((resolve) => setTimeout(resolve, 1000));
 
     const healthy = await checkMetroHealth();
     if (healthy) {
+      // Status can flip healthy before rewrite middleware / graph are fully up.
+      await new Promise((resolve) => setTimeout(resolve, 2000));
       console.log("Metro ready");
       return;
     }
@@ -247,40 +249,70 @@ function buildBundleUrl(bundlePath, platform) {
   url.searchParams.set("lazy", "false");
   url.searchParams.set("minify", "true");
   // Expo Go-compatible JS (not Hermes bytecode).
+  // Set engine=jsc so virtual-entry rewrite does not force hermes bytecode.
+  url.searchParams.set("transform.engine", "jsc");
   url.searchParams.set("transform.bytecode", "false");
   return url.toString();
 }
 
-function resolveExpoRouterEntryRelative() {
+/**
+ * Metro serves URLs relative to the monorepo serverRoot (Expo getMetroServerRoot).
+ * Last-known-green path (CI #177): artifacts/.../node_modules/expo-router/entry
+ * Also try Expo virtual entry + pnpm realpath variants.
+ */
+function collectBundleEntryCandidates(platform) {
+  const candidates = [];
+
+  // 1) Last-known-green: package-relative path without realpath (symlink layout).
+  const greenEntry = path.resolve(
+    projectRoot,
+    "node_modules",
+    "expo-router",
+    "entry",
+  );
+  candidates.push(path.relative(workspaceRoot, greenEntry));
+  candidates.push(path.relative(projectRoot, greenEntry));
+
+  // 2) Expo official relative entry (handles monorepo + realpath carefully).
   try {
-    const resolved = require.resolve("expo-router/entry", { paths: [projectRoot] });
-    // Strip extension for Metro URL (.js / .ts / .tsx)
-    const noExt = resolved.replace(/\.(tsx?|jsx?|mjs|cjs)$/i, "");
-    const fromProject = path.relative(projectRoot, noExt).replace(/\\/g, "/");
-    const fromWorkspace = path.relative(workspaceRoot, noExt).replace(/\\/g, "/");
-    return { fromProject, fromWorkspace, resolved };
+    const { resolveRelativeEntryPoint } = require("@expo/config/paths");
+    const rel = resolveRelativeEntryPoint(projectRoot, { platform });
+    if (rel) candidates.push(rel.replace(/\.(tsx?|jsx?|mjs|cjs)$/i, ""));
   } catch (error) {
-    return {
-      fromProject: "node_modules/expo-router/entry",
-      fromWorkspace: "artifacts/spartan-coaching-mobile/node_modules/expo-router/entry",
-      resolved: null,
-      error,
-    };
+    console.warn(`resolveRelativeEntryPoint unavailable: ${error.message}`);
   }
+
+  // 3) Expo magic entry — rewriteRequestUrl maps this to the real entry.
+  candidates.push(".expo/.virtual-metro-entry");
+
+  // 4) Common fallbacks.
+  candidates.push(
+    "index",
+    "node_modules/expo-router/entry",
+    "artifacts/spartan-coaching-mobile/node_modules/expo-router/entry",
+  );
+
+  // 5) require.resolve realpath (pnpm store path under monorepo node_modules).
+  try {
+    const resolved = require.resolve("expo-router/entry", {
+      paths: [projectRoot],
+    });
+    const noExt = resolved.replace(/\.(tsx?|jsx?|mjs|cjs)$/i, "");
+    candidates.push(path.relative(workspaceRoot, noExt));
+    candidates.push(path.relative(projectRoot, noExt));
+  } catch {
+    // ignore
+  }
+
+  return candidates
+    .map((p) => (p || "").replace(/\\/g, "/").replace(/^\.\//, ""))
+    // Drop empty and escape-out-of-root paths Metro will reject.
+    .filter((p) => p && !p.startsWith("../") && !path.isAbsolute(p))
+    .filter((p, i, arr) => arr.indexOf(p) === i);
 }
 
 async function downloadBundle(platform, timestamp) {
-  const entry = resolveExpoRouterEntryRelative();
-  // Metro entry candidates (package main is expo-router/entry → often served as index)
-  const candidates = [
-    "index",
-    "expo-router/entry",
-    "node_modules/expo-router/entry",
-    entry.fromProject,
-    entry.fromWorkspace,
-  ]
-    .map((p) => (p || "").replace(/\\/g, "/").replace(/^\.\//, ""))
-    .filter((p, i, arr) => p && arr.indexOf(p) === i);
+  const candidates = collectBundleEntryCandidates(platform);
 
   const output = path.join(
     "static-build",
@@ -293,7 +325,7 @@ async function downloadBundle(platform, timestamp) {
   );
 
   console.log(`Fetching ${platform} bundle...`);
-  if (entry.resolved) console.log(`Resolved expo-router/entry → ${entry.resolved}`);
+  console.log(`Entry candidates: ${candidates.join(" | ")}`);
   let lastError = null;
   for (const candidate of candidates) {
     const url = buildBundleUrl(candidate, platform);

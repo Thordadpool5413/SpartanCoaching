@@ -8,11 +8,17 @@ const workspaceRoot = path.resolve(projectRoot, "../..");
 const config = getDefaultConfig(projectRoot);
 
 /**
- * Replit: workspace root often contains `.local/share/pnpm/_tmp_*` which pnpm
- * deletes while Metro watches → ENOENT crash (FallbackWatcher).
- * GitHub Actions CI: no such path — watching monorepo root is required for
- * correct Expo static bundle resolution during `pnpm run build`.
+ * GitHub Actions CI: last-known-green monorepo Metro (watch workspace root so
+ * Expo serverRoot-relative entry URLs resolve during static build).
+ *
+ * Replit / local: never watch monorepo root — pnpm deletes
+ * `.local/share/pnpm/_tmp_*` while Metro watches → ENOENT crash.
  */
+const isCi =
+  process.env.CI === "true" ||
+  process.env.CI === "1" ||
+  process.env.GITHUB_ACTIONS === "true";
+
 function collectLibPackages() {
   const libRoot = path.join(workspaceRoot, "lib");
   const folders = [];
@@ -23,7 +29,7 @@ function collectLibPackages() {
     try {
       if (fs.statSync(full).isDirectory()) folders.push(full);
     } catch {
-      // ignore
+      // ignore races
     }
   }
   const integrations = path.join(libRoot, "integrations");
@@ -48,66 +54,70 @@ function isUnsafeWatchRoot(dir) {
   return false;
 }
 
-const isCi =
-  process.env.CI === "true" ||
-  process.env.CI === "1" ||
-  process.env.GITHUB_ACTIONS === "true";
-
-const safeLocalFolders = [projectRoot, ...collectLibPackages()].filter(
-  (dir) => fs.existsSync(dir) && !isUnsafeWatchRoot(dir),
-);
-
 if (isCi) {
-  // Full monorepo watch for correct bundle graph (GitHub runners have no .local temps).
-  config.watchFolders = Array.from(
-    new Set([projectRoot, workspaceRoot, ...collectLibPackages()].filter(fs.existsSync)),
-  );
+  // Exact green monorepo pattern (CI run #177 and earlier).
+  config.watchFolders = [
+    ...new Set([...(config.watchFolders ?? []), workspaceRoot]),
+  ];
 } else {
-  // Replit / local: never watch monorepo root (siblings include .local).
+  // Replit/local: app + shared lib packages only (never monorepo root).
+  const safeLocalFolders = [projectRoot, ...collectLibPackages()].filter(
+    (dir) => fs.existsSync(dir) && !isUnsafeWatchRoot(dir),
+  );
   config.watchFolders = safeLocalFolders;
-}
 
-config.projectRoot = projectRoot;
+  const blockPatterns = [
+    /[/\\]\.local[/\\]/,
+    /[/\\]\.git[/\\]/,
+    /[/\\]\.metro-cache[/\\]/,
+    /[/\\]pnpm[/\\]_tmp_/,
+    /[/\\]\.pnpm-store[/\\]/,
+    /[/\\]attached_assets[/\\]/,
+    /[/\\]coverage[/\\]/,
+  ];
 
-const blockPatterns = [
-  /[/\\]\.local[/\\]/,
-  /[/\\]\.git[/\\]/,
-  /[/\\]\.metro-cache[/\\]/,
-  /[/\\]pnpm[/\\]_tmp_/,
-  /[/\\]\.pnpm-store[/\\]/,
-  /[/\\]attached_assets[/\\]/,
-  /[/\\]coverage[/\\]/,
-];
-
-function mergeBlockList(existing, extras) {
+  const existing = config.resolver?.blockList;
   const parts = [];
-  if (existing instanceof RegExp) parts.push(existing.source);
-  else if (typeof existing === "string" && existing) parts.push(existing);
-  for (const re of extras) parts.push(re.source);
-  return new RegExp(parts.map((p) => `(?:${p})`).join("|"));
+  if (Array.isArray(existing)) {
+    for (const item of existing) {
+      if (item instanceof RegExp) parts.push(item.source);
+      else if (typeof item === "string" && item) parts.push(item);
+    }
+  } else if (existing instanceof RegExp) {
+    parts.push(existing.source);
+  } else if (typeof existing === "string" && existing) {
+    parts.push(existing);
+  }
+  for (const re of blockPatterns) parts.push(re.source);
+
+  config.resolver = {
+    ...config.resolver,
+    blockList: new RegExp(parts.map((p) => `(?:${p})`).join("|")),
+  };
+
+  config.watcher = {
+    ...config.watcher,
+    healthCheck: {
+      enabled: true,
+      interval: 30_000,
+      timeout: 5_000,
+    },
+  };
+
+  // Never re-introduce unsafe watch roots.
+  config.watchFolders = (config.watchFolders || []).filter(
+    (d) => !isUnsafeWatchRoot(d),
+  );
 }
 
+// Monorepo package resolution (needed in both CI and Replit).
 config.resolver = {
   ...config.resolver,
   nodeModulesPaths: [
     path.resolve(projectRoot, "node_modules"),
     path.resolve(workspaceRoot, "node_modules"),
   ],
-  blockList: mergeBlockList(config.resolver?.blockList, blockPatterns),
   unstable_enablePackageExports: true,
 };
-
-config.watcher = {
-  ...config.watcher,
-  healthCheck: {
-    enabled: true,
-    interval: 30_000,
-    timeout: 5_000,
-  },
-};
-
-// Final sanitize — never allow .local watch roots even if Expo mutates the list.
-const rawFolders = config.watchFolders || [];
-config.watchFolders = rawFolders.filter((d) => !isUnsafeWatchRoot(d));
 
 module.exports = config;
