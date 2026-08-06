@@ -212,7 +212,8 @@ export class DatabaseStorage implements IStorage {
     return await db
       .select()
       .from(inquiries)
-      .orderBy(desc(inquiries.submittedAt));
+      .orderBy(desc(inquiries.submittedAt))
+      .limit(500);
   }
 
   async markInquiryRead(id: number, isRead: boolean): Promise<SelectInquiry> {
@@ -615,7 +616,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getResourceLeads(): Promise<SelectResourceLead[]> {
-    return await db.select().from(resourceLeads).orderBy(desc(resourceLeads.capturedAt));
+    return await db.select().from(resourceLeads).orderBy(desc(resourceLeads.capturedAt)).limit(500);
   }
 
   async isNewResourceLeadEmail(email: string): Promise<boolean> {
@@ -629,7 +630,7 @@ export class DatabaseStorage implements IStorage {
   }
 
   async getUsageEvents(): Promise<SelectUsageEvent[]> {
-    return await db.select().from(usageEvents).orderBy(desc(usageEvents.createdAt));
+    return await db.select().from(usageEvents).orderBy(desc(usageEvents.createdAt)).limit(500);
   }
 
   async createSignedAgreement(agreement: InsertSignedAgreement): Promise<SelectSignedAgreement> {

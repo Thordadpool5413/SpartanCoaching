@@ -731,7 +731,7 @@ Subject: [subject line]
     }
   });
 
-  app.post("/api/resource-leads", async (req, res) => {
+  app.post("/api/resource-leads", publicFormLimit, async (req, res) => {
     try {
       const leadData = insertResourceLeadSchema.parse(req.body);
       const isNew = await storage.isNewResourceLeadEmail(leadData.email);
@@ -886,7 +886,7 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
   });
 
-  app.post("/api/usage-events", async (req, res) => {
+  app.post("/api/usage-events", publicFormLimit, async (req, res) => {
     try {
       const { name, email, toolName } = req.body;
       if (!name || !email || !toolName) {
@@ -910,7 +910,7 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
   });
 
-  app.post("/api/signed-agreements", async (req, res) => {
+  app.post("/api/signed-agreements", publicFormLimit, async (req, res) => {
     try {
       const agreementData = insertSignedAgreementSchema.parse(req.body);
       const agreement = await storage.createSignedAgreement(agreementData);
@@ -1523,14 +1523,11 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   /**
    * List sessions as a JSON array (mobile + web).
-   * Members: own sessions only. Platform admin: all tenant-owned sessions.
+   * Always member-scoped on this product path (no cross-tenant dump for platform admins).
    * Unowned legacy rows are never included.
    */
   app.get("/api/roleplay/sessions", requireFieldKit, async (req: AuthedRequest, res) => {
     try {
-      if (isAdminRequest(req)) {
-        return res.json(await storage.getOwnedRoleplaySessions());
-      }
       res.json(await storage.getRoleplaySessionsForMember(req.clientMemberId!));
     } catch (error: any) {
       console.error("Get roleplay sessions error:", error);
@@ -1558,8 +1555,10 @@ Build a specific Monday–Friday territory plan for this week.`;
       if (!session) return res.status(404).json({ error: "Session not found" });
 
       const memberId = req.clientMemberId!;
+      const orgId = req.fieldKit?.member?.organizationId;
       const isOwner = session.memberId === memberId;
-      if (!isOwner && !isAdminRequest(req)) {
+      const sameOrg = orgId != null && session.organizationId === orgId;
+      if (!isOwner || !sameOrg) {
         return res.status(404).json({ error: "Session not found" });
       }
 
@@ -1583,7 +1582,12 @@ Build a specific Monday–Friday territory plan for this week.`;
 
         const { content } = roleplayMessageSchema.parse(req.body);
         const session = await storage.getRoleplaySession(sessionId);
-        if (!session || session.memberId !== req.clientMemberId) {
+        const orgId = req.fieldKit?.member?.organizationId;
+        if (
+          !session ||
+          session.memberId !== req.clientMemberId ||
+          (orgId != null && session.organizationId !== orgId)
+        ) {
           return res.status(404).json({ error: "Session not found" });
         }
         if (session.status !== "active") {
@@ -1627,7 +1631,12 @@ Build a specific Monday–Friday territory plan for this week.`;
         if (!Number.isFinite(sessionId)) return res.status(400).json({ error: "Invalid session id" });
 
         const session = await storage.getRoleplaySession(sessionId);
-        if (!session || session.memberId !== req.clientMemberId) {
+        const orgId = req.fieldKit?.member?.organizationId;
+        if (
+          !session ||
+          session.memberId !== req.clientMemberId ||
+          (orgId != null && session.organizationId !== orgId)
+        ) {
           return res.status(404).json({ error: "Session not found" });
         }
 
@@ -1681,12 +1690,8 @@ Build a specific Monday–Friday territory plan for this week.`;
       if (!member) {
         return res.status(401).json({ error: "Not authenticated" });
       }
-      // Members only see their own completions (no cross-tenant history).
-      // Platform admins can use Access Desk / admin drill views for ops.
-      const completions =
-        member.role === "platform_admin"
-          ? await storage.getDrillCompletions()
-          : await storage.getDrillCompletionsForMember(member.id);
+      // Always member-scoped on this product path (no cross-tenant dump).
+      const completions = await storage.getDrillCompletionsForMember(member.id);
       res.json(completions);
     } catch (error: any) {
       console.error("Get drill completions error:", error);

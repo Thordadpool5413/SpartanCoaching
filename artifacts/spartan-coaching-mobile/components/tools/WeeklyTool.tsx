@@ -14,7 +14,7 @@ import {
   saveToolDraft,
   saveToolLastResult,
 } from "@/lib/toolDraftCache";
-import { enqueueGenerate } from "@/lib/offlineQueue";
+import { enqueueGenerate, shouldEnqueueOnError, userFacingApiError } from "@/lib/offlineQueue";
 
 const TOOL_ID = "weekly";
 
@@ -81,19 +81,23 @@ export function WeeklyTool() {
       setResult(text);
       await saveToolLastResult(TOOL_ID, text);
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    } catch {
-      await enqueueGenerate({
-        toolId: TOOL_ID,
-        path: "/api/weekly-plan-builder",
-        body: {
-          accounts,
-          weeklyGoal: goal,
-          territoryFocus: focus || undefined,
-          challenges: challenges || undefined,
-        },
-        label: "Weekly Plan",
-      });
-      setError("Offline or network error — queued to retry. Showing last result if available.");
+    } catch (e: unknown) {
+      if (shouldEnqueueOnError(e)) {
+        await enqueueGenerate({
+          toolId: TOOL_ID,
+          path: "/api/weekly-plan-builder",
+          body: {
+            accounts,
+            weeklyGoal: goal,
+            territoryFocus: focus || undefined,
+            challenges: challenges || undefined,
+          },
+          label: "Weekly Plan",
+        });
+        setError("Offline or network error — queued to retry. Showing last result if available.");
+      } else {
+        setError(userFacingApiError(e));
+      }
       const last = await loadToolLastResult(TOOL_ID);
       if (last) {
         setResult(last);

@@ -14,17 +14,18 @@ import { font } from "@/lib/typography";
 export default function LoginScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { login, isAuthenticated, canUseFieldKit, isLoading } = useAuth();
+  const { login, isAuthenticated, isLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
   useEffect(() => {
+    // Always land on Home shells (entitled / locked / logged-out) — never force Contact.
     if (!isLoading && isAuthenticated) {
-      router.replace(canUseFieldKit ? "/(tabs)" : "/(tabs)/contact");
+      router.replace("/(tabs)");
     }
-  }, [isLoading, isAuthenticated, canUseFieldKit]);
+  }, [isLoading, isAuthenticated]);
 
   const onSubmit = async () => {
     setError(null);

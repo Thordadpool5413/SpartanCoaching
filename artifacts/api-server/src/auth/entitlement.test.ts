@@ -83,4 +83,12 @@ describe("evaluateFieldKitAccess", () => {
     );
     expect(access.allowed).toBe(true);
   });
+
+  it("does not grant tools to non-admin members of a platform org solely by org type", () => {
+    const access = evaluateFieldKitAccess(
+      { status: "active", role: "member", passwordHash: "x" },
+      { type: "platform", status: "expired", trialEndsAt: null },
+    );
+    expect(access.allowed).toBe(false);
+  });
 });

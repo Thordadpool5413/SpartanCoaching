@@ -73,8 +73,7 @@ export function publicOrg(org: ClientOrganization) {
     trialEndsAt: org.trialEndsAt,
     activatedAt: org.activatedAt,
     nextFollowUpAt: (org as any).nextFollowUpAt ?? null,
-    lostReason: (org as any).lostReason ?? null,
-    notes: org.notes ?? null,
+    // Internal Access Desk notes stay off public member payloads (admin org detail only).
     // Billing (safe for client UI — no secret Stripe keys)
     billingPlan: (org as any).billingPlan ?? null,
     billingStatus: (org as any).billingStatus ?? null,

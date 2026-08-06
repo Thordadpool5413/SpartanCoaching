@@ -47,7 +47,18 @@ function resolveActor(request: Request): Actor {
 
 function workflowEncryption(): EncryptionAdapter | undefined {
   const key = process.env.SALES_WORKFLOW_ENCRYPTION_KEY;
-  return key ? new AesGcmEncryption(key) : undefined;
+  if (key) return new AesGcmEncryption(key);
+  // Fail closed in deployed production when encryption is required by policy.
+  const production =
+    process.env.NODE_ENV === "production" ||
+    process.env.REPLIT_DEPLOYMENT === "1" ||
+    process.env.REPLIT_DEPLOYMENT === "true";
+  if (production && process.env.SALES_WORKFLOW_REQUIRE_ENCRYPTION === "1") {
+    throw new Error(
+      "SALES_WORKFLOW_ENCRYPTION_KEY is required when SALES_WORKFLOW_REQUIRE_ENCRYPTION=1",
+    );
+  }
+  return undefined;
 }
 
 const workflowAuthorization: AuthorizationAdapter = {

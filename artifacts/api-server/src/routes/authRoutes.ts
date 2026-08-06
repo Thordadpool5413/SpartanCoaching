@@ -38,6 +38,7 @@ import {
   SESSION_DAYS,
   MAX_SESSIONS_PER_MEMBER,
   requireAuth,
+  requireFieldKit,
   requireOrgAdmin,
   requireAdmin,
   isAdminRequest,
@@ -1464,7 +1465,7 @@ export function registerAuthRoutes(app: Express): void {
   });
 
   // ── Org admin: members & invites ───────────────────────────────────
-  app.get("/api/org/members", requireAuth, requireOrgAdmin, async (req: AuthedRequest, res) => {
+  app.get("/api/org/members", requireAuth, requireFieldKit, requireOrgAdmin, async (req: AuthedRequest, res) => {
     const orgId = req.fieldKit!.org!.id;
     const members = await db
       .select()
@@ -1488,7 +1489,7 @@ export function registerAuthRoutes(app: Express): void {
   });
 
   /** Light org usage summary for company admins (last 7 days) */
-  app.get("/api/org/usage", requireAuth, requireOrgAdmin, async (req: AuthedRequest, res) => {
+  app.get("/api/org/usage", requireAuth, requireFieldKit, requireOrgAdmin, async (req: AuthedRequest, res) => {
     try {
       const orgId = req.fieldKit!.org!.id;
       const members = await db
@@ -1533,7 +1534,7 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
-  app.post("/api/org/invites", requireAuth, requireOrgAdmin, async (req: AuthedRequest, res) => {
+  app.post("/api/org/invites", requireAuth, requireFieldKit, requireOrgAdmin, async (req: AuthedRequest, res) => {
     try {
       const parsed = inviteMemberBodySchema.safeParse(req.body);
       if (!parsed.success) {
@@ -1800,8 +1801,8 @@ export function registerAuthRoutes(app: Express): void {
         .where(eq(clientMembers.email, email))
         .limit(1);
 
-      // Always ok response (no enumeration)
-      if (member && member.status !== "disabled") {
+      // Only active members with a password may receive magic links (no enumeration).
+      if (member && member.status === "active" && member.passwordHash) {
         const token = await createAuthToken(member.id, "magic_link", 1);
         const url = `${getSiteUrl()}/magic-login?token=${encodeURIComponent(token)}`;
         // Reuse password-reset style email
@@ -1837,13 +1838,32 @@ export function registerAuthRoutes(app: Express): void {
         return res.status(400).json({ error: "This sign-in link is invalid or has expired." });
       }
 
+      // Load member first — never force-activate invited/disabled accounts.
+      const [existing] = await db
+        .select()
+        .from(clientMembers)
+        .where(eq(clientMembers.id, row.memberId))
+        .limit(1);
+      if (!existing || existing.status === "disabled") {
+        return res.status(400).json({ error: "Account unavailable" });
+      }
+      if (existing.status === "invited" || !existing.passwordHash) {
+        return res.status(400).json({
+          error: "Please set your password using the link from your approval email first.",
+          code: "PASSWORD_NOT_SET",
+        });
+      }
+      if (existing.status !== "active") {
+        return res.status(400).json({ error: "Account unavailable" });
+      }
+
       await db.update(authTokens).set({ usedAt: new Date() }).where(eq(authTokens.id, row.id));
       const [member] = await db
         .update(clientMembers)
-        .set({ status: "active", lastLoginAt: new Date() })
-        .where(eq(clientMembers.id, row.memberId))
+        .set({ lastLoginAt: new Date() })
+        .where(eq(clientMembers.id, existing.id))
         .returning();
-      if (!member || member.status === "disabled") {
+      if (!member) {
         return res.status(400).json({ error: "Account unavailable" });
       }
 
@@ -1907,7 +1927,7 @@ export function registerAuthRoutes(app: Express): void {
   });
 
   // ── Org: disable member ────────────────────────────────────────────
-  app.post("/api/org/members/:id/disable", requireAuth, requireOrgAdmin, async (req: AuthedRequest, res) => {
+  app.post("/api/org/members/:id/disable", requireAuth, requireFieldKit, requireOrgAdmin, async (req: AuthedRequest, res) => {
     try {
       const id = Number(req.params.id);
       const orgId = req.fieldKit!.org!.id;

@@ -288,9 +288,14 @@ export async function fetchMeMobile(): Promise<MobileAuthUser | null> {
   if (!token) return null;
   try {
     return await apiGet<MobileAuthUser>("/api/auth/me");
-  } catch {
-    await setSessionToken(null);
-    return null;
+  } catch (e: unknown) {
+    // Only clear the session on explicit unauthenticated responses.
+    // Network blips / 5xx must not log field users out.
+    if (e instanceof ApiError && e.status === 401) {
+      await setSessionToken(null);
+      return null;
+    }
+    throw e;
   }
 }
 

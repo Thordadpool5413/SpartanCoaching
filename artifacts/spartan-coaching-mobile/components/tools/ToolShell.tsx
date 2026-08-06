@@ -24,9 +24,9 @@ type Props = {
   howSteps?: string[];
   whenToUse?: string;
   children: ReactNode;
-  /** Sticky primary */
-  ctaTitle: string;
-  onCta: () => void;
+  /** Sticky primary (omit when stickyCta is false) */
+  ctaTitle?: string;
+  onCta?: () => void;
   ctaLoading?: boolean;
   ctaDisabled?: boolean;
   /** Extra bottom pad when sticky CTA shown */
@@ -180,7 +180,7 @@ export function ToolShell({
         </ScrollView>
       </KeyboardAvoidingView>
 
-      {stickyCta ? (
+      {stickyCta && ctaTitle && onCta ? (
         <StickyCTA
           title={ctaTitle}
           onPress={onCta}

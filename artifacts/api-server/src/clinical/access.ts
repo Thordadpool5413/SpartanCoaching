@@ -37,10 +37,8 @@ function isOrgClinicalAdmin(role: string | undefined): boolean {
  * Resolve clinical tool access for the current Membership member.
  *
  * De-identified mode: all entitled Membership members may use clinical education tools.
- * PHI mode: explicit permission rows win (including revokes). When no row exists and
- * the PHI runtime is fully ready (BAAs + infrastructure), entitled members receive
- * operational canUse access so production is not blocked on manual grants. Org and
- * platform admins also receive review/admin when auto-granted.
+ * PHI mode: explicit permission rows only (including revokes). Default deny when no row.
+ * Break-glass auto-grant: set CLINICAL_AUTO_GRANT=1 when runtime is ready (ops only).
  */
 export async function resolveClinicalAccess(
   request: AuthedRequest,
@@ -78,6 +76,11 @@ export async function resolveClinicalAccess(
       canAdmin: permission.canAdmin,
     };
   }
+
+  // Default deny without a grant row. Optional break-glass for emergency ops.
+  const autoGrant =
+    process.env.CLINICAL_AUTO_GRANT === "1" || process.env.CLINICAL_AUTO_GRANT === "true";
+  if (!autoGrant) return null;
 
   const readiness = clinicalRuntimeReadiness();
   if (!readiness.ready) return null;

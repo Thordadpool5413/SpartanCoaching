@@ -823,7 +823,7 @@ export default function HomeScreen() {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 if (tool.route) router.push(tool.route as any);
                 else if (tool.toolTab) {
-                  router.push({ pathname: "/(tabs)/tools", params: { tab: tool.toolTab } } as any);
+                  router.push({ pathname: "/tool/[tab]", params: { tab: tool.toolTab } } as any);
                 } else {
                   router.push("/(tabs)/tools");
                 }

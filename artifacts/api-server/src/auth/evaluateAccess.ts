@@ -35,8 +35,8 @@ export function evaluateFieldKitAccess<M extends AccessMember, O extends AccessO
     return { allowed: false, reason: "disabled", member, org };
   }
 
-  // Platform operators always have tool + admin access
-  if (member.role === "platform_admin" || org.type === "platform") {
+  // Platform operators (role) always have tool + admin access — not every member of a platform org.
+  if (member.role === "platform_admin") {
     return {
       allowed: true,
       member,

@@ -116,7 +116,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       const data = await fetchMe();
       apply(data);
     } catch {
-      apply(null);
+      // Network/5xx: keep last session. fetchMe only returns null on 401.
     } finally {
       setIsLoading(false);
     }

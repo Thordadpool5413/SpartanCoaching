@@ -272,8 +272,12 @@ export const selfRegisterBodySchema = z.object({
   name: z.string().min(2).max(200),
   email: z.string().email(),
   password: z.string().min(8).max(200),
-  acceptTerms: z.boolean().optional(),
-  noPhi: z.boolean().optional(),
+  acceptTerms: z.literal(true, {
+    errorMap: () => ({ message: "You must accept the terms to create an account" }),
+  }),
+  noPhi: z.literal(true, {
+    errorMap: () => ({ message: "You must confirm you will not enter PHI" }),
+  }),
 });
 
 export const adminBootstrapBodySchema = z.object({
@@ -281,7 +285,7 @@ export const adminBootstrapBodySchema = z.object({
   email: z.string().email(),
   name: z.string().min(2).max(255),
   /** Login password for the platform admin account (can match unlock passcode). */
-  password: z.string().min(4).max(128),
+  password: z.string().min(8).max(128),
 });
 
 export const adminLegacyLoginBodySchema = z.object({

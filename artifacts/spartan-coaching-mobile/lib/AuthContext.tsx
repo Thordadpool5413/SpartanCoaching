@@ -28,7 +28,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       const me = await fetchMeMobile();
       setUser(me);
     } catch {
-      setUser(null);
+      // Keep last known session on network/5xx (fetchMeMobile only nulls on 401).
     } finally {
       setIsLoading(false);
     }
