@@ -239,8 +239,6 @@ async function downloadFile(url, outputPath) {
 }
 
 function buildBundleUrl(bundlePath, platform) {
-  // Metro projectRoot is the mobile package — use paths relative to that root.
-  // (Workspace-relative "artifacts/..." paths 404 after monorepo-root watch was removed.)
   const normalized = bundlePath.replace(/\\/g, "/").replace(/^\.\//, "");
   const url = new URL(`http://localhost:8081/${normalized}.bundle`);
   url.searchParams.set("platform", platform);
@@ -248,25 +246,46 @@ function buildBundleUrl(bundlePath, platform) {
   url.searchParams.set("hot", "false");
   url.searchParams.set("lazy", "false");
   url.searchParams.set("minify", "true");
-  // This endpoint serves Expo Go-compatible JavaScript, not an embedded native
-  // Hermes asset. Avoid invoking hermesc here; native EAS builds still generate
-  // bytecode through Expo's native build pipeline.
+  // Expo Go-compatible JS (not Hermes bytecode).
   url.searchParams.set("transform.bytecode", "false");
   return url.toString();
 }
 
+function resolveExpoRouterEntryRelative() {
+  try {
+    const resolved = require.resolve("expo-router/entry", { paths: [projectRoot] });
+    // Strip extension for Metro URL (.js / .ts / .tsx)
+    const noExt = resolved.replace(/\.(tsx?|jsx?|mjs|cjs)$/i, "");
+    const fromProject = path.relative(projectRoot, noExt).replace(/\\/g, "/");
+    const fromWorkspace = path.relative(workspaceRoot, noExt).replace(/\\/g, "/");
+    return { fromProject, fromWorkspace, resolved };
+  } catch (error) {
+    return {
+      fromProject: "node_modules/expo-router/entry",
+      fromWorkspace: "artifacts/spartan-coaching-mobile/node_modules/expo-router/entry",
+      resolved: null,
+      error,
+    };
+  }
+}
+
 async function downloadBundle(platform, timestamp) {
-  const entryPath = path.resolve(projectRoot, "node_modules", "expo-router", "entry");
-  // Prefer package-root relative path (matches metro.config.js projectRoot).
-  const fromProject = path.relative(projectRoot, entryPath);
-  // Fallback candidates if pnpm layout differs
+  const entry = resolveExpoRouterEntryRelative();
+  // Metro entry candidates (package main is expo-router/entry → often served as index)
   const candidates = [
-    fromProject,
+    "index",
+    "expo-router/entry",
+    entry.fromProject,
     "node_modules/expo-router/entry",
-    path.relative(workspaceRoot, entryPath),
+    entry.fromWorkspace,
   ]
-    .map((p) => p.replace(/\\/g, "/").replace(/^\.\//, ""))
-    .filter((p, i, arr) => p && arr.indexOf(p) === i);
+    .map((p) => (p || "").replace(/\\/g, "/").replace(/^\.\//, ""))
+    .filter((p, i, arr) => p && !p.startsWith("..") && arr.indexOf(p) === i);
+
+  // Allow workspace-relative if it doesn't escape with ..
+  if (entry.fromWorkspace && !entry.fromWorkspace.startsWith("..")) {
+    if (!candidates.includes(entry.fromWorkspace)) candidates.push(entry.fromWorkspace);
+  }
 
   const output = path.join(
     "static-build",
@@ -279,6 +298,7 @@ async function downloadBundle(platform, timestamp) {
   );
 
   console.log(`Fetching ${platform} bundle...`);
+  if (entry.resolved) console.log(`Resolved expo-router/entry → ${entry.resolved}`);
   let lastError = null;
   for (const candidate of candidates) {
     const url = buildBundleUrl(candidate, platform);

@@ -8,14 +8,10 @@ const workspaceRoot = path.resolve(projectRoot, "../..");
 const config = getDefaultConfig(projectRoot);
 
 /**
- * Replit crash (ENOENT watch .../workspace/.local/share/pnpm/_tmp_*):
- * Expo monorepo detection watches the monorepo ROOT. On Replit, HOME/workspace
- * often contains `.local/share/pnpm/_tmp_*` which pnpm deletes while Metro is
- * still watching → FallbackWatcher throws and Expo exits 7.
- *
- * Fix: never watch the monorepo root or any path under .local / pnpm temps.
- * Watch only this app + concrete shared packages under lib/*.
- * Resolve monorepo deps via nodeModulesPaths without watching those trees.
+ * Replit: workspace root often contains `.local/share/pnpm/_tmp_*` which pnpm
+ * deletes while Metro watches → ENOENT crash (FallbackWatcher).
+ * GitHub Actions CI: no such path — watching monorepo root is required for
+ * correct Expo static bundle resolution during `pnpm run build`.
  */
 function collectLibPackages() {
   const libRoot = path.join(workspaceRoot, "lib");
@@ -27,10 +23,9 @@ function collectLibPackages() {
     try {
       if (fs.statSync(full).isDirectory()) folders.push(full);
     } catch {
-      // ignore races
+      // ignore
     }
   }
-  // Nested workspace packages e.g. lib/integrations/*
   const integrations = path.join(libRoot, "integrations");
   if (fs.existsSync(integrations)) {
     for (const name of fs.readdirSync(integrations)) {
@@ -50,18 +45,29 @@ function isUnsafeWatchRoot(dir) {
   const n = path.normalize(dir).replace(/\\/g, "/");
   if (n.includes("/.local/") || n.endsWith("/.local")) return true;
   if (n.includes("/pnpm/_tmp_") || n.includes("/.pnpm-store")) return true;
-  // Never watch monorepo root (siblings include .local on Replit)
-  if (path.normalize(dir) === path.normalize(workspaceRoot)) return true;
   return false;
 }
 
-const safeWatchFolders = [projectRoot, ...collectLibPackages()].filter(
+const isCi =
+  process.env.CI === "true" ||
+  process.env.CI === "1" ||
+  process.env.GITHUB_ACTIONS === "true";
+
+const safeLocalFolders = [projectRoot, ...collectLibPackages()].filter(
   (dir) => fs.existsSync(dir) && !isUnsafeWatchRoot(dir),
 );
 
-// Hard replace — do not spread prior monorepo roots from getDefaultConfig.
+if (isCi) {
+  // Full monorepo watch for correct bundle graph (GitHub runners have no .local temps).
+  config.watchFolders = Array.from(
+    new Set([projectRoot, workspaceRoot, ...collectLibPackages()].filter(fs.existsSync)),
+  );
+} else {
+  // Replit / local: never watch monorepo root (siblings include .local).
+  config.watchFolders = safeLocalFolders;
+}
+
 config.projectRoot = projectRoot;
-config.watchFolders = safeWatchFolders;
 
 const blockPatterns = [
   /[/\\]\.local[/\\]/,
@@ -83,18 +89,14 @@ function mergeBlockList(existing, extras) {
 
 config.resolver = {
   ...config.resolver,
-  // Resolve workspace packages without adding monorepo root to watchFolders
   nodeModulesPaths: [
     path.resolve(projectRoot, "node_modules"),
     path.resolve(workspaceRoot, "node_modules"),
   ],
-  disableHierarchicalLookup: false,
   blockList: mergeBlockList(config.resolver?.blockList, blockPatterns),
   unstable_enablePackageExports: true,
 };
 
-// Metro crawler ignore (resolver blockList alone does not stop FS watchers)
-const priorIgnore = config.watcher?.additionalExts;
 config.watcher = {
   ...config.watcher,
   healthCheck: {
@@ -104,26 +106,8 @@ config.watcher = {
   },
 };
 
-// Guard: if anything re-introduced monorepo root, strip it at export time
-const exported = new Proxy(config, {
-  get(target, prop, receiver) {
-    if (prop === "watchFolders") {
-      const folders = Reflect.get(target, prop, receiver) || [];
-      return folders.filter((d) => !isUnsafeWatchRoot(d));
-    }
-    return Reflect.get(target, prop, receiver);
-  },
-  set(target, prop, value, receiver) {
-    if (prop === "watchFolders" && Array.isArray(value)) {
-      return Reflect.set(
-        target,
-        prop,
-        value.filter((d) => !isUnsafeWatchRoot(d)),
-        receiver,
-      );
-    }
-    return Reflect.set(target, prop, value, receiver);
-  },
-});
+// Final sanitize — never allow .local watch roots even if Expo mutates the list.
+const rawFolders = config.watchFolders || [];
+config.watchFolders = rawFolders.filter((d) => !isUnsafeWatchRoot(d));
 
-module.exports = exported;
+module.exports = config;
