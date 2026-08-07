@@ -59,9 +59,9 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-[70vh] flex items-center justify-center px-4 py-16 surface-page" data-testid="page-login">
+    <div className="min-h-[70vh] sm:min-h-[75vh] flex items-center justify-center px-4 sm:px-6 py-10 sm:py-16 surface-page" data-testid="page-login">
       <SEO />
-      <Card className="w-full max-w-md border border-border bg-card p-8 sm:p-10 space-y-6 shadow-elite">
+      <Card className="w-full max-w-md border border-border bg-card p-6 sm:p-8 lg:p-10 space-y-6 shadow-elite">
         <div className="text-center space-y-3">
           <img
             src="/spartan-logo-stamp.png"
@@ -71,13 +71,13 @@ export default function Login() {
             height={48}
           />
           <p className="text-kicker justify-center">Client access</p>
-          <h1 className="text-2xl font-display font-black text-foreground tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-display font-black text-foreground tracking-tight">
             Sign in
           </h1>
-          <p className="text-sm text-muted-foreground leading-relaxed">
+          <p className="text-sm text-muted-foreground leading-relaxed max-w-sm mx-auto">
             Members: use the email and password from your set-password email.
             Need an account?{" "}
-            <Link href="/register" className="font-semibold text-primary hover:underline">
+            <Link href="/register" className="font-semibold text-primary hover:underline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring rounded-sm">
               Create one
             </Link>
             {" · "}
@@ -87,17 +87,21 @@ export default function Login() {
           </p>
         </div>
 
-        <div className="flex gap-2 p-1 rounded-lg bg-muted/40">
+        <div className="flex gap-1 p-1 rounded-lg bg-muted/40" role="tablist" aria-label="Sign-in method">
           <button
             type="button"
-            className={`flex-1 py-2 rounded-md text-sm font-semibold ${mode === "password" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+            role="tab"
+            aria-selected={mode === "password"}
+            className={`flex-1 min-h-11 py-2.5 rounded-md text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${mode === "password" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
             onClick={() => setMode("password")}
           >
             Password
           </button>
           <button
             type="button"
-            className={`flex-1 py-2 rounded-md text-sm font-semibold ${mode === "magic" ? "bg-primary text-primary-foreground" : "text-muted-foreground"}`}
+            role="tab"
+            aria-selected={mode === "magic"}
+            className={`flex-1 min-h-11 py-2.5 rounded-md text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${mode === "magic" ? "bg-primary text-primary-foreground shadow-sm" : "text-muted-foreground hover:text-foreground"}`}
             onClick={() => setMode("magic")}
           >
             Email link
@@ -144,7 +148,7 @@ export default function Login() {
                 />
               </div>
             )}
-            <Button type="submit" className="w-full font-bold" disabled={pending} data-testid="button-login-submit">
+            <Button type="submit" className="w-full font-bold min-h-11" disabled={pending} data-testid="button-login-submit">
               {pending
                 ? mode === "magic"
                   ? "Sending…"

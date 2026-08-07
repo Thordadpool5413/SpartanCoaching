@@ -144,7 +144,7 @@ export default function Contact() {
     <PersuasionShell>
       <SEO />
       <BackButton />
-      <div className="max-w-2xl mx-auto">
+      <div className="max-w-2xl mx-auto px-4 sm:px-6 w-full">
         <FadeIn>
           <div className="text-center mb-10 sm:mb-12">
             <h1 className="text-h1 text-foreground mb-6" data-testid="text-contact-title">

@@ -109,10 +109,10 @@ export default function Home() {
         data-testid="section-authority"
       >
         <div className="absolute inset-0 bg-spartan-gradient-radial opacity-30 pointer-events-none" />
-        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 py-16 sm:py-24">
+        <div className="relative max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-24">
           <FadeIn>
-            <div className="grid md:grid-cols-[240px_1fr] gap-10 md:gap-14 items-center">
-              <div className="relative mx-auto md:mx-0 w-44 sm:w-52 md:w-full aspect-[4/5] overflow-hidden rounded-2xl border border-primary/30 shadow-elite-red ring-1 ring-primary/20">
+            <div className="grid grid-cols-1 md:grid-cols-[200px_1fr] lg:grid-cols-[240px_1fr] gap-8 md:gap-12 lg:gap-14 items-center">
+              <div className="relative mx-auto md:mx-0 w-40 sm:w-48 md:w-full aspect-[4/5] overflow-hidden rounded-2xl border border-primary/30 shadow-elite-red ring-1 ring-primary/20">
                 <img
                   src={nickPhoto}
                   alt="Nick Lynch, founder of Spartan Coaching"
@@ -137,13 +137,13 @@ export default function Home() {
                   and accountability in the same room.
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
-                  <Button size="lg" asChild className="font-bold" data-testid="button-authority-contact">
+                  <Button size="lg" asChild className="font-bold min-h-11 w-full sm:w-auto" data-testid="button-authority-contact">
                     <Link href="/contact">
                       Book a strategy call
                       <ArrowRight className="ml-2 w-4 h-4" />
                     </Link>
                   </Button>
-                  <Button size="lg" variant="outline" asChild className="font-bold" data-testid="button-authority-about">
+                  <Button size="lg" variant="outline" asChild className="font-bold min-h-11 w-full sm:w-auto" data-testid="button-authority-about">
                     <Link href="/about">About Nick Lynch</Link>
                   </Button>
                 </div>
@@ -176,20 +176,20 @@ export default function Home() {
       </section>
 
       {/* ── 4. TWO DOORS — Consulting vs Hospice Sales Pro ── */}
-      <section className="relative page-persuasion py-16 sm:py-24" data-testid="section-pillars">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+      <section className="relative page-persuasion py-12 sm:py-16 lg:py-24" data-testid="section-pillars">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeIn>
-            <div className="text-center mb-12">
+            <div className="text-center mb-8 sm:mb-12 lg:mb-14">
               <p className="text-kicker justify-center mb-4">How Spartan helps</p>
               <h2 className="text-h2 text-foreground font-display">Two clear offers. One firm.</h2>
-              <p className="text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed">
+              <p className="text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed text-sm sm:text-base">
                 Hire Spartan for human consulting — or run{" "}
                 <strong className="text-foreground">Hospice Sales Pro</strong> for Command Center, tools, and
                 resources on web and iPhone.
               </p>
             </div>
           </FadeIn>
-          <StaggerContainer className="grid md:grid-cols-2 gap-6">
+          <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
             {[
               {
                 icon: Briefcase,
@@ -242,7 +242,7 @@ export default function Home() {
                         </li>
                       ))}
                     </ul>
-                    <Button asChild className="font-bold w-full sm:w-auto" variant={p.primary ? "default" : "outline"}>
+                    <Button asChild className="font-bold w-full min-h-11" variant={p.primary ? "default" : "outline"}>
                       <Link href={p.href}>
                         {p.cta}
                         <ArrowRight className="ml-2 w-4 h-4" />

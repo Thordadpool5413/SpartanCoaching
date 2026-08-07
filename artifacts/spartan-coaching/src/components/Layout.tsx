@@ -25,21 +25,7 @@ import { cn } from "@/lib/utils";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { navSections, allSearchablePages } from "@/lib/navigation";
 import { PortalNav, PortalMobileLinks } from "@/components/PortalNav";
-
-// Helper hook to determine if the screen is mobile
-function useIsMobile() {
-  const [width, setWidth] = useState(window.innerWidth);
-
-  useEffect(() => {
-    const handleResize = () => {
-      setWidth(window.innerWidth);
-    };
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
-  return width < 768; // Adjust breakpoint as needed
-}
+import { useIsMobile } from "@/hooks/use-breakpoint";
 
 function NavLink({ href, children, onClick }: { href: string; children: React.ReactNode; onClick?: () => void }) {
   const [location] = useLocation();
@@ -359,7 +345,7 @@ export function Header() {
                 />
                 {isAuthenticated ? (
                   <>
-                    <PortalMobileLinks location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <PortalMobileLinks onNavigate={() => setMobileMenuOpen(false)} />
                     <MobileNavSection title="Site" />
                     <MobileNavLink href="/services" label="Services" location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavLink href="/about" label="About" location={location} onClose={() => setMobileMenuOpen(false)} />

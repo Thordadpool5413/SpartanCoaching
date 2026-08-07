@@ -40,7 +40,7 @@ export default function FieldKitMembership() {
   const { canUseFieldKit } = useAuth();
 
   return (
-    <div className="w-full max-w-6xl mx-auto px-4 py-12 sm:py-16" data-testid="page-hospice-sales-pro">
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 surface-page" data-testid="page-hospice-sales-pro">
       <SEO />
 
       {/* ── Hero — Hospice Sales Pro product ── */}

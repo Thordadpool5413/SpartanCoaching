@@ -93,11 +93,11 @@ export default function Register() {
 
   return (
     <div
-      className="min-h-[70vh] flex items-center justify-center px-4 py-16 surface-page"
+      className="min-h-[70vh] sm:min-h-[75vh] flex items-center justify-center px-4 sm:px-6 py-10 sm:py-16 surface-page"
       data-testid="page-register"
     >
       <SEO />
-      <Card className="w-full max-w-md border border-border bg-card p-8 sm:p-10 space-y-6 shadow-elite">
+      <Card className="w-full max-w-md border border-border bg-card p-6 sm:p-8 lg:p-10 space-y-6 shadow-elite">
         <div className="text-center space-y-3">
           <img
             src="/spartan-logo-stamp.png"

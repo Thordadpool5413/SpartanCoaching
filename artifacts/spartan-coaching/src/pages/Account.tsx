@@ -248,7 +248,7 @@ export default function Account() {
     (canCheckout || org?.status === "suspended" || org?.status === "expired");
 
   return (
-    <div className="w-full max-w-3xl mx-auto px-4 py-12 space-y-8" data-testid="page-account">
+    <div className="w-full max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 space-y-6 sm:space-y-8 surface-page min-h-[70vh]" data-testid="page-account">
       <SEO />
       <div>
         <p className="text-xs font-bold tracking-widest text-primary uppercase mb-2">Account</p>

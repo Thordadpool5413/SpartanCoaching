@@ -310,7 +310,7 @@ export default function Portal() {
   const isPaidMember = organization?.status === "active";
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 py-10 sm:py-16 surface-page min-h-[70vh]" data-testid="page-portal">
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 surface-page min-h-[70vh]" data-testid="page-portal">
       <SEO />
       <MembershipActivation />
 

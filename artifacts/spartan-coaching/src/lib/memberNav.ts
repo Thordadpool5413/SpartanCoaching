@@ -1,0 +1,119 @@
+import type { LucideIcon } from "lucide-react";
+import {
+  BookOpen,
+  Crosshair,
+  FolderOpen,
+  Home,
+  LayoutDashboard,
+  Phone,
+  UserCircle,
+  Wrench,
+} from "lucide-react";
+
+export type MemberNavItem = {
+  href: string;
+  label: string;
+  icon: LucideIcon;
+  /** Short label for dense chrome (optional) */
+  short?: string;
+  match: (location: string) => boolean;
+};
+
+/** Single source of truth for signed-in Hospice Sales Pro navigation. */
+export const MEMBER_NAV: MemberNavItem[] = [
+  {
+    href: "/portal",
+    label: "Home",
+    short: "Home",
+    icon: Home,
+    match: (loc) => loc === "/portal",
+  },
+  {
+    href: "/tools/sales-workflow",
+    label: "Command",
+    icon: Crosshair,
+    match: (loc) => loc.startsWith("/tools/sales-workflow"),
+  },
+  {
+    href: "/tools",
+    label: "Tools",
+    icon: Wrench,
+    match: (loc) =>
+      (loc === "/tools" || loc.startsWith("/tools/")) &&
+      !loc.startsWith("/tools/sales-workflow"),
+  },
+  {
+    href: "/resources",
+    label: "Resources",
+    icon: FolderOpen,
+    match: (loc) => loc === "/resources" || loc.startsWith("/resources/"),
+  },
+  {
+    href: "/portal/learn",
+    label: "Learn",
+    icon: BookOpen,
+    match: (loc) =>
+      loc === "/portal/learn" ||
+      loc === "/drills" ||
+      loc === "/quiz" ||
+      loc.startsWith("/learn/") ||
+      loc === "/articles" ||
+      loc === "/podcasts",
+  },
+  {
+    href: "/account",
+    label: "Account",
+    icon: UserCircle,
+    match: (loc) => loc === "/account" || loc.startsWith("/account/"),
+  },
+  {
+    href: "/contact?service=Hospice+Sales+Pro+Debrief",
+    label: "Coach",
+    short: "Coach",
+    icon: Phone,
+    match: (loc) => loc.startsWith("/contact"),
+  },
+];
+
+/** Header portal strip (includes Portal label for marketing shell). */
+export const PORTAL_HEADER_NAV: MemberNavItem[] = [
+  {
+    href: "/portal",
+    label: "Portal",
+    icon: LayoutDashboard,
+    match: (loc) => loc === "/portal",
+  },
+  ...MEMBER_NAV.filter((item) => item.href !== "/portal"),
+];
+
+export const PREVIEW_NAV: MemberNavItem[] = [
+  {
+    href: "/hospice-sales-pro",
+    label: "Hospice Sales Pro",
+    icon: Home,
+    match: (loc) =>
+      loc === "/hospice-sales-pro" ||
+      loc === "/membership" ||
+      loc === "/field-kit" ||
+      loc === "/field-kit-membership" ||
+      loc.startsWith("/pricing/field-kit"),
+  },
+  {
+    href: "/tools",
+    label: "Tools",
+    icon: Wrench,
+    match: (loc) => loc === "/tools" || loc.startsWith("/tools/"),
+  },
+  {
+    href: "/resources",
+    label: "Resources",
+    icon: FolderOpen,
+    match: (loc) => loc === "/resources" || loc.startsWith("/resources/"),
+  },
+  {
+    href: "/register",
+    label: "Join",
+    icon: Phone,
+    match: (loc) => loc === "/register" || loc === "/login",
+  },
+];

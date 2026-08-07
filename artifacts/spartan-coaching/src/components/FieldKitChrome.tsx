@@ -1,87 +1,13 @@
 import { Link, useLocation } from "wouter";
-import { Shield, Home, Wrench, FolderOpen, BookOpen, Phone, Crosshair } from "lucide-react";
+import { Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { FIELD_KIT_WHAT } from "@/lib/fieldKitCatalog";
 import { useAuth } from "@/context/AuthContext";
-
-const MEMBER_LINKS = [
-  { href: "/portal", label: "Home", icon: Home, match: (loc: string) => loc === "/portal" },
-  {
-    href: "/tools/sales-workflow",
-    label: "Command",
-    icon: Crosshair,
-    match: (loc: string) => loc.startsWith("/tools/sales-workflow"),
-  },
-  {
-    href: "/tools",
-    label: "Tools",
-    icon: Wrench,
-    match: (loc: string) =>
-      (loc === "/tools" || loc.startsWith("/tools/")) && !loc.startsWith("/tools/sales-workflow"),
-  },
-  {
-    href: "/resources",
-    label: "Resources",
-    icon: FolderOpen,
-    match: (loc: string) => loc === "/resources" || loc.startsWith("/resources/"),
-  },
-  {
-    href: "/portal/learn",
-    label: "Learn",
-    icon: BookOpen,
-    match: (loc: string) =>
-      loc === "/portal/learn" ||
-      loc === "/drills" ||
-      loc === "/quiz" ||
-      loc.startsWith("/learn/") ||
-      loc === "/articles" ||
-      loc === "/podcasts",
-  },
-  {
-    href: "/contact?service=Hospice+Sales+Pro+Debrief",
-    label: "Debrief",
-    icon: Phone,
-    match: (loc: string) => loc.startsWith("/contact"),
-  },
-];
-
-/** Browse-only nav for visitors previewing tools without a subscription */
-const PREVIEW_LINKS = [
-  {
-    href: "/hospice-sales-pro",
-    label: "Hospice Sales Pro",
-    icon: Home,
-    match: (loc: string) =>
-      loc === "/hospice-sales-pro" ||
-      loc === "/membership" ||
-      loc === "/field-kit" ||
-      loc === "/field-kit-membership" ||
-      loc.startsWith("/pricing/field-kit"),
-  },
-  {
-    href: "/tools",
-    label: "Tools",
-    icon: Wrench,
-    match: (loc: string) => loc === "/tools" || loc.startsWith("/tools/"),
-  },
-  {
-    href: "/resources",
-    label: "Resources",
-    icon: FolderOpen,
-    match: (loc: string) => loc === "/resources" || loc.startsWith("/resources/"),
-  },
-  {
-    href: "/register",
-    label: "Join",
-    icon: Phone,
-    match: (loc: string) => loc === "/register" || loc === "/login",
-  },
-];
+import { MEMBER_NAV, PREVIEW_NAV } from "@/lib/memberNav";
 
 /**
  * Persistent orientation strip for Hospice Sales Pro tool surfaces.
- * Members get full nav; non-members get a preview browse strip so they can
- * move between tool UIs without live access.
+ * Members get full nav; non-members get a preview browse strip.
  */
 export function FieldKitChrome({
   className,
@@ -94,7 +20,10 @@ export function FieldKitChrome({
   const [location] = useLocation();
 
   const isPreview = !canUseFieldKit;
-  const links = isPreview ? PREVIEW_LINKS : MEMBER_LINKS;
+  // Chrome omits Account (in header) to keep tool strip focused; Debrief uses Coach label.
+  const links = isPreview
+    ? PREVIEW_NAV
+    : MEMBER_NAV.filter((item) => item.href !== "/account");
 
   const trial =
     !isPreview && organization?.status === "trial" && fieldKit?.hoursRemaining != null
@@ -121,12 +50,10 @@ export function FieldKitChrome({
       data-testid="membership-chrome"
       data-preview={isPreview ? "true" : "false"}
     >
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0 space-y-1">
           <p className="text-[10px] font-bold tracking-widest uppercase text-primary">
-            {isPreview
-              ? "Hospice Sales Pro · preview"
-              : "Hospice Sales Pro"}
+            {isPreview ? "Hospice Sales Pro · preview" : "Hospice Sales Pro"}
           </p>
           {isPreview ? (
             <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl">
@@ -155,14 +82,14 @@ export function FieldKitChrome({
             </span>
           )}
           <span className="inline-flex items-center gap-1 text-[11px] text-muted-foreground border border-border/80 rounded-full px-3 py-1 bg-background/40">
-            <Shield className="w-3 h-3 text-primary" />
+            <Shield className="w-3 h-3 text-primary" aria-hidden />
             No PHI
           </span>
         </div>
       </div>
 
       <nav
-        className="flex flex-wrap gap-1.5 pt-2 border-t border-border/50"
+        className="flex gap-1.5 pt-2 border-t border-border/50 overflow-x-auto scrollbar-thin pb-0.5 -mx-0.5 px-0.5"
         aria-label="Hospice Sales Pro sections"
       >
         {links.map(({ href, label, icon: Icon, match }) => {
@@ -172,7 +99,8 @@ export function FieldKitChrome({
               key={`${label}-${href}`}
               href={href}
               className={cn(
-                "inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg transition-colors duration-200",
+                "inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-2.5 min-h-10 rounded-lg transition-colors duration-200 shrink-0",
+                "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring",
                 active
                   ? "bg-primary text-primary-foreground"
                   : "text-muted-foreground hover:text-foreground hover:bg-muted/70",
@@ -180,7 +108,7 @@ export function FieldKitChrome({
               data-testid={`membership-chrome-${label.toLowerCase().replace(/\s+/g, "-")}`}
               aria-current={active ? "page" : undefined}
             >
-              <Icon className="w-3.5 h-3.5" />
+              <Icon className="w-3.5 h-3.5" aria-hidden />
               {label}
             </Link>
           );

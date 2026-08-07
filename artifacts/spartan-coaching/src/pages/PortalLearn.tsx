@@ -58,14 +58,16 @@ export default function PortalLearn() {
 
   if (isLoading) {
     return (
-      <div className="flex justify-center py-24">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+      <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-16" data-testid="page-portal-learn-loading">
+        <div className="flex justify-center py-16" role="status" aria-live="polite" aria-label="Loading">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="w-full max-w-5xl mx-auto px-4 py-10 sm:py-14" data-testid="page-portal-learn">
+    <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 surface-page" data-testid="page-portal-learn">
       <SEO />
       {canUseFieldKit && <FieldKitChrome />}
       <div className="mb-10 space-y-3">
@@ -76,7 +78,7 @@ export default function PortalLearn() {
         </p>
       </div>
 
-      <div className="grid sm:grid-cols-2 gap-4 mb-10">
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 mb-10">
         {LINKS.map((item) => {
           const Icon = item.icon;
           const locked = item.memberOnly && !canUseFieldKit;

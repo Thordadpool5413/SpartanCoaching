@@ -165,7 +165,7 @@ export default function Tools() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-16 surface-page min-h-[70vh]">
+    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 surface-page min-h-[70vh]" data-testid="page-tools">
       <SEO />
       <BackButton />
       <FieldKitChrome />
@@ -311,7 +311,7 @@ export default function Tools() {
                         </div>
                       </div>
                     </div>
-                    <Button asChild size="lg" className="font-bold shrink-0">
+                    <Button asChild size="lg" className="font-bold shrink-0 w-full sm:w-auto min-h-11">
                       <Link href={command.path} data-testid="button-tools-command-center">
                         {locked ? "Preview Command Center" : "Open Command Center"}
                         <ArrowRight className="ml-2 w-4 h-4" />
@@ -335,7 +335,7 @@ export default function Tools() {
                 </p>
               </div>
             </div>
-            <StaggerContainer className="grid md:grid-cols-2 gap-5">
+            <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
               {filteredTools
                 .filter((t) => (DAILY_TOOL_IDS as readonly string[]).includes(t.id) && t.id !== "sales-workflow")
                 .map((tool, idx) => renderCard(tool, idx))}
@@ -354,7 +354,7 @@ export default function Tools() {
                 </p>
               </div>
             </div>
-            <StaggerContainer className="grid md:grid-cols-2 gap-5">
+            <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
               {filteredTools
                 .filter((t) => (LEADER_TOOL_IDS as readonly string[]).includes(t.id))
                 .map((tool, idx) => renderCard(tool, idx + 20))}
@@ -375,7 +375,7 @@ export default function Tools() {
                   <h2 className="text-xl font-display font-bold text-foreground tracking-tight">{cat}</h2>
                   <span className="text-xs font-semibold text-muted-foreground tabular-nums">{rest.length}</span>
                 </div>
-                <StaggerContainer className="grid md:grid-cols-2 gap-5">
+                <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
                   {rest.map((tool, idx) => renderCard(tool, idx + 40))}
                 </StaggerContainer>
               </section>
@@ -410,7 +410,7 @@ export default function Tools() {
           </section>
         </div>
       ) : (
-        <StaggerContainer className="grid md:grid-cols-2 gap-5">
+        <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
           {filteredTools.map((tool, idx) => renderCard(tool, idx))}
         </StaggerContainer>
       )}

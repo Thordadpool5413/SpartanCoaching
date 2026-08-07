@@ -12,46 +12,8 @@
   }
 }
 
-@media (max-width: 640px) {
-  /* Container adjustments */
-  .container {
-    padding-left: 1rem;
-    padding-right: 1rem;
-  }
-  
-  /* Stack flex items on mobile */
-  .sm\:flex-col {
-    flex-direction: column !important;
-  }
-  
-  /* Full width buttons on mobile */
-  .sm\:w-full {
-    width: 100% !important;
-  }
-  
-  /* Reduce padding on mobile */
-  .sm\:p-4 {
-    padding: 1rem !important;
-  }
-  
-  /* Better spacing */
-  .sm\:space-y-4 > * + * {
-    margin-top: 1rem !important;
-  }
-  
-  /* Hide on mobile */
-  .sm\:hidden {
-    display: none !important;
-  }
-}
-
-/* Tablet optimizations */
-@media (min-width: 641px) and (max-width: 1023px) {
-  .container {
-    padding-left: 2rem;
-    padding-right: 2rem;
-  }
-}
+/* Prefer Tailwind responsive utilities on components over !important overrides.
+   Container padding is handled by PageShell / page-level px-4 sm:px-6 lg:px-8. */
 
 /* Safe area insets for PWA standalone mode on notched devices */
 .safe-area-top {

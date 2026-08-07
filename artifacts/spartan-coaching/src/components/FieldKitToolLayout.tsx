@@ -2,6 +2,7 @@ import type { ReactNode } from "react";
 import { useLocation } from "wouter";
 import { Breadcrumbs } from "@/components/Breadcrumbs";
 import { FieldKitChrome } from "@/components/FieldKitChrome";
+import { PageShell } from "@/components/PageShell";
 import { ToolHowTo } from "@/components/ToolHowTo";
 import { getToolByPath } from "@/lib/fieldKitCatalog";
 import { cn } from "@/lib/utils";
@@ -49,14 +50,16 @@ export function FieldKitToolLayout({
         ];
 
   return (
-    <div
-      className={cn("w-full max-w-7xl mx-auto px-4 sm:px-6 py-8 sm:py-16", className)}
-      data-testid="membership-tool-layout"
+    <PageShell
+      width="xl"
+      className={cn(className)}
+      testId="membership-tool-layout"
     >
       {showChrome && <FieldKitChrome />}
       <Breadcrumbs items={crumbs} />
       {showHowTo && tool && <ToolHowTo tool={tool} />}
-      {children}
-    </div>
+      {/* Tool body: single column mobile; content can define lg split internally */}
+      <div className="min-w-0">{children}</div>
+    </PageShell>
   );
 }
