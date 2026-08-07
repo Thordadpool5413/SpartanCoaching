@@ -135,16 +135,79 @@ async function checkMetroHealth() {
   }
 }
 
+/**
+ * Production static build must own Metro. Reusing a leftover `expo start`
+ * (often started with different watchFolders) is a common 404 source on Replit.
+ */
+async function freeMetroPort() {
+  if (await checkMetroHealth()) {
+    console.log("Stopping leftover Metro on :8081…");
+  }
+
+  if (process.platform === "win32") {
+    try {
+      const { execSync } = require("child_process");
+      const out = execSync("netstat -ano | findstr :8081", {
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "ignore"],
+      });
+      const pids = new Set();
+      for (const line of out.split(/\r?\n/)) {
+        const parts = line.trim().split(/\s+/);
+        const pid = parts[parts.length - 1];
+        if (pid && /^\d+$/.test(pid) && pid !== "0") pids.add(pid);
+      }
+      for (const pid of pids) {
+        try {
+          execSync(`taskkill /PID ${pid} /F`, { stdio: "ignore" });
+        } catch {
+          // ignore
+        }
+      }
+    } catch {
+      // nothing listening
+    }
+  } else {
+    try {
+      const { execSync } = require("child_process");
+      // fuser is available on Replit/Linux runners; lsof as fallback.
+      try {
+        execSync("fuser -k 8081/tcp", { stdio: "ignore" });
+      } catch {
+        try {
+          const pids = execSync("lsof -ti:8081", { encoding: "utf8" }).trim();
+          if (pids) {
+            for (const pid of pids.split(/\s+/)) {
+              try {
+                process.kill(Number(pid), "SIGTERM");
+              } catch {
+                // ignore
+              }
+            }
+          }
+        } catch {
+          // nothing listening
+        }
+      }
+    } catch {
+      // ignore
+    }
+  }
+
+  // Wait for port to free.
+  for (let i = 0; i < 15; i++) {
+    if (!(await checkMetroHealth())) return;
+    await new Promise((resolve) => setTimeout(resolve, 500));
+  }
+  console.warn("Port 8081 still reporting healthy after free attempt — continuing");
+}
+
 function getExpoPublicReplId() {
   return process.env.REPL_ID || process.env.EXPO_PUBLIC_REPL_ID;
 }
 
 async function startMetro(expoPublicDomain, expoPublicReplId) {
-  const isRunning = await checkMetroHealth();
-  if (isRunning) {
-    console.log("Metro already running");
-    return;
-  }
+  await freeMetroPort();
 
   console.log("Starting Metro...");
   console.log(`Setting EXPO_PUBLIC_DOMAIN=${expoPublicDomain}`);
@@ -152,6 +215,8 @@ async function startMetro(expoPublicDomain, expoPublicReplId) {
     ...process.env,
     EXPO_PUBLIC_DOMAIN: expoPublicDomain,
     EXPO_PUBLIC_REPL_ID: expoPublicReplId,
+    // Signal to tooling that this is a production static export (not HMR dev).
+    EXPO_NO_METRO_LAZY: "1",
   };
 
   if (expoPublicReplId) {
@@ -160,9 +225,10 @@ async function startMetro(expoPublicDomain, expoPublicReplId) {
 
   const pnpmCli = process.env.npm_execpath;
   const command = pnpmCli ? process.execPath : process.platform === "win32" ? "pnpm.cmd" : "pnpm";
+  // --clear so FileMap picks up metro.config watchFolders for this build.
   const commandArgs = pnpmCli
-    ? [pnpmCli, "exec", "expo", "start", "--no-dev", "--minify", "--localhost"]
-    : ["exec", "expo", "start", "--no-dev", "--minify", "--localhost"];
+    ? [pnpmCli, "exec", "expo", "start", "--no-dev", "--minify", "--localhost", "--clear", "--port", "8081"]
+    : ["exec", "expo", "start", "--no-dev", "--minify", "--localhost", "--clear", "--port", "8081"];
 
   metroProcess = spawn(
     command,
@@ -188,13 +254,24 @@ async function startMetro(expoPublicDomain, expoPublicReplId) {
     });
   }
 
+  metroProcess.on("exit", (code, signal) => {
+    if (metroProcess) {
+      console.error(`Metro exited early (code=${code}, signal=${signal})`);
+    }
+  });
+
   for (let i = 0; i < 90; i++) {
     await new Promise((resolve) => setTimeout(resolve, 1000));
+
+    if (metroProcess && metroProcess.exitCode !== null) {
+      console.error("Metro process died before becoming healthy");
+      process.exit(1);
+    }
 
     const healthy = await checkMetroHealth();
     if (healthy) {
       // Status can flip healthy before rewrite middleware / graph are fully up.
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
       console.log("Metro ready");
       return;
     }
@@ -256,22 +333,18 @@ function buildBundleUrl(bundlePath, platform) {
 }
 
 /**
- * Metro serves URLs relative to the monorepo serverRoot (Expo getMetroServerRoot).
- * Last-known-green path (CI #177): artifacts/.../node_modules/expo-router/entry
- * Also try Expo virtual entry + pnpm realpath variants.
+ * Metro entry URL candidates.
+ *
+ * With metro.config.js pinning projectRoot to this package, prefer
+ * project-relative paths first (works on Replit + CI). Keep monorepo-relative
+ * paths as fallback for runners where serverRoot is the workspace root.
  */
 function collectBundleEntryCandidates(platform) {
   const candidates = [];
 
-  // 1) Last-known-green: package-relative path without realpath (symlink layout).
-  const greenEntry = path.resolve(
-    projectRoot,
-    "node_modules",
-    "expo-router",
-    "entry",
-  );
-  candidates.push(path.relative(workspaceRoot, greenEntry));
-  candidates.push(path.relative(projectRoot, greenEntry));
+  // 1) Package main entry as Metro sees the symlink (not realpath).
+  //    With projectRoot = mobile package this is the reliable Replit path.
+  candidates.push("node_modules/expo-router/entry");
 
   // 2) Expo official relative entry (handles monorepo + realpath carefully).
   try {
@@ -285,24 +358,45 @@ function collectBundleEntryCandidates(platform) {
   // 3) Expo magic entry — rewriteRequestUrl maps this to the real entry.
   candidates.push(".expo/.virtual-metro-entry");
 
-  // 4) Common fallbacks.
+  // 4) package.json "main" without extension.
+  try {
+    const pkg = JSON.parse(
+      fs.readFileSync(path.join(projectRoot, "package.json"), "utf8"),
+    );
+    if (typeof pkg.main === "string" && pkg.main) {
+      candidates.push(pkg.main.replace(/\.(tsx?|jsx?|mjs|cjs)$/i, ""));
+    }
+  } catch {
+    // ignore
+  }
+
+  // 5) Monorepo-relative (CI #177 last-known-green when serverRoot = workspace).
   candidates.push(
-    "index",
-    "node_modules/expo-router/entry",
     "artifacts/spartan-coaching-mobile/node_modules/expo-router/entry",
   );
 
-  // 5) require.resolve realpath (pnpm store path under monorepo node_modules).
+  // 6) require.resolve realpath (pnpm store path). Prefer workspace-relative.
   try {
     const resolved = require.resolve("expo-router/entry", {
       paths: [projectRoot],
     });
     const noExt = resolved.replace(/\.(tsx?|jsx?|mjs|cjs)$/i, "");
-    candidates.push(path.relative(workspaceRoot, noExt));
-    candidates.push(path.relative(projectRoot, noExt));
+    const relWorkspace = path.relative(workspaceRoot, noExt);
+    const relProject = path.relative(projectRoot, noExt);
+    if (relWorkspace && !relWorkspace.startsWith("..")) {
+      candidates.push(relWorkspace);
+    }
+    if (relProject && !relProject.startsWith("..")) {
+      candidates.push(relProject);
+    }
+    // pnpm: also try the package path under .pnpm via symlink chain from project.
+    // e.g. node_modules/expo-router/entry already covered; skip ../../ escapes.
   } catch {
     // ignore
   }
+
+  // 7) Last-resort bare names.
+  candidates.push("index", "expo-router/entry");
 
   return candidates
     .map((p) => (p || "").replace(/\\/g, "/").replace(/^\.\//, ""))
@@ -315,6 +409,7 @@ async function downloadBundle(platform, timestamp) {
   const candidates = collectBundleEntryCandidates(platform);
 
   const output = path.join(
+    projectRoot,
     "static-build",
     timestamp,
     "_expo",
