@@ -1,0 +1,16 @@
+artifacts/api-server/package.json
+  h_0446834f150a71 34-35
+pnpm-lock.yaml
+  h_0446834f150a71 225,250-252,15284-15288
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "78c405a5c7d4b0065b2b1432f56009e7a40ebc4a",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
