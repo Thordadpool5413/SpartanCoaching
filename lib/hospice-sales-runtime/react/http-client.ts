@@ -53,6 +53,7 @@ export function createWorkflowHttpClient(
     scheduleNext: (cycleId, input) => post(`/cycles/${cycleId}/next-call`, input),
     generateEmailDraft: (actionId, input) =>
       post(`/next-actions/${actionId}/email-draft`, input),
+    draftDebrief: (input) => post("/debrief/draft", input),
     previewCsv: (content) => post("/imports/csv/preview", { content }),
     commitCsv: (preview, mapping, dryRun = false) =>
       post("/imports/csv/commit", { preview, mapping, dryRun }),

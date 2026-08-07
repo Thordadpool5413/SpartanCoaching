@@ -33,6 +33,40 @@ type TodayResponse = {
   actions: Array<{ id: string; title: string; status: string; dueAt?: string }>;
   syncJobs: Array<{ id: string; status: string }>;
 };
+type CallOutcome =
+  | "advanced"
+  | "follow_up"
+  | "not_interested"
+  | "reschedule"
+  | "no_show"
+  | "canceled";
+type DebriefDraft = {
+  suggestedOutcome: CallOutcome;
+  summary: string;
+  commitments: string[];
+  objectionsHeard: string[];
+  nextStepSuggestion: string;
+  coachingTips: string[];
+  complianceFlags: string[];
+  overallConfidence: number;
+};
+type DraftMeta = {
+  source: "ai" | "fallback";
+  confidence: number;
+  tips: string[];
+  flags: string[];
+  nextStep: string;
+  objections: string[];
+};
+
+const OUTCOMES: { value: CallOutcome; label: string }[] = [
+  { value: "follow_up", label: "Follow up" },
+  { value: "advanced", label: "Advanced" },
+  { value: "not_interested", label: "Not interested" },
+  { value: "reschedule", label: "Reschedule" },
+  { value: "no_show", label: "No show" },
+  { value: "canceled", label: "Canceled" },
+];
 
 const requestKey = () => `mobile-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 const randomUuid = () =>
@@ -64,6 +98,10 @@ export default function SalesWorkflowScreen() {
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
   const [time, setTime] = useState("09:00");
   const [completionNotes, setCompletionNotes] = useState<Record<string, string>>({});
+  const [callOutcomes, setCallOutcomes] = useState<Record<string, CallOutcome>>({});
+  const [callCommitments, setCallCommitments] = useState<Record<string, string>>({});
+  const [draftMetaByCall, setDraftMetaByCall] = useState<Record<string, DraftMeta>>({});
+  const [draftingCallId, setDraftingCallId] = useState<string | null>(null);
 
   const bounds = useMemo(() => {
     const start = new Date(`${date}T00:00:00`);
@@ -158,6 +196,47 @@ export default function SalesWorkflowScreen() {
     }
   };
 
+  const draftDebrief = async (call: WorkflowCall) => {
+    const notes = completionNotes[call.id]?.trim() ?? "";
+    if (notes.length < 8) {
+      setError("Add a few sentences about what happened, then draft the debrief.");
+      return;
+    }
+    setDraftingCallId(call.id);
+    setError("");
+    try {
+      const res = await apiPost<{
+        draft: DebriefDraft;
+        source: "ai" | "fallback";
+      }>("/api/v1/sales-workflow/debrief/draft", {
+        notes,
+        purpose: call.purpose,
+      }, { idempotencyKey: requestKey() });
+      const d = res.draft;
+      setCallOutcomes((current) => ({ ...current, [call.id]: d.suggestedOutcome }));
+      setCompletionNotes((current) => ({ ...current, [call.id]: d.summary }));
+      setCallCommitments((current) => ({
+        ...current,
+        [call.id]: d.commitments.join("\n"),
+      }));
+      setDraftMetaByCall((current) => ({
+        ...current,
+        [call.id]: {
+          source: res.source,
+          confidence: d.overallConfidence,
+          tips: d.coachingTips ?? [],
+          flags: d.complianceFlags ?? [],
+          nextStep: d.nextStepSuggestion ?? "",
+          objections: d.objectionsHeard ?? [],
+        },
+      }));
+    } catch {
+      setError("Could not draft debrief — enter fields manually.");
+    } finally {
+      setDraftingCallId(null);
+    }
+  };
+
   const completeCall = async (call: WorkflowCall) => {
     const summary = completionNotes[call.id]?.trim();
     if (!summary) {
@@ -167,19 +246,29 @@ export default function SalesWorkflowScreen() {
     setSaving(true);
     setError("");
     try {
+      const commitments = (callCommitments[call.id] ?? "")
+        .split("\n")
+        .map((line) => line.trim())
+        .filter(Boolean);
       await apiPost(
         `/api/v1/sales-workflow/calls/${call.id}/complete`,
         {
           expectedVersion: call.version,
-          outcome: "follow_up",
+          outcome: callOutcomes[call.id] ?? "follow_up",
           summary,
           consentConfirmed: false,
-          commitments: [],
+          commitments,
           referralSignals: [],
         },
         { idempotencyKey: requestKey() },
       );
       setCompletionNotes((current) => ({ ...current, [call.id]: "" }));
+      setCallCommitments((current) => ({ ...current, [call.id]: "" }));
+      setDraftMetaByCall((current) => {
+        const next = { ...current };
+        delete next[call.id];
+        return next;
+      });
       await load();
     } catch {
       setError("The call was not completed. Refresh and try again.");
@@ -295,16 +384,108 @@ export default function SalesWorkflowScreen() {
                 )}
                 {!["completed", "canceled", "no_show"].includes(call.status) && (
                   <>
+                    <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>
+                      What happened (rough notes)
+                    </Text>
                     <TextInput
                       value={completionNotes[call.id] ?? ""}
                       onChangeText={(value) => setCompletionNotes((current) => ({ ...current, [call.id]: value }))}
-                      placeholder="Outcome, commitments, and next step"
+                      placeholder="Gatekeeper, DON concerns, commitments — no patient names"
                       placeholderTextColor={colors.mutedForeground}
                       multiline
                       style={[styles.notes, { color: colors.foreground, borderColor: colors.border, backgroundColor: colors.background }]}
                     />
-                    <Pressable disabled={saving} onPress={() => completeCall(call)} style={[styles.primary, { backgroundColor: colors.primary }]}>
-                      <Text style={styles.primaryText}>Complete call + coaching</Text>
+                    <Pressable
+                      disabled={saving || draftingCallId === call.id}
+                      onPress={() => draftDebrief(call)}
+                      style={[styles.secondary, { borderColor: colors.primary, opacity: draftingCallId === call.id ? 0.6 : 1 }]}
+                    >
+                      {draftingCallId === call.id ? (
+                        <ActivityIndicator color={colors.primary} />
+                      ) : (
+                        <Text style={{ color: colors.primary, fontWeight: "700" }}>Draft debrief with AI</Text>
+                      )}
+                    </Pressable>
+                    {draftMetaByCall[call.id] && (
+                      <View style={[styles.draftPreview, { borderColor: colors.border, backgroundColor: colors.background }]}>
+                        <Text style={{ color: colors.foreground, fontWeight: "700", fontSize: 13 }}>
+                          Draft ready ({draftMetaByCall[call.id].source === "ai" ? "AI" : "offline fallback"}) ·{" "}
+                          {Math.round(draftMetaByCall[call.id].confidence * 100)}% confidence
+                        </Text>
+                        {!!draftMetaByCall[call.id].nextStep && (
+                          <Text style={{ color: colors.mutedForeground, fontSize: 12, marginTop: 6, lineHeight: 17 }}>
+                            Next step: {draftMetaByCall[call.id].nextStep}
+                          </Text>
+                        )}
+                        {draftMetaByCall[call.id].objections.length > 0 && (
+                          <Text style={{ color: colors.mutedForeground, fontSize: 12, marginTop: 4, lineHeight: 17 }}>
+                            Objections: {draftMetaByCall[call.id].objections.join(" · ")}
+                          </Text>
+                        )}
+                        {draftMetaByCall[call.id].tips.map((tip) => (
+                          <Text key={tip} style={{ color: colors.mutedForeground, fontSize: 12, marginTop: 4, lineHeight: 17 }}>
+                            · {tip}
+                          </Text>
+                        ))}
+                        {draftMetaByCall[call.id].flags.length > 0 && (
+                          <Text style={{ color: colors.primary, fontSize: 12, marginTop: 6, lineHeight: 17 }}>
+                            Review flags: {draftMetaByCall[call.id].flags.join(" · ")}
+                          </Text>
+                        )}
+                      </View>
+                    )}
+                    <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>Outcome</Text>
+                    <View style={styles.outcomeRow}>
+                      {OUTCOMES.map((item) => {
+                        const selected = (callOutcomes[call.id] ?? "follow_up") === item.value;
+                        return (
+                          <Pressable
+                            key={item.value}
+                            onPress={() =>
+                              setCallOutcomes((current) => ({ ...current, [call.id]: item.value }))
+                            }
+                            style={[
+                              styles.outcomeChip,
+                              {
+                                borderColor: selected ? colors.primary : colors.border,
+                                backgroundColor: selected ? colors.primary : colors.background,
+                              },
+                            ]}
+                          >
+                            <Text
+                              style={{
+                                color: selected ? colors.primaryForeground : colors.foreground,
+                                fontSize: 11,
+                                fontWeight: "700",
+                              }}
+                            >
+                              {item.label}
+                            </Text>
+                          </Pressable>
+                        );
+                      })}
+                    </View>
+                    <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>
+                      Commitments (one per line)
+                    </Text>
+                    <TextInput
+                      value={callCommitments[call.id] ?? ""}
+                      onChangeText={(value) =>
+                        setCallCommitments((current) => ({ ...current, [call.id]: value }))
+                      }
+                      placeholder="Send packet Friday / Follow up Tue 10am"
+                      placeholderTextColor={colors.mutedForeground}
+                      multiline
+                      style={[styles.notes, { color: colors.foreground, borderColor: colors.border, backgroundColor: colors.background, minHeight: 64 }]}
+                    />
+                    <Pressable
+                      disabled={saving || draftingCallId === call.id}
+                      onPress={() => completeCall(call)}
+                      style={[styles.primary, { backgroundColor: colors.primary, opacity: saving ? 0.6 : 1 }]}
+                    >
+                      <Text style={[styles.primaryText, { color: colors.primaryForeground }]}>
+                        Complete call + coaching
+                      </Text>
                     </Pressable>
                   </>
                 )}
@@ -339,12 +520,16 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 13, lineHeight: 19, marginTop: 3 },
   dateRow: { flexDirection: "row", gap: 10, marginBottom: 14 },
   input: { flex: 1, minHeight: 46, borderWidth: 1, borderRadius: 10, paddingHorizontal: 12, marginBottom: 10 },
-  notes: { minHeight: 88, borderWidth: 1, borderRadius: 10, padding: 12, marginTop: 14, marginBottom: 10, textAlignVertical: "top" },
+  notes: { minHeight: 88, borderWidth: 1, borderRadius: 10, padding: 12, marginTop: 6, marginBottom: 10, textAlignVertical: "top" },
   card: { borderWidth: 1, borderRadius: 14, padding: 16, marginBottom: 14 },
   cardTitle: { fontSize: 17, fontWeight: "800", marginBottom: 5 },
-  primary: { minHeight: 46, borderRadius: 10, paddingHorizontal: 16, alignItems: "center", justifyContent: "center" },
+  fieldLabel: { fontSize: 11, fontWeight: "800", letterSpacing: 0.4, textTransform: "uppercase", marginTop: 10 },
+  draftPreview: { borderWidth: 1, borderRadius: 10, padding: 12, marginBottom: 8 },
+  outcomeRow: { flexDirection: "row", flexWrap: "wrap", gap: 6, marginTop: 6, marginBottom: 4 },
+  outcomeChip: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 },
+  primary: { minHeight: 46, borderRadius: 10, paddingHorizontal: 16, alignItems: "center", justifyContent: "center", marginTop: 8 },
   primaryText: { fontWeight: "800" },
-  secondary: { minHeight: 42, borderWidth: 1, borderRadius: 10, alignItems: "center", justifyContent: "center", marginTop: 12 },
+  secondary: { minHeight: 42, borderWidth: 1, borderRadius: 10, alignItems: "center", justifyContent: "center", marginTop: 4, marginBottom: 8 },
   error: { marginBottom: 14, lineHeight: 20 },
   safety: { fontSize: 11, lineHeight: 17, textAlign: "center", marginTop: 8 },
 });

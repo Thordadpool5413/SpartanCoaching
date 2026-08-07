@@ -2,11 +2,27 @@ import { useEffect, useMemo, useState, type FormEvent, type ReactNode } from "re
 import type { Account, Actor, CallPlan, EmailDraft, NextAction, RoleplaySession, SalesCall, SyncJob } from "../dist/sales-workflow.js";
 import "./styles.css";
 
+export type DebriefDraft = {
+  suggestedOutcome: "advanced" | "follow_up" | "not_interested" | "reschedule" | "no_show" | "canceled";
+  outcomeConfidence: number;
+  summary: string;
+  commitments: string[];
+  objectionsHeard: string[];
+  nextStepSuggestion: string;
+  coachingTips: string[];
+  complianceFlags: string[];
+  overallConfidence: number;
+  needsHumanReview: boolean;
+};
+
 export interface WorkflowApi {
   today(from: string, to: string): Promise<{ calls: SalesCall[];plans:CallPlan[]; actions: NextAction[]; syncJobs: SyncJob[] }>;
   accounts(): Promise<{ accounts: Account[] }>;
-  startCycle(input: unknown): Promise<unknown>;buildPlan(planId:string,input:unknown):Promise<CallPlan>;startRoleplay(planId:string,input:unknown):Promise<RoleplaySession>;continueRoleplay(sessionId:string,input:unknown):Promise<RoleplaySession>; completeCall(callId: string, input: unknown): Promise<{coaching:{id:string;version:number;coaching?:{output?:unknown}};nextActions:NextAction[]}>; approveCoaching(coachingId:string,input:unknown):Promise<unknown>;
-  scheduleNext(cycleId: string, input: unknown): Promise<unknown>;generateEmailDraft(actionId:string,input:unknown):Promise<EmailDraft>; previewCsv(content: string): Promise<{ headers: string[]; rows: Record<string,string>[]; warnings: string[];formulaCells:Array<{row:number;column:string}> }>;commitCsv(preview:unknown,mapping:Record<string,string>,dryRun?:boolean):Promise<{imported:number;merged:number;rejected:number;rollbackToken?:string}>;connectCalendar(provider:"google"|"outlook",redirectUri:string):Promise<{authorizationUrl:string}>;
+  startCycle(input: unknown): Promise<unknown>;buildPlan(planId:string,input:unknown):Promise<CallPlan>;startRoleplay(planId:string,input:unknown):Promise<RoleplaySession>;continueRoleplay(sessionId:string,input:unknown):Promise<RoleplaySession>; completeCall(callId: string, input: unknown): Promise<{coaching:{id:string;version:number;coaching?:{output?:unknown};performance?:{output?:unknown}};nextActions:NextAction[]}>; approveCoaching(coachingId:string,input:unknown):Promise<unknown>;
+  scheduleNext(cycleId: string, input: unknown): Promise<unknown>;generateEmailDraft(actionId:string,input:unknown):Promise<EmailDraft>;
+  /** AI drafts structured debrief fields; does not save the call. */
+  draftDebrief?(input: { notes: string; transcript?: string; purpose?: string; accountName?: string }): Promise<{ draft: DebriefDraft; source: "ai" | "fallback"; disclaimer?: string }>;
+  previewCsv(content: string): Promise<{ headers: string[]; rows: Record<string,string>[]; warnings: string[];formulaCells:Array<{row:number;column:string}> }>;commitCsv(preview:unknown,mapping:Record<string,string>,dryRun?:boolean):Promise<{imported:number;merged:number;rejected:number;rollbackToken?:string}>;connectCalendar(provider:"google"|"outlook",redirectUri:string):Promise<{authorizationUrl:string}>;
 }
 export interface SalesWorkflowPanelProps { api: WorkflowApi; actor: Actor; initialView?: "today" | "accounts" | "manager" | "integrations"; theme?: Record<string, string>; }
 type TodayData = Awaited<ReturnType<WorkflowApi["today"]>>;
@@ -30,7 +46,7 @@ export function SalesWorkflowPanel({ api, actor, initialView = "today", theme = 
       {state==="ready"&&view==="integrations"&&<IntegrationsView warnings={warningJobs} onCalendar={async provider=>{try{const connection=await api.connectCalendar(provider,`${window.location.origin}/integrations/calendar/${provider}/callback`);window.location.assign(connection.authorizationUrl)}catch(error){setMessage(error instanceof Error?error.message:"Could not start calendar connection")}}} onCsv={()=>setDialog("import")}/>}
     </section>
     {dialog==="schedule"&&<ScheduleDialog accounts={accounts} ownerUserId={actor.userId} onClose={()=>setDialog(null)} onSave={async(input)=>{await api.startCycle(input);setDialog(null);await load()}}/>}
-    {dialog==="complete"&&selectedCall&&<CompleteDialog call={selectedCall} onClose={()=>setDialog(null)} onComplete={(input)=>api.completeCall(selectedCall.id,input)} onApprove={async(coachingId,input)=>{await api.approveCoaching(coachingId,input);setDialog(null);await load()}}/>}
+    {dialog==="complete"&&selectedCall&&<CompleteDialog call={selectedCall} onClose={()=>setDialog(null)} onComplete={(input)=>api.completeCall(selectedCall.id,input)} onApprove={async(coachingId,input)=>{await api.approveCoaching(coachingId,input);setDialog(null);await load()}} onDraftDebrief={api.draftDebrief ? (input)=>api.draftDebrief!(input) : undefined}/>}
     {dialog==="next"&&selectedAction&&<NextCallDialog action={selectedAction} onClose={()=>setDialog(null)} onSave={async(input)=>{await api.scheduleNext(selectedAction.cycleId,input);setDialog(null);await load()}}/>}
     {dialog==="practice"&&selectedSession&&<PracticeDialog initial={selectedSession} onClose={()=>setDialog(null)} onContinue={(session,input)=>api.continueRoleplay(session.id,{expectedVersion:session.version,userInput:input})}/>}
     {dialog==="import"&&<ImportDialog api={api} onClose={()=>setDialog(null)}/>}
@@ -50,5 +66,159 @@ function Dialog({title,onClose,children}:{title:string;onClose():void;children:R
 function ScheduleDialog({accounts,ownerUserId,onClose,onSave}:{accounts:Account[];ownerUserId:string;onClose():void;onSave(input:unknown):Promise<void>}){const[busy,setBusy]=useState(false);const[error,setError]=useState("");async function submit(e:FormEvent<HTMLFormElement>){e.preventDefault();setBusy(true);const f=new FormData(e.currentTarget);try{const account=accounts.find(a=>a.id===f.get("account"));const startsAt=new Date(String(f.get("startsAt"))).toISOString();const contacts=String(f.get("contacts")||"").split(",").map(v=>v.trim()).filter(Boolean).map((name,index)=>{const[firstName,...rest]=name.split(/\s+/);return{firstName,lastName:rest.join(" "),isPrimary:index===0}});const provider=String(f.get("calendarProvider")||"")||undefined;await onSave({account:account?{id:account.id,name:account.name,accountType:account.accountType,ownerUserId:account.ownerUserId,contacts:[]}:{name:String(f.get("newAccount")),ownerUserId,contacts},purpose:String(f.get("purpose")),schedule:{startsAt,durationMinutes:Number(f.get("duration")),timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,location:String(f.get("location")||"")||undefined,remindersMinutes:[30],calendarProvider:provider},contactIds:[]})}catch(value){setError(value instanceof Error?value.message:"Could not schedule call");setBusy(false)}}return <Dialog title="Schedule a purposeful call" onClose={onClose}><form className="hsw-form" onSubmit={submit}><label>Account<select name="account" defaultValue=""><option value="">New account…</option>{accounts.map(a=><option value={a.id} key={a.id}>{a.name}</option>)}</select></label><label>New account name<input name="newAccount"/></label><label className="wide">Contact names<input name="contacts" placeholder="Alex Morgan, Jamie Lee"/></label><label className="wide">Purpose<textarea name="purpose" required maxLength={1000}/></label><label>Date and time<input name="startsAt" type="datetime-local" required/></label><label>Duration<select name="duration" defaultValue="30"><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option></select></label><label>Calendar<select name="calendarProvider" defaultValue=""><option value="">Website only</option><option value="google">Google Calendar</option><option value="outlook">Microsoft Outlook</option></select></label><label className="wide">Location<input name="location"/></label>{error&&<p role="alert" className="hsw-error">{error}</p>}<footer><button type="button" onClick={onClose}>Cancel</button><button className="hsw-primary" disabled={busy}>{busy?"Scheduling…":"Schedule and prepare"}</button></footer></form></Dialog>}
 function NextCallDialog({action,onClose,onSave}:{action:NextAction;onClose():void;onSave(input:unknown):Promise<void>}){const[busy,setBusy]=useState(false);const[error,setError]=useState("");async function submit(e:FormEvent<HTMLFormElement>){e.preventDefault();setBusy(true);const f=new FormData(e.currentTarget);try{const provider=String(f.get("calendarProvider")||"")||undefined;await onSave({expectedVersion:action.cycleVersion,nextActionId:action.id,purpose:String(f.get("purpose")),contactIds:[],schedule:{startsAt:new Date(String(f.get("startsAt"))).toISOString(),durationMinutes:Number(f.get("duration")),timezone:Intl.DateTimeFormat().resolvedOptions().timeZone,location:String(f.get("location")||"")||undefined,remindersMinutes:[30],calendarProvider:provider}})}catch(value){setError(value instanceof Error?value.message:"Could not schedule the next call");setBusy(false)}}return <Dialog title="Schedule the next conversation" onClose={onClose}><form className="hsw-form" onSubmit={submit}><p className="hsw-note wide">Prefilled from approved coaching: {action.title}</p><label className="wide">Purpose<textarea name="purpose" required defaultValue={action.title}/></label><label>Date and time<input name="startsAt" type="datetime-local" required/></label><label>Duration<select name="duration" defaultValue="30"><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60">60 minutes</option></select></label><label>Calendar<select name="calendarProvider" defaultValue=""><option value="">Website only</option><option value="google">Google Calendar</option><option value="outlook">Microsoft Outlook</option></select></label><label className="wide">Location<input name="location"/></label>{error&&<p role="alert" className="hsw-error">{error}</p>}<footer><button type="button" onClick={onClose}>Cancel</button><button className="hsw-primary" disabled={busy}>{busy?"Scheduling…":"Schedule next call"}</button></footer></form></Dialog>}
 function PracticeDialog({initial,onClose,onContinue}:{initial:RoleplaySession;onClose():void;onContinue(session:RoleplaySession,input:string):Promise<RoleplaySession>}){const[session,setSession]=useState(initial);const[busy,setBusy]=useState(false);const[error,setError]=useState("");async function submit(e:FormEvent<HTMLFormElement>){e.preventDefault();const form=e.currentTarget;const data=new FormData(form);const input=String(data.get("reply")||"").trim();if(!input)return;setBusy(true);try{setSession(await onContinue(session,input));form.reset();setError("")}catch(value){setError(value instanceof Error?value.message:"Roleplay could not continue")}finally{setBusy(false)}}return <Dialog title="Practice the conversation" onClose={onClose}><div className="hsw-practice"><ol aria-live="polite">{session.messages.map((message,index)=><li className={`hsw-${message.role}`} key={index}><span>{message.role==="prospect"?"Prospect":"You"}</span><p>{message.content}</p></li>)}</ol>{session.latestCoaching!==undefined&&<div className="hsw-note"><strong>Coaching:</strong> {String((session.latestCoaching as {coachingTip?:string}).coachingTip??"")}</div>}{session.complete?<div className="hsw-privacy"><strong>Practice complete</strong><p>Carry the strongest discovery move into the real conversation.</p></div>:<form onSubmit={submit}><label>What would you say next?<textarea name="reply" required maxLength={4000}/></label>{error&&<p role="alert" className="hsw-error">{error}</p>}<footer><button type="button" onClick={onClose}>Exit practice</button><button className="hsw-primary" disabled={busy}>{busy?"Responding…":"Send response"}</button></footer></form>}</div></Dialog>}
-function CompleteDialog({call,onClose,onComplete,onApprove}:{call:SalesCall;onClose():void;onComplete(input:unknown):Promise<{coaching:{id:string;version:number;coaching?:{output?:unknown}};nextActions:NextAction[]}>;onApprove(coachingId:string,input:unknown):Promise<void>}){const[busy,setBusy]=useState(false);const[error,setError]=useState("");const[result,setResult]=useState<Awaited<ReturnType<typeof onComplete>>|null>(null);const[selected,setSelected]=useState<string[]>([]);async function submit(e:FormEvent<HTMLFormElement>){e.preventDefault();setBusy(true);const f=new FormData(e.currentTarget);try{const value=await onComplete({expectedVersion:call.version,outcome:f.get("outcome"),summary:f.get("summary"),transcript:f.get("transcript")||undefined,consentConfirmed:f.get("consent")==="on",commitments:String(f.get("commitments")||"").split("\n").filter(Boolean),referralSignals:[]});setResult(value);setSelected(value.nextActions.map(item=>item.id));setBusy(false)}catch(value){setError(value instanceof Error?value.message:"Could not complete call");setBusy(false)}}async function approve(){if(!result)return;setBusy(true);try{await onApprove(result.coaching.id,{expectedVersion:result.coaching.version,acceptedActionIds:selected})}catch(value){setError(value instanceof Error?value.message:"Could not approve coaching");setBusy(false)}}return <Dialog title={result?"Review coaching and next steps":"Close the loop"} onClose={onClose}>{result?<div className="hsw-review"><p className="hsw-note">The call is saved. Review the AI draft before anything becomes an approved next action.</p><pre>{JSON.stringify(result.coaching.coaching?.output??{},null,2)}</pre><fieldset><legend>Approve next actions</legend>{result.nextActions.map(action=><label className="hsw-check" key={action.id}><input type="checkbox" checked={selected.includes(action.id)} onChange={e=>setSelected(old=>e.target.checked?[...old,action.id]:old.filter(id=>id!==action.id))}/><span><strong>{action.type.replace("_"," ")}</strong> — {action.title}</span></label>)}</fieldset>{error&&<p role="alert" className="hsw-error">{error}</p>}<footer><button onClick={onClose}>Review later</button><button className="hsw-primary" disabled={busy} onClick={approve}>{busy?"Approving…":"Approve selected steps"}</button></footer></div>:<form className="hsw-form" onSubmit={submit}><label>Outcome<select name="outcome" defaultValue="follow_up"><option value="advanced">Advanced</option><option value="follow_up">Follow up</option><option value="not_interested">Not interested</option><option value="reschedule">Reschedule</option><option value="no_show">No show</option><option value="canceled">Canceled</option></select></label><label className="wide">Call summary<textarea name="summary" required/></label><label className="wide">Commitments, one per line<textarea name="commitments"/></label><label className="wide">Transcript (optional)<textarea name="transcript"/></label><label className="hsw-check wide"><input name="consent" type="checkbox"/> Recording/transcript consent was confirmed</label><p className="hsw-note wide">Do not include patient-identifying information. AI coaching remains a draft until you approve it.</p>{error&&<p role="alert" className="hsw-error">{error}</p>}<footer><button type="button" onClick={onClose}>Save draft</button><button className="hsw-primary" disabled={busy}>{busy?"Analyzing…":"Complete call"}</button></footer></form>}</Dialog>}
+function CoachingReview({output}:{output:unknown}){
+  if(!output||typeof output!=="object")return <p className="hsw-muted">No structured coaching details returned. Use the next actions below or review later.</p>;
+  const o=output as Record<string,unknown>;
+  const score=typeof o.score==="number"?o.score:undefined;
+  const strengths=Array.isArray(o.strengths)?o.strengths.map(String):[];
+  const improvements=Array.isArray(o.improvements)?o.improvements.map(String):[];
+  const practice=typeof o.practiceAssignment==="string"?o.practiceAssignment:typeof o.suggestedResponse==="string"?o.suggestedResponse:"";
+  const personalized=typeof o.personalizedFeedback==="string"?o.personalizedFeedback:typeof o.callSummary==="string"?o.callSummary:"";
+  return <div className="hsw-coach-cards">
+    {score!==undefined&&<div className="hsw-coach-card"><span className="hsw-kicker">Rubric score</span><strong>{Math.round(score)}</strong></div>}
+    {personalized&&<div className="hsw-coach-card wide"><span className="hsw-kicker">Coaching summary</span><p>{personalized}</p></div>}
+    {strengths.length>0&&<div className="hsw-coach-card"><span className="hsw-kicker">Strengths</span><ul>{strengths.map(s=><li key={s}>{s}</li>)}</ul></div>}
+    {improvements.length>0&&<div className="hsw-coach-card"><span className="hsw-kicker">Improve next</span><ul>{improvements.map(s=><li key={s}>{s}</li>)}</ul></div>}
+    {practice&&<div className="hsw-coach-card wide"><span className="hsw-kicker">Practice</span><p>{practice}</p></div>}
+  </div>;
+}
+
+function CompleteDialog({call,onClose,onComplete,onApprove,onDraftDebrief}:{call:SalesCall;onClose():void;onComplete(input:unknown):Promise<{coaching:{id:string;version:number;coaching?:{output?:unknown};performance?:{output?:unknown}};nextActions:NextAction[]}>;onApprove(coachingId:string,input:unknown):Promise<void>;onDraftDebrief?:(input:{notes:string;transcript?:string;purpose?:string})=>Promise<{draft:DebriefDraft;source:"ai"|"fallback";disclaimer?:string}>}){
+  const[busy,setBusy]=useState(false);
+  const[drafting,setDrafting]=useState(false);
+  const[error,setError]=useState("");
+  const[result,setResult]=useState<Awaited<ReturnType<typeof onComplete>>|null>(null);
+  const[selected,setSelected]=useState<string[]>([]);
+  const[outcome,setOutcome]=useState("follow_up");
+  const[summary,setSummary]=useState("");
+  const[commitments,setCommitments]=useState("");
+  const[transcript,setTranscript]=useState("");
+  const[rawNotes,setRawNotes]=useState("");
+  const[draftMeta,setDraftMeta]=useState<{source:string;confidence:number;tips:string[];flags:string[];nextStep:string;objections:string[]}|null>(null);
+
+  async function draftFromNotes(){
+    if(!onDraftDebrief)return;
+    const notes=(rawNotes||summary).trim();
+    if(notes.length<8){setError("Add a few sentences about what happened, then draft the debrief.");return;}
+    setDrafting(true);setError("");
+    try{
+      const res=await onDraftDebrief({notes,transcript:transcript||undefined,purpose:call.purpose});
+      const d=res.draft;
+      setOutcome(d.suggestedOutcome);
+      setSummary(d.summary);
+      setCommitments(d.commitments.join("\n"));
+      setDraftMeta({
+        source:res.source,
+        confidence:d.overallConfidence,
+        tips:d.coachingTips,
+        flags:d.complianceFlags,
+        nextStep:d.nextStepSuggestion,
+        objections:d.objectionsHeard,
+      });
+    }catch(value){
+      setError(value instanceof Error?value.message:"Could not draft debrief — enter fields manually.");
+    }finally{setDrafting(false);}
+  }
+
+  async function submit(e:FormEvent<HTMLFormElement>){
+    e.preventDefault();setBusy(true);setError("");
+    try{
+      const value=await onComplete({
+        expectedVersion:call.version,
+        outcome,
+        summary:summary||rawNotes,
+        transcript:transcript||undefined,
+        consentConfirmed:(e.currentTarget.elements.namedItem("consent") as HTMLInputElement)?.checked===true,
+        commitments:commitments.split("\n").map(s=>s.trim()).filter(Boolean),
+        referralSignals:[],
+      });
+      setResult(value);
+      setSelected(value.nextActions.map(item=>item.id));
+      setBusy(false);
+    }catch(value){
+      setError(value instanceof Error?value.message:"Could not complete call");
+      setBusy(false);
+    }
+  }
+
+  async function approve(){
+    if(!result)return;
+    setBusy(true);
+    try{
+      await onApprove(result.coaching.id,{expectedVersion:result.coaching.version,acceptedActionIds:selected});
+    }catch(value){
+      setError(value instanceof Error?value.message:"Could not approve coaching");
+      setBusy(false);
+    }
+  }
+
+  return <Dialog title={result?"Review coaching and next steps":"Close the loop"} onClose={onClose}>
+    {result?<div className="hsw-review">
+      <p className="hsw-note">The call is saved. Review coaching, then approve only the next actions you will own.</p>
+      <CoachingReview output={result.coaching.coaching?.output??result.coaching.performance?.output}/>
+      <fieldset>
+        <legend>Approve next actions</legend>
+        {result.nextActions.map(action=>
+          <label className="hsw-check" key={action.id}>
+            <input type="checkbox" checked={selected.includes(action.id)} onChange={e=>setSelected(old=>e.target.checked?[...old,action.id]:old.filter(id=>id!==action.id))}/>
+            <span><strong>{action.type.replace("_"," ")}</strong> — {action.title}</span>
+          </label>
+        )}
+      </fieldset>
+      {error&&<p role="alert" className="hsw-error">{error}</p>}
+      <footer>
+        <button type="button" onClick={onClose}>Review later</button>
+        <button type="button" className="hsw-primary" disabled={busy} onClick={approve}>{busy?"Approving…":"Approve selected steps"}</button>
+      </footer>
+    </div>:<form className="hsw-form" onSubmit={submit}>
+      <p className="hsw-note wide">Purpose: {call.purpose}</p>
+      {onDraftDebrief&&<>
+        <label className="wide">What happened (rough notes)
+          <textarea name="rawNotes" value={rawNotes} onChange={e=>setRawNotes(e.target.value)} placeholder="Gatekeeper, DON concerns, commitments, objections — no patient names." maxLength={8000}/>
+        </label>
+        <div className="wide hsw-debrief-actions">
+          <button type="button" className="hsw-primary" disabled={drafting||busy} onClick={draftFromNotes}>
+            {drafting?"Drafting debrief…":"Draft debrief with AI"}
+          </button>
+          <span className="hsw-muted">Fills outcome, summary, and commitments for your review. Never auto-saves.</span>
+        </div>
+        {draftMeta&&<div className="wide hsw-debrief-preview" role="status">
+          <p><strong>Draft ready</strong> ({draftMeta.source==="ai"?"AI":"offline fallback"}) · confidence {Math.round(draftMeta.confidence*100)}%</p>
+          {draftMeta.nextStep&&<p><strong>Suggested next step:</strong> {draftMeta.nextStep}</p>}
+          {draftMeta.objections.length>0&&<p><strong>Objections heard:</strong> {draftMeta.objections.join(" · ")}</p>}
+          {draftMeta.tips.length>0&&<ul>{draftMeta.tips.map(t=><li key={t}>{t}</li>)}</ul>}
+          {draftMeta.flags.length>0&&<p className="hsw-error" role="alert"><strong>Review flags:</strong> {draftMeta.flags.join(" · ")}</p>}
+        </div>}
+      </>}
+      <label>Outcome
+        <select name="outcome" value={outcome} onChange={e=>setOutcome(e.target.value)}>
+          <option value="advanced">Advanced</option>
+          <option value="follow_up">Follow up</option>
+          <option value="not_interested">Not interested</option>
+          <option value="reschedule">Reschedule</option>
+          <option value="no_show">No show</option>
+          <option value="canceled">Canceled</option>
+        </select>
+      </label>
+      <label className="wide">Call summary
+        <textarea name="summary" required value={summary} onChange={e=>setSummary(e.target.value)} placeholder="What changed, what was agreed, what is still open."/>
+      </label>
+      <label className="wide">Commitments, one per line
+        <textarea name="commitments" value={commitments} onChange={e=>setCommitments(e.target.value)} placeholder="Send education packet Friday&#10;Follow up with DON next Tue 10am"/>
+      </label>
+      <label className="wide">Transcript (optional)
+        <textarea name="transcript" value={transcript} onChange={e=>setTranscript(e.target.value)}/>
+      </label>
+      <label className="hsw-check wide">
+        <input name="consent" type="checkbox"/> Recording/transcript consent was confirmed
+      </label>
+      <p className="hsw-note wide">Do not include patient-identifying information. Completing the call runs coaching analysis; next actions stay drafts until you approve them.</p>
+      {error&&<p role="alert" className="hsw-error">{error}</p>}
+      <footer>
+        <button type="button" onClick={onClose}>Cancel</button>
+        <button type="submit" className="hsw-primary" disabled={busy||drafting}>{busy?"Analyzing…":"Complete call"}</button>
+      </footer>
+    </form>}
+  </Dialog>
+}
 function ImportDialog({api,onClose}:{api:WorkflowApi;onClose():void}){const[preview,setPreview]=useState<Awaited<ReturnType<WorkflowApi["previewCsv"]>>|null>(null);const[mapping,setMapping]=useState<Record<string,string>>({});const[error,setError]=useState("");const[busy,setBusy]=useState(false);const[result,setResult]=useState("");async function change(e:React.ChangeEvent<HTMLInputElement>){const file=e.target.files?.[0];if(!file)return;try{const next=await api.previewCsv(await file.text());setPreview(next);const guessed:Record<string,string>={};for(const header of next.headers){const key=header.toLowerCase().replace(/[^a-z]/g,"");if(["account","accountname","name","facility"].includes(key)&&!Object.values(guessed).includes("accountName"))guessed[header]="accountName";else if(key.includes("type"))guessed[header]="accountType";else if(key.includes("address"))guessed[header]="address";else if(key.includes("external")||key==="id")guessed[header]="externalId"}setMapping(guessed);setError("");setResult("")}catch(value){setError(value instanceof Error?value.message:"Could not read CSV")}}async function commit(){if(!preview)return;setBusy(true);try{const dry=await api.commitCsv(preview,mapping,true);const confirmed=await api.commitCsv(preview,mapping,false);setResult(`Validated ${dry.imported} rows. Imported ${confirmed.imported}, matched ${confirmed.merged}, rejected ${confirmed.rejected}.`);setError("")}catch(value){setError(value instanceof Error?value.message:"Could not import CSV")}finally{setBusy(false)}}return <Dialog title="Import accounts from CSV" onClose={onClose}><div className="hsw-import"><label className="hsw-drop">Choose CSV<input type="file" accept=".csv,text/csv" onChange={change}/><span>Files are validated before anything is written.</span></label>{error&&<p role="alert" className="hsw-error">{error}</p>}{result&&<p role="status" className="hsw-note">{result}</p>}{preview&&<><p><strong>{preview.rows.length}</strong> rows · {preview.headers.length} columns</p>{preview.formulaCells.length>0&&<p className="hsw-error">{preview.formulaCells.length} formula-like cells must be removed before import.</p>}<div className="hsw-form">{preview.headers.map(header=><label key={header}>{header}<select value={mapping[header]??""} onChange={event=>setMapping(old=>({...old,[header]:event.target.value}))}><option value="">Do not import</option><option value="accountName">Account name</option><option value="accountType">Account type</option><option value="address">Address</option><option value="externalId">External ID</option></select></label>)}</div><div className="hsw-table" tabIndex={0}><table><thead><tr>{preview.headers.map(h=><th key={h}>{h}</th>)}</tr></thead><tbody>{preview.rows.slice(0,5).map((row,i)=><tr key={i}>{preview.headers.map(h=><td key={h}>{row[h]}</td>)}</tr>)}</tbody></table></div><footer><button type="button" onClick={onClose}>Close</button><button className="hsw-primary" disabled={busy||preview.formulaCells.length>0||!Object.values(mapping).includes("accountName")} onClick={commit}>{busy?"Validating…":"Validate and import"}</button></footer></>}</div></Dialog>}

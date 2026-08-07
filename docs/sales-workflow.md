@@ -11,6 +11,15 @@ The connected hospice sales workflow is built directly into SpartanCoaching.
 
 The workflow joins the Pre-Call Planner, Discovery Coach, Objection Coach, Roleplay Scenario Coach, Adaptive Roleplay Response, Call Performance Coach, Coaching Feedback, and Email Optimizer.
 
+## Post-call AI debrief
+
+When completing a call in Command Center (web or mobile), reps can **Draft debrief with AI** from rough field notes. The API returns structured suggestions only — it does **not** write workflow records until the rep reviews, edits, and completes the call.
+
+- Endpoint: `POST /api/v1/sales-workflow/debrief/draft` (requires Field Kit access; AI rate limits apply)
+- Fields drafted: outcome, summary, commitments, objections heard, next-step suggestion, coaching tips, compliance flags
+- If OpenAI is unavailable, a heuristic fallback still fills usable defaults with low confidence
+- Never put patient-identifying information in notes or transcripts
+
 ## Replit setup
 
 1. Pull the merged SpartanCoaching branch in Replit.

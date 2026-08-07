@@ -21,6 +21,8 @@ import { tool as coaching } from "@workspace/hospice-sales-runtime/coaching-feed
 import { tool as email } from "@workspace/hospice-sales-runtime/email-optimizer";
 import { pool } from "../db";
 import { requireFieldKit, type AuthedRequest } from "../auth/middleware";
+import { draftCallDebrief, draftDebriefInputSchema } from "../salesDebrief";
+import { standardAiLimit, globalDailyAiCap } from "../rateLimits";
 
 function stableUuid(namespace: string, value: number): string {
   const suffix = value.toString(16).padStart(12, "0").slice(-12);
@@ -103,6 +105,48 @@ export function registerSalesWorkflowRoutes(app: Express): void {
     schemaVersion: "1.0.0",
     crmSyncEnabled: false,
   });
+
+  /**
+   * AI drafts a structured post-call debrief for the Complete Call form.
+   * Does not write workflow records — user reviews/edits then completes the call.
+   */
+  app.post(
+    "/api/v1/sales-workflow/debrief/draft",
+    requireFieldKit,
+    standardAiLimit,
+    globalDailyAiCap,
+    async (req, res) => {
+      try {
+        const parsed = draftDebriefInputSchema.safeParse(req.body);
+        if (!parsed.success) {
+          res.status(400).json({
+            error: {
+              code: "INVALID_INPUT",
+              message: "Provide field notes (at least a few words) to draft a debrief.",
+              details: parsed.error.flatten(),
+            },
+          });
+          return;
+        }
+        const result = await draftCallDebrief(parsed.data);
+        res.json({
+          draft: result.draft,
+          source: result.source,
+          model: result.model,
+          disclaimer:
+            "AI draft only. Edit before completing the call. Do not include patient-identifying information.",
+        });
+      } catch (error) {
+        console.error("debrief/draft failed:", error);
+        res.status(502).json({
+          error: {
+            code: "DEBRIEF_FAILED",
+            message: "Could not draft debrief. Enter the call summary manually.",
+          },
+        });
+      }
+    },
+  );
 
   app.use(
     "/api/v1/sales-workflow",
