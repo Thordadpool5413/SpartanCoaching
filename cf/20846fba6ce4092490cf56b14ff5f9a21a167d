@@ -1,0 +1,50 @@
+artifacts/spartan-coaching/src/components/FieldKitChrome.tsx
+  h_0446834f150a71 2,6,10,23-26,53,56,85,92,102-103,111
+artifacts/spartan-coaching/src/components/FieldKitToolLayout.tsx
+  h_0446834f150a71 5,53-56,61-63
+artifacts/spartan-coaching/src/components/Layout.tsx
+  h_0446834f150a71 28,348
+artifacts/spartan-coaching/src/components/PageShell.tsx
+  h_0446834f150a71 1-136
+artifacts/spartan-coaching/src/components/PortalNav.tsx
+  h_0446834f150a71 3,5-17,22-30,32-33,39-41,46-47,49-51,59-64,66-67,69-70,72,74-95
+artifacts/spartan-coaching/src/components/StateBlock.tsx
+  h_0446834f150a71 1-104
+artifacts/spartan-coaching/src/hooks/use-breakpoint.ts
+  h_0446834f150a71 1-48
+artifacts/spartan-coaching/src/hooks/use-mobile.tsx
+  h_0446834f150a71 1-6
+artifacts/spartan-coaching/src/index.css
+  h_0446834f150a71 15-16
+artifacts/spartan-coaching/src/lib/memberNav.ts
+  h_0446834f150a71 1-119
+artifacts/spartan-coaching/src/pages/Account.tsx
+  h_0446834f150a71 251
+artifacts/spartan-coaching/src/pages/Contact.tsx
+  h_0446834f150a71 147
+artifacts/spartan-coaching/src/pages/FieldKitMembership.tsx
+  h_0446834f150a71 43
+artifacts/spartan-coaching/src/pages/Home.tsx
+  h_0446834f150a71 112,114-115,140,146,179-180,182,185,192,245
+artifacts/spartan-coaching/src/pages/Login.tsx
+  h_0446834f150a71 62,64,74,77,80,90,93-95,102-104,151
+artifacts/spartan-coaching/src/pages/Portal.tsx
+  h_0446834f150a71 313
+artifacts/spartan-coaching/src/pages/PortalLearn.tsx
+  h_0446834f150a71 61-64,70,81
+artifacts/spartan-coaching/src/pages/Register.tsx
+  h_0446834f150a71 96,100
+artifacts/spartan-coaching/src/pages/Tools.tsx
+  h_0446834f150a71 168,314,338,357,378,413
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "cf20846fba6ce4092490cf56b14ff5f9a21a167d",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
