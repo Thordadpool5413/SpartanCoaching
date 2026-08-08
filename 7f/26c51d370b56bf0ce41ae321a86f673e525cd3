@@ -1,0 +1,40 @@
+artifacts/spartan-coaching-mobile/app/(tabs)/tools.tsx
+  h_0446834f150a71 20-25,85-91,95-96
+artifacts/spartan-coaching/src/lib/fieldKitCatalog.ts
+  h_0446834f150a71 9-10,16-18,23-25
+artifacts/spartan-coaching/src/pages/Tools.tsx
+  h_0446834f150a71 37-38,65-67
+docs/command-center-parity.md
+  h_0446834f150a71 1-58
+docs/repository-truth-audit.md
+  h_0446834f150a71 478-482
+docs/sales-workflow.md
+  h_0446834f150a71 14-15
+lib/field-kit-catalog/package.json
+  h_0446834f150a71 8-15
+lib/field-kit-catalog/src/command-center.ts
+  h_0446834f150a71 1-171
+lib/field-kit-catalog/src/index.ts
+  h_0446834f150a71 340-374
+lib/field-kit-catalog/src/parity.test.ts
+  h_0446834f150a71 8-9,13-16,63-116
+lib/field-kit-catalog/tsconfig.json
+  h_0446834f150a71 10-11
+lib/field-kit-catalog/vitest.config.ts
+  h_0446834f150a71 1-8
+pnpm-lock.yaml
+  h_0446834f150a71 1059-1066
+scripts/smoke-parity.mjs
+  h_0446834f150a71 73-80
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "7f26c51d370b56bf0ce41ae321a86f673e525cd3",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
