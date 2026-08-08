@@ -1,0 +1,46 @@
+artifacts/api-server/package.json
+  h_0446834f150a71 11,20
+artifacts/api-server/src/auth/workflowTenantAuthz.test.ts
+  h_0446834f150a71 1-157
+artifacts/api-server/src/auth/workflowTenantAuthz.ts
+  h_0446834f150a71 1-115
+artifacts/api-server/src/routes/salesWorkflowRoutes.ts
+  h_0446834f150a71 24-27,38-43,45-47,71-82,84-86
+artifacts/spartan-coaching-mobile/app/sales-workflow.tsx
+  h_0446834f150a71 21,146
+artifacts/spartan-coaching-mobile/package.json
+  h_0446834f150a71 39
+artifacts/spartan-coaching/package.json
+  h_0446834f150a71 56
+artifacts/spartan-coaching/src/pages/SalesWorkflow.tsx
+  h_0446834f150a71 9,131-132
+docs/repository-truth-audit.md
+  h_0446834f150a71 1-546
+docs/schema-ops.md
+  h_0446834f150a71 3-13
+lib/tenant-ids/package.json
+  h_0446834f150a71 1-17
+lib/tenant-ids/src/index.test.ts
+  h_0446834f150a71 1-94
+lib/tenant-ids/src/index.ts
+  h_0446834f150a71 1-120
+lib/tenant-ids/tsconfig.json
+  h_0446834f150a71 1-12
+lib/tenant-ids/vitest.config.ts
+  h_0446834f150a71 1-8
+pnpm-lock.yaml
+  h_0446834f150a71 205-207,639-641,823-825,1100-1108
+tsconfig.json
+  h_0446834f150a71 26-28
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "dc393a4666d02695752277bc8b7da8a766d8907c",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
