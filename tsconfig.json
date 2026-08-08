@@ -23,6 +23,9 @@
     },
     {
       "path": "./lib/spartan-ai-tools"
+    },
+    {
+      "path": "./lib/tenant-ids"
     }
   ]
 }

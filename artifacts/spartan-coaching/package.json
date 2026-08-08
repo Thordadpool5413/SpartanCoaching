@@ -53,6 +53,7 @@
     "@workspace/api-client-react": "workspace:*",
     "@workspace/field-kit-catalog": "workspace:*",
     "@workspace/hospice-sales-runtime": "workspace:*",
+    "@workspace/tenant-ids": "workspace:*",
     "@workspace/spartan-ai-tools": "workspace:*",
     "autoprefixer": "^10.5.4",
     "class-variance-authority": "catalog:",

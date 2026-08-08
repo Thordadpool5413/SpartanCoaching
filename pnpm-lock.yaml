@@ -202,6 +202,9 @@ importers:
       '@workspace/spartan-ai-tools':
         specifier: workspace:*
         version: link:../../lib/spartan-ai-tools
+      '@workspace/tenant-ids':
+        specifier: workspace:*
+        version: link:../../lib/tenant-ids
       cookie-parser:
         specifier: ^1.4.7
         version: 1.4.7
@@ -633,6 +636,9 @@ importers:
       '@workspace/spartan-ai-tools':
         specifier: workspace:*
         version: link:../../lib/spartan-ai-tools
+      '@workspace/tenant-ids':
+        specifier: workspace:*
+        version: link:../../lib/tenant-ids
       autoprefixer:
         specifier: ^10.5.4
         version: 10.5.4(postcss@8.5.19)
@@ -814,6 +820,9 @@ importers:
       '@workspace/spartan-ai-tools':
         specifier: workspace:*
         version: link:../../lib/spartan-ai-tools
+      '@workspace/tenant-ids':
+        specifier: workspace:*
+        version: link:../../lib/tenant-ids
       babel-plugin-react-compiler:
         specifier: ^19.0.0-beta-e993439-20250117
         version: 19.0.0-beta-ebf51a3-20250411
@@ -1086,6 +1095,15 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 25.9.5
+      typescript:
+        specifier: ~5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@types/node@25.9.5)(jiti@2.7.0)(jsdom@29.1.1(@noble/hashes@1.8.0))(lightningcss@1.32.0)(terser@5.49.0)(tsx@4.23.0)(yaml@2.9.0)
+
+  lib/tenant-ids:
+    devDependencies:
       typescript:
         specifier: ~5.9.3
         version: 5.9.3

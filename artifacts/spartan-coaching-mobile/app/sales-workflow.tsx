@@ -18,6 +18,7 @@ import { SectionKicker } from "@/components/ui/SectionKicker";
 import { SpartanCard } from "@/components/ui/SpartanCard";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { getToolById } from "@workspace/field-kit-catalog";
+import { memberIdToWorkflowUuid } from "@workspace/tenant-ids";
 
 type WorkflowCall = {
   id: string;
@@ -74,9 +75,6 @@ const randomUuid = () =>
     const value = Math.floor(Math.random() * 16);
     return (character === "x" ? value : (value & 0x3) | 0x8).toString(16);
   });
-const memberUuid = (value: number) =>
-  `00000000-0000-5000-9000-${value.toString(16).padStart(12, "0").slice(-12)}`;
-
 export default function SalesWorkflowScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
@@ -145,7 +143,7 @@ export default function SalesWorkflowScreen() {
         {
           account: {
             name: accountName.trim(),
-            ownerUserId: memberUuid(user.member.id),
+            ownerUserId: memberIdToWorkflowUuid(user.member.id),
             contacts: [
               {
                 id: contactId,

@@ -6,17 +6,13 @@ import {
 import { createWorkflowHttpClient } from "@workspace/hospice-sales-runtime/sales-workflow/http-client";
 import { SalesWorkflowPanel } from "@workspace/hospice-sales-runtime/sales-workflow/react";
 import "@workspace/hospice-sales-runtime/sales-workflow/styles.css";
+import { toWorkflowUuid } from "@workspace/tenant-ids";
 import { useAuth } from "@/context/AuthContext";
 import { SEO } from "@/components/SEO";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { NpiLookupPanel } from "@/components/NpiLookupPanel";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
-
-function workflowUuid(kind: "organization" | "member", value: number): string {
-  const suffix = value.toString(16).padStart(12, "0").slice(-12);
-  return `00000000-0000-5000-${kind === "organization" ? "8" : "9"}000-${suffix}`;
-}
 
 export default function SalesWorkflow() {
   const { member, isLoading, isAuthenticated } = useAuth();
@@ -132,8 +128,8 @@ export default function SalesWorkflow() {
 
   const administrator = member.role === "org_admin" || member.role === "platform_admin";
   const actor: Actor = {
-    organizationId: workflowUuid("organization", member.organizationId),
-    userId: workflowUuid("member", member.id),
+    organizationId: toWorkflowUuid("organization", member.organizationId),
+    userId: toWorkflowUuid("member", member.id),
     role: administrator ? "manager" : "rep",
     teamIds: [],
     territoryIds: [],

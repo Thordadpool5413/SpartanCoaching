@@ -36,6 +36,7 @@
     "@workspace/design-tokens": "workspace:*",
     "@workspace/field-kit-catalog": "workspace:*",
     "@workspace/spartan-ai-tools": "workspace:*",
+    "@workspace/tenant-ids": "workspace:*",
     "babel-plugin-react-compiler": "^19.0.0-beta-e993439-20250117",
     "expo": "~54.0.27",
     "expo-blur": "~15.0.8",

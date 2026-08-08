@@ -21,14 +21,12 @@ import { tool as coaching } from "@workspace/hospice-sales-runtime/coaching-feed
 import { tool as email } from "@workspace/hospice-sales-runtime/email-optimizer";
 import { pool } from "../db";
 import { requireFieldKit, type AuthedRequest } from "../auth/middleware";
+import {
+  assertWorkflowAction,
+  workflowActorFromMember,
+} from "../auth/workflowTenantAuthz";
 import { draftCallDebrief, draftDebriefInputSchema } from "../salesDebrief";
 import { standardAiLimit, globalDailyAiCap } from "../rateLimits";
-
-function stableUuid(namespace: string, value: number): string {
-  const suffix = value.toString(16).padStart(12, "0").slice(-12);
-  const variant = namespace === "spartan-organization" ? "8" : "9";
-  return `00000000-0000-5000-${variant}000-${suffix}`;
-}
 
 function resolveActor(request: Request): Actor {
   const authed = request as AuthedRequest;
@@ -37,11 +35,16 @@ function resolveActor(request: Request): Actor {
     throw new Error("Membership session was not resolved");
   }
 
-  const administrator = member.role === "org_admin" || member.role === "platform_admin";
+  // Canonical int → workflow UUID mapping + role elevation (see @workspace/tenant-ids).
+  const identity = workflowActorFromMember({
+    memberId: member.id,
+    organizationId: member.organizationId,
+    role: member.role,
+  });
   return {
-    organizationId: stableUuid("spartan-organization", member.organizationId),
-    userId: stableUuid("spartan-member", member.id),
-    role: administrator ? "manager" : "rep",
+    organizationId: identity.organizationId,
+    userId: identity.userId,
+    role: identity.role,
     teamIds: [],
     territoryIds: [],
   };
@@ -65,21 +68,23 @@ function workflowEncryption(): EncryptionAdapter | undefined {
 
 const workflowAuthorization: AuthorizationAdapter = {
   assert(actor: Actor, action: string, resource?: { organizationId?: string; ownerUserId?: string }) {
-    if (resource?.organizationId && resource.organizationId !== actor.organizationId) {
-      throw new WorkflowError("FORBIDDEN", 403, "Resource is outside your organization");
-    }
-    if (action.startsWith("integration:") && actor.role !== "manager") {
-      throw new WorkflowError(
-        "FORBIDDEN",
-        403,
-        "Organization administrator access is required",
+    try {
+      assertWorkflowAction(
+        {
+          organizationId: actor.organizationId,
+          userId: actor.userId,
+          role: actor.role === "manager" ? "manager" : "rep",
+        },
+        action,
+        resource,
       );
-    }
-    if (action.startsWith("manager:") && actor.role !== "manager") {
-      throw new WorkflowError("FORBIDDEN", 403, "Manager access is required");
-    }
-    if (resource?.ownerUserId && actor.role === "rep" && resource.ownerUserId !== actor.userId) {
-      throw new WorkflowError("FORBIDDEN", 403, "You do not own this workflow");
+    } catch (error) {
+      const err = error as Error & { code?: string; status?: number };
+      throw new WorkflowError(
+        (err.code as "FORBIDDEN") || "FORBIDDEN",
+        err.status === 403 ? 403 : 403,
+        err.message || "Forbidden",
+      );
     }
   },
 };

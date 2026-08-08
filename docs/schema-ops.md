@@ -1,5 +1,16 @@
 # Schema operations (F6 follow-through)
 
+## Tenant IDs (auth int ↔ workflow UUID)
+
+Product auth uses serial integers (`client_organizations.id`, `client_members.id`).
+Sales Command Center tables use UUID `organization_id` / actor user ids.
+
+**Canonical mapping only:** `@workspace/tenant-ids`  
+Do not invent alternate UUID schemes. Changing the format requires a data migration
+of all `sales_workflow_*` rows.
+
+See also: `docs/repository-truth-audit.md` (Phase 1).
+
 ## Current model
 
 - **Source of truth for table definitions:** Drizzle schemas in `lib/db/src/schema/`
