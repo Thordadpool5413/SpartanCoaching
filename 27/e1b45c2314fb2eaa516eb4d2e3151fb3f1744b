@@ -1,0 +1,22 @@
+artifacts/spartan-coaching-mobile/app/sales-workflow.tsx
+  h_0446834f150a71 62-76,118,267-275,294-313,322-353,438-541,711-720
+docs/command-center-parity.md
+  h_0446834f150a71 27
+docs/repository-truth-audit.md
+  h_0446834f150a71 480
+lib/field-kit-catalog/src/command-center.ts
+  h_0446834f150a71 99-100
+lib/field-kit-catalog/src/parity.test.ts
+  h_0446834f150a71 90,103
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "27e1b45c2314fb2eaa516eb4d2e3151fb3f1744b",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
