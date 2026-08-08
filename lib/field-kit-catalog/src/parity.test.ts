@@ -14,6 +14,7 @@ import {
   sharedCommandCenterFacts,
   mobileCommandCenterSupported,
   mobileCommandCenterGaps,
+  CLASSIC_FIELD_TOOL_ROUTES,
 } from "./index";
 
 describe("Membership mobile parity", () => {
@@ -113,5 +114,24 @@ describe("Command Center capability matrix", () => {
     expect(debrief?.web).toMatch(/full|supported/);
     expect(debrief?.mobile).toMatch(/full|supported/);
     expect(debrief?.notes?.toLowerCase()).toMatch(/draft|review|never auto/);
+  });
+});
+
+describe("Classic Field tool routes (Stack A)", () => {
+  it("maps to catalog ids that exist", () => {
+    for (const route of CLASSIC_FIELD_TOOL_ROUTES) {
+      if (!route.catalogId) continue;
+      // activity-calculator and branch both share profitability API — both must exist
+      expect(getToolById(route.catalogId)?.id).toBe(route.catalogId);
+      expect(route.path.startsWith("/api/")).toBe(true);
+      expect(route.gated).toBe(true);
+    }
+  });
+
+  it("does not use Command Center or advanced AI path prefixes", () => {
+    for (const route of CLASSIC_FIELD_TOOL_ROUTES) {
+      expect(route.path.startsWith("/api/v1/sales-workflow")).toBe(false);
+      expect(route.path.startsWith("/api/ai-tools")).toBe(false);
+    }
   });
 });

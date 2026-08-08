@@ -372,6 +372,12 @@ export {
   type CommandCenterSupport,
 } from "./command-center";
 
+export {
+  CLASSIC_FIELD_TOOL_ROUTES,
+  TOOL_STACKS,
+  type ClassicFieldToolRoute,
+} from "./tool-architecture";
+
 /**
  * Category display labels and elite-positioning blurbs for the membership page.
  * Kept here so a new category added to FIELD_KIT_TOOLS is visible in one place.

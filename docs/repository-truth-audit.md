@@ -483,13 +483,15 @@ Use this sequence when prioritizing engineering after this audit. Each step assu
 
 ### Phase 3 — Tool architecture hygiene
 
-1. Map classic tools vs advanced library ownership (when to use which).  
-2. Do not merge Command Center coaches into advanced library without product decision.  
-3. Rate limits / daily AI caps remain global across stacks.
+1. ~~Map classic tools vs advanced library ownership (when to use which).~~  
+   **Done:** `docs/tool-architecture.md` + `CLASSIC_FIELD_TOOL_ROUTES` + stack-boundary tests.  
+2. Do not merge Command Center coaches into advanced library without product decision (policy documented).  
+3. Rate limits / daily AI caps remain global across stacks (unchanged; call out on new tools).
 
 ### Phase 4 — Hardening
 
-1. Consistent `requireAdmin` on all CMS mutations.  
+1. ~~Consistent `requireAdmin` on all CMS mutations.~~  
+   **Done:** CMS CUD + upload/normalize-pdf use `requireAdmin` middleware (not inline 401-only checks).  
 2. Clinical enablement checklist only when legal/security evidence complete.  
 3. Offline queue PHI review; never queue clinical payloads.
 

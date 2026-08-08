@@ -1,5 +1,7 @@
 # Tool and Resource Connection Map
 
+**Stack ownership (classic vs advanced vs Command Center):** see `docs/tool-architecture.md`.
+
 ## Continuous Sales Command Center
 
 The Sales Command Center is the durable account workflow. Its injected runtime

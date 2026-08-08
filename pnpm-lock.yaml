@@ -1102,6 +1102,9 @@ importers:
       '@types/node':
         specifier: 'catalog:'
         version: 25.9.5
+      '@workspace/field-kit-catalog':
+        specifier: workspace:*
+        version: link:../field-kit-catalog
       typescript:
         specifier: ~5.9.3
         version: 5.9.3

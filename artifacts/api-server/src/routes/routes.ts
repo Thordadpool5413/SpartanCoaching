@@ -63,7 +63,7 @@ import {
 import { sendInquiryNotification, sendNewsletterConfirmation, sendGeneratedEmail, sendAgreementConfirmation, sendResourceLeadNotification, sendNewsletterNotification, sendNewsletterBroadcast, sendDripDay3, sendDripDay7, sendSigningRequest, sendSignedAgreementPdf } from "../resend";
 import crypto from "crypto";
 import { AGREEMENT_TEXTS } from "../agreementTexts";
-import { requireFieldKit, requireAdmin, isAdminRequest, type AuthedRequest } from "../auth/middleware";
+import { requireFieldKit, requireAdmin, type AuthedRequest } from "../auth/middleware";
 import type { Request } from "express";
 import {
   searchSpartanKnowledge,
@@ -675,11 +675,7 @@ Subject: [subject line]
   });
 
   // Create Resource (Admin only)
-  app.post("/api/resources", async (req, res) => {
-    if (!isAdminRequest(req)) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-    
+  app.post("/api/resources", requireAdmin, async (req, res) => {
     try {
       const resourceData = insertResourceSchema.parse(req.body);
       
@@ -699,11 +695,7 @@ Subject: [subject line]
   });
 
   // Update Resource (Admin only)
-  app.put("/api/resources/:id", async (req, res) => {
-    if (!isAdminRequest(req)) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-    
+  app.put("/api/resources/:id", requireAdmin, async (req, res) => {
     try {
       const id = paramInt(req, "id");
       if (isNaN(id)) {
@@ -1141,8 +1133,7 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
   });
 
-  app.post("/api/testimonials", async (req, res) => {
-    if (!isAdminRequest(req)) return res.status(401).json({ error: "Unauthorized" });
+  app.post("/api/testimonials", requireAdmin, async (req, res) => {
     try {
       const data = insertTestimonialSchema.parse(req.body);
       const item = await storage.createTestimonial(data);
@@ -1155,8 +1146,7 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
   });
 
-  app.put("/api/testimonials/:id", async (req, res) => {
-    if (!isAdminRequest(req)) return res.status(401).json({ error: "Unauthorized" });
+  app.put("/api/testimonials/:id", requireAdmin, async (req, res) => {
     try {
       const data = insertTestimonialSchema.partial().parse(req.body);
       const item = await storage.updateTestimonial(paramInt(req, "id"), data);
@@ -1169,8 +1159,7 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
   });
 
-  app.delete("/api/testimonials/:id", async (req, res) => {
-    if (!isAdminRequest(req)) return res.status(401).json({ error: "Unauthorized" });
+  app.delete("/api/testimonials/:id", requireAdmin, async (req, res) => {
     try {
       await storage.deleteTestimonial(paramInt(req, "id"));
       res.json({ success: true });
@@ -1189,8 +1178,7 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
   });
 
-  app.post("/api/case-studies", async (req, res) => {
-    if (!isAdminRequest(req)) return res.status(401).json({ error: "Unauthorized" });
+  app.post("/api/case-studies", requireAdmin, async (req, res) => {
     try {
       const item = await storage.createCaseStudy(req.body);
       res.json({ caseStudy: item });
@@ -1199,8 +1187,7 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
   });
 
-  app.put("/api/case-studies/:id", async (req, res) => {
-    if (!isAdminRequest(req)) return res.status(401).json({ error: "Unauthorized" });
+  app.put("/api/case-studies/:id", requireAdmin, async (req, res) => {
     try {
       const item = await storage.updateCaseStudy(paramInt(req, "id"), req.body);
       res.json({ caseStudy: item });
@@ -1209,8 +1196,7 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
   });
 
-  app.delete("/api/case-studies/:id", async (req, res) => {
-    if (!isAdminRequest(req)) return res.status(401).json({ error: "Unauthorized" });
+  app.delete("/api/case-studies/:id", requireAdmin, async (req, res) => {
     try {
       await storage.deleteCaseStudy(paramInt(req, "id"));
       res.json({ success: true });
@@ -1220,11 +1206,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   });
 
   // Delete Resource (Admin only)
-  app.delete("/api/resources/:id", async (req, res) => {
-    if (!isAdminRequest(req)) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-    
+  app.delete("/api/resources/:id", requireAdmin, async (req, res) => {
     try {
       const id = paramInt(req, "id");
       if (isNaN(id)) {
@@ -1257,11 +1239,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   });
 
   // Create Podcast (Admin only)
-  app.post("/api/podcasts", async (req, res) => {
-    if (!isAdminRequest(req)) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-    
+  app.post("/api/podcasts", requireAdmin, async (req, res) => {
     try {
       const podcastData = insertPodcastSchema.parse(req.body);
       
@@ -1281,11 +1259,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   });
 
   // Update Podcast (Admin only)
-  app.put("/api/podcasts/:id", async (req, res) => {
-    if (!isAdminRequest(req)) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-    
+  app.put("/api/podcasts/:id", requireAdmin, async (req, res) => {
     try {
       const id = paramInt(req, "id");
       if (isNaN(id)) {
@@ -1316,11 +1290,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   });
 
   // Delete Podcast (Admin only)
-  app.delete("/api/podcasts/:id", async (req, res) => {
-    if (!isAdminRequest(req)) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-    
+  app.delete("/api/podcasts/:id", requireAdmin, async (req, res) => {
     try {
       const id = paramInt(req, "id");
       if (isNaN(id)) {
@@ -1404,11 +1374,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   });
 
   // Object Storage: Get upload URL for PDF (Admin only - requires password verification)
-  app.post("/api/objects/upload", async (req, res) => {
-    if (!isAdminRequest(req)) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-    
+  app.post("/api/objects/upload", requireAdmin, async (req, res) => {
     try {
       const objectStorageService = new ObjectStorageService();
       const uploadURL = await objectStorageService.getObjectEntityUploadURL();
@@ -1450,11 +1416,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   });
 
   // Normalize PDF upload URL and set ACL policy
-  app.post("/api/articles/normalize-pdf", async (req, res) => {
-    if (!isAdminRequest(req)) {
-      return res.status(401).json({ error: "Unauthorized" });
-    }
-    
+  app.post("/api/articles/normalize-pdf", requireAdmin, async (req, res) => {
     try {
       const { uploadURL } = req.body;
       
