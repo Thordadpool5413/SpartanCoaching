@@ -3,7 +3,14 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: |
+    Partial OpenAPI surface for SpartanCoaching.
+
+    **Not the full product contract.** Authoritative routes live in
+    `artifacts/api-server` (Express + Zod). See `docs/api-contract.md`.
+
+    This file currently documents health only so Orval/codegen keeps working.
+    Expand only for stable public endpoints; do not block features on full coverage.
 servers:
   - url: /api
     description: Base API path
@@ -33,4 +40,3 @@ components:
           type: string
       required:
         - status
-

@@ -17,9 +17,12 @@ See also: `docs/repository-truth-audit.md` (Phase 1).
 - **Dev / Replit apply:** `pnpm --filter @workspace/db run push` (and `push-force` when intentional)
 - **Versioned SQL (partial):**  
   - `lib/db/migrations/0001_spartan_ai_tools.sql`  
-  - `lib/db/migrations/0002_ephemeral_clinical_tools.sql`
+  - `lib/db/migrations/0002_ephemeral_clinical_tools.sql`  
+  - `lib/db/migrations/0003_client_auth_billing.sql` — product auth + org billing columns (IF NOT EXISTS)
 
-Core auth/billing/CMS tables are still push-applied, not fully migrated via numbered SQL.
+CI and Replit still use **`pnpm --filter @workspace/db run push`** as the primary apply path.
+Numbered SQL is the **reviewed baseline / recovery** path and the target for future migrate-only deploys.
+CMS/marketing tables remain push-applied until a later migration series.
 
 ## Production rules
 
@@ -37,8 +40,9 @@ Core auth/billing/CMS tables are still push-applied, not fully migrated via numb
 
 ## Target end-state (next ops phase)
 
-- [ ] All core tables represented as ordered SQL migrations  
-- [ ] CI job: fresh Postgres + migrate + smoke login/onboarding  
+- [x] Auth + billing tables represented as ordered SQL (`0003_client_auth_billing.sql`)  
+- [ ] CMS / roleplay / assessments migrations  
+- [ ] CI job: fresh Postgres + migrate-only + smoke login/onboarding  
 - [ ] Deprecate `push` for production deploys (local only)
 
 Until then, treat **missing push after schema PR** as a release blocker.

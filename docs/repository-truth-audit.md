@@ -465,10 +465,12 @@ Use this sequence when prioritizing engineering after this audit. Each step assu
 1. ~~Document (or code) **canonical org ID adapter** (int ↔ workflow UUID).~~  
    **Done:** `@workspace/tenant-ids` + `workflowActorFromMember` / `assertWorkflowAction` in api-server.  
 2. ~~Expand automated **authorization tests** for workflow tenant isolation.~~  
-   **Done:** `lib/tenant-ids` unit tests + `src/auth/workflowTenantAuthz.test.ts`.  
+   **Done:** `lib/tenant-ids` unit tests + `src/auth/workflowTenantAuthz.test.ts` + middleware gate tests (`requireAuth` / `requireFieldKit` / `requireOrgAdmin`).  
    Still open for other protected routes: follow aiToolIsolation / middleware patterns.  
-3. Decide OpenAPI strategy: expand or officially deprecate for “route modules + Zod”.  
-4. Start numbering SQL migrations for auth/billing (schema-ops target).
+3. ~~Decide OpenAPI strategy.~~  
+   **Done:** Express + Zod is authoritative — `docs/api-contract.md`. OpenAPI remains health-only stub.  
+4. ~~Start numbering SQL migrations for auth/billing.~~  
+   **Done:** `lib/db/migrations/0003_client_auth_billing.sql` (IF NOT EXISTS baseline). Push remains primary apply.
 
 ### Phase 2 — Parity of **facts**, not pixels
 

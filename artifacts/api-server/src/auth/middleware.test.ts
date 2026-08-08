@@ -5,6 +5,12 @@ import {
   requireAdmin,
   type AdminAuthorizationRequest,
 } from "./adminAuthorization.ts";
+import {
+  requireAuth,
+  requireFieldKit,
+  requireOrgAdmin,
+  type AuthedRequest,
+} from "./middleware.ts";
 
 function responseRecorder() {
   const state: { status?: number; body?: unknown } = {};
@@ -50,4 +56,116 @@ test("ordinary authenticated member receives forbidden", () => {
     error: "Platform administrator session required",
     code: "ADMIN_REQUIRED",
   });
+});
+
+// ── requireAuth / requireFieldKit / requireOrgAdmin patterns ─────────
+// Pattern for new protected routes: unit-test the gate with a fake AuthedRequest
+// before writing HTTP integration tests. Client visibility is never authorization.
+
+test("requireAuth rejects missing session", () => {
+  const req = {} as AuthedRequest;
+  const { response, state } = responseRecorder();
+  let called = false;
+  requireAuth(req, response, (() => {
+    called = true;
+  }) as NextFunction);
+  expect(called).toBe(false);
+  expect(state.status).toBe(401);
+  expect((state.body as { code?: string }).code).toBe("UNAUTHENTICATED");
+});
+
+test("requireAuth allows authenticated member without entitlement", () => {
+  const req = {
+    clientMemberId: 3,
+    fieldKit: { allowed: false, reason: "expired", member: { id: 3, role: "member" } },
+  } as unknown as AuthedRequest;
+  const { response } = responseRecorder();
+  let called = false;
+  requireAuth(req, response, (() => {
+    called = true;
+  }) as NextFunction);
+  expect(called).toBe(true);
+});
+
+test("requireFieldKit rejects unauthenticated", () => {
+  const req = {} as AuthedRequest;
+  const { response, state } = responseRecorder();
+  let called = false;
+  requireFieldKit(req, response, (() => {
+    called = true;
+  }) as NextFunction);
+  expect(called).toBe(false);
+  expect(state.status).toBe(401);
+});
+
+test("requireFieldKit rejects authenticated but not entitled", () => {
+  const req = {
+    clientMemberId: 4,
+    fieldKit: {
+      allowed: false,
+      reason: "expired",
+      member: { id: 4, role: "member", status: "active" },
+    },
+  } as unknown as AuthedRequest;
+  const { response, state } = responseRecorder();
+  let called = false;
+  requireFieldKit(req, response, (() => {
+    called = true;
+  }) as NextFunction);
+  expect(called).toBe(false);
+  expect(state.status).toBe(403);
+  expect((state.body as { code?: string }).code).toBe("FIELD_KIT_DENIED");
+  expect((state.body as { reason?: string }).reason).toBe("expired");
+});
+
+test("requireFieldKit allows entitled member", () => {
+  const req = {
+    clientMemberId: 5,
+    fieldKit: {
+      allowed: true,
+      member: { id: 5, role: "member", status: "active" },
+    },
+  } as unknown as AuthedRequest;
+  const { response } = responseRecorder();
+  let called = false;
+  requireFieldKit(req, response, (() => {
+    called = true;
+  }) as NextFunction);
+  expect(called).toBe(true);
+});
+
+test("requireOrgAdmin rejects ordinary member", () => {
+  const req = {
+    clientMemberId: 6,
+    fieldKit: {
+      allowed: true,
+      member: { id: 6, role: "member", status: "active" },
+    },
+  } as unknown as AuthedRequest;
+  const { response, state } = responseRecorder();
+  let called = false;
+  requireOrgAdmin(req, response, (() => {
+    called = true;
+  }) as NextFunction);
+  expect(called).toBe(false);
+  expect(state.status).toBe(403);
+  expect((state.body as { code?: string }).code).toBe("ORG_ADMIN_REQUIRED");
+});
+
+test("requireOrgAdmin allows org_admin and platform_admin", () => {
+  for (const role of ["org_admin", "platform_admin"] as const) {
+    const req = {
+      clientMemberId: 7,
+      fieldKit: {
+        allowed: true,
+        member: { id: 7, role, status: "active" },
+      },
+    } as unknown as AuthedRequest;
+    const { response } = responseRecorder();
+    let called = false;
+    requireOrgAdmin(req, response, (() => {
+      called = true;
+    }) as NextFunction);
+    expect(called).toBe(true);
+  }
 });
