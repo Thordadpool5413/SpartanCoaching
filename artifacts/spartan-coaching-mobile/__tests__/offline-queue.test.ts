@@ -1,5 +1,10 @@
 import { ApiError } from "@/lib/api";
-import { shouldEnqueueOnError, userFacingApiError } from "@/lib/offlineQueue";
+import {
+  shouldEnqueueOnError,
+  userFacingApiError,
+  isOfflineQueueAllowed,
+  OFFLINE_QUEUE_ALLOWED_PATHS,
+} from "@/lib/offlineQueue";
 
 describe("offline queue error policy", () => {
   it("enqueues on network-like errors (non-ApiError)", () => {
@@ -21,5 +26,38 @@ describe("offline queue error policy", () => {
   it("maps access errors for users", () => {
     expect(userFacingApiError(new ApiError("x", 403))).toMatch(/Hospice Sales Pro/);
     expect(userFacingApiError(new ApiError("Too long", 400))).toBe("Too long");
+  });
+});
+
+describe("offline queue PHI / clinical allowlist", () => {
+  it("allows classic Field tool paths", () => {
+    for (const path of OFFLINE_QUEUE_ALLOWED_PATHS) {
+      expect(isOfflineQueueAllowed(path, "objections")).toBe(true);
+    }
+  });
+
+  it("blocks clinical and advanced AI paths", () => {
+    expect(isOfflineQueueAllowed("/api/ai-tools/run", "content-generator")).toBe(
+      false,
+    );
+    expect(
+      isOfflineQueueAllowed("/api/ai-tools/admission-eligibility/run", "admission-eligibility"),
+    ).toBe(false);
+    expect(isOfflineQueueAllowed("/api/v1/sales-workflow/debrief/draft")).toBe(
+      false,
+    );
+    expect(isOfflineQueueAllowed("/api/transcribe", "transcribe")).toBe(false);
+    expect(isOfflineQueueAllowed("/api/roleplay/sessions", "role-play")).toBe(
+      false,
+    );
+  });
+
+  it("blocks clinical tool ids even on a classic path", () => {
+    expect(
+      isOfflineQueueAllowed("/api/objections", "medical-record-lcd-verifier"),
+    ).toBe(false);
+    expect(
+      isOfflineQueueAllowed("/api/objections", "admission-eligibility"),
+    ).toBe(false);
   });
 });

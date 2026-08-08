@@ -493,7 +493,8 @@ Use this sequence when prioritizing engineering after this audit. Each step assu
 1. ~~Consistent `requireAdmin` on all CMS mutations.~~  
    **Done:** CMS CUD + upload/normalize-pdf use `requireAdmin` middleware (not inline 401-only checks).  
 2. Clinical enablement checklist only when legal/security evidence complete.  
-3. Offline queue PHI review; never queue clinical payloads.
+3. ~~Offline queue PHI review; never queue clinical payloads.~~  
+   **Done:** allowlist classic Field paths only; block clinical/AI/workflow/transcribe; draft cache respects same block list (`docs/offline-device-storage.md`).
 
 ### Phase 5 — Platform experience
 
