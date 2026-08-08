@@ -1,0 +1,26 @@
+artifacts/spartan-coaching-mobile/__tests__/offline-queue.test.ts
+  h_0446834f150a71 2-7,31-63
+artifacts/spartan-coaching-mobile/lib/offlineQueue.ts
+  h_0446834f150a71 2-8,16-46,61-79,85-91,98-101,119-122,125-128,132,142-144,185-188,241-244
+artifacts/spartan-coaching-mobile/lib/toolDraftCache.ts
+  h_0446834f150a71 4-5,8,13-22,26,40,49,58
+docs/offline-device-storage.md
+  h_0446834f150a71 1-45
+docs/repository-truth-audit.md
+  h_0446834f150a71 496-497
+docs/schema-ops.md
+  h_0446834f150a71 21-22,44-45
+lib/db/migrations/0004_cms_content.sql
+  h_0446834f150a71 1-90
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "35eb06d313db7b9606c8a393477eef33d3ca55ad",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
