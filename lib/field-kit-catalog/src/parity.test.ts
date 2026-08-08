@@ -5,9 +5,15 @@
 import { describe, it, expect } from "vitest";
 import {
   FIELD_KIT_TOOLS,
+  FIELD_KIT_DAILY_TOOL_IDS,
+  FIELD_KIT_LEADER_TOOL_IDS,
   mobileParityDebt,
   getToolById,
   mobileDeliveryLabel,
+  COMMAND_CENTER_CAPABILITIES,
+  sharedCommandCenterFacts,
+  mobileCommandCenterSupported,
+  mobileCommandCenterGaps,
 } from "./index";
 
 describe("Membership mobile parity", () => {
@@ -53,5 +59,59 @@ describe("Membership mobile parity", () => {
     expect(getToolById("objections")?.mobile).toBe("native");
     expect(getToolById("weekly-plan")?.mobile).toBe("native");
     expect(getToolById("role-play")?.mobile).toBe("native");
+  });
+
+  it("daily and leader tool id lists only reference catalog tools", () => {
+    for (const id of [...FIELD_KIT_DAILY_TOOL_IDS, ...FIELD_KIT_LEADER_TOOL_IDS]) {
+      expect(getToolById(id)?.id).toBe(id);
+    }
+    const dailySet = new Set(FIELD_KIT_DAILY_TOOL_IDS);
+    for (const id of FIELD_KIT_LEADER_TOOL_IDS) {
+      expect(dailySet.has(id as (typeof FIELD_KIT_DAILY_TOOL_IDS)[number])).toBe(
+        false,
+      );
+    }
+  });
+});
+
+describe("Command Center capability matrix", () => {
+  it("lists shared facts and intentional mobile gaps", () => {
+    expect(COMMAND_CENTER_CAPABILITIES.length).toBeGreaterThanOrEqual(8);
+    expect(sharedCommandCenterFacts().length).toBe(COMMAND_CENTER_CAPABILITIES.length);
+    const supported = mobileCommandCenterSupported().map((c) => c.id);
+    expect(supported).toEqual(
+      expect.arrayContaining([
+        "today",
+        "schedule-cycle",
+        "build-plan",
+        "debrief-draft",
+        "complete-call",
+      ]),
+    );
+    const gaps = mobileCommandCenterGaps().map((c) => c.id);
+    expect(gaps).toEqual(
+      expect.arrayContaining([
+        "accounts",
+        "roleplay",
+        "approve-coaching",
+        "schedule-next",
+        "email-draft",
+        "csv-import",
+      ]),
+    );
+  });
+
+  it("every capability has at least one API path", () => {
+    for (const c of COMMAND_CENTER_CAPABILITIES) {
+      expect(c.api.length).toBeGreaterThan(0);
+      expect(c.web).not.toBe("none");
+    }
+  });
+
+  it("debrief draft remains human-in-the-loop on both surfaces", () => {
+    const debrief = COMMAND_CENTER_CAPABILITIES.find((c) => c.id === "debrief-draft");
+    expect(debrief?.web).toMatch(/full|supported/);
+    expect(debrief?.mobile).toMatch(/full|supported/);
+    expect(debrief?.notes?.toLowerCase()).toMatch(/draft|review|never auto/);
   });
 });

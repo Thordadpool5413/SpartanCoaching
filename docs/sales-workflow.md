@@ -11,6 +11,8 @@ The connected hospice sales workflow is built directly into SpartanCoaching.
 
 The workflow joins the Pre-Call Planner, Discovery Coach, Objection Coach, Roleplay Scenario Coach, Adaptive Roleplay Response, Call Performance Coach, Coaching Feedback, and Email Optimizer.
 
+**Web ↔ mobile capability matrix:** `docs/command-center-parity.md` (and `COMMAND_CENTER_CAPABILITIES` in `@workspace/field-kit-catalog`).
+
 ## Post-call AI debrief
 
 When completing a call in Command Center (web or mobile), reps can **Draft debrief with AI** from rough field notes. The API returns structured suggestions only — it does **not** write workflow records until the rep reviews, edits, and completes the call.

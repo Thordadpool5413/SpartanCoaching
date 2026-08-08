@@ -70,6 +70,14 @@ const gated = [
     method: "GET",
     path: `/api/v1/sales-workflow/today?from=${encodeURIComponent(new Date().toISOString())}&to=${encodeURIComponent(new Date().toISOString())}`,
   },
+  // Command Center AI debrief (web + mobile) — draft only, still entitled
+  {
+    method: "POST",
+    path: "/api/v1/sales-workflow/debrief/draft",
+    body: {
+      notes: "Saw DON, wants education follow-up next week about referral path.",
+    },
+  },
   {
     method: "POST",
     path: "/api/objections",

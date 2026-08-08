@@ -17,7 +17,12 @@ import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
-import { FIELD_KIT_TOOLS, type FieldKitTool } from "@workspace/field-kit-catalog";
+import {
+  FIELD_KIT_TOOLS,
+  FIELD_KIT_DAILY_TOOL_IDS,
+  FIELD_KIT_LEADER_TOOL_IDS,
+  type FieldKitTool,
+} from "@workspace/field-kit-catalog";
 import { SpartanCard } from "@/components/ui/SpartanCard";
 import { SectionKicker } from "@/components/ui/SectionKicker";
 import { ListRow } from "@/components/ui/ListRow";
@@ -77,15 +82,18 @@ export default function ToolsCatalogScreen() {
     (t.whenToUse || "").toLowerCase().includes(q);
 
   const command = FIELD_KIT_TOOLS.find((t) => t.id === "sales-workflow");
-  const dailyIds = ["objections", "playbooks", "role-play", "weekly-plan", "cold-call", "email-templates"];
-  const leaderIds = ["activity-calculator", "roi", "rep-cost", "branch"];
-  const daily = FIELD_KIT_TOOLS.filter((t) => dailyIds.includes(t.id) && matches(t));
-  const leaders = FIELD_KIT_TOOLS.filter((t) => leaderIds.includes(t.id) && matches(t));
+  // Shared with web Tools page (FIELD_KIT_*_TOOL_IDS). Command is pinned above.
+  const dailyIdSet = new Set<string>(
+    FIELD_KIT_DAILY_TOOL_IDS.filter((id) => id !== "sales-workflow"),
+  );
+  const leaderIdSet = new Set<string>([...FIELD_KIT_LEADER_TOOL_IDS]);
+  const daily = FIELD_KIT_TOOLS.filter((t) => dailyIdSet.has(t.id) && matches(t));
+  const leaders = FIELD_KIT_TOOLS.filter((t) => leaderIdSet.has(t.id) && matches(t));
   const rest = FIELD_KIT_TOOLS.filter(
     (t) =>
       t.id !== "sales-workflow" &&
-      !dailyIds.includes(t.id) &&
-      !leaderIds.includes(t.id) &&
+      !dailyIdSet.has(t.id) &&
+      !leaderIdSet.has(t.id) &&
       t.category !== "Learn" &&
       matches(t),
   );

@@ -338,6 +338,41 @@ export const FIELD_KIT_CATEGORIES: FieldKitCategory[] = [
 ];
 
 /**
+ * Shared tool grouping for web Tools page and mobile Tools catalog.
+ * IDs must exist in FIELD_KIT_TOOLS (enforced by parity tests).
+ */
+export const FIELD_KIT_DAILY_TOOL_IDS = [
+  "sales-workflow",
+  "objections",
+  "playbooks",
+  "role-play",
+  "weekly-plan",
+  "cold-call",
+  "email-templates",
+] as const;
+
+/** Leader / economics tools — same order web + mobile. */
+export const FIELD_KIT_LEADER_TOOL_IDS = [
+  "activity-calculator",
+  "roi",
+  "rep-cost",
+  "branch",
+] as const;
+
+export type FieldKitDailyToolId = (typeof FIELD_KIT_DAILY_TOOL_IDS)[number];
+export type FieldKitLeaderToolId = (typeof FIELD_KIT_LEADER_TOOL_IDS)[number];
+
+export {
+  COMMAND_CENTER_CAPABILITIES,
+  COMMAND_CENTER_GATED_SMOKE_PATHS,
+  sharedCommandCenterFacts,
+  mobileCommandCenterSupported,
+  mobileCommandCenterGaps,
+  type CommandCenterCapability,
+  type CommandCenterSupport,
+} from "./command-center";
+
+/**
  * Category display labels and elite-positioning blurbs for the membership page.
  * Kept here so a new category added to FIELD_KIT_TOOLS is visible in one place.
  */

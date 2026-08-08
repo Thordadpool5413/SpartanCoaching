@@ -34,6 +34,8 @@ import {
   FIELD_KIT_HOW,
   FIELD_KIT_TOOLS,
   FIELD_KIT_CATEGORIES,
+  FIELD_KIT_DAILY_TOOL_IDS,
+  FIELD_KIT_LEADER_TOOL_IDS,
   type FieldKitTool,
 } from "@/lib/fieldKitCatalog";
 
@@ -60,23 +62,9 @@ const SAMPLE_OBJECTION = {
     "I hear you — and many families feel that way at first. Hospice is not about giving up; it is about adding a team that supports comfort and clarity. Would it help if we walked through what support could look like while you keep the options that still matter to you?",
 };
 
-/** Daily field tools — prioritized above calculators */
-const DAILY_TOOL_IDS = [
-  "sales-workflow",
-  "objections",
-  "playbooks",
-  "role-play",
-  "weekly-plan",
-  "cold-call",
-  "email-templates",
-] as const;
-
-const LEADER_TOOL_IDS = [
-  "activity-calculator",
-  "roi",
-  "rep-cost",
-  "branch",
-] as const;
+/** Daily / leader groupings — shared with mobile via field-kit-catalog */
+const DAILY_TOOL_IDS = FIELD_KIT_DAILY_TOOL_IDS;
+const LEADER_TOOL_IDS = FIELD_KIT_LEADER_TOOL_IDS;
 
 export default function Tools() {
   const [searchQuery, setSearchQuery] = useState("");
