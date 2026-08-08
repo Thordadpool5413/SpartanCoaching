@@ -477,6 +477,7 @@ Use this sequence when prioritizing engineering after this audit. Each step assu
 1. Checklist, billing status, entitlement reasons: already shared — add regression if UI caches stale.  
 2. ~~Command Center: list intentional mobile subset vs web; any new field goes API-first.~~  
    **Done:** `COMMAND_CENTER_CAPABILITIES` + `docs/command-center-parity.md`; smoke gates debrief draft.  
+   **Mobile approve coaching:** supported (`POST /coaching/:id/approve` after complete).  
 3. ~~Keep catalog `mobile` field honest; zero `missing`.~~  
    **Done:** parity tests + shared `FIELD_KIT_DAILY_TOOL_IDS` / `FIELD_KIT_LEADER_TOOL_IDS` on web + mobile Tools.  
 4. Prefer catalog imports on web marketing tool grids (Tools page uses catalog).

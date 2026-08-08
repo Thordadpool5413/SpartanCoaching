@@ -59,6 +59,21 @@ type DraftMeta = {
   nextStep: string;
   objections: string[];
 };
+type NextActionItem = {
+  id: string;
+  title: string;
+  type?: string;
+  status?: string;
+  dueAt?: string;
+};
+type CoachingReview = {
+  coachingId: string;
+  coachingVersion: number;
+  nextActions: NextActionItem[];
+  selectedIds: string[];
+  /** Optional short coaching blurb (no raw PHI dump) */
+  summary?: string;
+};
 
 const OUTCOMES: { value: CallOutcome; label: string }[] = [
   { value: "follow_up", label: "Follow up" },
@@ -100,6 +115,7 @@ export default function SalesWorkflowScreen() {
   const [callCommitments, setCallCommitments] = useState<Record<string, string>>({});
   const [draftMetaByCall, setDraftMetaByCall] = useState<Record<string, DraftMeta>>({});
   const [draftingCallId, setDraftingCallId] = useState<string | null>(null);
+  const [coachingReview, setCoachingReview] = useState<CoachingReview | null>(null);
 
   const bounds = useMemo(() => {
     const start = new Date(`${date}T00:00:00`);
@@ -248,7 +264,15 @@ export default function SalesWorkflowScreen() {
         .split("\n")
         .map((line) => line.trim())
         .filter(Boolean);
-      await apiPost(
+      const result = await apiPost<{
+        coaching: {
+          id: string;
+          version: number;
+          coaching?: { output?: Record<string, unknown> };
+          performance?: { output?: Record<string, unknown> };
+        };
+        nextActions: NextActionItem[];
+      }>(
         `/api/v1/sales-workflow/calls/${call.id}/complete`,
         {
           expectedVersion: call.version,
@@ -267,9 +291,61 @@ export default function SalesWorkflowScreen() {
         delete next[call.id];
         return next;
       });
+      const actions = Array.isArray(result.nextActions) ? result.nextActions : [];
+      const output =
+        result.coaching?.coaching?.output ?? result.coaching?.performance?.output;
+      const coachingSummary =
+        output && typeof output === "object"
+          ? String(
+              (output as { personalizedFeedback?: string; callSummary?: string })
+                .personalizedFeedback ||
+                (output as { callSummary?: string }).callSummary ||
+                "",
+            ).slice(0, 400)
+          : "";
+      // Human-in-the-loop: next actions stay drafts until the rep approves.
+      setCoachingReview({
+        coachingId: result.coaching.id,
+        coachingVersion: result.coaching.version,
+        nextActions: actions,
+        selectedIds: actions.map((a) => a.id),
+        summary: coachingSummary || undefined,
+      });
       await load();
     } catch {
       setError("The call was not completed. Refresh and try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const toggleAction = (actionId: string) => {
+    setCoachingReview((current) => {
+      if (!current) return current;
+      const selected = current.selectedIds.includes(actionId)
+        ? current.selectedIds.filter((id) => id !== actionId)
+        : [...current.selectedIds, actionId];
+      return { ...current, selectedIds: selected };
+    });
+  };
+
+  const approveCoaching = async () => {
+    if (!coachingReview) return;
+    setSaving(true);
+    setError("");
+    try {
+      await apiPost(
+        `/api/v1/sales-workflow/coaching/${coachingReview.coachingId}/approve`,
+        {
+          expectedVersion: coachingReview.coachingVersion,
+          acceptedActionIds: coachingReview.selectedIds,
+        },
+        { idempotencyKey: requestKey() },
+      );
+      setCoachingReview(null);
+      await load();
+    } catch {
+      setError("Could not approve next actions. Try again or review later.");
     } finally {
       setSaving(false);
     }
@@ -359,6 +435,110 @@ export default function SalesWorkflowScreen() {
         )}
 
         {!!error && <Text style={[styles.error, { color: colors.primary }]}>{error}</Text>}
+
+        {coachingReview && (
+          <View
+            style={[styles.card, { borderColor: colors.primary, backgroundColor: colors.card }]}
+            testID="coaching-review-panel"
+          >
+            <Text style={[styles.cardTitle, { color: colors.foreground }]}>
+              Review coaching & next steps
+            </Text>
+            <Text style={{ color: colors.mutedForeground, fontSize: 13, lineHeight: 18 }}>
+              The call is saved. Approve only the next actions you will own. Nothing is accepted until
+              you confirm.
+            </Text>
+            {!!coachingReview.summary && (
+              <Text
+                style={{
+                  color: colors.foreground,
+                  fontSize: 13,
+                  lineHeight: 18,
+                  marginTop: 10,
+                }}
+              >
+                {coachingReview.summary}
+              </Text>
+            )}
+            {coachingReview.nextActions.length === 0 ? (
+              <Text style={{ color: colors.mutedForeground, marginTop: 12, fontSize: 13 }}>
+                No draft next actions returned. You can close and continue.
+              </Text>
+            ) : (
+              coachingReview.nextActions.map((action) => {
+                const checked = coachingReview.selectedIds.includes(action.id);
+                return (
+                  <Pressable
+                    key={action.id}
+                    onPress={() => toggleAction(action.id)}
+                    style={[
+                      styles.actionRow,
+                      {
+                        borderColor: checked ? colors.primary : colors.border,
+                        backgroundColor: colors.background,
+                      },
+                    ]}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked }}
+                  >
+                    <Text style={{ color: colors.primary, fontWeight: "800", width: 22 }}>
+                      {checked ? "✓" : "○"}
+                    </Text>
+                    <View style={{ flex: 1 }}>
+                      {!!action.type && (
+                        <Text
+                          style={{
+                            color: colors.mutedForeground,
+                            fontSize: 10,
+                            fontWeight: "800",
+                            textTransform: "uppercase",
+                          }}
+                        >
+                          {action.type.replace(/_/g, " ")}
+                        </Text>
+                      )}
+                      <Text style={{ color: colors.foreground, fontWeight: "600", fontSize: 14 }}>
+                        {action.title}
+                      </Text>
+                    </View>
+                  </Pressable>
+                );
+              })
+            )}
+            <View style={styles.reviewActions}>
+              <Pressable
+                disabled={saving}
+                onPress={() => setCoachingReview(null)}
+                style={[styles.secondary, { borderColor: colors.border, flex: 1, marginTop: 0 }]}
+              >
+                <Text style={{ color: colors.mutedForeground, fontWeight: "700" }}>Review later</Text>
+              </Pressable>
+              <Pressable
+                disabled={saving}
+                onPress={approveCoaching}
+                style={[
+                  styles.primary,
+                  {
+                    backgroundColor: colors.primary,
+                    flex: 1,
+                    marginTop: 0,
+                    opacity: saving ? 0.6 : 1,
+                  },
+                ]}
+                testID="approve-coaching-actions"
+              >
+                {saving ? (
+                  <ActivityIndicator color={colors.primaryForeground} />
+                ) : (
+                  <Text style={[styles.primaryText, { color: colors.primaryForeground }]}>
+                    Approve selected
+                  </Text>
+                )}
+              </Pressable>
+            </View>
+          </View>
+        )}
+
         {loading ? (
           <ActivityIndicator color={colors.primary} style={{ marginTop: 30 }} />
         ) : data.calls.length === 0 ? (
@@ -528,6 +708,16 @@ const styles = StyleSheet.create({
   primary: { minHeight: 46, borderRadius: 10, paddingHorizontal: 16, alignItems: "center", justifyContent: "center", marginTop: 8 },
   primaryText: { fontWeight: "800" },
   secondary: { minHeight: 42, borderWidth: 1, borderRadius: 10, alignItems: "center", justifyContent: "center", marginTop: 4, marginBottom: 8 },
+  actionRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 10,
+    borderWidth: 1,
+    borderRadius: 10,
+    padding: 12,
+    marginTop: 10,
+  },
+  reviewActions: { flexDirection: "row", gap: 10, marginTop: 14 },
   error: { marginBottom: 14, lineHeight: 20 },
   safety: { fontSize: 11, lineHeight: 17, textAlign: "center", marginTop: 8 },
 });

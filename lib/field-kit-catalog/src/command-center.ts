@@ -96,8 +96,8 @@ export const COMMAND_CENTER_CAPABILITIES: CommandCenterCapability[] = [
     api: ["POST /coaching/:id/approve"],
     sharedFact: true,
     web: "full",
-    mobile: "none",
-    notes: "Mobile completes call; action approval UI is web-first for now.",
+    mobile: "supported",
+    notes: "Both surfaces: complete call then human-select accepted next actions before they are owned.",
   },
   {
     id: "schedule-next",
