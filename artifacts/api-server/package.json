@@ -17,6 +17,7 @@
     "@workspace/db": "workspace:*",
     "@workspace/hospice-sales-runtime": "workspace:*",
     "@workspace/spartan-ai-tools": "workspace:*",
+    "@workspace/env-config": "workspace:*",
     "@workspace/tenant-ids": "workspace:*",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",

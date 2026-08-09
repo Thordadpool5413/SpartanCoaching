@@ -196,6 +196,9 @@ importers:
       '@workspace/db':
         specifier: workspace:*
         version: link:../../lib/db
+      '@workspace/env-config':
+        specifier: workspace:*
+        version: link:../../lib/env-config
       '@workspace/hospice-sales-runtime':
         specifier: workspace:*
         version: link:../../lib/hospice-sales-runtime
@@ -1055,6 +1058,21 @@ importers:
         version: 0.31.10
 
   lib/design-tokens: {}
+
+  lib/env-config:
+    devDependencies:
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.9.5
+      tsx:
+        specifier: 'catalog:'
+        version: 4.23.0
+      typescript:
+        specifier: ~5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.7(@types/debug@4.1.13)(@types/node@25.9.5)(jiti@2.7.0)(jsdom@29.1.1(@noble/hashes@1.8.0))(lightningcss@1.32.0)(terser@5.49.0)(tsx@4.23.0)(yaml@2.9.0)
 
   lib/field-kit-catalog:
     devDependencies:

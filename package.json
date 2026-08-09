@@ -14,7 +14,8 @@
     "smoke:health": "node scripts/smoke-health.mjs",
     "smoke:parity": "node scripts/smoke-parity.mjs",
     "smoke:parity:auth": "node scripts/smoke-parity-auth.mjs",
-    "ship:check": "node scripts/ship-check.mjs"
+    "ship:check": "node scripts/ship-check.mjs",
+    "env:preflight": "pnpm --filter @workspace/env-config run preflight"
   },
   "private": true,
   "dependencies": {

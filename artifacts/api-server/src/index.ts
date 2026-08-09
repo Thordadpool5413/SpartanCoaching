@@ -5,6 +5,10 @@ import { checkWebhookSecretOnStartup } from "./billing/webhookSecretCheck";
 import { hydrateBillingEmailMetrics } from "./billing/billingEmailMetrics";
 import { clinicalRuntimeReadiness } from "./clinical/runtimeReadiness";
 import { ensureBaselineCoverageSnapshot } from "./clinical/coverageBootstrap";
+import {
+  formatIssuesForLog,
+  validateServerStartupConfig,
+} from "@workspace/env-config";
 
 const rawPort = process.env["PORT"];
 
@@ -18,6 +22,25 @@ const port = Number(rawPort);
 
 if (Number.isNaN(port) || port <= 0) {
   throw new Error(`Invalid PORT value: "${rawPort}"`);
+}
+
+// Environment architecture guard (HSP-06): never logs secret values.
+const envStartup = validateServerStartupConfig(process.env);
+logger.info(
+  {
+    appEnv: envStartup.appEnv,
+    ok: envStartup.ok,
+    fatal: envStartup.fatal,
+    issues: formatIssuesForLog(envStartup.issues),
+  },
+  "[env-config] Startup validation",
+);
+if (envStartup.fatal) {
+  logger.error(
+    { issues: envStartup.issues.map((i) => ({ code: i.code, subject: i.subject })) },
+    "[env-config] Fatal configuration issue — refusing to serve",
+  );
+  process.exit(1);
 }
 
 app.listen(port, (err) => {
