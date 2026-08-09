@@ -1,0 +1,46 @@
+@import "tailwindcss";
+
+@theme {
+  --color-spartan-bg: #070707;
+  --color-spartan-red: #e8291e;
+  --color-spartan-white: #ffffff;
+  --color-spartan-charcoal: #1a1a1a;
+  
+  --font-bebas: "Bebas Neue", sans-serif;
+  --font-inter: "Inter", sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-spartan-bg);
+  color: var(--color-spartan-white);
+  overflow: hidden;
+}
+
+/* Base styles for video player to enforce 16:9 and fit */
+#root {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #000;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  aspect-ratio: 16/9;
+  background-color: var(--color-spartan-bg);
+  overflow: hidden;
+}
+
+/* Ensure child elements can use absolute positioning nicely */
+.scene-container {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}

@@ -1,0 +1,28 @@
+kind = "video"
+previewPath = "/spartan-coaching-intro/"
+title = "Spartan Coaching Intro"
+description = "A standalone ~30-second cinematic introduction animation for Spartan Coaching, built for hospice sales professionals. Eight scenes take the viewer from the hospice referral gap through the Spartan method — discipline, empathy, strategy — to the brand close. Separate from the existing spartan-video brand film."
+version = "1.0.0"
+id = "artifacts/spartan-coaching-intro"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/spartan-coaching-intro/" ]
+localPort = 25898
+
+[services.development]
+run = "pnpm --filter @workspace/spartan-coaching-intro run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/spartan-coaching-intro", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/spartan-coaching-intro/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "25898"
+BASE_PATH = "/spartan-coaching-intro/"
