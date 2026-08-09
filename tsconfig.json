@@ -26,6 +26,9 @@
     },
     {
       "path": "./lib/tenant-ids"
+    },
+    {
+      "path": "./lib/api-contract"
     }
   ]
 }

@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@google-cloud/storage": "^7.21.0",
+    "@workspace/api-contract": "workspace:*",
     "@workspace/api-zod": "workspace:*",
     "@workspace/branch-engine": "workspace:*",
     "@workspace/db": "workspace:*",

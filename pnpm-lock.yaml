@@ -187,6 +187,9 @@ importers:
       '@google-cloud/storage':
         specifier: ^7.21.0
         version: 7.21.0
+      '@workspace/api-contract':
+        specifier: workspace:*
+        version: link:../../lib/api-contract
       '@workspace/api-zod':
         specifier: workspace:*
         version: link:../../lib/api-zod
@@ -1006,6 +1009,15 @@ importers:
       '@tanstack/react-query':
         specifier: 'catalog:'
         version: 5.101.2(react@19.1.0)
+
+  lib/api-contract:
+    devDependencies:
+      typescript:
+        specifier: ~5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: ^4.1.10
+        version: 4.1.10(@types/node@25.9.5)(jiti@2.7.0)(jsdom@29.1.1(@noble/hashes@1.8.0))(lightningcss@1.32.0)(terser@5.49.0)(tsx@4.23.0)(yaml@2.9.0)
 
   lib/api-spec:
     devDependencies:
