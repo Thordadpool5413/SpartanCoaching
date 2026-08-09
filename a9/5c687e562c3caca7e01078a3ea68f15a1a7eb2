@@ -1,0 +1,42 @@
+artifacts/api-server/package.json
+  h_0446834f150a71 20
+artifacts/api-server/src/index.ts
+  h_0446834f150a71 8-11,27-45
+docs/env-architecture.md
+  h_0446834f150a71 1-50
+lib/env-config/package.json
+  h_0446834f150a71 1-20
+lib/env-config/src/architecture.ts
+  h_0446834f150a71 1-57
+lib/env-config/src/catalog.ts
+  h_0446834f150a71 1-405
+lib/env-config/src/index.ts
+  h_0446834f150a71 1-32
+lib/env-config/src/preflight.ts
+  h_0446834f150a71 1-48
+lib/env-config/src/validate.test.ts
+  h_0446834f150a71 1-174
+lib/env-config/src/validate.ts
+  h_0446834f150a71 1-292
+lib/env-config/tsconfig.json
+  h_0446834f150a71 1-12
+lib/env-config/vitest.config.ts
+  h_0446834f150a71 1-8
+package.json
+  h_0446834f150a71 17-18
+pnpm-lock.yaml
+  h_0446834f150a71 199-201,1062-1076
+tsconfig.json
+  h_0446834f150a71 29-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "a95c687e562c3caca7e01078a3ea68f15a1a7eb2",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
