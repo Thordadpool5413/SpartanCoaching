@@ -118,3 +118,18 @@ export function workflowIdentityFromMember(input: {
     userId: memberIdToWorkflowUuid(input.memberId),
   };
 }
+
+// Domain object inventory (Slice A — types only; no schema changes)
+export {
+  HSP_DOMAIN_OBJECTS,
+  getDomainObject,
+  forbiddenParallelTableObjects,
+  notModeledDomainObjects,
+  workflowEntityDomainObjects,
+  assertNoForbiddenParallelTable,
+  tenantKeyFor,
+  type DomainObjectId,
+  type DomainObjectSpec,
+  type DomainStorageKind,
+  type TenantKeyStyle,
+} from "./domain-map";
