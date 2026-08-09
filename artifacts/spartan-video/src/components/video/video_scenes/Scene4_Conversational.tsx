@@ -23,9 +23,16 @@ export function Scene4_Conversational() {
       exit={{ clipPath: 'circle(0% at 50% 50%)' }}
       transition={{ duration: 0.4, ease: EASE }}
     >
+      {/* Midground floating shapes */}
+      <motion.div
+        className="absolute top-[20%] right-[15%] w-32 h-32 border-t-2 border-r-2 border-[#e8291e]/20 pointer-events-none z-0"
+        animate={{ rotate: [0, 90, 180, 270, 360] }}
+        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+      />
+
       {/* Subtle red glow that intensifies when the promise lands */}
       <motion.div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none z-0"
         animate={{
           background: phase >= 3
             ? 'radial-gradient(ellipse at 50% 55%, rgba(232,41,30,0.18) 0%, transparent 65%)'

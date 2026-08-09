@@ -39,6 +39,16 @@ export function Scene5_Fragments() {
       exit={{ clipPath: 'circle(0% at 50% 50%)' }}
       transition={{ duration: 0.4, ease: EASE }}
     >
+      {/* Midground drifting pattern */}
+      <motion.div
+        className="absolute top-1/4 left-1/4 w-[50vw] h-[50vh] border border-[#f5f5f0]/5 rounded-full pointer-events-none z-0"
+        animate={{
+          scale: [1, 1.15, 1],
+          opacity: [0.3, 0.8, 0.3]
+        }}
+        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+      />
+
       <div
         className="absolute inset-0 pointer-events-none"
         style={{ background: 'radial-gradient(ellipse at 50% 50%, rgba(232,41,30,0.07) 0%, transparent 60%)' }}

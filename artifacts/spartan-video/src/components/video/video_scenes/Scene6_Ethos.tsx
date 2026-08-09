@@ -22,9 +22,17 @@ export function Scene6_Ethos() {
       exit={{ clipPath: 'circle(0% at 50% 50%)' }}
       transition={{ duration: 0.4, ease: EASE }}
     >
+      {/* Midground subtle line accent */}
+      <motion.div
+        className="absolute bottom-0 left-[10%] w-[1px] h-[70vh] bg-gradient-to-t from-[#e8291e]/20 to-transparent pointer-events-none z-0"
+        animate={{ scaleY: [0.5, 1, 0.5], opacity: [0.2, 0.6, 0.2] }}
+        transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
+        style={{ transformOrigin: 'bottom' }}
+      />
+
       {/* Warm red glow — pulses slowly */}
       <motion.div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none z-0"
         animate={{
           background: [
             'radial-gradient(ellipse at 40% 55%, rgba(232,41,30,0.07) 0%, transparent 60%)',

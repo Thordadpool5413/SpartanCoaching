@@ -26,9 +26,16 @@ export function Scene8_Close() {
       exit={{ clipPath: 'circle(0% at 50% 50%)' }}
       transition={{ duration: 0.4, ease: EASE }}
     >
+      {/* Midground drifting pattern */}
+      <motion.div
+        className="absolute top-0 right-0 w-[50vw] h-[50vw] bg-gradient-to-bl from-[#e8291e]/5 to-transparent rounded-full pointer-events-none z-0 blur-3xl"
+        animate={{ x: [50, -50, 50], y: [50, -50, 50] }}
+        transition={{ duration: 15, repeat: Infinity, ease: 'easeInOut' }}
+      />
+
       {/* Soft edge vignette */}
       <div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none z-0"
         style={{ background: 'radial-gradient(ellipse at 50% 50%, transparent 38%, rgba(0,0,0,0.14) 100%)' }}
       />
 
@@ -83,11 +90,8 @@ export function Scene8_Close() {
       </motion.p>
 
       {/* CTA button */}
-      <motion.a
-        href="/contact"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="relative z-10 mt-6 font-body uppercase text-center cursor-pointer"
+      <motion.div
+        className="relative z-10 mt-6 font-body uppercase text-center"
         style={{
           fontSize: 'clamp(12px, 2vw, 28px)',
           letterSpacing: '0.12em',
@@ -95,16 +99,13 @@ export function Scene8_Close() {
           color: '#ffffff',
           padding: 'clamp(10px, 1.3vw, 18px) clamp(20px, 2.8vw, 40px)',
           display: 'inline-block',
-          textDecoration: 'none',
         }}
         initial={{ opacity: 0, y: 14 }}
         animate={phase >= 5 ? { opacity: 1, y: 0 } : { opacity: 0, y: 14 }}
         transition={{ duration: 0.9 }}
-        whileHover={{ backgroundColor: '#c0201a', scale: 1.02 }}
-        whileTap={{ scale: 0.98 }}
       >
         Book a Strategy Call →
-      </motion.a>
+      </motion.div>
     </motion.div>
   );
 }

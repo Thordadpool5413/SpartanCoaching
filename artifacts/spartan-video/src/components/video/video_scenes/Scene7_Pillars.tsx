@@ -20,9 +20,16 @@ export function Scene7_Pillars() {
       exit={{ clipPath: 'circle(0% at 50% 50%)' }}
       transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
     >
+      {/* Midground animated geometry */}
+      <motion.div
+        className="absolute top-1/2 left-1/2 w-[80vw] h-[80vw] -translate-x-1/2 -translate-y-1/2 border border-[#e8291e]/5 pointer-events-none z-0"
+        animate={{ scale: [1, 1.05, 1], rotate: [45, 90, 45] }}
+        transition={{ duration: 20, repeat: Infinity, ease: 'linear' }}
+      />
+
       {/* Pulsing red glow behind the text */}
       <motion.div
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none z-0"
         animate={{
           background: [
             'radial-gradient(ellipse at 50% 50%, rgba(232,41,30,0.08) 0%, transparent 55%)',

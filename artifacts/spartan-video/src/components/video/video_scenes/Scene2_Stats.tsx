@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useScenePhases } from '@/lib/video';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
+const statsBg = `${import.meta.env.BASE_URL}stats-bg.mp4`;
 
 const SCHEDULE = [
   [300, 1],   // "Not a clinical failure."
@@ -23,9 +24,39 @@ export function Scene2_Stats() {
       exit={{ clipPath: 'circle(0% at 50% 50%)' }}
       transition={{ duration: 0.4, ease: EASE }}
     >
+      {/* Background Video — Appears on phase 2 */}
+      <motion.div 
+        className="absolute inset-0 z-0 pointer-events-none"
+        animate={{ opacity: phase >= 2 ? 1 : 0 }}
+        transition={{ duration: 0.5 }}
+      >
+        <video
+          src={statsBg}
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-[#070707]/80" />
+      </motion.div>
+
+      {/* Midground shifting gradient */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none z-0"
+        animate={{
+          background: [
+            'linear-gradient(90deg, rgba(232,41,30,0) 0%, rgba(232,41,30,0.05) 50%, rgba(232,41,30,0) 100%)',
+            'linear-gradient(90deg, rgba(232,41,30,0.05) 0%, rgba(232,41,30,0) 50%, rgba(232,41,30,0.05) 100%)',
+            'linear-gradient(90deg, rgba(232,41,30,0) 0%, rgba(232,41,30,0.05) 50%, rgba(232,41,30,0) 100%)',
+          ]
+        }}
+        transition={{ duration: 6, repeat: Infinity, ease: 'linear' }}
+      />
+
       <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse at 55% 50%, rgba(232,41,30,0.06) 0%, transparent 65%)' }}
+        className="absolute inset-0 pointer-events-none z-0"
+        style={{ background: 'radial-gradient(ellipse at 55% 50%, rgba(232,41,30,0.08) 0%, transparent 65%)' }}
       />
 
       {/* Phase 1 — "Not a clinical failure." (hard, gray, instant) */}

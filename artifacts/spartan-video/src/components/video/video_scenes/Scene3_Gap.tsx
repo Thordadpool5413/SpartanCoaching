@@ -5,8 +5,8 @@ const EASE = [0.16, 1, 0.3, 1] as const;
 
 const SCHEDULE = [
   [300, 1],   // REPS
-  [3500, 2],  // LEADERS
-  [7000, 3],  // TEAMS
+  [3000, 2],  // LEADERS
+  [6000, 3],  // TEAMS
 ] as const;
 
 // Scene 3 — The Specific Gaps (10s)
@@ -29,6 +29,18 @@ export function Scene3_Gap() {
       exit={{ clipPath: 'circle(0% at 50% 50%)' }}
       transition={{ duration: 0.6, ease: EASE }}
     >
+      {/* Midground shifting gradient */}
+      <motion.div
+        className="absolute inset-0 pointer-events-none z-0"
+        animate={{
+          background: [
+            'linear-gradient(45deg, rgba(232,41,30,0) 0%, rgba(232,41,30,0.03) 100%)',
+            'linear-gradient(45deg, rgba(232,41,30,0.03) 0%, rgba(232,41,30,0) 100%)',
+          ]
+        }}
+        transition={{ duration: 4, repeat: Infinity, ease: 'linear' }}
+      />
+
       <div
         className="absolute inset-0 pointer-events-none"
         style={{ background: 'radial-gradient(ellipse at 35% 55%, rgba(232,41,30,0.07) 0%, transparent 65%)' }}

@@ -2,6 +2,7 @@ import { motion } from 'framer-motion';
 import { useScenePhases } from '@/lib/video';
 
 const EASE = [0.16, 1, 0.3, 1] as const;
+const ethosBg = `${import.meta.env.BASE_URL}ethos-bg.mp4`;
 
 const SCHEDULE = [
   [400,  1],  // first two lines
@@ -22,14 +23,32 @@ export function Scene1_ColdOpen() {
       exit={{ clipPath: 'circle(0% at 50% 50%)' }}
       transition={{ duration: 0.4, ease: EASE }}
     >
+      {/* Background Video */}
+      <video
+        src={ethosBg}
+        autoPlay
+        loop
+        muted
+        playsInline
+        className="absolute inset-0 w-full h-full object-cover z-0"
+      />
+      <div className="absolute inset-0 bg-black/80 z-0 pointer-events-none" />
+
+      {/* Midground animated geometry */}
+      <motion.div
+        className="absolute top-1/4 right-[10%] w-[40vw] h-[40vw] border border-white/5 rounded-full pointer-events-none z-0"
+        animate={{ rotate: 360, scale: [1, 1.1, 1] }}
+        transition={{ duration: 15, repeat: Infinity, ease: 'linear' }}
+      />
+
       {/* Subtle radial glow */}
       <div
-        className="absolute inset-0 pointer-events-none"
-        style={{ background: 'radial-gradient(ellipse at 40% 50%, rgba(232,41,30,0.06) 0%, transparent 65%)' }}
+        className="absolute inset-0 pointer-events-none z-0"
+        style={{ background: 'radial-gradient(ellipse at 40% 50%, rgba(232,41,30,0.12) 0%, transparent 65%)' }}
       />
 
       {/* "Every year, hundreds of thousands" */}
-      <div className="overflow-hidden mb-2">
+      <div className="overflow-hidden mb-2 relative z-10">
         <motion.p
           className="font-body text-[#9a9a8e] leading-snug"
           style={{ fontSize: 'clamp(18px, 3.5vw, 52px)' }}
