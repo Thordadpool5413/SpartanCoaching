@@ -10,7 +10,7 @@ export function Scene6_Ethos() {
 
   return (
     <motion.div 
-      className="absolute inset-0 bg-spartan-bg flex flex-col items-center justify-center text-center"
+      className="absolute inset-0 bg-spartan-bg flex flex-col items-center justify-center text-center py-[5vh]"
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5 }}
     >
@@ -22,7 +22,7 @@ export function Scene6_Ethos() {
         transition={{ duration: 6, ease: "easeOut" }}
       />
       
-      <div className="relative z-10 flex flex-col items-center font-bebas text-[9vw] leading-[0.85] tracking-tight uppercase">
+      <div className="relative z-10 flex flex-col items-center font-bebas text-[8vw] leading-[0.9] tracking-tight uppercase">
         {words.map((line, lineIndex) => (
           <div key={`line-${lineIndex}`} className={`flex overflow-hidden ${line.color}`}>
             {line.text.split('').map((char, charIndex) => (

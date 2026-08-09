@@ -14,7 +14,7 @@ export function Scene7_Pillars() {
         transition={{ duration: 5, ease: "linear" }}
       />
       
-      <div className="relative z-10 flex flex-col items-center justify-center font-bebas text-[11vw] text-spartan-red leading-[0.9] tracking-wider uppercase">
+      <div className="relative z-10 flex flex-col items-center justify-center font-bebas text-[11vw] text-spartan-red leading-[0.9] tracking-wider uppercase max-h-[80vh] overflow-hidden">
         <motion.div
           initial={{ clipPath: "inset(0 100% 0 0)", x: -50 }}
           animate={{ clipPath: "inset(0 0% 0 0)", x: 0, scale: 0.9 }}

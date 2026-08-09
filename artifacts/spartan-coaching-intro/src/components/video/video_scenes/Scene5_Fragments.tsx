@@ -11,7 +11,7 @@ export function Scene5_Fragments() {
       exit={{ scale: 1.5, filter: "blur(20px)", opacity: 0 }}
       transition={{ duration: 0.8, ease: "easeIn" }}
     >
-      <div className="relative z-10 flex flex-col gap-[3vh] font-inter text-[3.5vw] font-medium tracking-tight text-spartan-white">
+      <div className="relative z-10 flex flex-col gap-[3vh] font-inter text-[3.5vw] font-medium tracking-tight text-spartan-white max-h-[90vh]">
         
         {/* Line 1 */}
         <motion.div 

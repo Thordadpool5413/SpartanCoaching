@@ -34,7 +34,7 @@ export function Scene3_Gap() {
         </motion.h2>
         
         <motion.h1 
-          className="font-bebas text-[18vw] text-spartan-red leading-none -mt-4 drop-shadow-2xl"
+          className="font-bebas text-[14vw] text-spartan-red leading-none mt-2 drop-shadow-2xl"
           initial={{ scale: 1.5, opacity: 0, filter: "blur(20px)" }}
           animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 1.2 }}

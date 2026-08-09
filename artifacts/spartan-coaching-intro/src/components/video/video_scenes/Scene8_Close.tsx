@@ -18,7 +18,7 @@ export function Scene8_Close() {
       
       <div className="relative z-10 flex flex-col items-center mt-10">
         <motion.div
-          className="font-bebas text-[10vw] text-spartan-white leading-none tracking-tight mb-4 drop-shadow-xl"
+          className="font-bebas text-[7vw] whitespace-nowrap text-spartan-white leading-none tracking-tight mb-4 drop-shadow-xl"
           initial={{ clipPath: "inset(0 100% 0 0)" }}
           animate={{ clipPath: "inset(0 0% 0 0)" }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 1.0 }}

@@ -5,7 +5,7 @@ export function Scene1_ColdOpen() {
   
   return (
     <motion.div 
-      className="absolute inset-0 flex flex-col items-center justify-center bg-spartan-bg"
+      className="absolute inset-0 flex flex-col items-center justify-center bg-spartan-bg px-[5vw]"
       exit={{ opacity: 0, filter: "blur(10px)", scale: 1.1 }}
       transition={{ duration: 0.5, ease: "easeInOut" }}
     >
@@ -36,7 +36,7 @@ export function Scene1_ColdOpen() {
       </div>
       
       <motion.div
-        className="text-spartan-white/60 font-inter text-[2vw] font-medium tracking-wide mt-4"
+        className="text-spartan-white/60 font-inter text-[2vw] font-medium tracking-wide mt-4 max-w-[75vw] text-center mx-auto"
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, ease: "easeOut", delay: 2.2 }}

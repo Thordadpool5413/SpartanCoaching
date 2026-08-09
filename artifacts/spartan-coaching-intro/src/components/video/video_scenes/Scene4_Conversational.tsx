@@ -17,7 +17,7 @@ export function Scene4_Conversational() {
 
       <div className="relative z-10">
         <motion.p 
-          className="font-inter font-medium text-[3vw] text-spartan-white/50 tracking-wider uppercase"
+          className="font-inter font-medium text-[2vw] text-spartan-white/50 tracking-wider uppercase"
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8, delay: 0.3 }}
@@ -27,7 +27,7 @@ export function Scene4_Conversational() {
         
         <div className="flex items-baseline mt-2">
           <motion.h1 
-            className="font-bebas text-[14vw] text-spartan-white leading-none"
+            className="font-bebas text-[8vw] text-spartan-white leading-none"
             initial={{ opacity: 0, y: 50, rotateX: 90 }}
             animate={{ opacity: 1, y: 0, rotateX: 0 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.8 }}
@@ -36,7 +36,7 @@ export function Scene4_Conversational() {
             conversational
           </motion.h1>
           <motion.span 
-            className="font-bebas text-[14vw] text-spartan-red leading-none"
+            className="font-bebas text-[8vw] text-spartan-red leading-none"
             initial={{ opacity: 0, scale: 0 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.4, type: "spring", stiffness: 300, delay: 1.6 }}
