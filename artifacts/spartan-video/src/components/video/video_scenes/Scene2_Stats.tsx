@@ -38,7 +38,7 @@ export function Scene2_Stats() {
           playsInline
           className="absolute inset-0 w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-[#070707]/80" />
+        <div className="absolute inset-0 bg-[#070707]/60" />
       </motion.div>
 
       {/* Midground shifting gradient */}

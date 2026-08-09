@@ -32,7 +32,7 @@ export function Scene1_ColdOpen() {
         playsInline
         className="absolute inset-0 w-full h-full object-cover z-0"
       />
-      <div className="absolute inset-0 bg-black/80 z-0 pointer-events-none" />
+      <div className="absolute inset-0 bg-black/60 z-0 pointer-events-none" />
 
       {/* Midground animated geometry */}
       <motion.div
@@ -61,7 +61,7 @@ export function Scene1_ColdOpen() {
       </div>
 
       {/* "die without hospice care." */}
-      <div className="overflow-hidden mb-8">
+      <div className="overflow-hidden mb-8 relative z-10">
         <motion.p
           className="font-body text-[#c8c8bc] leading-snug"
           style={{ fontSize: 'clamp(18px, 3.5vw, 52px)' }}
@@ -75,7 +75,7 @@ export function Scene1_ColdOpen() {
 
       {/* Red separator */}
       <motion.div
-        className="bg-[#e8291e] origin-left mb-8"
+        className="bg-[#e8291e] origin-left mb-8 relative z-10"
         style={{ height: '3px', width: '100%' }}
         initial={{ scaleX: 0 }}
         animate={phase >= 3 ? { scaleX: 1 } : { scaleX: 0 }}
@@ -83,7 +83,7 @@ export function Scene1_ColdOpen() {
       />
 
       {/* "They qualified." */}
-      <div className="overflow-hidden">
+      <div className="overflow-hidden relative z-10">
         <motion.h1
           className="font-display uppercase leading-none"
           style={{ fontSize: 'clamp(52px, 12vw, 190px)', color: '#e8291e' }}
