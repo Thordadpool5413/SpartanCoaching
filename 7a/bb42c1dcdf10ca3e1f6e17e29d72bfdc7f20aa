@@ -1,0 +1,20 @@
+lib/tenant-ids/package.json
+  h_0446834f150a71 7-8
+lib/tenant-ids/src/domain-map.test.ts
+  h_0446834f150a71 1-101
+lib/tenant-ids/src/domain-map.ts
+  h_0446834f150a71 1-337
+lib/tenant-ids/src/index.ts
+  h_0446834f150a71 121-135
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "7abb42c1dcdf10ca3e1f6e17e29d72bfdc7f20aa",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
