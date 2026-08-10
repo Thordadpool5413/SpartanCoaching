@@ -78,4 +78,33 @@ describe("mergeWorkspaceLists dual-device", () => {
     expect(keys).toEqual(["a", "b", "c"]);
     expect(merged.find((m) => m.clientKey === "a")?.version).toBe(2);
   });
+
+  it("drops soft-deleted local keys and keeps server when versions tie with newer server clock", () => {
+    const merged = mergeWorkspaceLists(
+      [{ clientKey: "x", version: 3, clientUpdatedAtMs: 5000 }],
+      [
+        { clientKey: "x", version: 3, clientUpdatedAtMs: 4000 },
+        { clientKey: "y", version: 1, clientUpdatedAtMs: 1000, deleted: true },
+      ],
+    );
+    expect(merged.map((m) => m.clientKey)).toEqual(["x"]);
+    expect(merged[0]?.clientUpdatedAtMs).toBe(5000);
+  });
+});
+
+describe("soft-delete revive", () => {
+  it("allows recreate when baseVersion matches deleted server version", () => {
+    expect(
+      resolveWorkspaceWrite({
+        baseVersion: 2,
+        clientUpdatedAtMs: 9000,
+        server: {
+          version: 2,
+          clientUpdatedAtMs: 1000,
+          updatedAtMs: 1100,
+          deletedAtMs: 2000,
+        },
+      }),
+    ).toEqual({ decision: "update", nextVersion: 3 });
+  });
 });

@@ -38,11 +38,16 @@ Disallowed entries are purged on `listQueuedGenerates` / flush after upgrade.
 **Module:** `toolDraftCache.ts`  
 Uses the same blocked clinical tool id list. Drafts/results for vault tools are not written to AsyncStorage.
 
-## Cross-device saved results (HSP-10 Slice A)
+## Cross-device saved results (HSP-10)
 
-**Server:** `member_workspace_items` + `GET/PUT/DELETE /api/workspace/items`  
-**Conflict policy:** optimistic concurrency — client sends `baseVersion`; mismatch → **409** (no silent overwrite).  
-**Mobile:** `useSavedResponses` caches in AsyncStorage and syncs when authenticated + field-kit entitled.  
+**Server:** `member_workspace_items` + `GET/PUT/DELETE /api/workspace/items`
+
+**Conflict policy:** optimistic concurrency — client sends `baseVersion`; mismatch → **409** (no silent overwrite). Clients replace local with server payload on 409.
+
+**Mobile:** `useSavedResponses` caches in AsyncStorage and syncs when authenticated + field-kit entitled. Cache cleared on logout.
+
+**Web:** same hook pattern (`src/hooks/useSavedResponses.ts`) on Objection Handler; cache cleared on logout.
+
 **Still device-only (by design):** offline queue, tool drafts, theme prefs.
 
 Apply schema: `pnpm --filter @workspace/db run push` or `0005_member_workspace_items.sql`.

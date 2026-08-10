@@ -5,6 +5,7 @@ import {
   logoutMobile,
   type MobileAuthUser,
 } from "@/lib/api";
+import { clearSavedResponsesCache } from "@/lib/savedResponsesCache";
 
 type AuthContextValue = {
   user: MobileAuthUser | null;
@@ -49,6 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const logout = useCallback(async () => {
     await logoutMobile();
+    await clearSavedResponsesCache();
     setUser(null);
   }, []);
 

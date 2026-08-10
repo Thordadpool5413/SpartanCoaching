@@ -66,6 +66,7 @@ export class ApiError extends Error {
     message: string,
     readonly status: number,
     readonly code?: string,
+    readonly body?: unknown,
   ) {
     super(message);
     this.name = "ApiError";
@@ -85,7 +86,7 @@ async function readApiError(res: Response): Promise<ApiError> {
         : json.error?.message || res.statusText;
     const code =
       typeof json.error === "object" ? json.error?.code : json.code;
-    return new ApiError(message, res.status, code);
+    return new ApiError(message, res.status, code, json);
   } catch {
     return new ApiError(text || res.statusText, res.status);
   }

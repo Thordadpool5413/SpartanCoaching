@@ -7,6 +7,7 @@ import {
   useState,
   type ReactNode,
 } from "react";
+import { clearSavedResponsesCache } from "@/lib/savedResponsesCache";
 
 export type AuthMember = {
   id: number;
@@ -153,6 +154,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
     } finally {
+      clearSavedResponsesCache();
       apply(null);
     }
   }, [apply]);

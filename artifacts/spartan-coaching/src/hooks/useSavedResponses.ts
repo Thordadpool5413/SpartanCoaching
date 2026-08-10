@@ -1,7 +1,5 @@
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useCallback, useEffect, useState } from "react";
-import { ApiError, apiDelete, apiGet, apiPut } from "@/lib/api";
-import { useAuth } from "@/lib/AuthContext";
+import { useAuth } from "@/context/AuthContext";
 import { SAVED_RESPONSES_STORAGE_KEY } from "@/lib/savedResponsesCache";
 
 export type ToolType = "objection" | "playbook" | "email" | "roleplay";
@@ -12,7 +10,6 @@ export interface SavedResponse {
   title: string;
   response: string;
   savedAt: number;
-  /** Server optimistic-concurrency version (0 = not yet on server) */
   version?: number;
 }
 
@@ -54,9 +51,9 @@ function serverFromConflictBody(body: unknown): SavedResponse | null {
   return fromServer(server);
 }
 
-async function readLocalAll(): Promise<SavedResponse[]> {
+function readLocalAll(): SavedResponse[] {
   try {
-    const raw = await AsyncStorage.getItem(SAVED_RESPONSES_STORAGE_KEY);
+    const raw = localStorage.getItem(SAVED_RESPONSES_STORAGE_KEY);
     const all: SavedResponse[] = raw ? JSON.parse(raw) : [];
     return Array.isArray(all) ? all : [];
   } catch {
@@ -64,8 +61,8 @@ async function readLocalAll(): Promise<SavedResponse[]> {
   }
 }
 
-async function writeLocalAll(all: SavedResponse[]): Promise<void> {
-  await AsyncStorage.setItem(SAVED_RESPONSES_STORAGE_KEY, JSON.stringify(all));
+function writeLocalAll(all: SavedResponse[]): void {
+  localStorage.setItem(SAVED_RESPONSES_STORAGE_KEY, JSON.stringify(all));
 }
 
 function mergeByVersion(
@@ -89,9 +86,8 @@ function mergeByVersion(
 }
 
 /**
- * Saved AI results: local AsyncStorage is cache/offline only.
- * When signed in with field-kit access, server /api/workspace/items is authoritative.
- * PUT uses baseVersion; 409 replaces local with server payload (no silent overwrite).
+ * Web saved AI results — same server contract as iOS.
+ * localStorage is cache only; /api/workspace/items is authoritative when entitled.
  */
 export function useSavedResponses(toolType: ToolType) {
   const { isAuthenticated, canUseFieldKit } = useAuth();
@@ -100,50 +96,61 @@ export function useSavedResponses(toolType: ToolType) {
 
   const loadAll = useCallback(async () => {
     try {
-      let all = await readLocalAll();
+      let all = readLocalAll();
 
       if (isAuthenticated && canUseFieldKit) {
         try {
-          const remote = await apiGet<{ items: ServerWorkspaceItem[] }>(
-            `/api/workspace/items?kind=${KIND}`,
-          );
-          const fromRemote = (remote.items || [])
-            .map(fromServer)
-            .filter((x): x is SavedResponse => Boolean(x));
+          const res = await fetch(`/api/workspace/items?kind=${KIND}`, {
+            credentials: "include",
+          });
+          if (res.ok) {
+            const remote = (await res.json()) as { items?: ServerWorkspaceItem[] };
+            const fromRemote = (remote.items || [])
+              .map(fromServer)
+              .filter((x): x is SavedResponse => Boolean(x));
+            all = mergeByVersion(all, fromRemote);
+            writeLocalAll(all);
 
-          all = mergeByVersion(all, fromRemote);
-          await writeLocalAll(all);
-
-          for (const local of all) {
-            if ((local.version ?? 0) > 0) continue;
-            try {
-              const res = await apiPut<{ item: ServerWorkspaceItem }>(
-                `/api/workspace/items/${encodeURIComponent(local.id)}`,
-                {
-                  kind: KIND,
-                  title: local.title,
-                  payload: {
-                    toolType: local.toolType,
-                    response: local.response,
-                    title: local.title,
+            for (const local of all) {
+              if ((local.version ?? 0) > 0) continue;
+              try {
+                const put = await fetch(
+                  `/api/workspace/items/${encodeURIComponent(local.id)}`,
+                  {
+                    method: "PUT",
+                    credentials: "include",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                      kind: KIND,
+                      title: local.title,
+                      payload: {
+                        toolType: local.toolType,
+                        response: local.response,
+                        title: local.title,
+                      },
+                      baseVersion: 0,
+                      clientUpdatedAtMs: local.savedAt,
+                    }),
                   },
-                  baseVersion: 0,
-                  clientUpdatedAtMs: local.savedAt,
-                },
-              );
-              local.version = res.item.version;
-            } catch (e) {
-              if (e instanceof ApiError && e.status === 409) {
-                const serverItem = serverFromConflictBody(e.body);
-                if (serverItem) {
-                  all = all.map((i) => (i.id === local.id ? serverItem : i));
+                );
+                if (put.ok) {
+                  const data = (await put.json()) as { item: ServerWorkspaceItem };
+                  local.version = data.item.version;
+                } else if (put.status === 409) {
+                  const data = await put.json().catch(() => ({}));
+                  const serverItem = serverFromConflictBody(data);
+                  if (serverItem) {
+                    all = all.map((i) => (i.id === local.id ? serverItem : i));
+                  }
                 }
+              } catch {
+                // stay local
               }
             }
+            writeLocalAll(all);
           }
-          await writeLocalAll(all);
         } catch {
-          // Offline / 401: keep local cache only
+          // offline
         }
       }
 
@@ -156,13 +163,13 @@ export function useSavedResponses(toolType: ToolType) {
   }, [toolType, isAuthenticated, canUseFieldKit]);
 
   useEffect(() => {
-    loadAll();
+    void loadAll();
   }, [loadAll]);
 
   const saveResponse = useCallback(
     async (title: string, response: string): Promise<void> => {
       try {
-        const all = await readLocalAll();
+        const all = readLocalAll();
         const newItem: SavedResponse = {
           id: generateId(),
           toolType,
@@ -189,53 +196,59 @@ export function useSavedResponses(toolType: ToolType) {
 
         if (isAuthenticated && canUseFieldKit) {
           try {
-            const res = await apiPut<{ item: ServerWorkspaceItem }>(
+            const put = await fetch(
               `/api/workspace/items/${encodeURIComponent(newItem.id)}`,
               {
-                kind: KIND,
-                title: newItem.title,
-                payload: {
-                  toolType: newItem.toolType,
-                  response: newItem.response,
+                method: "PUT",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  kind: KIND,
                   title: newItem.title,
-                },
-                baseVersion: 0,
-                clientUpdatedAtMs: newItem.savedAt,
+                  payload: {
+                    toolType: newItem.toolType,
+                    response: newItem.response,
+                    title: newItem.title,
+                  },
+                  baseVersion: 0,
+                  clientUpdatedAtMs: newItem.savedAt,
+                }),
               },
             );
-            newItem.version = res.item.version;
-            updated = updated.map((i) => (i.id === newItem.id ? newItem : i));
-          } catch (e) {
-            if (e instanceof ApiError && e.status === 409) {
-              const serverItem = serverFromConflictBody(e.body);
+            if (put.ok) {
+              const data = (await put.json()) as { item: ServerWorkspaceItem };
+              newItem.version = data.item.version;
+              updated = updated.map((i) => (i.id === newItem.id ? newItem : i));
+            } else if (put.status === 409) {
+              const data = await put.json().catch(() => ({}));
+              const serverItem = serverFromConflictBody(data);
               if (serverItem) {
                 updated = updated.map((i) =>
                   i.id === newItem.id ? serverItem : i,
                 );
-              } else {
-                await loadAll();
-                return;
               }
             }
+          } catch {
+            // keep local
           }
         }
 
-        await writeLocalAll(updated);
+        writeLocalAll(updated);
         setSavedItems(updated.filter((item) => item.toolType === toolType));
       } catch {
         // ignore
       }
     },
-    [toolType, isAuthenticated, canUseFieldKit, loadAll],
+    [toolType, isAuthenticated, canUseFieldKit],
   );
 
   const deleteResponse = useCallback(
     async (id: string): Promise<void> => {
       try {
-        const all = await readLocalAll();
+        const all = readLocalAll();
         const target = all.find((item) => item.id === id);
         let updated = all.filter((item) => item.id !== id);
-        await writeLocalAll(updated);
+        writeLocalAll(updated);
         setSavedItems(updated.filter((item) => item.toolType === toolType));
 
         if (
@@ -245,15 +258,16 @@ export function useSavedResponses(toolType: ToolType) {
           (target.version ?? 0) > 0
         ) {
           try {
-            await apiDelete(
+            const del = await fetch(
               `/api/workspace/items/${encodeURIComponent(id)}?kind=${KIND}&baseVersion=${target.version}`,
+              { method: "DELETE", credentials: "include" },
             );
-          } catch (e) {
-            if (e instanceof ApiError && e.status === 409) {
-              const serverItem = serverFromConflictBody(e.body);
+            if (del.status === 409) {
+              const data = await del.json().catch(() => ({}));
+              const serverItem = serverFromConflictBody(data);
               if (serverItem) {
                 updated = [...updated, serverItem];
-                await writeLocalAll(updated);
+                writeLocalAll(updated);
                 setSavedItems(
                   updated.filter((item) => item.toolType === toolType),
                 );
@@ -261,6 +275,8 @@ export function useSavedResponses(toolType: ToolType) {
                 await loadAll();
               }
             }
+          } catch {
+            // ignore
           }
         }
       } catch {

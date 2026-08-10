@@ -9,8 +9,13 @@ import { useToast } from "@/hooks/use-toast";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { FieldTalkTrack } from "@/components/FieldTalkTrack";
 import { markFieldKitChecklistDone } from "@/lib/fieldKitProgress";
+import { useSavedResponses } from "@/hooks/useSavedResponses";
+import { SavedResponsesPanel } from "@/components/SavedResponsesPanel";
+import { useAuth } from "@/context/AuthContext";
 
 export default function Objections() {
+  const { canUseFieldKit } = useAuth();
+  const saved = useSavedResponses("objection");
   const objections = [
     {
       q: "We are not ready for hospice.",
@@ -147,7 +152,7 @@ export default function Objections() {
                 )}
               </Button>
               {(aiResponses[obj.q] || loading[obj.q]) && (
-                <div data-testid={`text-ai-response-${idx}`}>
+                <div data-testid={`text-ai-response-${idx}`} className="space-y-3">
                   <FieldTalkTrack
                     title="Talk track for the room"
                     content={aiResponses[obj.q]}
@@ -159,12 +164,48 @@ export default function Objections() {
                     copyTestId={`button-copy-response-${idx}`}
                     readAloudTestId={`button-read-aloud-${idx}`}
                   />
+                  {canUseFieldKit && aiResponses[obj.q] && !loading[obj.q] && (
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="font-semibold"
+                      data-testid={`button-save-response-${idx}`}
+                      onClick={async () => {
+                        await saved.saveResponse(
+                          obj.q.slice(0, 120),
+                          aiResponses[obj.q],
+                        );
+                        toast({
+                          title: "Saved across devices",
+                          description: "Available on web and iOS after sync.",
+                        });
+                      }}
+                    >
+                      Save for web &amp; iOS
+                    </Button>
+                  )}
                 </div>
               )}
             </div>
           </Card>
         ))}
       </div>
+
+      {canUseFieldKit && (
+        <Card className="mt-8 border border-border p-5 sm:p-6 space-y-4">
+          <div>
+            <h2 className="text-lg font-bold text-foreground">Saved talk tracks</h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Synced to your account (not device-only). Edit conflicts use server version checks.
+            </p>
+          </div>
+          <SavedResponsesPanel
+            items={saved.savedItems}
+            onDelete={(id) => void saved.deleteResponse(id)}
+          />
+        </Card>
+      )}
 
       {Object.keys(aiResponses).length > 0 && (
         <CoachingCTA className="mt-6" />
