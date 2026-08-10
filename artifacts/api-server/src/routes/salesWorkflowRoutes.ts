@@ -133,11 +133,30 @@ export function registerSalesWorkflowRoutes(app: Express): void {
           });
           return;
         }
-        const result = await draftCallDebrief(parsed.data);
+        const authed = req as AuthedRequest;
+        const member = authed.fieldKit?.member;
+        const result = await draftCallDebrief(
+          parsed.data,
+          member
+            ? {
+                organizationId: member.organizationId,
+                memberId: member.id,
+              }
+            : undefined,
+        );
         res.json({
           draft: result.draft,
           source: result.source,
           model: result.model,
+          context: result.context
+            ? {
+                contextId: result.context.contextId,
+                assemblyVersion: result.context.assemblyVersion,
+                promptVersion: result.context.promptVersion,
+                knowledgeHitIds: result.context.knowledgeHitIds,
+                flags: result.context.flags,
+              }
+            : undefined,
           disclaimer:
             "AI draft only. Edit before completing the call. Do not include patient-identifying information.",
         });

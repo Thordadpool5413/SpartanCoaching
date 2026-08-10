@@ -7,6 +7,7 @@ import { registerRoutes } from "./routes/routes";
 import { registerAuthRoutes } from "./routes/authRoutes";
 import { registerSalesWorkflowRoutes } from "./routes/salesWorkflowRoutes";
 import { registerAiToolRoutes } from "./routes/aiToolRoutes";
+import { registerAiContextRoutes } from "./routes/aiContextRoutes";
 import { registerBillingRoutes, handleStripeWebhook } from "./billing/billingRoutes";
 import { loadSession } from "./auth/middleware";
 import { globalApiLimit } from "./rateLimits";
@@ -82,6 +83,9 @@ registerBillingRoutes(app);
 
 // Continuous rep workflow (Sales Command Center)
 registerSalesWorkflowRoutes(app);
+
+// Structured AI context assembly (HSP-14)
+registerAiContextRoutes(app);
 
 // Shared Spartan AI tools and clinical case workspace.
 registerAiToolRoutes(app);
