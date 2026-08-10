@@ -1,0 +1,26 @@
+artifacts/api-server/package.json
+  h_0446834f150a71 11
+artifacts/api-server/src/routes/salesWorkflowRoutes.ts
+  h_0446834f150a71 30-34,161-283
+artifacts/api-server/src/sales/commandCenterContext.test.ts
+  h_0446834f150a71 1-148
+artifacts/api-server/src/sales/commandCenterContext.ts
+  h_0446834f150a71 1-523
+artifacts/api-server/src/sales/commandCenterContextLoad.ts
+  h_0446834f150a71 1-181
+docs/command-center-parity.md
+  h_0446834f150a71 28-34
+lib/field-kit-catalog/src/command-center.ts
+  h_0446834f150a71 136-145,181-185
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "e330e954ed171beda80cf2b096bd9ad4f0fe30db",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
