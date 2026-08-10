@@ -1,0 +1,26 @@
+artifacts/api-server/package.json
+  h_0446834f150a71 11
+artifacts/api-server/src/auth/auditLog.test.ts
+  h_0446834f150a71 1-44
+artifacts/api-server/src/auth/auditLog.ts
+  h_0446834f150a71 1-69
+artifacts/api-server/src/auth/middleware.ts
+  h_0446834f150a71 8-16
+artifacts/api-server/src/auth/permissions.test.ts
+  h_0446834f150a71 1-175
+artifacts/api-server/src/auth/permissions.ts
+  h_0446834f150a71 1-290
+artifacts/api-server/src/routes/authRoutes.ts
+  h_0446834f150a71 43,47,51-54,1473-1484,1486-1493,1514-1515,1518-1524,1567-1576,1651-1658,1665-1666,1979-1985,2008-2015,2021-2022
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "493657a9f2c74baf2ba887e7de01d0bbe0c5fe07",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
