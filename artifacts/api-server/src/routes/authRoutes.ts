@@ -46,6 +46,11 @@ import {
   type AuthedRequest,
 } from "../auth/middleware";
 import { getAccessForMemberId, publicMember, publicOrg } from "../auth/entitlement";
+import {
+  publicEntitlementPayload,
+  resolveProductEntitlement,
+} from "../billing/entitlementService";
+import { isStripeConfigured } from "../billing/stripeClient";
 import { runTrialLifecycleSweep } from "../auth/trialLifecycle";
 import {
   runOpsDigest,
@@ -557,6 +562,16 @@ export function registerAuthRoutes(app: Express): void {
         );
       seatCount = countRow?.count ?? 0;
     }
+    const entitlement = access.org
+      ? resolveProductEntitlement(access.member!, access.org, {
+          activeMemberCount: seatCount,
+          stripeConfigured: isStripeConfigured(),
+          individualPriceConfigured: Boolean(
+            process.env.STRIPE_PRICE_INDIVIDUAL_WEEKLY?.trim(),
+          ),
+        })
+      : null;
+
     return res.json({
       member: publicMember(access.member!),
       organization: access.org ? { ...publicOrg(access.org), seatCount } : null,
@@ -566,6 +581,8 @@ export function registerAuthRoutes(app: Express): void {
         trialEndsAt: access.trialEndsAt ?? null,
         hoursRemaining: access.hoursRemaining ?? null,
       },
+      // Authoritative product + billing snapshot (web and iOS must not re-derive).
+      entitlement: entitlement ? publicEntitlementPayload(entitlement) : null,
     });
   });
 

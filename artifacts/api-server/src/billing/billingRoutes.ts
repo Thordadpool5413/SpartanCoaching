@@ -35,6 +35,12 @@ import {
 import { sendBillingActiveAdminAlert } from "../resend";
 import { checkWebhookSecret } from "./webhookSecretCheck";
 import { getBillingEmailMetrics } from "./billingEmailMetrics";
+import {
+  APP_STORE_BILLING_AUDIT,
+  assertIndividualCheckoutAllowed,
+  publicEntitlementPayload,
+  resolveProductEntitlement,
+} from "./entitlementService";
 
 function orgIdFromMetadata(meta: Stripe.Metadata | null | undefined): number | null {
   if (!meta?.organizationId) return null;
@@ -101,9 +107,27 @@ export function registerBillingRoutes(app: Express): void {
       const org = await findOrgById(member.organizationId);
       if (!org) return res.status(404).json({ error: "Organization not found" });
 
+      const activeMembers = await db
+        .select({ id: clientMembers.id })
+        .from(clientMembers)
+        .where(
+          and(
+            eq(clientMembers.organizationId, org.id),
+            ne(clientMembers.status, "disabled"),
+          ),
+        );
+
+      const stripeOn = isStripeConfigured();
+      const priceOn = Boolean(process.env.STRIPE_PRICE_INDIVIDUAL_WEEKLY?.trim());
+      const entitlement = resolveProductEntitlement(member, org, {
+        activeMemberCount: activeMembers.length,
+        stripeConfigured: stripeOn,
+        individualPriceConfigured: priceOn,
+      });
+
       return res.json({
-        configured: isStripeConfigured(),
-        individualWeeklyPriceConfigured: Boolean(process.env.STRIPE_PRICE_INDIVIDUAL_WEEKLY?.trim()),
+        configured: stripeOn,
+        individualWeeklyPriceConfigured: priceOn,
         organization: {
           id: org.id,
           type: org.type,
@@ -118,12 +142,11 @@ export function registerBillingRoutes(app: Express): void {
           seatLimit: org.seatLimit,
           contractRef: org.contractRef ?? null,
         },
-        canCheckoutIndividual:
-          org.type === "personal" &&
-          member.role !== "platform_admin" &&
-          isStripeConfigured() &&
-          Boolean(process.env.STRIPE_PRICE_INDIVIDUAL_WEEKLY?.trim()),
-        canOpenPortal: Boolean(org.stripeCustomerId) && isStripeConfigured(),
+        // Prefer entitlement.actions.*; legacy booleans kept for existing clients.
+        canCheckoutIndividual: entitlement.actions.canCheckoutIndividual,
+        canOpenPortal: entitlement.actions.canOpenBillingPortal,
+        entitlement: publicEntitlementPayload(entitlement),
+        appStoreBillingAudit: APP_STORE_BILLING_AUDIT,
       });
     } catch (err) {
       console.error("billing status error:", err);
@@ -153,38 +176,23 @@ export function registerBillingRoutes(app: Express): void {
         .limit(1);
       if (!org) return res.status(404).json({ error: "Organization not found" });
 
-      if (org.type === "platform") {
-        return res.status(400).json({
-          error: "Platform organizations do not use self-serve billing",
-          code: "PLATFORM_ORG",
-        });
-      }
-
-      // Phase 1: individual self-serve only (personal org)
-      if (org.type !== "personal") {
-        return res.status(400).json({
-          error:
-            "Corporate plans are activated under contract. Contact Spartan Coaching or use Access Desk.",
-          code: "CORPORATE_CONTRACT_REQUIRED",
-        });
-      }
-
-      if (org.billingPlan === "comp") {
-        return res.status(400).json({
-          error: "This account is complimentary and does not require payment",
-          code: "COMP_ACCOUNT",
-        });
-      }
-
-      // Already on an active paid sub
-      if (
-        org.stripeSubscriptionId &&
-        (org.billingStatus === "active" || org.billingStatus === "trialing") &&
-        org.status === "active"
-      ) {
-        return res.status(409).json({
-          error: "You already have an active subscription. Use Manage billing to update or cancel.",
-          code: "ALREADY_SUBSCRIBED",
+      const checkoutBlock = assertIndividualCheckoutAllowed(member, org, {
+        stripeConfigured: true,
+        individualPriceConfigured: Boolean(
+          process.env.STRIPE_PRICE_INDIVIDUAL_WEEKLY?.trim(),
+        ),
+      });
+      if (checkoutBlock) {
+        const status =
+          checkoutBlock.code === "ALREADY_SUBSCRIBED"
+            ? 409
+            : checkoutBlock.code === "STRIPE_NOT_CONFIGURED" ||
+                checkoutBlock.code === "PRICE_NOT_CONFIGURED"
+              ? 503
+              : 400;
+        return res.status(status).json({
+          error: checkoutBlock.message,
+          code: checkoutBlock.code,
         });
       }
 
