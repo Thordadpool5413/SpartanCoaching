@@ -1,60 +1,60 @@
-import React, { forwardRef } from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 
-interface SceneProps {
-  duration: number;
-}
-
-const Scene2 = forwardRef<HTMLDivElement, SceneProps>(({ duration }, ref) => {
+const Scene2: React.FC<{ duration: number }> = () => {
   return (
     <motion.div
-      ref={ref}
-      className="absolute inset-0 flex items-center justify-center w-full h-full"
-      initial={{ opacity: 0, x: '10vw' }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, scale: 1.2, filter: "blur(20px)" }}
-      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      className="absolute inset-0 flex items-center justify-center z-10"
+      initial={{ y: "100%", opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      exit={{ scale: 0.8, opacity: 0 }}
+      transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
     >
-      <div className="relative z-10 flex flex-col items-center justify-center w-full">
-        <motion.p 
-          className="text-3xl md:text-5xl font-sans font-medium text-brand-light uppercase tracking-widest mb-8 text-center"
+      <div className="flex flex-col items-center justify-center text-center z-10 w-[80vw]">
+        <motion.p
+          className="font-sans text-[3vw] text-[var(--color-brand-lightMuted)] font-light tracking-wide mb-[1vh]"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.2, duration: 0.8 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
         >
-          It's about the person who
+          It's about the person who brings their
         </motion.p>
         
         <div className="relative">
-          <motion.h2 
-            className="text-[14vw] font-display uppercase tracking-tighter leading-[0.8] text-brand-light text-center glitch-text"
-            data-text="BRINGS THEIR GAME."
-            initial={{ scale: 0.8, opacity: 0, filter: "blur(20px)" }}
-            animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
-            transition={{ 
-              delay: 0.5, 
-              duration: 1, 
-              type: "spring", 
-              stiffness: 200, 
-              damping: 20 
-            }}
+          {/* Subtle glow behind "game" */}
+          <motion.div
+            className="absolute inset-0 bg-[var(--color-brand-light)]/5 blur-2xl rounded-full"
+            initial={{ opacity: 0, scale: 0 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 0.8 }}
+          />
+          <motion.h1
+            className="font-display text-[12vw] font-bold text-[var(--color-brand-light)] leading-none relative z-10 tracking-tight"
+            initial={{ opacity: 0, scale: 0.8, filter: "blur(10px)" }}
+            animate={{ opacity: 1, scale: 1, filter: "blur(0px)" }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.8 }}
           >
-            BRINGS THEIR GAME.
-          </motion.h2>
+            GAME.
+          </motion.h1>
           
-          {/* Intense background glow behind the text */}
-          <motion.div 
-            className="absolute top-1/2 left-1/2 w-full h-full bg-brand-red rounded-full mix-blend-screen blur-[100px] -z-10"
-            style={{ x: '-50%', y: '-50%' }}
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1.5, opacity: 0.5 }}
-            transition={{ delay: 0.5, duration: 1.5, ease: "easeOut" }}
+          <motion.div
+            className="absolute -bottom-[2vh] left-0 h-[4px] bg-[var(--color-brand-red)] z-20"
+            initial={{ width: 0 }}
+            animate={{ width: "100%" }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 1.4 }}
           />
         </div>
       </div>
+      
+      {/* Background sweep overlay local to scene */}
+      <motion.div
+        className="absolute top-0 right-0 w-[50vw] h-full bg-[var(--color-brand-light)]/5 z-0"
+        initial={{ x: "100%", skewX: -20 }}
+        animate={{ x: "-50vw", skewX: -20 }}
+        transition={{ duration: 3, ease: "linear" }}
+      />
     </motion.div>
   );
-});
+};
 
-Scene2.displayName = 'Scene2';
 export default Scene2;

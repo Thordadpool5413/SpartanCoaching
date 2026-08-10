@@ -1,78 +1,37 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;500;700;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-brand-dark: #050506;
-  --color-brand-black: #000000;
-  --color-brand-light: #f4f4f2;
-  --color-brand-red: #d32f2f;
-  --color-brand-redDark: #7a1111;
-  --color-brand-gray: #1a1a1c;
-  --color-brand-grayLight: #8b8b92;
+  --color-brand-slate: #16202B;
+  --color-brand-slateDark: #0E151C;
+  --color-brand-slateLight: #1E2B38;
+  --color-brand-light: #E8ECF0;
+  --color-brand-lightMuted: #A0B0C0;
+  --color-brand-red: #A31621;
+  --color-brand-redDark: #7C1019;
 
-  --font-display: 'Bebas Neue', sans-serif;
-  --font-sans: 'Inter', sans-serif;
+  --font-display: 'Outfit', sans-serif;
+  --font-sans: 'Plus Jakarta Sans', sans-serif;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--color-brand-dark);
+  background-color: var(--color-brand-slate);
   color: var(--color-brand-light);
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
-.text-stroke-red {
-  -webkit-text-stroke: 2px var(--color-brand-redDark);
-  color: transparent;
-}
-.text-stroke-light {
-  -webkit-text-stroke: 2px rgba(244, 244, 242, 0.15);
-  color: transparent;
-}
-
-.text-stroke-thin {
-  -webkit-text-stroke: 1px rgba(244, 244, 242, 0.1);
-  color: transparent;
-}
-
-/* Glitch effect utility */
-.glitch-text {
-  position: relative;
-}
-.glitch-text::before,
-.glitch-text::after {
-  content: attr(data-text);
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  opacity: 0.8;
-}
-.glitch-text::before {
-  color: var(--color-brand-red);
-  z-index: -1;
-  transform: translate(-3px, 2px);
-}
-.glitch-text::after {
-  color: var(--color-brand-light);
-  z-index: -2;
-  transform: translate(3px, -2px);
-  mix-blend-mode: overlay;
-}
-
-/* Custom easing classes for consistent motion */
 .ease-cinematic {
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.clip-diagonal {
-  clip-path: polygon(0 0, 100% 0, 90% 100%, 0% 100%);
-}
-
 .clip-reveal {
   clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+}
+
+.clip-hide {
+  clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
 }

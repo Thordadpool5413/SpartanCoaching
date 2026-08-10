@@ -9,14 +9,14 @@ import Scene4 from './video_scenes/Scene4';
 import Scene5 from './video_scenes/Scene5';
 import Scene6 from './video_scenes/Scene6';
 
-// Total video duration: 27.5s
+// Total video duration: ~27.5s (adjusting pacing for broadcast feel)
 const SCENE_DURATIONS_MAP = {
   change: 3000, 
-  donuts: 4000, 
-  game: 3000, 
+  donuts: 4500, 
+  game: 3500, 
   questions: 4000, 
-  challenge: 3500, 
-  patient: 5000, 
+  challenge: 5500, 
+  patient: 3500, 
   brand: 5000, 
 };
 
@@ -27,81 +27,63 @@ const VideoTemplate: React.FC = () => {
   const baseUrl = import.meta.env.BASE_URL;
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-[#050506] flex items-center justify-center font-sans antialiased text-brand-light">
+    <div className="relative w-full h-screen overflow-hidden bg-[var(--color-brand-slateDark)] flex items-center justify-center font-sans antialiased text-[var(--color-brand-light)]">
       
-      {/* PERSISTENT BACKGROUND LAYER - Dark Distressed Texture */}
-      <motion.div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat opacity-80"
-        style={{ backgroundImage: `url(${baseUrl}bg-distressed-dark.jpg)` }}
-        animate={{
-          scale: [1, 1.05, 1],
-          opacity: [0.6, 0.8, 0.6]
-        }}
-        transition={{ duration: 20, ease: "linear", repeat: Infinity }}
-      />
-
-      {/* Red Distressed Texture Overlay that shifts based on scene */}
-      <motion.div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat mix-blend-screen pointer-events-none"
-        style={{ backgroundImage: `url(${baseUrl}bg-spartan-red.jpg)` }}
-        animate={{
-          opacity: currentScene === 2 || currentScene === 6 ? 0.8 : 0.1,
-          scale: currentScene === 2 || currentScene === 6 ? 1.05 : 1,
-          filter: currentScene === 2 || currentScene === 6 ? 'brightness(1.2)' : 'brightness(0.5)'
-        }}
-        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-      />
-      
-      {/* Dynamic Accent Accent Background */}
-      <motion.div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat mix-blend-overlay pointer-events-none"
-        style={{ backgroundImage: `url(${baseUrl}bg-texture-accent.jpg)` }}
-        animate={{
-          opacity: [0.2, 0.4, 0.2],
-          scale: 1.1,
-          x: currentScene % 2 === 0 ? '-1%' : '1%'
-        }}
-        transition={{ duration: 10, ease: "linear", repeat: Infinity }}
-      />
-      
-      {/* Accent Red Wipe Line / Frame that transforms across scenes */}
+      {/* PERSISTENT BACKGROUND LAYER - Cinematic Video */}
       <motion.div
-        className="absolute top-0 left-0 w-full h-2 bg-brand-red z-30"
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: (currentScene + 1) / 7 }}
-        style={{ transformOrigin: 'left' }}
-        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-      />
-      <motion.div
-        className="absolute bottom-0 right-0 w-full h-2 bg-brand-red z-30"
-        initial={{ scaleX: 0 }}
-        animate={{ scaleX: (currentScene + 1) / 7 }}
-        style={{ transformOrigin: 'right' }}
-        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
-      />
+        className="absolute inset-0 z-0 opacity-40 mix-blend-screen"
+        animate={{ scale: 1.05 }}
+        transition={{ duration: 30, ease: "linear" }}
+      >
+        <video 
+          src={`${baseUrl}bg-studio-sweep.mp4`}
+          className="w-full h-full object-cover"
+          autoPlay 
+          muted 
+          loop 
+          playsInline
+        />
+      </motion.div>
 
+      {/* Broadcast Slate gradient overlay to ensure text legibility */}
+      <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-brand-slateLight)]/50 to-[var(--color-brand-slateDark)]/90 z-0 mix-blend-multiply" />
+      
+      {/* Subtle Studio Light sweeps (CSS fallback/enhancement) */}
       <motion.div 
-        className="absolute rounded-full blur-[120px] pointer-events-none mix-blend-screen z-0"
+        className="absolute w-[150vw] h-[100vh] rounded-full blur-[100px] pointer-events-none mix-blend-soft-light z-0"
+        style={{ background: 'linear-gradient(90deg, rgba(232, 236, 240, 0) 0%, rgba(232, 236, 240, 0.15) 50%, rgba(232, 236, 240, 0) 100%)' }}
         animate={{
-          width: currentScene === 5 ? '80vw' : currentScene === 1 ? '60vw' : currentScene === 2 ? '50vw' : '30vw',
-          height: currentScene === 5 ? '80vw' : currentScene === 1 ? '60vw' : currentScene === 2 ? '50vw' : '30vw',
-          backgroundColor: currentScene === 5 ? 'rgba(251,251,251,0.04)' : 'rgba(211, 47, 47, 0.15)', 
-          top: currentScene === 1 ? '70%' : currentScene === 4 ? '30%' : '50%',
-          left: currentScene === 1 ? '20%' : currentScene === 4 ? '80%' : '50%',
-          x: '-50%',
-          y: '-50%',
+          x: currentScene % 2 === 0 ? '-30%' : '10%',
+          rotate: currentScene % 2 === 0 ? -15 : -5,
+          scale: currentScene === 5 ? 1.2 : 1,
+        }}
+        transition={{ duration: 4, ease: [0.25, 1, 0.5, 1] }}
+      />
+      
+      {/* Clean Geometric Accents */}
+      <motion.div
+        className="absolute top-0 right-0 w-[40vw] h-[100vh] border-l border-[var(--color-brand-light)]/5 pointer-events-none z-10"
+        animate={{
+          x: currentScene === 4 ? '10vw' : currentScene === 1 ? '5vw' : '0vw',
+          opacity: currentScene === 6 ? 0 : 1
         }}
         transition={{ duration: 2.5, ease: [0.16, 1, 0.3, 1] }}
-      />
+      >
+        <motion.div
+          className="absolute top-[20vh] left-0 w-[1px] h-[30vh] bg-[var(--color-brand-red)]"
+          animate={{
+            y: currentScene === 3 ? '20vh' : currentScene === 5 ? '40vh' : '0vh',
+            opacity: currentScene === 6 ? 0 : 0.8
+          }}
+          transition={{ duration: 3, ease: [0.16, 1, 0.3, 1] }}
+        />
+      </motion.div>
 
-      {/* Heavy Noise Overlay for Cinematic Grit */}
-      <div 
-        className="absolute inset-0 pointer-events-none opacity-[0.15] mix-blend-overlay z-40"
-        style={{ backgroundImage: 'url("data:image/svg+xml,%3Csvg viewBox=%220 0 200 200%22 xmlns=%22http://www.w3.org/2000/svg%22%3E%3Cfilter id=%22noiseFilter%22%3E%3CfeTurbulence type=%22fractalNoise%22 baseFrequency=%220.85%22 numOctaves=%223%22 stitchTiles=%22stitch%22/%3E%3C/filter%3E%3Crect width=%22100%25%22 height=%22100%25%22 filter=%22url(%23noiseFilter)%22/%3E%3C/svg%3E")' }}
-      />
+      {/* Grid structure for depth */}
+      <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none bg-[linear-gradient(rgba(255,255,255,1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,1)_1px,transparent_1px)] bg-[size:5vw_5vw]" />
 
       {/* SCENE CONTENT */}
-      <div className="relative w-full h-full z-10 flex items-center justify-center">
+      <div className="relative w-full h-full z-20 flex items-center justify-center">
         <AnimatePresence mode="sync">
           {currentScene === 0 && <Scene0 key="scene0" duration={SCENE_DURATIONS[0]} />}
           {currentScene === 1 && <Scene1 key="scene1" duration={SCENE_DURATIONS[1]} />}
@@ -112,9 +94,6 @@ const VideoTemplate: React.FC = () => {
           {currentScene === 6 && <Scene6 key="scene6" duration={SCENE_DURATIONS[6]} />}
         </AnimatePresence>
       </div>
-
-      {/* Intense Vignette */}
-      <div className="absolute inset-0 pointer-events-none bg-[radial-gradient(circle_at_center,transparent_0%,var(--color-brand-dark)_130%)] z-40" />
     </div>
   );
 };
