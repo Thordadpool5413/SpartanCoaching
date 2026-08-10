@@ -27,6 +27,12 @@ import {
 } from "../auth/workflowTenantAuthz";
 import { draftCallDebrief, draftDebriefInputSchema } from "../salesDebrief";
 import { standardAiLimit, globalDailyAiCap } from "../rateLimits";
+import {
+  detectAccountDuplicates,
+  listAccountIntelligence,
+  mergeAccounts,
+  updateAccountIntelligence,
+} from "../sales/accountIntelligenceLoad";
 
 function resolveActor(request: Request): Actor {
   const authed = request as AuthedRequest;
@@ -147,6 +153,177 @@ export function registerSalesWorkflowRoutes(app: Express): void {
           error: {
             code: "DEBRIEF_FAILED",
             message: "Could not draft debrief. Enter the call summary manually.",
+          },
+        });
+      }
+    },
+  );
+
+  /**
+   * Account intelligence (HSP-13 Slice A): enriched list, search/filter,
+   * optional consumer projection, optional duplicate scan.
+   * Query: q, territoryId, branch, accountType, priority, relationshipStage,
+   * includeArchived, ownerUserId, consumer, duplicates=true
+   */
+  app.get(
+    "/api/v1/sales-workflow/accounts/intelligence",
+    requireFieldKit,
+    async (req, res) => {
+      try {
+        const actor = resolveActor(req);
+        const query = req.query as Record<string, unknown>;
+        const consumer =
+          typeof query.consumer === "string" ? query.consumer : null;
+        const listed = await listAccountIntelligence(
+          storage,
+          actor,
+          query,
+          consumer,
+        );
+        const payload: Record<string, unknown> = {
+          accounts: listed.accounts,
+          total: listed.total,
+          filters: listed.filters,
+        };
+        if (query.duplicates === "true" || query.duplicates === true) {
+          const { pairs } = await detectAccountDuplicates(storage, actor);
+          payload.duplicatePairs = pairs;
+        }
+        res.json(payload);
+      } catch (error) {
+        const err = error as Error & { code?: string; status?: number };
+        const status =
+          typeof err.status === "number" && err.status >= 400 && err.status < 600
+            ? err.status
+            : 500;
+        if (status >= 500) console.error("accounts/intelligence GET failed:", error);
+        res.status(status).json({
+          error: {
+            code: err.code ?? "INTELLIGENCE_LIST_FAILED",
+            message:
+              status < 500
+                ? err.message || "Could not list account intelligence."
+                : "Could not list account intelligence.",
+          },
+        });
+      }
+    },
+  );
+
+  /**
+   * Update material account intelligence fields (optimistic concurrency).
+   * Body: expectedVersion + name|accountType|address|territoryId|branch|
+   * relationshipStage|priority|referralPotential|notes|archivedAt
+   */
+  app.patch(
+    "/api/v1/sales-workflow/accounts/:accountId/intelligence",
+    requireFieldKit,
+    async (req, res) => {
+      try {
+        const actor = resolveActor(req);
+        const accountId = String(req.params.accountId ?? "").trim();
+        if (!accountId) {
+          res.status(400).json({
+            error: {
+              code: "INVALID_INPUT",
+              message: "accountId is required.",
+            },
+          });
+          return;
+        }
+        const body = req.body ?? {};
+        const expectedVersion = Number(body.expectedVersion);
+        const account = await updateAccountIntelligence(
+          storage,
+          actor,
+          accountId,
+          expectedVersion,
+          {
+            name: body.name,
+            accountType: body.accountType,
+            address: body.address,
+            territoryId: body.territoryId,
+            branch: body.branch,
+            relationshipStage: body.relationshipStage,
+            priority: body.priority,
+            referralPotential: body.referralPotential,
+            notes: body.notes,
+            archivedAt: body.archivedAt,
+          },
+        );
+        res.json({ account });
+      } catch (error) {
+        const err = error as Error & { code?: string; status?: number };
+        const status =
+          typeof err.status === "number" && err.status >= 400 && err.status < 600
+            ? err.status
+            : 500;
+        if (status >= 500) {
+          console.error("accounts/intelligence PATCH failed:", error);
+        }
+        res.status(status).json({
+          error: {
+            code: err.code ?? "INTELLIGENCE_UPDATE_FAILED",
+            message:
+              status < 500
+                ? err.message || "Could not update account intelligence."
+                : "Could not update account intelligence.",
+          },
+        });
+      }
+    },
+  );
+
+  /**
+   * Merge absorb account into keep account (contacts/cycles/calls re-homed;
+   * absorb soft-archived). Body: keepAccountId, absorbAccountId, keepExpectedVersion
+   */
+  app.post(
+    "/api/v1/sales-workflow/accounts/intelligence/merge",
+    requireFieldKit,
+    async (req, res) => {
+      try {
+        const actor = resolveActor(req);
+        const body = req.body ?? {};
+        const keepAccountId =
+          typeof body.keepAccountId === "string" ? body.keepAccountId.trim() : "";
+        const absorbAccountId =
+          typeof body.absorbAccountId === "string"
+            ? body.absorbAccountId.trim()
+            : "";
+        if (!keepAccountId || !absorbAccountId) {
+          res.status(400).json({
+            error: {
+              code: "INVALID_INPUT",
+              message: "keepAccountId and absorbAccountId are required.",
+            },
+          });
+          return;
+        }
+        const result = await mergeAccounts(
+          storage,
+          actor,
+          keepAccountId,
+          absorbAccountId,
+          Number(body.keepExpectedVersion),
+        );
+        res.json(result);
+      } catch (error) {
+        const err = error as Error & { code?: string; status?: number };
+        const status =
+          typeof err.status === "number" && err.status >= 400 && err.status < 600
+            ? err.status
+            : 500;
+        if (status >= 500) {
+          console.error("accounts/intelligence/merge failed:", error);
+        }
+        res.status(status).json({
+          error: {
+            code: err.code ?? "INTELLIGENCE_MERGE_FAILED",
+            message:
+              status < 500
+                ? err.message || "Could not merge accounts."
+                : "Could not merge accounts.",
           },
         });
       }

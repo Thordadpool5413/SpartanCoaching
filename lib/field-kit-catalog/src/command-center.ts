@@ -133,6 +133,20 @@ export const COMMAND_CENTER_CAPABILITIES: CommandCenterCapability[] = [
     mobile: "none",
     notes: "Buttons present when adapters configured; often disabled in prod.",
   },
+  {
+    id: "account-intelligence",
+    title: "Account / territory relationship intelligence",
+    api: [
+      "GET /accounts/intelligence",
+      "PATCH /accounts/:accountId/intelligence",
+      "POST /accounts/intelligence/merge",
+    ],
+    sharedFact: true,
+    web: "partial",
+    mobile: "partial",
+    notes:
+      "Backend: search/filter, stage/priority/referral/notes, duplicates, merge, archive. Consumer projections for Command Center and tools. Platform UIs follow.",
+  },
 ];
 
 /** Capabilities both surfaces claim as shared product facts (must stay API-first). */
