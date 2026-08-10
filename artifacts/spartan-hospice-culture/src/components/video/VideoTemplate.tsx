@@ -10,12 +10,12 @@ import Scene5 from './video_scenes/Scene5';
 import Scene6 from './video_scenes/Scene6';
 
 const SCENE_DURATIONS_MAP = {
-  change: 3000, 
-  donuts: 4500, 
-  game: 3500, 
-  questions: 4000, 
-  challenge: 5500, 
-  patient: 3500, 
+  change: 3500, 
+  donuts: 5000, 
+  game: 4500, 
+  questions: 5000, 
+  challenge: 6500, 
+  patient: 4000, 
   brand: 5000, 
 };
 
@@ -23,49 +23,34 @@ const SCENE_DURATIONS = Object.values(SCENE_DURATIONS_MAP);
 
 const VideoTemplate: React.FC = () => {
   const { currentScene } = useVideoPlayer({ durations: SCENE_DURATIONS_MAP });
-  const baseUrl = import.meta.env.BASE_URL;
-
+  
   return (
     <div className="relative w-full h-screen overflow-hidden bg-[var(--color-brand-black)] flex items-center justify-center font-sans antialiased text-[var(--color-brand-white)]">
       
-      {/* PERSISTENT BACKGROUND LAYER - Fiery Embers */}
-      <motion.div
-        className="absolute inset-0 z-0 mix-blend-screen"
-        animate={{ opacity: currentScene === 6 ? 0 : 0.6 }}
-        transition={{ duration: 1, ease: "linear" }}
-      >
-        <video 
-          src={`${baseUrl}fiery-sparks-bg.mp4`}
-          className="w-full h-full object-cover"
-          autoPlay 
-          muted 
-          loop 
-          playsInline
-        />
-      </motion.div>
+      {/* Persistent Vignette - Cinematic Shadow */}
+      <div className="absolute inset-0 z-40 pointer-events-none" 
+           style={{ background: 'radial-gradient(circle, transparent 30%, rgba(17, 19, 21, 0.8) 100%)' }} />
 
-      {/* Persistent Vignette */}
-      <div className="absolute inset-0 bg-radial-gradient from-transparent to-black/90 z-0 pointer-events-none" 
-           style={{ background: 'radial-gradient(circle, transparent 20%, #030303 100%)' }} />
-
-      {/* Dynamic Red Light Slash / Accent */}
-      <motion.div
-        className="absolute w-[120vw] h-[10vh] bg-[var(--color-brand-red)] mix-blend-overlay blur-[80px] z-0 pointer-events-none"
-        animate={{
-          y: currentScene % 2 === 0 ? '-30vh' : '30vh',
-          rotate: currentScene % 2 === 0 ? -10 : 15,
-          opacity: currentScene === 6 ? 0 : 0.7
+      {/* Global Film Grain */}
+      <div 
+        className="absolute inset-0 z-50 pointer-events-none opacity-[0.03] mix-blend-overlay"
+        style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E")`,
         }}
-        transition={{ duration: 4, ease: "easeInOut" }}
       />
-      
-      {/* Glitch/Flash subtle overlay on scene changes */}
+
+      {/* Subtle light leak that drifts slowly across the whole video */}
       <motion.div
-        key={`glitch-${currentScene}`}
-        className="absolute inset-0 bg-[var(--color-brand-red)] z-50 pointer-events-none mix-blend-overlay"
-        initial={{ opacity: 0.8 }}
-        animate={{ opacity: 0 }}
-        transition={{ duration: 0.3, ease: "easeOut" }}
+        className="absolute w-[150vw] h-[150vh] rounded-full mix-blend-screen opacity-[0.03] z-40 pointer-events-none bg-gradient-to-r from-transparent via-[#f4eee1] to-transparent blur-[120px]"
+        animate={{
+          x: ['-50vw', '20vw', '-50vw'],
+          y: ['-20vh', '10vh', '-20vh'],
+        }}
+        transition={{
+          duration: 20,
+          ease: "linear",
+          repeat: Infinity
+        }}
       />
 
       {/* SCENE CONTENT */}

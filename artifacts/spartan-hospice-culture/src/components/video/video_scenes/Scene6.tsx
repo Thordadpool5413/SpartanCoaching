@@ -10,32 +10,33 @@ const Scene6: React.FC<{ duration: number }> = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
     >
-      {/* Cinematic Logo Background Video */}
+      {/* Cinematic Logo Background Video (if available) or elegant gradient */}
       <motion.div
-        className="absolute inset-0 z-0 mix-blend-screen opacity-80"
-        initial={{ scale: 1.1, opacity: 0 }}
-        animate={{ scale: 1, opacity: 0.8 }}
-        transition={{ duration: 2, ease: "easeOut" }}
+        className="absolute inset-0 z-0 mix-blend-screen opacity-50"
+        initial={{ scale: 1.05, opacity: 0 }}
+        animate={{ scale: 1, opacity: 0.4 }}
+        transition={{ duration: 2.5, ease: "easeOut" }}
       >
         <video 
           src={`${baseUrl}hero-video.mp4`}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover blur-[2px]"
           autoPlay 
           muted 
           playsInline
         />
+        <div className="absolute inset-0 bg-black/50" />
       </motion.div>
 
-      <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-[90vw] mt-[5vh]">
+      <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-[90vw] mt-[2vh]">
         
         {/* The user's stamped logo as the main visual brand mark */}
         <motion.div
-          className="w-[20vw] max-w-[300px] mb-[4vh] relative drop-shadow-[0_0_30px_rgba(218,41,28,0.5)]"
-          initial={{ scale: 0.8, opacity: 0, y: 20 }}
+          className="w-[20vw] max-w-[300px] mb-[6vh] relative drop-shadow-2xl"
+          initial={{ scale: 0.9, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
-          transition={{ type: "spring", stiffness: 100, damping: 15, delay: 0.5 }}
+          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
         >
           <img 
             src={`${baseUrl}spartan-stamp-logo.png`} 
@@ -46,22 +47,24 @@ const Scene6: React.FC<{ duration: number }> = () => {
 
         <div className="flex flex-col items-center justify-center text-center">
           <motion.p
-            className="font-sans font-bold text-[2vw] tracking-[0.3em] text-[var(--color-brand-gray)] uppercase mb-[1vh]"
+            className="font-sans font-light text-[2vw] tracking-[0.3em] text-[var(--color-brand-warm)] opacity-80 uppercase mb-[2vh]"
             initial={{ opacity: 0, y: "100%" }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1], delay: 1 }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 1 }}
           >
             That's
           </motion.p>
           
-          <motion.h2
-            className="font-display font-black text-[6vw] leading-none tracking-tighter text-[var(--color-brand-white)] uppercase"
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 1.3 }}
-          >
-            Spartan Hospice Coaching!
-          </motion.h2>
+          <div className="overflow-hidden">
+            <motion.h2
+              className="font-display font-semibold text-[6vw] leading-none text-[var(--color-brand-white)] text-shadow-heavy"
+              initial={{ opacity: 0, y: "100%" }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 1.3 }}
+            >
+              Spartan Hospice Coaching!
+            </motion.h2>
+          </div>
         </div>
       </div>
 

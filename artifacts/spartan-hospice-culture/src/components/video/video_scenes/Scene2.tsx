@@ -2,49 +2,65 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const Scene2: React.FC<{ duration: number }> = () => {
+  const baseUrl = import.meta.env.BASE_URL;
+
   return (
     <motion.div
-      className="absolute inset-0 flex items-center justify-center z-10"
-      initial={{ x: "10vw", opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      exit={{ scale: 1.5, opacity: 0, filter: "blur(10px)" }}
-      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+      className="absolute inset-0 flex items-center justify-center z-10 bg-[var(--color-brand-black)]"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 1.2, ease: [0.33, 1, 0.68, 1] }}
     >
-      <div className="flex flex-col items-center w-[90vw]">
+      {/* Cinematic Background Image */}
+      <motion.div 
+        className="absolute inset-0 z-0"
+        initial={{ scale: 1.1, opacity: 0 }}
+        animate={{ scale: 1, opacity: 0.6 }}
+        exit={{ scale: 0.95, opacity: 0, filter: "blur(10px)" }}
+        transition={{ duration: 4.5, ease: "easeOut" }}
+      >
+        <img 
+          src={`${baseUrl}assets/cinematic_hospital.jpg`} 
+          alt="Cinematic Hospital" 
+          className="w-full h-full object-cover"
+        />
+        {/* Dark vignette to focus on text */}
+        <div className="absolute inset-0 bg-radial-gradient from-transparent to-black/80" 
+             style={{ background: 'radial-gradient(circle, transparent 20%, #111315 100%)' }} />
+      </motion.div>
+
+      <div className="relative z-10 flex flex-col items-center justify-center w-[90vw] text-center">
         
-        <div className="overflow-hidden mb-[1vh]">
+        <div className="overflow-hidden mb-[2vh]">
           <motion.p
-            className="font-sans font-bold text-[2.5vw] tracking-[0.2em] text-[var(--color-brand-white)] uppercase"
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            transition={{ duration: 0.5, ease: [0.7, 0, 0.1, 1], delay: 0.2 }}
+            className="font-sans font-medium text-[3vw] tracking-[0.1em] text-[var(--color-brand-warm)] opacity-90 uppercase"
+            initial={{ y: "100%", opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
           >
             It's about the person who brings their
           </motion.p>
         </div>
 
-        <motion.div
-          className="relative"
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ type: "spring", stiffness: 200, damping: 20, delay: 0.6 }}
-        >
-          <h1 className="font-display font-black text-[25vw] leading-[0.8] tracking-tighter text-[var(--color-brand-red)] text-glow">
-            GAME.
-          </h1>
-          
-          {/* Slashes overlaying the text for hardcore feel */}
-          <motion.div
-            className="absolute inset-0 pointer-events-none overflow-hidden"
-            initial={{ clipPath: "polygon(0 0, 0 0, 0 100%, 0 100%)" }}
-            animate={{ clipPath: "polygon(0 0, 100% 0, 100% 100%, 0 100%)" }}
-            transition={{ duration: 0.4, delay: 0.8 }}
+        <div className="overflow-hidden">
+          <motion.h1
+            className="font-display font-bold text-[18vw] leading-[0.85] text-[var(--color-brand-white)] text-shadow-heavy"
+            initial={{ y: "100%", opacity: 0, scale: 0.95 }}
+            animate={{ y: 0, opacity: 1, scale: 1 }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 1 }}
           >
-            <h1 className="font-display font-black text-[25vw] leading-[0.8] tracking-tighter text-[var(--color-brand-white)] mix-blend-overlay">
-              GAME.
-            </h1>
-          </motion.div>
-        </motion.div>
+            GAME.
+          </motion.h1>
+        </div>
+        
+        {/* Understated red accent to ground the word "GAME" */}
+        <motion.div
+          className="w-[15vw] h-[4px] bg-[var(--color-brand-red)] mt-[4vh]"
+          initial={{ scaleX: 0, opacity: 0 }}
+          animate={{ scaleX: 1, opacity: 1 }}
+          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 1.6 }}
+        />
 
       </div>
     </motion.div>

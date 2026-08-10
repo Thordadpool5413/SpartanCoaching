@@ -2,50 +2,60 @@ import React from 'react';
 import { motion } from 'framer-motion';
 
 const Scene4: React.FC<{ duration: number }> = () => {
+  const baseUrl = import.meta.env.BASE_URL;
+
   return (
     <motion.div
-      className="absolute inset-0 flex items-center justify-center z-10"
-      initial={{ opacity: 0, y: "10vh" }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
-      transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+      className="absolute inset-0 flex items-center justify-center z-10 bg-[var(--color-brand-black)]"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 1.5, ease: [0.33, 1, 0.68, 1] }}
     >
-      <div className="flex flex-col items-center text-center w-[90vw] max-w-[1200px]">
+      {/* Cinematic Background Image - Patient care */}
+      <motion.div 
+        className="absolute inset-0 z-0 origin-center"
+        initial={{ scale: 1.05, opacity: 0, filter: 'blur(5px)' }}
+        animate={{ scale: 1, opacity: 0.65, filter: 'blur(0px)' }}
+        exit={{ scale: 0.95, opacity: 0, filter: 'blur(15px)' }}
+        transition={{ duration: 6.5, ease: "easeOut" }}
+      >
+        <img 
+          src={`${baseUrl}assets/patient_care.jpg`} 
+          alt="Patient Care" 
+          className="w-full h-full object-cover"
+        />
+        <div className="absolute inset-0 bg-black/50" />
+      </motion.div>
+
+      {/* Typography - Centered, solemn */}
+      <div className="relative z-10 flex flex-col items-center text-center w-[85vw] max-w-[1200px]">
         
         <motion.p
-          className="font-sans font-medium text-[3vw] tracking-wider text-[var(--color-brand-gray)] uppercase mb-[4vh]"
+          className="font-sans font-light text-[2.5vw] tracking-wider text-[var(--color-brand-warm)] opacity-90 mb-[4vh]"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
+          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 1 }}
         >
           The person who's willing to find the patient
         </motion.p>
         
-        <div className="relative mb-[4vh]">
+        <div className="overflow-hidden mb-[4vh]">
           <motion.h1
-            className="font-display font-black text-[16vw] leading-none tracking-tighter text-[var(--color-brand-white)]"
-            initial={{ scale: 0.8, opacity: 0, filter: "blur(10px)" }}
-            animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 1 }}
+            className="font-display font-semibold italic text-[12vw] leading-none text-[var(--color-brand-white)] text-shadow-heavy"
+            initial={{ y: "100%", opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 1.5 }}
           >
-            NO ONE ELSE
-          </motion.h1>
-          {/* subtle red echo */}
-          <motion.h1
-            className="absolute inset-0 font-display font-black text-[16vw] leading-none tracking-tighter text-[var(--color-brand-red)] z-[-1] opacity-50 blur-[20px]"
-            initial={{ scale: 0.8 }}
-            animate={{ scale: 1.1 }}
-            transition={{ duration: 4, ease: "linear", delay: 1 }}
-          >
-            NO ONE ELSE
+            no one else
           </motion.h1>
         </div>
 
         <motion.p
-          className="font-sans font-medium text-[3vw] tracking-wider text-[var(--color-brand-gray)] uppercase"
+          className="font-sans font-light text-[2.5vw] tracking-wider text-[var(--color-brand-warm)] opacity-90"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 1.8 }}
+          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 2.2 }}
         >
           is willing to take care of.
         </motion.p>
