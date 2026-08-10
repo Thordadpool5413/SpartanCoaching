@@ -1,0 +1,26 @@
+artifacts/api-server/package.json
+  h_0446834f150a71 11
+artifacts/api-server/src/ai/aiContextAssembly.test.ts
+  h_0446834f150a71 1-153
+artifacts/api-server/src/ai/aiContextAssembly.ts
+  h_0446834f150a71 1-597
+artifacts/api-server/src/app.ts
+  h_0446834f150a71 10,87-89
+artifacts/api-server/src/routes/aiContextRoutes.ts
+  h_0446834f150a71 1-161
+artifacts/api-server/src/routes/salesWorkflowRoutes.ts
+  h_0446834f150a71 136-146,151-159
+artifacts/api-server/src/salesDebrief.ts
+  h_0446834f150a71 9-14,34-45,68-76,130-179,182-183,186,192-196,205,211-215,217-225
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "947ed9aae4ffa4e089af0b4a49a7dc01761e430e",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
