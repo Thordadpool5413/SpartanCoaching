@@ -27,14 +27,14 @@ const Scene2: React.FC<{ duration: number }> = () => {
         />
         {/* Dark vignette to focus on text */}
         <div className="absolute inset-0 bg-radial-gradient from-transparent to-black/80" 
-             style={{ background: 'radial-gradient(circle, transparent 20%, #111315 100%)' }} />
+             style={{ background: 'radial-gradient(circle, transparent 20%, rgba(17,19,21,0.9) 100%)' }} />
       </motion.div>
 
-      <div className="relative z-10 flex flex-col items-center justify-center w-[90vw] text-center">
+      <div className="relative z-10 flex flex-col items-center justify-center w-[95vw] text-center">
         
         <div className="overflow-hidden mb-[2vh]">
           <motion.p
-            className="font-sans font-medium text-[3vw] tracking-[0.1em] text-[var(--color-brand-warm)] opacity-90 uppercase"
+            className="font-sans font-medium text-[4.5vw] tracking-[0.1em] text-[var(--color-brand-warm)] opacity-90 uppercase text-shadow-subtle"
             initial={{ y: "100%", opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
@@ -45,7 +45,7 @@ const Scene2: React.FC<{ duration: number }> = () => {
 
         <div className="overflow-hidden">
           <motion.h1
-            className="font-display font-bold text-[18vw] leading-[0.85] text-[var(--color-brand-white)] text-shadow-heavy"
+            className="font-display font-bold text-[24vw] leading-[0.85] text-[var(--color-brand-white)] text-shadow-heavy"
             initial={{ y: "100%", opacity: 0, scale: 0.95 }}
             animate={{ y: 0, opacity: 1, scale: 1 }}
             transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 1 }}
@@ -56,7 +56,7 @@ const Scene2: React.FC<{ duration: number }> = () => {
         
         {/* Understated red accent to ground the word "GAME" */}
         <motion.div
-          className="w-[15vw] h-[4px] bg-[var(--color-brand-red)] mt-[4vh]"
+          className="w-[20vw] h-[6px] bg-[var(--color-brand-red)] mt-[4vh] shadow-[0_0_10px_rgba(218,41,28,0.3)]"
           initial={{ scaleX: 0, opacity: 0 }}
           animate={{ scaleX: 1, opacity: 1 }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 1.6 }}

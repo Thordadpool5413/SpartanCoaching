@@ -25,14 +25,14 @@ const Scene4: React.FC<{ duration: number }> = () => {
           alt="Patient Care" 
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/50" />
+        <div className="absolute inset-0 bg-black/60" />
       </motion.div>
 
       {/* Typography - Centered, solemn */}
-      <div className="relative z-10 flex flex-col items-center text-center w-[85vw] max-w-[1200px]">
+      <div className="relative z-10 flex flex-col items-center text-center w-[95vw]">
         
         <motion.p
-          className="font-sans font-light text-[2.5vw] tracking-wider text-[var(--color-brand-warm)] opacity-90 mb-[4vh]"
+          className="font-sans font-medium text-[3.8vw] tracking-wider text-[var(--color-brand-warm)] opacity-100 mb-[4vh] text-shadow-subtle"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 1 }}
@@ -42,7 +42,7 @@ const Scene4: React.FC<{ duration: number }> = () => {
         
         <div className="overflow-hidden mb-[4vh]">
           <motion.h1
-            className="font-display font-semibold italic text-[12vw] leading-none text-[var(--color-brand-white)] text-shadow-heavy"
+            className="font-display font-semibold italic text-[16.5vw] leading-none text-[var(--color-brand-white)] text-shadow-heavy"
             initial={{ y: "100%", opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 1.5 }}
@@ -52,7 +52,7 @@ const Scene4: React.FC<{ duration: number }> = () => {
         </div>
 
         <motion.p
-          className="font-sans font-light text-[2.5vw] tracking-wider text-[var(--color-brand-warm)] opacity-90"
+          className="font-sans font-medium text-[3.8vw] tracking-wider text-[var(--color-brand-warm)] opacity-100 text-shadow-subtle"
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 2.2 }}

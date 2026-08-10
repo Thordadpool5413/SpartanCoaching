@@ -25,13 +25,13 @@ const Scene3: React.FC<{ duration: number }> = () => {
           alt="Deep conversation" 
           className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-l from-black/80 via-black/40 to-black/10" />
+        <div className="absolute inset-0 bg-gradient-to-l from-black/90 via-black/50 to-black/20" />
       </motion.div>
 
       {/* Typography - Right aligned */}
-      <div className="relative z-10 flex flex-col items-end w-[85vw] h-full justify-center text-right">
+      <div className="relative z-10 flex flex-col items-end w-[90vw] h-full justify-center text-right">
         <motion.p
-          className="font-sans font-light text-[2.5vw] tracking-widest text-[var(--color-brand-warm)] opacity-80 uppercase mb-[3vh]"
+          className="font-sans font-medium text-[3.8vw] tracking-widest text-[var(--color-brand-warm)] opacity-90 uppercase mb-[3vh] text-shadow-subtle"
           initial={{ opacity: 0, x: 30 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.8 }}
@@ -39,10 +39,10 @@ const Scene3: React.FC<{ duration: number }> = () => {
           The person who asks the
         </motion.p>
         
-        <div className="flex flex-col items-end leading-[1.1]">
+        <div className="flex flex-col items-end leading-[1.05]">
           <div className="overflow-hidden">
             <motion.h1
-              className="font-display font-semibold text-[8vw] text-[var(--color-brand-white)] text-shadow-heavy"
+              className="font-display font-semibold text-[11.5vw] text-[var(--color-brand-white)] text-shadow-heavy"
               initial={{ y: "100%", opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 1.2 }}
@@ -51,9 +51,9 @@ const Scene3: React.FC<{ duration: number }> = () => {
             </motion.h1>
           </div>
           
-          <div className="overflow-hidden">
+          <div className="overflow-hidden pt-[1vh]">
             <motion.h1
-              className="font-display font-semibold italic text-[8vw] text-[var(--color-brand-white)] text-shadow-heavy"
+              className="font-display font-semibold italic text-[11.5vw] text-[var(--color-brand-white)] text-shadow-heavy"
               initial={{ y: "100%", opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 1.5 }}

@@ -26,17 +26,17 @@ const Scene6: React.FC<{ duration: number }> = () => {
           muted 
           playsInline
         />
-        <div className="absolute inset-0 bg-black/50" />
+        <div className="absolute inset-0 bg-black/60" />
       </motion.div>
 
-      <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-[90vw] mt-[2vh]">
+      <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-[95vw] mt-[2vh]">
         
         {/* The user's stamped logo as the main visual brand mark */}
         <motion.div
-          className="w-[20vw] max-w-[300px] mb-[6vh] relative drop-shadow-2xl"
-          initial={{ scale: 0.9, opacity: 0, y: 20 }}
+          className="w-[35vw] mb-[5vh] relative drop-shadow-2xl"
+          initial={{ scale: 0.8, opacity: 0, y: 30 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
-          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
+          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 0.4 }}
         >
           <img 
             src={`${baseUrl}spartan-stamp-logo.png`} 
@@ -45,22 +45,22 @@ const Scene6: React.FC<{ duration: number }> = () => {
           />
         </motion.div>
 
-        <div className="flex flex-col items-center justify-center text-center">
+        <div className="flex flex-col items-center justify-center text-center w-full px-[5vw]">
           <motion.p
-            className="font-sans font-light text-[2vw] tracking-[0.3em] text-[var(--color-brand-warm)] opacity-80 uppercase mb-[2vh]"
+            className="font-sans font-medium text-[3vw] tracking-[0.3em] text-[var(--color-brand-warm)] opacity-90 uppercase mb-[2vh] text-shadow-subtle"
             initial={{ opacity: 0, y: "100%" }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 1 }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 1.1 }}
           >
             That's
           </motion.p>
           
-          <div className="overflow-hidden">
+          <div className="overflow-hidden w-full">
             <motion.h2
-              className="font-display font-semibold text-[6vw] leading-none text-[var(--color-brand-white)] text-shadow-heavy"
+              className="font-display font-semibold text-[7.5vw] leading-[1.1] text-[var(--color-brand-white)] text-shadow-heavy"
               initial={{ opacity: 0, y: "100%" }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 1.3 }}
+              transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 1.4 }}
             >
               Spartan Hospice Coaching!
             </motion.h2>

@@ -16,14 +16,14 @@ const Scene5: React.FC<{ duration: number }> = () => {
       <motion.div 
         className="absolute inset-0 z-0"
         initial={{ opacity: 0 }}
-        animate={{ opacity: 0.3 }}
+        animate={{ opacity: 0.4 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 3, ease: "easeOut" }}
       >
         <img 
           src={`${baseUrl}assets/cinematic_hospital.jpg`} 
           alt="Warmth" 
-          className="w-full h-full object-cover blur-[30px] scale-110"
+          className="w-full h-full object-cover blur-[20px] scale-110"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-black via-black/80 to-transparent" />
       </motion.div>
@@ -31,7 +31,7 @@ const Scene5: React.FC<{ duration: number }> = () => {
       <div className="relative z-10 flex flex-col items-center justify-center">
         
         <motion.p
-          className="font-sans font-medium text-[2.5vw] tracking-[0.4em] text-[var(--color-brand-warm)] opacity-70 uppercase mb-[2vh]"
+          className="font-sans font-medium text-[3.8vw] tracking-[0.4em] text-[var(--color-brand-warm)] opacity-90 uppercase mb-[2vh] text-shadow-subtle"
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, ease: "easeOut", delay: 0.5 }}
@@ -41,7 +41,7 @@ const Scene5: React.FC<{ duration: number }> = () => {
         
         <div className="overflow-hidden">
           <motion.h1
-            className="font-display font-bold text-[16vw] leading-none text-[var(--color-brand-white)] text-shadow-heavy"
+            className="font-display font-bold text-[20vw] leading-none text-[var(--color-brand-white)] text-shadow-heavy tracking-wide"
             initial={{ y: "100%", opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 1 }}
