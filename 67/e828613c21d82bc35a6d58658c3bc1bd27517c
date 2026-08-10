@@ -1,0 +1,26 @@
+artifacts/api-server/src/auth/accountLifecycle.test.ts
+  h_0446834f150a71 7,10,173-259
+artifacts/api-server/src/auth/accountLifecycle.ts
+  h_0446834f150a71 71-72,116-171
+artifacts/api-server/src/routes/authRoutes.ts
+  h_0446834f150a71 53,1957,1973,1975-1976,1979,1985,2072-2096
+artifacts/spartan-coaching-mobile/lib/AuthContext.tsx
+  h_0446834f150a71 1-10,13,16,20-22,39-52,56,64,70-79,82,92
+artifacts/spartan-coaching/src/context/AuthContext.tsx
+  h_0446834f150a71 7,12-14,98,119-136,139,147,153-162,175,191
+lib/db/migrations/0005_session_reauthenticated_at.sql
+  h_0446834f150a71 1-7
+lib/db/src/schema/auth.ts
+  h_0446834f150a71 108,110-111
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "67e828613c21d82bc35a6d58658c3bc1bd27517c",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
