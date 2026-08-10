@@ -28,29 +28,25 @@ const Scene0: React.FC<{ duration: number }> = () => {
         <div className="absolute inset-0 bg-black/50" />
       </motion.div>
 
-      {/* Typography */}
-      <div className="relative z-10 flex flex-col items-center justify-center text-center">
-        <div className="overflow-hidden mb-[1.5vh]">
-          <motion.h1
-            className="font-sans font-medium text-[5.5vw] tracking-[0.2em] text-[var(--color-brand-warm)] text-shadow-subtle uppercase"
-            initial={{ y: "100%", opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
-          >
-            Hospice Sales
-          </motion.h1>
-        </div>
+      {/* Typography — fade in only, no slide-up, no overflow-hidden clipping */}
+      <div className="relative z-10 flex flex-col items-center justify-center text-center w-full px-[5vw]">
+        <motion.h1
+          className="font-sans font-medium text-[3.6vw] tracking-[0.22em] text-[var(--color-brand-warm)] text-shadow-subtle uppercase mb-[1.8vh]"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.4, ease: "easeOut", delay: 0.5 }}
+        >
+          Hospice Sales
+        </motion.h1>
         
-        <div className="overflow-hidden">
-          <motion.h2
-            className="font-display font-semibold italic text-[11.5vw] leading-none text-[var(--color-brand-white)] text-shadow-heavy"
-            initial={{ y: "100%", opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.9 }}
-          >
-            has to change.
-          </motion.h2>
-        </div>
+        <motion.h2
+          className="font-display font-semibold italic text-[8.8vw] leading-[1.15] text-[var(--color-brand-white)] text-shadow-heavy whitespace-nowrap"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 1.4, ease: "easeOut", delay: 1.0 }}
+        >
+          has to change.
+        </motion.h2>
       </div>
       
       {/* Subtle line accent */}
@@ -58,7 +54,7 @@ const Scene0: React.FC<{ duration: number }> = () => {
         className="absolute bottom-[15vh] w-[2px] h-[12vh] bg-gradient-to-b from-white/60 to-transparent"
         initial={{ scaleY: 0, opacity: 0 }}
         animate={{ scaleY: 1, opacity: 1 }}
-        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 1.5 }}
+        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 1.8 }}
         style={{ originY: 0 }}
       />
     </motion.div>
