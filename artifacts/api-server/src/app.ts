@@ -8,6 +8,7 @@ import { registerAuthRoutes } from "./routes/authRoutes";
 import { registerSalesWorkflowRoutes } from "./routes/salesWorkflowRoutes";
 import { registerAiToolRoutes } from "./routes/aiToolRoutes";
 import { registerBillingRoutes, handleStripeWebhook } from "./billing/billingRoutes";
+import { registerWorkspaceRoutes } from "./routes/workspaceRoutes";
 import { loadSession } from "./auth/middleware";
 import { globalApiLimit } from "./rateLimits";
 import { logger } from "./lib/logger";
@@ -79,6 +80,9 @@ registerAuthRoutes(app);
 
 // Stripe billing (checkout, portal, status) — Phase 1
 registerBillingRoutes(app);
+
+// Cross-device workspace persistence (saved results, preferences)
+registerWorkspaceRoutes(app);
 
 // Continuous rep workflow (Sales Command Center)
 registerSalesWorkflowRoutes(app);
