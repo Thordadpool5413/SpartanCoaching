@@ -1,0 +1,24 @@
+artifacts/api-server/package.json
+  h_0446834f150a71 11
+artifacts/api-server/src/routes/salesWorkflowRoutes.ts
+  h_0446834f150a71 30-35,162-332
+artifacts/api-server/src/sales/accountIntelligence.test.ts
+  h_0446834f150a71 1-188
+artifacts/api-server/src/sales/accountIntelligence.ts
+  h_0446834f150a71 1-628
+artifacts/api-server/src/sales/accountIntelligenceLoad.ts
+  h_0446834f150a71 1-509
+lib/field-kit-catalog/src/command-center.ts
+  h_0446834f150a71 136-149
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "2bd4534af6698e4ce3fe3794bdfe2d9e5c4f2bba",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
