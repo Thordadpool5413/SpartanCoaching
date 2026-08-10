@@ -22,6 +22,8 @@ import {
   inviteMemberBodySchema,
   magicLinkRequestSchema,
   changePasswordBodySchema,
+  reauthenticateBodySchema,
+  deleteAccountBodySchema,
   extendEvaluationBodySchema,
   adminBootstrapBodySchema,
   orgPipelineBodySchema,
@@ -46,6 +48,10 @@ import {
   type AuthedRequest,
 } from "../auth/middleware";
 import { getAccessForMemberId, publicMember, publicOrg } from "../auth/entitlement";
+import {
+  buildAccountExportPayload,
+  planAccountDeletion,
+} from "../auth/accountLifecycle";
 import { runTrialLifecycleSweep } from "../auth/trialLifecycle";
 import {
   runOpsDigest,
@@ -1923,6 +1929,208 @@ export function registerAuthRoutes(app: Express): void {
     } catch (err) {
       console.error("change-password error:", err);
       return res.status(500).json({ error: "Unable to change password" });
+    }
+  });
+
+  // ── Session refresh (rotate token; same member identity web + iOS) ─
+  app.post("/api/auth/session/refresh", requireAuth, authLimit, async (req: AuthedRequest, res) => {
+    try {
+      const memberId = req.clientMemberId!;
+      const currentSessionId = req.sessionId;
+      const { token, expiresAt } = await createSession(
+        memberId,
+        req.headers["user-agent"] as string | undefined,
+      );
+      if (currentSessionId) {
+        await db.delete(clientSessions).where(eq(clientSessions.id, currentSessionId));
+      }
+      setSessionCookie(res, token, expiresAt);
+      await logEvent("session_refresh", memberId);
+      return res.json({ ok: true, token, expiresAt });
+    } catch (err) {
+      console.error("session-refresh error:", err);
+      return res.status(500).json({ error: "Unable to refresh session" });
+    }
+  });
+
+  // ── Reauthenticate (password proof for sensitive actions) ──────────
+  app.post("/api/auth/reauthenticate", requireAuth, authLimit, async (req: AuthedRequest, res) => {
+    try {
+      const parsed = reauthenticateBodySchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({ error: "Password is required", code: "INVALID_BODY" });
+      }
+      const member = req.fieldKit!.member!;
+      if (!member.passwordHash) {
+        return res.status(400).json({ error: "No password set on this account" });
+      }
+      const ok = await verifyPassword(parsed.data.password, member.passwordHash);
+      if (!ok) {
+        await logEvent("reauth_failed", member.id);
+        return res.status(401).json({ error: "Password is incorrect", code: "REAUTH_FAILED" });
+      }
+      if (req.sessionId) {
+        await db
+          .update(clientSessions)
+          .set({ mfaVerifiedAt: new Date() })
+          .where(eq(clientSessions.id, req.sessionId));
+      }
+      await logEvent("reauth_success", member.id);
+      return res.json({
+        ok: true,
+        reauthenticatedAt: new Date().toISOString(),
+        validForSeconds: 600,
+      });
+    } catch (err) {
+      console.error("reauthenticate error:", err);
+      return res.status(500).json({ error: "Unable to reauthenticate" });
+    }
+  });
+
+  // ── Account data export (membership identity only; no PHI) ─────────
+  app.get("/api/auth/account/export", requireAuth, async (req: AuthedRequest, res) => {
+    try {
+      const member = req.fieldKit!.member!;
+      const org = req.fieldKit!.org ?? null;
+      const sessions = await db
+        .select({
+          id: clientSessions.id,
+          createdAt: clientSessions.createdAt,
+          expiresAt: clientSessions.expiresAt,
+          userAgent: clientSessions.userAgent,
+        })
+        .from(clientSessions)
+        .where(eq(clientSessions.memberId, member.id))
+        .orderBy(desc(clientSessions.createdAt));
+
+      const payload = buildAccountExportPayload({
+        exportedAt: new Date().toISOString(),
+        member: {
+          id: member.id,
+          email: member.email,
+          name: member.name,
+          title: member.title ?? null,
+          role: member.role,
+          organizationId: member.organizationId,
+          status: member.status,
+          jobRole: (member as { jobRole?: string | null }).jobRole ?? null,
+          territoryNote: (member as { territoryNote?: string | null }).territoryNote ?? null,
+          topObjections: (member as { topObjections?: string | null }).topObjections ?? null,
+          lastLoginAt: member.lastLoginAt ?? null,
+          createdAt: member.createdAt ?? null,
+        },
+        organization: org
+          ? {
+              id: org.id,
+              name: org.name,
+              type: org.type,
+              status: org.status,
+              seatLimit: org.seatLimit,
+            }
+          : null,
+        sessions: sessions.map((s) => ({
+          id: s.id,
+          createdAt: s.createdAt,
+          expiresAt: s.expiresAt,
+          userAgent: s.userAgent,
+          isCurrent: s.id === req.sessionId,
+        })),
+      });
+
+      await logEvent("account_export", member.id);
+      res.setHeader("Content-Type", "application/json");
+      res.setHeader(
+        "Content-Disposition",
+        `attachment; filename="hsp-account-export-${member.id}.json"`,
+      );
+      return res.status(200).json(payload);
+    } catch (err) {
+      console.error("account-export error:", err);
+      return res.status(500).json({ error: "Unable to export account data" });
+    }
+  });
+
+  // ── Account deletion (soft-delete; App Store self-service) ─────────
+  app.post("/api/auth/account/delete", requireAuth, authLimit, async (req: AuthedRequest, res) => {
+    try {
+      const parsed = deleteAccountBodySchema.safeParse(req.body);
+      if (!parsed.success) {
+        return res.status(400).json({
+          error: 'Password and confirmation "DELETE" are required',
+          code: "INVALID_BODY",
+        });
+      }
+      const member = req.fieldKit!.member!;
+      if (!member.passwordHash) {
+        return res.status(400).json({ error: "No password set on this account" });
+      }
+      const passwordOk = await verifyPassword(parsed.data.password, member.passwordHash);
+      if (!passwordOk) {
+        await logEvent("account_delete_failed", member.id, { reason: "bad_password" });
+        return res.status(401).json({ error: "Password is incorrect", code: "REAUTH_FAILED" });
+      }
+
+      const peers = await db
+        .select({
+          id: clientMembers.id,
+          role: clientMembers.role,
+          status: clientMembers.status,
+        })
+        .from(clientMembers)
+        .where(eq(clientMembers.organizationId, member.organizationId));
+
+      const otherActive = peers.filter((p) => p.id !== member.id && p.status !== "disabled");
+      const otherActiveAdmins = otherActive.filter(
+        (p) => p.role === "org_admin" || p.role === "platform_admin",
+      );
+      const plan = planAccountDeletion({
+        memberId: member.id,
+        role: member.role,
+        status: member.status,
+        organizationId: member.organizationId,
+        otherActiveMemberCount: otherActive.length,
+        isSoleActiveOrgAdmin:
+          member.role === "org_admin" && otherActiveAdmins.length === 0,
+      });
+
+      if (!plan.ok) {
+        return res.status(400).json({ error: plan.message, code: plan.code });
+      }
+
+      await db
+        .update(clientMembers)
+        .set({
+          status: plan.nextStatus,
+          email: plan.anonymizedEmail,
+          name: plan.anonymizedName,
+          passwordHash: null,
+          title: null,
+          territoryNote: null,
+          topObjections: null,
+          jobRole: null,
+          checklistProgress: {},
+        })
+        .where(eq(clientMembers.id, member.id));
+
+      await db.delete(clientSessions).where(eq(clientSessions.memberId, member.id));
+      await db.delete(authTokens).where(eq(authTokens.memberId, member.id));
+
+      if (plan.suspendPersonalOrg) {
+        await db
+          .update(clientOrganizations)
+          .set({ status: "suspended" })
+          .where(eq(clientOrganizations.id, member.organizationId));
+      }
+
+      clearSessionCookie(res);
+      await logEvent("account_deleted", member.id, {
+        organizationId: member.organizationId,
+        suspendOrg: plan.suspendPersonalOrg,
+      });
+      return res.json({ ok: true, deleted: true });
+    } catch (err) {
+      console.error("account-delete error:", err);
+      return res.status(500).json({ error: "Unable to delete account" });
     }
   });
 

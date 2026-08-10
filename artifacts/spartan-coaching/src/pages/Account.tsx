@@ -43,6 +43,10 @@ export default function Account() {
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [pwPending, setPwPending] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [deleteConfirm, setDeleteConfirm] = useState("");
+  const [deletePending, setDeletePending] = useState(false);
+  const [exportPending, setExportPending] = useState(false);
   const [billing, setBilling] = useState<BillingStatusResponse | null>(null);
   const [billingLoading, setBillingLoading] = useState(true);
 
@@ -726,6 +730,120 @@ export default function Account() {
           <div className="sm:col-span-2">
             <Button type="submit" className="font-bold" disabled={pwPending}>
               {pwPending ? "Saving…" : "Update password"}
+            </Button>
+          </div>
+        </form>
+      </Card>
+
+      <Card className="border border-border bg-card p-6 space-y-4" data-testid="account-data-lifecycle">
+        <h2 className="text-lg font-bold">Your data &amp; account</h2>
+        <p className="text-sm text-muted-foreground">
+          Download a copy of your membership profile and session metadata, or permanently disable
+          your account. Deletion requires your password and the word DELETE. This is enforced on
+          the server — UI alone cannot delete an account.
+        </p>
+        <Button
+          type="button"
+          variant="outline"
+          className="font-bold w-full sm:w-auto"
+          data-testid="button-export-account"
+          disabled={exportPending}
+          onClick={async () => {
+            setExportPending(true);
+            try {
+              const res = await fetch("/api/auth/account/export", { credentials: "include" });
+              const data = await res.json().catch(() => ({}));
+              if (!res.ok) throw new Error(data.error || "Export failed");
+              const blob = new Blob([JSON.stringify(data, null, 2)], {
+                type: "application/json",
+              });
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement("a");
+              a.href = url;
+              a.download = `hsp-account-export-${member?.id ?? "me"}.json`;
+              a.click();
+              URL.revokeObjectURL(url);
+              toast({ title: "Export downloaded" });
+            } catch (err: any) {
+              toast({
+                title: "Could not export",
+                description: err?.message,
+                variant: "destructive",
+              });
+            } finally {
+              setExportPending(false);
+            }
+          }}
+        >
+          {exportPending ? "Preparing…" : "Download my data"}
+        </Button>
+        <form
+          className="grid sm:grid-cols-2 gap-3 pt-2 border-t border-border"
+          onSubmit={async (e) => {
+            e.preventDefault();
+            if (deleteConfirm !== "DELETE") {
+              toast({
+                title: "Type DELETE to confirm",
+                variant: "destructive",
+              });
+              return;
+            }
+            setDeletePending(true);
+            try {
+              const res = await fetch("/api/auth/account/delete", {
+                method: "POST",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  password: deletePassword,
+                  confirmation: "DELETE",
+                }),
+              });
+              const data = await res.json().catch(() => ({}));
+              if (!res.ok) throw new Error(data.error || "Delete failed");
+              toast({ title: "Account deleted" });
+              await logout();
+              setLocation("/");
+            } catch (err: any) {
+              toast({
+                title: "Could not delete account",
+                description: err?.message,
+                variant: "destructive",
+              });
+            } finally {
+              setDeletePending(false);
+            }
+          }}
+        >
+          <div className="space-y-1">
+            <Label>Password</Label>
+            <Input
+              type="password"
+              value={deletePassword}
+              onChange={(e) => setDeletePassword(e.target.value)}
+              required
+              autoComplete="current-password"
+              data-testid="input-delete-password"
+            />
+          </div>
+          <div className="space-y-1">
+            <Label>Type DELETE to confirm</Label>
+            <Input
+              value={deleteConfirm}
+              onChange={(e) => setDeleteConfirm(e.target.value)}
+              required
+              data-testid="input-delete-confirm"
+            />
+          </div>
+          <div className="sm:col-span-2">
+            <Button
+              type="submit"
+              variant="destructive"
+              className="font-bold"
+              disabled={deletePending}
+              data-testid="button-delete-account"
+            >
+              {deletePending ? "Deleting…" : "Delete my account"}
             </Button>
           </div>
         </form>

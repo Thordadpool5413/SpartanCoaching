@@ -288,6 +288,33 @@ export async function logoutMobile(): Promise<void> {
   await setSessionToken(null);
 }
 
+/** Membership identity export (no PHI / password hashes). */
+export async function exportAccountDataMobile(): Promise<unknown> {
+  return apiGet("/api/auth/account/export");
+}
+
+/** Soft-delete account (server requires password + confirmation DELETE). */
+export async function deleteAccountMobile(
+  password: string,
+): Promise<{ ok: boolean; deleted?: boolean }> {
+  const result = await apiPost<{ ok: boolean; deleted?: boolean }>(
+    "/api/auth/account/delete",
+    { password, confirmation: "DELETE" },
+  );
+  await setSessionToken(null);
+  return result;
+}
+
+/** Rotate session token for longer field sessions (web + iOS shared identity). */
+export async function refreshSessionMobile(): Promise<{ token: string; expiresAt: string }> {
+  const data = await apiPost<{ token: string; expiresAt: string }>(
+    "/api/auth/session/refresh",
+    {},
+  );
+  if (data.token) await setSessionToken(data.token);
+  return data;
+}
+
 export async function fetchMeMobile(): Promise<MobileAuthUser | null> {
   const token = await getSessionToken();
   if (!token) return null;

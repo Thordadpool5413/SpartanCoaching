@@ -7,6 +7,7 @@ import {
   Platform,
   Pressable,
   ScrollView,
+  Share,
   StyleSheet,
   Text,
   TextInput,
@@ -18,6 +19,8 @@ import { Feather } from "@expo/vector-icons";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
 import {
+  deleteAccountMobile,
+  exportAccountDataMobile,
   fetchBillingStatus,
   fetchOnboardingMobile,
   getWebSiteUrl,
@@ -60,6 +63,8 @@ export default function AccountScreen() {
   const [billingLoading, setBillingLoading] = useState(false);
   const [checkoutPending, setCheckoutPending] = useState(false);
   const [portalPending, setPortalPending] = useState(false);
+  const [deletePassword, setDeletePassword] = useState("");
+  const [lifecycleBusy, setLifecycleBusy] = useState(false);
 
   // Tracks when billing data was last successfully fetched, used to skip
   // unnecessary refreshes when the app briefly goes to the background.
@@ -776,6 +781,103 @@ export default function AccountScreen() {
           </Text>
         </View>
       )}
+
+      {isAuthenticated ? (
+        <View
+          style={[
+            styles.card,
+            { borderColor: colors.border, backgroundColor: colors.card, marginTop: 16 },
+          ]}
+        >
+          <Text style={{ color: colors.foreground, fontWeight: "800", marginBottom: 8 }}>
+            Your data and account
+          </Text>
+          <Text style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 18, marginBottom: 12 }}>
+            Export membership profile data or permanently disable this account. Server requires
+            your password for deletion — not client-only.
+          </Text>
+          <Pressable
+            disabled={lifecycleBusy}
+            onPress={async () => {
+              setLifecycleBusy(true);
+              try {
+                const data = await exportAccountDataMobile();
+                await Share.share({
+                  message: JSON.stringify(data, null, 2),
+                  title: "HSP account export",
+                });
+              } catch (e: unknown) {
+                Alert.alert(
+                  "Export failed",
+                  e instanceof Error ? e.message.slice(0, 200) : "Try again",
+                );
+              } finally {
+                setLifecycleBusy(false);
+              }
+            }}
+            style={[styles.outlineBtn, { borderColor: colors.border, marginBottom: 12 }]}
+          >
+            <Text style={{ color: colors.foreground, fontWeight: "700" }}>
+              {lifecycleBusy ? "Working…" : "Export my data"}
+            </Text>
+          </Pressable>
+          <Text style={[styles.cardLabel, { color: colors.mutedForeground }]}>
+            Password to delete account
+          </Text>
+          <TextInput
+            value={deletePassword}
+            onChangeText={setDeletePassword}
+            secureTextEntry
+            placeholder="Current password"
+            placeholderTextColor={colors.mutedForeground}
+            style={[
+              styles.input,
+              { color: colors.foreground, borderColor: colors.border, backgroundColor: colors.background },
+            ]}
+          />
+          <Pressable
+            disabled={lifecycleBusy || !deletePassword}
+            onPress={() => {
+              Alert.alert(
+                "Delete account?",
+                "This disables your login, signs out all devices, and anonymizes your profile. Type DELETE is enforced by the API.",
+                [
+                  { text: "Cancel", style: "cancel" },
+                  {
+                    text: "Delete",
+                    style: "destructive",
+                    onPress: async () => {
+                      setLifecycleBusy(true);
+                      try {
+                        await deleteAccountMobile(deletePassword);
+                        setDeletePassword("");
+                        router.replace("/(tabs)");
+                      } catch (e: unknown) {
+                        Alert.alert(
+                          "Could not delete",
+                          e instanceof Error ? e.message.slice(0, 220) : "Try again",
+                        );
+                      } finally {
+                        setLifecycleBusy(false);
+                      }
+                    },
+                  },
+                ],
+              );
+            }}
+            style={[
+              styles.outlineBtn,
+              {
+                borderColor: colors.primary,
+                marginTop: 10,
+                opacity: !deletePassword || lifecycleBusy ? 0.5 : 1,
+              },
+            ]}
+          >
+            <Text style={{ color: colors.primary, fontWeight: "800" }}>Delete my account</Text>
+          </Pressable>
+        </View>
+      ) : null}
 
       <Pressable
         onPress={async () => {

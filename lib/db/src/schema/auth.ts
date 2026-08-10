@@ -264,6 +264,18 @@ export const changePasswordBodySchema = z.object({
   newPassword: z.string().min(8).max(128),
 });
 
+/** Sensitive re-proof of password for follow-up actions (server-side gate). */
+export const reauthenticateBodySchema = z.object({
+  password: z.string().min(1),
+});
+
+/** Self-service account deletion (App Store / GDPR-style soft delete). */
+export const deleteAccountBodySchema = z.object({
+  password: z.string().min(1),
+  /** Caller must type DELETE to confirm irreversible soft-delete. */
+  confirmation: z.literal("DELETE"),
+});
+
 export const extendEvaluationBodySchema = z.object({
   message: z.string().max(5000).optional(),
 });
