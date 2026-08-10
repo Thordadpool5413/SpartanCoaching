@@ -68,7 +68,8 @@ export const ACCOUNT_LIFECYCLE_CAPABILITIES: Record<
   },
   reauthenticate: {
     status: "slice_a",
-    notes: "POST /api/auth/reauthenticate for sensitive follow-up actions",
+    notes:
+      "POST /api/auth/reauthenticate sets session.reauthenticated_at only (never mfa_verified_at)",
   },
   email_verification_general: {
     status: "not_applicable",
@@ -110,6 +111,62 @@ export function isReauthFresh(
       : reauthenticatedAt.getTime();
   if (Number.isNaN(t)) return false;
   return nowMs - t <= REAUTH_VALID_MS;
+}
+
+/**
+ * Server gate for sensitive membership actions.
+ * - delete_account / change_password: password must be verified now (reauth stamp alone is not enough).
+ * - Other actions: password verified now OR fresh session.reauthenticatedAt.
+ * Clinical MFA uses client_sessions.mfa_verified_at and must never be set by account reauth.
+ */
+export function canProceedWithSensitiveAction(input: {
+  action: SensitiveAction;
+  passwordVerified: boolean;
+  sessionReauthenticatedAt?: Date | string | null;
+  nowMs?: number;
+}): { ok: true } | { ok: false; code: "PASSWORD_REQUIRED" | "REAUTH_REQUIRED" } {
+  const now = input.nowMs ?? Date.now();
+  const passwordMandatory = sensitiveActionRequiresPassword(input.action);
+  if (passwordMandatory) {
+    if (!input.passwordVerified) {
+      return { ok: false, code: "PASSWORD_REQUIRED" };
+    }
+    return { ok: true };
+  }
+  if (input.passwordVerified || isReauthFresh(input.sessionReauthenticatedAt, now)) {
+    return { ok: true };
+  }
+  return { ok: false, code: "REAUTH_REQUIRED" };
+}
+
+/**
+ * Multi-device / post-delete session matrix (unit-tested stand-in for API cases).
+ * Models server rules after delete (all sessions revoked + member disabled)
+ * and logout-others (other session ids invalid, current kept).
+ */
+export function resolvePostLifecycleSession(input: {
+  scenario: "after_delete" | "logout_others" | "stale_token" | "active";
+  requestingSessionId: number;
+  currentSessionId: number;
+  remainingSessionIds: number[];
+  memberDisabled: boolean;
+}): { allowed: boolean; code: "OK" | "SESSION_INVALID" | "DISABLED" } {
+  if (input.scenario === "after_delete" || input.memberDisabled) {
+    return { allowed: false, code: "DISABLED" };
+  }
+  if (input.scenario === "stale_token") {
+    return { allowed: false, code: "SESSION_INVALID" };
+  }
+  if (input.scenario === "logout_others") {
+    if (!input.remainingSessionIds.includes(input.requestingSessionId)) {
+      return { allowed: false, code: "SESSION_INVALID" };
+    }
+    return { allowed: true, code: "OK" };
+  }
+  if (!input.remainingSessionIds.includes(input.requestingSessionId)) {
+    return { allowed: false, code: "SESSION_INVALID" };
+  }
+  return { allowed: true, code: "OK" };
 }
 
 export function buildAnonymizedEmail(memberId: number): string {

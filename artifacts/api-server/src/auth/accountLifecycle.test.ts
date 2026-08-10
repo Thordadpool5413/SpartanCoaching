@@ -4,8 +4,10 @@ import {
   REAUTH_VALID_MS,
   buildAccountExportPayload,
   buildAnonymizedEmail,
+  canProceedWithSensitiveAction,
   isReauthFresh,
   planAccountDeletion,
+  resolvePostLifecycleSession,
   resolveSessionAccess,
   sensitiveActionRequiresPassword,
 } from "./accountLifecycle";
@@ -166,5 +168,92 @@ describe("reauth freshness and session access", () => {
         memberDeletedAnonymized: true,
       }).allowed,
     ).toBe(false);
+  });
+});
+
+describe("canProceedWithSensitiveAction", () => {
+  const now = Date.parse("2026-06-01T12:00:00.000Z");
+
+  it("requires live password for delete even when reauth stamp is fresh", () => {
+    const denied = canProceedWithSensitiveAction({
+      action: "delete_account",
+      passwordVerified: false,
+      sessionReauthenticatedAt: new Date(now),
+      nowMs: now,
+    });
+    expect(denied).toEqual({ ok: false, code: "PASSWORD_REQUIRED" });
+
+    const allowed = canProceedWithSensitiveAction({
+      action: "delete_account",
+      passwordVerified: true,
+      sessionReauthenticatedAt: null,
+      nowMs: now,
+    });
+    expect(allowed).toEqual({ ok: true });
+  });
+
+  it("allows export with fresh reauth stamp without password", () => {
+    expect(
+      canProceedWithSensitiveAction({
+        action: "export_account",
+        passwordVerified: false,
+        sessionReauthenticatedAt: new Date(now - 1000),
+        nowMs: now,
+      }),
+    ).toEqual({ ok: true });
+    expect(
+      canProceedWithSensitiveAction({
+        action: "export_account",
+        passwordVerified: false,
+        sessionReauthenticatedAt: null,
+        nowMs: now,
+      }),
+    ).toEqual({ ok: false, code: "REAUTH_REQUIRED" });
+  });
+});
+
+describe("multi-device and post-delete session matrix", () => {
+  it("invalidates all access after account delete", () => {
+    const result = resolvePostLifecycleSession({
+      scenario: "after_delete",
+      requestingSessionId: 1,
+      currentSessionId: 1,
+      remainingSessionIds: [],
+      memberDisabled: true,
+    });
+    expect(result).toEqual({ allowed: false, code: "DISABLED" });
+  });
+
+  it("keeps current session and drops others after logout-others", () => {
+    expect(
+      resolvePostLifecycleSession({
+        scenario: "logout_others",
+        requestingSessionId: 10,
+        currentSessionId: 10,
+        remainingSessionIds: [10],
+        memberDisabled: false,
+      }).allowed,
+    ).toBe(true);
+    expect(
+      resolvePostLifecycleSession({
+        scenario: "logout_others",
+        requestingSessionId: 11,
+        currentSessionId: 10,
+        remainingSessionIds: [10],
+        memberDisabled: false,
+      }).code,
+    ).toBe("SESSION_INVALID");
+  });
+
+  it("rejects stale tokens", () => {
+    expect(
+      resolvePostLifecycleSession({
+        scenario: "stale_token",
+        requestingSessionId: 1,
+        currentSessionId: 1,
+        remainingSessionIds: [1],
+        memberDisabled: false,
+      }).code,
+    ).toBe("SESSION_INVALID");
   });
 });

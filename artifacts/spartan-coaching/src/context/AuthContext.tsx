@@ -4,9 +4,13 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
   type ReactNode,
 } from "react";
+
+/** Throttle server session cookie rotation (ms). */
+const SESSION_REFRESH_MIN_MS = 60 * 60 * 1000;
 
 export type AuthMember = {
   id: number;
@@ -91,6 +95,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [organization, setOrganization] = useState<AuthOrganization | null>(null);
   const [fieldKit, setFieldKit] = useState<FieldKitState | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const lastSessionRefreshRef = useRef(0);
 
   const apply = useCallback(
     (data: {
@@ -111,8 +116,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [],
   );
 
+  const maybeRotateSession = useCallback(async () => {
+    const now = Date.now();
+    if (now - lastSessionRefreshRef.current < SESSION_REFRESH_MIN_MS) return;
+    try {
+      const res = await fetch("/api/auth/session/refresh", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: "{}",
+      });
+      if (res.ok) {
+        lastSessionRefreshRef.current = now;
+      }
+    } catch {
+      // Best-effort rotation; /api/auth/me still decides session validity.
+    }
+  }, []);
+
   const refresh = useCallback(async () => {
     try {
+      await maybeRotateSession();
       const data = await fetchMe();
       apply(data);
     } catch {
@@ -120,10 +144,20 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setIsLoading(false);
     }
-  }, [apply]);
+  }, [apply, maybeRotateSession]);
 
   useEffect(() => {
     refresh();
+  }, [refresh]);
+
+  useEffect(() => {
+    const onVisible = () => {
+      if (document.visibilityState === "visible") {
+        void refresh();
+      }
+    };
+    document.addEventListener("visibilitychange", onVisible);
+    return () => document.removeEventListener("visibilitychange", onVisible);
   }, [refresh]);
 
   const login = useCallback(
@@ -138,6 +172,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       if (!res.ok) {
         throw new Error(data.error || "Login failed");
       }
+      lastSessionRefreshRef.current = Date.now();
       const session = {
         member: data.member as AuthMember,
         organization: (data.organization ?? null) as AuthOrganization | null,
@@ -153,6 +188,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       await fetch("/api/auth/logout", { method: "POST", credentials: "include" });
     } finally {
+      lastSessionRefreshRef.current = 0;
       apply(null);
     }
   }, [apply]);

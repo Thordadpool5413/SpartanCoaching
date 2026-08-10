@@ -50,6 +50,7 @@ import {
 import { getAccessForMemberId, publicMember, publicOrg } from "../auth/entitlement";
 import {
   buildAccountExportPayload,
+  canProceedWithSensitiveAction,
   planAccountDeletion,
 } from "../auth/accountLifecycle";
 import { runTrialLifecycleSweep } from "../auth/trialLifecycle";
@@ -1953,7 +1954,7 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
-  // ── Reauthenticate (password proof for sensitive actions) ──────────
+  // ── Reauthenticate (account lifecycle only — never clinical MFA) ───
   app.post("/api/auth/reauthenticate", requireAuth, authLimit, async (req: AuthedRequest, res) => {
     try {
       const parsed = reauthenticateBodySchema.safeParse(req.body);
@@ -1969,16 +1970,19 @@ export function registerAuthRoutes(app: Express): void {
         await logEvent("reauth_failed", member.id);
         return res.status(401).json({ error: "Password is incorrect", code: "REAUTH_FAILED" });
       }
+      const reauthenticatedAt = new Date();
       if (req.sessionId) {
+        // Write reauthenticated_at only. Do NOT touch mfa_verified_at
+        // (clinical PHI email-MFA channel — separate proof path).
         await db
           .update(clientSessions)
-          .set({ mfaVerifiedAt: new Date() })
+          .set({ reauthenticatedAt })
           .where(eq(clientSessions.id, req.sessionId));
       }
       await logEvent("reauth_success", member.id);
       return res.json({
         ok: true,
-        reauthenticatedAt: new Date().toISOString(),
+        reauthenticatedAt: reauthenticatedAt.toISOString(),
         validForSeconds: 600,
       });
     } catch (err) {
@@ -2065,9 +2069,31 @@ export function registerAuthRoutes(app: Express): void {
         return res.status(400).json({ error: "No password set on this account" });
       }
       const passwordOk = await verifyPassword(parsed.data.password, member.passwordHash);
-      if (!passwordOk) {
-        await logEvent("account_delete_failed", member.id, { reason: "bad_password" });
-        return res.status(401).json({ error: "Password is incorrect", code: "REAUTH_FAILED" });
+      let sessionReauthenticatedAt: Date | null = null;
+      if (req.sessionId) {
+        const [sess] = await db
+          .select({ reauthenticatedAt: clientSessions.reauthenticatedAt })
+          .from(clientSessions)
+          .where(eq(clientSessions.id, req.sessionId))
+          .limit(1);
+        sessionReauthenticatedAt = sess?.reauthenticatedAt ?? null;
+      }
+      const gate = canProceedWithSensitiveAction({
+        action: "delete_account",
+        passwordVerified: passwordOk,
+        sessionReauthenticatedAt,
+      });
+      if (!gate.ok) {
+        await logEvent("account_delete_failed", member.id, {
+          reason: gate.code.toLowerCase(),
+        });
+        return res.status(401).json({
+          error:
+            gate.code === "PASSWORD_REQUIRED"
+              ? "Password is incorrect"
+              : "Recent reauthentication required",
+          code: gate.code === "PASSWORD_REQUIRED" ? "REAUTH_FAILED" : gate.code,
+        });
       }
 
       const peers = await db
