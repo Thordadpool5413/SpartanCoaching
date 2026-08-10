@@ -2,10 +2,14 @@
  * Offline generate queue — failed classic Field tool posts retry when online.
  *
  * Safety:
- * - Enqueue only transport / 5xx failures (not 401/403/4xx).
+ * - Enqueue only transport / 5xx failures (not 4xx validation).
+ * - 401/403 during flush: keep queue for after re-login (do not drop).
  * - Allowlist of classic Field API paths only — never clinical, advanced AI,
  *   Command Center, or transcribe bodies (may contain sensitive content).
- * - Cap queue size; drop disallowed entries on list/flush.
+ * - Cap queue size; de-dupe by toolId+body; stable Idempotency-Key per entry.
+ * - Concurrent flush is mutexed.
+ *
+ * AI generation does NOT work offline — queue only retries after network returns.
  */
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ApiError, apiPost } from "@/lib/api";
@@ -56,6 +60,17 @@ export type QueuedGenerate = {
   attempts?: number;
   /** Stable body fingerprint for de-dupe */
   bodyKey?: string;
+  /**
+   * Stable key sent as Idempotency-Key on every retry for this entry.
+   * Never regenerate on attempt bumps (prevents duplicate server work).
+   */
+  idempotencyKey?: string;
+};
+
+export type QueueSnapshot = {
+  count: number;
+  labels: string[];
+  oldestCreatedAt: number | null;
 };
 
 function normalizePath(path: string): string {
@@ -109,31 +124,39 @@ function bodyKey(body: Record<string, unknown>): string {
   }
 }
 
-/** True when the failure is worth offline retry (not auth / client validation). */
+/** True when the failure is worth offline retry (not client validation). */
 export function shouldEnqueueOnError(error: unknown): boolean {
   if (!(error instanceof ApiError)) return true; // network / parse
   if (error.status === 0 || error.status >= 500) return true;
+  // Do not enqueue 401/403 — user must re-auth first; existing queue kept on flush.
+  if (error.status === 401 || error.status === 403) return false;
+  // Other 4xx: permanent client error — do not queue
+  if (error.status >= 400 && error.status < 500) return false;
   return false;
 }
 
 /**
  * Queue a classic Field generate for retry.
  * Returns null when the path/tool is not allowed (clinical / non-classic).
+ * Duplicate toolId+body replaces the prior entry (idempotent user intent).
  */
 export async function enqueueGenerate(
-  item: Omit<QueuedGenerate, "id" | "createdAt" | "bodyKey">,
+  item: Omit<QueuedGenerate, "id" | "createdAt" | "bodyKey" | "idempotencyKey">,
 ): Promise<QueuedGenerate | null> {
   if (!isOfflineQueueAllowed(item.path, item.toolId)) {
     return null;
   }
   const key = bodyKey(item.body);
+  const id = `q_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
   const entry: QueuedGenerate = {
     ...item,
     path: normalizePath(item.path),
-    id: `q_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`,
+    id,
     createdAt: Date.now(),
     attempts: 0,
     bodyKey: key,
+    // Stable for the lifetime of this logical job (retries reuse same key)
+    idempotencyKey: id,
   };
   const list = await listQueuedGenerates();
   // Replace same toolId + same body only (keep distinct objections)
@@ -152,9 +175,28 @@ export async function removeQueuedGenerate(id: string): Promise<void> {
   await writeQueue(list.filter((q) => q.id !== id));
 }
 
+export async function getQueueSnapshot(): Promise<QueueSnapshot> {
+  const list = await listQueuedGenerates();
+  return {
+    count: list.length,
+    labels: list.map((q) => q.label || q.toolId),
+    oldestCreatedAt:
+      list.length === 0
+        ? null
+        : Math.min(...list.map((q) => q.createdAt || Date.now())),
+  };
+}
+
+/** Drop entire queue (e.g. user sign-out if product policy requires). */
+export async function clearGenerateQueue(): Promise<void> {
+  await writeQueue([]);
+}
+
 export type FlushResult = {
   ok: number;
   failed: number;
+  /** True when flush stopped because session is unauthorized */
+  authExpired: boolean;
   results: Array<{ toolId: string; text?: string; error?: string }>;
 };
 
@@ -174,21 +216,25 @@ export async function flushGenerateQueue(): Promise<FlushResult> {
 
 async function doFlush(): Promise<FlushResult> {
   const list = await listQueuedGenerates();
-  if (list.length === 0) return { ok: 0, failed: 0, results: [] };
+  if (list.length === 0) {
+    return { ok: 0, failed: 0, authExpired: false, results: [] };
+  }
 
   let ok = 0;
   let failed = 0;
+  let authExpired = false;
   const results: FlushResult["results"] = [];
   const remaining: QueuedGenerate[] = [];
 
-  for (const item of list) {
+  for (let i = 0; i < list.length; i++) {
+    const item = list[i]!;
     if (!isOfflineQueueAllowed(item.path, item.toolId)) {
       // Drop without retry
       continue;
     }
     try {
       const data = await apiPost<Record<string, unknown>>(item.path, item.body, {
-        idempotencyKey: item.id,
+        idempotencyKey: item.idempotencyKey || item.id,
       });
       const text =
         (data.response as string) ||
@@ -203,7 +249,11 @@ async function doFlush(): Promise<FlushResult> {
         // Unexpected shape — keep for retry (do not drop silently)
         const attempts = (item.attempts || 0) + 1;
         if (attempts < MAX_ATTEMPTS) {
-          remaining.push({ ...item, attempts });
+          remaining.push({
+            ...item,
+            attempts,
+            idempotencyKey: item.idempotencyKey || item.id,
+          });
         }
         failed += 1;
         results.push({ toolId: item.toolId, error: "empty_result" });
@@ -214,7 +264,29 @@ async function doFlush(): Promise<FlushResult> {
       results.push({ toolId: item.toolId, text: String(text) });
     } catch (e: unknown) {
       failed += 1;
-      // Drop permanent client errors; keep transport/5xx
+      // Expired / forbidden session: keep this and all remaining items for after re-login
+      if (e instanceof ApiError && (e.status === 401 || e.status === 403)) {
+        authExpired = true;
+        remaining.push({
+          ...item,
+          idempotencyKey: item.idempotencyKey || item.id,
+        });
+        for (let j = i + 1; j < list.length; j++) {
+          const rest = list[j]!;
+          if (isOfflineQueueAllowed(rest.path, rest.toolId)) {
+            remaining.push({
+              ...rest,
+              idempotencyKey: rest.idempotencyKey || rest.id,
+            });
+          }
+        }
+        results.push({
+          toolId: item.toolId,
+          error: "auth_expired",
+        });
+        break;
+      }
+      // Other permanent 4xx: drop (bad body / validation)
       if (e instanceof ApiError && e.status >= 400 && e.status < 500 && e.status !== 0) {
         results.push({
           toolId: item.toolId,
@@ -224,7 +296,11 @@ async function doFlush(): Promise<FlushResult> {
       }
       const attempts = (item.attempts || 0) + 1;
       if (attempts < MAX_ATTEMPTS) {
-        remaining.push({ ...item, attempts });
+        remaining.push({
+          ...item,
+          attempts,
+          idempotencyKey: item.idempotencyKey || item.id,
+        });
       }
       results.push({
         toolId: item.toolId,
@@ -234,7 +310,7 @@ async function doFlush(): Promise<FlushResult> {
   }
 
   await writeQueue(remaining);
-  return { ok, failed, results };
+  return { ok, failed, authExpired, results };
 }
 
 /** Extract user-facing message from API/network errors. */
@@ -251,8 +327,13 @@ export function userFacingApiError(
   if (error instanceof Error && error.message) {
     const msg = error.message;
     if (/network|fetch|Failed to fetch|offline/i.test(msg)) {
-      return "Network error — check connection and try again.";
+      return "Network error — check connection and try again. AI generation needs the internet.";
     }
   }
   return fallback;
+}
+
+/** True when flush result indicates user must sign in before queue can drain. */
+export function flushNeedsReauth(result: FlushResult): boolean {
+  return Boolean(result.authExpired);
 }

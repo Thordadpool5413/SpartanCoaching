@@ -3,7 +3,9 @@ import {
   shouldEnqueueOnError,
   userFacingApiError,
   isOfflineQueueAllowed,
+  flushNeedsReauth,
   OFFLINE_QUEUE_ALLOWED_PATHS,
+  type FlushResult,
 } from "@/lib/offlineQueue";
 
 describe("offline queue error policy", () => {
@@ -17,15 +19,29 @@ describe("offline queue error policy", () => {
     expect(shouldEnqueueOnError(new ApiError("bad gateway", 502))).toBe(true);
   });
 
-  it("does not enqueue on 401/403/4xx", () => {
+  it("does not enqueue on 401/403/4xx (auth must succeed before queueing new work)", () => {
     expect(shouldEnqueueOnError(new ApiError("auth", 401))).toBe(false);
     expect(shouldEnqueueOnError(new ApiError("denied", 403))).toBe(false);
     expect(shouldEnqueueOnError(new ApiError("bad", 422))).toBe(false);
   });
 
-  it("maps access errors for users", () => {
+  it("maps access and network errors for users without claiming offline AI", () => {
     expect(userFacingApiError(new ApiError("x", 403))).toMatch(/Hospice Sales Pro/);
     expect(userFacingApiError(new ApiError("Too long", 400))).toBe("Too long");
+    expect(userFacingApiError(new Error("Failed to fetch"))).toMatch(/internet|Network/i);
+  });
+
+  it("flags flush when auth expired", () => {
+    const result: FlushResult = {
+      ok: 0,
+      failed: 1,
+      authExpired: true,
+      results: [{ toolId: "objection", error: "auth_expired" }],
+    };
+    expect(flushNeedsReauth(result)).toBe(true);
+    expect(
+      flushNeedsReauth({ ok: 1, failed: 0, authExpired: false, results: [] }),
+    ).toBe(false);
   });
 });
 

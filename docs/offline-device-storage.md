@@ -1,10 +1,22 @@
 # Offline & device storage (iOS)
 
+## Architecture (HSP-11)
+
+**Matrix:** `lib/offlineArchitecture.ts` — every important workflow is
+`offline_capable` | `read_only_cached` | `queued_write` | `online_required`.
+
+**Rule:** AI generation never works offline. Classic Field generates may be
+**queued** after a failed online attempt and replayed with a stable
+`Idempotency-Key`. Clinical, Command Center, billing, and advanced AI are
+**online required**.
+
 ## Offline generate queue
 
 **Module:** `artifacts/spartan-coaching-mobile/lib/offlineQueue.ts`  
 **Storage:** AsyncStorage key `hsp_offline_generate_queue_v1`  
-**Purpose:** Retry classic Field tool generates after network/5xx failures.
+**Purpose:** Retry classic Field tool generates after network/5xx failures.  
+**Auth:** On 401/403 flush, items are **kept** (sign in again, then retry).  
+**UI:** `OfflineQueueBanner` on Tools tab.
 
 ### Allowed (may be stored on device)
 
