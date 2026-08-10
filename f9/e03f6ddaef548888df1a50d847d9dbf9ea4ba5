@@ -1,0 +1,24 @@
+artifacts/spartan-coaching-mobile/__tests__/offline-architecture.test.ts
+  h_0446834f150a71 1-65
+artifacts/spartan-coaching-mobile/__tests__/offline-queue.test.ts
+  h_0446834f150a71 6,8,22,28,31-44
+artifacts/spartan-coaching-mobile/components/OfflineQueueBanner.tsx
+  h_0446834f150a71 7-12,17,23,32-39,54-55,62-67,74,77,80,83
+artifacts/spartan-coaching-mobile/lib/offlineArchitecture.ts
+  h_0446834f150a71 1-172
+artifacts/spartan-coaching-mobile/lib/offlineQueue.ts
+  h_0446834f150a71 5-6,9-12,63-73,127,131-134,141,144,150,154,158-159,178-194,198-199,219-221,225,229-230,237,252-256,267-289,299-303,313,330,335-339
+docs/offline-device-storage.md
+  h_0446834f150a71 3-12,17-19
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "f9e03f6ddaef548888df1a50d847d9dbf9ea4ba5",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
