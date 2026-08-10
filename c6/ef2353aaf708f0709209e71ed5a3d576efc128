@@ -1,0 +1,24 @@
+artifacts/api-server/package.json
+  h_0446834f150a71 11
+artifacts/api-server/src/billing/billingRoutes.ts
+  h_0446834f150a71 38-43,110-127,129-130,145-149,179-195
+artifacts/api-server/src/billing/entitlementService.test.ts
+  h_0446834f150a71 1-243
+artifacts/api-server/src/billing/entitlementService.ts
+  h_0446834f150a71 1-328
+artifacts/api-server/src/routes/authRoutes.ts
+  h_0446834f150a71 49-53,565-574,584-585
+docs/billing-entitlement-service.md
+  h_0446834f150a71 1-20
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.21",
+  "base_commit_sha": "c6ef2353aaf708f0709209e71ed5a3d576efc128",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
