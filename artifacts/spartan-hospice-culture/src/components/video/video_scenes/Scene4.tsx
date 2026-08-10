@@ -5,57 +5,51 @@ const Scene4: React.FC<{ duration: number }> = () => {
   return (
     <motion.div
       className="absolute inset-0 flex items-center justify-center z-10"
-      initial={{ x: "100%", opacity: 0 }}
-      animate={{ x: 0, opacity: 1 }}
-      exit={{ opacity: 0, scale: 1.1, filter: "blur(15px)" }}
+      initial={{ opacity: 0, y: "10vh" }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
       transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
     >
-      {/* Dynamic structural background element */}
-      <motion.div
-        className="absolute inset-0 border-[1vw] border-[var(--color-brand-light)] opacity-5 z-0 m-[4vw]"
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 0.1 }}
-        transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 0.3 }}
-      />
-      
-      <div className="flex flex-col items-center justify-center w-[85vw] text-center z-10">
+      <div className="flex flex-col items-center text-center w-[90vw] max-w-[1200px]">
         
         <motion.p
-          className="font-sans text-[2.5vw] text-[var(--color-brand-lightMuted)] mb-[3vh]"
+          className="font-sans font-medium text-[3vw] tracking-wider text-[var(--color-brand-gray)] uppercase mb-[4vh]"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.6 }}
+          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
         >
-          The person who's willing to
+          The person who's willing to find the patient
         </motion.p>
         
-        <div className="overflow-hidden mb-[4vh]">
-          <motion.h2
-            className="font-display text-[8vw] font-bold text-[var(--color-brand-light)] leading-none"
-            initial={{ y: "100%", opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 1 }}
+        <div className="relative mb-[4vh]">
+          <motion.h1
+            className="font-display font-black text-[16vw] leading-none tracking-tighter text-[var(--color-brand-white)]"
+            initial={{ scale: 0.8, opacity: 0, filter: "blur(10px)" }}
+            animate={{ scale: 1, opacity: 1, filter: "blur(0px)" }}
+            transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 1 }}
           >
-            CHALLENGE THEMSELVES
-          </motion.h2>
+            NO ONE ELSE
+          </motion.h1>
+          {/* subtle red echo */}
+          <motion.h1
+            className="absolute inset-0 font-display font-black text-[16vw] leading-none tracking-tighter text-[var(--color-brand-red)] z-[-1] opacity-50 blur-[20px]"
+            initial={{ scale: 0.8 }}
+            animate={{ scale: 1.1 }}
+            transition={{ duration: 4, ease: "linear", delay: 1 }}
+          >
+            NO ONE ELSE
+          </motion.h1>
         </div>
 
         <motion.p
-          className="font-sans text-[3vw] text-[var(--color-brand-light)]/90 font-medium max-w-[70vw] leading-[1.3]"
-          initial={{ opacity: 0, y: 20 }}
+          className="font-sans font-medium text-[3vw] tracking-wider text-[var(--color-brand-gray)] uppercase"
+          initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 1.8 }}
         >
-          to find the patient no one else is willing to take care of.
+          is willing to take care of.
         </motion.p>
 
-        {/* Accent Red Line acting as an underline indicator */}
-        <motion.div
-          className="w-[10vw] h-[4px] bg-[var(--color-brand-red)] mt-[4vh]"
-          initial={{ scaleX: 0 }}
-          animate={{ scaleX: 1 }}
-          transition={{ duration: 1, delay: 2.5, ease: [0.16, 1, 0.3, 1] }}
-        />
       </div>
     </motion.div>
   );

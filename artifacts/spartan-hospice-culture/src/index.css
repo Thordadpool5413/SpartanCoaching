@@ -1,24 +1,23 @@
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,800;0,900;1,800&family=Inter:wght@400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-brand-slate: #16202B;
-  --color-brand-slateDark: #0E151C;
-  --color-brand-slateLight: #1E2B38;
-  --color-brand-light: #E8ECF0;
-  --color-brand-lightMuted: #A0B0C0;
-  --color-brand-red: #A31621;
-  --color-brand-redDark: #7C1019;
+  --color-brand-black: #030303;
+  --color-brand-dark: #0a0a0a;
+  --color-brand-red: #da291c; /* hsl(0 85% 58%) approx #ea1515, let's use a stark aggressive red */
+  --color-brand-red-dark: #8b0000;
+  --color-brand-white: #ffffff;
+  --color-brand-gray: #888888;
 
-  --font-display: 'Outfit', sans-serif;
-  --font-sans: 'Plus Jakarta Sans', sans-serif;
+  --font-display: 'Barlow Condensed', sans-serif;
+  --font-sans: 'Inter', sans-serif;
 }
 
 body {
   margin: 0;
   padding: 0;
-  background-color: var(--color-brand-slate);
-  color: var(--color-brand-light);
+  background-color: var(--color-brand-black);
+  color: var(--color-brand-white);
   overflow: hidden;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -27,11 +26,27 @@ body {
 .ease-cinematic {
   transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
 }
-
-.clip-reveal {
-  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%);
+.ease-aggressive {
+  transition-timing-function: cubic-bezier(0.7, 0, 0.1, 1);
 }
 
-.clip-hide {
-  clip-path: polygon(0 0, 0 0, 0 100%, 0 100%);
+.clip-slash {
+  clip-path: polygon(0 0, 100% 0, 85% 100%, 0% 100%);
+}
+
+.text-stroke {
+  -webkit-text-stroke: 1px var(--color-brand-red);
+  color: transparent;
+}
+.text-stroke-white {
+  -webkit-text-stroke: 1px rgba(255,255,255,0.2);
+  color: transparent;
+}
+
+.text-glow {
+  text-shadow: 0 0 20px rgba(218, 41, 28, 0.6);
+}
+
+.text-glow-white {
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
 }

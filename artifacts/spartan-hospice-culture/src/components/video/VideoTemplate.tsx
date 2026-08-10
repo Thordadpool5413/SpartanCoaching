@@ -9,7 +9,6 @@ import Scene4 from './video_scenes/Scene4';
 import Scene5 from './video_scenes/Scene5';
 import Scene6 from './video_scenes/Scene6';
 
-// Total video duration: ~27.5s (adjusting pacing for broadcast feel)
 const SCENE_DURATIONS_MAP = {
   change: 3000, 
   donuts: 4500, 
@@ -27,16 +26,16 @@ const VideoTemplate: React.FC = () => {
   const baseUrl = import.meta.env.BASE_URL;
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-[var(--color-brand-slateDark)] flex items-center justify-center font-sans antialiased text-[var(--color-brand-light)]">
+    <div className="relative w-full h-screen overflow-hidden bg-[var(--color-brand-black)] flex items-center justify-center font-sans antialiased text-[var(--color-brand-white)]">
       
-      {/* PERSISTENT BACKGROUND LAYER - Cinematic Video */}
+      {/* PERSISTENT BACKGROUND LAYER - Fiery Embers */}
       <motion.div
-        className="absolute inset-0 z-0 opacity-40 mix-blend-screen"
-        animate={{ scale: 1.05 }}
-        transition={{ duration: 30, ease: "linear" }}
+        className="absolute inset-0 z-0 mix-blend-screen"
+        animate={{ opacity: currentScene === 6 ? 0 : 0.6 }}
+        transition={{ duration: 1, ease: "linear" }}
       >
         <video 
-          src={`${baseUrl}bg-studio-sweep.mp4`}
+          src={`${baseUrl}fiery-sparks-bg.mp4`}
           className="w-full h-full object-cover"
           autoPlay 
           muted 
@@ -45,42 +44,29 @@ const VideoTemplate: React.FC = () => {
         />
       </motion.div>
 
-      {/* Broadcast Slate gradient overlay to ensure text legibility */}
-      <div className="absolute inset-0 bg-gradient-to-br from-[var(--color-brand-slateLight)]/50 to-[var(--color-brand-slateDark)]/90 z-0 mix-blend-multiply" />
-      
-      {/* Subtle Studio Light sweeps (CSS fallback/enhancement) */}
-      <motion.div 
-        className="absolute w-[150vw] h-[100vh] rounded-full blur-[100px] pointer-events-none mix-blend-soft-light z-0"
-        style={{ background: 'linear-gradient(90deg, rgba(232, 236, 240, 0) 0%, rgba(232, 236, 240, 0.15) 50%, rgba(232, 236, 240, 0) 100%)' }}
+      {/* Persistent Vignette */}
+      <div className="absolute inset-0 bg-radial-gradient from-transparent to-black/90 z-0 pointer-events-none" 
+           style={{ background: 'radial-gradient(circle, transparent 20%, #030303 100%)' }} />
+
+      {/* Dynamic Red Light Slash / Accent */}
+      <motion.div
+        className="absolute w-[120vw] h-[10vh] bg-[var(--color-brand-red)] mix-blend-overlay blur-[80px] z-0 pointer-events-none"
         animate={{
-          x: currentScene % 2 === 0 ? '-30%' : '10%',
-          rotate: currentScene % 2 === 0 ? -15 : -5,
-          scale: currentScene === 5 ? 1.2 : 1,
+          y: currentScene % 2 === 0 ? '-30vh' : '30vh',
+          rotate: currentScene % 2 === 0 ? -10 : 15,
+          opacity: currentScene === 6 ? 0 : 0.7
         }}
-        transition={{ duration: 4, ease: [0.25, 1, 0.5, 1] }}
+        transition={{ duration: 4, ease: "easeInOut" }}
       />
       
-      {/* Clean Geometric Accents */}
+      {/* Glitch/Flash subtle overlay on scene changes */}
       <motion.div
-        className="absolute top-0 right-0 w-[40vw] h-[100vh] border-l border-[var(--color-brand-light)]/5 pointer-events-none z-10"
-        animate={{
-          x: currentScene === 4 ? '10vw' : currentScene === 1 ? '5vw' : '0vw',
-          opacity: currentScene === 6 ? 0 : 1
-        }}
-        transition={{ duration: 2.5, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <motion.div
-          className="absolute top-[20vh] left-0 w-[1px] h-[30vh] bg-[var(--color-brand-red)]"
-          animate={{
-            y: currentScene === 3 ? '20vh' : currentScene === 5 ? '40vh' : '0vh',
-            opacity: currentScene === 6 ? 0 : 0.8
-          }}
-          transition={{ duration: 3, ease: [0.16, 1, 0.3, 1] }}
-        />
-      </motion.div>
-
-      {/* Grid structure for depth */}
-      <div className="absolute inset-0 z-0 opacity-[0.03] pointer-events-none bg-[linear-gradient(rgba(255,255,255,1)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,1)_1px,transparent_1px)] bg-[size:5vw_5vw]" />
+        key={`glitch-${currentScene}`}
+        className="absolute inset-0 bg-[var(--color-brand-red)] z-50 pointer-events-none mix-blend-overlay"
+        initial={{ opacity: 0.8 }}
+        animate={{ opacity: 0 }}
+        transition={{ duration: 0.3, ease: "easeOut" }}
+      />
 
       {/* SCENE CONTENT */}
       <div className="relative w-full h-full z-20 flex items-center justify-center">
