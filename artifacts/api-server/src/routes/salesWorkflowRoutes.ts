@@ -27,6 +27,11 @@ import {
 } from "../auth/workflowTenantAuthz";
 import { draftCallDebrief, draftDebriefInputSchema } from "../salesDebrief";
 import { standardAiLimit, globalDailyAiCap } from "../rateLimits";
+import {
+  loadCommandCenterContext,
+  saveContextCorrections,
+} from "../sales/commandCenterContextLoad";
+import { sanitizeCorrections } from "../sales/commandCenterContext";
 
 function resolveActor(request: Request): Actor {
   const authed = request as AuthedRequest;
@@ -147,6 +152,129 @@ export function registerSalesWorkflowRoutes(app: Express): void {
           error: {
             code: "DEBRIEF_FAILED",
             message: "Could not draft debrief. Enter the call summary manually.",
+          },
+        });
+      }
+    },
+  );
+
+  /**
+   * Command Center context engine (HSP-12).
+   * Assembles reviewable account context from workflow entities.
+   * Optional ?tool= projects allowlisted fields for satellite tools.
+   */
+  app.get(
+    "/api/v1/sales-workflow/context",
+    requireFieldKit,
+    async (req, res) => {
+      try {
+        const accountId =
+          typeof req.query.accountId === "string" ? req.query.accountId.trim() : "";
+        if (!accountId) {
+          res.status(400).json({
+            error: {
+              code: "INVALID_INPUT",
+              message: "Query parameter accountId is required.",
+            },
+          });
+          return;
+        }
+        const toolId =
+          typeof req.query.tool === "string" ? req.query.tool.trim() : null;
+        const actor = resolveActor(req);
+        const loaded = await loadCommandCenterContext(
+          storage,
+          actor,
+          accountId,
+          toolId,
+        );
+        res.json({
+          context: loaded.context,
+          toolProjection: loaded.toolProjection,
+        });
+      } catch (error) {
+        const err = error as Error & { code?: string; status?: number };
+        const status =
+          typeof err.status === "number" && err.status >= 400 && err.status < 600
+            ? err.status
+            : 500;
+        if (status >= 500) console.error("context GET failed:", error);
+        res.status(status).json({
+          error: {
+            code: err.code ?? "CONTEXT_LOAD_FAILED",
+            message:
+              status < 500
+                ? err.message || "Could not load context."
+                : "Could not load Command Center context.",
+          },
+        });
+      }
+    },
+  );
+
+  /**
+   * Persist user corrections to material context fields (objective, objections, stage, priority, notes).
+   * Stored as workflow activity type context_correction; re-assembles and returns full context.
+   */
+  app.patch(
+    "/api/v1/sales-workflow/context",
+    requireFieldKit,
+    async (req, res) => {
+      try {
+        const body = req.body ?? {};
+        const accountId =
+          typeof body.accountId === "string" ? body.accountId.trim() : "";
+        if (!accountId) {
+          res.status(400).json({
+            error: {
+              code: "INVALID_INPUT",
+              message: "Body field accountId is required.",
+            },
+          });
+          return;
+        }
+        const corrections = sanitizeCorrections({
+          currentObjective: body.currentObjective,
+          knownObjections: body.knownObjections,
+          relationshipStage: body.relationshipStage,
+          priority: body.priority,
+          notes: body.notes,
+        });
+        if (Object.keys(corrections).length === 0) {
+          res.status(400).json({
+            error: {
+              code: "INVALID_INPUT",
+              message:
+                "Provide at least one material field: currentObjective, knownObjections, relationshipStage, priority, or notes.",
+            },
+          });
+          return;
+        }
+        const actor = resolveActor(req);
+        const loaded = await saveContextCorrections(
+          storage,
+          actor,
+          accountId,
+          corrections,
+        );
+        res.json({
+          context: loaded.context,
+          corrections: loaded.context.corrections,
+        });
+      } catch (error) {
+        const err = error as Error & { code?: string; status?: number };
+        const status =
+          typeof err.status === "number" && err.status >= 400 && err.status < 600
+            ? err.status
+            : 500;
+        if (status >= 500) console.error("context PATCH failed:", error);
+        res.status(status).json({
+          error: {
+            code: err.code ?? "CONTEXT_SAVE_FAILED",
+            message:
+              status < 500
+                ? err.message || "Could not save corrections."
+                : "Could not save context corrections.",
           },
         });
       }

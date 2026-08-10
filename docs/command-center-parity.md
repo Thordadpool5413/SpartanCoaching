@@ -25,6 +25,13 @@ Clients may differ in chrome and depth; they must not invent alternate write API
 | AI debrief draft | `POST /debrief/draft` (never auto-saves) |
 | Complete call | `POST /calls/:id/complete` |
 | Approve next actions | `POST /coaching/:id/approve` (human selects actions after complete) |
+| Account context (API) | `GET /context?accountId=` · `PATCH /context` (corrections) |
+
+### Context engine (HSP-12)
+
+- **Assembly:** `GET /api/v1/sales-workflow/context?accountId=&tool=` builds reviewable context from workflow entities (contacts, stage, last interaction, objective, objections, meeting, next actions, commitments, priority, tools/resources). Optional `tool` returns an allowlisted `toolProjection` for satellite tools.
+- **Corrections:** `PATCH /api/v1/sales-workflow/context` with material fields merges and persists as activity type `context_correction` (tenant-scoped; ownership same as account snapshot).
+- **UI:** Web prep review and iOS field review surfaces are follow-up work; both must call this API only (no client-only context stores).
 
 ### Web-only for now (documented gaps)
 

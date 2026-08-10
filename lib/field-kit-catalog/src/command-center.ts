@@ -133,6 +133,16 @@ export const COMMAND_CENTER_CAPABILITIES: CommandCenterCapability[] = [
     mobile: "none",
     notes: "Buttons present when adapters configured; often disabled in prod.",
   },
+  {
+    id: "account-context",
+    title: "Command Center account context engine",
+    api: ["GET /context", "PATCH /context"],
+    sharedFact: true,
+    web: "partial",
+    mobile: "partial",
+    notes:
+      "Backend assembles reviewable context (stage, objective, objections, next actions, tools) and tool projections; corrections persist as activity context_correction. Platform review UIs follow.",
+  },
 ];
 
 /** Capabilities both surfaces claim as shared product facts (must stay API-first). */
@@ -167,5 +177,10 @@ export const COMMAND_CENTER_GATED_SMOKE_PATHS = [
     body: {
       notes: "Saw DON, wants education follow-up next week about referral path.",
     },
+  },
+  {
+    method: "GET" as const,
+    path: "/api/v1/sales-workflow/context",
+    query: true,
   },
 ];
