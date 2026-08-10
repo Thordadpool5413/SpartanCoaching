@@ -1,43 +1,53 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 
-const Scene0: React.FC<{ duration: number }> = () => {
+interface SceneProps {
+  duration: number;
+}
+
+const Scene0 = forwardRef<HTMLDivElement, SceneProps>(({ duration }, ref) => {
   return (
     <motion.div
-      className="absolute inset-0 flex flex-col items-center justify-center text-center"
-      initial={{ opacity: 0, scale: 1.1, filter: 'blur(10px)' }}
-      animate={{ opacity: 1, scale: 1, filter: 'blur(0px)' }}
-      exit={{ opacity: 0, scale: 0.9, filter: 'blur(10px)' }}
-      transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+      ref={ref}
+      className="absolute inset-0 flex items-center justify-center w-full h-full"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, filter: "blur(10px)", scale: 1.05 }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
     >
-      <div className="overflow-hidden flex flex-col items-center">
-        <motion.h1 
-          className="font-display text-[10vw] leading-[0.8] tracking-tighter text-brand-red uppercase"
-          initial={{ y: "100%", opacity: 0, rotateX: 45 }}
-          animate={{ y: 0, opacity: 1, rotateX: 0 }}
-          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 0.2 }}
-        >
-          HOSPICE SALES
-        </motion.h1>
-        <motion.h2 
-          className="font-display text-[7vw] leading-[0.9] tracking-tight text-brand-light mt-[1vw] uppercase"
-          initial={{ y: "-100%", opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1], delay: 0.8 }}
-        >
-          HAS TO CHANGE.
-        </motion.h2>
+      <div className="relative z-10 flex flex-col items-center justify-center max-w-[80vw]">
+        <motion.div 
+          className="h-1 bg-brand-red mb-8"
+          initial={{ width: 0 }}
+          animate={{ width: '150px' }}
+          transition={{ delay: 0.3, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+        />
+        
+        <div className="overflow-hidden">
+          <motion.h1 
+            className="text-7xl md:text-9xl font-display uppercase tracking-wider text-center leading-none"
+            initial={{ y: '100%', rotateX: -20, opacity: 0 }}
+            animate={{ y: 0, rotateX: 0, opacity: 1 }}
+            transition={{ delay: 0.5, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          >
+            Hospice Sales
+          </motion.h1>
+        </div>
+
+        <div className="overflow-hidden mt-4">
+          <motion.h2 
+            className="text-4xl md:text-7xl font-display uppercase tracking-widest text-brand-red leading-none"
+            initial={{ y: '100%', opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.9, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          >
+            Has To Change.
+          </motion.h2>
+        </div>
       </div>
-      
-      {/* Decorative vertical line */}
-      <motion.div 
-        className="w-[0.5vw] h-[15vh] bg-brand-red mt-[4vw] origin-top"
-        initial={{ scaleY: 0 }}
-        animate={{ scaleY: 1 }}
-        transition={{ duration: 1, ease: "circOut", delay: 1.2 }}
-      />
     </motion.div>
   );
-};
+});
 
+Scene0.displayName = 'Scene0';
 export default Scene0;

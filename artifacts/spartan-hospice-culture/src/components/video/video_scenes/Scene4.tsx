@@ -1,57 +1,59 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 
-const Scene4: React.FC<{ duration: number }> = () => {
+interface SceneProps {
+  duration: number;
+}
+
+const Scene4 = forwardRef<HTMLDivElement, SceneProps>(({ duration }, ref) => {
   return (
     <motion.div
-      className="absolute inset-0 flex items-center justify-center overflow-hidden"
-      initial={{ scale: 1.2, opacity: 0 }}
-      animate={{ scale: 1, opacity: 1 }}
-      exit={{ scale: 0.8, opacity: 0 }}
-      transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+      ref={ref}
+      className="absolute inset-0 flex items-center justify-center w-full h-full"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, scale: 0.95 }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
     >
-      <div className="relative z-10 w-full flex flex-col items-center text-center px-[2vw]">
-        <motion.p 
-          className="font-sans text-[2.5vw] text-brand-light/60 font-light tracking-widest uppercase mb-[2vw]"
-          initial={{ opacity: 0, y: -20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, ease: "easeOut", delay: 0.5 }}
-        >
-          The person who's willing to
-        </motion.p>
+      <div className="relative z-10 flex flex-col items-center justify-center text-center max-w-[80vw]">
         
-        <div className="flex flex-wrap justify-center gap-x-[1.5vw] gap-y-[0.5vw] max-w-6xl">
-          {["CHALLENGE", "THEMSELVES"].map((word, wordIndex) => (
-            <div key={wordIndex} className="overflow-hidden flex">
-              {word.split('').map((char, charIndex) => (
-                <motion.span
-                  key={charIndex}
-                  className={`font-display text-[14vw] leading-[0.85] tracking-tighter uppercase ${wordIndex === 0 ? 'text-brand-light' : 'text-brand-red'}`}
-                  initial={{ y: "100%", opacity: 0, rotateZ: 15 }}
-                  animate={{ y: 0, opacity: 1, rotateZ: 0 }}
-                  transition={{ 
-                    duration: 0.8, 
-                    ease: [0.16, 1, 0.3, 1], 
-                    delay: 1.0 + (wordIndex * 0.2) + (charIndex * 0.05) 
-                  }}
-                >
-                  {char}
-                </motion.span>
-              ))}
-            </div>
-          ))}
+        <div className="overflow-hidden mb-4" style={{ perspective: '1000px' }}>
+          <motion.h2 
+            className="text-3xl md:text-5xl font-sans font-light text-brand-grayLight"
+            initial={{ rotateX: 90, opacity: 0, y: 50 }}
+            animate={{ rotateX: 0, opacity: 1, y: 0 }}
+            transition={{ delay: 0.2, duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+          >
+            The person who's willing to
+          </motion.h2>
         </div>
+
+        <div className="overflow-hidden" style={{ perspective: '1000px' }}>
+          <motion.h1 
+            className="text-7xl md:text-9xl font-display uppercase tracking-widest text-brand-red leading-none"
+            initial={{ rotateX: 90, opacity: 0, y: 50 }}
+            animate={{ rotateX: 0, opacity: 1, y: 0 }}
+            transition={{ delay: 0.5, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          >
+            Challenge
+          </motion.h1>
+        </div>
+
+        <div className="overflow-hidden mt-[-10px]" style={{ perspective: '1000px' }}>
+          <motion.h1 
+            className="text-7xl md:text-9xl font-display uppercase tracking-widest text-brand-light leading-none"
+            initial={{ rotateX: -90, opacity: 0, y: -50 }}
+            animate={{ rotateX: 0, opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          >
+            Themselves
+          </motion.h1>
+        </div>
+
       </div>
-      
-      {/* Background intense vignette specifically for this scene */}
-      <motion.div 
-        className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_0%,rgba(0,0,0,0.9)_80%)] pointer-events-none"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 2 }}
-      />
     </motion.div>
   );
-};
+});
 
+Scene4.displayName = 'Scene4';
 export default Scene4;

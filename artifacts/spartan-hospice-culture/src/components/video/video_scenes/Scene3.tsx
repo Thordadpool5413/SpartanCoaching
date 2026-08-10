@@ -1,76 +1,60 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 
-const Scene3: React.FC<{ duration: number }> = () => {
+interface SceneProps {
+  duration: number;
+}
+
+const Scene3 = forwardRef<HTMLDivElement, SceneProps>(({ duration }, ref) => {
+  const baseUrl = import.meta.env.BASE_URL;
+
   return (
     <motion.div
-      className="absolute inset-0 flex items-center justify-center overflow-hidden"
-      initial={{ y: "100%" }}
-      animate={{ y: 0 }}
-      exit={{ opacity: 0, scale: 0.9, filter: "blur(10px)" }}
-      transition={{ duration: 1, ease: [0.76, 0, 0.24, 1] }}
+      ref={ref}
+      className="absolute inset-0 flex items-center justify-end w-full h-full px-[10vw]"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0, scale: 1.05 }}
+      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
     >
-      <div className="relative z-10 w-full max-w-7xl px-[4vw] flex flex-col items-center text-center">
-        <motion.p 
-          className="font-sans font-medium text-[2vw] text-brand-light/70 tracking-widest uppercase mb-[2vw]"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.8, ease: "easeOut", delay: 0.8 }}
-        >
-          The person who asks the
-        </motion.p>
-        
+      {/* Background Image Reveal */}
+      <motion.div
+        className="absolute inset-0 z-0 origin-right"
+        initial={{ clipPath: 'polygon(100% 0, 100% 0, 100% 100%, 100% 100%)' }}
+        animate={{ clipPath: 'polygon(0% 0, 100% 0, 100% 100%, 0% 100%)' }}
+        transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
+      >
         <motion.div 
-          className="relative"
-          initial={{ opacity: 0, rotateX: -90 }}
-          animate={{ opacity: 1, rotateX: 0 }}
-          transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1], delay: 1.2 }}
-          style={{ perspective: 1000 }}
+          className="absolute inset-0 bg-cover bg-center bg-no-repeat origin-center"
+          style={{ backgroundImage: `url(${baseUrl}discovery-questions.jpg)` }}
+          initial={{ scale: 1.1 }}
+          animate={{ scale: 1 }}
+          transition={{ duration: 4, ease: "easeOut" }}
+        />
+        {/* Dark gradient overlay for text readability on right */}
+        <div className="absolute inset-0 bg-gradient-to-l from-brand-dark via-brand-dark/80 to-brand-dark/20" />
+      </motion.div>
+
+      <div className="relative z-10 max-w-[55vw] text-right flex flex-col items-end">
+        <motion.div
+          className="w-16 h-1 bg-brand-red mb-6"
+          initial={{ width: 0 }}
+          animate={{ width: 64 }}
+          transition={{ delay: 0.8, duration: 0.8, ease: "easeOut" }}
+        />
+        <motion.p
+          className="text-4xl md:text-6xl font-sans font-light leading-tight text-brand-grayLight"
+          initial={{ opacity: 0, y: 30, filter: "blur(5px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          transition={{ delay: 1, duration: 1, ease: [0.16, 1, 0.3, 1] }}
         >
-          <h1 className="font-display text-[16vw] leading-[0.8] tracking-tighter text-transparent uppercase text-stroke-light relative z-10">
-            HARD
-          </h1>
-          <motion.h1 
-            className="font-display text-[16vw] leading-[0.8] tracking-tighter text-brand-red uppercase absolute inset-0 z-0 blur-[20px]"
-            animate={{ opacity: [0.5, 1, 0.5] }}
-            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-          >
-            HARD
-          </motion.h1>
-        </motion.div>
-
-        <div className="overflow-hidden mt-[0.5vw]">
-          <motion.h2 
-            className="font-display text-[10vw] leading-[0.8] tracking-tighter text-brand-light uppercase"
-            initial={{ y: "-100%" }}
-            animate={{ y: 0 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 1.5 }}
-          >
-            DISCOVERY
-          </motion.h2>
-        </div>
-
-        <div className="overflow-hidden">
-          <motion.h2 
-            className="font-display text-[10vw] leading-[0.8] tracking-tighter text-brand-dark uppercase text-stroke-red"
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1], delay: 1.7 }}
-          >
-            QUESTIONS.
-          </motion.h2>
-        </div>
+          The person who asks the <br/>
+          <span className="font-medium text-brand-light">hard discovery questions.</span>
+        </motion.p>
       </div>
-      
-      {/* Searchlight effect sweeping across */}
-      <motion.div 
-        className="absolute top-0 w-[20vw] h-[150vh] bg-gradient-to-r from-transparent via-brand-light/10 to-transparent skew-x-[-30deg] mix-blend-overlay z-20 pointer-events-none"
-        initial={{ left: "-50%" }}
-        animate={{ left: "150%" }}
-        transition={{ duration: 2.5, ease: "easeInOut", delay: 1.5 }}
-      />
     </motion.div>
   );
-};
+});
 
+Scene3.displayName = 'Scene3';
 export default Scene3;

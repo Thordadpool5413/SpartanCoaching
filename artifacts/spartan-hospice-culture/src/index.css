@@ -1,12 +1,14 @@
-@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;600;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&display=swap');
 @import "tailwindcss";
 
 @theme {
-  --color-brand-dark: #050505;
-  --color-brand-light: #f4f4f5;
-  --color-brand-red: #b91c1c;
-  --color-brand-redDark: #7f1d1d;
-  --color-brand-gray: #27272a;
+  --color-brand-dark: #070708;
+  --color-brand-black: #000000;
+  --color-brand-light: #fbfbfb;
+  --color-brand-red: #c92a2a;
+  --color-brand-redDark: #801313;
+  --color-brand-gray: #1a1a1c;
+  --color-brand-grayLight: #a0a0a5;
 
   --font-display: 'Bebas Neue', sans-serif;
   --font-sans: 'Outfit', sans-serif;
@@ -18,14 +20,29 @@ body {
   background-color: var(--color-brand-dark);
   color: var(--color-brand-light);
   overflow: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom Text Stroke Utility */
 .text-stroke-red {
-  -webkit-text-stroke: 1px var(--color-brand-red);
+  -webkit-text-stroke: 1.5px var(--color-brand-red);
   color: transparent;
 }
 .text-stroke-light {
-  -webkit-text-stroke: 1px var(--color-brand-light);
+  -webkit-text-stroke: 1.5px var(--color-brand-light);
   color: transparent;
+}
+
+.text-stroke-thin {
+  -webkit-text-stroke: 1px rgba(251, 251, 251, 0.2);
+  color: transparent;
+}
+
+/* Custom easing classes for consistent motion */
+.ease-cinematic {
+  transition-timing-function: cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.clip-diagonal {
+  clip-path: polygon(0 0, 100% 0, 90% 100%, 0% 100%);
 }

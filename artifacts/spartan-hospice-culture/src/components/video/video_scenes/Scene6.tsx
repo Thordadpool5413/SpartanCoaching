@@ -1,70 +1,68 @@
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { motion } from 'framer-motion';
 
-const Scene6: React.FC<{ duration: number }> = () => {
+interface SceneProps {
+  duration: number;
+}
+
+const Scene6 = forwardRef<HTMLDivElement, SceneProps>(({ duration }, ref) => {
   const baseUrl = import.meta.env.BASE_URL;
 
   return (
     <motion.div
-      className="absolute inset-0 flex items-center justify-center overflow-hidden bg-brand-dark"
-      initial={{ opacity: 0, scale: 1.1 }}
-      animate={{ opacity: 1, scale: 1 }}
+      ref={ref}
+      className="absolute inset-0 flex flex-col items-center justify-center w-full h-full bg-brand-dark"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      transition={{ duration: 0.5, ease: "easeOut" }}
+      transition={{ duration: 1.5, ease: "easeInOut" }}
     >
-      <div className="relative z-10 flex flex-col items-center justify-center w-full">
-        
-        {/* THAT'S HOSPICE. */}
-        <motion.div 
-          className="absolute flex items-center justify-center w-full"
-          initial={{ opacity: 1, scale: 0.8, filter: "blur(0px)" }}
-          animate={{ opacity: 0, scale: 1.2, filter: "blur(10px)" }}
-          transition={{ duration: 0.6, ease: "easeInOut", delay: 1.5 }}
-        >
-          <h2 className="font-display text-[12vw] leading-none tracking-tighter text-brand-light uppercase">
-            THAT'S HOSPICE.
-          </h2>
-        </motion.div>
+      <div className="relative z-10 flex flex-col items-center max-w-[80vw]">
+        <div className="overflow-hidden mb-12">
+          <motion.h2 
+            className="text-4xl md:text-6xl font-display uppercase tracking-[0.2em] text-brand-grayLight"
+            initial={{ y: '100%', opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            transition={{ delay: 0.3, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          >
+            That's Hospice.
+          </motion.h2>
+        </div>
 
-        {/* LOGO REVEAL */}
-        <motion.div 
-          className="absolute flex flex-col items-center justify-center w-full"
-          initial={{ opacity: 0, scale: 0.5, y: 50 }}
+        <motion.div
+          className="flex flex-col items-center"
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 1.7 }}
+          transition={{ delay: 1.2, duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
         >
-          {/* Main Spartan Lockup */}
-          <motion.img 
-            src={`${baseUrl}spartan-logo.png`}
-            alt="Spartan Coaching"
-            className="w-auto h-[40vh] object-contain mb-[2vw] mix-blend-screen drop-shadow-[0_0_30px_rgba(185,28,28,0.4)]"
-            initial={{ filter: "brightness(2) contrast(1.5) blur(10px)" }}
-            animate={{ filter: "brightness(1) contrast(1) blur(0px)" }}
-            transition={{ duration: 1, ease: "easeOut", delay: 1.8 }}
+          <img 
+            src={`${baseUrl}spartan-logo.png`} 
+            alt="Spartan Coaching Logo" 
+            className="w-auto h-40 md:h-56 object-contain mb-8 drop-shadow-2xl"
           />
-
-          {/* Stamp behind or to the side */}
-          <motion.img 
-            src={`${baseUrl}spartan-logo-stamp.png`}
-            alt="Stamp"
-            className="absolute w-auto h-[70vh] object-contain opacity-20 mix-blend-screen pointer-events-none z-[-1]"
-            initial={{ scale: 3, rotate: -20, opacity: 0 }}
-            animate={{ scale: 1, rotate: -5, opacity: 0.15 }}
-            transition={{ duration: 0.5, ease: "circIn", delay: 1.6 }}
-          />
+          <div className="overflow-hidden">
+            <motion.h1 
+              className="text-3xl md:text-5xl font-sans font-light tracking-wider text-brand-light"
+              initial={{ y: '100%', opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 1.8, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            >
+              That's <span className="font-medium">Spartan Hospice Coaching</span>
+            </motion.h1>
+          </div>
         </motion.div>
-
       </div>
-
-      {/* Impact flash */}
-      <motion.div 
-        className="absolute inset-0 bg-brand-red mix-blend-screen z-50 pointer-events-none"
+      
+      {/* Subtle bottom flare */}
+      <motion.div
+        className="absolute bottom-0 left-0 right-0 h-1/3 bg-gradient-to-t from-brand-red/10 to-transparent pointer-events-none"
         initial={{ opacity: 0 }}
-        animate={{ opacity: [0, 0.8, 0] }}
-        transition={{ duration: 0.4, ease: "easeOut", delay: 1.5 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.5, duration: 2 }}
       />
     </motion.div>
   );
-};
+});
 
+Scene6.displayName = 'Scene6';
 export default Scene6;
