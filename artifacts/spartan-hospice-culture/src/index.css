@@ -1,0 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;600;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --color-brand-dark: #050505;
+  --color-brand-light: #f4f4f5;
+  --color-brand-red: #b91c1c;
+  --color-brand-redDark: #7f1d1d;
+  --color-brand-gray: #27272a;
+
+  --font-display: 'Bebas Neue', sans-serif;
+  --font-sans: 'Outfit', sans-serif;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-brand-dark);
+  color: var(--color-brand-light);
+  overflow: hidden;
+}
+
+/* Custom Text Stroke Utility */
+.text-stroke-red {
+  -webkit-text-stroke: 1px var(--color-brand-red);
+  color: transparent;
+}
+.text-stroke-light {
+  -webkit-text-stroke: 1px var(--color-brand-light);
+  color: transparent;
+}

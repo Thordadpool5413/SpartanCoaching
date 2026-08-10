@@ -1,0 +1,28 @@
+kind = "video"
+previewPath = "/spartan-hospice-culture/"
+title = "Hospice Sales Has to Change"
+description = "A standalone ~30-45 second animated video declaring that hospice sales has to change: it's not about who brings the best donuts or coffee, it's about the person who brings their game, asks the hard discovery questions, and challenges themselves to find the patient no one else is willing to take care of. Ends on the brand statement: That's Hospice. That's Spartan Hospice Coaching!"
+version = "1.0.0"
+id = "artifacts/spartan-hospice-culture"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/spartan-hospice-culture/" ]
+localPort = 23031
+
+[services.development]
+run = "pnpm --filter @workspace/spartan-hospice-culture run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/spartan-hospice-culture", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/spartan-hospice-culture/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "23031"
+BASE_PATH = "/spartan-hospice-culture/"
