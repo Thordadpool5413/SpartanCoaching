@@ -40,12 +40,18 @@ import {
   requireAuth,
   requireFieldKit,
   requireOrgAdmin,
+  requirePermission,
   requireAdmin,
   isAdminRequest,
   useSecureCookies,
+  listPermissionsForRole,
   type AuthedRequest,
 } from "../auth/middleware";
 import { getAccessForMemberId, publicMember, publicOrg } from "../auth/entitlement";
+import {
+  recordSensitiveAdminAction,
+  SENSITIVE_AUDIT_TYPES,
+} from "../auth/auditLog";
 import { runTrialLifecycleSweep } from "../auth/trialLifecycle";
 import {
   runOpsDigest,
@@ -1464,8 +1470,27 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
+  // ── Current member permission matrix (server truth for web + iOS) ──
+  app.get("/api/auth/permissions", requireAuth, async (req: AuthedRequest, res) => {
+    const member = req.fieldKit!.member!;
+    return res.json({
+      role: member.role,
+      organizationId: member.organizationId,
+      jobRole: (member as { jobRole?: string | null }).jobRole ?? null,
+      jobRoleIsNotAuthorization: true,
+      permissions: listPermissionsForRole(member.role),
+    });
+  });
+
   // ── Org admin: members & invites ───────────────────────────────────
-  app.get("/api/org/members", requireAuth, requireFieldKit, requireOrgAdmin, async (req: AuthedRequest, res) => {
+  app.get(
+    "/api/org/members",
+    requireAuth,
+    requireFieldKit,
+    requireOrgAdmin,
+    requirePermission("org_members:view"),
+    async (req: AuthedRequest, res) => {
+
     const orgId = req.fieldKit!.org!.id;
     const members = await db
       .select()
@@ -1486,10 +1511,17 @@ export function registerAuthRoutes(app: Express): void {
       })),
       seatLimit: req.fieldKit!.org!.seatLimit,
     });
-  });
+    },
+  );
 
   /** Light org usage summary for company admins (last 7 days) */
-  app.get("/api/org/usage", requireAuth, requireFieldKit, requireOrgAdmin, async (req: AuthedRequest, res) => {
+  app.get(
+    "/api/org/usage",
+    requireAuth,
+    requireFieldKit,
+    requireOrgAdmin,
+    requirePermission("org_usage:view"),
+    async (req: AuthedRequest, res) => {
     try {
       const orgId = req.fieldKit!.org!.id;
       const members = await db
@@ -1532,9 +1564,17 @@ export function registerAuthRoutes(app: Express): void {
       console.error("org usage error:", err);
       return res.status(500).json({ error: "Failed to load usage" });
     }
-  });
+  },
+  );
 
-  app.post("/api/org/invites", requireAuth, requireFieldKit, requireOrgAdmin, async (req: AuthedRequest, res) => {
+  app.post(
+    "/api/org/invites",
+    requireAuth,
+    requireFieldKit,
+    requireOrgAdmin,
+    requirePermission("org_invites:create"),
+    async (req: AuthedRequest, res) => {
+
     try {
       const parsed = inviteMemberBodySchema.safeParse(req.body);
       if (!parsed.success) {
@@ -1608,13 +1648,22 @@ export function registerAuthRoutes(app: Express): void {
       const url = `${getSiteUrl()}/set-password?token=${encodeURIComponent(rawToken)}`;
       await sendOrgInviteEmail(email, org.name, url, req.fieldKit!.member!.name);
       await logEvent("org_invite_sent", req.clientMemberId, { email, orgId: org.id });
+      await recordSensitiveAdminAction({
+        type: SENSITIVE_AUDIT_TYPES.org_invite_sent,
+        actorMemberId: req.clientMemberId ?? null,
+        organizationId: org.id,
+        targetEmail: email,
+        targetMemberId: member.id,
+        meta: { inviteRole: parsed.data.role },
+      });
 
       return res.status(201).json({ ok: true, member: publicMember(member) });
     } catch (err) {
       console.error("org invite error:", err);
       return res.status(500).json({ error: "Failed to send invite" });
     }
-  });
+  },
+  );
 
   // ── One-time platform admin bootstrap ─────────────────────────────
   app.get("/api/admin/bootstrap-status", async (_req, res) => {
@@ -1927,7 +1976,13 @@ export function registerAuthRoutes(app: Express): void {
   });
 
   // ── Org: disable member ────────────────────────────────────────────
-  app.post("/api/org/members/:id/disable", requireAuth, requireFieldKit, requireOrgAdmin, async (req: AuthedRequest, res) => {
+  app.post(
+    "/api/org/members/:id/disable",
+    requireAuth,
+    requireFieldKit,
+    requireOrgAdmin,
+    requirePermission("org_members:delete"),
+    async (req: AuthedRequest, res) => {
     try {
       const id = Number(req.params.id);
       const orgId = req.fieldKit!.org!.id;
@@ -1950,12 +2005,21 @@ export function registerAuthRoutes(app: Express): void {
         .where(eq(clientMembers.id, id));
       await db.delete(clientSessions).where(eq(clientSessions.memberId, id));
       await logEvent("member_disabled", req.clientMemberId, { targetId: id, orgId });
+      await recordSensitiveAdminAction({
+        type: SENSITIVE_AUDIT_TYPES.org_member_disabled,
+        actorMemberId: req.clientMemberId ?? null,
+        organizationId: orgId,
+        targetMemberId: id,
+        targetEmail: target.email,
+        meta: { previousRole: target.role },
+      });
       return res.json({ ok: true });
     } catch (err) {
       console.error("disable member error:", err);
       return res.status(500).json({ error: "Failed to disable member" });
     }
-  });
+  },
+  );
 
   // ── Request extended evaluation (from expired clients) ─────────────
   app.post("/api/auth/request-extension", requireAuth, async (req: AuthedRequest, res) => {

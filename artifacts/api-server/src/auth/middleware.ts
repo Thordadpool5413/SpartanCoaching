@@ -5,6 +5,15 @@ import { hashToken } from "./crypto";
 import { evaluateFieldKitAccess, refreshOrgStatus, type FieldKitAccess } from "./entitlement";
 import { db } from "../db";
 export { isAdminRequest, requireAdmin } from "./adminAuthorization";
+export {
+  requirePermission,
+  requirePermissionInTenant,
+  hasPermission,
+  listPermissionsForRole,
+  evaluateCrossTenantAccess,
+  type Permission,
+  type AuthRole,
+} from "./permissions";
 
 const COOKIE_NAME = "spartan_session";
 /** Session lifetime in days */
