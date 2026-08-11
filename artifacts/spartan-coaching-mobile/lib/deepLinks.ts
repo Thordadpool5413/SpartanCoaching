@@ -65,6 +65,16 @@ export function deepLinkFromNotificationData(
   data: Record<string, unknown> | undefined | null,
 ): DeepTarget | null {
   if (!data) return null;
+  // Secure deep-link keys from backend (HSP-38) — no raw account/PHI paths
+  if (data.deepLink && typeof data.deepLink === "object") {
+    const key = String((data.deepLink as { key?: string }).key || "");
+    const mapped = mapSecureDeepLinkKey(key);
+    if (mapped) return mapped;
+  }
+  if (typeof data.deepLinkKey === "string") {
+    const mapped = mapSecureDeepLinkKey(data.deepLinkKey);
+    if (mapped) return mapped;
+  }
   if (typeof data.url === "string") return parseDeepLink(data.url);
   if (typeof data.deepLink === "string") return parseDeepLink(data.deepLink);
   if (typeof data.route === "string") return parseDeepLink(`${SCHEME}://${data.route.replace(/^\//, "")}`);
@@ -75,6 +85,29 @@ export function deepLinkFromNotificationData(
     return { pathname: "/tool/[tab]", params: { tab: data.toolTab } };
   }
   return null;
+}
+
+/** Backend NotificationDeepLink.key → mobile route (auth still required by app). */
+export function mapSecureDeepLinkKey(key: string): DeepTarget | null {
+  switch (key) {
+    case "command":
+      return { pathname: "/(tabs)/command" };
+    case "weekly_plan":
+      return { pathname: "/tool/[tab]", params: { tab: "weekly" } };
+    case "portal":
+    case "home":
+      return { pathname: "/(tabs)" };
+    case "account":
+      return { pathname: "/(tabs)/account" };
+    case "resources":
+      return { pathname: "/(tabs)/learn" };
+    case "tools":
+      return { pathname: "/(tabs)/tools" };
+    case "login":
+      return { pathname: "/login" };
+    default:
+      return null;
+  }
 }
 
 export function buildToolDeepLink(tab: ToolTab): string {

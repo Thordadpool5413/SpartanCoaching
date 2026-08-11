@@ -12,6 +12,7 @@ import { registerResourceLifecycleRoutes } from "./routes/resourceLifecycleRoute
 import { registerProviderResourceRoutes } from "./routes/providerResourceRoutes";
 import { registerUniversalSearchRoutes } from "./routes/universalSearchRoutes";
 import { registerPersonalizationRoutes } from "./routes/personalizationRoutes";
+import { registerNotificationRoutes } from "./routes/notificationRoutes";
 import { registerBillingRoutes, handleStripeWebhook } from "./billing/billingRoutes";
 import { loadSession } from "./auth/middleware";
 import { globalApiLimit } from "./rateLimits";
@@ -105,6 +106,9 @@ registerUniversalSearchRoutes(app);
 
 // Favorites, recents, continue, recommended today (HSP-37)
 registerPersonalizationRoutes(app);
+
+// Notifications, preferences, secure deep links (HSP-38)
+registerNotificationRoutes(app);
 
 // Legacy app routes (AI tools gated with requireFieldKit)
 registerRoutes(app);

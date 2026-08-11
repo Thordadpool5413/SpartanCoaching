@@ -52,10 +52,14 @@ TaskManager.defineTask(RESCHEDULE_TASK, async () => {
       const newId = await Notifications.scheduleNotificationAsync({
         identifier: reminder.id,
         content: {
-          title: reminder.title,
-          body: reminder.body,
+          // Prefer generic titles when possible — avoid PHI on lock screen
+          title: reminder.title || "Follow-up reminder",
+          body: reminder.body || "Open Hospice Sales Pro for your next action.",
           sound: true,
-          data: { deepLink: "spartan-coaching-mobile://command" },
+          data: {
+            deepLink: "spartan-coaching-mobile://command",
+            deepLinkKey: "command",
+          },
         },
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.DATE,

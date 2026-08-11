@@ -6,7 +6,6 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import {
-  Bell,
   Clock,
   LogOut,
   Menu,
@@ -15,6 +14,7 @@ import {
   PanelLeft,
   UserCircle,
 } from "lucide-react";
+import { NotificationCenter } from "@/components/NotificationCenter";
 import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -498,31 +498,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                 </PopoverContent>
               </Popover>
 
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    aria-label="Notifications"
-                    data-testid="workspace-notifications"
-                  >
-                    <Bell className="w-4 h-4" />
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent align="end" className="w-72 p-3">
-                  <p className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground mb-2">
-                    Notifications
-                  </p>
-                  <p className="text-sm text-muted-foreground leading-relaxed">
-                    {canUseFieldKit
-                      ? "No new product alerts. Coaching and trial notices appear in Account when available."
-                      : "Subscribe or start evaluation to unlock live tool runs and org notices."}
-                  </p>
-                  <Button asChild variant="outline" size="sm" className="mt-3 w-full">
-                    <Link href="/account">Account & access</Link>
-                  </Button>
-                </PopoverContent>
-              </Popover>
+              <NotificationCenter />
 
               <AppearanceControls compact testId="workspace-appearance" />
 
