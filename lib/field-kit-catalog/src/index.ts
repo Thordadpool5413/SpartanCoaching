@@ -418,6 +418,18 @@ export function filterDiscoveryIntents(q: string) {
   return filterIntentsByQueryImpl(DISCOVERY_INTENTS, q);
 }
 
+export {
+  TOOL_ANATOMY_VERSION,
+  TOOL_ANATOMY_SECTIONS,
+  TOOL_ANATOMY_META,
+  TOOL_ANATOMY_BY_ID,
+  anatomySectionsForTool,
+  toolUsesSection,
+  normalizeSectionAlias,
+  type ToolAnatomySectionId,
+  type ToolAnatomySectionMeta,
+} from "./tool-anatomy";
+
 /**
  * Category display labels and elite-positioning blurbs for the membership page.
  * Kept here so a new category added to FIELD_KIT_TOOLS is visible in one place.

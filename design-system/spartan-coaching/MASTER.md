@@ -114,10 +114,54 @@ Light mode: prefer slightly deeper primary (`primaryLight` ~48% L) so red text/i
 - Web tokens: `artifacts/spartan-coaching/src/index.css`, `tailwind.config.ts`, `lib/theme.ts`  
 - Shells: `Layout.tsx`, `FieldKitToolLayout.tsx`, `Portal.tsx`, `Tools.tsx`  
 - Primitives: `components/ui/button.tsx`, `card.tsx`, `empty.tsx`, `ToolResultPanel.tsx`  
-- Advanced library: `AiToolsHub.tsx` (Field AI vs Clinical vault)  
-- AI tool run: `AiTool.tsx` (no membership chrome in PHI; vault banner; result panel)  
-- Mobile type: `artifacts/spartan-coaching-mobile/lib/typography.ts`  
-- Mobile icons: Feather / SF Symbols (no emoji)  
+- Tool anatomy: `lib/field-kit-catalog/src/tool-anatomy.ts`, web/iOS `components/ToolAnatomy.tsx`
+- Advanced library: `AiToolsHub.tsx` (Field AI vs Clinical vault)
+- AI tool run: `AiTool.tsx` (no membership chrome in PHI; vault banner; result panel)
+- Mobile type: `artifacts/spartan-coaching-mobile/lib/typography.ts`
+- Mobile icons: Feather / SF Symbols (no emoji)
+
+## Standard tool anatomy (HSP-30)
+
+Every Hospice Sales Pro tool should feel like one product. Use the shared section contract — **only when a section adds value**. Do not force empty slots. Preserve each tool’s unique interaction (e.g. Objection Handler’s curated card grid vs free-text mobile paste).
+
+### Canonical sections
+
+| Id | Label | When to include |
+|----|--------|-----------------|
+| `context` | Context | Tool job, title, kicker, category |
+| `guidance` | Guidance | When/how/why from catalog |
+| `input` | Input | Free text or structured fields |
+| `result` | Result | Field-ready body with copy/share |
+| `why` | Why this approach | Trust/rationale (AI, objections) |
+| `next_move` | Next move | Concrete field action after result |
+| `save` | Save | Reuse later (skip pure calculators if useless) |
+| `related` | Related | Sister tool or field resource |
+| `evidence` | Evidence | Citations, sources — never invent authority |
+| `feedback` | Feedback | Loading, empty, error, offline, success, locked |
+
+Contract source: `@workspace/field-kit-catalog` → `TOOL_ANATOMY_*`, `anatomySectionsForTool(toolId)`.
+
+### Preferred components (no one-offs)
+
+| Concern | Web | iOS |
+|---------|-----|-----|
+| Section chrome / slots | `ToolAnatomy.*` | `ToolAnatomy.*` |
+| Form fields | `ui/field`, `ui/textarea` | `SpartanInput` / tool styles |
+| Result panel | `ToolResultPanel`, `FieldTalkTrack` | `FieldResultPanel` |
+| System status | `StateBlock`, `ToolAnatomyFeedback` | `EmptyState`, offline banner |
+| Locked / paywall note | `ToolAnatomyLocked` (+ `FieldKitGate`) | Auth / account messaging |
+| Shell | `FieldKitToolLayout` | `ToolShell` |
+
+### Anti-patterns
+
+- Renaming slots ad hoc (`output`, `answer`, `next step`) — use `normalizeSectionAlias` or the canonical ids
+- Building a second result panel styling per tool
+- Inventing evidence/citations client-side
+- Forcing every section on calculators or brand-video
+
+### Reference wire
+
+Objection Handler is the vertical slice: web `pages/Objections.tsx`, iOS `components/tools/ObjectionTool.tsx`. Roll the same slots into other tools as they are touched — do not rewrite all tools in one pass.
 
 ## Phase status
 
