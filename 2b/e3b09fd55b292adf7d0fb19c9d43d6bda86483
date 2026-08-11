@@ -1,0 +1,22 @@
+artifacts/api-server/package.json
+  h_0446834f150a71 11
+artifacts/api-server/src/app.ts
+  h_0446834f150a71 12,95-97
+artifacts/api-server/src/knowledge/providerCompanyConfig.test.ts
+  h_0446834f150a71 1-133
+artifacts/api-server/src/knowledge/providerCompanyConfig.ts
+  h_0446834f150a71 1-613
+artifacts/api-server/src/routes/providerCompanyConfigRoutes.ts
+  h_0446834f150a71 1-280
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "2be3b09fd55b292adf7d0fb19c9d43d6bda86483",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
