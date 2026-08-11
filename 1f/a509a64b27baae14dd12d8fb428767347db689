@@ -1,0 +1,34 @@
+artifacts/spartan-coaching-mobile/app/(tabs)/command.tsx
+  h_0446834f150a71 5,20-25,40-55,216-217
+artifacts/spartan-coaching-mobile/components/tools/ObjectionTool.tsx
+  h_0446834f150a71 28-32,40-51,202
+artifacts/spartan-coaching-mobile/components/tools/WeeklyTool.tsx
+  h_0446834f150a71 18-23,38-49,235
+artifacts/spartan-coaching/src/lib/fieldKitCatalog.ts
+  h_0446834f150a71 43-50
+artifacts/spartan-coaching/src/pages/ActivityCalculator.tsx
+  h_0446834f150a71 1,15-20,508-524,1002-1005
+artifacts/spartan-coaching/src/pages/Objections.tsx
+  h_0446834f150a71 1,11-15,68-85,234,239
+artifacts/spartan-coaching/src/pages/SalesWorkflow.tsx
+  h_0446834f150a71 16-21,34-50,190
+artifacts/spartan-coaching/src/pages/WeeklyPlanBuilder.tsx
+  h_0446834f150a71 1,19-24,48-64,293-296
+lib/field-kit-catalog/src/index.ts
+  h_0446834f150a71 433-447
+lib/field-kit-catalog/src/related-recommendations.test.ts
+  h_0446834f150a71 1-157
+lib/field-kit-catalog/src/related-recommendations.ts
+  h_0446834f150a71 1-499
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "1fa509a64b27baae14dd12d8fb428767347db689",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
