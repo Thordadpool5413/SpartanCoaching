@@ -184,10 +184,58 @@ export default function Resources() {
                   <div className="flex-1 relative">
                     <div className="flex items-start justify-between gap-2 mb-4 flex-wrap">
                       <h3 className="text-h3 text-foreground leading-tight">{resource.title}</h3>
-                      <Badge variant="outline" className="shrink-0">
-                        {categoryNames[resource.category] || resource.category}
-                      </Badge>
+                      <div className="flex flex-wrap gap-1.5 shrink-0">
+                        <Badge variant="outline">
+                          {categoryNames[resource.category] || resource.category}
+                        </Badge>
+                        {(() => {
+                          const life = (
+                            resource as SelectResource & {
+                              lifecycle?: {
+                                versionLabel?: string;
+                                hasNewerVersion?: boolean;
+                                documentVersionLine?: string;
+                                currentVersion?: { id: number; versionLabel: string };
+                              };
+                              versionLabel?: string | null;
+                            }
+                          ).lifecycle;
+                          const ver =
+                            life?.versionLabel ||
+                            resource.versionLabel ||
+                            resource.contentArchitecture?.versionLabel ||
+                            resource.contentArchitecture?.contentVersion;
+                          return ver ? (
+                            <Badge variant="secondary" data-testid={`resource-version-${resource.id}`}>
+                              v{ver}
+                            </Badge>
+                          ) : null;
+                        })()}
+                      </div>
                     </div>
+
+                    {(() => {
+                      const life = (
+                        resource as SelectResource & {
+                          lifecycle?: {
+                            hasNewerVersion?: boolean;
+                            documentVersionLine?: string;
+                            currentVersion?: { id: number; versionLabel: string; title: string };
+                          };
+                        }
+                      ).lifecycle;
+                      if (!life?.hasNewerVersion || !life.currentVersion) return null;
+                      return (
+                        <div
+                          className="mb-3 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-foreground"
+                          data-testid={`resource-newer-${resource.id}`}
+                        >
+                          A newer version is available (v{life.currentVersion.versionLabel}
+                          {life.currentVersion.title ? `: ${life.currentVersion.title}` : ""}
+                          ). This copy is retained for history — do not treat it as current.
+                        </div>
+                      );
+                    })()}
 
                     {resource.description && (
                       <p className="text-base text-muted-foreground leading-relaxed mb-3 line-clamp-3">

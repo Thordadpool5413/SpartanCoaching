@@ -18,12 +18,27 @@ export type ResourceRowLike = {
   category?: string | null;
   createdAt?: Date | string | null;
   contentArchitecture?: ResourceContentArchitecture | null;
+  seriesKey?: string | null;
+  versionLabel?: string | null;
+  lifecycleStatus?: string | null;
+  supersededById?: number | null;
+  isCurrent?: boolean | null;
 };
 
 export type PublicResource = ResourceRowLike & {
   architecture: ResourceContentArchitecture;
   /** Convenience alias for clients that prefer a nested product model. */
   contentArchitecture: ResourceContentArchitecture;
+  /** HSP-27 version / supersession notice for UI and download footers. */
+  lifecycle?: {
+    versionLabel: string;
+    status: string;
+    isCurrent: boolean;
+    hasNewerVersion: boolean;
+    currentVersion: { id: number; versionLabel: string; title: string } | null;
+    documentVersionLine: string;
+    isSuperseded: boolean;
+  };
 };
 
 const CATEGORY_PRESENTATION: Record<
@@ -245,20 +260,100 @@ function mergeArchitecture(
  * Build the public resource payload. Legacy rows with null architecture
  * receive safe defaults derived from title/category/fileUrl only.
  */
-export function presentResource(row: ResourceRowLike): PublicResource {
+export function presentResource(
+  row: ResourceRowLike,
+  peers?: ResourceRowLike[],
+): PublicResource {
   const architecture = mergeArchitecture(
     defaultsFromLegacy(row),
     row.contentArchitecture,
   );
+  // Attach lifecycle version fields into architecture for clients
+  architecture.versionLabel =
+    row.versionLabel || architecture.versionLabel || architecture.contentVersion || "1.0";
+  architecture.contentVersion =
+    architecture.contentVersion || architecture.versionLabel;
+  {
+    const rawStatus =
+      row.lifecycleStatus ||
+      architecture.lifecycleStatus ||
+      (architecture.status === "review_required"
+        ? "in_review"
+        : architecture.status) ||
+      "published";
+    const allowed = new Set([
+      "draft",
+      "in_review",
+      "published",
+      "archived",
+      "retired",
+      "superseded",
+    ]);
+    architecture.lifecycleStatus = allowed.has(String(rawStatus))
+      ? (rawStatus as ResourceContentArchitecture["lifecycleStatus"])
+      : "published";
+  }
+  architecture.isCurrent = row.isCurrent ?? architecture.isCurrent ?? true;
+  architecture.seriesKey =
+    row.seriesKey || architecture.seriesKey || (row.id ? `resource-${row.id}` : undefined);
+  if (row.supersededById) {
+    architecture.supersededByResourceId = row.supersededById;
+  }
+
+  let lifecycle: PublicResource["lifecycle"];
+  if (peers && row.id) {
+    // Lazy import avoided — compute inline lighter notice
+    const seriesKey = architecture.seriesKey || `resource-${row.id}`;
+    const current = peers.find(
+      (p) =>
+        (p.seriesKey || (p.id ? `resource-${p.id}` : "")) === seriesKey &&
+        (p.isCurrent !== false) &&
+        (p.lifecycleStatus || "published") === "published",
+    );
+    const thisLabel = architecture.versionLabel || "1.0";
+    const hasNewer = Boolean(current && current.id !== row.id);
+    lifecycle = {
+      versionLabel: thisLabel,
+      status: String(architecture.lifecycleStatus || "published"),
+      isCurrent: row.isCurrent !== false && !hasNewer,
+      hasNewerVersion: hasNewer,
+      currentVersion:
+        current && current.id
+          ? {
+              id: current.id,
+              versionLabel: current.versionLabel || "1.0",
+              title: current.title || "",
+            }
+          : null,
+      isSuperseded:
+        (row.lifecycleStatus || "") === "superseded" || hasNewer,
+      documentVersionLine: [
+        `Version ${thisLabel}`,
+        architecture.publishedAt
+          ? `Published ${String(architecture.publishedAt).slice(0, 10)}`
+          : null,
+        architecture.contentOwner
+          ? `Owner: ${architecture.contentOwner}`
+          : null,
+        hasNewer && current
+          ? `Newer version available: ${current.versionLabel || "current"} (id ${current.id})`
+          : null,
+      ]
+        .filter(Boolean)
+        .join(" · "),
+    };
+  }
+
   return {
     ...row,
     architecture,
     contentArchitecture: architecture,
+    lifecycle,
   };
 }
 
 export function presentResources(rows: ResourceRowLike[]): PublicResource[] {
-  return rows.map(presentResource);
+  return rows.map((r) => presentResource(r, rows));
 }
 
 /**

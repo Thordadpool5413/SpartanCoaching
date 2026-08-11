@@ -330,6 +330,19 @@ export type ResourceContentArchitecture = {
   formats?: string[];
   contentOwner?: string;
   reviewDueAt?: string | null;
+  /** HSP-27 lifecycle (also mirrored on table columns for queries). */
+  lifecycleStatus?:
+    | "draft"
+    | "in_review"
+    | "published"
+    | "archived"
+    | "retired"
+    | "superseded";
+  seriesKey?: string;
+  versionLabel?: string;
+  isCurrent?: boolean;
+  supersededByResourceId?: number | null;
+  supersedesResourceId?: number | null;
 };
 
 // Drizzle table definition for resources
@@ -342,6 +355,12 @@ export const resources = pgTable("resources", {
   createdAt: timestamp("created_at").defaultNow(),
   /** HSP-25: structured product metadata; null for legacy download-only rows. */
   contentArchitecture: jsonb("content_architecture").$type<ResourceContentArchitecture | null>(),
+  /** HSP-27: groups successive professional versions of the same content. */
+  seriesKey: varchar("series_key", { length: 120 }),
+  versionLabel: varchar("version_label", { length: 32 }).default("1.0"),
+  lifecycleStatus: varchar("lifecycle_status", { length: 32 }).default("published"),
+  supersededById: integer("superseded_by_id"),
+  isCurrent: boolean("is_current").default(true),
 });
 
 // Insert schema and types for resources
@@ -355,6 +374,11 @@ export const insertResourceSchema = createInsertSchema(resources)
     contentArchitecture: z
       .custom<ResourceContentArchitecture>()
       .nullish(),
+    seriesKey: z.string().max(120).nullish(),
+    versionLabel: z.string().max(32).nullish(),
+    lifecycleStatus: z.string().max(32).nullish(),
+    supersededById: z.number().int().positive().nullish(),
+    isCurrent: z.boolean().nullish(),
   });
 export type InsertResource = z.infer<typeof insertResourceSchema>;
 export type SelectResource = typeof resources.$inferSelect;

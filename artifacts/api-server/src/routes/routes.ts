@@ -24,6 +24,7 @@ import {
   presentResources,
   prepareResourceWrite,
 } from "../resources/resourceArchitecture";
+import { isSilentFileReplace } from "../resources/resourceLifecycle";
 
 import path from "path";
 import fs from "fs";
@@ -800,16 +801,45 @@ Subject: [subject line]
         return res.status(404).json({ error: "Resource not found" });
       }
 
+      const bodyObj =
+        (req.body && typeof req.body === "object" ? req.body : {}) as Record<
+          string,
+          unknown
+        >;
+      // HSP-27: never silently replace published professional file content.
+      const nextFileUrl =
+        typeof bodyObj.fileUrl === "string" ? bodyObj.fileUrl : undefined;
+      if (
+        isSilentFileReplace(
+          {
+            id: existingResource.id,
+            title: existingResource.title,
+            fileUrl: existingResource.fileUrl,
+            seriesKey: existingResource.seriesKey ?? null,
+            versionLabel: existingResource.versionLabel ?? "1.0",
+            lifecycleStatus: existingResource.lifecycleStatus ?? "published",
+            isCurrent: existingResource.isCurrent ?? true,
+            supersededById: existingResource.supersededById ?? null,
+          },
+          nextFileUrl,
+        )
+      ) {
+        return res.status(409).json({
+          error: {
+            code: "USE_PUBLISH_NEW_VERSION",
+            message:
+              "Cannot replace the file on a published resource. Use POST /api/v1/resources/:id/lifecycle/transition with action publish_new_version.",
+          },
+        });
+      }
+
       const prepared = prepareResourceWrite({
         title: existingResource.title,
         description: existingResource.description,
         fileUrl: existingResource.fileUrl,
         category: existingResource.category,
         contentArchitecture: existingResource.contentArchitecture,
-        ...((req.body && typeof req.body === "object" ? req.body : {}) as Record<
-          string,
-          unknown
-        >),
+        ...bodyObj,
       });
       const resourceData = insertResourceSchema.parse({
         title: prepared.title,

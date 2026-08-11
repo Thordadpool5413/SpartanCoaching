@@ -8,6 +8,7 @@ import { registerAuthRoutes } from "./routes/authRoutes";
 import { registerSalesWorkflowRoutes } from "./routes/salesWorkflowRoutes";
 import { registerAiToolRoutes } from "./routes/aiToolRoutes";
 import { registerResourceWorkRoutes } from "./routes/resourceWorkRoutes";
+import { registerResourceLifecycleRoutes } from "./routes/resourceLifecycleRoutes";
 import { registerBillingRoutes, handleStripeWebhook } from "./billing/billingRoutes";
 import { loadSession } from "./auth/middleware";
 import { globalApiLimit } from "./rateLimits";
@@ -89,6 +90,9 @@ registerAiToolRoutes(app);
 
 // Executable resource saved work (HSP-26)
 registerResourceWorkRoutes(app);
+
+// Resource versioning / publishing / retirement (HSP-27)
+registerResourceLifecycleRoutes(app);
 
 // Legacy app routes (AI tools gated with requireFieldKit)
 registerRoutes(app);

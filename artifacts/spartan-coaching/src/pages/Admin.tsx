@@ -3033,17 +3033,168 @@ export default function Admin() {
                   <CardHeader>
                     <div className="flex items-start justify-between gap-4">
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
+                        <div className="flex items-center gap-2 mb-2 flex-wrap">
                           <CardTitle className="text-xl">
                             {resource.title}
                           </CardTitle>
                           <Badge variant="outline">{resource.category}</Badge>
+                          {(resource as SelectResource & { versionLabel?: string | null }).versionLabel ||
+                          resource.contentArchitecture?.contentVersion ? (
+                            <Badge variant="secondary">
+                              v
+                              {(resource as SelectResource & { versionLabel?: string | null })
+                                .versionLabel ||
+                                resource.contentArchitecture?.contentVersion}
+                            </Badge>
+                          ) : null}
+                          {(resource as SelectResource & { lifecycleStatus?: string | null })
+                            .lifecycleStatus ? (
+                            <Badge variant="outline">
+                              {
+                                (resource as SelectResource & {
+                                  lifecycleStatus?: string | null;
+                                }).lifecycleStatus
+                              }
+                            </Badge>
+                          ) : null}
                         </div>
                         {resource.description && (
                           <CardDescription>
                             {resource.description}
                           </CardDescription>
                         )}
+                        <div className="flex flex-wrap gap-2 mt-3">
+                          {(
+                            [
+                              ["submit_review", "Submit review"],
+                              ["publish", "Publish"],
+                              ["archive", "Archive"],
+                              ["retire", "Retire"],
+                            ] as const
+                          ).map(([action, label]) => (
+                            <Button
+                              key={action}
+                              type="button"
+                              size="sm"
+                              variant="secondary"
+                              data-testid={`button-lifecycle-${action}-${resource.id}`}
+                              onClick={async () => {
+                                try {
+                                  const res = await fetch(
+                                    `/api/v1/resources/${resource.id}/lifecycle/transition`,
+                                    {
+                                      method: "POST",
+                                      credentials: "include",
+                                      headers: {
+                                        "Content-Type": "application/json",
+                                      },
+                                      body: JSON.stringify({ action }),
+                                    },
+                                  );
+                                  if (!res.ok) {
+                                    const err = await res.json().catch(() => ({}));
+                                    throw new Error(
+                                      (err as { error?: { message?: string } })
+                                        ?.error?.message || "Lifecycle failed",
+                                    );
+                                  }
+                                  queryClient.invalidateQueries({
+                                    queryKey: ["/api/resources"],
+                                  });
+                                  toast({
+                                    title: "Lifecycle updated",
+                                    description: `${label} applied.`,
+                                  });
+                                } catch (e) {
+                                  toast({
+                                    title: "Lifecycle error",
+                                    description:
+                                      e instanceof Error
+                                        ? e.message
+                                        : "Could not update lifecycle",
+                                    variant: "destructive",
+                                  });
+                                }
+                              }}
+                            >
+                              {label}
+                            </Button>
+                          ))}
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            data-testid={`button-lifecycle-new-version-${resource.id}`}
+                            onClick={async () => {
+                              const versionLabel = window.prompt(
+                                "New version label (e.g. 2.0)",
+                                "2.0",
+                              );
+                              if (!versionLabel) return;
+                              const fileUrl = window.prompt(
+                                "New file URL (must differ from current — old version is retained)",
+                                resource.fileUrl,
+                              );
+                              if (!fileUrl || fileUrl === resource.fileUrl) {
+                                toast({
+                                  title: "New version cancelled",
+                                  description:
+                                    "A different file URL is required; content is not silently replaced.",
+                                  variant: "destructive",
+                                });
+                                return;
+                              }
+                              try {
+                                const res = await fetch(
+                                  `/api/v1/resources/${resource.id}/lifecycle/transition`,
+                                  {
+                                    method: "POST",
+                                    credentials: "include",
+                                    headers: {
+                                      "Content-Type": "application/json",
+                                    },
+                                    body: JSON.stringify({
+                                      action: "publish_new_version",
+                                      newVersion: {
+                                        versionLabel,
+                                        fileUrl,
+                                        title: resource.title,
+                                        description: resource.description,
+                                        category: resource.category,
+                                      },
+                                    }),
+                                  },
+                                );
+                                if (!res.ok) {
+                                  const err = await res.json().catch(() => ({}));
+                                  throw new Error(
+                                    (err as { error?: { message?: string } })
+                                      ?.error?.message || "Publish version failed",
+                                  );
+                                }
+                                queryClient.invalidateQueries({
+                                  queryKey: ["/api/resources"],
+                                });
+                                toast({
+                                  title: "New version published",
+                                  description:
+                                    "Previous version kept as superseded.",
+                                });
+                              } catch (e) {
+                                toast({
+                                  title: "Version error",
+                                  description:
+                                    e instanceof Error
+                                      ? e.message
+                                      : "Could not publish new version",
+                                  variant: "destructive",
+                                });
+                              }
+                            }}
+                          >
+                            Publish new version
+                          </Button>
+                        </div>
                       </div>
                       <div className="flex items-center gap-2">
                         <Button

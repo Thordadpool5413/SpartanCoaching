@@ -464,12 +464,20 @@ export default function LearnScreen() {
               </Text>
               {group.items.map((item) => {
                 const arch = item.architecture || item.contentArchitecture;
-                const subtitle =
-                  arch?.whenToUse ||
-                  arch?.expectedOutcome ||
-                  item.description ||
-                  item.category ||
-                  "PDF download";
+                const ver =
+                  item.lifecycle?.versionLabel ||
+                  item.versionLabel ||
+                  arch?.experienceLevel;
+                const newer = item.lifecycle?.hasNewerVersion
+                  ? " · Newer version available"
+                  : "";
+                const subtitle = [
+                  ver ? `v${ver}` : null,
+                  arch?.whenToUse || arch?.expectedOutcome || item.description || item.category || "PDF download",
+                  newer || null,
+                ]
+                  .filter(Boolean)
+                  .join(" · ");
                 return (
                   <ListRow
                     key={item.id}
