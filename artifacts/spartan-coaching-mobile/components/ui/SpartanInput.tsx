@@ -2,6 +2,7 @@ import React from "react";
 import { StyleSheet, Text, TextInput, View, type TextInputProps } from "react-native";
 import { useColors } from "@/hooks/useColors";
 import { font } from "@/lib/typography";
+import { MAX_FONT_SIZE_MULTIPLIER, MIN_TOUCH_TARGET } from "@/lib/iosProductQuality";
 
 export function SpartanInput({
   label,
@@ -13,22 +14,39 @@ export function SpartanInput({
   return (
     <View style={styles.wrap}>
       {label ? (
-        <Text style={[styles.label, { color: colors.mutedForeground }]}>{label}</Text>
+        <Text
+          maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER}
+          style={[styles.label, { color: colors.mutedForeground }]}
+          accessibilityRole="text"
+        >
+          {label}
+        </Text>
       ) : null}
       <TextInput
         placeholderTextColor={colors.mutedForeground}
+        accessibilityLabel={label ?? props.placeholder ?? "Text field"}
+        maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER}
         style={[
           styles.input,
           {
             borderColor: error ? colors.destructive : colors.border,
             color: colors.foreground,
             backgroundColor: colors.card,
+            minHeight: MIN_TOUCH_TARGET,
           },
           style,
         ]}
         {...props}
       />
-      {error ? <Text style={[styles.error, { color: colors.destructive }]}>{error}</Text> : null}
+      {error ? (
+        <Text
+          maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER}
+          accessibilityRole="alert"
+          style={[styles.error, { color: colors.destructive }]}
+        >
+          {error}
+        </Text>
+      ) : null}
     </View>
   );
 }

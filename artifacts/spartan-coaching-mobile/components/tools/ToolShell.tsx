@@ -15,6 +15,7 @@ import { useColors } from "@/hooks/useColors";
 import { font } from "@/lib/typography";
 import { layout } from "@/lib/spacing";
 import { StickyCTA } from "@/components/ui/StickyCTA";
+import { MAX_FONT_SIZE_MULTIPLIER } from "@/lib/iosProductQuality";
 
 type Props = {
   title: string;
@@ -90,11 +91,16 @@ export function ToolShell({
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}
         >
-          <Text style={[{ color: colors.foreground, fontSize: 24, letterSpacing: -0.3 }, font("heavy")]}>
+          <Text
+            accessibilityRole="header"
+            maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER}
+            style={[{ color: colors.foreground, fontSize: 24, letterSpacing: -0.3 }, font("heavy")]}
+          >
             {title}
           </Text>
           {subtitle ? (
             <Text
+              maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER}
               style={[
                 { color: colors.mutedForeground, fontSize: 14, marginTop: 6, lineHeight: 20 },
                 font("regular"),

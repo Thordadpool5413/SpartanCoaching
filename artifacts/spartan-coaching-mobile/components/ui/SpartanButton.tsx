@@ -10,8 +10,15 @@ import {
   type ViewStyle,
 } from "react-native";
 import { useColors } from "@/hooks/useColors";
+import { useAccessibilityPrefs } from "@/hooks/useAccessibilityPrefs";
 import { radius } from "@workspace/design-tokens";
 import { font } from "@/lib/typography";
+import {
+  MAX_FONT_SIZE_MULTIPLIER,
+  MIN_TOUCH_TARGET,
+  impactLight,
+  pressScale,
+} from "@/lib/iosProductQuality";
 
 type Variant = "primary" | "outline" | "ghost";
 
@@ -23,6 +30,7 @@ export function SpartanButton({
   disabled,
   style,
   testID,
+  haptic = true,
 }: {
   title: string;
   onPress?: PressableProps["onPress"];
@@ -31,8 +39,11 @@ export function SpartanButton({
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
   testID?: string;
+  /** Light impact on press; suppressed when Reduce Motion */
+  haptic?: boolean;
 }) {
   const colors = useColors();
+  const { reduceMotion } = useAccessibilityPrefs();
   const isDisabled = disabled || loading;
 
   const bg =
@@ -49,7 +60,10 @@ export function SpartanButton({
   return (
     <Pressable
       testID={testID}
-      onPress={onPress}
+      onPress={(e) => {
+        if (haptic && !isDisabled) void impactLight(reduceMotion);
+        onPress?.(e);
+      }}
       disabled={isDisabled}
       accessibilityRole="button"
       accessibilityLabel={title}
@@ -61,26 +75,31 @@ export function SpartanButton({
           borderColor,
           borderWidth: variant === "outline" ? 2 : 0,
           opacity: isDisabled ? 0.55 : pressed ? 0.9 : 1,
-          transform: [{ scale: pressed && !isDisabled ? 0.97 : 1 }],
-          ...(variant === "primary" && Platform.OS === "ios"
+          transform: [pressScale(!!pressed && !isDisabled, reduceMotion, 0.97)],
+          ...(variant === "primary" && Platform.OS === "ios" && !reduceMotion
             ? {
                 shadowColor: colors.primary,
                 shadowOpacity: 0.45,
                 shadowRadius: 14,
                 shadowOffset: { width: 0, height: 6 },
               }
-            : variant === "primary"
+            : variant === "primary" && Platform.OS !== "ios"
               ? { elevation: 6 }
               : null),
         },
-        variant === "primary" && styles.primaryShadow,
+        variant === "primary" && !reduceMotion && styles.primaryShadow,
         style,
       ]}
     >
       {loading ? (
-        <ActivityIndicator color={textColor} />
+        <ActivityIndicator color={textColor} accessibilityLabel="Loading" />
       ) : (
-        <Text style={[styles.label, { color: textColor }]}>{title}</Text>
+        <Text
+          maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER}
+          style={[styles.label, { color: textColor }]}
+        >
+          {title}
+        </Text>
       )}
     </Pressable>
   );
@@ -88,7 +107,7 @@ export function SpartanButton({
 
 const styles = StyleSheet.create({
   base: {
-    minHeight: 50,
+    minHeight: Math.max(50, MIN_TOUCH_TARGET),
     paddingHorizontal: 18,
     borderRadius: radius.md,
     alignItems: "center",

@@ -8,8 +8,9 @@ import {
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
 import React, { useEffect } from "react";
-import { Platform } from "react-native";
+import { Platform, useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -59,6 +60,7 @@ function RootLayoutNav() {
 }
 
 export default function RootLayout() {
+  const colorScheme = useColorScheme();
   // iOS uses SF Pro (system). Load Inter only on Android/web for brand parity.
   const [fontsLoaded, fontError] = useFonts(
     Platform.OS === "ios"
@@ -91,7 +93,9 @@ export default function RootLayout() {
             <AppOpenTracker />
             <DeepLinkRouter />
             <ActivationCeremony />
-            <GestureHandlerRootView>
+            {/* System appearance — light/dark StatusBar (HSP-33) */}
+            <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+            <GestureHandlerRootView style={{ flex: 1 }}>
               <KeyboardProvider>
                 <RootLayoutNav />
               </KeyboardProvider>

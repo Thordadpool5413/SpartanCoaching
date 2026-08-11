@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Text, TextInput, View } from "react-native";
-import * as Haptics from "expo-haptics";
+import { impactLight, notifySuccess } from "@/lib/iosProductQuality";
+import { useAccessibilityPrefs } from "@/hooks/useAccessibilityPrefs";
 import { useColors } from "@/hooks/useColors";
 import { apiPost } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
@@ -36,6 +37,7 @@ const TOOL_ID = "objection";
 export function ObjectionTool() {
   const colors = useColors();
   const { canUseFieldKit } = useAuth();
+  const { reduceMotion } = useAccessibilityPrefs();
   const saved = useSavedResponses("objection");
   const relatedItems = relatedToAnatomyItems(
     recommendRelated(
@@ -82,7 +84,7 @@ export function ObjectionTool() {
       setError("Hospice Sales Pro access required. Sign in from Account.");
       return;
     }
-    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    void impactLight(reduceMotion);
     setLoading(true);
     setError(null);
     setSavedId(null);
@@ -94,7 +96,7 @@ export function ObjectionTool() {
       setResult(data.response);
       setCitations(data.citations || []);
       await saveToolLastResult(TOOL_ID, data.response);
-      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      void notifySuccess(reduceMotion);
     } catch (e: unknown) {
       if (shouldEnqueueOnError(e)) {
         await enqueueGenerate({
