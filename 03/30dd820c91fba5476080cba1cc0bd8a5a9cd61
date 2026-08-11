@@ -1,0 +1,18 @@
+artifacts/spartan-hospice-culture/package.json
+  h_0446834f150a71 20-22,25-27
+pnpm-lock.yaml
+  h_0446834f150a71 86-88,1029-1030,1038-1039,1047,1050-1051,3232,3551,3563,3574,8312-8314,8317-8318,8325-8327,8331-8332,8347-8350,11786,11792,17311,17317,17320,17329-17330,17332,17335-17336,17339,17343,17346-17347,17389,17412,17429
+pnpm-workspace.yaml
+  h_0446834f150a71 87-91
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "0330dd820c91fba5476080cba1cc0bd8a5a9cd61",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
