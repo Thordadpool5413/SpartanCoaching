@@ -1047,6 +1047,75 @@ importers:
         specifier: ^5.1.4
         version: 5.4.21(@types/node@25.9.5)(lightningcss@1.32.0)(terser@5.49.0)
 
+  artifacts/spartan-howdy-doody:
+    devDependencies:
+      '@react-spring/web':
+        specifier: ^10.0.3
+        version: 10.1.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      '@react-three/drei':
+        specifier: ^10.7.7
+        version: 10.7.7(@react-three/fiber@9.6.1(@types/react@19.2.17)(expo-asset@12.0.13(expo@54.0.36)(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0))(react@19.1.0)(typescript@5.9.3))(expo-file-system@19.0.23(expo@54.0.36)(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0)))(expo@54.0.36)(react-dom@19.1.0(react@19.1.0))(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0))(react@19.1.0)(three@0.182.0))(@types/react@19.2.17)(@types/three@0.185.1)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(three@0.182.0)
+      '@react-three/fiber':
+        specifier: ^9.5.0
+        version: 9.6.1(@types/react@19.2.17)(expo-asset@12.0.13(expo@54.0.36)(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0))(react@19.1.0)(typescript@5.9.3))(expo-file-system@19.0.23(expo@54.0.36)(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0)))(expo@54.0.36)(react-dom@19.1.0(react@19.1.0))(react-native@0.81.5(@babel/core@7.29.7)(@types/react@19.2.17)(react@19.1.0))(react@19.1.0)(three@0.182.0)
+      '@replit/vite-plugin-cartographer':
+        specifier: 'catalog:'
+        version: 0.5.21
+      '@replit/vite-plugin-dev-banner':
+        specifier: 'catalog:'
+        version: 0.1.2
+      '@replit/vite-plugin-runtime-error-modal':
+        specifier: 'catalog:'
+        version: 0.0.6
+      '@tailwindcss/vite':
+        specifier: 'catalog:'
+        version: 4.3.2(vite@7.3.6(@types/node@25.9.5)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.49.0)(tsx@4.23.0)(yaml@2.9.0))
+      '@types/node':
+        specifier: 'catalog:'
+        version: 25.9.5
+      '@types/react':
+        specifier: 19.2.17
+        version: 19.2.17
+      '@types/react-dom':
+        specifier: 19.2.3
+        version: 19.2.3(@types/react@19.2.17)
+      '@vitejs/plugin-react':
+        specifier: 'catalog:'
+        version: 5.2.0(vite@7.3.6(@types/node@25.9.5)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.49.0)(tsx@4.23.0)(yaml@2.9.0))
+      clsx:
+        specifier: 'catalog:'
+        version: 2.1.1
+      framer-motion:
+        specifier: 'catalog:'
+        version: 12.42.2(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      gsap:
+        specifier: ^3.14.2
+        version: 3.15.0
+      lottie-react:
+        specifier: ^2.4.1
+        version: 2.4.1(react-dom@19.1.0(react@19.1.0))(react@19.1.0)
+      lucide-react:
+        specifier: 'catalog:'
+        version: 0.545.0(react@19.1.0)
+      react:
+        specifier: 'catalog:'
+        version: 19.1.0
+      react-dom:
+        specifier: 'catalog:'
+        version: 19.1.0(react@19.1.0)
+      tailwind-merge:
+        specifier: 'catalog:'
+        version: 3.6.0
+      tailwindcss:
+        specifier: 'catalog:'
+        version: 4.3.2
+      three:
+        specifier: ^0.182.0
+        version: 0.182.0
+      vite:
+        specifier: 'catalog:'
+        version: 7.3.6(@types/node@25.9.5)(jiti@2.7.0)(lightningcss@1.32.0)(terser@5.49.0)(tsx@4.23.0)(yaml@2.9.0)
+
   artifacts/spartan-video:
     devDependencies:
       '@react-spring/web':

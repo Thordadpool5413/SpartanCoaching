@@ -1,0 +1,28 @@
+kind = "video"
+previewPath = "/spartan-howdy-doody/"
+title = "Howdy Doody Hospice Sales Commercial"
+description = "A punchy 60-second commercial that dramatizes the absurdity of the 'Howdy Doody' hospice sales call — donuts, pleasantries, zero clinical depth — and challenges leaders to stop accepting it. Ends on a hard brand pivot to Spartan Coaching as the answer."
+version = "1.0.0"
+id = "artifacts/spartan-howdy-doody"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/spartan-howdy-doody/" ]
+localPort = 26133
+
+[services.development]
+run = "pnpm --filter @workspace/spartan-howdy-doody run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/spartan-howdy-doody", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/spartan-howdy-doody/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "26133"
+BASE_PATH = "/spartan-howdy-doody/"
