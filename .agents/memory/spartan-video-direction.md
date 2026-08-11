@@ -28,6 +28,9 @@ Two middle-scene cuts were rejected as "don't make sense" because scenes were th
 ## Middle-scene copy must be plain narrator voice, not ad copy
 Middle scenes rejected repeatedly until copy dropped every "clever" device. What worked: lock the narrator's voice to the approved S2 register (short declarative fragments, e.g. "Twenty minutes. All small talk."), read the WHOLE spot's lines aloud in order as one voice, and cut anything that sounds written-for-an-ad. Concrete failures to avoid: aphorisms ("what you celebrate is what you get"), red strike-through gimmicks, finger-pointing openers ("Leaders —"), and clever payoffs. Make people real with relationship detail ("his wife of 52 years"), NOT invented names — a named AI person reads as a fake patient testimonial. The office/leadership beat must indict the habit ("that visit counts as a win / the box is checked / but no family got helped"), never the pictured person.
 
+## Slates carry place/time; body lines never repeat them
+Read the whole spot's on-screen text end-to-end as one script before shipping. Rules that survived review: one consistent slate/caption system across every scene; a slate and any body line in the same scene must never share a word (reviewers catch even one, e.g. slate "The better visit" vs line "The same visit…"); reusing an earlier scene's exact timestamp reads as simultaneity or a rewind; hold one temporal frame per scene; name every pronoun's referent at the payoff.
+
 ## Screenshot-any-beat trick (temporary)
 To verify each timed Beat, temporarily make useSceneClock honor a `?t=N` param (pins clock to N sec) alongside the `?scene=N` override in VideoTemplate. Pin scene + time, screenshot each beat's midpoint, then REMOVE both overrides and re-verify approved-file hashes + validate-recording.sh before finishing.
 

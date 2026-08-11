@@ -6,10 +6,10 @@ import { useSceneClock, Beat, Slate } from './Beats';
  * Scene 4 — Back at the office. (9.5s)
  * The empty visit gets treated as a success — donut box on the desk, a
  * warm handshake. The copy indicts the broken habit, never the people
- * pictured. Plain narrator voice, three beats, one at a time:
- *   1. "Back at the office, that visit counts as a win."
- *   2. "The donuts got dropped off. The box is checked."
- *   3. "But no family got helped."
+ * pictured. The slate carries the place; the lines carry the verdict:
+ *   1. "That visit counts as a win."
+ *   2. "Donuts delivered. Box checked."
+ *   3. "No one ever went upstairs."  ← pays off Scene 3, sets up Scene 5
  */
 const Scene4: React.FC<{ duration: number }> = () => {
   const baseUrl = import.meta.env.BASE_URL;
@@ -41,27 +41,27 @@ const Scene4: React.FC<{ duration: number }> = () => {
         <div className="absolute inset-x-0 bottom-0 h-[48vh] bg-gradient-to-t from-black/90 via-black/45 to-transparent" />
       </motion.div>
 
-      <Slate>Friday &middot; Back at the office</Slate>
+      <Slate>Friday &middot; 4:15 PM &middot; The sales office</Slate>
 
       {/* Beat 1 — the empty visit is treated as a success */}
       <Beat t={t} from={0.9} to={3.6} className="absolute inset-x-0 bottom-[7vh] z-10 px-[6vw]">
         <h2 className="font-sans font-light text-[3.6vw] leading-[1.3] tracking-wide text-white text-shadow-heavy">
-          Back at the office, that visit counts as a win.
+          That visit counts as a win.
         </h2>
       </Beat>
 
-      {/* Beat 2 — what actually happened, plainly */}
+      {/* Beat 2 — what actually happened, in the narrator's clipped register */}
       <Beat t={t} from={4.2} to={6.8} className="absolute inset-x-0 bottom-[7vh] z-10 px-[6vw]">
         <h2 className="font-sans font-light text-[3.6vw] leading-[1.3] tracking-wide text-white text-shadow-heavy">
-          The donuts got dropped off. The box is checked.
+          Donuts delivered. Box checked.
         </h2>
       </Beat>
 
-      {/* Beat 3 — the plain verdict on the habit, not the people */}
+      {/* Beat 3 — the plain verdict; points straight back to the couple in Scene 3 */}
       <Beat t={t} from={7.4} to={999} className="absolute inset-x-0 bottom-[7vh] z-10 px-[6vw]">
         <div className="relative inline-block pb-[2vh]">
           <h2 className="font-sans font-extrabold text-[4.4vw] leading-[1.15] text-white text-shadow-heavy">
-            But no family got helped.
+            No one ever went upstairs.
           </h2>
           <motion.div
             className="absolute bottom-0 left-0 h-[0.9vh] bg-[var(--color-brand-red)] shadow-[0_0_18px_rgba(218,41,28,0.55)]"

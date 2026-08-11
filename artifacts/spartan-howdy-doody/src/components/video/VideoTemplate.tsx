@@ -15,7 +15,7 @@ const SCENE_DURATIONS_MAP = {
   visitEnds: 8000,
   room214: 9000,
   scoreboard: 9500,
-  alternative: 9000,
+  alternative: 11000,
   brand: 10000,
 };
 
