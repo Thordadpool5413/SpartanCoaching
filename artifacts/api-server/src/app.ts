@@ -9,6 +9,7 @@ import { registerSalesWorkflowRoutes } from "./routes/salesWorkflowRoutes";
 import { registerAiToolRoutes } from "./routes/aiToolRoutes";
 import { registerKnowledgeLayerRoutes } from "./routes/knowledgeLayerRoutes";
 import { registerKnowledgeGovernanceRoutes } from "./routes/knowledgeGovernanceRoutes";
+import { registerProviderCompanyConfigRoutes } from "./routes/providerCompanyConfigRoutes";
 import { registerBillingRoutes, handleStripeWebhook } from "./billing/billingRoutes";
 import { loadSession } from "./auth/middleware";
 import { globalApiLimit } from "./rateLimits";
@@ -90,6 +91,9 @@ registerKnowledgeLayerRoutes(app);
 
 // Knowledge governance / freshness / source authority (HSP-16)
 registerKnowledgeGovernanceRoutes(app);
+
+// Provider company configuration (HSP-17)
+registerProviderCompanyConfigRoutes(app);
 
 // Shared Spartan AI tools and clinical case workspace.
 registerAiToolRoutes(app);
