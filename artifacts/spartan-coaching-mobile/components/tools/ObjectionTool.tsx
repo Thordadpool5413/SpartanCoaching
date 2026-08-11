@@ -7,6 +7,10 @@ import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
 import { useSavedResponses } from "@/hooks/useSavedResponses";
 import { FieldResultPanel } from "@/components/FieldResultPanel";
+import {
+  TrustedAiResultSections,
+  type TrustedAiResult,
+} from "@/components/TrustedAiResultSections";
 import { CitationsBlock, type CitationItem } from "@/components/ui/CitationsBlock";
 import { ReminderPicker } from "@/components/ReminderPicker";
 import { SavedResponsesSection } from "@/components/SavedResponsesSection";
@@ -29,6 +33,7 @@ export function ObjectionTool() {
   const [objection, setObjection] = useState("");
   const [result, setResult] = useState("");
   const [citations, setCitations] = useState<CitationItem[]>([]);
+  const [trustedResult, setTrustedResult] = useState<TrustedAiResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [savedId, setSavedId] = useState<string | null>(null);
@@ -65,11 +70,16 @@ export function ObjectionTool() {
     setSavedId(null);
     setFromCache(false);
     try {
-      const data = await apiPost<{ response: string; citations?: CitationItem[] }>("/api/objections", {
+      const data = await apiPost<{
+        response: string;
+        citations?: CitationItem[];
+        trustedResult?: TrustedAiResult;
+      }>("/api/objections", {
         objection,
       });
       setResult(data.response);
       setCitations(data.citations || []);
+      setTrustedResult(data.trustedResult ?? null);
       await saveToolLastResult(TOOL_ID, data.response);
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (e: unknown) {
@@ -140,18 +150,37 @@ export function ObjectionTool() {
         content={result || undefined}
         loading={loading && !result}
         error={error}
+        disclaimer={
+          trustedResult?.trustNotice || "Do not enter PHI · Coaching aid only"
+        }
         onSave={
           result
             ? async () => {
                 const title = objection.length > 60 ? objection.slice(0, 57) + "…" : objection;
+                // Local device cache (offline)
                 await saved.saveResponse(title, result);
+                // Backend trusted save when envelope present
+                if (trustedResult && trustedResult.actions?.canSave !== false) {
+                  try {
+                    await apiPost("/api/v1/ai-results/saved", {
+                      title,
+                      result: trustedResult,
+                    });
+                  } catch {
+                    // Local save already succeeded; backend may be offline.
+                  }
+                }
                 setSavedId("saved");
               }
             : undefined
         }
         saved={!!savedId}
       >
-        {result ? <CitationsBlock items={citations} title="Spartan Method sources" /> : null}
+        {result && trustedResult ? (
+          <TrustedAiResultSections result={trustedResult} omitWording />
+        ) : result ? (
+          <CitationsBlock items={citations} title="Spartan Method sources" />
+        ) : null}
       </FieldResultPanel>
       {!!result && (
         <>

@@ -15,6 +15,10 @@ import {
   roleplayMessageLimit,
 } from "../rateLimits";
 import { clientErrorMessage } from "../lib/httpErrors";
+import {
+  assembleFromObjectionResponse,
+  assembleFromPlaybookResponse,
+} from "../ai/trustedAiResult";
 
 import path from "path";
 import fs from "fs";
@@ -228,8 +232,12 @@ Format the playbook in markdown with clear sections, bullet points, and quoted t
       const systemInstruction = `You are an expert hospice sales coach creating detailed, actionable playbooks. Each playbook should include specific strategies, talking points in quotes, and clear action steps. Focus on building trust, demonstrating value, and ethical sales practices aligned with the Spartan Method (Discipline, Empathy, Strategy).`;
 
       const playbook = await generateComplexResponse(prompt, systemInstruction);
-      
-      res.json({ playbook });
+      const trustedResult = assembleFromPlaybookResponse({
+        playbook,
+        scenario,
+      });
+
+      res.json({ playbook, trustedResult });
     } catch (error: any) {
       console.error("Playbook generation error:", error);
       res.status(500).json({ error: clientErrorMessage(error, "Failed to generate playbook") });
@@ -256,14 +264,20 @@ Do not invent clinical claims. Do not request or include PHI.
 ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corpusBlock}` : ""}`;
 
       const response = await generateQuickResponse(prompt);
+      const citations = corpusHits.map((c) => ({
+        id: c.id,
+        title: c.title,
+        category: c.category,
+      }));
+      const trustedResult = assembleFromObjectionResponse({
+        response,
+        citations,
+      });
 
       res.json({
         response,
-        citations: corpusHits.map((c) => ({
-          id: c.id,
-          title: c.title,
-          category: c.category,
-        })),
+        citations,
+        trustedResult,
       });
     } catch (error: any) {
       console.error("Objection handling error:", error);

@@ -9,6 +9,7 @@ import { registerSalesWorkflowRoutes } from "./routes/salesWorkflowRoutes";
 import { registerAiToolRoutes } from "./routes/aiToolRoutes";
 import { registerPrivacySafeguardRoutes } from "./routes/privacySafeguardRoutes";
 import { registerAiSecurityRoutes } from "./routes/aiSecurityRoutes";
+import { registerTrustedAiResultRoutes } from "./routes/trustedAiResultRoutes";
 import { registerBillingRoutes, handleStripeWebhook } from "./billing/billingRoutes";
 import { loadSession } from "./auth/middleware";
 import { globalApiLimit } from "./rateLimits";
@@ -93,6 +94,9 @@ registerPrivacySafeguardRoutes(app);
 
 // AI prompt-injection / abuse threat scan (HSP-19)
 registerAiSecurityRoutes(app);
+
+// Trusted AI result save store (HSP-21 Slice A)
+registerTrustedAiResultRoutes(app);
 
 // Legacy app routes (AI tools gated with requireFieldKit)
 registerRoutes(app);

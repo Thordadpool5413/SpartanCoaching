@@ -79,6 +79,7 @@ import {
 } from "../security/phiEncryption";
 import { globalDailyAiCap, heavyAiLimit, standardAiLimit } from "../rateLimits";
 import { sendClinicalMfaCode } from "../resend";
+import { assembleFromAdvancedAiExpose } from "../ai/trustedAiResult";
 import OpenAI from "openai";
 
 const IDEMPOTENCY_PATTERN = /^[\x21-\x7e]{8,200}$/;
@@ -497,6 +498,18 @@ function exposeEphemeralResult(
         },
       ]
     : [];
+  const coveragePolicy = snapshot
+    ? {
+        snapshotId: snapshot.id,
+        documentId: snapshot.documentId,
+        version: snapshot.version,
+        contentHash: snapshot.contentHash,
+        sourceUrl: snapshot.sourceUrl,
+      }
+    : null;
+  const evidenceCitations = [...outputCitations, ...policyCitation];
+  const toolSpec = getSpartanAiTool(result.metadata.toolId);
+  const clinical = toolSpec ? isClinicalTool(toolSpec) : false;
   return {
     toolId: result.metadata.toolId,
     toolVersion: result.metadata.toolVersion,
@@ -505,21 +518,23 @@ function exposeEphemeralResult(
     modelConfigurationVersion: `${result.metadata.model}:${result.metadata.promptVersion}`,
     output: result.output,
     warnings: result.metadata.safetyWarnings,
-    evidenceCitations: [...outputCitations, ...policyCitation],
-    coveragePolicy: snapshot
-      ? {
-          snapshotId: snapshot.id,
-          documentId: snapshot.documentId,
-          version: snapshot.version,
-          contentHash: snapshot.contentHash,
-          sourceUrl: snapshot.sourceUrl,
-        }
-      : null,
+    evidenceCitations,
+    coveragePolicy,
     durationMs: result.metadata.durationMs,
     createdAt: new Date().toISOString(),
     retention: "ephemeral" as const,
     recoverable: false,
     watermark: CLINICAL_WATERMARK,
+    trustedResult: assembleFromAdvancedAiExpose({
+      toolId: result.metadata.toolId,
+      output: result.output,
+      warnings: [...(result.metadata.safetyWarnings ?? [])],
+      evidenceCitations,
+      coveragePolicy,
+      retention: clinical ? "clinical_ephemeral" : "ephemeral",
+      recoverable: false,
+      clinical,
+    }),
   };
 }
 
@@ -550,6 +565,17 @@ function exposeRun(run: typeof aiToolRuns.$inferSelect) {
         },
       ]
     : [];
+  const coveragePolicy = run.coverageSnapshotId
+    ? {
+        snapshotId: run.coverageSnapshotId,
+        documentId: run.coverageDocumentId ?? undefined,
+        version: run.coverageVersion ?? undefined,
+        contentHash: run.coverageContentHash ?? undefined,
+      }
+    : null;
+  const evidenceCitations = [...outputCitations, ...policyCitation];
+  const clinical = tool ? isClinicalTool(tool) : false;
+  const warnings = [...(tool?.safetyWarnings ?? [])];
   return {
     id: run.id,
     toolId: run.toolId,
@@ -558,25 +584,32 @@ function exposeRun(run: typeof aiToolRuns.$inferSelect) {
     promptVersion: run.promptVersion,
     status: run.status,
     output: payload.output,
-    warnings: tool?.safetyWarnings ?? [],
-    evidenceCitations: [...outputCitations, ...policyCitation],
+    warnings,
+    evidenceCitations,
     modelConfigurationVersion: `${run.model}:${run.promptVersion}`,
     reviewStatus: run.reviewStatus,
     clinicalCaseId: run.clinicalCaseId,
     coverageSnapshotId: run.coverageSnapshotId,
-    coveragePolicy: run.coverageSnapshotId
-      ? {
-          snapshotId: run.coverageSnapshotId,
-          documentId: run.coverageDocumentId,
-          version: run.coverageVersion,
-          contentHash: run.coverageContentHash,
-        }
-      : null,
+    coveragePolicy,
     durationMs: run.durationMs,
     createdAt: run.createdAt,
     completedAt: run.completedAt,
     errorCode: run.errorCode,
     safeErrorCode: run.errorCode,
+    trustedResult: assembleFromAdvancedAiExpose({
+      toolId: run.toolId,
+      output: payload.output,
+      warnings,
+      evidenceCitations,
+      coveragePolicy,
+      retention: clinical
+        ? "clinical_ephemeral"
+        : run.status === "completed"
+          ? "run_persisted"
+          : "ephemeral",
+      recoverable: !clinical && run.status === "completed",
+      clinical,
+    }),
   };
 }
 

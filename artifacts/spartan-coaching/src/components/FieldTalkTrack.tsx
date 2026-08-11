@@ -2,10 +2,15 @@ import { SpeakerIcon } from "@/components/icons";
 import { MarkdownContent } from "@/components/MarkdownContent";
 import { ToolResultPanel } from "@/components/ToolResultPanel";
 import { ReminderPicker } from "@/components/ReminderPicker";
+import {
+  TrustedAiResultSections,
+  type TrustedAiResult,
+} from "@/components/TrustedAiResultSections";
 import { FIELD_KIT_PHI } from "@/lib/complianceCopy";
 
 /**
  * Field-ready talk-track presentation for objection-style AI outputs.
+ * When trustedResult is present, semantic sections render under the talk track.
  */
 export function FieldTalkTrack({
   title = "Talk track for the room",
@@ -17,6 +22,9 @@ export function FieldTalkTrack({
   reading,
   reminderTitle,
   citations,
+  trustedResult,
+  onSave,
+  saved,
   copyTestId,
   readAloudTestId,
 }: {
@@ -29,16 +37,27 @@ export function FieldTalkTrack({
   reading?: boolean;
   reminderTitle?: string;
   citations?: Array<{ id: string; title: string; category: string }>;
+  trustedResult?: TrustedAiResult | null;
+  onSave?: () => void | Promise<void>;
+  saved?: boolean;
   copyTestId?: string;
   readAloudTestId?: string;
 }) {
+  const shareText = trustedResult?.plainText || copyText || content;
+  const hideLegacyCitations =
+    Boolean(trustedResult?.sourceBasis?.length) ||
+    Boolean(trustedResult?.spartanMethodologyBasis?.length);
+
   return (
     <ToolResultPanel
       title={title}
-      copyText={copyText ?? content}
+      copyText={shareText}
       loading={loading}
       empty={empty && !content && !loading}
-      disclaimer={`${FIELD_KIT_PHI.result} Do not sound scripted.`}
+      disclaimer={
+        trustedResult?.trustNotice ||
+        `${FIELD_KIT_PHI.result} Do not sound scripted.`
+      }
       className="shadow-sm"
       copyTestId={copyTestId}
       footer={
@@ -56,6 +75,19 @@ export function FieldTalkTrack({
                 {reading ? "Playing…" : "Practice aloud"}
               </button>
             )}
+            {onSave && (
+              <button
+                type="button"
+                onClick={() => {
+                  void onSave();
+                }}
+                disabled={saved}
+                className="text-sm font-semibold text-primary hover:underline disabled:opacity-50"
+                data-testid="button-save-trusted-result"
+              >
+                {saved ? "Saved" : "Save"}
+              </button>
+            )}
             {reminderTitle && <ReminderPicker title={reminderTitle} />}
           </div>
         ) : undefined
@@ -67,11 +99,14 @@ export function FieldTalkTrack({
             <p className="text-[10px] font-bold tracking-widest uppercase text-primary mb-2">
               Say this
             </p>
-            <div className="text-foreground leading-relaxed">
+            <div className="text-foreground leading-relaxed max-h-[28rem] overflow-y-auto">
               <MarkdownContent content={content} />
             </div>
           </div>
-          {citations && citations.length > 0 && (
+          {trustedResult ? (
+            <TrustedAiResultSections result={trustedResult} omitWording />
+          ) : null}
+          {!hideLegacyCitations && citations && citations.length > 0 && (
             <div className="rounded-md border border-border/80 bg-background/50 px-3 py-2 space-y-1">
               <p className="text-[10px] font-bold tracking-widest uppercase text-muted-foreground">
                 Spartan sources

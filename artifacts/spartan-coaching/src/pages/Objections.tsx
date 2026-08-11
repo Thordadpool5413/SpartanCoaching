@@ -8,6 +8,7 @@ import { trackEvent } from "@/lib/analytics";
 import { useToast } from "@/hooks/use-toast";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { FieldTalkTrack } from "@/components/FieldTalkTrack";
+import type { TrustedAiResult } from "@/components/TrustedAiResultSections";
 import { markFieldKitChecklistDone } from "@/lib/fieldKitProgress";
 
 export default function Objections() {
@@ -51,6 +52,10 @@ export default function Objections() {
   const [citations, setCitations] = useState<
     Record<string, Array<{ id: string; title: string; category: string }>>
   >({});
+  const [trustedResults, setTrustedResults] = useState<
+    Record<string, TrustedAiResult | undefined>
+  >({});
+  const [savedKeys, setSavedKeys] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [playing, setPlaying] = useState<string | null>(null);
 
@@ -73,13 +78,53 @@ export default function Objections() {
       const data = await response.json();
       setAiResponses((prev) => ({ ...prev, [objection]: data.response }));
       setCitations((prev) => ({ ...prev, [objection]: data.citations || [] }));
+      setTrustedResults((prev) => ({
+        ...prev,
+        [objection]: data.trustedResult,
+      }));
+      setSavedKeys((prev) => ({ ...prev, [objection]: false }));
       void markFieldKitChecklistDone("objection");
     } catch (error) {
       console.error("Objection response error:", error);
       setAiResponses((prev) => ({ ...prev, [objection]: "Sorry, I couldn't generate a response. Please try again." }));
       setCitations((prev) => ({ ...prev, [objection]: [] }));
+      setTrustedResults((prev) => ({ ...prev, [objection]: undefined }));
     } finally {
       setLoading((prev) => ({ ...prev, [objection]: false }));
+    }
+  };
+
+  const saveTrusted = async (objection: string) => {
+    const trusted = trustedResults[objection];
+    if (!trusted) return;
+    if (trusted.actions && trusted.actions.canSave === false) return;
+    try {
+      const res = await fetch("/api/v1/ai-results/saved", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          title: objection.length > 80 ? `${objection.slice(0, 77)}…` : objection,
+          result: trusted,
+        }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(
+          (body as { error?: { message?: string } })?.error?.message ||
+            "Save failed",
+        );
+      }
+      setSavedKeys((prev) => ({ ...prev, [objection]: true }));
+      toast({ title: "Saved", description: "Result stored for this membership session." });
+    } catch (error) {
+      console.error("Save trusted result error:", error);
+      toast({
+        title: "Could not save",
+        description:
+          error instanceof Error ? error.message : "Try again while signed in.",
+        variant: "destructive",
+      });
     }
   };
 
@@ -153,6 +198,13 @@ export default function Objections() {
                     content={aiResponses[obj.q]}
                     loading={loading[obj.q]}
                     citations={citations[obj.q]}
+                    trustedResult={trustedResults[obj.q]}
+                    onSave={
+                      trustedResults[obj.q]
+                        ? () => saveTrusted(obj.q)
+                        : undefined
+                    }
+                    saved={!!savedKeys[obj.q]}
                     reminderTitle={`Follow up: ${obj.q}`}
                     reading={playing === obj.q}
                     onReadAloud={() => readAloud(aiResponses[obj.q], obj.q)}
