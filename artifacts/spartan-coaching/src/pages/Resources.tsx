@@ -267,7 +267,12 @@ export default function Resources() {
         </p>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
           {[
-            { href: "/resources/weekly-plan", title: "Weekly Activity Planner", desc: "Daily schedule grid, priority accounts, follow-up tracker, and end-of-week review for any sales rep." },
+            {
+              href: "/resources/weekly-plan",
+              title: "Weekly Activity Planner",
+              desc: "Interactive plan with save/resume across devices (signed in), print, and PDF. Purpose: Monday focus. Outcome: a completed week plan.",
+              interactive: true,
+            },
             { href: "/resources/activity-tracker", title: "Weekly Activity Tracker", desc: "Detailed daily conversation log with Account, Contact, Topic, Stage, and Outcome columns. Includes weekly summary and reflection questions." },
             { href: "/resources/quick-start-guide", title: "First 30 Days Guide", desc: "Week-by-week actions, first contact scripts, objection responses, and a 30-day scorecard for new hires." },
             { href: "/resources/objection-cards", title: "Objection Response Cards", desc: "Eight of the most common hospice objections with response frameworks, coaching tips, and a universal reframe method." },
@@ -282,7 +287,9 @@ export default function Resources() {
               <Link href={item.href}>
                 <Button className="w-full gap-2" data-testid={`button-open-${item.href.split("/").pop()}`}>
                   <Printer className="w-4 h-4" />
-                  Open and Print
+                  {"interactive" in item && item.interactive
+                    ? "Open interactive plan"
+                    : "Open and Print"}
                 </Button>
               </Link>
             </Card>

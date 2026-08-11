@@ -411,6 +411,14 @@ export default function LearnScreen() {
             testID="learn-link-research-tool"
           />
 
+          <ListRow
+            title="Weekly Plan (interactive)"
+            subtitle="Save & resume across devices — purpose, timing, outcome"
+            icon="edit-3"
+            onPress={() => router.push("/resource-work" as any)}
+            testID="learn-link-resource-work"
+          />
+
           {!canUseFieldKit && (
             <View
               style={[
