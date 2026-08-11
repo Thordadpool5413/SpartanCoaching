@@ -76,4 +76,44 @@ describe("a11y contracts (source-level)", () => {
     const tool = read("pages/AiTool.tsx");
     expect(tool).toMatch(/showChrome=\{!tool\.containsPhi\}/);
   });
+
+  // —— HSP-35 extensions ——
+  it("paid AppShell exposes navigation landmark and search label", () => {
+    const shell = read("components/AppShell.tsx");
+    expect(shell).toMatch(/aria-label="Workspace navigation"/);
+    expect(shell).toMatch(/aria-label="Universal workspace search"/);
+    expect(shell).toMatch(/data-testid="app-shell"/);
+  });
+
+  it("login associates labels with inputs", () => {
+    const login = read("pages/Login.tsx");
+    expect(login).toMatch(/htmlFor="email"/);
+    expect(login).toMatch(/id="email"/);
+    expect(login).toMatch(/htmlFor="password"/);
+    expect(login).toMatch(/id="password"/);
+    expect(login).toMatch(/role="tablist"/);
+  });
+
+  it("ToolResultPanel announces loading and result to assistive tech", () => {
+    const panel = read("components/ToolResultPanel.tsx");
+    expect(panel).toMatch(/aria-busy/);
+    expect(panel).toMatch(/aria-live/);
+    expect(panel).toMatch(/role="region"/);
+  });
+
+  it("StateBlock uses alert/status for system feedback", () => {
+    const block = read("components/StateBlock.tsx");
+    expect(block).toMatch(/"alert"/);
+    expect(block).toMatch(/"status"/);
+    expect(block).toMatch(/aria-live/);
+    expect(block).toMatch(/assertive/);
+  });
+
+  it("a11y module documents manual verification for all surfaces", () => {
+    const mod = read("lib/a11y.ts");
+    expect(mod).toMatch(/A11Y_MANUAL_VERIFICATION/);
+    expect(mod).toMatch(/ios_native/);
+    expect(mod).toMatch(/generated_documents/);
+    expect(mod).toMatch(/validateDocumentStructure/);
+  });
 });

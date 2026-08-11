@@ -1,3 +1,9 @@
+import {
+  preferStructuredSections,
+  validateDocumentStructure,
+  type AccessibleDocSection,
+} from "./a11y";
+
 export interface PdfSection {
   heading?: string;
   body: string;
@@ -16,10 +22,19 @@ export async function downloadPdf(
   sections: PdfSection[],
   subtitle?: string
 ): Promise<void> {
+  // Ensure readable structure before export (HSP-35)
+  const structured = preferStructuredSections(sections as AccessibleDocSection[]);
+  const check = validateDocumentStructure(title, structured);
+  if (!check.ok) {
+    throw new Error(
+      check.issues[0]?.message || "Document is not structured for accessible export",
+    );
+  }
+
   const res = await fetch("/api/pdf/export", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ filename, title, subtitle, sections }),
+    body: JSON.stringify({ filename, title, subtitle, sections: structured }),
   });
 
   if (!res.ok) {
