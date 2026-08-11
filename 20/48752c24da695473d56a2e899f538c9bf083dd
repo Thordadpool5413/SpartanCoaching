@@ -1,0 +1,24 @@
+artifacts/api-server/package.json
+  h_0446834f150a71 11
+artifacts/api-server/src/app.ts
+  h_0446834f150a71 11,91-93
+artifacts/api-server/src/knowledge/knowledgeGovernance.test.ts
+  h_0446834f150a71 1-126
+artifacts/api-server/src/knowledge/knowledgeGovernance.ts
+  h_0446834f150a71 1-652
+artifacts/api-server/src/knowledge/threeLayerKnowledge.ts
+  h_0446834f150a71 20-25,337-338,341,343-360,367-373
+artifacts/api-server/src/routes/knowledgeGovernanceRoutes.ts
+  h_0446834f150a71 1-398
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "2048752c24da695473d56a2e899f538c9bf083dd",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
