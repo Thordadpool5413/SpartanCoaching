@@ -1,0 +1,28 @@
+artifacts/api-server/package.json
+  h_0446834f150a71 11
+artifacts/api-server/src/app.ts
+  h_0446834f150a71 10,90-92
+artifacts/api-server/src/lib/logger.ts
+  h_0446834f150a71 11-20
+artifacts/api-server/src/routes/privacySafeguardRoutes.ts
+  h_0446834f150a71 1-114
+artifacts/api-server/src/routes/routes.ts
+  h_0446834f150a71 1345-1353,1356-1368
+artifacts/api-server/src/salesDebrief.ts
+  h_0446834f150a71 9-12,123-127,143
+artifacts/api-server/src/security/sensitiveDataSafeguards.test.ts
+  h_0446834f150a71 1-132
+artifacts/api-server/src/security/sensitiveDataSafeguards.ts
+  h_0446834f150a71 1-480
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "396d991944f40c6100be4924c25fdf6f69d9e4d9",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
