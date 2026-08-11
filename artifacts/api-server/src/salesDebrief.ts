@@ -6,6 +6,10 @@
 import { z } from "zod";
 import OpenAI from "openai";
 import { isUsableOpenAiApiKey } from "@workspace/spartan-ai-tools";
+import {
+  assertSafeFreeTextForAi,
+  SENSITIVE_DATA_WARNING,
+} from "./security/sensitiveDataSafeguards";
 
 export const debriefOutcomeSchema = z.enum([
   "advanced",
@@ -116,6 +120,11 @@ export async function draftCallDebrief(
   raw: unknown,
 ): Promise<{ draft: DraftDebriefOutput; source: "ai" | "fallback"; model?: string }> {
   const input = draftDebriefInputSchema.parse(raw);
+  // HSP-18: block high-risk identifiers before any model call or log path.
+  assertSafeFreeTextForAi(input.notes, "notes");
+  if (input.transcript) assertSafeFreeTextForAi(input.transcript, "transcript");
+  if (input.purpose) assertSafeFreeTextForAi(input.purpose, "purpose");
+
   const model = process.env.OPENAI_MODEL ?? "gpt-5";
 
   let client: OpenAI;
@@ -131,6 +140,7 @@ export async function draftCallDebrief(
     accountType: input.accountType ?? null,
     notes: input.notes,
     transcript: input.transcript?.slice(0, 40_000) ?? null,
+    _privacyReminder: SENSITIVE_DATA_WARNING,
   };
 
   try {

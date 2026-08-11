@@ -1342,11 +1342,30 @@ Build a specific Monday–Friday territory plan for this week.`;
       const { memberId: _stripped, ...bodyWithoutMemberId } = req.body as Record<string, unknown>;
       const sessionMemberId = (req as import("../auth/middleware").AuthedRequest).clientMemberId ?? null;
       const eventData = insertEventTrackingSchema.parse({ ...bodyWithoutMemberId, memberId: sessionMemberId });
-      await storage.trackEvent(eventData);
+      // HSP-18: never persist free-text notes / identifiers in analytics metadata.
+      const { sanitizeAnalyticsEvent } = await import("../security/sensitiveDataSafeguards");
+      const scrubbed = sanitizeAnalyticsEvent({
+        eventType: eventData.eventType,
+        eventName: eventData.eventName,
+        metadata: eventData.metadata ?? null,
+        memberId: eventData.memberId ?? null,
+      });
+      await storage.trackEvent(scrubbed);
       res.json({ success: true });
     } catch (error: any) {
-      console.error("Track event error:", error);
-      res.status(500).json({ error: clientErrorMessage(error, "Failed to track event") });
+      const status =
+        typeof error?.status === "number" && error.status >= 400 && error.status < 600
+          ? error.status
+          : 500;
+      if (status >= 500) console.error("Track event error:", error);
+      res.status(status).json({
+        error: clientErrorMessage(
+          error,
+          status === 400
+            ? "Event rejected: remove sensitive data from analytics payload."
+            : "Failed to track event",
+        ),
+      });
     }
   });
 

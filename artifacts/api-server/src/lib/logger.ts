@@ -8,6 +8,16 @@ export const logger = pino({
     "req.headers.authorization",
     "req.headers.cookie",
     "res.headers['set-cookie']",
+    // HSP-18: never ship free-text note/transcript bodies via request logs
+    "req.body.notes",
+    "req.body.transcript",
+    "req.body.message",
+    "req.body.prompt",
+    "req.body.input",
+    "req.body.text",
+    "req.body.content",
+    "req.body.password",
+    "req.body.token",
   ],
   ...(isProduction
     ? {}
