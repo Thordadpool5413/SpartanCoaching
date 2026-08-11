@@ -8,6 +8,7 @@ import { registerAuthRoutes } from "./routes/authRoutes";
 import { registerSalesWorkflowRoutes } from "./routes/salesWorkflowRoutes";
 import { registerAiToolRoutes } from "./routes/aiToolRoutes";
 import { registerPrivacySafeguardRoutes } from "./routes/privacySafeguardRoutes";
+import { registerAiSecurityRoutes } from "./routes/aiSecurityRoutes";
 import { registerBillingRoutes, handleStripeWebhook } from "./billing/billingRoutes";
 import { loadSession } from "./auth/middleware";
 import { globalApiLimit } from "./rateLimits";
@@ -89,6 +90,9 @@ registerAiToolRoutes(app);
 
 // PHI / sensitive-data safeguards (HSP-18) — scan + policy snapshot
 registerPrivacySafeguardRoutes(app);
+
+// AI prompt-injection / abuse threat scan (HSP-19)
+registerAiSecurityRoutes(app);
 
 // Legacy app routes (AI tools gated with requireFieldKit)
 registerRoutes(app);

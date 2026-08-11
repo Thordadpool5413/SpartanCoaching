@@ -10,6 +10,24 @@ import {
   type SpartanAiToolId,
 } from "./registry";
 import {
+  PROMPT_SECURITY_VERSION,
+  SYSTEM_POLICY_GUARDRAILS,
+  scanToolInputForInjection,
+  scanToolOutputForLeakage,
+  wrapUntrustedData,
+} from "./promptSecurity";
+
+export {
+  PROMPT_SECURITY_VERSION,
+  SYSTEM_POLICY_GUARDRAILS,
+  buildSeparatedPromptMessages,
+  scanPromptInjection,
+  scanToolInputForInjection,
+  scanToolOutputForLeakage,
+  wrapUntrustedData,
+  safeInjectionLogFields,
+} from "./promptSecurity";
+import {
   outputSchema as territoryOutputSchema,
   type ToolInput as TerritoryInput,
 } from "./tools/territory-account-discovery/schema";
@@ -273,6 +291,16 @@ export async function runSpartanAiTool(
     );
   }
 
+  // Prompt-injection / exfil attempts in untrusted tool input (server-side).
+  const injection = scanToolInputForInjection(parsed.data);
+  if (injection.shouldBlock) {
+    throw new SpartanAiToolError(
+      "PROMPT_INJECTION_BLOCKED",
+      400,
+      `Request blocked by AI security policy (${injection.findings.map((f) => f.code).join(", ")}).`,
+    );
+  }
+
   const model = tool.deterministic
     ? "deterministic-v1"
     : (options.model ?? process.env.OPENAI_MODEL ?? "gpt-5");
@@ -297,15 +325,20 @@ export async function runSpartanAiTool(
               timeout: timeoutMs,
               maxRetries: 1,
             });
+          // System policy is trusted; tool user prompt is wrapped as untrusted data.
+          const userPrompt = tool.buildPrompt(parsed.data as never);
           const response = await client.responses.parse(
             {
               model,
               store: false,
               input: [
-                { role: "system", content: tool.systemPrompt },
+                {
+                  role: "system",
+                  content: `${SYSTEM_POLICY_GUARDRAILS}\n\n${tool.systemPrompt}`,
+                },
                 {
                   role: "user",
-                  content: tool.buildPrompt(parsed.data as never),
+                  content: wrapUntrustedData("tool_user_prompt", userPrompt),
                 },
               ],
               text: {
@@ -331,7 +364,16 @@ export async function runSpartanAiTool(
               true,
             );
           }
-          return tool.outputSchema.parse(response.output_parsed);
+          const validated = tool.outputSchema.parse(response.output_parsed);
+          const leak = scanToolOutputForLeakage(validated);
+          if (leak.shouldBlock) {
+            throw new SpartanAiToolError(
+              "UNSAFE_MODEL_OUTPUT",
+              502,
+              "Model output failed server-side safety validation.",
+            );
+          }
+          return validated;
         })();
 
     return {
@@ -340,10 +382,15 @@ export async function runSpartanAiTool(
         toolId: tool.id,
         toolVersion: tool.version,
         model,
-        promptVersion: `${tool.id}-v1`,
+        promptVersion: `${tool.id}-v1+${PROMPT_SECURITY_VERSION}`,
         requestId: options.requestId,
         durationMs: Date.now() - started,
-        safetyWarnings: tool.safetyWarnings,
+        safetyWarnings: [
+          ...tool.safetyWarnings,
+          ...(injection.hasAny
+            ? [`injection_scan_flags:${injection.findings.map((f) => f.code).join(",")}`]
+            : []),
+        ],
         humanReviewRequired: tool.containsPhi,
       },
     };
