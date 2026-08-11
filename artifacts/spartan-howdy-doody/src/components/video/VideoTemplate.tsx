@@ -13,8 +13,8 @@ const SCENE_DURATIONS_MAP = {
   arrival: 5500,
   howdyCall: 9000,
   turn: 9000,
-  indictment: 7500,
-  challenge: 11000,
+  indictment: 6500,
+  challenge: 12000,
   pivot: 8000,
   brand: 10000,
 };

@@ -3,21 +3,24 @@ import { motion } from 'framer-motion';
 
 /**
  * Scene 1 — "The Howdy Doody Call", named on screen.
- * Bright nurses' station, big smiles, and three pleasantries
- * that bounce in one after another — playful, mocking, hollow.
+ * Bright nurses' station, big smiles. The three pleasantries appear
+ * ONE AT A TIME in the lower third — each fades in, holds, and leaves
+ * before the next arrives, so the faces stay visible and nothing crowds.
  */
 const LINES = [
-  { text: '\u201CHi! Brought donuts!\u201D', delay: 1.4, rotate: -1.5 },
-  { text: '\u201CWe\u2019re the best hospice in town!\u201D', delay: 3.6, rotate: 1 },
-  { text: '\u201CHave a great day!\u201D', delay: 5.8, rotate: -1 },
+  { text: '\u201CHi! Brought donuts!\u201D', start: 0.9 },
+  { text: '\u201CWe\u2019re the best hospice in town!\u201D', start: 3.4 },
+  { text: '\u201CHave a great day!\u201D', start: 5.9 },
 ];
+
+const LINE_ON = 2.3; // seconds each line is fully visible
 
 const Scene1: React.FC<{ duration: number }> = () => {
   const baseUrl = import.meta.env.BASE_URL;
 
   return (
     <motion.div
-      className="absolute inset-0 flex items-center justify-center z-10 bg-[var(--color-brand-warm)]"
+      className="absolute inset-0 z-10 bg-[var(--color-brand-warm)]"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
@@ -37,41 +40,35 @@ const Scene1: React.FC<{ duration: number }> = () => {
           className="w-full h-full object-cover"
           style={{ filter: 'saturate(1.12) brightness(1.03)' }}
         />
-        {/* Soft center scrim so type stays readable over the busy image */}
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'radial-gradient(ellipse 70% 60% at 50% 55%, rgba(0,0,0,0.52) 0%, rgba(0,0,0,0.28) 55%, rgba(0,0,0,0.12) 100%)',
-          }}
-        />
+        {/* Scrim only over the lower third where the dialogue sits */}
+        <div className="absolute inset-x-0 bottom-0 h-[34vh] bg-gradient-to-t from-black/75 via-black/35 to-transparent" />
       </motion.div>
 
-      {/* The name of the call — a red tag, stamped on screen */}
+      {/* The name of the call — a red tag, top-left, out of the faces */}
       <motion.div
-        className="absolute top-[8vh] z-10 bg-[var(--color-brand-red)] px-[2.2vw] py-[1.4vh] shadow-[0_10px_35px_rgba(0,0,0,0.45)]"
-        initial={{ opacity: 0, scale: 1.5, rotate: 3 }}
+        className="absolute top-[6vh] left-[6vw] z-10 bg-[var(--color-brand-red)] px-[2vw] py-[1.3vh] shadow-[0_10px_35px_rgba(0,0,0,0.45)]"
+        initial={{ opacity: 0, scale: 1.4, rotate: 2 }}
         animate={{ opacity: 1, scale: 1, rotate: -1.5 }}
-        transition={{ duration: 0.45, ease: [0.2, 0.85, 0.15, 1], delay: 0.4 }}
+        transition={{ duration: 0.45, ease: [0.2, 0.85, 0.15, 1], delay: 0.35 }}
       >
-        <p className="font-sans font-extrabold text-[2.3vw] tracking-[0.3em] uppercase text-white">
+        <p className="font-sans font-extrabold text-[2vw] tracking-[0.28em] uppercase text-white">
           The &ldquo;Howdy Doody&rdquo; Call
         </p>
       </motion.div>
 
-      {/* Three pleasantries, bouncing in — dripping with irony */}
-      <div className="relative z-10 flex flex-col items-center justify-center gap-[4vh] w-full px-[6vw] pt-[8vh] text-center">
+      {/* One pleasantry at a time — lower third, like sitcom dialogue */}
+      <div className="absolute inset-x-0 bottom-[7vh] z-10 flex items-end justify-start px-[6vw]">
         {LINES.map((line) => (
           <motion.h2
             key={line.text}
-            className="font-display italic font-bold text-[5.2vw] leading-[1.25] text-white text-shadow-heavy"
-            initial={{ opacity: 0, scale: 0.7, y: 26 }}
-            animate={{ opacity: 1, scale: 1, y: 0, rotate: line.rotate }}
+            className="absolute bottom-0 left-[6vw] font-display italic font-bold text-[4.6vw] leading-[1.2] text-white text-shadow-heavy"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: [0, 1, 1, 0], y: [20, 0, 0, -12] }}
             transition={{
-              type: 'spring',
-              stiffness: 320,
-              damping: 13,
-              delay: line.delay,
+              duration: LINE_ON + 0.8,
+              times: [0, 0.16, 0.84, 1],
+              delay: line.start,
+              ease: 'easeOut',
             }}
           >
             {line.text}
