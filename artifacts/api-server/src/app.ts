@@ -7,6 +7,7 @@ import { registerRoutes } from "./routes/routes";
 import { registerAuthRoutes } from "./routes/authRoutes";
 import { registerSalesWorkflowRoutes } from "./routes/salesWorkflowRoutes";
 import { registerAiToolRoutes } from "./routes/aiToolRoutes";
+import { registerKnowledgeLayerRoutes } from "./routes/knowledgeLayerRoutes";
 import { registerBillingRoutes, handleStripeWebhook } from "./billing/billingRoutes";
 import { loadSession } from "./auth/middleware";
 import { globalApiLimit } from "./rateLimits";
@@ -82,6 +83,9 @@ registerBillingRoutes(app);
 
 // Continuous rep workflow (Sales Command Center)
 registerSalesWorkflowRoutes(app);
+
+// Three-layer knowledge architecture (HSP-15)
+registerKnowledgeLayerRoutes(app);
 
 // Shared Spartan AI tools and clinical case workspace.
 registerAiToolRoutes(app);
