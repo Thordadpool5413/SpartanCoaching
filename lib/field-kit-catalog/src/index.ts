@@ -430,6 +430,21 @@ export {
   type ToolAnatomySectionMeta,
 } from "./tool-anatomy";
 
+export {
+  RELATED_RECS_VERSION,
+  RELATED_EDGES,
+  REQUIRED_RELATED_SOURCES,
+  recommendRelated,
+  recommendRelatedIncludingUnavailable,
+  relatedToAnatomyItems,
+  type RelatedEdge,
+  type RelatedRecommendation,
+  type RecommendContext,
+  type RelatedSourceKind,
+  type RelatedDestinationKind,
+  type RequiredRelatedSource,
+} from "./related-recommendations";
+
 /**
  * Category display labels and elite-positioning blurbs for the membership page.
  * Kept here so a new category added to FIELD_KIT_TOOLS is visible in one place.

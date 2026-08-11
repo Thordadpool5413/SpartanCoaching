@@ -13,6 +13,12 @@ import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { NpiLookupPanel } from "@/components/NpiLookupPanel";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { ToolAnatomyRelated } from "@/components/ToolAnatomy";
+import {
+  getToolById,
+  recommendRelated,
+  relatedToAnatomyItems,
+} from "@/lib/fieldKitCatalog";
 
 export default function SalesWorkflow() {
   const { member, isLoading, isAuthenticated } = useAuth();
@@ -23,6 +29,23 @@ export default function SalesWorkflow() {
         fetch: (input, init) => fetch(input, { ...init, credentials: "include" }),
       }),
     [],
+  );
+
+  const relatedItems = useMemo(
+    () =>
+      relatedToAnatomyItems(
+        recommendRelated(
+          "sales-workflow",
+          {
+            platform: "web",
+            contextTags: ["prepare", "follow_up", "account"],
+            limit: 4,
+            canUseFieldKit: !!member,
+          },
+          getToolById,
+        ),
+      ),
+    [member],
   );
 
   if (isLoading) {
@@ -164,6 +187,7 @@ export default function SalesWorkflow() {
         />
         <div className="lg:sticky lg:top-4 space-y-4">
           <NpiLookupPanel />
+          <ToolAnatomyRelated items={relatedItems} />
         </div>
       </div>
     </FieldKitToolLayout>

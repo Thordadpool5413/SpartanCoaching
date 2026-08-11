@@ -15,6 +15,12 @@ import {
   saveToolLastResult,
 } from "@/lib/toolDraftCache";
 import { enqueueGenerate, shouldEnqueueOnError, userFacingApiError } from "@/lib/offlineQueue";
+import { ToolAnatomyRelated } from "@/components/ToolAnatomy";
+import {
+  getToolById,
+  recommendRelated,
+  relatedToAnatomyItems,
+} from "@workspace/field-kit-catalog";
 
 const TOOL_ID = "weekly";
 
@@ -29,6 +35,18 @@ export function WeeklyTool() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [fromCache, setFromCache] = useState(false);
+  const relatedItems = relatedToAnatomyItems(
+    recommendRelated(
+      "weekly-plan",
+      {
+        platform: "ios",
+        canUseFieldKit: !!canUseFieldKit,
+        contextTags: ["territory", "week", "plan"],
+        limit: 4,
+      },
+      getToolById,
+    ),
+  );
 
   useEffect(() => {
     void (async () => {
@@ -214,6 +232,7 @@ export function WeeklyTool() {
           <Text style={[{ color: colors.mutedForeground, fontSize: 14 }, font("semibold")]}>Share</Text>
         </Pressable>
       )}
+      <ToolAnatomyRelated items={relatedItems} />
     </ToolShell>
   );
 }

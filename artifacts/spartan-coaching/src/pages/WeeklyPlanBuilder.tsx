@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -16,6 +16,12 @@ import { LeadGateDialog } from "@/components/LeadGateDialog";
 import { Copy, Download, Loader2, CalendarDays } from "lucide-react";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { markFieldKitChecklistDone } from "@/lib/fieldKitProgress";
+import { ToolAnatomyRelated } from "@/components/ToolAnatomy";
+import {
+  getToolById,
+  recommendRelated,
+  relatedToAnatomyItems,
+} from "@/lib/fieldKitCatalog";
 
 const WEEKLY_GOALS = [
   "Secure a new referral from a cold account",
@@ -38,6 +44,23 @@ export default function WeeklyPlanBuilder() {
   const [challenges, setChallenges] = useState("");
   const [plan, setPlan] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  const relatedItems = useMemo(
+    () =>
+      relatedToAnatomyItems(
+        recommendRelated(
+          "weekly-plan",
+          {
+            platform: "web",
+            contextTags: ["territory", "week", "plan"],
+            limit: 4,
+            canUseFieldKit: true,
+          },
+          getToolById,
+        ),
+      ),
+    [],
+  );
 
   const effectiveGoal = weeklyGoal === "Custom goal" ? customGoal : weeklyGoal;
 
@@ -266,6 +289,10 @@ export default function WeeklyPlanBuilder() {
       {plan && !isLoading && (
         <CoachingCTA className="mt-6" />
       )}
+
+      <div className="mt-8">
+        <ToolAnatomyRelated items={relatedItems} />
+      </div>
 
       <LeadGateDialog gateState={gateState} />
     </FieldKitToolLayout>
