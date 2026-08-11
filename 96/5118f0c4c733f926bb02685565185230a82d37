@@ -1,0 +1,34 @@
+artifacts/api-server/package.json
+  h_0446834f150a71 11,15-16
+artifacts/api-server/src/app.ts
+  h_0446834f150a71 12,98-100
+artifacts/api-server/src/resources/providerResourceLibrary.test.ts
+  h_0446834f150a71 1-95
+artifacts/api-server/src/resources/providerResourceLibrary.ts
+  h_0446834f150a71 1-239
+artifacts/api-server/src/routes/providerResourceRoutes.ts
+  h_0446834f150a71 1-433
+artifacts/api-server/src/routes/routes.ts
+  h_0446834f150a71 28,740,747,749-750,755-756
+artifacts/spartan-coaching-mobile/app/(tabs)/learn.tsx
+  h_0446834f150a71 123,125-128,132-160,165,455-515
+artifacts/spartan-coaching/src/pages/Resources.tsx
+  h_0446834f150a71 2,20-31,34-43,47-104,106-114,254-370,372-379
+lib/db/migrations/0008_provider_resources.sql
+  h_0446834f150a71 1-27
+lib/db/src/schema/index.ts
+  h_0446834f150a71 27
+lib/db/src/schema/providerResources.ts
+  h_0446834f150a71 1-101
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "965118f0c4c733f926bb02685565185230a82d37",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
