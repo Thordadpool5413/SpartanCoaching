@@ -1142,12 +1142,21 @@ export default function Admin() {
     }
   };
 
-  // Resource form state
+  // Resource form state (HSP-25 architecture fields optional)
   const [resourceForm, setResourceForm] = useState({
     title: "",
     description: "",
     category: "",
     fileUrl: "",
+    whenToUse: "",
+    whyItMatters: "",
+    expectedOutcome: "",
+    experienceLevel: "all",
+    clinicalSensitivity: "none",
+    premiumRule: "public",
+    jobToAccomplish: "",
+    author: "",
+    contentOwner: "",
   });
 
   // Create resource mutation
@@ -1264,17 +1273,42 @@ export default function Admin() {
       description: "",
       category: "",
       fileUrl: "",
+      whenToUse: "",
+      whyItMatters: "",
+      expectedOutcome: "",
+      experienceLevel: "all",
+      clinicalSensitivity: "none",
+      premiumRule: "public",
+      jobToAccomplish: "",
+      author: "",
+      contentOwner: "",
     });
     setEditingResource(null);
   };
 
   const handleEditResource = (resource: SelectResource) => {
     setEditingResource(resource);
+    const arch =
+      (resource as SelectResource & {
+        architecture?: Record<string, unknown>;
+        contentArchitecture?: Record<string, unknown> | null;
+      }).architecture ||
+      resource.contentArchitecture ||
+      {};
     setResourceForm({
       title: resource.title,
       description: resource.description || "",
       category: resource.category,
       fileUrl: resource.fileUrl,
+      whenToUse: String(arch.whenToUse || ""),
+      whyItMatters: String(arch.whyItMatters || ""),
+      expectedOutcome: String(arch.expectedOutcome || ""),
+      experienceLevel: String(arch.experienceLevel || "all"),
+      clinicalSensitivity: String(arch.clinicalSensitivity || "none"),
+      premiumRule: String(arch.premiumRule || "public"),
+      jobToAccomplish: String(arch.jobToAccomplish || ""),
+      author: String(arch.author || ""),
+      contentOwner: String(arch.contentOwner || ""),
     });
   };
 
@@ -1299,6 +1333,27 @@ export default function Admin() {
       description: resourceForm.description || undefined,
       category: resourceForm.category,
       fileUrl: resourceForm.fileUrl,
+      contentArchitecture: {
+        whenToUse: resourceForm.whenToUse || undefined,
+        whyItMatters: resourceForm.whyItMatters || undefined,
+        expectedOutcome: resourceForm.expectedOutcome || undefined,
+        experienceLevel: resourceForm.experienceLevel || undefined,
+        clinicalSensitivity: resourceForm.clinicalSensitivity as
+          | "none"
+          | "educational"
+          | "clinical_adjacent"
+          | "restricted",
+        premiumRule: resourceForm.premiumRule as
+          | "public"
+          | "field_kit"
+          | "premium"
+          | "org_only",
+        jobToAccomplish: resourceForm.jobToAccomplish || undefined,
+        author: resourceForm.author || undefined,
+        contentOwner: resourceForm.contentOwner || undefined,
+        status: "published",
+        organizationVisibility: "all",
+      },
     };
 
     if (editingResource) {
@@ -2760,6 +2815,159 @@ export default function Admin() {
                       <SelectItem value="guide">Guide</SelectItem>
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="resource-when">When to use</Label>
+                    <Textarea
+                      id="resource-when"
+                      value={resourceForm.whenToUse}
+                      onChange={(e) =>
+                        setResourceForm({
+                          ...resourceForm,
+                          whenToUse: e.target.value,
+                        })
+                      }
+                      rows={2}
+                      placeholder="When a rep should open this"
+                      data-testid="input-resource-when-to-use"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="resource-outcome">Expected outcome</Label>
+                    <Textarea
+                      id="resource-outcome"
+                      value={resourceForm.expectedOutcome}
+                      onChange={(e) =>
+                        setResourceForm({
+                          ...resourceForm,
+                          expectedOutcome: e.target.value,
+                        })
+                      }
+                      rows={2}
+                      placeholder="What success looks like"
+                      data-testid="input-resource-expected-outcome"
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="resource-why">Why it matters</Label>
+                  <Textarea
+                    id="resource-why"
+                    value={resourceForm.whyItMatters}
+                    onChange={(e) =>
+                      setResourceForm({
+                        ...resourceForm,
+                        whyItMatters: e.target.value,
+                      })
+                    }
+                    rows={2}
+                    data-testid="input-resource-why-it-matters"
+                  />
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label>Experience level</Label>
+                    <Select
+                      value={resourceForm.experienceLevel}
+                      onValueChange={(value) =>
+                        setResourceForm({
+                          ...resourceForm,
+                          experienceLevel: value,
+                        })
+                      }
+                    >
+                      <SelectTrigger data-testid="select-resource-experience">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All levels</SelectItem>
+                        <SelectItem value="new_hire">New hire</SelectItem>
+                        <SelectItem value="experienced">Experienced</SelectItem>
+                        <SelectItem value="leader">Leader</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Clinical sensitivity</Label>
+                    <Select
+                      value={resourceForm.clinicalSensitivity}
+                      onValueChange={(value) =>
+                        setResourceForm({
+                          ...resourceForm,
+                          clinicalSensitivity: value,
+                        })
+                      }
+                    >
+                      <SelectTrigger data-testid="select-resource-clinical">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="none">None</SelectItem>
+                        <SelectItem value="educational">Educational</SelectItem>
+                        <SelectItem value="clinical_adjacent">
+                          Clinical adjacent
+                        </SelectItem>
+                        <SelectItem value="restricted">Restricted</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Premium rule</Label>
+                    <Select
+                      value={resourceForm.premiumRule}
+                      onValueChange={(value) =>
+                        setResourceForm({
+                          ...resourceForm,
+                          premiumRule: value,
+                        })
+                      }
+                    >
+                      <SelectTrigger data-testid="select-resource-premium">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="public">Public</SelectItem>
+                        <SelectItem value="field_kit">Field Kit</SelectItem>
+                        <SelectItem value="premium">Premium</SelectItem>
+                        <SelectItem value="org_only">Org only</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="resource-author">Author</Label>
+                    <Input
+                      id="resource-author"
+                      value={resourceForm.author}
+                      onChange={(e) =>
+                        setResourceForm({
+                          ...resourceForm,
+                          author: e.target.value,
+                        })
+                      }
+                      data-testid="input-resource-author"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="resource-owner">Content owner</Label>
+                    <Input
+                      id="resource-owner"
+                      value={resourceForm.contentOwner}
+                      onChange={(e) =>
+                        setResourceForm({
+                          ...resourceForm,
+                          contentOwner: e.target.value,
+                        })
+                      }
+                      data-testid="input-resource-content-owner"
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">

@@ -190,10 +190,54 @@ export default function Resources() {
                     </div>
 
                     {resource.description && (
-                      <p className="text-base text-muted-foreground leading-relaxed mb-6 line-clamp-3">
+                      <p className="text-base text-muted-foreground leading-relaxed mb-3 line-clamp-3">
                         {resource.description}
                       </p>
                     )}
+
+                    {(() => {
+                      const arch =
+                        (
+                          resource as SelectResource & {
+                            architecture?: {
+                              whenToUse?: string;
+                              expectedOutcome?: string;
+                              experienceLevel?: string;
+                              clinicalSensitivity?: string;
+                            };
+                          }
+                        ).architecture || resource.contentArchitecture;
+                      if (!arch) return null;
+                      return (
+                        <div className="space-y-2 mb-4 text-sm text-muted-foreground">
+                          {arch.whenToUse ? (
+                            <p className="line-clamp-2" data-testid={`resource-when-${resource.id}`}>
+                              <span className="font-semibold text-foreground">When: </span>
+                              {arch.whenToUse}
+                            </p>
+                          ) : null}
+                          {arch.expectedOutcome ? (
+                            <p className="line-clamp-2" data-testid={`resource-outcome-${resource.id}`}>
+                              <span className="font-semibold text-foreground">Outcome: </span>
+                              {arch.expectedOutcome}
+                            </p>
+                          ) : null}
+                          <div className="flex flex-wrap gap-1.5 pt-1">
+                            {arch.experienceLevel ? (
+                              <Badge variant="secondary" className="text-xs">
+                                {arch.experienceLevel}
+                              </Badge>
+                            ) : null}
+                            {arch.clinicalSensitivity &&
+                            arch.clinicalSensitivity !== "none" ? (
+                              <Badge variant="outline" className="text-xs">
+                                {arch.clinicalSensitivity}
+                              </Badge>
+                            ) : null}
+                          </div>
+                        </div>
+                      );
+                    })()}
 
                     <Button
                       className="w-full gap-2"

@@ -19,6 +19,11 @@ import {
   postflightUncertainty,
   preflightUncertainty,
 } from "../ai/uncertaintyBoundaries";
+import {
+  presentResource,
+  presentResources,
+  prepareResourceWrite,
+} from "../resources/resourceArchitecture";
 
 import path from "path";
 import fs from "fs";
@@ -723,12 +728,12 @@ Subject: [subject line]
 
   // Resource Management Routes
   
-  // Get All Resources (Public)
+  // Get All Resources (Public) — HSP-25 architecture enriched (legacy-safe)
   app.get("/api/resources", async (req, res) => {
     try {
       const resources = await storage.getAllResources();
       // Normalize legacy /resources/*.pdf URLs so downloads never hit the SPA route
-      const normalized = (resources || []).map((r: any) => {
+      const normalized = presentResources(resources || []).map((r) => {
         const fileUrl = String(r?.fileUrl || "");
         if (
           fileUrl.startsWith("/resources/") &&
@@ -740,7 +745,10 @@ Subject: [subject line]
         }
         return r;
       });
-      res.json({ resources: normalized });
+      res.json({
+        resources: normalized,
+        contentArchitectureVersion: "resource-content-architecture-v1",
+      });
     } catch (error: any) {
       console.error("Get resources error (DB may be unavailable):", error);
       res.json({ resources: [] });
@@ -750,13 +758,24 @@ Subject: [subject line]
   // Create Resource (Admin only)
   app.post("/api/resources", requireAdmin, async (req, res) => {
     try {
-      const resourceData = insertResourceSchema.parse(req.body);
+      const prepared = prepareResourceWrite(
+        (req.body && typeof req.body === "object"
+          ? req.body
+          : {}) as Record<string, unknown>,
+      );
+      const resourceData = insertResourceSchema.parse({
+        title: prepared.title,
+        description: prepared.description,
+        fileUrl: prepared.fileUrl,
+        category: prepared.category,
+        contentArchitecture: prepared.contentArchitecture,
+      });
       
       const resource = await storage.createResource(resourceData);
       
-      console.log("New resource created:", resource);
+      console.log("New resource created:", resource.id);
       
-      res.json({ success: true, resource });
+      res.json({ success: true, resource: presentResource(resource) });
     } catch (error: any) {
       console.error("Create resource error:", error);
       if (error.name === "ZodError") {
@@ -775,19 +794,36 @@ Subject: [subject line]
         return res.status(400).json({ error: "Invalid resource ID" });
       }
 
-      const resourceData = insertResourceSchema.parse(req.body);
-      
       // Check if resource exists first
       const existingResource = await storage.getResource(id);
       if (!existingResource) {
         return res.status(404).json({ error: "Resource not found" });
       }
+
+      const prepared = prepareResourceWrite({
+        title: existingResource.title,
+        description: existingResource.description,
+        fileUrl: existingResource.fileUrl,
+        category: existingResource.category,
+        contentArchitecture: existingResource.contentArchitecture,
+        ...((req.body && typeof req.body === "object" ? req.body : {}) as Record<
+          string,
+          unknown
+        >),
+      });
+      const resourceData = insertResourceSchema.parse({
+        title: prepared.title,
+        description: prepared.description,
+        fileUrl: prepared.fileUrl,
+        category: prepared.category,
+        contentArchitecture: prepared.contentArchitecture,
+      });
       
       const resource = await storage.updateResource(id, resourceData);
       
-      console.log("Resource updated:", resource);
+      console.log("Resource updated:", resource.id);
       
-      res.json({ success: true, resource });
+      res.json({ success: true, resource: presentResource(resource) });
     } catch (error: any) {
       console.error("Update resource error:", error);
       if (error.name === "ZodError") {
