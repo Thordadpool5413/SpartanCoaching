@@ -10,13 +10,13 @@ import Scene5 from './video_scenes/Scene5';
 import Scene6 from './video_scenes/Scene6';
 
 const SCENE_DURATIONS_MAP = {
-  arrival: 6000,
-  howdyCall: 8000,
-  statSlap: 6000,
-  indictment: 6000,
-  challenge: 10000,
+  arrival: 5500,
+  howdyCall: 9000,
+  turn: 9000,
+  indictment: 7500,
+  challenge: 11000,
   pivot: 8000,
-  brand: 16000,
+  brand: 10000,
 };
 
 const SCENE_DURATIONS = Object.values(SCENE_DURATIONS_MAP);
@@ -24,12 +24,19 @@ const SCENE_DURATIONS = Object.values(SCENE_DURATIONS_MAP);
 const VideoTemplate: React.FC = () => {
   const { currentScene } = useVideoPlayer({ durations: SCENE_DURATIONS_MAP });
 
+  // Act 1 (scenes 0-1) is bright and cheerful — keep the vignette light there.
+  // Act 2 darkens into the cinematic register.
+  const isActOne = currentScene <= 1;
+
   return (
     <div className="relative w-full h-screen overflow-hidden bg-[var(--color-brand-black)] flex items-center justify-center font-sans antialiased text-[var(--color-brand-white)]">
 
-      {/* Persistent Vignette - Cinematic Shadow */}
-      <div className="absolute inset-0 z-40 pointer-events-none"
-           style={{ background: 'radial-gradient(circle, transparent 30%, rgba(17, 19, 21, 0.8) 100%)' }} />
+      {/* Vignette — soft in Act 1, heavy in Act 2 */}
+      <motion.div
+        className="absolute inset-0 z-40 pointer-events-none"
+        animate={{ opacity: isActOne ? 0.35 : 1 }}
+        transition={{ duration: 1.2, ease: 'easeInOut' }}
+        style={{ background: 'radial-gradient(circle, transparent 35%, rgba(17, 19, 21, 0.75) 100%)' }} />
 
       {/* Global Film Grain */}
       <div

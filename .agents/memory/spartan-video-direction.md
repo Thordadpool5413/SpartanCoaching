@@ -14,4 +14,7 @@ Kinetic-typography-led treatments for the hospice culture video: giant text on b
 **How to apply:** Any future video work for this project should lead with real imagery/assets and use type as a supporting layer. The approved Scene0–Scene6 script wording is fixed copy — never alter it.
 
 ## Verification gotcha
-Screenshots of a video artifact always capture scene 0 (each page load restarts the loop), so later scenes can't be spot-checked via screenshot without a temporary dev-only `?scene=N` override — which must be removed before finishing.
+Screenshots of a video artifact always capture scene 0 (each page load restarts the loop), so later scenes can't be spot-checked via screenshot without a temporary dev-only `?scene=N` override — which must be removed before finishing. Pair it with a temporary `?snap=1` flag that collapses animation delays to ~0.05s so delayed text is visible in the screenshot; otherwise late-arriving lines look missing.
+
+## Two-act structure (Howdy Doody commercial, accepted)
+Bright warm satire (Act 1) → cold cinematic urgency (Act 2) worked where uniform dark grading failed. Keys: fully exposed Act 1 photography with light vignette; visible on-screen color-drain transition at the turn; photograph-led every scene (no text-on-black); label the satire target explicitly on screen; brand close ~10s with big stamp and no dead air.
