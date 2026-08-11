@@ -1,0 +1,36 @@
+artifacts/api-server/package.json
+  h_0446834f150a71 11
+artifacts/api-server/src/ai/trustedAiResult.test.ts
+  h_0446834f150a71 1-226
+artifacts/api-server/src/ai/trustedAiResult.ts
+  h_0446834f150a71 1-586
+artifacts/api-server/src/app.ts
+  h_0446834f150a71 12,98-100
+artifacts/api-server/src/routes/aiToolRoutes.ts
+  h_0446834f150a71 82,501-512,521-522,528-537,568-578,587-588,593,599-612
+artifacts/api-server/src/routes/routes.ts
+  h_0446834f150a71 18-21,235-240,267-275,279-280
+artifacts/api-server/src/routes/trustedAiResultRoutes.ts
+  h_0446834f150a71 1-262
+artifacts/spartan-coaching-mobile/components/TrustedAiResultSections.tsx
+  h_0446834f150a71 1-256
+artifacts/spartan-coaching-mobile/components/tools/ObjectionTool.tsx
+  h_0446834f150a71 10-13,36,73-77,82,153-155,160,162-172,179-183
+artifacts/spartan-coaching/src/components/FieldTalkTrack.tsx
+  h_0446834f150a71 5-8,13,25-27,40-42,46-50,54,57-60,78-90,102,106-109
+artifacts/spartan-coaching/src/components/TrustedAiResultSections.tsx
+  h_0446834f150a71 1-211
+artifacts/spartan-coaching/src/pages/Objections.tsx
+  h_0446834f150a71 11,55-58,81-85,91,97-130,201-207
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "147cb89aae7d8db6173032a943c89257f53c70fc",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
