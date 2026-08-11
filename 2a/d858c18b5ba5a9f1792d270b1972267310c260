@@ -1,0 +1,38 @@
+artifacts/api-server/package.json
+  h_0446834f150a71 17-18
+artifacts/api-server/src/app.ts
+  h_0446834f150a71 14,106-108
+artifacts/api-server/src/personalization/personalizationEngine.test.ts
+  h_0446834f150a71 1-116
+artifacts/api-server/src/personalization/personalizationEngine.ts
+  h_0446834f150a71 1-326
+artifacts/api-server/src/routes/personalizationRoutes.ts
+  h_0446834f150a71 1-352
+artifacts/spartan-coaching-mobile/app/(tabs)/index.tsx
+  h_0446834f150a71 24,78-82,343-370,505-580
+artifacts/spartan-coaching/src/components/AppShell.tsx
+  h_0446834f150a71 50,297,305-322
+artifacts/spartan-coaching/src/components/PersonalizationPanel.tsx
+  h_0446834f150a71 1-284
+artifacts/spartan-coaching/src/lib/personalizationClient.ts
+  h_0446834f150a71 1-74
+artifacts/spartan-coaching/src/pages/Portal.tsx
+  h_0446834f150a71 43,447-448
+lib/db/migrations/0009_member_personalization.sql
+  h_0446834f150a71 1-15
+lib/db/src/schema/index.ts
+  h_0446834f150a71 28
+lib/db/src/schema/memberPersonalization.ts
+  h_0446834f150a71 1-107
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "2ad858c18b5ba5a9f1792d270b1972267310c260",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
