@@ -1,0 +1,24 @@
+artifacts/api-server/src/app.ts
+  h_0446834f150a71 11,94-96
+artifacts/api-server/src/routes/aiSecurityRoutes.ts
+  h_0446834f150a71 1-64
+artifacts/api-server/src/salesDebrief.ts
+  h_0446834f150a71 13-16,141-153,163-174,181
+lib/spartan-ai-tools/src/promptSecurity.test.ts
+  h_0446834f150a71 1-94
+lib/spartan-ai-tools/src/promptSecurity.ts
+  h_0446834f150a71 1-225
+lib/spartan-ai-tools/src/server.ts
+  h_0446834f150a71 12-29,294-303,328-329,335-338,341,367-376,385,388-393
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "34b848ee721125ab4b9f1efbdd3a920833655b5e",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
