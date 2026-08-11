@@ -17,6 +17,12 @@ import {
   searchSpartanKnowledge,
   type KnowledgeChunk,
 } from "./spartanCorpus";
+import {
+  ensureCoreSeeded,
+  filterOutNonCurrentIds,
+  getGovernedItem,
+  isRetrievableAsCurrent,
+} from "./knowledgeGovernance";
 
 export const THREE_LAYER_KNOWLEDGE_VERSION = "three-layer-knowledge-v1";
 
@@ -328,33 +334,43 @@ export function retrieveThreeLayerKnowledge(
   const maxProvider = Math.min(Math.max(input.maxProvider ?? 4, 0), 10);
   const tokens = tokenize(query);
 
-  // Layer 1 — Core (shared)
+  // Layer 1 — Core (shared). Governance: never surface retired/superseded.
+  ensureCoreSeeded();
   const coreRaw =
     query.length >= 2
-      ? searchSpartanKnowledge(query, maxCore)
+      ? searchSpartanKnowledge(query, maxCore * 2)
       : SPARTAN_CORPUS.slice(0, 0);
-  const coreHits: LayeredKnowledgeHit[] = coreRaw.map((c) => ({
-    id: c.id,
-    title: c.title,
-    body: c.body,
-    layer: "core" as const,
-    layerLabel: LAYER_LABELS.core,
-    categoryOrKind: c.category,
-    score: "score" in c && typeof c.score === "number" ? c.score : 0,
-    organizationId: null,
-    precedenceRank: corePrecedenceRank(c.category),
-    tags: c.tags,
-  }));
+  const allowedCoreIds = new Set(
+    filterOutNonCurrentIds(coreRaw.map((c) => c.id)),
+  );
+  const coreHits: LayeredKnowledgeHit[] = coreRaw
+    .filter((c) => allowedCoreIds.has(c.id))
+    .slice(0, maxCore)
+    .map((c) => ({
+      id: c.id,
+      title: c.title,
+      body: c.body,
+      layer: "core" as const,
+      layerLabel: LAYER_LABELS.core,
+      categoryOrKind: c.category,
+      score: "score" in c && typeof c.score === "number" ? c.score : 0,
+      organizationId: null,
+      precedenceRank: corePrecedenceRank(c.category),
+      tags: c.tags,
+    }));
 
   // Layer 2 — Provider (org-scoped only)
   const providerDocs = filterProviderDocsForOrg(
     input.providerDocs,
     organizationId,
   );
-  // Defense in depth: drop any doc that somehow has wrong org id
-  const isolated = providerDocs.filter(
-    (d) => d.organizationId === organizationId,
-  );
+  // Defense in depth: drop foreign org + non-current governed provider items
+  const isolated = providerDocs.filter((d) => {
+    if (d.organizationId !== organizationId) return false;
+    const governed = getGovernedItem(d.id);
+    if (governed && !isRetrievableAsCurrent(governed)) return false;
+    return true;
+  });
   const providerScored = isolated
     .map((d) => ({
       doc: d,

@@ -8,6 +8,7 @@ import { registerAuthRoutes } from "./routes/authRoutes";
 import { registerSalesWorkflowRoutes } from "./routes/salesWorkflowRoutes";
 import { registerAiToolRoutes } from "./routes/aiToolRoutes";
 import { registerKnowledgeLayerRoutes } from "./routes/knowledgeLayerRoutes";
+import { registerKnowledgeGovernanceRoutes } from "./routes/knowledgeGovernanceRoutes";
 import { registerBillingRoutes, handleStripeWebhook } from "./billing/billingRoutes";
 import { loadSession } from "./auth/middleware";
 import { globalApiLimit } from "./rateLimits";
@@ -86,6 +87,9 @@ registerSalesWorkflowRoutes(app);
 
 // Three-layer knowledge architecture (HSP-15)
 registerKnowledgeLayerRoutes(app);
+
+// Knowledge governance / freshness / source authority (HSP-16)
+registerKnowledgeGovernanceRoutes(app);
 
 // Shared Spartan AI tools and clinical case workspace.
 registerAiToolRoutes(app);
