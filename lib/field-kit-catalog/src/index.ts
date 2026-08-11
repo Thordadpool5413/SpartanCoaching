@@ -378,6 +378,46 @@ export {
   type ClassicFieldToolRoute,
 } from "./tool-architecture";
 
+export {
+  DISCOVERY_IA_VERSION,
+  DISCOVERY_INTENT_SPECS,
+  PRODUCT_SURFACE_PLACEMENT,
+  buildDiscoveryIntents,
+  filterIntentsByQuery,
+  secondaryCategoriesStillSupported,
+  assertIntentToolReferences,
+  type DiscoveryIntentId,
+  type DiscoveryIntent,
+  type DiscoveryDestination,
+  type ProductSurface,
+} from "./intent-architecture";
+
+import {
+  buildDiscoveryIntents,
+  filterIntentsByQuery as filterIntentsByQueryImpl,
+  type DiscoveryIntentId,
+} from "./intent-architecture";
+
+/** Resolved intent map (tool paths from live catalog). */
+export const DISCOVERY_INTENTS = buildDiscoveryIntents(getToolById);
+
+export function getDiscoveryIntent(id: DiscoveryIntentId) {
+  return DISCOVERY_INTENTS.find((i) => i.id === id);
+}
+
+export function toolsForIntent(intentId: DiscoveryIntentId): FieldKitTool[] {
+  const intent = getDiscoveryIntent(intentId);
+  if (!intent) return [];
+  return intent.destinations
+    .filter((d) => d.kind === "tool" || d.kind === "command")
+    .map((d) => getToolById(d.id))
+    .filter((t): t is FieldKitTool => Boolean(t));
+}
+
+export function filterDiscoveryIntents(q: string) {
+  return filterIntentsByQueryImpl(DISCOVERY_INTENTS, q);
+}
+
 /**
  * Category display labels and elite-positioning blurbs for the membership page.
  * Kept here so a new category added to FIELD_KIT_TOOLS is visible in one place.

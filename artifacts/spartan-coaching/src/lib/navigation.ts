@@ -62,8 +62,8 @@ export const navSections: SiteNavSection[] = [
     title: "Hospice Sales Pro",
     items: [
       { path: "/hospice-sales-pro", label: "Hospice Sales Pro", description: "Command Center, tools & resources · $14.99/wk · web + iOS", icon: Wrench },
-      { path: "/tools", label: "All tools", description: "Command Center, practice, plans, calculators — preview free", icon: Calculator },
-      { path: "/resources", label: "Field resources", description: "Templates, scripts, checklists", icon: FolderOpen },
+      { path: "/tools", label: "Tools", description: "Start from intent — visits, objections, week plans, numbers", icon: Calculator },
+      { path: "/resources", label: "Field resources", description: "Work aids: templates, scripts, checklists — not only Learn", icon: FolderOpen },
       { path: "/register", label: "Create account", description: "Then subscribe to unlock live tools", icon: Lock },
       { path: "/request-access", label: "Team / evaluation", description: "Company seats or arranged evaluation", icon: Users },
     ],
@@ -71,11 +71,11 @@ export const navSections: SiteNavSection[] = [
   {
     title: "Learn",
     items: [
-      { path: "/resources", label: "Resources", description: "Templates, scripts, checklists", icon: FolderOpen },
-      { path: "/articles", label: "Articles", description: "Industry insights", icon: FileText },
+      { path: "/articles", label: "Articles", description: "Industry insights and fundamentals", icon: FileText },
       { path: "/podcasts", label: "Podcasts", description: "Coaching conversations", icon: Headphones },
+      { path: "/method", label: "The Spartan Method", description: "Discipline, empathy, and strategy", icon: Shield },
+      { path: "/drills", label: "Daily drills", description: "Practice between visits", icon: Flame },
       { path: "/faq", label: "FAQ", description: "Common questions", icon: HelpCircle },
-      { path: "/testimonials", label: "Testimonials", description: "Client stories", icon: MessageSquare },
     ],
   },
 ];

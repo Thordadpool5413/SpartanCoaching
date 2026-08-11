@@ -36,7 +36,11 @@ import {
   FIELD_KIT_CATEGORIES,
   FIELD_KIT_DAILY_TOOL_IDS,
   FIELD_KIT_LEADER_TOOL_IDS,
+  DISCOVERY_INTENTS,
+  PRODUCT_SURFACE_PLACEMENT,
+  filterDiscoveryIntents,
   type FieldKitTool,
+  type DiscoveryIntent,
 } from "@/lib/fieldKitCatalog";
 
 const TOOL_ICONS: Record<string, ReactNode> = {
@@ -83,6 +87,11 @@ export default function Tools() {
       );
     });
   }, [searchQuery]);
+
+  const filteredIntents = useMemo(
+    () => filterDiscoveryIntents(searchQuery),
+    [searchQuery],
+  );
 
   const showCatalogGate = !isLoading && !canUseFieldKit;
 
@@ -161,12 +170,24 @@ export default function Tools() {
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
           <p className="text-kicker mb-4 justify-center">Hospice Sales Pro</p>
           <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-tools-title">
-            Tools &amp; resources
+            What do you need to do?
           </h1>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
             {showCatalogGate
-              ? "Browse every tool’s real interface. Live generation, saves, and AI runs unlock with Hospice Sales Pro or evaluation access."
+              ? "Start from intent — prepare a visit, handle an objection, plan the week — then open tools or field resources. Live generation unlocks with Hospice Sales Pro."
               : FIELD_KIT_WHAT}
+          </p>
+          <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed">
+            <Link href={PRODUCT_SURFACE_PLACEMENT.field_resources.webPath} className="font-semibold text-primary hover:underline">
+              {PRODUCT_SURFACE_PLACEMENT.field_resources.label}
+            </Link>
+            {" "}
+            are work aids (templates & scripts), not only Learn content.{" "}
+            <Link href="/articles" className="font-semibold text-primary hover:underline">
+              {PRODUCT_SURFACE_PLACEMENT.learn.label}
+            </Link>
+            {" "}
+            is for articles, podcasts, and fundamentals.
           </p>
           {!showCatalogGate && (
             <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed">
@@ -249,20 +270,91 @@ export default function Tools() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-muted-foreground pointer-events-none" />
             <Input
               type="text"
-              placeholder="Search by name, when to use, or category..."
+              placeholder="Search by intent, tool name, or when to use…"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               data-testid="input-tools-search"
               className="pl-10"
-              aria-label="Search tools"
+              aria-label="Search tools and intents"
             />
           </div>
           <p className="text-sm text-muted-foreground">{filteredTools.length} tools</p>
         </div>
       </SlideUp>
 
+      {/* Intent-first discovery (HSP-29) */}
+      {filteredIntents.length > 0 && (
+        <SlideUp delay={0.12}>
+          <section className="mb-12" data-testid="tools-intent-map">
+            <div className="flex flex-wrap items-end justify-between gap-2 mb-4">
+              <div>
+                <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">
+                  Start with intent
+                </p>
+                <h2 className="text-h2 text-foreground">Professional entry points</h2>
+              </div>
+              <Link
+                href={PRODUCT_SURFACE_PLACEMENT.field_resources.webPath}
+                className="text-sm font-semibold text-primary hover:underline"
+                data-testid="link-field-resources-from-tools"
+              >
+                {PRODUCT_SURFACE_PLACEMENT.field_resources.label} →
+              </Link>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {filteredIntents.map((intent: DiscoveryIntent) => (
+                <Card
+                  key={intent.id}
+                  className="p-4 border border-border/80 hover:border-border hover:shadow-sm"
+                  data-testid={`intent-card-${intent.id}`}
+                >
+                  <h3 className="text-base font-bold text-foreground mb-1">
+                    {intent.title}
+                  </h3>
+                  <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
+                    {intent.description}
+                  </p>
+                  {intent.secondaryCategory ? (
+                    <Badge variant="outline" className="mb-3 text-[10px]">
+                      Also under {intent.secondaryCategory}
+                    </Badge>
+                  ) : null}
+                  <ul className="space-y-1.5">
+                    {intent.destinations.slice(0, 4).map((d) => (
+                      <li key={`${intent.id}-${d.id}-${d.webPath}`}>
+                        <Link
+                          href={d.webPath}
+                          className="text-sm font-semibold text-primary hover:underline"
+                        >
+                          {d.label}
+                          {d.surface === "field_resources" ? (
+                            <span className="text-muted-foreground font-normal">
+                              {" "}
+                              · resource
+                            </span>
+                          ) : null}
+                          {d.surface === "learn" ? (
+                            <span className="text-muted-foreground font-normal">
+                              {" "}
+                              · learn
+                            </span>
+                          ) : null}
+                        </Link>
+                      </li>
+                    ))}
+                  </ul>
+                </Card>
+              ))}
+            </div>
+          </section>
+        </SlideUp>
+      )}
+
       {!searchQuery.trim() ? (
         <div className="space-y-12">
+          <p className="text-xs font-bold tracking-widest text-muted-foreground uppercase">
+            Or browse by tool category
+          </p>
           {/* Hero: Command Center */}
           {(() => {
             const command = filteredTools.find((t) => t.id === "sales-workflow");

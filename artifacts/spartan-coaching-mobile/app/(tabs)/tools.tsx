@@ -21,6 +21,9 @@ import {
   FIELD_KIT_TOOLS,
   FIELD_KIT_DAILY_TOOL_IDS,
   FIELD_KIT_LEADER_TOOL_IDS,
+  DISCOVERY_INTENTS,
+  PRODUCT_SURFACE_PLACEMENT,
+  filterDiscoveryIntents,
   type FieldKitTool,
 } from "@workspace/field-kit-catalog";
 import { SpartanCard } from "@/components/ui/SpartanCard";
@@ -110,10 +113,12 @@ export default function ToolsCatalogScreen() {
           },
         ]}
       >
-        <Text style={[styles.headerTitle, { color: colors.foreground }, font("heavy")]}>Tools</Text>
+        <Text style={[styles.headerTitle, { color: colors.foreground }, font("heavy")]}>
+          What do you need?
+        </Text>
         <Text style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 4 }, font("regular")]}>
           {canUseFieldKit
-            ? "Command Center first · satellites below"
+            ? "Start with intent · tools & field resources"
             : "Preview free · live tools with subscription"}
         </Text>
         <TextInput
@@ -126,7 +131,7 @@ export default function ToolsCatalogScreen() {
               marginTop: 12,
             },
           ]}
-          placeholder="Filter tools…"
+          placeholder="Filter by intent or tool…"
           placeholderTextColor={colors.mutedForeground}
           value={filter}
           onChangeText={setFilter}
@@ -151,7 +156,79 @@ export default function ToolsCatalogScreen() {
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: bottomPad + 24, paddingTop: 12 }}
         showsVerticalScrollIndicator={false}
       >
-        <SectionKicker>Hospice Sales Pro · map</SectionKicker>
+        <SectionKicker>Hospice Sales Pro · intent map</SectionKicker>
+
+        {filterDiscoveryIntents(filter).map((intent) => (
+          <View key={intent.id} style={{ marginBottom: 14 }} testID={`intent-${intent.id}`}>
+            <Text style={[styles.sectionLabel, { color: colors.primary }, font("bold")]}>
+              {intent.title.toUpperCase()}
+            </Text>
+            <Text
+              style={[
+                { color: colors.mutedForeground, fontSize: 12, marginBottom: 6, lineHeight: 17 },
+                font("regular"),
+              ]}
+            >
+              {intent.description}
+            </Text>
+            {intent.destinations.slice(0, 5).map((d) => (
+              <ListRow
+                key={`${intent.id}-${d.id}-${d.webPath}`}
+                title={d.label}
+                subtitle={
+                  d.surface === "field_resources"
+                    ? "Field resource"
+                    : d.surface === "learn"
+                      ? "Learn"
+                      : d.surface === "command"
+                        ? "Command Center"
+                        : "Tool"
+                }
+                onPress={() => {
+                  void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  if (d.kind === "tool" || d.kind === "command") {
+                    const tool = FIELD_KIT_TOOLS.find((t) => t.id === d.id);
+                    if (tool) {
+                      openCatalogTool(tool);
+                      return;
+                    }
+                  }
+                  if (d.surface === "field_resources" || d.kind === "resource") {
+                    router.push({
+                      pathname: "/tool-web",
+                      params: { toolId: d.id, path: d.webPath },
+                    } as any);
+                    return;
+                  }
+                  if (d.surface === "learn" || d.kind === "learn") {
+                    router.push("/(tabs)/learn" as any);
+                    return;
+                  }
+                  router.push({
+                    pathname: "/tool-web",
+                    params: { toolId: d.id, path: d.webPath },
+                  } as any);
+                }}
+                testID={`intent-dest-${intent.id}-${d.id}`}
+              />
+            ))}
+          </View>
+        ))}
+
+        <ListRow
+          title={PRODUCT_SURFACE_PLACEMENT.field_resources.label}
+          subtitle={PRODUCT_SURFACE_PLACEMENT.field_resources.meaning}
+          icon="folder"
+          onPress={() => {
+            void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            router.push("/(tabs)/learn" as any);
+          }}
+          testID="tools-link-field-resources"
+        />
+
+        <Text style={[styles.sectionLabel, { color: colors.mutedForeground, marginTop: 8 }, font("bold")]}>
+          OR BROWSE TOOLS
+        </Text>
 
         {command && matches(command) && (
           <Pressable
