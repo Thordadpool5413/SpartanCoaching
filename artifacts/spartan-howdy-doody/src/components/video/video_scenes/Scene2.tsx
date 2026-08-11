@@ -1,14 +1,17 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { useSceneClock, Beat, Slate, LowerScrim } from './Beats';
 
 /**
- * Scene 2 — The Turn: who the Howdy Doody call never reaches.
- * Hard cut from the donut party to a family caring for a dying husband
- * alone at night — no nurses, no support. The warmth drains from the
- * frame, then the stat lands over the people it's actually about.
+ * Scene 2 — The people the donut call never reaches. (9s)
+ * Hard cut from the donut party to a wife alone at her dying husband's
+ * bedside. Two beats, one at a time:
+ *   1. Name what the image shows: no nurse, no support, no hospice.
+ *   2. Land the stat: most patients who need hospice never get it.
  */
 const Scene2: React.FC<{ duration: number }> = () => {
   const baseUrl = import.meta.env.BASE_URL;
+  const t = useSceneClock();
 
   return (
     <motion.div
@@ -18,7 +21,7 @@ const Scene2: React.FC<{ duration: number }> = () => {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5, ease: 'linear' }}
     >
-      {/* The family, alone — starts warm, drains cold on screen */}
+      {/* The family, alone — warmth drains from the frame */}
       <motion.div
         className="absolute inset-0 z-0"
         initial={{ scale: 1.05 }}
@@ -29,43 +32,30 @@ const Scene2: React.FC<{ duration: number }> = () => {
           src={`${baseUrl}assets/act2_family_alone.jpg`}
           alt="A wife sits alone at her dying husband's bedside, with no hospice support"
           className="w-full h-full object-cover object-[center_30%]"
-          initial={{ filter: 'saturate(1.35) brightness(1.15) sepia(0.2)' }}
+          initial={{ filter: 'saturate(1.3) brightness(1.12) sepia(0.15)' }}
           animate={{ filter: 'saturate(0.75) brightness(1.0) sepia(0)' }}
-          transition={{ duration: 2.8, ease: [0.4, 0, 0.6, 1], delay: 0.5 }}
+          transition={{ duration: 2.6, ease: [0.4, 0, 0.6, 1], delay: 0.5 }}
         />
-        <div className="absolute inset-x-0 bottom-0 h-[42vh] bg-gradient-to-t from-black/85 via-black/40 to-transparent" />
+        <LowerScrim />
       </motion.div>
 
-      {/* Context slate — this is the other side of town */}
-      <motion.p
-        className="absolute top-[6vh] left-[6vw] z-10 font-sans font-bold text-[1.8vw] tracking-[0.45em] uppercase text-[var(--color-brand-warm)] text-shadow-subtle"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 0.95 }}
-        transition={{ duration: 0.9, ease: 'easeOut', delay: 0.6 }}
-      >
-        Meanwhile &middot; No hospice. No help.
-      </motion.p>
+      <Slate>Across town &middot; The same morning</Slate>
 
-      {/* The stat — lands after the color drain, lower third */}
-      <div className="absolute inset-x-0 bottom-[7vh] z-10 flex flex-col items-start px-[6vw]">
-        <motion.p
-          className="font-sans font-light text-[2.6vw] leading-[1.4] tracking-wide text-[var(--color-brand-warm)] text-shadow-subtle"
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: 'easeOut', delay: 3.2 }}
-        >
-          Of the patients who needed hospice last year &mdash;
-        </motion.p>
+      {/* Beat 1 — name what you're looking at */}
+      <Beat t={t} from={1.0} to={4.2} className="absolute inset-x-0 bottom-[7vh] z-10 px-[6vw]">
+        <h2 className="font-sans font-light text-[3.4vw] leading-[1.3] tracking-wide text-[var(--color-brand-warm)] text-shadow-heavy">
+          No nurse. No support. No hospice.
+        </h2>
+      </Beat>
 
-        <motion.h2
-          className="font-sans font-extrabold text-[5.8vw] leading-[1.1] text-white text-shadow-heavy mt-[1.6vh]"
-          initial={{ opacity: 0, y: 14 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.9, ease: 'easeOut', delay: 4.8 }}
-        >
-          most never got it.
-        </motion.h2>
-      </div>
+      {/* Beat 2 — the stat, biggest line in the scene */}
+      <Beat t={t} from={4.8} to={999} className="absolute inset-x-0 bottom-[7vh] z-10 px-[6vw]">
+        <h2 className="font-sans font-extrabold text-[4.6vw] leading-[1.15] text-white text-shadow-heavy max-w-[80vw]">
+          Most patients who need hospice
+          <br />
+          never get it.
+        </h2>
+      </Beat>
     </motion.div>
   );
 };

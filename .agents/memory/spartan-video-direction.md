@@ -16,6 +16,9 @@ Kinetic-typography-led treatments for the hospice culture video: giant text on b
 ## Verification gotcha
 Screenshots of a video artifact always capture scene 0 (each page load restarts the loop), so later scenes can't be spot-checked via screenshot without a temporary dev-only `?scene=N` override — which must be removed before finishing. Pair it with a temporary `?snap=1` flag that collapses animation delays to ~0.05s so delayed text is visible in the screenshot; otherwise late-arriving lines look missing.
 
+## Sequential text must fully exit before the next line
+Twice-rejected failure mode: staggered lines that only fade in (never out) pile into unreadable overlap. Gate each message in an explicit time window with enter AND exit animation (AnimatePresence-style), windows non-overlapping, so only one message can ever be on screen. Screenshot every beat, not just scene start.
+
 ## Content must match visuals literally
 User rejected a technically polished cut because imagery didn't depict the words over it: a stat about unserved patients over an empty bedroom "makes no sense"; a leader portrait under challenge questions read as blaming the person pictured. Every line must sit over an image that shows exactly what it says (unserved family for the stat; leadership praising the donut call for the callout; real clinical selling for the pivot). Also keep one consistent text layout across scenes (slate top-left, message lower third) — mixed placements read as broken formatting.
 
