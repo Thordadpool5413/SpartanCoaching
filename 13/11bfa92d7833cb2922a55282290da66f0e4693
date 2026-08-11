@@ -1,0 +1,22 @@
+artifacts/api-server/package.json
+  h_0446834f150a71 11-12
+artifacts/api-server/src/ai/qualityEvalCases.ts
+  h_0446834f150a71 1-208
+artifacts/api-server/src/ai/qualityEvaluation.test.ts
+  h_0446834f150a71 1-209
+artifacts/api-server/src/ai/qualityEvaluation.ts
+  h_0446834f150a71 1-616
+package.json
+  h_0446834f150a71 13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "1311bfa92d7833cb2922a55282290da66f0e4693",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
