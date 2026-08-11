@@ -1,0 +1,32 @@
+artifacts/api-server/package.json
+  h_0446834f150a71 16-17,24
+artifacts/api-server/src/app.ts
+  h_0446834f150a71 13,102-104
+artifacts/api-server/src/routes/universalSearchRoutes.ts
+  h_0446834f150a71 1-270
+artifacts/api-server/src/search/universalSearch.test.ts
+  h_0446834f150a71 1-210
+artifacts/api-server/src/search/universalSearch.ts
+  h_0446834f150a71 1-330
+artifacts/spartan-coaching-mobile/app/(tabs)/tools.tsx
+  h_0446834f150a71 36-53,61,75-99,178,183-187,207-208,210-249
+artifacts/spartan-coaching/src/components/AppShell.tsx
+  h_0446834f150a71 45-49,74-75,238-239,242,244,252-253,256-295,403-408,415,432
+artifacts/spartan-coaching/src/lib/universalSearchClient.ts
+  h_0446834f150a71 1-56
+lib/field-kit-catalog/src/index.ts
+  h_0446834f150a71 393
+pnpm-lock.yaml
+  h_0446834f150a71 202-204
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "e93c7dda63c7230a5fcaf64f04325668b0832120",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
