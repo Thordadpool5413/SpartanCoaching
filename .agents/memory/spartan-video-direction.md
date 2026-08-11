@@ -25,5 +25,11 @@ User rejected a technically polished cut because imagery didn't depict the words
 ## Scenes must chain causally, not thematically
 Two middle-scene cuts were rejected as "don't make sense" because scenes were thematically related but not consequences of each other (family appeared from nowhere; accusation repeated an earlier scene). Fix that worked: write the spot as one causal chain where each scene is the direct result of the previous one, with explicit connective copy ("Down the hall", "that visit counts as a win", a payoff line that references an earlier scene by name). Storyboard the chain in prose first and check it reads without narration before coding.
 
+## Middle-scene copy must be plain narrator voice, not ad copy
+Middle scenes rejected repeatedly until copy dropped every "clever" device. What worked: lock the narrator's voice to the approved S2 register (short declarative fragments, e.g. "Twenty minutes. All small talk."), read the WHOLE spot's lines aloud in order as one voice, and cut anything that sounds written-for-an-ad. Concrete failures to avoid: aphorisms ("what you celebrate is what you get"), red strike-through gimmicks, finger-pointing openers ("Leaders —"), and clever payoffs. Make people real with relationship detail ("his wife of 52 years"), NOT invented names — a named AI person reads as a fake patient testimonial. The office/leadership beat must indict the habit ("that visit counts as a win / the box is checked / but no family got helped"), never the pictured person.
+
+## Screenshot-any-beat trick (temporary)
+To verify each timed Beat, temporarily make useSceneClock honor a `?t=N` param (pins clock to N sec) alongside the `?scene=N` override in VideoTemplate. Pin scene + time, screenshot each beat's midpoint, then REMOVE both overrides and re-verify approved-file hashes + validate-recording.sh before finishing.
+
 ## Two-act structure (Howdy Doody commercial, accepted)
 Bright warm satire (Act 1) → cold cinematic urgency (Act 2) worked where uniform dark grading failed. Keys: fully exposed Act 1 photography with light vignette; visible on-screen color-drain transition at the turn; photograph-led every scene (no text-on-black); label the satire target explicitly on screen; brand close ~10s with big stamp and no dead air.

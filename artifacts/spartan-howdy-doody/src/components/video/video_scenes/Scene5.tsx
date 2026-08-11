@@ -3,12 +3,13 @@ import { motion } from 'framer-motion';
 import { useSceneClock, Beat, Slate, LowerScrim } from './Beats';
 
 /**
- * Scene 5 — The visit that should have happened. (9s)
+ * Scene 5 — It could go differently. (9s)
  * A hospice sales rep and a nurse case manager go through the patient
- * list together — a real clinical conversation. Three beats:
- *   1. Set up the contrast: this is the visit that should have happened.
- *   2. The hero question, spoken over the patient list.
- *   3. The payoff: that question finds the husband upstairs.
+ * list together — a real clinical conversation. The payoff points back
+ * to the couple upstairs, in plain words. Three beats:
+ *   1. "It could go differently."
+ *   2. "One real question: 'Which patients are declining?'"
+ *   3. "That question would have found them in time."
  */
 const Scene5: React.FC<{ duration: number }> = () => {
   const baseUrl = import.meta.env.BASE_URL;
@@ -39,23 +40,25 @@ const Scene5: React.FC<{ duration: number }> = () => {
 
       <Slate>The visit that should have happened</Slate>
 
-      {/* Beat 1 — set up the contrast with the donut call */}
+      {/* Beat 1 — the turn */}
       <Beat t={t} from={0.9} to={3.4} className="absolute inset-x-0 bottom-[7vh] z-10 px-[6vw]">
         <h2 className="font-sans font-light text-[3.6vw] leading-[1.3] tracking-wide text-white text-shadow-heavy">
-          No donuts. Just one real question&nbsp;&mdash;
+          It could go differently.
         </h2>
       </Beat>
 
-      {/* Beat 2 — the hero question, over the patient list */}
+      {/* Beat 2 — the real clinical question, over the patient list */}
       <Beat t={t} from={4.0} to={6.6} className="absolute inset-x-0 bottom-[7vh] z-10 px-[6vw]">
-        <h2 className="font-display italic font-bold text-[4.6vw] leading-[1.2] text-[var(--color-brand-warm)] text-shadow-heavy">
-          &ldquo;Which of your patients
+        <h2 className="font-sans font-light text-[3.6vw] leading-[1.3] tracking-wide text-white text-shadow-heavy">
+          One real question:
           <br />
-          are declining?&rdquo;
+          <span className="font-display italic font-bold text-[4.4vw] text-[var(--color-brand-warm)]">
+            &ldquo;Which patients are declining?&rdquo;
+          </span>
         </h2>
       </Beat>
 
-      {/* Beat 3 — the payoff: this is what reaches the family upstairs */}
+      {/* Beat 3 — the payoff, pointing back to the couple upstairs */}
       <Beat t={t} from={7.2} to={999} className="absolute inset-x-0 bottom-[7vh] z-10 px-[6vw]">
         <motion.div
           className="h-[0.7vh] w-[30vw] bg-[var(--color-brand-red)] mb-[2.4vh] origin-left"
@@ -64,9 +67,9 @@ const Scene5: React.FC<{ duration: number }> = () => {
           transition={{ duration: 0.5, ease: [0.7, 0, 0.3, 1], delay: 0.3 }}
         />
         <h2 className="font-sans font-extrabold text-[4.2vw] leading-[1.2] text-white text-shadow-heavy">
-          That question finds the husband
+          That question would have found
           <br />
-          upstairs &mdash; and his wife.
+          them in time.
         </h2>
       </Beat>
     </motion.div>
