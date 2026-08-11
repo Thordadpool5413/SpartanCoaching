@@ -25,6 +25,7 @@ import {
   prepareResourceWrite,
 } from "../resources/resourceArchitecture";
 import { isSilentFileReplace } from "../resources/resourceLifecycle";
+import { presentCoreResourceLabel } from "../resources/providerResourceLibrary";
 
 import path from "path";
 import fs from "fs";
@@ -736,19 +737,23 @@ Subject: [subject line]
       // Normalize legacy /resources/*.pdf URLs so downloads never hit the SPA route
       const normalized = presentResources(resources || []).map((r) => {
         const fileUrl = String(r?.fileUrl || "");
+        let row = r;
         if (
           fileUrl.startsWith("/resources/") &&
           !fileUrl.startsWith("/resources/files/") &&
           fileUrl.toLowerCase().endsWith(".pdf")
         ) {
           const name = fileUrl.split("/").pop();
-          return { ...r, fileUrl: `/resources/files/${name}` };
+          row = { ...r, fileUrl: `/resources/files/${name}` };
         }
-        return r;
+        // HSP-28: clearly label Core vs provider-owned libraries
+        return presentCoreResourceLabel(row as Record<string, unknown>);
       });
       res.json({
         resources: normalized,
         contentArchitectureVersion: "resource-content-architecture-v1",
+        ownership: "core",
+        ownershipLabel: "Hospice Sales Pro Core",
       });
     } catch (error: any) {
       console.error("Get resources error (DB may be unavailable):", error);

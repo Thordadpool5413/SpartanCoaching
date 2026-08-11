@@ -120,16 +120,49 @@ export default function LearnScreen() {
     isLoading: resourcesLoading,
     error: resourcesError,
     refetch: refetchResources,
-  } = useQuery<{ resources: ResourceLike[] }>({
+  } = useQuery<{ resources: ResourceLike[]; ownershipLabel?: string }>({
     queryKey: ["resources"],
-    queryFn: () => apiGet<{ resources: ResourceLike[] }>("/api/resources"),
+    queryFn: () =>
+      apiGet<{ resources: ResourceLike[]; ownershipLabel?: string }>(
+        "/api/resources",
+      ),
     enabled: activeTab === "resources",
+  });
+
+  const {
+    data: providerLib,
+    isLoading: providerLibLoading,
+    refetch: refetchProviderLib,
+  } = useQuery<{
+    items: Array<{
+      id: number;
+      title: string;
+      description?: string | null;
+      fileUrl: string;
+      kind: string;
+      ownershipLabel?: string;
+    }>;
+  }>({
+    queryKey: ["provider-resources"],
+    queryFn: () =>
+      apiGet<{
+        items: Array<{
+          id: number;
+          title: string;
+          description?: string | null;
+          fileUrl: string;
+          kind: string;
+          ownershipLabel?: string;
+        }>;
+      }>("/api/v1/provider-resources"),
+    enabled: activeTab === "resources" && canUseFieldKit,
   });
 
   const articles = articlesData?.articles ?? [];
   const podcasts = podcastsData?.podcasts ?? [];
   const resources = resourcesData?.resources ?? [];
   const resourceGroups = useMemo(() => groupResources(resources), [resources]);
+  const providerItems = providerLib?.items ?? [];
 
   return (
     <View style={[styles.container, { backgroundColor: colors.background }]} testID="screen-learn">
@@ -418,6 +451,67 @@ export default function LearnScreen() {
             onPress={() => router.push("/resource-work" as any)}
             testID="learn-link-resource-work"
           />
+
+          {canUseFieldKit && (
+            <View style={{ marginBottom: 18 }} testID="provider-resource-library">
+              <Text
+                style={[
+                  { color: colors.primary, fontSize: 11, letterSpacing: 1.2, marginBottom: 4 },
+                  font("bold"),
+                ]}
+              >
+                PROVIDER ORGANIZATION
+              </Text>
+              <Text
+                style={[
+                  { color: colors.mutedForeground, fontSize: 12, marginBottom: 8 },
+                  font("regular"),
+                ]}
+              >
+                Private library for your org — not Hospice Sales Pro Core
+              </Text>
+              {providerLibLoading ? (
+                <ActivityIndicator color={colors.primary} />
+              ) : providerItems.length === 0 ? (
+                <Text
+                  style={[
+                    { color: colors.mutedForeground, fontSize: 13, marginBottom: 8 },
+                    font("regular"),
+                  ]}
+                >
+                  No provider-owned resources yet.
+                </Text>
+              ) : (
+                providerItems.map((item) => (
+                  <ListRow
+                    key={`provider-${item.id}`}
+                    title={item.title}
+                    subtitle={`Provider owned · ${item.kind}`}
+                    icon="briefcase"
+                    onPress={() => openResource(item.fileUrl)}
+                    testID={`provider-resource-${item.id}`}
+                  />
+                ))
+              )}
+              <Pressable
+                onPress={() => void refetchProviderLib()}
+                style={{ marginBottom: 8, minHeight: 44, justifyContent: "center" }}
+              >
+                <Text style={[{ color: colors.primary, fontSize: 13 }, font("semibold")]}>
+                  Refresh provider library
+                </Text>
+              </Pressable>
+            </View>
+          )}
+
+          <Text
+            style={[
+              { color: colors.mutedForeground, fontSize: 12, marginBottom: 8 },
+              font("regular"),
+            ]}
+          >
+            {resourcesData?.ownershipLabel || "Hospice Sales Pro Core"} downloads
+          </Text>
 
           {!canUseFieldKit && (
             <View
