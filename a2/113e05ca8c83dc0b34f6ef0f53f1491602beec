@@ -1,0 +1,30 @@
+artifacts/spartan-coaching-mobile/app/(tabs)/learn.tsx
+  h_0446834f150a71 65-66,182-183
+artifacts/spartan-coaching-mobile/app/(tabs)/tools.tsx
+  h_0446834f150a71 24-26,116-118,121,134,159-231
+artifacts/spartan-coaching/src/lib/fieldKitCatalog.ts
+  h_0446834f150a71 11-13,22-26
+artifacts/spartan-coaching/src/lib/navigation.ts
+  h_0446834f150a71 65-66,74,76-77
+artifacts/spartan-coaching/src/pages/Resources.tsx
+  h_0446834f150a71 232,235,239,244,246-254
+artifacts/spartan-coaching/src/pages/Tools.tsx
+  h_0446834f150a71 39-41,43,91-95,173,177,180-191,273,278,285-352,355-357
+lib/field-kit-catalog/src/index.ts
+  h_0446834f150a71 381-420
+lib/field-kit-catalog/src/intent-architecture.ts
+  h_0446834f150a71 1-376
+lib/field-kit-catalog/src/parity.test.ts
+  h_0446834f150a71 18-24,85-141
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "a2113e05ca8c83dc0b34f6ef0f53f1491602beec",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
