@@ -15,6 +15,10 @@ import {
   roleplayMessageLimit,
 } from "../rateLimits";
 import { clientErrorMessage } from "../lib/httpErrors";
+import {
+  postflightUncertainty,
+  preflightUncertainty,
+} from "../ai/uncertaintyBoundaries";
 
 import path from "path";
 import fs from "fs";
@@ -241,6 +245,18 @@ Format the playbook in markdown with clear sections, bullet points, and quoted t
     try {
       const { objection } = objectionRequestSchema.parse(req.body);
 
+      // HSP-23: never generate patient-specific eligibility from sales inputs.
+      const blocked = preflightUncertainty(objection, { workflow: "objection" });
+      if (blocked) {
+        res.json({
+          response: blocked.safeResponse,
+          citations: [],
+          uncertainty: blocked,
+          modelSkipped: true,
+        });
+        return;
+      }
+
       const corpusHits = searchSpartanKnowledge(objection, 3);
       const corpusBlock = formatCitationsForPrompt(corpusHits);
 
@@ -253,17 +269,31 @@ Provide a concise, empathetic field response that:
 
 Keep it under 120 words and use a warm, professional tone.
 Do not invent clinical claims. Do not request or include PHI.
+Never determine whether a specific patient is eligible for hospice — that is a clinical decision.
 ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corpusBlock}` : ""}`;
 
       const response = await generateQuickResponse(prompt);
-
-      res.json({
-        response,
-        citations: corpusHits.map((c) => ({
+      const citations = corpusHits.map((c) => ({
+        id: c.id,
+        title: c.title,
+        category: c.category,
+      }));
+      const uncertainty = postflightUncertainty(objection, response, {
+        workflow: "objection",
+        sources: citations.map((c) => ({
           id: c.id,
           title: c.title,
-          category: c.category,
+          authority: "spartan_methodology",
         })),
+      });
+
+      res.json({
+        response: uncertainty.eligibilityDeterminationBlocked
+          ? uncertainty.safeResponse
+          : response,
+        citations,
+        uncertainty,
+        modelSkipped: false,
       });
     } catch (error: any) {
       console.error("Objection handling error:", error);
@@ -276,8 +306,42 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
     try {
       const { query } = researchRequestSchema.parse(req.body);
 
+      // HSP-23: structured uncertainty / escalation before model for high-risk asks.
+      const blocked = preflightUncertainty(query, { workflow: "research" });
+      if (blocked) {
+        res.json({
+          answer: blocked.safeResponse,
+          summary: blocked.safeResponse,
+          sources: [],
+          spartanCitations: [],
+          uncertainty: blocked,
+          modelSkipped: true,
+        });
+        return;
+      }
+
       const corpusHits = searchSpartanKnowledge(query, 3);
       const result = await generateGroundedSearch(query);
+      const resultRecord = result as {
+        text?: string;
+        answer?: string;
+        summary?: string;
+        sources?: unknown;
+      };
+      const resultText =
+        (typeof resultRecord.text === "string" && resultRecord.text) ||
+        (typeof resultRecord.answer === "string" && resultRecord.answer) ||
+        (typeof resultRecord.summary === "string" && resultRecord.summary) ||
+        JSON.stringify(result).slice(0, 4_000);
+
+      const uncertainty = postflightUncertainty(query, resultText, {
+        workflow: "research",
+        sources: corpusHits.map((c) => ({
+          id: c.id,
+          title: c.title,
+          authority: "spartan_methodology",
+        })),
+      });
 
       res.json({
         ...result,
@@ -287,6 +351,15 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
           category: c.category,
           excerpt: c.body.slice(0, 280),
         })),
+        uncertainty,
+        modelSkipped: false,
+        ...(uncertainty.eligibilityDeterminationBlocked
+          ? {
+              text: uncertainty.safeResponse,
+              answer: uncertainty.safeResponse,
+              summary: uncertainty.safeResponse,
+            }
+          : {}),
       });
     } catch (error: any) {
       console.error("Research error:", error);
