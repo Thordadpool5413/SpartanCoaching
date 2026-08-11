@@ -1,0 +1,20 @@
+artifacts/api-server/package.json
+  h_0446834f150a71 11-12
+artifacts/api-server/src/ai/uncertaintyBoundaries.test.ts
+  h_0446834f150a71 1-234
+artifacts/api-server/src/ai/uncertaintyBoundaries.ts
+  h_0446834f150a71 1-507
+artifacts/api-server/src/routes/routes.ts
+  h_0446834f150a71 18-21,248-259,272,276-283,286,289-297,309-322,325-344,354-362
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "ffee5f79bbec762fc7be257a26a171e25e262ddd",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
