@@ -12,10 +12,10 @@ import Scene6 from './video_scenes/Scene6';
 const SCENE_DURATIONS_MAP = {
   arrival: 5500,
   howdyCall: 9000,
-  turn: 9000,
-  indictment: 6500,
-  challenge: 12000,
-  pivot: 8000,
+  visitEnds: 8000,
+  room214: 9000,
+  scoreboard: 9500,
+  alternative: 9000,
   brand: 10000,
 };
 

@@ -3,11 +3,11 @@ import { motion } from 'framer-motion';
 import { useSceneClock, Beat, Slate, LowerScrim } from './Beats';
 
 /**
- * Scene 2 — The people the donut call never reaches. (9s)
- * Hard cut from the donut party to a wife alone at her dying husband's
- * bedside. Two beats, one at a time:
- *   1. Name what the image shows: no nurse, no support, no hospice.
- *   2. Land the stat: most patients who need hospice never get it.
+ * Scene 2 — The visit ends. (8s)
+ * Direct consequence of Scene 1: the rep waves goodbye in the lobby,
+ * leaving with a smile and nothing else. Two beats, one at a time:
+ *   1. "Twenty minutes. All small talk."
+ *   2. "Not one question about a single patient." (red underline)
  */
 const Scene2: React.FC<{ duration: number }> = () => {
   const baseUrl = import.meta.env.BASE_URL;
@@ -21,40 +21,48 @@ const Scene2: React.FC<{ duration: number }> = () => {
       exit={{ opacity: 0 }}
       transition={{ duration: 0.5, ease: 'linear' }}
     >
-      {/* The family, alone — warmth drains from the frame */}
+      {/* The rep leaves, all smiles, empty-handed of substance */}
       <motion.div
         className="absolute inset-0 z-0"
-        initial={{ scale: 1.05 }}
+        initial={{ scale: 1.06 }}
         animate={{ scale: 1 }}
-        transition={{ scale: { duration: 9, ease: 'linear' } }}
+        transition={{ scale: { duration: 8, ease: 'linear' } }}
       >
         <motion.img
-          src={`${baseUrl}assets/act2_family_alone.jpg`}
-          alt="A wife sits alone at her dying husband's bedside, with no hospice support"
+          src={`${baseUrl}assets/act2_visit_ends.jpg`}
+          alt="The sales rep waves goodbye in the medical center lobby, leaving with a smile"
           className="w-full h-full object-cover object-[center_30%]"
-          initial={{ filter: 'saturate(1.3) brightness(1.12) sepia(0.15)' }}
-          animate={{ filter: 'saturate(0.75) brightness(1.0) sepia(0)' }}
-          transition={{ duration: 2.6, ease: [0.4, 0, 0.6, 1], delay: 0.5 }}
+          initial={{ filter: 'saturate(1.12) brightness(1.05)' }}
+          animate={{ filter: 'saturate(0.8) brightness(0.95)' }}
+          transition={{ duration: 2.4, ease: [0.4, 0, 0.6, 1], delay: 3.6 }}
         />
         <LowerScrim />
       </motion.div>
 
-      <Slate>Across town &middot; The same morning</Slate>
+      <Slate>Tuesday &middot; 10:07 AM &middot; The visit ends</Slate>
 
-      {/* Beat 1 — name what you're looking at */}
-      <Beat t={t} from={1.0} to={4.2} className="absolute inset-x-0 bottom-[7vh] z-10 px-[6vw]">
-        <h2 className="font-sans font-light text-[3.4vw] leading-[1.3] tracking-wide text-[var(--color-brand-warm)] text-shadow-heavy">
-          No nurse. No support. No hospice.
+      {/* Beat 1 — how long it lasted, what it was */}
+      <Beat t={t} from={1.0} to={3.8} className="absolute inset-x-0 bottom-[7vh] z-10 px-[6vw]">
+        <h2 className="font-sans font-light text-[3.6vw] leading-[1.3] tracking-wide text-white text-shadow-heavy">
+          Twenty minutes. All small talk.
         </h2>
       </Beat>
 
-      {/* Beat 2 — the stat, biggest line in the scene */}
-      <Beat t={t} from={4.8} to={999} className="absolute inset-x-0 bottom-[7vh] z-10 px-[6vw]">
-        <h2 className="font-sans font-extrabold text-[4.6vw] leading-[1.15] text-white text-shadow-heavy max-w-[80vw]">
-          Most patients who need hospice
-          <br />
-          never get it.
-        </h2>
+      {/* Beat 2 — the actual failure, named. Red underline. */}
+      <Beat t={t} from={4.4} to={999} className="absolute inset-x-0 bottom-[7vh] z-10 px-[6vw]">
+        <div className="relative inline-block pb-[2vh]">
+          <h2 className="font-sans font-extrabold text-[4.2vw] leading-[1.2] text-white text-shadow-heavy">
+            Not one question about
+            <br />
+            a single patient.
+          </h2>
+          <motion.div
+            className="absolute bottom-0 left-0 h-[0.9vh] bg-[var(--color-brand-red)] shadow-[0_0_20px_rgba(218,41,28,0.55)]"
+            initial={{ width: 0 }}
+            animate={{ width: '58%' }}
+            transition={{ duration: 0.5, ease: [0.7, 0, 0.3, 1], delay: 1.0 }}
+          />
+        </div>
       </Beat>
     </motion.div>
   );

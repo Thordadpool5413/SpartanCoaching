@@ -22,5 +22,8 @@ Twice-rejected failure mode: staggered lines that only fade in (never out) pile 
 ## Content must match visuals literally
 User rejected a technically polished cut because imagery didn't depict the words over it: a stat about unserved patients over an empty bedroom "makes no sense"; a leader portrait under challenge questions read as blaming the person pictured. Every line must sit over an image that shows exactly what it says (unserved family for the stat; leadership praising the donut call for the callout; real clinical selling for the pivot). Also keep one consistent text layout across scenes (slate top-left, message lower third) — mixed placements read as broken formatting.
 
+## Scenes must chain causally, not thematically
+Two middle-scene cuts were rejected as "don't make sense" because scenes were thematically related but not consequences of each other (family appeared from nowhere; accusation repeated an earlier scene). Fix that worked: write the spot as one causal chain where each scene is the direct result of the previous one, with explicit connective copy ("Down the hall", "that visit counts as a win", a payoff line that references an earlier scene by name). Storyboard the chain in prose first and check it reads without narration before coding.
+
 ## Two-act structure (Howdy Doody commercial, accepted)
 Bright warm satire (Act 1) → cold cinematic urgency (Act 2) worked where uniform dark grading failed. Keys: fully exposed Act 1 photography with light vignette; visible on-screen color-drain transition at the turn; photograph-led every scene (no text-on-black); label the satire target explicitly on screen; brand close ~10s with big stamp and no dead air.
