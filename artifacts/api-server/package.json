@@ -13,13 +13,15 @@
     "test:resources": "vitest run --reporter verbose src/resources/resourceArchitecture.test.ts",
     "test:resource-work": "vitest run --reporter verbose src/resources/executableResources.test.ts",
     "test:resource-lifecycle": "vitest run --reporter verbose src/resources/resourceLifecycle.test.ts",
-    "test:provider-resources": "vitest run --reporter verbose src/resources/providerResourceLibrary.test.ts"
+    "test:provider-resources": "vitest run --reporter verbose src/resources/providerResourceLibrary.test.ts",
+    "test:search": "vitest run --reporter verbose src/search/universalSearch.test.ts"
   },
   "dependencies": {
     "@google-cloud/storage": "^7.21.0",
     "@workspace/api-zod": "workspace:*",
     "@workspace/branch-engine": "workspace:*",
     "@workspace/db": "workspace:*",
+    "@workspace/field-kit-catalog": "workspace:*",
     "@workspace/hospice-sales-runtime": "workspace:*",
     "@workspace/spartan-ai-tools": "workspace:*",
     "@workspace/tenant-ids": "workspace:*",

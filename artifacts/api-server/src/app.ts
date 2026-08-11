@@ -10,6 +10,7 @@ import { registerAiToolRoutes } from "./routes/aiToolRoutes";
 import { registerResourceWorkRoutes } from "./routes/resourceWorkRoutes";
 import { registerResourceLifecycleRoutes } from "./routes/resourceLifecycleRoutes";
 import { registerProviderResourceRoutes } from "./routes/providerResourceRoutes";
+import { registerUniversalSearchRoutes } from "./routes/universalSearchRoutes";
 import { registerBillingRoutes, handleStripeWebhook } from "./billing/billingRoutes";
 import { loadSession } from "./auth/middleware";
 import { globalApiLimit } from "./rateLimits";
@@ -97,6 +98,9 @@ registerResourceLifecycleRoutes(app);
 
 // Provider-owned private resource libraries (HSP-28)
 registerProviderResourceRoutes(app);
+
+// Universal multi-type search (HSP-36)
+registerUniversalSearchRoutes(app);
 
 // Legacy app routes (AI tools gated with requireFieldKit)
 registerRoutes(app);

@@ -390,6 +390,7 @@ export {
   type DiscoveryIntent,
   type DiscoveryDestination,
   type ProductSurface,
+  type DiscoveryIntentSpec,
 } from "./intent-architecture";
 
 import {
