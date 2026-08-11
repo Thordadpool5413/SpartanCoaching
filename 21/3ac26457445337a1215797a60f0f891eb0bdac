@@ -1,0 +1,44 @@
+artifacts/api-server/package.json
+  h_0446834f150a71 11,14-15
+artifacts/api-server/src/app.ts
+  h_0446834f150a71 11,94-96
+artifacts/api-server/src/resources/resourceArchitecture.ts
+  h_0446834f150a71 21-25,32-41,263-266,271-346,351,356
+artifacts/api-server/src/resources/resourceLifecycle.test.ts
+  h_0446834f150a71 1-118
+artifacts/api-server/src/resources/resourceLifecycle.ts
+  h_0446834f150a71 1-366
+artifacts/api-server/src/routes/resourceLifecycleRoutes.ts
+  h_0446834f150a71 1-397
+artifacts/api-server/src/routes/routes.ts
+  h_0446834f150a71 27,804-835,842
+artifacts/spartan-coaching-mobile/app/(tabs)/learn.tsx
+  h_0446834f150a71 467-480
+artifacts/spartan-coaching-mobile/lib/resourceGroups.ts
+  h_0446834f150a71 26-33
+artifacts/spartan-coaching/src/pages/Admin.tsx
+  h_0446834f150a71 3036,3041-3059,3066-3197
+artifacts/spartan-coaching/src/pages/Resources.tsx
+  h_0446834f150a71 187-214,217-239
+artifacts/spartan-coaching/src/shared/schema.ts
+  h_0446834f150a71 333-344,357-361,375-379
+lib/db/migrations/0007_resource_lifecycle.sql
+  h_0446834f150a71 1-50
+lib/db/src/schema/index.ts
+  h_0446834f150a71 26
+lib/db/src/schema/resourceLifecycle.ts
+  h_0446834f150a71 1-50
+lib/db/src/schema/schema.ts
+  h_0446834f150a71 333-345,358-363,377-381
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "213ac26457445337a1215797a60f0f891eb0bdac",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
