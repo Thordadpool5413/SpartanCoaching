@@ -21,7 +21,7 @@ import { router, useFocusEffect } from "expo-router";
 import * as Notifications from "expo-notifications";
 import { useColors } from "@/hooks/useColors";
 import { useReminderHistory } from "@/hooks/useReminderHistory";
-import { ApiError, apiPost, fetchOnboardingMobile, updateOnboardingMobile } from "@/lib/api";
+import { ApiError, apiGet, apiPost, fetchOnboardingMobile, updateOnboardingMobile } from "@/lib/api";
 import { cancelReminder, removeReminderFromHistory } from "@/lib/notifications";
 import { useAuth } from "@/lib/AuthContext";
 import {
@@ -75,6 +75,11 @@ export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { canUseFieldKit, isAuthenticated, user, logout, refresh } = useAuth();
+  const [personalization, setPersonalization] = useState<{
+    continueItems: Array<{ id: string; title: string; href: string; why: string }>;
+    recommendedToday: Array<{ id: string; title: string; href: string; why: string }>;
+    emptyHistory: boolean;
+  } | null>(null);
   const mission = useMission();
   const [query, setQuery] = useState("");
   const [response, setResponse] = useState("");
@@ -335,6 +340,34 @@ export default function HomeScreen() {
   }
 
   // ── Shell B: Authenticated but locked ─────────────────────────────
+  useEffect(() => {
+    if (!isAuthenticated || !canUseFieldKit) {
+      setPersonalization(null);
+      return;
+    }
+    let cancelled = false;
+    void apiGet<{
+      continueItems: Array<{ id: string; title: string; href: string; why: string }>;
+      recommendedToday: Array<{ id: string; title: string; href: string; why: string }>;
+      emptyHistory: boolean;
+    }>("/api/v1/personalization")
+      .then((data) => {
+        if (!cancelled) {
+          setPersonalization({
+            continueItems: data.continueItems || [],
+            recommendedToday: data.recommendedToday || [],
+            emptyHistory: !!data.emptyHistory,
+          });
+        }
+      })
+      .catch(() => {
+        if (!cancelled) setPersonalization(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated, canUseFieldKit]);
+
   if (!canUseFieldKit) {
     return (
       <ScrollView
@@ -468,6 +501,82 @@ export default function HomeScreen() {
           </View>
         )}
       </LinearGradient>
+
+      {personalization &&
+      (personalization.continueItems.length > 0 ||
+        personalization.recommendedToday.length > 0) ? (
+        <View style={[styles.section, { paddingTop: 16 }]} testID="section-personalization">
+          <SectionKicker>For you · synced</SectionKicker>
+          {personalization.continueItems.slice(0, 3).map((item) => (
+            <Pressable
+              key={item.id}
+              onPress={() => {
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                if (item.href.includes("sales-workflow")) {
+                  router.push("/(tabs)/command");
+                } else if (item.href.includes("objection")) {
+                  router.push("/tool/objection" as any);
+                } else {
+                  router.push("/(tabs)/tools");
+                }
+              }}
+              style={{
+                marginTop: 8,
+                padding: 12,
+                borderRadius: 12,
+                borderWidth: StyleSheet.hairlineWidth * 2,
+                borderColor: colors.border,
+                backgroundColor: colors.card,
+              }}
+              accessibilityRole="button"
+              accessibilityLabel={`${item.title}. ${item.why}`}
+            >
+              <Text style={[{ color: colors.foreground, fontSize: 15 }, font("bold")]}>
+                {item.title}
+              </Text>
+              <Text
+                style={[
+                  { color: colors.mutedForeground, fontSize: 12, marginTop: 4, lineHeight: 16 },
+                  font("regular"),
+                ]}
+              >
+                {item.why}
+              </Text>
+            </Pressable>
+          ))}
+          {personalization.recommendedToday.slice(0, 2).map((item) => (
+            <Pressable
+              key={item.id}
+              onPress={() => {
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                router.push("/(tabs)/tools");
+              }}
+              style={{
+                marginTop: 8,
+                padding: 12,
+                borderRadius: 12,
+                borderWidth: StyleSheet.hairlineWidth * 2,
+                borderColor: colors.border,
+                backgroundColor: colors.card,
+              }}
+              accessibilityRole="button"
+              accessibilityLabel={`${item.title}. ${item.why}`}
+            >
+              <Text style={[{ color: colors.primary, fontSize: 14 }, font("semibold")]}>
+                {item.title}
+              </Text>
+              <Text
+                style={[
+                  { color: colors.mutedForeground, fontSize: 12, marginTop: 4, lineHeight: 16 },
+                  font("regular"),
+                ]}
+              >
+                {item.why}
+              </Text>
+            </Pressable>
+          ))}
+        </View>
+      ) : null}
 
       {/* Mission next — ONE emphasis card; secondary Command is a quiet chip row */}
       <View style={[styles.section, { paddingTop: 16 }]} testID="section-mission-next">

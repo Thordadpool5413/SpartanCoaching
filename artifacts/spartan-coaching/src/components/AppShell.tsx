@@ -47,6 +47,7 @@ import {
   flattenSearchHits,
   type UniversalSearchHit,
 } from "@/lib/universalSearchClient";
+import { recordPersonalizationEvent } from "@/lib/personalizationClient";
 
 function workspaceSearchCorpus() {
   const toolPages = FIELD_KIT_TOOLS.map((t) => ({
@@ -293,7 +294,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     return localResults;
   }, [apiHits, localResults]);
 
-  // Track recent activity for signed-in workspace navigation
+  // Track recent activity locally + sync to backend (HSP-37 multi-device)
   useEffect(() => {
     const path = location.split("?")[0] || location;
     if (!path.startsWith("/")) return;
@@ -301,7 +302,24 @@ export function AppShell({ children }: { children: ReactNode }) {
     const label = hit?.label ?? path;
     pushWorkspaceRecent({ path, label });
     setRecent(readWorkspaceRecent(8));
-  }, [location, corpus]);
+    if (!member) return;
+    const tool = FIELD_KIT_TOOLS.find((t) => t.path === path || path.startsWith(t.path + "/"));
+    void recordPersonalizationEvent({
+      action: "open",
+      item: {
+        kind: tool
+          ? tool.id === "sales-workflow"
+            ? "workflow"
+            : "tool"
+          : path.startsWith("/resources")
+            ? "resource"
+            : "page",
+        id: tool?.id || path,
+        title: tool?.title || label,
+        href: path,
+      },
+    }).catch(() => undefined);
+  }, [location, corpus, member]);
 
   useEffect(() => {
     setRecent(readWorkspaceRecent(8));
