@@ -33,6 +33,24 @@ import { font } from "@/lib/typography";
 import { CATALOG_ID_TO_TAB, isToolTab, openToolHref } from "@/lib/toolDeepLinks";
 import { PaywallCard } from "@/components/ui/PaywallCard";
 import { OfflineQueueBanner } from "@/components/OfflineQueueBanner";
+import { apiGet } from "@/lib/api";
+import { MAX_FONT_SIZE_MULTIPLIER } from "@/lib/iosProductQuality";
+
+type SearchHit = {
+  id: string;
+  type: string;
+  title: string;
+  snippet: string;
+  href: string;
+  mobileHref?: string;
+  score: number;
+  group: string;
+};
+
+type SearchResponse = {
+  groups: Array<{ type: string; label: string; hits: SearchHit[] }>;
+  total: number;
+};
 
 export default function ToolsCatalogScreen() {
   const colors = useColors();
@@ -40,6 +58,7 @@ export default function ToolsCatalogScreen() {
   const { canUseFieldKit, isAuthenticated } = useAuth();
   const params = useLocalSearchParams<{ tab?: string | string[] }>();
   const [filter, setFilter] = useState("");
+  const [remoteGroups, setRemoteGroups] = useState<SearchResponse["groups"]>([]);
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 90;
@@ -52,6 +71,31 @@ export default function ToolsCatalogScreen() {
       router.replace(openToolHref(tab) as any);
     }
   }, [params.tab]);
+
+  // Universal search (HSP-36) — native grouping from shared backend contract
+  useEffect(() => {
+    const q = filter.trim();
+    if (!isAuthenticated || q.length < 2) {
+      setRemoteGroups([]);
+      return;
+    }
+    let cancelled = false;
+    const t = setTimeout(() => {
+      void apiGet<SearchResponse>(
+        `/api/v1/search?q=${encodeURIComponent(q)}&limit=20`,
+      )
+        .then((data) => {
+          if (!cancelled) setRemoteGroups(data.groups || []);
+        })
+        .catch(() => {
+          if (!cancelled) setRemoteGroups([]);
+        });
+    }, 250);
+    return () => {
+      cancelled = true;
+      clearTimeout(t);
+    };
+  }, [filter, isAuthenticated]);
 
   const openCatalogTool = (tool: FieldKitTool) => {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -131,11 +175,16 @@ export default function ToolsCatalogScreen() {
               marginTop: 12,
             },
           ]}
-          placeholder="Filter by intent or tool…"
+          placeholder="Search tools, resources, method…"
           placeholderTextColor={colors.mutedForeground}
           value={filter}
           onChangeText={setFilter}
           clearButtonMode="while-editing"
+          autoCorrect={false}
+          autoCapitalize="none"
+          returnKeyType="search"
+          accessibilityLabel="Universal search"
+          maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER}
           testID="tools-filter"
         />
       </View>
@@ -155,7 +204,49 @@ export default function ToolsCatalogScreen() {
         style={{ flex: 1 }}
         contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: bottomPad + 24, paddingTop: 12 }}
         showsVerticalScrollIndicator={false}
+        keyboardShouldPersistTaps="handled"
+        keyboardDismissMode="on-drag"
       >
+        {remoteGroups.length > 0 ? (
+          <View testID="universal-search-results" style={{ marginBottom: 16 }}>
+            <SectionKicker>Search results</SectionKicker>
+            {remoteGroups.map((group) => (
+              <View key={group.type} style={{ marginBottom: 12 }}>
+                <Text
+                  style={[styles.sectionLabel, { color: colors.primary }, font("bold")]}
+                  maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER}
+                >
+                  {group.label.toUpperCase()}
+                </Text>
+                {group.hits.map((hit) => (
+                  <ListRow
+                    key={hit.id}
+                    title={hit.title}
+                    subtitle={hit.snippet}
+                    onPress={() => {
+                      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      const href = hit.mobileHref || hit.href;
+                      if (href.startsWith("/tool/")) {
+                        router.push(href as any);
+                      } else if (href.startsWith("/(tabs)")) {
+                        router.push(href as any);
+                      } else if (hit.type === "tool" && hit.id.startsWith("tool:")) {
+                        const toolId = hit.id.replace(/^tool:/, "");
+                        const tool = FIELD_KIT_TOOLS.find((t) => t.id === toolId);
+                        if (tool) openCatalogTool(tool);
+                        else router.push(href as any);
+                      } else {
+                        router.push(href as any);
+                      }
+                    }}
+                    testID={`search-hit-${hit.id.replace(/[^a-z0-9]+/gi, "-")}`}
+                  />
+                ))}
+              </View>
+            ))}
+          </View>
+        ) : null}
+
         <SectionKicker>Hospice Sales Pro · intent map</SectionKicker>
 
         {filterDiscoveryIntents(filter).map((intent) => (

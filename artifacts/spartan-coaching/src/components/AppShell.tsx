@@ -42,6 +42,11 @@ import {
 } from "@/lib/workspaceShell";
 import { allSearchablePages } from "@/lib/navigation";
 import { FIELD_KIT_TOOLS } from "@/lib/fieldKitCatalog";
+import {
+  fetchUniversalSearch,
+  flattenSearchHits,
+  type UniversalSearchHit,
+} from "@/lib/universalSearchClient";
 
 function workspaceSearchCorpus() {
   const toolPages = FIELD_KIT_TOOLS.map((t) => ({
@@ -65,6 +70,8 @@ function workspaceSearchCorpus() {
     (item, i, arr) => arr.findIndex((x) => x.path === item.path) === i,
   );
 }
+
+type LocalResult = { path: string; label: string; description: string; group?: string };
 
 function NavLinkRow({
   href,
@@ -228,11 +235,13 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [searchQ, setSearchQ] = useState("");
   const [searchOpen, setSearchOpen] = useState(false);
   const [recent, setRecent] = useState<WorkspaceRecentEntry[]>([]);
+  const [apiHits, setApiHits] = useState<UniversalSearchHit[] | null>(null);
+  const [searchLoading, setSearchLoading] = useState(false);
 
   const corpus = useMemo(() => workspaceSearchCorpus(), []);
-  const results = useMemo(() => {
+  const localResults: LocalResult[] = useMemo(() => {
     const q = searchQ.trim().toLowerCase();
-    if (!q) return corpus.slice(0, 8);
+    if (!q) return corpus.slice(0, 8).map((c) => ({ ...c, group: "Workspace" }));
     return corpus
       .filter(
         (item) =>
@@ -240,8 +249,49 @@ export function AppShell({ children }: { children: ReactNode }) {
           item.description.toLowerCase().includes(q) ||
           item.path.toLowerCase().includes(q),
       )
-      .slice(0, 12);
+      .slice(0, 12)
+      .map((c) => ({ ...c, group: "Workspace" }));
   }, [corpus, searchQ]);
+
+  // Permission-aware backend search when signed in (HSP-36)
+  useEffect(() => {
+    const q = searchQ.trim();
+    if (q.length < 2 || !member) {
+      setApiHits(null);
+      setSearchLoading(false);
+      return;
+    }
+    let cancelled = false;
+    setSearchLoading(true);
+    const t = window.setTimeout(() => {
+      void fetchUniversalSearch(q, 20)
+        .then((data) => {
+          if (!cancelled) setApiHits(flattenSearchHits(data));
+        })
+        .catch(() => {
+          if (!cancelled) setApiHits(null);
+        })
+        .finally(() => {
+          if (!cancelled) setSearchLoading(false);
+        });
+    }, 220);
+    return () => {
+      cancelled = true;
+      window.clearTimeout(t);
+    };
+  }, [searchQ, member]);
+
+  const results: LocalResult[] = useMemo(() => {
+    if (apiHits && apiHits.length > 0) {
+      return apiHits.map((h) => ({
+        path: h.href,
+        label: h.title,
+        description: h.snippet ? `${h.group} · ${h.snippet}` : h.group,
+        group: h.group,
+      }));
+    }
+    return localResults;
+  }, [apiHits, localResults]);
 
   // Track recent activity for signed-in workspace navigation
   useEffect(() => {
@@ -350,14 +400,19 @@ export function AppShell({ children }: { children: ReactNode }) {
                   className="absolute top-full left-0 right-0 mt-1 rounded-xl border border-border bg-popover shadow-lg max-h-[min(50dvh,24rem)] overflow-y-auto z-50"
                   data-testid="workspace-search-results"
                 >
-                  {results.length === 0 ? (
+                  {searchLoading ? (
+                    <p className="px-4 py-4 text-sm text-muted-foreground text-center" role="status">
+                      Searching…
+                    </p>
+                  ) : null}
+                  {!searchLoading && results.length === 0 ? (
                     <p className="px-4 py-6 text-sm text-muted-foreground text-center">
                       No matches
                     </p>
                   ) : (
                     results.map((item) => (
                       <button
-                        key={item.path}
+                        key={`${item.path}-${item.label}`}
                         type="button"
                         className="w-full text-left px-4 py-3 hover:bg-muted/60 transition-colors border-b border-border/40 last:border-0"
                         onMouseDown={(e) => e.preventDefault()}
@@ -374,6 +429,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     ))
                   )}
                   <p className="px-4 py-2 text-[10px] text-muted-foreground border-t border-border/50">
+                    {apiHits ? "Live search · " : "Local catalog · "}
                     Tip: Ctrl/Cmd+K also opens the command palette
                   </p>
                 </div>

@@ -199,6 +199,9 @@ importers:
       '@workspace/db':
         specifier: workspace:*
         version: link:../../lib/db
+      '@workspace/field-kit-catalog':
+        specifier: workspace:*
+        version: link:../../lib/field-kit-catalog
       '@workspace/hospice-sales-runtime':
         specifier: workspace:*
         version: link:../../lib/hospice-sales-runtime
