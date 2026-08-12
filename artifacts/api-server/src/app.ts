@@ -11,6 +11,7 @@ import { registerResourceWorkRoutes } from "./routes/resourceWorkRoutes";
 import { registerResourceLifecycleRoutes } from "./routes/resourceLifecycleRoutes";
 import { registerProviderResourceRoutes } from "./routes/providerResourceRoutes";
 import { registerUniversalSearchRoutes } from "./routes/universalSearchRoutes";
+import { registerPersonalizationRoutes } from "./routes/personalizationRoutes";
 import { registerBillingRoutes, handleStripeWebhook } from "./billing/billingRoutes";
 import { loadSession } from "./auth/middleware";
 import { globalApiLimit } from "./rateLimits";
@@ -101,6 +102,9 @@ registerProviderResourceRoutes(app);
 
 // Universal multi-type search (HSP-36)
 registerUniversalSearchRoutes(app);
+
+// Favorites, recents, continue, recommended today (HSP-37)
+registerPersonalizationRoutes(app);
 
 // Legacy app routes (AI tools gated with requireFieldKit)
 registerRoutes(app);

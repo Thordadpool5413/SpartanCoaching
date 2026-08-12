@@ -14,7 +14,8 @@
     "test:resource-work": "vitest run --reporter verbose src/resources/executableResources.test.ts",
     "test:resource-lifecycle": "vitest run --reporter verbose src/resources/resourceLifecycle.test.ts",
     "test:provider-resources": "vitest run --reporter verbose src/resources/providerResourceLibrary.test.ts",
-    "test:search": "vitest run --reporter verbose src/search/universalSearch.test.ts"
+    "test:search": "vitest run --reporter verbose src/search/universalSearch.test.ts",
+    "test:personalization": "vitest run --reporter verbose src/personalization/personalizationEngine.test.ts"
   },
   "dependencies": {
     "@google-cloud/storage": "^7.21.0",
