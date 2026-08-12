@@ -1,0 +1,44 @@
+.github/workflows/ci.yml
+  h_0446834f150a71 77-79,81-83
+artifacts/api-server/package.json
+  h_0446834f150a71 11
+artifacts/api-server/src/app.ts
+  h_0446834f150a71 27-31,115-157
+artifacts/api-server/src/delivery/clientConfig.ts
+  h_0446834f150a71 1-91
+artifacts/api-server/src/delivery/environments.ts
+  h_0446834f150a71 1-82
+artifacts/api-server/src/delivery/featureFlags.test.ts
+  h_0446834f150a71 1-70
+artifacts/api-server/src/delivery/featureFlags.ts
+  h_0446834f150a71 1-115
+artifacts/api-server/src/routes/health.test.ts
+  h_0446834f150a71 193-209
+artifacts/api-server/src/routes/health.ts
+  h_0446834f150a71 14,137-156
+artifacts/spartan-coaching-mobile/app/_layout.tsx
+  h_0446834f150a71 21,41-56,110
+artifacts/spartan-coaching-mobile/lib/clientConfig.ts
+  h_0446834f150a71 1-73
+lib/field-kit-catalog/src/client-delivery.test.ts
+  h_0446834f150a71 1-45
+lib/field-kit-catalog/src/client-delivery.ts
+  h_0446834f150a71 1-100
+lib/field-kit-catalog/src/index.ts
+  h_0446834f150a71 467-479
+package.json
+  h_0446834f150a71 17-19
+scripts/smoke-health.mjs
+  h_0446834f150a71 74-105
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "bbd1123e356d42a6a624ef745d07123daf3cffba",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
