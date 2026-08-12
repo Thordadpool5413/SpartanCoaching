@@ -26,3 +26,4 @@ export * from "./resourceWork";
 export * from "./resourceLifecycle";
 export * from "./providerResources";
 export * from "./memberPersonalization";
+export * from "./memberNotifications";
