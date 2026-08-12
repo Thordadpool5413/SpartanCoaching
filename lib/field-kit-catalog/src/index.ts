@@ -447,6 +447,24 @@ export {
 } from "./related-recommendations";
 
 export {
+  PRODUCT_OUTCOMES,
+  PRODUCT_EVENT_TYPE,
+  PRODUCT_METRICS,
+  PRODUCT_EVENT_DEDUPE_MS,
+  SAFE_METADATA_KEYS,
+  SAFE_METADATA_VALUE_MAX,
+  isProductOutcome,
+  isIdempotentOutcome,
+  sanitizeAnalyticsMetadata,
+  productEventPayload,
+  productEventDedupeKey,
+  type ProductOutcome,
+  type SafeMetadataKey,
+  type SafeProductMetadata,
+  type ProductMetricId,
+} from "./product-analytics";
+
+export {
   ACTIVATION_VERSION,
   ACTIVATION_STEP_IDS,
   activationStepsForRole,

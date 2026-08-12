@@ -3,6 +3,7 @@ import { Link, useSearch } from "wouter";
 import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
+import { trackProductOutcome } from "@/lib/analytics";
 
 /**
  * Bridge after Stripe Checkout.
@@ -18,7 +19,12 @@ export default function CheckoutReturn() {
 
   useEffect(() => {
     void refresh();
-  }, [refresh]);
+    // Product outcome — no free text; identity from session on server
+    trackProductOutcome("subscription_start", {
+      surface: fromApp ? "ios_return" : "web",
+      source: "checkout_return",
+    });
+  }, [refresh, fromApp]);
 
   useEffect(() => {
     if (!fromApp || triedApp) return;
