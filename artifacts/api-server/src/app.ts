@@ -22,6 +22,8 @@ import {
   isAllowedOrigin,
   requireTrustedMutationOrigin,
 } from "./security/requestSecurity";
+import { recordHttpRequest } from "./observability/requestMetrics";
+import { evaluateAgainstTarget } from "./observability/reliabilityTargets";
 
 const app: Express = express();
 
@@ -31,6 +33,7 @@ app.set("trust proxy", 1);
 app.use(
   pinoHttp({
     logger,
+    // Do not log request/response bodies — serializers keep method + path only.
     serializers: {
       req(req) {
         return {
@@ -47,6 +50,36 @@ app.use(
     },
   }),
 );
+
+/** In-process latency / error metrics for /api/healthz/reliability (HSP-43). */
+app.use((req, res, next) => {
+  const start = process.hrtime.bigint();
+  res.on("finish", () => {
+    const durationMs = Number(process.hrtime.bigint() - start) / 1e6;
+    const pathOnly = (req.originalUrl || req.url || "/").split("?")[0] || "/";
+    recordHttpRequest({
+      path: pathOnly,
+      method: req.method,
+      statusCode: res.statusCode,
+      durationMs,
+    });
+    // Slow non-AI request watch — log path + ms only (no body).
+    if (!pathOnly.includes("/api/ai") && durationMs > 2000) {
+      const evalResult = evaluateAgainstTarget("api.request_p95", durationMs);
+      logger.warn(
+        {
+          path: pathOnly,
+          method: req.method,
+          statusCode: res.statusCode,
+          durationMs: Math.round(durationMs),
+          reliability: evalResult?.status,
+        },
+        "slow_request",
+      );
+    }
+  });
+  next();
+});
 app.use(
   cors({
     origin(origin, callback) {
