@@ -15,6 +15,13 @@ import {
   mobileCommandCenterSupported,
   mobileCommandCenterGaps,
   CLASSIC_FIELD_TOOL_ROUTES,
+  DISCOVERY_INTENTS,
+  DISCOVERY_IA_VERSION,
+  PRODUCT_SURFACE_PLACEMENT,
+  assertIntentToolReferences,
+  filterDiscoveryIntents,
+  secondaryCategoriesStillSupported,
+  getToolById as getTool,
 } from "./index";
 
 describe("Membership mobile parity", () => {
@@ -71,6 +78,63 @@ describe("Membership mobile parity", () => {
       expect(dailySet.has(id as (typeof FIELD_KIT_DAILY_TOOL_IDS)[number])).toBe(
         false,
       );
+    }
+  });
+});
+
+describe("Intent-first discovery IA (HSP-29)", () => {
+  it("is versioned and lists required professional intents", () => {
+    expect(DISCOVERY_IA_VERSION).toMatch(/^discovery-ia-v\d+/);
+    const ids = DISCOVERY_INTENTS.map((i) => i.id);
+    for (const required of [
+      "prepare_visit",
+      "handle_objection",
+      "follow_up",
+      "plan_week",
+      "open_account",
+      "develop_account",
+      "coach_rep",
+      "run_numbers",
+      "improve_territory",
+      "learn_fundamentals",
+    ]) {
+      expect(ids).toContain(required);
+    }
+  });
+
+  it("places Field resources as a peer surface (not Learn-only)", () => {
+    expect(PRODUCT_SURFACE_PLACEMENT.field_resources.label).toBe(
+      "Field resources",
+    );
+    expect(PRODUCT_SURFACE_PLACEMENT.field_resources.webPath).toBe("/resources");
+    expect(PRODUCT_SURFACE_PLACEMENT.learn.label).toBe("Learn");
+    expect(PRODUCT_SURFACE_PLACEMENT.tools.label).toBe("Tools");
+    // Resources meaning explicitly work aids
+    expect(PRODUCT_SURFACE_PLACEMENT.field_resources.meaning).toMatch(
+      /not only study/i,
+    );
+  });
+
+  it("intent tool destinations exist in the catalog", () => {
+    expect(assertIntentToolReferences(getTool)).toEqual([]);
+  });
+
+  it("keeps secondary Prepare/Practice/Plan/Measure categories", () => {
+    const cats = secondaryCategoriesStillSupported();
+    expect(cats).toContain("Prepare");
+    expect(cats).toContain("Practice");
+    expect(cats).toContain("Plan");
+    expect(cats).toContain("Measure");
+  });
+
+  it("filters intents by user language", () => {
+    const hits = filterDiscoveryIntents("objection");
+    expect(hits.some((i) => i.id === "handle_objection")).toBe(true);
+  });
+
+  it("resolves at least one destination per intent", () => {
+    for (const intent of DISCOVERY_INTENTS) {
+      expect(intent.destinations.length).toBeGreaterThan(0);
     }
   });
 });

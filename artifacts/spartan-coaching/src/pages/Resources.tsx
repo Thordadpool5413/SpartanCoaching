@@ -229,23 +229,29 @@ export default function Resources() {
       {canUseFieldKit && <FieldKitChrome />}
       <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
         <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">
-          {canUseFieldKit ? "Hospice Sales Pro · Resources" : "Training library"}
+          {canUseFieldKit ? "Hospice Sales Pro · Field resources" : "Training library"}
         </p>
         <h1 className="text-h1 text-foreground mb-6" data-testid="text-resources-title">
-          {canUseFieldKit ? "Resources" : "Training Resources Library"}
+          {canUseFieldKit ? "Field resources" : "Training Resources Library"}
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed">
           {canUseFieldKit
-            ? "Templates, scripts, checklists, and guides for the field — part of Hospice Sales Pro. No PHI in downloads you fill out."
+            ? "Work aids for the field — templates, scripts, and checklists. Not buried under Learn: pair with Tools intents (prepare a visit, plan the week)."
             : "Download field-tested templates, scripts, checklists, and guides to elevate your hospice sales performance."}
         </p>
         {canUseFieldKit && (
           <p className="text-sm text-muted-foreground mt-3">
-            Pair these with{" "}
+            Start from intent on{" "}
             <Link href="/tools" className="font-semibold text-primary hover:underline">
-              Hospice Sales Pro tools
-            </Link>{" "}
-            (for example: objection cards → Objection Handler).
+              Tools
+            </Link>
+            {" "}
+            (e.g. handle an objection → Objection Handler + objection cards).{" "}
+            <Link href="/articles" className="font-semibold text-primary hover:underline">
+              Learn
+            </Link>
+            {" "}
+            is for articles and fundamentals.
           </p>
         )}
       </div>

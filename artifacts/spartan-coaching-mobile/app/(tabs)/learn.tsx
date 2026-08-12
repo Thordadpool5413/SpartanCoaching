@@ -62,7 +62,8 @@ type Podcast = {
 const LEARN_TABS: { key: LearnTab; label: string; icon: "file-text" | "mic" | "folder" }[] = [
   { key: "articles", label: "Articles", icon: "file-text" },
   { key: "podcasts", label: "Podcasts", icon: "mic" },
-  { key: "resources", label: "Resources", icon: "folder" },
+  /** Same product name as web "Field resources" — work aids, not study-only. */
+  { key: "resources", label: "Field resources", icon: "folder" },
 ];
 
 function formatDate(ts?: number | null) {
@@ -178,7 +179,8 @@ export default function LearnScreen() {
       >
         <Text style={[styles.headerTitle, { color: colors.foreground }, font("heavy")]}>Learn</Text>
         <Text style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 4 }, font("regular")]}>
-          Get smarter between visits — articles, podcasts, field downloads
+          Fundamentals between visits — articles, podcasts, drills. Field resources (work aids) also live under
+          Tools intent map and the Resources tab below.
         </Text>
       </View>
 
