@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useBillingActions } from "@/hooks/useBillingActions";
+import { PRICING_FACTS } from "@/lib/complianceCopy";
 import { Lock, LogIn, KeyRound, Phone, CreditCard, Loader2, Shield } from "lucide-react";
 
 type Props = {
@@ -38,7 +39,7 @@ export function FieldKitGate({ compact }: Props) {
   if (expired) {
     title = "Hospice Sales Pro access has ended";
     body = canSelfServe
-      ? "Your access window ended. Individuals can re-subscribe for $14.99/week from Account — cancel anytime. Teams continue under a provider contract."
+      ? `Your access window ended. Individuals can re-subscribe for ${PRICING_FACTS.individualWeeklyLabel} from Account — cancel anytime. Teams continue under a provider contract.`
       : "Thank you for putting real scenarios through Hospice Sales Pro. Continue as a client under contract, request an extension, or close the loop with a short debrief.";
   } else if (suspended) {
     title = "Access is currently paused";
@@ -172,7 +173,7 @@ export function FieldKitGate({ compact }: Props) {
               ) : (
                 <>
                   <CreditCard className="mr-2 w-4 h-4" />
-                  Subscribe · $14.99/week
+                  Subscribe · {PRICING_FACTS.individualWeeklyLabel}
                 </>
               )}
             </Button>
@@ -212,7 +213,7 @@ export function FieldKitGate({ compact }: Props) {
           <div className="grid sm:grid-cols-3 gap-3 text-left text-sm">
             {[
               { t: "1. Debrief", d: "15–30 min call on what you tested and what stalled." },
-              { t: "2. Choose a path", d: "Individual $14.99/wk, team seats under contract, or coaching." },
+              { t: "2. Choose a path", d: `Individual ${PRICING_FACTS.individualWeeklyShort}, team seats under contract, or coaching.` },
               { t: "3. Activate", d: "Subscribe from Account, or we activate your team under contract." },
             ].map((s) => (
               <div key={s.t} className="border border-border rounded-md p-3">

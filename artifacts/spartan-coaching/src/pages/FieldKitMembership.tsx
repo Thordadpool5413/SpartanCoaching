@@ -15,6 +15,7 @@ import { useAuth } from "@/context/AuthContext";
 import { SubscribeCTA } from "@/components/SubscribeCTA";
 import { ProductMap } from "@/components/elite/ProductMap";
 import { SectionHeader } from "@/components/elite/SectionHeader";
+import { PRICING_FACTS, PUBLIC_CLAIM_SAFE } from "@/lib/complianceCopy";
 import { FIELD_KIT_TOOLS, FIELD_KIT_CATEGORIES, FIELD_KIT_CAT_BLURBS } from "@workspace/field-kit-catalog";
 
 // Gated tools only (exclude brand-video which is public)
@@ -53,8 +54,8 @@ export default function FieldKitMembership() {
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed">
           Hospice Sales Pro is what you open on web and iPhone between coaching sessions — or on its own:
-          Sales Command Center, objections, role-play, playbooks, weekly plans, calculators, and field resources.
-          Preview free. Live tools $14.99/week (cancel anytime). Teams under contract. Consulting is a separate offer.
+          Sales Command Center, objections, role-play, playbooks, weekly plans, calculators, and field resources.{" "}
+          {PRICING_FACTS.heroLine}
         </p>
         <div className="flex flex-col items-center gap-3 pt-2" data-testid="membership-hero-cta">
           <SubscribeCTA
@@ -74,9 +75,9 @@ export default function FieldKitMembership() {
         <div className="flex flex-wrap justify-center items-center gap-x-6 gap-y-3 text-sm">
           {[
             { icon: Award, t: "Built by territory reps" },
-            { icon: CheckCircle, t: "12+ years hospice-specific" },
-            { icon: TrendingUp, t: "Not generic sales AI" },
-            { icon: Users, t: "Ethics-first · no PHI" },
+            { icon: CheckCircle, t: PUBLIC_CLAIM_SAFE.yearsHospice },
+            { icon: TrendingUp, t: PUBLIC_CLAIM_SAFE.fieldCraft },
+            { icon: Users, t: PUBLIC_CLAIM_SAFE.ethics },
           ].map(({ icon: Icon, t }) => (
             <div key={t} className="flex items-center gap-2 text-muted-foreground">
               <Icon className="w-3.5 h-3.5 text-primary shrink-0" />
@@ -142,9 +143,11 @@ export default function FieldKitMembership() {
             <div className="w-11 h-11 rounded-lg bg-primary/15 text-primary flex items-center justify-center mb-4">
               <User className="w-5 h-5" />
             </div>
-            <h2 className="text-lg font-bold text-foreground mb-1">Hospice Sales Pro</h2>
+            <h2 className="text-lg font-bold text-foreground mb-1">{PRICING_FACTS.productName}</h2>
             <p className="mb-3">
-              <span className="text-2xl font-black text-primary">$14.99</span>
+              <span className="text-2xl font-black text-primary">
+                ${PRICING_FACTS.individualWeeklyUsd.toFixed(2)}
+              </span>
               <span className="text-sm font-semibold text-muted-foreground"> / week</span>
             </p>
             <p className="text-sm text-muted-foreground leading-relaxed mb-5">
@@ -234,9 +237,11 @@ export default function FieldKitMembership() {
       >
         <TrendingUp className="w-8 h-8 text-primary mx-auto mb-4" />
         <h2 className="text-h3 font-bold text-foreground mb-3">
-          Walk in with the answer the other rep doesn&apos;t have.
+          Walk in prepared — not hoping the conversation goes your way.
           <br />
-          <span className="text-primary">That&apos;s what $14.99 a week buys you.</span>
+          <span className="text-primary">
+            That&apos;s what {PRICING_FACTS.individualWeeklyLabel} buys: prepared field work.
+          </span>
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
           The Objection Handler gives you the response before you walk into the room. Weekly Plan Builder makes Monday
@@ -265,8 +270,8 @@ export default function FieldKitMembership() {
             individual seats.
           </li>
           <li>
-            <strong className="text-foreground">Subscribe</strong> for $14.99/week from Account to unlock live generation
-            and saves. Cancel anytime; access continues through the paid period.
+            <strong className="text-foreground">Subscribe</strong> for {PRICING_FACTS.individualWeeklyLabel} from
+            Account to unlock live generation and saves. Cancel anytime; access continues through the paid period.
           </li>
           <li>
             <strong className="text-foreground">Teams / providers:</strong> request team access — seats and weekly
@@ -297,21 +302,26 @@ export default function FieldKitMembership() {
           <p className="font-semibold text-foreground text-sm">Billing terms (summary)</p>
           <ul className="list-disc list-inside space-y-1">
             <li>
-              <strong className="text-foreground">Individual:</strong> $14.99 USD per week, billed automatically
-              until you cancel. Cancel anytime from Account → Manage billing. Access continues through the end of
-              the paid week you already paid for (cancel at period end).
+              <strong className="text-foreground">Individual:</strong> $
+              {PRICING_FACTS.individualWeeklyUsd.toFixed(2)} USD per week, billed automatically until you cancel.{" "}
+              {PRICING_FACTS.individualBillingNote} Access continues through the end of the paid week you already paid
+              for (cancel at period end).
             </li>
             <li>
-              <strong className="text-foreground">Provider / corporate:</strong> weekly price per seat is set in
-              your contract. Seat counts and invoices are managed with Spartan Coaching; payment may be Stripe
-              invoice or offline terms as agreed.
+              <strong className="text-foreground">Provider / corporate:</strong> {PRICING_FACTS.teamNote} Seat counts
+              and invoices are managed with Spartan Coaching; payment may be Stripe invoice or offline terms as agreed.
             </li>
+            <li>{PRICING_FACTS.consultingSeparate}</li>
             <li>
               Failed payments may suspend Hospice Sales Pro access until the payment method is updated. No PHI belongs in
               tools.
             </li>
             <li>
               Full legal terms:{" "}
+              <Link href="/trust" className="text-primary hover:underline">
+                Trust Center
+              </Link>
+              {" · "}
               <Link href="/terms" className="text-primary hover:underline">
                 Terms of Service
               </Link>

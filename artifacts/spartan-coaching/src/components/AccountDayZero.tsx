@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { useBillingActions } from "@/hooks/useBillingActions";
 import { trackEvent } from "@/lib/analytics";
+import { PRICING_FACTS } from "@/lib/complianceCopy";
 import { FIELD_KIT_TOOLS } from "@workspace/field-kit-catalog";
 import {
   CheckCircle,
@@ -62,7 +63,7 @@ export function AccountDayZero({ firstName, isWelcome, isExpired, isSuspended }:
   const sub = isSuspended
     ? "Update your card to unlock live tools again. Preview still works while you're here."
     : isExpired && !isWelcome
-      ? "Resubscribe for $14.99/week to unlock live tools again — or preview interfaces free anytime. Cancel anytime."
+      ? `Resubscribe for ${PRICING_FACTS.individualWeeklyLabel} to unlock live tools again — or preview interfaces free anytime. Cancel anytime.`
       : "Account created. Subscribe to generate, save, and run Hospice Sales Pro tools live. Cancel anytime from Manage billing.";
 
   const unlockTools = FIELD_KIT_TOOLS.filter((t) => t.id !== "brand-video").slice(0, 8);
@@ -95,7 +96,7 @@ export function AccountDayZero({ firstName, isWelcome, isExpired, isSuspended }:
           {
             n: "2",
             t: "Subscribe",
-            d: isSuspended ? "Update card" : "$14.99/week",
+            d: isSuspended ? "Update card" : PRICING_FACTS.individualWeeklyLabel,
             done: false,
             active: true,
           },
@@ -162,7 +163,9 @@ export function AccountDayZero({ firstName, isWelcome, isExpired, isSuspended }:
             ) : (
               <>
                 <CreditCard className="mr-2 w-4 h-4" />
-                {isExpired && !isWelcome ? "Resubscribe · Hospice Sales Pro · $14.99/wk" : "Subscribe · $14.99/wk"}
+                {isExpired && !isWelcome
+                  ? `Resubscribe · ${PRICING_FACTS.productName} · ${PRICING_FACTS.individualWeeklyShort}`
+                  : `Subscribe · ${PRICING_FACTS.individualWeeklyShort}`}
               </>
             )}
           </Button>

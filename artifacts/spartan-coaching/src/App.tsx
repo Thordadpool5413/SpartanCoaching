@@ -68,6 +68,7 @@ const ActivityCalculator = lazy(() => import("@/pages/ActivityCalculator"));
 const RepCostCalculator = lazy(() => import("@/pages/RepCostCalculator"));
 const BranchProfitability = lazy(() => import("@/pages/BranchProfitability"));
 const FAQ = lazy(() => import("@/pages/FAQ"));
+const TrustCenter = lazy(() => import("@/pages/TrustCenter"));
 const TermsOfService = lazy(() => import("@/pages/TermsOfService"));
 const Disclaimer = lazy(() => import("@/pages/Disclaimer"));
 const PrivacyPolicy = lazy(() => import("@/pages/PrivacyPolicy"));
@@ -265,6 +266,7 @@ function Router() {
           <Route path="/articles" component={Articles} />
           <Route path="/podcasts" component={Podcasts} />
           <Route path="/faq" component={FAQ} />
+          <Route path="/trust" component={TrustCenter} />
           <Route path="/terms" component={TermsOfService} />
           <Route path="/disclaimer" component={Disclaimer} />
           <Route path="/privacy" component={PrivacyPolicy} />

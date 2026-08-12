@@ -311,10 +311,12 @@ describe("FieldKitMembership how-to-access — honest funnel", () => {
 });
 
 describe("FieldKitMembership end-user why section", () => {
-  it("frames value as personal edge, not provider Medicare revenue", async () => {
+  it("frames value as prepared field work, not provider Medicare revenue", async () => {
     await renderMembership(UNAUTHED);
     const section = screen.getByTestId("section-why-membership");
-    expect(section.textContent).toMatch(/Walk in with the answer/i);
+    // HSP-40: confident professional tone — prepared work, not gimmicky "other rep" framing
+    expect(section.textContent).toMatch(/Walk in prepared/i);
+    expect(section.textContent).toMatch(/prepared field work/i);
     expect(section.textContent).not.toMatch(/Medicare revenue/i);
     expect(section.textContent).not.toMatch(/admit rate.*annual/i);
   });

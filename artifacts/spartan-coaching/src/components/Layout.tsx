@@ -26,6 +26,7 @@ import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { navSections, allSearchablePages } from "@/lib/navigation";
 import { PortalMobileLinks } from "@/components/PortalNav";
 import { useIsMobile } from "@/hooks/use-breakpoint";
+import { CONSENT_COPY, PRICING_FACTS } from "@/lib/complianceCopy";
 
 function NavLink({ href, children, onClick }: { href: string; children: React.ReactNode; onClick?: () => void }) {
   const [location] = useLocation();
@@ -521,7 +522,7 @@ export function Footer() {
               <p className="text-xs text-muted-foreground/90 leading-relaxed border-l-2 border-primary/50 pl-3">
                 {canUseFieldKit
                   ? "No PHI in tools · Cancel anytime from Account · Ethics-first field work"
-                  : "Consulting for teams · Hospice Sales Pro $14.99/wk · Preview free · Cancel anytime · No PHI in tools"}
+                  : `Consulting for teams · ${PRICING_FACTS.productName} ${PRICING_FACTS.individualWeeklyShort} · Preview free · Cancel anytime · No PHI in tools`}
               </p>
               <div className="flex flex-col gap-2">
                 <a href="mailto:nick@spartanhospicecoaching.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-email">
@@ -563,9 +564,9 @@ export function Footer() {
             {/* Column 3 — Newsletter (public only) */}
             {!canUseFieldKit && (
               <div className="flex flex-col gap-4" data-testid="section-newsletter">
-                <p className="text-xs font-bold text-foreground uppercase tracking-widest">Weekly Coaching Tips</p>
+                <p className="text-xs font-bold text-foreground uppercase tracking-widest">Optional email updates</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  Actionable hospice sales strategies delivered to your inbox. No fluff.
+                  {CONSENT_COPY.newsletterExplicit}
                 </p>
                 <NewsletterSignup />
               </div>
@@ -583,6 +584,7 @@ export function Footer() {
               </p>
               <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
                 {[
+                  { href: "/trust", label: "Trust Center", testId: "link-trust-center" },
                   { href: "/privacy", label: "Privacy", testId: "link-privacy" },
                   { href: "/terms", label: "Terms", testId: "link-terms" },
                   { href: "/disclaimer", label: "Disclaimer", testId: "link-disclaimer" },
