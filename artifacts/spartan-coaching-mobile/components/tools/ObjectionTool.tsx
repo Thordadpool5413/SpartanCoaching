@@ -1,15 +1,21 @@
 import React, { useEffect, useState } from "react";
-import { Share, Text, TextInput, View } from "react-native";
+import { Text, TextInput, View } from "react-native";
 import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
 import { apiPost } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
 import { useSavedResponses } from "@/hooks/useSavedResponses";
-import { FieldResultPanel } from "@/components/FieldResultPanel";
 import { CitationsBlock, type CitationItem } from "@/components/ui/CitationsBlock";
 import { ReminderPicker } from "@/components/ReminderPicker";
 import { SavedResponsesSection } from "@/components/SavedResponsesSection";
+import {
+  ToolAnatomyEvidence,
+  ToolAnatomyNextMove,
+  ToolAnatomyRelated,
+  ToolAnatomyResult,
+  ToolAnatomyWhy,
+} from "@/components/ToolAnatomy";
 import { ToolShell } from "./ToolShell";
 import { toolStyles as styles } from "./toolStyles";
 import {
@@ -21,6 +27,11 @@ import {
 import { enqueueGenerate, shouldEnqueueOnError, userFacingApiError } from "@/lib/offlineQueue";
 
 const TOOL_ID = "objection";
+
+const RELATED = [
+  { label: "Role-play", href: "/tool/role-play", kind: "Practice" },
+  { label: "Playbooks", href: "/tool/playbooks", kind: "Prepare" },
+];
 
 export function ObjectionTool() {
   const colors = useColors();
@@ -111,6 +122,12 @@ export function ObjectionTool() {
       ctaDisabled={objection.trim().length < 5}
       testID="tool-objection"
     >
+      {/* context + guidance from ToolShell; unique free-text input preserved */}
+      <ToolAnatomyWhy>
+        Acknowledge the concern, reframe the goal (comfort, support, timing), then offer one clear
+        next step — never invent clinical claims.
+      </ToolAnatomyWhy>
+
       {fromCache && result ? (
         <View style={[styles.offlineBanner, { backgroundColor: colors.primaryMuted }]}>
           <Text style={[{ color: colors.primary, fontSize: 12 }, font("semibold")]}>
@@ -134,8 +151,9 @@ export function ObjectionTool() {
         multiline
         numberOfLines={4}
         textAlignVertical="top"
+        accessibilityLabel="Objection input"
       />
-      <FieldResultPanel
+      <ToolAnatomyResult
         title="Talk track"
         content={result || undefined}
         loading={loading && !result}
@@ -151,18 +169,25 @@ export function ObjectionTool() {
         }
         saved={!!savedId}
       >
-        {result ? <CitationsBlock items={citations} title="Spartan Method sources" /> : null}
-      </FieldResultPanel>
+        {result ? (
+          <ToolAnatomyEvidence>
+            <CitationsBlock items={citations} title="Spartan Method sources" />
+          </ToolAnatomyEvidence>
+        ) : null}
+      </ToolAnatomyResult>
       {!!result && (
         <>
-          <ReminderPicker
-            title="Follow up after your visit"
-            body="You practiced an objection — set a reminder to follow up."
-            storageKey="objection"
-          />
+          <ToolAnatomyNextMove>
+            <ReminderPicker
+              title="Follow up after your visit"
+              body="You practiced an objection — set a reminder to follow up."
+              storageKey="objection"
+            />
+          </ToolAnatomyNextMove>
           <SavedResponsesSection items={saved.savedItems} onDelete={saved.deleteResponse} />
         </>
       )}
+      <ToolAnatomyRelated items={RELATED} />
     </ToolShell>
   );
 }

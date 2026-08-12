@@ -31,4 +31,13 @@ export {
   sharedCommandCenterFacts,
   mobileCommandCenterSupported,
   mobileCommandCenterGaps,
+  TOOL_ANATOMY_VERSION,
+  TOOL_ANATOMY_SECTIONS,
+  TOOL_ANATOMY_META,
+  TOOL_ANATOMY_BY_ID,
+  anatomySectionsForTool,
+  toolUsesSection,
+  normalizeSectionAlias,
+  type ToolAnatomySectionId,
+  type ToolAnatomySectionMeta,
 } from "@workspace/field-kit-catalog";
