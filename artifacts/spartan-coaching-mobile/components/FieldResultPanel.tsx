@@ -60,7 +60,9 @@ export function FieldResultPanel({
     return (
       <View
         style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}
+        accessibilityRole="progressbar"
         accessibilityLabel="Loading result"
+        accessibilityState={{ busy: true }}
       >
         <View style={styles.skeletonRow}>
           <ActivityIndicator color={colors.primary} size="small" />
@@ -77,7 +79,11 @@ export function FieldResultPanel({
 
   if (error) {
     return (
-      <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
+      <View
+        style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}
+        accessibilityRole="alert"
+        accessibilityLiveRegion="assertive"
+      >
         <Text style={[styles.error, { color: colors.primary }, font("regular")]}>{error}</Text>
       </View>
     );
@@ -87,6 +93,8 @@ export function FieldResultPanel({
     return (
       <View
         style={[styles.card, styles.empty, { backgroundColor: colors.muted, borderColor: colors.border }]}
+        accessibilityRole="summary"
+        accessibilityLabel="No result yet. Run the tool to get a copy-ready result for the field."
       >
         <Feather name="file-text" size={20} color={colors.mutedForeground} />
         <Text style={[{ color: colors.mutedForeground, marginTop: 8, textAlign: "center" }, font("regular")]}>
@@ -99,11 +107,21 @@ export function FieldResultPanel({
   if (!hasBody) return null;
 
   return (
-    <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-      <View style={styles.topRail}>
+    <View
+      style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}
+      accessibilityRole="summary"
+      accessibilityLabel={title}
+      accessibilityLiveRegion="polite"
+    >
+      <View style={styles.topRail} accessibilityElementsHidden>
         <View style={[styles.railLine, { backgroundColor: colors.primary }]} />
       </View>
-      <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>{title}</Text>
+      <Text
+        accessibilityRole="header"
+        style={[styles.kicker, { color: colors.primary }, font("bold")]}
+      >
+        {title}
+      </Text>
       {content ? (
         <Text style={[styles.body, { color: colors.foreground }, font("regular")]}>{content}</Text>
       ) : null}

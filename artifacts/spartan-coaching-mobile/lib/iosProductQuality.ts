@@ -34,6 +34,10 @@ export const IOS_QUALITY_CHECKLIST = [
   "dynamic_type_caps",
   "reduce_motion",
   "reduce_transparency_tab_bar",
+  // HSP-35 accessibility extensions
+  "voiceover_traits_and_values",
+  "touch_target_min_44",
+  "result_panel_status_announcements",
 ] as const;
 
 export type IosQualityCheckId = (typeof IOS_QUALITY_CHECKLIST)[number];

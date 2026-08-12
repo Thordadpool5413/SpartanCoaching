@@ -8,6 +8,7 @@ import { SEO } from "@/components/SEO";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { isWorkspacePath, normalizePath } from "@/lib/workspaceShell";
+import { fieldErrorId, fieldErrorProps } from "@/lib/a11y";
 
 function safeNextPath(raw: string | null): string | null {
   if (!raw) return null;
@@ -35,6 +36,8 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [pending, setPending] = useState(false);
   const [magicSent, setMagicSent] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
+  const formErrorId = fieldErrorId("login-form");
 
   const nextPath = useMemo(() => {
     if (typeof window === "undefined") return null;
@@ -53,6 +56,7 @@ export default function Login() {
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setPending(true);
+    setFormError(null);
     try {
       if (mode === "magic") {
         const res = await fetch("/api/auth/magic-link", {
@@ -74,9 +78,11 @@ export default function Login() {
       toast({ title: "Welcome back", description: "You are signed in." });
       setLocation(postLoginPath(!!session.fieldKit?.allowed));
     } catch (err: any) {
+      const message = err?.message || "Check your email and password.";
+      setFormError(message);
       toast({
         title: "Sign in failed",
-        description: err?.message || "Check your email and password.",
+        description: message,
         variant: "destructive",
       });
     } finally {
@@ -142,7 +148,22 @@ export default function Login() {
             </Button>
           </div>
         ) : (
-          <form onSubmit={onSubmit} className="space-y-4">
+          <form
+            onSubmit={onSubmit}
+            className="space-y-4"
+            aria-describedby={formError ? formErrorId : undefined}
+            noValidate={false}
+          >
+            {formError ? (
+              <p
+                id={formErrorId}
+                role="alert"
+                className="text-sm text-destructive font-medium leading-relaxed"
+                data-testid="login-form-error"
+              >
+                {formError}
+              </p>
+            ) : null}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -153,6 +174,7 @@ export default function Login() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 data-testid="input-login-email"
+                {...fieldErrorProps(formErrorId, !!formError)}
               />
             </div>
             {mode === "password" && (
@@ -171,6 +193,7 @@ export default function Login() {
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   data-testid="input-login-password"
+                  {...fieldErrorProps(formErrorId, !!formError)}
                 />
               </div>
             )}

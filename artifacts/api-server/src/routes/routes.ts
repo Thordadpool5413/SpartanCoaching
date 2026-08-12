@@ -2056,7 +2056,16 @@ The single most important skill to work on before the next conversation.`,
         margin: MARGIN,
         size: "LETTER",
         bufferPages: true,
-        info: { Title: title, Author: "Spartan Coaching", Creator: "Spartan Coaching" },
+        // Document metadata for readers (Title/Author/Subject) — structure via section headings
+        info: {
+          Title: title,
+          Author: "Spartan Coaching",
+          Creator: "Spartan Coaching Hospice Sales Pro",
+          Subject: subtitle
+            ? `${subtitle} · Structured field document`
+            : "Structured field document · Spartan Coaching",
+          Keywords: "hospice, sales, coaching, accessible export",
+        },
       });
 
       const chunks: Buffer[] = [];
@@ -2205,7 +2214,21 @@ The single most important skill to work on before the next conversation.`,
         flushPara();
       };
 
-      // ── Sections ────────────────────────────────────────────────────────
+      // ── Sections (visible structure + outline entries for PDF readers) ──
+      // pdfkit outline helps navigation in Preview/Acrobat (not full PDF/UA).
+      const rootOutline =
+        typeof (doc as { outline?: { addItem: (t: string) => unknown } }).outline
+          ?.addItem === "function"
+          ? (doc as { outline: { addItem: (t: string) => unknown } }).outline
+          : null;
+      if (rootOutline) {
+        try {
+          rootOutline.addItem(title);
+        } catch {
+          /* outline optional */
+        }
+      }
+
       for (const section of sections) {
         const safeBody = typeof section.body === "string" ? section.body.trim() : "";
 
@@ -2216,6 +2239,13 @@ The single most important skill to work on before the next conversation.`,
           doc.rect(MARGIN, hY, 4, Math.max(17, headingH)).fill(RED);
           doc.fontSize(13).font("Helvetica-Bold").fillColor(DARK)
             .text(section.heading, MARGIN + 11, hY, { width: CW - 11, lineGap: 2 });
+          if (rootOutline) {
+            try {
+              rootOutline.addItem(section.heading);
+            } catch {
+              /* optional */
+            }
+          }
           doc.moveDown(0.35);
           doc.moveTo(MARGIN, doc.y).lineTo(MARGIN + CW, doc.y)
             .strokeColor(LIGHT_RULE).lineWidth(0.5).stroke();

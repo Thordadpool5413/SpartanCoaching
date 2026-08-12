@@ -33,8 +33,20 @@ export function StateBlock({
   const Icon = ICONS[variant];
   return (
     <div
-      role={variant === "error" ? "alert" : variant === "loading" ? "status" : undefined}
-      aria-live={variant === "loading" || variant === "error" ? "polite" : undefined}
+      role={
+        variant === "error"
+          ? "alert"
+          : variant === "loading" || variant === "success"
+            ? "status"
+            : undefined
+      }
+      aria-live={
+        variant === "error"
+          ? "assertive"
+          : variant === "loading" || variant === "success"
+            ? "polite"
+            : undefined
+      }
       aria-busy={variant === "loading" || undefined}
       className={cn(
         "rounded-xl border border-border bg-card/80 px-5 py-10 sm:px-8 sm:py-12 text-center",

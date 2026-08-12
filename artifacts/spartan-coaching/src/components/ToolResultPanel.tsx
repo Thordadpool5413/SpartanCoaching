@@ -51,6 +51,9 @@ export function ToolResultPanel({
         className,
       )}
       data-testid="tool-result-panel"
+      role="region"
+      aria-label={title}
+      aria-busy={loading || undefined}
     >
       <div className="flex items-start justify-between gap-3">
         <div>
@@ -73,11 +76,11 @@ export function ToolResultPanel({
           >
             {copied ? (
               <>
-                <Check className="w-4 h-4" /> Copied
+                <Check className="w-4 h-4" aria-hidden /> Copied
               </>
             ) : (
               <>
-                <Copy className="w-4 h-4" /> Copy
+                <Copy className="w-4 h-4" aria-hidden /> Copy
               </>
             )}
           </Button>
@@ -85,7 +88,13 @@ export function ToolResultPanel({
       </div>
 
       {loading ? (
-        <div className="space-y-3 animate-pulse" aria-busy="true" aria-label="Generating result">
+        <div
+          className="space-y-3 animate-pulse"
+          aria-busy="true"
+          aria-live="polite"
+          aria-label="Generating result"
+          role="status"
+        >
           <div className="h-4 rounded bg-muted w-3/4" />
           <div className="h-4 rounded bg-muted w-full" />
           <div className="h-4 rounded bg-muted w-5/6" />
@@ -98,7 +107,11 @@ export function ToolResultPanel({
           </p>
         </div>
       ) : (
-        <div className="text-sm text-foreground leading-relaxed prose prose-sm dark:prose-invert max-w-none">
+        <div
+          className="text-sm text-foreground leading-relaxed prose prose-sm dark:prose-invert max-w-none"
+          aria-live="polite"
+          aria-atomic="false"
+        >
           {children}
         </div>
       )}
