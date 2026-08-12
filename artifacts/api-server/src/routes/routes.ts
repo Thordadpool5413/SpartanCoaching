@@ -15,6 +15,15 @@ import {
   roleplayMessageLimit,
 } from "../rateLimits";
 import { clientErrorMessage } from "../lib/httpErrors";
+import {
+  postflightUncertainty,
+  preflightUncertainty,
+} from "../ai/uncertaintyBoundaries";
+import {
+  presentResource,
+  presentResources,
+  prepareResourceWrite,
+} from "../resources/resourceArchitecture";
 
 import path from "path";
 import fs from "fs";
@@ -241,6 +250,18 @@ Format the playbook in markdown with clear sections, bullet points, and quoted t
     try {
       const { objection } = objectionRequestSchema.parse(req.body);
 
+      // HSP-23: never generate patient-specific eligibility from sales inputs.
+      const blocked = preflightUncertainty(objection, { workflow: "objection" });
+      if (blocked) {
+        res.json({
+          response: blocked.safeResponse,
+          citations: [],
+          uncertainty: blocked,
+          modelSkipped: true,
+        });
+        return;
+      }
+
       const corpusHits = searchSpartanKnowledge(objection, 3);
       const corpusBlock = formatCitationsForPrompt(corpusHits);
 
@@ -253,17 +274,31 @@ Provide a concise, empathetic field response that:
 
 Keep it under 120 words and use a warm, professional tone.
 Do not invent clinical claims. Do not request or include PHI.
+Never determine whether a specific patient is eligible for hospice — that is a clinical decision.
 ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corpusBlock}` : ""}`;
 
       const response = await generateQuickResponse(prompt);
-
-      res.json({
-        response,
-        citations: corpusHits.map((c) => ({
+      const citations = corpusHits.map((c) => ({
+        id: c.id,
+        title: c.title,
+        category: c.category,
+      }));
+      const uncertainty = postflightUncertainty(objection, response, {
+        workflow: "objection",
+        sources: citations.map((c) => ({
           id: c.id,
           title: c.title,
-          category: c.category,
+          authority: "spartan_methodology",
         })),
+      });
+
+      res.json({
+        response: uncertainty.eligibilityDeterminationBlocked
+          ? uncertainty.safeResponse
+          : response,
+        citations,
+        uncertainty,
+        modelSkipped: false,
       });
     } catch (error: any) {
       console.error("Objection handling error:", error);
@@ -276,8 +311,42 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
     try {
       const { query } = researchRequestSchema.parse(req.body);
 
+      // HSP-23: structured uncertainty / escalation before model for high-risk asks.
+      const blocked = preflightUncertainty(query, { workflow: "research" });
+      if (blocked) {
+        res.json({
+          answer: blocked.safeResponse,
+          summary: blocked.safeResponse,
+          sources: [],
+          spartanCitations: [],
+          uncertainty: blocked,
+          modelSkipped: true,
+        });
+        return;
+      }
+
       const corpusHits = searchSpartanKnowledge(query, 3);
       const result = await generateGroundedSearch(query);
+      const resultRecord = result as {
+        text?: string;
+        answer?: string;
+        summary?: string;
+        sources?: unknown;
+      };
+      const resultText =
+        (typeof resultRecord.text === "string" && resultRecord.text) ||
+        (typeof resultRecord.answer === "string" && resultRecord.answer) ||
+        (typeof resultRecord.summary === "string" && resultRecord.summary) ||
+        JSON.stringify(result).slice(0, 4_000);
+
+      const uncertainty = postflightUncertainty(query, resultText, {
+        workflow: "research",
+        sources: corpusHits.map((c) => ({
+          id: c.id,
+          title: c.title,
+          authority: "spartan_methodology",
+        })),
+      });
 
       res.json({
         ...result,
@@ -287,6 +356,15 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
           category: c.category,
           excerpt: c.body.slice(0, 280),
         })),
+        uncertainty,
+        modelSkipped: false,
+        ...(uncertainty.eligibilityDeterminationBlocked
+          ? {
+              text: uncertainty.safeResponse,
+              answer: uncertainty.safeResponse,
+              summary: uncertainty.safeResponse,
+            }
+          : {}),
       });
     } catch (error: any) {
       console.error("Research error:", error);
@@ -650,12 +728,12 @@ Subject: [subject line]
 
   // Resource Management Routes
   
-  // Get All Resources (Public)
+  // Get All Resources (Public) — HSP-25 architecture enriched (legacy-safe)
   app.get("/api/resources", async (req, res) => {
     try {
       const resources = await storage.getAllResources();
       // Normalize legacy /resources/*.pdf URLs so downloads never hit the SPA route
-      const normalized = (resources || []).map((r: any) => {
+      const normalized = presentResources(resources || []).map((r) => {
         const fileUrl = String(r?.fileUrl || "");
         if (
           fileUrl.startsWith("/resources/") &&
@@ -667,7 +745,10 @@ Subject: [subject line]
         }
         return r;
       });
-      res.json({ resources: normalized });
+      res.json({
+        resources: normalized,
+        contentArchitectureVersion: "resource-content-architecture-v1",
+      });
     } catch (error: any) {
       console.error("Get resources error (DB may be unavailable):", error);
       res.json({ resources: [] });
@@ -677,13 +758,24 @@ Subject: [subject line]
   // Create Resource (Admin only)
   app.post("/api/resources", requireAdmin, async (req, res) => {
     try {
-      const resourceData = insertResourceSchema.parse(req.body);
+      const prepared = prepareResourceWrite(
+        (req.body && typeof req.body === "object"
+          ? req.body
+          : {}) as Record<string, unknown>,
+      );
+      const resourceData = insertResourceSchema.parse({
+        title: prepared.title,
+        description: prepared.description,
+        fileUrl: prepared.fileUrl,
+        category: prepared.category,
+        contentArchitecture: prepared.contentArchitecture,
+      });
       
       const resource = await storage.createResource(resourceData);
       
-      console.log("New resource created:", resource);
+      console.log("New resource created:", resource.id);
       
-      res.json({ success: true, resource });
+      res.json({ success: true, resource: presentResource(resource) });
     } catch (error: any) {
       console.error("Create resource error:", error);
       if (error.name === "ZodError") {
@@ -702,19 +794,36 @@ Subject: [subject line]
         return res.status(400).json({ error: "Invalid resource ID" });
       }
 
-      const resourceData = insertResourceSchema.parse(req.body);
-      
       // Check if resource exists first
       const existingResource = await storage.getResource(id);
       if (!existingResource) {
         return res.status(404).json({ error: "Resource not found" });
       }
+
+      const prepared = prepareResourceWrite({
+        title: existingResource.title,
+        description: existingResource.description,
+        fileUrl: existingResource.fileUrl,
+        category: existingResource.category,
+        contentArchitecture: existingResource.contentArchitecture,
+        ...((req.body && typeof req.body === "object" ? req.body : {}) as Record<
+          string,
+          unknown
+        >),
+      });
+      const resourceData = insertResourceSchema.parse({
+        title: prepared.title,
+        description: prepared.description,
+        fileUrl: prepared.fileUrl,
+        category: prepared.category,
+        contentArchitecture: prepared.contentArchitecture,
+      });
       
       const resource = await storage.updateResource(id, resourceData);
       
-      console.log("Resource updated:", resource);
+      console.log("Resource updated:", resource.id);
       
-      res.json({ success: true, resource });
+      res.json({ success: true, resource: presentResource(resource) });
     } catch (error: any) {
       console.error("Update resource error:", error);
       if (error.name === "ZodError") {

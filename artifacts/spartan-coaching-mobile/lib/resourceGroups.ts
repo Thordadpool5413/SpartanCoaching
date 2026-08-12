@@ -1,12 +1,28 @@
 /**
  * Group Learn PDF resources by field use case (not flat dump).
+ * HSP-25: optional architecture fields from API presentResource().
  */
+export type ResourceArchitectureLike = {
+  whenToUse?: string;
+  whyItMatters?: string;
+  expectedOutcome?: string;
+  experienceLevel?: string;
+  jobToAccomplish?: string;
+  clinicalSensitivity?: string;
+  premiumRule?: string;
+  relatedToolIds?: string[];
+  tags?: string[];
+  presentationType?: string;
+};
+
 export type ResourceLike = {
   id: number;
   title: string;
   description?: string | null;
   fileUrl: string;
   category?: string | null;
+  architecture?: ResourceArchitectureLike | null;
+  contentArchitecture?: ResourceArchitectureLike | null;
 };
 
 export type ResourceGroupId = "visit_prep" | "week_plan" | "onboarding" | "other";
@@ -38,7 +54,8 @@ export const RESOURCE_GROUP_META: Record<
 };
 
 function classify(resource: ResourceLike): ResourceGroupId {
-  const blob = `${resource.title} ${resource.description || ""} ${resource.category || ""}`.toLowerCase();
+  const arch = resource.architecture || resource.contentArchitecture;
+  const blob = `${resource.title} ${resource.description || ""} ${resource.category || ""} ${arch?.whenToUse || ""} ${arch?.tags?.join(" ") || ""}`.toLowerCase();
 
   if (
     /object|script|call|cold|email|follow|conversation|difficult|facility|physician|lunch|eligibility|decision/.test(

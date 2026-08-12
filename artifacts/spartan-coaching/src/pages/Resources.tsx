@@ -190,10 +190,54 @@ export default function Resources() {
                     </div>
 
                     {resource.description && (
-                      <p className="text-base text-muted-foreground leading-relaxed mb-6 line-clamp-3">
+                      <p className="text-base text-muted-foreground leading-relaxed mb-3 line-clamp-3">
                         {resource.description}
                       </p>
                     )}
+
+                    {(() => {
+                      const arch =
+                        (
+                          resource as SelectResource & {
+                            architecture?: {
+                              whenToUse?: string;
+                              expectedOutcome?: string;
+                              experienceLevel?: string;
+                              clinicalSensitivity?: string;
+                            };
+                          }
+                        ).architecture || resource.contentArchitecture;
+                      if (!arch) return null;
+                      return (
+                        <div className="space-y-2 mb-4 text-sm text-muted-foreground">
+                          {arch.whenToUse ? (
+                            <p className="line-clamp-2" data-testid={`resource-when-${resource.id}`}>
+                              <span className="font-semibold text-foreground">When: </span>
+                              {arch.whenToUse}
+                            </p>
+                          ) : null}
+                          {arch.expectedOutcome ? (
+                            <p className="line-clamp-2" data-testid={`resource-outcome-${resource.id}`}>
+                              <span className="font-semibold text-foreground">Outcome: </span>
+                              {arch.expectedOutcome}
+                            </p>
+                          ) : null}
+                          <div className="flex flex-wrap gap-1.5 pt-1">
+                            {arch.experienceLevel ? (
+                              <Badge variant="secondary" className="text-xs">
+                                {arch.experienceLevel}
+                              </Badge>
+                            ) : null}
+                            {arch.clinicalSensitivity &&
+                            arch.clinicalSensitivity !== "none" ? (
+                              <Badge variant="outline" className="text-xs">
+                                {arch.clinicalSensitivity}
+                              </Badge>
+                            ) : null}
+                          </div>
+                        </div>
+                      );
+                    })()}
 
                     <Button
                       className="w-full gap-2"
@@ -223,7 +267,12 @@ export default function Resources() {
         </p>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
           {[
-            { href: "/resources/weekly-plan", title: "Weekly Activity Planner", desc: "Daily schedule grid, priority accounts, follow-up tracker, and end-of-week review for any sales rep." },
+            {
+              href: "/resources/weekly-plan",
+              title: "Weekly Activity Planner",
+              desc: "Interactive plan with save/resume across devices (signed in), print, and PDF. Purpose: Monday focus. Outcome: a completed week plan.",
+              interactive: true,
+            },
             { href: "/resources/activity-tracker", title: "Weekly Activity Tracker", desc: "Detailed daily conversation log with Account, Contact, Topic, Stage, and Outcome columns. Includes weekly summary and reflection questions." },
             { href: "/resources/quick-start-guide", title: "First 30 Days Guide", desc: "Week-by-week actions, first contact scripts, objection responses, and a 30-day scorecard for new hires." },
             { href: "/resources/objection-cards", title: "Objection Response Cards", desc: "Eight of the most common hospice objections with response frameworks, coaching tips, and a universal reframe method." },
@@ -238,7 +287,9 @@ export default function Resources() {
               <Link href={item.href}>
                 <Button className="w-full gap-2" data-testid={`button-open-${item.href.split("/").pop()}`}>
                   <Printer className="w-4 h-4" />
-                  Open and Print
+                  {"interactive" in item && item.interactive
+                    ? "Open interactive plan"
+                    : "Open and Print"}
                 </Button>
               </Link>
             </Card>

@@ -22,3 +22,4 @@ export * from "./chat";
 export * from "./auth";
 export * from "./salesWorkflow";
 export * from "./aiTools";
+export * from "./resourceWork";

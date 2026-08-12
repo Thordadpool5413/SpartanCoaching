@@ -290,6 +290,48 @@ export const insertEventTrackingSchema = createInsertSchema(eventTracking).omit(
 export type InsertEventTracking = z.infer<typeof insertEventTrackingSchema>;
 export type SelectEventTracking = typeof eventTracking.$inferSelect;
 
+/**
+ * Professional content architecture for Learn resources (HSP-25).
+ * Stored as nullable JSONB so existing download-only rows remain valid.
+ */
+export type ResourceContentArchitecture = {
+  version?: string;
+  audience?: string[];
+  role?: string[];
+  experienceLevel?: string;
+  jobToAccomplish?: string;
+  resourceType?: string;
+  topic?: string[];
+  useCase?: string;
+  whenToUse?: string;
+  whyItMatters?: string;
+  expectedOutcome?: string;
+  completionTimeMinutes?: number | null;
+  relatedToolIds?: string[];
+  relatedResourceIds?: number[];
+  tags?: string[];
+  clinicalSensitivity?: "none" | "educational" | "clinical_adjacent" | "restricted";
+  sourceAuthority?: string;
+  author?: string;
+  reviewer?: string;
+  reviewedAt?: string | null;
+  publishedAt?: string | null;
+  contentVersion?: string;
+  status?: "draft" | "published" | "archived" | "review_required";
+  premiumRule?: "public" | "field_kit" | "premium" | "org_only";
+  organizationVisibility?: "all" | "org_only" | "hidden";
+  presentationType?:
+    | "download"
+    | "guide"
+    | "checklist"
+    | "script"
+    | "template"
+    | "reference";
+  formats?: string[];
+  contentOwner?: string;
+  reviewDueAt?: string | null;
+};
+
 // Drizzle table definition for resources
 export const resources = pgTable("resources", {
   id: serial("id").primaryKey(),
@@ -298,13 +340,22 @@ export const resources = pgTable("resources", {
   fileUrl: varchar("file_url").notNull(),
   category: varchar("category").notNull(),
   createdAt: timestamp("created_at").defaultNow(),
+  /** HSP-25: structured product metadata; null for legacy download-only rows. */
+  contentArchitecture: jsonb("content_architecture").$type<ResourceContentArchitecture | null>(),
 });
 
 // Insert schema and types for resources
-export const insertResourceSchema = createInsertSchema(resources).omit({ 
-  id: true,
-  createdAt: true
-});
+// Refine JSONB so writers accept ResourceContentArchitecture (not loose Json).
+export const insertResourceSchema = createInsertSchema(resources)
+  .omit({
+    id: true,
+    createdAt: true,
+  })
+  .extend({
+    contentArchitecture: z
+      .custom<ResourceContentArchitecture>()
+      .nullish(),
+  });
 export type InsertResource = z.infer<typeof insertResourceSchema>;
 export type SelectResource = typeof resources.$inferSelect;
 

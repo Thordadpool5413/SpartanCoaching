@@ -7,6 +7,7 @@ import { registerRoutes } from "./routes/routes";
 import { registerAuthRoutes } from "./routes/authRoutes";
 import { registerSalesWorkflowRoutes } from "./routes/salesWorkflowRoutes";
 import { registerAiToolRoutes } from "./routes/aiToolRoutes";
+import { registerResourceWorkRoutes } from "./routes/resourceWorkRoutes";
 import { registerBillingRoutes, handleStripeWebhook } from "./billing/billingRoutes";
 import { loadSession } from "./auth/middleware";
 import { globalApiLimit } from "./rateLimits";
@@ -85,6 +86,9 @@ registerSalesWorkflowRoutes(app);
 
 // Shared Spartan AI tools and clinical case workspace.
 registerAiToolRoutes(app);
+
+// Executable resource saved work (HSP-26)
+registerResourceWorkRoutes(app);
 
 // Legacy app routes (AI tools gated with requireFieldKit)
 registerRoutes(app);

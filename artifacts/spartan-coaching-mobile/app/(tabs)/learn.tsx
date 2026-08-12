@@ -411,6 +411,14 @@ export default function LearnScreen() {
             testID="learn-link-research-tool"
           />
 
+          <ListRow
+            title="Weekly Plan (interactive)"
+            subtitle="Save & resume across devices — purpose, timing, outcome"
+            icon="edit-3"
+            onPress={() => router.push("/resource-work" as any)}
+            testID="learn-link-resource-work"
+          />
+
           {!canUseFieldKit && (
             <View
               style={[
@@ -454,16 +462,25 @@ export default function LearnScreen() {
               <Text style={[{ color: colors.mutedForeground, fontSize: 12, marginBottom: 8 }, font("regular")]}>
                 {group.blurb}
               </Text>
-              {group.items.map((item) => (
-                <ListRow
-                  key={item.id}
-                  title={item.title}
-                  subtitle={item.description || item.category || "PDF download"}
-                  icon="file-text"
-                  onPress={() => openResource(item.fileUrl)}
-                  testID={`resource-${item.id}`}
-                />
-              ))}
+              {group.items.map((item) => {
+                const arch = item.architecture || item.contentArchitecture;
+                const subtitle =
+                  arch?.whenToUse ||
+                  arch?.expectedOutcome ||
+                  item.description ||
+                  item.category ||
+                  "PDF download";
+                return (
+                  <ListRow
+                    key={item.id}
+                    title={item.title}
+                    subtitle={subtitle}
+                    icon="file-text"
+                    onPress={() => openResource(item.fileUrl)}
+                    testID={`resource-${item.id}`}
+                  />
+                );
+              })}
             </View>
           ))}
         </ScrollView>
