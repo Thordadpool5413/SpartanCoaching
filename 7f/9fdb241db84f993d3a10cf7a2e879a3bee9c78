@@ -1,0 +1,14 @@
+scripts/performance-budget.mjs
+  h_0446834f150a71 20-27
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "7f9fdb241db84f993d3a10cf7a2e879a3bee9c78",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
