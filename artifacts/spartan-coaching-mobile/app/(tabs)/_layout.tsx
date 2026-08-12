@@ -5,8 +5,13 @@ import { Icon, Label, NativeTabs } from "expo-router/unstable-native-tabs";
 import { SymbolView } from "expo-symbols";
 import { Feather } from "@expo/vector-icons";
 import React from "react";
-import { Platform, StyleSheet, View } from "react-native";
+import { Platform, StyleSheet, useColorScheme, View } from "react-native";
 import { useColors } from "@/hooks/useColors";
+import { useAccessibilityPrefs } from "@/hooks/useAccessibilityPrefs";
+import {
+  tabBarBlurIntensity,
+  tabBarBlurTint,
+} from "@/lib/iosProductQuality";
 
 function NativeTabLayout() {
   return (
@@ -41,8 +46,14 @@ function NativeTabLayout() {
 
 function ClassicTabLayout() {
   const colors = useColors();
+  const scheme = useColorScheme();
+  const { reduceTransparency } = useAccessibilityPrefs();
   const isIOS = Platform.OS === "ios";
   const isWeb = Platform.OS === "web";
+  const blurTint = tabBarBlurTint(scheme);
+  const blurIntensity = tabBarBlurIntensity(reduceTransparency, 80);
+  // Solid bar when Reduce Transparency (Apple convention)
+  const useSolidTabBar = reduceTransparency || !isIOS;
 
   return (
     <Tabs
@@ -55,10 +66,13 @@ function ClassicTabLayout() {
           letterSpacing: 0.2,
           marginTop: 2,
         },
+        tabBarAccessibilityLabel: undefined,
         headerShown: false,
         tabBarStyle: {
           position: "absolute",
-          backgroundColor: isIOS ? "transparent" : colors.tabBar ?? colors.background,
+          backgroundColor: useSolidTabBar
+            ? colors.tabBar ?? colors.background
+            : "transparent",
           borderTopWidth: StyleSheet.hairlineWidth,
           borderTopColor: colors.border,
           elevation: 0,
@@ -67,11 +81,17 @@ function ClassicTabLayout() {
           paddingBottom: isWeb ? 16 : 8,
         },
         tabBarBackground: () =>
-          isIOS ? (
+          isIOS && !reduceTransparency ? (
             <BlurView
-              intensity={80}
-              tint="dark"
-              style={[StyleSheet.absoluteFill, { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border }]}
+              intensity={blurIntensity}
+              tint={blurTint}
+              style={[
+                StyleSheet.absoluteFill,
+                {
+                  borderTopWidth: StyleSheet.hairlineWidth,
+                  borderTopColor: colors.border,
+                },
+              ]}
             />
           ) : (
             <View
