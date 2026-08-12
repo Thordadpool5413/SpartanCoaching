@@ -1,0 +1,32 @@
+artifacts/api-server/src/app.ts
+  h_0446834f150a71 25-26,36,53-82
+artifacts/api-server/src/lib/logger.ts
+  h_0446834f150a71 5-8,11-29
+artifacts/api-server/src/observability/reliabilityTargets.test.ts
+  h_0446834f150a71 1-43
+artifacts/api-server/src/observability/reliabilityTargets.ts
+  h_0446834f150a71 1-175
+artifacts/api-server/src/observability/requestMetrics.test.ts
+  h_0446834f150a71 1-61
+artifacts/api-server/src/observability/requestMetrics.ts
+  h_0446834f150a71 1-100
+artifacts/api-server/src/observability/safeLog.ts
+  h_0446834f150a71 1-59
+artifacts/api-server/src/routes/health.test.ts
+  h_0446834f150a71 173-192
+artifacts/api-server/src/routes/health.ts
+  h_0446834f150a71 9-13,130-179
+scripts/smoke-health.mjs
+  h_0446834f150a71 74-98
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "7e983dcdb10156915a77c7e3f67c29628515848b",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
