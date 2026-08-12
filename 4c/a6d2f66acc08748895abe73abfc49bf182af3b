@@ -1,0 +1,38 @@
+artifacts/spartan-coaching/src/App.tsx
+  h_0446834f150a71 71,269
+artifacts/spartan-coaching/src/components/AccessPaths.tsx
+  h_0446834f150a71 6,35,43-45
+artifacts/spartan-coaching/src/components/AccountDayZero.tsx
+  h_0446834f150a71 6,66,99,166-168
+artifacts/spartan-coaching/src/components/FieldKitGate.tsx
+  h_0446834f150a71 9,42,176,216
+artifacts/spartan-coaching/src/components/Layout.tsx
+  h_0446834f150a71 29,525,567,569,587
+artifacts/spartan-coaching/src/components/LeadGateDialog.tsx
+  h_0446834f150a71 5,7-8,15-27,38,42-43,72-92,98
+artifacts/spartan-coaching/src/components/NewsletterSignup.tsx
+  h_0446834f150a71 2,7,18,35-36,54-55,61-91
+artifacts/spartan-coaching/src/hooks/use-lead-gate.ts
+  h_0446834f150a71 74-75,81,95,102-108,111-119,159-160,172,177,179,184,190,196
+artifacts/spartan-coaching/src/lib/complianceCopy.test.ts
+  h_0446834f150a71 2-10,33-72
+artifacts/spartan-coaching/src/lib/complianceCopy.ts
+  h_0446834f150a71 2,6,48-155
+artifacts/spartan-coaching/src/pages/FieldKitMembership.eliteCopy.test.tsx
+  h_0446834f150a71 314,317-319
+artifacts/spartan-coaching/src/pages/FieldKitMembership.tsx
+  h_0446834f150a71 18,57-58,78-80,146,148-150,240,242-244,273-274,305-308,311-312,314,321-324
+artifacts/spartan-coaching/src/pages/TrustCenter.tsx
+  h_0446834f150a71 1-105
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "4ca6d2f66acc08748895abe73abfc49bf182af3b",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
