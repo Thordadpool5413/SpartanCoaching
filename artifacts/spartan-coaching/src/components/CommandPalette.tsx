@@ -9,10 +9,30 @@ import {
   CommandItem,
   CommandSeparator,
 } from "@/components/ui/command";
-import { Users, Flame } from "lucide-react";
+import { Users, Flame, Crosshair, LayoutDashboard } from "lucide-react";
 import { navSections, additionalPages } from "@/lib/navigation";
+import { FIELD_KIT_TOOLS } from "@/lib/fieldKitCatalog";
 
 const commandItems = [
+  {
+    category: "Workspace",
+    items: [
+      { title: "Portal home", path: "/portal", icon: LayoutDashboard },
+      { title: "Command Center", path: "/tools/sales-workflow", icon: Crosshair },
+      { title: "Account settings", path: "/account", icon: LayoutDashboard },
+      {
+        title: "Start a Role-Play",
+        path: "/tools/role-play",
+        icon: Users,
+      },
+      { title: "Today's Drill", path: "/drills", icon: Flame },
+      ...FIELD_KIT_TOOLS.slice(0, 12).map((t) => ({
+        title: t.title,
+        path: t.path,
+        icon: Crosshair,
+      })),
+    ],
+  },
   ...navSections.map((section) => ({
     category: section.title,
     items: section.items.map((item) => ({
@@ -28,17 +48,6 @@ const commandItems = [
       path: item.path,
       icon: item.icon,
     })),
-  },
-  {
-    category: "Hospice Sales Pro",
-    items: [
-      {
-        title: "Start a Role-Play",
-        path: "/tools/role-play",
-        icon: Users,
-      },
-      { title: "Today's Drill", path: "/drills", icon: Flame },
-    ],
   },
 ];
 

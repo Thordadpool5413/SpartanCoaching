@@ -19,7 +19,10 @@ export type MemberNavItem = {
   match: (location: string) => boolean;
 };
 
-/** Single source of truth for signed-in Hospice Sales Pro navigation. */
+/**
+ * Compact member strip (FieldKitChrome / mobile sheet).
+ * Full application navigation lives in workspaceShell + AppShell (HSP-32).
+ */
 export const MEMBER_NAV: MemberNavItem[] = [
   {
     href: "/portal",
@@ -56,9 +59,14 @@ export const MEMBER_NAV: MemberNavItem[] = [
       loc === "/portal/learn" ||
       loc === "/drills" ||
       loc === "/quiz" ||
-      loc.startsWith("/learn/") ||
-      loc === "/articles" ||
-      loc === "/podcasts",
+      loc.startsWith("/learn/"),
+  },
+  {
+    href: "/resources/weekly-plan",
+    label: "Saved work",
+    short: "Saved",
+    icon: FolderOpen,
+    match: (loc) => loc.startsWith("/resources/weekly-plan"),
   },
   {
     href: "/account",

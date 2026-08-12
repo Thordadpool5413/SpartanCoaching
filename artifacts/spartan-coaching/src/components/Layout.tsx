@@ -24,7 +24,7 @@ import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { navSections, allSearchablePages } from "@/lib/navigation";
-import { PortalNav, PortalMobileLinks } from "@/components/PortalNav";
+import { PortalMobileLinks } from "@/components/PortalNav";
 import { useIsMobile } from "@/hooks/use-breakpoint";
 
 function NavLink({ href, children, onClick }: { href: string; children: React.ReactNode; onClick?: () => void }) {
@@ -253,24 +253,20 @@ export function Header() {
           className="hidden lg:flex flex-1 items-center justify-center gap-1 xl:gap-1.5 min-w-0 px-4 xl:px-8"
           aria-label="Main navigation"
         >
-          {isAuthenticated ? (
-            <>
-              <PortalNav />
-            </>
-          ) : (
-            <>
-              {navSections
-                .filter((section) => section.title !== "Company")
-                .map((section) => (
-                  <NavDropdown
-                    key={section.title}
-                    label={section.title}
-                    dataTestId={`dropdown-${section.title.toLowerCase().replace(/\s+/g, "-")}`}
-                    items={section.items}
-                  />
-                ))}
-              <NavLink href="/about">About</NavLink>
-            </>
+          {/* Marketing chrome stays marketing — workspace has its own shell (HSP-32) */}
+          {navSections
+            .filter((section) => section.title !== "Company")
+            .map((section) => (
+              <NavDropdown
+                key={section.title}
+                label={section.title}
+                dataTestId={`dropdown-${section.title.toLowerCase().replace(/\s+/g, "-")}`}
+                items={section.items}
+              />
+            ))}
+          <NavLink href="/about">About</NavLink>
+          {isAuthenticated && (
+            <NavLink href="/portal">Workspace</NavLink>
           )}
         </nav>
 
@@ -305,14 +301,27 @@ export function Header() {
               </Link>
             </Button>
           )}
-          <Button
-            size="sm"
-            asChild
-            className="hidden sm:inline-flex font-bold px-4 shrink-0"
-            data-testid="button-book-call"
-          >
-            <Link href="/contact">Book a strategy call</Link>
-          </Button>
+          {isAuthenticated ? (
+            <Button
+              size="sm"
+              asChild
+              className="hidden sm:inline-flex font-bold px-4 shrink-0"
+              data-testid="button-open-workspace"
+            >
+              <Link href={canUseFieldKit ? "/portal" : "/account"}>
+                {canUseFieldKit ? "Open workspace" : "Account"}
+              </Link>
+            </Button>
+          ) : (
+            <Button
+              size="sm"
+              asChild
+              className="hidden sm:inline-flex font-bold px-4 shrink-0"
+              data-testid="button-book-call"
+            >
+              <Link href="/contact">Book a strategy call</Link>
+            </Button>
+          )}
 
           {/* Mobile Menu Sheet */}
           <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>

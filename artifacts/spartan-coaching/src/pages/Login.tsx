@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link, useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -7,6 +7,24 @@ import { Card } from "@/components/ui/card";
 import { SEO } from "@/components/SEO";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { isWorkspacePath, normalizePath } from "@/lib/workspaceShell";
+
+function safeNextPath(raw: string | null): string | null {
+  if (!raw) return null;
+  try {
+    const decoded = decodeURIComponent(raw);
+    const path = normalizePath(decoded.split("?")[0] || decoded);
+    // Only allow same-origin relative workspace/account deep links
+    if (!path.startsWith("/") || path.startsWith("//")) return null;
+    if (path.startsWith("/login")) return null;
+    if (isWorkspacePath(path) || path === "/account" || path.startsWith("/account/")) {
+      return path;
+    }
+    return null;
+  } catch {
+    return null;
+  }
+}
 
 export default function Login() {
   const { login, isAuthenticated, canUseFieldKit, isLoading } = useAuth();
@@ -18,11 +36,19 @@ export default function Login() {
   const [pending, setPending] = useState(false);
   const [magicSent, setMagicSent] = useState(false);
 
+  const nextPath = useMemo(() => {
+    if (typeof window === "undefined") return null;
+    return safeNextPath(new URLSearchParams(window.location.search).get("next"));
+  }, []);
+
+  const postLoginPath = (allowed: boolean) =>
+    nextPath || (allowed ? "/portal" : "/account");
+
   useEffect(() => {
     if (!isLoading && isAuthenticated && !pending) {
-      setLocation(canUseFieldKit ? "/portal" : "/account");
+      setLocation(postLoginPath(canUseFieldKit));
     }
-  }, [isLoading, isAuthenticated, canUseFieldKit, setLocation, pending]);
+  }, [isLoading, isAuthenticated, canUseFieldKit, setLocation, pending, nextPath]);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -46,7 +72,7 @@ export default function Login() {
 
       const session = await login(email.trim(), password);
       toast({ title: "Welcome back", description: "You are signed in." });
-      setLocation(session.fieldKit?.allowed ? "/portal" : "/account");
+      setLocation(postLoginPath(!!session.fieldKit?.allowed));
     } catch (err: any) {
       toast({
         title: "Sign in failed",

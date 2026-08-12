@@ -7,12 +7,14 @@ import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header, Footer } from "@/components/Layout";
+import { AppShell } from "@/components/AppShell";
 import { CommandPalette } from "@/components/CommandPalette";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { RequireFieldKit } from "@/components/RequireFieldKit";
 import { TrialBanner } from "@/components/TrialBanner";
 import { FieldKitChecklistToast } from "@/components/FieldKitChecklistToast";
 import { hasSeenIntro, shouldSkipIntro } from "@/lib/intro";
+import { isWorkspacePath, loginWithReturn } from "@/lib/workspaceShell";
 
 const ChatWidget = lazy(() => import("@/components/ChatWidget").then(m => ({ default: m.ChatWidget })));
 const StickyBookCall = lazy(() => import("@/components/StickyBookCall").then(m => ({ default: m.StickyBookCall })));
@@ -293,7 +295,8 @@ function Router() {
 }
 
 function AppLayout() {
-  const [location] = useLocation();
+  const [location, setLocation] = useLocation();
+  const { isAuthenticated, isLoading } = useAuth();
   const isBrandedAssessment = location.startsWith("/assess/");
   const isWelcome = location === "/welcome";
   const isAuthShell =
@@ -303,6 +306,20 @@ function AppLayout() {
     location === "/forgot-password" ||
     location === "/reset-password" ||
     location === "/magic-login";
+
+  const onWorkspace =
+    isAuthenticated && !isLoading && isWorkspacePath(location);
+
+  // Deep link / refresh with expired session: send to login with return path.
+  // Public tool previews remain available when not authenticated.
+  useEffect(() => {
+    if (isLoading || isAuthenticated || isAuthShell || isBrandedAssessment) return;
+    const pathOnly = location.split("?")[0] || location;
+    // Hard require auth for portal home and account (not public marketing)
+    if (pathOnly === "/portal" || pathOnly.startsWith("/portal/") || pathOnly === "/account" || pathOnly.startsWith("/account/") || pathOnly.startsWith("/admin")) {
+      setLocation(loginWithReturn(pathOnly));
+    }
+  }, [isLoading, isAuthenticated, isAuthShell, isBrandedAssessment, location, setLocation]);
 
   if (isBrandedAssessment) {
     return (
@@ -319,6 +336,24 @@ function AppLayout() {
       <main className="min-h-screen">
         <Router />
       </main>
+    );
+  }
+
+  // Paid application shell — separate from public marketing website
+  if (onWorkspace) {
+    return (
+      <>
+        <a href="#main-content" className="skip-link">
+          Skip to main content
+        </a>
+        <AppShell>
+          <TrialBanner />
+          <Router />
+        </AppShell>
+        <Suspense fallback={null}>
+          <CommandPalette />
+        </Suspense>
+      </>
     );
   }
 
