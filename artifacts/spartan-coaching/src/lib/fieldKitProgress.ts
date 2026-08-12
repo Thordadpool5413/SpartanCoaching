@@ -11,11 +11,25 @@ export const CHECKLIST_LABELS: Record<ChecklistId, string> = {
 /** Mark a portal checklist item complete after real tool use. */
 export async function markFieldKitChecklistDone(id: ChecklistId): Promise<boolean> {
   try {
+    // Map tool use into activation steps when applicable (HSP-39)
+    const activationMap: Partial<Record<ChecklistId, string>> = {
+      objection: "activation_practice",
+      weekly_plan: "activation_call_prep",
+      roleplay: "activation_practice",
+      director_scorecard: "activation_team_math",
+    };
+    const activationId = activationMap[id];
+    const body: Record<string, unknown> = {
+      checklistItem: { id, done: true },
+    };
+    if (activationId) {
+      body.activationStep = { id: activationId, done: true };
+    }
     const res = await fetch("/api/me/onboarding", {
       method: "PATCH",
       credentials: "include",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ checklistItem: { id, done: true } }),
+      body: JSON.stringify(body),
     });
     if (res.ok && typeof window !== "undefined") {
       window.dispatchEvent(

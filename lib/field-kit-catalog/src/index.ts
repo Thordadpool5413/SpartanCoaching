@@ -446,6 +446,22 @@ export {
   type RequiredRelatedSource,
 } from "./related-recommendations";
 
+export {
+  ACTIVATION_VERSION,
+  ACTIVATION_STEP_IDS,
+  activationStepsForRole,
+  evaluateActivation,
+  normalizeActivationRole,
+  isProgressDone,
+  markActivationStep,
+  withAutoActivationComplete,
+  type ActivationJobRole,
+  type ActivationStepId,
+  type ActivationStepDef,
+  type ActivationStepStatus,
+  type ActivationView,
+} from "./activation-loop";
+
 /**
  * Category display labels and elite-positioning blurbs for the membership page.
  * Kept here so a new category added to FIELD_KIT_TOOLS is visible in one place.

@@ -304,7 +304,25 @@ export async function fetchMeMobile(): Promise<MobileAuthUser | null> {
   }
 }
 
-export async function fetchOnboardingMobile(): Promise<{ member: MobileMember }> {
+export type MobileActivationView = {
+  activated: boolean;
+  skipped: boolean;
+  role: string;
+  nextStep: {
+    id: string;
+    title: string;
+    why: string;
+    mobileHref: string;
+    webHref?: string;
+  } | null;
+  completedRequired: number;
+  totalRequired: number;
+};
+
+export async function fetchOnboardingMobile(): Promise<{
+  member: MobileMember;
+  activation?: MobileActivationView;
+}> {
   return apiGet("/api/me/onboarding");
 }
 
@@ -313,6 +331,8 @@ export async function updateOnboardingMobile(body: {
   territoryNote?: string | null;
   topObjections?: string | null;
   checklistItem?: { id: string; done: boolean };
-}): Promise<{ member: MobileMember }> {
+  activationStep?: { id: string; done: boolean };
+  skipActivation?: boolean;
+}): Promise<{ member: MobileMember; activation?: MobileActivationView }> {
   return apiPatch("/api/me/onboarding", body);
 }

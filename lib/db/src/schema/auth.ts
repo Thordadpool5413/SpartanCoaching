@@ -316,6 +316,22 @@ export const CHECKLIST_IDS = [
   "director_scorecard",
 ] as const;
 
+/** HSP-39 first-value-loop steps (stored in checklist_progress JSON). */
+export const ACTIVATION_STEP_IDS = [
+  "activation_role_context",
+  "activation_first_account",
+  "activation_objective",
+  "activation_call_prep",
+  "activation_practice",
+  "activation_outcome",
+  "activation_next_action",
+  "activation_leader_review",
+  "activation_team_math",
+  "activation_admin_seats",
+  "activation_skipped",
+  "activation_complete",
+] as const;
+
 export const onboardingUpdateSchema = z.object({
   jobRole: z.enum(["rep", "director", "vp", "owner", "other"]).optional().nullable(),
   territoryNote: z.string().max(2000).optional().nullable(),
@@ -330,4 +346,13 @@ export const onboardingUpdateSchema = z.object({
       done: z.boolean(),
     })
     .optional(),
+  /** HSP-39: mark activation step or skip first-value loop */
+  activationStep: z
+    .object({
+      id: z.enum(ACTIVATION_STEP_IDS),
+      done: z.boolean(),
+    })
+    .optional(),
+  /** Experienced user skip — still measured as activation_skipped */
+  skipActivation: z.boolean().optional(),
 });

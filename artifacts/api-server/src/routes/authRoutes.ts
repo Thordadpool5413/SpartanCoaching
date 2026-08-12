@@ -569,7 +569,7 @@ export function registerAuthRoutes(app: Express): void {
     });
   });
 
-  // ── Onboarding profile + checklist ─────────────────────────────────
+  // ── Onboarding profile + checklist + first-value activation (HSP-39) ─
   app.get("/api/me/onboarding", requireAuth, async (req: AuthedRequest, res) => {
     const member = req.fieldKit!.member!;
     // re-fetch for latest checklist
@@ -578,7 +578,16 @@ export function registerAuthRoutes(app: Express): void {
       .from(clientMembers)
       .where(eq(clientMembers.id, member.id))
       .limit(1);
-    return res.json({ member: publicMember(fresh || member) });
+    const m = fresh || member;
+    const publicM = publicMember(m);
+    const { evaluateActivation } = await import("@workspace/field-kit-catalog");
+    const activation = evaluateActivation({
+      jobRole: (m as { jobRole?: string | null }).jobRole,
+      memberRole: m.role,
+      progress: ((m as { checklistProgress?: Record<string, boolean | string> })
+        .checklistProgress || {}) as Record<string, boolean | string>,
+    });
+    return res.json({ member: publicM, activation });
   });
 
   app.patch("/api/me/onboarding", requireAuth, async (req: AuthedRequest, res) => {
@@ -614,8 +623,65 @@ export function registerAuthRoutes(app: Express): void {
           delete checklist[id];
         }
       }
-      if (parsed.data.checklist || parsed.data.checklistItem) {
+      // HSP-39 activation steps (real product loop, not tutorials)
+      if (parsed.data.skipActivation) {
+        checklist.activation_skipped = new Date().toISOString();
+        checklist.activation_complete = new Date().toISOString();
+      }
+      if (parsed.data.activationStep) {
+        const { id, done } = parsed.data.activationStep;
+        if (done) {
+          checklist[id] = new Date().toISOString();
+        } else {
+          delete checklist[id];
+        }
+      }
+      const jobRoleForEval =
+        (parsed.data.jobRole !== undefined
+          ? parsed.data.jobRole
+          : (current as { jobRole?: string | null }).jobRole) || null;
+      if (
+        parsed.data.checklist ||
+        parsed.data.checklistItem ||
+        parsed.data.activationStep ||
+        parsed.data.skipActivation ||
+        parsed.data.jobRole !== undefined
+      ) {
+        if (parsed.data.jobRole) {
+          checklist.activation_role_context =
+            checklist.activation_role_context || new Date().toISOString();
+        }
+        const { withAutoActivationComplete, evaluateActivation } = await import(
+          "@workspace/field-kit-catalog"
+        );
+        checklist = withAutoActivationComplete(
+          checklist,
+          jobRoleForEval,
+          current.role,
+        );
         patch.checklistProgress = checklist;
+
+        const activation = evaluateActivation({
+          jobRole: jobRoleForEval,
+          memberRole: current.role,
+          progress: checklist,
+        });
+        if (parsed.data.activationStep?.done) {
+          await logEvent("activation_step_completed", memberId, {
+            step: parsed.data.activationStep.id,
+            role: activation.role,
+          });
+        }
+        if (parsed.data.skipActivation) {
+          await logEvent("activation_skipped", memberId, { role: activation.role });
+        }
+        if (activation.activated) {
+          await logEvent("activation_completed", memberId, {
+            role: activation.role,
+            skipped: activation.skipped,
+            completedRequired: activation.completedRequired,
+          });
+        }
       }
       if (!(current as any).onboardingStartedAt) {
         patch.onboardingStartedAt = new Date();
@@ -632,7 +698,15 @@ export function registerAuthRoutes(app: Express): void {
         checklistDone: publicMember(updated).checklistDone,
       });
 
-      return res.json({ member: publicMember(updated) });
+      const { evaluateActivation } = await import("@workspace/field-kit-catalog");
+      const activation = evaluateActivation({
+        jobRole: (updated as { jobRole?: string | null }).jobRole,
+        memberRole: updated.role,
+        progress: ((updated as { checklistProgress?: Record<string, boolean | string> })
+          .checklistProgress || {}) as Record<string, boolean | string>,
+      });
+
+      return res.json({ member: publicMember(updated), activation });
     } catch (err) {
       console.error("onboarding update error:", err);
       return res.status(500).json({ error: "Failed to update onboarding" });
