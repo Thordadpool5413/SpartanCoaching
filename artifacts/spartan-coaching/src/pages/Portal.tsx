@@ -41,6 +41,7 @@ import { MembershipActivation } from "@/components/MembershipActivation";
 import { useBillingActions } from "@/hooks/useBillingActions";
 import { ProductMap } from "@/components/elite/ProductMap";
 import { PersonalizationPanel } from "@/components/PersonalizationPanel";
+import { ActivationLoopPanel } from "@/components/ActivationLoopPanel";
 import { FIELD_KIT_WHAT, FIELD_KIT_WHY, FIELD_KIT_HOW } from "@/lib/fieldKitCatalog";
 import { cn } from "@/lib/utils";
 
@@ -444,6 +445,7 @@ export default function Portal() {
         )}
       </p>
 
+      <ActivationLoopPanel enabled={canUseFieldKit} />
       <PersonalizationPanel />
 
       {/* Daily spine — Sales Command Center */}

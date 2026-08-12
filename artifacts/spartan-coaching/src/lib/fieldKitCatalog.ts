@@ -48,4 +48,9 @@ export {
   relatedToAnatomyItems,
   type RelatedRecommendation,
   type RecommendContext,
+  ACTIVATION_VERSION,
+  evaluateActivation,
+  type ActivationView,
+  type ActivationStepId,
+  type ActivationStepStatus,
 } from "@workspace/field-kit-catalog";

@@ -80,6 +80,14 @@ export default function HomeScreen() {
     recommendedToday: Array<{ id: string; title: string; href: string; why: string }>;
     emptyHistory: boolean;
   } | null>(null);
+  const [activation, setActivation] = useState<{
+    activated: boolean;
+    skipped: boolean;
+    role: string;
+    nextStep: { id: string; title: string; why: string; mobileHref: string } | null;
+    completedRequired: number;
+    totalRequired: number;
+  } | null>(null);
   const mission = useMission();
   const [query, setQuery] = useState("");
   const [response, setResponse] = useState("");
@@ -103,7 +111,23 @@ export default function HomeScreen() {
       return;
     }
     try {
-      const data = await fetchOnboardingMobile();
+      const data = (await fetchOnboardingMobile()) as {
+        member: {
+          jobRole?: string | null;
+          territoryNote?: string | null;
+          topObjections?: string | null;
+          checklistProgress?: Record<string, boolean | string>;
+        };
+        activation?: {
+          activated: boolean;
+          skipped: boolean;
+          role: string;
+          nextStep: { id: string; title: string; why: string; mobileHref: string } | null;
+          completedRequired: number;
+          totalRequired: number;
+        };
+      };
+      if (data.activation) setActivation(data.activation);
       setJobRole(data.member.jobRole || "");
       setChecklist(data.member.checklistProgress || {});
       mission.setJobRoleLocal(data.member.jobRole || "");
@@ -501,6 +525,77 @@ export default function HomeScreen() {
           </View>
         )}
       </LinearGradient>
+
+      {activation && !activation.activated && activation.nextStep ? (
+        <View style={[styles.section, { paddingTop: 16 }]} testID="section-activation-loop">
+          <SectionKicker>
+            {`First value · ${activation.completedRequired}/${activation.totalRequired}`}
+          </SectionKicker>
+          <SpartanCard variant="emphasis">
+            <Text style={[{ color: colors.foreground, fontSize: 17 }, font("bold")]}>
+              {activation.nextStep.title}
+            </Text>
+            <Text
+              style={[
+                { color: colors.mutedForeground, fontSize: 13, marginTop: 6, lineHeight: 18 },
+                font("regular"),
+              ]}
+            >
+              {activation.nextStep.why}
+            </Text>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
+              <SpartanButton
+                title="Open in product"
+                onPress={() => {
+                  void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  const href = activation.nextStep!.mobileHref;
+                  if (href.includes("command") || href.includes("sales-workflow")) {
+                    router.push("/(tabs)/command");
+                  } else if (href.includes("objection")) {
+                    router.push("/tool/objection" as any);
+                  } else if (href.includes("playbook")) {
+                    router.push("/tool/playbook" as any);
+                  } else if (href.includes("account")) {
+                    router.push("/(tabs)/account");
+                  } else {
+                    router.push("/(tabs)/tools");
+                  }
+                }}
+              />
+              <SpartanButton
+                title="Mark done"
+                variant="outline"
+                onPress={() => {
+                  void (async () => {
+                    try {
+                      const data = await updateOnboardingMobile({
+                        activationStep: { id: activation.nextStep!.id, done: true },
+                      });
+                      if (data.activation) setActivation(data.activation);
+                    } catch {
+                      // ignore
+                    }
+                  })();
+                }}
+              />
+              <SpartanButton
+                title="Skip (experienced)"
+                variant="ghost"
+                onPress={() => {
+                  void (async () => {
+                    try {
+                      const data = await updateOnboardingMobile({ skipActivation: true });
+                      if (data.activation) setActivation(data.activation);
+                    } catch {
+                      // ignore
+                    }
+                  })();
+                }}
+              />
+            </View>
+          </SpartanCard>
+        </View>
+      ) : null}
 
       {personalization &&
       (personalization.continueItems.length > 0 ||
