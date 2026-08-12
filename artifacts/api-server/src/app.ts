@@ -24,6 +24,11 @@ import {
 } from "./security/requestSecurity";
 import { recordHttpRequest } from "./observability/requestMetrics";
 import { evaluateAgainstTarget } from "./observability/reliabilityTargets";
+import {
+  API_CONTRACT_VERSION,
+  MIN_IOS_APP_VERSION,
+  checkIosCompatibility,
+} from "@workspace/field-kit-catalog";
 
 const app: Express = express();
 
@@ -106,6 +111,49 @@ app.use(express.urlencoded({ extended: true, limit: process.env.FORM_BODY_LIMIT 
 
 // Load client session (cookie or Bearer) for every request before route handlers
 app.use(loadSession);
+
+/**
+ * Optional iOS min-version gate (HSP-44).
+ * Only when ENFORCE_MIN_IOS_VERSION=true and client sends X-Client-Platform: ios
+ * + X-Client-Version. Prevents a breaking API from silently serving obsolete App Store builds.
+ * Exempt: health, client-config, stripe webhook path is mounted earlier.
+ */
+app.use("/api", (req, res, next) => {
+  if (process.env.ENFORCE_MIN_IOS_VERSION !== "true" && process.env.ENFORCE_MIN_IOS_VERSION !== "1") {
+    return next();
+  }
+  const pathOnly = (req.originalUrl || req.url || "").split("?")[0] || "";
+  if (
+    pathOnly.startsWith("/api/health") ||
+    pathOnly.startsWith("/api/healthz") ||
+    pathOnly === "/api/client-config" ||
+    pathOnly.startsWith("/api/billing/webhook")
+  ) {
+    return next();
+  }
+  const platform = String(req.get("x-client-platform") || "").toLowerCase();
+  if (platform !== "ios") return next();
+  const version = req.get("x-client-version") || "";
+  const minIos = process.env.MIN_IOS_APP_VERSION?.trim() || MIN_IOS_APP_VERSION;
+  const contractRaw = req.get("x-client-api-contract");
+  const clientApiContract = contractRaw ? Number(contractRaw) : undefined;
+  const check = checkIosCompatibility(version, {
+    minIosAppVersion: minIos,
+    apiContractVersion: API_CONTRACT_VERSION,
+    clientApiContract:
+      clientApiContract != null && !Number.isNaN(clientApiContract)
+        ? clientApiContract
+        : undefined,
+  });
+  if (check.ok) return next();
+  return res.status(426).json({
+    error: "Client upgrade required",
+    code: "CLIENT_UPGRADE_REQUIRED",
+    reason: check.reason,
+    minIosAppVersion: check.minIosAppVersion,
+    apiContractVersion: check.apiContractVersion,
+  });
+});
 
 // Global API abuse guard (auth + tools + public forms)
 app.use("/api", globalApiLimit);

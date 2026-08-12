@@ -465,6 +465,19 @@ export {
 } from "./product-analytics";
 
 export {
+  API_CONTRACT_VERSION,
+  MIN_IOS_APP_VERSION,
+  MIN_WEB_APP_VERSION,
+  PRODUCT_FEATURE_FLAG_KEYS,
+  parseSemver,
+  isVersionAtLeast,
+  checkIosCompatibility,
+  type DeployEnvironment,
+  type ProductFeatureFlagKey,
+  type CompatibilityCheck,
+} from "./client-delivery";
+
+export {
   ACTIVATION_VERSION,
   ACTIVATION_STEP_IDS,
   activationStepsForRole,

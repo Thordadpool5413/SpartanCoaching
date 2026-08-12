@@ -18,6 +18,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { registerRescheduleTask } from "@/lib/notifications";
 import { AuthProvider, useAuth } from "@/lib/AuthContext";
 import { trackMobileEvent } from "@/lib/analytics";
+import { fetchClientConfig } from "@/lib/clientConfig";
 import { ActivationCeremony } from "@/components/ActivationCeremony";
 import { DeepLinkRouter } from "@/components/DeepLinkRouter";
 
@@ -34,6 +35,22 @@ function AppOpenTracker() {
       trackMobileEvent("mobile_app_open", "app_open");
     }
   }, [user?.member?.id]);
+  return null;
+}
+
+/** Loads delivery contract / feature flags; logs soft incompatibility (HSP-44). */
+function ClientConfigBootstrap() {
+  useEffect(() => {
+    void fetchClientConfig().then((cfg) => {
+      if (cfg?.compatibility?.ios && !cfg.compatibility.ios.ok) {
+        console.warn(
+          "[client-config] iOS build may be below server min",
+          cfg.compatibility.ios.reason,
+          cfg.minIosAppVersion,
+        );
+      }
+    });
+  }, []);
   return null;
 }
 
@@ -90,6 +107,7 @@ export default function RootLayout() {
       <ErrorBoundary>
         <QueryClientProvider client={queryClient}>
           <AuthProvider>
+            <ClientConfigBootstrap />
             <AppOpenTracker />
             <DeepLinkRouter />
             <ActivationCeremony />

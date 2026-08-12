@@ -11,6 +11,7 @@ import {
   RELIABILITY_TARGETS,
   evaluateAgainstTarget,
 } from "../observability/reliabilityTargets";
+import { buildClientConfig } from "../delivery/clientConfig";
 
 const router: IRouter = Router();
 
@@ -133,6 +134,26 @@ router.get("/admin/clinical-runtime-health", sendClinicalRuntimeHealth);
  * Live API latency/error snapshot + code-defined SLO targets for web/iOS/API.
  * No secrets, no PHI, no request bodies. Safe for ops dashboards / smoke scripts.
  */
+/**
+ * GET /api/client-config
+ * Public delivery contract: environment, feature flags, min client versions, rollback steps.
+ * Optional headers: X-Client-Platform, X-Client-Version, X-Client-Api-Contract
+ */
+router.get("/client-config", (req, res) => {
+  const platform = String(req.get("x-client-platform") || "").toLowerCase();
+  const version = req.get("x-client-version") || undefined;
+  const contractRaw = req.get("x-client-api-contract");
+  const clientApiContract = contractRaw ? Number(contractRaw) : null;
+  const cfg = buildClientConfig(process.env, {
+    iosAppVersion: platform === "ios" ? version : undefined,
+    clientApiContract:
+      clientApiContract != null && !Number.isNaN(clientApiContract)
+        ? clientApiContract
+        : null,
+  });
+  res.json(cfg);
+});
+
 router.get("/healthz/reliability", (_req, res) => {
   const metrics = getRequestMetricsSnapshot();
   const evaluations = [

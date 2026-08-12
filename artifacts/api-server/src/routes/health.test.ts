@@ -190,3 +190,20 @@ describe("GET /healthz/reliability — SLO snapshot", () => {
     expect(blob).not.toMatch(/password|Bearer |sk_live|STRIPE_SECRET/i);
   });
 });
+
+describe("GET /client-config — delivery contract", () => {
+  it("returns flags, contract version, and rollback without secrets", async () => {
+    const app = buildApp();
+    const res = await request(app)
+      .get("/client-config")
+      .set("X-Client-Platform", "ios")
+      .set("X-Client-Version", "1.0.0");
+
+    expect(res.status).toBe(200);
+    expect(res.body.apiContractVersion).toBeGreaterThanOrEqual(1);
+    expect(res.body.flags).toBeTypeOf("object");
+    expect(res.body.rollback).toHaveProperty("ios");
+    expect(res.body.compatibility?.ios?.ok).toBe(true);
+    expect(JSON.stringify(res.body)).not.toMatch(/sk_live|passwordHash/i);
+  });
+});
