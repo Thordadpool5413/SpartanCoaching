@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useQuery, useMutation } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Link } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -17,14 +17,101 @@ import { apiRequest } from "@/lib/queryClient";
 import { ContentNotice } from "@/components/ContentNotice";
 import { FieldKitChrome } from "@/components/FieldKitChrome";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/hooks/use-toast";
+
+type ProviderResourceItem = {
+  id: number;
+  title: string;
+  description?: string | null;
+  fileUrl: string;
+  kind: string;
+  status: string;
+  ownershipLabel?: string;
+  isProviderOwned?: boolean;
+};
 
 export default function Resources() {
-  const { canUseFieldKit } = useAuth();
-  const { data: resourcesData, isLoading, isError } = useQuery<{ resources: SelectResource[] }>({
+  const { canUseFieldKit, member } = useAuth();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  const isOrgAdmin =
+    member?.role === "org_admin" || member?.role === "platform_admin";
+
+  const { data: resourcesData, isLoading, isError } = useQuery<{
+    resources: SelectResource[];
+    ownershipLabel?: string;
+  }>({
     queryKey: ["/api/resources"],
   });
 
+  const { data: providerData, isLoading: providerLoading } = useQuery<{
+    items: ProviderResourceItem[];
+    canManage?: boolean;
+    ownershipLabel?: string;
+  }>({
+    queryKey: ["/api/v1/provider-resources"],
+    queryFn: async () => {
+      const res = await fetch("/api/v1/provider-resources", {
+        credentials: "include",
+      });
+      if (!res.ok) return { items: [] };
+      return res.json();
+    },
+    enabled: Boolean(canUseFieldKit),
+  });
+
+  const [providerSearch, setProviderSearch] = useState("");
+  const [newTitle, setNewTitle] = useState("");
+  const [newUrl, setNewUrl] = useState("");
+  const [newKind, setNewKind] = useState("script");
+
+  const createProviderMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch("/api/v1/provider-resources", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          title: newTitle,
+          fileUrl: newUrl,
+          kind: newKind,
+          status: "published",
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(
+          (err as { error?: { message?: string } })?.error?.message ||
+            "Create failed",
+        );
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      setNewTitle("");
+      setNewUrl("");
+      queryClient.invalidateQueries({ queryKey: ["/api/v1/provider-resources"] });
+      toast({ title: "Provider resource added" });
+    },
+    onError: (e: Error) => {
+      toast({
+        title: "Could not add resource",
+        description: e.message,
+        variant: "destructive",
+      });
+    },
+  });
+
   const resources = resourcesData?.resources || [];
+  const providerItems = (providerData?.items || []).filter((item) => {
+    if (!providerSearch.trim()) return true;
+    const q = providerSearch.toLowerCase();
+    return (
+      item.title.toLowerCase().includes(q) ||
+      (item.description || "").toLowerCase().includes(q) ||
+      item.kind.toLowerCase().includes(q)
+    );
+  });
 
   const [gateOpen, setGateOpen] = useState(false);
   const [selectedResource, setSelectedResource] = useState<SelectResource | null>(null);
@@ -164,7 +251,132 @@ export default function Resources() {
       </div>
       {!canUseFieldKit && <ContentNotice />}
 
+      {canUseFieldKit && (
+        <div className="mb-12 space-y-4" data-testid="provider-resource-library">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">
+                Provider organization
+              </p>
+              <h2 className="text-h2">Your private library</h2>
+              <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
+                Organization-only scripts, coverage maps, escalation guides, and policies.
+                Clearly separate from{" "}
+                <span className="font-semibold text-foreground">
+                  {resourcesData?.ownershipLabel || "Hospice Sales Pro Core"}
+                </span>
+                .
+              </p>
+            </div>
+            <Input
+              className="max-w-xs"
+              placeholder="Search provider library"
+              value={providerSearch}
+              onChange={(e) => setProviderSearch(e.target.value)}
+              data-testid="input-provider-resource-search"
+            />
+          </div>
+
+          {isOrgAdmin && (
+            <Card className="border-2 p-4 space-y-3">
+              <p className="text-sm font-semibold">Add provider resource (org admin)</p>
+              <div className="grid md:grid-cols-3 gap-3">
+                <div>
+                  <Label>Title</Label>
+                  <Input
+                    value={newTitle}
+                    onChange={(e) => setNewTitle(e.target.value)}
+                    data-testid="input-provider-title"
+                  />
+                </div>
+                <div>
+                  <Label>File URL (https or /objects/…)</Label>
+                  <Input
+                    value={newUrl}
+                    onChange={(e) => setNewUrl(e.target.value)}
+                    data-testid="input-provider-file-url"
+                  />
+                </div>
+                <div>
+                  <Label>Kind</Label>
+                  <Input
+                    value={newKind}
+                    onChange={(e) => setNewKind(e.target.value)}
+                    placeholder="script, policy, form…"
+                    data-testid="input-provider-kind"
+                  />
+                </div>
+              </div>
+              <Button
+                type="button"
+                disabled={
+                  !newTitle.trim() ||
+                  !newUrl.trim() ||
+                  createProviderMutation.isPending
+                }
+                onClick={() => createProviderMutation.mutate()}
+                data-testid="button-add-provider-resource"
+              >
+                {createProviderMutation.isPending ? "Saving…" : "Publish to library"}
+              </Button>
+            </Card>
+          )}
+
+          {providerLoading ? (
+            <p className="text-sm text-muted-foreground">Loading provider library…</p>
+          ) : providerItems.length === 0 ? (
+            <p className="text-sm text-muted-foreground">
+              No provider-owned resources yet
+              {isOrgAdmin ? " — add one above." : "."}
+            </p>
+          ) : (
+            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
+              {providerItems.map((item) => (
+                <Card
+                  key={item.id}
+                  className="flex flex-col border-2 spacing-card"
+                  data-testid={`provider-resource-card-${item.id}`}
+                >
+                  <div className="flex flex-wrap gap-1.5 mb-2">
+                    <Badge variant="default">Provider owned</Badge>
+                    <Badge variant="outline">{item.kind}</Badge>
+                    <Badge variant="secondary">{item.status}</Badge>
+                  </div>
+                  <h3 className="text-h3 text-foreground leading-tight mb-2">
+                    {item.title}
+                  </h3>
+                  {item.description ? (
+                    <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
+                      {item.description}
+                    </p>
+                  ) : null}
+                  <Button
+                    className="mt-auto w-full gap-2"
+                    onClick={() => {
+                      trackEvent("provider_resource_open", item.title);
+                      window.open(item.fileUrl, "_blank");
+                    }}
+                    data-testid={`button-open-provider-${item.id}`}
+                  >
+                    <Download className="w-4 h-4" />
+                    Open
+                  </Button>
+                </Card>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
       <div className="space-y-12">
+        <div className="flex items-center gap-2 flex-wrap">
+          <Badge variant="secondary">
+            {resourcesData?.ownershipLabel || "Hospice Sales Pro Core"}
+          </Badge>
+          <p className="text-sm text-muted-foreground">
+            Shared product library (not organization-private)
+          </p>
+        </div>
         {Object.entries(groupedResources).map(([category, categoryResources]) => (
           <div key={category} data-testid={`category-${category}`}>
             <h2 className="text-h2 mb-6 flex items-center gap-3 flex-wrap">
@@ -184,10 +396,58 @@ export default function Resources() {
                   <div className="flex-1 relative">
                     <div className="flex items-start justify-between gap-2 mb-4 flex-wrap">
                       <h3 className="text-h3 text-foreground leading-tight">{resource.title}</h3>
-                      <Badge variant="outline" className="shrink-0">
-                        {categoryNames[resource.category] || resource.category}
-                      </Badge>
+                      <div className="flex flex-wrap gap-1.5 shrink-0">
+                        <Badge variant="outline">
+                          {categoryNames[resource.category] || resource.category}
+                        </Badge>
+                        {(() => {
+                          const life = (
+                            resource as SelectResource & {
+                              lifecycle?: {
+                                versionLabel?: string;
+                                hasNewerVersion?: boolean;
+                                documentVersionLine?: string;
+                                currentVersion?: { id: number; versionLabel: string };
+                              };
+                              versionLabel?: string | null;
+                            }
+                          ).lifecycle;
+                          const ver =
+                            life?.versionLabel ||
+                            resource.versionLabel ||
+                            resource.contentArchitecture?.versionLabel ||
+                            resource.contentArchitecture?.contentVersion;
+                          return ver ? (
+                            <Badge variant="secondary" data-testid={`resource-version-${resource.id}`}>
+                              v{ver}
+                            </Badge>
+                          ) : null;
+                        })()}
+                      </div>
                     </div>
+
+                    {(() => {
+                      const life = (
+                        resource as SelectResource & {
+                          lifecycle?: {
+                            hasNewerVersion?: boolean;
+                            documentVersionLine?: string;
+                            currentVersion?: { id: number; versionLabel: string; title: string };
+                          };
+                        }
+                      ).lifecycle;
+                      if (!life?.hasNewerVersion || !life.currentVersion) return null;
+                      return (
+                        <div
+                          className="mb-3 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-foreground"
+                          data-testid={`resource-newer-${resource.id}`}
+                        >
+                          A newer version is available (v{life.currentVersion.versionLabel}
+                          {life.currentVersion.title ? `: ${life.currentVersion.title}` : ""}
+                          ). This copy is retained for history — do not treat it as current.
+                        </div>
+                      );
+                    })()}
 
                     {resource.description && (
                       <p className="text-base text-muted-foreground leading-relaxed mb-3 line-clamp-3">

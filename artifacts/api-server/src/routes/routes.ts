@@ -24,6 +24,8 @@ import {
   presentResources,
   prepareResourceWrite,
 } from "../resources/resourceArchitecture";
+import { isSilentFileReplace } from "../resources/resourceLifecycle";
+import { presentCoreResourceLabel } from "../resources/providerResourceLibrary";
 
 import path from "path";
 import fs from "fs";
@@ -735,19 +737,23 @@ Subject: [subject line]
       // Normalize legacy /resources/*.pdf URLs so downloads never hit the SPA route
       const normalized = presentResources(resources || []).map((r) => {
         const fileUrl = String(r?.fileUrl || "");
+        let row = r;
         if (
           fileUrl.startsWith("/resources/") &&
           !fileUrl.startsWith("/resources/files/") &&
           fileUrl.toLowerCase().endsWith(".pdf")
         ) {
           const name = fileUrl.split("/").pop();
-          return { ...r, fileUrl: `/resources/files/${name}` };
+          row = { ...r, fileUrl: `/resources/files/${name}` };
         }
-        return r;
+        // HSP-28: clearly label Core vs provider-owned libraries
+        return presentCoreResourceLabel(row as Record<string, unknown>);
       });
       res.json({
         resources: normalized,
         contentArchitectureVersion: "resource-content-architecture-v1",
+        ownership: "core",
+        ownershipLabel: "Hospice Sales Pro Core",
       });
     } catch (error: any) {
       console.error("Get resources error (DB may be unavailable):", error);
@@ -800,16 +806,45 @@ Subject: [subject line]
         return res.status(404).json({ error: "Resource not found" });
       }
 
+      const bodyObj =
+        (req.body && typeof req.body === "object" ? req.body : {}) as Record<
+          string,
+          unknown
+        >;
+      // HSP-27: never silently replace published professional file content.
+      const nextFileUrl =
+        typeof bodyObj.fileUrl === "string" ? bodyObj.fileUrl : undefined;
+      if (
+        isSilentFileReplace(
+          {
+            id: existingResource.id,
+            title: existingResource.title,
+            fileUrl: existingResource.fileUrl,
+            seriesKey: existingResource.seriesKey ?? null,
+            versionLabel: existingResource.versionLabel ?? "1.0",
+            lifecycleStatus: existingResource.lifecycleStatus ?? "published",
+            isCurrent: existingResource.isCurrent ?? true,
+            supersededById: existingResource.supersededById ?? null,
+          },
+          nextFileUrl,
+        )
+      ) {
+        return res.status(409).json({
+          error: {
+            code: "USE_PUBLISH_NEW_VERSION",
+            message:
+              "Cannot replace the file on a published resource. Use POST /api/v1/resources/:id/lifecycle/transition with action publish_new_version.",
+          },
+        });
+      }
+
       const prepared = prepareResourceWrite({
         title: existingResource.title,
         description: existingResource.description,
         fileUrl: existingResource.fileUrl,
         category: existingResource.category,
         contentArchitecture: existingResource.contentArchitecture,
-        ...((req.body && typeof req.body === "object" ? req.body : {}) as Record<
-          string,
-          unknown
-        >),
+        ...bodyObj,
       });
       const resourceData = insertResourceSchema.parse({
         title: prepared.title,

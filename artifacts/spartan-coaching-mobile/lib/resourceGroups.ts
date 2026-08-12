@@ -23,6 +23,14 @@ export type ResourceLike = {
   category?: string | null;
   architecture?: ResourceArchitectureLike | null;
   contentArchitecture?: ResourceArchitectureLike | null;
+  versionLabel?: string | null;
+  lifecycleStatus?: string | null;
+  lifecycle?: {
+    versionLabel?: string;
+    hasNewerVersion?: boolean;
+    documentVersionLine?: string;
+    currentVersion?: { id: number; versionLabel: string; title: string };
+  } | null;
 };
 
 export type ResourceGroupId = "visit_prep" | "week_plan" | "onboarding" | "other";
