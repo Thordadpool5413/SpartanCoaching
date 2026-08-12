@@ -2,7 +2,7 @@
  * Command hub — calm front door to Sales Command Center.
  * Derives day summary from the same /api/v1/sales-workflow/today as the power surface.
  */
-import React from "react";
+import React, { useMemo } from "react";
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from "react-native";
 import { router } from "expo-router";
 import { Feather } from "@expo/vector-icons";
@@ -17,6 +17,12 @@ import { SpartanButton } from "@/components/ui/SpartanButton";
 import { SectionKicker } from "@/components/ui/SectionKicker";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ListRow } from "@/components/ui/ListRow";
+import { ToolAnatomyRelated } from "@/components/ToolAnatomy";
+import {
+  getToolById,
+  recommendRelated,
+  relatedToAnatomyItems,
+} from "@workspace/field-kit-catalog";
 
 function formatCallTime(iso: string): string {
   try {
@@ -31,6 +37,22 @@ export default function CommandHubScreen() {
   const colors = useColors();
   const { canUseFieldKit, isAuthenticated } = useAuth();
   const { today, todayLoading, todayError, primary, secondary, refreshAll, jobRole } = useMission();
+  const relatedItems = useMemo(
+    () =>
+      relatedToAnatomyItems(
+        recommendRelated(
+          "sales-workflow",
+          {
+            platform: "ios",
+            canUseFieldKit: !!canUseFieldKit,
+            contextTags: ["prepare", "follow_up", "account"],
+            limit: 4,
+          },
+          getToolById,
+        ),
+      ),
+    [canUseFieldKit],
+  );
 
   const dateLabel = new Date().toLocaleDateString(undefined, {
     weekday: "long",
@@ -191,6 +213,8 @@ export default function CommandHubScreen() {
           ))}
         </View>
       ) : null}
+
+      <ToolAnatomyRelated items={relatedItems} />
     </Screen>
   );
 }

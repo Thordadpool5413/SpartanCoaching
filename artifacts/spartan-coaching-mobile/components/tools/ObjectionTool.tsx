@@ -25,18 +25,30 @@ import {
   saveToolLastResult,
 } from "@/lib/toolDraftCache";
 import { enqueueGenerate, shouldEnqueueOnError, userFacingApiError } from "@/lib/offlineQueue";
+import {
+  getToolById,
+  recommendRelated,
+  relatedToAnatomyItems,
+} from "@workspace/field-kit-catalog";
 
 const TOOL_ID = "objection";
-
-const RELATED = [
-  { label: "Role-play", href: "/tool/role-play", kind: "Practice" },
-  { label: "Playbooks", href: "/tool/playbooks", kind: "Prepare" },
-];
 
 export function ObjectionTool() {
   const colors = useColors();
   const { canUseFieldKit } = useAuth();
   const saved = useSavedResponses("objection");
+  const relatedItems = relatedToAnatomyItems(
+    recommendRelated(
+      "objections",
+      {
+        platform: "ios",
+        canUseFieldKit: !!canUseFieldKit,
+        contextTags: ["objection", "practice"],
+        limit: 4,
+      },
+      getToolById,
+    ),
+  );
   const [objection, setObjection] = useState("");
   const [result, setResult] = useState("");
   const [citations, setCitations] = useState<CitationItem[]>([]);
@@ -187,7 +199,7 @@ export function ObjectionTool() {
           <SavedResponsesSection items={saved.savedItems} onDelete={saved.deleteResponse} />
         </>
       )}
-      <ToolAnatomyRelated items={RELATED} />
+      <ToolAnatomyRelated items={relatedItems} />
     </ToolShell>
   );
 }

@@ -40,4 +40,12 @@ export {
   normalizeSectionAlias,
   type ToolAnatomySectionId,
   type ToolAnatomySectionMeta,
+  RELATED_RECS_VERSION,
+  RELATED_EDGES,
+  REQUIRED_RELATED_SOURCES,
+  recommendRelated,
+  recommendRelatedIncludingUnavailable,
+  relatedToAnatomyItems,
+  type RelatedRecommendation,
+  type RecommendContext,
 } from "@workspace/field-kit-catalog";

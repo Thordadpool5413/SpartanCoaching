@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef } from "react";
+import { useState, useCallback, useRef, useMemo } from "react";
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
 import { downloadPdf, type EmailPdfPayload } from "@/lib/downloadPdf";
@@ -12,6 +12,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { SEO } from "@/components/SEO";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { markFieldKitChecklistDone } from "@/lib/fieldKitProgress";
+import { ToolAnatomyRelated } from "@/components/ToolAnatomy";
+import {
+  getToolById,
+  recommendRelated,
+  relatedToAnatomyItems,
+} from "@/lib/fieldKitCatalog";
 import { FadeIn, SlideUp, AnimatedCounter } from "@/components/animations";
 import { motion, AnimatePresence, useInView } from "framer-motion";
 import {
@@ -499,6 +505,23 @@ export default function ActivityCalculator() {
   const [result, setResult] = useState<CalculationResult | null>(null);
   const [showResult, setShowResult] = useState(false);
 
+  const relatedItems = useMemo(
+    () =>
+      relatedToAnatomyItems(
+        recommendRelated(
+          "activity-calculator",
+          {
+            platform: "web",
+            contextTags: ["tracking", "numbers"],
+            limit: 4,
+            canUseFieldKit: true,
+          },
+          getToolById,
+        ),
+      ),
+    [],
+  );
+
   const isFormValid =
     monthlyGoal !== "" &&
     Number(monthlyGoal) > 0 &&
@@ -976,7 +999,10 @@ export default function ActivityCalculator() {
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.8 }}
                 >
-                  <CoachingCTA />
+                  <ToolAnatomyRelated items={relatedItems} />
+                  <div className="mt-6">
+                    <CoachingCTA />
+                  </div>
                 </motion.div>
               </div>
             </motion.div>

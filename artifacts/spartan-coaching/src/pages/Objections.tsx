@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CoachingCTA } from "@/components/CoachingCTA";
@@ -8,6 +8,11 @@ import { trackEvent } from "@/lib/analytics";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { FieldTalkTrack } from "@/components/FieldTalkTrack";
 import { markFieldKitChecklistDone } from "@/lib/fieldKitProgress";
+import {
+  getToolById,
+  recommendRelated,
+  relatedToAnatomyItems,
+} from "@/lib/fieldKitCatalog";
 import {
   ToolAnatomyEvidence,
   ToolAnatomyGuidance,
@@ -51,12 +56,6 @@ const CURATED_OBJECTIONS = [
   },
 ] as const;
 
-const RELATED_TOOLS = [
-  { href: "/tools/role-play", label: "Role-play", kind: "Practice" },
-  { href: "/tools/playbooks", label: "Playbooks", kind: "Prepare" },
-  { href: "/resources/objection-cards", label: "Objection cards", kind: "Resource" },
-];
-
 export default function Objections() {
   const [aiResponses, setAiResponses] = useState<Record<string, string>>({});
   const [citations, setCitations] = useState<
@@ -65,6 +64,24 @@ export default function Objections() {
   const [loading, setLoading] = useState<Record<string, boolean>>({});
   const [playing, setPlaying] = useState<string | null>(null);
   const [lastError, setLastError] = useState<string | null>(null);
+
+  /** Shared catalog graph — not hard-coded platform lists (HSP-31). */
+  const relatedItems = useMemo(
+    () =>
+      relatedToAnatomyItems(
+        recommendRelated(
+          "objections",
+          {
+            platform: "web",
+            contextTags: ["objection", "practice"],
+            limit: 4,
+            canUseFieldKit: true,
+          },
+          getToolById,
+        ),
+      ),
+    [],
+  );
 
   const generateResponse = async (objection: string) => {
     trackEvent("ai_tool_usage", "objections");
@@ -214,12 +231,12 @@ export default function Objections() {
             AI alternatives cite Spartan Method sources when the API returns them. Do not invent
             clinical authority or quote CMS measures unless they appear in the evidence list.
           </ToolAnatomyEvidence>
-          <ToolAnatomyRelated items={RELATED_TOOLS} />
+          <ToolAnatomyRelated items={relatedItems} />
           <CoachingCTA />
         </div>
       ) : (
         <div className="mt-8">
-          <ToolAnatomyRelated items={RELATED_TOOLS} />
+          <ToolAnatomyRelated items={relatedItems} />
         </div>
       )}
     </FieldKitToolLayout>
