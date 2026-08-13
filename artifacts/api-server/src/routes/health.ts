@@ -12,6 +12,7 @@ import {
   evaluateAgainstTarget,
 } from "../observability/reliabilityTargets";
 import { buildClientConfig } from "../delivery/clientConfig";
+import { buildOpsReadinessSnapshot } from "@workspace/db/ops-readiness";
 
 const router: IRouter = Router();
 
@@ -134,6 +135,27 @@ router.get("/admin/clinical-runtime-health", sendClinicalRuntimeHealth);
  * Live API latency/error snapshot + code-defined SLO targets for web/iOS/API.
  * No secrets, no PHI, no request bodies. Safe for ops dashboards / smoke scripts.
  */
+/**
+ * GET /api/healthz/ops-readiness
+ * Recovery objectives, critical assets, incident severities, support workflows.
+ * Optional OPS_LAST_RESTORE_DRILL_ISO after a successful backup-restore-drill.
+ * No secrets / no PHI.
+ */
+router.get("/healthz/ops-readiness", (_req, res) => {
+  const snap = buildOpsReadinessSnapshot();
+  const lastDrill = process.env.OPS_LAST_RESTORE_DRILL_ISO?.trim() || null;
+  res.json({
+    ok: true,
+    status: "ok",
+    ...snap,
+    lastRestoreDrillIso: lastDrill,
+    drillStale:
+      lastDrill == null
+        ? true
+        : Date.now() - Date.parse(lastDrill) > 30 * 24 * 60 * 60 * 1000,
+  });
+});
+
 /**
  * GET /api/client-config
  * Public delivery contract: environment, feature flags, min client versions, rollback steps.

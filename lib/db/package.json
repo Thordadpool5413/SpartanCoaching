@@ -6,14 +6,16 @@
   "exports": {
     ".": "./src/index.ts",
     "./schema": "./src/schema/index.ts",
-    "./migration-safety": "./src/migration-safety.ts"
+    "./migration-safety": "./src/migration-safety.ts",
+    "./ops-readiness": "./src/ops-readiness.ts"
   },
   "scripts": {
     "push": "drizzle-kit push --config ./drizzle.config.ts",
     "push-force": "drizzle-kit push --force --config ./drizzle.config.ts",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "verify-integrity": "tsx scripts/verify-integrity.ts"
+    "verify-integrity": "tsx scripts/verify-integrity.ts",
+    "backup-restore-drill": "tsx scripts/backup-restore-drill.ts"
   },
   "dependencies": {
     "drizzle-orm": "catalog:",

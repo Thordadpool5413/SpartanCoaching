@@ -72,6 +72,11 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm audit --audit-level high
       - run: pnpm --filter @workspace/db push-force
+      # HSP-45 — logical snapshot + ephemeral schema restore (non-prod CI DB)
+      - name: Database backup restore drill
+        run: pnpm --filter @workspace/db run backup-restore-drill
+      - name: Ops readiness catalog tests
+        run: pnpm --filter @workspace/db exec vitest run src/ops-readiness.test.ts
       - run: pnpm run typecheck
       - run: pnpm --filter @workspace/spartan-ai-tools test
       # Shared contracts: catalog, product analytics, client delivery (HSP-44)

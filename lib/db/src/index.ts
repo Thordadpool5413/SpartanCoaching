@@ -13,6 +13,7 @@ type Db = NodePgDatabase<typeof schema>;
  */
 export * from "./schema";
 export * from "./migration-safety";
+export * from "./ops-readiness";
 
 let poolInstance: pg.Pool | undefined;
 let dbInstance: Db | undefined;
