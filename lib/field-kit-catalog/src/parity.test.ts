@@ -147,6 +147,7 @@ describe("Command Center capability matrix", () => {
     expect(supported).toEqual(
       expect.arrayContaining([
         "today",
+        "accounts",
         "schedule-cycle",
         "build-plan",
         "debrief-draft",
@@ -159,12 +160,12 @@ describe("Command Center capability matrix", () => {
     const gaps = mobileCommandCenterGaps().map((c) => c.id);
     expect(gaps).toEqual(
       expect.arrayContaining([
-        "accounts",
         "roleplay",
         "csv-import",
       ]),
     );
     expect(gaps).not.toContain("approve-coaching");
+    expect(gaps).not.toContain("accounts");
     expect(gaps).not.toContain("schedule-next");
     expect(gaps).not.toContain("email-draft");
   });

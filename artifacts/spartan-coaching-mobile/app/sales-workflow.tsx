@@ -26,6 +26,13 @@ import {
   canScheduleNextFromAction,
   type WorkflowNextActionLike,
 } from "@/lib/commandCenterNextActions";
+import {
+  accountListSubtitle,
+  buildScheduleAccountPayload,
+  canSubmitSchedule,
+  filterAccountsByQuery,
+  type WorkflowAccountLike,
+} from "@/lib/commandCenterAccounts";
 
 type WorkflowCall = {
   id: string;
@@ -117,6 +124,9 @@ export default function SalesWorkflowScreen() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [showSchedule, setShowSchedule] = useState(false);
+  const [accounts, setAccounts] = useState<WorkflowAccountLike[]>([]);
+  const [accountQuery, setAccountQuery] = useState("");
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
   const [accountName, setAccountName] = useState("");
   const [contactFirst, setContactFirst] = useState("");
   const [contactLast, setContactLast] = useState("");
@@ -152,11 +162,14 @@ export default function SalesWorkflowScreen() {
     setLoading(true);
     setError("");
     try {
-      setData(
-        await apiGet<TodayResponse>(
+      const [today, accountData] = await Promise.all([
+        apiGet<TodayResponse>(
           `/api/v1/sales-workflow/today?from=${encodeURIComponent(bounds.from)}&to=${encodeURIComponent(bounds.to)}`,
         ),
-      );
+        apiGet<{ accounts: WorkflowAccountLike[] }>("/api/v1/sales-workflow/accounts"),
+      ]);
+      setData(today);
+      setAccounts(Array.isArray(accountData.accounts) ? accountData.accounts : []);
     } catch {
       setError("Could not load your sales day. Pull to refresh or try again.");
     } finally {
@@ -168,31 +181,52 @@ export default function SalesWorkflowScreen() {
     void load();
   }, [load]);
 
+  const filteredAccounts = useMemo(
+    () => filterAccountsByQuery(accounts, accountQuery),
+    [accounts, accountQuery],
+  );
+
+  const selectedAccount = useMemo(
+    () => accounts.find((a) => a.id === selectedAccountId) ?? null,
+    [accounts, selectedAccountId],
+  );
+
   const schedule = async () => {
-    if (!user?.member || !accountName.trim() || !contactFirst.trim() || !purpose.trim()) {
-      setError("Add the account, contact first name, and call purpose.");
+    if (!user?.member) return;
+    if (
+      !canSubmitSchedule({
+        selectedAccountId,
+        newAccountName: accountName,
+        contactFirst,
+        purpose,
+      })
+    ) {
+      setError(
+        selectedAccountId
+          ? "Add a call purpose."
+          : "Pick a ledger account or add a new name, contact first name, and purpose.",
+      );
       return;
     }
     setSaving(true);
     setError("");
     try {
       const contactId = randomUuid();
+      const ownerUserId = memberIdToWorkflowUuid(user.member.id);
+      const accountPayload = buildScheduleAccountPayload({
+        selectedAccount,
+        newAccountName: accountName,
+        ownerUserId,
+        contact: {
+          id: contactId,
+          firstName: contactFirst,
+          lastName: contactLast,
+        },
+      });
       await apiPost(
         "/api/v1/sales-workflow/cycles",
         {
-          account: {
-            name: accountName.trim(),
-            ownerUserId: memberIdToWorkflowUuid(user.member.id),
-            contacts: [
-              {
-                id: contactId,
-                firstName: contactFirst.trim(),
-                lastName: contactLast.trim(),
-                isPrimary: true,
-              },
-            ],
-          },
-          contactIds: [contactId],
+          ...accountPayload,
           purpose: purpose.trim(),
           schedule: {
             startsAt: new Date(`${date}T${time}:00`).toISOString(),
@@ -207,6 +241,7 @@ export default function SalesWorkflowScreen() {
       setContactFirst("");
       setContactLast("");
       setPurpose("");
+      setSelectedAccountId(null);
       setShowSchedule(false);
       await load();
     } catch {
@@ -495,33 +530,189 @@ export default function SalesWorkflowScreen() {
         </View>
 
         {showSchedule && (
-          <View style={[styles.card, { borderColor: colors.border, backgroundColor: colors.card }]}>
+          <View
+            style={[styles.card, { borderColor: colors.border, backgroundColor: colors.card }]}
+            testID="schedule-call-form"
+          >
             <Text style={[styles.cardTitle, { color: colors.foreground }]}>Schedule a call</Text>
-            {[
-              ["Account name", accountName, setAccountName],
-              ["Contact first name", contactFirst, setContactFirst],
-              ["Contact last name", contactLast, setContactLast],
-              ["Purpose and desired outcome", purpose, setPurpose],
-              ["Start time (HH:MM)", time, setTime],
-            ].map(([placeholder, value, setter]) => (
-              <TextInput
-                key={placeholder as string}
-                value={value as string}
-                onChangeText={setter as (value: string) => void}
-                placeholder={placeholder as string}
-                placeholderTextColor={colors.mutedForeground}
-                style={[styles.input, { color: colors.foreground, borderColor: colors.border, backgroundColor: colors.background }]}
-              />
-            ))}
-            <Pressable disabled={saving} onPress={schedule} style={[styles.primary, { backgroundColor: colors.primary, opacity: saving ? 0.6 : 1 }]}>
+            {accounts.length > 0 ? (
+              <View style={{ marginBottom: 8 }} testID="schedule-account-picker">
+                <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>
+                  Ledger account (optional)
+                </Text>
+                <Pressable
+                  onPress={() => setSelectedAccountId(null)}
+                  style={[
+                    styles.outcomeChip,
+                    {
+                      borderColor: !selectedAccountId ? colors.primary : colors.border,
+                      marginBottom: 6,
+                      alignSelf: "flex-start",
+                    },
+                  ]}
+                >
+                  <Text style={{ color: colors.foreground, fontSize: 12, fontWeight: "700" }}>
+                    New account
+                  </Text>
+                </Pressable>
+                {accounts.slice(0, 12).map((account) => {
+                  const selected = selectedAccountId === account.id;
+                  return (
+                    <Pressable
+                      key={account.id}
+                      onPress={() => {
+                        setSelectedAccountId(account.id);
+                        setAccountName(account.name);
+                      }}
+                      style={[
+                        styles.actionRow,
+                        {
+                          borderColor: selected ? colors.primary : colors.border,
+                          backgroundColor: colors.background,
+                          marginTop: 6,
+                        },
+                      ]}
+                      testID={`schedule-pick-account-${account.id}`}
+                    >
+                      <Text style={{ color: colors.primary, fontWeight: "800", width: 22 }}>
+                        {selected ? "✓" : "○"}
+                      </Text>
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ color: colors.foreground, fontWeight: "700" }}>
+                          {account.name}
+                        </Text>
+                        <Text style={{ color: colors.mutedForeground, fontSize: 12, marginTop: 2 }}>
+                          {accountListSubtitle(account)}
+                        </Text>
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ) : null}
+            {!selectedAccountId
+              ? (
+                  [
+                    ["Account name", accountName, setAccountName],
+                    ["Contact first name", contactFirst, setContactFirst],
+                    ["Contact last name", contactLast, setContactLast],
+                  ] as const
+                ).map(([placeholder, value, setter]) => (
+                  <TextInput
+                    key={placeholder}
+                    value={value}
+                    onChangeText={setter}
+                    placeholder={placeholder}
+                    placeholderTextColor={colors.mutedForeground}
+                    style={[
+                      styles.input,
+                      {
+                        color: colors.foreground,
+                        borderColor: colors.border,
+                        backgroundColor: colors.background,
+                      },
+                    ]}
+                  />
+                ))
+              : null}
+            <TextInput
+              value={purpose}
+              onChangeText={setPurpose}
+              placeholder="Purpose and desired outcome"
+              placeholderTextColor={colors.mutedForeground}
+              style={[
+                styles.input,
+                {
+                  color: colors.foreground,
+                  borderColor: colors.border,
+                  backgroundColor: colors.background,
+                },
+              ]}
+            />
+            <TextInput
+              value={time}
+              onChangeText={setTime}
+              placeholder="Start time (HH:MM)"
+              placeholderTextColor={colors.mutedForeground}
+              style={[
+                styles.input,
+                {
+                  color: colors.foreground,
+                  borderColor: colors.border,
+                  backgroundColor: colors.background,
+                },
+              ]}
+            />
+            <Pressable
+              disabled={saving}
+              onPress={() => void schedule()}
+              style={[styles.primary, { backgroundColor: colors.primary, opacity: saving ? 0.6 : 1 }]}
+              testID="button-save-call"
+            >
               {saving ? (
                 <ActivityIndicator color={colors.primaryForeground} />
               ) : (
-                <Text style={[styles.primaryText, { color: colors.primaryForeground }]}>Save call</Text>
+                <Text style={[styles.primaryText, { color: colors.primaryForeground }]}>
+                  Save call
+                </Text>
               )}
             </Pressable>
           </View>
         )}
+
+        <View
+          style={[styles.card, { borderColor: colors.border, backgroundColor: colors.card }]}
+          testID="card-account-ledger"
+        >
+          <Text style={[styles.cardTitle, { color: colors.foreground }]}>Account ledger</Text>
+          <Text style={{ color: colors.mutedForeground, fontSize: 12, marginBottom: 8 }}>
+            Same accounts as web Command Center ({accounts.length}). No PHI — names and territory
+            only.
+          </Text>
+          <TextInput
+            value={accountQuery}
+            onChangeText={setAccountQuery}
+            placeholder="Search accounts"
+            placeholderTextColor={colors.mutedForeground}
+            style={[
+              styles.input,
+              {
+                color: colors.foreground,
+                borderColor: colors.border,
+                backgroundColor: colors.background,
+              },
+            ]}
+            testID="input-account-search"
+          />
+          {loading && accounts.length === 0 ? (
+            <ActivityIndicator color={colors.primary} />
+          ) : filteredAccounts.length === 0 ? (
+            <Text style={{ color: colors.mutedForeground, fontSize: 13 }}>
+              No accounts yet. Schedule a call to create the first ledger row.
+            </Text>
+          ) : (
+            filteredAccounts.map((account) => (
+              <Pressable
+                key={account.id}
+                onPress={() => {
+                  setSelectedAccountId(account.id);
+                  setAccountName(account.name);
+                  setShowSchedule(true);
+                }}
+                style={[styles.actionRow, { borderColor: colors.border, backgroundColor: colors.background }]}
+                testID={`ledger-account-${account.id}`}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: colors.foreground, fontWeight: "800" }}>{account.name}</Text>
+                  <Text style={{ color: colors.mutedForeground, fontSize: 12, marginTop: 3 }}>
+                    {accountListSubtitle(account)}
+                  </Text>
+                </View>
+                <Text style={{ color: colors.primary, fontWeight: "700", fontSize: 12 }}>Schedule</Text>
+              </Pressable>
+            ))
+          )}
+        </View>
 
         {!!error && <Text style={[styles.error, { color: colors.primary }]}>{error}</Text>}
 

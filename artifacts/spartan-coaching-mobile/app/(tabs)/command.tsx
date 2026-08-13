@@ -64,6 +64,7 @@ export default function CommandHubScreen() {
   const nextCall = calls[0];
   const openActions = today?.actions ?? [];
   const openActionCount = openActions.length;
+  // Ledger lives on full workflow (GET /accounts); hub points reps there.
 
   if (!isAuthenticated) {
     return (

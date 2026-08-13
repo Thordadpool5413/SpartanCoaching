@@ -44,8 +44,9 @@ export const COMMAND_CENTER_CAPABILITIES: CommandCenterCapability[] = [
     api: ["GET /accounts"],
     sharedFact: true,
     web: "full",
-    mobile: "none",
-    notes: "Mobile can schedule with inline account create; no accounts grid yet.",
+    mobile: "supported",
+    notes:
+      "Mobile: searchable ledger list + schedule against existing account; CSV import still web-only.",
   },
   {
     id: "schedule-cycle",
