@@ -23,6 +23,7 @@ Clients may differ in chrome and depth; they must not invent alternate write API
 | Account ledger | `GET /accounts` (searchable list; schedule against existing) |
 | Schedule call | `POST /cycles` (new account or ledger pick) |
 | Build pre-call plan | `POST /plans/:id/build` |
+| Connected roleplay | `POST /plans/:id/roleplay`, `POST /roleplay/:id/continue` (ready plans) |
 | AI debrief draft | `POST /debrief/draft` (never auto-saves) |
 | Complete call | `POST /calls/:id/complete` |
 | Approve next actions | `POST /coaching/:id/approve` (human selects actions after complete) |
@@ -33,7 +34,6 @@ Clients may differ in chrome and depth; they must not invent alternate write API
 
 | Capability | API | Notes |
 |------------|-----|--------|
-| Workflow roleplay | `POST /plans/:id/roleplay` … | Use classic Role-Play tool on mobile |
 | CSV import | import routes | Org admin |
 | Calendar connect | integration routes | When OAuth configured |
 

@@ -70,8 +70,9 @@ export const COMMAND_CENTER_CAPABILITIES: CommandCenterCapability[] = [
     api: ["POST /plans/:id/roleplay", "POST /roleplay/:id/continue"],
     sharedFact: true,
     web: "full",
-    mobile: "none",
-    notes: "Mobile uses classic /tools role-play; not workflow-session roleplay yet.",
+    mobile: "supported",
+    notes:
+      "Mobile: practice on ready plans in day workflow (same roleplay APIs as web). Classic Role-Play tool remains available for freeform practice.",
   },
   {
     id: "debrief-draft",

@@ -33,6 +33,15 @@ import {
   filterAccountsByQuery,
   type WorkflowAccountLike,
 } from "@/lib/commandCenterAccounts";
+import {
+  buildContinueRoleplayPayload,
+  buildStartRoleplayPayload,
+  canSendRoleplayReply,
+  canStartWorkflowRoleplay,
+  roleplayCoachingTip,
+  roleplayMessageLabel,
+  type RoleplaySessionLike,
+} from "@/lib/commandCenterRoleplay";
 
 type WorkflowCall = {
   id: string;
@@ -149,6 +158,9 @@ export default function SalesWorkflowScreen() {
     subject: string;
     body: string;
   } | null>(null);
+  const [roleplaySession, setRoleplaySession] = useState<RoleplaySessionLike | null>(null);
+  const [roleplayReply, setRoleplayReply] = useState("");
+  const [roleplayBusy, setRoleplayBusy] = useState(false);
 
   const bounds = useMemo(() => {
     const start = new Date(`${date}T00:00:00`);
@@ -265,6 +277,66 @@ export default function SalesWorkflowScreen() {
       setError("The connected pre-call plan could not be generated.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  const startRoleplay = async (plan: WorkflowPlan) => {
+    if (!canStartWorkflowRoleplay(plan)) {
+      setError("Build a pre-call plan before practice.");
+      return;
+    }
+    setRoleplayBusy(true);
+    setError("");
+    try {
+      const session = await apiPost<RoleplaySessionLike>(
+        `/api/v1/sales-workflow/plans/${plan.id}/roleplay`,
+        buildStartRoleplayPayload(plan),
+        { idempotencyKey: requestKey() },
+      );
+      setRoleplaySession({
+        id: session.id,
+        version: session.version,
+        messages: Array.isArray(session.messages) ? session.messages : [],
+        complete: Boolean(session.complete),
+        latestCoaching: session.latestCoaching,
+        turn: session.turn,
+      });
+      setRoleplayReply("");
+    } catch {
+      setError("Could not start connected practice. Try again after the plan is ready.");
+    } finally {
+      setRoleplayBusy(false);
+    }
+  };
+
+  const continueRoleplay = async () => {
+    if (!roleplaySession || !canSendRoleplayReply(roleplaySession, roleplayReply)) {
+      return;
+    }
+    setRoleplayBusy(true);
+    setError("");
+    try {
+      const session = await apiPost<RoleplaySessionLike>(
+        `/api/v1/sales-workflow/roleplay/${roleplaySession.id}/continue`,
+        buildContinueRoleplayPayload({
+          session: roleplaySession,
+          userInput: roleplayReply,
+        }),
+        { idempotencyKey: requestKey() },
+      );
+      setRoleplaySession({
+        id: session.id,
+        version: session.version,
+        messages: Array.isArray(session.messages) ? session.messages : [],
+        complete: Boolean(session.complete),
+        latestCoaching: session.latestCoaching,
+        turn: session.turn,
+      });
+      setRoleplayReply("");
+    } catch {
+      setError("Practice turn failed. Check the network and try again.");
+    } finally {
+      setRoleplayBusy(false);
     }
   };
 
@@ -716,6 +788,126 @@ export default function SalesWorkflowScreen() {
 
         {!!error && <Text style={[styles.error, { color: colors.primary }]}>{error}</Text>}
 
+        {roleplaySession && (
+          <View
+            style={[styles.card, { borderColor: colors.primary, backgroundColor: colors.card }]}
+            testID="roleplay-practice-panel"
+          >
+            <Text style={[styles.cardTitle, { color: colors.foreground }]}>
+              Connected practice
+            </Text>
+            <Text style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 17 }}>
+              Workflow roleplay for this plan — educational practice only. No patient names or PHI.
+            </Text>
+            <View style={{ marginTop: 10 }} testID="roleplay-message-list">
+              {(roleplaySession.messages ?? []).map((message, index) => (
+                <View
+                  key={`${message.role}-${index}`}
+                  style={[
+                    styles.draftPreview,
+                    { borderColor: colors.border, backgroundColor: colors.background, marginBottom: 8 },
+                  ]}
+                >
+                  <Text style={[styles.fieldLabel, { color: colors.mutedForeground, marginTop: 0 }]}>
+                    {roleplayMessageLabel(message.role)}
+                  </Text>
+                  <Text style={{ color: colors.foreground, fontSize: 14, lineHeight: 20 }}>
+                    {message.content}
+                  </Text>
+                </View>
+              ))}
+            </View>
+            {!!roleplayCoachingTip(roleplaySession) && (
+              <Text
+                style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 17, marginBottom: 8 }}
+                testID="roleplay-coaching-tip"
+              >
+                Coaching: {roleplayCoachingTip(roleplaySession)}
+              </Text>
+            )}
+            {roleplaySession.complete ? (
+              <View>
+                <Text style={{ color: colors.foreground, fontWeight: "700", marginBottom: 8 }}>
+                  Practice complete
+                </Text>
+                <Text style={{ color: colors.mutedForeground, fontSize: 13, marginBottom: 10 }}>
+                  Carry the strongest discovery move into the real conversation.
+                </Text>
+                <SpartanButton
+                  title="Close practice"
+                  variant="outline"
+                  onPress={() => {
+                    setRoleplaySession(null);
+                    setRoleplayReply("");
+                  }}
+                  testID="button-close-roleplay"
+                />
+              </View>
+            ) : (
+              <View>
+                <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>
+                  What would you say next?
+                </Text>
+                <TextInput
+                  value={roleplayReply}
+                  onChangeText={setRoleplayReply}
+                  placeholder="Your response — no patient identifiers"
+                  placeholderTextColor={colors.mutedForeground}
+                  multiline
+                  style={[
+                    styles.notes,
+                    {
+                      color: colors.foreground,
+                      borderColor: colors.border,
+                      backgroundColor: colors.background,
+                    },
+                  ]}
+                  testID="input-roleplay-reply"
+                />
+                <View style={styles.reviewActions}>
+                  <Pressable
+                    disabled={roleplayBusy}
+                    onPress={() => {
+                      setRoleplaySession(null);
+                      setRoleplayReply("");
+                    }}
+                    style={[styles.secondary, { borderColor: colors.border, flex: 1, marginTop: 0 }]}
+                  >
+                    <Text style={{ color: colors.mutedForeground, fontWeight: "700" }}>Exit</Text>
+                  </Pressable>
+                  <Pressable
+                    disabled={
+                      roleplayBusy || !canSendRoleplayReply(roleplaySession, roleplayReply)
+                    }
+                    onPress={() => void continueRoleplay()}
+                    style={[
+                      styles.primary,
+                      {
+                        backgroundColor: colors.primary,
+                        flex: 1,
+                        marginTop: 0,
+                        opacity:
+                          roleplayBusy || !canSendRoleplayReply(roleplaySession, roleplayReply)
+                            ? 0.6
+                            : 1,
+                      },
+                    ]}
+                    testID="button-send-roleplay-reply"
+                  >
+                    {roleplayBusy ? (
+                      <ActivityIndicator color={colors.primaryForeground} />
+                    ) : (
+                      <Text style={[styles.primaryText, { color: colors.primaryForeground }]}>
+                        Send response
+                      </Text>
+                    )}
+                  </Pressable>
+                </View>
+              </View>
+            )}
+          </View>
+        )}
+
         {coachingReview && (
           <View
             style={[styles.card, { borderColor: colors.primary, backgroundColor: colors.card }]}
@@ -838,6 +1030,28 @@ export default function SalesWorkflowScreen() {
                 {plan?.status === "draft" && (
                   <Pressable disabled={saving} onPress={() => buildPlan(plan)} style={[styles.secondary, { borderColor: colors.primary }]}>
                     <Text style={{ color: colors.primary, fontWeight: "700" }}>Build connected plan</Text>
+                  </Pressable>
+                )}
+                {canStartWorkflowRoleplay(plan) && (
+                  <Pressable
+                    disabled={saving || roleplayBusy}
+                    onPress={() => void startRoleplay(plan!)}
+                    style={[
+                      styles.secondary,
+                      {
+                        borderColor: colors.primary,
+                        opacity: saving || roleplayBusy ? 0.6 : 1,
+                      },
+                    ]}
+                    testID={`button-start-roleplay-${plan!.id}`}
+                  >
+                    {roleplayBusy && !roleplaySession ? (
+                      <ActivityIndicator color={colors.primary} />
+                    ) : (
+                      <Text style={{ color: colors.primary, fontWeight: "700" }}>
+                        Practice conversation
+                      </Text>
+                    )}
                   </Pressable>
                 )}
                 {!["completed", "canceled", "no_show"].includes(call.status) && (

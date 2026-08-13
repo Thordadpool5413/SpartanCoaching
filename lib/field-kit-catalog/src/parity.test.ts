@@ -150,6 +150,7 @@ describe("Command Center capability matrix", () => {
         "accounts",
         "schedule-cycle",
         "build-plan",
+        "roleplay",
         "debrief-draft",
         "complete-call",
         "approve-coaching",
@@ -158,12 +159,8 @@ describe("Command Center capability matrix", () => {
       ]),
     );
     const gaps = mobileCommandCenterGaps().map((c) => c.id);
-    expect(gaps).toEqual(
-      expect.arrayContaining([
-        "roleplay",
-        "csv-import",
-      ]),
-    );
+    expect(gaps).toEqual(expect.arrayContaining(["csv-import"]));
+    expect(gaps).not.toContain("roleplay");
     expect(gaps).not.toContain("approve-coaching");
     expect(gaps).not.toContain("accounts");
     expect(gaps).not.toContain("schedule-next");
