@@ -1,0 +1,42 @@
+.github/workflows/ci.yml
+  h_0446834f150a71 74-76,91,101-103
+artifacts/api-server/package.json
+  h_0446834f150a71 11
+artifacts/api-server/src/routes/authRoutes.ts
+  h_0446834f150a71 13,214-235,2114,2122-2323
+artifacts/api-server/src/routes/orgAdmin.test.ts
+  h_0446834f150a71 1-27
+artifacts/spartan-coaching-mobile/lib/api.ts
+  h_0446834f150a71 2-3,56-65,70,270-273
+artifacts/spartan-coaching/src/App.tsx
+  h_0446834f150a71 34,227
+artifacts/spartan-coaching/src/lib/workspaceShell.ts
+  h_0446834f150a71 63,76
+artifacts/spartan-coaching/src/pages/Account.tsx
+  h_0446834f150a71 567-578
+artifacts/spartan-coaching/src/pages/OrgAdmin.tsx
+  h_0446834f150a71 1-335
+docs/schema-ops.md
+  h_0446834f150a71 72-74,77-85
+lib/db/migrations/0011_org_admin_audit.sql
+  h_0446834f150a71 1-14
+lib/db/package.json
+  h_0446834f150a71 18-19
+lib/db/scripts/migrate.ts
+  h_0446834f150a71 1-140
+lib/db/src/schema/auth.ts
+  h_0446834f150a71 70-90
+package.json
+  h_0446834f150a71 23-25
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "d9739245939f7f40709973bab1ba00bdcfd3fe57",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
