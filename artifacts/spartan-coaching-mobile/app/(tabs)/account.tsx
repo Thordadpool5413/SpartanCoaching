@@ -433,6 +433,31 @@ export default function AccountScreen() {
         </Text>
         <Text style={[styles.cardValue, { color: colors.foreground }]}>{org?.name || "—"}</Text>
         <Text style={[styles.cardLabel, { color: colors.mutedForeground, marginTop: 14 }]}>
+          Your role
+        </Text>
+        <Text style={[styles.cardValue, { color: colors.foreground }]} testID="account-member-role">
+          {(user.member.role || "member").replace(/_/g, " ")}
+        </Text>
+        {isCompany || isPlatform ? (
+          <View style={{ marginTop: 10 }} testID="account-org-admin-hint">
+            <Text style={{ color: colors.mutedForeground, fontSize: 13, lineHeight: 18 }}>
+              Seat status: {statusLabel}
+              {typeof org?.seatLimit === "number" ? ` · seat limit ${org.seatLimit}` : ""}
+              {typeof org?.billableSeats === "number"
+                ? ` · billable seats ${org.billableSeats}`
+                : ""}
+            </Text>
+            {(user.member.role === "org_admin" || user.member.role === "platform_admin") && (
+              <Text
+                style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 17, marginTop: 6 }}
+              >
+                Organization admin tools (members, structure, offboard) are on the website at
+                /org/admin — open in a browser with the same account.
+              </Text>
+            )}
+          </View>
+        ) : null}
+        <Text style={[styles.cardLabel, { color: colors.mutedForeground, marginTop: 14 }]}>
           Hospice Sales Pro
         </Text>
         <Text

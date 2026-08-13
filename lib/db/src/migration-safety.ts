@@ -595,6 +595,23 @@ export const MIGRATION_CATALOG: readonly MigrationPlan[] = [
     dropsLegacyObjects: false,
   },
   {
+    id: "0015_org_contacts_offboard",
+    title: "Org billing/security contacts + retention note",
+    forwardPath: "lib/db/migrations/0015_org_contacts_offboard.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT count(*) > 0 AS ok FROM information_schema.columns WHERE table_name = 'client_organizations' AND column_name = 'billing_contact_email'`,
+      `SELECT count(*) > 0 AS ok FROM information_schema.columns WHERE table_name = 'client_organizations' AND column_name = 'security_contact_email'`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: restore dump. Additive contact columns; leave unused if rolling back code.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["client_organizations"],
+    dropsLegacyObjects: false,
+  },
+  {
     id: "sales_workflow_001",
     title: "Sales Command Center workflow store (RLS)",
     forwardPath: "lib/hospice-sales-runtime/migrations/001_sales_workflow.sql",

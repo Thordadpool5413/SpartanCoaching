@@ -44,6 +44,13 @@ export const clientOrganizations = pgTable("client_organizations", {
   contractRef: varchar("contract_ref", { length: 128 }),
   /** Seats billed (may match seatLimit); corporate quantity source of truth for Stripe */
   billableSeats: integer("billable_seats"),
+  /** HSP-41 Slice D — provider-facing contacts (no secrets) */
+  billingContactEmail: varchar("billing_contact_email", { length: 320 }),
+  billingContactName: varchar("billing_contact_name", { length: 255 }),
+  securityContactEmail: varchar("security_contact_email", { length: 320 }),
+  securityContactName: varchar("security_contact_name", { length: 255 }),
+  /** Optional retention note for offboarding (not a legal hold system) */
+  dataRetentionNote: text("data_retention_note"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
