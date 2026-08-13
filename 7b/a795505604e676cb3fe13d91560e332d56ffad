@@ -1,0 +1,38 @@
+.github/workflows/ci.yml
+  h_0446834f150a71 74-75
+artifacts/api-server/scripts/apply-sales-workflow-migration.mjs
+  h_0446834f150a71 1-10,25-33,37-40
+docs/operator-checklist.md
+  h_0446834f150a71 24
+docs/replit-publish.md
+  h_0446834f150a71 27
+docs/schema-ops.md
+  h_0446834f150a71 18-24,31,33-35,37-43,57,72-73,78-82,85
+docs/security-foundation.md
+  h_0446834f150a71 62
+docs/ship-readiness.md
+  h_0446834f150a71 47
+lib/db/package.json
+  h_0446834f150a71 13-14
+lib/db/scripts/migrate.ts
+  h_0446834f150a71 2,4-6,8,12,16-17,23-28,31,39,52,81-82,90-91,93,96-98,102,105,108,119-120
+lib/db/scripts/push-guard.ts
+  h_0446834f150a71 1-48
+lib/db/src/migrate-manifest.test.ts
+  h_0446834f150a71 1-71
+lib/db/src/migrate-manifest.ts
+  h_0446834f150a71 1-95
+lib/db/src/migration-safety.ts
+  h_0446834f150a71 8-10,589
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "7ba795505604e676cb3fe13d91560e332d56ffad",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
