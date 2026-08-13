@@ -16,6 +16,16 @@ Code is on GitHub. Production only updates when Replit:
 
 A shell `git pull` without Publish can leave the old JS bundle online.
 
+### Mobile package during Publish
+
+Autoscale builds every workspace package with a `build` script. The Expo **static**
+export (`spartan-coaching-mobile` → Metro) is **skipped on Replit by default** so
+website publish is not blocked by Metro/`@babel/types` isolation flakes.
+
+- **Website** = `api-server` + `spartan-coaching` (this Publish)
+- **iOS** = EAS (`pnpm --filter @workspace/spartan-coaching-mobile run build:ios:testflight`)
+- Force Expo static on Replit only if needed: `EXPO_STATIC_BUILD=1 pnpm --filter @workspace/spartan-coaching-mobile run build`
+
 ---
 
 ## A. In Replit (do this once per release)

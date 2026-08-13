@@ -58,6 +58,17 @@ onlyBuiltDependencies:
   - msw
   - unrs-resolver
 
+# Worklets babel plugin requires @babel/types at require-time; it is not always
+# linked under the plugin package with pnpm isolation (Replit publish #fail).
+packageExtensions:
+  react-native-worklets@*:
+    dependencies:
+      "@babel/core": "*"
+      "@babel/types": "*"
+  babel-preset-expo@*:
+    dependencies:
+      "@babel/types": "*"
+
 overrides:
   # Single React type root — prevents dual @types/react ref incompatibility on tsc.
   "@types/react": "19.2.17"

@@ -689,8 +689,89 @@ function updateManifests(manifests, timestamp, baseUrl, assetsByHash) {
   console.log("Manifests updated");
 }
 
+/**
+ * When to skip the Metro static Expo Go export.
+ *
+ * Replit Autoscale publish builds every workspace package with a `build` script.
+ * That path serves the website (api-server + spartan-coaching). The Expo static
+ * export is secondary (Expo Go landing) and regularly fails under Replit's
+ * pnpm/Metro isolation (e.g. missing @babel/types in worklets plugin).
+ *
+ * iOS App Store / TestFlight ships via EAS (`build:ios:*`), not this script.
+ *
+ * Force the full export with EXPO_STATIC_BUILD=1.
+ * Explicit skip: SKIP_EXPO_STATIC_BUILD=1.
+ */
+function shouldSkipExpoStaticBuild() {
+  const force =
+    process.env.EXPO_STATIC_BUILD === "1" || process.env.EXPO_STATIC_BUILD === "true";
+  if (force) return false;
+
+  if (
+    process.env.SKIP_EXPO_STATIC_BUILD === "1" ||
+    process.env.SKIP_EXPO_STATIC_BUILD === "true"
+  ) {
+    return true;
+  }
+
+  // Replit shell or Autoscale deploy always exposes one of these.
+  if (
+    process.env.REPLIT_DEPLOYMENT === "1" ||
+    process.env.REPLIT_DEPLOYMENT === "true" ||
+    process.env.REPL_ID ||
+    process.env.REPLIT_DEV_DOMAIN ||
+    process.env.REPLIT_INTERNAL_APP_DOMAIN
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+function writeSkippedStaticBuildMarker(reason) {
+  const staticBuild = path.join(projectRoot, "static-build");
+  fs.mkdirSync(staticBuild, { recursive: true });
+  const marker = {
+    skipped: true,
+    reason,
+    at: new Date().toISOString(),
+    note:
+      "Website Autoscale does not need Expo static export. Use EAS for iOS, or EXPO_STATIC_BUILD=1 to force this script.",
+  };
+  fs.writeFileSync(
+    path.join(staticBuild, "SKIPPED.json"),
+    JSON.stringify(marker, null, 2),
+  );
+  // Keep empty platform dirs so any static file server routes still resolve safely.
+  for (const platform of ["ios", "android"]) {
+    const dir = path.join(staticBuild, platform);
+    fs.mkdirSync(dir, { recursive: true });
+    fs.writeFileSync(
+      path.join(dir, "manifest.json"),
+      JSON.stringify(
+        {
+          skipped: true,
+          reason,
+          id: "spartan-coaching-mobile-static-skipped",
+        },
+        null,
+        2,
+      ),
+    );
+  }
+}
+
 async function main() {
   console.log("Building static Expo Go deployment...");
+
+  if (shouldSkipExpoStaticBuild()) {
+    const reason =
+      "Replit / Autoscale deploy — skipping Metro Expo static export (set EXPO_STATIC_BUILD=1 to force)";
+    console.log(`\n⏭  ${reason}\n`);
+    writeSkippedStaticBuildMarker(reason);
+    console.log("Mobile static build skipped successfully (not a failure).");
+    process.exit(0);
+  }
 
   setupSignalHandlers();
 
