@@ -107,6 +107,72 @@ for (const g of gated) {
   }
 }
 
+// ── Org admin gates (provider_admin) — unauthenticated must not read/write ──
+// Stable routes hard-fail unless 401/403. Newer routes soft-WARN on 404 until
+// the host is redeployed with those handlers (set STRICT_ORG_GATES=1 to fail).
+const strictOrg = process.env.STRICT_ORG_GATES === "1" || process.env.STRICT_ORG_GATES === "true";
+const orgGatedStable = [
+  { method: "GET", path: "/api/org/members" },
+  { method: "GET", path: "/api/org/usage" },
+  {
+    method: "POST",
+    path: "/api/org/invites",
+    body: { email: "parity-smoke-unauth@example.invalid", role: "member" },
+  },
+];
+const orgGatedSoft = [
+  { method: "GET", path: "/api/org/profile" },
+  { method: "GET", path: "/api/org/audit" },
+  { method: "GET", path: "/api/org/structure" },
+  {
+    method: "POST",
+    path: "/api/org/members/00000000-0000-4000-8000-000000000001/offboard",
+    body: {},
+  },
+];
+
+function logOrgGate(method, path, status, soft) {
+  const short = path.split("?")[0];
+  const blocked = status === 401 || status === 403;
+  if (blocked) {
+    log(true, `${method} ${short} unauthenticated → ${status} (expect 401/403)`);
+    return;
+  }
+  if (soft && status === 404 && !strictOrg) {
+    console.log(
+      `WARN ${method} ${short} unauthenticated → 404 (route not deployed yet; STRICT_ORG_GATES=1 to fail)`,
+    );
+    return;
+  }
+  log(false, `${method} ${short} unauthenticated → ${status} (expect 401/403)`);
+}
+
+for (const g of orgGatedStable) {
+  try {
+    const { res } = await fetchJson(g.path, {
+      method: g.method,
+      headers: g.body ? { "Content-Type": "application/json" } : undefined,
+      body: g.body ? JSON.stringify(g.body) : undefined,
+    });
+    logOrgGate(g.method, g.path, res.status, false);
+  } catch (e) {
+    log(false, `${g.method} ${g.path} — ${e?.message || e}`);
+  }
+}
+
+for (const g of orgGatedSoft) {
+  try {
+    const { res } = await fetchJson(g.path, {
+      method: g.method,
+      headers: g.body ? { "Content-Type": "application/json" } : undefined,
+      body: g.body ? JSON.stringify(g.body) : undefined,
+    });
+    logOrgGate(g.method, g.path, res.status, true);
+  } catch (e) {
+    log(false, `${g.method} ${g.path} — ${e?.message || e}`);
+  }
+}
+
 // ── Product HTML shells (web lander + dual-product markers) ──────────────
 const htmlChecks = [
   { path: "/", mustInclude: ["Hospice Sales Pro"] },

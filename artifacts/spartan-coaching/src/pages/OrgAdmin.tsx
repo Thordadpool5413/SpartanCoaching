@@ -45,6 +45,11 @@ type OrgProfile = {
   billingPlan: string | null;
   billingStatus: string | null;
   activeMembers: number;
+  billingContactEmail?: string | null;
+  billingContactName?: string | null;
+  securityContactEmail?: string | null;
+  securityContactName?: string | null;
+  dataRetentionNote?: string | null;
 };
 
 type AuditEvent = {
@@ -80,6 +85,11 @@ export default function OrgAdmin() {
   const [branchName, setBranchName] = useState("");
   const [teamName, setTeamName] = useState("");
   const [teamBranchId, setTeamBranchId] = useState<string>("");
+  const [billingContactEmail, setBillingContactEmail] = useState("");
+  const [billingContactName, setBillingContactName] = useState("");
+  const [securityContactEmail, setSecurityContactEmail] = useState("");
+  const [securityContactName, setSecurityContactName] = useState("");
+  const [retentionNote, setRetentionNote] = useState("");
 
   const isOrgAdmin =
     member?.role === "org_admin" || member?.role === "platform_admin";
@@ -98,6 +108,11 @@ export default function OrgAdmin() {
       if (p.organization) {
         setProfile(p.organization);
         setOrgName(p.organization.name || "");
+        setBillingContactEmail(p.organization.billingContactEmail || "");
+        setBillingContactName(p.organization.billingContactName || "");
+        setSecurityContactEmail(p.organization.securityContactEmail || "");
+        setSecurityContactName(p.organization.securityContactName || "");
+        setRetentionNote(p.organization.dataRetentionNote || "");
       }
       setMembers(m.members || []);
       setInvites(m.invites || []);
@@ -237,6 +252,93 @@ export default function OrgAdmin() {
             Save name
           </Button>
         </div>
+      </Card>
+
+      <Card className="p-6 space-y-4" data-testid="org-admin-contacts">
+        <h2 className="text-lg font-bold">Billing &amp; security contacts</h2>
+        <p className="text-xs text-muted-foreground">
+          Provider-facing contacts for this organization. No payment secrets stored here.
+        </p>
+        <div className="grid sm:grid-cols-2 gap-3">
+          <div className="space-y-1">
+            <Label htmlFor="billing-name">Billing contact name</Label>
+            <Input
+              id="billing-name"
+              value={billingContactName}
+              onChange={(e) => setBillingContactName(e.target.value)}
+              disabled={busy}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="billing-email">Billing contact email</Label>
+            <Input
+              id="billing-email"
+              type="email"
+              value={billingContactEmail}
+              onChange={(e) => setBillingContactEmail(e.target.value)}
+              disabled={busy}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="security-name">Security contact name</Label>
+            <Input
+              id="security-name"
+              value={securityContactName}
+              onChange={(e) => setSecurityContactName(e.target.value)}
+              disabled={busy}
+            />
+          </div>
+          <div className="space-y-1">
+            <Label htmlFor="security-email">Security contact email</Label>
+            <Input
+              id="security-email"
+              type="email"
+              value={securityContactEmail}
+              onChange={(e) => setSecurityContactEmail(e.target.value)}
+              disabled={busy}
+            />
+          </div>
+          <div className="space-y-1 sm:col-span-2">
+            <Label htmlFor="retention-note">Data retention note (optional)</Label>
+            <Input
+              id="retention-note"
+              value={retentionNote}
+              onChange={(e) => setRetentionNote(e.target.value)}
+              disabled={busy}
+              placeholder="e.g. Seat data retained 30 days after offboard — no mass export"
+            />
+          </div>
+        </div>
+        <Button
+          disabled={busy}
+          onClick={async () => {
+            setBusy(true);
+            try {
+              const res = await fetch("/api/org/profile", {
+                method: "PATCH",
+                credentials: "include",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                  billingContactEmail: billingContactEmail.trim() || null,
+                  billingContactName: billingContactName.trim() || null,
+                  securityContactEmail: securityContactEmail.trim() || null,
+                  securityContactName: securityContactName.trim() || null,
+                  dataRetentionNote: retentionNote.trim() || null,
+                }),
+              });
+              const data = await res.json().catch(() => ({}));
+              if (!res.ok) throw new Error(data.error || "Failed");
+              toast({ title: "Contacts saved" });
+              await load();
+            } catch (e: any) {
+              toast({ title: "Failed", description: e?.message, variant: "destructive" });
+            } finally {
+              setBusy(false);
+            }
+          }}
+        >
+          Save contacts
+        </Button>
       </Card>
 
       <Card className="p-6 space-y-4" data-testid="org-admin-usage">
@@ -464,6 +566,25 @@ export default function OrgAdmin() {
                         }}
                       >
                         Disable
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        className="text-destructive border-destructive/40"
+                        disabled={busy}
+                        onClick={() => {
+                          if (
+                            confirm(
+                              `Offboard ${m.email}? Disables seat, revokes matching invites, clears sessions, and writes audit.`,
+                            )
+                          ) {
+                            void post(`/api/org/members/${m.id}/offboard`, {
+                              note: "Offboarded from org admin workspace",
+                            });
+                          }
+                        }}
+                      >
+                        Offboard
                       </Button>
                     </>
                   )}

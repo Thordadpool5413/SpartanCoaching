@@ -97,6 +97,16 @@ export const RELEASE_JOURNEYS: JourneyCheck[] = [
     evidence: "scripts/smoke-parity.mjs (public gate checks)",
   },
   {
+    id: "unauth_org_admin_gates",
+    persona: "unauthorized_user",
+    domain: "organization_isolation",
+    title: "Org admin APIs return 401/403 without session",
+    critical: true,
+    mode: "live_env",
+    evidence:
+      "scripts/smoke-parity.mjs org gates (/api/org/members|usage|invites hard; profile/audit/structure soft-404)",
+  },
+  {
     id: "unauth_entitlement_unit",
     persona: "unauthorized_user",
     domain: "entitlement",
@@ -173,22 +183,33 @@ export const RELEASE_JOURNEYS: JourneyCheck[] = [
     evidence: "api-server: src/resources/providerResourceLibrary.test.ts",
   },
   {
+    id: "provider_admin_policy",
+    persona: "provider_admin",
+    domain: "accounts_contacts",
+    title: "Org admin seat/role/structure/offboard policy contracts",
+    critical: true,
+    mode: "automated",
+    evidence:
+      "api-server: orgAdminPolicy, orgStructurePolicy, orgOffboardPolicy; web OrgAdmin.panels + workspaceShell org nav",
+  },
+  {
     id: "provider_admin_ui",
     persona: "provider_admin",
     domain: "accounts_contacts",
-    title: "Org admin seats/invites UX and APIs",
+    title: "Org admin live seats/invites/structure/offboard on company org",
     critical: false,
     mode: "live_env",
-    evidence: "Manual: company org_admin Account team seats + /api/org/*",
+    evidence:
+      "Manual: company org_admin /org/admin + /api/org/* after pnpm db:migrate (0014/0015); unauth probes via smoke-parity org gates",
   },
   {
     id: "provider_leader_usage",
     persona: "provider_leader",
     domain: "analytics",
-    title: "Leader usage visibility (org usage)",
+    title: "Leader usage visibility (org usage aggregates)",
     critical: false,
     mode: "live_env",
-    evidence: "Manual: org_admin GET /api/org/usage",
+    evidence: "Manual: org_admin GET /api/org/usage + OrgAdmin usage panel",
   },
 
   // ── Product surfaces ────────────────────────────────────────────────
@@ -199,7 +220,27 @@ export const RELEASE_JOURNEYS: JourneyCheck[] = [
     title: "Command Center / sales workflow contracts",
     critical: true,
     mode: "automated",
-    evidence: "api-server workflowTenantAuthz + field-kit-catalog command-center exports; live: smoke-parity-auth Command today",
+    evidence:
+      "api-server workflowTenantAuthz + field-kit-catalog command-center/parity; mobile: command-center-next-actions, accounts, roleplay, integrations tests",
+  },
+  {
+    id: "command_center_mobile_parity",
+    persona: "provider_rep",
+    domain: "command_center",
+    title: "Command Center mobile capability matrix (supported paths)",
+    critical: true,
+    mode: "automated",
+    evidence:
+      "field-kit-catalog parity.test.ts COMMAND_CENTER_CAPABILITIES; mobile jest command-center-* helpers",
+  },
+  {
+    id: "dual_schema",
+    persona: "provider_admin",
+    domain: "migrations",
+    title: "Web schema re-export only (no dual Drizzle fork)",
+    critical: true,
+    mode: "automated",
+    evidence: "spartan-coaching: src/shared/schema.dualSourceOfTruth.test.ts",
   },
   {
     id: "ai_context_uncertainty",
@@ -340,10 +381,11 @@ export const RELEASE_JOURNEYS: JourneyCheck[] = [
     id: "migrations",
     persona: "provider_admin",
     domain: "migrations",
-    title: "Migration safety catalog + integrity",
+    title: "Migration safety + migrate-primary inventory",
     critical: true,
     mode: "automated",
-    evidence: "lib/db migration-safety.test.ts; CI push-force + verify-integrity when DATABASE_URL set",
+    evidence:
+      "lib/db migration-safety + migrate-manifest tests; CI pnpm db:migrate (no prod push); live: ALLOW_PROD_MIGRATE after backup",
   },
   {
     id: "backups",
@@ -388,11 +430,18 @@ export type AutomatedSuite = {
 export const AUTOMATED_SUITES: AutomatedSuite[] = [
   {
     id: "db_ops",
-    label: "DB ops readiness + migration safety",
+    label: "DB ops readiness + migration safety + migrate-manifest",
     critical: true,
     cwd: "lib/db",
     command: "pnpm",
-    args: ["exec", "vitest", "run", "src/ops-readiness.test.ts", "src/migration-safety.test.ts"],
+    args: [
+      "exec",
+      "vitest",
+      "run",
+      "src/ops-readiness.test.ts",
+      "src/migration-safety.test.ts",
+      "src/migrate-manifest.test.ts",
+    ],
   },
   {
     id: "catalog",
@@ -404,7 +453,7 @@ export const AUTOMATED_SUITES: AutomatedSuite[] = [
   },
   {
     id: "api_security_entitlement",
-    label: "API auth, entitlement, tenant isolation, security",
+    label: "API auth, entitlement, tenant isolation, security, org admin policy",
     critical: true,
     cwd: "artifacts/api-server",
     command: "pnpm",
@@ -416,6 +465,9 @@ export const AUTOMATED_SUITES: AutomatedSuite[] = [
       "src/auth/entitlement.test.ts",
       "src/auth/middleware.test.ts",
       "src/auth/workflowTenantAuthz.test.ts",
+      "src/auth/orgAdminPolicy.test.ts",
+      "src/auth/orgStructurePolicy.test.ts",
+      "src/auth/orgOffboardPolicy.test.ts",
       "src/security/requestSecurity.test.ts",
       "src/security/tenantRoleplay.test.ts",
       "src/security/phiEncryption.test.ts",
@@ -449,7 +501,7 @@ export const AUTOMATED_SUITES: AutomatedSuite[] = [
   },
   {
     id: "web_contracts",
-    label: "Web a11y + membership contracts",
+    label: "Web a11y, membership, dual-schema, org admin panels",
     critical: true,
     cwd: "artifacts/spartan-coaching",
     command: "pnpm",
@@ -461,11 +513,13 @@ export const AUTOMATED_SUITES: AutomatedSuite[] = [
       "src/lib/complianceCopy.test.ts",
       "src/lib/workspaceShell.test.ts",
       "src/pages/FieldKitMembership.eliteCopy.test.tsx",
+      "src/shared/schema.dualSourceOfTruth.test.ts",
+      "src/pages/OrgAdmin.panels.test.tsx",
     ],
   },
   {
     id: "mobile_contracts",
-    label: "iOS product quality + App Store readiness",
+    label: "iOS product quality, App Store readiness, Command Center helpers",
     critical: true,
     cwd: "artifacts/spartan-coaching-mobile",
     command: "pnpm",
@@ -476,6 +530,10 @@ export const AUTOMATED_SUITES: AutomatedSuite[] = [
       "__tests__/ios-product-quality.test.ts",
       "__tests__/app-store-readiness.test.ts",
       "__tests__/account-billing.test.tsx",
+      "__tests__/command-center-next-actions.test.ts",
+      "__tests__/command-center-accounts.test.ts",
+      "__tests__/command-center-roleplay.test.ts",
+      "__tests__/command-center-integrations.test.ts",
     ],
   },
 ];
@@ -493,6 +551,32 @@ export type GateVerdict = {
 };
 
 /**
+ * Live smoke stack invoked by scripts/release-gate.mjs when SITE_URL is set.
+ * Order matches ship-check + release-gate:live.
+ */
+export const LIVE_SMOKE_STACK = [
+  {
+    id: "live_health",
+    script: "scripts/smoke-health.mjs",
+    required: true,
+    credentials: false,
+  },
+  {
+    id: "live_parity",
+    script: "scripts/smoke-parity.mjs",
+    required: true,
+    credentials: false,
+  },
+  {
+    id: "live_auth",
+    script: "scripts/smoke-parity-auth.mjs",
+    required: true,
+    credentials: true,
+    env: ["PARITY_EMAIL", "PARITY_PASSWORD"],
+  },
+] as const;
+
+/**
  * Hard rule: never claim production ready from this package alone.
  * Live seat journeys, TestFlight, ASC, and deploy smoke remain operator-proven.
  */
@@ -501,7 +585,7 @@ export function evaluateProductionReadyClaim(): GateVerdict {
   return {
     productionReadyClaimAllowed: false,
     reason:
-      "Critical paths require live_env (SITE_URL + entitled seat), manual_device (TestFlight), and external (ASC/EAS) evidence beyond unit suites. Automated suites are necessary but not sufficient.",
+      "Critical paths require live_env (SITE_URL + public parity + entitled seat), manual_device (TestFlight), and external (ASC/EAS) evidence beyond unit suites. Automated suites are necessary but not sufficient.",
     criticalJourneyCount: critical.length,
     automatedJourneyCount: RELEASE_JOURNEYS.filter((j) => j.mode === "automated").length,
     liveEnvJourneyCount: RELEASE_JOURNEYS.filter((j) => j.mode === "live_env").length,

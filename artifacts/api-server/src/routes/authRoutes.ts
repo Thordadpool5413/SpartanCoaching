@@ -86,6 +86,13 @@ import {
   mergeAssignment,
   normalizeStructureName,
 } from "../auth/orgStructurePolicy";
+import {
+  evaluateOffboardTarget,
+  normalizeContactEmail,
+  normalizeContactName,
+  OFFBOARD_CHECKLIST,
+  validateContactsPatch,
+} from "../auth/orgOffboardPolicy";
 
 function isCronAuthorized(req: { headers: Record<string, unknown> }): boolean {
   const secret = process.env.CRON_SECRET?.trim();
@@ -2265,6 +2272,16 @@ export function registerAuthRoutes(app: Express): void {
       .where(
         and(eq(clientMembers.organizationId, org.id), ne(clientMembers.status, "disabled")),
       );
+    const o = org as {
+      billableSeats?: number | null;
+      billingPlan?: string | null;
+      billingStatus?: string | null;
+      billingContactEmail?: string | null;
+      billingContactName?: string | null;
+      securityContactEmail?: string | null;
+      securityContactName?: string | null;
+      dataRetentionNote?: string | null;
+    };
     return res.json({
       organization: {
         id: org.id,
@@ -2272,11 +2289,17 @@ export function registerAuthRoutes(app: Express): void {
         type: org.type,
         status: org.status,
         seatLimit: org.seatLimit,
-        billableSeats: (org as { billableSeats?: number | null }).billableSeats ?? null,
-        billingPlan: (org as { billingPlan?: string | null }).billingPlan ?? null,
-        billingStatus: (org as { billingStatus?: string | null }).billingStatus ?? null,
+        billableSeats: o.billableSeats ?? null,
+        billingPlan: o.billingPlan ?? null,
+        billingStatus: o.billingStatus ?? null,
         activeMembers: countRow?.count ?? 0,
+        billingContactEmail: o.billingContactEmail ?? null,
+        billingContactName: o.billingContactName ?? null,
+        securityContactEmail: o.securityContactEmail ?? null,
+        securityContactName: o.securityContactName ?? null,
+        dataRetentionNote: o.dataRetentionNote ?? null,
       },
+      offboardChecklist: OFFBOARD_CHECKLIST,
     });
   });
 
@@ -2284,25 +2307,161 @@ export function registerAuthRoutes(app: Express): void {
     try {
       const org = req.fieldKit!.org!;
       if (org.type !== "company" && org.type !== "platform") {
-        return res.status(400).json({ error: "Profile rename applies to company organizations" });
+        return res.status(400).json({ error: "Profile updates apply to company organizations" });
       }
-      const name = String((req.body as { name?: string })?.name || "").trim();
-      if (name.length < 2 || name.length > 255) {
-        return res.status(400).json({ error: "Name must be 2–255 characters" });
+      const body = (req.body || {}) as {
+        name?: string;
+        billingContactEmail?: string | null;
+        billingContactName?: string | null;
+        securityContactEmail?: string | null;
+        securityContactName?: string | null;
+        dataRetentionNote?: string | null;
+      };
+
+      const contactErr = validateContactsPatch({
+        billingContactEmail: body.billingContactEmail,
+        securityContactEmail: body.securityContactEmail,
+      });
+      if (contactErr) {
+        return res.status(400).json({ error: contactErr });
       }
+
+      const patch: Record<string, unknown> = {};
+      if (body.name !== undefined) {
+        const name = String(body.name || "").trim();
+        if (name.length < 2 || name.length > 255) {
+          return res.status(400).json({ error: "Name must be 2–255 characters" });
+        }
+        patch.name = name;
+      }
+      if (body.billingContactEmail !== undefined) {
+        patch.billingContactEmail = normalizeContactEmail(body.billingContactEmail);
+      }
+      if (body.billingContactName !== undefined) {
+        patch.billingContactName = normalizeContactName(body.billingContactName);
+      }
+      if (body.securityContactEmail !== undefined) {
+        patch.securityContactEmail = normalizeContactEmail(body.securityContactEmail);
+      }
+      if (body.securityContactName !== undefined) {
+        patch.securityContactName = normalizeContactName(body.securityContactName);
+      }
+      if (body.dataRetentionNote !== undefined) {
+        const note =
+          body.dataRetentionNote == null
+            ? null
+            : String(body.dataRetentionNote).trim().slice(0, 2000) || null;
+        patch.dataRetentionNote = note;
+      }
+
+      if (Object.keys(patch).length === 0) {
+        return res.status(400).json({ error: "No profile fields to update" });
+      }
+
       await db
         .update(clientOrganizations)
-        .set({ name })
+        .set(patch)
         .where(eq(clientOrganizations.id, org.id));
-      await recordOrgAdminAudit(org.id, req.clientMemberId!, "org_renamed", "organization", String(org.id), {
-        name,
-      });
-      return res.json({ ok: true, name });
+      await recordOrgAdminAudit(
+        org.id,
+        req.clientMemberId!,
+        "org_profile_updated",
+        "organization",
+        String(org.id),
+        { fields: Object.keys(patch) },
+      );
+      return res.json({ ok: true, ...patch });
     } catch (err) {
       console.error("org profile patch error:", err);
       return res.status(500).json({ error: "Failed to update organization" });
     }
   });
+
+  // ── Org: structured offboard (disable + invites + audit) ───────────
+  app.post(
+    "/api/org/members/:id/offboard",
+    requireAuth,
+    requireFieldKit,
+    requireOrgAdmin,
+    async (req: AuthedRequest, res) => {
+      try {
+        const orgId = req.fieldKit!.org!.id;
+        const id = Number(req.params.id);
+        const [target] = await db
+          .select()
+          .from(clientMembers)
+          .where(and(eq(clientMembers.id, id), eq(clientMembers.organizationId, orgId)))
+          .limit(1);
+        if (!target) return res.status(404).json({ error: "Member not found" });
+
+        const gate = evaluateOffboardTarget({
+          targetId: target.id,
+          actorId: req.clientMemberId!,
+          targetRole: target.role,
+          targetStatus: target.status,
+        });
+        if (!gate.ok) {
+          return res.status(gate.status).json({ error: gate.error, code: gate.code });
+        }
+
+        const noteRaw = String((req.body as { note?: string })?.note || "").trim().slice(0, 500);
+
+        await db
+          .update(clientMembers)
+          .set({ status: "disabled" })
+          .where(eq(clientMembers.id, id));
+        await db.delete(clientSessions).where(eq(clientSessions.memberId, id));
+
+        const pendingInvites = await db
+          .select()
+          .from(orgInvites)
+          .where(
+            and(
+              eq(orgInvites.organizationId, orgId),
+              eq(orgInvites.status, "pending"),
+              eq(orgInvites.email, target.email.toLowerCase()),
+            ),
+          );
+        if (pendingInvites.length > 0) {
+          for (const inv of pendingInvites) {
+            await db
+              .update(orgInvites)
+              .set({ status: "revoked" })
+              .where(eq(orgInvites.id, inv.id));
+          }
+        }
+
+        await logEvent("member_offboarded", req.clientMemberId, {
+          targetId: id,
+          orgId,
+          note: noteRaw || undefined,
+        });
+        await recordOrgAdminAudit(
+          orgId,
+          req.clientMemberId!,
+          "member_offboarded",
+          "member",
+          String(id),
+          {
+            email: target.email,
+            invitesRevoked: pendingInvites.length,
+            note: noteRaw || null,
+            steps: OFFBOARD_CHECKLIST.filter((s) => s.automated).map((s) => s.id),
+          },
+        );
+
+        return res.json({
+          ok: true,
+          memberId: id,
+          invitesRevoked: pendingInvites.length,
+          completedSteps: OFFBOARD_CHECKLIST.filter((s) => s.automated).map((s) => s.id),
+        });
+      } catch (err) {
+        console.error("org offboard error:", err);
+        return res.status(500).json({ error: "Failed to offboard member" });
+      }
+    },
+  );
 
   // ── Org: admin audit history ───────────────────────────────────────
   app.get("/api/org/audit", requireAuth, requireFieldKit, requireOrgAdmin, async (req: AuthedRequest, res) => {

@@ -21,6 +21,7 @@ describe("OrgAdmin workspace panels", () => {
       "org-admin-usage",
       "org-admin-audit",
       "org-admin-structure",
+      "org-admin-contacts",
     ]) {
       expect(source).toContain(`data-testid="${id}"`);
     }
@@ -31,6 +32,12 @@ describe("OrgAdmin workspace panels", () => {
     expect(source).toContain("/api/org/branches");
     expect(source).toContain("/api/org/teams");
     expect(source).toContain("/assignment");
+  });
+
+  it("supports contacts save and member offboard", () => {
+    expect(source).toContain("billingContactEmail");
+    expect(source).toContain("/offboard");
+    expect(source).toMatch(/Offboard/i);
   });
 
   it("fetches usage aggregates without free-text content claims", () => {

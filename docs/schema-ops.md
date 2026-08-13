@@ -20,6 +20,7 @@ See also: `docs/repository-truth-audit.md` (Phase 1).
 - **Versioned SQL (migrate runner):**  
   - `lib/db/migrations/0001`–`0012` product tables  
   - `lib/db/migrations/0014` org branches/teams + member assignment columns  
+  - `lib/db/migrations/0015` org billing/security contacts + retention note  
   - external `0013_sales_workflow.sql` tracking id → `lib/hospice-sales-runtime/migrations/001_sales_workflow.sql` (Command Center + RLS)
 
 **Migrate-primary:** `pnpm db:migrate` applies all entries from `@workspace/db` `migrate-manifest` (`listMigrationEntries`) into `schema_migrations`. Coverage inventory: `MIGRATE_ONLY_LIB_DB_TABLES`. CI runs **migrate only** (no drizzle push).

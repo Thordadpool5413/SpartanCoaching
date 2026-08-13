@@ -85,5 +85,11 @@ export function publicOrg(org: ClientOrganization) {
     contractRef: (org as any).contractRef ?? null,
     hasStripeCustomer: Boolean((org as any).stripeCustomerId),
     hasStripeSubscription: Boolean((org as any).stripeSubscriptionId),
+    // Slice D contacts (safe strings only)
+    billingContactEmail: (org as any).billingContactEmail ?? null,
+    billingContactName: (org as any).billingContactName ?? null,
+    securityContactEmail: (org as any).securityContactEmail ?? null,
+    securityContactName: (org as any).securityContactName ?? null,
+    dataRetentionNote: (org as any).dataRetentionNote ?? null,
   };
 }

@@ -57,7 +57,8 @@ console.log(`
 Ship check passed for ${base}
 Next (human):
   1. Replit HEAD == origin/main + Publish if code changed
-  2. Full automated gate: node scripts/release-gate.mjs (add SITE_URL + PARITY_* for live)
+  2. Post-deploy live gate: pnpm run release-gate:live -- ${base}
+     (or full: node scripts/release-gate.mjs ${base}; add PARITY_* for seat)
   3. TestFlight: store/testflight-smoke.md
   4. App Store listing: store/screenshot-shot-list.md
   5. Sign-off: docs/ship-readiness.md — do not claim production-ready until release-gate live + device paths pass
