@@ -1,0 +1,28 @@
+docs/schema-ops.md
+  h_0446834f150a71 23,28-30,44-64,70-73
+lib/db/package.json
+  h_0446834f150a71 8-9,13-16,27-30
+lib/db/scripts/verify-integrity.ts
+  h_0446834f150a71 1-72
+lib/db/src/index.ts
+  h_0446834f150a71 15
+lib/db/src/migration-safety.test.ts
+  h_0446834f150a71 1-222
+lib/db/src/migration-safety.ts
+  h_0446834f150a71 1-614
+lib/db/vitest.config.ts
+  h_0446834f150a71 1-8
+pnpm-lock.yaml
+  h_0446834f150a71 1258-1266
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "fc14b20a03a04a8d0ecaa75c7fdcef7f34dc7c0f",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
