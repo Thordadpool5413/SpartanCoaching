@@ -1,0 +1,24 @@
+lib/field-kit-catalog/src/index.ts
+  h_0446834f150a71 480-494
+lib/field-kit-catalog/src/release-gate.test.ts
+  h_0446834f150a71 1-66
+lib/field-kit-catalog/src/release-gate.ts
+  h_0446834f150a71 1-520
+package.json
+  h_0446834f150a71 21-23
+scripts/release-gate.mjs
+  h_0446834f150a71 1-245
+scripts/ship-check.mjs
+  h_0446834f150a71 60-63
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "3fdc08b4f7811ec6d8114dfd631870c7c5270fba",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
