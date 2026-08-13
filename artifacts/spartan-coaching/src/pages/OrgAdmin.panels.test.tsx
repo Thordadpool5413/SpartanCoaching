@@ -20,9 +20,17 @@ describe("OrgAdmin workspace panels", () => {
       "org-admin-invites",
       "org-admin-usage",
       "org-admin-audit",
+      "org-admin-structure",
     ]) {
       expect(source).toContain(`data-testid="${id}"`);
     }
+  });
+
+  it("loads structure and assignment endpoints", () => {
+    expect(source).toContain("/api/org/structure");
+    expect(source).toContain("/api/org/branches");
+    expect(source).toContain("/api/org/teams");
+    expect(source).toContain("/assignment");
   });
 
   it("fetches usage aggregates without free-text content claims", () => {

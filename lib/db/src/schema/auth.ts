@@ -88,6 +88,41 @@ export const orgAdminAuditEvents = pgTable(
 
 export type OrgAdminAuditEvent = typeof orgAdminAuditEvents.$inferSelect;
 
+/**
+ * Provider org branches (multi-site structure — HSP-41 Slice C).
+ * Tenant-scoped; no cross-org FKs enforced in SQL (app authz).
+ */
+export const orgBranches = pgTable(
+  "org_branches",
+  {
+    id: serial("id").primaryKey(),
+    organizationId: integer("organization_id").notNull(),
+    name: varchar("name", { length: 255 }).notNull(),
+    code: varchar("code", { length: 64 }),
+    status: varchar("status", { length: 32 }).notNull().default("active"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [index("idx_org_branches_org").on(table.organizationId)],
+);
+
+export type OrgBranch = typeof orgBranches.$inferSelect;
+
+/** Teams within an org (optional branch attachment). */
+export const orgTeams = pgTable(
+  "org_teams",
+  {
+    id: serial("id").primaryKey(),
+    organizationId: integer("organization_id").notNull(),
+    branchId: integer("branch_id"),
+    name: varchar("name", { length: 255 }).notNull(),
+    status: varchar("status", { length: 32 }).notNull().default("active"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [index("idx_org_teams_org").on(table.organizationId)],
+);
+
+export type OrgTeam = typeof orgTeams.$inferSelect;
+
 /** Membership members (distinct from Replit Auth users table) */
 export const clientMembers = pgTable(
   "client_members",
@@ -109,6 +144,10 @@ export const clientMembers = pgTable(
     onboardingStartedAt: timestamp("onboarding_started_at"),
     termsAcceptedAt: timestamp("terms_accepted_at"),
     lastLoginAt: timestamp("last_login_at"),
+    /** HSP-41 Slice C — structure assignment (nullable) */
+    branchId: integer("branch_id"),
+    teamId: integer("team_id"),
+    managerMemberId: integer("manager_member_id"),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
   (table) => [index("IDX_client_members_org").on(table.organizationId)],

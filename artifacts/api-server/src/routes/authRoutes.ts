@@ -11,6 +11,8 @@ import {
   orgInvites,
   orgTimelineEvents,
   orgAdminAuditEvents,
+  orgBranches,
+  orgTeams,
   usageEvents,
   requestAccessBodySchema,
   loginBodySchema,
@@ -78,6 +80,12 @@ import {
   resolveSeatCap,
   seatLimitReached,
 } from "../auth/orgAdminPolicy";
+import {
+  evaluateMemberAssignment,
+  isValidStructureName,
+  mergeAssignment,
+  normalizeStructureName,
+} from "../auth/orgStructurePolicy";
 
 function isCronAuthorized(req: { headers: Record<string, unknown> }): boolean {
   const secret = process.env.CRON_SECRET?.trim();
@@ -2322,6 +2330,212 @@ export function registerAuthRoutes(app: Express): void {
       return res.status(500).json({ error: "Failed to load audit history" });
     }
   });
+
+  // ── Org structure: branches / teams / assignments (HSP-41 Slice C) ──
+  app.get(
+    "/api/org/structure",
+    requireAuth,
+    requireFieldKit,
+    requireOrgAdmin,
+    async (req: AuthedRequest, res) => {
+      try {
+        const orgId = req.fieldKit!.org!.id;
+        const [branches, teams, members] = await Promise.all([
+          db.select().from(orgBranches).where(eq(orgBranches.organizationId, orgId)),
+          db.select().from(orgTeams).where(eq(orgTeams.organizationId, orgId)),
+          db.select().from(clientMembers).where(eq(clientMembers.organizationId, orgId)),
+        ]);
+        return res.json({
+          branches: branches.map((b) => ({
+            id: b.id,
+            name: b.name,
+            code: b.code,
+            status: b.status,
+            createdAt: b.createdAt,
+          })),
+          teams: teams.map((t) => ({
+            id: t.id,
+            name: t.name,
+            branchId: t.branchId,
+            status: t.status,
+            createdAt: t.createdAt,
+          })),
+          members: members.map((m) => publicMember(m)),
+        });
+      } catch (err) {
+        console.error("org structure get error:", err);
+        return res.status(500).json({ error: "Failed to load organization structure" });
+      }
+    },
+  );
+
+  app.post(
+    "/api/org/branches",
+    requireAuth,
+    requireFieldKit,
+    requireOrgAdmin,
+    async (req: AuthedRequest, res) => {
+      try {
+        const orgId = req.fieldKit!.org!.id;
+        const name = normalizeStructureName(String((req.body as { name?: string })?.name || ""));
+        if (!isValidStructureName(name)) {
+          return res.status(400).json({ error: "Branch name must be 2–255 characters" });
+        }
+        const codeRaw = String((req.body as { code?: string })?.code || "").trim();
+        const code = codeRaw ? codeRaw.slice(0, 64) : null;
+        const [row] = await db
+          .insert(orgBranches)
+          .values({ organizationId: orgId, name, code, status: "active" })
+          .returning();
+        await recordOrgAdminAudit(orgId, req.clientMemberId!, "branch_created", "branch", String(row.id), {
+          name,
+        });
+        return res.status(201).json({
+          branch: {
+            id: row.id,
+            name: row.name,
+            code: row.code,
+            status: row.status,
+            createdAt: row.createdAt,
+          },
+        });
+      } catch (err) {
+        console.error("org branch create error:", err);
+        return res.status(500).json({ error: "Failed to create branch" });
+      }
+    },
+  );
+
+  app.post(
+    "/api/org/teams",
+    requireAuth,
+    requireFieldKit,
+    requireOrgAdmin,
+    async (req: AuthedRequest, res) => {
+      try {
+        const orgId = req.fieldKit!.org!.id;
+        const name = normalizeStructureName(String((req.body as { name?: string })?.name || ""));
+        if (!isValidStructureName(name)) {
+          return res.status(400).json({ error: "Team name must be 2–255 characters" });
+        }
+        const branchIdRaw = (req.body as { branchId?: number | null })?.branchId;
+        let branchId: number | null = null;
+        if (branchIdRaw !== undefined && branchIdRaw !== null) {
+          branchId = Number(branchIdRaw);
+          if (!Number.isFinite(branchId)) {
+            return res.status(400).json({ error: "Invalid branchId" });
+          }
+          const [branch] = await db
+            .select()
+            .from(orgBranches)
+            .where(and(eq(orgBranches.id, branchId), eq(orgBranches.organizationId, orgId)))
+            .limit(1);
+          if (!branch) {
+            return res.status(400).json({ error: "Branch not found in this organization" });
+          }
+        }
+        const [row] = await db
+          .insert(orgTeams)
+          .values({ organizationId: orgId, name, branchId, status: "active" })
+          .returning();
+        await recordOrgAdminAudit(orgId, req.clientMemberId!, "team_created", "team", String(row.id), {
+          name,
+          branchId,
+        });
+        return res.status(201).json({
+          team: {
+            id: row.id,
+            name: row.name,
+            branchId: row.branchId,
+            status: row.status,
+            createdAt: row.createdAt,
+          },
+        });
+      } catch (err) {
+        console.error("org team create error:", err);
+        return res.status(500).json({ error: "Failed to create team" });
+      }
+    },
+  );
+
+  app.patch(
+    "/api/org/members/:id/assignment",
+    requireAuth,
+    requireFieldKit,
+    requireOrgAdmin,
+    async (req: AuthedRequest, res) => {
+      try {
+        const orgId = req.fieldKit!.org!.id;
+        const id = Number(req.params.id);
+        const [target] = await db
+          .select()
+          .from(clientMembers)
+          .where(and(eq(clientMembers.id, id), eq(clientMembers.organizationId, orgId)))
+          .limit(1);
+        if (!target) return res.status(404).json({ error: "Member not found" });
+
+        const body = (req.body || {}) as {
+          branchId?: number | null;
+          teamId?: number | null;
+          managerMemberId?: number | null;
+        };
+        const [branches, teams, members] = await Promise.all([
+          db.select().from(orgBranches).where(eq(orgBranches.organizationId, orgId)),
+          db.select().from(orgTeams).where(eq(orgTeams.organizationId, orgId)),
+          db.select().from(clientMembers).where(eq(clientMembers.organizationId, orgId)),
+        ]);
+        const merged = mergeAssignment(
+          {
+            branchId: target.branchId ?? null,
+            teamId: target.teamId ?? null,
+            managerMemberId: target.managerMemberId ?? null,
+          },
+          {
+            branchId: body.branchId,
+            teamId: body.teamId,
+            managerMemberId: body.managerMemberId,
+          },
+        );
+        const gate = evaluateMemberAssignment({
+          targetMemberId: target.id,
+          assignment: merged,
+          branchIdsInOrg: new Set(branches.map((b) => b.id)),
+          teamIdsInOrg: new Set(teams.map((t) => t.id)),
+          memberIdsInOrg: new Set(members.map((m) => m.id)),
+          teamBranchById: new Map(teams.map((t) => [t.id, t.branchId ?? null])),
+        });
+        if (!gate.ok) {
+          return res.status(gate.status).json({ error: gate.error });
+        }
+
+        await db
+          .update(clientMembers)
+          .set({
+            branchId: gate.assignment.branchId,
+            teamId: gate.assignment.teamId,
+            managerMemberId: gate.assignment.managerMemberId,
+          })
+          .where(eq(clientMembers.id, id));
+        await recordOrgAdminAudit(
+          orgId,
+          req.clientMemberId!,
+          "member_assignment_changed",
+          "member",
+          String(id),
+          gate.assignment,
+        );
+        const [updated] = await db
+          .select()
+          .from(clientMembers)
+          .where(eq(clientMembers.id, id))
+          .limit(1);
+        return res.json({ ok: true, member: publicMember(updated!) });
+      } catch (err) {
+        console.error("org member assignment error:", err);
+        return res.status(500).json({ error: "Failed to update assignment" });
+      }
+    },
+  );
 
   // ── Request extended evaluation (from expired clients) ─────────────
   app.post("/api/auth/request-extension", requireAuth, async (req: AuthedRequest, res) => {

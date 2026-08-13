@@ -577,6 +577,24 @@ export const MIGRATION_CATALOG: readonly MigrationPlan[] = [
     dropsLegacyObjects: false,
   },
   {
+    id: "0014_org_structure",
+    title: "Org branches, teams, member assignment",
+    forwardPath: "lib/db/migrations/0014_org_structure.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT to_regclass('public.org_branches') IS NOT NULL AS ok`,
+      `SELECT to_regclass('public.org_teams') IS NOT NULL AS ok`,
+      `SELECT count(*) > 0 AS ok FROM information_schema.columns WHERE table_name = 'client_members' AND column_name = 'branch_id'`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: restore dump. Additive structure tables/columns; leave unused if rolling back code.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["org_branches", "org_teams", "client_members"],
+    dropsLegacyObjects: false,
+  },
+  {
     id: "sales_workflow_001",
     title: "Sales Command Center workflow store (RLS)",
     forwardPath: "lib/hospice-sales-runtime/migrations/001_sales_workflow.sql",
@@ -629,6 +647,9 @@ export const MIGRATE_ONLY_LIB_DB_TABLES = [
   "auth_events",
   // 0011
   "org_admin_audit_events",
+  // 0014 structure
+  "org_branches",
+  "org_teams",
   // 0004 CMS
   "articles",
   "resources",

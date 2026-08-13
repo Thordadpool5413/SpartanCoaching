@@ -19,6 +19,7 @@ See also: `docs/repository-truth-audit.md` (Phase 1).
 - **Local-only:** `pnpm db:push` / `push-force` go through `push-guard` (refuses production-looking URLs unless `ALLOW_PROD_PUSH=true`). Prefer writing numbered SQL instead of push.
 - **Versioned SQL (migrate runner):**  
   - `lib/db/migrations/0001`–`0012` product tables  
+  - `lib/db/migrations/0014` org branches/teams + member assignment columns  
   - external `0013_sales_workflow.sql` tracking id → `lib/hospice-sales-runtime/migrations/001_sales_workflow.sql` (Command Center + RLS)
 
 **Migrate-primary:** `pnpm db:migrate` applies all entries from `@workspace/db` `migrate-manifest` (`listMigrationEntries`) into `schema_migrations`. Coverage inventory: `MIGRATE_ONLY_LIB_DB_TABLES`. CI runs **migrate only** (no drizzle push).

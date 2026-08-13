@@ -59,6 +59,10 @@ export function publicMember(member: ClientMember) {
     checklistProgress: checklist,
     checklistDone,
     activated: checklistDone > 0,
+    // HSP-41 Slice C structure (nullable)
+    branchId: (member as { branchId?: number | null }).branchId ?? null,
+    teamId: (member as { teamId?: number | null }).teamId ?? null,
+    managerMemberId: (member as { managerMemberId?: number | null }).managerMemberId ?? null,
   };
 }
 

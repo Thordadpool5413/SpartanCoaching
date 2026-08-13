@@ -19,7 +19,13 @@ type OrgMember = {
   name: string;
   role: string;
   status: string;
+  branchId?: number | null;
+  teamId?: number | null;
+  managerMemberId?: number | null;
 };
+
+type OrgBranch = { id: number; name: string; code: string | null; status: string };
+type OrgTeam = { id: number; name: string; branchId: number | null; status: string };
 
 type OrgInvite = {
   id: number;
@@ -69,6 +75,11 @@ export default function OrgAdmin() {
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteRole, setInviteRole] = useState<"member" | "org_admin">("member");
   const [busy, setBusy] = useState(false);
+  const [branches, setBranches] = useState<OrgBranch[]>([]);
+  const [teams, setTeams] = useState<OrgTeam[]>([]);
+  const [branchName, setBranchName] = useState("");
+  const [teamName, setTeamName] = useState("");
+  const [teamBranchId, setTeamBranchId] = useState<string>("");
 
   const isOrgAdmin =
     member?.role === "org_admin" || member?.role === "platform_admin";
@@ -77,11 +88,12 @@ export default function OrgAdmin() {
   const load = useCallback(async () => {
     if (!isOrgAdmin || !canUseFieldKit) return;
     try {
-      const [p, m, a, u] = await Promise.all([
+      const [p, m, a, u, s] = await Promise.all([
         fetch("/api/org/profile", { credentials: "include" }).then((r) => r.json()),
         fetch("/api/org/members", { credentials: "include" }).then((r) => r.json()),
         fetch("/api/org/audit", { credentials: "include" }).then((r) => r.json()),
         fetch("/api/org/usage", { credentials: "include" }).then((r) => r.json()),
+        fetch("/api/org/structure", { credentials: "include" }).then((r) => r.json()),
       ]);
       if (p.organization) {
         setProfile(p.organization);
@@ -97,6 +109,12 @@ export default function OrgAdmin() {
           byTool: u.byTool || [],
           byMember: u.byMember || [],
         });
+      }
+      setBranches(s.branches || []);
+      setTeams(s.teams || []);
+      if (Array.isArray(s.members) && s.members.length) {
+        // Structure payload includes assignment fields
+        setMembers(s.members);
       }
     } catch {
       toast({ title: "Could not load organization", variant: "destructive" });
@@ -127,11 +145,11 @@ export default function OrgAdmin() {
 
   const seatCap = profile?.billableSeats || profile?.seatLimit || 0;
 
-  const post = async (url: string, body?: unknown) => {
+  const requestJson = async (url: string, method: "POST" | "PATCH", body?: unknown) => {
     setBusy(true);
     try {
       const res = await fetch(url, {
-        method: "POST",
+        method,
         credentials: "include",
         headers: body ? { "Content-Type": "application/json" } : undefined,
         body: body ? JSON.stringify(body) : undefined,
@@ -146,6 +164,9 @@ export default function OrgAdmin() {
       setBusy(false);
     }
   };
+
+  const post = async (url: string, body?: unknown) => requestJson(url, "POST", body);
+  const patch = async (url: string, body?: unknown) => requestJson(url, "PATCH", body);
 
   return (
     <PageShell width="lg" className="py-10 space-y-8" testId="page-org-admin">
@@ -258,61 +279,270 @@ export default function OrgAdmin() {
         )}
       </Card>
 
+      <Card className="p-6 space-y-4" data-testid="org-admin-structure">
+        <h2 className="text-lg font-bold">Branches &amp; teams</h2>
+        <p className="text-xs text-muted-foreground">
+          Multi-site structure for your provider org. Assign members below after creating branches
+          or teams.
+        </p>
+        <div className="grid sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <h3 className="text-sm font-bold">Branches</h3>
+            <ul className="text-sm space-y-1 text-muted-foreground">
+              {branches.length === 0 ? (
+                <li>No branches yet.</li>
+              ) : (
+                branches.map((b) => (
+                  <li key={b.id}>
+                    <span className="text-foreground font-medium">{b.name}</span>
+                    {b.code ? ` · ${b.code}` : ""}
+                  </li>
+                ))
+              )}
+            </ul>
+            <div className="flex gap-2 items-end">
+              <div className="flex-1 space-y-1">
+                <Label htmlFor="branch-name">New branch</Label>
+                <Input
+                  id="branch-name"
+                  value={branchName}
+                  onChange={(e) => setBranchName(e.target.value)}
+                  disabled={busy}
+                />
+              </div>
+              <Button
+                disabled={busy || branchName.trim().length < 2}
+                onClick={async () => {
+                  setBusy(true);
+                  try {
+                    const res = await fetch("/api/org/branches", {
+                      method: "POST",
+                      credentials: "include",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({ name: branchName.trim() }),
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) throw new Error(data.error || "Failed");
+                    setBranchName("");
+                    toast({ title: "Branch created" });
+                    await load();
+                  } catch (e: any) {
+                    toast({
+                      title: "Failed",
+                      description: e?.message,
+                      variant: "destructive",
+                    });
+                  } finally {
+                    setBusy(false);
+                  }
+                }}
+              >
+                Add
+              </Button>
+            </div>
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-sm font-bold">Teams</h3>
+            <ul className="text-sm space-y-1 text-muted-foreground">
+              {teams.length === 0 ? (
+                <li>No teams yet.</li>
+              ) : (
+                teams.map((t) => (
+                  <li key={t.id}>
+                    <span className="text-foreground font-medium">{t.name}</span>
+                    {t.branchId
+                      ? ` · branch ${branches.find((b) => b.id === t.branchId)?.name || t.branchId}`
+                      : ""}
+                  </li>
+                ))
+              )}
+            </ul>
+            <div className="space-y-2">
+              <div className="space-y-1">
+                <Label htmlFor="team-name">New team</Label>
+                <Input
+                  id="team-name"
+                  value={teamName}
+                  onChange={(e) => setTeamName(e.target.value)}
+                  disabled={busy}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="team-branch">Branch (optional)</Label>
+                <select
+                  id="team-branch"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                  value={teamBranchId}
+                  onChange={(e) => setTeamBranchId(e.target.value)}
+                  disabled={busy}
+                >
+                  <option value="">None</option>
+                  {branches.map((b) => (
+                    <option key={b.id} value={String(b.id)}>
+                      {b.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <Button
+                disabled={busy || teamName.trim().length < 2}
+                onClick={async () => {
+                  setBusy(true);
+                  try {
+                    const res = await fetch("/api/org/teams", {
+                      method: "POST",
+                      credentials: "include",
+                      headers: { "Content-Type": "application/json" },
+                      body: JSON.stringify({
+                        name: teamName.trim(),
+                        branchId: teamBranchId ? Number(teamBranchId) : null,
+                      }),
+                    });
+                    const data = await res.json().catch(() => ({}));
+                    if (!res.ok) throw new Error(data.error || "Failed");
+                    setTeamName("");
+                    setTeamBranchId("");
+                    toast({ title: "Team created" });
+                    await load();
+                  } catch (e: any) {
+                    toast({
+                      title: "Failed",
+                      description: e?.message,
+                      variant: "destructive",
+                    });
+                  } finally {
+                    setBusy(false);
+                  }
+                }}
+              >
+                Add team
+              </Button>
+            </div>
+          </div>
+        </div>
+      </Card>
+
       <Card className="p-6 space-y-4" data-testid="org-admin-members">
         <h2 className="text-lg font-bold">Members</h2>
         <ul className="space-y-3 text-sm">
           {members.map((m) => (
             <li
               key={m.id}
-              className="flex flex-wrap gap-2 justify-between items-center border-b border-border/60 pb-2"
+              className="flex flex-col gap-2 border-b border-border/60 pb-3"
             >
-              <span>
-                <span className="font-medium">{m.name}</span>
-                <span className="text-muted-foreground"> · {m.email}</span>
-                <span className="text-muted-foreground"> · {m.status}</span>
-                <span className="text-muted-foreground"> · {m.role.replace("_", " ")}</span>
-              </span>
-              <span className="flex flex-wrap gap-2">
-                {m.id !== member?.id && m.status !== "disabled" && (
-                  <>
+              <div className="flex flex-wrap gap-2 justify-between items-center">
+                <span>
+                  <span className="font-medium">{m.name}</span>
+                  <span className="text-muted-foreground"> · {m.email}</span>
+                  <span className="text-muted-foreground"> · {m.status}</span>
+                  <span className="text-muted-foreground"> · {m.role.replace("_", " ")}</span>
+                </span>
+                <span className="flex flex-wrap gap-2">
+                  {m.id !== member?.id && m.status !== "disabled" && (
+                    <>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        disabled={busy}
+                        onClick={() =>
+                          void post(`/api/org/members/${m.id}/role`, {
+                            role: m.role === "org_admin" ? "member" : "org_admin",
+                          })
+                        }
+                      >
+                        {m.role === "org_admin" ? "Make member" : "Make admin"}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="text-destructive"
+                        disabled={busy}
+                        onClick={() => {
+                          if (confirm(`Disable access for ${m.email}?`)) {
+                            void post(`/api/org/members/${m.id}/disable`);
+                          }
+                        }}
+                      >
+                        Disable
+                      </Button>
+                    </>
+                  )}
+                  {m.status === "disabled" && (
                     <Button
                       size="sm"
                       variant="outline"
                       disabled={busy}
-                      onClick={() =>
-                        void post(`/api/org/members/${m.id}/role`, {
-                          role: m.role === "org_admin" ? "member" : "org_admin",
-                        })
-                      }
+                      onClick={() => void post(`/api/org/members/${m.id}/enable`)}
                     >
-                      {m.role === "org_admin" ? "Make member" : "Make admin"}
+                      Re-enable
                     </Button>
-                    <Button
-                      size="sm"
-                      variant="ghost"
-                      className="text-destructive"
-                      disabled={busy}
-                      onClick={() => {
-                        if (confirm(`Disable access for ${m.email}?`)) {
-                          void post(`/api/org/members/${m.id}/disable`);
-                        }
-                      }}
-                    >
-                      Disable
-                    </Button>
-                  </>
-                )}
-                {m.status === "disabled" && (
-                  <Button
-                    size="sm"
-                    variant="outline"
+                  )}
+                </span>
+              </div>
+              <div className="grid sm:grid-cols-3 gap-2">
+                <label className="text-xs space-y-1">
+                  <span className="text-muted-foreground">Branch</span>
+                  <select
+                    className="flex h-9 w-full rounded-md border border-input bg-background px-2 text-sm"
+                    value={m.branchId != null ? String(m.branchId) : ""}
                     disabled={busy}
-                    onClick={() => void post(`/api/org/members/${m.id}/enable`)}
+                    onChange={(e) =>
+                      void patch(`/api/org/members/${m.id}/assignment`, {
+                        branchId: e.target.value ? Number(e.target.value) : null,
+                      })
+                    }
                   >
-                    Re-enable
-                  </Button>
-                )}
-              </span>
+                    <option value="">Unassigned</option>
+                    {branches.map((b) => (
+                      <option key={b.id} value={String(b.id)}>
+                        {b.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="text-xs space-y-1">
+                  <span className="text-muted-foreground">Team</span>
+                  <select
+                    className="flex h-9 w-full rounded-md border border-input bg-background px-2 text-sm"
+                    value={m.teamId != null ? String(m.teamId) : ""}
+                    disabled={busy}
+                    onChange={(e) =>
+                      void patch(`/api/org/members/${m.id}/assignment`, {
+                        teamId: e.target.value ? Number(e.target.value) : null,
+                      })
+                    }
+                  >
+                    <option value="">Unassigned</option>
+                    {teams.map((t) => (
+                      <option key={t.id} value={String(t.id)}>
+                        {t.name}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label className="text-xs space-y-1">
+                  <span className="text-muted-foreground">Manager</span>
+                  <select
+                    className="flex h-9 w-full rounded-md border border-input bg-background px-2 text-sm"
+                    value={m.managerMemberId != null ? String(m.managerMemberId) : ""}
+                    disabled={busy}
+                    onChange={(e) =>
+                      void patch(`/api/org/members/${m.id}/assignment`, {
+                        managerMemberId: e.target.value ? Number(e.target.value) : null,
+                      })
+                    }
+                  >
+                    <option value="">None</option>
+                    {members
+                      .filter((other) => other.id !== m.id)
+                      .map((other) => (
+                        <option key={other.id} value={String(other.id)}>
+                          {other.name}
+                        </option>
+                      ))}
+                  </select>
+                </label>
+              </div>
             </li>
           ))}
         </ul>
