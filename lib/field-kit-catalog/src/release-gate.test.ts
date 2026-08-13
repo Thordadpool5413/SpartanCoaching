@@ -51,6 +51,28 @@ describe("release gate matrix (HSP-48)", () => {
     expect(AUTOMATED_SUITES.some((s) => s.id === "db_ops" && s.critical)).toBe(true);
   });
 
+  it("includes shipped org-admin and command-center automated evidence (pass 11)", () => {
+    expect(RELEASE_JOURNEYS.some((j) => j.id === "provider_admin_policy" && j.mode === "automated")).toBe(
+      true,
+    );
+    expect(
+      RELEASE_JOURNEYS.some((j) => j.id === "command_center_mobile_parity" && j.mode === "automated"),
+    ).toBe(true);
+    expect(RELEASE_JOURNEYS.some((j) => j.id === "dual_schema" && j.critical)).toBe(true);
+
+    const apiSuite = AUTOMATED_SUITES.find((s) => s.id === "api_security_entitlement");
+    expect(apiSuite?.args.join(" ")).toMatch(/orgAdminPolicy|orgStructurePolicy/);
+
+    const webSuite = AUTOMATED_SUITES.find((s) => s.id === "web_contracts");
+    expect(webSuite?.args.join(" ")).toMatch(/dualSourceOfTruth|OrgAdmin\.panels/);
+
+    const mobileSuite = AUTOMATED_SUITES.find((s) => s.id === "mobile_contracts");
+    expect(mobileSuite?.args.join(" ")).toMatch(/command-center-next-actions|command-center-accounts/);
+
+    const dbSuite = AUTOMATED_SUITES.find((s) => s.id === "db_ops");
+    expect(dbSuite?.args.join(" ")).toMatch(/migrate-manifest/);
+  });
+
   it("never allows production-ready claim from catalog alone", () => {
     const v = evaluateProductionReadyClaim();
     expect(v.productionReadyClaimAllowed).toBe(false);
