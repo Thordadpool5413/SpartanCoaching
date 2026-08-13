@@ -57,9 +57,10 @@ console.log(`
 Ship check passed for ${base}
 Next (human):
   1. Replit HEAD == origin/main + Publish if code changed
-  2. TestFlight: store/testflight-smoke.md
-  3. App Store listing: store/screenshot-shot-list.md
-  4. Sign-off: docs/ship-readiness.md
+  2. Full automated gate: node scripts/release-gate.mjs (add SITE_URL + PARITY_* for live)
+  3. TestFlight: store/testflight-smoke.md
+  4. App Store listing: store/screenshot-shot-list.md
+  5. Sign-off: docs/ship-readiness.md — do not claim production-ready until release-gate live + device paths pass
 ════════════════════════════════════════
 `);
 process.exit(0);
