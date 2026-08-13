@@ -636,6 +636,9 @@ importers:
       '@workspace/api-client-react':
         specifier: workspace:*
         version: link:../../lib/api-client-react
+      '@workspace/db':
+        specifier: workspace:*
+        version: link:../../lib/db
       '@workspace/field-kit-catalog':
         specifier: workspace:*
         version: link:../../lib/field-kit-catalog

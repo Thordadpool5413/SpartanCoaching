@@ -14,6 +14,7 @@ See also: `docs/repository-truth-audit.md` (Phase 1).
 ## Current model
 
 - **Source of truth for table definitions:** Drizzle schemas in `lib/db/src/schema/`
+- **Web package:** `artifacts/spartan-coaching/src/shared/schema.ts` is a **compatibility re-export only** of `@workspace/db/schema` (dual-schema elimination). Do not add `pgTable` definitions under the web package; change `lib/db` + migrations instead. Contract: `schema.dualSourceOfTruth.test.ts`.
 - **Dev / Replit apply:** `pnpm --filter @workspace/db run push` (and `push-force` when intentional)
 - **Versioned SQL (partial):**  
   - `lib/db/migrations/0001_spartan_ai_tools.sql`  
