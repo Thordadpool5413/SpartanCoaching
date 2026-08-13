@@ -93,4 +93,12 @@ describe("workspace shell (HSP-32)", () => {
     expect(isOrgAdminRole("member")).toBe(false);
     expect(isPlatformAdminRole("platform_admin")).toBe(true);
   });
+
+  it("org admin nav points at /org/admin workspace", () => {
+    const nav = workspaceNavForRole("org_admin");
+    const org = nav.find((i) => i.id === "org_admin");
+    expect(org?.href).toBe("/org/admin");
+    expect(org?.match("/org/admin")).toBe(true);
+    expect(org?.match("/account")).toBe(false);
+  });
 });

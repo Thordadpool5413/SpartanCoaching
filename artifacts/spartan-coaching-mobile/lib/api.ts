@@ -1,4 +1,6 @@
 import * as SecureStore from "expo-secure-store";
+import Constants from "expo-constants";
+import { API_CONTRACT_VERSION } from "@workspace/field-kit-catalog";
 
 const TOKEN_KEY = "spartan_session_token";
 
@@ -51,10 +53,21 @@ export async function setSessionToken(token: string | null): Promise<void> {
   }
 }
 
+function clientPlatformHeaders(): Record<string, string> {
+  const version =
+    Constants.expoConfig?.version || Constants.nativeAppVersion || "1.0.0";
+  return {
+    "X-Client-Platform": "ios",
+    "X-Client-Version": version,
+    "X-Client-Api-Contract": String(API_CONTRACT_VERSION),
+  };
+}
+
 async function authHeaders(extra?: Record<string, string>): Promise<Record<string, string>> {
   const token = await getSessionToken();
   const headers: Record<string, string> = {
     "Content-Type": "application/json",
+    ...clientPlatformHeaders(),
     ...(extra || {}),
   };
   if (token) headers.Authorization = `Bearer ${token}`;
@@ -254,7 +267,10 @@ export function getWebSiteUrl(): string {
 export async function loginMobile(email: string, password: string): Promise<MobileAuthUser & { token: string }> {
   const res = await fetch(`${getBase()}/api/auth/login`, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      ...clientPlatformHeaders(),
+    },
     body: JSON.stringify({ email, password }),
   });
   const data = (await res.json().catch(() => ({}))) as {

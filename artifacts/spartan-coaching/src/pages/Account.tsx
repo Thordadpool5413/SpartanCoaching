@@ -564,13 +564,18 @@ export default function Account() {
 
       {member.role === "org_admin" && organization?.type === "company" && (
         <Card className="border border-border bg-card p-6 space-y-6">
-          <div>
-            <h2 className="text-lg font-bold">Team seats</h2>
-            <p className="text-sm text-muted-foreground mt-1">
-              {members.filter((m) => m.status !== "disabled").length}
-              {seatLimit != null ? ` / ${seatLimit}` : ""} seats in use
-              {billingOrg?.billableSeats != null ? ` · ${billingOrg.billableSeats} billed` : ""}
-            </p>
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-bold">Team seats</h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                {members.filter((m) => m.status !== "disabled").length}
+                {seatLimit != null ? ` / ${seatLimit}` : ""} seats in use
+                {billingOrg?.billableSeats != null ? ` · ${billingOrg.billableSeats} billed` : ""}
+              </p>
+            </div>
+            <Button asChild variant="outline" className="font-bold" data-testid="link-org-admin">
+              <Link href="/org/admin">Open organization admin</Link>
+            </Button>
           </div>
 
           <ul className="space-y-2 text-sm">

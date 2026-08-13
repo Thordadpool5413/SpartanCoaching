@@ -44,8 +44,9 @@ export const COMMAND_CENTER_CAPABILITIES: CommandCenterCapability[] = [
     api: ["GET /accounts"],
     sharedFact: true,
     web: "full",
-    mobile: "none",
-    notes: "Mobile can schedule with inline account create; no accounts grid yet.",
+    mobile: "supported",
+    notes:
+      "Mobile: searchable ledger list + schedule against existing account; CSV import still web-only.",
   },
   {
     id: "schedule-cycle",
@@ -69,8 +70,9 @@ export const COMMAND_CENTER_CAPABILITIES: CommandCenterCapability[] = [
     api: ["POST /plans/:id/roleplay", "POST /roleplay/:id/continue"],
     sharedFact: true,
     web: "full",
-    mobile: "none",
-    notes: "Mobile uses classic /tools role-play; not workflow-session roleplay yet.",
+    mobile: "supported",
+    notes:
+      "Mobile: practice on ready plans in day workflow (same roleplay APIs as web). Classic Role-Play tool remains available for freeform practice.",
   },
   {
     id: "debrief-draft",
@@ -105,7 +107,8 @@ export const COMMAND_CENTER_CAPABILITIES: CommandCenterCapability[] = [
     api: ["POST /cycles/:id/next-call"],
     sharedFact: true,
     web: "full",
-    mobile: "none",
+    mobile: "supported",
+    notes: "Mobile: accepted next_call actions on day workflow; same next-call API as web.",
   },
   {
     id: "email-draft",
@@ -113,7 +116,8 @@ export const COMMAND_CENTER_CAPABILITIES: CommandCenterCapability[] = [
     api: ["POST /next-actions/:id/email-draft"],
     sharedFact: true,
     web: "full",
-    mobile: "none",
+    mobile: "supported",
+    notes: "Mobile: accepted email actions; draft preview only — never auto-sends mail.",
   },
   {
     id: "csv-import",
@@ -121,8 +125,9 @@ export const COMMAND_CENTER_CAPABILITIES: CommandCenterCapability[] = [
     api: ["POST /imports/csv/preview", "POST /imports/csv/commit"],
     sharedFact: true,
     web: "full",
-    mobile: "none",
-    notes: "Org admin; manager role in workflow.",
+    mobile: "supported",
+    notes:
+      "Mobile: org_admin paste-CSV preview/commit on day workflow (same APIs as web file import).",
   },
   {
     id: "calendar-connect",
@@ -130,8 +135,9 @@ export const COMMAND_CENTER_CAPABILITIES: CommandCenterCapability[] = [
     api: ["POST /integrations/calendar/:provider/connect"],
     sharedFact: true,
     web: "partial",
-    mobile: "none",
-    notes: "Buttons present when adapters configured; often disabled in prod.",
+    mobile: "partial",
+    notes:
+      "Mobile: org_admin Google/Outlook buttons open OAuth URL when adapters configured; fails soft otherwise.",
   },
 ];
 

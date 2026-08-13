@@ -96,6 +96,26 @@ export default defineConfig({
       "@": path.resolve(import.meta.dirname, "src"),
       "@shared": path.resolve(import.meta.dirname, "src/shared"),
       "@assets": path.resolve(import.meta.dirname, "..", "..", "attached_assets"),
+      // Dual-schema elimination: web re-exports @workspace/db/schema — resolve to lib/db.
+      "@workspace/db/schema": path.resolve(
+        import.meta.dirname,
+        "..",
+        "..",
+        "lib",
+        "db",
+        "src",
+        "schema",
+        "index.ts",
+      ),
+      "@workspace/db": path.resolve(
+        import.meta.dirname,
+        "..",
+        "..",
+        "lib",
+        "db",
+        "src",
+        "index.ts",
+      ),
       "@workspace/spartan-ai-tools": path.resolve(
         import.meta.dirname,
         "..",

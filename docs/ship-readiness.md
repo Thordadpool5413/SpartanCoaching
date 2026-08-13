@@ -44,7 +44,7 @@ node scripts/ship-check.mjs https://spartanhospicecoaching.com
 [ ] git fetch origin && git reset --hard origin/main && git clean -fd
 [ ] git rev-parse HEAD matches origin/main
 [ ] pnpm install --frozen-lockfile
-[ ] pnpm --filter @workspace/db run push   # required after schema PRs — see docs/schema-ops.md
+[ ] pnpm db:migrate   # required after schema PRs — see docs/schema-ops.md (not drizzle push)
 [ ] Publish / Redeploy
 [ ] ship-check (health + parity) green
 [ ] Hard refresh home: Consulting + Hospice Sales Pro (not Field Kit)

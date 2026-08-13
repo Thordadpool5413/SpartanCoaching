@@ -60,6 +60,7 @@ const WORKSPACE_PREFIXES = [
   "/tools",
   "/resources",
   "/account",
+  "/org/admin",
   "/admin",
   "/drills",
   "/quiz",
@@ -72,6 +73,7 @@ const WORKSPACE_EXACT = new Set([
   "/tools",
   "/resources",
   "/account",
+  "/org/admin",
   "/admin",
   "/drills",
   "/quiz",
@@ -265,11 +267,14 @@ export function workspaceNavForRole(
   if (isOrgAdminRole(role)) {
     items.push({
       id: "org_admin",
-      href: "/account",
+      href: "/org/admin",
       label: "Organization",
       short: "Org",
       icon: Settings,
-      match: (loc) => normalizePath(loc) === "/account",
+      match: (loc) => {
+        const p = normalizePath(loc);
+        return p === "/org/admin" || p.startsWith("/org/admin/");
+      },
       roles: ["org_admin", "platform_admin"],
     });
   }

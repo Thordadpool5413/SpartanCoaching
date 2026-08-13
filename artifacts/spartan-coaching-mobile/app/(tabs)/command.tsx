@@ -62,6 +62,9 @@ export default function CommandHubScreen() {
 
   const calls = today?.calls ?? [];
   const nextCall = calls[0];
+  const openActions = today?.actions ?? [];
+  const openActionCount = openActions.length;
+  // Ledger lives on full workflow (GET /accounts); hub points reps there.
 
   if (!isAuthenticated) {
     return (
@@ -187,6 +190,33 @@ export default function CommandHubScreen() {
             onPress={() => router.push(s.href as any)}
           />
         ))}
+
+      {openActionCount > 0 ? (
+        <SpartanCard variant="default" style={{ marginTop: 12 }} testID="card-open-actions">
+          <SectionKicker>Open next steps</SectionKicker>
+          <Text style={[{ color: colors.foreground, fontSize: 16, marginTop: 8 }, font("bold")]}>
+            {openActionCount} approved action{openActionCount === 1 ? "" : "s"}
+          </Text>
+          <Text
+            style={[
+              { color: colors.mutedForeground, fontSize: 13, marginTop: 4, lineHeight: 18 },
+              font("regular"),
+            ]}
+          >
+            Schedule the next visit or draft a follow-up email in the full workflow.
+          </Text>
+          <SpartanButton
+            title="Work next actions"
+            variant="outline"
+            onPress={() => {
+              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              router.push("/sales-workflow");
+            }}
+            style={{ marginTop: 12 }}
+            testID="button-work-next-actions"
+          />
+        </SpartanCard>
+      ) : null}
 
       <Pressable
         onPress={() => router.push("/sales-workflow")}

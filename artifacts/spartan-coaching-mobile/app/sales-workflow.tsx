@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -13,12 +14,46 @@ import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
-import { apiGet, apiPost } from "@/lib/api";
+import { apiGet, apiPost, getBaseUrl } from "@/lib/api";
 import { SectionKicker } from "@/components/ui/SectionKicker";
 import { SpartanCard } from "@/components/ui/SpartanCard";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { getToolById } from "@workspace/field-kit-catalog";
 import { memberIdToWorkflowUuid } from "@workspace/tenant-ids";
+import {
+  buildEmailDraftPayload,
+  buildNextCallPayload,
+  canDraftEmailFromAction,
+  canScheduleNextFromAction,
+  type WorkflowNextActionLike,
+} from "@/lib/commandCenterNextActions";
+import {
+  accountListSubtitle,
+  buildScheduleAccountPayload,
+  canSubmitSchedule,
+  filterAccountsByQuery,
+  type WorkflowAccountLike,
+} from "@/lib/commandCenterAccounts";
+import {
+  buildContinueRoleplayPayload,
+  buildStartRoleplayPayload,
+  canSendRoleplayReply,
+  canStartWorkflowRoleplay,
+  roleplayCoachingTip,
+  roleplayMessageLabel,
+  type RoleplaySessionLike,
+} from "@/lib/commandCenterRoleplay";
+import {
+  canCommitCsvImport,
+  canManageWorkflowIntegrations,
+  calendarConnectPath,
+  defaultCalendarRedirectUri,
+  formatCsvImportResult,
+  guessCsvColumnMapping,
+  type CalendarProvider,
+  type CsvFieldKey,
+  type CsvPreviewLike,
+} from "@/lib/commandCenterIntegrations";
 
 type WorkflowCall = {
   id: string;
@@ -28,10 +63,16 @@ type WorkflowCall = {
   schedule: { startsAt: string; durationMinutes: number };
 };
 type WorkflowPlan = { id: string; callId: string; version: number; status: string };
+type WorkflowAction = WorkflowNextActionLike & {
+  id: string;
+  title: string;
+  status: string;
+  dueAt?: string;
+};
 type TodayResponse = {
   calls: WorkflowCall[];
   plans: WorkflowPlan[];
-  actions: Array<{ id: string; title: string; status: string; dueAt?: string }>;
+  actions: WorkflowAction[];
   syncJobs: Array<{ id: string; status: string }>;
 };
 type CallOutcome =
@@ -104,6 +145,9 @@ export default function SalesWorkflowScreen() {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [showSchedule, setShowSchedule] = useState(false);
+  const [accounts, setAccounts] = useState<WorkflowAccountLike[]>([]);
+  const [accountQuery, setAccountQuery] = useState("");
+  const [selectedAccountId, setSelectedAccountId] = useState<string | null>(null);
   const [accountName, setAccountName] = useState("");
   const [contactFirst, setContactFirst] = useState("");
   const [contactLast, setContactLast] = useState("");
@@ -116,6 +160,27 @@ export default function SalesWorkflowScreen() {
   const [draftMetaByCall, setDraftMetaByCall] = useState<Record<string, DraftMeta>>({});
   const [draftingCallId, setDraftingCallId] = useState<string | null>(null);
   const [coachingReview, setCoachingReview] = useState<CoachingReview | null>(null);
+  /** Action id for inline schedule-next form (pass 5). */
+  const [scheduleNextId, setScheduleNextId] = useState<string | null>(null);
+  const [nextPurpose, setNextPurpose] = useState("");
+  const [nextDate, setNextDate] = useState(new Date().toISOString().slice(0, 10));
+  const [nextTime, setNextTime] = useState("10:00");
+  const [emailDraftPreview, setEmailDraftPreview] = useState<{
+    actionId: string;
+    subject: string;
+    body: string;
+  } | null>(null);
+  const [roleplaySession, setRoleplaySession] = useState<RoleplaySessionLike | null>(null);
+  const [roleplayReply, setRoleplayReply] = useState("");
+  const [roleplayBusy, setRoleplayBusy] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+  const [csvText, setCsvText] = useState("");
+  const [csvPreview, setCsvPreview] = useState<CsvPreviewLike | null>(null);
+  const [csvMapping, setCsvMapping] = useState<Record<string, CsvFieldKey>>({});
+  const [csvResult, setCsvResult] = useState("");
+  const [csvBusy, setCsvBusy] = useState(false);
+
+  const canManageIntegrations = canManageWorkflowIntegrations(user?.member?.role);
 
   const bounds = useMemo(() => {
     const start = new Date(`${date}T00:00:00`);
@@ -129,11 +194,14 @@ export default function SalesWorkflowScreen() {
     setLoading(true);
     setError("");
     try {
-      setData(
-        await apiGet<TodayResponse>(
+      const [today, accountData] = await Promise.all([
+        apiGet<TodayResponse>(
           `/api/v1/sales-workflow/today?from=${encodeURIComponent(bounds.from)}&to=${encodeURIComponent(bounds.to)}`,
         ),
-      );
+        apiGet<{ accounts: WorkflowAccountLike[] }>("/api/v1/sales-workflow/accounts"),
+      ]);
+      setData(today);
+      setAccounts(Array.isArray(accountData.accounts) ? accountData.accounts : []);
     } catch {
       setError("Could not load your sales day. Pull to refresh or try again.");
     } finally {
@@ -145,31 +213,52 @@ export default function SalesWorkflowScreen() {
     void load();
   }, [load]);
 
+  const filteredAccounts = useMemo(
+    () => filterAccountsByQuery(accounts, accountQuery),
+    [accounts, accountQuery],
+  );
+
+  const selectedAccount = useMemo(
+    () => accounts.find((a) => a.id === selectedAccountId) ?? null,
+    [accounts, selectedAccountId],
+  );
+
   const schedule = async () => {
-    if (!user?.member || !accountName.trim() || !contactFirst.trim() || !purpose.trim()) {
-      setError("Add the account, contact first name, and call purpose.");
+    if (!user?.member) return;
+    if (
+      !canSubmitSchedule({
+        selectedAccountId,
+        newAccountName: accountName,
+        contactFirst,
+        purpose,
+      })
+    ) {
+      setError(
+        selectedAccountId
+          ? "Add a call purpose."
+          : "Pick a ledger account or add a new name, contact first name, and purpose.",
+      );
       return;
     }
     setSaving(true);
     setError("");
     try {
       const contactId = randomUuid();
+      const ownerUserId = memberIdToWorkflowUuid(user.member.id);
+      const accountPayload = buildScheduleAccountPayload({
+        selectedAccount,
+        newAccountName: accountName,
+        ownerUserId,
+        contact: {
+          id: contactId,
+          firstName: contactFirst,
+          lastName: contactLast,
+        },
+      });
       await apiPost(
         "/api/v1/sales-workflow/cycles",
         {
-          account: {
-            name: accountName.trim(),
-            ownerUserId: memberIdToWorkflowUuid(user.member.id),
-            contacts: [
-              {
-                id: contactId,
-                firstName: contactFirst.trim(),
-                lastName: contactLast.trim(),
-                isPrimary: true,
-              },
-            ],
-          },
-          contactIds: [contactId],
+          ...accountPayload,
           purpose: purpose.trim(),
           schedule: {
             startsAt: new Date(`${date}T${time}:00`).toISOString(),
@@ -184,6 +273,7 @@ export default function SalesWorkflowScreen() {
       setContactFirst("");
       setContactLast("");
       setPurpose("");
+      setSelectedAccountId(null);
       setShowSchedule(false);
       await load();
     } catch {
@@ -205,6 +295,175 @@ export default function SalesWorkflowScreen() {
       await load();
     } catch {
       setError("The connected pre-call plan could not be generated.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const startRoleplay = async (plan: WorkflowPlan) => {
+    if (!canStartWorkflowRoleplay(plan)) {
+      setError("Build a pre-call plan before practice.");
+      return;
+    }
+    setRoleplayBusy(true);
+    setError("");
+    try {
+      const session = await apiPost<RoleplaySessionLike>(
+        `/api/v1/sales-workflow/plans/${plan.id}/roleplay`,
+        buildStartRoleplayPayload(plan),
+        { idempotencyKey: requestKey() },
+      );
+      setRoleplaySession({
+        id: session.id,
+        version: session.version,
+        messages: Array.isArray(session.messages) ? session.messages : [],
+        complete: Boolean(session.complete),
+        latestCoaching: session.latestCoaching,
+        turn: session.turn,
+      });
+      setRoleplayReply("");
+    } catch {
+      setError("Could not start connected practice. Try again after the plan is ready.");
+    } finally {
+      setRoleplayBusy(false);
+    }
+  };
+
+  const continueRoleplay = async () => {
+    if (!roleplaySession || !canSendRoleplayReply(roleplaySession, roleplayReply)) {
+      return;
+    }
+    setRoleplayBusy(true);
+    setError("");
+    try {
+      const session = await apiPost<RoleplaySessionLike>(
+        `/api/v1/sales-workflow/roleplay/${roleplaySession.id}/continue`,
+        buildContinueRoleplayPayload({
+          session: roleplaySession,
+          userInput: roleplayReply,
+        }),
+        { idempotencyKey: requestKey() },
+      );
+      setRoleplaySession({
+        id: session.id,
+        version: session.version,
+        messages: Array.isArray(session.messages) ? session.messages : [],
+        complete: Boolean(session.complete),
+        latestCoaching: session.latestCoaching,
+        turn: session.turn,
+      });
+      setRoleplayReply("");
+    } catch {
+      setError("Practice turn failed. Check the network and try again.");
+    } finally {
+      setRoleplayBusy(false);
+    }
+  };
+
+  const previewCsv = async () => {
+    if (!canManageIntegrations) {
+      setError("CSV import is limited to organization administrators.");
+      return;
+    }
+    if (csvText.trim().length < 8) {
+      setError("Paste CSV content first (header row + accounts).");
+      return;
+    }
+    setCsvBusy(true);
+    setError("");
+    setCsvResult("");
+    try {
+      const next = await apiPost<CsvPreviewLike>(
+        "/api/v1/sales-workflow/imports/csv/preview",
+        { content: csvText },
+        { idempotencyKey: requestKey() },
+      );
+      setCsvPreview(next);
+      setCsvMapping(guessCsvColumnMapping(next.headers || []));
+    } catch {
+      setError(
+        "CSV preview failed. Confirm org admin access and that import is configured.",
+      );
+    } finally {
+      setCsvBusy(false);
+    }
+  };
+
+  const commitCsv = async () => {
+    if (
+      !canCommitCsvImport({
+        preview: csvPreview,
+        mapping: csvMapping as Record<string, string>,
+      })
+    ) {
+      setError("Map at least one column to Account name and remove formula cells.");
+      return;
+    }
+    setCsvBusy(true);
+    setError("");
+    try {
+      const dry = await apiPost<{
+        imported: number;
+        merged: number;
+        rejected: number;
+      }>(
+        "/api/v1/sales-workflow/imports/csv/commit",
+        { preview: csvPreview, mapping: csvMapping, dryRun: true },
+        { idempotencyKey: requestKey() },
+      );
+      const confirmed = await apiPost<{
+        imported: number;
+        merged: number;
+        rejected: number;
+      }>(
+        "/api/v1/sales-workflow/imports/csv/commit",
+        { preview: csvPreview, mapping: csvMapping, dryRun: false },
+        { idempotencyKey: requestKey() },
+      );
+      setCsvResult(
+        formatCsvImportResult({
+          dryImported: dry.imported,
+          imported: confirmed.imported,
+          merged: confirmed.merged,
+          rejected: confirmed.rejected,
+        }),
+      );
+      setCsvText("");
+      setCsvPreview(null);
+      await load();
+    } catch {
+      setError("CSV import commit failed. Review mapping and try again.");
+    } finally {
+      setCsvBusy(false);
+    }
+  };
+
+  const connectCalendar = async (provider: CalendarProvider) => {
+    if (!canManageIntegrations) {
+      setError("Calendar connect is limited to organization administrators.");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      const origin = getBaseUrl() || "https://spartanhospicecoaching.com";
+      const res = await apiPost<{ authorizationUrl?: string }>(
+        calendarConnectPath(provider),
+        { redirectUri: defaultCalendarRedirectUri(origin) },
+        { idempotencyKey: requestKey() },
+      );
+      if (!res.authorizationUrl) {
+        throw new Error("No authorization URL");
+      }
+      const supported = await Linking.canOpenURL(res.authorizationUrl);
+      if (!supported) {
+        throw new Error("Cannot open OAuth URL on this device");
+      }
+      await Linking.openURL(res.authorizationUrl);
+    } catch {
+      setError(
+        "Calendar connect is unavailable. Provider may not be configured in this environment.",
+      );
     } finally {
       setSaving(false);
     }
@@ -351,6 +610,72 @@ export default function SalesWorkflowScreen() {
     }
   };
 
+  const openScheduleNext = (action: WorkflowAction) => {
+    setScheduleNextId(action.id);
+    setNextPurpose(action.title || "Follow-up visit");
+    setEmailDraftPreview(null);
+    setError("");
+  };
+
+  const scheduleNextFromAction = async (action: WorkflowAction) => {
+    if (!canScheduleNextFromAction(action) || !action.cycleId) {
+      setError("This action cannot be scheduled yet.");
+      return;
+    }
+    if (!nextPurpose.trim()) {
+      setError("Add a purpose for the next call.");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      const startsAt = new Date(`${nextDate}T${nextTime}:00`).toISOString();
+      await apiPost(
+        `/api/v1/sales-workflow/cycles/${action.cycleId}/next-call`,
+        buildNextCallPayload({
+          action,
+          purpose: nextPurpose,
+          startsAtIso: startsAt,
+        }),
+        { idempotencyKey: requestKey() },
+      );
+      setScheduleNextId(null);
+      setNextPurpose("");
+      await load();
+    } catch {
+      setError("Could not schedule the next call. Refresh and try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const draftEmailFromAction = async (action: WorkflowAction) => {
+    if (!canDraftEmailFromAction(action)) {
+      setError("This action is not ready for an email draft.");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      const draft = await apiPost<{ subject?: string; body?: string }>(
+        `/api/v1/sales-workflow/next-actions/${action.id}/email-draft`,
+        buildEmailDraftPayload(action),
+        { idempotencyKey: requestKey() },
+      );
+      setEmailDraftPreview({
+        actionId: action.id,
+        subject: draft.subject || "(no subject)",
+        body: (draft.body || "").slice(0, 2000),
+      });
+      setScheduleNextId(null);
+      await load();
+    } catch {
+      setError("Could not create email draft. Try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
   const tool = getToolById("sales-workflow");
 
   if (!canUseFieldKit) {
@@ -406,35 +731,464 @@ export default function SalesWorkflowScreen() {
         </View>
 
         {showSchedule && (
-          <View style={[styles.card, { borderColor: colors.border, backgroundColor: colors.card }]}>
+          <View
+            style={[styles.card, { borderColor: colors.border, backgroundColor: colors.card }]}
+            testID="schedule-call-form"
+          >
             <Text style={[styles.cardTitle, { color: colors.foreground }]}>Schedule a call</Text>
-            {[
-              ["Account name", accountName, setAccountName],
-              ["Contact first name", contactFirst, setContactFirst],
-              ["Contact last name", contactLast, setContactLast],
-              ["Purpose and desired outcome", purpose, setPurpose],
-              ["Start time (HH:MM)", time, setTime],
-            ].map(([placeholder, value, setter]) => (
-              <TextInput
-                key={placeholder as string}
-                value={value as string}
-                onChangeText={setter as (value: string) => void}
-                placeholder={placeholder as string}
-                placeholderTextColor={colors.mutedForeground}
-                style={[styles.input, { color: colors.foreground, borderColor: colors.border, backgroundColor: colors.background }]}
-              />
-            ))}
-            <Pressable disabled={saving} onPress={schedule} style={[styles.primary, { backgroundColor: colors.primary, opacity: saving ? 0.6 : 1 }]}>
+            {accounts.length > 0 ? (
+              <View style={{ marginBottom: 8 }} testID="schedule-account-picker">
+                <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>
+                  Ledger account (optional)
+                </Text>
+                <Pressable
+                  onPress={() => setSelectedAccountId(null)}
+                  style={[
+                    styles.outcomeChip,
+                    {
+                      borderColor: !selectedAccountId ? colors.primary : colors.border,
+                      marginBottom: 6,
+                      alignSelf: "flex-start",
+                    },
+                  ]}
+                >
+                  <Text style={{ color: colors.foreground, fontSize: 12, fontWeight: "700" }}>
+                    New account
+                  </Text>
+                </Pressable>
+                {accounts.slice(0, 12).map((account) => {
+                  const selected = selectedAccountId === account.id;
+                  return (
+                    <Pressable
+                      key={account.id}
+                      onPress={() => {
+                        setSelectedAccountId(account.id);
+                        setAccountName(account.name);
+                      }}
+                      style={[
+                        styles.actionRow,
+                        {
+                          borderColor: selected ? colors.primary : colors.border,
+                          backgroundColor: colors.background,
+                          marginTop: 6,
+                        },
+                      ]}
+                      testID={`schedule-pick-account-${account.id}`}
+                    >
+                      <Text style={{ color: colors.primary, fontWeight: "800", width: 22 }}>
+                        {selected ? "✓" : "○"}
+                      </Text>
+                      <View style={{ flex: 1 }}>
+                        <Text style={{ color: colors.foreground, fontWeight: "700" }}>
+                          {account.name}
+                        </Text>
+                        <Text style={{ color: colors.mutedForeground, fontSize: 12, marginTop: 2 }}>
+                          {accountListSubtitle(account)}
+                        </Text>
+                      </View>
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ) : null}
+            {!selectedAccountId
+              ? (
+                  [
+                    ["Account name", accountName, setAccountName],
+                    ["Contact first name", contactFirst, setContactFirst],
+                    ["Contact last name", contactLast, setContactLast],
+                  ] as const
+                ).map(([placeholder, value, setter]) => (
+                  <TextInput
+                    key={placeholder}
+                    value={value}
+                    onChangeText={setter}
+                    placeholder={placeholder}
+                    placeholderTextColor={colors.mutedForeground}
+                    style={[
+                      styles.input,
+                      {
+                        color: colors.foreground,
+                        borderColor: colors.border,
+                        backgroundColor: colors.background,
+                      },
+                    ]}
+                  />
+                ))
+              : null}
+            <TextInput
+              value={purpose}
+              onChangeText={setPurpose}
+              placeholder="Purpose and desired outcome"
+              placeholderTextColor={colors.mutedForeground}
+              style={[
+                styles.input,
+                {
+                  color: colors.foreground,
+                  borderColor: colors.border,
+                  backgroundColor: colors.background,
+                },
+              ]}
+            />
+            <TextInput
+              value={time}
+              onChangeText={setTime}
+              placeholder="Start time (HH:MM)"
+              placeholderTextColor={colors.mutedForeground}
+              style={[
+                styles.input,
+                {
+                  color: colors.foreground,
+                  borderColor: colors.border,
+                  backgroundColor: colors.background,
+                },
+              ]}
+            />
+            <Pressable
+              disabled={saving}
+              onPress={() => void schedule()}
+              style={[styles.primary, { backgroundColor: colors.primary, opacity: saving ? 0.6 : 1 }]}
+              testID="button-save-call"
+            >
               {saving ? (
                 <ActivityIndicator color={colors.primaryForeground} />
               ) : (
-                <Text style={[styles.primaryText, { color: colors.primaryForeground }]}>Save call</Text>
+                <Text style={[styles.primaryText, { color: colors.primaryForeground }]}>
+                  Save call
+                </Text>
               )}
             </Pressable>
           </View>
         )}
 
+        <View
+          style={[styles.card, { borderColor: colors.border, backgroundColor: colors.card }]}
+          testID="card-account-ledger"
+        >
+          <Text style={[styles.cardTitle, { color: colors.foreground }]}>Account ledger</Text>
+          <Text style={{ color: colors.mutedForeground, fontSize: 12, marginBottom: 8 }}>
+            Same accounts as web Command Center ({accounts.length}). No PHI — names and territory
+            only.
+          </Text>
+          <TextInput
+            value={accountQuery}
+            onChangeText={setAccountQuery}
+            placeholder="Search accounts"
+            placeholderTextColor={colors.mutedForeground}
+            style={[
+              styles.input,
+              {
+                color: colors.foreground,
+                borderColor: colors.border,
+                backgroundColor: colors.background,
+              },
+            ]}
+            testID="input-account-search"
+          />
+          {loading && accounts.length === 0 ? (
+            <ActivityIndicator color={colors.primary} />
+          ) : filteredAccounts.length === 0 ? (
+            <Text style={{ color: colors.mutedForeground, fontSize: 13 }}>
+              No accounts yet. Schedule a call to create the first ledger row.
+            </Text>
+          ) : (
+            filteredAccounts.map((account) => (
+              <Pressable
+                key={account.id}
+                onPress={() => {
+                  setSelectedAccountId(account.id);
+                  setAccountName(account.name);
+                  setShowSchedule(true);
+                }}
+                style={[styles.actionRow, { borderColor: colors.border, backgroundColor: colors.background }]}
+                testID={`ledger-account-${account.id}`}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: colors.foreground, fontWeight: "800" }}>{account.name}</Text>
+                  <Text style={{ color: colors.mutedForeground, fontSize: 12, marginTop: 3 }}>
+                    {accountListSubtitle(account)}
+                  </Text>
+                </View>
+                <Text style={{ color: colors.primary, fontWeight: "700", fontSize: 12 }}>Schedule</Text>
+              </Pressable>
+            ))
+          )}
+        </View>
+
+        {canManageIntegrations ? (
+          <View
+            style={[styles.card, { borderColor: colors.border, backgroundColor: colors.card }]}
+            testID="card-integrations"
+          >
+            <Text style={[styles.cardTitle, { color: colors.foreground }]}>
+              Manager integrations
+            </Text>
+            <Text style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 17 }}>
+              Org admin only — same import and calendar APIs as web. Calendar requires provider
+              config; CSV is paste-validated before write.
+            </Text>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
+              <SpartanButton
+                title={showImport ? "Hide CSV import" : "CSV import"}
+                variant="outline"
+                onPress={() => setShowImport((v) => !v)}
+                testID="button-toggle-csv-import"
+              />
+              <SpartanButton
+                title="Google Calendar"
+                variant="outline"
+                disabled={saving}
+                onPress={() => void connectCalendar("google")}
+                testID="button-calendar-google"
+              />
+              <SpartanButton
+                title="Outlook"
+                variant="outline"
+                disabled={saving}
+                onPress={() => void connectCalendar("outlook")}
+                testID="button-calendar-outlook"
+              />
+            </View>
+            {showImport ? (
+              <View style={{ marginTop: 12 }} testID="csv-import-panel">
+                <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>
+                  Paste CSV (header + rows)
+                </Text>
+                <TextInput
+                  value={csvText}
+                  onChangeText={setCsvText}
+                  placeholder={"name,type,address\nAcme Hospice,SNF,12 Oak"}
+                  placeholderTextColor={colors.mutedForeground}
+                  multiline
+                  style={[
+                    styles.notes,
+                    {
+                      color: colors.foreground,
+                      borderColor: colors.border,
+                      backgroundColor: colors.background,
+                      minHeight: 110,
+                    },
+                  ]}
+                  testID="input-csv-content"
+                />
+                <SpartanButton
+                  title={csvBusy ? "Working…" : "Preview CSV"}
+                  disabled={csvBusy}
+                  onPress={() => void previewCsv()}
+                  testID="button-csv-preview"
+                />
+                {csvPreview ? (
+                  <View style={{ marginTop: 10 }}>
+                    <Text style={{ color: colors.foreground, fontWeight: "700" }}>
+                      {csvPreview.rows.length} rows · {csvPreview.headers.length} columns
+                    </Text>
+                    {csvPreview.formulaCells.length > 0 ? (
+                      <Text style={{ color: colors.primary, marginTop: 6, fontSize: 12 }}>
+                        {csvPreview.formulaCells.length} formula-like cells must be removed before
+                        import.
+                      </Text>
+                    ) : null}
+                    {csvPreview.headers.map((header) => (
+                      <View key={header} style={{ marginTop: 8 }}>
+                        <Text style={{ color: colors.mutedForeground, fontSize: 11 }}>
+                          Column: {header}
+                        </Text>
+                        <View style={styles.outcomeRow}>
+                          {(
+                            [
+                              ["", "Skip"],
+                              ["accountName", "Name"],
+                              ["accountType", "Type"],
+                              ["address", "Address"],
+                              ["externalId", "External ID"],
+                            ] as const
+                          ).map(([value, label]) => {
+                            const selected = (csvMapping[header] || "") === value;
+                            return (
+                              <Pressable
+                                key={`${header}-${value || "skip"}`}
+                                onPress={() =>
+                                  setCsvMapping((current) => ({
+                                    ...current,
+                                    [header]: value as CsvFieldKey,
+                                  }))
+                                }
+                                style={[
+                                  styles.outcomeChip,
+                                  {
+                                    borderColor: selected ? colors.primary : colors.border,
+                                    backgroundColor: selected
+                                      ? colors.primary
+                                      : colors.background,
+                                  },
+                                ]}
+                              >
+                                <Text
+                                  style={{
+                                    color: selected
+                                      ? colors.primaryForeground
+                                      : colors.foreground,
+                                    fontSize: 11,
+                                    fontWeight: "700",
+                                  }}
+                                >
+                                  {label}
+                                </Text>
+                              </Pressable>
+                            );
+                          })}
+                        </View>
+                      </View>
+                    ))}
+                    <SpartanButton
+                      title={csvBusy ? "Importing…" : "Validate and import"}
+                      disabled={
+                        csvBusy ||
+                        !canCommitCsvImport({
+                          preview: csvPreview,
+                          mapping: csvMapping as Record<string, string>,
+                        })
+                      }
+                      onPress={() => void commitCsv()}
+                      style={{ marginTop: 12 }}
+                      testID="button-csv-commit"
+                    />
+                  </View>
+                ) : null}
+                {!!csvResult && (
+                  <Text
+                    style={{ color: colors.foreground, marginTop: 10, fontSize: 13 }}
+                    testID="csv-import-result"
+                  >
+                    {csvResult}
+                  </Text>
+                )}
+              </View>
+            ) : null}
+          </View>
+        ) : null}
+
         {!!error && <Text style={[styles.error, { color: colors.primary }]}>{error}</Text>}
+
+        {roleplaySession && (
+          <View
+            style={[styles.card, { borderColor: colors.primary, backgroundColor: colors.card }]}
+            testID="roleplay-practice-panel"
+          >
+            <Text style={[styles.cardTitle, { color: colors.foreground }]}>
+              Connected practice
+            </Text>
+            <Text style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 17 }}>
+              Workflow roleplay for this plan — educational practice only. No patient names or PHI.
+            </Text>
+            <View style={{ marginTop: 10 }} testID="roleplay-message-list">
+              {(roleplaySession.messages ?? []).map((message, index) => (
+                <View
+                  key={`${message.role}-${index}`}
+                  style={[
+                    styles.draftPreview,
+                    { borderColor: colors.border, backgroundColor: colors.background, marginBottom: 8 },
+                  ]}
+                >
+                  <Text style={[styles.fieldLabel, { color: colors.mutedForeground, marginTop: 0 }]}>
+                    {roleplayMessageLabel(message.role)}
+                  </Text>
+                  <Text style={{ color: colors.foreground, fontSize: 14, lineHeight: 20 }}>
+                    {message.content}
+                  </Text>
+                </View>
+              ))}
+            </View>
+            {!!roleplayCoachingTip(roleplaySession) && (
+              <Text
+                style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 17, marginBottom: 8 }}
+                testID="roleplay-coaching-tip"
+              >
+                Coaching: {roleplayCoachingTip(roleplaySession)}
+              </Text>
+            )}
+            {roleplaySession.complete ? (
+              <View>
+                <Text style={{ color: colors.foreground, fontWeight: "700", marginBottom: 8 }}>
+                  Practice complete
+                </Text>
+                <Text style={{ color: colors.mutedForeground, fontSize: 13, marginBottom: 10 }}>
+                  Carry the strongest discovery move into the real conversation.
+                </Text>
+                <SpartanButton
+                  title="Close practice"
+                  variant="outline"
+                  onPress={() => {
+                    setRoleplaySession(null);
+                    setRoleplayReply("");
+                  }}
+                  testID="button-close-roleplay"
+                />
+              </View>
+            ) : (
+              <View>
+                <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>
+                  What would you say next?
+                </Text>
+                <TextInput
+                  value={roleplayReply}
+                  onChangeText={setRoleplayReply}
+                  placeholder="Your response — no patient identifiers"
+                  placeholderTextColor={colors.mutedForeground}
+                  multiline
+                  style={[
+                    styles.notes,
+                    {
+                      color: colors.foreground,
+                      borderColor: colors.border,
+                      backgroundColor: colors.background,
+                    },
+                  ]}
+                  testID="input-roleplay-reply"
+                />
+                <View style={styles.reviewActions}>
+                  <Pressable
+                    disabled={roleplayBusy}
+                    onPress={() => {
+                      setRoleplaySession(null);
+                      setRoleplayReply("");
+                    }}
+                    style={[styles.secondary, { borderColor: colors.border, flex: 1, marginTop: 0 }]}
+                  >
+                    <Text style={{ color: colors.mutedForeground, fontWeight: "700" }}>Exit</Text>
+                  </Pressable>
+                  <Pressable
+                    disabled={
+                      roleplayBusy || !canSendRoleplayReply(roleplaySession, roleplayReply)
+                    }
+                    onPress={() => void continueRoleplay()}
+                    style={[
+                      styles.primary,
+                      {
+                        backgroundColor: colors.primary,
+                        flex: 1,
+                        marginTop: 0,
+                        opacity:
+                          roleplayBusy || !canSendRoleplayReply(roleplaySession, roleplayReply)
+                            ? 0.6
+                            : 1,
+                      },
+                    ]}
+                    testID="button-send-roleplay-reply"
+                  >
+                    {roleplayBusy ? (
+                      <ActivityIndicator color={colors.primaryForeground} />
+                    ) : (
+                      <Text style={[styles.primaryText, { color: colors.primaryForeground }]}>
+                        Send response
+                      </Text>
+                    )}
+                  </Pressable>
+                </View>
+              </View>
+            )}
+          </View>
+        )}
 
         {coachingReview && (
           <View
@@ -560,6 +1314,28 @@ export default function SalesWorkflowScreen() {
                     <Text style={{ color: colors.primary, fontWeight: "700" }}>Build connected plan</Text>
                   </Pressable>
                 )}
+                {canStartWorkflowRoleplay(plan) && (
+                  <Pressable
+                    disabled={saving || roleplayBusy}
+                    onPress={() => void startRoleplay(plan!)}
+                    style={[
+                      styles.secondary,
+                      {
+                        borderColor: colors.primary,
+                        opacity: saving || roleplayBusy ? 0.6 : 1,
+                      },
+                    ]}
+                    testID={`button-start-roleplay-${plan!.id}`}
+                  >
+                    {roleplayBusy && !roleplaySession ? (
+                      <ActivityIndicator color={colors.primary} />
+                    ) : (
+                      <Text style={{ color: colors.primary, fontWeight: "700" }}>
+                        Practice conversation
+                      </Text>
+                    )}
+                  </Pressable>
+                )}
                 {!["completed", "canceled", "no_show"].includes(call.status) && (
                   <>
                     <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>
@@ -673,12 +1449,136 @@ export default function SalesWorkflowScreen() {
         )}
 
         {data.actions.length > 0 && (
-          <View style={[styles.card, { borderColor: colors.border, backgroundColor: colors.card }]}>
+          <View
+            style={[styles.card, { borderColor: colors.border, backgroundColor: colors.card }]}
+            testID="card-next-actions"
+          >
             <Text style={[styles.cardTitle, { color: colors.foreground }]}>Next actions</Text>
+            <Text style={{ color: colors.mutedForeground, fontSize: 12, marginBottom: 4 }}>
+              Approved actions only — schedule the next visit or draft a follow-up email.
+            </Text>
             {data.actions.map((action) => (
-              <Text key={action.id} style={{ color: colors.foreground, marginTop: 8 }}>
-                • {action.title}
-              </Text>
+              <View
+                key={action.id}
+                style={[styles.actionRow, { borderColor: colors.border }]}
+                testID={`next-action-${action.id}`}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: colors.mutedForeground, fontSize: 11, fontWeight: "700" }}>
+                    {(action.type || "task").replace("_", " ")} · {action.status || "open"}
+                  </Text>
+                  <Text style={{ color: colors.foreground, marginTop: 4, fontWeight: "700" }}>
+                    {action.title}
+                  </Text>
+                  {canScheduleNextFromAction(action) ? (
+                    scheduleNextId === action.id ? (
+                      <View style={{ marginTop: 10 }}>
+                        <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>
+                          Purpose
+                        </Text>
+                        <TextInput
+                          value={nextPurpose}
+                          onChangeText={setNextPurpose}
+                          style={[
+                            styles.input,
+                            {
+                              borderColor: colors.border,
+                              color: colors.foreground,
+                              backgroundColor: colors.background,
+                            },
+                          ]}
+                          testID="input-next-call-purpose"
+                        />
+                        <View style={styles.dateRow}>
+                          <TextInput
+                            value={nextDate}
+                            onChangeText={setNextDate}
+                            placeholder="YYYY-MM-DD"
+                            style={[
+                              styles.input,
+                              {
+                                borderColor: colors.border,
+                                color: colors.foreground,
+                                backgroundColor: colors.background,
+                              },
+                            ]}
+                            testID="input-next-call-date"
+                          />
+                          <TextInput
+                            value={nextTime}
+                            onChangeText={setNextTime}
+                            placeholder="HH:MM"
+                            style={[
+                              styles.input,
+                              {
+                                borderColor: colors.border,
+                                color: colors.foreground,
+                                backgroundColor: colors.background,
+                              },
+                            ]}
+                            testID="input-next-call-time"
+                          />
+                        </View>
+                        <SpartanButton
+                          title={saving ? "Scheduling…" : "Confirm next call"}
+                          disabled={saving}
+                          onPress={() => void scheduleNextFromAction(action)}
+                          testID="button-confirm-next-call"
+                        />
+                        <Pressable
+                          onPress={() => setScheduleNextId(null)}
+                          style={[styles.secondary, { borderColor: colors.border }]}
+                        >
+                          <Text style={{ color: colors.mutedForeground, fontWeight: "700" }}>
+                            Cancel
+                          </Text>
+                        </Pressable>
+                      </View>
+                    ) : (
+                      <SpartanButton
+                        title="Schedule next call"
+                        variant="outline"
+                        disabled={saving}
+                        onPress={() => openScheduleNext(action)}
+                        style={{ marginTop: 10 }}
+                        testID={`button-schedule-next-${action.id}`}
+                      />
+                    )
+                  ) : null}
+                  {canDraftEmailFromAction(action) ? (
+                    <SpartanButton
+                      title={saving ? "Drafting…" : "Create email draft"}
+                      variant="outline"
+                      disabled={saving}
+                      onPress={() => void draftEmailFromAction(action)}
+                      style={{ marginTop: 10 }}
+                      testID={`button-email-draft-${action.id}`}
+                    />
+                  ) : null}
+                  {emailDraftPreview?.actionId === action.id ? (
+                    <View
+                      style={[
+                        styles.draftPreview,
+                        { borderColor: colors.border, marginTop: 10 },
+                      ]}
+                      testID="email-draft-preview"
+                    >
+                      <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>
+                        Draft subject
+                      </Text>
+                      <Text style={{ color: colors.foreground, fontWeight: "700" }}>
+                        {emailDraftPreview.subject}
+                      </Text>
+                      <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>
+                        Draft body (copy on device — no PHI)
+                      </Text>
+                      <Text style={{ color: colors.mutedForeground, fontSize: 13, lineHeight: 18 }}>
+                        {emailDraftPreview.body || "Empty draft body"}
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
+              </View>
             ))}
           </View>
         )}

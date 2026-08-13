@@ -5,8 +5,9 @@
  * forward SQL, optional data migration, validation queries, rollback/recovery,
  * pre-deploy backup expectation, and client compatibility gates.
  *
- * Primary apply path today remains `drizzle-kit push` (see docs/schema-ops.md).
- * Numbered SQL under lib/db/migrations/ is the reviewed baseline + recovery path.
+ * Numbered SQL under lib/db/migrations/ (+ sales_workflow external) is the
+ * migrate-primary apply path. drizzle-kit push is local-only via push-guard
+ * (see docs/schema-ops.md). Stream C / pass (3) deprecates prod push.
  */
 
 /** How destructive a change is for production scheduling and backup depth. */
@@ -422,6 +423,178 @@ export const MIGRATION_CATALOG: readonly MigrationPlan[] = [
     dropsLegacyObjects: false,
   },
   {
+    id: "0005_resource_content_architecture",
+    title: "Resource content architecture JSONB column",
+    forwardPath: "lib/db/migrations/0005_resource_content_architecture.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT count(*) > 0 AS ok FROM information_schema.columns WHERE table_name = 'resources' AND column_name = 'content_architecture'`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: restore dump. Additive column; leave in place (API may still read JSONB).",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["resources"],
+    dropsLegacyObjects: false,
+  },
+  {
+    id: "0006_resource_work",
+    title: "Executable resource saved work",
+    forwardPath: "lib/db/migrations/0006_resource_work.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT to_regclass('public.resource_work') IS NOT NULL AS ok`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: restore dump. Additive tenant table; do not DROP while clients save work.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["resource_work"],
+    dropsLegacyObjects: false,
+  },
+  {
+    id: "0007_resource_lifecycle",
+    title: "Resource lifecycle columns + events",
+    forwardPath: "lib/db/migrations/0007_resource_lifecycle.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT to_regclass('public.resource_lifecycle_events') IS NOT NULL AS ok`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: restore dump. Additive columns/table; leave unused if rolling back code.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "expand_contract_expand",
+    tables: ["resources", "resource_lifecycle_events"],
+    dropsLegacyObjects: false,
+  },
+  {
+    id: "0008_provider_resources",
+    title: "Provider / company knowledge resources",
+    forwardPath: "lib/db/migrations/0008_provider_resources.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT to_regclass('public.provider_resources') IS NOT NULL AS ok`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: restore dump. Additive org-scoped table.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["provider_resources"],
+    dropsLegacyObjects: false,
+  },
+  {
+    id: "0009_member_personalization",
+    title: "Member personalization payload",
+    forwardPath: "lib/db/migrations/0009_member_personalization.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT to_regclass('public.member_personalization') IS NOT NULL AS ok`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: restore dump. Additive member table.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["member_personalization"],
+    dropsLegacyObjects: false,
+  },
+  {
+    id: "0010_member_notifications",
+    title: "Member notifications + prefs",
+    forwardPath: "lib/db/migrations/0010_member_notifications.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT to_regclass('public.member_notifications') IS NOT NULL AS ok`,
+      `SELECT to_regclass('public.member_notification_prefs') IS NOT NULL AS ok`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: restore dump. Additive notification tables.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["member_notification_prefs", "member_notifications"],
+    dropsLegacyObjects: false,
+  },
+  {
+    id: "0011_org_admin_audit",
+    title: "Org admin audit events",
+    forwardPath: "lib/db/migrations/0011_org_admin_audit.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT to_regclass('public.org_admin_audit_events') IS NOT NULL AS ok`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: restore dump. Additive audit table; do not DROP while org admin UI reads it.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["org_admin_audit_events"],
+    dropsLegacyObjects: false,
+  },
+  {
+    id: "0012_roleplay_assessments_analytics",
+    title: "Roleplay, assessments, analytics, usage, agreements, chat",
+    forwardPath: "lib/db/migrations/0012_roleplay_assessments_analytics.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT to_regclass('public.roleplay_sessions') IS NOT NULL AS ok`,
+      `SELECT to_regclass('public.assessments') IS NOT NULL AS ok`,
+      `SELECT to_regclass('public.event_tracking') IS NOT NULL AS ok`,
+      `SELECT to_regclass('public.usage_events') IS NOT NULL AS ok`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: restore dump. Pure additive product tables previously push-only; leave unused tables in place if rolling back code.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: [
+      "sessions",
+      "users",
+      "usage_events",
+      "ai_usage_daily",
+      "email_usage_daily",
+      "object_upload_tokens",
+      "signed_agreements",
+      "agreement_requests",
+      "visitors",
+      "event_tracking",
+      "roleplay_sessions",
+      "roleplay_messages",
+      "drill_completions",
+      "assessments",
+      "assessment_questions",
+      "assessment_clients",
+      "assessment_submissions",
+      "assessment_invites",
+      "site_settings",
+      "conversations",
+      "messages",
+    ],
+    dropsLegacyObjects: false,
+  },
+  {
+    id: "0014_org_structure",
+    title: "Org branches, teams, member assignment",
+    forwardPath: "lib/db/migrations/0014_org_structure.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT to_regclass('public.org_branches') IS NOT NULL AS ok`,
+      `SELECT to_regclass('public.org_teams') IS NOT NULL AS ok`,
+      `SELECT count(*) > 0 AS ok FROM information_schema.columns WHERE table_name = 'client_members' AND column_name = 'branch_id'`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: restore dump. Additive structure tables/columns; leave unused if rolling back code.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["org_branches", "org_teams", "client_members"],
+    dropsLegacyObjects: false,
+  },
+  {
     id: "sales_workflow_001",
     title: "Sales Command Center workflow store (RLS)",
     forwardPath: "lib/hospice-sales-runtime/migrations/001_sales_workflow.sql",
@@ -431,7 +604,7 @@ export const MIGRATION_CATALOG: readonly MigrationPlan[] = [
       `SELECT count(*) = 0 AS ok FROM sales_workflow_entities WHERE version <= 0`,
     ],
     rollbackOrRecovery:
-      "Recovery: restore dump. Applied via artifacts/api-server/scripts/apply-sales-workflow-migration.mjs. Do not DROP tables; disable writes in app if rolling back code.",
+      "Recovery: restore dump. Applied via pnpm db:migrate (tracking id 0013_sales_workflow.sql). Legacy: apply-sales-workflow-migration.mjs. Do not DROP tables; disable writes in app if rolling back code.",
     backupExpectation: "logical_dump",
     risk: "additive",
     clientCompatibility: "none_additive",
@@ -443,6 +616,78 @@ export const MIGRATION_CATALOG: readonly MigrationPlan[] = [
     ],
     dropsLegacyObjects: false,
   },
+] as const;
+
+/**
+ * Every Drizzle product table under lib/db that must be creatable via numbered
+ * SQL alone (migrate-only path). Sales workflow lives in hospice-sales-runtime.
+ * When adding a pgTable in lib/db/src/schema, add it here + a migration.
+ */
+export const MIGRATE_ONLY_LIB_DB_TABLES = [
+  // 0001 / 0002 AI + clinical
+  "ai_tool_organization_flags",
+  "clinical_permissions",
+  "clinical_mfa_challenges",
+  "coverage_snapshots",
+  "ai_tool_runs",
+  "clinical_cases",
+  "clinical_documents",
+  "clinical_reviews",
+  "clinical_audit_events",
+  "clinical_ephemeral_sessions",
+  "clinical_ephemeral_objects",
+  // 0003 auth
+  "client_organizations",
+  "org_timeline_events",
+  "client_members",
+  "client_sessions",
+  "access_requests",
+  "auth_tokens",
+  "org_invites",
+  "auth_events",
+  // 0011
+  "org_admin_audit_events",
+  // 0014 structure
+  "org_branches",
+  "org_teams",
+  // 0004 CMS
+  "articles",
+  "resources",
+  "podcasts",
+  "testimonials",
+  "case_studies",
+  "inquiries",
+  "newsletter_subscribers",
+  "resource_leads",
+  // 0006–0010
+  "resource_work",
+  "resource_lifecycle_events",
+  "provider_resources",
+  "member_personalization",
+  "member_notification_prefs",
+  "member_notifications",
+  // 0012
+  "sessions",
+  "users",
+  "usage_events",
+  "ai_usage_daily",
+  "email_usage_daily",
+  "object_upload_tokens",
+  "signed_agreements",
+  "agreement_requests",
+  "visitors",
+  "event_tracking",
+  "roleplay_sessions",
+  "roleplay_messages",
+  "drill_completions",
+  "assessments",
+  "assessment_questions",
+  "assessment_clients",
+  "assessment_submissions",
+  "assessment_invites",
+  "site_settings",
+  "conversations",
+  "messages",
 ] as const;
 
 // ── Destructive SQL patterns (forbid without expand-contract proof) ──

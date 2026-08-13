@@ -20,7 +20,9 @@
     "ops:backup-drill": "pnpm --filter @workspace/db run backup-restore-drill",
     "test:ops": "pnpm --filter @workspace/db exec vitest run src/ops-readiness.test.ts",
     "release-gate": "node scripts/release-gate.mjs",
-    "test:release-gate": "pnpm --filter @workspace/field-kit-catalog exec vitest run src/release-gate.test.ts"
+    "test:release-gate": "pnpm --filter @workspace/field-kit-catalog exec vitest run src/release-gate.test.ts",
+    "db:migrate": "pnpm --filter @workspace/db run migrate",
+    "db:push": "pnpm --filter @workspace/db run push"
   },
   "private": true,
   "dependencies": {
