@@ -1,7 +1,14 @@
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
-ALTER TABLE client_sessions
-  ADD COLUMN IF NOT EXISTS mfa_verified_at timestamptz;
+-- client_sessions is created in 0003. On fresh migrate-only DBs this ALTER must
+-- not fail if 0003 has not run yet; 0003 also adds mfa_verified_at when creating.
+DO $$
+BEGIN
+  IF to_regclass('public.client_sessions') IS NOT NULL THEN
+    ALTER TABLE client_sessions
+      ADD COLUMN IF NOT EXISTS mfa_verified_at timestamptz;
+  END IF;
+END $$;
 
 CREATE TABLE IF NOT EXISTS ai_tool_organization_flags (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
