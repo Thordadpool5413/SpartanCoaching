@@ -478,6 +478,21 @@ export {
 } from "./client-delivery";
 
 export {
+  RELEASE_PERSONAS,
+  RELEASE_JOURNEYS,
+  AUTOMATED_SUITES,
+  evaluateProductionReadyClaim,
+  journeysForPersona,
+  requiredDomainsCovered,
+  type PersonaId,
+  type JourneyDomain,
+  type VerificationMode,
+  type JourneyCheck,
+  type AutomatedSuite,
+  type GateVerdict,
+} from "./release-gate";
+
+export {
   ACTIVATION_VERSION,
   ACTIVATION_STEP_IDS,
   activationStepsForRole,
