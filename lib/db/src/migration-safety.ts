@@ -5,9 +5,9 @@
  * forward SQL, optional data migration, validation queries, rollback/recovery,
  * pre-deploy backup expectation, and client compatibility gates.
  *
- * Numbered SQL under lib/db/migrations/ is the reviewed baseline + migrate-only path.
- * drizzle-kit push remains a CI safety net until production deprecates it
- * (see docs/schema-ops.md). Stream B / pass (2) closed roleplay/assessments/analytics.
+ * Numbered SQL under lib/db/migrations/ (+ sales_workflow external) is the
+ * migrate-primary apply path. drizzle-kit push is local-only via push-guard
+ * (see docs/schema-ops.md). Stream C / pass (3) deprecates prod push.
  */
 
 /** How destructive a change is for production scheduling and backup depth. */
@@ -586,7 +586,7 @@ export const MIGRATION_CATALOG: readonly MigrationPlan[] = [
       `SELECT count(*) = 0 AS ok FROM sales_workflow_entities WHERE version <= 0`,
     ],
     rollbackOrRecovery:
-      "Recovery: restore dump. Applied via artifacts/api-server/scripts/apply-sales-workflow-migration.mjs. Do not DROP tables; disable writes in app if rolling back code.",
+      "Recovery: restore dump. Applied via pnpm db:migrate (tracking id 0013_sales_workflow.sql). Legacy: apply-sales-workflow-migration.mjs. Do not DROP tables; disable writes in app if rolling back code.",
     backupExpectation: "logical_dump",
     risk: "additive",
     clientCompatibility: "none_additive",

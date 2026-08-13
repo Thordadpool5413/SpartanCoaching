@@ -59,7 +59,7 @@ members by inference. Before deleting those plaintext rows, export them into a
 KMS-encrypted, platform-admin-only archive, verify row counts and ciphertext
 recovery in a test environment, then delete under an approved retention ticket.
 
-**DB migrate:** after pull, run `pnpm --filter @workspace/db run push` so
+**DB migrate:** after pull, run `pnpm db:migrate` so
 `member_id` / `organization_id` columns exist on `roleplay_sessions`.
 
 ## Production enablement evidence

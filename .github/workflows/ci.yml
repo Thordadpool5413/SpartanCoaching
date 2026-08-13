@@ -71,10 +71,9 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm audit --audit-level high
-      # Schema: ordered SQL migrations then drizzle push for remaining tables
-      - name: Apply SQL migrations
+      # Schema: migrate-primary (numbered SQL + sales_workflow). No drizzle push in CI.
+      - name: Apply SQL migrations (migrate-primary)
         run: pnpm --filter @workspace/db run migrate
-      - run: pnpm --filter @workspace/db push-force
       # HSP-45 — logical snapshot + ephemeral schema restore (non-prod CI DB)
       - name: Database backup restore drill
         run: pnpm --filter @workspace/db run backup-restore-drill

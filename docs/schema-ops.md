@@ -15,38 +15,32 @@ See also: `docs/repository-truth-audit.md` (Phase 1).
 
 - **Source of truth for table definitions:** Drizzle schemas in `lib/db/src/schema/`
 - **Web package:** `artifacts/spartan-coaching/src/shared/schema.ts` is a **compatibility re-export only** of `@workspace/db/schema` (dual-schema elimination). Do not add `pgTable` definitions under the web package; change `lib/db` + migrations instead. Contract: `schema.dualSourceOfTruth.test.ts`.
-- **Dev / Replit apply:** `pnpm --filter @workspace/db run push` (and `push-force` when intentional)
-- **Versioned SQL (lib/db migrate-only product surface):**  
-  - `0001`–`0002` AI/clinical  
-  - `0003` product auth + org billing  
-  - `0004` CMS marketing content  
-  - `0005`–`0008` resource architecture / work / lifecycle / provider resources  
-  - `0009`–`0010` personalization + notifications  
-  - `0011` org admin audit  
-  - `0012` roleplay, assessments, analytics, usage, agreements, chat, site settings, Replit sessions/users  
-  - `lib/hospice-sales-runtime/migrations/001_sales_workflow.sql` — Command Center store + RLS (separate apply)
+- **Primary apply path (production + CI + Replit after pull):** `pnpm db:migrate`
+- **Local-only:** `pnpm db:push` / `push-force` go through `push-guard` (refuses production-looking URLs unless `ALLOW_PROD_PUSH=true`). Prefer writing numbered SQL instead of push.
+- **Versioned SQL (migrate runner):**  
+  - `lib/db/migrations/0001`–`0012` product tables  
+  - external `0013_sales_workflow.sql` tracking id → `lib/hospice-sales-runtime/migrations/001_sales_workflow.sql` (Command Center + RLS)
 
-**Migrate-only:** `pnpm db:migrate` applies all `lib/db/migrations/*.sql` via `schema_migrations`. Coverage inventory: `MIGRATE_ONLY_LIB_DB_TABLES` in `@workspace/db/migration-safety`. CI still runs `push-force` after migrate as a safety net until push is fully retired for production.
+**Migrate-primary:** `pnpm db:migrate` applies all entries from `@workspace/db` `migrate-manifest` (`listMigrationEntries`) into `schema_migrations`. Coverage inventory: `MIGRATE_ONLY_LIB_DB_TABLES`. CI runs **migrate only** (no drizzle push).
 
 **Migration safety catalog (required for every schema change):** `@workspace/db/migration-safety`.
 Defines `MigrationPlan` fields (forward, data migration, validation, rollback/recovery, backup expectation, client compatibility), integrity SQL, lock-risk tables, and the verification checklist. Unit tests: `pnpm --filter @workspace/db test`.
 
 ## Production rules
 
-1. After `git pull` of schema changes, run push **before** smoke tests:
+1. After `git pull` of schema changes, run **migrate** before smoke tests:
    ```bash
-   pnpm --filter @workspace/db run push
+   pnpm db:migrate
+   # production host:
+   ALLOW_PROD_MIGRATE=true REQUIRE_BACKUP_DRILL=true pnpm db:migrate
    ```
-2. Never rely on git alone — Replit Publish does not replace schema push.
-3. Prefer generating a migration for **destructive** or multi-env changes:
-   ```bash
-   # When drizzle-kit generate is configured for the package:
-   pnpm --filter @workspace/db exec drizzle-kit generate
-   ```
-4. Keep AI/clinical migrations as SQL files reviewed in PR.
-5. **Do not DROP** legacy columns/tables until new reads and writes are proven in production-compatible clients (`clientCompatibility: block_until_clients_compatible` + backup completed).
-6. **Pre-deploy backup:** at least a logical dump (`pg_dump`) for any plan with risk `data_backfill` or `destructive`; prefer dump + point-in-time recovery for drops.
-7. **Post-apply integrity** (when `DATABASE_URL` is available):
+2. Never rely on git alone — Replit Publish does not apply schema; run migrate after pull.
+3. **Do not use drizzle push against production.** Schema changes ship as numbered SQL under `lib/db/migrations/` (or hospice-sales-runtime for Command Center).
+4. Prefer generating reviewed SQL for **destructive** or multi-env changes; document a `MigrationPlan` in the safety catalog.
+5. Keep AI/clinical migrations as SQL files reviewed in PR.
+6. **Do not DROP** legacy columns/tables until new reads and writes are proven in production-compatible clients (`clientCompatibility: block_until_clients_compatible` + backup completed).
+7. **Pre-deploy backup:** at least a logical dump (`pg_dump`) for any plan with risk `data_backfill` or `destructive`; prefer dump + point-in-time recovery for drops.
+8. **Post-apply integrity** (when `DATABASE_URL` is available):
    ```bash
    pnpm --filter @workspace/db run verify-integrity
    ```
@@ -60,7 +54,7 @@ Blocking phases encoded in `MIGRATION_VERIFICATION_CHECKLIST`:
 | --- | --- |
 | author | Complete `MigrationPlan`; no silent drops; validation queries; lock-risk review |
 | predeploy | Client compatibility; backup matches `backupExpectation` |
-| apply | Ordered SQL or push; never destructive before clients are compatible |
+| apply | Ordered SQL via migrate; never destructive before clients are compatible |
 | postdeploy | Integrity checks + validation queries + smoke |
 | cleanup | Legacy drop only after dual-write proven |
 
@@ -75,15 +69,17 @@ Lock-risk tables (batch / CONCURRENTLY / maintenance window): `sales_workflow_en
 - [x] Ordered migrate apply runner (`pnpm db:migrate` / `@workspace/db migrate`) with optional `REQUIRE_BACKUP_DRILL=true`
 - [x] CI applies SQL migrations before `push-force` + backup restore drill
 - [x] Full migrate-only **SQL coverage** for all `lib/db` product tables (`MIGRATE_ONLY_LIB_DB_TABLES` contract)
-- [ ] Deprecate `push` for production deploys (local only; CI still uses `push-force` as safety net)
-- [ ] Fold sales_workflow into the same migrate runner (or document dual apply forever)
+- [x] Deprecate `push` for production deploys (push-guard; CI migrate-only)
+- [x] Fold sales_workflow into the same migrate runner (`0013_sales_workflow.sql` tracking id)
 
 **Apply schema after pull:**
 
 ```bash
-pnpm db:migrate          # numbered SQL + schema_migrations tracking
-pnpm db:push             # drizzle kit for any tables not yet in SQL
-# production: ALLOW_PROD_MIGRATE=true REQUIRE_BACKUP_DRILL=true pnpm db:migrate
+pnpm db:migrate
+# production:
+ALLOW_PROD_MIGRATE=true REQUIRE_BACKUP_DRILL=true pnpm db:migrate
+# local experiments only (refuses prod URL):
+pnpm db:push
 ```
 
-Until push is fully retired, treat **missing migrate+push after schema PR** as a release blocker.
+**Release blocker:** missing `pnpm db:migrate` after a schema PR (not push).

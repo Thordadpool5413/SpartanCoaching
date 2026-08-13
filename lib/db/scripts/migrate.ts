@@ -1,29 +1,34 @@
 /**
- * Ordered SQL migration apply runner (Stream A schema integrity + Stream B migrate-only).
+ * Ordered SQL migration apply runner (migrate-primary / pass 3).
  *
- * Applies lib/db/migrations/*.sql in filename order, tracking applied files
- * in schema_migrations. Additive SQL (IF NOT EXISTS) is safe to re-run only
- * for already-applied files (skipped). Never drops production data.
+ * Applies:
+ *   1. lib/db/migrations/*.sql (filename order)
+ *   2. External packages (Sales Command Center sales_workflow)
  *
- * As of 0012_roleplay_assessments_analytics.sql, all lib/db product tables are
- * represented in numbered SQL (see MIGRATE_ONLY_LIB_DB_TABLES). Sales workflow
- * remains under lib/hospice-sales-runtime.
+ * Tracks applied ids in schema_migrations. Never drops production data.
  *
  * Usage:
  *   DATABASE_URL=… pnpm --filter @workspace/db run migrate
+ *   production: ALLOW_PROD_MIGRATE=true REQUIRE_BACKUP_DRILL=true pnpm db:migrate
  *
  * Safety:
  * - Refuses production-looking URLs unless ALLOW_PROD_MIGRATE=true
- * - Optional pre-apply backup gate: REQUIRE_BACKUP_DRILL=true runs backup-restore-drill first
- * - CI may still run drizzle push-force after migrate as a safety net until push is retired.
+ * - Optional REQUIRE_BACKUP_DRILL=true runs backup-restore-drill first
+ * - drizzle-kit push is local-only (see push-guard); not required after migrate
  */
 import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import pg from "pg";
+import {
+  libDbPackageRoot,
+  listMigrationEntries,
+  looksProductionDatabaseUrl,
+  stripSqlTransactionWrappers,
+} from "../src/migrate-manifest";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const migrationsDir = path.join(__dirname, "../migrations");
+const packageRoot = path.join(__dirname, "..");
 
 const databaseUrl = process.env.DATABASE_URL?.trim();
 if (!databaseUrl) {
@@ -31,18 +36,7 @@ if (!databaseUrl) {
   process.exit(2);
 }
 
-function looksProduction(url: string): boolean {
-  const u = url.toLowerCase();
-  return (
-    u.includes("prod") ||
-    u.includes("production") ||
-    u.includes("spartanhospicecoaching") ||
-    process.env.DEPLOY_ENV === "production" ||
-    process.env.APP_ENV === "production"
-  );
-}
-
-if (looksProduction(databaseUrl) && process.env.ALLOW_PROD_MIGRATE !== "true") {
+if (looksProductionDatabaseUrl(databaseUrl) && process.env.ALLOW_PROD_MIGRATE !== "true") {
   console.error(
     "Refusing migrate against production-looking DATABASE_URL. Set ALLOW_PROD_MIGRATE=true only with backup + freeze window.",
   );
@@ -55,7 +49,7 @@ if (process.env.REQUIRE_BACKUP_DRILL === "true") {
   const r = spawnSync(
     process.platform === "win32" ? "pnpm.cmd" : "pnpm",
     ["exec", "tsx", path.join(__dirname, "backup-restore-drill.ts")],
-    { stdio: "inherit", env: process.env, cwd: path.join(__dirname, "..") },
+    { stdio: "inherit", env: process.env, cwd: packageRoot },
   );
   if ((r.status ?? 1) !== 0) {
     console.error("[migrate] Backup drill failed — aborting migrate");
@@ -79,21 +73,13 @@ async function appliedSet(client: pg.PoolClient): Promise<Set<string>> {
   return new Set(res.rows.map((r) => r.id));
 }
 
-function listMigrationFiles(): string[] {
-  if (!fs.existsSync(migrationsDir)) return [];
-  return fs
-    .readdirSync(migrationsDir)
-    .filter((f) => f.endsWith(".sql"))
-    .sort();
-}
-
 async function main(): Promise<void> {
   const client = await pool.connect();
   try {
     await ensureTracking(client);
     const done = await appliedSet(client);
-    const files = listMigrationFiles();
-    if (files.length === 0) {
+    const entries = listMigrationEntries(libDbPackageRoot());
+    if (entries.length === 0) {
       console.log("[migrate] No SQL migration files found");
       return;
     }
@@ -101,25 +87,25 @@ async function main(): Promise<void> {
     let applied = 0;
     let skipped = 0;
 
-    for (const file of files) {
-      if (done.has(file)) {
+    for (const entry of entries) {
+      if (done.has(entry.id)) {
         skipped += 1;
-        console.log(`SKIP ${file}`);
+        console.log(`SKIP ${entry.id} (${entry.repoPath})`);
         continue;
       }
-      const full = path.join(migrationsDir, file);
-      const sql = fs.readFileSync(full, "utf8");
-      console.log(`APPLY ${file}…`);
+      const raw = fs.readFileSync(entry.absPath, "utf8");
+      const sql = stripSqlTransactionWrappers(raw);
+      console.log(`APPLY ${entry.id}… (${entry.repoPath})`);
       await client.query("BEGIN");
       try {
         await client.query(sql);
-        await client.query(`INSERT INTO schema_migrations (id) VALUES ($1)`, [file]);
+        await client.query(`INSERT INTO schema_migrations (id) VALUES ($1)`, [entry.id]);
         await client.query("COMMIT");
         applied += 1;
-        console.log(`OK    ${file}`);
+        console.log(`OK    ${entry.id}`);
       } catch (err) {
         await client.query("ROLLBACK");
-        console.error(`FAIL  ${file}:`, (err as Error).message);
+        console.error(`FAIL  ${entry.id}:`, (err as Error).message);
         process.exitCode = 1;
         return;
       }
@@ -130,7 +116,8 @@ async function main(): Promise<void> {
         ok: true,
         applied,
         skipped,
-        total: files.length,
+        total: entries.length,
+        mode: "migrate_primary",
         at: new Date().toISOString(),
       }),
     );

@@ -24,7 +24,7 @@ A shell `git pull` without Publish can leave the old JS bundle online.
 [ ] Open the SpartanCoaching Replit project that serves spartanhospicecoaching.com
 [ ] Shell: git fetch origin && git checkout main && git pull origin main
 [ ] Confirm: git rev-parse HEAD matches origin/main (same SHA as GitHub)
-[ ] If schema changed recently: pnpm --filter @workspace/db run push
+[ ] If schema changed recently: pnpm db:migrate
 [ ] Publish / Redeploy / Deploy (use the same control you used last time “Published your App”)
 [ ] Wait until deploy status is healthy (no stuck build)
 ```

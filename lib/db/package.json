@@ -10,8 +10,8 @@
     "./ops-readiness": "./src/ops-readiness.ts"
   },
   "scripts": {
-    "push": "drizzle-kit push --config ./drizzle.config.ts",
-    "push-force": "drizzle-kit push --force --config ./drizzle.config.ts",
+    "push": "tsx scripts/push-guard.ts",
+    "push-force": "tsx scripts/push-guard.ts --force",
     "test": "vitest run",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "verify-integrity": "tsx scripts/verify-integrity.ts",

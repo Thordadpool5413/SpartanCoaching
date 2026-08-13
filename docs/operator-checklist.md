@@ -21,7 +21,7 @@ hard metrics or named testimonials.
 
 ## Database
 
-- [ ] `pnpm --filter @workspace/db run push` after schema pulls (auth + roleplay ownership columns).
+- [ ] `pnpm db:migrate` after schema pulls (migrate-primary; not drizzle push).
 - [ ] Backup restore drill completed before large migrations.
 
 ## Hospice Sales Pro smoke
