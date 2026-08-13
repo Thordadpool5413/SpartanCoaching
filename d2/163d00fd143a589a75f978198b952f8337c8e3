@@ -1,0 +1,22 @@
+docs/schema-ops.md
+  h_0446834f150a71 19-29,74,77-79
+lib/db/migrations/0012_roleplay_assessments_analytics.sql
+  h_0446834f150a71 1-211
+lib/db/scripts/migrate.ts
+  h_0446834f150a71 2,8-11,18
+lib/db/src/migration-safety.test.ts
+  h_0446834f150a71 1,8,24,62-118
+lib/db/src/migration-safety.ts
+  h_0446834f150a71 8-10,425-578,603-671
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "d2163d00fd143a589a75f978198b952f8337c8e3",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
