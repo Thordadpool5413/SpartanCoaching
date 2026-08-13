@@ -1,0 +1,18 @@
+lib/field-kit-catalog/src/release-gate.test.ts
+  h_0446834f150a71 54-75
+lib/field-kit-catalog/src/release-gate.ts
+  h_0446834f150a71 175-184,189,192,198,201,212-232,373,376-377,422,426-433,445,457-458,492,504-505,510,521-524
+scripts/release-gate.mjs
+  h_0446834f150a71 25,29-36,48,60-61,95,107-108,113,124-127
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "34f6d79bf04f7eba2822eb1e72bf419bfe264674",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
