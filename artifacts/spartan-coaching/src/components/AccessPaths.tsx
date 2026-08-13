@@ -3,6 +3,7 @@ import { ArrowRight, User, Users } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { PRICING_FACTS } from "@/lib/complianceCopy";
 
 /**
  * Clear dual access model: self-serve individual vs team/evaluation.
@@ -31,7 +32,7 @@ export function AccessPaths({ className }: { className?: string }) {
           </div>
           <div>
             <p className="text-[10px] font-bold tracking-widest uppercase text-primary mb-1">
-              Path A · Individual · Hospice Sales Pro
+              Path A · Individual · {PRICING_FACTS.productName}
             </p>
             <h3 className="text-lg font-display font-bold text-foreground">
               Create account → subscribe
@@ -39,7 +40,9 @@ export function AccessPaths({ className }: { className?: string }) {
           </div>
           <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside leading-relaxed flex-1">
             <li>Create your account</li>
-            <li>Start Hospice Sales Pro at $14.99/week (cancel anytime)</li>
+            <li>
+              Start {PRICING_FACTS.productName} at {PRICING_FACTS.individualWeeklyLabel} (cancel anytime)
+            </li>
             <li>Unlock live tools the same day — web + iOS</li>
           </ol>
           <Button asChild className="font-bold w-full sm:w-auto">

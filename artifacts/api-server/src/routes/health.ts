@@ -6,6 +6,12 @@ import {
 } from "../billing/billingEmailMetrics";
 import { clinicalRuntimeReadiness } from "../clinical/runtimeReadiness";
 import { coverageUsesEducationalBaseline } from "../clinical/coverageBootstrap";
+import { getRequestMetricsSnapshot } from "../observability/requestMetrics";
+import {
+  RELIABILITY_TARGETS,
+  evaluateAgainstTarget,
+} from "../observability/reliabilityTargets";
+import { buildClientConfig } from "../delivery/clientConfig";
 
 const router: IRouter = Router();
 
@@ -121,5 +127,75 @@ async function sendClinicalRuntimeHealth(
 
 router.get("/healthz/clinical", sendClinicalRuntimeHealth);
 router.get("/admin/clinical-runtime-health", sendClinicalRuntimeHealth);
+
+/**
+ * GET /healthz/reliability
+ *
+ * Live API latency/error snapshot + code-defined SLO targets for web/iOS/API.
+ * No secrets, no PHI, no request bodies. Safe for ops dashboards / smoke scripts.
+ */
+/**
+ * GET /api/client-config
+ * Public delivery contract: environment, feature flags, min client versions, rollback steps.
+ * Optional headers: X-Client-Platform, X-Client-Version, X-Client-Api-Contract
+ */
+router.get("/client-config", (req, res) => {
+  const platform = String(req.get("x-client-platform") || "").toLowerCase();
+  const version = req.get("x-client-version") || undefined;
+  const contractRaw = req.get("x-client-api-contract");
+  const clientApiContract = contractRaw ? Number(contractRaw) : null;
+  const cfg = buildClientConfig(process.env, {
+    iosAppVersion: platform === "ios" ? version : undefined,
+    clientApiContract:
+      clientApiContract != null && !Number.isNaN(clientApiContract)
+        ? clientApiContract
+        : null,
+  });
+  res.json(cfg);
+});
+
+router.get("/healthz/reliability", (_req, res) => {
+  const metrics = getRequestMetricsSnapshot();
+  const evaluations = [
+    metrics.p95NonAiMs != null
+      ? evaluateAgainstTarget("api.request_p95", metrics.p95NonAiMs)
+      : null,
+    metrics.p95AiMs != null ? evaluateAgainstTarget("api.ai_p95", metrics.p95AiMs) : null,
+    metrics.errorRate != null
+      ? evaluateAgainstTarget("api.error_rate", metrics.errorRate)
+      : null,
+  ].filter(Boolean);
+
+  const anyAlert = evaluations.some((e) => e && e.status === "alert");
+  const anyWatch = evaluations.some((e) => e && e.status === "watch");
+
+  res.status(200).json({
+    ok: !anyAlert,
+    status: anyAlert ? "degraded" : anyWatch ? "watch" : "ok",
+    ownership: {
+      platform_ops: "Platform / deploy owner — health, 5xx, billing email, Stripe webhook",
+      api: "API maintainers — latency, AI timeouts",
+      web: "Web maintainers — Core Web Vitals, bundle budgets (measure in Lighthouse/CI)",
+      ios: "iOS maintainers — cold start, memory (measure in TestFlight/Instruments)",
+    },
+    live: metrics,
+    evaluations,
+    targets: RELIABILITY_TARGETS.map((t) => ({
+      id: t.id,
+      surface: t.surface,
+      metric: t.metric,
+      target: t.target,
+      alert: t.alert,
+      unit: t.unit,
+      owner: t.owner,
+      notes: t.notes,
+    })),
+    notes: [
+      "Client (web/iOS) targets are contracts for measurement — not live samples from this process.",
+      "Fix proven bottlenecks with before/after measurements; do not optimize without data.",
+      "Logs omit bodies and redact auth secrets (see logger + safeLog).",
+    ],
+  });
+});
 
 export default router;

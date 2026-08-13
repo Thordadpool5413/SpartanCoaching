@@ -447,6 +447,37 @@ export {
 } from "./related-recommendations";
 
 export {
+  PRODUCT_OUTCOMES,
+  PRODUCT_EVENT_TYPE,
+  PRODUCT_METRICS,
+  PRODUCT_EVENT_DEDUPE_MS,
+  SAFE_METADATA_KEYS,
+  SAFE_METADATA_VALUE_MAX,
+  isProductOutcome,
+  isIdempotentOutcome,
+  sanitizeAnalyticsMetadata,
+  productEventPayload,
+  productEventDedupeKey,
+  type ProductOutcome,
+  type SafeMetadataKey,
+  type SafeProductMetadata,
+  type ProductMetricId,
+} from "./product-analytics";
+
+export {
+  API_CONTRACT_VERSION,
+  MIN_IOS_APP_VERSION,
+  MIN_WEB_APP_VERSION,
+  PRODUCT_FEATURE_FLAG_KEYS,
+  parseSemver,
+  isVersionAtLeast,
+  checkIosCompatibility,
+  type DeployEnvironment,
+  type ProductFeatureFlagKey,
+  type CompatibilityCheck,
+} from "./client-delivery";
+
+export {
   ACTIVATION_VERSION,
   ACTIVATION_STEP_IDS,
   activationStepsForRole,

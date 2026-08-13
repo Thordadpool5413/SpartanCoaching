@@ -66,6 +66,7 @@ import {
   eventAnalyticsSchema,
   visitorAnalyticsSchema,
 } from "@workspace/db";
+import { sanitizeAnalyticsMetadata } from "@workspace/field-kit-catalog";
 
 import {
   ObjectStorageService,
@@ -1483,9 +1484,17 @@ Build a specific Monday–Friday territory plan for this week.`;
       // Never trust client-supplied memberId — derive it from the authenticated session.
       // loadSession runs globally and populates req.clientMemberId when a valid Bearer
       // token or session cookie is present (mobile app and web app both set this).
+      // Never store free-text / PHI-like metadata (HSP-42).
       const { memberId: _stripped, ...bodyWithoutMemberId } = req.body as Record<string, unknown>;
       const sessionMemberId = (req as import("../auth/middleware").AuthedRequest).clientMemberId ?? null;
-      const eventData = insertEventTrackingSchema.parse({ ...bodyWithoutMemberId, memberId: sessionMemberId });
+      const safeMetadata = sanitizeAnalyticsMetadata(
+        (bodyWithoutMemberId as { metadata?: unknown }).metadata,
+      );
+      const eventData = insertEventTrackingSchema.parse({
+        ...bodyWithoutMemberId,
+        metadata: safeMetadata,
+        memberId: sessionMemberId,
+      });
       await storage.trackEvent(eventData);
       res.json({ success: true });
     } catch (error: any) {

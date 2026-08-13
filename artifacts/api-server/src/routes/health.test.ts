@@ -170,3 +170,40 @@ describe("GET /healthz — billing-email hydration", () => {
     expect(res.body.billingEmail.failures24h).toBe(1);
   });
 });
+
+describe("GET /healthz/reliability — SLO snapshot", () => {
+  it("returns targets, ownership, and live metrics without secrets", async () => {
+    const app = buildApp();
+    const res = await request(app).get("/healthz/reliability");
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty("ok");
+    expect(res.body).toHaveProperty("live");
+    expect(res.body.live).toHaveProperty("uptimeSec");
+    expect(res.body.live).toHaveProperty("memory");
+    expect(Array.isArray(res.body.targets)).toBe(true);
+    expect(res.body.targets.length).toBeGreaterThan(5);
+    expect(res.body.ownership).toHaveProperty("platform_ops");
+    expect(res.body.ownership).toHaveProperty("web");
+    expect(res.body.ownership).toHaveProperty("ios");
+    const blob = JSON.stringify(res.body);
+    expect(blob).not.toMatch(/password|Bearer |sk_live|STRIPE_SECRET/i);
+  });
+});
+
+describe("GET /client-config — delivery contract", () => {
+  it("returns flags, contract version, and rollback without secrets", async () => {
+    const app = buildApp();
+    const res = await request(app)
+      .get("/client-config")
+      .set("X-Client-Platform", "ios")
+      .set("X-Client-Version", "1.0.0");
+
+    expect(res.status).toBe(200);
+    expect(res.body.apiContractVersion).toBeGreaterThanOrEqual(1);
+    expect(res.body.flags).toBeTypeOf("object");
+    expect(res.body.rollback).toHaveProperty("ios");
+    expect(res.body.compatibility?.ios?.ok).toBe(true);
+    expect(JSON.stringify(res.body)).not.toMatch(/sk_live|passwordHash/i);
+  });
+});

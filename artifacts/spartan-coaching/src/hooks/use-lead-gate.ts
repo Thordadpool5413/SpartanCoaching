@@ -71,11 +71,14 @@ export interface LeadGateState {
   open: boolean;
   nameVal: string;
   emailVal: string;
+  /** Optional marketing email — never required for resource delivery (HSP-40) */
+  marketingOptIn: boolean;
   isPending: boolean;
   isReturning: boolean;
   setOpen: (open: boolean) => void;
   setNameVal: (v: string) => void;
   setEmailVal: (v: string) => void;
+  setMarketingOptIn: (v: boolean) => void;
   onSubmit: () => void;
   toolName: string;
 }
@@ -89,15 +92,31 @@ export function useLeadGate(toolName: string) {
   const [open, setOpen] = useState(false);
   const [nameVal, setNameVal] = useState("");
   const [emailVal, setEmailVal] = useState("");
+  const [marketingOptIn, setMarketingOptIn] = useState(false);
   const [isPending, setIsPending] = useState(false);
   const [isReturning, setIsReturning] = useState(false);
   const pendingFnRef = useRef<(() => void) | null>(null);
   const pendingEmailPdfRef = useRef<(() => EmailPdfPayload | null) | null>(null);
 
   const runWithIdentity = useCallback(
-    async (name: string, email: string, fn: () => void, getEmailPdf?: (() => EmailPdfPayload | null) | null) => {
+    async (
+      name: string,
+      email: string,
+      fn: () => void,
+      getEmailPdf?: (() => EmailPdfPayload | null) | null,
+      optInMarketing?: boolean,
+    ) => {
       storeLead({ name, email });
       trackUsage(name, email, toolName).catch(() => {});
+      // Resource delivery path always captures the lead for the requested tool.
+      // Marketing list is only joined when the user explicitly opts in.
+      if (optInMarketing) {
+        try {
+          await apiRequest("POST", "/api/newsletter/subscribe", { email });
+        } catch {
+          // ignore — resource access still proceeds
+        }
+      }
       // resource-leads only for non-members (avoid polluting lead CRM with clients)
       if (!isAuthenticated) {
         await submitLead(name, email, toolName);
@@ -137,6 +156,8 @@ export function useLeadGate(toolName: string) {
         setEmailVal("");
         setIsReturning(false);
       }
+      // Marketing opt-in is always optional and defaults off each open.
+      setMarketingOptIn(false);
       setOpen(true);
     },
     [isAuthenticated, member, canUseFieldKit, runWithIdentity],
@@ -148,27 +169,31 @@ export function useLeadGate(toolName: string) {
     const lead = { name: nameVal.trim(), email: emailVal.trim() };
     const fn = pendingFnRef.current;
     const getEmailPdfFn = pendingEmailPdfRef.current;
+    const optIn = marketingOptIn;
     pendingFnRef.current = null;
     pendingEmailPdfRef.current = null;
 
     try {
-      await runWithIdentity(lead.name, lead.email, () => {}, getEmailPdfFn);
+      await runWithIdentity(lead.name, lead.email, () => {}, getEmailPdfFn, optIn);
       setOpen(false);
+      setMarketingOptIn(false);
       if (fn) fn();
     } finally {
       setIsPending(false);
     }
-  }, [nameVal, emailVal, runWithIdentity]);
+  }, [nameVal, emailVal, marketingOptIn, runWithIdentity]);
 
   const gateState: LeadGateState = {
     open,
     nameVal,
     emailVal,
+    marketingOptIn,
     isPending,
     isReturning,
     setOpen,
     setNameVal,
     setEmailVal,
+    setMarketingOptIn,
     onSubmit,
     toolName,
   };

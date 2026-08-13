@@ -7,7 +7,7 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { CheckCircle2, Circle, ArrowRight, Loader2 } from "lucide-react";
-import { trackEvent } from "@/lib/analytics";
+import { trackEvent, trackProductOutcome } from "@/lib/analytics";
 import type { ActivationStepStatus, ActivationView } from "@/lib/fieldKitCatalog";
 import { cn } from "@/lib/utils";
 
@@ -60,9 +60,20 @@ export function ActivationLoopPanel({ enabled = true }: Props) {
           trackEvent("activation_skipped", "onboarding");
         } else if (stepId) {
           trackEvent("activation_step", stepId);
+          // Product outcome: confirmed next action in activation loop (safe id only)
+          trackProductOutcome("next_action_confirmation", {
+            stepId: String(stepId).slice(0, 64),
+            surface: "web",
+          });
         }
         if (data.activation?.activated) {
-          trackEvent("activation_completed", data.activation.role || "unknown");
+          const role = typeof data.activation.role === "string" ? data.activation.role : "unknown";
+          trackEvent("activation_completed", role);
+          trackProductOutcome("workflow_completion", {
+            outcome: "activation",
+            role: role.replace(/\s+/g, "_").slice(0, 64),
+            surface: "web",
+          });
         }
       }
     } finally {
