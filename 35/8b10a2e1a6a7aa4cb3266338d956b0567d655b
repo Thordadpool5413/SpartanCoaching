@@ -1,0 +1,24 @@
+artifacts/spartan-coaching-mobile/__tests__/command-center-roleplay.test.ts
+  h_0446834f150a71 1-62
+artifacts/spartan-coaching-mobile/app/sales-workflow.tsx
+  h_0446834f150a71 36-44,161-163,283-342,791-910,1035-1056
+artifacts/spartan-coaching-mobile/lib/commandCenterRoleplay.ts
+  h_0446834f150a71 1-71
+docs/command-center-parity.md
+  h_0446834f150a71 26
+lib/field-kit-catalog/src/command-center.ts
+  h_0446834f150a71 73-75
+lib/field-kit-catalog/src/parity.test.ts
+  h_0446834f150a71 153,162-163
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "358b10a2e1a6a7aa4cb3266338d956b0567d655b",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
