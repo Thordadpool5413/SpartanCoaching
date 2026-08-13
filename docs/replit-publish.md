@@ -24,17 +24,30 @@ A shell `git pull` without Publish can leave the old JS bundle online.
 [ ] Open the SpartanCoaching Replit project that serves spartanhospicecoaching.com
 [ ] Shell: git fetch origin && git checkout main && git pull origin main
 [ ] Confirm: git rev-parse HEAD matches origin/main (same SHA as GitHub)
-[ ] If schema changed recently: pnpm db:migrate
+[ ] Schema (required after migrate PRs — includes 0014 org structure + 0015 contacts/offboard):
+      ALLOW_PROD_MIGRATE=true REQUIRE_BACKUP_DRILL=true pnpm db:migrate
+    (local/dev only: pnpm db:migrate without prod flags)
 [ ] Publish / Redeploy / Deploy (use the same control you used last time “Published your App”)
 [ ] Wait until deploy status is healthy (no stuck build)
 ```
 
-### Optional health
+### Prove deploy (from any machine)
 
 ```bash
-# From any machine after deploy
-curl -sS "https://spartanhospicecoaching.com/api/health"
+# Full live release-gate stack (health + public parity + org unauth gates)
+pnpm run release-gate:live -- https://spartanhospicecoaching.com
+
+# Or legacy:
 node scripts/smoke-health.mjs https://spartanhospicecoaching.com
+node scripts/smoke-parity.mjs https://spartanhospicecoaching.com
+```
+
+**Expected after a successful pull of current main:** `/api/healthz/ops-readiness`, `/api/client-config`, `/api/healthz/reliability`, `/api/org/structure`, `/api/org/profile` no longer 404. Soft WARNs on those paths mean the host is still behind GitHub.
+
+Optional entitled seat (do not commit secrets):
+
+```bash
+PARITY_EMAIL=… PARITY_PASSWORD=… pnpm run release-gate:live -- https://spartanhospicecoaching.com
 ```
 
 ---
