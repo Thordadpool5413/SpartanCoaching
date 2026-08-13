@@ -1,0 +1,28 @@
+artifacts/api-server/src/auth/orgAdminPolicy.test.ts
+  h_0446834f150a71 1-139
+artifacts/api-server/src/auth/orgAdminPolicy.ts
+  h_0446834f150a71 1-112
+artifacts/api-server/src/routes/authRoutes.ts
+  h_0446834f150a71 74-80,1615-1618,1621,1623-1624,1651-1655,2098-2104,2144-2148,2181-2204,2207-2212,2214,2216
+artifacts/api-server/src/routes/orgAdmin.test.ts
+  h_0446834f150a71 2-4,7-11,13-17
+artifacts/spartan-coaching/src/lib/workspaceShell.test.ts
+  h_0446834f150a71 96-103
+artifacts/spartan-coaching/src/lib/workspaceShell.ts
+  h_0446834f150a71 270,274-277
+artifacts/spartan-coaching/src/pages/OrgAdmin.panels.test.tsx
+  h_0446834f150a71 1-37
+artifacts/spartan-coaching/src/pages/OrgAdmin.tsx
+  h_0446834f150a71 52-58,66,70,80,84,93-100,221-260,349,353,369-383
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "33286367df4e9c57c83fc7133215c12df6567762",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
