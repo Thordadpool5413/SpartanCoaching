@@ -105,7 +105,8 @@ export const COMMAND_CENTER_CAPABILITIES: CommandCenterCapability[] = [
     api: ["POST /cycles/:id/next-call"],
     sharedFact: true,
     web: "full",
-    mobile: "none",
+    mobile: "supported",
+    notes: "Mobile: accepted next_call actions on day workflow; same next-call API as web.",
   },
   {
     id: "email-draft",
@@ -113,7 +114,8 @@ export const COMMAND_CENTER_CAPABILITIES: CommandCenterCapability[] = [
     api: ["POST /next-actions/:id/email-draft"],
     sharedFact: true,
     web: "full",
-    mobile: "none",
+    mobile: "supported",
+    notes: "Mobile: accepted email actions; draft preview only — never auto-sends mail.",
   },
   {
     id: "csv-import",

@@ -25,6 +25,8 @@ Clients may differ in chrome and depth; they must not invent alternate write API
 | AI debrief draft | `POST /debrief/draft` (never auto-saves) |
 | Complete call | `POST /calls/:id/complete` |
 | Approve next actions | `POST /coaching/:id/approve` (human selects actions after complete) |
+| Schedule next from action | `POST /cycles/:id/next-call` (accepted `next_call` actions) |
+| Email draft from action | `POST /next-actions/:id/email-draft` (preview only; never auto-sends) |
 
 ### Web-only for now (documented gaps)
 
@@ -32,8 +34,6 @@ Clients may differ in chrome and depth; they must not invent alternate write API
 |------------|-----|--------|
 | Account ledger grid | `GET /accounts` | Mobile creates account inline on schedule |
 | Workflow roleplay | `POST /plans/:id/roleplay` … | Use classic Role-Play tool on mobile |
-| Schedule next from action | `POST /cycles/:id/next-call` | |
-| Email draft from action | `POST /next-actions/:id/email-draft` | |
 | CSV import | import routes | Org admin |
 | Calendar connect | integration routes | When OAuth configured |
 

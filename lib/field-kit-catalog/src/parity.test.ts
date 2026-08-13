@@ -152,6 +152,8 @@ describe("Command Center capability matrix", () => {
         "debrief-draft",
         "complete-call",
         "approve-coaching",
+        "schedule-next",
+        "email-draft",
       ]),
     );
     const gaps = mobileCommandCenterGaps().map((c) => c.id);
@@ -159,12 +161,12 @@ describe("Command Center capability matrix", () => {
       expect.arrayContaining([
         "accounts",
         "roleplay",
-        "schedule-next",
-        "email-draft",
         "csv-import",
       ]),
     );
     expect(gaps).not.toContain("approve-coaching");
+    expect(gaps).not.toContain("schedule-next");
+    expect(gaps).not.toContain("email-draft");
   });
 
   it("every capability has at least one API path", () => {

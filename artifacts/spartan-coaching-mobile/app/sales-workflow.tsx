@@ -19,6 +19,13 @@ import { SpartanCard } from "@/components/ui/SpartanCard";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { getToolById } from "@workspace/field-kit-catalog";
 import { memberIdToWorkflowUuid } from "@workspace/tenant-ids";
+import {
+  buildEmailDraftPayload,
+  buildNextCallPayload,
+  canDraftEmailFromAction,
+  canScheduleNextFromAction,
+  type WorkflowNextActionLike,
+} from "@/lib/commandCenterNextActions";
 
 type WorkflowCall = {
   id: string;
@@ -28,10 +35,16 @@ type WorkflowCall = {
   schedule: { startsAt: string; durationMinutes: number };
 };
 type WorkflowPlan = { id: string; callId: string; version: number; status: string };
+type WorkflowAction = WorkflowNextActionLike & {
+  id: string;
+  title: string;
+  status: string;
+  dueAt?: string;
+};
 type TodayResponse = {
   calls: WorkflowCall[];
   plans: WorkflowPlan[];
-  actions: Array<{ id: string; title: string; status: string; dueAt?: string }>;
+  actions: WorkflowAction[];
   syncJobs: Array<{ id: string; status: string }>;
 };
 type CallOutcome =
@@ -116,6 +129,16 @@ export default function SalesWorkflowScreen() {
   const [draftMetaByCall, setDraftMetaByCall] = useState<Record<string, DraftMeta>>({});
   const [draftingCallId, setDraftingCallId] = useState<string | null>(null);
   const [coachingReview, setCoachingReview] = useState<CoachingReview | null>(null);
+  /** Action id for inline schedule-next form (pass 5). */
+  const [scheduleNextId, setScheduleNextId] = useState<string | null>(null);
+  const [nextPurpose, setNextPurpose] = useState("");
+  const [nextDate, setNextDate] = useState(new Date().toISOString().slice(0, 10));
+  const [nextTime, setNextTime] = useState("10:00");
+  const [emailDraftPreview, setEmailDraftPreview] = useState<{
+    actionId: string;
+    subject: string;
+    body: string;
+  } | null>(null);
 
   const bounds = useMemo(() => {
     const start = new Date(`${date}T00:00:00`);
@@ -346,6 +369,72 @@ export default function SalesWorkflowScreen() {
       await load();
     } catch {
       setError("Could not approve next actions. Try again or review later.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const openScheduleNext = (action: WorkflowAction) => {
+    setScheduleNextId(action.id);
+    setNextPurpose(action.title || "Follow-up visit");
+    setEmailDraftPreview(null);
+    setError("");
+  };
+
+  const scheduleNextFromAction = async (action: WorkflowAction) => {
+    if (!canScheduleNextFromAction(action) || !action.cycleId) {
+      setError("This action cannot be scheduled yet.");
+      return;
+    }
+    if (!nextPurpose.trim()) {
+      setError("Add a purpose for the next call.");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      const startsAt = new Date(`${nextDate}T${nextTime}:00`).toISOString();
+      await apiPost(
+        `/api/v1/sales-workflow/cycles/${action.cycleId}/next-call`,
+        buildNextCallPayload({
+          action,
+          purpose: nextPurpose,
+          startsAtIso: startsAt,
+        }),
+        { idempotencyKey: requestKey() },
+      );
+      setScheduleNextId(null);
+      setNextPurpose("");
+      await load();
+    } catch {
+      setError("Could not schedule the next call. Refresh and try again.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const draftEmailFromAction = async (action: WorkflowAction) => {
+    if (!canDraftEmailFromAction(action)) {
+      setError("This action is not ready for an email draft.");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      const draft = await apiPost<{ subject?: string; body?: string }>(
+        `/api/v1/sales-workflow/next-actions/${action.id}/email-draft`,
+        buildEmailDraftPayload(action),
+        { idempotencyKey: requestKey() },
+      );
+      setEmailDraftPreview({
+        actionId: action.id,
+        subject: draft.subject || "(no subject)",
+        body: (draft.body || "").slice(0, 2000),
+      });
+      setScheduleNextId(null);
+      await load();
+    } catch {
+      setError("Could not create email draft. Try again.");
     } finally {
       setSaving(false);
     }
@@ -673,12 +762,136 @@ export default function SalesWorkflowScreen() {
         )}
 
         {data.actions.length > 0 && (
-          <View style={[styles.card, { borderColor: colors.border, backgroundColor: colors.card }]}>
+          <View
+            style={[styles.card, { borderColor: colors.border, backgroundColor: colors.card }]}
+            testID="card-next-actions"
+          >
             <Text style={[styles.cardTitle, { color: colors.foreground }]}>Next actions</Text>
+            <Text style={{ color: colors.mutedForeground, fontSize: 12, marginBottom: 4 }}>
+              Approved actions only — schedule the next visit or draft a follow-up email.
+            </Text>
             {data.actions.map((action) => (
-              <Text key={action.id} style={{ color: colors.foreground, marginTop: 8 }}>
-                • {action.title}
-              </Text>
+              <View
+                key={action.id}
+                style={[styles.actionRow, { borderColor: colors.border }]}
+                testID={`next-action-${action.id}`}
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={{ color: colors.mutedForeground, fontSize: 11, fontWeight: "700" }}>
+                    {(action.type || "task").replace("_", " ")} · {action.status || "open"}
+                  </Text>
+                  <Text style={{ color: colors.foreground, marginTop: 4, fontWeight: "700" }}>
+                    {action.title}
+                  </Text>
+                  {canScheduleNextFromAction(action) ? (
+                    scheduleNextId === action.id ? (
+                      <View style={{ marginTop: 10 }}>
+                        <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>
+                          Purpose
+                        </Text>
+                        <TextInput
+                          value={nextPurpose}
+                          onChangeText={setNextPurpose}
+                          style={[
+                            styles.input,
+                            {
+                              borderColor: colors.border,
+                              color: colors.foreground,
+                              backgroundColor: colors.background,
+                            },
+                          ]}
+                          testID="input-next-call-purpose"
+                        />
+                        <View style={styles.dateRow}>
+                          <TextInput
+                            value={nextDate}
+                            onChangeText={setNextDate}
+                            placeholder="YYYY-MM-DD"
+                            style={[
+                              styles.input,
+                              {
+                                borderColor: colors.border,
+                                color: colors.foreground,
+                                backgroundColor: colors.background,
+                              },
+                            ]}
+                            testID="input-next-call-date"
+                          />
+                          <TextInput
+                            value={nextTime}
+                            onChangeText={setNextTime}
+                            placeholder="HH:MM"
+                            style={[
+                              styles.input,
+                              {
+                                borderColor: colors.border,
+                                color: colors.foreground,
+                                backgroundColor: colors.background,
+                              },
+                            ]}
+                            testID="input-next-call-time"
+                          />
+                        </View>
+                        <SpartanButton
+                          title={saving ? "Scheduling…" : "Confirm next call"}
+                          disabled={saving}
+                          onPress={() => void scheduleNextFromAction(action)}
+                          testID="button-confirm-next-call"
+                        />
+                        <Pressable
+                          onPress={() => setScheduleNextId(null)}
+                          style={[styles.secondary, { borderColor: colors.border }]}
+                        >
+                          <Text style={{ color: colors.mutedForeground, fontWeight: "700" }}>
+                            Cancel
+                          </Text>
+                        </Pressable>
+                      </View>
+                    ) : (
+                      <SpartanButton
+                        title="Schedule next call"
+                        variant="outline"
+                        disabled={saving}
+                        onPress={() => openScheduleNext(action)}
+                        style={{ marginTop: 10 }}
+                        testID={`button-schedule-next-${action.id}`}
+                      />
+                    )
+                  ) : null}
+                  {canDraftEmailFromAction(action) ? (
+                    <SpartanButton
+                      title={saving ? "Drafting…" : "Create email draft"}
+                      variant="outline"
+                      disabled={saving}
+                      onPress={() => void draftEmailFromAction(action)}
+                      style={{ marginTop: 10 }}
+                      testID={`button-email-draft-${action.id}`}
+                    />
+                  ) : null}
+                  {emailDraftPreview?.actionId === action.id ? (
+                    <View
+                      style={[
+                        styles.draftPreview,
+                        { borderColor: colors.border, marginTop: 10 },
+                      ]}
+                      testID="email-draft-preview"
+                    >
+                      <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>
+                        Draft subject
+                      </Text>
+                      <Text style={{ color: colors.foreground, fontWeight: "700" }}>
+                        {emailDraftPreview.subject}
+                      </Text>
+                      <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>
+                        Draft body (copy on device — no PHI)
+                      </Text>
+                      <Text style={{ color: colors.mutedForeground, fontSize: 13, lineHeight: 18 }}>
+                        {emailDraftPreview.body || "Empty draft body"}
+                      </Text>
+                    </View>
+                  ) : null}
+                </View>
+              </View>
             ))}
           </View>
         )}
