@@ -1,0 +1,32 @@
+.github/workflows/ci.yml
+  h_0446834f150a71 75-79
+artifacts/api-server/src/routes/health.test.ts
+  h_0446834f150a71 210-225
+artifacts/api-server/src/routes/health.ts
+  h_0446834f150a71 15,138-158
+lib/db/package.json
+  h_0446834f150a71 9-10,17-18
+lib/db/scripts/backup-restore-drill.ts
+  h_0446834f150a71 1-162
+lib/db/src/index.ts
+  h_0446834f150a71 16
+lib/db/src/ops-readiness.test.ts
+  h_0446834f150a71 1-65
+lib/db/src/ops-readiness.ts
+  h_0446834f150a71 1-226
+package.json
+  h_0446834f150a71 19-21
+scripts/smoke-health.mjs
+  h_0446834f150a71 74-100
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "8b37de8883b5acfb07196721ea87c3cb8a43535c",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
