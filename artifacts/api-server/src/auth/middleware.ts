@@ -4,6 +4,7 @@ import { eq, and, gt } from "drizzle-orm";
 import { hashToken } from "./crypto";
 import { evaluateFieldKitAccess, refreshOrgStatus, type FieldKitAccess } from "./entitlement";
 import { db } from "../db";
+import { buildApiErrorBody } from "@workspace/api-contract";
 export { isAdminRequest, requireAdmin } from "./adminAuthorization";
 
 const COOKIE_NAME = "spartan_session";
@@ -93,7 +94,7 @@ export async function loadSession(req: AuthedRequest, _res: Response, next: Next
 /** Requires a valid login session (member present). Does not require membership entitlement. */
 export function requireAuth(req: AuthedRequest, res: Response, next: NextFunction) {
   if (!req.clientMemberId || !req.fieldKit?.member) {
-    return res.status(401).json({ error: "Authentication required", code: "UNAUTHENTICATED" });
+    return res.status(401).json(buildApiErrorBody({ code: "UNAUTHENTICATED" }));
   }
   next();
 }
@@ -101,14 +102,15 @@ export function requireAuth(req: AuthedRequest, res: Response, next: NextFunctio
 /** Requires active membership access (trial or active org). */
 export function requireFieldKit(req: AuthedRequest, res: Response, next: NextFunction) {
   if (!req.clientMemberId || !req.fieldKit?.member) {
-    return res.status(401).json({ error: "Authentication required", code: "UNAUTHENTICATED" });
+    return res.status(401).json(buildApiErrorBody({ code: "UNAUTHENTICATED" }));
   }
   if (!req.fieldKit.allowed) {
-    return res.status(403).json({
-      error: "Membership access is not active",
-      code: "FIELD_KIT_DENIED",
-      reason: req.fieldKit.reason,
-    });
+    return res.status(403).json(
+      buildApiErrorBody({
+        code: "FIELD_KIT_DENIED",
+        reason: req.fieldKit.reason,
+      }),
+    );
   }
   next();
 }
@@ -116,7 +118,7 @@ export function requireFieldKit(req: AuthedRequest, res: Response, next: NextFun
 export function requireOrgAdmin(req: AuthedRequest, res: Response, next: NextFunction) {
   const role = req.fieldKit?.member?.role;
   if (!req.fieldKit?.member || (role !== "org_admin" && role !== "platform_admin")) {
-    return res.status(403).json({ error: "Organization admin required", code: "ORG_ADMIN_REQUIRED" });
+    return res.status(403).json(buildApiErrorBody({ code: "ORG_ADMIN_REQUIRED" }));
   }
   next();
 }

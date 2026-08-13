@@ -2,11 +2,37 @@
 
 **Decision (2026-08-07):** The live HTTP contract is **Express route modules + Zod (and package schemas)**, not OpenAPI.
 
+**Machine-readable contract helpers:** `@workspace/api-contract`  
+- Stable error codes/envelope: `buildApiErrorBody`, `CLIENT_CRITICAL_ERROR_CODES`  
+- Shared web+iOS paths: `SHARED_API_PATHS`  
+- Compatibility: `API_DEPRECATION_WINDOW_MONTHS` (6), `API_CONTRACT_VERSION` (`1`)
+
+## Error envelope (stable)
+
+```json
+{ "error": "human message", "code": "UNAUTHENTICATED", "reason": "optional" }
+```
+
+Critical codes both clients must handle: `UNAUTHENTICATED` (401), `FIELD_KIT_DENIED` (403 + reason), `ORG_ADMIN_REQUIRED` (403), `ADMIN_REQUIRED` (401/403).
+
+## Backward compatibility
+
+| Change type | Policy |
+|-------------|--------|
+| Additive JSON fields | Allowed anytime |
+| Rename/remove error `code` or required field | 6-month deprecation window minimum |
+| Remove endpoint | Deprecate first; keep callable for window |
+| New required request field | Breaking unless server defaults it |
+| iOS min build | `MIN_SUPPORTED_IOS_BUILD` in package (`null` = all current releases) |
+
+Retire a contract only after: window elapsed, smoke-parity green, no TestFlight build below min still required.
+
 ## Authoritative sources
 
 | Concern | Source of truth |
 |---------|-----------------|
 | Route paths, methods, middleware | `artifacts/api-server/src/app.ts` and `routes/*`, `billing/*`, `auth/*` |
+| Shared path inventory + error codes | `@workspace/api-contract` |
 | Request validation | Zod in route handlers, `@workspace/db` schemas, `@workspace/spartan-ai-tools`, sales debrief schemas |
 | Authz gates | `requireAuth`, `requireFieldKit`, `requireOrgAdmin`, `requireAdmin`, workflow `assertWorkflowAction` |
 | Entitlement rules | `auth/evaluateAccess.ts` (pure) |

@@ -1,4 +1,8 @@
 import type { NextFunction, Request, Response } from "express";
+import {
+  adminRequiredStatus,
+  buildApiErrorBody,
+} from "@workspace/api-contract";
 
 export type AdminAuthorizationRequest = Request & {
   clientMemberId?: number;
@@ -21,8 +25,7 @@ export function requireAdmin(
   next: NextFunction,
 ) {
   if (isAdminRequest(req)) return next();
-  return res.status(req.clientMemberId ? 403 : 401).json({
-    error: "Platform administrator session required",
-    code: "ADMIN_REQUIRED",
-  });
+  return res
+    .status(adminRequiredStatus(Boolean(req.clientMemberId)))
+    .json(buildApiErrorBody({ code: "ADMIN_REQUIRED" }));
 }
