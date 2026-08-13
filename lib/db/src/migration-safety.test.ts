@@ -1,10 +1,11 @@
-import { readFileSync, existsSync } from "node:fs";
+import { readFileSync, existsSync, readdirSync } from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import { describe, expect, it } from "vitest";
 import {
   MIGRATION_CATALOG,
   MIGRATION_VERIFICATION_CHECKLIST,
+  MIGRATE_ONLY_LIB_DB_TABLES,
   INTEGRITY_CHECKS,
   LOCK_RISK_TABLES,
   REPRESENTATIVE_TEST_FIXTURES,
@@ -20,6 +21,7 @@ import {
 } from "./migration-safety";
 
 const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), "../../..");
+const libDbMigrationsDir = path.join(repoRoot, "lib/db/migrations");
 
 describe("migration verification checklist", () => {
   it("covers all operational phases with blocking items", () => {
@@ -57,6 +59,63 @@ describe("migration catalog", () => {
     expect(paths[0]).toContain("0001_");
     expect(paths.at(-1)).toContain("sales_workflow");
     expect(paths).toHaveLength(MIGRATION_CATALOG.length);
+    expect(paths.some((p) => p.includes("0012_roleplay"))).toBe(true);
+  });
+
+  it("catalog includes every numbered lib/db migration SQL file", () => {
+    const onDisk = readdirSync(libDbMigrationsDir)
+      .filter((f) => f.endsWith(".sql"))
+      .sort();
+    const catalogedLibDb = MIGRATION_CATALOG.filter((p) =>
+      p.forwardPath.includes("lib/db/migrations/"),
+    )
+      .map((p) => path.basename(p.forwardPath))
+      .sort();
+    expect(catalogedLibDb).toEqual(onDisk);
+  });
+});
+
+describe("migrate-only table coverage (pass 2)", () => {
+  it("every MIGRATE_ONLY_LIB_DB_TABLES name appears in numbered lib/db SQL", () => {
+    const sqlCorpus = readdirSync(libDbMigrationsDir)
+      .filter((f) => f.endsWith(".sql"))
+      .map((f) => readFileSync(path.join(libDbMigrationsDir, f), "utf8"))
+      .join("\n");
+
+    const missing: string[] = [];
+    for (const table of MIGRATE_ONLY_LIB_DB_TABLES) {
+      // Match CREATE TABLE IF NOT EXISTS name or CREATE TABLE name
+      const re = new RegExp(
+        `CREATE\\s+TABLE\\s+(?:IF\\s+NOT\\s+EXISTS\\s+)?["']?${table}["']?\\b`,
+        "i",
+      );
+      if (!re.test(sqlCorpus)) {
+        missing.push(table);
+      }
+    }
+    expect(missing, `tables missing from lib/db/migrations SQL: ${missing.join(", ")}`).toEqual(
+      [],
+    );
+  });
+
+  it("0012 closes roleplay / assessments / analytics gap", () => {
+    const sql = readFileSync(
+      path.join(libDbMigrationsDir, "0012_roleplay_assessments_analytics.sql"),
+      "utf8",
+    );
+    for (const table of [
+      "roleplay_sessions",
+      "roleplay_messages",
+      "drill_completions",
+      "assessments",
+      "assessment_questions",
+      "event_tracking",
+      "visitors",
+      "usage_events",
+    ] as const) {
+      expect(sql, table).toMatch(new RegExp(`\\b${table}\\b`));
+    }
+    expect(findDestructiveSql(sql)).toEqual([]);
   });
 });
 

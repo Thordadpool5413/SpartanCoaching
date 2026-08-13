@@ -1,9 +1,13 @@
 /**
- * Ordered SQL migration apply runner (Stream A / schema integrity).
+ * Ordered SQL migration apply runner (Stream A schema integrity + Stream B migrate-only).
  *
  * Applies lib/db/migrations/*.sql in filename order, tracking applied files
  * in schema_migrations. Additive SQL (IF NOT EXISTS) is safe to re-run only
  * for already-applied files (skipped). Never drops production data.
+ *
+ * As of 0012_roleplay_assessments_analytics.sql, all lib/db product tables are
+ * represented in numbered SQL (see MIGRATE_ONLY_LIB_DB_TABLES). Sales workflow
+ * remains under lib/hospice-sales-runtime.
  *
  * Usage:
  *   DATABASE_URL=… pnpm --filter @workspace/db run migrate
@@ -11,8 +15,7 @@
  * Safety:
  * - Refuses production-looking URLs unless ALLOW_PROD_MIGRATE=true
  * - Optional pre-apply backup gate: REQUIRE_BACKUP_DRILL=true runs backup-restore-drill first
- * - Does not replace drizzle push for full schema sync of tables only defined in Drizzle
- *   without SQL yet — prefer writing numbered SQL for production changes.
+ * - CI may still run drizzle push-force after migrate as a safety net until push is retired.
  */
 import fs from "node:fs";
 import path from "node:path";

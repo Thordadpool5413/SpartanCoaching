@@ -16,15 +16,17 @@ See also: `docs/repository-truth-audit.md` (Phase 1).
 - **Source of truth for table definitions:** Drizzle schemas in `lib/db/src/schema/`
 - **Web package:** `artifacts/spartan-coaching/src/shared/schema.ts` is a **compatibility re-export only** of `@workspace/db/schema` (dual-schema elimination). Do not add `pgTable` definitions under the web package; change `lib/db` + migrations instead. Contract: `schema.dualSourceOfTruth.test.ts`.
 - **Dev / Replit apply:** `pnpm --filter @workspace/db run push` (and `push-force` when intentional)
-- **Versioned SQL (partial):**  
-  - `lib/db/migrations/0001_spartan_ai_tools.sql`  
-  - `lib/db/migrations/0002_ephemeral_clinical_tools.sql`  
-  - `lib/db/migrations/0003_client_auth_billing.sql` — product auth + org billing columns (IF NOT EXISTS)  
-  - `lib/db/migrations/0004_cms_content.sql` — articles, resources, podcasts, testimonials, case studies, inquiries, newsletter, resource leads
-  - `lib/hospice-sales-runtime/migrations/001_sales_workflow.sql` — Command Center store + RLS
+- **Versioned SQL (lib/db migrate-only product surface):**  
+  - `0001`–`0002` AI/clinical  
+  - `0003` product auth + org billing  
+  - `0004` CMS marketing content  
+  - `0005`–`0008` resource architecture / work / lifecycle / provider resources  
+  - `0009`–`0010` personalization + notifications  
+  - `0011` org admin audit  
+  - `0012` roleplay, assessments, analytics, usage, agreements, chat, site settings, Replit sessions/users  
+  - `lib/hospice-sales-runtime/migrations/001_sales_workflow.sql` — Command Center store + RLS (separate apply)
 
-CI and Replit still use **`pnpm --filter @workspace/db run push`** as the primary apply path.
-Numbered SQL is the **reviewed baseline / recovery** path and the target for future migrate-only deploys.
+**Migrate-only:** `pnpm db:migrate` applies all `lib/db/migrations/*.sql` via `schema_migrations`. Coverage inventory: `MIGRATE_ONLY_LIB_DB_TABLES` in `@workspace/db/migration-safety`. CI still runs `push-force` after migrate as a safety net until push is fully retired for production.
 
 **Migration safety catalog (required for every schema change):** `@workspace/db/migration-safety`.
 Defines `MigrationPlan` fields (forward, data migration, validation, rollback/recovery, backup expectation, client compatibility), integrity SQL, lock-risk tables, and the verification checklist. Unit tests: `pnpm --filter @workspace/db test`.
@@ -69,11 +71,12 @@ Lock-risk tables (batch / CONCURRENTLY / maintenance window): `sales_workflow_en
 - [x] Auth + billing tables represented as ordered SQL (`0003_client_auth_billing.sql`)  
 - [x] CMS marketing content baseline (`0004_cms_content.sql`)  
 - [x] Migration safety catalog + integrity checks + verification checklist (`@workspace/db/migration-safety`)
-- [ ] Roleplay / assessments / analytics migrations
+- [x] Roleplay / assessments / analytics migrations (`0012_roleplay_assessments_analytics.sql`)
 - [x] Ordered migrate apply runner (`pnpm db:migrate` / `@workspace/db migrate`) with optional `REQUIRE_BACKUP_DRILL=true`
 - [x] CI applies SQL migrations before `push-force` + backup restore drill
-- [ ] Full migrate-only deploys without drizzle push (all tables in numbered SQL)
-- [ ] Deprecate `push` for production deploys (local only)
+- [x] Full migrate-only **SQL coverage** for all `lib/db` product tables (`MIGRATE_ONLY_LIB_DB_TABLES` contract)
+- [ ] Deprecate `push` for production deploys (local only; CI still uses `push-force` as safety net)
+- [ ] Fold sales_workflow into the same migrate runner (or document dual apply forever)
 
 **Apply schema after pull:**
 
