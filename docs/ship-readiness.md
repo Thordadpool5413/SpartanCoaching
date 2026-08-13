@@ -27,14 +27,20 @@ node scripts/smoke-parity-auth.mjs
 # Or one command:
 node scripts/ship-check.mjs https://spartanhospicecoaching.com
 # Auth optional via PARITY_EMAIL / PARITY_PASSWORD
+
+# Live release-gate stack only (health + parity + optional auth; skips unit suites):
+pnpm run release-gate:live -- https://spartanhospicecoaching.com
+# Full automated + live when SITE_URL set:
+node scripts/release-gate.mjs https://spartanhospicecoaching.com
 ```
 
 | Script | Proves |
 |--------|--------|
 | `smoke-health` | API up, billing monitors, SPA shells |
-| `smoke-parity` | Learn feeds + gates 401/403 + HSP brand HTML |
+| `smoke-parity` | Learn feeds + field-kit gates 401/403 + org_admin unauth gates + HSP brand HTML |
 | `smoke-parity-auth` | Login, me, checklist, billing, Command today, tools, logout |
 | `ship-check` | Runs health + public parity (+ auth if env set) |
+| `release-gate:live` | Same live stack as ship-check via HSP-48 evidence report (`productionReadyClaimAllowed: false`) |
 
 ---
 

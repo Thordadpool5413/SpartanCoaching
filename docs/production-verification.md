@@ -70,6 +70,28 @@ Phase 6 = ship readiness (residual product nouns + ops docs). **Redeploy still r
 [ ] Touch targets ≥44px on primary CTAs (mobile)
 ```
 
+## Live release-gate (post-deploy)
+
+After Publish, prove the host without inventing seat secrets:
+
+```bash
+# From repo root — no credentials required for health + public parity
+pnpm run release-gate:live -- https://spartanhospicecoaching.com
+
+# Or explicit:
+node scripts/release-gate.mjs --live-only https://spartanhospicecoaching.com
+```
+
+What it runs (order fixed; see `LIVE_SMOKE_STACK` in field-kit-catalog):
+
+1. `smoke-health` — healthz, billing monitors, public shells (WARN if ops-readiness/client-config not deployed yet)
+2. `smoke-parity` — Learn feeds, field-kit unauth 401/403, **org admin unauth gates** (stable: members/usage/invites hard-fail; profile/audit/structure/offboard soft-WARN on 404 until redeploy; `STRICT_ORG_GATES=1` to hard-fail soft routes)
+3. `smoke-parity-auth` — only when `PARITY_EMAIL` + `PARITY_PASSWORD` are set (entitled seat). **Do not commit secrets.**
+
+`productionReadyClaimAllowed` stays **false** until live seat + TestFlight + ASC/EAS are proven outside this runner.
+
+Equivalent one-liner used historically: `node scripts/ship-check.mjs https://spartanhospicecoaching.com`
+
 ## Sign-off
 
 | Field | Value |

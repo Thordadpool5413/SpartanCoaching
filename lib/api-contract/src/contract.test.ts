@@ -117,6 +117,9 @@ describe("shared web+iOS paths", () => {
   it("gated paths are the ones smoke-parity should probe", () => {
     const gated = fieldKitOrSessionGatedPaths();
     expect(gated.some((p) => p.path === "/api/auth/me")).toBe(true);
+    expect(gated.some((p) => p.path === "/api/org/members" && p.auth === "org_admin")).toBe(
+      true,
+    );
     expect(gated.every((p) => p.auth !== "none")).toBe(true);
   });
 });

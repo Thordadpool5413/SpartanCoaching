@@ -481,6 +481,7 @@ export {
   RELEASE_PERSONAS,
   RELEASE_JOURNEYS,
   AUTOMATED_SUITES,
+  LIVE_SMOKE_STACK,
   evaluateProductionReadyClaim,
   journeysForPersona,
   requiredDomainsCovered,
