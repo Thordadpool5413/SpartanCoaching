@@ -22,11 +22,18 @@ const site = (process.argv[2] || process.env.SITE_URL || "").replace(/\/$/, "");
 const AUTOMATED_SUITES = [
   {
     id: "db_ops",
-    label: "DB ops readiness + migration safety",
+    label: "DB ops readiness + migration safety + migrate-manifest",
     critical: true,
     cwd: "lib/db",
     command: "pnpm",
-    args: ["exec", "vitest", "run", "src/ops-readiness.test.ts", "src/migration-safety.test.ts"],
+    args: [
+      "exec",
+      "vitest",
+      "run",
+      "src/ops-readiness.test.ts",
+      "src/migration-safety.test.ts",
+      "src/migrate-manifest.test.ts",
+    ],
   },
   {
     id: "catalog",
@@ -38,7 +45,7 @@ const AUTOMATED_SUITES = [
   },
   {
     id: "api_security_entitlement",
-    label: "API auth, entitlement, tenant isolation, security",
+    label: "API auth, entitlement, tenant isolation, security, org admin policy",
     critical: true,
     cwd: "artifacts/api-server",
     command: "pnpm",
@@ -50,6 +57,8 @@ const AUTOMATED_SUITES = [
       "src/auth/entitlement.test.ts",
       "src/auth/middleware.test.ts",
       "src/auth/workflowTenantAuthz.test.ts",
+      "src/auth/orgAdminPolicy.test.ts",
+      "src/auth/orgStructurePolicy.test.ts",
       "src/security/requestSecurity.test.ts",
       "src/security/tenantRoleplay.test.ts",
       "src/security/phiEncryption.test.ts",
@@ -83,7 +92,7 @@ const AUTOMATED_SUITES = [
   },
   {
     id: "web_contracts",
-    label: "Web a11y + membership contracts",
+    label: "Web a11y, membership, dual-schema, org admin panels",
     critical: true,
     cwd: "artifacts/spartan-coaching",
     command: "pnpm",
@@ -95,11 +104,13 @@ const AUTOMATED_SUITES = [
       "src/lib/complianceCopy.test.ts",
       "src/lib/workspaceShell.test.ts",
       "src/pages/FieldKitMembership.eliteCopy.test.tsx",
+      "src/shared/schema.dualSourceOfTruth.test.ts",
+      "src/pages/OrgAdmin.panels.test.tsx",
     ],
   },
   {
     id: "mobile_contracts",
-    label: "iOS product quality + App Store readiness",
+    label: "iOS product quality, App Store readiness, Command Center helpers",
     critical: true,
     cwd: "artifacts/spartan-coaching-mobile",
     command: "pnpm",
@@ -110,6 +121,10 @@ const AUTOMATED_SUITES = [
       "__tests__/ios-product-quality.test.ts",
       "__tests__/app-store-readiness.test.ts",
       "__tests__/account-billing.test.tsx",
+      "__tests__/command-center-next-actions.test.ts",
+      "__tests__/command-center-accounts.test.ts",
+      "__tests__/command-center-roleplay.test.ts",
+      "__tests__/command-center-integrations.test.ts",
     ],
   },
 ];
