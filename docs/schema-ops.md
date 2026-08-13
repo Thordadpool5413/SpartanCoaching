@@ -69,8 +69,17 @@ Lock-risk tables (batch / CONCURRENTLY / maintenance window): `sales_workflow_en
 - [x] CMS marketing content baseline (`0004_cms_content.sql`)  
 - [x] Migration safety catalog + integrity checks + verification checklist (`@workspace/db/migration-safety`)
 - [ ] Roleplay / assessments / analytics migrations
-- [ ] Ordered migrate apply runner with backup gate (not push-only)
-- [ ] CI job: fresh Postgres + migrate-only + integrity + smoke login/onboarding
+- [x] Ordered migrate apply runner (`pnpm db:migrate` / `@workspace/db migrate`) with optional `REQUIRE_BACKUP_DRILL=true`
+- [x] CI applies SQL migrations before `push-force` + backup restore drill
+- [ ] Full migrate-only deploys without drizzle push (all tables in numbered SQL)
 - [ ] Deprecate `push` for production deploys (local only)
 
-Until then, treat **missing push after schema PR** as a release blocker.
+**Apply schema after pull:**
+
+```bash
+pnpm db:migrate          # numbered SQL + schema_migrations tracking
+pnpm db:push             # drizzle kit for any tables not yet in SQL
+# production: ALLOW_PROD_MIGRATE=true REQUIRE_BACKUP_DRILL=true pnpm db:migrate
+```
+
+Until push is fully retired, treat **missing migrate+push after schema PR** as a release blocker.

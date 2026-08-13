@@ -67,6 +67,27 @@ export const orgTimelineEvents = pgTable(
 
 export type OrgTimelineEvent = typeof orgTimelineEvents.$inferSelect;
 
+/**
+ * Provider-facing org admin audit (tenant-scoped).
+ * Distinct from platform ops org_timeline_events CRM notes.
+ */
+export const orgAdminAuditEvents = pgTable(
+  "org_admin_audit_events",
+  {
+    id: serial("id").primaryKey(),
+    organizationId: integer("organization_id").notNull(),
+    actorMemberId: integer("actor_member_id"),
+    action: varchar("action", { length: 64 }).notNull(),
+    targetType: varchar("target_type", { length: 64 }),
+    targetId: varchar("target_id", { length: 64 }),
+    meta: jsonb("meta"),
+    createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  },
+  (table) => [index("idx_org_admin_audit_org").on(table.organizationId)],
+);
+
+export type OrgAdminAuditEvent = typeof orgAdminAuditEvents.$inferSelect;
+
 /** Membership members (distinct from Replit Auth users table) */
 export const clientMembers = pgTable(
   "client_members",

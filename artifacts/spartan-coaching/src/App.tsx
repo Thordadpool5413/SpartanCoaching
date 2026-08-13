@@ -31,6 +31,7 @@ const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 const Portal = lazy(() => import("@/pages/Portal"));
 const PortalLearn = lazy(() => import("@/pages/PortalLearn"));
 const Account = lazy(() => import("@/pages/Account"));
+const OrgAdmin = lazy(() => import("@/pages/OrgAdmin"));
 const MagicLogin = lazy(() => import("@/pages/MagicLogin"));
 const CheckoutReturn = lazy(() => import("@/pages/CheckoutReturn"));
 const FieldKitMembership = lazy(() => import("@/pages/FieldKitMembership"));
@@ -223,6 +224,7 @@ function Router() {
           <Route path="/portal" component={Portal} />
           <Route path="/portal/learn" component={PortalLearn} />
           <Route path="/account" component={Account} />
+          <Route path="/org/admin" component={OrgAdmin} />
           <Route path="/magic-login" component={MagicLogin} />
           <Route path="/checkout-return" component={CheckoutReturn} />
           <Route path="/hospice-sales-pro" component={FieldKitMembership} />
