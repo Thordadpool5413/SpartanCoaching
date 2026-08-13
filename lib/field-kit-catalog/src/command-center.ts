@@ -125,8 +125,9 @@ export const COMMAND_CENTER_CAPABILITIES: CommandCenterCapability[] = [
     api: ["POST /imports/csv/preview", "POST /imports/csv/commit"],
     sharedFact: true,
     web: "full",
-    mobile: "none",
-    notes: "Org admin; manager role in workflow.",
+    mobile: "supported",
+    notes:
+      "Mobile: org_admin paste-CSV preview/commit on day workflow (same APIs as web file import).",
   },
   {
     id: "calendar-connect",
@@ -134,8 +135,9 @@ export const COMMAND_CENTER_CAPABILITIES: CommandCenterCapability[] = [
     api: ["POST /integrations/calendar/:provider/connect"],
     sharedFact: true,
     web: "partial",
-    mobile: "none",
-    notes: "Buttons present when adapters configured; often disabled in prod.",
+    mobile: "partial",
+    notes:
+      "Mobile: org_admin Google/Outlook buttons open OAuth URL when adapters configured; fails soft otherwise.",
   },
 ];
 

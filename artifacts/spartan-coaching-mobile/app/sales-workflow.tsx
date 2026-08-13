@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
+  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -13,7 +14,7 @@ import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
-import { apiGet, apiPost } from "@/lib/api";
+import { apiGet, apiPost, getBaseUrl } from "@/lib/api";
 import { SectionKicker } from "@/components/ui/SectionKicker";
 import { SpartanCard } from "@/components/ui/SpartanCard";
 import { SpartanButton } from "@/components/ui/SpartanButton";
@@ -42,6 +43,17 @@ import {
   roleplayMessageLabel,
   type RoleplaySessionLike,
 } from "@/lib/commandCenterRoleplay";
+import {
+  canCommitCsvImport,
+  canManageWorkflowIntegrations,
+  calendarConnectPath,
+  defaultCalendarRedirectUri,
+  formatCsvImportResult,
+  guessCsvColumnMapping,
+  type CalendarProvider,
+  type CsvFieldKey,
+  type CsvPreviewLike,
+} from "@/lib/commandCenterIntegrations";
 
 type WorkflowCall = {
   id: string;
@@ -161,6 +173,14 @@ export default function SalesWorkflowScreen() {
   const [roleplaySession, setRoleplaySession] = useState<RoleplaySessionLike | null>(null);
   const [roleplayReply, setRoleplayReply] = useState("");
   const [roleplayBusy, setRoleplayBusy] = useState(false);
+  const [showImport, setShowImport] = useState(false);
+  const [csvText, setCsvText] = useState("");
+  const [csvPreview, setCsvPreview] = useState<CsvPreviewLike | null>(null);
+  const [csvMapping, setCsvMapping] = useState<Record<string, CsvFieldKey>>({});
+  const [csvResult, setCsvResult] = useState("");
+  const [csvBusy, setCsvBusy] = useState(false);
+
+  const canManageIntegrations = canManageWorkflowIntegrations(user?.member?.role);
 
   const bounds = useMemo(() => {
     const start = new Date(`${date}T00:00:00`);
@@ -337,6 +357,115 @@ export default function SalesWorkflowScreen() {
       setError("Practice turn failed. Check the network and try again.");
     } finally {
       setRoleplayBusy(false);
+    }
+  };
+
+  const previewCsv = async () => {
+    if (!canManageIntegrations) {
+      setError("CSV import is limited to organization administrators.");
+      return;
+    }
+    if (csvText.trim().length < 8) {
+      setError("Paste CSV content first (header row + accounts).");
+      return;
+    }
+    setCsvBusy(true);
+    setError("");
+    setCsvResult("");
+    try {
+      const next = await apiPost<CsvPreviewLike>(
+        "/api/v1/sales-workflow/imports/csv/preview",
+        { content: csvText },
+        { idempotencyKey: requestKey() },
+      );
+      setCsvPreview(next);
+      setCsvMapping(guessCsvColumnMapping(next.headers || []));
+    } catch {
+      setError(
+        "CSV preview failed. Confirm org admin access and that import is configured.",
+      );
+    } finally {
+      setCsvBusy(false);
+    }
+  };
+
+  const commitCsv = async () => {
+    if (
+      !canCommitCsvImport({
+        preview: csvPreview,
+        mapping: csvMapping as Record<string, string>,
+      })
+    ) {
+      setError("Map at least one column to Account name and remove formula cells.");
+      return;
+    }
+    setCsvBusy(true);
+    setError("");
+    try {
+      const dry = await apiPost<{
+        imported: number;
+        merged: number;
+        rejected: number;
+      }>(
+        "/api/v1/sales-workflow/imports/csv/commit",
+        { preview: csvPreview, mapping: csvMapping, dryRun: true },
+        { idempotencyKey: requestKey() },
+      );
+      const confirmed = await apiPost<{
+        imported: number;
+        merged: number;
+        rejected: number;
+      }>(
+        "/api/v1/sales-workflow/imports/csv/commit",
+        { preview: csvPreview, mapping: csvMapping, dryRun: false },
+        { idempotencyKey: requestKey() },
+      );
+      setCsvResult(
+        formatCsvImportResult({
+          dryImported: dry.imported,
+          imported: confirmed.imported,
+          merged: confirmed.merged,
+          rejected: confirmed.rejected,
+        }),
+      );
+      setCsvText("");
+      setCsvPreview(null);
+      await load();
+    } catch {
+      setError("CSV import commit failed. Review mapping and try again.");
+    } finally {
+      setCsvBusy(false);
+    }
+  };
+
+  const connectCalendar = async (provider: CalendarProvider) => {
+    if (!canManageIntegrations) {
+      setError("Calendar connect is limited to organization administrators.");
+      return;
+    }
+    setSaving(true);
+    setError("");
+    try {
+      const origin = getBaseUrl() || "https://spartanhospicecoaching.com";
+      const res = await apiPost<{ authorizationUrl?: string }>(
+        calendarConnectPath(provider),
+        { redirectUri: defaultCalendarRedirectUri(origin) },
+        { idempotencyKey: requestKey() },
+      );
+      if (!res.authorizationUrl) {
+        throw new Error("No authorization URL");
+      }
+      const supported = await Linking.canOpenURL(res.authorizationUrl);
+      if (!supported) {
+        throw new Error("Cannot open OAuth URL on this device");
+      }
+      await Linking.openURL(res.authorizationUrl);
+    } catch {
+      setError(
+        "Calendar connect is unavailable. Provider may not be configured in this environment.",
+      );
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -785,6 +914,159 @@ export default function SalesWorkflowScreen() {
             ))
           )}
         </View>
+
+        {canManageIntegrations ? (
+          <View
+            style={[styles.card, { borderColor: colors.border, backgroundColor: colors.card }]}
+            testID="card-integrations"
+          >
+            <Text style={[styles.cardTitle, { color: colors.foreground }]}>
+              Manager integrations
+            </Text>
+            <Text style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 17 }}>
+              Org admin only — same import and calendar APIs as web. Calendar requires provider
+              config; CSV is paste-validated before write.
+            </Text>
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
+              <SpartanButton
+                title={showImport ? "Hide CSV import" : "CSV import"}
+                variant="outline"
+                onPress={() => setShowImport((v) => !v)}
+                testID="button-toggle-csv-import"
+              />
+              <SpartanButton
+                title="Google Calendar"
+                variant="outline"
+                disabled={saving}
+                onPress={() => void connectCalendar("google")}
+                testID="button-calendar-google"
+              />
+              <SpartanButton
+                title="Outlook"
+                variant="outline"
+                disabled={saving}
+                onPress={() => void connectCalendar("outlook")}
+                testID="button-calendar-outlook"
+              />
+            </View>
+            {showImport ? (
+              <View style={{ marginTop: 12 }} testID="csv-import-panel">
+                <Text style={[styles.fieldLabel, { color: colors.mutedForeground }]}>
+                  Paste CSV (header + rows)
+                </Text>
+                <TextInput
+                  value={csvText}
+                  onChangeText={setCsvText}
+                  placeholder={"name,type,address\nAcme Hospice,SNF,12 Oak"}
+                  placeholderTextColor={colors.mutedForeground}
+                  multiline
+                  style={[
+                    styles.notes,
+                    {
+                      color: colors.foreground,
+                      borderColor: colors.border,
+                      backgroundColor: colors.background,
+                      minHeight: 110,
+                    },
+                  ]}
+                  testID="input-csv-content"
+                />
+                <SpartanButton
+                  title={csvBusy ? "Working…" : "Preview CSV"}
+                  disabled={csvBusy}
+                  onPress={() => void previewCsv()}
+                  testID="button-csv-preview"
+                />
+                {csvPreview ? (
+                  <View style={{ marginTop: 10 }}>
+                    <Text style={{ color: colors.foreground, fontWeight: "700" }}>
+                      {csvPreview.rows.length} rows · {csvPreview.headers.length} columns
+                    </Text>
+                    {csvPreview.formulaCells.length > 0 ? (
+                      <Text style={{ color: colors.primary, marginTop: 6, fontSize: 12 }}>
+                        {csvPreview.formulaCells.length} formula-like cells must be removed before
+                        import.
+                      </Text>
+                    ) : null}
+                    {csvPreview.headers.map((header) => (
+                      <View key={header} style={{ marginTop: 8 }}>
+                        <Text style={{ color: colors.mutedForeground, fontSize: 11 }}>
+                          Column: {header}
+                        </Text>
+                        <View style={styles.outcomeRow}>
+                          {(
+                            [
+                              ["", "Skip"],
+                              ["accountName", "Name"],
+                              ["accountType", "Type"],
+                              ["address", "Address"],
+                              ["externalId", "External ID"],
+                            ] as const
+                          ).map(([value, label]) => {
+                            const selected = (csvMapping[header] || "") === value;
+                            return (
+                              <Pressable
+                                key={`${header}-${value || "skip"}`}
+                                onPress={() =>
+                                  setCsvMapping((current) => ({
+                                    ...current,
+                                    [header]: value as CsvFieldKey,
+                                  }))
+                                }
+                                style={[
+                                  styles.outcomeChip,
+                                  {
+                                    borderColor: selected ? colors.primary : colors.border,
+                                    backgroundColor: selected
+                                      ? colors.primary
+                                      : colors.background,
+                                  },
+                                ]}
+                              >
+                                <Text
+                                  style={{
+                                    color: selected
+                                      ? colors.primaryForeground
+                                      : colors.foreground,
+                                    fontSize: 11,
+                                    fontWeight: "700",
+                                  }}
+                                >
+                                  {label}
+                                </Text>
+                              </Pressable>
+                            );
+                          })}
+                        </View>
+                      </View>
+                    ))}
+                    <SpartanButton
+                      title={csvBusy ? "Importing…" : "Validate and import"}
+                      disabled={
+                        csvBusy ||
+                        !canCommitCsvImport({
+                          preview: csvPreview,
+                          mapping: csvMapping as Record<string, string>,
+                        })
+                      }
+                      onPress={() => void commitCsv()}
+                      style={{ marginTop: 12 }}
+                      testID="button-csv-commit"
+                    />
+                  </View>
+                ) : null}
+                {!!csvResult && (
+                  <Text
+                    style={{ color: colors.foreground, marginTop: 10, fontSize: 13 }}
+                    testID="csv-import-result"
+                  >
+                    {csvResult}
+                  </Text>
+                )}
+              </View>
+            ) : null}
+          </View>
+        ) : null}
 
         {!!error && <Text style={[styles.error, { color: colors.primary }]}>{error}</Text>}
 

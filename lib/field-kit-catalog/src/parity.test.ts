@@ -156,10 +156,13 @@ describe("Command Center capability matrix", () => {
         "approve-coaching",
         "schedule-next",
         "email-draft",
+        "csv-import",
       ]),
     );
     const gaps = mobileCommandCenterGaps().map((c) => c.id);
-    expect(gaps).toEqual(expect.arrayContaining(["csv-import"]));
+    // calendar-connect remains partial (adapter-dependent OAuth)
+    expect(gaps).toEqual(expect.arrayContaining(["calendar-connect"]));
+    expect(gaps).not.toContain("csv-import");
     expect(gaps).not.toContain("roleplay");
     expect(gaps).not.toContain("approve-coaching");
     expect(gaps).not.toContain("accounts");
