@@ -1,27 +1,19 @@
 /**
- * Org admin API contracts (program foundation / HSP-41 slice A).
- * Pure rules tests — route handlers use DB.
+ * Org admin route contracts — pure policy is covered in orgAdminPolicy.test.ts.
+ * This file keeps a thin smoke import so CI package filters that target
+ * orgAdmin.test.ts still resolve.
  */
 import { describe, expect, it } from "vitest";
+import {
+  isAssignableOrgRole,
+  resolveSeatCap,
+  seatLimitReached,
+} from "../auth/orgAdminPolicy";
 
-describe("org admin role change rules", () => {
-  it("only allows member or org_admin role values", () => {
-    const allowed = new Set(["member", "org_admin"]);
-    expect(allowed.has("member")).toBe(true);
-    expect(allowed.has("org_admin")).toBe(true);
-    expect(allowed.has("platform_admin")).toBe(false);
-  });
-
-  it("delete-account style confirm not required for enable", () => {
-    // enable is admin action on seat; no DELETE confirm
-    expect(true).toBe(true);
-  });
-});
-
-describe("org admin seat cap", () => {
-  it("blocks enable when activeCount >= seatCap", () => {
-    const activeCount = 5;
-    const seatCap = 5;
-    expect(activeCount >= seatCap).toBe(true);
+describe("org admin route policy surface", () => {
+  it("exposes seat + role gates used by /api/org/* handlers", () => {
+    expect(isAssignableOrgRole("org_admin")).toBe(true);
+    expect(resolveSeatCap({ seatLimit: 10, billableSeats: 3 })).toBe(3);
+    expect(seatLimitReached(3, 3)).toBe(true);
   });
 });

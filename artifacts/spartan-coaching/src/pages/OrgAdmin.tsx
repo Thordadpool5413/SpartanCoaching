@@ -49,6 +49,13 @@ type AuditEvent = {
   createdAt: string;
 };
 
+type OrgUsage = {
+  total: number;
+  days: number;
+  byTool: { toolName: string; count: number }[];
+  byMember: { email: string; count: number }[];
+};
+
 export default function OrgAdmin() {
   const { member, organization, canUseFieldKit } = useAuth();
   const { toast } = useToast();
@@ -56,9 +63,11 @@ export default function OrgAdmin() {
   const [members, setMembers] = useState<OrgMember[]>([]);
   const [invites, setInvites] = useState<OrgInvite[]>([]);
   const [audit, setAudit] = useState<AuditEvent[]>([]);
+  const [usage, setUsage] = useState<OrgUsage | null>(null);
   const [orgName, setOrgName] = useState("");
   const [inviteName, setInviteName] = useState("");
   const [inviteEmail, setInviteEmail] = useState("");
+  const [inviteRole, setInviteRole] = useState<"member" | "org_admin">("member");
   const [busy, setBusy] = useState(false);
 
   const isOrgAdmin =
@@ -68,10 +77,11 @@ export default function OrgAdmin() {
   const load = useCallback(async () => {
     if (!isOrgAdmin || !canUseFieldKit) return;
     try {
-      const [p, m, a] = await Promise.all([
+      const [p, m, a, u] = await Promise.all([
         fetch("/api/org/profile", { credentials: "include" }).then((r) => r.json()),
         fetch("/api/org/members", { credentials: "include" }).then((r) => r.json()),
         fetch("/api/org/audit", { credentials: "include" }).then((r) => r.json()),
+        fetch("/api/org/usage", { credentials: "include" }).then((r) => r.json()),
       ]);
       if (p.organization) {
         setProfile(p.organization);
@@ -80,6 +90,14 @@ export default function OrgAdmin() {
       setMembers(m.members || []);
       setInvites(m.invites || []);
       setAudit(a.events || []);
+      if (u && typeof u.total === "number") {
+        setUsage({
+          total: u.total,
+          days: u.days ?? 7,
+          byTool: u.byTool || [],
+          byMember: u.byMember || [],
+        });
+      }
     } catch {
       toast({ title: "Could not load organization", variant: "destructive" });
     }
@@ -200,6 +218,46 @@ export default function OrgAdmin() {
         </div>
       </Card>
 
+      <Card className="p-6 space-y-4" data-testid="org-admin-usage">
+        <h2 className="text-lg font-bold">Team usage (last {usage?.days ?? 7} days)</h2>
+        <p className="text-xs text-muted-foreground">
+          Aggregate tool activity only — no individual tool content or free-text payloads.
+        </p>
+        {!usage ? (
+          <p className="text-sm text-muted-foreground">Loading usage…</p>
+        ) : usage.total === 0 ? (
+          <p className="text-sm text-muted-foreground">No tool usage recorded for this period.</p>
+        ) : (
+          <div className="grid sm:grid-cols-2 gap-4 text-sm">
+            <div>
+              <p className="font-medium mb-2">
+                Total events: <span className="text-primary">{usage.total}</span>
+              </p>
+              <h3 className="text-xs uppercase tracking-wide text-muted-foreground mb-1">By tool</h3>
+              <ul className="space-y-1">
+                {usage.byTool.slice(0, 8).map((row) => (
+                  <li key={row.toolName} className="flex justify-between gap-2">
+                    <span className="truncate">{row.toolName}</span>
+                    <span className="font-mono text-muted-foreground">{row.count}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div>
+              <h3 className="text-xs uppercase tracking-wide text-muted-foreground mb-1">By member</h3>
+              <ul className="space-y-1">
+                {usage.byMember.slice(0, 8).map((row) => (
+                  <li key={row.email} className="flex justify-between gap-2">
+                    <span className="truncate">{row.email}</span>
+                    <span className="font-mono text-muted-foreground">{row.count}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        )}
+      </Card>
+
       <Card className="p-6 space-y-4" data-testid="org-admin-members">
         <h2 className="text-lg font-bold">Members</h2>
         <ul className="space-y-3 text-sm">
@@ -288,10 +346,11 @@ export default function OrgAdmin() {
             await post("/api/org/invites", {
               name: inviteName.trim(),
               email: inviteEmail.trim(),
-              role: "member",
+              role: inviteRole,
             });
             setInviteName("");
             setInviteEmail("");
+            setInviteRole("member");
           }}
         >
           <div className="space-y-1">
@@ -306,6 +365,21 @@ export default function OrgAdmin() {
               onChange={(e) => setInviteEmail(e.target.value)}
               required
             />
+          </div>
+          <div className="space-y-1 sm:col-span-2">
+            <Label htmlFor="invite-role">Role</Label>
+            <select
+              id="invite-role"
+              className="flex h-10 w-full max-w-xs rounded-md border border-input bg-background px-3 py-2 text-sm"
+              value={inviteRole}
+              onChange={(e) =>
+                setInviteRole(e.target.value === "org_admin" ? "org_admin" : "member")
+              }
+              disabled={busy}
+            >
+              <option value="member">Member</option>
+              <option value="org_admin">Org admin</option>
+            </select>
           </div>
           <div className="sm:col-span-2">
             <Button type="submit" disabled={busy} className="font-bold">

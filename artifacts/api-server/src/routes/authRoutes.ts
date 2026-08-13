@@ -71,6 +71,13 @@ import {
   sendOrgInviteEmail,
 } from "../resend";
 import { storage } from "../storage";
+import {
+  aggregateOrgUsage,
+  evaluateDisableMember,
+  evaluateRoleChange,
+  resolveSeatCap,
+  seatLimitReached,
+} from "../auth/orgAdminPolicy";
 
 function isCronAuthorized(req: { headers: Record<string, unknown> }): boolean {
   const secret = process.env.CRON_SECRET?.trim();
@@ -1605,25 +1612,16 @@ export function registerAuthRoutes(app: Express): void {
         .where(gte(usageEvents.createdAt, weekAgo))
         .limit(5000);
 
-      const rows = recent.filter((r) => emailSet.has(String(r.email || "").toLowerCase()));
-
-      const byToolMap = new Map<string, number>();
-      const byMemberMap = new Map<string, number>();
-      for (const r of rows) {
-        byToolMap.set(r.toolName, (byToolMap.get(r.toolName) || 0) + 1);
-        const key = String(r.email).toLowerCase();
-        byMemberMap.set(key, (byMemberMap.get(key) || 0) + 1);
-      }
+      const aggregated = aggregateOrgUsage(
+        recent.map((r) => ({ email: String(r.email || ""), toolName: r.toolName })),
+        emailSet,
+      );
 
       return res.json({
-        total: rows.length,
+        total: aggregated.total,
         days: 7,
-        byTool: [...byToolMap.entries()]
-          .map(([toolName, count]) => ({ toolName, count }))
-          .sort((a, b) => b.count - a.count),
-        byMember: [...byMemberMap.entries()]
-          .map(([email, count]) => ({ email, count }))
-          .sort((a, b) => b.count - a.count),
+        byTool: aggregated.byTool,
+        byMember: aggregated.byMember,
       });
     } catch (err) {
       console.error("org usage error:", err);
@@ -1650,12 +1648,11 @@ export function registerAuthRoutes(app: Express): void {
           ),
         );
       const activeCount = countRow?.count ?? 0;
-      // Prefer billable seats from contract when set; fall back to seatLimit
-      const seatCap =
-        typeof (org as any).billableSeats === "number" && (org as any).billableSeats > 0
-          ? (org as any).billableSeats
-          : org.seatLimit;
-      if (activeCount >= seatCap) {
+      const seatCap = resolveSeatCap({
+        seatLimit: org.seatLimit,
+        billableSeats: (org as { billableSeats?: number | null }).billableSeats,
+      });
+      if (seatLimitReached(activeCount, seatCap)) {
         return res.status(400).json({
           error: `Seat limit reached (${seatCap}). Contact Spartan Coaching to add seats under your contract.`,
           code: "SEAT_LIMIT_REACHED",
@@ -2098,11 +2095,13 @@ export function registerAuthRoutes(app: Express): void {
         .where(and(eq(clientMembers.id, id), eq(clientMembers.organizationId, orgId)))
         .limit(1);
       if (!target) return res.status(404).json({ error: "Member not found" });
-      if (target.id === req.clientMemberId) {
-        return res.status(400).json({ error: "You cannot disable your own account" });
-      }
-      if (target.role === "platform_admin") {
-        return res.status(400).json({ error: "Cannot disable platform admin" });
+      const disableGate = evaluateDisableMember({
+        targetId: target.id,
+        actorId: req.clientMemberId!,
+        targetRole: target.role,
+      });
+      if (!disableGate.ok) {
+        return res.status(disableGate.status).json({ error: disableGate.error });
       }
 
       await db
@@ -2142,12 +2141,11 @@ export function registerAuthRoutes(app: Express): void {
           and(eq(clientMembers.organizationId, orgId), ne(clientMembers.status, "disabled")),
         );
       const activeCount = countRow?.count ?? 0;
-      const seatCap =
-        typeof (org as { billableSeats?: number | null }).billableSeats === "number" &&
-        (org as { billableSeats?: number }).billableSeats! > 0
-          ? (org as { billableSeats: number }).billableSeats
-          : org.seatLimit;
-      if (activeCount >= seatCap) {
+      const seatCap = resolveSeatCap({
+        seatLimit: org.seatLimit,
+        billableSeats: (org as { billableSeats?: number | null }).billableSeats,
+      });
+      if (seatLimitReached(activeCount, seatCap)) {
         return res.status(400).json({
           error: `Seat limit reached (${seatCap}).`,
           code: "SEAT_LIMIT_REACHED",
@@ -2174,44 +2172,48 @@ export function registerAuthRoutes(app: Express): void {
       const id = Number(req.params.id);
       const orgId = req.fieldKit!.org!.id;
       const role = String((req.body as { role?: string })?.role || "");
-      if (role !== "member" && role !== "org_admin") {
-        return res.status(400).json({ error: "role must be member or org_admin" });
-      }
       const [target] = await db
         .select()
         .from(clientMembers)
         .where(and(eq(clientMembers.id, id), eq(clientMembers.organizationId, orgId)))
         .limit(1);
       if (!target) return res.status(404).json({ error: "Member not found" });
-      if (target.role === "platform_admin") {
-        return res.status(400).json({ error: "Cannot change platform admin role" });
-      }
-      if (target.id === req.clientMemberId && role === "member") {
-        // Prevent last-admin lockout: ensure another org_admin exists
-        const admins = await db
-          .select()
-          .from(clientMembers)
-          .where(
-            and(
-              eq(clientMembers.organizationId, orgId),
-              eq(clientMembers.role, "org_admin"),
-              ne(clientMembers.status, "disabled"),
-            ),
-          );
-        if (admins.filter((a) => a.id !== id).length === 0) {
-          return res.status(400).json({
-            error: "Cannot demote the last active org admin",
-            code: "LAST_ORG_ADMIN",
-          });
-        }
+
+      const admins = await db
+        .select()
+        .from(clientMembers)
+        .where(
+          and(
+            eq(clientMembers.organizationId, orgId),
+            eq(clientMembers.role, "org_admin"),
+            ne(clientMembers.status, "disabled"),
+          ),
+        );
+      const gate = evaluateRoleChange({
+        targetId: target.id,
+        targetRole: target.role,
+        targetStatus: target.status,
+        actorId: req.clientMemberId!,
+        desiredRole: role,
+        activeOrgAdminIds: admins.map((a) => a.id),
+      });
+      if (!gate.ok) {
+        return res.status(gate.status).json({
+          error: gate.error,
+          ...(gate.code ? { code: gate.code } : {}),
+        });
       }
 
-      await db.update(clientMembers).set({ role }).where(eq(clientMembers.id, id));
-      await logEvent("member_role_changed", req.clientMemberId, { targetId: id, orgId, role });
-      await recordOrgAdminAudit(orgId, req.clientMemberId!, "member_role_changed", "member", String(id), {
-        role,
+      await db.update(clientMembers).set({ role: gate.role }).where(eq(clientMembers.id, id));
+      await logEvent("member_role_changed", req.clientMemberId, {
+        targetId: id,
+        orgId,
+        role: gate.role,
       });
-      return res.json({ ok: true, role });
+      await recordOrgAdminAudit(orgId, req.clientMemberId!, "member_role_changed", "member", String(id), {
+        role: gate.role,
+      });
+      return res.json({ ok: true, role: gate.role });
     } catch (err) {
       console.error("member role error:", err);
       return res.status(500).json({ error: "Failed to change role" });
