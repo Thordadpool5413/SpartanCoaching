@@ -5,10 +5,17 @@
  *   node scripts/release-gate.mjs
  *   node scripts/release-gate.mjs https://your-host.example
  *   SITE_URL=… PARITY_EMAIL=… PARITY_PASSWORD=… node scripts/release-gate.mjs
+ *   node scripts/release-gate.mjs --live-only https://your-host.example
+ *   LIVE_ONLY=1 SITE_URL=https://… node scripts/release-gate.mjs
  *
- * Exit 0: all automated suites passed.
- * Exit 1: automated suite failed.
+ * Exit 0: all automated suites (when run) and invoked live checks passed.
+ * Exit 1: automated suite or live check failed.
  * Never claims production-ready while live/device/external critical paths remain open.
+ *
+ * Live stack when SITE_URL (or argv host) is set:
+ *   1. smoke-health.mjs
+ *   2. smoke-parity.mjs  (public feeds + unauth gates + org_admin unauth)
+ *   3. smoke-parity-auth.mjs when PARITY_EMAIL + PARITY_PASSWORD set
  */
 import { spawnSync } from "node:child_process";
 import path from "node:path";
@@ -16,7 +23,14 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const root = path.join(__dirname, "..");
-const site = (process.argv[2] || process.env.SITE_URL || "").replace(/\/$/, "");
+
+const argv = process.argv.slice(2);
+const liveOnlyFlag =
+  argv.includes("--live-only") ||
+  process.env.LIVE_ONLY === "1" ||
+  process.env.LIVE_ONLY === "true";
+const siteArg = argv.find((a) => a !== "--live-only" && !a.startsWith("-"));
+const site = (siteArg || process.env.SITE_URL || "").replace(/\/$/, "");
 
 /** Mirrors lib/field-kit-catalog/src/release-gate.ts AUTOMATED_SUITES */
 const AUTOMATED_SUITES = [
@@ -59,6 +73,7 @@ const AUTOMATED_SUITES = [
       "src/auth/workflowTenantAuthz.test.ts",
       "src/auth/orgAdminPolicy.test.ts",
       "src/auth/orgStructurePolicy.test.ts",
+      "src/auth/orgOffboardPolicy.test.ts",
       "src/security/requestSecurity.test.ts",
       "src/security/tenantRoleplay.test.ts",
       "src/security/phiEncryption.test.ts",
@@ -152,55 +167,78 @@ function runSuite(suite) {
   return code === 0;
 }
 
-console.log("HSP-48 Final Trusted Workspace Release Gate");
-console.log(`Repo root: ${root}`);
-console.log(`Time: ${new Date().toISOString()}`);
-
-let automatedOk = true;
-for (const suite of AUTOMATED_SUITES) {
-  const ok = runSuite(suite);
-  if (!ok && suite.critical) automatedOk = false;
-}
-
-if (site) {
-  console.log(`\n══ Live smoke-health (${site}) ══\n`);
-  const h = spawnSync(process.execPath, [path.join(root, "scripts/smoke-health.mjs"), site], {
+function runLiveScript(id, label, scriptName, args) {
+  console.log(`\n══ ${label} ══\n`);
+  const r = spawnSync(process.execPath, [path.join(root, "scripts", scriptName), ...args], {
     stdio: "inherit",
     env: process.env,
   });
+  const code = r.status ?? 1;
   results.push({
-    id: "live_health",
-    label: "Live smoke-health",
+    id,
+    label,
     critical: true,
-    status: (h.status ?? 1) === 0 ? "PASS" : "FAIL",
-    exitCode: h.status ?? 1,
+    status: code === 0 ? "PASS" : "FAIL",
+    exitCode: code,
   });
-  if ((h.status ?? 1) !== 0) automatedOk = false;
+  return code === 0;
+}
+
+console.log("HSP-48 Final Trusted Workspace Release Gate");
+console.log(`Repo root: ${root}`);
+console.log(`Time: ${new Date().toISOString()}`);
+console.log(`Mode: ${liveOnlyFlag ? "live-only (skip unit suites)" : "full (automated + live when SITE_URL)"}`);
+if (site) console.log(`SITE_URL: ${site}`);
+else console.log("SITE_URL: (not set — live steps UNVERIFIED)");
+
+let automatedOk = true;
+
+if (liveOnlyFlag) {
+  if (!site) {
+    console.error("\n--live-only / LIVE_ONLY requires SITE_URL or a host argv.\n");
+    process.exit(1);
+  }
+  results.push({
+    id: "automated_suites",
+    label: "Automated unit/integration suites",
+    critical: false,
+    status: "SKIPPED",
+    note: "LIVE_ONLY / --live-only",
+  });
+} else {
+  for (const suite of AUTOMATED_SUITES) {
+    const ok = runSuite(suite);
+    if (!ok && suite.critical) automatedOk = false;
+  }
+}
+
+if (site) {
+  if (!runLiveScript("live_health", `Live smoke-health (${site})`, "smoke-health.mjs", [site])) {
+    automatedOk = false;
+  }
+  if (!runLiveScript("live_parity", `Live smoke-parity (${site})`, "smoke-parity.mjs", [site])) {
+    automatedOk = false;
+  }
 
   const email = (process.env.PARITY_EMAIL || process.env.SMOKE_EMAIL || "").trim();
   const password = process.env.PARITY_PASSWORD || process.env.SMOKE_PASSWORD || "";
   if (email && password) {
-    console.log(`\n══ Live smoke-parity-auth ══\n`);
-    const a = spawnSync(
-      process.execPath,
-      [path.join(root, "scripts/smoke-parity-auth.mjs"), site, email, password],
-      { stdio: "inherit", env: process.env },
-    );
-    results.push({
-      id: "live_auth",
-      label: "Live smoke-parity-auth",
-      critical: true,
-      status: (a.status ?? 1) === 0 ? "PASS" : "FAIL",
-      exitCode: a.status ?? 1,
-    });
-    if ((a.status ?? 1) !== 0) automatedOk = false;
+    if (
+      !runLiveScript("live_auth", "Live smoke-parity-auth", "smoke-parity-auth.mjs", [
+        site,
+        email,
+        password,
+      ])
+    ) {
+      automatedOk = false;
+    }
   } else {
     results.push({
       id: "live_auth",
       label: "Live smoke-parity-auth",
       critical: true,
       status: "UNVERIFIED",
-      note: "Set PARITY_EMAIL and PARITY_PASSWORD",
+      note: "Set PARITY_EMAIL and PARITY_PASSWORD for entitled seat proof",
     });
   }
 } else {
@@ -209,7 +247,14 @@ if (site) {
     label: "Live smoke-health",
     critical: true,
     status: "UNVERIFIED",
-    note: "Pass SITE_URL or argv to run",
+    note: "Pass SITE_URL or argv host to run",
+  });
+  results.push({
+    id: "live_parity",
+    label: "Live smoke-parity",
+    critical: true,
+    status: "UNVERIFIED",
+    note: "Pass SITE_URL or argv host to run",
   });
   results.push({
     id: "live_auth",
@@ -230,14 +275,17 @@ for (const r of results) {
 
 const fails = results.filter((r) => r.status === "FAIL");
 const unverified = results.filter((r) => r.status === "UNVERIFIED");
+const skipped = results.filter((r) => r.status === "SKIPPED");
 
 console.log("\n── Confirmed defects (this run) ──");
 if (fails.length === 0) console.log("  None in suites executed this run.");
 else fails.forEach((f) => console.log(`  DEFECT: ${f.id} exit=${f.exitCode}`));
 
 console.log("\n── Recommendations (not defects) ──");
-console.log("  • Re-run with SITE_URL after every deploy: node scripts/release-gate.mjs <url>");
+console.log("  • Post-deploy live only: pnpm run release-gate:live -- https://your-host");
+console.log("  • Full gate: node scripts/release-gate.mjs  (+ SITE_URL for live_health + live_parity)");
 console.log("  • Prove entitled seat: PARITY_EMAIL + PARITY_PASSWORD");
+console.log("  • Org soft 404s until redeploy: set STRICT_ORG_GATES=1 after profile/audit/structure ship");
 console.log("  • TestFlight physical smoke: artifacts/spartan-coaching-mobile/store/testflight-smoke.md");
 console.log("  • ASC App Privacy + subscription storefront review (HSP-46 risk item)");
 console.log("  • Staging backup drill + OPS_LAST_RESTORE_DRILL_ISO (HSP-45)");
@@ -245,16 +293,25 @@ console.log("  • Staging backup drill + OPS_LAST_RESTORE_DRILL_ISO (HSP-45)");
 console.log("\n── Production-ready claim ──");
 console.log("  productionReadyClaimAllowed: false");
 console.log(
-  "  Reason: Critical live_env (health + entitled seat), manual_device (TestFlight), and external (ASC/EAS) paths remain UNVERIFIED unless proven outside this runner. Automated PASS is necessary but not sufficient.",
+  "  Reason: Critical live_env (health + public parity + entitled seat), manual_device (TestFlight), and external (ASC/EAS) paths remain UNVERIFIED unless proven outside this runner. Automated PASS is necessary but not sufficient.",
 );
 console.log(`  UNVERIFIED live steps this run: ${unverified.map((u) => u.id).join(", ") || "none"}`);
+if (skipped.length) {
+  console.log(`  SKIPPED this run: ${skipped.map((s) => s.id).join(", ")}`);
+}
 
 console.log("\n════════════════════════════════════════");
 if (!automatedOk) {
-  console.error("RELEASE GATE FAILED — fix automated defects before ship.");
+  console.error("RELEASE GATE FAILED — fix automated/live defects before ship.");
   process.exit(1);
 }
-console.log(
-  "RELEASE GATE AUTOMATED SUITES PASSED — do NOT call the product production-ready until live + device + external critical paths are proven.",
-);
+if (liveOnlyFlag) {
+  console.log(
+    "RELEASE GATE LIVE CHECKS PASSED — do NOT call the product production-ready until entitled seat + device + external critical paths are proven.",
+  );
+} else {
+  console.log(
+    "RELEASE GATE AUTOMATED SUITES PASSED — do NOT call the product production-ready until live + device + external critical paths are proven.",
+  );
+}
 process.exit(0);

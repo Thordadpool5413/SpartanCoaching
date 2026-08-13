@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   AUTOMATED_SUITES,
+  LIVE_SMOKE_STACK,
   RELEASE_JOURNEYS,
   RELEASE_PERSONAS,
   evaluateProductionReadyClaim,
@@ -61,7 +62,9 @@ describe("release gate matrix (HSP-48)", () => {
     expect(RELEASE_JOURNEYS.some((j) => j.id === "dual_schema" && j.critical)).toBe(true);
 
     const apiSuite = AUTOMATED_SUITES.find((s) => s.id === "api_security_entitlement");
-    expect(apiSuite?.args.join(" ")).toMatch(/orgAdminPolicy|orgStructurePolicy/);
+    expect(apiSuite?.args.join(" ")).toMatch(
+      /orgAdminPolicy|orgStructurePolicy|orgOffboardPolicy/,
+    );
 
     const webSuite = AUTOMATED_SUITES.find((s) => s.id === "web_contracts");
     expect(webSuite?.args.join(" ")).toMatch(/dualSourceOfTruth|OrgAdmin\.panels/);
@@ -84,5 +87,23 @@ describe("release gate matrix (HSP-48)", () => {
   it("unique journey ids", () => {
     const ids = RELEASE_JOURNEYS.map((j) => j.id);
     expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("includes live org-admin unauth gate journey", () => {
+    const j = RELEASE_JOURNEYS.find((x) => x.id === "unauth_org_admin_gates");
+    expect(j).toBeDefined();
+    expect(j?.critical).toBe(true);
+    expect(j?.mode).toBe("live_env");
+    expect(j?.evidence).toMatch(/smoke-parity/);
+  });
+
+  it("documents live smoke stack (health + parity + optional auth)", () => {
+    expect(LIVE_SMOKE_STACK.map((s) => s.id)).toEqual([
+      "live_health",
+      "live_parity",
+      "live_auth",
+    ]);
+    expect(LIVE_SMOKE_STACK.every((s) => s.required)).toBe(true);
+    expect(LIVE_SMOKE_STACK.find((s) => s.id === "live_auth")?.credentials).toBe(true);
   });
 });

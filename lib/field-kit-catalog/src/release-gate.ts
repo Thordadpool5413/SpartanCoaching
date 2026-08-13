@@ -97,6 +97,16 @@ export const RELEASE_JOURNEYS: JourneyCheck[] = [
     evidence: "scripts/smoke-parity.mjs (public gate checks)",
   },
   {
+    id: "unauth_org_admin_gates",
+    persona: "unauthorized_user",
+    domain: "organization_isolation",
+    title: "Org admin APIs return 401/403 without session",
+    critical: true,
+    mode: "live_env",
+    evidence:
+      "scripts/smoke-parity.mjs org gates (/api/org/members|usage|invites hard; profile/audit/structure soft-404)",
+  },
+  {
     id: "unauth_entitlement_unit",
     persona: "unauthorized_user",
     domain: "entitlement",
@@ -189,7 +199,8 @@ export const RELEASE_JOURNEYS: JourneyCheck[] = [
     title: "Org admin live seats/invites/structure/offboard on company org",
     critical: false,
     mode: "live_env",
-    evidence: "Manual: company org_admin /org/admin + /api/org/* after pnpm db:migrate (0014/0015)",
+    evidence:
+      "Manual: company org_admin /org/admin + /api/org/* after pnpm db:migrate (0014/0015); unauth probes via smoke-parity org gates",
   },
   {
     id: "provider_leader_usage",
@@ -456,6 +467,7 @@ export const AUTOMATED_SUITES: AutomatedSuite[] = [
       "src/auth/workflowTenantAuthz.test.ts",
       "src/auth/orgAdminPolicy.test.ts",
       "src/auth/orgStructurePolicy.test.ts",
+      "src/auth/orgOffboardPolicy.test.ts",
       "src/security/requestSecurity.test.ts",
       "src/security/tenantRoleplay.test.ts",
       "src/security/phiEncryption.test.ts",
@@ -539,6 +551,32 @@ export type GateVerdict = {
 };
 
 /**
+ * Live smoke stack invoked by scripts/release-gate.mjs when SITE_URL is set.
+ * Order matches ship-check + release-gate:live.
+ */
+export const LIVE_SMOKE_STACK = [
+  {
+    id: "live_health",
+    script: "scripts/smoke-health.mjs",
+    required: true,
+    credentials: false,
+  },
+  {
+    id: "live_parity",
+    script: "scripts/smoke-parity.mjs",
+    required: true,
+    credentials: false,
+  },
+  {
+    id: "live_auth",
+    script: "scripts/smoke-parity-auth.mjs",
+    required: true,
+    credentials: true,
+    env: ["PARITY_EMAIL", "PARITY_PASSWORD"],
+  },
+] as const;
+
+/**
  * Hard rule: never claim production ready from this package alone.
  * Live seat journeys, TestFlight, ASC, and deploy smoke remain operator-proven.
  */
@@ -547,7 +585,7 @@ export function evaluateProductionReadyClaim(): GateVerdict {
   return {
     productionReadyClaimAllowed: false,
     reason:
-      "Critical paths require live_env (SITE_URL + entitled seat), manual_device (TestFlight), and external (ASC/EAS) evidence beyond unit suites. Automated suites are necessary but not sufficient.",
+      "Critical paths require live_env (SITE_URL + public parity + entitled seat), manual_device (TestFlight), and external (ASC/EAS) evidence beyond unit suites. Automated suites are necessary but not sufficient.",
     criticalJourneyCount: critical.length,
     automatedJourneyCount: RELEASE_JOURNEYS.filter((j) => j.mode === "automated").length,
     liveEnvJourneyCount: RELEASE_JOURNEYS.filter((j) => j.mode === "live_env").length,
