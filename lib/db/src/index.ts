@@ -12,6 +12,7 @@ type Db = NodePgDatabase<typeof schema>;
  * Pool/db are created lazily on first use and require DATABASE_URL.
  */
 export * from "./schema";
+export * from "./migration-safety";
 
 let poolInstance: pg.Pool | undefined;
 let dbInstance: Db | undefined;

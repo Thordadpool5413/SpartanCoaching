@@ -1255,6 +1255,15 @@ importers:
       drizzle-kit:
         specifier: ^0.31.10
         version: 0.31.10
+      tsx:
+        specifier: 'catalog:'
+        version: 4.23.0
+      typescript:
+        specifier: ~5.9.3
+        version: 5.9.3
+      vitest:
+        specifier: 'catalog:'
+        version: 3.2.7(@types/debug@4.1.13)(@types/node@25.9.5)(jiti@2.7.0)(jsdom@29.1.1(@noble/hashes@1.8.0))(lightningcss@1.32.0)(terser@5.49.0)(tsx@4.23.0)(yaml@2.9.0)
 
   lib/design-tokens: {}
 
