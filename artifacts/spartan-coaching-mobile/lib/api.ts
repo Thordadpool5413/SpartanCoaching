@@ -288,6 +288,18 @@ export async function logoutMobile(): Promise<void> {
   await setSessionToken(null);
 }
 
+/**
+ * Permanently close the membership account (App Store Guideline 5.1.1(v)).
+ * Requires confirm: "DELETE". Clears local session on success.
+ */
+export async function deleteAccountMobile(): Promise<{ ok: boolean; message?: string }> {
+  const result = await apiPost<{ ok: boolean; message?: string }>("/api/me/delete-account", {
+    confirm: "DELETE",
+  });
+  await setSessionToken(null);
+  return result;
+}
+
 export async function fetchMeMobile(): Promise<MobileAuthUser | null> {
   const token = await getSessionToken();
   if (!token) return null;

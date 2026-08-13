@@ -18,6 +18,7 @@ import { Feather } from "@expo/vector-icons";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
 import {
+  deleteAccountMobile,
   fetchBillingStatus,
   fetchOnboardingMobile,
   getWebSiteUrl,
@@ -32,6 +33,12 @@ import {
   isChecklistDone,
   visibleChecklist,
 } from "@/lib/onboarding";
+import {
+  APP_STORE_PRIVACY_URL,
+  APP_STORE_SUPPORT_URL,
+  APP_STORE_TERMS_URL,
+  APP_STORE_TRUST_URL,
+} from "@/lib/appStoreReadiness";
 import { FIELD_KIT_TOOLS } from "@workspace/field-kit-catalog";
 
 // Key gated tools to surface in value cards (no PHI, no public tools)
@@ -60,6 +67,7 @@ export default function AccountScreen() {
   const [billingLoading, setBillingLoading] = useState(false);
   const [checkoutPending, setCheckoutPending] = useState(false);
   const [portalPending, setPortalPending] = useState(false);
+  const [deletePending, setDeletePending] = useState(false);
 
   // Tracks when billing data was last successfully fetched, used to skip
   // unnecessary refreshes when the app briefly goes to the background.
@@ -327,6 +335,58 @@ export default function AccountScreen() {
 
   const openWebMembership = () => {
     void Linking.openURL(`${getWebSiteUrl()}/hospice-sales-pro`);
+  };
+
+  const onDeleteAccount = () => {
+    if (user?.member.role === "platform_admin") {
+      Alert.alert("Not available", "Platform admin accounts cannot be deleted from the app.");
+      return;
+    }
+    Alert.alert(
+      "Delete account?",
+      "This permanently closes your Hospice Sales Pro account and signs you out. Cancel any paid subscription under Manage billing first if you still need access to that email.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Continue",
+          style: "destructive",
+          onPress: () => {
+            Alert.alert(
+              "Confirm deletion",
+              'Tap Delete permanently to confirm. This cannot be undone from the app.',
+              [
+                { text: "Cancel", style: "cancel" },
+                {
+                  text: "Delete permanently",
+                  style: "destructive",
+                  onPress: async () => {
+                    setDeletePending(true);
+                    try {
+                      await deleteAccountMobile();
+                      await logout();
+                      Alert.alert(
+                        "Account deleted",
+                        "Your account has been closed. You can create a new account later with a different email if needed.",
+                      );
+                      router.replace("/(tabs)");
+                    } catch (e: any) {
+                      Alert.alert(
+                        "Could not delete account",
+                        (e?.message || "Try again or contact support.")
+                          .replace(/^\d+:\s*/, "")
+                          .slice(0, 280),
+                      );
+                    } finally {
+                      setDeletePending(false);
+                    }
+                  },
+                },
+              ],
+            );
+          },
+        },
+      ],
+    );
   };
 
   const saveProfile = async () => {
@@ -777,15 +837,80 @@ export default function AccountScreen() {
         </View>
       )}
 
+      {/* Privacy & legal — App Store 5.1.1 */}
+      <View
+        style={[
+          styles.card,
+          { borderColor: colors.border, backgroundColor: colors.card, marginTop: 16 },
+        ]}
+        testID="card-privacy-legal"
+      >
+        <Text style={{ color: colors.foreground, fontWeight: "800", fontSize: 16, marginBottom: 8 }}>
+          Privacy & legal
+        </Text>
+        <Text style={{ color: colors.mutedForeground, fontSize: 13, lineHeight: 19, marginBottom: 12 }}>
+          Membership tools are coaching aids — do not enter PHI. Billing is handled by Stripe on the web
+          ($14.99/week individual; cancel anytime in Manage billing).
+        </Text>
+        {[
+          { label: "Privacy Policy", url: APP_STORE_PRIVACY_URL, testId: "link-privacy" },
+          { label: "Terms of Service", url: APP_STORE_TERMS_URL, testId: "link-terms" },
+          { label: "Trust Center", url: APP_STORE_TRUST_URL, testId: "link-trust" },
+          { label: "Support / Contact", url: APP_STORE_SUPPORT_URL, testId: "link-support" },
+        ].map((item) => (
+          <Pressable
+            key={item.url}
+            onPress={() => void Linking.openURL(item.url)}
+            style={{ paddingVertical: 10, minHeight: 44, justifyContent: "center" }}
+            testID={item.testId}
+          >
+            <Text style={{ color: colors.primary, fontWeight: "700", fontSize: 14 }}>{item.label} →</Text>
+          </Pressable>
+        ))}
+      </View>
+
       <Pressable
         onPress={async () => {
           await logout();
           router.replace("/(tabs)");
         }}
         style={[styles.outlineBtn, { borderColor: colors.border, marginTop: 24 }]}
+        testID="button-sign-out"
       >
         <Text style={{ color: colors.foreground, fontWeight: "700" }}>Sign out</Text>
       </Pressable>
+
+      {/* Account deletion — App Store Guideline 5.1.1(v) */}
+      <Pressable
+        onPress={onDeleteAccount}
+        disabled={deletePending}
+        style={[
+          styles.outlineBtn,
+          {
+            borderColor: colors.destructive ?? "#b91c1c",
+            marginTop: 12,
+            opacity: deletePending ? 0.7 : 1,
+          },
+        ]}
+        testID="button-delete-account"
+      >
+        <Text style={{ color: colors.destructive ?? "#b91c1c", fontWeight: "700" }}>
+          {deletePending ? "Deleting…" : "Delete account"}
+        </Text>
+      </Pressable>
+      <Text
+        style={{
+          color: colors.mutedForeground,
+          fontSize: 11,
+          lineHeight: 16,
+          marginTop: 8,
+          textAlign: "center",
+          marginBottom: 8,
+        }}
+      >
+        Permanently closes this account in the app (required by App Store). Cancel subscriptions in
+        Manage billing if needed.
+      </Text>
     </ScrollView>
   );
 }
