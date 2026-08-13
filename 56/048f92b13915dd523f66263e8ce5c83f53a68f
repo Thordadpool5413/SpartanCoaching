@@ -1,0 +1,34 @@
+docs/production-verification.md
+  h_0446834f150a71 73-94
+docs/ship-readiness.md
+  h_0446834f150a71 30-34,40,43
+lib/api-contract/src/contract.test.ts
+  h_0446834f150a71 120-122
+lib/api-contract/src/shared-paths.ts
+  h_0446834f150a71 97-136
+lib/field-kit-catalog/src/index.ts
+  h_0446834f150a71 484
+lib/field-kit-catalog/src/release-gate.test.ts
+  h_0446834f150a71 4,67-84
+lib/field-kit-catalog/src/release-gate.ts
+  h_0446834f150a71 99-108,192-193,510-535,541
+package.json
+  h_0446834f150a71 23
+scripts/release-gate.mjs
+  h_0446834f150a71 8-9,11-12,14-18,26-33,154-170,174-176,180-184,186-190,192-205,210-218,225,234-241,262,269-270,272,280,283-285,289,292-300
+scripts/ship-check.mjs
+  h_0446834f150a71 60-61
+scripts/smoke-parity.mjs
+  h_0446834f150a71 110-175
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "56048f92b13915dd523f66263e8ce5c83f53a68f",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
