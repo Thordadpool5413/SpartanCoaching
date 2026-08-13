@@ -1,0 +1,28 @@
+artifacts/spartan-coaching/package.json
+  h_0446834f150a71 54
+artifacts/spartan-coaching/src/shared/schema.dualSourceOfTruth.test.ts
+  h_0446834f150a71 1-60
+artifacts/spartan-coaching/src/shared/schema.ts
+  h_0446834f150a71 2-10,12
+artifacts/spartan-coaching/tsconfig.json
+  h_0446834f150a71 18-19,31-33
+artifacts/spartan-coaching/vite.config.ts
+  h_0446834f150a71 99-118
+artifacts/spartan-coaching/vitest.config.ts
+  h_0446834f150a71 12-31
+docs/schema-ops.md
+  h_0446834f150a71 17
+pnpm-lock.yaml
+  h_0446834f150a71 639-641
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "1c657d16f47cb3356412ce574036720b6710c867",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
