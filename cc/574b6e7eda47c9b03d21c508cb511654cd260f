@@ -1,0 +1,14 @@
+lib/db/migrations/0001_spartan_ai_tools.sql
+  h_0446834f150a71 3-11
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "cc574b6e7eda47c9b03d21c508cb511654cd260f",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
