@@ -1,0 +1,40 @@
+artifacts/api-server/package.json
+  h_0446834f150a71 23
+artifacts/api-server/src/auth/adminAuthorization.ts
+  h_0446834f150a71 2-5,28-30
+artifacts/api-server/src/auth/middleware.ts
+  h_0446834f150a71 7,97,105,108-113,121
+docs/api-contract.md
+  h_0446834f150a71 5-29,35
+lib/api-contract/package.json
+  h_0446834f150a71 1-20
+lib/api-contract/src/compatibility.ts
+  h_0446834f150a71 1-68
+lib/api-contract/src/contract.test.ts
+  h_0446834f150a71 1-122
+lib/api-contract/src/errors.ts
+  h_0446834f150a71 1-100
+lib/api-contract/src/index.ts
+  h_0446834f150a71 1-28
+lib/api-contract/src/shared-paths.ts
+  h_0446834f150a71 1-127
+lib/api-contract/tsconfig.json
+  h_0446834f150a71 1-13
+lib/api-contract/vitest.config.ts
+  h_0446834f150a71 1-8
+pnpm-lock.yaml
+  h_0446834f150a71 193-195,1203-1211
+tsconfig.json
+  h_0446834f150a71 29-31
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "5684d4503a61343f7aa5dcf42b74f1fd90527534",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
