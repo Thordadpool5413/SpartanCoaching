@@ -1,5 +1,22 @@
 # App Store Submission Guide — Spartan Coaching (Hospice Sales Pro)
 
+## HSP-46 readiness (code + external)
+
+In-app checklist: `lib/appStoreReadiness.ts` (privacy URLs, review notes, ASC/EAS actions).
+Run: `pnpm --filter @workspace/spartan-coaching-mobile test -- app-store-readiness`
+
+**Implemented in app/backend:** privacy manifest (`app.config.js` → PrivacyInfo.xcprivacy),
+permission strings, export compliance flag, in-app account deletion (`POST /api/me/delete-account`),
+privacy/terms/trust/support links, client API contract headers for backend compatibility.
+
+**You must still complete in App Store Connect / EAS / hosting:**
+- Privacy Policy URL + App Privacy questionnaire (match privacy manifest data types)
+- Screenshots, description, keywords, support URL, marketing URL
+- Review notes from `APP_REVIEW_NOTES` in `appStoreReadiness.ts`
+- Confirm subscription storefront rules (Stripe external vs IAP) for each region
+- Host `apple-app-site-association` for universal links
+- TestFlight build + smoke on a physical iPhone (`store/testflight-smoke.md`)
+
 ## Before You Submit
 
 ### 1. Verify Expo / EAS account access

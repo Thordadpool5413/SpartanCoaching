@@ -30,6 +30,73 @@ module.exports = {
     ios: {
       bundleIdentifier: "com.spartancoaching.fieldkit",
       supportsTablet: false,
+      // Universal Links host — requires apple-app-site-association on the web origin (EAS/App Store Connect).
+      associatedDomains: [
+        `applinks:${productionOrigin.replace(/^https?:\/\//, "")}`,
+      ],
+      /**
+       * PrivacyInfo.xcprivacy (Apple required-reason APIs + data collection declarations).
+       * @see https://developer.apple.com/documentation/bundleresources/privacy_manifest_files
+       * Reasons: UserDefaults CA92.1, FileTimestamp C617.1, SystemBootTime 35F9.1, DiskSpace E174.1
+       * (common Expo / React Native access patterns — not used for tracking).
+       */
+      privacyManifests: {
+        NSPrivacyTracking: false,
+        NSPrivacyTrackingDomains: [],
+        NSPrivacyCollectedDataTypes: [
+          {
+            NSPrivacyCollectedDataType: "NSPrivacyCollectedDataTypeEmailAddress",
+            NSPrivacyCollectedDataTypeLinked: true,
+            NSPrivacyCollectedDataTypeTracking: false,
+            NSPrivacyCollectedDataTypePurposes: [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality",
+            ],
+          },
+          {
+            NSPrivacyCollectedDataType: "NSPrivacyCollectedDataTypeName",
+            NSPrivacyCollectedDataTypeLinked: true,
+            NSPrivacyCollectedDataTypeTracking: false,
+            NSPrivacyCollectedDataTypePurposes: [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality",
+            ],
+          },
+          {
+            NSPrivacyCollectedDataType: "NSPrivacyCollectedDataTypeProductInteraction",
+            NSPrivacyCollectedDataTypeLinked: true,
+            NSPrivacyCollectedDataTypeTracking: false,
+            NSPrivacyCollectedDataTypePurposes: [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality",
+              "NSPrivacyCollectedDataTypePurposeAnalytics",
+            ],
+          },
+          {
+            NSPrivacyCollectedDataType: "NSPrivacyCollectedDataTypePurchaseHistory",
+            NSPrivacyCollectedDataTypeLinked: true,
+            NSPrivacyCollectedDataTypeTracking: false,
+            NSPrivacyCollectedDataTypePurposes: [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality",
+            ],
+          },
+        ],
+        NSPrivacyAccessedAPITypes: [
+          {
+            NSPrivacyAccessedAPIType: "NSPrivacyAccessedAPICategoryUserDefaults",
+            NSPrivacyAccessedAPITypeReasons: ["CA92.1"],
+          },
+          {
+            NSPrivacyAccessedAPIType: "NSPrivacyAccessedAPICategoryFileTimestamp",
+            NSPrivacyAccessedAPITypeReasons: ["C617.1"],
+          },
+          {
+            NSPrivacyAccessedAPIType: "NSPrivacyAccessedAPICategorySystemBootTime",
+            NSPrivacyAccessedAPITypeReasons: ["35F9.1"],
+          },
+          {
+            NSPrivacyAccessedAPIType: "NSPrivacyAccessedAPICategoryDiskSpace",
+            NSPrivacyAccessedAPITypeReasons: ["E174.1"],
+          },
+        ],
+      },
       infoPlist: {
         NSUserNotificationsUsageDescription:
           "Spartan Coaching uses notifications to remind you to follow up with contacts after visits.",
@@ -37,6 +104,7 @@ module.exports = {
           "Spartan Coaching uses the camera to capture documents you explicitly add to a protected clinical case.",
         NSPhotoLibraryUsageDescription:
           "Spartan Coaching uses your photo library only to select documents you explicitly add to a protected clinical case.",
+        // Export compliance: app uses only HTTPS / standard encryption (no custom crypto).
         ITSAppUsesNonExemptEncryption: false,
         // Home-screen quick actions (open app; deep links via scheme when supported)
         UIApplicationShortcutItems: [

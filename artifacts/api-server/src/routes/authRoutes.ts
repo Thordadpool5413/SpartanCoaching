@@ -1967,6 +1967,70 @@ export function registerAuthRoutes(app: Express): void {
     }
   });
 
+  /**
+   * Self-serve account deletion (App Store Guideline 5.1.1(v) / HSP-46).
+   * Body: { confirm: "DELETE" }
+   * Disables the member, anonymizes PII, clears sessions/tokens.
+   * Does not delete Stripe objects (user should cancel via Manage billing); ops can purge later.
+   */
+  app.post("/api/me/delete-account", requireAuth, authLimit, async (req: AuthedRequest, res) => {
+    try {
+      const confirm = String((req.body as { confirm?: string })?.confirm || "");
+      if (confirm !== "DELETE") {
+        return res.status(400).json({
+          error: 'Confirmation required. Send JSON { "confirm": "DELETE" }.',
+          code: "CONFIRM_REQUIRED",
+        });
+      }
+      const member = req.fieldKit!.member!;
+      if (member.role === "platform_admin") {
+        return res.status(400).json({
+          error: "Platform admin accounts cannot be deleted from the app.",
+          code: "ADMIN_NOT_SELF_DELETABLE",
+        });
+      }
+
+      const anonymizedEmail = `deleted+${member.id}.${Date.now()}@deleted.invalid`;
+      await db
+        .update(clientMembers)
+        .set({
+          status: "disabled",
+          email: anonymizedEmail,
+          passwordHash: null,
+          name: "Deleted user",
+          title: null,
+          territoryNote: null,
+          topObjections: null,
+          checklistProgress: {},
+          jobRole: null,
+        })
+        .where(eq(clientMembers.id, member.id));
+
+      await db.delete(clientSessions).where(eq(clientSessions.memberId, member.id));
+      await db.delete(authTokens).where(eq(authTokens.memberId, member.id));
+
+      res.clearCookie(COOKIE_NAME, {
+        httpOnly: true,
+        secure: useSecureCookies(),
+        sameSite: "lax",
+        path: "/",
+      });
+
+      await logEvent("account_self_deleted", member.id, {
+        organizationId: member.organizationId,
+      });
+
+      return res.json({
+        ok: true,
+        message:
+          "Account deleted. Sign-in credentials no longer work. Cancel any active subscription via the billing portal if you still have access to that email.",
+      });
+    } catch (err) {
+      console.error("delete-account error:", err);
+      return res.status(500).json({ error: "Unable to delete account" });
+    }
+  });
+
   // ── Change password ────────────────────────────────────────────────
   app.post("/api/auth/change-password", requireAuth, authLimit, async (req: AuthedRequest, res) => {
     try {
