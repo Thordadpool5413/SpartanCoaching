@@ -207,3 +207,19 @@ describe("GET /client-config — delivery contract", () => {
     expect(JSON.stringify(res.body)).not.toMatch(/sk_live|passwordHash/i);
   });
 });
+
+describe("GET /healthz/ops-readiness — DR / incident / support", () => {
+  it("returns recovery objectives and support categories without secrets", async () => {
+    const app = buildApp();
+    const res = await request(app).get("/healthz/ops-readiness");
+    expect(res.status).toBe(200);
+    expect(res.body.ok).toBe(true);
+    expect(res.body.recoveryObjectives).toHaveProperty("databaseRpoMinutes");
+    expect(Array.isArray(res.body.criticalAssets)).toBe(true);
+    expect(Array.isArray(res.body.incidentSeverities)).toBe(true);
+    expect(Array.isArray(res.body.supportCategories)).toBe(true);
+    expect(res.body.statusTemplates).toHaveProperty("investigating");
+    expect(res.body.restoreDrill.command).toMatch(/backup-restore-drill/);
+    expect(JSON.stringify(res.body)).not.toMatch(/sk_live|postgres:\/\/|passwordHash/i);
+  });
+});

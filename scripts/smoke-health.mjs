@@ -71,6 +71,33 @@ async function checkJsonEndpoint(path, { checkBodyOk = false } = {}) {
 // Canonical route is /api/healthz. /api/health is an optional alias (added
 // for deploy monitors); treat 404 as WARN until the host is redeployed.
 await checkJsonEndpoint("/api/healthz");
+// Ops readiness (HSP-45). Soft if missing on old deploys.
+{
+  const path = "/api/healthz/ops-readiness";
+  const url = `${base}${path}`;
+  try {
+    const res = await fetch(url);
+    if (res.status === 404) {
+      console.log(`WARN ${res.status} ${path} — ops-readiness not deployed yet`);
+    } else if (!res.ok) {
+      console.log(`FAIL ${res.status} ${path}`);
+      failed += 1;
+    } else {
+      const body = await res.json().catch(() => null);
+      if (!body?.recoveryObjectives || !body?.supportCategories?.length) {
+        console.log(`FAIL ${res.status} ${path} — missing recoveryObjectives/supportCategories`);
+        failed += 1;
+      } else {
+        console.log(
+          `OK  ${res.status} ${path} (drillStale=${body.drillStale} assets=${body.criticalAssets?.length ?? 0})`,
+        );
+      }
+    }
+  } catch (err) {
+    console.log(`FAIL ERR ${path} — ${err?.message || err}`);
+    failed += 1;
+  }
+}
 // Client delivery contract (HSP-44). Soft if missing on old deploys.
 {
   const path = "/api/client-config";
