@@ -1,0 +1,24 @@
+.npmrc
+  h_0446834f150a71 6-11
+artifacts/spartan-coaching-mobile/package.json
+  h_0446834f150a71 21,24
+artifacts/spartan-coaching-mobile/scripts/build.js
+  h_0446834f150a71 692-763,767-775
+docs/replit-publish.md
+  h_0446834f150a71 19-28
+pnpm-lock.yaml
+  h_0446834f150a71 167-168,852-854,861-863,12209,16272
+pnpm-workspace.yaml
+  h_0446834f150a71 61-71
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "34e46808e0acb5ae444bc544db1df3546c270247",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
