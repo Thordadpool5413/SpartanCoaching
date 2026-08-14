@@ -1,0 +1,16 @@
+artifacts/api-server/src/routes/authRoutes.ts
+  h_0446834f150a71 544-555
+scripts/smoke-parity-auth.mjs
+  h_0446834f150a71 49-72
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "53360a10a898a3b47277000c6fa4fc1fdc3ed81a",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
