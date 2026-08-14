@@ -1,0 +1,40 @@
+artifacts/api-server/src/routes/authRoutes.ts
+  h_0446834f150a71 3,17,651-728
+artifacts/spartan-coaching-mobile/app/(tabs)/account.tsx
+  h_0446834f150a71 42-50,268-281,285,419-461,468-473
+artifacts/spartan-coaching-mobile/components/ui/ValueReceiptCard.tsx
+  h_0446834f150a71 1-96
+artifacts/spartan-coaching-mobile/lib/api.ts
+  h_0446834f150a71 357-374
+artifacts/spartan-coaching/src/components/EntitlementSuite.tsx
+  h_0446834f150a71 1-89
+artifacts/spartan-coaching/src/components/FieldKitGate.tsx
+  h_0446834f150a71 10-14,39-49,51-55,99-111
+artifacts/spartan-coaching/src/components/ValueReceipt.tsx
+  h_0446834f150a71 1-66
+artifacts/spartan-coaching/src/lib/fieldKitCatalog.ts
+  h_0446834f150a71 14-16,37-39
+artifacts/spartan-coaching/src/pages/Account.tsx
+  h_0446834f150a71 11-15,280-303
+docs/product-craft/08-implementation-roadmap.md
+  h_0446834f150a71 8-10
+docs/product-craft/README.md
+  h_0446834f150a71 12-14
+lib/field-kit-catalog/src/entitlement-shell.test.ts
+  h_0446834f150a71 1-89
+lib/field-kit-catalog/src/entitlement-shell.ts
+  h_0446834f150a71 1-196
+lib/field-kit-catalog/src/index.ts
+  h_0446834f150a71 467-475
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "5b5f90db96c7f202b2e88e8a4235990ef4d966c6",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
