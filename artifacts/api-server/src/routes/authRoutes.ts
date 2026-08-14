@@ -541,6 +541,18 @@ export function registerAuthRoutes(app: Express): void {
       });
     } catch (err) {
       console.error("login error:", err);
+      const msg = err instanceof Error ? err.message : String(err);
+      // Common after deploy before pnpm db:migrate: Drizzle selects new columns
+      // (e.g. branch_id) that do not exist until 0014+ is applied.
+      if (
+        /column .* does not exist/i.test(msg) ||
+        /relation .* does not exist/i.test(msg)
+      ) {
+        return res.status(503).json({
+          error: "Login unavailable — database schema is behind the app. Run pnpm db:migrate on the host.",
+          code: "SCHEMA_OUT_OF_DATE",
+        });
+      }
       return res.status(500).json({ error: "Login failed" });
     }
   });
