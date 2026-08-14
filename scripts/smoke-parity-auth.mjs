@@ -46,6 +46,30 @@ Usage:
   node scripts/smoke-parity-auth.mjs https://host email password
 
 Optional: PARITY_SKIP_AI=1 to avoid generating an objection (quota).
+
+Use a real account email/password (not the placeholder your@email.com).
+`);
+  process.exit(2);
+}
+
+const placeholderEmail =
+  /^(your@email\.com|you@example\.com|example@example\.com|test@test\.com)$/i.test(
+    email,
+  );
+const placeholderPassword = /^(your-password|password|changeme|secret)$/i.test(
+  password,
+);
+if (placeholderEmail || placeholderPassword) {
+  console.error(`
+Auth smoke refused placeholder credentials.
+
+PARITY_EMAIL / PARITY_PASSWORD must be a real production seat, not the docs example
+(your@email.com / your-password).
+
+Example:
+  export PARITY_EMAIL='nick@your-real-domain.com'
+  export PARITY_PASSWORD='the-password-you-use-on-the-website'
+  pnpm run release-gate:live -- https://spartanhospicecoaching.com
 `);
   process.exit(2);
 }
