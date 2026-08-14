@@ -22,6 +22,14 @@ jest.mock("@/lib/api", () => ({
   startIndividualCheckout: (...args: unknown[]) => mockStartIndividualCheckout(...args),
   openBillingPortal: (...args: unknown[]) => mockOpenBillingPortal(...args),
   updateOnboardingMobile: jest.fn().mockResolvedValue({ member: {} }),
+  fetchValueReceipt: jest.fn().mockResolvedValue({
+    days: 7,
+    since: new Date().toISOString(),
+    checklistDone: 0,
+    totalEvents: 0,
+    events: [],
+    highlights: ["No tracked activity yet"],
+  }),
   getWebSiteUrl: () => "https://spartancoaching.com",
 }));
 
@@ -97,6 +105,17 @@ jest.mock("expo-router", () => ({
 
 jest.mock("@expo/vector-icons", () => ({
   Feather: () => null,
+}));
+
+jest.mock("expo-haptics", () => ({
+  impactAsync: jest.fn(),
+  notificationAsync: jest.fn(),
+  ImpactFeedbackStyle: { Light: "light", Medium: "medium" },
+  NotificationFeedbackType: { Success: "success" },
+}));
+
+jest.mock("@/lib/analytics", () => ({
+  trackMobileEvent: jest.fn().mockResolvedValue(undefined),
 }));
 
 // ---------------------------------------------------------------------------
@@ -212,27 +231,28 @@ describe("Account screen billing card — cancel-at-period-end", () => {
     });
   });
 
-  it('shows "Active · canceling" status label when cancelAtPeriodEnd is true', async () => {
+  it('shows canceling status chip when cancelAtPeriodEnd is true', async () => {
     mockFetchBillingStatus.mockResolvedValue(makeBillingCanceling(PERIOD_END));
 
-    const { getByText } = render(<AccountScreen />);
+    const { getAllByText } = render(<AccountScreen />);
 
     await waitFor(() => {
-      expect(getByText("Active · canceling")).toBeTruthy();
+      // Craft Phase 4 entitlement shell chip (may also appear as Status label)
+      expect(getAllByText("Hospice Sales Pro · active · canceling").length).toBeGreaterThan(0);
     });
   });
 
   it("shows the canceling blurb in the membership card", async () => {
     mockFetchBillingStatus.mockResolvedValue(makeBillingCanceling(PERIOD_END));
 
-    const { getByText } = render(<AccountScreen />);
+    const { getAllByText } = render(<AccountScreen />);
 
     await waitFor(() => {
       expect(
-        getByText(
-          "Subscription ends at the current period. You keep access until then. You can reverse cancel in Manage billing.",
-        ),
-      ).toBeTruthy();
+        getAllByText(
+          "Your subscription is set to cancel. You keep tools until the current period ends. Reverse cancel in Manage billing if needed.",
+        ).length,
+      ).toBeGreaterThan(0);
     });
   });
 });

@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
   AppState,
   AppStateStatus,
   Image,
@@ -27,34 +26,19 @@ import { useAuth } from "@/lib/AuthContext";
 import {
   formatTrialRemaining,
   isChecklistDone,
-  START_HERE,
   visibleChecklist,
-  type ChecklistId,
 } from "@/lib/onboarding";
 import { SectionKicker } from "@/components/ui/SectionKicker";
 import { SpartanCard } from "@/components/ui/SpartanCard";
 import { SpartanButton } from "@/components/ui/SpartanButton";
+import { MissionCard } from "@/components/ui/MissionCard";
+import { EntitlementBanner } from "@/components/ui/EntitlementBanner";
+import { PaywallCard } from "@/components/ui/PaywallCard";
 
 import { font } from "@/lib/typography";
 import { getWebSiteUrl } from "@/lib/api";
 import { useMission } from "@/lib/useMission";
-import { PaywallCard } from "@/components/ui/PaywallCard";
-
-const SUGGESTIONS = [
-  "What are hospice eligibility criteria for heart failure?",
-  "How do I handle the 'not ready' objection?",
-  "What is the Medicare hospice benefit?",
-  "Best strategies for building physician referrals?",
-];
-
-const QUICK_TOOLS = [
-  { label: "Sales Command Center", icon: "calendar" as const, route: "/sales-workflow" as const, toolTab: undefined },
-  { label: "Objection Handler", icon: "shield" as const, route: undefined, toolTab: "objection" },
-  { label: "Sales Playbooks", icon: "book-open" as const, route: undefined, toolTab: "playbook" },
-  { label: "Email Templates", icon: "mail" as const, route: undefined, toolTab: "email" },
-  { label: "Role-Play", icon: "users" as const, route: undefined, toolTab: "roleplay" },
-  { label: "Share Brand Film", icon: "film" as const, route: "/brand-video" as const, toolTab: undefined },
-];
+import { trackMobileEvent } from "@/lib/analytics";
 
 function formatScheduledTime(ts: number): string {
   const now = Date.now();
@@ -98,9 +82,10 @@ export default function HomeScreen() {
   const [jobRole, setJobRole] = useState<string>("");
   const [checklist, setChecklist] = useState<Record<string, boolean | string>>({});
   const [onboardingLoaded, setOnboardingLoaded] = useState(false);
-  const [toggling, setToggling] = useState<string | null>(null);
-  /** Coach query is secondary — collapsed by default so one primary path wins */
+  /** Secondary chrome collapsed so one primary path wins (craft P1) */
   const [coachOpen, setCoachOpen] = useState(false);
+  const [checklistOpen, setChecklistOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 90;
@@ -229,24 +214,10 @@ export default function HomeScreen() {
 
   const items = useMemo(() => visibleChecklist(jobRole), [jobRole]);
   const doneCount = items.filter((i) => isChecklistDone(checklist, i.id)).length;
-  const progressPct = items.length ? Math.round((doneCount / items.length) * 100) : 0;
-  const startHere = START_HERE[jobRole || "other"] || START_HERE.other;
   const trialLabel = formatTrialRemaining(user?.fieldKit?.hoursRemaining);
   const firstName = user?.member?.name?.split(" ")[0] || "";
   const needsRole = !jobRole;
   const isFirstSession = needsRole || doneCount === 0;
-  const incomplete = items.filter((i) => !isChecklistDone(checklist, i.id));
-  const nextItem = incomplete[0] ?? null;
-
-  const openStart = () => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (startHere.route) router.push(startHere.route as any);
-    else if (startHere.toolTab) {
-      router.push({ pathname: "/tool/[tab]", params: { tab: startHere.toolTab } } as any);
-    } else {
-      router.push("/(tabs)/tools");
-    }
-  };
 
   const saveRole = async (role: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -258,25 +229,6 @@ export default function HomeScreen() {
       await refresh();
     } catch {
       // keep local role
-    }
-  };
-
-  const toggleItem = async (id: ChecklistId, done: boolean) => {
-    setToggling(id);
-    setChecklist((prev) => {
-      const next = { ...prev };
-      if (done) next[id] = new Date().toISOString();
-      else delete next[id];
-      return next;
-    });
-    try {
-      const data = await updateOnboardingMobile({ checklistItem: { id, done } });
-      setChecklist(data.member.checklistProgress || {});
-      await refresh();
-    } catch {
-      await loadOnboarding();
-    } finally {
-      setToggling(null);
     }
   };
 
@@ -415,13 +367,16 @@ export default function HomeScreen() {
         <View style={{ marginTop: 20 }}>
           <PaywallCard
             isAuthenticated
+            orgStatus={user?.organization?.status}
             title={
               user?.organization?.status === "suspended"
                 ? "Update billing to restore access"
-                : "$14.99/week · cancel anytime"
+                : user?.organization?.status === "expired"
+                  ? "Access ended · subscribe to continue"
+                  : "$14.99/week · cancel anytime"
             }
-            body="Subscribe on Account (Stripe). When you return to the app, access refreshes automatically."
-            primaryLabel="Go to Account"
+            body="Subscribe with Stripe on the website using this same account. When you return, Hospice Sales Pro unlocks automatically."
+            primaryLabel="Open Account & billing"
             onPrimary={() => router.push("/(tabs)/account")}
             testID="button-locked-account"
           />
@@ -443,25 +398,71 @@ export default function HomeScreen() {
   }
 
   // ── Field companion (logged-in + entitled) ────────────────────────
+  // Single primary: activation (if required) OR useMission.primary — never both heroes.
+  const activationPrimary =
+    activation && !activation.activated && !activation.skipped && activation.nextStep
+      ? activation.nextStep
+      : null;
+
+  const runMissionCta = () => {
+    if (activationPrimary) {
+      void trackMobileEvent("craft", "mission_cta_tap", {
+        metadata: { surface: "home", platform: "ios", source: "activation", stepId: activationPrimary.id },
+      });
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      const href = activationPrimary.mobileHref;
+      if (href.includes("command") || href.includes("sales-workflow")) {
+        router.push("/(tabs)/command");
+      } else if (href.includes("objection")) {
+        router.push("/tool/objection" as any);
+      } else if (href.includes("playbook")) {
+        router.push("/tool/playbook" as any);
+      } else if (href.includes("account")) {
+        router.push("/(tabs)/account");
+      } else {
+        router.push("/(tabs)/tools");
+      }
+      return;
+    }
+    if (needsRole) {
+      setChecklistOpen(true);
+      return;
+    }
+    void trackMobileEvent("craft", "mission_cta_tap", {
+      metadata: {
+        surface: "home",
+        platform: "ios",
+        source: mission.primary?.kind ?? "command",
+      },
+    });
+    if (mission.primary?.href) {
+      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      router.push(mission.primary.href as any);
+    } else {
+      router.push("/(tabs)/command" as any);
+    }
+  };
+
   return (
     <ScrollView
       style={[styles.container, { backgroundColor: colors.background }]}
       contentContainerStyle={{ paddingBottom: bottomPad }}
       showsVerticalScrollIndicator={false}
+      testID="screen-entitled-home"
     >
       <LinearGradient
         colors={[colors.heroBackground, colors.background, colors.card]}
         style={[styles.fieldHero, { paddingTop: topPad + 16 }]}
       >
-        <SectionKicker>Portal · Hospice Sales Pro</SectionKicker>
+        <SectionKicker>Hospice Sales Pro</SectionKicker>
         <Text
           style={{
             color: colors.heroForeground,
-            fontSize: 30,
+            fontSize: 28,
             fontWeight: "800",
             marginTop: 10,
             letterSpacing: -0.6,
-            lineHeight: 36,
+            lineHeight: 34,
             fontFamily: "Inter_700Bold",
           }}
         >
@@ -478,111 +479,72 @@ export default function HomeScreen() {
             fontFamily: "Inter_400Regular",
           }}
         >
-          {isFirstSession
-            ? "Same as the web: role → Command Center → one real tool → debrief."
-            : "Today starts in Command Center. Practice and plan tools support the next visit."}
+          One next action. Same seat as the website.
         </Text>
-        {user?.organization?.status === "trial" && trialLabel ? (
-          <View
-            style={{
-              marginTop: 14,
-              alignSelf: "flex-start",
-              backgroundColor: colors.warning ? `${colors.warning}22` : colors.muted,
-              borderColor: colors.border,
-              borderWidth: 1,
-              borderRadius: 8,
-              paddingHorizontal: 12,
-              paddingVertical: 8,
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 8,
-            }}
-          >
-            <Feather name="clock" size={14} color={colors.warning || colors.primary} />
-            <Text style={{ color: colors.heroForeground, fontWeight: "700", fontSize: 13 }}>{trialLabel}</Text>
-            <Pressable onPress={() => router.push("/(tabs)/contact")}>
-              <Text style={{ color: colors.primary, fontWeight: "700", fontSize: 13, textDecorationLine: "underline" }}>
-                Debrief
-              </Text>
-            </Pressable>
-          </View>
-        ) : (
-          <View
-            style={{
-              marginTop: 14,
-              alignSelf: "flex-start",
-              backgroundColor: colors.muted,
-              borderColor: colors.border,
-              borderWidth: 1,
-              borderRadius: 8,
-              paddingHorizontal: 12,
-              paddingVertical: 8,
-            }}
-          >
-            <Text style={{ color: colors.success || colors.primary, fontWeight: "700", fontSize: 13 }}>
-              Hospice Sales Pro · active
-            </Text>
-          </View>
-        )}
+        <View style={{ marginTop: 14 }}>
+          {user?.organization?.status === "trial" && trialLabel ? (
+            <EntitlementBanner
+              label={trialLabel}
+              role="trial"
+              actionLabel="Account"
+              onAction={() => router.push("/(tabs)/account")}
+              testID="banner-trial"
+            />
+          ) : (
+            <EntitlementBanner
+              label="Hospice Sales Pro · active"
+              role="active"
+              actionLabel="Account"
+              onAction={() => router.push("/(tabs)/account")}
+              testID="banner-member"
+            />
+          )}
+        </View>
       </LinearGradient>
 
-      {activation && !activation.activated && activation.nextStep ? (
-        <View style={[styles.section, { paddingTop: 16 }]} testID="section-activation-loop">
-          <SectionKicker>
-            {`First value · ${activation.completedRequired}/${activation.totalRequired}`}
-          </SectionKicker>
-          <SpartanCard variant="emphasis">
-            <Text style={[{ color: colors.foreground, fontSize: 17 }, font("bold")]}>
-              {activation.nextStep.title}
-            </Text>
-            <Text
-              style={[
-                { color: colors.mutedForeground, fontSize: 13, marginTop: 6, lineHeight: 18 },
-                font("regular"),
-              ]}
-            >
-              {activation.nextStep.why}
-            </Text>
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
-              <SpartanButton
-                title="Open in product"
-                onPress={() => {
-                  void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  const href = activation.nextStep!.mobileHref;
-                  if (href.includes("command") || href.includes("sales-workflow")) {
-                    router.push("/(tabs)/command");
-                  } else if (href.includes("objection")) {
-                    router.push("/tool/objection" as any);
-                  } else if (href.includes("playbook")) {
-                    router.push("/tool/playbook" as any);
-                  } else if (href.includes("account")) {
-                    router.push("/(tabs)/account");
-                  } else {
-                    router.push("/(tabs)/tools");
-                  }
-                }}
-              />
-              <SpartanButton
-                title="Mark done"
-                variant="outline"
-                onPress={() => {
+      <View style={[styles.section, { paddingTop: 16 }]}>
+        <MissionCard
+          kicker={
+            activationPrimary
+              ? `First value · ${activation?.completedRequired ?? 0}/${activation?.totalRequired ?? 0}`
+              : "Next action"
+          }
+          title={
+            activationPrimary?.title ??
+            mission.primary?.title ??
+            (needsRole ? "Pick your role" : "Open Command Center")
+          }
+          subtitle={
+            activationPrimary?.why ??
+            mission.primary?.subtitle ??
+            "Plan → prepare → practice → capture outcome."
+          }
+          ctaLabel={
+            activationPrimary
+              ? "Do this next"
+              : mission.primary?.ctaLabel ?? (needsRole ? "Choose role below" : "Open Command Center")
+          }
+          onCta={runMissionCta}
+          ctaDisabled={false}
+          secondaryLabel={
+            activationPrimary
+              ? "Skip (experienced)"
+              : needsRole
+                ? undefined
+                : "All tools"
+          }
+          onSecondary={
+            activationPrimary
+              ? () => {
                   void (async () => {
-                    try {
-                      const data = await updateOnboardingMobile({
-                        activationStep: { id: activation.nextStep!.id, done: true },
-                      });
-                      if (data.activation) setActivation(data.activation);
-                    } catch {
-                      // ignore
-                    }
-                  })();
-                }}
-              />
-              <SpartanButton
-                title="Skip (experienced)"
-                variant="ghost"
-                onPress={() => {
-                  void (async () => {
+                    void trackMobileEvent("craft", "activation_step_done", {
+                      metadata: {
+                        surface: "home",
+                        platform: "ios",
+                        stepId: activationPrimary.id,
+                        outcome: "skipped",
+                      },
+                    });
                     try {
                       const data = await updateOnboardingMobile({ skipActivation: true });
                       if (data.activation) setActivation(data.activation);
@@ -590,128 +552,39 @@ export default function HomeScreen() {
                       // ignore
                     }
                   })();
-                }}
-              />
-            </View>
-          </SpartanCard>
-        </View>
-      ) : null}
-
-      {personalization &&
-      (personalization.continueItems.length > 0 ||
-        personalization.recommendedToday.length > 0) ? (
-        <View style={[styles.section, { paddingTop: 16 }]} testID="section-personalization">
-          <SectionKicker>For you · synced</SectionKicker>
-          {personalization.continueItems.slice(0, 3).map((item) => (
-            <Pressable
-              key={item.id}
-              onPress={() => {
-                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                if (item.href.includes("sales-workflow")) {
-                  router.push("/(tabs)/command");
-                } else if (item.href.includes("objection")) {
-                  router.push("/tool/objection" as any);
-                } else {
-                  router.push("/(tabs)/tools");
                 }
-              }}
-              style={{
-                marginTop: 8,
-                padding: 12,
-                borderRadius: 12,
-                borderWidth: StyleSheet.hairlineWidth * 2,
-                borderColor: colors.border,
-                backgroundColor: colors.card,
-              }}
-              accessibilityRole="button"
-              accessibilityLabel={`${item.title}. ${item.why}`}
-            >
-              <Text style={[{ color: colors.foreground, fontSize: 15 }, font("bold")]}>
-                {item.title}
-              </Text>
-              <Text
-                style={[
-                  { color: colors.mutedForeground, fontSize: 12, marginTop: 4, lineHeight: 16 },
-                  font("regular"),
-                ]}
-              >
-                {item.why}
-              </Text>
-            </Pressable>
-          ))}
-          {personalization.recommendedToday.slice(0, 2).map((item) => (
-            <Pressable
-              key={item.id}
-              onPress={() => {
-                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                router.push("/(tabs)/tools");
-              }}
-              style={{
-                marginTop: 8,
-                padding: 12,
-                borderRadius: 12,
-                borderWidth: StyleSheet.hairlineWidth * 2,
-                borderColor: colors.border,
-                backgroundColor: colors.card,
-              }}
-              accessibilityRole="button"
-              accessibilityLabel={`${item.title}. ${item.why}`}
-            >
-              <Text style={[{ color: colors.primary, fontSize: 14 }, font("semibold")]}>
-                {item.title}
-              </Text>
-              <Text
-                style={[
-                  { color: colors.mutedForeground, fontSize: 12, marginTop: 4, lineHeight: 16 },
-                  font("regular"),
-                ]}
-              >
-                {item.why}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-      ) : null}
-
-      {/* Mission next — ONE emphasis card; secondary Command is a quiet chip row */}
-      <View style={[styles.section, { paddingTop: 16 }]} testID="section-mission-next">
-        <SpartanCard variant="emphasis">
-          <SectionKicker>Next action</SectionKicker>
-          <Text style={[{ color: colors.foreground, fontSize: 20, marginTop: 8 }, font("heavy")]}>
-            {mission.primary?.title ??
-              (needsRole ? "Pick your role" : nextItem ? nextItem.title : "Open Sales Command Center")}
-          </Text>
-          <Text style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 6, lineHeight: 19 }, font("regular")]}>
-            {mission.primary?.subtitle ??
-              (needsRole
-                ? "Personalizes checklist and recommended tools."
-                : nextItem
-                  ? nextItem.desc
-                  : "Plan → prepare → practice → capture outcome → next step.")}
-          </Text>
+              : () => router.push("/(tabs)/tools")
+          }
+        />
+        {activationPrimary ? (
           <SpartanButton
-            title={
-              mission.primary?.ctaLabel ??
-              (needsRole ? "Choose role below" : nextItem ? "Do this next" : "Open Command Center")
-            }
+            title="Mark step done"
+            variant="outline"
+            style={{ marginTop: 10 }}
             onPress={() => {
-              if (needsRole) return;
-              if (nextItem) openChecklistItem(nextItem);
-              else if (mission.primary?.href) {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                router.push(mission.primary.href as any);
-              } else {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                router.push("/(tabs)/command" as any);
-              }
+              void (async () => {
+                void trackMobileEvent("craft", "activation_step_done", {
+                  metadata: {
+                    surface: "home",
+                    platform: "ios",
+                    stepId: activationPrimary.id,
+                    outcome: "done",
+                  },
+                });
+                try {
+                  const data = await updateOnboardingMobile({
+                    activationStep: { id: activationPrimary.id, done: true },
+                  });
+                  if (data.activation) setActivation(data.activation);
+                } catch {
+                  // ignore
+                }
+              })();
             }}
-            disabled={needsRole}
-            style={{ marginTop: 14 }}
-            testID="button-mission-next"
           />
-        </SpartanCard>
+        ) : null}
 
-        {/* Today stack — max 3 quiet chips (not second emphasis cards) */}
+        {/* Quiet chips — not second heroes */}
         <View
           style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 }}
           testID="section-today-stack"
@@ -755,212 +628,194 @@ export default function HomeScreen() {
         </View>
       </View>
 
-      {/* First-session 3-step path */}
-      {isFirstSession && (
+      {/* Role pick only — required for mission personalization (not a second hero) */}
+      {needsRole ? (
         <View style={[styles.section, { paddingTop: 8 }]} testID="section-first-session">
-          <Text style={{ color: colors.primary, fontSize: 11, fontWeight: "800", letterSpacing: 1.5, marginBottom: 8 }}>
-            FIRST SESSION — DO THESE THREE
-          </Text>
-
-          {/* Step 1 role */}
+          <SectionKicker>Your role</SectionKicker>
           <View
             style={[
               styles.startCard,
               {
                 backgroundColor: colors.card,
-                borderColor: needsRole ? colors.primary : "rgba(74,222,128,0.4)",
-                marginBottom: 10,
+                borderColor: colors.primary,
+                marginTop: 8,
               },
             ]}
           >
-            <Text style={{ color: colors.mutedForeground, fontSize: 11, fontWeight: "800" }}>
-              {needsRole ? "1 · PICK YOUR ROLE" : "1 · ROLE SAVED"}
+            <Text style={{ color: colors.foreground, fontSize: 15, fontWeight: "700" }}>
+              Sets checklist and recommended tools
             </Text>
-            <Text style={{ color: colors.foreground, fontSize: 15, fontWeight: "700", marginTop: 4 }}>
-              Sets your recommended tool and checklist
-            </Text>
-            {needsRole ? (
-              <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
-                {(
-                  [
-                    { id: "rep", label: "Rep" },
-                    { id: "director", label: "Director" },
-                    { id: "vp", label: "VP" },
-                    { id: "owner", label: "Owner" },
-                    { id: "other", label: "Other" },
-                  ] as const
-                ).map((r) => (
-                  <Pressable
-                    key={r.id}
-                    onPress={() => saveRole(r.id)}
-                    style={{
-                      paddingVertical: 8,
-                      paddingHorizontal: 12,
-                      borderRadius: 8,
-                      backgroundColor: colors.primary,
-                    }}
-                    testID={`button-role-${r.id}`}
-                  >
-                    <Text style={{ color: colors.primaryForeground, fontWeight: "800", fontSize: 13 }}>{r.label}</Text>
-                  </Pressable>
-                ))}
-              </View>
-            ) : (
-              <Text style={{ color: colors.success || colors.primary, fontWeight: "700", marginTop: 8, textTransform: "capitalize" }}>
-                {jobRole}
-              </Text>
-            )}
-          </View>
-
-          {/* Step 2 tool */}
-          <Pressable
-            onPress={needsRole ? undefined : openStart}
-            disabled={needsRole}
-            style={[
-              styles.startCard,
-              {
-                backgroundColor: colors.card,
-                borderColor: !needsRole ? colors.primary : colors.border,
-                marginBottom: 10,
-                opacity: needsRole ? 0.55 : 1,
-              },
-            ]}
-          >
-            <Text style={{ color: colors.mutedForeground, fontSize: 11, fontWeight: "800" }}>
-              2 · RUN ONE REAL TOOL
-            </Text>
-            <Text style={{ color: colors.foreground, fontSize: 16, fontWeight: "800", marginTop: 6 }}>
-              {needsRole ? "Choose a role first" : startHere.title}
-            </Text>
-            <Text style={{ color: colors.mutedForeground, fontSize: 13, marginTop: 4, lineHeight: 18 }}>
-              {needsRole ? "Then we point you at the best first move." : startHere.blurb}
-            </Text>
-            {!needsRole && (
-              <Text style={{ color: colors.primary, fontWeight: "800", marginTop: 10 }}>Open →</Text>
-            )}
-          </Pressable>
-
-          {/* Step 3 debrief */}
-          <Pressable
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              router.push("/(tabs)/contact");
-            }}
-            style={[styles.startCard, { backgroundColor: colors.card, borderColor: colors.border }]}
-          >
-            <Text style={{ color: colors.mutedForeground, fontSize: 11, fontWeight: "800" }}>
-              3 · BOOK A DEBRIEF
-            </Text>
-            <Text style={{ color: colors.foreground, fontSize: 16, fontWeight: "800", marginTop: 6 }}>
-              While evaluation is open
-            </Text>
-            <Text style={{ color: colors.mutedForeground, fontSize: 13, marginTop: 4, lineHeight: 18 }}>
-              Turn what you saw into seats, coaching, or a clear next step.
-            </Text>
-            <Text style={{ color: colors.primary, fontWeight: "800", marginTop: 10 }}>Contact →</Text>
-          </Pressable>
-        </View>
-      )}
-
-      {/* Next up when mid-session */}
-      {!isFirstSession && nextItem && (
-        <View style={[styles.section, { paddingTop: 20 }]}>
-          <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
-            Next up
-          </Text>
-          <Pressable
-            onPress={() => openChecklistItem(nextItem)}
-            style={[styles.startCard, { backgroundColor: colors.card, borderColor: colors.primary }]}
-          >
-            <Text style={{ color: colors.primary, fontSize: 11, fontWeight: "800", letterSpacing: 1 }}>
-              CONTINUE
-            </Text>
-            <Text style={{ color: colors.foreground, fontSize: 17, fontWeight: "800", marginTop: 6 }}>
-              {nextItem.title}
-            </Text>
-            <Text style={{ color: colors.mutedForeground, fontSize: 13, marginTop: 4 }}>{nextItem.desc}</Text>
-            <Text style={{ color: colors.primary, fontWeight: "800", marginTop: 10 }}>Open →</Text>
-          </Pressable>
-        </View>
-      )}
-
-      {/* Recommended when past first session */}
-      {!isFirstSession && (
-        <View style={[styles.section, { paddingTop: 8 }]}>
-          <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
-            Recommended move
-          </Text>
-          <Pressable
-            onPress={openStart}
-            style={[styles.startCard, { backgroundColor: colors.card, borderColor: colors.border }]}
-          >
-            <Text style={{ color: colors.foreground, fontSize: 16, fontWeight: "800" }}>{startHere.title}</Text>
-            <Text style={{ color: colors.mutedForeground, fontSize: 13, marginTop: 4 }}>{startHere.blurb}</Text>
-            <Text style={{ color: colors.primary, fontWeight: "800", marginTop: 10 }}>Open →</Text>
-          </Pressable>
-        </View>
-      )}
-
-      {/* Checklist */}
-      <View style={[styles.section, { paddingTop: 8 }]}>
-        <View style={styles.sectionHeader}>
-          <Feather name="check-square" size={18} color={colors.primary} />
-          <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
-            First-session checklist
-          </Text>
-        </View>
-        <Text style={{ color: colors.mutedForeground, fontSize: 13, marginBottom: 8 }}>
-          {doneCount} of {items.length} · {progressPct}%
-        </Text>
-        <View style={{ height: 6, borderRadius: 3, backgroundColor: colors.border, marginBottom: 14, overflow: "hidden" }}>
-          <View style={{ height: "100%", width: `${progressPct}%`, backgroundColor: colors.primary }} />
-        </View>
-
-        {items.map((item) => {
-          const done = isChecklistDone(checklist, item.id);
-          return (
-            <View
-              key={item.id}
-              style={[
-                styles.checkRow,
-                {
-                  backgroundColor: colors.card,
-                  borderColor: done ? colors.success || colors.primary : colors.border,
-                },
-              ]}
-            >
-              <Pressable
-                onPress={() => toggleItem(item.id, !done)}
-                disabled={toggling === item.id}
-                hitSlop={8}
-                style={{ padding: 4 }}
-              >
-                <Feather
-                  name={done ? "check-circle" : "circle"}
-                  size={22}
-                  color={done ? colors.success || colors.primary : colors.mutedForeground}
-                />
-              </Pressable>
-              <Pressable onPress={() => openChecklistItem(item)} style={{ flex: 1 }}>
-                <Text
+            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
+              {(
+                [
+                  { id: "rep", label: "Rep" },
+                  { id: "director", label: "Director" },
+                  { id: "vp", label: "VP" },
+                  { id: "owner", label: "Owner" },
+                  { id: "other", label: "Other" },
+                ] as const
+              ).map((r) => (
+                <Pressable
+                  key={r.id}
+                  onPress={() => saveRole(r.id)}
                   style={{
-                    color: colors.foreground,
-                    fontWeight: "700",
-                    fontSize: 14,
-                    textDecorationLine: done ? "line-through" : "none",
-                    opacity: done ? 0.75 : 1,
+                    minHeight: 44,
+                    paddingVertical: 10,
+                    paddingHorizontal: 14,
+                    borderRadius: 8,
+                    backgroundColor: colors.primary,
+                    justifyContent: "center",
                   }}
+                  testID={`button-role-${r.id}`}
                 >
-                  {item.title}
-                </Text>
-                <Text style={{ color: colors.mutedForeground, fontSize: 12, marginTop: 2, lineHeight: 16 }}>
-                  {item.desc}
+                  <Text style={{ color: colors.primaryForeground, fontWeight: "800", fontSize: 13 }}>{r.label}</Text>
+                </Pressable>
+              ))}
+            </View>
+          </View>
+        </View>
+      ) : null}
+
+      {/* Secondary: collapsible checklist progress (not a second mission) */}
+      {canUseFieldKit && items.length > 0 ? (
+        <View style={[styles.section, { paddingTop: 12 }]} testID="section-checklist-secondary">
+          <Pressable
+            onPress={() => setChecklistOpen((v) => !v)}
+            accessibilityRole="button"
+            style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}
+          >
+            <Text style={[{ color: colors.mutedForeground, fontSize: 13 }, font("semibold")]}>
+              Session checklist · {doneCount}/{items.length}
+            </Text>
+            <Feather
+              name={checklistOpen ? "chevron-up" : "chevron-down"}
+              size={18}
+              color={colors.mutedForeground}
+            />
+          </Pressable>
+          {checklistOpen
+            ? items.slice(0, 6).map((item) => {
+                const done = isChecklistDone(checklist, item.id);
+                return (
+                  <Pressable
+                    key={item.id}
+                    onPress={() => openChecklistItem(item)}
+                    style={{
+                      marginTop: 8,
+                      padding: 12,
+                      borderRadius: 12,
+                      borderWidth: StyleSheet.hairlineWidth * 2,
+                      borderColor: colors.border,
+                      backgroundColor: colors.card,
+                      opacity: done ? 0.65 : 1,
+                    }}
+                  >
+                    <Text style={[{ color: colors.foreground, fontSize: 14 }, font("semibold")]}>
+                      {done ? "✓ " : ""}
+                      {item.title}
+                    </Text>
+                  </Pressable>
+                );
+              })
+            : null}
+        </View>
+      ) : null}
+
+      {/* Secondary: personalization + coach behind "More" */}
+      <View style={[styles.section, { paddingTop: 8 }]}>
+        <Pressable
+          onPress={() => setMoreOpen((v) => !v)}
+          accessibilityRole="button"
+          style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}
+          testID="section-more-toggle"
+        >
+          <Text style={[{ color: colors.mutedForeground, fontSize: 13 }, font("semibold")]}>
+            More · coach & continue
+          </Text>
+          <Feather name={moreOpen ? "chevron-up" : "chevron-down"} size={18} color={colors.mutedForeground} />
+        </Pressable>
+        {moreOpen ? (
+          <View style={{ marginTop: 10 }}>
+            {personalization?.continueItems?.slice(0, 2).map((item) => (
+              <Pressable
+                key={item.id}
+                onPress={() => {
+                  void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  if (item.href.includes("sales-workflow")) router.push("/(tabs)/command");
+                  else if (item.href.includes("objection")) router.push("/tool/objection" as any);
+                  else router.push("/(tabs)/tools");
+                }}
+                style={{
+                  marginTop: 8,
+                  padding: 12,
+                  borderRadius: 12,
+                  borderWidth: StyleSheet.hairlineWidth * 2,
+                  borderColor: colors.border,
+                  backgroundColor: colors.card,
+                }}
+              >
+                <Text style={[{ color: colors.foreground, fontSize: 14 }, font("bold")]}>{item.title}</Text>
+                <Text
+                  style={[
+                    { color: colors.mutedForeground, fontSize: 12, marginTop: 4, lineHeight: 16 },
+                    font("regular"),
+                  ]}
+                >
+                  {item.why}
                 </Text>
               </Pressable>
-              <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
-            </View>
-          );
-        })}
+            ))}
+            <Pressable
+              onPress={() => setCoachOpen((v) => !v)}
+              style={{ marginTop: 12 }}
+            >
+              <Text style={[{ color: colors.primary, fontSize: 13 }, font("semibold")]}>
+                {coachOpen ? "Hide field coach" : "Ask field coach"}
+              </Text>
+            </Pressable>
+            {coachOpen ? (
+              <View style={{ marginTop: 8 }}>
+                <Text style={[{ color: colors.mutedForeground, fontSize: 12, marginBottom: 8 }, font("regular")]}>
+                  Secondary helper — not your next visit action.
+                </Text>
+                <TextInput
+                  value={query}
+                  onChangeText={setQuery}
+                  placeholder="Ask a field question (no PHI)…"
+                  placeholderTextColor={colors.mutedForeground}
+                  style={{
+                    borderWidth: 1,
+                    borderColor: colors.border,
+                    borderRadius: 12,
+                    padding: 12,
+                    color: colors.foreground,
+                    backgroundColor: colors.card,
+                    minHeight: 44,
+                  }}
+                />
+                <SpartanButton
+                  title={loading ? "Thinking…" : "Ask"}
+                  onPress={() => handleAsk(query)}
+                  loading={loading}
+                  style={{ marginTop: 10 }}
+                />
+                {error ? (
+                  <Text style={{ color: colors.primary, marginTop: 8 }}>{error}</Text>
+                ) : null}
+                {response ? (
+                  <Text
+                    style={[
+                      { color: colors.foreground, marginTop: 10, lineHeight: 20, fontSize: 14 },
+                      font("regular"),
+                    ]}
+                  >
+                    {response}
+                  </Text>
+                ) : null}
+              </View>
+            ) : null}
+          </View>
+        ) : null}
       </View>
 
       {/* Reminders */}
@@ -1011,173 +866,14 @@ export default function HomeScreen() {
         </View>
       )}
 
-      {/* Quick Tools — satellite to Command Center */}
-      <View style={[styles.section, { backgroundColor: colors.background }]}>
-        <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold", marginBottom: 4 }]}>
-          Satellite tools
-        </Text>
-        <Text style={{ color: colors.mutedForeground, fontSize: 13, marginBottom: 12, fontFamily: "Inter_400Regular" }}>
-          Support the spine — not a second product
-        </Text>
-        <View style={styles.toolsGrid}>
-          {QUICK_TOOLS.map((tool, i) => (
-            <Pressable
-              key={i}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                if (tool.route) router.push(tool.route as any);
-                else if (tool.toolTab) {
-                  router.push({ pathname: "/tool/[tab]", params: { tab: tool.toolTab } } as any);
-                } else {
-                  router.push("/(tabs)/tools");
-                }
-              }}
-              style={({ pressed }) => [
-                styles.toolCard,
-                { backgroundColor: colors.card, borderColor: colors.border, opacity: pressed ? 0.8 : 1 },
-              ]}
-            >
-              <View style={[styles.toolIcon, { backgroundColor: colors.accent }]}>
-                <Feather name={tool.icon} size={20} color={colors.primary} />
-              </View>
-              <Text style={[styles.toolLabel, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>
-                {tool.label}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-      </View>
-
-      {/* Ask Spartan — secondary, collapsed by default */}
-      <View style={[styles.section, { backgroundColor: colors.background, paddingTop: 8 }]}>
-        <Pressable
-          onPress={() => setCoachOpen((o) => !o)}
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            minHeight: 44,
-          }}
-          accessibilityRole="button"
-          accessibilityState={{ expanded: coachOpen }}
-        >
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 8 }}>
-            <Feather name="zap" size={18} color={colors.primary} />
-            <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold", fontSize: 17 }]}>
-              Ask Spartan
-            </Text>
-          </View>
-          <Feather
-            name={coachOpen ? "chevron-up" : "chevron-down"}
-            size={20}
-            color={colors.mutedForeground}
-          />
-        </Pressable>
-        <Text style={{ color: colors.mutedForeground, fontSize: 13, marginTop: 4, fontFamily: "Inter_400Regular" }}>
-          Instant field answers — no PHI · optional
-        </Text>
-
-        {coachOpen && (
-          <View style={{ marginTop: 14 }}>
-            <View style={[styles.inputRow, { borderColor: colors.border, backgroundColor: colors.card }]}>
-              <Feather name="search" size={18} color={colors.mutedForeground} style={styles.inputIcon} />
-              <TextInput
-                style={[styles.input, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}
-                placeholder="Ask any hospice sales question..."
-                placeholderTextColor={colors.mutedForeground}
-                value={query}
-                onChangeText={setQuery}
-                onSubmitEditing={() => handleAsk(query)}
-                returnKeyType="send"
-                multiline={false}
-              />
-              {query.trim().length > 0 && (
-                <Pressable
-                  onPress={() => handleAsk(query)}
-                  style={({ pressed }) => [
-                    styles.sendBtn,
-                    { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },
-                  ]}
-                >
-                  <Feather name="arrow-right" size={16} color={colors.primaryForeground} />
-                </Pressable>
-              )}
-            </View>
-
-            {!response && !loading && (
-              <View style={styles.suggestions}>
-                {SUGGESTIONS.map((s, i) => (
-                  <Pressable
-                    key={i}
-                    onPress={() => {
-                      setQuery(s);
-                      handleAsk(s);
-                    }}
-                    style={({ pressed }) => [
-                      styles.suggestion,
-                      { backgroundColor: colors.muted, borderColor: colors.border, opacity: pressed ? 0.75 : 1 },
-                    ]}
-                  >
-                    <Text style={[styles.suggestionText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>
-                      {s}
-                    </Text>
-                  </Pressable>
-                ))}
-              </View>
-            )}
-
-            {loading && (
-              <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                <ActivityIndicator color={colors.primary} size="small" />
-                <Text style={[styles.loadingText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                  Finding the best answer...
-                </Text>
-              </View>
-            )}
-
-            {!!error && (
-              <View style={[styles.errorCard, { backgroundColor: colors.accent }]}>
-                <Text style={[styles.errorText, { color: colors.primary, fontFamily: "Inter_400Regular" }]}>{error}</Text>
-              </View>
-            )}
-
-            {!!response && !loading && (
-              <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                <Text style={[styles.responseText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>
-                  {response}
-                </Text>
-                <Pressable
-                  onPress={reset}
-                  style={({ pressed }) => [
-                    styles.resetBtn,
-                    { borderColor: colors.border, opacity: pressed ? 0.75 : 1 },
-                  ]}
-                >
-                  <Text style={[styles.resetBtnText, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
-                    Ask another question
-                  </Text>
-                </Pressable>
-              </View>
-            )}
-          </View>
-        )}
-      </View>
-
-      <View style={[styles.section, { paddingTop: 0 }]}>
-        <Pressable
+      <View style={[styles.section, { paddingTop: 8 }]}>
+        <SpartanButton
+          title="Book a strategy call"
+          variant="ghost"
           onPress={() => router.push("/(tabs)/contact")}
-          style={({ pressed }) => [
-            styles.ctaBtn,
-            { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1, alignSelf: "stretch", justifyContent: "center" },
-          ]}
-        >
-          <Text style={[styles.ctaBtnText, { color: colors.primaryForeground, fontFamily: "Inter_700Bold" }]}>
-            Book a debrief call
-          </Text>
-          <Feather name="phone" size={16} color={colors.primaryForeground} />
-        </Pressable>
-        <Text style={{ color: colors.mutedForeground, fontSize: 11, textAlign: "center", marginTop: 12 }}>
-          Do not enter PHI · Coaching aid only
+        />
+        <Text style={{ color: colors.mutedForeground, fontSize: 11, textAlign: "center", marginTop: 8 }}>
+          Do not enter PHI · Coaching aid only · Same seat as web
         </Text>
       </View>
     </ScrollView>

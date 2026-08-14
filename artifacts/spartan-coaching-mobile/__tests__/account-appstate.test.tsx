@@ -27,7 +27,26 @@ jest.mock("@/lib/api", () => ({
   openBillingPortal: (...args: unknown[]) => mockOpenBillingPortal(...args),
   startIndividualCheckout: (...args: unknown[]) => mockStartIndividualCheckout(...args),
   updateOnboardingMobile: jest.fn().mockResolvedValue({ member: {} }),
+  fetchValueReceipt: jest.fn().mockResolvedValue({
+    days: 7,
+    since: new Date().toISOString(),
+    checklistDone: 0,
+    totalEvents: 0,
+    events: [],
+    highlights: ["No tracked activity yet"],
+  }),
   getWebSiteUrl: () => "https://spartancoaching.com",
+}));
+
+jest.mock("expo-haptics", () => ({
+  impactAsync: jest.fn(),
+  notificationAsync: jest.fn(),
+  ImpactFeedbackStyle: { Light: "light", Medium: "medium" },
+  NotificationFeedbackType: { Success: "success" },
+}));
+
+jest.mock("@/lib/analytics", () => ({
+  trackMobileEvent: jest.fn().mockResolvedValue(undefined),
 }));
 
 // User with an active Stripe subscription — canPortal is true so the

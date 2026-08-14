@@ -465,6 +465,15 @@ export {
 } from "./product-analytics";
 
 export {
+  resolveEntitlementShell,
+  entitlementShellCopy,
+  formatHoursRemainingLabel,
+  type EntitlementShellId,
+  type EntitlementShellInput,
+  type EntitlementShellCopy,
+} from "./entitlement-shell";
+
+export {
   API_CONTRACT_VERSION,
   MIN_IOS_APP_VERSION,
   MIN_WEB_APP_VERSION,

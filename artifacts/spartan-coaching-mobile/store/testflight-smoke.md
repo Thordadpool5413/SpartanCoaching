@@ -76,11 +76,19 @@ PARITY_EMAIL=… PARITY_PASSWORD=… node scripts/ship-check.mjs https://spartan
 - [ ] **You’re in** ceremony once → Open Command Center  
 - [ ] Ceremony does not loop on every launch  
 
-## Account
+## Account (Phase 4 theater)
 
-- [ ] Status Unlocked / Locked correct  
+- [ ] Status chip / label matches org (evaluation / active / ended / suspended)  
+- [ ] Value receipt card shows highlights or honest empty state  
+- [ ] Locked/expired/trial: paywall benefits + “restore = sign in” copy  
+- [ ] Org admin: designed **website handoff** card (not a broken half-admin)  
 - [ ] Sign out returns to logged-out Home  
 - [ ] No crash on billing portal if Stripe configured  
+- [ ] Cross-check web `/account`: same seat language  
+
+## Feel (required for craft sign-off)
+
+Also complete **`store/testflight-feel-checklist.md`** (principles F1–F29).
 
 ## Retention (I8)
 

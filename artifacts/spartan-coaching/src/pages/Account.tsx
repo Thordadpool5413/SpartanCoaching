@@ -8,6 +8,11 @@ import { SEO } from "@/components/SEO";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useBillingActions } from "@/hooks/useBillingActions";
+import { EntitlementSuite } from "@/components/EntitlementSuite";
+import { ValueReceipt } from "@/components/ValueReceipt";
+import {
+  resolveEntitlementShell,
+} from "@/lib/fieldKitCatalog";
 import {
   fetchBillingStatus,
   type BillingStatusResponse,
@@ -193,21 +198,22 @@ export default function Account() {
     Boolean(billing?.canOpenPortal) ||
     Boolean(billingOrg?.hasStripeCustomer || org?.hasStripeCustomer);
 
+  // Mirror iOS EntitlementBanner language (craft Phase 3)
   const statusLabel =
     org?.status === "trial"
-      ? "Evaluation"
+      ? "Hospice Sales Pro · evaluation"
       : org?.status === "active"
         ? cancelAtPeriodEnd
-          ? "Active · canceling"
+          ? "Hospice Sales Pro · active · canceling"
           : hasPaidSub
-            ? "Active · weekly"
+            ? "Hospice Sales Pro · active · $14.99/wk"
             : isComp
-              ? "Active · complimentary"
-              : "Active client"
+              ? "Hospice Sales Pro · active · complimentary"
+              : "Hospice Sales Pro · active"
         : org?.status === "expired"
-          ? "Ended"
+          ? "Hospice Sales Pro · access ended"
           : org?.status === "suspended"
-            ? "Suspended"
+            ? "Hospice Sales Pro · suspended"
             : org?.status || "—";
 
   const membershipBlurb =
@@ -271,13 +277,37 @@ export default function Account() {
         />
       )}
 
+      {/* Craft Phase 4 — full entitlement theater (shared shell model) */}
+      <EntitlementSuite
+        input={{
+          isAuthenticated: true,
+          orgStatus: org?.status,
+          orgType: org?.type,
+          billingPlan: billingOrg?.billingPlan || org?.billingPlan,
+          fieldKitAllowed: canUseFieldKit,
+          fieldKitReason: fieldKit?.reason,
+          cancelAtPeriodEnd,
+          hasPaidSubscription: hasPaidSub,
+          hoursRemaining: fieldKit?.hoursRemaining,
+        }}
+        onPrimary={() => {
+          if (canCheckout) void startCheckout();
+          else if (canPortal) void openPortal();
+          else setLocation("/portal");
+        }}
+        primaryPending={checkoutPending || portalPending}
+        onSecondary={() => setLocation("/portal")}
+      />
+
+      {canUseFieldKit ? <ValueReceipt /> : null}
+
       <Card className="border border-border bg-card p-6 space-y-4" data-testid="card-membership-status">
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2" data-testid="account-entitlement-chips">
           <Badge variant="secondary">{statusLabel}</Badge>
           {canUseFieldKit ? (
-            <Badge className="bg-primary/15 text-primary border-primary/30">Hospice Sales Pro unlocked</Badge>
+            <Badge className="bg-primary/15 text-primary border-primary/30">Tools unlocked</Badge>
           ) : (
-            <Badge variant="destructive">Hospice Sales Pro locked</Badge>
+            <Badge variant="destructive">Tools locked</Badge>
           )}
           {isCompany && <Badge variant="outline">Team / company</Badge>}
           {isPersonal && <Badge variant="outline">Individual</Badge>}
@@ -285,6 +315,10 @@ export default function Account() {
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed border-l-2 border-primary/40 pl-3">
           {membershipBlurb}
+        </p>
+        <p className="text-xs text-muted-foreground leading-relaxed" data-testid="account-cross-surface">
+          Same seat on iPhone and web. After checkout or billing changes, open the app and pull to
+          refresh — access restores from your account (no App Store restore button).
         </p>
         <dl className="grid sm:grid-cols-2 gap-4 text-sm">
           <div>
@@ -397,7 +431,8 @@ export default function Account() {
             <>
               {isPersonal && !isPlatform && (
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Subscribe securely with Stripe. Cancel anytime — you keep access until the paid period ends. Failed
+                  Subscribe securely with Stripe on the web. Cancel anytime — you keep access until the paid
+                  period ends. Already paid? Sign in on iPhone with this email to restore access. Failed
                   payments may lock tools until the card is updated.
                 </p>
               )}

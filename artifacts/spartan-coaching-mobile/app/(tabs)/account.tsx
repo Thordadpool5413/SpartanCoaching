@@ -39,7 +39,15 @@ import {
   APP_STORE_TERMS_URL,
   APP_STORE_TRUST_URL,
 } from "@/lib/appStoreReadiness";
-import { FIELD_KIT_TOOLS } from "@workspace/field-kit-catalog";
+import {
+  FIELD_KIT_TOOLS,
+  entitlementShellCopy,
+  formatHoursRemainingLabel,
+  resolveEntitlementShell,
+} from "@workspace/field-kit-catalog";
+import { PaywallCard } from "@/components/ui/PaywallCard";
+import { ValueReceiptCard } from "@/components/ui/ValueReceiptCard";
+import { StatusChip } from "@/components/ui/StatusChip";
 
 // Key gated tools to surface in value cards (no PHI, no public tools)
 const VALUE_TOOLS = FIELD_KIT_TOOLS.filter((t) => !t.public).slice(0, 7);
@@ -257,38 +265,24 @@ export default function AccountScreen() {
     Boolean(billing?.canOpenPortal) ||
     Boolean(billingOrg?.hasStripeCustomer || org?.hasStripeCustomer);
 
-  const statusLabel =
-    org?.status === "trial"
-      ? "Evaluation"
-      : org?.status === "active"
-        ? cancelAtPeriodEnd
-          ? "Active · canceling"
-          : hasPaidSub
-            ? "Active · $14.99/wk"
-            : isComp
-              ? "Active · complimentary"
-              : "Active client"
-        : org?.status === "expired"
-          ? "Evaluation ended"
-          : org?.status === "suspended"
-            ? "Suspended"
-            : org?.status || "—";
-
+  const shellId = resolveEntitlementShell({
+    isAuthenticated: true,
+    orgStatus: org?.status,
+    orgType: org?.type,
+    billingPlan: billingOrg?.billingPlan || org?.billingPlan,
+    fieldKitAllowed: canUseFieldKit,
+    fieldKitReason: fk?.reason,
+    cancelAtPeriodEnd,
+    hasPaidSubscription: hasPaidSub,
+    hoursRemaining: fk?.hoursRemaining,
+  });
+  const hoursLabel = formatHoursRemainingLabel(fk?.hoursRemaining);
+  const shellCopy = entitlementShellCopy(shellId, { hoursLabel });
+  const statusLabel = shellCopy.chip;
   const trialLine = formatTrialRemaining(fk?.hoursRemaining);
   const items = visibleChecklist(jobRole);
   const doneCount = items.filter((i) => isChecklistDone(checklist, i.id)).length;
-
-  const membershipBlurb = isPersonal
-    ? hasPaidSub
-      ? cancelAtPeriodEnd
-        ? "Subscription ends at the current period. You keep access until then. You can reverse cancel in Manage billing."
-        : "Weekly Hospice Sales Pro is active. Cancel anytime — access continues through the paid period."
-      : isComp
-        ? "Complimentary access. Contact Nick if you need changes."
-        : "Individual plan: $14.99 per week. Subscribe securely (Stripe). Cancel anytime from Manage billing."
-    : isCompany
-      ? "Team seats are billed under your provider contract (weekly per seat)."
-      : "Hospice Sales Pro status for this account.";
+  const membershipBlurb = shellCopy.body;
 
   const onSubscribe = async () => {
     setCheckoutPending(true);
@@ -422,12 +416,61 @@ export default function AccountScreen() {
       </Text>
       <Text style={[styles.body, { color: colors.mutedForeground }]}>{user.member.email}</Text>
 
+      <View style={{ marginTop: 12 }}>
+        <StatusChip
+          label={statusLabel}
+          role={
+            shellId === "trial"
+              ? "trial"
+              : shellId === "expired" || shellId === "suspended" || shellId === "locked"
+                ? "locked"
+                : "active"
+          }
+          testID="account-status-chip"
+        />
+      </View>
+
+      {(shellId === "expired" || shellId === "suspended" || shellId === "locked" || shellId === "trial") && (
+        <View style={{ marginTop: 12 }}>
+          <PaywallCard
+            isAuthenticated
+            orgStatus={org?.status}
+            title={shellCopy.title}
+            body={shellCopy.body}
+            primaryLabel={
+              shellId === "trial" || shellId === "expired" || shellId === "locked"
+                ? canCheckout
+                  ? shellCopy.primaryCta
+                  : "Open Account on web"
+                : shellCopy.primaryCta
+            }
+            onPrimary={() => {
+              if ((shellId === "trial" || shellId === "expired" || shellId === "locked") && canCheckout) {
+                void onSubscribe();
+              } else if (shellId === "suspended" && canPortal) {
+                void onManageBilling();
+              } else {
+                openWebAccount();
+              }
+            }}
+          />
+        </View>
+      )}
+
+      {canUseFieldKit ? <ValueReceiptCard /> : null}
+
       <View style={[styles.card, { borderColor: colors.border, backgroundColor: colors.card, marginTop: 16 }]}>
         <Text style={[styles.cardLabel, { color: colors.mutedForeground }]}>Status</Text>
         <Text style={[styles.cardValue, { color: colors.foreground }]}>{statusLabel}</Text>
         {trialLine && org?.status === "trial" ? (
           <Text style={{ color: colors.warning ?? "#fbbf24", marginTop: 6, fontWeight: "600" }}>{trialLine}</Text>
         ) : null}
+        <Text style={{ color: colors.mutedForeground, fontSize: 13, lineHeight: 18, marginTop: 8 }}>
+          {membershipBlurb}
+        </Text>
+        <Text style={{ color: colors.mutedForeground, fontSize: 11, lineHeight: 16, marginTop: 8 }}>
+          {shellCopy.restoreNote}
+        </Text>
         <Text style={[styles.cardLabel, { color: colors.mutedForeground, marginTop: 14 }]}>
           Organization
         </Text>
@@ -448,12 +491,27 @@ export default function AccountScreen() {
                 : ""}
             </Text>
             {(user.member.role === "org_admin" || user.member.role === "platform_admin") && (
-              <Text
-                style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 17, marginTop: 6 }}
+              <View
+                style={{
+                  marginTop: 10,
+                  padding: 12,
+                  borderRadius: 12,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  backgroundColor: colors.muted,
+                }}
+                testID="account-org-admin-handoff"
               >
-                Organization admin tools (members, structure, offboard) are on the website at
-                /org/admin — open in a browser with the same account.
-              </Text>
+                <Text style={{ color: colors.foreground, fontSize: 14, fontWeight: "700" }}>
+                  Organization admin on the website
+                </Text>
+                <Text
+                  style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 17, marginTop: 6 }}
+                >
+                  Members, structure, contacts, and offboard are designed for desktop. Open the same
+                  account on the web at /org/admin — this app stays field-first.
+                </Text>
+              </View>
             )}
           </View>
         ) : null}

@@ -6,19 +6,27 @@
 
 ---
 
-## Required sequence (5 frames)
+## Required sequence (5 frames) — craft Phase 5
+
+Capture on **current craft UI** (mission purity + paywall suite). Do **not** reuse legacy `01-checklist.png` style frames.
 
 | # | File name | Screen / state | Caption (optional ASC overlay) | Pass if |
 |---|-----------|----------------|--------------------------------|---------|
-| 01 | `01-home-mission.png` | Entitled **Home** — one emphasis “Next action” card + quiet today chips | “One next action” | ≤1 red-rail card; dual-offer **not** shown |
+| 01 | `01-home-mission.png` | Entitled **Home** — single `MissionCard` + EntitlementBanner + quiet chips | “One next action” | Exactly one emphasis mission; checklist collapsed |
 | 02 | `02-command-hub.png` | **Command** hub — next visit or empty “Schedule first visit” | “Command Center” | Hub, not a raw form dump |
-| 03 | `03-tools-catalog.png` | **Tools** catalog — Command hero + Practice/Prepare list | “Find a tool in seconds” | Catalog only; filter bar OK |
-| 04 | `04-objection-result.png` | **Objection Handler** after Generate — talk track visible + sticky CTA area | “Handle ‘not ready’ fast” | 3-tap story: Tools → Objections → Generate |
-| 05 | `05-dual-doors.png` | **Logged-out Home** — Consulting \| Hospice Sales Pro dual doors | “Two clear offers” | Not a long marketing scroll |
+| 03 | `03-tools-catalog.png` | **Tools** catalog — Command spine + job groups (web) or native catalog | “Prepare · Practice” | Not equal 12-tile soup |
+| 04 | `04-objection-result.png` | **Objection Handler** after Generate — talk track + sticky CTA | “Handle ‘not ready’ fast” | 3-tap: Tools → Objections → Generate |
+| 05 | `05-account-seat.png` | **Account** — StatusChip + Value receipt (or locked Paywall benefits) | “Same seat as web” | Restore = sign-in copy visible if locked |
 
-Optional extras (if ASC allows more):
-- `06-learn-resources.png` — Resources tab with Visit prep / Week groups  
-- `07-activation.png` — “You’re in” ceremony (can be staging-only; don’t leak demo PHI)
+Optional extras:
+- `06-dual-doors.png` — Logged-out Home dual doors  
+- `07-learn-resources.png` — Learn Resources groups  
+- `08-paywall-locked.png` — Authenticated locked paywall suite  
+
+### Retire legacy frames
+
+Folder may still contain old `01-checklist.png` / `02-scenario-coach.png` etc.  
+**For ASC upload use only elite frames above** after re-capture on current build.
 
 ---
 

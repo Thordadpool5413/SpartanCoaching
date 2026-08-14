@@ -303,11 +303,14 @@ export default function Portal() {
 
   const firstName = member?.name?.split(" ")[0] || "";
 
-  const nextHint = nextItem
-    ? nextItem.title
-    : allDone
-      ? "Book a debrief or browse tools for this week’s work"
-      : startHere.title;
+  // Mirror iOS Home mission grammar (craft Phase 3)
+  const nextHint = needsRole
+    ? "Pick your role"
+    : nextItem
+      ? nextItem.title
+      : allDone
+        ? "Open Command Center for today’s accounts"
+        : startHere.title;
 
   const isPaidMember = organization?.status === "active";
 
@@ -321,13 +324,16 @@ export default function Portal() {
       {/* Welcome — short, then one mission action */}
       <div className="mb-8 space-y-3">
         <p className="text-kicker">
-          {isPaidMember ? "Portal · Hospice Sales Pro" : "Portal · first session"}
+          {isPaidMember ? "Hospice Sales Pro · portal" : "Hospice Sales Pro · first session"}
         </p>
         <h1 className="text-h1 font-display font-black text-foreground tracking-tight">
           {isFirstSession
-            ? `Let's make this session count${firstName ? `, ${firstName}` : ""}`
+            ? `Make this session count${firstName ? `, ${firstName}` : ""}`
             : `Welcome back${firstName ? `, ${firstName}` : ""}`}
         </h1>
+        <p className="text-sm text-muted-foreground max-w-xl leading-relaxed">
+          One next action. Same seat as the iPhone app.
+        </p>
         {memberStatusLabel && (
           <div
             className="inline-flex flex-wrap items-center gap-2 text-sm font-medium text-foreground bg-card/80 border border-border/80 rounded-full px-3.5 py-2 shadow-sm"
@@ -368,11 +374,11 @@ export default function Portal() {
             <p className="text-kicker">Next action</p>
             <p id="portal-next-action-heading" className="text-xl sm:text-2xl font-display font-bold text-foreground tracking-tight">
               {needsRole
-                ? "Pick your role to personalize the checklist"
+                ? "Pick your role"
                 : nextItem
                   ? nextItem.title
                   : allDone
-                    ? "Run Command Center for today’s accounts"
+                    ? "Open Command Center for today’s accounts"
                     : startHere.title}
             </p>
             <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
@@ -380,7 +386,7 @@ export default function Portal() {
                 ? "Rep, director, VP, or owner — sets recommended tools and checklist."
                 : nextItem
                   ? nextItem.desc
-                  : "Plan → prepare → practice → capture outcome → next step."}
+                  : "One next action. Same seat as the iPhone app — plan → prepare → practice → capture outcome."}
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 shrink-0">

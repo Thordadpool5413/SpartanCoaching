@@ -16,6 +16,8 @@ privacy/terms/trust/support links, client API contract headers for backend compa
 - Confirm subscription storefront rules (Stripe external vs IAP) for each region
 - Host `apple-app-site-association` for universal links
 - TestFlight build + smoke on a physical iPhone (`store/testflight-smoke.md`)
+- Craft **feel** pass (`store/testflight-feel-checklist.md`) + elite screenshots (`screenshot-shot-list.md`)
+- Optional 60s day-in-the-life video (`docs/product-craft/15-day-in-the-life-script.md`)
 
 ## Before You Submit
 

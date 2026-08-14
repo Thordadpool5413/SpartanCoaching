@@ -7,7 +7,11 @@ import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useBillingActions } from "@/hooks/useBillingActions";
 import { PRICING_FACTS } from "@/lib/complianceCopy";
-import { Lock, LogIn, KeyRound, Phone, CreditCard, Loader2, Shield } from "lucide-react";
+import { Lock, LogIn, KeyRound, Phone, CreditCard, Loader2, Shield, Check } from "lucide-react";
+import {
+  entitlementShellCopy,
+  resolveEntitlementShell,
+} from "@/lib/fieldKitCatalog";
 
 type Props = {
   /** Compact mode for embedding above a tool */
@@ -32,24 +36,23 @@ export function FieldKitGate({ compact }: Props) {
   const isPlatform = member?.role === "platform_admin" || organization?.type === "platform";
   const canSelfServe = isAuthenticated && isPersonal && !isPlatform;
 
-  let title = "Hospice Sales Pro";
-  let body =
-    "Tools and resources for hospice growth — Command Center, practice, plans, and learn on web and iPhone. Preview free — Start Hospice Sales Pro or use team/evaluation access to run tools live.";
+  const shellId = resolveEntitlementShell({
+    isAuthenticated,
+    orgStatus: organization?.status,
+    orgType: organization?.type,
+    billingPlan: organization?.billingPlan,
+    fieldKitAllowed: fieldKit?.allowed,
+    fieldKitReason: fieldKit?.reason,
+  });
+  const shell = entitlementShellCopy(
+    isAuthenticated ? shellId : "logged_out",
+  );
 
-  if (expired) {
-    title = "Hospice Sales Pro access has ended";
-    body = canSelfServe
-      ? `Your access window ended. Individuals can re-subscribe for ${PRICING_FACTS.individualWeeklyLabel} from Account — cancel anytime. Teams continue under a provider contract.`
-      : "Thank you for putting real scenarios through Hospice Sales Pro. Continue as a client under contract, request an extension, or close the loop with a short debrief.";
-  } else if (suspended) {
-    title = "Access is currently paused";
-    body = canSelfServe
-      ? "Often this is a failed payment. Update your card under Manage billing to restore Hospice Sales Pro access."
-      : "Your organization’s Hospice Sales Pro access is paused. Update billing or contact Spartan Coaching to restore access.";
-  } else if (isAuthenticated && !fieldKit?.allowed) {
-    title = "Hospice Sales Pro access is not active";
-    body = "Your account is signed in, but Hospice Sales Pro access is not currently active. Subscribe, renew, or contact us to continue.";
-  }
+  const title = shell.title;
+  const body =
+    expired && !canSelfServe
+      ? "Thank you for putting real scenarios through Hospice Sales Pro. Continue as a client under contract, request an extension, or close the loop with a short debrief."
+      : shell.body;
 
   const requestExtension = async () => {
     setExtPending(true);
@@ -93,8 +96,19 @@ export function FieldKitGate({ compact }: Props) {
         </div>
 
         <div className="space-y-2 text-left">
-          <p className="text-xs font-bold tracking-widest text-primary uppercase text-center">What's locked behind this gate</p>
-          <div className="grid sm:grid-cols-2 gap-2">
+          <p className="text-xs font-bold tracking-widest text-primary uppercase text-center">
+            What unlocks with Hospice Sales Pro
+          </p>
+          <ul className="grid sm:grid-cols-2 gap-2 mb-3">
+            {shell.benefits.map((b) => (
+              <li key={b} className="flex gap-2 text-xs text-muted-foreground">
+                <Check className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" aria-hidden />
+                <span>{b}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="text-xs text-muted-foreground text-center leading-relaxed px-2">{shell.restoreNote}</p>
+          <div className="grid sm:grid-cols-2 gap-2 mt-4">
             {[
               {
                 title: "Objection Handler",
