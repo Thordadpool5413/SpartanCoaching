@@ -1,0 +1,24 @@
+artifacts/spartan-coaching/src/components/FieldKitChrome.tsx
+  h_0446834f150a71 63-64,66,70
+artifacts/spartan-coaching/src/pages/Account.tsx
+  h_0446834f150a71 196,199,202,204,206-207,209,211,276,279,281,290-293,405-406
+artifacts/spartan-coaching/src/pages/Portal.tsx
+  h_0446834f150a71 306-313,327,331,334-336,377,381
+artifacts/spartan-coaching/src/pages/Tools.tsx
+  h_0446834f150a71 218-220,222-224,226-239,246,252,390,396-397,400,423-495
+docs/product-craft/08-implementation-roadmap.md
+  h_0446834f150a71 3-10,12
+docs/product-craft/README.md
+  h_0446834f150a71 12-13
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "160c1b279a4ba46b0e8015d8b730e48143d43862",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
