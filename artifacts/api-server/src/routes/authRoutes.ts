@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import type { Express, Response } from "express";
-import { eq, desc, sql, and, isNull, ne, gte, lt } from "drizzle-orm";
+import { eq, desc, sql, and, isNull, ne, gte, lt, count } from "drizzle-orm";
 import {
   accessRequests,
   clientMembers,
@@ -14,6 +14,7 @@ import {
   orgBranches,
   orgTeams,
   usageEvents,
+  eventTracking,
   requestAccessBodySchema,
   loginBodySchema,
   setPasswordBodySchema,
@@ -645,6 +646,84 @@ export function registerAuthRoutes(app: Express): void {
         .checklistProgress || {}) as Record<string, boolean | string>,
     });
     return res.json({ member: publicM, activation });
+  });
+
+  /**
+   * Craft Phase 4 — weekly value receipt for subscription theater.
+   * Counts this member's event_tracking rows over the last 7 days + checklist snapshot.
+   */
+  app.get("/api/me/value-receipt", requireAuth, async (req: AuthedRequest, res) => {
+    try {
+      const memberId = req.clientMemberId!;
+      const sinceMs = Date.now() - 7 * 24 * 60 * 60 * 1000;
+
+      const [fresh] = await db
+        .select()
+        .from(clientMembers)
+        .where(eq(clientMembers.id, memberId))
+        .limit(1);
+      const progress =
+        ((fresh as { checklistProgress?: Record<string, boolean | string> } | undefined)
+          ?.checklistProgress || {}) as Record<string, boolean | string>;
+      const checklistDone = Object.values(progress).filter(
+        (v) => v === true || (typeof v === "string" && v.length > 0),
+      ).length;
+
+      let rows: Array<{ eventType: string; eventName: string; cnt: number }> = [];
+      try {
+        rows = await db
+          .select({
+            eventType: eventTracking.eventType,
+            eventName: eventTracking.eventName,
+            cnt: count(),
+          })
+          .from(eventTracking)
+          .where(
+            and(eq(eventTracking.memberId, memberId), gte(eventTracking.createdAt, sinceMs)),
+          )
+          .groupBy(eventTracking.eventType, eventTracking.eventName);
+      } catch (err) {
+        console.error("value-receipt event query:", err);
+        rows = [];
+      }
+
+      const totalEvents = rows.reduce((s, r) => s + Number(r.cnt || 0), 0);
+      const toolish = rows.filter(
+        (r) =>
+          /tool|objection|command|mission|playbook|roleplay|email|craft/i.test(
+            `${r.eventType} ${r.eventName}`,
+          ),
+      );
+      const highlights: string[] = [];
+      if (checklistDone > 0) {
+        highlights.push(`${checklistDone} checklist step${checklistDone === 1 ? "" : "s"} marked`);
+      }
+      if (totalEvents > 0) {
+        highlights.push(`${totalEvents} product event${totalEvents === 1 ? "" : "s"} this week`);
+      }
+      if (toolish.length > 0) {
+        highlights.push(`${toolish.length} tool-related activity type${toolish.length === 1 ? "" : "s"}`);
+      }
+      if (highlights.length === 0) {
+        highlights.push("No tracked activity yet — open Command Center or run one tool");
+      }
+
+      return res.json({
+        days: 7,
+        since: new Date(sinceMs).toISOString(),
+        checklistDone,
+        totalEvents,
+        events: rows.map((r) => ({
+          eventType: r.eventType,
+          eventName: r.eventName,
+          count: Number(r.cnt || 0),
+        })),
+        highlights,
+      });
+    } catch (err) {
+      console.error("value-receipt error:", err);
+      return res.status(500).json({ error: "Failed to load value receipt" });
+    }
   });
 
   app.patch("/api/me/onboarding", requireAuth, async (req: AuthedRequest, res) => {

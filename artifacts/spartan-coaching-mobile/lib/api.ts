@@ -354,6 +354,24 @@ export async function fetchOnboardingMobile(): Promise<{
   return apiGet("/api/me/onboarding");
 }
 
+export type ValueReceipt = {
+  days: number;
+  since: string;
+  checklistDone: number;
+  totalEvents: number;
+  events: Array<{ eventType: string; eventName: string; count: number }>;
+  highlights: string[];
+};
+
+/** Craft Phase 4 — weekly value receipt (subscription theater). */
+export async function fetchValueReceipt(): Promise<ValueReceipt | null> {
+  try {
+    return await apiGet<ValueReceipt>("/api/me/value-receipt");
+  } catch {
+    return null;
+  }
+}
+
 export async function updateOnboardingMobile(body: {
   jobRole?: string | null;
   territoryNote?: string | null;

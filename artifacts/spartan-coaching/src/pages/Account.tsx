@@ -8,6 +8,11 @@ import { SEO } from "@/components/SEO";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { useBillingActions } from "@/hooks/useBillingActions";
+import { EntitlementSuite } from "@/components/EntitlementSuite";
+import { ValueReceipt } from "@/components/ValueReceipt";
+import {
+  resolveEntitlementShell,
+} from "@/lib/fieldKitCatalog";
 import {
   fetchBillingStatus,
   type BillingStatusResponse,
@@ -271,6 +276,30 @@ export default function Account() {
           isSuspended={org?.status === "suspended"}
         />
       )}
+
+      {/* Craft Phase 4 — full entitlement theater (shared shell model) */}
+      <EntitlementSuite
+        input={{
+          isAuthenticated: true,
+          orgStatus: org?.status,
+          orgType: org?.type,
+          billingPlan: billingOrg?.billingPlan || org?.billingPlan,
+          fieldKitAllowed: canUseFieldKit,
+          fieldKitReason: fieldKit?.reason,
+          cancelAtPeriodEnd,
+          hasPaidSubscription: hasPaidSub,
+          hoursRemaining: fieldKit?.hoursRemaining,
+        }}
+        onPrimary={() => {
+          if (canCheckout) void startCheckout();
+          else if (canPortal) void openPortal();
+          else setLocation("/portal");
+        }}
+        primaryPending={checkoutPending || portalPending}
+        onSecondary={() => setLocation("/portal")}
+      />
+
+      {canUseFieldKit ? <ValueReceipt /> : null}
 
       <Card className="border border-border bg-card p-6 space-y-4" data-testid="card-membership-status">
         <div className="flex flex-wrap items-center gap-2" data-testid="account-entitlement-chips">

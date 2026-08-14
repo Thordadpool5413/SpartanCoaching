@@ -9,8 +9,9 @@
 | **0c** Repo artifacts | This package | |
 | **1** Design system | In progress | Tokens + primitives |
 | **2** iOS core loops | In progress | Home mission purity, paywall |
-| **3** Web mirror | In progress | Portal/Tools/Account mission + seat language |
-| **4–5** Subscription depth / harden | Planned | Value receipt + device proof |
+| **3** Web mirror | Done | Portal/Tools/Account mission + seat language |
+| **4** Subscription theater | Done | Entitlement shells + value receipt API/UI |
+| **5** Harden | Planned | TestFlight feel, screenshots, DoD |
 
 **Do not claim $500k polish** until `07-premium-definition-of-done.md` is fully checked.
 
