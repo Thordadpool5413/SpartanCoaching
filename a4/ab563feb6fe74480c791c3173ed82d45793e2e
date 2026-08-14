@@ -1,0 +1,26 @@
+artifacts/spartan-coaching-mobile/app/(tabs)/command.tsx
+  h_0446834f150a71 20,22,103-106,108-135,140-142,156-165,169-171,173-174,179,182-184,190,192,194,196,214-217
+artifacts/spartan-coaching-mobile/app/(tabs)/tools.tsx
+  h_0446834f150a71 32,39,140-144,172,328,331-350,352-390,400-421,423,437,439,448,455,457-466,470,488
+artifacts/spartan-coaching-mobile/components/FieldResultPanel.tsx
+  h_0446834f150a71 4,14,17-18,22,34-36,47-48,132-134,207-247,252-254
+artifacts/spartan-coaching-mobile/store/testflight-feel-checklist.md
+  h_0446834f150a71 52-54
+docs/product-craft/08-implementation-roadmap.md
+  h_0446834f150a71 10-11,15
+docs/product-craft/16-phase6-command-tools.md
+  h_0446834f150a71 1-16
+docs/product-craft/README.md
+  h_0446834f150a71 14-15
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "a4ab563feb6fe74480c791c3173ed82d45793e2e",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
