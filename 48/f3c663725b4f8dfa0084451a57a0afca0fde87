@@ -1,0 +1,16 @@
+artifacts/spartan-coaching-mobile/__tests__/account-appstate.test.tsx
+  h_0446834f150a71 30-37,41-51
+artifacts/spartan-coaching-mobile/__tests__/account-billing.test.tsx
+  h_0446834f150a71 25-32,110-120,234,237,240-241,248,252-255
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "48f3c663725b4f8dfa0084451a57a0afca0fde87",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
