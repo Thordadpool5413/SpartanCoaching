@@ -17,7 +17,9 @@ import { SpartanButton } from "@/components/ui/SpartanButton";
 import { SectionKicker } from "@/components/ui/SectionKicker";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { ListRow } from "@/components/ui/ListRow";
+import { MissionCard } from "@/components/ui/MissionCard";
 import { ToolAnatomyRelated } from "@/components/ToolAnatomy";
+import { trackMobileEvent } from "@/lib/analytics";
 import {
   getToolById,
   recommendRelated,
@@ -98,13 +100,46 @@ export default function CommandHubScreen() {
 
   return (
     <Screen testID="screen-command-hub">
-      <ScreenHeader title="Command Center" subtitle={dateLabel} />
+      <ScreenHeader
+        title="Command Center"
+        subtitle={`${dateLabel} · same seat as web`}
+      />
 
-      <SectionKicker>Today</SectionKicker>
+      <SectionKicker>Today · mission</SectionKicker>
+
+      {/* Day stats — quiet, not second heroes */}
+      <View
+        style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 8, marginBottom: 4 }}
+        testID="command-day-stats"
+      >
+        {[
+          { label: `${calls.length} visit${calls.length === 1 ? "" : "s"}` },
+          { label: `${openActionCount} open action${openActionCount === 1 ? "" : "s"}` },
+        ].map((s) => (
+          <View
+            key={s.label}
+            style={{
+              paddingHorizontal: 12,
+              paddingVertical: 6,
+              borderRadius: 16,
+              borderWidth: StyleSheet.hairlineWidth * 2,
+              borderColor: colors.border,
+              backgroundColor: colors.card,
+            }}
+          >
+            <Text style={[{ color: colors.mutedForeground, fontSize: 12 }, font("semibold")]}>
+              {s.label}
+            </Text>
+          </View>
+        ))}
+      </View>
 
       {todayLoading && !today ? (
         <View style={{ paddingVertical: 32, alignItems: "center" }}>
           <ActivityIndicator color={colors.primary} />
+          <Text style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 10 }, font("regular")]}>
+            Loading today’s visits…
+          </Text>
         </View>
       ) : null}
 
@@ -118,44 +153,47 @@ export default function CommandHubScreen() {
       ) : null}
 
       {nextCall ? (
-        <SpartanCard variant="emphasis" style={{ marginTop: 10 }} testID="card-next-call">
-          <SectionKicker>Next visit</SectionKicker>
-          <Text style={[{ color: colors.foreground, fontSize: 20, marginTop: 8 }, font("heavy")]}>
-            {nextCall.purpose || "Account visit"}
-          </Text>
-          <Text style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 6 }, font("regular")]}>
-            {formatCallTime(nextCall.schedule?.startsAt)} · {nextCall.status}
-          </Text>
-          <SpartanButton
-            title="Open full workflow"
-            onPress={() => {
+        <View style={{ marginTop: 10 }} testID="card-next-call">
+          <MissionCard
+            kicker="Next visit"
+            title={nextCall.purpose || "Account visit"}
+            subtitle={`${formatCallTime(nextCall.schedule?.startsAt)} · ${nextCall.status} · prepare → practice → capture`}
+            ctaLabel="Open full workflow"
+            onCta={() => {
+              void trackMobileEvent("craft", "mission_cta_tap", {
+                metadata: { surface: "command", platform: "ios", source: "next_call" },
+              });
               void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
               router.push("/sales-workflow");
             }}
-            style={{ marginTop: 14 }}
-            testID="button-open-workflow"
+            secondaryLabel="Prep tools"
+            onSecondary={() => router.push("/(tabs)/tools")}
+            ctaTestID="button-open-workflow"
           />
-        </SpartanCard>
-      ) : (
+        </View>
+      ) : !todayLoading ? (
         <View style={{ marginTop: 10 }} testID="command-empty-day">
           <EmptyState
             icon="calendar"
             title="No visits scheduled today"
-            body="Add your first account visit — plan, prep, capture outcome, lock the next step."
+            body="One continuous loop: add a visit → plan → practice → capture outcome → lock the next step. Same workflow as the website."
             ctaTitle="Schedule first visit"
             onCta={() => {
+              void trackMobileEvent("craft", "mission_cta_tap", {
+                metadata: { surface: "command", platform: "ios", source: "empty_day" },
+              });
               void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
               router.push("/sales-workflow");
             }}
           />
         </View>
-      )}
+      ) : null}
 
-      {/* Align language with Home mission when no checklist pressure */}
+      {/* Secondary only — never a second emphasis when nextCall owns the mission */}
       {primary && primary.kind !== "command" && !nextCall ? (
-        <SpartanCard variant="default" style={{ marginTop: 12 }}>
+        <SpartanCard variant="quiet" style={{ marginTop: 12 }} testID="command-also-next">
           <SectionKicker>Also next</SectionKicker>
-          <Text style={[{ color: colors.foreground, fontSize: 16, marginTop: 8 }, font("bold")]}>
+          <Text style={[{ color: colors.foreground, fontSize: 15, marginTop: 8 }, font("bold")]}>
             {primary.title}
           </Text>
           <Text style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 4, lineHeight: 18 }, font("regular")]}>
@@ -173,8 +211,10 @@ export default function CommandHubScreen() {
         </SpartanCard>
       ) : null}
 
-      <Text style={[{ color: colors.foreground, fontSize: 13, marginTop: 20, marginBottom: 8 }, font("bold")]}>
-        {["director", "vp", "owner"].includes(jobRole) ? "Lead the day" : "Prep for the room"}
+      <Text style={[{ color: colors.mutedForeground, fontSize: 12, marginTop: 20, marginBottom: 8 }, font("semibold")]}>
+        {["director", "vp", "owner"].includes(jobRole)
+          ? "Lead the day · satellite to Command"
+          : "Prep for the room · satellite to Command"}
       </Text>
       {secondary
         .filter((s) => s.title !== "Full Command workflow")

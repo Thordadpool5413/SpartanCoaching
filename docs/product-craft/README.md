@@ -11,7 +11,8 @@
 | **2** iOS core loops | In progress | Home mission purity, paywall |
 | **3** Web mirror | Done | Portal/Tools/Account mission + seat language |
 | **4** Subscription theater | Done | Entitlement shells + value receipt API/UI |
-| **5** Harden pack | Done (operator pack) | Feel checklist, smoke updates, video script, DoD table — **human evidence still open** |
+| **5** Harden pack | Done (operator pack) | Feel checklist + DoD table — **human evidence still open** |
+| **6** Daily loop craft | Done | Command MissionCard, Tools Prepare/Practice, Result finish anatomy |
 
 **Do not claim $500k polish** until `07-premium-definition-of-done.md` is fully checked.
 

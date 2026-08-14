@@ -29,12 +29,14 @@ import {
 import { SpartanCard } from "@/components/ui/SpartanCard";
 import { SectionKicker } from "@/components/ui/SectionKicker";
 import { ListRow } from "@/components/ui/ListRow";
+import { MissionCard } from "@/components/ui/MissionCard";
 import { font } from "@/lib/typography";
 import { CATALOG_ID_TO_TAB, isToolTab, openToolHref } from "@/lib/toolDeepLinks";
 import { PaywallCard } from "@/components/ui/PaywallCard";
 import { OfflineQueueBanner } from "@/components/OfflineQueueBanner";
 import { apiGet } from "@/lib/api";
 import { MAX_FONT_SIZE_MULTIPLIER } from "@/lib/iosProductQuality";
+import { trackMobileEvent } from "@/lib/analytics";
 
 type SearchHit = {
   id: string;
@@ -135,6 +137,11 @@ export default function ToolsCatalogScreen() {
   );
   const leaderIdSet = new Set<string>([...FIELD_KIT_LEADER_TOOL_IDS]);
   const daily = FIELD_KIT_TOOLS.filter((t) => dailyIdSet.has(t.id) && matches(t));
+  const prepare = daily.filter((t) => t.category === "Prepare" || t.category === "Plan");
+  const practice = daily.filter((t) => t.category === "Practice");
+  const dailyOther = daily.filter(
+    (t) => t.category !== "Prepare" && t.category !== "Plan" && t.category !== "Practice",
+  );
   const leaders = FIELD_KIT_TOOLS.filter((t) => leaderIdSet.has(t.id) && matches(t));
   const rest = FIELD_KIT_TOOLS.filter(
     (t) =>
@@ -162,7 +169,7 @@ export default function ToolsCatalogScreen() {
         </Text>
         <Text style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 4 }, font("regular")]}>
           {canUseFieldKit
-            ? "Start with intent · tools & field resources"
+            ? "Command first · then Prepare or Practice · same seat as web"
             : "Preview free · live tools with subscription"}
         </Text>
         <TextInput
@@ -318,36 +325,69 @@ export default function ToolsCatalogScreen() {
         />
 
         <Text style={[styles.sectionLabel, { color: colors.mutedForeground, marginTop: 8 }, font("bold")]}>
-          OR BROWSE TOOLS
+          BROWSE BY JOB
         </Text>
 
-        {command && matches(command) && (
-          <Pressable
-            onPress={() => openCatalogTool(command)}
-            style={{ marginTop: 10, marginBottom: 16 }}
-            testID="tools-hero-command"
-          >
-            <SpartanCard variant="emphasis">
-              <SectionKicker>Daily operating system</SectionKicker>
-              <Text style={[{ color: colors.foreground, fontSize: 20, marginTop: 8 }, font("heavy")]}>
-                {command.title}
-              </Text>
-              <Text
-                style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 6, lineHeight: 19 }, font("regular")]}
-              >
-                {command.description}
-              </Text>
-              <Text style={[{ color: colors.primary, marginTop: 12 }, font("bold")]}>
-                Open Command Center →
-              </Text>
-            </SpartanCard>
-          </Pressable>
-        )}
+        {command && matches(command) ? (
+          <View style={{ marginTop: 10, marginBottom: 16 }} testID="tools-hero-command">
+            <MissionCard
+              kicker="Next action spine · same as web"
+              title={command.title}
+              subtitle="Plan the visit, practice if needed, capture the outcome, lock the next step — not a grid of equal tools."
+              ctaLabel={canUseFieldKit ? "Open Command Center" : "Preview Command Center"}
+              onCta={() => {
+                void trackMobileEvent("craft", "mission_cta_tap", {
+                  metadata: { surface: "tools", platform: "ios", source: "command_hero" },
+                });
+                openCatalogTool(command);
+              }}
+              secondaryLabel="All tools below"
+              onSecondary={() => {
+                /* stay on catalog */
+              }}
+            />
+          </View>
+        ) : null}
 
-        {daily.length > 0 && (
-          <View style={{ marginBottom: 12 }} testID="tools-daily">
-            <Text style={[styles.sectionLabel, { color: colors.primary }, font("bold")]}>PRACTICE & PREPARE</Text>
-            {daily.map((t) => (
+        {prepare.length > 0 ? (
+          <View style={{ marginBottom: 12 }} testID="tools-job-prepare">
+            <Text style={[styles.sectionLabel, { color: colors.primary }, font("bold")]}>PREPARE</Text>
+            <Text
+              style={[
+                { color: colors.mutedForeground, fontSize: 12, marginBottom: 6, lineHeight: 16 },
+                font("regular"),
+              ]}
+            >
+              Before the visit — plans, research, email, weekly rhythm
+            </Text>
+            {prepare.map((t) => (
+              <ListRow
+                key={t.id}
+                title={t.title}
+                subtitle={
+                  t.mobile === "webview"
+                    ? `${t.whenToUse || t.description} · Opens web tool`
+                    : t.whenToUse || t.description
+                }
+                onPress={() => openCatalogTool(t)}
+                testID={`tool-row-${t.id}`}
+              />
+            ))}
+          </View>
+        ) : null}
+
+        {practice.length > 0 ? (
+          <View style={{ marginBottom: 12 }} testID="tools-job-practice">
+            <Text style={[styles.sectionLabel, { color: colors.primary }, font("bold")]}>PRACTICE</Text>
+            <Text
+              style={[
+                { color: colors.mutedForeground, fontSize: 12, marginBottom: 6, lineHeight: 16 },
+                font("regular"),
+              ]}
+            >
+              Talk tracks and reps before you walk in
+            </Text>
+            {practice.map((t) => (
               <ListRow
                 key={t.id}
                 title={t.title}
@@ -357,9 +397,30 @@ export default function ToolsCatalogScreen() {
               />
             ))}
           </View>
-        )}
+        ) : null}
 
-        {leaders.length > 0 && (
+        {dailyOther.length > 0 ? (
+          <View style={{ marginBottom: 12 }} testID="tools-daily-other">
+            <Text style={[styles.sectionLabel, { color: colors.primary }, font("bold")]}>
+              FIELD SUPPORT
+            </Text>
+            {dailyOther.map((t) => (
+              <ListRow
+                key={t.id}
+                title={t.title}
+                subtitle={
+                  t.mobile === "webview"
+                    ? `${t.whenToUse || t.description} · Opens web tool`
+                    : t.whenToUse || t.description
+                }
+                onPress={() => openCatalogTool(t)}
+                testID={`tool-row-${t.id}`}
+              />
+            ))}
+          </View>
+        ) : null}
+
+        {leaders.length > 0 ? (
           <View style={{ marginBottom: 12 }} testID="tools-leaders">
             <Text style={[styles.sectionLabel, { color: colors.primary }, font("bold")]}>
               FOR DIRECTORS & LEADERS
@@ -373,9 +434,9 @@ export default function ToolsCatalogScreen() {
               />
             ))}
           </View>
-        )}
+        ) : null}
 
-        {rest.length > 0 && (
+        {rest.length > 0 ? (
           <View style={{ marginBottom: 12 }}>
             <Text style={[styles.sectionLabel, { color: colors.primary }, font("bold")]}>MORE IN THE KIT</Text>
             {rest.map((t) => (
@@ -384,24 +445,29 @@ export default function ToolsCatalogScreen() {
                 title={t.title}
                 subtitle={
                   t.mobile === "webview"
-                    ? `${t.whenToUse || t.description} · Web tool`
+                    ? `${t.whenToUse || t.description} · Opens web tool (session secured)`
                     : t.whenToUse || t.description
                 }
                 onPress={() => openCatalogTool(t)}
               />
             ))}
           </View>
-        )}
+        ) : null}
 
-        {!daily.length && !leaders.length && !rest.length && !matches(command!) && (
-          <Text style={[{ color: colors.mutedForeground, marginTop: 24, textAlign: "center" }, font("regular")]}>
-            No tools match “{filter}”
-          </Text>
-        )}
+        {!prepare.length &&
+          !practice.length &&
+          !dailyOther.length &&
+          !leaders.length &&
+          !rest.length &&
+          !(command && matches(command)) && (
+            <Text style={[{ color: colors.mutedForeground, marginTop: 24, textAlign: "center" }, font("regular")]}>
+              No tools match “{filter}”
+            </Text>
+          )}
 
         <ListRow
           title="Advanced library"
-          subtitle="Field AI + clinical vault · authorized tools only"
+          subtitle="Field AI + clinical vault · secondary to daily spine"
           icon="cpu"
           onPress={() => router.push("/ai-tools" as any)}
           testID="advanced-ai-tools-library"
@@ -419,7 +485,7 @@ export default function ToolsCatalogScreen() {
             font("regular"),
           ]}
         >
-          Daily tools are native. Some specialty tools open as Web tools (same site, session secured).
+          Daily tools are native. Specialty tools labeled “Opens web tool” use the same site and session.
         </Text>
       </ScrollView>
     </View>

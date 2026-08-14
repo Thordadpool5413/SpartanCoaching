@@ -49,8 +49,9 @@ PARITY_EMAIL=… PARITY_PASSWORD=… pnpm run release-gate:live -- https://spart
 | # | Check | Score |
 |---|--------|-------|
 | F8 | Language uses Mission → Command → Tool → Result → Account | |
-| F9 | Command tab feels like hub for **today**, not a form dump | |
-| F10 | Tools: Command spine first; Prepare / Practice groups (web) | |
+| F9 | Command: **MissionCard** next visit (or empty schedule); day stats chips; not a form dump | |
+| F10 | Tools: Command spine first; **Prepare / Practice** groups on iOS catalog | |
+| F10b | Tool result: RESULT · FIELD-READY + Copy/Share + Command/Web handoff | |
 
 ## P4 — Subscription honesty
 
