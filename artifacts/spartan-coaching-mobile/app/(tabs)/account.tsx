@@ -448,12 +448,27 @@ export default function AccountScreen() {
                 : ""}
             </Text>
             {(user.member.role === "org_admin" || user.member.role === "platform_admin") && (
-              <Text
-                style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 17, marginTop: 6 }}
+              <View
+                style={{
+                  marginTop: 10,
+                  padding: 12,
+                  borderRadius: 12,
+                  borderWidth: 1,
+                  borderColor: colors.border,
+                  backgroundColor: colors.muted,
+                }}
+                testID="account-org-admin-handoff"
               >
-                Organization admin tools (members, structure, offboard) are on the website at
-                /org/admin — open in a browser with the same account.
-              </Text>
+                <Text style={{ color: colors.foreground, fontSize: 14, fontWeight: "700" }}>
+                  Organization admin on the website
+                </Text>
+                <Text
+                  style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 17, marginTop: 6 }}
+                >
+                  Members, structure, contacts, and offboard are designed for desktop. Open the same
+                  account on the web at /org/admin — this app stays field-first.
+                </Text>
+              </View>
             )}
           </View>
         ) : null}

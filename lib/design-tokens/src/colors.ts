@@ -146,6 +146,31 @@ export const typeScale = {
   button: { fontSize: 15, fontWeight: "700" as const, letterSpacing: 0.15 },
 } as const;
 
+/**
+ * Motion durations (ms) — craft program Phase 1.
+ * Keep UI transitions 150–300ms; honor Reduce Motion in clients.
+ */
+export const motion = {
+  instant: 0,
+  fast: 150,
+  normal: 220,
+  slow: 300,
+  emphasis: 400,
+} as const;
+
+/** Semantic status roles for chips / banners (map to palette in clients) */
+export const statusRoles = [
+  "trial",
+  "active",
+  "locked",
+  "expired",
+  "warning",
+  "success",
+  "neutral",
+] as const;
+
+export type StatusRole = (typeof statusRoles)[number];
+
 /** CSS custom property values (HSL components without hsl()) — Midnight Navy default */
 export const cssDarkHsl = {
   background: "222 42% 12%",

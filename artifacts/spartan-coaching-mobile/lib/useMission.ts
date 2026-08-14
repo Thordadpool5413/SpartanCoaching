@@ -38,7 +38,7 @@ export type MissionPrimary = {
   ctaLabel: string;
   /** expo-router target */
   href: { pathname: string; params?: Record<string, string> };
-  kind: "role" | "checklist" | "command" | "subscribe" | "login";
+  kind: "role" | "checklist" | "command" | "subscribe" | "login" | "activation";
 };
 
 export type MissionState = {
@@ -178,6 +178,17 @@ export function useMission(): MissionState {
         kind: "role",
       };
     }
+    // Prefer live Command day when there is a scheduled call (field loop beats checklist soup).
+    const nextCall = today?.calls?.find((c) => c.status !== "completed" && c.status !== "cancelled");
+    if (nextCall) {
+      return {
+        title: nextCall.purpose || "Next visit on Command Center",
+        subtitle: "Open Command Center to prepare, practice, and complete this call.",
+        ctaLabel: "Open Command Center",
+        href: { pathname: "/(tabs)/command" },
+        kind: "command",
+      };
+    }
     if (nextChecklistItem) {
       const href = nextChecklistItem.route
         ? { pathname: nextChecklistItem.route }
@@ -197,10 +208,10 @@ export function useMission(): MissionState {
       title: start.title,
       subtitle: start.blurb,
       ctaLabel: "Open Command Center",
-      href: { pathname: start.route || "/sales-workflow" },
+      href: { pathname: "/(tabs)/command" },
       kind: "command",
     };
-  }, [shell, needsRole, nextChecklistItem, jobRole]);
+  }, [shell, needsRole, nextChecklistItem, jobRole, today]);
 
   const secondary = useMemo(() => {
     if (shell !== "entitled") return [];

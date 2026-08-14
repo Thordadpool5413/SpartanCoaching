@@ -380,7 +380,7 @@ export default function Portal() {
                 ? "Rep, director, VP, or owner — sets recommended tools and checklist."
                 : nextItem
                   ? nextItem.desc
-                  : "Plan → prepare → practice → capture outcome → next step."}
+                  : "One next action. Same seat as the iPhone app — plan → prepare → practice → capture outcome."}
             </p>
           </div>
           <div className="flex flex-col sm:flex-row gap-2 shrink-0">
