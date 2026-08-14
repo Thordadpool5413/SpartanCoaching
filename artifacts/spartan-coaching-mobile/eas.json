@@ -21,6 +21,10 @@
       "distribution": "store",
       "autoIncrement": true,
       "environment": "production",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://spartanhospicecoaching.com",
+        "EXPO_PUBLIC_DOMAIN": "spartanhospicecoaching.com"
+      },
       "ios": {
         "buildConfiguration": "Release"
       }
@@ -28,6 +32,10 @@
     "production": {
       "autoIncrement": true,
       "environment": "production",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://spartanhospicecoaching.com",
+        "EXPO_PUBLIC_DOMAIN": "spartanhospicecoaching.com"
+      },
       "ios": {
         "buildConfiguration": "Release"
       }

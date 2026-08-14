@@ -19,7 +19,16 @@ privacy/terms/trust/support links, client API contract headers for backend compa
 - Craft **feel** pass (`store/testflight-feel-checklist.md`) + elite screenshots (`screenshot-shot-list.md`)
 - Optional 60s day-in-the-life video (`docs/product-craft/15-day-in-the-life-script.md`)
 
-## Before You Submit
+## Replit vs phone connectivity (read this first)
+
+| Goal | What you need | Metro / “dev server”? |
+|------|----------------|------------------------|
+| **TestFlight** (App Store build) | EAS `build:ios:testflight` + submit | **No** — ignore “could not connect to development server” |
+| Live reload on a phone while coding on Replit | Expo Go + **tunnel** Metro | **Yes** — `pnpm --filter @workspace/spartan-coaching-mobile run dev` (auto-tunnel on Replit) |
+
+Replit is **not** on your phone’s Wi‑Fi. Expo `--lan` will always fail from a real device with the classic Metro error. On Replit the `dev` script forces **tunnel**. Do not chase AppDelegate / same-network fixes for TestFlight.
+
+### Before You Submit
 
 ### 1. Verify Expo / EAS account access
 
