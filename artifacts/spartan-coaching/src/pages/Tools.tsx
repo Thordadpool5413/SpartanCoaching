@@ -215,24 +215,41 @@ export default function Tools() {
                   <Lock className="w-4 h-4" />
                 </div>
                 <div>
-                  <h2 className="text-base font-bold text-foreground mb-1 tracking-tight">Preview open · live use locked</h2>
+                  <h2 className="text-base font-bold text-foreground mb-1 tracking-tight">
+                    Preview open · live tools locked
+                  </h2>
                   <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
-                    Browse every real interface below. Generate, save, and run live with Hospice Sales Pro
-                    ($14.99/week, cancel anytime).
+                    Browse real interfaces. Unlock live generation, Command Center, and saves with Hospice
+                    Sales Pro — $14.99/week, cancel anytime. Already subscribed? Sign in with the same
+                    email (access restores from your account).
                   </p>
+                  <ul className="mt-3 grid sm:grid-cols-2 gap-1.5 text-xs text-muted-foreground">
+                    <li className="flex gap-1.5">
+                      <span className="text-primary font-bold">✓</span> Live generation on field tools
+                    </li>
+                    <li className="flex gap-1.5">
+                      <span className="text-primary font-bold">✓</span> Command Center for today’s visits
+                    </li>
+                    <li className="flex gap-1.5">
+                      <span className="text-primary font-bold">✓</span> Saves synced to iPhone
+                    </li>
+                    <li className="flex gap-1.5">
+                      <span className="text-primary font-bold">✓</span> Cancel anytime · same seat
+                    </li>
+                  </ul>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 shrink-0">
                 <Button asChild className="font-bold" data-testid="button-tools-request">
                   <Link href="/register">
                     <KeyRound className="mr-2 w-4 h-4" />
-                    Create account · Hospice Sales Pro
+                    Create account · subscribe
                   </Link>
                 </Button>
                 <Button asChild variant="outline" className="font-bold" data-testid="button-tools-login">
                   <Link href={isAuthenticated ? "/account" : "/login"}>
                     <LogIn className="mr-2 w-4 h-4" />
-                    {isAuthenticated ? "Account" : "Client login"}
+                    {isAuthenticated ? "Account & billing" : "Sign in to restore"}
                   </Link>
                 </Button>
                 <Button asChild variant="ghost" className="font-bold">
@@ -370,17 +387,17 @@ export default function Tools() {
                       </div>
                       <div className="space-y-2">
                         <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
-                          Daily operating system
+                          Next action spine · same as iPhone Command
                         </p>
                         <h2 className="text-2xl sm:text-3xl font-display font-black text-foreground tracking-tight">
                           {command.title}
                         </h2>
                         <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-2xl">
-                          {command.description} Plan the call, practice if needed, capture the outcome,
-                          lock the next step.
+                          Your day starts here—not in a grid of equal tools. Plan the visit, practice if
+                          needed, capture the outcome, lock the next step.
                         </p>
                         <div className="flex flex-wrap gap-2 pt-1">
-                          {["Prepare", "Practice", "Capture", "Next step"].map((s) => (
+                          {["Mission", "Prepare", "Practice", "Capture", "Next step"].map((s) => (
                             <span
                               key={s}
                               className="text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-md border border-border bg-background/60"
@@ -403,23 +420,79 @@ export default function Tools() {
             );
           })()}
 
-          {/* Daily field tools */}
-          <section data-testid="tools-daily">
-            <div className="flex items-end justify-between gap-3 mb-5 border-b border-border/60 pb-3">
-              <div>
-                <h2 className="text-xl font-display font-bold text-foreground tracking-tight">
-                  Daily field tools
-                </h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  The tools reps open before and after visits
-                </p>
-              </div>
-            </div>
-            <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
-              {filteredTools
-                .filter((t) => (DAILY_TOOL_IDS as readonly string[]).includes(t.id) && t.id !== "sales-workflow")
-                .map((tool, idx) => renderCard(tool, idx))}
-            </StaggerContainer>
+          {/* Daily tools by job (craft Phase 3 — not a flat soup) */}
+          {(
+            [
+              {
+                id: "prepare",
+                title: "Prepare",
+                blurb: "Before the visit — plans, research, email, weekly rhythm",
+                cats: ["Prepare", "Plan"],
+                testId: "tools-job-prepare",
+              },
+              {
+                id: "practice",
+                title: "Practice",
+                blurb: "Talk tracks and reps before you walk in",
+                cats: ["Practice"],
+                testId: "tools-job-practice",
+              },
+            ] as const
+          ).map((job) => {
+            const tools = filteredTools.filter(
+              (t) =>
+                (DAILY_TOOL_IDS as readonly string[]).includes(t.id) &&
+                t.id !== "sales-workflow" &&
+                (job.cats as readonly string[]).includes(t.category),
+            );
+            if (!tools.length) return null;
+            return (
+              <section key={job.id} data-testid={job.testId}>
+                <div className="flex items-end justify-between gap-3 mb-5 border-b border-border/60 pb-3">
+                  <div>
+                    <h2 className="text-xl font-display font-bold text-foreground tracking-tight">
+                      {job.title}
+                    </h2>
+                    <p className="text-sm text-muted-foreground mt-1">{job.blurb}</p>
+                  </div>
+                </div>
+                <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
+                  {tools.map((tool, idx) => renderCard(tool, idx))}
+                </StaggerContainer>
+              </section>
+            );
+          })}
+
+          {/* Other daily tools not in Prepare/Practice buckets */}
+          <section data-testid="tools-daily-other">
+            {(() => {
+              const tools = filteredTools.filter(
+                (t) =>
+                  (DAILY_TOOL_IDS as readonly string[]).includes(t.id) &&
+                  t.id !== "sales-workflow" &&
+                  t.category !== "Prepare" &&
+                  t.category !== "Plan" &&
+                  t.category !== "Practice",
+              );
+              if (!tools.length) return null;
+              return (
+                <>
+                  <div className="flex items-end justify-between gap-3 mb-5 border-b border-border/60 pb-3">
+                    <div>
+                      <h2 className="text-xl font-display font-bold text-foreground tracking-tight">
+                        Field support
+                      </h2>
+                      <p className="text-sm text-muted-foreground mt-1">
+                        Satellite to Command — not a second product
+                      </p>
+                    </div>
+                  </div>
+                  <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
+                    {tools.map((tool, idx) => renderCard(tool, idx + 10))}
+                  </StaggerContainer>
+                </>
+              );
+            })()}
           </section>
 
           {/* Leader math */}

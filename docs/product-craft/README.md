@@ -9,7 +9,8 @@
 | **0c** Repo artifacts | This package | |
 | **1** Design system | In progress | Tokens + primitives |
 | **2** iOS core loops | In progress | Home mission purity, paywall |
-| **3–5** Web mirror / subscription / harden | Planned | Stop gate after Home/paywall PR |
+| **3** Web mirror | In progress | Portal/Tools/Account mission + seat language |
+| **4–5** Subscription depth / harden | Planned | Value receipt + device proof |
 
 **Do not claim $500k polish** until `07-premium-definition-of-done.md` is fully checked.
 

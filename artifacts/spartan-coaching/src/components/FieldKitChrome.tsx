@@ -60,13 +60,14 @@ export function FieldKitChrome({
               Preview real tool layouts. Live runs unlock with a Hospice Sales Pro subscription.
             </p>
           ) : nextHint ? (
-            <p className="text-sm text-muted-foreground">
-              <span className="font-semibold text-foreground">Next: </span>
+            <p className="text-sm text-muted-foreground" data-testid="chrome-next-action">
+              <span className="font-semibold text-foreground">Next action: </span>
               {nextHint}
+              <span className="text-muted-foreground/80"> · same seat as iPhone</span>
             </p>
           ) : (
             <p className="text-sm text-muted-foreground max-w-2xl leading-relaxed">
-              {FIELD_KIT_WHAT}
+              One next action · Command Center spine · same seat as the iPhone app.
             </p>
           )}
         </div>
