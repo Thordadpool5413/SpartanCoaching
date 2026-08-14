@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
-  ActivityIndicator,
   AppState,
   AppStateStatus,
   Image,
@@ -28,7 +27,6 @@ import {
   formatTrialRemaining,
   isChecklistDone,
   visibleChecklist,
-  type ChecklistId,
 } from "@/lib/onboarding";
 import { SectionKicker } from "@/components/ui/SectionKicker";
 import { SpartanCard } from "@/components/ui/SpartanCard";
