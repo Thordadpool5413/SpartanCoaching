@@ -33,6 +33,7 @@ describe("Expo production configuration", () => {
     expect(config.expo.extra.eas.projectId).toBe(
       "bafdaa6f-80f5-4fb0-baef-324fa376c44c",
     );
+    // When not skipped, Universal Links entitlement is present (with-applinks builds).
     expect(config.expo.ios.associatedDomains).toEqual([
       "applinks:spartanhospicecoaching.com",
     ]);

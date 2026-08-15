@@ -23,12 +23,20 @@
       "environment": "production",
       "env": {
         "EXPO_PUBLIC_API_URL": "https://spartanhospicecoaching.com",
-        "EXPO_PUBLIC_DOMAIN": "spartanhospicecoaching.com"
+        "EXPO_PUBLIC_DOMAIN": "spartanhospicecoaching.com",
+        "EAS_SKIP_ASSOCIATED_DOMAINS": "1"
       },
       "ios": {
         "buildConfiguration": "Release",
-        "credentialsSource": "remote",
-        "image": "latest"
+        "credentialsSource": "remote"
+      }
+    },
+    "testflight-applinks": {
+      "extends": "testflight",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://spartanhospicecoaching.com",
+        "EXPO_PUBLIC_DOMAIN": "spartanhospicecoaching.com",
+        "EAS_SKIP_ASSOCIATED_DOMAINS": "0"
       }
     },
     "production": {
@@ -36,12 +44,12 @@
       "environment": "production",
       "env": {
         "EXPO_PUBLIC_API_URL": "https://spartanhospicecoaching.com",
-        "EXPO_PUBLIC_DOMAIN": "spartanhospicecoaching.com"
+        "EXPO_PUBLIC_DOMAIN": "spartanhospicecoaching.com",
+        "EAS_SKIP_ASSOCIATED_DOMAINS": "1"
       },
       "ios": {
         "buildConfiguration": "Release",
-        "credentialsSource": "remote",
-        "image": "latest"
+        "credentialsSource": "remote"
       }
     }
   },
