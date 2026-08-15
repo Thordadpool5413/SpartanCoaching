@@ -6,7 +6,9 @@ Expert hospice growth consulting site + Hospice Sales Pro (web + iOS tools produ
 
 - `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
 - `pnpm --filter @workspace/spartan-coaching run dev` — web app
-- `pnpm --filter @workspace/spartan-coaching-mobile run dev` — Expo mobile
+- `pnpm --filter @workspace/spartan-coaching-mobile run dev` — Expo Metro (**tunnel on Replit**; phone uses Expo Go QR / exp:// URL)
+- `pnpm --filter @workspace/spartan-coaching-mobile run build:ios:testflight` — **TestFlight** via EAS (no Metro; no same-Wi‑Fi needed)
+- Dev error “could not connect to development server” on Replit usually means LAN mode — use tunnel (`dev` auto-selects it on Replit) or skip Metro and use TestFlight EAS builds
 - `pnpm run typecheck` — full typecheck across all packages
 - `pnpm run build` — typecheck + build all packages
 - `pnpm --filter @workspace/db run push` — push DB schema changes (dev only) — **required after membership auth tables**
