@@ -1,4 +1,5 @@
 const productionOrigin = "https://spartanhospicecoaching.com";
+const productionHost = productionOrigin.replace(/^https?:\/\//, "");
 
 function getRouterOrigin() {
   const configuredOrigin =
@@ -11,6 +12,27 @@ function getRouterOrigin() {
     ? normalized
     : `https://${normalized}`;
 }
+
+/**
+ * Universal Links (applinks:) require:
+ * 1. Associated Domains enabled on App ID com.spartancoaching.fieldkit
+ * 2. A provisioning profile that includes com.apple.developer.associated-domains
+ *
+ * If a stale profile blocks EAS (error: "doesn't support the Associated Domains
+ * capability"), rebuild with:
+ *   pnpm run build:ios:testflight:refresh
+ * or emergency ship without Universal Links:
+ *   EAS_SKIP_ASSOCIATED_DOMAINS=1 pnpm run build:ios:testflight:no-applinks
+ */
+function getAssociatedDomains() {
+  const skip =
+    process.env.EAS_SKIP_ASSOCIATED_DOMAINS === "1" ||
+    process.env.EAS_SKIP_ASSOCIATED_DOMAINS === "true";
+  if (skip) return undefined;
+  return [`applinks:${productionHost}`];
+}
+
+const associatedDomains = getAssociatedDomains();
 
 module.exports = {
   expo: {
@@ -30,10 +52,17 @@ module.exports = {
     ios: {
       bundleIdentifier: "com.spartancoaching.fieldkit",
       supportsTablet: false,
-      // Universal Links host — requires apple-app-site-association on the web origin (EAS/App Store Connect).
-      associatedDomains: [
-        `applinks:${productionOrigin.replace(/^https?:\/\//, "")}`,
-      ],
+      // Universal Links host — requires apple-app-site-association on the web origin.
+      // Omit entirely when EAS_SKIP_ASSOCIATED_DOMAINS=1 (stale profile emergency).
+      ...(associatedDomains ? { associatedDomains } : {}),
+      // Explicit entitlement so EAS capability sync matches the profile request.
+      ...(associatedDomains
+        ? {
+            entitlements: {
+              "com.apple.developer.associated-domains": associatedDomains,
+            },
+          }
+        : {}),
       /**
        * PrivacyInfo.xcprivacy (Apple required-reason APIs + data collection declarations).
        * @see https://developer.apple.com/documentation/bundleresources/privacy_manifest_files

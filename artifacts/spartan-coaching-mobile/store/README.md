@@ -119,6 +119,37 @@ After credentials are set up (step 2 above), run this from the **Replit shell**:
 pnpm --filter @workspace/spartan-coaching-mobile run build:ios:testflight
 ```
 
+That command **always clears and regenerates the App Store provisioning profile** so entitlements from `app.config.js` (Associated Domains / Universal Links) match the profile. A stale profile from before Universal Links were added causes:
+
+```text
+Provisioning profile doesn't support the Associated Domains capability
+Provisioning profile doesn't include the com.apple.developer.associated-domains entitlement
+```
+
+### If the build still fails on Associated Domains
+
+**A. Preferred — enable capability on the App ID (once), then rebuild**
+
+1. [Apple Developer → Identifiers](https://developer.apple.com/account/resources/identifiers/list) → `com.spartancoaching.fieldkit`
+2. Enable **Associated Domains** → Save
+3. On Replit (or Mac with `EXPO_TOKEN`):
+
+```bash
+pnpm --filter @workspace/spartan-coaching-mobile run build:ios:testflight:refresh
+```
+
+EAS remote credentials recreate the profile with the new capability.
+
+**B. Emergency TestFlight (no Universal Links this build)**
+
+Ships the app without `applinks:` so a broken profile cannot block you:
+
+```bash
+pnpm --filter @workspace/spartan-coaching-mobile run build:ios:testflight:no-applinks
+```
+
+Re-run **A** later so deep links / Universal Links work again.
+
 Or from `artifacts/spartan-coaching-mobile/`:
 
 ```bash

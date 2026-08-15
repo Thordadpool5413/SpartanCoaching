@@ -26,7 +26,9 @@
         "EXPO_PUBLIC_DOMAIN": "spartanhospicecoaching.com"
       },
       "ios": {
-        "buildConfiguration": "Release"
+        "buildConfiguration": "Release",
+        "credentialsSource": "remote",
+        "image": "latest"
       }
     },
     "production": {
@@ -37,7 +39,9 @@
         "EXPO_PUBLIC_DOMAIN": "spartanhospicecoaching.com"
       },
       "ios": {
-        "buildConfiguration": "Release"
+        "buildConfiguration": "Release",
+        "credentialsSource": "remote",
+        "image": "latest"
       }
     }
   },
