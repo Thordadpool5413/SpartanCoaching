@@ -8,7 +8,12 @@
  * @see https://developer.apple.com/app-store/review/guidelines/
  */
 
-import { API_CONTRACT_VERSION, MIN_IOS_APP_VERSION } from "@workspace/field-kit-catalog";
+import {
+  API_CONTRACT_VERSION,
+  ELITE_WEEKLY_PLAN,
+  MIN_IOS_APP_VERSION,
+  STANDARD_WEEKLY_PLAN,
+} from "@workspace/field-kit-catalog";
 
 export const APP_STORE_SUPPORT_URL = "https://spartanhospicecoaching.com/contact";
 export const APP_STORE_PRIVACY_URL = "https://spartanhospicecoaching.com/privacy";
@@ -69,18 +74,16 @@ export const APP_STORE_READINESS_ITEMS: ReadinessItem[] = [
     id: "subscription_model",
     area: "Subscriptions / external purchase",
     status: "risk",
-    evidence:
-      "Digital membership billed via Stripe Checkout / Customer Portal in system browser (not StoreKit IAP). Access restored by signing in after web purchase (server entitlement).",
+    evidence: `Canonical products are defined for Standard ${STANDARD_WEEKLY_PLAN.displayPrice} (${STANDARD_WEEKLY_PLAN.appleProductId}) and Elite ${ELITE_WEEKLY_PLAN.displayPrice} (${ELITE_WEEKLY_PLAN.appleProductId}), but native StoreKit purchase and server transaction verification are not implemented.`,
     action:
-      "Verify Guideline 3.1.1 / multiplatform rules for every storefront you ship. US storefront rules changed May 2025 for external links — confirm current App Review Guidelines before submit. Other regions may still require IAP for digital goods.",
+      "Create both products in App Store Connect, connect StoreKit 2, verify signed transactions on the server, and remove Stripe purchase links from the iOS purchase flow before public review.",
   },
   {
     id: "restore_access",
     area: "Restore purchases / access",
     status: "partial",
-    evidence:
-      "No StoreKit restore (no IAP). Restore = sign in; server fieldKit.allowed reflects Stripe/contract state. Manage billing opens Stripe portal.",
-    action: "Document in Review Notes: subscriptions are multiplatform Stripe; restore by login.",
+    evidence: "The product/provider contract exists, but there is no visible StoreKit restore action or server reconciliation.",
+    action: "Add a visible Restore Purchases action and reconcile verified Apple transactions with server entitlements.",
   },
   {
     id: "sign_in_with_apple",
@@ -142,8 +145,8 @@ export const APP_REVIEW_NOTES = [
   "Hospice Sales Pro is a multiplatform membership (web + iOS) for hospice field sales coaching tools.",
   "Account creation: email/password on web or in-app login after web register; magic link supported.",
   "Account deletion: Account tab → Delete account (requires confirm DELETE). Completes within the app.",
-  "Subscriptions: billed via Stripe on the web ($14.99/week individual). iOS opens Safari Checkout / Customer Portal. Cancel anytime in Manage billing.",
-  "Restore access: sign in with the same email after purchasing or managing subscription on web; entitlement is server-side.",
+  `Planned Apple subscriptions: Standard ${STANDARD_WEEKLY_PLAN.displayPrice} and Clinical Vault Elite ${ELITE_WEEKLY_PLAN.displayPrice}. Public App Store submission remains blocked until StoreKit purchase, server verification, and Restore Purchases are complete.`,
+  "TestFlight reviewers use an existing entitled account. No purchase claim is made in this build.",
   "Demo: use provided reviewer credentials if attached; otherwise create an account and use Subscribe, or request evaluation access via Contact.",
   "No patient PHI in consumer tools; clinical vault is separate and role-gated.",
   `Support: ${APP_STORE_SUPPORT_URL} · Privacy: ${APP_STORE_PRIVACY_URL}`,

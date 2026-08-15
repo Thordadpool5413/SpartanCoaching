@@ -3,6 +3,8 @@
  * mobile: "native" | "webview" | "missing" tracks parity debt.
  */
 
+export * from "./membership-plans";
+
 export type FieldKitCategory = "Prepare" | "Practice" | "Plan" | "Measure" | "Outreach" | "Learn";
 
 export type ChecklistId =

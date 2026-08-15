@@ -12,6 +12,10 @@ export type DeepTarget = {
 };
 
 const SCHEME = "spartan-coaching-mobile";
+export const UNIVERSAL_LINK_HOSTS = new Set([
+  "spartanhospicecoaching.com",
+  "www.spartanhospicecoaching.com",
+]);
 
 /** Reminder storageKey → tool tab */
 export const REMINDER_KEY_TO_TAB: Record<string, ToolTab> = {
@@ -32,8 +36,11 @@ export function parseDeepLink(url: string | null | undefined): DeepTarget | null
     const u = new URL(normalized);
     const host = (u.hostname || "").toLowerCase();
     const parts = u.pathname.replace(/^\//, "").split("/").filter(Boolean);
-    const first = (host && host !== "app" ? host : parts[0] || "").toLowerCase();
-    const second = host && host !== "app" ? parts[0] : parts[1];
+    const isUniversalLink = UNIVERSAL_LINK_HOSTS.has(host);
+    if (u.protocol === "https:" && host !== "app" && !isUniversalLink) return null;
+    const hostIsRoute = host && host !== "app" && !isUniversalLink;
+    const first = (hostIsRoute ? host : parts[0] || "").toLowerCase();
+    const second = hostIsRoute ? parts[0] : parts[1];
 
     if (first === "tool" || first === "tools") {
       const tab = (second || u.searchParams.get("tab") || "").toLowerCase();
@@ -50,6 +57,7 @@ export function parseDeepLink(url: string | null | undefined): DeepTarget | null
     }
     if (first === "learn") return { pathname: "/(tabs)/learn" };
     if (first === "account") return { pathname: "/(tabs)/account" };
+    if (first === "coach") return { pathname: "/(tabs)/coach" };
     if (first === "home" || first === "portal") return { pathname: "/(tabs)" };
     if (first === "login") return { pathname: "/login" };
     if (isToolTab(first)) {
@@ -92,6 +100,8 @@ export function mapSecureDeepLinkKey(key: string): DeepTarget | null {
   switch (key) {
     case "command":
       return { pathname: "/(tabs)/command" };
+    case "coach":
+      return { pathname: "/(tabs)/coach" };
     case "weekly_plan":
       return { pathname: "/tool/[tab]", params: { tab: "weekly" } };
     case "portal":

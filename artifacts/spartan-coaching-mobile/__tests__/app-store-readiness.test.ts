@@ -17,10 +17,10 @@ describe("App Store readiness contract (HSP-46)", () => {
     expect(ids).toContain("backend_compat");
   });
 
-  it("flags external purchase as risk for operator review", () => {
+  it("flags incomplete StoreKit purchase as a release risk", () => {
     const sub = APP_STORE_READINESS_ITEMS.find((i) => i.id === "subscription_model");
     expect(sub?.status).toBe("risk");
-    expect(sub?.action).toMatch(/3\.1\.1|IAP|storefront/i);
+    expect(sub?.action).toMatch(/StoreKit 2|App Store Connect|server/i);
   });
 
   it("uses production support and privacy URLs", () => {
@@ -29,10 +29,10 @@ describe("App Store readiness contract (HSP-46)", () => {
     expect(IOS_BUNDLE_ID).toBe("com.spartancoaching.fieldkit");
   });
 
-  it("review notes mention deletion and Stripe restore path", () => {
+  it("review notes mention deletion and the gated Apple plans", () => {
     expect(APP_REVIEW_NOTES).toMatch(/Delete account/i);
-    expect(APP_REVIEW_NOTES).toMatch(/Stripe/i);
-    expect(APP_REVIEW_NOTES).toMatch(/sign in/i);
+    expect(APP_REVIEW_NOTES).toMatch(/Standard/i);
+    expect(APP_REVIEW_NOTES).toMatch(/Elite/i);
   });
 
   it("readinessSummary counts statuses", () => {

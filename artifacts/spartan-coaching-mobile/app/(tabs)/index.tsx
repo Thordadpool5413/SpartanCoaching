@@ -9,7 +9,6 @@ import {
   ScrollView,
   StyleSheet,
   Text,
-  TextInput,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -20,7 +19,7 @@ import { router, useFocusEffect } from "expo-router";
 import * as Notifications from "expo-notifications";
 import { useColors } from "@/hooks/useColors";
 import { useReminderHistory } from "@/hooks/useReminderHistory";
-import { ApiError, apiGet, apiPost, fetchOnboardingMobile, updateOnboardingMobile } from "@/lib/api";
+import { apiGet, fetchOnboardingMobile, updateOnboardingMobile } from "@/lib/api";
 import { cancelReminder, removeReminderFromHistory } from "@/lib/notifications";
 import { useAuth } from "@/lib/AuthContext";
 import {
@@ -73,17 +72,12 @@ export default function HomeScreen() {
     totalRequired: number;
   } | null>(null);
   const mission = useMission();
-  const [query, setQuery] = useState("");
-  const [response, setResponse] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const { reminders, load: reloadReminders, removeReminder } = useReminderHistory();
 
   const [jobRole, setJobRole] = useState<string>("");
   const [checklist, setChecklist] = useState<Record<string, boolean | string>>({});
   const [onboardingLoaded, setOnboardingLoaded] = useState(false);
   /** Secondary chrome collapsed so one primary path wins (craft P1) */
-  const [coachOpen, setCoachOpen] = useState(false);
   const [checklistOpen, setChecklistOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
 
@@ -169,42 +163,27 @@ export default function HomeScreen() {
     };
   }, [reloadReminders]);
 
-  const handleAsk = async (prompt: string) => {
-    if (!prompt.trim()) return;
-    if (!canUseFieldKit) {
-      setError("Hospice Sales Pro access required. Sign in from the Account tab.");
+  useEffect(() => {
+    if (!isAuthenticated || !canUseFieldKit) {
+      setPersonalization(null);
       return;
     }
-    setLoading(true);
-    setResponse("");
-    setError(null);
-    try {
-      const data = await apiPost<{ response: string }>("/api/chat", {
-        prompt,
-        conversationHistory: [],
-      });
-      setResponse(data.response);
-      if (Platform.OS !== "web") {
-        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      }
-    } catch (e: unknown) {
-      // ApiError exposes HTTP status on `.status` (message is the server text, not "401: …").
-      const status = e instanceof ApiError ? e.status : undefined;
-      if (status === 401 || status === 403) {
-        setError("Hospice Sales Pro access required. Sign in with an approved client account.");
-      } else {
-        setError("Something went wrong. Please try again.");
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const reset = () => {
-    setQuery("");
-    setResponse("");
-    setError(null);
-  };
+    let cancelled = false;
+    void apiGet<{
+      continueItems: Array<{ id: string; title: string; href: string; why: string }>;
+      recommendedToday: Array<{ id: string; title: string; href: string; why: string }>;
+      emptyHistory: boolean;
+    }>("/api/v1/personalization")
+      .then((data) => {
+        if (!cancelled) setPersonalization({
+          continueItems: data.continueItems || [],
+          recommendedToday: data.recommendedToday || [],
+          emptyHistory: !!data.emptyHistory,
+        });
+      })
+      .catch(() => { if (!cancelled) setPersonalization(null); });
+    return () => { cancelled = true; };
+  }, [isAuthenticated, canUseFieldKit]);
 
   const handleCancelReminder = async (id: string) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -316,34 +295,6 @@ export default function HomeScreen() {
   }
 
   // ── Shell B: Authenticated but locked ─────────────────────────────
-  useEffect(() => {
-    if (!isAuthenticated || !canUseFieldKit) {
-      setPersonalization(null);
-      return;
-    }
-    let cancelled = false;
-    void apiGet<{
-      continueItems: Array<{ id: string; title: string; href: string; why: string }>;
-      recommendedToday: Array<{ id: string; title: string; href: string; why: string }>;
-      emptyHistory: boolean;
-    }>("/api/v1/personalization")
-      .then((data) => {
-        if (!cancelled) {
-          setPersonalization({
-            continueItems: data.continueItems || [],
-            recommendedToday: data.recommendedToday || [],
-            emptyHistory: !!data.emptyHistory,
-          });
-        }
-      })
-      .catch(() => {
-        if (!cancelled) setPersonalization(null);
-      });
-    return () => {
-      cancelled = true;
-    };
-  }, [isAuthenticated, canUseFieldKit]);
-
   if (!canUseFieldKit) {
     return (
       <ScrollView
@@ -721,7 +672,7 @@ export default function HomeScreen() {
         </View>
       ) : null}
 
-      {/* Secondary: personalization + coach behind "More" */}
+      {/* Secondary personalization and dedicated Coach entry */}
       <View style={[styles.section, { paddingTop: 8 }]}>
         <Pressable
           onPress={() => setMoreOpen((v) => !v)}
@@ -730,7 +681,7 @@ export default function HomeScreen() {
           testID="section-more-toggle"
         >
           <Text style={[{ color: colors.mutedForeground, fontSize: 13 }, font("semibold")]}>
-            More · coach & continue
+            More · continue
           </Text>
           <Feather name={moreOpen ? "chevron-up" : "chevron-down"} size={18} color={colors.mutedForeground} />
         </Pressable>
@@ -765,55 +716,12 @@ export default function HomeScreen() {
                 </Text>
               </Pressable>
             ))}
-            <Pressable
-              onPress={() => setCoachOpen((v) => !v)}
+            <SpartanButton
+              title="Open Spartan Coach"
+              variant="outline"
+              onPress={() => router.push("/(tabs)/coach")}
               style={{ marginTop: 12 }}
-            >
-              <Text style={[{ color: colors.primary, fontSize: 13 }, font("semibold")]}>
-                {coachOpen ? "Hide field coach" : "Ask field coach"}
-              </Text>
-            </Pressable>
-            {coachOpen ? (
-              <View style={{ marginTop: 8 }}>
-                <Text style={[{ color: colors.mutedForeground, fontSize: 12, marginBottom: 8 }, font("regular")]}>
-                  Secondary helper — not your next visit action.
-                </Text>
-                <TextInput
-                  value={query}
-                  onChangeText={setQuery}
-                  placeholder="Ask a field question (no PHI)…"
-                  placeholderTextColor={colors.mutedForeground}
-                  style={{
-                    borderWidth: 1,
-                    borderColor: colors.border,
-                    borderRadius: 12,
-                    padding: 12,
-                    color: colors.foreground,
-                    backgroundColor: colors.card,
-                    minHeight: 44,
-                  }}
-                />
-                <SpartanButton
-                  title={loading ? "Thinking…" : "Ask"}
-                  onPress={() => handleAsk(query)}
-                  loading={loading}
-                  style={{ marginTop: 10 }}
-                />
-                {error ? (
-                  <Text style={{ color: colors.primary, marginTop: 8 }}>{error}</Text>
-                ) : null}
-                {response ? (
-                  <Text
-                    style={[
-                      { color: colors.foreground, marginTop: 10, lineHeight: 20, fontSize: 14 },
-                      font("regular"),
-                    ]}
-                  >
-                    {response}
-                  </Text>
-                ) : null}
-              </View>
-            ) : null}
+            />
           </View>
         ) : null}
       </View>

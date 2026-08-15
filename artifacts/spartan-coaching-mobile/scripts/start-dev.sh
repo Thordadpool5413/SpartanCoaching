@@ -37,11 +37,6 @@ if [[ -n "${REPL_ID:-}" ]]; then
   export EXPO_PUBLIC_REPL_ID="${EXPO_PUBLIC_REPL_ID:-$REPL_ID}"
 fi
 
-# Packager hostname: only needed for LAN; tunnel handles routing itself.
-if [[ -n "${REPLIT_DEV_DOMAIN:-}" ]]; then
-  export REACT_NATIVE_PACKAGER_HOSTNAME="${REACT_NATIVE_PACKAGER_HOSTNAME:-$REPLIT_DEV_DOMAIN}"
-fi
-
 PORT="${PORT:-8081}"
 
 # Connection mode: Replit cannot use LAN to a phone. Force tunnel there.
@@ -52,6 +47,13 @@ if [[ -z "$CONNECTION_MODE" ]]; then
   else
     CONNECTION_MODE="lan"
   fi
+fi
+
+# Expo tunnel owns its public URL. A Replit hostname here can corrupt Metro URLs.
+if [[ "$CONNECTION_MODE" == "lan" && -n "${REPLIT_DEV_DOMAIN:-}" ]]; then
+  export REACT_NATIVE_PACKAGER_HOSTNAME="${REACT_NATIVE_PACKAGER_HOSTNAME:-$REPLIT_DEV_DOMAIN}"
+else
+  unset REACT_NATIVE_PACKAGER_HOSTNAME
 fi
 
 echo "[mobile-dev] project=$ROOT"

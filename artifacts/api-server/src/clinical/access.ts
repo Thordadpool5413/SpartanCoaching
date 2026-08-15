@@ -1,6 +1,11 @@
 import type { NextFunction, Response } from "express";
 import { and, eq } from "drizzle-orm";
 import { clinicalPermissions, clientSessions } from "@workspace/db";
+import {
+  canUseDeidentifiedClinical,
+  canUsePhiClinical,
+  resolveMembershipTier,
+} from "@workspace/field-kit-catalog";
 import { db } from "../db";
 import type { AuthedRequest } from "../auth/middleware";
 import {
@@ -46,14 +51,6 @@ export async function resolveClinicalAccess(
   const member = request.fieldKit?.member;
   if (!member || !request.clientMemberId) return null;
 
-  if (!isPhiClinicalMode()) {
-    return {
-      canUse: true,
-      canReview: false,
-      canAdmin: isOrgClinicalAdmin(member.role),
-    };
-  }
-
   const [permission] = await db
     .select()
     .from(clinicalPermissions)
@@ -65,15 +62,35 @@ export async function resolveClinicalAccess(
     )
     .limit(1);
 
-  if (permission) {
-    if (permission.revokedAt) return null;
-    if (!permission.canUse && !permission.canReview && !permission.canAdmin) {
-      return null;
-    }
+  const activePermission =
+    permission &&
+    !permission.revokedAt &&
+    (permission.canUse || permission.canReview || permission.canAdmin)
+      ? permission
+      : null;
+  const tier = resolveMembershipTier({
+    billingPlan: request.fieldKit?.org?.billingPlan,
+    organizationType: request.fieldKit?.org?.type,
+    memberRole: member.role,
+  });
+  const explicitUse = Boolean(activePermission?.canUse);
+  const admin = isOrgClinicalAdmin(member.role);
+
+  if (!isPhiClinicalMode()) {
+    const canUse = canUseDeidentifiedClinical(tier, explicitUse, member.role);
+    if (!canUse) return null;
     return {
-      canUse: permission.canUse,
-      canReview: permission.canReview,
-      canAdmin: permission.canAdmin,
+      canUse,
+      canReview: Boolean(activePermission?.canReview),
+      canAdmin: member.role === "platform_admin" || Boolean(activePermission?.canAdmin),
+    };
+  }
+
+  if (activePermission && canUsePhiClinical(tier, explicitUse, member.role)) {
+    return {
+      canUse: activePermission.canUse,
+      canReview: activePermission.canReview,
+      canAdmin: activePermission.canAdmin || member.role === "platform_admin",
     };
   }
 
@@ -85,7 +102,7 @@ export async function resolveClinicalAccess(
   const readiness = clinicalRuntimeReadiness();
   if (!readiness.ready) return null;
 
-  const admin = isOrgClinicalAdmin(member.role);
+  if (request.fieldKit?.org?.type !== "company") return null;
   return {
     canUse: true,
     canReview: admin,

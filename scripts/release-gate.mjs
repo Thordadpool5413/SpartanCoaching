@@ -103,6 +103,8 @@ const AUTOMATED_SUITES = [
       "src/delivery/featureFlags.test.ts",
       "src/observability/reliabilityTargets.test.ts",
       "src/ai/uncertaintyBoundaries.test.ts",
+      "src/routes/coachPrivacyContract.test.ts",
+      "src/routes/associatedDomainsContract.test.ts",
     ],
   },
   {
@@ -140,6 +142,9 @@ const AUTOMATED_SUITES = [
       "__tests__/command-center-accounts.test.ts",
       "__tests__/command-center-roleplay.test.ts",
       "__tests__/command-center-integrations.test.ts",
+      "__tests__/app-config.test.ts",
+      "__tests__/apple-subscriptions.test.ts",
+      "__tests__/deep-links.test.ts",
     ],
   },
 ];

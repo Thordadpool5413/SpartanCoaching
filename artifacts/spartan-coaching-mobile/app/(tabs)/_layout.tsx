@@ -24,10 +24,11 @@ function NativeTabLayout() {
         <Icon sf={{ default: "target", selected: "target" }} />
         <Label>Command</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="tools">
-        <Icon sf={{ default: "wand.and.stars", selected: "wand.and.stars" }} />
-        <Label>Tools</Label>
+      <NativeTabs.Trigger name="coach">
+        <Icon sf={{ default: "sparkles", selected: "sparkles" }} />
+        <Label>Coach</Label>
       </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="tools" hidden><Label>Tools</Label></NativeTabs.Trigger>
       <NativeTabs.Trigger name="learn">
         <Icon sf={{ default: "book", selected: "book.fill" }} />
         <Label>Learn</Label>
@@ -132,17 +133,18 @@ function ClassicTabLayout() {
         }}
       />
       <Tabs.Screen
-        name="tools"
+        name="coach"
         options={{
-          title: "Tools",
+          title: "Coach",
           tabBarIcon: ({ color }) =>
             isIOS ? (
-              <SymbolView name="wand.and.stars" tintColor={color} size={24} />
+              <SymbolView name="sparkles" tintColor={color} size={24} />
             ) : (
-              <Feather name="zap" size={22} color={color} />
+              <Feather name="compass" size={22} color={color} />
             ),
         }}
       />
+      <Tabs.Screen name="tools" options={{ href: null, title: "Tools" }} />
       <Tabs.Screen
         name="learn"
         options={{

@@ -1,0 +1,20 @@
+{
+  "applinks": {
+    "details": [
+      {
+        "appIDs": ["65C25YHCX9.com.spartancoaching.fieldkit"],
+        "components": [
+          { "/": "/login*" },
+          { "/": "/portal*" },
+          { "/": "/account*" },
+          { "/": "/command*" },
+          { "/": "/workflow*" },
+          { "/": "/coach*" },
+          { "/": "/tools*" },
+          { "/": "/tool/*" },
+          { "/": "/learn*" }
+        ]
+      }
+    ]
+  }
+}

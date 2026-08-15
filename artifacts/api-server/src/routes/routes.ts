@@ -100,6 +100,26 @@ export async function deferredInit(app: Express): Promise<void> {
 }
 
 export function registerRoutes(app: Express): void {
+  const appleAppSiteAssociation = {
+    applinks: {
+      details: [{
+        appIDs: ["65C25YHCX9.com.spartancoaching.fieldkit"],
+        components: [
+          { "/": "/login*" }, { "/": "/portal*" }, { "/": "/account*" },
+          { "/": "/command*" }, { "/": "/workflow*" }, { "/": "/coach*" },
+          { "/": "/tools*" }, { "/": "/tool/*" }, { "/": "/learn*" },
+        ],
+      }],
+    },
+  };
+  for (const route of ["/.well-known/apple-app-site-association", "/apple-app-site-association"]) {
+    app.get(route, (_request, response) => {
+      response.setHeader("Content-Type", "application/json");
+      response.setHeader("Cache-Control", "public, max-age=3600");
+      response.status(200).json(appleAppSiteAssociation);
+    });
+  }
+
   // Serve training resources files (PDFs, etc.)
   // Prefer /resources/files/* so it never collides with the SPA /resources page.
   // Check multiple install layouts (dev, dist, monorepo web public).
