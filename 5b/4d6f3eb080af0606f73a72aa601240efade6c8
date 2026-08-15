@@ -1,0 +1,22 @@
+artifacts/spartan-coaching-mobile/__tests__/app-config.test.ts
+  h_0446834f150a71 36
+artifacts/spartan-coaching-mobile/app.config.js
+  h_0446834f150a71 21-25
+artifacts/spartan-coaching-mobile/eas.json
+  h_0446834f150a71 26-27,31-39,47-48,52
+artifacts/spartan-coaching-mobile/package.json
+  h_0446834f150a71 17-21
+artifacts/spartan-coaching-mobile/store/README.md
+  h_0446834f150a71 122-124,131,133-135,138
+---
+{
+  "schema_version": "authorship/3.0.0",
+  "git_ai_version": "1.6.22",
+  "base_commit_sha": "5b4d6f3eb080af0606f73a72aa601240efade6c8",
+  "prompts": {},
+  "humans": {
+    "h_0446834f150a71": {
+      "author": "Thordadpool5413 <nick.lynch.coaching@outlook.com>"
+    }
+  }
+}
