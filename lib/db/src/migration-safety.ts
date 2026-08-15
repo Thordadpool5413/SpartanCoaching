@@ -192,6 +192,47 @@ export const LOCK_RISK_TABLES: readonly LockRiskTable[] = [
 
 export const INTEGRITY_CHECKS: readonly IntegrityCheck[] = [
   {
+    id: "coach-conversation-owner",
+    category: "tenant_ownership",
+    description: "Coach conversations must belong to a member in the same organization",
+    requiredTables: ["coach_conversations", "client_members", "client_organizations"],
+    sql: `
+SELECT c.id
+FROM coach_conversations c
+LEFT JOIN client_members m ON m.id = c.member_id AND m.organization_id = c.organization_id
+LEFT JOIN client_organizations o ON o.id = c.organization_id
+WHERE m.id IS NULL OR o.id IS NULL
+LIMIT 100
+`.trim(),
+  },
+  {
+    id: "coach-message-owner",
+    category: "tenant_ownership",
+    description: "Coach messages must match their conversation owner",
+    requiredTables: ["coach_messages", "coach_conversations"],
+    sql: `
+SELECT m.id
+FROM coach_messages m
+LEFT JOIN coach_conversations c ON c.id = m.conversation_id
+WHERE c.id IS NULL OR c.organization_id <> m.organization_id OR c.member_id <> m.member_id
+LIMIT 100
+`.trim(),
+  },
+  {
+    id: "coach-shared-summary-tenant",
+    category: "tenant_ownership",
+    description: "Shared Coach summaries must remain within one organization",
+    requiredTables: ["coach_shared_summaries", "client_members"],
+    sql: `
+SELECT s.id
+FROM coach_shared_summaries s
+LEFT JOIN client_members owner ON owner.id = s.owner_member_id AND owner.organization_id = s.organization_id
+LEFT JOIN client_members recipient ON recipient.id = s.shared_with_member_id AND recipient.organization_id = s.organization_id
+WHERE owner.id IS NULL OR recipient.id IS NULL
+LIMIT 100
+`.trim(),
+  },
+  {
     id: "members-org-ownership",
     category: "tenant_ownership",
     description: "client_members.organization_id must reference an existing client_organizations row",
@@ -609,6 +650,30 @@ export const MIGRATION_CATALOG: readonly MigrationPlan[] = [
     risk: "additive",
     clientCompatibility: "none_additive",
     tables: ["client_organizations"],
+    dropsLegacyObjects: false,
+  },
+  {
+    id: "0016_spartan_coach",
+    title: "Private Spartan Coach conversations, preferences, memory, and explicit shares",
+    forwardPath: "lib/db/migrations/0016_spartan_coach.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT to_regclass('public.coach_conversations') IS NOT NULL AS ok`,
+      `SELECT to_regclass('public.coach_messages') IS NOT NULL AS ok`,
+      `SELECT count(*) = 0 AS ok FROM coach_messages m LEFT JOIN coach_conversations c ON c.id = m.conversation_id WHERE c.id IS NULL`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: restore the pre-apply logical dump. The tables are additive and should remain unused rather than dropped while clients may reference them.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: [
+      "coach_conversations",
+      "coach_messages",
+      "coach_preferences",
+      "coach_memory_items",
+      "coach_shared_summaries",
+    ],
     dropsLegacyObjects: false,
   },
   {
