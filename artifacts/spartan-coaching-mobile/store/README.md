@@ -119,36 +119,24 @@ After credentials are set up (step 2 above), run this from the **Replit shell**:
 pnpm --filter @workspace/spartan-coaching-mobile run build:ios:testflight
 ```
 
-That command **always clears and regenerates the App Store provisioning profile** so entitlements from `app.config.js` (Associated Domains / Universal Links) match the profile. A stale profile from before Universal Links were added causes:
+**Default TestFlight omits Universal Links** (`EAS_SKIP_ASSOCIATED_DOMAINS=1`) so a stale App Store profile without Associated Domains cannot fail the Xcode step. The app still works for login, tools, and Command; only `applinks:` deep links are off.
+
+A profile that lacks Associated Domains fails with:
 
 ```text
 Provisioning profile doesn't support the Associated Domains capability
 Provisioning profile doesn't include the com.apple.developer.associated-domains entitlement
 ```
 
-### If the build still fails on Associated Domains
+`eas-cli@21.x` has **no** `--clear-provisioning-profile` flag. To add Universal Links later:
 
-**A. Preferred — enable capability on the App ID (once), then rebuild**
-
-1. [Apple Developer → Identifiers](https://developer.apple.com/account/resources/identifiers/list) → `com.spartancoaching.fieldkit`
-2. Enable **Associated Domains** → Save
-3. On Replit (or Mac with `EXPO_TOKEN`):
+1. [Apple Developer → Identifiers](https://developer.apple.com/account/resources/identifiers/list) → `com.spartancoaching.fieldkit` → enable **Associated Domains** → Save  
+2. From a Mac (interactive): `pnpm dlx eas-cli@21.0.2 credentials -p ios` → delete/regenerate the **App Store** provisioning profile  
+3. Then:
 
 ```bash
-pnpm --filter @workspace/spartan-coaching-mobile run build:ios:testflight:refresh
+pnpm --filter @workspace/spartan-coaching-mobile run build:ios:testflight:with-applinks
 ```
-
-EAS remote credentials recreate the profile with the new capability.
-
-**B. Emergency TestFlight (no Universal Links this build)**
-
-Ships the app without `applinks:` so a broken profile cannot block you:
-
-```bash
-pnpm --filter @workspace/spartan-coaching-mobile run build:ios:testflight:no-applinks
-```
-
-Re-run **A** later so deep links / Universal Links work again.
 
 Or from `artifacts/spartan-coaching-mobile/`:
 
