@@ -29,10 +29,14 @@ describe("craft Phase 5 operator pack", () => {
     expect(feel).toMatch(/same seat/i);
   });
 
-  it("shot list requires home mission not legacy checklist frame as primary", () => {
+  it("shot list matches the current four tab product and rejects mockups", () => {
     const shots = fs.readFileSync(path.join(storeDir, "screenshot-shot-list.md"), "utf8");
-    expect(shots).toMatch(/01-home-mission\.png/);
-    expect(shots).toMatch(/05-account-seat\.png/);
-    expect(shots).toMatch(/Retire legacy frames/i);
+    expect(shots).toMatch(/01-today-field-briefing\.png/);
+    expect(shots).toMatch(/02-private-spartan-coach\.png/);
+    expect(shots).toMatch(/03-practice-workspace\.png/);
+    expect(shots).toMatch(/04-objection-result\.png/);
+    expect(shots).toMatch(/05-library\.png/);
+    expect(shots).toMatch(/Never upload the legacy generated mockups/i);
+    expect(shots).toMatch(/Do not generate, redraw, or compose product UI screenshots/i);
   });
 });

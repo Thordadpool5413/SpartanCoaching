@@ -13,6 +13,12 @@
     },
     "preview": {
       "distribution": "internal",
+      "environment": "production",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://spartanhospicecoaching.com",
+        "EXPO_PUBLIC_DOMAIN": "spartanhospicecoaching.com",
+        "EAS_SKIP_ASSOCIATED_DOMAINS": "1"
+      },
       "ios": {
         "simulator": false
       }
@@ -51,14 +57,13 @@
         "buildConfiguration": "Release",
         "credentialsSource": "remote"
       }
-    }
-  },
-  "submit": {
-    "production": {
-      "ios": {
-        "appleId": "nick.lynch5413@gmail.com",
-        "ascAppId": "6795266551",
-        "appleTeamId": "65C25YHCX9"
+    },
+    "production-applinks": {
+      "extends": "production",
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://spartanhospicecoaching.com",
+        "EXPO_PUBLIC_DOMAIN": "spartanhospicecoaching.com",
+        "EAS_SKIP_ASSOCIATED_DOMAINS": "0"
       }
     }
   }
