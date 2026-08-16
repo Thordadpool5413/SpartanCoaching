@@ -42,42 +42,7 @@ describe("AI tool web acceptance", () => {
   const fetchMock = vi.fn(
     async (input: RequestInfo | URL, init?: RequestInit) => {
       const path = String(input);
-      if (
-        path === "/api/clinical/ephemeral-sessions" &&
-        init?.method === "POST"
-      ) {
-        return jsonResponse(
-          {
-            session: {
-              id: "10000000-0000-4000-8000-000000000001",
-              coverageSnapshotId: "20000000-0000-4000-8000-000000000001",
-              expiresAt: "2030-01-01T00:00:00.000Z",
-            },
-          },
-          201,
-        );
-      }
-      if (path.endsWith("/documents/upload-url")) {
-        return jsonResponse(
-          {
-            documentToken: "50000000-0000-4000-8000-000000000001",
-            uploadUrl: "https://upload.example.invalid/opaque",
-            requiredHeaders: { "Content-Type": "text/plain" },
-          },
-          201,
-        );
-      }
-      if (path === "https://upload.example.invalid/opaque") {
-        return jsonResponse({});
-      }
-      if (path.endsWith("/complete"))
-        return jsonResponse({ scanStatus: "safe" });
-      if (path.endsWith("/extract")) {
-        return jsonResponse({
-          text: "De-identified extracted acceptance text",
-        });
-      }
-      if (path.endsWith("/finalize") || path.endsWith("/ephemeral-runs")) {
+      if (path.endsWith("/ephemeral-runs")) {
         return jsonResponse({
           result: {
             toolId: routeState.toolId,
@@ -87,21 +52,6 @@ describe("AI tool web acceptance", () => {
             retention: "ephemeral",
             recoverable: false,
           },
-        });
-      }
-      if (path === "/api/clinical/coverage/snapshots") {
-        return jsonResponse({
-          operationMode: "phi",
-          required: true,
-          allowsDocumentUpload: true,
-          snapshots: [
-            {
-              id: "20000000-0000-4000-8000-000000000001",
-              title: "Acceptance LCD",
-              documentId: "L00001",
-              version: "1",
-            },
-          ],
         });
       }
       if (path.endsWith("/runs") && init?.method === "POST") {
@@ -159,33 +109,21 @@ describe("AI tool web acceptance", () => {
       const runButton = screen.getByRole("button", {
         name: `Run ${tool.name}`,
       });
-      await waitFor(() =>
-        expect((runButton as HTMLButtonElement).disabled).toBe(false),
-      );
-      if (tool.id === "medical-record-lcd-verifier") {
-        const upload = document.querySelector(
-          'input[type="file"]',
-        ) as HTMLInputElement;
-        const file = new File(["de-identified"], "local-only.txt", {
-          type: "text/plain",
-        });
-        fireEvent.change(upload, { target: { files: [file] } });
-        await waitFor(() =>
-          expect(fetchMock).toHaveBeenCalledWith(
-            expect.stringContaining(
-              "/documents/50000000-0000-4000-8000-000000000001/extract",
-            ),
-            expect.objectContaining({ method: "POST" }),
+      if (tool.containsPhi) {
+        fireEvent.click(
+          screen.getByLabelText(
+            "I confirm this input is deidentified and contains no patient documents.",
           ),
         );
       }
+      await waitFor(() =>
+        expect((runButton as HTMLButtonElement).disabled).toBe(false),
+      );
       fireEvent.click(runButton);
 
       await waitFor(() => {
         const expectedPath = tool.containsPhi
-          ? tool.id === "medical-record-lcd-verifier"
-            ? "/api/clinical/ephemeral-sessions/10000000-0000-4000-8000-000000000001/finalize"
-            : `/api/ai-tools/${tool.id}/ephemeral-runs`
+          ? `/api/ai-tools/${tool.id}/ephemeral-runs`
           : `/api/ai-tools/${tool.id}/runs`;
         expect(fetchMock).toHaveBeenCalledWith(
           expectedPath,

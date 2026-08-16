@@ -16,6 +16,7 @@ import {
 } from "./trialLifecycle";
 import { runClinicalRetentionSweep } from "../clinical/retention";
 import { runEphemeralClinicalSweep } from "../clinical/ephemeral";
+import { runCoachRetentionSweep } from "../routes/coachRoutes";
 
 export type OpsDigestResult = {
   sent: boolean;
@@ -100,7 +101,7 @@ export async function buildOpsSnapshot() {
     (o) =>
       o.status === "active" &&
       (o.billingStatus === "active" || o.billingStatus === "trialing") &&
-      Boolean(o.stripeSubscriptionId),
+      (Boolean(o.stripeSubscriptionId) || o.billingProvider === "apple"),
   ).length;
 
   return {
@@ -337,12 +338,14 @@ export async function runScheduledJobs(options?: {
   opsDigest: OpsDigestResult;
   cleanup: CleanupResult;
   billingFailureCleanup: BillingFailureCleanupResult;
+  coachRetention: Awaited<ReturnType<typeof runCoachRetentionSweep>>;
 }> {
   const trialSweep = await runTrialLifecycleSweep();
   const cleanup = await runSessionCleanup();
   const billingFailureCleanup = await runBillingFailureCleanup();
+  const coachRetention = await runCoachRetentionSweep();
   const opsDigest = await runOpsDigest({ force: options?.forceDigest });
-  return { trialSweep, opsDigest, cleanup, billingFailureCleanup };
+  return { trialSweep, opsDigest, cleanup, billingFailureCleanup, coachRetention };
 }
 
 /** Background interval for Replit / long-running servers. */
@@ -408,6 +411,12 @@ export function startBackgroundJobScheduler(): void {
         if (r.purged || r.failed) console.log("[jobs] clinical retention", r);
       })
       .catch((err) => console.error("[jobs] clinical retention failed", err));
+
+    void runCoachRetentionSweep()
+      .then((r) => {
+        if (r.conversationsDeleted) console.log("[jobs] Coach retention", r);
+      })
+      .catch((err) => console.error("[jobs] Coach retention failed", err));
 
     // Digest once per day around first tick after 13:00 UTC (≈ morning US)
     const hour = new Date().getUTCHours();

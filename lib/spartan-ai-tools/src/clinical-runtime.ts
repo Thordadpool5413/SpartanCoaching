@@ -21,22 +21,17 @@ export function clinicalBaasConfirmed(
 }
 
 /**
- * Resolve clinical operation mode.
- * - Explicit `deidentified` always wins (education / fail-soft).
- * - Explicit `phi` requests PHI mode.
- * - Unset / other values auto-enable PHI when all BAA confirmation gates are true.
+ * Spartan Coaching never accepts patient PHI. The legacy union remains for
+ * backward compatible types, but no environment variable can enable PHI mode.
  */
 export function resolveClinicalOperationMode(
-  environment: NodeJS.ProcessEnv = process.env,
+  _environment: NodeJS.ProcessEnv = process.env,
 ): ClinicalOperationMode {
-  const explicit = environment.CLINICAL_OPERATION_MODE?.trim().toLowerCase();
-  if (explicit === "deidentified") return "deidentified";
-  if (explicit === "phi") return "phi";
-  return clinicalBaasConfirmed(environment) ? "phi" : "deidentified";
+  return "deidentified";
 }
 
 export function isPhiClinicalOperationMode(
-  environment: NodeJS.ProcessEnv = process.env,
+  _environment: NodeJS.ProcessEnv = process.env,
 ): boolean {
-  return resolveClinicalOperationMode(environment) === "phi";
+  return false;
 }

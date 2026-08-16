@@ -8,10 +8,10 @@ export function useBillingActions() {
   const [checkoutPending, setCheckoutPending] = useState(false);
   const [portalPending, setPortalPending] = useState(false);
 
-  const startCheckout = useCallback(async () => {
+  const beginCheckout = useCallback(async (plan: "standard_weekly" | "elite_weekly") => {
     setCheckoutPending(true);
     try {
-      const { url } = await startIndividualCheckout();
+      const { url } = await startIndividualCheckout(plan);
       window.location.href = url;
     } catch (err: any) {
       toast({
@@ -22,6 +22,9 @@ export function useBillingActions() {
       setCheckoutPending(false);
     }
   }, [toast]);
+
+  const startCheckout = useCallback(() => beginCheckout("standard_weekly"), [beginCheckout]);
+  const startEliteCheckout = useCallback(() => beginCheckout("elite_weekly"), [beginCheckout]);
 
   const openPortal = useCallback(async () => {
     setPortalPending(true);
@@ -38,5 +41,5 @@ export function useBillingActions() {
     }
   }, [toast]);
 
-  return { startCheckout, openPortal, checkoutPending, portalPending };
+  return { startCheckout, startEliteCheckout, openPortal, checkoutPending, portalPending };
 }

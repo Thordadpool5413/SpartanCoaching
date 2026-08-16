@@ -19,6 +19,7 @@
     "test:notifications": "vitest run --reporter verbose src/notifications/notificationEngine.test.ts"
   },
   "dependencies": {
+    "@apple/app-store-server-library": "^3.1.0",
     "@google-cloud/storage": "^7.21.0",
     "@workspace/api-contract": "workspace:*",
     "@workspace/api-zod": "workspace:*",

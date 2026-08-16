@@ -26,4 +26,4 @@ Hospice Sales Pro is for growth professionals who want execution tools between c
 
 PRIVACY & ETHICS
 
-No PHI in consumer tools — planning and messaging only. Clinical vault tools (when authorized) are educational decision support, not diagnosis or coverage determinations. Operated by Spartan Coaching.
+No patient PHI or patient documents. Elite clinical guidance accepts deidentified information only, provides suggested education, and requires medical director, compliance, or both to approve every output. Operated by Spartan Coaching.

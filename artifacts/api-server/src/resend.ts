@@ -79,7 +79,7 @@ export async function sendClinicalMfaCode(
           <div style="padding: 32px 24px;">
             <h1 style="font-size: 22px; color: #111827;">Clinical access verification</h1>
             <p style="color: #374151;">Hello ${escapeHtml(toName)},</p>
-            <p style="color: #374151;">Enter this one-time code to open PHI-capable clinical tools:</p>
+            <p style="color: #374151;">Enter this one-time code to open Elite deidentified clinical guidance:</p>
             <p style="font-size: 34px; font-weight: 700; letter-spacing: 8px; color: #b91c1c;">${escapeHtml(code)}</p>
             <p style="color: #6b7280;">This code expires in 10 minutes. Spartan Coaching will never ask you to send this code by email or text.</p>
           </div>

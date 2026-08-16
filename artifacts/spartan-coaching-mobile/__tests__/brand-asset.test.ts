@@ -11,4 +11,11 @@ describe("protected Spartan Coaching brand asset", () => {
       "f4438421b4922868f8327298a972cf8b5e6c9235f08593df6cc5d2ee63f67793",
     );
   });
+
+  it("uses the protected lockup on the member entry experience", () => {
+    const login = fs.readFileSync(path.resolve(__dirname, "../app/login.tsx"), "utf8");
+    expect(login).toContain('require("@/assets/images/spartan-coaching-lockup.png")');
+    expect(login).toContain("Forgot password");
+    expect(login).toContain("Sign in securely");
+  });
 });

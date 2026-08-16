@@ -101,41 +101,16 @@ beforeEach(() => {
   apiGetMock.mockImplementation(async (path: string) => {
     if (path === "/api/clinical/coverage/snapshots") {
       return {
-        operationMode: "phi",
-        required: true,
-        allowsDocumentUpload: true,
-        snapshots: [
-          {
-            id: "20000000-0000-4000-8000-000000000001",
-            title: "Acceptance LCD",
-            version: "1",
-          },
-        ],
+        operationMode: "deidentified",
+        required: false,
+        allowsDocumentUpload: false,
+        snapshots: [],
       } as never;
     }
     return { runs: [] } as never;
   });
   apiPostMock.mockImplementation(async (path: string) => {
-    if (path === "/api/clinical/ephemeral-sessions") {
-      return {
-        session: {
-          id: "10000000-0000-4000-8000-000000000001",
-          coverageSnapshotId: "20000000-0000-4000-8000-000000000001",
-          expiresAt: "2030-01-01T00:00:00.000Z",
-        },
-      } as never;
-    }
-    if (path.endsWith("/documents/upload-url")) {
-      return {
-        documentToken: "50000000-0000-4000-8000-000000000001",
-        uploadUrl: "https://upload.example.invalid/opaque",
-        requiredHeaders: { "Content-Type": "text/plain" },
-      } as never;
-    }
-    if (path.endsWith("/extract")) {
-      return { text: "De-identified extracted acceptance text" } as never;
-    }
-    if (path.endsWith("/finalize") || path.endsWith("/ephemeral-runs")) {
+    if (path.endsWith("/ephemeral-runs")) {
       return {
         result: {
           output: { acceptance: "passed" },
@@ -185,35 +160,22 @@ describe("native AI tool acceptance", () => {
 
       if (tool.containsPhi) {
         await waitFor(() => {
-          // Title appends " · PHI operational" when coverage snapshots report
-          // operationMode "phi" and runtime is ready (substring / regex match).
-          expect(
-            view.getByText(/Ephemeral clinical workspace/),
-          ).toBeTruthy();
-          expect(view.getByText("Acceptance LCD · v1")).toBeTruthy();
+          expect(view.getByText("Deidentified guidance workspace")).toBeTruthy();
         });
+        fireEvent(
+          view.getByLabelText("Confirm input is deidentified"),
+          "valueChange",
+          true,
+        );
       }
 
       const runButton = view.getByLabelText(`Run ${tool.name}`);
       await waitFor(() => expect(runButton.props.disabled).not.toBe(true));
-      if (tool.id === "medical-record-lcd-verifier") {
-        fireEvent.press(view.getByText("Choose files"));
-        await waitFor(() =>
-          expect(apiPostMock).toHaveBeenCalledWith(
-            expect.stringContaining(
-              "/documents/50000000-0000-4000-8000-000000000001/extract",
-            ),
-            {},
-          ),
-        );
-      }
       fireEvent.press(runButton);
 
       await waitFor(() => {
         const expectedPath = tool.containsPhi
-          ? tool.id === "medical-record-lcd-verifier"
-            ? "/api/clinical/ephemeral-sessions/10000000-0000-4000-8000-000000000001/finalize"
-            : `/api/ai-tools/${tool.id}/ephemeral-runs`
+          ? `/api/ai-tools/${tool.id}/ephemeral-runs`
           : `/api/ai-tools/${tool.id}/runs`;
         const expectedBody = expect.objectContaining({
           input: expect.any(Object),

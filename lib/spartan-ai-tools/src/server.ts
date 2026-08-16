@@ -1,7 +1,6 @@
 import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 import type { ZodType } from "zod";
-import { isPhiClinicalOperationMode } from "./clinical-runtime";
 import { isUsableOpenAiApiKey } from "./provider-config";
 import {
   getSpartanAiTool,
@@ -60,7 +59,7 @@ export function isToolFeatureEnabled(
   if (configured === "false") return false;
 
   // Tools ship ready for entitled members. An explicit false remains the
-  // emergency kill switch. Clinical PHI mode has independent runtime,
+  // emergency kill switch. Deidentified clinical guidance has independent runtime,
   // permission, MFA, evidence, and storage gates.
   return true;
 }
@@ -105,46 +104,6 @@ function assertSafeInput(value: unknown): void {
     }
   };
   inspect(value, 0);
-}
-
-function assertClinicalLaunchGate(tool: AiToolSpec): void {
-  if (!isClinicalTool(tool)) return;
-  if (!isPhiClinicalOperationMode()) return;
-  if (process.env.HIPAA_PHI_ENABLED !== "true") {
-    throw new SpartanAiToolError(
-      "PHI_PROCESSING_DISABLED",
-      503,
-      "Clinical tools are unavailable until the HIPAA production controls are enabled.",
-    );
-  }
-  if (process.env.OPENAI_BAA_CONFIRMED !== "true") {
-    throw new SpartanAiToolError(
-      "OPENAI_BAA_REQUIRED",
-      503,
-      "Clinical AI processing requires a confirmed OpenAI Business Associate Agreement.",
-    );
-  }
-  if (process.env.OPENAI_MODIFIED_RETENTION_CONFIRMED !== "true") {
-    throw new SpartanAiToolError(
-      "OPENAI_RETENTION_REQUIRED",
-      503,
-      "Clinical AI processing requires confirmed OpenAI modified retention / ZDR controls.",
-    );
-  }
-  if (process.env.GOOGLE_CLOUD_BAA_CONFIRMED !== "true") {
-    throw new SpartanAiToolError(
-      "GOOGLE_CLOUD_BAA_REQUIRED",
-      503,
-      "Clinical AI processing requires a confirmed Google Cloud Business Associate Agreement.",
-    );
-  }
-  if (process.env.PHI_STORAGE_BAA_CONFIRMED !== "true") {
-    throw new SpartanAiToolError(
-      "PHI_STORAGE_BAA_REQUIRED",
-      503,
-      "Clinical AI processing requires a confirmed BAA-covered storage environment.",
-    );
-  }
 }
 
 function runTerritory(input: unknown): unknown {
@@ -262,7 +221,6 @@ export async function runSpartanAiTool(
   if (!isToolFeatureEnabled(tool)) {
     throw new SpartanAiToolError("TOOL_DISABLED", 503, "AI tool is disabled.");
   }
-  assertClinicalLaunchGate(tool);
   assertSafeInput(input);
   const parsed = tool.inputSchema.safeParse(input);
   if (!parsed.success) {

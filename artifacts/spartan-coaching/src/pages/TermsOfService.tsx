@@ -63,16 +63,15 @@ export default function TermsOfService() {
           <section>
             <h2 className="text-h2 text-foreground mb-3">6. Hospice Sales Pro &amp; Billing</h2>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
-              <strong className="text-foreground">Individual Hospice Sales Pro:</strong> When you subscribe to the individual
-              Hospice Sales Pro plan, you authorize recurring charges of <strong className="text-foreground">$14.99 USD per week</strong>{" "}
-              (or the then-current posted individual rate) via our payment processor (Stripe). Subscriptions renew
-              automatically each week until you cancel.
+              <strong className="text-foreground">Individual memberships:</strong> Hospice Sales Pro Standard is{" "}
+              <strong className="text-foreground">$14.99 USD per week</strong>. Hospice Sales Pro Elite is{" "}
+              <strong className="text-foreground">$19.99 USD per week</strong>. The checkout screen shows the applicable price before purchase. Subscriptions renew automatically each week until you cancel.
             </p>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
-              <strong className="text-foreground">Cancel anytime:</strong> Individual members may cancel through Account
-              → Manage billing (Stripe Customer Portal). Cancellation takes effect at the end of the current paid
-              period unless otherwise stated at checkout. You retain access through that period; no pro-rata refund is
-              required for the remainder of a week already paid, except where required by law.
+              <strong className="text-foreground">Billing provider:</strong> Website purchases are processed by Stripe. Purchases made inside the iPhone app are processed by Apple. You must manage or cancel through the provider used to subscribe.
+            </p>
+            <p className="text-body text-muted-foreground leading-relaxed mb-3">
+              <strong className="text-foreground">Cancel anytime:</strong> Cancellation takes effect at the end of the current paid period unless the checkout screen states otherwise. You retain access through that period. Apple controls refunds for App Store purchases. Stripe purchase refunds are provided only when required by law or expressly approved by Spartan Coaching.
             </p>
             <p className="text-body text-muted-foreground leading-relaxed mb-3">
               <strong className="text-foreground">Provider / corporate seats:</strong> Multi-seat and provider accounts

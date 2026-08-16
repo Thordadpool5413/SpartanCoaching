@@ -311,6 +311,52 @@ LIMIT 100
 `.trim(),
   },
   {
+    id: "members-apple-account-token-unique",
+    category: "unique",
+    description: "Every member Apple account token must be present and unique",
+    requiredTables: ["client_members"],
+    sql: `
+SELECT apple_account_token, count(*) AS violation_count
+FROM client_members
+GROUP BY apple_account_token
+HAVING apple_account_token IS NULL OR count(*) > 1
+LIMIT 100
+`.trim(),
+  },
+  {
+    id: "organizations-apple-transaction-unique",
+    category: "unique",
+    description: "An Apple original transaction may belong to only one organization",
+    requiredTables: ["client_organizations"],
+    sql: `
+SELECT apple_original_transaction_id, count(*) AS duplicate_count
+FROM client_organizations
+WHERE apple_original_transaction_id IS NOT NULL
+GROUP BY apple_original_transaction_id
+HAVING count(*) > 1
+LIMIT 100
+`.trim(),
+  },
+  {
+    id: "index-apple-subscription-ownership",
+    category: "index",
+    description: "Apple member and organization ownership indexes must exist",
+    requiredTables: ["client_members", "client_organizations"],
+    sql: `
+SELECT 1 AS missing
+WHERE NOT EXISTS (
+  SELECT 1 FROM pg_indexes
+  WHERE schemaname = 'public'
+    AND indexname = 'uq_client_members_apple_account'
+)
+OR NOT EXISTS (
+  SELECT 1 FROM pg_indexes
+  WHERE schemaname = 'public'
+    AND indexname = 'uq_client_org_apple_original_transaction'
+)
+`.trim(),
+  },
+  {
     id: "sessions-token-unique",
     category: "unique",
     description: "client_sessions.token_hash must be unique",
@@ -674,6 +720,24 @@ export const MIGRATION_CATALOG: readonly MigrationPlan[] = [
       "coach_memory_items",
       "coach_shared_summaries",
     ],
+    dropsLegacyObjects: false,
+  },
+  {
+    id: "0017_apple_subscriptions",
+    title: "StoreKit account binding and verified Apple subscription state",
+    forwardPath: "lib/db/migrations/0017_apple_subscriptions.sql",
+    dataMigration: "Backfill a random, unique StoreKit app account token for every existing member.",
+    validationQueries: [
+      `SELECT count(*) = 0 AS ok FROM client_members WHERE apple_account_token IS NULL`,
+      `SELECT count(*) = count(DISTINCT apple_account_token) AS ok FROM client_members`,
+      `SELECT count(*) = count(DISTINCT apple_original_transaction_id) AS ok FROM client_organizations WHERE apple_original_transaction_id IS NOT NULL`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: restore the pre-apply logical dump. The columns and indexes are additive and should remain unused rather than dropped while released clients may reference them.",
+    backupExpectation: "logical_dump",
+    risk: "data_backfill",
+    clientCompatibility: "none_additive",
+    tables: ["client_members", "client_organizations"],
     dropsLegacyObjects: false,
   },
   {

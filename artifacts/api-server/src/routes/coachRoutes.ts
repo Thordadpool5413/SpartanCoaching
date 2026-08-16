@@ -36,6 +36,15 @@ const shareSchema = z.object({
 }).strict();
 const COACH_RAW_RETENTION_MS = 90 * 24 * 60 * 60 * 1000;
 
+export async function runCoachRetentionSweep(now = new Date()) {
+  const cutoff = new Date(now.getTime() - COACH_RAW_RETENTION_MS);
+  const deleted = await db
+    .delete(coachConversations)
+    .where(lt(coachConversations.updatedAt, cutoff))
+    .returning({ id: coachConversations.id });
+  return { conversationsDeleted: deleted.length, cutoff: cutoff.toISOString() };
+}
+
 function owner(request: AuthedRequest) {
   const member = request.fieldKit?.member;
   if (!member || !request.clientMemberId) throw new Error("Authentication required");

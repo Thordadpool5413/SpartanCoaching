@@ -37,6 +37,7 @@ import {
 import { sendBillingActiveAdminAlert } from "../resend";
 import { checkWebhookSecret } from "./webhookSecretCheck";
 import { getBillingEmailMetrics } from "./billingEmailMetrics";
+import { appleBillingConfigured, registerAppleBillingRoutes } from "./appleBilling";
 
 function orgIdFromMetadata(meta: Stripe.Metadata | null | undefined): number | null {
   if (!meta?.organizationId) return null;
@@ -49,6 +50,7 @@ function orgIdFromMetadata(meta: Stripe.Metadata | null | undefined): number | n
  * Webhook must be mounted with express.raw BEFORE global express.json — see app.ts.
  */
 export function registerBillingRoutes(app: Express): void {
+  registerAppleBillingRoutes(app);
   /**
    * GET /api/admin/stripe-webhook-health
    * On-demand check: verifies STRIPE_WEBHOOK_SECRET is consistent with the
@@ -105,6 +107,7 @@ export function registerBillingRoutes(app: Express): void {
 
       return res.json({
         configured: isStripeConfigured(),
+        appleBillingConfigured: appleBillingConfigured(),
         individualWeeklyPriceConfigured: Boolean(process.env.STRIPE_PRICE_INDIVIDUAL_WEEKLY?.trim()),
         individualWeeklyElitePriceConfigured: Boolean(process.env.STRIPE_PRICE_INDIVIDUAL_WEEKLY_ELITE?.trim()),
         organization: {
@@ -112,6 +115,7 @@ export function registerBillingRoutes(app: Express): void {
           type: org.type,
           status: org.status,
           billingPlan: org.billingPlan ?? null,
+          billingProvider: org.billingProvider ?? null,
           billingStatus: org.billingStatus ?? null,
           currentPeriodEnd: org.currentPeriodEnd ?? null,
           cancelAtPeriodEnd: Boolean(org.cancelAtPeriodEnd),

@@ -21,7 +21,8 @@ describe("compliance copy contract", () => {
     expect(blob).toContain("educational decision support");
     expect(blob).toMatch(/not a diagnosis|not diagnosis/);
     expect(blob).toContain("coverage");
-    expect(blob).toMatch(/authorized|authorization/);
+    expect(blob).toContain("deidentified");
+    expect(blob).toMatch(/approval|required/);
   });
 
   it("public claim-safe pack avoids ranking language", () => {
@@ -35,7 +36,10 @@ describe("compliance copy contract", () => {
     expect(PRICING_FACTS.individualWeeklyUsd).toBe(14.99);
     expect(PRICING_FACTS.individualWeeklyLabel).toContain("14.99");
     expect(PRICING_FACTS.individualWeeklyShort).toContain("14.99");
+    expect(PRICING_FACTS.eliteWeeklyUsd).toBe(19.99);
+    expect(PRICING_FACTS.eliteWeeklyLabel).toContain("19.99");
     expect(PRICING_FACTS.heroLine).toContain("14.99");
+    expect(PRICING_FACTS.heroLine).toContain("19.99");
     expect(PRICING_FACTS.consultingSeparate.toLowerCase()).toMatch(/separate/);
     expect(PRICING_FACTS.teamNote.toLowerCase()).toMatch(/contract|team/);
     // Avoid unverifiable “guaranteed ROI” style claims in pricing pack
@@ -67,6 +71,7 @@ describe("compliance copy contract", () => {
     }
     const blob = `${TRUST_CENTER_INTRO} ${TRUST_CENTER_SECTIONS.map((s) => s.body).join(" ")}`.toLowerCase();
     expect(blob).toContain("14.99");
+    expect(blob).toContain("19.99");
     expect(blob).not.toMatch(/soc 2|hipaa certified|iso 27001/);
     expect(blob).toMatch(/not claim third-party|do not claim/);
   });

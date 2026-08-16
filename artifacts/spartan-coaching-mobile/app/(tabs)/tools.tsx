@@ -1,8 +1,4 @@
-/**
- * Tools catalog only — tool runs live at /tool/[tab].
- * Deep link: /(tabs)/tools?tab=objection → redirects to /tool/objection
- */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   Platform,
   Pressable,
@@ -12,31 +8,26 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
-import { useColors } from "@/hooks/useColors";
-import { useAuth } from "@/lib/AuthContext";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
-  FIELD_KIT_TOOLS,
+  DISCOVERY_INTENTS,
   FIELD_KIT_DAILY_TOOL_IDS,
   FIELD_KIT_LEADER_TOOL_IDS,
-  DISCOVERY_INTENTS,
-  PRODUCT_SURFACE_PLACEMENT,
-  filterDiscoveryIntents,
+  FIELD_KIT_TOOLS,
   type FieldKitTool,
 } from "@workspace/field-kit-catalog";
-import { SpartanCard } from "@/components/ui/SpartanCard";
-import { SectionKicker } from "@/components/ui/SectionKicker";
-import { ListRow } from "@/components/ui/ListRow";
-import { MissionCard } from "@/components/ui/MissionCard";
-import { font } from "@/lib/typography";
-import { CATALOG_ID_TO_TAB, isToolTab, openToolHref } from "@/lib/toolDeepLinks";
-import { PaywallCard } from "@/components/ui/PaywallCard";
 import { OfflineQueueBanner } from "@/components/OfflineQueueBanner";
+import { PaywallCard } from "@/components/ui/PaywallCard";
+import { SpartanButton } from "@/components/ui/SpartanButton";
+import { useColors } from "@/hooks/useColors";
 import { apiGet } from "@/lib/api";
+import { useAuth } from "@/lib/AuthContext";
 import { MAX_FONT_SIZE_MULTIPLIER } from "@/lib/iosProductQuality";
-import { trackMobileEvent } from "@/lib/analytics";
+import { CATALOG_ID_TO_TAB, isToolTab, openToolHref } from "@/lib/toolDeepLinks";
+import { font } from "@/lib/typography";
 
 type SearchHit = {
   id: string;
@@ -45,19 +36,51 @@ type SearchHit = {
   snippet: string;
   href: string;
   mobileHref?: string;
-  score: number;
-  group: string;
 };
 
 type SearchResponse = {
   groups: Array<{ type: string; label: string; hits: SearchHit[] }>;
-  total: number;
 };
+
+const FEATURED_IDS = ["sales-workflow", "objections", "role-play"] as const;
+const FEATURED_COPY: Record<(typeof FEATURED_IDS)[number], { eyebrow: string; promise: string; icon: React.ComponentProps<typeof Feather>["name"] }> = {
+  "sales-workflow": {
+    eyebrow: "RUN THE DAY",
+    promise: "Choose the account, prepare the visit, capture the outcome, and lock the next move.",
+    icon: "target",
+  },
+  objections: {
+    eyebrow: "HANDLE THE MOMENT",
+    promise: "Turn the objection you actually heard into a useful education conversation.",
+    icon: "shield",
+  },
+  "role-play": {
+    eyebrow: "REHEARSE THE ASK",
+    promise: "Practice the hard part before the room gets busy and the stakes get real.",
+    icon: "message-circle",
+  },
+};
+
+function toolIcon(tool: FieldKitTool): React.ComponentProps<typeof Feather>["name"] {
+  const icons: Record<string, React.ComponentProps<typeof Feather>["name"]> = {
+    playbooks: "book-open",
+    research: "search",
+    transcribe: "mic",
+    "email-templates": "mail",
+    "activity-calculator": "bar-chart-2",
+    "rep-cost": "dollar-sign",
+    roi: "trending-up",
+    branch: "git-branch",
+    "cold-call": "phone",
+    "weekly-plan": "calendar",
+  };
+  return icons[tool.id] || "arrow-up-right";
+}
 
 export default function ToolsCatalogScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { canUseFieldKit, isAuthenticated } = useAuth();
+  const { canUseFieldKit, canUseElite, isAuthenticated } = useAuth();
   const params = useLocalSearchParams<{ tab?: string | string[] }>();
   const [filter, setFilter] = useState("");
   const [remoteGroups, setRemoteGroups] = useState<SearchResponse["groups"]>([]);
@@ -65,16 +88,12 @@ export default function ToolsCatalogScreen() {
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 24;
 
-  // Legacy deep link migration: tools?tab=objection → /tool/objection
   useEffect(() => {
     const raw = params.tab;
     const tab = Array.isArray(raw) ? raw[0] : raw;
-    if (isToolTab(tab)) {
-      router.replace(openToolHref(tab) as any);
-    }
+    if (isToolTab(tab)) router.replace(openToolHref(tab) as any);
   }, [params.tab]);
 
-  // Universal search (HSP-36) — native grouping from shared backend contract
   useEffect(() => {
     const q = filter.trim();
     if (!isAuthenticated || q.length < 2) {
@@ -82,10 +101,8 @@ export default function ToolsCatalogScreen() {
       return;
     }
     let cancelled = false;
-    const t = setTimeout(() => {
-      void apiGet<SearchResponse>(
-        `/api/v1/search?q=${encodeURIComponent(q)}&limit=20`,
-      )
+    const timer = setTimeout(() => {
+      void apiGet<SearchResponse>(`/api/v1/search?q=${encodeURIComponent(q)}&limit=12`)
         .then((data) => {
           if (!cancelled) setRemoteGroups(data.groups || []);
         })
@@ -95,7 +112,7 @@ export default function ToolsCatalogScreen() {
     }, 250);
     return () => {
       cancelled = true;
-      clearTimeout(t);
+      clearTimeout(timer);
     };
   }, [filter, isAuthenticated]);
 
@@ -106,411 +123,254 @@ export default function ToolsCatalogScreen() {
       router.push(openToolHref(tab) as any);
       return;
     }
-    if (tool.mobile === "webview" || tool.mobileRoute === "/tool-web") {
-      router.push({
-        pathname: "/tool-web",
-        params: { toolId: tool.id, path: tool.path },
-      } as any);
-      return;
-    }
-    if (tool.mobileRoute && !tool.mobileToolTab) {
+    if (tool.mobileRoute && tool.mobileRoute !== "/tool-web" && !tool.mobileToolTab) {
       router.push(tool.mobileRoute as any);
       return;
     }
-    router.push({
-      pathname: "/tool-web",
-      params: { toolId: tool.id, path: tool.path },
-    } as any);
+    router.push({ pathname: "/tool-web", params: { toolId: tool.id, path: tool.path } } as any);
+  };
+
+  const openSearchHit = (hit: SearchHit) => {
+    const href = hit.mobileHref || hit.href;
+    if (href.startsWith("/tool/") || href.startsWith("/(tabs)")) {
+      router.push(href as any);
+      return;
+    }
+    if (hit.type === "tool" && hit.id.startsWith("tool:")) {
+      const tool = FIELD_KIT_TOOLS.find((item) => item.id === hit.id.replace(/^tool:/, ""));
+      if (tool) {
+        openCatalogTool(tool);
+        return;
+      }
+    }
+    router.push(href as any);
   };
 
   const q = filter.trim().toLowerCase();
-  const matches = (t: FieldKitTool) =>
+  const matches = (tool: FieldKitTool) =>
     !q ||
-    t.title.toLowerCase().includes(q) ||
-    t.description.toLowerCase().includes(q) ||
-    (t.whenToUse || "").toLowerCase().includes(q);
+    tool.title.toLowerCase().includes(q) ||
+    tool.description.toLowerCase().includes(q) ||
+    (tool.whenToUse || "").toLowerCase().includes(q);
 
-  const command = FIELD_KIT_TOOLS.find((t) => t.id === "sales-workflow");
-  // Shared with web Tools page (FIELD_KIT_*_TOOL_IDS). Command is pinned above.
-  const dailyIdSet = new Set<string>(
-    FIELD_KIT_DAILY_TOOL_IDS.filter((id) => id !== "sales-workflow"),
+  const featured = FEATURED_IDS
+    .map((id) => FIELD_KIT_TOOLS.find((tool) => tool.id === id))
+    .filter((tool): tool is FieldKitTool => Boolean(tool && matches(tool)));
+
+  const dailyIds = useMemo(() => new Set<string>(FIELD_KIT_DAILY_TOOL_IDS), []);
+  const leaderIds = useMemo(() => new Set<string>(FIELD_KIT_LEADER_TOOL_IDS), []);
+  const fieldTools = FIELD_KIT_TOOLS.filter(
+    (tool) => !FEATURED_IDS.includes(tool.id as (typeof FEATURED_IDS)[number]) && dailyIds.has(tool.id) && matches(tool),
   );
-  const leaderIdSet = new Set<string>([...FIELD_KIT_LEADER_TOOL_IDS]);
-  const daily = FIELD_KIT_TOOLS.filter((t) => dailyIdSet.has(t.id) && matches(t));
-  const prepare = daily.filter((t) => t.category === "Prepare" || t.category === "Plan");
-  const practice = daily.filter((t) => t.category === "Practice");
-  const dailyOther = daily.filter(
-    (t) => t.category !== "Prepare" && t.category !== "Plan" && t.category !== "Practice",
-  );
-  const leaders = FIELD_KIT_TOOLS.filter((t) => leaderIdSet.has(t.id) && matches(t));
-  const rest = FIELD_KIT_TOOLS.filter(
-    (t) =>
-      t.id !== "sales-workflow" &&
-      !dailyIdSet.has(t.id) &&
-      !leaderIdSet.has(t.id) &&
-      t.category !== "Learn" &&
-      matches(t),
-  );
+  const leaderTools = FIELD_KIT_TOOLS.filter((tool) => leaderIds.has(tool.id) && matches(tool));
 
   return (
-    <View style={{ flex: 1, backgroundColor: colors.background }} testID="screen-tools-catalog">
-      <View
-        style={[
-          styles.header,
-          {
-            paddingTop: topPad + 12,
-            backgroundColor: colors.background,
-            borderBottomColor: colors.border,
-          },
-        ]}
-      >
-        <Text style={[styles.headerTitle, { color: colors.foreground }, font("heavy")]}>
-          Practice
-        </Text>
-        <Text style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 4 }, font("regular")]}>
-          {canUseFieldKit
-            ? "Rehearse the conversation, sharpen the ask, or open a field tool."
-            : "Preview practice tools. Live use requires a subscription."}
-        </Text>
-        <TextInput
-          style={[
-            styles.search,
-            {
-              color: colors.foreground,
-              backgroundColor: colors.card,
-              borderColor: colors.border,
-              marginTop: 12,
-            },
-          ]}
-          placeholder="Search practice and field tools"
-          placeholderTextColor={colors.mutedForeground}
-          value={filter}
-          onChangeText={setFilter}
-          clearButtonMode="while-editing"
-          autoCorrect={false}
-          autoCapitalize="none"
-          returnKeyType="search"
-          accessibilityLabel="Universal search"
-          maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER}
-          testID="tools-filter"
-        />
-      </View>
-
-      {!canUseFieldKit && (
-        <View style={{ marginHorizontal: 16, marginTop: 12 }} testID="tools-paywall">
-          <PaywallCard
-            isAuthenticated={isAuthenticated}
-            body="Unlock live generation. Browse the map free."
+    <View style={[styles.screen, { backgroundColor: colors.background }]} testID="screen-tools-catalog">
+      <View style={[styles.header, { paddingTop: topPad + 12, borderBottomColor: colors.border }]}>
+        <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>FIELD WORKSPACE</Text>
+        <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Practice</Text>
+        <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Choose the outcome. Use one tool. Leave with the next move.</Text>
+        <View style={[styles.searchShell, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Feather name="search" size={18} color={colors.mutedForeground} />
+          <TextInput
+            style={[styles.search, { color: colors.foreground }, font("regular")]}
+            placeholder="What do you need to prepare?"
+            placeholderTextColor={colors.mutedForeground}
+            value={filter}
+            onChangeText={setFilter}
+            clearButtonMode="while-editing"
+            autoCorrect={false}
+            returnKeyType="search"
+            accessibilityLabel="Search practice tools"
+            maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER}
+            testID="tools-filter"
           />
         </View>
-      )}
+      </View>
 
       <OfflineQueueBanner />
 
       <ScrollView
-        style={{ flex: 1 }}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: bottomPad + 24, paddingTop: 12 }}
+        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: bottomPad + 24 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
       >
+        {!canUseFieldKit ? (
+          <View style={{ marginBottom: 18 }} testID="tools-paywall">
+            <PaywallCard isAuthenticated={isAuthenticated} body="Browse the system. Membership unlocks live generation and saved work." />
+          </View>
+        ) : null}
+
         {remoteGroups.length > 0 ? (
-          <View testID="universal-search-results" style={{ marginBottom: 16 }}>
-            <SectionKicker>Search results</SectionKicker>
-            {remoteGroups.map((group) => (
-              <View key={group.type} style={{ marginBottom: 12 }}>
-                <Text
-                  style={[styles.sectionLabel, { color: colors.primary }, font("bold")]}
-                  maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER}
-                >
-                  {group.label.toUpperCase()}
-                </Text>
-                {group.hits.map((hit) => (
-                  <ListRow
-                    key={hit.id}
-                    title={hit.title}
-                    subtitle={hit.snippet}
-                    onPress={() => {
-                      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                      const href = hit.mobileHref || hit.href;
-                      if (href.startsWith("/tool/")) {
-                        router.push(href as any);
-                      } else if (href.startsWith("/(tabs)")) {
-                        router.push(href as any);
-                      } else if (hit.type === "tool" && hit.id.startsWith("tool:")) {
-                        const toolId = hit.id.replace(/^tool:/, "");
-                        const tool = FIELD_KIT_TOOLS.find((t) => t.id === toolId);
-                        if (tool) openCatalogTool(tool);
-                        else router.push(href as any);
-                      } else {
-                        router.push(href as any);
-                      }
-                    }}
-                    testID={`search-hit-${hit.id.replace(/[^a-z0-9]+/gi, "-")}`}
-                  />
-                ))}
+          <View style={{ marginBottom: 24 }} testID="universal-search-results">
+            <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>SEARCH RESULTS</Text>
+            {remoteGroups.flatMap((group) => group.hits).map((hit) => (
+              <ActionRow key={hit.id} title={hit.title} subtitle={hit.snippet} icon="search" onPress={() => openSearchHit(hit)} />
+            ))}
+          </View>
+        ) : null}
+
+        {!q ? (
+          <>
+            <View style={styles.sectionHeading}>
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>START WITH THE MOMENT</Text>
+                <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>What are you walking into?</Text>
               </View>
+              <Text style={[styles.step, { color: colors.mutedForeground }, font("semibold")]}>3 clear paths</Text>
+            </View>
+
+            {featured.map((tool, index) => {
+              const copy = FEATURED_COPY[tool.id as (typeof FEATURED_IDS)[number]];
+              return (
+                <Pressable
+                  key={tool.id}
+                  onPress={() => openCatalogTool(tool)}
+                  testID={tool.id === "sales-workflow" ? "tools-hero-command" : `tool-row-${tool.id}`}
+                  style={({ pressed }) => [
+                    styles.featureCard,
+                    {
+                      backgroundColor: index === 0 ? colors.heroBackground : colors.card,
+                      borderColor: index === 0 ? colors.primary : colors.border,
+                      opacity: pressed ? 0.92 : 1,
+                      transform: [{ scale: pressed ? 0.99 : 1 }],
+                    },
+                  ]}
+                >
+                  <View style={[styles.featureIcon, { backgroundColor: index === 0 ? colors.primary : colors.primaryMuted }]}>
+                    <Feather name={copy.icon} size={20} color={index === 0 ? colors.primaryForeground : colors.primary} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.cardEyebrow, { color: index === 0 ? colors.heroMuted : colors.primary }, font("bold")]}>{copy.eyebrow}</Text>
+                    <Text style={[styles.cardTitle, { color: index === 0 ? colors.heroForeground : colors.foreground }, font("heavy")]}>{tool.title}</Text>
+                    <Text style={[styles.cardBody, { color: index === 0 ? colors.heroMuted : colors.mutedForeground }, font("regular")]}>{copy.promise}</Text>
+                  </View>
+                  <Feather name="arrow-up-right" size={21} color={index === 0 ? colors.heroForeground : colors.primary} />
+                </Pressable>
+              );
+            })}
+
+            <Text style={[styles.sectionEyebrow, { color: colors.primary, marginTop: 18 }, font("bold")]}>CHOOSE BY OUTCOME</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.intentRail}>
+              {DISCOVERY_INTENTS.slice(0, 6).map((intent) => (
+                <Pressable
+                  key={intent.id}
+                  onPress={() => setFilter(intent.title)}
+                  style={({ pressed }) => [styles.intentChip, { backgroundColor: colors.card, borderColor: colors.border, opacity: pressed ? 0.8 : 1 }]}
+                  testID={`intent-${intent.id}`}
+                >
+                  <Text style={[styles.intentTitle, { color: colors.foreground }, font("bold")]}>{intent.title}</Text>
+                  <Text style={[styles.intentBody, { color: colors.mutedForeground }, font("regular")]} numberOfLines={2}>{intent.description}</Text>
+                </Pressable>
+              ))}
+            </ScrollView>
+          </>
+        ) : null}
+
+        {fieldTools.length > 0 ? (
+          <View style={{ marginTop: q ? 0 : 24 }} testID="tools-job-prepare">
+            <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>FIELD KIT</Text>
+            <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Build the next move</Text>
+            <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>Focused tools for preparation, follow up, planning, and measurement.</Text>
+            {fieldTools.map((tool) => (
+              <ActionRow key={tool.id} title={tool.title} subtitle={tool.whenToUse || tool.description} icon={toolIcon(tool)} onPress={() => openCatalogTool(tool)} testID={`tool-row-${tool.id}`} />
             ))}
           </View>
         ) : null}
 
-        <SectionKicker>Hospice Sales Pro · intent map</SectionKicker>
-
-        {filterDiscoveryIntents(filter).map((intent) => (
-          <View key={intent.id} style={{ marginBottom: 14 }} testID={`intent-${intent.id}`}>
-            <Text style={[styles.sectionLabel, { color: colors.primary }, font("bold")]}>
-              {intent.title.toUpperCase()}
-            </Text>
-            <Text
-              style={[
-                { color: colors.mutedForeground, fontSize: 12, marginBottom: 6, lineHeight: 17 },
-                font("regular"),
-              ]}
-            >
-              {intent.description}
-            </Text>
-            {intent.destinations.slice(0, 5).map((d) => (
-              <ListRow
-                key={`${intent.id}-${d.id}-${d.webPath}`}
-                title={d.label}
-                subtitle={
-                  d.surface === "field_resources"
-                    ? "Field resource"
-                    : d.surface === "learn"
-                      ? "Learn"
-                      : d.surface === "command"
-                        ? "Command Center"
-                        : "Tool"
-                }
-                onPress={() => {
-                  void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  if (d.kind === "tool" || d.kind === "command") {
-                    const tool = FIELD_KIT_TOOLS.find((t) => t.id === d.id);
-                    if (tool) {
-                      openCatalogTool(tool);
-                      return;
-                    }
-                  }
-                  if (d.surface === "field_resources" || d.kind === "resource") {
-                    router.push({
-                      pathname: "/tool-web",
-                      params: { toolId: d.id, path: d.webPath },
-                    } as any);
-                    return;
-                  }
-                  if (d.surface === "learn" || d.kind === "learn") {
-                    router.push("/(tabs)/learn" as any);
-                    return;
-                  }
-                  router.push({
-                    pathname: "/tool-web",
-                    params: { toolId: d.id, path: d.webPath },
-                  } as any);
-                }}
-                testID={`intent-dest-${intent.id}-${d.id}`}
-              />
-            ))}
-          </View>
-        ))}
-
-        <ListRow
-          title={PRODUCT_SURFACE_PLACEMENT.field_resources.label}
-          subtitle={PRODUCT_SURFACE_PLACEMENT.field_resources.meaning}
-          icon="folder"
-          onPress={() => {
-            void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            router.push("/(tabs)/learn" as any);
-          }}
-          testID="tools-link-field-resources"
-        />
-
-        <Text style={[styles.sectionLabel, { color: colors.mutedForeground, marginTop: 8 }, font("bold")]}>
-          BROWSE BY JOB
-        </Text>
-
-        {command && matches(command) ? (
-          <View style={{ marginTop: 10, marginBottom: 16 }} testID="tools-hero-command">
-            <MissionCard
-              kicker="Next action spine · same as web"
-              title={command.title}
-              subtitle="Plan the visit, practice if needed, capture the outcome, lock the next step — not a grid of equal tools."
-              ctaLabel={canUseFieldKit ? "Open Command Center" : "Preview Command Center"}
-              onCta={() => {
-                void trackMobileEvent("craft", "mission_cta_tap", {
-                  metadata: { surface: "tools", platform: "ios", source: "command_hero" },
-                });
-                openCatalogTool(command);
-              }}
-              secondaryLabel="All tools below"
-              onSecondary={() => {
-                /* stay on catalog */
-              }}
-            />
-          </View>
-        ) : null}
-
-        {prepare.length > 0 ? (
-          <View style={{ marginBottom: 12 }} testID="tools-job-prepare">
-            <Text style={[styles.sectionLabel, { color: colors.primary }, font("bold")]}>PREPARE</Text>
-            <Text
-              style={[
-                { color: colors.mutedForeground, fontSize: 12, marginBottom: 6, lineHeight: 16 },
-                font("regular"),
-              ]}
-            >
-              Before the visit — plans, research, email, weekly rhythm
-            </Text>
-            {prepare.map((t) => (
-              <ListRow
-                key={t.id}
-                title={t.title}
-                subtitle={
-                  t.mobile === "webview"
-                    ? `${t.whenToUse || t.description} · Opens web tool`
-                    : t.whenToUse || t.description
-                }
-                onPress={() => openCatalogTool(t)}
-                testID={`tool-row-${t.id}`}
-              />
+        {leaderTools.length > 0 ? (
+          <View style={{ marginTop: 26 }} testID="tools-leaders">
+            <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>LEADERSHIP</Text>
+            <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Coach the system</Text>
+            {leaderTools.map((tool) => (
+              <ActionRow key={tool.id} title={tool.title} subtitle={tool.whenToUse || tool.description} icon={toolIcon(tool)} onPress={() => openCatalogTool(tool)} />
             ))}
           </View>
         ) : null}
 
-        {practice.length > 0 ? (
-          <View style={{ marginBottom: 12 }} testID="tools-job-practice">
-            <Text style={[styles.sectionLabel, { color: colors.primary }, font("bold")]}>PRACTICE</Text>
-            <Text
-              style={[
-                { color: colors.mutedForeground, fontSize: 12, marginBottom: 6, lineHeight: 16 },
-                font("regular"),
-              ]}
-            >
-              Talk tracks and reps before you walk in
-            </Text>
-            {practice.map((t) => (
-              <ListRow
-                key={t.id}
-                title={t.title}
-                subtitle={t.whenToUse || t.description}
-                onPress={() => openCatalogTool(t)}
-                testID={`tool-row-${t.id}`}
-              />
-            ))}
+        {!featured.length && !fieldTools.length && !leaderTools.length && remoteGroups.length === 0 ? (
+          <View style={[styles.empty, { borderColor: colors.border, backgroundColor: colors.card }]}>
+            <Feather name="search" size={24} color={colors.primary} />
+            <Text style={[styles.emptyTitle, { color: colors.foreground }, font("bold")]}>No match for “{filter}”</Text>
+            <Text style={[styles.emptyBody, { color: colors.mutedForeground }, font("regular")]}>Try a job such as objection, visit, email, research, or weekly plan.</Text>
+            <SpartanButton title="Clear search" variant="outline" onPress={() => setFilter("")} style={{ alignSelf: "stretch", marginTop: 8 }} />
           </View>
         ) : null}
 
-        {dailyOther.length > 0 ? (
-          <View style={{ marginBottom: 12 }} testID="tools-daily-other">
-            <Text style={[styles.sectionLabel, { color: colors.primary }, font("bold")]}>
-              FIELD SUPPORT
-            </Text>
-            {dailyOther.map((t) => (
-              <ListRow
-                key={t.id}
-                title={t.title}
-                subtitle={
-                  t.mobile === "webview"
-                    ? `${t.whenToUse || t.description} · Opens web tool`
-                    : t.whenToUse || t.description
-                }
-                onPress={() => openCatalogTool(t)}
-                testID={`tool-row-${t.id}`}
-              />
-            ))}
-          </View>
-        ) : null}
-
-        {leaders.length > 0 ? (
-          <View style={{ marginBottom: 12 }} testID="tools-leaders">
-            <Text style={[styles.sectionLabel, { color: colors.primary }, font("bold")]}>
-              FOR DIRECTORS & LEADERS
-            </Text>
-            {leaders.map((t) => (
-              <ListRow
-                key={t.id}
-                title={t.title}
-                subtitle={t.whenToUse || t.description}
-                onPress={() => openCatalogTool(t)}
-              />
-            ))}
-          </View>
-        ) : null}
-
-        {rest.length > 0 ? (
-          <View style={{ marginBottom: 12 }}>
-            <Text style={[styles.sectionLabel, { color: colors.primary }, font("bold")]}>MORE IN THE KIT</Text>
-            {rest.map((t) => (
-              <ListRow
-                key={t.id}
-                title={t.title}
-                subtitle={
-                  t.mobile === "webview"
-                    ? `${t.whenToUse || t.description} · Opens web tool (session secured)`
-                    : t.whenToUse || t.description
-                }
-                onPress={() => openCatalogTool(t)}
-              />
-            ))}
-          </View>
-        ) : null}
-
-        {!prepare.length &&
-          !practice.length &&
-          !dailyOther.length &&
-          !leaders.length &&
-          !rest.length &&
-          !(command && matches(command)) && (
-            <Text style={[{ color: colors.mutedForeground, marginTop: 24, textAlign: "center" }, font("regular")]}>
-              No tools match “{filter}”
-            </Text>
-          )}
-
-        <ListRow
-          title="Advanced library"
-          subtitle="Field AI + clinical vault · secondary to daily spine"
-          icon="cpu"
-          onPress={() => router.push("/ai-tools" as any)}
+        <Pressable
+          onPress={() => canUseElite ? router.push("/ai-tools" as any) : router.push("/(tabs)/account" as any)}
+          style={({ pressed }) => [styles.eliteCard, { backgroundColor: colors.heroBackground, borderColor: colors.borderStrong, opacity: pressed ? 0.92 : 1 }]}
           testID="advanced-ai-tools-library"
-        />
-        <Text
-          style={[
-            {
-              color: colors.mutedForeground,
-              fontSize: 11,
-              lineHeight: 16,
-              marginTop: 4,
-              marginBottom: 8,
-              textAlign: "center",
-            },
-            font("regular"),
-          ]}
         >
-          Daily tools are native. Specialty tools labeled “Opens web tool” use the same site and session.
-        </Text>
+          <View style={[styles.eliteBadge, { backgroundColor: colors.primary }]}>
+            <Text style={[styles.eliteBadgeText, { color: colors.primaryForeground }, font("bold")]}>ELITE</Text>
+          </View>
+          <Text style={[styles.eliteTitle, { color: colors.heroForeground }, font("heavy")]}>Advanced field and clinical tools</Text>
+          <Text style={[styles.eliteBody, { color: colors.heroMuted }, font("regular")]}>Deidentified clinical education, grounded research, and specialized analysis. All output is suggested guidance and requires the appropriate medical director or compliance approval.</Text>
+          <View style={styles.eliteCta}>
+            <Text style={[{ color: colors.heroForeground, fontSize: 14 }, font("bold")]}>{canUseElite ? "Open Elite tools" : "Explore Elite"}</Text>
+            <Feather name="arrow-right" size={18} color={colors.heroForeground} />
+          </View>
+        </Pressable>
       </ScrollView>
     </View>
   );
 }
 
+function ActionRow({ title, subtitle, icon, onPress, testID }: { title: string; subtitle?: string; icon: React.ComponentProps<typeof Feather>["name"]; onPress: () => void; testID?: string }) {
+  const colors = useColors();
+  return (
+    <Pressable
+      onPress={onPress}
+      testID={testID}
+      accessibilityRole="button"
+      accessibilityLabel={subtitle ? `${title}. ${subtitle}` : title}
+      style={({ pressed }) => [styles.actionRow, { backgroundColor: colors.card, borderColor: colors.border, opacity: pressed ? 0.9 : 1, transform: [{ scale: pressed ? 0.99 : 1 }] }]}
+    >
+      <View style={[styles.actionIcon, { backgroundColor: colors.primaryMuted }]}><Feather name={icon} size={18} color={colors.primary} /></View>
+      <View style={{ flex: 1 }}>
+        <Text style={[styles.actionTitle, { color: colors.foreground }, font("bold")]}>{title}</Text>
+        {subtitle ? <Text style={[styles.actionBody, { color: colors.mutedForeground }, font("regular")]} numberOfLines={2}>{subtitle}</Text> : null}
+      </View>
+      <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
-  header: {
-    paddingHorizontal: 20,
-    paddingBottom: 14,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  headerTitle: { fontSize: 30, letterSpacing: -0.5, marginTop: 4 },
-  search: {
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 15,
-    minHeight: 44,
-  },
-  sectionLabel: {
-    fontSize: 11,
-    letterSpacing: 1.4,
-    marginBottom: 8,
-    marginTop: 4,
-  },
+  screen: { flex: 1 },
+  header: { paddingHorizontal: 20, paddingBottom: 16, borderBottomWidth: StyleSheet.hairlineWidth },
+  kicker: { fontSize: 10, letterSpacing: 2.2 },
+  title: { fontSize: 36, letterSpacing: -1.1, marginTop: 6 },
+  subtitle: { fontSize: 14, lineHeight: 20, marginTop: 5, maxWidth: 340 },
+  searchShell: { minHeight: 50, borderWidth: 1, borderRadius: 16, paddingHorizontal: 14, flexDirection: "row", alignItems: "center", gap: 10, marginTop: 16 },
+  search: { flex: 1, fontSize: 15, minHeight: 48 },
+  sectionHeading: { flexDirection: "row", alignItems: "flex-end", gap: 12, marginBottom: 12 },
+  sectionEyebrow: { fontSize: 10, letterSpacing: 1.9, marginBottom: 6 },
+  sectionTitle: { fontSize: 23, letterSpacing: -0.5, marginBottom: 6 },
+  sectionBody: { fontSize: 13, lineHeight: 19, marginBottom: 14 },
+  step: { fontSize: 11, marginBottom: 7 },
+  featureCard: { borderWidth: 1, borderRadius: 20, padding: 17, flexDirection: "row", alignItems: "flex-start", gap: 13, marginBottom: 11 },
+  featureIcon: { width: 42, height: 42, borderRadius: 13, alignItems: "center", justifyContent: "center" },
+  cardEyebrow: { fontSize: 9, letterSpacing: 1.7, marginBottom: 5 },
+  cardTitle: { fontSize: 18, letterSpacing: -0.25 },
+  cardBody: { fontSize: 13, lineHeight: 18, marginTop: 5 },
+  intentRail: { gap: 10, paddingBottom: 3 },
+  intentChip: { width: 190, minHeight: 94, borderWidth: 1, borderRadius: 16, padding: 14 },
+  intentTitle: { fontSize: 14 },
+  intentBody: { fontSize: 12, lineHeight: 17, marginTop: 6 },
+  actionRow: { minHeight: 72, borderWidth: StyleSheet.hairlineWidth * 2, borderRadius: 16, padding: 13, flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 9 },
+  actionIcon: { width: 38, height: 38, borderRadius: 12, alignItems: "center", justifyContent: "center" },
+  actionTitle: { fontSize: 15 },
+  actionBody: { fontSize: 12, lineHeight: 17, marginTop: 3 },
+  empty: { borderWidth: 1, borderRadius: 20, padding: 22, alignItems: "center", marginTop: 8 },
+  emptyTitle: { fontSize: 18, marginTop: 10 },
+  emptyBody: { fontSize: 13, lineHeight: 19, textAlign: "center", marginTop: 5 },
+  eliteCard: { borderWidth: 1, borderRadius: 22, padding: 20, marginTop: 28 },
+  eliteBadge: { alignSelf: "flex-start", borderRadius: 999, paddingHorizontal: 9, paddingVertical: 5, marginBottom: 13 },
+  eliteBadgeText: { fontSize: 9, letterSpacing: 1.6 },
+  eliteTitle: { fontSize: 21, letterSpacing: -0.4 },
+  eliteBody: { fontSize: 13, lineHeight: 20, marginTop: 8 },
+  eliteCta: { flexDirection: "row", alignItems: "center", gap: 5, marginTop: 16 },
 });

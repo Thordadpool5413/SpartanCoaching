@@ -77,10 +77,9 @@ export function canUseDeidentifiedClinical(
 }
 
 export function canUsePhiClinical(
-  tier: MembershipTier,
-  explicitPermission = false,
-  memberRole?: string | null,
+  _tier: MembershipTier,
+  _explicitPermission = false,
+  _memberRole?: string | null,
 ): boolean {
-  if (memberRole === "platform_admin") return explicitPermission;
-  return tier === "organization" && explicitPermission;
+  return false;
 }

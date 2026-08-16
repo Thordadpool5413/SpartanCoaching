@@ -72,18 +72,17 @@ export const APP_STORE_READINESS_ITEMS: ReadinessItem[] = [
   },
   {
     id: "subscription_model",
-    area: "Subscriptions / external purchase",
+    area: "Apple subscriptions",
     status: "risk",
-    evidence: `Canonical products are defined for Standard ${STANDARD_WEEKLY_PLAN.displayPrice} (${STANDARD_WEEKLY_PLAN.appleProductId}) and Elite ${ELITE_WEEKLY_PLAN.displayPrice} (${ELITE_WEEKLY_PLAN.appleProductId}), but native StoreKit purchase and server transaction verification are not implemented.`,
+    evidence: `Native StoreKit purchase is implemented for Standard ${STANDARD_WEEKLY_PLAN.displayPrice} (${STANDARD_WEEKLY_PLAN.appleProductId}) and Elite ${ELITE_WEEKLY_PLAN.displayPrice} (${ELITE_WEEKLY_PLAN.appleProductId}). The API verifies Apple's signed JWS, binds appAccountToken to the member, prevents transaction reuse, and accepts verified App Store Server Notifications. Release remains blocked until both products and production verification values are configured and tested.`,
     action:
-      "Create both products in App Store Connect, connect StoreKit 2, verify signed transactions on the server, and remove Stripe purchase links from the iOS purchase flow before public review.",
+      "Create both products in App Store Connect, configure APPLE_APP_ID and Apple root certificates, register the notification URL, then run purchase, renewal, upgrade, cancellation, refund, and restore on a Sandbox Apple ID and physical iPhone.",
   },
   {
     id: "restore_access",
     area: "Restore purchases / access",
-    status: "partial",
-    evidence: "The product/provider contract exists, but there is no visible StoreKit restore action or server reconciliation.",
-    action: "Add a visible Restore Purchases action and reconcile verified Apple transactions with server entitlements.",
+    status: "implemented",
+    evidence: "Account exposes Restore Apple Purchases. Every restored active subscription is server verified and bound to the signed in member before StoreKit is finished.",
   },
   {
     id: "sign_in_with_apple",
@@ -145,10 +144,10 @@ export const APP_REVIEW_NOTES = [
   "Hospice Sales Pro is a multiplatform membership (web + iOS) for hospice field sales coaching tools.",
   "Account creation: email/password on web or in-app login after web register; magic link supported.",
   "Account deletion: Account tab → Delete account (requires confirm DELETE). Completes within the app.",
-  `Planned Apple subscriptions: Standard ${STANDARD_WEEKLY_PLAN.displayPrice} and Clinical Vault Elite ${ELITE_WEEKLY_PLAN.displayPrice}. Public App Store submission remains blocked until StoreKit purchase, server verification, and Restore Purchases are complete.`,
-  "TestFlight reviewers use an existing entitled account. No purchase claim is made in this build.",
+  `Apple subscriptions: Standard ${STANDARD_WEEKLY_PLAN.displayPrice} and Hospice Sales Pro Elite ${ELITE_WEEKLY_PLAN.displayPrice}. Purchases and restores are verified by the Spartan Coaching API before access is granted.`,
+  "App Store submission remains blocked until the products, server verification configuration, notification URL, and Sandbox purchase matrix are complete.",
   "Demo: use provided reviewer credentials if attached; otherwise create an account and use Subscribe, or request evaluation access via Contact.",
-  "No patient PHI in consumer tools; clinical vault is separate and role-gated.",
+  "No patient PHI. Elite clinical tools accept deidentified information only, provide suggested education, and require medical director, compliance, or both to approve output.",
   `Support: ${APP_STORE_SUPPORT_URL} · Privacy: ${APP_STORE_PRIVACY_URL}`,
 ].join("\n");
 

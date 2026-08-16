@@ -31,11 +31,13 @@ export const FEATURE_FLAG_DEFS: FeatureFlagDef[] = [
     description: "Spartan AI tools hub for entitled members (per-tool AI_TOOL_* still apply).",
   },
   {
+    // Keep the legacy key and environment variable stable for deployed clients.
+    // The enabled workspace accepts deidentified information only.
     key: "clinical_phi_workspace",
     envKey: "FF_CLINICAL_PHI_WORKSPACE",
     defaultEnabled: false,
     risk: "high",
-    description: "PHI-capable clinical workspace routes (also gated by BAA/runtime readiness).",
+    description: "Elite deidentified clinical guidance routes with mandatory human approval.",
   },
   {
     key: "provider_resource_library",
@@ -75,7 +77,7 @@ function parseBool(raw: string | undefined, fallback: boolean): boolean {
 }
 
 /**
- * Environment-aware defaults: clinical PHI stays off outside production/staging
+ * Environment-aware defaults: Elite clinical guidance stays off outside production/staging
  * unless explicitly enabled.
  */
 export function defaultForFlag(

@@ -145,8 +145,7 @@ export default function AiToolsIndex() {
         Advanced library
       </Text>
       <Text style={[styles.description, { color: colors.mutedForeground }, font("regular")]}>
-        Specialized Field AI (no PHI in consumer tools). Clinical vault is a separate
-        authorized workspace — not sold as daily Hospice Sales Pro marketing.
+        Advanced field tools for Elite members. Clinical guidance accepts deidentified information only and always requires human approval.
       </Text>
       <View
         style={{
@@ -163,7 +162,7 @@ export default function AiToolsIndex() {
       >
         <Feather name="shield" size={12} color={colors.primary} />
         <Text style={[{ color: colors.primary, fontSize: 10, letterSpacing: 0.6 }, font("bold")]}>
-          ROLE-GATED · SECONDARY TO DAILY TOOLS
+          ELITE TOOLS · HUMAN APPROVAL REQUIRED
         </Text>
       </View>
       {availability === null && (

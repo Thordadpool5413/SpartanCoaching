@@ -203,6 +203,7 @@ module.exports = {
         },
       ],
       "expo-web-browser",
+      "react-native-iap",
       [
         "expo-notifications",
         {

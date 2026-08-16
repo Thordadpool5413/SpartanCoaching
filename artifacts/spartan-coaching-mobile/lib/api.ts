@@ -227,6 +227,7 @@ export type MobileOrganization = {
   trialEndsAt?: string | null;
   pipelineStatus?: string | null;
   billingPlan?: string | null;
+  billingProvider?: string | null;
   billingStatus?: string | null;
   currentPeriodEnd?: string | null;
   cancelAtPeriodEnd?: boolean;
@@ -250,6 +251,7 @@ export type MobileAuthUser = {
 /** Billing status from GET /api/billing/status */
 export type BillingStatus = {
   configured: boolean;
+  appleBillingConfigured?: boolean;
   individualWeeklyPriceConfigured: boolean;
   individualWeeklyElitePriceConfigured?: boolean;
   canCheckoutIndividual: boolean;
@@ -259,6 +261,7 @@ export type BillingStatus = {
     type: string;
     status: string;
     billingPlan: string | null;
+    billingProvider?: string | null;
     billingStatus: string | null;
     currentPeriodEnd: string | null;
     cancelAtPeriodEnd: boolean;
@@ -269,6 +272,28 @@ export type BillingStatus = {
     contractRef: string | null;
   };
 };
+
+export type AppleBillingConfig = {
+  configured: boolean;
+  appAccountToken: string;
+  products: Array<{ id: string; tier: "standard" | "elite" }>;
+};
+
+export type AppleVerificationResult = {
+  applied: boolean;
+  active?: boolean;
+  tier?: "standard" | "elite";
+  productId?: string;
+  expiresAt?: string;
+};
+
+export async function fetchAppleBillingConfig(): Promise<AppleBillingConfig> {
+  return apiGet<AppleBillingConfig>("/api/billing/apple/config");
+}
+
+export async function verifyAppleTransaction(signedTransaction: string): Promise<AppleVerificationResult> {
+  return apiPost<AppleVerificationResult>("/api/billing/apple/verify", { signedTransaction });
+}
 
 export async function fetchBillingStatus(): Promise<BillingStatus | null> {
   try {

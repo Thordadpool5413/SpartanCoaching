@@ -40,9 +40,10 @@ describe("membership plans", () => {
     expect(canUseDeidentifiedClinical("organization", true)).toBe(true);
   });
 
-  it("allows PHI only for explicitly approved organization accounts", () => {
+  it("never allows PHI in individual or organization accounts", () => {
     expect(canUsePhiClinical("elite", true)).toBe(false);
     expect(canUsePhiClinical("organization", false)).toBe(false);
-    expect(canUsePhiClinical("organization", true)).toBe(true);
+    expect(canUsePhiClinical("organization", true)).toBe(false);
+    expect(canUsePhiClinical("organization", true, "platform_admin")).toBe(false);
   });
 });

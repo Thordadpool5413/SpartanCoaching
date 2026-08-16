@@ -18,6 +18,12 @@ const mockOpenBillingPortal = jest.fn();
 
 jest.mock("@/lib/api", () => ({
   fetchBillingStatus: (...args: unknown[]) => mockFetchBillingStatus(...args),
+  fetchAppleBillingConfig: jest.fn().mockResolvedValue({
+    configured: true,
+    appAccountToken: "65b35d18-1d82-4f4f-9d3d-bf81f82a32fb",
+    products: [],
+  }),
+  verifyAppleTransaction: jest.fn().mockResolvedValue({ applied: true, active: true }),
   fetchOnboardingMobile: (...args: unknown[]) => mockFetchOnboardingMobile(...args),
   startIndividualCheckout: (...args: unknown[]) => mockStartIndividualCheckout(...args),
   openBillingPortal: (...args: unknown[]) => mockOpenBillingPortal(...args),
@@ -80,6 +86,10 @@ jest.mock("@/hooks/useColors", () => ({
     card: "#111",
     border: "#333",
   }),
+}));
+
+jest.mock("@/hooks/useAccessibilityPrefs", () => ({
+  useAccessibilityPrefs: () => ({ reduceMotion: true }),
 }));
 
 jest.mock("@/lib/onboarding", () => ({

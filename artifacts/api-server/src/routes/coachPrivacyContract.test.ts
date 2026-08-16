@@ -29,6 +29,7 @@ describe("Spartan Coach privacy contract", () => {
     expect(routes).toContain('app.use("/api/v1/coach", requireElite');
     expect(routes).toContain("90 * 24 * 60 * 60 * 1000");
     expect(routes).toContain("lt(coachConversations.updatedAt");
+    expect(routes).toContain("runCoachRetentionSweep");
   });
 
   it("uses an honest identity with clinical and privacy boundaries", () => {

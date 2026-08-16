@@ -12,11 +12,18 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { router, useFocusEffect } from "expo-router";
 import { Feather } from "@expo/vector-icons";
+import { router, useFocusEffect } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  entitlementShellCopy,
+  formatHoursRemainingLabel,
+  resolveEntitlementShell,
+} from "@workspace/field-kit-catalog";
+import { SpartanButton } from "@/components/ui/SpartanButton";
+import { AppleSubscriptionActions } from "@/components/AppleSubscriptionActions";
+import { StatusChip } from "@/components/ui/StatusChip";
 import { useColors } from "@/hooks/useColors";
-import { useAuth } from "@/lib/AuthContext";
 import {
   deleteAccountMobile,
   fetchBillingStatus,
@@ -27,79 +34,64 @@ import {
   updateOnboardingMobile,
   type BillingStatus,
 } from "@/lib/api";
-import { markCheckoutPending } from "@/lib/activationCeremony";
-import {
-  formatTrialRemaining,
-  isChecklistDone,
-  visibleChecklist,
-} from "@/lib/onboarding";
 import {
   APP_STORE_PRIVACY_URL,
   APP_STORE_SUPPORT_URL,
   APP_STORE_TERMS_URL,
   APP_STORE_TRUST_URL,
 } from "@/lib/appStoreReadiness";
-import {
-  FIELD_KIT_TOOLS,
-  entitlementShellCopy,
-  formatHoursRemainingLabel,
-  resolveEntitlementShell,
-} from "@workspace/field-kit-catalog";
-import { PaywallCard } from "@/components/ui/PaywallCard";
-import { ValueReceiptCard } from "@/components/ui/ValueReceiptCard";
-import { StatusChip } from "@/components/ui/StatusChip";
-
-// Key gated tools to surface in value cards (no PHI, no public tools)
-const VALUE_TOOLS = FIELD_KIT_TOOLS.filter((t) => !t.public).slice(0, 7);
+import { markCheckoutPending } from "@/lib/activationCeremony";
+import { useAppearancePreference, type AppearancePreference } from "@/lib/AppearanceContext";
+import { useAuth } from "@/lib/AuthContext";
+import { font } from "@/lib/typography";
 
 const ROLES = [
-  { id: "rep", label: "Rep / liaison" },
+  { id: "rep", label: "Rep or liaison" },
   { id: "director", label: "Director" },
-  { id: "vp", label: "VP / exec" },
+  { id: "vp", label: "VP or executive" },
   { id: "owner", label: "Owner" },
   { id: "other", label: "Other" },
+];
+
+const APPEARANCES: Array<{ id: AppearancePreference; label: string; icon: React.ComponentProps<typeof Feather>["name"] }> = [
+  { id: "system", label: "System", icon: "smartphone" },
+  { id: "light", label: "Light", icon: "sun" },
+  { id: "dark", label: "Dark", icon: "moon" },
 ];
 
 export default function AccountScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
+  const { preference, setPreference } = useAppearancePreference();
   const { user, isLoading, isAuthenticated, canUseFieldKit, canUseElite, logout, refresh } = useAuth();
-
   const [jobRole, setJobRole] = useState("");
   const [territoryNote, setTerritoryNote] = useState("");
   const [topObjections, setTopObjections] = useState("");
-  const [checklist, setChecklist] = useState<Record<string, boolean | string>>({});
   const [saving, setSaving] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
   const [billing, setBilling] = useState<BillingStatus | null>(null);
   const [billingLoading, setBillingLoading] = useState(false);
   const [checkoutPending, setCheckoutPending] = useState(false);
   const [portalPending, setPortalPending] = useState(false);
   const [deletePending, setDeletePending] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<"standard_weekly" | "elite_weekly">("standard_weekly");
-
-  // Tracks when billing data was last successfully fetched, used to skip
-  // unnecessary refreshes when the app briefly goes to the background.
-  const billingLastFetchedRef = useRef<number>(0);
+  const [selectedPlan, setSelectedPlan] = useState<"standard_weekly" | "elite_weekly">("elite_weekly");
+  const billingLastFetchedRef = useRef(0);
+  const stripeOpenedRef = useRef(false);
+  const appStateRef = useRef(AppState.currentState);
   const BILLING_STALE_MS = 30_000;
-
-  // Set to true whenever the user opens a Stripe URL (checkout or portal) so
-  // the foreground-return handler knows to skip the staleness check.
-  const stripeOpenedRef = useRef<boolean>(false);
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 24;
 
-  const load = useCallback(async () => {
+  const loadProfile = useCallback(async () => {
     if (!canUseFieldKit) return;
     try {
       const data = await fetchOnboardingMobile();
       setJobRole(data.member.jobRole || "");
       setTerritoryNote(data.member.territoryNote || "");
       setTopObjections(data.member.topObjections || "");
-      setChecklist(data.member.checklistProgress || {});
     } catch {
-      // ignore
+      // The account remains usable when optional profile data is offline.
     }
   }, [canUseFieldKit]);
 
@@ -107,8 +99,8 @@ export default function AccountScreen() {
     if (!isAuthenticated) return;
     setBillingLoading(true);
     try {
-      const data = await fetchBillingStatus();
-      setBilling(data);
+      const value = await fetchBillingStatus();
+      setBilling(value);
       billingLastFetchedRef.current = Date.now();
     } finally {
       setBillingLoading(false);
@@ -117,278 +109,124 @@ export default function AccountScreen() {
 
   useFocusEffect(
     useCallback(() => {
-      load();
-      loadBilling();
+      void loadProfile();
+      void loadBilling();
       void refresh();
-    }, [load, loadBilling, refresh]),
+    }, [loadProfile, loadBilling, refresh]),
   );
 
-  // Re-check billing when the app comes back to the foreground (e.g. returning
-  // from Stripe Checkout or the billing portal in the browser).
-  // Skip the fetch if billing data was loaded less than 30 s ago to avoid a
-  // loading-spinner flash when the user just briefly switches apps —
-  // UNLESS the user was sent to a Stripe URL, in which case always reload
-  // so the card reflects the completed checkout immediately.
-  const appStateRef = useRef(AppState.currentState);
   useEffect(() => {
-    const sub = AppState.addEventListener("change", (nextState) => {
+    const subscription = AppState.addEventListener("change", (nextState) => {
       if (appStateRef.current !== "active" && nextState === "active") {
-        const fromStripe = stripeOpenedRef.current;
-        if (fromStripe) {
+        if (stripeOpenedRef.current) {
           stripeOpenedRef.current = false;
-          loadBilling();
-        } else {
-          const age = Date.now() - billingLastFetchedRef.current;
-          if (age >= BILLING_STALE_MS) {
-            loadBilling();
-          }
+          void loadBilling();
+        } else if (Date.now() - billingLastFetchedRef.current >= BILLING_STALE_MS) {
+          void loadBilling();
         }
         void refresh();
       }
       appStateRef.current = nextState;
     });
-    return () => sub.remove();
+    return () => subscription.remove();
   }, [loadBilling, refresh]);
 
   if (isLoading) {
-    return (
-      <View style={[styles.center, { backgroundColor: colors.background }]}>
-        <ActivityIndicator color={colors.primary} />
-      </View>
-    );
+    return <View style={[styles.center, { backgroundColor: colors.background }]}><ActivityIndicator color={colors.primary} /></View>;
   }
 
   if (!isAuthenticated || !user) {
     return (
-      <ScrollView
-        style={{ flex: 1, backgroundColor: colors.background }}
-        contentContainerStyle={{
-          paddingTop: topPad + 24,
-          paddingBottom: bottomPad,
-          paddingHorizontal: 20,
-        }}
-      >
-        <Text style={[styles.kicker, { color: colors.primary }]}>Client access</Text>
-        <Text style={[styles.title, { color: colors.foreground }]}>Hospice Sales Pro</Text>
-        <Text style={[styles.body, { color: colors.mutedForeground }]}>
-          Sign in to plan field work, practice difficult conversations, and use private coaching on the go.
-          Standard is $14.99 per week. Elite is $19.99 per week. Cancel anytime.
-        </Text>
-
-        <View style={[styles.card, { borderColor: colors.primary, backgroundColor: colors.cardElevated ?? colors.card, borderWidth: 1.5 }]}>
-          <Text style={{ color: colors.primary, fontSize: 10, fontWeight: "800", letterSpacing: 1.4, textTransform: "uppercase", marginBottom: 8 }}>
-            Choose the level that fits your work
-          </Text>
-          {[
-            { title: "Objection Handler", desc: "Field-ready responses to 'not ready yet' and every objection you hear this week" },
-            { title: "Playbook Generator", desc: "Custom talking points and a clear next-step ask for any account visit" },
-            { title: "Spartan Coach", desc: "Private voice rehearsal, direct feedback, and saved commitments with Elite" },
-            { title: "Weekly Plan Builder", desc: "Monday–Friday territory plan with win conditions for every account" },
-            { title: "Cold Call Script Generator", desc: "Openers and next-step asks for a full block of new outreach calls" },
-          ].map((t) => (
-            <View key={t.title} style={[styles.bulletRow, { marginBottom: 8, alignItems: "flex-start" }]}>
-              <Feather name="check-circle" size={15} color={colors.primary} style={{ marginTop: 2 }} />
-              <View style={{ flex: 1 }}>
-                <Text style={{ color: colors.foreground, fontWeight: "700", fontSize: 13 }}>{t.title}</Text>
-                <Text style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 17, marginTop: 1 }}>{t.desc}</Text>
-              </View>
-            </View>
-          ))}
-          <Text style={{ color: colors.mutedForeground, fontSize: 11, marginTop: 4, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }}>
-            Standard includes the core field system. Elite adds Spartan Coach and deidentified clinical education tools.
-          </Text>
+      <ScrollView style={{ flex: 1, backgroundColor: colors.background }} contentContainerStyle={{ paddingTop: topPad + 24, paddingBottom: bottomPad, paddingHorizontal: 20 }}>
+        <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>MEMBER ACCESS</Text>
+        <Text style={[styles.pageTitle, { color: colors.foreground }, font("heavy")]}>Your field system</Text>
+        <Text style={[styles.pageSubtitle, { color: colors.mutedForeground }, font("regular")]}>Sign in with the same account you use on the Spartan Coaching website. Your membership, saved work, and private commitments follow you.</Text>
+        <View style={[styles.heroCard, { backgroundColor: colors.heroBackground, borderColor: colors.primary }]}>
+          <Text style={[styles.heroEyebrow, { color: colors.heroMuted }, font("bold")]}>HOSPICE SALES PRO</Text>
+          <Text style={[styles.heroTitle, { color: colors.heroForeground }, font("heavy")]}>One account. Every field tool.</Text>
+          <View style={{ marginTop: 17, gap: 11 }}>
+            <Benefit icon="target" title="Standard" body="Core planning, practice, outreach, and field resources at $14.99 per week." inverted />
+            <Benefit icon="zap" title="Elite" body="Adds private Spartan Coach and deidentified clinical education tools at $19.99 per week." inverted />
+            <Benefit icon="users" title="Company teams" body="Contracted seats, organization access, and discounted rates." inverted />
+          </View>
         </View>
-
-        <Pressable
-          onPress={() => router.push("/login")}
-          style={[styles.primaryBtn, { backgroundColor: colors.primary }]}
-        >
-          <Text style={[styles.primaryBtnText, { color: colors.primaryForeground }]}>Client login</Text>
-        </Pressable>
-        <Pressable
-          onPress={() => Linking.openURL(`${getWebSiteUrl()}/hospice-sales-pro`)}
-          style={{ marginTop: 16 }}
-        >
-          <Text style={{ color: colors.primary, textAlign: "center", fontWeight: "700" }}>
-            View Hospice Sales Pro →
-          </Text>
-        </Pressable>
-        <Pressable
-          onPress={() => Linking.openURL(`${getWebSiteUrl()}/register`)}
-          style={{ marginTop: 12 }}
-          testID="button-create-account"
-        >
-          <Text style={{ color: colors.primary, textAlign: "center", fontWeight: "700" }}>
-            New? Create an account →
-          </Text>
-        </Pressable>
-        <Pressable onPress={() => router.push("/(tabs)/contact")} style={{ marginTop: 12 }}>
-          <Text style={{ color: colors.mutedForeground, textAlign: "center", fontWeight: "600" }}>
-            Request team access or book a call
-          </Text>
-        </Pressable>
+        <SpartanButton title="Client login" onPress={() => router.push("/login")} style={{ marginTop: 18 }} />
+        <SpartanButton title="Create an account on the web" variant="outline" onPress={() => void Linking.openURL(`${getWebSiteUrl()}/register`)} style={{ marginTop: 10 }} testID="button-create-account" />
+        <Pressable onPress={() => router.push("/(tabs)/contact")} style={styles.textLink}><Text style={[{ color: colors.primary }, font("bold")]}>Team access or consulting</Text></Pressable>
       </ScrollView>
     );
   }
 
   const org = user.organization;
-  const fk = user.fieldKit;
+  const fieldKit = user.fieldKit;
   const billingOrg = billing?.organization;
   const isPersonal = org?.type === "personal";
   const isCompany = org?.type === "company";
   const isPlatform = org?.type === "platform" || user.member.role === "platform_admin";
-  const isComp =
-    billingOrg?.billingPlan === "comp" || org?.billingPlan === "comp";
-  const hasPaidSub =
-    Boolean(billingOrg?.hasStripeSubscription || org?.hasStripeSubscription) &&
-    (billingOrg?.billingStatus === "active" ||
-      billingOrg?.billingStatus === "trialing" ||
-      org?.billingStatus === "active" ||
-      org?.billingStatus === "trialing" ||
-      (org?.status === "active" &&
-        (billingOrg?.hasStripeSubscription || org?.hasStripeSubscription)));
-  const cancelAtPeriodEnd = Boolean(
-    billingOrg?.cancelAtPeriodEnd ?? org?.cancelAtPeriodEnd,
+  const isComp = billingOrg?.billingPlan === "comp" || org?.billingPlan === "comp";
+  const billingProvider = billingOrg?.billingProvider || org?.billingProvider || null;
+  const billingState = billingOrg?.billingStatus || org?.billingStatus || "";
+  const hasPaidSubscription = ["active", "trialing"].includes(billingState) && (
+    billingProvider === "apple" ||
+    Boolean(billingOrg?.hasStripeSubscription || org?.hasStripeSubscription)
   );
+  const cancelAtPeriodEnd = Boolean(billingOrg?.cancelAtPeriodEnd ?? org?.cancelAtPeriodEnd);
   const periodEnd = billingOrg?.currentPeriodEnd || org?.currentPeriodEnd;
-
-  const canCheckout =
+  const canCheckout = Boolean(
     isPersonal &&
     !isPlatform &&
     !isComp &&
-    !hasPaidSub &&
-    (org?.status === "trial" ||
-      org?.status === "expired" ||
-      org?.status === "suspended" ||
-      org?.status === "active");
-
-  const canPortal =
-    Boolean(billing?.canOpenPortal) ||
-    Boolean(billingOrg?.hasStripeCustomer || org?.hasStripeCustomer);
-
+    !hasPaidSubscription &&
+    ["trial", "expired", "suspended", "active"].includes(org?.status || ""),
+  );
+  const canPortal = Boolean(billing?.canOpenPortal || billingOrg?.hasStripeCustomer || org?.hasStripeCustomer);
   const shellId = resolveEntitlementShell({
     isAuthenticated: true,
     orgStatus: org?.status,
     orgType: org?.type,
     billingPlan: billingOrg?.billingPlan || org?.billingPlan,
     fieldKitAllowed: canUseFieldKit,
-    fieldKitReason: fk?.reason,
+    fieldKitReason: fieldKit?.reason,
     cancelAtPeriodEnd,
-    hasPaidSubscription: hasPaidSub,
-    hoursRemaining: fk?.hoursRemaining,
+    hasPaidSubscription,
+    hoursRemaining: fieldKit?.hoursRemaining,
   });
-  const hoursLabel = formatHoursRemainingLabel(fk?.hoursRemaining);
-  const shellCopy = entitlementShellCopy(shellId, { hoursLabel });
-  const statusLabel = shellCopy.chip;
-  const trialLine = formatTrialRemaining(fk?.hoursRemaining);
-  const items = visibleChecklist(jobRole);
-  const doneCount = items.filter((i) => isChecklistDone(checklist, i.id)).length;
-  const membershipBlurb = shellCopy.body;
+  const shellCopy = entitlementShellCopy(shellId, { hoursLabel: formatHoursRemainingLabel(fieldKit?.hoursRemaining) });
+  const currentTier = isCompany ? "Team membership" : canUseElite ? "Hospice Sales Pro Elite" : canUseFieldKit ? "Hospice Sales Pro Standard" : "Membership inactive";
+  const currentPrice = canUseElite || (!canUseFieldKit && selectedPlan === "elite_weekly") ? "$19.99" : "$14.99";
 
-  const onSubscribe = async (
-    plan: "standard_weekly" | "elite_weekly" = selectedPlan,
-  ) => {
+  const subscribe = async () => {
     setCheckoutPending(true);
     try {
-      const { url } = await startIndividualCheckout(plan);
-      const supported = await Linking.canOpenURL(url);
-      if (!supported) throw new Error("Cannot open checkout URL");
+      const { url } = await startIndividualCheckout(selectedPlan);
+      if (!(await Linking.canOpenURL(url))) throw new Error("Secure checkout could not be opened.");
       stripeOpenedRef.current = true;
       await markCheckoutPending();
       await Linking.openURL(url);
-    } catch (e: any) {
-      const raw = e?.message || "Checkout unavailable";
-      Alert.alert(
-        "Checkout unavailable",
-        raw.includes("STRIPE") || raw.includes("not configured")
-          ? "Billing is not fully configured on the server yet. Contact Nick or try Account on the website."
-          : raw.replace(/^\d+:\s*/, "").slice(0, 280),
-      );
+    } catch (error: any) {
+      Alert.alert("Checkout unavailable", String(error?.message || "Try again from the website Account page.").replace(/^\d+:\s*/, "").slice(0, 280));
     } finally {
       setCheckoutPending(false);
     }
   };
 
-  const onManageBilling = async () => {
+  const manageBilling = async () => {
     setPortalPending(true);
     try {
       const { url } = await openBillingPortal();
       stripeOpenedRef.current = true;
       await markCheckoutPending();
       await Linking.openURL(url);
-    } catch (e: any) {
-      Alert.alert(
-        "Billing portal unavailable",
-        (e?.message || "Try again from the website Account page.").replace(/^\d+:\s*/, "").slice(0, 280),
-      );
+    } catch (error: any) {
+      Alert.alert("Billing unavailable", String(error?.message || "Try again from the website Account page.").replace(/^\d+:\s*/, "").slice(0, 280));
     } finally {
       setPortalPending(false);
     }
   };
 
-  const openWebAccount = () => {
-    void Linking.openURL(`${getWebSiteUrl()}/account`);
-  };
-
-  const openWebMembership = () => {
-    void Linking.openURL(`${getWebSiteUrl()}/hospice-sales-pro`);
-  };
-
-  const onDeleteAccount = () => {
-    if (user?.member.role === "platform_admin") {
-      Alert.alert("Not available", "Platform admin accounts cannot be deleted from the app.");
-      return;
-    }
-    Alert.alert(
-      "Delete account?",
-      "This permanently closes your Hospice Sales Pro account and signs you out. Cancel any paid subscription under Manage billing first if you still need access to that email.",
-      [
-        { text: "Cancel", style: "cancel" },
-        {
-          text: "Continue",
-          style: "destructive",
-          onPress: () => {
-            Alert.alert(
-              "Confirm deletion",
-              'Tap Delete permanently to confirm. This cannot be undone from the app.',
-              [
-                { text: "Cancel", style: "cancel" },
-                {
-                  text: "Delete permanently",
-                  style: "destructive",
-                  onPress: async () => {
-                    setDeletePending(true);
-                    try {
-                      await deleteAccountMobile();
-                      await logout();
-                      Alert.alert(
-                        "Account deleted",
-                        "Your account has been closed. You can create a new account later with a different email if needed.",
-                      );
-                      router.replace("/(tabs)");
-                    } catch (e: any) {
-                      Alert.alert(
-                        "Could not delete account",
-                        (e?.message || "Try again or contact support.")
-                          .replace(/^\d+:\s*/, "")
-                          .slice(0, 280),
-                      );
-                    } finally {
-                      setDeletePending(false);
-                    }
-                  },
-                },
-              ],
-            );
-          },
-        },
-      ],
-    );
-  };
-
   const saveProfile = async () => {
     setSaving(true);
-    setMsg(null);
+    setMessage(null);
     try {
       await updateOnboardingMobile({
         jobRole: jobRole || null,
@@ -396,681 +234,334 @@ export default function AccountScreen() {
         topObjections: topObjections.trim() || null,
       });
       await refresh();
-      setMsg("Saved");
-    } catch (e: any) {
-      setMsg(e?.message || "Save failed");
+      setMessage("Profile saved");
+    } catch (error: any) {
+      setMessage(error?.message || "Profile could not be saved");
     } finally {
       setSaving(false);
     }
   };
 
+  const deleteAccount = () => {
+    if (user.member.role === "platform_admin") {
+      Alert.alert("Not available", "Platform administrator accounts cannot be deleted from the app.");
+      return;
+    }
+    Alert.alert(
+      "Delete your account?",
+      "This permanently closes the account and signs you out. Manage any active subscription before deletion.",
+      [
+        { text: "Cancel", style: "cancel" },
+        {
+          text: "Delete account",
+          style: "destructive",
+          onPress: async () => {
+            setDeletePending(true);
+            try {
+              await deleteAccountMobile();
+              await logout();
+              router.replace("/(tabs)");
+            } catch (error: any) {
+              Alert.alert("Could not delete account", String(error?.message || "Contact support for help.").slice(0, 280));
+            } finally {
+              setDeletePending(false);
+            }
+          },
+        },
+      ],
+    );
+  };
+
   return (
     <ScrollView
       style={{ flex: 1, backgroundColor: colors.background }}
-      contentContainerStyle={{
-        paddingTop: topPad + 24,
-        paddingBottom: bottomPad,
-        paddingHorizontal: 20,
-      }}
+      contentContainerStyle={{ paddingTop: topPad + 18, paddingBottom: bottomPad + 12, paddingHorizontal: 20 }}
+      showsVerticalScrollIndicator={false}
+      keyboardShouldPersistTaps="handled"
+      keyboardDismissMode="on-drag"
     >
-      <Text style={[styles.kicker, { color: colors.primary }]}>ACCOUNT</Text>
-      <Text style={[styles.title, { color: colors.foreground }]}>
-        {user.member.name.split(" ")[0]}
-      </Text>
-      <Text style={[styles.body, { color: colors.mutedForeground }]}>{user.member.email}</Text>
-
-      <View style={{ marginTop: 12 }}>
-        <StatusChip
-          label={statusLabel}
-          role={
-            shellId === "trial"
-              ? "trial"
-              : shellId === "expired" || shellId === "suspended" || shellId === "locked"
-                ? "locked"
-                : "active"
-          }
-          testID="account-status-chip"
-        />
+      <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>MY SPARTAN</Text>
+      <View style={styles.identityRow}>
+        <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
+          <Text style={[styles.avatarText, { color: colors.primaryForeground }, font("heavy")]}>{user.member.name.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase()}</Text>
+        </View>
+        <View style={{ flex: 1 }}>
+          <Text style={[styles.memberName, { color: colors.foreground }, font("heavy")]}>{user.member.name}</Text>
+          <Text style={[styles.memberEmail, { color: colors.mutedForeground }, font("regular")]}>{user.member.email}</Text>
+        </View>
       </View>
 
-      {(shellId === "expired" || shellId === "suspended" || shellId === "locked" || shellId === "trial") && (
-        <View style={{ marginTop: 12 }}>
-          <PaywallCard
-            isAuthenticated
-            orgStatus={org?.status}
-            title={shellCopy.title}
-            body={shellCopy.body}
-            primaryLabel={
-              shellId === "trial" || shellId === "expired" || shellId === "locked"
-                ? canCheckout
-                  ? shellCopy.primaryCta
-                  : "Open Account on web"
-                : shellCopy.primaryCta
-            }
-            onPrimary={() => {
-              if ((shellId === "trial" || shellId === "expired" || shellId === "locked") && canCheckout) {
-                void onSubscribe();
-              } else if (shellId === "suspended" && canPortal) {
-                void onManageBilling();
-              } else {
-                openWebAccount();
-              }
-            }}
-          />
+      <View style={[styles.membershipCard, { backgroundColor: colors.heroBackground, borderColor: canUseElite ? colors.primary : colors.borderStrong }]} testID="card-membership-billing">
+        <View style={styles.membershipTop}>
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.heroEyebrow, { color: colors.heroMuted }, font("bold")]}>YOUR MEMBERSHIP</Text>
+            <Text style={[styles.membershipTitle, { color: colors.heroForeground }, font("heavy")]}>{currentTier}</Text>
+          </View>
+          <StatusChip label={shellCopy.chip} role={canUseFieldKit ? "active" : shellId === "trial" ? "trial" : "locked"} testID="account-status-chip" />
         </View>
-      )}
 
-      {canUseFieldKit ? <ValueReceiptCard /> : null}
-
-      <View style={[styles.card, { borderColor: colors.border, backgroundColor: colors.card, marginTop: 16 }]}>
-        <Text style={[styles.cardLabel, { color: colors.mutedForeground }]}>Status</Text>
-        <Text style={[styles.cardValue, { color: colors.foreground }]}>{statusLabel}</Text>
-        {trialLine && org?.status === "trial" ? (
-          <Text style={{ color: colors.warning ?? "#fbbf24", marginTop: 6, fontWeight: "600" }}>{trialLine}</Text>
+        {isPersonal && !isPlatform ? (
+          <Text style={[styles.membershipPrice, { color: colors.heroForeground }, font("heavy")]}>{currentPrice}<Text style={[styles.membershipCadence, { color: colors.heroMuted }, font("semibold")]}> per week</Text></Text>
         ) : null}
-        <Text style={{ color: colors.mutedForeground, fontSize: 13, lineHeight: 18, marginTop: 8 }}>
-          {membershipBlurb}
-        </Text>
-        <Text style={{ color: colors.mutedForeground, fontSize: 11, lineHeight: 16, marginTop: 8 }}>
-          {shellCopy.restoreNote}
-        </Text>
-        <Text style={[styles.cardLabel, { color: colors.mutedForeground, marginTop: 14 }]}>
-          Organization
-        </Text>
-        <Text style={[styles.cardValue, { color: colors.foreground }]}>{org?.name || "—"}</Text>
-        <Text style={[styles.cardLabel, { color: colors.mutedForeground, marginTop: 14 }]}>
-          Your role
-        </Text>
-        <Text style={[styles.cardValue, { color: colors.foreground }]} testID="account-member-role">
-          {(user.member.role || "member").replace(/_/g, " ")}
-        </Text>
-        {isCompany || isPlatform ? (
-          <View style={{ marginTop: 10 }} testID="account-org-admin-hint">
-            <Text style={{ color: colors.mutedForeground, fontSize: 13, lineHeight: 18 }}>
-              Seat status: {statusLabel}
-              {typeof org?.seatLimit === "number" ? ` · seat limit ${org.seatLimit}` : ""}
-              {typeof org?.billableSeats === "number"
-                ? ` · billable seats ${org.billableSeats}`
-                : ""}
-            </Text>
-            {(user.member.role === "org_admin" || user.member.role === "platform_admin") && (
-              <View
-                style={{
-                  marginTop: 10,
-                  padding: 12,
-                  borderRadius: 12,
-                  borderWidth: 1,
-                  borderColor: colors.border,
-                  backgroundColor: colors.muted,
-                }}
-                testID="account-org-admin-handoff"
-              >
-                <Text style={{ color: colors.foreground, fontSize: 14, fontWeight: "700" }}>
-                  Organization admin on the website
-                </Text>
-                <Text
-                  style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 17, marginTop: 6 }}
-                >
-                  Members, structure, contacts, and offboard are designed for desktop. Open the same
-                  account on the web at /org/admin — this app stays field-first.
-                </Text>
-              </View>
-            )}
+        <Text style={[styles.membershipBody, { color: colors.heroMuted }, font("regular")]}>{shellCopy.body}</Text>
+        {periodEnd && hasPaidSubscription ? <Text style={[styles.renewal, { color: colors.heroForeground }, font("semibold")]}>{cancelAtPeriodEnd ? "Access until" : "Renews"} {new Date(periodEnd).toLocaleDateString()}</Text> : null}
+
+        {billingLoading ? <View style={styles.loadingRow}><ActivityIndicator size="small" color={colors.primary} /><Text style={[{ color: colors.heroMuted }, font("regular")]}>Refreshing access</Text></View> : null}
+        {!billingLoading && canPortal ? <SpartanButton title={portalPending ? "Opening billing" : "Manage membership"} variant="outline" onPress={() => void manageBilling()} loading={portalPending} style={{ marginTop: 16, borderColor: colors.heroMuted }} testID="button-manage-billing" /> : null}
+        {!billingLoading && !canPortal ? <SpartanButton title="Refresh access" variant="outline" onPress={() => { void loadBilling(); void refresh(); }} style={{ marginTop: 16, borderColor: colors.heroMuted }} /> : null}
+        {Platform.OS === "ios" && isPersonal && !canCheckout ? (
+          <View style={{ marginTop: 9 }}>
+            <AppleSubscriptionActions
+              showManage={billingProvider === "apple" && hasPaidSubscription}
+              onEntitlementChanged={async () => { await loadBilling(); await refresh(); }}
+            />
           </View>
         ) : null}
-        <Text style={[styles.cardLabel, { color: colors.mutedForeground, marginTop: 14 }]}>
-          Hospice Sales Pro
-        </Text>
-        <Text
-          style={[styles.cardValue, { color: canUseFieldKit ? colors.success : colors.primary }]}
-        >
-          {canUseFieldKit ? "Unlocked" : "Locked"}
-        </Text>
-        {canUseFieldKit && (
-          <>
-            <Text style={[styles.cardLabel, { color: colors.mutedForeground, marginTop: 14 }]}>
-              Checklist
-            </Text>
-            <Text style={[styles.cardValue, { color: colors.foreground }]}>
-              {doneCount}/{items.length} complete
-              {doneCount > 0 ? " · Activated" : " · Not activated yet"}
-            </Text>
-          </>
-        )}
       </View>
 
-      {/* Day Zero — locked personal path (register → subscribe) */}
-      {!canUseFieldKit && canCheckout && (
-        <View
-          style={[
-            styles.card,
-            {
-              borderColor: colors.primary,
-              backgroundColor: colors.card,
-              marginTop: 12,
-              borderWidth: 1.5,
-            },
-          ]}
-          testID="card-day-zero"
-        >
-          <Text style={{ color: colors.primary, fontSize: 10, fontWeight: "800", letterSpacing: 1.4 }}>
-            FINISH SETUP
-          </Text>
-          <Text style={{ color: colors.foreground, fontSize: 20, fontWeight: "900", marginTop: 6 }}>
-            {org?.status === "expired" ? "Subscribe to unlock" : "One step left"}
-          </Text>
-          <Text style={{ color: colors.mutedForeground, fontSize: 14, lineHeight: 20, marginTop: 6 }}>
-            Account ready. Choose Standard for core field tools or Elite for Spartan Coach and deidentified clinical education tools.
-          </Text>
-          <View style={{ flexDirection: "row", gap: 8, marginTop: 14 }}>
-            {([
-              { id: "standard_weekly", name: "Standard", price: "$14.99" },
-              { id: "elite_weekly", name: "Elite", price: "$19.99" },
-            ] as const).map((plan) => {
-              const selected = selectedPlan === plan.id;
+      {canCheckout ? (
+        <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]} testID="card-day-zero">
+          <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>CHOOSE YOUR ACCESS</Text>
+          <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Built for the work you do</Text>
+          <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>Standard unlocks the field system. Elite adds private voice coaching and deidentified clinical education.</Text>
+          <View style={styles.planGrid}>
+            <PlanChoice
+              selected={selectedPlan === "standard_weekly"}
+              title="Standard"
+              price="$14.99"
+              body="Planning, practice, outreach, resources"
+              onPress={() => setSelectedPlan("standard_weekly")}
+            />
+            <PlanChoice
+              selected={selectedPlan === "elite_weekly"}
+              title="Elite"
+              price="$19.99"
+              body="Everything plus Coach and clinical tools"
+              badge="BEST FIT"
+              onPress={() => {
+                if (billing?.individualWeeklyElitePriceConfigured === false) {
+                  Alert.alert("Elite enrollment is being connected", "Standard remains available while the Elite production price is configured.");
+                  return;
+                }
+                setSelectedPlan("elite_weekly");
+              }}
+            />
+          </View>
+          <View style={{ marginTop: 14 }}>
+            {Platform.OS === "ios" ? (
+              <AppleSubscriptionActions
+                plan={selectedPlan}
+                showPurchase
+                onEntitlementChanged={async () => { await loadBilling(); await refresh(); }}
+              />
+            ) : (
+              <SpartanButton
+                title={selectedPlan === "elite_weekly" ? "Choose Elite" : "Choose Standard"}
+                onPress={() => void subscribe()}
+                loading={checkoutPending}
+                testID="button-subscribe"
+              />
+            )}
+          </View>
+          <Text style={[styles.purchaseNote, { color: colors.mutedForeground }, font("regular")]}>Apple purchases are finished only after the signed transaction is verified by Spartan Coaching and bound to this account.</Text>
+        </View>
+      ) : null}
+
+      <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]} testID="card-your-membership">
+        <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>ACCESS</Text>
+        <AccessRow icon="target" title="Core field system" state={canUseFieldKit ? "Unlocked" : "Locked"} active={canUseFieldKit} />
+        <AccessRow icon="mic" title="Private Spartan Coach" state={canUseElite ? "Unlocked" : "Elite"} active={Boolean(canUseElite)} onPress={() => router.push(canUseElite ? "/(tabs)/coach" : "/(tabs)/account")} />
+        <AccessRow icon="shield" title="Deidentified clinical education" state={canUseElite ? "Unlocked" : "Elite"} active={Boolean(canUseElite)} onPress={() => router.push(canUseElite ? "/ai-tools" as any : "/(tabs)/account")} />
+        {isCompany ? <Text style={[styles.teamNote, { color: colors.mutedForeground }, font("regular")]}>Seat changes and contracted billing are managed by your organization administrator.</Text> : null}
+        {(user.member.role === "org_admin" || user.member.role === "platform_admin") ? (
+          <Pressable onPress={() => void Linking.openURL(`${getWebSiteUrl()}/org/admin`)} style={[styles.inlineLink, { borderTopColor: colors.border }]} testID="account-org-admin-handoff">
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.inlineTitle, { color: colors.foreground }, font("bold")]}>Organization administration</Text>
+              <Text style={[styles.inlineBody, { color: colors.mutedForeground }, font("regular")]}>Manage members, structure, and seats on the website.</Text>
+            </View>
+            <Feather name="arrow-up-right" size={18} color={colors.primary} />
+          </Pressable>
+        ) : null}
+      </View>
+
+      <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+        <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>APPEARANCE</Text>
+        <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Make it yours</Text>
+        <View style={styles.appearanceGrid}>
+          {APPEARANCES.map((item) => {
+            const selected = preference === item.id;
+            return (
+              <Pressable
+                key={item.id}
+                onPress={() => void setPreference(item.id)}
+                style={[styles.appearanceChoice, { backgroundColor: selected ? colors.primary : colors.background, borderColor: selected ? colors.primary : colors.border }]}
+                accessibilityRole="radio"
+                accessibilityState={{ checked: selected }}
+              >
+                <Feather name={item.icon} size={18} color={selected ? colors.primaryForeground : colors.foreground} />
+                <Text style={[styles.appearanceLabel, { color: selected ? colors.primaryForeground : colors.foreground }, font("bold")]}>{item.label}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+      </View>
+
+      {canUseFieldKit ? (
+        <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+          <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>FIELD PROFILE</Text>
+          <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Tune the experience</Text>
+          <Text style={[styles.fieldLabel, { color: colors.mutedForeground }, font("bold")]}>ROLE</Text>
+          <View style={styles.roleWrap}>
+            {ROLES.map((role) => {
+              const selected = jobRole === role.id;
               return (
-                <Pressable
-                  key={plan.id}
-                  onPress={() => {
-                    if (plan.id === "elite_weekly" && billing?.individualWeeklyElitePriceConfigured === false) {
-                      Alert.alert("Elite enrollment is being configured", "Standard remains available. Elite will open after its production price is connected.");
-                      return;
-                    }
-                    setSelectedPlan(plan.id);
-                  }}
-                  style={{
-                    flex: 1,
-                    borderRadius: 14,
-                    borderWidth: selected ? 2 : 1,
-                    borderColor: selected ? colors.primary : colors.border,
-                    backgroundColor: selected ? colors.primaryMuted : colors.card,
-                    padding: 13,
-                  }}
-                >
-                  <Text style={{ color: colors.foreground, fontSize: 14, fontWeight: "800" }}>{plan.name}</Text>
-                  <Text style={{ color: colors.primary, fontSize: 18, fontWeight: "900", marginTop: 3 }}>{plan.price}<Text style={{ color: colors.mutedForeground, fontSize: 11, fontWeight: "600" }}> / week</Text></Text>
+                <Pressable key={role.id} onPress={() => setJobRole(role.id)} style={[styles.roleChip, { backgroundColor: selected ? colors.primaryMuted : colors.background, borderColor: selected ? colors.primary : colors.border }]}>
+                  <Text style={[styles.roleLabel, { color: selected ? colors.primary : colors.foreground }, font("bold")]}>{role.label}</Text>
                 </Pressable>
               );
             })}
           </View>
-          <View style={{ marginTop: 12, gap: 8 }}>
-            {[
-              "1 · Account — done",
-              "2 · Subscribe — unlock all tools",
-              "3 · Day Zero — Command Center + one objection",
-            ].map((line) => (
-              <View key={line} style={[styles.bulletRow, { alignItems: "center" }]}>
-                <Feather name="check-circle" size={14} color={colors.primary} />
-                <Text style={{ color: colors.foreground, fontSize: 13, fontWeight: "600", flex: 1 }}>
-                  {line}
-                </Text>
-              </View>
-            ))}
-          </View>
-          <Pressable
-            onPress={() => void onSubscribe()}
-            disabled={checkoutPending}
-            style={[
-              styles.primaryBtn,
-              { backgroundColor: colors.primary, marginTop: 14, opacity: checkoutPending ? 0.7 : 1 },
-            ]}
-            testID="button-day-zero-subscribe"
-          >
-            {checkoutPending ? (
-              <ActivityIndicator color={colors.primaryForeground} />
-            ) : (
-              <Text style={[styles.primaryBtnText, { color: colors.primaryForeground }]}>
-                {selectedPlan === "elite_weekly" ? "Choose Elite · $19.99/week" : "Choose Standard · $14.99/week"}
-              </Text>
-            )}
-          </Pressable>
-          <Pressable onPress={openWebMembership} style={{ marginTop: 12 }}>
-            <Text style={{ color: colors.primary, textAlign: "center", fontWeight: "700" }}>
-              Preview tools on web →
-            </Text>
-          </Pressable>
+          <Text style={[styles.fieldLabel, { color: colors.mutedForeground }, font("bold")]}>TERRITORY CONTEXT</Text>
+          <TextInput value={territoryNote} onChangeText={setTerritoryNote} placeholder="Market, facilities, focus" placeholderTextColor={colors.mutedForeground} multiline style={[styles.input, { color: colors.foreground, backgroundColor: colors.background, borderColor: colors.border }]} />
+          <Text style={[styles.fieldLabel, { color: colors.mutedForeground }, font("bold")]}>COMMON OBJECTIONS</Text>
+          <TextInput value={topObjections} onChangeText={setTopObjections} placeholder="Not ready, already have a provider" placeholderTextColor={colors.mutedForeground} multiline style={[styles.input, { color: colors.foreground, backgroundColor: colors.background, borderColor: colors.border }]} />
+          <SpartanButton title="Save field profile" onPress={() => void saveProfile()} loading={saving} style={{ marginTop: 14 }} />
+          {message ? <Text style={[styles.saveMessage, { color: colors.mutedForeground }, font("regular")]}>{message}</Text> : null}
+          <Text style={[styles.noPhi, { color: colors.mutedForeground }, font("regular")]}>Coaching context only. Never enter patient PHI.</Text>
         </View>
-      )}
+      ) : null}
 
-      {/* ── Hospice Sales Pro & billing ───────────────────────────────────── */}
-      <View
-        style={[
-          styles.card,
-          { borderColor: colors.primary, backgroundColor: colors.card, marginTop: 12 },
-        ]}
-        testID="card-membership-billing"
-      >
-        <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 8 }}>
-          <Feather name="credit-card" size={18} color={colors.primary} />
-          <Text style={{ color: colors.foreground, fontWeight: "800", fontSize: 16 }}>
-            {canCheckout && !canUseFieldKit ? "Subscribe to unlock" : "Billing & access"}
-          </Text>
-        </View>
-
-        {isPersonal && !isPlatform && (
-          <View style={{ marginBottom: 10 }}>
-          <Text style={{ color: colors.primary, fontWeight: "900", fontSize: 28 }}>
-              {canUseElite || (!canUseFieldKit && selectedPlan === "elite_weekly") ? "$19.99" : "$14.99"}
-              <Text style={{ fontSize: 14, fontWeight: "700", color: colors.mutedForeground }}>
-                {" "}
-                / week
-              </Text>
-            </Text>
-            <Text style={{ color: colors.mutedForeground, fontSize: 12, marginTop: 2 }}>
-              {canUseElite || (!canUseFieldKit && selectedPlan === "elite_weekly") ? "Hospice Sales Pro Elite" : "Hospice Sales Pro"} · auto renew · cancel anytime
-            </Text>
-          </View>
-        )}
-
-        <Text style={{ color: colors.mutedForeground, lineHeight: 20, fontSize: 14 }}>
-          {membershipBlurb}
-        </Text>
-
-        {periodEnd && hasPaidSub ? (
-          <Text style={{ color: colors.foreground, fontSize: 13, marginTop: 8, fontWeight: "600" }}>
-            {cancelAtPeriodEnd
-              ? `Access until ${new Date(periodEnd).toLocaleDateString()}`
-              : `Renews ${new Date(periodEnd).toLocaleDateString()}`}
-          </Text>
-        ) : null}
-
-        {billingLoading ? (
-          <View style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 12 }}>
-            <ActivityIndicator size="small" color={colors.primary} />
-            <Text style={{ color: colors.mutedForeground, fontSize: 13 }}>Loading billing…</Text>
-          </View>
-        ) : (
-          <View style={{ marginTop: 14, gap: 10 }}>
-            {canCheckout && (
-              <Pressable
-                onPress={() => void onSubscribe()}
-                disabled={checkoutPending}
-                style={[
-                  styles.primaryBtn,
-                  {
-                    backgroundColor: colors.primary,
-                    marginTop: 0,
-                    opacity: checkoutPending ? 0.7 : 1,
-                  },
-                ]}
-                testID="button-subscribe"
-              >
-                <Text style={[styles.primaryBtnText, { color: colors.primaryForeground }]}>
-                  {checkoutPending ? "Opening checkout…" : selectedPlan === "elite_weekly" ? "Choose Elite · $19.99/week" : "Choose Standard · $14.99/week"}
-                </Text>
-              </Pressable>
-            )}
-            {canPortal && (
-              <Pressable
-                onPress={onManageBilling}
-                disabled={portalPending}
-                style={[
-                  styles.outlineBtn,
-                  {
-                    borderColor: colors.border,
-                    opacity: portalPending ? 0.7 : 1,
-                  },
-                ]}
-                testID="button-manage-billing"
-              >
-                <Text style={{ color: colors.foreground, fontWeight: "700" }}>
-                  {portalPending ? "Opening…" : "Manage billing / cancel"}
-                </Text>
-              </Pressable>
-            )}
-            {isCompany && (
-              <Text style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 18 }}>
-                Seat changes and contract billing go through your org admin or Nick. Not self-serve on
-                mobile.
-              </Text>
-            )}
-            {isPlatform && (
-              <Text style={{ color: colors.mutedForeground, fontSize: 12 }}>
-                Platform admin accounts are not billed.
-              </Text>
-            )}
-            {isPersonal &&
-              !isPlatform &&
-              !canCheckout &&
-              !canPortal &&
-              billing &&
-              !billing.configured && (
-                <Text style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 18 }}>
-                  Self-serve billing is not fully configured on the server yet (Stripe secrets). You can
-                  still use Account on the website once secrets are set.
-                </Text>
-              )}
-            <Pressable onPress={openWebAccount} style={{ paddingVertical: 4 }}>
-              <Text style={{ color: colors.primary, fontWeight: "700", fontSize: 13 }}>
-                Open website Account →
-              </Text>
-            </Pressable>
-            <Pressable onPress={openWebMembership} style={{ paddingVertical: 2 }}>
-              <Text style={{ color: colors.mutedForeground, fontWeight: "600", fontSize: 13 }}>
-                View membership plans →
-              </Text>
-            </Pressable>
-          </View>
-        )}
-      </View>
-
-      {!canUseFieldKit && (
-        <View
-          style={[
-            styles.card,
-            { borderColor: colors.border, backgroundColor: colors.card, marginTop: 12 },
-          ]}
-          testID="card-membership-locked"
-        >
-          <Text style={{ color: colors.primary, fontSize: 10, fontWeight: "800", letterSpacing: 1.4, textTransform: "uppercase", marginBottom: 6 }}>
-            {org?.status === "expired" ? "Evaluation ended" : "Hospice Sales Pro locked"}
-          </Text>
-          <Text style={{ color: colors.foreground, fontWeight: "900", fontSize: 15, lineHeight: 21, marginBottom: 10 }}>
-            {org?.status === "expired"
-              ? "You had access — here's what you were using"
-              : "Here's what unlocks at $14.99/week"}
-          </Text>
-
-          {[
-            { title: "Objection Handler", desc: "Turn a stalled 'not ready' into an education moment that moves referrals" },
-            { title: "Weekly Plan Builder", desc: "Priority accounts get time; low-value busyness loses it" },
-            { title: "Role-Play Practice", desc: "Muscle memory shows up when the clinic is short-staffed" },
-            { title: "Playbook Generator", desc: "Stop winging visits — leave with a specific commitment" },
-          ].map((t) => (
-            <View key={t.title} style={{ flexDirection: "row", gap: 10, alignItems: "flex-start", marginBottom: 8 }}>
-              <Feather name="lock" size={13} color={colors.primary} style={{ marginTop: 2 }} />
-              <View style={{ flex: 1 }}>
-                <Text style={{ color: colors.foreground, fontSize: 13, fontWeight: "700" }}>{t.title}</Text>
-                <Text style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 17, marginTop: 1 }}>{t.desc}</Text>
-              </View>
-            </View>
-          ))}
-
-          <View style={{ borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 10, marginTop: 4 }}>
-            <Text style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 18 }}>
-              {isPersonal
-                ? "At $14.99/week, one better conversation pays for the month. Subscribe above, or contact Spartan for team contracts."
-                : "Book a short debrief to activate seats under contract."}
-            </Text>
-            {!canCheckout && (
-              <Pressable onPress={() => router.push("/(tabs)/contact")} style={{ marginTop: 10 }}>
-                <Text style={{ color: colors.primary, fontWeight: "700", fontSize: 13 }}>Contact Spartan →</Text>
-              </Pressable>
-            )}
-          </View>
-        </View>
-      )}
-
-      {canUseFieldKit && (
-        <View
-          style={[
-            styles.card,
-            { borderColor: colors.border, backgroundColor: colors.card, marginTop: 12 },
-          ]}
-          testID="card-your-membership"
-        >
-          <Text style={{ color: colors.primary, fontSize: 10, fontWeight: "800", letterSpacing: 1.4, textTransform: "uppercase", marginBottom: 6 }}>
-            Your Portal
-          </Text>
-          <Text style={{ color: colors.foreground, fontWeight: "800", fontSize: 15, marginBottom: 10 }}>
-            Daily tools unlocked
-          </Text>
-          {[
-            { icon: "shield" as const, label: "Objections", desc: "Field-ready responses to this week's objections" },
-            { icon: "book-open" as const, label: "Playbooks", desc: "Talking points and a clear ask for any visit" },
-            { icon: "mail" as const, label: "Email", desc: "Follow-ups and thank-yous that stay professional" },
-            { icon: "users" as const, label: "Role-Play", desc: "Simulate hard conversations before you're in the room" },
-            { icon: "search" as const, label: "Research", desc: "Territory questions with credible sources" },
-            { icon: "calendar" as const, label: "Weekly Plan", desc: "Monday–Friday territory plan with win conditions" },
-            { icon: "phone" as const, label: "Cold Call", desc: "Openers and next-step asks for new outreach" },
-          ].map((t) => (
-            <View key={t.label} style={{ flexDirection: "row", gap: 10, alignItems: "flex-start", marginBottom: 8 }}>
-              <Feather name={t.icon} size={14} color={colors.primary} style={{ marginTop: 2 }} />
-              <View style={{ flex: 1 }}>
-                <Text style={{ color: colors.foreground, fontSize: 13, fontWeight: "700" }}>{t.label}</Text>
-                <Text style={{ color: colors.mutedForeground, fontSize: 12, lineHeight: 17, marginTop: 1 }}>{t.desc}</Text>
-              </View>
-            </View>
-          ))}
-          <Pressable
-            onPress={() => router.push("/(tabs)/tools")}
-            style={{ marginTop: 6, backgroundColor: colors.primary, borderRadius: 8, paddingVertical: 10, alignItems: "center", minHeight: 44, justifyContent: "center" }}
-            testID="account-open-tools"
-          >
-            <Text style={{ color: colors.primaryForeground, fontWeight: "800", fontSize: 13 }}>Open Tools →</Text>
-          </Pressable>
-          <Pressable
-            onPress={() => router.push("/ai-tools" as any)}
-            style={{
-              marginTop: 10,
-              borderWidth: 1,
-              borderColor: colors.border,
-              borderRadius: 8,
-              paddingVertical: 12,
-              paddingHorizontal: 12,
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 10,
-              minHeight: 48,
-            }}
-            testID="account-advanced-library"
-          >
-            <Feather name="cpu" size={18} color={colors.primary} />
-            <View style={{ flex: 1 }}>
-              <Text style={{ color: colors.foreground, fontWeight: "800", fontSize: 14 }}>Advanced library</Text>
-              <Text style={{ color: colors.mutedForeground, fontSize: 12, marginTop: 2, lineHeight: 16 }}>
-                Specialized Field AI + clinical vault (authorized roles only)
-              </Text>
-            </View>
-            <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
-          </Pressable>
-        </View>
-      )}
-
-      {canUseFieldKit && (
-        <View
-          style={[
-            styles.card,
-            { borderColor: colors.border, backgroundColor: colors.card, marginTop: 12 },
-          ]}
-        >
-          <Text style={{ color: colors.foreground, fontWeight: "800", marginBottom: 10 }}>
-            Field profile
-          </Text>
-          <Text style={[styles.cardLabel, { color: colors.mutedForeground }]}>Role</Text>
-          <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 8, marginBottom: 12 }}>
-            {ROLES.map((r) => (
-              <Pressable
-                key={r.id}
-                onPress={() => setJobRole(r.id)}
-                style={{
-                  paddingHorizontal: 12,
-                  paddingVertical: 8,
-                  borderRadius: 20,
-                  borderWidth: 1,
-                  borderColor: jobRole === r.id ? colors.primary : colors.border,
-                  backgroundColor: jobRole === r.id ? "rgba(232,41,30,0.12)" : "transparent",
-                }}
-              >
-                <Text
-                  style={{
-                    color: jobRole === r.id ? colors.primary : colors.foreground,
-                    fontWeight: "700",
-                    fontSize: 12,
-                  }}
-                >
-                  {r.label}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-
-          <Text style={[styles.cardLabel, { color: colors.mutedForeground }]}>Territory notes</Text>
-          <TextInput
-            value={territoryNote}
-            onChangeText={setTerritoryNote}
-            placeholder="Market, facilities, focus…"
-            placeholderTextColor={colors.mutedForeground}
-            multiline
-            style={[
-              styles.input,
-              { color: colors.foreground, borderColor: colors.border, backgroundColor: colors.background },
-            ]}
-          />
-
-          <Text style={[styles.cardLabel, { color: colors.mutedForeground, marginTop: 12 }]}>
-            Top objections
-          </Text>
-          <TextInput
-            value={topObjections}
-            onChangeText={setTopObjections}
-            placeholder="not ready, already have provider…"
-            placeholderTextColor={colors.mutedForeground}
-            multiline
-            style={[
-              styles.input,
-              { color: colors.foreground, borderColor: colors.border, backgroundColor: colors.background },
-            ]}
-          />
-
-          <Pressable
-            onPress={saveProfile}
-            disabled={saving}
-            style={[
-              styles.primaryBtn,
-              { backgroundColor: colors.primary, opacity: saving ? 0.7 : 1, marginTop: 14 },
-            ]}
-          >
-            <Text style={[styles.primaryBtnText, { color: colors.primaryForeground }]}>
-              {saving ? "Saving…" : "Save profile"}
-            </Text>
-          </Pressable>
-          {msg ? (
-            <Text style={{ color: colors.mutedForeground, marginTop: 8, fontSize: 13 }}>{msg}</Text>
-          ) : null}
-          <Text style={{ color: colors.mutedForeground, fontSize: 11, marginTop: 10 }}>
-            No PHI. Coaching context only.
-          </Text>
-        </View>
-      )}
-
-      {/* Privacy & legal — App Store 5.1.1 */}
-      <View
-        style={[
-          styles.card,
-          { borderColor: colors.border, backgroundColor: colors.card, marginTop: 16 },
-        ]}
-        testID="card-privacy-legal"
-      >
-        <Text style={{ color: colors.foreground, fontWeight: "800", fontSize: 16, marginBottom: 8 }}>
-          Privacy & legal
-        </Text>
-        <Text style={{ color: colors.mutedForeground, fontSize: 13, lineHeight: 19, marginBottom: 12 }}>
-          Membership tools are coaching and education aids. Never enter patient PHI. Individual plans are Standard at $14.99 per week and Elite at $19.99 per week. Company teams use contracted seats.
-        </Text>
+      <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]} testID="card-privacy-legal">
+        <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>TRUST</Text>
+        <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Privacy is part of the product</Text>
+        <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>Raw Coach conversations remain private and are removed after 90 days. Only summaries and commitments you explicitly share can be visible to a manager.</Text>
         {[
-          { label: "Privacy Policy", url: APP_STORE_PRIVACY_URL, testId: "link-privacy" },
-          { label: "Terms of Service", url: APP_STORE_TERMS_URL, testId: "link-terms" },
-          { label: "Trust Center", url: APP_STORE_TRUST_URL, testId: "link-trust" },
-          { label: "Support / Contact", url: APP_STORE_SUPPORT_URL, testId: "link-support" },
+          { label: "Privacy policy", url: APP_STORE_PRIVACY_URL, testID: "link-privacy" },
+          { label: "Terms of service", url: APP_STORE_TERMS_URL, testID: "link-terms" },
+          { label: "Trust center", url: APP_STORE_TRUST_URL, testID: "link-trust" },
+          { label: "Support", url: APP_STORE_SUPPORT_URL, testID: "link-support" },
         ].map((item) => (
-          <Pressable
-            key={item.url}
-            onPress={() => void Linking.openURL(item.url)}
-            style={{ paddingVertical: 10, minHeight: 44, justifyContent: "center" }}
-            testID={item.testId}
-          >
-            <Text style={{ color: colors.primary, fontWeight: "700", fontSize: 14 }}>{item.label} →</Text>
+          <Pressable key={item.url} onPress={() => void Linking.openURL(item.url)} style={[styles.legalRow, { borderTopColor: colors.border }]} testID={item.testID}>
+            <Text style={[styles.legalLabel, { color: colors.foreground }, font("semibold")]}>{item.label}</Text>
+            <Feather name="arrow-up-right" size={17} color={colors.primary} />
           </Pressable>
         ))}
       </View>
 
-      <Pressable
+      <SpartanButton
+        title="Sign out"
+        variant="outline"
         onPress={async () => {
           await logout();
           router.replace("/(tabs)");
         }}
-        style={[styles.outlineBtn, { borderColor: colors.border, marginTop: 24 }]}
+        style={{ marginTop: 22 }}
         testID="button-sign-out"
-      >
-        <Text style={{ color: colors.foreground, fontWeight: "700" }}>Sign out</Text>
+      />
+      <Pressable onPress={deleteAccount} disabled={deletePending} style={styles.deleteButton} testID="button-delete-account">
+        <Text style={[styles.deleteText, { color: colors.destructive }, font("bold")]}>{deletePending ? "Deleting account" : "Delete account"}</Text>
       </Pressable>
-
-      {/* Account deletion — App Store Guideline 5.1.1(v) */}
-      <Pressable
-        onPress={onDeleteAccount}
-        disabled={deletePending}
-        style={[
-          styles.outlineBtn,
-          {
-            borderColor: colors.destructive ?? "#b91c1c",
-            marginTop: 12,
-            opacity: deletePending ? 0.7 : 1,
-          },
-        ]}
-        testID="button-delete-account"
-      >
-        <Text style={{ color: colors.destructive ?? "#b91c1c", fontWeight: "700" }}>
-          {deletePending ? "Deleting…" : "Delete account"}
-        </Text>
-      </Pressable>
-      <Text
-        style={{
-          color: colors.mutedForeground,
-          fontSize: 11,
-          lineHeight: 16,
-          marginTop: 8,
-          textAlign: "center",
-          marginBottom: 8,
-        }}
-      >
-        Permanently closes this account in the app (required by App Store). Cancel subscriptions in
-        Manage billing if needed.
-      </Text>
+      <Text style={[styles.deleteNote, { color: colors.mutedForeground }, font("regular")]}>Account deletion is permanent. Manage an active subscription first.</Text>
     </ScrollView>
+  );
+}
+
+function Benefit({ icon, title, body, inverted }: { icon: React.ComponentProps<typeof Feather>["name"]; title: string; body: string; inverted?: boolean }) {
+  const colors = useColors();
+  return (
+    <View style={styles.benefit}>
+      <View style={[styles.benefitIcon, { backgroundColor: inverted ? colors.primary : colors.primaryMuted }]}><Feather name={icon} size={17} color={inverted ? colors.primaryForeground : colors.primary} /></View>
+      <View style={{ flex: 1 }}>
+        <Text style={[styles.benefitTitle, { color: inverted ? colors.heroForeground : colors.foreground }, font("bold")]}>{title}</Text>
+        <Text style={[styles.benefitBody, { color: inverted ? colors.heroMuted : colors.mutedForeground }, font("regular")]}>{body}</Text>
+      </View>
+    </View>
+  );
+}
+
+function PlanChoice({ selected, title, price, body, badge, onPress }: { selected: boolean; title: string; price: string; body: string; badge?: string; onPress: () => void }) {
+  const colors = useColors();
+  return (
+    <Pressable onPress={onPress} style={[styles.plan, { backgroundColor: selected ? colors.primaryMuted : colors.background, borderColor: selected ? colors.primary : colors.border, borderWidth: selected ? 2 : 1 }]}>
+      {badge ? <Text style={[styles.planBadge, { color: colors.primary }, font("bold")]}>{badge}</Text> : null}
+      <Text style={[styles.planTitle, { color: colors.foreground }, font("heavy")]}>{title}</Text>
+      <Text style={[styles.planPrice, { color: colors.primary }, font("heavy")]}>{price}<Text style={[styles.planCadence, { color: colors.mutedForeground }, font("regular")]}> / week</Text></Text>
+      <Text style={[styles.planBody, { color: colors.mutedForeground }, font("regular")]}>{body}</Text>
+    </Pressable>
+  );
+}
+
+function AccessRow({ icon, title, state, active, onPress }: { icon: React.ComponentProps<typeof Feather>["name"]; title: string; state: string; active: boolean; onPress?: () => void }) {
+  const colors = useColors();
+  return (
+    <Pressable onPress={onPress} disabled={!onPress} style={[styles.accessRow, { borderTopColor: colors.border }]}>
+      <View style={[styles.accessIcon, { backgroundColor: active ? colors.primaryMuted : colors.muted }]}><Feather name={icon} size={17} color={active ? colors.primary : colors.mutedForeground} /></View>
+      <Text style={[styles.accessTitle, { color: colors.foreground }, font("semibold")]}>{title}</Text>
+      <Text style={[styles.accessState, { color: active ? colors.success : colors.mutedForeground }, font("bold")]}>{state}</Text>
+      {onPress ? <Feather name="chevron-right" size={17} color={colors.mutedForeground} /> : null}
+    </Pressable>
   );
 }
 
 const styles = StyleSheet.create({
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
-  kicker: { fontSize: 11, fontWeight: "800", letterSpacing: 1.8, marginBottom: 10, textTransform: "uppercase" },
-  title: { fontSize: 30, fontWeight: "800", marginBottom: 10, letterSpacing: -0.5 },
-  body: { fontSize: 15, lineHeight: 23, marginBottom: 10 },
-  card: {
-    borderWidth: 1,
-    borderRadius: 14,
-    padding: 18,
-    marginTop: 10,
-  },
-  bulletRow: { flexDirection: "row", gap: 10, alignItems: "flex-start", marginBottom: 10 },
-  bulletText: { flex: 1, fontSize: 14, lineHeight: 20 },
-  primaryBtn: {
-    marginTop: 24,
-    borderRadius: 12,
-    paddingVertical: 16,
-    alignItems: "center",
-    shadowColor: "#e8291e",
-    shadowOpacity: 0.3,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 4,
-  },
-  primaryBtnText: { fontWeight: "800", fontSize: 16, letterSpacing: 0.2 },
-  outlineBtn: {
-    borderWidth: 1.5,
-    borderRadius: 12,
-    paddingVertical: 15,
-    alignItems: "center",
-  },
-  cardLabel: { fontSize: 11, fontWeight: "700", textTransform: "uppercase", letterSpacing: 0.8 },
-  cardValue: { fontSize: 16, fontWeight: "700", marginTop: 4 },
-  input: {
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 14,
-    marginTop: 8,
-    minHeight: 76,
-    textAlignVertical: "top",
-    fontSize: 15,
-  },
+  kicker: { fontSize: 10, letterSpacing: 2.2, marginBottom: 8 },
+  pageTitle: { fontSize: 35, letterSpacing: -1, marginBottom: 8 },
+  pageSubtitle: { fontSize: 14, lineHeight: 21 },
+  heroCard: { borderWidth: 1, borderRadius: 22, padding: 20, marginTop: 20 },
+  heroEyebrow: { fontSize: 9, letterSpacing: 1.8 },
+  heroTitle: { fontSize: 24, lineHeight: 29, letterSpacing: -0.5, marginTop: 10 },
+  textLink: { minHeight: 48, justifyContent: "center", alignItems: "center", marginTop: 8 },
+  identityRow: { flexDirection: "row", alignItems: "center", gap: 13, marginBottom: 18 },
+  avatar: { width: 48, height: 48, borderRadius: 16, alignItems: "center", justifyContent: "center" },
+  avatarText: { fontSize: 17 },
+  memberName: { fontSize: 24, letterSpacing: -0.5 },
+  memberEmail: { fontSize: 12, marginTop: 3 },
+  membershipCard: { borderWidth: 1, borderRadius: 24, padding: 20 },
+  membershipTop: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
+  membershipTitle: { fontSize: 23, lineHeight: 28, letterSpacing: -0.5, marginTop: 7 },
+  membershipPrice: { fontSize: 30, letterSpacing: -0.8, marginTop: 16 },
+  membershipCadence: { fontSize: 13 },
+  membershipBody: { fontSize: 13, lineHeight: 20, marginTop: 8 },
+  renewal: { fontSize: 12, marginTop: 11 },
+  loadingRow: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 15 },
+  sectionCard: { borderWidth: StyleSheet.hairlineWidth * 2, borderRadius: 21, padding: 18, marginTop: 14 },
+  sectionEyebrow: { fontSize: 9, letterSpacing: 1.8, marginBottom: 7 },
+  sectionTitle: { fontSize: 21, letterSpacing: -0.4 },
+  sectionBody: { fontSize: 13, lineHeight: 19, marginTop: 6 },
+  planGrid: { flexDirection: "row", gap: 9, marginTop: 16 },
+  plan: { flex: 1, borderRadius: 17, padding: 14, minHeight: 154 },
+  planBadge: { fontSize: 8, letterSpacing: 1.2, marginBottom: 5 },
+  planTitle: { fontSize: 16 },
+  planPrice: { fontSize: 21, marginTop: 7 },
+  planCadence: { fontSize: 10 },
+  planBody: { fontSize: 11, lineHeight: 16, marginTop: 8 },
+  purchaseNote: { fontSize: 10, lineHeight: 15, textAlign: "center", marginTop: 11 },
+  accessRow: { minHeight: 59, borderTopWidth: StyleSheet.hairlineWidth, flexDirection: "row", alignItems: "center", gap: 10 },
+  accessIcon: { width: 34, height: 34, borderRadius: 11, alignItems: "center", justifyContent: "center" },
+  accessTitle: { flex: 1, fontSize: 13 },
+  accessState: { fontSize: 11 },
+  teamNote: { fontSize: 12, lineHeight: 18, marginTop: 8 },
+  inlineLink: { borderTopWidth: StyleSheet.hairlineWidth, flexDirection: "row", alignItems: "center", paddingTop: 14, marginTop: 4 },
+  inlineTitle: { fontSize: 13 },
+  inlineBody: { fontSize: 11, lineHeight: 16, marginTop: 3 },
+  appearanceGrid: { flexDirection: "row", gap: 8, marginTop: 14 },
+  appearanceChoice: { flex: 1, minHeight: 67, borderWidth: 1, borderRadius: 15, alignItems: "center", justifyContent: "center", gap: 7 },
+  appearanceLabel: { fontSize: 12 },
+  fieldLabel: { fontSize: 9, letterSpacing: 1.3, marginTop: 16 },
+  roleWrap: { flexDirection: "row", flexWrap: "wrap", gap: 7, marginTop: 9 },
+  roleChip: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 11, paddingVertical: 8 },
+  roleLabel: { fontSize: 11 },
+  input: { borderWidth: 1, borderRadius: 14, minHeight: 78, padding: 13, marginTop: 8, fontSize: 14, textAlignVertical: "top" },
+  saveMessage: { fontSize: 12, textAlign: "center", marginTop: 8 },
+  noPhi: { fontSize: 10, textAlign: "center", marginTop: 8 },
+  legalRow: { minHeight: 51, borderTopWidth: StyleSheet.hairlineWidth, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  legalLabel: { fontSize: 13 },
+  deleteButton: { minHeight: 48, alignItems: "center", justifyContent: "center", marginTop: 8 },
+  deleteText: { fontSize: 13 },
+  deleteNote: { fontSize: 10, lineHeight: 15, textAlign: "center" },
+  benefit: { flexDirection: "row", alignItems: "flex-start", gap: 11 },
+  benefitIcon: { width: 34, height: 34, borderRadius: 11, alignItems: "center", justifyContent: "center" },
+  benefitTitle: { fontSize: 14 },
+  benefitBody: { fontSize: 12, lineHeight: 17, marginTop: 2 },
 });

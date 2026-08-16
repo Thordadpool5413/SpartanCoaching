@@ -1,14 +1,9 @@
 import { Feather } from "@expo/vector-icons";
 import * as Crypto from "expo-crypto";
-import * as DocumentPicker from "expo-document-picker";
-import * as FileSystem from "expo-file-system/legacy";
-import * as ImagePicker from "expo-image-picker";
-import * as LocalAuthentication from "expo-local-authentication";
 import { router } from "expo-router";
-import React, { useEffect, useMemo, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   ActivityIndicator,
-  AppState,
   Platform,
   Pressable,
   ScrollView,
@@ -31,11 +26,8 @@ import {
 import { consumeAiToolHandoff, stageAiToolHandoff } from "@/lib/aiToolHandoff";
 import { useColors } from "@/hooks/useColors";
 import {
-  ApiError,
-  apiDelete,
   apiGet,
   apiPost,
-  uploadToSignedUrl,
 } from "@/lib/api";
 import { font } from "@/lib/typography";
 import { VAULT, VAULT_COPY } from "@/lib/clinicalVaultTheme";
@@ -55,7 +47,6 @@ type ToolRun = {
   retention?: "ephemeral";
   recoverable?: boolean;
 };
-type CoverageSnapshot = { id: string; title: string; version: string };
 
 function initialForm(
   tool: AiToolSpec,
@@ -269,80 +260,15 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
   const [values, setValues] = useState(() => initialForm(tool));
   const [run, setRun] = useState<ToolRun | null>(null);
   const [history, setHistory] = useState<ToolRun[]>([]);
-  const [snapshots, setSnapshots] = useState<CoverageSnapshot[]>([]);
-  const [snapshotId, setSnapshotId] = useState("");
-  const [ephemeralSession, setEphemeralSession] = useState<{
-    id: string;
-    coverageSnapshotId: string;
-    expiresAt: string;
-  } | null>(null);
-  const ephemeralSessionRef = useRef(ephemeralSession);
   const [busy, setBusy] = useState(false);
-  const [uploading, setUploading] = useState(false);
   const [error, setError] = useState("");
-  const [needsMfa, setNeedsMfa] = useState(false);
-  const [clinicalMode, setClinicalMode] = useState<"deidentified" | "phi">(
-    "deidentified",
-  );
-  const [coverageRequired, setCoverageRequired] = useState(false);
-  const [allowsDocumentUpload, setAllowsDocumentUpload] = useState(false);
-  const [runtimeReady, setRuntimeReady] = useState(true);
-  const [missingControls, setMissingControls] = useState<string[]>([]);
   const [confirmedDeidentified, setConfirmedDeidentified] = useState(false);
-  const [challenge, setChallenge] = useState<{
-    challengeId: string;
-    challengeToken: string;
-  } | null>(null);
-  const [mfaCode, setMfaCode] = useState("");
-  const [clinicalScreenObscured, setClinicalScreenObscured] = useState(false);
-  const selectedSnapshot = useMemo(
-    () => snapshots.find((item) => item.id === snapshotId),
-    [snapshots, snapshotId],
-  );
-
-  function updateEphemeralSession(session: typeof ephemeralSession): void {
-    ephemeralSessionRef.current = session;
-    setEphemeralSession(session);
-  }
-
-  async function unlockClinical(mode: "deidentified" | "phi") {
-    if (!tool.containsPhi || mode !== "phi") return true;
-    const available = await LocalAuthentication.hasHardwareAsync();
-    if (!available) return true;
-    const result = await LocalAuthentication.authenticateAsync({
-      promptMessage: "Reopen protected clinical tools",
-      fallbackLabel: "Use device passcode",
-      disableDeviceFallback: false,
-    });
-    if (!result.success) {
-      setError("Device verification is required to reopen clinical tools.");
-      return false;
-    }
-    return true;
-  }
 
   async function loadData() {
     setError("");
     try {
       if (tool.containsPhi) {
-        const snapshotResponse = await apiGet<{
-          snapshots: CoverageSnapshot[];
-          operationMode: "deidentified" | "phi";
-          required: boolean;
-          allowsDocumentUpload: boolean;
-          runtimeReady?: boolean;
-          missingControls?: string[];
-        }>("/api/clinical/coverage/snapshots");
-        if (!(await unlockClinical(snapshotResponse.operationMode))) return;
-        setSnapshots(snapshotResponse.snapshots);
-        setClinicalMode(snapshotResponse.operationMode);
-        setCoverageRequired(snapshotResponse.required);
-        setAllowsDocumentUpload(snapshotResponse.allowsDocumentUpload);
-        setRuntimeReady(snapshotResponse.runtimeReady !== false);
-        setMissingControls(snapshotResponse.missingControls ?? []);
-        setSnapshotId(
-          (current) => current || snapshotResponse.snapshots[0]?.id || "",
-        );
+        await apiGet("/api/clinical/coverage/snapshots");
         setHistory([]);
       } else {
         const response = await apiGet<{ runs: ToolRun[] }>(
@@ -350,20 +276,12 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         );
         setHistory(response.runs);
       }
-      setNeedsMfa(false);
     } catch (caught) {
-      if (
-        caught instanceof ApiError &&
-        caught.code === "CLINICAL_MFA_REQUIRED"
-      ) {
-        setNeedsMfa(true);
-      } else {
-        setError(
-          caught instanceof Error
-            ? caught.message
-            : "Tool data could not be loaded.",
-        );
-      }
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : "Tool data could not be loaded.",
+      );
     }
   }
 
@@ -384,55 +302,20 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
     void loadData();
   }, [tool.id]);
 
-  useEffect(() => {
-    const subscription = AppState.addEventListener("change", (state) => {
-      if (tool.containsPhi) setClinicalScreenObscured(state !== "active");
-    });
-    return () => subscription.remove();
-  }, [tool.containsPhi]);
-
-  useEffect(() => {
-    const sessionId = ephemeralSession?.id;
-    if (!sessionId) return;
-    return () => {
-      void apiDelete(`/api/clinical/ephemeral-sessions/${sessionId}`).catch(
-        () => undefined,
-      );
-    };
-  }, [ephemeralSession?.id]);
-
   async function runTool() {
     setBusy(true);
     setError("");
     try {
       const input = parsedInput(tool, values);
       if (tool.containsPhi) {
-        if (
-          tool.id === "medical-record-lcd-verifier" &&
-          clinicalMode === "phi" &&
-          !ephemeralSessionRef.current
-        ) {
-          throw new Error("Upload at least one record before finalizing.");
-        }
-        const path =
-          tool.id === "medical-record-lcd-verifier" && clinicalMode === "phi"
-            ? `/api/clinical/ephemeral-sessions/${ephemeralSessionRef.current?.id}/finalize`
-            : `/api/ai-tools/${tool.id}/ephemeral-runs`;
-        const response = await apiPost<{ result: ToolRun }>(path, {
+        const response = await apiPost<{ result: ToolRun }>(
+          `/api/ai-tools/${tool.id}/ephemeral-runs`,
+          {
           input,
-          ...(tool.id === "medical-record-lcd-verifier" &&
-          clinicalMode === "phi"
-            ? {}
-            : {
-                coverageSnapshotId: snapshotId || undefined,
-                confirmedDeidentified:
-                  clinicalMode === "deidentified"
-                    ? confirmedDeidentified
-                    : undefined,
-              }),
-        });
+          confirmedDeidentified,
+          },
+        );
         setRun(response.result);
-        updateEphemeralSession(null);
         if (Platform.OS !== "web") {
           void Haptics.notificationAsync(
             Haptics.NotificationFeedbackType.Success,
@@ -456,8 +339,6 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         }
       }
     } catch (caught) {
-      if (caught instanceof ApiError && caught.code === "CLINICAL_MFA_REQUIRED")
-        setNeedsMfa(true);
       setError(
         caught instanceof Error
           ? caught.message
@@ -502,171 +383,6 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
     } finally {
       setBusy(false);
     }
-  }
-
-  async function requestMfa() {
-    setBusy(true);
-    try {
-      setChallenge(await apiPost("/api/clinical/mfa/request", {}));
-    } catch (caught) {
-      setError(
-        caught instanceof Error ? caught.message : "Code could not be sent.",
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function verifyMfa() {
-    if (!challenge) return;
-    setBusy(true);
-    try {
-      await apiPost("/api/clinical/mfa/verify", {
-        ...challenge,
-        code: mfaCode,
-      });
-      setNeedsMfa(false);
-      await loadData();
-    } catch (caught) {
-      setError(
-        caught instanceof Error
-          ? caught.message
-          : "Code could not be verified.",
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
-
-  async function uploadAsset(asset: {
-    uri: string;
-    name?: string | null;
-    mimeType?: string | null;
-    size?: number;
-  }) {
-    if (!snapshotId) throw new Error("Select CMS evidence first.");
-    const contentType = asset.mimeType || "application/octet-stream";
-    const displayLabel =
-      asset.name ||
-      `document-${Date.now()}.${contentType.split("/")[1] || "bin"}`;
-    try {
-      let session = ephemeralSessionRef.current;
-      if (!session || session.coverageSnapshotId !== snapshotId) {
-        if (session) {
-          await apiDelete(
-            `/api/clinical/ephemeral-sessions/${session.id}`,
-          ).catch(() => undefined);
-        }
-        const created = await apiPost<{
-          session: {
-            id: string;
-            coverageSnapshotId: string;
-            expiresAt: string;
-          };
-        }>("/api/clinical/ephemeral-sessions", {
-          coverageSnapshotId: snapshotId,
-        });
-        session = created.session;
-        updateEphemeralSession(session);
-      }
-      const blob = await (await fetch(asset.uri)).blob();
-      const sizeBytes = asset.size ?? blob.size;
-      const authorization = await apiPost<{
-        documentToken: string;
-        uploadUrl: string;
-        requiredHeaders: Record<string, string>;
-      }>(
-        `/api/clinical/ephemeral-sessions/${session.id}/documents/upload-url`,
-        { contentType, sizeBytes },
-      );
-      await uploadToSignedUrl(authorization.uploadUrl, blob, contentType);
-      await apiPost(
-        `/api/clinical/ephemeral-sessions/${session.id}/documents/${authorization.documentToken}/complete`,
-        {},
-      );
-      const extraction = await apiPost<{ text: string }>(
-        `/api/clinical/ephemeral-sessions/${session.id}/documents/${authorization.documentToken}/extract`,
-        {},
-      );
-      setValues((current) => ({
-        ...current,
-        recordText: [
-          String(current.recordText ?? ""),
-          `--- ${displayLabel} ---\n${extraction.text}`,
-        ]
-          .filter(Boolean)
-          .join("\n\n"),
-      }));
-    } finally {
-      if (asset.uri.startsWith("file:")) {
-        await FileSystem.deleteAsync(asset.uri, {
-          idempotent: true,
-        }).catch(() => undefined);
-      }
-    }
-  }
-
-  async function chooseDocument(camera: boolean) {
-    setUploading(true);
-    setError("");
-    try {
-      if (camera) {
-        const permission = await ImagePicker.requestCameraPermissionsAsync();
-        if (!permission.granted)
-          throw new Error("Camera permission is required.");
-        const result = await ImagePicker.launchCameraAsync({
-          mediaTypes: ["images"],
-          quality: 0.85,
-        });
-        if (!result.canceled) await uploadAsset(result.assets[0]);
-      } else {
-        const result = await DocumentPicker.getDocumentAsync({
-          type: ["application/pdf", "image/jpeg", "image/png", "text/plain"],
-          multiple: true,
-          copyToCacheDirectory: true,
-        });
-        if (!result.canceled) {
-          for (const asset of result.assets.slice(0, 25))
-            await uploadAsset(asset);
-        }
-      }
-    } catch (caught) {
-      setError(
-        caught instanceof Error
-          ? caught.message
-          : "Document processing failed.",
-      );
-    } finally {
-      setUploading(false);
-    }
-  }
-
-  function cycle<T extends { id: string }>(
-    items: T[],
-    current: string,
-  ): string {
-    if (!items.length) return "";
-    const index = items.findIndex((item) => item.id === current);
-    return items[(index + 1) % items.length].id;
-  }
-
-  if (tool.containsPhi && clinicalScreenObscured) {
-    return (
-      <View style={[styles.privacyOverlay, { backgroundColor: VAULT.privacyBg }]}>
-        <Feather name="shield" size={40} color={VAULT.accentSoft} />
-        <Text style={[{ color: VAULT.privacyFg, fontSize: 18 }, font("bold")]}>
-          {VAULT_COPY.privacyTitle}
-        </Text>
-        <Text
-          style={[
-            { color: VAULT.privacyMuted, textAlign: "center", lineHeight: 22, maxWidth: 280 },
-            font("regular"),
-          ]}
-        >
-          {VAULT_COPY.privacyBody}
-        </Text>
-      </View>
-    );
   }
 
   const vault = tool.containsPhi;
@@ -720,88 +436,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
 
       {vault ? <ClinicalVaultToolBanner /> : null}
 
-      {needsMfa && (
-        <View
-          style={[
-            styles.card,
-            { borderColor: VAULT.border, backgroundColor: cardBg },
-          ]}
-        >
-          <Text style={[styles.sectionTitle, { color: fg }, font("bold")]}>
-            Clinical verification
-          </Text>
-          {!challenge ? (
-            <Pressable
-              style={[
-                styles.primaryButton,
-                { backgroundColor: colors.primary },
-              ]}
-              onPress={requestMfa}
-            >
-              <Text style={styles.primaryButtonText}>Email six-digit code</Text>
-            </Pressable>
-          ) : (
-            <>
-              <TextInput
-                value={mfaCode}
-                onChangeText={(value) =>
-                  setMfaCode(value.replace(/\D/g, "").slice(0, 6))
-                }
-                keyboardType="number-pad"
-                textContentType="oneTimeCode"
-                placeholder="000000"
-                placeholderTextColor={colors.mutedForeground}
-                style={[
-                  styles.input,
-                  { color: colors.foreground, borderColor: colors.border },
-                ]}
-              />
-              <Pressable
-                disabled={mfaCode.length !== 6}
-                style={[
-                  styles.primaryButton,
-                  {
-                    backgroundColor: colors.primary,
-                    opacity: mfaCode.length === 6 ? 1 : 0.5,
-                  },
-                ]}
-                onPress={verifyMfa}
-              >
-                <Text style={styles.primaryButtonText}>
-                  Verify clinical session
-                </Text>
-              </Pressable>
-            </>
-          )}
-        </View>
-      )}
-
-      {tool.containsPhi && clinicalMode === "phi" && !runtimeReady && (
-        <View
-          style={[
-            styles.card,
-            { borderColor: colors.destructive, backgroundColor: colors.card },
-          ]}
-        >
-          <Text style={[styles.sectionTitle, { color: colors.foreground }]}>
-            PHI runtime is not fully configured
-          </Text>
-          <Text style={{ color: colors.mutedForeground, lineHeight: 20 }}>
-            BAA gates may be set, but required infrastructure is still missing.
-            Clinical runs stay fail-closed until every control is present.
-          </Text>
-          {missingControls.map((control) => (
-            <Text
-              key={control}
-              style={{ color: colors.mutedForeground, marginTop: 6 }}
-            >
-              • {control}
-            </Text>
-          ))}
-        </View>
-      )}
-
-      {tool.containsPhi && !needsMfa && (
+      {tool.containsPhi && (
         <View
           style={[
             styles.card,
@@ -813,80 +448,35 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
             },
           ]}
         >
-          <Text style={[styles.sectionTitle, { color: fg }, font("bold")]}>
+          <Text
+            style={[styles.sectionTitle, { color: fg }, font("bold")]}
+          >
             {VAULT_COPY.workspaceTitle}
-            {clinicalMode === "phi" && runtimeReady ? " · PHI operational" : ""}
           </Text>
-          <Text style={[{ color: muted, lineHeight: 20 }, font("regular")]}>
-            {clinicalMode === "phi"
-              ? "Patient inputs and generated results are not saved. Closing, signing out, or restarting permanently loses this work."
-              : "This live workspace accepts de-identified information only. Inputs and generated results are not saved, and qualified clinical review remains required."}
+          <Text
+            style={[{ color: muted, lineHeight: 20 }, font("regular")]}
+          >
+            This workspace accepts deidentified information only. Do not enter patient names, dates, record numbers, contact details, or documents. Outputs are suggestions and require medical director, compliance, or both to approve them.
           </Text>
-          {clinicalMode === "deidentified" && (
-            <View style={[styles.switchRow, { borderColor: colors.border }]}>
-              <Text
-                style={{
-                  color: colors.foreground,
-                  flex: 1,
-                  lineHeight: 20,
-                  paddingRight: 12,
-                }}
-              >
-                I confirm there are no patient identifiers in this input.
-              </Text>
-              <Switch
-                accessibilityLabel="Confirm input is de-identified"
-                value={confirmedDeidentified}
-                onValueChange={setConfirmedDeidentified}
-              />
-            </View>
-          )}
-          {coverageRequired && (
-            <Pressable
-              style={[styles.selector, { borderColor: colors.border }]}
-              onPress={() => {
-                setSnapshotId(cycle(snapshots, snapshotId));
-                setRun(null);
+          <View
+            style={[styles.switchRow, { borderColor: colors.border }]}
+          >
+            <Text
+              style={{
+                color: colors.foreground,
+                flex: 1,
+                lineHeight: 20,
+                paddingRight: 12,
               }}
             >
-              <Text style={{ color: colors.foreground, flex: 1 }}>
-                {selectedSnapshot
-                  ? `${selectedSnapshot.title} · v${selectedSnapshot.version}`
-                  : "Select CMS evidence"}
-              </Text>
-              <Feather
-                name="chevron-down"
-                size={18}
-                color={colors.mutedForeground}
-              />
-            </Pressable>
-          )}
-          {tool.id === "medical-record-lcd-verifier" &&
-            allowsDocumentUpload && (
-              <View style={styles.inline}>
-                <Pressable
-                  disabled={uploading || !snapshotId}
-                  style={[
-                    styles.secondaryButton,
-                    { flex: 1, borderColor: colors.border },
-                  ]}
-                  onPress={() => chooseDocument(false)}
-                >
-                  <Text style={{ color: colors.foreground }}>Choose files</Text>
-                </Pressable>
-                <Pressable
-                  disabled={uploading || !snapshotId}
-                  style={[
-                    styles.secondaryButton,
-                    { flex: 1, borderColor: colors.border },
-                  ]}
-                  onPress={() => chooseDocument(true)}
-                >
-                  <Text style={{ color: colors.foreground }}>Take photo</Text>
-                </Pressable>
-              </View>
-            )}
-          {uploading && <ActivityIndicator color={colors.primary} />}
+              I confirm this input is deidentified and contains no patient documents.
+            </Text>
+            <Switch
+              accessibilityLabel="Confirm input is deidentified"
+              value={confirmedDeidentified}
+              onValueChange={setConfirmedDeidentified}
+            />
+          </View>
         </View>
       )}
 
@@ -913,12 +503,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
           accessibilityLabel={`Run ${tool.name}`}
           disabled={
             busy ||
-            needsMfa ||
-            (tool.containsPhi && clinicalMode === "phi" && !runtimeReady) ||
-            (tool.containsPhi && coverageRequired && !snapshotId) ||
-            (tool.containsPhi &&
-              clinicalMode === "deidentified" &&
-              !confirmedDeidentified)
+            (tool.containsPhi && !confirmedDeidentified)
           }
           onPress={runTool}
           style={[
@@ -927,14 +512,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
               backgroundColor: colors.primary,
               opacity:
                 busy ||
-                needsMfa ||
-                (tool.containsPhi &&
-                  clinicalMode === "phi" &&
-                  !runtimeReady) ||
-                (tool.containsPhi && coverageRequired && !snapshotId) ||
-                (tool.containsPhi &&
-                  clinicalMode === "deidentified" &&
-                  !confirmedDeidentified)
+                (tool.containsPhi && !confirmedDeidentified)
                   ? 0.5
                   : 1,
             },

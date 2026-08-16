@@ -37,7 +37,7 @@ Folder may still contain old `01-checklist.png` / `02-scenario-coach.png` etc.
 3. Prefer **real device or simulator** at final UI (post I0–I6), not old PNGs named checklist/drills.  
 4. Status bar: clean (full battery, full signal) or hide via simulator.  
 5. Tab bar visible on Home / Command / Tools / Learn shots.  
-6. Do **not** screenshot clinical vault or PHI workflows for public listing.
+6. Do **not** screenshot member clinical guidance or any user-entered clinical context for the public listing.
 
 ### Simulator (macOS)
 

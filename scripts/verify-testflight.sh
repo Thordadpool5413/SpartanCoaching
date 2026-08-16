@@ -28,8 +28,11 @@ echo "[3/9] Verify schema, migration safety, and membership pricing"
 "${PNPM[@]}" --filter @workspace/db test
 "${PNPM[@]}" --filter @workspace/field-kit-catalog test
 
-echo "[4/9] Verify Coach privacy, universal links, and AI safety"
+echo "[4/9] Verify Coach privacy, Apple billing, universal links, and AI safety"
 "${PNPM[@]}" --filter @workspace/api-server exec vitest run \
+  src/billing/appleBillingContract.test.ts \
+  src/billing/entitlementMap.test.ts \
+  src/clinical/clinicalProductContract.test.ts \
   src/routes/coachPrivacyContract.test.ts \
   src/routes/associatedDomainsContract.test.ts \
   src/clinical/deidentification.test.ts \
@@ -68,6 +71,8 @@ NODE
 echo "[8/9] Verify production health and optional AASA"
 HEALTH_JSON="$(curl --fail --silent --show-error --max-time 20 "$PRODUCTION_URL/api/health")"
 node -e 'const v=JSON.parse(process.argv[1]); if(v.status!=="ok") throw new Error("Production health is not ok")' "$HEALTH_JSON"
+APPLE_HEALTH_JSON="$(curl --fail --silent --show-error --max-time 20 "$PRODUCTION_URL/api/billing/apple/health")"
+node -e 'const v=JSON.parse(process.argv[1]); if(v.status!=="ok"||v.configured!==true) throw new Error("Production Apple billing verification is not configured")' "$APPLE_HEALTH_JSON"
 if [[ "$PROFILE" == "testflight-applinks" ]]; then
   AASA_JSON="$(curl --fail --silent --show-error --max-time 20 "$PRODUCTION_URL/.well-known/apple-app-site-association")"
   node -e 'const v=JSON.parse(process.argv[1]); const ids=v.applinks?.details?.flatMap(x=>x.appIDs||[])||[]; if(!ids.includes("65C25YHCX9.com.spartancoaching.fieldkit")) throw new Error("Production AASA appID missing")' "$AASA_JSON"

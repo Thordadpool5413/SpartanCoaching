@@ -36,6 +36,7 @@ export type AuthOrganization = {
   seatCount?: number;
   // Billing (Phase 1+)
   billingPlan?: string | null;
+  billingProvider?: string | null;
   billingStatus?: string | null;
   currentPeriodEnd?: string | null;
   cancelAtPeriodEnd?: boolean;

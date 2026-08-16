@@ -9,7 +9,7 @@
  */
 
 import React from "react";
-import { AppState, type AppStateEvent, type AppStateStatus, type NativeEventSubscription } from "react-native";
+import { AppState, Platform, type AppStateEvent, type AppStateStatus, type NativeEventSubscription } from "react-native";
 import { render, waitFor, cleanup, act, fireEvent } from "@testing-library/react-native";
 
 // ---------------------------------------------------------------------------
@@ -23,6 +23,12 @@ const mockStartIndividualCheckout = jest.fn();
 
 jest.mock("@/lib/api", () => ({
   fetchBillingStatus: (...args: unknown[]) => mockFetchBillingStatus(...args),
+  fetchAppleBillingConfig: jest.fn().mockResolvedValue({
+    configured: true,
+    appAccountToken: "65b35d18-1d82-4f4f-9d3d-bf81f82a32fb",
+    products: [],
+  }),
+  verifyAppleTransaction: jest.fn().mockResolvedValue({ applied: true, active: true }),
   fetchOnboardingMobile: (...args: unknown[]) => mockFetchOnboardingMobile(...args),
   openBillingPortal: (...args: unknown[]) => mockOpenBillingPortal(...args),
   startIndividualCheckout: (...args: unknown[]) => mockStartIndividualCheckout(...args),
@@ -129,6 +135,10 @@ jest.mock("@/hooks/useColors", () => ({
     card: "#111",
     border: "#333",
   }),
+}));
+
+jest.mock("@/hooks/useAccessibilityPrefs", () => ({
+  useAccessibilityPrefs: () => ({ reduceMotion: true }),
 }));
 
 jest.mock("@/lib/onboarding", () => ({
@@ -295,7 +305,8 @@ describe("Account screen — AppState billing refresh", () => {
     expect(mockFetchBillingStatus).toHaveBeenCalledTimes(2);
   });
 
-  it("calls loadBilling when returning from Stripe (stripeOpenedRef=true via Subscribe) and resets the flag", async () => {
+  it("keeps the Stripe checkout return refresh for the non iOS purchase path", async () => {
+    const platformSpy = jest.replaceProperty(Platform, "OS", "android");
     // Swap to a personal user with no active subscription so the Subscribe button renders.
     mockCurrentAuthUser = mockUnsubscribedUser as unknown as typeof mockUser;
     mockFetchBillingStatus.mockResolvedValue(makeBillingUnsubscribed());
@@ -336,6 +347,7 @@ describe("Account screen — AppState billing refresh", () => {
     } finally {
       canOpenSpy.mockRestore();
       openURLSpy.mockRestore();
+      platformSpy.restore();
     }
   });
 
