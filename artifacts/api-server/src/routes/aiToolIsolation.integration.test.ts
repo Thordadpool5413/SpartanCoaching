@@ -45,7 +45,7 @@ describe.runIf(integrationEnabled)(
               name: "AI isolation tenant A",
               type: "company",
               status: "active",
-              billingPlan: "comp",
+              billingPlan: "corporate_contract_elite",
             },
             {
               name: "AI isolation tenant B",
