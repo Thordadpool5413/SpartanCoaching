@@ -106,6 +106,30 @@ module.exports = {
               "NSPrivacyCollectedDataTypePurposeAppFunctionality",
             ],
           },
+          {
+            NSPrivacyCollectedDataType: "NSPrivacyCollectedDataTypeUserID",
+            NSPrivacyCollectedDataTypeLinked: true,
+            NSPrivacyCollectedDataTypeTracking: false,
+            NSPrivacyCollectedDataTypePurposes: [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality",
+            ],
+          },
+          {
+            NSPrivacyCollectedDataType: "NSPrivacyCollectedDataTypeAudioData",
+            NSPrivacyCollectedDataTypeLinked: true,
+            NSPrivacyCollectedDataTypeTracking: false,
+            NSPrivacyCollectedDataTypePurposes: [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality",
+            ],
+          },
+          {
+            NSPrivacyCollectedDataType: "NSPrivacyCollectedDataTypeOtherUserContent",
+            NSPrivacyCollectedDataTypeLinked: true,
+            NSPrivacyCollectedDataTypeTracking: false,
+            NSPrivacyCollectedDataTypePurposes: [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality",
+            ],
+          },
         ],
         NSPrivacyAccessedAPITypes: [
           {
@@ -129,10 +153,6 @@ module.exports = {
       infoPlist: {
         NSUserNotificationsUsageDescription:
           "Spartan Coaching uses notifications to remind you to follow up with contacts after visits.",
-        NSCameraUsageDescription:
-          "Spartan Coaching uses the camera to capture documents you explicitly add to a protected clinical case.",
-        NSPhotoLibraryUsageDescription:
-          "Spartan Coaching uses your photo library only to select documents you explicitly add to a protected clinical case.",
         // Export compliance: app uses only HTTPS / standard encryption (no custom crypto).
         ITSAppUsesNonExemptEncryption: false,
         // Home-screen quick actions (open app; deep links via scheme when supported)
@@ -185,21 +205,6 @@ module.exports = {
         {
           microphonePermission:
             "Spartan Coach uses the microphone only while you record a private rehearsal for transcription and feedback.",
-        },
-      ],
-      [
-        "expo-local-authentication",
-        {
-          faceIDPermission: "Use Face ID to reopen protected clinical cases.",
-        },
-      ],
-      [
-        "expo-image-picker",
-        {
-          photosPermission:
-            "Select a document image to add to your protected clinical case.",
-          cameraPermission:
-            "Capture a document image to add to your protected clinical case.",
         },
       ],
       "expo-web-browser",

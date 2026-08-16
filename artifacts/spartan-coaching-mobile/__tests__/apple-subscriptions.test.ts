@@ -28,5 +28,8 @@ describe("Apple subscription contract", () => {
     expect(source).toContain("finishTransaction({ purchase, isConsumable: false })");
     expect(source).toContain("getAvailablePurchases({ onlyIncludeActiveItemsIOS: true })");
     expect(source).toContain("deepLinkToSubscriptions({})");
+    expect(source).toContain("renews automatically each week");
+    expect(source).toContain("APP_STORE_TERMS_URL");
+    expect(source).toContain("APP_STORE_PRIVACY_URL");
   });
 });

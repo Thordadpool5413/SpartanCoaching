@@ -41,16 +41,6 @@ jest.mock("expo-file-system/legacy", () => ({
   deleteAsync: jest.fn(async () => undefined),
 }));
 
-jest.mock("expo-image-picker", () => ({
-  requestCameraPermissionsAsync: jest.fn(),
-  launchCameraAsync: jest.fn(),
-}));
-
-jest.mock("expo-local-authentication", () => ({
-  hasHardwareAsync: jest.fn(async () => false),
-  authenticateAsync: jest.fn(async () => ({ success: true })),
-}));
-
 jest.mock("expo-haptics", () => ({
   impactAsync: jest.fn(),
   notificationAsync: jest.fn(),

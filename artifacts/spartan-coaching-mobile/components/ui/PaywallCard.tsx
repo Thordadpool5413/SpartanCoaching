@@ -1,10 +1,9 @@
 import React, { useEffect } from "react";
-import { Linking, Pressable, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
 import { useColors } from "@/hooks/useColors";
 import { font } from "@/lib/typography";
-import { getWebSiteUrl } from "@/lib/api";
 import { SpartanButton } from "./SpartanButton";
 import { radius } from "@/lib/spacing";
 import { MAX_FONT_SIZE_MULTIPLIER } from "@/lib/iosProductQuality";
@@ -16,7 +15,6 @@ type Props = {
   body?: string;
   onPrimary?: () => void;
   primaryLabel?: string;
-  showWebLink?: boolean;
   orgStatus?: string | null;
   testID?: string;
 };
@@ -29,23 +27,21 @@ const BENEFITS = [
 ];
 
 /**
- * Subscription theater card — locked / expired / trial continue.
- * Billing is Stripe on web (no StoreKit); restore = sign in.
+ * Locked, expired, and trial membership card.
+ * Native Apple purchase and restore actions live in Account after sign in.
  */
 export function PaywallCard({
   isAuthenticated,
   title = "$14.99/week · cancel anytime",
-  body = "Unlock live tools and Command Center on this iPhone. Subscribe on the website with the same account.",
+  body = "Unlock live tools and Command Center on this iPhone. Sign in or create an account, then choose Standard or Elite through Apple.",
   onPrimary,
   primaryLabel,
-  showWebLink = true,
   orgStatus,
   testID = "paywall-card",
 }: Props) {
   const colors = useColors();
-  const siteUrl = getWebSiteUrl();
   const label =
-    primaryLabel ?? (isAuthenticated ? "Subscribe on website" : "Sign in to subscribe");
+    primaryLabel ?? (isAuthenticated ? "Choose membership" : "Sign in to continue");
 
   useEffect(() => {
     void trackMobileEvent("craft", "paywall_view", {
@@ -133,26 +129,8 @@ export function PaywallCard({
           font("regular"),
         ]}
       >
-        Already subscribed? Sign in with the same email. Access restores from your account—no App Store
-        restore button.
+        Already subscribed? Sign in with the same Spartan Coaching account, then use Restore Apple Purchases in Account if access does not appear automatically.
       </Text>
-
-      {showWebLink ? (
-        <Pressable
-          onPress={() => {
-            void trackMobileEvent("craft", "web_handoff_tap", {
-              metadata: { surface: "paywall", platform: "ios", source: "hsp_lander" },
-            });
-            void Linking.openURL(`${siteUrl}/hospice-sales-pro`);
-          }}
-          accessibilityRole="link"
-          style={{ marginTop: 10 }}
-        >
-          <Text style={[{ color: colors.primary, fontSize: 13 }, font("semibold")]}>
-            Open Hospice Sales Pro on the web
-          </Text>
-        </Pressable>
-      ) : null}
     </View>
   );
 }

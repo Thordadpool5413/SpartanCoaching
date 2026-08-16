@@ -15,6 +15,8 @@ describe("App Store readiness contract (HSP-46)", () => {
     expect(ids).toContain("privacy_policy_link");
     expect(ids).toContain("export_compliance");
     expect(ids).toContain("backend_compat");
+    expect(ids).toContain("native_account_creation");
+    expect(ids).toContain("subscription_disclosure");
   });
 
   it("flags incomplete StoreKit purchase as a release risk", () => {
@@ -33,6 +35,7 @@ describe("App Store readiness contract (HSP-46)", () => {
     expect(APP_REVIEW_NOTES).toMatch(/Delete account/i);
     expect(APP_REVIEW_NOTES).toMatch(/Standard/i);
     expect(APP_REVIEW_NOTES).toMatch(/Elite/i);
+    expect(APP_REVIEW_NOTES).toMatch(/inside the iPhone app/i);
   });
 
   it("readinessSummary counts statuses", () => {

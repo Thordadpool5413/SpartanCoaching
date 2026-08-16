@@ -62,4 +62,24 @@ describe("Expo production configuration", () => {
     expect(config.expo.ios.associatedDomains).toBeUndefined();
     expect(config.expo.ios.entitlements).toBeUndefined();
   });
+
+  it("declares Coach data without retired clinical device permissions", () => {
+    const config = require("../app.config.js");
+    const collected = config.expo.ios.privacyManifests.NSPrivacyCollectedDataTypes.map(
+      (item: { NSPrivacyCollectedDataType: string }) => item.NSPrivacyCollectedDataType,
+    );
+    const plugins = config.expo.plugins.map((plugin: string | [string, unknown]) =>
+      Array.isArray(plugin) ? plugin[0] : plugin,
+    );
+
+    expect(collected).toEqual(expect.arrayContaining([
+      "NSPrivacyCollectedDataTypeUserID",
+      "NSPrivacyCollectedDataTypeAudioData",
+      "NSPrivacyCollectedDataTypeOtherUserContent",
+    ]));
+    expect(config.expo.ios.infoPlist.NSCameraUsageDescription).toBeUndefined();
+    expect(config.expo.ios.infoPlist.NSPhotoLibraryUsageDescription).toBeUndefined();
+    expect(plugins).not.toContain("expo-image-picker");
+    expect(plugins).not.toContain("expo-local-authentication");
+  });
 });

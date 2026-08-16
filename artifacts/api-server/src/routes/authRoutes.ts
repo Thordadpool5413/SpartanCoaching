@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import type { Express, Response } from "express";
-import { eq, desc, sql, and, isNull, ne, gte, lt, count } from "drizzle-orm";
+import { eq, desc, sql, and, or, isNull, ne, gte, lt, count } from "drizzle-orm";
 import {
   accessRequests,
   clientMembers,
@@ -15,6 +15,10 @@ import {
   orgTeams,
   usageEvents,
   eventTracking,
+  coachConversations,
+  coachMemoryItems,
+  coachPreferences,
+  coachSharedSummaries,
   requestAccessBodySchema,
   loginBodySchema,
   setPasswordBodySchema,
@@ -2096,8 +2100,8 @@ export function registerAuthRoutes(app: Express): void {
   /**
    * Self-serve account deletion (App Store Guideline 5.1.1(v) / HSP-46).
    * Body: { confirm: "DELETE" }
-   * Disables the member, anonymizes PII, clears sessions/tokens.
-   * Does not delete Stripe objects (user should cancel via Manage billing); ops can purge later.
+   * Disables the member, anonymizes PII, clears sessions and tokens, and removes
+   * private Coach content. Store subscriptions remain controlled by Apple or Stripe.
    */
   app.post("/api/me/delete-account", requireAuth, authLimit, async (req: AuthedRequest, res) => {
     try {
@@ -2117,23 +2121,31 @@ export function registerAuthRoutes(app: Express): void {
       }
 
       const anonymizedEmail = `deleted+${member.id}.${Date.now()}@deleted.invalid`;
-      await db
-        .update(clientMembers)
-        .set({
-          status: "disabled",
-          email: anonymizedEmail,
-          passwordHash: null,
-          name: "Deleted user",
-          title: null,
-          territoryNote: null,
-          topObjections: null,
-          checklistProgress: {},
-          jobRole: null,
-        })
-        .where(eq(clientMembers.id, member.id));
-
-      await db.delete(clientSessions).where(eq(clientSessions.memberId, member.id));
-      await db.delete(authTokens).where(eq(authTokens.memberId, member.id));
+      await db.transaction(async (tx) => {
+        await tx.delete(coachSharedSummaries).where(or(
+          eq(coachSharedSummaries.ownerMemberId, member.id),
+          eq(coachSharedSummaries.sharedWithMemberId, member.id),
+        ));
+        await tx.delete(coachConversations).where(eq(coachConversations.memberId, member.id));
+        await tx.delete(coachMemoryItems).where(eq(coachMemoryItems.memberId, member.id));
+        await tx.delete(coachPreferences).where(eq(coachPreferences.memberId, member.id));
+        await tx.delete(clientSessions).where(eq(clientSessions.memberId, member.id));
+        await tx.delete(authTokens).where(eq(authTokens.memberId, member.id));
+        await tx
+          .update(clientMembers)
+          .set({
+            status: "disabled",
+            email: anonymizedEmail,
+            passwordHash: null,
+            name: "Deleted user",
+            title: null,
+            territoryNote: null,
+            topObjections: null,
+            checklistProgress: {},
+            jobRole: null,
+          })
+          .where(eq(clientMembers.id, member.id));
+      });
 
       res.clearCookie(COOKIE_NAME, {
         httpOnly: true,
@@ -2149,7 +2161,7 @@ export function registerAuthRoutes(app: Express): void {
       return res.json({
         ok: true,
         message:
-          "Account deleted. Sign-in credentials no longer work. Cancel any active subscription via the billing portal if you still have access to that email.",
+          "Account deleted. Sign-in credentials and private Coach content were removed. Any active App Store or web subscription must still be canceled with its billing provider.",
       });
     } catch (err) {
       console.error("delete-account error:", err);

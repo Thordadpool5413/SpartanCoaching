@@ -60,6 +60,7 @@ function RootLayoutNav() {
     <Stack screenOptions={{ headerBackTitle: "Back" }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="login" options={{ title: "Sign in", presentation: "modal" }} />
+      <Stack.Screen name="register" options={{ title: "Create account", presentation: "modal" }} />
       <Stack.Screen name="brand-video" options={{ title: "Brand Video" }} />
       <Stack.Screen name="staffing" options={{ title: "Branch Staffing" }} />
       <Stack.Screen name="activity-calculator" options={{ title: "Activity Calculator" }} />

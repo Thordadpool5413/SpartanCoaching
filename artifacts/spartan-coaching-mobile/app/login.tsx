@@ -138,12 +138,12 @@ export default function LoginScreen() {
           <View style={styles.secondaryActions}>
             <Pressable
               accessibilityRole="link"
-              onPress={() => void openWebsite("/register")}
+              onPress={() => router.push("/register")}
               style={[styles.linkButton, { borderColor: colors.borderStrong ?? colors.border }]}
               testID="button-create-account"
             >
               <Text style={[styles.linkButtonText, { color: colors.foreground }, font("bold")]}>Create an individual membership</Text>
-              <Feather name="arrow-up-right" size={18} color={colors.primary} />
+              <Feather name="arrow-right" size={18} color={colors.primary} />
             </Pressable>
             <Pressable accessibilityRole="button" onPress={() => router.push("/(tabs)/contact")} style={styles.contactLink}>
               <Text style={[styles.contactText, { color: colors.mutedForeground }, font("semibold")]}>Company team or consulting access</Text>

@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Alert, Platform, Text, View } from "react-native";
+import { Alert, Linking, Platform, Pressable, Text, View } from "react-native";
 import {
   deepLinkToSubscriptions,
   ErrorCode,
@@ -19,6 +19,10 @@ import {
   type AppleBillingConfig,
 } from "@/lib/api";
 import { font } from "@/lib/typography";
+import {
+  APP_STORE_PRIVACY_URL,
+  APP_STORE_TERMS_URL,
+} from "@/lib/appStoreReadiness";
 
 type Props = {
   plan?: "standard_weekly" | "elite_weekly";
@@ -90,6 +94,9 @@ export function AppleSubscriptionActions({
     : STANDARD_WEEKLY_PLAN.appleProductId;
   const storeProduct = subscriptions.find((product) => product.id === productId);
   const ready = Boolean(connected && config?.configured && storeProduct);
+  const planName = plan === "elite_weekly"
+    ? "Spartan Coaching Elite"
+    : "Spartan Coaching Standard";
 
   const purchase = async () => {
     if (!config || !ready) return;
@@ -138,19 +145,35 @@ export function AppleSubscriptionActions({
   return (
     <View style={{ gap: 9 }}>
       {showPurchase ? (
-        <SpartanButton
-          title={
-            busy === "purchase"
-              ? "Completing Apple purchase"
-              : ready
-                ? `Subscribe with Apple${storeProduct?.displayPrice ? ` · ${storeProduct.displayPrice}` : ""}`
-                : "App Store products unavailable"
-          }
-          onPress={() => void purchase()}
-          loading={busy === "purchase"}
-          disabled={!ready}
-          testID="button-subscribe"
-        />
+        <>
+          <View style={{ gap: 3 }}>
+            <Text style={[{ color: colors.foreground, fontSize: 14, lineHeight: 20, textAlign: "center" }, font("bold")]}>
+              {planName} · {storeProduct?.displayPrice || "Apple price unavailable"} per week
+            </Text>
+            <Text style={[{ color: colors.mutedForeground, fontSize: 11, lineHeight: 16, textAlign: "center" }, font("regular")]}>Payment is charged to your Apple Account. The subscription renews automatically each week unless canceled at least 24 hours before the current period ends.</Text>
+          </View>
+          <SpartanButton
+            title={
+              busy === "purchase"
+                ? "Completing Apple purchase"
+                : ready
+                  ? `Subscribe with Apple${storeProduct?.displayPrice ? ` · ${storeProduct.displayPrice}` : ""}`
+                  : "App Store products unavailable"
+            }
+            onPress={() => void purchase()}
+            loading={busy === "purchase"}
+            disabled={!ready}
+            testID="button-subscribe"
+          />
+          <View style={{ flexDirection: "row", justifyContent: "center", gap: 18 }}>
+            <Pressable accessibilityRole="link" onPress={() => void Linking.openURL(APP_STORE_TERMS_URL)} testID="subscription-terms-link">
+              <Text style={[{ color: colors.primary, fontSize: 11 }, font("semibold")]}>Terms of Use</Text>
+            </Pressable>
+            <Pressable accessibilityRole="link" onPress={() => void Linking.openURL(APP_STORE_PRIVACY_URL)} testID="subscription-privacy-link">
+              <Text style={[{ color: colors.primary, fontSize: 11 }, font("semibold")]}>Privacy Policy</Text>
+            </Pressable>
+          </View>
+        </>
       ) : null}
       {showManage ? (
         <SpartanButton

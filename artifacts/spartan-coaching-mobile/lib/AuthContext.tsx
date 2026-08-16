@@ -3,6 +3,7 @@ import {
   fetchMeMobile,
   loginMobile,
   logoutMobile,
+  registerMobile,
   type MobileAuthUser,
 } from "@/lib/api";
 import { hasEliteMembership, resolveMembershipTier, type MembershipTier } from "@workspace/field-kit-catalog";
@@ -16,6 +17,7 @@ type AuthContextValue = {
   membershipTier: MembershipTier;
   refresh: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
+  register: (input: { name: string; email: string; password: string }) => Promise<void>;
   logout: () => Promise<void>;
   setUser: (user: MobileAuthUser | null) => void;
 };
@@ -50,6 +52,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     });
   }, []);
 
+  const register = useCallback(async (input: { name: string; email: string; password: string }) => {
+    const data = await registerMobile(input);
+    setUser({
+      member: data.member,
+      organization: data.organization,
+      fieldKit: data.fieldKit,
+    });
+  }, []);
+
   const logout = useCallback(async () => {
     await logoutMobile();
     setUser(null);
@@ -71,11 +82,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         membershipTier: resolveMembershipTier(membershipInput),
         refresh,
         login,
+        register,
         logout,
         setUser,
       };
     },
-    [user, isLoading, refresh, login, logout],
+    [user, isLoading, refresh, login, register, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

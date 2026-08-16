@@ -3,7 +3,6 @@ import {
   AppState,
   AppStateStatus,
   Image,
-  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -35,7 +34,6 @@ import { EntitlementBanner } from "@/components/ui/EntitlementBanner";
 import { PaywallCard } from "@/components/ui/PaywallCard";
 
 import { font } from "@/lib/typography";
-import { getWebSiteUrl } from "@/lib/api";
 import { useMission } from "@/lib/useMission";
 import { trackMobileEvent } from "@/lib/analytics";
 import { listCoachMemory } from "@/lib/coachApi";
@@ -245,7 +243,6 @@ export default function TodayScreen() {
     }
   };
 
-  const siteUrl = getWebSiteUrl();
 
   if (!isAuthenticated) {
     return (
@@ -294,8 +291,8 @@ export default function TodayScreen() {
             <Text style={[styles.loggedOutPrimaryText, font("bold")]}>Sign in</Text>
             <Feather name="arrow-right" size={19} color="#FFFFFF" />
           </Pressable>
-          <Pressable style={styles.loggedOutLink} onPress={() => void Linking.openURL(`${siteUrl}/hospice-sales-pro`)} testID="button-hospice-sales-pro-logged-out">
-            <Text style={[styles.loggedOutLinkText, { color: colors.primary }, font("semibold")]}>Compare Standard and Elite</Text>
+          <Pressable style={styles.loggedOutLink} onPress={() => router.push("/register")} testID="button-create-account-logged-out">
+            <Text style={[styles.loggedOutLinkText, { color: colors.primary }, font("semibold")]}>Create an individual account</Text>
           </Pressable>
         </View>
 

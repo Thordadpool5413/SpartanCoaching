@@ -357,6 +357,48 @@ export async function loginMobile(email: string, password: string): Promise<Mobi
   return data as MobileAuthUser & { token: string };
 }
 
+export async function registerMobile(input: {
+  name: string;
+  email: string;
+  password: string;
+}): Promise<MobileAuthUser & { token: string }> {
+  const res = await fetch(`${getBase()}/api/auth/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...clientPlatformHeaders(),
+    },
+    body: JSON.stringify({
+      name: input.name.trim(),
+      email: input.email.trim().toLowerCase(),
+      password: input.password,
+      acceptTerms: true,
+      noPhi: true,
+    }),
+  });
+  const data = (await res.json().catch(() => ({}))) as {
+    error?: string | { message?: string; code?: string };
+    code?: string;
+    token?: string;
+    member?: MobileMember;
+    organization?: MobileOrganization | null;
+    fieldKit?: MobileAuthUser["fieldKit"];
+  };
+  if (!res.ok) {
+    const message =
+      typeof data.error === "string"
+        ? data.error
+        : data.error?.message || "Account creation failed";
+    const code = typeof data.error === "object" ? data.error?.code : data.code;
+    throw new ApiError(message, res.status, code);
+  }
+  if (!data.token || !data.member) {
+    throw new ApiError("Account creation did not return a valid session", 502);
+  }
+  await setSessionToken(data.token);
+  return data as MobileAuthUser & { token: string };
+}
+
 export async function logoutMobile(): Promise<void> {
   try {
     await apiPost("/api/auth/logout", {});
