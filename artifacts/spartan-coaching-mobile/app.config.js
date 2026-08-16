@@ -158,27 +158,28 @@ module.exports = {
         // Home-screen quick actions (open app; deep links via scheme when supported)
         UIApplicationShortcutItems: [
           {
-            UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.command",
-            UIApplicationShortcutItemTitle: "Command Center",
-            UIApplicationShortcutItemSubtitle: "Today's field spine",
+            UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.today",
+            UIApplicationShortcutItemTitle: "Today's briefing",
+            UIApplicationShortcutItemSubtitle: "Open your next move",
+            UIApplicationShortcutItemIconType: "UIApplicationShortcutIconTypeTask",
+            UIApplicationShortcutItemUserInfo: {
+              url: "spartan-coaching-mobile://home",
+            },
+          },
+          {
+            UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.coach",
+            UIApplicationShortcutItemTitle: "Spartan Coach",
+            UIApplicationShortcutItemSubtitle: "Prepare a private rehearsal",
+            UIApplicationShortcutItemIconType: "UIApplicationShortcutIconTypeAudio",
+            UIApplicationShortcutItemUserInfo: {
+              url: "spartan-coaching-mobile://coach",
+            },
+          },
+          {
+            UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.practice",
+            UIApplicationShortcutItemTitle: "Practice",
+            UIApplicationShortcutItemSubtitle: "Prepare for the moment",
             UIApplicationShortcutItemIconType: "UIApplicationShortcutIconTypeCompose",
-            UIApplicationShortcutItemUserInfo: {
-              url: "spartan-coaching-mobile://command",
-            },
-          },
-          {
-            UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.objection",
-            UIApplicationShortcutItemTitle: "Objection Handler",
-            UIApplicationShortcutItemSubtitle: "3-tap talk track",
-            UIApplicationShortcutItemIconType: "UIApplicationShortcutIconTypeSearch",
-            UIApplicationShortcutItemUserInfo: {
-              url: "spartan-coaching-mobile://tool/objection",
-            },
-          },
-          {
-            UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.tools",
-            UIApplicationShortcutItemTitle: "Tools map",
-            UIApplicationShortcutItemIconType: "UIApplicationShortcutIconTypeFavorite",
             UIApplicationShortcutItemUserInfo: {
               url: "spartan-coaching-mobile://tools",
             },

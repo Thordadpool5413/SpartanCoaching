@@ -82,4 +82,20 @@ describe("Expo production configuration", () => {
     expect(plugins).not.toContain("expo-image-picker");
     expect(plugins).not.toContain("expo-local-authentication");
   });
+
+  it("keeps Home Screen shortcuts aligned with the current four tab experience", () => {
+    const config = require("../app.config.js");
+    const shortcuts = config.expo.ios.infoPlist.UIApplicationShortcutItems;
+
+    expect(shortcuts.map((item: { UIApplicationShortcutItemTitle: string }) => item.UIApplicationShortcutItemTitle)).toEqual([
+      "Today's briefing",
+      "Spartan Coach",
+      "Practice",
+    ]);
+    expect(shortcuts.map((item: { UIApplicationShortcutItemUserInfo: { url: string } }) => item.UIApplicationShortcutItemUserInfo.url)).toEqual([
+      "spartan-coaching-mobile://home",
+      "spartan-coaching-mobile://coach",
+      "spartan-coaching-mobile://tools",
+    ]);
+  });
 });
