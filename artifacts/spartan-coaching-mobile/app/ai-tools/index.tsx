@@ -242,7 +242,7 @@ export default function AiToolsIndex() {
               onPress={() => router.push("/(tabs)/tools" as never)}
               style={[styles.emptyBtn, { backgroundColor: colors.primary }]}
             >
-              <Text style={{ color: "#fff", fontFamily: "Inter_700Bold" }}>
+              <Text style={{ color: "#fff", ...font("bold") }}>
                 Open Portal tools
               </Text>
             </Pressable>
@@ -255,7 +255,7 @@ export default function AiToolsIndex() {
 const styles = StyleSheet.create({
   container: { padding: 20, paddingBottom: 64, gap: 16 },
   back: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 8 },
-  title: { fontSize: 32, lineHeight: 38, fontFamily: "Inter_700Bold" },
+  title: { fontSize: 32, lineHeight: 38, ...font("bold") },
   description: { fontSize: 16, lineHeight: 24, marginBottom: 4 },
   grid: { gap: 12 },
   statusRow: {
@@ -267,7 +267,7 @@ const styles = StyleSheet.create({
   errorCard: { borderWidth: 1, borderRadius: 12, padding: 14, gap: 10 },
   section: { gap: 10, marginTop: 8 },
   sectionHead: { flexDirection: "row", alignItems: "center", gap: 8 },
-  sectionTitle: { fontSize: 18, fontFamily: "Inter_700Bold" },
+  sectionTitle: { fontSize: 18, ...font("bold") },
   sectionDesc: { fontSize: 14, lineHeight: 21, marginBottom: 4 },
   card: { borderWidth: 1, borderRadius: 16, padding: 18, gap: 9 },
   cardTop: {

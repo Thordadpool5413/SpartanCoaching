@@ -85,7 +85,7 @@ PARITY_EMAIL=… PARITY_PASSWORD=… pnpm run release-gate:live -- https://spart
 | # | Check | Score |
 |---|--------|-------|
 | F23 | Same seat / same email: Account status matches web `/account` | |
-| F24 | After web Stripe checkout → return to app → entitlement refreshes | |
+| F24 | Existing web member signs in, or Apple purchase completes, and entitlement refreshes | |
 | F25 | Org admin: designed web handoff card (not broken stub) | |
 
 ## P8–P10 — Trust, motion, proof

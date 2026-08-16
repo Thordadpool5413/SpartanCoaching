@@ -23,15 +23,15 @@ PARITY_EMAIL=… PARITY_PASSWORD=… node scripts/ship-check.mjs https://spartan
 
 ## Shell A — Logged out
 
-- [ ] Home shows **two doors**: Consulting · Hospice Sales Pro (not a long website scroll)  
+- [ ] Logged-out Today makes Hospice Sales Pro primary and keeps human consulting easy to find
 - [ ] Book strategy call / Client login / See what’s inside work  
 - [ ] Tools shows paywall + catalog browse (no crash)  
 
 ## Shell B — Authenticated locked
 
-- [ ] After login without entitlement: Home is **restore / subscribe**, not dual doors  
+- [ ] After login without entitlement: Today directs the member to native Apple membership choices
 - [ ] PaywallCard → Account  
-- [ ] Account Day Zero / Subscribe opens Stripe (or clear error if billing off)  
+- [ ] Account shows localized Standard and Elite StoreKit prices and the native Apple purchase disclosure
 
 ## Shell C — Entitled Home
 
@@ -72,7 +72,7 @@ PARITY_EMAIL=… PARITY_PASSWORD=… node scripts/ship-check.mjs https://spartan
 
 ## Activation (I6)
 
-- [ ] Subscribe → Safari → return → access refreshes (may take webhook seconds)  
+- [ ] Apple purchase completes only after server verification and access refreshes automatically
 - [ ] **You’re in** ceremony once → Open Command Center  
 - [ ] Ceremony does not loop on every launch  
 

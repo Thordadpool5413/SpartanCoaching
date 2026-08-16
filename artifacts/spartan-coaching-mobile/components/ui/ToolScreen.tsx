@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { SectionKicker } from "./SectionKicker";
 import type { FieldKitTool } from "@workspace/field-kit-catalog";
+import { font } from "@/lib/typography";
 
 /**
  * Mirrors web FieldKitToolLayout: kicker, title, when/how/why, then content.
@@ -59,14 +60,14 @@ const styles = StyleSheet.create({
     fontWeight: "900",
     marginTop: 8,
     letterSpacing: -0.3,
-    fontFamily: "Inter_700Bold",
+    ...font("bold"),
   },
   desc: {
     fontSize: 14,
     lineHeight: 20,
     marginTop: 6,
     marginBottom: 14,
-    fontFamily: "Inter_400Regular",
+    ...font("regular"),
   },
   howBox: {
     borderWidth: 1,
@@ -78,12 +79,12 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     letterSpacing: 1.4,
     textTransform: "uppercase",
-    fontFamily: "Inter_700Bold",
+    ...font("bold"),
   },
   howBody: {
     fontSize: 13,
     lineHeight: 18,
     marginTop: 4,
-    fontFamily: "Inter_400Regular",
+    ...font("regular"),
   },
 });

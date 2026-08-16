@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { useColors } from "@/hooks/useColors";
+import { font } from "@/lib/typography";
 
 export type CitationItem = {
   id: string;
@@ -57,10 +58,10 @@ const styles = StyleSheet.create({
     fontWeight: "800",
     letterSpacing: 1.4,
     textTransform: "uppercase",
-    fontFamily: "Inter_700Bold",
+    ...font("bold"),
   },
   row: { gap: 2 },
-  itemTitle: { fontSize: 13, fontWeight: "700", fontFamily: "Inter_600SemiBold" },
-  itemMeta: { fontSize: 11, fontFamily: "Inter_400Regular" },
-  excerpt: { fontSize: 12, lineHeight: 16, marginTop: 2, fontFamily: "Inter_400Regular" },
+  itemTitle: { fontSize: 13, fontWeight: "700", ...font("semibold") },
+  itemMeta: { fontSize: 11, ...font("regular") },
+  excerpt: { fontSize: 12, lineHeight: 16, marginTop: 2, ...font("regular") },
 });

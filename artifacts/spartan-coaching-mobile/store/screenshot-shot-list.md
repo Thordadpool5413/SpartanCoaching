@@ -1,86 +1,48 @@
-# App Store screenshot shot list — elite Hospice Sales Pro
+# App Store screenshot shot list
 
-**Goal:** Show *jobs*, not a feature soup. Every frame should answer “what do I do next?”  
-**Brand:** Midnight navy + Spartan red. No cyan SaaS. No equal grid of 12 tools.  
-**Sizes:** Capture once at **6.9"** (1320×2868) and scale/export for **6.7"** as needed.
+Capture the current four tab iPhone experience. Never upload the legacy generated mockups in `store/screenshots` or `store/screenshots/6.7`.
 
----
+## Marketing screenshots
 
-## Required sequence (5 frames) — craft Phase 5
+Capture five real screens at 1320 by 2868 from iPhone 16 Pro Max. Use a demo account with fictional company and facility names. Do not show patient information, private Coach history, email addresses, phone numbers, or real customer data.
 
-Capture on **current craft UI** (mission purity + paywall suite). Do **not** reuse legacy `01-checklist.png` style frames.
+| Order | File | Current screen and state | Public message | Required proof |
+| --- | --- | --- | --- | --- |
+| 1 | `01-today-field-briefing.png` | Today with an active membership and one current mission | Know the next move | One primary action, readable briefing, current tab bar |
+| 2 | `02-private-spartan-coach.png` | Coach in Prepare or Review using fictional, deidentified context | Practice the conversation privately | Privacy cue, clear action, no raw history or real transcript |
+| 3 | `03-practice-workspace.png` | Practice catalog at its initial state | Prepare for the moment | Three featured paths with no search results or keyboard |
+| 4 | `04-objection-result.png` | Objection tool with a generated fictional result | Turn objections into action | Suggested output, approval warning, next action visible |
+| 5 | `05-library.png` | Library on Read with a featured field note | Keep the method within reach | Current content, Read selected, no loading or error state |
 
-| # | File name | Screen / state | Caption (optional ASC overlay) | Pass if |
-|---|-----------|----------------|--------------------------------|---------|
-| 01 | `01-home-mission.png` | Entitled **Home** — single `MissionCard` + EntitlementBanner + quiet chips | “One next action” | Exactly one emphasis mission; checklist collapsed |
-| 02 | `02-command-hub.png` | **Command** hub — next visit or empty “Schedule first visit” | “Command Center” | Hub, not a raw form dump |
-| 03 | `03-tools-catalog.png` | **Tools** catalog — Command spine + job groups (web) or native catalog | “Prepare · Practice” | Not equal 12-tile soup |
-| 04 | `04-objection-result.png` | **Objection Handler** after Generate — talk track + sticky CTA | “Handle ‘not ready’ fast” | 3-tap: Tools → Objections → Generate |
-| 05 | `05-account-seat.png` | **Account** — StatusChip + Value receipt (or locked Paywall benefits) | “Same seat as web” | Restore = sign-in copy visible if locked |
+Recommended captions:
 
-Optional extras:
-- `06-dual-doors.png` — Logged-out Home dual doors  
-- `07-learn-resources.png` — Learn Resources groups  
-- `08-paywall-locked.png` — Authenticated locked paywall suite  
+1. Know the next move
+2. Practice the conversation privately
+3. Prepare for the moment
+4. Turn objections into action
+5. Keep the method within reach
 
-### Retire legacy frames
+## Subscription review screenshot
 
-Folder may still contain old `01-checklist.png` / `02-scenario-coach.png` etc.  
-**For ASC upload use only elite frames above** after re-capture on current build.
+Capture one additional real screen named `review/subscription-choice.png`.
 
----
+The screen must show Account, Choose Your Access, Standard, Elite, both weekly prices, and the native Apple purchase disclosure. Select Standard and capture it. Then select Elite and confirm the localized StoreKit price changes before capturing a second optional image named `review/subscription-elite.png`.
+
+Use these review images for the corresponding subscriptions in App Store Connect. They are not part of the public marketing sequence.
 
 ## Capture rules
 
-1. Use a **demo account** with `fieldKit.allowed` — fake facility names only, **no PHI**.  
-2. Objection sample text: *“We’re not ready for hospice yet — the family wants to keep trying.”*  
-3. Prefer **real device or simulator** at final UI (post I0–I6), not old PNGs named checklist/drills.  
-4. Status bar: clean (full battery, full signal) or hide via simulator.  
-5. Tab bar visible on Home / Command / Tools / Learn shots.  
-6. Do **not** screenshot member clinical guidance or any user-entered clinical context for the public listing.
+1. Use the production API with a dedicated review or screenshot account.
+2. Use only fictional account names and fictional facility names.
+3. Never display patient PHI, raw private Coach history, real transcripts, private commitments, real email addresses, or phone numbers.
+4. Confirm the helmet app icon and launch screen before capture.
+5. Set the iPhone appearance to System and capture the marketing set in Light first. Capture a Dark alternate only after the Light set passes.
+6. Wait for all remote content to load. Do not capture skeletons, spinners, empty error cards, alerts, keyboards, or debug banners.
+7. Keep the status bar clean and the tab bar visible on Today, Coach, Practice, and Library.
+8. Use real simulator or device captures. Do not generate, redraw, or compose product UI screenshots.
+9. Review every image at full size for clipping, Dynamic Island collisions, incorrect safe area, broken type wrapping, and accidental private data.
+10. Keep the original captures. Do not resize the 6.9 inch set before upload.
 
-### Simulator (macOS)
+## Device sizes
 
-```bash
-# From artifacts/spartan-coaching-mobile after login as demo user
-# Manually navigate, then:
-xcrun simctl io booted screenshot store/screenshots/01-home-mission.png
-```
-
-Or use `store/capture-screenshots.sh` after updating routes (see script header).
-
-### App Store Connect captions (short)
-
-1. One next action every day  
-2. Command Center for the field  
-3. Tools map — Command first  
-4. Objection answers in seconds  
-5. Consulting or Hospice Sales Pro  
-
----
-
-## Preview video (15–30s) — script
-
-| Sec | Visual | VO / text |
-|-----|--------|-----------|
-| 0–3 | Dual doors (logged out) | “Spartan Coaching — two clear offers.” |
-| 3–8 | Home mission card | “When you’re in, one next action.” |
-| 8–14 | Tools → Objections → paste → Generate | “Handle the hard line before the visit.” |
-| 14–20 | Command hub | “Run the day from Command Center.” |
-| 20–25 | Logo + $14.99/wk · cancel anytime | “Hospice Sales Pro. No PHI in tools.” |
-
-Export 1080×1920 or App Store Connect recommended portrait. No patient data.
-
----
-
-## Replace legacy assets
-
-Delete or archive outdated names when new captures land:
-
-- `01-checklist.png` → prefer `01-home-mission.png`  
-- `02-scenario-coach.png` → role-play is secondary; use objection for public heat  
-- `03-branch-calculator.png` → leaders-only; not primary store story  
-- `04-drills.png` → covered by objection  
-- `05-login.png` → dual doors stronger  
-
-Keep 6.7/ copies in sync after re-export.
+The required primary set is iPhone 16 Pro Max at 1320 by 2868. A dedicated iPhone 15 Plus set at 1290 by 2796 is optional. App Store Connect can use the 6.9 inch set as the fallback for smaller current iPhone slots.

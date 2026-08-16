@@ -20,6 +20,7 @@ import {
   scheduleFollowUpReminder,
 } from "@/lib/notifications";
 import { buildToolDeepLink, REMINDER_KEY_TO_TAB } from "@/lib/deepLinks";
+import { font } from "@/lib/typography";
 
 interface Props {
   title: string;
@@ -117,18 +118,18 @@ export function ReminderPicker({ title, body, label = "Set follow-up reminder", 
     return (
       <View style={[styles.confirmedRow, { backgroundColor: colors.card, borderColor: colors.border }]}>
         <Feather name="bell" size={16} color={colors.primary} />
-        <Text style={[styles.confirmedText, { color: colors.foreground, fontFamily: "Inter_400Regular" }]}>
+        <Text style={[styles.confirmedText, { color: colors.foreground, ...font("regular") }]}>
           {contactName ? (
             <>
               Reminder for{" "}
-              <Text style={{ fontFamily: "Inter_600SemiBold" }}>{contactName}</Text>
+              <Text style={{ ...font("semibold") }}>{contactName}</Text>
               {" "}set for{" "}
-              <Text style={{ fontFamily: "Inter_600SemiBold" }}>{scheduledLabel}</Text>
+              <Text style={{ ...font("semibold") }}>{scheduledLabel}</Text>
             </>
           ) : (
             <>
               Reminder set for{" "}
-              <Text style={{ fontFamily: "Inter_600SemiBold" }}>{scheduledLabel}</Text>
+              <Text style={{ ...font("semibold") }}>{scheduledLabel}</Text>
             </>
           )}
         </Text>
@@ -143,7 +144,7 @@ export function ReminderPicker({ title, body, label = "Set follow-up reminder", 
     <View style={[styles.container, { borderColor: colors.border }]}>
       <View style={styles.headerRow}>
         <Feather name="bell" size={14} color={colors.mutedForeground} />
-        <Text style={[styles.labelText, { color: colors.mutedForeground, fontFamily: "Inter_500Medium" }]}>
+        <Text style={[styles.labelText, { color: colors.mutedForeground, ...font("medium") }]}>
           {label}
         </Text>
       </View>
@@ -156,7 +157,7 @@ export function ReminderPicker({ title, body, label = "Set follow-up reminder", 
               borderColor: colors.border,
               color: colors.foreground,
               backgroundColor: colors.card,
-              fontFamily: "Inter_400Regular",
+              ...font("regular"),
             },
           ]}
           placeholder="Contact name (optional)"
@@ -169,7 +170,7 @@ export function ReminderPicker({ title, body, label = "Set follow-up reminder", 
       )}
 
       {denied && (
-        <Text style={[styles.deniedText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+        <Text style={[styles.deniedText, { color: colors.mutedForeground, ...font("regular") }]}>
           Notifications are disabled. Enable them in Settings to set reminders.
         </Text>
       )}
@@ -190,7 +191,7 @@ export function ReminderPicker({ title, body, label = "Set follow-up reminder", 
             {loading === preset.label ? (
               <ActivityIndicator size="small" color={colors.primary} />
             ) : (
-              <Text style={[styles.presetBtnText, { color: colors.foreground, fontFamily: "Inter_500Medium" }]}>
+              <Text style={[styles.presetBtnText, { color: colors.foreground, ...font("medium") }]}>
                 {preset.label}
               </Text>
             )}

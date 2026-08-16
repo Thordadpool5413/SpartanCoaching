@@ -661,6 +661,9 @@ function StepRail({
             key={item.id}
             onPress={() => onChange(item.id)}
             style={styles.stepItem}
+            accessibilityRole="tab"
+            accessibilityState={{ selected: active }}
+            accessibilityLabel={`${item.label}, step ${index + 1} of 3`}
           >
             <View
               style={[
@@ -797,7 +800,12 @@ function HistorySheet({
             <Text style={styles.sheetKicker}>PRIVATE TO YOU</Text>
             <Text style={styles.sheetTitle}>Coach history</Text>
           </View>
-          <Pressable onPress={onClose} style={styles.closeButton}>
+          <Pressable
+            onPress={onClose}
+            style={styles.closeButton}
+            accessibilityRole="button"
+            accessibilityLabel="Close Coach history"
+          >
             <Feather name="x" size={20} color={colors.foreground} />
           </Pressable>
         </View>
@@ -836,7 +844,11 @@ function HistorySheet({
                 </View>
                 <Pressable
                   accessibilityLabel={`Delete ${item.title}`}
-                  onPress={() => onDelete(item)}
+                  accessibilityRole="button"
+                  onPress={(event) => {
+                    event.stopPropagation();
+                    onDelete(item);
+                  }}
                   hitSlop={12}
                   style={styles.deleteButton}
                 >
@@ -885,7 +897,12 @@ function SettingsSheet({
             <Text style={styles.sheetKicker}>SPARTAN COACH</Text>
             <Text style={styles.sheetTitle}>Preferences</Text>
           </View>
-          <Pressable onPress={onClose} style={styles.closeButton}>
+          <Pressable
+            onPress={onClose}
+            style={styles.closeButton}
+            accessibilityRole="button"
+            accessibilityLabel="Close Coach preferences"
+          >
             <Feather name="x" size={20} color={colors.foreground} />
           </Pressable>
         </View>
@@ -914,6 +931,7 @@ function SettingsSheet({
             </View>
             <Switch
               value={preference.memoryEnabled}
+              accessibilityLabel="Personal memory"
               onValueChange={(memoryEnabled) =>
                 void onPreference({ ...preference, memoryEnabled })
               }
@@ -930,6 +948,8 @@ function SettingsSheet({
                     void onPreference({ ...preference, responseStyle })
                   }
                   style={styles.optionRow}
+                  accessibilityRole="radio"
+                  accessibilityState={{ checked: preference.responseStyle === responseStyle }}
                 >
                   <Text style={styles.optionText}>
                     {responseStyle[0].toUpperCase() + responseStyle.slice(1)}
@@ -953,6 +973,8 @@ function SettingsSheet({
                   styles.appearanceChoice,
                   appearance === choice && styles.appearanceChoiceSelected,
                 ]}
+                accessibilityRole="radio"
+                accessibilityState={{ checked: appearance === choice }}
               >
                 <Feather
                   name={

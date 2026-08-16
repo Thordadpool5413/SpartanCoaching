@@ -211,7 +211,7 @@ function Field({
               <Text
                 style={{
                   color: colors.foreground,
-                  fontFamily: "Inter_500Medium",
+                  ...font("medium"),
                 }}
               >
                 {option}
@@ -565,7 +565,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
                   <Text
                     style={{
                       color: colors.primary,
-                      fontFamily: "Inter_600SemiBold",
+                      ...font("semibold"),
                     }}
                   >
                     {connection.label}
@@ -732,9 +732,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     fontSize: 12,
-    fontFamily: "Inter_600SemiBold",
+    ...font("semibold"),
   },
-  title: { fontSize: 30, lineHeight: 36, fontFamily: "Inter_700Bold" },
+  title: { fontSize: 30, lineHeight: 36, ...font("bold") },
   description: { fontSize: 16, lineHeight: 24 },
   warning: {
     borderWidth: 1,
@@ -755,9 +755,9 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
   },
-  sectionTitle: { fontSize: 18, fontFamily: "Inter_700Bold" },
+  sectionTitle: { fontSize: 18, ...font("bold") },
   field: { gap: 7 },
-  label: { fontSize: 14, fontFamily: "Inter_600SemiBold" },
+  label: { fontSize: 14, ...font("semibold") },
   input: {
     minHeight: 48,
     borderWidth: 1,
@@ -802,7 +802,7 @@ const styles = StyleSheet.create({
   },
   primaryButtonText: {
     color: "#FFFFFF",
-    fontFamily: "Inter_700Bold",
+    ...font("bold"),
     fontSize: 15,
   },
   secondaryButton: {
@@ -818,7 +818,7 @@ const styles = StyleSheet.create({
   resultItem: { borderWidth: 1, borderRadius: 10, padding: 12 },
   resultLabel: {
     fontSize: 14,
-    fontFamily: "Inter_700Bold",
+    ...font("bold"),
     textTransform: "capitalize",
     marginBottom: 4,
   },

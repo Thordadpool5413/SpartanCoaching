@@ -351,8 +351,8 @@ export default function TodayScreen() {
                   ? "Access ended · subscribe to continue"
                   : "$14.99/week · cancel anytime"
             }
-            body="Subscribe with Stripe on the website using this same account. When you return, Hospice Sales Pro unlocks automatically."
-            primaryLabel="Open Account & billing"
+            body="Choose Standard or Elite in Account, then subscribe securely with Apple. Existing Apple purchases can be restored there at any time."
+            primaryLabel="Choose membership"
             onPrimary={() => router.push("/(tabs)/account")}
             testID="button-locked-account"
           />
@@ -439,7 +439,7 @@ export default function TodayScreen() {
             marginTop: 10,
             letterSpacing: -0.6,
             lineHeight: 34,
-            fontFamily: "Inter_700Bold",
+            ...font("bold"),
           }}
         >
           {isFirstSession
@@ -452,7 +452,7 @@ export default function TodayScreen() {
             marginTop: 8,
             fontSize: 15,
             lineHeight: 22,
-            fontFamily: "Inter_400Regular",
+            ...font("regular"),
           }}
         >
           One clear commitment. One next conversation.
@@ -784,7 +784,7 @@ export default function TodayScreen() {
         <View style={[styles.section, { backgroundColor: colors.background }]}>
           <View style={styles.sectionHeader}>
             <Feather name="clock" size={20} color={colors.primary} />
-            <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
+            <Text style={[styles.sectionTitle, { color: colors.foreground, ...font("bold") }]}>
               Follow-up reminders
             </Text>
           </View>
@@ -797,20 +797,20 @@ export default function TodayScreen() {
                 <View style={[styles.reminderDot, { backgroundColor: colors.primary }]} />
                 <View style={styles.reminderContent}>
                   <Text
-                    style={[styles.reminderTitle, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}
+                    style={[styles.reminderTitle, { color: colors.foreground, ...font("semibold") }]}
                     numberOfLines={1}
                   >
                     {reminder.title}
                   </Text>
                   {reminder.contact ? (
                     <Text
-                      style={[styles.reminderContact, { color: colors.foreground, fontFamily: "Inter_500Medium" }]}
+                      style={[styles.reminderContact, { color: colors.foreground, ...font("medium") }]}
                       numberOfLines={1}
                     >
                       {reminder.contact}
                     </Text>
                   ) : null}
-                  <Text style={[styles.reminderMeta, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+                  <Text style={[styles.reminderMeta, { color: colors.mutedForeground, ...font("regular") }]}>
                     {reminder.presetLabel} · {formatScheduledTime(reminder.scheduledFor)}
                   </Text>
                 </View>

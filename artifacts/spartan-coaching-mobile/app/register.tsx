@@ -88,7 +88,7 @@ export default function RegisterScreen() {
             <SpartanInput label="Full name" autoComplete="name" value={name} onChangeText={setName} placeholder="Your name" />
             <SpartanInput label="Email" autoCapitalize="none" keyboardType="email-address" autoComplete="email" value={email} onChangeText={setEmail} placeholder="you@company.com" />
             <SpartanInput label="Password" secureTextEntry autoComplete="new-password" value={password} onChangeText={setPassword} placeholder="At least 8 characters" />
-            <SpartanInput label="Confirm password" secureTextEntry autoComplete="new-password" value={confirmPassword} onChangeText={setConfirmPassword} placeholder="Enter it again" error={error} />
+            <SpartanInput label="Confirm password" secureTextEntry autoComplete="new-password" value={confirmPassword} onChangeText={setConfirmPassword} placeholder="Enter it again" />
 
             <ConsentRow
               checked={accepted}
@@ -108,6 +108,15 @@ export default function RegisterScreen() {
               colors={colors}
               testID="register-confirm-no-phi"
             />
+
+            {error ? (
+              <Text
+                accessibilityRole="alert"
+                style={[styles.formError, { color: colors.destructive }, font("semibold")]}
+              >
+                {error}
+              </Text>
+            ) : null}
 
             <SpartanButton title="Create secure account" onPress={() => void submit()} loading={pending} disabled={!canSubmit || pending} testID="button-register" />
           </View>
@@ -162,6 +171,7 @@ const styles = StyleSheet.create({
   consentText: { flex: 1, fontSize: 13, lineHeight: 19 },
   legalLinks: { flexDirection: "row", gap: 18, marginLeft: 35, marginTop: -7, marginBottom: 4 },
   legalLink: { fontSize: 12 },
+  formError: { fontSize: 13, lineHeight: 18, marginTop: 4, marginBottom: 8 },
   signIn: { minHeight: 52, alignItems: "center", justifyContent: "center", marginTop: 8 },
   signInText: { fontSize: 14 },
 });

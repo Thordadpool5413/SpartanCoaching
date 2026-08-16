@@ -17,6 +17,7 @@ import { useColors } from "@/hooks/useColors";
 import { apiPost } from "@/lib/api";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { ReminderPicker } from "@/components/ReminderPicker";
+import { font } from "@/lib/typography";
 
 const SERVICE_OPTIONS = [
   "Virtual Coaching",
@@ -84,10 +85,10 @@ export default function ContactScreen() {
           <View style={[styles.successIcon, { backgroundColor: colors.accent }]}>
             <Feather name="check" size={32} color={colors.primary} />
           </View>
-          <Text style={[styles.successTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
+          <Text style={[styles.successTitle, { color: colors.foreground, ...font("bold") }]}>
             Message Sent
           </Text>
-          <Text style={[styles.successBody, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+          <Text style={[styles.successBody, { color: colors.mutedForeground, ...font("regular") }]}>
             Nick Lynch will be in touch within one business day.
           </Text>
           <ReminderPicker
@@ -103,7 +104,7 @@ export default function ContactScreen() {
             }}
             style={({ pressed }) => [styles.resetBtn, { backgroundColor: colors.muted, opacity: pressed ? 0.75 : 1 }]}
           >
-            <Text style={[{ color: colors.foreground, fontFamily: "Inter_500Medium" }]}>Send another message</Text>
+            <Text style={[{ color: colors.foreground, ...font("medium") }]}>Send another message</Text>
           </Pressable>
         </View>
       </View>
@@ -118,10 +119,10 @@ export default function ContactScreen() {
     >
       {/* Header */}
       <View style={[styles.header, { paddingTop: topPad + 12, borderBottomColor: colors.border }]}>
-        <Text style={[styles.headerTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
+        <Text style={[styles.headerTitle, { color: colors.foreground, ...font("bold") }]}>
           Contact
         </Text>
-        <Text style={[styles.headerSubtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+        <Text style={[styles.headerSubtitle, { color: colors.mutedForeground, ...font("regular") }]}>
           Get in touch with Spartan Coaching
         </Text>
       </View>
@@ -134,13 +135,13 @@ export default function ContactScreen() {
           resizeMode="contain"
         />
         <View style={styles.bioInfo}>
-          <Text style={[styles.bioName, { color: colors.heroForeground, fontFamily: "Inter_700Bold" }]}>
+          <Text style={[styles.bioName, { color: colors.heroForeground, ...font("bold") }]}>
             Nick Lynch
           </Text>
-          <Text style={[styles.bioTitle, { color: colors.heroMuted, fontFamily: "Inter_400Regular" }]}>
+          <Text style={[styles.bioTitle, { color: colors.heroMuted, ...font("regular") }]}>
             Founder, Spartan Coaching
           </Text>
-          <Text style={[styles.bioBio, { color: colors.heroMuted, fontFamily: "Inter_400Regular" }]}>
+          <Text style={[styles.bioBio, { color: colors.heroMuted, ...font("regular") }]}>
             The Authority in Hospice Excellence. Nick works with hospice sales professionals to build the conversations that get patients the care they deserve.
           </Text>
           <Pressable
@@ -148,7 +149,7 @@ export default function ContactScreen() {
             style={({ pressed }) => [styles.linkedinBtn, { opacity: pressed ? 0.75 : 1 }]}
           >
             <Feather name="linkedin" size={16} color={colors.heroBadgeText} />
-            <Text style={[styles.linkedinText, { color: colors.heroBadgeText, fontFamily: "Inter_600SemiBold" }]}>
+            <Text style={[styles.linkedinText, { color: colors.heroBadgeText, ...font("semibold") }]}>
               Connect on LinkedIn
             </Text>
           </Pressable>
@@ -157,14 +158,14 @@ export default function ContactScreen() {
 
       {/* Form */}
       <View style={styles.form}>
-        <Text style={[styles.formTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
+        <Text style={[styles.formTitle, { color: colors.foreground, ...font("bold") }]}>
           Send a Message
         </Text>
 
         <View style={styles.formField}>
-          <Text style={[styles.label, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>Name *</Text>
+          <Text style={[styles.label, { color: colors.foreground, ...font("semibold") }]}>Name *</Text>
           <TextInput
-            style={[styles.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, fontFamily: "Inter_400Regular" }]}
+            style={[styles.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, ...font("regular") }]}
             placeholder="Your full name"
             placeholderTextColor={colors.mutedForeground}
             value={form.name}
@@ -174,9 +175,9 @@ export default function ContactScreen() {
         </View>
 
         <View style={styles.formField}>
-          <Text style={[styles.label, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>Email *</Text>
+          <Text style={[styles.label, { color: colors.foreground, ...font("semibold") }]}>Email *</Text>
           <TextInput
-            style={[styles.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, fontFamily: "Inter_400Regular" }]}
+            style={[styles.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, ...font("regular") }]}
             placeholder="you@example.com"
             placeholderTextColor={colors.mutedForeground}
             value={form.email}
@@ -187,9 +188,9 @@ export default function ContactScreen() {
         </View>
 
         <View style={styles.formField}>
-          <Text style={[styles.label, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>Phone *</Text>
+          <Text style={[styles.label, { color: colors.foreground, ...font("semibold") }]}>Phone *</Text>
           <TextInput
-            style={[styles.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, fontFamily: "Inter_400Regular" }]}
+            style={[styles.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, ...font("regular") }]}
             placeholder="(555) 555-5555"
             placeholderTextColor={colors.mutedForeground}
             value={form.phone}
@@ -199,9 +200,9 @@ export default function ContactScreen() {
         </View>
 
         <View style={styles.formField}>
-          <Text style={[styles.label, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>Organization</Text>
+          <Text style={[styles.label, { color: colors.foreground, ...font("semibold") }]}>Organization</Text>
           <TextInput
-            style={[styles.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, fontFamily: "Inter_400Regular" }]}
+            style={[styles.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, ...font("regular") }]}
             placeholder="Your hospice or organization"
             placeholderTextColor={colors.mutedForeground}
             value={form.company}
@@ -210,7 +211,7 @@ export default function ContactScreen() {
         </View>
 
         <View style={styles.formField}>
-          <Text style={[styles.label, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>Service Interest</Text>
+          <Text style={[styles.label, { color: colors.foreground, ...font("semibold") }]}>Service Interest</Text>
           <View style={styles.serviceOptions}>
             {SERVICE_OPTIONS.map((opt) => (
               <Pressable
@@ -229,7 +230,7 @@ export default function ContactScreen() {
                   style={[
                     styles.serviceBtnText,
                     { color: form.serviceType === opt ? colors.primary : colors.mutedForeground },
-                    { fontFamily: form.serviceType === opt ? "Inter_600SemiBold" : "Inter_400Regular" },
+                    font(form.serviceType === opt ? "semibold" : "regular"),
                   ]}
                 >
                   {opt}
@@ -240,9 +241,9 @@ export default function ContactScreen() {
         </View>
 
         <View style={styles.formField}>
-          <Text style={[styles.label, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>Message *</Text>
+          <Text style={[styles.label, { color: colors.foreground, ...font("semibold") }]}>Message *</Text>
           <TextInput
-            style={[styles.textarea, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, fontFamily: "Inter_400Regular" }]}
+            style={[styles.textarea, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, ...font("regular") }]}
             placeholder="Tell me about your situation and what you're looking to achieve..."
             placeholderTextColor={colors.mutedForeground}
             value={form.message}
@@ -255,7 +256,7 @@ export default function ContactScreen() {
 
         {!!error && (
           <View style={[styles.errorCard, { backgroundColor: colors.accent }]}>
-            <Text style={[styles.errorText, { color: colors.primary, fontFamily: "Inter_400Regular" }]}>{error}</Text>
+            <Text style={[styles.errorText, { color: colors.primary, ...font("regular") }]}>{error}</Text>
           </View>
         )}
 
@@ -273,7 +274,7 @@ export default function ContactScreen() {
             <ActivityIndicator color={colors.primaryForeground} size="small" />
           ) : (
             <>
-              <Text style={[styles.submitBtnText, { color: colors.primaryForeground, fontFamily: "Inter_700Bold" }]}>
+              <Text style={[styles.submitBtnText, { color: colors.primaryForeground, ...font("bold") }]}>
                 Send Message
               </Text>
               <Feather name="arrow-right" size={18} color={colors.primaryForeground} />

@@ -1,1 +1,1 @@
-hospice sales,sales coaching,field rep,referral,healthcare,command center,objection,territory,AI coach,training
+hospice,sales coaching,field rep,referrals,healthcare,role play,territory,AI coach,training
