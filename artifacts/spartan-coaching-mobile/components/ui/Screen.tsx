@@ -42,8 +42,7 @@ export function Screen({
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
-  const bottomPad =
-    (Platform.OS === "web" ? 34 : insets.bottom) + layout.tabBarClearance + bottomExtra;
+  const bottomPad = (Platform.OS === "web" ? 34 : 16) + bottomExtra;
 
   if (!scroll) {
     return (
@@ -70,6 +69,7 @@ export function Screen({
       keyboardDismissMode="on-drag"
       showsVerticalScrollIndicator={false}
       automaticallyAdjustKeyboardInsets={Platform.OS === "ios"}
+      contentInsetAdjustmentBehavior="automatic"
     >
       {children}
     </ScrollView>

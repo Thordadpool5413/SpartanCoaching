@@ -63,7 +63,7 @@ export default function ToolsCatalogScreen() {
   const [remoteGroups, setRemoteGroups] = useState<SearchResponse["groups"]>([]);
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
-  const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 90;
+  const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 24;
 
   // Legacy deep link migration: tools?tab=objection → /tool/objection
   useEffect(() => {

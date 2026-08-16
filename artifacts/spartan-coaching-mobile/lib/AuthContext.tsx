@@ -5,12 +5,15 @@ import {
   logoutMobile,
   type MobileAuthUser,
 } from "@/lib/api";
+import { hasEliteMembership, resolveMembershipTier, type MembershipTier } from "@workspace/field-kit-catalog";
 
 type AuthContextValue = {
   user: MobileAuthUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   canUseFieldKit: boolean;
+  canUseElite: boolean;
+  membershipTier: MembershipTier;
   refresh: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
@@ -53,16 +56,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const value = useMemo(
-    () => ({
-      user,
-      isLoading,
-      isAuthenticated: !!user?.member,
-      canUseFieldKit: !!user?.fieldKit?.allowed,
-      refresh,
-      login,
-      logout,
-      setUser,
-    }),
+    () => {
+      const membershipInput = {
+        billingPlan: user?.organization?.billingPlan,
+        organizationType: user?.organization?.type,
+        memberRole: user?.member?.role,
+      };
+      return {
+        user,
+        isLoading,
+        isAuthenticated: !!user?.member,
+        canUseFieldKit: !!user?.fieldKit?.allowed,
+        canUseElite: !!user?.fieldKit?.allowed && hasEliteMembership(membershipInput),
+        membershipTier: resolveMembershipTier(membershipInput),
+        refresh,
+        login,
+        logout,
+        setUser,
+      };
+    },
     [user, isLoading, refresh, login, logout],
   );
 

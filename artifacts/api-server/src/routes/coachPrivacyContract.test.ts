@@ -25,6 +25,12 @@ describe("Spartan Coach privacy contract", () => {
     expect(routes).toContain("coachSharedSummaries");
   });
 
+  it("requires Elite and removes raw conversations after 90 days", () => {
+    expect(routes).toContain('app.use("/api/v1/coach", requireElite');
+    expect(routes).toContain("90 * 24 * 60 * 60 * 1000");
+    expect(routes).toContain("lt(coachConversations.updatedAt");
+  });
+
   it("uses an honest identity with clinical and privacy boundaries", () => {
     const prompt = openai.slice(openai.indexOf("const SPARTAN_COACH_SYSTEM_INSTRUCTION"), openai.indexOf("export async function generateSpartanCoachResponse"));
     expect(prompt).toContain("private AI sales coaching assistant");

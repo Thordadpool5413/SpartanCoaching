@@ -27,6 +27,14 @@ export function getIndividualWeeklyPriceId(): string {
   return priceId;
 }
 
+export function getIndividualWeeklyElitePriceId(): string {
+  const priceId = process.env.STRIPE_PRICE_INDIVIDUAL_WEEKLY_ELITE?.trim();
+  if (!priceId) {
+    throw new Error("STRIPE_PRICE_INDIVIDUAL_WEEKLY_ELITE is not configured");
+  }
+  return priceId;
+}
+
 export function getSiteUrl(): string {
   return (
     process.env.SITE_URL ||

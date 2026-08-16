@@ -63,7 +63,7 @@ const ROLES = [
 export default function AccountScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { user, isLoading, isAuthenticated, canUseFieldKit, logout, refresh } = useAuth();
+  const { user, isLoading, isAuthenticated, canUseFieldKit, canUseElite, logout, refresh } = useAuth();
 
   const [jobRole, setJobRole] = useState("");
   const [territoryNote, setTerritoryNote] = useState("");
@@ -76,6 +76,7 @@ export default function AccountScreen() {
   const [checkoutPending, setCheckoutPending] = useState(false);
   const [portalPending, setPortalPending] = useState(false);
   const [deletePending, setDeletePending] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<"standard_weekly" | "elite_weekly">("standard_weekly");
 
   // Tracks when billing data was last successfully fetched, used to skip
   // unnecessary refreshes when the app briefly goes to the background.
@@ -87,7 +88,7 @@ export default function AccountScreen() {
   const stripeOpenedRef = useRef<boolean>(false);
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
-  const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 90;
+  const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 24;
 
   const load = useCallback(async () => {
     if (!canUseFieldKit) return;
@@ -170,18 +171,18 @@ export default function AccountScreen() {
         <Text style={[styles.kicker, { color: colors.primary }]}>Client access</Text>
         <Text style={[styles.title, { color: colors.foreground }]}>Hospice Sales Pro</Text>
         <Text style={[styles.body, { color: colors.mutedForeground }]}>
-          Sign in for Command Center, practice tools, plans, and resources on the go.
-          Create an account on the web, subscribe for $14.99/week (cancel anytime). Preview free first.
+          Sign in to plan field work, practice difficult conversations, and use private coaching on the go.
+          Standard is $14.99 per week. Elite is $19.99 per week. Cancel anytime.
         </Text>
 
         <View style={[styles.card, { borderColor: colors.primary, backgroundColor: colors.cardElevated ?? colors.card, borderWidth: 1.5 }]}>
           <Text style={{ color: colors.primary, fontSize: 10, fontWeight: "800", letterSpacing: 1.4, textTransform: "uppercase", marginBottom: 8 }}>
-            What you unlock
+            Choose the level that fits your work
           </Text>
           {[
             { title: "Objection Handler", desc: "Field-ready responses to 'not ready yet' and every objection you hear this week" },
             { title: "Playbook Generator", desc: "Custom talking points and a clear next-step ask for any account visit" },
-            { title: "Role-Play Practice", desc: "Simulate physician and family conversations before you're in the room" },
+            { title: "Spartan Coach", desc: "Private voice rehearsal, direct feedback, and saved commitments with Elite" },
             { title: "Weekly Plan Builder", desc: "Monday–Friday territory plan with win conditions for every account" },
             { title: "Cold Call Script Generator", desc: "Openers and next-step asks for a full block of new outreach calls" },
           ].map((t) => (
@@ -194,7 +195,7 @@ export default function AccountScreen() {
             </View>
           ))}
           <Text style={{ color: colors.mutedForeground, fontSize: 11, marginTop: 4, borderTopWidth: 1, borderTopColor: colors.border, paddingTop: 8 }}>
-            + Activity Calculator, ROI Calculator, Email Templates, Grounded Research — 13 tools total · $14.99/week · cancel anytime
+            Standard includes the core field system. Elite adds Spartan Coach and deidentified clinical education tools.
           </Text>
         </View>
 
@@ -284,10 +285,12 @@ export default function AccountScreen() {
   const doneCount = items.filter((i) => isChecklistDone(checklist, i.id)).length;
   const membershipBlurb = shellCopy.body;
 
-  const onSubscribe = async () => {
+  const onSubscribe = async (
+    plan: "standard_weekly" | "elite_weekly" = selectedPlan,
+  ) => {
     setCheckoutPending(true);
     try {
-      const { url } = await startIndividualCheckout();
+      const { url } = await startIndividualCheckout(plan);
       const supported = await Linking.canOpenURL(url);
       if (!supported) throw new Error("Cannot open checkout URL");
       stripeOpenedRef.current = true;
@@ -557,8 +560,39 @@ export default function AccountScreen() {
             {org?.status === "expired" ? "Subscribe to unlock" : "One step left"}
           </Text>
           <Text style={{ color: colors.mutedForeground, fontSize: 14, lineHeight: 20, marginTop: 6 }}>
-            Account ready. Subscribe for $14.99/week to run tools live. Cancel anytime.
+            Account ready. Choose Standard for core field tools or Elite for Spartan Coach and deidentified clinical education tools.
           </Text>
+          <View style={{ flexDirection: "row", gap: 8, marginTop: 14 }}>
+            {([
+              { id: "standard_weekly", name: "Standard", price: "$14.99" },
+              { id: "elite_weekly", name: "Elite", price: "$19.99" },
+            ] as const).map((plan) => {
+              const selected = selectedPlan === plan.id;
+              return (
+                <Pressable
+                  key={plan.id}
+                  onPress={() => {
+                    if (plan.id === "elite_weekly" && billing?.individualWeeklyElitePriceConfigured === false) {
+                      Alert.alert("Elite enrollment is being configured", "Standard remains available. Elite will open after its production price is connected.");
+                      return;
+                    }
+                    setSelectedPlan(plan.id);
+                  }}
+                  style={{
+                    flex: 1,
+                    borderRadius: 14,
+                    borderWidth: selected ? 2 : 1,
+                    borderColor: selected ? colors.primary : colors.border,
+                    backgroundColor: selected ? colors.primaryMuted : colors.card,
+                    padding: 13,
+                  }}
+                >
+                  <Text style={{ color: colors.foreground, fontSize: 14, fontWeight: "800" }}>{plan.name}</Text>
+                  <Text style={{ color: colors.primary, fontSize: 18, fontWeight: "900", marginTop: 3 }}>{plan.price}<Text style={{ color: colors.mutedForeground, fontSize: 11, fontWeight: "600" }}> / week</Text></Text>
+                </Pressable>
+              );
+            })}
+          </View>
           <View style={{ marginTop: 12, gap: 8 }}>
             {[
               "1 · Account — done",
@@ -574,7 +608,7 @@ export default function AccountScreen() {
             ))}
           </View>
           <Pressable
-            onPress={onSubscribe}
+            onPress={() => void onSubscribe()}
             disabled={checkoutPending}
             style={[
               styles.primaryBtn,
@@ -586,7 +620,7 @@ export default function AccountScreen() {
               <ActivityIndicator color={colors.primaryForeground} />
             ) : (
               <Text style={[styles.primaryBtnText, { color: colors.primaryForeground }]}>
-                {org?.status === "expired" ? "Resubscribe · Hospice Sales Pro · $14.99/wk" : "Subscribe · $14.99/wk"}
+                {selectedPlan === "elite_weekly" ? "Choose Elite · $19.99/week" : "Choose Standard · $14.99/week"}
               </Text>
             )}
           </Pressable>
@@ -615,15 +649,15 @@ export default function AccountScreen() {
 
         {isPersonal && !isPlatform && (
           <View style={{ marginBottom: 10 }}>
-            <Text style={{ color: colors.primary, fontWeight: "900", fontSize: 28 }}>
-              $14.99
+          <Text style={{ color: colors.primary, fontWeight: "900", fontSize: 28 }}>
+              {canUseElite || (!canUseFieldKit && selectedPlan === "elite_weekly") ? "$19.99" : "$14.99"}
               <Text style={{ fontSize: 14, fontWeight: "700", color: colors.mutedForeground }}>
                 {" "}
                 / week
               </Text>
             </Text>
             <Text style={{ color: colors.mutedForeground, fontSize: 12, marginTop: 2 }}>
-              Hospice Sales Pro · auto-renew · cancel anytime
+              {canUseElite || (!canUseFieldKit && selectedPlan === "elite_weekly") ? "Hospice Sales Pro Elite" : "Hospice Sales Pro"} · auto renew · cancel anytime
             </Text>
           </View>
         )}
@@ -649,7 +683,7 @@ export default function AccountScreen() {
           <View style={{ marginTop: 14, gap: 10 }}>
             {canCheckout && (
               <Pressable
-                onPress={onSubscribe}
+                onPress={() => void onSubscribe()}
                 disabled={checkoutPending}
                 style={[
                   styles.primaryBtn,
@@ -662,7 +696,7 @@ export default function AccountScreen() {
                 testID="button-subscribe"
               >
                 <Text style={[styles.primaryBtnText, { color: colors.primaryForeground }]}>
-                  {checkoutPending ? "Opening checkout…" : "Subscribe · $14.99/week"}
+                  {checkoutPending ? "Opening checkout…" : selectedPlan === "elite_weekly" ? "Choose Elite · $19.99/week" : "Choose Standard · $14.99/week"}
                 </Text>
               </Pressable>
             )}
@@ -932,8 +966,7 @@ export default function AccountScreen() {
           Privacy & legal
         </Text>
         <Text style={{ color: colors.mutedForeground, fontSize: 13, lineHeight: 19, marginBottom: 12 }}>
-          Membership tools are coaching aids — do not enter PHI. Billing is handled by Stripe on the web
-          ($14.99/week individual; cancel anytime in Manage billing).
+          Membership tools are coaching and education aids. Never enter patient PHI. Individual plans are Standard at $14.99 per week and Elite at $19.99 per week. Company teams use contracted seats.
         </Text>
         {[
           { label: "Privacy Policy", url: APP_STORE_PRIVACY_URL, testId: "link-privacy" },

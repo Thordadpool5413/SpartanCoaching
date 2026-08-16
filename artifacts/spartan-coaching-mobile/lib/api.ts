@@ -166,6 +166,29 @@ export async function apiDelete<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+export async function transcribeAudio(uri: string): Promise<string> {
+  const token = await getSessionToken();
+  const form = new FormData();
+  form.append("audio", {
+    uri,
+    name: `spartan-rehearsal-${Date.now()}.m4a`,
+    type: "audio/m4a",
+  } as unknown as Blob);
+  const headers: Record<string, string> = clientPlatformHeaders();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const response = await fetch(`${getBase()}/api/transcribe`, {
+    method: "POST",
+    headers,
+    body: form,
+  });
+  if (!response.ok) throw await readApiError(response);
+  const value = (await response.json()) as { transcript?: string };
+  if (!value.transcript?.trim()) {
+    throw new ApiError("The recording did not contain clear speech.", 422, "EMPTY_TRANSCRIPT");
+  }
+  return value.transcript.trim();
+}
+
 export async function uploadToSignedUrl(
   url: string,
   body: Blob,
@@ -228,6 +251,7 @@ export type MobileAuthUser = {
 export type BillingStatus = {
   configured: boolean;
   individualWeeklyPriceConfigured: boolean;
+  individualWeeklyElitePriceConfigured?: boolean;
   canCheckoutIndividual: boolean;
   canOpenPortal: boolean;
   organization: {
@@ -255,10 +279,13 @@ export async function fetchBillingStatus(): Promise<BillingStatus | null> {
 }
 
 /** Start individual weekly Checkout ($14.99/wk). Returns Stripe-hosted URL. */
-export async function startIndividualCheckout(): Promise<{ url: string }> {
+export async function startIndividualCheckout(
+  plan: "standard_weekly" | "elite_weekly" = "standard_weekly",
+): Promise<{ url: string }> {
   const site = getWebSiteUrl();
   // Bridge page opens app deep link after Stripe (see CheckoutReturn.tsx).
   return apiPost<{ url: string }>("/api/billing/checkout", {
+    plan,
     successUrl: `${site}/checkout-return?from=app&activated=1`,
     cancelUrl: `${site}/account?billing=canceled&from=app`,
   });

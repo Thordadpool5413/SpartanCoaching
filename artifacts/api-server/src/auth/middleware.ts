@@ -5,6 +5,7 @@ import { hashToken } from "./crypto";
 import { evaluateFieldKitAccess, refreshOrgStatus, type FieldKitAccess } from "./entitlement";
 import { db } from "../db";
 import { buildApiErrorBody } from "@workspace/api-contract";
+import { hasEliteMembership } from "@workspace/field-kit-catalog";
 export { isAdminRequest, requireAdmin } from "./adminAuthorization";
 
 const COOKIE_NAME = "spartan_session";
@@ -111,6 +112,36 @@ export function requireFieldKit(req: AuthedRequest, res: Response, next: NextFun
         reason: req.fieldKit.reason,
       }),
     );
+  }
+  next();
+}
+
+/** Requires an active Elite individual subscription or Elite company contract. */
+export function requireElite(req: AuthedRequest, res: Response, next: NextFunction) {
+  if (!req.clientMemberId || !req.fieldKit?.member) {
+    return res.status(401).json(buildApiErrorBody({ code: "UNAUTHENTICATED" }));
+  }
+  if (!req.fieldKit.allowed) {
+    return res.status(403).json(
+      buildApiErrorBody({
+        code: "FIELD_KIT_DENIED",
+        reason: req.fieldKit.reason,
+      }),
+    );
+  }
+  const member = req.fieldKit.member;
+  const org = req.fieldKit.org;
+  if (
+    !hasEliteMembership({
+      billingPlan: org?.billingPlan,
+      organizationType: org?.type,
+      memberRole: member.role,
+    })
+  ) {
+    return res.status(403).json({
+      error: "Hospice Sales Pro Elite is required.",
+      code: "ELITE_REQUIRED",
+    });
   }
   next();
 }

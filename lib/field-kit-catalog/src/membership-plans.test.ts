@@ -1,9 +1,13 @@
 import { describe, expect, it } from "vitest";
 import {
+  COMPANY_ELITE_PLAN,
+  COMPANY_STANDARD_PLAN,
   ELITE_WEEKLY_PLAN,
   STANDARD_WEEKLY_PLAN,
   canUseDeidentifiedClinical,
   canUsePhiClinical,
+  hasEliteMembership,
+  hasStandardMembership,
   resolveMembershipTier,
 } from "./membership-plans";
 
@@ -18,6 +22,16 @@ describe("membership plans", () => {
     expect(resolveMembershipTier({ billingPlan: "individual_weekly" })).toBe("standard");
     expect(resolveMembershipTier({ billingPlan: "individual_weekly_elite" })).toBe("elite");
     expect(resolveMembershipTier({ organizationType: "company" })).toBe("organization");
+  });
+
+  it("keeps Standard and Elite access distinct for individual and contract members", () => {
+    expect(hasStandardMembership({ billingPlan: STANDARD_WEEKLY_PLAN.billingPlan })).toBe(true);
+    expect(hasEliteMembership({ billingPlan: STANDARD_WEEKLY_PLAN.billingPlan })).toBe(false);
+    expect(hasStandardMembership({ billingPlan: ELITE_WEEKLY_PLAN.billingPlan })).toBe(true);
+    expect(hasEliteMembership({ billingPlan: ELITE_WEEKLY_PLAN.billingPlan })).toBe(true);
+    expect(hasStandardMembership({ organizationType: "company", billingPlan: COMPANY_STANDARD_PLAN })).toBe(true);
+    expect(hasEliteMembership({ organizationType: "company", billingPlan: COMPANY_STANDARD_PLAN })).toBe(false);
+    expect(hasEliteMembership({ organizationType: "company", billingPlan: COMPANY_ELITE_PLAN })).toBe(true);
   });
 
   it("limits deidentified clinical tools to Elite or explicitly approved organizations", () => {

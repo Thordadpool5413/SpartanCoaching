@@ -31,7 +31,7 @@ import {
 } from "@workspace/db";
 import { db } from "../db";
 import {
-  requireFieldKit,
+  requireElite,
   requireOrgAdmin,
   type AuthedRequest,
 } from "../auth/middleware";
@@ -98,7 +98,7 @@ type EphemeralToolRunEnvelope = {
 };
 
 const CLINICAL_WATERMARK =
-  "Educational decision support only. Not a diagnosis, coverage determination, or autonomous eligibility or admission decision.";
+  "Suggested educational guidance only. Not a diagnosis, coverage determination, eligibility decision, or admission decision. Every output requires review and approval by the hospice medical director, compliance, or both.";
 
 function setNoStore(response: Response): Response {
   return response
@@ -581,7 +581,7 @@ function exposeRun(run: typeof aiToolRuns.$inferSelect) {
 }
 
 export function registerAiToolRoutes(app: Express): void {
-  app.get("/api/ai-tools", requireFieldKit, async (request, response, next) => {
+  app.get("/api/ai-tools", requireElite, async (request, response, next) => {
     try {
       const authed = request as AuthedRequest;
       const context = memberContext(authed);
@@ -623,7 +623,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.get(
     "/api/ai-tools/organization-flags",
-    requireFieldKit,
+    requireElite,
     requireOrgAdmin,
     async (request, response) => {
       const id = requestId(request);
@@ -646,7 +646,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.put(
     "/api/ai-tools/organization-flags/:toolId",
-    requireFieldKit,
+    requireElite,
     requireOrgAdmin,
     async (request, response) => {
       const id = requestId(request);
@@ -715,7 +715,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/ai-tools/:toolId/ephemeral-runs",
-    requireFieldKit,
+    requireElite,
     standardAiLimit,
     globalDailyAiCap,
     async (request, response) => {
@@ -817,7 +817,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/ai-tools/:toolId/runs",
-    requireFieldKit,
+    requireElite,
     standardAiLimit,
     globalDailyAiCap,
     async (request, response) => {
@@ -1025,7 +1025,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.get(
     "/api/ai-tools/:toolId/runs",
-    requireFieldKit,
+    requireElite,
     async (request, response) => {
       const id = requestId(request);
       try {
@@ -1075,7 +1075,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.get(
     "/api/clinical/coverage/snapshots",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
     async (request, response) => {
       const id = requestId(request);
@@ -1134,7 +1134,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/ephemeral-sessions",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
     standardAiLimit,
     async (request, response) => {
@@ -1207,7 +1207,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/ephemeral-sessions/:sessionId/documents/upload-url",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
     standardAiLimit,
     async (request, response) => {
@@ -1328,7 +1328,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/ephemeral-sessions/:sessionId/documents/:documentToken/complete",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
     heavyAiLimit,
     async (request, response) => {
@@ -1450,7 +1450,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/ephemeral-sessions/:sessionId/documents/:documentToken/extract",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
     heavyAiLimit,
     globalDailyAiCap,
@@ -1522,7 +1522,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/ephemeral-sessions/:sessionId/finalize",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
     heavyAiLimit,
     globalDailyAiCap,
@@ -1650,7 +1650,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.delete(
     "/api/clinical/ephemeral-sessions/:sessionId",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
     async (request, response) => {
       const id = requestId(request);
@@ -1689,7 +1689,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.get(
     "/api/ai-tool-runs/:runId",
-    requireFieldKit,
+    requireElite,
     async (request, response) => {
       const id = requestId(request);
       try {
@@ -1747,7 +1747,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.get(
     "/api/ai-tool-runs/:runId/export",
-    requireFieldKit,
+    requireElite,
     async (request, response) => {
       const id = requestId(request);
       try {
@@ -1807,7 +1807,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/documents/:documentId/extract",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
     heavyAiLimit,
     globalDailyAiCap,
@@ -1909,7 +1909,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/mfa/request",
-    requireFieldKit,
+    requireElite,
     heavyAiLimit,
     async (request, response) => {
       const id = requestId(request);
@@ -1962,7 +1962,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/mfa/verify",
-    requireFieldKit,
+    requireElite,
     heavyAiLimit,
     async (request, response) => {
       const id = requestId(request);
@@ -2045,7 +2045,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.put(
     "/api/clinical/permissions/:memberId",
-    requireFieldKit,
+    requireElite,
     requireOrgAdmin,
     async (request, response) => {
       const id = requestId(request);
@@ -2123,7 +2123,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/cases",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
     async (request, response) => {
       const id = requestId(request);
@@ -2195,7 +2195,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.get(
     "/api/clinical/cases",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
     async (request, response) => {
       const id = requestId(request);
@@ -2231,7 +2231,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/cases/:caseId/documents/upload-url",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
     async (request, response) => {
       const id = requestId(request);
@@ -2349,7 +2349,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/documents/:documentId/finalize",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
     async (request, response) => {
       const id = requestId(request);
@@ -2430,7 +2430,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.get(
     "/api/clinical/documents/:documentId/download-url",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
     async (request, response) => {
       const id = requestId(request);
@@ -2478,7 +2478,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.delete(
     "/api/clinical/cases/:caseId",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
     async (request, response) => {
       const id = requestId(request);
@@ -2601,7 +2601,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/runs/:runId/review",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
     requireClinicalReview,
     async (request, response) => {
@@ -2679,7 +2679,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/coverage/sync",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
     async (request, response) => {
       const id = requestId(request);

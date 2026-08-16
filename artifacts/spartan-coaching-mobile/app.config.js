@@ -181,6 +181,13 @@ module.exports = {
       "expo-font",
       "expo-secure-store",
       [
+        "expo-audio",
+        {
+          microphonePermission:
+            "Spartan Coach uses the microphone only while you record a private rehearsal for transcription and feedback.",
+        },
+      ],
+      [
         "expo-local-authentication",
         {
           faceIDPermission: "Use Face ID to reopen protected clinical cases.",

@@ -58,7 +58,7 @@ function formatScheduledTime(ts: number): string {
 export default function TodayScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { canUseFieldKit, isAuthenticated, user, logout, refresh } = useAuth();
+  const { canUseFieldKit, canUseElite, isAuthenticated, user, logout, refresh } = useAuth();
   const [personalization, setPersonalization] = useState<{
     continueItems: Array<{ id: string; title: string; href: string; why: string }>;
     recommendedToday: Array<{ id: string; title: string; href: string; why: string }>;
@@ -84,7 +84,7 @@ export default function TodayScreen() {
   const [coachCommitment, setCoachCommitment] = useState<string | null>(null);
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
-  const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 90;
+  const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 24;
 
   const loadOnboarding = useCallback(async () => {
     if (!canUseFieldKit) {
@@ -247,7 +247,6 @@ export default function TodayScreen() {
 
   const siteUrl = getWebSiteUrl();
 
-  // ── Shell A: Logged-out — dual doors ──────────────────────────────
   if (!isAuthenticated) {
     return (
       <ScrollView
@@ -255,65 +254,56 @@ export default function TodayScreen() {
         contentContainerStyle={{
           paddingBottom: bottomPad,
           flexGrow: 1,
-          paddingHorizontal: 16,
+          paddingHorizontal: 20,
+          paddingTop: topPad + 12,
         }}
         showsVerticalScrollIndicator={false}
         testID="screen-logged-out-home"
       >
-        <LinearGradient
-          colors={[colors.heroBackground, colors.background]}
-          style={[styles.hero, { paddingTop: topPad + 28, paddingBottom: 32, marginHorizontal: -16 }]}
-        >
-          <Image source={require("@/assets/images/logo.png")} style={styles.logo} resizeMode="contain" />
-          <SectionKicker>Spartan Coaching</SectionKicker>
-          <Text style={[styles.heroTitle, { color: colors.heroForeground, marginTop: 12 }, font("heavy")]}>
-            Field-ready hospice sales coaching.
-          </Text>
-          <Text style={[styles.heroTagline, { color: colors.heroMuted, marginTop: 12 }, font("regular")]}>
-            Two clear offers: human consulting, or Hospice Sales Pro tools on this iPhone.
-          </Text>
-        </LinearGradient>
-
-        <View style={{ gap: 12, marginTop: 8 }}>
-          <SpartanCard variant="emphasis" testID="door-consulting">
-            <SectionKicker>Offer 1 · Human</SectionKicker>
-            <Text style={[{ color: colors.foreground, fontSize: 18, marginTop: 8 }, font("bold")]}>
-              Consulting
-            </Text>
-            <Text style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 6, lineHeight: 19 }, font("regular")]}>
-              Strategy calls, team systems, and coaching that holds when the week is hard.
-            </Text>
-            <SpartanButton
-              title="Book a strategy call"
-              onPress={() => router.push("/(tabs)/contact")}
-              style={{ marginTop: 14 }}
-              testID="button-book-call-logged-out"
-            />
-          </SpartanCard>
-
-          <SpartanCard variant="default" testID="door-hospice-sales-pro">
-            <SectionKicker>Offer 2 · Tools</SectionKicker>
-            <Text style={[{ color: colors.foreground, fontSize: 18, marginTop: 8 }, font("bold")]}>
-              Hospice Sales Pro
-            </Text>
-            <Text style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 6, lineHeight: 19 }, font("regular")]}>
-              Command Center, objections, role-play, weekly plans — $14.99/wk · cancel anytime.
-            </Text>
-            <SpartanButton
-              title="Client login"
-              onPress={() => router.push("/login")}
-              style={{ marginTop: 14 }}
-              testID="button-client-login"
-            />
-            <SpartanButton
-              title="See what's inside"
-              variant="outline"
-              onPress={() => void Linking.openURL(`${siteUrl}/hospice-sales-pro`)}
-              style={{ marginTop: 10 }}
-              testID="button-hospice-sales-pro-logged-out"
-            />
-          </SpartanCard>
+        <View style={[styles.loggedOutBrand, { backgroundColor: colors.heroBackground }]}>
+          <Image
+            source={require("@/assets/images/spartan-coaching-lockup.png")}
+            style={styles.loggedOutLockup}
+            resizeMode="contain"
+          />
         </View>
+        <Text style={[styles.loggedOutKicker, { color: colors.primary }, font("bold")]}>YOUR FIELD ADVANTAGE</Text>
+        <Text style={[styles.loggedOutTitle, { color: colors.foreground }, font("heavy")]}>Prepare better. Speak with clarity. Follow through.</Text>
+        <Text style={[styles.loggedOutBody, { color: colors.mutedForeground }, font("regular")]}>Spartan Coaching brings disciplined hospice sales tools and private coaching practice to your iPhone.</Text>
+
+        <View style={[styles.membershipCard, { backgroundColor: colors.card, borderColor: colors.border }] } testID="door-hospice-sales-pro">
+          <View style={styles.membershipHeading}>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.planEyebrow, { color: colors.primary }, font("bold")]}>ELITE TOOLS SUBSCRIPTION</Text>
+              <Text style={[styles.planTitle, { color: colors.foreground }, font("bold")]}>Hospice Sales Pro</Text>
+            </View>
+            <View style={[styles.pricePill, { backgroundColor: colors.primaryMuted }]}>
+              <Text style={[styles.priceText, { color: colors.primary }, font("bold")]}>from $14.99</Text>
+              <Text style={[styles.priceCadence, { color: colors.primary }, font("medium")]}>per week</Text>
+            </View>
+          </View>
+          <View style={styles.planFeatures}>
+            {["Field planning and sales practice", "Private Spartan Coach with Elite", "Light, Dark, and System appearance"].map((feature) => (
+              <View key={feature} style={styles.planFeature}>
+                <Feather name="check" size={16} color={colors.success} />
+                <Text style={[styles.planFeatureText, { color: colors.foreground }, font("medium")]}>{feature}</Text>
+              </View>
+            ))}
+          </View>
+          <Pressable style={[styles.loggedOutPrimary, { backgroundColor: colors.primary }]} onPress={() => router.push("/login")} testID="button-client-login">
+            <Text style={[styles.loggedOutPrimaryText, font("bold")]}>Sign in</Text>
+            <Feather name="arrow-right" size={19} color="#FFFFFF" />
+          </Pressable>
+          <Pressable style={styles.loggedOutLink} onPress={() => void Linking.openURL(`${siteUrl}/hospice-sales-pro`)} testID="button-hospice-sales-pro-logged-out">
+            <Text style={[styles.loggedOutLinkText, { color: colors.primary }, font("semibold")]}>Compare Standard and Elite</Text>
+          </Pressable>
+        </View>
+
+        <Pressable style={[styles.consultingRow, { borderColor: colors.borderStrong }]} onPress={() => router.push("/(tabs)/contact")} testID="button-book-call-logged-out">
+          <View style={[styles.consultingIcon, { backgroundColor: colors.secondary }]}><Feather name="users" size={20} color={colors.foreground} /></View>
+          <View style={{ flex: 1 }}><Text style={[styles.consultingTitle, { color: colors.foreground }, font("semibold")]}>Need human consulting?</Text><Text style={[styles.consultingBody, { color: colors.mutedForeground }, font("regular")]}>Strategy, team systems, and contracted company enrollment.</Text></View>
+          <Feather name="chevron-right" size={20} color={colors.mutedForeground} />
+        </Pressable>
       </ScrollView>
     );
   }
@@ -481,7 +471,7 @@ export default function TodayScreen() {
             />
           ) : (
             <EntitlementBanner
-              label={user?.organization?.billingPlan === "individual_weekly_elite" ? "Spartan Coach Elite · active" : "Hospice Sales Pro · active"}
+              label={canUseElite ? "Hospice Sales Pro Elite · active" : "Hospice Sales Pro · active"}
               role="active"
               actionLabel="Account"
               onAction={() => router.push("/(tabs)/account")}
@@ -856,6 +846,29 @@ export default function TodayScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  loggedOutBrand: { height: 126, borderRadius: 20, overflow: "hidden", alignItems: "center", justifyContent: "center" },
+  loggedOutLockup: { width: "96%", height: "92%" },
+  loggedOutKicker: { fontSize: 10, letterSpacing: 2, marginTop: 28 },
+  loggedOutTitle: { fontSize: 34, lineHeight: 39, letterSpacing: -1, marginTop: 10 },
+  loggedOutBody: { fontSize: 16, lineHeight: 24, marginTop: 11 },
+  membershipCard: { borderWidth: 1, borderRadius: 20, padding: 18, marginTop: 24 },
+  membershipHeading: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
+  planEyebrow: { fontSize: 9, letterSpacing: 1.5 },
+  planTitle: { fontSize: 23, marginTop: 5 },
+  pricePill: { borderRadius: 14, paddingHorizontal: 11, paddingVertical: 8, alignItems: "flex-end" },
+  priceText: { fontSize: 13 },
+  priceCadence: { fontSize: 10, marginTop: 1 },
+  planFeatures: { gap: 11, marginTop: 18 },
+  planFeature: { flexDirection: "row", alignItems: "center", gap: 9 },
+  planFeatureText: { flex: 1, fontSize: 14 },
+  loggedOutPrimary: { minHeight: 54, borderRadius: 15, flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 17, marginTop: 20 },
+  loggedOutPrimaryText: { color: "#FFFFFF", fontSize: 16 },
+  loggedOutLink: { minHeight: 46, alignItems: "center", justifyContent: "center" },
+  loggedOutLinkText: { fontSize: 14 },
+  consultingRow: { minHeight: 82, borderWidth: 1, borderRadius: 18, padding: 14, flexDirection: "row", alignItems: "center", gap: 12, marginTop: 12 },
+  consultingIcon: { width: 42, height: 42, borderRadius: 13, alignItems: "center", justifyContent: "center" },
+  consultingTitle: { fontSize: 15 },
+  consultingBody: { fontSize: 12, lineHeight: 17, marginTop: 3 },
   hero: {
     alignItems: "center",
     paddingBottom: 40,

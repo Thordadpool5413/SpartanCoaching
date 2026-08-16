@@ -57,7 +57,9 @@ export default function ToolWebScreen() {
   const uri = useMemo(() => {
     if (!base) return "";
     try {
+      const trustedOrigin = new URL(base).origin;
       const url = new URL(webPath.startsWith("http") ? webPath : `${base}${webPath}`);
+      if (url.origin !== trustedOrigin) return "";
       url.searchParams.delete("mobile_token");
       return url.toString();
     } catch {
@@ -75,7 +77,8 @@ export default function ToolWebScreen() {
         window.fetch = function(input, init) {
           init = init || {};
           var headers = new Headers(init.headers || {});
-          if (token && !headers.has('Authorization')) {
+          var requested = new URL(typeof input === 'string' ? input : input.url, window.location.href);
+          if (requested.origin === window.location.origin && token && !headers.has('Authorization')) {
             headers.set('Authorization', 'Bearer ' + token);
           }
           init.headers = headers;
@@ -128,6 +131,16 @@ export default function ToolWebScreen() {
     if (/\/(login|register|magic)/i.test(nav.url) && !nav.loading) {
       setSessionExpired(true);
     }
+  };
+
+  const shouldLoad = (request: { url: string }) => {
+    try {
+      if (new URL(request.url).origin === new URL(base).origin) return true;
+      void Linking.openURL(request.url);
+    } catch {
+      // Reject malformed navigation targets.
+    }
+    return false;
   };
 
   const onMessage = (event: { nativeEvent: { data: string } }) => {
@@ -267,6 +280,7 @@ export default function ToolWebScreen() {
           onLoadStart={() => setLoading(true)}
           onLoadEnd={() => setLoading(false)}
           onNavigationStateChange={onNavChange}
+          onShouldStartLoadWithRequest={shouldLoad}
           onMessage={onMessage}
           onError={() => {
             setLoading(false);
