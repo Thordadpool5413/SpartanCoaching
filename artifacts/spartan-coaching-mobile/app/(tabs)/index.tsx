@@ -38,6 +38,7 @@ import { font } from "@/lib/typography";
 import { getWebSiteUrl } from "@/lib/api";
 import { useMission } from "@/lib/useMission";
 import { trackMobileEvent } from "@/lib/analytics";
+import { listCoachMemory } from "@/lib/coachApi";
 
 function formatScheduledTime(ts: number): string {
   const now = Date.now();
@@ -54,7 +55,7 @@ function formatScheduledTime(ts: number): string {
   return `in ${diffDays}d`;
 }
 
-export default function HomeScreen() {
+export default function TodayScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { canUseFieldKit, isAuthenticated, user, logout, refresh } = useAuth();
@@ -80,6 +81,7 @@ export default function HomeScreen() {
   /** Secondary chrome collapsed so one primary path wins (craft P1) */
   const [checklistOpen, setChecklistOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [coachCommitment, setCoachCommitment] = useState<string | null>(null);
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 90;
@@ -125,6 +127,28 @@ export default function HomeScreen() {
       // Entitlement may have changed after web checkout
       void refresh();
     }, [reloadReminders, loadOnboarding, refresh]),
+  );
+
+  useFocusEffect(
+    useCallback(() => {
+      if (!canUseFieldKit) {
+        setCoachCommitment(null);
+        return undefined;
+      }
+      let cancelled = false;
+      void listCoachMemory()
+        .then((items) => {
+          if (cancelled) return;
+          const latest = items.find((item) => item.category === "commitment" && item.enabled);
+          setCoachCommitment(latest?.content ?? null);
+        })
+        .catch(() => {
+          if (!cancelled) setCoachCommitment(null);
+        });
+      return () => {
+        cancelled = true;
+      };
+    }, [canUseFieldKit]),
   );
 
   useEffect(() => {
@@ -303,7 +327,21 @@ export default function HomeScreen() {
         showsVerticalScrollIndicator={false}
         testID="screen-locked-home"
       >
-        <SectionKicker>Hospice Sales Pro</SectionKicker>
+        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
+          <View>
+            <SectionKicker>Today</SectionKicker>
+            <Text style={[{ color: colors.warning, fontSize: 11, letterSpacing: 1.8, marginTop: 5 }, font("bold")]}>ELITE FIELD DESK</Text>
+          </View>
+          <Pressable
+            accessibilityLabel="Open account"
+            onPress={() => router.push("/(tabs)/account")}
+            style={{ width: 46, height: 46, borderRadius: 23, alignItems: "center", justifyContent: "center", backgroundColor: colors.cardElevated, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.borderStrong }}
+          >
+            <Text style={[{ color: colors.foreground, fontSize: 15 }, font("semibold")]}>
+              {(firstName || "S").slice(0, 2).toUpperCase()}
+            </Text>
+          </Pressable>
+        </View>
         <Text style={[{ color: colors.foreground, fontSize: 26, marginTop: 10 }, font("heavy")]}>
           {user?.organization?.status === "suspended"
             ? "Restore access"
@@ -430,7 +468,7 @@ export default function HomeScreen() {
             fontFamily: "Inter_400Regular",
           }}
         >
-          One next action. Same seat as the website.
+          One clear commitment. One next conversation.
         </Text>
         <View style={{ marginTop: 14 }}>
           {user?.organization?.status === "trial" && trialLabel ? (
@@ -443,7 +481,7 @@ export default function HomeScreen() {
             />
           ) : (
             <EntitlementBanner
-              label="Hospice Sales Pro · active"
+              label={user?.organization?.billingPlan === "individual_weekly_elite" ? "Spartan Coach Elite · active" : "Hospice Sales Pro · active"}
               role="active"
               actionLabel="Account"
               onAction={() => router.push("/(tabs)/account")}
@@ -454,6 +492,34 @@ export default function HomeScreen() {
       </LinearGradient>
 
       <View style={[styles.section, { paddingTop: 16 }]}>
+        {coachCommitment ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Open saved Coach commitment"
+            onPress={() => router.push("/(tabs)/coach")}
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 14,
+              padding: 16,
+              borderRadius: 18,
+              borderWidth: 1,
+              borderColor: colors.border,
+              backgroundColor: colors.card,
+              marginBottom: 14,
+            }}
+            testID="card-private-coach-commitment"
+          >
+            <View style={{ width: 48, height: 48, borderRadius: 24, borderWidth: 1, borderColor: colors.signal, alignItems: "center", justifyContent: "center" }}>
+              <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: colors.mission }} />
+            </View>
+            <View style={{ flex: 1 }}>
+              <Text style={[{ color: colors.primary, fontSize: 10, letterSpacing: 1.4 }, font("bold")]}>PRIVATE COMMITMENT</Text>
+              <Text style={[{ color: colors.foreground, fontSize: 16, lineHeight: 22, marginTop: 5 }, font("semibold")]}>{coachCommitment}</Text>
+            </View>
+            <Feather name="chevron-right" size={20} color={colors.mutedForeground} />
+          </Pressable>
+        ) : null}
         <MissionCard
           kicker={
             activationPrimary

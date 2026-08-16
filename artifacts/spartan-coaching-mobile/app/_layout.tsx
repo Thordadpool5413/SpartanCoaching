@@ -21,6 +21,7 @@ import { trackMobileEvent } from "@/lib/analytics";
 import { fetchClientConfig } from "@/lib/clientConfig";
 import { ActivationCeremony } from "@/components/ActivationCeremony";
 import { DeepLinkRouter } from "@/components/DeepLinkRouter";
+import { AppearanceProvider } from "@/lib/AppearanceContext";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -103,24 +104,26 @@ export default function RootLayout() {
   if (Platform.OS !== "ios" && !fontsLoaded && !fontError) return null;
 
   return (
-    <SafeAreaProvider>
-      <ErrorBoundary>
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <ClientConfigBootstrap />
-            <AppOpenTracker />
-            <DeepLinkRouter />
-            <ActivationCeremony />
-            {/* System appearance — light/dark StatusBar (HSP-33) */}
-            <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-            <GestureHandlerRootView style={{ flex: 1 }}>
-              <KeyboardProvider>
-                <RootLayoutNav />
-              </KeyboardProvider>
-            </GestureHandlerRootView>
-          </AuthProvider>
-        </QueryClientProvider>
-      </ErrorBoundary>
-    </SafeAreaProvider>
+    <AppearanceProvider>
+      <SafeAreaProvider>
+        <ErrorBoundary>
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+              <ClientConfigBootstrap />
+              <AppOpenTracker />
+              <DeepLinkRouter />
+              <ActivationCeremony />
+              {/* System appearance with an optional user override. */}
+              <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <KeyboardProvider>
+                  <RootLayoutNav />
+                </KeyboardProvider>
+              </GestureHandlerRootView>
+            </AuthProvider>
+          </QueryClientProvider>
+        </ErrorBoundary>
+      </SafeAreaProvider>
+    </AppearanceProvider>
   );
 }

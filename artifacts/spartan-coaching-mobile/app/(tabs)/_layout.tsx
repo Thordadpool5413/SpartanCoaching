@@ -17,26 +17,23 @@ function NativeTabLayout() {
   return (
     <NativeTabs>
       <NativeTabs.Trigger name="index">
-        <Icon sf={{ default: "house", selected: "house.fill" }} />
-        <Label>Home</Label>
-      </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="command">
-        <Icon sf={{ default: "target", selected: "target" }} />
-        <Label>Command</Label>
+        <Icon sf={{ default: "calendar", selected: "calendar.circle.fill" }} />
+        <Label>Today</Label>
       </NativeTabs.Trigger>
       <NativeTabs.Trigger name="coach">
-        <Icon sf={{ default: "sparkles", selected: "sparkles" }} />
+        <Icon sf={{ default: "waveform", selected: "waveform.circle.fill" }} />
         <Label>Coach</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="tools" hidden><Label>Tools</Label></NativeTabs.Trigger>
+      <NativeTabs.Trigger name="tools">
+        <Icon sf={{ default: "scope", selected: "scope" }} />
+        <Label>Practice</Label>
+      </NativeTabs.Trigger>
       <NativeTabs.Trigger name="learn">
         <Icon sf={{ default: "book", selected: "book.fill" }} />
-        <Label>Learn</Label>
+        <Label>Library</Label>
       </NativeTabs.Trigger>
-      <NativeTabs.Trigger name="account">
-        <Icon sf={{ default: "person", selected: "person.fill" }} />
-        <Label>Account</Label>
-      </NativeTabs.Trigger>
+      <NativeTabs.Trigger name="command" hidden><Label>Command</Label></NativeTabs.Trigger>
+      <NativeTabs.Trigger name="account" hidden><Label>Account</Label></NativeTabs.Trigger>
       {/* Contact remains a route but is hidden from primary shell (match web chrome). */}
       <NativeTabs.Trigger name="contact" hidden>
         <Label>Contact</Label>
@@ -111,18 +108,19 @@ function ClassicTabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Home",
+          title: "Today",
           tabBarIcon: ({ color }) =>
             isIOS ? (
-              <SymbolView name="house" tintColor={color} size={24} />
+              <SymbolView name="calendar" tintColor={color} size={24} />
             ) : (
-              <Feather name="home" size={22} color={color} />
+              <Feather name="calendar" size={22} color={color} />
             ),
         }}
       />
       <Tabs.Screen
         name="command"
         options={{
+          href: null,
           title: "Command",
           tabBarIcon: ({ color }) =>
             isIOS ? (
@@ -138,17 +136,28 @@ function ClassicTabLayout() {
           title: "Coach",
           tabBarIcon: ({ color }) =>
             isIOS ? (
-              <SymbolView name="sparkles" tintColor={color} size={24} />
+              <SymbolView name="waveform" tintColor={color} size={24} />
             ) : (
-              <Feather name="compass" size={22} color={color} />
+              <Feather name="activity" size={22} color={color} />
             ),
         }}
       />
-      <Tabs.Screen name="tools" options={{ href: null, title: "Tools" }} />
+      <Tabs.Screen
+        name="tools"
+        options={{
+          title: "Practice",
+          tabBarIcon: ({ color }) =>
+            isIOS ? (
+              <SymbolView name="scope" tintColor={color} size={24} />
+            ) : (
+              <Feather name="target" size={22} color={color} />
+            ),
+        }}
+      />
       <Tabs.Screen
         name="learn"
         options={{
-          title: "Learn",
+          title: "Library",
           tabBarIcon: ({ color }) =>
             isIOS ? (
               <SymbolView name="book" tintColor={color} size={24} />
@@ -160,6 +169,7 @@ function ClassicTabLayout() {
       <Tabs.Screen
         name="account"
         options={{
+          href: null,
           title: "Account",
           tabBarIcon: ({ color }) =>
             isIOS ? (

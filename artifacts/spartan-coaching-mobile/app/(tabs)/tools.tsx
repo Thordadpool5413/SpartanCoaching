@@ -165,12 +165,12 @@ export default function ToolsCatalogScreen() {
         ]}
       >
         <Text style={[styles.headerTitle, { color: colors.foreground }, font("heavy")]}>
-          What do you need?
+          Practice
         </Text>
         <Text style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 4 }, font("regular")]}>
           {canUseFieldKit
-            ? "Command first · then Prepare or Practice · same seat as web"
-            : "Preview free · live tools with subscription"}
+            ? "Rehearse the conversation, sharpen the ask, or open a field tool."
+            : "Preview practice tools. Live use requires a subscription."}
         </Text>
         <TextInput
           style={[
@@ -182,7 +182,7 @@ export default function ToolsCatalogScreen() {
               marginTop: 12,
             },
           ]}
-          placeholder="Search tools, resources, method…"
+          placeholder="Search practice and field tools"
           placeholderTextColor={colors.mutedForeground}
           value={filter}
           onChangeText={setFilter}

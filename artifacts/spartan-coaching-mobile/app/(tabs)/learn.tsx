@@ -177,10 +177,11 @@ export default function LearnScreen() {
           },
         ]}
       >
-        <Text style={[styles.headerTitle, { color: colors.foreground }, font("heavy")]}>Learn</Text>
-        <Text style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 4 }, font("regular")]}>
-          Fundamentals between visits — articles, podcasts, drills. Field resources (work aids) also live under
-          Tools intent map and the Resources tab below.
+        <Text style={[styles.headerTitle, { color: colors.foreground }, font("heavy")]}>Library</Text>
+        <Text
+          style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 4 }, font("regular")]}
+        >
+          Articles, podcasts, field resources, and the Spartan Method in one place.
         </Text>
       </View>
 

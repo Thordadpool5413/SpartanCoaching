@@ -18,6 +18,14 @@ export type CoachPreference = {
   memoryEnabled: boolean;
   responseStyle: "concise" | "balanced" | "detailed";
 };
+export type CoachMemoryItem = {
+  id: string;
+  category: "goal" | "preference" | "commitment" | "context";
+  content: string;
+  enabled: boolean;
+  createdAt: string;
+  updatedAt: string;
+};
 
 export const listCoachConversations = async () =>
   (await apiGet<{ conversations: CoachConversation[] }>("/api/v1/coach/conversations")).conversations;
@@ -39,3 +47,12 @@ export const getCoachPreferences = async () =>
 
 export const saveCoachPreferences = async (preference: CoachPreference) =>
   (await apiPut<{ preference: CoachPreference }>("/api/v1/coach/preferences", preference)).preference;
+
+export const listCoachMemory = async () =>
+  (await apiGet<{ items: CoachMemoryItem[] }>("/api/v1/coach/memory")).items;
+
+export const saveCoachMemory = async (
+  category: CoachMemoryItem["category"],
+  content: string,
+) =>
+  (await apiPost<{ item: CoachMemoryItem }>("/api/v1/coach/memory", { category, content })).item;
