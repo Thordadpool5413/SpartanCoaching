@@ -28,13 +28,19 @@ type Props = {
   plan?: "standard_weekly" | "elite_weekly";
   showPurchase?: boolean;
   showManage?: boolean;
+  onPricesLoaded?: (prices: AppleSubscriptionDisplayPrices) => void;
   onEntitlementChanged: () => Promise<void> | void;
 };
+
+export type AppleSubscriptionDisplayPrices = Partial<
+  Record<"standard_weekly" | "elite_weekly", string>
+>;
 
 export function AppleSubscriptionActions({
   plan = "standard_weekly",
   showPurchase = false,
   showManage = false,
+  onPricesLoaded,
   onEntitlementChanged,
 }: Props) {
   const colors = useColors();
@@ -86,6 +92,21 @@ export function AppleSubscriptionActions({
       type: "subs",
     });
   }, [connected, config, fetchProducts]);
+
+  const standardDisplayPrice = subscriptions.find(
+    (product) => product.id === STANDARD_WEEKLY_PLAN.appleProductId,
+  )?.displayPrice;
+  const eliteDisplayPrice = subscriptions.find(
+    (product) => product.id === ELITE_WEEKLY_PLAN.appleProductId,
+  )?.displayPrice;
+
+  useEffect(() => {
+    if (!onPricesLoaded || subscriptions.length === 0) return;
+    onPricesLoaded({
+      ...(standardDisplayPrice ? { standard_weekly: standardDisplayPrice } : {}),
+      ...(eliteDisplayPrice ? { elite_weekly: eliteDisplayPrice } : {}),
+    });
+  }, [eliteDisplayPrice, onPricesLoaded, standardDisplayPrice, subscriptions.length]);
 
   if (Platform.OS !== "ios") return null;
 

@@ -21,7 +21,10 @@ import {
   resolveEntitlementShell,
 } from "@workspace/field-kit-catalog";
 import { SpartanButton } from "@/components/ui/SpartanButton";
-import { AppleSubscriptionActions } from "@/components/AppleSubscriptionActions";
+import {
+  AppleSubscriptionActions,
+  type AppleSubscriptionDisplayPrices,
+} from "@/components/AppleSubscriptionActions";
 import { StatusChip } from "@/components/ui/StatusChip";
 import { useColors } from "@/hooks/useColors";
 import {
@@ -71,10 +74,12 @@ export default function AccountScreen() {
   const [message, setMessage] = useState<string | null>(null);
   const [billing, setBilling] = useState<BillingStatus | null>(null);
   const [billingLoading, setBillingLoading] = useState(false);
+  const [billingError, setBillingError] = useState<string | null>(null);
   const [checkoutPending, setCheckoutPending] = useState(false);
   const [portalPending, setPortalPending] = useState(false);
   const [deletePending, setDeletePending] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<"standard_weekly" | "elite_weekly">("elite_weekly");
+  const [applePrices, setApplePrices] = useState<AppleSubscriptionDisplayPrices>({});
   const billingLastFetchedRef = useRef(0);
   const stripeOpenedRef = useRef(false);
   const appStateRef = useRef(AppState.currentState);
@@ -98,10 +103,13 @@ export default function AccountScreen() {
   const loadBilling = useCallback(async () => {
     if (!isAuthenticated) return;
     setBillingLoading(true);
+    setBillingError(null);
     try {
       const value = await fetchBillingStatus();
       setBilling(value);
       billingLastFetchedRef.current = Date.now();
+    } catch {
+      setBillingError("Membership status could not be refreshed. Your last verified access is still shown.");
     } finally {
       setBillingLoading(false);
     }
@@ -193,7 +201,13 @@ export default function AccountScreen() {
   });
   const shellCopy = entitlementShellCopy(shellId, { hoursLabel: formatHoursRemainingLabel(fieldKit?.hoursRemaining) });
   const currentTier = isCompany ? "Team membership" : canUseElite ? "Hospice Sales Pro Elite" : canUseFieldKit ? "Hospice Sales Pro Standard" : "Membership inactive";
-  const currentPrice = canUseElite || (!canUseFieldKit && selectedPlan === "elite_weekly") ? "$19.99" : "$14.99";
+  const currentPrice = billingProvider === "apple" && Platform.OS === "ios"
+    ? canUseElite
+      ? applePrices.elite_weekly
+      : applePrices.standard_weekly
+    : canUseElite
+      ? "$19.99"
+      : "$14.99";
 
   const subscribe = async () => {
     setCheckoutPending(true);
@@ -300,19 +314,21 @@ export default function AccountScreen() {
           <StatusChip label={shellCopy.chip} role={canUseFieldKit ? "active" : shellId === "trial" ? "trial" : "locked"} testID="account-status-chip" />
         </View>
 
-        {isPersonal && !isPlatform ? (
+        {isPersonal && !isPlatform && hasPaidSubscription && currentPrice ? (
           <Text style={[styles.membershipPrice, { color: colors.heroForeground }, font("heavy")]}>{currentPrice}<Text style={[styles.membershipCadence, { color: colors.heroMuted }, font("semibold")]}> per week</Text></Text>
         ) : null}
         <Text style={[styles.membershipBody, { color: colors.heroMuted }, font("regular")]}>{shellCopy.body}</Text>
         {periodEnd && hasPaidSubscription ? <Text style={[styles.renewal, { color: colors.heroForeground }, font("semibold")]}>{cancelAtPeriodEnd ? "Access until" : "Renews"} {new Date(periodEnd).toLocaleDateString()}</Text> : null}
 
         {billingLoading ? <View style={styles.loadingRow}><ActivityIndicator size="small" color={colors.primary} /><Text style={[{ color: colors.heroMuted }, font("regular")]}>Refreshing access</Text></View> : null}
+        {billingError ? <Text accessibilityRole="alert" style={[styles.billingError, { color: colors.heroMuted }, font("regular")]}>{billingError}</Text> : null}
         {!billingLoading && canPortal ? <SpartanButton title={portalPending ? "Opening billing" : "Manage membership"} variant="outline" onPress={() => void manageBilling()} loading={portalPending} style={{ marginTop: 16, borderColor: colors.heroMuted }} testID="button-manage-billing" /> : null}
         {!billingLoading && !canPortal ? <SpartanButton title="Refresh access" variant="outline" onPress={() => { void loadBilling(); void refresh(); }} style={{ marginTop: 16, borderColor: colors.heroMuted }} /> : null}
         {Platform.OS === "ios" && isPersonal && !canCheckout ? (
           <View style={{ marginTop: 9 }}>
             <AppleSubscriptionActions
               showManage={billingProvider === "apple" && hasPaidSubscription}
+              onPricesLoaded={setApplePrices}
               onEntitlementChanged={async () => { await loadBilling(); await refresh(); }}
             />
           </View>
@@ -328,19 +344,21 @@ export default function AccountScreen() {
             <PlanChoice
               selected={selectedPlan === "standard_weekly"}
               title="Standard"
-              price="$14.99"
+              price={Platform.OS === "ios" ? applePrices.standard_weekly || "Apple price" : "$14.99"}
+              cadence={Platform.OS === "ios" && !applePrices.standard_weekly ? "" : " / week"}
               body="Planning, practice, outreach, resources"
               onPress={() => setSelectedPlan("standard_weekly")}
             />
             <PlanChoice
               selected={selectedPlan === "elite_weekly"}
               title="Elite"
-              price="$19.99"
+              price={Platform.OS === "ios" ? applePrices.elite_weekly || "Apple price" : "$19.99"}
+              cadence={Platform.OS === "ios" && !applePrices.elite_weekly ? "" : " / week"}
               body="Everything plus Coach and clinical tools"
               badge="BEST FIT"
               onPress={() => {
-                if (billing?.individualWeeklyElitePriceConfigured === false) {
-                  Alert.alert("Elite enrollment is being connected", "Standard remains available while the Elite production price is configured.");
+                if (Platform.OS !== "ios" && billing?.individualWeeklyElitePriceConfigured === false) {
+                  Alert.alert("Elite web checkout unavailable", "Standard remains available while Elite web billing is configured.");
                   return;
                 }
                 setSelectedPlan("elite_weekly");
@@ -352,6 +370,7 @@ export default function AccountScreen() {
               <AppleSubscriptionActions
                 plan={selectedPlan}
                 showPurchase
+                onPricesLoaded={setApplePrices}
                 onEntitlementChanged={async () => { await loadBilling(); await refresh(); }}
               />
             ) : (
@@ -426,7 +445,7 @@ export default function AccountScreen() {
           <Text style={[styles.fieldLabel, { color: colors.mutedForeground }, font("bold")]}>COMMON OBJECTIONS</Text>
           <TextInput value={topObjections} onChangeText={setTopObjections} placeholder="Not ready, already have a provider" placeholderTextColor={colors.mutedForeground} multiline style={[styles.input, { color: colors.foreground, backgroundColor: colors.background, borderColor: colors.border }]} />
           <SpartanButton title="Save field profile" onPress={() => void saveProfile()} loading={saving} style={{ marginTop: 14 }} />
-          {message ? <Text style={[styles.saveMessage, { color: colors.mutedForeground }, font("regular")]}>{message}</Text> : null}
+          {message ? <Text accessibilityRole="alert" style={[styles.saveMessage, { color: colors.mutedForeground }, font("regular")]}>{message}</Text> : null}
           <Text style={[styles.noPhi, { color: colors.mutedForeground }, font("regular")]}>Coaching context only. Never enter patient PHI.</Text>
         </View>
       ) : null}
@@ -479,13 +498,19 @@ function Benefit({ icon, title, body, inverted }: { icon: React.ComponentProps<t
   );
 }
 
-function PlanChoice({ selected, title, price, body, badge, onPress }: { selected: boolean; title: string; price: string; body: string; badge?: string; onPress: () => void }) {
+function PlanChoice({ selected, title, price, cadence = " / week", body, badge, onPress }: { selected: boolean; title: string; price: string; cadence?: string; body: string; badge?: string; onPress: () => void }) {
   const colors = useColors();
   return (
-    <Pressable onPress={onPress} style={[styles.plan, { backgroundColor: selected ? colors.primaryMuted : colors.background, borderColor: selected ? colors.primary : colors.border, borderWidth: selected ? 2 : 1 }]}>
+    <Pressable
+      onPress={onPress}
+      accessibilityRole="radio"
+      accessibilityState={{ checked: selected }}
+      accessibilityLabel={`${title}, ${price}${cadence}`}
+      style={[styles.plan, { backgroundColor: selected ? colors.primaryMuted : colors.background, borderColor: selected ? colors.primary : colors.border, borderWidth: selected ? 2 : 1 }]}
+    >
       {badge ? <Text style={[styles.planBadge, { color: colors.primary }, font("bold")]}>{badge}</Text> : null}
       <Text style={[styles.planTitle, { color: colors.foreground }, font("heavy")]}>{title}</Text>
-      <Text style={[styles.planPrice, { color: colors.primary }, font("heavy")]}>{price}<Text style={[styles.planCadence, { color: colors.mutedForeground }, font("regular")]}> / week</Text></Text>
+      <Text style={[styles.planPrice, { color: colors.primary }, font("heavy")]}>{price}<Text style={[styles.planCadence, { color: colors.mutedForeground }, font("regular")]}>{cadence}</Text></Text>
       <Text style={[styles.planBody, { color: colors.mutedForeground }, font("regular")]}>{body}</Text>
     </Pressable>
   );
@@ -525,6 +550,7 @@ const styles = StyleSheet.create({
   membershipBody: { fontSize: 13, lineHeight: 20, marginTop: 8 },
   renewal: { fontSize: 12, marginTop: 11 },
   loadingRow: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 15 },
+  billingError: { fontSize: 11, lineHeight: 17, marginTop: 12 },
   sectionCard: { borderWidth: StyleSheet.hairlineWidth * 2, borderRadius: 21, padding: 18, marginTop: 14 },
   sectionEyebrow: { fontSize: 9, letterSpacing: 1.8, marginBottom: 7 },
   sectionTitle: { fontSize: 21, letterSpacing: -0.4 },
