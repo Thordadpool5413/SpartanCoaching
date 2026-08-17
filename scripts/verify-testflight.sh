@@ -69,9 +69,18 @@ console.log(JSON.stringify({ bundleIdentifier: config.ios.bundleIdentifier, rout
 NODE
 
 echo "[8/9] Verify production health and optional AASA"
-HEALTH_JSON="$(curl --fail --silent --show-error --max-time 20 "$PRODUCTION_URL/api/health")"
+echo "Checking production API health"
+if ! HEALTH_JSON="$(curl --fail --silent --show-error --max-time 20 "$PRODUCTION_URL/api/health")"; then
+  echo "FAIL: production API health is unavailable at $PRODUCTION_URL/api/health" >&2
+  exit 1
+fi
 node -e 'const v=JSON.parse(process.argv[1]); if(v.status!=="ok") throw new Error("Production health is not ok")' "$HEALTH_JSON"
-APPLE_HEALTH_JSON="$(curl --fail --silent --show-error --max-time 20 "$PRODUCTION_URL/api/billing/apple/health")"
+echo "Checking production Apple billing health"
+if ! APPLE_HEALTH_JSON="$(curl --fail --silent --show-error --max-time 20 "$PRODUCTION_URL/api/billing/apple/health")"; then
+  echo "FAIL: Apple billing API is not deployed at $PRODUCTION_URL/api/billing/apple/health" >&2
+  echo "Apply migration 0017 and deploy the API before creating the private QA build." >&2
+  exit 1
+fi
 node -e 'const v=JSON.parse(process.argv[1]); if(v.status!=="ok"||v.configured!==true) throw new Error("Production Apple billing verification is not configured")' "$APPLE_HEALTH_JSON"
 if [[ "$PROFILE" == *"-applinks" ]]; then
   AASA_JSON="$(curl --fail --silent --show-error --max-time 20 "$PRODUCTION_URL/.well-known/apple-app-site-association")"
