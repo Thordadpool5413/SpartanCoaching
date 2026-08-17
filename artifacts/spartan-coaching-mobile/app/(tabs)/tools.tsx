@@ -196,12 +196,6 @@ export default function ToolsCatalogScreen() {
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
       >
-        {!canUseFieldKit ? (
-          <View style={{ marginBottom: 18 }} testID="tools-paywall">
-            <PaywallCard isAuthenticated={isAuthenticated} body="Browse the system. Membership unlocks live generation and saved work." />
-          </View>
-        ) : null}
-
         {remoteGroups.length > 0 ? (
           <View style={{ marginBottom: 24 }} testID="universal-search-results">
             <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>SEARCH RESULTS</Text>
@@ -250,6 +244,18 @@ export default function ToolsCatalogScreen() {
                 </Pressable>
               );
             })}
+
+            {!canUseFieldKit ? (
+              <View style={{ marginTop: 8, marginBottom: 22 }} testID="tools-paywall">
+                <PaywallCard
+                  isAuthenticated={isAuthenticated}
+                  title="Turn these previews into live fieldwork"
+                  body="Standard unlocks live generation, saved work, and continuity across your iPhone and the Spartan Coaching website."
+                  primaryLabel="Choose membership"
+                  onPrimary={() => router.push("/(tabs)/account")}
+                />
+              </View>
+            ) : null}
 
             <Text style={[styles.sectionEyebrow, { color: colors.primary, marginTop: 18 }, font("bold")]}>CHOOSE BY OUTCOME</Text>
             <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.intentRail}>

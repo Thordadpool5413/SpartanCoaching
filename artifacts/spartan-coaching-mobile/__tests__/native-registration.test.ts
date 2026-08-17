@@ -11,6 +11,7 @@ describe("native registration contract", () => {
     const api = read("lib/api.ts");
     const login = read("app/login.tsx");
     const home = read("app/(tabs)/index.tsx");
+    const welcome = read("components/WelcomeExperience.tsx");
     const account = read("app/(tabs)/account.tsx");
 
     expect(screen).toContain("Create secure account");
@@ -22,7 +23,8 @@ describe("native registration contract", () => {
     expect(api).toContain("acceptTerms: true");
     expect(api).toContain("noPhi: true");
     expect(login).toContain('router.push("/register" as Href)');
-    expect(home).toContain('router.push("/register" as Href)');
+    expect(home).toContain("<WelcomeExperience");
+    expect(welcome).toContain('router.push("/register" as Href)');
     expect(account).toContain('router.push("/register" as Href)');
     expect(login).toContain('type Href');
     expect(login).not.toContain('openWebsite("/register")');

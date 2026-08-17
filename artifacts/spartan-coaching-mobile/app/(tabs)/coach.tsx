@@ -13,7 +13,6 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Image,
   KeyboardAvoidingView,
   Modal,
   Platform,
@@ -46,6 +45,7 @@ import {
   type CoachPreference,
 } from "@/lib/coachApi";
 import { font } from "@/lib/typography";
+import { HelmetMark } from "@/components/brand/HelmetMark";
 
 type CoachStep = "prepare" | "rehearse" | "review";
 const STEPS: Array<{ id: CoachStep; label: string }> = [
@@ -627,11 +627,8 @@ function BrandLockup({
       style={[styles.brandShell, compact && styles.brandShellCompact]}
       accessibilityLabel="Spartan Coaching"
     >
-      <Image
-        source={require("@/assets/images/spartan-coaching-lockup.png")}
-        resizeMode="contain"
-        style={[styles.brandImage, compact && styles.brandImageCompact]}
-      />
+      <HelmetMark size={compact ? 38 : 92} />
+      {!compact ? <Text style={styles.brandWord}>SPARTAN COACH</Text> : null}
     </View>
   );
 }
@@ -1049,15 +1046,16 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     brandShell: {
       height: 126,
       width: "100%",
-      backgroundColor: "#050505",
+      backgroundColor: colors.card,
       borderRadius: 20,
-      overflow: "hidden",
+      borderWidth: StyleSheet.hairlineWidth,
+      borderColor: colors.border,
       alignItems: "center",
       justifyContent: "center",
+      gap: 10,
     },
-    brandShellCompact: { width: 152, height: 42, borderRadius: 10 },
-    brandImage: { width: "96%", height: "92%" },
-    brandImageCompact: { width: 148, height: 40 },
+    brandShellCompact: { width: 44, height: 44, borderRadius: 14, borderWidth: 0, backgroundColor: "transparent" },
+    brandWord: { color: colors.foreground, fontSize: 10, letterSpacing: 2.2, ...font("bold") },
     intro: { paddingTop: 18, paddingBottom: 22 },
     eliteRow: {
       flexDirection: "row",

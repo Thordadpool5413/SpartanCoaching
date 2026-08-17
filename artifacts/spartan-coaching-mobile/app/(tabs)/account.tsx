@@ -305,6 +305,14 @@ export default function AccountScreen() {
         </View>
       </View>
 
+      {(user.member.role === "org_admin" || user.member.role === "platform_admin") ? (
+        <Pressable onPress={() => router.push("/admin")} style={[styles.adminHero, { backgroundColor: colors.primaryMuted, borderColor: colors.primary }]} testID="account-admin-hero">
+          <View style={[styles.adminHeroIcon, { backgroundColor: colors.primary }]}><Feather name="shield" size={19} color={colors.primaryForeground} /></View>
+          <View style={{ flex: 1 }}><Text style={[styles.adminHeroEyebrow, { color: colors.primary }, font("bold")]}>ADMIN WORKSPACE</Text><Text style={[styles.adminHeroTitle, { color: colors.foreground }, font("bold")]}>Manage {user.member.role === "platform_admin" ? "the platform" : "your team"}</Text><Text style={[styles.adminHeroBody, { color: colors.mutedForeground }, font("regular")]}>Live access, members, invitations, contracted seats, and adoption.</Text></View>
+          <Feather name="chevron-right" size={20} color={colors.primary} />
+        </Pressable>
+      ) : null}
+
       <View style={[styles.membershipCard, { backgroundColor: colors.heroBackground, borderColor: canUseElite ? colors.primary : colors.borderStrong }]} testID="card-membership-billing">
         <View style={styles.membershipTop}>
           <View style={{ flex: 1 }}>
@@ -393,15 +401,21 @@ export default function AccountScreen() {
         <AccessRow icon="shield" title="Deidentified clinical education" state={canUseElite ? "Unlocked" : "Elite"} active={Boolean(canUseElite)} onPress={() => router.push(canUseElite ? "/ai-tools" as any : "/(tabs)/account")} />
         {isCompany ? <Text style={[styles.teamNote, { color: colors.mutedForeground }, font("regular")]}>Seat changes and contracted billing are managed by your organization administrator.</Text> : null}
         {(user.member.role === "org_admin" || user.member.role === "platform_admin") ? (
-          <Pressable onPress={() => void Linking.openURL(`${getWebSiteUrl()}/org/admin`)} style={[styles.inlineLink, { borderTopColor: colors.border }]} testID="account-org-admin-handoff">
+          <Pressable onPress={() => router.push("/admin")} style={[styles.inlineLink, { borderTopColor: colors.border }]} testID="account-admin-console">
             <View style={{ flex: 1 }}>
-              <Text style={[styles.inlineTitle, { color: colors.foreground }, font("bold")]}>Organization administration</Text>
-              <Text style={[styles.inlineBody, { color: colors.mutedForeground }, font("regular")]}>Manage members, structure, and seats on the website.</Text>
+              <Text style={[styles.inlineTitle, { color: colors.foreground }, font("bold")]}>Open Admin</Text>
+              <Text style={[styles.inlineBody, { color: colors.mutedForeground }, font("regular")]}>Manage members, contracted seats, invitations, and adoption inside the app.</Text>
             </View>
-            <Feather name="arrow-up-right" size={18} color={colors.primary} />
+            <Feather name="chevron-right" size={18} color={colors.primary} />
           </Pressable>
         ) : null}
       </View>
+
+      <Pressable onPress={() => void Linking.openURL(`${getWebSiteUrl()}/account`)} style={[styles.webContinuity, { backgroundColor: colors.heroBackground }]} testID="account-web-continuity">
+        <View style={[styles.webContinuityIcon, { backgroundColor: colors.primary }]}><Feather name="monitor" size={19} color={colors.primaryForeground} /></View>
+        <View style={{ flex: 1 }}><Text style={[styles.webContinuityEyebrow, { color: colors.primary }, font("bold")]}>IPHONE AND WEB</Text><Text style={[styles.webContinuityTitle, { color: colors.heroForeground }, font("bold")]}>Continue in the web workspace</Text><Text style={[styles.webContinuityBody, { color: colors.heroMuted }, font("regular")]}>Use the same account, membership, saved work, and commitments when a larger screen is useful.</Text></View>
+        <Feather name="arrow-up-right" size={19} color={colors.heroForeground} />
+      </Pressable>
 
       <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
         <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>APPEARANCE</Text>
@@ -542,6 +556,11 @@ const styles = StyleSheet.create({
   avatarText: { fontSize: 17 },
   memberName: { fontSize: 24, letterSpacing: -0.5 },
   memberEmail: { fontSize: 12, marginTop: 3 },
+  adminHero: { minHeight: 94, borderRadius: 20, borderWidth: 1, flexDirection: "row", alignItems: "center", gap: 12, padding: 15, marginBottom: 14 },
+  adminHeroIcon: { width: 44, height: 44, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  adminHeroEyebrow: { fontSize: 8, letterSpacing: 1.5 },
+  adminHeroTitle: { fontSize: 15, marginTop: 4 },
+  adminHeroBody: { fontSize: 11, lineHeight: 16, marginTop: 3 },
   membershipCard: { borderWidth: 1, borderRadius: 24, padding: 20 },
   membershipTop: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
   membershipTitle: { fontSize: 23, lineHeight: 28, letterSpacing: -0.5, marginTop: 7 },
@@ -571,6 +590,11 @@ const styles = StyleSheet.create({
   inlineLink: { borderTopWidth: StyleSheet.hairlineWidth, flexDirection: "row", alignItems: "center", paddingTop: 14, marginTop: 4 },
   inlineTitle: { fontSize: 13 },
   inlineBody: { fontSize: 11, lineHeight: 16, marginTop: 3 },
+  webContinuity: { minHeight: 104, borderRadius: 21, padding: 16, marginTop: 14, flexDirection: "row", alignItems: "center", gap: 12 },
+  webContinuityIcon: { width: 44, height: 44, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  webContinuityEyebrow: { fontSize: 8, letterSpacing: 1.5 },
+  webContinuityTitle: { fontSize: 14, marginTop: 4 },
+  webContinuityBody: { fontSize: 11, lineHeight: 16, marginTop: 4 },
   appearanceGrid: { flexDirection: "row", gap: 8, marginTop: 14 },
   appearanceChoice: { flex: 1, minHeight: 67, borderWidth: 1, borderRadius: 15, alignItems: "center", justifyContent: "center", gap: 7 },
   appearanceLabel: { fontSize: 12 },

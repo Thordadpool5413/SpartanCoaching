@@ -9,7 +9,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Platform, useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
@@ -22,6 +22,7 @@ import { fetchClientConfig } from "@/lib/clientConfig";
 import { ActivationCeremony } from "@/components/ActivationCeremony";
 import { DeepLinkRouter } from "@/components/DeepLinkRouter";
 import { AppearanceProvider } from "@/lib/AppearanceContext";
+import { LaunchExperience } from "@/components/LaunchExperience";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -61,6 +62,7 @@ function RootLayoutNav() {
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="login" options={{ title: "Sign in", presentation: "modal" }} />
       <Stack.Screen name="register" options={{ title: "Create account", presentation: "modal" }} />
+      <Stack.Screen name="admin" options={{ title: "Admin", headerBackTitle: "Account" }} />
       <Stack.Screen name="brand-video" options={{ title: "Brand Video" }} />
       <Stack.Screen name="staffing" options={{ title: "Branch Staffing" }} />
       <Stack.Screen name="activity-calculator" options={{ title: "Activity Calculator" }} />
@@ -80,6 +82,8 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  const [launchVisible, setLaunchVisible] = useState(true);
+  const completeLaunch = useCallback(() => setLaunchVisible(false), []);
   // iOS uses SF Pro (system). Load Inter only on Android/web for brand parity.
   const [fontsLoaded, fontError] = useFonts(
     Platform.OS === "ios"
@@ -120,6 +124,7 @@ export default function RootLayout() {
                 <KeyboardProvider>
                   <RootLayoutNav />
                 </KeyboardProvider>
+                {launchVisible ? <LaunchExperience onComplete={completeLaunch} /> : null}
               </GestureHandlerRootView>
             </AuthProvider>
           </QueryClientProvider>

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import {
-  Image,
   KeyboardAvoidingView,
   Linking,
   Platform,
@@ -19,6 +18,7 @@ import { ApiError, getWebSiteUrl } from "@/lib/api";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { SpartanInput } from "@/components/ui/SpartanInput";
 import { font } from "@/lib/typography";
+import { HelmetMark } from "@/components/brand/HelmetMark";
 
 export default function LoginScreen() {
   const colors = useColors();
@@ -76,14 +76,10 @@ export default function LoginScreen() {
         contentContainerStyle={{ paddingTop: insets.top + 14, paddingBottom: insets.bottom + 28 }}
       >
         <View style={styles.frame}>
-          <View style={styles.brandPanel}>
-            <Image
-              source={require("@/assets/images/spartan-coaching-lockup.png")}
-              resizeMode="contain"
-              style={styles.lockup}
-              accessibilityLabel="Spartan Coaching"
-            />
-            <Text style={[styles.brandLine, font("bold")]}>FIELD INTELLIGENCE FOR HOSPICE GROWTH</Text>
+          <View style={[styles.brandPanel, { backgroundColor: colors.card, borderColor: colors.border }]}>
+            <HelmetMark size={92} />
+            <Text style={[styles.brandName, { color: colors.foreground }, font("heavy")]}>SPARTAN COACHING</Text>
+            <Text style={[styles.brandLine, { color: colors.primary }, font("bold")]}>FIELD INTELLIGENCE FOR HOSPICE GROWTH</Text>
           </View>
 
           <View style={styles.heading}>
@@ -160,22 +156,16 @@ const styles = StyleSheet.create({
   root: { flex: 1 },
   frame: { width: "100%", maxWidth: 520, alignSelf: "center", paddingHorizontal: 20 },
   brandPanel: {
-    minHeight: 180,
+    minHeight: 192,
     borderRadius: 24,
-    backgroundColor: "#050505",
-    overflow: "hidden",
+    borderWidth: StyleSheet.hairlineWidth,
     alignItems: "center",
     justifyContent: "center",
     paddingHorizontal: 20,
-    paddingTop: 8,
-    shadowColor: "#000000",
-    shadowOpacity: 0.24,
-    shadowRadius: 24,
-    shadowOffset: { width: 0, height: 14 },
-    elevation: 10,
+    paddingVertical: 20,
   },
-  lockup: { width: "100%", height: 132 },
-  brandLine: { color: "#B8BBC0", fontSize: 9, letterSpacing: 2.4, marginTop: -2, marginBottom: 13 },
+  brandName: { fontSize: 14, letterSpacing: 2.6, marginTop: 14 },
+  brandLine: { fontSize: 8, letterSpacing: 1.9, marginTop: 6 },
   heading: { paddingHorizontal: 4, paddingTop: 32, paddingBottom: 20, gap: 8 },
   kicker: { fontSize: 11, letterSpacing: 2.2 },
   title: { fontSize: 38, lineHeight: 41, letterSpacing: -1.3 },

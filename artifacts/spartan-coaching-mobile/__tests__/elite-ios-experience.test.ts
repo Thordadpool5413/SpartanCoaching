@@ -14,22 +14,37 @@ describe("Elite iOS experience contract", () => {
     expect(config.expo.userInterfaceStyle).toBe("automatic");
     expect(paletteSource).toContain('const dark = {');
     expect(paletteSource).toContain('const light = {');
-    expect(paletteSource).toContain('background: "#08090A"');
-    expect(paletteSource).toContain('background: "#F5F5F2"');
+    expect(paletteSource).toContain('background: "#171513"');
+    expect(paletteSource).toContain('background: "#F3EEE6"');
+    expect(paletteSource).not.toContain('background: "#08090A"');
     expect(appearanceSource).toContain('export type AppearancePreference = "system" | "light" | "dark"');
     expect(appearanceSource).toContain("Appearance.setColorScheme");
     expect(rootLayout).toContain("<AppearanceProvider>");
   });
 
-  it("uses four primary destinations and keeps utility routes available", () => {
+  it("uses five clear member destinations and hides the tab bar while signed out", () => {
     const tabs = read("app/(tabs)/_layout.tsx");
 
     expect(tabs).toContain('title: "Today"');
     expect(tabs).toContain('title: "Coach"');
     expect(tabs).toContain('title: "Practice"');
     expect(tabs).toContain('title: "Library"');
+    expect(tabs).toContain('title: "Account"');
+    expect(tabs).toContain('display: isAuthenticated ? "flex" : "none"');
     expect(tabs).toContain('name="command" options={{ href: null }}');
-    expect(tabs).toContain('name="account" options={{ href: null }}');
+  });
+
+  it("provides a launch experience and native administrator hub", () => {
+    const root = read("app/_layout.tsx");
+    const admin = read("app/admin.tsx");
+    const account = read("app/(tabs)/account.tsx");
+
+    expect(root).toContain("<LaunchExperience");
+    expect(root).toContain('name="admin"');
+    expect(account).toContain('router.push("/admin")');
+    expect(admin).toContain("fetchPlatformAdminOverview");
+    expect(admin).toContain("fetchOrganizationAdminOverview");
+    expect(admin).toContain("inviteOrganizationMember");
   });
 
   it("keeps Coach private while making feedback and commitments functional", () => {

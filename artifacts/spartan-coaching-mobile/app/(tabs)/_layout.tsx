@@ -1,19 +1,18 @@
-import { BlurView } from "expo-blur";
 import { Tabs } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { Feather } from "@expo/vector-icons";
 import React from "react";
-import { Platform, StyleSheet, useColorScheme, View } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
-import { useAccessibilityPrefs } from "@/hooks/useAccessibilityPrefs";
-import { tabBarBlurIntensity, tabBarBlurTint } from "@/lib/iosProductQuality";
+import { useAuth } from "@/lib/AuthContext";
 
 const TAB_ICONS = {
   index: { ios: "calendar", android: "calendar" },
   coach: { ios: "waveform", android: "activity" },
   tools: { ios: "scope", android: "target" },
   learn: { ios: "books.vertical", android: "book-open" },
+  account: { ios: "person.crop.circle", android: "user" },
 } as const;
 
 function TabIcon({ route, color }: { route: keyof typeof TAB_ICONS; color: string }) {
@@ -27,10 +26,7 @@ function TabIcon({ route, color }: { route: keyof typeof TAB_ICONS; color: strin
 export default function TabLayout() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const scheme = useColorScheme();
-  const { reduceTransparency } = useAccessibilityPrefs();
-  const isIOS = Platform.OS === "ios";
-  const useBlur = isIOS && !reduceTransparency;
+  const { isAuthenticated } = useAuth();
 
   return (
     <Tabs
@@ -44,26 +40,17 @@ export default function TabLayout() {
           fontWeight: "600",
           letterSpacing: 0.1,
         },
-        tabBarItemStyle: { paddingTop: 4 },
+        tabBarItemStyle: { paddingTop: 5 },
         tabBarStyle: {
-          height: 52 + insets.bottom,
+          display: isAuthenticated ? "flex" : "none",
+          height: 58 + insets.bottom,
           paddingBottom: Math.max(insets.bottom, 6),
-          paddingTop: 3,
-          backgroundColor: useBlur ? "transparent" : colors.tabBar,
+          paddingTop: 4,
+          backgroundColor: colors.tabBar,
           borderTopWidth: StyleSheet.hairlineWidth,
-          borderTopColor: colors.border,
+          borderTopColor: colors.borderStrong,
           elevation: 0,
         },
-        tabBarBackground: () =>
-          useBlur ? (
-            <BlurView
-              intensity={tabBarBlurIntensity(false, 76)}
-              tint={tabBarBlurTint(scheme)}
-              style={StyleSheet.absoluteFill}
-            />
-          ) : (
-            <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.tabBar }]} />
-          ),
       }}
     >
       <Tabs.Screen
@@ -94,8 +81,14 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => <TabIcon route="learn" color={color} />,
         }}
       />
+      <Tabs.Screen
+        name="account"
+        options={{
+          title: "Account",
+          tabBarIcon: ({ color }) => <TabIcon route="account" color={color} />,
+        }}
+      />
       <Tabs.Screen name="command" options={{ href: null }} />
-      <Tabs.Screen name="account" options={{ href: null }} />
       <Tabs.Screen name="contact" options={{ href: null }} />
     </Tabs>
   );

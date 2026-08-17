@@ -149,7 +149,7 @@ export default function LearnScreen() {
       {activeTab === "articles" ? (
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: bottomPad + 24 }} showsVerticalScrollIndicator={false}>
           <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>THE SPARTAN METHOD</Text>
-          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.methodRail}>
+          <View style={styles.methodGrid}>
             {METHOD_LINKS.map((item) => (
               <Pressable
                 key={item.path}
@@ -160,7 +160,7 @@ export default function LearnScreen() {
                 <Text style={[styles.methodLabel, { color: colors.foreground }, font("bold")]}>{item.label}</Text>
               </Pressable>
             ))}
-          </ScrollView>
+          </View>
 
           {articlesQuery.isLoading ? <Loading /> : null}
           {articlesQuery.error ? (
@@ -333,8 +333,8 @@ const styles = StyleSheet.create({
   sectionEyebrow: { fontSize: 10, letterSpacing: 1.9, marginBottom: 7 },
   sectionTitle: { fontSize: 23, letterSpacing: -0.5 },
   sectionBody: { fontSize: 13, lineHeight: 19, marginTop: 5, marginBottom: 16 },
-  methodRail: { gap: 9 },
-  methodChip: { width: 112, height: 82, borderWidth: 1, borderRadius: 16, padding: 12, justifyContent: "space-between" },
+  methodGrid: { flexDirection: "row", flexWrap: "wrap", gap: 9 },
+  methodChip: { width: "48%", minHeight: 82, borderWidth: 1, borderRadius: 16, padding: 12, justifyContent: "space-between" },
   methodIcon: { width: 31, height: 31, borderRadius: 10, alignItems: "center", justifyContent: "center" },
   methodLabel: { fontSize: 13 },
   featureCard: { borderWidth: 1, borderRadius: 22, padding: 21 },

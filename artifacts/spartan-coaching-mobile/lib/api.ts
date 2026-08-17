@@ -467,6 +467,74 @@ export type ValueReceipt = {
   highlights: string[];
 };
 
+export type AdminMetrics = {
+  requests: { total: number; pending: number; approved: number; rejected: number };
+  organizations: { total: number; trial: number; active: number; expired: number; suspended: number };
+  members: { total: number; active: number; loggedIn7d: number };
+  toolUsesLast7Days: number;
+};
+
+export type AdminOrganizationSummary = {
+  id: number;
+  name: string;
+  status: string;
+  type: string;
+  memberCount?: number;
+  activatedCount?: number;
+};
+
+export type AccessRequestSummary = {
+  id: number;
+  name: string;
+  email: string;
+  type: string;
+  companyName?: string | null;
+  status: string;
+  createdAt?: string;
+};
+
+export type OrgMemberSummary = {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  status: string;
+  lastLoginAt?: string | null;
+};
+
+export async function fetchPlatformAdminOverview() {
+  const [metrics, organizations, requests] = await Promise.all([
+    apiGet<AdminMetrics>("/api/admin/access-metrics"),
+    apiGet<{ organizations: AdminOrganizationSummary[] }>("/api/admin/organizations"),
+    apiGet<{ requests: AccessRequestSummary[] }>("/api/admin/access-requests"),
+  ]);
+  return {
+    metrics,
+    organizations: organizations.organizations,
+    requests: requests.requests,
+  };
+}
+
+export async function fetchOrganizationAdminOverview() {
+  const [members, usage] = await Promise.all([
+    apiGet<{ members: OrgMemberSummary[]; invites: Array<{ id: number; email: string; role: string; status: string }>; seatLimit: number }>("/api/org/members"),
+    apiGet<{ total: number; days: number; byTool: Array<{ toolName: string; count: number }>; byMember: Array<{ email: string; count: number }> }>("/api/org/usage"),
+  ]);
+  return { ...members, usage };
+}
+
+export async function inviteOrganizationMember(input: { name: string; email: string; role?: "member" | "org_admin" }) {
+  return apiPost<{ ok: boolean; member: OrgMemberSummary }>("/api/org/invites", {
+    name: input.name.trim(),
+    email: input.email.trim().toLowerCase(),
+    role: input.role || "member",
+  });
+}
+
+export async function setOrganizationMemberEnabled(memberId: number, enabled: boolean) {
+  return apiPost<{ ok: boolean }>(`/api/org/members/${memberId}/${enabled ? "enable" : "disable"}`, {});
+}
+
 /** Craft Phase 4 — weekly value receipt (subscription theater). */
 export async function fetchValueReceipt(): Promise<ValueReceipt | null> {
   try {

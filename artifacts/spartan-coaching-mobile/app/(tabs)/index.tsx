@@ -2,7 +2,6 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AppState,
   AppStateStatus,
-  Image,
   Platform,
   Pressable,
   ScrollView,
@@ -14,7 +13,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import { router, useFocusEffect, type Href } from "expo-router";
+import { router, useFocusEffect } from "expo-router";
 import * as Notifications from "expo-notifications";
 import { useColors } from "@/hooks/useColors";
 import { useReminderHistory } from "@/hooks/useReminderHistory";
@@ -37,6 +36,8 @@ import { font } from "@/lib/typography";
 import { useMission } from "@/lib/useMission";
 import { trackMobileEvent } from "@/lib/analytics";
 import { listCoachMemory } from "@/lib/coachApi";
+import { WelcomeExperience } from "@/components/WelcomeExperience";
+import { HelmetMark } from "@/components/brand/HelmetMark";
 
 function formatScheduledTime(ts: number): string {
   const now = Date.now();
@@ -217,6 +218,7 @@ export default function TodayScreen() {
   const doneCount = items.filter((i) => isChecklistDone(checklist, i.id)).length;
   const trialLabel = formatTrialRemaining(user?.fieldKit?.hoursRemaining);
   const firstName = user?.member?.name?.split(" ")[0] || "";
+  const isAdmin = user?.member?.role === "org_admin" || user?.member?.role === "platform_admin";
   const needsRole = !jobRole;
   const isFirstSession = needsRole || doneCount === 0;
 
@@ -245,64 +247,7 @@ export default function TodayScreen() {
 
 
   if (!isAuthenticated) {
-    return (
-      <ScrollView
-        style={[styles.container, { backgroundColor: colors.background }]}
-        contentContainerStyle={{
-          paddingBottom: bottomPad,
-          flexGrow: 1,
-          paddingHorizontal: 20,
-          paddingTop: topPad + 12,
-        }}
-        showsVerticalScrollIndicator={false}
-        testID="screen-logged-out-home"
-      >
-        <View style={[styles.loggedOutBrand, { backgroundColor: colors.heroBackground }]}>
-          <Image
-            source={require("@/assets/images/spartan-coaching-lockup.png")}
-            style={styles.loggedOutLockup}
-            resizeMode="contain"
-          />
-        </View>
-        <Text style={[styles.loggedOutKicker, { color: colors.primary }, font("bold")]}>YOUR FIELD ADVANTAGE</Text>
-        <Text style={[styles.loggedOutTitle, { color: colors.foreground }, font("heavy")]}>Prepare better. Speak with clarity. Follow through.</Text>
-        <Text style={[styles.loggedOutBody, { color: colors.mutedForeground }, font("regular")]}>Spartan Coaching brings disciplined hospice sales tools and private coaching practice to your iPhone.</Text>
-
-        <View style={[styles.membershipCard, { backgroundColor: colors.card, borderColor: colors.border }] } testID="door-hospice-sales-pro">
-          <View style={styles.membershipHeading}>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.planEyebrow, { color: colors.primary }, font("bold")]}>ELITE TOOLS SUBSCRIPTION</Text>
-              <Text style={[styles.planTitle, { color: colors.foreground }, font("bold")]}>Hospice Sales Pro</Text>
-            </View>
-            <View style={[styles.pricePill, { backgroundColor: colors.primaryMuted }]}>
-              <Text style={[styles.priceText, { color: colors.primary }, font("bold")]}>from $14.99</Text>
-              <Text style={[styles.priceCadence, { color: colors.primary }, font("medium")]}>per week</Text>
-            </View>
-          </View>
-          <View style={styles.planFeatures}>
-            {["Field planning and sales practice", "Private Spartan Coach with Elite", "Light, Dark, and System appearance"].map((feature) => (
-              <View key={feature} style={styles.planFeature}>
-                <Feather name="check" size={16} color={colors.success} />
-                <Text style={[styles.planFeatureText, { color: colors.foreground }, font("medium")]}>{feature}</Text>
-              </View>
-            ))}
-          </View>
-          <Pressable style={[styles.loggedOutPrimary, { backgroundColor: colors.primary }]} onPress={() => router.push("/login")} testID="button-client-login">
-            <Text style={[styles.loggedOutPrimaryText, font("bold")]}>Sign in</Text>
-            <Feather name="arrow-right" size={19} color="#FFFFFF" />
-          </Pressable>
-          <Pressable style={styles.loggedOutLink} onPress={() => router.push("/register" as Href)} testID="button-create-account-logged-out">
-            <Text style={[styles.loggedOutLinkText, { color: colors.primary }, font("semibold")]}>Create an individual account</Text>
-          </Pressable>
-        </View>
-
-        <Pressable style={[styles.consultingRow, { borderColor: colors.borderStrong }]} onPress={() => router.push("/(tabs)/contact")} testID="button-book-call-logged-out">
-          <View style={[styles.consultingIcon, { backgroundColor: colors.secondary }]}><Feather name="users" size={20} color={colors.foreground} /></View>
-          <View style={{ flex: 1 }}><Text style={[styles.consultingTitle, { color: colors.foreground }, font("semibold")]}>Need human consulting?</Text><Text style={[styles.consultingBody, { color: colors.mutedForeground }, font("regular")]}>Strategy, team systems, and contracted company enrollment.</Text></View>
-          <Feather name="chevron-right" size={20} color={colors.mutedForeground} />
-        </Pressable>
-      </ScrollView>
-    );
+    return <WelcomeExperience topPad={topPad} bottomPad={bottomPad} />;
   }
 
   // ── Shell B: Authenticated but locked ─────────────────────────────
@@ -430,7 +375,11 @@ export default function TodayScreen() {
         colors={[colors.heroBackground, colors.background, colors.card]}
         style={[styles.fieldHero, { paddingTop: topPad + 16 }]}
       >
-        <SectionKicker>Hospice Sales Pro</SectionKicker>
+        <View style={styles.homeBrandRow}>
+          <HelmetMark size={48} />
+          <View style={{ flex: 1 }}><Text style={[styles.homeBrandName, { color: colors.heroForeground }, font("heavy")]}>SPARTAN COACHING</Text><SectionKicker>Hospice Sales Pro</SectionKicker></View>
+          {isAdmin ? <Pressable accessibilityRole="button" accessibilityLabel="Open Admin" onPress={() => router.push("/admin")} style={[styles.adminButton, { borderColor: colors.heroBadgeBorder, backgroundColor: colors.heroBadgeBg }]}><Feather name="shield" size={16} color={colors.primary} /><Text style={[styles.adminButtonText, { color: colors.heroForeground }, font("bold")]}>Admin</Text></Pressable> : null}
+        </View>
         <Text
           style={{
             color: colors.heroForeground,
@@ -843,6 +792,10 @@ export default function TodayScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
+  homeBrandRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 18 },
+  homeBrandName: { fontSize: 12, letterSpacing: 1.8, marginBottom: 4 },
+  adminButton: { minHeight: 44, borderRadius: 14, borderWidth: 1, flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 11 },
+  adminButtonText: { fontSize: 11 },
   loggedOutBrand: { height: 126, borderRadius: 20, overflow: "hidden", alignItems: "center", justifyContent: "center" },
   loggedOutLockup: { width: "96%", height: "92%" },
   loggedOutKicker: { fontSize: 10, letterSpacing: 2, marginTop: 28 },

@@ -47,7 +47,7 @@ module.exports = {
     splash: {
       image: "./assets/images/spartan-stamp.png",
       resizeMode: "contain",
-      backgroundColor: "#050505",
+      backgroundColor: "#171513",
     },
     ios: {
       bundleIdentifier: "com.spartancoaching.fieldkit",
