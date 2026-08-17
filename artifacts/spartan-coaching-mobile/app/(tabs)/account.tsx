@@ -13,7 +13,7 @@ import {
   View,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect, type Href } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   entitlementShellCopy,
@@ -159,7 +159,7 @@ export default function AccountScreen() {
           </View>
         </View>
         <SpartanButton title="Client login" onPress={() => router.push("/login")} style={{ marginTop: 18 }} />
-        <SpartanButton title="Create an individual account" variant="outline" onPress={() => router.push("/register")} style={{ marginTop: 10 }} testID="button-create-account" />
+        <SpartanButton title="Create an individual account" variant="outline" onPress={() => router.push("/register" as Href)} style={{ marginTop: 10 }} testID="button-create-account" />
         <Pressable onPress={() => router.push("/(tabs)/contact")} style={styles.textLink}><Text style={[{ color: colors.primary }, font("bold")]}>Team access or consulting</Text></Pressable>
       </ScrollView>
     );

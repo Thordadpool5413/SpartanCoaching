@@ -14,7 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { LinearGradient } from "expo-linear-gradient";
-import { router, useFocusEffect } from "expo-router";
+import { router, useFocusEffect, type Href } from "expo-router";
 import * as Notifications from "expo-notifications";
 import { useColors } from "@/hooks/useColors";
 import { useReminderHistory } from "@/hooks/useReminderHistory";
@@ -291,7 +291,7 @@ export default function TodayScreen() {
             <Text style={[styles.loggedOutPrimaryText, font("bold")]}>Sign in</Text>
             <Feather name="arrow-right" size={19} color="#FFFFFF" />
           </Pressable>
-          <Pressable style={styles.loggedOutLink} onPress={() => router.push("/register")} testID="button-create-account-logged-out">
+          <Pressable style={styles.loggedOutLink} onPress={() => router.push("/register" as Href)} testID="button-create-account-logged-out">
             <Text style={[styles.loggedOutLinkText, { color: colors.primary }, font("semibold")]}>Create an individual account</Text>
           </Pressable>
         </View>

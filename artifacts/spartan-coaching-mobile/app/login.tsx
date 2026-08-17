@@ -11,7 +11,7 @@ import {
   View,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { router } from "expo-router";
+import { router, type Href } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
@@ -138,7 +138,7 @@ export default function LoginScreen() {
           <View style={styles.secondaryActions}>
             <Pressable
               accessibilityRole="link"
-              onPress={() => router.push("/register")}
+              onPress={() => router.push("/register" as Href)}
               style={[styles.linkButton, { borderColor: colors.borderStrong ?? colors.border }]}
               testID="button-create-account"
             >
