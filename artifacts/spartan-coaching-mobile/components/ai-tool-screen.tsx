@@ -199,7 +199,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
     setBusy(true);
     setError("");
     try {
-      let output = run.output;
+      let output: unknown = run.output;
       let watermark = run.watermark;
       if (!clinical && run.id) {
         const exported = await apiGet<{ run: ToolRun }>(`/api/ai-tool-runs/${run.id}/export`);
