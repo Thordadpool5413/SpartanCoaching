@@ -46,7 +46,7 @@ type SearchResponse = {
 const FEATURED_IDS = ["sales-workflow", "objections", "role-play"] as const;
 const FEATURED_COPY: Record<(typeof FEATURED_IDS)[number], { eyebrow: string; promise: string; icon: React.ComponentProps<typeof Feather>["name"] }> = {
   "sales-workflow": {
-    eyebrow: "RUN THE DAY",
+    eyebrow: "RUN THE FIELD",
     promise: "Choose the account, prepare the visit, capture the outcome, and lock the next move.",
     icon: "target",
   },
@@ -60,6 +60,17 @@ const FEATURED_COPY: Record<(typeof FEATURED_IDS)[number], { eyebrow: string; pr
     promise: "Practice the hard part before the room gets busy and the stakes get real.",
     icon: "message-circle",
   },
+};
+
+const NATIVE_SEARCH_DESTINATIONS: Record<string, string> = {
+  "/portal": "/(tabs)",
+  "/": "/(tabs)",
+  "/tools": "/(tabs)/tools",
+  "/learn": "/(tabs)/learn",
+  "/library": "/(tabs)/learn",
+  "/coach": "/(tabs)/coach",
+  "/contact": "/(tabs)/contact",
+  "/account": "/(tabs)/account",
 };
 
 function toolIcon(tool: FieldKitTool): React.ComponentProps<typeof Feather>["name"] {
@@ -128,7 +139,7 @@ export default function ToolsCatalogScreen() {
       router.push(tool.mobileRoute as any);
       return;
     }
-    Alert.alert("Native tool unavailable", "This tool is not ready for use in the iPhone app yet.");
+    Alert.alert("Native tool unavailable", "This tool does not have an approved iPhone destination yet.");
   };
 
   const accessLabel = (tool: FieldKitTool) => {
@@ -137,9 +148,8 @@ export default function ToolsCatalogScreen() {
   };
 
   const openSearchHit = (hit: SearchHit) => {
-    const href = hit.mobileHref || hit.href;
-    if (href.startsWith("/tool/") || href.startsWith("/(tabs)")) {
-      router.push(href as any);
+    if (hit.mobileHref && (hit.mobileHref.startsWith("/tool/") || hit.mobileHref.startsWith("/(tabs)") || hit.mobileHref.startsWith("/ai-tools/"))) {
+      router.push(hit.mobileHref as any);
       return;
     }
     if (hit.type === "tool" && hit.id.startsWith("tool:")) {
@@ -149,7 +159,16 @@ export default function ToolsCatalogScreen() {
         return;
       }
     }
-    router.push(href as any);
+    if (hit.type === "resource") {
+      router.push("/(tabs)/learn" as any);
+      return;
+    }
+    const native = NATIVE_SEARCH_DESTINATIONS[hit.href];
+    if (native) {
+      router.push(native as any);
+      return;
+    }
+    Alert.alert("Open inside Spartan Coaching", "This search result does not yet have an approved native destination. Use Tools or Library to reach the in app version.");
   };
 
   const q = filter.trim().toLowerCase();
@@ -174,20 +193,20 @@ export default function ToolsCatalogScreen() {
     <View style={[styles.screen, { backgroundColor: colors.background }]} testID="screen-tools-catalog">
       <View style={[styles.header, { paddingTop: topPad + 12, borderBottomColor: colors.border }]}>
         <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>FIELD WORKSPACE</Text>
-        <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Practice</Text>
-        <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Choose the outcome. Use one tool. Leave with the next move.</Text>
+        <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Tools</Text>
+        <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Choose the outcome. Use one focused tool. Leave with something useful.</Text>
         <View style={[styles.searchShell, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Feather name="search" size={18} color={colors.mutedForeground} />
           <TextInput
             style={[styles.search, { color: colors.foreground }, font("regular")]}
-            placeholder="What do you need to prepare?"
+            placeholder="What do you need to accomplish?"
             placeholderTextColor={colors.mutedForeground}
             value={filter}
             onChangeText={setFilter}
             clearButtonMode="while-editing"
             autoCorrect={false}
             returnKeyType="search"
-            accessibilityLabel="Search practice tools"
+            accessibilityLabel="Search tools"
             maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER}
             testID="tools-filter"
           />
@@ -259,7 +278,7 @@ export default function ToolsCatalogScreen() {
                 <PaywallCard
                   isAuthenticated={isAuthenticated}
                   title="Turn these previews into live fieldwork"
-                  body="Standard unlocks live generation, saved work, and continuity across your iPhone and the Spartan Coaching website."
+                  body="Standard unlocks live generation, saved work, planning, practice, Library, and continuity on your Spartan account."
                   primaryLabel="Choose membership"
                   onPrimary={() => router.push("/membership" as any)}
                 />
@@ -322,7 +341,7 @@ export default function ToolsCatalogScreen() {
             <Text style={[styles.eliteBadgeText, { color: colors.primaryForeground }, font("bold")]}>ELITE</Text>
           </View>
           <Text style={[styles.eliteTitle, { color: colors.heroForeground }, font("heavy")]}>Advanced field and clinical tools</Text>
-          <Text style={[styles.eliteBody, { color: colors.heroMuted }, font("regular")]}>Deidentified clinical education, grounded research, and specialized analysis. All output is suggested guidance and requires the appropriate medical director or compliance approval.</Text>
+          <Text style={[styles.eliteBody, { color: colors.heroMuted }, font("regular")]}>Deidentified clinical education, grounded research, and specialized analysis. Clinical outputs use saved jurisdiction context and still require the appropriate medical director or compliance approval.</Text>
           <View style={styles.eliteCta}>
             <Text style={[{ color: colors.heroForeground, fontSize: 14 }, font("bold")]}>{canUseElite ? "Open Elite tools" : "Explore Elite"}</Text>
             <Feather name="arrow-right" size={18} color={colors.heroForeground} />
