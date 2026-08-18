@@ -24,7 +24,9 @@ describe("native iOS subscription messaging", () => {
     expect(home).toContain("/membership");
     expect(account).toContain("AppleSubscriptionActions");
     expect(membership).toContain("<AppleSubscriptionActions");
-    expect(membership).toContain("No Spartan account is required before purchase");
+    expect(membership).toContain("Payment happens through Apple before Spartan account creation");
+    expect(membership).toContain("Apple confirmed your membership");
+    expect(membership).toContain('router.push("/register" as any)');
     expect(appleActions).toContain("Subscribe with Apple");
     expect(appleActions).toContain("Restore Apple purchases");
   });
