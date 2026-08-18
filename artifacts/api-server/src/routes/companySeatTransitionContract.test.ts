@@ -41,10 +41,12 @@ describe("company seat transition contract", () => {
     expect(route).toContain("ACCOUNT_ALREADY_COMPANY_ASSIGNED");
   });
 
-  it("activates company access first and reports Apple renewal cleanup separately", () => {
+  it("activates company access without exposing personal billing to the organization admin", () => {
     expect(route).toContain('status: "active"');
-    expect(route).toContain("appleSubscriptionNeedsCancellation");
-    expect(route).toContain('subscriptionManagementAction: appleSubscriptionNeedsCancellation ? "OPEN_APPLE_SUBSCRIPTIONS" : null');
-    expect(route).toContain("individual Apple subscription remains under the member's control");
+    expect(route).toContain("INDIVIDUAL_BILLING_NOT_DISCLOSED_TO_ORGANIZATION");
+    expect(route).toContain("previous individual Apple subscription remains private to the member");
+    expect(route).not.toContain("previousPersonalMembership:");
+    expect(route).not.toContain("appleSubscriptionNeedsCancellation");
+    expect(route).not.toContain("subscriptionManagementAction:");
   });
 });
