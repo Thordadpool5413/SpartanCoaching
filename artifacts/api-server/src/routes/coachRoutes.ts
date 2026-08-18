@@ -235,12 +235,13 @@ export function registerCoachRoutes(app: Express): void {
   app.delete("/api/v1/coach/conversations/:id", requireElite, async (req, res, next) => {
     try {
       const context = owner(req as AuthedRequest);
-      await db.update(coachConversations).set({ status: "archived", updatedAt: new Date() }).where(and(
+      const deleted = await db.delete(coachConversations).where(and(
         eq(coachConversations.id, String(req.params.id)),
         eq(coachConversations.organizationId, context.organizationId),
         eq(coachConversations.memberId, context.memberId),
-      ));
-      res.json({ ok: true });
+      )).returning({ id: coachConversations.id });
+      if (!deleted.length) return res.status(404).json({ error: "Conversation not found", code: "NOT_FOUND" });
+      res.json({ ok: true, hardDeleted: true });
     } catch (error) { next(error); }
   });
 
