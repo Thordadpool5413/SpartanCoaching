@@ -1,7 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import * as Crypto from "expo-crypto";
 import * as Haptics from "expo-haptics";
-import { router } from "expo-router";
+import { router, type Href } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -295,7 +295,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
           ) : (
             <>
               <Text style={styles.warningText}>Select your primary state in Account. The app will assign the current Home Health and Hospice MAC before this tool can run.</Text>
-              <Pressable accessibilityRole="button" onPress={() => router.push("/jurisdiction")} style={styles.networkAction}>
+              <Pressable accessibilityRole="button" onPress={() => router.push("/jurisdiction" as Href)} style={styles.networkAction}>
                 <Text style={[styles.networkActionText, { color: VAULT.accent }]}>Set jurisdiction</Text>
                 <Feather name="arrow-right" size={16} color={VAULT.accent} />
               </Pressable>
