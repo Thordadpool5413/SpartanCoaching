@@ -45,9 +45,9 @@ module.exports = {
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     splash: {
-      image: "./assets/images/spartan-stamp.png",
+      image: "./assets/images/brand-stamp.png",
       resizeMode: "contain",
-      backgroundColor: "#171513",
+      backgroundColor: "#07111F",
     },
     ios: {
       bundleIdentifier: "com.spartancoaching.fieldkit",
@@ -159,8 +159,8 @@ module.exports = {
         UIApplicationShortcutItems: [
           {
             UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.today",
-            UIApplicationShortcutItemTitle: "Today's briefing",
-            UIApplicationShortcutItemSubtitle: "Open your next move",
+            UIApplicationShortcutItemTitle: "Open Field Guide",
+            UIApplicationShortcutItemSubtitle: "Choose your next move",
             UIApplicationShortcutItemIconType: "UIApplicationShortcutIconTypeTask",
             UIApplicationShortcutItemUserInfo: {
               url: "spartan-coaching-mobile://home",
@@ -177,7 +177,7 @@ module.exports = {
           },
           {
             UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.practice",
-            UIApplicationShortcutItemTitle: "Practice",
+            UIApplicationShortcutItemTitle: "Open Tools",
             UIApplicationShortcutItemSubtitle: "Prepare for the moment",
             UIApplicationShortcutItemIconType: "UIApplicationShortcutIconTypeCompose",
             UIApplicationShortcutItemUserInfo: {

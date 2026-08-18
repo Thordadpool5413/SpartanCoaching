@@ -14,9 +14,9 @@ describe("Elite iOS experience contract", () => {
     expect(config.expo.userInterfaceStyle).toBe("automatic");
     expect(paletteSource).toContain('const dark = {');
     expect(paletteSource).toContain('const light = {');
-    expect(paletteSource).toContain('background: "#171513"');
-    expect(paletteSource).toContain('background: "#F3EEE6"');
-    expect(paletteSource).not.toContain('background: "#08090A"');
+    expect(paletteSource).toContain('background: "#07111F"');
+    expect(paletteSource).toContain('background: "#F8FAFD"');
+    expect(paletteSource).not.toContain('background: "#171513"');
     expect(appearanceSource).toContain('export type AppearancePreference = "system" | "light" | "dark"');
     expect(appearanceSource).toContain("Appearance.setColorScheme");
     expect(rootLayout).toContain("<AppearanceProvider>");
@@ -25,9 +25,9 @@ describe("Elite iOS experience contract", () => {
   it("uses five clear member destinations and hides the tab bar while signed out", () => {
     const tabs = read("app/(tabs)/_layout.tsx");
 
-    expect(tabs).toContain('title: "Today"');
+    expect(tabs).toContain('title: "Home"');
     expect(tabs).toContain('title: "Coach"');
-    expect(tabs).toContain('title: "Practice"');
+    expect(tabs).toContain('title: "Tools"');
     expect(tabs).toContain('title: "Library"');
     expect(tabs).toContain('title: "Account"');
     expect(tabs).toContain('display: isAuthenticated ? "flex" : "none"');

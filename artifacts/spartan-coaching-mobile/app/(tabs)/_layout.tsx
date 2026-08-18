@@ -8,9 +8,9 @@ import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
 
 const TAB_ICONS = {
-  index: { ios: "calendar", android: "calendar" },
+  index: { ios: "house.fill", android: "home" },
   coach: { ios: "waveform", android: "activity" },
-  tools: { ios: "scope", android: "target" },
+  tools: { ios: "wrench.and.screwdriver.fill", android: "tool" },
   learn: { ios: "books.vertical", android: "book-open" },
   account: { ios: "person.crop.circle", android: "user" },
 } as const;
@@ -56,7 +56,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="index"
         options={{
-          title: "Today",
+          title: "Home",
           tabBarIcon: ({ color }) => <TabIcon route="index" color={color} />,
         }}
       />
@@ -70,7 +70,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="tools"
         options={{
-          title: "Practice",
+          title: "Tools",
           tabBarIcon: ({ color }) => <TabIcon route="tools" color={color} />,
         }}
       />

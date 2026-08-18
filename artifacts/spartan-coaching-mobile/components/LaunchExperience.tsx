@@ -1,64 +1,56 @@
 import React, { useEffect, useRef } from "react";
 import { Animated, StyleSheet, Text, View } from "react-native";
-import { HelmetMark } from "@/components/brand/HelmetMark";
+import { BrandStamp } from "@/components/brand/BrandStamp";
 import { useAccessibilityPrefs } from "@/hooks/useAccessibilityPrefs";
-import { useColors } from "@/hooks/useColors";
 import { font } from "@/lib/typography";
 
 export function LaunchExperience({ onComplete }: { onComplete: () => void }) {
-  const colors = useColors();
   const { reduceMotion } = useAccessibilityPrefs();
   const opacity = useRef(new Animated.Value(1)).current;
-  const scale = useRef(new Animated.Value(0.94)).current;
+  const scale = useRef(new Animated.Value(reduceMotion ? 1 : 0.92)).current;
+  const promiseOpacity = useRef(new Animated.Value(reduceMotion ? 1 : 0)).current;
 
   useEffect(() => {
-    if (reduceMotion) {
-      scale.setValue(1);
-      const exit = Animated.timing(opacity, {
-        toValue: 0,
-        duration: 160,
-        delay: 420,
+    const intro = Animated.parallel([
+      Animated.spring(scale, {
+        toValue: 1,
+        damping: 18,
+        stiffness: 145,
         useNativeDriver: true,
-      });
-      exit.start(({ finished }) => {
-        if (finished) onComplete();
-      });
-      return () => exit.stop();
-    }
-
-    const intro = Animated.spring(scale, {
-      toValue: 1,
-      damping: 18,
-      stiffness: 150,
-      useNativeDriver: true,
-    });
+      }),
+      Animated.timing(promiseOpacity, {
+        toValue: 1,
+        duration: reduceMotion ? 1 : 340,
+        delay: reduceMotion ? 0 : 180,
+        useNativeDriver: true,
+      }),
+    ]);
     const exit = Animated.timing(opacity, {
       toValue: 0,
-      duration: 260,
-      delay: 720,
+      duration: reduceMotion ? 140 : 260,
+      delay: reduceMotion ? 420 : 940,
       useNativeDriver: true,
     });
+
     Animated.sequence([intro, exit]).start(({ finished }) => {
       if (finished) onComplete();
     });
+
     return () => {
       intro.stop();
       exit.stop();
     };
-  }, [onComplete, opacity, reduceMotion, scale]);
+  }, [onComplete, opacity, promiseOpacity, reduceMotion, scale]);
 
   return (
-    <Animated.View
-      style={[styles.root, { backgroundColor: colors.background, opacity }]}
-      pointerEvents="auto"
-      testID="launch-experience"
-    >
-      <Animated.View style={{ alignItems: "center", transform: [{ scale }] }}>
-        <View style={[styles.glow, { backgroundColor: colors.primaryMuted }]}>
-          <HelmetMark size={112} />
-        </View>
-        <Text style={[styles.name, { color: colors.foreground }, font("heavy")]}>SPARTAN COACHING</Text>
-        <Text style={[styles.promise, { color: colors.mutedForeground }, font("medium")]}>Prepare with purpose.</Text>
+    <Animated.View style={[styles.root, { opacity }]} pointerEvents="auto" testID="launch-experience">
+      <Animated.View style={[styles.identity, { transform: [{ scale }] }]}>
+        <BrandStamp width={276} height={180} />
+      </Animated.View>
+      <Animated.View style={[styles.promiseBlock, { opacity: promiseOpacity }]}>
+        <View style={styles.redRule} />
+        <Text style={styles.promise}>KNOW THE NEXT MOVE</Text>
+        <Text style={styles.subPromise}>Hospice sales preparation, practice, and follow through.</Text>
       </Animated.View>
     </Animated.View>
   );
@@ -70,14 +62,12 @@ const styles = StyleSheet.create({
     zIndex: 1000,
     alignItems: "center",
     justifyContent: "center",
+    backgroundColor: "#07111F",
+    paddingHorizontal: 28,
   },
-  glow: {
-    width: 144,
-    height: 144,
-    borderRadius: 48,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  name: { fontSize: 17, letterSpacing: 3.2, marginTop: 28 },
-  promise: { fontSize: 14, marginTop: 9, letterSpacing: 0.2 },
+  identity: { alignItems: "center" },
+  promiseBlock: { alignItems: "center", marginTop: 24 },
+  redRule: { width: 38, height: 3, borderRadius: 2, backgroundColor: "#F0343C", marginBottom: 18 },
+  promise: { color: "#FFFFFF", fontSize: 12, letterSpacing: 3.1, ...font("heavy") },
+  subPromise: { color: "#AFC0D5", fontSize: 13, lineHeight: 19, textAlign: "center", marginTop: 10, ...font("regular") },
 });

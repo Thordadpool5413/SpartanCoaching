@@ -1,5 +1,6 @@
+import { Image } from "expo-image";
 import React from "react";
-import { Image, StyleSheet, View, type ViewStyle } from "react-native";
+import { StyleSheet, View, type ViewStyle } from "react-native";
 
 type HelmetMarkProps = {
   size?: number;
@@ -31,8 +32,8 @@ export function HelmetMark({
       accessibilityLabel={accessibilityLabel}
     >
       <Image
-        source={require("@/assets/images/logo.png")}
-        resizeMode="contain"
+        source={require("@/assets/images/icon.png")}
+        contentFit="contain"
         style={{ width: size * 1.42, height: size * 1.42 }}
       />
     </View>

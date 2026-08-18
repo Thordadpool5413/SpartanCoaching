@@ -1,140 +1,51 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  AppState,
-  AppStateStatus,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
-import { router, useFocusEffect } from "expo-router";
-import * as Notifications from "expo-notifications";
-import { useColors } from "@/hooks/useColors";
-import { useReminderHistory } from "@/hooks/useReminderHistory";
-import { apiGet, fetchOnboardingMobile, updateOnboardingMobile } from "@/lib/api";
-import { cancelReminder, removeReminderFromHistory } from "@/lib/notifications";
-import { useAuth } from "@/lib/AuthContext";
-import {
-  formatTrialRemaining,
-  isChecklistDone,
-  visibleChecklist,
-} from "@/lib/onboarding";
-import { SectionKicker } from "@/components/ui/SectionKicker";
-import { SpartanCard } from "@/components/ui/SpartanCard";
-import { SpartanButton } from "@/components/ui/SpartanButton";
-import { MissionCard } from "@/components/ui/MissionCard";
-import { EntitlementBanner } from "@/components/ui/EntitlementBanner";
-import { PaywallCard } from "@/components/ui/PaywallCard";
-
-import { font } from "@/lib/typography";
-import { useMission } from "@/lib/useMission";
-import { trackMobileEvent } from "@/lib/analytics";
-import { listCoachMemory } from "@/lib/coachApi";
-import { WelcomeExperience } from "@/components/WelcomeExperience";
+import { router, type Href, useFocusEffect } from "expo-router";
+import React, { useCallback, useMemo, useState } from "react";
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { BrandStamp } from "@/components/brand/BrandStamp";
 import { HelmetMark } from "@/components/brand/HelmetMark";
+import { WelcomeExperience } from "@/components/WelcomeExperience";
+import { useColors } from "@/hooks/useColors";
+import { fetchOnboardingMobile } from "@/lib/api";
+import { useAuth } from "@/lib/AuthContext";
+import { listCoachMemory } from "@/lib/coachApi";
+import { font } from "@/lib/typography";
 
-function formatScheduledTime(ts: number): string {
-  const now = Date.now();
-  const diffMs = ts - now;
-  if (diffMs <= 0) return "soon";
+type FieldAction = {
+  icon: React.ComponentProps<typeof Feather>["name"];
+  title: string;
+  body: string;
+  onPress: () => void;
+  testID: string;
+};
 
-  const diffMin = Math.round(diffMs / 60_000);
-  if (diffMin < 60) return `in ${diffMin}m`;
-
-  const diffHr = Math.round(diffMs / 3_600_000);
-  if (diffHr < 24) return `in ${diffHr}h`;
-
-  const diffDays = Math.round(diffMs / 86_400_000);
-  return `in ${diffDays}d`;
-}
-
-export default function TodayScreen() {
+export default function HomeScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { canUseFieldKit, canUseElite, isAuthenticated, user, logout, refresh } = useAuth();
-  const [personalization, setPersonalization] = useState<{
-    continueItems: Array<{ id: string; title: string; href: string; why: string }>;
-    recommendedToday: Array<{ id: string; title: string; href: string; why: string }>;
-    emptyHistory: boolean;
-  } | null>(null);
-  const [activation, setActivation] = useState<{
-    activated: boolean;
-    skipped: boolean;
-    role: string;
-    nextStep: { id: string; title: string; why: string; mobileHref: string } | null;
-    completedRequired: number;
-    totalRequired: number;
-  } | null>(null);
-  const mission = useMission();
-  const { reminders, load: reloadReminders, removeReminder } = useReminderHistory();
-
-  const [jobRole, setJobRole] = useState<string>("");
-  const [checklist, setChecklist] = useState<Record<string, boolean | string>>({});
-  const [onboardingLoaded, setOnboardingLoaded] = useState(false);
-  /** Secondary chrome collapsed so one primary path wins (craft P1) */
-  const [checklistOpen, setChecklistOpen] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
+  const { canUseElite, canUseFieldKit, isAuthenticated, user, refresh } = useAuth();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+  const [jobRole, setJobRole] = useState("");
   const [coachCommitment, setCoachCommitment] = useState<string | null>(null);
 
-  const topPad = Platform.OS === "web" ? 67 : insets.top;
-  const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 24;
-
-  const loadOnboarding = useCallback(async () => {
-    if (!canUseFieldKit) {
-      setOnboardingLoaded(true);
-      return;
-    }
-    try {
-      const data = (await fetchOnboardingMobile()) as {
-        member: {
-          jobRole?: string | null;
-          territoryNote?: string | null;
-          topObjections?: string | null;
-          checklistProgress?: Record<string, boolean | string>;
-        };
-        activation?: {
-          activated: boolean;
-          skipped: boolean;
-          role: string;
-          nextStep: { id: string; title: string; why: string; mobileHref: string } | null;
-          completedRequired: number;
-          totalRequired: number;
-        };
-      };
-      if (data.activation) setActivation(data.activation);
-      setJobRole(data.member.jobRole || "");
-      setChecklist(data.member.checklistProgress || {});
-      mission.setJobRoleLocal(data.member.jobRole || "");
-      mission.setChecklistLocal(data.member.checklistProgress || {});
-    } catch {
-      // keep local
-    } finally {
-      setOnboardingLoaded(true);
-    }
-  }, [canUseFieldKit, mission.setJobRoleLocal, mission.setChecklistLocal]);
+  const topPad = Platform.OS === "web" ? 54 : insets.top;
+  const bottomPad = Platform.OS === "web" ? 32 : insets.bottom + 18;
 
   useFocusEffect(
     useCallback(() => {
-      reloadReminders();
-      loadOnboarding();
-      // Entitlement may have changed after web checkout
       void refresh();
-    }, [reloadReminders, loadOnboarding, refresh]),
-  );
+      if (!canUseFieldKit) return undefined;
 
-  useFocusEffect(
-    useCallback(() => {
-      if (!canUseFieldKit) {
-        setCoachCommitment(null);
-        return undefined;
-      }
       let cancelled = false;
+      void fetchOnboardingMobile()
+        .then((data) => {
+          if (!cancelled) setJobRole(data.member.jobRole || "");
+        })
+        .catch(() => {
+          if (!cancelled) setJobRole("");
+        });
+
       void listCoachMemory()
         .then((items) => {
           if (cancelled) return;
@@ -144,871 +55,230 @@ export default function TodayScreen() {
         .catch(() => {
           if (!cancelled) setCoachCommitment(null);
         });
+
       return () => {
         cancelled = true;
       };
-    }, [canUseFieldKit]),
+    }, [canUseFieldKit, refresh]),
   );
-
-  useEffect(() => {
-    if (Platform.OS === "web") return;
-
-    const receivedSub = Notifications.addNotificationReceivedListener(async (notification) => {
-      const id = notification.request.identifier;
-      await removeReminderFromHistory(id);
-      await reloadReminders();
-    });
-
-    const responseSub = Notifications.addNotificationResponseReceivedListener(async (response) => {
-      const id = response.notification.request.identifier;
-      await removeReminderFromHistory(id);
-      await reloadReminders();
-    });
-
-    const handleAppStateChange = (nextState: AppStateStatus) => {
-      if (nextState === "active") {
-        reloadReminders();
-      }
-    };
-    const appStateSub = AppState.addEventListener("change", handleAppStateChange);
-
-    const pollInterval = setInterval(() => {
-      if (AppState.currentState === "active") {
-        reloadReminders();
-      }
-    }, 30_000);
-
-    return () => {
-      receivedSub.remove();
-      responseSub.remove();
-      appStateSub.remove();
-      clearInterval(pollInterval);
-    };
-  }, [reloadReminders]);
-
-  useEffect(() => {
-    if (!isAuthenticated || !canUseFieldKit) {
-      setPersonalization(null);
-      return;
-    }
-    let cancelled = false;
-    void apiGet<{
-      continueItems: Array<{ id: string; title: string; href: string; why: string }>;
-      recommendedToday: Array<{ id: string; title: string; href: string; why: string }>;
-      emptyHistory: boolean;
-    }>("/api/v1/personalization")
-      .then((data) => {
-        if (!cancelled) setPersonalization({
-          continueItems: data.continueItems || [],
-          recommendedToday: data.recommendedToday || [],
-          emptyHistory: !!data.emptyHistory,
-        });
-      })
-      .catch(() => { if (!cancelled) setPersonalization(null); });
-    return () => { cancelled = true; };
-  }, [isAuthenticated, canUseFieldKit]);
-
-  const handleCancelReminder = async (id: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    await cancelReminder(id);
-    await removeReminder(id);
-  };
-
-  const items = useMemo(() => visibleChecklist(jobRole), [jobRole]);
-  const doneCount = items.filter((i) => isChecklistDone(checklist, i.id)).length;
-  const trialLabel = formatTrialRemaining(user?.fieldKit?.hoursRemaining);
-  const firstName = user?.member?.name?.split(" ")[0] || "";
-  const isAdmin = user?.member?.role === "org_admin" || user?.member?.role === "platform_admin";
-  const needsRole = !jobRole;
-  const isFirstSession = needsRole || doneCount === 0;
-
-  const saveRole = async (role: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setJobRole(role);
-    try {
-      const data = await updateOnboardingMobile({ jobRole: role });
-      setJobRole(data.member.jobRole || role);
-      setChecklist(data.member.checklistProgress || checklist);
-      await refresh();
-    } catch {
-      // keep local role
-    }
-  };
-
-  const openChecklistItem = (item: (typeof items)[0]) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (item.route) router.push(item.route as any);
-    else if (item.toolTab) {
-      router.push({ pathname: "/tool/[tab]", params: { tab: item.toolTab } } as any);
-    } else {
-      router.push("/(tabs)/tools");
-    }
-  };
-
 
   if (!isAuthenticated) {
     return <WelcomeExperience topPad={topPad} bottomPad={bottomPad} />;
   }
 
-  // ── Shell B: Authenticated but locked ─────────────────────────────
   if (!canUseFieldKit) {
-    return (
-      <ScrollView
-        style={[styles.container, { backgroundColor: colors.background }]}
-        contentContainerStyle={{ paddingBottom: bottomPad, paddingHorizontal: 16, paddingTop: topPad + 16 }}
-        showsVerticalScrollIndicator={false}
-        testID="screen-locked-home"
-      >
-        <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}>
-          <View>
-            <SectionKicker>Today</SectionKicker>
-            <Text style={[{ color: colors.warning, fontSize: 11, letterSpacing: 1.8, marginTop: 5 }, font("bold")]}>ELITE FIELD DESK</Text>
-          </View>
-          <Pressable
-            accessibilityLabel="Open account"
-            onPress={() => router.push("/(tabs)/account")}
-            style={{ width: 46, height: 46, borderRadius: 23, alignItems: "center", justifyContent: "center", backgroundColor: colors.cardElevated, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.borderStrong }}
-          >
-            <Text style={[{ color: colors.foreground, fontSize: 15 }, font("semibold")]}>
-              {(firstName || "S").slice(0, 2).toUpperCase()}
-            </Text>
-          </Pressable>
-        </View>
-        <Text style={[{ color: colors.foreground, fontSize: 26, marginTop: 10 }, font("heavy")]}>
-          {user?.organization?.status === "suspended"
-            ? "Restore access"
-            : user?.organization?.status === "expired"
-              ? "Access ended"
-              : "One step to live tools"}
-        </Text>
-        <Text style={[{ color: colors.mutedForeground, fontSize: 14, marginTop: 8, lineHeight: 20 }, font("regular")]}>
-          Preview is free. Generate, save, and run tools live with an active subscription or evaluation.
-        </Text>
-
-        <View style={{ marginTop: 20 }}>
-          <PaywallCard
-            isAuthenticated
-            orgStatus={user?.organization?.status}
-            title={
-              user?.organization?.status === "suspended"
-                ? "Update billing to restore access"
-                : user?.organization?.status === "expired"
-                  ? "Access ended · subscribe to continue"
-                  : "$14.99/week · cancel anytime"
-            }
-            body="Choose Standard or Elite in Account, then subscribe securely with Apple. Existing Apple purchases can be restored there at any time."
-            primaryLabel="Choose membership"
-            onPrimary={() => router.push("/(tabs)/account")}
-            testID="button-locked-account"
-          />
-        </View>
-        <SpartanButton
-          title="Preview tool map"
-          variant="outline"
-          onPress={() => router.push("/(tabs)/tools")}
-          style={{ marginTop: 12 }}
-        />
-        <SpartanButton
-          title="Book a strategy call"
-          variant="ghost"
-          onPress={() => router.push("/(tabs)/contact")}
-          style={{ marginTop: 8 }}
-        />
-      </ScrollView>
-    );
+    return <LockedHome topPad={topPad} bottomPad={bottomPad} />;
   }
 
-  // ── Field companion (logged-in + entitled) ────────────────────────
-  // Single primary: activation (if required) OR useMission.primary — never both heroes.
-  const activationPrimary =
-    activation && !activation.activated && !activation.skipped && activation.nextStep
-      ? activation.nextStep
-      : null;
+  const firstName = user?.member?.name?.trim().split(/\s+/)[0] || "there";
+  const actions: FieldAction[] = [
+    {
+      icon: "message-square",
+      title: "Practice an objection",
+      body: canUseElite ? "Rehearse privately with Spartan Coach feedback." : "Build and refine a response with the field tools.",
+      onPress: () => router.push(canUseElite ? "/(tabs)/coach" : "/tool/objection" as Href),
+      testID: "home-practice-objection",
+    },
+    {
+      icon: "check-circle",
+      title: coachCommitment ? "Continue your commitment" : "Set your next commitment",
+      body: coachCommitment || "Leave the next conversation with one clear follow through.",
+      onPress: () => router.push(canUseElite ? "/(tabs)/coach" : "/tool/weekly" as Href),
+      testID: "home-continue-commitment",
+    },
+  ];
 
-  const runMissionCta = () => {
-    if (activationPrimary) {
-      void trackMobileEvent("craft", "mission_cta_tap", {
-        metadata: { surface: "home", platform: "ios", source: "activation", stepId: activationPrimary.id },
-      });
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      const href = activationPrimary.mobileHref;
-      if (href.includes("command") || href.includes("sales-workflow")) {
-        router.push("/(tabs)/command");
-      } else if (href.includes("objection")) {
-        router.push("/tool/objection" as any);
-      } else if (href.includes("playbook")) {
-        router.push("/tool/playbook" as any);
-      } else if (href.includes("account")) {
-        router.push("/(tabs)/account");
-      } else {
-        router.push("/(tabs)/tools");
-      }
-      return;
-    }
-    if (needsRole) {
-      setChecklistOpen(true);
-      return;
-    }
-    void trackMobileEvent("craft", "mission_cta_tap", {
-      metadata: {
-        surface: "home",
-        platform: "ios",
-        source: mission.primary?.kind ?? "command",
-      },
-    });
-    if (mission.primary?.href) {
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      router.push(mission.primary.href as any);
-    } else {
-      router.push("/(tabs)/command" as any);
-    }
+  const press = (callback: () => void) => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    callback();
   };
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      contentContainerStyle={{ paddingBottom: bottomPad }}
+      style={styles.screen}
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={{ paddingBottom: bottomPad + 16 }}
       showsVerticalScrollIndicator={false}
-      testID="screen-entitled-home"
+      testID="screen-home"
     >
-      <LinearGradient
-        colors={[colors.heroBackground, colors.background, colors.card]}
-        style={[styles.fieldHero, { paddingTop: topPad + 16 }]}
-      >
-        <View style={styles.homeBrandRow}>
-          <HelmetMark size={48} />
-          <View style={{ flex: 1 }}><Text style={[styles.homeBrandName, { color: colors.heroForeground }, font("heavy")]}>SPARTAN COACHING</Text><SectionKicker>Hospice Sales Pro</SectionKicker></View>
-          {isAdmin ? <Pressable accessibilityRole="button" accessibilityLabel="Open Admin" onPress={() => router.push("/admin")} style={[styles.adminButton, { borderColor: colors.heroBadgeBorder, backgroundColor: colors.heroBadgeBg }]}><Feather name="shield" size={16} color={colors.primary} /><Text style={[styles.adminButtonText, { color: colors.heroForeground }, font("bold")]}>Admin</Text></Pressable> : null}
-        </View>
-        <Text
-          style={{
-            color: colors.heroForeground,
-            fontSize: 28,
-            fontWeight: "800",
-            marginTop: 10,
-            letterSpacing: -0.6,
-            lineHeight: 34,
-            ...font("bold"),
-          }}
-        >
-          {isFirstSession
-            ? `Make this session count${firstName ? `, ${firstName}` : ""}`
-            : `Welcome back${firstName ? `, ${firstName}` : ""}`}
-        </Text>
-        <Text
-          style={{
-            color: colors.heroMuted,
-            marginTop: 8,
-            fontSize: 15,
-            lineHeight: 22,
-            ...font("regular"),
-          }}
-        >
-          One clear commitment. One next conversation.
-        </Text>
-        <View style={{ marginTop: 14 }}>
-          {user?.organization?.status === "trial" && trialLabel ? (
-            <EntitlementBanner
-              label={trialLabel}
-              role="trial"
-              actionLabel="Account"
-              onAction={() => router.push("/(tabs)/account")}
-              testID="banner-trial"
-            />
-          ) : (
-            <EntitlementBanner
-              label={canUseElite ? "Hospice Sales Pro Elite · active" : "Hospice Sales Pro · active"}
-              role="active"
-              actionLabel="Account"
-              onAction={() => router.push("/(tabs)/account")}
-              testID="banner-member"
-            />
-          )}
-        </View>
-      </LinearGradient>
-
-      <View style={[styles.section, { paddingTop: 16 }]}>
-        {coachCommitment ? (
+      <View style={[styles.brandField, { paddingTop: topPad + 8 }]}>
+        <View style={styles.brandTopRow}>
+          <BrandStamp width={140} height={80} />
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel="Open saved Coach commitment"
-            onPress={() => router.push("/(tabs)/coach")}
-            style={{
-              flexDirection: "row",
-              alignItems: "center",
-              gap: 14,
-              padding: 16,
-              borderRadius: 18,
-              borderWidth: 1,
-              borderColor: colors.border,
-              backgroundColor: colors.card,
-              marginBottom: 14,
-            }}
-            testID="card-private-coach-commitment"
+            onPress={() => router.push("/tour" as Href)}
+            style={styles.tourButton}
+            testID="button-open-tour"
           >
-            <View style={{ width: 48, height: 48, borderRadius: 24, borderWidth: 1, borderColor: colors.signal, alignItems: "center", justifyContent: "center" }}>
-              <View style={{ width: 12, height: 12, borderRadius: 6, backgroundColor: colors.mission }} />
-            </View>
-            <View style={{ flex: 1 }}>
-              <Text style={[{ color: colors.primary, fontSize: 10, letterSpacing: 1.4 }, font("bold")]}>PRIVATE COMMITMENT</Text>
-              <Text style={[{ color: colors.foreground, fontSize: 16, lineHeight: 22, marginTop: 5 }, font("semibold")]}>{coachCommitment}</Text>
-            </View>
-            <Feather name="chevron-right" size={20} color={colors.mutedForeground} />
+            <Feather name="compass" size={16} color={colors.heroForeground} />
+            <Text style={styles.tourButtonText}>Tour</Text>
           </Pressable>
-        ) : null}
-        <MissionCard
-          kicker={
-            activationPrimary
-              ? `First value · ${activation?.completedRequired ?? 0}/${activation?.totalRequired ?? 0}`
-              : "Next action"
-          }
-          title={
-            activationPrimary?.title ??
-            mission.primary?.title ??
-            (needsRole ? "Pick your role" : "Open Command Center")
-          }
-          subtitle={
-            activationPrimary?.why ??
-            mission.primary?.subtitle ??
-            "Plan → prepare → practice → capture outcome."
-          }
-          ctaLabel={
-            activationPrimary
-              ? "Do this next"
-              : mission.primary?.ctaLabel ?? (needsRole ? "Choose role below" : "Open Command Center")
-          }
-          onCta={runMissionCta}
-          ctaDisabled={false}
-          secondaryLabel={
-            activationPrimary
-              ? "Skip (experienced)"
-              : needsRole
-                ? undefined
-                : "All tools"
-          }
-          onSecondary={
-            activationPrimary
-              ? () => {
-                  void (async () => {
-                    void trackMobileEvent("craft", "activation_step_done", {
-                      metadata: {
-                        surface: "home",
-                        platform: "ios",
-                        stepId: activationPrimary.id,
-                        outcome: "skipped",
-                      },
-                    });
-                    try {
-                      const data = await updateOnboardingMobile({ skipActivation: true });
-                      if (data.activation) setActivation(data.activation);
-                    } catch {
-                      // ignore
-                    }
-                  })();
-                }
-              : () => router.push("/(tabs)/tools")
-          }
-        />
-        {activationPrimary ? (
-          <SpartanButton
-            title="Mark step done"
-            variant="outline"
-            style={{ marginTop: 10 }}
-            onPress={() => {
-              void (async () => {
-                void trackMobileEvent("craft", "activation_step_done", {
-                  metadata: {
-                    surface: "home",
-                    platform: "ios",
-                    stepId: activationPrimary.id,
-                    outcome: "done",
-                  },
-                });
-                try {
-                  const data = await updateOnboardingMobile({
-                    activationStep: { id: activationPrimary.id, done: true },
-                  });
-                  if (data.activation) setActivation(data.activation);
-                } catch {
-                  // ignore
-                }
-              })();
-            }}
-          />
-        ) : null}
+        </View>
+        <View>
+          <Text style={styles.brandKicker}>FIELD GUIDE</Text>
+          <Text style={styles.brandPromise}>Prepare. Practice. Follow through.</Text>
+        </View>
+      </View>
 
-        {/* Quiet chips — not second heroes */}
-        <View
-          style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 }}
-          testID="section-today-stack"
+      <View style={styles.content}>
+        <Text style={styles.greeting}>Good morning, {firstName}</Text>
+        <Text style={styles.prompt}>What are you walking into?</Text>
+
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => press(() => router.push("/tool/objection" as Href))}
+          style={({ pressed }) => [styles.primaryAction, pressed && styles.pressed]}
+          testID="home-prepare-conversation"
         >
-          {(jobRole === "director" || jobRole === "vp" || jobRole === "owner"
-            ? ([
-                { label: "Command", path: "/(tabs)/command" as const },
-                { label: "Staffing", path: "/staffing" as const },
-                { label: "Weekly", path: "/tool/[tab]" as const, params: { tab: "weekly" } },
-              ] as const)
-            : ([
-                { label: "Command", path: "/(tabs)/command" as const },
-                { label: "Objections", path: "/tool/[tab]" as const, params: { tab: "objection" } },
-                { label: "Weekly", path: "/tool/[tab]" as const, params: { tab: "weekly" } },
-              ] as const)
-          ).map((chip) => (
+          <View style={styles.primaryIcon}>
+            <HelmetMark size={48} />
+          </View>
+          <View style={styles.primaryCopy}>
+            <Text style={styles.primaryEyebrow}>START HERE</Text>
+            <Text style={styles.primaryTitle}>Prepare for a conversation</Text>
+            <Text style={styles.primaryBody}>Build a focused plan for the person, the moment, and the outcome.</Text>
+          </View>
+          <Feather name="arrow-right" size={22} color="#FFFFFF" />
+        </Pressable>
+
+        <View style={styles.actionList}>
+          {actions.map((action, index) => (
             <Pressable
-              key={chip.label}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                if ("params" in chip && chip.params) {
-                  router.push({ pathname: chip.path, params: chip.params } as any);
-                } else {
-                  router.push(chip.path as any);
-                }
-              }}
-              style={{
-                minHeight: 40,
-                paddingHorizontal: 14,
-                paddingVertical: 8,
-                borderRadius: 20,
-                borderWidth: StyleSheet.hairlineWidth * 2,
-                borderColor: colors.border,
-                backgroundColor: colors.card,
-                justifyContent: "center",
-              }}
+              key={action.title}
+              accessibilityRole="button"
+              onPress={() => press(action.onPress)}
+              style={({ pressed }) => [styles.actionRow, index > 0 && styles.rowDivider, pressed && styles.rowPressed]}
+              testID={action.testID}
             >
-              <Text style={[{ color: colors.foreground, fontSize: 13 }, font("semibold")]}>{chip.label}</Text>
+              <View style={styles.actionIcon}>
+                <Feather name={action.icon} size={21} color={colors.primary} />
+              </View>
+              <View style={styles.actionCopy}>
+                <Text style={styles.actionTitle}>{action.title}</Text>
+                <Text style={styles.actionBody} numberOfLines={2}>{action.body}</Text>
+              </View>
+              <Feather name="chevron-right" size={21} color={colors.mutedForeground} />
             </Pressable>
           ))}
         </View>
-      </View>
 
-      {/* Role pick only — required for mission personalization (not a second hero) */}
-      {needsRole ? (
-        <View style={[styles.section, { paddingTop: 8 }]} testID="section-first-session">
-          <SectionKicker>Your role</SectionKicker>
-          <View
-            style={[
-              styles.startCard,
-              {
-                backgroundColor: colors.card,
-                borderColor: colors.primary,
-                marginTop: 8,
-              },
-            ]}
-          >
-            <Text style={{ color: colors.foreground, fontSize: 15, fontWeight: "700" }}>
-              Sets checklist and recommended tools
-            </Text>
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
-              {(
-                [
-                  { id: "rep", label: "Rep" },
-                  { id: "director", label: "Director" },
-                  { id: "vp", label: "VP" },
-                  { id: "owner", label: "Owner" },
-                  { id: "other", label: "Other" },
-                ] as const
-              ).map((r) => (
-                <Pressable
-                  key={r.id}
-                  onPress={() => saveRole(r.id)}
-                  style={{
-                    minHeight: 44,
-                    paddingVertical: 10,
-                    paddingHorizontal: 14,
-                    borderRadius: 8,
-                    backgroundColor: colors.primary,
-                    justifyContent: "center",
-                  }}
-                  testID={`button-role-${r.id}`}
-                >
-                  <Text style={{ color: colors.primaryForeground, fontWeight: "800", fontSize: 13 }}>{r.label}</Text>
-                </Pressable>
-              ))}
-            </View>
-          </View>
-        </View>
-      ) : null}
-
-      {/* Secondary: collapsible checklist progress (not a second mission) */}
-      {canUseFieldKit && items.length > 0 ? (
-        <View style={[styles.section, { paddingTop: 12 }]} testID="section-checklist-secondary">
-          <Pressable
-            onPress={() => setChecklistOpen((v) => !v)}
-            accessibilityRole="button"
-            style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}
-          >
-            <Text style={[{ color: colors.mutedForeground, fontSize: 13 }, font("semibold")]}>
-              Session checklist · {doneCount}/{items.length}
-            </Text>
-            <Feather
-              name={checklistOpen ? "chevron-up" : "chevron-down"}
-              size={18}
-              color={colors.mutedForeground}
-            />
-          </Pressable>
-          {checklistOpen
-            ? items.slice(0, 6).map((item) => {
-                const done = isChecklistDone(checklist, item.id);
-                return (
-                  <Pressable
-                    key={item.id}
-                    onPress={() => openChecklistItem(item)}
-                    style={{
-                      marginTop: 8,
-                      padding: 12,
-                      borderRadius: 12,
-                      borderWidth: StyleSheet.hairlineWidth * 2,
-                      borderColor: colors.border,
-                      backgroundColor: colors.card,
-                      opacity: done ? 0.65 : 1,
-                    }}
-                  >
-                    <Text style={[{ color: colors.foreground, fontSize: 14 }, font("semibold")]}>
-                      {done ? "✓ " : ""}
-                      {item.title}
-                    </Text>
-                  </Pressable>
-                );
-              })
-            : null}
-        </View>
-      ) : null}
-
-      {/* Secondary personalization and dedicated Coach entry */}
-      <View style={[styles.section, { paddingTop: 8 }]}>
-        <Pressable
-          onPress={() => setMoreOpen((v) => !v)}
-          accessibilityRole="button"
-          style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}
-          testID="section-more-toggle"
-        >
-          <Text style={[{ color: colors.mutedForeground, fontSize: 13 }, font("semibold")]}>
-            More · continue
-          </Text>
-          <Feather name={moreOpen ? "chevron-up" : "chevron-down"} size={18} color={colors.mutedForeground} />
-        </Pressable>
-        {moreOpen ? (
-          <View style={{ marginTop: 10 }}>
-            {personalization?.continueItems?.slice(0, 2).map((item) => (
-              <Pressable
-                key={item.id}
-                onPress={() => {
-                  void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  if (item.href.includes("sales-workflow")) router.push("/(tabs)/command");
-                  else if (item.href.includes("objection")) router.push("/tool/objection" as any);
-                  else router.push("/(tabs)/tools");
-                }}
-                style={{
-                  marginTop: 8,
-                  padding: 12,
-                  borderRadius: 12,
-                  borderWidth: StyleSheet.hairlineWidth * 2,
-                  borderColor: colors.border,
-                  backgroundColor: colors.card,
-                }}
-              >
-                <Text style={[{ color: colors.foreground, fontSize: 14 }, font("bold")]}>{item.title}</Text>
-                <Text
-                  style={[
-                    { color: colors.mutedForeground, fontSize: 12, marginTop: 4, lineHeight: 16 },
-                    font("regular"),
-                  ]}
-                >
-                  {item.why}
-                </Text>
-              </Pressable>
-            ))}
-            <SpartanButton
-              title="Open Spartan Coach"
-              variant="outline"
-              onPress={() => router.push("/(tabs)/coach")}
-              style={{ marginTop: 12 }}
-            />
+        {coachCommitment ? (
+          <View testID="card-private-coach-commitment" style={styles.commitmentNote}>
+            <Feather name="lock" size={16} color={colors.primary} />
+            <Text style={styles.commitmentText}>This commitment is private until you explicitly share it.</Text>
           </View>
         ) : null}
-      </View>
 
-      {/* Reminders */}
-      {Platform.OS !== "web" && reminders.length > 0 && (
-        <View style={[styles.section, { backgroundColor: colors.background }]}>
-          <View style={styles.sectionHeader}>
-            <Feather name="clock" size={20} color={colors.primary} />
-            <Text style={[styles.sectionTitle, { color: colors.foreground, ...font("bold") }]}>
-              Follow-up reminders
-            </Text>
-          </View>
-          <View style={styles.reminderList}>
-            {reminders.map((reminder) => (
-              <View
-                key={reminder.id}
-                style={[styles.reminderRow, { backgroundColor: colors.card, borderColor: colors.border }]}
-              >
-                <View style={[styles.reminderDot, { backgroundColor: colors.primary }]} />
-                <View style={styles.reminderContent}>
-                  <Text
-                    style={[styles.reminderTitle, { color: colors.foreground, ...font("semibold") }]}
-                    numberOfLines={1}
-                  >
-                    {reminder.title}
-                  </Text>
-                  {reminder.contact ? (
-                    <Text
-                      style={[styles.reminderContact, { color: colors.foreground, ...font("medium") }]}
-                      numberOfLines={1}
-                    >
-                      {reminder.contact}
-                    </Text>
-                  ) : null}
-                  <Text style={[styles.reminderMeta, { color: colors.mutedForeground, ...font("regular") }]}>
-                    {reminder.presetLabel} · {formatScheduledTime(reminder.scheduledFor)}
-                  </Text>
-                </View>
-                <Pressable
-                  onPress={() => handleCancelReminder(reminder.id)}
-                  hitSlop={10}
-                  style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
-                >
-                  <Feather name="x" size={18} color={colors.mutedForeground} />
-                </Pressable>
-              </View>
-            ))}
-          </View>
+        {!jobRole ? (
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => router.push("/tour" as Href)}
+            style={styles.setupRow}
+            testID="home-complete-setup"
+          >
+            <View style={styles.setupIcon}>
+              <Feather name="compass" size={19} color={colors.primary} />
+            </View>
+            <View style={styles.actionCopy}>
+              <Text style={styles.actionTitle}>New here?</Text>
+              <Text style={styles.actionBody}>Take the guided tour and personalize the app around your role.</Text>
+            </View>
+            <Text style={styles.setupLink}>Start</Text>
+          </Pressable>
+        ) : null}
+
+        <View style={styles.boundaryRow}>
+          <Feather name="shield" size={17} color={colors.mutedForeground} />
+          <Text style={styles.boundaryText}>Never enter patient PHI. Clinical outputs are suggestions and require appropriate approval.</Text>
         </View>
-      )}
-
-      <View style={[styles.section, { paddingTop: 8 }]}>
-        <SpartanButton
-          title="Book a strategy call"
-          variant="ghost"
-          onPress={() => router.push("/(tabs)/contact")}
-        />
-        <Text style={{ color: colors.mutedForeground, fontSize: 11, textAlign: "center", marginTop: 8 }}>
-          Do not enter PHI · Coaching aid only · Same seat as web
-        </Text>
       </View>
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  homeBrandRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 18 },
-  homeBrandName: { fontSize: 12, letterSpacing: 1.8, marginBottom: 4 },
-  adminButton: { minHeight: 44, borderRadius: 14, borderWidth: 1, flexDirection: "row", alignItems: "center", gap: 6, paddingHorizontal: 11 },
-  adminButtonText: { fontSize: 11 },
-  loggedOutBrand: { height: 126, borderRadius: 20, overflow: "hidden", alignItems: "center", justifyContent: "center" },
-  loggedOutLockup: { width: "96%", height: "92%" },
-  loggedOutKicker: { fontSize: 10, letterSpacing: 2, marginTop: 28 },
-  loggedOutTitle: { fontSize: 34, lineHeight: 39, letterSpacing: -1, marginTop: 10 },
-  loggedOutBody: { fontSize: 16, lineHeight: 24, marginTop: 11 },
-  membershipCard: { borderWidth: 1, borderRadius: 20, padding: 18, marginTop: 24 },
-  membershipHeading: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
-  planEyebrow: { fontSize: 9, letterSpacing: 1.5 },
-  planTitle: { fontSize: 23, marginTop: 5 },
-  pricePill: { borderRadius: 14, paddingHorizontal: 11, paddingVertical: 8, alignItems: "flex-end" },
-  priceText: { fontSize: 13 },
-  priceCadence: { fontSize: 10, marginTop: 1 },
-  planFeatures: { gap: 11, marginTop: 18 },
-  planFeature: { flexDirection: "row", alignItems: "center", gap: 9 },
-  planFeatureText: { flex: 1, fontSize: 14 },
-  loggedOutPrimary: { minHeight: 54, borderRadius: 15, flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 17, marginTop: 20 },
-  loggedOutPrimaryText: { color: "#FFFFFF", fontSize: 16 },
-  loggedOutLink: { minHeight: 46, alignItems: "center", justifyContent: "center" },
-  loggedOutLinkText: { fontSize: 14 },
-  consultingRow: { minHeight: 82, borderWidth: 1, borderRadius: 18, padding: 14, flexDirection: "row", alignItems: "center", gap: 12, marginTop: 12 },
-  consultingIcon: { width: 42, height: 42, borderRadius: 13, alignItems: "center", justifyContent: "center" },
-  consultingTitle: { fontSize: 15 },
-  consultingBody: { fontSize: 12, lineHeight: 17, marginTop: 3 },
-  hero: {
-    alignItems: "center",
-    paddingBottom: 40,
-    paddingHorizontal: 24,
-  },
-  fieldHero: {
-    paddingBottom: 32,
-    paddingHorizontal: 20,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "rgba(200,214,240,0.12)",
-  },
-  logo: { width: 64, height: 64, marginBottom: 20 },
-  heroTitle: {
-    fontSize: 38,
-    fontWeight: "900",
-    textAlign: "center",
-    letterSpacing: -1,
-    lineHeight: 44,
-  },
-  heroTitleAccent: {
-    marginTop: -4,
-  },
-  heroTagline: {
-    fontSize: 14,
-    marginTop: 10,
-    letterSpacing: 0.3,
-    textAlign: "center",
-    lineHeight: 20,
-  },
-  heroBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    borderWidth: 1,
-    borderRadius: 24,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    marginTop: 20,
-  },
-  heroBadgeDot: { width: 8, height: 8, borderRadius: 4 },
-  heroBadgeText: { fontSize: 13, fontWeight: "700" },
-  section: { paddingHorizontal: 20, paddingVertical: 24 },
-  sectionHeader: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 4 },
-  sectionTitle: { fontSize: 20, fontWeight: "700" },
-  sectionSubtitle: { fontSize: 14, marginBottom: 16 },
-  startCard: {
-    marginTop: 12,
-    borderWidth: 1,
-    borderRadius: 14,
-    padding: 18,
-  },
-  checkRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 8,
-  },
-  reminderList: { gap: 8, marginTop: 12 },
-  reminderRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-  },
-  reminderDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    flexShrink: 0,
-  },
-  reminderContent: { flex: 1 },
-  reminderTitle: { fontSize: 14, marginBottom: 1 },
-  reminderContact: { fontSize: 13, marginBottom: 2 },
-  reminderMeta: { fontSize: 12 },
-  inputRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1.5,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    gap: 8,
-  },
-  inputIcon: { flexShrink: 0 },
-  input: { flex: 1, fontSize: 16, minHeight: 24 },
-  sendBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  suggestions: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 },
-  suggestion: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    maxWidth: "100%",
-  },
-  suggestionText: { fontSize: 13 },
-  resultCard: {
-    marginTop: 12,
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 16,
-    gap: 8,
-  },
-  loadingText: { fontSize: 14, marginLeft: 8 },
-  errorCard: { marginTop: 12, borderRadius: 12, padding: 14 },
-  errorText: { fontSize: 14 },
-  responseText: { fontSize: 15, lineHeight: 22 },
-  resetBtn: {
-    marginTop: 12,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    alignSelf: "flex-start",
-  },
-  resetBtnText: { fontSize: 14 },
-  toolsGrid: { gap: 12 },
-  toolCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  toolIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  toolLabel: { fontSize: 16 },
-  toolSub: { fontSize: 13, marginTop: 2 },
-  missionSection: {
-    paddingHorizontal: 24,
-    paddingVertical: 40,
-  },
-  missionOverline: {
-    fontSize: 11,
-    fontWeight: "700",
-    textTransform: "uppercase",
-    letterSpacing: 1.5,
-    marginBottom: 12,
-  },
-  missionTitle: {
-    fontSize: 24,
-    fontWeight: "800",
-    marginBottom: 16,
-    lineHeight: 30,
-  },
-  missionBody: {
-    fontSize: 15,
-    lineHeight: 23,
-    marginBottom: 20,
-  },
-  pillarRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 12,
-    marginBottom: 16,
-  },
-  pillarAccent: {
-    width: 3,
-    height: 44,
-    borderRadius: 2,
-    marginTop: 2,
-    flexShrink: 0,
-  },
-  pillarName: { fontSize: 17, fontWeight: "800", marginBottom: 3 },
-  pillarDesc: { fontSize: 14, lineHeight: 20 },
-  ctaBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    alignSelf: "flex-start",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 10,
-  },
-  ctaBtnText: { fontSize: 15, fontWeight: "700" },
-});
+function LockedHome({ topPad, bottomPad }: { topPad: number; bottomPad: number }) {
+  const colors = useColors();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+  return (
+    <ScrollView
+      style={styles.screen}
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={{ paddingBottom: bottomPad + 20 }}
+      showsVerticalScrollIndicator={false}
+      testID="screen-locked-home"
+    >
+      <View style={[styles.brandField, { paddingTop: topPad + 8 }]}>
+        <BrandStamp width={160} height={92} />
+        <Text style={styles.brandPromise}>Your field guide is ready.</Text>
+      </View>
+      <View style={styles.content}>
+        <Text style={styles.greeting}>See how the system works first.</Text>
+        <Text style={styles.prompt}>No blind subscription. No mystery buttons.</Text>
+        <Text style={styles.lockedBody}>Walk through a realistic hospice sales conversation, see Coach feedback, and understand what Standard and Elite unlock.</Text>
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => router.push("/tour" as Href)}
+          style={styles.primaryAction}
+          testID="locked-guided-tour"
+        >
+          <View style={styles.primaryCopy}>
+            <Text style={styles.primaryEyebrow}>GUIDED PREVIEW</Text>
+            <Text style={styles.primaryTitle}>Tour the complete app</Text>
+            <Text style={styles.primaryBody}>Use fictional information and experience the real workflow.</Text>
+          </View>
+          <Feather name="arrow-right" size={22} color="#FFFFFF" />
+        </Pressable>
+        <Pressable accessibilityRole="button" onPress={() => router.push("/(tabs)/account")} style={styles.membershipButton}>
+          <Text style={styles.membershipButtonText}>View memberships in Account</Text>
+          <Feather name="chevron-right" size={19} color={colors.primary} />
+        </Pressable>
+      </View>
+    </ScrollView>
+  );
+}
+
+function makeStyles(colors: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    screen: { flex: 1, backgroundColor: colors.background },
+    brandField: {
+      minHeight: 214,
+      backgroundColor: colors.heroBackground,
+      paddingHorizontal: 22,
+      paddingBottom: 24,
+      justifyContent: "space-between",
+    },
+    brandTopRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+    tourButton: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 7, paddingHorizontal: 13, borderRadius: 22, borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.30)" },
+    tourButtonText: { color: colors.heroForeground, fontSize: 13, ...font("semibold") },
+    brandKicker: { color: colors.primary, fontSize: 10, letterSpacing: 2.4, ...font("bold") },
+    brandPromise: { color: colors.heroForeground, fontSize: 16, marginTop: 7, ...font("semibold") },
+    content: { paddingHorizontal: 22, paddingTop: 31, gap: 12 },
+    greeting: { color: colors.foreground, fontSize: 30, lineHeight: 35, letterSpacing: -0.8, ...font("heavy") },
+    prompt: { color: colors.mutedForeground, fontSize: 21, lineHeight: 28, ...font("regular") },
+    primaryAction: { minHeight: 142, borderRadius: 22, borderCurve: "continuous", backgroundColor: colors.primary, flexDirection: "row", alignItems: "center", gap: 14, padding: 18, marginTop: 12 },
+    primaryIcon: { width: 52, height: 52, alignItems: "center", justifyContent: "center" },
+    primaryCopy: { flex: 1, gap: 4 },
+    primaryEyebrow: { color: "rgba(255,255,255,0.78)", fontSize: 9, letterSpacing: 1.7, ...font("bold") },
+    primaryTitle: { color: "#FFFFFF", fontSize: 20, lineHeight: 24, ...font("heavy") },
+    primaryBody: { color: "rgba(255,255,255,0.84)", fontSize: 12, lineHeight: 18, ...font("regular") },
+    pressed: { opacity: 0.84, transform: [{ scale: 0.99 }] },
+    actionList: { marginTop: 11 },
+    actionRow: { minHeight: 92, flexDirection: "row", alignItems: "center", gap: 13, paddingVertical: 16 },
+    rowDivider: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderStrong },
+    rowPressed: { opacity: 0.6 },
+    actionIcon: { width: 44, height: 44, borderRadius: 14, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
+    actionCopy: { flex: 1, gap: 4 },
+    actionTitle: { color: colors.foreground, fontSize: 16, ...font("bold") },
+    actionBody: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, ...font("regular") },
+    commitmentNote: { flexDirection: "row", alignItems: "center", gap: 8, backgroundColor: colors.primaryMuted, borderRadius: 14, padding: 13 },
+    commitmentText: { color: colors.mutedForeground, flex: 1, fontSize: 11, lineHeight: 16, ...font("medium") },
+    setupRow: { minHeight: 88, flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: colors.card, borderRadius: 18, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.borderStrong, padding: 15, marginTop: 9 },
+    setupIcon: { width: 40, height: 40, borderRadius: 13, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
+    setupLink: { color: colors.primary, fontSize: 13, ...font("bold") },
+    boundaryRow: { flexDirection: "row", alignItems: "flex-start", gap: 9, paddingVertical: 17 },
+    boundaryText: { color: colors.mutedForeground, flex: 1, fontSize: 11, lineHeight: 17, ...font("regular") },
+    lockedBody: { color: colors.mutedForeground, fontSize: 15, lineHeight: 23, ...font("regular") },
+    membershipButton: { minHeight: 56, flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 4 },
+    membershipButtonText: { color: colors.primary, fontSize: 15, ...font("bold") },
+  });
+}

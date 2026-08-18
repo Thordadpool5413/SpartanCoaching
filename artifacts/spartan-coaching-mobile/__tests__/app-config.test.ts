@@ -88,9 +88,9 @@ describe("Expo production configuration", () => {
     const shortcuts = config.expo.ios.infoPlist.UIApplicationShortcutItems;
 
     expect(shortcuts.map((item: { UIApplicationShortcutItemTitle: string }) => item.UIApplicationShortcutItemTitle)).toEqual([
-      "Today's briefing",
+      "Open Field Guide",
       "Spartan Coach",
-      "Practice",
+      "Open Tools",
     ]);
     expect(shortcuts.map((item: { UIApplicationShortcutItemUserInfo: { url: string } }) => item.UIApplicationShortcutItemUserInfo.url)).toEqual([
       "spartan-coaching-mobile://home",
