@@ -16,7 +16,8 @@ import { registerJurisdictionRoutes } from "./routes/jurisdictionRoutes";
 import { registerNotificationRoutes } from "./routes/notificationRoutes";
 import { registerCoachRoutes } from "./routes/coachRoutes";
 import { registerBillingRoutes, handleStripeWebhook } from "./billing/billingRoutes";
-import { loadSession } from "./auth/middleware";
+import { loadSession, type AuthedRequest } from "./auth/middleware";
+import { requireClinicalJurisdictionContext } from "./clinical/jurisdictionMiddleware";
 import { globalApiLimit } from "./rateLimits";
 import { logger } from "./lib/logger";
 import {
@@ -152,6 +153,9 @@ app.use("/api", router);
 registerAuthRoutes(app);
 registerBillingRoutes(app);
 registerSalesWorkflowRoutes(app);
+app.use("/api/ai-tools/:toolId/ephemeral-runs", (request, response, next) => {
+  void requireClinicalJurisdictionContext(request as AuthedRequest, response, next);
+});
 registerAiToolRoutes(app);
 registerResourceWorkRoutes(app);
 registerResourceLifecycleRoutes(app);
