@@ -2,6 +2,7 @@ import type { Express } from "express";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
 import {
+  clientMembers,
   emptyPersonalizationPayload,
   memberPersonalization,
   type PersonalizationPayload,
@@ -16,10 +17,11 @@ const bodySchema = z.object({
 }).strict();
 
 async function loadPayload(memberId: number): Promise<{ id: number | null; organizationId: number; payload: PersonalizationPayload }> {
-  const [member] = await db.query.clientMembers.findMany({
-    where: (table, { eq: equals }) => equals(table.id, memberId),
-    limit: 1,
-  });
+  const [member] = await db
+    .select({ organizationId: clientMembers.organizationId })
+    .from(clientMembers)
+    .where(eq(clientMembers.id, memberId))
+    .limit(1);
   if (!member) throw new Error("Member not found");
 
   const [row] = await db
