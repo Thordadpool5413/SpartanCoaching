@@ -241,6 +241,15 @@ export default function AccountScreen() {
         </View>
       ) : null}
 
+      {canUseElite ? (
+        <View style={styles.section} testID="account-clinical-context">
+          <Text style={styles.sectionKicker}>CLINICAL CONTEXT</Text>
+          <Text style={styles.sectionTitle}>Set the jurisdiction before clinical education tools use it.</Text>
+          <Text style={styles.sectionBody}>Save your primary state and Medicare Administrative Contractor region. This is account context only and never patient information.</Text>
+          <LinkRow label="State and MAC context" onPress={() => router.push("/jurisdiction" as any)} />
+        </View>
+      ) : null}
+
       <View style={styles.section}>
         <Text style={styles.sectionKicker}>PRIVACY & CONTROL</Text>
         <Text style={styles.sectionTitle}>Know what stays private.</Text>
