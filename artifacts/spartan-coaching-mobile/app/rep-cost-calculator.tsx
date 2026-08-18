@@ -74,7 +74,7 @@ export default function RepCostCalculatorScreen() {
           Fully loaded cost per call, referral, and admit
         </Text>
         <Text style={[styles.sub, { color: colors.mutedForeground }]}>
-          Same model as the website. Planning economics only.
+          Native planning economics. Use the result as a decision aid, not a guarantee.
         </Text>
 
         <SpartanCard style={{ marginTop: 16 }}>

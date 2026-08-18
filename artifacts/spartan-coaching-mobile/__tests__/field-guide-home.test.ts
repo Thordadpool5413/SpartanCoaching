@@ -9,8 +9,8 @@ describe("Field Guide experience contract", () => {
     const welcome = read("components/WelcomeExperience.tsx");
     const home = read("app/(tabs)/index.tsx");
 
-    expect(welcome).toContain("Take the guided tour");
-    expect(welcome).toContain("before asking you to choose a membership");
+    expect(welcome).toContain("Walk through Spartan Coaching");
+    expect(welcome).toContain("account comes after purchase");
     expect(home).toContain("What are you walking into?");
     expect(home).toContain("Prepare for a conversation");
     expect(home).not.toContain("Command Center");

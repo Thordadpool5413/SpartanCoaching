@@ -55,8 +55,9 @@ describe("Apple subscription contract", () => {
     expect(source).toContain("getAvailablePurchases({ onlyIncludeActiveItemsIOS: true })");
     expect(source).toContain("deepLinkToSubscriptions({})");
     expect(source).toContain("renews automatically each week");
-    expect(source).toContain("APP_STORE_TERMS_URL");
-    expect(source).toContain("APP_STORE_PRIVACY_URL");
+    expect(source).toContain('params: { document: "terms" }');
+    expect(source).toContain('params: { document: "privacy" }');
+    expect(source).not.toContain("Linking.openURL");
   });
 
   it("allows Apple purchase before Spartan account creation", () => {

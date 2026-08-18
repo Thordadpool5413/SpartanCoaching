@@ -1,7 +1,6 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Linking,
   Pressable,
   ScrollView,
   StyleSheet,
@@ -10,6 +9,7 @@ import {
   View,
 } from "react-native";
 import { Stack, router } from "expo-router";
+import * as WebBrowser from "expo-web-browser";
 import { Feather } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
@@ -455,11 +455,11 @@ export default function SalesWorkflowScreen() {
       if (!res.authorizationUrl) {
         throw new Error("No authorization URL");
       }
-      const supported = await Linking.canOpenURL(res.authorizationUrl);
-      if (!supported) {
-        throw new Error("Cannot open OAuth URL on this device");
-      }
-      await Linking.openURL(res.authorizationUrl);
+      const session = await WebBrowser.openAuthSessionAsync(
+        res.authorizationUrl,
+        defaultCalendarRedirectUri(origin),
+      );
+      if (session.type === "success") await load();
     } catch {
       setError(
         "Calendar connect is unavailable. Provider may not be configured in this environment.",
@@ -684,7 +684,7 @@ export default function SalesWorkflowScreen() {
         <SectionKicker>Hospice Sales Pro</SectionKicker>
         <Text style={[styles.title, { color: colors.foreground, marginTop: 8 }]}>Access required</Text>
         <Text style={{ color: colors.mutedForeground, textAlign: "center", marginTop: 8, marginBottom: 16 }}>
-          Sign in with an active evaluation or client account to use Command Center.
+          Sign in with an active membership or company seat to use Field Planner.
         </Text>
         <SpartanButton title="Open account" onPress={() => router.push("/(tabs)/account")} />
       </View>
@@ -693,14 +693,14 @@ export default function SalesWorkflowScreen() {
 
   return (
     <>
-      <Stack.Screen options={{ title: "Sales Command Center" }} />
+      <Stack.Screen options={{ title: "Field Planner" }} />
       <ScrollView
         style={{ flex: 1, backgroundColor: colors.background }}
         contentContainerStyle={{ padding: 18, paddingBottom: insets.bottom + 32 }}
       >
         <SectionKicker>Hospice Sales Pro · Daily spine</SectionKicker>
         <Text style={[styles.title, { color: colors.foreground, marginTop: 8 }]}>
-          {tool?.title || "Sales Command Center"}
+          {tool?.id === "sales-workflow" ? "Field Planner" : tool?.title || "Field Planner"}
         </Text>
         <Text style={[styles.subtitle, { color: colors.mutedForeground }]}>
           {tool?.description || "Plan, practice, complete, coach, and schedule the next step."}
@@ -867,7 +867,7 @@ export default function SalesWorkflowScreen() {
         >
           <Text style={[styles.cardTitle, { color: colors.foreground }]}>Account ledger</Text>
           <Text style={{ color: colors.mutedForeground, fontSize: 12, marginBottom: 8 }}>
-            Same accounts as web Command Center ({accounts.length}). No PHI — names and territory
+            Your saved field accounts ({accounts.length}). No PHI. Names and territory
             only.
           </Text>
           <TextInput

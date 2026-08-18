@@ -139,7 +139,7 @@ export default function ToolsCatalogScreen() {
       router.push(tool.mobileRoute as any);
       return;
     }
-    Alert.alert("Native tool unavailable", "This tool does not have an approved iPhone destination yet.");
+    Alert.alert("Tool could not open", "Return to Tools and try again. If this continues, send a support request from Account.");
   };
 
   const accessLabel = (tool: FieldKitTool) => {
@@ -168,7 +168,7 @@ export default function ToolsCatalogScreen() {
       router.push(native as any);
       return;
     }
-    Alert.alert("Open inside Spartan Coaching", "This search result does not yet have an approved native destination. Use Tools or Library to reach the in app version.");
+    Alert.alert("Result could not open", "Use Tools or Library to find the native version. If it is missing, send a support request from Account.");
   };
 
   const q = filter.trim().toLowerCase();
@@ -304,7 +304,7 @@ export default function ToolsCatalogScreen() {
 
         {fieldTools.length > 0 ? (
           <View style={{ marginTop: q ? 0 : 24 }} testID="tools-job-prepare">
-            <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>FIELD KIT</Text>
+            <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>HOSPICE SALES PRO</Text>
             <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Build the next move</Text>
             <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>Focused tools for preparation, follow up, planning, and measurement.</Text>
             {fieldTools.map((tool) => (

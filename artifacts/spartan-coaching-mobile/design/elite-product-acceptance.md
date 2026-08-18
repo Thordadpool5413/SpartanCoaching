@@ -62,7 +62,7 @@ The permanent primary navigation is exactly:
 
 Every major offering has one clear home in that architecture. Organization Admin appears from Account and authorized shortcuts only after the appropriate admin entitlement exists.
 
-Core product functionality must remain inside the iOS app. External browser transitions are limited to destinations that genuinely require external handling, including Apple subscription management and approved legal or source material.
+Core product functionality must remain inside the iOS app. Support, privacy, terms, trust, Library content, and field results open inside the native app. External transitions are limited to destinations that genuinely require operating system or provider handling, including Apple subscription management and secure provider authorization.
 
 The legacy core tool WebView bridge must not exist.
 

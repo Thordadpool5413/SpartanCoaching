@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
-  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -16,10 +15,6 @@ import { SpartanButton } from "@/components/ui/SpartanButton";
 import { SpartanInput } from "@/components/ui/SpartanInput";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
-import {
-  APP_STORE_PRIVACY_URL,
-  APP_STORE_TERMS_URL,
-} from "@/lib/appStoreReadiness";
 import { ApiError } from "@/lib/api";
 import { font } from "@/lib/typography";
 
@@ -106,8 +101,8 @@ export default function RegisterScreen() {
               testID="register-accept-terms"
             />
             <View style={styles.legalLinks}>
-              <Pressable accessibilityRole="link" onPress={() => void Linking.openURL(APP_STORE_TERMS_URL)}><Text style={[styles.legalLink, { color: colors.primary }, font("semibold")]}>Terms</Text></Pressable>
-              <Pressable accessibilityRole="link" onPress={() => void Linking.openURL(APP_STORE_PRIVACY_URL)}><Text style={[styles.legalLink, { color: colors.primary }, font("semibold")]}>Privacy Policy</Text></Pressable>
+              <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: "/legal", params: { document: "terms" } } as any)}><Text style={[styles.legalLink, { color: colors.primary }, font("semibold")]}>Terms</Text></Pressable>
+              <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: "/legal", params: { document: "privacy" } } as any)}><Text style={[styles.legalLink, { color: colors.primary }, font("semibold")]}>Privacy Policy</Text></Pressable>
             </View>
             <ConsentRow
               checked={noPhi}

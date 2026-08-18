@@ -21,9 +21,9 @@ type Props = {
 
 const BENEFITS = [
   "Live generation on field tools",
-  "Command Center for today’s visits",
-  "Saves and checklist synced to web",
-  "Cancel anytime · same seat on iPhone & website",
+  "Field Planner for upcoming conversations",
+  "Saved work and commitments stay with your account",
+  "Cancel anytime · one membership across iPhone and web",
 ];
 
 /**

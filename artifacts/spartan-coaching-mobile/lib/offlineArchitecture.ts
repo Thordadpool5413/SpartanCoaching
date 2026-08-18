@@ -82,7 +82,7 @@ export const OFFLINE_WORKFLOW_MATRIX: readonly OfflineWorkflowSpec[] = [
   },
   {
     id: "command_center",
-    label: "Sales Command Center / workflow",
+    label: "Field Planner",
     capability: "online_required",
     aiWorksOffline: false,
     notes: "Never offline-queue; may contain sensitive field notes.",

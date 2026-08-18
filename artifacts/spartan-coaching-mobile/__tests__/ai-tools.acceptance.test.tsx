@@ -30,6 +30,9 @@ jest.mock("../hooks/useColors", () => ({
     success: "#2f7654",
   }),
 }));
+jest.mock("../hooks/useNetworkStatus", () => ({
+  useNetworkStatus: () => ({ isOnline: true, isChecking: false, refresh: jest.fn() }),
+}));
 jest.mock("../lib/api", () => ({
   apiGet: jest.fn(),
   apiPost: jest.fn(),

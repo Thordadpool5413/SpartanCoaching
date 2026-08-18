@@ -34,6 +34,8 @@ echo "[4/9] Verify Coach privacy, Apple billing, universal links, and AI safety"
   src/billing/entitlementMap.test.ts \
   src/clinical/clinicalProductContract.test.ts \
   src/routes/coachPrivacyContract.test.ts \
+  src/routes/companySeatTransitionContract.test.ts \
+  src/routes/memberPersonalRecoveryContract.test.ts \
   src/routes/associatedDomainsContract.test.ts \
   src/clinical/deidentification.test.ts \
   src/ai/uncertaintyBoundaries.test.ts

@@ -1,18 +1,15 @@
 import fs from "node:fs";
 import path from "node:path";
 
-describe("web tool session boundary", () => {
-  const source = fs.readFileSync(
-    path.resolve(__dirname, "../app/tool-web.tsx"),
-    "utf8",
-  );
-
-  it("rejects untrusted initial hosts and navigation", () => {
-    expect(source).toContain("url.origin !== trustedOrigin");
-    expect(source).toContain("onShouldStartLoadWithRequest={shouldLoad}");
+describe("native tool boundary", () => {
+  it("removes the legacy authenticated tool WebView bridge", () => {
+    expect(fs.existsSync(path.resolve(__dirname, "../app/tool-web.tsx"))).toBe(false);
   });
 
-  it("injects authorization only for same origin requests", () => {
-    expect(source).toContain("requested.origin === window.location.origin");
+  it("routes catalog tools to owned native destinations", () => {
+    const links = fs.readFileSync(path.resolve(__dirname, "../lib/toolDeepLinks.ts"), "utf8");
+    expect(links).not.toContain("tool-web");
+    expect(links).not.toContain("Linking.openURL");
+    expect(links).toContain("openToolHref");
   });
 });

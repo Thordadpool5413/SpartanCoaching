@@ -121,11 +121,11 @@ export function ActivationCeremony() {
               font("regular"),
             ]}
           >
-            Tools are unlocked on web and this iPhone. Start in Command Center — add your next
-            facility account (no PHI) and run the day from there.
+            Your tools are ready on this iPhone. Start in Field Planner, add the next facility account
+            without PHI, and prepare the conversation from there.
           </Text>
           <SpartanButton
-            title="Open Command Center"
+            title="Open Field Planner"
             onPress={() => void dismiss(true)}
             style={{ marginTop: 20, alignSelf: "stretch" }}
             testID="activation-open-command"

@@ -41,7 +41,7 @@ describe("Elite iOS experience contract", () => {
 
     expect(root).toContain("<LaunchExperience");
     expect(root).toContain('name="admin"');
-    expect(account).toContain('router.push("/admin")');
+    expect(account).toContain('router.push("/admin" as any)');
     expect(admin).toContain("fetchPlatformAdminOverview");
     expect(admin).toContain("fetchOrganizationAdminOverview");
     expect(admin).toContain("inviteOrganizationMember");

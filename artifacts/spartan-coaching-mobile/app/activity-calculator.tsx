@@ -52,7 +52,7 @@ export default function ActivityCalculatorScreen() {
           Turn an admit goal into daily conversations
         </Text>
         <Text style={[styles.sub, { color: colors.mutedForeground }]}>
-          Same engine as the website membership. No PHI — names optional for planning only.
+          Built for private planning on this iPhone. No PHI. Names are optional.
         </Text>
 
         <SpartanCard style={{ marginTop: 16 }}>

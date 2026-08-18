@@ -206,7 +206,7 @@ export default function CoachScreen() {
       Alert.alert(
         "Commitment saved",
         "It is private. Nothing is shared unless you explicitly share a summary or commitment.",
-        [{ text: "Open Today", onPress: () => router.replace("/(tabs)") }],
+        [{ text: "Open Home", onPress: () => router.replace("/(tabs)") }],
       );
     } catch {
       Alert.alert(

@@ -1,5 +1,6 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { Alert, Linking, Platform, Pressable, Text, View } from "react-native";
+import { Alert, Platform, Pressable, Text, View } from "react-native";
+import { router } from "expo-router";
 import {
   deepLinkToSubscriptions,
   ErrorCode,
@@ -23,10 +24,6 @@ import {
 } from "@/lib/api";
 import { getApplePurchaseSessionToken } from "@/lib/applePurchaseSession";
 import { font } from "@/lib/typography";
-import {
-  APP_STORE_PRIVACY_URL,
-  APP_STORE_TERMS_URL,
-} from "@/lib/appStoreReadiness";
 
 type Props = {
   plan?: "standard_weekly" | "elite_weekly";
@@ -221,10 +218,10 @@ export function AppleSubscriptionActions({
             testID="button-subscribe"
           />
           <View style={{ flexDirection: "row", justifyContent: "center", gap: 18 }}>
-            <Pressable accessibilityRole="link" onPress={() => void Linking.openURL(APP_STORE_TERMS_URL)} testID="subscription-terms-link">
+            <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: "/legal", params: { document: "terms" } } as any)} testID="subscription-terms-link">
               <Text style={[{ color: colors.primary, fontSize: 11 }, font("semibold")]}>Terms of Use</Text>
             </Pressable>
-            <Pressable accessibilityRole="link" onPress={() => void Linking.openURL(APP_STORE_PRIVACY_URL)} testID="subscription-privacy-link">
+            <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: "/legal", params: { document: "privacy" } } as any)} testID="subscription-privacy-link">
               <Text style={[{ color: colors.primary, fontSize: 11 }, font("semibold")]}>Privacy Policy</Text>
             </Pressable>
           </View>

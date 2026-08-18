@@ -1,5 +1,5 @@
 /**
- * Command hub — calm front door to Sales Command Center.
+ * Field Planner — calm preparation and follow-through workspace.
  * Derives day summary from the same /api/v1/sales-workflow/today as the power surface.
  */
 import React, { useMemo } from "react";
@@ -71,11 +71,11 @@ export default function CommandHubScreen() {
   if (!isAuthenticated) {
     return (
       <Screen testID="screen-command-logged-out">
-        <ScreenHeader title="Command Center" subtitle="Sign in to run your day." />
+        <ScreenHeader title="Field Planner" subtitle="Sign in to prepare the next conversation." />
         <EmptyState
           icon="target"
           title="Client login required"
-          body="Hospice Sales Pro Command Center needs an active account."
+          body="Field Planner needs an active Spartan Coaching account."
           ctaTitle="Sign in"
           onCta={() => router.push("/login")}
         />
@@ -86,7 +86,7 @@ export default function CommandHubScreen() {
   if (!canUseFieldKit) {
     return (
       <Screen testID="screen-command-locked">
-        <ScreenHeader title="Command Center" subtitle="Unlock Hospice Sales Pro to run live workflows." />
+        <ScreenHeader title="Field Planner" subtitle="Unlock Hospice Sales Pro to prepare and follow through." />
         <EmptyState
           icon="lock"
           title="Access locked"
@@ -101,11 +101,11 @@ export default function CommandHubScreen() {
   return (
     <Screen testID="screen-command-hub">
       <ScreenHeader
-        title="Command Center"
-        subtitle={`${dateLabel} · same seat as web`}
+        title="Field Planner"
+        subtitle={`${dateLabel} · your next conversation and commitment`}
       />
 
-      <SectionKicker>Today · mission</SectionKicker>
+      <SectionKicker>Next conversation</SectionKicker>
 
       {/* Day stats — quiet, not second heroes */}
       <View
@@ -138,7 +138,7 @@ export default function CommandHubScreen() {
         <View style={{ paddingVertical: 32, alignItems: "center" }}>
           <ActivityIndicator color={colors.primary} />
           <Text style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 10 }, font("regular")]}>
-            Loading today’s visits…
+            Loading your field plan…
           </Text>
         </View>
       ) : null}
@@ -175,9 +175,9 @@ export default function CommandHubScreen() {
         <View style={{ marginTop: 10 }} testID="command-empty-day">
           <EmptyState
             icon="calendar"
-            title="No visits scheduled today"
-            body="One continuous loop: add a visit → plan → practice → capture outcome → lock the next step. Same workflow as the website."
-            ctaTitle="Schedule first visit"
+            title="Nothing is planned yet"
+            body="Start with the conversation ahead of you. Prepare the approach, practice the hard moment, and leave with one next step."
+            ctaTitle="Plan a conversation"
             onCta={() => {
               void trackMobileEvent("craft", "mission_cta_tap", {
                 metadata: { surface: "command", platform: "ios", source: "empty_day" },
@@ -213,8 +213,8 @@ export default function CommandHubScreen() {
 
       <Text style={[{ color: colors.mutedForeground, fontSize: 12, marginTop: 20, marginBottom: 8 }, font("semibold")]}>
         {["director", "vp", "owner"].includes(jobRole)
-          ? "Lead the day · satellite to Command"
-          : "Prep for the room · satellite to Command"}
+          ? "Leadership preparation"
+          : "More ways to prepare"}
       </Text>
       {secondary
         .filter((s) => s.title !== "Full Command workflow")

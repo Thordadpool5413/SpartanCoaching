@@ -4,7 +4,6 @@ import React, { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -22,12 +21,6 @@ import {
   fetchOnboardingMobile,
   updateOnboardingMobile,
 } from "@/lib/api";
-import {
-  APP_STORE_PRIVACY_URL,
-  APP_STORE_SUPPORT_URL,
-  APP_STORE_TERMS_URL,
-  APP_STORE_TRUST_URL,
-} from "@/lib/appStoreReadiness";
 import { useAppearancePreference, type AppearancePreference } from "@/lib/AppearanceContext";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
@@ -270,10 +263,10 @@ export default function AccountScreen() {
 
       <View style={styles.section}>
         <Text style={styles.sectionKicker}>HELP & LEGAL</Text>
-        <LinkRow label="Support" onPress={() => void Linking.openURL(APP_STORE_SUPPORT_URL)} />
-        <LinkRow label="Privacy policy" onPress={() => void Linking.openURL(APP_STORE_PRIVACY_URL)} />
-        <LinkRow label="Terms" onPress={() => void Linking.openURL(APP_STORE_TERMS_URL)} />
-        <LinkRow label="Trust & safety" onPress={() => void Linking.openURL(APP_STORE_TRUST_URL)} />
+        <LinkRow label="Support" onPress={() => router.push("/support" as any)} />
+        <LinkRow label="Privacy policy" onPress={() => router.push({ pathname: "/legal", params: { document: "privacy" } } as any)} />
+        <LinkRow label="Terms" onPress={() => router.push({ pathname: "/legal", params: { document: "terms" } } as any)} />
+        <LinkRow label="Trust & safety" onPress={() => router.push({ pathname: "/legal", params: { document: "trust" } } as any)} />
         <LinkRow label="Human consulting" onPress={() => router.push("/(tabs)/contact" as any)} />
         <LinkRow label="Take the guided tour again" onPress={() => router.push("/tour" as any)} />
       </View>

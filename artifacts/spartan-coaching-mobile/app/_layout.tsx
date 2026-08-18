@@ -61,6 +61,8 @@ function RootLayoutNav() {
       <Stack.Screen name="reset-password" options={{ title: "Choose new password", presentation: "modal" }} />
       <Stack.Screen name="membership" options={{ title: "Membership", presentation: "modal" }} />
       <Stack.Screen name="access" options={{ title: "Your Access", presentation: "modal" }} />
+      <Stack.Screen name="support" options={{ title: "Support", presentation: "modal" }} />
+      <Stack.Screen name="legal" options={{ title: "Legal & Trust", presentation: "modal" }} />
       <Stack.Screen name="jurisdiction" options={{ title: "Clinical Context", headerBackTitle: "Account" }} />
       <Stack.Screen name="tour" options={{ headerShown: false, presentation: "fullScreenModal" }} />
       <Stack.Screen name="admin" options={{ title: "Admin", headerBackTitle: "Account" }} />
@@ -74,7 +76,7 @@ function RootLayoutNav() {
       <Stack.Screen name="method-guide" options={{ title: "Spartan Method", headerBackTitle: "Library" }} />
       <Stack.Screen
         name="sales-workflow"
-        options={{ title: "Sales Command Center", headerBackTitle: "Back" }}
+        options={{ title: "Field Planner", headerBackTitle: "Back" }}
       />
       <Stack.Screen name="tool/[tab]" options={{ headerShown: false, headerBackTitle: "Tools" }} />
       <Stack.Screen name="ai-tools" options={{ headerShown: false }} />

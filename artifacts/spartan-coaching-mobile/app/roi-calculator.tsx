@@ -47,7 +47,7 @@ export default function RoiCalculatorScreen() {
           Model coaching impact on revenue
         </Text>
         <Text style={[styles.sub, { color: colors.mutedForeground }]}>
-          Same math as the website. Planning model only — not a guarantee of results.
+          Native planning model only. Results are estimates, not a guarantee.
         </Text>
 
         <SpartanCard style={{ marginTop: 16 }}>
