@@ -16,13 +16,22 @@ describe("Field Guide experience contract", () => {
     expect(home).not.toContain("Command Center");
   });
 
-  it("provides a native four step tour using fictional information", () => {
+  it("provides a native six step Field Guide tour using fictional information", () => {
     const tour = read("app/tour.tsx");
+    const account = read("app/(tabs)/account.tsx");
     const rootLayout = read("app/_layout.tsx");
 
-    expect(tour).toContain("FICTIONAL TOUR EXAMPLE");
-    expect(tour).toContain("Do not enter patient PHI");
-    expect(tour).toContain("Raw Coach conversations expire after 90 days");
+    expect(tour).toContain("FICTIONAL ACCOUNT");
+    expect(tour).toContain("1 · THE SITUATION");
+    expect(tour).toContain("2 · PREPARE");
+    expect(tour).toContain("3 · PRACTICE");
+    expect(tour).toContain("4 · COACH FEEDBACK");
+    expect(tour).toContain("5 · FOLLOW THROUGH");
+    expect(tour).toContain("6 · KNOW YOUR ACCESS");
+    expect(tour).toContain("Never enter patient PHI into Spartan Coaching");
+    expect(tour).toContain("There is no account required for this tour");
+    expect(account).toContain("hard deleted after 90 days");
+    expect(account).toContain("Organization admins never see prompts, drafts, recordings, transcripts, or unshared outputs");
     expect(rootLayout).toContain('name="tour"');
   });
 
