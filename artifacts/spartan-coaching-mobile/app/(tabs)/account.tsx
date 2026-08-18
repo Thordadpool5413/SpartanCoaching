@@ -196,6 +196,15 @@ export default function AccountScreen() {
         </View>
       ) : null}
 
+      {isCompany ? (
+        <View style={styles.section} testID="company-apple-renewal-guidance">
+          <Text style={styles.sectionKicker}>PREVIOUS INDIVIDUAL APPLE ACCESS</Text>
+          <Text style={styles.sectionTitle}>Company access does not cancel an Apple subscription.</Text>
+          <Text style={styles.sectionBody}>If you previously subscribed to Spartan Coaching through Apple, your company seat is active separately. Manage the individual subscription privately in Apple Subscriptions to prevent another renewal. Your organization cannot see whether you have or cancel an individual Apple subscription.</Text>
+          <AppleSubscriptionActions isAuthenticated showManage showRestore={false} />
+        </View>
+      ) : null}
+
       {isAdmin ? (
         <Pressable onPress={() => router.push("/admin" as any)} style={styles.adminCard} testID="account-admin-hero">
           <View style={styles.adminIcon}><Feather name="shield" size={20} color="#FFFFFF" /></View>
