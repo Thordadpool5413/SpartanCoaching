@@ -215,13 +215,28 @@ export default function HomeScreen() {
           </Pressable>
         )}
 
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => router.push("/access" as Href)}
+          style={({ pressed }) => [styles.setupRow, pressed && styles.rowPressed]}
+          testID="home-access-map"
+        >
+          <View style={styles.setupIcon}>
+            <Feather name="grid" size={21} color={colors.primary} />
+          </View>
+          <View style={styles.actionCopy}>
+            <Text style={styles.actionTitle}>See everything in your access</Text>
+            <Text style={styles.actionBody}>{canUseElite ? "Elite is active. Review every destination, privacy rule, and offline capability." : "Standard is active. See everything included and exactly what Elite adds."}</Text>
+          </View>
+          <Feather name="chevron-right" size={20} color={colors.primary} />
+        </Pressable>
+
         {coachCommitment ? (
           <View testID="card-private-coach-commitment" style={styles.commitmentNote}>
             <Feather name="lock" size={16} color={colors.primary} />
             <Text style={styles.commitmentText}>This commitment is private until you explicitly share it.</Text>
           </View>
         ) : null}
-
       </View>
     </ScrollView>
   );
