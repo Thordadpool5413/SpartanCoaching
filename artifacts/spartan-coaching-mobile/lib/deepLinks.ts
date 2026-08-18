@@ -60,6 +60,10 @@ export function parseDeepLink(url: string | null | undefined): DeepTarget | null
     if (first === "coach") return { pathname: "/(tabs)/coach" };
     if (first === "home" || first === "portal") return { pathname: "/(tabs)" };
     if (first === "login") return { pathname: "/login" };
+    if (first === "reset-password") {
+      const token = u.searchParams.get("token");
+      return token ? { pathname: "/reset-password", params: { token } } : null;
+    }
     if (isToolTab(first)) {
       return { pathname: "/tool/[tab]", params: { tab: first } };
     }

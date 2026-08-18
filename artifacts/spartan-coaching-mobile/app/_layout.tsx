@@ -62,6 +62,9 @@ function RootLayoutNav() {
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="login" options={{ title: "Sign in", presentation: "modal" }} />
       <Stack.Screen name="register" options={{ title: "Create account", presentation: "modal" }} />
+      <Stack.Screen name="forgot-password" options={{ title: "Reset password", presentation: "modal" }} />
+      <Stack.Screen name="reset-password" options={{ title: "Choose new password", presentation: "modal" }} />
+      <Stack.Screen name="membership" options={{ title: "Membership", presentation: "modal" }} />
       <Stack.Screen name="tour" options={{ headerShown: false, presentation: "fullScreenModal" }} />
       <Stack.Screen name="admin" options={{ title: "Admin", headerBackTitle: "Account" }} />
       <Stack.Screen name="brand-video" options={{ title: "Brand Video" }} />
@@ -69,6 +72,9 @@ function RootLayoutNav() {
       <Stack.Screen name="activity-calculator" options={{ title: "Activity Calculator" }} />
       <Stack.Screen name="roi-calculator" options={{ title: "ROI Calculator" }} />
       <Stack.Screen name="rep-cost-calculator" options={{ title: "Rep Cost Calculator" }} />
+      <Stack.Screen name="transcriber" options={{ title: "Call Transcriber" }} />
+      <Stack.Screen name="library-item" options={{ title: "Library", headerBackTitle: "Library" }} />
+      <Stack.Screen name="method-guide" options={{ title: "Spartan Method", headerBackTitle: "Library" }} />
       <Stack.Screen
         name="sales-workflow"
         options={{ title: "Sales Command Center", headerBackTitle: "Back" }}

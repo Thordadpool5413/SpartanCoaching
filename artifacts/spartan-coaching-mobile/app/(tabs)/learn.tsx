@@ -1,7 +1,6 @@
 import React, { useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -17,7 +16,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { useColors } from "@/hooks/useColors";
-import { apiGet, getWebSiteUrl } from "@/lib/api";
+import { apiGet } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 import { groupResources, type ResourceLike } from "@/lib/resourceGroups";
 import { openToolHref } from "@/lib/toolDeepLinks";
@@ -65,21 +64,24 @@ function formatDate(value?: string | number | null) {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
-function absoluteUrl(path: string) {
-  if (/^https?:\/\//i.test(path)) return path;
-  return `${getWebSiteUrl()}${path.startsWith("/") ? "" : "/"}${path}`;
-}
-
-function openExternal(path?: string | null) {
-  if (!path) return;
+function openLibraryItem(input: { title: string; url?: string | null; kind: "article" | "audio" | "resource"; description?: string | null }) {
+  if (!input.url) return;
   void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  void Linking.openURL(absoluteUrl(path));
+  router.push({
+    pathname: "/library-item",
+    params: {
+      title: input.title,
+      url: input.url,
+      kind: input.kind,
+      description: input.description || "",
+    },
+  } as any);
 }
 
 export default function LearnScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { canUseFieldKit, isAuthenticated } = useAuth();
+  const { canUseFieldKit } = useAuth();
   const [activeTab, setActiveTab] = useState<LearnTab>("articles");
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
@@ -153,7 +155,7 @@ export default function LearnScreen() {
             {METHOD_LINKS.map((item) => (
               <Pressable
                 key={item.path}
-                onPress={() => router.push({ pathname: "/tool-web", params: { path: item.path, toolId: "brand-video" } } as any)}
+                onPress={() => router.push({ pathname: "/method-guide", params: { section: item.path.replace("/", "") } } as any)}
                 style={({ pressed }) => [styles.methodChip, { backgroundColor: colors.card, borderColor: colors.border, opacity: pressed ? 0.85 : 1 }]}
               >
                 <View style={[styles.methodIcon, { backgroundColor: colors.primaryMuted }]}><Feather name={item.icon} size={18} color={colors.primary} /></View>
@@ -171,7 +173,7 @@ export default function LearnScreen() {
             <>
               <Text style={[styles.sectionEyebrow, { color: colors.primary, marginTop: 24 }, font("bold")]}>FEATURED FIELD NOTE</Text>
               <Pressable
-                onPress={() => openExternal(featured.pdfUrl || featured.linkedinUrl)}
+                onPress={() => openLibraryItem({ title: featured.title, description: featured.description, url: featured.pdfUrl || featured.linkedinUrl, kind: "article" })}
                 style={({ pressed }) => [styles.featureCard, { backgroundColor: colors.heroBackground, borderColor: colors.primary, opacity: pressed ? 0.94 : 1 }]}
                 accessibilityRole="link"
               >
@@ -194,7 +196,7 @@ export default function LearnScreen() {
                       subtitle={article.description}
                       meta={formatDate(article.publishDate)}
                       icon="file-text"
-                      onPress={() => openExternal(article.pdfUrl || article.linkedinUrl)}
+                      onPress={() => openLibraryItem({ title: article.title, description: article.description, url: article.pdfUrl || article.linkedinUrl, kind: "article" })}
                     />
                   ))}
                 </View>
@@ -223,7 +225,7 @@ export default function LearnScreen() {
               subtitle={podcast.description || "Spartan Coaching audio briefing"}
               meta={[podcast.episodeNumber ? `Episode ${podcast.episodeNumber}` : null, podcast.duration, formatDate(podcast.publishDate)].filter(Boolean).join(" · ")}
               icon={podcast.audioUrl ? "play" : "headphones"}
-              onPress={podcast.audioUrl ? () => openExternal(podcast.audioUrl) : undefined}
+              onPress={podcast.audioUrl ? () => openLibraryItem({ title: podcast.title, description: podcast.description, url: podcast.audioUrl, kind: "audio" }) : undefined}
             />
           ))}
         </ScrollView>
@@ -245,9 +247,9 @@ export default function LearnScreen() {
 
           {!canUseFieldKit ? (
             <View style={[styles.lockCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-              <Text style={[styles.lockTitle, { color: colors.foreground }, font("heavy")]}>{isAuthenticated ? "Unlock the complete field library" : "Sign in for the complete field library"}</Text>
+              <Text style={[styles.lockTitle, { color: colors.foreground }, font("heavy")]}>Unlock the complete field library</Text>
               <Text style={[styles.lockBody, { color: colors.mutedForeground }, font("regular")]}>Membership includes current worksheets, field guides, and saved work.</Text>
-              <SpartanButton title={isAuthenticated ? "Open Account" : "Client login"} onPress={() => router.push(isAuthenticated ? "/(tabs)/account" : "/login")} style={{ marginTop: 14 }} />
+              <SpartanButton title="Compare memberships" onPress={() => router.push("/membership" as any)} style={{ marginTop: 14 }} />
             </View>
           ) : null}
 
@@ -257,7 +259,7 @@ export default function LearnScreen() {
               {providerQuery.isLoading ? <Loading compact /> : null}
               {!providerQuery.isLoading && providerItems.length === 0 ? <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>No private organization resources have been published.</Text> : null}
               {providerItems.map((item) => (
-                <LibraryRow key={item.id} title={item.title} subtitle={item.description || "Private organization resource"} meta={item.kind} icon="briefcase" onPress={() => openExternal(item.fileUrl)} testID={`provider-resource-${item.id}`} />
+                <LibraryRow key={item.id} title={item.title} subtitle={item.description || "Private organization resource"} meta={item.kind} icon="briefcase" onPress={() => openLibraryItem({ title: item.title, description: item.description, url: item.fileUrl, kind: "resource" })} testID={`provider-resource-${item.id}`} />
               ))}
             </View>
           ) : null}
@@ -281,7 +283,7 @@ export default function LearnScreen() {
                       subtitle={architecture?.whenToUse || architecture?.expectedOutcome || item.description || "Field resource"}
                       meta={[version ? `Version ${version}` : null, item.lifecycle?.hasNewerVersion ? "Update available" : null].filter(Boolean).join(" · ")}
                       icon="file-text"
-                      onPress={() => openExternal(item.fileUrl)}
+                      onPress={() => openLibraryItem({ title: item.title, description: architecture?.whenToUse || architecture?.expectedOutcome || item.description, url: item.fileUrl, kind: "resource" })}
                       testID={`resource-${item.id}`}
                     />
                   );

@@ -89,4 +89,27 @@ case "$CONNECTION_MODE" in
     ;;
 esac
 
-exec pnpm exec expo start "${EXTRA_ARGS[@]}" --port "$PORT" --clear
+if [[ "$CONNECTION_MODE" != "tunnel" ]]; then
+  exec pnpm exec expo start "${EXTRA_ARGS[@]}" --port "$PORT" --clear
+fi
+
+# Expo's ngrok broker occasionally returns a malformed or empty response and
+# the CLI exits with "Cannot read properties of undefined (reading 'body')".
+# Keep the Replit process alive long enough to recover from a transient broker
+# failure and print one clear operator action if the service remains down.
+TUNNEL_ATTEMPTS="${EXPO_TUNNEL_ATTEMPTS:-3}"
+for ((attempt=1; attempt<=TUNNEL_ATTEMPTS; attempt++)); do
+  echo "[mobile-dev] Starting secure tunnel (attempt $attempt/$TUNNEL_ATTEMPTS)…"
+  if pnpm exec expo start "${EXTRA_ARGS[@]}" --port "$PORT" --clear; then
+    exit 0
+  fi
+  if [[ "$attempt" -lt "$TUNNEL_ATTEMPTS" ]]; then
+    echo "[mobile-dev] Tunnel broker did not respond. Retrying in 4 seconds…" >&2
+    sleep 4
+  fi
+done
+
+echo "[mobile-dev] Expo's tunnel service is unavailable after $TUNNEL_ATTEMPTS attempts." >&2
+echo "[mobile-dev] This is a development-preview outage, not an iOS app or API failure." >&2
+echo "[mobile-dev] Check https://status.ngrok.com/ and rerun this command when the tunnel service recovers." >&2
+exit 1

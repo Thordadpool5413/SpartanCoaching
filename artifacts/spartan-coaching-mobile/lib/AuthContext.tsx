@@ -7,6 +7,7 @@ import {
   type MobileAuthUser,
 } from "@/lib/api";
 import { hasEliteMembership, resolveMembershipTier, type MembershipTier } from "@workspace/field-kit-catalog";
+import { claimCurrentApplePurchases } from "@/lib/applePurchaseSession";
 
 type AuthContextValue = {
   user: MobileAuthUser | null;
@@ -50,6 +51,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       organization: data.organization,
       fieldKit: data.fieldKit,
     });
+    try {
+      if (await claimCurrentApplePurchases()) {
+        const refreshed = await fetchMeMobile();
+        if (refreshed) setUser(refreshed);
+      }
+    } catch {
+      // Signing in must still succeed if StoreKit is temporarily unavailable.
+    }
   }, []);
 
   const register = useCallback(async (input: { name: string; email: string; password: string }) => {
@@ -59,6 +68,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       organization: data.organization,
       fieldKit: data.fieldKit,
     });
+    try {
+      if (await claimCurrentApplePurchases()) {
+        const refreshed = await fetchMeMobile();
+        if (refreshed) setUser(refreshed);
+      }
+    } catch {
+      // Account creation must still succeed. Restore remains available in app.
+    }
   }, []);
 
   const logout = useCallback(async () => {

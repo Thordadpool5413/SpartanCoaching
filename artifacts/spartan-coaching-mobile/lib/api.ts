@@ -275,17 +275,22 @@ export type BillingStatus = {
 
 export type AppleBillingConfig = {
   configured: boolean;
-  appAccountToken: string;
+  appAccountToken?: string;
   products: Array<{ id: string; tier: "standard" | "elite" }>;
 };
 
 export type AppleVerificationResult = {
   applied: boolean;
+  verified?: boolean;
   active?: boolean;
   tier?: "standard" | "elite";
   productId?: string;
   expiresAt?: string;
 };
+
+export async function fetchAppleBillingCatalog(): Promise<AppleBillingConfig> {
+  return apiGet<AppleBillingConfig>("/api/billing/apple/catalog");
+}
 
 export async function fetchAppleBillingConfig(): Promise<AppleBillingConfig> {
   return apiGet<AppleBillingConfig>("/api/billing/apple/config");
@@ -293,6 +298,26 @@ export async function fetchAppleBillingConfig(): Promise<AppleBillingConfig> {
 
 export async function verifyAppleTransaction(signedTransaction: string): Promise<AppleVerificationResult> {
   return apiPost<AppleVerificationResult>("/api/billing/apple/verify", { signedTransaction });
+}
+
+export async function verifyGuestAppleTransaction(
+  signedTransaction: string,
+  appAccountToken?: string,
+): Promise<AppleVerificationResult> {
+  return apiPost<AppleVerificationResult>("/api/billing/apple/guest-verify", {
+    signedTransaction,
+    ...(appAccountToken ? { appAccountToken } : {}),
+  });
+}
+
+export async function claimAppleTransaction(
+  signedTransaction: string,
+  appAccountToken?: string,
+): Promise<AppleVerificationResult> {
+  return apiPost<AppleVerificationResult>("/api/billing/apple/claim", {
+    signedTransaction,
+    ...(appAccountToken ? { appAccountToken } : {}),
+  });
 }
 
 export async function fetchBillingStatus(): Promise<BillingStatus | null> {
@@ -397,6 +422,28 @@ export async function registerMobile(input: {
   }
   await setSessionToken(data.token);
   return data as MobileAuthUser & { token: string };
+}
+
+export async function requestPasswordResetMobile(email: string): Promise<{ ok: boolean; message: string }> {
+  const response = await fetch(`${getBase()}/api/auth/forgot-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...clientPlatformHeaders() },
+    body: JSON.stringify({ email: email.trim().toLowerCase() }),
+  });
+  const data = await response.json().catch(() => ({})) as { ok?: boolean; message?: string; error?: string };
+  if (!response.ok) throw new ApiError(data.error || "Password reset could not be requested", response.status);
+  return { ok: true, message: data.message || "If an account exists for that email, a reset link has been sent." };
+}
+
+export async function resetPasswordMobile(input: { token: string; password: string }): Promise<{ ok: boolean }> {
+  const response = await fetch(`${getBase()}/api/auth/reset-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...clientPlatformHeaders() },
+    body: JSON.stringify(input),
+  });
+  const data = await response.json().catch(() => ({})) as { ok?: boolean; error?: string };
+  if (!response.ok) throw new ApiError(data.error || "Password could not be reset", response.status);
+  return { ok: true };
 }
 
 export async function logoutMobile(): Promise<void> {

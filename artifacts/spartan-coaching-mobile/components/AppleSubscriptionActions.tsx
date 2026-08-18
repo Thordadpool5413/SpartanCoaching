@@ -6,6 +6,7 @@ import {
   getAvailablePurchases,
   useIAP,
   type Purchase,
+  type PurchaseIOS,
 } from "react-native-iap";
 import {
   ELITE_WEEKLY_PLAN,
@@ -14,10 +15,13 @@ import {
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { useColors } from "@/hooks/useColors";
 import {
-  fetchAppleBillingConfig,
-  verifyAppleTransaction,
+  claimAppleTransaction,
+  fetchAppleBillingCatalog,
+  verifyGuestAppleTransaction,
   type AppleBillingConfig,
+  type AppleVerificationResult,
 } from "@/lib/api";
+import { getApplePurchaseSessionToken } from "@/lib/applePurchaseSession";
 import { font } from "@/lib/typography";
 import {
   APP_STORE_PRIVACY_URL,
@@ -26,10 +30,12 @@ import {
 
 type Props = {
   plan?: "standard_weekly" | "elite_weekly";
+  isAuthenticated?: boolean;
   showPurchase?: boolean;
   showManage?: boolean;
   onPricesLoaded?: (prices: AppleSubscriptionDisplayPrices) => void;
-  onEntitlementChanged: () => Promise<void> | void;
+  onPurchaseComplete?: (result: AppleVerificationResult) => Promise<void> | void;
+  onEntitlementChanged?: () => Promise<void> | void;
 };
 
 export type AppleSubscriptionDisplayPrices = Partial<
@@ -38,23 +44,18 @@ export type AppleSubscriptionDisplayPrices = Partial<
 
 export function AppleSubscriptionActions({
   plan = "standard_weekly",
+  isAuthenticated = false,
   showPurchase = false,
   showManage = false,
   onPricesLoaded,
+  onPurchaseComplete,
   onEntitlementChanged,
 }: Props) {
   const colors = useColors();
   const [config, setConfig] = useState<AppleBillingConfig | null>(null);
+  const [appAccountToken, setAppAccountToken] = useState<string | null>(null);
   const [busy, setBusy] = useState<"purchase" | "restore" | null>(null);
   const [storeError, setStoreError] = useState<string | null>(null);
-
-  const complete = useCallback(async (purchase: Purchase) => {
-    if (!purchase.purchaseToken) throw new Error("Apple did not return a signed transaction");
-    const result = await verifyAppleTransaction(purchase.purchaseToken);
-    if (!result.active) throw new Error("This Apple subscription is not active");
-    await finishTransaction({ purchase, isConsumable: false });
-    await onEntitlementChanged();
-  }, [onEntitlementChanged]);
 
   const {
     connected,
@@ -65,7 +66,12 @@ export function AppleSubscriptionActions({
   } = useIAP({
     onPurchaseSuccess: (purchase) => {
       void complete(purchase)
-        .then(() => Alert.alert("Membership active", "Your Spartan Coaching access is ready."))
+        .then(() => Alert.alert(
+          "Membership purchased",
+          isAuthenticated
+            ? "Your Spartan Coaching access is active."
+            : "Apple confirmed your membership. Create or sign in to your Spartan account to sync access and saved work.",
+        ))
         .catch((error) => Alert.alert("Purchase verification failed", error?.message || "Contact support before trying again."))
         .finally(() => setBusy(null));
     },
@@ -78,10 +84,29 @@ export function AppleSubscriptionActions({
     onError: (error) => setStoreError(error.message),
   });
 
+  const complete = useCallback(async (purchase: Purchase, expectedAccountToken: string | null = appAccountToken) => {
+    if (!purchase.purchaseToken) throw new Error("Apple did not return a signed transaction");
+    const purchaseSession = (purchase as PurchaseIOS).appAccountToken || expectedAccountToken || undefined;
+    const result = isAuthenticated
+      ? await claimAppleTransaction(purchase.purchaseToken, purchaseSession)
+      : await verifyGuestAppleTransaction(purchase.purchaseToken, purchaseSession);
+    if (!result.active) throw new Error("This Apple subscription is not active");
+    await finishTransaction({ purchase, isConsumable: false });
+    await onPurchaseComplete?.(result);
+    await onEntitlementChanged?.();
+    return result;
+  }, [appAccountToken, finishTransaction, isAuthenticated, onEntitlementChanged, onPurchaseComplete]);
+
   useEffect(() => {
     if (Platform.OS !== "ios") return;
-    void fetchAppleBillingConfig()
-      .then(setConfig)
+    void Promise.all([
+      fetchAppleBillingCatalog(),
+      getApplePurchaseSessionToken(),
+    ])
+      .then(([catalog, token]) => {
+        setConfig(catalog);
+        setAppAccountToken(token);
+      })
       .catch((error) => setStoreError(error?.message || "Apple billing could not be loaded"));
   }, []);
 
@@ -114,13 +139,13 @@ export function AppleSubscriptionActions({
     ? ELITE_WEEKLY_PLAN.appleProductId
     : STANDARD_WEEKLY_PLAN.appleProductId;
   const storeProduct = subscriptions.find((product) => product.id === productId);
-  const ready = Boolean(connected && config?.configured && storeProduct);
+  const ready = Boolean(connected && config?.configured && storeProduct && appAccountToken);
   const planName = plan === "elite_weekly"
     ? "Spartan Coaching Elite"
     : "Spartan Coaching Standard";
 
   const purchase = async () => {
-    if (!config || !ready) return;
+    if (!config || !ready || !appAccountToken) return;
     setBusy("purchase");
     setStoreError(null);
     try {
@@ -128,7 +153,7 @@ export function AppleSubscriptionActions({
         request: {
           apple: {
             sku: productId,
-            appAccountToken: config.appAccountToken,
+            appAccountToken,
             andDangerouslyFinishTransactionAutomatically: false,
           },
         },
@@ -154,8 +179,13 @@ export function AppleSubscriptionActions({
         Alert.alert("No active purchases found", "Confirm that this iPhone is signed in to the Apple ID used for the subscription.");
         return;
       }
-      for (const restored of candidates) await complete(restored);
-      Alert.alert("Purchases restored", "Your verified Spartan Coaching membership is active.");
+      for (const restored of candidates) await complete(restored, null);
+      Alert.alert(
+        "Purchases restored",
+        isAuthenticated
+          ? "Your verified Spartan Coaching membership is active."
+          : "Apple found your membership. Sign in or create an account to sync access.",
+      );
     } catch (error: any) {
       Alert.alert("Restore failed", error?.message || "Contact support for help restoring access.");
     } finally {
@@ -164,11 +194,13 @@ export function AppleSubscriptionActions({
   };
 
   return (
-    <View style={{ gap: 9 }}>
+    <View style={{ gap: 10 }}>
       {showPurchase ? (
         <>
           <View style={{ gap: 3 }}>
-            <Text style={[{ color: colors.foreground, fontSize: 14, lineHeight: 20, textAlign: "center" }, font("bold")]}>
+            <Text
+              style={[{ color: colors.foreground, fontSize: 15, lineHeight: 21, textAlign: "center" }, font("bold")]}
+            >
               {planName} · {storeProduct?.displayPrice || "Apple price unavailable"} per week
             </Text>
             <Text style={[{ color: colors.mutedForeground, fontSize: 11, lineHeight: 16, textAlign: "center" }, font("regular")]}>Payment is charged to your Apple Account. The subscription renews automatically each week unless canceled at least 24 hours before the current period ends.</Text>
@@ -179,7 +211,7 @@ export function AppleSubscriptionActions({
                 ? "Completing Apple purchase"
                 : ready
                   ? `Subscribe with Apple${storeProduct?.displayPrice ? ` · ${storeProduct.displayPrice}` : ""}`
-                  : "App Store products unavailable"
+                  : "Loading App Store price"
             }
             onPress={() => void purchase()}
             loading={busy === "purchase"}
@@ -213,7 +245,10 @@ export function AppleSubscriptionActions({
         testID="button-restore-purchases"
       />
       {storeError ? (
-        <Text style={[{ color: colors.mutedForeground, fontSize: 10, lineHeight: 15, textAlign: "center" }, font("regular")]}>
+        <Text
+          selectable
+          style={[{ color: colors.mutedForeground, fontSize: 11, lineHeight: 16, textAlign: "center" }, font("regular")]}
+        >
           {storeError}
         </Text>
       ) : null}

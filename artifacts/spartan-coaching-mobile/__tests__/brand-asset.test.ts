@@ -36,13 +36,13 @@ describe("protected Spartan Coaching brand asset", () => {
     );
   });
 
-  it("uses only the supplied helmet mark in the member entry experience", () => {
+  it("uses the stamp as the Home logo and reserves the supplied helmet for compact marks", () => {
     const login = fs.readFileSync(path.resolve(__dirname, "../app/login.tsx"), "utf8");
     const home = fs.readFileSync(path.resolve(__dirname, "../app/(tabs)/index.tsx"), "utf8");
     const coach = fs.readFileSync(path.resolve(__dirname, "../app/(tabs)/coach.tsx"), "utf8");
     const helmet = fs.readFileSync(path.resolve(__dirname, "../components/brand/HelmetMark.tsx"), "utf8");
     expect(login).toContain("<HelmetMark");
-    expect(home).toContain("<HelmetMark");
+    expect(home).not.toContain("<HelmetMark");
     expect(coach).toContain("<HelmetMark");
     expect(helmet).toContain('require("@/assets/images/icon.png")');
     expect(home).toContain("<BrandStamp");

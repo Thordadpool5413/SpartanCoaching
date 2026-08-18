@@ -36,4 +36,18 @@ describe("Field Guide experience contract", () => {
     expect(launch).toContain("<BrandStamp");
     expect(launch).not.toContain("<HelmetMark");
   });
+
+  it("locks the approved Home target and its native action hierarchy", () => {
+    const home = read("app/(tabs)/index.tsx");
+    const acceptance = read("design/home-acceptance-spec.md");
+
+    expect(fs.existsSync(path.join(root, "design/references/home-option-2-approved.png"))).toBe(true);
+    expect(fs.existsSync(path.join(root, "assets/images/field-guide-navy-texture.png"))).toBe(true);
+    expect(fs.existsSync(path.join(root, "assets/images/field-guide-crimson-texture.png"))).toBe(true);
+    expect(home).toContain('router.push("/tool/playbook"');
+    expect(home).toContain('"/tool/objection"');
+    expect(home).toContain('router.push("/(tabs)/account"');
+    expect(home).toContain("Your field guide is ready.");
+    expect(acceptance).toContain("binding visual target");
+  });
 });

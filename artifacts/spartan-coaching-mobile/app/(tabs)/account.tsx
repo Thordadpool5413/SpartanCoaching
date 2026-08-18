@@ -158,8 +158,8 @@ export default function AccountScreen() {
             <Benefit icon="users" title="Company teams" body="Contracted seats, organization access, and discounted rates." inverted />
           </View>
         </View>
-        <SpartanButton title="Client login" onPress={() => router.push("/login")} style={{ marginTop: 18 }} />
-        <SpartanButton title="Create an individual account" variant="outline" onPress={() => router.push("/register" as Href)} style={{ marginTop: 10 }} testID="button-create-account" />
+        <SpartanButton title="View memberships and subscribe" onPress={() => router.push("/membership" as any)} style={{ marginTop: 18 }} testID="button-view-memberships" />
+        <SpartanButton title="Sign in" variant="outline" onPress={() => router.push("/login")} style={{ marginTop: 10 }} />
         <Pressable onPress={() => router.push("/(tabs)/contact")} style={styles.textLink}><Text style={[{ color: colors.primary }, font("bold")]}>Team access or consulting</Text></Pressable>
       </ScrollView>
     );
@@ -335,6 +335,7 @@ export default function AccountScreen() {
         {Platform.OS === "ios" && isPersonal && !canCheckout ? (
           <View style={{ marginTop: 9 }}>
             <AppleSubscriptionActions
+              isAuthenticated
               showManage={billingProvider === "apple" && hasPaidSubscription}
               onPricesLoaded={setApplePrices}
               onEntitlementChanged={async () => { await loadBilling(); await refresh(); }}
@@ -377,6 +378,7 @@ export default function AccountScreen() {
             {Platform.OS === "ios" ? (
               <AppleSubscriptionActions
                 plan={selectedPlan}
+                isAuthenticated
                 showPurchase
                 onPricesLoaded={setApplePrices}
                 onEntitlementChanged={async () => { await loadBilling(); await refresh(); }}
@@ -397,8 +399,8 @@ export default function AccountScreen() {
       <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]} testID="card-your-membership">
         <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>ACCESS</Text>
         <AccessRow icon="target" title="Core field system" state={canUseFieldKit ? "Unlocked" : "Locked"} active={canUseFieldKit} />
-        <AccessRow icon="mic" title="Private Spartan Coach" state={canUseElite ? "Unlocked" : "Elite"} active={Boolean(canUseElite)} onPress={() => router.push(canUseElite ? "/(tabs)/coach" : "/(tabs)/account")} />
-        <AccessRow icon="shield" title="Deidentified clinical education" state={canUseElite ? "Unlocked" : "Elite"} active={Boolean(canUseElite)} onPress={() => router.push(canUseElite ? "/ai-tools" as any : "/(tabs)/account")} />
+        <AccessRow icon="mic" title="Private Spartan Coach" state={canUseElite ? "Unlocked" : "Elite"} active={Boolean(canUseElite)} onPress={() => router.push((canUseElite ? "/(tabs)/coach" : "/membership") as any)} />
+        <AccessRow icon="shield" title="Deidentified clinical education" state={canUseElite ? "Unlocked" : "Elite"} active={Boolean(canUseElite)} onPress={() => router.push(canUseElite ? "/ai-tools" as any : "/membership")} />
         {isCompany ? <Text style={[styles.teamNote, { color: colors.mutedForeground }, font("regular")]}>Seat changes and contracted billing are managed by your organization administrator.</Text> : null}
         {(user.member.role === "org_admin" || user.member.role === "platform_admin") ? (
           <Pressable onPress={() => router.push("/admin")} style={[styles.inlineLink, { borderTopColor: colors.border }]} testID="account-admin-console">

@@ -40,13 +40,26 @@ describe("Apple subscription contract", () => {
 
   it("purchases and restores only after server verification", () => {
     const source = fs.readFileSync(path.resolve(__dirname, "../components/AppleSubscriptionActions.tsx"), "utf8");
-    expect(source).toContain("appAccountToken: config.appAccountToken");
-    expect(source).toContain("verifyAppleTransaction(purchase.purchaseToken)");
+    expect(source).toContain("appAccountToken,");
+    expect(source).toContain("verifyGuestAppleTransaction(purchase.purchaseToken");
+    expect(source).toContain("claimAppleTransaction(purchase.purchaseToken");
     expect(source).toContain("finishTransaction({ purchase, isConsumable: false })");
     expect(source).toContain("getAvailablePurchases({ onlyIncludeActiveItemsIOS: true })");
     expect(source).toContain("deepLinkToSubscriptions({})");
     expect(source).toContain("renews automatically each week");
     expect(source).toContain("APP_STORE_TERMS_URL");
     expect(source).toContain("APP_STORE_PRIVACY_URL");
+  });
+
+  it("allows Apple purchase before Spartan account creation", () => {
+    const membership = fs.readFileSync(path.resolve(__dirname, "../app/membership.tsx"), "utf8");
+    const api = fs.readFileSync(path.resolve(__dirname, "../lib/api.ts"), "utf8");
+    expect(membership).toContain("No Spartan account is required before purchase");
+    expect(membership).toContain("Add private Coach to your field system");
+    expect(membership).toContain("StoreKit applies the change within the same subscription group");
+    expect(membership).toContain("<AppleSubscriptionActions");
+    expect(membership).toContain('router.push("/register")');
+    expect(api).toContain('"/api/billing/apple/guest-verify"');
+    expect(api).toContain('"/api/billing/apple/claim"');
   });
 });

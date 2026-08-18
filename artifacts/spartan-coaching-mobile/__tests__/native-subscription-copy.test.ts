@@ -2,7 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 
 describe("native iOS subscription messaging", () => {
-  it("keeps Apple purchase and restore actions inside Account", () => {
+  it("supports purchase before account creation and keeps restore in app", () => {
     const home = fs.readFileSync(
       path.resolve(__dirname, "../app/(tabs)/index.tsx"),
       "utf8",
@@ -11,14 +11,20 @@ describe("native iOS subscription messaging", () => {
       path.resolve(__dirname, "../app/(tabs)/account.tsx"),
       "utf8",
     );
+    const membership = fs.readFileSync(
+      path.resolve(__dirname, "../app/membership.tsx"),
+      "utf8",
+    );
     const appleActions = fs.readFileSync(
       path.resolve(__dirname, "../components/AppleSubscriptionActions.tsx"),
       "utf8",
     );
 
     expect(home).not.toContain("Subscribe with Stripe on the website");
-    expect(home).not.toContain("Subscribe with Apple");
+    expect(home).toContain("/membership");
     expect(account).toContain("AppleSubscriptionActions");
+    expect(membership).toContain("<AppleSubscriptionActions");
+    expect(membership).toContain("No Spartan account is required before purchase");
     expect(appleActions).toContain("Subscribe with Apple");
     expect(appleActions).toContain("Restore Apple purchases");
   });

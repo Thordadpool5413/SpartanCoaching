@@ -23,12 +23,12 @@ const mockStartIndividualCheckout = jest.fn();
 
 jest.mock("@/lib/api", () => ({
   fetchBillingStatus: (...args: unknown[]) => mockFetchBillingStatus(...args),
-  fetchAppleBillingConfig: jest.fn().mockResolvedValue({
+  fetchAppleBillingCatalog: jest.fn().mockResolvedValue({
     configured: true,
-    appAccountToken: "65b35d18-1d82-4f4f-9d3d-bf81f82a32fb",
     products: [],
   }),
-  verifyAppleTransaction: jest.fn().mockResolvedValue({ applied: true, active: true }),
+  verifyGuestAppleTransaction: jest.fn().mockResolvedValue({ verified: true, active: true }),
+  claimAppleTransaction: jest.fn().mockResolvedValue({ applied: true, active: true }),
   fetchOnboardingMobile: (...args: unknown[]) => mockFetchOnboardingMobile(...args),
   openBillingPortal: (...args: unknown[]) => mockOpenBillingPortal(...args),
   startIndividualCheckout: (...args: unknown[]) => mockStartIndividualCheckout(...args),
@@ -42,6 +42,10 @@ jest.mock("@/lib/api", () => ({
     highlights: ["No tracked activity yet"],
   }),
   getWebSiteUrl: () => "https://spartancoaching.com",
+}));
+
+jest.mock("@/lib/applePurchaseSession", () => ({
+  getApplePurchaseSessionToken: jest.fn().mockResolvedValue("65b35d18-1d82-4f4f-9d3d-bf81f82a32fb"),
 }));
 
 jest.mock("expo-haptics", () => ({

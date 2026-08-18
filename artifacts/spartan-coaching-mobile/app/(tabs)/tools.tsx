@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import {
+  Alert,
   Platform,
   Pressable,
   ScrollView,
@@ -123,11 +124,16 @@ export default function ToolsCatalogScreen() {
       router.push(openToolHref(tab) as any);
       return;
     }
-    if (tool.mobileRoute && tool.mobileRoute !== "/tool-web" && !tool.mobileToolTab) {
+    if (tool.mobileRoute && !tool.mobileToolTab) {
       router.push(tool.mobileRoute as any);
       return;
     }
-    router.push({ pathname: "/tool-web", params: { toolId: tool.id, path: tool.path } } as any);
+    Alert.alert("Native tool unavailable", "This tool is not ready for use in the iPhone app yet.");
+  };
+
+  const accessLabel = (tool: FieldKitTool) => {
+    if ((tool as FieldKitTool & { membership?: "standard" | "elite" }).membership === "elite") return canUseElite ? "INCLUDED" : "ELITE";
+    return canUseFieldKit ? "INCLUDED" : "STANDARD";
   };
 
   const openSearchHit = (hit: SearchHit) => {
@@ -236,7 +242,10 @@ export default function ToolsCatalogScreen() {
                     <Feather name={copy.icon} size={20} color={index === 0 ? colors.primaryForeground : colors.primary} />
                   </View>
                   <View style={{ flex: 1 }}>
-                    <Text style={[styles.cardEyebrow, { color: index === 0 ? colors.heroMuted : colors.primary }, font("bold")]}>{copy.eyebrow}</Text>
+                    <View style={styles.cardMetaRow}>
+                      <Text style={[styles.cardEyebrow, { color: index === 0 ? colors.heroMuted : colors.primary }, font("bold")]}>{copy.eyebrow}</Text>
+                      <Text style={[styles.accessBadge, { color: index === 0 ? colors.heroForeground : colors.primary, borderColor: index === 0 ? colors.heroMuted : colors.primary }, font("bold")]}>{accessLabel(tool)}</Text>
+                    </View>
                     <Text style={[styles.cardTitle, { color: index === 0 ? colors.heroForeground : colors.foreground }, font("heavy")]}>{tool.title}</Text>
                     <Text style={[styles.cardBody, { color: index === 0 ? colors.heroMuted : colors.mutedForeground }, font("regular")]}>{copy.promise}</Text>
                   </View>
@@ -252,7 +261,7 @@ export default function ToolsCatalogScreen() {
                   title="Turn these previews into live fieldwork"
                   body="Standard unlocks live generation, saved work, and continuity across your iPhone and the Spartan Coaching website."
                   primaryLabel="Choose membership"
-                  onPrimary={() => router.push("/(tabs)/account")}
+                  onPrimary={() => router.push("/membership" as any)}
                 />
               </View>
             ) : null}
@@ -280,7 +289,7 @@ export default function ToolsCatalogScreen() {
             <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Build the next move</Text>
             <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>Focused tools for preparation, follow up, planning, and measurement.</Text>
             {fieldTools.map((tool) => (
-              <ActionRow key={tool.id} title={tool.title} subtitle={tool.whenToUse || tool.description} icon={toolIcon(tool)} onPress={() => openCatalogTool(tool)} testID={`tool-row-${tool.id}`} />
+              <ActionRow key={tool.id} title={tool.title} subtitle={tool.whenToUse || tool.description} icon={toolIcon(tool)} badge={accessLabel(tool)} onPress={() => openCatalogTool(tool)} testID={`tool-row-${tool.id}`} />
             ))}
           </View>
         ) : null}
@@ -290,7 +299,7 @@ export default function ToolsCatalogScreen() {
             <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>LEADERSHIP</Text>
             <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Coach the system</Text>
             {leaderTools.map((tool) => (
-              <ActionRow key={tool.id} title={tool.title} subtitle={tool.whenToUse || tool.description} icon={toolIcon(tool)} onPress={() => openCatalogTool(tool)} />
+              <ActionRow key={tool.id} title={tool.title} subtitle={tool.whenToUse || tool.description} icon={toolIcon(tool)} badge={accessLabel(tool)} onPress={() => openCatalogTool(tool)} />
             ))}
           </View>
         ) : null}
@@ -305,7 +314,7 @@ export default function ToolsCatalogScreen() {
         ) : null}
 
         <Pressable
-          onPress={() => canUseElite ? router.push("/ai-tools" as any) : router.push("/(tabs)/account" as any)}
+          onPress={() => canUseElite ? router.push("/ai-tools" as any) : router.push("/membership" as any)}
           style={({ pressed }) => [styles.eliteCard, { backgroundColor: colors.heroBackground, borderColor: colors.borderStrong, opacity: pressed ? 0.92 : 1 }]}
           testID="advanced-ai-tools-library"
         >
@@ -324,7 +333,7 @@ export default function ToolsCatalogScreen() {
   );
 }
 
-function ActionRow({ title, subtitle, icon, onPress, testID }: { title: string; subtitle?: string; icon: React.ComponentProps<typeof Feather>["name"]; onPress: () => void; testID?: string }) {
+function ActionRow({ title, subtitle, icon, badge, onPress, testID }: { title: string; subtitle?: string; icon: React.ComponentProps<typeof Feather>["name"]; badge?: string; onPress: () => void; testID?: string }) {
   const colors = useColors();
   return (
     <Pressable
@@ -336,7 +345,10 @@ function ActionRow({ title, subtitle, icon, onPress, testID }: { title: string; 
     >
       <View style={[styles.actionIcon, { backgroundColor: colors.primaryMuted }]}><Feather name={icon} size={18} color={colors.primary} /></View>
       <View style={{ flex: 1 }}>
-        <Text style={[styles.actionTitle, { color: colors.foreground }, font("bold")]}>{title}</Text>
+        <View style={styles.actionTitleRow}>
+          <Text style={[styles.actionTitle, { color: colors.foreground }, font("bold")]}>{title}</Text>
+          {badge ? <Text style={[styles.rowBadge, { color: colors.primary, backgroundColor: colors.primaryMuted }, font("bold")]}>{badge}</Text> : null}
+        </View>
         {subtitle ? <Text style={[styles.actionBody, { color: colors.mutedForeground }, font("regular")]} numberOfLines={2}>{subtitle}</Text> : null}
       </View>
       <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
@@ -360,6 +372,8 @@ const styles = StyleSheet.create({
   featureCard: { borderWidth: 1, borderRadius: 20, padding: 17, flexDirection: "row", alignItems: "flex-start", gap: 13, marginBottom: 11 },
   featureIcon: { width: 42, height: 42, borderRadius: 13, alignItems: "center", justifyContent: "center" },
   cardEyebrow: { fontSize: 9, letterSpacing: 1.7, marginBottom: 5 },
+  cardMetaRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
+  accessBadge: { fontSize: 8, letterSpacing: 1, borderWidth: StyleSheet.hairlineWidth, borderRadius: 999, paddingHorizontal: 7, paddingVertical: 3, overflow: "hidden" },
   cardTitle: { fontSize: 18, letterSpacing: -0.25 },
   cardBody: { fontSize: 13, lineHeight: 18, marginTop: 5 },
   intentRail: { gap: 10, paddingBottom: 3 },
@@ -369,6 +383,8 @@ const styles = StyleSheet.create({
   actionRow: { minHeight: 72, borderWidth: StyleSheet.hairlineWidth * 2, borderRadius: 16, padding: 13, flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 9 },
   actionIcon: { width: 38, height: 38, borderRadius: 12, alignItems: "center", justifyContent: "center" },
   actionTitle: { fontSize: 15 },
+  actionTitleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
+  rowBadge: { fontSize: 8, letterSpacing: 0.8, paddingHorizontal: 7, paddingVertical: 4, borderRadius: 999, overflow: "hidden" },
   actionBody: { fontSize: 12, lineHeight: 17, marginTop: 3 },
   empty: { borderWidth: 1, borderRadius: 20, padding: 22, alignItems: "center", marginTop: 8 },
   emptyTitle: { fontSize: 18, marginTop: 10 },

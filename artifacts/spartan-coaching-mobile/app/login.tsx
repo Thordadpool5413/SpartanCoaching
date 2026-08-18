@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
-  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -14,7 +13,7 @@ import { router, type Href } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
-import { ApiError, getWebSiteUrl } from "@/lib/api";
+import { ApiError } from "@/lib/api";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { SpartanInput } from "@/components/ui/SpartanInput";
 import { font } from "@/lib/typography";
@@ -32,15 +31,6 @@ export default function LoginScreen() {
   useEffect(() => {
     if (!isLoading && isAuthenticated) router.replace("/(tabs)");
   }, [isLoading, isAuthenticated]);
-
-  const openWebsite = async (path: string) => {
-    const url = `${getWebSiteUrl()}${path}`;
-    if (!(await Linking.canOpenURL(url))) {
-      setError("The Spartan Coaching website could not be opened on this device.");
-      return;
-    }
-    await Linking.openURL(url);
-  };
 
   const onSubmit = async () => {
     setError(null);
@@ -112,7 +102,7 @@ export default function LoginScreen() {
             />
             <Pressable
               accessibilityRole="link"
-              onPress={() => void openWebsite("/forgot-password")}
+              onPress={() => router.push("/forgot-password" as Href)}
               style={styles.forgot}
               testID="button-forgot-password"
             >
@@ -134,12 +124,16 @@ export default function LoginScreen() {
           <View style={styles.secondaryActions}>
             <Pressable
               accessibilityRole="link"
-              onPress={() => router.push("/register" as Href)}
+              onPress={() => router.push("/membership" as Href)}
               style={[styles.linkButton, { borderColor: colors.borderStrong ?? colors.border }]}
-              testID="button-create-account"
+              testID="button-choose-membership"
             >
-              <Text style={[styles.linkButtonText, { color: colors.foreground }, font("bold")]}>Create an individual membership</Text>
+              <Text style={[styles.linkButtonText, { color: colors.foreground }, font("bold")]}>Choose a membership</Text>
               <Feather name="arrow-right" size={18} color={colors.primary} />
+            </Pressable>
+            <Pressable accessibilityRole="button" onPress={() => router.push("/register" as Href)} style={styles.contactLink} testID="button-create-account">
+              <Text style={[styles.contactText, { color: colors.primary }, font("semibold")]}>Create an account for an existing Apple purchase</Text>
+              <Feather name="chevron-right" size={17} color={colors.primary} />
             </Pressable>
             <Pressable accessibilityRole="button" onPress={() => router.push("/(tabs)/contact")} style={styles.contactLink}>
               <Text style={[styles.contactText, { color: colors.mutedForeground }, font("semibold")]}>Company team or consulting access</Text>

@@ -85,28 +85,28 @@ export function WelcomeExperience({ topPad, bottomPad }: { topPad: number; botto
 
         <View style={styles.membershipSection}>
           <Text style={styles.sectionLabel}>TWO INDIVIDUAL MEMBERSHIPS</Text>
-          <Text style={styles.sectionTitle}>Choose access after you understand the value.</Text>
-          <View style={styles.planRow}>
+          <Text style={styles.sectionTitle}>See exactly what you can use.</Text>
+          <Pressable style={styles.planRow} onPress={() => router.push("/membership" as Href)} accessibilityRole="button">
             <View style={styles.planCopy}>
               <Text style={styles.planName}>Standard</Text>
               <Text style={styles.planDescription}>Field planning, tools, practice, Library, and saved work.</Text>
             </View>
             <Text style={styles.planPrice}>$14.99<Text style={styles.planCadence}> weekly</Text></Text>
-          </View>
-          <View style={[styles.planRow, styles.pathDivider]}>
+          </Pressable>
+          <Pressable style={[styles.planRow, styles.pathDivider]} onPress={() => router.push("/membership" as Href)} accessibilityRole="button">
             <View style={styles.planCopy}>
               <Text style={styles.planName}>Elite</Text>
               <Text style={styles.planDescription}>Everything in Standard plus private Spartan Coach access.</Text>
             </View>
             <Text style={styles.planPrice}>$19.99<Text style={styles.planCadence}> weekly</Text></Text>
-          </View>
+          </Pressable>
           <Pressable
             accessibilityRole="button"
-            onPress={() => router.push("/register" as Href)}
+            onPress={() => router.push("/membership" as Href)}
             style={styles.createAccountButton}
-            testID="button-create-account-logged-out"
+            testID="button-choose-membership"
           >
-            <Text style={styles.createAccountText}>Create an individual account</Text>
+            <Text style={styles.createAccountText}>Compare and subscribe with Apple</Text>
             <Feather name="chevron-right" size={19} color={colors.primary} />
           </Pressable>
         </View>

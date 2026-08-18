@@ -37,7 +37,7 @@ export default function RegisterScreen() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated) router.replace("/(tabs)/account");
+    if (!isLoading && isAuthenticated) router.replace("/(tabs)");
   }, [isAuthenticated, isLoading]);
 
   const submit = async () => {
@@ -51,7 +51,7 @@ export default function RegisterScreen() {
     setPending(true);
     try {
       await register({ name, email, password });
-      router.replace("/(tabs)/account");
+      router.replace("/(tabs)");
     } catch (caught: unknown) {
       const message = caught instanceof Error ? caught.message : "Account creation failed";
       const status = caught instanceof ApiError ? caught.status : undefined;
@@ -82,7 +82,7 @@ export default function RegisterScreen() {
         <View style={styles.frame}>
           <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>INDIVIDUAL MEMBERSHIP</Text>
           <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Build your field advantage.</Text>
-          <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Create one private Spartan Coaching account, then choose Standard or Elite through Apple.</Text>
+          <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Create one private Spartan Coaching account to protect your Apple membership, history, commitments, and preferences.</Text>
 
           <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.borderStrong ?? colors.border }]}>
             <SpartanInput label="Full name" autoComplete="name" value={name} onChangeText={setName} placeholder="Your name" />

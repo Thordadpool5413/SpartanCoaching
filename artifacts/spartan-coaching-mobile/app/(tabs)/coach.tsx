@@ -315,10 +315,10 @@ export default function CoachScreen() {
           </View>
           <Pressable
             style={styles.primaryButton}
-            onPress={() => router.push("/(tabs)/account")}
+            onPress={() => router.push("/membership" as any)}
           >
             <Text style={styles.primaryButtonText}>
-              {isAuthenticated ? "Explore Elite" : "Sign in to continue"}
+              Compare Elite and subscribe
             </Text>
             <Feather name="arrow-right" size={19} color="#FFFFFF" />
           </Pressable>

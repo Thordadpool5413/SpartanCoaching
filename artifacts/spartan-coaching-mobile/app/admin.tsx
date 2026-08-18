@@ -4,7 +4,6 @@ import React, { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  Linking,
   Pressable,
   RefreshControl,
   ScrollView,
@@ -19,7 +18,6 @@ import { useColors } from "@/hooks/useColors";
 import {
   fetchOrganizationAdminOverview,
   fetchPlatformAdminOverview,
-  getWebSiteUrl,
   inviteOrganizationMember,
   setOrganizationMemberEnabled,
   type AccessRequestSummary,
@@ -175,10 +173,6 @@ export default function AdminScreen() {
         </>
       ) : null}
 
-      <Pressable style={styles.webRow} onPress={() => void Linking.openURL(`${getWebSiteUrl()}${isPlatform ? "/admin" : "/org/admin"}`)}>
-        <View style={{ flex: 1 }}><Text style={styles.webTitle}>Open the full web console</Text><Text style={styles.webBody}>Advanced contracts, audit history, and configuration remain available as a backup.</Text></View>
-        <Feather name="arrow-up-right" size={20} color={colors.primary} />
-      </Pressable>
     </ScrollView>
   );
 }
