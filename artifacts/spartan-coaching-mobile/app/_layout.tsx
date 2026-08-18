@@ -61,6 +61,7 @@ function RootLayoutNav() {
       <Stack.Screen name="reset-password" options={{ title: "Choose new password", presentation: "modal" }} />
       <Stack.Screen name="membership" options={{ title: "Membership", presentation: "modal" }} />
       <Stack.Screen name="access" options={{ title: "Your Access", presentation: "modal" }} />
+      <Stack.Screen name="jurisdiction" options={{ title: "Clinical Context", headerBackTitle: "Account" }} />
       <Stack.Screen name="tour" options={{ headerShown: false, presentation: "fullScreenModal" }} />
       <Stack.Screen name="admin" options={{ title: "Admin", headerBackTitle: "Account" }} />
       <Stack.Screen name="brand-video" options={{ title: "Brand Video" }} />
