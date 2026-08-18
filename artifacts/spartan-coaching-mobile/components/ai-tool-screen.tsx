@@ -25,6 +25,7 @@ import {
 } from "@workspace/spartan-ai-tools";
 import { consumeAiToolHandoff, stageAiToolHandoff } from "@/lib/aiToolHandoff";
 import { useColors } from "@/hooks/useColors";
+import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import { apiGet, apiPost } from "@/lib/api";
 import { font } from "@/lib/typography";
 import { VAULT, VAULT_COPY } from "@/lib/clinicalVaultTheme";
@@ -138,6 +139,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
   const tool = getSpartanAiTool(toolId)!;
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
+  const { isOnline, isChecking, refresh } = useNetworkStatus();
   const [values, setValues] = useState(() => initialForm(tool));
   const [run, setRun] = useState<ToolRun | null>(null);
   const [history, setHistory] = useState<ToolRun[]>([]);
@@ -146,8 +148,10 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
   const [confirmedDeidentified, setConfirmedDeidentified] = useState(false);
   const connections = getSpartanAiToolConnections(tool.id);
   const clinical = tool.containsPhi;
+  const networkBlocked = isChecking || !isOnline;
 
   async function loadData() {
+    if (networkBlocked) return;
     setError("");
     try {
       if (clinical) {
@@ -167,10 +171,19 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
     if (handoff) {
       setValues(initialForm(tool, buildConnectedToolInput(handoff.sourceToolId, tool.id, handoff.output)));
     }
-    void loadData();
   }, [tool.id]);
 
+  useEffect(() => {
+    if (!networkBlocked) void loadData();
+  }, [tool.id, networkBlocked]);
+
   async function runTool() {
+    if (networkBlocked) {
+      setError("Secure connection required. Advanced tools do not process or queue protected work while this device is offline.");
+      if (!isChecking) void refresh();
+      return;
+    }
+
     setBusy(true);
     setError("");
     try {
@@ -196,6 +209,12 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
 
   async function shareResult() {
     if (run?.output == null) return;
+    if (networkBlocked) {
+      setError("Secure connection required before this result can be shared or exported.");
+      if (!isChecking) void refresh();
+      return;
+    }
+
     setBusy(true);
     setError("");
     try {
@@ -245,6 +264,22 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
 
       {clinical ? <ClinicalVaultToolBanner /> : null}
 
+      {networkBlocked ? (
+        <View accessibilityRole="alert" style={styles.networkCard}>
+          <View style={styles.safetyHeading}>
+            <Feather name={isChecking ? "wifi" : "wifi-off"} size={18} color={colors.primary} />
+            <Text style={styles.safetyTitle}>{isChecking ? "Checking secure connection" : "Secure connection required"}</Text>
+          </View>
+          <Text style={styles.warningText}>Advanced tools run online so protected work is never queued on this device. Existing results can remain visible, but running, exporting, and sharing stay locked until the service is reachable.</Text>
+          {!isChecking ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Check secure connection" onPress={() => void refresh()} style={styles.networkAction}>
+              <Text style={styles.networkActionText}>Check connection</Text>
+              <Feather name="refresh-cw" size={16} color={colors.primary} />
+            </Pressable>
+          ) : null}
+        </View>
+      ) : null}
+
       {tool.safetyWarnings.length ? (
         <View style={styles.safetyCard}>
           <View style={styles.safetyHeading}><Feather name="shield" size={18} color={clinical ? VAULT.accent : colors.primary} /><Text style={styles.safetyTitle}>Before you use this tool</Text></View>
@@ -278,11 +313,11 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Run ${tool.name}`}
-          disabled={busy || (clinical && !confirmedDeidentified)}
+          disabled={busy || networkBlocked || (clinical && !confirmedDeidentified)}
           onPress={runTool}
-          style={[styles.primaryButton, (busy || (clinical && !confirmedDeidentified)) && styles.disabled]}
+          style={[styles.primaryButton, (busy || networkBlocked || (clinical && !confirmedDeidentified)) && styles.disabled]}
         >
-          {busy ? <ActivityIndicator color="#FFFFFF" /> : <><Text style={styles.primaryButtonText}>{runLabel}</Text><Feather name="arrow-right" size={20} color="#FFFFFF" /></>}
+          {busy ? <ActivityIndicator color="#FFFFFF" /> : <><Text style={styles.primaryButtonText}>{isChecking ? "Checking connection" : !isOnline ? "Secure connection required" : runLabel}</Text><Feather name="arrow-right" size={20} color="#FFFFFF" /></>}
         </Pressable>
       </View>
 
@@ -296,7 +331,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         <>
           <PremiumAiResult output={run.output} watermark={run.watermark} reviewStatus={run.reviewStatus} />
           <View style={styles.resultActions}>
-            <Pressable disabled={busy} onPress={() => void shareResult()} style={styles.resultAction}><Feather name="share-2" size={18} color={colors.primary} /><View style={{ flex: 1 }}><Text style={styles.resultActionTitle}>Share or export</Text><Text style={styles.resultActionBody}>Readable output, not a JSON dump.</Text></View><Feather name="chevron-right" size={18} color={colors.mutedForeground} /></Pressable>
+            <Pressable disabled={busy || networkBlocked} onPress={() => void shareResult()} style={[styles.resultAction, (busy || networkBlocked) && styles.disabled]}><Feather name="share-2" size={18} color={colors.primary} /><View style={{ flex: 1 }}><Text style={styles.resultActionTitle}>Share or export</Text><Text style={styles.resultActionBody}>{networkBlocked ? "Secure connection required." : "Readable output, not a JSON dump."}</Text></View><Feather name="chevron-right" size={18} color={colors.mutedForeground} /></Pressable>
             {!clinical ? <View style={styles.savedRow}><Feather name="check-circle" size={17} color={colors.success} /><Text style={styles.savedText}>Saved to your account automatically</Text></View> : <View style={styles.savedRow}><Feather name="clock" size={17} color={VAULT.accent} /><Text style={styles.savedText}>Ephemeral clinical workspace · no run history stored</Text></View>}
           </View>
         </>
@@ -391,6 +426,9 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     warningRow: { flexDirection: "row", alignItems: "flex-start", gap: 8 },
     warningDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: colors.primary, marginTop: 6 },
     warningText: { flex: 1, color: colors.mutedForeground, fontSize: 10, lineHeight: 15, ...font("regular") },
+    networkCard: { borderRadius: 17, borderCurve: "continuous", borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, padding: 14, gap: 9 },
+    networkAction: { minHeight: 44, flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderStrong, paddingTop: 9 },
+    networkActionText: { color: colors.primary, fontSize: 11, ...font("bold") },
     clinicalGate: { borderWidth: 1, borderLeftWidth: 3, borderLeftColor: VAULT.accent, borderRadius: 18, borderCurve: "continuous", padding: 15, gap: 9 },
     confirmRow: { minHeight: 58, flexDirection: "row", alignItems: "center", gap: 12, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderStrong, paddingTop: 10 },
     confirmText: { flex: 1, color: colors.foreground, fontSize: 11, lineHeight: 17, ...font("medium") },
