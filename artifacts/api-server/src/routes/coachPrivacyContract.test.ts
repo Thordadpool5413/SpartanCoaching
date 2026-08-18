@@ -32,6 +32,16 @@ describe("Spartan Coach privacy contract", () => {
     expect(routes).toContain("runCoachRetentionSweep");
   });
 
+  it("hard deletes an owned Coach conversation when the member deletes it", () => {
+    const deleteRoute = routes.slice(
+      routes.indexOf('app.delete("/api/v1/coach/conversations/:id"'),
+      routes.indexOf('app.post("/api/v1/coach/conversations/:id/share"'),
+    );
+    expect(deleteRoute).toContain("db.delete(coachConversations)");
+    expect(deleteRoute).toContain("hardDeleted: true");
+    expect(deleteRoute).not.toContain('status: "archived"');
+  });
+
   it("uses an honest identity with clinical and privacy boundaries", () => {
     const prompt = openai.slice(openai.indexOf("const SPARTAN_COACH_SYSTEM_INSTRUCTION"), openai.indexOf("export async function generateSpartanCoachResponse"));
     expect(prompt).toContain("private AI sales coaching assistant");
