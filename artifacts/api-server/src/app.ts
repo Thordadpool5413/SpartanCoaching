@@ -12,6 +12,7 @@ import { registerResourceLifecycleRoutes } from "./routes/resourceLifecycleRoute
 import { registerProviderResourceRoutes } from "./routes/providerResourceRoutes";
 import { registerUniversalSearchRoutes } from "./routes/universalSearchRoutes";
 import { registerPersonalizationRoutes } from "./routes/personalizationRoutes";
+import { registerJurisdictionRoutes } from "./routes/jurisdictionRoutes";
 import { registerNotificationRoutes } from "./routes/notificationRoutes";
 import { registerCoachRoutes } from "./routes/coachRoutes";
 import { registerBillingRoutes, handleStripeWebhook } from "./billing/billingRoutes";
@@ -33,13 +34,11 @@ import {
 
 const app: Express = express();
 
-// Correct client IPs behind Replit / reverse proxies (needed for rate limits)
 app.set("trust proxy", 1);
 
 app.use(
   pinoHttp({
     logger,
-    // Do not log request/response bodies — serializers keep method + path only.
     serializers: {
       req(req) {
         return {
@@ -57,7 +56,6 @@ app.use(
   }),
 );
 
-/** In-process latency / error metrics for /api/healthz/reliability (HSP-43). */
 app.use((req, res, next) => {
   const start = process.hrtime.bigint();
   res.on("finish", () => {
@@ -69,7 +67,6 @@ app.use((req, res, next) => {
       statusCode: res.statusCode,
       durationMs,
     });
-    // Slow non-AI request watch — log path + ms only (no body).
     if (!pathOnly.includes("/api/ai") && durationMs > 2000) {
       const evalResult = evaluateAgainstTarget("api.request_p95", durationMs);
       logger.warn(
@@ -86,6 +83,7 @@ app.use((req, res, next) => {
   });
   next();
 });
+
 app.use(
   cors({
     origin(origin, callback) {
@@ -98,7 +96,6 @@ app.use(cookieParser());
 app.use(applySecurityHeaders);
 app.use(requireTrustedMutationOrigin);
 
-// Stripe webhooks need the raw body for signature verification — mount BEFORE json parser
 app.post(
   "/api/billing/webhook",
   express.raw({ type: "application/json", limit: "1mb" }),
@@ -110,15 +107,8 @@ app.post(
 app.use(express.json({ limit: process.env.JSON_BODY_LIMIT || "1mb" }));
 app.use(express.urlencoded({ extended: true, limit: process.env.FORM_BODY_LIMIT || "256kb" }));
 
-// Load client session (cookie or Bearer) for every request before route handlers
 app.use(loadSession);
 
-/**
- * Optional iOS min-version gate (HSP-44).
- * Only when ENFORCE_MIN_IOS_VERSION=true and client sends X-Client-Platform: ios
- * + X-Client-Version. Prevents a breaking API from silently serving obsolete App Store builds.
- * Exempt: health, client-config, stripe webhook path is mounted earlier.
- */
 app.use("/api", (req, res, next) => {
   if (process.env.ENFORCE_MIN_IOS_VERSION !== "true" && process.env.ENFORCE_MIN_IOS_VERSION !== "1") {
     return next();
@@ -156,46 +146,21 @@ app.use("/api", (req, res, next) => {
   });
 });
 
-// Global API abuse guard (auth + tools + public forms)
 app.use("/api", globalApiLimit);
-
-// Health + scaffold routes
 app.use("/api", router);
 
-// Auth (request-access, login, Access Desk)
 registerAuthRoutes(app);
-
-// Stripe billing (checkout, portal, status) — Phase 1
 registerBillingRoutes(app);
-
-// Continuous rep workflow (Sales Command Center)
 registerSalesWorkflowRoutes(app);
-
-// Shared Spartan AI tools and clinical case workspace.
 registerAiToolRoutes(app);
-
-// Executable resource saved work (HSP-26)
 registerResourceWorkRoutes(app);
-
-// Resource versioning / publishing / retirement (HSP-27)
 registerResourceLifecycleRoutes(app);
-
-// Provider-owned private resource libraries (HSP-28)
 registerProviderResourceRoutes(app);
-
-// Universal multi-type search (HSP-36)
 registerUniversalSearchRoutes(app);
-
-// Favorites, recents, continue, recommended today (HSP-37)
 registerPersonalizationRoutes(app);
-
-// Notifications, preferences, secure deep links (HSP-38)
+registerJurisdictionRoutes(app);
 registerNotificationRoutes(app);
-
-// Private, member-owned Spartan Coach conversations and explicit summary sharing.
 registerCoachRoutes(app);
-
-// Legacy app routes (AI tools gated with requireFieldKit)
 registerRoutes(app);
 
 export default app;
