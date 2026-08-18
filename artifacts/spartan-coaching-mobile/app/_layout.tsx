@@ -28,19 +28,14 @@ SplashScreen.preventAutoHideAsync();
 
 const queryClient = new QueryClient();
 
-/** Fires a single app_open event when the authenticated user is known. */
 function AppOpenTracker() {
   const { user } = useAuth();
   useEffect(() => {
-    if (user?.member?.id) {
-      // memberId is derived server-side from the Bearer session token — don't pass it here.
-      trackMobileEvent("mobile_app_open", "app_open");
-    }
+    if (user?.member?.id) trackMobileEvent("mobile_app_open", "app_open");
   }, [user?.member?.id]);
   return null;
 }
 
-/** Loads delivery contract / feature flags; logs soft incompatibility (HSP-44). */
 function ClientConfigBootstrap() {
   useEffect(() => {
     void fetchClientConfig().then((cfg) => {
@@ -65,6 +60,7 @@ function RootLayoutNav() {
       <Stack.Screen name="forgot-password" options={{ title: "Reset password", presentation: "modal" }} />
       <Stack.Screen name="reset-password" options={{ title: "Choose new password", presentation: "modal" }} />
       <Stack.Screen name="membership" options={{ title: "Membership", presentation: "modal" }} />
+      <Stack.Screen name="access" options={{ title: "Your Access", presentation: "modal" }} />
       <Stack.Screen name="tour" options={{ headerShown: false, presentation: "fullScreenModal" }} />
       <Stack.Screen name="admin" options={{ title: "Admin", headerBackTitle: "Account" }} />
       <Stack.Screen name="brand-video" options={{ title: "Brand Video" }} />
@@ -79,7 +75,6 @@ function RootLayoutNav() {
         name="sales-workflow"
         options={{ title: "Sales Command Center", headerBackTitle: "Back" }}
       />
-      <Stack.Screen name="tool-web" options={{ title: "Hospice Sales Pro", headerBackTitle: "Back" }} />
       <Stack.Screen name="tool/[tab]" options={{ headerShown: false, headerBackTitle: "Tools" }} />
       <Stack.Screen name="ai-tools" options={{ headerShown: false }} />
       <Stack.Screen name="+not-found" />
@@ -91,7 +86,6 @@ export default function RootLayout() {
   const colorScheme = useColorScheme();
   const [launchVisible, setLaunchVisible] = useState(true);
   const completeLaunch = useCallback(() => setLaunchVisible(false), []);
-  // iOS uses SF Pro (system). Load Inter only on Android/web for brand parity.
   const [fontsLoaded, fontError] = useFonts(
     Platform.OS === "ios"
       ? {}
@@ -108,9 +102,7 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    if (Platform.OS === "ios" || fontsLoaded || fontError) {
-      SplashScreen.hideAsync();
-    }
+    if (Platform.OS === "ios" || fontsLoaded || fontError) SplashScreen.hideAsync();
   }, [fontsLoaded, fontError]);
 
   if (Platform.OS !== "ios" && !fontsLoaded && !fontError) return null;
@@ -125,7 +117,6 @@ export default function RootLayout() {
               <AppOpenTracker />
               <DeepLinkRouter />
               <ActivationCeremony />
-              {/* System appearance with an optional user override. */}
               <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
               <GestureHandlerRootView style={{ flex: 1 }}>
                 <KeyboardProvider>
