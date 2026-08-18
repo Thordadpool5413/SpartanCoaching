@@ -4,6 +4,7 @@
  */
 
 export * from "./membership-plans";
+export * from "./hhh-mac-jurisdictions";
 
 export type FieldKitCategory = "Prepare" | "Practice" | "Plan" | "Measure" | "Outreach" | "Learn";
 

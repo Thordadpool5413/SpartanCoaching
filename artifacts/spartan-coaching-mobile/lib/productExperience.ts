@@ -24,7 +24,7 @@ export const SPARTAN_OFFERINGS: SpartanOffering[] = [
       "Commitment continuity",
       "Clear membership and access state",
     ],
-    offline: "Selected planning and previously saved commitments remain available when downloaded to the device.",
+    offline: "Selected planning and the latest private commitment remain available on this iPhone.",
   },
   {
     id: "coach",

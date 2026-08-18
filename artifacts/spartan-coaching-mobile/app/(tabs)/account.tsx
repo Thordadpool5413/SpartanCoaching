@@ -44,7 +44,7 @@ export default function AccountScreen() {
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
   const { preference, setPreference } = useAppearancePreference();
-  const { user, isLoading, isAuthenticated, canUseFieldKit, canUseElite, logout, refresh } = useAuth();
+  const { user, isLoading, isAuthenticated, canUseFieldKit, canUseElite, canManageOrganization, logout, refresh } = useAuth();
   const [jobRole, setJobRole] = useState("");
   const [territoryNote, setTerritoryNote] = useState("");
   const [topObjections, setTopObjections] = useState("");
@@ -100,7 +100,7 @@ export default function AccountScreen() {
 
   const org = user.organization;
   const isCompany = org?.type === "company";
-  const isAdmin = user.member.role === "org_admin" || user.member.role === "platform_admin";
+  const isAdmin = canManageOrganization;
   const isPersonal = org?.type === "personal";
   const tier = isCompany
     ? canUseElite ? "Company Elite" : canUseFieldKit ? "Company Standard" : "Company access pending"

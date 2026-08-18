@@ -80,6 +80,7 @@ import {
 import { storage } from "../storage";
 import {
   aggregateOrgUsage,
+  aggregateCompletionTrend,
   evaluateDisableMember,
   evaluateRoleChange,
   resolveSeatCap,
@@ -1711,8 +1712,9 @@ export function registerAuthRoutes(app: Express): void {
         .from(clientMembers)
         .where(eq(clientMembers.organizationId, orgId));
       const emailSet = new Set(members.map((m) => m.email.toLowerCase()));
+      const memberIdSet = new Set(members.map((m) => m.id));
       if (emailSet.size === 0) {
-        return res.json({ total: 0, byTool: [], byMember: [], days: 7 });
+        return res.json({ total: 0, byTool: [], byMember: [], completionTotal: 0, completionTrend: [], days: 7 });
       }
 
       const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
@@ -1727,15 +1729,59 @@ export function registerAuthRoutes(app: Express): void {
         emailSet,
       );
 
+      const outcomeRows = await db
+        .select({
+          memberId: eventTracking.memberId,
+          eventName: eventTracking.eventName,
+          createdAt: eventTracking.createdAt,
+        })
+        .from(eventTracking)
+        .where(and(
+          eq(eventTracking.eventType, "product_outcome"),
+          gte(eventTracking.createdAt, weekAgo.getTime()),
+        ))
+        .limit(5000);
+      const completions = aggregateCompletionTrend(outcomeRows, memberIdSet);
+
       return res.json({
         total: aggregated.total,
         days: 7,
         byTool: aggregated.byTool,
         byMember: aggregated.byMember,
+        completionTotal: completions.total,
+        completionTrend: completions.trend,
       });
     } catch (err) {
       console.error("org usage error:", err);
       return res.status(500).json({ error: "Failed to load usage" });
+    }
+  });
+
+  app.get("/api/org/shared-summaries", requireAuth, requireFieldKit, requireOrgAdmin, async (req: AuthedRequest, res) => {
+    try {
+      const orgId = req.fieldKit!.org!.id;
+      const recipientId = req.clientMemberId!;
+      const [summaries, members] = await Promise.all([
+        db.select().from(coachSharedSummaries).where(and(
+          eq(coachSharedSummaries.organizationId, orgId),
+          eq(coachSharedSummaries.sharedWithMemberId, recipientId),
+        )).orderBy(desc(coachSharedSummaries.sharedAt)).limit(100),
+        db.select({ id: clientMembers.id, name: clientMembers.name }).from(clientMembers)
+          .where(eq(clientMembers.organizationId, orgId)),
+      ]);
+      const ownerNames = new Map(members.map((member) => [member.id, member.name]));
+      return res.json({
+        summaries: summaries.map((summary) => ({
+          id: summary.id,
+          ownerName: ownerNames.get(summary.ownerMemberId) ?? "Team member",
+          summary: summary.summary,
+          commitments: summary.commitments,
+          sharedAt: summary.sharedAt,
+        })),
+      });
+    } catch (err) {
+      console.error("org shared summaries error:", err);
+      return res.status(500).json({ error: "Failed to load explicitly shared summaries" });
     }
   });
 
@@ -2379,6 +2425,7 @@ export function registerAuthRoutes(app: Express): void {
       billableSeats?: number | null;
       billingPlan?: string | null;
       billingStatus?: string | null;
+      contractRef?: string | null;
       billingContactEmail?: string | null;
       billingContactName?: string | null;
       securityContactEmail?: string | null;
@@ -2395,6 +2442,7 @@ export function registerAuthRoutes(app: Express): void {
         billableSeats: o.billableSeats ?? null,
         billingPlan: o.billingPlan ?? null,
         billingStatus: o.billingStatus ?? null,
+        contractRef: o.contractRef ?? null,
         activeMembers: countRow?.count ?? 0,
         billingContactEmail: o.billingContactEmail ?? null,
         billingContactName: o.billingContactName ?? null,

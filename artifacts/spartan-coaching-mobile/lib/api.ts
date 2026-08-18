@@ -549,6 +549,14 @@ export type OrgMemberSummary = {
   lastLoginAt?: string | null;
 };
 
+export type AdminSharedSummary = {
+  id: string;
+  ownerName: string;
+  summary: string;
+  commitments: string[];
+  sharedAt: string;
+};
+
 export async function fetchPlatformAdminOverview() {
   const [metrics, organizations, requests] = await Promise.all([
     apiGet<AdminMetrics>("/api/admin/access-metrics"),
@@ -563,11 +571,12 @@ export async function fetchPlatformAdminOverview() {
 }
 
 export async function fetchOrganizationAdminOverview() {
-  const [members, usage] = await Promise.all([
+  const [members, usage, shared] = await Promise.all([
     apiGet<{ members: OrgMemberSummary[]; invites: Array<{ id: number; email: string; role: string; status: string }>; seatLimit: number }>("/api/org/members"),
-    apiGet<{ total: number; days: number; byTool: Array<{ toolName: string; count: number }>; byMember: Array<{ email: string; count: number }> }>("/api/org/usage"),
+    apiGet<{ total: number; days: number; byTool: Array<{ toolName: string; count: number }>; byMember: Array<{ email: string; count: number }>; completionTotal: number; completionTrend: Array<{ date: string; count: number }> }>("/api/org/usage"),
+    apiGet<{ summaries: AdminSharedSummary[] }>("/api/org/shared-summaries"),
   ]);
-  return { ...members, usage };
+  return { ...members, usage, sharedSummaries: shared.summaries || [] };
 }
 
 export async function inviteOrganizationMember(input: { name: string; email: string; role?: "member" | "org_admin" }) {

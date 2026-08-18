@@ -17,9 +17,10 @@ function accessState(input: {
   canUseElite: boolean;
   orgType?: string | null;
   role?: string | null;
+  canManageOrganization?: boolean;
 }): SpartanAccess {
   if (!input.isAuthenticated) return "visitor";
-  if (input.role === "platform_admin" || input.role === "org_admin") return "admin";
+  if (input.canManageOrganization) return "admin";
   if (input.orgType === "company") return "company";
   if (input.canUseElite) return "elite";
   if (input.canUseFieldKit) return "standard";
@@ -30,13 +31,14 @@ export default function AccessScreen() {
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
-  const { isAuthenticated, canUseFieldKit, canUseElite, user } = useAuth();
+  const { isAuthenticated, canUseFieldKit, canUseElite, canManageOrganization, user } = useAuth();
   const current = accessState({
     isAuthenticated,
     canUseFieldKit,
     canUseElite,
     orgType: user?.organization?.type,
     role: user?.member?.role,
+    canManageOrganization,
   });
 
   const tierLabel =
@@ -82,7 +84,15 @@ export default function AccessScreen() {
 
         <Text style={styles.sectionLabel}>THE COMPLETE APP</Text>
         {SPARTAN_OFFERINGS.map((offering) => {
-          const included = offering.access.includes(current) || (current === "admin" && offering.access.includes("company"));
+          const included =
+            offering.id === "admin" ? canManageOrganization :
+            offering.id === "coach" ? canUseElite :
+            offering.id === "tools" ? canUseFieldKit :
+            true;
+          const accessLabel = included
+            ? offering.id === "tools" || offering.id === "coach" || offering.id === "admin" ? "INCLUDED IN YOUR ACCESS" : "AVAILABLE"
+            : offering.id === "coach" && user?.organization?.type === "company" ? "REQUIRES COMPANY ELITE" :
+              offering.id === "coach" ? "ELITE" : "PREVIEW";
           return (
             <Pressable
               key={offering.id}
@@ -101,7 +111,7 @@ export default function AccessScreen() {
                 <View style={styles.offeringHeading}>
                   <Text style={styles.offeringTitle}>{offering.title}</Text>
                   <Text style={[styles.accessLabel, { color: included ? colors.success : colors.mutedForeground }]}>
-                    {included ? "AVAILABLE TO YOU" : offering.id === "coach" ? "ELITE" : "PREVIEW"}
+                    {accessLabel}
                   </Text>
                 </View>
                 <Feather name="chevron-right" size={21} color={colors.mutedForeground} />

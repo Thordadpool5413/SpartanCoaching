@@ -6,7 +6,7 @@ import {
   registerMobile,
   type MobileAuthUser,
 } from "@/lib/api";
-import { hasEliteMembership, resolveMembershipTier, type MembershipTier } from "@workspace/field-kit-catalog";
+import { hasContractedOrganizationAdminAccess, hasEliteMembership, resolveMembershipTier, type MembershipTier } from "@workspace/field-kit-catalog";
 import { claimCurrentApplePurchases } from "@/lib/applePurchaseSession";
 
 type AuthContextValue = {
@@ -15,6 +15,7 @@ type AuthContextValue = {
   isAuthenticated: boolean;
   canUseFieldKit: boolean;
   canUseElite: boolean;
+  canManageOrganization: boolean;
   membershipTier: MembershipTier;
   refresh: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
@@ -100,6 +101,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: !!user?.member,
         canUseFieldKit: !!user?.fieldKit?.allowed,
         canUseElite: !!user?.fieldKit?.allowed && hasEliteMembership(membershipInput),
+        canManageOrganization: hasContractedOrganizationAdminAccess({
+          memberRole: user?.member?.role,
+          organizationType: user?.organization?.type,
+          organizationStatus: user?.organization?.status,
+          billingPlan: user?.organization?.billingPlan,
+        }),
         membershipTier: resolveMembershipTier(membershipInput),
         refresh,
         login,

@@ -28,6 +28,8 @@ import { useColors } from "@/hooks/useColors";
 import { useNetworkStatus } from "@/hooks/useNetworkStatus";
 import { apiGet, apiPost } from "@/lib/api";
 import { font } from "@/lib/typography";
+import { trackProductOutcome } from "@/lib/analytics";
+import { fetchJurisdictionContext, type JurisdictionContext } from "@/lib/jurisdictionApi";
 import { VAULT, VAULT_COPY } from "@/lib/clinicalVaultTheme";
 import { ClinicalVaultBadge, ClinicalVaultToolBanner } from "@/components/ClinicalVaultChrome";
 import { PremiumAiResult, formatAiResultForSharing } from "@/components/PremiumAiResult";
@@ -146,8 +148,10 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [confirmedDeidentified, setConfirmedDeidentified] = useState(false);
-  const connections = getSpartanAiToolConnections(tool.id);
   const clinical = tool.containsPhi;
+  const [jurisdiction, setJurisdiction] = useState<JurisdictionContext | null>(null);
+  const [jurisdictionChecking, setJurisdictionChecking] = useState(clinical);
+  const connections = getSpartanAiToolConnections(tool.id);
   const networkBlocked = isChecking || !isOnline;
 
   async function loadData() {
@@ -155,6 +159,14 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
     setError("");
     try {
       if (clinical) {
+        setJurisdictionChecking(true);
+        const context = await fetchJurisdictionContext();
+        setJurisdiction(context);
+        setJurisdictionChecking(false);
+        if (!context.state || !context.macRegion) {
+          setHistory([]);
+          return;
+        }
         await apiGet("/api/clinical/coverage/snapshots");
         setHistory([]);
       } else {
@@ -162,6 +174,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         setHistory(response.runs || []);
       }
     } catch (caught) {
+      if (clinical) setJurisdictionChecking(false);
       setError(caught instanceof Error ? caught.message : "Tool data could not be loaded.");
     }
   }
@@ -198,6 +211,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         setHistory((current) => [response.run, ...current.filter((item) => item.id !== response.run.id)]);
       }
       setRun(completed);
+      void trackProductOutcome("tool_completion", { toolId: tool.id, platform: "ios" });
       if (Platform.OS !== "web") void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "The tool could not complete this run.");
@@ -264,6 +278,32 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
 
       {clinical ? <ClinicalVaultToolBanner /> : null}
 
+      {clinical ? (
+        <View style={[styles.jurisdictionCard, (!jurisdiction?.state || !jurisdiction?.macRegion) && styles.jurisdictionMissing]}>
+          <View style={styles.safetyHeading}>
+            <Feather name="map-pin" size={18} color={VAULT.accent} />
+            <Text style={styles.safetyTitle}>{jurisdictionChecking ? "Confirming jurisdiction" : jurisdiction?.state && jurisdiction?.macRegion ? "Jurisdiction confirmed" : "Jurisdiction required"}</Text>
+          </View>
+          {jurisdiction?.state && jurisdiction?.macRegion ? (
+            <>
+              <Text style={styles.jurisdictionState}>{jurisdiction.state}</Text>
+              <Text style={styles.warningText}>{jurisdiction.macRegion}</Text>
+              <Text style={styles.jurisdictionNote}>This context narrows the educational output. It does not replace current source verification or required approval.</Text>
+            </>
+          ) : jurisdictionChecking ? (
+            <ActivityIndicator color={VAULT.accent} style={{ alignSelf: "flex-start" }} />
+          ) : (
+            <>
+              <Text style={styles.warningText}>Select your primary state in Account. The app will assign the current Home Health and Hospice MAC before this tool can run.</Text>
+              <Pressable accessibilityRole="button" onPress={() => router.push("/jurisdiction")} style={styles.networkAction}>
+                <Text style={[styles.networkActionText, { color: VAULT.accent }]}>Set jurisdiction</Text>
+                <Feather name="arrow-right" size={16} color={VAULT.accent} />
+              </Pressable>
+            </>
+          )}
+        </View>
+      ) : null}
+
       {networkBlocked ? (
         <View accessibilityRole="alert" style={styles.networkCard}>
           <View style={styles.safetyHeading}>
@@ -313,9 +353,9 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Run ${tool.name}`}
-          disabled={busy || networkBlocked || (clinical && !confirmedDeidentified)}
+          disabled={busy || networkBlocked || (clinical && (!confirmedDeidentified || jurisdictionChecking || !jurisdiction?.state || !jurisdiction?.macRegion))}
           onPress={runTool}
-          style={[styles.primaryButton, (busy || networkBlocked || (clinical && !confirmedDeidentified)) && styles.disabled]}
+          style={[styles.primaryButton, (busy || networkBlocked || (clinical && (!confirmedDeidentified || jurisdictionChecking || !jurisdiction?.state || !jurisdiction?.macRegion))) && styles.disabled]}
         >
           {busy ? <ActivityIndicator color="#FFFFFF" /> : <><Text style={styles.primaryButtonText}>{isChecking ? "Checking connection" : !isOnline ? "Secure connection required" : runLabel}</Text><Feather name="arrow-right" size={20} color="#FFFFFF" /></>}
         </Pressable>
@@ -427,6 +467,10 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     warningDot: { width: 5, height: 5, borderRadius: 3, backgroundColor: colors.primary, marginTop: 6 },
     warningText: { flex: 1, color: colors.mutedForeground, fontSize: 10, lineHeight: 15, ...font("regular") },
     networkCard: { borderRadius: 17, borderCurve: "continuous", borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, padding: 14, gap: 9 },
+    jurisdictionCard: { borderRadius: 17, borderCurve: "continuous", borderWidth: 1, borderColor: VAULT.borderSubtle, backgroundColor: VAULT.surface, padding: 14, gap: 8 },
+    jurisdictionMissing: { borderStyle: "dashed" },
+    jurisdictionState: { color: colors.foreground, fontSize: 15, ...font("bold") },
+    jurisdictionNote: { color: colors.mutedForeground, fontSize: 9, lineHeight: 14, ...font("regular") },
     networkAction: { minHeight: 44, flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderStrong, paddingTop: 9 },
     networkActionText: { color: colors.primary, fontSize: 11, ...font("bold") },
     clinicalGate: { borderWidth: 1, borderLeftWidth: 3, borderLeftColor: VAULT.accent, borderRadius: 18, borderCurve: "continuous", padding: 15, gap: 9 },

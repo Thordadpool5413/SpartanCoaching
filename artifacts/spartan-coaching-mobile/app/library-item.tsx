@@ -1,13 +1,15 @@
 import { Feather } from "@expo/vector-icons";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
-import React, { useMemo, useState } from "react";
-import { ActivityIndicator, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import React, { useEffect, useMemo, useState } from "react";
+import { ActivityIndicator, Alert, Platform, Pressable, StyleSheet, Text, View } from "react-native";
 import { WebView } from "react-native-webview";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { getWebSiteUrl } from "@/lib/api";
 import { font } from "@/lib/typography";
+import { downloadLibraryItem, getDownloadedLibraryItem, removeDownloadedLibraryItem, type DownloadedLibraryItem } from "@/lib/libraryDownloads";
+import { trackProductOutcome } from "@/lib/analytics";
 
 type Kind = "article" | "audio" | "resource";
 
@@ -43,6 +45,35 @@ export default function LibraryItemScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(colors), [colors]);
+  const [downloaded, setDownloaded] = useState<DownloadedLibraryItem | null>(null);
+  const [downloadBusy, setDownloadBusy] = useState(false);
+
+  useEffect(() => {
+    let active = true;
+    if (url) void getDownloadedLibraryItem(url).then((item) => { if (active) setDownloaded(item); });
+    return () => { active = false; };
+  }, [url]);
+
+  const activeUrl = downloaded?.localUri || url;
+
+  const toggleDownload = async () => {
+    if (!url || Platform.OS === "web" || downloadBusy) return;
+    setDownloadBusy(true);
+    try {
+      if (downloaded) {
+        await removeDownloadedLibraryItem(url);
+        setDownloaded(null);
+      } else {
+        const item = await downloadLibraryItem({ sourceUrl: url, title, kind });
+        setDownloaded(item);
+        void trackProductOutcome("resource_completion", { resourceId: kind, platform: "ios" });
+      }
+    } catch (error) {
+      Alert.alert("Download unavailable", error instanceof Error ? error.message : "This item could not be saved for offline use.");
+    } finally {
+      setDownloadBusy(false);
+    }
+  };
 
   return (
     <View style={styles.screen} testID="screen-library-item">
@@ -53,11 +84,23 @@ export default function LibraryItemScreen() {
           <Text style={styles.kicker}>{kind === "audio" ? "SPARTAN AUDIO" : "IN-APP READER"}</Text>
           <Text style={styles.title} numberOfLines={2}>{title}</Text>
         </View>
+        {url && Platform.OS !== "web" ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={downloaded ? "Remove offline download" : "Download for offline use"}
+            onPress={() => void toggleDownload()}
+            disabled={downloadBusy}
+            style={styles.downloadButton}
+          >
+            {downloadBusy ? <ActivityIndicator color={colors.primary} /> : <Feather name={downloaded ? "check-circle" : "download"} size={19} color={colors.primary} />}
+          </Pressable>
+        ) : null}
       </View>
-      {kind === "audio" && url ? (
-        <AudioReader title={title} description={description} url={url} bottom={insets.bottom} />
-      ) : url ? (
-        <DocumentReader title={title} url={url} />
+      {downloaded ? <View style={styles.offlineBanner}><Feather name="smartphone" size={14} color={colors.success} /><Text style={styles.offlineBannerText}>Available offline on this iPhone</Text></View> : null}
+      {kind === "audio" && activeUrl ? (
+        <AudioReader title={title} description={description} url={activeUrl} bottom={insets.bottom} />
+      ) : activeUrl ? (
+        <DocumentReader title={title} url={activeUrl} />
       ) : (
         <View style={styles.empty}>
           <Feather name="alert-circle" size={30} color={colors.primary} />
@@ -85,12 +128,12 @@ function DocumentReader({ title, url }: { title: string; url: string }) {
       <WebView
         key={reloadKey}
         source={{ uri: url }}
-        originWhitelist={["https://*"]}
+        originWhitelist={["https://*", "file://*"]}
         onLoadStart={() => { setLoading(true); setFailed(false); }}
         onLoadEnd={() => setLoading(false)}
         onError={() => { setLoading(false); setFailed(true); }}
         onHttpError={() => { setLoading(false); setFailed(true); }}
-        onShouldStartLoadWithRequest={(request) => request.url.startsWith("https://")}
+        onShouldStartLoadWithRequest={(request) => request.url.startsWith("https://") || request.url.startsWith("file://")}
         setSupportMultipleWindows={false}
         sharedCookiesEnabled
         style={{ flex: 1, backgroundColor: colors.card }}
@@ -144,6 +187,9 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     screen: { flex: 1, backgroundColor: colors.background },
     contextBar: { flexDirection: "row", alignItems: "center", gap: 12, paddingHorizontal: 18, paddingVertical: 13, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.borderStrong, backgroundColor: colors.card },
     contextIcon: { width: 40, height: 40, borderRadius: 13, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
+    downloadButton: { width: 44, height: 44, borderRadius: 15, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
+    offlineBanner: { minHeight: 34, paddingHorizontal: 18, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7, backgroundColor: colors.primaryMuted },
+    offlineBannerText: { color: colors.success, fontSize: 10, ...font("bold") },
     kicker: { color: colors.primary, fontSize: 9, letterSpacing: 1.7, ...font("bold") },
     title: { color: colors.foreground, fontSize: 15, lineHeight: 20, marginTop: 2, ...font("bold") },
     reader: { flex: 1, backgroundColor: colors.card },

@@ -11,6 +11,7 @@ import { fetchOnboardingMobile } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 import { listCoachMemory } from "@/lib/coachApi";
 import { font } from "@/lib/typography";
+import { cacheCommitment, loadCachedCommitment } from "@/lib/commitmentCache";
 
 type FieldAction = {
   icon: React.ComponentProps<typeof Feather>["name"];
@@ -44,6 +45,11 @@ export default function HomeScreen() {
       if (!canUseFieldKit) return undefined;
 
       let cancelled = false;
+      if (canUseElite && user?.member?.id) {
+        void loadCachedCommitment(user.member.id).then((value) => {
+          if (!cancelled && value) setCoachCommitment(value);
+        });
+      }
       void fetchOnboardingMobile()
         .then((data) => {
           if (!cancelled) setJobRole(data.member.jobRole || "");
@@ -52,20 +58,21 @@ export default function HomeScreen() {
           if (!cancelled) setJobRole("");
         });
 
-      void listCoachMemory()
+      if (canUseElite) void listCoachMemory()
         .then((items) => {
           if (cancelled) return;
           const latest = items.find((item) => item.category === "commitment" && item.enabled);
           setCoachCommitment(latest?.content ?? null);
+          if (user?.member?.id) void cacheCommitment(user.member.id, latest?.content ?? null);
         })
         .catch(() => {
-          if (!cancelled) setCoachCommitment(null);
+          // Keep the last private device copy visible when the secure service is offline.
         });
 
       return () => {
         cancelled = true;
       };
-    }, [canUseFieldKit, designPreview, refresh]),
+    }, [canUseElite, canUseFieldKit, designPreview, refresh, user?.member?.id]),
   );
 
   if (!isAuthenticated && !designPreview) {

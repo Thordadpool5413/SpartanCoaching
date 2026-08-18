@@ -1,8 +1,9 @@
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
+import { HHH_MAC_STATES, getHhhMacForState } from "@workspace/field-kit-catalog";
 import React, { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { BrandStamp } from "@/components/brand/BrandStamp";
 import { SpartanButton } from "@/components/ui/SpartanButton";
@@ -15,7 +16,7 @@ export default function JurisdictionScreen() {
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
   const [state, setState] = useState("");
-  const [macRegion, setMacRegion] = useState("");
+  const [statePickerOpen, setStatePickerOpen] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -26,7 +27,6 @@ export default function JurisdictionScreen() {
       .then((context) => {
         if (cancelled) return;
         setState(context.state || "");
-        setMacRegion(context.macRegion || "");
       })
       .catch(() => {
         if (!cancelled) setMessage("Jurisdiction context could not be loaded. Check your connection and try again.");
@@ -37,20 +37,21 @@ export default function JurisdictionScreen() {
     return () => { cancelled = true; };
   }, []);
 
+  const jurisdiction = useMemo(() => getHhhMacForState(state), [state]);
+
   const save = async () => {
-    if (state.trim().length < 2 || macRegion.trim().length < 2) {
-      setMessage("Enter both your state and Medicare Administrative Contractor region before using jurisdiction aware clinical education tools.");
+    if (!jurisdiction) {
+      setMessage("Select your primary state before using jurisdiction aware clinical education tools.");
       return;
     }
     setSaving(true);
     setMessage(null);
     try {
       const result = await saveJurisdictionContext({
-        state: state.trim(),
-        macRegion: macRegion.trim(),
+        state,
+        macRegion: jurisdiction.label,
       });
       setState(result.state || "");
-      setMacRegion(result.macRegion || "");
       setMessage("Jurisdiction context saved.");
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (error) {
@@ -86,31 +87,52 @@ export default function JurisdictionScreen() {
           <>
             <Text style={styles.sectionKicker}>STATE</Text>
             <Text style={styles.sectionTitle}>Where do you primarily work?</Text>
-            <Text style={styles.sectionBody}>Enter the full state name. This is account context, not patient location information.</Text>
-            <TextInput
-              value={state}
-              onChangeText={setState}
-              placeholder="Florida"
-              placeholderTextColor={colors.mutedForeground}
-              autoCapitalize="words"
-              autoCorrect={false}
-              style={styles.input}
-              accessibilityLabel="Primary state"
-            />
+            <Text style={styles.sectionBody}>Select your primary work state. This is account context, not patient location information.</Text>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel="Select primary work state"
+              accessibilityState={{ expanded: statePickerOpen }}
+              onPress={() => setStatePickerOpen((current) => !current)}
+              style={styles.selector}
+            >
+              <Text style={[styles.selectorText, !state && styles.selectorPlaceholder]}>{state || "Choose a state"}</Text>
+              <Feather name={statePickerOpen ? "chevron-up" : "chevron-down"} size={19} color={colors.primary} />
+            </Pressable>
+            {statePickerOpen ? (
+              <View style={styles.stateList} accessibilityRole="radiogroup">
+                {HHH_MAC_STATES.map((option) => {
+                  const selected = option.state === state;
+                  return (
+                    <Pressable
+                      key={option.state}
+                      accessibilityRole="radio"
+                      accessibilityState={{ selected }}
+                      onPress={() => {
+                        setState(option.state);
+                        setStatePickerOpen(false);
+                        setMessage(null);
+                        void Haptics.selectionAsync();
+                      }}
+                      style={[styles.stateRow, selected && styles.stateRowSelected]}
+                    >
+                      <Text style={[styles.stateText, selected && styles.stateTextSelected]}>{option.state}</Text>
+                      {selected ? <Feather name="check" size={17} color={colors.primary} /> : null}
+                    </Pressable>
+                  );
+                })}
+              </View>
+            ) : null}
 
             <Text style={styles.sectionKicker}>MEDICARE CONTRACTOR</Text>
-            <Text style={styles.sectionTitle}>Which MAC jurisdiction applies?</Text>
-            <Text style={styles.sectionBody}>Enter the contractor or jurisdiction label your organization uses. This preference does not replace current source verification or compliance review.</Text>
-            <TextInput
-              value={macRegion}
-              onChangeText={setMacRegion}
-              placeholder="MAC contractor or jurisdiction"
-              placeholderTextColor={colors.mutedForeground}
-              autoCapitalize="words"
-              autoCorrect={false}
-              style={styles.input}
-              accessibilityLabel="Medicare Administrative Contractor region"
-            />
+            <Text style={styles.sectionTitle}>Assigned from the current CMS map.</Text>
+            <Text style={styles.sectionBody}>The app assigns the Home Health and Hospice MAC for the selected state. Members cannot create a mismatched jurisdiction.</Text>
+            <View style={styles.macCard}>
+              <View style={styles.macIcon}><Feather name="map-pin" size={19} color={colors.primary} /></View>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.macLabel}>{jurisdiction ? jurisdiction.label : "Choose a state to see the assigned MAC"}</Text>
+                {jurisdiction ? <Text style={styles.macContractor}>CMS Home Health and Hospice jurisdiction</Text> : null}
+              </View>
+            </View>
 
             <View style={styles.reviewCard}>
               <Feather name="check-circle" size={18} color={colors.primary} />
@@ -121,7 +143,7 @@ export default function JurisdictionScreen() {
             </View>
 
             {message ? <Text style={[styles.message, message.includes("saved") && { color: colors.success }]}>{message}</Text> : null}
-            <SpartanButton title={saving ? "Saving context…" : "Save jurisdiction context"} onPress={() => void save()} disabled={saving} />
+            <SpartanButton title={saving ? "Saving context…" : "Save jurisdiction context"} onPress={() => void save()} disabled={saving || !jurisdiction} />
             <Pressable onPress={() => router.back()} style={styles.backButton} accessibilityRole="button"><Text style={styles.backText}>Back to Account</Text></Pressable>
           </>
         )}
@@ -144,7 +166,18 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     sectionKicker: { color: colors.primary, fontSize: 9, letterSpacing: 1.7, marginTop: 8, ...font("bold") },
     sectionTitle: { color: colors.foreground, fontSize: 22, lineHeight: 27, ...font("heavy") },
     sectionBody: { color: colors.mutedForeground, fontSize: 11, lineHeight: 17, ...font("regular") },
-    input: { minHeight: 54, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, color: colors.foreground, borderRadius: 15, borderCurve: "continuous", paddingHorizontal: 14, fontSize: 15, ...font("regular") },
+    selector: { minHeight: 56, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 16, borderCurve: "continuous", paddingHorizontal: 15, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 12 },
+    selectorText: { flex: 1, color: colors.foreground, fontSize: 15, ...font("semibold") },
+    selectorPlaceholder: { color: colors.mutedForeground, ...font("regular") },
+    stateList: { borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 16, borderCurve: "continuous", overflow: "hidden" },
+    stateRow: { minHeight: 47, paddingHorizontal: 15, flexDirection: "row", alignItems: "center", justifyContent: "space-between", borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+    stateRowSelected: { backgroundColor: colors.primaryMuted },
+    stateText: { color: colors.foreground, fontSize: 13, ...font("medium") },
+    stateTextSelected: { color: colors.primary, ...font("bold") },
+    macCard: { minHeight: 74, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 17, borderCurve: "continuous", padding: 14, flexDirection: "row", alignItems: "center", gap: 12 },
+    macIcon: { width: 42, height: 42, borderRadius: 14, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
+    macLabel: { color: colors.foreground, fontSize: 13, lineHeight: 18, ...font("bold") },
+    macContractor: { color: colors.mutedForeground, fontSize: 9, marginTop: 3, ...font("regular") },
     reviewCard: { flexDirection: "row", alignItems: "flex-start", gap: 10, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 17, borderCurve: "continuous", padding: 14, marginTop: 6 },
     reviewTitle: { color: colors.foreground, fontSize: 13, ...font("bold") },
     reviewBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 3, ...font("regular") },

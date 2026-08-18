@@ -45,6 +45,8 @@ import {
   type CoachPreference,
 } from "@/lib/coachApi";
 import { font } from "@/lib/typography";
+import { trackProductOutcome } from "@/lib/analytics";
+import { cacheCommitment } from "@/lib/commitmentCache";
 import { HelmetMark } from "@/components/brand/HelmetMark";
 
 type CoachStep = "prepare" | "rehearse" | "review";
@@ -202,6 +204,8 @@ export default function CoachScreen() {
     setBusy(true);
     try {
       await saveCoachMemory("commitment", commitment.trim());
+      if (user?.member?.id) await cacheCommitment(user.member.id, commitment.trim());
+      void trackProductOutcome("next_action_confirmation", { toolId: "spartan_coach", platform: "ios" });
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       Alert.alert(
         "Commitment saved",

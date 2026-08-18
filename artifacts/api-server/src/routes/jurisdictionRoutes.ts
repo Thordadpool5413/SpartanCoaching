@@ -1,6 +1,7 @@
 import type { Express } from "express";
 import { eq } from "drizzle-orm";
 import { z } from "zod";
+import { getHhhMacForState, isValidHhhMacSelection } from "@workspace/field-kit-catalog";
 import {
   clientMembers,
   emptyPersonalizationPayload,
@@ -55,13 +56,22 @@ export function registerJurisdictionRoutes(app: Express): void {
         return res.status(400).json({ error: "Invalid jurisdiction context", details: parsed.error.flatten() });
       }
 
+      if (!isValidHhhMacSelection(parsed.data.state, parsed.data.macRegion)) {
+        return res.status(400).json({
+          error: "The state and Home Health and Hospice MAC jurisdiction do not match the current CMS assignment.",
+          code: "INVALID_HHH_MAC_SELECTION",
+        });
+      }
+
+      const resolved = getHhhMacForState(parsed.data.state)!;
+
       const memberId = req.clientMemberId!;
       const loaded = await loadPayload(memberId);
       const payload = normalizePayload({
         ...loaded.payload,
         jurisdiction: {
           state: parsed.data.state,
-          macRegion: parsed.data.macRegion,
+          macRegion: resolved.label,
         },
       });
 

@@ -1,6 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Platform,
@@ -17,6 +17,7 @@ import { SpartanButton } from "@/components/ui/SpartanButton";
 import { useColors } from "@/hooks/useColors";
 import { apiPost } from "@/lib/api";
 import { font } from "@/lib/typography";
+import { clearConsultingConfirmation, loadConsultingConfirmation, saveConsultingConfirmation, type ConsultingConfirmation } from "@/lib/consultingConfirmation";
 
 const SERVICES = [
   {
@@ -76,7 +77,12 @@ export default function ConsultingScreen() {
   const [form, setForm] = useState<Form>(EMPTY_FORM);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [confirmation, setConfirmation] = useState<ConsultingConfirmation | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    void loadConsultingConfirmation().then(setConfirmation);
+  }, []);
 
   const update = (key: keyof Form, value: string) => setForm((current) => ({ ...current, [key]: value }));
   const selectedService = SERVICES.find((service) => service.id === form.serviceType);
@@ -94,7 +100,7 @@ export default function ConsultingScreen() {
     setLoading(true);
     setError(null);
     try {
-      await apiPost("/api/inquiries", {
+      const response = await apiPost<{ success: boolean; inquiry: { id: number | string; submittedAt?: number | string | Date } }>("/api/inquiries", {
         name: form.name.trim(),
         email: form.email.trim(),
         phone: form.phone.trim(),
@@ -106,6 +112,14 @@ export default function ConsultingScreen() {
         ].join("\n\n"),
         submittedAt: Date.now(),
       });
+      const saved: ConsultingConfirmation = {
+        inquiryId: response.inquiry.id,
+        service: selectedService?.title || "Consulting",
+        availability: form.availability,
+        submittedAt: new Date(response.inquiry.submittedAt || Date.now()).toISOString(),
+      };
+      await saveConsultingConfirmation(saved);
+      setConfirmation(saved);
       setSubmitted(true);
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch {
@@ -115,7 +129,7 @@ export default function ConsultingScreen() {
     }
   };
 
-  if (submitted) {
+  if (submitted && confirmation) {
     return (
       <View style={[styles.screen, { paddingTop: topPad }]} testID="consulting-confirmation">
         <View style={styles.confirmation}>
@@ -123,12 +137,13 @@ export default function ConsultingScreen() {
           <Text style={styles.confirmationKicker}>REQUEST RECEIVED</Text>
           <Text style={styles.confirmationTitle}>The next conversation is now in motion.</Text>
           <Text style={styles.confirmationBody}>
-            Your {selectedService?.title || "consulting"} request and {form.availability.toLowerCase()} preference were submitted. This is a separate contracted human service and is not part of your Apple subscription.
+            Your {confirmation.service} request and {confirmation.availability.toLowerCase()} preference were submitted. This is a separate contracted human service and is not part of your Apple subscription.
           </Text>
           <View style={styles.confirmationCard}>
-            <SummaryRow label="Service" value={selectedService?.title || "Consulting"} />
-            <SummaryRow label="Preferred time" value={form.availability} />
-            <SummaryRow label="Contact" value={form.email} />
+            <SummaryRow label="Request" value={String(confirmation.inquiryId)} />
+            <SummaryRow label="Service" value={confirmation.service} />
+            <SummaryRow label="Preferred time" value={confirmation.availability} />
+            <SummaryRow label="Submitted" value={new Date(confirmation.submittedAt).toLocaleDateString()} />
           </View>
           <SpartanButton title="Done" onPress={() => { setSubmitted(false); setForm(EMPTY_FORM); }} />
         </View>
@@ -151,6 +166,13 @@ export default function ConsultingScreen() {
       </View>
 
       <View style={styles.content}>
+        {confirmation ? (
+          <View style={styles.recentCard} testID="consulting-saved-confirmation">
+            <View style={styles.recentIcon}><Feather name="check" size={18} color="#FFFFFF" /></View>
+            <View style={{ flex: 1 }}><Text style={styles.recentTitle}>Request received</Text><Text style={styles.recentBody}>{confirmation.service} · {confirmation.availability} · {new Date(confirmation.submittedAt).toLocaleDateString()}</Text></View>
+            <Pressable accessibilityRole="button" accessibilityLabel="Clear consulting confirmation" onPress={() => void clearConsultingConfirmation().then(() => setConfirmation(null))} style={styles.clearConfirmation}><Feather name="x" size={17} color={colors.mutedForeground} /></Pressable>
+          </View>
+        ) : null}
         <Text style={styles.sectionKicker}>1 · CHOOSE THE WORK</Text>
         <Text style={styles.sectionTitle}>What needs attention?</Text>
         <View style={styles.serviceList}>
@@ -272,6 +294,11 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     heroTitle: { color: colors.heroForeground, fontSize: 31, lineHeight: 36, letterSpacing: -0.8, ...font("heavy") },
     heroBody: { color: colors.heroMuted, fontSize: 14, lineHeight: 21, ...font("regular") },
     content: { paddingHorizontal: 20, paddingTop: 26, gap: 14 },
+    recentCard: { minHeight: 72, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 18, borderCurve: "continuous", padding: 13, flexDirection: "row", alignItems: "center", gap: 11 },
+    recentIcon: { width: 38, height: 38, borderRadius: 13, backgroundColor: colors.success, alignItems: "center", justifyContent: "center" },
+    recentTitle: { color: colors.foreground, fontSize: 13, ...font("bold") },
+    recentBody: { color: colors.mutedForeground, fontSize: 9, lineHeight: 14, marginTop: 2, ...font("regular") },
+    clearConfirmation: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
     sectionKicker: { color: colors.primary, fontSize: 9, letterSpacing: 1.8, marginTop: 8, ...font("bold") },
     sectionTitle: { color: colors.foreground, fontSize: 24, lineHeight: 29, letterSpacing: -0.5, ...font("heavy") },
     sectionBody: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, ...font("regular") },

@@ -37,6 +37,12 @@ jest.mock("../lib/api", () => ({
   apiGet: jest.fn(),
   apiPost: jest.fn(),
 }));
+jest.mock("../lib/jurisdictionApi", () => ({
+  fetchJurisdictionContext: jest.fn(async () => ({
+    state: "Florida",
+    macRegion: "Jurisdiction M · Palmetto GBA",
+  })),
+}));
 
 const apiGetMock = apiGet as jest.MockedFunction<typeof apiGet>;
 const apiPostMock = apiPost as jest.MockedFunction<typeof apiPost>;

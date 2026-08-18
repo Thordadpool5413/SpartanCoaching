@@ -22,6 +22,7 @@ import {
   inviteOrganizationMember,
   setOrganizationMemberEnabled,
   type AccessRequestSummary,
+  type AdminSharedSummary,
   type AdminMetrics,
   type AdminOrganizationSummary,
   type OrgMemberSummary,
@@ -57,7 +58,10 @@ type OrgData = {
     days: number;
     byTool: Array<{ toolName: string; count: number }>;
     byMember: Array<{ email: string; count: number }>;
+    completionTotal: number;
+    completionTrend: Array<{ date: string; count: number }>;
   };
+  sharedSummaries: AdminSharedSummary[];
   profile: OrgAdminProfile | null;
   branches: OrgBranchSummary[];
   teams: OrgTeamSummary[];
@@ -67,10 +71,10 @@ type OrgData = {
 export default function AdminScreen() {
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
-  const { user } = useAuth();
+  const { user, canManageOrganization } = useAuth();
   const role = user?.member?.role;
   const isPlatform = role === "platform_admin";
-  const isOrgAdmin = role === "org_admin";
+  const isOrgAdmin = role === "org_admin" && canManageOrganization;
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -195,6 +199,7 @@ export default function AdminScreen() {
         <>
           <OrganizationStatus data={organization} styles={styles} />
           <UsageOverview data={organization} styles={styles} colors={colors} />
+          <SharedInformation data={organization.sharedSummaries} styles={styles} />
 
           <SectionTitle eyebrow="CONTRACTED TEAM" title="Members and access" styles={styles} />
           <Text style={styles.sectionBody}>Tap a member to manage role, status, branch, team, manager, or offboarding. Your own administrator role is protected here.</Text>
@@ -308,6 +313,16 @@ function UsageOverview({ data, styles, colors }: { data: OrgData; styles: Return
     <>
       <SectionTitle eyebrow="ADOPTION" title={`Team usage · last ${data.usage.days} days`} styles={styles} />
       <Text style={styles.sectionBody}>Aggregate activity only. This view measures adoption, not the content of anyone's work.</Text>
+      <View style={styles.trendCard}>
+        <View style={styles.trendHeading}><Text style={styles.panelTitle}>Completed actions</Text><Text style={styles.usageCount}>{data.usage.completionTotal}</Text></View>
+        <View style={styles.trendBars}>
+          {data.usage.completionTrend.map((day) => {
+            const trendMax = Math.max(1, ...data.usage.completionTrend.map((item) => item.count));
+            return <View key={day.date} style={styles.trendColumn}><View style={styles.trendTrack}><View style={[styles.trendFill, { height: `${Math.max(day.count ? 12 : 2, (day.count / trendMax) * 100)}%` }]} /></View><Text style={styles.trendLabel}>{new Date(`${day.date}T12:00:00Z`).toLocaleDateString(undefined, { weekday: "narrow" })}</Text></View>;
+          })}
+        </View>
+        <Text style={styles.trendNote}>Counts completed workflows, tools, saved results, resources, and confirmed next actions. It never includes member input or output content.</Text>
+      </View>
       <View style={styles.panel}>
         {rows.length ? rows.map((row) => (
           <View key={row.toolName} style={styles.usageRow}>
@@ -315,6 +330,24 @@ function UsageOverview({ data, styles, colors }: { data: OrgData; styles: Return
             <View style={styles.usageTrack}><View style={[styles.usageFill, { width: `${Math.max(6, (row.count / max) * 100)}%`, backgroundColor: colors.primary }]} /></View>
           </View>
         )) : <Text style={styles.emptyInline}>No tool activity recorded for this period.</Text>}
+      </View>
+    </>
+  );
+}
+
+function SharedInformation({ data, styles }: { data: AdminSharedSummary[]; styles: ReturnType<typeof makeStyles> }) {
+  return (
+    <>
+      <SectionTitle eyebrow="SHARED WITH YOU" title="Summaries and commitments only" styles={styles} />
+      <Text style={styles.sectionBody}>A member chose to share every item shown here. Raw Coach conversations, recordings, transcripts, drafts, and unshared outputs never appear.</Text>
+      <View style={styles.list}>
+        {data.length ? data.map((item) => (
+          <View key={item.id} style={styles.sharedCard}>
+            <View style={styles.sharedHeading}><Text style={styles.rowTitle}>{item.ownerName}</Text><Text style={styles.rowMeta}>{new Date(item.sharedAt).toLocaleDateString()}</Text></View>
+            <Text selectable style={styles.sharedSummary}>{item.summary}</Text>
+            {item.commitments.length ? <View style={styles.commitmentList}>{item.commitments.map((commitment, index) => <View key={`${item.id}-${index}`} style={styles.commitmentRow}><Feather name="check-circle" size={15} color="#A61E2D" /><Text selectable style={styles.commitmentText}>{commitment}</Text></View>)}</View> : null}
+          </View>
+        )) : <Text style={styles.emptyInline}>No member has explicitly shared a summary or commitment with you.</Text>}
       </View>
     </>
   );
@@ -451,6 +484,20 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     usageCount: { color: colors.primary, fontSize: 11, fontVariant: ["tabular-nums"], ...font("bold") },
     usageTrack: { height: 6, backgroundColor: colors.muted, borderRadius: 3, overflow: "hidden" },
     usageFill: { height: 6, borderRadius: 3 },
+    trendCard: { borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 18, borderCurve: "continuous", padding: 15, gap: 12 },
+    trendHeading: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+    trendBars: { height: 92, flexDirection: "row", alignItems: "flex-end", gap: 8 },
+    trendColumn: { flex: 1, height: "100%", alignItems: "center", gap: 5 },
+    trendTrack: { flex: 1, width: "100%", borderRadius: 7, backgroundColor: colors.muted, overflow: "hidden", justifyContent: "flex-end" },
+    trendFill: { width: "100%", borderRadius: 7, backgroundColor: colors.primary },
+    trendLabel: { color: colors.mutedForeground, fontSize: 8, ...font("semibold") },
+    trendNote: { color: colors.mutedForeground, fontSize: 9, lineHeight: 14, ...font("regular") },
+    sharedCard: { padding: 15, gap: 9, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
+    sharedHeading: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 10 },
+    sharedSummary: { color: colors.foreground, fontSize: 12, lineHeight: 18, ...font("medium") },
+    commitmentList: { gap: 7, paddingTop: 3 },
+    commitmentRow: { flexDirection: "row", alignItems: "flex-start", gap: 8 },
+    commitmentText: { flex: 1, color: colors.mutedForeground, fontSize: 10, lineHeight: 15, ...font("regular") },
     auditRow: { minHeight: 68, flexDirection: "row", alignItems: "center", gap: 11, paddingHorizontal: 14, paddingVertical: 10, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border },
     auditDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: colors.primary },
     pending: { color: colors.warning, fontSize: 10, ...font("bold") },
