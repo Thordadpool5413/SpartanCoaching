@@ -5,6 +5,7 @@ import pinoHttp from "pino-http";
 import router from "./routes";
 import { registerRoutes } from "./routes/routes";
 import { registerAuthRoutes } from "./routes/authRoutes";
+import { registerCompanySeatTransitionRoutes } from "./routes/companySeatTransitionRoutes";
 import { registerSalesWorkflowRoutes } from "./routes/salesWorkflowRoutes";
 import { registerAiToolRoutes } from "./routes/aiToolRoutes";
 import { registerResourceWorkRoutes } from "./routes/resourceWorkRoutes";
@@ -150,6 +151,7 @@ app.use("/api", (req, res, next) => {
 app.use("/api", globalApiLimit);
 app.use("/api", router);
 
+registerCompanySeatTransitionRoutes(app);
 registerAuthRoutes(app);
 registerBillingRoutes(app);
 registerSalesWorkflowRoutes(app);
