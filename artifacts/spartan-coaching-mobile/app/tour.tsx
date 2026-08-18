@@ -163,7 +163,7 @@ function TourExperience({ step, practiceChoice, onPracticeChoice, selectedPracti
   if (step === 1) {
     return (
       <View style={styles.planCard}>
-        <Text style={styles.cardKicker}>YOUR GAME PLAN</Text>
+        <Text style={styles.planKicker}>YOUR GAME PLAN</Text>
         <ResultBlock number="01" title="Open with curiosity" body="Ask what makes the existing relationship valuable before introducing a different point of view." />
         <ResultBlock number="02" title="Educate around one gap" body="Focus on family understanding and timely hospice conversations, not vendor comparison." />
         <ResultBlock number="03" title="Ask for a small next step" body="Request a short education follow up with the practice team instead of asking for a referral." />
@@ -236,8 +236,9 @@ function InfoLine({ icon, title, body }: { icon: React.ComponentProps<typeof Fea
 }
 
 function ResultBlock({ number, title, body }: { number: string; title: string; body: string }) {
-  const styles = useMemo(() => makeStyles(useColors()), []);
-  return <View style={styles.resultBlock}><Text style={styles.resultNumber}>{number}</Text><View style={{ flex: 1 }}><Text style={styles.infoTitle}>{title}</Text><Text style={styles.infoBody}>{body}</Text></View></View>;
+  const colors = useColors();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+  return <View style={styles.resultBlock}><Text style={styles.resultNumber}>{number}</Text><View style={{ flex: 1 }}><Text style={styles.planInfoTitle}>{title}</Text><Text style={styles.planInfoBody}>{body}</Text></View></View>;
 }
 
 function AccessLine({ title, price, body, elite = false }: { title: string; price: string; body: string; elite?: boolean }) {
@@ -267,8 +268,11 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     infoTitle: { color: colors.foreground, fontSize: 13, ...font("bold") },
     infoBody: { color: colors.mutedForeground, fontSize: 11, lineHeight: 17, marginTop: 3, ...font("regular") },
     planCard: { backgroundColor: colors.heroBackground, borderRadius: 21, borderCurve: "continuous", padding: 18, marginTop: 24, gap: 0 },
+    planKicker: { color: colors.primary, fontSize: 9, letterSpacing: 1.6, ...font("bold") },
     resultBlock: { flexDirection: "row", gap: 12, paddingVertical: 13, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: "rgba(255,255,255,0.16)" },
     resultNumber: { color: colors.primary, fontSize: 12, ...font("heavy") },
+    planInfoTitle: { color: colors.heroForeground, fontSize: 13, ...font("bold") },
+    planInfoBody: { color: colors.heroMuted, fontSize: 11, lineHeight: 17, marginTop: 3, ...font("regular") },
     practiceStack: { gap: 9, marginTop: 24 },
     practiceChoice: { flexDirection: "row", alignItems: "flex-start", gap: 11, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 17, borderCurve: "continuous", padding: 14 },
     practiceChoiceSelected: { borderColor: colors.primary, backgroundColor: colors.primaryMuted },
