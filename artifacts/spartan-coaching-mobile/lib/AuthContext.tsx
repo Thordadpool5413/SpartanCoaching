@@ -25,6 +25,10 @@ type AuthContextValue = {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
+function shouldClaimApplePurchase(data: MobileAuthUser) {
+  return data.organization?.type === "personal";
+}
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<MobileAuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -52,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       fieldKit: data.fieldKit,
     });
     try {
-      if (await claimCurrentApplePurchases()) {
+      if (shouldClaimApplePurchase(data) && await claimCurrentApplePurchases()) {
         const refreshed = await fetchMeMobile();
         if (refreshed) setUser(refreshed);
       }
@@ -69,7 +73,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       fieldKit: data.fieldKit,
     });
     try {
-      if (await claimCurrentApplePurchases()) {
+      if (shouldClaimApplePurchase(data) && await claimCurrentApplePurchases()) {
         const refreshed = await fetchMeMobile();
         if (refreshed) setUser(refreshed);
       }
