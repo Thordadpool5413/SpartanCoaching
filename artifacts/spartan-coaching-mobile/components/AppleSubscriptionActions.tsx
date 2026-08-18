@@ -33,6 +33,7 @@ type Props = {
   isAuthenticated?: boolean;
   showPurchase?: boolean;
   showManage?: boolean;
+  showRestore?: boolean;
   onPricesLoaded?: (prices: AppleSubscriptionDisplayPrices) => void;
   onPurchaseComplete?: (result: AppleVerificationResult) => Promise<void> | void;
   onEntitlementChanged?: () => Promise<void> | void;
@@ -47,6 +48,7 @@ export function AppleSubscriptionActions({
   isAuthenticated = false,
   showPurchase = false,
   showManage = false,
+  showRestore = true,
   onPricesLoaded,
   onPurchaseComplete,
   onEntitlementChanged,
@@ -236,14 +238,16 @@ export function AppleSubscriptionActions({
           testID="button-manage-apple-subscription"
         />
       ) : null}
-      <SpartanButton
-        title={busy === "restore" ? "Restoring purchases" : "Restore Apple purchases"}
-        variant="outline"
-        onPress={() => void restore()}
-        loading={busy === "restore"}
-        disabled={!connected || !config?.configured}
-        testID="button-restore-purchases"
-      />
+      {showRestore ? (
+        <SpartanButton
+          title={busy === "restore" ? "Restoring purchases" : "Restore Apple purchases"}
+          variant="outline"
+          onPress={() => void restore()}
+          loading={busy === "restore"}
+          disabled={!connected || !config?.configured}
+          testID="button-restore-purchases"
+        />
+      ) : null}
       {storeError ? (
         <Text
           selectable
