@@ -122,6 +122,13 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.secondaryActions}>
+            <View style={[styles.recoveryCard, { backgroundColor: colors.card, borderColor: colors.borderStrong ?? colors.border }]} testID="company-offboarding-recovery">
+              <Feather name="refresh-cw" size={18} color={colors.primary} />
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.recoveryTitle, { color: colors.foreground }, font("bold")]}>Company access ended?</Text>
+                <Text style={[styles.recoveryBody, { color: colors.mutedForeground }, font("regular")]}>Choose individual access through Apple, then create the personal account with the same email. Preserved private commitments can reconnect during the 30 day recovery window.</Text>
+              </View>
+            </View>
             <Pressable
               accessibilityRole="link"
               onPress={() => router.push("/membership" as Href)}
@@ -170,6 +177,9 @@ const styles = StyleSheet.create({
   trustRow: { borderTopWidth: StyleSheet.hairlineWidth, flexDirection: "row", alignItems: "flex-start", gap: 9, marginTop: 18, paddingTop: 16 },
   trustText: { flex: 1, fontSize: 11, lineHeight: 17 },
   secondaryActions: { paddingTop: 14, gap: 4 },
+  recoveryCard: { minHeight: 88, flexDirection: "row", alignItems: "flex-start", gap: 11, borderWidth: 1, borderRadius: 16, padding: 14, marginBottom: 6 },
+  recoveryTitle: { fontSize: 13 },
+  recoveryBody: { fontSize: 11, lineHeight: 17, marginTop: 3 },
   linkButton: { minHeight: 56, borderWidth: 1, borderRadius: 16, paddingHorizontal: 17, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   linkButtonText: { fontSize: 14 },
   contactLink: { minHeight: 50, paddingHorizontal: 12, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 3 },
