@@ -195,26 +195,13 @@ export function registerCompanySeatTransitionRoutes(app: Express): void {
           return res.status(500).json({ error: "Company seat activation did not complete.", code: "SEAT_ACTIVATION_FAILED" });
         }
 
-        const appleSubscriptionNeedsCancellation =
-          sourceOrganization.billingProvider === "apple" &&
-          sourceOrganization.billingStatus === "active";
-
         return res.status(200).json({
           ok: true,
           transitionedExistingAccount: true,
           member: publicTransitionMember(moved),
           companyMembership: company.billingPlan === COMPANY_ELITE_PLAN ? "elite" : "standard",
-          previousPersonalMembership: {
-            billingProvider: sourceOrganization.billingProvider,
-            billingStatus: sourceOrganization.billingStatus,
-            currentPeriodEnd: sourceOrganization.currentPeriodEnd,
-            appleProductId: sourceOrganization.appleProductId,
-          },
-          appleSubscriptionNeedsCancellation,
-          subscriptionManagementAction: appleSubscriptionNeedsCancellation ? "OPEN_APPLE_SUBSCRIPTIONS" : null,
-          message: appleSubscriptionNeedsCancellation
-            ? "Company access is active on the same Spartan account. The individual Apple subscription remains under the member's control and should be ended in Apple Subscriptions to prevent the next renewal."
-            : "Company access is active on the same Spartan account. Existing private workspace history and preferences were preserved.",
+          memberBillingPrivacy: "INDIVIDUAL_BILLING_NOT_DISCLOSED_TO_ORGANIZATION",
+          message: "Company access is active on the same Spartan account. Existing private workspace history and preferences were preserved. Any previous individual Apple subscription remains private to the member and can be managed from the member's Account screen.",
         });
       } catch (error) {
         next(error);
