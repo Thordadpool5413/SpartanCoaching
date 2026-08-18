@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { FIELD_KIT_TOOLS } from "@workspace/field-kit-catalog";
+import { SPARTAN_OFFERINGS } from "../lib/productExperience";
 
 const root = path.resolve(__dirname, "..");
 const read = (file: string) => fs.readFileSync(path.join(root, file), "utf8");
@@ -9,6 +10,8 @@ describe("native product completeness", () => {
   it("does not route a core catalog tool to the website", () => {
     expect(FIELD_KIT_TOOLS.filter((tool) => tool.mobile !== "native")).toEqual([]);
     expect(FIELD_KIT_TOOLS.filter((tool) => !tool.mobileRoute)).toEqual([]);
+    expect(fs.existsSync(path.join(root, "app/tool-web.tsx"))).toBe(false);
+    expect(read("app/_layout.tsx")).not.toContain('name="tool-web"');
   });
 
   it("opens Library items and Spartan Method content inside the app", () => {
@@ -30,17 +33,52 @@ describe("native product completeness", () => {
     expect(login).toContain('router.push("/forgot-password" as Href)');
     expect(login).not.toContain('openWebsite("/forgot-password")');
     expect(admin).not.toContain("Linking.openURL");
+    expect(admin).toContain("Admin visibility has a hard boundary");
+    expect(admin).toContain("setOrganizationMemberRole");
+    expect(admin).toContain("assignOrganizationMember");
+    expect(admin).toContain("offboardOrganizationMember");
     expect(rootLayout).toContain('name="forgot-password"');
     expect(rootLayout).toContain('name="reset-password"');
   });
 
-  it("makes access and pricing visible before authentication", () => {
+  it("makes product scope and purchasing visible before authentication", () => {
     const home = read("components/WelcomeExperience.tsx");
     const membership = read("app/membership.tsx");
-    expect(home).toContain("TWO INDIVIDUAL MEMBERSHIPS");
-    expect(home).toContain("$14.99");
-    expect(home).toContain("$19.99");
-    expect(membership).toContain("No Spartan account is required before purchase");
+    const access = read("app/access.tsx");
+    expect(home).toContain("SEE THE SYSTEM BEFORE YOU PAY");
+    expect(home).toContain("See everything in the app");
+    expect(home).toContain("Compare and subscribe with Apple");
+    expect(membership).toContain("Payment happens through Apple before Spartan account creation");
     expect(membership).toContain("Private Spartan Coach");
+    expect(access).toContain("THE COMPLETE APP");
+  });
+
+  it("defines one app wide source of truth for every major offering", () => {
+    expect(SPARTAN_OFFERINGS.map((offering) => offering.id)).toEqual([
+      "home",
+      "coach",
+      "tools",
+      "library",
+      "consulting",
+      "account",
+      "admin",
+    ]);
+    for (const offering of SPARTAN_OFFERINGS) {
+      expect(offering.promise.length).toBeGreaterThan(20);
+      expect(offering.capabilities.length).toBeGreaterThanOrEqual(4);
+      expect(offering.offline.length).toBeGreaterThan(20);
+    }
+  });
+
+  it("renders advanced AI results as a semantic product experience", () => {
+    const tool = read("components/ai-tool-screen.tsx");
+    const result = read("components/PremiumAiResult.tsx");
+    expect(tool).toContain("PremiumAiResult");
+    expect(tool).toContain("formatAiResultForSharing");
+    expect(tool).toContain("Readable output, not a JSON dump");
+    expect(result).toContain("Executive answer");
+    expect(result).toContain("Field ready language");
+    expect(result).toContain("Next actions");
+    expect(result).toContain("Evidence & review");
   });
 });
