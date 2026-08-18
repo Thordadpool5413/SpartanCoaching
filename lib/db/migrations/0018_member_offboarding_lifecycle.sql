@@ -145,3 +145,20 @@ BEGIN
   RETURN QUERY SELECT commitment_count, summary_count;
 END;
 $$;
+
+CREATE OR REPLACE FUNCTION spartan_member_offboarding_retention_tick()
+RETURNS trigger
+LANGUAGE plpgsql
+AS $$
+BEGIN
+  PERFORM * FROM spartan_run_member_offboarding_retention();
+  RETURN NEW;
+END;
+$$;
+
+DROP TRIGGER IF EXISTS "trg_member_offboarding_retention_tick" ON "auth_events";
+CREATE TRIGGER "trg_member_offboarding_retention_tick"
+AFTER INSERT ON "auth_events"
+FOR EACH ROW
+WHEN (NEW."type" = 'job_session_cleanup')
+EXECUTE FUNCTION spartan_member_offboarding_retention_tick();
