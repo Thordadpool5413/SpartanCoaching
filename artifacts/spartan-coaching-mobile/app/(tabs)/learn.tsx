@@ -331,7 +331,7 @@ export default function LearnScreen() {
                         whenToUse: architecture?.whenToUse,
                         whyItMatters: architecture?.whyItMatters,
                         expectedOutcome: architecture?.expectedOutcome,
-                        version,
+                        version: version || undefined,
                       })}
                       testID={`resource-${item.id}`}
                     />
