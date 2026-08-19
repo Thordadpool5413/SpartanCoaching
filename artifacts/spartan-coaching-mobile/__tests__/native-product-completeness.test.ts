@@ -167,6 +167,18 @@ describe("native product completeness", () => {
     expect(read("app/(tabs)/learn.tsx")).toContain('placeholder="Search tools and resources"');
     expect(read("app/(tabs)/learn.tsx")).toContain("Boolean(item.audioUrl)");
     expect(read("app/(tabs)/learn.tsx")).toContain("Only complete, playable episodes appear here");
+    expect(read("app/(tabs)/learn.tsx")).toContain("LibraryModeIntro");
+    expect(read("app/(tabs)/learn.tsx")).toContain("library-mode-");
+  });
+
+  it("makes the complete native tool inventory visible instead of relying on featured cards", () => {
+    const explore = read("app/(tabs)/tools.tsx");
+    expect(explore).toContain('testID="complete-tool-directory"');
+    expect(explore).toContain("All {FIELD_KIT_TOOLS.length} tools");
+    expect(explore).toContain("FIELD_KIT_CATEGORIES");
+    expect(explore).toContain("Every row opens a native iPhone experience");
+    expect(explore).toContain("Guided tour");
+    expect(explore).toContain("Access map");
   });
 
   it("defines one app wide source of truth for every major offering", () => {

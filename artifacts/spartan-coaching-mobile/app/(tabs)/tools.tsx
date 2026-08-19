@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   Alert,
   Platform,
@@ -15,9 +15,9 @@ import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   DISCOVERY_INTENTS,
-  FIELD_KIT_DAILY_TOOL_IDS,
-  FIELD_KIT_LEADER_TOOL_IDS,
+  FIELD_KIT_CATEGORIES,
   FIELD_KIT_TOOLS,
+  type FieldKitCategory,
   type FieldKitTool,
 } from "@workspace/field-kit-catalog";
 import { OfflineQueueBanner } from "@/components/OfflineQueueBanner";
@@ -108,6 +108,7 @@ function ToolsCatalogScreen() {
   const { canUseFieldKit, canUseElite, isAuthenticated } = useAuth();
   const params = useLocalSearchParams<{ tab?: string | string[] }>();
   const [filter, setFilter] = useState("");
+  const [category, setCategory] = useState<"All" | FieldKitCategory>("All");
   const [remoteGroups, setRemoteGroups] = useState<SearchResponse["groups"]>([]);
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
@@ -186,28 +187,29 @@ function ToolsCatalogScreen() {
 
   const q = filter.trim().toLowerCase();
   const matches = (tool: FieldKitTool) =>
-    !q ||
-    tool.title.toLowerCase().includes(q) ||
-    tool.description.toLowerCase().includes(q) ||
-    (tool.whenToUse || "").toLowerCase().includes(q);
+    (category === "All" || tool.category === category) && (
+      !q ||
+      tool.title.toLowerCase().includes(q) ||
+      tool.description.toLowerCase().includes(q) ||
+      (tool.whenToUse || "").toLowerCase().includes(q)
+    );
 
   const featured = FEATURED_IDS
     .map((id) => FIELD_KIT_TOOLS.find((tool) => tool.id === id))
     .filter((tool): tool is FieldKitTool => Boolean(tool && matches(tool)));
 
-  const dailyIds = useMemo(() => new Set<string>(FIELD_KIT_DAILY_TOOL_IDS), []);
-  const leaderIds = useMemo(() => new Set<string>(FIELD_KIT_LEADER_TOOL_IDS), []);
-  const fieldTools = FIELD_KIT_TOOLS.filter(
-    (tool) => !FEATURED_IDS.includes(tool.id as (typeof FEATURED_IDS)[number]) && dailyIds.has(tool.id) && matches(tool),
-  );
-  const leaderTools = FIELD_KIT_TOOLS.filter((tool) => leaderIds.has(tool.id) && matches(tool));
+  const visibleTools = FIELD_KIT_TOOLS.filter(matches);
+  const toolGroups = FIELD_KIT_CATEGORIES.map((group) => ({
+    category: group,
+    tools: visibleTools.filter((tool) => tool.category === group),
+  })).filter((group) => group.tools.length > 0);
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]} testID="screen-explore">
       <View style={[styles.header, { paddingTop: topPad + 12, borderBottomColor: colors.border }]}>
         <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>EVERYTHING IN ONE PLACE</Text>
         <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Explore</Text>
-        <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Find a tool, open the Library, or understand exactly what your access includes.</Text>
+        <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>All {FIELD_KIT_TOOLS.length} field tools, the complete Library, private Coach, and saved work. Nothing important is buried.</Text>
         <View style={[styles.searchShell, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Feather name="search" size={18} color={colors.mutedForeground} />
           <TextInput
@@ -239,6 +241,7 @@ function ToolsCatalogScreen() {
             <ExploreDestination icon="book-open" title="Library" body="Read, listen, and use field resources inside the app." onPress={() => router.push("/(tabs)/tools?view=library" as any)} />
             <ExploreDestination icon="check-circle" title="My Work" body="Resume plans, commitments, downloads, and approvals." onPress={() => router.push("/(tabs)/my-work" as any)} />
             <ExploreDestination icon="layers" title="Access map" body="See what Standard and Elite include." onPress={() => router.push("/access" as any)} />
+            <ExploreDestination icon="compass" title="Guided tour" body="Walk through preparation, practice, Coach feedback, and follow through." onPress={() => router.push("/tour" as any)} />
           </View>
         ) : null}
 
@@ -323,28 +326,30 @@ function ToolsCatalogScreen() {
           </>
         ) : null}
 
-        {fieldTools.length > 0 ? (
-          <View style={{ marginTop: q ? 0 : 24 }} testID="tools-job-prepare">
-            <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>HOSPICE SALES PRO</Text>
-            <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Build the next move</Text>
-            <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>Focused tools for preparation, follow up, planning, and measurement.</Text>
-            {fieldTools.map((tool) => (
-              <ActionRow key={tool.id} title={mobileToolTitle(tool)} subtitle={tool.whenToUse || tool.description} icon={toolIcon(tool)} badge={accessLabel(tool)} onPress={() => openCatalogTool(tool)} testID={`tool-row-${tool.id}`} />
-            ))}
+        <View style={{ marginTop: q ? 0 : 30 }} testID="complete-tool-directory">
+          <View style={styles.directoryHeading}>
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>COMPLETE TOOL DIRECTORY</Text>
+              <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>All {FIELD_KIT_TOOLS.length} tools</Text>
+              <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>Browse the full system by job. Every row opens a native iPhone experience.</Text>
+            </View>
+            <View style={[styles.countBadge, { backgroundColor: colors.primary }]}><Text style={[styles.countNumber, font("heavy")]}>{visibleTools.length}</Text><Text style={[styles.countLabel, font("bold")]}>VISIBLE</Text></View>
           </View>
-        ) : null}
+          <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.categoryRail}>
+            {(["All", ...FIELD_KIT_CATEGORIES] as const).map((item) => {
+              const active = category === item;
+              return <Pressable key={item} accessibilityRole="radio" accessibilityState={{ checked: active }} onPress={() => setCategory(item)} style={[styles.categoryChip, { backgroundColor: active ? colors.primary : colors.card, borderColor: active ? colors.primary : colors.borderStrong }]}><Text style={[styles.categoryLabel, { color: active ? "#FFFFFF" : colors.foreground }, font(active ? "bold" : "semibold")]}>{item}</Text></Pressable>;
+            })}
+          </ScrollView>
+          {toolGroups.map((group) => (
+            <View key={group.category} style={styles.toolGroup} testID={`tool-category-${group.category.toLowerCase()}`}>
+              <View style={styles.groupTitleRow}><Text style={[styles.groupTitle, { color: colors.foreground }, font("heavy")]}>{group.category}</Text><Text style={[styles.groupCount, { color: colors.mutedForeground }, font("semibold")]}>{group.tools.length} {group.tools.length === 1 ? "tool" : "tools"}</Text></View>
+              {group.tools.map((tool) => <ActionRow key={tool.id} title={mobileToolTitle(tool)} subtitle={tool.whenToUse || tool.description} icon={toolIcon(tool)} badge={accessLabel(tool)} onPress={() => openCatalogTool(tool)} testID={`tool-row-${tool.id}`} />)}
+            </View>
+          ))}
+        </View>
 
-        {leaderTools.length > 0 ? (
-          <View style={{ marginTop: 26 }} testID="tools-leaders">
-            <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>LEADERSHIP</Text>
-            <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Coach the system</Text>
-            {leaderTools.map((tool) => (
-              <ActionRow key={tool.id} title={mobileToolTitle(tool)} subtitle={tool.whenToUse || tool.description} icon={toolIcon(tool)} badge={accessLabel(tool)} onPress={() => openCatalogTool(tool)} />
-            ))}
-          </View>
-        ) : null}
-
-        {!featured.length && !fieldTools.length && !leaderTools.length && remoteGroups.length === 0 ? (
+        {!featured.length && !visibleTools.length && remoteGroups.length === 0 ? (
           <View style={[styles.empty, { borderColor: colors.border, backgroundColor: colors.card }]}>
             <Feather name="search" size={24} color={colors.primary} />
             <Text style={[styles.emptyTitle, { color: colors.foreground }, font("bold")]}>No match for “{filter}”</Text>
@@ -424,6 +429,17 @@ const styles = StyleSheet.create({
   destinationCopy: { flex: 1 },
   destinationTitle: { fontSize: 15 },
   destinationBody: { fontSize: 12, lineHeight: 17, marginTop: 3 },
+  directoryHeading: { flexDirection: "row", alignItems: "flex-start", gap: 14 },
+  countBadge: { width: 60, height: 60, borderRadius: 20, borderCurve: "continuous", alignItems: "center", justifyContent: "center" },
+  countNumber: { color: "#FFFFFF", fontSize: 21, lineHeight: 23 },
+  countLabel: { color: "rgba(255,255,255,0.78)", fontSize: 7, letterSpacing: 1.1 },
+  categoryRail: { gap: 8, paddingVertical: 6, paddingRight: 12, marginBottom: 12 },
+  categoryChip: { minHeight: 42, justifyContent: "center", borderWidth: 1, borderRadius: 999, paddingHorizontal: 16 },
+  categoryLabel: { fontSize: 12 },
+  toolGroup: { marginTop: 22 },
+  groupTitleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 10 },
+  groupTitle: { fontSize: 20, letterSpacing: -0.3 },
+  groupCount: { fontSize: 10 },
   sectionHeading: { flexDirection: "row", alignItems: "flex-end", gap: 12, marginBottom: 12 },
   sectionEyebrow: { fontSize: 10, letterSpacing: 1.9, marginBottom: 6 },
   sectionTitle: { fontSize: 23, letterSpacing: -0.5, marginBottom: 6 },

@@ -1,11 +1,12 @@
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { router, type Href } from "expo-router";
-import React, { useMemo } from "react";
+import React, { useEffect, useMemo, useRef } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { SpartanHeader } from "@/components/ui/SpartanHeader";
 import { useColors } from "@/hooks/useColors";
 import { font } from "@/lib/typography";
+import { beginGuidedTour, shouldAutoPresentGuidedTour } from "@/lib/guidedTour";
 
 const STARTS = [
   {
@@ -25,6 +26,20 @@ const STARTS = [
 export function WelcomeExperience({ topPad, bottomPad, signedIn = false }: { topPad: number; bottomPad: number; signedIn?: boolean }) {
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
+  const autoTourStarted = useRef(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    const timer = setTimeout(() => {
+      void shouldAutoPresentGuidedTour().then(async (shouldPresent) => {
+        if (cancelled || !shouldPresent || autoTourStarted.current) return;
+        autoTourStarted.current = true;
+        await beginGuidedTour();
+        router.push("/tour" as Href);
+      });
+    }, 900);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, []);
 
   const open = (route: string) => {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -45,6 +60,13 @@ export function WelcomeExperience({ topPad, bottomPad, signedIn = false }: { top
         <View style={styles.badge}><Text style={styles.badgeText}>YOUR HOSPICE SALES FIELD GUIDE</Text></View>
         <Text style={styles.title}>Know what to do next.</Text>
         <Text style={styles.body}>Prepare the conversation, practice the moment, and follow through with clarity.</Text>
+
+        <View style={styles.productMap} accessibilityLabel="Spartan Coaching includes planning, practice, measurement, and a field library">
+          <ProductPillar icon="edit-3" label="Plan" />
+          <ProductPillar icon="message-circle" label="Practice" />
+          <ProductPillar icon="bar-chart-2" label="Measure" />
+          <ProductPillar icon="book-open" label="Library" />
+        </View>
 
         <View style={styles.startList}>
           {STARTS.map((item) => (
@@ -106,6 +128,12 @@ export function WelcomeExperience({ topPad, bottomPad, signedIn = false }: { top
   );
 }
 
+function ProductPillar({ icon, label }: { icon: React.ComponentProps<typeof Feather>["name"]; label: string }) {
+  const colors = useColors();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+  return <View style={styles.productPillar}><Feather name={icon} size={18} color={colors.primary} /><Text style={styles.productPillarLabel}>{label}</Text></View>;
+}
+
 function makeStyles(colors: ReturnType<typeof useColors>) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
@@ -114,6 +142,9 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     badgeText: { color: colors.primary, fontSize: 9, letterSpacing: 0.3, ...font("bold") },
     title: { color: colors.foreground, fontSize: 40, lineHeight: 46, letterSpacing: -1.5, marginTop: 24, ...font("heavy") },
     body: { color: colors.mutedForeground, fontSize: 16, lineHeight: 23, marginTop: 4, maxWidth: 355, ...font("regular") },
+    productMap: { flexDirection: "row", gap: 7, marginTop: 24 },
+    productPillar: { flex: 1, minHeight: 66, alignItems: "center", justifyContent: "center", gap: 7, borderRadius: 16, borderCurve: "continuous", backgroundColor: colors.secondary },
+    productPillarLabel: { color: colors.foreground, fontSize: 9, ...font("bold") },
     startList: { gap: 12, marginTop: 36 },
     startCard: { minHeight: 98, flexDirection: "row", alignItems: "center", gap: 13, paddingHorizontal: 16, paddingVertical: 15, borderRadius: 20, borderCurve: "continuous", borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card },
     startIcon: { width: 44, height: 44, borderRadius: 14, borderCurve: "continuous", alignItems: "center", justifyContent: "center", backgroundColor: colors.primaryMuted },

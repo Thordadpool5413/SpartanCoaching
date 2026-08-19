@@ -12,19 +12,28 @@ describe("protected Spartan Coaching brand asset", () => {
     );
   });
 
-  it("keeps the approved helmet on the square icon assets", () => {
-    for (const name of ["icon.png", "logo.png"]) {
-      const asset = fs.readFileSync(
-        path.resolve(__dirname, `../assets/images/${name}`),
-      );
-      expect(createHash("sha256").update(asset).digest("hex")).toBe(
-        "6fe975b859ec56296dad621103c47c742886916e06403aa6106a65a1fa1cf96a",
-      );
+  it("uses the approved helmet on a warm ivory App Store icon", () => {
+    const asset = fs.readFileSync(
+      path.resolve(__dirname, "../assets/images/icon.png"),
+    );
+    expect(createHash("sha256").update(asset).digest("hex")).toBe(
+      "68a1a9cd0b24b27c322ae1ab10e4b19168c8ce8c8f5ab9d20334a580a45e3016",
+    );
+    expect(asset.readUInt32BE(16)).toBe(2048);
+    expect(asset.readUInt32BE(20)).toBe(2048);
+    expect(asset[25]).toBe(2);
+  });
 
-      expect(asset.readUInt32BE(16)).toBe(2048);
-      expect(asset.readUInt32BE(20)).toBe(2048);
-      expect(asset[25]).toBe(2);
-    }
+  it("retains the earlier square logo only as a protected source asset", () => {
+    const asset = fs.readFileSync(
+      path.resolve(__dirname, "../assets/images/logo.png"),
+    );
+    expect(createHash("sha256").update(asset).digest("hex")).toBe(
+      "6fe975b859ec56296dad621103c47c742886916e06403aa6106a65a1fa1cf96a",
+    );
+    expect(asset.readUInt32BE(16)).toBe(2048);
+    expect(asset.readUInt32BE(20)).toBe(2048);
+    expect(asset[25]).toBe(2);
   });
 
   it("keeps the supplied distressed Spartan Coaching logo unchanged", () => {

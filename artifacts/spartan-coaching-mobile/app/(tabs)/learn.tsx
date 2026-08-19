@@ -183,6 +183,7 @@ export default function LearnScreen() {
 
       {activeTab === "articles" ? (
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: bottomPad + 24 }} showsVerticalScrollIndicator={false}>
+          <LibraryModeIntro icon="file-text" title="Read" body="Open complete field notes in the native reader, capture one useful move, and save selected items for offline use." access="STANDARD" />
           <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>FIELD INTELLIGENCE</Text>
           <Text style={[styles.libraryTitle, { color: colors.foreground }, font("heavy")]}>Read less. Use more.</Text>
           {articlesQuery.isLoading ? <Loading /> : null}
@@ -252,6 +253,7 @@ export default function LearnScreen() {
 
       {activeTab === "podcasts" ? (
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: bottomPad + 24 }} showsVerticalScrollIndicator={false}>
+          <LibraryModeIntro icon="headphones" title="Listen" body="Play complete audio briefings without leaving Spartan Coaching. Only episodes with working audio appear here." access="STANDARD" />
           <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>LISTEN IN THE FIELD</Text>
           <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Briefings worth the drive</Text>
           <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>Practical conversations for the route between accounts.</Text>
@@ -273,6 +275,7 @@ export default function LearnScreen() {
 
       {activeTab === "resources" ? (
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: bottomPad + 24 }} showsVerticalScrollIndicator={false} testID="learn-resources">
+          <LibraryModeIntro icon="folder" title="Use" body="Open working tools, approved field resources, and company material in the app. Download selected nonclinical items for offline use." access="STANDARD" />
           <View style={[styles.safetyCard, { backgroundColor: colors.primaryMuted, borderColor: colors.primary }]}>
             <Feather name="shield" size={20} color={colors.primary} />
             <View style={{ flex: 1 }}>
@@ -346,6 +349,16 @@ export default function LearnScreen() {
   );
 }
 
+function LibraryModeIntro({ icon, title, body, access }: { icon: React.ComponentProps<typeof Feather>["name"]; title: string; body: string; access: string }) {
+  const colors = useColors();
+  return (
+    <View style={[styles.modeIntro, { backgroundColor: colors.heroBackground }]} testID={`library-mode-${title.toLowerCase()}`}>
+      <View style={[styles.modeIcon, { backgroundColor: colors.primary }]}><Feather name={icon} size={19} color="#FFFFFF" /></View>
+      <View style={{ flex: 1 }}><View style={styles.modeTitleRow}><Text style={[styles.modeTitle, { color: colors.heroForeground }, font("heavy")]}>{title}</Text><Text style={[styles.modeAccess, { color: colors.heroMuted }, font("bold")]}>{access}</Text></View><Text style={[styles.modeBody, { color: colors.heroMuted }, font("regular")]}>{body}</Text></View>
+    </View>
+  );
+}
+
 function Loading({ compact = false }: { compact?: boolean }) {
   const colors = useColors();
   return <View style={{ paddingVertical: compact ? 18 : 44, alignItems: "center" }}><ActivityIndicator color={colors.primary} /></View>;
@@ -406,6 +419,12 @@ const styles = StyleSheet.create({
   rowMeta: { fontSize: 9, letterSpacing: 1.25, marginBottom: 4 },
   rowTitle: { fontSize: 15, lineHeight: 20 },
   rowBody: { fontSize: 12, lineHeight: 17, marginTop: 4 },
+  modeIntro: { minHeight: 112, borderRadius: 22, borderCurve: "continuous", padding: 17, flexDirection: "row", alignItems: "flex-start", gap: 13, marginBottom: 24 },
+  modeIcon: { width: 42, height: 42, borderRadius: 13, borderCurve: "continuous", alignItems: "center", justifyContent: "center" },
+  modeTitleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
+  modeTitle: { fontSize: 19, lineHeight: 23 },
+  modeAccess: { fontSize: 8, letterSpacing: 1.2 },
+  modeBody: { fontSize: 12, lineHeight: 18, marginTop: 6 },
   safetyCard: { borderWidth: 1, borderRadius: 18, padding: 15, flexDirection: "row", alignItems: "flex-start", gap: 12 },
   safetyTitle: { fontSize: 14 },
   safetyBody: { fontSize: 12, lineHeight: 18, marginTop: 4 },

@@ -1,11 +1,10 @@
 import React, { useMemo, useState } from "react";
-import { ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { ScrollView } from "react-native";
 import { Stack } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { calculateRoi, money } from "@/lib/calculators";
-import { SectionKicker } from "@/components/ui/SectionKicker";
-import { SpartanCard } from "@/components/ui/SpartanCard";
+import { CalculatorField, CalculatorHero, CalculatorReportActions, CalculatorSection, DecisionBrief, MetricGrid, VisualScale } from "@/components/calculators/CalculatorExperience";
 
 export default function RoiCalculatorScreen() {
   const colors = useColors();
@@ -15,145 +14,68 @@ export default function RoiCalculatorScreen() {
   const [conversion, setConversion] = useState("65");
   const [los, setLos] = useState("45");
   const [rppd, setRppd] = useState("200");
+  const [activityLift, setActivityLift] = useState("15");
+  const [conversionLift, setConversionLift] = useState("5");
+  const [losLift, setLosLift] = useState("0");
 
-  const result = useMemo(
-    () =>
-      calculateRoi({
-        reps: Math.max(1, Number(reps) || 1),
-        referralsPerRep: Math.max(0, Number(referrals) || 0),
-        conversionPct: Math.min(100, Math.max(0, Number(conversion) || 0)),
-        losDays: Math.max(0, Number(los) || 0),
-        rppd: Math.max(0, Number(rppd) || 0),
-      }),
-    [reps, referrals, conversion, los, rppd],
-  );
+  const result = useMemo(() => calculateRoi({
+    reps: Math.max(1, Number(reps) || 1),
+    referralsPerRep: Math.max(0, Number(referrals) || 0),
+    conversionPct: Math.min(100, Math.max(0, Number(conversion) || 0)),
+    losDays: Math.max(0, Number(los) || 0),
+    rppd: Math.max(0, Number(rppd) || 0),
+    activityLiftPct: Math.min(100, Math.max(0, Number(activityLift) || 0)),
+    conversionLiftPts: Math.min(40, Math.max(0, Number(conversionLift) || 0)),
+    losLiftPct: Math.min(100, Math.max(0, Number(losLift) || 0)),
+  }), [reps, referrals, conversion, los, rppd, activityLift, conversionLift, losLift]);
 
-  return (
-    <>
-      <Stack.Screen
-        options={{
-          title: "ROI Calculator",
-          headerStyle: { backgroundColor: colors.background },
-          headerTintColor: colors.foreground,
-        }}
-      />
-      <ScrollView
-        style={{ backgroundColor: colors.background }}
-        contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 32 }}
-        keyboardShouldPersistTaps="handled"
-      >
-        <SectionKicker>Measure</SectionKicker>
-        <Text style={[styles.title, { color: colors.foreground }]}>
-          Model coaching impact on revenue
-        </Text>
-        <Text style={[styles.sub, { color: colors.mutedForeground }]}>
-          Native planning model only. Results are estimates, not a guarantee.
-        </Text>
+  const summary = `${money(result.additionalAnnualRevenue)} modeled annual opportunity with ${result.additionalPatients.toFixed(1)} additional admissions per month.`;
+  const report = [
+    "Spartan Coaching ROI Scenario",
+    `Current monthly referrals: ${result.totalReferrals.toFixed(0)}`,
+    `Current monthly admissions: ${result.monthlyAdmissions.toFixed(1)}`,
+    `Current annual revenue: ${money(result.annualRevenue)}`,
+    `Activity improvement assumption: ${result.activityLiftPct}%`,
+    `Conversion improvement assumption: ${result.conversionLiftPts} points`,
+    `Length of stay improvement assumption: ${result.losLiftPct}%`,
+    `Projected monthly admissions: ${result.projectedAdmissions.toFixed(1)}`,
+    `Projected annual revenue: ${money(result.projectedAnnualRevenue)}`,
+    `Modeled annual opportunity: ${money(result.additionalAnnualRevenue)}`,
+    "Scenario model only. Results are not guaranteed. Validate assumptions with finance, operations, and compliance.",
+  ].join("\n");
 
-        <SpartanCard style={{ marginTop: 16 }}>
-          <NumField label="Sales reps" value={reps} onChange={setReps} colors={colors} />
-          <NumField label="Monthly referrals / rep" value={referrals} onChange={setReferrals} colors={colors} />
-          <NumField label="Conversion %" value={conversion} onChange={setConversion} colors={colors} />
-          <NumField label="Avg length of stay (days)" value={los} onChange={setLos} colors={colors} />
-          <NumField label="Revenue per patient day ($)" value={rppd} onChange={setRppd} colors={colors} />
-        </SpartanCard>
+  return <>
+    <Stack.Screen options={{ title: "ROI Scenario", headerStyle: { backgroundColor: colors.background }, headerTintColor: colors.foreground }} />
+    <ScrollView style={{ backgroundColor: colors.background }} contentInsetAdjustmentBehavior="automatic" contentContainerStyle={{ padding: 20, paddingBottom: insets.bottom + 40 }} keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" testID="roi-calculator-workspace">
+      <CalculatorHero icon="trending-up" eyebrow="GROWTH ECONOMICS" title="Build a business case you can defend." body="Compare the current run rate with an adjustable improvement scenario. Every assumption stays visible, editable, and shareable." />
 
-        <SpartanCard style={{ marginTop: 16 }}>
-          <SectionKicker>Current run rate</SectionKicker>
-          <Metric label="Monthly revenue" value={money(result.monthlyRevenue)} colors={colors} />
-          <Metric label="Annual revenue" value={money(result.annualRevenue)} colors={colors} />
-          <Metric
-            label="Monthly admits"
-            value={result.monthlyAdmissions.toFixed(1)}
-            colors={colors}
-          />
-        </SpartanCard>
+      <CalculatorSection eyebrow="01 · CURRENT PERFORMANCE" title="Set the baseline" body="Use the same definitions your finance and operations teams use so the conversation starts from one source of truth.">
+        <CalculatorField label="Sales representatives" value={reps} onChangeText={setReps} suffix="reps" />
+        <CalculatorField label="Monthly referrals per rep" value={referrals} onChangeText={setReferrals} suffix="referrals" />
+        <CalculatorField label="Current conversion rate" value={conversion} onChangeText={setConversion} suffix="%" />
+        <CalculatorField label="Average length of stay" value={los} onChangeText={setLos} suffix="days" />
+        <CalculatorField label="Revenue per patient day" value={rppd} onChangeText={setRppd} prefix="$" />
+      </CalculatorSection>
 
-        <SpartanCard emphasized style={{ marginTop: 16 }}>
-          <SectionKicker>Projected with improved execution</SectionKicker>
-          <Metric label="Additional monthly revenue" value={money(result.additionalMonthlyRevenue)} colors={colors} />
-          <Metric label="Additional annual revenue" value={money(result.additionalAnnualRevenue)} colors={colors} />
-          <Metric
-            label="Revenue lift"
-            value={`${result.revenueIncreasePercent.toFixed(1)}%`}
-            colors={colors}
-          />
-          <Metric
-            label="Extra patients / month"
-            value={result.additionalPatients.toFixed(1)}
-            colors={colors}
-          />
-          <Text style={[styles.note, { color: colors.mutedForeground }]}>
-            Model assumes ~40% more referral activity and up to +15 pts conversion (capped at 95%), with longer LOS.
-            Use as a conversation frame with leadership — not a promise.
-          </Text>
-        </SpartanCard>
-      </ScrollView>
-    </>
-  );
+      <CalculatorSection eyebrow="02 · IMPROVEMENT SCENARIO" title="Control the assumptions" body="Nothing is hidden. Change the activity, conversion, and length of stay assumptions independently.">
+        <CalculatorField label="Referral activity improvement" value={activityLift} onChangeText={setActivityLift} suffix="%" testID="input-activity-lift" />
+        <CalculatorField label="Conversion improvement" value={conversionLift} onChangeText={setConversionLift} suffix="points" testID="input-conversion-lift" />
+        <CalculatorField label="Length of stay improvement" value={losLift} onChangeText={setLosLift} suffix="%" testID="input-los-lift" />
+      </CalculatorSection>
+
+      <CalculatorSection eyebrow="03 · ECONOMIC IMPACT" title="Current versus modeled performance">
+        <MetricGrid metrics={[
+          { label: "Annual opportunity", value: money(result.additionalAnnualRevenue), detail: "Modeled difference", emphasis: true },
+          { label: "Current annual revenue", value: money(result.annualRevenue), detail: `${result.monthlyAdmissions.toFixed(1)} admits monthly` },
+          { label: "Modeled annual revenue", value: money(result.projectedAnnualRevenue), detail: `${result.projectedAdmissions.toFixed(1)} admits monthly` },
+          { label: "Revenue lift", value: `${result.revenueIncreasePercent.toFixed(1)}%`, detail: `${result.additionalPatients.toFixed(1)} added admits monthly` },
+        ]} />
+        <VisualScale label="Current admissions" value={result.monthlyAdmissions} max={Math.max(result.projectedAdmissions, 1)} caption={result.monthlyAdmissions.toFixed(1)} />
+        <VisualScale label="Modeled admissions" value={result.projectedAdmissions} max={Math.max(result.projectedAdmissions, 1)} caption={result.projectedAdmissions.toFixed(1)} />
+      </CalculatorSection>
+
+      <DecisionBrief title="Leadership brief" interpretation={`The modeled scenario moves monthly admissions from ${result.monthlyAdmissions.toFixed(1)} to ${result.projectedAdmissions.toFixed(1)} and creates a potential annual revenue difference of ${money(result.additionalAnnualRevenue)}. The outcome is driven by the three assumptions above, not by a guaranteed coaching result.`} actions={["Confirm the baseline with finance before presenting the scenario.", "Choose one improvement assumption the team can measure over the next 30 days.", "Review the model monthly and replace estimates with actual performance."]} caution="Revenue varies by region, level of care, payer mix, eligibility, timing, and operating execution. This is a planning model, not financial advice or a performance promise." />
+      <CalculatorReportActions kind="roi" title="ROI Scenario" summary={summary} report={report} />
+    </ScrollView>
+  </>;
 }
-
-function NumField({
-  label,
-  value,
-  onChange,
-  colors,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-  colors: ReturnType<typeof useColors>;
-}) {
-  return (
-    <View style={{ marginBottom: 12 }}>
-      <Text style={[styles.label, { color: colors.mutedForeground }]}>{label}</Text>
-      <TextInput
-        value={value}
-        onChangeText={onChange}
-        keyboardType="decimal-pad"
-        style={[
-          styles.input,
-          { color: colors.foreground, borderColor: colors.border, backgroundColor: colors.input },
-        ]}
-      />
-    </View>
-  );
-}
-
-function Metric({
-  label,
-  value,
-  colors,
-}: {
-  label: string;
-  value: string;
-  colors: ReturnType<typeof useColors>;
-}) {
-  return (
-    <View style={styles.metricRow}>
-      <Text style={{ color: colors.mutedForeground, fontSize: 13, fontWeight: "600", flex: 1 }}>{label}</Text>
-      <Text style={{ color: colors.primary, fontSize: 18, fontWeight: "900" }}>{value}</Text>
-    </View>
-  );
-}
-
-const styles = StyleSheet.create({
-  title: { fontSize: 22, fontWeight: "800", marginTop: 8, letterSpacing: -0.3 },
-  sub: { fontSize: 14, lineHeight: 20, marginTop: 6 },
-  label: { fontSize: 12, fontWeight: "700", marginBottom: 6, textTransform: "uppercase", letterSpacing: 0.6 },
-  input: {
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 16,
-  },
-  metricRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    marginTop: 10,
-    gap: 12,
-  },
-  note: { fontSize: 12, lineHeight: 18, marginTop: 14 },
-});

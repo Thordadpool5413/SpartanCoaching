@@ -9,6 +9,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { loadCachedCommitment } from "@/lib/commitmentCache";
 import { listDownloadedLibraryItems, type DownloadedLibraryItem } from "@/lib/libraryDownloads";
 import { font } from "@/lib/typography";
+import { deleteCalculatorReport, listCalculatorReports, type SavedCalculatorReport } from "@/lib/calculatorHistory";
 
 export default function MyWorkScreen() {
   const colors = useColors();
@@ -17,12 +18,14 @@ export default function MyWorkScreen() {
   const { user, canUseFieldKit, canUseElite } = useAuth();
   const [commitment, setCommitment] = useState<string | null>(null);
   const [downloads, setDownloads] = useState<DownloadedLibraryItem[]>([]);
+  const [reports, setReports] = useState<SavedCalculatorReport[]>([]);
   const topPad = Platform.OS === "web" ? 54 : insets.top;
   const bottomPad = Platform.OS === "web" ? 30 : insets.bottom + 24;
 
   useFocusEffect(useCallback(() => {
     if (user?.member?.id) void loadCachedCommitment(user.member.id).then(setCommitment);
     void listDownloadedLibraryItems().then(setDownloads);
+    void listCalculatorReports().then(setReports);
   }, [user?.member?.id]));
 
   const openDownload = (item: DownloadedLibraryItem) => {
@@ -76,6 +79,15 @@ export default function MyWorkScreen() {
             <WorkRow icon="edit-3" title="Conversation plans" body="Open saved preparation and follow through." onPress={() => router.push("/tool/playbook" as never)} />
             {canUseElite ? <WorkRow icon="shield" title="Saved Elite outputs" body="Open the Elite library to review nonclinical history and required approval status." onPress={() => router.push("/ai-tools" as never)} /> : null}
 
+            {reports.length ? (
+              <>
+                <Text style={styles.sectionLabel}>SAVED DECISION REPORTS</Text>
+                {reports.slice(0, 6).map((report) => (
+                  <SavedReportRow key={report.id} report={report} onDelete={async () => { await deleteCalculatorReport(report.id); setReports((current) => current.filter((item) => item.id !== report.id)); }} />
+                ))}
+              </>
+            ) : null}
+
             <View style={styles.sectionHeading}>
               <Text style={styles.sectionLabel}>DOWNLOADS</Text>
               <Pressable onPress={() => router.push("/(tabs)/tools?view=library" as never)} hitSlop={8}><Text style={styles.openLibrary}>Open Library</Text></Pressable>
@@ -90,6 +102,20 @@ export default function MyWorkScreen() {
       </View>
     </ScrollView>
   );
+}
+
+function SavedReportRow({ report, onDelete }: { report: SavedCalculatorReport; onDelete: () => void | Promise<void> }) {
+  const colors = useColors();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+  const route = report.kind === "activity" ? "/activity-calculator" : report.kind === "roi" ? "/roi-calculator" : report.kind === "rep-cost" ? "/rep-cost-calculator" : "/staffing";
+  return <View style={styles.savedReport}>
+    <Pressable accessibilityRole="button" accessibilityLabel={`Reopen ${report.title}`} onPress={() => router.push(route as never)} style={({ pressed }) => [styles.savedReportMain, pressed && styles.pressed]}>
+      <View style={styles.rowIcon}><Feather name="bar-chart-2" size={19} color={colors.primary} /></View>
+      <View style={{ flex: 1 }}><Text style={styles.rowTitle}>{report.title}</Text><Text style={styles.rowBody} numberOfLines={2}>{report.summary}</Text><Text style={styles.reportDate}>{new Date(report.createdAt).toLocaleDateString()}</Text></View>
+      <Feather name="chevron-right" size={19} color={colors.mutedForeground} />
+    </Pressable>
+    <Pressable accessibilityRole="button" accessibilityLabel={`Delete ${report.title}`} onPress={() => void onDelete()} hitSlop={8} style={styles.deleteReport}><Feather name="trash-2" size={17} color={colors.mutedForeground} /></Pressable>
+  </View>;
 }
 
 function WorkRow({ icon, title, body, onPress }: { icon: React.ComponentProps<typeof Feather>["name"]; title: string; body: string; onPress: () => void }) {
@@ -124,6 +150,10 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     rowIcon: { width: 42, height: 42, borderRadius: 14, borderCurve: "continuous", alignItems: "center", justifyContent: "center", backgroundColor: colors.primaryMuted },
     rowTitle: { color: colors.foreground, fontSize: 15, ...font("bold") },
     rowBody: { color: colors.mutedForeground, fontSize: 11, lineHeight: 16, marginTop: 3, ...font("regular") },
+    savedReport: { flexDirection: "row", alignItems: "center", borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.borderStrong },
+    savedReportMain: { flex: 1, minHeight: 92, flexDirection: "row", alignItems: "center", gap: 12, paddingVertical: 12 },
+    reportDate: { color: colors.primary, fontSize: 9, marginTop: 5, ...font("bold") },
+    deleteReport: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
     downloadEmpty: { minHeight: 92, alignItems: "center", justifyContent: "center", borderRadius: 18, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.card, padding: 18 },
     downloadEmptyText: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, textAlign: "center", ...font("regular") },
     emptyCard: { borderRadius: 22, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, padding: 20, marginTop: 30 },

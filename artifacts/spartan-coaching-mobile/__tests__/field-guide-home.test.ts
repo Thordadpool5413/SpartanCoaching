@@ -18,6 +18,8 @@ describe("Field Guide experience contract", () => {
 
   it("provides a native six step Field Guide tour using fictional information", () => {
     const tour = read("app/tour.tsx");
+    const tourState = read("lib/guidedTour.ts");
+    const welcome = read("components/WelcomeExperience.tsx");
     const account = read("app/(tabs)/account.tsx");
     const rootLayout = read("app/_layout.tsx");
 
@@ -30,6 +32,10 @@ describe("Field Guide experience contract", () => {
     expect(tour).toContain("6 · KNOW YOUR ACCESS");
     expect(tour).toContain("Never enter patient PHI into Spartan Coaching");
     expect(tour).toContain("There is no account required for this tour");
+    expect(tour).toContain("getGuidedTourState");
+    expect(tour).toContain('accessibilityRole="progressbar"');
+    expect(tourState).toContain("shouldAutoPresentGuidedTour");
+    expect(welcome).toContain("shouldAutoPresentGuidedTour");
     expect(account).toContain("hard deleted after 90 days");
     expect(account).toContain("Organization admins never see prompts, drafts, recordings, transcripts, or unshared outputs");
     expect(rootLayout).toContain('name="tour"');

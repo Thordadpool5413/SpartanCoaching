@@ -1,13 +1,14 @@
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { router, type Href } from "expo-router";
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { HelmetMark } from "@/components/brand/HelmetMark";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
+import { completeGuidedTour, dismissGuidedTour, getGuidedTourState, saveGuidedTourStep } from "@/lib/guidedTour";
 
 type TourStep = {
   kicker: string;
@@ -90,20 +91,39 @@ export default function GuidedTourScreen() {
   const isLast = step === STEPS.length - 1;
   const selectedPractice = PRACTICE_CHOICES.find((choice) => choice.id === practiceChoice) || PRACTICE_CHOICES[1];
 
+  useEffect(() => {
+    let active = true;
+    void getGuidedTourState().then((state) => {
+      if (!active || state?.status !== "started") return;
+      setStep(Math.max(0, Math.min(STEPS.length - 1, state.step)));
+    });
+    return () => { active = false; };
+  }, []);
+
   const next = () => {
     void Haptics.selectionAsync();
     if (isLast) {
+      void completeGuidedTour();
       router.replace(isAuthenticated ? "/(tabs)" : "/membership" as Href);
       return;
     }
-    setStep((value) => value + 1);
+    setStep((value) => {
+      const nextStep = value + 1;
+      void saveGuidedTourStep(nextStep);
+      return nextStep;
+    });
+  };
+
+  const close = () => {
+    void dismissGuidedTour(step);
+    router.back();
   };
 
   return (
     <View style={styles.screen} testID="screen-guided-tour">
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
         <View style={styles.tourBrand}><HelmetMark size={48} /><Text style={styles.tourBrandText}>SPARTAN COACHING</Text></View>
-        <Pressable accessibilityRole="button" accessibilityLabel="Close guided tour" onPress={() => router.back()} style={styles.closeButton}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Close guided tour" onPress={close} style={styles.closeButton}>
           <Feather name="x" size={21} color={colors.heroForeground} />
         </Pressable>
       </View>
@@ -114,7 +134,12 @@ export default function GuidedTourScreen() {
         showsVerticalScrollIndicator={false}
         testID={`tour-step-${step + 1}`}
       >
-        <View style={styles.progressRow} accessibilityLabel={`Tour step ${step + 1} of ${STEPS.length}`}>
+        <View
+          style={styles.progressRow}
+          accessibilityRole="progressbar"
+          accessibilityValue={{ min: 1, max: STEPS.length, now: step + 1, text: `Step ${step + 1} of ${STEPS.length}` }}
+          accessibilityLabel="Guided tour progress"
+        >
           {STEPS.map((item, index) => <View key={item.kicker} style={[styles.progressSegment, index <= step && styles.progressSegmentActive]} />)}
         </View>
 
@@ -133,7 +158,7 @@ export default function GuidedTourScreen() {
 
       <View style={[styles.footer, { paddingBottom: Math.max(insets.bottom, 12) }]}>
         {step > 0 ? (
-          <Pressable accessibilityRole="button" onPress={() => setStep((value) => value - 1)} style={styles.backButton}><Text style={styles.backText}>Back</Text></Pressable>
+          <Pressable accessibilityRole="button" onPress={() => setStep((value) => { const previous = value - 1; void saveGuidedTourStep(previous); return previous; })} style={styles.backButton}><Text style={styles.backText}>Back</Text></Pressable>
         ) : <View style={styles.backButton} />}
         <Pressable accessibilityRole="button" onPress={next} style={styles.nextButton} testID="tour-next-button">
           <Text style={styles.nextText}>{isLast ? (isAuthenticated ? "Return Home" : "Compare memberships") : step === 2 && !practiceChoice ? "See Coach feedback" : "Continue"}</Text>

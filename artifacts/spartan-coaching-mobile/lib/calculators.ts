@@ -71,6 +71,9 @@ export function calculateRoi(input: {
   conversionPct: number;
   losDays: number;
   rppd: number;
+  activityLiftPct?: number;
+  conversionLiftPts?: number;
+  losLiftPct?: number;
 }) {
   const totalReferrals = input.reps * input.referralsPerRep;
   const conversionRate = input.conversionPct / 100;
@@ -79,10 +82,13 @@ export function calculateRoi(input: {
   const monthlyRevenue = monthlyAdmissions * revenuePerAdmission;
   const annualRevenue = monthlyRevenue * 12;
 
-  const projectedReferrals = totalReferrals * 1.4;
-  const projectedConversionRate = Math.min(input.conversionPct + 15, 95) / 100;
+  const activityLiftPct = input.activityLiftPct ?? 40;
+  const conversionLiftPts = input.conversionLiftPts ?? 15;
+  const losLiftPct = input.losLiftPct ?? 25;
+  const projectedReferrals = totalReferrals * (1 + activityLiftPct / 100);
+  const projectedConversionRate = Math.min(input.conversionPct + conversionLiftPts, 95) / 100;
   const projectedAdmissions = projectedReferrals * projectedConversionRate;
-  const projectedLos = input.losDays * 1.25;
+  const projectedLos = input.losDays * (1 + losLiftPct / 100);
   const projectedRevenuePerAdmission = projectedLos * input.rppd;
   const projectedMonthlyRevenue = projectedAdmissions * projectedRevenuePerAdmission;
   const projectedAnnualRevenue = projectedMonthlyRevenue * 12;
@@ -104,6 +110,13 @@ export function calculateRoi(input: {
     additionalAnnualRevenue,
     revenueIncreasePercent,
     additionalPatients,
+    projectedReferrals,
+    projectedConversionRate: projectedConversionRate * 100,
+    projectedAdmissions,
+    projectedLos,
+    activityLiftPct,
+    conversionLiftPts,
+    losLiftPct,
   };
 }
 
@@ -129,6 +142,8 @@ export function calculateRepCost(inputs: RepCostInputs, tiers: CommissionTier[])
   const annualReferrals = monthlyReferrals * 12;
   const monthlyAdmissions = monthlyReferrals * (inputs.conversionRate / 100);
   const annualAdmissions = monthlyAdmissions * 12;
+  const monthlyLostAdmissions = Math.max(0, monthlyReferrals - monthlyAdmissions);
+  const annualLostAdmissions = monthlyLostAdmissions * 12;
   const benefitsAndFixed =
     inputs.baseSalary * (inputs.benefitsLoad / 100) +
     inputs.annualMileage * MILEAGE_RATE +
@@ -144,10 +159,19 @@ export function calculateRepCost(inputs: RepCostInputs, tiers: CommissionTier[])
   const costPerReferral = annualReferrals > 0 ? fixedCost / annualReferrals : 0;
   const costPerAdmit = annualAdmissions > 0 ? fixedCost / annualAdmissions : 0;
   const blendedCostPerAdmit = annualAdmissions > 0 ? totalRepCost / annualAdmissions : 0;
+  const monthlyConversionLoss = monthlyLostAdmissions * costPerReferral;
+  const annualConversionLoss = annualLostAdmissions * costPerReferral;
 
   return {
+    annualCalls,
+    monthlyCalls,
+    monthlyReferrals,
+    annualReferrals,
     monthlyAdmissions,
     annualAdmissions,
+    monthlyLostAdmissions,
+    annualLostAdmissions,
+    benefitsAndFixed,
     fixedCost,
     annualCommission,
     totalRepCost,
@@ -155,6 +179,8 @@ export function calculateRepCost(inputs: RepCostInputs, tiers: CommissionTier[])
     costPerReferral,
     costPerAdmit,
     blendedCostPerAdmit,
+    monthlyConversionLoss,
+    annualConversionLoss,
     activeTier,
   };
 }
