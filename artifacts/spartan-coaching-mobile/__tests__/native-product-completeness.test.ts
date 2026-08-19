@@ -147,7 +147,7 @@ describe("native product completeness", () => {
     const access = read("app/access.tsx");
     expect(home).toContain("Know what to do next");
     expect(home).toContain("Practice with Spartan Coach");
-    expect(home).toContain('actionLabel="Sign in"');
+    expect(home).toContain('actionLabel={signedIn ? undefined : "Sign in"}');
     expect(home).toContain("signedIn ? undefined");
     expect(home).toContain("Compare Standard and Elite");
     expect(membership).toContain("Payment happens through Apple before Spartan account creation");

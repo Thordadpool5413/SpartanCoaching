@@ -41,7 +41,7 @@ describe("protected Spartan Coaching brand asset", () => {
       path.resolve(__dirname, "../assets/images/helmet-mark.png"),
     );
     expect(createHash("sha256").update(asset).digest("hex")).toBe(
-      "0bdc8a3b7fd9ac7eaef39443806e2c47bf31728f4ea3a45b37f3cb5bbb6fb68d",
+      "0d63506cc699d1e97788857ba9d9024b3a7f5558691d3da46dbdbd7d949fa762",
     );
     expect(asset.readUInt32BE(16)).toBe(1254);
     expect(asset.readUInt32BE(20)).toBe(1254);

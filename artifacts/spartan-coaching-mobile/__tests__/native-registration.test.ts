@@ -25,7 +25,7 @@ describe("native registration contract", () => {
     expect(api).toContain("noPhi: true");
     expect(login).toContain('router.push("/register" as Href)');
     expect(home).toContain("<WelcomeExperience");
-    expect(welcome).toContain('router.push("/membership" as Href)');
+    expect(welcome).toContain('open("/membership")');
     expect(account).toContain('router.push("/membership" as any)');
     expect(membership).toContain('router.push("/register" as any)');
     expect(membership).toContain("Apple confirmed your membership");

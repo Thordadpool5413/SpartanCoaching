@@ -15,13 +15,17 @@ describe("native iOS subscription messaging", () => {
       path.resolve(__dirname, "../app/membership.tsx"),
       "utf8",
     );
+    const welcome = fs.readFileSync(
+      path.resolve(__dirname, "../components/WelcomeExperience.tsx"),
+      "utf8",
+    );
     const appleActions = fs.readFileSync(
       path.resolve(__dirname, "../components/AppleSubscriptionActions.tsx"),
       "utf8",
     );
 
     expect(home).not.toContain("Subscribe with Stripe on the website");
-    expect(home).toContain("/membership");
+    expect(welcome).toContain('open("/membership")');
     expect(account).toContain("AppleSubscriptionActions");
     expect(membership).toContain("<AppleSubscriptionActions");
     expect(membership).toContain("Payment happens through Apple before Spartan account creation");
