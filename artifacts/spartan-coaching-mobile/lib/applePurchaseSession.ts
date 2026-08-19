@@ -1,6 +1,20 @@
+import Constants from "expo-constants";
 import * as Crypto from "expo-crypto";
 import * as SecureStore from "expo-secure-store";
-import { getAvailablePurchases, type Purchase, type PurchaseIOS } from "react-native-iap";
+import { Platform } from "react-native";
+
+type IapRuntime = typeof import("react-native-iap");
+type Purchase = import("react-native-iap").Purchase;
+type PurchaseIOS = import("react-native-iap").PurchaseIOS;
+
+declare const require: (id: "react-native-iap") => IapRuntime;
+
+let iapRuntime: IapRuntime | null = null;
+
+function loadIapRuntime(): IapRuntime {
+  if (!iapRuntime) iapRuntime = require("react-native-iap");
+  return iapRuntime;
+}
 import { APPLE_SUBSCRIPTION_PRODUCT_IDS } from "@/lib/appleSubscriptions";
 import { claimAppleTransaction } from "@/lib/api";
 
@@ -28,6 +42,8 @@ function isSpartanSubscription(purchase: Purchase) {
  * truth and the API prevents one original transaction from being claimed twice.
  */
 export async function claimCurrentApplePurchases(): Promise<boolean> {
+  if (Platform.OS !== "ios" || Constants.expoGoConfig != null) return false;
+  const { getAvailablePurchases } = loadIapRuntime();
   const purchases = await getAvailablePurchases({ onlyIncludeActiveItemsIOS: true });
   let claimed = false;
 
