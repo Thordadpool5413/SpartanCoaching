@@ -98,7 +98,7 @@ export function ToolAnatomyRelated({
       <SectionLabel label="Related" />
       {items.map((item) => (
         <Pressable
-          key={item.href}
+          key={`${item.href}:${item.label}:${item.kind || "related"}`}
           onPress={() => {
             if (item.href.startsWith("/")) {
               router.push(item.href as any);
