@@ -60,13 +60,20 @@ describe("Apple subscription contract", () => {
     expect(source).not.toContain("Linking.openURL");
   });
 
-  it("keeps Expo Go visual QA from evaluating the native StoreKit module", () => {
+  it("keeps Expo Go visual QA from evaluating any native StoreKit module", () => {
     const source = fs.readFileSync(path.resolve(__dirname, "../components/AppleSubscriptionActions.tsx"), "utf8");
+    const session = fs.readFileSync(path.resolve(__dirname, "../lib/applePurchaseSession.ts"), "utf8");
+
     expect(source).toContain("Constants.expoGoConfig");
     expect(source).toContain('require("react-native-iap")');
     expect(source).not.toContain('from "react-native-iap";');
     expect(source).toContain("Visual preview in Expo Go");
     expect(source).toContain("installed private iPhone build");
+
+    expect(session).toContain('require("react-native-iap")');
+    expect(session).not.toContain('from "react-native-iap";');
+    expect(session).toContain('if (Platform.OS !== "ios" || Constants.expoGoConfig != null) return false;');
+    expect(session.indexOf("Constants.expoGoConfig != null")).toBeLessThan(session.indexOf("loadIapRuntime();"));
   });
 
   it("allows Apple purchase before Spartan account creation", () => {
