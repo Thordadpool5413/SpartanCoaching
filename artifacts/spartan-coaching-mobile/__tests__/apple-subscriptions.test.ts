@@ -60,6 +60,15 @@ describe("Apple subscription contract", () => {
     expect(source).not.toContain("Linking.openURL");
   });
 
+  it("keeps Expo Go visual QA from evaluating the native StoreKit module", () => {
+    const source = fs.readFileSync(path.resolve(__dirname, "../components/AppleSubscriptionActions.tsx"), "utf8");
+    expect(source).toContain("Constants.expoGoConfig");
+    expect(source).toContain('require("react-native-iap")');
+    expect(source).not.toContain('from "react-native-iap";');
+    expect(source).toContain("Visual preview in Expo Go");
+    expect(source).toContain("installed private iPhone build");
+  });
+
   it("allows Apple purchase before Spartan account creation", () => {
     const membership = fs.readFileSync(path.resolve(__dirname, "../app/membership.tsx"), "utf8");
     const api = fs.readFileSync(path.resolve(__dirname, "../lib/api.ts"), "utf8");
