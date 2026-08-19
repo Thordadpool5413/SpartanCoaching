@@ -185,7 +185,7 @@ export function useMission(): MissionState {
         title: nextCall.purpose || "Prepare the next conversation",
         subtitle: "Open Field Planner to prepare, practice, and complete this visit.",
         ctaLabel: "Open Field Planner",
-        href: { pathname: "/(tabs)/command" },
+        href: { pathname: "/sales-workflow" },
         kind: "command",
       };
     }
@@ -208,7 +208,7 @@ export function useMission(): MissionState {
       title: start.title,
       subtitle: start.blurb,
       ctaLabel: "Open Field Planner",
-      href: { pathname: "/(tabs)/command" },
+      href: { pathname: "/sales-workflow" },
       kind: "command",
     };
   }, [shell, needsRole, nextChecklistItem, jobRole, today]);

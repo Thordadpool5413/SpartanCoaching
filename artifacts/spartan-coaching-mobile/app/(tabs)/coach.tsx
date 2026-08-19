@@ -48,6 +48,7 @@ import { font } from "@/lib/typography";
 import { trackProductOutcome } from "@/lib/analytics";
 import { cacheCommitment } from "@/lib/commitmentCache";
 import { HelmetMark } from "@/components/brand/HelmetMark";
+import { SpartanHeader } from "@/components/ui/SpartanHeader";
 
 type CoachStep = "prepare" | "rehearse" | "review";
 const STEPS: Array<{ id: CoachStep; label: string }> = [
@@ -81,6 +82,7 @@ export default function CoachScreen() {
   const [busy, setBusy] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [landingVisible, setLandingVisible] = useState(true);
 
   useEffect(() => {
     if (!canUseElite) return;
@@ -222,7 +224,7 @@ export default function CoachScreen() {
     }
   }
 
-  function resetSession() {
+  function resetSession(showLanding = true) {
     setStep("prepare");
     setSituation("");
     setIntention("");
@@ -230,6 +232,7 @@ export default function CoachScreen() {
     setCommitment("");
     setFeedback(null);
     setConversationId(null);
+    setLandingVisible(showLanding);
   }
 
   async function openConversation(item: CoachConversation) {
@@ -244,6 +247,7 @@ export default function CoachScreen() {
       setSituation(item.title);
       setFeedback(lastCoach?.content ?? null);
       setStep(lastCoach ? "review" : "rehearse");
+      setLandingVisible(false);
     } catch {
       Alert.alert(
         "Conversation unavailable",
@@ -300,7 +304,7 @@ export default function CoachScreen() {
         testID="screen-elite-coach-gate"
       >
         <ScrollView contentContainerStyle={styles.gateContent}>
-          <BrandLockup styles={styles} />
+          <SpartanHeader title="Coach" actionLabel={isAuthenticated ? undefined : "Sign in"} />
           <View style={styles.gateBadge}>
             <Feather name="shield" size={15} color={colors.primary} />
             <Text style={styles.gateBadgeText}>HOSPICE SALES PRO ELITE</Text>
@@ -330,6 +334,67 @@ export default function CoachScreen() {
             Hospice Sales Pro Elite is $19.99 per week. Cancel anytime.
           </Text>
         </ScrollView>
+      </SafeAreaView>
+    );
+  }
+
+  if (landingVisible) {
+    return (
+      <SafeAreaView style={styles.safe} edges={["top"]} testID="screen-elite-coach-home">
+        <ScrollView contentContainerStyle={styles.coachHomeContent} showsVerticalScrollIndicator={false}>
+          <SpartanHeader title="Coach" />
+          <View style={styles.coachHomeBadge}><Text style={styles.coachHomeBadgeText}>ELITE · PRIVATE</Text></View>
+          <Text style={styles.coachHomeTitle}>Practice the conversation before it matters.</Text>
+          <Text style={styles.coachHomeBody}>Spartan Coach listens for the concern beneath the words, asks when context is missing, and helps you leave with one commitment.</Text>
+
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => {
+              setLandingVisible(false);
+              setStep("prepare");
+              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }}
+            style={({ pressed }) => [styles.coachComposer, pressed && styles.rowPressed]}
+            testID="coach-begin-preparation"
+          >
+            <Text style={styles.coachComposerTitle}>What are you preparing for?</Text>
+            <View style={styles.coachComposerField}>
+              <Feather name="edit-3" size={21} color={colors.primary} />
+              <Text style={styles.coachComposerPlaceholder}>Describe the conversation</Text>
+            </View>
+          </Pressable>
+
+          <Pressable
+            accessibilityRole="button"
+            onPress={() => conversations.length ? setHistoryOpen(true) : setLandingVisible(false)}
+            style={({ pressed }) => [styles.resumeCard, pressed && styles.rowPressed]}
+            testID="coach-resume-private-conversation"
+          >
+            <Feather name={conversations.length ? "clock" : "message-circle"} size={21} color={colors.primary} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.resumeTitle}>{conversations.length ? "Resume a private conversation" : "Start your first private conversation"}</Text>
+              <Text style={styles.resumeBody}>{conversations.length ? `${conversations.length} private ${conversations.length === 1 ? "conversation" : "conversations"} available` : "Begin with the professional situation and the outcome you want."}</Text>
+            </View>
+            <Feather name="chevron-right" size={20} color={colors.mutedForeground} />
+          </Pressable>
+
+          <View style={styles.coachPrivacyCard}>
+            <Feather name="shield" size={22} color={colors.foreground} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.coachPrivacyTitle}>Your privacy is protected</Text>
+              <Text style={styles.coachPrivacyBody}>Raw Coach conversations stay private and expire after 90 days. Nothing is shared unless you explicitly share a summary or commitment.</Text>
+            </View>
+          </View>
+        </ScrollView>
+        <HistorySheet
+          visible={historyOpen}
+          conversations={conversations}
+          onClose={() => setHistoryOpen(false)}
+          onOpen={openConversation}
+          onDelete={confirmDelete}
+          styles={styles}
+          colors={colors}
+        />
       </SafeAreaView>
     );
   }
@@ -584,7 +649,7 @@ export default function CoachScreen() {
                   </>
                 )}
               </Pressable>
-              <Pressable onPress={resetSession} style={styles.secondaryButton}>
+              <Pressable onPress={() => resetSession(false)} style={styles.secondaryButton}>
                 <Feather name="plus" size={18} color={colors.foreground} />
                 <Text style={styles.secondaryButtonText}>
                   Start a new rehearsal
@@ -631,8 +696,10 @@ function BrandLockup({
       style={[styles.brandShell, compact && styles.brandShellCompact]}
       accessibilityLabel="Spartan Coaching"
     >
-      <HelmetMark size={compact ? 38 : 92} />
-      {!compact ? <Text style={styles.brandWord}>SPARTAN COACH</Text> : null}
+      <HelmetMark size={compact ? 38 : 74} />
+      <Text style={compact ? styles.brandCompactWord : styles.brandWord}>
+        {compact ? "Coach" : "SPARTAN COACH"}
+      </Text>
     </View>
   );
 }
@@ -1048,18 +1115,15 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       borderColor: colors.borderStrong,
     },
     brandShell: {
-      height: 126,
+      height: 102,
       width: "100%",
-      backgroundColor: colors.card,
-      borderRadius: 20,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.border,
       alignItems: "center",
       justifyContent: "center",
-      gap: 10,
+      gap: 8,
     },
-    brandShellCompact: { width: 44, height: 44, borderRadius: 14, borderWidth: 0, backgroundColor: "transparent" },
+    brandShellCompact: { width: "auto", height: 44, flexDirection: "row", borderRadius: 14, borderWidth: 0, backgroundColor: "transparent", gap: 8 },
     brandWord: { color: colors.foreground, fontSize: 10, letterSpacing: 2.2, ...font("bold") },
+    brandCompactWord: { color: colors.foreground, fontSize: 16, letterSpacing: -0.2, ...font("bold") },
     intro: { paddingTop: 18, paddingBottom: 22 },
     eliteRow: {
       flexDirection: "row",
@@ -1436,6 +1500,22 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       marginTop: 12,
       ...font("regular"),
     },
+    coachHomeContent: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 38 },
+    coachHomeBadge: { alignSelf: "flex-start", borderRadius: 999, backgroundColor: colors.primaryMuted, paddingHorizontal: 10, paddingVertical: 6, marginTop: 12 },
+    coachHomeBadgeText: { color: colors.primary, fontSize: 10, letterSpacing: 0.8, ...font("bold") },
+    coachHomeTitle: { color: colors.foreground, fontSize: 32, lineHeight: 38, letterSpacing: -0.9, marginTop: 24, maxWidth: 390, ...font("heavy") },
+    coachHomeBody: { color: colors.mutedForeground, fontSize: 15, lineHeight: 22, marginTop: 8, maxWidth: 390, ...font("regular") },
+    coachComposer: { minHeight: 176, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 24, backgroundColor: colors.card, padding: 20, marginTop: 66 },
+    coachComposerTitle: { color: colors.foreground, fontSize: 17, ...font("bold") },
+    coachComposerField: { minHeight: 56, flexDirection: "row", alignItems: "center", gap: 12, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 16, backgroundColor: colors.card, paddingHorizontal: 16, marginTop: 12 },
+    coachComposerPlaceholder: { color: colors.mutedForeground, fontSize: 15, ...font("regular") },
+    resumeCard: { minHeight: 104, flexDirection: "row", alignItems: "flex-start", gap: 12, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 20, backgroundColor: colors.card, padding: 16, marginTop: 20 },
+    resumeTitle: { color: colors.foreground, fontSize: 17, ...font("bold") },
+    resumeBody: { color: colors.mutedForeground, fontSize: 13, lineHeight: 18, marginTop: 5, ...font("regular") },
+    coachPrivacyCard: { minHeight: 158, flexDirection: "row", alignItems: "flex-start", gap: 12, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 24, backgroundColor: colors.secondary, padding: 20, marginTop: -20 },
+    coachPrivacyTitle: { color: colors.foreground, fontSize: 17, ...font("bold") },
+    coachPrivacyBody: { color: colors.mutedForeground, fontSize: 13, lineHeight: 19, marginTop: 8, ...font("regular") },
+    rowPressed: { opacity: 0.68 },
     sheet: { flex: 1, backgroundColor: colors.background },
     sheetHeader: {
       flexDirection: "row",

@@ -781,6 +781,39 @@ export const MIGRATION_CATALOG: readonly MigrationPlan[] = [
     dropsLegacyObjects: false,
   },
   {
+    id: "0019_native_article_content",
+    title: "First party article content for native reading",
+    forwardPath: "lib/db/migrations/0019_native_article_content.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT count(*) > 0 AS ok FROM information_schema.columns WHERE table_name = 'articles' AND column_name = 'content'`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: restore the pre-apply logical dump. The nullable column is additive and should remain unused rather than dropped while released clients may reference it.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["articles"],
+    dropsLegacyObjects: false,
+  },
+  {
+    id: "0020_member_leadership_context",
+    title: "Optional member team leadership context",
+    forwardPath: "lib/db/migrations/0020_member_leadership_context.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT count(*) > 0 AS ok FROM information_schema.columns WHERE table_name = 'client_members' AND column_name = 'also_leads_team'`,
+      `SELECT count(*) = 0 AS ok FROM client_members WHERE also_leads_team IS NULL`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: restore the pre-apply logical dump. The additive column should remain unused rather than dropped while released clients may reference it.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["client_members"],
+    dropsLegacyObjects: false,
+  },
+  {
     id: "sales_workflow_001",
     title: "Sales Command Center workflow store (RLS)",
     forwardPath: "lib/hospice-sales-runtime/migrations/001_sales_workflow.sql",

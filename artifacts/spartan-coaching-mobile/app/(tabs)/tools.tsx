@@ -29,6 +29,7 @@ import { useAuth } from "@/lib/AuthContext";
 import { MAX_FONT_SIZE_MULTIPLIER } from "@/lib/iosProductQuality";
 import { CATALOG_ID_TO_TAB, isToolTab, openToolHref } from "@/lib/toolDeepLinks";
 import { font } from "@/lib/typography";
+import LearnScreen from "./learn";
 
 type SearchHit = {
   id: string;
@@ -66,8 +67,8 @@ const NATIVE_SEARCH_DESTINATIONS: Record<string, string> = {
   "/portal": "/(tabs)",
   "/": "/(tabs)",
   "/tools": "/(tabs)/tools",
-  "/learn": "/(tabs)/learn",
-  "/library": "/(tabs)/learn",
+  "/learn": "/(tabs)/tools?view=library",
+  "/library": "/(tabs)/tools?view=library",
   "/coach": "/(tabs)/coach",
   "/contact": "/(tabs)/contact",
   "/account": "/(tabs)/account",
@@ -89,7 +90,19 @@ function toolIcon(tool: FieldKitTool): React.ComponentProps<typeof Feather>["nam
   return icons[tool.id] || "arrow-up-right";
 }
 
-export default function ToolsCatalogScreen() {
+function mobileToolTitle(tool: FieldKitTool) {
+  return tool.id === "sales-workflow" ? "Field Visit Planner" : tool.title;
+}
+
+export default function ExploreScreen() {
+  const params = useLocalSearchParams<{ view?: string | string[] }>();
+  const rawView = params.view;
+  const view = Array.isArray(rawView) ? rawView[0] : rawView;
+  if (view === "library") return <LearnScreen />;
+  return <ToolsCatalogScreen />;
+}
+
+function ToolsCatalogScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { canUseFieldKit, canUseElite, isAuthenticated } = useAuth();
@@ -139,7 +152,7 @@ export default function ToolsCatalogScreen() {
       router.push(tool.mobileRoute as any);
       return;
     }
-    Alert.alert("Tool could not open", "Return to Tools and try again. If this continues, send a support request from Account.");
+    Alert.alert("Tool could not open", "Return to Explore and try again. If this continues, send a support request from Account.");
   };
 
   const accessLabel = (tool: FieldKitTool) => {
@@ -160,7 +173,7 @@ export default function ToolsCatalogScreen() {
       }
     }
     if (hit.type === "resource") {
-      router.push("/(tabs)/learn" as any);
+      router.push("/(tabs)/tools?view=library" as any);
       return;
     }
     const native = NATIVE_SEARCH_DESTINATIONS[hit.href];
@@ -168,7 +181,7 @@ export default function ToolsCatalogScreen() {
       router.push(native as any);
       return;
     }
-    Alert.alert("Result could not open", "Use Tools or Library to find the native version. If it is missing, send a support request from Account.");
+    Alert.alert("Result could not open", "Use Explore to find the native version. If it is missing, send a support request from Account.");
   };
 
   const q = filter.trim().toLowerCase();
@@ -190,11 +203,11 @@ export default function ToolsCatalogScreen() {
   const leaderTools = FIELD_KIT_TOOLS.filter((tool) => leaderIds.has(tool.id) && matches(tool));
 
   return (
-    <View style={[styles.screen, { backgroundColor: colors.background }]} testID="screen-tools-catalog">
+    <View style={[styles.screen, { backgroundColor: colors.background }]} testID="screen-explore">
       <View style={[styles.header, { paddingTop: topPad + 12, borderBottomColor: colors.border }]}>
-        <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>FIELD WORKSPACE</Text>
-        <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Tools</Text>
-        <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Choose the outcome. Use one focused tool. Leave with something useful.</Text>
+        <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>EVERYTHING IN ONE PLACE</Text>
+        <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Explore</Text>
+        <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Find a tool, open the Library, or understand exactly what your access includes.</Text>
         <View style={[styles.searchShell, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Feather name="search" size={18} color={colors.mutedForeground} />
           <TextInput
@@ -221,6 +234,14 @@ export default function ToolsCatalogScreen() {
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
       >
+        {!q ? (
+          <View style={styles.destinationGrid} testID="explore-destinations">
+            <ExploreDestination icon="book-open" title="Library" body="Read, listen, and use field resources inside the app." onPress={() => router.push("/(tabs)/tools?view=library" as any)} />
+            <ExploreDestination icon="check-circle" title="My Work" body="Resume plans, commitments, downloads, and approvals." onPress={() => router.push("/(tabs)/my-work" as any)} />
+            <ExploreDestination icon="layers" title="Access map" body="See what Standard and Elite include." onPress={() => router.push("/access" as any)} />
+          </View>
+        ) : null}
+
         {remoteGroups.length > 0 ? (
           <View style={{ marginBottom: 24 }} testID="universal-search-results">
             <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>SEARCH RESULTS</Text>
@@ -235,7 +256,7 @@ export default function ToolsCatalogScreen() {
             <View style={styles.sectionHeading}>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>START WITH THE MOMENT</Text>
-                <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>What are you walking into?</Text>
+                <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Choose what you need.</Text>
               </View>
               <Text style={[styles.step, { color: colors.mutedForeground }, font("semibold")]}>3 clear paths</Text>
             </View>
@@ -265,7 +286,7 @@ export default function ToolsCatalogScreen() {
                       <Text style={[styles.cardEyebrow, { color: index === 0 ? colors.heroMuted : colors.primary }, font("bold")]}>{copy.eyebrow}</Text>
                       <Text style={[styles.accessBadge, { color: index === 0 ? colors.heroForeground : colors.primary, borderColor: index === 0 ? colors.heroMuted : colors.primary }, font("bold")]}>{accessLabel(tool)}</Text>
                     </View>
-                    <Text style={[styles.cardTitle, { color: index === 0 ? colors.heroForeground : colors.foreground }, font("heavy")]}>{tool.title}</Text>
+                    <Text style={[styles.cardTitle, { color: index === 0 ? colors.heroForeground : colors.foreground }, font("heavy")]}>{mobileToolTitle(tool)}</Text>
                     <Text style={[styles.cardBody, { color: index === 0 ? colors.heroMuted : colors.mutedForeground }, font("regular")]}>{copy.promise}</Text>
                   </View>
                   <Feather name="arrow-up-right" size={21} color={index === 0 ? colors.heroForeground : colors.primary} />
@@ -308,7 +329,7 @@ export default function ToolsCatalogScreen() {
             <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Build the next move</Text>
             <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>Focused tools for preparation, follow up, planning, and measurement.</Text>
             {fieldTools.map((tool) => (
-              <ActionRow key={tool.id} title={tool.title} subtitle={tool.whenToUse || tool.description} icon={toolIcon(tool)} badge={accessLabel(tool)} onPress={() => openCatalogTool(tool)} testID={`tool-row-${tool.id}`} />
+              <ActionRow key={tool.id} title={mobileToolTitle(tool)} subtitle={tool.whenToUse || tool.description} icon={toolIcon(tool)} badge={accessLabel(tool)} onPress={() => openCatalogTool(tool)} testID={`tool-row-${tool.id}`} />
             ))}
           </View>
         ) : null}
@@ -318,7 +339,7 @@ export default function ToolsCatalogScreen() {
             <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>LEADERSHIP</Text>
             <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Coach the system</Text>
             {leaderTools.map((tool) => (
-              <ActionRow key={tool.id} title={tool.title} subtitle={tool.whenToUse || tool.description} icon={toolIcon(tool)} badge={accessLabel(tool)} onPress={() => openCatalogTool(tool)} />
+              <ActionRow key={tool.id} title={mobileToolTitle(tool)} subtitle={tool.whenToUse || tool.description} icon={toolIcon(tool)} badge={accessLabel(tool)} onPress={() => openCatalogTool(tool)} />
             ))}
           </View>
         ) : null}
@@ -349,6 +370,20 @@ export default function ToolsCatalogScreen() {
         </Pressable>
       </ScrollView>
     </View>
+  );
+}
+
+function ExploreDestination({ icon, title, body, onPress }: { icon: React.ComponentProps<typeof Feather>["name"]; title: string; body: string; onPress: () => void }) {
+  const colors = useColors();
+  return (
+    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.destinationCard, { backgroundColor: colors.card, borderColor: colors.borderStrong, opacity: pressed ? 0.7 : 1 }]}>
+      <View style={[styles.destinationIcon, { backgroundColor: colors.primaryMuted }]}><Feather name={icon} size={19} color={colors.primary} /></View>
+      <View style={styles.destinationCopy}>
+        <Text style={[styles.destinationTitle, { color: colors.foreground }, font("bold")]}>{title}</Text>
+        <Text style={[styles.destinationBody, { color: colors.mutedForeground }, font("regular")]}>{body}</Text>
+      </View>
+      <Feather name="chevron-right" size={19} color={colors.primary} />
+    </Pressable>
   );
 }
 
@@ -383,6 +418,12 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 14, lineHeight: 20, marginTop: 5, maxWidth: 340 },
   searchShell: { minHeight: 50, borderWidth: 1, borderRadius: 16, paddingHorizontal: 14, flexDirection: "row", alignItems: "center", gap: 10, marginTop: 16 },
   search: { flex: 1, fontSize: 15, minHeight: 48 },
+  destinationGrid: { gap: 10, marginBottom: 28 },
+  destinationCard: { minHeight: 92, flexDirection: "row", alignItems: "center", gap: 13, borderWidth: 1, borderRadius: 20, borderCurve: "continuous", paddingHorizontal: 15, paddingVertical: 14 },
+  destinationIcon: { width: 44, height: 44, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  destinationCopy: { flex: 1 },
+  destinationTitle: { fontSize: 15 },
+  destinationBody: { fontSize: 12, lineHeight: 17, marginTop: 3 },
   sectionHeading: { flexDirection: "row", alignItems: "flex-end", gap: 12, marginBottom: 12 },
   sectionEyebrow: { fontSize: 10, letterSpacing: 1.9, marginBottom: 6 },
   sectionTitle: { fontSize: 23, letterSpacing: -0.5, marginBottom: 6 },

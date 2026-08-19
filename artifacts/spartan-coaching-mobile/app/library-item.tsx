@@ -1,17 +1,27 @@
 import { Feather } from "@expo/vector-icons";
 import { Stack, useLocalSearchParams } from "expo-router";
 import { useAudioPlayer, useAudioPlayerStatus } from "expo-audio";
+import * as WebBrowser from "expo-web-browser";
 import React, { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, Alert, Platform, Pressable, StyleSheet, Text, View } from "react-native";
+import { ActivityIndicator, Alert, Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { WebView } from "react-native-webview";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
-import { getWebSiteUrl } from "@/lib/api";
+import { apiGet, getWebSiteUrl } from "@/lib/api";
 import { font } from "@/lib/typography";
-import { downloadLibraryItem, getDownloadedLibraryItem, removeDownloadedLibraryItem, type DownloadedLibraryItem } from "@/lib/libraryDownloads";
+import { downloadLibraryItem, getDownloadedLibraryItem, removeDownloadedLibraryItem, saveTextLibraryItem, type DownloadedLibraryItem } from "@/lib/libraryDownloads";
 import { trackProductOutcome } from "@/lib/analytics";
 
 type Kind = "article" | "audio" | "resource";
+
+type ArticleDetail = {
+  id: number;
+  title: string;
+  description: string;
+  content?: string | null;
+  linkedinUrl?: string | null;
+  pdfUrl?: string | null;
+};
 
 function one(value?: string | string[]) {
   return Array.isArray(value) ? value[0] : value;
@@ -37,36 +47,79 @@ function clock(seconds: number) {
 }
 
 export default function LibraryItemScreen() {
-  const params = useLocalSearchParams<{ title?: string | string[]; url?: string | string[]; kind?: string | string[]; description?: string | string[] }>();
+  const params = useLocalSearchParams<{
+    title?: string | string[];
+    url?: string | string[];
+    sourceUrl?: string | string[];
+    kind?: string | string[];
+    description?: string | string[];
+    articleId?: string | string[];
+    whenToUse?: string | string[];
+    whyItMatters?: string | string[];
+    expectedOutcome?: string | string[];
+    version?: string | string[];
+    downloadKey?: string | string[];
+  }>();
   const title = one(params.title) || "Spartan Library";
   const description = one(params.description) || "Field-ready Spartan Coaching resource.";
   const kind = (one(params.kind) || "resource") as Kind;
+  const articleId = one(params.articleId);
   const url = safeUrl(one(params.url));
+  const sourceUrl = safeUrl(one(params.sourceUrl));
+  const downloadKey = one(params.downloadKey) || (kind === "article" && articleId ? `spartan://article/${articleId}` : url);
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const [downloaded, setDownloaded] = useState<DownloadedLibraryItem | null>(null);
   const [downloadBusy, setDownloadBusy] = useState(false);
+  const [article, setArticle] = useState<ArticleDetail | null>(null);
+  const [articleLoading, setArticleLoading] = useState(Boolean(articleId));
+  const [articleFailed, setArticleFailed] = useState(false);
 
   useEffect(() => {
     let active = true;
-    if (url) void getDownloadedLibraryItem(url).then((item) => { if (active) setDownloaded(item); });
+    if (downloadKey) void getDownloadedLibraryItem(downloadKey).then((item) => { if (active) setDownloaded(item); });
     return () => { active = false; };
-  }, [url]);
+  }, [downloadKey]);
+
+  useEffect(() => {
+    let active = true;
+    if (kind !== "article" || !articleId || downloaded?.content) {
+      setArticleLoading(false);
+      return () => { active = false; };
+    }
+    setArticleLoading(true);
+    setArticleFailed(false);
+    void apiGet<{ article: ArticleDetail }>(`/api/articles/${articleId}`)
+      .then((response) => { if (active) setArticle(response.article); })
+      .catch(() => { if (active) setArticleFailed(true); })
+      .finally(() => { if (active) setArticleLoading(false); });
+    return () => { active = false; };
+  }, [articleId, downloaded?.content, kind]);
 
   const activeUrl = downloaded?.localUri || url;
+  const articleContent = downloaded?.content || article?.content || null;
+  const resolvedDescription = downloaded?.description || article?.description || description;
+  const resolvedSourceUrl = safeUrl(article?.linkedinUrl || undefined) || sourceUrl;
+  const resolvedDocumentUrl = safeUrl(article?.pdfUrl || undefined) || activeUrl;
 
   const toggleDownload = async () => {
-    if (!url || Platform.OS === "web" || downloadBusy) return;
+    if (!downloadKey || Platform.OS === "web" || downloadBusy) return;
     setDownloadBusy(true);
     try {
       if (downloaded) {
-        await removeDownloadedLibraryItem(url);
+        await removeDownloadedLibraryItem(downloadKey);
         setDownloaded(null);
-      } else {
+      } else if (kind === "article" && (articleContent || resolvedDescription)) {
+        const item = await saveTextLibraryItem({ sourceUrl: downloadKey, title, description: resolvedDescription, content: articleContent || resolvedDescription });
+        setDownloaded(item);
+        void trackProductOutcome("resource_completion", { resourceId: "article", platform: "ios" });
+      } else if (url) {
         const item = await downloadLibraryItem({ sourceUrl: url, title, kind });
         setDownloaded(item);
         void trackProductOutcome("resource_completion", { resourceId: kind, platform: "ios" });
+      } else {
+        throw new Error("This item does not have complete offline content yet.");
       }
     } catch (error) {
       Alert.alert("Download unavailable", error instanceof Error ? error.message : "This item could not be saved for offline use.");
@@ -84,7 +137,7 @@ export default function LibraryItemScreen() {
           <Text style={styles.kicker}>{kind === "audio" ? "SPARTAN AUDIO" : "IN-APP READER"}</Text>
           <Text style={styles.title} numberOfLines={2}>{title}</Text>
         </View>
-        {url && Platform.OS !== "web" ? (
+        {downloadKey && (url || articleContent || (kind === "article" && resolvedDescription)) && Platform.OS !== "web" ? (
           <Pressable
             accessibilityRole="button"
             accessibilityLabel={downloaded ? "Remove offline download" : "Download for offline use"}
@@ -97,10 +150,28 @@ export default function LibraryItemScreen() {
         ) : null}
       </View>
       {downloaded ? <View style={styles.offlineBanner}><Feather name="smartphone" size={14} color={colors.success} /><Text style={styles.offlineBannerText}>Available offline on this iPhone</Text></View> : null}
-      {kind === "audio" && activeUrl ? (
+      {kind === "article" ? (
+        <NativeArticleReader
+          title={article?.title || title}
+          description={resolvedDescription}
+          content={articleContent}
+          documentUrl={resolvedDocumentUrl}
+          sourceUrl={resolvedSourceUrl}
+          loading={articleLoading}
+          failed={articleFailed}
+        />
+      ) : kind === "audio" && activeUrl ? (
         <AudioReader title={title} description={description} url={activeUrl} bottom={insets.bottom} />
-      ) : activeUrl ? (
-        <DocumentReader title={title} url={activeUrl} />
+      ) : kind === "resource" ? (
+        <NativeResourceReader
+          title={title}
+          description={description}
+          documentUrl={activeUrl}
+          whenToUse={one(params.whenToUse)}
+          whyItMatters={one(params.whyItMatters)}
+          expectedOutcome={one(params.expectedOutcome)}
+          version={one(params.version)}
+        />
       ) : (
         <View style={styles.empty}>
           <Feather name="alert-circle" size={30} color={colors.primary} />
@@ -110,6 +181,145 @@ export default function LibraryItemScreen() {
       )}
     </View>
   );
+}
+
+function NativeArticleReader({
+  title,
+  description,
+  content,
+  documentUrl,
+  sourceUrl,
+  loading,
+  failed,
+}: {
+  title: string;
+  description: string;
+  content: string | null;
+  documentUrl: string | null;
+  sourceUrl: string | null;
+  loading: boolean;
+  failed: boolean;
+}) {
+  const colors = useColors();
+  const insets = useSafeAreaInsets();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+
+  if (loading) return <View style={styles.empty}><ActivityIndicator color={colors.primary} /><Text style={styles.emptyBody}>Preparing the native field note…</Text></View>;
+  if (documentUrl && !content) return <DocumentReader title={title} url={documentUrl} />;
+
+  const paragraphs = content && content.trim() !== description.trim()
+    ? content
+        .split(/\n\s*\n/)
+        .map((paragraph) => paragraph.trim())
+        .filter(Boolean)
+    : [];
+
+  return (
+    <ScrollView contentContainerStyle={[styles.articleBody, { paddingBottom: insets.bottom + 32 }]} showsVerticalScrollIndicator={false} testID="library-native-reader">
+      <View style={styles.articleBadge}><Text style={styles.articleBadgeText}>FIELD NOTE</Text></View>
+      <Text style={styles.articleTitle}>{title}</Text>
+      <Text style={styles.articleLead}>{description}</Text>
+
+      <View style={styles.articleRule} />
+      {paragraphs.map((paragraph, index) => (
+        <Text selectable key={`${index}-${paragraph.slice(0, 18)}`} style={styles.articleText}>{paragraph}</Text>
+      ))}
+
+      {failed ? (
+        <View style={styles.articleUnavailable}>
+          <Feather name="wifi-off" size={20} color={colors.primary} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.articleUnavailableTitle}>The latest copy could not refresh</Text>
+            <Text style={styles.articleUnavailableBody}>The field briefing above remains available. Reopen it when your secure connection returns to check for an expanded edition.</Text>
+          </View>
+        </View>
+      ) : null}
+
+      <Text style={styles.articleSectionTitle}>Take it into the field</Text>
+      <View style={styles.articlePrompt}>
+        <Feather name="message-square" size={19} color={colors.primary} />
+        <Text style={styles.articlePromptText}>What is the one useful question or next step this idea should change in your next conversation?</Text>
+      </View>
+
+      {sourceUrl ? (
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => void WebBrowser.openBrowserAsync(sourceUrl)}
+          style={styles.sourceButton}
+        >
+          <Text style={styles.sourceButtonText}>View the original source</Text>
+          <Feather name="arrow-up-right" size={18} color={colors.primary} />
+        </Pressable>
+      ) : null}
+
+      <View style={styles.articleTrust}>
+        <Feather name="shield" size={17} color={colors.primary} />
+        <Text style={styles.articleTrustText}>Educational guidance only. Never enter patient PHI. Clinical decisions require the appropriate medical director or compliance approval.</Text>
+      </View>
+    </ScrollView>
+  );
+}
+
+function NativeResourceReader({
+  title,
+  description,
+  documentUrl,
+  whenToUse,
+  whyItMatters,
+  expectedOutcome,
+  version,
+}: {
+  title: string;
+  description: string;
+  documentUrl: string | null;
+  whenToUse?: string;
+  whyItMatters?: string;
+  expectedOutcome?: string;
+  version?: string;
+}) {
+  const colors = useColors();
+  const insets = useSafeAreaInsets();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+  const [documentOpen, setDocumentOpen] = useState(false);
+
+  if (documentOpen && documentUrl) return <DocumentReader title={title} url={documentUrl} />;
+
+  return (
+    <ScrollView contentContainerStyle={[styles.articleBody, { paddingBottom: insets.bottom + 32 }]} showsVerticalScrollIndicator={false} testID="library-native-resource">
+      <View style={styles.articleBadge}><Text style={styles.articleBadgeText}>{version ? `VERSION ${version}` : "FIELD RESOURCE"}</Text></View>
+      <Text style={styles.articleTitle}>{title}</Text>
+      <Text style={styles.articleLead}>{description}</Text>
+      <View style={styles.articleRule} />
+
+      {whenToUse ? <ResourceDetail label="WHEN TO USE IT" value={whenToUse} /> : null}
+      {whyItMatters ? <ResourceDetail label="WHY IT MATTERS" value={whyItMatters} /> : null}
+      {expectedOutcome ? <ResourceDetail label="WHAT YOU LEAVE WITH" value={expectedOutcome} /> : null}
+
+      {documentUrl ? (
+        <Pressable accessibilityRole="button" onPress={() => setDocumentOpen(true)} style={styles.openDocumentButton}>
+          <View style={styles.openDocumentIcon}><Feather name="file-text" size={21} color="#FFFFFF" /></View>
+          <View style={{ flex: 1 }}><Text style={styles.openDocumentTitle}>Open the attached resource</Text><Text style={styles.openDocumentBody}>Read and use it inside Spartan Coaching.</Text></View>
+          <Feather name="arrow-right" size={20} color="#FFFFFF" />
+        </Pressable>
+      ) : (
+        <View style={styles.articleUnavailable}>
+          <Feather name="book-open" size={20} color={colors.primary} />
+          <View style={{ flex: 1 }}><Text style={styles.articleUnavailableTitle}>Use the resource overview</Text><Text style={styles.articleUnavailableBody}>The practical guidance above is available now. No separate attachment is required to use it.</Text></View>
+        </View>
+      )}
+
+      <View style={styles.articleTrust}>
+        <Feather name="shield" size={17} color={colors.primary} />
+        <Text style={styles.articleTrustText}>Use only deidentified information. Clinical education is general guidance and requires appropriate medical director or compliance approval.</Text>
+      </View>
+    </ScrollView>
+  );
+}
+
+function ResourceDetail({ label, value }: { label: string; value: string }) {
+  const colors = useColors();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+  return <View style={styles.resourceDetail}><Text style={styles.resourceDetailLabel}>{label}</Text><Text style={styles.resourceDetailValue}>{value}</Text></View>;
 }
 
 function DocumentReader({ title, url }: { title: string; url: string }) {
@@ -133,6 +343,13 @@ function DocumentReader({ title, url }: { title: string; url: string }) {
         onLoadEnd={() => setLoading(false)}
         onError={() => { setLoading(false); setFailed(true); }}
         onHttpError={() => { setLoading(false); setFailed(true); }}
+        injectedJavaScript={`(function(){var t=(document.title||'')+' '+(document.body&&document.body.innerText||'');if(/404|page not found|does not exist or may have been moved/i.test(t)){window.ReactNativeWebView.postMessage('SPARTAN_RESOURCE_NOT_FOUND');}})();true;`}
+        onMessage={(event) => {
+          if (event.nativeEvent.data === "SPARTAN_RESOURCE_NOT_FOUND") {
+            setLoading(false);
+            setFailed(true);
+          }
+        }}
         onShouldStartLoadWithRequest={(request) => request.url.startsWith("https://") || request.url.startsWith("file://")}
         setSupportMultipleWindows={false}
         sharedCookiesEnabled
@@ -215,5 +432,29 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     secondaryControl: { width: 48, height: 48, borderRadius: 16, backgroundColor: colors.muted, alignItems: "center", justifyContent: "center" },
     offlineNote: { flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
     offlineText: { color: colors.mutedForeground, fontSize: 12, ...font("medium") },
+    articleBody: { paddingHorizontal: 24, paddingTop: 30 },
+    articleBadge: { alignSelf: "flex-start", borderRadius: 999, backgroundColor: colors.secondary, paddingHorizontal: 10, paddingVertical: 7 },
+    articleBadgeText: { color: colors.primary, fontSize: 9, letterSpacing: 1.3, ...font("bold") },
+    articleTitle: { color: colors.foreground, fontSize: 32, lineHeight: 38, letterSpacing: -0.9, marginTop: 18, ...font("heavy") },
+    articleLead: { color: colors.mutedForeground, fontSize: 16, lineHeight: 25, marginTop: 13, ...font("regular") },
+    articleRule: { width: 42, height: 3, borderRadius: 2, backgroundColor: colors.primary, marginTop: 28, marginBottom: 24 },
+    articleSectionTitle: { color: colors.foreground, fontSize: 20, lineHeight: 25, marginTop: 18, ...font("heavy") },
+    articleText: { color: colors.mutedForeground, fontSize: 15, lineHeight: 24, marginTop: 8, ...font("regular") },
+    articleUnavailable: { flexDirection: "row", alignItems: "flex-start", gap: 12, borderRadius: 19, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, padding: 17 },
+    articleUnavailableTitle: { color: colors.foreground, fontSize: 14, ...font("bold") },
+    articleUnavailableBody: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, marginTop: 4, ...font("regular") },
+    articlePrompt: { flexDirection: "row", alignItems: "flex-start", gap: 12, borderRadius: 20, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, padding: 17, marginTop: 12 },
+    articlePromptText: { flex: 1, color: colors.foreground, fontSize: 14, lineHeight: 21, ...font("semibold") },
+    sourceButton: { minHeight: 54, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8, borderRadius: 17, borderWidth: 1, borderColor: colors.primary, marginTop: 24 },
+    sourceButtonText: { color: colors.primary, fontSize: 14, ...font("bold") },
+    articleTrust: { flexDirection: "row", alignItems: "flex-start", gap: 10, backgroundColor: colors.primaryMuted, borderRadius: 16, padding: 15, marginTop: 20 },
+    articleTrustText: { flex: 1, color: colors.mutedForeground, fontSize: 11, lineHeight: 17, ...font("medium") },
+    resourceDetail: { borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.borderStrong, paddingVertical: 15 },
+    resourceDetailLabel: { color: colors.primary, fontSize: 9, letterSpacing: 1.4, ...font("bold") },
+    resourceDetailValue: { color: colors.foreground, fontSize: 15, lineHeight: 22, marginTop: 6, ...font("medium") },
+    openDocumentButton: { minHeight: 82, flexDirection: "row", alignItems: "center", gap: 12, borderRadius: 20, backgroundColor: colors.primary, padding: 15, marginTop: 22 },
+    openDocumentIcon: { width: 44, height: 44, borderRadius: 14, backgroundColor: "rgba(255,255,255,0.16)", alignItems: "center", justifyContent: "center" },
+    openDocumentTitle: { color: "#FFFFFF", fontSize: 15, ...font("bold") },
+    openDocumentBody: { color: "rgba(255,255,255,0.78)", fontSize: 11, lineHeight: 16, marginTop: 3, ...font("regular") },
   });
 }

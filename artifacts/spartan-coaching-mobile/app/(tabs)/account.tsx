@@ -8,12 +8,14 @@ import {
   Pressable,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppleSubscriptionActions } from "@/components/AppleSubscriptionActions";
+import { SpartanHeader } from "@/components/ui/SpartanHeader";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { useColors } from "@/hooks/useColors";
 import {
@@ -46,6 +48,7 @@ export default function AccountScreen() {
   const { preference, setPreference } = useAppearancePreference();
   const { user, isLoading, isAuthenticated, canUseFieldKit, canUseElite, canManageOrganization, logout, refresh } = useAuth();
   const [jobRole, setJobRole] = useState("");
+  const [alsoLeadsTeam, setAlsoLeadsTeam] = useState(false);
   const [territoryNote, setTerritoryNote] = useState("");
   const [topObjections, setTopObjections] = useState("");
   const [saving, setSaving] = useState(false);
@@ -60,6 +63,7 @@ export default function AccountScreen() {
     try {
       const data = await fetchOnboardingMobile();
       setJobRole(data.member.jobRole || "");
+      setAlsoLeadsTeam(Boolean(data.member.alsoLeadsTeam));
       setTerritoryNote(data.member.territoryNote || "");
       setTopObjections(data.member.topObjections || "");
     } catch {
@@ -81,6 +85,7 @@ export default function AccountScreen() {
   if (!isAuthenticated || !user) {
     return (
       <ScrollView style={styles.screen} contentInsetAdjustmentBehavior="automatic" contentContainerStyle={{ paddingTop: topPad + 20, paddingHorizontal: 20, paddingBottom: bottomPad + 24 }}>
+        <SpartanHeader title="Account" showAccount={false} />
         <Text style={styles.kicker}>ACCOUNT</Text>
         <Text style={styles.pageTitle}>Explore first. Connect an account when it has something worth protecting.</Text>
         <Text style={styles.pageSubtitle}>You can tour the system and purchase through Apple before creating a Spartan account. Signing in connects membership, saved work, commitments, and preferences across your devices.</Text>
@@ -112,6 +117,7 @@ export default function AccountScreen() {
     try {
       await updateOnboardingMobile({
         jobRole: jobRole || null,
+        alsoLeadsTeam,
         territoryNote: territoryNote.trim() || null,
         topObjections: topObjections.trim() || null,
       });
@@ -165,6 +171,7 @@ export default function AccountScreen() {
       keyboardShouldPersistTaps="handled"
       testID="screen-account"
     >
+      <SpartanHeader title="Account" showAccount={false} />
       <Text style={styles.kicker}>MY SPARTAN</Text>
       <View style={styles.identityRow}>
         <View style={styles.avatar}><Text style={styles.avatarText}>{initials}</Text></View>
@@ -233,6 +240,13 @@ export default function AccountScreen() {
               const selected = jobRole === role.id;
               return <Pressable key={role.id} onPress={() => setJobRole(role.id)} style={[styles.roleChip, selected && styles.roleChipSelected]}><Text style={[styles.roleText, selected && { color: colors.primary }]}>{role.label}</Text></Pressable>;
             })}
+          </View>
+          <View style={styles.leadershipRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.label}>I also lead a team</Text>
+              <Text style={styles.leadershipBody}>Home adapts with useful leadership context without changing your primary role or main navigation.</Text>
+            </View>
+            <Switch value={alsoLeadsTeam} onValueChange={setAlsoLeadsTeam} trackColor={{ false: colors.muted, true: colors.primaryMuted }} thumbColor={alsoLeadsTeam ? colors.primary : colors.card} />
           </View>
           <Text style={styles.label}>Territory context</Text>
           <TextInput style={styles.input} value={territoryNote} onChangeText={setTerritoryNote} placeholder="Territory priorities, account mix, leadership context" placeholderTextColor={colors.mutedForeground} multiline />
@@ -330,6 +344,8 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     roleChip: { minHeight: 40, justifyContent: "center", paddingHorizontal: 12, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 20, backgroundColor: colors.card },
     roleChipSelected: { borderColor: colors.primary, backgroundColor: colors.primaryMuted },
     roleText: { color: colors.mutedForeground, fontSize: 11, ...font("semibold") },
+    leadershipRow: { minHeight: 72, flexDirection: "row", alignItems: "center", gap: 14, borderRadius: 16, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, paddingHorizontal: 14, paddingVertical: 11 },
+    leadershipBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 3, ...font("regular") },
     input: { minHeight: 64, color: colors.foreground, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 14, borderCurve: "continuous", padding: 12, fontSize: 13, lineHeight: 18, ...font("regular") },
     profileMessage: { color: colors.primary, fontSize: 11, ...font("semibold") },
     infoRow: { flexDirection: "row", alignItems: "flex-start", gap: 11, paddingVertical: 9 },

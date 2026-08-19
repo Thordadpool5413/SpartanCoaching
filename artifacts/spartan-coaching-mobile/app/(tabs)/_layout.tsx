@@ -5,16 +5,18 @@ import React from "react";
 import { Platform, StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
+import { HelmetMark } from "@/components/brand/HelmetMark";
 
 const TAB_ICONS = {
   index: { ios: "house.fill", android: "home" },
   coach: { ios: "waveform", android: "activity" },
-  tools: { ios: "wrench.and.screwdriver.fill", android: "tool" },
-  learn: { ios: "books.vertical", android: "book-open" },
+  tools: { ios: "square.grid.3x3.fill", android: "grid" },
+  "my-work": { ios: "checkmark.circle.fill", android: "check-circle" },
   account: { ios: "person.crop.circle", android: "user" },
 } as const;
 
 function TabIcon({ route, color }: { route: keyof typeof TAB_ICONS; color: string }) {
+  if (route === "coach") return <HelmetMark size={27} />;
   const icon = TAB_ICONS[route];
   if (Platform.OS === "ios") {
     return <SymbolView name={icon.ios} tintColor={color} size={23} />;
@@ -68,15 +70,15 @@ export default function TabLayout() {
       <Tabs.Screen
         name="tools"
         options={{
-          title: "Tools",
+          title: "Explore",
           tabBarIcon: ({ color }) => <TabIcon route="tools" color={color} />,
         }}
       />
       <Tabs.Screen
-        name="learn"
+        name="my-work"
         options={{
-          title: "Library",
-          tabBarIcon: ({ color }) => <TabIcon route="learn" color={color} />,
+          title: "My Work",
+          tabBarIcon: ({ color }) => <TabIcon route="my-work" color={color} />,
         }}
       />
       <Tabs.Screen
@@ -88,6 +90,7 @@ export default function TabLayout() {
       />
       <Tabs.Screen name="command" options={{ href: null }} />
       <Tabs.Screen name="contact" options={{ href: null }} />
+      <Tabs.Screen name="learn" options={{ href: null }} />
     </Tabs>
   );
 }

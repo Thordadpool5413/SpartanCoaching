@@ -14,7 +14,7 @@ import { ColdCallTool } from "@/components/tools/ColdCallTool";
 import { RolePlayToolScreen } from "@/components/tools/RolePlayToolScreen";
 
 /**
- * Dedicated tool run screens — catalog lives on Tools tab.
+ * Dedicated tool run screens. The catalog lives in Explore.
  * Deep links: /tool/objection etc. Legacy tools?tab= redirects here.
  */
 export default function ToolRunScreen() {

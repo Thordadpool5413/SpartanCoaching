@@ -21,7 +21,7 @@ No screen may require the user to infer access level from hidden state, unexplai
 
 ## 2. Binding visual reference rule
 
-The selected Morning Briefing Home reference at `design/references/home-option-2-approved.png` is a binding implementation target, not visual inspiration.
+The approved Figma frames are binding implementation targets, not visual inspiration. The public Home target is node `33:13`, Coach is node `35:202`, and Library is node `36:4` in file `p3WMv207TPMNY2XmGm0E0H`. Older generated screenshots in the repository are not binding.
 
 For each approved major screen:
 
@@ -33,7 +33,7 @@ For each approved major screen:
 
 A screen does not pass because it uses similar colors or approximately the same sections.
 
-The distressed Spartan Coaching stamp is the primary logo. The Spartan helmet is a compact icon or supporting mark only.
+The Spartan helmet is a transparent red compact icon and is paired with the Spartan Coaching name where identity must be explicit. It never appears on a black tile or as a cropped substitute for the full logo. The distressed Spartan Coaching asset remains available for approved full logo placements.
 
 ## 3. Brand and visual system
 
@@ -56,11 +56,11 @@ The permanent primary navigation is exactly:
 
 1. Home
 2. Coach
-3. Tools
-4. Library
+3. Explore
+4. My Work
 5. Account
 
-Every major offering has one clear home in that architecture. Organization Admin appears from Account and authorized shortcuts only after the appropriate admin entitlement exists.
+Explore provides clear access to all tools and the native Library. My Work contains commitments, saved plans, approved outputs, and offline downloads. Organization Admin appears from Account and authorized shortcuts only after the appropriate admin entitlement exists.
 
 Core product functionality must remain inside the iOS app. Support, privacy, terms, trust, Library content, and field results open inside the native app. External transitions are limited to destinations that genuinely require operating system or provider handling, including Apple subscription management and secure provider authorization.
 
@@ -87,13 +87,13 @@ After Apple purchase, account creation or account connection is explained as pro
 
 Home is a personal field guide, not a CRM dashboard.
 
-The approved signed in Home must preserve the Morning Briefing composition and provide:
+The approved public Home must match Figma node `33:13`. The signed in Home must preserve the same visual language and provide:
 
-1. Exact Spartan Coaching stamp treatment.
+1. Transparent helmet identity paired with the Spartan Coaching name.
 2. Personal greeting.
-3. The prompt `What are you walking into?`
-4. One dominant `Prepare for a conversation` action.
-5. `Practice an objection`.
+3. One clear preparation question.
+4. One dominant conversation planning action.
+5. Practice appropriate to Standard or Elite access.
 6. Commitment continuity.
 7. Guided tour access.
 8. Complete access map entry.

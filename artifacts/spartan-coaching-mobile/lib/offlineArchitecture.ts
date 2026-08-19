@@ -39,6 +39,18 @@ export type OfflineWorkflowSpec = {
   notes: string;
 };
 
+/** Sensitive tool identifiers that must never be persisted in device drafts or retry queues. */
+export const OFFLINE_STORAGE_BLOCKED_TOOL_IDS = [
+  "admission-eligibility",
+  "documentation-gap-analyzer",
+  "lcd-policy-sales-playbook",
+  "medicare-lcd-advisor",
+  "medical-record-lcd-verifier",
+  "family-meeting-simulator",
+  "transcribe",
+  "sales-workflow",
+] as const;
+
 /**
  * Authoritative matrix for important native workflows.
  * Product code should consult this (or offlineQueue allowlists) before enqueue/UI copy.
@@ -103,10 +115,10 @@ export const OFFLINE_WORKFLOW_MATRIX: readonly OfflineWorkflowSpec[] = [
   },
   {
     id: "billing_checkout",
-    label: "Stripe subscribe / portal",
+    label: "Apple subscription purchase and management",
     capability: "online_required",
     aiWorksOffline: false,
-    notes: "Requires network and browser.",
+    notes: "Requires a secure connection and the installed iPhone app. StoreKit remains the source of truth.",
   },
   {
     id: "auth_login",

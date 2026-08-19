@@ -14,8 +14,8 @@ describe("Elite iOS experience contract", () => {
     expect(config.expo.userInterfaceStyle).toBe("automatic");
     expect(paletteSource).toContain('const dark = {');
     expect(paletteSource).toContain('const light = {');
-    expect(paletteSource).toContain('background: "#0B1728"');
-    expect(paletteSource).toContain('background: "#F8FAFD"');
+    expect(paletteSource).toContain('background: "#07111F"');
+    expect(paletteSource).toContain('background: "#FCFAF6"');
     expect(paletteSource).not.toContain('background: "#171513"');
     expect(appearanceSource).toContain('export type AppearancePreference = "system" | "light" | "dark"');
     expect(appearanceSource).toContain("Appearance.setColorScheme");
@@ -27,8 +27,8 @@ describe("Elite iOS experience contract", () => {
 
     expect(tabs).toContain('title: "Home"');
     expect(tabs).toContain('title: "Coach"');
-    expect(tabs).toContain('title: "Tools"');
-    expect(tabs).toContain('title: "Library"');
+    expect(tabs).toContain('title: "Explore"');
+    expect(tabs).toContain('title: "My Work"');
     expect(tabs).toContain('title: "Account"');
     expect(tabs).toContain('display: "flex"');
     expect(tabs).toContain('name="command" options={{ href: null }}');
@@ -58,7 +58,7 @@ describe("Elite iOS experience contract", () => {
     expect(coach).toContain("transcribeAudio");
     expect(coach).toContain("canUseElite");
     expect(api).toContain('apiPost<{ item: CoachMemoryItem }>("/api/v1/coach/memory"');
-    expect(today).toContain("card-private-coach-commitment");
+    expect(today).toContain("Your current commitment");
     expect(today).toContain("listCoachMemory");
   });
 });

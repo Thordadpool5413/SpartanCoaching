@@ -152,6 +152,7 @@ export const clientMembers = pgTable(
     status: varchar("status", { length: 32 }).notNull().default("invited"), // invited | active | disabled
     /** Onboarding profile */
     jobRole: varchar("job_role", { length: 64 }), // rep | director | vp | owner | other
+    alsoLeadsTeam: boolean("also_leads_team").notNull().default(false),
     territoryNote: text("territory_note"),
     topObjections: text("top_objections"),
     /** Checklist keys → completed boolean or ISO timestamp string */
@@ -414,6 +415,7 @@ export const ACTIVATION_STEP_IDS = [
 
 export const onboardingUpdateSchema = z.object({
   jobRole: z.enum(["rep", "director", "vp", "owner", "other"]).optional().nullable(),
+  alsoLeadsTeam: z.boolean().optional(),
   territoryNote: z.string().max(2000).optional().nullable(),
   topObjections: z.string().max(2000).optional().nullable(),
   checklist: z

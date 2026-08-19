@@ -245,6 +245,7 @@ export const articles = pgTable("articles", {
   id: serial("id").primaryKey(),
   title: text("title").notNull(),
   description: text("description").notNull(),
+  content: text("content"),
   linkedinUrl: text("linkedin_url").notNull(),
   publishDate: bigint("publish_date", { mode: "number" }).notNull(),
   featured: boolean("featured").notNull().default(false),

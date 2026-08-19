@@ -36,16 +36,28 @@ describe("protected Spartan Coaching brand asset", () => {
     );
   });
 
-  it("uses the stamp as the Home logo and reserves the supplied helmet for compact marks", () => {
+  it("uses a transparent helmet master for native compact identity", () => {
+    const asset = fs.readFileSync(
+      path.resolve(__dirname, "../assets/images/helmet-mark.png"),
+    );
+    expect(createHash("sha256").update(asset).digest("hex")).toBe(
+      "0bdc8a3b7fd9ac7eaef39443806e2c47bf31728f4ea3a45b37f3cb5bbb6fb68d",
+    );
+    expect(asset.readUInt32BE(16)).toBe(1254);
+    expect(asset.readUInt32BE(20)).toBe(1254);
+    expect(asset[25]).toBe(6);
+  });
+
+  it("uses the transparent helmet for native identity and keeps account recovery complete", () => {
     const login = fs.readFileSync(path.resolve(__dirname, "../app/login.tsx"), "utf8");
     const home = fs.readFileSync(path.resolve(__dirname, "../app/(tabs)/index.tsx"), "utf8");
     const coach = fs.readFileSync(path.resolve(__dirname, "../app/(tabs)/coach.tsx"), "utf8");
     const helmet = fs.readFileSync(path.resolve(__dirname, "../components/brand/HelmetMark.tsx"), "utf8");
     expect(login).toContain("<HelmetMark");
-    expect(home).not.toContain("<HelmetMark");
+    expect(home).toContain("<SpartanHeader");
     expect(coach).toContain("<HelmetMark");
-    expect(helmet).toContain('require("@/assets/images/icon.png")');
-    expect(home).toContain("<BrandStamp");
+    expect(helmet).toContain('require("@/assets/images/helmet-mark.png")');
+    expect(helmet).not.toContain("backgroundColor");
     expect(login).toContain("Forgot password");
     expect(login).toContain("Sign in securely");
   });

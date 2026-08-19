@@ -4,7 +4,7 @@ import { router } from "expo-router";
 import React, { useMemo } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { BrandStamp } from "@/components/brand/BrandStamp";
+import { HelmetMark } from "@/components/brand/HelmetMark";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
@@ -57,8 +57,8 @@ export default function AccessScreen() {
       testID="screen-access-map"
     >
       <View style={styles.brandField}>
-        <BrandStamp width={166} height={98} />
-        <Text style={styles.brandKicker}>YOUR SPARTAN SYSTEM</Text>
+        <HelmetMark size={58} />
+        <View><Text style={styles.brandTitle}>SPARTAN COACHING</Text><Text style={styles.brandKicker}>YOUR COMPLETE SYSTEM</Text></View>
       </View>
 
       <View style={styles.body}>
@@ -87,6 +87,7 @@ export default function AccessScreen() {
           const included =
             offering.id === "admin" ? canManageOrganization :
             offering.id === "coach" ? canUseElite :
+            offering.id === "my-work" ? canUseFieldKit :
             offering.id === "tools" ? canUseFieldKit :
             true;
           const accessLabel = included
@@ -156,8 +157,9 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
     content: { gap: 0 },
-    brandField: { minHeight: 184, backgroundColor: colors.heroBackground, alignItems: "center", justifyContent: "flex-end", paddingBottom: 21 },
-    brandKicker: { color: colors.heroMuted, fontSize: 9, letterSpacing: 2.1, ...font("bold") },
+    brandField: { minHeight: 112, backgroundColor: colors.heroBackground, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 14, paddingHorizontal: 22 },
+    brandTitle: { color: colors.heroForeground, fontSize: 17, letterSpacing: 0.4, ...font("heavy") },
+    brandKicker: { color: colors.heroMuted, fontSize: 9, letterSpacing: 1.8, marginTop: 4, ...font("bold") },
     body: { paddingHorizontal: 20, paddingTop: 28, gap: 14 },
     kicker: { color: colors.primary, fontSize: 10, letterSpacing: 2.1, ...font("bold") },
     title: { color: colors.foreground, fontSize: 32, lineHeight: 37, letterSpacing: -0.9, ...font("heavy") },

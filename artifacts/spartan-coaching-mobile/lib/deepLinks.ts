@@ -1,6 +1,6 @@
 /**
  * Parse scheme / notification payloads into expo-router targets.
- * Scheme: spartan-coaching-mobile://tool/objection | //command | //tools | //learn | //account
+ * Scheme: spartan-coaching-mobile://tool/objection | //explore | //learn | //my-work | //account
  */
 import type { Href } from "expo-router";
 import { isToolTab } from "@/lib/toolDeepLinks";
@@ -42,7 +42,7 @@ export function parseDeepLink(url: string | null | undefined): DeepTarget | null
     const first = (hostIsRoute ? host : parts[0] || "").toLowerCase();
     const second = hostIsRoute ? parts[0] : parts[1];
 
-    if (first === "tool" || first === "tools") {
+    if (first === "tool" || first === "tools" || first === "explore") {
       const tab = (second || u.searchParams.get("tab") || "").toLowerCase();
       if (isToolTab(tab)) {
         return { pathname: "/tool/[tab]", params: { tab } };
@@ -53,9 +53,10 @@ export function parseDeepLink(url: string | null | undefined): DeepTarget | null
       if (second === "full" || first === "workflow") {
         return { pathname: "/sales-workflow" };
       }
-      return { pathname: "/(tabs)/command" };
+      return { pathname: "/sales-workflow" };
     }
-    if (first === "learn") return { pathname: "/(tabs)/learn" };
+    if (first === "learn" || first === "library") return { pathname: "/(tabs)/tools", params: { view: "library" } };
+    if (first === "my-work" || first === "work") return { pathname: "/(tabs)/my-work" };
     if (first === "account") return { pathname: "/(tabs)/account" };
     if (first === "coach") return { pathname: "/(tabs)/coach" };
     if (first === "home" || first === "portal") return { pathname: "/(tabs)" };
@@ -103,7 +104,7 @@ export function deepLinkFromNotificationData(
 export function mapSecureDeepLinkKey(key: string): DeepTarget | null {
   switch (key) {
     case "command":
-      return { pathname: "/(tabs)/command" };
+      return { pathname: "/sales-workflow" };
     case "coach":
       return { pathname: "/(tabs)/coach" };
     case "weekly_plan":
@@ -114,7 +115,9 @@ export function mapSecureDeepLinkKey(key: string): DeepTarget | null {
     case "account":
       return { pathname: "/(tabs)/account" };
     case "resources":
-      return { pathname: "/(tabs)/learn" };
+      return { pathname: "/(tabs)/tools", params: { view: "library" } };
+    case "my_work":
+      return { pathname: "/(tabs)/my-work" };
     case "tools":
       return { pathname: "/(tabs)/tools" };
     case "login":

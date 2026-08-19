@@ -1,5 +1,6 @@
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import { router } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -11,13 +12,14 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { BrandStamp } from "@/components/brand/BrandStamp";
+import { HelmetMark } from "@/components/brand/HelmetMark";
 import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { useColors } from "@/hooks/useColors";
 import { apiPost } from "@/lib/api";
 import { font } from "@/lib/typography";
 import { clearConsultingConfirmation, loadConsultingConfirmation, saveConsultingConfirmation, type ConsultingConfirmation } from "@/lib/consultingConfirmation";
+import { getMicrosoftBookingsUrl } from "@/lib/consultingBookings";
 
 const SERVICES = [
   {
@@ -79,6 +81,7 @@ export default function ConsultingScreen() {
   const [submitted, setSubmitted] = useState(false);
   const [confirmation, setConfirmation] = useState<ConsultingConfirmation | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const bookingsAvailable = Boolean(getMicrosoftBookingsUrl());
 
   useEffect(() => {
     void loadConsultingConfirmation().then(setConfirmation);
@@ -145,6 +148,7 @@ export default function ConsultingScreen() {
             <SummaryRow label="Preferred time" value={confirmation.availability} />
             <SummaryRow label="Submitted" value={new Date(confirmation.submittedAt).toLocaleDateString()} />
           </View>
+          {bookingsAvailable ? <SpartanButton title="Choose an exact time" onPress={() => router.push("/consulting-schedule" as never)} /> : null}
           <SpartanButton title="Done" onPress={() => { setSubmitted(false); setForm(EMPTY_FORM); }} />
         </View>
       </View>
@@ -159,7 +163,7 @@ export default function ConsultingScreen() {
       testID="screen-consulting"
     >
       <View style={[styles.hero, { paddingTop: topPad + 10 }]}>
-        <BrandStamp width={150} height={88} />
+        <View style={styles.brandRow}><HelmetMark size={58} /><Text style={styles.brandName}>SPARTAN COACHING</Text></View>
         <Text style={styles.heroKicker}>HUMAN ADVISORY</Text>
         <Text style={styles.heroTitle}>Bring in a human when the work needs more than software.</Text>
         <Text style={styles.heroBody}>Consulting is a separate contracted service. Review the work, choose the fit, and request a conversation without leaving the app.</Text>
@@ -290,6 +294,8 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
     hero: { backgroundColor: colors.heroBackground, paddingHorizontal: 22, paddingBottom: 30, gap: 8 },
+    brandRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 10 },
+    brandName: { color: colors.heroForeground, fontSize: 16, letterSpacing: 0.8, ...font("heavy") },
     heroKicker: { color: colors.heroMuted, fontSize: 9, letterSpacing: 2, marginTop: 4, ...font("bold") },
     heroTitle: { color: colors.heroForeground, fontSize: 31, lineHeight: 36, letterSpacing: -0.8, ...font("heavy") },
     heroBody: { color: colors.heroMuted, fontSize: 14, lineHeight: 21, ...font("regular") },

@@ -139,7 +139,7 @@ export default function AiToolsIndex() {
     >
       <Pressable onPress={() => router.back()} style={styles.back} testID="advanced-back">
         <Feather name="arrow-left" size={18} color={colors.primary} />
-        <Text style={[{ color: colors.primary }, font("semibold")]}>Tools</Text>
+        <Text style={[{ color: colors.primary }, font("semibold")]}>Explore</Text>
       </Pressable>
       <Text style={[styles.title, { color: colors.foreground }, font("bold")]}>
         Advanced library

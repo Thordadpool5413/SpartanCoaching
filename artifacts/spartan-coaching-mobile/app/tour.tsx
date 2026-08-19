@@ -4,7 +4,7 @@ import { router, type Href } from "expo-router";
 import React, { useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { BrandStamp } from "@/components/brand/BrandStamp";
+import { HelmetMark } from "@/components/brand/HelmetMark";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
@@ -102,7 +102,7 @@ export default function GuidedTourScreen() {
   return (
     <View style={styles.screen} testID="screen-guided-tour">
       <View style={[styles.header, { paddingTop: insets.top + 8 }]}>
-        <BrandStamp width={116} height={68} />
+        <View style={styles.tourBrand}><HelmetMark size={48} /><Text style={styles.tourBrandText}>SPARTAN COACHING</Text></View>
         <Pressable accessibilityRole="button" accessibilityLabel="Close guided tour" onPress={() => router.back()} style={styles.closeButton}>
           <Feather name="x" size={21} color={colors.heroForeground} />
         </Pressable>
@@ -251,6 +251,8 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
     header: { minHeight: 126, backgroundColor: colors.heroBackground, paddingHorizontal: 20, paddingBottom: 12, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+    tourBrand: { flexDirection: "row", alignItems: "center", gap: 10 },
+    tourBrandText: { color: colors.heroForeground, fontSize: 14, letterSpacing: 0.8, ...font("heavy") },
     closeButton: { width: 44, height: 44, borderRadius: 22, alignItems: "center", justifyContent: "center", borderWidth: StyleSheet.hairlineWidth, borderColor: "rgba(255,255,255,0.28)" },
     content: { paddingHorizontal: 22, paddingTop: 25, paddingBottom: 34 },
     progressRow: { flexDirection: "row", gap: 6, marginBottom: 26 },

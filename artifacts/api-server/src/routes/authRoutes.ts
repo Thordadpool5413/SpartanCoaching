@@ -747,6 +747,7 @@ export function registerAuthRoutes(app: Express): void {
 
       const patch: Record<string, unknown> = {};
       if (parsed.data.jobRole !== undefined) patch.jobRole = parsed.data.jobRole;
+      if (parsed.data.alsoLeadsTeam !== undefined) patch.alsoLeadsTeam = parsed.data.alsoLeadsTeam;
       if (parsed.data.territoryNote !== undefined) patch.territoryNote = parsed.data.territoryNote;
       if (parsed.data.topObjections !== undefined) patch.topObjections = parsed.data.topObjections;
 

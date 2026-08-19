@@ -9,10 +9,10 @@ describe("Field Guide experience contract", () => {
     const welcome = read("components/WelcomeExperience.tsx");
     const home = read("app/(tabs)/index.tsx");
 
-    expect(welcome).toContain("Walk through Spartan Coaching");
-    expect(welcome).toContain("account comes after purchase");
-    expect(home).toContain("What are you walking into?");
-    expect(home).toContain("Prepare for a conversation");
+    expect(welcome).toContain("See how the app works");
+    expect(welcome).toContain("without creating an account first");
+    expect(home).toContain("What do you need to prepare for?");
+    expect(home).toContain("Plan the conversation");
     expect(home).not.toContain("Command Center");
   });
 
@@ -35,28 +35,32 @@ describe("Field Guide experience contract", () => {
     expect(rootLayout).toContain('name="tour"');
   });
 
-  it("uses the distressed logo for identity and the helmet only as an icon", () => {
+  it("uses the transparent helmet as the native mark and preserves the distressed logo asset", () => {
     const stamp = read("components/brand/BrandStamp.tsx");
     const helmet = read("components/brand/HelmetMark.tsx");
     const launch = read("components/LaunchExperience.tsx");
 
     expect(stamp).toContain("brand-stamp.png");
-    expect(helmet).toContain("icon.png");
-    expect(launch).toContain("<BrandStamp");
-    expect(launch).not.toContain("<HelmetMark");
+    expect(helmet).toContain("helmet-mark.png");
+    expect(launch).toContain("<HelmetMark");
+    expect(launch).not.toContain("<BrandStamp");
   });
 
-  it("locks the approved Home target and its native action hierarchy", () => {
+  it("locks the approved Figma Home target and its native action hierarchy", () => {
     const home = read("app/(tabs)/index.tsx");
+    const publicHome = read("components/WelcomeExperience.tsx");
     const acceptance = read("design/home-acceptance-spec.md");
 
-    expect(fs.existsSync(path.join(root, "design/references/home-option-2-approved.png"))).toBe(true);
-    expect(fs.existsSync(path.join(root, "assets/images/field-guide-navy-texture.png"))).toBe(true);
-    expect(fs.existsSync(path.join(root, "assets/images/field-guide-crimson-texture.png"))).toBe(true);
-    expect(home).toContain('router.push("/tool/playbook"');
+    expect(acceptance).toContain("node `33:13`");
+    expect(acceptance).toContain("440 by 956 points");
+    expect(publicHome).toContain("<SpartanHeader");
+    expect(publicHome).toContain("Know what to do next.");
+    expect(publicHome).toContain("Purchase through Apple without creating an account first.");
+    expect(home).toContain('route: "/tool/playbook"');
     expect(home).toContain('"/tool/objection"');
-    expect(home).toContain('router.push("/(tabs)/account"');
-    expect(home).toContain("Your field guide is ready.");
-    expect(acceptance).toContain("binding visual target");
+    expect(home).toContain("<SpartanHeader");
+    expect(home).not.toContain("Pick up where you left off");
+    expect(home).toContain("Explore tools and resources");
+    expect(acceptance).toContain("binding visual target is Figma");
   });
 });

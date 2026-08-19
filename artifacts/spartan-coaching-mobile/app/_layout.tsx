@@ -25,6 +25,7 @@ import { AppearanceProvider } from "@/lib/AppearanceContext";
 import { LaunchExperience } from "@/components/LaunchExperience";
 
 SplashScreen.preventAutoHideAsync();
+SplashScreen.setOptions({ duration: 260, fade: true });
 
 const queryClient = new QueryClient();
 
@@ -74,11 +75,12 @@ function RootLayoutNav() {
       <Stack.Screen name="transcriber" options={{ title: "Call Transcriber" }} />
       <Stack.Screen name="library-item" options={{ title: "Library", headerBackTitle: "Library" }} />
       <Stack.Screen name="method-guide" options={{ title: "Spartan Method", headerBackTitle: "Library" }} />
+      <Stack.Screen name="consulting-schedule" options={{ title: "Choose a time", headerBackTitle: "Consulting" }} />
       <Stack.Screen
         name="sales-workflow"
         options={{ title: "Field Planner", headerBackTitle: "Back" }}
       />
-      <Stack.Screen name="tool/[tab]" options={{ headerShown: false, headerBackTitle: "Tools" }} />
+      <Stack.Screen name="tool/[tab]" options={{ headerShown: false, headerBackTitle: "Explore" }} />
       <Stack.Screen name="ai-tools" options={{ headerShown: false }} />
       <Stack.Screen name="+not-found" />
     </Stack>

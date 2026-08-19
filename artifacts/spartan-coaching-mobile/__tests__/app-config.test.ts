@@ -83,14 +83,27 @@ describe("Expo production configuration", () => {
     expect(plugins).not.toContain("expo-local-authentication");
   });
 
-  it("keeps Home Screen shortcuts aligned with the current four tab experience", () => {
+  it("uses the transparent helmet in the recommended native splash plugin", () => {
+    const config = require("../app.config.js");
+    const splash = config.expo.plugins.find(
+      (plugin: string | [string, Record<string, unknown>]) => Array.isArray(plugin) && plugin[0] === "expo-splash-screen",
+    ) as [string, Record<string, unknown>] | undefined;
+
+    expect(splash?.[1]).toEqual(expect.objectContaining({
+      image: "./assets/images/helmet-mark.png",
+      imageWidth: 212,
+      backgroundColor: "#07111F",
+    }));
+  });
+
+  it("keeps Home Screen shortcuts aligned with the current five destination experience", () => {
     const config = require("../app.config.js");
     const shortcuts = config.expo.ios.infoPlist.UIApplicationShortcutItems;
 
     expect(shortcuts.map((item: { UIApplicationShortcutItemTitle: string }) => item.UIApplicationShortcutItemTitle)).toEqual([
       "Open Field Guide",
       "Spartan Coach",
-      "Open Tools",
+      "Open Explore",
     ]);
     expect(shortcuts.map((item: { UIApplicationShortcutItemUserInfo: { url: string } }) => item.UIApplicationShortcutItemUserInfo.url)).toEqual([
       "spartan-coaching-mobile://home",

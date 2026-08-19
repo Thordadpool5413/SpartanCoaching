@@ -6,6 +6,7 @@ import {
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
@@ -15,6 +16,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { SpartanButton } from "@/components/ui/SpartanButton";
+import { SpartanHeader } from "@/components/ui/SpartanHeader";
 import { useColors } from "@/hooks/useColors";
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
@@ -28,6 +30,7 @@ type Article = {
   id: number;
   title: string;
   description: string;
+  content?: string | null;
   linkedinUrl: string;
   publishDate: number;
   featured: boolean;
@@ -64,8 +67,18 @@ function formatDate(value?: string | number | null) {
   return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
-function openLibraryItem(input: { title: string; url?: string | null; kind: "article" | "audio" | "resource"; description?: string | null }) {
-  if (!input.url) return;
+function openLibraryItem(input: {
+  title: string;
+  url?: string | null;
+  sourceUrl?: string | null;
+  kind: "article" | "audio" | "resource";
+  description?: string | null;
+  articleId?: number;
+  whenToUse?: string;
+  whyItMatters?: string;
+  expectedOutcome?: string;
+  version?: string;
+}) {
   void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   router.push({
     pathname: "/library-item",
@@ -74,6 +87,12 @@ function openLibraryItem(input: { title: string; url?: string | null; kind: "art
       url: input.url,
       kind: input.kind,
       description: input.description || "",
+      sourceUrl: input.sourceUrl || "",
+      articleId: input.articleId ? String(input.articleId) : "",
+      whenToUse: input.whenToUse || "",
+      whyItMatters: input.whyItMatters || "",
+      expectedOutcome: input.expectedOutcome || "",
+      version: input.version || "",
     },
   } as any);
 }
@@ -83,6 +102,7 @@ export default function LearnScreen() {
   const insets = useSafeAreaInsets();
   const { canUseFieldKit } = useAuth();
   const [activeTab, setActiveTab] = useState<LearnTab>("articles");
+  const [query, setQuery] = useState("");
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 24;
@@ -110,20 +130,33 @@ export default function LearnScreen() {
     enabled: activeTab === "resources" && canUseFieldKit,
   });
 
-  const articles = articlesQuery.data?.articles ?? [];
+  const search = query.trim().toLowerCase();
+  const matches = (values: Array<string | null | undefined>) => !search || values.join(" ").toLowerCase().includes(search);
+  const articles = (articlesQuery.data?.articles ?? []).filter((item) => matches([item.title, item.description]));
   const featured = articles.find((article) => article.featured) ?? articles[0];
   const remainingArticles = featured ? articles.filter((article) => article.id !== featured.id) : [];
-  const podcasts = podcastsQuery.data?.podcasts ?? [];
-  const resources = resourcesQuery.data?.resources ?? [];
+  const podcasts = (podcastsQuery.data?.podcasts ?? []).filter((item) => Boolean(item.audioUrl) && matches([item.title, item.description]));
+  const resources = (resourcesQuery.data?.resources ?? []).filter((item) => matches([item.title, item.description, item.category]));
   const resourceGroups = useMemo(() => groupResources(resources), [resources]);
-  const providerItems = providerQuery.data?.items ?? [];
+  const providerItems = (providerQuery.data?.items ?? []).filter((item) => matches([item.title, item.description, item.kind]));
 
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]} testID="screen-learn">
       <View style={[styles.header, { paddingTop: topPad + 12, borderBottomColor: colors.border }]}>
-        <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>SPARTAN KNOWLEDGE</Text>
-        <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Library</Text>
-        <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Field intelligence for the conversation before you. Read less. Use more.</Text>
+        <SpartanHeader title="Library" />
+        <View style={[styles.search, { backgroundColor: colors.card, borderColor: colors.borderStrong }]}>
+          <Feather name="search" size={19} color={colors.mutedForeground} />
+          <TextInput
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Search tools and resources"
+            placeholderTextColor={colors.mutedForeground}
+            style={[styles.searchInput, { color: colors.foreground }, font("regular")]}
+            returnKeyType="search"
+            clearButtonMode="while-editing"
+            accessibilityLabel="Search Library"
+          />
+        </View>
 
         <View style={[styles.segmented, { backgroundColor: colors.muted, borderColor: colors.border }]}>
           {TABS.map((tab) => {
@@ -150,20 +183,8 @@ export default function LearnScreen() {
 
       {activeTab === "articles" ? (
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: bottomPad + 24 }} showsVerticalScrollIndicator={false}>
-          <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>THE SPARTAN METHOD</Text>
-          <View style={styles.methodGrid}>
-            {METHOD_LINKS.map((item) => (
-              <Pressable
-                key={item.path}
-                onPress={() => router.push({ pathname: "/method-guide", params: { section: item.path.replace("/", "") } } as any)}
-                style={({ pressed }) => [styles.methodChip, { backgroundColor: colors.card, borderColor: colors.border, opacity: pressed ? 0.85 : 1 }]}
-              >
-                <View style={[styles.methodIcon, { backgroundColor: colors.primaryMuted }]}><Feather name={item.icon} size={18} color={colors.primary} /></View>
-                <Text style={[styles.methodLabel, { color: colors.foreground }, font("bold")]}>{item.label}</Text>
-              </Pressable>
-            ))}
-          </View>
-
+          <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>FIELD INTELLIGENCE</Text>
+          <Text style={[styles.libraryTitle, { color: colors.foreground }, font("heavy")]}>Read less. Use more.</Text>
           {articlesQuery.isLoading ? <Loading /> : null}
           {articlesQuery.error ? (
             <EmptyState icon="alert-circle" title="Could not load the library" body="Check your connection and try again." ctaTitle="Retry" onCta={() => void articlesQuery.refetch()} />
@@ -171,18 +192,21 @@ export default function LearnScreen() {
 
           {!articlesQuery.isLoading && !articlesQuery.error && featured ? (
             <>
-              <Text style={[styles.sectionEyebrow, { color: colors.primary, marginTop: 24 }, font("bold")]}>FEATURED FIELD NOTE</Text>
               <Pressable
-                onPress={() => openLibraryItem({ title: featured.title, description: featured.description, url: featured.pdfUrl || featured.linkedinUrl, kind: "article" })}
-                style={({ pressed }) => [styles.featureCard, { backgroundColor: colors.heroBackground, borderColor: colors.primary, opacity: pressed ? 0.94 : 1 }]}
+                onPress={() => openLibraryItem({ articleId: featured.id, title: featured.title, description: featured.description, url: featured.pdfUrl, sourceUrl: featured.linkedinUrl, kind: "article" })}
+                style={({ pressed }) => [styles.featureCard, { backgroundColor: colors.card, borderColor: colors.borderStrong, opacity: pressed ? 0.94 : 1 }]}
                 accessibilityRole="link"
               >
-                <Text style={[styles.featureMeta, { color: colors.heroMuted }, font("semibold")]}>{formatDate(featured.publishDate) || "SPARTAN COACHING"}</Text>
-                <Text style={[styles.featureTitle, { color: colors.heroForeground }, font("heavy")]}>{featured.title}</Text>
-                <Text style={[styles.featureBody, { color: colors.heroMuted }, font("regular")]} numberOfLines={4}>{featured.description}</Text>
+                <View style={styles.featureHeader}>
+                  <View style={[styles.featureIcon, { backgroundColor: colors.primaryMuted }]}><Feather name="file-text" size={22} color={colors.primary} /></View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.featureTitle, { color: colors.foreground }, font("heavy")]}>{featured.title}</Text>
+                    <Text style={[styles.featureBody, { color: colors.mutedForeground }, font("regular")]} numberOfLines={4}>{featured.description}</Text>
+                  </View>
+                </View>
                 <View style={styles.featureAction}>
-                  <Text style={[{ color: colors.heroForeground, fontSize: 14 }, font("bold")]}>Read field note</Text>
-                  <Feather name="arrow-up-right" size={18} color={colors.heroForeground} />
+                  <View style={[styles.availableBadge, { backgroundColor: colors.secondary }]}><Text style={[styles.availableText, { color: colors.primary }, font("bold")]}>AVAILABLE</Text></View>
+                  <Text style={[styles.featureDate, { color: colors.mutedForeground }, font("medium")]}>{formatDate(featured.publishDate)}</Text>
                 </View>
               </Pressable>
 
@@ -196,7 +220,7 @@ export default function LearnScreen() {
                       subtitle={article.description}
                       meta={formatDate(article.publishDate)}
                       icon="file-text"
-                      onPress={() => openLibraryItem({ title: article.title, description: article.description, url: article.pdfUrl || article.linkedinUrl, kind: "article" })}
+                      onPress={() => openLibraryItem({ articleId: article.id, title: article.title, description: article.description, url: article.pdfUrl, sourceUrl: article.linkedinUrl, kind: "article" })}
                     />
                   ))}
                 </View>
@@ -205,7 +229,23 @@ export default function LearnScreen() {
           ) : null}
 
           {!articlesQuery.isLoading && !articlesQuery.error && articles.length === 0 ? (
-            <EmptyState icon="file-text" title="No field notes yet" body="New reading will appear here when it is published." />
+            <EmptyState icon="file-text" title={search ? "No matching field notes" : "No field notes yet"} body={search ? "Try a different Library search." : "New reading will appear here when it is published."} />
+          ) : null}
+
+          {!search ? (
+            <View style={{ marginTop: 26 }}>
+              <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>THE SPARTAN METHOD</Text>
+              {METHOD_LINKS.map((item) => (
+                <LibraryRow
+                  key={item.path}
+                  title={item.label === "Method" ? "The Spartan Method" : item.label}
+                  subtitle={item.label === "Method" ? "Discipline, empathy, and strategy for the field." : "Open a focused practice experience inside the app."}
+                  meta="Native"
+                  icon={item.icon}
+                  onPress={() => router.push({ pathname: "/method-guide", params: { section: item.path.replace("/", "") } } as any)}
+                />
+              ))}
+            </View>
           ) : null}
         </ScrollView>
       ) : null}
@@ -217,7 +257,7 @@ export default function LearnScreen() {
           <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>Practical conversations for the route between accounts.</Text>
           {podcastsQuery.isLoading ? <Loading /> : null}
           {podcastsQuery.error ? <EmptyState icon="alert-circle" title="Could not load episodes" ctaTitle="Retry" onCta={() => void podcastsQuery.refetch()} /> : null}
-          {!podcastsQuery.isLoading && !podcastsQuery.error && podcasts.length === 0 ? <EmptyState icon="headphones" title="No episodes yet" body="Published episodes will appear here." /> : null}
+          {!podcastsQuery.isLoading && !podcastsQuery.error && podcasts.length === 0 ? <EmptyState icon="headphones" title="Audio briefings are being prepared" body="Only complete, playable episodes appear here. Nothing unfinished is presented as available." /> : null}
           {podcasts.map((podcast) => (
             <LibraryRow
               key={podcast.id}
@@ -283,7 +323,16 @@ export default function LearnScreen() {
                       subtitle={architecture?.whenToUse || architecture?.expectedOutcome || item.description || "Field resource"}
                       meta={[version ? `Version ${version}` : null, item.lifecycle?.hasNewerVersion ? "Update available" : null].filter(Boolean).join(" · ")}
                       icon="file-text"
-                      onPress={() => openLibraryItem({ title: item.title, description: architecture?.whenToUse || architecture?.expectedOutcome || item.description, url: item.fileUrl, kind: "resource" })}
+                      onPress={() => openLibraryItem({
+                        title: item.title,
+                        description: item.description,
+                        url: item.fileUrl,
+                        kind: "resource",
+                        whenToUse: architecture?.whenToUse,
+                        whyItMatters: architecture?.whyItMatters,
+                        expectedOutcome: architecture?.expectedOutcome,
+                        version,
+                      })}
                       testID={`resource-${item.id}`}
                     />
                   );
@@ -329,7 +378,10 @@ const styles = StyleSheet.create({
   kicker: { fontSize: 10, letterSpacing: 2.2 },
   title: { fontSize: 36, letterSpacing: -1.1, marginTop: 6 },
   subtitle: { fontSize: 14, lineHeight: 20, marginTop: 5, maxWidth: 350 },
+  libraryTitle: { fontSize: 30, lineHeight: 36, letterSpacing: -0.9, marginTop: 8, marginBottom: 20 },
   segmented: { flexDirection: "row", borderWidth: 1, borderRadius: 15, padding: 3, marginTop: 16 },
+  search: { minHeight: 54, flexDirection: "row", alignItems: "center", gap: 10, borderWidth: 1, borderRadius: 17, paddingHorizontal: 15, marginTop: 18 },
+  searchInput: { flex: 1, minHeight: 52, fontSize: 15 },
   segment: { flex: 1, minHeight: 42, borderRadius: 12, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7 },
   segmentLabel: { fontSize: 13 },
   sectionEyebrow: { fontSize: 10, letterSpacing: 1.9, marginBottom: 7 },
@@ -339,12 +391,17 @@ const styles = StyleSheet.create({
   methodChip: { width: "48%", minHeight: 82, borderWidth: 1, borderRadius: 16, padding: 12, justifyContent: "space-between" },
   methodIcon: { width: 31, height: 31, borderRadius: 10, alignItems: "center", justifyContent: "center" },
   methodLabel: { fontSize: 13 },
-  featureCard: { borderWidth: 1, borderRadius: 22, padding: 21 },
+  featureCard: { minHeight: 212, borderWidth: 1, borderRadius: 22, padding: 20, justifyContent: "space-between" },
+  featureHeader: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
+  featureIcon: { width: 44, height: 44, borderRadius: 14, alignItems: "center", justifyContent: "center" },
   featureMeta: { fontSize: 10, letterSpacing: 1.5 },
-  featureTitle: { fontSize: 25, lineHeight: 30, letterSpacing: -0.55, marginTop: 12 },
-  featureBody: { fontSize: 14, lineHeight: 21, marginTop: 9 },
-  featureAction: { flexDirection: "row", alignItems: "center", gap: 6, marginTop: 18 },
-  row: { minHeight: 92, borderWidth: StyleSheet.hairlineWidth * 2, borderRadius: 17, padding: 14, flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 10 },
+  featureTitle: { fontSize: 19, lineHeight: 25, letterSpacing: -0.3 },
+  featureBody: { fontSize: 13, lineHeight: 19, marginTop: 8 },
+  featureAction: { minHeight: 30, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8, marginTop: 18 },
+  availableBadge: { borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 },
+  availableText: { fontSize: 9, letterSpacing: 0.8 },
+  featureDate: { fontSize: 10 },
+  row: { minHeight: 132, borderWidth: StyleSheet.hairlineWidth * 2, borderRadius: 20, padding: 18, flexDirection: "row", alignItems: "flex-start", gap: 13, marginBottom: 12 },
   rowIcon: { width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center" },
   rowMeta: { fontSize: 9, letterSpacing: 1.25, marginBottom: 4 },
   rowTitle: { fontSize: 15, lineHeight: 20 },

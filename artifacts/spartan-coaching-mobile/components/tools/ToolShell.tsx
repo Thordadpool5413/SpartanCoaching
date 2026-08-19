@@ -67,10 +67,10 @@ export function ToolShell({
           hitSlop={8}
           testID="tool-back"
           accessibilityRole="button"
-          accessibilityLabel="Back to Tools"
+          accessibilityLabel="Back to Explore"
         >
           <Feather name="chevron-left" size={22} color={colors.primary} />
-          <Text style={[{ color: colors.primary, fontSize: 15 }, font("bold")]}>Tools</Text>
+          <Text style={[{ color: colors.primary, fontSize: 15 }, font("bold")]}>Explore</Text>
         </Pressable>
         <Text style={[{ color: colors.mutedForeground, fontSize: 10, letterSpacing: 1.2 }, font("bold")]}>
           HOSPICE SALES PRO · {category.toUpperCase()}

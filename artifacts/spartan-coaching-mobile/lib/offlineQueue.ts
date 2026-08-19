@@ -13,6 +13,7 @@
  */
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ApiError, apiPost } from "@/lib/api";
+import { OFFLINE_STORAGE_BLOCKED_TOOL_IDS } from "@/lib/offlineArchitecture";
 import { saveToolLastResult } from "@/lib/toolDraftCache";
 
 const QUEUE_KEY = "hsp_offline_generate_queue_v1";
@@ -36,16 +37,7 @@ export const OFFLINE_QUEUE_ALLOWED_PATHS = [
 const ALLOWED_PATH_SET = new Set<string>(OFFLINE_QUEUE_ALLOWED_PATHS);
 
 /** Tool ids that must never be queued (clinical / vault / sensitive). */
-export const OFFLINE_QUEUE_BLOCKED_TOOL_IDS = [
-  "admission-eligibility",
-  "documentation-gap-analyzer",
-  "lcd-policy-sales-playbook",
-  "medicare-lcd-advisor",
-  "medical-record-lcd-verifier",
-  "family-meeting-simulator",
-  "transcribe",
-  "sales-workflow",
-] as const;
+export const OFFLINE_QUEUE_BLOCKED_TOOL_IDS = OFFLINE_STORAGE_BLOCKED_TOOL_IDS;
 
 const BLOCKED_TOOL_SET = new Set<string>(OFFLINE_QUEUE_BLOCKED_TOOL_IDS);
 

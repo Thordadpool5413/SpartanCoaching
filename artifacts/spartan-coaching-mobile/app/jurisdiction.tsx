@@ -5,7 +5,7 @@ import { HHH_MAC_STATES, getHhhMacForState } from "@workspace/field-kit-catalog"
 import React, { useEffect, useMemo, useState } from "react";
 import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { BrandStamp } from "@/components/brand/BrandStamp";
+import { HelmetMark } from "@/components/brand/HelmetMark";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { useColors } from "@/hooks/useColors";
 import { fetchJurisdictionContext, saveJurisdictionContext } from "@/lib/jurisdictionApi";
@@ -71,7 +71,7 @@ export default function JurisdictionScreen() {
       testID="screen-jurisdiction"
     >
       <View style={styles.hero}>
-        <BrandStamp width={150} height={88} />
+        <View style={styles.brandRow}><HelmetMark size={58} /><Text style={styles.brandName}>SPARTAN COACHING</Text></View>
         <Text style={styles.heroKicker}>CLINICAL CONTEXT</Text>
         <Text style={styles.heroTitle}>Jurisdiction matters.</Text>
         <Text style={styles.heroBody}>Clinical education can vary by state and Medicare Administrative Contractor. Spartan Coaching stores this account context so clinical tools can identify the jurisdiction they are meant to support.</Text>
@@ -157,6 +157,8 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     screen: { flex: 1, backgroundColor: colors.background },
     content: { gap: 0 },
     hero: { minHeight: 248, backgroundColor: colors.heroBackground, paddingHorizontal: 22, paddingTop: 18, paddingBottom: 28, justifyContent: "flex-end", gap: 7 },
+    brandRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 12 },
+    brandName: { color: colors.heroForeground, fontSize: 16, letterSpacing: 0.8, ...font("heavy") },
     heroKicker: { color: colors.heroMuted, fontSize: 9, letterSpacing: 2, ...font("bold") },
     heroTitle: { color: colors.heroForeground, fontSize: 31, lineHeight: 36, letterSpacing: -0.8, ...font("heavy") },
     heroBody: { color: colors.heroMuted, fontSize: 13, lineHeight: 20, ...font("regular") },

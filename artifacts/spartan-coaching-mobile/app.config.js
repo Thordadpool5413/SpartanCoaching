@@ -45,7 +45,7 @@ module.exports = {
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     splash: {
-      image: "./assets/images/brand-stamp.png",
+      image: "./assets/images/helmet-mark.png",
       resizeMode: "contain",
       backgroundColor: "#07111F",
     },
@@ -177,7 +177,7 @@ module.exports = {
           },
           {
             UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.practice",
-            UIApplicationShortcutItemTitle: "Open Tools",
+            UIApplicationShortcutItemTitle: "Open Explore",
             UIApplicationShortcutItemSubtitle: "Prepare for the moment",
             UIApplicationShortcutItemIconType: "UIApplicationShortcutIconTypeCompose",
             UIApplicationShortcutItemUserInfo: {
@@ -199,6 +199,19 @@ module.exports = {
     },
     plugins: [
       ["expo-router", { origin: getRouterOrigin() }],
+      [
+        "expo-splash-screen",
+        {
+          image: "./assets/images/helmet-mark.png",
+          imageWidth: 212,
+          resizeMode: "contain",
+          backgroundColor: "#07111F",
+          dark: {
+            image: "./assets/images/helmet-mark.png",
+            backgroundColor: "#07111F",
+          },
+        },
+      ],
       "expo-font",
       "expo-secure-store",
       [

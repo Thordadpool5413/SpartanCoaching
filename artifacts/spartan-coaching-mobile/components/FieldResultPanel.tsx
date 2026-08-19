@@ -206,7 +206,7 @@ export function FieldResultPanel({
                 metadata: { surface: "result", platform: "ios", source: "command" },
               });
               void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              router.push("/(tabs)/command");
+              router.push("/tool/playbook" as never);
             }}
             style={({ pressed }) => [
               styles.btn,

@@ -13,7 +13,7 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { BrandStamp } from "@/components/brand/BrandStamp";
+import { HelmetMark } from "@/components/brand/HelmetMark";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { useColors } from "@/hooks/useColors";
 import {
@@ -176,7 +176,7 @@ export default function AdminScreen() {
       testID="screen-admin"
     >
       <View style={styles.brandField}>
-        <BrandStamp width={142} height={84} />
+        <View style={styles.brandRow}><HelmetMark size={58} /><Text style={styles.brandName}>SPARTAN COACHING</Text></View>
         <Text style={styles.kicker}>{isPlatform ? "PLATFORM ADMINISTRATION" : "ORGANIZATION ADMINISTRATION"}</Text>
         <Text style={styles.title}>{isPlatform ? "Platform command" : "Your team, without crossing the privacy line."}</Text>
         <Text style={styles.subtitle}>{isPlatform ? "Access, organizations, activation, and adoption from the native app." : "Manage contracted seats, members, roles, structure, adoption, and audit history. Private member coaching content stays private."}</Text>
@@ -428,6 +428,8 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     content: { paddingHorizontal: 20, paddingBottom: 54, gap: 16 },
     centered: { flex: 1, backgroundColor: colors.background, padding: 28, alignItems: "center", justifyContent: "center" },
     brandField: { marginHorizontal: -20, paddingHorizontal: 20, paddingTop: 8, paddingBottom: 24, backgroundColor: colors.heroBackground, gap: 7 },
+    brandRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 10 },
+    brandName: { color: colors.heroForeground, fontSize: 16, letterSpacing: 0.8, ...font("heavy") },
     kicker: { color: colors.heroMuted, fontSize: 9, letterSpacing: 2.1, ...font("bold") },
     title: { color: colors.heroForeground, fontSize: 31, lineHeight: 36, letterSpacing: -0.9, ...font("heavy") },
     subtitle: { color: colors.heroMuted, fontSize: 14, lineHeight: 21, ...font("regular") },

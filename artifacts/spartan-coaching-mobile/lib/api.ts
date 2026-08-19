@@ -210,6 +210,7 @@ export type MobileMember = {
   organizationId: number;
   status: string;
   jobRole?: string | null;
+  alsoLeadsTeam?: boolean;
   territoryNote?: string | null;
   topObjections?: string | null;
   checklistProgress?: Record<string, boolean | string>;
@@ -328,25 +329,7 @@ export async function fetchBillingStatus(): Promise<BillingStatus | null> {
   }
 }
 
-/** Start individual weekly Checkout ($14.99/wk). Returns Stripe-hosted URL. */
-export async function startIndividualCheckout(
-  plan: "standard_weekly" | "elite_weekly" = "standard_weekly",
-): Promise<{ url: string }> {
-  const site = getWebSiteUrl();
-  // Bridge page opens app deep link after Stripe (see CheckoutReturn.tsx).
-  return apiPost<{ url: string }>("/api/billing/checkout", {
-    plan,
-    successUrl: `${site}/checkout-return?from=app&activated=1`,
-    cancelUrl: `${site}/account?billing=canceled&from=app`,
-  });
-}
-
-/** Open Stripe Customer Portal (cancel / update card). */
-export async function openBillingPortal(): Promise<{ url: string }> {
-  return apiPost<{ url: string }>("/api/billing/portal", {});
-}
-
-/** Site origin for membership / account deep links in the browser. */
+/** Site origin for approved first party source links and API served resources. */
 export function getWebSiteUrl(): string {
   return getBaseUrl() || "https://spartanhospicecoaching.com";
 }
@@ -602,6 +585,7 @@ export async function fetchValueReceipt(): Promise<ValueReceipt | null> {
 
 export async function updateOnboardingMobile(body: {
   jobRole?: string | null;
+  alsoLeadsTeam?: boolean;
   territoryNote?: string | null;
   topObjections?: string | null;
   checklistItem?: { id: string; done: boolean };

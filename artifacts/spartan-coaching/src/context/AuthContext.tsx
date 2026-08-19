@@ -18,6 +18,7 @@ export type AuthMember = {
   status: string;
   lastLoginAt?: string | null;
   jobRole?: string | null;
+  alsoLeadsTeam?: boolean;
   territoryNote?: string | null;
   topObjections?: string | null;
   checklistProgress?: Record<string, boolean | string>;

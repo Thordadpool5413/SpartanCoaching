@@ -23,20 +23,22 @@ describe("craft Phase 5 operator pack", () => {
 
   it("feel checklist covers mission purity and paywall", () => {
     const feel = fs.readFileSync(path.join(storeDir, "testflight-feel-checklist.md"), "utf8");
-    expect(feel).toMatch(/One next action/i);
+    expect(feel).toMatch(/Immediate clarity/i);
+    expect(feel).toMatch(/My Work/i);
     expect(feel).toMatch(/Paywall/i);
     expect(feel).toMatch(/Value receipt/i);
     expect(feel).toMatch(/same seat/i);
   });
 
-  it("shot list matches the current four tab product and rejects mockups", () => {
+  it("shot list matches the current five destination product and rejects mockups", () => {
     const shots = fs.readFileSync(path.join(storeDir, "screenshot-shot-list.md"), "utf8");
-    expect(shots).toMatch(/01-today-field-briefing\.png/);
+    expect(shots).toMatch(/01-home-next-move\.png/);
     expect(shots).toMatch(/02-private-spartan-coach\.png/);
-    expect(shots).toMatch(/03-practice-workspace\.png/);
-    expect(shots).toMatch(/04-objection-result\.png/);
+    expect(shots).toMatch(/03-explore\.png/);
+    expect(shots).toMatch(/04-my-work\.png/);
     expect(shots).toMatch(/05-library\.png/);
-    expect(shots).toMatch(/Never upload the legacy generated mockups/i);
+    expect(shots).toMatch(/Home, Coach, Explore, My Work, and Account/i);
+    expect(shots).toMatch(/Never upload legacy generated mockups/i);
     expect(shots).toMatch(/Do not generate, redraw, or compose product UI screenshots/i);
   });
 });

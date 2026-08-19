@@ -5,7 +5,7 @@ import React, { useMemo, useState } from "react";
 import { Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { AppleSubscriptionActions, type AppleSubscriptionDisplayPrices } from "@/components/AppleSubscriptionActions";
-import { BrandStamp } from "@/components/brand/BrandStamp";
+import { HelmetMark } from "@/components/brand/HelmetMark";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
@@ -53,7 +53,7 @@ export default function MembershipScreen() {
   if (companyAccess) {
     return (
       <ScrollView style={styles.screen} contentInsetAdjustmentBehavior="automatic" contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 30 }]}>
-        <View style={styles.brandHeader}><BrandStamp width={168} height={98} /><Text style={styles.brandLine}>COMPANY ACCESS</Text></View>
+        <View style={styles.brandHeader}><HelmetMark size={64} /><Text style={styles.brandTitle}>SPARTAN COACHING</Text><Text style={styles.brandLine}>COMPANY ACCESS</Text></View>
         <Text style={styles.kicker}>CONTRACTED MEMBERSHIP</Text>
         <Text style={styles.title}>Your access is provided by your organization.</Text>
         <Text style={styles.subtitle}>Company seats are governed by the provider agreement, contracted tier, seat count, and activation status. They are separate from an individual Apple subscription.</Text>
@@ -73,7 +73,7 @@ export default function MembershipScreen() {
   if (canUseElite) {
     return (
       <ScrollView style={styles.screen} contentInsetAdjustmentBehavior="automatic" contentContainerStyle={[styles.content, { paddingBottom: insets.bottom + 30 }]}>
-        <View style={styles.brandHeader}><BrandStamp width={168} height={98} /><Text style={styles.brandLine}>ELITE ACTIVE</Text></View>
+        <View style={styles.brandHeader}><HelmetMark size={64} /><Text style={styles.brandTitle}>SPARTAN COACHING</Text><Text style={styles.brandLine}>ELITE ACTIVE</Text></View>
         <Text style={styles.kicker}>YOUR MEMBERSHIP</Text>
         <Text style={styles.title}>Elite is unlocked.</Text>
         <Text style={styles.subtitle}>{MEMBERSHIP_ACCESS.elite.summary}</Text>
@@ -97,7 +97,8 @@ export default function MembershipScreen() {
       testID="screen-membership"
     >
       <View style={styles.brandHeader}>
-        <BrandStamp width={176} height={104} />
+        <HelmetMark size={68} />
+        <Text style={styles.brandTitle}>SPARTAN COACHING</Text>
         <Text style={styles.brandLine}>CHOOSE YOUR FIELD ADVANTAGE</Text>
       </View>
 
@@ -220,7 +221,8 @@ const stylesStatic = StyleSheet.create({
 function makeStyles(colors: ReturnType<typeof useColors>) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
-    brandHeader: { minHeight: 196, backgroundColor: colors.heroBackground, alignItems: "center", justifyContent: "flex-end", paddingBottom: 22 },
+    brandHeader: { minHeight: 180, backgroundColor: colors.heroBackground, alignItems: "center", justifyContent: "flex-end", gap: 6, paddingBottom: 22 },
+    brandTitle: { color: colors.heroForeground, fontSize: 18, letterSpacing: 0.4, ...font("heavy") },
     brandLine: { color: colors.heroMuted, fontSize: 9, letterSpacing: 2.2, ...font("bold") },
     content: { paddingHorizontal: 20, paddingTop: 28, gap: 14 },
     kicker: { color: colors.primary, fontSize: 10, letterSpacing: 2.1, ...font("bold") },

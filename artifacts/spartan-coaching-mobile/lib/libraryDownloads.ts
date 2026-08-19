@@ -8,9 +8,11 @@ const DIRECTORY_NAME = "spartan-library";
 
 export type DownloadedLibraryItem = {
   sourceUrl: string;
-  localUri: string;
+  localUri?: string;
   title: string;
   kind: "article" | "audio" | "resource";
+  description?: string;
+  content?: string;
   downloadedAt: string;
 };
 
@@ -60,11 +62,61 @@ export async function getDownloadedLibraryItem(sourceUrl: string): Promise<Downl
   const index = await readIndex();
   const item = index[sourceUrl];
   if (!item) return null;
+  if (item.content) return item;
+  if (!item.localUri) {
+    delete index[sourceUrl];
+    await writeIndex(index);
+    return null;
+  }
   const info = await FileSystem.getInfoAsync(item.localUri);
   if (info.exists) return item;
   delete index[sourceUrl];
   await writeIndex(index);
   return null;
+}
+
+export async function listDownloadedLibraryItems(): Promise<DownloadedLibraryItem[]> {
+  if (Platform.OS === "web") return [];
+  const index = await readIndex();
+  const current: DownloadedLibraryItem[] = [];
+  let changed = false;
+
+  for (const [sourceUrl, item] of Object.entries(index)) {
+    if (item.content) {
+      current.push(item);
+      continue;
+    }
+    const info = item.localUri ? await FileSystem.getInfoAsync(item.localUri) : { exists: false };
+    if (info.exists) current.push(item);
+    else {
+      delete index[sourceUrl];
+      changed = true;
+    }
+  }
+
+  if (changed) await writeIndex(index);
+  return current.sort((a, b) => b.downloadedAt.localeCompare(a.downloadedAt));
+}
+
+export async function saveTextLibraryItem(input: {
+  sourceUrl: string;
+  title: string;
+  description?: string;
+  content: string;
+}): Promise<DownloadedLibraryItem> {
+  if (Platform.OS === "web") throw new Error("Downloads are available in the iPhone app.");
+  const item: DownloadedLibraryItem = {
+    sourceUrl: input.sourceUrl,
+    title: input.title,
+    kind: "article",
+    description: input.description,
+    content: input.content,
+    downloadedAt: new Date().toISOString(),
+  };
+  const index = await readIndex();
+  index[input.sourceUrl] = item;
+  await writeIndex(index);
+  return item;
 }
 
 export async function downloadLibraryItem(input: {
@@ -98,7 +150,7 @@ export async function removeDownloadedLibraryItem(sourceUrl: string): Promise<vo
   if (Platform.OS === "web") return;
   const index = await readIndex();
   const item = index[sourceUrl];
-  if (item) await FileSystem.deleteAsync(item.localUri, { idempotent: true });
+  if (item?.localUri) await FileSystem.deleteAsync(item.localUri, { idempotent: true });
   delete index[sourceUrl];
   await writeIndex(index);
 }

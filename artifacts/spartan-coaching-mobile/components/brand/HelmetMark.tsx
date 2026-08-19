@@ -1,16 +1,16 @@
 import { Image } from "expo-image";
 import React from "react";
-import { StyleSheet, View, type ViewStyle } from "react-native";
+import { type ImageStyle, type StyleProp } from "react-native";
 
 type HelmetMarkProps = {
   size?: number;
-  style?: ViewStyle;
+  style?: StyleProp<ImageStyle>;
   accessibilityLabel?: string;
 };
 
 /**
- * The supplied Spartan helmet is the only graphic brand mark used in app UI.
- * The source image intentionally stays untouched and is framed as a compact crest.
+ * Transparent helmet mark used for compact native identity and navigation.
+ * It must never be placed inside a black tile or cropped by a decorative shell.
  */
 export function HelmetMark({
   size = 52,
@@ -18,35 +18,12 @@ export function HelmetMark({
   accessibilityLabel = "Spartan Coaching helmet",
 }: HelmetMarkProps) {
   return (
-    <View
-      style={[
-        styles.shell,
-        {
-          width: size,
-          height: size,
-          borderRadius: Math.max(12, Math.round(size * 0.28)),
-        },
-        style,
-      ]}
+    <Image
+      source={require("@/assets/images/helmet-mark.png")}
+      contentFit="contain"
+      style={[{ width: size, height: size }, style]}
       accessibilityRole="image"
       accessibilityLabel={accessibilityLabel}
-    >
-      <Image
-        source={require("@/assets/images/icon.png")}
-        contentFit="contain"
-        style={{ width: size * 1.42, height: size * 1.42 }}
-      />
-    </View>
+    />
   );
 }
-
-const styles = StyleSheet.create({
-  shell: {
-    overflow: "hidden",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#050505",
-    borderWidth: StyleSheet.hairlineWidth,
-    borderColor: "rgba(255,255,255,0.14)",
-  },
-});
