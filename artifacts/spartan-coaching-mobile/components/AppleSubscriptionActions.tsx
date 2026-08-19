@@ -1,14 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
+import Constants from "expo-constants";
 import { Alert, Platform, Pressable, Text, View } from "react-native";
 import { router } from "expo-router";
-import {
-  deepLinkToSubscriptions,
-  ErrorCode,
-  getAvailablePurchases,
-  useIAP,
-  type Purchase,
-  type PurchaseIOS,
-} from "react-native-iap";
 import {
   ELITE_WEEKLY_PLAN,
   STANDARD_WEEKLY_PLAN,
@@ -25,6 +18,19 @@ import {
 import { getApplePurchaseSessionToken } from "@/lib/applePurchaseSession";
 import { font } from "@/lib/typography";
 
+type IapRuntime = typeof import("react-native-iap");
+type Purchase = import("react-native-iap").Purchase;
+type PurchaseIOS = import("react-native-iap").PurchaseIOS;
+
+declare const require: (id: "react-native-iap") => IapRuntime;
+
+let iapRuntime: IapRuntime | null = null;
+
+function loadIapRuntime(): IapRuntime {
+  if (!iapRuntime) iapRuntime = require("react-native-iap");
+  return iapRuntime;
+}
+
 type Props = {
   plan?: "standard_weekly" | "elite_weekly";
   isAuthenticated?: boolean;
@@ -40,7 +46,81 @@ export type AppleSubscriptionDisplayPrices = Partial<
   Record<"standard_weekly" | "elite_weekly", string>
 >;
 
-export function AppleSubscriptionActions({
+export function AppleSubscriptionActions(props: Props) {
+  if (Platform.OS !== "ios") return null;
+  if (Constants.expoGoConfig != null) {
+    return <ExpoGoAppleSubscriptionActions {...props} />;
+  }
+  return <NativeAppleSubscriptionActions {...props} />;
+}
+
+function ExpoGoAppleSubscriptionActions({
+  plan = "standard_weekly",
+  showPurchase = false,
+  showManage = false,
+  showRestore = true,
+  onPricesLoaded,
+}: Props) {
+  const colors = useColors();
+  const planDefinition = plan === "elite_weekly" ? ELITE_WEEKLY_PLAN : STANDARD_WEEKLY_PLAN;
+  const planName = plan === "elite_weekly" ? "Spartan Coaching Elite" : "Spartan Coaching Standard";
+  const previewPrice = planDefinition.displayPrice.replace("/week", "");
+
+  useEffect(() => {
+    onPricesLoaded?.({
+      standard_weekly: STANDARD_WEEKLY_PLAN.displayPrice.replace("/week", ""),
+      elite_weekly: ELITE_WEEKLY_PLAN.displayPrice.replace("/week", ""),
+    });
+  }, [onPricesLoaded]);
+
+  const explainNativeBuild = () => {
+    Alert.alert(
+      "Installed iPhone build required",
+      "Expo Go can preview this complete membership experience, but Apple checkout, restoration, and subscription management require the installed private iPhone build.",
+    );
+  };
+
+  return (
+    <View style={{ gap: 10 }}>
+      {showPurchase ? (
+        <>
+          <View style={{ gap: 3 }}>
+            <Text style={[{ color: colors.foreground, fontSize: 15, lineHeight: 21, textAlign: "center" }, font("bold")]}>
+              {planName} · {planDefinition.displayPrice}
+            </Text>
+            <Text style={[{ color: colors.mutedForeground, fontSize: 11, lineHeight: 16, textAlign: "center" }, font("regular")]}>
+              Payment is charged to your Apple Account. The subscription renews automatically each week unless canceled at least 24 hours before the current period ends.
+            </Text>
+          </View>
+          <SpartanButton
+            title={`Subscribe with Apple · ${previewPrice}`}
+            onPress={explainNativeBuild}
+            testID="button-subscribe"
+          />
+          <Text style={[{ color: colors.mutedForeground, fontSize: 10, lineHeight: 15, textAlign: "center" }, font("regular")]}>
+            Visual preview in Expo Go. Apple checkout remains active in the installed private iPhone build.
+          </Text>
+          <View style={{ flexDirection: "row", justifyContent: "center", gap: 18 }}>
+            <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: "/legal", params: { document: "terms" } } as any)} testID="subscription-terms-link">
+              <Text style={[{ color: colors.primary, fontSize: 11 }, font("semibold")]}>Terms of Use</Text>
+            </Pressable>
+            <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: "/legal", params: { document: "privacy" } } as any)} testID="subscription-privacy-link">
+              <Text style={[{ color: colors.primary, fontSize: 11 }, font("semibold")]}>Privacy Policy</Text>
+            </Pressable>
+          </View>
+        </>
+      ) : null}
+      {showManage ? (
+        <SpartanButton title="Manage Apple subscription" variant="outline" onPress={explainNativeBuild} testID="button-manage-apple-subscription" />
+      ) : null}
+      {showRestore ? (
+        <SpartanButton title="Restore Apple purchases" variant="outline" onPress={explainNativeBuild} testID="button-restore-purchases" />
+      ) : null}
+    </View>
+  );
+}
+
+function NativeAppleSubscriptionActions({
   plan = "standard_weekly",
   isAuthenticated = false,
   showPurchase = false,
@@ -50,6 +130,12 @@ export function AppleSubscriptionActions({
   onPurchaseComplete,
   onEntitlementChanged,
 }: Props) {
+  const {
+    deepLinkToSubscriptions,
+    ErrorCode,
+    getAvailablePurchases,
+    useIAP,
+  } = loadIapRuntime();
   const colors = useColors();
   const [config, setConfig] = useState<AppleBillingConfig | null>(null);
   const [appAccountToken, setAppAccountToken] = useState<string | null>(null);
