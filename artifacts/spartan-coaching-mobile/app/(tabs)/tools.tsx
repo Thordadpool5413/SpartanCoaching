@@ -106,9 +106,12 @@ function ToolsCatalogScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const { canUseFieldKit, canUseElite, isAuthenticated } = useAuth();
-  const params = useLocalSearchParams<{ tab?: string | string[] }>();
+  const params = useLocalSearchParams<{ tab?: string | string[]; category?: string | string[] }>();
   const [filter, setFilter] = useState("");
-  const [category, setCategory] = useState<"All" | FieldKitCategory>("All");
+  const [category, setCategory] = useState<"All" | FieldKitCategory>(() => {
+    const requested = Array.isArray(params.category) ? params.category[0] : params.category;
+    return FIELD_KIT_CATEGORIES.includes(requested as FieldKitCategory) ? requested as FieldKitCategory : "All";
+  });
   const [remoteGroups, setRemoteGroups] = useState<SearchResponse["groups"]>([]);
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
@@ -119,6 +122,13 @@ function ToolsCatalogScreen() {
     const tab = Array.isArray(raw) ? raw[0] : raw;
     if (isToolTab(tab)) router.replace(openToolHref(tab) as any);
   }, [params.tab]);
+
+  useEffect(() => {
+    const requested = Array.isArray(params.category) ? params.category[0] : params.category;
+    if (FIELD_KIT_CATEGORIES.includes(requested as FieldKitCategory)) {
+      setCategory(requested as FieldKitCategory);
+    }
+  }, [params.category]);
 
   useEffect(() => {
     const q = filter.trim();
@@ -254,7 +264,7 @@ function ToolsCatalogScreen() {
           </View>
         ) : null}
 
-        {!q ? (
+        {!q && false ? (
           <>
             <View style={styles.sectionHeading}>
               <View style={{ flex: 1 }}>
@@ -330,8 +340,8 @@ function ToolsCatalogScreen() {
           <View style={styles.directoryHeading}>
             <View style={{ flex: 1 }}>
               <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>COMPLETE TOOL DIRECTORY</Text>
-              <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>All {FIELD_KIT_TOOLS.length} tools</Text>
-              <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>Browse the full system by job. Every row opens a native iPhone experience.</Text>
+              <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>{category === "All" ? `All ${FIELD_KIT_TOOLS.length} tools` : `${category} tools`}</Text>
+              <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>Every tool is visible here. Choose a job, understand when to use it, and open the native iPhone experience.</Text>
             </View>
             <View style={[styles.countBadge, { backgroundColor: colors.primary }]}><Text style={[styles.countNumber, font("heavy")]}>{visibleTools.length}</Text><Text style={[styles.countLabel, font("bold")]}>VISIBLE</Text></View>
           </View>
