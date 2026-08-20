@@ -37,7 +37,6 @@ export function cleanFieldCopy(value: string): string {
 }
 
 function parseFieldCopy(value: string): ResultBlock[] {
-  const clean = cleanFieldCopy(value);
   const blocks: ResultBlock[] = [];
   const paragraphs: string[] = [];
 
