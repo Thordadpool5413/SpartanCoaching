@@ -244,20 +244,34 @@ ${pages.map(p => `  <url>
     try {
       const { scenario, desiredOutcomes } = playbookRequestSchema.parse(req.body);
       
-      const prompt = `Create a detailed hospice sales playbook for the following scenario:
+      const prompt = `Build a concise, field ready hospice sales brief from the facts below.
 
-${scenario}
+FACTS PROVIDED
+Scenario: ${scenario}
+Desired outcome: ${desiredOutcomes || "Not provided"}
 
-${desiredOutcomes ? `Desired Outcomes: ${desiredOutcomes}\n\n` : ""}
-Please provide:
-1. Scenario overview and context
-2. Step-by-step actionable strategies
-3. Specific talking points and scripts
-4. Key takeaways and success metrics
+CONTENT RULES
+1. Use only the facts above.
+2. Do not infer the contact's interest, schedule, communication preferences, staff, systems, clinical workflow, current provider, or level of trust.
+3. If a useful fact is missing, place one direct question in CONFIRM BEFORE USING.
+4. Make the advice specific enough to use in the next conversation.
+5. Keep the complete brief under 650 words.
+6. Do not use Markdown characters.
+7. Do not use any dash character.
+8. Do not repeat the scenario as filler.
 
-Format the playbook in markdown with clear sections, bullet points, and quoted talking points.`;
+Use these exact section labels on their own lines:
+FIELD BRIEF
+BEST NEXT MOVE
+WHY THIS WORKS
+CONVERSATION PLAN
+WORDS TO USE
+CONFIRM BEFORE USING
+SUCCESS CHECK
 
-      const systemInstruction = `You are an expert hospice sales coach creating detailed, actionable playbooks. Each playbook should include specific strategies, talking points in quotes, and clear action steps. Focus on building trust, demonstrating value, and ethical sales practices aligned with the Spartan Method (Discipline, Empathy, Strategy).`;
+Use numbered steps inside CONVERSATION PLAN. Write WORDS TO USE as natural language the member can say aloud. End SUCCESS CHECK with one observable outcome.`;
+
+      const systemInstruction = `You are a senior hospice growth advisor. Produce decisive, practical coaching that sounds human, earns trust, and respects the facts provided. Apply Discipline, Empathy, and Strategy without naming the framework unless it adds value. Never manufacture context to make the response sound personalized. Prefer sharp judgment and usable language over volume.`;
 
       const playbook = await generateComplexResponse(prompt, systemInstruction);
       
@@ -586,54 +600,39 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
     try {
       const { templateType, recipientName, context, customization } = emailTemplateRequestSchema.parse(req.body);
       
-      let prompt = "";
-      
-      if (templateType === "follow_up") {
-        prompt = `Create a professional follow-up email for a hospice sales professional.
-        
-Recipient: ${recipientName || "the prospect"}
+      const typeLabel =
+        templateType === "follow_up"
+          ? "follow up"
+          : templateType === "thank_you"
+            ? "thank you"
+            : "value add";
+
+      const prompt = `Write a ${typeLabel} email for a hospice sales professional.
+
+FACTS PROVIDED
+Recipient: ${recipientName || "Not provided"}
 Context: ${context}
-${customization ? `Additional customization: ${customization}\n` : ""}
-The email should:
-1. Reference our previous conversation
-2. Add value with a relevant insight or resource
-3. Include a soft call-to-action
-4. Be warm but professional
+Additional direction: ${customization || "Not provided"}
 
-Format: Provide subject line and email body.`;
-      } else if (templateType === "thank_you") {
-        prompt = `Create a genuine thank you email for a hospice sales professional.
-        
-Recipient: ${recipientName || "the recipient"}
-Context: ${context}
-${customization ? `Additional customization: ${customization}\n` : ""}
-The email should:
-1. Express sincere gratitude
-2. Reinforce the relationship
-3. Mention next steps if applicable
-4. Be warm and authentic
+CONTENT RULES
+1. Use only the facts provided.
+2. Do not claim an existing referral, trust, partnership, patient need, service capability, resource, next meeting, or personal preference unless it appears above.
+3. Keep the body between 90 and 140 words.
+4. Sound warm, observant, and confident.
+5. Include one natural next step only when the context supports it.
+6. Do not use bullets, Markdown, or any dash character.
+7. Do not use generic praise or inflated language.
+8. If the context is too thin, write a restrained note instead of inventing detail.
 
-Format: Provide subject line and email body.`;
-      } else {
-        prompt = `Create a value-add email that shares helpful content.
-        
-Recipient: ${recipientName || "the recipient"}
-Context: ${context}
-${customization ? `Additional customization: ${customization}\n` : ""}
-The email should:
-1. Share a relevant article, insight, or resource
-2. Explain why it's valuable to them
-3. Build thought leadership
-4. No hard sell - just adding value
+Use this exact format:
+SUBJECT
+One concise subject line
 
-Format: Provide subject line and email body.`;
-      }
+MESSAGE
+The complete email with greeting, short paragraphs, and this signature placeholder:
+[Your name]`;
 
-      const systemInstruction = `You are an expert at writing professional, relationship-building emails for hospice sales professionals. Your emails should be warm, authentic, and focused on building trust. Format the output as:
-
-Subject: [subject line]
-
-[Email body with proper greeting, main content, and signature]`;
+      const systemInstruction = `You are a senior communications advisor for hospice growth professionals. Write credible relationship centered emails that respect the recipient's time. Every sentence must be grounded in the supplied context or be a neutral courtesy. The result should feel personally written, not generated.`;
 
       const template = await generateComplexResponse(prompt, systemInstruction);
       
