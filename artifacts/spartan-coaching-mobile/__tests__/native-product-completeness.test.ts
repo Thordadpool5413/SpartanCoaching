@@ -145,7 +145,8 @@ describe("native product completeness", () => {
     const home = read("components/WelcomeExperience.tsx");
     const membership = read("app/membership.tsx");
     const access = read("app/access.tsx");
-    expect(home).toContain("Know what to do next");
+    expect(home).toContain("Start with what you need");
+    expect(home).toContain("OPEN A WORKSPACE");
     expect(home).toContain("Everything in Standard plus private Coach");
     expect(home).toContain('actionLabel={signedIn ? undefined : "Sign in"}');
     expect(home).toContain("signedIn ? undefined");
