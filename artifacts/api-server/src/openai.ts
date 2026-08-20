@@ -166,10 +166,21 @@ export async function generateQuickResponse(prompt: string): Promise<string> {
         { role: "system", content: SPARTAN_SYSTEM_INSTRUCTION },
         { role: "user", content: prompt },
       ],
-      max_completion_tokens: 500,
+      reasoning_effort: "minimal",
+      max_completion_tokens: 1200,
     });
 
-    return response.choices[0].message.content || "";
+    const text = response.choices[0]?.message?.content?.trim();
+    if (!text) {
+      console.error("OpenAI returned empty quick response", {
+        model: MODEL,
+        finishReason: response.choices[0]?.finish_reason,
+        usage: response.usage,
+      });
+      throw new Error("AI returned an empty response.");
+    }
+
+    return text;
   } catch (error: any) {
     console.error("OpenAI API error (quick response):", error);
     throw new Error(`AI generation failed: ${error.message}`);
