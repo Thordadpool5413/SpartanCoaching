@@ -1,6 +1,6 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
-const TOUR_STATE_KEY = "spartan:guided-tour:v2";
+const TOUR_STATE_KEY = "spartan:guided-tour:v3";
 
 export type GuidedTourState = {
   status: "started" | "completed" | "dismissed";
@@ -32,7 +32,7 @@ export async function saveGuidedTourStep(step: number) {
 }
 
 export async function completeGuidedTour() {
-  const state: GuidedTourState = { status: "completed", step: 5, updatedAt: new Date().toISOString() };
+  const state: GuidedTourState = { status: "completed", step: 9, updatedAt: new Date().toISOString() };
   await AsyncStorage.setItem(TOUR_STATE_KEY, JSON.stringify(state));
 }
 
