@@ -187,7 +187,7 @@ export default function GuidedTourScreen() {
           <Pressable accessibilityRole="button" onPress={() => setStep((value) => { const previous = value - 1; void saveGuidedTourStep(previous); return previous; })} style={styles.backButton}><Text style={styles.backText}>Back</Text></Pressable>
         ) : <View style={styles.backButton} />}
         <Pressable accessibilityRole="button" onPress={next} style={styles.nextButton} testID="tour-next-button">
-          <Text style={styles.nextText}>{isLast ? (isAuthenticated ? "Return Home" : "Compare memberships") : step === 2 && !practiceChoice ? "See Coach feedback" : "Continue"}</Text>
+          <Text style={styles.nextText}>{isLast ? (isAuthenticated ? "Return Home" : "Compare memberships") : step === 3 && !practiceChoice ? "See Coach feedback" : "Continue"}</Text>
           <Feather name="arrow-right" size={20} color="#FFFFFF" />
         </Pressable>
       </View>
