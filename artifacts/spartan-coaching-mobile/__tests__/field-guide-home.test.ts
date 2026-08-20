@@ -64,7 +64,10 @@ describe("Field Guide experience contract", () => {
     expect(acceptance).toContain("node `33:13`");
     expect(acceptance).toContain("440 by 956 points");
     expect(publicHome).toContain("<SpartanHeader");
-    expect(publicHome).toContain("Know what to do next.");
+    expect(publicHome).toContain("Start with what you need.");
+    expect(publicHome).toContain("OPEN A WORKSPACE");
+    expect(publicHome).toContain("Build the plan");
+    expect(publicHome).toContain("Rehearse the moment");
     expect(publicHome).toContain('label: "Plan", route: "/(tabs)/tools?category=Plan"');
     expect(publicHome).toContain('label: "Practice", route: "/(tabs)/tools?category=Practice"');
     expect(publicHome).toContain('label: "Measure", route: "/(tabs)/tools?category=Measure"');
@@ -74,6 +77,8 @@ describe("Field Guide experience contract", () => {
     expect(home).toContain('route: "/tool/playbook"');
     expect(home).toContain('"/tool/objection"');
     expect(home).toContain("<SpartanHeader");
+    expect(read("components/ui/SpartanHeader.tsx")).toContain('title = "Hospice Sales Pro"');
+    expect(read("components/ui/SpartanHeader.tsx")).toContain('subtitle = "by Spartan Coaching"');
     expect(home).not.toContain("Pick up where you left off");
     expect(home).toContain("Explore tools and resources");
     expect(acceptance).toContain("binding visual target is Figma");
