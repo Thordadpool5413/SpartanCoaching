@@ -66,5 +66,12 @@
         "EAS_SKIP_ASSOCIATED_DOMAINS": "0"
       }
     }
+  },
+  "submit": {
+    "testflight": {
+      "ios": {
+        "ascAppId": "6795266551"
+      }
+    }
   }
 }
