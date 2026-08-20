@@ -14,14 +14,12 @@ import * as Haptics from "expo-haptics";
 import { router, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
-  DISCOVERY_INTENTS,
   FIELD_KIT_CATEGORIES,
   FIELD_KIT_TOOLS,
   type FieldKitCategory,
   type FieldKitTool,
 } from "@workspace/field-kit-catalog";
 import { OfflineQueueBanner } from "@/components/OfflineQueueBanner";
-import { PaywallCard } from "@/components/ui/PaywallCard";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { useColors } from "@/hooks/useColors";
 import { apiGet } from "@/lib/api";
@@ -42,25 +40,6 @@ type SearchHit = {
 
 type SearchResponse = {
   groups: Array<{ type: string; label: string; hits: SearchHit[] }>;
-};
-
-const FEATURED_IDS = ["sales-workflow", "objections", "role-play"] as const;
-const FEATURED_COPY: Record<(typeof FEATURED_IDS)[number], { eyebrow: string; promise: string; icon: React.ComponentProps<typeof Feather>["name"] }> = {
-  "sales-workflow": {
-    eyebrow: "RUN THE FIELD",
-    promise: "Choose the account, prepare the visit, capture the outcome, and lock the next move.",
-    icon: "target",
-  },
-  objections: {
-    eyebrow: "HANDLE THE MOMENT",
-    promise: "Turn the objection you actually heard into a useful education conversation.",
-    icon: "shield",
-  },
-  "role-play": {
-    eyebrow: "REHEARSE THE ASK",
-    promise: "Practice the hard part before the room gets busy and the stakes get real.",
-    icon: "message-circle",
-  },
 };
 
 const NATIVE_SEARCH_DESTINATIONS: Record<string, string> = {
@@ -204,10 +183,6 @@ function ToolsCatalogScreen() {
       (tool.whenToUse || "").toLowerCase().includes(q)
     );
 
-  const featured = FEATURED_IDS
-    .map((id) => FIELD_KIT_TOOLS.find((tool) => tool.id === id))
-    .filter((tool): tool is FieldKitTool => Boolean(tool && matches(tool)));
-
   const visibleTools = FIELD_KIT_TOOLS.filter(matches);
   const toolGroups = FIELD_KIT_CATEGORIES.map((group) => ({
     category: group,
@@ -287,7 +262,7 @@ function ToolsCatalogScreen() {
           ))}
         </View>
 
-        {!featured.length && !visibleTools.length && remoteGroups.length === 0 ? (
+        {!visibleTools.length && remoteGroups.length === 0 ? (
           <View style={[styles.empty, { borderColor: colors.border, backgroundColor: colors.card }]}>
             <Feather name="search" size={24} color={colors.primary} />
             <Text style={[styles.emptyTitle, { color: colors.foreground }, font("bold")]}>No match for “{filter}”</Text>
