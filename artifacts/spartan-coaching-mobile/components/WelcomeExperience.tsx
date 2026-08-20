@@ -10,10 +10,10 @@ import { font } from "@/lib/typography";
 import { beginGuidedTour, shouldAutoPresentGuidedTour } from "@/lib/guidedTour";
 
 const PILLARS = [
-  { icon: "edit-3" as const, label: "Plan", route: "/(tabs)/tools?category=Plan" },
-  { icon: "message-circle" as const, label: "Practice", route: "/(tabs)/tools?category=Practice" },
-  { icon: "bar-chart-2" as const, label: "Measure", route: "/(tabs)/tools?category=Measure" },
-  { icon: "book-open" as const, label: "Library", route: "/(tabs)/tools?view=library" },
+  { icon: "edit-3" as const, label: "Plan", description: "Build the plan", route: "/(tabs)/tools?category=Plan" },
+  { icon: "message-circle" as const, label: "Practice", description: "Rehearse the moment", route: "/(tabs)/tools?category=Practice" },
+  { icon: "bar-chart-2" as const, label: "Measure", description: "Track progress", route: "/(tabs)/tools?category=Measure" },
+  { icon: "book-open" as const, label: "Library", description: "Learn and use", route: "/(tabs)/tools?view=library" },
 ];
 
 export function WelcomeExperience({ topPad, bottomPad, signedIn = false }: { topPad: number; bottomPad: number; signedIn?: boolean }) {
@@ -50,11 +50,11 @@ export function WelcomeExperience({ topPad, bottomPad, signedIn = false }: { top
       <View style={styles.page}>
         <SpartanHeader actionLabel={signedIn ? undefined : "Sign in"} />
 
-        <View style={styles.badge}><Text style={styles.badgeText}>YOUR HOSPICE SALES FIELD GUIDE</Text></View>
-        <Text style={styles.title}>Know what to do next.</Text>
-        <Text style={styles.body}>Prepare the conversation, practice the moment, measure what matters, and follow through with clarity.</Text>
+        <View style={styles.badge}><Text style={styles.badgeText}>HOSPICE SALES PRO</Text></View>
+        <Text style={styles.title}>Start with what you need.</Text>
+        <Text style={styles.body}>Choose a workspace below. Every tool and resource opens inside the app, and your account can continue on the website.</Text>
 
-        <Text style={styles.sectionLabel}>CHOOSE YOUR JOB</Text>
+        <Text style={styles.sectionLabel}>OPEN A WORKSPACE</Text>
         <View style={styles.productMap} accessibilityLabel="Open planning, practice, measurement, or the Library">
           {PILLARS.map((pillar) => (
             <ProductPillar key={pillar.label} {...pillar} onPress={() => open(pillar.route)} />
@@ -150,7 +150,7 @@ export function WelcomeExperience({ topPad, bottomPad, signedIn = false }: { top
   );
 }
 
-function ProductPillar({ icon, label, route, onPress }: { icon: React.ComponentProps<typeof Feather>["name"]; label: string; route: string; onPress: () => void }) {
+function ProductPillar({ icon, label, description, route, onPress }: { icon: React.ComponentProps<typeof Feather>["name"]; label: string; description: string; route: string; onPress: () => void }) {
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   return (
@@ -162,9 +162,12 @@ function ProductPillar({ icon, label, route, onPress }: { icon: React.ComponentP
       style={({ pressed }) => [styles.productPillar, pressed && styles.productPillarPressed]}
       testID={`home-pillar-${label.toLowerCase()}`}
     >
-      <Feather name={icon} size={19} color={colors.primary} />
+      <View style={styles.productPillarTop}>
+        <View style={styles.productPillarIcon}><Feather name={icon} size={20} color={colors.primary} /></View>
+        <Feather name="arrow-up-right" size={17} color={colors.primary} />
+      </View>
       <Text style={styles.productPillarLabel}>{label}</Text>
-      <Feather name="chevron-right" size={13} color={colors.mutedForeground} />
+      <Text style={styles.productPillarDescription}>{description}</Text>
     </Pressable>
   );
 }
@@ -178,10 +181,13 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     title: { color: colors.foreground, fontSize: 40, lineHeight: 46, letterSpacing: -1.5, marginTop: 24, ...font("heavy") },
     body: { color: colors.mutedForeground, fontSize: 16, lineHeight: 23, marginTop: 4, maxWidth: 355, ...font("regular") },
     sectionLabel: { color: colors.primary, fontSize: 9, letterSpacing: 1.8, marginTop: 26, marginBottom: 10, ...font("bold") },
-    productMap: { flexDirection: "row", gap: 7 },
-    productPillar: { flex: 1, minHeight: 76, alignItems: "center", justifyContent: "center", gap: 5, borderRadius: 16, borderCurve: "continuous", backgroundColor: colors.secondary, borderWidth: 1, borderColor: colors.border },
-    productPillarPressed: { opacity: 0.72, transform: [{ scale: 0.97 }] },
-    productPillarLabel: { color: colors.foreground, fontSize: 10, ...font("bold") },
+    productMap: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
+    productPillar: { flexBasis: "47%", flexGrow: 1, minHeight: 118, justifyContent: "space-between", padding: 15, borderRadius: 20, borderCurve: "continuous", backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong },
+    productPillarPressed: { opacity: 0.74, transform: [{ scale: 0.98 }] },
+    productPillarTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+    productPillarIcon: { width: 38, height: 38, borderRadius: 12, borderCurve: "continuous", alignItems: "center", justifyContent: "center", backgroundColor: colors.primaryMuted },
+    productPillarLabel: { color: colors.foreground, fontSize: 16, marginTop: 12, ...font("heavy") },
+    productPillarDescription: { color: colors.mutedForeground, fontSize: 11, lineHeight: 15, marginTop: 3, ...font("regular") },
     recommendedCard: { minHeight: 150, flexDirection: "row", alignItems: "center", gap: 14, padding: 18, borderRadius: 22, borderCurve: "continuous", backgroundColor: colors.heroBackground, borderWidth: 1, borderColor: colors.primary },
     recommendedIcon: { width: 50, height: 50, borderRadius: 16, borderCurve: "continuous", alignItems: "center", justifyContent: "center", backgroundColor: colors.primary },
     recommendedCopy: { flex: 1, gap: 5 },
