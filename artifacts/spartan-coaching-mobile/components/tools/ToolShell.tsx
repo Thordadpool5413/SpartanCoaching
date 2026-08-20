@@ -8,10 +8,10 @@ import {
   Text,
   View,
 } from "react-native";
-import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { useColors } from "@/hooks/useColors";
+import { goBackOrReplace } from "@/lib/navigation";
 import { font } from "@/lib/typography";
 import { layout } from "@/lib/spacing";
 import { StickyCTA } from "@/components/ui/StickyCTA";
@@ -62,7 +62,7 @@ export function ToolShell({
     <View style={{ flex: 1, backgroundColor: colors.background }} testID={testID}>
       <View style={[styles.topBar, { paddingTop: insets.top + 8, borderBottomColor: colors.border }]}>
         <Pressable
-          onPress={() => router.back()}
+          onPress={() => goBackOrReplace("/(tabs)/tools")}
           style={styles.backBtn}
           hitSlop={8}
           testID="tool-back"
