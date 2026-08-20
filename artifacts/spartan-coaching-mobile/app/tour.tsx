@@ -9,6 +9,7 @@ import { HelmetMark } from "@/components/brand/HelmetMark";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
+import { goBackOrReplace } from "@/lib/navigation";
 import { completeGuidedTour, dismissGuidedTour, getGuidedTourState, saveGuidedTourStep } from "@/lib/guidedTour";
 
 type TourStep = {
@@ -141,7 +142,7 @@ export default function GuidedTourScreen() {
 
   const close = () => {
     void dismissGuidedTour(step);
-    router.back();
+    goBackOrReplace("/(tabs)");
   };
 
   return (
