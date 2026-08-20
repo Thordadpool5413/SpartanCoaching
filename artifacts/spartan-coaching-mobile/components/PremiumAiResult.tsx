@@ -33,10 +33,26 @@ function sectionMeta(key: string): SectionMeta {
   return match ? { ...match.meta, title: match.meta.title } : { title: humanize(key), tone: "detail", icon: "file-text", order: 60 };
 }
 
+function cleanPresentationText(value: string): string {
+  return value
+    .replace(/^\s*#{1,6}\s*/gm, "")
+    .replace(/^\s*(?:\*{3,}|_{3,}|[\u2010-\u2015-]{3,})\s*$/gm, "")
+    .replace(/^\s*[*+]\s+/gm, "• ")
+    .replace(/^\s*[\u2010-\u2015-]\s+/gm, "• ")
+    .replace(/[\u2010-\u2015-]/g, " ")
+    .replace(/\*\*/g, "")
+    .replace(/__/g, "")
+    .replace(/`/g, "")
+    .replace(/[ \t]{2,}/g, " ")
+    .replace(/ *\n */g, "\n")
+    .replace(/\n{3,}/g, "\n\n")
+    .trim();
+}
+
 function scalar(value: unknown): string {
   if (value == null) return "Not provided";
   if (typeof value === "boolean") return value ? "Yes" : "No";
-  return String(value);
+  return cleanPresentationText(String(value));
 }
 
 function ValueBlock({ value, depth = 0 }: { value: unknown; depth?: number }) {
@@ -106,7 +122,7 @@ export function PremiumAiResult({ output, watermark, reviewStatus }: { output: u
         <View style={styles.reviewBanner}>
           <Feather name="shield" size={18} color={colors.primary} />
           <View style={{ flex: 1 }}>
-            <Text style={styles.reviewTitle}>{watermark}</Text>
+            <Text style={styles.reviewTitle}>{cleanPresentationText(watermark)}</Text>
             <Text style={styles.reviewBody}>{reviewStatus ? `Review status: ${humanize(reviewStatus)}.` : "Human review is required where indicated before external or clinical use."}</Text>
           </View>
         </View>
