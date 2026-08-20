@@ -47,8 +47,10 @@ function parseFieldCopy(value: string): ResultBlock[] {
     paragraphs.length = 0;
   };
 
-  for (const rawLine of clean.split("\n")) {
-    const line = rawLine.trim();
+  const originalLines = value.split("\n");
+  for (const originalLine of originalLines) {
+    const wasMarkdownHeading = /^\s*#{1,6}\s+/.test(originalLine);
+    const line = cleanFieldCopy(originalLine).trim();
     if (!line) {
       flushParagraph();
       continue;
@@ -69,7 +71,7 @@ function parseFieldCopy(value: string): ResultBlock[] {
 
     const isHeading =
       line.length <= 64 &&
-      (/^[A-Z0-9 &:'’]+$/.test(line) || /^(Subject|Message):?$/i.test(line));
+      (wasMarkdownHeading || /^[A-Z0-9 &:'’]+$/.test(line) || /^(Subject|Message):?$/i.test(line));
 
     if (isHeading) {
       flushParagraph();
