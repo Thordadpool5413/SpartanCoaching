@@ -1,4 +1,4 @@
-# Spartan Coaching Home Acceptance Specification
+# Hospice Sales Pro Home Acceptance Specification
 
 ## Approved public target
 
@@ -17,16 +17,18 @@ useful action within ten seconds and reach it within three taps.
 ## Public Home hierarchy
 
 1. Transparent red helmet as a compact icon
-2. Spartan Coaching wordmark rendered beside the icon
+2. Hospice Sales Pro product name with “by Spartan Coaching” directly beneath it
 3. Sign in action
 4. Hospice sales field guide label
 5. Clear outcome promise
-6. Plan the conversation path
-7. Practice with Spartan Coach path
-8. Guided experience action
-9. Exact Standard and Elite weekly prices with Apple purchase explanation
-10. Separate human consulting entry
-11. Five destination native tab bar
+6. A clearly labeled Open a workspace section
+7. Two by two active workspace buttons for Plan, Practice, Measure, and Library
+8. A recommended starting action
+9. A complete tools and resources entry
+10. Guided experience action
+11. Exact Standard and Elite weekly prices with Apple purchase explanation
+12. Separate human consulting entry
+13. Five destination native tab bar
 
 ## Signed in Home hierarchy
 
@@ -43,9 +45,8 @@ useful action within ten seconds and reach it within three taps.
 ## Brand rules
 
 The transparent red helmet is the compact native icon. It never appears on a
-black tile and is never cropped by a decorative shell. On Home it is paired
-with the Spartan Coaching name so it is not presented as the complete company
-logo.
+black tile and is never cropped by a decorative shell. On Home it is paired with the Hospice Sales Pro product name and the
+“by Spartan Coaching” endorsement so product and company are not confused.
 
 The supplied distressed Spartan Coaching logo remains the full brand asset for
 approved full logo placements. It is not substituted with the helmet alone.
@@ -75,3 +76,8 @@ spacing, typography, color, navigation, or action behavior blocks acceptance.
 
 Automated tests support the gate but do not replace visual comparison on the
 rendered app.
+
+
+## Workspace affordance rule
+
+Plan, Practice, Measure, and Library are navigation controls, not decorative labels. Each uses a minimum two-column card layout with an icon container, action arrow, title, short outcome description, pressed feedback, accessibility button role, and a route-level test. A single row of four shallow tiles is not acceptable because it reads as static taxonomy.
