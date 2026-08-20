@@ -15,19 +15,19 @@ import { font } from "@/lib/typography";
 type Plan = "standard_weekly" | "elite_weekly";
 
 const SHARED = [
-  "Home and guided planning",
-  "Sales tools and role play",
-  "Playbooks, research, outreach, and calculators",
-  "Weekly planning and saved work",
-  "Library, Method, drills, quiz, and approved resources",
+  "Complete planning and preparation tools",
+  "Objection handling, role play, and practice tools",
+  "Measurement and business calculators",
+  "Complete Library, Method, drills, and approved resources",
+  "Saved work, downloads, website continuity, and offline access",
 ];
 
 const ELITE_ONLY = [
   "Private Spartan Coach",
   "Voice rehearsal and transcription",
+  "Advanced feedback and personalized recommendations",
   "Optional editable Coach memory",
-  "Advanced AI coaching",
-  "Deidentified clinical education tools",
+  "Elite field and deidentified clinical education tools",
 ];
 
 export default function MembershipScreen() {
@@ -130,7 +130,9 @@ export default function MembershipScreen() {
                 selected={!canUseFieldKit && plan === "standard_weekly"}
                 title="Standard"
                 price={standardPrice}
-                descriptor="The complete field system"
+                descriptor="Complete field operating system"
+                bestFor="For reps who want structure, preparation, practice, measurement, and continuity."
+                outcome="Plan the week, prepare conversations, practice objections, use the full Library, save work, download resources, and continue offline."
                 badge={canUseFieldKit ? "CURRENT" : undefined}
                 disabled={canUseFieldKit}
                 onPress={() => selectPlan("standard_weekly")}
@@ -139,7 +141,9 @@ export default function MembershipScreen() {
                 selected={plan === "elite_weekly"}
                 title="Elite"
                 price={elitePrice}
-                descriptor="Field system plus private Coach"
+                descriptor="Complete system plus private Coach"
+                bestFor="For reps who want a private practice partner before and after the room."
+                outcome="Everything in Standard plus Coach, voice rehearsal, transcription, advanced feedback, personalized recommendations, and Elite tools."
                 badge="COMPLETE"
                 onPress={() => selectPlan("elite_weekly")}
               />
@@ -186,14 +190,18 @@ export default function MembershipScreen() {
   );
 }
 
-function PlanCard({ selected, title, price, descriptor, badge, disabled = false, onPress }: { selected: boolean; title: string; price: string; descriptor: string; badge?: string; disabled?: boolean; onPress: () => void }) {
+function PlanCard({ selected, title, price, descriptor, bestFor, outcome, badge, disabled = false, onPress }: { selected: boolean; title: string; price: string; descriptor: string; bestFor: string; outcome: string; badge?: string; disabled?: boolean; onPress: () => void }) {
   const colors = useColors();
   return (
     <Pressable accessibilityRole="radio" accessibilityState={{ checked: selected, disabled }} disabled={disabled} onPress={onPress} style={[stylesStatic.planCard, { backgroundColor: selected ? colors.primaryMuted : colors.card, borderColor: selected ? colors.primary : colors.borderStrong, borderWidth: selected ? 2 : 1, opacity: disabled ? 0.72 : 1 }]}>
       {badge ? <Text style={[stylesStatic.badge, { color: colors.primary }]}>{badge}</Text> : null}
       <Text style={[stylesStatic.planTitle, { color: colors.foreground }]}>{title}</Text>
       <Text style={[stylesStatic.planPrice, { color: colors.primary }]}>{price}<Text style={[stylesStatic.planCadence, { color: colors.mutedForeground }]}> / week</Text></Text>
-      <Text style={[stylesStatic.planDescriptor, { color: colors.mutedForeground }]}>{descriptor}</Text>
+      <Text style={[stylesStatic.planDescriptor, { color: colors.foreground }]}>{descriptor}</Text>
+      <Text style={[stylesStatic.planSectionLabel, { color: colors.primary }]}>BEST FOR</Text>
+      <Text style={[stylesStatic.planValue, { color: colors.mutedForeground }]}>{bestFor}</Text>
+      <Text style={[stylesStatic.planSectionLabel, { color: colors.primary }]}>WHAT YOU GET</Text>
+      <Text style={[stylesStatic.planValue, { color: colors.mutedForeground }]}>{outcome}</Text>
       <View style={[stylesStatic.radio, { borderColor: selected ? colors.primary : colors.borderStrong }]}>{selected ? <View style={[stylesStatic.radioDot, { backgroundColor: colors.primary }]} /> : null}</View>
     </Pressable>
   );
@@ -205,12 +213,14 @@ function FeatureRow({ label, included, elite = false }: { label: string; include
 }
 
 const stylesStatic = StyleSheet.create({
-  planCard: { flex: 1, minHeight: 156, borderRadius: 20, borderCurve: "continuous", padding: 15, position: "relative" },
+  planCard: { width: "100%", minHeight: 238, borderRadius: 20, borderCurve: "continuous", padding: 17, position: "relative" },
   badge: { fontSize: 8, letterSpacing: 1.2, fontWeight: "800", minHeight: 18 },
   planTitle: { fontSize: 20, fontWeight: "800" },
   planPrice: { fontSize: 20, fontWeight: "800", marginTop: 9, fontVariant: ["tabular-nums"] },
   planCadence: { fontSize: 10, fontWeight: "500" },
-  planDescriptor: { fontSize: 11, lineHeight: 16, marginTop: 7, maxWidth: 120 },
+  planDescriptor: { fontSize: 12, lineHeight: 17, marginTop: 6, fontWeight: "700" },
+  planSectionLabel: { fontSize: 8, letterSpacing: 1.3, fontWeight: "800", marginTop: 13 },
+  planValue: { fontSize: 11, lineHeight: 17, marginTop: 4, maxWidth: 330 },
   radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 1.5, alignItems: "center", justifyContent: "center", position: "absolute", right: 13, top: 13 },
   radioDot: { width: 12, height: 12, borderRadius: 6 },
   featureRow: { minHeight: 46, flexDirection: "row", alignItems: "center", gap: 10 },
@@ -238,7 +248,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     currentPlanBanner: { flexDirection: "row", alignItems: "flex-start", gap: 11, borderRadius: 17, backgroundColor: "rgba(47,118,84,0.12)", borderWidth: 1, borderColor: "rgba(47,118,84,0.32)", padding: 14 },
     currentPlanTitle: { color: colors.foreground, fontSize: 14, ...font("bold") },
     currentPlanBody: { color: colors.mutedForeground, fontSize: 11, lineHeight: 16, marginTop: 3, ...font("regular") },
-    planGrid: { flexDirection: "row", gap: 10, marginTop: 5 },
+    planGrid: { gap: 12, marginTop: 5 },
     compareCard: { borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 20, borderCurve: "continuous", paddingHorizontal: 15, paddingVertical: 12 },
     compareKicker: { color: colors.primary, fontSize: 9, letterSpacing: 1.3, marginVertical: 6, ...font("bold") },
     compareDivider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.borderStrong, marginVertical: 7 },
