@@ -9,7 +9,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
-import React, { useEffect } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Platform, useColorScheme } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { KeyboardProvider } from "react-native-keyboard-controller";
@@ -21,24 +21,22 @@ import { trackMobileEvent } from "@/lib/analytics";
 import { fetchClientConfig } from "@/lib/clientConfig";
 import { ActivationCeremony } from "@/components/ActivationCeremony";
 import { DeepLinkRouter } from "@/components/DeepLinkRouter";
+import { AppearanceProvider } from "@/lib/AppearanceContext";
+import { LaunchExperience } from "@/components/LaunchExperience";
 
 SplashScreen.preventAutoHideAsync();
+SplashScreen.setOptions({ duration: 260, fade: true });
 
 const queryClient = new QueryClient();
 
-/** Fires a single app_open event when the authenticated user is known. */
 function AppOpenTracker() {
   const { user } = useAuth();
   useEffect(() => {
-    if (user?.member?.id) {
-      // memberId is derived server-side from the Bearer session token — don't pass it here.
-      trackMobileEvent("mobile_app_open", "app_open");
-    }
+    if (user?.member?.id) trackMobileEvent("mobile_app_open", "app_open");
   }, [user?.member?.id]);
   return null;
 }
 
-/** Loads delivery contract / feature flags; logs soft incompatibility (HSP-44). */
 function ClientConfigBootstrap() {
   useEffect(() => {
     void fetchClientConfig().then((cfg) => {
@@ -59,17 +57,30 @@ function RootLayoutNav() {
     <Stack screenOptions={{ headerBackTitle: "Back" }}>
       <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       <Stack.Screen name="login" options={{ title: "Sign in", presentation: "modal" }} />
+      <Stack.Screen name="register" options={{ title: "Create account", presentation: "modal" }} />
+      <Stack.Screen name="forgot-password" options={{ title: "Reset password", presentation: "modal" }} />
+      <Stack.Screen name="reset-password" options={{ title: "Choose new password", presentation: "modal" }} />
+      <Stack.Screen name="membership" options={{ title: "Membership", presentation: "modal" }} />
+      <Stack.Screen name="access" options={{ title: "Your Access", presentation: "modal" }} />
+      <Stack.Screen name="support" options={{ title: "Support", presentation: "modal" }} />
+      <Stack.Screen name="legal" options={{ title: "Legal & Trust", presentation: "modal" }} />
+      <Stack.Screen name="jurisdiction" options={{ title: "Clinical Context", headerBackTitle: "Account" }} />
+      <Stack.Screen name="tour" options={{ headerShown: false, presentation: "fullScreenModal" }} />
+      <Stack.Screen name="admin" options={{ title: "Admin", headerBackTitle: "Account" }} />
       <Stack.Screen name="brand-video" options={{ title: "Brand Video" }} />
       <Stack.Screen name="staffing" options={{ title: "Branch Staffing" }} />
       <Stack.Screen name="activity-calculator" options={{ title: "Activity Calculator" }} />
       <Stack.Screen name="roi-calculator" options={{ title: "ROI Calculator" }} />
       <Stack.Screen name="rep-cost-calculator" options={{ title: "Rep Cost Calculator" }} />
+      <Stack.Screen name="transcriber" options={{ title: "Call Transcriber" }} />
+      <Stack.Screen name="library-item" options={{ title: "Library", headerBackTitle: "Library" }} />
+      <Stack.Screen name="method-guide" options={{ title: "Spartan Method", headerBackTitle: "Library" }} />
+      <Stack.Screen name="consulting-schedule" options={{ title: "Choose a time", headerBackTitle: "Consulting" }} />
       <Stack.Screen
         name="sales-workflow"
-        options={{ title: "Sales Command Center", headerBackTitle: "Back" }}
+        options={{ title: "Field Planner", headerBackTitle: "Back" }}
       />
-      <Stack.Screen name="tool-web" options={{ title: "Hospice Sales Pro", headerBackTitle: "Back" }} />
-      <Stack.Screen name="tool/[tab]" options={{ headerShown: false, headerBackTitle: "Tools" }} />
+      <Stack.Screen name="tool/[tab]" options={{ headerShown: false, headerBackTitle: "Explore" }} />
       <Stack.Screen name="ai-tools" options={{ headerShown: false }} />
       <Stack.Screen name="+not-found" />
     </Stack>
@@ -78,7 +89,8 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
-  // iOS uses SF Pro (system). Load Inter only on Android/web for brand parity.
+  const [launchVisible, setLaunchVisible] = useState(true);
+  const completeLaunch = useCallback(() => setLaunchVisible(false), []);
   const [fontsLoaded, fontError] = useFonts(
     Platform.OS === "ios"
       ? {}
@@ -95,32 +107,32 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    if (Platform.OS === "ios" || fontsLoaded || fontError) {
-      SplashScreen.hideAsync();
-    }
+    if (Platform.OS === "ios" || fontsLoaded || fontError) SplashScreen.hideAsync();
   }, [fontsLoaded, fontError]);
 
   if (Platform.OS !== "ios" && !fontsLoaded && !fontError) return null;
 
   return (
-    <SafeAreaProvider>
-      <ErrorBoundary>
-        <QueryClientProvider client={queryClient}>
-          <AuthProvider>
-            <ClientConfigBootstrap />
-            <AppOpenTracker />
-            <DeepLinkRouter />
-            <ActivationCeremony />
-            {/* System appearance — light/dark StatusBar (HSP-33) */}
-            <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-            <GestureHandlerRootView style={{ flex: 1 }}>
-              <KeyboardProvider>
-                <RootLayoutNav />
-              </KeyboardProvider>
-            </GestureHandlerRootView>
-          </AuthProvider>
-        </QueryClientProvider>
-      </ErrorBoundary>
-    </SafeAreaProvider>
+    <AppearanceProvider>
+      <SafeAreaProvider>
+        <ErrorBoundary>
+          <QueryClientProvider client={queryClient}>
+            <AuthProvider>
+              <ClientConfigBootstrap />
+              <AppOpenTracker />
+              <DeepLinkRouter />
+              <ActivationCeremony />
+              <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <KeyboardProvider>
+                  <RootLayoutNav />
+                </KeyboardProvider>
+                {launchVisible ? <LaunchExperience onComplete={completeLaunch} /> : null}
+              </GestureHandlerRootView>
+            </AuthProvider>
+          </QueryClientProvider>
+        </ErrorBoundary>
+      </SafeAreaProvider>
+    </AppearanceProvider>
   );
 }

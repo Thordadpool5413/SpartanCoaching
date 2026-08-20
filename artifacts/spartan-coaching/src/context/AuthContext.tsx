@@ -18,6 +18,7 @@ export type AuthMember = {
   status: string;
   lastLoginAt?: string | null;
   jobRole?: string | null;
+  alsoLeadsTeam?: boolean;
   territoryNote?: string | null;
   topObjections?: string | null;
   checklistProgress?: Record<string, boolean | string>;
@@ -36,6 +37,7 @@ export type AuthOrganization = {
   seatCount?: number;
   // Billing (Phase 1+)
   billingPlan?: string | null;
+  billingProvider?: string | null;
   billingStatus?: string | null;
   currentPeriodEnd?: string | null;
   cancelAtPeriodEnd?: boolean;

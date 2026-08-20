@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
+import { font } from "@/lib/typography";
 
 export type ErrorFallbackProps = {
   error: Error;
@@ -38,6 +39,8 @@ export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
       {__DEV__ && (
         <Pressable
           onPress={() => setIsModalVisible(true)}
+          accessibilityRole="button"
+          accessibilityLabel="Open error details"
           style={({ pressed }) => [
             styles.topButton,
             { top: insets.top + 16, backgroundColor: colors.card, opacity: pressed ? 0.8 : 1 },
@@ -54,20 +57,43 @@ export function ErrorFallback({ error, resetError }: ErrorFallbackProps) {
         </Text>
         <Pressable
           onPress={handleRestart}
+          accessibilityRole="button"
+          accessibilityLabel="Reload Spartan Coaching"
           style={({ pressed }) => [
             styles.button,
             { backgroundColor: colors.primary, opacity: pressed ? 0.9 : 1 },
           ]}
         >
-          <Text style={[styles.buttonText, { color: colors.primaryForeground }]}>Reload App</Text>
+          <Text
+            style={[
+              styles.buttonText,
+              { color: colors.primaryForeground },
+              font("semibold"),
+            ]}
+          >
+            Reload app
+          </Text>
         </Pressable>
       </View>
 
       <Modal visible={isModalVisible} animationType="slide" presentationStyle="formSheet">
         <View style={[styles.modalContainer, { backgroundColor: colors.background, paddingTop: insets.top + 16 }]}>
-          <View style={styles.modalHeader}>
-            <Text style={[styles.modalTitle, { color: colors.foreground }]}>Error Details</Text>
-            <Pressable onPress={() => setIsModalVisible(false)}>
+          <View style={[styles.modalHeader, { borderBottomColor: colors.border }]}>
+            <Text
+              style={[
+                styles.modalTitle,
+                { color: colors.foreground },
+                font("semibold"),
+              ]}
+            >
+              Error details
+            </Text>
+            <Pressable
+              onPress={() => setIsModalVisible(false)}
+              accessibilityRole="button"
+              accessibilityLabel="Close error details"
+              style={styles.closeButton}
+            >
               <Feather name="x" size={24} color={colors.foreground} />
             </Pressable>
           </View>
@@ -89,8 +115,11 @@ const styles = StyleSheet.create({
   topButton: {
     position: "absolute",
     right: 16,
-    padding: 10,
-    borderRadius: 20,
+    width: 44,
+    height: 44,
+    alignItems: "center",
+    justifyContent: "center",
+    borderRadius: 22,
     zIndex: 10,
   },
   content: { alignItems: "center", paddingHorizontal: 32 },
@@ -106,9 +135,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingBottom: 12,
     borderBottomWidth: 1,
-    borderBottomColor: "#2626260",
   },
-  modalTitle: { fontSize: 18, fontWeight: "600" },
+  closeButton: { width: 44, height: 44, alignItems: "center", justifyContent: "center" },
+  modalTitle: { fontSize: 18 },
   modalScrollView: { flex: 1 },
   modalScrollContent: { padding: 16 },
   errorContainer: { borderRadius: 8, overflow: "hidden", padding: 16 },

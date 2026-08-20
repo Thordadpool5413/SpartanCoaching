@@ -32,7 +32,7 @@ export default function Account() {
     useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
-  const { startCheckout, openPortal, checkoutPending, portalPending } = useBillingActions();
+  const { startCheckout, startEliteCheckout, openPortal, checkoutPending, portalPending } = useBillingActions();
   const [inviteEmail, setInviteEmail] = useState("");
   const [inviteName, setInviteName] = useState("");
   const [members, setMembers] = useState<any[]>([]);
@@ -50,6 +50,7 @@ export default function Account() {
   const [pwPending, setPwPending] = useState(false);
   const [billing, setBilling] = useState<BillingStatusResponse | null>(null);
   const [billingLoading, setBillingLoading] = useState(true);
+  const [selectedPlan, setSelectedPlan] = useState<"standard_weekly" | "elite_weekly">("elite_weekly");
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {
@@ -104,6 +105,12 @@ export default function Account() {
       .catch(() => setBilling(null))
       .finally(() => setBillingLoading(false));
   }, [isAuthenticated, organization?.status, organization?.billingStatus]);
+
+  useEffect(() => {
+    if (billing?.individualWeeklyElitePriceConfigured === false) {
+      setSelectedPlan("standard_weekly");
+    }
+  }, [billing?.individualWeeklyElitePriceConfigured]);
 
   useEffect(() => {
     if (member?.role === "org_admin" && canUseFieldKit) {
@@ -171,8 +178,12 @@ export default function Account() {
   const isCompany = org?.type === "company";
   const isPlatform = org?.type === "platform" || member.role === "platform_admin";
   const isComp = billingOrg?.billingPlan === "comp" || org?.billingPlan === "comp";
+  const billingPlan = billingOrg?.billingPlan || org?.billingPlan;
+  const billingProvider = billingOrg?.billingProvider || org?.billingProvider;
+  const isElite = billingPlan === "individual_weekly_elite" || billingPlan === "corporate_contract_elite";
+  const hasAppleSubscription = billingProvider === "apple";
   const hasPaidSub =
-    Boolean(billingOrg?.hasStripeSubscription || org?.hasStripeSubscription) &&
+    Boolean(billingOrg?.hasStripeSubscription || org?.hasStripeSubscription || hasAppleSubscription) &&
     (billingOrg?.billingStatus === "active" ||
       billingOrg?.billingStatus === "trialing" ||
       org?.billingStatus === "active" ||
@@ -206,7 +217,7 @@ export default function Account() {
         ? cancelAtPeriodEnd
           ? "Hospice Sales Pro · active · canceling"
           : hasPaidSub
-            ? "Hospice Sales Pro · active · $14.99/wk"
+            ? `${isElite ? "Hospice Sales Pro Elite · $19.99/wk" : "Hospice Sales Pro Standard · $14.99/wk"} · active`
             : isComp
               ? "Hospice Sales Pro · active · complimentary"
               : "Hospice Sales Pro · active"
@@ -218,11 +229,11 @@ export default function Account() {
 
   const membershipBlurb =
     org?.status === "trial"
-      ? "You are on a timed evaluation. Tools stay unlocked until the window ends. Individuals can continue Hospice Sales Pro for $14.99/week — cancel anytime from Manage billing."
+      ? "You are on a timed evaluation. Choose Standard or Elite before the window ends. Both individual memberships can be canceled anytime."
       : org?.status === "active" && hasPaidSub
         ? cancelAtPeriodEnd
-          ? "Your subscription is set to cancel at the end of the current period. You keep Hospice Sales Pro access until then. You can reverse cancel in Manage billing."
-          : "Your weekly Hospice Sales Pro subscription is active. Use Manage billing to update payment method or cancel (access continues until the period ends)."
+          ? "Your subscription is set to cancel at the end of the current period. You keep access until then."
+          : `Your weekly ${isElite ? "Hospice Sales Pro Elite" : "Hospice Sales Pro Standard"} membership is active. Manage it through ${hasAppleSubscription ? "Apple on your iPhone" : "Stripe on the website"}.`
         : org?.status === "active" && isComp
           ? "Complimentary access is active. No self-serve charge. Contact Nick if you need changes."
         : org?.status === "active" && isCompany
@@ -230,7 +241,7 @@ export default function Account() {
         : org?.status === "active"
           ? "Continuing client access is active."
         : org?.status === "expired"
-          ? "Access has ended. Individuals can re-subscribe for $14.99/week. Teams: contact us to renew under contract."
+          ? "Access has ended. Individuals can choose Standard or Elite. Teams renew under contract."
         : org?.status === "suspended"
           ? "Access is suspended (often a failed payment). Update your card in Manage billing or contact support."
           : "Your Hospice Sales Pro status will appear here once access is assigned.";
@@ -291,7 +302,7 @@ export default function Account() {
           hoursRemaining: fieldKit?.hoursRemaining,
         }}
         onPrimary={() => {
-          if (canCheckout) void startCheckout();
+          if (canCheckout) void (selectedPlan === "elite_weekly" ? startEliteCheckout() : startCheckout());
           else if (canPortal) void openPortal();
           else setLocation("/portal");
         }}
@@ -311,14 +322,13 @@ export default function Account() {
           )}
           {isCompany && <Badge variant="outline">Team / company</Badge>}
           {isPersonal && <Badge variant="outline">Individual</Badge>}
-          {hasPaidSub && <Badge variant="outline">$14.99/wk</Badge>}
+          {hasPaidSub && <Badge variant="outline">{isElite ? "$19.99/wk" : "$14.99/wk"}</Badge>}
         </div>
         <p className="text-sm text-muted-foreground leading-relaxed border-l-2 border-primary/40 pl-3">
           {membershipBlurb}
         </p>
         <p className="text-xs text-muted-foreground leading-relaxed" data-testid="account-cross-surface">
-          Same seat on iPhone and web. After checkout or billing changes, open the app and pull to
-          refresh — access restores from your account (no App Store restore button).
+          One account works on iPhone and web. Website purchases restore after sign in. App Store purchases can also be restored from Account on the iPhone.
         </p>
         <dl className="grid sm:grid-cols-2 gap-4 text-sm">
           <div>
@@ -391,15 +401,45 @@ export default function Account() {
             {canCheckout ? "Start Hospice Sales Pro" : "Hospice Sales Pro & billing"}
           </div>
           {isPersonal && !isPlatform && (
-            <div>
-              <p className="text-3xl font-black text-primary tracking-tight">
-                $14.99
-                <span className="text-sm font-semibold text-muted-foreground"> / week</span>
-              </p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Individual Hospice Sales Pro · your tools, your edge · cancel anytime from Manage billing
-              </p>
-              {canCheckout && (
+            <div className="space-y-3">
+              {canCheckout ? (
+                <div className="grid gap-3 sm:grid-cols-2" role="radiogroup" aria-label="Choose an individual membership">
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={selectedPlan === "standard_weekly"}
+                    onClick={() => setSelectedPlan("standard_weekly")}
+                    className={`rounded-xl border p-4 text-left transition-colors ${selectedPlan === "standard_weekly" ? "border-primary bg-primary/10" : "border-border bg-background hover:border-primary/50"}`}
+                  >
+                    <span className="block text-xs font-bold uppercase tracking-widest text-primary">Standard</span>
+                    <span className="mt-2 block text-2xl font-black text-foreground">$14.99 <span className="text-xs font-semibold text-muted-foreground">per week</span></span>
+                    <span className="mt-2 block text-xs leading-relaxed text-muted-foreground">Command Center, field planning, practice, outreach, and resources.</span>
+                  </button>
+                  <button
+                    type="button"
+                    role="radio"
+                    aria-checked={selectedPlan === "elite_weekly"}
+                    onClick={() => setSelectedPlan("elite_weekly")}
+                    disabled={billing?.individualWeeklyElitePriceConfigured === false}
+                    className={`rounded-xl border p-4 text-left transition-colors ${selectedPlan === "elite_weekly" ? "border-primary bg-primary/10" : "border-border bg-background hover:border-primary/50"} disabled:cursor-not-allowed disabled:opacity-50`}
+                  >
+                    <span className="block text-xs font-bold uppercase tracking-widest text-primary">Elite · recommended</span>
+                    <span className="mt-2 block text-2xl font-black text-foreground">$19.99 <span className="text-xs font-semibold text-muted-foreground">per week</span></span>
+                    <span className="mt-2 block text-xs leading-relaxed text-muted-foreground">Everything in Standard plus private Spartan Coach and deidentified clinical guidance.</span>
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <p className="text-3xl font-black text-primary tracking-tight">
+                    {isElite ? "$19.99" : "$14.99"}
+                    <span className="text-sm font-semibold text-muted-foreground"> per week</span>
+                  </p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {isElite ? "Hospice Sales Pro Elite" : "Hospice Sales Pro Standard"}
+                  </p>
+                </div>
+              )}
+              {canCheckout && selectedPlan === "standard_weekly" && (
                 <ul className="mt-3 space-y-1.5">
                   {FIELD_KIT_TOOLS.filter((t) => t.id !== "brand-video")
                     .slice(0, 6)
@@ -431,9 +471,9 @@ export default function Account() {
             <>
               {isPersonal && !isPlatform && (
                 <p className="text-xs text-muted-foreground leading-relaxed">
-                  Subscribe securely with Stripe on the web. Cancel anytime — you keep access until the paid
-                  period ends. Already paid? Sign in on iPhone with this email to restore access. Failed
-                  payments may lock tools until the card is updated.
+                  {hasAppleSubscription
+                    ? "This membership was purchased through Apple. Manage it from Account in the iPhone app. Your access works on both web and iPhone."
+                    : "Website purchases use Stripe. Cancel anytime and keep access through the paid period. Sign in on iPhone with this same account to use the same membership."}
                 </p>
               )}
               {isCompany && (
@@ -449,7 +489,7 @@ export default function Account() {
                 {canCheckout && (
                   <Button
                     className="font-bold"
-                    onClick={startCheckout}
+                    onClick={selectedPlan === "elite_weekly" ? startEliteCheckout : startCheckout}
                     disabled={checkoutPending}
                     data-testid="button-subscribe"
                   >
@@ -458,7 +498,7 @@ export default function Account() {
                         <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Redirecting…
                       </>
                     ) : (
-                      <>Subscribe · $14.99/week</>
+                      <>{selectedPlan === "elite_weekly" ? "Choose Elite · $19.99/week" : "Choose Standard · $14.99/week"}</>
                     )}
                   </Button>
                 )}

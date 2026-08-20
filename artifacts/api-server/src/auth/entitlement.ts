@@ -23,6 +23,19 @@ export function evaluateFieldKitAccess(
 
 /** Ensure trial orgs past trialEndsAt flip to expired (+ lifecycle emails). */
 export async function refreshOrgStatus(org: ClientOrganization): Promise<ClientOrganization> {
+  if (
+    org.billingProvider === "apple" &&
+    org.status === "active" &&
+    org.currentPeriodEnd &&
+    org.currentPeriodEnd.getTime() <= Date.now()
+  ) {
+    const [updated] = await db
+      .update(clientOrganizations)
+      .set({ status: "expired", pipelineStatus: "follow_up", billingStatus: "expired" })
+      .where(eq(clientOrganizations.id, org.id))
+      .returning();
+    return updated ?? { ...org, status: "expired", pipelineStatus: "follow_up", billingStatus: "expired" };
+  }
   return refreshOrgStatusWithLifecycle(org);
 }
 
@@ -54,6 +67,7 @@ export function publicMember(member: ClientMember) {
     status: member.status,
     lastLoginAt: member.lastLoginAt,
     jobRole: (member as any).jobRole ?? null,
+    alsoLeadsTeam: (member as { alsoLeadsTeam?: boolean }).alsoLeadsTeam ?? false,
     territoryNote: (member as any).territoryNote ?? null,
     topObjections: (member as any).topObjections ?? null,
     checklistProgress: checklist,
@@ -78,6 +92,7 @@ export function publicOrg(org: ClientOrganization) {
     // Internal Access Desk fields (notes, pipeline, follow-up, lost reason) stay off public payloads.
     // Billing (safe for client UI — no secret Stripe keys)
     billingPlan: (org as any).billingPlan ?? null,
+    billingProvider: (org as any).billingProvider ?? null,
     billingStatus: (org as any).billingStatus ?? null,
     currentPeriodEnd: (org as any).currentPeriodEnd ?? null,
     cancelAtPeriodEnd: Boolean((org as any).cancelAtPeriodEnd),

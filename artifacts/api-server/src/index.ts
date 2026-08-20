@@ -4,7 +4,6 @@ import { startBackgroundJobScheduler } from "./auth/opsJobs";
 import { checkWebhookSecretOnStartup } from "./billing/webhookSecretCheck";
 import { hydrateBillingEmailMetrics } from "./billing/billingEmailMetrics";
 import { clinicalRuntimeReadiness } from "./clinical/runtimeReadiness";
-import { ensureBaselineCoverageSnapshot } from "./clinical/coverageBootstrap";
 
 const rawPort = process.env["PORT"];
 
@@ -34,27 +33,10 @@ app.listen(port, (err) => {
     {
       operationMode: clinical.operationMode,
       ready: clinical.ready,
-      baasConfirmed: clinical.baasConfirmed,
-      missingControls: clinical.missingControls,
+      patientDataAccepted: false,
     },
     "[clinical] Runtime readiness",
   );
-  if (clinical.operationMode === "phi") {
-    ensureBaselineCoverageSnapshot()
-      .then((snapshotId) => {
-        logger.info(
-          { snapshotId: snapshotId ?? null },
-          "[clinical] Coverage snapshot ready",
-        );
-      })
-      .catch((e) => {
-        logger.warn(
-          { err: (e as Error)?.message || String(e) },
-          "[clinical] Coverage baseline bootstrap failed",
-        );
-      });
-  }
-
   // Non-blocking startup guard: verify webhook secret looks consistent with
   // the endpoint registered in Stripe. Logs a warning if stale; never crashes.
   checkWebhookSecretOnStartup().catch((e) => {

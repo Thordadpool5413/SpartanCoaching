@@ -1,5 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { entitlementFromStripeStatus } from "./entitlementMap";
+import fs from "node:fs";
+import path from "node:path";
 
 describe("entitlementFromStripeStatus", () => {
   it("maps active and trialing to membership active", () => {
@@ -20,5 +22,14 @@ describe("entitlementFromStripeStatus", () => {
 
   it("leaves incomplete without forcing status", () => {
     expect(entitlementFromStripeStatus("incomplete")).toEqual({});
+  });
+
+  it("keeps Standard and Elite checkout plans distinct", () => {
+    const routes = fs.readFileSync(path.resolve(import.meta.dirname, "billingRoutes.ts"), "utf8");
+    const stripe = fs.readFileSync(path.resolve(import.meta.dirname, "stripeClient.ts"), "utf8");
+    expect(routes).toContain("STANDARD_WEEKLY_PLAN");
+    expect(routes).toContain("ELITE_WEEKLY_PLAN");
+    expect(routes).toContain("requestedPlan.billingPlan");
+    expect(stripe).toContain("STRIPE_PRICE_INDIVIDUAL_WEEKLY_ELITE");
   });
 });

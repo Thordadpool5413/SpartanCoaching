@@ -145,6 +145,11 @@ const AUTOMATED_SUITES = [
       "__tests__/app-config.test.ts",
       "__tests__/apple-subscriptions.test.ts",
       "__tests__/deep-links.test.ts",
+      "__tests__/field-guide-home.test.ts",
+      "__tests__/elite-ios-experience.test.ts",
+      "__tests__/native-product-completeness.test.ts",
+      "__tests__/complete-native-journeys.test.ts",
+      "__tests__/company-offboarding-recovery.test.ts",
     ],
   },
 ];

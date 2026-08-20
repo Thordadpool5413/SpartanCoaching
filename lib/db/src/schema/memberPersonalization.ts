@@ -28,6 +28,11 @@ export type PersonalizationRecentItem = {
   at: string;
 };
 
+export type MemberJurisdiction = {
+  state: string | null;
+  macRegion: string | null;
+};
+
 export type PersonalizationPayload = {
   schemaVersion: 1;
   favorites: {
@@ -38,6 +43,7 @@ export type PersonalizationPayload = {
   pinnedResources: string[];
   recent: PersonalizationRecentItem[];
   dismissedRecommendationIds: string[];
+  jurisdiction: MemberJurisdiction;
 };
 
 export const emptyPersonalizationPayload = (): PersonalizationPayload => ({
@@ -47,6 +53,7 @@ export const emptyPersonalizationPayload = (): PersonalizationPayload => ({
   pinnedResources: [],
   recent: [],
   dismissedRecommendationIds: [],
+  jurisdiction: { state: null, macRegion: null },
 });
 
 export const personalizationPayloadSchema = z.object({
@@ -72,6 +79,12 @@ export const personalizationPayloadSchema = z.object({
     .max(40)
     .default([]),
   dismissedRecommendationIds: z.array(z.string().max(120)).max(50).default([]),
+  jurisdiction: z
+    .object({
+      state: z.string().trim().min(2).max(80).nullable().default(null),
+      macRegion: z.string().trim().min(2).max(120).nullable().default(null),
+    })
+    .default({ state: null, macRegion: null }),
 });
 
 export const memberPersonalization = pgTable(
@@ -90,6 +103,7 @@ export const memberPersonalization = pgTable(
         pinnedResources: [],
         recent: [],
         dismissedRecommendationIds: [],
+        jurisdiction: { state: null, macRegion: null },
       }),
     createdAt: timestamp("created_at", { withTimezone: true })
       .notNull()

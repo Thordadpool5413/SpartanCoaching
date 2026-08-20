@@ -1,6 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import { SPARTAN_AI_TOOLS } from "@workspace/spartan-ai-tools";
 import { router } from "expo-router";
+import { goBackOrReplace } from "@/lib/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -137,16 +138,15 @@ export default function AiToolsIndex() {
       style={{ flex: 1, backgroundColor: colors.background }}
       contentContainerStyle={styles.container}
     >
-      <Pressable onPress={() => router.back()} style={styles.back} testID="advanced-back">
+      <Pressable onPress={() => goBackOrReplace("/(tabs)/tools")} style={styles.back} testID="advanced-back">
         <Feather name="arrow-left" size={18} color={colors.primary} />
-        <Text style={[{ color: colors.primary }, font("semibold")]}>Tools</Text>
+        <Text style={[{ color: colors.primary }, font("semibold")]}>Explore</Text>
       </Pressable>
       <Text style={[styles.title, { color: colors.foreground }, font("bold")]}>
         Advanced library
       </Text>
       <Text style={[styles.description, { color: colors.mutedForeground }, font("regular")]}>
-        Specialized Field AI (no PHI in consumer tools). Clinical vault is a separate
-        authorized workspace — not sold as daily Hospice Sales Pro marketing.
+        Advanced field tools for Elite members. Clinical guidance accepts deidentified information only and always requires human approval.
       </Text>
       <View
         style={{
@@ -163,7 +163,7 @@ export default function AiToolsIndex() {
       >
         <Feather name="shield" size={12} color={colors.primary} />
         <Text style={[{ color: colors.primary, fontSize: 10, letterSpacing: 0.6 }, font("bold")]}>
-          ROLE-GATED · SECONDARY TO DAILY TOOLS
+          ELITE TOOLS · HUMAN APPROVAL REQUIRED
         </Text>
       </View>
       {availability === null && (
@@ -243,7 +243,7 @@ export default function AiToolsIndex() {
               onPress={() => router.push("/(tabs)/tools" as never)}
               style={[styles.emptyBtn, { backgroundColor: colors.primary }]}
             >
-              <Text style={{ color: "#fff", fontFamily: "Inter_700Bold" }}>
+              <Text style={{ color: "#fff", ...font("bold") }}>
                 Open Portal tools
               </Text>
             </Pressable>
@@ -256,7 +256,7 @@ export default function AiToolsIndex() {
 const styles = StyleSheet.create({
   container: { padding: 20, paddingBottom: 64, gap: 16 },
   back: { minHeight: 44, flexDirection: "row", alignItems: "center", gap: 8 },
-  title: { fontSize: 32, lineHeight: 38, fontFamily: "Inter_700Bold" },
+  title: { fontSize: 32, lineHeight: 38, ...font("bold") },
   description: { fontSize: 16, lineHeight: 24, marginBottom: 4 },
   grid: { gap: 12 },
   statusRow: {
@@ -268,7 +268,7 @@ const styles = StyleSheet.create({
   errorCard: { borderWidth: 1, borderRadius: 12, padding: 14, gap: 10 },
   section: { gap: 10, marginTop: 8 },
   sectionHead: { flexDirection: "row", alignItems: "center", gap: 8 },
-  sectionTitle: { fontSize: 18, fontFamily: "Inter_700Bold" },
+  sectionTitle: { fontSize: 18, ...font("bold") },
   sectionDesc: { fontSize: 14, lineHeight: 21, marginBottom: 4 },
   card: { borderWidth: 1, borderRadius: 16, padding: 18, gap: 9 },
   cardTop: {

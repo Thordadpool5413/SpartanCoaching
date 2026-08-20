@@ -1,656 +1,436 @@
-/**
- * Learn — Articles · Podcasts · Resources (grouped PDFs).
- * AI research lives under Tools → Research (not here).
- */
 import React, { useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  FlatList,
-  Linking,
   Platform,
   Pressable,
   ScrollView,
   StyleSheet,
   Text,
+  TextInput,
   View,
 } from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
-import { useQuery } from "@tanstack/react-query";
 import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
-import { useColors } from "@/hooks/useColors";
-import { apiGet, getWebSiteUrl } from "@/lib/api";
-import { useAuth } from "@/lib/AuthContext";
-import { font } from "@/lib/typography";
+import { useQuery } from "@tanstack/react-query";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyState } from "@/components/ui/EmptyState";
-import { ListRow } from "@/components/ui/ListRow";
-import { SectionKicker } from "@/components/ui/SectionKicker";
 import { SpartanButton } from "@/components/ui/SpartanButton";
+import { SpartanHeader } from "@/components/ui/SpartanHeader";
+import { useColors } from "@/hooks/useColors";
+import { apiGet } from "@/lib/api";
+import { useAuth } from "@/lib/AuthContext";
 import { groupResources, type ResourceLike } from "@/lib/resourceGroups";
 import { openToolHref } from "@/lib/toolDeepLinks";
+import { font } from "@/lib/typography";
 
 type LearnTab = "articles" | "podcasts" | "resources";
-
-const WEB_LEARN_LINKS: { label: string; path: string; blurb: string }[] = [
-  { label: "Spartan Method", path: "/method", blurb: "The system behind coaching" },
-  { label: "Drills", path: "/drills", blurb: "Practice reps between sessions" },
-  { label: "Quiz", path: "/quiz", blurb: "Knowledge check" },
-  { label: "Manifesto", path: "/manifesto", blurb: "The Spartan Ethos" },
-];
 
 type Article = {
   id: number;
   title: string;
-  summary?: string | null;
+  description: string;
   content?: string | null;
-  author?: string | null;
-  publishedAt?: number | null;
-  category?: string | null;
+  linkedinUrl: string;
+  publishDate: number;
+  featured: boolean;
+  pdfUrl?: string | null;
 };
 
 type Podcast = {
   id: number;
   title: string;
   description?: string | null;
-  episode?: string | null;
+  episodeNumber?: number | null;
+  audioUrl?: string | null;
+  publishDate?: string | number | null;
   duration?: string | null;
-  publishedAt?: number | null;
-  host?: string | null;
 };
 
-const LEARN_TABS: { key: LearnTab; label: string; icon: "file-text" | "mic" | "folder" }[] = [
-  { key: "articles", label: "Articles", icon: "file-text" },
-  { key: "podcasts", label: "Podcasts", icon: "mic" },
-  /** Same product name as web "Field resources" — work aids, not study-only. */
-  { key: "resources", label: "Field resources", icon: "folder" },
+const TABS: Array<{ key: LearnTab; label: string; icon: React.ComponentProps<typeof Feather>["name"] }> = [
+  { key: "articles", label: "Read", icon: "file-text" },
+  { key: "podcasts", label: "Listen", icon: "headphones" },
+  { key: "resources", label: "Use", icon: "folder" },
 ];
 
-function formatDate(ts?: number | null) {
-  if (!ts) return "";
-  return new Date(ts).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
+const METHOD_LINKS = [
+  { label: "Method", path: "/method", icon: "compass" as const },
+  { label: "Drills", path: "/drills", icon: "repeat" as const },
+  { label: "Quiz", path: "/quiz", icon: "check-square" as const },
+  { label: "Manifesto", path: "/manifesto", icon: "flag" as const },
+];
+
+function formatDate(value?: string | number | null) {
+  if (!value) return "";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "";
+  return date.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
-function openResource(fileUrl: string) {
+function openLibraryItem(input: {
+  title: string;
+  url?: string | null;
+  sourceUrl?: string | null;
+  kind: "article" | "audio" | "resource";
+  description?: string | null;
+  articleId?: number;
+  whenToUse?: string;
+  whyItMatters?: string;
+  expectedOutcome?: string;
+  version?: string;
+}) {
   void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  const base = getWebSiteUrl();
-  const url =
-    fileUrl.startsWith("http://") || fileUrl.startsWith("https://")
-      ? fileUrl
-      : `${base}${fileUrl.startsWith("/") ? "" : "/"}${fileUrl}`;
-  void Linking.openURL(url);
+  router.push({
+    pathname: "/library-item",
+    params: {
+      title: input.title,
+      url: input.url,
+      kind: input.kind,
+      description: input.description || "",
+      sourceUrl: input.sourceUrl || "",
+      articleId: input.articleId ? String(input.articleId) : "",
+      whenToUse: input.whenToUse || "",
+      whyItMatters: input.whyItMatters || "",
+      expectedOutcome: input.expectedOutcome || "",
+      version: input.version || "",
+    },
+  } as any);
 }
 
 export default function LearnScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { canUseFieldKit, isAuthenticated } = useAuth();
+  const { canUseFieldKit } = useAuth();
   const [activeTab, setActiveTab] = useState<LearnTab>("articles");
+  const [query, setQuery] = useState("");
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
-  const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 90;
+  const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 24;
 
-  const {
-    data: articlesData,
-    isLoading: articlesLoading,
-    error: articlesError,
-    refetch: refetchArticles,
-  } = useQuery<{ articles: Article[] }>({
+  const articlesQuery = useQuery<{ articles: Article[] }>({
     queryKey: ["articles"],
     queryFn: () => apiGet<{ articles: Article[] }>("/api/articles"),
     enabled: activeTab === "articles",
   });
-
-  const {
-    data: podcastsData,
-    isLoading: podcastsLoading,
-    error: podcastsError,
-    refetch: refetchPodcasts,
-  } = useQuery<{ podcasts: Podcast[] }>({
+  const podcastsQuery = useQuery<{ podcasts: Podcast[] }>({
     queryKey: ["podcasts"],
     queryFn: () => apiGet<{ podcasts: Podcast[] }>("/api/podcasts"),
     enabled: activeTab === "podcasts",
   });
-
-  const {
-    data: resourcesData,
-    isLoading: resourcesLoading,
-    error: resourcesError,
-    refetch: refetchResources,
-  } = useQuery<{ resources: ResourceLike[]; ownershipLabel?: string }>({
+  const resourcesQuery = useQuery<{ resources: ResourceLike[]; ownershipLabel?: string }>({
     queryKey: ["resources"],
-    queryFn: () =>
-      apiGet<{ resources: ResourceLike[]; ownershipLabel?: string }>(
-        "/api/resources",
-      ),
+    queryFn: () => apiGet<{ resources: ResourceLike[]; ownershipLabel?: string }>("/api/resources"),
     enabled: activeTab === "resources",
   });
-
-  const {
-    data: providerLib,
-    isLoading: providerLibLoading,
-    refetch: refetchProviderLib,
-  } = useQuery<{
-    items: Array<{
-      id: number;
-      title: string;
-      description?: string | null;
-      fileUrl: string;
-      kind: string;
-      ownershipLabel?: string;
-    }>;
+  const providerQuery = useQuery<{
+    items: Array<{ id: number; title: string; description?: string | null; fileUrl: string; kind: string }>;
   }>({
     queryKey: ["provider-resources"],
-    queryFn: () =>
-      apiGet<{
-        items: Array<{
-          id: number;
-          title: string;
-          description?: string | null;
-          fileUrl: string;
-          kind: string;
-          ownershipLabel?: string;
-        }>;
-      }>("/api/v1/provider-resources"),
+    queryFn: () => apiGet("/api/v1/provider-resources"),
     enabled: activeTab === "resources" && canUseFieldKit,
   });
 
-  const articles = articlesData?.articles ?? [];
-  const podcasts = podcastsData?.podcasts ?? [];
-  const resources = resourcesData?.resources ?? [];
+  const search = query.trim().toLowerCase();
+  const matches = (values: Array<string | null | undefined>) => !search || values.join(" ").toLowerCase().includes(search);
+  const articles = (articlesQuery.data?.articles ?? []).filter((item) => matches([item.title, item.description]));
+  const featured = articles.find((article) => article.featured) ?? articles[0];
+  const remainingArticles = featured ? articles.filter((article) => article.id !== featured.id) : [];
+  const podcasts = (podcastsQuery.data?.podcasts ?? []).filter((item) => Boolean(item.audioUrl) && matches([item.title, item.description]));
+  const resources = (resourcesQuery.data?.resources ?? []).filter((item) => matches([item.title, item.description, item.category]));
   const resourceGroups = useMemo(() => groupResources(resources), [resources]);
-  const providerItems = providerLib?.items ?? [];
+  const providerItems = (providerQuery.data?.items ?? []).filter((item) => matches([item.title, item.description, item.kind]));
 
   return (
-    <View style={[styles.container, { backgroundColor: colors.background }]} testID="screen-learn">
-      <View
-        style={[
-          styles.header,
-          {
-            paddingTop: topPad + 12,
-            backgroundColor: colors.background,
-            borderBottomColor: colors.border,
-          },
-        ]}
-      >
-        <Text style={[styles.headerTitle, { color: colors.foreground }, font("heavy")]}>Learn</Text>
-        <Text style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 4 }, font("regular")]}>
-          Fundamentals between visits — articles, podcasts, drills. Field resources (work aids) also live under
-          Tools intent map and the Resources tab below.
-        </Text>
+    <View style={[styles.screen, { backgroundColor: colors.background }]} testID="screen-learn">
+      <View style={[styles.header, { paddingTop: topPad + 12, borderBottomColor: colors.border }]}>
+        <SpartanHeader title="Library" />
+        <View style={[styles.search, { backgroundColor: colors.card, borderColor: colors.borderStrong }]}>
+          <Feather name="search" size={19} color={colors.mutedForeground} />
+          <TextInput
+            value={query}
+            onChangeText={setQuery}
+            placeholder="Search tools and resources"
+            placeholderTextColor={colors.mutedForeground}
+            style={[styles.searchInput, { color: colors.foreground }, font("regular")]}
+            returnKeyType="search"
+            clearButtonMode="while-editing"
+            accessibilityLabel="Search Library"
+          />
+        </View>
+
+        <View style={[styles.segmented, { backgroundColor: colors.muted, borderColor: colors.border }]}>
+          {TABS.map((tab) => {
+            const selected = activeTab === tab.key;
+            return (
+              <Pressable
+                key={tab.key}
+                onPress={() => {
+                  void Haptics.selectionAsync();
+                  setActiveTab(tab.key);
+                }}
+                style={[styles.segment, selected && { backgroundColor: colors.card }]}
+                testID={`learn-tab-${tab.key}`}
+                accessibilityRole="tab"
+                accessibilityState={{ selected }}
+              >
+                <Feather name={tab.icon} size={16} color={selected ? colors.primary : colors.mutedForeground} />
+                <Text style={[styles.segmentLabel, { color: selected ? colors.foreground : colors.mutedForeground }, font(selected ? "bold" : "regular")]}>{tab.label}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
       </View>
 
-      {/* Web parity chips */}
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 12, paddingBottom: 8, gap: 8 }}
-      >
-        {WEB_LEARN_LINKS.map((link) => (
-          <Pressable
-            key={link.path}
-            onPress={() => {
-              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              router.push({
-                pathname: "/tool-web",
-                params: { path: link.path, toolId: "brand-video" },
-              } as any);
-            }}
-            style={{
-              borderWidth: 1,
-              borderColor: colors.border,
-              backgroundColor: colors.card,
-              borderRadius: 12,
-              paddingHorizontal: 14,
-              paddingVertical: 10,
-              minHeight: 44,
-              justifyContent: "center",
-            }}
-          >
-            <Text style={[{ color: colors.foreground, fontSize: 13 }, font("bold")]}>{link.label}</Text>
-          </Pressable>
-        ))}
-      </ScrollView>
+      {activeTab === "articles" ? (
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: bottomPad + 24 }} showsVerticalScrollIndicator={false}>
+          <LibraryModeIntro icon="file-text" title="Read" body="Open complete field notes in the native reader, capture one useful move, and save selected items for offline use." access="STANDARD" />
+          <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>FIELD INTELLIGENCE</Text>
+          <Text style={[styles.libraryTitle, { color: colors.foreground }, font("heavy")]}>Read less. Use more.</Text>
+          {articlesQuery.isLoading ? <Loading /> : null}
+          {articlesQuery.error ? (
+            <EmptyState icon="alert-circle" title="Could not load the library" body="Check your connection and try again." ctaTitle="Retry" onCta={() => void articlesQuery.refetch()} />
+          ) : null}
 
-      {/* Tabs */}
-      <View style={[styles.tabBar, { backgroundColor: colors.background, borderBottomColor: colors.border }]}>
-        {LEARN_TABS.map((tab) => (
-          <Pressable
-            key={tab.key}
-            onPress={() => {
-              void Haptics.selectionAsync();
-              setActiveTab(tab.key);
-            }}
-            style={[
-              styles.tabBtn,
-              activeTab === tab.key && { borderBottomColor: colors.primary },
-            ]}
-            testID={`learn-tab-${tab.key}`}
-          >
-            <Feather
-              name={tab.icon}
-              size={15}
-              color={activeTab === tab.key ? colors.primary : colors.mutedForeground}
-            />
-            <Text
-              style={[
-                styles.tabLabel,
-                { color: activeTab === tab.key ? colors.primary : colors.mutedForeground },
-                font(activeTab === tab.key ? "semibold" : "regular"),
-              ]}
-            >
-              {tab.label}
-            </Text>
-          </Pressable>
-        ))}
-      </View>
+          {!articlesQuery.isLoading && !articlesQuery.error && featured ? (
+            <>
+              <Pressable
+                onPress={() => openLibraryItem({ articleId: featured.id, title: featured.title, description: featured.description, url: featured.pdfUrl, sourceUrl: featured.linkedinUrl, kind: "article" })}
+                style={({ pressed }) => [styles.featureCard, { backgroundColor: colors.card, borderColor: colors.borderStrong, opacity: pressed ? 0.94 : 1 }]}
+                accessibilityRole="link"
+              >
+                <View style={styles.featureHeader}>
+                  <View style={[styles.featureIcon, { backgroundColor: colors.primaryMuted }]}><Feather name="file-text" size={22} color={colors.primary} /></View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={[styles.featureTitle, { color: colors.foreground }, font("heavy")]}>{featured.title}</Text>
+                    <Text style={[styles.featureBody, { color: colors.mutedForeground }, font("regular")]} numberOfLines={4}>{featured.description}</Text>
+                  </View>
+                </View>
+                <View style={styles.featureAction}>
+                  <View style={[styles.availableBadge, { backgroundColor: colors.secondary }]}><Text style={[styles.availableText, { color: colors.primary }, font("bold")]}>AVAILABLE</Text></View>
+                  <Text style={[styles.featureDate, { color: colors.mutedForeground }, font("medium")]}>{formatDate(featured.publishDate)}</Text>
+                </View>
+              </Pressable>
 
-      {/* Articles */}
-      {activeTab === "articles" && (
-        <>
-          {articlesLoading && (
-            <View style={styles.centered}>
-              <ActivityIndicator color={colors.primary} size="large" />
-            </View>
-          )}
-          {!!articlesError && (
-            <View style={styles.pad}>
-              <EmptyState
-                icon="alert-circle"
-                title="Could not load articles"
-                body="Check your connection and try again."
-                ctaTitle="Retry"
-                onCta={() => void refetchArticles()}
-              />
-            </View>
-          )}
-          {!articlesLoading && !articlesError && (
-            <FlatList
-              data={articles}
-              keyExtractor={(item) => String(item.id)}
-              contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, paddingBottom: bottomPad }}
-              showsVerticalScrollIndicator={false}
-              ListHeaderComponent={
-                <View style={[styles.methodSection, { borderBottomColor: colors.border }]}>
-                  <SectionKicker>The Spartan Method</SectionKicker>
-                  <Text
-                    style={[
-                      { color: colors.mutedForeground, fontSize: 14, lineHeight: 20, marginTop: 8, marginBottom: 14 },
-                      font("regular"),
-                    ]}
-                  >
-                    Hospice sales is not a mystery — discipline, empathy, and strategy.
-                  </Text>
-                  {(
-                    [
-                      { name: "Discipline", desc: "The system that holds on Tuesday when caring isn't enough." },
-                      { name: "Empathy", desc: "The skill that hears what's underneath 'not yet.'" },
-                      { name: "Strategy", desc: "Knowing which five accounts actually refer." },
-                    ] as const
-                  ).map((pillar) => (
-                    <View
-                      key={pillar.name}
-                      style={[styles.pillarCard, { backgroundColor: colors.card, borderColor: colors.border }]}
-                    >
-                      <View style={[styles.pillarAccent, { backgroundColor: colors.primary }]} />
-                      <View style={{ flex: 1 }}>
-                        <Text style={[{ color: colors.foreground, fontSize: 15 }, font("bold")]}>
-                          {pillar.name}
-                        </Text>
-                        <Text
-                          style={[
-                            { color: colors.mutedForeground, fontSize: 13, lineHeight: 18, marginTop: 3 },
-                            font("regular"),
-                          ]}
-                        >
-                          {pillar.desc}
-                        </Text>
-                      </View>
-                    </View>
+              {remainingArticles.length > 0 ? (
+                <View style={{ marginTop: 26 }}>
+                  <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>LATEST</Text>
+                  {remainingArticles.map((article) => (
+                    <LibraryRow
+                      key={article.id}
+                      title={article.title}
+                      subtitle={article.description}
+                      meta={formatDate(article.publishDate)}
+                      icon="file-text"
+                      onPress={() => openLibraryItem({ articleId: article.id, title: article.title, description: article.description, url: article.pdfUrl, sourceUrl: article.linkedinUrl, kind: "article" })}
+                    />
                   ))}
                 </View>
-              }
-              ListEmptyComponent={
-                <EmptyState icon="file-text" title="No articles yet" body="Check back soon for new field reading." />
-              }
-              renderItem={({ item }) => (
-                <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                  {!!item.category && (
-                    <View style={[styles.tag, { backgroundColor: colors.primaryMuted }]}>
-                      <Text style={[{ color: colors.primary, fontSize: 11 }, font("semibold")]}>
-                        {item.category}
-                      </Text>
-                    </View>
-                  )}
-                  <Text style={[{ color: colors.foreground, fontSize: 17, lineHeight: 22 }, font("bold")]}>
-                    {item.title}
-                  </Text>
-                  {!!(item.summary || item.content) && (
-                    <Text
-                      style={[
-                        { color: colors.mutedForeground, fontSize: 14, lineHeight: 20, marginTop: 6 },
-                        font("regular"),
-                      ]}
-                      numberOfLines={3}
-                    >
-                      {item.summary || item.content}
-                    </Text>
-                  )}
-                  <View style={styles.cardMeta}>
-                    {!!item.author && (
-                      <Text style={[{ color: colors.mutedForeground, fontSize: 12 }, font("regular")]}>
-                        {item.author}
-                      </Text>
-                    )}
-                    {!!item.publishedAt && (
-                      <Text style={[{ color: colors.mutedForeground, fontSize: 12 }, font("regular")]}>
-                        {formatDate(item.publishedAt)}
-                      </Text>
-                    )}
-                  </View>
-                </View>
-              )}
+              ) : null}
+            </>
+          ) : null}
+
+          {!articlesQuery.isLoading && !articlesQuery.error && articles.length === 0 ? (
+            <EmptyState icon="file-text" title={search ? "No matching field notes" : "No field notes yet"} body={search ? "Try a different Library search." : "New reading will appear here when it is published."} />
+          ) : null}
+
+          {!search ? (
+            <View style={{ marginTop: 26 }}>
+              <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>THE SPARTAN METHOD</Text>
+              {METHOD_LINKS.map((item) => (
+                <LibraryRow
+                  key={item.path}
+                  title={item.label === "Method" ? "The Spartan Method" : item.label}
+                  subtitle={item.label === "Method" ? "Discipline, empathy, and strategy for the field." : "Open a focused practice experience inside the app."}
+                  meta="Native"
+                  icon={item.icon}
+                  onPress={() => router.push({ pathname: "/method-guide", params: { section: item.path.replace("/", "") } } as any)}
+                />
+              ))}
+            </View>
+          ) : null}
+        </ScrollView>
+      ) : null}
+
+      {activeTab === "podcasts" ? (
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: bottomPad + 24 }} showsVerticalScrollIndicator={false}>
+          <LibraryModeIntro icon="headphones" title="Listen" body="Play complete audio briefings without leaving Spartan Coaching. Only episodes with working audio appear here." access="STANDARD" />
+          <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>LISTEN IN THE FIELD</Text>
+          <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Briefings worth the drive</Text>
+          <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>Practical conversations for the route between accounts.</Text>
+          {podcastsQuery.isLoading ? <Loading /> : null}
+          {podcastsQuery.error ? <EmptyState icon="alert-circle" title="Could not load episodes" ctaTitle="Retry" onCta={() => void podcastsQuery.refetch()} /> : null}
+          {!podcastsQuery.isLoading && !podcastsQuery.error && podcasts.length === 0 ? <EmptyState icon="headphones" title="Audio briefings are being prepared" body="Only complete, playable episodes appear here. Nothing unfinished is presented as available." /> : null}
+          {podcasts.map((podcast) => (
+            <LibraryRow
+              key={podcast.id}
+              title={podcast.title}
+              subtitle={podcast.description || "Spartan Coaching audio briefing"}
+              meta={[podcast.episodeNumber ? `Episode ${podcast.episodeNumber}` : null, podcast.duration, formatDate(podcast.publishDate)].filter(Boolean).join(" · ")}
+              icon={podcast.audioUrl ? "play" : "headphones"}
+              onPress={podcast.audioUrl ? () => openLibraryItem({ title: podcast.title, description: podcast.description, url: podcast.audioUrl, kind: "audio" }) : undefined}
             />
-          )}
-        </>
-      )}
-
-      {/* Podcasts */}
-      {activeTab === "podcasts" && (
-        <>
-          {podcastsLoading && (
-            <View style={styles.centered}>
-              <ActivityIndicator color={colors.primary} size="large" />
-            </View>
-          )}
-          {!!podcastsError && (
-            <View style={styles.pad}>
-              <EmptyState
-                icon="alert-circle"
-                title="Could not load podcasts"
-                ctaTitle="Retry"
-                onCta={() => void refetchPodcasts()}
-              />
-            </View>
-          )}
-          {!podcastsLoading && !podcastsError && (
-            <FlatList
-              data={podcasts}
-              keyExtractor={(item) => String(item.id)}
-              contentContainerStyle={{ paddingHorizontal: 16, paddingVertical: 16, paddingBottom: bottomPad }}
-              showsVerticalScrollIndicator={false}
-              ListEmptyComponent={
-                <EmptyState icon="mic" title="No podcasts yet" body="Episodes will show up here when published." />
-              }
-              renderItem={({ item }) => (
-                <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.border }]}>
-                  <View style={styles.podcastRow}>
-                    <View style={[styles.podcastIcon, { backgroundColor: colors.primaryMuted }]}>
-                      <Feather name="mic" size={20} color={colors.primary} />
-                    </View>
-                    <View style={{ flex: 1 }}>
-                      <Text style={[{ color: colors.foreground, fontSize: 16 }, font("bold")]}>{item.title}</Text>
-                      <View style={{ flexDirection: "row", gap: 10, marginTop: 4 }}>
-                        {!!item.episode && (
-                          <Text style={[{ color: colors.mutedForeground, fontSize: 12 }, font("regular")]}>
-                            {item.episode}
-                          </Text>
-                        )}
-                        {!!item.duration && (
-                          <Text style={[{ color: colors.mutedForeground, fontSize: 12 }, font("regular")]}>
-                            {item.duration}
-                          </Text>
-                        )}
-                      </View>
-                    </View>
-                  </View>
-                  {!!item.description && (
-                    <Text
-                      style={[
-                        { color: colors.mutedForeground, fontSize: 13, lineHeight: 18, marginTop: 8 },
-                        font("regular"),
-                      ]}
-                      numberOfLines={2}
-                    >
-                      {item.description}
-                    </Text>
-                  )}
-                </View>
-              )}
-            />
-          )}
-        </>
-      )}
-
-      {/* Resources — grouped PDFs, no AI search */}
-      {activeTab === "resources" && (
-        <ScrollView
-          contentContainerStyle={{ paddingHorizontal: 16, paddingTop: 16, paddingBottom: bottomPad }}
-          showsVerticalScrollIndicator={false}
-          testID="learn-resources"
-        >
-          <Text style={[{ color: colors.mutedForeground, fontSize: 12, lineHeight: 17, marginBottom: 12 }, font("regular")]}>
-            Field downloads only. Do not put patient identifiers into filled PDFs. For AI research, use Tools →
-            Research.
-          </Text>
-
-          <ListRow
-            title="AI Research (Tools)"
-            subtitle="Territory and market questions — not a document library"
-            icon="search"
-            onPress={() => router.push(openToolHref("research") as any)}
-            testID="learn-link-research-tool"
-          />
-
-          <ListRow
-            title="Weekly Plan (interactive)"
-            subtitle="Save & resume across devices — purpose, timing, outcome"
-            icon="edit-3"
-            onPress={() => router.push("/resource-work" as any)}
-            testID="learn-link-resource-work"
-          />
-
-          {canUseFieldKit && (
-            <View style={{ marginBottom: 18 }} testID="provider-resource-library">
-              <Text
-                style={[
-                  { color: colors.primary, fontSize: 11, letterSpacing: 1.2, marginBottom: 4 },
-                  font("bold"),
-                ]}
-              >
-                PROVIDER ORGANIZATION
-              </Text>
-              <Text
-                style={[
-                  { color: colors.mutedForeground, fontSize: 12, marginBottom: 8 },
-                  font("regular"),
-                ]}
-              >
-                Private library for your org — not Hospice Sales Pro Core
-              </Text>
-              {providerLibLoading ? (
-                <ActivityIndicator color={colors.primary} />
-              ) : providerItems.length === 0 ? (
-                <Text
-                  style={[
-                    { color: colors.mutedForeground, fontSize: 13, marginBottom: 8 },
-                    font("regular"),
-                  ]}
-                >
-                  No provider-owned resources yet.
-                </Text>
-              ) : (
-                providerItems.map((item) => (
-                  <ListRow
-                    key={`provider-${item.id}`}
-                    title={item.title}
-                    subtitle={`Provider owned · ${item.kind}`}
-                    icon="briefcase"
-                    onPress={() => openResource(item.fileUrl)}
-                    testID={`provider-resource-${item.id}`}
-                  />
-                ))
-              )}
-              <Pressable
-                onPress={() => void refetchProviderLib()}
-                style={{ marginBottom: 8, minHeight: 44, justifyContent: "center" }}
-              >
-                <Text style={[{ color: colors.primary, fontSize: 13 }, font("semibold")]}>
-                  Refresh provider library
-                </Text>
-              </Pressable>
-            </View>
-          )}
-
-          <Text
-            style={[
-              { color: colors.mutedForeground, fontSize: 12, marginBottom: 8 },
-              font("regular"),
-            ]}
-          >
-            {resourcesData?.ownershipLabel || "Hospice Sales Pro Core"} downloads
-          </Text>
-
-          {!canUseFieldKit && (
-            <View
-              style={[
-                styles.lockBanner,
-                { borderColor: colors.primary, backgroundColor: colors.card, marginBottom: 14 },
-              ]}
-            >
-              <Text style={[{ color: colors.foreground, fontSize: 14 }, font("bold")]}>
-                {isAuthenticated ? "Unlock downloads with Hospice Sales Pro" : "Sign in for full resource library"}
-              </Text>
-              <SpartanButton
-                title={isAuthenticated ? "Open Account" : "Client login"}
-                onPress={() => router.push(isAuthenticated ? "/(tabs)/account" : "/login")}
-                style={{ marginTop: 10 }}
-              />
-            </View>
-          )}
-
-          {resourcesLoading && (
-            <View style={{ paddingVertical: 40, alignItems: "center" }}>
-              <ActivityIndicator color={colors.primary} />
-            </View>
-          )}
-          {!!resourcesError && (
-            <EmptyState
-              icon="alert-circle"
-              title="Could not load resources"
-              ctaTitle="Retry"
-              onCta={() => void refetchResources()}
-            />
-          )}
-          {!resourcesLoading && !resourcesError && resources.length === 0 && (
-            <EmptyState icon="folder" title="No resources yet" body="PDFs will appear here when published." />
-          )}
-
-          {resourceGroups.map((group) => (
-            <View key={group.id} style={{ marginBottom: 18 }} testID={`resource-group-${group.id}`}>
-              <Text style={[{ color: colors.primary, fontSize: 11, letterSpacing: 1.2, marginBottom: 4 }, font("bold")]}>
-                {group.title.toUpperCase()}
-              </Text>
-              <Text style={[{ color: colors.mutedForeground, fontSize: 12, marginBottom: 8 }, font("regular")]}>
-                {group.blurb}
-              </Text>
-              {group.items.map((item) => {
-                const arch = item.architecture || item.contentArchitecture;
-                const ver =
-                  item.lifecycle?.versionLabel ||
-                  item.versionLabel ||
-                  arch?.experienceLevel;
-                const newer = item.lifecycle?.hasNewerVersion
-                  ? " · Newer version available"
-                  : "";
-                const subtitle = [
-                  ver ? `v${ver}` : null,
-                  arch?.whenToUse || arch?.expectedOutcome || item.description || item.category || "PDF download",
-                  newer || null,
-                ]
-                  .filter(Boolean)
-                  .join(" · ");
-                return (
-                  <ListRow
-                    key={item.id}
-                    title={item.title}
-                    subtitle={subtitle}
-                    icon="file-text"
-                    onPress={() => openResource(item.fileUrl)}
-                    testID={`resource-${item.id}`}
-                  />
-                );
-              })}
-            </View>
           ))}
         </ScrollView>
-      )}
+      ) : null}
+
+      {activeTab === "resources" ? (
+        <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: bottomPad + 24 }} showsVerticalScrollIndicator={false} testID="learn-resources">
+          <LibraryModeIntro icon="folder" title="Use" body="Open working tools, approved field resources, and company material in the app. Download selected nonclinical items for offline use." access="STANDARD" />
+          <View style={[styles.safetyCard, { backgroundColor: colors.primaryMuted, borderColor: colors.primary }]}>
+            <Feather name="shield" size={20} color={colors.primary} />
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.safetyTitle, { color: colors.foreground }, font("bold")]}>Keep every resource deidentified</Text>
+              <Text style={[styles.safetyBody, { color: colors.mutedForeground }, font("regular")]}>Never enter patient names, dates of birth, medical record numbers, or other patient identifiers.</Text>
+            </View>
+          </View>
+
+          <Text style={[styles.sectionEyebrow, { color: colors.primary, marginTop: 22 }, font("bold")]}>WORKING TOOLS</Text>
+          <LibraryRow title="Grounded Research" subtitle="Ask a territory or market question with source aware support." meta="Interactive tool" icon="search" onPress={() => router.push(openToolHref("research") as any)} testID="learn-link-research-tool" />
+          <LibraryRow title="Weekly Plan" subtitle="Build, save, and resume the week across devices." meta="Interactive worksheet" icon="edit-3" onPress={() => router.push("/resource-work" as any)} testID="learn-link-resource-work" />
+
+          {!canUseFieldKit ? (
+            <View style={[styles.lockCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
+              <Text style={[styles.lockTitle, { color: colors.foreground }, font("heavy")]}>Unlock the complete field library</Text>
+              <Text style={[styles.lockBody, { color: colors.mutedForeground }, font("regular")]}>Membership includes current worksheets, field guides, and saved work.</Text>
+              <SpartanButton title="Compare memberships" onPress={() => router.push("/membership" as any)} style={{ marginTop: 14 }} />
+            </View>
+          ) : null}
+
+          {canUseFieldKit ? (
+            <View style={{ marginTop: 24 }} testID="provider-resource-library">
+              <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>YOUR ORGANIZATION</Text>
+              {providerQuery.isLoading ? <Loading compact /> : null}
+              {!providerQuery.isLoading && providerItems.length === 0 ? <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>No private organization resources have been published.</Text> : null}
+              {providerItems.map((item) => (
+                <LibraryRow key={item.id} title={item.title} subtitle={item.description || "Private organization resource"} meta={item.kind} icon="briefcase" onPress={() => openLibraryItem({ title: item.title, description: item.description, url: item.fileUrl, kind: "resource" })} testID={`provider-resource-${item.id}`} />
+              ))}
+            </View>
+          ) : null}
+
+          <View style={{ marginTop: 24 }}>
+            <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>{(resourcesQuery.data?.ownershipLabel || "HOSPICE SALES PRO CORE").toUpperCase()}</Text>
+            {resourcesQuery.isLoading ? <Loading /> : null}
+            {resourcesQuery.error ? <EmptyState icon="alert-circle" title="Could not load resources" ctaTitle="Retry" onCta={() => void resourcesQuery.refetch()} /> : null}
+            {!resourcesQuery.isLoading && !resourcesQuery.error && resources.length === 0 ? <EmptyState icon="folder" title="No resources yet" body="Published resources will appear here." /> : null}
+            {resourceGroups.map((group) => (
+              <View key={group.id} style={{ marginBottom: 22 }} testID={`resource-group-${group.id}`}>
+                <Text style={[styles.groupTitle, { color: colors.foreground }, font("heavy")]}>{group.title}</Text>
+                <Text style={[styles.groupBody, { color: colors.mutedForeground }, font("regular")]}>{group.blurb}</Text>
+                {group.items.map((item) => {
+                  const architecture = item.architecture || item.contentArchitecture;
+                  const version = item.lifecycle?.versionLabel || item.versionLabel;
+                  return (
+                    <LibraryRow
+                      key={item.id}
+                      title={item.title}
+                      subtitle={architecture?.whenToUse || architecture?.expectedOutcome || item.description || "Field resource"}
+                      meta={[version ? `Version ${version}` : null, item.lifecycle?.hasNewerVersion ? "Update available" : null].filter(Boolean).join(" · ")}
+                      icon="file-text"
+                      onPress={() => openLibraryItem({
+                        title: item.title,
+                        description: item.description,
+                        url: item.fileUrl,
+                        kind: "resource",
+                        whenToUse: architecture?.whenToUse,
+                        whyItMatters: architecture?.whyItMatters,
+                        expectedOutcome: architecture?.expectedOutcome,
+                        version: version || undefined,
+                      })}
+                      testID={`resource-${item.id}`}
+                    />
+                  );
+                })}
+              </View>
+            ))}
+          </View>
+        </ScrollView>
+      ) : null}
     </View>
   );
 }
 
+function LibraryModeIntro({ icon, title, body, access }: { icon: React.ComponentProps<typeof Feather>["name"]; title: string; body: string; access: string }) {
+  const colors = useColors();
+  return (
+    <View style={[styles.modeIntro, { backgroundColor: colors.heroBackground }]} testID={`library-mode-${title.toLowerCase()}`}>
+      <View style={[styles.modeIcon, { backgroundColor: colors.primary }]}><Feather name={icon} size={19} color="#FFFFFF" /></View>
+      <View style={{ flex: 1 }}><View style={styles.modeTitleRow}><Text style={[styles.modeTitle, { color: colors.heroForeground }, font("heavy")]}>{title}</Text><Text style={[styles.modeAccess, { color: colors.heroMuted }, font("bold")]}>{access}</Text></View><Text style={[styles.modeBody, { color: colors.heroMuted }, font("regular")]}>{body}</Text></View>
+    </View>
+  );
+}
+
+function Loading({ compact = false }: { compact?: boolean }) {
+  const colors = useColors();
+  return <View style={{ paddingVertical: compact ? 18 : 44, alignItems: "center" }}><ActivityIndicator color={colors.primary} /></View>;
+}
+
+function LibraryRow({ title, subtitle, meta, icon, onPress, testID }: { title: string; subtitle?: string; meta?: string; icon: React.ComponentProps<typeof Feather>["name"]; onPress?: () => void; testID?: string }) {
+  const colors = useColors();
+  return (
+    <Pressable
+      onPress={onPress}
+      disabled={!onPress}
+      testID={testID}
+      accessibilityRole={onPress ? "button" : "text"}
+      style={({ pressed }) => [styles.row, { backgroundColor: colors.card, borderColor: colors.border, opacity: pressed ? 0.9 : 1 }]}
+    >
+      <View style={[styles.rowIcon, { backgroundColor: colors.primaryMuted }]}><Feather name={icon} size={18} color={colors.primary} /></View>
+      <View style={{ flex: 1 }}>
+        {meta ? <Text style={[styles.rowMeta, { color: colors.primary }, font("bold")]}>{meta.toUpperCase()}</Text> : null}
+        <Text style={[styles.rowTitle, { color: colors.foreground }, font("bold")]}>{title}</Text>
+        {subtitle ? <Text style={[styles.rowBody, { color: colors.mutedForeground }, font("regular")]} numberOfLines={3}>{subtitle}</Text> : null}
+      </View>
+      {onPress ? <Feather name="arrow-up-right" size={18} color={colors.mutedForeground} /> : null}
+    </Pressable>
+  );
+}
+
 const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: {
-    paddingHorizontal: 20,
-    paddingBottom: 12,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-  },
-  headerTitle: { fontSize: 28, letterSpacing: -0.4 },
-  tabBar: { flexDirection: "row", borderBottomWidth: StyleSheet.hairlineWidth },
-  tabBtn: {
-    flex: 1,
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 5,
-    paddingVertical: 12,
-    minHeight: 44,
-    borderBottomWidth: 2,
-    borderBottomColor: "transparent",
-  },
-  tabLabel: { fontSize: 12 },
-  centered: { flex: 1, alignItems: "center", justifyContent: "center", paddingTop: 60 },
-  pad: { padding: 16 },
-  card: {
-    borderWidth: StyleSheet.hairlineWidth * 2,
-    borderRadius: 12,
-    padding: 16,
-    marginBottom: 12,
-  },
-  tag: {
-    alignSelf: "flex-start",
-    paddingHorizontal: 8,
-    paddingVertical: 3,
-    borderRadius: 6,
-    marginBottom: 8,
-  },
-  cardMeta: { flexDirection: "row", gap: 12, marginTop: 10 },
-  podcastRow: { flexDirection: "row", alignItems: "center", gap: 12 },
-  podcastIcon: {
-    width: 44,
-    height: 44,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  methodSection: { borderBottomWidth: StyleSheet.hairlineWidth, paddingBottom: 16, marginBottom: 12 },
-  pillarCard: {
-    flexDirection: "row",
-    gap: 12,
-    borderWidth: StyleSheet.hairlineWidth * 2,
-    borderRadius: 12,
-    padding: 14,
-    marginBottom: 8,
-  },
-  pillarAccent: { width: 3, height: 40, borderRadius: 2, marginTop: 2 },
-  lockBanner: {
-    borderWidth: 1.5,
-    borderRadius: 12,
-    padding: 14,
-  },
+  screen: { flex: 1 },
+  header: { paddingHorizontal: 20, paddingBottom: 14, borderBottomWidth: StyleSheet.hairlineWidth },
+  kicker: { fontSize: 10, letterSpacing: 2.2 },
+  title: { fontSize: 36, letterSpacing: -1.1, marginTop: 6 },
+  subtitle: { fontSize: 14, lineHeight: 20, marginTop: 5, maxWidth: 350 },
+  libraryTitle: { fontSize: 30, lineHeight: 36, letterSpacing: -0.9, marginTop: 8, marginBottom: 20 },
+  segmented: { flexDirection: "row", borderWidth: 1, borderRadius: 15, padding: 3, marginTop: 16 },
+  search: { minHeight: 54, flexDirection: "row", alignItems: "center", gap: 10, borderWidth: 1, borderRadius: 17, paddingHorizontal: 15, marginTop: 18 },
+  searchInput: { flex: 1, minHeight: 52, fontSize: 15 },
+  segment: { flex: 1, minHeight: 42, borderRadius: 12, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 7 },
+  segmentLabel: { fontSize: 13 },
+  sectionEyebrow: { fontSize: 10, letterSpacing: 1.9, marginBottom: 7 },
+  sectionTitle: { fontSize: 23, letterSpacing: -0.5 },
+  sectionBody: { fontSize: 13, lineHeight: 19, marginTop: 5, marginBottom: 16 },
+  methodGrid: { flexDirection: "row", flexWrap: "wrap", gap: 9 },
+  methodChip: { width: "48%", minHeight: 82, borderWidth: 1, borderRadius: 16, padding: 12, justifyContent: "space-between" },
+  methodIcon: { width: 31, height: 31, borderRadius: 10, alignItems: "center", justifyContent: "center" },
+  methodLabel: { fontSize: 13 },
+  featureCard: { minHeight: 212, borderWidth: 1, borderRadius: 22, padding: 20, justifyContent: "space-between" },
+  featureHeader: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
+  featureIcon: { width: 44, height: 44, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  featureMeta: { fontSize: 10, letterSpacing: 1.5 },
+  featureTitle: { fontSize: 19, lineHeight: 25, letterSpacing: -0.3 },
+  featureBody: { fontSize: 13, lineHeight: 19, marginTop: 8 },
+  featureAction: { minHeight: 30, flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8, marginTop: 18 },
+  availableBadge: { borderRadius: 999, paddingHorizontal: 10, paddingVertical: 6 },
+  availableText: { fontSize: 9, letterSpacing: 0.8 },
+  featureDate: { fontSize: 10 },
+  row: { minHeight: 132, borderWidth: StyleSheet.hairlineWidth * 2, borderRadius: 20, padding: 18, flexDirection: "row", alignItems: "flex-start", gap: 13, marginBottom: 12 },
+  rowIcon: { width: 40, height: 40, borderRadius: 12, alignItems: "center", justifyContent: "center" },
+  rowMeta: { fontSize: 9, letterSpacing: 1.25, marginBottom: 4 },
+  rowTitle: { fontSize: 15, lineHeight: 20 },
+  rowBody: { fontSize: 12, lineHeight: 17, marginTop: 4 },
+  modeIntro: { minHeight: 112, borderRadius: 22, borderCurve: "continuous", padding: 17, flexDirection: "row", alignItems: "flex-start", gap: 13, marginBottom: 24 },
+  modeIcon: { width: 42, height: 42, borderRadius: 13, borderCurve: "continuous", alignItems: "center", justifyContent: "center" },
+  modeTitleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
+  modeTitle: { fontSize: 19, lineHeight: 23 },
+  modeAccess: { fontSize: 8, letterSpacing: 1.2 },
+  modeBody: { fontSize: 12, lineHeight: 18, marginTop: 6 },
+  safetyCard: { borderWidth: 1, borderRadius: 18, padding: 15, flexDirection: "row", alignItems: "flex-start", gap: 12 },
+  safetyTitle: { fontSize: 14 },
+  safetyBody: { fontSize: 12, lineHeight: 18, marginTop: 4 },
+  lockCard: { borderWidth: 1, borderRadius: 20, padding: 18, marginTop: 22 },
+  lockTitle: { fontSize: 19, letterSpacing: -0.3 },
+  lockBody: { fontSize: 13, lineHeight: 19, marginTop: 6 },
+  groupTitle: { fontSize: 19, letterSpacing: -0.3 },
+  groupBody: { fontSize: 12, lineHeight: 18, marginTop: 3, marginBottom: 10 },
 });

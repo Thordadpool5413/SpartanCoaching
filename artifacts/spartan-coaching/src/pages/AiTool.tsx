@@ -11,7 +11,6 @@ import {
   ArrowLeft,
   Clock3,
   Download,
-  FileUp,
   Loader2,
   Play,
   RefreshCw,
@@ -54,24 +53,6 @@ type Run = {
   retention?: "ephemeral";
   recoverable?: boolean;
 };
-
-type CoverageSnapshot = {
-  id: string;
-  title: string;
-  documentId: string;
-  version: string;
-  source?: string | null;
-  jurisdiction?: string | null;
-  effectiveAt?: string | null;
-};
-
-function isEducationalCoverage(snapshot: CoverageSnapshot | undefined): boolean {
-  if (!snapshot) return false;
-  return (
-    snapshot.source === "EDUCATIONAL_BASELINE" ||
-    snapshot.documentId === "SPARTAN-HOSPICE-BASELINE"
-  );
-}
 
 function errorNextSteps(code: string): { label: string; href?: string; retry?: boolean }[] {
   const upper = code.toUpperCase();
@@ -423,23 +404,7 @@ export default function AiToolPage() {
   );
   const [run, setRun] = useState<Run | null>(null);
   const [history, setHistory] = useState<Run[]>([]);
-  const [snapshots, setSnapshots] = useState<CoverageSnapshot[]>([]);
-  const [snapshotId, setSnapshotId] = useState("");
-  const [ephemeralSession, setEphemeralSession] = useState<{
-    id: string;
-    coverageSnapshotId: string;
-    expiresAt: string;
-  } | null>(null);
   const [busy, setBusy] = useState(false);
-  const [uploading, setUploading] = useState(false);
-  const [needsMfa, setNeedsMfa] = useState(false);
-  const [clinicalMode, setClinicalMode] = useState<"deidentified" | "phi">(
-    "deidentified",
-  );
-  const [coverageRequired, setCoverageRequired] = useState(false);
-  const [allowsDocumentUpload, setAllowsDocumentUpload] = useState(false);
-  const [runtimeReady, setRuntimeReady] = useState(true);
-  const [missingControls, setMissingControls] = useState<string[]>([]);
   const [confirmedDeidentified, setConfirmedDeidentified] = useState(false);
   const [error, setError] = useState("");
 
@@ -468,25 +433,8 @@ export default function AiToolPage() {
     setError("");
     try {
       if (tool.containsPhi) {
-        const snapshotResponse = await apiJson<{
-          snapshots: CoverageSnapshot[];
-          operationMode: "deidentified" | "phi";
-          required: boolean;
-          allowsDocumentUpload: boolean;
-          runtimeReady?: boolean;
-          missingControls?: string[];
-        }>("/api/clinical/coverage/snapshots");
-        setSnapshots(snapshotResponse.snapshots);
-        setClinicalMode(snapshotResponse.operationMode);
-        setCoverageRequired(snapshotResponse.required);
-        setAllowsDocumentUpload(snapshotResponse.allowsDocumentUpload);
-        setRuntimeReady(snapshotResponse.runtimeReady !== false);
-        setMissingControls(snapshotResponse.missingControls ?? []);
-        setSnapshotId(
-          (current) => current || snapshotResponse.snapshots[0]?.id || "",
-        );
+        await apiJson("/api/clinical/coverage/snapshots");
         setHistory([]);
-        setNeedsMfa(false);
       } else {
         const historyResponse = await apiJson<{ runs: Run[] }>(
           `/api/ai-tools/${tool.id}/runs`,
@@ -497,37 +445,17 @@ export default function AiToolPage() {
       if (caught instanceof ApiError && caught.status === 401) {
         return;
       }
-      if (
-        caught instanceof ApiError &&
-        caught.code === "CLINICAL_MFA_REQUIRED"
-      ) {
-        setNeedsMfa(true);
-      } else {
-        setError(
-          caught instanceof Error
-            ? caught.message
-            : "Tool data could not be loaded.",
-        );
-      }
+      setError(
+        caught instanceof Error
+          ? caught.message
+          : "Tool data could not be loaded.",
+      );
     }
   }
 
   useEffect(() => {
     void loadData();
   }, [tool?.id]);
-
-  useEffect(() => {
-    const sessionId = ephemeralSession?.id;
-    if (!sessionId) return;
-    return () => {
-      void fetch(`/api/clinical/ephemeral-sessions/${sessionId}`, {
-        method: "DELETE",
-        credentials: "include",
-        keepalive: true,
-        headers: { "Cache-Control": "no-store" },
-      });
-    };
-  }, [ephemeralSession?.id]);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -537,35 +465,17 @@ export default function AiToolPage() {
     try {
       const input = formToInput(tool, values);
       if (tool.containsPhi) {
-        const path =
-          tool.id === "medical-record-lcd-verifier" && clinicalMode === "phi"
-            ? `/api/clinical/ephemeral-sessions/${ephemeralSession?.id ?? ""}/finalize`
-            : `/api/ai-tools/${tool.id}/ephemeral-runs`;
-        if (
-          tool.id === "medical-record-lcd-verifier" &&
-          clinicalMode === "phi" &&
-          !ephemeralSession
-        ) {
-          throw new Error("Upload at least one record before finalizing.");
-        }
-        const response = await apiJson<{ result: Run }>(path, {
+        const response = await apiJson<{ result: Run }>(
+          `/api/ai-tools/${tool.id}/ephemeral-runs`,
+          {
           method: "POST",
           body: JSON.stringify({
             input,
-            ...(tool.id === "medical-record-lcd-verifier" &&
-            clinicalMode === "phi"
-              ? {}
-              : {
-                  coverageSnapshotId: snapshotId || undefined,
-                  confirmedDeidentified:
-                    clinicalMode === "deidentified"
-                      ? confirmedDeidentified
-                      : undefined,
-                }),
+            confirmedDeidentified,
           }),
-        });
+          },
+        );
         setRun(response.result);
-        setEphemeralSession(null);
       } else {
         const response = await apiJson<{ run: Run }>(
           `/api/ai-tools/${tool.id}/runs`,
@@ -582,99 +492,9 @@ export default function AiToolPage() {
         ]);
       }
     } catch (caught) {
-      if (
-        caught instanceof ApiError &&
-        caught.code === "CLINICAL_MFA_REQUIRED"
-      ) {
-        setNeedsMfa(true);
-      }
       setError(caught instanceof Error ? caught.message : "Tool run failed.");
     } finally {
       setBusy(false);
-    }
-  }
-
-  async function uploadRecords(files: FileList | null) {
-    if (
-      !tool ||
-      tool.id !== "medical-record-lcd-verifier" ||
-      !files?.length ||
-      !snapshotId
-    )
-      return;
-    setUploading(true);
-    setError("");
-    try {
-      let activeSession = ephemeralSession;
-      if (!activeSession || activeSession.coverageSnapshotId !== snapshotId) {
-        if (activeSession) {
-          await apiJson(
-            `/api/clinical/ephemeral-sessions/${activeSession.id}`,
-            { method: "DELETE" },
-          ).catch(() => undefined);
-        }
-        const created = await apiJson<{
-          session: {
-            id: string;
-            coverageSnapshotId: string;
-            expiresAt: string;
-          };
-        }>("/api/clinical/ephemeral-sessions", {
-          method: "POST",
-          body: JSON.stringify({ coverageSnapshotId: snapshotId }),
-        });
-        activeSession = created.session;
-        setEphemeralSession(activeSession);
-      }
-      const extracted: string[] = [];
-      for (const file of Array.from(files)) {
-        const authorization = await apiJson<{
-          documentToken: string;
-          uploadUrl: string;
-          requiredHeaders: Record<string, string>;
-        }>(
-          `/api/clinical/ephemeral-sessions/${activeSession.id}/documents/upload-url`,
-          {
-            method: "POST",
-            body: JSON.stringify({
-              contentType: file.type || "application/octet-stream",
-              sizeBytes: file.size,
-            }),
-          },
-        );
-        const upload = await fetch(authorization.uploadUrl, {
-          method: "PUT",
-          headers: authorization.requiredHeaders,
-          body: file,
-        });
-        if (!upload.ok) throw new Error(`Upload failed for ${file.name}.`);
-        await apiJson(
-          `/api/clinical/ephemeral-sessions/${activeSession.id}/documents/${authorization.documentToken}/complete`,
-          {
-            method: "POST",
-            body: "{}",
-          },
-        );
-        const extraction = await apiJson<{ text: string }>(
-          `/api/clinical/ephemeral-sessions/${activeSession.id}/documents/${authorization.documentToken}/extract`,
-          { method: "POST", body: "{}" },
-        );
-        extracted.push(`--- ${file.name} ---\n${extraction.text}`);
-      }
-      setValues((current) => ({
-        ...current,
-        recordText: [String(current.recordText ?? ""), ...extracted]
-          .filter(Boolean)
-          .join("\n\n"),
-      }));
-    } catch (caught) {
-      setError(
-        caught instanceof Error
-          ? caught.message
-          : "Document processing failed.",
-      );
-    } finally {
-      setUploading(false);
     }
   }
 
@@ -758,12 +578,7 @@ export default function AiToolPage() {
 
   const runDisabled =
     busy ||
-    needsMfa ||
-    (tool.containsPhi && clinicalMode === "phi" && !runtimeReady) ||
-    (tool.containsPhi && coverageRequired && !snapshotId) ||
-    (tool.containsPhi &&
-      clinicalMode === "deidentified" &&
-      !confirmedDeidentified);
+    (tool.containsPhi && !confirmedDeidentified);
 
   const errorCode =
     error.match(/\b[A-Z][A-Z0-9_]{3,}\b/)?.[0] ??
@@ -812,48 +627,6 @@ export default function AiToolPage() {
         </Button>
       </div>
 
-      {needsMfa && <MfaPanel onVerified={() => void loadData()} />}
-
-      {tool.containsPhi && clinicalMode === "phi" && !runtimeReady && (
-        <Card className="mb-6 border-destructive/40 bg-destructive/5 p-5">
-          <div className="flex gap-3">
-            <AlertCircle className="mt-0.5 h-5 w-5 text-destructive" />
-            <div className="min-w-0">
-              <h2 className="font-semibold text-foreground">
-                PHI runtime is not fully configured
-              </h2>
-              <p className="mt-1 text-sm text-muted-foreground">
-                BAA gates may be set, but required infrastructure is still
-                missing. Clinical runs stay fail-closed until every control is
-                present.
-              </p>
-              {missingControls.length > 0 && (
-                <ul className="mt-3 list-disc space-y-1 pl-5 text-sm text-muted-foreground">
-                  {missingControls.map((control) => (
-                    <li key={control}>
-                      <code className="text-xs">{control}</code>
-                    </li>
-                  ))}
-                </ul>
-              )}
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={() => void loadData()}
-                >
-                  Retry readiness check
-                </Button>
-                <Button asChild variant="ghost" size="sm">
-                  <Link href="/contact">Contact support</Link>
-                </Button>
-              </div>
-            </div>
-          </div>
-        </Card>
-      )}
-
       <div className="mt-2 grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(340px,0.9fr)]">
         <Card
           className={cn(
@@ -871,102 +644,31 @@ export default function AiToolPage() {
                 (below on mobile).
               </p>
             </div>
-            {tool.containsPhi && !needsMfa && (
+            {tool.containsPhi && (
               <div className="space-y-5 rounded-xl border border-amber-500/35 bg-gradient-to-br from-amber-500/[0.08] to-transparent p-4">
                 <div className="flex flex-wrap items-center gap-2 font-semibold text-foreground">
                   <ShieldCheck className="h-4 w-4 text-amber-600" />
-                  Ephemeral clinical workspace
-                  {clinicalMode === "phi" && runtimeReady && (
-                    <Badge variant="outline" className="ml-1 font-normal border-amber-500/40">
-                      PHI operational
-                    </Badge>
-                  )}
-                  {clinicalMode === "deidentified" && (
-                    <Badge variant="outline" className="font-normal">
-                      De-identified only
-                    </Badge>
-                  )}
+                  Deidentified guidance workspace
+                  <Badge variant="outline" className="font-normal">
+                    Approval required
+                  </Badge>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  {clinicalMode === "phi"
-                    ? "Patient inputs and generated results are not saved. Closing, refreshing, or signing out permanently loses this work."
-                    : "This live workspace accepts de-identified information only. Inputs and generated results are not saved, and qualified clinical review remains required."}
+                  This workspace accepts deidentified information only. Do not enter patient names, dates, record numbers, contact details, or documents. Outputs are suggestions and require medical director, compliance, or both to approve them.
                 </p>
-                {clinicalMode === "deidentified" && (
-                  <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-amber-500/30 bg-background/70 p-3">
-                    <input
-                      type="checkbox"
-                      checked={confirmedDeidentified}
-                      onChange={(event) =>
-                        setConfirmedDeidentified(event.target.checked)
-                      }
-                      className="mt-1 h-4 w-4 accent-primary"
-                    />
-                    <span className="text-sm leading-6">
-                      I confirm this input contains no patient names, dates of
-                      birth, record numbers, contact details, or other
-                      identifying information.
-                    </span>
-                  </label>
-                )}
-                {coverageRequired && (
-                  <div className="grid gap-4">
-                    <div className="space-y-2">
-                      <Label>Coverage snapshot</Label>
-                      <select
-                        value={snapshotId}
-                        onChange={(event) => {
-                          setSnapshotId(event.target.value);
-                          setRun(null);
-                        }}
-                        className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-                        required
-                      >
-                        <option value="">Select coverage evidence</option>
-                        {snapshots.map((snapshot) => (
-                          <option key={snapshot.id} value={snapshot.id}>
-                            {isEducationalCoverage(snapshot)
-                              ? "[Educational baseline] "
-                              : ""}
-                            {snapshot.title} · v{snapshot.version}
-                          </option>
-                        ))}
-                      </select>
-                      {isEducationalCoverage(
-                        snapshots.find((s) => s.id === snapshotId),
-                      ) && (
-                        <p className="text-xs text-amber-700 dark:text-amber-400">
-                          Educational baseline only — not official CMS LCD text.
-                          An administrator should sync a live CMS MCD snapshot
-                          for production policy fidelity.
-                        </p>
-                      )}
-                    </div>
-                  </div>
-                )}
-                {tool.id === "medical-record-lcd-verifier" &&
-                  allowsDocumentUpload && (
-                    <label className="flex cursor-pointer items-center justify-center gap-2 rounded-lg border border-dashed border-amber-500/50 p-4 text-sm font-medium hover:bg-amber-500/10">
-                      {uploading ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <FileUp className="h-4 w-4" />
-                      )}
-                      {uploading
-                        ? "Scanning and extracting…"
-                        : "Upload PDF, JPEG, PNG, or text records"}
-                      <input
-                        type="file"
-                        accept=".pdf,.jpg,.jpeg,.png,.txt"
-                        multiple
-                        className="sr-only"
-                        disabled={uploading || !snapshotId}
-                        onChange={(event) =>
-                          void uploadRecords(event.target.files)
-                        }
-                      />
-                    </label>
-                  )}
+                <label className="flex cursor-pointer items-start gap-3 rounded-lg border border-amber-500/30 bg-background/70 p-3">
+                  <input
+                    type="checkbox"
+                    checked={confirmedDeidentified}
+                    onChange={(event) =>
+                      setConfirmedDeidentified(event.target.checked)
+                    }
+                    className="mt-1 h-4 w-4 accent-primary"
+                  />
+                  <span className="text-sm leading-6">
+                    I confirm this input is deidentified and contains no patient documents.
+                  </span>
+                </label>
               </div>
             )}
 

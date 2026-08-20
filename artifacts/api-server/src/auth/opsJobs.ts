@@ -16,6 +16,7 @@ import {
 } from "./trialLifecycle";
 import { runClinicalRetentionSweep } from "../clinical/retention";
 import { runEphemeralClinicalSweep } from "../clinical/ephemeral";
+import { runCoachRetentionSweep } from "../routes/coachRoutes";
 
 export type OpsDigestResult = {
   sent: boolean;
@@ -100,7 +101,7 @@ export async function buildOpsSnapshot() {
     (o) =>
       o.status === "active" &&
       (o.billingStatus === "active" || o.billingStatus === "trialing") &&
-      Boolean(o.stripeSubscriptionId),
+      (Boolean(o.stripeSubscriptionId) || o.billingProvider === "apple"),
   ).length;
 
   return {
@@ -330,6 +331,37 @@ export async function runSessionCleanup(): Promise<CleanupResult> {
   return result;
 }
 
+export type MemberOffboardingRetentionResult = {
+  commitmentsDeleted: number;
+  sharedSummariesDeleted: number;
+  ranAt: string;
+};
+
+/**
+ * Enforce the post-employment retention contract established by migration 0018.
+ * Commitments that were not recovered into a personal account expire after the
+ * 30-day preservation window. Explicitly shared summaries expire after 12 months
+ * unless a retention hold is active.
+ */
+export async function runMemberOffboardingRetentionSweep(): Promise<MemberOffboardingRetentionResult> {
+  const ranAt = new Date().toISOString();
+  const result = await db.execute(
+    sql`SELECT * FROM spartan_run_member_offboarding_retention()`,
+  );
+  const row = result.rows?.[0] as
+    | {
+        commitments_deleted?: number | string;
+        shared_summaries_deleted?: number | string;
+      }
+    | undefined;
+
+  return {
+    commitmentsDeleted: Number(row?.commitments_deleted ?? 0),
+    sharedSummariesDeleted: Number(row?.shared_summaries_deleted ?? 0),
+    ranAt,
+  };
+}
+
 export async function runScheduledJobs(options?: {
   forceDigest?: boolean;
 }): Promise<{
@@ -337,12 +369,23 @@ export async function runScheduledJobs(options?: {
   opsDigest: OpsDigestResult;
   cleanup: CleanupResult;
   billingFailureCleanup: BillingFailureCleanupResult;
+  coachRetention: Awaited<ReturnType<typeof runCoachRetentionSweep>>;
+  memberOffboardingRetention: MemberOffboardingRetentionResult;
 }> {
   const trialSweep = await runTrialLifecycleSweep();
   const cleanup = await runSessionCleanup();
   const billingFailureCleanup = await runBillingFailureCleanup();
+  const coachRetention = await runCoachRetentionSweep();
+  const memberOffboardingRetention = await runMemberOffboardingRetentionSweep();
   const opsDigest = await runOpsDigest({ force: options?.forceDigest });
-  return { trialSweep, opsDigest, cleanup, billingFailureCleanup };
+  return {
+    trialSweep,
+    opsDigest,
+    cleanup,
+    billingFailureCleanup,
+    coachRetention,
+    memberOffboardingRetention,
+  };
 }
 
 /** Background interval for Replit / long-running servers. */
@@ -408,6 +451,22 @@ export function startBackgroundJobScheduler(): void {
         if (r.purged || r.failed) console.log("[jobs] clinical retention", r);
       })
       .catch((err) => console.error("[jobs] clinical retention failed", err));
+
+    void runCoachRetentionSweep()
+      .then((r) => {
+        if (r.conversationsDeleted) console.log("[jobs] Coach retention", r);
+      })
+      .catch((err) => console.error("[jobs] Coach retention failed", err));
+
+    void runMemberOffboardingRetentionSweep()
+      .then((r) => {
+        if (r.commitmentsDeleted || r.sharedSummariesDeleted) {
+          console.log("[jobs] member offboarding retention", r);
+        }
+      })
+      .catch((err) =>
+        console.error("[jobs] member offboarding retention failed", err),
+      );
 
     // Digest once per day around first tick after 13:00 UTC (≈ morning US)
     const hour = new Date().getUTCHours();

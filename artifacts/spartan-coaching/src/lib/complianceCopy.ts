@@ -16,20 +16,20 @@ export const FIELD_KIT_PHI = {
     "Educational coaching aid only. No PHI. Adapt to your voice and the relationship.",
 } as const;
 
-/** Clinical vault / PHI-capable tools */
+/** Elite clinical guidance accepts deidentified information only. */
 export const CLINICAL_VAULT = {
   short: "Educational decision support only",
   banner:
-    "PHI-capable clinical workspace. Use only with organization authorization and qualified clinical review. Results are educational decision support — not a diagnosis, prognosis, coverage determination, or autonomous admission decision.",
+    "Deidentified information only. Do not enter patient names, dates, record numbers, contact details, or documents. Results are suggested educational decision support and require medical director, compliance, or both to approve them.",
   runWatermark:
-    "Educational decision support only. Qualified clinical review required. Not retained.",
+    "Suggested educational guidance only. Deidentified information only. Approval required. Not retained.",
   hubIntro:
-    "These workflows may process clinical content under authorized access only. They are not consumer Hospice Sales Pro tools. Results are educational decision support — not diagnosis, coverage determination, or autonomous admission decisions. Runs are ephemeral when live; use only when your role and organization permit.",
+    "These Elite workflows accept deidentified information only and never accept patient documents. Results are suggestions, not diagnosis, coverage determinations, eligibility decisions, or admission decisions. Every output requires medical director, compliance, or both to approve it.",
   chips: [
-    "Authorized roles only",
-    "Ephemeral by design",
-    "BAA-gated PHI mode",
-    "No sales chrome inside tools",
+    "Elite access",
+    "Deidentified only",
+    "One time results",
+    "Approval required",
   ] as const,
 } as const;
 
@@ -52,9 +52,13 @@ export const PUBLIC_CLAIM_SAFE = {
  */
 export const PRICING_FACTS = {
   productName: "Hospice Sales Pro",
+  eliteProductName: "Hospice Sales Pro Elite",
   individualWeeklyUsd: 14.99,
   individualWeeklyLabel: "$14.99/week",
   individualWeeklyShort: "$14.99/wk",
+  eliteWeeklyUsd: 19.99,
+  eliteWeeklyLabel: "$19.99/week",
+  eliteWeeklyShort: "$19.99/wk",
   individualBillingNote: "Billed weekly in USD. Cancel anytime from Account.",
   previewNote: "Preview tool interfaces free. Live generation requires an active subscription or evaluation.",
   teamNote: "Team seats and multi-user access are arranged under contract — not the individual weekly plan.",
@@ -63,10 +67,10 @@ export const PRICING_FACTS = {
   consultingSeparate:
     "Human consulting, workshops, and coaching engagements are a separate offer from Hospice Sales Pro.",
   heroLine:
-    "Preview free. Live tools $14.99/week (cancel anytime). Teams under contract. Consulting is a separate offer.",
+    "Preview free. Standard is $14.99 per week. Elite is $19.99 per week. Cancel anytime. Teams use contracted seats. Consulting is separate.",
   paywallTitle: "$14.99/week · cancel anytime",
   paywallBody:
-    "Unlock live generation, saves, and Command Center. Preview still works without a subscription.",
+    "Standard unlocks live generation, saved work, and Command Center. Elite adds private Spartan Coach and deidentified clinical guidance. Preview still works without a subscription.",
 } as const;
 
 /**
@@ -117,7 +121,7 @@ export const TRUST_CENTER_SECTIONS: TrustCenterSection[] = [
     id: "professional-boundaries",
     title: "Professional boundaries",
     body:
-      "This product supports hospice growth work: conversations, territory rhythm, and preparation. It does not replace clinical judgment, eligibility determination, or compliance review. Sales chrome stays out of PHI-capable clinical tools.",
+      "This product supports hospice growth work: conversations, territory rhythm, and preparation. It does not replace clinical judgment, eligibility determination, or compliance review. Elite clinical guidance accepts deidentified information only and requires medical director, compliance, or both to approve every output.",
   },
   {
     id: "provider-isolation",
@@ -135,7 +139,7 @@ export const TRUST_CENTER_SECTIONS: TrustCenterSection[] = [
     id: "billing",
     title: "Billing",
     body:
-      "Individual access is $14.99 USD per week when self-serve subscribe is available, cancel anytime from Account. Team seats and evaluations use arranged access so pricing paths stay distinct. Consulting is billed separately when engaged.",
+      "Individual Standard access is $14.99 USD per week and Elite access is $19.99 USD per week. Cancel through the billing provider used to subscribe. Team seats use contracted access. Consulting is billed separately when engaged.",
   },
   {
     id: "security",

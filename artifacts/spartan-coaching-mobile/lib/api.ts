@@ -166,6 +166,29 @@ export async function apiDelete<T>(path: string): Promise<T> {
   return res.json() as Promise<T>;
 }
 
+export async function transcribeAudio(uri: string): Promise<string> {
+  const token = await getSessionToken();
+  const form = new FormData();
+  form.append("audio", {
+    uri,
+    name: `spartan-rehearsal-${Date.now()}.m4a`,
+    type: "audio/m4a",
+  } as unknown as Blob);
+  const headers: Record<string, string> = clientPlatformHeaders();
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const response = await fetch(`${getBase()}/api/transcribe`, {
+    method: "POST",
+    headers,
+    body: form,
+  });
+  if (!response.ok) throw await readApiError(response);
+  const value = (await response.json()) as { transcript?: string };
+  if (!value.transcript?.trim()) {
+    throw new ApiError("The recording did not contain clear speech.", 422, "EMPTY_TRANSCRIPT");
+  }
+  return value.transcript.trim();
+}
+
 export async function uploadToSignedUrl(
   url: string,
   body: Blob,
@@ -187,6 +210,7 @@ export type MobileMember = {
   organizationId: number;
   status: string;
   jobRole?: string | null;
+  alsoLeadsTeam?: boolean;
   territoryNote?: string | null;
   topObjections?: string | null;
   checklistProgress?: Record<string, boolean | string>;
@@ -204,6 +228,7 @@ export type MobileOrganization = {
   trialEndsAt?: string | null;
   pipelineStatus?: string | null;
   billingPlan?: string | null;
+  billingProvider?: string | null;
   billingStatus?: string | null;
   currentPeriodEnd?: string | null;
   cancelAtPeriodEnd?: boolean;
@@ -227,7 +252,9 @@ export type MobileAuthUser = {
 /** Billing status from GET /api/billing/status */
 export type BillingStatus = {
   configured: boolean;
+  appleBillingConfigured?: boolean;
   individualWeeklyPriceConfigured: boolean;
+  individualWeeklyElitePriceConfigured?: boolean;
   canCheckoutIndividual: boolean;
   canOpenPortal: boolean;
   organization: {
@@ -235,6 +262,7 @@ export type BillingStatus = {
     type: string;
     status: string;
     billingPlan: string | null;
+    billingProvider?: string | null;
     billingStatus: string | null;
     currentPeriodEnd: string | null;
     cancelAtPeriodEnd: boolean;
@@ -246,6 +274,53 @@ export type BillingStatus = {
   };
 };
 
+export type AppleBillingConfig = {
+  configured: boolean;
+  appAccountToken?: string;
+  products: Array<{ id: string; tier: "standard" | "elite" }>;
+};
+
+export type AppleVerificationResult = {
+  applied: boolean;
+  verified?: boolean;
+  active?: boolean;
+  tier?: "standard" | "elite";
+  productId?: string;
+  expiresAt?: string;
+};
+
+export async function fetchAppleBillingCatalog(): Promise<AppleBillingConfig> {
+  return apiGet<AppleBillingConfig>("/api/billing/apple/catalog");
+}
+
+export async function fetchAppleBillingConfig(): Promise<AppleBillingConfig> {
+  return apiGet<AppleBillingConfig>("/api/billing/apple/config");
+}
+
+export async function verifyAppleTransaction(signedTransaction: string): Promise<AppleVerificationResult> {
+  return apiPost<AppleVerificationResult>("/api/billing/apple/verify", { signedTransaction });
+}
+
+export async function verifyGuestAppleTransaction(
+  signedTransaction: string,
+  appAccountToken?: string,
+): Promise<AppleVerificationResult> {
+  return apiPost<AppleVerificationResult>("/api/billing/apple/guest-verify", {
+    signedTransaction,
+    ...(appAccountToken ? { appAccountToken } : {}),
+  });
+}
+
+export async function claimAppleTransaction(
+  signedTransaction: string,
+  appAccountToken?: string,
+): Promise<AppleVerificationResult> {
+  return apiPost<AppleVerificationResult>("/api/billing/apple/claim", {
+    signedTransaction,
+    ...(appAccountToken ? { appAccountToken } : {}),
+  });
+}
+
 export async function fetchBillingStatus(): Promise<BillingStatus | null> {
   try {
     return await apiGet<BillingStatus>("/api/billing/status");
@@ -254,22 +329,7 @@ export async function fetchBillingStatus(): Promise<BillingStatus | null> {
   }
 }
 
-/** Start individual weekly Checkout ($14.99/wk). Returns Stripe-hosted URL. */
-export async function startIndividualCheckout(): Promise<{ url: string }> {
-  const site = getWebSiteUrl();
-  // Bridge page opens app deep link after Stripe (see CheckoutReturn.tsx).
-  return apiPost<{ url: string }>("/api/billing/checkout", {
-    successUrl: `${site}/checkout-return?from=app&activated=1`,
-    cancelUrl: `${site}/account?billing=canceled&from=app`,
-  });
-}
-
-/** Open Stripe Customer Portal (cancel / update card). */
-export async function openBillingPortal(): Promise<{ url: string }> {
-  return apiPost<{ url: string }>("/api/billing/portal", {});
-}
-
-/** Site origin for membership / account deep links in the browser. */
+/** Site origin for approved first party source links and API served resources. */
 export function getWebSiteUrl(): string {
   return getBaseUrl() || "https://spartanhospicecoaching.com";
 }
@@ -303,6 +363,70 @@ export async function loginMobile(email: string, password: string): Promise<Mobi
   }
   if (data.token) await setSessionToken(data.token);
   return data as MobileAuthUser & { token: string };
+}
+
+export async function registerMobile(input: {
+  name: string;
+  email: string;
+  password: string;
+}): Promise<MobileAuthUser & { token: string }> {
+  const res = await fetch(`${getBase()}/api/auth/register`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      ...clientPlatformHeaders(),
+    },
+    body: JSON.stringify({
+      name: input.name.trim(),
+      email: input.email.trim().toLowerCase(),
+      password: input.password,
+      acceptTerms: true,
+      noPhi: true,
+    }),
+  });
+  const data = (await res.json().catch(() => ({}))) as {
+    error?: string | { message?: string; code?: string };
+    code?: string;
+    token?: string;
+    member?: MobileMember;
+    organization?: MobileOrganization | null;
+    fieldKit?: MobileAuthUser["fieldKit"];
+  };
+  if (!res.ok) {
+    const message =
+      typeof data.error === "string"
+        ? data.error
+        : data.error?.message || "Account creation failed";
+    const code = typeof data.error === "object" ? data.error?.code : data.code;
+    throw new ApiError(message, res.status, code);
+  }
+  if (!data.token || !data.member) {
+    throw new ApiError("Account creation did not return a valid session", 502);
+  }
+  await setSessionToken(data.token);
+  return data as MobileAuthUser & { token: string };
+}
+
+export async function requestPasswordResetMobile(email: string): Promise<{ ok: boolean; message: string }> {
+  const response = await fetch(`${getBase()}/api/auth/forgot-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...clientPlatformHeaders() },
+    body: JSON.stringify({ email: email.trim().toLowerCase() }),
+  });
+  const data = await response.json().catch(() => ({})) as { ok?: boolean; message?: string; error?: string };
+  if (!response.ok) throw new ApiError(data.error || "Password reset could not be requested", response.status);
+  return { ok: true, message: data.message || "If an account exists for that email, a reset link has been sent." };
+}
+
+export async function resetPasswordMobile(input: { token: string; password: string }): Promise<{ ok: boolean }> {
+  const response = await fetch(`${getBase()}/api/auth/reset-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...clientPlatformHeaders() },
+    body: JSON.stringify(input),
+  });
+  const data = await response.json().catch(() => ({})) as { ok?: boolean; error?: string };
+  if (!response.ok) throw new ApiError(data.error || "Password could not be reset", response.status);
+  return { ok: true };
 }
 
 export async function logoutMobile(): Promise<void> {
@@ -373,6 +497,83 @@ export type ValueReceipt = {
   highlights: string[];
 };
 
+export type AdminMetrics = {
+  requests: { total: number; pending: number; approved: number; rejected: number };
+  organizations: { total: number; trial: number; active: number; expired: number; suspended: number };
+  members: { total: number; active: number; loggedIn7d: number };
+  toolUsesLast7Days: number;
+};
+
+export type AdminOrganizationSummary = {
+  id: number;
+  name: string;
+  status: string;
+  type: string;
+  memberCount?: number;
+  activatedCount?: number;
+};
+
+export type AccessRequestSummary = {
+  id: number;
+  name: string;
+  email: string;
+  type: string;
+  companyName?: string | null;
+  status: string;
+  createdAt?: string;
+};
+
+export type OrgMemberSummary = {
+  id: number;
+  name: string;
+  email: string;
+  role: string;
+  status: string;
+  lastLoginAt?: string | null;
+};
+
+export type AdminSharedSummary = {
+  id: string;
+  ownerName: string;
+  summary: string;
+  commitments: string[];
+  sharedAt: string;
+};
+
+export async function fetchPlatformAdminOverview() {
+  const [metrics, organizations, requests] = await Promise.all([
+    apiGet<AdminMetrics>("/api/admin/access-metrics"),
+    apiGet<{ organizations: AdminOrganizationSummary[] }>("/api/admin/organizations"),
+    apiGet<{ requests: AccessRequestSummary[] }>("/api/admin/access-requests"),
+  ]);
+  return {
+    metrics,
+    organizations: organizations.organizations,
+    requests: requests.requests,
+  };
+}
+
+export async function fetchOrganizationAdminOverview() {
+  const [members, usage, shared] = await Promise.all([
+    apiGet<{ members: OrgMemberSummary[]; invites: Array<{ id: number; email: string; role: string; status: string }>; seatLimit: number }>("/api/org/members"),
+    apiGet<{ total: number; days: number; byTool: Array<{ toolName: string; count: number }>; byMember: Array<{ email: string; count: number }>; completionTotal: number; completionTrend: Array<{ date: string; count: number }> }>("/api/org/usage"),
+    apiGet<{ summaries: AdminSharedSummary[] }>("/api/org/shared-summaries"),
+  ]);
+  return { ...members, usage, sharedSummaries: shared.summaries || [] };
+}
+
+export async function inviteOrganizationMember(input: { name: string; email: string; role?: "member" | "org_admin" }) {
+  return apiPost<{ ok: boolean; member: OrgMemberSummary }>("/api/org/invites", {
+    name: input.name.trim(),
+    email: input.email.trim().toLowerCase(),
+    role: input.role || "member",
+  });
+}
+
+export async function setOrganizationMemberEnabled(memberId: number, enabled: boolean) {
+  return apiPost<{ ok: boolean }>(`/api/org/members/${memberId}/${enabled ? "enable" : "disable"}`, {});
+}
+
 /** Craft Phase 4 — weekly value receipt (subscription theater). */
 export async function fetchValueReceipt(): Promise<ValueReceipt | null> {
   try {
@@ -384,6 +585,7 @@ export async function fetchValueReceipt(): Promise<ValueReceipt | null> {
 
 export async function updateOnboardingMobile(body: {
   jobRole?: string | null;
+  alsoLeadsTeam?: boolean;
   territoryNote?: string | null;
   topObjections?: string | null;
   checklistItem?: { id: string; done: boolean };

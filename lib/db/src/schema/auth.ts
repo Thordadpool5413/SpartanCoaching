@@ -10,6 +10,7 @@ import {
   integer,
   jsonb,
   index,
+  uuid,
 } from "drizzle-orm/pg-core";
 import { createInsertSchema } from "drizzle-zod";
 
@@ -36,6 +37,13 @@ export const clientOrganizations = pgTable("client_organizations", {
   stripeCustomerId: varchar("stripe_customer_id", { length: 255 }),
   stripeSubscriptionId: varchar("stripe_subscription_id", { length: 255 }),
   stripePriceId: varchar("stripe_price_id", { length: 255 }),
+  /** StoreKit entitlement source. Signed Apple transactions are verified by the API. */
+  billingProvider: varchar("billing_provider", { length: 32 }),
+  appleOriginalTransactionId: varchar("apple_original_transaction_id", { length: 255 }).unique(),
+  appleLastTransactionId: varchar("apple_last_transaction_id", { length: 255 }),
+  appleLastSignedAt: timestamp("apple_last_signed_at", { withTimezone: true }),
+  appleProductId: varchar("apple_product_id", { length: 255 }),
+  appleEnvironment: varchar("apple_environment", { length: 32 }),
   currentPeriodEnd: timestamp("current_period_end"),
   cancelAtPeriodEnd: boolean("cancel_at_period_end").notNull().default(false),
   /** Corporate contract: negotiated weekly unit price in cents (per seat) */
@@ -144,6 +152,7 @@ export const clientMembers = pgTable(
     status: varchar("status", { length: 32 }).notNull().default("invited"), // invited | active | disabled
     /** Onboarding profile */
     jobRole: varchar("job_role", { length: 64 }), // rep | director | vp | owner | other
+    alsoLeadsTeam: boolean("also_leads_team").notNull().default(false),
     territoryNote: text("territory_note"),
     topObjections: text("top_objections"),
     /** Checklist keys → completed boolean or ISO timestamp string */
@@ -155,9 +164,14 @@ export const clientMembers = pgTable(
     branchId: integer("branch_id"),
     teamId: integer("team_id"),
     managerMemberId: integer("manager_member_id"),
+    /** Stable UUID passed to StoreKit and required on verified Apple transactions. */
+    appleAccountToken: uuid("apple_account_token").defaultRandom().notNull().unique(),
     createdAt: timestamp("created_at").defaultNow().notNull(),
   },
-  (table) => [index("IDX_client_members_org").on(table.organizationId)],
+  (table) => [
+    index("IDX_client_members_org").on(table.organizationId),
+    index("IDX_client_members_apple_account").on(table.appleAccountToken),
+  ],
 );
 
 export type ClientMember = typeof clientMembers.$inferSelect;
@@ -401,6 +415,7 @@ export const ACTIVATION_STEP_IDS = [
 
 export const onboardingUpdateSchema = z.object({
   jobRole: z.enum(["rep", "director", "vp", "owner", "other"]).optional().nullable(),
+  alsoLeadsTeam: z.boolean().optional(),
   territoryNote: z.string().max(2000).optional().nullable(),
   topObjections: z.string().max(2000).optional().nullable(),
   checklist: z

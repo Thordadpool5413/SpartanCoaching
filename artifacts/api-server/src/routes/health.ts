@@ -5,7 +5,6 @@ import {
   isHydrationComplete,
 } from "../billing/billingEmailMetrics";
 import { clinicalRuntimeReadiness } from "../clinical/runtimeReadiness";
-import { coverageUsesEducationalBaseline } from "../clinical/coverageBootstrap";
 import { getRequestMetricsSnapshot } from "../observability/requestMetrics";
 import {
   RELIABILITY_TARGETS,
@@ -49,12 +48,8 @@ router.get("/health", sendHealthz);
  * GET /healthz/clinical
  * GET /admin/clinical-runtime-health (alias for smoke scripts)
  *
- * Production env verification for clinical / PHI runtime.
- * Never returns secret values — only control names and readiness flags.
- *
- * - operationMode deidentified → ok:true (education mode is intentional)
- * - operationMode phi + ready → ok:true (BAAs + infrastructure configured)
- * - operationMode phi + !ready → HTTP 503 + ok:false + missingControls
+ * Production verification for deidentified clinical guidance.
+ * Patient data and patient documents are never accepted by this product.
  */
 async function clinicalRuntimeHealthResponse() {
   const readiness = clinicalRuntimeReadiness();
@@ -68,53 +63,18 @@ async function clinicalRuntimeHealthResponse() {
     ),
     OPENAI_MODEL: Boolean(process.env.OPENAI_MODEL?.trim()),
   };
-  const usingEducationalBaseline =
-    readiness.operationMode === "phi" && readiness.ready
-      ? await coverageUsesEducationalBaseline()
-      : false;
-
-  if (readiness.operationMode === "deidentified") {
-    return {
-      ok: true as const,
-      status: "ok" as const,
-      operationMode: readiness.operationMode,
-      ready: true,
-      baasConfirmed: readiness.baasConfirmed,
-      missingControls: [] as string[],
-      usingEducationalBaseline: false,
-      optionalPresent,
-      hint: readiness.baasConfirmed
-        ? "BAAs are confirmed but CLINICAL_OPERATION_MODE=deidentified forces education mode."
-        : "De-identified clinical education mode. Set all five BAA confirmation envs to true for PHI mode.",
-    };
-  }
-
-  if (readiness.ready) {
-    return {
-      ok: true as const,
-      status: "ok" as const,
-      operationMode: readiness.operationMode,
-      ready: true,
-      baasConfirmed: readiness.baasConfirmed,
-      missingControls: [] as string[],
-      usingEducationalBaseline,
-      optionalPresent,
-      hint: usingEducationalBaseline
-        ? "PHI clinical runtime is operational, but coverage is still the educational baseline. Sync a live CMS MCD snapshot for policy fidelity."
-        : "PHI clinical runtime is operational. MFA + ephemeral workflows apply.",
-    };
-  }
-
   return {
-    ok: false as const,
-    status: "degraded" as const,
+    ok: true as const,
+    status: "ok" as const,
     operationMode: readiness.operationMode,
-    ready: false,
-    baasConfirmed: readiness.baasConfirmed,
-    missingControls: readiness.missingControls,
+    ready: true,
+    patientDataAccepted: false,
+    patientDocumentsAccepted: false,
+    approvalRequired: true,
+    missingControls: [] as string[],
     usingEducationalBaseline: false,
     optionalPresent,
-    hint: "PHI mode is selected but required production controls are missing. Set every name in missingControls.",
+    hint: "Deidentified educational guidance only. Medical director, compliance, or both must approve every output.",
   };
 }
 

@@ -5,6 +5,8 @@
 export type BillingStatusResponse = {
   configured: boolean;
   individualWeeklyPriceConfigured: boolean;
+  individualWeeklyElitePriceConfigured: boolean;
+  appleBillingConfigured?: boolean;
   canCheckoutIndividual: boolean;
   canOpenPortal: boolean;
   organization: {
@@ -12,6 +14,7 @@ export type BillingStatusResponse = {
     type: string;
     status: string;
     billingPlan: string | null;
+    billingProvider: string | null;
     billingStatus: string | null;
     currentPeriodEnd: string | null;
     cancelAtPeriodEnd: boolean;
@@ -29,12 +32,14 @@ export async function fetchBillingStatus(): Promise<BillingStatusResponse | null
   return res.json();
 }
 
-export async function startIndividualCheckout(): Promise<{ url: string }> {
+export async function startIndividualCheckout(
+  plan: "standard_weekly" | "elite_weekly" = "standard_weekly",
+): Promise<{ url: string }> {
   const res = await fetch("/api/billing/checkout", {
     method: "POST",
     credentials: "include",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({}),
+    body: JSON.stringify({ plan }),
   });
   const data = await res.json().catch(() => ({}));
   if (!res.ok) throw new Error(data.error || "Could not start checkout");

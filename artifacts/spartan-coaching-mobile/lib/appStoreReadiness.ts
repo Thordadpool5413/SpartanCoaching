@@ -41,7 +41,7 @@ export const APP_STORE_READINESS_ITEMS: ReadinessItem[] = [
     area: "Account deletion (Guideline 5.1.1(v))",
     status: "implemented",
     evidence:
-      "In-app Account → Delete account calls POST /api/me/delete-account (confirm DELETE). Disables member, clears sessions, anonymizes email/name.",
+      "In-app Account → Delete account calls POST /api/me/delete-account (confirm DELETE). Disables the member, clears sessions, anonymizes identity, and removes private Coach content.",
   },
   {
     id: "privacy_policy_link",
@@ -55,14 +55,14 @@ export const APP_STORE_READINESS_ITEMS: ReadinessItem[] = [
     area: "PrivacyInfo.xcprivacy / required-reason APIs",
     status: "implemented",
     evidence:
-      "ios.privacyManifests in app.config.js (NSPrivacyTracking false; UserDefaults/FileTimestamp/SystemBootTime/DiskSpace reasons; collected data types).",
+      "ios.privacyManifests in app.config.js declares Name, Email, User ID, Purchase History, Product Interaction, Audio Data, and Other User Content as linked to the member, used for app functionality, and not used for tracking.",
   },
   {
     id: "permission_strings",
     area: "Usage description strings",
     status: "implemented",
     evidence:
-      "NSUserNotificationsUsageDescription, NSCameraUsageDescription, NSPhotoLibraryUsageDescription, Face ID string via expo-local-authentication plugin.",
+      "Only current product permissions ship. Microphone supports private voice rehearsal and notifications support field follow up reminders. Retired camera, photo library, and Face ID clinical permissions were removed.",
   },
   {
     id: "export_compliance",
@@ -71,19 +71,32 @@ export const APP_STORE_READINESS_ITEMS: ReadinessItem[] = [
     evidence: "ITSAppUsesNonExemptEncryption=false (standard HTTPS only).",
   },
   {
+    id: "native_account_creation",
+    area: "Purchase-first membership and native account protection",
+    status: "implemented",
+    evidence:
+      "A customer can choose Standard or Elite and complete the StoreKit purchase before creating a Spartan account. The verified purchase is then claimed after native registration or sign in so access and saved work can sync without charging twice.",
+  },
+  {
+    id: "subscription_disclosure",
+    area: "Subscription disclosures and purchasing",
+    status: "implemented",
+    evidence:
+      "The native purchase surface shows plan name, localized StoreKit price, weekly duration, automatic renewal terms, Restore Purchases, Manage Subscription, Terms of Use, and Privacy Policy. Legacy iOS web purchase steering was removed.",
+  },
+  {
     id: "subscription_model",
-    area: "Subscriptions / external purchase",
+    area: "Apple subscriptions",
     status: "risk",
-    evidence: `Canonical products are defined for Standard ${STANDARD_WEEKLY_PLAN.displayPrice} (${STANDARD_WEEKLY_PLAN.appleProductId}) and Elite ${ELITE_WEEKLY_PLAN.displayPrice} (${ELITE_WEEKLY_PLAN.appleProductId}), but native StoreKit purchase and server transaction verification are not implemented.`,
+    evidence: `Native StoreKit purchase is implemented for Standard ${STANDARD_WEEKLY_PLAN.displayPrice} (${STANDARD_WEEKLY_PLAN.appleProductId}) and Elite ${ELITE_WEEKLY_PLAN.displayPrice} (${ELITE_WEEKLY_PLAN.appleProductId}). The API verifies Apple's signed JWS before account creation, securely claims the original transaction after authentication, prevents transaction reuse, and accepts verified App Store Server Notifications. Release remains blocked until the complete Sandbox lifecycle matrix passes.`,
     action:
-      "Create both products in App Store Connect, connect StoreKit 2, verify signed transactions on the server, and remove Stripe purchase links from the iOS purchase flow before public review.",
+      "Create both products in App Store Connect, configure APPLE_APP_ID and Apple root certificates, register the notification URL, then run purchase, renewal, upgrade, cancellation, refund, and restore on a Sandbox Apple ID and physical iPhone.",
   },
   {
     id: "restore_access",
     area: "Restore purchases / access",
-    status: "partial",
-    evidence: "The product/provider contract exists, but there is no visible StoreKit restore action or server reconciliation.",
-    action: "Add a visible Restore Purchases action and reconcile verified Apple transactions with server entitlements.",
+    status: "implemented",
+    evidence: "Membership and Account expose Restore Apple Purchases. Restore works before sign in; the verified purchase is claimed after native account creation or sign in before access is granted.",
   },
   {
     id: "sign_in_with_apple",
@@ -135,7 +148,7 @@ export const APP_STORE_READINESS_ITEMS: ReadinessItem[] = [
     area: "App Privacy questionnaire (ASC)",
     status: "external",
     evidence:
-      "Align ASC answers with privacyManifest collected types: Email, Name, Product Interaction, Purchase History — linked to user, not used for tracking; no ATT.",
+      "Align ASC answers with privacyManifest collected types: Name, Email, User ID, Purchase History, Product Interaction, Audio Data, and Other User Content. These are linked to the member, used for app functionality, and not used for tracking. Product Interaction also supports analytics. No ATT prompt is used.",
     action: "Complete App Privacy in ASC to match PrivacyInfo.xcprivacy + privacy policy.",
   },
 ];
@@ -143,12 +156,12 @@ export const APP_STORE_READINESS_ITEMS: ReadinessItem[] = [
 /** Suggested App Review notes (paste into ASC; no secrets). */
 export const APP_REVIEW_NOTES = [
   "Hospice Sales Pro is a multiplatform membership (web + iOS) for hospice field sales coaching tools.",
-  "Account creation: email/password on web or in-app login after web register; magic link supported.",
+  "Purchase flow: open Membership, choose Standard or Elite, and complete the native Apple purchase. No Spartan account is required before payment. After Apple confirms the purchase, create or sign in to one private Spartan account to protect and sync access without a second charge.",
   "Account deletion: Account tab → Delete account (requires confirm DELETE). Completes within the app.",
-  `Planned Apple subscriptions: Standard ${STANDARD_WEEKLY_PLAN.displayPrice} and Clinical Vault Elite ${ELITE_WEEKLY_PLAN.displayPrice}. Public App Store submission remains blocked until StoreKit purchase, server verification, and Restore Purchases are complete.`,
-  "TestFlight reviewers use an existing entitled account. No purchase claim is made in this build.",
-  "Demo: use provided reviewer credentials if attached; otherwise create an account and use Subscribe, or request evaluation access via Contact.",
-  "No patient PHI in consumer tools; clinical vault is separate and role-gated.",
+  `Apple subscriptions: Standard ${STANDARD_WEEKLY_PLAN.displayPrice} and Hospice Sales Pro Elite ${ELITE_WEEKLY_PLAN.displayPrice}. Purchases and restores are verified by the Spartan Coaching API before access is granted.`,
+  "App Store submission remains blocked until production server verification, App Store Connect declarations, and the Sandbox purchase matrix are complete.",
+  "Demo: reviewers may browse Home, Coach, Explore, My Work, Library, and the guided tour before purchase. Use provided reviewer credentials for live gated tools or the native Membership screen to inspect StoreKit products.",
+  "No patient PHI. Elite clinical tools accept deidentified information only, provide suggested education, and require medical director, compliance, or both to approve output.",
   `Support: ${APP_STORE_SUPPORT_URL} · Privacy: ${APP_STORE_PRIVACY_URL}`,
 ].join("\n");
 

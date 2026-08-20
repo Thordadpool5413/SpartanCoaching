@@ -27,31 +27,31 @@ PARITY_EMAIL=… PARITY_PASSWORD=… pnpm run release-gate:live -- https://spart
 
 ---
 
-## P1 — One next action
+## P1 — Immediate clarity
 
 | # | Check | Score |
 |---|--------|-------|
-| F1 | Entitled Home: **only one** red-rail / emphasis mission card above fold | |
-| F2 | Activation (if incomplete) **replaces** checklist as primary — not side-by-side heroes | |
-| F3 | Checklist / coach live under secondary (“Session checklist” / “More”) | |
-| F4 | Portal web: mission card title matches product language (“Next action”) | |
+| F1 | Public Home explains the product before asking for money or an account | |
+| F2 | Entitled Home presents Plan, Practice, and Explore as three distinct starts | |
+| F3 | Current commitment is visible without turning Home into a dashboard | |
+| F4 | Home, Coach, Explore, My Work, and Account remain the same for every role | |
 
 ## P2 — Field conditions
 
 | # | Check | Score |
 |---|--------|-------|
 | F5 | Primary CTAs ≥ 44pt thumb reach | |
-| F6 | Outdoor / bright light: body text readable (dark product) | |
+| F6 | Outdoor bright light: body text remains readable in Light mode | |
 | F7 | One-hand scroll: mission CTA visible without hunting | |
 
 ## P3 — Product grammar
 
 | # | Check | Score |
 |---|--------|-------|
-| F8 | Language uses Mission → Command → Tool → Result → Account | |
-| F9 | Command: **MissionCard** next visit (or empty schedule); day stats chips; not a form dump | |
-| F10 | Tools: Command spine first; **Prepare / Practice** groups on iOS catalog | |
-| F10b | Tool result: RESULT · FIELD-READY + Copy/Share + Command/Web handoff | |
+| F8 | Language consistently uses Home, Coach, Explore, My Work, Library, and Account | |
+| F9 | Explore makes every tool and resource destination visible without duplication | |
+| F10 | Library uses Read, Listen, and Use with honest availability states | |
+| F10b | Tool results are readable, suggested, shareable, and clearly require appropriate approval | |
 
 ## P4 — Subscription honesty
 
@@ -70,7 +70,7 @@ PARITY_EMAIL=… PARITY_PASSWORD=… pnpm run release-gate:live -- https://spart
 |---|--------|-------|
 | F17 | No emoji icons in product chrome | |
 | F18 | Spartan red only on primary CTAs / sparse emphasis | |
-| F19 | Light mode (if toggled) still readable | |
+| F19 | Light, Dark, and System are complete themes rather than a color inversion | |
 
 ## P6 — Finish states
 
@@ -85,8 +85,8 @@ PARITY_EMAIL=… PARITY_PASSWORD=… pnpm run release-gate:live -- https://spart
 | # | Check | Score |
 |---|--------|-------|
 | F23 | Same seat / same email: Account status matches web `/account` | |
-| F24 | After web Stripe checkout → return to app → entitlement refreshes | |
-| F25 | Org admin: designed web handoff card (not broken stub) | |
+| F24 | Existing web member signs in, or Apple purchase completes, and entitlement refreshes | |
+| F25 | Company administrator opens the native Admin hub with explicit privacy boundaries | |
 
 ## P8–P10 — Trust, motion, proof
 

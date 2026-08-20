@@ -36,18 +36,18 @@ const associatedDomains = getAssociatedDomains();
 
 module.exports = {
   expo: {
-    name: "Spartan Coaching",
+    name: "Hospice Sales Pro",
     slug: "spartan-coaching",
     version: "1.0.0",
     orientation: "portrait",
     icon: "./assets/images/icon.png",
     scheme: "spartan-coaching-mobile",
-    userInterfaceStyle: "dark",
+    userInterfaceStyle: "automatic",
     newArchEnabled: true,
     splash: {
-      image: "./assets/images/spartan-stamp.png",
+      image: "./assets/images/helmet-mark.png",
       resizeMode: "contain",
-      backgroundColor: "#050505",
+      backgroundColor: "#07111F",
     },
     ios: {
       bundleIdentifier: "com.spartancoaching.fieldkit",
@@ -106,6 +106,30 @@ module.exports = {
               "NSPrivacyCollectedDataTypePurposeAppFunctionality",
             ],
           },
+          {
+            NSPrivacyCollectedDataType: "NSPrivacyCollectedDataTypeUserID",
+            NSPrivacyCollectedDataTypeLinked: true,
+            NSPrivacyCollectedDataTypeTracking: false,
+            NSPrivacyCollectedDataTypePurposes: [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality",
+            ],
+          },
+          {
+            NSPrivacyCollectedDataType: "NSPrivacyCollectedDataTypeAudioData",
+            NSPrivacyCollectedDataTypeLinked: true,
+            NSPrivacyCollectedDataTypeTracking: false,
+            NSPrivacyCollectedDataTypePurposes: [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality",
+            ],
+          },
+          {
+            NSPrivacyCollectedDataType: "NSPrivacyCollectedDataTypeOtherUserContent",
+            NSPrivacyCollectedDataTypeLinked: true,
+            NSPrivacyCollectedDataTypeTracking: false,
+            NSPrivacyCollectedDataTypePurposes: [
+              "NSPrivacyCollectedDataTypePurposeAppFunctionality",
+            ],
+          },
         ],
         NSPrivacyAccessedAPITypes: [
           {
@@ -129,36 +153,33 @@ module.exports = {
       infoPlist: {
         NSUserNotificationsUsageDescription:
           "Spartan Coaching uses notifications to remind you to follow up with contacts after visits.",
-        NSCameraUsageDescription:
-          "Spartan Coaching uses the camera to capture documents you explicitly add to a protected clinical case.",
-        NSPhotoLibraryUsageDescription:
-          "Spartan Coaching uses your photo library only to select documents you explicitly add to a protected clinical case.",
         // Export compliance: app uses only HTTPS / standard encryption (no custom crypto).
         ITSAppUsesNonExemptEncryption: false,
         // Home-screen quick actions (open app; deep links via scheme when supported)
         UIApplicationShortcutItems: [
           {
-            UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.command",
-            UIApplicationShortcutItemTitle: "Command Center",
-            UIApplicationShortcutItemSubtitle: "Today's field spine",
+            UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.today",
+            UIApplicationShortcutItemTitle: "Open Field Guide",
+            UIApplicationShortcutItemSubtitle: "Choose your next move",
+            UIApplicationShortcutItemIconType: "UIApplicationShortcutIconTypeTask",
+            UIApplicationShortcutItemUserInfo: {
+              url: "spartan-coaching-mobile://home",
+            },
+          },
+          {
+            UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.coach",
+            UIApplicationShortcutItemTitle: "Spartan Coach",
+            UIApplicationShortcutItemSubtitle: "Prepare a private rehearsal",
+            UIApplicationShortcutItemIconType: "UIApplicationShortcutIconTypeAudio",
+            UIApplicationShortcutItemUserInfo: {
+              url: "spartan-coaching-mobile://coach",
+            },
+          },
+          {
+            UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.practice",
+            UIApplicationShortcutItemTitle: "Open Explore",
+            UIApplicationShortcutItemSubtitle: "Prepare for the moment",
             UIApplicationShortcutItemIconType: "UIApplicationShortcutIconTypeCompose",
-            UIApplicationShortcutItemUserInfo: {
-              url: "spartan-coaching-mobile://command",
-            },
-          },
-          {
-            UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.objection",
-            UIApplicationShortcutItemTitle: "Objection Handler",
-            UIApplicationShortcutItemSubtitle: "3-tap talk track",
-            UIApplicationShortcutItemIconType: "UIApplicationShortcutIconTypeSearch",
-            UIApplicationShortcutItemUserInfo: {
-              url: "spartan-coaching-mobile://tool/objection",
-            },
-          },
-          {
-            UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.tools",
-            UIApplicationShortcutItemTitle: "Tools map",
-            UIApplicationShortcutItemIconType: "UIApplicationShortcutIconTypeFavorite",
             UIApplicationShortcutItemUserInfo: {
               url: "spartan-coaching-mobile://tools",
             },
@@ -178,24 +199,30 @@ module.exports = {
     },
     plugins: [
       ["expo-router", { origin: getRouterOrigin() }],
+      [
+        "expo-splash-screen",
+        {
+          image: "./assets/images/helmet-mark.png",
+          imageWidth: 212,
+          resizeMode: "contain",
+          backgroundColor: "#07111F",
+          dark: {
+            image: "./assets/images/helmet-mark.png",
+            backgroundColor: "#07111F",
+          },
+        },
+      ],
       "expo-font",
       "expo-secure-store",
       [
-        "expo-local-authentication",
+        "expo-audio",
         {
-          faceIDPermission: "Use Face ID to reopen protected clinical cases.",
-        },
-      ],
-      [
-        "expo-image-picker",
-        {
-          photosPermission:
-            "Select a document image to add to your protected clinical case.",
-          cameraPermission:
-            "Capture a document image to add to your protected clinical case.",
+          microphonePermission:
+            "Spartan Coach uses the microphone only while you record a private rehearsal for transcription and feedback.",
         },
       ],
       "expo-web-browser",
+      "react-native-iap",
       [
         "expo-notifications",
         {
@@ -203,7 +230,7 @@ module.exports = {
           color: "#C8102E",
           sounds: [],
           androidMode: "default",
-          androidCollapsedTitle: "Spartan Coaching",
+          androidCollapsedTitle: "Hospice Sales Pro",
         },
       ],
     ],

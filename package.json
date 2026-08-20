@@ -24,7 +24,9 @@
     "test:release-gate": "pnpm --filter @workspace/field-kit-catalog exec vitest run src/release-gate.test.ts",
     "db:migrate": "pnpm --filter @workspace/db run migrate",
     "db:push": "pnpm --filter @workspace/db run push",
-    "verify:ios:testflight": "bash scripts/verify-testflight.sh"
+    "verify:ios:qa": "bash scripts/verify-testflight.sh preview",
+    "verify:ios:production": "bash scripts/verify-testflight.sh production-applinks",
+    "verify:ios:testflight": "bash scripts/verify-testflight.sh testflight"
   },
   "private": true,
   "dependencies": {

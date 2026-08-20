@@ -31,7 +31,7 @@ import {
 } from "@workspace/db";
 import { db } from "../db";
 import {
-  requireFieldKit,
+  requireElite,
   requireOrgAdmin,
   type AuthedRequest,
 } from "../auth/middleware";
@@ -98,7 +98,7 @@ type EphemeralToolRunEnvelope = {
 };
 
 const CLINICAL_WATERMARK =
-  "Educational decision support only. Not a diagnosis, coverage determination, or autonomous eligibility or admission decision.";
+  "Suggested educational guidance only. Not a diagnosis, coverage determination, eligibility decision, or admission decision. Every output requires review and approval by the hospice medical director, compliance, or both.";
 
 function setNoStore(response: Response): Response {
   return response
@@ -115,15 +115,24 @@ function clinicalResultNotRetained(): never {
   );
 }
 
-function requirePhiRuntimeReady(): void {
+function requireClinicalRuntimeReady(): void {
   const readiness = clinicalRuntimeReadiness();
   if (!readiness.ready) {
     throw new SpartanAiToolError(
-      "PHI_PROCESSING_DISABLED",
+      "CLINICAL_RUNTIME_UNAVAILABLE",
       503,
-      "Clinical AI processing is disabled until all required BAA, retention, and HIPAA runtime controls are confirmed.",
+      "Clinical guidance is temporarily unavailable.",
     );
   }
+}
+
+function rejectPatientData(_request: Request, response: Response): Response {
+  return setNoStore(response).status(410).json({
+    error: {
+      code: "PATIENT_DATA_NOT_ACCEPTED",
+      message: "Spartan Coaching accepts deidentified information only. Patient documents and patient PHI are not accepted.",
+    },
+  });
 }
 
 async function toolAvailability(
@@ -145,8 +154,7 @@ async function toolAvailability(
     .limit(1);
   const globalEnabled = isToolFeatureEnabled(tool);
   // Every tool is available to entitled organizations unless an administrator
-  // explicitly disables it. PHI mode retains its separate permission and
-  // infrastructure gates; de-identified mode is safe-by-default and ephemeral.
+  // explicitly disables it. Clinical guidance is deidentified and ephemeral.
   const organizationEnabled = organizationFlag
     ? organizationFlag.enabled === true
     : true;
@@ -350,8 +358,8 @@ async function loadCoverage(
     }
     return snapshot;
   }
-  // PHI mode: auto-select the newest snapshot (seeds an educational baseline
-  // when the table is empty) so tools are operational without a manual pick.
+  // Legacy branch retained for backward compatible data only. Product access
+  // always resolves to deidentified mode, so this branch cannot activate.
   if (isPhiClinicalMode()) {
     return loadLatestCoverageSnapshot();
   }
@@ -581,7 +589,7 @@ function exposeRun(run: typeof aiToolRuns.$inferSelect) {
 }
 
 export function registerAiToolRoutes(app: Express): void {
-  app.get("/api/ai-tools", requireFieldKit, async (request, response, next) => {
+  app.get("/api/ai-tools", requireElite, async (request, response, next) => {
     try {
       const authed = request as AuthedRequest;
       const context = memberContext(authed);
@@ -606,14 +614,15 @@ export function registerAiToolRoutes(app: Express): void {
             canAdmin: false,
           }),
           operationMode: clinicalOperationMode(),
-          requiresMfa: isPhiClinicalMode(),
-          requiresCoverageSnapshot: isPhiClinicalMode(),
-          allowsDocumentUpload: isPhiClinicalMode(),
+          deidentifiedOnly: true,
+          patientDataAccepted: false,
+          patientDocumentsAccepted: false,
+          approvalRequired: true,
+          requiresMfa: false,
+          requiresCoverageSnapshot: false,
+          allowsDocumentUpload: false,
           runtimeReady: clinicalReadiness.ready,
-          baasConfirmed: clinicalReadiness.baasConfirmed,
-          missingControls: access?.canAdmin
-            ? clinicalReadiness.missingControls
-            : [],
+          missingControls: [],
         },
       });
     } catch (error) {
@@ -623,7 +632,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.get(
     "/api/ai-tools/organization-flags",
-    requireFieldKit,
+    requireElite,
     requireOrgAdmin,
     async (request, response) => {
       const id = requestId(request);
@@ -646,7 +655,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.put(
     "/api/ai-tools/organization-flags/:toolId",
-    requireFieldKit,
+    requireElite,
     requireOrgAdmin,
     async (request, response) => {
       const id = requestId(request);
@@ -715,7 +724,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/ai-tools/:toolId/ephemeral-runs",
-    requireFieldKit,
+    requireElite,
     standardAiLimit,
     globalDailyAiCap,
     async (request, response) => {
@@ -747,7 +756,7 @@ export function registerAiToolRoutes(app: Express): void {
           );
         }
         await requireDynamicClinicalAccess(authed);
-        requirePhiRuntimeReady();
+        requireClinicalRuntimeReady();
         await requireToolEnabled(context.organizationId, tool);
         const envelope = request.body as EphemeralToolRunEnvelope;
         if (!isPhiClinicalMode() && envelope?.confirmedDeidentified !== true) {
@@ -817,7 +826,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/ai-tools/:toolId/runs",
-    requireFieldKit,
+    requireElite,
     standardAiLimit,
     globalDailyAiCap,
     async (request, response) => {
@@ -1025,7 +1034,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.get(
     "/api/ai-tools/:toolId/runs",
-    requireFieldKit,
+    requireElite,
     async (request, response) => {
       const id = requestId(request);
       try {
@@ -1075,7 +1084,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.get(
     "/api/clinical/coverage/snapshots",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
     async (request, response) => {
       const id = requestId(request);
@@ -1134,14 +1143,15 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/ephemeral-sessions",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
+    rejectPatientData,
     standardAiLimit,
     async (request, response) => {
       const id = requestId(request);
       setNoStore(response);
       try {
-        requirePhiRuntimeReady();
+        requireClinicalRuntimeReady();
         await assertEphemeralBucketConfiguration();
         const authed = request as AuthedRequest;
         const context = memberContext(authed);
@@ -1207,14 +1217,15 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/ephemeral-sessions/:sessionId/documents/upload-url",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
+    rejectPatientData,
     standardAiLimit,
     async (request, response) => {
       const id = requestId(request);
       setNoStore(response);
       try {
-        requirePhiRuntimeReady();
+        requireClinicalRuntimeReady();
         await assertEphemeralBucketConfiguration();
         const authed = request as AuthedRequest;
         const context = memberContext(authed);
@@ -1328,14 +1339,15 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/ephemeral-sessions/:sessionId/documents/:documentToken/complete",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
+    rejectPatientData,
     heavyAiLimit,
     async (request, response) => {
       const id = requestId(request);
       setNoStore(response);
       try {
-        requirePhiRuntimeReady();
+        requireClinicalRuntimeReady();
         const authed = request as AuthedRequest;
         const context = memberContext(authed);
         const session = await loadEphemeralSession(
@@ -1450,15 +1462,16 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/ephemeral-sessions/:sessionId/documents/:documentToken/extract",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
+    rejectPatientData,
     heavyAiLimit,
     globalDailyAiCap,
     async (request, response) => {
       const id = requestId(request);
       setNoStore(response);
       try {
-        requirePhiRuntimeReady();
+        requireClinicalRuntimeReady();
         const authed = request as AuthedRequest;
         const context = memberContext(authed);
         const session = await loadEphemeralSession(
@@ -1522,8 +1535,9 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/ephemeral-sessions/:sessionId/finalize",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
+    rejectPatientData,
     heavyAiLimit,
     globalDailyAiCap,
     async (request, response) => {
@@ -1532,7 +1546,7 @@ export function registerAiToolRoutes(app: Express): void {
       const authed = request as AuthedRequest;
       let session: typeof clinicalEphemeralSessions.$inferSelect | undefined;
       try {
-        requirePhiRuntimeReady();
+        requireClinicalRuntimeReady();
         const context = memberContext(authed);
         session = await loadEphemeralSession(
           context.organizationId,
@@ -1650,7 +1664,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.delete(
     "/api/clinical/ephemeral-sessions/:sessionId",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
     async (request, response) => {
       const id = requestId(request);
@@ -1689,7 +1703,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.get(
     "/api/ai-tool-runs/:runId",
-    requireFieldKit,
+    requireElite,
     async (request, response) => {
       const id = requestId(request);
       try {
@@ -1747,7 +1761,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.get(
     "/api/ai-tool-runs/:runId/export",
-    requireFieldKit,
+    requireElite,
     async (request, response) => {
       const id = requestId(request);
       try {
@@ -1807,15 +1821,16 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/documents/:documentId/extract",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
+    rejectPatientData,
     heavyAiLimit,
     globalDailyAiCap,
     async (request, response) => {
       const id = requestId(request);
       try {
         clinicalResultNotRetained();
-        requirePhiRuntimeReady();
+        requireClinicalRuntimeReady();
         const authed = request as AuthedRequest;
         const context = memberContext(authed);
         const documentId = String(request.params.documentId);
@@ -1909,7 +1924,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/mfa/request",
-    requireFieldKit,
+    requireElite,
     heavyAiLimit,
     async (request, response) => {
       const id = requestId(request);
@@ -1962,7 +1977,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/mfa/verify",
-    requireFieldKit,
+    requireElite,
     heavyAiLimit,
     async (request, response) => {
       const id = requestId(request);
@@ -2045,7 +2060,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.put(
     "/api/clinical/permissions/:memberId",
-    requireFieldKit,
+    requireElite,
     requireOrgAdmin,
     async (request, response) => {
       const id = requestId(request);
@@ -2123,8 +2138,9 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/cases",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
+    rejectPatientData,
     async (request, response) => {
       const id = requestId(request);
       try {
@@ -2195,8 +2211,9 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.get(
     "/api/clinical/cases",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
+    rejectPatientData,
     async (request, response) => {
       const id = requestId(request);
       try {
@@ -2231,8 +2248,9 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/cases/:caseId/documents/upload-url",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
+    rejectPatientData,
     async (request, response) => {
       const id = requestId(request);
       try {
@@ -2349,8 +2367,9 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/documents/:documentId/finalize",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
+    rejectPatientData,
     async (request, response) => {
       const id = requestId(request);
       try {
@@ -2430,8 +2449,9 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.get(
     "/api/clinical/documents/:documentId/download-url",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
+    rejectPatientData,
     async (request, response) => {
       const id = requestId(request);
       try {
@@ -2478,7 +2498,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.delete(
     "/api/clinical/cases/:caseId",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
     async (request, response) => {
       const id = requestId(request);
@@ -2601,8 +2621,9 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/runs/:runId/review",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
+    rejectPatientData,
     requireClinicalReview,
     async (request, response) => {
       const id = requestId(request);
@@ -2679,7 +2700,7 @@ export function registerAiToolRoutes(app: Express): void {
 
   app.post(
     "/api/clinical/coverage/sync",
-    requireFieldKit,
+    requireElite,
     requireClinicalUse,
     async (request, response) => {
       const id = requestId(request);

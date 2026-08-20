@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # capture-screenshots.sh
-# Captures 5 App Store screenshots from the iPhone 16 Pro Max simulator (6.9")
+# Captures 5 marketing screenshots and 1 subscription review screenshot from
+# the iPhone 17 Pro Max simulator (6.9")
 # and optionally a second set from the iPhone 15 Plus simulator (6.7").
 #
 # Prerequisites:
@@ -8,7 +9,7 @@
 #   - Expo dev server running in a separate terminal:
 #       cd artifacts/spartan-coaching-mobile && pnpm run dev
 #   - App open in the simulator (press 'i' in Expo CLI, or run:
-#       pnpm exec expo run:ios --simulator "iPhone 16 Pro Max")
+#       pnpm exec expo run:ios --simulator "iPhone 17 Pro Max")
 #
 # Usage — run from the repo root:
 #   bash artifacts/spartan-coaching-mobile/store/capture-screenshots.sh
@@ -126,20 +127,24 @@ run_pass() {
   echo "Tip: log in with your test account before starting."
   echo
 
-  # Elite shot list — see store/screenshot-shot-list.md
+  # Current five destination shot list. See store/screenshot-shot-list.md.
   capture_screen "$udid" "$out_dir" "$required_w" "$required_h" \
-    "01-home-mission"     "Entitled Home — ONE Next action emphasis card + today chips (log in first)"
+    "01-home-next-move" "Home with active membership, three clear starting choices, and one current commitment"
   capture_screen "$udid" "$out_dir" "$required_w" "$required_h" \
-    "02-command-hub"      "Command tab hub — next visit or empty Schedule first visit"
+    "02-private-spartan-coach" "Coach Prepare or Review with fictional deidentified context and privacy cue"
   capture_screen "$udid" "$out_dir" "$required_w" "$required_h" \
-    "03-tools-catalog"    "Tools catalog — Command hero + Practice/Prepare list (not a form)"
+    "03-explore" "Explore with Library, My Work, access map, and the complete native tool catalog"
   capture_screen "$udid" "$out_dir" "$required_w" "$required_h" \
-    "04-objection-result" "Objection Handler with generated talk track + sticky Generate"
+    "04-my-work" "My Work with fictional commitment, saved work, and an offline Library item"
   capture_screen "$udid" "$out_dir" "$required_w" "$required_h" \
-    "05-dual-doors"       "Logged-out Home — Consulting | Hospice Sales Pro dual doors (sign out first)"
+    "05-library" "Library Read with search and a complete native featured field note"
+
+  mkdir -p "$out_dir/review"
+  capture_screen "$udid" "$out_dir/review" "$required_w" "$required_h" \
+    "subscription-choice" "Account with Choose Your Access, both weekly plans, and native Apple disclosure"
 
   echo "-------------------------------------------------------"
-  echo "All 5 screenshots saved to: $out_dir"
+  echo "All marketing and subscription review screenshots saved to: $out_dir"
   echo
   echo "Dimension check:"
   for f in "$out_dir"/0{1,2,3,4,5}-*.png; do
@@ -159,8 +164,8 @@ run_pass() {
 # --------------------------------------------------------------------------
 echo "=== Spartan Coaching Hospice Sales Pro — Screenshot Capture ==="
 
-# --- Pass 1: 6.9" iPhone 16 Pro Max → store/screenshots/ ---
-run_pass "iPhone 16 Pro Max" "$SCRIPT_DIR/screenshots" 1320 2868
+# --- Pass 1: 6.9" iPhone 17 Pro Max → store/screenshots/ ---
+run_pass "iPhone 17 Pro Max" "$SCRIPT_DIR/screenshots" 1320 2868
 
 # --- Pass 2 (optional): 6.7" iPhone 15 Plus → store/screenshots/6.7/ ---
 if [[ "${CAPTURE_67:-0}" == "1" ]]; then

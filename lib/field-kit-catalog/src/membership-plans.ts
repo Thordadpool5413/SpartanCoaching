@@ -18,12 +18,33 @@ export const MEMBERSHIP_PLANS = [STANDARD_WEEKLY_PLAN, ELITE_WEEKLY_PLAN] as con
 
 export type MembershipTier = "none" | "standard" | "elite" | "organization";
 
+export const COMPANY_STANDARD_PLAN = "corporate_contract" as const;
+export const COMPANY_ELITE_PLAN = "corporate_contract_elite" as const;
+
+export function hasContractedOrganizationAdminAccess(input: {
+  memberRole?: string | null;
+  organizationType?: string | null;
+  organizationStatus?: string | null;
+  billingPlan?: string | null;
+}): boolean {
+  if (input.memberRole === "platform_admin") return true;
+  return (
+    input.memberRole === "org_admin" &&
+    input.organizationType === "company" &&
+    input.organizationStatus === "active" &&
+    (input.billingPlan === COMPANY_STANDARD_PLAN || input.billingPlan === COMPANY_ELITE_PLAN)
+  );
+}
+
 export function resolveMembershipTier(input: {
   billingPlan?: string | null;
   organizationType?: string | null;
   memberRole?: string | null;
 }): MembershipTier {
-  if (input.memberRole === "platform_admin" || input.organizationType === "company") {
+  if (input.memberRole === "platform_admin") {
+    return "elite";
+  }
+  if (input.organizationType === "company") {
     return "organization";
   }
   if (input.billingPlan === ELITE_WEEKLY_PLAN.billingPlan) return "elite";
@@ -31,6 +52,33 @@ export function resolveMembershipTier(input: {
     return "standard";
   }
   return "none";
+}
+
+export function hasEliteMembership(input: {
+  billingPlan?: string | null;
+  organizationType?: string | null;
+  memberRole?: string | null;
+}): boolean {
+  if (input.memberRole === "platform_admin") return true;
+  return (
+    input.billingPlan === ELITE_WEEKLY_PLAN.billingPlan ||
+    input.billingPlan === COMPANY_ELITE_PLAN
+  );
+}
+
+export function hasStandardMembership(input: {
+  billingPlan?: string | null;
+  organizationType?: string | null;
+  memberRole?: string | null;
+}): boolean {
+  if (hasEliteMembership(input)) return true;
+  if (input.organizationType === "company") {
+    return input.billingPlan === COMPANY_STANDARD_PLAN;
+  }
+  return (
+    input.billingPlan === STANDARD_WEEKLY_PLAN.billingPlan ||
+    input.billingPlan === "comp"
+  );
 }
 
 export function canUseDeidentifiedClinical(
@@ -44,10 +92,9 @@ export function canUseDeidentifiedClinical(
 }
 
 export function canUsePhiClinical(
-  tier: MembershipTier,
-  explicitPermission = false,
-  memberRole?: string | null,
+  _tier: MembershipTier,
+  _explicitPermission = false,
+  _memberRole?: string | null,
 ): boolean {
-  if (memberRole === "platform_admin") return explicitPermission;
-  return tier === "organization" && explicitPermission;
+  return false;
 }

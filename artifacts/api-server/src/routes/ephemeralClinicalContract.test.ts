@@ -61,21 +61,28 @@ describe("ephemeral clinical source contracts", () => {
     );
   });
 
-  it("keeps the web clinical workflow off persistent case and export APIs", () => {
+  it("keeps the web clinical workflow deidentified and off patient data APIs", () => {
     expect(web).toContain("/ephemeral-runs");
-    expect(web).toContain("/api/clinical/ephemeral-sessions");
+    expect(web).not.toContain("/api/clinical/ephemeral-sessions");
     expect(web).not.toContain('"/api/clinical/cases"');
     expect(web).not.toContain("/api/clinical/runs/");
     expect(web).toContain("URL.revokeObjectURL");
+    expect(web).toContain("contains no patient documents");
   });
 
-  it("keeps the native clinical workflow memory-only and privacy protected", () => {
+  it("keeps the native clinical workflow deidentified and memory only", () => {
     expect(native).toContain("/ephemeral-runs");
-    expect(native).toContain("/api/clinical/ephemeral-sessions");
+    expect(native).not.toContain("/api/clinical/ephemeral-sessions");
     expect(native).not.toContain('"/api/clinical/cases"');
     expect(native).not.toContain("/api/clinical/runs/");
-    expect(native).toContain("FileSystem.deleteAsync");
-    expect(native).toContain("clinicalScreenObscured");
+    expect(native).toContain("confirmedDeidentified");
+    expect(native).toContain("contains no patient documents");
+  });
+
+  it("retires patient data endpoints with an explicit rejection", () => {
+    expect(routes).toContain("PATIENT_DATA_NOT_ACCEPTED");
+    expect(routes).toContain("rejectPatientData");
+    expect(routes).toContain("Patient documents and patient PHI are not accepted");
   });
 
   it("sends PDF extracts as application/pdf data URLs without placeholder prefixes", () => {

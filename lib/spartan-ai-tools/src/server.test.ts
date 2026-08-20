@@ -69,7 +69,7 @@ describe("Spartan AI tool runner boundaries", () => {
     ).rejects.toMatchObject({ code: "INVALID_INPUT", status: 400 });
   });
 
-  it("blocks PHI tools until all BAA launch gates are active", async () => {
+  it("does not activate PHI processing from a legacy environment request", async () => {
     vi.stubEnv("AI_TOOL_MEDICARE_LCD_ADVISOR", "true");
     vi.stubEnv("CLINICAL_OPERATION_MODE", "phi");
     vi.stubEnv("HIPAA_PHI_ENABLED", "false");
@@ -78,29 +78,28 @@ describe("Spartan AI tool runner boundaries", () => {
         diagnosis: "Example",
         question: "Example question",
       }),
-    ).rejects.toMatchObject({ code: "PHI_PROCESSING_DISABLED", status: 503 });
+    ).rejects.toMatchObject({ code: "PROVIDER_NOT_CONFIGURED", status: 503 });
   });
 
-  it("enforces full BAA launch gates when PHI mode is active", async () => {
+  it("does not activate PHI processing from legacy BAA flags", async () => {
     vi.stubEnv("AI_TOOL_MEDICARE_LCD_ADVISOR", "true");
     vi.stubEnv("CLINICAL_OPERATION_MODE", "phi");
     vi.stubEnv("HIPAA_PHI_ENABLED", "true");
     vi.stubEnv("OPENAI_BAA_CONFIRMED", "true");
     vi.stubEnv("OPENAI_MODIFIED_RETENTION_CONFIRMED", "true");
     vi.stubEnv("GOOGLE_CLOUD_BAA_CONFIRMED", "true");
-    // Missing PHI_STORAGE_BAA_CONFIRMED → blocked before provider call
     await expect(
       runSpartanAiTool("medicare-lcd-advisor", {
         diagnosis: "Example",
         question: "Example question",
       }),
     ).rejects.toMatchObject({
-      code: "PHI_STORAGE_BAA_REQUIRED",
+      code: "PROVIDER_NOT_CONFIGURED",
       status: 503,
     });
   });
 
-  it("auto-selects PHI mode when all BAA gates are true without explicit mode", async () => {
+  it("keeps deidentified processing when all legacy BAA flags are true", async () => {
     vi.stubEnv("AI_TOOL_MEDICARE_LCD_ADVISOR", "true");
     vi.stubEnv("HIPAA_PHI_ENABLED", "true");
     vi.stubEnv("OPENAI_BAA_CONFIRMED", "true");

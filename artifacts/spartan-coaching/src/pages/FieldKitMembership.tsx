@@ -26,7 +26,7 @@ const TIER_TEAM_FEATURES = [
   "Per-seat weekly rate on contract",
   "Org admin invites & seat control",
   "Usage visibility for leaders",
-  "BAA path for corporate accounts",
+  "Contracted Standard or Elite access",
 ];
 
 const TIER_ENTERPRISE_FEATURES = [
@@ -137,13 +137,13 @@ export default function FieldKitMembership() {
           title="How people get Hospice Sales Pro"
           description="Individuals self-serve weekly. Teams and consulting-plus-seats use contract paths."
         />
-        <div className="grid md:grid-cols-3 gap-5">
+        <div className="grid md:grid-cols-2 xl:grid-cols-4 gap-5">
           <Card className="flex flex-col border border-primary/30 p-6 bg-card elite-emphasis" data-testid="card-tier-individual">
-            <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-3">Most individuals</p>
+            <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-3">Individual · Standard</p>
             <div className="w-11 h-11 rounded-lg bg-primary/15 text-primary flex items-center justify-center mb-4">
               <User className="w-5 h-5" />
             </div>
-            <h2 className="text-lg font-bold text-foreground mb-1">{PRICING_FACTS.productName}</h2>
+            <h2 className="text-lg font-bold text-foreground mb-1">Hospice Sales Pro Standard</h2>
             <p className="mb-3">
               <span className="text-2xl font-black text-primary">
                 ${PRICING_FACTS.individualWeeklyUsd.toFixed(2)}
@@ -151,7 +151,7 @@ export default function FieldKitMembership() {
               <span className="text-sm font-semibold text-muted-foreground"> / week</span>
             </p>
             <p className="text-sm text-muted-foreground leading-relaxed mb-5">
-              Full tools and resources every week. Cancel anytime — access through the paid period.
+              The complete field system for disciplined weekly execution. Cancel anytime.
             </p>
             <ul className="space-y-2 mb-6 flex-1">
               {[
@@ -168,6 +168,37 @@ export default function FieldKitMembership() {
             <div data-testid="button-tier-individual-subscribe">
               <SubscribeCTA surface="membership_pricing" showHint={false} testId="button-tier-individual" />
             </div>
+          </Card>
+
+          <Card className="flex flex-col border-2 border-primary p-6 bg-primary/[0.04] elite-emphasis" data-testid="card-tier-elite">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-primary mb-3">Elite · recommended</p>
+            <div className="w-11 h-11 rounded-lg bg-primary text-primary-foreground flex items-center justify-center mb-4">
+              <Award className="w-5 h-5" />
+            </div>
+            <h2 className="text-lg font-bold text-foreground mb-1">{PRICING_FACTS.eliteProductName}</h2>
+            <p className="mb-3">
+              <span className="text-2xl font-black text-primary">
+                ${PRICING_FACTS.eliteWeeklyUsd.toFixed(2)}
+              </span>
+              <span className="text-sm font-semibold text-muted-foreground"> / week</span>
+            </p>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-5">
+              Standard plus private Spartan Coach and deidentified clinical guidance. Cancel anytime.
+            </p>
+            <ul className="space-y-2 mb-6 flex-1">
+              {["Everything in Standard", "Private voice coaching", "Deidentified clinical guidance"].map((f) => (
+                <li key={f} className="flex gap-2 text-sm text-foreground">
+                  <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
+                  <span>{f}</span>
+                </li>
+              ))}
+            </ul>
+            <Button asChild className="w-full font-bold">
+              <Link href="/account?subscribe=1&plan=elite_weekly" data-testid="button-tier-elite">
+                Choose Elite
+                <ArrowRight className="ml-2 w-4 h-4" />
+              </Link>
+            </Button>
           </Card>
 
           <Card className="flex flex-col border border-border p-6 bg-card" data-testid="card-tier-team">
@@ -240,7 +271,7 @@ export default function FieldKitMembership() {
           Walk in prepared — not hoping the conversation goes your way.
           <br />
           <span className="text-primary">
-            That&apos;s what {PRICING_FACTS.individualWeeklyLabel} buys: prepared field work.
+            Standard builds prepared field work. Elite adds private coaching and clinical guidance.
           </span>
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
@@ -270,8 +301,7 @@ export default function FieldKitMembership() {
             individual seats.
           </li>
           <li>
-            <strong className="text-foreground">Subscribe</strong> for {PRICING_FACTS.individualWeeklyLabel} from
-            Account to unlock live generation and saves. Cancel anytime; access continues through the paid period.
+            <strong className="text-foreground">Choose Standard or Elite</strong> from Account. Standard is {PRICING_FACTS.individualWeeklyLabel}. Elite is {PRICING_FACTS.eliteWeeklyLabel}. Cancel anytime.
           </li>
           <li>
             <strong className="text-foreground">Teams / providers:</strong> request team access — seats and weekly
@@ -302,10 +332,7 @@ export default function FieldKitMembership() {
           <p className="font-semibold text-foreground text-sm">Billing terms (summary)</p>
           <ul className="list-disc list-inside space-y-1">
             <li>
-              <strong className="text-foreground">Individual:</strong> $
-              {PRICING_FACTS.individualWeeklyUsd.toFixed(2)} USD per week, billed automatically until you cancel.{" "}
-              {PRICING_FACTS.individualBillingNote} Access continues through the end of the paid week you already paid
-              for (cancel at period end).
+              <strong className="text-foreground">Individual:</strong> Standard is ${PRICING_FACTS.individualWeeklyUsd.toFixed(2)} USD per week. Elite is ${PRICING_FACTS.eliteWeeklyUsd.toFixed(2)} USD per week. Billing continues automatically until you cancel. Access continues through the paid period.
             </li>
             <li>
               <strong className="text-foreground">Provider / corporate:</strong> {PRICING_FACTS.teamNote} Seat counts

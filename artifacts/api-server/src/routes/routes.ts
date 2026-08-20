@@ -75,7 +75,7 @@ import {
 import { sendInquiryNotification, sendNewsletterConfirmation, sendGeneratedEmail, sendAgreementConfirmation, sendResourceLeadNotification, sendNewsletterNotification, sendNewsletterBroadcast, sendDripDay3, sendDripDay7, sendSigningRequest, sendSignedAgreementPdf } from "../resend";
 import crypto from "crypto";
 import { AGREEMENT_TEXTS } from "../agreementTexts";
-import { requireFieldKit, requireAdmin, type AuthedRequest } from "../auth/middleware";
+import { requireElite, requireFieldKit, requireAdmin, type AuthedRequest } from "../auth/middleware";
 import type { Request } from "express";
 import {
   searchSpartanKnowledge,
@@ -1883,7 +1883,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   });
 
   // Audio transcription endpoint
-  app.post("/api/transcribe", requireFieldKit, heavyAiLimit, globalDailyAiCap, async (req, res) => {
+  app.post("/api/transcribe", requireElite, heavyAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const multer = (await import("multer")).default;
       const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 25 * 1024 * 1024 } });
@@ -1917,7 +1917,7 @@ Build a specific Monday–Friday territory plan for this week.`;
   });
 
   // Analyze transcript with AI coaching feedback
-  app.post("/api/transcribe/analyze", requireFieldKit, heavyAiLimit, globalDailyAiCap, async (req, res) => {
+  app.post("/api/transcribe/analyze", requireElite, heavyAiLimit, globalDailyAiCap, async (req, res) => {
     try {
       const { transcript } = req.body;
       if (!transcript || typeof transcript !== "string") {

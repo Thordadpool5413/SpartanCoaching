@@ -15,6 +15,7 @@ import { Feather } from "@expo/vector-icons";
 import { Stack } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
+import { font } from "@/lib/typography";
 
 function getVideoUrl(): string {
   const domain = process.env.EXPO_PUBLIC_DOMAIN;
@@ -54,14 +55,14 @@ export default function BrandVideoScreen() {
         <View style={styles.headerBlock}>
           <View style={[styles.badge, { backgroundColor: colors.accent, borderColor: colors.border }]}>
             <Feather name="share-2" size={13} color={colors.primary} />
-            <Text style={[styles.badgeText, { color: colors.primary, fontFamily: "Inter_700Bold" }]}>
+            <Text style={[styles.badgeText, { color: colors.primary, ...font("bold") }]}>
               Outreach Asset
             </Text>
           </View>
-          <Text style={[styles.title, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
+          <Text style={[styles.title, { color: colors.foreground, ...font("bold") }]}>
             Spartan Brand Film
           </Text>
-          <Text style={[styles.subtitle, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+          <Text style={[styles.subtitle, { color: colors.mutedForeground, ...font("regular") }]}>
             A 68-second awareness film about the hospice gap — why it exists, who it costs, and why Spartan Coaching is here. Share with a prospect before a call. No login required to watch.
           </Text>
         </View>
@@ -102,7 +103,7 @@ export default function BrandVideoScreen() {
             <Text
               style={[
                 styles.primaryBtnText,
-                { color: copied ? colors.primary : colors.primaryForeground, fontFamily: "Inter_700Bold" },
+                { color: copied ? colors.primary : colors.primaryForeground, ...font("bold") },
               ]}
             >
               {copied ? "Link Copied!" : "Copy Share Link"}
@@ -116,7 +117,7 @@ export default function BrandVideoScreen() {
             ]}
           >
             <Feather name="share" size={17} color={colors.foreground} />
-            <Text style={[styles.secondaryBtnText, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}>
+            <Text style={[styles.secondaryBtnText, { color: colors.foreground, ...font("semibold") }]}>
               Share…
             </Text>
           </Pressable>
@@ -126,7 +127,7 @@ export default function BrandVideoScreen() {
         <View style={[styles.linkCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Feather name="link" size={14} color={colors.mutedForeground} />
           <Text
-            style={[styles.linkText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}
+            style={[styles.linkText, { color: colors.mutedForeground, ...font("regular") }]}
             numberOfLines={1}
           >
             {videoUrl}
@@ -135,7 +136,7 @@ export default function BrandVideoScreen() {
 
         {/* How to use */}
         <View style={[styles.howCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <Text style={[styles.howTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
+          <Text style={[styles.howTitle, { color: colors.foreground, ...font("bold") }]}>
             How to use this in outreach
           </Text>
           {[
@@ -145,11 +146,11 @@ export default function BrandVideoScreen() {
           ].map((step, i) => (
             <View key={i} style={styles.howRow}>
               <View style={[styles.howNum, { backgroundColor: colors.accent }]}>
-                <Text style={[styles.howNumText, { color: colors.primary, fontFamily: "Inter_700Bold" }]}>
+                <Text style={[styles.howNumText, { color: colors.primary, ...font("bold") }]}>
                   {i + 1}
                 </Text>
               </View>
-              <Text style={[styles.howText, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
+              <Text style={[styles.howText, { color: colors.mutedForeground, ...font("regular") }]}>
                 {step}
               </Text>
             </View>

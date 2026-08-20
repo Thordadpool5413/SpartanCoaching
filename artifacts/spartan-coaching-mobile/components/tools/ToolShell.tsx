@@ -8,10 +8,10 @@ import {
   Text,
   View,
 } from "react-native";
-import { router } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import { useColors } from "@/hooks/useColors";
+import { goBackOrReplace } from "@/lib/navigation";
 import { font } from "@/lib/typography";
 import { layout } from "@/lib/spacing";
 import { StickyCTA } from "@/components/ui/StickyCTA";
@@ -62,15 +62,15 @@ export function ToolShell({
     <View style={{ flex: 1, backgroundColor: colors.background }} testID={testID}>
       <View style={[styles.topBar, { paddingTop: insets.top + 8, borderBottomColor: colors.border }]}>
         <Pressable
-          onPress={() => router.back()}
+          onPress={() => goBackOrReplace("/(tabs)/tools")}
           style={styles.backBtn}
           hitSlop={8}
           testID="tool-back"
           accessibilityRole="button"
-          accessibilityLabel="Back to Tools"
+          accessibilityLabel="Back to Explore"
         >
           <Feather name="chevron-left" size={22} color={colors.primary} />
-          <Text style={[{ color: colors.primary, fontSize: 15 }, font("bold")]}>Tools</Text>
+          <Text style={[{ color: colors.primary, fontSize: 15 }, font("bold")]}>Explore</Text>
         </Pressable>
         <Text style={[{ color: colors.mutedForeground, fontSize: 10, letterSpacing: 1.2 }, font("bold")]}>
           HOSPICE SALES PRO · {category.toUpperCase()}

@@ -25,7 +25,8 @@ function navigateTarget(
   if (!target) return;
   let next: DeepTarget = target;
   // Expired / logged-out session → login (never open protected tools cold)
-  if (!opts?.authenticated && target.pathname !== "/login") {
+  const publicTarget = target.pathname === "/login" || target.pathname === "/reset-password" || target.pathname === "/membership" || target.pathname.startsWith("/(tabs)");
+  if (!opts?.authenticated && !publicTarget) {
     next = { pathname: "/login" };
   } else if (
     opts?.authenticated &&

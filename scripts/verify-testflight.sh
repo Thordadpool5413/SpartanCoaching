@@ -2,8 +2,8 @@
 set -euo pipefail
 
 PROFILE="${1:-testflight}"
-if [[ "$PROFILE" != "testflight" && "$PROFILE" != "testflight-applinks" ]]; then
-  echo "Usage: bash scripts/verify-testflight.sh [testflight|testflight-applinks]" >&2
+if [[ "$PROFILE" != "preview" && "$PROFILE" != "testflight" && "$PROFILE" != "testflight-applinks" && "$PROFILE" != "production" && "$PROFILE" != "production-applinks" ]]; then
+  echo "Usage: bash scripts/verify-testflight.sh [preview|testflight|testflight-applinks|production|production-applinks]" >&2
   exit 2
 fi
 
@@ -28,9 +28,14 @@ echo "[3/9] Verify schema, migration safety, and membership pricing"
 "${PNPM[@]}" --filter @workspace/db test
 "${PNPM[@]}" --filter @workspace/field-kit-catalog test
 
-echo "[4/9] Verify Coach privacy, universal links, and AI safety"
+echo "[4/9] Verify Coach privacy, Apple billing, universal links, and AI safety"
 "${PNPM[@]}" --filter @workspace/api-server exec vitest run \
+  src/billing/appleBillingContract.test.ts \
+  src/billing/entitlementMap.test.ts \
+  src/clinical/clinicalProductContract.test.ts \
   src/routes/coachPrivacyContract.test.ts \
+  src/routes/companySeatTransitionContract.test.ts \
+  src/routes/memberPersonalRecoveryContract.test.ts \
   src/routes/associatedDomainsContract.test.ts \
   src/clinical/deidentification.test.ts \
   src/ai/uncertaintyBoundaries.test.ts
@@ -43,7 +48,7 @@ bash -n scripts/verify-testflight.sh "$MOBILE/scripts/start-dev.sh"
 git diff --check
 
 echo "[7/9] Resolve the exact Expo public configuration"
-if [[ "$PROFILE" == "testflight-applinks" ]]; then
+if [[ "$PROFILE" == *"-applinks" ]]; then
   export EAS_SKIP_ASSOCIATED_DOMAINS=0
 else
   export EAS_SKIP_ASSOCIATED_DOMAINS=1
@@ -60,15 +65,26 @@ if (config.ios?.bundleIdentifier !== "com.spartancoaching.fieldkit") throw new E
 const router = config.plugins?.find((item) => Array.isArray(item) && item[0] === "expo-router");
 if (router?.[1]?.origin !== "https://spartanhospicecoaching.com") throw new Error("Wrong Expo Router production origin");
 const domains = config.ios?.associatedDomains || [];
-if (profile === "testflight-applinks" && !domains.includes("applinks:spartanhospicecoaching.com")) throw new Error("Associated Domains missing");
-if (profile === "testflight" && domains.length) throw new Error("Default TestFlight profile must omit Associated Domains");
+if (profile.endsWith("-applinks") && !domains.includes("applinks:spartanhospicecoaching.com")) throw new Error("Associated Domains missing");
+if (!profile.endsWith("-applinks") && domains.length) throw new Error("This profile must omit Associated Domains");
 console.log(JSON.stringify({ bundleIdentifier: config.ios.bundleIdentifier, routerOrigin: router[1].origin, associatedDomains: domains }));
 NODE
 
 echo "[8/9] Verify production health and optional AASA"
-HEALTH_JSON="$(curl --fail --silent --show-error --max-time 20 "$PRODUCTION_URL/api/health")"
+echo "Checking production API health"
+if ! HEALTH_JSON="$(curl --fail --silent --show-error --max-time 20 "$PRODUCTION_URL/api/health")"; then
+  echo "FAIL: production API health is unavailable at $PRODUCTION_URL/api/health" >&2
+  exit 1
+fi
 node -e 'const v=JSON.parse(process.argv[1]); if(v.status!=="ok") throw new Error("Production health is not ok")' "$HEALTH_JSON"
-if [[ "$PROFILE" == "testflight-applinks" ]]; then
+echo "Checking production Apple billing health"
+if ! APPLE_HEALTH_JSON="$(curl --fail --silent --show-error --max-time 20 "$PRODUCTION_URL/api/billing/apple/health")"; then
+  echo "FAIL: Apple billing API is not deployed at $PRODUCTION_URL/api/billing/apple/health" >&2
+  echo "Apply migration 0017 and deploy the API before creating the private QA build." >&2
+  exit 1
+fi
+node -e 'const v=JSON.parse(process.argv[1]); if(v.status!=="ok"||v.configured!==true) throw new Error("Production Apple billing verification is not configured")' "$APPLE_HEALTH_JSON"
+if [[ "$PROFILE" == *"-applinks" ]]; then
   AASA_JSON="$(curl --fail --silent --show-error --max-time 20 "$PRODUCTION_URL/.well-known/apple-app-site-association")"
   node -e 'const v=JSON.parse(process.argv[1]); const ids=v.applinks?.details?.flatMap(x=>x.appIDs||[])||[]; if(!ids.includes("65C25YHCX9.com.spartancoaching.fieldkit")) throw new Error("Production AASA appID missing")' "$AASA_JSON"
 fi

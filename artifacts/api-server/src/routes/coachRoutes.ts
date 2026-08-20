@@ -1,5 +1,5 @@
 import type { Express, Response } from "express";
-import { and, asc, desc, eq, ne } from "drizzle-orm";
+import { and, asc, desc, eq, lt, ne } from "drizzle-orm";
 import { z } from "zod";
 import {
   clientMembers,
@@ -10,7 +10,7 @@ import {
   coachSharedSummaries,
 } from "@workspace/db";
 import { db } from "../db";
-import { requireFieldKit, type AuthedRequest } from "../auth/middleware";
+import { requireElite, type AuthedRequest } from "../auth/middleware";
 import { standardAiLimit, globalDailyAiCap } from "../rateLimits";
 import { findPotentialIdentifiers } from "../clinical/deidentification";
 import { preflightUncertainty } from "../ai/uncertaintyBoundaries";
@@ -34,6 +34,16 @@ const shareSchema = z.object({
   summary: z.string().trim().min(1).max(1200),
   commitments: z.array(z.string().trim().min(1).max(240)).max(10),
 }).strict();
+const COACH_RAW_RETENTION_MS = 90 * 24 * 60 * 60 * 1000;
+
+export async function runCoachRetentionSweep(now = new Date()) {
+  const cutoff = new Date(now.getTime() - COACH_RAW_RETENTION_MS);
+  const deleted = await db
+    .delete(coachConversations)
+    .where(lt(coachConversations.updatedAt, cutoff))
+    .returning({ id: coachConversations.id });
+  return { conversationsDeleted: deleted.length, cutoff: cutoff.toISOString() };
+}
 
 function owner(request: AuthedRequest) {
   const member = request.fieldKit?.member;
@@ -100,7 +110,21 @@ async function persistTurn(input: {
 }
 
 export function registerCoachRoutes(app: Express): void {
-  app.get("/api/v1/coach/preferences", requireFieldKit, async (req, res, next) => {
+  app.use("/api/v1/coach", requireElite, async (req, _res, next) => {
+    try {
+      const context = owner(req as AuthedRequest);
+      await db.delete(coachConversations).where(and(
+        eq(coachConversations.organizationId, context.organizationId),
+        eq(coachConversations.memberId, context.memberId),
+        lt(coachConversations.updatedAt, new Date(Date.now() - COACH_RAW_RETENTION_MS)),
+      ));
+      next();
+    } catch (error) {
+      next(error);
+    }
+  });
+
+  app.get("/api/v1/coach/preferences", requireElite, async (req, res, next) => {
     try {
       const context = owner(req as AuthedRequest);
       const [preference] = await db.select().from(coachPreferences).where(and(
@@ -111,7 +135,7 @@ export function registerCoachRoutes(app: Express): void {
     } catch (error) { next(error); }
   });
 
-  app.put("/api/v1/coach/preferences", requireFieldKit, async (req, res, next) => {
+  app.put("/api/v1/coach/preferences", requireElite, async (req, res, next) => {
     const parsed = preferenceSchema.safeParse(req.body);
     if (!parsed.success) return invalidBody(res, parsed.error.issues);
     try {
@@ -129,7 +153,7 @@ export function registerCoachRoutes(app: Express): void {
     } catch (error) { next(error); }
   });
 
-  app.get("/api/v1/coach/memory", requireFieldKit, async (req, res, next) => {
+  app.get("/api/v1/coach/memory", requireElite, async (req, res, next) => {
     try {
       const context = owner(req as AuthedRequest);
       const items = await db.select().from(coachMemoryItems).where(and(
@@ -140,7 +164,7 @@ export function registerCoachRoutes(app: Express): void {
     } catch (error) { next(error); }
   });
 
-  app.post("/api/v1/coach/memory", requireFieldKit, async (req, res, next) => {
+  app.post("/api/v1/coach/memory", requireElite, async (req, res, next) => {
     const parsed = memorySchema.safeParse(req.body);
     if (!parsed.success) return invalidBody(res, parsed.error.issues);
     if (rejectIdentifiers(res, parsed.data)) return;
@@ -155,7 +179,7 @@ export function registerCoachRoutes(app: Express): void {
     } catch (error) { next(error); }
   });
 
-  app.delete("/api/v1/coach/memory/:id", requireFieldKit, async (req, res, next) => {
+  app.delete("/api/v1/coach/memory/:id", requireElite, async (req, res, next) => {
     try {
       const context = owner(req as AuthedRequest);
       await db.delete(coachMemoryItems).where(and(
@@ -167,7 +191,7 @@ export function registerCoachRoutes(app: Express): void {
     } catch (error) { next(error); }
   });
 
-  app.get("/api/v1/coach/conversations", requireFieldKit, async (req, res, next) => {
+  app.get("/api/v1/coach/conversations", requireElite, async (req, res, next) => {
     try {
       const context = owner(req as AuthedRequest);
       const conversations = await db.select().from(coachConversations).where(and(
@@ -179,7 +203,7 @@ export function registerCoachRoutes(app: Express): void {
     } catch (error) { next(error); }
   });
 
-  app.post("/api/v1/coach/conversations", requireFieldKit, async (req, res, next) => {
+  app.post("/api/v1/coach/conversations", requireElite, async (req, res, next) => {
     const parsed = conversationSchema.safeParse(req.body ?? {});
     if (!parsed.success) return invalidBody(res, parsed.error.issues);
     try {
@@ -193,7 +217,7 @@ export function registerCoachRoutes(app: Express): void {
     } catch (error) { next(error); }
   });
 
-  app.get("/api/v1/coach/conversations/:id", requireFieldKit, async (req, res, next) => {
+  app.get("/api/v1/coach/conversations/:id", requireElite, async (req, res, next) => {
     try {
       const request = req as AuthedRequest;
       const context = owner(request);
@@ -208,19 +232,20 @@ export function registerCoachRoutes(app: Express): void {
     } catch (error) { next(error); }
   });
 
-  app.delete("/api/v1/coach/conversations/:id", requireFieldKit, async (req, res, next) => {
+  app.delete("/api/v1/coach/conversations/:id", requireElite, async (req, res, next) => {
     try {
       const context = owner(req as AuthedRequest);
-      await db.update(coachConversations).set({ status: "archived", updatedAt: new Date() }).where(and(
+      const deleted = await db.delete(coachConversations).where(and(
         eq(coachConversations.id, String(req.params.id)),
         eq(coachConversations.organizationId, context.organizationId),
         eq(coachConversations.memberId, context.memberId),
-      ));
-      res.json({ ok: true });
+      )).returning({ id: coachConversations.id });
+      if (!deleted.length) return res.status(404).json({ error: "Conversation not found", code: "NOT_FOUND" });
+      res.json({ ok: true, hardDeleted: true });
     } catch (error) { next(error); }
   });
 
-  app.post("/api/v1/coach/conversations/:id/share", requireFieldKit, async (req, res, next) => {
+  app.post("/api/v1/coach/conversations/:id/share", requireElite, async (req, res, next) => {
     const parsed = shareSchema.safeParse(req.body);
     if (!parsed.success) return invalidBody(res, parsed.error.issues);
     if (rejectIdentifiers(res, parsed.data)) return;
@@ -249,7 +274,7 @@ export function registerCoachRoutes(app: Express): void {
     } catch (error) { next(error); }
   });
 
-  app.get("/api/v1/coach/shared-summaries", requireFieldKit, async (req, res, next) => {
+  app.get("/api/v1/coach/shared-summaries", requireElite, async (req, res, next) => {
     try {
       const context = owner(req as AuthedRequest);
       const summaries = await db.select().from(coachSharedSummaries).where(and(
@@ -260,7 +285,7 @@ export function registerCoachRoutes(app: Express): void {
     } catch (error) { next(error); }
   });
 
-  app.delete("/api/v1/coach/shared-summaries/:id", requireFieldKit, async (req, res, next) => {
+  app.delete("/api/v1/coach/shared-summaries/:id", requireElite, async (req, res, next) => {
     try {
       const context = owner(req as AuthedRequest);
       await db.delete(coachSharedSummaries).where(and(
@@ -274,7 +299,7 @@ export function registerCoachRoutes(app: Express): void {
 
   app.post(
     "/api/v1/coach/conversations/:id/messages",
-    requireFieldKit,
+    requireElite,
     standardAiLimit,
     globalDailyAiCap,
     async (req, res) => {

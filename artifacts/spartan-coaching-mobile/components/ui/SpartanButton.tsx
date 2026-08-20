@@ -79,15 +79,14 @@ export function SpartanButton({
           ...(variant === "primary" && Platform.OS === "ios" && !reduceMotion
             ? {
                 shadowColor: colors.primary,
-                shadowOpacity: 0.45,
-                shadowRadius: 14,
-                shadowOffset: { width: 0, height: 6 },
+                shadowOpacity: 0.18,
+                shadowRadius: 10,
+                shadowOffset: { width: 0, height: 4 },
               }
             : variant === "primary" && Platform.OS !== "ios"
-              ? { elevation: 6 }
+              ? { elevation: 3 }
               : null),
         },
-        variant === "primary" && !reduceMotion && styles.primaryShadow,
         style,
       ]}
     >
@@ -112,13 +111,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.md,
     alignItems: "center",
     justifyContent: "center",
-  },
-  primaryShadow: {
-    shadowColor: "#e8291e",
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 5,
   },
   label: {
     fontSize: 15,

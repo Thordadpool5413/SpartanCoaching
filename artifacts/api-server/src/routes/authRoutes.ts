@@ -1,6 +1,6 @@
 import { randomBytes } from "node:crypto";
 import type { Express, Response } from "express";
-import { eq, desc, sql, and, isNull, ne, gte, lt, count } from "drizzle-orm";
+import { eq, desc, sql, and, or, isNull, ne, gte, lt, count } from "drizzle-orm";
 import {
   accessRequests,
   clientMembers,
@@ -15,6 +15,10 @@ import {
   orgTeams,
   usageEvents,
   eventTracking,
+  coachConversations,
+  coachMemoryItems,
+  coachPreferences,
+  coachSharedSummaries,
   requestAccessBodySchema,
   loginBodySchema,
   setPasswordBodySchema,
@@ -76,6 +80,7 @@ import {
 import { storage } from "../storage";
 import {
   aggregateOrgUsage,
+  aggregateCompletionTrend,
   evaluateDisableMember,
   evaluateRoleChange,
   resolveSeatCap,
@@ -742,6 +747,7 @@ export function registerAuthRoutes(app: Express): void {
 
       const patch: Record<string, unknown> = {};
       if (parsed.data.jobRole !== undefined) patch.jobRole = parsed.data.jobRole;
+      if (parsed.data.alsoLeadsTeam !== undefined) patch.alsoLeadsTeam = parsed.data.alsoLeadsTeam;
       if (parsed.data.territoryNote !== undefined) patch.territoryNote = parsed.data.territoryNote;
       if (parsed.data.topObjections !== undefined) patch.topObjections = parsed.data.topObjections;
 
@@ -1707,8 +1713,9 @@ export function registerAuthRoutes(app: Express): void {
         .from(clientMembers)
         .where(eq(clientMembers.organizationId, orgId));
       const emailSet = new Set(members.map((m) => m.email.toLowerCase()));
+      const memberIdSet = new Set(members.map((m) => m.id));
       if (emailSet.size === 0) {
-        return res.json({ total: 0, byTool: [], byMember: [], days: 7 });
+        return res.json({ total: 0, byTool: [], byMember: [], completionTotal: 0, completionTrend: [], days: 7 });
       }
 
       const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
@@ -1723,15 +1730,59 @@ export function registerAuthRoutes(app: Express): void {
         emailSet,
       );
 
+      const outcomeRows = await db
+        .select({
+          memberId: eventTracking.memberId,
+          eventName: eventTracking.eventName,
+          createdAt: eventTracking.createdAt,
+        })
+        .from(eventTracking)
+        .where(and(
+          eq(eventTracking.eventType, "product_outcome"),
+          gte(eventTracking.createdAt, weekAgo.getTime()),
+        ))
+        .limit(5000);
+      const completions = aggregateCompletionTrend(outcomeRows, memberIdSet);
+
       return res.json({
         total: aggregated.total,
         days: 7,
         byTool: aggregated.byTool,
         byMember: aggregated.byMember,
+        completionTotal: completions.total,
+        completionTrend: completions.trend,
       });
     } catch (err) {
       console.error("org usage error:", err);
       return res.status(500).json({ error: "Failed to load usage" });
+    }
+  });
+
+  app.get("/api/org/shared-summaries", requireAuth, requireFieldKit, requireOrgAdmin, async (req: AuthedRequest, res) => {
+    try {
+      const orgId = req.fieldKit!.org!.id;
+      const recipientId = req.clientMemberId!;
+      const [summaries, members] = await Promise.all([
+        db.select().from(coachSharedSummaries).where(and(
+          eq(coachSharedSummaries.organizationId, orgId),
+          eq(coachSharedSummaries.sharedWithMemberId, recipientId),
+        )).orderBy(desc(coachSharedSummaries.sharedAt)).limit(100),
+        db.select({ id: clientMembers.id, name: clientMembers.name }).from(clientMembers)
+          .where(eq(clientMembers.organizationId, orgId)),
+      ]);
+      const ownerNames = new Map(members.map((member) => [member.id, member.name]));
+      return res.json({
+        summaries: summaries.map((summary) => ({
+          id: summary.id,
+          ownerName: ownerNames.get(summary.ownerMemberId) ?? "Team member",
+          summary: summary.summary,
+          commitments: summary.commitments,
+          sharedAt: summary.sharedAt,
+        })),
+      });
+    } catch (err) {
+      console.error("org shared summaries error:", err);
+      return res.status(500).json({ error: "Failed to load explicitly shared summaries" });
     }
   });
 
@@ -2096,8 +2147,8 @@ export function registerAuthRoutes(app: Express): void {
   /**
    * Self-serve account deletion (App Store Guideline 5.1.1(v) / HSP-46).
    * Body: { confirm: "DELETE" }
-   * Disables the member, anonymizes PII, clears sessions/tokens.
-   * Does not delete Stripe objects (user should cancel via Manage billing); ops can purge later.
+   * Disables the member, anonymizes PII, clears sessions and tokens, and removes
+   * private Coach content. Store subscriptions remain controlled by Apple or Stripe.
    */
   app.post("/api/me/delete-account", requireAuth, authLimit, async (req: AuthedRequest, res) => {
     try {
@@ -2117,23 +2168,31 @@ export function registerAuthRoutes(app: Express): void {
       }
 
       const anonymizedEmail = `deleted+${member.id}.${Date.now()}@deleted.invalid`;
-      await db
-        .update(clientMembers)
-        .set({
-          status: "disabled",
-          email: anonymizedEmail,
-          passwordHash: null,
-          name: "Deleted user",
-          title: null,
-          territoryNote: null,
-          topObjections: null,
-          checklistProgress: {},
-          jobRole: null,
-        })
-        .where(eq(clientMembers.id, member.id));
-
-      await db.delete(clientSessions).where(eq(clientSessions.memberId, member.id));
-      await db.delete(authTokens).where(eq(authTokens.memberId, member.id));
+      await db.transaction(async (tx) => {
+        await tx.delete(coachSharedSummaries).where(or(
+          eq(coachSharedSummaries.ownerMemberId, member.id),
+          eq(coachSharedSummaries.sharedWithMemberId, member.id),
+        ));
+        await tx.delete(coachConversations).where(eq(coachConversations.memberId, member.id));
+        await tx.delete(coachMemoryItems).where(eq(coachMemoryItems.memberId, member.id));
+        await tx.delete(coachPreferences).where(eq(coachPreferences.memberId, member.id));
+        await tx.delete(clientSessions).where(eq(clientSessions.memberId, member.id));
+        await tx.delete(authTokens).where(eq(authTokens.memberId, member.id));
+        await tx
+          .update(clientMembers)
+          .set({
+            status: "disabled",
+            email: anonymizedEmail,
+            passwordHash: null,
+            name: "Deleted user",
+            title: null,
+            territoryNote: null,
+            topObjections: null,
+            checklistProgress: {},
+            jobRole: null,
+          })
+          .where(eq(clientMembers.id, member.id));
+      });
 
       res.clearCookie(COOKIE_NAME, {
         httpOnly: true,
@@ -2149,7 +2208,7 @@ export function registerAuthRoutes(app: Express): void {
       return res.json({
         ok: true,
         message:
-          "Account deleted. Sign-in credentials no longer work. Cancel any active subscription via the billing portal if you still have access to that email.",
+          "Account deleted. Sign-in credentials and private Coach content were removed. Any active App Store or web subscription must still be canceled with its billing provider.",
       });
     } catch (err) {
       console.error("delete-account error:", err);
@@ -2367,6 +2426,7 @@ export function registerAuthRoutes(app: Express): void {
       billableSeats?: number | null;
       billingPlan?: string | null;
       billingStatus?: string | null;
+      contractRef?: string | null;
       billingContactEmail?: string | null;
       billingContactName?: string | null;
       securityContactEmail?: string | null;
@@ -2383,6 +2443,7 @@ export function registerAuthRoutes(app: Express): void {
         billableSeats: o.billableSeats ?? null,
         billingPlan: o.billingPlan ?? null,
         billingStatus: o.billingStatus ?? null,
+        contractRef: o.contractRef ?? null,
         activeMembers: countRow?.count ?? 0,
         billingContactEmail: o.billingContactEmail ?? null,
         billingContactName: o.billingContactName ?? null,

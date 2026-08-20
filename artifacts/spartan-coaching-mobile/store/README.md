@@ -13,7 +13,7 @@ privacy/terms/trust/support links, client API contract headers for backend compa
 - Privacy Policy URL + App Privacy questionnaire (match privacy manifest data types)
 - Screenshots, description, keywords, support URL, marketing URL
 - Review notes from `APP_REVIEW_NOTES` in `appStoreReadiness.ts`
-- Confirm subscription storefront rules (Stripe external vs IAP) for each region
+- Confirm both weekly Apple products, localized prices, tax settings, and review screenshots
 - Host `apple-app-site-association` for universal links
 - TestFlight build + smoke on a physical iPhone (`store/testflight-smoke.md`)
 - Craft **feel** pass (`store/testflight-feel-checklist.md`) + elite screenshots (`screenshot-shot-list.md`)
@@ -80,6 +80,28 @@ pnpm dlx eas-cli@21.0.2 env:list --environment production
 Both variables should resolve to the production host. The `testflight` and
 `production` profiles explicitly use the EAS `production` environment.
 
+### 1c. Set Microsoft Bookings for exact consulting times
+
+Consulting remains separately contracted. The native intake and confirmation
+flow works without this value, but choosing an exact appointment time requires
+the public HTTPS URL for the Spartan Coaching Microsoft Bookings page.
+
+```bash
+pnpm dlx eas-cli@21.0.2 env:create production \
+  --scope project \
+  --name EXPO_PUBLIC_MICROSOFT_BOOKINGS_URL \
+  --value 'https://outlook.office.com/book/REPLACE_WITH_YOUR_BOOKINGS_PAGE' \
+  --visibility plaintext
+```
+
+Replace the example value with the actual public Microsoft Bookings URL. This
+is public configuration, not a credential. Confirm the saved value before the
+next build:
+
+```bash
+pnpm dlx eas-cli@21.0.2 env:list --environment production
+```
+
 ### 2. One-time credential setup (run once from your Mac)
 
 EAS needs to create an iOS Distribution certificate and App Store provisioning profile on your behalf. This requires Apple login — it **must be run interactively from a Mac terminal**, not from Replit.
@@ -119,7 +141,7 @@ After credentials are set up (step 2 above), run this from the **Replit shell**:
 pnpm --filter @workspace/spartan-coaching-mobile run build:ios:testflight
 ```
 
-**Default TestFlight omits Universal Links** (`EAS_SKIP_ASSOCIATED_DOMAINS=1`) so a stale App Store profile without Associated Domains cannot fail the Xcode step. The app still works for login, tools, and Command; only `applinks:` deep links are off.
+**Default TestFlight omits Universal Links** (`EAS_SKIP_ASSOCIATED_DOMAINS=1`) so a stale App Store profile without Associated Domains cannot fail the Xcode step. The app still works for login, Explore, Coach, My Work, and Library. Only `applinks:` deep links are off.
 
 A profile that lacks Associated Domains fails with:
 
@@ -179,12 +201,14 @@ Short path:
 - [ ] Entitled demo account + a locked/logged-out path to test
 
 ### Must-pass product paths
-- [ ] Logged-out Home: dual doors (Consulting | Hospice Sales Pro)
-- [ ] Entitled Home: **one** Next action card
-- [ ] Command hub (not bare form-only tab)
-- [ ] Tools catalog → Objection → sticky Generate → result
-- [ ] Learn: Articles / Podcasts / Resources (grouped PDFs)
-- [ ] Subscribe return → unlock refresh → activation ceremony once
+- [ ] Public Home explains the product and offers a guided tour before purchase
+- [ ] Standard and Elite purchase begins through Apple before account creation
+- [ ] Entitled Home provides Plan, Practice, Explore, and one current commitment
+- [ ] Explore opens every native tool, Library, My Work, and the access map
+- [ ] Library opens native articles, complete audio only, and in app resources
+- [ ] My Work reopens commitments, plans, approved outputs, and downloads
+- [ ] Coach text, voice, transcription, feedback, and private commitment work
+- [ ] Purchase verification refreshes access and shows activation once
 
 ### Pass criteria
 `testflight-smoke.md` critical rows green. 401/403 on tools → check `fieldKit.allowed` on the demo org.
@@ -230,11 +254,11 @@ App Store Connect requires at least the **6.9"** slot. **6.7"** strongly recomme
 
 | File | Screen |
 |---|---|
-| `01-home-mission.png` | Entitled Home — one Next action card |
-| `02-command-hub.png` | Command hub |
-| `03-tools-catalog.png` | Tools catalog (Command hero) |
-| `04-objection-result.png` | Objection result (3-tap heat) |
-| `05-dual-doors.png` | Logged-out dual doors |
+| `01-home-next-move.png` | Entitled Home with three clear starts and one commitment |
+| `02-private-spartan-coach.png` | Private Coach with deidentified fictional context |
+| `03-explore.png` | Explore with every destination and native tool |
+| `04-my-work.png` | My Work with fictional saved work and an offline item |
+| `05-library.png` | Library with search and a complete native field note |
 
 Legacy files (`01-checklist.png`, etc.) in `store/screenshots/` are placeholders — **re-capture with `capture-screenshots.sh` after I0–I6 UI** before review.
 
@@ -242,7 +266,7 @@ Legacy files (`01-checklist.png`, etc.) in `store/screenshots/` are placeholders
 
 1. Open [App Store Connect](https://appstoreconnect.apple.com) → your Spartan Coaching app record.
 2. Go to **App Store → iOS App → iPhone screenshots**.
-3. Select the **6.9" (iPhone 16 Pro Max)** device size slot.
+3. Select the **6.9" (iPhone 17 Pro Max)** device size slot.
 4. Drag all 5 PNGs from `store/screenshots/` into the upload area (or click **+** to browse).
 5. Arrange them in the order 01 → 05.
 6. Click **Save**.
@@ -295,7 +319,7 @@ pnpm install
 # In one terminal — start the Expo dev server
 pnpm run dev
 
-# In another terminal — capture 6.9" only (iPhone 16 Pro Max → store/screenshots/):
+# In another terminal: capture 6.9" only (iPhone 17 Pro Max to store/screenshots/):
 bash store/capture-screenshots.sh
 
 # OR capture both 6.9" AND 6.7" in one run:
@@ -303,7 +327,7 @@ CAPTURE_67=1 bash store/capture-screenshots.sh
 ```
 
 The script prompts you to navigate to each screen and press ENTER before capturing.
-When `CAPTURE_67=1` is set it runs a full 5-screen pass on the iPhone 16 Pro Max first,
+When `CAPTURE_67=1` is set it runs a full 5 screen pass on the iPhone 17 Pro Max first,
 then asks you to switch to the iPhone 15 Plus simulator and repeats the same 5 screens,
 saving the second set to `store/screenshots/6.7/` at 1290×2796 px.
 
@@ -313,16 +337,16 @@ After the script finishes, verify the PNGs look correct, then follow the upload 
 
 Use this if the script fails or you want to capture a specific screen yourself.
 
-#### 6.9" (iPhone 16 Pro Max — 1320×2868)
+#### 6.9" (iPhone 17 Pro Max, 1320 by 2868)
 
 ```bash
 # 1. Boot the simulator
-xcrun simctl list devices available | grep "iPhone 16 Pro Max"
+xcrun simctl list devices available | grep "iPhone 17 Pro Max"
 xcrun simctl boot <UDID>
 open -a Simulator
 
 # 2. Open the app
-pnpm exec expo run:ios --simulator "iPhone 16 Pro Max"
+pnpm exec expo run:ios --simulator "iPhone 17 Pro Max"
 
 # 3. Capture each screen
 xcrun simctl io booted screenshot /tmp/screenshot.png

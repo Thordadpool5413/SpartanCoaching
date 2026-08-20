@@ -62,4 +62,53 @@ describe("Expo production configuration", () => {
     expect(config.expo.ios.associatedDomains).toBeUndefined();
     expect(config.expo.ios.entitlements).toBeUndefined();
   });
+
+  it("declares Coach data without retired clinical device permissions", () => {
+    const config = require("../app.config.js");
+    const collected = config.expo.ios.privacyManifests.NSPrivacyCollectedDataTypes.map(
+      (item: { NSPrivacyCollectedDataType: string }) => item.NSPrivacyCollectedDataType,
+    );
+    const plugins = config.expo.plugins.map((plugin: string | [string, unknown]) =>
+      Array.isArray(plugin) ? plugin[0] : plugin,
+    );
+
+    expect(collected).toEqual(expect.arrayContaining([
+      "NSPrivacyCollectedDataTypeUserID",
+      "NSPrivacyCollectedDataTypeAudioData",
+      "NSPrivacyCollectedDataTypeOtherUserContent",
+    ]));
+    expect(config.expo.ios.infoPlist.NSCameraUsageDescription).toBeUndefined();
+    expect(config.expo.ios.infoPlist.NSPhotoLibraryUsageDescription).toBeUndefined();
+    expect(plugins).not.toContain("expo-image-picker");
+    expect(plugins).not.toContain("expo-local-authentication");
+  });
+
+  it("uses the transparent helmet in the recommended native splash plugin", () => {
+    const config = require("../app.config.js");
+    const splash = config.expo.plugins.find(
+      (plugin: string | [string, Record<string, unknown>]) => Array.isArray(plugin) && plugin[0] === "expo-splash-screen",
+    ) as [string, Record<string, unknown>] | undefined;
+
+    expect(splash?.[1]).toEqual(expect.objectContaining({
+      image: "./assets/images/helmet-mark.png",
+      imageWidth: 212,
+      backgroundColor: "#07111F",
+    }));
+  });
+
+  it("keeps Home Screen shortcuts aligned with the current five destination experience", () => {
+    const config = require("../app.config.js");
+    const shortcuts = config.expo.ios.infoPlist.UIApplicationShortcutItems;
+
+    expect(shortcuts.map((item: { UIApplicationShortcutItemTitle: string }) => item.UIApplicationShortcutItemTitle)).toEqual([
+      "Open Field Guide",
+      "Spartan Coach",
+      "Open Explore",
+    ]);
+    expect(shortcuts.map((item: { UIApplicationShortcutItemUserInfo: { url: string } }) => item.UIApplicationShortcutItemUserInfo.url)).toEqual([
+      "spartan-coaching-mobile://home",
+      "spartan-coaching-mobile://coach",
+      "spartan-coaching-mobile://tools",
+    ]);
+  });
 });

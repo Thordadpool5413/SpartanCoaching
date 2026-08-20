@@ -1,985 +1,261 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import {
-  AppState,
-  AppStateStatus,
-  Image,
-  Linking,
-  Platform,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from "react-native";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { LinearGradient } from "expo-linear-gradient";
-import { router, useFocusEffect } from "expo-router";
-import * as Notifications from "expo-notifications";
+import { router, type Href, useFocusEffect, useLocalSearchParams } from "expo-router";
+import React, { useCallback, useMemo, useState } from "react";
+import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { SpartanHeader } from "@/components/ui/SpartanHeader";
+import { WelcomeExperience } from "@/components/WelcomeExperience";
 import { useColors } from "@/hooks/useColors";
-import { useReminderHistory } from "@/hooks/useReminderHistory";
-import { apiGet, fetchOnboardingMobile, updateOnboardingMobile } from "@/lib/api";
-import { cancelReminder, removeReminderFromHistory } from "@/lib/notifications";
+import { fetchOnboardingMobile } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
-import {
-  formatTrialRemaining,
-  isChecklistDone,
-  visibleChecklist,
-} from "@/lib/onboarding";
-import { SectionKicker } from "@/components/ui/SectionKicker";
-import { SpartanCard } from "@/components/ui/SpartanCard";
-import { SpartanButton } from "@/components/ui/SpartanButton";
-import { MissionCard } from "@/components/ui/MissionCard";
-import { EntitlementBanner } from "@/components/ui/EntitlementBanner";
-import { PaywallCard } from "@/components/ui/PaywallCard";
-
+import { listCoachMemory } from "@/lib/coachApi";
+import { cacheCommitment, loadCachedCommitment } from "@/lib/commitmentCache";
 import { font } from "@/lib/typography";
-import { getWebSiteUrl } from "@/lib/api";
-import { useMission } from "@/lib/useMission";
-import { trackMobileEvent } from "@/lib/analytics";
 
-function formatScheduledTime(ts: number): string {
-  const now = Date.now();
-  const diffMs = ts - now;
-  if (diffMs <= 0) return "soon";
+const HOME_JOBS = [
+  { icon: "edit-3" as const, label: "Plan", description: "Build the plan", route: "/(tabs)/tools?category=Plan" as Href },
+  { icon: "message-circle" as const, label: "Practice", description: "Rehearse the moment", route: "/(tabs)/tools?category=Practice" as Href },
+  { icon: "bar-chart-2" as const, label: "Measure", description: "Track progress", route: "/(tabs)/tools?category=Measure" as Href },
+  { icon: "book-open" as const, label: "Library", description: "Learn and use", route: "/(tabs)/tools?view=library" as Href },
+];
 
-  const diffMin = Math.round(diffMs / 60_000);
-  if (diffMin < 60) return `in ${diffMin}m`;
-
-  const diffHr = Math.round(diffMs / 3_600_000);
-  if (diffHr < 24) return `in ${diffHr}h`;
-
-  const diffDays = Math.round(diffMs / 86_400_000);
-  return `in ${diffDays}d`;
-}
+type HomeAction = {
+  icon: React.ComponentProps<typeof Feather>["name"];
+  title: string;
+  body: string;
+  route: Href;
+  testID: string;
+};
 
 export default function HomeScreen() {
   const colors = useColors();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
-  const { canUseFieldKit, isAuthenticated, user, logout, refresh } = useAuth();
-  const [personalization, setPersonalization] = useState<{
-    continueItems: Array<{ id: string; title: string; href: string; why: string }>;
-    recommendedToday: Array<{ id: string; title: string; href: string; why: string }>;
-    emptyHistory: boolean;
-  } | null>(null);
-  const [activation, setActivation] = useState<{
-    activated: boolean;
-    skipped: boolean;
-    role: string;
-    nextStep: { id: string; title: string; why: string; mobileHref: string } | null;
-    completedRequired: number;
-    totalRequired: number;
-  } | null>(null);
-  const mission = useMission();
-  const { reminders, load: reloadReminders, removeReminder } = useReminderHistory();
+  const { preview } = useLocalSearchParams<{ preview?: string }>();
+  const { canUseElite, canUseFieldKit, isAuthenticated, user, refresh } = useAuth();
+  const [jobRole, setJobRole] = useState("");
+  const [alsoLeadsTeam, setAlsoLeadsTeam] = useState(false);
+  const [commitment, setCommitment] = useState<string | null>(null);
+  const topPad = Platform.OS === "web" ? 54 : insets.top;
+  const bottomPad = Platform.OS === "web" ? 30 : insets.bottom + 24;
+  const designPreview = __DEV__ && Platform.OS === "web" && preview === "approved-home";
 
-  const [jobRole, setJobRole] = useState<string>("");
-  const [checklist, setChecklist] = useState<Record<string, boolean | string>>({});
-  const [onboardingLoaded, setOnboardingLoaded] = useState(false);
-  /** Secondary chrome collapsed so one primary path wins (craft P1) */
-  const [checklistOpen, setChecklistOpen] = useState(false);
-  const [moreOpen, setMoreOpen] = useState(false);
-
-  const topPad = Platform.OS === "web" ? 67 : insets.top;
-  const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 90;
-
-  const loadOnboarding = useCallback(async () => {
-    if (!canUseFieldKit) {
-      setOnboardingLoaded(true);
-      return;
-    }
-    try {
-      const data = (await fetchOnboardingMobile()) as {
-        member: {
-          jobRole?: string | null;
-          territoryNote?: string | null;
-          topObjections?: string | null;
-          checklistProgress?: Record<string, boolean | string>;
-        };
-        activation?: {
-          activated: boolean;
-          skipped: boolean;
-          role: string;
-          nextStep: { id: string; title: string; why: string; mobileHref: string } | null;
-          completedRequired: number;
-          totalRequired: number;
-        };
-      };
-      if (data.activation) setActivation(data.activation);
-      setJobRole(data.member.jobRole || "");
-      setChecklist(data.member.checklistProgress || {});
-      mission.setJobRoleLocal(data.member.jobRole || "");
-      mission.setChecklistLocal(data.member.checklistProgress || {});
-    } catch {
-      // keep local
-    } finally {
-      setOnboardingLoaded(true);
-    }
-  }, [canUseFieldKit, mission.setJobRoleLocal, mission.setChecklistLocal]);
-
-  useFocusEffect(
-    useCallback(() => {
-      reloadReminders();
-      loadOnboarding();
-      // Entitlement may have changed after web checkout
-      void refresh();
-    }, [reloadReminders, loadOnboarding, refresh]),
-  );
-
-  useEffect(() => {
-    if (Platform.OS === "web") return;
-
-    const receivedSub = Notifications.addNotificationReceivedListener(async (notification) => {
-      const id = notification.request.identifier;
-      await removeReminderFromHistory(id);
-      await reloadReminders();
-    });
-
-    const responseSub = Notifications.addNotificationResponseReceivedListener(async (response) => {
-      const id = response.notification.request.identifier;
-      await removeReminderFromHistory(id);
-      await reloadReminders();
-    });
-
-    const handleAppStateChange = (nextState: AppStateStatus) => {
-      if (nextState === "active") {
-        reloadReminders();
-      }
-    };
-    const appStateSub = AppState.addEventListener("change", handleAppStateChange);
-
-    const pollInterval = setInterval(() => {
-      if (AppState.currentState === "active") {
-        reloadReminders();
-      }
-    }, 30_000);
-
-    return () => {
-      receivedSub.remove();
-      responseSub.remove();
-      appStateSub.remove();
-      clearInterval(pollInterval);
-    };
-  }, [reloadReminders]);
-
-  useEffect(() => {
-    if (!isAuthenticated || !canUseFieldKit) {
-      setPersonalization(null);
-      return;
-    }
+  useFocusEffect(useCallback(() => {
+    if (designPreview) return undefined;
+    void refresh();
+    if (!canUseFieldKit) return undefined;
     let cancelled = false;
-    void apiGet<{
-      continueItems: Array<{ id: string; title: string; href: string; why: string }>;
-      recommendedToday: Array<{ id: string; title: string; href: string; why: string }>;
-      emptyHistory: boolean;
-    }>("/api/v1/personalization")
+
+    void fetchOnboardingMobile()
       .then((data) => {
-        if (!cancelled) setPersonalization({
-          continueItems: data.continueItems || [],
-          recommendedToday: data.recommendedToday || [],
-          emptyHistory: !!data.emptyHistory,
-        });
+        if (!cancelled) {
+          setJobRole(data.member.jobRole || "");
+          setAlsoLeadsTeam(Boolean(data.member.alsoLeadsTeam));
+        }
       })
-      .catch(() => { if (!cancelled) setPersonalization(null); });
-    return () => { cancelled = true; };
-  }, [isAuthenticated, canUseFieldKit]);
+      .catch(() => undefined);
 
-  const handleCancelReminder = async (id: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    await cancelReminder(id);
-    await removeReminder(id);
-  };
-
-  const items = useMemo(() => visibleChecklist(jobRole), [jobRole]);
-  const doneCount = items.filter((i) => isChecklistDone(checklist, i.id)).length;
-  const trialLabel = formatTrialRemaining(user?.fieldKit?.hoursRemaining);
-  const firstName = user?.member?.name?.split(" ")[0] || "";
-  const needsRole = !jobRole;
-  const isFirstSession = needsRole || doneCount === 0;
-
-  const saveRole = async (role: string) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    setJobRole(role);
-    try {
-      const data = await updateOnboardingMobile({ jobRole: role });
-      setJobRole(data.member.jobRole || role);
-      setChecklist(data.member.checklistProgress || checklist);
-      await refresh();
-    } catch {
-      // keep local role
-    }
-  };
-
-  const openChecklistItem = (item: (typeof items)[0]) => {
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    if (item.route) router.push(item.route as any);
-    else if (item.toolTab) {
-      router.push({ pathname: "/tool/[tab]", params: { tab: item.toolTab } } as any);
-    } else {
-      router.push("/(tabs)/tools");
-    }
-  };
-
-  const siteUrl = getWebSiteUrl();
-
-  // ── Shell A: Logged-out — dual doors ──────────────────────────────
-  if (!isAuthenticated) {
-    return (
-      <ScrollView
-        style={[styles.container, { backgroundColor: colors.background }]}
-        contentContainerStyle={{
-          paddingBottom: bottomPad,
-          flexGrow: 1,
-          paddingHorizontal: 16,
-        }}
-        showsVerticalScrollIndicator={false}
-        testID="screen-logged-out-home"
-      >
-        <LinearGradient
-          colors={[colors.heroBackground, colors.background]}
-          style={[styles.hero, { paddingTop: topPad + 28, paddingBottom: 32, marginHorizontal: -16 }]}
-        >
-          <Image source={require("@/assets/images/logo.png")} style={styles.logo} resizeMode="contain" />
-          <SectionKicker>Spartan Coaching</SectionKicker>
-          <Text style={[styles.heroTitle, { color: colors.heroForeground, marginTop: 12 }, font("heavy")]}>
-            Field-ready hospice sales coaching.
-          </Text>
-          <Text style={[styles.heroTagline, { color: colors.heroMuted, marginTop: 12 }, font("regular")]}>
-            Two clear offers: human consulting, or Hospice Sales Pro tools on this iPhone.
-          </Text>
-        </LinearGradient>
-
-        <View style={{ gap: 12, marginTop: 8 }}>
-          <SpartanCard variant="emphasis" testID="door-consulting">
-            <SectionKicker>Offer 1 · Human</SectionKicker>
-            <Text style={[{ color: colors.foreground, fontSize: 18, marginTop: 8 }, font("bold")]}>
-              Consulting
-            </Text>
-            <Text style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 6, lineHeight: 19 }, font("regular")]}>
-              Strategy calls, team systems, and coaching that holds when the week is hard.
-            </Text>
-            <SpartanButton
-              title="Book a strategy call"
-              onPress={() => router.push("/(tabs)/contact")}
-              style={{ marginTop: 14 }}
-              testID="button-book-call-logged-out"
-            />
-          </SpartanCard>
-
-          <SpartanCard variant="default" testID="door-hospice-sales-pro">
-            <SectionKicker>Offer 2 · Tools</SectionKicker>
-            <Text style={[{ color: colors.foreground, fontSize: 18, marginTop: 8 }, font("bold")]}>
-              Hospice Sales Pro
-            </Text>
-            <Text style={[{ color: colors.mutedForeground, fontSize: 13, marginTop: 6, lineHeight: 19 }, font("regular")]}>
-              Command Center, objections, role-play, weekly plans — $14.99/wk · cancel anytime.
-            </Text>
-            <SpartanButton
-              title="Client login"
-              onPress={() => router.push("/login")}
-              style={{ marginTop: 14 }}
-              testID="button-client-login"
-            />
-            <SpartanButton
-              title="See what's inside"
-              variant="outline"
-              onPress={() => void Linking.openURL(`${siteUrl}/hospice-sales-pro`)}
-              style={{ marginTop: 10 }}
-              testID="button-hospice-sales-pro-logged-out"
-            />
-          </SpartanCard>
-        </View>
-      </ScrollView>
-    );
-  }
-
-  // ── Shell B: Authenticated but locked ─────────────────────────────
-  if (!canUseFieldKit) {
-    return (
-      <ScrollView
-        style={[styles.container, { backgroundColor: colors.background }]}
-        contentContainerStyle={{ paddingBottom: bottomPad, paddingHorizontal: 16, paddingTop: topPad + 16 }}
-        showsVerticalScrollIndicator={false}
-        testID="screen-locked-home"
-      >
-        <SectionKicker>Hospice Sales Pro</SectionKicker>
-        <Text style={[{ color: colors.foreground, fontSize: 26, marginTop: 10 }, font("heavy")]}>
-          {user?.organization?.status === "suspended"
-            ? "Restore access"
-            : user?.organization?.status === "expired"
-              ? "Access ended"
-              : "One step to live tools"}
-        </Text>
-        <Text style={[{ color: colors.mutedForeground, fontSize: 14, marginTop: 8, lineHeight: 20 }, font("regular")]}>
-          Preview is free. Generate, save, and run tools live with an active subscription or evaluation.
-        </Text>
-
-        <View style={{ marginTop: 20 }}>
-          <PaywallCard
-            isAuthenticated
-            orgStatus={user?.organization?.status}
-            title={
-              user?.organization?.status === "suspended"
-                ? "Update billing to restore access"
-                : user?.organization?.status === "expired"
-                  ? "Access ended · subscribe to continue"
-                  : "$14.99/week · cancel anytime"
-            }
-            body="Subscribe with Stripe on the website using this same account. When you return, Hospice Sales Pro unlocks automatically."
-            primaryLabel="Open Account & billing"
-            onPrimary={() => router.push("/(tabs)/account")}
-            testID="button-locked-account"
-          />
-        </View>
-        <SpartanButton
-          title="Preview tool map"
-          variant="outline"
-          onPress={() => router.push("/(tabs)/tools")}
-          style={{ marginTop: 12 }}
-        />
-        <SpartanButton
-          title="Book a strategy call"
-          variant="ghost"
-          onPress={() => router.push("/(tabs)/contact")}
-          style={{ marginTop: 8 }}
-        />
-      </ScrollView>
-    );
-  }
-
-  // ── Field companion (logged-in + entitled) ────────────────────────
-  // Single primary: activation (if required) OR useMission.primary — never both heroes.
-  const activationPrimary =
-    activation && !activation.activated && !activation.skipped && activation.nextStep
-      ? activation.nextStep
-      : null;
-
-  const runMissionCta = () => {
-    if (activationPrimary) {
-      void trackMobileEvent("craft", "mission_cta_tap", {
-        metadata: { surface: "home", platform: "ios", source: "activation", stepId: activationPrimary.id },
+    if (canUseElite && user?.member?.id) {
+      void loadCachedCommitment(user.member.id).then((value) => {
+        if (!cancelled && value) setCommitment(value);
       });
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      const href = activationPrimary.mobileHref;
-      if (href.includes("command") || href.includes("sales-workflow")) {
-        router.push("/(tabs)/command");
-      } else if (href.includes("objection")) {
-        router.push("/tool/objection" as any);
-      } else if (href.includes("playbook")) {
-        router.push("/tool/playbook" as any);
-      } else if (href.includes("account")) {
-        router.push("/(tabs)/account");
-      } else {
-        router.push("/(tabs)/tools");
-      }
-      return;
+      void listCoachMemory()
+        .then((items) => {
+          if (cancelled) return;
+          const latest = items.find((item) => item.category === "commitment" && item.enabled);
+          setCommitment(latest?.content ?? null);
+          void cacheCommitment(user.member.id, latest?.content ?? null);
+        })
+        .catch(() => undefined);
     }
-    if (needsRole) {
-      setChecklistOpen(true);
-      return;
-    }
-    void trackMobileEvent("craft", "mission_cta_tap", {
-      metadata: {
-        surface: "home",
-        platform: "ios",
-        source: mission.primary?.kind ?? "command",
-      },
-    });
-    if (mission.primary?.href) {
-      void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      router.push(mission.primary.href as any);
-    } else {
-      router.push("/(tabs)/command" as any);
-    }
+
+    return () => { cancelled = true; };
+  }, [canUseElite, canUseFieldKit, designPreview, refresh, user?.member?.id]));
+
+  if (!isAuthenticated && !designPreview) {
+    return <WelcomeExperience topPad={topPad} bottomPad={bottomPad} />;
+  }
+
+  if (!canUseFieldKit && !designPreview) {
+    return <WelcomeExperience topPad={topPad} bottomPad={bottomPad} signedIn />;
+  }
+
+  const firstName = designPreview ? "Nick" : user?.member?.name?.trim().split(/\s+/)[0] || "there";
+  const actions: HomeAction[] = [
+    {
+      icon: "message-square",
+      title: "Plan the conversation",
+      body: "Purpose, talking points, likely objection, and next move.",
+      route: "/tool/playbook" as Href,
+      testID: "home-prepare-conversation",
+    },
+    {
+      icon: "shield",
+      title: "Practice the hard part",
+      body: canUseElite ? "Private rehearsal with Spartan Coach feedback." : "Build and refine a response with Standard tools.",
+      route: canUseElite ? "/(tabs)/coach" as Href : "/tool/objection" as Href,
+      testID: "home-practice-objection",
+    },
+    {
+      icon: "grid",
+      title: "Explore tools and resources",
+      body: "One place for every tool, Library item, and access boundary.",
+      route: "/(tabs)/tools" as Href,
+      testID: "home-explore",
+    },
+  ];
+
+  const open = (route: Href) => {
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    router.push(route);
   };
 
   return (
     <ScrollView
-      style={[styles.container, { backgroundColor: colors.background }]}
-      contentContainerStyle={{ paddingBottom: bottomPad }}
+      style={styles.screen}
+      contentInsetAdjustmentBehavior="never"
+      contentContainerStyle={{ paddingTop: topPad + 8, paddingBottom: bottomPad + 22 }}
       showsVerticalScrollIndicator={false}
-      testID="screen-entitled-home"
+      testID="screen-home"
     >
-      <LinearGradient
-        colors={[colors.heroBackground, colors.background, colors.card]}
-        style={[styles.fieldHero, { paddingTop: topPad + 16 }]}
-      >
-        <SectionKicker>Hospice Sales Pro</SectionKicker>
-        <Text
-          style={{
-            color: colors.heroForeground,
-            fontSize: 28,
-            fontWeight: "800",
-            marginTop: 10,
-            letterSpacing: -0.6,
-            lineHeight: 34,
-            fontFamily: "Inter_700Bold",
-          }}
-        >
-          {isFirstSession
-            ? `Make this session count${firstName ? `, ${firstName}` : ""}`
-            : `Welcome back${firstName ? `, ${firstName}` : ""}`}
-        </Text>
-        <Text
-          style={{
-            color: colors.heroMuted,
-            marginTop: 8,
-            fontSize: 15,
-            lineHeight: 22,
-            fontFamily: "Inter_400Regular",
-          }}
-        >
-          One next action. Same seat as the website.
-        </Text>
-        <View style={{ marginTop: 14 }}>
-          {user?.organization?.status === "trial" && trialLabel ? (
-            <EntitlementBanner
-              label={trialLabel}
-              role="trial"
-              actionLabel="Account"
-              onAction={() => router.push("/(tabs)/account")}
-              testID="banner-trial"
-            />
-          ) : (
-            <EntitlementBanner
-              label="Hospice Sales Pro · active"
-              role="active"
-              actionLabel="Account"
-              onAction={() => router.push("/(tabs)/account")}
-              testID="banner-member"
-            />
-          )}
-        </View>
-      </LinearGradient>
+      <View style={styles.page}>
+        <SpartanHeader />
+        <View style={styles.badge}><Text style={styles.badgeText}>HOSPICE SALES PRO</Text></View>
+        <Text style={styles.greeting}>Good {timeOfDay()}, {firstName}.</Text>
+        <Text style={styles.promise}>What do you need to prepare for?</Text>
 
-      <View style={[styles.section, { paddingTop: 16 }]}>
-        <MissionCard
-          kicker={
-            activationPrimary
-              ? `First value · ${activation?.completedRequired ?? 0}/${activation?.totalRequired ?? 0}`
-              : "Next action"
-          }
-          title={
-            activationPrimary?.title ??
-            mission.primary?.title ??
-            (needsRole ? "Pick your role" : "Open Command Center")
-          }
-          subtitle={
-            activationPrimary?.why ??
-            mission.primary?.subtitle ??
-            "Plan → prepare → practice → capture outcome."
-          }
-          ctaLabel={
-            activationPrimary
-              ? "Do this next"
-              : mission.primary?.ctaLabel ?? (needsRole ? "Choose role below" : "Open Command Center")
-          }
-          onCta={runMissionCta}
-          ctaDisabled={false}
-          secondaryLabel={
-            activationPrimary
-              ? "Skip (experienced)"
-              : needsRole
-                ? undefined
-                : "All tools"
-          }
-          onSecondary={
-            activationPrimary
-              ? () => {
-                  void (async () => {
-                    void trackMobileEvent("craft", "activation_step_done", {
-                      metadata: {
-                        surface: "home",
-                        platform: "ios",
-                        stepId: activationPrimary.id,
-                        outcome: "skipped",
-                      },
-                    });
-                    try {
-                      const data = await updateOnboardingMobile({ skipActivation: true });
-                      if (data.activation) setActivation(data.activation);
-                    } catch {
-                      // ignore
-                    }
-                  })();
-                }
-              : () => router.push("/(tabs)/tools")
-          }
-        />
-        {activationPrimary ? (
-          <SpartanButton
-            title="Mark step done"
-            variant="outline"
-            style={{ marginTop: 10 }}
-            onPress={() => {
-              void (async () => {
-                void trackMobileEvent("craft", "activation_step_done", {
-                  metadata: {
-                    surface: "home",
-                    platform: "ios",
-                    stepId: activationPrimary.id,
-                    outcome: "done",
-                  },
-                });
-                try {
-                  const data = await updateOnboardingMobile({
-                    activationStep: { id: activationPrimary.id, done: true },
-                  });
-                  if (data.activation) setActivation(data.activation);
-                } catch {
-                  // ignore
-                }
-              })();
-            }}
-          />
-        ) : null}
-
-        {/* Quiet chips — not second heroes */}
-        <View
-          style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 }}
-          testID="section-today-stack"
-        >
-          {(jobRole === "director" || jobRole === "vp" || jobRole === "owner"
-            ? ([
-                { label: "Command", path: "/(tabs)/command" as const },
-                { label: "Staffing", path: "/staffing" as const },
-                { label: "Weekly", path: "/tool/[tab]" as const, params: { tab: "weekly" } },
-              ] as const)
-            : ([
-                { label: "Command", path: "/(tabs)/command" as const },
-                { label: "Objections", path: "/tool/[tab]" as const, params: { tab: "objection" } },
-                { label: "Weekly", path: "/tool/[tab]" as const, params: { tab: "weekly" } },
-              ] as const)
-          ).map((chip) => (
+        <Text style={styles.sectionLabel}>OPEN A WORKSPACE</Text>
+        <View style={styles.jobMap} accessibilityLabel="Open planning, practice, measurement, or the Library">
+          {HOME_JOBS.map((job) => (
             <Pressable
-              key={chip.label}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                if ("params" in chip && chip.params) {
-                  router.push({ pathname: chip.path, params: chip.params } as any);
-                } else {
-                  router.push(chip.path as any);
-                }
-              }}
-              style={{
-                minHeight: 40,
-                paddingHorizontal: 14,
-                paddingVertical: 8,
-                borderRadius: 20,
-                borderWidth: StyleSheet.hairlineWidth * 2,
-                borderColor: colors.border,
-                backgroundColor: colors.card,
-                justifyContent: "center",
-              }}
+              key={job.label}
+              accessibilityRole="button"
+              accessibilityLabel={`Open ${job.label}`}
+              onPress={() => open(job.route)}
+              style={({ pressed }) => [styles.jobPillar, pressed && styles.jobPillarPressed]}
+              testID={`signed-in-home-pillar-${job.label.toLowerCase()}`}
             >
-              <Text style={[{ color: colors.foreground, fontSize: 13 }, font("semibold")]}>{chip.label}</Text>
+              <View style={styles.jobPillarTop}>
+                <View style={styles.jobPillarIcon}><Feather name={job.icon} size={20} color={colors.primary} /></View>
+                <Feather name="arrow-up-right" size={17} color={colors.primary} />
+              </View>
+              <Text style={styles.jobPillarLabel}>{job.label}</Text>
+              <Text style={styles.jobPillarDescription}>{job.description}</Text>
             </Pressable>
           ))}
         </View>
-      </View>
 
-      {/* Role pick only — required for mission personalization (not a second hero) */}
-      {needsRole ? (
-        <View style={[styles.section, { paddingTop: 8 }]} testID="section-first-session">
-          <SectionKicker>Your role</SectionKicker>
-          <View
-            style={[
-              styles.startCard,
-              {
-                backgroundColor: colors.card,
-                borderColor: colors.primary,
-                marginTop: 8,
-              },
-            ]}
-          >
-            <Text style={{ color: colors.foreground, fontSize: 15, fontWeight: "700" }}>
-              Sets checklist and recommended tools
-            </Text>
-            <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
-              {(
-                [
-                  { id: "rep", label: "Rep" },
-                  { id: "director", label: "Director" },
-                  { id: "vp", label: "VP" },
-                  { id: "owner", label: "Owner" },
-                  { id: "other", label: "Other" },
-                ] as const
-              ).map((r) => (
-                <Pressable
-                  key={r.id}
-                  onPress={() => saveRole(r.id)}
-                  style={{
-                    minHeight: 44,
-                    paddingVertical: 10,
-                    paddingHorizontal: 14,
-                    borderRadius: 8,
-                    backgroundColor: colors.primary,
-                    justifyContent: "center",
-                  }}
-                  testID={`button-role-${r.id}`}
-                >
-                  <Text style={{ color: colors.primaryForeground, fontWeight: "800", fontSize: 13 }}>{r.label}</Text>
-                </Pressable>
-              ))}
-            </View>
-          </View>
-        </View>
-      ) : null}
-
-      {/* Secondary: collapsible checklist progress (not a second mission) */}
-      {canUseFieldKit && items.length > 0 ? (
-        <View style={[styles.section, { paddingTop: 12 }]} testID="section-checklist-secondary">
-          <Pressable
-            onPress={() => setChecklistOpen((v) => !v)}
-            accessibilityRole="button"
-            style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}
-          >
-            <Text style={[{ color: colors.mutedForeground, fontSize: 13 }, font("semibold")]}>
-              Session checklist · {doneCount}/{items.length}
-            </Text>
-            <Feather
-              name={checklistOpen ? "chevron-up" : "chevron-down"}
-              size={18}
-              color={colors.mutedForeground}
-            />
-          </Pressable>
-          {checklistOpen
-            ? items.slice(0, 6).map((item) => {
-                const done = isChecklistDone(checklist, item.id);
-                return (
-                  <Pressable
-                    key={item.id}
-                    onPress={() => openChecklistItem(item)}
-                    style={{
-                      marginTop: 8,
-                      padding: 12,
-                      borderRadius: 12,
-                      borderWidth: StyleSheet.hairlineWidth * 2,
-                      borderColor: colors.border,
-                      backgroundColor: colors.card,
-                      opacity: done ? 0.65 : 1,
-                    }}
-                  >
-                    <Text style={[{ color: colors.foreground, fontSize: 14 }, font("semibold")]}>
-                      {done ? "✓ " : ""}
-                      {item.title}
-                    </Text>
-                  </Pressable>
-                );
-              })
-            : null}
-        </View>
-      ) : null}
-
-      {/* Secondary personalization and dedicated Coach entry */}
-      <View style={[styles.section, { paddingTop: 8 }]}>
-        <Pressable
-          onPress={() => setMoreOpen((v) => !v)}
-          accessibilityRole="button"
-          style={{ flexDirection: "row", alignItems: "center", justifyContent: "space-between" }}
-          testID="section-more-toggle"
-        >
-          <Text style={[{ color: colors.mutedForeground, fontSize: 13 }, font("semibold")]}>
-            More · continue
-          </Text>
-          <Feather name={moreOpen ? "chevron-up" : "chevron-down"} size={18} color={colors.mutedForeground} />
-        </Pressable>
-        {moreOpen ? (
-          <View style={{ marginTop: 10 }}>
-            {personalization?.continueItems?.slice(0, 2).map((item) => (
-              <Pressable
-                key={item.id}
-                onPress={() => {
-                  void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  if (item.href.includes("sales-workflow")) router.push("/(tabs)/command");
-                  else if (item.href.includes("objection")) router.push("/tool/objection" as any);
-                  else router.push("/(tabs)/tools");
-                }}
-                style={{
-                  marginTop: 8,
-                  padding: 12,
-                  borderRadius: 12,
-                  borderWidth: StyleSheet.hairlineWidth * 2,
-                  borderColor: colors.border,
-                  backgroundColor: colors.card,
-                }}
-              >
-                <Text style={[{ color: colors.foreground, fontSize: 14 }, font("bold")]}>{item.title}</Text>
-                <Text
-                  style={[
-                    { color: colors.mutedForeground, fontSize: 12, marginTop: 4, lineHeight: 16 },
-                    font("regular"),
-                  ]}
-                >
-                  {item.why}
-                </Text>
-              </Pressable>
-            ))}
-            <SpartanButton
-              title="Open Spartan Coach"
-              variant="outline"
-              onPress={() => router.push("/(tabs)/coach")}
-              style={{ marginTop: 12 }}
-            />
-          </View>
-        ) : null}
-      </View>
-
-      {/* Reminders */}
-      {Platform.OS !== "web" && reminders.length > 0 && (
-        <View style={[styles.section, { backgroundColor: colors.background }]}>
-          <View style={styles.sectionHeader}>
-            <Feather name="clock" size={20} color={colors.primary} />
-            <Text style={[styles.sectionTitle, { color: colors.foreground, fontFamily: "Inter_700Bold" }]}>
-              Follow-up reminders
-            </Text>
-          </View>
-          <View style={styles.reminderList}>
-            {reminders.map((reminder) => (
-              <View
-                key={reminder.id}
-                style={[styles.reminderRow, { backgroundColor: colors.card, borderColor: colors.border }]}
-              >
-                <View style={[styles.reminderDot, { backgroundColor: colors.primary }]} />
-                <View style={styles.reminderContent}>
-                  <Text
-                    style={[styles.reminderTitle, { color: colors.foreground, fontFamily: "Inter_600SemiBold" }]}
-                    numberOfLines={1}
-                  >
-                    {reminder.title}
-                  </Text>
-                  {reminder.contact ? (
-                    <Text
-                      style={[styles.reminderContact, { color: colors.foreground, fontFamily: "Inter_500Medium" }]}
-                      numberOfLines={1}
-                    >
-                      {reminder.contact}
-                    </Text>
-                  ) : null}
-                  <Text style={[styles.reminderMeta, { color: colors.mutedForeground, fontFamily: "Inter_400Regular" }]}>
-                    {reminder.presetLabel} · {formatScheduledTime(reminder.scheduledFor)}
-                  </Text>
-                </View>
-                <Pressable
-                  onPress={() => handleCancelReminder(reminder.id)}
-                  hitSlop={10}
-                  style={({ pressed }) => ({ opacity: pressed ? 0.6 : 1 })}
-                >
-                  <Feather name="x" size={18} color={colors.mutedForeground} />
-                </Pressable>
+        <Text style={styles.sectionLabel}>RECOMMENDED FOR YOU</Text>
+        <View style={styles.actionList}>
+          {actions.map((action, index) => (
+            <Pressable
+              key={action.title}
+              accessibilityRole="button"
+              onPress={() => open(action.route)}
+              style={({ pressed }) => [styles.actionCard, index === 0 && styles.featuredCard, pressed && styles.pressed]}
+              testID={action.testID}
+            >
+              <View style={[styles.actionIcon, index === 0 && styles.featuredIcon]}>
+                <Feather name={action.icon} size={22} color={index === 0 ? "#FFFFFF" : colors.primary} />
               </View>
-            ))}
-          </View>
+              <View style={styles.actionCopy}>
+                <Text style={styles.actionTitle}>{action.title}</Text>
+                <Text style={styles.actionBody}>{action.body}</Text>
+              </View>
+              <Feather name="chevron-right" size={21} color={index === 0 ? colors.primary : colors.mutedForeground} />
+            </Pressable>
+          ))}
         </View>
-      )}
 
-      <View style={[styles.section, { paddingTop: 8 }]}>
-        <SpartanButton
-          title="Book a strategy call"
-          variant="ghost"
-          onPress={() => router.push("/(tabs)/contact")}
-        />
-        <Text style={{ color: colors.mutedForeground, fontSize: 11, textAlign: "center", marginTop: 8 }}>
-          Do not enter PHI · Coaching aid only · Same seat as web
-        </Text>
+        {alsoLeadsTeam ? (
+          <Pressable accessibilityRole="button" onPress={() => open("/(tabs)/tools" as Href)} style={({ pressed }) => [styles.leadershipCard, pressed && styles.pressed]} testID="home-leadership-context">
+            <View style={styles.leadershipIcon}><Feather name="users" size={20} color={colors.primary} /></View>
+            <View style={{ flex: 1 }}><Text style={styles.leadershipKicker}>TEAM LEADERSHIP</Text><Text style={styles.leadershipTitle}>Build the coaching rhythm</Text><Text style={styles.leadershipBody}>Open leader tools without turning Home into a dashboard.</Text></View>
+            <Feather name="chevron-right" size={20} color={colors.primary} />
+          </Pressable>
+        ) : null}
+
+        <View style={styles.sectionHeading}>
+          <Text style={styles.sectionKicker}>FOLLOW THROUGH</Text>
+          <Pressable accessibilityRole="button" onPress={() => open("/(tabs)/my-work" as Href)} hitSlop={8}>
+            <Text style={styles.seeAll}>Open My Work</Text>
+          </Pressable>
+        </View>
+
+        <Pressable
+          accessibilityRole="button"
+          onPress={() => open(canUseElite ? "/(tabs)/coach" as Href : "/tool/weekly" as Href)}
+          style={({ pressed }) => [styles.commitmentCard, pressed && styles.pressed]}
+          testID="home-continue-commitment"
+        >
+          <View style={styles.commitmentTop}>
+            <View style={styles.lockPill}><Feather name="lock" size={14} color={colors.primary} /><Text style={styles.lockText}>PRIVATE</Text></View>
+            <Feather name="arrow-up-right" size={19} color={colors.primary} />
+          </View>
+          <Text style={styles.commitmentTitle}>{commitment ? "Your current commitment" : "Set one clear commitment"}</Text>
+          <Text style={styles.commitmentBody}>{commitment || "Decide what you will do next and keep it visible until it is complete."}</Text>
+        </Pressable>
+
+        {!jobRole ? (
+          <Pressable accessibilityRole="button" onPress={() => open("/tour" as Href)} style={styles.tourRow} testID="home-complete-setup">
+            <Feather name="compass" size={19} color={colors.primary} />
+            <Text style={styles.tourText}>New here? Take the guided tour</Text>
+            <Feather name="chevron-right" size={18} color={colors.primary} />
+          </Pressable>
+        ) : null}
       </View>
     </ScrollView>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  hero: {
-    alignItems: "center",
-    paddingBottom: 40,
-    paddingHorizontal: 24,
-  },
-  fieldHero: {
-    paddingBottom: 32,
-    paddingHorizontal: 20,
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: "rgba(200,214,240,0.12)",
-  },
-  logo: { width: 64, height: 64, marginBottom: 20 },
-  heroTitle: {
-    fontSize: 38,
-    fontWeight: "900",
-    textAlign: "center",
-    letterSpacing: -1,
-    lineHeight: 44,
-  },
-  heroTitleAccent: {
-    marginTop: -4,
-  },
-  heroTagline: {
-    fontSize: 14,
-    marginTop: 10,
-    letterSpacing: 0.3,
-    textAlign: "center",
-    lineHeight: 20,
-  },
-  heroBadge: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    borderWidth: 1,
-    borderRadius: 24,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
-    marginTop: 20,
-  },
-  heroBadgeDot: { width: 8, height: 8, borderRadius: 4 },
-  heroBadgeText: { fontSize: 13, fontWeight: "700" },
-  section: { paddingHorizontal: 20, paddingVertical: 24 },
-  sectionHeader: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 4 },
-  sectionTitle: { fontSize: 20, fontWeight: "700" },
-  sectionSubtitle: { fontSize: 14, marginBottom: 16 },
-  startCard: {
-    marginTop: 12,
-    borderWidth: 1,
-    borderRadius: 14,
-    padding: 18,
-  },
-  checkRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 8,
-  },
-  reminderList: { gap: 8, marginTop: 12 },
-  reminderRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
-    borderWidth: 1,
-    borderRadius: 12,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-  },
-  reminderDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    flexShrink: 0,
-  },
-  reminderContent: { flex: 1 },
-  reminderTitle: { fontSize: 14, marginBottom: 1 },
-  reminderContact: { fontSize: 13, marginBottom: 2 },
-  reminderMeta: { fontSize: 12 },
-  inputRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    borderWidth: 1.5,
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    gap: 8,
-  },
-  inputIcon: { flexShrink: 0 },
-  input: { flex: 1, fontSize: 16, minHeight: 24 },
-  sendBtn: {
-    width: 32,
-    height: 32,
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  suggestions: { flexDirection: "row", flexWrap: "wrap", gap: 8, marginTop: 12 },
-  suggestion: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 20,
-    borderWidth: 1,
-    maxWidth: "100%",
-  },
-  suggestionText: { fontSize: 13 },
-  resultCard: {
-    marginTop: 12,
-    borderWidth: 1,
-    borderRadius: 12,
-    padding: 16,
-    gap: 8,
-  },
-  loadingText: { fontSize: 14, marginLeft: 8 },
-  errorCard: { marginTop: 12, borderRadius: 12, padding: 14 },
-  errorText: { fontSize: 14 },
-  responseText: { fontSize: 15, lineHeight: 22 },
-  resetBtn: {
-    marginTop: 12,
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    alignSelf: "flex-start",
-  },
-  resetBtnText: { fontSize: 14 },
-  toolsGrid: { gap: 12 },
-  toolCard: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 14,
-    padding: 16,
-    borderRadius: 12,
-    borderWidth: 1,
-  },
-  toolIcon: {
-    width: 40,
-    height: 40,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  toolLabel: { fontSize: 16 },
-  toolSub: { fontSize: 13, marginTop: 2 },
-  missionSection: {
-    paddingHorizontal: 24,
-    paddingVertical: 40,
-  },
-  missionOverline: {
-    fontSize: 11,
-    fontWeight: "700",
-    textTransform: "uppercase",
-    letterSpacing: 1.5,
-    marginBottom: 12,
-  },
-  missionTitle: {
-    fontSize: 24,
-    fontWeight: "800",
-    marginBottom: 16,
-    lineHeight: 30,
-  },
-  missionBody: {
-    fontSize: 15,
-    lineHeight: 23,
-    marginBottom: 20,
-  },
-  pillarRow: {
-    flexDirection: "row",
-    alignItems: "flex-start",
-    gap: 12,
-    marginBottom: 16,
-  },
-  pillarAccent: {
-    width: 3,
-    height: 44,
-    borderRadius: 2,
-    marginTop: 2,
-    flexShrink: 0,
-  },
-  pillarName: { fontSize: 17, fontWeight: "800", marginBottom: 3 },
-  pillarDesc: { fontSize: 14, lineHeight: 20 },
-  ctaBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 8,
-    alignSelf: "flex-start",
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 10,
-  },
-  ctaBtnText: { fontSize: 15, fontWeight: "700" },
-});
+function timeOfDay() {
+  const hour = new Date().getHours();
+  if (hour < 12) return "morning";
+  if (hour < 17) return "afternoon";
+  return "evening";
+}
+
+function makeStyles(colors: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    screen: { flex: 1, backgroundColor: colors.background },
+    page: { paddingHorizontal: 24 },
+    badge: { alignSelf: "flex-start", marginTop: 16, borderRadius: 999, backgroundColor: colors.secondary, paddingHorizontal: 11, paddingVertical: 7 },
+    badgeText: { color: colors.primary, fontSize: 9, letterSpacing: 0.7, ...font("bold") },
+    greeting: { color: colors.mutedForeground, fontSize: 15, marginTop: 22, ...font("semibold") },
+    promise: { color: colors.foreground, fontSize: 38, lineHeight: 44, letterSpacing: -1.4, marginTop: 3, ...font("heavy") },
+    sectionLabel: { color: colors.primary, fontSize: 9, letterSpacing: 1.8, marginTop: 26, marginBottom: 10, ...font("bold") },
+    jobMap: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
+    jobPillar: { flexBasis: "47%", flexGrow: 1, minHeight: 118, justifyContent: "space-between", padding: 15, borderRadius: 20, borderCurve: "continuous", backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong },
+    jobPillarPressed: { opacity: 0.74, transform: [{ scale: 0.98 }] },
+    jobPillarTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+    jobPillarIcon: { width: 38, height: 38, borderRadius: 12, borderCurve: "continuous", alignItems: "center", justifyContent: "center", backgroundColor: colors.primaryMuted },
+    jobPillarLabel: { color: colors.foreground, fontSize: 16, marginTop: 12, ...font("heavy") },
+    jobPillarDescription: { color: colors.mutedForeground, fontSize: 11, lineHeight: 15, marginTop: 3, ...font("regular") },
+    actionList: { gap: 12 },
+    actionCard: { minHeight: 104, flexDirection: "row", alignItems: "center", gap: 13, padding: 16, borderRadius: 20, borderCurve: "continuous", borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card },
+    featuredCard: { minHeight: 112, borderColor: "rgba(182,25,42,0.32)" },
+    actionIcon: { width: 46, height: 46, borderRadius: 15, borderCurve: "continuous", alignItems: "center", justifyContent: "center", backgroundColor: colors.primaryMuted },
+    featuredIcon: { backgroundColor: colors.primary },
+    actionCopy: { flex: 1, gap: 4 },
+    actionTitle: { color: colors.foreground, fontSize: 17, ...font("bold") },
+    actionBody: { color: colors.mutedForeground, fontSize: 12, lineHeight: 17, ...font("regular") },
+    leadershipCard: { minHeight: 92, flexDirection: "row", alignItems: "center", gap: 12, borderRadius: 20, borderCurve: "continuous", borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.secondary, padding: 15, marginTop: 16 },
+    leadershipIcon: { width: 44, height: 44, borderRadius: 14, borderCurve: "continuous", alignItems: "center", justifyContent: "center", backgroundColor: colors.primaryMuted },
+    leadershipKicker: { color: colors.primary, fontSize: 8, letterSpacing: 1.3, ...font("bold") },
+    leadershipTitle: { color: colors.foreground, fontSize: 15, marginTop: 2, ...font("bold") },
+    leadershipBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 2, ...font("regular") },
+    sectionHeading: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginTop: 30, marginBottom: 10 },
+    sectionKicker: { color: colors.primary, fontSize: 10, letterSpacing: 1.8, ...font("bold") },
+    seeAll: { color: colors.primary, fontSize: 11, ...font("bold") },
+    commitmentCard: { minHeight: 140, borderRadius: 22, borderCurve: "continuous", borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.secondary, padding: 18 },
+    commitmentTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+    lockPill: { flexDirection: "row", alignItems: "center", gap: 6 },
+    lockText: { color: colors.primary, fontSize: 9, letterSpacing: 1.2, ...font("bold") },
+    commitmentTitle: { color: colors.foreground, fontSize: 19, marginTop: 18, ...font("heavy") },
+    commitmentBody: { color: colors.mutedForeground, fontSize: 13, lineHeight: 19, marginTop: 6, ...font("regular") },
+    tourRow: { minHeight: 58, flexDirection: "row", alignItems: "center", gap: 9, marginTop: 14, paddingHorizontal: 4 },
+    tourText: { flex: 1, color: colors.primary, fontSize: 12, ...font("bold") },
+    pressed: { opacity: 0.72, transform: [{ scale: 0.99 }] },
+  });
+}

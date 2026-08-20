@@ -37,13 +37,13 @@ describe("clinical runtime readiness", () => {
     });
   });
 
-  it("auto-selects PHI mode when BAAs are confirmed and mode is unset", () => {
-    expect(resolveClinicalOperationMode(baasOnlyEnvironment)).toBe("phi");
+  it("keeps deidentified mode when legacy BAA flags are present", () => {
+    expect(resolveClinicalOperationMode(baasOnlyEnvironment)).toBe("deidentified");
     expect(clinicalBaasConfirmed(baasOnlyEnvironment)).toBe(true);
     const readiness = clinicalRuntimeReadiness(baasOnlyEnvironment);
-    expect(readiness.operationMode).toBe("phi");
-    expect(readiness.ready).toBe(false);
-    expect(readiness.missingControls).toContain("CLINICAL_EPHEMERAL_GCS_BUCKET");
+    expect(readiness.operationMode).toBe("deidentified");
+    expect(readiness.ready).toBe(true);
+    expect(readiness.missingControls).toEqual([]);
   });
 
   it("allows explicit deidentified override even when BAAs are confirmed", () => {
@@ -61,34 +61,31 @@ describe("clinical runtime readiness", () => {
     ).toBe(true);
   });
 
-  it("fails closed and reports missing PHI controls by name only", () => {
+  it("ignores an explicit legacy PHI request", () => {
     const readiness = clinicalRuntimeReadiness({
       CLINICAL_OPERATION_MODE: "phi",
       OPENAI_API_KEY: "configured",
     });
-    expect(readiness.ready).toBe(false);
-    expect(readiness.missingControls).toContain("OPENAI_BAA_CONFIRMED");
-    expect(readiness.missingControls).toContain(
-      "CLINICAL_EPHEMERAL_GCS_BUCKET",
-    );
-    expect(JSON.stringify(readiness)).not.toContain("configured");
+    expect(readiness.operationMode).toBe("deidentified");
+    expect(readiness.ready).toBe(true);
+    expect(readiness.missingControls).toEqual([]);
   });
 
-  it("reports ready only when every PHI gate and runtime dependency exists", () => {
+  it("remains deidentified when every legacy PHI dependency exists", () => {
     expect(clinicalRuntimeReadiness(readyPhiEnvironment)).toEqual({
-      operationMode: "phi",
+      operationMode: "deidentified",
       ready: true,
       missingControls: [],
       baasConfirmed: true,
     });
   });
 
-  it("treats CI placeholder OpenAI keys as a missing runtime control", () => {
+  it("does not expose legacy PHI readiness controls", () => {
     const readiness = clinicalRuntimeReadiness({
       ...readyPhiEnvironment,
       OPENAI_API_KEY: "ci-placeholder-no-network-calls",
     });
-    expect(readiness.ready).toBe(false);
-    expect(readiness.missingControls).toContain("OPENAI_API_KEY");
+    expect(readiness.operationMode).toBe("deidentified");
+    expect(readiness.missingControls).toEqual([]);
   });
 });

@@ -11,10 +11,12 @@ import {
 import { authLimit } from "../rateLimits";
 import {
   getIndividualWeeklyPriceId,
+  getIndividualWeeklyElitePriceId,
   getSiteUrl,
   getStripe,
   isStripeConfigured,
 } from "./stripeClient";
+import { ELITE_WEEKLY_PLAN, STANDARD_WEEKLY_PLAN } from "@workspace/field-kit-catalog";
 import {
   applyBillingPatch,
   billingPatchFromSubscription,
@@ -35,6 +37,7 @@ import {
 import { sendBillingActiveAdminAlert } from "../resend";
 import { checkWebhookSecret } from "./webhookSecretCheck";
 import { getBillingEmailMetrics } from "./billingEmailMetrics";
+import { appleBillingConfigured, registerAppleBillingRoutes } from "./appleBilling";
 
 function orgIdFromMetadata(meta: Stripe.Metadata | null | undefined): number | null {
   if (!meta?.organizationId) return null;
@@ -47,6 +50,7 @@ function orgIdFromMetadata(meta: Stripe.Metadata | null | undefined): number | n
  * Webhook must be mounted with express.raw BEFORE global express.json — see app.ts.
  */
 export function registerBillingRoutes(app: Express): void {
+  registerAppleBillingRoutes(app);
   /**
    * GET /api/admin/stripe-webhook-health
    * On-demand check: verifies STRIPE_WEBHOOK_SECRET is consistent with the
@@ -103,12 +107,15 @@ export function registerBillingRoutes(app: Express): void {
 
       return res.json({
         configured: isStripeConfigured(),
+        appleBillingConfigured: appleBillingConfigured(),
         individualWeeklyPriceConfigured: Boolean(process.env.STRIPE_PRICE_INDIVIDUAL_WEEKLY?.trim()),
+        individualWeeklyElitePriceConfigured: Boolean(process.env.STRIPE_PRICE_INDIVIDUAL_WEEKLY_ELITE?.trim()),
         organization: {
           id: org.id,
           type: org.type,
           status: org.status,
           billingPlan: org.billingPlan ?? null,
+          billingProvider: org.billingProvider ?? null,
           billingStatus: org.billingStatus ?? null,
           currentPeriodEnd: org.currentPeriodEnd ?? null,
           cancelAtPeriodEnd: Boolean(org.cancelAtPeriodEnd),
@@ -133,8 +140,8 @@ export function registerBillingRoutes(app: Express): void {
 
   /**
    * POST /api/billing/checkout
-   * Create a Stripe Checkout Session for individual weekly subscription ($14.99/wk price in Stripe).
-   * Body: { successUrl?: string, cancelUrl?: string }
+   * Create a Stripe Checkout Session for a Standard or Elite individual weekly subscription.
+   * Body: { plan?: "standard_weekly" | "elite_weekly", successUrl?: string, cancelUrl?: string }
    */
   app.post("/api/billing/checkout", requireAuth, authLimit, async (req: AuthedRequest, res) => {
     try {
@@ -188,8 +195,18 @@ export function registerBillingRoutes(app: Express): void {
         });
       }
 
+      const requestedPlan = req.body?.plan === ELITE_WEEKLY_PLAN.id
+        ? ELITE_WEEKLY_PLAN
+        : req.body?.plan === STANDARD_WEEKLY_PLAN.id || req.body?.plan == null
+          ? STANDARD_WEEKLY_PLAN
+          : null;
+      if (!requestedPlan) {
+        return res.status(400).json({ error: "Unknown individual membership plan", code: "INVALID_PLAN" });
+      }
       const stripe = getStripe();
-      const priceId = getIndividualWeeklyPriceId();
+      const priceId = requestedPlan.id === ELITE_WEEKLY_PLAN.id
+        ? getIndividualWeeklyElitePriceId()
+        : getIndividualWeeklyPriceId();
       const site = getSiteUrl();
       // Land on portal activation ceremony after successful checkout.
       const successUrl =
@@ -233,13 +250,13 @@ export function registerBillingRoutes(app: Express): void {
         metadata: {
           organizationId: String(org.id),
           memberId: String(member.id),
-          billingPlan: "individual_weekly",
+          billingPlan: requestedPlan.billingPlan,
         },
         subscription_data: {
           metadata: {
             organizationId: String(org.id),
             memberId: String(member.id),
-            billingPlan: "individual_weekly",
+            billingPlan: requestedPlan.billingPlan,
           },
         },
       });

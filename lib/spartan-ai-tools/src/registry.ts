@@ -520,9 +520,9 @@ export const SPARTAN_AI_TOOLS: readonly AiToolSpec[] = [
   },
   {
     id: "admission-eligibility",
-    name: "Admission Eligibility Educator",
+    name: "Admission Criteria Educator",
     description:
-      "Compare supplied clinical facts with cited hospice admission criteria.",
+      "Compare deidentified clinical facts with cited hospice admission criteria.",
     category: "Clinical",
     version: "1.0.0",
     containsPhi: true,
@@ -531,11 +531,11 @@ export const SPARTAN_AI_TOOLS: readonly AiToolSpec[] = [
     webPath: "/tools/ai/admission-eligibility",
     mobilePath: "/ai-tools/admission-eligibility",
     fields: fields(
-      string("diagnosis", "Diagnosis"),
-      text("patientCondition", "Patient condition"),
-      text("functionStatus", "Functional status"),
-      list("comorbidities", "Comorbidities"),
-      text("recentHospitalizations", "Recent hospitalizations"),
+      string("diagnosis", "Deidentified diagnosis category"),
+      text("patientCondition", "Deidentified condition summary"),
+      text("functionStatus", "Deidentified functional status"),
+      list("comorbidities", "Deidentified comorbidity categories"),
+      text("recentHospitalizations", "Deidentified utilization summary"),
       string("jurisdiction", "Jurisdiction", false),
       jsonList("criteria", "Cited criteria", false),
     ),
@@ -566,7 +566,7 @@ export const SPARTAN_AI_TOOLS: readonly AiToolSpec[] = [
     webPath: "/tools/ai/documentation-gap-analyzer",
     mobilePath: "/ai-tools/documentation-gap-analyzer",
     fields: fields(
-      json("clinicalData", "Clinical data"),
+      json("clinicalData", "Deidentified clinical facts"),
       jsonList("criteria", "Criteria"),
       jsonList("documentedEvidence", "Documented evidence"),
     ),
@@ -646,9 +646,9 @@ export const SPARTAN_AI_TOOLS: readonly AiToolSpec[] = [
   },
   {
     id: "medical-record-lcd-verifier",
-    name: "Medical Record LCD Verifier",
+    name: "Deidentified LCD Evidence Review",
     description:
-      "Extract traceable facts and compare them with supplied LCD evidence.",
+      "Compare a deidentified clinical summary with supplied LCD evidence.",
     category: "Clinical",
     version: "1.0.0",
     containsPhi: true,
@@ -657,13 +657,11 @@ export const SPARTAN_AI_TOOLS: readonly AiToolSpec[] = [
     webPath: "/tools/ai/medical-record-lcd-verifier",
     mobilePath: "/ai-tools/medical-record-lcd-verifier",
     fields: fields(
-      text("recordText", "Medical record text"),
-      json("fileMetadata", "File metadata", false),
-      jsonList("records", "Additional records", false),
+      text("recordText", "Deidentified clinical summary"),
       jsonList("lcdEvidence", "LCD evidence", false),
     ),
     exampleInput: {
-      recordText: "Enter or extract the medical record text.",
+      recordText: "Enter a deidentified summary with no names, dates, record numbers, contact details, or documents.",
       lcdEvidence: [],
     },
     inputSchema: recordInput,

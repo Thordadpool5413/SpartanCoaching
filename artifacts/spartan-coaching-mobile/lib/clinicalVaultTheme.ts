@@ -18,19 +18,19 @@ export const VAULT = {
 } as const;
 
 export const VAULT_COPY = {
-  hubTitle: "Clinical access vault",
+  hubTitle: "Elite clinical guidance",
   hubBody:
-    "Authorized roles only. Educational decision support — not diagnosis, coverage determination, or autonomous admission. Runs are ephemeral when live. Not consumer Hospice Sales Pro tools.",
+    "Deidentified information only. Suggested educational guidance is never a diagnosis, coverage determination, eligibility decision, or admission decision. Medical director, compliance, or both must approve every output.",
   chips: [
-    "Authorized only",
-    "Ephemeral",
-    "BAA / PHI mode",
-    "No sales chrome",
+    "Elite access",
+    "Deidentified only",
+    "One time results",
+    "Approval required",
   ] as const,
-  toolBannerTitle: "Clinical vault · authorized access only",
+  toolBannerTitle: "Clinical guidance · deidentified only",
   toolBannerBody:
-    "Educational decision support only. Qualified clinical review required. Not a diagnosis, coverage determination, or autonomous admission decision. Ephemeral when live.",
-  workspaceTitle: "Ephemeral clinical workspace",
+    "Suggested education only. Do not enter patient information or upload patient documents. Medical director, compliance, or both must approve every output before use.",
+  workspaceTitle: "Deidentified guidance workspace",
   emptyResult:
     "Complete the form and run for educational decision support output. Qualified clinical review remains required.",
   noHistory:
@@ -38,5 +38,5 @@ export const VAULT_COPY = {
   privacyTitle: "Clinical workspace protected",
   privacyBody: "Return to Spartan Coaching and reauthenticate to continue.",
   backLibrary: "Advanced library",
-  badge: "Clinical vault",
+  badge: "Elite clinical",
 } as const;

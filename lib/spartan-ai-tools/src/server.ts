@@ -1,7 +1,7 @@
+import { AsyncLocalStorage } from "node:async_hooks";
 import OpenAI from "openai";
 import { zodTextFormat } from "openai/helpers/zod";
 import type { ZodType } from "zod";
-import { isPhiClinicalOperationMode } from "./clinical-runtime";
 import { isUsableOpenAiApiKey } from "./provider-config";
 import {
   getSpartanAiTool,
@@ -25,6 +25,24 @@ export class SpartanAiToolError extends Error {
   }
 }
 
+export type ClinicalJurisdictionContext = {
+  state: string;
+  macRegion: string;
+};
+
+const clinicalJurisdictionStorage = new AsyncLocalStorage<ClinicalJurisdictionContext>();
+
+export function runWithClinicalJurisdiction<T>(
+  context: ClinicalJurisdictionContext,
+  callback: () => T,
+): T {
+  return clinicalJurisdictionStorage.run(context, callback);
+}
+
+export function currentClinicalJurisdiction(): ClinicalJurisdictionContext | null {
+  return clinicalJurisdictionStorage.getStore() ?? null;
+}
+
 export interface ToolRunOptions {
   apiKey?: string;
   client?: OpenAI;
@@ -45,6 +63,7 @@ export interface SpartanAiToolResult {
     durationMs: number;
     safetyWarnings: readonly string[];
     humanReviewRequired: boolean;
+    jurisdiction: ClinicalJurisdictionContext | null;
   };
 }
 
@@ -58,10 +77,6 @@ export function isToolFeatureEnabled(
   const configured = environment[tool.featureFlag];
   if (configured === "true") return true;
   if (configured === "false") return false;
-
-  // Tools ship ready for entitled members. An explicit false remains the
-  // emergency kill switch. Clinical PHI mode has independent runtime,
-  // permission, MFA, evidence, and storage gates.
   return true;
 }
 
@@ -105,46 +120,6 @@ function assertSafeInput(value: unknown): void {
     }
   };
   inspect(value, 0);
-}
-
-function assertClinicalLaunchGate(tool: AiToolSpec): void {
-  if (!isClinicalTool(tool)) return;
-  if (!isPhiClinicalOperationMode()) return;
-  if (process.env.HIPAA_PHI_ENABLED !== "true") {
-    throw new SpartanAiToolError(
-      "PHI_PROCESSING_DISABLED",
-      503,
-      "Clinical tools are unavailable until the HIPAA production controls are enabled.",
-    );
-  }
-  if (process.env.OPENAI_BAA_CONFIRMED !== "true") {
-    throw new SpartanAiToolError(
-      "OPENAI_BAA_REQUIRED",
-      503,
-      "Clinical AI processing requires a confirmed OpenAI Business Associate Agreement.",
-    );
-  }
-  if (process.env.OPENAI_MODIFIED_RETENTION_CONFIRMED !== "true") {
-    throw new SpartanAiToolError(
-      "OPENAI_RETENTION_REQUIRED",
-      503,
-      "Clinical AI processing requires confirmed OpenAI modified retention / ZDR controls.",
-    );
-  }
-  if (process.env.GOOGLE_CLOUD_BAA_CONFIRMED !== "true") {
-    throw new SpartanAiToolError(
-      "GOOGLE_CLOUD_BAA_REQUIRED",
-      503,
-      "Clinical AI processing requires a confirmed Google Cloud Business Associate Agreement.",
-    );
-  }
-  if (process.env.PHI_STORAGE_BAA_CONFIRMED !== "true") {
-    throw new SpartanAiToolError(
-      "PHI_STORAGE_BAA_REQUIRED",
-      503,
-      "Clinical AI processing requires a confirmed BAA-covered storage environment.",
-    );
-  }
 }
 
 function runTerritory(input: unknown): unknown {
@@ -245,6 +220,16 @@ function mapProviderError(error: unknown): SpartanAiToolError {
   );
 }
 
+function jurisdictionInstruction(context: ClinicalJurisdictionContext): string {
+  return [
+    "Jurisdiction context for this member:",
+    `State: ${context.state}`,
+    `Medicare Administrative Contractor region: ${context.macRegion}`,
+    "Use this jurisdiction only as contextual guidance. Do not invent local rules, coverage criteria, or source versions.",
+    "When a conclusion depends on current jurisdiction-specific coverage or regulation, identify that dependency and require verification against the approved current source before use.",
+  ].join("\n");
+}
+
 export async function runSpartanAiTool(
   toolId: string,
   input: unknown,
@@ -262,7 +247,6 @@ export async function runSpartanAiTool(
   if (!isToolFeatureEnabled(tool)) {
     throw new SpartanAiToolError("TOOL_DISABLED", 503, "AI tool is disabled.");
   }
-  assertClinicalLaunchGate(tool);
   assertSafeInput(input);
   const parsed = tool.inputSchema.safeParse(input);
   if (!parsed.success) {
@@ -273,11 +257,13 @@ export async function runSpartanAiTool(
     );
   }
 
+  const jurisdiction = isClinicalTool(tool) ? currentClinicalJurisdiction() : null;
   const model = tool.deterministic
     ? "deterministic-v1"
     : (options.model ?? process.env.OPENAI_MODEL ?? "gpt-5");
   const timeoutMs =
     options.timeoutMs ?? (isClinicalTool(tool) ? 120_000 : 90_000);
+
   try {
     const output = tool.deterministic
       ? runTerritory(parsed.data)
@@ -297,12 +283,18 @@ export async function runSpartanAiTool(
               timeout: timeoutMs,
               maxRetries: 1,
             });
+          const systemMessages = [
+            { role: "system" as const, content: tool.systemPrompt },
+            ...(jurisdiction
+              ? [{ role: "system" as const, content: jurisdictionInstruction(jurisdiction) }]
+              : []),
+          ];
           const response = await client.responses.parse(
             {
               model,
               store: false,
               input: [
-                { role: "system", content: tool.systemPrompt },
+                ...systemMessages,
                 {
                   role: "user",
                   content: tool.buildPrompt(parsed.data as never),
@@ -345,6 +337,7 @@ export async function runSpartanAiTool(
         durationMs: Date.now() - started,
         safetyWarnings: tool.safetyWarnings,
         humanReviewRequired: tool.containsPhi,
+        jurisdiction,
       },
     };
   } catch (error) {
