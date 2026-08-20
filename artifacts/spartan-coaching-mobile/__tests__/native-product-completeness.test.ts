@@ -174,9 +174,9 @@ describe("native product completeness", () => {
   it("makes the complete native tool inventory visible instead of relying on featured cards", () => {
     const explore = read("app/(tabs)/tools.tsx");
     expect(explore).toContain('testID="complete-tool-directory"');
-    expect(explore).toContain("All {FIELD_KIT_TOOLS.length} tools");
+    expect(explore).toContain("category === \"All\"");
     expect(explore).toContain("FIELD_KIT_CATEGORIES");
-    expect(explore).toContain("Every row opens a native iPhone experience");
+    expect(explore).toContain("Every tool is visible here");
     expect(explore).toContain("Guided tour");
     expect(explore).toContain("Access map");
   });
