@@ -1,4 +1,5 @@
 import { Feather } from "@expo/vector-icons";
+import { FIELD_KIT_TOOLS } from "@workspace/field-kit-catalog";
 import * as Haptics from "expo-haptics";
 import { router, type Href } from "expo-router";
 import React, { useEffect, useMemo, useState } from "react";
@@ -19,40 +20,64 @@ type TourStep = {
 
 const STEPS: TourStep[] = [
   {
-    kicker: "1 · THE SITUATION",
+    kicker: "1 · START HERE",
+    title: "Know how the whole system fits together.",
+    body: "Home recommends the next useful move. Explore contains every tool and resource. Coach gives private Elite practice. My Work keeps commitments, plans, downloads, and approved outputs organized.",
+    icon: "compass",
+  },
+  {
+    kicker: "2 · THE SITUATION",
     title: "Start with a real field moment.",
-    body: "This entire walkthrough uses fictional information. You are preparing for a follow up conversation with Dr. Rivera, an oncology referral source who has been polite but has not referred a patient.",
+    body: "This walkthrough uses fictional information. You are preparing for a follow up conversation with Dr. Rivera, an oncology referral source who has been polite but has not referred a patient.",
     icon: "map-pin",
   },
   {
-    kicker: "2 · PREPARE",
+    kicker: "3 · PREPARE",
     title: "Turn context into a game plan.",
-    body: "Spartan Coaching narrows the objective, likely resistance, talking points, and next move before you walk into the conversation.",
+    body: "Planning tools narrow the objective, likely resistance, talking points, and next move before you walk into the conversation.",
     icon: "message-square",
   },
   {
-    kicker: "3 · PRACTICE",
+    kicker: "4 · PRACTICE",
     title: "Now the room pushes back.",
     body: "Dr. Rivera says: “We already have a preferred hospice. I do not want to confuse families.” Choose the response you would test first.",
     icon: "shield",
   },
   {
-    kicker: "4 · COACH FEEDBACK",
+    kicker: "5 · COACH FEEDBACK",
     title: "Feedback should change the next attempt.",
-    body: "Elite Coach does more than praise or score you. It identifies what worked, what created risk, and what to try differently before you rehearse again.",
+    body: "Elite Coach identifies what worked, what created risk, and what to try differently before you rehearse again by text or voice.",
     icon: "mic",
   },
   {
-    kicker: "5 · FOLLOW THROUGH",
+    kicker: "6 · FOLLOW THROUGH",
     title: "The work ends with one commitment.",
-    body: "Your commitment returns to Home so the preparation does not disappear after the conversation. Private Coach content stays private unless you explicitly choose to share a summary or commitment.",
+    body: "Commitments and saved plans appear in My Work so preparation does not disappear after the conversation. Private Coach content stays private unless you explicitly share a summary or commitment.",
     icon: "check-circle",
   },
   {
-    kicker: "6 · KNOW YOUR ACCESS",
-    title: "Nothing should be hidden behind mystery labels.",
-    body: "Standard contains the complete field system. Elite adds private Coach, voice rehearsal, optional memory, advanced AI, and deidentified clinical education tools. Consulting and company seats remain separate.",
+    kicker: "7 · FIND EVERY TOOL",
+    title: "Explore is the complete tool directory.",
+    body: `All ${FIELD_KIT_TOOLS.length} tools are organized by the job you need to accomplish. Every tool explains when to use it, how it works, what you enter, and what you leave with.`,
     icon: "grid",
+  },
+  {
+    kicker: "8 · LIBRARY AND OFFLINE",
+    title: "Read, listen, use, and keep what matters.",
+    body: "The Library contains native field notes, audio, Method experiences, and approved resources. Downloads, selected plans, commitments, and approved nonclinical outputs remain available offline.",
+    icon: "book-open",
+  },
+  {
+    kicker: "9 · IPHONE AND WEBSITE",
+    title: "Your work follows the same account.",
+    body: "Use Spartan Coaching on this iPhone or the website with the same account, history, commitments, preferences, membership, and saved work. The app stays native while the website remains available when you want a larger workspace.",
+    icon: "monitor",
+  },
+  {
+    kicker: "10 · CHOOSE YOUR ACCESS",
+    title: "Standard is the field system. Elite adds private Coach.",
+    body: "Standard includes planning, practice, measurement, Library, saved work, downloads, and offline access. Elite includes everything in Standard plus Coach, voice rehearsal, transcription, advanced feedback, personalized recommendations, and Elite tools.",
+    icon: "layers",
   },
 ];
 
@@ -176,6 +201,19 @@ function TourExperience({ step, practiceChoice, onPracticeChoice, selectedPracti
   if (step === 0) {
     return (
       <View style={styles.scenarioCard}>
+        <Text style={styles.cardKicker}>YOUR FIELD GUIDE</Text>
+        <Text style={styles.cardTitle}>Five destinations. One connected system.</Text>
+        <InfoLine icon="home" title="Home" body="See one recommended next move and reopen unfinished work." />
+        <InfoLine icon="grid" title="Explore" body={`Find all ${FIELD_KIT_TOOLS.length} tools and every Library resource.`} />
+        <InfoLine icon="message-circle" title="Coach" body="Practice privately with text or voice when Elite is active." />
+        <InfoLine icon="check-circle" title="My Work" body="Resume plans, commitments, downloads, and approved outputs." />
+      </View>
+    );
+  }
+
+  if (step === 1) {
+    return (
+      <View style={styles.scenarioCard}>
         <Text style={styles.cardKicker}>FICTIONAL ACCOUNT</Text>
         <Text style={styles.cardTitle}>Dr. Elena Rivera · Oncology</Text>
         <InfoLine icon="target" title="Objective" body="Earn a 15 minute hospice education follow up for the practice team." />
@@ -185,7 +223,7 @@ function TourExperience({ step, practiceChoice, onPracticeChoice, selectedPracti
     );
   }
 
-  if (step === 1) {
+  if (step === 2) {
     return (
       <View style={styles.planCard}>
         <Text style={styles.planKicker}>YOUR GAME PLAN</Text>
@@ -196,7 +234,7 @@ function TourExperience({ step, practiceChoice, onPracticeChoice, selectedPracti
     );
   }
 
-  if (step === 2) {
+  if (step === 3) {
     return (
       <View style={styles.practiceStack}>
         {PRACTICE_CHOICES.map((choice) => {
@@ -219,7 +257,7 @@ function TourExperience({ step, practiceChoice, onPracticeChoice, selectedPracti
     );
   }
 
-  if (step === 3) {
+  if (step === 4) {
     return (
       <View style={styles.coachCard}>
         <View style={styles.coachHeader}><View style={styles.coachMark}><Feather name="message-circle" size={19} color="#FFFFFF" /></View><View><Text style={styles.cardKicker}>SPARTAN COACH</Text><Text style={styles.coachSub}>Feedback on your selected approach</Text></View></View>
@@ -231,14 +269,52 @@ function TourExperience({ step, practiceChoice, onPracticeChoice, selectedPracti
     );
   }
 
-  if (step === 4) {
+  if (step === 5) {
     return (
       <View style={styles.commitmentCard}>
         <View style={styles.commitmentIcon}><Feather name="check" size={23} color="#FFFFFF" /></View>
         <Text style={styles.cardKicker}>YOUR COMMITMENT</Text>
         <Text style={styles.cardTitle}>Ask one curiosity question before educating.</Text>
-        <Text style={styles.commitmentBody}>This returns to Home as unfinished work. You can reopen it, complete it, or keep it private. Raw Coach conversation content is not visible to company administrators.</Text>
+        <Text style={styles.commitmentBody}>This appears in My Work as unfinished work. Reopen it, complete it, or keep it private. Raw Coach conversation content is never visible to company administrators.</Text>
         <View style={styles.savedStatus}><Feather name="lock" size={15} color={colors.primary} /><Text style={styles.savedText}>Private by default · explicitly share only what you approve</Text></View>
+      </View>
+    );
+  }
+
+  if (step === 6) {
+    return (
+      <View style={styles.scenarioCard}>
+        <Text style={styles.cardKicker}>COMPLETE TOOL DIRECTORY</Text>
+        <Text style={styles.cardTitle}>{FIELD_KIT_TOOLS.length} native tools organized by purpose</Text>
+        <InfoLine icon="edit-3" title="Prepare and Plan" body="Playbooks, research, outreach, weekly planning, and the Field Visit Planner." />
+        <InfoLine icon="message-circle" title="Practice" body="Objection handling, role play, transcription, and field rehearsal." />
+        <InfoLine icon="bar-chart-2" title="Measure" body="Activity, cost, return, and branch profitability calculators." />
+        <InfoLine icon="info" title="Every tool teaches itself" body="Open How it works to see when to use it, the steps, and the expected outcome." />
+      </View>
+    );
+  }
+
+  if (step === 7) {
+    return (
+      <View style={styles.scenarioCard}>
+        <Text style={styles.cardKicker}>LIBRARY AND MY WORK</Text>
+        <Text style={styles.cardTitle}>Information becomes useful when you can find it again.</Text>
+        <InfoLine icon="book-open" title="Read" body="Open complete field notes inside the native reader." />
+        <InfoLine icon="headphones" title="Listen" body="Use audio briefings without leaving Spartan Coaching." />
+        <InfoLine icon="folder" title="Use" body="Open approved resources, Method experiences, drills, and templates." />
+        <InfoLine icon="download" title="Keep offline" body="Save approved content and reopen it from My Work when service is limited." />
+      </View>
+    );
+  }
+
+  if (step === 8) {
+    return (
+      <View style={styles.scenarioCard}>
+        <Text style={styles.cardKicker}>ONE ACCOUNT</Text>
+        <Text style={styles.cardTitle}>Continue on iPhone or the website.</Text>
+        <InfoLine icon="smartphone" title="Use the app in the field" body="Native tools, Coach, Library, downloads, and My Work stay close to the moment." />
+        <InfoLine icon="monitor" title="Use the website when useful" body="Sign in with the same Spartan account for a larger workspace and the same saved continuity." />
+        <InfoLine icon="refresh-cw" title="Keep one history" body="Membership, commitments, preferences, and saved work remain connected." />
       </View>
     );
   }
