@@ -7,12 +7,14 @@ import { useColors } from "@/hooks/useColors";
 import { font } from "@/lib/typography";
 
 export function SpartanHeader({
-  title = "Spartan Coaching",
+  title = "Hospice Sales Pro",
+  subtitle = "by Spartan Coaching",
   showAccount = true,
   actionLabel,
   actionRoute = "/login",
 }: {
   title?: string;
+  subtitle?: string;
   showAccount?: boolean;
   actionLabel?: string;
   actionRoute?: string;
@@ -24,7 +26,10 @@ export function SpartanHeader({
     <View style={styles.root}>
       <View style={styles.identity}>
         <HelmetMark size={42} />
-        <Text style={styles.title}>{title}</Text>
+        <View style={styles.identityCopy}>
+          <Text numberOfLines={1} style={styles.title}>{title}</Text>
+          <Text numberOfLines={1} style={styles.subtitle}>{subtitle}</Text>
+        </View>
       </View>
       {actionLabel ? (
         <Pressable
@@ -58,8 +63,10 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       alignItems: "center",
       justifyContent: "space-between",
     },
-    identity: { flexDirection: "row", alignItems: "center", gap: 10, minHeight: 48 },
-    title: { color: colors.foreground, fontSize: 16, letterSpacing: -0.2, ...font("bold") },
+    identity: { flex: 1, flexDirection: "row", alignItems: "center", gap: 10, minHeight: 48 },
+    identityCopy: { flex: 1, justifyContent: "center", gap: 1 },
+    title: { color: colors.foreground, fontSize: 16, letterSpacing: -0.25, ...font("heavy") },
+    subtitle: { color: colors.mutedForeground, fontSize: 9, letterSpacing: 0.35, ...font("semibold") },
     account: {
       width: 44,
       height: 44,
