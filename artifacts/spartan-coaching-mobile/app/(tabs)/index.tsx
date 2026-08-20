@@ -13,6 +13,13 @@ import { listCoachMemory } from "@/lib/coachApi";
 import { cacheCommitment, loadCachedCommitment } from "@/lib/commitmentCache";
 import { font } from "@/lib/typography";
 
+const HOME_JOBS = [
+  { icon: "edit-3" as const, label: "Plan", route: "/(tabs)/tools?category=Plan" as Href },
+  { icon: "message-circle" as const, label: "Practice", route: "/(tabs)/tools?category=Practice" as Href },
+  { icon: "bar-chart-2" as const, label: "Measure", route: "/(tabs)/tools?category=Measure" as Href },
+  { icon: "book-open" as const, label: "Library", route: "/(tabs)/tools?view=library" as Href },
+];
+
 type HomeAction = {
   icon: React.ComponentProps<typeof Feather>["name"];
   title: string;
@@ -118,6 +125,25 @@ export default function HomeScreen() {
         <Text style={styles.greeting}>Good {timeOfDay()}, {firstName}.</Text>
         <Text style={styles.promise}>What do you need to prepare for?</Text>
 
+        <Text style={styles.sectionLabel}>CHOOSE YOUR JOB</Text>
+        <View style={styles.jobMap} accessibilityLabel="Open planning, practice, measurement, or the Library">
+          {HOME_JOBS.map((job) => (
+            <Pressable
+              key={job.label}
+              accessibilityRole="button"
+              accessibilityLabel={`Open ${job.label}`}
+              onPress={() => open(job.route)}
+              style={({ pressed }) => [styles.jobPillar, pressed && styles.jobPillarPressed]}
+              testID={`signed-in-home-pillar-${job.label.toLowerCase()}`}
+            >
+              <Feather name={job.icon} size={19} color={colors.primary} />
+              <Text style={styles.jobPillarLabel}>{job.label}</Text>
+              <Feather name="chevron-right" size={13} color={colors.mutedForeground} />
+            </Pressable>
+          ))}
+        </View>
+
+        <Text style={styles.sectionLabel}>RECOMMENDED FOR YOU</Text>
         <View style={styles.actionList}>
           {actions.map((action, index) => (
             <Pressable
@@ -195,7 +221,12 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     badgeText: { color: colors.primary, fontSize: 9, letterSpacing: 0.7, ...font("bold") },
     greeting: { color: colors.mutedForeground, fontSize: 15, marginTop: 22, ...font("semibold") },
     promise: { color: colors.foreground, fontSize: 38, lineHeight: 44, letterSpacing: -1.4, marginTop: 3, ...font("heavy") },
-    actionList: { gap: 12, marginTop: 30 },
+    sectionLabel: { color: colors.primary, fontSize: 9, letterSpacing: 1.8, marginTop: 26, marginBottom: 10, ...font("bold") },
+    jobMap: { flexDirection: "row", gap: 7 },
+    jobPillar: { flex: 1, minHeight: 76, alignItems: "center", justifyContent: "center", gap: 5, borderRadius: 16, borderCurve: "continuous", backgroundColor: colors.secondary, borderWidth: 1, borderColor: colors.border },
+    jobPillarPressed: { opacity: 0.72, transform: [{ scale: 0.97 }] },
+    jobPillarLabel: { color: colors.foreground, fontSize: 10, ...font("bold") },
+    actionList: { gap: 12 },
     actionCard: { minHeight: 104, flexDirection: "row", alignItems: "center", gap: 13, padding: 16, borderRadius: 20, borderCurve: "continuous", borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card },
     featuredCard: { minHeight: 112, borderColor: "rgba(182,25,42,0.32)" },
     actionIcon: { width: 46, height: 46, borderRadius: 15, borderCurve: "continuous", alignItems: "center", justifyContent: "center", backgroundColor: colors.primaryMuted },
