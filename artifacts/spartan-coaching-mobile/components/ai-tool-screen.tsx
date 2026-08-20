@@ -2,6 +2,7 @@ import { Feather } from "@expo/vector-icons";
 import * as Crypto from "expo-crypto";
 import * as Haptics from "expo-haptics";
 import { router, type Href } from "expo-router";
+import { goBackOrReplace } from "@/lib/navigation";
 import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -258,7 +259,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
       showsVerticalScrollIndicator={false}
       testID={`ai-tool-${tool.id}`}
     >
-      <Pressable accessibilityRole="button" accessibilityLabel="Back to advanced tools" onPress={() => router.back()} style={styles.back}>
+      <Pressable accessibilityRole="button" accessibilityLabel="Back to advanced tools" onPress={() => goBackOrReplace("/ai-tools")} style={styles.back}>
         <Feather name="arrow-left" size={18} color={clinical ? VAULT.accent : colors.primary} />
         <Text style={[styles.backText, clinical && { color: VAULT.accent }]}>{clinical ? VAULT_COPY.backLibrary : "Advanced tools"}</Text>
       </Pressable>
