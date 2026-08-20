@@ -65,10 +65,10 @@ describe("Field Guide experience contract", () => {
     expect(acceptance).toContain("440 by 956 points");
     expect(publicHome).toContain("<SpartanHeader");
     expect(publicHome).toContain("Know what to do next.");
-    expect(publicHome).toContain("home-pillar-plan");
-    expect(publicHome).toContain("home-pillar-practice");
-    expect(publicHome).toContain("home-pillar-measure");
-    expect(publicHome).toContain("home-pillar-library");
+    expect(publicHome).toContain('label: "Plan", route: "/(tabs)/tools?category=Plan"');
+    expect(publicHome).toContain('label: "Practice", route: "/(tabs)/tools?category=Practice"');
+    expect(publicHome).toContain('label: "Measure", route: "/(tabs)/tools?category=Measure"');
+    expect(publicHome).toContain('label: "Library", route: "/(tabs)/tools?view=library"');
     expect(publicHome).toContain("Explore all {FIELD_KIT_TOOLS.length} tools and resources");
     expect(publicHome).toContain("No Spartan account is required before Apple purchase.");
     expect(home).toContain('route: "/tool/playbook"');
