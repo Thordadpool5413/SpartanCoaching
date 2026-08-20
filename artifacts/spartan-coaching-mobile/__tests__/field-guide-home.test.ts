@@ -9,14 +9,14 @@ describe("Field Guide experience contract", () => {
     const welcome = read("components/WelcomeExperience.tsx");
     const home = read("app/(tabs)/index.tsx");
 
-    expect(welcome).toContain("See how the app works");
-    expect(welcome).toContain("without creating an account first");
+    expect(welcome).toContain("Take the complete app tour");
+    expect(welcome).toContain("No Spartan account is required before Apple purchase.");
     expect(home).toContain("What do you need to prepare for?");
     expect(home).toContain("Plan the conversation");
     expect(home).not.toContain("Command Center");
   });
 
-  it("provides a native six step Field Guide tour using fictional information", () => {
+  it("provides a complete native product tour using fictional information", () => {
     const tour = read("app/tour.tsx");
     const tourState = read("lib/guidedTour.ts");
     const welcome = read("components/WelcomeExperience.tsx");
@@ -24,12 +24,16 @@ describe("Field Guide experience contract", () => {
     const rootLayout = read("app/_layout.tsx");
 
     expect(tour).toContain("FICTIONAL ACCOUNT");
-    expect(tour).toContain("1 · THE SITUATION");
-    expect(tour).toContain("2 · PREPARE");
-    expect(tour).toContain("3 · PRACTICE");
-    expect(tour).toContain("4 · COACH FEEDBACK");
-    expect(tour).toContain("5 · FOLLOW THROUGH");
-    expect(tour).toContain("6 · KNOW YOUR ACCESS");
+    expect(tour).toContain("1 · START HERE");
+    expect(tour).toContain("2 · THE SITUATION");
+    expect(tour).toContain("3 · PREPARE");
+    expect(tour).toContain("4 · PRACTICE");
+    expect(tour).toContain("5 · COACH FEEDBACK");
+    expect(tour).toContain("6 · FOLLOW THROUGH");
+    expect(tour).toContain("7 · FIND EVERY TOOL");
+    expect(tour).toContain("8 · LIBRARY AND OFFLINE");
+    expect(tour).toContain("9 · IPHONE AND WEBSITE");
+    expect(tour).toContain("10 · CHOOSE YOUR ACCESS");
     expect(tour).toContain("Never enter patient PHI into Spartan Coaching");
     expect(tour).toContain("There is no account required for this tour");
     expect(tour).toContain("getGuidedTourState");
@@ -61,7 +65,12 @@ describe("Field Guide experience contract", () => {
     expect(acceptance).toContain("440 by 956 points");
     expect(publicHome).toContain("<SpartanHeader");
     expect(publicHome).toContain("Know what to do next.");
-    expect(publicHome).toContain("Purchase through Apple without creating an account first.");
+    expect(publicHome).toContain("home-pillar-plan");
+    expect(publicHome).toContain("home-pillar-practice");
+    expect(publicHome).toContain("home-pillar-measure");
+    expect(publicHome).toContain("home-pillar-library");
+    expect(publicHome).toContain("Explore all {FIELD_KIT_TOOLS.length} tools and resources");
+    expect(publicHome).toContain("No Spartan account is required before Apple purchase.");
     expect(home).toContain('route: "/tool/playbook"');
     expect(home).toContain('"/tool/objection"');
     expect(home).toContain("<SpartanHeader");
