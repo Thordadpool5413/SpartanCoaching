@@ -24,7 +24,7 @@ describe("guided tour continuity", () => {
     await saveGuidedTourStep(3);
     expect(await getGuidedTourState()).toMatchObject({ status: "started", step: 3 });
     await completeGuidedTour();
-    expect(await getGuidedTourState()).toMatchObject({ status: "completed", step: 5 });
+    expect(await getGuidedTourState()).toMatchObject({ status: "completed", step: 9 });
   });
 
   it("remembers a dismissal while keeping manual replay available", async () => {
