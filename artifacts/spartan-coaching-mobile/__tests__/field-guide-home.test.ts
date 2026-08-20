@@ -68,10 +68,14 @@ describe("Field Guide experience contract", () => {
     expect(publicHome).toContain("OPEN A WORKSPACE");
     expect(publicHome).toContain("Build the plan");
     expect(publicHome).toContain("Rehearse the moment");
-    expect(publicHome).toContain('label: "Plan", route: "/(tabs)/tools?category=Plan"');
-    expect(publicHome).toContain('label: "Practice", route: "/(tabs)/tools?category=Practice"');
-    expect(publicHome).toContain('label: "Measure", route: "/(tabs)/tools?category=Measure"');
-    expect(publicHome).toContain('label: "Library", route: "/(tabs)/tools?view=library"');
+    expect(publicHome).toContain('label: "Plan"');
+    expect(publicHome).toContain('route: "/(tabs)/tools?category=Plan"');
+    expect(publicHome).toContain('label: "Practice"');
+    expect(publicHome).toContain('route: "/(tabs)/tools?category=Practice"');
+    expect(publicHome).toContain('label: "Measure"');
+    expect(publicHome).toContain('route: "/(tabs)/tools?category=Measure"');
+    expect(publicHome).toContain('label: "Library"');
+    expect(publicHome).toContain('route: "/(tabs)/tools?view=library"');
     expect(publicHome).toContain("Explore all {FIELD_KIT_TOOLS.length} tools and resources");
     expect(publicHome).toContain("No Spartan account is required before Apple purchase.");
     expect(home).toContain('route: "/tool/playbook"');
