@@ -646,7 +646,7 @@ export default function AiToolPage() {
     }
   }
 
-  if (!tool) {
+  if (!tool || !experience) {
     return (
       <FieldKitToolLayout title="Tool not found" showHowTo={false}>
         <Card className="p-8 text-center">
