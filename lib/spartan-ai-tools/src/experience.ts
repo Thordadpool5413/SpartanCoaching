@@ -32,7 +32,15 @@ export type AiToolExperience = {
   fields: readonly AiToolExperienceField[];
   buildInput: (
     values: Record<string, AiToolExperienceValue>,
+    context?: AiToolExperienceContext,
   ) => Record<string, unknown>;
+};
+
+export type AiToolExperienceContext = {
+  contentCatalog?: Array<Record<string, unknown>>;
+  interactionHistory?: Array<Record<string, unknown>>;
+  usageMetrics?: Array<Record<string, unknown>>;
+  userProfile?: Record<string, unknown>;
 };
 
 const progress = [
@@ -100,12 +108,16 @@ const experiences: Record<SpartanAiToolId, AiToolExperience> = {
       { key: "strategicPriorities", label: "Current priorities", kind: "multi-choice", allowOther: true, options: ["Increase referrals", "Improve conversion", "Strengthen discovery", "Handle objections", "Develop leaders", "Improve follow up"] },
       { key: "usageSignal", label: "What are you noticing", kind: "long-text", required: true, placeholder: "Example: The team opens objection content but still struggles to earn the next conversation." },
     ],
-    buildInput: (values) => {
+    buildInput: (values, context) => {
       const contentAreas = listValue(values, "contentAreas");
       const audience = listValue(values, "audiences")[0] ?? "Sales team";
       return {
-        contentCatalog: contentAreas.map((title) => ({ title, audience })),
-        usageMetrics: contentAreas.map((title) => ({ title, observation: stringValue(values, "usageSignal") })),
+        contentCatalog: context?.contentCatalog?.length
+          ? context.contentCatalog
+          : contentAreas.map((title) => ({ title, audience })),
+        usageMetrics: context?.usageMetrics?.length
+          ? context.usageMetrics
+          : contentAreas.map((title) => ({ title, observation: stringValue(values, "usageSignal") })),
         audiences: listValue(values, "audiences"),
         strategicPriorities: listValue(values, "strategicPriorities"),
       };
@@ -142,13 +154,15 @@ const experiences: Record<SpartanAiToolId, AiToolExperience> = {
       { key: "timeAvailable", label: "Time available", kind: "single-choice", required: true, defaultValue: "10 minutes", options: ["5 minutes", "10 minutes", "20 minutes", "30 minutes or more"] },
       { key: "contentInterests", label: "Preferred learning formats", kind: "multi-choice", required: true, allowOther: true, defaultValue: ["Field guide"], options: ["Field guide", "Article", "Audio", "Practice", "Calculator", "Template"] },
     ],
-    buildInput: (values) => {
+    buildInput: (values, context) => {
       const goal = stringValue(values, "goal");
       const formats = listValue(values, "contentInterests");
       return {
-        userProfile: { role: stringValue(values, "role"), focus: goal, timeAvailable: stringValue(values, "timeAvailable") },
-        contentCatalog: formats.map((format, index) => ({ id: `${humanId(goal)}-${index + 1}`, title: `${goal} ${format}`, topics: [goal], format })),
-        interactionHistory: [],
+        userProfile: { ...context?.userProfile, role: stringValue(values, "role"), focus: goal, timeAvailable: stringValue(values, "timeAvailable") },
+        contentCatalog: context?.contentCatalog?.length
+          ? context.contentCatalog
+          : formats.map((format, index) => ({ id: `${humanId(goal)}-${index + 1}`, title: `${goal} ${format}`, topics: [goal], format })),
+        interactionHistory: context?.interactionHistory ?? [],
       };
     },
   },
@@ -372,6 +386,7 @@ export function hydrateAiToolExperienceValues(
 export function buildAiToolExperienceInput(
   toolId: SpartanAiToolId,
   values: Record<string, AiToolExperienceValue>,
+  context?: AiToolExperienceContext,
 ): Record<string, unknown> {
-  return experiences[toolId].buildInput(values);
+  return experiences[toolId].buildInput(values, context);
 }
