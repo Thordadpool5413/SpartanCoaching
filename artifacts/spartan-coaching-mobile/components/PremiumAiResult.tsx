@@ -191,6 +191,7 @@ export function PremiumAiResult({ output, watermark, reviewStatus }: { output: u
   }
 
   const sections = Object.entries(output as Record<string, unknown>)
+    .filter(([key]) => !["simulatedMetrics", "simulationNotice", "personalizationElements"].includes(key))
     .map(([key, value], index) => ({ key, value, meta: sectionMeta(key), index }))
     .sort((a, b) => a.meta.order - b.meta.order || a.index - b.index);
 
