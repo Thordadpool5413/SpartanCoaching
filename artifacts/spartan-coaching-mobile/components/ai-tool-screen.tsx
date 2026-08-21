@@ -25,6 +25,7 @@ import {
   getSpartanAiTool,
   hydrateAiToolExperienceValues,
   initialAiToolExperienceValues,
+  type AiToolExperienceContext,
   type AiToolExperienceField,
   type AiToolExperienceValue,
   type SpartanAiToolId,
@@ -200,6 +201,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
   const { isOnline, isChecking, refresh } = useNetworkStatus();
   const [values, setValues] = useState<Record<string, FormValue>>(() => initialAiToolExperienceValues(toolId));
   const [run, setRun] = useState<ToolRun | null>(null);
+  const [experienceContext, setExperienceContext] = useState<AiToolExperienceContext>({});
   const [history, setHistory] = useState<ToolRun[]>([]);
   const [busy, setBusy] = useState(false);
   const [elapsedSeconds, setElapsedSeconds] = useState(0);
@@ -229,7 +231,25 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         setHistory([]);
       } else {
         const response = await apiGet<{ runs: ToolRun[] }>(`/api/ai-tools/${tool.id}/runs`);
-        setHistory(response.runs || []);
+        const savedRuns = response.runs || [];
+        setHistory(savedRuns);
+        if (tool.id === "content-recommender" || tool.id === "content-gap-analyzer") {
+          const [articleResponse, podcastResponse, resourceResponse] = await Promise.all([
+            apiGet<{ articles?: Array<Record<string, unknown>> }>("/api/articles"),
+            apiGet<{ podcasts?: Array<Record<string, unknown>> }>("/api/podcasts"),
+            apiGet<{ resources?: Array<Record<string, unknown>> }>("/api/resources"),
+          ]);
+          const contentCatalog = [
+            ...(articleResponse.articles ?? []).map((item) => ({ ...item, contentType: "article" })),
+            ...(podcastResponse.podcasts ?? []).map((item) => ({ ...item, contentType: "audio" })),
+            ...(resourceResponse.resources ?? []).map((item) => ({ ...item, contentType: "resource" })),
+          ];
+          setExperienceContext({
+            contentCatalog,
+            interactionHistory: savedRuns.map((item) => ({ toolId: tool.id, status: item.status, createdAt: item.createdAt })),
+            usageMetrics: savedRuns.map((item) => ({ toolId: tool.id, completion: item.status ?? "completed", createdAt: item.createdAt })),
+          });
+        }
       }
     } catch (caught) {
       if (clinical) setJurisdictionChecking(false);
@@ -280,7 +300,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
     setBusy(true);
     setError("");
     try {
-      const input = tool.inputSchema.parse(buildAiToolExperienceInput(tool.id, values)) as Record<string, unknown>;
+      const input = tool.inputSchema.parse(buildAiToolExperienceInput(tool.id, values, experienceContext)) as Record<string, unknown>;
       let completed: ToolRun;
       if (clinical) {
         const response = await apiPost<{ result: ToolRun }>(`/api/ai-tools/${tool.id}/ephemeral-runs`, { input, confirmedDeidentified });
