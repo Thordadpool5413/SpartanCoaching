@@ -42,6 +42,7 @@ import {
   saveCoachPreferences,
   sendCoachMessage,
   type CoachConversation,
+  type CoachMessage,
   type CoachPreference,
 } from "@/lib/coachApi";
 import { font } from "@/lib/typography";
@@ -54,7 +55,7 @@ type CoachStep = "prepare" | "rehearse" | "review";
 const STEPS: Array<{ id: CoachStep; label: string }> = [
   { id: "prepare", label: "Prepare" },
   { id: "rehearse", label: "Rehearse" },
-  { id: "review", label: "Commit" },
+  { id: "review", label: "Coach" },
 ];
 const defaultPreference: CoachPreference = {
   memoryEnabled: false,
@@ -67,6 +68,8 @@ export default function CoachScreen() {
   const { user, isLoading: authLoading, isAuthenticated, canUseElite } = useAuth();
   const appearance = useAppearancePreference();
   const rehearsalInput = useRef<TextInput>(null);
+  const followUpInput = useRef<TextInput>(null);
+  const coachScroll = useRef<ScrollView>(null);
   const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const recorderState = useAudioRecorderState(recorder, 250);
 
@@ -76,10 +79,13 @@ export default function CoachScreen() {
   const [rehearsal, setRehearsal] = useState("");
   const [commitment, setCommitment] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [messages, setMessages] = useState<CoachMessage[]>([]);
+  const [followUp, setFollowUp] = useState("");
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [conversations, setConversations] = useState<CoachConversation[]>([]);
   const [preference, setPreference] = useState(defaultPreference);
   const [busy, setBusy] = useState(false);
+  const [coachReplying, setCoachReplying] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [landingVisible, setLandingVisible] = useState(true);
@@ -182,6 +188,7 @@ export default function CoachScreen() {
       ].join("\n");
       const answer = await sendCoachMessage(id, prompt, Crypto.randomUUID());
       setFeedback(answer.content);
+      setMessages([answer]);
       if (!commitment.trim()) setCommitment(intention.trim());
       setStep("review");
       setConversations(await listCoachConversations());
@@ -197,6 +204,47 @@ export default function CoachScreen() {
               : "Coach could not review this rehearsal. Your wording remains here.";
       Alert.alert("Review unavailable", message);
     } finally {
+      setBusy(false);
+    }
+  }
+
+  async function sendFollowUp() {
+    const text = followUp.trim();
+    if (!conversationId || !text || busy) return;
+    const requestId = Crypto.randomUUID();
+    const optimisticUser: CoachMessage = {
+      id: requestId,
+      role: "user",
+      content: text,
+      createdAt: new Date().toISOString(),
+      clientRequestId: requestId,
+    };
+    setMessages((current) => [...current, optimisticUser]);
+    setFollowUp("");
+    setBusy(true);
+    setCoachReplying(true);
+    requestAnimationFrame(() => coachScroll.current?.scrollToEnd({ animated: true }));
+    try {
+      const answer = await sendCoachMessage(conversationId, text, requestId);
+      setMessages((current) => [...current, answer]);
+      setFeedback(answer.content);
+      setConversations(await listCoachConversations());
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      requestAnimationFrame(() => coachScroll.current?.scrollToEnd({ animated: true }));
+    } catch (error) {
+      setMessages((current) => current.filter((message) => message.id !== requestId));
+      setFollowUp(text);
+      const message =
+        error instanceof ApiError && error.code === "POTENTIAL_PHI_DETECTED"
+          ? "Remove names, dates, contact details, and other patient identifiers."
+          : error instanceof ApiError && error.code === "ELITE_REQUIRED"
+            ? "Your account needs Hospice Sales Pro Elite to continue with Coach."
+            : error instanceof ApiError && error.status === 401
+              ? "Sign in again to continue this private conversation."
+              : "Coach could not respond. Your message is still here so you can try again.";
+      Alert.alert("Coach unavailable", message);
+    } finally {
+      setCoachReplying(false);
       setBusy(false);
     }
   }
@@ -231,6 +279,8 @@ export default function CoachScreen() {
     setRehearsal("");
     setCommitment("");
     setFeedback(null);
+    setMessages([]);
+    setFollowUp("");
     setConversationId(null);
     setLandingVisible(showLanding);
   }
@@ -243,9 +293,19 @@ export default function CoachScreen() {
       const lastCoach = [...loaded.messages]
         .reverse()
         .find((message) => message.role === "assistant");
+      const visibleMessages = loaded.messages.filter(
+        (message) =>
+          !(
+            message.role === "user" &&
+            message.content.startsWith("Coach this private hospice sales rehearsal.")
+          ),
+      );
       setConversationId(item.id);
+      setCommitment("");
       setSituation(item.title);
       setFeedback(lastCoach?.content ?? null);
+      setMessages(visibleMessages);
+      setFollowUp("");
       setStep(lastCoach ? "review" : "rehearse");
       setLandingVisible(false);
     } catch {
@@ -411,6 +471,7 @@ export default function CoachScreen() {
         keyboardVerticalOffset={8}
       >
         <ScrollView
+          ref={coachScroll}
           style={styles.safe}
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
@@ -598,21 +659,100 @@ export default function CoachScreen() {
           {step === "review" ? (
             <View style={styles.section}>
               <Text style={styles.sectionNumber}>03</Text>
-              <Text style={styles.sectionTitle}>Leave with one move</Text>
+              <Text style={styles.sectionTitle}>Keep the conversation going</Text>
               <Text style={styles.sectionBody}>
-                Review the coaching, then decide what you will do. Coach cannot
-                save a commitment for you.
+                Ask questions, challenge the advice, practice another version,
+                or work through what still feels unclear.
               </Text>
               {feedback ? (
-                <View style={styles.feedbackCard} accessibilityLiveRegion="polite">
-                  <View style={styles.feedbackHeader}>
-                    <View style={styles.feedbackMark}>
-                      <Feather name="zap" size={18} color="#FFFFFF" />
+                <>
+                  <View style={styles.feedbackCard} accessibilityLiveRegion="polite">
+                    <View style={styles.feedbackHeader}>
+                      <View style={styles.feedbackMark}>
+                        <Feather name="message-circle" size={18} color="#FFFFFF" />
+                      </View>
+                      <View style={styles.feedbackHeadingCopy}>
+                        <Text style={styles.feedbackTitle}>Private coaching conversation</Text>
+                        <Text style={styles.feedbackSubtitle}>Only visible to you</Text>
+                      </View>
                     </View>
-                    <Text style={styles.feedbackTitle}>Private Coach review</Text>
+                    <View style={styles.messageStack}>
+                      {(messages.length ? messages : [{
+                        id: "initial-feedback",
+                        role: "assistant" as const,
+                        content: feedback,
+                        createdAt: "",
+                        clientRequestId: "initial-feedback",
+                      }]).map((message) => (
+                        <View
+                          key={message.id}
+                          style={[
+                            styles.messageBubble,
+                            message.role === "user"
+                              ? styles.userBubble
+                              : styles.coachBubble,
+                          ]}
+                        >
+                          <Text style={styles.messageRole}>
+                            {message.role === "user" ? "YOU" : "COACH"}
+                          </Text>
+                          <Text style={styles.feedbackText}>{message.content}</Text>
+                        </View>
+                      ))}
+                      {coachReplying ? (
+                        <View style={[styles.messageBubble, styles.coachBubble, styles.thinkingBubble]}>
+                          <ActivityIndicator color={colors.primary} size="small" />
+                          <Text style={styles.thinkingText}>Coach is thinking</Text>
+                        </View>
+                      ) : null}
+                    </View>
                   </View>
-                  <Text style={styles.feedbackText}>{feedback}</Text>
-                </View>
+
+                  <View style={styles.promptRow}>
+                    {["Make this sound more natural", "What should I ask next?"].map((prompt) => (
+                      <Pressable
+                        key={prompt}
+                        onPress={() => {
+                          setFollowUp(prompt);
+                          requestAnimationFrame(() => followUpInput.current?.focus());
+                        }}
+                        style={styles.promptChip}
+                      >
+                        <Text style={styles.promptChipText}>{prompt}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
+
+                  <View style={styles.coachComposerBox}>
+                    <TextInput
+                      ref={followUpInput}
+                      value={followUp}
+                      onChangeText={setFollowUp}
+                      placeholder="Ask Coach anything about this conversation"
+                      placeholderTextColor={colors.mutedForeground}
+                      multiline
+                      maxLength={4000}
+                      textAlignVertical="top"
+                      style={styles.coachFollowUpInput}
+                      accessibilityLabel="Message Spartan Coach"
+                    />
+                    <Pressable
+                      disabled={!followUp.trim() || busy}
+                      onPress={() => void sendFollowUp()}
+                      style={[
+                        styles.sendButton,
+                        (!followUp.trim() || busy) && styles.disabled,
+                      ]}
+                      accessibilityRole="button"
+                      accessibilityLabel="Send message to Coach"
+                    >
+                      <Feather name="arrow-up" size={21} color="#FFFFFF" />
+                    </Pressable>
+                  </View>
+                  <Text style={styles.coachPrivacyNote}>
+                    Continue without patient names, dates, or identifying details.
+                  </Text>
+                </>
               ) : (
                 <View style={styles.emptyReview}>
                   <Text style={styles.emptyReviewText}>
@@ -623,6 +763,11 @@ export default function CoachScreen() {
                   </Pressable>
                 </View>
               )}
+              <View style={styles.commitmentDivider} />
+              <Text style={styles.commitmentTitle}>Turn the conversation into action</Text>
+              <Text style={styles.commitmentBody}>
+                When you are ready, choose the one move you will make next.
+              </Text>
               <Field
                 label="MY COMMITMENT"
                 placeholder="Write one specific action you will take"
@@ -1388,10 +1533,133 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       fontSize: 17,
       ...font("bold"),
     },
+    feedbackHeadingCopy: { flex: 1 },
+    feedbackSubtitle: {
+      color: colors.mutedForeground,
+      fontSize: 11,
+      lineHeight: 16,
+      marginTop: 1,
+      ...font("regular"),
+    },
+    messageStack: { gap: 12 },
+    messageBubble: {
+      borderRadius: 16,
+      borderWidth: StyleSheet.hairlineWidth,
+      paddingHorizontal: 14,
+      paddingVertical: 13,
+    },
+    coachBubble: {
+      backgroundColor: colors.background,
+      borderColor: colors.border,
+      marginRight: 18,
+    },
+    userBubble: {
+      backgroundColor: colors.primaryMuted,
+      borderColor: colors.primary,
+      marginLeft: 28,
+    },
+    messageRole: {
+      color: colors.primary,
+      fontSize: 9,
+      letterSpacing: 1.4,
+      marginBottom: 6,
+      ...font("bold"),
+    },
     feedbackText: {
       color: colors.foreground,
       fontSize: 15,
       lineHeight: 23,
+      ...font("regular"),
+    },
+    thinkingBubble: {
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 9,
+    },
+    thinkingText: {
+      color: colors.mutedForeground,
+      fontSize: 13,
+      ...font("semibold"),
+    },
+    promptRow: {
+      flexDirection: "row",
+      flexWrap: "wrap",
+      gap: 8,
+      marginTop: 12,
+    },
+    promptChip: {
+      minHeight: 40,
+      borderRadius: 20,
+      borderWidth: 1,
+      borderColor: colors.borderStrong,
+      backgroundColor: colors.card,
+      paddingHorizontal: 13,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    promptChipText: {
+      color: colors.foreground,
+      fontSize: 12,
+      ...font("semibold"),
+    },
+    coachComposerBox: {
+      minHeight: 66,
+      borderRadius: 18,
+      borderWidth: 1,
+      borderColor: colors.borderStrong,
+      backgroundColor: colors.card,
+      paddingLeft: 14,
+      paddingRight: 8,
+      paddingVertical: 8,
+      marginTop: 12,
+      flexDirection: "row",
+      alignItems: "flex-end",
+      gap: 10,
+    },
+    coachFollowUpInput: {
+      flex: 1,
+      minHeight: 48,
+      maxHeight: 150,
+      color: colors.foreground,
+      fontSize: 15,
+      lineHeight: 21,
+      paddingVertical: 10,
+      ...font("regular"),
+    },
+    sendButton: {
+      width: 44,
+      height: 44,
+      borderRadius: 14,
+      backgroundColor: colors.primary,
+      alignItems: "center",
+      justifyContent: "center",
+    },
+    coachPrivacyNote: {
+      color: colors.mutedForeground,
+      fontSize: 10,
+      lineHeight: 15,
+      textAlign: "center",
+      marginTop: 8,
+      ...font("regular"),
+    },
+    commitmentDivider: {
+      height: StyleSheet.hairlineWidth,
+      backgroundColor: colors.border,
+      marginTop: 24,
+      marginBottom: 18,
+    },
+    commitmentTitle: {
+      color: colors.foreground,
+      fontSize: 18,
+      lineHeight: 23,
+      ...font("bold"),
+    },
+    commitmentBody: {
+      color: colors.mutedForeground,
+      fontSize: 13,
+      lineHeight: 19,
+      marginTop: 5,
+      marginBottom: 14,
       ...font("regular"),
     },
     emptyReview: {
