@@ -2,6 +2,7 @@ import React, { type ReactNode } from "react";
 import { Platform, StyleSheet, View, type StyleProp, type ViewStyle } from "react-native";
 import { useColors } from "@/hooks/useColors";
 import { radius } from "@workspace/design-tokens";
+import { layout } from "@/lib/spacing";
 
 export type CardVariant = "quiet" | "default" | "emphasis";
 
@@ -71,7 +72,7 @@ export function SpartanCard({
 const styles = StyleSheet.create({
   card: {
     borderRadius: radius.lg,
-    padding: 18,
+    padding: layout.cardPadding,
     overflow: "hidden",
   },
   topRail: {

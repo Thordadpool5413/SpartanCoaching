@@ -50,6 +50,7 @@ import { trackProductOutcome } from "@/lib/analytics";
 import { cacheCommitment } from "@/lib/commitmentCache";
 import { HelmetMark } from "@/components/brand/HelmetMark";
 import { SpartanHeader } from "@/components/ui/SpartanHeader";
+import { cleanFieldCopy } from "@/components/FieldResultPanel";
 
 type CoachStep = "prepare" | "rehearse" | "review";
 const STEPS: Array<{ id: CoachStep; label: string }> = [
@@ -89,6 +90,7 @@ export default function CoachScreen() {
   const [historyOpen, setHistoryOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [landingVisible, setLandingVisible] = useState(true);
+  const [landingPrompt, setLandingPrompt] = useState("");
 
   useEffect(() => {
     if (!canUseElite) return;
@@ -242,6 +244,43 @@ export default function CoachScreen() {
             : error instanceof ApiError && error.status === 401
               ? "Sign in again to continue this private conversation."
               : "Coach could not respond. Your message is still here so you can try again.";
+      Alert.alert("Coach unavailable", message);
+    } finally {
+      setCoachReplying(false);
+      setBusy(false);
+    }
+  }
+
+  async function startDirectConversation() {
+    const text = landingPrompt.trim();
+    if (!text || busy) return;
+    setBusy(true);
+    setCoachReplying(true);
+    try {
+      const created = await createCoachConversation(text.slice(0, 76));
+      const requestId = Crypto.randomUUID();
+      const userMessage: CoachMessage = {
+        id: requestId,
+        role: "user",
+        content: text,
+        createdAt: new Date().toISOString(),
+        clientRequestId: requestId,
+      };
+      const answer = await sendCoachMessage(created.id, text, requestId);
+      setConversationId(created.id);
+      setSituation(text);
+      setMessages([userMessage, answer]);
+      setFeedback(answer.content);
+      setLandingPrompt("");
+      setStep("review");
+      setLandingVisible(false);
+      setConversations(await listCoachConversations());
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch (error) {
+      const message =
+        error instanceof ApiError && error.code === "POTENTIAL_PHI_DETECTED"
+          ? "Remove names, dates, contact details, and other patient identifiers."
+          : "Coach could not start the conversation. Your message is still here so you can try again.";
       Alert.alert("Coach unavailable", message);
     } finally {
       setCoachReplying(false);
@@ -407,22 +446,43 @@ export default function CoachScreen() {
           <Text style={styles.coachHomeTitle}>Practice the conversation before it matters.</Text>
           <Text style={styles.coachHomeBody}>Spartan Coach listens for the concern beneath the words, asks when context is missing, and helps you leave with one commitment.</Text>
 
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => {
-              setLandingVisible(false);
-              setStep("prepare");
-              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            }}
-            style={({ pressed }) => [styles.coachComposer, pressed && styles.rowPressed]}
-            testID="coach-begin-preparation"
-          >
-            <Text style={styles.coachComposerTitle}>What are you preparing for?</Text>
-            <View style={styles.coachComposerField}>
-              <Feather name="edit-3" size={21} color={colors.primary} />
-              <Text style={styles.coachComposerPlaceholder}>Describe the conversation</Text>
-            </View>
-          </Pressable>
+          <View style={styles.coachComposer} testID="coach-direct-conversation">
+            <Text style={styles.coachComposerKicker}>START HERE</Text>
+            <Text style={styles.coachComposerTitle}>What is on your mind?</Text>
+            <TextInput
+              value={landingPrompt}
+              onChangeText={setLandingPrompt}
+              placeholder="Tell Coach what happened, what feels difficult, or what you want to practice"
+              placeholderTextColor={colors.mutedForeground}
+              multiline
+              maxLength={4000}
+              textAlignVertical="top"
+              style={styles.coachLandingInput}
+              accessibilityLabel="Start a private Coach conversation"
+            />
+            <Pressable
+              disabled={!landingPrompt.trim() || busy}
+              onPress={() => void startDirectConversation()}
+              style={[styles.landingSendButton, (!landingPrompt.trim() || busy) && styles.disabled]}
+              accessibilityRole="button"
+            >
+              {busy ? <ActivityIndicator color="#FFFFFF" /> : <><Text style={styles.landingSendText}>Talk with Coach</Text><Feather name="arrow-up" size={19} color="#FFFFFF" /></>}
+            </Pressable>
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => {
+                setLandingVisible(false);
+                setStep("prepare");
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }}
+              style={styles.guidedRehearsalButton}
+              testID="coach-begin-preparation"
+            >
+              <Feather name="mic" size={18} color={colors.primary} />
+              <Text style={styles.guidedRehearsalText}>Use guided voice rehearsal</Text>
+              <Feather name="chevron-right" size={18} color={colors.primary} />
+            </Pressable>
+          </View>
 
           <Pressable
             accessibilityRole="button"
@@ -696,7 +756,7 @@ export default function CoachScreen() {
                           <Text style={styles.messageRole}>
                             {message.role === "user" ? "YOU" : "COACH"}
                           </Text>
-                          <Text style={styles.feedbackText}>{message.content}</Text>
+                          <CoachMessageBody content={message.content} styles={styles} />
                         </View>
                       ))}
                       {coachReplying ? (
@@ -845,6 +905,43 @@ function BrandLockup({
       <Text style={compact ? styles.brandCompactWord : styles.brandWord}>
         {compact ? "Coach" : "SPARTAN COACH"}
       </Text>
+    </View>
+  );
+}
+
+function CoachMessageBody({
+  content,
+  styles,
+}: {
+  content: string;
+  styles: ReturnType<typeof makeStyles>;
+}) {
+  const sections = cleanFieldCopy(content)
+    .split(/\n\s*\n/)
+    .map((part) => part.trim())
+    .filter(Boolean);
+
+  return (
+    <View style={styles.coachMessageBody}>
+      {sections.map((section, index) => {
+        const lines = section.split("\n").map((line) => line.trim()).filter(Boolean);
+        const first = lines[0] ?? "";
+        const heading = first.length < 64 && /^(what|why|stronger|next|try|focus|commitment|recommendation|response|approach)/i.test(first);
+        return (
+          <View key={`${first}:${index}`} style={styles.coachMessageSection}>
+            {heading ? <Text style={styles.coachMessageHeading}>{first.replace(/:$/, "")}</Text> : null}
+            {lines.slice(heading ? 1 : 0).map((line, lineIndex) => {
+              const bullet = line.startsWith("• ");
+              return bullet ? (
+                <View key={lineIndex} style={styles.coachMessageBulletRow}>
+                  <View style={styles.coachMessageBullet} />
+                  <Text selectable style={styles.feedbackText}>{line.slice(2)}</Text>
+                </View>
+              ) : <Text key={lineIndex} selectable style={styles.feedbackText}>{line}</Text>;
+            })}
+          </View>
+        );
+      })}
     </View>
   );
 }
@@ -1541,7 +1638,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       marginTop: 1,
       ...font("regular"),
     },
-    messageStack: { gap: 12 },
+    messageStack: { gap: 16 },
     messageBubble: {
       borderRadius: 16,
       borderWidth: StyleSheet.hairlineWidth,
@@ -1571,6 +1668,11 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       lineHeight: 23,
       ...font("regular"),
     },
+    coachMessageBody: { gap: 18 },
+    coachMessageSection: { gap: 8 },
+    coachMessageHeading: { color: colors.foreground, fontSize: 16, lineHeight: 21, ...font("heavy") },
+    coachMessageBulletRow: { flexDirection: "row", alignItems: "flex-start", gap: 9 },
+    coachMessageBullet: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.primary, marginTop: 8 },
     thinkingBubble: {
       flexDirection: "row",
       alignItems: "center",
@@ -1768,19 +1870,24 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       marginTop: 12,
       ...font("regular"),
     },
-    coachHomeContent: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 38 },
+    coachHomeContent: { paddingHorizontal: 22, paddingTop: 8, paddingBottom: 44 },
     coachHomeBadge: { alignSelf: "flex-start", borderRadius: 999, backgroundColor: colors.primaryMuted, paddingHorizontal: 10, paddingVertical: 6, marginTop: 12 },
     coachHomeBadgeText: { color: colors.primary, fontSize: 10, letterSpacing: 0.8, ...font("bold") },
     coachHomeTitle: { color: colors.foreground, fontSize: 32, lineHeight: 38, letterSpacing: -0.9, marginTop: 24, maxWidth: 390, ...font("heavy") },
     coachHomeBody: { color: colors.mutedForeground, fontSize: 15, lineHeight: 22, marginTop: 8, maxWidth: 390, ...font("regular") },
-    coachComposer: { minHeight: 176, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 24, backgroundColor: colors.card, padding: 20, marginTop: 66 },
-    coachComposerTitle: { color: colors.foreground, fontSize: 17, ...font("bold") },
-    coachComposerField: { minHeight: 56, flexDirection: "row", alignItems: "center", gap: 12, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 16, backgroundColor: colors.card, paddingHorizontal: 16, marginTop: 12 },
+    coachComposer: { minHeight: 290, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 26, borderCurve: "continuous", backgroundColor: colors.card, padding: 20, marginTop: 34 },
+    coachComposerKicker: { color: colors.primary, fontSize: 9, letterSpacing: 1.7, ...font("bold") },
+    coachComposerTitle: { color: colors.foreground, fontSize: 21, marginTop: 6, ...font("heavy") },
+    coachLandingInput: { minHeight: 112, maxHeight: 180, color: colors.foreground, backgroundColor: colors.background, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 17, borderCurve: "continuous", padding: 15, fontSize: 15, lineHeight: 22, marginTop: 14, ...font("regular") },
+    landingSendButton: { minHeight: 52, borderRadius: 16, borderCurve: "continuous", backgroundColor: colors.primary, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 9, marginTop: 12 },
+    landingSendText: { color: "#FFFFFF", fontSize: 15, ...font("bold") },
+    guidedRehearsalButton: { minHeight: 50, flexDirection: "row", alignItems: "center", gap: 9, marginTop: 10, paddingHorizontal: 4 },
+    guidedRehearsalText: { flex: 1, color: colors.primary, fontSize: 13, ...font("bold") },
     coachComposerPlaceholder: { color: colors.mutedForeground, fontSize: 15, ...font("regular") },
     resumeCard: { minHeight: 104, flexDirection: "row", alignItems: "flex-start", gap: 12, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 20, backgroundColor: colors.card, padding: 16, marginTop: 20 },
     resumeTitle: { color: colors.foreground, fontSize: 17, ...font("bold") },
     resumeBody: { color: colors.mutedForeground, fontSize: 13, lineHeight: 18, marginTop: 5, ...font("regular") },
-    coachPrivacyCard: { minHeight: 158, flexDirection: "row", alignItems: "flex-start", gap: 12, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 24, backgroundColor: colors.secondary, padding: 20, marginTop: -20 },
+    coachPrivacyCard: { minHeight: 144, flexDirection: "row", alignItems: "flex-start", gap: 12, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 24, borderCurve: "continuous", backgroundColor: colors.secondary, padding: 20, marginTop: 24 },
     coachPrivacyTitle: { color: colors.foreground, fontSize: 17, ...font("bold") },
     coachPrivacyBody: { color: colors.mutedForeground, fontSize: 13, lineHeight: 19, marginTop: 8, ...font("regular") },
     rowPressed: { opacity: 0.68 },

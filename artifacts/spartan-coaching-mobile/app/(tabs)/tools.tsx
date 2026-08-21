@@ -216,7 +216,7 @@ function ToolsCatalogScreen() {
       <OfflineQueueBanner />
 
       <ScrollView
-        contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: bottomPad + 24 }}
+        contentContainerStyle={{ paddingHorizontal: 22, paddingTop: 24, paddingBottom: bottomPad + 36 }}
         showsVerticalScrollIndicator={false}
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
@@ -330,14 +330,14 @@ function ActionRow({ title, subtitle, icon, badge, onPress, testID }: { title: s
 
 const styles = StyleSheet.create({
   screen: { flex: 1 },
-  header: { paddingHorizontal: 20, paddingBottom: 16, borderBottomWidth: StyleSheet.hairlineWidth },
+  header: { paddingHorizontal: 22, paddingBottom: 20, borderBottomWidth: StyleSheet.hairlineWidth },
   kicker: { fontSize: 10, letterSpacing: 2.2 },
   title: { fontSize: 36, letterSpacing: -1.1, marginTop: 6 },
   subtitle: { fontSize: 14, lineHeight: 20, marginTop: 5, maxWidth: 340 },
   searchShell: { minHeight: 50, borderWidth: 1, borderRadius: 16, paddingHorizontal: 14, flexDirection: "row", alignItems: "center", gap: 10, marginTop: 16 },
   search: { flex: 1, fontSize: 15, minHeight: 48 },
-  destinationGrid: { gap: 10, marginBottom: 28 },
-  destinationCard: { minHeight: 92, flexDirection: "row", alignItems: "center", gap: 13, borderWidth: 1, borderRadius: 20, borderCurve: "continuous", paddingHorizontal: 15, paddingVertical: 14 },
+  destinationGrid: { gap: 14, marginBottom: 36 },
+  destinationCard: { minHeight: 104, flexDirection: "row", alignItems: "center", gap: 14, borderWidth: 1, borderRadius: 20, borderCurve: "continuous", paddingHorizontal: 17, paddingVertical: 16 },
   destinationIcon: { width: 44, height: 44, borderRadius: 14, alignItems: "center", justifyContent: "center" },
   destinationCopy: { flex: 1 },
   destinationTitle: { fontSize: 15 },
@@ -349,7 +349,7 @@ const styles = StyleSheet.create({
   categoryRail: { gap: 8, paddingVertical: 6, paddingRight: 12, marginBottom: 12 },
   categoryChip: { minHeight: 42, justifyContent: "center", borderWidth: 1, borderRadius: 999, paddingHorizontal: 16 },
   categoryLabel: { fontSize: 12 },
-  toolGroup: { marginTop: 22 },
+  toolGroup: { marginTop: 32 },
   groupTitleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", marginBottom: 10 },
   groupTitle: { fontSize: 20, letterSpacing: -0.3 },
   groupCount: { fontSize: 10 },
@@ -369,7 +369,7 @@ const styles = StyleSheet.create({
   intentChip: { width: 190, minHeight: 94, borderWidth: 1, borderRadius: 16, padding: 14 },
   intentTitle: { fontSize: 14 },
   intentBody: { fontSize: 12, lineHeight: 17, marginTop: 6 },
-  actionRow: { minHeight: 72, borderWidth: StyleSheet.hairlineWidth * 2, borderRadius: 16, padding: 13, flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 9 },
+  actionRow: { minHeight: 88, borderWidth: StyleSheet.hairlineWidth * 2, borderRadius: 18, borderCurve: "continuous", padding: 16, flexDirection: "row", alignItems: "center", gap: 14, marginBottom: 12 },
   actionIcon: { width: 38, height: 38, borderRadius: 12, alignItems: "center", justifyContent: "center" },
   actionTitle: { fontSize: 15 },
   actionTitleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
@@ -378,7 +378,7 @@ const styles = StyleSheet.create({
   empty: { borderWidth: 1, borderRadius: 20, padding: 22, alignItems: "center", marginTop: 8 },
   emptyTitle: { fontSize: 18, marginTop: 10 },
   emptyBody: { fontSize: 13, lineHeight: 19, textAlign: "center", marginTop: 5 },
-  eliteCard: { borderWidth: 1, borderRadius: 22, padding: 20, marginTop: 28 },
+  eliteCard: { borderWidth: 1, borderRadius: 24, borderCurve: "continuous", padding: 22, marginTop: 38 },
   eliteBadge: { alignSelf: "flex-start", borderRadius: 999, paddingHorizontal: 9, paddingVertical: 5, marginBottom: 13 },
   eliteBadgeText: { fontSize: 9, letterSpacing: 1.6 },
   eliteTitle: { fontSize: 21, letterSpacing: -0.4 },

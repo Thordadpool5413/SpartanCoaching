@@ -38,7 +38,10 @@ describe("native product completeness", () => {
     const coach = read("app/(tabs)/coach.tsx");
     expect(coach).toContain('testID="screen-elite-coach-home"');
     expect(coach).toContain("Practice the conversation before it matters.");
-    expect(coach).toContain("What are you preparing for?");
+    expect(coach).toContain("What is on your mind?");
+    expect(coach).toContain('testID="coach-direct-conversation"');
+    expect(coach).toContain("Talk with Coach");
+    expect(coach).toContain("Use guided voice rehearsal");
     expect(coach).toContain("Resume a private conversation");
     expect(coach).toContain("Your privacy is protected");
   });
