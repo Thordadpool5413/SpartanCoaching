@@ -17,11 +17,15 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import {
+  buildAiToolExperienceInput,
   buildConnectedToolInput,
+  getAiToolExperience,
   getSpartanAiToolConnections,
   getSpartanAiTool,
-  type AiToolField,
-  type AiToolSpec,
+  hydrateAiToolExperienceValues,
+  initialAiToolExperienceValues,
+  type AiToolExperienceField,
+  type AiToolExperienceValue,
 } from "@workspace/spartan-ai-tools";
 import { consumeAiToolHandoff, stageAiToolHandoff } from "@/lib/aiToolHandoff";
 import { Button } from "@/components/ui/button";
@@ -113,54 +117,7 @@ async function apiJson<T>(path: string, init?: RequestInit): Promise<T> {
   return response.json() as Promise<T>;
 }
 
-function inputToForm(
-  tool: AiToolSpec,
-  source: Record<string, unknown> = tool.exampleInput as Record<
-    string,
-    unknown
-  >,
-): Record<string, string | boolean> {
-  const values: Record<string, string | boolean> = {};
-  for (const field of tool.fields) {
-    const value = source[field.key];
-    if (field.kind === "boolean") values[field.key] = value !== false;
-    else if (field.kind === "string-list")
-      values[field.key] = Array.isArray(value) ? value.join("\n") : "";
-    else if (field.kind === "json" || field.kind === "json-list")
-      values[field.key] =
-        value === undefined ? "" : JSON.stringify(value, null, 2);
-    else values[field.key] = value === undefined ? "" : String(value);
-  }
-  return values;
-}
-
-function formToInput(
-  tool: AiToolSpec,
-  values: Record<string, string | boolean>,
-): Record<string, unknown> {
-  const input: Record<string, unknown> = {};
-  for (const field of tool.fields) {
-    const value = values[field.key];
-    if (field.kind === "boolean") {
-      input[field.key] = value === true;
-      continue;
-    }
-    const text = String(value ?? "").trim();
-    if (!text && !field.required) continue;
-    if (field.kind === "number") input[field.key] = Number(text);
-    else if (field.kind === "string-list")
-      input[field.key] = text
-        .split(/\r?\n|,/)
-        .map((item) => item.trim())
-        .filter(Boolean);
-    else if (field.kind === "json" || field.kind === "json-list")
-      input[field.key] = JSON.parse(
-        text || (field.kind === "json-list" ? "[]" : "{}"),
-      );
-    else input[field.key] = text;
-  }
-  return input;
-}
+type FormValue = AiToolExperienceValue;
 
 function humanKey(key: string): string {
   return key
@@ -248,58 +205,136 @@ function ToolField({
   value,
   onChange,
 }: {
-  field: AiToolField;
-  value: string | boolean;
-  onChange: (value: string | boolean) => void;
+  field: AiToolExperienceField;
+  value: FormValue;
+  onChange: (value: FormValue) => void;
 }) {
+  const options = field.options ?? [];
+  const selectedValues = Array.isArray(value) ? value : [];
+  const initialCustom =
+    field.kind === "multi-choice"
+      ? selectedValues.find((item) => !options.includes(item)) ?? ""
+      : typeof value === "string" && value && !options.includes(value)
+        ? value
+        : "";
+  const [otherOpen, setOtherOpen] = useState(Boolean(initialCustom));
+  const [otherValue, setOtherValue] = useState(initialCustom);
+
+  const updateOther = (next: string) => {
+    const previous = otherValue;
+    setOtherValue(next);
+    if (field.kind === "multi-choice") {
+      onChange([
+        ...selectedValues.filter((item) => item !== previous && options.includes(item)),
+        ...(next.trim() ? [next] : []),
+      ]);
+    } else {
+      onChange(next);
+    }
+  };
+
+  if (field.kind === "single-choice" || field.kind === "multi-choice") {
+    return (
+      <fieldset className="space-y-3">
+        <legend className="text-sm font-semibold text-foreground">
+          {field.label}
+          {field.required ? " *" : ""}
+        </legend>
+        {field.helper && <p className="text-sm text-muted-foreground">{field.helper}</p>}
+        <div className="flex flex-wrap gap-2" role={field.kind === "single-choice" ? "radiogroup" : "group"}>
+          {options.map((option) => {
+            const selected =
+              field.kind === "multi-choice"
+                ? selectedValues.includes(option)
+                : value === option;
+            return (
+              <button
+                key={option}
+                type="button"
+                role={field.kind === "single-choice" ? "radio" : "checkbox"}
+                aria-checked={selected}
+                onClick={() => {
+                  setOtherOpen(false);
+                  setOtherValue("");
+                  if (field.kind === "multi-choice") {
+                    onChange(
+                      selected
+                        ? selectedValues.filter((item) => item !== option)
+                        : [...selectedValues, option],
+                    );
+                  } else {
+                    onChange(option);
+                  }
+                }}
+                className={cn(
+                  "min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition",
+                  selected
+                    ? "border-primary bg-primary text-primary-foreground"
+                    : "border-border bg-background text-foreground hover:border-primary/60",
+                )}
+              >
+                {option}
+              </button>
+            );
+          })}
+          {field.allowOther && (
+            <button
+              type="button"
+              onClick={() => {
+                setOtherOpen(true);
+                if (field.kind === "single-choice") onChange(otherValue);
+              }}
+              className={cn(
+                "min-h-11 rounded-full border px-4 py-2 text-sm font-semibold transition",
+                otherOpen
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : "border-border bg-background text-foreground hover:border-primary/60",
+              )}
+            >
+              Other
+            </button>
+          )}
+        </div>
+        {otherOpen && (
+          <Input
+            aria-label={`Other ${field.label}`}
+            value={otherValue}
+            onChange={(event) => updateOther(event.target.value)}
+            placeholder="Enter your own response"
+            autoFocus
+          />
+        )}
+      </fieldset>
+    );
+  }
+
+  const multiline = field.kind === "long-text";
   return (
     <div className="space-y-2">
       <Label htmlFor={field.key}>
         {field.label}
         {field.required ? " *" : ""}
       </Label>
-      {field.kind === "boolean" ? (
-        <label className="flex cursor-pointer items-center gap-3 rounded-lg border border-border p-3">
-          <input
-            id={field.key}
-            type="checkbox"
-            checked={value === true}
-            onChange={(event) => onChange(event.target.checked)}
-            className="h-4 w-4 accent-primary"
-          />
-          <span className="text-sm">Enabled</span>
-        </label>
-      ) : field.kind === "select" ? (
-        <select
-          id={field.key}
-          value={String(value)}
-          onChange={(event) => onChange(event.target.value)}
-          className="h-10 w-full rounded-md border border-input bg-background px-3 text-sm"
-        >
-          {(field.options ?? []).map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-      ) : field.kind === "text" ||
-        field.kind === "string-list" ||
-        field.kind === "json" ||
-        field.kind === "json-list" ? (
+      {field.helper && <p className="text-sm text-muted-foreground">{field.helper}</p>}
+      {multiline ? (
         <Textarea
           id={field.key}
-          value={String(value)}
+          value={String(value ?? "")}
           onChange={(event) => onChange(event.target.value)}
           placeholder={field.placeholder}
-          rows={field.kind === "json" || field.kind === "json-list" ? 7 : 4}
+          rows={5}
           required={field.required}
         />
       ) : (
         <Input
           id={field.key}
           type={field.kind === "number" ? "number" : "text"}
-          value={String(value)}
-          onChange={(event) => onChange(event.target.value)}
+          min={field.minimum}
+          max={field.maximum}
+          value={String(value ?? "")}
+          onChange={(event) =>
+            onChange(field.kind === "number" ? Number(event.target.value) : event.target.value)
+          }
           placeholder={field.placeholder}
           required={field.required}
         />
@@ -315,6 +350,8 @@ function MfaPanel({ onVerified }: { onVerified: () => void }) {
   } | null>(null);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [progressStage, setProgressStage] = useState(0);
   const [error, setError] = useState("");
 
   async function requestCode() {
@@ -399,8 +436,9 @@ export default function AiToolPage() {
   const { toolId = "" } = useParams<{ toolId: string }>();
   const [, navigate] = useLocation();
   const tool = getSpartanAiTool(toolId);
-  const [values, setValues] = useState<Record<string, string | boolean>>(
-    tool ? inputToForm(tool) : {},
+  const experience = tool ? getAiToolExperience(tool.id) : null;
+  const [values, setValues] = useState<Record<string, FormValue>>(
+    tool ? initialAiToolExperienceValues(tool.id) : {},
   );
   const [run, setRun] = useState<Run | null>(null);
   const [history, setHistory] = useState<Run[]>([]);
@@ -413,20 +451,31 @@ export default function AiToolPage() {
     const handoff = consumeAiToolHandoff(tool.id);
     if (handoff) {
       setValues(
-        inputToForm(
-          tool,
-          buildConnectedToolInput(
-            handoff.sourceToolId,
-            tool.id,
-            handoff.output,
-          ),
+        hydrateAiToolExperienceValues(
+          tool.id,
+          buildConnectedToolInput(handoff.sourceToolId, tool.id, handoff.output),
         ),
       );
       setRun(null);
       return;
     }
-    setValues(inputToForm(tool));
+    setValues(initialAiToolExperienceValues(tool.id));
   }, [tool?.id]);
+
+  useEffect(() => {
+    if (!busy || !experience) {
+      setElapsedSeconds(0);
+      setProgressStage(0);
+      return;
+    }
+    const startedAt = Date.now();
+    const timer = window.setInterval(() => {
+      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+      setElapsedSeconds(elapsed);
+      setProgressStage(Math.min(experience.progressStages.length - 1, Math.floor(elapsed / 4)));
+    }, 1000);
+    return () => window.clearInterval(timer);
+  }, [busy, experience]);
 
   async function loadData() {
     if (!tool) return;
@@ -463,7 +512,7 @@ export default function AiToolPage() {
     setBusy(true);
     setError("");
     try {
-      const input = formToInput(tool, values);
+      const input = tool.inputSchema.parse(buildAiToolExperienceInput(tool.id, values)) as Record<string, unknown>;
       if (tool.containsPhi) {
         const response = await apiJson<{ result: Run }>(
           `/api/ai-tools/${tool.id}/ephemeral-runs`,
@@ -576,8 +625,16 @@ export default function AiToolPage() {
     );
   }
 
+  const missingRequired = experience.fields.some((field) => {
+    if (!field.required) return false;
+    const value = values[field.key];
+    return Array.isArray(value)
+      ? value.length === 0
+      : String(value ?? "").trim().length === 0;
+  });
   const runDisabled =
     busy ||
+    missingRequired ||
     (tool.containsPhi && !confirmedDeidentified);
 
   const errorCode =
@@ -615,10 +672,10 @@ export default function AiToolPage() {
             )}
           </div>
           <h1 className="text-3xl font-display font-black tracking-tight text-foreground">
-            {tool.name}
+            {experience.title ?? tool.name}
           </h1>
           <p className="mt-3 leading-7 text-muted-foreground">
-            {tool.description}
+            {experience.promise}
           </p>
         </div>
         <Button variant="outline" size="sm" onClick={() => void loadData()}>
@@ -672,12 +729,12 @@ export default function AiToolPage() {
               </div>
             )}
 
-            {tool.fields.map((field) => (
+            {experience.fields.map((field) => (
               <ToolField
                 key={field.key}
                 field={field}
                 value={
-                  values[field.key] ?? (field.kind === "boolean" ? false : "")
+                  values[field.key] ?? (field.kind === "multi-choice" ? [] : "")
                 }
                 onChange={(value) =>
                   setValues((current) => ({ ...current, [field.key]: value }))
