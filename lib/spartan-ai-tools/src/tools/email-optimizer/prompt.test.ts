@@ -4,7 +4,7 @@ import { outputSchema } from "./schema";
 
 describe("email optimizer voice and payload contract", () => {
   it("requires the Spartan Coaching voice and blocks common generated language", () => {
-    expect(SYSTEM_PROMPT).toContain("sounds human");
+    expect(SYSTEM_PROMPT).toContain("Sound natural");
     expect(SYSTEM_PROMPT).toContain("Never use dashes");
     expect(SYSTEM_PROMPT).toContain("Never use template braces");
     expect(SYSTEM_PROMPT).toContain("low friction");
