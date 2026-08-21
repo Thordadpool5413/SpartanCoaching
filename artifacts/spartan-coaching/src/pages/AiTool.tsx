@@ -372,8 +372,6 @@ function MfaPanel({ onVerified }: { onVerified: () => void }) {
   } | null>(null);
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
-  const [elapsedSeconds, setElapsedSeconds] = useState(0);
-  const [progressStage, setProgressStage] = useState(0);
   const [error, setError] = useState("");
 
   async function requestCode() {
@@ -466,6 +464,8 @@ export default function AiToolPage() {
   const [experienceContext, setExperienceContext] = useState<AiToolExperienceContext>({});
   const [history, setHistory] = useState<Run[]>([]);
   const [busy, setBusy] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [progressStage, setProgressStage] = useState(0);
   const [confirmedDeidentified, setConfirmedDeidentified] = useState(false);
   const [error, setError] = useState("");
 
@@ -548,7 +548,7 @@ export default function AiToolPage() {
 
   async function submit(event: FormEvent) {
     event.preventDefault();
-    if (!tool) return;
+    if (!tool || !experience) return;
     setBusy(true);
     setError("");
     try {
@@ -596,7 +596,7 @@ export default function AiToolPage() {
         const blob = new Blob(
           [
             [
-              experience.title ?? tool.name,
+              experience?.title ?? tool.name,
               run.watermark,
               "",
               formatResultForCopy(run.output),
