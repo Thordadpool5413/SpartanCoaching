@@ -7,6 +7,7 @@ import { goBackOrReplace } from "@/lib/navigation";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Keyboard,
   Platform,
   Pressable,
   ScrollView,
@@ -292,6 +293,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
   }, [tool.id, networkBlocked]);
 
   async function runTool() {
+    Keyboard.dismiss();
     if (networkBlocked) {
       setError("Secure connection required. Advanced tools do not process or queue protected work while this device is offline.");
       if (!isChecking) void refresh();
