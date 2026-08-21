@@ -59,7 +59,10 @@ function completeRequiredFields(
     if (field.kind === "single-choice" || field.kind === "multi-choice") {
       const option = field.options?.[0];
       if (!option) throw new Error(`${field.key} needs a test option`);
-      fireEvent.press(view.getAllByText(option)[0]);
+      const control = view.getByLabelText(`${field.label}: ${option}`);
+      if (control.props.accessibilityState?.checked !== true) {
+        fireEvent.press(control);
+      }
       continue;
     }
     const control = view.getByLabelText(field.label);
