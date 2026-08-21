@@ -350,6 +350,25 @@ export function initialAiToolExperienceValues(
   );
 }
 
+export function hydrateAiToolExperienceValues(
+  toolId: SpartanAiToolId,
+  source: Record<string, unknown>,
+): Record<string, AiToolExperienceValue> {
+  const values = initialAiToolExperienceValues(toolId);
+  for (const field of experiences[toolId].fields) {
+    const value = source[field.key];
+    if (
+      typeof value === "string" ||
+      typeof value === "number" ||
+      typeof value === "boolean" ||
+      (Array.isArray(value) && value.every((item) => typeof item === "string"))
+    ) {
+      values[field.key] = value as AiToolExperienceValue;
+    }
+  }
+  return values;
+}
+
 export function buildAiToolExperienceInput(
   toolId: SpartanAiToolId,
   values: Record<string, AiToolExperienceValue>,
