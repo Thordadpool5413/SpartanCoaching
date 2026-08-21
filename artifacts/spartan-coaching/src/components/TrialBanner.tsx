@@ -85,7 +85,7 @@ export function TrialBanner() {
               ) : (
                 <CreditCard className="w-3.5 h-3.5" />
               )}
-              Continue $14.99/wk
+              View Elite and Standard
             </button>
           </>
         )}
