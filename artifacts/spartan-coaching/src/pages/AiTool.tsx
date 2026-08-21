@@ -126,6 +126,27 @@ function humanKey(key: string): string {
     .replace(/^\w/, (c) => c.toUpperCase());
 }
 
+function formatResultForCopy(value: unknown, depth = 0): string {
+  if (value == null) return "Not provided";
+  if (typeof value !== "object") return String(value);
+  if (Array.isArray(value)) {
+    return value
+      .map((item) =>
+        item != null && typeof item === "object"
+          ? formatResultForCopy(item, depth + 1)
+          : `• ${String(item)}`,
+      )
+      .join("\n");
+  }
+  return Object.entries(value as Record<string, unknown>)
+    .map(([key, child]) => {
+      const heading = `${"  ".repeat(depth)}${humanKey(key)}`;
+      const body = formatResultForCopy(child, depth + 1);
+      return `${heading}\n${body}`;
+    })
+    .join("\n\n");
+}
+
 function ResultValue({ value, depth = 0 }: { value: unknown; depth?: number }) {
   if (value === null || value === undefined) {
     return <span className="text-muted-foreground">Not provided</span>;
@@ -555,24 +576,22 @@ export default function AiToolPage() {
       if (tool?.containsPhi) {
         const blob = new Blob(
           [
-            JSON.stringify(
-              {
-                watermark: run.watermark,
-                retention: "ephemeral",
-                generatedAt: run.createdAt,
-                result: run.output,
-              },
-              null,
-              2,
-            ),
+            [
+              experience.title ?? tool.name,
+              run.watermark,
+              "",
+              formatResultForCopy(run.output),
+              "",
+              "Suggested guidance from Spartan Coaching. Qualified review remains required.",
+            ].filter(Boolean).join("\n"),
           ],
-          { type: "application/json" },
+          { type: "text/plain;charset=utf-8" },
         );
         const href = URL.createObjectURL(blob);
         try {
           const anchor = document.createElement("a");
           anchor.href = href;
-          anchor.download = `${tool.id}-one-time-result.json`;
+          anchor.download = `${tool.id}-one-time-result.txt`;
           anchor.click();
         } finally {
           URL.revokeObjectURL(href);
@@ -784,12 +803,22 @@ export default function AiToolPage() {
                 className="w-full sm:w-auto font-bold min-h-12"
                 data-testid="ai-tool-run"
               >
-                {busy ? (
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+{busy ? (
+                  <span className="flex flex-col items-center gap-1" role="status" aria-live="polite">
+                    <span className="flex items-center gap-2">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      {experience.progressStages[progressStage]}
+                    </span>
+                    <span className="text-xs opacity-80">
+                      {elapsedSeconds < 8 ? "Building your result" : `Still working · ${elapsedSeconds}s`}
+                    </span>
+                  </span>
                 ) : (
-                  <Play className="mr-2 h-4 w-4" />
+                  <span className="flex items-center">
+                    <Play className="mr-2 h-4 w-4" />
+                    {experience.submitLabel}
+                  </span>
                 )}
-                Run {tool.name}
               </Button>
             </div>
           </form>
@@ -802,11 +831,11 @@ export default function AiToolPage() {
             </p>
           </div>
           <ToolResultPanel
-            title={run?.output != null ? "Generated result" : "Result"}
+            title={run?.output != null ? experience.resultTitle : "Your result will appear here"}
             loading={busy}
             empty={!busy && run?.output == null}
             copyText={
-              run?.output != null ? JSON.stringify(run.output, null, 2) : undefined
+              run?.output != null ? formatResultForCopy(run.output) : undefined
             }
             disclaimer={
               tool.containsPhi
