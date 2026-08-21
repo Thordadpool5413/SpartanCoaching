@@ -62,7 +62,7 @@ export function Screen({
       accessibilityLabel={accessibilityLabel}
       style={[{ flex: 1, backgroundColor: colors.background }, style]}
       contentContainerStyle={[
-        { paddingTop: topPad + 12, paddingBottom: bottomPad, paddingHorizontal: layout.screenX },
+        { paddingTop: topPad + 18, paddingBottom: bottomPad + 12, paddingHorizontal: layout.screenX },
         contentStyle,
       ]}
       keyboardShouldPersistTaps="handled"
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   headerRow: {
     flexDirection: "row",
     alignItems: "flex-start",
-    gap: 12,
-    marginBottom: 16,
+    gap: 14,
+    marginBottom: 24,
   },
 });
