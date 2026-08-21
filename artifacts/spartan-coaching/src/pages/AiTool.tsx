@@ -24,6 +24,7 @@ import {
   getSpartanAiTool,
   hydrateAiToolExperienceValues,
   initialAiToolExperienceValues,
+  type AiToolExperienceContext,
   type AiToolExperienceField,
   type AiToolExperienceValue,
 } from "@workspace/spartan-ai-tools";
@@ -462,6 +463,7 @@ export default function AiToolPage() {
     tool ? initialAiToolExperienceValues(tool.id) : {},
   );
   const [run, setRun] = useState<Run | null>(null);
+  const [experienceContext, setExperienceContext] = useState<AiToolExperienceContext>({});
   const [history, setHistory] = useState<Run[]>([]);
   const [busy, setBusy] = useState(false);
   const [confirmedDeidentified, setConfirmedDeidentified] = useState(false);
@@ -509,7 +511,24 @@ export default function AiToolPage() {
         const historyResponse = await apiJson<{ runs: Run[] }>(
           `/api/ai-tools/${tool.id}/runs`,
         );
-        setHistory(historyResponse.runs);
+        const savedRuns = historyResponse.runs ?? [];
+        setHistory(savedRuns);
+        if (tool.id === "content-recommender" || tool.id === "content-gap-analyzer") {
+          const [articleResponse, podcastResponse, resourceResponse] = await Promise.all([
+            apiJson<{ articles?: Array<Record<string, unknown>> }>("/api/articles"),
+            apiJson<{ podcasts?: Array<Record<string, unknown>> }>("/api/podcasts"),
+            apiJson<{ resources?: Array<Record<string, unknown>> }>("/api/resources"),
+          ]);
+          setExperienceContext({
+            contentCatalog: [
+              ...(articleResponse.articles ?? []).map((item) => ({ ...item, contentType: "article" })),
+              ...(podcastResponse.podcasts ?? []).map((item) => ({ ...item, contentType: "audio" })),
+              ...(resourceResponse.resources ?? []).map((item) => ({ ...item, contentType: "resource" })),
+            ],
+            interactionHistory: savedRuns.map((item) => ({ toolId: tool.id, status: item.status, createdAt: item.createdAt })),
+            usageMetrics: savedRuns.map((item) => ({ toolId: tool.id, completion: item.status ?? "completed", createdAt: item.createdAt })),
+          });
+        }
       }
     } catch (caught) {
       if (caught instanceof ApiError && caught.status === 401) {
@@ -533,7 +552,7 @@ export default function AiToolPage() {
     setBusy(true);
     setError("");
     try {
-      const input = tool.inputSchema.parse(buildAiToolExperienceInput(tool.id, values)) as Record<string, unknown>;
+      const input = tool.inputSchema.parse(buildAiToolExperienceInput(tool.id, values, experienceContext)) as Record<string, unknown>;
       if (tool.containsPhi) {
         const response = await apiJson<{ result: Run }>(
           `/api/ai-tools/${tool.id}/ephemeral-runs`,
