@@ -118,7 +118,7 @@ export function FieldKitPreviewLock({ children }: Props) {
                 ) : (
                   <>
                     <CreditCard className="mr-1.5 w-3.5 h-3.5" />
-                    Subscribe · $14.99/wk
+                    View Elite and Standard
                   </>
                 )}
               </Button>
@@ -237,7 +237,7 @@ export function FieldKitPreviewLock({ children }: Props) {
                   ) : (
                     <>
                       <CreditCard className="mr-2 w-4 h-4" />
-                      Subscribe · $14.99/week
+                      View Elite and Standard
                     </>
                   )}
                 </Button>

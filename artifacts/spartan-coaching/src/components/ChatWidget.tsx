@@ -146,7 +146,7 @@ function ChatWidgetContent() {
         const aiMessage: ChatMessage = {
           role: "model",
           content:
-            "The AI coach is part of Hospice Sales Pro. Create an account and subscribe ($14.99/week), sign in if you already have access, or book a strategy call for team seats.",
+            "Spartan Coach is included with Hospice Sales Pro Elite, recommended at $19.99 per week. Standard remains available at $14.99 per week. Sign in if you already have access, or book a strategy call for team seats.",
           timestamp: Date.now(),
         };
         setMessages((prev) => [...prev, aiMessage]);

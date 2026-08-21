@@ -413,7 +413,7 @@ export default function About() {
               {
                 icon: Wrench,
                 title: "Hospice Sales Pro",
-                text: "Command Center, practice tools, plans, and calculators. Preview free · $14.99/wk self-serve · team seats under contract.",
+                text: "Command Center, Coach, practice tools, plans, and calculators. Elite recommended at $19.99/wk · Standard $14.99/wk · team seats under contract.",
               },
               {
                 icon: ShieldCheck,

@@ -15,6 +15,7 @@ import {
   Crosshair,
   FolderOpen,
   Home,
+  MessageCircle,
   Search,
   Settings,
   Shield,
@@ -31,6 +32,7 @@ export type WorkspaceNavId =
   | "tools"
   | "resources"
   | "learn"
+  | "coach"
   | "saved"
   | "recent"
   | "notifications"
@@ -224,6 +226,14 @@ export function workspaceNavForRole(
           p.startsWith("/learn/")
         );
       },
+    },
+    {
+      id: "coach",
+      href: "/portal/coach",
+      label: "Coach",
+      icon: MessageCircle,
+      primary: true,
+      match: (loc) => normalizePath(loc).startsWith("/portal/coach"),
     },
     {
       id: "saved",

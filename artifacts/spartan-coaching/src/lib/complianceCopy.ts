@@ -68,7 +68,7 @@ export const PRICING_FACTS = {
     "Human consulting, workshops, and coaching engagements are a separate offer from Hospice Sales Pro.",
   heroLine:
     "Preview free. Standard is $14.99 per week. Elite is $19.99 per week. Cancel anytime. Teams use contracted seats. Consulting is separate.",
-  paywallTitle: "$14.99/week · cancel anytime",
+  paywallTitle: "Elite $19.99/week · recommended",
   paywallBody:
     "Standard unlocks live generation, saved work, and Command Center. Elite adds private Spartan Coach and deidentified clinical guidance. Preview still works without a subscription.",
 } as const;

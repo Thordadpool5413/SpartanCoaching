@@ -32,7 +32,7 @@ export function FieldKitChrome({
         : `${Math.round(fieldKit.hoursRemaining / 24)}d left in evaluation`
       : !isPreview && organization?.status === "active"
         ? organization?.billingPlan === "individual_weekly"
-          ? "Member · $14.99/wk"
+          ? "Hospice Sales Pro member"
           : organization?.billingPlan === "corporate_contract"
             ? "Member · Team"
             : organization?.billingPlan === "comp"
