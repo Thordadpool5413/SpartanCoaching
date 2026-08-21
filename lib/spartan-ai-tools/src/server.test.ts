@@ -145,6 +145,51 @@ describe("Spartan AI tool runner boundaries", () => {
     ).rejects.toMatchObject({ code: "PROVIDER_NOT_CONFIGURED", status: 503 });
   });
 
+  it("uses the low latency model and minimal reasoning for interactive tools", async () => {
+    vi.stubEnv("AI_TOOL_EMAIL_OPTIMIZER", "true");
+    const parse = vi.fn().mockResolvedValue({
+      output_parsed: {
+        templates: [1, 2, 3].map((index) => ({
+          id: `t${index}`,
+          label: `Option ${index}`,
+          subject: "Thank you for lunch",
+          body: "Hello,\n\nThank you for taking the time to meet today. I appreciated the honest conversation and would welcome the chance to continue it.",
+          rationale: "This keeps the note personal and gives the relationship room to grow.",
+        })),
+        sequence: [],
+        coachingNotes: [],
+        complianceReview: [],
+      },
+    });
+    const client = { responses: { parse } };
+
+    const result = await runSpartanAiTool(
+      "email-optimizer",
+      {
+        prospectType: "Physician",
+        situation: "Lunch conversation about quality of life",
+        objective: "Continue the conversation",
+        tone: "warm",
+        includeSequence: false,
+      },
+      { client: client as never },
+    );
+
+    expect(result.metadata.model).toBe("gpt-5-mini");
+    expect(parse).toHaveBeenCalledWith(
+      expect.objectContaining({
+        model: "gpt-5-mini",
+        reasoning: { effort: "minimal" },
+        max_output_tokens: 2_400,
+        store: false,
+      }),
+      expect.objectContaining({ timeout: 35_000 }),
+    );
+    const request = parse.mock.calls[0]?.[0] as { input?: Array<{ content?: string }> };
+    expect(request.input?.[0]?.content).toContain("Your voice is human");
+    expect(request.input?.[1]?.content).toContain("Spartan Coaching email writer");
+  });
+
   it("maps provider rate limits to a retryable safe error", async () => {
     vi.stubEnv("AI_TOOL_EMAIL_OPTIMIZER", "true");
     const client = {

@@ -8,8 +8,9 @@ import {
   ArrowLeft,
   Sparkles,
   Lock,
+  FileText,
 } from "lucide-react";
-import { SPARTAN_AI_TOOLS } from "@workspace/spartan-ai-tools";
+import { SPARTAN_AI_TOOLS, getAiToolExperience } from "@workspace/spartan-ai-tools";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -89,6 +90,7 @@ export default function AiToolsHub() {
     tool: (typeof SPARTAN_AI_TOOLS)[number],
     variant: "field" | "vault",
   ) => {
+    const experience = getAiToolExperience(tool.id);
     const enabled = availability?.get(tool.id)?.enabled === true;
     const previewAvailable = !isAuthenticated || !canUseFieldKit;
     const canOpen = enabled || previewAvailable;
@@ -145,10 +147,10 @@ export default function AiToolsHub() {
               )}
             </div>
             <h3 className="text-lg font-display font-bold tracking-tight text-foreground">
-              {tool.name}
+              {experience.title ?? tool.name}
             </h3>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">
-              {tool.description}
+              {experience.promise}
             </p>
           </div>
           {canOpen && (
@@ -201,6 +203,14 @@ export default function AiToolsHub() {
               Open primary tools
             </Link>
           </Button>
+          {isAuthenticated && canUseFieldKit && (
+            <Button asChild variant="outline" className="font-bold">
+              <Link href="/my-work/elite-outputs">
+                <FileText className="mr-2 h-4 w-4" />
+                Review saved outputs
+              </Link>
+            </Button>
+          )}
           {clinical.length > 0 && (
             <Button asChild variant="outline" className="font-bold">
               <a href="#clinical-vault">

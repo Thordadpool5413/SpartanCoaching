@@ -77,7 +77,7 @@ export default function MyWorkScreen() {
             <Text style={styles.sectionLabel}>SAVED WORK</Text>
             <WorkRow icon="calendar" title="Weekly plan" body="Resume the plan you are building." onPress={() => router.push("/resource-work" as never)} />
             <WorkRow icon="edit-3" title="Conversation plans" body="Open saved preparation and follow through." onPress={() => router.push("/tool/playbook" as never)} />
-            {canUseElite ? <WorkRow icon="shield" title="Saved Elite outputs" body="Open the Elite library to review nonclinical history and required approval status." onPress={() => router.push("/ai-tools" as never)} /> : null}
+            {canUseElite ? <WorkRow icon="shield" title="Saved Elite outputs" body="Review completed nonclinical work, status, and full results." onPress={() => router.push("/saved-ai-outputs" as never)} /> : null}
 
             {reports.length ? (
               <>

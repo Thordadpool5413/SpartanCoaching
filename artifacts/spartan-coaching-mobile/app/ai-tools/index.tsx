@@ -1,5 +1,5 @@
 import { Feather } from "@expo/vector-icons";
-import { SPARTAN_AI_TOOLS } from "@workspace/spartan-ai-tools";
+import { SPARTAN_AI_TOOLS, getAiToolExperience } from "@workspace/spartan-ai-tools";
 import { router } from "expo-router";
 import { goBackOrReplace } from "@/lib/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
@@ -61,12 +61,13 @@ export default function AiToolsIndex() {
     tool: (typeof SPARTAN_AI_TOOLS)[number],
     vault: boolean,
   ) => {
+    const experience = getAiToolExperience(tool.id);
     const enabled = availability?.get(tool.id) === true;
     return (
       <Pressable
         key={tool.id}
         accessibilityRole="button"
-        accessibilityLabel={`${tool.name}${enabled ? "" : ", not enabled"}`}
+        accessibilityLabel={`${experience.title ?? tool.name}${enabled ? "" : ", not enabled"}`}
         accessibilityState={{ disabled: !enabled }}
         disabled={!enabled}
         onPress={() => router.push(tool.mobilePath as never)}
@@ -102,10 +103,10 @@ export default function AiToolsIndex() {
           {tool.containsPhi ? <ClinicalVaultBadge /> : null}
         </View>
         <Text style={[styles.name, { color: colors.foreground }, font("bold")]}>
-          {tool.name}
+          {experience.title ?? tool.name}
         </Text>
         <Text style={[styles.summary, { color: colors.mutedForeground }, font("regular")]}>
-          {tool.description}
+          {experience.promise}
         </Text>
         {enabled ? (
           <View style={styles.openRow}>
@@ -148,6 +149,21 @@ export default function AiToolsIndex() {
       <Text style={[styles.description, { color: colors.mutedForeground }, font("regular")]}>
         Advanced field tools for Elite members. Clinical guidance accepts deidentified information only and always requires human approval.
       </Text>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel="Review saved outputs"
+        onPress={() => router.push("/saved-ai-outputs" as never)}
+        style={[styles.savedButton, { borderColor: colors.border, backgroundColor: colors.card }]}
+      >
+        <View style={styles.savedButtonCopy}>
+          <Feather name="file-text" size={18} color={colors.primary} />
+          <View style={{ flex: 1 }}>
+            <Text style={[styles.savedButtonTitle, { color: colors.foreground }, font("bold")]}>Saved outputs</Text>
+            <Text style={[styles.savedButtonText, { color: colors.mutedForeground }, font("regular")]}>Review completed work from iPhone or the website.</Text>
+          </View>
+        </View>
+        <Feather name="chevron-right" size={18} color={colors.primary} />
+      </Pressable>
       <View
         style={{
           flexDirection: "row",
@@ -259,6 +275,10 @@ const styles = StyleSheet.create({
   title: { fontSize: 32, lineHeight: 38, ...font("bold") },
   description: { fontSize: 16, lineHeight: 24, marginBottom: 4 },
   grid: { gap: 12 },
+  savedButton: { minHeight: 72, borderWidth: 1, borderRadius: 16, padding: 16, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
+  savedButtonCopy: { flex: 1, flexDirection: "row", alignItems: "center", gap: 12 },
+  savedButtonTitle: { fontSize: 16 },
+  savedButtonText: { fontSize: 13, lineHeight: 18, marginTop: 2 },
   statusRow: {
     minHeight: 44,
     flexDirection: "row",
