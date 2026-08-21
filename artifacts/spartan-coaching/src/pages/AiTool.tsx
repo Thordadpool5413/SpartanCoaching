@@ -129,6 +129,8 @@ function humanKey(key: string): string {
     .replace(/^\w/, (c) => c.toUpperCase());
 }
 
+const HIDDEN_RESULT_KEYS = new Set(["simulatedMetrics", "simulationNotice", "personalizationElements"]);
+
 type EmailOption = {
   id?: unknown;
   label?: unknown;
@@ -202,6 +204,7 @@ function formatResultForCopy(value: unknown, depth = 0): string {
       .join("\n");
   }
   return Object.entries(value as Record<string, unknown>)
+    .filter(([key]) => depth > 0 || !HIDDEN_RESULT_KEYS.has(key))
     .map(([key, child]) => {
       const heading = `${"  ".repeat(depth)}${humanKey(key)}`;
       const body = formatResultForCopy(child, depth + 1);
@@ -269,7 +272,9 @@ function ResultValue({ value, depth = 0 }: { value: unknown; depth?: number }) {
   }
   return (
     <div className={depth === 0 ? "space-y-5" : "space-y-3"}>
-      {Object.entries(value as Record<string, unknown>).map(([key, child]) => (
+      {Object.entries(value as Record<string, unknown>)
+        .filter(([key]) => depth > 0 || !HIDDEN_RESULT_KEYS.has(key))
+        .map(([key, child]) => (
         <div
           key={key}
           className={
