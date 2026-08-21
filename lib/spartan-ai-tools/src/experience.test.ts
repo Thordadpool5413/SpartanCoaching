@@ -61,7 +61,7 @@ describe("advanced tool experience contracts", () => {
       const values = completedValues(tool.id);
       const input = buildAiToolExperienceInput(tool.id, values);
       const parsed = tool.inputSchema.safeParse(input);
-      expect(parsed.success, `${tool.id}: ${JSON.stringify(parsed.error)}`).toBe(true);
+      const reason = parsed.success ? "" : JSON.stringify(parsed.error);\n      expect(parsed.success, `${tool.id}: ${reason}`).toBe(true);
     }
   });
 
