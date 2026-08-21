@@ -124,6 +124,7 @@ function GuidedField({
               <Pressable
                 key={option}
                 accessibilityRole={field.kind === "single-choice" ? "radio" : "checkbox"}
+                accessibilityLabel={`${field.label}: ${option}`}
                 accessibilityState={{ checked: selected }}
                 onPress={() =>
                   field.kind === "multi-choice"
