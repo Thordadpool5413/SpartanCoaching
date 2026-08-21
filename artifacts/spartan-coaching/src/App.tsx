@@ -95,6 +95,7 @@ const SignAgreements = lazy(() => import("@/pages/SignAgreements"));
 const BrandVideo = lazy(() => import("@/pages/BrandVideo"));
 const AiToolsHub = lazy(() => import("@/pages/AiToolsHub"));
 const AiTool = lazy(() => import("@/pages/AiTool"));
+const SavedAiOutputs = lazy(() => import("@/pages/SavedAiOutputs"));
 
 function withFieldKit(Page: ComponentType): ComponentType {
   return function GatedPage() {
@@ -124,6 +125,7 @@ const GatedQuiz = withFieldKit(Quiz);
 const GatedKnowledgeBase = withFieldKit(KnowledgeBase);
 const GatedAiToolsHub = withFieldKit(AiToolsHub);
 const GatedAiTool = withFieldKit(AiTool);
+const GatedSavedAiOutputs = withFieldKit(SavedAiOutputs);
 
 function AssessmentRoute() {
   return <Assessment />;
@@ -223,6 +225,7 @@ function Router() {
           <Route path="/tools/weekly-plan-builder" component={GatedWeeklyPlan} />
           <Route path="/tools/sales-workflow" component={GatedSalesWorkflow} />
           <Route path="/tools/ai" component={GatedAiToolsHub} />
+          <Route path="/my-work/elite-outputs" component={GatedSavedAiOutputs} />
           <Route path="/tools/ai/:toolId" component={GatedAiTool} />
           <Route path="/drills" component={GatedDrills} />
 
