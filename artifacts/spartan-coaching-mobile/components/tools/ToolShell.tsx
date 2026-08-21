@@ -85,7 +85,7 @@ export function ToolShell({
         <ScrollView
           contentContainerStyle={{
             paddingHorizontal: layout.screenX,
-            paddingTop: 14,
+            paddingTop: 22,
             paddingBottom: bottomClear,
           }}
           keyboardShouldPersistTaps="handled"
@@ -102,7 +102,7 @@ export function ToolShell({
             <Text
               maxFontSizeMultiplier={MAX_FONT_SIZE_MULTIPLIER}
               style={[
-                { color: colors.mutedForeground, fontSize: 14, marginTop: 6, lineHeight: 20 },
+                { color: colors.mutedForeground, fontSize: 14, marginTop: 8, lineHeight: 21 },
                 font("regular"),
               ]}
             >
@@ -174,8 +174,8 @@ export function ToolShell({
               {
                 color: colors.mutedForeground,
                 fontSize: 11,
-                marginTop: 12,
-                marginBottom: 8,
+                marginTop: 20,
+                marginBottom: 16,
                 textAlign: "center",
               },
               font("regular"),
@@ -216,20 +216,20 @@ const styles = StyleSheet.create({
     gap: 2,
   },
   howToggle: {
-    marginTop: 14,
+    marginTop: 22,
     borderWidth: StyleSheet.hairlineWidth * 2,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
+    borderRadius: 16,
+    paddingHorizontal: 18,
+    paddingVertical: 14,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     minHeight: 44,
   },
   howBox: {
-    marginTop: 8,
+    marginTop: 12,
     borderWidth: StyleSheet.hairlineWidth * 2,
-    borderRadius: 10,
-    padding: 14,
+    borderRadius: 16,
+    padding: 18,
   },
 });
