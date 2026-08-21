@@ -9,7 +9,9 @@ import { Link, useLocation, useParams } from "wouter";
 import {
   AlertCircle,
   ArrowLeft,
+  Check,
   Clock3,
+  Copy,
   Download,
   Loader2,
   Play,
@@ -127,8 +129,68 @@ function humanKey(key: string): string {
     .replace(/^\w/, (c) => c.toUpperCase());
 }
 
+type EmailOption = {
+  id?: unknown;
+  label?: unknown;
+  subject?: unknown;
+  body?: unknown;
+  rationale?: unknown;
+  previewText?: unknown;
+};
+
+function isEmailOption(value: unknown): value is EmailOption {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const record = value as Record<string, unknown>;
+  return typeof record.subject === "string" && typeof record.body === "string";
+}
+
+function EmailOptionCard({ option, index }: { option: EmailOption; index: number }) {
+  const [copied, setCopied] = useState(false);
+  const subject = String(option.subject);
+  const body = String(option.body);
+  const title = typeof option.label === "string" && option.label.trim()
+    ? option.label
+    : `Email option ${index + 1}`;
+
+  async function copyEmail() {
+    await navigator.clipboard.writeText(`Subject: ${subject}\n\n${body}`);
+    setCopied(true);
+    window.setTimeout(() => setCopied(false), 1800);
+  }
+
+  return (
+    <article className="rounded-2xl border border-border/70 bg-background/80 p-5 space-y-5">
+      <div className="flex items-center gap-3">
+        <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground text-sm font-bold">
+          {index + 1}
+        </span>
+        <div>
+          <p className="text-[10px] font-bold tracking-[0.18em] text-primary">READY TO SEND</p>
+          <h3 className="text-base font-bold text-foreground">{title}</h3>
+        </div>
+      </div>
+      <div className="rounded-xl border border-border/60 bg-card p-4">
+        <p className="text-[10px] font-bold tracking-[0.16em] text-muted-foreground">SUBJECT</p>
+        <p className="mt-2 text-sm font-semibold text-foreground">{subject}</p>
+      </div>
+      <p className="whitespace-pre-wrap text-[15px] leading-7 text-foreground">{body}</p>
+      {typeof option.rationale === "string" && option.rationale.trim() ? (
+        <div className="border-t border-border/60 pt-4">
+          <p className="text-[10px] font-bold tracking-[0.16em] text-primary">WHY THIS WORKS</p>
+          <p className="mt-2 text-sm leading-6 text-muted-foreground">{option.rationale}</p>
+        </div>
+      ) : null}
+      <Button type="button" onClick={() => void copyEmail()} className="w-full rounded-xl">
+        {copied ? <Check className="mr-2 h-4 w-4" /> : <Copy className="mr-2 h-4 w-4" />}
+        {copied ? "Copied" : "Copy email"}
+      </Button>
+    </article>
+  );
+}
+
 function formatResultForCopy(value: unknown, depth = 0): string {
   if (value == null) return "Not provided";
+  if (isEmailOption(value)) return `Subject: ${String(value.subject)}\n\n${String(value.body)}`;
   if (typeof value !== "object") return String(value);
   if (Array.isArray(value)) {
     return value
@@ -160,9 +222,19 @@ function ResultValue({ value, depth = 0 }: { value: unknown; depth?: number }) {
   if (typeof value === "number" || typeof value === "boolean") {
     return <span className="font-semibold tabular-nums">{String(value)}</span>;
   }
+  if (isEmailOption(value)) return <EmailOptionCard option={value} index={0} />;
   if (Array.isArray(value)) {
     if (value.length === 0)
       return <span className="text-muted-foreground">None</span>;
+    if (value.every(isEmailOption)) {
+      return (
+        <div className="space-y-4">
+          {value.map((option, index) => (
+            <EmailOptionCard key={String(option.id ?? index)} option={option} index={index} />
+          ))}
+        </div>
+      );
+    }
     // String lists as field bullets
     if (value.every((item) => typeof item === "string")) {
       return (
