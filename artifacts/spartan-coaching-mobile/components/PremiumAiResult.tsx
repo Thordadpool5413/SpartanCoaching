@@ -1,6 +1,7 @@
 import { Feather } from "@expo/vector-icons";
-import React, { useMemo } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import * as Clipboard from "expo-clipboard";
+import React, { useMemo, useState } from "react";
+import { Pressable, StyleSheet, Text, View } from "react-native";
 import { useColors } from "@/hooks/useColors";
 import { font } from "@/lib/typography";
 
@@ -55,6 +56,73 @@ function scalar(value: unknown): string {
   return cleanPresentationText(String(value));
 }
 
+type EmailOption = {
+  id?: unknown;
+  label?: unknown;
+  subject?: unknown;
+  body?: unknown;
+  rationale?: unknown;
+  previewText?: unknown;
+};
+
+function isEmailOption(value: unknown): value is EmailOption {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return false;
+  const record = value as Record<string, unknown>;
+  return typeof record.subject === "string" && typeof record.body === "string";
+}
+
+function EmailOptionCard({ option, index }: { option: EmailOption; index: number }) {
+  const colors = useColors();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+  const [copied, setCopied] = useState(false);
+  const subject = scalar(option.subject);
+  const body = scalar(option.body);
+  const title = typeof option.label === "string" && option.label.trim()
+    ? cleanPresentationText(option.label)
+    : `Email option ${index + 1}`;
+
+  async function copyEmail() {
+    await Clipboard.setStringAsync(`Subject: ${subject}\n\n${body}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  }
+
+  return (
+    <View style={styles.emailCard}>
+      <View style={styles.emailHeader}>
+        <View style={styles.emailNumber}><Text style={styles.emailNumberText}>{index + 1}</Text></View>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.emailEyebrow}>READY TO SEND</Text>
+          <Text style={styles.emailTitle}>{title}</Text>
+        </View>
+      </View>
+      <View style={styles.emailSubject}>
+        <Text style={styles.emailLabel}>SUBJECT</Text>
+        <Text selectable style={styles.emailSubjectText}>{subject}</Text>
+      </View>
+      <Text selectable style={styles.emailBody}>{body}</Text>
+      {typeof option.rationale === "string" && option.rationale.trim() ? (
+        <View style={styles.coachingNote}>
+          <Feather name="target" size={16} color={colors.primary} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.emailLabel}>WHY THIS WORKS</Text>
+            <Text style={styles.coachingText}>{scalar(option.rationale)}</Text>
+          </View>
+        </View>
+      ) : null}
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`Copy email option ${index + 1}`}
+        onPress={() => void copyEmail()}
+        style={({ pressed }) => [styles.copyButton, pressed && styles.copyButtonPressed]}
+      >
+        <Feather name={copied ? "check" : "copy"} size={16} color="#FFFFFF" />
+        <Text style={styles.copyButtonText}>{copied ? "Copied" : "Copy email"}</Text>
+      </Pressable>
+    </View>
+  );
+}
+
 function ValueBlock({ value, depth = 0 }: { value: unknown; depth?: number }) {
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
@@ -63,8 +131,18 @@ function ValueBlock({ value, depth = 0 }: { value: unknown; depth?: number }) {
     return <Text selectable style={styles.valueText}>{scalar(value)}</Text>;
   }
 
+  if (isEmailOption(value)) return <EmailOptionCard option={value} index={0} />;
+
   if (Array.isArray(value)) {
     if (value.length === 0) return <Text style={styles.emptyText}>None noted.</Text>;
+    const emailOptions = value.every(isEmailOption);
+    if (emailOptions) {
+      return (
+        <View style={styles.emailStack}>
+          {value.map((item, index) => <EmailOptionCard key={String(item.id ?? index)} option={item} index={index} />)}
+        </View>
+      );
+    }
     const simple = value.every((item) => item == null || typeof item !== "object");
     if (simple) {
       return (
@@ -195,6 +273,22 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     objectStack: { gap: 12 },
     subCard: { borderRadius: 14, borderCurve: "continuous", backgroundColor: colors.background, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border, padding: 12 },
     deepRow: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, paddingTop: 9 },
+    emailStack: { gap: 14 },
+    emailCard: { borderRadius: 17, borderCurve: "continuous", backgroundColor: colors.background, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.borderStrong, padding: 14, gap: 13 },
+    emailHeader: { flexDirection: "row", alignItems: "center", gap: 10 },
+    emailNumber: { width: 34, height: 34, borderRadius: 12, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
+    emailNumberText: { color: "#FFFFFF", fontSize: 13, ...font("bold") },
+    emailEyebrow: { color: colors.primary, fontSize: 8, letterSpacing: 1.25, ...font("bold") },
+    emailTitle: { color: colors.foreground, fontSize: 15, lineHeight: 19, marginTop: 2, ...font("bold") },
+    emailSubject: { borderRadius: 13, backgroundColor: colors.card, borderWidth: StyleSheet.hairlineWidth, borderColor: colors.border, padding: 12, gap: 5 },
+    emailLabel: { color: colors.mutedForeground, fontSize: 8, letterSpacing: 1.15, ...font("bold") },
+    emailSubjectText: { color: colors.foreground, fontSize: 13, lineHeight: 18, ...font("semibold") },
+    emailBody: { color: colors.foreground, fontSize: 14, lineHeight: 22, ...font("regular") },
+    coachingNote: { flexDirection: "row", alignItems: "flex-start", gap: 9, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.border, paddingTop: 12 },
+    coachingText: { color: colors.mutedForeground, fontSize: 11, lineHeight: 17, marginTop: 4, ...font("regular") },
+    copyButton: { minHeight: 48, borderRadius: 14, backgroundColor: colors.primary, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
+    copyButtonPressed: { opacity: 0.82 },
+    copyButtonText: { color: "#FFFFFF", fontSize: 12, ...font("bold") },
     childLabel: { color: colors.mutedForeground, fontSize: 9, letterSpacing: 0.7, textTransform: "uppercase", marginBottom: 5, ...font("bold") },
   });
 }
