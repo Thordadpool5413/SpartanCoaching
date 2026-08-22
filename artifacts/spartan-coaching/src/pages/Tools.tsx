@@ -1,5 +1,10 @@
 import { Card } from "@/components/ui/card";
-import { LightbulbIcon, SearchIcon as CustomSearchIcon, ChatIcon, MicrophoneIcon } from "@/components/icons";
+import {
+  LightbulbIcon,
+  SearchIcon as CustomSearchIcon,
+  ChatIcon,
+  MicrophoneIcon,
+} from "@/components/icons";
 import {
   Mail,
   Users,
@@ -22,7 +27,11 @@ import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
 import { BackButton } from "@/components/BackButton";
 import { SEO } from "@/components/SEO";
-import { SlideUp, StaggerContainer, StaggerItem } from "@/components/animations";
+import {
+  SlideUp,
+  StaggerContainer,
+  StaggerItem,
+} from "@/components/animations";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { useMemo, useState, type ReactNode } from "react";
@@ -63,10 +72,10 @@ const TOOL_ICONS: Record<string, ReactNode> = {
 const SAMPLE_OBJECTION = {
   objection: "We're not ready for hospice yet.",
   response:
-    "I hear you — and many families feel that way at first. Hospice is not about giving up; it is about adding a team that supports comfort and clarity. Would it help if we walked through what support could look like while you keep the options that still matter to you?",
+    "I hear you, and many families feel that way at first. Hospice is not about giving up; it is about adding a team that supports comfort and clarity. Would it help if we walked through what support could look like while you keep the options that still matter to you?",
 };
 
-/** Daily / leader groupings — shared with mobile via field-kit-catalog */
+/** Daily / leader groupings, shared with mobile via field-kit-catalog */
 const DAILY_TOOL_IDS = FIELD_KIT_DAILY_TOOL_IDS;
 const LEADER_TOOL_IDS = FIELD_KIT_LEADER_TOOL_IDS;
 
@@ -138,17 +147,25 @@ export default function Tools() {
                 {tool.category}
               </Badge>
             </div>
-            <p className="text-sm text-muted-foreground leading-relaxed mb-2">{tool.description}</p>
+            <p className="text-sm text-muted-foreground leading-relaxed mb-2">
+              {tool.description}
+            </p>
             <p className="text-xs text-muted-foreground leading-relaxed flex-1 mb-6">
               <span className="font-semibold text-foreground">When: </span>
               {tool.whenToUse}
             </p>
-            <Button asChild className="w-full font-bold touch-manipulation py-3 min-h-[48px]" size="lg">
+            <Button
+              asChild
+              className="w-full font-bold touch-manipulation py-3 min-h-[48px]"
+              size="lg"
+            >
               <Link
                 href={href}
                 data-testid={`button-tool-${idx}`}
                 aria-label={
-                  locked ? `Preview ${tool.title} (view only)` : `Launch ${tool.title}`
+                  locked
+                    ? `Preview ${tool.title} (view only)`
+                    : `Launch ${tool.title}`
                 }
               >
                 {locked ? "Preview tool" : tool.public ? "Open" : "Launch tool"}
@@ -162,45 +179,58 @@ export default function Tools() {
   };
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 surface-page min-h-[70vh]" data-testid="page-tools">
+    <div
+      className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 surface-page min-h-[70vh]"
+      data-testid="page-tools"
+    >
       <SEO />
       <BackButton />
       <FieldKitChrome />
       <SlideUp>
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
           <p className="text-kicker mb-4 justify-center">Hospice Sales Pro</p>
-          <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-tools-title">
+          <h1
+            className="text-h1 font-black text-foreground mb-4"
+            data-testid="text-tools-title"
+          >
             What do you need to do?
           </h1>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
             {showCatalogGate
-              ? "Start from intent — prepare a visit, handle an objection, plan the week — then open tools or field resources. Live generation unlocks with Hospice Sales Pro."
+              ? "Start from intent, prepare a visit, handle an objection, plan the week, then open tools or field resources. Live generation unlocks with Hospice Sales Pro."
               : FIELD_KIT_WHAT}
           </p>
           <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed">
-            <Link href={PRODUCT_SURFACE_PLACEMENT.field_resources.webPath} className="font-semibold text-primary hover:underline">
+            <Link
+              href={PRODUCT_SURFACE_PLACEMENT.field_resources.webPath}
+              className="font-semibold text-primary hover:underline"
+            >
               {PRODUCT_SURFACE_PLACEMENT.field_resources.label}
-            </Link>
-            {" "}
+            </Link>{" "}
             are work aids (templates & scripts), not only Learn content.{" "}
-            <Link href="/articles" className="font-semibold text-primary hover:underline">
+            <Link
+              href="/articles"
+              className="font-semibold text-primary hover:underline"
+            >
               {PRODUCT_SURFACE_PLACEMENT.learn.label}
-            </Link>
-            {" "}
+            </Link>{" "}
             is for articles, podcasts, and fundamentals.
           </p>
           {!showCatalogGate && (
             <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed">
               {FIELD_KIT_HOW}{" "}
-              <Link href="/portal" className="font-semibold text-primary hover:underline">
+              <Link
+                href="/portal"
+                className="font-semibold text-primary hover:underline"
+              >
                 Back to Portal
               </Link>
             </p>
           )}
           {showCatalogGate && (
             <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed">
-              Open any tool to preview the full UI. Tap or click inside a locked tool for subscribe / trial
-              options.
+              Open any tool to preview the full UI. Tap or click inside a locked
+              tool for subscribe / trial options.
             </p>
           )}
         </div>
@@ -208,7 +238,10 @@ export default function Tools() {
 
       {showCatalogGate && (
         <SlideUp delay={0.05}>
-          <Card className="mb-10 border border-border p-5 sm:p-6" data-testid="tools-access-banner">
+          <Card
+            className="mb-10 border border-border p-5 sm:p-6"
+            data-testid="tools-access-banner"
+          >
             <div className="flex flex-col lg:flex-row lg:items-center gap-5 justify-between">
               <div className="flex gap-3">
                 <div className="w-10 h-10 rounded-xl bg-muted text-foreground flex items-center justify-center shrink-0">
@@ -219,37 +252,54 @@ export default function Tools() {
                     Preview open · live tools locked
                   </h2>
                   <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
-                    Browse real interfaces. Unlock live generation, Command Center, and saves with Hospice
-                    Sales Pro Elite is recommended at $19.99/week. Standard remains available at $14.99/week. Cancel anytime. Already subscribed? Sign in with the same
-                    email (access restores from your account).
+                    Browse real interfaces. Unlock live generation, Command
+                    Center, and saves with Hospice Sales Pro Elite is
+                    recommended at $19.99/week. Standard remains available at
+                    $14.99/week. Cancel anytime. Already subscribed? Sign in
+                    with the same email (access restores from your account).
                   </p>
                   <ul className="mt-3 grid sm:grid-cols-2 gap-1.5 text-xs text-muted-foreground">
                     <li className="flex gap-1.5">
-                      <span className="text-primary font-bold">✓</span> Live generation on field tools
+                      <span className="text-primary font-bold">✓</span> Live
+                      generation on field tools
                     </li>
                     <li className="flex gap-1.5">
-                      <span className="text-primary font-bold">✓</span> Command Center for today’s visits
+                      <span className="text-primary font-bold">✓</span> Command
+                      Center for today’s visits
                     </li>
                     <li className="flex gap-1.5">
-                      <span className="text-primary font-bold">✓</span> Saves synced to iPhone
+                      <span className="text-primary font-bold">✓</span> Saves
+                      synced to iPhone
                     </li>
                     <li className="flex gap-1.5">
-                      <span className="text-primary font-bold">✓</span> Cancel anytime · same seat
+                      <span className="text-primary font-bold">✓</span> Cancel
+                      anytime · same seat
                     </li>
                   </ul>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 shrink-0">
-                <Button asChild className="font-bold" data-testid="button-tools-request">
+                <Button
+                  asChild
+                  className="font-bold"
+                  data-testid="button-tools-request"
+                >
                   <Link href="/register">
                     <KeyRound className="mr-2 w-4 h-4" />
                     Create account · subscribe
                   </Link>
                 </Button>
-                <Button asChild variant="outline" className="font-bold" data-testid="button-tools-login">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="font-bold"
+                  data-testid="button-tools-login"
+                >
                   <Link href={isAuthenticated ? "/account" : "/login"}>
                     <LogIn className="mr-2 w-4 h-4" />
-                    {isAuthenticated ? "Account & billing" : "Sign in to restore"}
+                    {isAuthenticated
+                      ? "Account & billing"
+                      : "Sign in to restore"}
                   </Link>
                 </Button>
                 <Button asChild variant="ghost" className="font-bold">
@@ -263,9 +313,12 @@ export default function Tools() {
 
       {showCatalogGate && (
         <SlideUp delay={0.08}>
-          <Card className="mb-10 border border-border bg-card p-6" data-testid="tools-static-sample">
+          <Card
+            className="mb-10 border border-border bg-card p-6"
+            data-testid="tools-static-sample"
+          >
             <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">
-              Sample output — Objection Handler
+              Sample output, Objection Handler
             </p>
             <p className="text-sm text-muted-foreground mb-2">
               <span className="font-semibold text-foreground">Objection: </span>
@@ -275,7 +328,8 @@ export default function Tools() {
               {SAMPLE_OBJECTION.response}
             </p>
             <p className="text-xs text-muted-foreground mt-4">
-              Open any tool card for the full interface. Live AI generation unlocks with Hospice Sales Pro.
+              Open any tool card for the full interface. Live AI generation
+              unlocks with Hospice Sales Pro.
             </p>
           </Card>
         </SlideUp>
@@ -295,7 +349,9 @@ export default function Tools() {
               aria-label="Search tools and intents"
             />
           </div>
-          <p className="text-sm text-muted-foreground">{filteredTools.length} tools</p>
+          <p className="text-sm text-muted-foreground">
+            {filteredTools.length} tools
+          </p>
         </div>
       </SlideUp>
 
@@ -308,7 +364,9 @@ export default function Tools() {
                 <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">
                   Start with intent
                 </p>
-                <h2 className="text-h2 text-foreground">Professional entry points</h2>
+                <h2 className="text-h2 text-foreground">
+                  Professional entry points
+                </h2>
               </div>
               <Link
                 href={PRODUCT_SURFACE_PLACEMENT.field_resources.webPath}
@@ -374,7 +432,9 @@ export default function Tools() {
           </p>
           {/* Hero: Command Center */}
           {(() => {
-            const command = filteredTools.find((t) => t.id === "sales-workflow");
+            const command = filteredTools.find(
+              (t) => t.id === "sales-workflow",
+            );
             if (!command) return null;
             const locked = showCatalogGate && !command.public;
             return (
@@ -383,7 +443,9 @@ export default function Tools() {
                   <div className="relative flex flex-col lg:flex-row lg:items-center gap-6 justify-between">
                     <div className="flex gap-4 min-w-0">
                       <div className="p-3.5 rounded-2xl bg-primary text-primary-foreground shadow-md shadow-primary/30 shrink-0">
-                        {TOOL_ICONS["sales-workflow"] ?? <Calculator className="w-8 h-8" />}
+                        {TOOL_ICONS["sales-workflow"] ?? (
+                          <Calculator className="w-8 h-8" />
+                        )}
                       </div>
                       <div className="space-y-2">
                         <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
@@ -393,11 +455,18 @@ export default function Tools() {
                           {command.title}
                         </h2>
                         <p className="text-sm sm:text-base text-muted-foreground leading-relaxed max-w-2xl">
-                          Your day starts here—not in a grid of equal tools. Plan the visit, practice if
-                          needed, capture the outcome, lock the next step.
+                          Your day starts here,not in a grid of equal tools.
+                          Plan the visit, practice if needed, capture the
+                          outcome, lock the next step.
                         </p>
                         <div className="flex flex-wrap gap-2 pt-1">
-                          {["Mission", "Prepare", "Practice", "Capture", "Next step"].map((s) => (
+                          {[
+                            "Mission",
+                            "Prepare",
+                            "Practice",
+                            "Capture",
+                            "Next step",
+                          ].map((s) => (
                             <span
                               key={s}
                               className="text-[11px] font-semibold uppercase tracking-wide px-2.5 py-1 rounded-md border border-border bg-background/60"
@@ -408,9 +477,18 @@ export default function Tools() {
                         </div>
                       </div>
                     </div>
-                    <Button asChild size="lg" className="font-bold shrink-0 w-full sm:w-auto min-h-11">
-                      <Link href={command.path} data-testid="button-tools-command-center">
-                        {locked ? "Preview Command Center" : "Open Command Center"}
+                    <Button
+                      asChild
+                      size="lg"
+                      className="font-bold shrink-0 w-full sm:w-auto min-h-11"
+                    >
+                      <Link
+                        href={command.path}
+                        data-testid="button-tools-command-center"
+                      >
+                        {locked
+                          ? "Preview Command Center"
+                          : "Open Command Center"}
                         <ArrowRight className="ml-2 w-4 h-4" />
                       </Link>
                     </Button>
@@ -420,13 +498,14 @@ export default function Tools() {
             );
           })()}
 
-          {/* Daily tools by job (craft Phase 3 — not a flat soup) */}
+          {/* Daily tools by job (craft Phase 3, not a flat soup) */}
           {(
             [
               {
                 id: "prepare",
                 title: "Prepare",
-                blurb: "Before the visit — plans, research, email, weekly rhythm",
+                blurb:
+                  "Before the visit, plans, research, email, weekly rhythm",
                 cats: ["Prepare", "Plan"],
                 testId: "tools-job-prepare",
               },
@@ -453,7 +532,9 @@ export default function Tools() {
                     <h2 className="text-xl font-display font-bold text-foreground tracking-tight">
                       {job.title}
                     </h2>
-                    <p className="text-sm text-muted-foreground mt-1">{job.blurb}</p>
+                    <p className="text-sm text-muted-foreground mt-1">
+                      {job.blurb}
+                    </p>
                   </div>
                 </div>
                 <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
@@ -483,7 +564,7 @@ export default function Tools() {
                         Field support
                       </h2>
                       <p className="text-sm text-muted-foreground mt-1">
-                        Satellite to Command — not a second product
+                        Satellite to Command, not a second product
                       </p>
                     </div>
                   </div>
@@ -509,7 +590,9 @@ export default function Tools() {
             </div>
             <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
               {filteredTools
-                .filter((t) => (LEADER_TOOL_IDS as readonly string[]).includes(t.id))
+                .filter((t) =>
+                  (LEADER_TOOL_IDS as readonly string[]).includes(t.id),
+                )
                 .map((tool, idx) => renderCard(tool, idx + 20))}
             </StaggerContainer>
           </section>
@@ -523,10 +606,17 @@ export default function Tools() {
             );
             if (!rest.length) return null;
             return (
-              <section key={cat} data-testid={`tools-category-${cat.toLowerCase()}`}>
+              <section
+                key={cat}
+                data-testid={`tools-category-${cat.toLowerCase()}`}
+              >
                 <div className="flex items-end justify-between gap-3 mb-5 border-b border-border/60 pb-3">
-                  <h2 className="text-xl font-display font-bold text-foreground tracking-tight">{cat}</h2>
-                  <span className="text-xs font-semibold text-muted-foreground tabular-nums">{rest.length}</span>
+                  <h2 className="text-xl font-display font-bold text-foreground tracking-tight">
+                    {cat}
+                  </h2>
+                  <span className="text-xs font-semibold text-muted-foreground tabular-nums">
+                    {rest.length}
+                  </span>
                 </div>
                 <StaggerContainer className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-5">
                   {rest.map((tool, idx) => renderCard(tool, idx + 40))}
@@ -535,7 +625,7 @@ export default function Tools() {
             );
           })}
 
-          {/* Advanced library — de-emphasized footer of catalog */}
+          {/* Advanced library, de-emphasized footer of catalog */}
           <section data-testid="advanced-ai-tools-library">
             <Card className="border border-border bg-card p-5 sm:p-6">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -548,14 +638,20 @@ export default function Tools() {
                       Advanced library
                     </h2>
                     <p className="mt-0.5 max-w-2xl text-sm leading-relaxed text-muted-foreground">
-                      Specialized AI workflows and permission-controlled clinical tools — secondary to
-                      your daily Hospice Sales Pro spine.
+                      Specialized AI workflows and permission-controlled
+                      clinical tools, secondary to your daily Hospice Sales Pro
+                      spine.
                     </p>
                   </div>
                 </div>
-                <Button asChild variant="outline" className="shrink-0 font-bold">
+                <Button
+                  asChild
+                  variant="outline"
+                  className="shrink-0 font-bold"
+                >
                   <Link href="/tools/ai">
-                    Open advanced library <ArrowRight className="ml-2 h-4 w-4" />
+                    Open advanced library{" "}
+                    <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               </div>
@@ -581,12 +677,19 @@ export default function Tools() {
 
       <SlideUp delay={0.2}>
         <div className="mt-12 sm:mt-16 rounded-2xl p-8 md:p-12 text-center border border-border/80 bg-card shadow-elite surface-noise">
-          <h2 className="text-h2 font-bold text-foreground mb-4">Coaching stays human</h2>
+          <h2 className="text-h2 font-bold text-foreground mb-4">
+            Coaching stays human
+          </h2>
           <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto leading-relaxed mb-8">
-            Hospice Sales Pro tools support execution between sessions. Strategy calls and consulting engagements
-            are how organizations transform.
+            Hospice Sales Pro tools support execution between sessions. Strategy
+            calls and consulting engagements are how organizations transform.
           </p>
-          <Button size="lg" asChild className="font-bold" data-testid="button-tools-contact">
+          <Button
+            size="lg"
+            asChild
+            className="font-bold"
+            data-testid="button-tools-contact"
+          >
             <Link href="/contact">
               Book a strategy call
               <ArrowRight className="ml-2 w-5 h-5" />

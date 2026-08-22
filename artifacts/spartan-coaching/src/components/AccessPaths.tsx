@@ -22,11 +22,15 @@ export function AccessPaths({ className }: { className?: string }) {
           How Hospice Sales Pro access works
         </h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
-          Individuals self-serve. Teams and evaluations request access — so pricing never feels mixed up.
+          Individuals self-serve. Teams and evaluations request access, so
+          pricing never feels mixed up.
         </p>
       </div>
       <div className="grid md:grid-cols-2 gap-5 max-w-4xl mx-auto">
-        <Card className="p-6 space-y-4 h-full flex flex-col" data-testid="access-path-individual">
+        <Card
+          className="p-6 space-y-4 h-full flex flex-col"
+          data-testid="access-path-individual"
+        >
           <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-primary/12 text-primary">
             <User className="h-5 w-5" />
           </div>
@@ -41,9 +45,10 @@ export function AccessPaths({ className }: { className?: string }) {
           <ol className="text-sm text-muted-foreground space-y-2 list-decimal list-inside leading-relaxed flex-1">
             <li>Create your account</li>
             <li>
-              Start {PRICING_FACTS.productName} at {PRICING_FACTS.individualWeeklyLabel} (cancel anytime)
+              Start {PRICING_FACTS.productName} at{" "}
+              {PRICING_FACTS.individualWeeklyLabel} (cancel anytime)
             </li>
-            <li>Unlock live tools the same day — web + iOS</li>
+            <li>Unlock live tools the same day, web + iOS</li>
           </ol>
           <Button asChild className="font-bold w-full sm:w-auto">
             <Link href="/register">
@@ -52,7 +57,10 @@ export function AccessPaths({ className }: { className?: string }) {
             </Link>
           </Button>
         </Card>
-        <Card className="p-6 space-y-4 h-full flex flex-col" data-testid="access-path-team">
+        <Card
+          className="p-6 space-y-4 h-full flex flex-col"
+          data-testid="access-path-team"
+        >
           <div className="inline-flex h-10 w-10 items-center justify-center rounded-xl bg-muted text-foreground">
             <Users className="h-5 w-5" />
           </div>
@@ -69,7 +77,11 @@ export function AccessPaths({ className }: { className?: string }) {
             <li>Nick reviews and opens a timed evaluation</li>
             <li>Continue under team contract when it fits</li>
           </ol>
-          <Button asChild variant="outline" className="font-bold w-full sm:w-auto">
+          <Button
+            asChild
+            variant="outline"
+            className="font-bold w-full sm:w-auto"
+          >
             <Link href="/request-access">
               Request team access
               <ArrowRight className="ml-2 h-4 w-4" />

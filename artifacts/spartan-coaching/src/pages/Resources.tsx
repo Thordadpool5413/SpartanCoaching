@@ -5,7 +5,13 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Download, Mail, User, Printer } from "lucide-react";
@@ -37,7 +43,11 @@ export default function Resources() {
   const isOrgAdmin =
     member?.role === "org_admin" || member?.role === "platform_admin";
 
-  const { data: resourcesData, isLoading, isError } = useQuery<{
+  const {
+    data: resourcesData,
+    isLoading,
+    isError,
+  } = useQuery<{
     resources: SelectResource[];
     ownershipLabel?: string;
   }>({
@@ -90,7 +100,9 @@ export default function Resources() {
     onSuccess: () => {
       setNewTitle("");
       setNewUrl("");
-      queryClient.invalidateQueries({ queryKey: ["/api/v1/provider-resources"] });
+      queryClient.invalidateQueries({
+        queryKey: ["/api/v1/provider-resources"],
+      });
       toast({ title: "Provider resource added" });
     },
     onError: (e: Error) => {
@@ -114,7 +126,8 @@ export default function Resources() {
   });
 
   const [gateOpen, setGateOpen] = useState(false);
-  const [selectedResource, setSelectedResource] = useState<SelectResource | null>(null);
+  const [selectedResource, setSelectedResource] =
+    useState<SelectResource | null>(null);
   const [leadName, setLeadName] = useState("");
   const [leadEmail, setLeadEmail] = useState("");
 
@@ -122,7 +135,10 @@ export default function Resources() {
   const resolveResourceUrl = (fileUrl: string): string => {
     if (!fileUrl) return fileUrl;
     if (fileUrl.startsWith("/resources/files/")) return fileUrl;
-    if (fileUrl.startsWith("/resources/") && fileUrl.toLowerCase().endsWith(".pdf")) {
+    if (
+      fileUrl.startsWith("/resources/") &&
+      fileUrl.toLowerCase().endsWith(".pdf")
+    ) {
       const name = fileUrl.split("/").pop() || "";
       return `/resources/files/${name}`;
     }
@@ -131,7 +147,7 @@ export default function Resources() {
 
   const openDownload = (resource: SelectResource) => {
     const url = resolveResourceUrl(resource.fileUrl);
-    // Members already inside Membership — no lead gate
+    // Members already inside Membership, no lead gate
     if (canUseFieldKit) {
       trackEvent("resource_download", resource.title);
       window.open(url, "_blank");
@@ -142,14 +158,19 @@ export default function Resources() {
   };
 
   const leadMutation = useMutation({
-    mutationFn: async (data: { name: string; email: string; resourceId: number; resourceTitle: string }) => {
+    mutationFn: async (data: {
+      name: string;
+      email: string;
+      resourceId: number;
+      resourceTitle: string;
+    }) => {
       const res = await apiRequest("POST", "/api/resource-leads", data);
       return res.json();
     },
     onSuccess: () => {
       if (selectedResource) {
         trackEvent("resource_download", selectedResource.title);
-        window.open(selectedResource.fileUrl, '_blank');
+        window.open(selectedResource.fileUrl, "_blank");
       }
       setGateOpen(false);
       setLeadName("");
@@ -158,13 +179,16 @@ export default function Resources() {
     },
   });
 
-  const groupedResources = resources.reduce((acc, resource) => {
-    if (!acc[resource.category]) {
-      acc[resource.category] = [];
-    }
-    acc[resource.category].push(resource);
-    return acc;
-  }, {} as Record<string, SelectResource[]>);
+  const groupedResources = resources.reduce(
+    (acc, resource) => {
+      if (!acc[resource.category]) {
+        acc[resource.category] = [];
+      }
+      acc[resource.category].push(resource);
+      return acc;
+    },
+    {} as Record<string, SelectResource[]>,
+  );
 
   const categoryNames: Record<string, string> = {
     template: "Templates",
@@ -201,7 +225,9 @@ export default function Resources() {
         <SEO />
         <BackButton />
         <div className="text-center max-w-2xl mx-auto py-20">
-          <p className="text-destructive">Failed to load resources. Please try again later.</p>
+          <p className="text-destructive">
+            Failed to load resources. Please try again later.
+          </p>
         </div>
       </div>
     );
@@ -213,7 +239,12 @@ export default function Resources() {
         <SEO />
         <BackButton />
         <div className="text-center max-w-2xl mx-auto py-20">
-          <h1 className="text-h1 text-foreground mb-6" data-testid="text-resources-title">Training Resources Library</h1>
+          <h1
+            className="text-h1 text-foreground mb-6"
+            data-testid="text-resources-title"
+          >
+            Training Resources Library
+          </h1>
           <p className="text-body-lg text-muted-foreground">
             No resources available yet. Check back soon!
           </p>
@@ -229,28 +260,37 @@ export default function Resources() {
       {canUseFieldKit && <FieldKitChrome />}
       <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
         <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">
-          {canUseFieldKit ? "Hospice Sales Pro · Field resources" : "Training library"}
+          {canUseFieldKit
+            ? "Hospice Sales Pro · Field resources"
+            : "Training library"}
         </p>
-        <h1 className="text-h1 text-foreground mb-6" data-testid="text-resources-title">
+        <h1
+          className="text-h1 text-foreground mb-6"
+          data-testid="text-resources-title"
+        >
           {canUseFieldKit ? "Field resources" : "Training Resources Library"}
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed">
           {canUseFieldKit
-            ? "Work aids for the field — templates, scripts, and checklists. Not buried under Learn: pair with Tools intents (prepare a visit, plan the week)."
+            ? "Work aids for the field, templates, scripts, and checklists. Not buried under Learn: pair with Tools intents (prepare a visit, plan the week)."
             : "Download field-tested templates, scripts, checklists, and guides to elevate your hospice sales performance."}
         </p>
         {canUseFieldKit && (
           <p className="text-sm text-muted-foreground mt-3">
             Start from intent on{" "}
-            <Link href="/tools" className="font-semibold text-primary hover:underline">
+            <Link
+              href="/tools"
+              className="font-semibold text-primary hover:underline"
+            >
               Tools
-            </Link>
-            {" "}
+            </Link>{" "}
             (e.g. handle an objection → Objection Handler + objection cards).{" "}
-            <Link href="/articles" className="font-semibold text-primary hover:underline">
+            <Link
+              href="/articles"
+              className="font-semibold text-primary hover:underline"
+            >
               Learn
-            </Link>
-            {" "}
+            </Link>{" "}
             is for articles and fundamentals.
           </p>
         )}
@@ -258,7 +298,10 @@ export default function Resources() {
       {!canUseFieldKit && <ContentNotice />}
 
       {canUseFieldKit && (
-        <div className="mb-12 space-y-4" data-testid="provider-resource-library">
+        <div
+          className="mb-12 space-y-4"
+          data-testid="provider-resource-library"
+        >
           <div className="flex flex-wrap items-end justify-between gap-3">
             <div>
               <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">
@@ -266,8 +309,8 @@ export default function Resources() {
               </p>
               <h2 className="text-h2">Your private library</h2>
               <p className="text-sm text-muted-foreground mt-1 max-w-2xl">
-                Organization-only scripts, coverage maps, escalation guides, and policies.
-                Clearly separate from{" "}
+                Organization-only scripts, coverage maps, escalation guides, and
+                policies. Clearly separate from{" "}
                 <span className="font-semibold text-foreground">
                   {resourcesData?.ownershipLabel || "Hospice Sales Pro Core"}
                 </span>
@@ -285,7 +328,9 @@ export default function Resources() {
 
           {isOrgAdmin && (
             <Card className="border-2 p-4 space-y-3">
-              <p className="text-sm font-semibold">Add provider resource (org admin)</p>
+              <p className="text-sm font-semibold">
+                Add provider resource (org admin)
+              </p>
               <div className="grid md:grid-cols-3 gap-3">
                 <div>
                   <Label>Title</Label>
@@ -323,17 +368,21 @@ export default function Resources() {
                 onClick={() => createProviderMutation.mutate()}
                 data-testid="button-add-provider-resource"
               >
-                {createProviderMutation.isPending ? "Saving…" : "Publish to library"}
+                {createProviderMutation.isPending
+                  ? "Saving…"
+                  : "Publish to library"}
               </Button>
             </Card>
           )}
 
           {providerLoading ? (
-            <p className="text-sm text-muted-foreground">Loading provider library…</p>
+            <p className="text-sm text-muted-foreground">
+              Loading provider library…
+            </p>
           ) : providerItems.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               No provider-owned resources yet
-              {isOrgAdmin ? " — add one above." : "."}
+              {isOrgAdmin ? ", add one above." : "."}
             </p>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
@@ -383,152 +432,184 @@ export default function Resources() {
             Shared product library (not organization-private)
           </p>
         </div>
-        {Object.entries(groupedResources).map(([category, categoryResources]) => (
-          <div key={category} data-testid={`category-${category}`}>
-            <h2 className="text-h2 mb-6 flex items-center gap-3 flex-wrap">
-              {categoryNames[category] || category}
-              <Badge variant="secondary" className="text-sm">
-                {categoryResources.length}
-              </Badge>
-            </h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
-              {categoryResources.map((resource) => (
-                <Card
-                  key={resource.id}
-                  className="flex flex-col hover-elevate border-2 group relative spacing-card"
-                  data-testid={`resource-card-${resource.id}`}
-                >
-                  <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                  <div className="flex-1 relative">
-                    <div className="flex items-start justify-between gap-2 mb-4 flex-wrap">
-                      <h3 className="text-h3 text-foreground leading-tight">{resource.title}</h3>
-                      <div className="flex flex-wrap gap-1.5 shrink-0">
-                        <Badge variant="outline">
-                          {categoryNames[resource.category] || resource.category}
-                        </Badge>
-                        {(() => {
-                          const life = (
-                            resource as SelectResource & {
-                              lifecycle?: {
-                                versionLabel?: string;
-                                hasNewerVersion?: boolean;
-                                documentVersionLine?: string;
-                                currentVersion?: { id: number; versionLabel: string };
-                              };
-                              versionLabel?: string | null;
-                            }
-                          ).lifecycle;
-                          const ver =
-                            life?.versionLabel ||
-                            resource.versionLabel ||
-                            resource.contentArchitecture?.versionLabel ||
-                            resource.contentArchitecture?.contentVersion;
-                          return ver ? (
-                            <Badge variant="secondary" data-testid={`resource-version-${resource.id}`}>
-                              v{ver}
-                            </Badge>
-                          ) : null;
-                        })()}
-                      </div>
-                    </div>
-
-                    {(() => {
-                      const life = (
-                        resource as SelectResource & {
-                          lifecycle?: {
-                            hasNewerVersion?: boolean;
-                            documentVersionLine?: string;
-                            currentVersion?: { id: number; versionLabel: string; title: string };
-                          };
-                        }
-                      ).lifecycle;
-                      if (!life?.hasNewerVersion || !life.currentVersion) return null;
-                      return (
-                        <div
-                          className="mb-3 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-foreground"
-                          data-testid={`resource-newer-${resource.id}`}
-                        >
-                          A newer version is available (v{life.currentVersion.versionLabel}
-                          {life.currentVersion.title ? `: ${life.currentVersion.title}` : ""}
-                          ). This copy is retained for history — do not treat it as current.
+        {Object.entries(groupedResources).map(
+          ([category, categoryResources]) => (
+            <div key={category} data-testid={`category-${category}`}>
+              <h2 className="text-h2 mb-6 flex items-center gap-3 flex-wrap">
+                {categoryNames[category] || category}
+                <Badge variant="secondary" className="text-sm">
+                  {categoryResources.length}
+                </Badge>
+              </h2>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
+                {categoryResources.map((resource) => (
+                  <Card
+                    key={resource.id}
+                    className="flex flex-col hover-elevate border-2 group relative spacing-card"
+                    data-testid={`resource-card-${resource.id}`}
+                  >
+                    <div className="absolute inset-0 bg-spartan-gradient-subtle opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    <div className="flex-1 relative">
+                      <div className="flex items-start justify-between gap-2 mb-4 flex-wrap">
+                        <h3 className="text-h3 text-foreground leading-tight">
+                          {resource.title}
+                        </h3>
+                        <div className="flex flex-wrap gap-1.5 shrink-0">
+                          <Badge variant="outline">
+                            {categoryNames[resource.category] ||
+                              resource.category}
+                          </Badge>
+                          {(() => {
+                            const life = (
+                              resource as SelectResource & {
+                                lifecycle?: {
+                                  versionLabel?: string;
+                                  hasNewerVersion?: boolean;
+                                  documentVersionLine?: string;
+                                  currentVersion?: {
+                                    id: number;
+                                    versionLabel: string;
+                                  };
+                                };
+                                versionLabel?: string | null;
+                              }
+                            ).lifecycle;
+                            const ver =
+                              life?.versionLabel ||
+                              resource.versionLabel ||
+                              resource.contentArchitecture?.versionLabel ||
+                              resource.contentArchitecture?.contentVersion;
+                            return ver ? (
+                              <Badge
+                                variant="secondary"
+                                data-testid={`resource-version-${resource.id}`}
+                              >
+                                v{ver}
+                              </Badge>
+                            ) : null;
+                          })()}
                         </div>
-                      );
-                    })()}
+                      </div>
 
-                    {resource.description && (
-                      <p className="text-base text-muted-foreground leading-relaxed mb-3 line-clamp-3">
-                        {resource.description}
-                      </p>
-                    )}
-
-                    {(() => {
-                      const arch =
-                        (
+                      {(() => {
+                        const life = (
                           resource as SelectResource & {
-                            architecture?: {
-                              whenToUse?: string;
-                              expectedOutcome?: string;
-                              experienceLevel?: string;
-                              clinicalSensitivity?: string;
+                            lifecycle?: {
+                              hasNewerVersion?: boolean;
+                              documentVersionLine?: string;
+                              currentVersion?: {
+                                id: number;
+                                versionLabel: string;
+                                title: string;
+                              };
                             };
                           }
-                        ).architecture || resource.contentArchitecture;
-                      if (!arch) return null;
-                      return (
-                        <div className="space-y-2 mb-4 text-sm text-muted-foreground">
-                          {arch.whenToUse ? (
-                            <p className="line-clamp-2" data-testid={`resource-when-${resource.id}`}>
-                              <span className="font-semibold text-foreground">When: </span>
-                              {arch.whenToUse}
-                            </p>
-                          ) : null}
-                          {arch.expectedOutcome ? (
-                            <p className="line-clamp-2" data-testid={`resource-outcome-${resource.id}`}>
-                              <span className="font-semibold text-foreground">Outcome: </span>
-                              {arch.expectedOutcome}
-                            </p>
-                          ) : null}
-                          <div className="flex flex-wrap gap-1.5 pt-1">
-                            {arch.experienceLevel ? (
-                              <Badge variant="secondary" className="text-xs">
-                                {arch.experienceLevel}
-                              </Badge>
-                            ) : null}
-                            {arch.clinicalSensitivity &&
-                            arch.clinicalSensitivity !== "none" ? (
-                              <Badge variant="outline" className="text-xs">
-                                {arch.clinicalSensitivity}
-                              </Badge>
-                            ) : null}
+                        ).lifecycle;
+                        if (!life?.hasNewerVersion || !life.currentVersion)
+                          return null;
+                        return (
+                          <div
+                            className="mb-3 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-foreground"
+                            data-testid={`resource-newer-${resource.id}`}
+                          >
+                            A newer version is available (v
+                            {life.currentVersion.versionLabel}
+                            {life.currentVersion.title
+                              ? `: ${life.currentVersion.title}`
+                              : ""}
+                            ). This copy is retained for history, do not treat
+                            it as current.
                           </div>
-                        </div>
-                      );
-                    })()}
+                        );
+                      })()}
 
-                    <Button
-                      className="w-full gap-2"
-                      onClick={() => openDownload(resource)}
-                      data-testid={`button-download-${resource.id}`}
-                    >
-                      <Download className="w-4 h-4" />
-                      Download
-                    </Button>
-                  </div>
-                </Card>
-              ))}
+                      {resource.description && (
+                        <p className="text-base text-muted-foreground leading-relaxed mb-3 line-clamp-3">
+                          {resource.description}
+                        </p>
+                      )}
+
+                      {(() => {
+                        const arch =
+                          (
+                            resource as SelectResource & {
+                              architecture?: {
+                                whenToUse?: string;
+                                expectedOutcome?: string;
+                                experienceLevel?: string;
+                                clinicalSensitivity?: string;
+                              };
+                            }
+                          ).architecture || resource.contentArchitecture;
+                        if (!arch) return null;
+                        return (
+                          <div className="space-y-2 mb-4 text-sm text-muted-foreground">
+                            {arch.whenToUse ? (
+                              <p
+                                className="line-clamp-2"
+                                data-testid={`resource-when-${resource.id}`}
+                              >
+                                <span className="font-semibold text-foreground">
+                                  When:{" "}
+                                </span>
+                                {arch.whenToUse}
+                              </p>
+                            ) : null}
+                            {arch.expectedOutcome ? (
+                              <p
+                                className="line-clamp-2"
+                                data-testid={`resource-outcome-${resource.id}`}
+                              >
+                                <span className="font-semibold text-foreground">
+                                  Outcome:{" "}
+                                </span>
+                                {arch.expectedOutcome}
+                              </p>
+                            ) : null}
+                            <div className="flex flex-wrap gap-1.5 pt-1">
+                              {arch.experienceLevel ? (
+                                <Badge variant="secondary" className="text-xs">
+                                  {arch.experienceLevel}
+                                </Badge>
+                              ) : null}
+                              {arch.clinicalSensitivity &&
+                              arch.clinicalSensitivity !== "none" ? (
+                                <Badge variant="outline" className="text-xs">
+                                  {arch.clinicalSensitivity}
+                                </Badge>
+                              ) : null}
+                            </div>
+                          </div>
+                        );
+                      })()}
+
+                      <Button
+                        className="w-full gap-2"
+                        onClick={() => openDownload(resource)}
+                        data-testid={`button-download-${resource.id}`}
+                      >
+                        <Download className="w-4 h-4" />
+                        Download
+                      </Button>
+                    </div>
+                  </Card>
+                ))}
+              </div>
             </div>
-          </div>
-        ))}
+          ),
+        )}
       </div>
 
       <div className="mt-16">
         <h2 className="text-h2 mb-2 flex items-center gap-3 flex-wrap">
           Printable Fill-In Templates
-          <Badge variant="secondary" className="text-sm">5</Badge>
+          <Badge variant="secondary" className="text-sm">
+            5
+          </Badge>
         </h2>
         <p className="text-muted-foreground mb-6">
           {canUseFieldKit
-            ? "Open in your browser, fill in, and print — part of your membership resources."
+            ? "Open in your browser, fill in, and print, part of your membership resources."
             : "Open in your browser, fill in, and print. No account required."}
         </p>
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
@@ -539,19 +620,49 @@ export default function Resources() {
               desc: "Interactive plan with save/resume across devices (signed in), print, and PDF. Purpose: Monday focus. Outcome: a completed week plan.",
               interactive: true,
             },
-            { href: "/resources/activity-tracker", title: "Weekly Activity Tracker", desc: "Detailed daily conversation log with Account, Contact, Topic, Stage, and Outcome columns. Includes weekly summary and reflection questions." },
-            { href: "/resources/quick-start-guide", title: "First 30 Days Guide", desc: "Week-by-week actions, first contact scripts, objection responses, and a 30-day scorecard for new hires." },
-            { href: "/resources/objection-cards", title: "Objection Response Cards", desc: "Eight of the most common hospice objections with response frameworks, coaching tips, and a universal reframe method." },
-            { href: "/resources/territory-template", title: "Territory Planning Template", desc: "Account priority matrix (A/B/C tier), 25-row account table, weekly route planner, and routing tips." },
-            { href: "/resources/metrics-dashboard", title: "Metrics Dashboard", desc: "Monthly tracking sheet for activity, conversions, speed to care, top referral sources, and reflections." },
+            {
+              href: "/resources/activity-tracker",
+              title: "Weekly Activity Tracker",
+              desc: "Detailed daily conversation log with Account, Contact, Topic, Stage, and Outcome columns. Includes weekly summary and reflection questions.",
+            },
+            {
+              href: "/resources/quick-start-guide",
+              title: "First 30 Days Guide",
+              desc: "Week-by-week actions, first contact scripts, objection responses, and a 30-day scorecard for new hires.",
+            },
+            {
+              href: "/resources/objection-cards",
+              title: "Objection Response Cards",
+              desc: "Eight of the most common hospice objections with response frameworks, coaching tips, and a universal reframe method.",
+            },
+            {
+              href: "/resources/territory-template",
+              title: "Territory Planning Template",
+              desc: "Account priority matrix (A/B/C tier), 25-row account table, weekly route planner, and routing tips.",
+            },
+            {
+              href: "/resources/metrics-dashboard",
+              title: "Metrics Dashboard",
+              desc: "Monthly tracking sheet for activity, conversions, speed to care, top referral sources, and reflections.",
+            },
           ].map((item) => (
-            <Card key={item.href} className="flex flex-col border-2 hover-elevate spacing-card">
+            <Card
+              key={item.href}
+              className="flex flex-col border-2 hover-elevate spacing-card"
+            >
               <div className="flex-1">
-                <h3 className="text-h3 text-foreground leading-tight mb-2">{item.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed mb-4">{item.desc}</p>
+                <h3 className="text-h3 text-foreground leading-tight mb-2">
+                  {item.title}
+                </h3>
+                <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+                  {item.desc}
+                </p>
               </div>
               <Link href={item.href}>
-                <Button className="w-full gap-2" data-testid={`button-open-${item.href.split("/").pop()}`}>
+                <Button
+                  className="w-full gap-2"
+                  data-testid={`button-open-${item.href.split("/").pop()}`}
+                >
                   <Printer className="w-4 h-4" />
                   {"interactive" in item && item.interactive
                     ? "Open interactive plan"
@@ -563,12 +674,19 @@ export default function Resources() {
         </div>
       </div>
 
-      <Dialog open={gateOpen} onOpenChange={(open) => { setGateOpen(open); if (!open) setSelectedResource(null); }}>
+      <Dialog
+        open={gateOpen}
+        onOpenChange={(open) => {
+          setGateOpen(open);
+          if (!open) setSelectedResource(null);
+        }}
+      >
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Get Your Free Resource</DialogTitle>
             <DialogDescription>
-              Enter your name and email to download "{selectedResource?.title}". We'll also send you occasional hospice sales tips.
+              Enter your name and email to download "{selectedResource?.title}".
+              We'll also send you occasional hospice sales tips.
             </DialogDescription>
           </DialogHeader>
           <form

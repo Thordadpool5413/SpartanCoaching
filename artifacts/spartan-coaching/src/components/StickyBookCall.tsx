@@ -32,7 +32,7 @@ function StickyBookCallContent() {
     return null;
   }
 
-  // Quiet product / conversion shells — one primary CTA max, no FAB noise
+  // Quiet product / conversion shells, one primary CTA max, no FAB noise
   const quietPaths =
     canUseFieldKit ||
     location === "/contact" ||
@@ -61,7 +61,9 @@ function StickyBookCallContent() {
           asChild
           className={cn(
             "fixed gap-2 shadow-lg transition-all duration-300 ease-out animate-slide-in-up z-40",
-            isMobile ? "bottom-[calc(80px+env(safe-area-inset-bottom,0px))] left-[calc(16px+env(safe-area-inset-left,0px))] p-0 w-12 h-12" : "bottom-8 left-8 px-5 py-3"
+            isMobile
+              ? "bottom-[calc(80px+env(safe-area-inset-bottom,0px))] left-[calc(16px+env(safe-area-inset-left,0px))] p-0 w-12 h-12"
+              : "bottom-8 left-8 px-5 py-3",
           )}
           data-testid="button-contact-sticky"
           aria-label="Contact us"
@@ -87,8 +89,5 @@ export function StickyBookCall() {
     return null;
   }
 
-  return createPortal(
-    <StickyBookCallContent />,
-    document.body
-  );
+  return createPortal(<StickyBookCallContent />, document.body);
 }
