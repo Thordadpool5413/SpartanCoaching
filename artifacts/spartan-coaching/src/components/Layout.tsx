@@ -25,11 +25,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { navSections, allSearchablePages } from "@/lib/navigation";
 import { PortalMobileLinks } from "@/components/PortalNav";
 import { useIsMobile } from "@/hooks/use-breakpoint";
-import { CONSENT_COPY, PRICING_FACTS } from "@/lib/complianceCopy";
+import { PRICING_FACTS } from "@/lib/complianceCopy";
 
 function NavLink({
   href,
@@ -291,17 +290,10 @@ export function Header() {
           className="hidden lg:flex flex-1 items-center justify-center gap-1 xl:gap-1.5 min-w-0 px-4 xl:px-8"
           aria-label="Main navigation"
         >
-          {/* Marketing chrome stays marketing, workspace has its own shell (HSP-32) */}
-          {navSections
-            .filter((section) => section.title !== "Company")
-            .map((section) => (
-              <NavDropdown
-                key={section.title}
-                label={section.title}
-                dataTestId={`dropdown-${section.title.toLowerCase().replace(/\s+/g, "-")}`}
-                items={section.items}
-              />
-            ))}
+          <NavLink href="/services">Consulting</NavLink>
+          <NavLink href="/programs">Programs</NavLink>
+          <NavLink href="/method">Method</NavLink>
+          <NavLink href="/hospice-sales-pro">Hospice Sales Pro</NavLink>
           <NavLink href="/about">About</NavLink>
           {isAuthenticated && <NavLink href="/portal">Workspace</NavLink>}
         </nav>
@@ -600,17 +592,12 @@ export function Footer() {
   ];
 
   const publicLinks = [
-    { href: "/hospice-sales-pro", label: "Hospice Sales Pro" },
-    { href: "/tools", label: "Preview tools" },
     { href: "/services", label: "Consulting" },
-    { href: "/register", label: "Create account" },
+    { href: "/programs", label: "Programs" },
+    { href: "/method", label: "Method" },
+    { href: "/hospice-sales-pro", label: "Hospice Sales Pro" },
     { href: "/about", label: "About" },
     { href: "/contact", label: "Book a call" },
-    { href: "/request-access", label: "Team access" },
-    { href: "/login", label: "Client Login" },
-    { href: "/resources", label: "Resources" },
-    { href: "/compliance", label: "Compliance" },
-    { href: "/faq", label: "FAQ" },
   ];
 
   const links = canUseFieldKit ? memberLinks : publicLinks;
@@ -618,10 +605,10 @@ export function Footer() {
   return (
     <>
       <footer className="mt-auto border-t border-border bg-background no-print safe-area-bottom">
-        {/* 3-column main footer */}
+        {/* Restrained public footer, expanded workspace footer */}
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-12 pb-8">
           <div
-            className={`grid grid-cols-1 gap-10 md:gap-8 lg:gap-16 ${canUseFieldKit ? "md:grid-cols-2" : "md:grid-cols-3"}`}
+            className="grid grid-cols-1 gap-10 md:grid-cols-2 md:gap-12 lg:gap-20"
           >
             {/* Column 1, Brand + contact */}
             <div className="flex flex-col gap-4">
@@ -686,21 +673,6 @@ export function Footer() {
               </nav>
             </div>
 
-            {/* Column 3, Newsletter (public only) */}
-            {!canUseFieldKit && (
-              <div
-                className="flex flex-col gap-4"
-                data-testid="section-newsletter"
-              >
-                <p className="text-xs font-bold text-foreground uppercase tracking-widest">
-                  Optional email updates
-                </p>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  {CONSENT_COPY.newsletterExplicit}
-                </p>
-                <NewsletterSignup />
-              </div>
-            )}
           </div>
         </div>
 
