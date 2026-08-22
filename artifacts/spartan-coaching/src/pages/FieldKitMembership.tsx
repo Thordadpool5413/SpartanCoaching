@@ -15,6 +15,7 @@ import { useAuth } from "@/context/AuthContext";
 import { SubscribeCTA } from "@/components/SubscribeCTA";
 import { ProductMap } from "@/components/elite/ProductMap";
 import { SectionHeader } from "@/components/elite/SectionHeader";
+import { AppHandoffPanel } from "@/components/AppHandoffPanel";
 import { PRICING_FACTS, PUBLIC_CLAIM_SAFE } from "@/lib/complianceCopy";
 import { FIELD_KIT_TOOLS, FIELD_KIT_CATEGORIES, FIELD_KIT_CAT_BLURBS } from "@workspace/field-kit-catalog";
 
@@ -286,6 +287,14 @@ export default function FieldKitMembership() {
         <div className="mt-6 flex justify-center" data-testid="membership-roi-subscribe">
           <SubscribeCTA surface="membership_pricing" showPreview showHint={false} testId="membership-why-cta" />
         </div>
+      </div>
+
+      <div className="mb-14">
+        <AppHandoffPanel
+          destination="home"
+          title="One field system. Web and iPhone."
+          description="Create or sign in with the same Hospice Sales Pro account on both surfaces. Web purchases restore after sign in; App Store purchases restore from Account on iPhone."
+        />
       </div>
 
       {/* ── How it works ── */}

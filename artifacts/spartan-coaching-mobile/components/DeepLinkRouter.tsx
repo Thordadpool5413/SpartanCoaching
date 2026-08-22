@@ -10,6 +10,9 @@ import { router } from "expo-router";
 import {
   deepLinkFromNotificationData,
   parseDeepLink,
+  requiresAuthenticationForTarget,
+  requiresFieldKitTarget,
+  serializeLoginReturnTarget,
   targetToHref,
   type DeepTarget,
 } from "@/lib/deepLinks";
@@ -25,15 +28,15 @@ function navigateTarget(
   if (!target) return;
   let next: DeepTarget = target;
   // Expired / logged-out session → login (never open protected tools cold)
-  const publicTarget = target.pathname === "/login" || target.pathname === "/reset-password" || target.pathname === "/membership" || target.pathname.startsWith("/(tabs)");
-  if (!opts?.authenticated && !publicTarget) {
-    next = { pathname: "/login" };
+  if (!opts?.authenticated && requiresAuthenticationForTarget(target)) {
+    next = {
+      pathname: "/login",
+      params: { next: serializeLoginReturnTarget(target) },
+    };
   } else if (
     opts?.authenticated &&
     !opts.canUseFieldKit &&
-    (target.pathname.includes("sales-workflow") ||
-      target.pathname.startsWith("/tool/") ||
-      target.pathname.includes("command"))
+    requiresFieldKitTarget(target)
   ) {
     next = { pathname: "/(tabs)/account" };
   }

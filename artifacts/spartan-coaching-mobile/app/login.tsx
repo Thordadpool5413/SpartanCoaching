@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -9,7 +9,7 @@ import {
   View,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { router, type Href } from "expo-router";
+import { router, type Href, useLocalSearchParams } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
@@ -18,26 +18,40 @@ import { SpartanButton } from "@/components/ui/SpartanButton";
 import { SpartanInput } from "@/components/ui/SpartanInput";
 import { font } from "@/lib/typography";
 import { HelmetMark } from "@/components/brand/HelmetMark";
+import {
+  parseLoginReturnTarget,
+  requiresFieldKitTarget,
+  targetToHref,
+} from "@/lib/deepLinks";
 
 export default function LoginScreen() {
   const colors = useColors();
   const insets = useSafeAreaInsets();
-  const { login, isAuthenticated, isLoading } = useAuth();
+  const { login, isAuthenticated, isLoading, canUseFieldKit } = useAuth();
+  const { next } = useLocalSearchParams<{ next?: string }>();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [pending, setPending] = useState(false);
 
+  const loginReturnTarget = useMemo(() => parseLoginReturnTarget(next), [next]);
+  const postLoginTarget = useCallback(() => {
+    if (loginReturnTarget && (!requiresFieldKitTarget(loginReturnTarget) || canUseFieldKit)) {
+      return targetToHref(loginReturnTarget);
+    }
+    return (canUseFieldKit ? "/(tabs)" : "/(tabs)/account") as Href;
+  }, [canUseFieldKit, loginReturnTarget]);
+
   useEffect(() => {
-    if (!isLoading && isAuthenticated) router.replace("/(tabs)");
-  }, [isLoading, isAuthenticated]);
+    if (!isLoading && isAuthenticated) router.replace(postLoginTarget());
+  }, [isLoading, isAuthenticated, postLoginTarget]);
 
   const onSubmit = async () => {
     setError(null);
     setPending(true);
     try {
       await login(email.trim(), password);
-      router.replace("/(tabs)");
+      router.replace(postLoginTarget());
     } catch (caught: unknown) {
       const message = caught instanceof Error ? caught.message : "Sign in failed";
       const status = caught instanceof ApiError ? caught.status : undefined;

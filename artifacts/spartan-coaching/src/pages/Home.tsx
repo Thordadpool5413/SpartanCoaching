@@ -6,6 +6,7 @@ import { ArrowRight, Briefcase, Wrench, CheckCircle } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { TrustStrip } from "@/components/TrustStrip";
 import { ProofStrip } from "@/components/ProofStrip";
+import { AppHandoffPanel } from "@/components/AppHandoffPanel";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 import { lazy, Suspense, Component } from "react";
 import type { ReactNode } from "react";
@@ -253,6 +254,19 @@ export default function Home() {
               );
             })}
           </StaggerContainer>
+        </div>
+      </section>
+
+      {/* ── 4b. WEB ↔ IPHONE — same product, clear handoff ── */}
+      <section className="relative bg-background py-12 sm:py-16 lg:py-20" data-testid="section-app-handoff">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+          <FadeIn>
+            <AppHandoffPanel
+              destination="command"
+              title="The field system does not stay at your desk."
+              description="Hospice Sales Pro is the same product on web and iPhone. Open Command Center before a visit, then return to the browser when you want the full workspace."
+            />
+          </FadeIn>
         </div>
       </section>
 

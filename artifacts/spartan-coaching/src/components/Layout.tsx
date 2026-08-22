@@ -269,6 +269,7 @@ export function Header() {
           {isAuthenticated && (
             <NavLink href="/portal">Workspace</NavLink>
           )}
+          <NavLink href="/app">iPhone app</NavLink>
         </nav>
 
         {/* Utility actions — Login + single primary CTA (no duplicate Home) */}
@@ -364,6 +365,7 @@ export function Header() {
                   <>
                     <MobileNavLink href="/login" label="Client Login" location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavLink href="/register" label="Create account · Hospice Sales Pro" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavLink href="/app" label="Get the iPhone app" location={location} onClose={() => setMobileMenuOpen(false)} />
                     <MobileNavLink href="/request-access" label="Team / evaluation access" location={location} onClose={() => setMobileMenuOpen(false)} />
                     {navSections.map((section) => (
                       <div key={section.title}>
@@ -485,6 +487,7 @@ export function Footer() {
 
   const publicLinks = [
     { href: "/hospice-sales-pro", label: "Hospice Sales Pro" },
+    { href: "/app", label: "iPhone app" },
     { href: "/tools", label: "Preview tools" },
     { href: "/services", label: "Consulting" },
     { href: "/register", label: "Create account" },

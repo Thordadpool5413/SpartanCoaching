@@ -108,6 +108,7 @@ export function registerRoutes(app: Express): void {
           { "/": "/login*" }, { "/": "/portal*" }, { "/": "/account*" },
           { "/": "/command*" }, { "/": "/workflow*" }, { "/": "/coach*" },
           { "/": "/tools*" }, { "/": "/tool/*" }, { "/": "/learn*" },
+          { "/": "/app*" },
         ],
       }],
     },

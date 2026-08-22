@@ -1,4 +1,5 @@
 - [Spartan Coaching port](spartan-coaching-port.md) — key decisions and gotchas from porting this app to the monorepo
 - [Mobile jest setup](mobile-jest-setup.md) — jest 29 pin, pnpm-aware transformIgnorePatterns, RNTL 13, stale Expo typed routes
+- [iPhone web handoff](ios-web-handoff.md) — release builds must carry Associated Domains; public same-domain app launch needs a scheme fallback
 - [Spartan video art direction](spartan-video-direction.md) — user rejects text-on-black kinetic type; wants real documentary imagery, dignified cinematic style
 - [Database routines on publish](database-routines-on-publish.md) — publish schema diffs omit PostgreSQL function and trigger DDL; verify routine-dependent jobs separately.
