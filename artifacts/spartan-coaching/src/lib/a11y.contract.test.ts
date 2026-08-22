@@ -56,12 +56,14 @@ describe("a11y contracts (source-level)", () => {
     expect(layout).toMatch(/Escape/);
   });
 
-  it("Home hero uses semantic copy without a decorative stock portrait", () => {
+  it("Home matches the approved authority hero without unapproved media", () => {
     const home = read("pages/Home.tsx");
     expect(home).toMatch(/<h1/);
-    expect(home).toMatch(/Book a strategy call/);
-    expect(home).toMatch(/aria-label="Spartan Coaching point of view"/);
-    expect(home).not.toMatch(/nickPhoto|founder photo|stock photo/i);
+    expect(home).toMatch(/Book a Strategy Call/);
+    expect(home).toMatch(/Executive Strategy Call/);
+    expect(home).toMatch(/Hospice Sales Pro/);
+    expect(home).toMatch(/spartan-helmet\.png/);
+    expect(home).not.toMatch(/<video|nickPhoto|founder photo|stock photo/i);
   });
 
   it("animation primitives honor prefers-reduced-motion", () => {

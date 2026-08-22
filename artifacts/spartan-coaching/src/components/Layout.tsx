@@ -225,6 +225,7 @@ function NavDropdown({
 
 export function Header() {
   const [location, setLocation] = useLocation();
+  const isApprovedHome = location === "/";
   const isMobile = useIsMobile();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -255,29 +256,29 @@ export function Header() {
   };
 
   return (
-    <header className="sticky top-0 z-50 w-full dark-authority-header safe-area-top">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[4.25rem] sm:h-[4.5rem] md:h-20 flex items-center safe-area-x">
+    <header className={cn("sticky top-0 z-50 w-full dark-authority-header safe-area-top", isApprovedHome && "approved-home-header")}>
+      <div className={cn("max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[4.25rem] sm:h-[4.5rem] md:h-20 flex items-center safe-area-x", isApprovedHome && "approved-home-header-inner")}>
         {/* Brand, fixed footprint, never collides with nav */}
-        <div className="shrink-0 flex items-center pr-4 sm:pr-6 lg:pr-8 lg:mr-2 lg:border-r lg:border-border/50">
+        <div className={cn("shrink-0 flex items-center pr-4 sm:pr-6 lg:pr-8", !isApprovedHome && "lg:mr-2 lg:border-r lg:border-border/50")}>
           <Link href={homeHref}>
             <div
               className="flex items-center gap-3 sm:gap-3.5 hover:opacity-95 transition-opacity cursor-pointer touch-manipulation group"
               data-testid="link-home"
             >
               <img
-                src="/spartan-logo-stamp.png"
+                src={isApprovedHome ? "/spartan-helmet.png" : "/spartan-logo-stamp.png"}
                 alt=""
-                className="h-8 w-8 sm:h-9 sm:w-9 object-contain drop-shadow-[0_0_12px_hsl(var(--primary)/0.45)] shrink-0"
+                className={cn("h-8 w-8 sm:h-9 sm:w-9 object-contain drop-shadow-[0_0_12px_hsl(var(--primary)/0.45)] shrink-0", isApprovedHome && "approved-home-brand-mark")}
                 width={36}
                 height={36}
                 decoding="async"
               />
               <div className="min-w-0">
                 {/* Not h1, page content owns the document title heading (a11y) */}
-                <span className="font-black text-lg sm:text-xl md:text-[1.35rem] text-primary tracking-tight font-display block leading-none group-hover:text-primary whitespace-nowrap">
+                <span className={cn("font-black text-lg sm:text-xl md:text-[1.35rem] text-primary tracking-tight font-display block leading-none group-hover:text-primary whitespace-nowrap", isApprovedHome && "approved-home-brand-name")}>
                   SPARTAN COACHING
                 </span>
-                <span className="hidden md:block text-[9px] font-bold uppercase tracking-[0.16em] text-muted-foreground mt-1.5 whitespace-nowrap">
+                <span className={cn("hidden md:block text-[9px] font-bold uppercase tracking-[0.16em] text-muted-foreground mt-1.5 whitespace-nowrap", isApprovedHome && "approved-home-brand-subtitle")}>
                   Consulting · Hospice Sales Pro
                 </span>
               </div>
@@ -287,21 +288,37 @@ export function Header() {
 
         {/* Desktop Navigation, elite restraint: few labels + one CTA */}
         <nav
-          className="hidden lg:flex flex-1 items-center justify-center gap-1 xl:gap-1.5 min-w-0 px-4 xl:px-8"
+          className={cn("hidden lg:flex flex-1 items-center justify-center gap-1 xl:gap-1.5 min-w-0 px-4 xl:px-8", isApprovedHome && "approved-home-nav")}
           aria-label="Main navigation"
         >
-          <NavLink href="/services">Consulting</NavLink>
-          <NavLink href="/programs">Programs</NavLink>
-          <NavLink href="/method">Method</NavLink>
-          <NavLink href="/hospice-sales-pro">Hospice Sales Pro</NavLink>
-          <NavLink href="/about">About</NavLink>
+          {isApprovedHome ? (
+            <>
+              {navSections.map((section) => (
+                <NavDropdown
+                  key={section.title}
+                  label={section.title}
+                  items={section.items}
+                  dataTestId={`nav-${section.title.toLowerCase().replace(/\s+/g, "-")}`}
+                />
+              ))}
+              <NavLink href="/about">About</NavLink>
+            </>
+          ) : (
+            <>
+              <NavLink href="/services">Consulting</NavLink>
+              <NavLink href="/programs">Programs</NavLink>
+              <NavLink href="/method">Method</NavLink>
+              <NavLink href="/hospice-sales-pro">Hospice Sales Pro</NavLink>
+              <NavLink href="/about">About</NavLink>
+            </>
+          )}
           {isAuthenticated && <NavLink href="/portal">Workspace</NavLink>}
         </nav>
 
         {/* Utility actions, Login + single primary CTA (no duplicate Home) */}
-        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 ml-auto pl-3 sm:pl-4 lg:pl-6 lg:border-l lg:border-border/50">
+        <div className={cn("flex items-center gap-2 sm:gap-2.5 shrink-0 ml-auto pl-3 sm:pl-4 lg:pl-6", !isApprovedHome && "lg:border-l lg:border-border/50", isApprovedHome && "approved-home-header-actions")}>
           <AppearanceControls
-            compact
+            compact={!isApprovedHome}
             className="touch-manipulation"
             testId="button-appearance-header"
           />
@@ -315,7 +332,7 @@ export function Header() {
           >
             <Search className="w-5 h-5" />
           </Button>
-          {!isAuthenticated && (
+          {!isAuthenticated && !isApprovedHome && (
             <Button
               size="sm"
               variant="ghost"
@@ -347,7 +364,7 @@ export function Header() {
               className="hidden sm:inline-flex font-bold px-4 shrink-0"
               data-testid="button-book-call"
             >
-              <Link href="/contact">Book a strategy call</Link>
+              <Link href="/contact">Book a Strategy Call</Link>
             </Button>
           )}
 
