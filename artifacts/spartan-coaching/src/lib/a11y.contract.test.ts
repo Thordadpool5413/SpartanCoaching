@@ -56,14 +56,12 @@ describe("a11y contracts (source-level)", () => {
     expect(layout).toMatch(/Escape/);
   });
 
-  it("Home matches the approved authority hero without unapproved media", () => {
+  it("Home founder photo reserves layout space (CLS)", () => {
     const home = read("pages/Home.tsx");
-    expect(home).toMatch(/<h1/);
-    expect(home).toMatch(/Book a Strategy Call/);
-    expect(home).toMatch(/Executive Strategy Call/);
-    expect(home).toMatch(/Hospice Sales Pro/);
-    expect(home).toMatch(/spartan-helmet\.png/);
-    expect(home).not.toMatch(/<video|nickPhoto|founder photo|stock photo/i);
+    expect(home).toMatch(/Nick Lynch, founder/);
+    expect(home).toMatch(/width=\{416\}/);
+    expect(home).toMatch(/height=\{520\}/);
+    expect(home).toMatch(/decoding="async"/);
   });
 
   it("animation primitives honor prefers-reduced-motion", () => {
@@ -71,9 +69,7 @@ describe("a11y contracts (source-level)", () => {
     expect(anim).toMatch(/prefersReducedMotion/);
     // All major motion wrappers short-circuit when reduce is true
     expect(anim).toMatch(/if \(reduce\)/);
-    expect((anim.match(/if \(reduce\)/g) || []).length).toBeGreaterThanOrEqual(
-      4,
-    );
+    expect((anim.match(/if \(reduce\)/g) || []).length).toBeGreaterThanOrEqual(4);
   });
 
   it("AI tool clinical pages hide marketing chrome when PHI", () => {

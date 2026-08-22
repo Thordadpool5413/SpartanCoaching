@@ -15,14 +15,8 @@ import { TrialBanner } from "@/components/TrialBanner";
 import { FieldKitChecklistToast } from "@/components/FieldKitChecklistToast";
 import { isWorkspacePath, loginWithReturn } from "@/lib/workspaceShell";
 
-const ChatWidget = lazy(() =>
-  import("@/components/ChatWidget").then((m) => ({ default: m.ChatWidget })),
-);
-const StickyBookCall = lazy(() =>
-  import("@/components/StickyBookCall").then((m) => ({
-    default: m.StickyBookCall,
-  })),
-);
+const ChatWidget = lazy(() => import("@/components/ChatWidget").then(m => ({ default: m.ChatWidget })));
+const StickyBookCall = lazy(() => import("@/components/StickyBookCall").then(m => ({ default: m.StickyBookCall })));
 
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/Home"));
@@ -57,12 +51,8 @@ const Transcribe = lazy(() => import("@/pages/Transcribe"));
 const WeeklyPlan = lazy(() => import("@/pages/resources/WeeklyPlan"));
 const QuickStartGuide = lazy(() => import("@/pages/resources/QuickStartGuide"));
 const ObjectionCards = lazy(() => import("@/pages/resources/ObjectionCards"));
-const TerritoryTemplate = lazy(
-  () => import("@/pages/resources/TerritoryTemplate"),
-);
-const MetricsDashboard = lazy(
-  () => import("@/pages/resources/MetricsDashboard"),
-);
+const TerritoryTemplate = lazy(() => import("@/pages/resources/TerritoryTemplate"));
+const MetricsDashboard = lazy(() => import("@/pages/resources/MetricsDashboard"));
 const ActivityTracker = lazy(() => import("@/pages/resources/ActivityTracker"));
 const Quiz = lazy(() => import("@/pages/Quiz"));
 const Admin = lazy(() => import("@/pages/Admin"));
@@ -154,9 +144,7 @@ function ScrollToTop() {
 function VisitorTracker() {
   const [location] = useLocation();
   const lastTrackedRef = useRef<string>("");
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(
-    undefined,
-  );
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
 
   useEffect(() => {
     if (lastTrackedRef.current === location) return;
@@ -217,10 +205,7 @@ function Router() {
           {/* Legacy URLs → Hospice Sales Pro lander */}
           <Route path="/membership" component={RedirectToMembership} />
           <Route path="/field-kit" component={RedirectToMembership} />
-          <Route
-            path="/field-kit-membership"
-            component={RedirectToMembership}
-          />
+          <Route path="/field-kit-membership" component={RedirectToMembership} />
           <Route path="/pricing/field-kit" component={RedirectToMembership} />
           <Route path="/services" component={Services} />
           <Route path="/programs" component={Programs} />
@@ -230,26 +215,17 @@ function Router() {
           <Route path="/tools/objections" component={GatedObjections} />
           <Route path="/tools/research" component={GatedResearch} />
           <Route path="/tools/transcribe" component={GatedTranscribe} />
-          <Route
-            path="/tools/email-templates"
-            component={GatedEmailTemplates}
-          />
+          <Route path="/tools/email-templates" component={GatedEmailTemplates} />
           <Route path="/tools/role-play" component={GatedRolePlay} />
           <Route path="/tools/roi-calculator" component={GatedROI} />
           <Route path="/tools/activity-calculator" component={GatedActivity} />
           <Route path="/tools/rep-cost-calculator" component={GatedRepCost} />
           <Route path="/tools/branch-profitability" component={GatedBranch} />
           <Route path="/tools/cold-call-script" component={GatedColdCall} />
-          <Route
-            path="/tools/weekly-plan-builder"
-            component={GatedWeeklyPlan}
-          />
+          <Route path="/tools/weekly-plan-builder" component={GatedWeeklyPlan} />
           <Route path="/tools/sales-workflow" component={GatedSalesWorkflow} />
           <Route path="/tools/ai" component={GatedAiToolsHub} />
-          <Route
-            path="/my-work/elite-outputs"
-            component={GatedSavedAiOutputs}
-          />
+          <Route path="/my-work/elite-outputs" component={GatedSavedAiOutputs} />
           <Route path="/tools/ai/:toolId" component={GatedAiTool} />
           <Route path="/drills" component={GatedDrills} />
 
@@ -257,24 +233,12 @@ function Router() {
           <Route path="/admin/access-desk" component={AdminAccessDesk} />
           <Route path="/admin" component={Admin} />
           <Route path="/resources/weekly-plan" component={WeeklyPlan} />
-          <Route
-            path="/resources/activity-tracker"
-            component={ActivityTracker}
-          />
+          <Route path="/resources/activity-tracker" component={ActivityTracker} />
           <Route path="/quiz" component={GatedQuiz} />
-          <Route
-            path="/resources/quick-start-guide"
-            component={QuickStartGuide}
-          />
+          <Route path="/resources/quick-start-guide" component={QuickStartGuide} />
           <Route path="/resources/objection-cards" component={ObjectionCards} />
-          <Route
-            path="/resources/territory-template"
-            component={TerritoryTemplate}
-          />
-          <Route
-            path="/resources/metrics-dashboard"
-            component={MetricsDashboard}
-          />
+          <Route path="/resources/territory-template" component={TerritoryTemplate} />
+          <Route path="/resources/metrics-dashboard" component={MetricsDashboard} />
           <Route path="/testimonials" component={Testimonials} />
           <Route path="/articles" component={Articles} />
           <Route path="/podcasts" component={Podcasts} />
@@ -299,10 +263,7 @@ function Router() {
           <Route path="/assess/:slug" component={BrandedAssessment} />
           <Route path="/assessment/:id/print" component={AssessmentPrint} />
           <Route path="/assessment/:id" component={AssessmentRoute} />
-          <Route
-            path="/assessment-results/:submissionId"
-            component={AssessmentResultsPDF}
-          />
+          <Route path="/assessment-results/:submissionId" component={AssessmentResultsPDF} />
           <Route path="/sign/:token" component={SignAgreements} />
           <Route path="/brand-video" component={BrandVideo} />
           <Route component={NotFound} />
@@ -331,27 +292,13 @@ function AppLayout() {
   // Deep link / refresh with expired session: send to login with return path.
   // Public tool previews remain available when not authenticated.
   useEffect(() => {
-    if (isLoading || isAuthenticated || isAuthShell || isBrandedAssessment)
-      return;
+    if (isLoading || isAuthenticated || isAuthShell || isBrandedAssessment) return;
     const pathOnly = location.split("?")[0] || location;
     // Hard require auth for portal home and account (not public marketing)
-    if (
-      pathOnly === "/portal" ||
-      pathOnly.startsWith("/portal/") ||
-      pathOnly === "/account" ||
-      pathOnly.startsWith("/account/") ||
-      pathOnly.startsWith("/admin")
-    ) {
+    if (pathOnly === "/portal" || pathOnly.startsWith("/portal/") || pathOnly === "/account" || pathOnly.startsWith("/account/") || pathOnly.startsWith("/admin")) {
       setLocation(loginWithReturn(pathOnly));
     }
-  }, [
-    isLoading,
-    isAuthenticated,
-    isAuthShell,
-    isBrandedAssessment,
-    location,
-    setLocation,
-  ]);
+  }, [isLoading, isAuthenticated, isAuthShell, isBrandedAssessment, location, setLocation]);
 
   if (isBrandedAssessment) {
     return (
@@ -394,7 +341,7 @@ function AppLayout() {
       <a href="#main-content" className="skip-link">
         Skip to main content
       </a>
-      <div className="public-site flex flex-col min-h-screen bg-background text-foreground safe-area-x">
+      <div className="flex flex-col min-h-screen bg-background text-foreground safe-area-x">
         <Header />
         <TrialBanner />
         <main id="main-content" className="flex-1 bg-background" tabIndex={-1}>

@@ -31,7 +31,7 @@ export function ProofStrip({
         <h2 className="text-h2 text-foreground font-display">{title}</h2>
         <p className="text-sm text-muted-foreground leading-relaxed">
           Representative client-described outcomes. Named logos ship only with
-          permission, the work is real; the privacy of operators is too.
+          permission — the work is real; the privacy of operators is too.
         </p>
       </div>
 
