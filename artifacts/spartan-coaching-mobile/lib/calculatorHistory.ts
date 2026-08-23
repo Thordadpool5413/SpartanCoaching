@@ -1,7 +1,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { getActiveSyncMemberId, queueMemberSync } from "@/lib/memberSync";
 import { markContinuityChanged } from "@/lib/continuityEvents";
 
-const STORAGE_KEY = "spartan:calculator-reports:v1";
+const storageKeyForMember = (memberId: number | null) => {
+  return memberId ? `spartan:calculator-reports:v1_${memberId}` : "spartan:calculator-reports:v1";
+};
+const STORAGE_KEY = () => storageKeyForMember(getActiveSyncMemberId());
 const MAX_REPORTS = 24;
 
 export type CalculatorReportKind = "activity" | "roi" | "rep-cost" | "branch";
@@ -14,11 +18,10 @@ export type SavedCalculatorReport = {
   report: string;
   createdAt: string;
 };
-
 export type ContinuityCalculatorReport = SavedCalculatorReport & { updatedAt: string };
 
 export async function listCalculatorReports(): Promise<SavedCalculatorReport[]> {
-  const raw = await AsyncStorage.getItem(STORAGE_KEY);
+  const raw = await AsyncStorage.getItem(STORAGE_KEY());
   if (!raw) return [];
   try {
     const value = JSON.parse(raw);
@@ -36,52 +39,38 @@ export async function saveCalculatorReport(
     id: `${input.kind}:${Date.now()}`,
     createdAt: new Date().toISOString(),
   };
-  const current = await listCalculatorReports();
-  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify([item, ...current].slice(0, MAX_REPORTS)));
+  const memberId = getActiveSyncMemberId();
+  const raw = await AsyncStorage.getItem(storageKeyForMember(memberId));
+  const current = raw ? JSON.parse(raw) as SavedCalculatorReport[] : [];
+  await AsyncStorage.setItem(storageKeyForMember(memberId), JSON.stringify([item, ...current].slice(0, MAX_REPORTS)));
+  if (memberId) await queueMemberSync("calculator_report", `calc:${item.id}`, item, { memberId });
   markContinuityChanged();
   return item;
 }
 
 export async function deleteCalculatorReport(id: string) {
-  const current = await listCalculatorReports();
-  await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(current.filter((item) => item.id !== id)));
+  const memberId = getActiveSyncMemberId();
+  const raw = await AsyncStorage.getItem(storageKeyForMember(memberId));
+  const current = raw ? JSON.parse(raw) as SavedCalculatorReport[] : [];
+  await AsyncStorage.setItem(storageKeyForMember(memberId), JSON.stringify(current.filter((item) => item.id !== id)));
+  if (memberId) await queueMemberSync("calculator_report", `calc:${id}`, {}, { isDeleted: true, memberId });
   markContinuityChanged();
 }
 
 export async function getCalculatorContinuityReports(): Promise<Record<string, ContinuityCalculatorReport>> {
   const reports = await listCalculatorReports();
-  return Object.fromEntries(reports.map((report) => [
-    report.id,
-    { ...report, updatedAt: report.createdAt },
-  ]));
+  return Object.fromEntries(reports.map((report) => [report.id, { ...report, updatedAt: report.createdAt }]));
 }
 
-export async function applyCalculatorContinuityReports(
-  remoteReports: Record<string, ContinuityCalculatorReport>,
-): Promise<void> {
+export async function applyCalculatorContinuityReports(reports: Record<string, ContinuityCalculatorReport>) {
   const local = await getCalculatorContinuityReports();
-  const merged = new Map<string, ContinuityCalculatorReport>();
-  for (const id of new Set([...Object.keys(local), ...Object.keys(remoteReports)])) {
-    const localItem = local[id];
-    const remoteItem = remoteReports[id];
-    merged.set(
-      id,
-      !localItem || (remoteItem && Date.parse(remoteItem.updatedAt) > Date.parse(localItem.updatedAt))
-        ? remoteItem!
-        : localItem,
-    );
-  }
-  await AsyncStorage.setItem(
-    STORAGE_KEY,
-    JSON.stringify(
-      [...merged.values()]
-        .sort((left, right) => right.createdAt.localeCompare(left.createdAt))
-        .slice(0, MAX_REPORTS)
-        .map(({ updatedAt: _updatedAt, ...report }) => report),
-    ),
-  );
+  const merged = Object.values({ ...local, ...reports })
+    .sort((a, b) => Date.parse(b.updatedAt) - Date.parse(a.updatedAt))
+    .slice(0, MAX_REPORTS)
+    .map(({ updatedAt: _updatedAt, ...report }) => report);
+  await AsyncStorage.setItem(STORAGE_KEY(), JSON.stringify(merged));
 }
 
-export async function clearCalculatorContinuityReports(): Promise<void> {
-  await AsyncStorage.removeItem(STORAGE_KEY);
+export async function clearCalculatorContinuityReports() {
+  await AsyncStorage.removeItem(STORAGE_KEY());
 }

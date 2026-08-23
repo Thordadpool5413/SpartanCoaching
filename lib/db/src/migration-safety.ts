@@ -867,6 +867,40 @@ export const MIGRATION_CATALOG: readonly MigrationPlan[] = [
     dropsLegacyObjects: false,
   },
   {
+    id: "0023_member_sync_continuity",
+    title: "Member-owned non-clinical continuity records",
+    forwardPath: "lib/db/migrations/0023_member_sync_continuity.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT to_regclass('public.member_sync_records') IS NOT NULL AS ok`,
+      `SELECT count(*) = count(DISTINCT (organization_id, member_id, record_type, record_id)) AS ok FROM member_sync_records`,
+      `SELECT count(*) = count(DISTINCT (organization_id, member_id, mutation_id)) AS ok FROM member_sync_records`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: retain the additive continuity ledger during an application rollback so restored records and idempotency keys remain stable; restore a logical dump only after a confirmed retention review.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["member_sync_records"],
+    dropsLegacyObjects: false,
+  },
+  {
+    id: "0024_member_sync_mutation_tenant_scope",
+    title: "Tenant-scoped continuity idempotency keys",
+    forwardPath: "lib/db/migrations/0024_member_sync_mutation_tenant_scope.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT indexdef LIKE '%organization_id%, %member_id%, %mutation_id%' AS ok FROM pg_indexes WHERE indexname = 'member_sync_mutation_owner_key'`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: retain the tenant-scoped idempotency index during an application rollback; it prevents a transferred member's old retry from exposing a previous tenant record.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["member_sync_records"],
+    dropsLegacyObjects: false,
+  },
+  {
     id: "sales_workflow_001",
     title: "Sales Command Center workflow store (RLS)",
     forwardPath: "lib/hospice-sales-runtime/migrations/001_sales_workflow.sql",
@@ -941,6 +975,8 @@ export const MIGRATE_ONLY_LIB_DB_TABLES = [
   "member_offboarding_lifecycle",
   "stripe_webhook_events",
   "stripe_webhook_notifications",
+  // 0023 continuity
+  "member_sync_records",
   // 0012
   "sessions",
   "users",

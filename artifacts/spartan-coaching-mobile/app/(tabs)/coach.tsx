@@ -291,9 +291,12 @@ export default function CoachScreen() {
   async function saveCommitment() {
     if (!feedback || !commitment.trim() || busy) return;
     setBusy(true);
+    const savedCommitment = commitment.trim();
     try {
-      await saveCoachMemory("commitment", commitment.trim());
-      if (user?.member?.id) await cacheCommitment(user.member.id, commitment.trim());
+      // Cache + account sync first: the local mutation remains queued on a
+      // weak connection, while the existing Coach memory stays in step online.
+      if (user?.member?.id) await cacheCommitment(user.member.id, savedCommitment);
+      await saveCoachMemory("commitment", savedCommitment);
       void trackProductOutcome("next_action_confirmation", { toolId: "spartan_coach", platform: "ios" });
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       Alert.alert(
@@ -303,8 +306,10 @@ export default function CoachScreen() {
       );
     } catch {
       Alert.alert(
-        "Commitment not saved",
-        "Try again when your connection is available.",
+        user?.member?.id ? "Commitment saved locally" : "Commitment not saved",
+        user?.member?.id
+          ? "It will sync to your account when you reconnect."
+          : "Sign in to keep this commitment across devices.",
       );
     } finally {
       setBusy(false);

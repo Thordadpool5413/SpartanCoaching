@@ -15,8 +15,12 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { ApiError, apiPost } from "@/lib/api";
 import { OFFLINE_STORAGE_BLOCKED_TOOL_IDS } from "@/lib/offlineArchitecture";
 import { saveToolLastResult } from "@/lib/toolDraftCache";
+import { getActiveSyncMemberId } from "@/lib/memberSync";
 
-const QUEUE_KEY = "hsp_offline_generate_queue_v1";
+const QUEUE_KEY = () => {
+  const memberId = getActiveSyncMemberId();
+  return memberId ? `hsp_offline_generate_queue_v1_${memberId}` : "hsp_offline_generate_queue_v1";
+};
 const MAX_ATTEMPTS = 5;
 const MAX_QUEUE = 20;
 
@@ -86,7 +90,7 @@ export function isOfflineQueueAllowed(path: string, toolId?: string): boolean {
 
 export async function listQueuedGenerates(): Promise<QueuedGenerate[]> {
   try {
-    const raw = await AsyncStorage.getItem(QUEUE_KEY);
+    const raw = await AsyncStorage.getItem(QUEUE_KEY());
     if (!raw) return [];
     const list = JSON.parse(raw) as QueuedGenerate[];
     if (!Array.isArray(list)) return [];
@@ -103,7 +107,7 @@ export async function listQueuedGenerates(): Promise<QueuedGenerate[]> {
 
 async function writeQueue(list: QueuedGenerate[]): Promise<void> {
   await AsyncStorage.setItem(
-    QUEUE_KEY,
+    QUEUE_KEY(),
     JSON.stringify(list.slice(0, MAX_QUEUE)),
   );
 }

@@ -2,10 +2,13 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system/legacy";
 import { Platform } from "react-native";
 import { getSessionToken } from "@/lib/api";
+import { getActiveSyncMemberId, queueMemberSync } from "@/lib/memberSync";
 import { markContinuityChanged } from "@/lib/continuityEvents";
 
-const INDEX_KEY = "spartan_library_downloads_v1";
-const RESTORABLE_INDEX_KEY = "spartan_library_restore_metadata_v1";
+const indexKeyForMember = (memberId: number | null) => {
+  return memberId ? `spartan_library_downloads_v1_${memberId}` : "spartan_library_downloads_v1";
+};
+const INDEX_KEY = () => indexKeyForMember(getActiveSyncMemberId());
 const DIRECTORY_NAME = "spartan-library";
 
 export type DownloadedLibraryItem = {
@@ -16,12 +19,11 @@ export type DownloadedLibraryItem = {
   description?: string;
   content?: string;
   downloadedAt: string;
+  /** Restored account metadata is not a local file until re-downloaded. */
+  availability?: "local" | "unavailable";
+  syncRecordId?: string;
 };
-
-export type RestorableLibraryItem = Pick<
-  DownloadedLibraryItem,
-  "sourceUrl" | "title" | "kind" | "description"
-> & { updatedAt: string };
+export type RestorableLibraryItem = Pick<DownloadedLibraryItem, "sourceUrl" | "title" | "kind" | "description" | "downloadedAt"> & { updatedAt: string };
 
 function stableId(value: string): string {
   let hash = 2166136261;
@@ -30,6 +32,10 @@ function stableId(value: string): string {
     hash = Math.imul(hash, 16777619);
   }
   return (hash >>> 0).toString(16).padStart(8, "0");
+}
+
+function syncRecordId(sourceUrl: string): string {
+  return `library:${stableId(sourceUrl)}`;
 }
 
 export function libraryDownloadFilename(sourceUrl: string, kind: DownloadedLibraryItem["kind"]): string {
@@ -44,66 +50,17 @@ export function libraryDownloadFilename(sourceUrl: string, kind: DownloadedLibra
   return `${stableId(sourceUrl)}.${extension}`;
 }
 
-async function readIndex(): Promise<Record<string, DownloadedLibraryItem>> {
+async function readIndex(memberId = getActiveSyncMemberId()): Promise<Record<string, DownloadedLibraryItem>> {
   try {
-    const raw = await AsyncStorage.getItem(INDEX_KEY);
+    const raw = await AsyncStorage.getItem(indexKeyForMember(memberId));
     return raw ? JSON.parse(raw) as Record<string, DownloadedLibraryItem> : {};
   } catch {
     return {};
   }
 }
 
-async function writeIndex(value: Record<string, DownloadedLibraryItem>): Promise<void> {
-  await AsyncStorage.setItem(INDEX_KEY, JSON.stringify(value));
-}
-
-async function readRestorableIndex(): Promise<Record<string, RestorableLibraryItem>> {
-  try {
-    const raw = await AsyncStorage.getItem(RESTORABLE_INDEX_KEY);
-    return raw ? JSON.parse(raw) as Record<string, RestorableLibraryItem> : {};
-  } catch {
-    return {};
-  }
-}
-
-export async function listRestorableLibraryItems(): Promise<RestorableLibraryItem[]> {
-  const items = await readRestorableIndex();
-  return Object.values(items).sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
-}
-
-export async function getLibraryContinuityDownloads(): Promise<Record<string, RestorableLibraryItem>> {
-  const [saved, restored] = await Promise.all([listDownloadedLibraryItems(), readRestorableIndex()]);
-  const local = Object.fromEntries(saved.map((item) => [item.sourceUrl, {
-    sourceUrl: item.sourceUrl,
-    title: item.title,
-    kind: item.kind,
-    description: item.description,
-    updatedAt: item.downloadedAt,
-  }]));
-  return { ...restored, ...local };
-}
-
-export async function applyLibraryContinuityDownloads(
-  remoteDownloads: Record<string, RestorableLibraryItem>,
-): Promise<void> {
-  const local = await getLibraryContinuityDownloads();
-  const merged: Record<string, RestorableLibraryItem> = {};
-  for (const sourceUrl of new Set([...Object.keys(local), ...Object.keys(remoteDownloads)])) {
-    const localItem = local[sourceUrl];
-    const remoteItem = remoteDownloads[sourceUrl];
-    merged[sourceUrl] = !localItem || (remoteItem && Date.parse(remoteItem.updatedAt) > Date.parse(localItem.updatedAt))
-      ? remoteItem!
-      : localItem;
-  }
-  await AsyncStorage.setItem(RESTORABLE_INDEX_KEY, JSON.stringify(merged));
-}
-
-export async function clearLibraryContinuityDownloads(): Promise<void> {
-  const index = await readIndex();
-  for (const item of Object.values(index)) {
-    if (item.localUri) await FileSystem.deleteAsync(item.localUri, { idempotent: true }).catch(() => undefined);
-  }
-  await AsyncStorage.multiRemove([INDEX_KEY, RESTORABLE_INDEX_KEY]);
+async function writeIndex(value: Record<string, DownloadedLibraryItem>, memberId = getActiveSyncMemberId()): Promise<void> {
+  await AsyncStorage.setItem(indexKeyForMember(memberId), JSON.stringify(value));
 }
 
 async function directoryUri(): Promise<string> {
@@ -118,6 +75,7 @@ export async function getDownloadedLibraryItem(sourceUrl: string): Promise<Downl
   const index = await readIndex();
   const item = index[sourceUrl];
   if (!item) return null;
+  if (item.availability === "unavailable") return item;
   if (item.content) return item;
   if (!item.localUri) {
     delete index[sourceUrl];
@@ -142,6 +100,10 @@ export async function listDownloadedLibraryItems(): Promise<DownloadedLibraryIte
       current.push(item);
       continue;
     }
+    if (item.availability === "unavailable") {
+      current.push(item);
+      continue;
+    }
     const info = item.localUri ? await FileSystem.getInfoAsync(item.localUri) : { exists: false };
     if (info.exists) current.push(item);
     else {
@@ -152,6 +114,28 @@ export async function listDownloadedLibraryItems(): Promise<DownloadedLibraryIte
 
   if (changed) await writeIndex(index);
   return current.sort((a, b) => b.downloadedAt.localeCompare(a.downloadedAt));
+}
+
+export async function getLibraryContinuityDownloads(): Promise<Record<string, RestorableLibraryItem>> {
+  const index = await readIndex();
+  return Object.fromEntries(Object.values(index).map((item) => [item.sourceUrl, {
+    sourceUrl: item.sourceUrl, title: item.title, kind: item.kind, description: item.description, downloadedAt: item.downloadedAt, updatedAt: item.downloadedAt,
+  }]));
+}
+
+export async function applyLibraryContinuityDownloads(items: Record<string, RestorableLibraryItem>) {
+  const index = await readIndex();
+  for (const item of Object.values(items)) {
+    if (!index[item.sourceUrl]) {
+      const { updatedAt: _updatedAt, ...download } = item;
+      index[item.sourceUrl] = { ...download, availability: "unavailable", syncRecordId: syncRecordId(item.sourceUrl) };
+    }
+  }
+  await writeIndex(index);
+}
+
+export async function clearLibraryContinuityDownloads() {
+  await AsyncStorage.removeItem(INDEX_KEY());
 }
 
 export async function saveTextLibraryItem(input: {
@@ -168,13 +152,20 @@ export async function saveTextLibraryItem(input: {
     description: input.description,
     content: input.content,
     downloadedAt: new Date().toISOString(),
+    availability: "local",
+    syncRecordId: syncRecordId(input.sourceUrl),
   };
-  const index = await readIndex();
+  const memberId = getActiveSyncMemberId();
+  const index = await readIndex(memberId);
   index[input.sourceUrl] = item;
-  await writeIndex(index);
-  const restored = await readRestorableIndex();
-  delete restored[input.sourceUrl];
-  await AsyncStorage.setItem(RESTORABLE_INDEX_KEY, JSON.stringify(restored));
+  await writeIndex(index, memberId);
+  if (memberId) await queueMemberSync("library_download", item.syncRecordId!, {
+    sourceUrl: item.sourceUrl,
+    title: item.title,
+    kind: item.kind,
+    description: item.description || "",
+    downloadedAt: item.downloadedAt,
+  }, { memberId });
   markContinuityChanged();
   return item;
 }
@@ -199,26 +190,37 @@ export async function downloadLibraryItem(input: {
     ...input,
     localUri,
     downloadedAt: new Date().toISOString(),
+    availability: "local",
+    syncRecordId: syncRecordId(input.sourceUrl),
   };
-  const index = await readIndex();
+  const memberId = getActiveSyncMemberId();
+  const index = await readIndex(memberId);
   index[input.sourceUrl] = item;
-  await writeIndex(index);
-  const restored = await readRestorableIndex();
-  delete restored[input.sourceUrl];
-  await AsyncStorage.setItem(RESTORABLE_INDEX_KEY, JSON.stringify(restored));
+  await writeIndex(index, memberId);
+  if (memberId) await queueMemberSync("library_download", item.syncRecordId!, {
+    sourceUrl: item.sourceUrl,
+    title: item.title,
+    kind: item.kind,
+    description: item.description || "",
+    downloadedAt: item.downloadedAt,
+  }, { memberId });
   markContinuityChanged();
   return item;
 }
 
 export async function removeDownloadedLibraryItem(sourceUrl: string): Promise<void> {
   if (Platform.OS === "web") return;
-  const index = await readIndex();
+  const memberId = getActiveSyncMemberId();
+  const index = await readIndex(memberId);
   const item = index[sourceUrl];
   if (item?.localUri) await FileSystem.deleteAsync(item.localUri, { idempotent: true });
   delete index[sourceUrl];
-  await writeIndex(index);
-  const restored = await readRestorableIndex();
-  delete restored[sourceUrl];
-  await AsyncStorage.setItem(RESTORABLE_INDEX_KEY, JSON.stringify(restored));
+  await writeIndex(index, memberId);
+  if (memberId) await queueMemberSync(
+    "library_download",
+    item?.syncRecordId || syncRecordId(sourceUrl),
+    {},
+    { isDeleted: true, memberId },
+  );
   markContinuityChanged();
 }

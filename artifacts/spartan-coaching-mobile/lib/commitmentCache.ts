@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { queueMemberSync } from "@/lib/memberSync";
 
 const key = (memberId: number) => `spartan_private_commitment_v1_${memberId}`;
 
@@ -14,6 +15,10 @@ export async function cacheCommitment(memberId: number, commitment: string | nul
   try {
     if (commitment?.trim()) await AsyncStorage.setItem(key(memberId), commitment.trim());
     else await AsyncStorage.removeItem(key(memberId));
+    await queueMemberSync("commitment", "current", { value: commitment?.trim() || "" }, {
+      isDeleted: !commitment?.trim(),
+      memberId,
+    });
   } catch {
     // Home remains usable even when device storage is unavailable.
   }

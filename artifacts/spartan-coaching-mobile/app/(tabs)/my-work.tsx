@@ -1,49 +1,43 @@
 import { Feather } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SpartanHeader } from "@/components/ui/SpartanHeader";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
 import { loadCachedCommitment } from "@/lib/commitmentCache";
-import {
-  listDownloadedLibraryItems,
-  listRestorableLibraryItems,
-  type DownloadedLibraryItem,
-  type RestorableLibraryItem,
-} from "@/lib/libraryDownloads";
+import { listDownloadedLibraryItems, type DownloadedLibraryItem } from "@/lib/libraryDownloads";
 import { font } from "@/lib/typography";
 import { deleteCalculatorReport, listCalculatorReports, type SavedCalculatorReport } from "@/lib/calculatorHistory";
-import { hydrateMemberContinuity } from "@/lib/memberContinuity";
+import { getMemberSyncFailureCount, getMemberSyncStatus, subscribeMemberSyncStatus, type MemberSyncStatus } from "@/lib/memberSync";
 
 export default function MyWorkScreen() {
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
-  const { user, canUseFieldKit, canUseElite, continuityStatus } = useAuth();
+  const { user, canUseFieldKit, canUseElite } = useAuth();
   const [commitment, setCommitment] = useState<string | null>(null);
   const [downloads, setDownloads] = useState<DownloadedLibraryItem[]>([]);
   const [reports, setReports] = useState<SavedCalculatorReport[]>([]);
-  const [restorableDownloads, setRestorableDownloads] = useState<RestorableLibraryItem[]>([]);
+  const [syncStatus, setSyncStatus] = useState<MemberSyncStatus>(getMemberSyncStatus());
   const topPad = Platform.OS === "web" ? 54 : insets.top;
   const bottomPad = Platform.OS === "web" ? 30 : insets.bottom + 24;
 
+  useEffect(() => subscribeMemberSyncStatus(setSyncStatus), []);
+
   useFocusEffect(useCallback(() => {
-    void (async () => {
-      if (user?.member?.id) await hydrateMemberContinuity(user.member.id);
-      const [cachedCommitment, savedDownloads, savedReports, restoreMetadata] = await Promise.all([
-        user?.member?.id ? loadCachedCommitment(user.member.id) : Promise.resolve(null),
-        listDownloadedLibraryItems(),
-        listCalculatorReports(),
-        listRestorableLibraryItems(),
-      ]);
-      setCommitment(cachedCommitment);
-      setDownloads(savedDownloads);
-      setReports(savedReports);
-      setRestorableDownloads(restoreMetadata.filter((item) => !savedDownloads.some((download) => download.sourceUrl === item.sourceUrl)));
-    })();
+    if (user?.member?.id) void loadCachedCommitment(user.member.id).then(setCommitment);
+    void listDownloadedLibraryItems().then(setDownloads);
+    void listCalculatorReports().then(setReports);
   }, [user?.member?.id]));
+
+  useEffect(() => {
+    if (syncStatus !== "synced") return;
+    if (user?.member?.id) void loadCachedCommitment(user.member.id).then(setCommitment);
+    void listDownloadedLibraryItems().then(setDownloads);
+    void listCalculatorReports().then(setReports);
+  }, [syncStatus, user?.member?.id]);
 
   const openDownload = (item: DownloadedLibraryItem) => {
     router.push({
@@ -54,6 +48,9 @@ export default function MyWorkScreen() {
         kind: item.kind,
         description: item.description || "",
         downloadKey: item.sourceUrl,
+        articleId: item.sourceUrl.startsWith("spartan://article/")
+          ? item.sourceUrl.replace("spartan://article/", "")
+          : undefined,
       },
     } as never);
   };
@@ -71,20 +68,6 @@ export default function MyWorkScreen() {
         <View style={styles.badge}><Text style={styles.badgeText}>YOUR CONTINUITY</Text></View>
         <Text style={styles.title}>Pick up where you left off.</Text>
         <Text style={styles.subtitle}>Commitments, saved plans, downloads, and approved outputs stay organized here.</Text>
-         <View style={styles.syncLine}>
-           <Feather
-             name={continuityStatus === "synced" ? "check-circle" : continuityStatus === "unavailable" ? "cloud-off" : "refresh-cw"}
-             size={13}
-             color={continuityStatus === "unavailable" ? colors.warning : colors.primary}
-           />
-           <Text style={[styles.syncText, continuityStatus === "unavailable" && { color: colors.warning }]}>
-             {continuityStatus === "synced"
-               ? "Backed up across your signed-in devices"
-               : continuityStatus === "unavailable"
-                 ? "Backup will retry when your connection returns"
-                 : "Backing up your approved saved work…"}
-           </Text>
-         </View>
 
         {!canUseFieldKit ? (
           <View style={styles.emptyCard}>
@@ -100,9 +83,10 @@ export default function MyWorkScreen() {
           <>
             <Text style={styles.sectionLabel}>CURRENT COMMITMENT</Text>
             <Pressable style={styles.commitmentCard} onPress={() => router.push((canUseElite ? "/(tabs)/coach" : "/resource-work") as never)}>
-              <View style={styles.cardTop}><Feather name="check-circle" size={22} color={colors.primary} /><Text style={styles.privateLabel}>PRIVATE</Text></View>
+              <View style={styles.cardTop}><Feather name="check-circle" size={22} color={colors.primary} /><Text style={styles.privateLabel}>PRIVATE · {syncStatus === "synced" ? "SYNCED" : syncStatus === "pending" ? "PENDING" : "UNAVAILABLE"}</Text></View>
               <Text style={styles.commitmentTitle}>{commitment || "No active commitment yet"}</Text>
               <Text style={styles.commitmentBody}>{commitment ? (canUseElite ? "Open Coach to review or change it." : "Open your weekly plan to follow through.") : (canUseElite ? "Use Coach or the weekly planner to choose one clear next move." : "Use the weekly planner to choose one clear next move.")}</Text>
+              {getMemberSyncFailureCount() ? <Text style={styles.commitmentBody}>Some sensitive saved work stays only on this device and cannot be synced.</Text> : null}
             </Pressable>
 
             <Text style={styles.sectionLabel}>SAVED WORK</Text>
@@ -124,14 +108,10 @@ export default function MyWorkScreen() {
               <Pressable onPress={() => router.push("/(tabs)/tools?view=library" as never)} hitSlop={8}><Text style={styles.openLibrary}>Open Library</Text></Pressable>
             </View>
             {downloads.length ? downloads.slice(0, 4).map((item) => (
-              <WorkRow key={item.sourceUrl} icon={item.kind === "audio" ? "headphones" : "file-text"} title={item.title} body="Available offline on this iPhone." onPress={() => openDownload(item)} />
-             )) : null}
-             {restorableDownloads.slice(0, Math.max(0, 4 - downloads.length)).map((item) => (
-               <WorkRow key={`restore:${item.sourceUrl}`} icon={item.kind === "audio" ? "headphones" : "download-cloud"} title={item.title} body="Saved on your account — re-download from Library on this iPhone." onPress={() => router.push("/(tabs)/tools?view=library" as never)} />
-             ))}
-             {!downloads.length && !restorableDownloads.length ? (
+              <WorkRow key={item.sourceUrl} icon={item.kind === "audio" ? "headphones" : "file-text"} title={item.title} body={item.availability === "unavailable" ? "Saved to your account. Download again for offline use." : "Available offline on this iPhone."} onPress={() => openDownload(item)} />
+            )) : (
               <View style={styles.downloadEmpty}><Text style={styles.downloadEmptyText}>Saved Library items will appear here for offline access.</Text></View>
-             ) : null}
+            )}
           </>
         )}
       </View>
@@ -173,8 +153,6 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     badgeText: { color: colors.primary, fontSize: 9, letterSpacing: 1, ...font("bold") },
     title: { color: colors.foreground, fontSize: 38, lineHeight: 44, letterSpacing: -1.3, marginTop: 22, ...font("heavy") },
     subtitle: { color: colors.mutedForeground, fontSize: 15, lineHeight: 22, marginTop: 5, ...font("regular") },
-    syncLine: { flexDirection: "row", alignItems: "center", gap: 7, marginTop: 13 },
-    syncText: { color: colors.primary, fontSize: 11, ...font("semibold") },
     sectionLabel: { color: colors.primary, fontSize: 10, letterSpacing: 1.8, marginTop: 36, marginBottom: 14, ...font("bold") },
     sectionHeading: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
     openLibrary: { color: colors.primary, fontSize: 11, marginTop: 20, ...font("bold") },

@@ -64,8 +64,12 @@ export default function HomeScreen() {
         .then((items) => {
           if (cancelled) return;
           const latest = items.find((item) => item.category === "commitment" && item.enabled);
-          setCommitment(latest?.content ?? null);
-          void cacheCommitment(user.member.id, latest?.content ?? null);
+          // A restored continuity record is newer than the legacy Coach-memory
+          // endpoint until Coach explicitly saves another commitment.
+          if (latest?.content) {
+            setCommitment(latest.content);
+            void cacheCommitment(user.member.id, latest.content);
+          }
         })
         .catch(() => undefined);
     }

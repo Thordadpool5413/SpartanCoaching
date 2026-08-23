@@ -8,14 +8,7 @@ import {
 } from "@/lib/api";
 import { hasContractedOrganizationAdminAccess, hasEliteMembership, resolveMembershipTier, type MembershipTier } from "@workspace/field-kit-catalog";
 import { claimCurrentApplePurchases } from "@/lib/applePurchaseSession";
-import {
-  getMemberContinuityStatus,
-  hydrateMemberContinuity,
-  onMemberContinuityStatusChange,
-  scheduleMemberContinuitySync,
-  subscribeAuthenticatedMemberContinuity,
-  type MemberContinuityStatus,
-} from "@/lib/memberContinuity";
+import { setActiveSyncMember, syncMemberData } from "@/lib/memberSync";
 
 type AuthContextValue = {
   user: MobileAuthUser | null;
@@ -25,7 +18,6 @@ type AuthContextValue = {
   canUseElite: boolean;
   canManageOrganization: boolean;
   membershipTier: MembershipTier;
-  continuityStatus: MemberContinuityStatus;
   refresh: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   register: (input: { name: string; email: string; password: string }) => Promise<void>;
@@ -42,13 +34,13 @@ function shouldClaimApplePurchase(data: MobileAuthUser) {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<MobileAuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
-  const [continuityStatus, setContinuityStatus] = useState<MemberContinuityStatus>(getMemberContinuityStatus());
 
   const refresh = useCallback(async () => {
     try {
       const me = await fetchMeMobile();
       setUser(me);
-      if (me?.member?.id) void hydrateMemberContinuity(me.member.id);
+      setActiveSyncMember(me?.member.id ?? null);
+      if (me?.member.id) void syncMemberData(me.member.id);
     } catch {
       // Keep last known session on network/5xx (fetchMeMobile only nulls on 401).
     } finally {
@@ -60,24 +52,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     refresh();
   }, [refresh]);
 
-  useEffect(() => onMemberContinuityStatusChange(setContinuityStatus), []);
-
-  useEffect(() => {
-    if (!user?.member?.id) return;
-    const unsubscribe = subscribeAuthenticatedMemberContinuity();
-    scheduleMemberContinuitySync();
-    return unsubscribe;
-  }, [user?.member?.id]);
-
   const login = useCallback(async (email: string, password: string) => {
     const data = await loginMobile(email, password);
-    const authenticated = {
+    setUser({
       member: data.member,
       organization: data.organization,
       fieldKit: data.fieldKit,
-    };
-    setUser(authenticated);
-    void hydrateMemberContinuity(authenticated.member.id);
+    });
+    setActiveSyncMember(data.member.id);
+    void syncMemberData(data.member.id);
     try {
       if (shouldClaimApplePurchase(data) && await claimCurrentApplePurchases()) {
         const refreshed = await fetchMeMobile();
@@ -90,13 +73,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const register = useCallback(async (input: { name: string; email: string; password: string }) => {
     const data = await registerMobile(input);
-    const authenticated = {
+    setUser({
       member: data.member,
       organization: data.organization,
       fieldKit: data.fieldKit,
-    };
-    setUser(authenticated);
-    void hydrateMemberContinuity(authenticated.member.id);
+    });
+    setActiveSyncMember(data.member.id);
+    void syncMemberData(data.member.id);
     try {
       if (shouldClaimApplePurchase(data) && await claimCurrentApplePurchases()) {
         const refreshed = await fetchMeMobile();
@@ -110,6 +93,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const logout = useCallback(async () => {
     await logoutMobile();
     setUser(null);
+    setActiveSyncMember(null);
   }, []);
 
   const value = useMemo(
@@ -132,7 +116,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           billingPlan: user?.organization?.billingPlan,
         }),
         membershipTier: resolveMembershipTier(membershipInput),
-        continuityStatus,
         refresh,
         login,
         register,
@@ -140,7 +123,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser,
       };
     },
-    [user, isLoading, continuityStatus, refresh, login, register, logout],
+    [user, isLoading, refresh, login, register, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

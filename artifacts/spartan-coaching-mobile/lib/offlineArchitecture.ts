@@ -20,6 +20,7 @@ export type OfflineWorkflowId =
   | "classic_field_generate"
   | "tool_draft_and_last_result"
   | "offline_generate_queue"
+  | "member_continuity"
   | "saved_responses_view"
   | "saved_responses_write"
   | "command_center"
@@ -77,6 +78,14 @@ export const OFFLINE_WORKFLOW_MATRIX: readonly OfflineWorkflowSpec[] = [
     capability: "queued_write",
     aiWorksOffline: false,
     notes: "AsyncStorage queue with de-dupe, max attempts, mutex flush, PHI allowlist.",
+  },
+  {
+    id: "member_continuity",
+    label: "Saved work and commitments",
+    capability: "queued_write",
+    aiWorksOffline: false,
+    notes:
+      "Non-clinical commitments, Field drafts/results, calculator reports, and library download metadata sync to the signed-in member. Last client edit wins; equal timestamps use mutation ID. Clinical/vault content and generate request bodies never sync.",
   },
   {
     id: "saved_responses_view",
