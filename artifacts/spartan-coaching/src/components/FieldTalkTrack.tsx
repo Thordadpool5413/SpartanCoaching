@@ -3,6 +3,7 @@ import { MarkdownContent } from "@/components/MarkdownContent";
 import { ToolResultPanel } from "@/components/ToolResultPanel";
 import { ReminderPicker } from "@/components/ReminderPicker";
 import { FIELD_KIT_PHI } from "@/lib/complianceCopy";
+import { ToolResultActions } from "@/components/ToolResultActions";
 
 /**
  * Field-ready talk-track presentation for objection-style AI outputs.
@@ -19,6 +20,9 @@ export function FieldTalkTrack({
   citations,
   copyTestId,
   readAloudTestId,
+  nextToolHref = "/tools/role-play",
+  nextToolLabel = "Practice this in Role-Play",
+  toolId = "objections",
 }: {
   title?: string;
   content?: string;
@@ -31,6 +35,9 @@ export function FieldTalkTrack({
   citations?: Array<{ id: string; title: string; category: string }>;
   copyTestId?: string;
   readAloudTestId?: string;
+  nextToolHref?: string;
+  nextToolLabel?: string;
+  toolId?: string;
 }) {
   return (
     <ToolResultPanel
@@ -58,6 +65,24 @@ export function FieldTalkTrack({
             )}
             {reminderTitle && <ReminderPicker title={reminderTitle} />}
           </div>
+        ) : undefined
+      }
+      actions={
+        content ? (
+          <ToolResultActions
+            toolId={toolId}
+            title="Turn the response into field work"
+            description="Say it once aloud, then use the next action to prepare for the real conversation."
+            actions={[
+              {
+                id: "next-tool",
+                label: nextToolLabel,
+                href: nextToolHref,
+              },
+            ]}
+            persistenceNote="This talk track is shown for this session. Copy it if you need a working copy; it is not automatically saved to My Work."
+            testId="talk-track-next-action"
+          />
         ) : undefined
       }
     >

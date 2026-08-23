@@ -39,6 +39,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { ToolResultPanel } from "@/components/ToolResultPanel";
+import { ToolResultActions } from "@/components/ToolResultActions";
 import { SEO } from "@/components/SEO";
 import { cn } from "@/lib/utils";
 import { CLINICAL_VAULT } from "@/lib/complianceCopy";
@@ -966,6 +967,51 @@ export default function AiToolPage() {
                     Download
                   </Button>
                 </div>
+              ) : undefined
+            }
+            actions={
+              run?.output != null ? (
+                <ToolResultActions
+                  toolId={tool.id}
+                  description={
+                    tool.containsPhi
+                      ? "Take the next operational step without carrying any clinical detail into another tool."
+                      : "Move this result into the next piece of field work while the decision is still clear."
+                  }
+                  actions={(() => {
+                    const connection = getSpartanAiToolConnections(tool.id)[0];
+                    const target = connection ? getSpartanAiTool(connection.to) : null;
+                    if (connection && target) {
+                      return [
+                        {
+                          id: `continue-${connection.to}`,
+                          label: connection.label,
+                          onClick: () => {
+                            stageAiToolHandoff({
+                              sourceToolId: tool.id,
+                              targetToolId: connection.to,
+                              output: run.output,
+                            });
+                            navigate(target.webPath);
+                          },
+                        },
+                      ];
+                    }
+                    return [
+                      {
+                        id: "open-command-center",
+                        label: "Open Sales Command Center",
+                        href: "/tools/sales-workflow",
+                      },
+                    ];
+                  })()}
+                  persistenceNote={
+                    tool.containsPhi
+                      ? "This is a one-time, deidentified result. It is not saved to history or synced to another device; a download is a local copy."
+                      : "This result is retained in Recent runs for your member account. Downloads are local copies and do not create a separate saved record."
+                  }
+                  testId="ai-tool-result-actions"
+                />
               ) : undefined
             }
           >

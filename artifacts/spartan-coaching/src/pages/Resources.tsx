@@ -19,6 +19,8 @@ import { FieldKitChrome } from "@/components/FieldKitChrome";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { PublicConversionPanel } from "@/components/PublicConversionPanel";
+import { ToolResultActions } from "@/components/ToolResultActions";
+import { trackProductOutcome } from "@/lib/analytics";
 
 type ProviderResourceItem = {
   id: number;
@@ -135,6 +137,11 @@ export default function Resources() {
     // Members already inside Membership — no lead gate
     if (canUseFieldKit) {
       trackEvent("resource_download", resource.title);
+      trackProductOutcome("resource_completion", {
+        resourceId: String(resource.id),
+        surface: "resource-library",
+        platform: "web",
+      });
       window.open(url, "_blank");
       return;
     }
@@ -150,6 +157,11 @@ export default function Resources() {
     onSuccess: () => {
       if (selectedResource) {
         trackEvent("resource_download", selectedResource.title);
+        trackProductOutcome("resource_completion", {
+          resourceId: String(selectedResource.id),
+          surface: "resource-library",
+          platform: "web",
+        });
         window.open(selectedResource.fileUrl, '_blank');
       }
       setGateOpen(false);
@@ -276,6 +288,22 @@ export default function Resources() {
           </div>
         </div>
       </Card>
+      <div className="mb-12">
+        <ToolResultActions
+          toolId="resources"
+          title="Turn a resource into field work"
+          description="Open the guide or template for your next job, then use Tools to prepare the conversation and plan the follow-through."
+          actions={[
+            {
+              id: "open-tools",
+              label: "Open Tools",
+              href: "/tools",
+            },
+          ]}
+          persistenceNote="Opening or downloading a resource does not save it to My Work or sync it to iPhone. Return to this library to access the current copy."
+          testId="resources-next-action"
+        />
+      </div>
 
       {canUseFieldKit && (
         <div className="mb-12 space-y-4" data-testid="provider-resource-library">

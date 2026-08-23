@@ -16,6 +16,7 @@ import { downloadPdf, markdownToSections, type EmailPdfPayload } from "@/lib/dow
 import { useLeadGate } from "@/hooks/use-lead-gate";
 import { LeadGateDialog } from "@/components/LeadGateDialog";
 import { ReminderPicker } from "@/components/ReminderPicker";
+import { ToolResultActions } from "@/components/ToolResultActions";
 
 export default function Playbooks() {
   const { toast } = useToast();
@@ -274,6 +275,18 @@ export default function Playbooks() {
               <div className="mt-6 pt-4 border-t">
                 <ReminderPicker title="Follow up on playbook" />
               </div>
+              <ToolResultActions
+                toolId="playbooks"
+                description="Choose the hardest moment in this plan and rehearse it before the next visit."
+                actions={[
+                  {
+                    id: "practice-hardest-moment",
+                    label: "Practice in Role-Play",
+                    href: "/tools/role-play",
+                  },
+                ]}
+                persistenceNote="This playbook is not saved automatically. Copy, print, or download it when you need a working field copy."
+              />
             </Card>
           )}
 

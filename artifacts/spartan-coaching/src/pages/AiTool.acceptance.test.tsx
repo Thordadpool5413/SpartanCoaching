@@ -17,7 +17,18 @@ import AiToolPage from "./AiTool";
 const routeState = vi.hoisted(() => ({ toolId: "" }));
 
 vi.mock("wouter", () => ({
-  Link: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  Link: ({
+    children,
+    href,
+    ...props
+  }: {
+    children: React.ReactNode;
+    href: string;
+  }) => (
+    <a href={href} {...props}>
+      {children}
+    </a>
+  ),
   useParams: () => ({ toolId: routeState.toolId }),
   useLocation: () => ["/tools/ai/test", vi.fn()],
 }));
@@ -142,6 +153,10 @@ describe("AI tool web acceptance", () => {
       });
       expect(await screen.findByText(/^Acceptance$/i)).toBeTruthy();
       expect(screen.getByText("passed")).toBeTruthy();
+      expect(screen.getByTestId("ai-tool-result-actions")).toBeTruthy();
+      expect(
+        screen.getByText(/one-time, deidentified result|retained in recent runs/i),
+      ).toBeTruthy();
     },
   );
 
