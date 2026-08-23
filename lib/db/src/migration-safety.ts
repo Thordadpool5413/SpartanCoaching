@@ -814,6 +814,42 @@ export const MIGRATION_CATALOG: readonly MigrationPlan[] = [
     dropsLegacyObjects: false,
   },
   {
+    id: "0021_stripe_webhook_analytics_retention",
+    title: "Stripe webhook replay ledger and bounded analytics indexes",
+    forwardPath: "lib/db/migrations/0021_stripe_webhook_analytics_retention.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT to_regclass('public.stripe_webhook_events') IS NOT NULL AS ok`,
+      `SELECT count(*) = count(DISTINCT id) AS ok FROM stripe_webhook_events`,
+      `SELECT to_regclass('public.visitors_visited_at_idx') IS NOT NULL AS ok`,
+      `SELECT to_regclass('public.event_tracking_created_at_idx') IS NOT NULL AS ok`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: leave this additive replay ledger and indexes in place while rolling application code back; restore from backup only if removal is required after confirmed data-retention review.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["stripe_webhook_events", "visitors", "event_tracking"],
+    dropsLegacyObjects: false,
+  },
+  {
+    id: "0022_stripe_webhook_notification_dedup",
+    title: "At-most-once billing notification ledger",
+    forwardPath: "lib/db/migrations/0022_stripe_webhook_notification_dedup.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT to_regclass('public.stripe_webhook_notifications') IS NOT NULL AS ok`,
+      `SELECT count(*) = count(DISTINCT (stripe_event_id, notification_type)) AS ok FROM stripe_webhook_notifications`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: retain the additive notification ledger during an application rollback so webhook retries cannot re-send prior customer or administrator messages.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["stripe_webhook_notifications"],
+    dropsLegacyObjects: false,
+  },
+  {
     id: "sales_workflow_001",
     title: "Sales Command Center workflow store (RLS)",
     forwardPath: "lib/hospice-sales-runtime/migrations/001_sales_workflow.sql",
@@ -886,6 +922,8 @@ export const MIGRATE_ONLY_LIB_DB_TABLES = [
   "member_notification_prefs",
   "member_notifications",
   "member_offboarding_lifecycle",
+  "stripe_webhook_events",
+  "stripe_webhook_notifications",
   // 0012
   "sessions",
   "users",

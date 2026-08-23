@@ -154,6 +154,11 @@ async function pruneExcessSessions(memberId: number) {
   }
 }
 
+/** End every active browser/mobile session after a credential reset or change. */
+async function invalidateMemberSessions(memberId: number) {
+  await db.delete(clientSessions).where(eq(clientSessions.memberId, memberId));
+}
+
 async function createSession(memberId: number, userAgent?: string) {
   await pruneExpiredSessions(memberId);
   const token = generateToken(32);
@@ -457,6 +462,9 @@ export function registerAuthRoutes(app: Express): void {
 
       if (!member) {
         return res.status(500).json({ error: "Failed to create member account" });
+      }
+      if (existingMember) {
+        await invalidateMemberSessions(member.id);
       }
 
       await addOrgTimeline(org.id, "system", `Self-registered: ${name.trim()} <${email}>`, "system");
@@ -882,6 +890,15 @@ export function registerAuthRoutes(app: Express): void {
       }
 
       const passwordHash = await hashPassword(parsed.data.password);
+      const [claimedToken] = await db
+        .update(authTokens)
+        .set({ usedAt: new Date() })
+        .where(and(eq(authTokens.id, row.id), isNull(authTokens.usedAt)))
+        .returning({ id: authTokens.id });
+      if (!claimedToken) {
+        return res.status(400).json({ error: "This link is invalid or has expired." });
+      }
+
       const [member] = await db
         .update(clientMembers)
         .set({
@@ -897,10 +914,7 @@ export function registerAuthRoutes(app: Express): void {
         return res.status(400).json({ error: "Account not found for this link." });
       }
 
-      await db
-        .update(authTokens)
-        .set({ usedAt: new Date() })
-        .where(eq(authTokens.id, row.id));
+      await invalidateMemberSessions(member.id);
 
       // Mark invite accepted if any
       await db
@@ -986,13 +1000,20 @@ export function registerAuthRoutes(app: Express): void {
       }
 
       const passwordHash = await hashPassword(parsed.data.password);
+      const [claimedToken] = await db
+        .update(authTokens)
+        .set({ usedAt: new Date() })
+        .where(and(eq(authTokens.id, row.id), isNull(authTokens.usedAt)))
+        .returning({ id: authTokens.id });
+      if (!claimedToken) {
+        return res.status(400).json({ error: "This reset link is invalid or has expired." });
+      }
+
       await db
         .update(clientMembers)
         .set({ passwordHash, status: "active" })
         .where(eq(clientMembers.id, row.memberId));
-      await db.update(authTokens).set({ usedAt: new Date() }).where(eq(authTokens.id, row.id));
-      // Invalidate existing sessions
-      await db.delete(clientSessions).where(eq(clientSessions.memberId, row.memberId));
+      await invalidateMemberSessions(row.memberId);
       await logEvent("password_reset_completed", row.memberId);
 
       return res.json({ ok: true, message: "Password updated. You can log in now." });
@@ -1472,6 +1493,9 @@ export function registerAuthRoutes(app: Express): void {
 
       if (!member) {
         return res.status(500).json({ error: "Failed to create member account" });
+      }
+      if (existingMember) {
+        await invalidateMemberSessions(member.id);
       }
 
       await db
@@ -1954,6 +1978,7 @@ export function registerAuthRoutes(app: Express): void {
         })
         .where(eq(clientMembers.id, byEmail.id))
         .returning();
+      await invalidateMemberSessions(byEmail.id);
       return { member: promoted!, created: true as const };
     }
 
@@ -2235,7 +2260,7 @@ export function registerAuthRoutes(app: Express): void {
         .update(clientMembers)
         .set({ passwordHash })
         .where(eq(clientMembers.id, member.id));
-      await db.delete(clientSessions).where(eq(clientSessions.memberId, member.id));
+      await invalidateMemberSessions(member.id);
       const { token, expiresAt } = await createSession(
         member.id,
         req.headers["user-agent"] as string | undefined,
@@ -3117,6 +3142,7 @@ export function registerAuthRoutes(app: Express): void {
           .update(clientMembers)
           .set({ passwordHash, status: "active", name: REVIEWER_NAME })
           .where(eq(clientMembers.id, existing.id));
+        await invalidateMemberSessions(existing.id);
 
         await db
           .update(clientOrganizations)

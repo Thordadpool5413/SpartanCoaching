@@ -260,11 +260,15 @@ export type InsertArticle = z.infer<typeof insertArticleSchema>;
 export type SelectArticle = typeof articles.$inferSelect;
 
 // Drizzle table definition for visitor tracking
-export const visitors = pgTable("visitors", {
-  id: serial("id").primaryKey(),
-  pagePath: text("page_path").notNull(),
-  visitedAt: bigint("visited_at", { mode: "number" }).notNull(),
-});
+export const visitors = pgTable(
+  "visitors",
+  {
+    id: serial("id").primaryKey(),
+    pagePath: text("page_path").notNull(),
+    visitedAt: bigint("visited_at", { mode: "number" }).notNull(),
+  },
+  (table) => [index("visitors_visited_at_idx").on(table.visitedAt)],
+);
 
 // Insert schema and types for visitors
 export const insertVisitorSchema = createInsertSchema(visitors).omit({ 
@@ -274,15 +278,19 @@ export const insertVisitorSchema = createInsertSchema(visitors).omit({
 export type InsertVisitor = z.infer<typeof insertVisitorSchema>;
 export type SelectVisitor = typeof visitors.$inferSelect;
 
-export const eventTracking = pgTable("event_tracking", {
-  id: serial("id").primaryKey(),
-  eventType: text("event_type").notNull(),
-  eventName: text("event_name").notNull(),
-  metadata: text("metadata"),
-  createdAt: bigint("created_at", { mode: "number" }).notNull(),
-  /** Owning Membership member — populated by mobile clients; null for anonymous/web events. */
-  memberId: integer("member_id"),
-});
+export const eventTracking = pgTable(
+  "event_tracking",
+  {
+    id: serial("id").primaryKey(),
+    eventType: text("event_type").notNull(),
+    eventName: text("event_name").notNull(),
+    metadata: text("metadata"),
+    createdAt: bigint("created_at", { mode: "number" }).notNull(),
+    /** Owning Membership member — populated by mobile clients; null for anonymous/web events. */
+    memberId: integer("member_id"),
+  },
+  (table) => [index("event_tracking_created_at_idx").on(table.createdAt)],
+);
 
 export const insertEventTrackingSchema = createInsertSchema(eventTracking).omit({
   id: true,

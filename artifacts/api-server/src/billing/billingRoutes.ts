@@ -38,6 +38,15 @@ import { sendBillingActiveAdminAlert } from "../resend";
 import { checkWebhookSecret } from "./webhookSecretCheck";
 import { getBillingEmailMetrics } from "./billingEmailMetrics";
 import { appleBillingConfigured, registerAppleBillingRoutes } from "./appleBilling";
+import { logger } from "../lib/logger";
+import { safeLogFields } from "../observability/safeLog";
+import { trustedReturnUrl } from "./returnUrl";
+import {
+  claimStripeWebhookEvent,
+  markStripeWebhookFailed,
+  markStripeWebhookProcessed,
+} from "./webhookLedger";
+import { deliverStripeWebhookNotification } from "./webhookNotificationDelivery";
 
 function orgIdFromMetadata(meta: Stripe.Metadata | null | undefined): number | null {
   if (!meta?.organizationId) return null;
@@ -56,20 +65,23 @@ export function registerBillingRoutes(app: Express): void {
    * On-demand check: verifies STRIPE_WEBHOOK_SECRET is consistent with the
    * webhook endpoint registered in Stripe for this deployment's SITE_URL.
    * Returns { ok, reason?, hint?, detail?, webhookId?, webhookUrl?, webhookStatus? }.
-   * Does NOT require auth so smoke-health.mjs can call it without credentials.
-   * Does NOT reveal any secret values.
+   * Requires a platform administrator because it exposes provider configuration.
+   * It does not reveal any secret values.
    */
-  app.get("/api/admin/stripe-webhook-health", async (_req, res) => {
+  app.get("/api/admin/stripe-webhook-health", requireAdmin, async (_req: AuthedRequest, res) => {
     try {
       const result = await checkWebhookSecret();
       const status = result.ok ? 200 : 503;
       return res.status(status).json(result);
     } catch (err: any) {
+      logger.error(
+        safeLogFields({ event: "stripe_webhook_health_failed", providerCode: err?.code }),
+        "Stripe webhook health check failed",
+      );
       return res.status(500).json({
         ok: false,
         reason: "INTERNAL_ERROR",
         hint: "Unexpected error running webhook health check.",
-        detail: { error: err?.message || String(err) },
       });
     }
   });
@@ -78,19 +90,22 @@ export function registerBillingRoutes(app: Express): void {
    * GET /api/admin/billing-email-health
    * Returns in-process counts of billing_email_failed events in the last 1h and 24h.
    * HTTP 200 when below thresholds, 503 when either threshold is breached.
-   * No auth required so smoke-health scripts can call it without credentials.
-   * Does NOT return any PII — only counts and email types.
+   * Requires a platform administrator because it exposes operational delivery data.
+   * Does not return PII.
    */
-  app.get("/api/admin/billing-email-health", (_req, res) => {
+  app.get("/api/admin/billing-email-health", requireAdmin, (_req: AuthedRequest, res) => {
     try {
       const metrics = getBillingEmailMetrics();
       const status = metrics.ok ? 200 : 503;
       return res.status(status).json(metrics);
     } catch (err: any) {
+      logger.error(
+        safeLogFields({ event: "billing_email_health_failed", providerCode: err?.code }),
+        "Billing email health check failed",
+      );
       return res.status(500).json({
         ok: false,
         error: "INTERNAL_ERROR",
-        detail: err?.message || String(err),
       });
     }
   });
@@ -209,14 +224,8 @@ export function registerBillingRoutes(app: Express): void {
         : getIndividualWeeklyPriceId();
       const site = getSiteUrl();
       // Land on portal activation ceremony after successful checkout.
-      const successUrl =
-        (typeof req.body?.successUrl === "string" && req.body.successUrl.startsWith(site)
-          ? req.body.successUrl
-          : null) || `${site}/portal?activated=1`;
-      const cancelUrl =
-        (typeof req.body?.cancelUrl === "string" && req.body.cancelUrl.startsWith(site)
-          ? req.body.cancelUrl
-          : null) || `${site}/account?billing=canceled`;
+      const successUrl = trustedReturnUrl(site, req.body?.successUrl, "/portal?activated=1");
+      const cancelUrl = trustedReturnUrl(site, req.body?.cancelUrl, "/account?billing=canceled");
 
       let customerId = org.stripeCustomerId ?? undefined;
       if (!customerId) {
@@ -270,9 +279,12 @@ export function registerBillingRoutes(app: Express): void {
         sessionId: session.id,
       });
     } catch (err: any) {
-      console.error("billing checkout error:", err);
+      logger.error(
+        safeLogFields({ event: "billing_checkout_failed", providerCode: err?.code }),
+        "Billing checkout failed",
+      );
       return res.status(500).json({
-        error: err?.message || "Failed to start checkout",
+        error: "Failed to start checkout",
         code: "CHECKOUT_FAILED",
       });
     }
@@ -313,10 +325,7 @@ export function registerBillingRoutes(app: Express): void {
 
       const stripe = getStripe();
       const site = getSiteUrl();
-      const returnUrl =
-        (typeof req.body?.returnUrl === "string" && req.body.returnUrl.startsWith(site)
-          ? req.body.returnUrl
-          : null) || `${site}/account?billing=portal`;
+      const returnUrl = trustedReturnUrl(site, req.body?.returnUrl, "/account?billing=portal");
 
       const portal = await stripe.billingPortal.sessions.create({
         customer: org.stripeCustomerId,
@@ -325,9 +334,12 @@ export function registerBillingRoutes(app: Express): void {
 
       return res.json({ url: portal.url });
     } catch (err: any) {
-      console.error("billing portal error:", err);
+      logger.error(
+        safeLogFields({ event: "billing_portal_failed", providerCode: err?.code }),
+        "Billing portal failed",
+      );
       return res.status(500).json({
-        error: err?.message || "Failed to open billing portal",
+        error: "Failed to open billing portal",
         code: "PORTAL_FAILED",
       });
     }
@@ -375,10 +387,9 @@ export function registerBillingRoutes(app: Express): void {
           .from(clientMembers)
           .where(and(eq(clientMembers.organizationId, org.id), ne(clientMembers.status, "disabled")));
 
-        // Use real org data — same path as the live webhook handler
-        console.log(
-          `[billing test-alert] Firing alert for real org #${org.id} (${org.name}) → ${adminTo}` +
-          ` | members: ${members.map(m => m.email).join(", ") || "(none)"}`,
+        logger.info(
+          { event: "billing_test_alert", orgId: org.id, memberCount: members.length },
+          "Sending billing test alert",
         );
         const ok = await sendBillingActiveAdminAlert(adminTo, {
           orgId: org.id,
@@ -398,7 +409,7 @@ export function registerBillingRoutes(app: Express): void {
         });
       } else {
         // No active org in DB — send a synthetic test email
-        console.log(`[billing test-alert] No active org found; sending synthetic test alert → ${adminTo}`);
+        logger.info({ event: "billing_test_alert_synthetic" }, "Sending synthetic billing test alert");
         const ok = await sendBillingActiveAdminAlert(adminTo, {
           orgId: 0,
           orgName: "Test Organization (synthetic)",
@@ -415,10 +426,13 @@ export function registerBillingRoutes(app: Express): void {
         });
       }
     } catch (err: any) {
-      console.error("[billing test-alert] Unexpected error:", err?.message || err);
+      logger.error(
+        safeLogFields({ event: "billing_test_alert_failed", providerCode: err?.code }),
+        "Billing test alert failed",
+      );
       return res.status(500).json({
         ok: false,
-        error: err?.message || "Unexpected error",
+        error: "Unexpected error",
       });
     }
   });
@@ -558,11 +572,35 @@ export async function handleStripeWebhook(req: Request, res: Response): Promise<
       event = stripe.webhooks.constructEvent(rawBody, sig, webhookSecret);
     }
   } catch (err: any) {
-    console.error("Stripe webhook signature error:", err?.message || err);
-    res.status(400).json({ error: `Webhook Error: ${err?.message || "invalid"}` });
+    logger.warn(
+      safeLogFields({ event: "stripe_webhook_signature_invalid", providerCode: err?.code }),
+      "Stripe webhook signature rejected",
+    );
+    res.status(400).json({ error: "Invalid webhook signature" });
     return;
   }
 
+  let claim;
+  try {
+    claim = await claimStripeWebhookEvent(event.id, event.type);
+  } catch (err: any) {
+    logger.error(
+      safeLogFields({ event: "stripe_webhook_claim_failed", eventType: event.type, providerCode: err?.code }),
+      "Stripe webhook could not claim its delivery ledger entry",
+    );
+    res.status(503).json({ error: "Webhook ledger unavailable. Retry later." });
+    return;
+  }
+  if (claim.kind === "duplicate") {
+    res.json({ received: true, duplicate: true });
+    return;
+  }
+  if (claim.kind === "retry_later") {
+    res.status(503).json({ error: "Webhook processing is already underway. Retry later." });
+    return;
+  }
+
+  let organizationId: number | undefined;
   try {
     switch (event.type) {
       case "checkout.session.completed": {
@@ -595,6 +633,7 @@ export async function handleStripeWebhook(req: Request, res: Response): Promise<
               typeof sub.customer === "string" ? sub.customer : sub.customer.id,
             ))?.id;
           if (resolvedOrgId) {
+            organizationId = resolvedOrgId;
             const plan =
               sub.metadata?.billingPlan ||
               session.metadata?.billingPlan ||
@@ -604,7 +643,14 @@ export async function handleStripeWebhook(req: Request, res: Response): Promise<
               billingPatchFromSubscription(sub, { billingPlan: plan }),
             );
             const orgAfter = await findOrgById(resolvedOrgId);
-            if (orgAfter) await notifySubscriptionActive(orgAfter);
+            if (orgAfter) {
+              await deliverStripeWebhookNotification(
+                event.id,
+                "subscription_active",
+                orgAfter.id,
+                () => notifySubscriptionActive(orgAfter),
+              );
+            }
           }
         }
         break;
@@ -623,9 +669,13 @@ export async function handleStripeWebhook(req: Request, res: Response): Promise<
           org = await findOrgById(metaOrgId);
         }
         if (!org) {
-          console.warn("Stripe subscription event with no matching org", sub.id, customerId);
+          logger.warn(
+            { event: "stripe_subscription_unmatched", eventType: event.type },
+            "Stripe subscription event did not match an organization",
+          );
           break;
         }
+        organizationId = org.id;
         const prevCancelAtEnd = Boolean(org.cancelAtPeriodEnd);
         const prevStatus = org.billingStatus;
         const plan =
@@ -650,17 +700,28 @@ export async function handleStripeWebhook(req: Request, res: Response): Promise<
         });
 
         if (event.type === "customer.subscription.deleted" && fresh) {
-          await notifySubscriptionCanceled(fresh, { atPeriodEnd: false });
+          await deliverStripeWebhookNotification(
+            event.id,
+            "subscription_canceled",
+            fresh.id,
+            () => notifySubscriptionCanceled(fresh, { atPeriodEnd: false }),
+          );
         } else if (
           event.type === "customer.subscription.updated" &&
           fresh &&
           sub.cancel_at_period_end &&
           !prevCancelAtEnd
         ) {
-          await notifySubscriptionCanceled(fresh, {
-            atPeriodEnd: true,
-            periodEnd: fresh.currentPeriodEnd,
-          });
+          await deliverStripeWebhookNotification(
+            event.id,
+            "subscription_cancellation_scheduled",
+            fresh.id,
+            () =>
+              notifySubscriptionCanceled(fresh, {
+                atPeriodEnd: true,
+                periodEnd: fresh.currentPeriodEnd,
+              }),
+          );
         } else if (
           event.type === "customer.subscription.updated" &&
           fresh &&
@@ -668,7 +729,12 @@ export async function handleStripeWebhook(req: Request, res: Response): Promise<
           prevStatus !== "past_due" &&
           prevStatus !== "unpaid"
         ) {
-          await notifyPaymentFailed(fresh);
+          await deliverStripeWebhookNotification(
+            event.id,
+            "payment_failed",
+            fresh.id,
+            () => notifyPaymentFailed(fresh),
+          );
         } else if (
           (event.type === "customer.subscription.created" ||
             event.type === "customer.subscription.updated") &&
@@ -677,7 +743,12 @@ export async function handleStripeWebhook(req: Request, res: Response): Promise<
           prevStatus !== "active" &&
           prevStatus !== "trialing"
         ) {
-          await notifySubscriptionActive(fresh);
+          await deliverStripeWebhookNotification(
+            event.id,
+            "subscription_active",
+            fresh.id,
+            () => notifySubscriptionActive(fresh),
+          );
         }
         break;
       }
@@ -693,6 +764,7 @@ export async function handleStripeWebhook(req: Request, res: Response): Promise<
           (await findOrgByStripeSubscriptionId(sub.id)) ||
           (await findOrgByStripeCustomerId(customerId));
         if (!org) break;
+        organizationId = org.id;
         await applyBillingPatch(
           org.id,
           billingPatchFromSubscription(sub, {
@@ -713,13 +785,21 @@ export async function handleStripeWebhook(req: Request, res: Response): Promise<
         if (!customerId) break;
         const org = await findOrgByStripeCustomerId(customerId);
         if (!org) break;
+        organizationId = org.id;
         const updated = await applyBillingPatch(org.id, {
           billingStatus: "past_due",
           status: "suspended",
           pipelineStatus: "follow_up",
         });
         const fresh = updated || (await findOrgById(org.id));
-        if (fresh) await notifyPaymentFailed(fresh);
+        if (fresh) {
+          await deliverStripeWebhookNotification(
+            event.id,
+            "payment_failed",
+            fresh.id,
+            () => notifyPaymentFailed(fresh),
+          );
+        }
         break;
       }
 
@@ -728,9 +808,34 @@ export async function handleStripeWebhook(req: Request, res: Response): Promise<
         break;
     }
 
+    const finalized = await markStripeWebhookProcessed(claim.id, claim.attempt, organizationId);
+    if (!finalized) {
+      logger.warn(
+        { event: "stripe_webhook_stale_finalizer", eventType: event.type, attempt: claim.attempt },
+        "Stripe webhook lease was reclaimed before this worker could finish",
+      );
+      res.status(503).json({ error: "Webhook lease was reclaimed. Retry later." });
+      return;
+    }
     res.json({ received: true });
-  } catch (err) {
-    console.error("Stripe webhook handler error:", err);
+  } catch (err: any) {
+    const failureRecorded = await markStripeWebhookFailed(claim.id, claim.attempt).catch((ledgerError) => {
+      logger.error(
+        safeLogFields({ event: "stripe_webhook_ledger_failure", providerCode: ledgerError?.code }),
+        "Stripe webhook ledger could not record a failure",
+      );
+      return false;
+    });
+    if (!failureRecorded) {
+      logger.warn(
+        { event: "stripe_webhook_stale_failure", eventType: event.type, attempt: claim.attempt },
+        "Stripe webhook failure was superseded by a newer worker",
+      );
+    }
+    logger.error(
+      safeLogFields({ event: "stripe_webhook_processing_failed", eventType: event.type, providerCode: err?.code }),
+      "Stripe webhook processing failed",
+    );
     res.status(500).json({ error: "Webhook handler failed" });
   }
 }

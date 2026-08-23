@@ -67,6 +67,7 @@ import {
   visitorAnalyticsSchema,
 } from "@workspace/db";
 import { sanitizeAnalyticsMetadata } from "@workspace/field-kit-catalog";
+import { isSafeAnalyticsLabel, isSafeAnalyticsPagePath } from "../analytics/validation";
 
 import {
   ObjectStorageService,
@@ -1477,6 +1478,11 @@ Build a specific Monday–Friday territory plan for this week.`;
   app.post("/api/analytics/track", analyticsLimit, async (req, res) => {
     try {
       const visitorData = insertVisitorSchema.parse(req.body);
+      if (
+        !isSafeAnalyticsPagePath(visitorData.pagePath)
+      ) {
+        return res.status(400).json({ error: "Invalid analytics page path" });
+      }
       
       await storage.trackVisitor(visitorData);
       
@@ -1510,11 +1516,18 @@ Build a specific Monday–Friday territory plan for this week.`;
       const safeMetadata = sanitizeAnalyticsMetadata(
         (bodyWithoutMemberId as { metadata?: unknown }).metadata,
       );
-      const eventData = insertEventTrackingSchema.parse({
+      const parsedEvent = insertEventTrackingSchema.safeParse({
         ...bodyWithoutMemberId,
         metadata: safeMetadata,
         memberId: sessionMemberId,
       });
+      if (!parsedEvent.success) {
+        return res.status(400).json({ error: "Invalid analytics event" });
+      }
+      const eventData = parsedEvent.data;
+      if (!isSafeAnalyticsLabel(eventData.eventType) || !isSafeAnalyticsLabel(eventData.eventName)) {
+        return res.status(400).json({ error: "Invalid analytics event" });
+      }
       await storage.trackEvent(eventData);
       res.json({ success: true });
     } catch (error: any) {

@@ -99,7 +99,7 @@ describe("billing notification smoke tests", () => {
   describe("notifySubscriptionActive", () => {
     it("sends member email without throwing", async () => {
       const org = makeTestOrg();
-      await expect(notifySubscriptionActive(org)).resolves.toBeUndefined();
+      await expect(notifySubscriptionActive(org)).resolves.toBe(true);
     });
 
     it("calls sendMembershipActivatedEmail for each active member", async () => {
@@ -130,14 +130,14 @@ describe("billing notification smoke tests", () => {
       mockSendMembershipActivatedEmail.mockRejectedValueOnce(
         new Error("Resend delivery error [validation_error]: domain not verified"),
       );
-      await expect(notifySubscriptionActive(makeTestOrg())).resolves.toBeUndefined();
+      await expect(notifySubscriptionActive(makeTestOrg())).resolves.toBe(false);
     });
   });
 
   describe("notifyPaymentFailed", () => {
     it("sends member email without throwing", async () => {
       const org = makeTestOrg({ billingStatus: "past_due" });
-      await expect(notifyPaymentFailed(org)).resolves.toBeUndefined();
+      await expect(notifyPaymentFailed(org)).resolves.toBe(true);
     });
 
     it("calls sendBillingPaymentFailedEmail for each active member", async () => {
@@ -166,14 +166,14 @@ describe("billing notification smoke tests", () => {
       mockSendBillingPaymentFailedEmail.mockRejectedValueOnce(
         new Error("Resend delivery error [validation_error]: domain not verified"),
       );
-      await expect(notifyPaymentFailed(makeTestOrg())).resolves.toBeUndefined();
+      await expect(notifyPaymentFailed(makeTestOrg())).resolves.toBe(false);
     });
   });
 
   describe("notifySubscriptionCanceled", () => {
     it("sends member email without throwing", async () => {
       const org = makeTestOrg({ billingStatus: "canceled" });
-      await expect(notifySubscriptionCanceled(org)).resolves.toBeUndefined();
+      await expect(notifySubscriptionCanceled(org)).resolves.toBe(true);
     });
 
     it("calls sendBillingCanceledEmail with period-end options", async () => {
@@ -200,7 +200,7 @@ describe("billing notification smoke tests", () => {
       mockSendBillingCanceledEmail.mockRejectedValueOnce(
         new Error("Resend delivery error [validation_error]: domain not verified"),
       );
-      await expect(notifySubscriptionCanceled(makeTestOrg())).resolves.toBeUndefined();
+      await expect(notifySubscriptionCanceled(makeTestOrg())).resolves.toBe(false);
     });
   });
 });
