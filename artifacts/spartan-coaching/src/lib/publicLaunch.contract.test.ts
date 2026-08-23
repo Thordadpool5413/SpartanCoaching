@@ -5,6 +5,7 @@ import {
   PUBLIC_SITEMAP_PATHS,
   SITE_ORIGIN,
   getSEOConfig,
+  hasExplicitSEOConfig,
   isNoIndexPath,
 } from "./seo-config";
 
@@ -12,6 +13,15 @@ const siteRoot = path.resolve(process.cwd(), ".");
 
 function readPublic(name: string) {
   return fs.readFileSync(path.join(siteRoot, "public", name), "utf8");
+}
+
+function appRoutePaths() {
+  const appSource = fs.readFileSync(path.join(siteRoot, "src", "App.tsx"), "utf8");
+  return [...appSource.matchAll(/<Route path="([^"]+)"/g)].map((match) => match[1]);
+}
+
+function readSource(relativePath: string) {
+  return fs.readFileSync(path.join(siteRoot, "src", relativePath), "utf8");
 }
 
 describe("public launch contract", () => {
@@ -35,6 +45,44 @@ describe("public launch contract", () => {
     }
   });
 
+  it("keeps metadata and index policy explicit for every routed page", () => {
+    expect(readSource("App.tsx")).toContain("<SEO />");
+
+    for (const route of appRoutePaths()) {
+      const isDynamic = route.includes(":");
+      const hasExplicitPolicy = hasExplicitSEOConfig(route) || isNoIndexPath(route);
+
+      expect(
+        hasExplicitPolicy,
+        `${route} must have route-specific metadata or an explicit no-index policy`,
+      ).toBe(true);
+
+      if (isDynamic) {
+        expect(
+          isNoIndexPath(route),
+          `${route} is dynamic and must stay out of search until it has a canonical public-route policy`,
+        ).toBe(true);
+      }
+    }
+  });
+
+  it("does not reuse a public page title or description", () => {
+    const configs = PUBLIC_SITEMAP_PATHS.map((route) => getSEOConfig(route));
+    const titles = configs.map((config) => config.title);
+    const descriptions = configs.map((config) => config.description);
+
+    expect(new Set(titles).size).toBe(titles.length);
+    expect(new Set(descriptions).size).toBe(descriptions.length);
+  });
+
+  it("keeps the catch-all Not Found page out of search", () => {
+    const appSource = readSource("App.tsx");
+    const notFoundSource = readSource("pages/not-found.tsx");
+
+    expect(appSource).toContain("<Route component={NotFound} />");
+    expect(notFoundSource).toMatch(/<SEO[\s\S]*\bnoIndex\b/);
+  });
+
   it("keeps account, workspace, and template routes out of search", () => {
     for (const route of [
       "/login",
@@ -45,6 +93,7 @@ describe("public launch contract", () => {
       "/org/admin",
       "/contract",
       "/nda",
+      "/brand-video",
     ]) {
       expect(isNoIndexPath(route)).toBe(true);
       expect(PUBLIC_SITEMAP_PATHS).not.toContain(route);

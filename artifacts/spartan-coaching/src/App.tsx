@@ -10,6 +10,8 @@ import { Header, Footer } from "@/components/Layout";
 import { CommandPalette } from "@/components/CommandPalette";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { isWorkspacePath, loginWithReturn } from "@/lib/workspaceShell";
+import { PageLoadingState, RouteErrorBoundary } from "@/components/RouteRecovery";
+import { SEO } from "@/components/SEO";
 
 const ChatWidget = lazy(() => import("@/components/ChatWidget").then(m => ({ default: m.ChatWidget })));
 const StickyBookCall = lazy(() => import("@/components/StickyBookCall").then(m => ({ default: m.StickyBookCall })));
@@ -177,20 +179,21 @@ function VisitorTracker() {
 }
 
 function PageLoader() {
-  return (
-    <div className="flex items-center justify-center min-h-[50vh]">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-    </div>
-  );
+  return <PageLoadingState />;
 }
 
 function Router() {
+  const [location] = useLocation();
+
   return (
     <>
       <ScrollToTop />
       <VisitorTracker />
-      <Suspense fallback={<PageLoader />}>
-        <Switch>
+      {/* Baseline metadata applies to every route; route pages may add specific overrides. */}
+      <SEO />
+      <RouteErrorBoundary resetKey={location}>
+        <Suspense fallback={<PageLoader />}>
+          <Switch>
           <Route path="/" component={Home} />
           <Route path="/welcome" component={Welcome} />
           <Route path="/login" component={Login} />
@@ -272,9 +275,10 @@ function Router() {
           <Route path="/assessment-results/:submissionId" component={AssessmentResultsPDF} />
           <Route path="/sign/:token" component={SignAgreements} />
           <Route path="/brand-video" component={BrandVideo} />
-          <Route component={NotFound} />
-        </Switch>
-      </Suspense>
+            <Route component={NotFound} />
+          </Switch>
+        </Suspense>
+      </RouteErrorBoundary>
     </>
   );
 }

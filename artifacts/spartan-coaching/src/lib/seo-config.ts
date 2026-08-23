@@ -403,6 +403,12 @@ const defaultConfig: SEOConfig = {
   ogImage: DEFAULT_OG_IMAGE,
 };
 
+/** True only when the route has intentional, route-specific crawl metadata. */
+export function hasExplicitSEOConfig(path: string): boolean {
+  const clean = path.split('?')[0].split('#')[0] || '/';
+  return Boolean(seoDefaults[clean]);
+}
+
 export function getSEOConfig(path: string): SEOConfig {
   const clean = path.split('?')[0].split('#')[0] || '/';
   const exact = seoDefaults[clean];
