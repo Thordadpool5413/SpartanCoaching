@@ -93,29 +93,23 @@ export default function Home() {
         </script>
       </Helmet>
 
-      {/* ── 1. HERO — a readable offer is always available, motion is optional ── */}
+      {/* ── 1. HERO — the film leads, with the offer kept in a dedicated column ── */}
       <section
-        className="relative min-h-[85vh] sm:min-h-screen flex items-center overflow-hidden bg-background"
+        className="relative overflow-hidden bg-background"
         data-testid="section-hero"
         aria-labelledby="home-hero-title"
       >
         <img
           src="/hero-poster.jpg"
           alt=""
-          className="absolute inset-0 h-full w-full object-cover opacity-35"
+          className="absolute inset-0 h-full w-full object-cover opacity-20"
           fetchPriority="high"
           decoding="async"
         />
-        {!prefersReducedMotion && (
-          <AnimationErrorBoundary>
-            <Suspense fallback={null}>
-              <SpartanHeroAnimation />
-            </Suspense>
-          </AnimationErrorBoundary>
-        )}
-        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/35" />
-        <div className="relative z-50 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
-          <div className="max-w-2xl">
+        <div className="absolute inset-0 bg-gradient-to-br from-background via-background/95 to-background/70" />
+        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
+          <div className="grid lg:grid-cols-[minmax(0,0.8fr)_minmax(520px,1.2fr)] gap-10 xl:gap-16 items-center">
+            <div className="max-w-2xl">
             <p className="text-kicker mb-5">Hospice sales consulting + Hospice Sales Pro</p>
             <h1
               id="home-hero-title"
@@ -150,6 +144,33 @@ export default function Home() {
             <p className="mt-5 text-xs font-medium text-muted-foreground">
               Choose the path that fits: consulting for teams, Hospice Sales Pro for individual execution.
             </p>
+            </div>
+            <div className="w-full max-w-3xl mx-auto">
+              <div
+                className="relative aspect-[4/3] sm:aspect-video overflow-hidden rounded-2xl border border-white/10 bg-black shadow-2xl ring-1 ring-primary/20"
+                data-testid="hero-video-frame"
+                aria-label="Spartan Coaching hero film"
+              >
+                <img
+                  src="/hero-poster.jpg"
+                  alt=""
+                  className="absolute inset-0 h-full w-full object-cover"
+                  loading="eager"
+                  decoding="async"
+                />
+                {!prefersReducedMotion && (
+                  <AnimationErrorBoundary>
+                    <Suspense fallback={null}>
+                      <SpartanHeroAnimation />
+                    </Suspense>
+                  </AnimationErrorBoundary>
+                )}
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 z-50 h-24 bg-gradient-to-t from-black/70 to-transparent" />
+                <p className="pointer-events-none absolute bottom-4 left-5 z-[51] text-[10px] font-bold uppercase tracking-[0.22em] text-white/75">
+                  Spartan Coaching · Hospice sales is not a mystery
+                </p>
+              </div>
+            </div>
           </div>
         </div>
       </section>
