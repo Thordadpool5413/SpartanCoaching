@@ -6,6 +6,7 @@ import { BackButton } from "@/components/BackButton";
 import { ProgramDetailDialog, ProgramDetail } from "@/components/ProgramDetailDialog";
 import { Eye } from "lucide-react";
 import { SEO } from "@/components/SEO";
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 
 export default function Programs() {
   const [detailOpen, setDetailOpen] = useState(false);
@@ -545,6 +546,14 @@ export default function Programs() {
         open={detailOpen}
         onOpenChange={setDetailOpen}
         program={selectedDetail}
+      />
+      <PublicConversionPanel
+        source="programs"
+        audience="Hospice providers that need a defined project, team workshop, or market operating system."
+        promise="A discrete program with a kickoff, working sessions, deliverables, and a final next-step summary."
+        evidence="Every program publishes its audience, delivery approach, outcomes, and concrete deliverables before a conversation."
+        primary={{ label: "Discuss a program", href: "/contact?service=Provider+Program", token: "program_consult" }}
+        secondary={{ label: "View consulting services", href: "/services", token: "services" }}
       />
     </div>
   );

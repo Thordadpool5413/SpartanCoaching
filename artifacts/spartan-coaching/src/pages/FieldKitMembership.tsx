@@ -18,6 +18,7 @@ import { SectionHeader } from "@/components/elite/SectionHeader";
 import { AppHandoffPanel } from "@/components/AppHandoffPanel";
 import { PRICING_FACTS, PUBLIC_CLAIM_SAFE } from "@/lib/complianceCopy";
 import { FIELD_KIT_TOOLS, FIELD_KIT_CATEGORIES, FIELD_KIT_CAT_BLURBS } from "@workspace/field-kit-catalog";
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 
 // Gated tools only (exclude brand-video which is public)
 const GATED_TOOLS = FIELD_KIT_TOOLS.filter((t) => !t.public);
@@ -367,6 +368,15 @@ export default function FieldKitMembership() {
           </ul>
         </div>
       </Card>
+      <PublicConversionPanel
+        source="hospice_sales_pro"
+        audience="Individual hospice sales professionals who need daily field preparation, practice, and planning tools."
+        promise="Use the same permitted Hospice Sales Pro account on web and iPhone, with live tools after subscription."
+        evidence={`${PRICING_FACTS.previewNote} ${PRICING_FACTS.individualBillingNote}`}
+        primary={{ label: "Create account for Hospice Sales Pro", href: "/register", token: "create_account" }}
+        secondary={{ label: "Request team or evaluation access", href: "/request-access", token: "team_access" }}
+        showOfferPaths
+      />
     </div>
   );
 }

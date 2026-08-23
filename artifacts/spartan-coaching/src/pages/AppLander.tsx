@@ -7,6 +7,7 @@ import {
   APP_STORE_URL,
   normalizeAppHandoffDestination,
 } from "@/lib/appHandoff";
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 
 function destinationFromLocation(): ReturnType<typeof normalizeAppHandoffDestination> {
   if (typeof window === "undefined") return "home";
@@ -160,6 +161,16 @@ export default function AppLander() {
            </FadeIn>
         </div>
       </section>
+      <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 pb-16">
+        <PublicConversionPanel
+          source="app"
+          audience="Hospice Sales Pro members who need to carry an already-permitted field workflow onto iPhone."
+          promise="Open or install the app, then continue with the same account and the right web fallback."
+          evidence="The handoff keeps account access and billing in the original storefront instead of inventing a second purchase path."
+          primary={{ label: "Explore Hospice Sales Pro", href: "/hospice-sales-pro", token: "hospice_sales_pro" }}
+          secondary={{ label: "Request team access", href: "/request-access", token: "team_access" }}
+        />
+      </div>
     </div>
   );
 }

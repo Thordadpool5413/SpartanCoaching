@@ -18,6 +18,7 @@ import { ContentNotice } from "@/components/ContentNotice";
 import { FieldKitChrome } from "@/components/FieldKitChrome";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 
 type ProviderResourceItem = {
   id: number;
@@ -631,6 +632,16 @@ export default function Resources() {
           </form>
         </DialogContent>
       </Dialog>
+      {!canUseFieldKit && (
+        <PublicConversionPanel
+          source="resources"
+          audience="Hospice sales professionals looking for a usable template, script, checklist, or printable plan."
+          promise="Start with an immediate resource, then continue into the tools and workflow that fit the task."
+          evidence="Resources identify their intended use and expected outcome; optional email updates are separate from delivery."
+          primary={{ label: "Preview Hospice Sales Pro tools", href: "/tools", token: "tools_preview" }}
+          secondary={{ label: "Explore Hospice Sales Pro", href: "/hospice-sales-pro", token: "hospice_sales_pro" }}
+        />
+      )}
     </div>
   );
 }

@@ -7,10 +7,14 @@ import { trackEvent } from "@/lib/analytics";
  * answers, search terms, and other prose must never enter analytics metadata.
  */
 export const PUBLIC_FUNNEL_EVENT = {
+  pageIntent: "page_intent",
   ctaClick: "cta_click",
   contactStart: "contact_start",
+  contactSubmit: "contact_submit",
   contactFailure: "contact_failure",
+  membershipPlanSelection: "membership_plan_selection",
   appInterest: "app_interest",
+  appHandoff: "app_handoff",
 } as const;
 
 export type PublicFunnelEvent =

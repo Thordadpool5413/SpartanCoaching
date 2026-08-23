@@ -14,6 +14,8 @@ import { useReducedMotion } from "framer-motion";
 import nickPhoto from "@assets/nick-photo.jpg";
 import { SITE_ORIGIN } from "@/lib/seo-config";
 import { PUBLIC_FUNNEL_EVENT, trackPublicFunnelEvent } from "@/lib/publicFunnel";
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
+import { PRICING_FACTS } from "@/lib/complianceCopy";
 
 const CANONICAL_ORIGIN = SITE_ORIGIN;
 
@@ -295,7 +297,7 @@ export default function Home() {
                   "Sales Command Center",
                   "Objections · role-play · email · playbooks",
                   "Weekly plan · activity · ROI · branch math",
-                  "Elite recommended · $19.99/wk · Standard $14.99/wk",
+                  `Elite recommended · ${PRICING_FACTS.eliteWeeklyShort} · Standard ${PRICING_FACTS.individualWeeklyShort}`,
                 ],
                 href: "/hospice-sales-pro",
                 cta: "Explore Hospice Sales Pro",
@@ -442,6 +444,15 @@ export default function Home() {
           </div>
         </FadeIn>
       </section>
+      <PublicConversionPanel
+        source="home"
+        audience="Hospice growth leaders, sales professionals, and provider teams choosing between human consulting and daily field tools."
+        promise="A practical path from the next conversation to a repeatable operating rhythm."
+        evidence="Field-tested coaching, role-based proof, and clear no-PHI product boundaries."
+        primary={{ label: "Book a strategy call", href: "/contact", token: "strategy_call" }}
+        secondary={{ label: "Explore Hospice Sales Pro", href: "/hospice-sales-pro", token: "hospice_sales_pro" }}
+        showOfferPaths
+      />
     </div>
   );
 }

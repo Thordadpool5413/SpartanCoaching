@@ -96,9 +96,10 @@ export function AppHandoffPanel({
               >
                 <a
                   href={nativeAppLink}
-                  onClick={() =>
-                    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.appInterest, "handoff_open_app")
-                  }
+                  onClick={() => {
+                    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.appInterest, "handoff_open_app");
+                    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.appHandoff, "open_app");
+                  }}
                 >
                   <Smartphone className="mr-2.5 w-5 h-5" />
                   Open the iPhone app
@@ -115,9 +116,10 @@ export function AppHandoffPanel({
                   href={appStoreUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  onClick={() =>
-                    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.appInterest, "handoff_app_store")
-                  }
+                  onClick={() => {
+                    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.appInterest, "handoff_app_store");
+                    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.appHandoff, "app_store");
+                  }}
                 >
                   <Smartphone className="mr-2.5 w-5 h-5" />
                   Get the iPhone app
@@ -134,9 +136,10 @@ export function AppHandoffPanel({
             >
               <Link
                 href={browserFallback}
-                onClick={() =>
-                  trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "handoff_web_fallback")
-                }
+                  onClick={() => {
+                    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "handoff_web_fallback");
+                    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.appHandoff, "web_fallback");
+                  }}
               >
                 <Monitor className="mr-2.5 w-5 h-5" />
                 {isIOS ? "Continue in a browser" : "Continue on web"}
@@ -147,9 +150,10 @@ export function AppHandoffPanel({
                 href={appStoreUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                onClick={() =>
-                  trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.appInterest, "handoff_app_store_fallback")
-                }
+                onClick={() => {
+                  trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.appInterest, "handoff_app_store_fallback");
+                  trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.appHandoff, "app_store_fallback");
+                }}
                 className="inline-flex items-center justify-center gap-1 text-xs font-semibold text-muted-foreground hover:text-primary transition-colors"
                 data-testid="link-handoff-appstore-fallback"
               >

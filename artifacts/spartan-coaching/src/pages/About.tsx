@@ -6,6 +6,8 @@ import nickPhoto from "@assets/nick-photo.jpg";
 import { Button } from "@/components/ui/button";
 import { SEO } from "@/components/SEO";
 import { TrustStrip } from "@/components/TrustStrip";
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
+import { PRICING_FACTS } from "@/lib/complianceCopy";
 import { PersuasionShell } from "@/components/PersuasionShell";
 
 export default function About() {
@@ -413,7 +415,7 @@ export default function About() {
               {
                 icon: Wrench,
                 title: "Hospice Sales Pro",
-                text: "Command Center, Coach, practice tools, plans, and calculators. Elite recommended at $19.99/wk · Standard $14.99/wk · team seats under contract.",
+                text: `Command Center, Coach, practice tools, plans, and calculators. Elite recommended at ${PRICING_FACTS.eliteWeeklyShort} · Standard ${PRICING_FACTS.individualWeeklyShort} · team seats under contract.`,
               },
               {
                 icon: ShieldCheck,
@@ -460,6 +462,14 @@ export default function About() {
             </Link>
           </p>
         </div>
+        <PublicConversionPanel
+          source="about"
+          audience="Hospice professionals evaluating the person, principles, and working style behind the engagement."
+          promise="A direct conversation about what is not working and whether Spartan Coaching is the right fit."
+          evidence="Founder-led, hospice-specific work with role-based proof and transparent privacy and compliance boundaries."
+          primary={{ label: "Book a strategy call", href: "/contact?service=Consulting", token: "strategy_call" }}
+          secondary={{ label: "View coaching services", href: "/services", token: "services" }}
+        />
       </div>
     </PersuasionShell>
   );

@@ -32,6 +32,7 @@ import { CheckCircle, Loader2, Mail, ChevronLeft, ChevronRight, X, Shield } from
 import { cn } from "@/lib/utils";
 import { PersuasionShell } from "@/components/PersuasionShell";
 import { PUBLIC_FUNNEL_EVENT, trackPublicFunnelEvent } from "@/lib/publicFunnel";
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 
 const contactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -56,6 +57,13 @@ const STEP_FIELDS: Record<number, (keyof ContactFormData)[]> = {
 };
 
 const STEP_LABELS = ["About You", "Your Situation", "What You Need"];
+const SERVICE_PREFILLS: Record<string, ContactFormData["serviceType"]> = {
+  "HIPAA BAA Request": "HIPAA BAA Request",
+  Consulting: "Corporate Consulting",
+  "Hospice Sales Coaching": "Individual Coaching",
+  "Provider Program": "Team Training",
+  "Hospice Sales Pro": "Other",
+};
 
 export default function Contact() {
   const { toast } = useToast();
@@ -73,8 +81,9 @@ export default function Contact() {
     if (service) {
       const decoded = decodeURIComponent(service);
       setServiceParam(decoded);
-      if (decoded === "HIPAA BAA Request") {
-        form.setValue("serviceType", "HIPAA BAA Request");
+      const prefill = SERVICE_PREFILLS[decoded];
+      if (prefill) {
+        form.setValue("serviceType", prefill);
       }
     }
   }, []);
@@ -121,6 +130,7 @@ export default function Contact() {
       });
     },
     onSuccess: () => {
+      trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.contactSubmit, "contact_form");
       setSubmitted(true);
       setSubmitError(null);
       form.reset();
@@ -190,6 +200,15 @@ export default function Contact() {
             </div>
           </div>
         </FadeIn>
+        <PublicConversionPanel
+          source="contact"
+          audience="Hospice professionals and provider leaders deciding whether coaching, a program, or team access fits."
+          promise="A prepared discovery conversation with the service context kept with the request."
+          evidence="A human review and scheduling options within one business day; no PHI is requested."
+          primary={{ label: "Complete the request below", href: "#contact-form", token: "complete_request" }}
+          secondary={{ label: "Review data practices", href: "/trust", token: "trust_center" }}
+          className="mb-10"
+        />
 
         <FadeIn delay={0.1}>
           {submitted ? (
@@ -213,7 +232,7 @@ export default function Contact() {
               </div>
             </Card>
           ) : (
-            <Card className="spacing-card border-2 bg-card shadow-sm" data-testid="card-contact-form">
+            <Card id="contact-form" className="spacing-card border-2 bg-card shadow-sm" data-testid="card-contact-form">
               {/* Service context chip */}
               {serviceParam && (
                 <div className="flex items-center justify-between gap-2 bg-primary/10 border border-primary/20 rounded-lg px-4 py-3 mb-6" data-testid="chip-service-context">

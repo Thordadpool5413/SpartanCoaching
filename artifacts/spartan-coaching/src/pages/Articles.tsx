@@ -9,6 +9,7 @@ import { SEO } from "@/components/SEO";
 import { ContentNotice } from "@/components/ContentNotice";
 import { FadeIn } from "@/components/animations";
 import { CoachingCTA } from "@/components/CoachingCTA";
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 
 export default function Articles() {
   const { data, isLoading } = useQuery<{ articles: SelectArticle[] }>({
@@ -229,6 +230,14 @@ export default function Articles() {
       <FadeIn>
         <CoachingCTA className="mt-8" />
       </FadeIn>
+      <PublicConversionPanel
+        source="articles"
+        audience="Hospice sales professionals learning the fundamentals before choosing a supported field system."
+        promise="Turn an idea from an article into a practical conversation, plan, or coaching next step."
+        evidence="Articles are dated and linked to their source; consulting is available when a topic needs applied support."
+        primary={{ label: "Explore the Spartan Method", href: "/method", token: "method" }}
+        secondary={{ label: "Book a strategy call", href: "/contact", token: "strategy_call" }}
+      />
     </div>
   );
 }

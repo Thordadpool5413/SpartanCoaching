@@ -5,6 +5,8 @@ import { useBillingActions } from "@/hooks/useBillingActions";
 import { trackEvent } from "@/lib/analytics";
 import { cn } from "@/lib/utils";
 import { ArrowRight, CreditCard, Loader2, ExternalLink } from "lucide-react";
+import { PRICING_FACTS } from "@/lib/complianceCopy";
+import { PUBLIC_FUNNEL_EVENT, trackPublicFunnelEvent } from "@/lib/publicFunnel";
 
 export type SubscribeSurface =
   | "membership_hero"
@@ -49,7 +51,10 @@ export function SubscribeCTA({
   const { isAuthenticated, canUseFieldKit, organization, member, fieldKit } = useAuth();
   const { startCheckout, startEliteCheckout, openPortal, checkoutPending, portalPending } = useBillingActions();
   const planName = plan === "elite_weekly" ? "Elite" : "Standard";
-  const planPrice = plan === "elite_weekly" ? "$19.99/week" : "$14.99/week";
+  const planPrice =
+    plan === "elite_weekly"
+      ? PRICING_FACTS.eliteWeeklyLabel
+      : PRICING_FACTS.individualWeeklyLabel;
   const accountPath = `/account?subscribe=1&plan=${plan}`;
   const registrationPath = `/register?plan=${plan}`;
 
@@ -72,6 +77,12 @@ export function SubscribeCTA({
 
   const track = (action: string) => {
     trackEvent("subscribe_cta", action, `${surface}:${action}`);
+  };
+  const trackPlan = (action: string) => {
+    trackPublicFunnelEvent(
+      PUBLIC_FUNNEL_EVENT.membershipPlanSelection,
+      `${surface}:${plan}:${action}`,
+    );
   };
 
   const hint = (() => {
@@ -106,7 +117,7 @@ export function SubscribeCTA({
       return (
         <>
           <Button asChild variant={variant} size={size} className={cn("font-bold", className)} data-testid={testId}>
-            <Link href={registrationPath} onClick={() => track("register")}>
+            <Link href={registrationPath} onClick={() => { track("register"); trackPlan("register"); }}>
               Create account · Hospice Sales Pro
               <ArrowRight className="ml-2 w-4 h-4" />
             </Link>
@@ -163,6 +174,7 @@ export function SubscribeCTA({
             className={cn("font-bold", className)}
             onClick={() => {
               track(expired ? "resubscribe" : "checkout");
+              trackPlan(expired ? "resubscribe" : "checkout");
               void (plan === "elite_weekly" ? startEliteCheckout() : startCheckout());
             }}
             disabled={checkoutPending}
@@ -177,8 +189,8 @@ export function SubscribeCTA({
                 <CreditCard className="mr-2 w-4 h-4" />
                 {plan === "standard_weekly"
                   ? expired
-                    ? "Resubscribe · Hospice Sales Pro · $14.99/wk"
-                    : "Start Hospice Sales Pro · $14.99/wk"
+                    ? `Resubscribe · Hospice Sales Pro · ${PRICING_FACTS.individualWeeklyShort}`
+                    : `Start Hospice Sales Pro · ${PRICING_FACTS.individualWeeklyShort}`
                   : expired
                     ? `Resubscribe · Hospice Sales Pro Elite · ${planPrice}`
                     : `Start Hospice Sales Pro Elite · ${planPrice}`}
