@@ -29,6 +29,14 @@ const BUDGETS = {
   maxCssChunk: 250 * 1024,
   /** Total CSS under assets/ */
   maxCssTotal: 400 * 1024,
+  /** Initial HTML must remain small enough for a fast document response. */
+  maxHtmlDocument: 100 * 1024,
+  /** Desktop hero media is intentionally cinematic, but must remain capped. */
+  maxDesktopHeroVideo: 10 * 1024 * 1024,
+  /** Narrow-screen hero keeps a separate, lower transfer ceiling. */
+  maxMobileHeroVideo: 4 * 1024 * 1024,
+  /** Poster reserves space before dynamic hero work begins. */
+  maxHeroPoster: 500 * 1024,
 };
 
 function walk(dir, acc = []) {
@@ -44,6 +52,20 @@ function walk(dir, acc = []) {
 
 function kb(n) {
   return `${(n / 1024).toFixed(1)} KiB`;
+}
+
+function checkFileBudget(file, limit, label, report) {
+  if (!fs.existsSync(file)) {
+    report.push(`FAIL ${label} is missing: ${path.relative(distPublic, file)}`);
+    return true;
+  }
+  const size = fs.statSync(file).size;
+  if (size > limit) {
+    report.push(`FAIL ${label} = ${kb(size)} > ${kb(limit)}`);
+    return true;
+  }
+  report.push(`OK  ${label} ${kb(size)} / ${kb(limit)}`);
+  return false;
 }
 
 function main() {
@@ -91,6 +113,15 @@ function main() {
   } else {
     report.push(`OK  CSS total ${kb(cssTotal)} / ${kb(BUDGETS.maxCssTotal)} (${css.length} files)`);
   }
+
+  const html = path.join(distPublic, "index.html");
+  const desktopHero = path.join(distPublic, "hero-video.mp4");
+  const mobileHero = path.join(distPublic, "hero-video-mobile.mp4");
+  const heroPoster = path.join(distPublic, "hero-poster.jpg");
+  failed = checkFileBudget(html, BUDGETS.maxHtmlDocument, "HTML document", report) || failed;
+  failed = checkFileBudget(desktopHero, BUDGETS.maxDesktopHeroVideo, "desktop hero video", report) || failed;
+  failed = checkFileBudget(mobileHero, BUDGETS.maxMobileHeroVideo, "mobile hero video", report) || failed;
+  failed = checkFileBudget(heroPoster, BUDGETS.maxHeroPoster, "hero poster", report) || failed;
 
   console.log("[performance-budget]");
   for (const line of report) console.log(" ", line);

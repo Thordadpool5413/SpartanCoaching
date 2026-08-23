@@ -11,8 +11,10 @@ import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 import { lazy, Suspense, Component } from "react";
 import type { ReactNode } from "react";
 import nickPhoto from "@assets/nick-photo.jpg";
+import { SITE_ORIGIN } from "@/lib/seo-config";
+import { PUBLIC_FUNNEL_EVENT, trackPublicFunnelEvent } from "@/lib/publicFunnel";
 
-const CANONICAL_ORIGIN = "https://spartanhospicecoaching.com";
+const CANONICAL_ORIGIN = SITE_ORIGIN;
 
 /** Kinetic brand hero (SpartanHeroAnimation) — full-bleed, no HTML text overlay. */
 const SpartanHeroAnimation = lazy(() =>
@@ -139,13 +141,25 @@ export default function Home() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
                   <Button size="lg" asChild className="font-bold min-h-11 w-full sm:w-auto" data-testid="button-authority-contact">
-                    <Link href="/contact">
+                      <Link
+                        href="/contact"
+                        onClick={() =>
+                          trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_authority_contact")
+                        }
+                      >
                       Book a strategy call
                       <ArrowRight className="ml-2 w-4 h-4" />
                     </Link>
                   </Button>
                   <Button size="lg" variant="outline" asChild className="font-bold min-h-11 w-full sm:w-auto" data-testid="button-authority-about">
-                    <Link href="/about">About Nick Lynch</Link>
+                      <Link
+                        href="/about"
+                        onClick={() =>
+                          trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_authority_about")
+                        }
+                      >
+                        About Nick Lynch
+                      </Link>
                   </Button>
                 </div>
               </div>
@@ -244,7 +258,15 @@ export default function Home() {
                       ))}
                     </ul>
                     <Button asChild className="font-bold w-full min-h-11" variant={p.primary ? "default" : "outline"}>
-                      <Link href={p.href}>
+                      <Link
+                        href={p.href}
+                        onClick={() =>
+                          trackPublicFunnelEvent(
+                            PUBLIC_FUNNEL_EVENT.ctaClick,
+                            p.primary ? "home_consulting" : "home_hospice_sales_pro",
+                          )
+                        }
+                      >
                         {p.cta}
                         <ArrowRight className="ml-2 w-4 h-4" />
                       </Link>
@@ -317,13 +339,25 @@ export default function Home() {
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild className="font-bold px-10 shadow-lg" data-testid="button-closing-contact">
-                <Link href="/contact">
+                <Link
+                  href="/contact"
+                  onClick={() =>
+                    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_closing_contact")
+                  }
+                >
                   Book a strategy call
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
               </Button>
               <Button size="lg" variant="outline" asChild className="font-bold border-2" data-testid="button-closing-hospice-sales-pro">
-                <Link href="/hospice-sales-pro">Explore Hospice Sales Pro</Link>
+                <Link
+                  href="/hospice-sales-pro"
+                  onClick={() =>
+                    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_closing_hospice_sales_pro")
+                  }
+                >
+                  Explore Hospice Sales Pro
+                </Link>
               </Button>
             </div>
             <p className="mt-6 text-sm text-muted-foreground">

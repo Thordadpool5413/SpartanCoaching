@@ -67,7 +67,7 @@ import {
   visitorAnalyticsSchema,
 } from "@workspace/db";
 import { sanitizeAnalyticsMetadata } from "@workspace/field-kit-catalog";
-import { isSafeAnalyticsLabel, isSafeAnalyticsPagePath } from "../analytics/validation";
+import { isAcceptedClientAnalyticsEvent, isSafeAnalyticsLabel, isSafeAnalyticsPagePath } from "../analytics/validation";
 
 import {
   ObjectStorageService,
@@ -1525,7 +1525,11 @@ Build a specific Monday–Friday territory plan for this week.`;
         return res.status(400).json({ error: "Invalid analytics event" });
       }
       const eventData = parsedEvent.data;
-      if (!isSafeAnalyticsLabel(eventData.eventType) || !isSafeAnalyticsLabel(eventData.eventName)) {
+      if (
+        !isSafeAnalyticsLabel(eventData.eventType) ||
+        !isSafeAnalyticsLabel(eventData.eventName) ||
+        !isAcceptedClientAnalyticsEvent(eventData.eventType, eventData.eventName)
+      ) {
         return res.status(400).json({ error: "Invalid analytics event" });
       }
       await storage.trackEvent(eventData);

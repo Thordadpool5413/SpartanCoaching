@@ -1,5 +1,7 @@
+import { SITE_ORIGIN } from "./seo-config";
+
 export const APP_STORE_URL = "https://apps.apple.com/app/id6795266551";
-export const APP_HANDOFF_ORIGIN = "https://spartanhospicecoaching.com";
+export const APP_HANDOFF_ORIGIN = SITE_ORIGIN;
 export const APP_CUSTOM_SCHEME = "spartan-coaching-mobile";
 
 export const APP_HANDOFF_DESTINATIONS = [

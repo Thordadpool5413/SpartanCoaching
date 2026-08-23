@@ -1,5 +1,9 @@
 import { describe, expect, it } from "vitest";
-import { isSafeAnalyticsLabel, isSafeAnalyticsPagePath } from "./validation";
+import {
+  isAcceptedClientAnalyticsEvent,
+  isSafeAnalyticsLabel,
+  isSafeAnalyticsPagePath,
+} from "./validation";
 
 describe("public analytics input validation", () => {
   it("accepts bounded, normalized analytics labels", () => {
@@ -21,5 +25,12 @@ describe("public analytics input validation", () => {
     expect(isSafeAnalyticsPagePath("portal")).toBe(false);
     expect(isSafeAnalyticsPagePath(`/portal${"\0"}`)).toBe(false);
     expect(isSafeAnalyticsPagePath(`/${"x".repeat(512)}`)).toBe(false);
+  });
+
+  it("accepts only the fixed public-funnel vocabulary and rejects server-only contact success", () => {
+    expect(isAcceptedClientAnalyticsEvent("public_funnel", "cta_click")).toBe(true);
+    expect(isAcceptedClientAnalyticsEvent("public_funnel", "contact_success")).toBe(false);
+    expect(isAcceptedClientAnalyticsEvent("contact_form_submission", "inquiry")).toBe(false);
+    expect(isAcceptedClientAnalyticsEvent("mobile_tool_view", "tools_home")).toBe(true);
   });
 });

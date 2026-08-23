@@ -19,12 +19,7 @@ run = "pnpm --filter @workspace/spartan-coaching run dev"
 
 [services.production]
 build = [ "pnpm", "--filter", "@workspace/spartan-coaching", "run", "build" ]
-publicDir = "artifacts/spartan-coaching/dist/public"
-serve = "static"
-
-[[services.production.rewrites]]
-from = "/*"
-to = "/index.html"
+run = [ "pnpm", "--filter", "@workspace/spartan-coaching", "run", "serve" ]
 
 [services.env]
 PORT = "23436"

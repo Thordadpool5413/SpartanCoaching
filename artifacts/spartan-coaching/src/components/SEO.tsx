@@ -1,6 +1,12 @@
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'wouter';
-import { getSEOConfig, SITE_NAME, DEFAULT_OG_IMAGE, isNoIndexPath } from '@/lib/seo-config';
+import {
+  getSEOConfig,
+  SITE_NAME,
+  SITE_ORIGIN,
+  DEFAULT_OG_IMAGE,
+  isNoIndexPath,
+} from '@/lib/seo-config';
 
 interface SEOProps {
   title?: string;
@@ -29,10 +35,9 @@ export function SEO({ title, description, keywords, ogImage, canonical, noIndex 
   const seoKeywords = keywords || defaultConfig.keywords;
   const seoOgImage = ogImage || defaultConfig.ogImage || DEFAULT_OG_IMAGE;
 
-  const origin =
-    typeof window !== 'undefined' && window.location?.origin
-      ? window.location.origin
-      : 'https://spartancoaching.com';
+  // The canonical must not change just because a visitor used a preview,
+  // staging alias, or an alternate host.
+  const origin = SITE_ORIGIN;
 
   const seoCanonical = canonical || `${origin}${cleanPath === '/' ? '' : cleanPath}`;
   const fullOgImageUrl = absoluteUrl(seoOgImage, origin) || `${origin}${DEFAULT_OG_IMAGE}`;

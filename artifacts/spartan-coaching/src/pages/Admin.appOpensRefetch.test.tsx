@@ -28,6 +28,13 @@ vi.mock("@/lib/adminApi", () => ({
           aiToolUsage: [],
           resourceDownloads: [],
           contactSubmissions: 0,
+          publicFunnel: {
+            ctaClicks: 0,
+            contactStarts: 0,
+            contactSuccesses: 0,
+            contactFailures: 0,
+            appInterest: 0,
+          },
           mobileAiToolUsage: [],
           mobileToolViews: [],
           mobileAppOpens,

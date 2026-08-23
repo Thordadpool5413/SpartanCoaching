@@ -81,6 +81,13 @@ function buildApp() {
       mobileAiToolUsage: [{ eventName: "playbook", count: 3 }],
       mobileToolViews: [{ eventName: "tools_home", count: 7 }],
       mobileAppOpens: { day: 2, week: 8, month: 12 },
+      publicFunnel: {
+        ctaClicks: 12,
+        contactStarts: 4,
+        contactSuccesses: 3,
+        contactFailures: 1,
+        appInterest: 7,
+      },
     }),
   };
 
@@ -195,6 +202,20 @@ describe("GET /api/analytics/events — mobile analytics fields", () => {
     expect(res.body.analytics).toHaveProperty("mobileAppOpens");
     expect(res.body.analytics.mobileAppOpens).toEqual({ day: 2, week: 8, month: 12 });
   });
+
+  it("returns a privacy-safe public funnel summary", async () => {
+    const { app } = buildApp();
+    const res = await request(app).get("/api/analytics/events");
+
+    expect(res.status).toBe(200);
+    expect(res.body.analytics.publicFunnel).toEqual({
+      ctaClicks: 12,
+      contactStarts: 4,
+      contactSuccesses: 3,
+      contactFailures: 1,
+      appInterest: 7,
+    });
+  });
 });
 
 // ── DatabaseStorage.getEventAnalytics (unit) ──────────────────────────────────
@@ -225,14 +246,23 @@ describe("DatabaseStorage.getEventAnalytics — mobile event counts", () => {
     const calledWith = spy.mock.calls.map((c) => c[0]);
     expect(calledWith).toContain("mobile_ai_tool_usage");
     expect(calledWith).toContain("mobile_tool_view");
+    expect(calledWith).toContain("public_funnel");
   });
 
-  it("includes mobileAiToolUsage, mobileToolViews, and mobileAppOpens in the returned object", async () => {
+  it("includes mobile and public-funnel analytics in the returned object", async () => {
     const store = new DatabaseStorage();
 
     vi.spyOn(store, "getEventCounts").mockImplementation(async (eventType) => {
       if (eventType === "mobile_ai_tool_usage") return [{ eventName: "chat", count: 4 }];
       if (eventType === "mobile_tool_view") return [{ eventName: "research", count: 9 }];
+      if (eventType === "public_funnel") {
+        return [
+          { eventName: "cta_click", count: 13 },
+          { eventName: "contact_start", count: 4 },
+          { eventName: "contact_failure", count: 1 },
+          { eventName: "app_interest", count: 6 },
+        ];
+      }
       return [];
     });
 
@@ -251,6 +281,13 @@ describe("DatabaseStorage.getEventAnalytics — mobile event counts", () => {
     expect(result.mobileAppOpens).toHaveProperty("day");
     expect(result.mobileAppOpens).toHaveProperty("week");
     expect(result.mobileAppOpens).toHaveProperty("month");
+    expect(result.publicFunnel).toEqual({
+      ctaClicks: 13,
+      contactStarts: 4,
+      contactSuccesses: 5,
+      contactFailures: 1,
+      appInterest: 6,
+    });
   });
 
   it("returns only events within the time window — older events are excluded", async () => {

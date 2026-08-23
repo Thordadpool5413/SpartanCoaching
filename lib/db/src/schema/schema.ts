@@ -443,6 +443,13 @@ export const eventAnalyticsSchema = z.object({
     week: z.number(),
     month: z.number(),
   }),
+  publicFunnel: z.object({
+    ctaClicks: z.number(),
+    contactStarts: z.number(),
+    contactSuccesses: z.number(),
+    contactFailures: z.number(),
+    appInterest: z.number(),
+  }),
 });
 
 export type EventAnalytics = z.infer<typeof eventAnalyticsSchema>;

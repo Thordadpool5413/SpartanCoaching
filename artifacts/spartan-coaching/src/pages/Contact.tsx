@@ -31,6 +31,7 @@ import { Link } from "wouter";
 import { CheckCircle, Loader2, Mail, ChevronLeft, ChevronRight, X, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { PersuasionShell } from "@/components/PersuasionShell";
+import { PUBLIC_FUNNEL_EVENT, trackPublicFunnelEvent } from "@/lib/publicFunnel";
 
 const contactFormSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -64,6 +65,7 @@ export default function Contact() {
   const [submitError, setSubmitError] = useState<string | null>(null);
   const stepHeadingRef = useRef<HTMLHeadingElement>(null);
   const movedBetweenSteps = useRef(false);
+  const hasTrackedStart = useRef(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -125,6 +127,7 @@ export default function Contact() {
       setStep(1);
     },
     onError: () => {
+      trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.contactFailure, "contact_form");
       const message = "We couldn't send your request right now. Your answers are still here, so you can try again.";
       setSubmitError(message);
       toast({
@@ -161,6 +164,12 @@ export default function Contact() {
   };
 
   const retrySubmit = () => form.handleSubmit(onSubmit)();
+
+  const trackStart = () => {
+    if (hasTrackedStart.current) return;
+    hasTrackedStart.current = true;
+    trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.contactStart, "contact_form");
+  };
 
   return (
     <PersuasionShell>
@@ -260,7 +269,11 @@ export default function Contact() {
               </ol>
 
               <Form {...form}>
-                <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                <form
+                  onSubmit={form.handleSubmit(onSubmit)}
+                  onFocusCapture={trackStart}
+                  className="space-y-5"
+                >
                   <h2 ref={stepHeadingRef} tabIndex={-1} className="sr-only">
                     Step {step}: {STEP_LABELS[step - 1]}
                   </h2>

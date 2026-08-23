@@ -22,6 +22,13 @@ const mockEventAnalytics = {
     mobileAiToolUsage: [{ eventName: "playbook", count: 5 }],
     mobileToolViews: [{ eventName: "tools_home", count: 11 }],
     mobileAppOpens: { day: 1, week: 4, month: 9 },
+    publicFunnel: {
+      ctaClicks: 0,
+      contactStarts: 0,
+      contactSuccesses: 0,
+      contactFailures: 0,
+      appInterest: 0,
+    },
   },
 };
 
@@ -185,6 +192,13 @@ describe("Admin page — mobile analytics cards", () => {
             mobileAiToolUsage: [],
             mobileToolViews: [],
             mobileAppOpens: { day: 0, week: 0, month: 0 },
+            publicFunnel: {
+              ctaClicks: 0,
+              contactStarts: 0,
+              contactSuccesses: 0,
+              contactFailures: 0,
+              appInterest: 0,
+            },
           },
         };
       }
