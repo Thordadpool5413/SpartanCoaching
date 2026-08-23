@@ -23,6 +23,7 @@ import {
   secondaryCategoriesStillSupported,
   getToolById as getTool,
    getToolWorkGuide,
+   getResourceWorkGuide,
 } from "./index";
 
 describe("Membership mobile parity", () => {
@@ -110,10 +111,23 @@ describe("Catalog-backed completion guidance", () => {
     }
   });
 
-  it("does not label retained role-play feedback as session-only", () => {
-    expect(getToolWorkGuide("role-play").persistence).toMatch(
-      /member and organization workspace/i,
-    );
+  it("keeps role-play feedback session-only", () => {
+    const persistence = getToolWorkGuide("role-play").persistence;
+    expect(persistence).toMatch(/current session|session only/i);
+    expect(persistence).toMatch(/not added to run history|not.*saved/i);
+  });
+
+  it("gives every resource type an actionable, safe workflow contract", () => {
+    for (const category of ["template", "script", "checklist", "guide", "policy", "form"]) {
+      const guide = getResourceWorkGuide({ category });
+      expect(guide.job.length).toBeGreaterThan(20);
+      expect(guide.outputPreview.length).toBeGreaterThan(20);
+      expect(guide.inputHint).toMatch(/PHI|deidentified/i);
+      expect(guide.persistence.length).toBeGreaterThan(20);
+      expect(guide.reviewCheckpoint.length).toBeGreaterThan(20);
+      expect(guide.nextToolId).toBeTruthy();
+      expect(getToolById(guide.nextToolId!)).toBeDefined();
+    }
   });
 });
 

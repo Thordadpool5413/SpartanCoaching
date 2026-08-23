@@ -1,5 +1,5 @@
 import { Link } from "wouter";
-import { ArrowRight, ShieldCheck } from "lucide-react";
+import { ArrowRight, CheckCircle2, ShieldCheck } from "lucide-react";
 import type { FieldKitTool } from "@/lib/fieldKitCatalog";
 import { getToolById, getToolWorkGuide } from "@/lib/fieldKitCatalog";
 
@@ -33,7 +33,16 @@ export function ToolWorkGuide({ tool }: { tool: FieldKitTool }) {
         </div>
       </div>
 
-      <div className="grid gap-4 text-sm md:grid-cols-3">
+      <div className="mb-4 flex flex-wrap gap-2 text-xs">
+        <span className="rounded-full border border-primary/30 bg-primary/10 px-3 py-1 font-bold uppercase tracking-wide text-primary">
+          {guide.phase}
+        </span>
+        <span className="rounded-full border border-border bg-background/60 px-3 py-1 text-muted-foreground">
+          For {guide.audience}
+        </span>
+      </div>
+
+      <div className="grid gap-4 text-sm md:grid-cols-4">
         <div>
           <p className="font-bold text-foreground">Enter safely</p>
           <p className="mt-1 leading-relaxed text-muted-foreground">{guide.inputHint}</p>
@@ -45,6 +54,13 @@ export function ToolWorkGuide({ tool }: { tool: FieldKitTool }) {
         <div>
           <p className="font-bold text-foreground">Keep the work straight</p>
           <p className="mt-1 leading-relaxed text-muted-foreground">{guide.persistence}</p>
+        </div>
+        <div>
+          <p className="inline-flex items-center gap-1 font-bold text-foreground">
+            <CheckCircle2 className="h-4 w-4 text-primary" aria-hidden />
+            Review before you go
+          </p>
+          <p className="mt-1 leading-relaxed text-muted-foreground">{guide.reviewCheckpoint}</p>
         </div>
       </div>
 

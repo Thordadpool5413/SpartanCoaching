@@ -78,6 +78,7 @@ export function WeeklyTool() {
       title="Weekly Plan Builder"
       subtitle="Monday–Friday with win conditions before the week runs you."
       category="Plan"
+      catalogToolId="weekly-plan"
       whenToUse="Sunday evening or Monday morning before the territory owns you."
       howSteps={["List priority accounts.", "Set one weekly win condition.", "Generate Mon–Fri plan."]}
       ctaTitle="Build week plan"

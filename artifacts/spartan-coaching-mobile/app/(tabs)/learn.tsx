@@ -24,7 +24,11 @@ import { useAuth } from "@/lib/AuthContext";
 import { groupResources, type ResourceLike } from "@/lib/resourceGroups";
 import { openToolHref } from "@/lib/toolDeepLinks";
 import { font } from "@/lib/typography";
-import { MOBILE_FIELD_RESULT_ACTIONS } from "@workspace/field-kit-catalog";
+import {
+  getResourceWorkGuide,
+  getToolById,
+  MOBILE_FIELD_RESULT_ACTIONS,
+} from "@workspace/field-kit-catalog";
 
 type LearnTab = "articles" | "podcasts" | "resources";
 
@@ -308,7 +312,10 @@ export default function LearnScreen() {
               {providerQuery.isLoading ? <Loading compact /> : null}
               {!providerQuery.isLoading && providerItems.length === 0 ? <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>No private organization resources have been published.</Text> : null}
               {providerItems.map((item) => (
-                <LibraryRow key={item.id} title={item.title} subtitle={item.description || "Private organization resource"} meta={item.kind} icon="briefcase" onPress={() => openLibraryItem({ title: item.title, description: item.description, url: item.fileUrl, kind: "resource" })} testID={`provider-resource-${item.id}`} />
+                <View key={item.id}>
+                  <LibraryRow title={item.title} subtitle={item.description || "Private organization resource"} meta={item.kind} icon="briefcase" onPress={() => openLibraryItem({ title: item.title, description: item.description, url: item.fileUrl, kind: "resource" })} testID={`provider-resource-${item.id}`} />
+                  <ResourceWorkflowNote category={item.kind} testID={`provider-resource-workflow-${item.id}`} />
+                </View>
               ))}
             </View>
           ) : null}
@@ -326,24 +333,30 @@ export default function LearnScreen() {
                   const architecture = item.architecture || item.contentArchitecture;
                   const version = item.lifecycle?.versionLabel || item.versionLabel;
                   return (
-                    <LibraryRow
-                      key={item.id}
-                      title={item.title}
-                      subtitle={architecture?.whenToUse || architecture?.expectedOutcome || item.description || "Field resource"}
-                      meta={[version ? `Version ${version}` : null, item.lifecycle?.hasNewerVersion ? "Update available" : null].filter(Boolean).join(" · ")}
-                      icon="file-text"
-                      onPress={() => openLibraryItem({
-                        title: item.title,
-                        description: item.description,
-                        url: item.fileUrl,
-                        kind: "resource",
-                        whenToUse: architecture?.whenToUse,
-                        whyItMatters: architecture?.whyItMatters,
-                        expectedOutcome: architecture?.expectedOutcome,
-                        version: version || undefined,
-                      })}
-                      testID={`resource-${item.id}`}
-                    />
+                    <View key={item.id}>
+                      <LibraryRow
+                        title={item.title}
+                        subtitle={architecture?.whenToUse || architecture?.expectedOutcome || item.description || "Field resource"}
+                        meta={[version ? `Version ${version}` : null, item.lifecycle?.hasNewerVersion ? "Update available" : null].filter(Boolean).join(" · ")}
+                        icon="file-text"
+                        onPress={() => openLibraryItem({
+                          title: item.title,
+                          description: item.description,
+                          url: item.fileUrl,
+                          kind: "resource",
+                          whenToUse: architecture?.whenToUse,
+                          whyItMatters: architecture?.whyItMatters,
+                          expectedOutcome: architecture?.expectedOutcome,
+                          version: version || undefined,
+                        })}
+                        testID={`resource-${item.id}`}
+                      />
+                      <ResourceWorkflowNote
+                        category={item.category}
+                        relatedToolIds={architecture?.relatedToolIds}
+                        testID={`resource-workflow-${item.id}`}
+                      />
+                    </View>
                   );
                 })}
               </View>
@@ -391,6 +404,44 @@ function LibraryRow({ title, subtitle, meta, icon, onPress, testID }: { title: s
   );
 }
 
+function ResourceWorkflowNote({
+  category,
+  relatedToolIds,
+  testID,
+}: {
+  category?: string | null;
+  relatedToolIds?: string[];
+  testID: string;
+}) {
+  const colors = useColors();
+  const workflow = getResourceWorkGuide({ category, relatedToolIds });
+  const nextTool = workflow.nextToolId ? getToolById(workflow.nextToolId) : undefined;
+  const openNextTool = () => {
+    if (!nextTool) return;
+    if (nextTool.mobileToolTab) {
+      router.push(openToolHref(nextTool.mobileToolTab as any) as any);
+      return;
+    }
+    router.push((nextTool.mobileRoute || "/(tabs)/tools") as any);
+  };
+  return (
+    <View style={[styles.resourceWorkflow, { backgroundColor: colors.primaryMuted, borderColor: colors.borderStrong }]} testID={testID}>
+      <Text style={[styles.resourceWorkflowMeta, { color: colors.primary }, font("bold")]}>{workflow.phase.toUpperCase()} · FIELD WORKFLOW</Text>
+      <Text style={[styles.resourceWorkflowTitle, { color: colors.foreground }, font("bold")]}>Job: {workflow.job}</Text>
+      <Text style={[styles.resourceWorkflowBody, { color: colors.mutedForeground }, font("regular")]}>Safe use: {workflow.inputHint}</Text>
+      <Text style={[styles.resourceWorkflowBody, { color: colors.mutedForeground }, font("regular")]}>Expected output: {workflow.outputPreview}</Text>
+      <Text style={[styles.resourceWorkflowBody, { color: colors.mutedForeground }, font("regular")]}>Saved: {workflow.persistence}</Text>
+      <Text style={[styles.resourceWorkflowBody, { color: colors.mutedForeground }, font("regular")]}>Review: {workflow.reviewCheckpoint}</Text>
+      {nextTool ? (
+        <Pressable onPress={openNextTool} accessibilityRole="button" accessibilityLabel={`Next: open ${nextTool.title}`} style={styles.resourceWorkflowNext}>
+          <Text style={[{ color: colors.primary, fontSize: 12 }, font("bold")]}>Next: open {nextTool.title}</Text>
+          <Feather name="arrow-right" size={15} color={colors.primary} />
+        </Pressable>
+      ) : null}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   header: { paddingHorizontal: 20, paddingBottom: 14, borderBottomWidth: StyleSheet.hairlineWidth },
@@ -425,6 +476,11 @@ const styles = StyleSheet.create({
   rowMeta: { fontSize: 9, letterSpacing: 1.25, marginBottom: 4 },
   rowTitle: { fontSize: 15, lineHeight: 20 },
   rowBody: { fontSize: 12, lineHeight: 17, marginTop: 4 },
+  resourceWorkflow: { marginTop: -4, marginBottom: 16, borderWidth: StyleSheet.hairlineWidth * 2, borderRadius: 16, padding: 13 },
+  resourceWorkflowMeta: { fontSize: 9, letterSpacing: 1.1 },
+  resourceWorkflowTitle: { fontSize: 12, lineHeight: 17, marginTop: 5 },
+  resourceWorkflowBody: { fontSize: 10, lineHeight: 15, marginTop: 5 },
+  resourceWorkflowNext: { minHeight: 36, marginTop: 7, flexDirection: "row", alignItems: "center", gap: 5 },
   modeIntro: { minHeight: 112, borderRadius: 22, borderCurve: "continuous", padding: 17, flexDirection: "row", alignItems: "flex-start", gap: 13, marginBottom: 24 },
   modeIcon: { width: 42, height: 42, borderRadius: 13, borderCurve: "continuous", alignItems: "center", justifyContent: "center" },
   modeTitleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },

@@ -42,6 +42,7 @@ import {
   filterDiscoveryIntents,
   type FieldKitTool,
   type DiscoveryIntent,
+  getToolWorkGuide,
 } from "@/lib/fieldKitCatalog";
 
 const TOOL_ICONS: Record<string, ReactNode> = {
@@ -142,6 +143,13 @@ export default function Tools() {
               </Badge>
             </div>
             <p className="text-sm text-muted-foreground leading-relaxed mb-2">{tool.description}</p>
+            <p className="text-xs text-muted-foreground leading-relaxed mb-2">
+              <span className="font-semibold uppercase tracking-wide text-primary">
+                {getToolWorkGuide(tool).phase}
+              </span>
+              {" · "}
+              {getToolWorkGuide(tool).audience}
+            </p>
             <p className="text-xs text-muted-foreground leading-relaxed flex-1 mb-6">
               <span className="font-semibold text-foreground">When: </span>
               {tool.whenToUse}

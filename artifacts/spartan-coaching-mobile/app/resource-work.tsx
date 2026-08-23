@@ -61,6 +61,7 @@ export default function ResourceWorkScreen() {
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const persistLocal = useCallback(async (next: FormState) => {
     try {
@@ -129,7 +130,7 @@ export default function ResourceWorkScreen() {
     return () => {
       cancelled = true;
     };
-  }, [canUseFieldKit]);
+  }, [canUseFieldKit, reloadKey]);
 
   const setField = (key: keyof FormState, value: string) => {
     setForm((prev) => {
@@ -244,6 +245,31 @@ export default function ResourceWorkScreen() {
                 Outcome: {detail.expectedOutcome}
               </Text>
             ) : null}
+            <View
+              style={[styles.workflowCard, { backgroundColor: colors.card, borderColor: colors.borderStrong }]}
+              accessibilityLabel="Weekly plan completion checklist"
+              testID="resource-work-completion-checklist"
+            >
+              <Text style={[{ color: colors.primary, fontSize: 10, letterSpacing: 1.4 }, font("bold")]}>
+                PREPARE · COMPLETE THE JOB
+              </Text>
+              <Text style={[{ color: colors.foreground, fontSize: 14, marginTop: 5 }, font("bold")]}>
+                Build a week you can execute, not a list you will abandon.
+              </Text>
+              {[
+                "Choose three priority accounts and one measurable week win.",
+                "Protect the first field block before lower-value work fills it.",
+                "On Friday, mark the win kept, moved, or blocked before planning again.",
+              ].map((step, index) => (
+                <Text key={step} style={[styles.checklistStep, { color: colors.mutedForeground }, font("regular")]}>
+                  <Text style={[{ color: colors.primary }, font("bold")]}>{index + 1}. </Text>
+                  {step}
+                </Text>
+              ))}
+              <Text style={[styles.workflowBoundary, { color: colors.mutedForeground }, font("regular")]}>
+                Use professional account context only. Do not add patient names, contact details, or clinical information.
+              </Text>
+            </View>
 
             <Field
               label="Week of"
@@ -296,9 +322,20 @@ export default function ResourceWorkScreen() {
               </Text>
             ) : null}
             {error ? (
-              <Text style={[{ color: colors.destructive ?? "#b91c1c", marginTop: 12, fontSize: 13 }, font("regular")]}>
-                {error}
-              </Text>
+              <View style={{ marginTop: 12, gap: 8 }}>
+                <Text style={[{ color: colors.destructive ?? "#b91c1c", fontSize: 13 }, font("regular")]}>
+                  {error}
+                </Text>
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel="Retry loading weekly plan"
+                  onPress={() => setReloadKey((current) => current + 1)}
+                  style={styles.retry}
+                  testID="button-retry-resource-work"
+                >
+                  <Text style={[{ color: colors.primary, fontSize: 13 }, font("bold")]}>Retry connection</Text>
+                </Pressable>
+              </View>
             ) : null}
 
             <View style={styles.actions}>
@@ -330,6 +367,21 @@ export default function ResourceWorkScreen() {
                 </Text>
               </Pressable>
             </View>
+            {status === "completed" ? (
+              <Pressable
+                accessibilityRole="button"
+                onPress={() => router.push("/sales-workflow" as any)}
+                style={[styles.nextAction, { borderColor: colors.primary, backgroundColor: colors.primaryMuted }]}
+                testID="button-resource-work-next-action"
+              >
+                <View style={{ flex: 1 }}>
+                  <Text style={[{ color: colors.primary, fontSize: 13 }, font("bold")]}>Next: open Sales Command Center</Text>
+                  <Text style={[{ color: colors.mutedForeground, fontSize: 11, marginTop: 2 }, font("regular")]}>
+                    Start with Monday’s first priority account and confirm the next step.
+                  </Text>
+                </View>
+              </Pressable>
+            ) : null}
 
             <Pressable onPress={() => goBackOrReplace("/(tabs)/tools?view=library")} style={{ marginTop: 16 }}>
               <Text style={[{ color: colors.mutedForeground, fontSize: 14 }, font("regular")]}>
@@ -394,6 +446,11 @@ const styles = StyleSheet.create({
     fontSize: 15,
   },
   actions: { marginTop: 20, gap: 10 },
+  workflowCard: { marginTop: 16, borderWidth: 1, borderRadius: 14, padding: 14 },
+  checklistStep: { fontSize: 12, lineHeight: 18, marginTop: 8 },
+  workflowBoundary: { fontSize: 10, lineHeight: 15, marginTop: 10 },
+  retry: { minHeight: 40, justifyContent: "center", alignSelf: "flex-start" },
+  nextAction: { marginTop: 16, minHeight: 66, borderWidth: 1, borderRadius: 12, padding: 13, justifyContent: "center" },
   btn: {
     borderRadius: 12,
     paddingVertical: 14,

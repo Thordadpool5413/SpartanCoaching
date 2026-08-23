@@ -54,9 +54,13 @@ export interface FieldKitTool {
  * or generated text are stored somewhere they are not.
  */
 export type FieldKitWorkGuide = {
+  /** The moment in the field workflow this experience is designed for. */
+  phase: "prepare" | "practice" | "execute" | "review";
+  audience: string;
   inputHint: string;
   outputPreview: string;
   persistence: string;
+  reviewCheckpoint: string;
   nextToolId?: string;
 };
 
@@ -331,66 +335,87 @@ export function toolsByCategory(category: FieldKitCategory): FieldKitTool[] {
 
 const PRIORITY_WORK_GUIDES: Record<string, FieldKitWorkGuide> = {
   "sales-workflow": {
+    phase: "execute",
+    audience: "Sales reps and leaders managing active accounts",
     inputHint:
       "Add only professional account context and the next action you need to confirm. Never enter patient identifiers or PHI.",
     outputPreview:
       "A connected pre-call plan, practice path, outcome capture, and confirmed next step for the account.",
     persistence:
       "Account and call work stays in Sales Command Center’s own workspace. Keep PHI out, and do not rely on device or offline storage for continuity.",
+    reviewCheckpoint: "Before leaving the account, confirm the owner, date, and next action—not just a note.",
     nextToolId: "playbooks",
   },
   playbooks: {
+    phase: "prepare",
+    audience: "Reps preparing for a priority visit or account move",
     inputHint:
       "Describe the referral-source situation, pressure point, and desired commitment. Use deidentified business context only.",
     outputPreview:
       "A visit strategy with talking points, discovery questions, and one precise next-step ask.",
     persistence:
       "A generated playbook stays in the current session until you copy or download it. Save the final version only in your permitted work system.",
+    reviewCheckpoint: "Circle one discovery question and one ask you will actually use in the room.",
     nextToolId: "sales-workflow",
   },
   objections: {
+    phase: "practice",
+    audience: "Reps handling a live referral-source objection",
     inputHint:
       "Use the exact objection in deidentified form and add only the professional context that changes your response.",
     outputPreview:
       "A field-ready response you can practice once, adapt to the conversation, and use on the next call.",
     persistence:
       "The response stays on screen until you copy it. It is not automatically added to shared saved work.",
+    reviewCheckpoint: "Say it aloud once and remove any phrase that sounds defensive, clinical, or generic.",
     nextToolId: "role-play",
   },
   "role-play": {
+    phase: "practice",
+    audience: "Reps and managers rehearsing a high-stakes conversation",
     inputHint:
       "Choose the real conversation you need to rehearse, but never use patient identifiers, clinical details, or PHI.",
     outputPreview:
       "A practice conversation with feedback and one phrase or pivot to carry into the live visit.",
     persistence:
-      "Role-play sessions and feedback are retained in your member and organization workspace. They are not copied by this guide into device or offline continuity storage.",
+      "Role-play feedback stays in the current session only. It is not added to run history, shared saved work, device storage, or cross-device continuity.",
+    reviewCheckpoint: "Write down the one phrase to reuse and the one behavior to change on the next call.",
     nextToolId: "sales-workflow",
   },
   "weekly-plan": {
+    phase: "prepare",
+    audience: "Reps and leaders setting a focused territory week",
     inputHint:
       "List priority accounts, territory context, and the week’s win condition. Use professional account context only—never PHI.",
     outputPreview:
       "A Monday–Friday territory plan with daily win conditions, visit objectives, and a Friday review.",
     persistence:
       "Your plan is available to copy or download in this session. It is not automatically added to My Work, so retain the final plan in your permitted system.",
+    reviewCheckpoint: "End Friday by marking the commitment kept, moved, or lost and carry one lesson into next week.",
     nextToolId: "sales-workflow",
   },
   "cold-call": {
+    phase: "prepare",
+    audience: "Reps opening a focused new-account outreach block",
     inputHint:
       "Describe the target organization, your reason for calling, and the commitment you want. Keep all context deidentified.",
     outputPreview:
       "An opener, objection response, and a clear ask you can use for one focused outreach block.",
     persistence:
       "The script remains on screen until you copy or download it; it is not automatically added to shared saved work.",
+    reviewCheckpoint: "After ten calls, record the opener that earned the most conversation and adjust only one variable.",
     nextToolId: "sales-workflow",
   },
   "email-templates": {
+    phase: "execute",
+    audience: "Reps following up with referral partners",
     inputHint:
       "Add the relationship context, purpose, and tone. Never enter patient details, PHI, or sensitive clinical notes.",
     outputPreview:
       "A professional draft you can edit, copy, download, or intentionally send with a clear follow-up reminder.",
     persistence:
       "Generated drafts remain in the current session. A scheduled reminder is not proof that an email was sent; confirm the send action separately.",
+    reviewCheckpoint: "Read the draft as the recipient: is the ask specific, easy to answer, and tied to the conversation?",
     nextToolId: "sales-workflow",
   },
 };
@@ -401,22 +426,121 @@ export function getToolWorkGuide(toolOrId: FieldKitTool | string): FieldKitWorkG
 
   if (!tool) {
     return {
+      phase: "prepare",
+      audience: "Hospice sales professionals",
       inputHint: "Use deidentified professional context only. Never enter patient identifiers or PHI.",
       outputPreview: "A practical result you can review, adapt, and use in your next field action.",
       persistence:
         "Results are not automatically shared or stored by this guide. Copy or download only what belongs in your permitted work system.",
+      reviewCheckpoint: "Check the result for accuracy, tone, and one concrete action before using it.",
     };
   }
 
   return (
     PRIORITY_WORK_GUIDES[tool.id] ?? {
+      phase:
+        tool.category === "Practice"
+          ? "practice"
+          : tool.category === "Measure"
+            ? "review"
+            : tool.category === "Outreach"
+              ? "execute"
+              : "prepare",
+      audience:
+        tool.category === "Measure"
+          ? "Sales leaders and operators"
+          : "Hospice sales professionals",
       inputHint: `${tool.howSteps[0]}. Use deidentified professional business context only—never PHI.`,
       outputPreview: tool.outcome ?? `${tool.description} Review the result before using it in the field.`,
       persistence:
         "Results remain in the current session unless this tool offers an explicit save, copy, or download action. Keep any retained work in your permitted system.",
+      reviewCheckpoint:
+        tool.category === "Measure"
+          ? "Compare the result with the operating reality and decide what metric or behavior changes next."
+          : "Check the result for accuracy, tone, and one concrete action before using it.",
       nextToolId: tool.id === "brand-video" ? undefined : "sales-workflow",
     }
   );
+}
+
+/** Completion guidance for downloadable and provider-owned field resources. */
+export type FieldKitResourceWorkGuide = {
+  phase: "prepare" | "practice" | "execute" | "review";
+  job: string;
+  outputPreview: string;
+  checklist: [string, string, string];
+  inputHint: string;
+  persistence: string;
+  reviewCheckpoint: string;
+  nextToolId?: string;
+};
+
+export function getResourceWorkGuide(input: {
+  category?: string | null;
+  relatedToolIds?: string[] | null;
+}): FieldKitResourceWorkGuide {
+  const category = input.category?.toLowerCase() ?? "";
+  const guides: Record<string, FieldKitResourceWorkGuide> = {
+    template: {
+      phase: "prepare",
+      job: "Build a clear field plan before the next visit or territory block.",
+      outputPreview: "A completed, deidentified plan or worksheet with one commitment ready for the next field block.",
+      checklist: [
+        "Choose one account, meeting, or planning block.",
+        "Fill it with deidentified professional context only.",
+        "Carry one commitment into the next field action.",
+      ],
+      inputHint: "Use professional account and territory context only—never patient information or PHI.",
+      persistence: "Opening or downloading this resource does not add it to My Work or automatically sync the finished copy to another device.",
+      reviewCheckpoint: "Before you leave the resource, identify the one commitment, owner, and date that make it actionable.",
+      nextToolId: "playbooks",
+    },
+    script: {
+      phase: "practice",
+      job: "Rehearse the language before the live conversation.",
+      outputPreview: "A practiced opening or response you can adapt and use in the next live conversation.",
+      checklist: [
+        "Pick the exact moment you expect to face.",
+        "Practice one opening or response aloud.",
+        "Adjust the wording after the real conversation.",
+      ],
+      inputHint: "Use deidentified professional context only—never patient details, clinical notes, or PHI.",
+      persistence: "Opening or downloading this resource does not add it to My Work or automatically sync the finished copy to another device.",
+      reviewCheckpoint: "Say the key line aloud and remove any wording that sounds generic, defensive, or outside your role.",
+      nextToolId: "role-play",
+    },
+    checklist: {
+      phase: "execute",
+      job: "Move a real account or weekly commitment to a clear next step.",
+      outputPreview: "A completed follow-through record with an owner, date, and next action.",
+      checklist: [
+        "Use it immediately before or after the field task.",
+        "Mark the commitment kept, moved, or blocked.",
+        "Capture the owner and date for follow-through.",
+      ],
+      inputHint: "Record professional follow-through only—never patient identifiers, clinical information, or PHI.",
+      persistence: "Opening or downloading this resource does not add it to My Work or automatically sync the finished copy to another device.",
+      reviewCheckpoint: "Confirm an accountable owner and due date instead of treating the checklist as complete on its own.",
+      nextToolId: "sales-workflow",
+    },
+    guide: {
+      phase: "review",
+      job: "Turn a lesson into one change in the next field block.",
+      outputPreview: "One specific behavior, phrase, or planning adjustment ready to test in the field.",
+      checklist: [
+        "Read for one situation you will face this week.",
+        "Choose one behavior or phrase to try.",
+        "Review what changed after the next conversation.",
+      ],
+      inputHint: "Use the guide with deidentified professional context only; never add patient information or PHI.",
+      persistence: "Opening or downloading this resource does not add it to My Work or automatically sync the finished copy to another device.",
+      reviewCheckpoint: "Choose one observable behavior to test, then revisit the guide after the next live conversation.",
+      nextToolId: "weekly-plan",
+    },
+  };
+  const fallback = guides[category] ?? guides.guide;
+  const nextToolId = input.relatedToolIds?.find((id) => Boolean(getToolById(id))) ?? fallback.nextToolId;
+  return { ...fallback, nextToolId };
 }
 
 /**

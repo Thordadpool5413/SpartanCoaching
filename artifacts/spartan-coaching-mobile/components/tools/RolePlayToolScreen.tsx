@@ -21,6 +21,7 @@ export function RolePlayToolScreen() {
       title="Role-Play Practice"
       subtitle="Simulate hard conversations before you're in the room."
       category="Practice"
+      catalogToolId="role-play"
       stickyCta={false}
       testID="tool-roleplay"
     >

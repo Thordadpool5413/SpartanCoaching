@@ -55,6 +55,7 @@ export function PlaybookTool() {
       title="Playbook Generator"
       subtitle="Custom talking points and a clear next step for this visit."
       category="Prepare"
+      catalogToolId="playbooks"
       whenToUse="Before an account visit when you need a specific approach, not a generic script."
       howSteps={["Describe the scenario (no PHI).", "Optional: desired outcomes.", "Generate and execute."]}
       ctaTitle={result ? "Create another playbook" : "Build playbook"}

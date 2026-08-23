@@ -81,6 +81,7 @@ export function ObjectionTool() {
       title="Objection Handler"
       subtitle="Paste a real line you heard — field-ready talk track in seconds."
       category="Practice"
+      catalogToolId="objections"
       whenToUse="Before or after a visit when you hear 'not ready,' preferred hospice, or timing pushback."
       howSteps={[
         "Paste the objection (no patient names or PHI).",

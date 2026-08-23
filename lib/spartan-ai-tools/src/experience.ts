@@ -34,6 +34,19 @@ export type AiToolExperience = {
     values: Record<string, AiToolExperienceValue>,
     context?: AiToolExperienceContext,
   ) => Record<string, unknown>;
+  workflow?: AiToolWorkflow;
+};
+
+/**
+ * The human work around an AI run. Kept beside the experience fields so web
+ * and iPhone never invent different promises about review or retention.
+ */
+export type AiToolWorkflow = {
+  phase: "prepare" | "practice" | "execute" | "review";
+  audience: string;
+  nextAction: string;
+  reviewCheckpoint: string;
+  persistence: string;
 };
 
 export type AiToolExperienceContext = {
@@ -49,6 +62,107 @@ const progress = [
   "Building your recommendation",
   "Organizing your field plan",
 ] as const;
+
+const AI_TOOL_WORKFLOWS: Record<SpartanAiToolId, AiToolWorkflow> = {
+  "content-categorizer": {
+    phase: "review",
+    audience: "Content owners and trainers",
+    nextAction: "Review the recommended tags with the content owner, then publish only the approved version.",
+    reviewCheckpoint: "Confirm the category and tags match the actual audience and permitted use.",
+    persistence: "Completed nonclinical runs are retained in Recent runs; publication still requires an intentional human action.",
+  },
+  "content-gap-analyzer": {
+    phase: "review",
+    audience: "Sales leaders and enablement owners",
+    nextAction: "Choose one content gap to solve in the next training block.",
+    reviewCheckpoint: "Validate the recommendation against manager observation before making a training commitment.",
+    persistence: "Completed nonclinical runs are retained in Recent runs; exports are local copies.",
+  },
+  "content-generator": {
+    phase: "prepare",
+    audience: "Field leaders and content owners",
+    nextAction: "Edit the draft for the next real audience and send it through your approved review path.",
+    reviewCheckpoint: "Verify every claim, source, audience fit, and call to action before publication or delivery.",
+    persistence: "Completed nonclinical runs are retained in Recent runs; the draft is not published automatically.",
+  },
+  "content-recommender": {
+    phase: "prepare",
+    audience: "Reps and leaders choosing the next learning move",
+    nextAction: "Open one recommended resource and schedule the field practice it supports.",
+    reviewCheckpoint: "Choose the resource that fits the job in front of you—not the longest reading list.",
+    persistence: "Completed nonclinical runs are retained in Recent runs; opening a resource does not mark it complete.",
+  },
+  "development-plan-generator": {
+    phase: "review",
+    audience: "Reps and coaching leaders",
+    nextAction: "Agree on one measurable behavior to practice before the next coaching review.",
+    reviewCheckpoint: "Make the plan specific enough to observe in the field and set the next review date.",
+    persistence: "Completed nonclinical runs are retained in Recent runs; manager follow-through is not automatic.",
+  },
+  "email-optimizer": {
+    phase: "execute",
+    audience: "Reps following up with referral partners",
+    nextAction: "Edit the preferred draft, send from your approved mail app, and confirm the follow-up date.",
+    reviewCheckpoint: "Read it as the recipient: make the ask specific, professional, and easy to answer.",
+    persistence: "Completed nonclinical runs are retained in Recent runs; this tool does not send email.",
+  },
+  "family-meeting-simulator": {
+    phase: "practice",
+    audience: "Qualified team members preparing a difficult family conversation",
+    nextAction: "Use the practice prompts in the approved team huddle and seek clinical guidance when needed.",
+    reviewCheckpoint: "Confirm the language respects the family and fits the qualified clinician’s plan.",
+    persistence: "Completed nonclinical runs are retained in Recent runs; do not use it as clinical direction.",
+  },
+  "microlearning-generator": {
+    phase: "practice",
+    audience: "Reps and trainers building a focused skill habit",
+    nextAction: "Complete the lesson, practice the skill once, and note what changes on the next call.",
+    reviewCheckpoint: "Keep the challenge focused on one observable behavior, not passive completion.",
+    persistence: "Completed nonclinical runs are retained in Recent runs; completion is not automatically reported to a manager.",
+  },
+  "territory-account-discovery": {
+    phase: "prepare",
+    audience: "Reps building a focused territory prospect list",
+    nextAction: "Choose the next account to research and set the first outreach block in Sales Command Center.",
+    reviewCheckpoint: "Verify account relevance and current information before outreach.",
+    persistence: "Completed nonclinical runs are retained in Recent runs; account results are not added to Command Center automatically.",
+  },
+  "admission-eligibility": {
+    phase: "review",
+    audience: "Qualified clinical reviewers",
+    nextAction: "Take the educational summary to the qualified medical director or compliance review path.",
+    reviewCheckpoint: "Verify current policy and qualified clinical judgment before any determination.",
+    persistence: "This is a one-time, deidentified result. It is not saved to history or synced to another device; any download is a local copy.",
+  },
+  "documentation-gap-analyzer": {
+    phase: "review",
+    audience: "Qualified clinical reviewers",
+    nextAction: "Use the educational gaps to guide the qualified documentation review.",
+    reviewCheckpoint: "Verify the source material and current policy before acting on a suggested gap.",
+    persistence: "This is a one-time, deidentified result. It is not saved to history or synced to another device; any download is a local copy.",
+  },
+  "lcd-policy-sales-playbook": {
+    phase: "prepare",
+    audience: "Clinical, compliance, and field education leaders",
+    nextAction: "Route the draft through approved policy review before teaching or distributing it.",
+    reviewCheckpoint: "Verify the source, jurisdiction, and approval status before any field use.",
+    persistence: "This is a one-time, deidentified result. It is not saved to history or synced to another device; any download is a local copy.",
+  },
+  "medical-record-lcd-verifier": {
+    phase: "review",
+    audience: "Qualified clinical reviewers",
+    nextAction: "Use the educational output only as an input to qualified review.",
+    reviewCheckpoint: "Confirm deidentification, current policy, and the appropriate reviewer before any decision.",
+    persistence: "This is a one-time, deidentified result. It is not saved to history or synced to another device; any download is a local copy.",
+  },
+  "medicare-lcd-advisor": {
+    phase: "review",
+    audience: "Qualified clinical reviewers and educators",
+    nextAction: "Verify the current source with the appropriate clinical or compliance reviewer.",
+    reviewCheckpoint: "Treat the answer as educational context, never as a coverage or admission decision.",
+    persistence: "This is a one-time, deidentified result. It is not saved to history or synced to another device; any download is a local copy.",
+  },
+};
 
 const stringValue = (
   values: Record<string, AiToolExperienceValue>,
@@ -350,7 +464,7 @@ const experiences: Record<SpartanAiToolId, AiToolExperience> = {
 };
 
 export function getAiToolExperience(toolId: SpartanAiToolId): AiToolExperience {
-  return experiences[toolId];
+  return { ...experiences[toolId], workflow: AI_TOOL_WORKFLOWS[toolId] };
 }
 
 export function initialAiToolExperienceValues(

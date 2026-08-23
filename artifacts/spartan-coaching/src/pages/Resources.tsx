@@ -21,6 +21,7 @@ import { useToast } from "@/hooks/use-toast";
 import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 import { ToolResultActions } from "@/components/ToolResultActions";
 import { trackProductOutcome } from "@/lib/analytics";
+import { getResourceWorkGuide, getToolById, getToolWorkGuide } from "@/lib/fieldKitCatalog";
 
 type ProviderResourceItem = {
   id: number;
@@ -32,6 +33,94 @@ type ProviderResourceItem = {
   ownershipLabel?: string;
   isProviderOwned?: boolean;
 };
+
+type ResourceArchitecture = {
+  jobToAccomplish?: string;
+  useCase?: string;
+  whenToUse?: string;
+  expectedOutcome?: string;
+  role?: string[];
+  completionTimeMinutes?: number | null;
+  relatedToolIds?: string[];
+  clinicalSensitivity?: string;
+  experienceLevel?: string;
+};
+
+type ResourceWorkflow = {
+  phase: "prepare" | "practice" | "execute" | "review";
+  job: string;
+  checklist: [string, string, string];
+  tool?: ReturnType<typeof getToolById>;
+};
+
+function resourceArchitecture(resource: SelectResource): ResourceArchitecture {
+  return (
+    (resource as SelectResource & { architecture?: ResourceArchitecture }).architecture ??
+    resource.contentArchitecture ??
+    {}
+  );
+}
+
+/**
+ * A download needs a job and a finish line. This intentionally uses only
+ * resource metadata and catalog IDs, never member-entered content.
+ */
+function resourceWorkflow(resource: SelectResource): ResourceWorkflow {
+  const architecture = resourceArchitecture(resource);
+  const category = resource.category;
+  const defaults: Record<string, Omit<ResourceWorkflow, "job"> & { job: string }> = {
+    template: {
+      phase: "prepare",
+      job: "Build a clear field plan before the next visit or territory block.",
+      checklist: [
+        "Choose one account, meeting, or planning block.",
+        "Fill it with deidentified professional context only.",
+        "Carry one commitment into the next field action.",
+      ],
+      tool: getToolById("playbooks"),
+    },
+    script: {
+      phase: "practice",
+      job: "Rehearse the language before the live conversation.",
+      checklist: [
+        "Pick the exact moment you expect to face.",
+        "Practice one opening or response aloud.",
+        "Adjust the wording after the real conversation.",
+      ],
+      tool: getToolById("role-play"),
+    },
+    checklist: {
+      phase: "execute",
+      job: "Move a real account or weekly commitment to a clear next step.",
+      checklist: [
+        "Use it immediately before or after the field task.",
+        "Mark the commitment kept, moved, or blocked.",
+        "Capture the owner and date for the follow-through.",
+      ],
+      tool: getToolById("sales-workflow"),
+    },
+    guide: {
+      phase: "review",
+      job: "Turn a lesson into one change in the next field block.",
+      checklist: [
+        "Read for one situation you will face this week.",
+        "Choose one behavior or phrase to try.",
+        "Review what changed after the next conversation.",
+      ],
+      tool: getToolById("weekly-plan"),
+    },
+  };
+  const fallback = defaults[category] ?? defaults.guide;
+  const relatedTool = architecture.relatedToolIds
+    ?.map((id) => getToolById(id))
+    .find((tool) => Boolean(tool));
+
+  return {
+    ...fallback,
+    job: architecture.jobToAccomplish || architecture.useCase || fallback.job,
+    tool: relatedTool ?? fallback.tool,
+  };
+}
 
 export default function Resources() {
   const { canUseFieldKit, member } = useAuth();
@@ -385,38 +474,60 @@ export default function Resources() {
             </p>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
-              {providerItems.map((item) => (
-                <Card
-                  key={item.id}
-                  className="flex flex-col border-2 spacing-card"
-                  data-testid={`provider-resource-card-${item.id}`}
-                >
-                  <div className="flex flex-wrap gap-1.5 mb-2">
-                    <Badge variant="default">Provider owned</Badge>
-                    <Badge variant="outline">{item.kind}</Badge>
-                    <Badge variant="secondary">{item.status}</Badge>
-                  </div>
-                  <h3 className="text-h3 text-foreground leading-tight mb-2">
-                    {item.title}
-                  </h3>
-                  {item.description ? (
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
-                      {item.description}
-                    </p>
-                  ) : null}
-                  <Button
-                    className="mt-auto w-full gap-2"
-                    onClick={() => {
-                      trackEvent("provider_resource_open", item.title);
-                      window.open(item.fileUrl, "_blank");
-                    }}
-                    data-testid={`button-open-provider-${item.id}`}
+              {providerItems.map((item) => {
+                const workflow = getResourceWorkGuide({ category: item.kind });
+                const nextTool = workflow.nextToolId ? getToolById(workflow.nextToolId) : undefined;
+                return (
+                  <Card
+                    key={item.id}
+                    className="flex flex-col border-2 spacing-card"
+                    data-testid={`provider-resource-card-${item.id}`}
                   >
-                    <Download className="w-4 h-4" />
-                    Open
-                  </Button>
-                </Card>
-              ))}
+                    <div className="flex flex-wrap gap-1.5 mb-2">
+                      <Badge variant="default">Provider owned</Badge>
+                      <Badge variant="outline">{item.kind}</Badge>
+                      <Badge variant="secondary">{item.status}</Badge>
+                    </div>
+                    <h3 className="text-h3 text-foreground leading-tight mb-2">
+                      {item.title}
+                    </h3>
+                    {item.description ? (
+                      <p className="text-sm text-muted-foreground mb-3 line-clamp-3">
+                        {item.description}
+                      </p>
+                    ) : null}
+                    <div
+                      className="mb-4 rounded-lg border border-border/70 bg-muted/25 p-3 text-xs leading-relaxed text-muted-foreground"
+                      data-testid={`provider-resource-workflow-${item.id}`}
+                    >
+                      <Badge variant="outline" className="mb-2 text-[10px] uppercase tracking-wide text-primary">
+                        {workflow.phase}
+                      </Badge>
+                      <p><span className="font-semibold text-foreground">Job: </span>{workflow.job}</p>
+                      <p className="mt-1"><span className="font-semibold text-foreground">Safe use: </span>{workflow.inputHint}</p>
+                      <p className="mt-1"><span className="font-semibold text-foreground">Expected output: </span>{workflow.outputPreview}</p>
+                      <p className="mt-1"><span className="font-semibold text-foreground">Saved: </span>{workflow.persistence}</p>
+                      <p className="mt-1"><span className="font-semibold text-foreground">Review: </span>{workflow.reviewCheckpoint}</p>
+                      {nextTool ? (
+                        <Link href={nextTool.path} className="mt-2 inline-flex min-h-8 items-center font-bold text-primary hover:underline">
+                          Next: {nextTool.title}
+                        </Link>
+                      ) : null}
+                    </div>
+                    <Button
+                      className="mt-auto w-full gap-2"
+                      onClick={() => {
+                        trackEvent("provider_resource_open", item.title);
+                        window.open(item.fileUrl, "_blank");
+                      }}
+                      data-testid={`button-open-provider-${item.id}`}
+                    >
+                      <Download className="w-4 h-4" />
+                      Open
+                    </Button>
+                  </Card>
+                );
+              })}
             </div>
           )}
         </div>
@@ -510,17 +621,7 @@ export default function Resources() {
                     )}
 
                     {(() => {
-                      const arch =
-                        (
-                          resource as SelectResource & {
-                            architecture?: {
-                              whenToUse?: string;
-                              expectedOutcome?: string;
-                              experienceLevel?: string;
-                              clinicalSensitivity?: string;
-                            };
-                          }
-                        ).architecture || resource.contentArchitecture;
+                      const arch = resourceArchitecture(resource);
                       if (!arch) return null;
                       return (
                         <div className="space-y-2 mb-4 text-sm text-muted-foreground">
@@ -549,6 +650,67 @@ export default function Resources() {
                               </Badge>
                             ) : null}
                           </div>
+                        </div>
+                      );
+                    })()}
+
+                    {(() => {
+                      const workflow = resourceWorkflow(resource);
+                      const resourceGuide = getResourceWorkGuide({
+                        category: resource.category,
+                        relatedToolIds: resourceArchitecture(resource).relatedToolIds,
+                      });
+                      const relatedGuide = workflow.tool
+                        ? getToolWorkGuide(workflow.tool)
+                        : null;
+                      return (
+                        <div
+                          className="mb-4 rounded-lg border border-border/70 bg-muted/25 p-3"
+                          data-testid={`resource-workflow-${resource.id}`}
+                        >
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Badge variant="outline" className="text-[10px] uppercase tracking-wide text-primary">
+                              {workflow.phase}
+                            </Badge>
+                            <p className="text-xs font-semibold text-foreground">Completion checklist</p>
+                          </div>
+                          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                            <span className="font-semibold text-foreground">Job: </span>
+                            {workflow.job}
+                          </p>
+                          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                            <span className="font-semibold text-foreground">Safe use: </span>
+                            {resourceGuide.inputHint}
+                          </p>
+                          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                            <span className="font-semibold text-foreground">Expected output: </span>
+                            {resourceGuide.outputPreview}
+                          </p>
+                          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                            <span className="font-semibold text-foreground">Saved: </span>
+                            {resourceGuide.persistence}
+                          </p>
+                          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                            <span className="font-semibold text-foreground">Review: </span>
+                            {resourceGuide.reviewCheckpoint}
+                          </p>
+                          <ol className="mt-2 space-y-1 text-xs leading-relaxed text-muted-foreground">
+                            {workflow.checklist.map((step, index) => (
+                              <li key={step}>
+                                <span className="mr-1 font-bold text-primary">{index + 1}.</span>
+                                {step}
+                              </li>
+                            ))}
+                          </ol>
+                          {workflow.tool ? (
+                            <Link
+                              href={workflow.tool.path}
+                              className="mt-3 inline-flex min-h-9 items-center text-xs font-bold text-primary hover:underline"
+                              data-testid={`resource-next-tool-${resource.id}`}
+                            >
+                              Next: {workflow.tool.title} · {relatedGuide?.phase}
+                            </Link>
+                          ) : null}
                         </div>
                       );
                     })()}

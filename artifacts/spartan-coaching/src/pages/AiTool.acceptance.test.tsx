@@ -4,6 +4,7 @@ import {
   fireEvent,
   render,
   screen,
+  within,
   waitFor,
 } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
@@ -155,7 +156,14 @@ describe("AI tool web acceptance", () => {
       expect(screen.getByText("passed")).toBeTruthy();
       expect(screen.getByTestId("ai-tool-result-actions")).toBeTruthy();
       expect(
-        screen.getByText(/one-time, deidentified result|retained in recent runs/i),
+        within(screen.getByTestId("ai-tool-result-actions")).getByText(
+          /one-time, deidentified result|retained in recent runs/i,
+        ),
+      ).toBeTruthy();
+      expect(
+        within(screen.getByTestId("ai-tool-workflow-guide")).getByText(
+          /one-time, deidentified result|retained in recent runs/i,
+        ),
       ).toBeTruthy();
     },
   );

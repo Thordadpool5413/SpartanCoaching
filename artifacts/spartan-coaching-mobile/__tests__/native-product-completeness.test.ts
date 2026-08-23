@@ -216,4 +216,26 @@ describe("native product completeness", () => {
     expect(result).toContain("Next actions");
     expect(result).toContain("Evidence & review");
   });
+
+  it("carries the complete field-work contract into native tools and resources", () => {
+    const shell = read("components/tools/ToolShell.tsx");
+    const library = read("app/(tabs)/learn.tsx");
+    const aiTool = read("components/ai-tool-screen.tsx");
+
+    expect(shell).toContain("getToolWorkGuide");
+    expect(shell).toContain("Safe input:");
+    expect(shell).toContain("Expected output:");
+    expect(shell).toContain("Saved:");
+    expect(shell).toContain("Review:");
+    expect(shell).toContain("tool-workflow-next-");
+    expect(read("app/(tabs)/tools.tsx")).toContain("NativeCatalogWorkflow");
+    expect(read("app/(tabs)/tools.tsx")).toContain("catalog-workflow-");
+    expect(library).toContain("getResourceWorkGuide");
+    expect(library).toContain("ResourceWorkflowNote");
+    expect(library).toContain("Expected output:");
+    expect(library).toContain("provider-resource-workflow-");
+    expect(library).toContain("resource-workflow-");
+    expect(aiTool).toContain("Safe input:");
+    expect(aiTool).toContain("workflow.persistence");
+  });
 });

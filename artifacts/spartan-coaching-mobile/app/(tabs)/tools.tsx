@@ -16,6 +16,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   FIELD_KIT_CATEGORIES,
   FIELD_KIT_TOOLS,
+  getToolWorkGuide,
   type FieldKitCategory,
   type FieldKitTool,
 } from "@workspace/field-kit-catalog";
@@ -272,7 +273,16 @@ function ToolsCatalogScreen() {
           {toolGroups.map((group) => (
             <View key={group.category} style={styles.toolGroup} testID={`tool-category-${group.category.toLowerCase()}`}>
               <View style={styles.groupTitleRow}><Text style={[styles.groupTitle, { color: colors.foreground }, font("heavy")]}>{group.category}</Text><Text style={[styles.groupCount, { color: colors.mutedForeground }, font("semibold")]}>{group.tools.length} {group.tools.length === 1 ? "tool" : "tools"}</Text></View>
-              {group.tools.map((tool) => <ActionRow key={tool.id} title={mobileToolTitle(tool)} subtitle={tool.outcome || tool.whenToUse || tool.description} icon={toolIcon(tool)} badge={accessLabel(tool)} onPress={() => openCatalogTool(tool)} testID={`tool-row-${tool.id}`} />)}
+               {group.tools.map((tool) => {
+                 const guide = getToolWorkGuide(tool);
+                  const nextTool = guide.nextToolId ? FIELD_KIT_TOOLS.find((item) => item.id === guide.nextToolId) : undefined;
+                  return (
+                    <View key={tool.id}>
+                      <ActionRow title={mobileToolTitle(tool)} subtitle={`${guide.phase} · ${guide.outputPreview}`} icon={toolIcon(tool)} badge={accessLabel(tool)} onPress={() => openCatalogTool(tool)} testID={`tool-row-${tool.id}`} />
+                      <NativeCatalogWorkflow guide={guide} nextTool={nextTool} onOpenTool={openCatalogTool} testID={`catalog-workflow-${tool.id}`} />
+                    </View>
+                  );
+               })}
             </View>
           ))}
         </View>
@@ -343,6 +353,35 @@ function ActionRow({ title, subtitle, icon, badge, onPress, testID }: { title: s
   );
 }
 
+function NativeCatalogWorkflow({
+  guide,
+  nextTool,
+  onOpenTool,
+  testID,
+}: {
+  guide: ReturnType<typeof getToolWorkGuide>;
+  nextTool?: FieldKitTool;
+  onOpenTool: (tool: FieldKitTool) => void;
+  testID: string;
+}) {
+  const colors = useColors();
+  return (
+    <View style={[styles.catalogWorkflow, { backgroundColor: colors.primaryMuted, borderColor: colors.borderStrong }]} testID={testID}>
+      <Text style={[styles.catalogWorkflowMeta, { color: colors.primary }, font("bold")]}>{guide.phase.toUpperCase()} · FOR {guide.audience.toUpperCase()}</Text>
+      <Text style={[styles.catalogWorkflowLine, { color: colors.mutedForeground }, font("regular")]}>Safe input: {guide.inputHint}</Text>
+      <Text style={[styles.catalogWorkflowLine, { color: colors.mutedForeground }, font("regular")]}>Expected output: {guide.outputPreview}</Text>
+      <Text style={[styles.catalogWorkflowLine, { color: colors.mutedForeground }, font("regular")]}>Saved: {guide.persistence}</Text>
+      <Text style={[styles.catalogWorkflowLine, { color: colors.mutedForeground }, font("regular")]}>Review: {guide.reviewCheckpoint}</Text>
+      {nextTool ? (
+        <Pressable onPress={() => onOpenTool(nextTool)} accessibilityRole="button" accessibilityLabel={`Next: open ${nextTool.title}`} style={styles.catalogWorkflowNext}>
+          <Text style={[{ color: colors.primary, fontSize: 12 }, font("bold")]}>Next: open {nextTool.title}</Text>
+          <Feather name="arrow-right" size={15} color={colors.primary} />
+        </Pressable>
+      ) : null}
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
   screen: { flex: 1 },
   header: { paddingHorizontal: 22, paddingBottom: 20, borderBottomWidth: StyleSheet.hairlineWidth },
@@ -393,6 +432,10 @@ const styles = StyleSheet.create({
   actionTitleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
   rowBadge: { fontSize: 8, letterSpacing: 0.8, paddingHorizontal: 7, paddingVertical: 4, borderRadius: 999, overflow: "hidden" },
   actionBody: { fontSize: 12, lineHeight: 17, marginTop: 3 },
+  catalogWorkflow: { marginTop: -5, marginBottom: 15, borderWidth: StyleSheet.hairlineWidth * 2, borderRadius: 16, padding: 13 },
+  catalogWorkflowMeta: { fontSize: 9, letterSpacing: 1.1 },
+  catalogWorkflowLine: { fontSize: 10, lineHeight: 15, marginTop: 5 },
+  catalogWorkflowNext: { minHeight: 36, marginTop: 7, flexDirection: "row", alignItems: "center", gap: 5 },
   empty: { borderWidth: 1, borderRadius: 20, padding: 22, alignItems: "center", marginTop: 8 },
   emptyTitle: { fontSize: 18, marginTop: 10 },
   emptyBody: { fontSize: 13, lineHeight: 19, textAlign: "center", marginTop: 5 },

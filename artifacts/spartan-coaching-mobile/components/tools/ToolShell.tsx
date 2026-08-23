@@ -10,8 +10,11 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Feather } from "@expo/vector-icons";
+import { router } from "expo-router";
+import { getToolById, getToolWorkGuide } from "@workspace/field-kit-catalog";
 import { useColors } from "@/hooks/useColors";
 import { goBackOrReplace } from "@/lib/navigation";
+import { isToolTab, openToolHref } from "@/lib/toolDeepLinks";
 import { font } from "@/lib/typography";
 import { layout } from "@/lib/spacing";
 import { StickyCTA } from "@/components/ui/StickyCTA";
@@ -24,6 +27,8 @@ type Props = {
   /** Collapsible how body */
   howSteps?: string[];
   whenToUse?: string;
+  /** Catalog identity keeps the native workflow contract in sync with web. */
+  catalogToolId?: string;
   children: ReactNode;
   /** Sticky primary (omit when stickyCta is false) */
   ctaTitle?: string;
@@ -44,6 +49,7 @@ export function ToolShell({
   category = "Practice",
   howSteps,
   whenToUse,
+  catalogToolId,
   children,
   ctaTitle,
   onCta,
@@ -55,6 +61,16 @@ export function ToolShell({
   const colors = useColors();
   const insets = useSafeAreaInsets();
   const [howOpen, setHowOpen] = React.useState(false);
+  const guide = catalogToolId ? getToolWorkGuide(catalogToolId) : null;
+  const nextTool = guide?.nextToolId ? getToolById(guide.nextToolId) : undefined;
+  const openNextTool = () => {
+    if (!nextTool) return;
+    if (nextTool.mobileToolTab && isToolTab(nextTool.mobileToolTab)) {
+      router.push(openToolHref(nextTool.mobileToolTab) as any);
+      return;
+    }
+    router.push((nextTool.mobileRoute || "/(tabs)/tools") as any);
+  };
   const bottomClear =
     (stickyCta ? layout.stickyCtaHeight + 28 + insets.bottom : 16) + 24;
 
@@ -108,6 +124,52 @@ export function ToolShell({
             >
               {subtitle}
             </Text>
+          ) : null}
+          {guide ? (
+            <View
+              style={[styles.workflowGuide, { borderColor: colors.borderStrong, backgroundColor: colors.card }]}
+              accessibilityLabel={`${title} field workflow guidance`}
+              testID={`tool-workflow-guide-${catalogToolId}`}
+            >
+              <View style={styles.workflowHeading}>
+                <Text style={[styles.workflowPhase, { color: colors.primary }, font("bold")]}>
+                  {guide.phase.toUpperCase()}
+                </Text>
+                <Text style={[styles.workflowAudience, { color: colors.mutedForeground }, font("bold")]}>
+                  FOR {guide.audience.toUpperCase()}
+                </Text>
+              </View>
+              <Text style={[styles.workflowLine, { color: colors.mutedForeground }, font("regular")]}>
+                <Text style={[{ color: colors.foreground }, font("bold")]}>Safe input: </Text>
+                {guide.inputHint}
+              </Text>
+              <Text style={[styles.workflowLine, { color: colors.mutedForeground }, font("regular")]}>
+                <Text style={[{ color: colors.foreground }, font("bold")]}>Expected output: </Text>
+                {guide.outputPreview}
+              </Text>
+              <Text style={[styles.workflowLine, { color: colors.mutedForeground }, font("regular")]}>
+                <Text style={[{ color: colors.foreground }, font("bold")]}>Saved: </Text>
+                {guide.persistence}
+              </Text>
+              <Text style={[styles.workflowLine, { color: colors.mutedForeground }, font("regular")]}>
+                <Text style={[{ color: colors.foreground }, font("bold")]}>Review: </Text>
+                {guide.reviewCheckpoint}
+              </Text>
+              {nextTool ? (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={`Next: open ${nextTool.title}`}
+                  onPress={openNextTool}
+                  style={styles.workflowNext}
+                  testID={`tool-workflow-next-${catalogToolId}`}
+                >
+                  <Text style={[{ color: colors.primary, fontSize: 12 }, font("bold")]}>
+                    Next: open {nextTool.title}
+                  </Text>
+                  <Feather name="arrow-right" size={15} color={colors.primary} />
+                </Pressable>
+              ) : null}
+            </View>
           ) : null}
 
           {(whenToUse || howSteps?.length) && (
@@ -232,4 +294,15 @@ const styles = StyleSheet.create({
     borderRadius: 16,
     padding: 18,
   },
+  workflowGuide: {
+    marginTop: 18,
+    borderWidth: StyleSheet.hairlineWidth * 2,
+    borderRadius: 16,
+    padding: 15,
+  },
+  workflowHeading: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },
+  workflowPhase: { fontSize: 10, letterSpacing: 1.2 },
+  workflowAudience: { flex: 1, fontSize: 9, letterSpacing: 0.7, textAlign: "right" },
+  workflowLine: { fontSize: 11, lineHeight: 16, marginTop: 8 },
+  workflowNext: { minHeight: 38, marginTop: 10, flexDirection: "row", alignItems: "center", gap: 5 },
 });

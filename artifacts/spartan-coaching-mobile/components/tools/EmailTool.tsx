@@ -61,6 +61,7 @@ export function EmailTool() {
       title="Email Templates"
       subtitle="Follow up, thank you, or value add drafts for referral partners."
       category="Prepare"
+      catalogToolId="email-templates"
       ctaTitle={result ? "Create another draft" : "Generate email"}
       onCta={generate}
       ctaLoading={loading}

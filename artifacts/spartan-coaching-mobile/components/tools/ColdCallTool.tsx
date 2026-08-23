@@ -59,6 +59,7 @@ export function ColdCallTool() {
       title="Cold Call Script"
       subtitle="Openers, objection handlers, and a clear next-step ask."
       category="Prepare"
+      catalogToolId="cold-call"
       ctaTitle="Generate script"
       onCta={generate}
       ctaLoading={loading}

@@ -57,6 +57,7 @@ export function ResearchTool() {
       title="Grounded Research"
       subtitle="Territory and market questions with sources."
       category="Prepare"
+      catalogToolId="research"
       ctaTitle="Research"
       onCta={generate}
       ctaLoading={loading}

@@ -799,6 +799,36 @@ export default function AiToolPage() {
           Refresh
         </Button>
       </div>
+      {experience.workflow && (
+        <Card className="mb-6 border-border/80 bg-muted/25 p-4 sm:p-5" data-testid="ai-tool-workflow-guide">
+          <div className="mb-3 flex flex-wrap items-center gap-2">
+            <Badge variant="outline" className="border-primary/30 bg-primary/10 uppercase tracking-wide text-primary">
+              {experience.workflow.phase}
+            </Badge>
+            <span className="text-xs font-semibold text-muted-foreground">
+              For {experience.workflow.audience}
+            </span>
+          </div>
+          <div className="grid gap-4 text-sm md:grid-cols-4">
+            <div>
+              <p className="font-bold text-foreground">Expected result</p>
+              <p className="mt-1 leading-relaxed text-muted-foreground">{experience.promise}</p>
+            </div>
+            <div>
+              <p className="font-bold text-foreground">Review checkpoint</p>
+              <p className="mt-1 leading-relaxed text-muted-foreground">{experience.workflow.reviewCheckpoint}</p>
+            </div>
+            <div>
+              <p className="font-bold text-foreground">Saved</p>
+              <p className="mt-1 leading-relaxed text-muted-foreground">{experience.workflow.persistence}</p>
+            </div>
+            <div>
+              <p className="font-bold text-foreground">Next field move</p>
+              <p className="mt-1 leading-relaxed text-muted-foreground">{experience.workflow.nextAction}</p>
+            </div>
+          </div>
+        </Card>
+      )}
 
       <div className="mt-2 grid gap-6 xl:grid-cols-[minmax(0,1.1fr)_minmax(340px,0.9fr)]">
         <Card
@@ -813,8 +843,8 @@ export default function AiToolPage() {
                 1 · Inputs
               </p>
               <p className="text-sm text-muted-foreground">
-                Complete required fields, then run. Results appear on the right
-                (below on mobile).
+                Complete required fields with only authorized, deidentified context,
+                then run. Results appear on the right (below on mobile).
               </p>
             </div>
             {tool.containsPhi && (
@@ -974,9 +1004,10 @@ export default function AiToolPage() {
                 <ToolResultActions
                   toolId={tool.id}
                   description={
-                    tool.containsPhi
-                      ? "Take the next operational step without carrying any clinical detail into another tool."
-                      : "Move this result into the next piece of field work while the decision is still clear."
+                     experience.workflow?.nextAction ??
+                     (tool.containsPhi
+                       ? "Take the next operational step without carrying any clinical detail into another tool."
+                       : "Move this result into the next piece of field work while the decision is still clear.")
                   }
                   actions={(() => {
                     const connection = getSpartanAiToolConnections(tool.id)[0];
@@ -1006,9 +1037,10 @@ export default function AiToolPage() {
                     ];
                   })()}
                   persistenceNote={
-                    tool.containsPhi
-                      ? "This is a one-time, deidentified result. It is not saved to history or synced to another device; a download is a local copy."
-                      : "This result is retained in Recent runs for your member account. Downloads are local copies and do not create a separate saved record."
+                     experience.workflow?.persistence ??
+                     (tool.containsPhi
+                       ? "This is a one-time, deidentified result. It is not saved to history or synced to another device; a download is a local copy."
+                       : "This result is retained in Recent runs for your member account. Downloads are local copies and do not create a separate saved record.")
                   }
                   testId="ai-tool-result-actions"
                 />
