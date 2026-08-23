@@ -14,6 +14,8 @@ export type SubscribeSurface =
   | "account"
   | "other";
 
+export type MembershipPlan = "standard_weekly" | "elite_weekly";
+
 type Props = {
   surface: SubscribeSurface;
   /** default = primary filled; outline / ghost for secondary placement */
@@ -25,6 +27,8 @@ type Props = {
   /** When true, also render Preview tools secondary for logged-out / locked */
   showPreview?: boolean;
   testId?: string;
+  /** Keep the visitor's intended plan intact through registration and checkout. */
+  plan?: MembershipPlan;
 };
 
 /**
@@ -40,9 +44,14 @@ export function SubscribeCTA({
   showHint = true,
   showPreview = false,
   testId = "subscribe-cta",
+  plan = "standard_weekly",
 }: Props) {
   const { isAuthenticated, canUseFieldKit, organization, member, fieldKit } = useAuth();
-  const { startCheckout, openPortal, checkoutPending, portalPending } = useBillingActions();
+  const { startCheckout, startEliteCheckout, openPortal, checkoutPending, portalPending } = useBillingActions();
+  const planName = plan === "elite_weekly" ? "Elite" : "Standard";
+  const planPrice = plan === "elite_weekly" ? "$19.99/week" : "$14.99/week";
+  const accountPath = `/account?subscribe=1&plan=${plan}`;
+  const registrationPath = `/register?plan=${plan}`;
 
   const isPersonal = organization?.type === "personal";
   const isPlatform = member?.role === "platform_admin" || organization?.type === "platform";
@@ -69,7 +78,7 @@ export function SubscribeCTA({
     if (!showHint) return null;
     if (canUseFieldKit) return "Hospice Sales Pro is unlocked.";
     if (!isAuthenticated) {
-      return "Create your account, then Start Hospice Sales Pro · $14.99/week · cancel anytime";
+      return `Create your account, then choose ${planName} · ${planPrice} · cancel anytime`;
     }
     if (canSelfServeCheckout) {
       return expired
@@ -97,7 +106,7 @@ export function SubscribeCTA({
       return (
         <>
           <Button asChild variant={variant} size={size} className={cn("font-bold", className)} data-testid={testId}>
-            <Link href="/register" onClick={() => track("register")}>
+            <Link href={registrationPath} onClick={() => track("register")}>
               Create account · Hospice Sales Pro
               <ArrowRight className="ml-2 w-4 h-4" />
             </Link>
@@ -154,7 +163,7 @@ export function SubscribeCTA({
             className={cn("font-bold", className)}
             onClick={() => {
               track(expired ? "resubscribe" : "checkout");
-              void startCheckout();
+              void (plan === "elite_weekly" ? startEliteCheckout() : startCheckout());
             }}
             disabled={checkoutPending}
             data-testid={testId}
@@ -166,7 +175,13 @@ export function SubscribeCTA({
             ) : (
               <>
                 <CreditCard className="mr-2 w-4 h-4" />
-                {expired ? "Resubscribe · Hospice Sales Pro · $14.99/wk" : "Start Hospice Sales Pro · $14.99/wk"}
+                {plan === "standard_weekly"
+                  ? expired
+                    ? "Resubscribe · Hospice Sales Pro · $14.99/wk"
+                    : "Start Hospice Sales Pro · $14.99/wk"
+                  : expired
+                    ? `Resubscribe · Hospice Sales Pro Elite · ${planPrice}`
+                    : `Start Hospice Sales Pro Elite · ${planPrice}`}
               </>
             )}
           </Button>
@@ -199,7 +214,7 @@ export function SubscribeCTA({
 
     return (
       <Button asChild variant={variant} size={size} className={cn("font-bold", className)} data-testid={testId}>
-        <Link href="/account" onClick={() => track("account")}>
+        <Link href={accountPath} onClick={() => track("account")}>
           Account / billing
         </Link>
       </Button>

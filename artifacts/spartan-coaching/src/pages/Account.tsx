@@ -51,7 +51,9 @@ export default function Account() {
   const [pwPending, setPwPending] = useState(false);
   const [billing, setBilling] = useState<BillingStatusResponse | null>(null);
   const [billingLoading, setBillingLoading] = useState(true);
-  const [selectedPlan, setSelectedPlan] = useState<"standard_weekly" | "elite_weekly">("elite_weekly");
+  const [selectedPlan, setSelectedPlan] = useState<"standard_weekly" | "elite_weekly">(() =>
+    queryParam("plan") === "standard_weekly" ? "standard_weekly" : "elite_weekly",
+  );
 
   useEffect(() => {
     if (!isLoading && !isAuthenticated) {

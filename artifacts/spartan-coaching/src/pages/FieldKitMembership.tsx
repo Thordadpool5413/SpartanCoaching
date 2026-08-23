@@ -167,7 +167,7 @@ export default function FieldKitMembership() {
               ))}
             </ul>
             <div data-testid="button-tier-individual-subscribe">
-              <SubscribeCTA surface="membership_pricing" showHint={false} testId="button-tier-individual" />
+              <SubscribeCTA surface="membership_pricing" showHint={false} testId="button-tier-individual" plan="standard_weekly" />
             </div>
           </Card>
 
@@ -194,12 +194,9 @@ export default function FieldKitMembership() {
                 </li>
               ))}
             </ul>
-            <Button asChild className="w-full font-bold">
-              <Link href="/account?subscribe=1&plan=elite_weekly" data-testid="button-tier-elite">
-                Choose Elite
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </Button>
+            <div data-testid="button-tier-elite-subscribe">
+              <SubscribeCTA surface="membership_pricing" showHint={false} testId="button-tier-elite" plan="elite_weekly" />
+            </div>
           </Card>
 
           <Card className="order-3 flex flex-col border border-border p-6 bg-card" data-testid="card-tier-team">

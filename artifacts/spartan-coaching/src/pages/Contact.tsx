@@ -182,7 +182,7 @@ export default function Contact() {
               Book a Discovery Call
             </h1>
             <p className="text-body-lg text-muted-foreground leading-relaxed max-w-xl mx-auto" data-testid="text-contact-intro">
-              Answer a few quick questions so Nick can come prepared. Takes about 90 seconds.
+              Share a little context so Nick can come prepared. After you submit, expect scheduling options within one business day.
             </p>
             <div className="flex items-center justify-center gap-2 mt-4 text-xs text-muted-foreground" data-testid="section-contact-compliance">
               <Shield className="w-3.5 h-3.5 text-primary" />

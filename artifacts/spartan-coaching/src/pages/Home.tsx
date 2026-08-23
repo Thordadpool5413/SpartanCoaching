@@ -10,13 +10,14 @@ import { AppHandoffPanel } from "@/components/AppHandoffPanel";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 import { lazy, Suspense, Component } from "react";
 import type { ReactNode } from "react";
+import { useReducedMotion } from "framer-motion";
 import nickPhoto from "@assets/nick-photo.jpg";
 import { SITE_ORIGIN } from "@/lib/seo-config";
 import { PUBLIC_FUNNEL_EVENT, trackPublicFunnelEvent } from "@/lib/publicFunnel";
 
 const CANONICAL_ORIGIN = SITE_ORIGIN;
 
-/** Kinetic brand hero (SpartanHeroAnimation) — full-bleed, no HTML text overlay. */
+/** Kinetic brand hero, progressively enhanced with a static, readable message. */
 const SpartanHeroAnimation = lazy(() =>
   import("@/components/SpartanHeroAnimation").then((m) => ({
     default: m.SpartanHeroAnimation,
@@ -33,7 +34,7 @@ class AnimationErrorBoundary extends Component<
   }
   render() {
     return this.state.failed ? (
-      <div className="absolute inset-0 bg-black" />
+      <div className="absolute inset-0 bg-background" />
     ) : (
       this.props.children
     );
@@ -41,6 +42,8 @@ class AnimationErrorBoundary extends Component<
 }
 
 export default function Home() {
+  const prefersReducedMotion = useReducedMotion();
+
   return (
     <div className="flex flex-col">
       <SEO />
@@ -90,20 +93,65 @@ export default function Home() {
         </script>
       </Helmet>
 
-      {/* ── 1. HERO — SpartanHeroAnimation only (no HTML text overlay) ── */}
+      {/* ── 1. HERO — a readable offer is always available, motion is optional ── */}
       <section
-        className="relative min-h-[85vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-background"
+        className="relative min-h-[85vh] sm:min-h-screen flex items-center overflow-hidden bg-background"
         data-testid="section-hero"
+        aria-labelledby="home-hero-title"
       >
-        <AnimationErrorBoundary>
-          <Suspense fallback={<div className="absolute inset-0 bg-background" />}>
-            <SpartanHeroAnimation />
-          </Suspense>
-        </AnimationErrorBoundary>
-        {/* SEO/a11y only — not painted over the animation */}
-        <h1 className="sr-only" data-testid="text-home-hero-title">
-          Close the conversational gap. Get eligible patients into care earlier.
-        </h1>
+        <img
+          src="/hero-poster.jpg"
+          alt=""
+          className="absolute inset-0 h-full w-full object-cover opacity-35"
+          fetchPriority="high"
+          decoding="async"
+        />
+        {!prefersReducedMotion && (
+          <AnimationErrorBoundary>
+            <Suspense fallback={null}>
+              <SpartanHeroAnimation />
+            </Suspense>
+          </AnimationErrorBoundary>
+        )}
+        <div className="absolute inset-0 bg-gradient-to-r from-background via-background/85 to-background/35" />
+        <div className="relative z-50 w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-28">
+          <div className="max-w-2xl">
+            <p className="text-kicker mb-5">Hospice sales consulting + Hospice Sales Pro</p>
+            <h1
+              id="home-hero-title"
+              className="text-4xl sm:text-5xl lg:text-7xl font-display font-black tracking-tight text-foreground leading-[0.95]"
+              data-testid="text-home-hero-title"
+            >
+              Make the next hospice conversation count.
+            </h1>
+            <p className="mt-6 max-w-xl text-base sm:text-lg text-muted-foreground leading-relaxed">
+              Practical consulting for growth leaders. A focused field system for the people who
+              carry the work forward every day.
+            </p>
+            <div className="mt-8 flex flex-col sm:flex-row gap-3">
+              <Button size="lg" asChild className="font-bold min-h-12" data-testid="button-hero-consulting">
+                <Link
+                  href="/contact"
+                  onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_consulting")}
+                >
+                  Explore consulting
+                  <ArrowRight className="ml-2 w-4 h-4" />
+                </Link>
+              </Button>
+              <Button size="lg" variant="outline" asChild className="font-bold min-h-12 bg-background/70" data-testid="button-hero-product">
+                <Link
+                  href="/hospice-sales-pro"
+                  onClick={() => trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_hero_hospice_sales_pro")}
+                >
+                  See Hospice Sales Pro
+                </Link>
+              </Button>
+            </div>
+            <p className="mt-5 text-xs font-medium text-muted-foreground">
+              Choose the path that fits: consulting for teams, Hospice Sales Pro for individual execution.
+            </p>
+          </div>
+        </div>
       </section>
 
       {/* ── 2. AUTHORITY STRIP (photo + credentials — hire confidence) ── */}
