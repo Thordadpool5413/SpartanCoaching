@@ -850,6 +850,23 @@ export const MIGRATION_CATALOG: readonly MigrationPlan[] = [
     dropsLegacyObjects: false,
   },
   {
+    id: "0023_member_continuity",
+    title: "Member-approved device work continuity",
+    forwardPath: "lib/db/migrations/0023_member_continuity.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT to_regclass('public.member_continuity') IS NOT NULL AS ok`,
+      `SELECT count(*) = count(DISTINCT (organization_id, member_id)) AS ok FROM member_continuity`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: retain this additive member-owned metadata during an application rollback. It contains no file bytes or clinical content, and can be restored from a logical backup if required.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["member_continuity"],
+    dropsLegacyObjects: false,
+  },
+  {
     id: "sales_workflow_001",
     title: "Sales Command Center workflow store (RLS)",
     forwardPath: "lib/hospice-sales-runtime/migrations/001_sales_workflow.sql",

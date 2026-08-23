@@ -7,25 +7,42 @@ import { SpartanHeader } from "@/components/ui/SpartanHeader";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
 import { loadCachedCommitment } from "@/lib/commitmentCache";
-import { listDownloadedLibraryItems, type DownloadedLibraryItem } from "@/lib/libraryDownloads";
+import {
+  listDownloadedLibraryItems,
+  listRestorableLibraryItems,
+  type DownloadedLibraryItem,
+  type RestorableLibraryItem,
+} from "@/lib/libraryDownloads";
 import { font } from "@/lib/typography";
 import { deleteCalculatorReport, listCalculatorReports, type SavedCalculatorReport } from "@/lib/calculatorHistory";
+import { hydrateMemberContinuity } from "@/lib/memberContinuity";
 
 export default function MyWorkScreen() {
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
-  const { user, canUseFieldKit, canUseElite } = useAuth();
+  const { user, canUseFieldKit, canUseElite, continuityStatus } = useAuth();
   const [commitment, setCommitment] = useState<string | null>(null);
   const [downloads, setDownloads] = useState<DownloadedLibraryItem[]>([]);
   const [reports, setReports] = useState<SavedCalculatorReport[]>([]);
+  const [restorableDownloads, setRestorableDownloads] = useState<RestorableLibraryItem[]>([]);
   const topPad = Platform.OS === "web" ? 54 : insets.top;
   const bottomPad = Platform.OS === "web" ? 30 : insets.bottom + 24;
 
   useFocusEffect(useCallback(() => {
-    if (user?.member?.id) void loadCachedCommitment(user.member.id).then(setCommitment);
-    void listDownloadedLibraryItems().then(setDownloads);
-    void listCalculatorReports().then(setReports);
+    void (async () => {
+      if (user?.member?.id) await hydrateMemberContinuity(user.member.id);
+      const [cachedCommitment, savedDownloads, savedReports, restoreMetadata] = await Promise.all([
+        user?.member?.id ? loadCachedCommitment(user.member.id) : Promise.resolve(null),
+        listDownloadedLibraryItems(),
+        listCalculatorReports(),
+        listRestorableLibraryItems(),
+      ]);
+      setCommitment(cachedCommitment);
+      setDownloads(savedDownloads);
+      setReports(savedReports);
+      setRestorableDownloads(restoreMetadata.filter((item) => !savedDownloads.some((download) => download.sourceUrl === item.sourceUrl)));
+    })();
   }, [user?.member?.id]));
 
   const openDownload = (item: DownloadedLibraryItem) => {
@@ -54,6 +71,20 @@ export default function MyWorkScreen() {
         <View style={styles.badge}><Text style={styles.badgeText}>YOUR CONTINUITY</Text></View>
         <Text style={styles.title}>Pick up where you left off.</Text>
         <Text style={styles.subtitle}>Commitments, saved plans, downloads, and approved outputs stay organized here.</Text>
+         <View style={styles.syncLine}>
+           <Feather
+             name={continuityStatus === "synced" ? "check-circle" : continuityStatus === "unavailable" ? "cloud-off" : "refresh-cw"}
+             size={13}
+             color={continuityStatus === "unavailable" ? colors.warning : colors.primary}
+           />
+           <Text style={[styles.syncText, continuityStatus === "unavailable" && { color: colors.warning }]}>
+             {continuityStatus === "synced"
+               ? "Backed up across your signed-in devices"
+               : continuityStatus === "unavailable"
+                 ? "Backup will retry when your connection returns"
+                 : "Backing up your approved saved work…"}
+           </Text>
+         </View>
 
         {!canUseFieldKit ? (
           <View style={styles.emptyCard}>
@@ -94,9 +125,13 @@ export default function MyWorkScreen() {
             </View>
             {downloads.length ? downloads.slice(0, 4).map((item) => (
               <WorkRow key={item.sourceUrl} icon={item.kind === "audio" ? "headphones" : "file-text"} title={item.title} body="Available offline on this iPhone." onPress={() => openDownload(item)} />
-            )) : (
+             )) : null}
+             {restorableDownloads.slice(0, Math.max(0, 4 - downloads.length)).map((item) => (
+               <WorkRow key={`restore:${item.sourceUrl}`} icon={item.kind === "audio" ? "headphones" : "download-cloud"} title={item.title} body="Saved on your account — re-download from Library on this iPhone." onPress={() => router.push("/(tabs)/tools?view=library" as never)} />
+             ))}
+             {!downloads.length && !restorableDownloads.length ? (
               <View style={styles.downloadEmpty}><Text style={styles.downloadEmptyText}>Saved Library items will appear here for offline access.</Text></View>
-            )}
+             ) : null}
           </>
         )}
       </View>
@@ -138,6 +173,8 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     badgeText: { color: colors.primary, fontSize: 9, letterSpacing: 1, ...font("bold") },
     title: { color: colors.foreground, fontSize: 38, lineHeight: 44, letterSpacing: -1.3, marginTop: 22, ...font("heavy") },
     subtitle: { color: colors.mutedForeground, fontSize: 15, lineHeight: 22, marginTop: 5, ...font("regular") },
+    syncLine: { flexDirection: "row", alignItems: "center", gap: 7, marginTop: 13 },
+    syncText: { color: colors.primary, fontSize: 11, ...font("semibold") },
     sectionLabel: { color: colors.primary, fontSize: 10, letterSpacing: 1.8, marginTop: 36, marginBottom: 14, ...font("bold") },
     sectionHeading: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
     openLibrary: { color: colors.primary, fontSize: 11, marginTop: 20, ...font("bold") },

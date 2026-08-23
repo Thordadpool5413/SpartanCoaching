@@ -69,7 +69,7 @@ export const OFFLINE_WORKFLOW_MATRIX: readonly OfflineWorkflowSpec[] = [
     label: "Tool form drafts + last result cache",
     capability: "offline_capable",
     aiWorksOffline: false,
-    notes: "Local drafts and last successful text only; clinical tools blocked from device storage.",
+    notes: "Approved classic-tool drafts and last successful text sync after sign-in; clinical tools remain blocked from device and continuity storage.",
   },
   {
     id: "offline_generate_queue",

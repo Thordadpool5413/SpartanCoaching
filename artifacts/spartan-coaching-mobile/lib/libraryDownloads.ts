@@ -2,8 +2,10 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as FileSystem from "expo-file-system/legacy";
 import { Platform } from "react-native";
 import { getSessionToken } from "@/lib/api";
+import { markContinuityChanged } from "@/lib/continuityEvents";
 
 const INDEX_KEY = "spartan_library_downloads_v1";
+const RESTORABLE_INDEX_KEY = "spartan_library_restore_metadata_v1";
 const DIRECTORY_NAME = "spartan-library";
 
 export type DownloadedLibraryItem = {
@@ -15,6 +17,11 @@ export type DownloadedLibraryItem = {
   content?: string;
   downloadedAt: string;
 };
+
+export type RestorableLibraryItem = Pick<
+  DownloadedLibraryItem,
+  "sourceUrl" | "title" | "kind" | "description"
+> & { updatedAt: string };
 
 function stableId(value: string): string {
   let hash = 2166136261;
@@ -48,6 +55,55 @@ async function readIndex(): Promise<Record<string, DownloadedLibraryItem>> {
 
 async function writeIndex(value: Record<string, DownloadedLibraryItem>): Promise<void> {
   await AsyncStorage.setItem(INDEX_KEY, JSON.stringify(value));
+}
+
+async function readRestorableIndex(): Promise<Record<string, RestorableLibraryItem>> {
+  try {
+    const raw = await AsyncStorage.getItem(RESTORABLE_INDEX_KEY);
+    return raw ? JSON.parse(raw) as Record<string, RestorableLibraryItem> : {};
+  } catch {
+    return {};
+  }
+}
+
+export async function listRestorableLibraryItems(): Promise<RestorableLibraryItem[]> {
+  const items = await readRestorableIndex();
+  return Object.values(items).sort((left, right) => right.updatedAt.localeCompare(left.updatedAt));
+}
+
+export async function getLibraryContinuityDownloads(): Promise<Record<string, RestorableLibraryItem>> {
+  const [saved, restored] = await Promise.all([listDownloadedLibraryItems(), readRestorableIndex()]);
+  const local = Object.fromEntries(saved.map((item) => [item.sourceUrl, {
+    sourceUrl: item.sourceUrl,
+    title: item.title,
+    kind: item.kind,
+    description: item.description,
+    updatedAt: item.downloadedAt,
+  }]));
+  return { ...restored, ...local };
+}
+
+export async function applyLibraryContinuityDownloads(
+  remoteDownloads: Record<string, RestorableLibraryItem>,
+): Promise<void> {
+  const local = await getLibraryContinuityDownloads();
+  const merged: Record<string, RestorableLibraryItem> = {};
+  for (const sourceUrl of new Set([...Object.keys(local), ...Object.keys(remoteDownloads)])) {
+    const localItem = local[sourceUrl];
+    const remoteItem = remoteDownloads[sourceUrl];
+    merged[sourceUrl] = !localItem || (remoteItem && Date.parse(remoteItem.updatedAt) > Date.parse(localItem.updatedAt))
+      ? remoteItem!
+      : localItem;
+  }
+  await AsyncStorage.setItem(RESTORABLE_INDEX_KEY, JSON.stringify(merged));
+}
+
+export async function clearLibraryContinuityDownloads(): Promise<void> {
+  const index = await readIndex();
+  for (const item of Object.values(index)) {
+    if (item.localUri) await FileSystem.deleteAsync(item.localUri, { idempotent: true }).catch(() => undefined);
+  }
+  await AsyncStorage.multiRemove([INDEX_KEY, RESTORABLE_INDEX_KEY]);
 }
 
 async function directoryUri(): Promise<string> {
@@ -116,6 +172,10 @@ export async function saveTextLibraryItem(input: {
   const index = await readIndex();
   index[input.sourceUrl] = item;
   await writeIndex(index);
+  const restored = await readRestorableIndex();
+  delete restored[input.sourceUrl];
+  await AsyncStorage.setItem(RESTORABLE_INDEX_KEY, JSON.stringify(restored));
+  markContinuityChanged();
   return item;
 }
 
@@ -143,6 +203,10 @@ export async function downloadLibraryItem(input: {
   const index = await readIndex();
   index[input.sourceUrl] = item;
   await writeIndex(index);
+  const restored = await readRestorableIndex();
+  delete restored[input.sourceUrl];
+  await AsyncStorage.setItem(RESTORABLE_INDEX_KEY, JSON.stringify(restored));
+  markContinuityChanged();
   return item;
 }
 
@@ -153,4 +217,8 @@ export async function removeDownloadedLibraryItem(sourceUrl: string): Promise<vo
   if (item?.localUri) await FileSystem.deleteAsync(item.localUri, { idempotent: true });
   delete index[sourceUrl];
   await writeIndex(index);
+  const restored = await readRestorableIndex();
+  delete restored[sourceUrl];
+  await AsyncStorage.setItem(RESTORABLE_INDEX_KEY, JSON.stringify(restored));
+  markContinuityChanged();
 }
