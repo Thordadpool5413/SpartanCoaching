@@ -7,16 +7,20 @@ import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header, Footer } from "@/components/Layout";
-import { AppShell } from "@/components/AppShell";
 import { CommandPalette } from "@/components/CommandPalette";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
-import { RequireFieldKit } from "@/components/RequireFieldKit";
-import { TrialBanner } from "@/components/TrialBanner";
-import { FieldKitChecklistToast } from "@/components/FieldKitChecklistToast";
 import { isWorkspacePath, loginWithReturn } from "@/lib/workspaceShell";
 
 const ChatWidget = lazy(() => import("@/components/ChatWidget").then(m => ({ default: m.ChatWidget })));
 const StickyBookCall = lazy(() => import("@/components/StickyBookCall").then(m => ({ default: m.StickyBookCall })));
+const AppShell = lazy(() => import("@/components/AppShell").then(m => ({ default: m.AppShell })));
+const TrialBanner = lazy(() => import("@/components/TrialBanner").then(m => ({ default: m.TrialBanner })));
+const FieldKitChecklistToast = lazy(() =>
+  import("@/components/FieldKitChecklistToast").then(m => ({ default: m.FieldKitChecklistToast })),
+);
+const RequireFieldKit = lazy(() =>
+  import("@/components/RequireFieldKit").then(m => ({ default: m.RequireFieldKit })),
+);
 
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/Home"));
@@ -323,18 +327,19 @@ function AppLayout() {
   // Paid application shell — separate from public marketing website
   if (onWorkspace) {
     return (
-      <>
+      <Suspense fallback={<PageLoader />}>
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
         <AppShell>
           <TrialBanner />
+          <FieldKitChecklistToast />
           <Router />
         </AppShell>
         <Suspense fallback={null}>
           <CommandPalette />
         </Suspense>
-      </>
+      </Suspense>
     );
   }
 
@@ -345,7 +350,11 @@ function AppLayout() {
       </a>
       <div className="flex flex-col min-h-screen bg-background text-foreground safe-area-x">
         <Header />
-        <TrialBanner />
+        {isAuthenticated && (
+          <Suspense fallback={null}>
+            <TrialBanner />
+          </Suspense>
+        )}
         <main id="main-content" className="flex-1 bg-background" tabIndex={-1}>
           <Router />
         </main>
@@ -370,7 +379,6 @@ function App() {
           <AuthProvider>
             <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
               <AppLayout />
-              <FieldKitChecklistToast />
               <Toaster />
             </WouterRouter>
           </AuthProvider>

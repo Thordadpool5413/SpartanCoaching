@@ -18,6 +18,11 @@ const BUDGETS = {
   /** Any single JS chunk */
   maxJsChunk: 900 * 1024,
   /**
+   * The entry requested by the initial HTML document. Keep visitor-facing
+   * marketing routes below Vite's warning threshold with room for growth.
+   */
+  maxInitialJs: 450 * 1024,
+  /**
    * Total JS under assets/.
    * CI measured ~2.80 MiB after stacked HSP features (was 2.8 MiB ceiling —
    * 2867.3 KiB failed 2867.2 KiB by ~100 bytes). Soft ceiling is 3.0 MiB to
@@ -122,6 +127,24 @@ function main() {
   failed = checkFileBudget(desktopHero, BUDGETS.maxDesktopHeroVideo, "desktop hero video", report) || failed;
   failed = checkFileBudget(mobileHero, BUDGETS.maxMobileHeroVideo, "mobile hero video", report) || failed;
   failed = checkFileBudget(heroPoster, BUDGETS.maxHeroPoster, "hero poster", report) || failed;
+
+  const htmlContents = fs.existsSync(html) ? fs.readFileSync(html, "utf8") : "";
+  if (/uppy-(?:core|dashboard|styles)\.css/.test(htmlContents)) {
+    failed = true;
+    report.push("FAIL public HTML directly loads Uppy upload styles");
+  } else {
+    report.push("OK  public HTML excludes Uppy upload styles");
+  }
+
+  const initialScriptMatch = htmlContents.match(/<script[^>]+type="module"[^>]+src="([^"]+\.js)"/);
+  if (!initialScriptMatch?.[1]) {
+    failed = true;
+    report.push("FAIL initial JS entry is not referenced by dist/public/index.html");
+  } else {
+    const initialScript = path.resolve(distPublic, initialScriptMatch[1].replace(/^[/\\]/, ""));
+    failed =
+      checkFileBudget(initialScript, BUDGETS.maxInitialJs, "initial JS entry", report) || failed;
+  }
 
   console.log("[performance-budget]");
   for (const line of report) console.log(" ", line);
