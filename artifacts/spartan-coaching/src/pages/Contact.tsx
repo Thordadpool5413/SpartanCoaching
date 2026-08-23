@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -61,6 +61,9 @@ export default function Contact() {
   const [submitted, setSubmitted] = useState(false);
   const [step, setStep] = useState(1);
   const [serviceParam, setServiceParam] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<string | null>(null);
+  const stepHeadingRef = useRef<HTMLHeadingElement>(null);
+  const movedBetweenSteps = useRef(false);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -117,28 +120,47 @@ export default function Contact() {
     },
     onSuccess: () => {
       setSubmitted(true);
+      setSubmitError(null);
       form.reset();
       setStep(1);
     },
-    onError: (error: Error) => {
+    onError: () => {
+      const message = "We couldn't send your request right now. Your answers are still here, so you can try again.";
+      setSubmitError(message);
       toast({
-        title: "Error",
-        description: error.message || "Failed to send message. Please try again.",
+        title: "Request not sent",
+        description: message,
         variant: "destructive",
       });
     },
   });
 
+  useEffect(() => {
+    if (!movedBetweenSteps.current) return;
+    stepHeadingRef.current?.focus();
+  }, [step]);
+
   const handleNext = async () => {
-    const valid = await form.trigger(STEP_FIELDS[step]);
-    if (valid) setStep((s) => s + 1);
+    const valid = await form.trigger(STEP_FIELDS[step], { shouldFocus: true });
+    if (valid) {
+      movedBetweenSteps.current = true;
+      setSubmitError(null);
+      setStep((s) => s + 1);
+    }
   };
 
-  const handleBack = () => setStep((s) => s - 1);
+  const handleBack = () => {
+    movedBetweenSteps.current = true;
+    setSubmitError(null);
+    setStep((s) => s - 1);
+  };
 
   const onSubmit = (data: ContactFormData) => {
+    setSubmitError(null);
     submitMutation.mutate(data);
   };
+
+  const retrySubmit = () => form.handleSubmit(onSubmit)();
 
   return (
     <PersuasionShell>
@@ -201,14 +223,17 @@ export default function Contact() {
                   </button>
                 </div>
               )}
+              <div className="sr-only" role="status" aria-live="polite">
+                Step {step} of {STEP_LABELS.length}: {STEP_LABELS[step - 1]}
+              </div>
               {/* Step dot indicator */}
-              <div className="flex items-start mb-8" data-testid="section-step-progress">
+              <ol className="flex items-start mb-8" data-testid="section-step-progress" aria-label="Contact request progress">
                 {STEP_LABELS.map((label, i) => {
                   const stepNum = i + 1;
                   const isComplete = step > stepNum;
                   const isActive = step === stepNum;
                   return (
-                    <div key={stepNum} className="flex items-start flex-1">
+                    <li key={stepNum} className="flex items-start flex-1" aria-current={isActive ? "step" : undefined}>
                       <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
                         <div
                           className={cn(
@@ -216,6 +241,7 @@ export default function Contact() {
                             isComplete ? "bg-primary border-primary" : isActive ? "border-primary bg-primary/10" : "border-border bg-transparent"
                           )}
                           data-testid={`step-dot-${stepNum}`}
+                          aria-hidden="true"
                         >
                           {isComplete ? (
                             <CheckCircle className="w-4 h-4 text-white" />
@@ -223,18 +249,35 @@ export default function Contact() {
                             <span className={cn("text-xs font-bold", isActive ? "text-primary" : "text-muted-foreground")}>{stepNum}</span>
                           )}
                         </div>
-                        <span className={cn("text-[10px] font-semibold uppercase tracking-wide text-center leading-tight max-w-[60px]", isActive ? "text-primary" : isComplete ? "text-white/50" : "text-muted-foreground/50")}>{label}</span>
+                        <span className={cn("text-[10px] font-semibold uppercase tracking-wide text-center leading-tight max-w-[60px]", isActive || isComplete ? "text-primary" : "text-muted-foreground")}>{label}</span>
                       </div>
                       {i < STEP_LABELS.length - 1 && (
                         <div className={cn("flex-1 h-px mt-4 mx-1 transition-colors duration-300", step > stepNum ? "bg-primary" : "bg-border")} />
                       )}
-                    </div>
+                    </li>
                   );
                 })}
-              </div>
+              </ol>
 
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5">
+                  <h2 ref={stepHeadingRef} tabIndex={-1} className="sr-only">
+                    Step {step}: {STEP_LABELS[step - 1]}
+                  </h2>
+                  {submitError && (
+                    <div id="contact-submit-error" role="alert" className="rounded-lg border border-destructive/40 bg-destructive/5 px-4 py-3 text-sm text-foreground" data-testid="contact-submit-error">
+                      <p className="font-semibold">Your request was not sent.</p>
+                      <p className="mt-1 text-muted-foreground">{submitError}</p>
+                      <div className="mt-3 flex flex-wrap items-center gap-3">
+                        <Button type="button" variant="outline" onClick={retrySubmit} disabled={submitMutation.isPending} data-testid="button-contact-retry">
+                          Try again
+                        </Button>
+                        <a href="mailto:nick@spartanhospicecoaching.com" className="font-semibold text-primary underline underline-offset-4">
+                          Email Nick directly
+                        </a>
+                      </div>
+                    </div>
+                  )}
 
                   {/* ── STEP 1: About You ── */}
                   {step === 1 && (
@@ -512,6 +555,8 @@ export default function Contact() {
                       <Button
                         type="submit"
                         disabled={submitMutation.isPending}
+                        aria-describedby={submitError ? "contact-submit-error" : undefined}
+                        aria-busy={submitMutation.isPending}
                         className="font-bold"
                         data-testid="button-contact-submit"
                       >
