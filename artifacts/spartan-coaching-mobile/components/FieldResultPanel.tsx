@@ -10,10 +10,9 @@ import {
 import * as Clipboard from "expo-clipboard";
 import { Feather } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import { router } from "expo-router";
 import { useColors } from "@/hooks/useColors";
 import { font } from "@/lib/typography";
-import { trackMobileEvent } from "@/lib/analytics";
+import { NextFieldActionCard, type NextFieldAction } from "@/components/NextFieldActionCard";
 
 type ResultBlock =
   | { kind: "heading"; text: string }
@@ -151,7 +150,7 @@ export function FieldResultPanel({
   onSave,
   saved,
   children,
-  showCommandHandoff = true,
+  nextAction,
 }: {
   title?: string;
   content?: string;
@@ -162,7 +161,7 @@ export function FieldResultPanel({
   onSave?: () => void | Promise<void>;
   saved?: boolean;
   children?: ReactNode;
-  showCommandHandoff?: boolean;
+  nextAction?: NextFieldAction;
 }) {
   const colors = useColors();
   const [copied, setCopied] = useState(false);
@@ -296,43 +295,24 @@ export function FieldResultPanel({
               { borderColor: colors.border, opacity: saved ? 0.5 : pressed ? 0.75 : 1 },
             ]}
             accessibilityRole="button"
-            accessibilityLabel={saved ? "Saved" : "Save result"}
+            accessibilityLabel={saved ? "Saved on this iPhone" : "Save on this iPhone"}
           >
             <Feather name={saved ? "check" : "bookmark"} size={15} color={colors.foreground} />
             <Text style={[styles.secondaryActionText, { color: colors.foreground }, font("semibold")]}>
-              {saved ? "Saved" : "Save"}
+              {saved ? "Saved on iPhone" : "Save on iPhone"}
             </Text>
-          </Pressable>
-        ) : null}
-        {showCommandHandoff ? (
-          <Pressable
-            onPress={() => {
-              void trackMobileEvent("craft", "web_handoff_tap", {
-                metadata: { surface: "result", platform: "ios", source: "command" },
-              });
-              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              router.push("/tool/playbook" as never);
-            }}
-            style={({ pressed }) => [
-              styles.secondaryAction,
-              { borderColor: colors.border, opacity: pressed ? 0.75 : 1 },
-            ]}
-            accessibilityRole="button"
-            accessibilityLabel="Open Field Planner"
-          >
-            <Feather name="target" size={15} color={colors.foreground} />
-            <Text style={[styles.secondaryActionText, { color: colors.foreground }, font("semibold")]}>Plan</Text>
           </Pressable>
         ) : null}
       </View>
 
       {cleanContent ? <ResultBody content={cleanContent} /> : null}
       {children}
+      {nextAction ? <NextFieldActionCard action={nextAction} /> : null}
 
       <View style={[styles.footer, { borderTopColor: colors.border }]}>
         <Text style={[styles.disclaimer, { color: colors.mutedForeground }, font("regular")]}>{disclaimer}</Text>
         <Text style={[styles.disclaimer, { color: colors.mutedForeground }, font("regular")]}>
-          Saved to your Spartan account · ready for the next visit
+          Copy and Share do not save or sync this result.
         </Text>
       </View>
     </View>

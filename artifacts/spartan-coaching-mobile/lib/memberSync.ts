@@ -5,11 +5,12 @@
  * lexical order. Pending mutations are retained locally until the server
  * acknowledges them, so network retries and duplicate delivery are safe.
  *
- * Never add raw Coach conversations, recordings, clinical/vault data, or
- * offline generation request bodies to this module.
+ * Never add generated field-tool input or output, raw Coach conversations,
+ * recordings, clinical/vault data, or offline generation request bodies.
  */
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { apiGet, apiPost } from "@/lib/api";
+import { clearLegacyGeneratedToolStorage } from "@/lib/generatedToolPrivacy";
 
 export type MemberSyncRecordType =
   | "commitment"
@@ -37,8 +38,6 @@ type SyncResponse = {
 };
 
 const PENDING_KEY = (memberId: number) => `hsp_member_sync_pending_v1_${memberId}`;
-const TOOL_DRAFT_KEY = (memberId: number, toolId: string) => `hsp_tool_draft_v1_${memberId}_${toolId}`;
-const TOOL_RESULT_KEY = (memberId: number, toolId: string) => `hsp_tool_result_v1_${memberId}_${toolId}`;
 const CALCULATOR_KEY = (memberId: number) => `spartan:calculator-reports:v1_${memberId}`;
 const DOWNLOAD_INDEX_KEY = (memberId: number) => `spartan_library_downloads_v1_${memberId}`;
 const COMMITMENT_KEY = (memberId: number) => `spartan_private_commitment_v1_${memberId}`;
@@ -46,7 +45,11 @@ const FAILED_KEY = (memberId: number) => `hsp_member_sync_failed_v1_${memberId}`
 const LEGACY_MIGRATION_OWNER_KEY = "hsp_member_sync_legacy_owner_v1";
 const LEGACY_CALCULATOR_KEY = "spartan:calculator-reports:v1";
 const LEGACY_DOWNLOAD_INDEX_KEY = "spartan_library_downloads_v1";
-const LEGACY_TOOL_IDS = ["objection", "playbook", "weekly", "cold", "email", "research"] as const;
+const LEGACY_PENDING_KEY = /^hsp_member_sync_pending_v1_\d+$/;
+const CONTENT_BEARING_TOOL_RECORD_TYPES = new Set<MemberSyncRecordType>([
+  "tool_draft",
+  "tool_result",
+]);
 
 let activeMemberId: number | null = null;
 let syncStatus: MemberSyncStatus = "synced";
@@ -93,6 +96,29 @@ async function readPending(memberId: number): Promise<MemberSyncRecord[]> {
 
 async function writePending(memberId: number, records: MemberSyncRecord[]) {
   await AsyncStorage.setItem(PENDING_KEY(memberId), JSON.stringify(records.slice(-100)));
+}
+
+async function purgeLegacyGeneratedPendingMutations(): Promise<void> {
+  const keys = (await AsyncStorage.getAllKeys()).filter((key) => LEGACY_PENDING_KEY.test(key));
+  const stored = await AsyncStorage.multiGet(keys);
+  await Promise.all(stored.map(async ([key, raw]) => {
+    if (!raw) return;
+    try {
+      const pending = JSON.parse(raw) as MemberSyncRecord[];
+      if (!Array.isArray(pending)) return;
+      const safePending = pending.filter((record) =>
+        Boolean(record) &&
+        typeof record === "object" &&
+        !CONTENT_BEARING_TOOL_RECORD_TYPES.has(record.recordType),
+      );
+      if (safePending.length === pending.length) return;
+      if (safePending.length) await AsyncStorage.setItem(key, JSON.stringify(safePending));
+      else await AsyncStorage.removeItem(key);
+    } catch {
+      // A malformed pending list cannot safely be replayed.
+      await AsyncStorage.removeItem(key);
+    }
+  }));
 }
 
 export function getActiveSyncMemberId() {
@@ -158,6 +184,11 @@ export async function queueMemberSync(
     setStatus("unavailable");
     return;
   }
+  if (CONTENT_BEARING_TOOL_RECORD_TYPES.has(recordType) && !options?.isDeleted) {
+    await recordFailedMutation(memberId, mutationId(), recordType, recordId);
+    setStatus("unavailable");
+    return;
+  }
   if (!options?.isDeleted && !isSafeForMemberContinuity(payload)) {
     const localOnlyId = mutationId();
     await recordFailedMutation(memberId, localOnlyId, recordType, recordId);
@@ -196,35 +227,10 @@ export async function queueMemberSync(
  */
 async function migrateLegacyDeviceWork(memberId: number): Promise<void> {
   if (activeMemberId !== memberId) return;
+  await clearLegacyGeneratedToolStorage();
+  await purgeLegacyGeneratedPendingMutations();
   const owner = await AsyncStorage.getItem(LEGACY_MIGRATION_OWNER_KEY);
   if (owner) return;
-
-  for (const toolId of LEGACY_TOOL_IDS) {
-    const [draft, result] = await Promise.all([
-      AsyncStorage.getItem(`hsp_tool_draft_v1_${toolId}`),
-      AsyncStorage.getItem(`hsp_tool_result_v1_${toolId}`),
-    ]);
-    if (draft) {
-      try {
-        const parsed = JSON.parse(draft);
-        if (
-          parsed &&
-          typeof parsed === "object" &&
-          !Array.isArray(parsed) &&
-          isSafeForMemberContinuity({ draft: parsed as Record<string, unknown> })
-        ) {
-          await AsyncStorage.setItem(TOOL_DRAFT_KEY(memberId, toolId), draft);
-          await queueMemberSync("tool_draft", toolId, { draft: parsed as Record<string, unknown> }, { memberId });
-        }
-      } catch {
-        // Preserve malformed local data for this signed-in owner, but never upload it.
-      }
-    }
-    if (result && isSafeForMemberContinuity({ result })) {
-      await AsyncStorage.setItem(TOOL_RESULT_KEY(memberId, toolId), result);
-      await queueMemberSync("tool_result", toolId, { result }, { memberId });
-    }
-  }
 
   const legacyReports = await AsyncStorage.getItem(LEGACY_CALCULATOR_KEY);
   if (legacyReports) {
@@ -268,20 +274,25 @@ async function migrateLegacyDeviceWork(memberId: number): Promise<void> {
   }
 }
 
+async function retireLegacyRemoteToolRecords(memberId: number, records: MemberSyncRecord[]): Promise<void> {
+  for (const record of records) {
+    if (!CONTENT_BEARING_TOOL_RECORD_TYPES.has(record.recordType) || record.isDeleted) continue;
+    await queueMemberSync(record.recordType, record.recordId, {}, {
+      isDeleted: true,
+      memberId,
+    });
+  }
+}
+
 async function applyRemoteRecord(memberId: number, record: MemberSyncRecord): Promise<void> {
   if (record.recordType === "commitment") {
     if (record.isDeleted) await AsyncStorage.removeItem(COMMITMENT_KEY(memberId));
     else await AsyncStorage.setItem(COMMITMENT_KEY(memberId), String(record.payload.value || ""));
     return;
   }
-  if (record.recordType === "tool_draft") {
-    if (record.isDeleted) await AsyncStorage.removeItem(TOOL_DRAFT_KEY(memberId, record.recordId));
-    else await AsyncStorage.setItem(TOOL_DRAFT_KEY(memberId, record.recordId), JSON.stringify(record.payload.draft || {}));
-    return;
-  }
-  if (record.recordType === "tool_result") {
-    if (record.isDeleted) await AsyncStorage.removeItem(TOOL_RESULT_KEY(memberId, record.recordId));
-    else await AsyncStorage.setItem(TOOL_RESULT_KEY(memberId, record.recordId), String(record.payload.result || ""));
+  if (CONTENT_BEARING_TOOL_RECORD_TYPES.has(record.recordType)) {
+    // Older clients may have uploaded these records. Do not restore their
+    // text onto this device or reintroduce it into continuity storage.
     return;
   }
   if (record.recordType === "calculator_report") {
@@ -347,17 +358,19 @@ export async function syncMemberData(memberId: number): Promise<void> {
     try {
       const remote = await apiGet<SyncResponse>("/api/v1/member-sync");
       if (activeMemberId !== memberId) return;
-      await applyRecordsUnlessLocalWins(memberId, remote.records, pending);
-      if (!pending.length) {
+      await retireLegacyRemoteToolRecords(memberId, remote.records);
+      const currentPending = await readPending(memberId);
+      await applyRecordsUnlessLocalWins(memberId, remote.records, currentPending);
+      if (!currentPending.length) {
         if (activeMemberId === memberId) setStatus("synced");
         return;
       }
-      const committed = await apiPost<SyncResponse>("/api/v1/member-sync", { mutations: pending });
+      const committed = await apiPost<SyncResponse>("/api/v1/member-sync", { mutations: currentPending });
       if (activeMemberId !== memberId) return;
       const afterRequest = await readPending(memberId);
-      const acknowledged = new Set(pending.map((record) => record.mutationId));
+      const acknowledged = new Set(currentPending.map((record) => record.mutationId));
       for (const rejected of committed.rejected || []) {
-        const failed = pending.find((record) => record.mutationId === rejected.mutationId);
+        const failed = currentPending.find((record) => record.mutationId === rejected.mutationId);
         if (failed) await recordFailedMutation(memberId, failed.mutationId, failed.recordType, failed.recordId);
       }
       for (const rejected of committed.rejected || []) acknowledged.add(rejected.mutationId);

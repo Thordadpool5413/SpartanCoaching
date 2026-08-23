@@ -1,5 +1,10 @@
 import { ApiError } from "@/lib/api";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import fs from "node:fs";
+import path from "node:path";
 import {
+  clearGenerateQueue,
+  enqueueGenerate,
   shouldEnqueueOnError,
   userFacingApiError,
   isOfflineQueueAllowed,
@@ -7,6 +12,7 @@ import {
   OFFLINE_QUEUE_ALLOWED_PATHS,
   type FlushResult,
 } from "@/lib/offlineQueue";
+import { setActiveSyncMember } from "@/lib/memberSync";
 
 describe("offline queue error policy", () => {
   it("enqueues on network-like errors (non-ApiError)", () => {
@@ -75,5 +81,46 @@ describe("offline queue PHI / clinical allowlist", () => {
     expect(
       isOfflineQueueAllowed("/api/objections", "admission-eligibility"),
     ).toBe(false);
+  });
+
+  it("retires legacy queue data at app startup without flushing its request body", () => {
+    const source = fs.readFileSync(
+      path.join(__dirname, "..", "components", "DeepLinkRouter.tsx"),
+      "utf8",
+    );
+    expect(source).toContain("clearGenerateQueue");
+    expect(source).not.toContain("flushGenerateQueue");
+  });
+
+  it("erases legacy queues for every prior member without retrying their input", async () => {
+    const keys = [
+      "hsp_offline_generate_queue_v1",
+      "hsp_offline_generate_queue_v1_7346",
+      "hsp_offline_generate_queue_v1_7347",
+    ];
+    setActiveSyncMember(7346);
+    await Promise.all(keys.map((key) => AsyncStorage.setItem(
+      key,
+      JSON.stringify([{ body: { name: "private" } }]),
+    )));
+
+    await clearGenerateQueue();
+
+    await Promise.all(keys.map(async (key) => {
+      expect(await AsyncStorage.getItem(key)).toBeNull();
+    }));
+    setActiveSyncMember(null);
+  });
+
+  it("does not persist a request when an older caller tries to enqueue one", async () => {
+    const result = await enqueueGenerate({
+      toolId: "objection",
+      path: "/api/objections",
+      body: { objection: "Private member context" },
+      label: "Objection",
+    });
+
+    expect(result).toBeNull();
+    expect(await AsyncStorage.getItem("hsp_offline_generate_queue_v1")).toBeNull();
   });
 });

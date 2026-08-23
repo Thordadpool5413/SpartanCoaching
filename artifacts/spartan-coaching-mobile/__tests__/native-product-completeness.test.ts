@@ -135,11 +135,13 @@ describe("native product completeness", () => {
   it("does not route current member actions into the retired Command tab", () => {
     const activation = read("components/ActivationCeremony.tsx");
     const result = read("components/FieldResultPanel.tsx");
+    const nextAction = read("components/NextFieldActionCard.tsx");
     const links = read("lib/deepLinks.ts");
 
     expect(activation).toContain('router.push("/(tabs)/tools")');
     expect(activation).not.toContain('router.push("/(tabs)/command")');
-    expect(result).toContain('router.push("/tool/playbook"');
+    expect(result).toContain("<NextFieldActionCard");
+    expect(nextAction).toContain("router.push(action.href");
     expect(result).not.toContain('router.push("/(tabs)/command")');
     expect(links).not.toContain('pathname: "/(tabs)/command"');
   });

@@ -17,12 +17,14 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { SpartanHeader } from "@/components/ui/SpartanHeader";
+import { NextFieldActionCard } from "@/components/NextFieldActionCard";
 import { useColors } from "@/hooks/useColors";
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 import { groupResources, type ResourceLike } from "@/lib/resourceGroups";
 import { openToolHref } from "@/lib/toolDeepLinks";
 import { font } from "@/lib/typography";
+import { MOBILE_FIELD_RESULT_ACTIONS } from "@workspace/field-kit-catalog";
 
 type LearnTab = "articles" | "podcasts" | "resources";
 
@@ -276,6 +278,10 @@ export default function LearnScreen() {
       {activeTab === "resources" ? (
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: bottomPad + 24 }} showsVerticalScrollIndicator={false} testID="learn-resources">
           <LibraryModeIntro icon="folder" title="Use" body="Open working tools, approved field resources, and company material in the app. Download selected nonclinical items for offline use." access="STANDARD" />
+          <NextFieldActionCard
+            action={MOBILE_FIELD_RESULT_ACTIONS.resources}
+            testID="resources-next-field-action"
+          />
           <View style={[styles.safetyCard, { backgroundColor: colors.primaryMuted, borderColor: colors.primary }]}>
             <Feather name="shield" size={20} color={colors.primary} />
             <View style={{ flex: 1 }}>

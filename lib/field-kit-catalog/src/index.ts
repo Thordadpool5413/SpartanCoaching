@@ -419,6 +419,77 @@ export function getToolWorkGuide(toolOrId: FieldKitTool | string): FieldKitWorkG
   );
 }
 
+/**
+ * Native result handoffs are static routes and safe analytics identifiers.
+ * They deliberately never accept generated output or member-entered context.
+ */
+export const MOBILE_FIELD_RESULT_ACTIONS = {
+  playbooks: {
+    toolId: "playbooks",
+    actionId: "practice-hardest-moment",
+    label: "Practice in Role-Play",
+    description: "Choose the hardest moment in this plan and rehearse it before the next visit.",
+    href: "/tool/roleplay",
+    persistenceNote: "This playbook stays on screen for this session. Copy and Share do not save it or sync it to another device.",
+  },
+  objections: {
+    toolId: "objections",
+    actionId: "practice-objection",
+    label: "Practice this objection in Role-Play",
+    description: "Say the response aloud once, then pressure-test it before the next live conversation.",
+    href: "/tool/roleplay",
+    persistenceNote: "This talk track stays on screen for this session. Copy and Share do not save it or sync it to another device.",
+  },
+  "role-play": {
+    toolId: "role-play",
+    actionId: "open-command-center",
+    label: "Open Sales Command Center",
+    description: "Turn the phrase you practiced into one accountable follow-through step.",
+    href: "/sales-workflow",
+    persistenceNote: "Role-play feedback stays on screen for this session. Copy and Share do not save it or sync it to another device.",
+  },
+  "cold-call": {
+    toolId: "cold-call",
+    actionId: "practice-opening",
+    label: "Practice opening in Role-Play",
+    description: "Read the opening aloud once, then pressure-test the ask before you dial.",
+    href: "/tool/roleplay",
+    persistenceNote: "This script stays on screen for this session. Copy and Share do not save it or sync it to another device.",
+  },
+  "weekly-plan": {
+    toolId: "weekly-plan",
+    actionId: "open-command-center",
+    label: "Open Sales Command Center",
+    description: "Open your first account, run the Monday visit, and keep the week moving.",
+    href: "/sales-workflow",
+    persistenceNote: "This plan stays on screen for this session. Copy and Share do not save it or sync it to another device.",
+  },
+  "email-templates": {
+    toolId: "email-templates",
+    actionId: "practice-ask",
+    label: "Practice the ask in Role-Play",
+    description: "Review the draft, then rehearse the ask before you send it from your approved mail app.",
+    href: "/tool/roleplay",
+    persistenceNote: "This app does not send email. Copy opens the clipboard and Share opens the iPhone share sheet; a reminder only prompts you to send it.",
+  },
+  research: {
+    toolId: "research",
+    actionId: "build-playbook",
+    label: "Build a Playbook from This Insight",
+    description: "Turn one verified insight into a specific conversation plan before the next visit.",
+    href: "/tool/playbook",
+    persistenceNote: "Research stays on screen for this session. Copy and Share do not save it or sync it to another device.",
+  },
+  resources: {
+    toolId: "resources",
+    actionId: "open-tools",
+    label: "Open field tools",
+    description: "Choose a tool that prepares the conversation or follow-through for this resource.",
+    href: "/(tabs)/tools",
+    persistenceNote: "Download makes a local iPhone copy. Only resource details sync so you can find it again; the downloaded file does not move to another device.",
+  },
+} as const;
+
 export function mobileParityDebt(): FieldKitTool[] {
   return FIELD_KIT_TOOLS.filter((t) => t.mobile === "missing" || t.mobile === "webview");
 }

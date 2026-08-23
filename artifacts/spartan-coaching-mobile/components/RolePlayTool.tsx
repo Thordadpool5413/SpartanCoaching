@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useRef, useState } from "react";
 import {
   ActivityIndicator,
   KeyboardAvoidingView,
@@ -16,9 +16,9 @@ import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
 import { apiGet, apiPost } from "@/lib/api";
 import { ReminderPicker } from "@/components/ReminderPicker";
-import { SavedResponsesSection } from "@/components/SavedResponsesSection";
-import { useSavedResponses } from "@/hooks/useSavedResponses";
+import { NextFieldActionCard } from "@/components/NextFieldActionCard";
 import { font } from "@/lib/typography";
+import { MOBILE_FIELD_RESULT_ACTIONS } from "@workspace/field-kit-catalog";
 
 type RoleplayPhase = "select" | "active" | "feedback";
 
@@ -35,11 +35,6 @@ interface RoleplaySession {
   feedback: string | null;
   rating: number | null;
   createdAt: number;
-}
-
-interface ScenarioStat {
-  count: number;
-  lastPracticedAt: number | null;
 }
 
 const ROLEPLAY_SCENARIOS: {
@@ -113,17 +108,6 @@ const ROLEPLAY_SCENARIOS: {
   },
 ];
 
-function formatSavedDate(ts: number): string {
-  const d = new Date(ts);
-  const now = new Date();
-  const diffMs = now.getTime() - d.getTime();
-  const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-  if (diffDays === 0) return "Today";
-  if (diffDays === 1) return "Yesterday";
-  if (diffDays < 7) return `${diffDays} days ago`;
-  return d.toLocaleDateString(undefined, { month: "short", day: "numeric" });
-}
-
 /**
  * Dedicated Role-Play tool surface (extracted from tools.tsx monolith).
  * Owns select → active chat → feedback phases.
@@ -138,7 +122,6 @@ export function RolePlayTool({
   bottomPad: number;
 }) {
   const colors = useColors();
-  const roleplaySaved = useSavedResponses("roleplay");
   const scrollRef = useRef<ScrollView>(null);
 
   const [roleplayPhase, setRoleplayPhase] = useState<RoleplayPhase>("select");
@@ -149,43 +132,10 @@ export function RolePlayTool({
   const [roleplayError, setRoleplayError] = useState<string | null>(null);
   const [roleplayFeedback, setRoleplayFeedback] = useState<string | null>(null);
   const [roleplayRating, setRoleplayRating] = useState<number | null>(null);
-  const [roleplaySavedId, setRoleplaySavedId] = useState<string | null>(null);
   const [endingSession, setEndingSession] = useState(false);
   const [customScenarioExpanded, setCustomScenarioExpanded] = useState(false);
   const [customTitle, setCustomTitle] = useState("");
   const [customDescription, setCustomDescription] = useState("");
-  const [scenarioStats, setScenarioStats] = useState<Record<string, ScenarioStat>>({});
-  const [roleplayHistory, setRoleplayHistory] = useState<RoleplaySession[]>([]);
-  const [historyLoading, setHistoryLoading] = useState(false);
-  const [expandedHistoryId, setExpandedHistoryId] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (roleplayPhase !== "select") return;
-    apiGet<{ scenarioId: string; count: number; lastPracticedAt: number | null }[]>(
-      "/api/roleplay/stats",
-    )
-      .then((rows) => {
-        const map: Record<string, ScenarioStat> = {};
-        for (const row of rows) {
-          map[row.scenarioId] = { count: row.count, lastPracticedAt: row.lastPracticedAt };
-        }
-        setScenarioStats(map);
-      })
-      .catch(() => {});
-
-    setHistoryLoading(true);
-    apiGet<RoleplaySession[]>("/api/roleplay/sessions")
-      .then((sessions) => {
-        setRoleplayHistory(
-          sessions
-            .filter((s) => s.status === "completed" && s.feedback)
-            .sort((a, b) => b.createdAt - a.createdAt),
-        );
-      })
-      .catch(() => {})
-      .finally(() => setHistoryLoading(false));
-  }, [roleplayPhase]);
-
   const requireAccess = (): boolean => canUseFieldKit;
 
   const startRoleplay = async (
@@ -270,25 +220,10 @@ export function RolePlayTool({
     setRoleplayInput("");
     setRoleplayFeedback(null);
     setRoleplayRating(null);
-    setRoleplaySavedId(null);
     setRoleplayError(null);
     setCustomScenarioExpanded(false);
     setCustomTitle("");
     setCustomDescription("");
-  };
-
-  const handleSaveRoleplay = async () => {
-    if (!roleplayFeedback || roleplaySavedId) return;
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-    const title = roleplaySession?.scenarioTitle || "Role-play session";
-    const parts = [
-      roleplayRating != null ? `Rating: ${roleplayRating}/5` : "",
-      roleplayFeedback,
-    ]
-      .filter(Boolean)
-      .join("\n\n");
-    await roleplaySaved.saveResponse(title, parts);
-    setRoleplaySavedId("saved");
   };
 
   const handleShareRoleplay = async () => {
@@ -489,7 +424,6 @@ export function RolePlayTool({
             ) : (
               <>
                 {ROLEPLAY_SCENARIOS.map((s) => {
-                  const stat = scenarioStats[s.id];
                   return (
                     <Pressable
                       key={s.id}
@@ -520,17 +454,6 @@ export function RolePlayTool({
                         >
                           {s.description}
                         </Text>
-                        {stat && stat.count > 0 && (
-                          <View style={styles.statRow}>
-                            <Feather name="check-circle" size={11} color={colors.primary} />
-                            <Text style={[{ color: colors.primary, fontSize: 11 }, font("semibold")]}>
-                              {stat.count}×
-                              {stat.lastPracticedAt
-                                ? ` · ${formatSavedDate(stat.lastPracticedAt)}`
-                                : ""}
-                            </Text>
-                          </View>
-                        )}
                       </View>
                       <Feather name="chevron-right" size={18} color={colors.mutedForeground} />
                     </Pressable>
@@ -648,113 +571,6 @@ export function RolePlayTool({
                   )}
                 </View>
 
-                {(historyLoading || roleplayHistory.length > 0) && (
-                  <View style={{ marginTop: 28 }}>
-                    <View style={{ flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 12 }}>
-                      <Feather name="clock" size={14} color={colors.mutedForeground} />
-                      <Text
-                        style={[
-                          { color: colors.mutedForeground, fontSize: 13, textTransform: "uppercase" },
-                          font("semibold"),
-                        ]}
-                      >
-                        Past Sessions
-                        {roleplayHistory.length > 0 ? ` (${roleplayHistory.length})` : ""}
-                      </Text>
-                    </View>
-                    {historyLoading ? (
-                      <ActivityIndicator color={colors.primary} size="small" style={{ marginVertical: 12 }} />
-                    ) : (
-                      roleplayHistory.map((session) => {
-                        const isOpen = expandedHistoryId === session.id;
-                        return (
-                          <View
-                            key={session.id}
-                            style={[
-                              styles.historyCard,
-                              { backgroundColor: colors.card, borderColor: colors.border },
-                            ]}
-                          >
-                            <Pressable
-                              onPress={() => {
-                                Haptics.selectionAsync();
-                                setExpandedHistoryId(isOpen ? null : session.id);
-                              }}
-                              style={({ pressed }) => [
-                                { flexDirection: "row", alignItems: "center", padding: 14, opacity: pressed ? 0.75 : 1 },
-                              ]}
-                            >
-                              <View style={{ flex: 1 }}>
-                                <Text
-                                  style={[{ color: colors.foreground, fontSize: 14 }, font("semibold")]}
-                                  numberOfLines={1}
-                                >
-                                  {session.scenarioTitle}
-                                </Text>
-                                <View
-                                  style={{ flexDirection: "row", alignItems: "center", gap: 8, marginTop: 3 }}
-                                >
-                                  <Text
-                                    style={[
-                                      { color: colors.mutedForeground, fontSize: 12 },
-                                      font("regular"),
-                                    ]}
-                                  >
-                                    {formatSavedDate(session.createdAt)}
-                                  </Text>
-                                  {session.rating !== null && (
-                                    <View style={{ flexDirection: "row", alignItems: "center", gap: 3 }}>
-                                      {[1, 2, 3, 4, 5].map((n) => (
-                                        <Feather
-                                          key={n}
-                                          name="star"
-                                          size={12}
-                                          color={
-                                            n <= session.rating! ? "#F59E0B" : colors.mutedForeground
-                                          }
-                                        />
-                                      ))}
-                                    </View>
-                                  )}
-                                </View>
-                              </View>
-                              <Feather
-                                name={isOpen ? "chevron-up" : "chevron-down"}
-                                size={16}
-                                color={colors.mutedForeground}
-                              />
-                            </Pressable>
-                            {isOpen && session.feedback && (
-                              <View style={{ borderTopWidth: 1, borderTopColor: colors.border, padding: 14 }}>
-                                <Text
-                                  style={[
-                                    {
-                                      color: colors.mutedForeground,
-                                      fontSize: 12,
-                                      marginBottom: 8,
-                                      textTransform: "uppercase",
-                                    },
-                                    font("semibold"),
-                                  ]}
-                                >
-                                  Coach Feedback
-                                </Text>
-                                <Text
-                                  style={[
-                                    { color: colors.foreground, fontSize: 14, lineHeight: 21 },
-                                    font("regular"),
-                                  ]}
-                                >
-                                  {session.feedback}
-                                </Text>
-                              </View>
-                            )}
-                          </View>
-                        );
-                      })
-                    )}
-                  </View>
-                )}
               </>
             )}
           </View>
@@ -816,37 +632,9 @@ export function RolePlayTool({
               )}
             </View>
 
-            {roleplayFeedback && (
-              <View style={styles.actionRow}>
-                <Pressable
-                  onPress={handleSaveRoleplay}
-                  style={({ pressed }) => [
-                    styles.secondaryBtn,
-                    {
-                      borderColor: roleplaySavedId ? colors.primary : colors.border,
-                      backgroundColor: roleplaySavedId ? `${colors.primary}18` : "transparent",
-                      opacity: pressed ? 0.75 : 1,
-                      flex: 1,
-                    },
-                  ]}
-                >
-                  <Feather
-                    name={roleplaySavedId ? "check" : "bookmark"}
-                    size={15}
-                    color={roleplaySavedId ? colors.primary : colors.mutedForeground}
-                  />
-                  <Text
-                    style={[
-                      {
-                        color: roleplaySavedId ? colors.primary : colors.mutedForeground,
-                        fontSize: 14,
-                      },
-                      font("semibold"),
-                    ]}
-                  >
-                    {roleplaySavedId ? "Saved" : "Save"}
-                  </Text>
-                </Pressable>
+            {roleplayFeedback ? (
+              <>
+                <View style={styles.actionRow}>
                 <Pressable
                   onPress={handleShareRoleplay}
                   style={({ pressed }) => [
@@ -859,8 +647,13 @@ export function RolePlayTool({
                     Share
                   </Text>
                 </Pressable>
-              </View>
-            )}
+                </View>
+                <NextFieldActionCard
+                  action={MOBILE_FIELD_RESULT_ACTIONS["role-play"]}
+                  testID="roleplay-next-field-action"
+                />
+              </>
+            ) : null}
 
             <ReminderPicker
               title="Apply what you practiced"
@@ -883,10 +676,6 @@ export function RolePlayTool({
           </View>
         )}
 
-        <SavedResponsesSection
-          items={roleplaySaved.savedItems}
-          onDelete={roleplaySaved.deleteResponse}
-        />
       </ScrollView>
     </KeyboardAvoidingView>
   );
@@ -968,7 +757,6 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     flexShrink: 0,
   },
-  statRow: { flexDirection: "row", alignItems: "center", gap: 4, marginTop: 5 },
   input: {
     borderWidth: 1,
     borderRadius: 10,
@@ -993,7 +781,6 @@ const styles = StyleSheet.create({
     paddingVertical: 11,
   },
   actionRow: { flexDirection: "row", gap: 10, marginTop: 12 },
-  historyCard: { borderWidth: 1, borderRadius: 12, marginBottom: 10, overflow: "hidden" },
   feedbackCard: { borderWidth: 1, borderRadius: 14, padding: 20 },
   starsRow: { flexDirection: "row", alignItems: "center", gap: 6, marginBottom: 4 },
   divider: { height: 1, marginVertical: 16 },

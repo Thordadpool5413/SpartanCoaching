@@ -1,8 +1,8 @@
 /**
- * Persist tool drafts + last successful results for field / flaky network use.
- * Top tools: objection, playbook, weekly (and others welcome).
+ * Compatibility helpers for legacy field-tool cache keys.
  *
- * Clinical / vault tool ids are never written to device storage.
+ * Generated field-tool inputs and results are intentionally session-only:
+ * personal context must never enter member continuity storage.
  */
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { trackProductOutcome } from "@/lib/analytics";
@@ -13,6 +13,7 @@ import {
   queueMemberSync,
 } from "@/lib/memberSync";
 import { markContinuityChanged } from "@/lib/continuityEvents";
+import { GENERATED_FIELD_TOOL_IDS } from "@/lib/generatedToolPrivacy";
 
 const draftKey = (toolId: string) => {
   const memberId = getActiveSyncMemberId();
@@ -28,14 +29,15 @@ const resultKeyForMember = (toolId: string, memberId: number | null) =>
   memberId ? `hsp_tool_result_v1_${memberId}_${toolId}` : `hsp_tool_result_v1_${toolId}`;
 
 const BLOCKED = new Set<string>(OFFLINE_STORAGE_BLOCKED_TOOL_IDS);
-export const CONTINUITY_TOOL_IDS = ["objection", "playbook", "weekly", "cold", "email", "research"] as const;
+const GENERATED_FIELD_TOOL_ID_SET = new Set<string>(GENERATED_FIELD_TOOL_IDS);
+export const CONTINUITY_TOOL_IDS: readonly string[] = [];
 export type ContinuityToolSnapshot = {
   drafts: Record<string, { value: Record<string, string>; updatedAt: string }>;
   results: Record<string, { value: string; updatedAt: string }>;
 };
 
 function isDeviceStorageAllowed(toolId: string): boolean {
-  if (!toolId || BLOCKED.has(toolId)) return false;
+  if (!toolId || BLOCKED.has(toolId) || GENERATED_FIELD_TOOL_ID_SET.has(toolId)) return false;
   if (/clinical|lcd|admission|eligibility|medical-record/i.test(toolId)) {
     return false;
   }
@@ -66,7 +68,6 @@ export async function saveToolDraft(
 ): Promise<void> {
   if (!isDeviceStorageAllowed(toolId)) return;
   if (!isSafeForMemberContinuity({ draft })) {
-    void queueMemberSync("tool_draft", toolId, { draft });
     return;
   }
   try {
@@ -98,7 +99,6 @@ export async function saveToolLastResult(toolId: string, result: string): Promis
   try {
     if (!result.trim()) return;
     if (!isSafeForMemberContinuity({ result })) {
-      await queueMemberSync("tool_result", toolId, { result });
       return;
     }
     const memberId = getActiveSyncMemberId();

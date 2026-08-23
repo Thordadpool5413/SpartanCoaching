@@ -5,3 +5,4 @@
 - [Database routines on publish](database-routines-on-publish.md) — publish schema diffs omit PostgreSQL function and trigger DDL; verify routine-dependent jobs separately.
 - [Stripe webhook lease ownership](stripe-webhook-lease-ownership.md) — delivery IDs are durable keys; only the current claim attempt may finalize a webhook.
 - [Public launch SEO](public-launch-seo.md) — crawl-facing metadata must be verified from production HTTP responses, not only client-side SPA state.
+- [Mobile generated-result privacy](mobile-generated-result-privacy.md) — generated field-tool input and output are session-only, never durable device or member-continuity data.

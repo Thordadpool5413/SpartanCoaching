@@ -67,7 +67,7 @@ export default function MyWorkScreen() {
         <SpartanHeader title="My Work" />
         <View style={styles.badge}><Text style={styles.badgeText}>YOUR CONTINUITY</Text></View>
         <Text style={styles.title}>Pick up where you left off.</Text>
-        <Text style={styles.subtitle}>Commitments, saved plans, downloads, and approved outputs stay organized here.</Text>
+        <Text style={styles.subtitle}>Commitments, downloads, and approved outputs stay organized here.</Text>
 
         {!canUseFieldKit ? (
           <View style={styles.emptyCard}>
@@ -89,9 +89,9 @@ export default function MyWorkScreen() {
               {getMemberSyncFailureCount() ? <Text style={styles.commitmentBody}>Some sensitive content was not saved or synced. Remove patient identifiers and try again with deidentified context.</Text> : null}
             </Pressable>
 
-            <Text style={styles.sectionLabel}>SAVED WORK</Text>
-            <WorkRow icon="calendar" title="Weekly plan" body="Resume the plan you are building." onPress={() => router.push("/resource-work" as never)} />
-            <WorkRow icon="edit-3" title="Conversation plans" body="Open saved preparation and follow through." onPress={() => router.push("/tool/playbook" as never)} />
+            <Text style={styles.sectionLabel}>FIELD TOOLS</Text>
+            <WorkRow icon="calendar" title="Weekly plan" body="Build a current plan. Generated plans stay in the active session until you copy or share them." onPress={() => router.push("/tool/weekly" as never)} />
+            <WorkRow icon="edit-3" title="Conversation plans" body="Build a fresh conversation plan. Generated work is not automatically saved or synced." onPress={() => router.push("/tool/playbook" as never)} />
             {canUseElite ? <WorkRow icon="shield" title="Saved Elite outputs" body="Review completed nonclinical work, status, and full results." onPress={() => router.push("/saved-ai-outputs" as never)} /> : null}
 
             {reports.length ? (
@@ -108,7 +108,7 @@ export default function MyWorkScreen() {
               <Pressable onPress={() => router.push("/(tabs)/tools?view=library" as never)} hitSlop={8}><Text style={styles.openLibrary}>Open Library</Text></Pressable>
             </View>
             {downloads.length ? downloads.slice(0, 4).map((item) => (
-              <WorkRow key={item.sourceUrl} icon={item.kind === "audio" ? "headphones" : "file-text"} title={item.title} body={item.availability === "unavailable" ? "Saved to your account. Download again for offline use." : "Available offline on this iPhone."} onPress={() => openDownload(item)} />
+              <WorkRow key={item.sourceUrl} icon={item.kind === "audio" ? "headphones" : "file-text"} title={item.title} body={item.availability === "unavailable" ? "Listed in your Library, but not downloaded on this iPhone. Download again for offline use." : "Available offline on this iPhone."} onPress={() => openDownload(item)} />
             )) : (
               <View style={styles.downloadEmpty}><Text style={styles.downloadEmptyText}>Saved Library items will appear here for offline access.</Text></View>
             )}

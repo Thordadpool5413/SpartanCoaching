@@ -1,28 +1,10 @@
 /**
- * Offline generate queue — failed classic Field tool posts retry when online.
- *
- * Safety:
- * - Enqueue only transport / 5xx failures (not 4xx validation).
- * - 401/403 during flush: keep queue for after re-login (do not drop).
- * - Allowlist of classic Field API paths only — never clinical, advanced AI,
- *   Command Center, or transcribe bodies (may contain sensitive content).
- * - Cap queue size; de-dupe by toolId+body; stable Idempotency-Key per entry.
- * - Concurrent flush is mutexed.
- *
- * AI generation does NOT work offline — queue only retries after network returns.
+ * Compatibility API for an offline generate queue retired for privacy.
+ * Generated field-tool input is session-only and cannot be persisted or retried.
  */
-import AsyncStorage from "@react-native-async-storage/async-storage";
-import { ApiError, apiPost } from "@/lib/api";
+import { ApiError } from "@/lib/api";
 import { OFFLINE_STORAGE_BLOCKED_TOOL_IDS } from "@/lib/offlineArchitecture";
-import { saveToolLastResult } from "@/lib/toolDraftCache";
-import { getActiveSyncMemberId } from "@/lib/memberSync";
-
-const QUEUE_KEY = () => {
-  const memberId = getActiveSyncMemberId();
-  return memberId ? `hsp_offline_generate_queue_v1_${memberId}` : "hsp_offline_generate_queue_v1";
-};
-const MAX_ATTEMPTS = 5;
-const MAX_QUEUE = 20;
+import { clearLegacyGeneratedToolStorage } from "@/lib/generatedToolPrivacy";
 
 /**
  * Paths permitted to sit on device for retry. Keep in sync with classic Field
@@ -89,35 +71,8 @@ export function isOfflineQueueAllowed(path: string, toolId?: string): boolean {
 }
 
 export async function listQueuedGenerates(): Promise<QueuedGenerate[]> {
-  try {
-    const raw = await AsyncStorage.getItem(QUEUE_KEY());
-    if (!raw) return [];
-    const list = JSON.parse(raw) as QueuedGenerate[];
-    if (!Array.isArray(list)) return [];
-    const allowed = list.filter((q) => isOfflineQueueAllowed(q.path, q.toolId));
-    // Persist purge of disallowed entries (e.g. after app upgrade)
-    if (allowed.length !== list.length) {
-      await writeQueue(allowed);
-    }
-    return allowed;
-  } catch {
-    return [];
-  }
-}
-
-async function writeQueue(list: QueuedGenerate[]): Promise<void> {
-  await AsyncStorage.setItem(
-    QUEUE_KEY(),
-    JSON.stringify(list.slice(0, MAX_QUEUE)),
-  );
-}
-
-function bodyKey(body: Record<string, unknown>): string {
-  try {
-    return JSON.stringify(body);
-  } catch {
-    return String(Date.now());
-  }
+  await clearLegacyGeneratedToolStorage();
+  return [];
 }
 
 /** True when the failure is worth offline retry (not client validation). */
@@ -132,60 +87,30 @@ export function shouldEnqueueOnError(error: unknown): boolean {
 }
 
 /**
- * Queue a classic Field generate for retry.
- * Returns null when the path/tool is not allowed (clinical / non-classic).
- * Duplicate toolId+body replaces the prior entry (idempotent user intent).
+ * Kept as a no-op for compatibility with older callers. Generated input must
+ * never be written to device storage for a retry.
  */
 export async function enqueueGenerate(
   item: Omit<QueuedGenerate, "id" | "createdAt" | "bodyKey" | "idempotencyKey">,
 ): Promise<QueuedGenerate | null> {
-  if (!isOfflineQueueAllowed(item.path, item.toolId)) {
-    return null;
-  }
-  const key = bodyKey(item.body);
-  const id = `q_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-  const entry: QueuedGenerate = {
-    ...item,
-    path: normalizePath(item.path),
-    id,
-    createdAt: Date.now(),
-    attempts: 0,
-    bodyKey: key,
-    // Stable for the lifetime of this logical job (retries reuse same key)
-    idempotencyKey: id,
-  };
-  const list = await listQueuedGenerates();
-  // Replace same toolId + same body only (keep distinct objections)
-  const next = [
-    entry,
-    ...list.filter(
-      (q) => !(q.toolId === item.toolId && (q.bodyKey || bodyKey(q.body)) === key),
-    ),
-  ];
-  await writeQueue(next);
-  return entry;
+  void item;
+  await clearLegacyGeneratedToolStorage();
+  return null;
 }
 
 export async function removeQueuedGenerate(id: string): Promise<void> {
-  const list = await listQueuedGenerates();
-  await writeQueue(list.filter((q) => q.id !== id));
+  void id;
+  await clearLegacyGeneratedToolStorage();
 }
 
 export async function getQueueSnapshot(): Promise<QueueSnapshot> {
-  const list = await listQueuedGenerates();
-  return {
-    count: list.length,
-    labels: list.map((q) => q.label || q.toolId),
-    oldestCreatedAt:
-      list.length === 0
-        ? null
-        : Math.min(...list.map((q) => q.createdAt || Date.now())),
-  };
+  await clearLegacyGeneratedToolStorage();
+  return { count: 0, labels: [], oldestCreatedAt: null };
 }
 
-/** Drop entire queue (e.g. user sign-out if product policy requires). */
+/** Drop all legacy queues, including queues created for another prior member. */
 export async function clearGenerateQueue(): Promise<void> {
-  await writeQueue([]);
+  await clearLegacyGeneratedToolStorage();
 }
 
 export type FlushResult = {
@@ -196,117 +121,10 @@ export type FlushResult = {
   results: Array<{ toolId: string; text?: string; error?: string }>;
 };
 
-let flushInFlight: Promise<FlushResult> | null = null;
-
-/**
- * Attempt all queued generates. Successful ones are removed and last result saved.
- * Concurrent callers share one in-flight flush (mutex).
- */
+/** Retired: erase any legacy queue without transmitting a stored request body. */
 export async function flushGenerateQueue(): Promise<FlushResult> {
-  if (flushInFlight) return flushInFlight;
-  flushInFlight = doFlush().finally(() => {
-    flushInFlight = null;
-  });
-  return flushInFlight;
-}
-
-async function doFlush(): Promise<FlushResult> {
-  const list = await listQueuedGenerates();
-  if (list.length === 0) {
-    return { ok: 0, failed: 0, authExpired: false, results: [] };
-  }
-
-  let ok = 0;
-  let failed = 0;
-  let authExpired = false;
-  const results: FlushResult["results"] = [];
-  const remaining: QueuedGenerate[] = [];
-
-  for (let i = 0; i < list.length; i++) {
-    const item = list[i]!;
-    if (!isOfflineQueueAllowed(item.path, item.toolId)) {
-      // Drop without retry
-      continue;
-    }
-    try {
-      const data = await apiPost<Record<string, unknown>>(item.path, item.body, {
-        idempotencyKey: item.idempotencyKey || item.id,
-      });
-      const text =
-        (data.response as string) ||
-        (data.playbook as string) ||
-        (data.template as string) ||
-        (data.plan as string) ||
-        (data.script as string) ||
-        (data.text as string) ||
-        (data.result as string) ||
-        "";
-      if (!text) {
-        // Unexpected shape — keep for retry (do not drop silently)
-        const attempts = (item.attempts || 0) + 1;
-        if (attempts < MAX_ATTEMPTS) {
-          remaining.push({
-            ...item,
-            attempts,
-            idempotencyKey: item.idempotencyKey || item.id,
-          });
-        }
-        failed += 1;
-        results.push({ toolId: item.toolId, error: "empty_result" });
-        continue;
-      }
-      await saveToolLastResult(item.toolId, String(text));
-      ok += 1;
-      results.push({ toolId: item.toolId, text: String(text) });
-    } catch (e: unknown) {
-      failed += 1;
-      // Expired / forbidden session: keep this and all remaining items for after re-login
-      if (e instanceof ApiError && (e.status === 401 || e.status === 403)) {
-        authExpired = true;
-        remaining.push({
-          ...item,
-          idempotencyKey: item.idempotencyKey || item.id,
-        });
-        for (let j = i + 1; j < list.length; j++) {
-          const rest = list[j]!;
-          if (isOfflineQueueAllowed(rest.path, rest.toolId)) {
-            remaining.push({
-              ...rest,
-              idempotencyKey: rest.idempotencyKey || rest.id,
-            });
-          }
-        }
-        results.push({
-          toolId: item.toolId,
-          error: "auth_expired",
-        });
-        break;
-      }
-      // Other permanent 4xx: drop (bad body / validation)
-      if (e instanceof ApiError && e.status >= 400 && e.status < 500 && e.status !== 0) {
-        results.push({
-          toolId: item.toolId,
-          error: e.message || "client_error",
-        });
-        continue;
-      }
-      const attempts = (item.attempts || 0) + 1;
-      if (attempts < MAX_ATTEMPTS) {
-        remaining.push({
-          ...item,
-          attempts,
-          idempotencyKey: item.idempotencyKey || item.id,
-        });
-      }
-      results.push({
-        toolId: item.toolId,
-        error: e instanceof Error ? e.message : "failed",
-      });
-    }
-  }
-
-  await writeQueue(remaining);
-  return { ok, failed, authExpired, results };
+  await clearLegacyGeneratedToolStorage();
+  return { ok: 0, failed: 0, authExpired: false, results: [] };
 }
 
 /** Extract user-facing message from API/network errors. */

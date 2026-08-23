@@ -33,9 +33,9 @@ describe("member continuity sync", () => {
     setActiveSyncMember(null);
   });
 
-  it("keeps an offline edit pending and flushes it once connected", async () => {
+  it("keeps an allowed continuity edit pending and flushes it once connected", async () => {
     setActiveSyncMember(41);
-    await queueMemberSync("tool_result", "objection", { result: "Use a calm redirect." });
+    await queueMemberSync("commitment", "current", { value: "Make five account visits" });
     mockedGet.mockRejectedValueOnce(new Error("offline"));
     await syncMemberData(41);
     expect(getMemberSyncStatus()).toBe("unavailable");
@@ -48,12 +48,11 @@ describe("member continuity sync", () => {
     await syncMemberData(41);
     expect(mockedPost).toHaveBeenCalledTimes(1);
     expect(getMemberSyncStatus()).toBe("synced");
-    expect(await loadToolLastResult("objection")).toBe("Use a calm redirect.");
   });
 
   it("does not redeliver an already acknowledged mutation", async () => {
     setActiveSyncMember(42);
-    await queueMemberSync("tool_draft", "weekly", { draft: { goal: "Ten visits" } });
+    await queueMemberSync("commitment", "current", { value: "Ten visits" });
     mockedGet.mockResolvedValue({ records: [], serverTime: "2026-08-23T10:00:00.000Z" });
     mockedPost.mockImplementation(async (_path: string, body: { mutations: unknown[] }) => ({
       records: body.mutations,
@@ -66,7 +65,7 @@ describe("member continuity sync", () => {
 
   it("keeps an edit made during a flush for the next retry", async () => {
     setActiveSyncMember(421);
-    await queueMemberSync("tool_result", "objection", { result: "First version" });
+    await queueMemberSync("commitment", "current", { value: "First version" });
     mockedGet.mockResolvedValue({ records: [], serverTime: "2026-08-23T10:00:00.000Z" });
     let resolvePost: ((value: unknown) => void) | undefined;
     mockedPost.mockImplementationOnce((_path: string, body: { mutations: unknown[] }) =>
@@ -82,7 +81,7 @@ describe("member continuity sync", () => {
       await new Promise((resolve) => setTimeout(resolve, 0));
     }
     expect(resolvePost).toBeDefined();
-    await queueMemberSync("tool_result", "objection", { result: "Second version" });
+    await queueMemberSync("commitment", "current", { value: "Second version" });
     resolvePost?.(undefined);
     await flushing;
 
@@ -92,10 +91,9 @@ describe("member continuity sync", () => {
     }));
     await syncMemberData(421);
     expect(mockedPost).toHaveBeenCalledTimes(2);
-    expect(await loadToolLastResult("objection")).toBe("Second version");
   });
 
-  it("restores a remote draft after a reinstall-style empty cache", async () => {
+  it("deletes legacy generated tool text from member continuity", async () => {
     setActiveSyncMember(43);
     mockedGet.mockResolvedValueOnce({
       records: [{
@@ -108,8 +106,65 @@ describe("member continuity sync", () => {
       }],
       serverTime: "2026-08-23T10:00:01.000Z",
     });
+    mockedPost.mockImplementationOnce(async (_path: string, body: { mutations: unknown[] }) => ({
+      records: body.mutations,
+      serverTime: "2026-08-23T10:00:02.000Z",
+    }));
+
     await syncMemberData(43);
-    expect(await loadToolDraft("weekly")).toEqual({ goal: "Renew referral relationships" });
+
+    expect(await loadToolDraft("weekly")).toBeNull();
+    expect(mockedPost).toHaveBeenCalledWith("/api/v1/member-sync", expect.objectContaining({
+      mutations: [expect.objectContaining({
+        recordType: "tool_draft",
+        recordId: "weekly",
+        payload: {},
+        isDeleted: true,
+      })],
+    }));
+  });
+
+  it("removes legacy generated pending mutations before they can upload", async () => {
+    await AsyncStorage.setItem("hsp_member_sync_pending_v1_470", JSON.stringify([
+      {
+        mutationId: "legacy-result",
+        recordType: "tool_result",
+        recordId: "email",
+        payload: { result: "Private generated text for Jordan Lee" },
+        clientUpdatedAt: "2026-08-23T10:00:00.000Z",
+        isDeleted: false,
+      },
+      {
+        mutationId: "safe-commitment",
+        recordType: "commitment",
+        recordId: "current",
+        payload: { value: "Follow up with the team" },
+        clientUpdatedAt: "2026-08-23T10:00:00.000Z",
+        isDeleted: false,
+      },
+    ]));
+    await AsyncStorage.setItem("hsp_member_sync_pending_v1_471", JSON.stringify([{
+      mutationId: "other-member-draft",
+      recordType: "tool_draft",
+      recordId: "weekly",
+      payload: { draft: { goal: "Private context" } },
+      clientUpdatedAt: "2026-08-23T10:00:00.000Z",
+      isDeleted: false,
+    }]));
+    setActiveSyncMember(470);
+    mockedGet.mockResolvedValueOnce({ records: [], serverTime: "2026-08-23T10:00:00.000Z" });
+    mockedPost.mockImplementationOnce(async (_path: string, body: { mutations: unknown[] }) => ({
+      records: body.mutations,
+      serverTime: "2026-08-23T10:00:01.000Z",
+    }));
+
+    await syncMemberData(470);
+
+    expect(mockedPost).toHaveBeenCalledWith("/api/v1/member-sync", expect.objectContaining({
+      mutations: [expect.objectContaining({ recordType: "commitment", recordId: "current" })],
+    }));
+    expect(JSON.stringify(mockedPost.mock.calls)).not.toContain("Private generated text");
+    expect(await AsyncStorage.getItem("hsp_member_sync_pending_v1_471")).toBeNull();
   });
 
   it("adopts permitted legacy device work once for the first authenticated member", async () => {
@@ -129,13 +184,12 @@ describe("member continuity sync", () => {
 
     await syncMemberData(49);
 
-    expect(await loadToolDraft("weekly")).toEqual({ goal: "Build referral trust" });
-    expect(await loadToolLastResult("weekly")).toBe("Lead with a specific observation.");
+    expect(await loadToolDraft("weekly")).toBeNull();
+    expect(await loadToolLastResult("weekly")).toBeNull();
     expect(await AsyncStorage.getItem("spartan:calculator-reports:v1_49")).toContain("activity:1");
     expect(await AsyncStorage.getItem("spartan_library_downloads_v1_49")).toContain("guide.pdf");
     expect(mockedPost).toHaveBeenCalledWith("/api/v1/member-sync", expect.objectContaining({
       mutations: expect.arrayContaining([
-        expect.objectContaining({ recordType: "tool_draft", recordId: "weekly" }),
         expect.objectContaining({ recordType: "calculator_report", recordId: "calc:activity:1" }),
         expect.objectContaining({ recordType: "library_download", recordId: "library:7645f539" }),
       ]),
@@ -155,7 +209,7 @@ describe("member continuity sync", () => {
     expect(await loadToolLastResult("weekly")).toBeNull();
   });
 
-  it("does not persist or queue potential PHI in field-tool drafts or results", async () => {
+  it("does not persist or queue generated field-tool drafts or results", async () => {
     setActiveSyncMember(46);
     await saveToolDraft("weekly", {
       goal: "Follow up with patient Maria Lopez after her COPD admission",
@@ -169,10 +223,45 @@ describe("member continuity sync", () => {
     expect(await AsyncStorage.getItem("hsp_member_sync_pending_v1_46")).toBeNull();
   });
 
+  it("erases unscoped and prior-member generated tool keys during account migration", async () => {
+    await AsyncStorage.setItem("hsp_tool_draft_v1_weekly", JSON.stringify({ goal: "Private context" }));
+    await AsyncStorage.setItem("hsp_tool_result_v1_99_weekly", "Private generated result");
+    await AsyncStorage.setItem("spartan_saved_responses", JSON.stringify([
+      { toolType: "playbook", title: "Jordan Lee", response: "Private generated response" },
+    ]));
+    setActiveSyncMember(46);
+    mockedGet.mockResolvedValueOnce({ records: [], serverTime: "2026-08-23T10:00:00.000Z" });
+
+    await syncMemberData(46);
+
+    expect(await AsyncStorage.getItem("hsp_tool_draft_v1_weekly")).toBeNull();
+    expect(await AsyncStorage.getItem("hsp_tool_result_v1_99_weekly")).toBeNull();
+    expect(await AsyncStorage.getItem("spartan_saved_responses")).toBeNull();
+  });
+
+  it("does not save or sync entered names, emails, or generated tool text", async () => {
+    setActiveSyncMember(461);
+    await saveToolDraft("email", {
+      recipientName: "Jordan Lee",
+      recipientEmail: "jordan.lee@example.com",
+      context: "Follow up on our last meeting",
+    });
+    await saveToolLastResult("email", "Hi Jordan Lee, follow up at jordan.lee@example.com.");
+    await queueMemberSync("tool_result", "email", {
+      result: "Hi Jordan Lee, follow up at jordan.lee@example.com.",
+    });
+
+    expect(await loadToolDraft("email")).toBeNull();
+    expect(await loadToolLastResult("email")).toBeNull();
+    expect(await AsyncStorage.getItem("hsp_tool_draft_v1_461_email")).toBeNull();
+    expect(await AsyncStorage.getItem("hsp_tool_result_v1_461_email")).toBeNull();
+    expect(await AsyncStorage.getItem("hsp_member_sync_pending_v1_461")).toBeNull();
+  });
+
   it("does not queue an account A write under account B after a mid-write switch", async () => {
     setActiveSyncMember(46);
     setActiveSyncMember(47);
-    await queueMemberSync("tool_draft", "weekly", { draft: { goal: "A-owned draft" } }, { memberId: 46 });
+    await queueMemberSync("commitment", "current", { value: "A-owned draft" }, { memberId: 46 });
 
     mockedGet.mockResolvedValueOnce({ records: [], serverTime: "2026-08-23T10:00:00.000Z" });
     await syncMemberData(47);
@@ -182,9 +271,9 @@ describe("member continuity sync", () => {
   it("keeps a sensitive local-only item from blocking later safe work", async () => {
     setActiveSyncMember(48);
     await queueMemberSync("commitment", "current", { value: "Call the patient with COPD." });
-    await queueMemberSync("tool_result", "objection", { result: "Use a calm redirect." });
+    await queueMemberSync("commitment", "current", { value: "Use a calm redirect." });
     expect(getMemberSyncStatus()).toBe("pending");
-    expect(await AsyncStorage.getItem("hsp_member_sync_pending_v1_48")).toContain("objection");
+    expect(await AsyncStorage.getItem("hsp_member_sync_pending_v1_48")).toContain("current");
     mockedGet.mockResolvedValueOnce({ records: [], serverTime: "2026-08-23T10:00:00.000Z" });
     mockedPost.mockImplementationOnce(async (_path: string, body: { mutations: Array<{ recordId: string }> }) => ({
       records: body.mutations,
@@ -196,7 +285,7 @@ describe("member continuity sync", () => {
     expect(mockedGet).toHaveBeenCalledTimes(1);
     expect(mockedPost).toHaveBeenCalledWith(
       "/api/v1/member-sync",
-      expect.objectContaining({ mutations: [expect.objectContaining({ recordId: "objection" })] }),
+      expect.objectContaining({ mutations: [expect.objectContaining({ recordId: "current" })] }),
     );
   });
 });

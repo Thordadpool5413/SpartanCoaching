@@ -134,7 +134,7 @@ export const OFFLINE_WORKFLOW_MATRIX: readonly OfflineWorkflowSpec[] = [
     label: "Sign in / session refresh",
     capability: "online_required",
     aiWorksOffline: false,
-    notes: "Expired auth stops queue flush until re-login; 401 does not drop queued generates.",
+    notes: "Generated tool input is session-only. Reconnect and submit again after an unavailable response.",
   },
   {
     id: "org_admin",

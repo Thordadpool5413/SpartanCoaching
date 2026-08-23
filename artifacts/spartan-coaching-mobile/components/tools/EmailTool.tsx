@@ -5,14 +5,12 @@ import { useColors } from "@/hooks/useColors";
 import { apiPost } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
-import { useSavedResponses } from "@/hooks/useSavedResponses";
 import { FieldResultPanel } from "@/components/FieldResultPanel";
 import { ReminderPicker } from "@/components/ReminderPicker";
-import { SavedResponsesSection } from "@/components/SavedResponsesSection";
-import { enqueueGenerate, shouldEnqueueOnError, userFacingApiError } from "@/lib/offlineQueue";
-import { saveToolLastResult } from "@/lib/toolDraftCache";
+import { shouldEnqueueOnError, userFacingApiError } from "@/lib/offlineQueue";
 import { ToolShell } from "./ToolShell";
 import { toolStyles as styles } from "./toolStyles";
+import { MOBILE_FIELD_RESULT_ACTIONS } from "@workspace/field-kit-catalog";
 
 const EMAIL_TYPES = [
   { value: "follow_up" as const, label: "Follow Up" },
@@ -23,14 +21,12 @@ const EMAIL_TYPES = [
 export function EmailTool() {
   const colors = useColors();
   const { canUseFieldKit } = useAuth();
-  const saved = useSavedResponses("email");
   const [emailType, setEmailType] = useState<"follow_up" | "thank_you" | "value_add">("follow_up");
   const [recipientName, setRecipientName] = useState("");
   const [emailContext, setEmailContext] = useState("");
   const [result, setResult] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [savedId, setSavedId] = useState<string | null>(null);
 
   const generate = async () => {
     if (emailContext.trim().length < 10) return;
@@ -41,7 +37,6 @@ export function EmailTool() {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setLoading(true);
     setError(null);
-    setSavedId(null);
     try {
       const data = await apiPost<{ template: string }>("/api/email-templates", {
         templateType: emailType,
@@ -49,21 +44,10 @@ export function EmailTool() {
         context: emailContext,
       });
       setResult(data.template);
-      await saveToolLastResult("email", data.template);
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (e: unknown) {
       if (shouldEnqueueOnError(e)) {
-        await enqueueGenerate({
-          toolId: "email",
-          path: "/api/email-templates",
-          body: {
-            templateType: emailType,
-            recipientName: recipientName || undefined,
-            context: emailContext,
-          },
-          label: "Email Templates",
-        });
-        setError("Offline or network error. Queued to retry.");
+        setError("No email draft was created while you were offline. Reconnect and submit again; your input was not saved.");
       } else {
         setError(userFacingApiError(e));
       }
@@ -142,17 +126,7 @@ export function EmailTool() {
         content={result || undefined}
         loading={loading && !result}
         error={error}
-        onSave={
-          result
-            ? async () => {
-                const typeLabel = EMAIL_TYPES.find((et) => et.value === emailType)?.label ?? emailType;
-                const title = recipientName ? `${typeLabel}: ${recipientName}` : typeLabel;
-                await saved.saveResponse(title, result);
-                setSavedId("saved");
-              }
-            : undefined
-        }
-        saved={!!savedId}
+        nextAction={MOBILE_FIELD_RESULT_ACTIONS["email-templates"]}
       />
       {!!result && (
         <>
@@ -160,9 +134,7 @@ export function EmailTool() {
             title="Send your follow up email"
             body="Your email is ready. Set a reminder to send it."
             storageKey="email"
-            contact={recipientName || undefined}
           />
-          <SavedResponsesSection items={saved.savedItems} onDelete={saved.deleteResponse} />
         </>
       )}
     </ToolShell>

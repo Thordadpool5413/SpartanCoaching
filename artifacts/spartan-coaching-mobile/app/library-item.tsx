@@ -150,7 +150,7 @@ export default function LibraryItemScreen() {
           </Pressable>
         ) : null}
       </View>
-      {isOfflineAvailable ? <View style={styles.offlineBanner}><Feather name="smartphone" size={14} color={colors.success} /><Text style={styles.offlineBannerText}>Available offline on this iPhone</Text></View> : downloaded ? <View style={styles.offlineBanner}><Feather name="cloud" size={14} color={colors.primary} /><Text style={styles.offlineBannerText}>Saved to your account. Download again for offline use.</Text></View> : null}
+      {isOfflineAvailable ? <View style={styles.offlineBanner}><Feather name="smartphone" size={14} color={colors.success} /><Text style={styles.offlineBannerText}>Available offline on this iPhone</Text></View> : downloaded ? <View style={styles.offlineBanner}><Feather name="cloud" size={14} color={colors.primary} /><Text style={styles.offlineBannerText}>Listed in your Library, but not downloaded on this iPhone. Download again for offline use.</Text></View> : null}
       {kind === "article" ? (
         <NativeArticleReader
           title={article?.title || title}
