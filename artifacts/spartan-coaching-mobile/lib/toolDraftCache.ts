@@ -7,7 +7,11 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { trackProductOutcome } from "@/lib/analytics";
 import { OFFLINE_STORAGE_BLOCKED_TOOL_IDS } from "@/lib/offlineArchitecture";
-import { getActiveSyncMemberId, queueMemberSync } from "@/lib/memberSync";
+import {
+  getActiveSyncMemberId,
+  isSafeForMemberContinuity,
+  queueMemberSync,
+} from "@/lib/memberSync";
 import { markContinuityChanged } from "@/lib/continuityEvents";
 
 const draftKey = (toolId: string) => {
@@ -45,7 +49,12 @@ export async function loadToolDraft<T extends Record<string, unknown>>(
   try {
     const raw = await AsyncStorage.getItem(draftKey(toolId));
     if (!raw) return null;
-    return JSON.parse(raw) as T;
+    const draft = JSON.parse(raw) as T;
+    if (!isSafeForMemberContinuity({ draft })) {
+      await AsyncStorage.removeItem(draftKey(toolId));
+      return null;
+    }
+    return draft;
   } catch {
     return null;
   }
@@ -56,6 +65,10 @@ export async function saveToolDraft(
   draft: Record<string, unknown>,
 ): Promise<void> {
   if (!isDeviceStorageAllowed(toolId)) return;
+  if (!isSafeForMemberContinuity({ draft })) {
+    void queueMemberSync("tool_draft", toolId, { draft });
+    return;
+  }
   try {
     const memberId = getActiveSyncMemberId();
     await AsyncStorage.setItem(draftKeyForMember(toolId, memberId), JSON.stringify(draft));
@@ -69,7 +82,12 @@ export async function saveToolDraft(
 export async function loadToolLastResult(toolId: string): Promise<string | null> {
   if (!isDeviceStorageAllowed(toolId)) return null;
   try {
-    return await AsyncStorage.getItem(resultKey(toolId));
+    const result = await AsyncStorage.getItem(resultKey(toolId));
+    if (result && !isSafeForMemberContinuity({ result })) {
+      await AsyncStorage.removeItem(resultKey(toolId));
+      return null;
+    }
+    return result;
   } catch {
     return null;
   }
@@ -79,6 +97,10 @@ export async function saveToolLastResult(toolId: string, result: string): Promis
   if (!isDeviceStorageAllowed(toolId)) return;
   try {
     if (!result.trim()) return;
+    if (!isSafeForMemberContinuity({ result })) {
+      await queueMemberSync("tool_result", toolId, { result });
+      return;
+    }
     const memberId = getActiveSyncMemberId();
     await AsyncStorage.setItem(resultKeyForMember(toolId, memberId), result);
     if (memberId) await queueMemberSync("tool_result", toolId, { result }, { memberId });
@@ -102,10 +124,20 @@ export async function getToolContinuitySnapshot(): Promise<ContinuityToolSnapsho
 
 export async function applyToolContinuitySnapshot(snapshot: ContinuityToolSnapshot) {
   for (const [toolId, item] of Object.entries(snapshot.drafts)) {
-    if (isDeviceStorageAllowed(toolId)) await AsyncStorage.setItem(draftKey(toolId), JSON.stringify(item.value));
+    if (
+      isDeviceStorageAllowed(toolId) &&
+      isSafeForMemberContinuity({ draft: item.value })
+    ) {
+      await AsyncStorage.setItem(draftKey(toolId), JSON.stringify(item.value));
+    }
   }
   for (const [toolId, item] of Object.entries(snapshot.results)) {
-    if (isDeviceStorageAllowed(toolId)) await AsyncStorage.setItem(resultKey(toolId), item.value);
+    if (
+      isDeviceStorageAllowed(toolId) &&
+      isSafeForMemberContinuity({ result: item.value })
+    ) {
+      await AsyncStorage.setItem(resultKey(toolId), item.value);
+    }
   }
 }
 

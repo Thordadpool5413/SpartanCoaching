@@ -38,7 +38,7 @@ export default function Resources() {
   const isOrgAdmin =
     member?.role === "org_admin" || member?.role === "platform_admin";
 
-  const { data: resourcesData, isLoading, isError } = useQuery<{
+  const { data: resourcesData, isLoading, isError, refetch: refetchResources } = useQuery<{
     resources: SelectResource[];
     ownershipLabel?: string;
   }>({
@@ -203,6 +203,9 @@ export default function Resources() {
         <BackButton />
         <div className="text-center max-w-2xl mx-auto py-20">
           <p className="text-destructive">Failed to load resources. Please try again later.</p>
+          <Button type="button" variant="outline" className="mt-4" onClick={() => void refetchResources()}>
+            Try again
+          </Button>
         </div>
       </div>
     );
@@ -257,6 +260,22 @@ export default function Resources() {
         )}
       </div>
       {!canUseFieldKit && <ContentNotice />}
+      <Card className="mb-8 border border-border bg-muted/30 p-4 sm:p-5" data-testid="resources-work-guide">
+        <div className="grid gap-4 sm:grid-cols-3 text-sm">
+          <div>
+            <p className="font-bold text-foreground">Choose for the next job</p>
+            <p className="mt-1 text-muted-foreground leading-relaxed">Open a script, checklist, template, or guide that supports the next visit, conversation, or planning block.</p>
+          </div>
+          <div>
+            <p className="font-bold text-foreground">Keep the boundary clear</p>
+            <p className="mt-1 text-muted-foreground leading-relaxed">Field resources are work aids. Do not add patient identifiers, PHI, or clinical records to downloaded copies.</p>
+          </div>
+          <div>
+            <p className="font-bold text-foreground">Download is not saved work</p>
+            <p className="mt-1 text-muted-foreground leading-relaxed">Downloads are not automatically added to My Work or synced to iPhone. Return here to re-download the current version.</p>
+          </div>
+        </div>
+      </Card>
 
       {canUseFieldKit && (
         <div className="mb-12 space-y-4" data-testid="provider-resource-library">

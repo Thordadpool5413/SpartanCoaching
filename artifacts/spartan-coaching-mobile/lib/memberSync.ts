@@ -120,7 +120,7 @@ export function getMemberSyncFailureCount() {
   return failedCount;
 }
 
-function isSafeToSync(payload: Record<string, unknown>) {
+export function isSafeForMemberContinuity(payload: Record<string, unknown>) {
   const text = JSON.stringify(payload);
   return !/\b(patient|mrn|medical\s*record|diagnosis|date\s*of\s*birth|dob|social\s*security|ssn|medicare\s*beneficiary|cancer|oncology|prognosis|medication|treatment|condition|illness|symptom|copd|heart\s+failure|hiv|diabetes|born)\b|\b\d{1,2}[/-]\d{1,2}[/-]\d{2,4}\b|\b\d{3}-\d{2}-\d{4}\b|\b(?:\+?1[-.\s]?)?(?:\(?\d{3}\)?[-.\s]?)\d{3}[-.\s]?\d{4}\b|[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}|\b\d{8,}\b/i.test(text);
 }
@@ -130,7 +130,7 @@ async function recordFailedMutation(memberId: number, mutationId: string, record
   const failures = raw ? JSON.parse(raw) as Array<Record<string, string>> : [];
   await AsyncStorage.setItem(FAILED_KEY(memberId), JSON.stringify([
     ...failures.filter((failure) => failure.mutationId !== mutationId),
-    { mutationId, recordType, recordId, reason: "This item contains sensitive information and stayed only on this device." },
+    { mutationId, recordType, recordId, reason: "This item contains sensitive information and was not stored or synced." },
   ].slice(-20)));
   failedCount = failures.length + 1;
 }
@@ -158,7 +158,7 @@ export async function queueMemberSync(
     setStatus("unavailable");
     return;
   }
-  if (!options?.isDeleted && !isSafeToSync(payload)) {
+  if (!options?.isDeleted && !isSafeForMemberContinuity(payload)) {
     const localOnlyId = mutationId();
     await recordFailedMutation(memberId, localOnlyId, recordType, recordId);
     setStatus("unavailable");
@@ -205,17 +205,22 @@ async function migrateLegacyDeviceWork(memberId: number): Promise<void> {
       AsyncStorage.getItem(`hsp_tool_result_v1_${toolId}`),
     ]);
     if (draft) {
-      await AsyncStorage.setItem(TOOL_DRAFT_KEY(memberId, toolId), draft);
       try {
         const parsed = JSON.parse(draft);
-        if (parsed && typeof parsed === "object" && !Array.isArray(parsed)) {
+        if (
+          parsed &&
+          typeof parsed === "object" &&
+          !Array.isArray(parsed) &&
+          isSafeForMemberContinuity({ draft: parsed as Record<string, unknown> })
+        ) {
+          await AsyncStorage.setItem(TOOL_DRAFT_KEY(memberId, toolId), draft);
           await queueMemberSync("tool_draft", toolId, { draft: parsed as Record<string, unknown> }, { memberId });
         }
       } catch {
         // Preserve malformed local data for this signed-in owner, but never upload it.
       }
     }
-    if (result) {
+    if (result && isSafeForMemberContinuity({ result })) {
       await AsyncStorage.setItem(TOOL_RESULT_KEY(memberId, toolId), result);
       await queueMemberSync("tool_result", toolId, { result }, { memberId });
     }

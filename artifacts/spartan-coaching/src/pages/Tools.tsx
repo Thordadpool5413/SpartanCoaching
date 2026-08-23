@@ -29,6 +29,7 @@ import { useMemo, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import { FieldKitChrome } from "@/components/FieldKitChrome";
+import { PRICING_FACTS } from "@/lib/complianceCopy";
 import {
   FIELD_KIT_WHAT,
   FIELD_KIT_HOW,
@@ -83,7 +84,9 @@ export default function Tools() {
         tool.description.toLowerCase().includes(query) ||
         tool.category.toLowerCase().includes(query) ||
         tool.whenToUse.toLowerCase().includes(query) ||
-        tool.why.toLowerCase().includes(query)
+          tool.why.toLowerCase().includes(query) ||
+          (tool.scenario || "").toLowerCase().includes(query) ||
+          (tool.outcome || "").toLowerCase().includes(query)
       );
     });
   }, [searchQuery]);
@@ -219,9 +222,10 @@ export default function Tools() {
                     Preview open · live tools locked
                   </h2>
                   <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
-                    Browse real interfaces. Unlock live generation, Command Center, and saves with Hospice
-                    Sales Pro Elite is recommended at $19.99/week. Standard remains available at $14.99/week. Cancel anytime. Already subscribed? Sign in with the same
-                    email (access restores from your account).
+                    Browse real interfaces. Unlock live generation, Command Center, and eligible nonclinical
+                    saves with Hospice Sales Pro. Elite is recommended at {PRICING_FACTS.eliteWeeklyLabel}.
+                    Standard remains available at {PRICING_FACTS.individualWeeklyLabel}. Cancel anytime.
+                    Already subscribed? Sign in with the same email (access restores from your account).
                   </p>
                   <ul className="mt-3 grid sm:grid-cols-2 gap-1.5 text-xs text-muted-foreground">
                     <li className="flex gap-1.5">
@@ -231,7 +235,7 @@ export default function Tools() {
                       <span className="text-primary font-bold">✓</span> Command Center for today’s visits
                     </li>
                     <li className="flex gap-1.5">
-                      <span className="text-primary font-bold">✓</span> Saves synced to iPhone
+                      <span className="text-primary font-bold">✓</span> Tool-specific saved work with clear keep/download actions
                     </li>
                     <li className="flex gap-1.5">
                       <span className="text-primary font-bold">✓</span> Cancel anytime · same seat

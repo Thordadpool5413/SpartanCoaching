@@ -48,6 +48,18 @@ export interface FieldKitTool {
   outcome?: string;
 }
 
+/**
+ * Completion guidance follows the tool across web and iPhone. It deliberately
+ * describes the product boundary instead of promising that client-side drafts
+ * or generated text are stored somewhere they are not.
+ */
+export type FieldKitWorkGuide = {
+  inputHint: string;
+  outputPreview: string;
+  persistence: string;
+  nextToolId?: string;
+};
+
 export const FIELD_KIT_WHAT =
   "Hospice Sales Pro tools and resources for hospice growth — prepare, practice, plan, and measure on web and iPhone.";
 
@@ -315,6 +327,96 @@ export function getToolById(id: string): FieldKitTool | undefined {
 
 export function toolsByCategory(category: FieldKitCategory): FieldKitTool[] {
   return FIELD_KIT_TOOLS.filter((t) => t.category === category);
+}
+
+const PRIORITY_WORK_GUIDES: Record<string, FieldKitWorkGuide> = {
+  "sales-workflow": {
+    inputHint:
+      "Add only professional account context and the next action you need to confirm. Never enter patient identifiers or PHI.",
+    outputPreview:
+      "A connected pre-call plan, practice path, outcome capture, and confirmed next step for the account.",
+    persistence:
+      "Account and call work stays in Sales Command Center’s own workspace. Keep PHI out, and do not rely on device or offline storage for continuity.",
+    nextToolId: "playbooks",
+  },
+  playbooks: {
+    inputHint:
+      "Describe the referral-source situation, pressure point, and desired commitment. Use deidentified business context only.",
+    outputPreview:
+      "A visit strategy with talking points, discovery questions, and one precise next-step ask.",
+    persistence:
+      "A generated playbook stays in the current session until you copy or download it. Save the final version only in your permitted work system.",
+    nextToolId: "sales-workflow",
+  },
+  objections: {
+    inputHint:
+      "Use the exact objection in deidentified form and add only the professional context that changes your response.",
+    outputPreview:
+      "A field-ready response you can practice once, adapt to the conversation, and use on the next call.",
+    persistence:
+      "The response stays on screen until you copy it. It is not automatically added to shared saved work.",
+    nextToolId: "role-play",
+  },
+  "role-play": {
+    inputHint:
+      "Choose the real conversation you need to rehearse, but never use patient identifiers, clinical details, or PHI.",
+    outputPreview:
+      "A practice conversation with feedback and one phrase or pivot to carry into the live visit.",
+    persistence:
+      "Role-play sessions and feedback are retained in your member and organization workspace. They are not copied by this guide into device or offline continuity storage.",
+    nextToolId: "sales-workflow",
+  },
+  "weekly-plan": {
+    inputHint:
+      "List priority accounts, territory context, and the week’s win condition. Use professional account context only—never PHI.",
+    outputPreview:
+      "A Monday–Friday territory plan with daily win conditions, visit objectives, and a Friday review.",
+    persistence:
+      "Your plan is available to copy or download in this session. It is not automatically added to My Work, so retain the final plan in your permitted system.",
+    nextToolId: "sales-workflow",
+  },
+  "cold-call": {
+    inputHint:
+      "Describe the target organization, your reason for calling, and the commitment you want. Keep all context deidentified.",
+    outputPreview:
+      "An opener, objection response, and a clear ask you can use for one focused outreach block.",
+    persistence:
+      "The script remains on screen until you copy or download it; it is not automatically added to shared saved work.",
+    nextToolId: "sales-workflow",
+  },
+  "email-templates": {
+    inputHint:
+      "Add the relationship context, purpose, and tone. Never enter patient details, PHI, or sensitive clinical notes.",
+    outputPreview:
+      "A professional draft you can edit, copy, download, or intentionally send with a clear follow-up reminder.",
+    persistence:
+      "Generated drafts remain in the current session. A scheduled reminder is not proof that an email was sent; confirm the send action separately.",
+    nextToolId: "sales-workflow",
+  },
+};
+
+export function getToolWorkGuide(toolOrId: FieldKitTool | string): FieldKitWorkGuide {
+  const tool =
+    typeof toolOrId === "string" ? getToolById(toolOrId) : toolOrId;
+
+  if (!tool) {
+    return {
+      inputHint: "Use deidentified professional context only. Never enter patient identifiers or PHI.",
+      outputPreview: "A practical result you can review, adapt, and use in your next field action.",
+      persistence:
+        "Results are not automatically shared or stored by this guide. Copy or download only what belongs in your permitted work system.",
+    };
+  }
+
+  return (
+    PRIORITY_WORK_GUIDES[tool.id] ?? {
+      inputHint: `${tool.howSteps[0]}. Use deidentified professional business context only—never PHI.`,
+      outputPreview: tool.outcome ?? `${tool.description} Review the result before using it in the field.`,
+      persistence:
+        "Results remain in the current session unless this tool offers an explicit save, copy, or download action. Keep any retained work in your permitted system.",
+      nextToolId: tool.id === "brand-video" ? undefined : "sales-workflow",
+    }
+  );
 }
 
 export function mobileParityDebt(): FieldKitTool[] {

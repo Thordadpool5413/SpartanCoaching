@@ -55,7 +55,10 @@ const NATIVE_SEARCH_DESTINATIONS: Record<string, string> = {
 
 function toolIcon(tool: FieldKitTool): React.ComponentProps<typeof Feather>["name"] {
   const icons: Record<string, React.ComponentProps<typeof Feather>["name"]> = {
+    "sales-workflow": "target",
     playbooks: "book-open",
+    objections: "message-circle",
+    "role-play": "users",
     research: "search",
     transcribe: "mic",
     "email-templates": "mail",
@@ -65,12 +68,13 @@ function toolIcon(tool: FieldKitTool): React.ComponentProps<typeof Feather>["nam
     branch: "git-branch",
     "cold-call": "phone",
     "weekly-plan": "calendar",
+    "brand-video": "video",
   };
   return icons[tool.id] || "arrow-up-right";
 }
 
 function mobileToolTitle(tool: FieldKitTool) {
-  return tool.id === "sales-workflow" ? "Field Visit Planner" : tool.title;
+  return tool.title;
 }
 
 export default function ExploreScreen() {
@@ -180,7 +184,9 @@ function ToolsCatalogScreen() {
       !q ||
       tool.title.toLowerCase().includes(q) ||
       tool.description.toLowerCase().includes(q) ||
-      (tool.whenToUse || "").toLowerCase().includes(q)
+       (tool.whenToUse || "").toLowerCase().includes(q) ||
+       (tool.scenario || "").toLowerCase().includes(q) ||
+       (tool.outcome || "").toLowerCase().includes(q)
     );
 
   const visibleTools = FIELD_KIT_TOOLS.filter(matches);
@@ -222,12 +228,21 @@ function ToolsCatalogScreen() {
         keyboardDismissMode="on-drag"
       >
         {!q ? (
-          <View style={styles.destinationGrid} testID="explore-destinations">
+          <>
+            <View style={styles.destinationGrid} testID="explore-destinations">
             <ExploreDestination icon="book-open" title="Library" body="Read, listen, and use field resources inside the app." onPress={() => router.push("/(tabs)/tools?view=library" as any)} />
-            <ExploreDestination icon="check-circle" title="My Work" body="Resume plans, commitments, downloads, and approvals." onPress={() => router.push("/(tabs)/my-work" as any)} />
+            <ExploreDestination icon="check-circle" title="My Work" body="Resume eligible saved work and review what is ready for your next move." onPress={() => router.push("/(tabs)/my-work" as any)} />
             <ExploreDestination icon="layers" title="Access map" body="See what Standard and Elite include." onPress={() => router.push("/access" as any)} />
             <ExploreDestination icon="compass" title="Guided tour" body="Walk through preparation, practice, Coach feedback, and follow through." onPress={() => router.push("/tour" as any)} />
-          </View>
+            </View>
+            <View style={[styles.boundaryNote, { backgroundColor: colors.card, borderColor: colors.borderStrong }]} testID="tool-directory-safety-note">
+              <Feather name="shield" size={18} color={colors.primary} />
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.boundaryTitle, { color: colors.foreground }, font("bold")]}>Use deidentified field context only</Text>
+                <Text style={[styles.boundaryBody, { color: colors.mutedForeground }, font("regular")]}>Never enter patient identifiers or PHI. Saved-work availability is tool-specific; clinical/vault content and Command Center continuity stay out of device cache and shared saved work.</Text>
+              </View>
+            </View>
+          </>
         ) : null}
 
         {remoteGroups.length > 0 ? (
@@ -257,7 +272,7 @@ function ToolsCatalogScreen() {
           {toolGroups.map((group) => (
             <View key={group.category} style={styles.toolGroup} testID={`tool-category-${group.category.toLowerCase()}`}>
               <View style={styles.groupTitleRow}><Text style={[styles.groupTitle, { color: colors.foreground }, font("heavy")]}>{group.category}</Text><Text style={[styles.groupCount, { color: colors.mutedForeground }, font("semibold")]}>{group.tools.length} {group.tools.length === 1 ? "tool" : "tools"}</Text></View>
-              {group.tools.map((tool) => <ActionRow key={tool.id} title={mobileToolTitle(tool)} subtitle={tool.whenToUse || tool.description} icon={toolIcon(tool)} badge={accessLabel(tool)} onPress={() => openCatalogTool(tool)} testID={`tool-row-${tool.id}`} />)}
+              {group.tools.map((tool) => <ActionRow key={tool.id} title={mobileToolTitle(tool)} subtitle={tool.outcome || tool.whenToUse || tool.description} icon={toolIcon(tool)} badge={accessLabel(tool)} onPress={() => openCatalogTool(tool)} testID={`tool-row-${tool.id}`} />)}
             </View>
           ))}
         </View>
@@ -337,6 +352,9 @@ const styles = StyleSheet.create({
   searchShell: { minHeight: 50, borderWidth: 1, borderRadius: 16, paddingHorizontal: 14, flexDirection: "row", alignItems: "center", gap: 10, marginTop: 16 },
   search: { flex: 1, fontSize: 15, minHeight: 48 },
   destinationGrid: { gap: 14, marginBottom: 36 },
+  boundaryNote: { borderWidth: 1, borderRadius: 18, padding: 15, flexDirection: "row", alignItems: "flex-start", gap: 11, marginTop: -20, marginBottom: 28 },
+  boundaryTitle: { fontSize: 13 },
+  boundaryBody: { fontSize: 11, lineHeight: 16, marginTop: 3 },
   destinationCard: { minHeight: 104, flexDirection: "row", alignItems: "center", gap: 14, borderWidth: 1, borderRadius: 20, borderCurve: "continuous", paddingHorizontal: 17, paddingVertical: 16 },
   destinationIcon: { width: 44, height: 44, borderRadius: 14, alignItems: "center", justifyContent: "center" },
   destinationCopy: { flex: 1 },

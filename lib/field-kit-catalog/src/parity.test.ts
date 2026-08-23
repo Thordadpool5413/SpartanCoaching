@@ -22,6 +22,7 @@ import {
   filterDiscoveryIntents,
   secondaryCategoriesStillSupported,
   getToolById as getTool,
+   getToolWorkGuide,
 } from "./index";
 
 describe("Membership mobile parity", () => {
@@ -79,6 +80,40 @@ describe("Membership mobile parity", () => {
         false,
       );
     }
+  });
+});
+
+describe("Catalog-backed completion guidance", () => {
+  it("gives every catalog tool safe input, output, and persistence guidance", () => {
+    for (const tool of FIELD_KIT_TOOLS) {
+      const guide = getToolWorkGuide(tool);
+      expect(guide.inputHint.length).toBeGreaterThan(20);
+      expect(guide.outputPreview.length).toBeGreaterThan(20);
+      expect(guide.persistence.length).toBeGreaterThan(20);
+      expect(guide.inputHint).toMatch(/PHI|deidentified/i);
+    }
+  });
+
+  it("routes the highest-use workflows to a real next catalog tool", () => {
+    for (const id of [
+      "sales-workflow",
+      "playbooks",
+      "objections",
+      "role-play",
+      "weekly-plan",
+      "cold-call",
+      "email-templates",
+    ]) {
+      const nextToolId = getToolWorkGuide(id).nextToolId;
+      expect(nextToolId).toBeTruthy();
+      expect(getToolById(nextToolId!)).toBeDefined();
+    }
+  });
+
+  it("does not label retained role-play feedback as session-only", () => {
+    expect(getToolWorkGuide("role-play").persistence).toMatch(
+      /member and organization workspace/i,
+    );
   });
 });
 

@@ -155,6 +155,20 @@ describe("member continuity sync", () => {
     expect(await loadToolLastResult("weekly")).toBeNull();
   });
 
+  it("does not persist or queue potential PHI in field-tool drafts or results", async () => {
+    setActiveSyncMember(46);
+    await saveToolDraft("weekly", {
+      goal: "Follow up with patient Maria Lopez after her COPD admission",
+    });
+    await saveToolLastResult("weekly", "Patient DOB: 08/12/1948 needs a call.");
+
+    expect(await loadToolDraft("weekly")).toBeNull();
+    expect(await loadToolLastResult("weekly")).toBeNull();
+    expect(await AsyncStorage.getItem("hsp_tool_draft_v1_46_weekly")).toBeNull();
+    expect(await AsyncStorage.getItem("hsp_tool_result_v1_46_weekly")).toBeNull();
+    expect(await AsyncStorage.getItem("hsp_member_sync_pending_v1_46")).toBeNull();
+  });
+
   it("does not queue an account A write under account B after a mid-write switch", async () => {
     setActiveSyncMember(46);
     setActiveSyncMember(47);

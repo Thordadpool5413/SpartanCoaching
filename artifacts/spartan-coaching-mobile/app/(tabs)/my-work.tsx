@@ -86,7 +86,7 @@ export default function MyWorkScreen() {
               <View style={styles.cardTop}><Feather name="check-circle" size={22} color={colors.primary} /><Text style={styles.privateLabel}>PRIVATE · {syncStatus === "synced" ? "SYNCED" : syncStatus === "pending" ? "PENDING" : "UNAVAILABLE"}</Text></View>
               <Text style={styles.commitmentTitle}>{commitment || "No active commitment yet"}</Text>
               <Text style={styles.commitmentBody}>{commitment ? (canUseElite ? "Open Coach to review or change it." : "Open your weekly plan to follow through.") : (canUseElite ? "Use Coach or the weekly planner to choose one clear next move." : "Use the weekly planner to choose one clear next move.")}</Text>
-              {getMemberSyncFailureCount() ? <Text style={styles.commitmentBody}>Some sensitive saved work stays only on this device and cannot be synced.</Text> : null}
+              {getMemberSyncFailureCount() ? <Text style={styles.commitmentBody}>Some sensitive content was not saved or synced. Remove patient identifiers and try again with deidentified context.</Text> : null}
             </Pressable>
 
             <Text style={styles.sectionLabel}>SAVED WORK</Text>
