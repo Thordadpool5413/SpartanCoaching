@@ -37,7 +37,7 @@ export function ProofStrip({
 
       {showStats && (
         <div
-          className="grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-3xl mx-auto mb-10"
+          className="grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-2xl mx-auto mb-10"
           data-testid="proof-stats"
         >
           {PROOF_STATS.map((stat) => (
