@@ -23,6 +23,8 @@ import { ActivationCeremony } from "@/components/ActivationCeremony";
 import { DeepLinkRouter } from "@/components/DeepLinkRouter";
 import { AppearanceProvider } from "@/lib/AppearanceContext";
 import { LaunchExperience } from "@/components/LaunchExperience";
+import { CoachSessionProvider } from "@/lib/CoachSessionContext";
+import { VoiceActivityBanner } from "@/components/VoiceActivityBanner";
 
 SplashScreen.preventAutoHideAsync();
 SplashScreen.setOptions({ duration: 260, fade: true });
@@ -118,17 +120,20 @@ export default function RootLayout() {
         <ErrorBoundary>
           <QueryClientProvider client={queryClient}>
             <AuthProvider>
-              <ClientConfigBootstrap />
-              <AppOpenTracker />
-              <DeepLinkRouter />
-              <ActivationCeremony />
-              <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
-              <GestureHandlerRootView style={{ flex: 1 }}>
-                <KeyboardProvider>
-                  <RootLayoutNav />
-                </KeyboardProvider>
-                {launchVisible ? <LaunchExperience onComplete={completeLaunch} /> : null}
-              </GestureHandlerRootView>
+              <CoachSessionProvider>
+                <ClientConfigBootstrap />
+                <AppOpenTracker />
+                <DeepLinkRouter />
+                <ActivationCeremony />
+                <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+                <GestureHandlerRootView style={{ flex: 1 }}>
+                  <KeyboardProvider>
+                    <VoiceActivityBanner />
+                    <RootLayoutNav />
+                  </KeyboardProvider>
+                  {launchVisible ? <LaunchExperience onComplete={completeLaunch} /> : null}
+                </GestureHandlerRootView>
+              </CoachSessionProvider>
             </AuthProvider>
           </QueryClientProvider>
         </ErrorBoundary>
