@@ -493,14 +493,14 @@ export default function Programs() {
           </Card>
         ))}
       </div>
-      {/* Strategic Services */}
+      {/* Program add-ons */}
       <div className="space-y-8 md:space-y-12 lg:space-y-16">
         <div className="text-center max-w-3xl mx-auto mb-12">
           <h2 className="text-foreground mt-16 mb-8 text-h2">
-            Strategic Services
+            Program add-ons
           </h2>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
-            Standalone one-off services or add-ons to programs. Simple to use, easy to teach, and fast to measure. Every deliverable stays patient-first and compliant.
+            Add these focused engagements to a program when your team needs more depth in a specific area. For standalone coaching options, start with Services.
           </p>
         </div>
         <div className="grid md:grid-cols-2 gap-cards">

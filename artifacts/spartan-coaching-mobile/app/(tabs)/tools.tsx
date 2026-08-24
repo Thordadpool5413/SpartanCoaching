@@ -28,7 +28,6 @@ import { useAuth } from "@/lib/AuthContext";
 import { MAX_FONT_SIZE_MULTIPLIER } from "@/lib/iosProductQuality";
 import { CATALOG_ID_TO_TAB, isToolTab, openToolHref } from "@/lib/toolDeepLinks";
 import { font } from "@/lib/typography";
-import LearnScreen from "./learn";
 
 type SearchHit = {
   id: string;
@@ -47,8 +46,8 @@ const NATIVE_SEARCH_DESTINATIONS: Record<string, string> = {
   "/portal": "/(tabs)",
   "/": "/(tabs)",
   "/tools": "/(tabs)/tools",
-  "/learn": "/(tabs)/tools?view=library",
-  "/library": "/(tabs)/tools?view=library",
+  "/learn": "/(tabs)/learn",
+  "/library": "/(tabs)/learn",
   "/coach": "/(tabs)/coach",
   "/contact": "/(tabs)/contact",
   "/account": "/(tabs)/account",
@@ -79,10 +78,6 @@ function mobileToolTitle(tool: FieldKitTool) {
 }
 
 export default function ExploreScreen() {
-  const params = useLocalSearchParams<{ view?: string | string[] }>();
-  const rawView = params.view;
-  const view = Array.isArray(rawView) ? rawView[0] : rawView;
-  if (view === "library") return <LearnScreen />;
   return <ToolsCatalogScreen />;
 }
 
@@ -168,7 +163,7 @@ function ToolsCatalogScreen() {
       }
     }
     if (hit.type === "resource") {
-      router.push("/(tabs)/tools?view=library" as any);
+      router.push("/(tabs)/learn" as any);
       return;
     }
     const native = NATIVE_SEARCH_DESTINATIONS[hit.href];
@@ -199,9 +194,9 @@ function ToolsCatalogScreen() {
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]} testID="screen-explore">
       <View style={[styles.header, { paddingTop: topPad + 12, borderBottomColor: colors.border }]}>
-        <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>EVERYTHING IN ONE PLACE</Text>
-        <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Explore</Text>
-        <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>All {FIELD_KIT_TOOLS.length} field tools, the complete Library, private Coach, and saved work. Nothing important is buried.</Text>
+        <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>FIELD TOOLS</Text>
+        <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Explore tools</Text>
+        <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Find the right interactive workspace for the job in front of you.</Text>
         <View style={[styles.searchShell, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Feather name="search" size={18} color={colors.mutedForeground} />
           <TextInput
@@ -229,21 +224,9 @@ function ToolsCatalogScreen() {
         keyboardDismissMode="on-drag"
       >
         {!q ? (
-          <>
-            <View style={styles.destinationGrid} testID="explore-destinations">
-            <ExploreDestination icon="book-open" title="Library" body="Read, listen, and use field resources inside the app." onPress={() => router.push("/(tabs)/tools?view=library" as any)} />
-            <ExploreDestination icon="check-circle" title="My Work" body="Resume eligible saved work and review what is ready for your next move." onPress={() => router.push("/(tabs)/my-work" as any)} />
-            <ExploreDestination icon="layers" title="Access map" body="See what Standard and Elite include." onPress={() => router.push("/access" as any)} />
-            <ExploreDestination icon="compass" title="Guided tour" body="Walk through preparation, practice, Coach feedback, and follow through." onPress={() => router.push("/tour" as any)} />
-            </View>
-            <View style={[styles.boundaryNote, { backgroundColor: colors.card, borderColor: colors.borderStrong }]} testID="tool-directory-safety-note">
-              <Feather name="shield" size={18} color={colors.primary} />
-              <View style={{ flex: 1 }}>
-                <Text style={[styles.boundaryTitle, { color: colors.foreground }, font("bold")]}>Use deidentified field context only</Text>
-                <Text style={[styles.boundaryBody, { color: colors.mutedForeground }, font("regular")]}>Never enter patient identifiers or PHI. Saved-work availability is tool-specific; clinical/vault content and Command Center continuity stay out of device cache and shared saved work.</Text>
-              </View>
-            </View>
-          </>
+          <Text style={[styles.catalogIntro, { color: colors.mutedForeground }, font("regular")]}>
+            Interactive tools live here. Use Library for guides and downloads, My Work for saved outputs, and Account for access or privacy settings.
+          </Text>
         ) : null}
 
         {remoteGroups.length > 0 ? (
@@ -255,10 +238,10 @@ function ToolsCatalogScreen() {
           </View>
         ) : null}
 
-        <View style={{ marginTop: q ? 0 : 20 }} testID="complete-tool-directory">
+          <View style={{ marginTop: q ? 0 : 20 }} testID="complete-tool-directory">
           <View style={styles.directoryHeading}>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>COMPLETE TOOL DIRECTORY</Text>
+              <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>TOOL DIRECTORY</Text>
               <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>{category === "All" ? `All ${FIELD_KIT_TOOLS.length} tools` : `${category} tools`}</Text>
               <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>Every tool is visible here. Choose a job, understand when to use it, and open the native iPhone experience.</Text>
             </View>
@@ -313,20 +296,6 @@ function ToolsCatalogScreen() {
         </Pressable>
       </ScrollView>
     </View>
-  );
-}
-
-function ExploreDestination({ icon, title, body, onPress }: { icon: React.ComponentProps<typeof Feather>["name"]; title: string; body: string; onPress: () => void }) {
-  const colors = useColors();
-  return (
-    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.destinationCard, { backgroundColor: colors.card, borderColor: colors.borderStrong, opacity: pressed ? 0.7 : 1 }]}>
-      <View style={[styles.destinationIcon, { backgroundColor: colors.primaryMuted }]}><Feather name={icon} size={19} color={colors.primary} /></View>
-      <View style={styles.destinationCopy}>
-        <Text style={[styles.destinationTitle, { color: colors.foreground }, font("bold")]}>{title}</Text>
-        <Text style={[styles.destinationBody, { color: colors.mutedForeground }, font("regular")]}>{body}</Text>
-      </View>
-      <Feather name="chevron-right" size={19} color={colors.primary} />
-    </Pressable>
   );
 }
 
@@ -388,6 +357,7 @@ const styles = StyleSheet.create({
   kicker: { fontSize: 10, letterSpacing: 2.2 },
   title: { fontSize: 36, letterSpacing: -1.1, marginTop: 6 },
   subtitle: { fontSize: 14, lineHeight: 20, marginTop: 5, maxWidth: 340 },
+  catalogIntro: { fontSize: 13, lineHeight: 19, marginTop: 22 },
   searchShell: { minHeight: 50, borderWidth: 1, borderRadius: 16, paddingHorizontal: 14, flexDirection: "row", alignItems: "center", gap: 10, marginTop: 16 },
   search: { flex: 1, fontSize: 15, minHeight: 48 },
   destinationGrid: { gap: 14, marginBottom: 36 },

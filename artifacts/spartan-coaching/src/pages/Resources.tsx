@@ -18,10 +18,10 @@ import { trackEvent } from "@/lib/analytics";
 import { apiRequest } from "@/lib/queryClient";
 import { ContentNotice } from "@/components/ContentNotice";
 import { FieldKitChrome } from "@/components/FieldKitChrome";
+import { ToolResultActions } from "@/components/ToolResultActions";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { PublicConversionPanel } from "@/components/PublicConversionPanel";
-import { ToolResultActions } from "@/components/ToolResultActions";
 import { trackProductOutcome } from "@/lib/analytics";
 import {
   FIELD_KIT_TOOLS,
@@ -516,22 +516,14 @@ export default function Resources() {
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed">
           {canUseFieldKit
-            ? "Work aids for the field — templates, scripts, and checklists. Not buried under Learn: pair with Tools intents (prepare a visit, plan the week)."
+            ? "Current templates, scripts, and checklists for work you want to take into the field."
             : "Download field-tested templates, scripts, checklists, and guides to elevate your hospice sales performance."}
         </p>
         {canUseFieldKit && (
           <p className="text-sm text-muted-foreground mt-3">
-            Start from intent on{" "}
-            <Link href="/tools" className="font-semibold text-primary hover:underline">
-              Tools
-            </Link>
-            {" "}
-            (e.g. handle an objection → Objection Handler + objection cards).{" "}
-            <Link href="/articles" className="font-semibold text-primary hover:underline">
-              Learn
-            </Link>
-            {" "}
-            is for articles and fundamentals.
+            This library is for downloadable work aids. Use{" "}
+            <Link href="/tools" className="font-semibold text-primary hover:underline">Tools</Link>
+            {" "}when you need an interactive workspace.
           </p>
         )}
       </div>
@@ -552,23 +544,6 @@ export default function Resources() {
           </div>
         </div>
       </Card>
-      <div className="mb-12">
-        <ToolResultActions
-          toolId="resources"
-          title="Turn a resource into field work"
-          description="Open the guide or template for your next job, then use Tools to prepare the conversation and plan the follow-through."
-          actions={[
-            {
-              id: "open-tools",
-              label: "Open Tools",
-              href: "/tools",
-            },
-          ]}
-          persistenceNote="Opening or downloading a resource does not save it to My Work or sync it to iPhone. Return to this library to access the current copy."
-          testId="resources-next-action"
-        />
-      </div>
-
       {canUseFieldKit && (
         <div className="mb-12 space-y-4" data-testid="provider-resource-library">
           <div className="flex flex-wrap items-end justify-between gap-3">
@@ -768,6 +743,19 @@ export default function Resources() {
               })}
             </div>
           )}
+        </div>
+      )}
+
+      {canUseFieldKit && (
+        <div className="mb-12">
+          <ToolResultActions
+            toolId="resources"
+            title="Use the current copy in the field"
+            description="Opening or downloading a resource does not save it to My Work or sync it to iPhone. Return to this library when you need the current copy."
+            actions={[{ id: "open-tools", label: "Open Tools", href: "/tools" }]}
+            persistenceNote="Downloads remain separate from saved tool outputs."
+            testId="resources-next-action"
+          />
         </div>
       )}
 

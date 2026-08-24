@@ -17,16 +17,8 @@ const HOME_JOBS = [
   { icon: "edit-3" as const, label: "Plan", description: "Build the plan", route: "/(tabs)/tools?category=Plan" as Href },
   { icon: "message-circle" as const, label: "Practice", description: "Rehearse the moment", route: "/(tabs)/tools?category=Practice" as Href },
   { icon: "bar-chart-2" as const, label: "Measure", description: "Track progress", route: "/(tabs)/tools?category=Measure" as Href },
-  { icon: "book-open" as const, label: "Library", description: "Learn and use", route: "/(tabs)/tools?view=library" as Href },
+  { icon: "book-open" as const, label: "Library", description: "Read and download", route: "/(tabs)/learn" as Href },
 ];
-
-type HomeAction = {
-  icon: React.ComponentProps<typeof Feather>["name"];
-  title: string;
-  body: string;
-  route: Href;
-  testID: string;
-};
 
 export default function HomeScreen() {
   const colors = useColors();
@@ -86,30 +78,6 @@ export default function HomeScreen() {
   }
 
   const firstName = designPreview ? "Nick" : user?.member?.name?.trim().split(/\s+/)[0] || "there";
-  const actions: HomeAction[] = [
-    {
-      icon: "message-square",
-      title: "Plan the conversation",
-      body: "Purpose, talking points, likely objection, and next move.",
-      route: "/tool/playbook" as Href,
-      testID: "home-prepare-conversation",
-    },
-    {
-      icon: "shield",
-      title: "Practice the hard part",
-      body: canUseElite ? "Private rehearsal with Spartan Coach feedback." : "Build and refine a response with Standard tools.",
-      route: canUseElite ? "/(tabs)/coach" as Href : "/tool/objection" as Href,
-      testID: "home-practice-objection",
-    },
-    {
-      icon: "grid",
-      title: "Explore tools and resources",
-      body: "One place for every tool, Library item, and access boundary.",
-      route: "/(tabs)/tools" as Href,
-      testID: "home-explore",
-    },
-  ];
-
   const open = (route: Href) => {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push(route);
@@ -127,9 +95,9 @@ export default function HomeScreen() {
         <SpartanHeader />
         <View style={styles.badge}><Text style={styles.badgeText}>HOSPICE SALES PRO</Text></View>
         <Text style={styles.greeting}>Good {timeOfDay()}, {firstName}.</Text>
-        <Text style={styles.promise}>What do you need to prepare for?</Text>
+        <Text style={styles.promise}>What needs your attention today?</Text>
 
-        <Text style={styles.sectionLabel}>OPEN A WORKSPACE</Text>
+        <Text style={styles.sectionLabel}>CHOOSE A WORKSPACE</Text>
         <View style={styles.jobMap} accessibilityLabel="Open planning, practice, measurement, or the Library">
           {HOME_JOBS.map((job) => (
             <Pressable
@@ -150,28 +118,6 @@ export default function HomeScreen() {
           ))}
         </View>
 
-        <Text style={styles.sectionLabel}>RECOMMENDED FOR YOU</Text>
-        <View style={styles.actionList}>
-          {actions.map((action, index) => (
-            <Pressable
-              key={action.title}
-              accessibilityRole="button"
-              onPress={() => open(action.route)}
-              style={({ pressed }) => [styles.actionCard, index === 0 && styles.featuredCard, pressed && styles.pressed]}
-              testID={action.testID}
-            >
-              <View style={[styles.actionIcon, index === 0 && styles.featuredIcon]}>
-                <Feather name={action.icon} size={22} color={index === 0 ? "#FFFFFF" : colors.primary} />
-              </View>
-              <View style={styles.actionCopy}>
-                <Text style={styles.actionTitle}>{action.title}</Text>
-                <Text style={styles.actionBody}>{action.body}</Text>
-              </View>
-              <Feather name="chevron-right" size={21} color={index === 0 ? colors.primary : colors.mutedForeground} />
-            </Pressable>
-          ))}
-        </View>
-
         {alsoLeadsTeam ? (
           <Pressable accessibilityRole="button" onPress={() => open("/(tabs)/tools" as Href)} style={({ pressed }) => [styles.leadershipCard, pressed && styles.pressed]} testID="home-leadership-context">
             <View style={styles.leadershipIcon}><Feather name="users" size={20} color={colors.primary} /></View>
@@ -181,7 +127,7 @@ export default function HomeScreen() {
         ) : null}
 
         <View style={styles.sectionHeading}>
-          <Text style={styles.sectionKicker}>FOLLOW THROUGH</Text>
+          <Text style={styles.sectionKicker}>CONTINUE</Text>
           <Pressable accessibilityRole="button" onPress={() => open("/(tabs)/my-work" as Href)} hitSlop={8}>
             <Text style={styles.seeAll}>Open My Work</Text>
           </Pressable>

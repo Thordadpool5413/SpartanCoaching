@@ -230,25 +230,10 @@ export default function Tools() {
                     Preview open · live tools locked
                   </h2>
                   <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
-                    Browse real interfaces. Unlock live generation, Command Center, and eligible nonclinical
-                    saves with Hospice Sales Pro. Elite is recommended at {PRICING_FACTS.eliteWeeklyLabel}.
-                    Standard remains available at {PRICING_FACTS.individualWeeklyLabel}. Cancel anytime.
-                    Already subscribed? Sign in with the same email (access restores from your account).
+                    Browse every tool before you decide. Standard unlocks live field work and eligible saves;
+                    Elite adds private Coach and deidentified clinical guidance. Already subscribed? Sign in with
+                    the same email to restore access.
                   </p>
-                  <ul className="mt-3 grid sm:grid-cols-2 gap-1.5 text-xs text-muted-foreground">
-                    <li className="flex gap-1.5">
-                      <span className="text-primary font-bold">✓</span> Live generation on field tools
-                    </li>
-                    <li className="flex gap-1.5">
-                      <span className="text-primary font-bold">✓</span> Command Center for today’s visits
-                    </li>
-                    <li className="flex gap-1.5">
-                      <span className="text-primary font-bold">✓</span> Tool-specific saved work with clear keep/download actions
-                    </li>
-                    <li className="flex gap-1.5">
-                      <span className="text-primary font-bold">✓</span> Cancel anytime · same seat
-                    </li>
-                  </ul>
                 </div>
               </div>
               <div className="flex flex-col sm:flex-row gap-2 shrink-0">
@@ -318,7 +303,7 @@ export default function Tools() {
             <div className="flex flex-wrap items-end justify-between gap-2 mb-4">
               <div>
                 <p className="text-xs font-bold tracking-widest text-primary uppercase mb-1">
-                  Start with intent
+                  Start with the job
                 </p>
                 <h2 className="text-h2 text-foreground">Professional entry points</h2>
               </div>
@@ -327,7 +312,7 @@ export default function Tools() {
                 className="text-sm font-semibold text-primary hover:underline"
                 data-testid="link-field-resources-from-tools"
               >
-                {PRODUCT_SURFACE_PLACEMENT.field_resources.label} →
+                  Templates & guides →
               </Link>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-3">

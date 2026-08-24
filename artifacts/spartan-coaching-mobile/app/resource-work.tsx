@@ -383,7 +383,7 @@ export default function ResourceWorkScreen() {
               </Pressable>
             ) : null}
 
-            <Pressable onPress={() => goBackOrReplace("/(tabs)/tools?view=library")} style={{ marginTop: 16 }}>
+            <Pressable onPress={() => goBackOrReplace("/(tabs)/learn")} style={{ marginTop: 16 }}>
               <Text style={[{ color: colors.mutedForeground, fontSize: 14 }, font("regular")]}>
                 Back to Learn
               </Text>

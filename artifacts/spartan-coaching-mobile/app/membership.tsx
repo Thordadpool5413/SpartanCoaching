@@ -64,7 +64,7 @@ export default function MembershipScreen() {
             <Text style={styles.statusBody}>Your account history, commitments, preferences, and saved work stay with the same account when company access changes.</Text>
           </View>
         </View>
-        <SpartanButton title="See everything in my access" onPress={() => router.push("/access" as any)} />
+        <SpartanButton title="Manage membership details" onPress={() => router.push("/(tabs)/account" as any)} />
         <SpartanButton title="Back to Home" variant="outline" onPress={() => router.replace("/(tabs)" as any)} />
       </ScrollView>
     );
@@ -82,7 +82,7 @@ export default function MembershipScreen() {
           <View style={{ flex: 1 }}><Text style={styles.statusTitle}>Complete individual access</Text><Text style={styles.statusBody}>Coach, voice rehearsal, advanced AI, field tools, Library, and saved work are available to this account.</Text></View>
         </View>
         {personalAccess ? <AppleSubscriptionActions isAuthenticated showManage onEntitlementChanged={refresh} onPricesLoaded={setPrices} /> : null}
-        <SpartanButton title="See everything in my access" onPress={() => router.push("/access" as any)} />
+        <SpartanButton title="Manage membership details" onPress={() => router.push("/(tabs)/account" as any)} />
         <SpartanButton title="Go to Home" variant="outline" onPress={() => router.replace("/(tabs)" as any)} />
       </ScrollView>
     );
@@ -114,14 +114,8 @@ export default function MembershipScreen() {
         ) : (
           <>
             <Text style={styles.kicker}>{canUseFieldKit ? "STANDARD ACTIVE" : "INDIVIDUAL MEMBERSHIP"}</Text>
-            <Text style={styles.title}>{canUseFieldKit ? "Add private Coach when you want the complete system." : "Know exactly what you are buying before Apple asks you to confirm."}</Text>
+            <Text style={styles.title}>{canUseFieldKit ? "Add private Coach when the work calls for it." : "Choose the membership that fits your field work."}</Text>
             <Text style={styles.subtitle}>{canUseFieldKit ? "Your Standard access, history, preferences, commitments, and saved work stay intact when you upgrade." : "Browse the app first. Choose Standard or Elite here. Payment happens through Apple before Spartan account creation."}</Text>
-
-            <Pressable onPress={() => router.push("/access" as any)} style={styles.accessMapRow} accessibilityRole="button">
-              <View style={styles.accessMapIcon}><Feather name="grid" size={19} color={colors.primary} /></View>
-              <View style={{ flex: 1 }}><Text style={styles.accessMapTitle}>See the complete access map</Text><Text style={styles.accessMapBody}>Every destination, capability, offline rule, and privacy boundary before you subscribe.</Text></View>
-              <Feather name="chevron-right" size={20} color={colors.primary} />
-            </Pressable>
 
             {canUseFieldKit ? <View style={styles.currentPlanBanner}><Feather name="check-circle" size={19} color={colors.success} /><View style={{ flex: 1 }}><Text style={styles.currentPlanTitle}>Standard is already active</Text><Text style={styles.currentPlanBody}>The only individual upgrade is Elite. There is no second Standard purchase.</Text></View></View> : null}
 

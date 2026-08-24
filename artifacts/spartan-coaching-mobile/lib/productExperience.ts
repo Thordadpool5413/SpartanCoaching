@@ -73,7 +73,7 @@ export const SPARTAN_OFFERINGS: SpartanOffering[] = [
     id: "library",
     title: "Library",
     promise: "Read, listen, practice the Spartan Method, and keep approved resources close to the field.",
-    route: "/(tabs)/tools?view=library",
+    route: "/(tabs)/learn",
     access: ["visitor", "standard", "elite", "company", "admin"],
     capabilities: [
       "Native field notes",

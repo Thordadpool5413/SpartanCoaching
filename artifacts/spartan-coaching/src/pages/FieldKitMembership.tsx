@@ -50,13 +50,13 @@ export default function FieldKitMembership() {
       <div className="text-center max-w-3xl mx-auto mb-10 space-y-4">
         <p className="text-kicker justify-center">Hospice Sales Pro</p>
         <h1 className="text-h1 font-display font-black text-foreground">
-          The tools product for hospice growth.
+          A field system for the work between visits.
           <br />
-          <span className="text-primary">Command Center · practice · plans · resources.</span>
+          <span className="text-primary">Prepare · practice · follow through.</span>
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed">
-          Hospice Sales Pro is what you open on web and iPhone between coaching sessions — or on its own:
-          Sales Command Center, objections, role-play, playbooks, weekly plans, calculators, and field resources.{" "}
+          Open Hospice Sales Pro when you need structure for the next conversation. Begin in Command Center,
+          then use the right practice, planning, or resource tool for the job.{" "}
           {PRICING_FACTS.heroLine}
         </p>
         <div className="flex flex-col items-center gap-3 pt-2" data-testid="membership-hero-cta">
@@ -94,7 +94,7 @@ export default function FieldKitMembership() {
         <SectionHeader
           kicker="What's inside"
           title="One daily spine. Clear tool groups."
-          description="Hospice Sales Pro is not thirteen equal features. Open Command Center for the day, then use practice, plan, and resources as satellites — same product on web and iPhone."
+          description="Start in Command Center for the day, then use practice, planning, leadership, or resource tools when the job calls for them."
         />
         <ProductMap className="mb-8" />
 
@@ -267,16 +267,14 @@ export default function FieldKitMembership() {
       >
         <TrendingUp className="w-8 h-8 text-primary mx-auto mb-4" />
         <h2 className="text-h3 font-bold text-foreground mb-3">
-          Walk in prepared — not hoping the conversation goes your way.
+          Walk in prepared. Return with a repeatable weekly rhythm.
           <br />
           <span className="text-primary">
-            Standard builds prepared field work. Elite adds private coaching and clinical guidance.
+            Standard holds the workflow. Elite adds private coaching and clinical guidance.
           </span>
         </h2>
         <p className="text-muted-foreground leading-relaxed mb-4">
-          The Objection Handler gives you the response before you walk into the room. Weekly Plan Builder makes Monday
-          intentional. Command Center turns every visit into a continuous, coachable account workflow — not ten random
-          tabs.
+          Turn prepared field work into a weekly rhythm: plan the week, prepare the conversation, rehearse the hard part, and carry a clear next step into follow-through.
         </p>
         <p className="text-sm text-muted-foreground leading-relaxed">
           Preview tools free. Subscribe to generate, save, and run live. Cancel anytime from Account — access continues

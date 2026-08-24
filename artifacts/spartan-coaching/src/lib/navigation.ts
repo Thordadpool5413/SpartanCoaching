@@ -63,8 +63,8 @@ export const navSections: SiteNavSection[] = [
     title: "Hospice Sales Pro",
     items: [
       { path: "/hospice-sales-pro", label: "Hospice Sales Pro", description: `Elite recommended ${PRICING_FACTS.eliteWeeklyShort} · Standard ${PRICING_FACTS.individualWeeklyShort} · web + iOS`, icon: Wrench },
-      { path: "/tools", label: "Tools", description: "Start from intent — visits, objections, week plans, numbers", icon: Calculator },
-      { path: "/resources", label: "Field resources", description: "Work aids: templates, scripts, checklists — not only Learn", icon: FolderOpen },
+      { path: "/tools", label: "Tools", description: "Interactive help for visits, objections, plans, and numbers", icon: Calculator },
+      { path: "/resources", label: "Field resources", description: "Downloadable templates, scripts, and checklists", icon: FolderOpen },
       { path: "/register", label: "Create account", description: "Then subscribe to unlock live tools", icon: Lock },
       { path: "/request-access", label: "Team / evaluation", description: "Company seats or arranged evaluation", icon: Users },
     ],
@@ -74,7 +74,6 @@ export const navSections: SiteNavSection[] = [
     items: [
       { path: "/articles", label: "Articles", description: "Industry insights and fundamentals", icon: FileText },
       { path: "/podcasts", label: "Podcasts", description: "Coaching conversations", icon: Headphones },
-      { path: "/method", label: "The Spartan Method", description: "Discipline, empathy, and strategy", icon: Shield },
       { path: "/drills", label: "Daily drills", description: "Practice between visits", icon: Flame },
       { path: "/faq", label: "FAQ", description: "Common questions", icon: HelpCircle },
     ],

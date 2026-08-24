@@ -1,43 +1,29 @@
 import { Feather } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
-import React, { useCallback, useEffect, useMemo, useState } from "react";
+import React, { useCallback, useMemo, useState } from "react";
 import { Platform, Pressable, ScrollView, StyleSheet, Text, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { SpartanHeader } from "@/components/ui/SpartanHeader";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
-import { loadCachedCommitment } from "@/lib/commitmentCache";
 import { listDownloadedLibraryItems, type DownloadedLibraryItem } from "@/lib/libraryDownloads";
 import { font } from "@/lib/typography";
 import { deleteCalculatorReport, listCalculatorReports, type SavedCalculatorReport } from "@/lib/calculatorHistory";
-import { getMemberSyncFailureCount, getMemberSyncStatus, subscribeMemberSyncStatus, type MemberSyncStatus } from "@/lib/memberSync";
 
 export default function MyWorkScreen() {
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
-  const { user, canUseFieldKit, canUseElite } = useAuth();
-  const [commitment, setCommitment] = useState<string | null>(null);
+  const { canUseFieldKit, canUseElite } = useAuth();
   const [downloads, setDownloads] = useState<DownloadedLibraryItem[]>([]);
   const [reports, setReports] = useState<SavedCalculatorReport[]>([]);
-  const [syncStatus, setSyncStatus] = useState<MemberSyncStatus>(getMemberSyncStatus());
   const topPad = Platform.OS === "web" ? 54 : insets.top;
   const bottomPad = Platform.OS === "web" ? 30 : insets.bottom + 24;
 
-  useEffect(() => subscribeMemberSyncStatus(setSyncStatus), []);
-
   useFocusEffect(useCallback(() => {
-    if (user?.member?.id) void loadCachedCommitment(user.member.id).then(setCommitment);
     void listDownloadedLibraryItems().then(setDownloads);
     void listCalculatorReports().then(setReports);
-  }, [user?.member?.id]));
-
-  useEffect(() => {
-    if (syncStatus !== "synced") return;
-    if (user?.member?.id) void loadCachedCommitment(user.member.id).then(setCommitment);
-    void listDownloadedLibraryItems().then(setDownloads);
-    void listCalculatorReports().then(setReports);
-  }, [syncStatus, user?.member?.id]);
+  }, []));
 
   const openDownload = (item: DownloadedLibraryItem) => {
     router.push({
@@ -65,9 +51,9 @@ export default function MyWorkScreen() {
     >
       <View style={styles.page}>
         <SpartanHeader title="My Work" />
-        <View style={styles.badge}><Text style={styles.badgeText}>YOUR CONTINUITY</Text></View>
-        <Text style={styles.title}>Pick up where you left off.</Text>
-        <Text style={styles.subtitle}>Commitments, downloads, and approved outputs stay organized here.</Text>
+        <View style={styles.badge}><Text style={styles.badgeText}>SAVED CONTINUITY</Text></View>
+        <Text style={styles.title}>Keep the work that is ready to return to.</Text>
+        <Text style={styles.subtitle}>Saved reports, approved outputs, and offline Library downloads stay organized here.</Text>
 
         {!canUseFieldKit ? (
           <View style={styles.emptyCard}>
@@ -81,18 +67,12 @@ export default function MyWorkScreen() {
           </View>
         ) : (
           <>
-            <Text style={styles.sectionLabel}>CURRENT COMMITMENT</Text>
-            <Pressable style={styles.commitmentCard} onPress={() => router.push((canUseElite ? "/(tabs)/coach" : "/resource-work") as never)}>
-              <View style={styles.cardTop}><Feather name="check-circle" size={22} color={colors.primary} /><Text style={styles.privateLabel}>PRIVATE · {syncStatus === "synced" ? "SYNCED" : syncStatus === "pending" ? "PENDING" : "UNAVAILABLE"}</Text></View>
-              <Text style={styles.commitmentTitle}>{commitment || "No active commitment yet"}</Text>
-              <Text style={styles.commitmentBody}>{commitment ? (canUseElite ? "Open Coach to review or change it." : "Open your weekly plan to follow through.") : (canUseElite ? "Use Coach or the weekly planner to choose one clear next move." : "Use the weekly planner to choose one clear next move.")}</Text>
-              {getMemberSyncFailureCount() ? <Text style={styles.commitmentBody}>Some sensitive content was not saved or synced. Remove patient identifiers and try again with deidentified context.</Text> : null}
-            </Pressable>
-
-            <Text style={styles.sectionLabel}>FIELD TOOLS</Text>
-            <WorkRow icon="calendar" title="Weekly plan" body="Build a current plan. Generated plans stay in the active session until you copy or share them." onPress={() => router.push("/tool/weekly" as never)} />
-            <WorkRow icon="edit-3" title="Conversation plans" body="Build a fresh conversation plan. Generated work is not automatically saved or synced." onPress={() => router.push("/tool/playbook" as never)} />
-            {canUseElite ? <WorkRow icon="shield" title="Saved Elite outputs" body="Review completed nonclinical work, status, and full results." onPress={() => router.push("/saved-ai-outputs" as never)} /> : null}
+            {canUseElite ? (
+              <>
+                <Text style={styles.sectionLabel}>ELITE OUTPUTS</Text>
+                <WorkRow icon="shield" title="Saved Elite outputs" body="Review completed nonclinical work, status, and full results." onPress={() => router.push("/saved-ai-outputs" as never)} />
+              </>
+            ) : null}
 
             {reports.length ? (
               <>
@@ -105,7 +85,7 @@ export default function MyWorkScreen() {
 
             <View style={styles.sectionHeading}>
               <Text style={styles.sectionLabel}>DOWNLOADS</Text>
-              <Pressable onPress={() => router.push("/(tabs)/tools?view=library" as never)} hitSlop={8}><Text style={styles.openLibrary}>Open Library</Text></Pressable>
+              <Pressable onPress={() => router.push("/(tabs)/learn" as never)} hitSlop={8}><Text style={styles.openLibrary}>Open Library</Text></Pressable>
             </View>
             {downloads.length ? downloads.slice(0, 4).map((item) => (
               <WorkRow key={item.sourceUrl} icon={item.kind === "audio" ? "headphones" : "file-text"} title={item.title} body={item.availability === "unavailable" ? "Listed in your Library, but not downloaded on this iPhone. Download again for offline use." : "Available offline on this iPhone."} onPress={() => openDownload(item)} />

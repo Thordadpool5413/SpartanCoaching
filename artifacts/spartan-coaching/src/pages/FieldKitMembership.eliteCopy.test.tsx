@@ -184,20 +184,20 @@ describe("FieldKitMembership hero copy — 'Hospice Sales Pro'", () => {
   });
 });
 
-describe("FieldKitMembership hero headline — elite positioning", () => {
-  it("shows 'The tools product for hospice growth' in the hero when unauthenticated", async () => {
+describe("FieldKitMembership hero headline — field system positioning", () => {
+  it("shows the field-system headline in the hero when unauthenticated", async () => {
     await renderMembership(UNAUTHED);
-    expect(screen.getByText(/The tools product for hospice growth/i)).toBeTruthy();
+    expect(screen.getByText(/A field system for the work between visits/i)).toBeTruthy();
   });
 
-  it("shows 'The tools product for hospice growth' in the hero when can-subscribe", async () => {
+  it("shows the field-system headline in the hero when can-subscribe", async () => {
     await renderMembership(CAN_SUBSCRIBE);
-    expect(screen.getByText(/The tools product for hospice growth/i)).toBeTruthy();
+    expect(screen.getByText(/A field system for the work between visits/i)).toBeTruthy();
   });
 
-  it("shows 'The tools product for hospice growth' in the hero when already subscribed", async () => {
+  it("shows the field-system headline in the hero when already subscribed", async () => {
     await renderMembership(ALREADY_SUBSCRIBED);
-    expect(screen.getByText(/The tools product for hospice growth/i)).toBeTruthy();
+    expect(screen.getByText(/A field system for the work between visits/i)).toBeTruthy();
   });
 
   it("shows web and iPhone + $14.99/week framing in the hero", async () => {

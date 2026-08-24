@@ -23,8 +23,8 @@ describe("native product completeness", () => {
     expect(library).not.toContain('pathname: "/tool-web"');
     expect(library).toContain('pathname: "/library-item"');
     expect(library).toContain('pathname: "/method-guide"');
-    expect(explore).toContain('view === "library"');
-    expect(explore).toContain("<LearnScreen />");
+    expect(explore).toContain('"/learn": "/(tabs)/learn"');
+    expect(explore).not.toContain('view === "library"');
     expect(reader).toContain("library-native-reader");
     expect(reader).toContain("NativeArticleReader");
     expect(reader).toContain("NativeResourceReader");
@@ -158,19 +158,19 @@ describe("native product completeness", () => {
     expect(home).toContain("Compare and subscribe through Apple");
     expect(membership).toContain("Payment happens through Apple before Spartan account creation");
     expect(membership).toContain("Private Spartan Coach");
-    expect(access).toContain("THE COMPLETE APP");
+    expect(access).toContain("APP AREAS");
   });
 
   it("uses the approved five destination navigation and keeps Library native", () => {
     const tabs = read("app/(tabs)/_layout.tsx");
     expect(tabs).toContain('title: "Home"');
     expect(tabs).toContain('title: "Coach"');
-    expect(tabs).toContain('title: "Explore"');
+    expect(tabs).toContain('title: "Tools"');
     expect(tabs).toContain('title: "My Work"');
     expect(tabs).toContain('title: "Account"');
     expect(tabs).toContain('name="learn" options={{ href: null }}');
-    expect(read("app/(tabs)/my-work.tsx")).toContain("Pick up where you left off");
-    expect(read("app/(tabs)/learn.tsx")).toContain('placeholder="Search tools and resources"');
+    expect(read("app/(tabs)/my-work.tsx")).toContain("Keep the work that is ready to return to");
+    expect(read("app/(tabs)/learn.tsx")).toContain('placeholder="Search the Library"');
     expect(read("app/(tabs)/learn.tsx")).toContain("Boolean(item.audioUrl)");
     expect(read("app/(tabs)/learn.tsx")).toContain("Only complete, playable episodes appear here");
     expect(read("app/(tabs)/learn.tsx")).toContain("LibraryModeIntro");
@@ -183,8 +183,9 @@ describe("native product completeness", () => {
     expect(explore).toContain("category === \"All\"");
     expect(explore).toContain("FIELD_KIT_CATEGORIES");
     expect(explore).toContain("Every tool is visible here");
-    expect(explore).toContain("Guided tour");
-    expect(explore).toContain("Access map");
+    expect(explore).toContain("Interactive tools live here");
+    expect(explore).not.toContain("Guided tour");
+    expect(explore).not.toContain("Access map");
   });
 
   it("defines one app wide source of truth for every major offering", () => {

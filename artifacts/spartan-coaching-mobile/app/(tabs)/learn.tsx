@@ -17,7 +17,6 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { SpartanHeader } from "@/components/ui/SpartanHeader";
-import { NextFieldActionCard } from "@/components/NextFieldActionCard";
 import { useColors } from "@/hooks/useColors";
 import { apiGet } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
@@ -27,7 +26,6 @@ import { font } from "@/lib/typography";
 import {
   getResourceWorkGuide,
   getToolById,
-  MOBILE_FIELD_RESULT_ACTIONS,
   type FieldKitResourceWorkflowCustomization,
 } from "@workspace/field-kit-catalog";
 
@@ -163,7 +161,7 @@ export default function LearnScreen() {
           <TextInput
             value={query}
             onChangeText={setQuery}
-            placeholder="Search tools and resources"
+            placeholder="Search the Library"
             placeholderTextColor={colors.mutedForeground}
             style={[styles.searchInput, { color: colors.foreground }, font("regular")]}
             returnKeyType="search"
@@ -289,11 +287,7 @@ export default function LearnScreen() {
 
       {activeTab === "resources" ? (
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: bottomPad + 24 }} showsVerticalScrollIndicator={false} testID="learn-resources">
-          <LibraryModeIntro icon="folder" title="Use" body="Open working tools, approved field resources, and company material in the app. Download selected nonclinical items for offline use." access="STANDARD" />
-          <NextFieldActionCard
-            action={MOBILE_FIELD_RESULT_ACTIONS.resources}
-            testID="resources-next-field-action"
-          />
+          <LibraryModeIntro icon="folder" title="Use" body="Open approved field guides and company material. Download selected nonclinical items for offline use." access="STANDARD" />
           <View style={[styles.safetyCard, { backgroundColor: colors.primaryMuted, borderColor: colors.primary }]}>
             <Feather name="shield" size={20} color={colors.primary} />
             <View style={{ flex: 1 }}>
@@ -302,9 +296,9 @@ export default function LearnScreen() {
             </View>
           </View>
 
-          <Text style={[styles.sectionEyebrow, { color: colors.primary, marginTop: 22 }, font("bold")]}>WORKING TOOLS</Text>
-          <LibraryRow title="Grounded Research" subtitle="Ask a territory or market question with source aware support." meta="Interactive tool" icon="search" onPress={() => router.push(openToolHref("research") as any)} testID="learn-link-research-tool" />
-          <LibraryRow title="Weekly Plan" subtitle="Build, save, and resume the week across devices." meta="Interactive worksheet" icon="edit-3" onPress={() => router.push("/resource-work" as any)} testID="learn-link-resource-work" />
+          <Text style={[styles.sectionBody, { color: colors.mutedForeground, marginTop: 18 }, font("regular")]}>
+            Need an interactive workspace? Open Explore. The Library keeps reference material, downloadable aids, and organization resources together.
+          </Text>
 
           {!canUseFieldKit ? (
             <View style={[styles.lockCard, { backgroundColor: colors.card, borderColor: colors.border }]}>

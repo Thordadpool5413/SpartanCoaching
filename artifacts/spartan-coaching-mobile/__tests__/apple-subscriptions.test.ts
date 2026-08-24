@@ -80,7 +80,7 @@ describe("Apple subscription contract", () => {
     const membership = fs.readFileSync(path.resolve(__dirname, "../app/membership.tsx"), "utf8");
     const api = fs.readFileSync(path.resolve(__dirname, "../lib/api.ts"), "utf8");
     expect(membership).toContain("Payment happens through Apple before Spartan account creation");
-    expect(membership).toContain("Add private Coach when you want the complete system");
+    expect(membership).toContain("Add private Coach when the work calls for it");
     expect(membership).toContain("<AppleSubscriptionActions");
     expect(membership).toContain('router.push("/register" as any)');
     expect(api).toContain('"/api/billing/apple/guest-verify"');

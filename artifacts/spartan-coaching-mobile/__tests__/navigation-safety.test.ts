@@ -19,6 +19,6 @@ describe("native navigation safety", () => {
     expect(tour).toContain('goBackOrReplace("/(tabs)")');
     expect(advanced).toContain('goBackOrReplace("/(tabs)/tools")');
     expect(aiTool).toContain('goBackOrReplace("/ai-tools")');
-    expect(resource).toContain('goBackOrReplace("/(tabs)/tools?view=library")');
+    expect(resource).toContain('goBackOrReplace("/(tabs)/learn")');
   });
 });

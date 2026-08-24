@@ -6,7 +6,6 @@ import { ArrowRight, Briefcase, Wrench, CheckCircle } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { TrustStrip } from "@/components/TrustStrip";
 import { ProofStrip } from "@/components/ProofStrip";
-import { AppHandoffPanel } from "@/components/AppHandoffPanel";
 import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
 import { lazy, Suspense, Component } from "react";
 import type { ReactNode } from "react";
@@ -14,8 +13,6 @@ import { useReducedMotion } from "framer-motion";
 import nickPhoto from "@assets/nick-photo.jpg";
 import { SITE_ORIGIN } from "@/lib/seo-config";
 import { PUBLIC_FUNNEL_EVENT, trackPublicFunnelEvent } from "@/lib/publicFunnel";
-import { PublicConversionPanel } from "@/components/PublicConversionPanel";
-import { PRICING_FACTS } from "@/lib/complianceCopy";
 
 const CANONICAL_ORIGIN = SITE_ORIGIN;
 
@@ -112,7 +109,7 @@ export default function Home() {
         <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 lg:py-20">
           <div className="flex flex-col gap-10 xl:gap-14 items-center">
             <div className="order-2 max-w-3xl mx-auto text-center">
-            <p className="text-kicker mb-5 justify-center">Hospice sales consulting + Hospice Sales Pro</p>
+            <p className="text-kicker mb-5 justify-center">For hospice growth leaders, liaisons, and directors</p>
             <h1
               id="home-hero-title"
               className="text-4xl sm:text-5xl lg:text-7xl font-display font-black tracking-tight text-foreground leading-[0.95]"
@@ -121,8 +118,7 @@ export default function Home() {
               Make the next hospice conversation count.
             </h1>
             <p className="mt-6 max-w-xl text-base sm:text-lg text-muted-foreground leading-relaxed">
-              Practical consulting for growth leaders. A focused field system for the people who
-              carry the work forward every day.
+              Practical coaching and field tools for the people who carry hospice growth forward every day.
             </p>
             <div className="mt-8 flex flex-col sm:flex-row gap-3 justify-center">
               <Button size="lg" asChild className="font-bold min-h-12" data-testid="button-hero-consulting">
@@ -143,9 +139,6 @@ export default function Home() {
                 </Link>
               </Button>
             </div>
-            <p className="mt-5 text-xs font-medium text-muted-foreground">
-              Choose the path that fits: consulting for teams, Hospice Sales Pro for individual execution.
-            </p>
             </div>
             <div className="order-1 w-full max-w-5xl mx-auto">
               <div
@@ -266,12 +259,10 @@ export default function Home() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
           <FadeIn>
             <div className="text-center mb-8 sm:mb-12 lg:mb-14">
-              <p className="text-kicker justify-center mb-4">How Spartan helps</p>
-              <h2 className="text-h2 text-foreground font-display">Two clear offers. One firm.</h2>
+              <p className="text-kicker justify-center mb-4">Choose a starting point</p>
+              <h2 className="text-h2 text-foreground font-display">Get the help the work calls for.</h2>
               <p className="text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed text-sm sm:text-base">
-                Hire Spartan for human consulting — or run{" "}
-                <strong className="text-foreground">Hospice Sales Pro</strong> for Command Center, tools, and
-                resources on web and iPhone.
+                Bring Spartan into your team, or open a field system built for your individual day-to-day work.
               </p>
             </div>
           </FadeIn>
@@ -291,13 +282,12 @@ export default function Home() {
               {
                 icon: Wrench,
                 kicker: "Offer B · Hospice Sales Pro",
-                title: "The tools product — web + iPhone",
-                desc: "What you actually get: daily Command Center, practice tools, plans, calculators, and field resources.",
+                title: "Hospice Sales Pro",
+                desc: "A focused field system for planning, practicing, and following through between visits.",
                 features: [
                   "Sales Command Center",
                   "Objections · role-play · email · playbooks",
-                  "Weekly plan · activity · ROI · branch math",
-                  `Elite recommended · ${PRICING_FACTS.eliteWeeklyShort} · Standard ${PRICING_FACTS.individualWeeklyShort}`,
+                  "Weekly planning, activity, and leadership math",
                 ],
                 href: "/hospice-sales-pro",
                 cta: "Explore Hospice Sales Pro",
@@ -350,19 +340,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ── 4b. WEB ↔ IPHONE — same product, clear handoff ── */}
-      <section className="relative bg-background py-12 sm:py-16 lg:py-20" data-testid="section-app-handoff">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-          <FadeIn>
-            <AppHandoffPanel
-              destination="command"
-              title="The field system does not stay at your desk."
-              description="Hospice Sales Pro is the same product on web and iPhone. Open Command Center before a visit, then return to the browser when you want the full workspace."
-            />
-          </FadeIn>
-        </div>
-      </section>
-
       {/* ── 5. PROOF (trust, not hollow claims) ── */}
       <section className="relative bg-background py-16 sm:py-24" data-testid="section-results">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -401,12 +378,12 @@ export default function Home() {
         <div className="absolute inset-0 bg-spartan-gradient-radial opacity-40 pointer-events-none" />
         <FadeIn>
           <div className="relative max-w-3xl mx-auto px-4 sm:px-6 text-center elite-panel p-8 sm:p-12">
-            <p className="text-kicker mb-6 justify-center">Ready to close the gap?</p>
+            <p className="text-kicker mb-6 justify-center">Choose your next move</p>
             <h2 className="text-h1 font-bold text-foreground mb-6 font-display" data-testid="text-closing-title">
-              Stop winging it.
+              Start with the work in front of you.
             </h2>
             <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-              If you are ready to build a system that holds when the week is hard, reach out. Honest conversation — no pressure.
+              Bring in a coach for your team, or open Hospice Sales Pro for a more prepared individual day.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild className="font-bold px-10 shadow-lg" data-testid="button-closing-contact">
@@ -431,28 +408,9 @@ export default function Home() {
                 </Link>
               </Button>
             </div>
-            <p className="mt-6 text-sm text-muted-foreground">
-              Prefer detail first?{" "}
-              <Link href="/services" className="font-semibold text-primary hover:underline" data-testid="button-closing-services">
-                View consulting services
-              </Link>
-              {" · "}
-              <Link href="/tools" className="font-semibold text-primary hover:underline" data-testid="button-closing-tools">
-                Preview tools
-              </Link>
-            </p>
           </div>
         </FadeIn>
       </section>
-      <PublicConversionPanel
-        source="home"
-        audience="Hospice growth leaders, sales professionals, and provider teams choosing between human consulting and daily field tools."
-        promise="A practical path from the next conversation to a repeatable operating rhythm."
-        evidence="Field-tested coaching, role-based proof, and clear no-PHI product boundaries."
-        primary={{ label: "Book a strategy call", href: "/contact", token: "strategy_call" }}
-        secondary={{ label: "Explore Hospice Sales Pro", href: "/hospice-sales-pro", token: "hospice_sales_pro" }}
-        showOfferPaths
-      />
     </div>
   );
 }
