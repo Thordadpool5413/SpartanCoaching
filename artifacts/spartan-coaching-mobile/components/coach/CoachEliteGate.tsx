@@ -49,7 +49,7 @@ export function CoachEliteGate({ isAuthenticated }: CoachEliteGateProps) {
         />
         <View style={styles.gateBadge}>
           <Feather name="shield" size={15} color={colors.primary} />
-          <Text style={styles.gateBadgeText}>HOSPICE SALES PRO ELITE</Text>
+          <Text style={styles.gateBadgeText}>SPARTAN COACHING ELITE</Text>
         </View>
         <Text style={styles.gateTitle}>
           Private practice that prepares you for the room.
@@ -88,7 +88,7 @@ export function CoachEliteGate({ isAuthenticated }: CoachEliteGateProps) {
           <Feather name="arrow-right" size={19} color="#FFFFFF" />
         </Pressable>
         <Text style={styles.gatePrice}>
-          Hospice Sales Pro Elite is $19.99 per week. Cancel anytime.
+          Spartan Coaching Elite is $19.99 per week. Cancel anytime.
         </Text>
       </ScrollView>
     </SafeAreaView>

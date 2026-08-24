@@ -3,7 +3,6 @@ import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import { BlurView } from "expo-blur";
 import { Feather } from "@expo/vector-icons";
 import { router } from "expo-router";
-import { useColors } from "@/hooks/useColors";
 import { font } from "@/lib/typography";
 import { fetchJurisdictionContext, type JurisdictionContext } from "@/lib/jurisdictionApi";
 import { VAULT, VAULT_COPY } from "@/lib/clinicalVaultTheme";
@@ -31,14 +30,12 @@ function VaultPulse({ reduceMotion }: { reduceMotion: boolean }) {
 }
 
 export function ClinicalVaultHubBanner() {
-  const colors = useColors();
   const { reduceMotion } = useAccessibilityPrefs();
 
   return (
     <View
       style={[styles.hub, { borderColor: VAULT.border }]}
       accessibilityRole="summary"
-      overflow="hidden"
     >
       <VaultPulse reduceMotion={reduceMotion} />
       <BlurView intensity={18} tint="dark" style={StyleSheet.absoluteFill} />
@@ -63,7 +60,6 @@ export function ClinicalVaultHubBanner() {
 }
 
 export function ClinicalVaultToolBanner() {
-  const colors = useColors();
   const [jurisdiction, setJurisdiction] = useState<JurisdictionContext | null>(null);
   const [loaded, setLoaded] = useState(false);
 

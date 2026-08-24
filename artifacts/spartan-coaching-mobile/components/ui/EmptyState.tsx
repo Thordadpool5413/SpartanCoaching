@@ -1,7 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View, type ViewStyle } from "react-native";
 import { Feather } from "@expo/vector-icons";
-import { Svg, Circle, Path, Rect, Line, G } from "react-native-svg";
+import { Svg, Circle, Path, Rect, Line } from "react-native-svg";
 import { useColors } from "@/hooks/useColors";
 import { font } from "@/lib/typography";
 import { SpartanButton } from "./SpartanButton";

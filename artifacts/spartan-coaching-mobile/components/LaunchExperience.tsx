@@ -7,7 +7,6 @@ import Animated, {
   withTiming,
   withDelay,
   withSequence,
-  runOnJS,
 } from "react-native-reanimated";
 import { LinearGradient } from "expo-linear-gradient";
 import { HelmetMark } from "@/components/brand/HelmetMark";
