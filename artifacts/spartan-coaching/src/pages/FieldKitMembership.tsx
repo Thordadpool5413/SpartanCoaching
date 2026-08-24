@@ -13,15 +13,10 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { SubscribeCTA } from "@/components/SubscribeCTA";
-import { ProductMap } from "@/components/elite/ProductMap";
 import { SectionHeader } from "@/components/elite/SectionHeader";
 import { AppHandoffPanel } from "@/components/AppHandoffPanel";
 import { PRICING_FACTS, PUBLIC_CLAIM_SAFE } from "@/lib/complianceCopy";
-import { FIELD_KIT_TOOLS, FIELD_KIT_CATEGORIES, FIELD_KIT_CAT_BLURBS } from "@workspace/field-kit-catalog";
 import { PublicConversionPanel } from "@/components/PublicConversionPanel";
-
-// Gated tools only (exclude brand-video which is public)
-const GATED_TOOLS = FIELD_KIT_TOOLS.filter((t) => !t.public);
 
 const TIER_TEAM_FEATURES = [
   "Multi-seat organization account",
@@ -46,18 +41,17 @@ export default function FieldKitMembership() {
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 surface-page" data-testid="page-hospice-sales-pro">
       <SEO />
 
-      {/* ── Hero — Hospice Sales Pro product ── */}
+      {/* This destination owns choosing and managing access, not tool discovery. */}
       <div className="text-center max-w-3xl mx-auto mb-10 space-y-4">
         <p className="text-kicker justify-center">Hospice Sales Pro</p>
         <h1 className="text-h1 font-display font-black text-foreground">
-          A field system for the work between visits.
+          Choose access to your field system.
           <br />
-          <span className="text-primary">Prepare · practice · follow through.</span>
+          <span className="text-primary">Standard for the system. Elite for private Coach.</span>
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed">
-          Open Hospice Sales Pro when you need structure for the next conversation. Begin in Command Center,
-          then use the right practice, planning, or resource tool for the job.{" "}
-          {PRICING_FACTS.heroLine}
+          Choose an individual membership, request provider seats, or manage the access you already have.
+          {` ${PRICING_FACTS.heroLine}`}
         </p>
         <div className="flex flex-col items-center gap-3 pt-2" data-testid="membership-hero-cta">
           <SubscribeCTA
@@ -89,48 +83,22 @@ export default function FieldKitMembership() {
         </div>
       </div>
 
-      {/* ── Product map BEFORE pricing (understandability) ── */}
-      <div className="mb-14" data-testid="section-tool-grid">
-        <SectionHeader
-          kicker="What's inside"
-          title="One daily spine. Clear tool groups."
-          description="Start in Command Center for the day, then use practice, planning, leadership, or resource tools when the job calls for them."
-        />
-        <ProductMap className="mb-8" />
-
-        <details className="rounded-xl border border-border bg-card/50 p-4 sm:p-5">
-          <summary className="cursor-pointer text-sm font-bold text-foreground">
-            Full tool list ({GATED_TOOLS.length})
-          </summary>
-          <div className="space-y-6 mt-4">
-            {FIELD_KIT_CATEGORIES.filter((cat) => GATED_TOOLS.some((t) => t.category === cat)).map((cat) => {
-              const tools = GATED_TOOLS.filter((t) => t.category === cat);
-              const config = FIELD_KIT_CAT_BLURBS[cat];
-              return (
-                <div key={cat}>
-                  <div className="flex items-baseline gap-3 mb-3 border-b border-border pb-2">
-                    <h3 className="text-base font-bold text-foreground">{config?.label ?? cat}</h3>
-                    {config?.blurb && (
-                      <p className="text-sm text-muted-foreground">{config.blurb}</p>
-                    )}
-                  </div>
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    {tools.map((tool) => (
-                      <div key={tool.id} className="flex gap-3 p-3 rounded-lg border border-border bg-card">
-                        <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-sm font-bold text-foreground">{tool.title}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{tool.description}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </details>
-      </div>
+      <Card className="mb-14 border border-border bg-card p-6 sm:p-8" data-testid="section-membership-context">
+        <p className="text-kicker mb-3">Before you choose</p>
+        <h2 className="text-h3 font-display font-bold text-foreground">See the workspaces first.</h2>
+        <p className="mt-2 max-w-3xl text-sm leading-relaxed text-muted-foreground">
+          Command Center guides today’s field work. Tools prepare and practice. Resources provide approved work aids.
+          Use the directory to see a specific job; return here when you are ready to choose or manage access.
+        </p>
+        <div className="mt-5 flex flex-wrap gap-3">
+          <Button asChild variant="outline" className="font-bold">
+            <Link href="/tools">Preview the tool directory</Link>
+          </Button>
+          <Button asChild variant="ghost" className="font-bold">
+            <Link href="/resources">Browse field resources</Link>
+          </Button>
+        </div>
+      </Card>
 
       {/* ── Access options (pricing after product understanding) ── */}
       <div className="mb-14">
@@ -260,31 +228,6 @@ export default function FieldKitMembership() {
         </div>
       </div>
 
-      {/* ── Why (end-user edge) ── */}
-      <div
-        className="rounded-xl border border-primary/25 bg-primary/[0.04] p-8 sm:p-10 mb-14 text-center max-w-3xl mx-auto"
-        data-testid="section-why-membership"
-      >
-        <TrendingUp className="w-8 h-8 text-primary mx-auto mb-4" />
-        <h2 className="text-h3 font-bold text-foreground mb-3">
-          Walk in prepared. Return with a repeatable weekly rhythm.
-          <br />
-          <span className="text-primary">
-            Standard holds the workflow. Elite adds private coaching and clinical guidance.
-          </span>
-        </h2>
-        <p className="text-muted-foreground leading-relaxed mb-4">
-          Turn prepared field work into a weekly rhythm: plan the week, prepare the conversation, rehearse the hard part, and carry a clear next step into follow-through.
-        </p>
-        <p className="text-sm text-muted-foreground leading-relaxed">
-          Preview tools free. Subscribe to generate, save, and run live. Cancel anytime from Account — access continues
-          through the period you already paid for.
-        </p>
-        <div className="mt-6 flex justify-center" data-testid="membership-roi-subscribe">
-          <SubscribeCTA surface="membership_pricing" showPreview showHint={false} testId="membership-why-cta" />
-        </div>
-      </div>
-
       <div className="mb-14">
         <AppHandoffPanel
           destination="home"
@@ -295,22 +238,16 @@ export default function FieldKitMembership() {
 
       {/* ── How it works ── */}
       <Card className="border border-border bg-card p-8 text-center space-y-4 max-w-3xl mx-auto mb-10">
-        <h2 className="text-h3 font-bold">How to get access</h2>
+        <h2 className="text-h3 font-bold">Choose or manage access</h2>
         <ol className="text-left text-sm text-muted-foreground space-y-2 max-w-xl mx-auto list-decimal list-inside">
           <li>
-            <strong className="text-foreground">Preview free</strong> — open any tool UI on the Tools page without
-            paying.
+            <strong className="text-foreground">Choose Standard or Elite</strong> — Standard is {PRICING_FACTS.individualWeeklyLabel}; Elite is {PRICING_FACTS.eliteWeeklyLabel}.
           </li>
           <li>
-            <strong className="text-foreground">Create your account</strong> — two minutes, no admin approval for
-            individual seats.
+            <strong className="text-foreground">Create or sign in to your account</strong> — your permitted access restores on web and iPhone.
           </li>
           <li>
-            <strong className="text-foreground">Choose Standard or Elite</strong> from Account. Standard is {PRICING_FACTS.individualWeeklyLabel}. Elite is {PRICING_FACTS.eliteWeeklyLabel}. Cancel anytime.
-          </li>
-          <li>
-            <strong className="text-foreground">Teams / providers:</strong> request team access — seats and weekly
-            per-user rate under contract.
+            <strong className="text-foreground">Manage from Account</strong> — cancel individual access anytime; teams request contracted seats.
           </li>
         </ol>
         <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 flex-wrap items-center">
@@ -373,7 +310,6 @@ export default function FieldKitMembership() {
         evidence={`${PRICING_FACTS.previewNote} ${PRICING_FACTS.individualBillingNote}`}
         primary={{ label: "Create account for Hospice Sales Pro", href: "/register", token: "create_account" }}
         secondary={{ label: "Request team or evaluation access", href: "/request-access", token: "team_access" }}
-        showOfferPaths
       />
     </div>
   );

@@ -44,14 +44,14 @@ export const SPARTAN_OFFERINGS: SpartanOffering[] = [
   {
     id: "tools",
     title: "Explore",
-    promise: "Find every tool, Library item, and access boundary from one clear destination.",
+    promise: "Find the field tool that fits the job in front of you.",
     route: "/(tabs)/tools",
     access: ["visitor", "standard", "elite", "company", "admin"],
     capabilities: [
       "All planning and practice tools",
       "Objection and role play practice",
-      "Native Library and downloads",
       "Research, outreach, and calculators",
+      "Purpose-based search across the tool directory",
     ],
     offline: "Approved nonclinical outputs and selected planning can be saved for offline reference.",
   },

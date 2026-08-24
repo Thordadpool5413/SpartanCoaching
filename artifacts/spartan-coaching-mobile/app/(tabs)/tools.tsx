@@ -194,9 +194,9 @@ function ToolsCatalogScreen() {
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]} testID="screen-explore">
       <View style={[styles.header, { paddingTop: topPad + 12, borderBottomColor: colors.border }]}>
-        <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>FIELD TOOLS</Text>
-        <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Explore tools</Text>
-        <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Find the right interactive workspace for the job in front of you.</Text>
+        <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>FIELD TOOL DIRECTORY</Text>
+        <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Explore</Text>
+        <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Find the field tool that fits the job in front of you. Library, My Work, and access each have their own destination.</Text>
         <View style={[styles.searchShell, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Feather name="search" size={18} color={colors.mutedForeground} />
           <TextInput
@@ -223,12 +223,6 @@ function ToolsCatalogScreen() {
         keyboardShouldPersistTaps="handled"
         keyboardDismissMode="on-drag"
       >
-        {!q ? (
-          <Text style={[styles.catalogIntro, { color: colors.mutedForeground }, font("regular")]}>
-            Interactive tools live here. Use Library for guides and downloads, My Work for saved outputs, and Account for access or privacy settings.
-          </Text>
-        ) : null}
-
         {remoteGroups.length > 0 ? (
           <View style={{ marginBottom: 24 }} testID="universal-search-results">
             <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>SEARCH RESULTS</Text>
@@ -238,10 +232,10 @@ function ToolsCatalogScreen() {
           </View>
         ) : null}
 
-          <View style={{ marginTop: q ? 0 : 20 }} testID="complete-tool-directory">
+        <View style={{ marginTop: q ? 0 : 4 }} testID="complete-tool-directory">
           <View style={styles.directoryHeading}>
             <View style={{ flex: 1 }}>
-              <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>TOOL DIRECTORY</Text>
+              <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>COMPLETE TOOL DIRECTORY</Text>
               <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>{category === "All" ? `All ${FIELD_KIT_TOOLS.length} tools` : `${category} tools`}</Text>
               <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>Every tool is visible here. Choose a job, understand when to use it, and open the native iPhone experience.</Text>
             </View>
@@ -357,18 +351,8 @@ const styles = StyleSheet.create({
   kicker: { fontSize: 10, letterSpacing: 2.2 },
   title: { fontSize: 36, letterSpacing: -1.1, marginTop: 6 },
   subtitle: { fontSize: 14, lineHeight: 20, marginTop: 5, maxWidth: 340 },
-  catalogIntro: { fontSize: 13, lineHeight: 19, marginTop: 22 },
   searchShell: { minHeight: 50, borderWidth: 1, borderRadius: 16, paddingHorizontal: 14, flexDirection: "row", alignItems: "center", gap: 10, marginTop: 16 },
   search: { flex: 1, fontSize: 15, minHeight: 48 },
-  destinationGrid: { gap: 14, marginBottom: 36 },
-  boundaryNote: { borderWidth: 1, borderRadius: 18, padding: 15, flexDirection: "row", alignItems: "flex-start", gap: 11, marginTop: -20, marginBottom: 28 },
-  boundaryTitle: { fontSize: 13 },
-  boundaryBody: { fontSize: 11, lineHeight: 16, marginTop: 3 },
-  destinationCard: { minHeight: 104, flexDirection: "row", alignItems: "center", gap: 14, borderWidth: 1, borderRadius: 20, borderCurve: "continuous", paddingHorizontal: 17, paddingVertical: 16 },
-  destinationIcon: { width: 44, height: 44, borderRadius: 14, alignItems: "center", justifyContent: "center" },
-  destinationCopy: { flex: 1 },
-  destinationTitle: { fontSize: 15 },
-  destinationBody: { fontSize: 12, lineHeight: 17, marginTop: 3 },
   directoryHeading: { flexDirection: "row", alignItems: "flex-start", gap: 14 },
   countBadge: { width: 60, height: 60, borderRadius: 20, borderCurve: "continuous", alignItems: "center", justifyContent: "center" },
   countNumber: { color: "#FFFFFF", fontSize: 21, lineHeight: 23 },

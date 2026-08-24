@@ -10,7 +10,6 @@ import type { LucideIcon } from "lucide-react";
 import {
   Bell,
   BookOpen,
-  Building2,
   Clock,
   Crosshair,
   FolderOpen,
@@ -28,7 +27,6 @@ export const WORKSPACE_SHELL_VERSION = "workspace-shell-v1";
 export type WorkspaceNavId =
   | "home"
   | "command"
-  | "accounts"
   | "tools"
   | "resources"
   | "learn"
@@ -179,14 +177,6 @@ export function workspaceNavForRole(
       match: (loc) => normalizePath(loc).startsWith("/tools/sales-workflow"),
     },
     {
-      id: "accounts",
-      href: "/tools/sales-workflow",
-      label: "Accounts",
-      icon: Building2,
-      primary: true,
-      match: (loc) => normalizePath(loc).startsWith("/tools/sales-workflow"),
-    },
-    {
       id: "tools",
       href: "/tools",
       label: "Tools",
@@ -301,8 +291,6 @@ export function workspaceNavForRole(
     });
   }
 
-  // De-dupe accounts vs command sharing same href for primary rail:
-  // keep Command as primary CTA; Accounts is alias label in secondary list only.
   return items;
 }
 
@@ -310,11 +298,9 @@ export function primaryWorkspaceNav(
   role: string | undefined | null,
 ): WorkspaceNavItem[] {
   const nav = workspaceNavForRole(role);
-  // Avoid two identical Command/Accounts links in primary rail
   return nav.filter(
     (item) =>
       item.primary &&
-      item.id !== "accounts" &&
       item.id !== "recent" &&
       item.id !== "notifications",
   );

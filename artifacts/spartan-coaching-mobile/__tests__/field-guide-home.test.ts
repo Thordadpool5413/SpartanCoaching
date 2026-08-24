@@ -11,8 +11,8 @@ describe("Field Guide experience contract", () => {
 
     expect(welcome).toContain("Take the complete app tour");
     expect(welcome).toContain("No Spartan account is required before Apple purchase.");
-    expect(home).toContain("What needs your attention today?");
-    expect(home).toContain("CHOOSE A WORKSPACE");
+    expect(home).toContain("What do you need to prepare for?");
+    expect(home).toContain("Plan the conversation");
     expect(home).not.toContain("Command Center");
   });
 
@@ -38,6 +38,9 @@ describe("Field Guide experience contract", () => {
     expect(tour).toContain("There is no account required for this tour");
     expect(tour).toContain("getGuidedTourState");
     expect(tour).toContain('accessibilityRole="progressbar"');
+    expect(tour).toContain('title="Library" body="Read, listen, and use approved field resources."');
+    expect(tour).toContain("field tools by the job you need to do");
+    expect(tour).not.toContain("every Library resource");
     expect(tourState).toContain("shouldAutoPresentGuidedTour");
     expect(welcome).toContain("shouldAutoPresentGuidedTour");
     expect(account).toContain("hard deleted after 90 days");
@@ -76,15 +79,15 @@ describe("Field Guide experience contract", () => {
     expect(publicHome).toContain('route: "/(tabs)/tools?category=Measure"');
     expect(publicHome).toContain('label: "Library"');
     expect(publicHome).toContain('route: "/(tabs)/learn"');
-    expect(publicHome).toContain("Explore all {FIELD_KIT_TOOLS.length} tools and resources");
+    expect(publicHome).toContain("Explore all {FIELD_KIT_TOOLS.length} field tools");
     expect(publicHome).toContain("No Spartan account is required before Apple purchase.");
-    expect(home).toContain('route: "/(tabs)/tools?category=Plan"');
-    expect(home).toContain('route: "/(tabs)/learn"');
+    expect(home).toContain('route: "/tool/playbook"');
+    expect(home).toContain('"/tool/objection"');
     expect(home).toContain("<SpartanHeader");
     expect(read("components/ui/SpartanHeader.tsx")).toContain('title = "Hospice Sales Pro"');
     expect(read("components/ui/SpartanHeader.tsx")).toContain('subtitle = "by Spartan Coaching"');
     expect(home).not.toContain("Pick up where you left off");
-    expect(home).not.toContain("Explore tools and resources");
+    expect(home).toContain("Find a field tool");
     expect(acceptance).toContain("binding visual target is Figma");
   });
 });

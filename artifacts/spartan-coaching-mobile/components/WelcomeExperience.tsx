@@ -13,7 +13,7 @@ const PILLARS = [
   { icon: "edit-3" as const, label: "Plan", description: "Build the plan", route: "/(tabs)/tools?category=Plan" },
   { icon: "message-circle" as const, label: "Practice", description: "Rehearse the moment", route: "/(tabs)/tools?category=Practice" },
   { icon: "bar-chart-2" as const, label: "Measure", description: "Track progress", route: "/(tabs)/tools?category=Measure" },
-  { icon: "book-open" as const, label: "Library", description: "Read and download", route: "/(tabs)/learn" },
+  { icon: "book-open" as const, label: "Library", description: "Read, listen, and use", route: "/(tabs)/learn" },
 ];
 
 export function WelcomeExperience({ topPad, bottomPad, signedIn = false }: { topPad: number; bottomPad: number; signedIn?: boolean }) {
@@ -52,7 +52,7 @@ export function WelcomeExperience({ topPad, bottomPad, signedIn = false }: { top
 
         <View style={styles.badge}><Text style={styles.badgeText}>HOSPICE SALES PRO</Text></View>
         <Text style={styles.title}>Start with what you need.</Text>
-        <Text style={styles.body}>Choose a workspace below. Every tool and resource opens inside the app, and your account can continue on the website.</Text>
+          <Text style={styles.body}>Choose where to begin. The app separates daily field tools, Library learning, private practice, and saved continuity.</Text>
 
         <Text style={styles.sectionLabel}>OPEN A WORKSPACE</Text>
         <View style={styles.productMap} accessibilityLabel="Open planning, practice, measurement, or the Library">
@@ -85,8 +85,8 @@ export function WelcomeExperience({ topPad, bottomPad, signedIn = false }: { top
           testID="button-explore-all-tools"
         >
           <View>
-            <Text style={styles.exploreTitle}>Explore all {FIELD_KIT_TOOLS.length} tools and resources</Text>
-            <Text style={styles.exploreBody}>Browse everything by Plan, Prepare, Practice, Measure, Outreach, or Library.</Text>
+            <Text style={styles.exploreTitle}>Explore all {FIELD_KIT_TOOLS.length} field tools</Text>
+            <Text style={styles.exploreBody}>Browse tools by Plan, Prepare, Practice, Measure, or Outreach.</Text>
           </View>
           <Feather name="grid" size={22} color={colors.primary} />
         </Pressable>

@@ -58,14 +58,14 @@ export default function AccessScreen() {
     >
       <View style={styles.brandField}>
         <HelmetMark size={58} />
-        <View><Text style={styles.brandTitle}>SPARTAN COACHING</Text><Text style={styles.brandKicker}>YOUR ACCESS MAP</Text></View>
+        <View><Text style={styles.brandTitle}>SPARTAN COACHING</Text><Text style={styles.brandKicker}>YOUR COMPLETE SYSTEM</Text></View>
       </View>
 
       <View style={styles.body}>
         <Text style={styles.kicker}>WHAT YOU HAVE</Text>
-        <Text style={styles.title}>See what your access includes.</Text>
+        <Text style={styles.title}>Compare access in one place.</Text>
         <Text style={styles.subtitle}>
-          {tierLabel}. This map shows what each destination does, whether it is available to you, and what still works when your connection disappears at the worst possible moment.
+          {tierLabel}. This is the capability map: see what each destination does, what your access includes, and its offline and privacy boundaries before you choose or manage membership.
         </Text>
 
         <View style={styles.planStrip}>
@@ -82,7 +82,7 @@ export default function AccessScreen() {
           </View>
         </View>
 
-        <Text style={styles.sectionLabel}>APP AREAS</Text>
+        <Text style={styles.sectionLabel}>THE COMPLETE APP</Text>
         {SPARTAN_OFFERINGS.map((offering) => {
           const included =
             offering.id === "admin" ? canManageOrganization :

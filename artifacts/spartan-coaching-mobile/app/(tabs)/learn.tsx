@@ -287,7 +287,7 @@ export default function LearnScreen() {
 
       {activeTab === "resources" ? (
         <ScrollView contentContainerStyle={{ paddingHorizontal: 20, paddingTop: 18, paddingBottom: bottomPad + 24 }} showsVerticalScrollIndicator={false} testID="learn-resources">
-          <LibraryModeIntro icon="folder" title="Use" body="Open approved field guides and company material. Download selected nonclinical items for offline use." access="STANDARD" />
+          <LibraryModeIntro icon="folder" title="Use" body="Open approved field resources and company material in the app. Download selected nonclinical items for offline use." access="STANDARD" />
           <View style={[styles.safetyCard, { backgroundColor: colors.primaryMuted, borderColor: colors.primary }]}>
             <Feather name="shield" size={20} color={colors.primary} />
             <View style={{ flex: 1 }}>
@@ -295,10 +295,6 @@ export default function LearnScreen() {
               <Text style={[styles.safetyBody, { color: colors.mutedForeground }, font("regular")]}>Never enter patient names, dates of birth, medical record numbers, or other patient identifiers.</Text>
             </View>
           </View>
-
-          <Text style={[styles.sectionBody, { color: colors.mutedForeground, marginTop: 18 }, font("regular")]}>
-            Need an interactive workspace? Open Explore. The Library keeps reference material, downloadable aids, and organization resources together.
-          </Text>
 
           {!canUseFieldKit ? (
             <View style={[styles.lockCard, { backgroundColor: colors.card, borderColor: colors.border }]}>

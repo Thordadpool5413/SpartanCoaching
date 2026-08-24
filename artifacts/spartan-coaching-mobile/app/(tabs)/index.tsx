@@ -13,12 +13,13 @@ import { listCoachMemory } from "@/lib/coachApi";
 import { cacheCommitment, loadCachedCommitment } from "@/lib/commitmentCache";
 import { font } from "@/lib/typography";
 
-const HOME_JOBS = [
-  { icon: "edit-3" as const, label: "Plan", description: "Build the plan", route: "/(tabs)/tools?category=Plan" as Href },
-  { icon: "message-circle" as const, label: "Practice", description: "Rehearse the moment", route: "/(tabs)/tools?category=Practice" as Href },
-  { icon: "bar-chart-2" as const, label: "Measure", description: "Track progress", route: "/(tabs)/tools?category=Measure" as Href },
-  { icon: "book-open" as const, label: "Library", description: "Read and download", route: "/(tabs)/learn" as Href },
-];
+type HomeAction = {
+  icon: React.ComponentProps<typeof Feather>["name"];
+  title: string;
+  body: string;
+  route: Href;
+  testID: string;
+};
 
 export default function HomeScreen() {
   const colors = useColors();
@@ -78,6 +79,37 @@ export default function HomeScreen() {
   }
 
   const firstName = designPreview ? "Nick" : user?.member?.name?.trim().split(/\s+/)[0] || "there";
+  const actions: HomeAction[] = [
+    {
+      icon: "message-square",
+      title: "Plan the conversation",
+      body: "Purpose, talking points, likely objection, and next move.",
+      route: "/tool/playbook" as Href,
+      testID: "home-prepare-conversation",
+    },
+    {
+      icon: "shield",
+      title: "Practice the hard part",
+      body: canUseElite ? "Private rehearsal with Spartan Coach feedback." : "Build and refine a response with Standard tools.",
+      route: canUseElite ? "/(tabs)/coach" as Href : "/tool/objection" as Href,
+      testID: "home-practice-objection",
+    },
+    {
+      icon: "grid",
+      title: "Find a field tool",
+      body: "Open the right tool for the work in front of you.",
+      route: "/(tabs)/tools" as Href,
+      testID: "home-explore",
+    },
+    {
+      icon: "book-open",
+      title: "Open the Library",
+      body: "Read, listen, or use an approved field resource.",
+      route: "/(tabs)/learn" as Href,
+      testID: "home-library",
+    },
+  ];
+
   const open = (route: Href) => {
     void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     router.push(route);
@@ -95,25 +127,26 @@ export default function HomeScreen() {
         <SpartanHeader />
         <View style={styles.badge}><Text style={styles.badgeText}>HOSPICE SALES PRO</Text></View>
         <Text style={styles.greeting}>Good {timeOfDay()}, {firstName}.</Text>
-        <Text style={styles.promise}>What needs your attention today?</Text>
+        <Text style={styles.promise}>What do you need to prepare for?</Text>
 
-        <Text style={styles.sectionLabel}>CHOOSE A WORKSPACE</Text>
-        <View style={styles.jobMap} accessibilityLabel="Open planning, practice, measurement, or the Library">
-          {HOME_JOBS.map((job) => (
+        <Text style={styles.sectionLabel}>RECOMMENDED NEXT MOVE</Text>
+        <View style={styles.actionList}>
+          {actions.map((action, index) => (
             <Pressable
-              key={job.label}
+              key={action.title}
               accessibilityRole="button"
-              accessibilityLabel={`Open ${job.label}`}
-              onPress={() => open(job.route)}
-              style={({ pressed }) => [styles.jobPillar, pressed && styles.jobPillarPressed]}
-              testID={`signed-in-home-pillar-${job.label.toLowerCase()}`}
+              onPress={() => open(action.route)}
+              style={({ pressed }) => [styles.actionCard, index === 0 && styles.featuredCard, pressed && styles.pressed]}
+              testID={action.testID}
             >
-              <View style={styles.jobPillarTop}>
-                <View style={styles.jobPillarIcon}><Feather name={job.icon} size={20} color={colors.primary} /></View>
-                <Feather name="arrow-up-right" size={17} color={colors.primary} />
+              <View style={[styles.actionIcon, index === 0 && styles.featuredIcon]}>
+                <Feather name={action.icon} size={22} color={index === 0 ? "#FFFFFF" : colors.primary} />
               </View>
-              <Text style={styles.jobPillarLabel}>{job.label}</Text>
-              <Text style={styles.jobPillarDescription}>{job.description}</Text>
+              <View style={styles.actionCopy}>
+                <Text style={styles.actionTitle}>{action.title}</Text>
+                <Text style={styles.actionBody}>{action.body}</Text>
+              </View>
+              <Feather name="chevron-right" size={21} color={index === 0 ? colors.primary : colors.mutedForeground} />
             </Pressable>
           ))}
         </View>
@@ -127,7 +160,7 @@ export default function HomeScreen() {
         ) : null}
 
         <View style={styles.sectionHeading}>
-          <Text style={styles.sectionKicker}>CONTINUE</Text>
+          <Text style={styles.sectionKicker}>FOLLOW THROUGH</Text>
           <Pressable accessibilityRole="button" onPress={() => open("/(tabs)/my-work" as Href)} hitSlop={8}>
             <Text style={styles.seeAll}>Open My Work</Text>
           </Pressable>
@@ -175,13 +208,6 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     greeting: { color: colors.mutedForeground, fontSize: 15, marginTop: 22, ...font("semibold") },
     promise: { color: colors.foreground, fontSize: 38, lineHeight: 44, letterSpacing: -1.4, marginTop: 3, ...font("heavy") },
     sectionLabel: { color: colors.primary, fontSize: 9, letterSpacing: 1.8, marginTop: 34, marginBottom: 14, ...font("bold") },
-    jobMap: { flexDirection: "row", flexWrap: "wrap", gap: 10 },
-    jobPillar: { flexBasis: "47%", flexGrow: 1, minHeight: 118, justifyContent: "space-between", padding: 15, borderRadius: 20, borderCurve: "continuous", backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong },
-    jobPillarPressed: { opacity: 0.74, transform: [{ scale: 0.98 }] },
-    jobPillarTop: { flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-    jobPillarIcon: { width: 38, height: 38, borderRadius: 12, borderCurve: "continuous", alignItems: "center", justifyContent: "center", backgroundColor: colors.primaryMuted },
-    jobPillarLabel: { color: colors.foreground, fontSize: 16, marginTop: 12, ...font("heavy") },
-    jobPillarDescription: { color: colors.mutedForeground, fontSize: 11, lineHeight: 15, marginTop: 3, ...font("regular") },
     actionList: { gap: 16 },
     actionCard: { minHeight: 104, flexDirection: "row", alignItems: "center", gap: 13, padding: 16, borderRadius: 20, borderCurve: "continuous", borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card },
     featuredCard: { minHeight: 112, borderColor: "rgba(182,25,42,0.32)" },
