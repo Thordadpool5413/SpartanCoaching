@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Spartan Coaching — LinkedIn Intro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --midnight: #101b2b;
+        --red: #b42631;
+        --white: #f5f3ef;
+        --quiet: #c7cbd0;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; width: 100%; min-height: 100%; }
+      body {
+        background: var(--midnight);
+        color: var(--white);
+        font-family: "DM Sans", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      .ad {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        min-height: 100vh;
+        overflow: hidden;
+        background: var(--midnight);
+        padding: max(7vh, env(safe-area-inset-top)) max(6.4vw, env(safe-area-inset-right)) max(7vh, env(safe-area-inset-bottom)) max(7.2vw, env(safe-area-inset-left));
+        display: grid;
+        grid-template-columns: 31vw 1fr;
+        grid-template-rows: 1fr auto;
+        column-gap: 8vw;
+        align-items: center;
+      }
+      .brand {
+        align-self: start;
+        display: flex;
+        flex-direction: column;
+        gap: 4vh;
+      }
+      .logo {
+        width: 22vw;
+        max-width: 37vh;
+        height: auto;
+        object-fit: contain;
+        object-position: left top;
+      }
+      .label {
+        margin: 0;
+        color: var(--red);
+        font-size: clamp(.6rem, 1.35vw, 1.1rem);
+        font-weight: 600;
+        letter-spacing: .18em;
+        line-height: 1.2;
+        text-transform: uppercase;
+      }
+      .message {
+        align-self: center;
+        max-width: 56vw;
+        padding-bottom: 1vh;
+      }
+      h1 {
+        margin: 0;
+        color: var(--white);
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: clamp(3.8rem, 9.6vw, 8.4rem);
+        font-weight: 700;
+        line-height: .9;
+        letter-spacing: -.035em;
+        text-wrap: balance;
+      }
+      .benefit {
+        max-width: 43vw;
+        margin: 5vh 0 0;
+        color: var(--quiet);
+        font-size: clamp(1.05rem, 2.5vw, 2rem);
+        font-weight: 500;
+        line-height: 1.16;
+        letter-spacing: -.025em;
+      }
+      .foot {
+        grid-column: 1 / -1;
+        display: flex;
+        align-items: baseline;
+        justify-content: flex-end;
+        padding-top: 3vh;
+        color: var(--quiet);
+        font-size: clamp(.62rem, 1.25vw, 1rem);
+        font-weight: 500;
+        letter-spacing: .11em;
+        text-transform: uppercase;
+      }
+      .url { color: var(--white); }
+      .brand, .message, .foot { position: relative; z-index: 1; }
+      @media (max-aspect-ratio: 1/1) {
+        .ad {
+          grid-template-columns: 1fr;
+          grid-template-rows: auto 1fr auto;
+          row-gap: 7vh;
+        }
+        .logo { width: 31vw; }
+        .message { max-width: 78vw; }
+        .benefit { max-width: 65vw; }
+        .foot { grid-column: 1; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="ad" aria-label="Spartan Coaching LinkedIn advertisement">
+      <section class="brand">
+        <img class="logo" src="/__mockup/images/spartan-logo-stamp.png" alt="Spartan Coaching" />
+        <p class="label">Spartan Coaching</p>
+      </section>
+      <section class="message">
+        <h1>Make the next<br />conversation count.</h1>
+        <p class="benefit">Hospice sales coaching with structure and heart.</p>
+      </section>
+      <footer class="foot">
+        <span class="url">Spartanhospicecoaching.com</span>
+      </footer>
+    </main>
+  </body>
+</html>
