@@ -36,7 +36,7 @@ const associatedDomains = getAssociatedDomains();
 
 module.exports = {
   expo: {
-    name: "Hospice Sales Pro",
+    name: "Spartan Coaching",
     slug: "spartan-coaching",
     version: "1.0.0",
     orientation: "portrait",
@@ -230,7 +230,7 @@ module.exports = {
           color: "#C8102E",
           sounds: [],
           androidMode: "default",
-          androidCollapsedTitle: "Hospice Sales Pro",
+          androidCollapsedTitle: "Spartan Coaching",
         },
       ],
     ],
