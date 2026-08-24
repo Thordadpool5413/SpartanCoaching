@@ -65,3 +65,14 @@ Product-led thesis: turn scattered hospice outreach into prepared, coachable fie
 - Say “No PHI in tools” where compliance context is needed; do not imply the product handles PHI.
 - “Preview tools free” means the tools can be previewed without paying. Paid access generates, saves, and runs tools live.
 - Individual access: Standard $14.99/week; Elite $19.99/week. Team access uses a contract path.
+
+## Live campaign links
+
+These links use the same campaign name and medium, with distinct platform and creative
+values so the preview funnel can compare the two ads:
+
+- Instagram / “Walk in prepared”: `https://spartanhospicecoaching.com/tools?utm_source=instagram&utm_medium=paid_social&utm_campaign=hospice_sales_pro&utm_content=walk_in_prepared`
+- LinkedIn / “Make the field coachable”: `https://spartanhospicecoaching.com/tools?utm_source=linkedin&utm_medium=paid_social&utm_campaign=hospice_sales_pro&utm_content=make_field_coachable`
+
+The site records only these fixed labels. It does not record ad copy, form answers,
+names, emails, account content, or PHI.

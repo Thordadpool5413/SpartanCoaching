@@ -29,6 +29,8 @@ describe("public analytics input validation", () => {
 
   it("accepts only the fixed public-funnel vocabulary and rejects server-only contact success", () => {
     expect(isAcceptedClientAnalyticsEvent("public_funnel", "cta_click")).toBe(true);
+    expect(isAcceptedClientAnalyticsEvent("public_funnel", "campaign_click")).toBe(true);
+    expect(isAcceptedClientAnalyticsEvent("public_funnel", "tool_preview_start")).toBe(true);
     expect(isAcceptedClientAnalyticsEvent("public_funnel", "contact_success")).toBe(false);
     expect(isAcceptedClientAnalyticsEvent("contact_form_submission", "inquiry")).toBe(false);
     expect(isAcceptedClientAnalyticsEvent("mobile_tool_view", "tools_home")).toBe(true);

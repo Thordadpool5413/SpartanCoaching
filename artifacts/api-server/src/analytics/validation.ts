@@ -3,6 +3,8 @@ const MAX_ANALYTICS_PAGE_PATH_LENGTH = 512;
 const analyticsLabelPattern = /^[a-z0-9][a-z0-9_.:-]*$/i;
 const PUBLIC_FUNNEL_EVENT_NAMES = new Set([
   "cta_click",
+  "campaign_click",
+  "tool_preview_start",
   "contact_start",
   "contact_failure",
   "app_interest",

@@ -12,6 +12,7 @@ import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { isWorkspacePath, loginWithReturn } from "@/lib/workspaceShell";
 import { PageLoadingState, RouteErrorBoundary } from "@/components/RouteRecovery";
 import { SEO } from "@/components/SEO";
+import { recordCampaignClickOnce, rememberCampaignAttribution } from "@/lib/campaignAttribution";
 
 const ChatWidget = lazy(() => import("@/components/ChatWidget").then(m => ({ default: m.ChatWidget })));
 const StickyBookCall = lazy(() => import("@/components/StickyBookCall").then(m => ({ default: m.StickyBookCall })));
@@ -178,6 +179,19 @@ function VisitorTracker() {
   return null;
 }
 
+function CampaignAttributionTracker() {
+  const [location] = useLocation();
+
+  useEffect(() => {
+    // A click is represented by a valid tagged landing arrival. The external
+    // ad platform click itself is not observable from the site.
+    const attribution = rememberCampaignAttribution(window.location.search);
+    if (attribution) recordCampaignClickOnce(attribution);
+  }, [location]);
+
+  return null;
+}
+
 function PageLoader() {
   return <PageLoadingState />;
 }
@@ -189,6 +203,7 @@ function Router() {
     <>
       <ScrollToTop />
       <VisitorTracker />
+      <CampaignAttributionTracker />
       {/* Baseline metadata applies to every route; route pages may add specific overrides. */}
       <SEO />
       <RouteErrorBoundary resetKey={location}>

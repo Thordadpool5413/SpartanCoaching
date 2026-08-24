@@ -1,4 +1,5 @@
 import { trackEvent } from "@/lib/analytics";
+import type { SafeProductMetadata } from "@workspace/field-kit-catalog";
 
 /**
  * Fixed, privacy-safe public marketing funnel vocabulary.
@@ -9,6 +10,8 @@ import { trackEvent } from "@/lib/analytics";
 export const PUBLIC_FUNNEL_EVENT = {
   pageIntent: "page_intent",
   ctaClick: "cta_click",
+  campaignClick: "campaign_click",
+  toolPreviewStart: "tool_preview_start",
   contactStart: "contact_start",
   contactSubmit: "contact_submit",
   contactFailure: "contact_failure",
@@ -23,6 +26,7 @@ export type PublicFunnelEvent =
 export function trackPublicFunnelEvent(
   eventName: PublicFunnelEvent,
   source: string,
+  metadata?: Omit<SafeProductMetadata, "source">,
 ): void {
-  trackEvent("public_funnel", eventName, { source });
+  trackEvent("public_funnel", eventName, { source, ...metadata });
 }
