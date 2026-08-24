@@ -28,6 +28,7 @@ import {
   getResourceWorkGuide,
   getToolById,
   MOBILE_FIELD_RESULT_ACTIONS,
+  type FieldKitResourceWorkflowCustomization,
 } from "@workspace/field-kit-catalog";
 
 type LearnTab = "articles" | "podcasts" | "resources";
@@ -129,7 +130,14 @@ export default function LearnScreen() {
     enabled: activeTab === "resources",
   });
   const providerQuery = useQuery<{
-    items: Array<{ id: number; title: string; description?: string | null; fileUrl: string; kind: string }>;
+    items: Array<{
+      id: number;
+      title: string;
+      description?: string | null;
+      fileUrl: string;
+      kind: string;
+      meta?: { workflow?: FieldKitResourceWorkflowCustomization | null } | null;
+    }>;
   }>({
     queryKey: ["provider-resources"],
     queryFn: () => apiGet("/api/v1/provider-resources"),
@@ -314,7 +322,11 @@ export default function LearnScreen() {
               {providerItems.map((item) => (
                 <View key={item.id}>
                   <LibraryRow title={item.title} subtitle={item.description || "Private organization resource"} meta={item.kind} icon="briefcase" onPress={() => openLibraryItem({ title: item.title, description: item.description, url: item.fileUrl, kind: "resource" })} testID={`provider-resource-${item.id}`} />
-                  <ResourceWorkflowNote category={item.kind} testID={`provider-resource-workflow-${item.id}`} />
+                  <ResourceWorkflowNote
+                    category={item.kind}
+                    workflow={item.meta?.workflow}
+                    testID={`provider-resource-workflow-${item.id}`}
+                  />
                 </View>
               ))}
             </View>
@@ -407,14 +419,20 @@ function LibraryRow({ title, subtitle, meta, icon, onPress, testID }: { title: s
 function ResourceWorkflowNote({
   category,
   relatedToolIds,
+  workflow: customWorkflow,
   testID,
 }: {
   category?: string | null;
   relatedToolIds?: string[];
+  workflow?: FieldKitResourceWorkflowCustomization | null;
   testID: string;
 }) {
   const colors = useColors();
-  const workflow = getResourceWorkGuide({ category, relatedToolIds });
+  const workflow = getResourceWorkGuide({
+    category,
+    relatedToolIds,
+    workflow: customWorkflow,
+  });
   const nextTool = workflow.nextToolId ? getToolById(workflow.nextToolId) : undefined;
   const openNextTool = () => {
     if (!nextTool) return;

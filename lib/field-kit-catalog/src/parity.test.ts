@@ -129,6 +129,53 @@ describe("Catalog-backed completion guidance", () => {
       expect(getToolById(guide.nextToolId!)).toBeDefined();
     }
   });
+
+  it("applies provider workflow overrides while retaining safe defaults", () => {
+    const guide = getResourceWorkGuide({
+      category: "policy",
+      workflow: {
+        job: "Prepare the approved escalation conversation.",
+        expectedOutput: "A concise escalation summary with an accountable owner.",
+        reviewCheckpoint: "Confirm the policy version and manager before acting.",
+        nextToolId: "sales-workflow",
+      },
+    });
+    expect(guide.job).toBe("Prepare the approved escalation conversation.");
+    expect(guide.outputPreview).toBe(
+      "A concise escalation summary with an accountable owner.",
+    );
+    expect(guide.reviewCheckpoint).toBe(
+      "Confirm the policy version and manager before acting.",
+    );
+    expect(guide.nextToolId).toBe("sales-workflow");
+
+    const invalidNextTool = getResourceWorkGuide({
+      category: "policy",
+      workflow: { nextToolId: "does-not-exist" },
+    });
+    expect(getToolById(invalidNextTool.nextToolId!)).toBeDefined();
+  });
+
+  it("falls back safely when a legacy provider workflow has malformed values", () => {
+    const guide = getResourceWorkGuide({
+      category: "policy",
+      workflow: {
+        job: 7,
+        expectedOutput: ["unsafe"],
+        reviewCheckpoint: { text: "unsafe" },
+        nextToolId: 3,
+      } as unknown as {
+        job?: string;
+        expectedOutput?: string;
+        reviewCheckpoint?: string;
+        nextToolId?: string;
+      },
+    });
+    expect(guide.job.length).toBeGreaterThan(20);
+    expect(guide.outputPreview.length).toBeGreaterThan(20);
+    expect(guide.reviewCheckpoint.length).toBeGreaterThan(20);
+    expect(getToolById(guide.nextToolId!)).toBeDefined();
+  });
 });
 
 describe("Intent-first discovery IA (HSP-29)", () => {

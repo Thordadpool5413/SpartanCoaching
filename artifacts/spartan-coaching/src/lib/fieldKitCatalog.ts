@@ -7,6 +7,7 @@ export {
   type FieldKitTool,
    type FieldKitWorkGuide,
   type FieldKitResourceWorkGuide,
+   type FieldKitResourceWorkflowCustomization,
   type MobileDelivery,
   type CommandCenterCapability,
   type CommandCenterSupport,

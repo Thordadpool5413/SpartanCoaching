@@ -7,7 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Download, Mail, User, Printer } from "lucide-react";
 import { BackButton } from "@/components/BackButton";
 import type { SelectResource } from "@shared/schema";
@@ -21,7 +23,13 @@ import { useToast } from "@/hooks/use-toast";
 import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 import { ToolResultActions } from "@/components/ToolResultActions";
 import { trackProductOutcome } from "@/lib/analytics";
-import { getResourceWorkGuide, getToolById, getToolWorkGuide } from "@/lib/fieldKitCatalog";
+import {
+  FIELD_KIT_TOOLS,
+  getResourceWorkGuide,
+  getToolById,
+  getToolWorkGuide,
+  type FieldKitResourceWorkflowCustomization,
+} from "@/lib/fieldKitCatalog";
 
 type ProviderResourceItem = {
   id: number;
@@ -32,7 +40,120 @@ type ProviderResourceItem = {
   status: string;
   ownershipLabel?: string;
   isProviderOwned?: boolean;
+  meta?: {
+    workflow?: FieldKitResourceWorkflowCustomization | null;
+    [key: string]: unknown;
+  } | null;
 };
+
+type ProviderWorkflowForm = {
+  job: string;
+  expectedOutput: string;
+  reviewCheckpoint: string;
+  nextToolId: string;
+};
+
+const EMPTY_PROVIDER_WORKFLOW: ProviderWorkflowForm = {
+  job: "",
+  expectedOutput: "",
+  reviewCheckpoint: "",
+  nextToolId: "",
+};
+
+function workflowPayload(form: ProviderWorkflowForm): FieldKitResourceWorkflowCustomization | undefined {
+  const workflow: FieldKitResourceWorkflowCustomization = {
+    job: form.job.trim() || undefined,
+    expectedOutput: form.expectedOutput.trim() || undefined,
+    reviewCheckpoint: form.reviewCheckpoint.trim() || undefined,
+    nextToolId: form.nextToolId || undefined,
+  };
+  return Object.values(workflow).some(Boolean) ? workflow : undefined;
+}
+
+function workflowForm(item: ProviderResourceItem): ProviderWorkflowForm {
+  return {
+    job: item.meta?.workflow?.job || "",
+    expectedOutput: item.meta?.workflow?.expectedOutput || "",
+    reviewCheckpoint: item.meta?.workflow?.reviewCheckpoint || "",
+    nextToolId: item.meta?.workflow?.nextToolId || "",
+  };
+}
+
+function ProviderWorkflowFields({
+  value,
+  onChange,
+  idPrefix,
+}: {
+  value: ProviderWorkflowForm;
+  onChange: (next: ProviderWorkflowForm) => void;
+  idPrefix: string;
+}) {
+  const update = (key: keyof ProviderWorkflowForm, next: string) =>
+    onChange({ ...value, [key]: next });
+
+  return (
+    <div className="grid gap-3 md:grid-cols-2">
+      <div className="md:col-span-2">
+        <Label htmlFor={`${idPrefix}-job`}>Field job (optional)</Label>
+        <Textarea
+          id={`${idPrefix}-job`}
+          value={value.job}
+          onChange={(event) => update("job", event.target.value)}
+          maxLength={500}
+          placeholder="What field job does this resource support?"
+          className="mt-1 min-h-16"
+          data-testid={`${idPrefix}-workflow-job`}
+        />
+      </div>
+      <div>
+        <Label htmlFor={`${idPrefix}-output`}>Expected output (optional)</Label>
+        <Textarea
+          id={`${idPrefix}-output`}
+          value={value.expectedOutput}
+          onChange={(event) => update("expectedOutput", event.target.value)}
+          maxLength={500}
+          placeholder="What should a rep have when finished?"
+          className="mt-1 min-h-16"
+          data-testid={`${idPrefix}-workflow-output`}
+        />
+      </div>
+      <div>
+        <Label htmlFor={`${idPrefix}-review`}>Review checkpoint (optional)</Label>
+        <Textarea
+          id={`${idPrefix}-review`}
+          value={value.reviewCheckpoint}
+          onChange={(event) => update("reviewCheckpoint", event.target.value)}
+          maxLength={500}
+          placeholder="What should be checked before using it?"
+          className="mt-1 min-h-16"
+          data-testid={`${idPrefix}-workflow-review`}
+        />
+      </div>
+      <div className="md:col-span-2">
+        <Label>Next Field Kit tool (optional)</Label>
+        <Select
+          value={value.nextToolId || "__none__"}
+          onValueChange={(next) => update("nextToolId", next === "__none__" ? "" : next)}
+        >
+          <SelectTrigger className="mt-1" data-testid={`${idPrefix}-workflow-next-tool`}>
+            <SelectValue placeholder="Use the safe default for this resource type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="__none__">Use the safe default for this resource type</SelectItem>
+            {FIELD_KIT_TOOLS.map((tool) => (
+              <SelectItem key={tool.id} value={tool.id}>
+                {tool.title}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Guidance is organization-authored. Do not include member details, patient information, or PHI.
+        </p>
+      </div>
+    </div>
+  );
+}
 
 type ResourceArchitecture = {
   jobToAccomplish?: string;
@@ -156,9 +277,17 @@ export default function Resources() {
   const [newTitle, setNewTitle] = useState("");
   const [newUrl, setNewUrl] = useState("");
   const [newKind, setNewKind] = useState("script");
+  const [newWorkflow, setNewWorkflow] = useState<ProviderWorkflowForm>(
+    EMPTY_PROVIDER_WORKFLOW,
+  );
+  const [editingProviderId, setEditingProviderId] = useState<number | null>(null);
+  const [editingWorkflow, setEditingWorkflow] = useState<ProviderWorkflowForm>(
+    EMPTY_PROVIDER_WORKFLOW,
+  );
 
   const createProviderMutation = useMutation({
     mutationFn: async () => {
+      const workflow = workflowPayload(newWorkflow);
       const res = await fetch("/api/v1/provider-resources", {
         method: "POST",
         credentials: "include",
@@ -168,6 +297,7 @@ export default function Resources() {
           fileUrl: newUrl,
           kind: newKind,
           status: "published",
+          meta: workflow ? { workflow } : undefined,
         }),
       });
       if (!res.ok) {
@@ -182,12 +312,57 @@ export default function Resources() {
     onSuccess: () => {
       setNewTitle("");
       setNewUrl("");
+      setNewWorkflow(EMPTY_PROVIDER_WORKFLOW);
       queryClient.invalidateQueries({ queryKey: ["/api/v1/provider-resources"] });
       toast({ title: "Provider resource added" });
     },
     onError: (e: Error) => {
       toast({
         title: "Could not add resource",
+        description: e.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateProviderMutation = useMutation({
+    mutationFn: async ({
+      item,
+      workflow,
+    }: {
+      item: ProviderResourceItem;
+      workflow: ProviderWorkflowForm;
+    }) => {
+      const nextWorkflow = workflowPayload(workflow);
+      const res = await fetch(`/api/v1/provider-resources/${item.id}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          meta: {
+            ...(item.meta || {}),
+            workflow: nextWorkflow || null,
+          },
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(
+          (err as { error?: { message?: string } })?.error?.message ||
+            "Update failed",
+        );
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      setEditingProviderId(null);
+      setEditingWorkflow(EMPTY_PROVIDER_WORKFLOW);
+      queryClient.invalidateQueries({ queryKey: ["/api/v1/provider-resources"] });
+      toast({ title: "Resource guidance updated" });
+    },
+    onError: (e: Error) => {
+      toast({
+        title: "Could not update guidance",
         description: e.message,
         variant: "destructive",
       });
@@ -450,6 +625,16 @@ export default function Resources() {
                   />
                 </div>
               </div>
+              <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+                <p className="mb-3 text-sm font-semibold text-foreground">
+                  Optional field guidance
+                </p>
+                <ProviderWorkflowFields
+                  value={newWorkflow}
+                  onChange={setNewWorkflow}
+                  idPrefix="new-provider"
+                />
+              </div>
               <Button
                 type="button"
                 disabled={
@@ -475,7 +660,10 @@ export default function Resources() {
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
               {providerItems.map((item) => {
-                const workflow = getResourceWorkGuide({ category: item.kind });
+                const workflow = getResourceWorkGuide({
+                  category: item.kind,
+                  workflow: item.meta?.workflow,
+                });
                 const nextTool = workflow.nextToolId ? getToolById(workflow.nextToolId) : undefined;
                 return (
                   <Card
@@ -514,6 +702,42 @@ export default function Resources() {
                         </Link>
                       ) : null}
                     </div>
+                    {isOrgAdmin && editingProviderId === item.id ? (
+                      <div className="mb-4 rounded-lg border border-primary/30 bg-primary/5 p-3">
+                        <p className="mb-3 text-sm font-semibold text-foreground">
+                          Tailor field guidance
+                        </p>
+                        <ProviderWorkflowFields
+                          value={editingWorkflow}
+                          onChange={setEditingWorkflow}
+                          idPrefix={`edit-provider-${item.id}`}
+                        />
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <Button
+                            type="button"
+                            size="sm"
+                            disabled={updateProviderMutation.isPending}
+                            onClick={() =>
+                              updateProviderMutation.mutate({
+                                item,
+                                workflow: editingWorkflow,
+                              })
+                            }
+                            data-testid={`button-save-provider-guidance-${item.id}`}
+                          >
+                            {updateProviderMutation.isPending ? "Saving…" : "Save guidance"}
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setEditingProviderId(null)}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    ) : null}
                     <Button
                       className="mt-auto w-full gap-2"
                       onClick={() => {
@@ -525,6 +749,20 @@ export default function Resources() {
                       <Download className="w-4 h-4" />
                       Open
                     </Button>
+                    {isOrgAdmin && editingProviderId !== item.id ? (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="mt-2 w-full"
+                        onClick={() => {
+                          setEditingProviderId(item.id);
+                          setEditingWorkflow(workflowForm(item));
+                        }}
+                        data-testid={`button-edit-provider-guidance-${item.id}`}
+                      >
+                        Edit field guidance
+                      </Button>
+                    ) : null}
                   </Card>
                 );
               })}

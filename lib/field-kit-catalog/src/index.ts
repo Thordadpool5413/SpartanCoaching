@@ -475,9 +475,26 @@ export type FieldKitResourceWorkGuide = {
   nextToolId?: string;
 };
 
+/**
+ * Optional organization-owned overrides for a provider resource's field job.
+ * These values are intentionally limited to static workflow guidance. They
+ * never contain member-entered work or generated output.
+ */
+export type FieldKitResourceWorkflowCustomization = {
+  job?: string;
+  expectedOutput?: string;
+  reviewCheckpoint?: string;
+  nextToolId?: string;
+};
+
+function workflowText(value: unknown): string | undefined {
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
+}
+
 export function getResourceWorkGuide(input: {
   category?: string | null;
   relatedToolIds?: string[] | null;
+  workflow?: FieldKitResourceWorkflowCustomization | null;
 }): FieldKitResourceWorkGuide {
   const category = input.category?.toLowerCase() ?? "";
   const guides: Record<string, FieldKitResourceWorkGuide> = {
@@ -539,8 +556,26 @@ export function getResourceWorkGuide(input: {
     },
   };
   const fallback = guides[category] ?? guides.guide;
-  const nextToolId = input.relatedToolIds?.find((id) => Boolean(getToolById(id))) ?? fallback.nextToolId;
-  return { ...fallback, nextToolId };
+  const custom = input.workflow as Record<string, unknown> | null | undefined;
+  const customJob = workflowText(custom?.job);
+  const customExpectedOutput = workflowText(custom?.expectedOutput);
+  const customReviewCheckpoint = workflowText(custom?.reviewCheckpoint);
+  const requestedNextToolId = workflowText(custom?.nextToolId);
+  const customNextToolId =
+    requestedNextToolId && getToolById(requestedNextToolId)
+      ? requestedNextToolId
+      : undefined;
+  const nextToolId =
+    customNextToolId ??
+    input.relatedToolIds?.find((id) => Boolean(getToolById(id))) ??
+    fallback.nextToolId;
+  return {
+    ...fallback,
+    job: customJob || fallback.job,
+    outputPreview: customExpectedOutput || fallback.outputPreview,
+    reviewCheckpoint: customReviewCheckpoint || fallback.reviewCheckpoint,
+    nextToolId,
+  };
 }
 
 /**
