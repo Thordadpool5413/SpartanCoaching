@@ -505,6 +505,60 @@ export default function Portal() {
         </div>
       </Card>
 
+      <Card
+        className="mb-8 border border-amber-500/40 bg-gradient-to-br from-amber-500/[0.1] via-card to-card p-5 sm:p-7"
+        data-testid="section-spartan-intelligence"
+      >
+        <div className="flex flex-col lg:flex-row lg:items-center gap-6 justify-between">
+          <div className="space-y-4 min-w-0">
+            <div className="flex items-start gap-3">
+              <div className="w-11 h-11 rounded-lg bg-amber-500/15 text-amber-500 flex items-center justify-center shrink-0">
+                <Sparkles className="w-5 h-5" />
+              </div>
+              <div>
+                <p className="text-[10px] font-bold tracking-widest text-amber-500 uppercase">
+                  New in Elite
+                </p>
+                <h2 className="text-xl sm:text-2xl font-display font-black text-foreground">
+                  Spartan Intelligence
+                </h2>
+                <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl mt-2">
+                  Walk into the room knowing the provider, the policy conversation, and the enrolled hospice landscape.
+                  Verified public data becomes practical field preparation.
+                </p>
+              </div>
+            </div>
+            <div className="grid sm:grid-cols-3 gap-3">
+              {[
+                {
+                  title: "Referral Intelligence",
+                  body: "Verify a provider through CMS NPPES and build a focused meeting brief.",
+                },
+                {
+                  title: "CMS Policy Navigator",
+                  body: "Turn complex hospice policy topics into clear, reviewable field language.",
+                },
+                {
+                  title: "Hospice Market Explorer",
+                  body: "Search official CMS enrollment data by state and city.",
+                },
+              ].map((item) => (
+                <div key={item.title} className="rounded-xl border border-border/80 bg-background/55 p-4">
+                  <p className="font-bold text-sm text-foreground">{item.title}</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed mt-1.5">{item.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+          <Button asChild size="lg" className="font-bold shrink-0">
+            <Link href="/tools/intelligence" data-testid="button-open-spartan-intelligence">
+              Open Spartan Intelligence
+              <ArrowRight className="ml-2 w-4 h-4" />
+            </Link>
+          </Button>
+        </div>
+      </Card>
+
       {/* Orientation — full What/Why/How only on first session; chrome covers returning users */}
       {isFirstSession && (
         <section
