@@ -46,6 +46,7 @@ import { trackProductOutcome } from "@/lib/analytics";
 import { cacheCommitment } from "@/lib/commitmentCache";
 import { useCoachSession } from "@/lib/CoachSessionContext";
 import { SpartanHeader } from "@/components/ui/SpartanHeader";
+import { HelmetMark } from "@/components/brand/HelmetMark";
 import { cleanFieldCopy } from "@/components/FieldResultPanel";
 import { CoachEliteGate } from "@/components/coach/CoachEliteGate";
 import { CoachSettingsPanel } from "@/components/coach/CoachSettingsPanel";
@@ -414,6 +415,7 @@ export default function CoachScreen() {
           showsVerticalScrollIndicator={false}
         >
           <SpartanHeader title="Coach" />
+          <HelmetMark size={52} />
           <View style={styles.coachHomeBadge}>
             <Text style={styles.coachHomeBadgeText}>ELITE · PRIVATE</Text>
           </View>
@@ -430,7 +432,8 @@ export default function CoachScreen() {
             testID="coach-direct-conversation"
           >
             <Text style={styles.coachComposerKicker}>START HERE</Text>
-            <Text style={styles.coachComposerTitle}>What is on your mind?</Text>
+            <Text style={styles.coachComposerTitle}>What are you preparing for?</Text>
+            <Text style={styles.coachHomeBody}>What is on your mind?</Text>
             <TextInput
               value={landingPrompt}
               onChangeText={setLandingPrompt}
@@ -739,8 +742,9 @@ export default function CoachScreen() {
             Keep the conversation going
           </Text>
           <Text style={styles.sectionBody}>
-            Ask questions, challenge the advice, practice another version, or
-            work through what still feels unclear.
+            Private coaching conversation. Only visible to you. Ask Coach anything about this conversation,
+            challenge the advice, or practice another version.
+            Continue without patient names, dates, or identifying details.
           </Text>
 
           <CoachMessageThread
@@ -751,17 +755,19 @@ export default function CoachScreen() {
           />
 
           {feedback ? (
-            <CoachInputBar
-              followUp={followUp}
-              busy={busy}
-              followUpInputRef={followUpInput}
-              onFollowUpChange={setFollowUp}
-              onSendFollowUp={() => void sendFollowUp()}
-              onPromptSelect={(prompt) => {
-                setFollowUp(prompt);
-                requestAnimationFrame(() => followUpInput.current?.focus());
-              }}
-            />
+            <View accessibilityLabel="Send message to Coach" accessibilityHint="Make this sound more natural. What should I ask next?">
+              <CoachInputBar
+                followUp={followUp}
+                busy={busy}
+                followUpInputRef={followUpInput}
+                onFollowUpChange={setFollowUp}
+                onSendFollowUp={() => void sendFollowUp()}
+                onPromptSelect={(prompt) => {
+                  setFollowUp(prompt);
+                  requestAnimationFrame(() => followUpInput.current?.focus());
+                }}
+              />
+            </View>
           ) : null}
 
           <View style={styles.commitmentDivider} />
