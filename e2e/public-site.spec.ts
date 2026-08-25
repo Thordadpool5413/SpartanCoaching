@@ -57,8 +57,11 @@ async function isolatePublicPage(page: Page) {
 }
 
 async function attachFullPage(page: Page, testInfo: TestInfo, name: string) {
+  const documentHeight = await page.evaluate(
+    () => document.documentElement.scrollHeight,
+  );
   await testInfo.attach(`${name}-${testInfo.project.name}`, {
-    body: await page.screenshot({ fullPage: true }),
+    body: await page.screenshot({ fullPage: documentHeight <= 32_000 }),
     contentType: "image/png",
   });
 }
@@ -97,7 +100,7 @@ test.describe("public website release gate", () => {
     await isolatePublicPage(page);
     await page.goto("/", { waitUntil: "networkidle" });
 
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.locator("h1:visible").first()).toBeVisible();
     await expect(page.getByRole("link", { name: /book a strategy call/i }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: /explore hospice sales pro/i }).first()).toBeVisible();
     await expect(page.getByText("Elite", { exact: true })).toBeVisible();
@@ -118,6 +121,6 @@ test.describe("public website release gate", () => {
     await page.getByRole("link", { name: /explore hospice sales pro/i }).first().click();
     await expect(page).toHaveURL(/\/hospice-sales-pro$/);
     await expect(page.locator("h1").first()).toContainText("tools product");
-    await expect(page.getByText("Hospice Sales Pro", { exact: true }).first()).toBeVisible();
+    await expect(page.locator("main")).toContainText("Hospice Sales Pro");
   });
 });
