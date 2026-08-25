@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   BookOpen,
   Crosshair,
+  Database,
   FolderOpen,
   Home,
   LayoutDashboard,
@@ -38,12 +39,20 @@ export const MEMBER_NAV: MemberNavItem[] = [
     match: (loc) => loc.startsWith("/tools/sales-workflow"),
   },
   {
+    href: "/tools/intelligence",
+    label: "Intelligence",
+    short: "Intel",
+    icon: Database,
+    match: (loc) => loc.startsWith("/tools/intelligence"),
+  },
+  {
     href: "/tools",
     label: "Tools",
     icon: Wrench,
     match: (loc) =>
       (loc === "/tools" || loc.startsWith("/tools/")) &&
-      !loc.startsWith("/tools/sales-workflow"),
+      !loc.startsWith("/tools/sales-workflow") &&
+      !loc.startsWith("/tools/intelligence"),
   },
   {
     href: "/resources",
