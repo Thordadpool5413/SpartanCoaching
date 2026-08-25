@@ -223,6 +223,7 @@ function ToolsCatalogScreen() {
       >
         {!q ? (
           <View style={styles.destinationGrid} testID="explore-destinations">
+            <ExploreDestination icon="crosshair" title="Spartan Intelligence" body={canUseElite ? "Verify referral sources, explore markets, and prepare with CMS data." : "Elite guided provider, market, and CMS policy intelligence."} onPress={() => router.push((canUseElite ? "/spartan-intelligence" : "/access") as any)} />
             <ExploreDestination icon="book-open" title="Library" body="Read, listen, and use field resources inside the app." onPress={() => router.push("/(tabs)/tools?view=library" as any)} />
             <ExploreDestination icon="check-circle" title="My Work" body="Resume plans, commitments, downloads, and approvals." onPress={() => router.push("/(tabs)/my-work" as any)} />
             <ExploreDestination icon="layers" title="Access map" body="See what Standard and Elite include." onPress={() => router.push("/access" as any)} />

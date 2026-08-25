@@ -82,6 +82,10 @@ import {
   formatCitationsForPrompt,
 } from "../knowledge/spartanCorpus";
 import { searchNpiProviders } from "../knowledge/npiLookup";
+import { buildAccountBrief } from "../knowledge/providerIntelligence";
+import { POLICY_TOPICS, buildPolicyBrief } from "../knowledge/policyIntelligence";
+import { loadLatestCoverageSnapshot } from "../clinical/coverageBootstrap";
+import { searchCmsHospices } from "../knowledge/cmsHospiceLookup";
 
 /** Express 5 params may be string | string[] — normalize for parseInt / lookups. */
 function paramStr(req: Request, key: string): string {
@@ -445,6 +449,70 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
     } catch (error: any) {
       console.error("NPI lookup error:", error);
       res.status(400).json({ error: error.message || "NPI lookup failed" });
+    }
+  });
+
+  app.post("/api/intelligence/account-brief", requireElite, lightAiLimit, async (req, res) => {
+    try {
+      const provider = req.body?.provider;
+      if (
+        !provider ||
+        typeof provider !== "object" ||
+        typeof provider.npi !== "string" ||
+        !/^\d{10}$/.test(provider.npi) ||
+        typeof provider.name !== "string" ||
+        !provider.name.trim() ||
+        !Array.isArray(provider.taxonomies) ||
+        !provider.source ||
+        provider.source.label !== "CMS NPPES NPI Registry"
+      ) {
+        return res.status(400).json({ error: "Choose a verified provider before building the brief." });
+      }
+      const relationshipStage = ["new", "developing", "active", "reengage"].includes(
+        String(req.body?.relationshipStage || ""),
+      )
+        ? req.body.relationshipStage
+        : "new";
+      const brief = buildAccountBrief({
+        provider,
+        meetingPurpose: typeof req.body?.meetingPurpose === "string" ? req.body.meetingPurpose : undefined,
+        knownContext: typeof req.body?.knownContext === "string" ? req.body.knownContext : undefined,
+        relationshipStage,
+      });
+      res.json({ brief });
+    } catch (error: any) {
+      console.error("Account brief error:", error);
+      res.status(400).json({ error: clientErrorMessage(error, "Account brief could not be built") });
+    }
+  });
+
+  app.post("/api/intelligence/policy-brief", requireElite, lightAiLimit, async (req, res) => {
+    try {
+      const topic = String(req.body?.topic || "");
+      if (!POLICY_TOPICS.includes(topic as (typeof POLICY_TOPICS)[number])) {
+        return res.status(400).json({ error: "Choose a policy topic before building the guide." });
+      }
+      const snapshot = await loadLatestCoverageSnapshot();
+      res.json({
+        brief: buildPolicyBrief(topic as (typeof POLICY_TOPICS)[number], snapshot),
+      });
+    } catch (error: any) {
+      console.error("Policy brief error:", error);
+      res.status(400).json({ error: clientErrorMessage(error, "Policy guide could not be built") });
+    }
+  });
+
+  app.get("/api/intelligence/hospice-market", requireElite, lightAiLimit, async (req, res) => {
+    try {
+      const results = await searchCmsHospices({
+        state: String(req.query.state || ""),
+        city: req.query.city ? String(req.query.city) : undefined,
+        limit: req.query.limit ? Number(req.query.limit) : 25,
+      });
+      res.json({ results, count: results.length });
+    } catch (error: any) {
+      console.error("Hospice market lookup error:", error);
+      res.status(400).json({ error: clientErrorMessage(error, "Hospice market lookup failed") });
     }
   });
 

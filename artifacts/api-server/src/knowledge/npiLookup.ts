@@ -12,6 +12,16 @@ export type NpiResult = {
   state?: string;
   phone?: string;
   enumerationType?: string;
+  status?: string;
+  address?: string;
+  postalCode?: string;
+  taxonomies: string[];
+  lastUpdated?: string;
+  source: {
+    label: "CMS NPPES NPI Registry";
+    url: string;
+    checkedAt: string;
+  };
 };
 
 type NppesResponse = {
@@ -25,6 +35,7 @@ type NppesResponse = {
       organization_name?: string;
       credential?: string;
       status?: string;
+      last_updated?: string;
     };
     taxonomies?: Array<{ desc?: string; primary?: boolean }>;
     addresses?: Array<{
@@ -32,6 +43,9 @@ type NppesResponse = {
       city?: string;
       state?: string;
       telephone_number?: string;
+      address_1?: string;
+      address_2?: string;
+      postal_code?: string;
     }>;
   }>;
 };
@@ -48,6 +62,9 @@ function mapResult(r: NonNullable<NppesResponse["results"]>[number]): NpiResult 
     r.taxonomies?.find((t) => t.primary)?.desc || r.taxonomies?.[0]?.desc || undefined;
   const addr =
     r.addresses?.find((a) => a.address_purpose === "LOCATION") || r.addresses?.[0];
+  const taxonomies = Array.from(
+    new Set((r.taxonomies || []).map((item) => item.desc?.trim()).filter((item): item is string => Boolean(item))),
+  );
   return {
     npi,
     name,
@@ -57,6 +74,16 @@ function mapResult(r: NonNullable<NppesResponse["results"]>[number]): NpiResult 
     state: addr?.state,
     phone: addr?.telephone_number,
     enumerationType: r.enumeration_type,
+    status: basic.status,
+    address: [addr?.address_1, addr?.address_2].filter(Boolean).join(", ") || undefined,
+    postalCode: addr?.postal_code,
+    taxonomies,
+    lastUpdated: basic.last_updated,
+    source: {
+      label: "CMS NPPES NPI Registry",
+      url: `https://npiregistry.cms.hhs.gov/provider-view/${npi}`,
+      checkedAt: new Date().toISOString(),
+    },
   };
 }
 

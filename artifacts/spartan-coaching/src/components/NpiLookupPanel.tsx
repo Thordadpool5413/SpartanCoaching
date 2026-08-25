@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -14,6 +14,24 @@ export type NpiHit = {
   state?: string;
   phone?: string;
   enumerationType?: string;
+  status?: string;
+  address?: string;
+  postalCode?: string;
+  taxonomies: string[];
+  lastUpdated?: string;
+  source: { label: string; url: string; checkedAt: string };
+};
+
+type AccountBrief = {
+  headline: string;
+  verifiedFacts: Array<{ label: string; value: string }>;
+  meetingObjective: string;
+  opening: string;
+  discoveryQuestions: string[];
+  preparation: string[];
+  nextMove: string;
+  limitations: string[];
+  source: NpiHit["source"];
 };
 
 /**
@@ -22,9 +40,11 @@ export type NpiHit = {
 export function NpiLookupPanel({
   className,
   onSelect,
+  enableBrief = false,
 }: {
   className?: string;
   onSelect?: (hit: NpiHit) => void;
+  enableBrief?: boolean;
 }) {
   const [mode, setMode] = useState<"person" | "org">("person");
   const [firstName, setFirstName] = useState("");
@@ -35,6 +55,11 @@ export function NpiLookupPanel({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [results, setResults] = useState<NpiHit[]>([]);
+  const [selected, setSelected] = useState<NpiHit | null>(null);
+  const [relationshipStage, setRelationshipStage] = useState<"new" | "developing" | "active" | "reengage">("new");
+  const [meetingPurpose, setMeetingPurpose] = useState("");
+  const [brief, setBrief] = useState<AccountBrief | null>(null);
+  const [briefLoading, setBriefLoading] = useState(false);
 
   const search = async () => {
     setError(null);
@@ -67,11 +92,32 @@ export function NpiLookupPanel({
       const data = await res.json().catch(() => ({}));
       if (!res.ok) throw new Error(data.error || "Lookup failed");
       setResults(data.results || []);
-      if (!(data.results || []).length) setError("No matches — try a broader name or city.");
+      if (!(data.results || []).length) setError("No matches. Try a broader name or remove the city.");
     } catch (e: any) {
       setError(e?.message || "Lookup failed");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const buildBrief = async () => {
+    if (!selected) return;
+    setError(null);
+    setBriefLoading(true);
+    try {
+      const res = await fetch("/api/intelligence/account-brief", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ provider: selected, relationshipStage, meetingPurpose }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(data.error || "Brief could not be built");
+      setBrief(data.brief);
+    } catch (e: any) {
+      setError(e?.message || "Brief could not be built");
+    } finally {
+      setBriefLoading(false);
     }
   };
 
@@ -82,12 +128,11 @@ export function NpiLookupPanel({
     >
       <div className="space-y-1">
         <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
-          Pre-call · Public registry
+          Spartan Intelligence · Verified public data
         </p>
-        <h3 className="font-bold text-foreground">NPI lookup</h3>
+        <h3 className="font-bold text-foreground">Referral Intelligence</h3>
         <p className="text-xs text-muted-foreground leading-relaxed">
-          Free CMS NPPES search for provider specialty and location. Use for pre-call context only — never
-          enter patient information.
+          Find a provider, verify the public record, and turn it into a focused meeting brief. Never enter patient information.
         </p>
       </div>
 
@@ -181,17 +226,58 @@ export function NpiLookupPanel({
                       {r.phone ? ` · ${r.phone}` : ""}
                     </p>
                   )}
+                  {r.lastUpdated ? <p className="text-[11px] text-muted-foreground">Registry updated {r.lastUpdated}</p> : null}
                 </div>
-                {onSelect && (
-                  <Button type="button" size="sm" variant="outline" className="font-bold" onClick={() => onSelect(r)}>
-                    Use
-                  </Button>
-                )}
+                {(enableBrief || onSelect) ? <Button type="button" size="sm" variant={selected?.npi === r.npi ? "default" : "outline"} className="font-bold" onClick={() => { setSelected(r); setBrief(null); onSelect?.(r); }}>
+                  {selected?.npi === r.npi ? "Selected" : enableBrief ? "Prepare" : "Use"}
+                </Button> : null}
               </div>
             </li>
           ))}
         </ul>
       )}
+
+      {enableBrief && selected ? (
+        <div className="rounded-xl border border-border bg-background/70 p-4 space-y-4" data-testid="account-brief-builder">
+          <div>
+            <p className="text-[10px] font-bold tracking-widest text-primary uppercase">Elite meeting preparation</p>
+            <h4 className="font-bold text-foreground mt-1">Prepare for {selected.name}</h4>
+          </div>
+          <div className="space-y-2">
+            <Label className="text-xs">Relationship</Label>
+            <div className="flex flex-wrap gap-2">
+              {([['new', 'New'], ['developing', 'Developing'], ['active', 'Active'], ['reengage', 'Reconnect']] as const).map(([value, label]) => (
+                <Button key={value} type="button" size="sm" variant={relationshipStage === value ? "default" : "outline"} onClick={() => setRelationshipStage(value)}>{label}</Button>
+              ))}
+            </div>
+          </div>
+          <div className="space-y-1.5">
+            <Label className="text-xs">What needs to happen in this meeting?</Label>
+            <Input value={meetingPurpose} onChange={(e) => setMeetingPurpose(e.target.value)} placeholder="Optional. Use the recommended objective or add your own." />
+          </div>
+          <Button type="button" className="w-full font-bold" disabled={briefLoading} onClick={buildBrief}>
+            {briefLoading ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : null}
+            Build account brief
+          </Button>
+        </div>
+      ) : null}
+
+      {enableBrief && brief ? (
+        <div className="rounded-xl border border-primary/30 bg-primary/5 p-4 space-y-5" data-testid="account-brief-result">
+          <div><p className="text-[10px] font-bold tracking-widest text-primary uppercase">Ready for the room</p><h4 className="font-bold text-foreground mt-1">{brief.headline}</h4></div>
+          <div className="grid sm:grid-cols-2 gap-2">{brief.verifiedFacts.map((fact) => <div key={fact.label} className="rounded-lg border border-border bg-card p-3"><p className="text-[10px] font-bold tracking-wider uppercase text-muted-foreground">{fact.label}</p><p className="text-sm font-semibold text-foreground mt-1">{fact.value}</p></div>)}</div>
+          <BriefSection title="Meeting objective"><p>{brief.meetingObjective}</p></BriefSection>
+          <BriefSection title="How to open"><p>{brief.opening}</p></BriefSection>
+          <BriefSection title="Questions worth asking"><ol className="space-y-2">{brief.discoveryQuestions.map((item, index) => <li key={item}><span className="font-bold text-primary mr-2">{index + 1}</span>{item}</li>)}</ol></BriefSection>
+          <BriefSection title="Before you walk in"><ul className="space-y-2">{brief.preparation.map((item) => <li key={item} className="flex gap-2"><span className="font-bold text-primary">•</span><span>{item}</span></li>)}</ul></BriefSection>
+          <BriefSection title="Walk out with this"><p className="font-semibold">{brief.nextMove}</p></BriefSection>
+          <div className="pt-3 border-t border-border text-xs text-muted-foreground space-y-1"><p>Source: <a className="text-primary underline" href={brief.source.url} target="_blank" rel="noreferrer">{brief.source.label}</a></p><p>{brief.limitations[0]}</p></div>
+        </div>
+      ) : null}
     </Card>
   );
+}
+
+function BriefSection({ title, children }: { title: string; children: ReactNode }) {
+  return <section className="space-y-2 text-sm leading-relaxed text-foreground"><h5 className="text-[10px] font-bold tracking-widest text-primary uppercase">{title}</h5>{children}</section>;
 }
