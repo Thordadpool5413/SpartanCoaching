@@ -132,11 +132,10 @@ export default function HomeScreen() {
       })
       .catch(() => undefined);
 
-    // Fetch today workflow for streak data
-    fetch("/api/v1/sales-workflow/today")
-      .then((r) => r.json())
+    void fetch("/api/v1/sales-workflow/today")
+      .then((r) => r.json() as Promise<{ streakDays?: number; toolsThisWeek?: number; nextVisitTime?: string }>)
       .then((data) => {
-        if (!cancelled && data) {
+        if (!cancelled) {
           setStreakData({
             streakDays: data.streakDays,
             toolsThisWeek: data.toolsThisWeek,

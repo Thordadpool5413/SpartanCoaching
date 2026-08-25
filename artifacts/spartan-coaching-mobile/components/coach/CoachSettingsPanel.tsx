@@ -11,10 +11,7 @@ import {
 } from "react-native";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
-import {
-  useAppearancePreference,
-  type AppearancePreference,
-} from "@/lib/AppearanceContext";
+import { type AppearancePreference } from "@/lib/AppearanceContext";
 import { type CoachPreference } from "@/lib/coachApi";
 import { font } from "@/lib/typography";
 
