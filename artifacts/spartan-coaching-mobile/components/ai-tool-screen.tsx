@@ -2,8 +2,6 @@ import { Feather } from "@expo/vector-icons";
 import * as Crypto from "expo-crypto";
 import * as Haptics from "expo-haptics";
 import { router, type Href } from "expo-router";
-import { goBackOrReplace } from "@/lib/navigation";
-import React, { useEffect, useMemo, useState } from "react";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { goBackOrReplace } from "@/lib/navigation";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -56,71 +54,6 @@ type ToolRun = {
   recoverable?: boolean;
 };
 
-function initialForm(
-  tool: AiToolSpec,
-  source: Record<string, unknown> = tool.exampleInput as Record<string, unknown>,
-): Record<string, FormValue> {
-  const result: Record<string, FormValue> = {};
-  for (const field of tool.fields) {
-    const example = source[field.key];
-    if (field.kind === "boolean") result[field.key] = Boolean(example);
-    else if (field.kind === "string-list") result[field.key] = Array.isArray(example) ? example.join("\n") : "";
-    else if (field.kind === "json" || field.kind === "json-list") result[field.key] = example == null ? "" : JSON.stringify(example, null, 2);
-    else result[field.key] = example == null ? "" : String(example);
-  }
-  return result;
-}
-
-function parsedInput(tool: AiToolSpec, values: Record<string, FormValue>): Record<string, unknown> {
-  const input: Record<string, unknown> = {};
-  for (const field of tool.fields) {
-    const raw = values[field.key];
-    if (field.kind === "boolean") input[field.key] = Boolean(raw);
-    else if (field.kind === "number") input[field.key] = Number(raw);
-    else if (field.kind === "string-list") {
-      input[field.key] = String(raw ?? "").split("\n").map((item) => item.trim()).filter(Boolean);
-    } else if (field.kind === "json" || field.kind === "json-list") {
-      input[field.key] = String(raw ?? "").trim() ? JSON.parse(String(raw)) : field.kind === "json-list" ? [] : {};
-    } else if (String(raw ?? "").trim() || field.required) input[field.key] = String(raw ?? "").trim();
-  }
-  return tool.inputSchema.parse(input) as Record<string, unknown>;
-}
-
-function Field({ field, value, onChange }: { field: AiToolField; value: FormValue; onChange: (next: FormValue) => void }) {
-  const colors = useColors();
-  const styles = useMemo(() => makeStyles(colors), [colors]);
-
-  if (field.kind === "boolean") {
-    return (
-      <View style={styles.switchRow}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.label}>{field.label}</Text>
-          <Text style={styles.fieldHint}>Choose whether this should be included in the result.</Text>
-        </View>
-        <Switch accessibilityLabel={field.label} accessibilityRole="switch" value={value === true} onValueChange={onChange} />
-      </View>
-    );
-  }
-
-  if (field.kind === "select") {
-    return (
-      <View style={styles.field}>
-        <Text style={styles.label}>{field.label}{field.required ? " *" : ""}</Text>
-        <View style={styles.choiceRow}>
-          {(field.options ?? []).map((option) => {
-            const selected = value === option;
-            return (
-              <Pressable
-                key={option}
-                accessibilityRole="radio"
-                accessibilityState={{ selected }}
-                onPress={() => { onChange(option); void Haptics.selectionAsync(); }}
-                style={[styles.choice, selected && styles.choiceSelected]}
-              >
-                <Text style={[styles.choiceText, selected && styles.choiceTextSelected]}>{option}</Text>
-              </Pressable>
-            );
-          })}
 function GuidedField({
   field,
   value,
@@ -237,12 +170,6 @@ function GuidedField({
     );
   }
 
-  const multiline = ["text", "string-list", "json", "json-list"].includes(field.kind);
-  return (
-    <View style={styles.field}>
-      <Text style={styles.label}>{field.label}{field.required ? " *" : ""}</Text>
-      {field.kind === "string-list" ? <Text style={styles.fieldHint}>One item per line.</Text> : null}
-      {(field.kind === "json" || field.kind === "json-list") ? <Text style={styles.fieldHint}>Structured data is supported here. Keep patient identifiers out of every field.</Text> : null}
   const multiline = field.kind === "long-text";
   return (
     <View style={styles.field}>
@@ -271,8 +198,6 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
   const experience = getAiToolExperience(toolId);
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
-  const { isOnline, isChecking, refresh } = useNetworkStatus();
-  const [values, setValues] = useState(() => initialForm(tool));
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ScrollView>(null);
   const { isOnline, isChecking, refresh } = useNetworkStatus();
@@ -308,7 +233,6 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         setHistory([]);
       } else {
         const response = await apiGet<{ runs: ToolRun[] }>(`/api/ai-tools/${tool.id}/runs`);
-        setHistory(response.runs || []);
         const savedRuns = response.runs || [];
         setHistory(savedRuns);
         if (tool.id === "content-recommender" || tool.id === "content-gap-analyzer") {
@@ -338,7 +262,6 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
   useEffect(() => {
     const handoff = consumeAiToolHandoff(tool.id);
     if (handoff) {
-      setValues(initialForm(tool, buildConnectedToolInput(handoff.sourceToolId, tool.id, handoff.output)));
       setValues(
         hydrateAiToolExperienceValues(
           tool.id,
@@ -380,7 +303,6 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
     setBusy(true);
     setError("");
     try {
-      const input = parsedInput(tool, values);
       const input = tool.inputSchema.parse(buildAiToolExperienceInput(tool.id, values, experienceContext)) as Record<string, unknown>;
       let completed: ToolRun;
       if (clinical) {
@@ -429,7 +351,6 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
     }
   }
 
-  const runLabel = run ? "Run it again" : `Build ${tool.name.toLowerCase()}`;
   const runLabel = run ? "Build a new version" : experience.submitLabel;
   const missingRequired = experience.fields.some((field) => {
     if (!field.required) return false;
@@ -443,7 +364,6 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
       contentInsetAdjustmentBehavior="automatic"
       keyboardShouldPersistTaps="handled"
       style={styles.screen}
-      contentContainerStyle={[styles.container, clinical && styles.clinicalContainer]}
       contentContainerStyle={[styles.container, { paddingTop: Math.max(insets.top + 12, 28) }, clinical && styles.clinicalContainer]}
       showsVerticalScrollIndicator={false}
       testID={`ai-tool-${tool.id}`}
@@ -458,11 +378,6 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
           <Text style={[styles.badge, clinical && styles.clinicalBadge]}>{tool.category.toUpperCase()}</Text>
           {clinical ? <ClinicalVaultBadge /> : <Text style={styles.privateBadge}>ELITE WORKSPACE</Text>}
         </View>
-        <Text style={styles.title}>{tool.name}</Text>
-        <Text style={styles.description}>{tool.description}</Text>
-        <View style={styles.promiseRow}>
-          <Feather name="zap" size={16} color={colors.primary} />
-          <Text style={styles.promiseText}>Give it the right context. Get a structured result you can act on, review, save, or continue into the next compatible workflow.</Text>
         <Text style={styles.title}>{experience.title ?? tool.name}</Text>
         <Text style={styles.description}>{experience.promise}</Text>
         <View style={styles.promiseRow}>
@@ -515,23 +430,6 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         </View>
       ) : null}
 
-
-      {networkBlocked ? (
-        <View accessibilityRole="alert" style={styles.networkCard}>
-          <View style={styles.safetyHeading}>
-            <Feather name={isChecking ? "wifi" : "wifi-off"} size={18} color={colors.primary} />
-            <Text style={styles.safetyTitle}>{isChecking ? "Checking secure connection" : "Secure connection required"}</Text>
-          </View>
-          <Text style={styles.warningText}>Advanced tools run online so protected work is never queued on this device. Existing results can remain visible, but running, exporting, and sharing stay locked until the service is reachable.</Text>
-          {!isChecking ? (
-            <Pressable accessibilityRole="button" accessibilityLabel="Check secure connection" onPress={() => void refresh()} style={styles.networkAction}>
-              <Text style={styles.networkActionText}>Check connection</Text>
-              <Feather name="refresh-cw" size={16} color={colors.primary} />
-            </Pressable>
-          ) : null}
-        </View>
-      ) : null}
-
       {tool.safetyWarnings.length ? (
         <View style={styles.safetyCard}>
           <View style={styles.safetyHeading}><Feather name="shield" size={18} color={clinical ? VAULT.accent : colors.primary} /><Text style={styles.safetyTitle}>Before you use this tool</Text></View>
@@ -558,8 +456,6 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
       </View>
 
       <View style={styles.formCard}>
-        {tool.fields.map((field) => (
-          <Field key={field.key} field={field} value={values[field.key] ?? (field.kind === "boolean" ? false : "")} onChange={(value) => setValues((current) => ({ ...current, [field.key]: value }))} />
         {experience.fields.map((field) => (
           <GuidedField key={field.key} field={field} value={values[field.key] ?? (field.kind === "multi-choice" ? [] : "")} onChange={(value) => setValues((current) => ({ ...current, [field.key]: value }))} />
         ))}
@@ -567,11 +463,6 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={`Run ${tool.name}`}
-          disabled={busy || networkBlocked || (clinical && (!confirmedDeidentified || jurisdictionChecking || !jurisdiction?.state || !jurisdiction?.macRegion))}
-          onPress={runTool}
-          style={[styles.primaryButton, (busy || networkBlocked || (clinical && (!confirmedDeidentified || jurisdictionChecking || !jurisdiction?.state || !jurisdiction?.macRegion))) && styles.disabled]}
-        >
-          {busy ? <ActivityIndicator color="#FFFFFF" /> : <><Text style={styles.primaryButtonText}>{isChecking ? "Checking connection" : !isOnline ? "Secure connection required" : runLabel}</Text><Feather name="arrow-right" size={20} color="#FFFFFF" /></>}
           disabled={busy || missingRequired || networkBlocked || (clinical && (!confirmedDeidentified || jurisdictionChecking || !jurisdiction?.state || !jurisdiction?.macRegion))}
           onPress={runTool}
           style={[styles.primaryButton, (busy || missingRequired || networkBlocked || (clinical && (!confirmedDeidentified || jurisdictionChecking || !jurisdiction?.state || !jurisdiction?.macRegion))) && styles.disabled]}
@@ -597,7 +488,6 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
 
       <View style={styles.workflowHeading}>
         <Text style={styles.sectionKicker}>2 · RESULT</Text>
-        <Text style={styles.sectionTitle}>{run?.output != null ? "Turn the output into a decision." : "The useful part appears here."}</Text>
         <Text style={styles.sectionTitle}>{run?.output != null ? experience.resultTitle : "Your result will appear here."}</Text>
         <Text style={styles.sectionBody}>{clinical ? "Clinical results are ephemeral, watermarked, and presented with review requirements." : "Results are saved to your account so you can return to them without rebuilding the work."}</Text>
       </View>

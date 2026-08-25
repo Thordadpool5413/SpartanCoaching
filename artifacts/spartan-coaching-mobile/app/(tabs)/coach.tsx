@@ -44,8 +44,6 @@ import {
 import { font } from "@/lib/typography";
 import { trackProductOutcome } from "@/lib/analytics";
 import { cacheCommitment } from "@/lib/commitmentCache";
-import { HelmetMark } from "@/components/brand/HelmetMark";
-import { SpartanHeader } from "@/components/ui/SpartanHeader";
 import { useCoachSession } from "@/lib/CoachSessionContext";
 import { SpartanHeader } from "@/components/ui/SpartanHeader";
 import { cleanFieldCopy } from "@/components/FieldResultPanel";
@@ -411,11 +409,6 @@ export default function CoachScreen() {
         edges={["top"]}
         testID="screen-elite-coach-home"
       >
-        <ScrollView contentContainerStyle={styles.gateContent}>
-          <SpartanHeader title="Coach" actionLabel={isAuthenticated ? undefined : "Sign in"} />
-          <View style={styles.gateBadge}>
-            <Feather name="shield" size={15} color={colors.primary} />
-            <Text style={styles.gateBadgeText}>HOSPICE SALES PRO ELITE</Text>
         <ScrollView
           contentContainerStyle={styles.coachHomeContent}
           showsVerticalScrollIndicator={false}
@@ -427,111 +420,11 @@ export default function CoachScreen() {
           <Text style={styles.coachHomeTitle}>
             Practice the conversation before it matters.
           </Text>
-          <Text style={styles.gateBody}>
-            Rehearse by voice or text, receive direct coaching, and leave with
-            one clear commitment.
-          </Text>
-          <View style={styles.valueCard}>
-            <ValueRow icon="mic" text="Private voice rehearsal and transcription" styles={styles} colors={colors} />
-            <ValueRow icon="message-circle" text="Emotionally intelligent Spartan Coach feedback" styles={styles} colors={colors} />
-            <ValueRow icon="lock" text="Raw conversations stay private and expire after 90 days" styles={styles} colors={colors} />
-          </View>
-          <Pressable
-            style={styles.primaryButton}
-            onPress={() => router.push("/membership" as any)}
-          >
-            <Text style={styles.primaryButtonText}>
-              Compare Elite and subscribe
-            </Text>
-            <Feather name="arrow-right" size={19} color="#FFFFFF" />
-          </Pressable>
-          <Text style={styles.gatePrice}>
-            Hospice Sales Pro Elite is $19.99 per week. Cancel anytime.
           <Text style={styles.coachHomeBody}>
             Spartan Coach listens for the concern beneath the words, asks when
             context is missing, and helps you leave with one commitment.
           </Text>
 
-  if (landingVisible) {
-    return (
-      <SafeAreaView style={styles.safe} edges={["top"]} testID="screen-elite-coach-home">
-        <ScrollView contentContainerStyle={styles.coachHomeContent} showsVerticalScrollIndicator={false}>
-          <SpartanHeader title="Coach" />
-          <View style={styles.coachHomeBadge}><Text style={styles.coachHomeBadgeText}>ELITE · PRIVATE</Text></View>
-          <Text style={styles.coachHomeTitle}>Practice the conversation before it matters.</Text>
-          <Text style={styles.coachHomeBody}>Spartan Coach listens for the concern beneath the words, asks when context is missing, and helps you leave with one commitment.</Text>
-
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => {
-              setLandingVisible(false);
-              setStep("prepare");
-              void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            }}
-            style={({ pressed }) => [styles.coachComposer, pressed && styles.rowPressed]}
-            testID="coach-begin-preparation"
-          >
-            <Text style={styles.coachComposerTitle}>What are you preparing for?</Text>
-            <View style={styles.coachComposerField}>
-              <Feather name="edit-3" size={21} color={colors.primary} />
-              <Text style={styles.coachComposerPlaceholder}>Describe the conversation</Text>
-            </View>
-          </Pressable>
-
-          <Pressable
-            accessibilityRole="button"
-            onPress={() => conversations.length ? setHistoryOpen(true) : setLandingVisible(false)}
-            style={({ pressed }) => [styles.resumeCard, pressed && styles.rowPressed]}
-            testID="coach-resume-private-conversation"
-          >
-            <Feather name={conversations.length ? "clock" : "message-circle"} size={21} color={colors.primary} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.resumeTitle}>{conversations.length ? "Resume a private conversation" : "Start your first private conversation"}</Text>
-              <Text style={styles.resumeBody}>{conversations.length ? `${conversations.length} private ${conversations.length === 1 ? "conversation" : "conversations"} available` : "Begin with the professional situation and the outcome you want."}</Text>
-            </View>
-            <Feather name="chevron-right" size={20} color={colors.mutedForeground} />
-          </Pressable>
-
-          <View style={styles.coachPrivacyCard}>
-            <Feather name="shield" size={22} color={colors.foreground} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.coachPrivacyTitle}>Your privacy is protected</Text>
-              <Text style={styles.coachPrivacyBody}>Raw Coach conversations stay private and expire after 90 days. Nothing is shared unless you explicitly share a summary or commitment.</Text>
-            </View>
-          </View>
-        </ScrollView>
-        <HistorySheet
-          visible={historyOpen}
-          conversations={conversations}
-          onClose={() => setHistoryOpen(false)}
-          onOpen={openConversation}
-          onDelete={confirmDelete}
-          styles={styles}
-          colors={colors}
-        />
-      </SafeAreaView>
-    );
-  }
-
-  return (
-    <SafeAreaView
-      style={styles.safe}
-      edges={["top"]}
-      testID="screen-elite-coach"
-    >
-      <KeyboardAvoidingView
-        style={styles.safe}
-        behavior={Platform.OS === "ios" ? "padding" : undefined}
-        keyboardVerticalOffset={8}
-      >
-        <ScrollView
-          style={styles.safe}
-          contentContainerStyle={styles.content}
-          keyboardShouldPersistTaps="handled"
-          keyboardDismissMode="interactive"
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.topBar}>
           <View
             style={styles.coachComposer}
             testID="coach-direct-conversation"
@@ -637,58 +530,6 @@ export default function CoachScreen() {
                 Nothing is shared unless you explicitly share a summary or
                 commitment.
               </Text>
-              {feedback ? (
-                <View style={styles.feedbackCard} accessibilityLiveRegion="polite">
-                  <View style={styles.feedbackHeader}>
-                    <View style={styles.feedbackMark}>
-                      <Feather name="zap" size={18} color="#FFFFFF" />
-                    </View>
-                    <Text style={styles.feedbackTitle}>Private Coach review</Text>
-                  </View>
-                  <Text style={styles.feedbackText}>{feedback}</Text>
-                </View>
-              ) : (
-                <View style={styles.emptyReview}>
-                  <Text style={styles.emptyReviewText}>
-                    Complete a rehearsal to receive feedback.
-                  </Text>
-                  <Pressable onPress={() => setStep("rehearse")}>
-                    <Text style={styles.inlineLink}>Return to rehearsal</Text>
-                  </Pressable>
-                </View>
-              )}
-              <Field
-                label="MY COMMITMENT"
-                placeholder="Write one specific action you will take"
-                value={commitment}
-                onChangeText={setCommitment}
-                maxLength={350}
-                styles={styles}
-                colors={colors}
-              />
-              <Pressable
-                disabled={!feedback || !commitment.trim() || busy}
-                onPress={() => void saveCommitment()}
-                style={[
-                  styles.primaryButton,
-                  (!feedback || !commitment.trim() || busy) && styles.disabled,
-                ]}
-              >
-                {busy ? (
-                  <ActivityIndicator color="#FFFFFF" />
-                ) : (
-                  <>
-                    <Text style={styles.primaryButtonText}>Save commitment</Text>
-                    <Feather name="check" size={20} color="#FFFFFF" />
-                  </>
-                )}
-              </Pressable>
-              <Pressable onPress={() => resetSession(false)} style={styles.secondaryButton}>
-                <Feather name="plus" size={18} color={colors.foreground} />
-                <Text style={styles.secondaryButtonText}>
-                  Start a new rehearsal
-                </Text>
-              </Pressable>
             </View>
           </View>
         </ScrollView>
@@ -706,25 +547,6 @@ export default function CoachScreen() {
     );
   }
 
-function BrandLockup({
-  compact = false,
-  styles,
-}: {
-  compact?: boolean;
-  styles: ReturnType<typeof makeStyles>;
-}) {
-  return (
-    <View
-      style={[styles.brandShell, compact && styles.brandShellCompact]}
-      accessibilityLabel="Spartan Coaching"
-    >
-      <HelmetMark size={compact ? 38 : 74} />
-      <Text style={compact ? styles.brandCompactWord : styles.brandWord}>
-        {compact ? "Coach" : "SPARTAN COACH"}
-      </Text>
-    </View>
-  );
-}
   // ── Main guided session ────────────────────────────────────────────────────
 
   return (
@@ -1168,96 +990,6 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       justifyContent: "center",
       backgroundColor: colors.background,
     },
-    content: { paddingHorizontal: 20, paddingBottom: 36 },
-    topBar: {
-      height: 66,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-    },
-    iconButton: {
-      width: 44,
-      height: 44,
-      borderRadius: 22,
-      alignItems: "center",
-      justifyContent: "center",
-      backgroundColor: colors.card,
-      borderWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.borderStrong,
-    },
-    brandShell: {
-      height: 102,
-      width: "100%",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 8,
-    },
-    brandShellCompact: { width: "auto", height: 44, flexDirection: "row", borderRadius: 14, borderWidth: 0, backgroundColor: "transparent", gap: 8 },
-    brandWord: { color: colors.foreground, fontSize: 10, letterSpacing: 2.2, ...font("bold") },
-    brandCompactWord: { color: colors.foreground, fontSize: 16, letterSpacing: -0.2, ...font("bold") },
-    intro: { paddingTop: 18, paddingBottom: 22 },
-    eliteRow: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 9,
-      marginBottom: 10,
-    },
-    redRule: { width: 24, height: 2, backgroundColor: colors.primary },
-    eliteLabel: {
-      color: colors.primary,
-      fontSize: 11,
-      letterSpacing: 2.1,
-      ...font("bold"),
-    },
-    title: {
-      color: colors.foreground,
-      fontSize: 32,
-      lineHeight: 37,
-      letterSpacing: -0.9,
-      ...font("heavy"),
-    },
-    subtitle: {
-      color: colors.mutedForeground,
-      fontSize: 15,
-      lineHeight: 22,
-      marginTop: 10,
-      ...font("regular"),
-    },
-    stepRail: {
-      flexDirection: "row",
-      borderTopWidth: StyleSheet.hairlineWidth,
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderColor: colors.border,
-      paddingVertical: 14,
-      marginBottom: 26,
-    },
-    stepItem: {
-      flex: 1,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 7,
-    },
-    stepCircle: {
-      width: 25,
-      height: 25,
-      borderRadius: 13,
-      backgroundColor: colors.muted,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    stepCircleActive: { backgroundColor: colors.primary },
-    stepNumber: {
-      color: colors.mutedForeground,
-      fontSize: 12,
-      ...font("semibold"),
-    },
-    stepLabel: {
-      color: colors.mutedForeground,
-      fontSize: 12,
-      ...font("semibold"),
-    },
-    stepLabelActive: { color: colors.foreground },
     section: { paddingBottom: 24 },
     sectionNumber: {
       color: colors.primary,
@@ -1613,21 +1345,6 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       marginTop: 8,
       ...font("regular"),
     },
-    coachHomeContent: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 38 },
-    coachHomeBadge: { alignSelf: "flex-start", borderRadius: 999, backgroundColor: colors.primaryMuted, paddingHorizontal: 10, paddingVertical: 6, marginTop: 12 },
-    coachHomeBadgeText: { color: colors.primary, fontSize: 10, letterSpacing: 0.8, ...font("bold") },
-    coachHomeTitle: { color: colors.foreground, fontSize: 32, lineHeight: 38, letterSpacing: -0.9, marginTop: 24, maxWidth: 390, ...font("heavy") },
-    coachHomeBody: { color: colors.mutedForeground, fontSize: 15, lineHeight: 22, marginTop: 8, maxWidth: 390, ...font("regular") },
-    coachComposer: { minHeight: 176, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 24, backgroundColor: colors.card, padding: 20, marginTop: 66 },
-    coachComposerTitle: { color: colors.foreground, fontSize: 17, ...font("bold") },
-    coachComposerField: { minHeight: 56, flexDirection: "row", alignItems: "center", gap: 12, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 16, backgroundColor: colors.card, paddingHorizontal: 16, marginTop: 12 },
-    coachComposerPlaceholder: { color: colors.mutedForeground, fontSize: 15, ...font("regular") },
-    resumeCard: { minHeight: 104, flexDirection: "row", alignItems: "flex-start", gap: 12, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 20, backgroundColor: colors.card, padding: 16, marginTop: 20 },
-    resumeTitle: { color: colors.foreground, fontSize: 17, ...font("bold") },
-    resumeBody: { color: colors.mutedForeground, fontSize: 13, lineHeight: 18, marginTop: 5, ...font("regular") },
-    coachPrivacyCard: { minHeight: 158, flexDirection: "row", alignItems: "flex-start", gap: 12, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 24, backgroundColor: colors.secondary, padding: 20, marginTop: -20 },
-    coachPrivacyTitle: { color: colors.foreground, fontSize: 17, ...font("bold") },
-    coachPrivacyBody: { color: colors.mutedForeground, fontSize: 13, lineHeight: 19, marginTop: 8, ...font("regular") },
     rowPressed: { opacity: 0.68 },
     sheet: { flex: 1, backgroundColor: colors.background },
     sheetHeader: {

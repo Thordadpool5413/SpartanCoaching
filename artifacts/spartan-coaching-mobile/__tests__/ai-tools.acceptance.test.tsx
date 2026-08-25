@@ -1,6 +1,5 @@
 import React from "react";
 import { cleanup, fireEvent, render, waitFor } from "@testing-library/react-native";
-import { SPARTAN_AI_TOOLS } from "@workspace/spartan-ai-tools";
 import {
   SPARTAN_AI_TOOLS,
   getAiToolExperience,
@@ -40,10 +39,6 @@ jest.mock("../hooks/useColors", () => ({
 }));
 jest.mock("../hooks/useNetworkStatus", () => ({
   useNetworkStatus: () => ({ isOnline: true, isChecking: false, refresh: jest.fn() }),
-}));
-jest.mock("../lib/api", () => ({
-  apiGet: jest.fn(),
-  apiPost: jest.fn(),
 }));
 jest.mock("../lib/api", () => ({ apiGet: jest.fn(), apiPost: jest.fn() }));
 jest.mock("../lib/jurisdictionApi", () => ({
@@ -123,19 +118,10 @@ describe("native advanced tool acceptance", () => {
   jest.setTimeout(20_000);
 
   it.each(SPARTAN_AI_TOOLS)(
-    "$id renders a native workflow and submits through the shared API contract",
     "$id renders a guided native workflow and submits through the shared API contract",
     async (tool) => {
       const experience = getAiToolExperience(tool.id);
       const view = render(<AiToolScreen toolId={tool.id} />);
-      expect(view.getByText(tool.name)).toBeTruthy();
-
-      for (const field of tool.fields) {
-        if (field.kind === "select") {
-          expect(view.getByText(String(tool.exampleInput[field.key]))).toBeTruthy();
-        } else {
-          expect(view.getByLabelText(field.label)).toBeTruthy();
-        }
       expect(view.getByText(experience.title ?? tool.name)).toBeTruthy();
 
       for (const field of experience.fields) {

@@ -45,7 +45,7 @@ function BrandLockup({
 interface CoachShellProps {
   firstName: string;
   step: CoachStep;
-  coachScrollRef: React.RefObject<ScrollView>;
+  coachScrollRef: React.RefObject<ScrollView | null>;
   onStepChange: (step: CoachStep) => void;
   onHistoryOpen: () => void;
   onSettingsOpen: () => void;

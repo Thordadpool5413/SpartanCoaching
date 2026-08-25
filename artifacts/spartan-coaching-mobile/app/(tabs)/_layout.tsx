@@ -4,23 +4,6 @@ import { StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { HelmetMark } from "@/components/brand/HelmetMark";
-
-const TAB_ICONS = {
-  index: { ios: "house.fill", android: "home" },
-  coach: { ios: "waveform", android: "activity" },
-  tools: { ios: "square.grid.3x3.fill", android: "grid" },
-  "my-work": { ios: "checkmark.circle.fill", android: "check-circle" },
-  account: { ios: "person.crop.circle", android: "user" },
-} as const;
-
-function TabIcon({ route, color }: { route: keyof typeof TAB_ICONS; color: string }) {
-  if (route === "coach") return <HelmetMark size={27} />;
-  const icon = TAB_ICONS[route];
-  if (Platform.OS === "ios") {
-    return <SymbolView name={icon.ios} tintColor={color} size={23} />;
-  }
-  return <Feather name={icon.android} size={22} color={color} />;
-}
 import { TabIcon } from "@/components/ui/TabIcon";
 
 export default function TabLayout() {
@@ -56,7 +39,6 @@ export default function TabLayout() {
         name="index"
         options={{
           title: "Home",
-          tabBarIcon: ({ color }) => <TabIcon route="index" color={color} />,
           tabBarIcon: ({ color }) => <TabIcon name="home" color={color} size={24} />,
         }}
       />
@@ -71,7 +53,6 @@ export default function TabLayout() {
         name="tools"
         options={{
           title: "Explore",
-          tabBarIcon: ({ color }) => <TabIcon route="tools" color={color} />,
           tabBarIcon: ({ color }) => <TabIcon name="explore" color={color} size={24} />,
         }}
       />
@@ -79,7 +60,6 @@ export default function TabLayout() {
         name="my-work"
         options={{
           title: "My Work",
-          tabBarIcon: ({ color }) => <TabIcon route="my-work" color={color} />,
           tabBarIcon: ({ color }) => <TabIcon name="my-work" color={color} size={24} />,
         }}
       />
