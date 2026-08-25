@@ -20,22 +20,22 @@ const faqCategories = [
       {
         id: "what-is-spartan",
         q: "What is Spartan Coaching?",
-        a: "Spartan Coaching builds practical growth systems for hospice teams. Choose human consulting for strategy and coaching, then use Hospice Sales Pro for daily execution on web and iPhone.",
+        a: "Spartan Coaching is a practical consulting practice for hospice growth professionals. We help liaisons, business development reps, and growth leaders build consistent referral relationships and execute territory strategy with discipline, ethical messaging, and measurable weekly accountability. Two clear offers: human consulting, and Hospice Sales Pro for tools and resources (preview free; individuals $14.99/week; teams under contract).",
       },
       {
         id: "who-is-this-for",
         q: "Who is this for?",
-        a: "Hospice liaisons, business development reps, directors of growth, VPs, and owners who want a repeatable field system, not generic sales motivation. Individual reps and multi-seat teams both fit.",
+        a: "Hospice liaisons, business development reps, directors of growth, VPs, and owners who want a repeatable field system — not generic sales motivation. Individual reps and multi-seat teams both fit.",
       },
       {
         id: "how-does-coaching-work",
         q: "How does coaching work?",
-        a: "It starts with an honest conversation about your market, team, and gaps. Engagements can include 1:1 coaching, leadership rhythms, field ridealongs, workshops, and scorecard accountability. Scope is custom, we design around what will actually change Tuesday behavior.",
+        a: "It starts with an honest conversation about your market, team, and gaps. Engagements can include 1:1 coaching, leadership rhythms, field ridealongs, workshops, and scorecard accountability. Scope is custom — we design around what will actually change Tuesday behavior.",
       },
       {
         id: "what-makes-different",
         q: "What makes this different from other sales training?",
-        a: "Most sales training is generic or motivational. Spartan is hospice-specific, compliance-aware, and built around weekly execution. We focus on what you do on Tuesday afternoon when the clinic is short-staffed, not what sounds good in a conference room.",
+        a: "Most sales training is generic or motivational. Spartan is hospice-specific, compliance-aware, and built around weekly execution. We focus on what you do on Tuesday afternoon when the clinic is short-staffed — not what sounds good in a conference room.",
       },
     ],
   },
@@ -45,22 +45,22 @@ const faqCategories = [
       {
         id: "what-is-membership",
         q: "What is Hospice Sales Pro?",
-        a: "Hospice Sales Pro puts Command Center, Spartan Coach, objections, playbooks, practice, plans, calculators, and field resources on web and iPhone. Elite is recommended at $19.99 per week. Standard remains available at $14.99 per week.",
+        a: "Hospice Sales Pro is the subscription for tools and resources on web and iPhone: Sales Command Center, objections, playbooks, role-play, calculators, weekly plans, and more. Preview interfaces free. Live generation and saves unlock with Hospice Sales Pro ($14.99/week individual) or team/evaluation access.",
       },
       {
         id: "how-to-get-access",
         q: "How do I get Hospice Sales Pro access?",
-        a: "Individuals create an account and choose recommended Elite at $19.99 per week or Standard at $14.99 per week. Teams request access or book a strategy call for contracted seats with a 90 day minimum agreement.",
+        a: "Individuals: create an account, then subscribe for $14.99/week from Account (cancel anytime). You can preview tools before paying. Teams and arranged evaluations: request access or book a strategy call — Nick sets seats under contract or a timed evaluation when appropriate.",
       },
       {
         id: "trial-hours",
         q: "Is there a free evaluation trial?",
-        a: "Self-serve individual accounts subscribe to unlock live tools (you can still preview the UI free). Timed evaluation windows are arranged when you request team access or Nick approves an evaluation path, typically 24 hours for individuals and 72 hours for company teams when used.",
+        a: "Self-serve individual accounts subscribe to unlock live tools (you can still preview the UI free). Timed evaluation windows are arranged when you request team access or Nick approves an evaluation path — typically 24 hours for individuals and 72 hours for company teams when used.",
       },
       {
         id: "tools-without-coaching",
         q: "Can I use the tools without a coaching engagement?",
-        a: "Yes. Hospice Sales Pro can stand alone. Elite is recommended at $19.99 per week and Standard is $14.99 per week. Consulting is a separate engagement.",
+        a: "Yes. Individuals can Start Hospice Sales Pro for $14.99/week without buying coaching. Many clients also add consulting; teams and enterprise packages combine seats with leadership work under contract.",
       },
       {
         id: "already-have-account",
@@ -70,7 +70,7 @@ const faqCategories = [
       {
         id: "company-seats",
         q: "How do company seats work?",
-        a: "Company access creates an organization with contracted seats, admin controls, and usage visibility. Team agreements have a 90 day minimum. Consulting can be added separately.",
+        a: "Company access creates an organization with a seat limit. Seats are billed weekly per end user at a rate set under your contract. An org admin can invite teammates up to the seat limit. Leaders can see seat usage. Enterprise packages can bundle seats with leadership coaching and workshops.",
       },
       {
         id: "cancel-subscription",
@@ -90,7 +90,7 @@ const faqCategories = [
       {
         id: "patient-data",
         q: "Is patient data safe? Do you store PHI?",
-        a: "No. Hospice Sales Pro tools are for planning and messaging workflows, not clinical documentation. Do not enter patient names, MRNs, diagnoses, or other PHI. We do not use your tool inputs to train public models. See Compliance & Data Practices and the Privacy Policy for detail. Corporate accounts can request a BAA path for procurement.",
+        a: "No. Hospice Sales Pro tools are for planning and messaging workflows — not clinical documentation. Do not enter patient names, MRNs, diagnoses, or other PHI. We do not use your tool inputs to train public models. See Compliance & Data Practices and the Privacy Policy for detail. Corporate accounts can request a BAA path for procurement.",
       },
       {
         id: "guarantee-results",
@@ -105,12 +105,12 @@ const faqCategories = [
       {
         id: "how-to-start",
         q: "How do I get started?",
-        a: "Book a strategy call for consulting, choose recommended Elite at $19.99 per week, choose Standard at $14.99 per week, or request contracted team access.",
+        a: "Three paths: (1) Preview tools free, create an account, then subscribe for $14.99/week to unlock live tools; (2) Request team/evaluation access for provider seats or arranged trials; (3) Book a strategy call for coaching, team systems, or enterprise scope.",
       },
       {
         id: "cost",
         q: "How much does it cost?",
-        a: "Elite is recommended at $19.99 per week. Standard remains available at $14.99 per week. Individual plans renew weekly until canceled. Team agreements use contracted seats and a 90 day minimum. Consulting is scoped separately.",
+        a: "Hospice Sales Pro is $14.99 per week for individuals (auto-renew; cancel anytime from Account). Provider and team seats use weekly per-user pricing set under your contract. Enterprise + coaching is engagement-based. See Hospice Sales Pro for details.",
       },
       {
         id: "virtual-or-inperson",
@@ -139,9 +139,7 @@ export default function FAQ() {
       setOpenItems((prev) => (prev.includes(hash) ? prev : [...prev, hash]));
       // Allow layout to paint, then scroll to the item
       requestAnimationFrame(() => {
-        document
-          .getElementById(hash)
-          ?.scrollIntoView({ behavior: "smooth", block: "start" });
+        document.getElementById(hash)?.scrollIntoView({ behavior: "smooth", block: "start" });
       });
     }
   }, [allIds]);
@@ -153,15 +151,11 @@ export default function FAQ() {
 
       <FadeIn>
         <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
-          <h1
-            className="text-h1 text-foreground mb-6"
-            data-testid="text-faq-title"
-          >
+          <h1 className="text-h1 text-foreground mb-6" data-testid="text-faq-title">
             Frequently Asked Questions
           </h1>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
-            Consulting, recommended Elite, Standard, team agreements, and
-            compliance.
+            Consulting, Hospice Sales Pro, evaluation trials, individual $14.99/week, team contracts, and compliance.
           </p>
         </div>
       </FadeIn>
@@ -178,15 +172,11 @@ export default function FAQ() {
             <Accordion
               type="multiple"
               className="space-y-2"
-              value={openItems.filter((id) =>
-                category.questions.some((q) => q.id === id),
-              )}
+              value={openItems.filter((id) => category.questions.some((q) => q.id === id))}
               onValueChange={(vals) => {
                 const categoryIds = category.questions.map((q) => q.id);
                 setOpenItems((prev) => {
-                  const outside = prev.filter(
-                    (id) => !categoryIds.includes(id),
-                  );
+                  const outside = prev.filter((id) => !categoryIds.includes(id));
                   return [...outside, ...vals];
                 });
               }}
@@ -205,12 +195,8 @@ export default function FAQ() {
                   >
                     {item.q}
                   </AccordionTrigger>
-                  <AccordionContent
-                    data-testid={`accordion-content-${item.id}`}
-                  >
-                    <p className="text-muted-foreground leading-relaxed">
-                      {item.a}
-                    </p>
+                  <AccordionContent data-testid={`accordion-content-${item.id}`}>
+                    <p className="text-muted-foreground leading-relaxed">{item.a}</p>
                   </AccordionContent>
                 </AccordionItem>
               ))}
@@ -230,8 +216,7 @@ export default function FAQ() {
               Ready for a clear next step?
             </h2>
             <p className="text-base sm:text-lg text-white/80 max-w-2xl mx-auto leading-relaxed mb-8">
-              Book consulting, or use Hospice Sales Pro every day. Elite is
-              recommended. Standard remains available.
+              Two offers: book consulting, or start Hospice Sales Pro for tools ($14.99/week). Preview free. Honest conversation — no pressure.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Button
@@ -256,19 +241,11 @@ export default function FAQ() {
               </Button>
             </div>
             <p className="mt-5 text-sm text-white/80 space-x-3">
-              <Link
-                href="/register"
-                className="underline underline-offset-4 hover:text-white"
-                data-testid="button-faq-membership"
-              >
+              <Link href="/register" className="underline underline-offset-4 hover:text-white" data-testid="button-faq-membership">
                 Create account · $14.99/wk
               </Link>
               <span aria-hidden="true">·</span>
-              <Link
-                href="/request-access"
-                className="underline underline-offset-4 hover:text-white"
-                data-testid="button-faq-request"
-              >
+              <Link href="/request-access" className="underline underline-offset-4 hover:text-white" data-testid="button-faq-request">
                 Team / evaluation
               </Link>
             </p>

@@ -6,7 +6,7 @@ const DEFAULT_ITEMS = [
   {
     icon: Shield,
     title: "No PHI in tools",
-    body: "Hospice Sales Pro tools are for planning and messaging, never patient identifiers or clinical records.",
+    body: "Hospice Sales Pro tools are for planning and messaging — never patient identifiers or clinical records.",
   },
   {
     icon: UserCheck,
@@ -31,12 +31,8 @@ interface TrustStripProps {
   showLinks?: boolean;
 }
 
-/** Public credibility strip, privacy, access model, consulting posture. */
-export function TrustStrip({
-  className,
-  compact = false,
-  showLinks = true,
-}: TrustStripProps) {
+/** Public credibility strip — privacy, access model, consulting posture. */
+export function TrustStrip({ className, compact = false, showLinks = true }: TrustStripProps) {
   return (
     <section
       className={cn(
@@ -49,18 +45,13 @@ export function TrustStrip({
     >
       {!compact && (
         <div className="text-center mb-8 max-w-2xl mx-auto">
-          <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">
-            How we work with you
-          </p>
+          <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">How we work with you</p>
           <h2 className="text-h3 font-display font-bold text-foreground mb-2">
             Hospice Sales Pro tools. Human consulting.
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
-            Two clear offers: consulting stays human; Hospice Sales Pro unlocks
-            tools on web and iPhone. Individuals self-serve with recommended
-            Elite at $19.99/week or Standard at $14.99/week; teams and
-            evaluations request access first, then continue under contract when
-            it fits.
+            Two clear offers: consulting stays human; Hospice Sales Pro unlocks tools on web and iPhone. Individuals self-serve
+            with recommended Elite at $19.99/week or Standard at $14.99/week; teams and evaluations request access first, then continue under contract when it fits.
           </p>
         </div>
       )}
@@ -68,9 +59,7 @@ export function TrustStrip({
       <div
         className={cn(
           "grid gap-4",
-          compact
-            ? "sm:grid-cols-2 lg:grid-cols-4"
-            : "sm:grid-cols-2 lg:grid-cols-4",
+          compact ? "sm:grid-cols-2 lg:grid-cols-4" : "sm:grid-cols-2 lg:grid-cols-4",
         )}
       >
         {DEFAULT_ITEMS.map((item) => {
@@ -85,12 +74,8 @@ export function TrustStrip({
                 <Icon className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-sm font-bold text-foreground mb-1">
-                  {item.title}
-                </p>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  {item.body}
-                </p>
+                <p className="text-sm font-bold text-foreground mb-1">{item.title}</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">{item.body}</p>
               </div>
             </div>
           );
@@ -99,34 +84,19 @@ export function TrustStrip({
 
       {showLinks && (
         <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-2 mt-6 pt-5 border-t border-border text-xs">
-          <Link
-            href="/compliance"
-            className="text-muted-foreground hover:text-primary transition-colors font-medium"
-          >
+          <Link href="/compliance" className="text-muted-foreground hover:text-primary transition-colors font-medium">
             Compliance &amp; data practices
           </Link>
-          <Link
-            href="/privacy"
-            className="text-muted-foreground hover:text-primary transition-colors font-medium"
-          >
+          <Link href="/privacy" className="text-muted-foreground hover:text-primary transition-colors font-medium">
             Privacy policy
           </Link>
-          <Link
-            href="/register"
-            className="text-primary hover:underline font-bold"
-          >
+          <Link href="/register" className="text-primary hover:underline font-bold">
             Create account · Hospice Sales Pro
           </Link>
-          <Link
-            href="/hospice-sales-pro"
-            className="text-muted-foreground hover:text-primary transition-colors font-medium"
-          >
+          <Link href="/hospice-sales-pro" className="text-muted-foreground hover:text-primary transition-colors font-medium">
             Elite $19.99/wk · Standard $14.99/wk
           </Link>
-          <Link
-            href="/request-access"
-            className="text-muted-foreground hover:text-primary transition-colors font-medium"
-          >
+          <Link href="/request-access" className="text-muted-foreground hover:text-primary transition-colors font-medium">
             Team / evaluation
           </Link>
         </div>

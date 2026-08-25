@@ -32,7 +32,7 @@ const STEPS = [
   {
     n: "1",
     title: "You request",
-    body: "Tell us who you are and what you need, individual or company seats.",
+    body: "Tell us who you are and what you need — individual or company seats.",
   },
   {
     n: "2",
@@ -81,8 +81,7 @@ export default function RequestAccess() {
     seatsRequested: "5",
   });
 
-  const set = (key: string, value: string) =>
-    setForm((f) => ({ ...f, [key]: value }));
+  const set = (key: string, value: string) => setForm((f) => ({ ...f, [key]: value }));
   const trialHours = type === "company" ? 72 : 24;
 
   const onSubmit = async (e: React.FormEvent) => {
@@ -112,8 +111,7 @@ export default function RequestAccess() {
           primaryGoal: form.primaryGoal || undefined,
           market: form.market.trim() || undefined,
           message: form.message.trim() || undefined,
-          seatsRequested:
-            type === "company" ? Number(form.seatsRequested) || 5 : 1,
+          seatsRequested: type === "company" ? Number(form.seatsRequested) || 5 : 1,
           acceptTerms: true,
           noPhi: true,
         }),
@@ -123,8 +121,7 @@ export default function RequestAccess() {
         if (data.code === "ACCOUNT_EXISTS") {
           toast({
             title: "Account already exists",
-            description:
-              "Sign in with that email, or use forgot password if you need a reset.",
+            description: "Sign in with that email, or use forgot password if you need a reset.",
             variant: "destructive",
           });
           return;
@@ -155,33 +152,26 @@ export default function RequestAccess() {
           <Card className="w-full max-w-xl border-2 bg-card shadow-sm p-8 sm:p-10 space-y-6">
             <div className="text-center space-y-3">
               <CheckCircle2 className="w-12 h-12 text-green-600 mx-auto" />
-              <h1 className="text-2xl font-display font-black text-foreground">
-                Request received
-              </h1>
+              <h1 className="text-2xl font-display font-black text-foreground">Request received</h1>
               <p className="text-muted-foreground leading-relaxed">
-                Thank you. We review every membership request personally and
-                respond within{" "}
+                Thank you. We review every membership request personally and respond within{" "}
                 <strong className="text-foreground">one business day</strong>.
               </p>
               {submittedEmail && (
                 <p className="text-sm text-muted-foreground">
                   Confirmation sent to{" "}
-                  <strong className="text-foreground">{submittedEmail}</strong>{" "}
-                  (check spam if needed).
+                  <strong className="text-foreground">{submittedEmail}</strong> (check spam if needed).
                 </p>
               )}
             </div>
 
             <div className="rounded-xl border border-border bg-muted/40 p-5 space-y-3 text-left">
-              <p className="text-xs font-bold uppercase tracking-widest text-primary">
-                What to expect
-              </p>
+              <p className="text-xs font-bold uppercase tracking-widest text-primary">What to expect</p>
               <ul className="space-y-3 text-sm text-muted-foreground">
                 <li className="flex gap-3">
                   <Mail className="w-4 h-4 text-primary shrink-0 mt-0.5" />
                   <span>
-                    You should already have a “we received your request” email
-                    with the full process.
+                    You should already have a “we received your request” email with the full process.
                   </span>
                 </li>
                 <li className="flex gap-3">
@@ -189,19 +179,14 @@ export default function RequestAccess() {
                   <span>
                     If approved, you get a secure set-password link and a{" "}
                     <strong className="text-foreground">
-                      {type === "company"
-                        ? "72-hour company"
-                        : "24-hour individual"}
+                      {type === "company" ? "72-hour company" : "24-hour individual"}
                     </strong>{" "}
                     evaluation window.
                   </span>
                 </li>
                 <li className="flex gap-3">
                   <Shield className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                  <span>
-                    Tools stay PHI-free, planning and messaging only, never
-                    clinical records.
-                  </span>
+                  <span>Tools stay PHI-free — planning and messaging only, never clinical records.</span>
                 </li>
               </ul>
             </div>
@@ -227,27 +212,15 @@ export default function RequestAccess() {
     <PersuasionShell>
       <SEO />
 
-      <div
-        className="text-center mb-10 sm:mb-12 space-y-3 max-w-2xl mx-auto"
-        data-testid="page-request-access"
-      >
-        <p className="text-xs font-bold tracking-widest text-primary uppercase">
-          Hospice Sales Pro
-        </p>
-        <h1 className="text-h1 font-display font-black text-foreground">
-          Request team or evaluation access
-        </h1>
+      <div className="text-center mb-10 sm:mb-12 space-y-3 max-w-2xl mx-auto" data-testid="page-request-access">
+        <p className="text-xs font-bold tracking-widest text-primary uppercase">Hospice Sales Pro</p>
+        <h1 className="text-h1 font-display font-black text-foreground">Request team or evaluation access</h1>
         <p className="text-muted-foreground leading-relaxed">
-          For provider seats, arranged evaluation windows, and team onboarding.
-          Individuals who want self-serve should{" "}
-          <Link
-            href="/register"
-            className="text-primary font-semibold hover:underline"
-          >
+          For provider seats, arranged evaluation windows, and team onboarding. Individuals who want self-serve should{" "}
+          <Link href="/register" className="text-primary font-semibold hover:underline">
             create an account
           </Link>{" "}
-          and subscribe for $14.99/week (cancel anytime), preview tools free
-          first.
+          and subscribe for $14.99/week (cancel anytime) — preview tools free first.
         </p>
       </div>
 
@@ -265,12 +238,8 @@ export default function RequestAccess() {
               {s.n}
             </span>
             <div>
-              <p className="text-sm font-bold text-foreground mb-0.5">
-                {s.title}
-              </p>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {s.body}
-              </p>
+              <p className="text-sm font-bold text-foreground mb-0.5">{s.title}</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">{s.body}</p>
             </div>
           </div>
         ))}
@@ -312,28 +281,19 @@ export default function RequestAccess() {
               data-testid="text-trial-expectation"
             >
               <p className="font-bold text-foreground mb-1">
-                {type === "individual"
-                  ? "Individual evaluation"
-                  : "Company evaluation"}
+                {type === "individual" ? "Individual evaluation" : "Company evaluation"}
               </p>
               <p className="text-muted-foreground leading-relaxed">
                 {type === "individual" ? (
                   <>
-                    Typical window:{" "}
-                    <strong className="text-foreground">
-                      {trialHours} hours
-                    </strong>{" "}
-                    after approval, enough to run real objections, a weekly
-                    plan, and role-play on your toughest conversation.
+                    Typical window: <strong className="text-foreground">{trialHours} hours</strong> after
+                    approval — enough to run real objections, a weekly plan, and role-play on your toughest
+                    conversation.
                   </>
                 ) : (
                   <>
-                    Typical window:{" "}
-                    <strong className="text-foreground">
-                      {trialHours} hours
-                    </strong>{" "}
-                    so leaders can loop in the team. Multi-seat org; BAA path
-                    available for corporate accounts.
+                    Typical window: <strong className="text-foreground">{trialHours} hours</strong> so
+                    leaders can loop in the team. Multi-seat org; BAA path available for corporate accounts.
                   </>
                 )}
               </p>
@@ -362,9 +322,7 @@ export default function RequestAccess() {
                 />
               </div>
               <div className="space-y-2">
-                <Label htmlFor="company">
-                  Organization {type === "company" ? "*" : "(optional)"}
-                </Label>
+                <Label htmlFor="company">Organization {type === "company" ? "*" : "(optional)"}</Label>
                 <Input
                   id="company"
                   required={type === "company"}
@@ -390,9 +348,7 @@ export default function RequestAccess() {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="rep">Sales rep / liaison</SelectItem>
-                    <SelectItem value="director">
-                      Sales director / manager
-                    </SelectItem>
+                    <SelectItem value="director">Sales director / manager</SelectItem>
                     <SelectItem value="vp">VP / executive</SelectItem>
                     <SelectItem value="owner">Owner / operator</SelectItem>
                     <SelectItem value="other">Other</SelectItem>
@@ -401,27 +357,16 @@ export default function RequestAccess() {
               </div>
               <div className="space-y-2">
                 <Label>Primary goal</Label>
-                <Select
-                  value={form.primaryGoal}
-                  onValueChange={(v) => set("primaryGoal", v)}
-                >
+                <Select value={form.primaryGoal} onValueChange={(v) => set("primaryGoal", v)}>
                   <SelectTrigger data-testid="select-goal">
                     <SelectValue placeholder="What are you solving?" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="pipeline">
-                      Stronger referral pipeline
-                    </SelectItem>
-                    <SelectItem value="admissions">
-                      Admissions consistency
-                    </SelectItem>
-                    <SelectItem value="coaching">
-                      Coaching system for leaders
-                    </SelectItem>
+                    <SelectItem value="pipeline">Stronger referral pipeline</SelectItem>
+                    <SelectItem value="admissions">Admissions consistency</SelectItem>
+                    <SelectItem value="coaching">Coaching system for leaders</SelectItem>
                     <SelectItem value="ramp">New hire ramp</SelectItem>
-                    <SelectItem value="profitability">
-                      Branch profitability
-                    </SelectItem>
+                    <SelectItem value="profitability">Branch profitability</SelectItem>
                     <SelectItem value="other">Other</SelectItem>
                   </SelectContent>
                 </Select>
@@ -430,10 +375,7 @@ export default function RequestAccess() {
                 <>
                   <div className="space-y-2">
                     <Label>Team size</Label>
-                    <Select
-                      value={form.teamSize}
-                      onValueChange={(v) => set("teamSize", v)}
-                    >
+                    <Select value={form.teamSize} onValueChange={(v) => set("teamSize", v)}>
                       <SelectTrigger data-testid="select-team-size">
                         <SelectValue placeholder="Approx. team size" />
                       </SelectTrigger>
@@ -485,15 +427,11 @@ export default function RequestAccess() {
             {type === "company" && (
               <p className="text-xs text-muted-foreground leading-relaxed border border-border rounded-md p-3 bg-muted/30">
                 Company evaluations give leaders room to loop in the team.{" "}
-                <Link
-                  href="/compliance"
-                  className="text-primary hover:underline"
-                >
+                <Link href="/compliance" className="text-primary hover:underline">
                   BAA and compliance details
                 </Link>{" "}
-                are available for corporate accounts. After evaluation, seat
-                counts and weekly per-user rates are set under your provider
-                contract (Stripe invoice or offline terms as agreed).
+                are available for corporate accounts. After evaluation, seat counts and weekly per-user rates
+                are set under your provider contract (Stripe invoice or offline terms as agreed).
               </p>
             )}
 
@@ -510,10 +448,7 @@ export default function RequestAccess() {
                     Terms
                   </Link>{" "}
                   and{" "}
-                  <Link
-                    href="/privacy"
-                    className="text-primary hover:underline"
-                  >
+                  <Link href="/privacy" className="text-primary hover:underline">
                     Privacy Policy
                   </Link>
                   .
@@ -526,12 +461,8 @@ export default function RequestAccess() {
                   data-testid="check-nophi"
                 />
                 <span>
-                  I will not enter protected health information (PHI) into
-                  Hospice Sales Pro tools.{" "}
-                  <Link
-                    href="/compliance"
-                    className="text-primary hover:underline"
-                  >
+                  I will not enter protected health information (PHI) into Hospice Sales Pro tools.{" "}
+                  <Link href="/compliance" className="text-primary hover:underline">
                     Compliance details
                   </Link>
                 </span>
@@ -550,17 +481,11 @@ export default function RequestAccess() {
 
             <p className="text-center text-sm text-muted-foreground">
               Already approved?{" "}
-              <Link
-                href="/login"
-                className="text-primary font-semibold hover:underline"
-              >
+              <Link href="/login" className="text-primary font-semibold hover:underline">
                 Sign in
               </Link>
               {" · "}
-              <Link
-                href="/contact"
-                className="text-primary font-semibold hover:underline"
-              >
+              <Link href="/contact" className="text-primary font-semibold hover:underline">
                 Book a call instead
               </Link>
             </p>
@@ -568,10 +493,7 @@ export default function RequestAccess() {
         </Card>
 
         {/* Side rail */}
-        <aside
-          className="lg:col-span-2 space-y-5"
-          data-testid="section-request-aside"
-        >
+        <aside className="lg:col-span-2 space-y-5" data-testid="section-request-aside">
           <Card className="border-2 bg-card shadow-sm p-5 space-y-3">
             <div className="flex items-center gap-2">
               <HelpCircle className="w-4 h-4 text-primary" />
@@ -593,19 +515,12 @@ export default function RequestAccess() {
           </Card>
 
           <Card className="border-2 bg-card shadow-sm p-5 space-y-2">
-            <p className="text-sm font-bold text-foreground">
-              Prefer a conversation first?
-            </p>
+            <p className="text-sm font-bold text-foreground">Prefer a conversation first?</p>
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Coaching, team systems, or enterprise scope often start with a
-              strategy call, tools can follow.
+              Coaching, team systems, or enterprise scope often start with a strategy call — tools can
+              follow.
             </p>
-            <Button
-              asChild
-              variant="outline"
-              className="w-full font-bold mt-2"
-              size="sm"
-            >
+            <Button asChild variant="outline" className="w-full font-bold mt-2" size="sm">
               <Link href="/contact">Book a strategy call</Link>
             </Button>
           </Card>

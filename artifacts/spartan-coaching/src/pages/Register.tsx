@@ -11,8 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, Loader2 } from "lucide-react";
 
 export default function Register() {
-  const { login, isAuthenticated, canUseFieldKit, isLoading, refresh } =
-    useAuth();
+  const { login, isAuthenticated, canUseFieldKit, isLoading, refresh } = useAuth();
   const [, setLocation] = useLocation();
   const { toast } = useToast();
 
@@ -66,8 +65,7 @@ export default function Register() {
         if (data.code === "ACCOUNT_EXISTS") {
           toast({
             title: "Email already in use",
-            description:
-              "Sign in with that email, or use Forgot password to reset it.",
+            description: "Sign in with that email, or use Forgot password to reset it.",
             variant: "destructive",
           });
           return;
@@ -75,12 +73,11 @@ export default function Register() {
         throw new Error(data.error || "Registration failed");
       }
 
-      // Account created + session cookie set, Day Zero ceremony on Account
+      // Account created + session cookie set — Day Zero ceremony on Account
       await refresh();
       toast({
         title: "Account created",
-        description:
-          "Next: choose recommended Elite at $19.99/week or Standard at $14.99/week. Cancel anytime.",
+        description: "Next: choose recommended Elite at $19.99/week or Standard at $14.99/week. Cancel anytime.",
       });
       setLocation("/account?welcome=1");
     } catch (err: any) {
@@ -109,21 +106,15 @@ export default function Register() {
             width={48}
             height={48}
           />
-          <p className="text-kicker justify-center">
-            Path A · Individual · Hospice Sales Pro
-          </p>
+          <p className="text-kicker justify-center">Path A · Individual · Hospice Sales Pro</p>
           <h1 className="text-2xl font-display font-black text-foreground tracking-tight">
             Create your account
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
             Then subscribe for{" "}
-            <strong className="text-foreground">Elite at $19.99/week</strong>,
-            recommended for the complete product, or Standard at $14.99/week.
-            Cancel anytime.{" "}
-            <Link
-              href="/request-access"
-              className="font-semibold text-primary hover:underline"
-            >
+            <strong className="text-foreground">Elite at $19.99/week</strong>, recommended for the complete product, or Standard at $14.99/week. Cancel
+            anytime.{" "}
+            <Link href="/request-access" className="font-semibold text-primary hover:underline">
               Need team access instead?
             </Link>
           </p>
@@ -134,7 +125,7 @@ export default function Register() {
           {[
             "Objection Handler, Playbook Generator, Role-Play Practice",
             "Weekly Plan Builder & Sales Command Center",
-            "Activity, ROI & Rep Cost Calculators, 13 tools total",
+            "Activity, ROI & Rep Cost Calculators — 13 tools total",
           ].map((line) => (
             <div key={line} className="flex gap-2 items-start">
               <CheckCircle className="w-3.5 h-3.5 text-primary shrink-0 mt-0.5" />
@@ -211,8 +202,7 @@ export default function Register() {
                 data-testid="check-register-nophi"
               />
               <span>
-                I will not enter protected health information (PHI) into Hospice
-                Sales Pro tools.
+                I will not enter protected health information (PHI) into Hospice Sales Pro tools.
               </span>
             </label>
           </div>
@@ -226,8 +216,7 @@ export default function Register() {
           >
             {pending ? (
               <>
-                <Loader2 className="mr-2 w-4 h-4 animate-spin" /> Creating
-                account…
+                <Loader2 className="mr-2 w-4 h-4 animate-spin" /> Creating account…
               </>
             ) : (
               "Create account"
@@ -249,13 +238,10 @@ export default function Register() {
           <p className="text-xs leading-relaxed">
             Setting up{" "}
             <strong className="text-foreground">team or company seats</strong>?{" "}
-            <Link
-              href="/request-access"
-              className="text-primary hover:underline"
-            >
+            <Link href="/request-access" className="text-primary hover:underline">
               Request team access
             </Link>{" "}
-            , contracts and multi-seat pricing are handled separately.
+            — contracts and multi-seat pricing are handled separately.
           </p>
         </div>
       </Card>

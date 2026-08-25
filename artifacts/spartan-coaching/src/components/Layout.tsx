@@ -4,10 +4,7 @@ import { MenuIcon, CloseIcon } from "./icons";
 import { Button } from "@/components/ui/button";
 import { Linkedin, Search, ChevronDown, LogIn } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
-import {
-  AppearanceControls,
-  AppearancePanel,
-} from "@/components/AppearanceControls";
+import { AppearanceControls, AppearancePanel } from "@/components/AppearanceControls";
 import {
   Sheet,
   SheetContent,
@@ -31,15 +28,7 @@ import { PortalMobileLinks } from "@/components/PortalNav";
 import { useIsMobile } from "@/hooks/use-breakpoint";
 import { CONSENT_COPY, PRICING_FACTS } from "@/lib/complianceCopy";
 
-function NavLink({
-  href,
-  children,
-  onClick,
-}: {
-  href: string;
-  children: React.ReactNode;
-  onClick?: () => void;
-}) {
+function NavLink({ href, children, onClick }: { href: string; children: React.ReactNode; onClick?: () => void }) {
   const [location] = useLocation();
   const isActive = location === href;
 
@@ -51,7 +40,7 @@ function NavLink({
         "relative px-3 py-2 text-sm font-semibold tracking-wide transition-colors block whitespace-nowrap rounded-lg",
         isActive
           ? "text-primary after:absolute after:left-3 after:right-3 after:bottom-0 after:h-0.5 after:rounded-full after:bg-primary after:content-['']"
-          : "text-muted-foreground hover:text-foreground hover:bg-muted/40",
+          : "text-muted-foreground hover:text-foreground hover:bg-muted/40"
       )}
     >
       {children}
@@ -59,17 +48,7 @@ function NavLink({
   );
 }
 
-function MobileNavLink({
-  href,
-  label,
-  location,
-  onClose,
-}: {
-  href: string;
-  label: string;
-  location: string;
-  onClose: () => void;
-}) {
+function MobileNavLink({ href, label, location, onClose }: { href: string; label: string; location: string; onClose: () => void }) {
   return (
     <Link
       href={href}
@@ -78,7 +57,7 @@ function MobileNavLink({
         "px-4 py-3.5 rounded-xl text-sm font-semibold touch-manipulation min-h-[48px] flex items-center transition-all border",
         location === href
           ? "text-primary bg-primary/12 border-primary/30 shadow-[inset_3px_0_0_0_hsl(var(--primary))]"
-          : "text-foreground bg-card/50 border-border/50 active:bg-muted/50",
+          : "text-foreground bg-card/50 border-border/50 active:bg-muted/50"
       )}
       data-testid={`link-mobile-${href}`}
     >
@@ -90,18 +69,12 @@ function MobileNavLink({
 function MobileNavSection({ title }: { title: string }) {
   return (
     <div className="pt-3 pb-1">
-      <span className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-        {title}
-      </span>
+      <span className="px-4 text-xs font-semibold text-muted-foreground uppercase tracking-wider">{title}</span>
     </div>
   );
 }
 
-function NavDropdown({
-  label,
-  items,
-  dataTestId,
-}: {
+function NavDropdown({ label, items, dataTestId }: {
   label: string;
   items: { path: string; label: string; description: string }[];
   dataTestId: string;
@@ -110,9 +83,7 @@ function NavDropdown({
   const [open, setOpen] = useState(false);
   const rootRef = useRef<HTMLDivElement>(null);
   const menuId = `nav-menu-${dataTestId}`;
-  const isGroupActive = items.some(
-    (item) => location === item.path || location.startsWith(item.path + "/"),
-  );
+  const isGroupActive = items.some(item => location === item.path || location.startsWith(item.path + '/'));
 
   // Close on route change
   useEffect(() => {
@@ -156,7 +127,7 @@ function NavDropdown({
           "px-3 py-2 rounded-lg text-sm font-medium transition-colors hover-elevate flex items-center gap-1 whitespace-nowrap cursor-pointer",
           isGroupActive || open
             ? "text-primary border-b-2 border-primary rounded-none"
-            : "text-foreground hover:text-foreground",
+            : "text-foreground hover:text-foreground"
         )}
         aria-haspopup="menu"
         aria-expanded={open}
@@ -164,11 +135,7 @@ function NavDropdown({
         aria-label={`${label} menu`}
         onClick={() => setOpen((v) => !v)}
         onKeyDown={(event) => {
-          if (
-            event.key === "ArrowDown" ||
-            event.key === "Enter" ||
-            event.key === " "
-          ) {
+          if (event.key === "ArrowDown" || event.key === "Enter" || event.key === " ") {
             event.preventDefault();
             setOpen(true);
           }
@@ -190,14 +157,12 @@ function NavDropdown({
         hidden={!open}
         className={cn(
           "absolute top-full left-0 pt-2 z-50 min-w-[220px]",
-          open
-            ? "visible opacity-100"
-            : "invisible opacity-0 pointer-events-none",
+          open ? "visible opacity-100" : "invisible opacity-0 pointer-events-none",
           "transition-opacity duration-150",
         )}
       >
         <div className="bg-popover border rounded-lg shadow-lg py-2">
-          {items.map((item) => (
+          {items.map(item => (
             <Link
               key={item.path}
               href={item.path}
@@ -207,15 +172,13 @@ function NavDropdown({
                 "block px-4 py-2.5 text-sm hover-elevate transition-colors focus-visible:bg-muted/60 focus-visible:outline-none",
                 location === item.path
                   ? "bg-primary/10 text-primary font-medium"
-                  : "text-foreground",
+                  : "text-foreground"
               )}
-              data-testid={`link-nav-${item.path.replace(/\//g, "-")}`}
+              data-testid={`link-nav-${item.path.replace(/\//g, '-')}`}
               onClick={() => setOpen(false)}
             >
               <div className="font-medium">{item.label}</div>
-              <div className="text-xs text-muted-foreground mt-0.5">
-                {item.description}
-              </div>
+              <div className="text-xs text-muted-foreground mt-0.5">{item.description}</div>
             </Link>
           ))}
         </div>
@@ -223,6 +186,7 @@ function NavDropdown({
     </div>
   );
 }
+
 
 export function Header() {
   const [location, setLocation] = useLocation();
@@ -238,14 +202,13 @@ export function Header() {
   }, [location]);
 
   const allSearchItems = allSearchablePages;
-  // Marketing home always, Portal is for signed-in members.
+  // Marketing home always — Portal is for signed-in members.
   const homeHref = "/";
 
   const filteredResults = searchQuery.trim()
-    ? allSearchItems.filter(
-        (item) =>
-          item.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          item.description.toLowerCase().includes(searchQuery.toLowerCase()),
+    ? allSearchItems.filter(item =>
+        item.label.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        item.description.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : allSearchItems;
 
@@ -258,7 +221,7 @@ export function Header() {
   return (
     <header className="sticky top-0 z-50 w-full dark-authority-header safe-area-top">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-[4.25rem] sm:h-[4.5rem] md:h-20 flex items-center safe-area-x">
-        {/* Brand, fixed footprint, never collides with nav */}
+        {/* Brand — fixed footprint, never collides with nav */}
         <div className="shrink-0 flex items-center pr-4 sm:pr-6 lg:pr-8 lg:mr-2 lg:border-r lg:border-border/50">
           <Link href={homeHref}>
             <div
@@ -274,7 +237,7 @@ export function Header() {
                 decoding="async"
               />
               <div className="min-w-0">
-                {/* Not h1, page content owns the document title heading (a11y) */}
+                {/* Not h1 — page content owns the document title heading (a11y) */}
                 <span className="font-black text-lg sm:text-xl md:text-[1.35rem] text-primary tracking-tight font-display block leading-none group-hover:text-primary whitespace-nowrap">
                   SPARTAN COACHING
                 </span>
@@ -286,12 +249,12 @@ export function Header() {
           </Link>
         </div>
 
-        {/* Desktop Navigation, elite restraint: few labels + one CTA */}
+        {/* Desktop Navigation — elite restraint: few labels + one CTA */}
         <nav
           className="hidden lg:flex flex-1 items-center justify-center gap-1 xl:gap-1.5 min-w-0 px-4 xl:px-8"
           aria-label="Main navigation"
         >
-          {/* Marketing chrome stays marketing, workspace has its own shell (HSP-32) */}
+          {/* Marketing chrome stays marketing — workspace has its own shell (HSP-32) */}
           {navSections
             .filter((section) => section.title !== "Company")
             .map((section) => (
@@ -303,10 +266,12 @@ export function Header() {
               />
             ))}
           <NavLink href="/about">About</NavLink>
-          {isAuthenticated && <NavLink href="/portal">Workspace</NavLink>}
+          {isAuthenticated && (
+            <NavLink href="/portal">Workspace</NavLink>
+          )}
         </nav>
 
-        {/* Utility actions, Login + single primary CTA (no duplicate Home) */}
+        {/* Utility actions — Login + single primary CTA (no duplicate Home) */}
         <div className="flex items-center gap-2 sm:gap-2.5 shrink-0 ml-auto pl-3 sm:pl-4 lg:pl-6 lg:border-l lg:border-border/50">
           <AppearanceControls
             compact
@@ -372,152 +337,79 @@ export function Header() {
                 <Menu className="w-6 h-6" />
               </Button>
             </SheetTrigger>
-            <SheetContent
-              side="right"
-              className="w-[85vw] max-w-[350px] p-0 flex flex-col h-full max-h-[100dvh] bg-background border-border"
+            <SheetContent side="right" className="w-[85vw] max-w-[350px] p-0 flex flex-col h-full max-h-[100dvh] bg-background border-border">
+            <SheetHeader className="px-5 pt-5 pb-3 shrink-0">
+              <SheetTitle>Menu</SheetTitle>
+            </SheetHeader>
+            <div
+              className="flex-1 overflow-y-auto overscroll-contain px-5 pb-5"
+              style={{ WebkitOverflowScrolling: 'touch' }}
+              data-testid="mobile-menu-scroll-container"
             >
-              <SheetHeader className="px-5 pt-5 pb-3 shrink-0">
-                <SheetTitle>Menu</SheetTitle>
-              </SheetHeader>
-              <div
-                className="flex-1 overflow-y-auto overscroll-contain px-5 pb-5"
-                style={{ WebkitOverflowScrolling: "touch" }}
-                data-testid="mobile-menu-scroll-container"
-              >
-                <nav
-                  className="flex flex-col space-y-1"
-                  aria-label="Mobile navigation"
-                >
-                  <MobileNavLink
-                    href={homeHref}
-                    label="Home"
-                    location={location}
-                    onClose={() => setMobileMenuOpen(false)}
-                  />
-                  {isAuthenticated ? (
-                    <>
-                      <PortalMobileLinks
-                        onNavigate={() => setMobileMenuOpen(false)}
-                      />
-                      <MobileNavSection title="Site" />
-                      <MobileNavLink
-                        href="/services"
-                        label="Services"
-                        location={location}
-                        onClose={() => setMobileMenuOpen(false)}
-                      />
-                      <MobileNavLink
-                        href="/about"
-                        label="About"
-                        location={location}
-                        onClose={() => setMobileMenuOpen(false)}
-                      />
-                    </>
-                  ) : (
-                    <>
-                      <MobileNavLink
-                        href="/login"
-                        label="Client Login"
-                        location={location}
-                        onClose={() => setMobileMenuOpen(false)}
-                      />
-                      <MobileNavLink
-                        href="/register"
-                        label="Create account · Hospice Sales Pro"
-                        location={location}
-                        onClose={() => setMobileMenuOpen(false)}
-                      />
-                      <MobileNavLink
-                        href="/request-access"
-                        label="Team / evaluation access"
-                        location={location}
-                        onClose={() => setMobileMenuOpen(false)}
-                      />
-                      {navSections.map((section) => (
-                        <div key={section.title}>
-                          <MobileNavSection title={section.title} />
-                          <div className="flex flex-col space-y-1">
-                            {section.items.map((item) => (
-                              <MobileNavLink
-                                key={item.path}
-                                href={item.path}
-                                label={item.label}
-                                location={location}
-                                onClose={() => setMobileMenuOpen(false)}
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      ))}
-                    </>
-                  )}
-                </nav>
-              </div>
-              <div className="shrink-0 border-t border-border px-5 py-4 space-y-3 max-h-[45dvh] overflow-y-auto">
-                <AppearancePanel className="pb-1" />
-                {canUseFieldKit ? (
-                  <Button
-                    size="lg"
-                    asChild
-                    className="w-full font-bold touch-manipulation"
-                    data-testid="button-mobile-command"
-                  >
-                    <Link
-                      href="/tools/sales-workflow"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Open Command Center
-                    </Link>
-                  </Button>
-                ) : (
-                  <Button
-                    size="lg"
-                    asChild
-                    className="w-full font-bold touch-manipulation"
-                    data-testid="button-mobile-book-call"
-                  >
-                    <Link
-                      href="/contact"
-                      onClick={() => setMobileMenuOpen(false)}
-                    >
-                      Book a Call
-                    </Link>
-                  </Button>
-                )}
-                {!isAuthenticated && (
+              <nav className="flex flex-col space-y-1" aria-label="Mobile navigation">
+                <MobileNavLink
+                  href={homeHref}
+                  label="Home"
+                  location={location}
+                  onClose={() => setMobileMenuOpen(false)}
+                />
+                {isAuthenticated ? (
                   <>
-                    <Button
-                      size="lg"
-                      variant="outline"
-                      asChild
-                      className="w-full font-bold touch-manipulation"
-                      data-testid="button-mobile-register"
-                    >
-                      <Link
-                        href="/register"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        Create account · Hospice Sales Pro
-                      </Link>
-                    </Button>
-                    <Button
-                      size="lg"
-                      variant="ghost"
-                      asChild
-                      className="w-full font-semibold touch-manipulation"
-                      data-testid="button-mobile-request"
-                    >
-                      <Link
-                        href="/request-access"
-                        onClick={() => setMobileMenuOpen(false)}
-                      >
-                        Team / evaluation access
-                      </Link>
-                    </Button>
+                    <PortalMobileLinks onNavigate={() => setMobileMenuOpen(false)} />
+                    <MobileNavSection title="Site" />
+                    <MobileNavLink href="/services" label="Services" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavLink href="/about" label="About" location={location} onClose={() => setMobileMenuOpen(false)} />
+                  </>
+                ) : (
+                  <>
+                    <MobileNavLink href="/login" label="Client Login" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavLink href="/register" label="Create account · Hospice Sales Pro" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    <MobileNavLink href="/request-access" label="Team / evaluation access" location={location} onClose={() => setMobileMenuOpen(false)} />
+                    {navSections.map((section) => (
+                      <div key={section.title}>
+                        <MobileNavSection title={section.title} />
+                        <div className="flex flex-col space-y-1">
+                          {section.items.map((item) => (
+                            <MobileNavLink key={item.path} href={item.path} label={item.label} location={location} onClose={() => setMobileMenuOpen(false)} />
+                          ))}
+                        </div>
+                      </div>
+                    ))}
                   </>
                 )}
-              </div>
-            </SheetContent>
+              </nav>
+            </div>
+            <div className="shrink-0 border-t border-border px-5 py-4 space-y-3 max-h-[45dvh] overflow-y-auto">
+              <AppearancePanel className="pb-1" />
+              {canUseFieldKit ? (
+                <Button size="lg" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-command">
+                  <Link href="/tools/sales-workflow" onClick={() => setMobileMenuOpen(false)}>
+                    Open Command Center
+                  </Link>
+                </Button>
+              ) : (
+                <Button size="lg" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-book-call">
+                  <Link href="/contact" onClick={() => setMobileMenuOpen(false)}>
+                    Book a Call
+                  </Link>
+                </Button>
+              )}
+              {!isAuthenticated && (
+                <>
+                  <Button size="lg" variant="outline" asChild className="w-full font-bold touch-manipulation" data-testid="button-mobile-register">
+                    <Link href="/register" onClick={() => setMobileMenuOpen(false)}>
+                      Create account · Hospice Sales Pro
+                    </Link>
+                  </Button>
+                  <Button size="lg" variant="ghost" asChild className="w-full font-semibold touch-manipulation" data-testid="button-mobile-request">
+                    <Link href="/request-access" onClick={() => setMobileMenuOpen(false)}>
+                      Team / evaluation access
+                    </Link>
+                  </Button>
+                </>
+              )}
+            </div>
+          </SheetContent>
           </Sheet>
         </div>
       </div>
@@ -528,8 +420,7 @@ export function Header() {
           <DialogHeader>
             <DialogTitle>Search</DialogTitle>
             <DialogDescription>
-              Search through pages and AI tools to quickly navigate to what you
-              need.
+              Search through pages and AI tools to quickly navigate to what you need.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4">
@@ -547,10 +438,7 @@ export function Header() {
             </div>
             <div className="max-h-[40dvh] overflow-y-auto space-y-1">
               {filteredResults.length === 0 ? (
-                <div
-                  className="text-center py-8 text-muted-foreground"
-                  data-testid="text-no-results"
-                >
+                <div className="text-center py-8 text-muted-foreground" data-testid="text-no-results">
                   No results found
                 </div>
               ) : (
@@ -562,12 +450,8 @@ export function Header() {
                     data-testid={`button-search-result-${item.path}`}
                     aria-label={`Navigate to ${item.label}`}
                   >
-                    <div className="font-medium text-foreground">
-                      {item.label}
-                    </div>
-                    <div className="text-sm text-muted-foreground">
-                      {item.description}
-                    </div>
+                    <div className="font-medium text-foreground">{item.label}</div>
+                    <div className="text-sm text-muted-foreground">{item.description}</div>
                   </button>
                 ))
               )}
@@ -620,25 +504,20 @@ export function Footer() {
       <footer className="mt-auto border-t border-border bg-background no-print safe-area-bottom">
         {/* 3-column main footer */}
         <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 pt-12 pb-8">
-          <div
-            className={`grid grid-cols-1 gap-10 md:gap-8 lg:gap-16 ${canUseFieldKit ? "md:grid-cols-2" : "md:grid-cols-3"}`}
-          >
-            {/* Column 1, Brand + contact */}
+          <div className={`grid grid-cols-1 gap-10 md:gap-8 lg:gap-16 ${canUseFieldKit ? "md:grid-cols-2" : "md:grid-cols-3"}`}>
+
+            {/* Column 1 — Brand + contact */}
             <div className="flex flex-col gap-4">
               <div>
-                <p className="font-display text-lg font-black text-foreground tracking-tight uppercase">
-                  Spartan Coaching
-                </p>
+                <p className="font-display text-lg font-black text-foreground tracking-tight uppercase">Spartan Coaching</p>
                 <p className="text-xs text-muted-foreground mt-1 uppercase tracking-widest">
-                  {canUseFieldKit
-                    ? "Hospice Sales Pro · Portal"
-                    : "Consulting · Hospice Sales Pro"}
+                  {canUseFieldKit ? "Hospice Sales Pro · Portal" : "Consulting · Hospice Sales Pro"}
                 </p>
               </div>
               <p className="text-sm text-muted-foreground leading-relaxed">
                 {canUseFieldKit
-                  ? "Your Hospice Sales Pro portal, Command Center, tools, resources, and coaching when you need a human."
-                  : "Hospice growth consulting and Hospice Sales Pro (tools & resources) on web and iPhone, two clear offers, one firm."}
+                  ? "Your Hospice Sales Pro portal — Command Center, tools, resources, and coaching when you need a human."
+                  : "Hospice growth consulting and Hospice Sales Pro (tools & resources) on web and iPhone — two clear offers, one firm."}
               </p>
               <p className="text-xs text-muted-foreground/90 leading-relaxed border-l-2 border-primary/50 pl-3">
                 {canUseFieldKit
@@ -646,11 +525,7 @@ export function Footer() {
                   : `Elite recommended ${PRICING_FACTS.eliteWeeklyShort} · Standard ${PRICING_FACTS.individualWeeklyShort} · Preview free · Cancel anytime`}
               </p>
               <div className="flex flex-col gap-2">
-                <a
-                  href="mailto:nick@spartanhospicecoaching.com"
-                  className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-                  data-testid="link-footer-email"
-                >
+                <a href="mailto:nick@spartanhospicecoaching.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-email">
                   nick@spartanhospicecoaching.com
                 </a>
                 <a
@@ -667,7 +542,7 @@ export function Footer() {
               </div>
             </div>
 
-            {/* Column 2, Quick navigation */}
+            {/* Column 2 — Quick navigation */}
             <div className="flex flex-col gap-4">
               <p className="text-xs font-bold text-foreground uppercase tracking-widest">
                 {canUseFieldKit ? "Portal" : "Quick Links"}
@@ -686,57 +561,34 @@ export function Footer() {
               </nav>
             </div>
 
-            {/* Column 3, Newsletter (public only) */}
+            {/* Column 3 — Newsletter (public only) */}
             {!canUseFieldKit && (
-              <div
-                className="flex flex-col gap-4"
-                data-testid="section-newsletter"
-              >
-                <p className="text-xs font-bold text-foreground uppercase tracking-widest">
-                  Optional email updates
-                </p>
+              <div className="flex flex-col gap-4" data-testid="section-newsletter">
+                <p className="text-xs font-bold text-foreground uppercase tracking-widest">Optional email updates</p>
                 <p className="text-sm text-muted-foreground leading-relaxed">
                   {CONSENT_COPY.newsletterExplicit}
                 </p>
                 <NewsletterSignup />
               </div>
             )}
+
           </div>
         </div>
 
         {/* Legal bottom bar */}
         <div className="border-t border-border/50 dark:border-red-900/10">
-          <div
-            className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-4"
-            style={{ paddingBottom: padBottom }}
-          >
+          <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-4" style={{ paddingBottom: padBottom }}>
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
               <p className="text-xs text-muted-foreground order-last sm:order-first">
                 © 2026 Spartan Coaching. All rights reserved.
               </p>
               <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
                 {[
-                  {
-                    href: "/trust",
-                    label: "Trust Center",
-                    testId: "link-trust-center",
-                  },
-                  {
-                    href: "/privacy",
-                    label: "Privacy",
-                    testId: "link-privacy",
-                  },
+                  { href: "/trust", label: "Trust Center", testId: "link-trust-center" },
+                  { href: "/privacy", label: "Privacy", testId: "link-privacy" },
                   { href: "/terms", label: "Terms", testId: "link-terms" },
-                  {
-                    href: "/disclaimer",
-                    label: "Disclaimer",
-                    testId: "link-disclaimer",
-                  },
-                  {
-                    href: "/compliance",
-                    label: "Compliance",
-                    testId: "link-compliance-legal",
-                  },
+                  { href: "/disclaimer", label: "Disclaimer", testId: "link-disclaimer" },
+                  { href: "/compliance", label: "Compliance", testId: "link-compliance-legal" },
                   { href: "/legal", label: "Legal", testId: "link-legal" },
                 ].map(({ href, label, testId }) => (
                   <Link
@@ -758,6 +610,7 @@ export function Footer() {
           </div>
         </div>
       </footer>
+
     </>
   );
 }
