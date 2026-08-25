@@ -31,7 +31,7 @@ export const CHECKLIST: ChecklistDef[] = [
   {
     id: "director_scorecard",
     title: "Activity / scorecard math",
-    desc: "Translate goals into daily conversations (best on web calculators).",
+    desc: "Translate goals into daily conversations with the native planning calculators.",
     route: "/staffing",
     roles: ["director", "vp", "owner"],
   },
@@ -45,27 +45,27 @@ export const CHECKLIST: ChecklistDef[] = [
 
 export const START_HERE: Record<string, { title: string; blurb: string; toolTab?: string; route?: string }> = {
   rep: {
-    title: "Open Sales Command Center",
+    title: "Open Field Planner",
     blurb: "Plan the next call, practice if needed, capture the outcome, lock the next step.",
     route: "/sales-workflow",
   },
   director: {
-    title: "Open Sales Command Center",
+    title: "Open Field Planner",
     blurb: "Coach from real account workflows—then use weekly plan and activity tools as support.",
     route: "/sales-workflow",
   },
   vp: {
-    title: "Open Sales Command Center",
+    title: "Open Field Planner",
     blurb: "Inspect execution quality on live accounts before you open economics tools.",
     route: "/sales-workflow",
   },
   owner: {
-    title: "Open Sales Command Center",
+    title: "Open Field Planner",
     blurb: "Growth is Tuesday behavior. Start with the call spine, then staffing economics.",
     route: "/sales-workflow",
   },
   other: {
-    title: "Open Sales Command Center",
+    title: "Open Field Planner",
     blurb: "One continuous workflow beats opening ten tabs.",
     route: "/sales-workflow",
   },

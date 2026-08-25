@@ -954,6 +954,7 @@ export default function Admin() {
   const [articleForm, setArticleForm] = useState({
     title: "",
     description: "",
+    content: "",
     linkedinUrl: "",
     publishDate: new Date().toISOString().split("T")[0],
     featured: false,
@@ -1032,6 +1033,7 @@ export default function Admin() {
     setArticleForm({
       title: "",
       description: "",
+      content: "",
       linkedinUrl: "",
       publishDate: new Date().toISOString().split("T")[0],
       featured: false,
@@ -1050,6 +1052,7 @@ export default function Admin() {
     setArticleForm({
       title: article.title,
       description: article.description,
+      content: article.content || "",
       linkedinUrl: article.linkedinUrl,
       publishDate: date.toISOString().split("T")[0],
       featured: article.featured,
@@ -1064,6 +1067,7 @@ export default function Admin() {
     const data: InsertArticle = {
       title: articleForm.title,
       description: articleForm.description,
+      content: articleForm.content.trim() || undefined,
       linkedinUrl: articleForm.linkedinUrl,
       publishDate: new Date(articleForm.publishDate).getTime(),
       featured: articleForm.featured,
@@ -5905,6 +5909,26 @@ export default function Admin() {
                 required
                 data-testid="input-article-description"
               />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="content">Native article content</Label>
+              <Textarea
+                id="content"
+                value={articleForm.content}
+                onChange={(e) =>
+                  setArticleForm({
+                    ...articleForm,
+                    content: e.target.value,
+                  })
+                }
+                placeholder="Paste the complete article text. Separate paragraphs with a blank line. This is what members read inside the iPhone app."
+                rows={14}
+                data-testid="input-article-content"
+              />
+              <p className="text-sm text-muted-foreground">
+                Add complete first party copy here so the iPhone app never has to send a member to LinkedIn or a website page to read the article.
+              </p>
             </div>
 
             <div className="space-y-2">

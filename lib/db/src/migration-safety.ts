@@ -192,6 +192,20 @@ export const LOCK_RISK_TABLES: readonly LockRiskTable[] = [
 
 export const INTEGRITY_CHECKS: readonly IntegrityCheck[] = [
   {
+    id: "member-offboarding-lifecycle-owner",
+    category: "tenant_ownership",
+    description: "Member offboarding lifecycle rows must reference the member and source organization",
+    requiredTables: ["member_offboarding_lifecycle", "client_members", "client_organizations"],
+    sql: `
+SELECT l.id
+FROM member_offboarding_lifecycle l
+LEFT JOIN client_members m ON m.id = l.member_id
+LEFT JOIN client_organizations o ON o.id = l.source_organization_id
+WHERE m.id IS NULL OR o.id IS NULL
+LIMIT 100
+`.trim(),
+  },
+  {
     id: "coach-conversation-owner",
     category: "tenant_ownership",
     description: "Coach conversations must belong to a member in the same organization",
@@ -741,6 +755,65 @@ export const MIGRATION_CATALOG: readonly MigrationPlan[] = [
     dropsLegacyObjects: false,
   },
   {
+    id: "0018_member_offboarding_lifecycle",
+    title: "Member offboarding retention, private Coach deletion, and personal commitment recovery",
+    forwardPath: "lib/db/migrations/0018_member_offboarding_lifecycle.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT to_regclass('public.member_offboarding_lifecycle') IS NOT NULL AS ok`,
+      `SELECT count(*) = 0 AS ok FROM member_offboarding_lifecycle l LEFT JOIN client_members m ON m.id = l.member_id LEFT JOIN client_organizations o ON o.id = l.source_organization_id WHERE m.id IS NULL OR o.id IS NULL`,
+      `SELECT count(*) > 0 AS ok FROM pg_trigger WHERE tgname = 'trg_member_offboarding_guard' AND NOT tgisinternal`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: restore the pre-apply logical dump. Disable the additive triggers and functions if application rollback is required; preserve lifecycle records for audit and recovery.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: [
+      "member_offboarding_lifecycle",
+      "client_members",
+      "coach_conversations",
+      "coach_preferences",
+      "coach_memory_items",
+      "coach_shared_summaries",
+      "auth_events",
+    ],
+    dropsLegacyObjects: false,
+  },
+  {
+    id: "0019_native_article_content",
+    title: "First party article content for native reading",
+    forwardPath: "lib/db/migrations/0019_native_article_content.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT count(*) > 0 AS ok FROM information_schema.columns WHERE table_name = 'articles' AND column_name = 'content'`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: restore the pre-apply logical dump. The nullable column is additive and should remain unused rather than dropped while released clients may reference it.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["articles"],
+    dropsLegacyObjects: false,
+  },
+  {
+    id: "0020_member_leadership_context",
+    title: "Optional member team leadership context",
+    forwardPath: "lib/db/migrations/0020_member_leadership_context.sql",
+    dataMigration: null,
+    validationQueries: [
+      `SELECT count(*) > 0 AS ok FROM information_schema.columns WHERE table_name = 'client_members' AND column_name = 'also_leads_team'`,
+      `SELECT count(*) = 0 AS ok FROM client_members WHERE also_leads_team IS NULL`,
+    ],
+    rollbackOrRecovery:
+      "Recovery: restore the pre-apply logical dump. The additive column should remain unused rather than dropped while released clients may reference it.",
+    backupExpectation: "logical_dump",
+    risk: "additive",
+    clientCompatibility: "none_additive",
+    tables: ["client_members"],
+    dropsLegacyObjects: false,
+  },
+  {
     id: "sales_workflow_001",
     title: "Sales Command Center workflow store (RLS)",
     forwardPath: "lib/hospice-sales-runtime/migrations/001_sales_workflow.sql",
@@ -812,6 +885,7 @@ export const MIGRATE_ONLY_LIB_DB_TABLES = [
   "member_personalization",
   "member_notification_prefs",
   "member_notifications",
+  "member_offboarding_lifecycle",
   // 0012
   "sessions",
   "users",

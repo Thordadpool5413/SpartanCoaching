@@ -15,6 +15,12 @@ describe("native interface resilience", () => {
     expect(input).toContain("minHeight: MIN_TOUCH_TARGET");
   });
 
+  it("uses stable unique keys for related tool destinations", () => {
+    const anatomy = read("components/ToolAnatomy.tsx");
+
+    expect(anatomy).toContain("key={`${item.href}:${item.label}:${item.kind || \"related\"}`}");
+    expect(anatomy).not.toContain("key={item.href}");
+  });
   it("keeps crash recovery controls accessible and theme safe", () => {
     const fallback = read("components/ErrorFallback.tsx");
 

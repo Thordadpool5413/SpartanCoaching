@@ -12,6 +12,7 @@ import {
   View,
 } from "react-native";
 import { Stack, useRouter } from "expo-router";
+import { goBackOrReplace } from "@/lib/navigation";
 import * as Haptics from "expo-haptics";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -330,7 +331,7 @@ export default function ResourceWorkScreen() {
               </Pressable>
             </View>
 
-            <Pressable onPress={() => router.back()} style={{ marginTop: 16 }}>
+            <Pressable onPress={() => goBackOrReplace("/(tabs)/tools?view=library")} style={{ marginTop: 16 }}>
               <Text style={[{ color: colors.mutedForeground, fontSize: 14 }, font("regular")]}>
                 Back to Learn
               </Text>

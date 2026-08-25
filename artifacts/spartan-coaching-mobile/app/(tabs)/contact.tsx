@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import { Feather } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
+import { router } from "expo-router";
+import React, { useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
-  Image,
-  Linking,
   Platform,
   Pressable,
   StyleSheet,
@@ -11,101 +12,144 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { Feather } from "@expo/vector-icons";
-import * as Haptics from "expo-haptics";
+import { HelmetMark } from "@/components/brand/HelmetMark";
+import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
+import { SpartanButton } from "@/components/ui/SpartanButton";
 import { useColors } from "@/hooks/useColors";
 import { apiPost } from "@/lib/api";
-import { KeyboardAwareScrollViewCompat } from "@/components/KeyboardAwareScrollViewCompat";
-import { ReminderPicker } from "@/components/ReminderPicker";
 import { font } from "@/lib/typography";
+import { clearConsultingConfirmation, loadConsultingConfirmation, saveConsultingConfirmation, type ConsultingConfirmation } from "@/lib/consultingConfirmation";
+import { getMicrosoftBookingsUrl } from "@/lib/consultingBookings";
 
-const SERVICE_OPTIONS = [
-  "Virtual Coaching",
-  "Team Training",
-  "Growth Strategy",
-  "Technology Solutions",
-  "Other",
+const SERVICES = [
+  {
+    id: "executive",
+    title: "Executive Growth Advisory",
+    body: "Leadership strategy, growth systems, market positioning, and operating clarity.",
+    icon: "compass" as const,
+  },
+  {
+    id: "team",
+    title: "Team Coaching & Training",
+    body: "Live coaching, field development, manager enablement, and practical sales execution.",
+    icon: "users" as const,
+  },
+  {
+    id: "growth",
+    title: "Hospice Growth Strategy",
+    body: "Territory, referral development, sales process, accountability, and conversion strategy.",
+    icon: "trending-up" as const,
+  },
+  {
+    id: "technology",
+    title: "Technology & AI Advisory",
+    body: "Workflow design, AI enablement, product strategy, and practical adoption for hospice organizations.",
+    icon: "cpu" as const,
+  },
 ];
 
-export default function ContactScreen() {
-  const colors = useColors();
-  const insets = useSafeAreaInsets();
+const WINDOWS = ["Morning", "Afternoon", "Evening"] as const;
 
+type Form = {
+  name: string;
+  email: string;
+  phone: string;
+  company: string;
+  serviceType: string;
+  availability: string;
+  message: string;
+};
+
+const EMPTY_FORM: Form = {
+  name: "",
+  email: "",
+  phone: "",
+  company: "",
+  serviceType: "",
+  availability: "",
+  message: "",
+};
+
+export default function ConsultingScreen() {
+  const colors = useColors();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+  const insets = useSafeAreaInsets();
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 90;
-
-  const [form, setForm] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    company: "",
-    serviceType: "",
-    message: "",
-  });
+  const [form, setForm] = useState<Form>(EMPTY_FORM);
   const [loading, setLoading] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [confirmation, setConfirmation] = useState<ConsultingConfirmation | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const bookingsAvailable = Boolean(getMicrosoftBookingsUrl());
 
-  const updateField = (key: keyof typeof form, val: string) =>
-    setForm((prev) => ({ ...prev, [key]: val }));
+  useEffect(() => {
+    void loadConsultingConfirmation().then(setConfirmation);
+  }, []);
 
+  const update = (key: keyof Form, value: string) => setForm((current) => ({ ...current, [key]: value }));
+  const selectedService = SERVICES.find((service) => service.id === form.serviceType);
   const isValid =
     form.name.trim().length >= 2 &&
     /\S+@\S+\.\S+/.test(form.email) &&
     form.phone.replace(/\D/g, "").length >= 10 &&
+    Boolean(form.serviceType) &&
+    Boolean(form.availability) &&
     form.message.trim().length >= 10;
 
-  const handleSubmit = async () => {
-    if (!isValid) return;
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+  const submit = async () => {
+    if (!isValid || loading) return;
+    void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     setLoading(true);
     setError(null);
     try {
-      await apiPost("/api/inquiries", {
-        name: form.name,
-        email: form.email,
-        phone: form.phone,
-        company: form.company || undefined,
-        serviceType: form.serviceType || undefined,
-        message: form.message,
+      const response = await apiPost<{ success: boolean; inquiry: { id: number | string; submittedAt?: number | string | Date } }>("/api/inquiries", {
+        name: form.name.trim(),
+        email: form.email.trim(),
+        phone: form.phone.trim(),
+        company: form.company.trim() || undefined,
+        serviceType: selectedService?.title || form.serviceType,
+        message: [
+          `Preferred meeting window: ${form.availability}`,
+          `Consulting request: ${form.message.trim()}`,
+        ].join("\n\n"),
         submittedAt: Date.now(),
       });
+      const saved: ConsultingConfirmation = {
+        inquiryId: response.inquiry.id,
+        service: selectedService?.title || "Consulting",
+        availability: form.availability,
+        submittedAt: new Date(response.inquiry.submittedAt || Date.now()).toISOString(),
+      };
+      await saveConsultingConfirmation(saved);
+      setConfirmation(saved);
       setSubmitted(true);
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch {
-      setError("Something went wrong. Please try again or email directly.");
+      setError("Your request could not be sent. Nothing was lost. Check your connection and try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  if (submitted) {
+  if (submitted && confirmation) {
     return (
-      <View style={[styles.container, { backgroundColor: colors.background }]}>
-        <View style={[styles.successContainer, { paddingTop: topPad }]}>
-          <View style={[styles.successIcon, { backgroundColor: colors.accent }]}>
-            <Feather name="check" size={32} color={colors.primary} />
+      <View style={[styles.screen, { paddingTop: topPad }]} testID="consulting-confirmation">
+        <View style={styles.confirmation}>
+          <View style={styles.successIcon}><Feather name="check" size={28} color="#FFFFFF" /></View>
+          <Text style={styles.confirmationKicker}>REQUEST RECEIVED</Text>
+          <Text style={styles.confirmationTitle}>The next conversation is now in motion.</Text>
+          <Text style={styles.confirmationBody}>
+            Your {confirmation.service} request and {confirmation.availability.toLowerCase()} preference were submitted. This is a separate contracted human service and is not part of your Apple subscription.
+          </Text>
+          <View style={styles.confirmationCard}>
+            <SummaryRow label="Request" value={String(confirmation.inquiryId)} />
+            <SummaryRow label="Service" value={confirmation.service} />
+            <SummaryRow label="Preferred time" value={confirmation.availability} />
+            <SummaryRow label="Submitted" value={new Date(confirmation.submittedAt).toLocaleDateString()} />
           </View>
-          <Text style={[styles.successTitle, { color: colors.foreground, ...font("bold") }]}>
-            Message Sent
-          </Text>
-          <Text style={[styles.successBody, { color: colors.mutedForeground, ...font("regular") }]}>
-            Nick Lynch will be in touch within one business day.
-          </Text>
-          <ReminderPicker
-            title="Follow up with your contact"
-            body="You submitted a Spartan Coaching inquiry — time to follow up and keep the conversation going."
-            label="Remind me to follow up"
-            storageKey="inquiry"
-          />
-          <Pressable
-            onPress={() => {
-              setSubmitted(false);
-              setForm({ name: "", email: "", phone: "", company: "", serviceType: "", message: "" });
-            }}
-            style={({ pressed }) => [styles.resetBtn, { backgroundColor: colors.muted, opacity: pressed ? 0.75 : 1 }]}
-          >
-            <Text style={[{ color: colors.foreground, ...font("medium") }]}>Send another message</Text>
-          </Pressable>
+          {bookingsAvailable ? <SpartanButton title="Choose an exact time" onPress={() => router.push("/consulting-schedule" as never)} /> : null}
+          <SpartanButton title="Done" onPress={() => { setSubmitted(false); setForm(EMPTY_FORM); }} />
         </View>
       </View>
     );
@@ -113,267 +157,185 @@ export default function ContactScreen() {
 
   return (
     <KeyboardAwareScrollViewCompat
-      style={[styles.container, { backgroundColor: colors.background }]}
+      style={styles.screen}
       contentContainerStyle={{ paddingBottom: bottomPad }}
       showsVerticalScrollIndicator={false}
+      testID="screen-consulting"
     >
-      {/* Header */}
-      <View style={[styles.header, { paddingTop: topPad + 12, borderBottomColor: colors.border }]}>
-        <Text style={[styles.headerTitle, { color: colors.foreground, ...font("bold") }]}>
-          Contact
-        </Text>
-        <Text style={[styles.headerSubtitle, { color: colors.mutedForeground, ...font("regular") }]}>
-          Get in touch with Spartan Coaching
-        </Text>
+      <View style={[styles.hero, { paddingTop: topPad + 10 }]}>
+        <View style={styles.brandRow}><HelmetMark size={58} /><Text style={styles.brandName}>SPARTAN COACHING</Text></View>
+        <Text style={styles.heroKicker}>HUMAN ADVISORY</Text>
+        <Text style={styles.heroTitle}>Bring in a human when the work needs more than software.</Text>
+        <Text style={styles.heroBody}>Consulting is a separate contracted service. Review the work, choose the fit, and request a conversation without leaving the app.</Text>
       </View>
 
-      {/* Bio Card — always dark brand section */}
-      <View style={[styles.bioCard, { backgroundColor: colors.heroBackground }]}>
-        <Image
-          source={require("@/assets/images/logo.png")}
-          style={styles.bioLogo}
-          resizeMode="contain"
-        />
-        <View style={styles.bioInfo}>
-          <Text style={[styles.bioName, { color: colors.heroForeground, ...font("bold") }]}>
-            Nick Lynch
-          </Text>
-          <Text style={[styles.bioTitle, { color: colors.heroMuted, ...font("regular") }]}>
-            Founder, Spartan Coaching
-          </Text>
-          <Text style={[styles.bioBio, { color: colors.heroMuted, ...font("regular") }]}>
-            The Authority in Hospice Excellence. Nick works with hospice sales professionals to build the conversations that get patients the care they deserve.
-          </Text>
-          <Pressable
-            onPress={() => Linking.openURL("https://www.linkedin.com/in/nicklynch")}
-            style={({ pressed }) => [styles.linkedinBtn, { opacity: pressed ? 0.75 : 1 }]}
-          >
-            <Feather name="linkedin" size={16} color={colors.heroBadgeText} />
-            <Text style={[styles.linkedinText, { color: colors.heroBadgeText, ...font("semibold") }]}>
-              Connect on LinkedIn
-            </Text>
-          </Pressable>
-        </View>
-      </View>
-
-      {/* Form */}
-      <View style={styles.form}>
-        <Text style={[styles.formTitle, { color: colors.foreground, ...font("bold") }]}>
-          Send a Message
-        </Text>
-
-        <View style={styles.formField}>
-          <Text style={[styles.label, { color: colors.foreground, ...font("semibold") }]}>Name *</Text>
-          <TextInput
-            style={[styles.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, ...font("regular") }]}
-            placeholder="Your full name"
-            placeholderTextColor={colors.mutedForeground}
-            value={form.name}
-            onChangeText={(v) => updateField("name", v)}
-            autoCapitalize="words"
-          />
-        </View>
-
-        <View style={styles.formField}>
-          <Text style={[styles.label, { color: colors.foreground, ...font("semibold") }]}>Email *</Text>
-          <TextInput
-            style={[styles.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, ...font("regular") }]}
-            placeholder="you@example.com"
-            placeholderTextColor={colors.mutedForeground}
-            value={form.email}
-            onChangeText={(v) => updateField("email", v)}
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-        </View>
-
-        <View style={styles.formField}>
-          <Text style={[styles.label, { color: colors.foreground, ...font("semibold") }]}>Phone *</Text>
-          <TextInput
-            style={[styles.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, ...font("regular") }]}
-            placeholder="(555) 555-5555"
-            placeholderTextColor={colors.mutedForeground}
-            value={form.phone}
-            onChangeText={(v) => updateField("phone", v)}
-            keyboardType="phone-pad"
-          />
-        </View>
-
-        <View style={styles.formField}>
-          <Text style={[styles.label, { color: colors.foreground, ...font("semibold") }]}>Organization</Text>
-          <TextInput
-            style={[styles.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, ...font("regular") }]}
-            placeholder="Your hospice or organization"
-            placeholderTextColor={colors.mutedForeground}
-            value={form.company}
-            onChangeText={(v) => updateField("company", v)}
-          />
-        </View>
-
-        <View style={styles.formField}>
-          <Text style={[styles.label, { color: colors.foreground, ...font("semibold") }]}>Service Interest</Text>
-          <View style={styles.serviceOptions}>
-            {SERVICE_OPTIONS.map((opt) => (
+      <View style={styles.content}>
+        {confirmation ? (
+          <View style={styles.recentCard} testID="consulting-saved-confirmation">
+            <View style={styles.recentIcon}><Feather name="check" size={18} color="#FFFFFF" /></View>
+            <View style={{ flex: 1 }}><Text style={styles.recentTitle}>Request received</Text><Text style={styles.recentBody}>{confirmation.service} · {confirmation.availability} · {new Date(confirmation.submittedAt).toLocaleDateString()}</Text></View>
+            <Pressable accessibilityRole="button" accessibilityLabel="Clear consulting confirmation" onPress={() => void clearConsultingConfirmation().then(() => setConfirmation(null))} style={styles.clearConfirmation}><Feather name="x" size={17} color={colors.mutedForeground} /></Pressable>
+          </View>
+        ) : null}
+        <Text style={styles.sectionKicker}>1 · CHOOSE THE WORK</Text>
+        <Text style={styles.sectionTitle}>What needs attention?</Text>
+        <View style={styles.serviceList}>
+          {SERVICES.map((service) => {
+            const selected = service.id === form.serviceType;
+            return (
               <Pressable
-                key={opt}
-                onPress={() => updateField("serviceType", form.serviceType === opt ? "" : opt)}
+                key={service.id}
+                accessibilityRole="radio"
+                accessibilityState={{ checked: selected }}
+                onPress={() => {
+                  update("serviceType", service.id);
+                  void Haptics.selectionAsync();
+                }}
                 style={({ pressed }) => [
-                  styles.serviceBtn,
-                  {
-                    borderColor: form.serviceType === opt ? colors.primary : colors.border,
-                    backgroundColor: form.serviceType === opt ? colors.accent : colors.card,
-                    opacity: pressed ? 0.8 : 1,
-                  },
+                  styles.serviceRow,
+                  selected && styles.serviceRowSelected,
+                  pressed && styles.pressed,
                 ]}
               >
-                <Text
-                  style={[
-                    styles.serviceBtnText,
-                    { color: form.serviceType === opt ? colors.primary : colors.mutedForeground },
-                    font(form.serviceType === opt ? "semibold" : "regular"),
-                  ]}
-                >
-                  {opt}
-                </Text>
+                <View style={[styles.serviceIcon, selected && styles.serviceIconSelected]}>
+                  <Feather name={service.icon} size={20} color={selected ? "#FFFFFF" : colors.primary} />
+                </View>
+                <View style={styles.serviceCopy}>
+                  <Text style={styles.serviceTitle}>{service.title}</Text>
+                  <Text style={styles.serviceBody}>{service.body}</Text>
+                </View>
+                <Feather name={selected ? "check-circle" : "circle"} size={20} color={selected ? colors.primary : colors.borderStrong} />
               </Pressable>
-            ))}
-          </View>
+            );
+          })}
         </View>
 
-        <View style={styles.formField}>
-          <Text style={[styles.label, { color: colors.foreground, ...font("semibold") }]}>Message *</Text>
+        <Text style={styles.sectionKicker}>2 · PREFERRED AVAILABILITY</Text>
+        <Text style={styles.sectionTitle}>When is a conversation easiest?</Text>
+        <Text style={styles.sectionBody}>Choose a broad window. Scheduling is confirmed after the request is reviewed.</Text>
+        <View style={styles.windowRow} accessibilityRole="radiogroup">
+          {WINDOWS.map((window) => {
+            const selected = form.availability === window;
+            return (
+              <Pressable
+                key={window}
+                onPress={() => { update("availability", window); void Haptics.selectionAsync(); }}
+                style={[styles.windowButton, selected && styles.windowButtonSelected]}
+              >
+                <Text style={[styles.windowText, selected && styles.windowTextSelected]}>{window}</Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        <Text style={styles.sectionKicker}>3 · INTAKE</Text>
+        <Text style={styles.sectionTitle}>Give the conversation a useful starting point.</Text>
+        <Field label="Name" value={form.name} onChangeText={(value) => update("name", value)} placeholder="Your full name" autoCapitalize="words" />
+        <Field label="Email" value={form.email} onChangeText={(value) => update("email", value)} placeholder="you@example.com" keyboardType="email-address" autoCapitalize="none" />
+        <Field label="Phone" value={form.phone} onChangeText={(value) => update("phone", value)} placeholder="(555) 555 5555" keyboardType="phone-pad" />
+        <Field label="Organization" value={form.company} onChangeText={(value) => update("company", value)} placeholder="Hospice or organization" optional />
+        <View style={styles.fieldGroup}>
+          <Text style={styles.label}>What are you trying to change?</Text>
           <TextInput
-            style={[styles.textarea, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.border, ...font("regular") }]}
-            placeholder="Tell me about your situation and what you're looking to achieve..."
+            style={styles.textarea}
+            placeholder="Describe the situation, pressure, goal, and what a successful engagement should change. Do not include patient PHI."
             placeholderTextColor={colors.mutedForeground}
             value={form.message}
-            onChangeText={(v) => updateField("message", v)}
+            onChangeText={(value) => update("message", value)}
             multiline
-            numberOfLines={5}
             textAlignVertical="top"
           />
         </View>
 
-        {!!error && (
-          <View style={[styles.errorCard, { backgroundColor: colors.accent }]}>
-            <Text style={[styles.errorText, { color: colors.primary, ...font("regular") }]}>{error}</Text>
-          </View>
-        )}
+        <View style={styles.separationCard}>
+          <Feather name="info" size={18} color={colors.primary} />
+          <Text style={styles.separationText}>Consulting is not included in Standard or Elite and is not purchased through Apple. Any engagement begins only after scope and commercial terms are agreed separately.</Text>
+        </View>
 
+        {error ? <Text style={styles.error}>{error}</Text> : null}
         <Pressable
-          onPress={handleSubmit}
+          accessibilityRole="button"
           disabled={!isValid || loading}
-          style={({ pressed }) => [
-            styles.submitBtn,
-            { backgroundColor: colors.primary },
-            (!isValid || loading) && { opacity: 0.5 },
-            isValid && !loading && pressed && { opacity: 0.85 },
-          ]}
+          onPress={submit}
+          style={({ pressed }) => [styles.submit, (!isValid || loading) && styles.disabled, pressed && isValid && styles.pressed]}
         >
-          {loading ? (
-            <ActivityIndicator color={colors.primaryForeground} size="small" />
-          ) : (
-            <>
-              <Text style={[styles.submitBtnText, { color: colors.primaryForeground, ...font("bold") }]}>
-                Send Message
-              </Text>
-              <Feather name="arrow-right" size={18} color={colors.primaryForeground} />
-            </>
-          )}
+          {loading ? <ActivityIndicator color="#FFFFFF" /> : <><Text style={styles.submitText}>Request the conversation</Text><Feather name="arrow-right" size={20} color="#FFFFFF" /></>}
         </Pressable>
       </View>
     </KeyboardAwareScrollViewCompat>
   );
 }
 
-const styles = StyleSheet.create({
-  container: { flex: 1 },
-  header: {
-    paddingHorizontal: 20,
-    paddingBottom: 12,
-    borderBottomWidth: 1,
-  },
-  headerTitle: { fontSize: 28, fontWeight: "700" },
-  headerSubtitle: { fontSize: 14, marginTop: 2 },
-  bioCard: {
-    flexDirection: "row",
-    gap: 16,
-    padding: 20,
-    alignItems: "flex-start",
-  },
-  bioLogo: { width: 52, height: 52, borderRadius: 8 },
-  bioInfo: { flex: 1 },
-  bioName: { fontSize: 18, fontWeight: "700" },
-  bioTitle: { fontSize: 13, marginTop: 2 },
-  bioBio: { fontSize: 14, lineHeight: 20, marginTop: 8 },
-  linkedinBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    marginTop: 12,
-    alignSelf: "flex-start",
-  },
-  linkedinText: { fontSize: 14 },
-  form: { padding: 20 },
-  formTitle: { fontSize: 20, fontWeight: "700", marginBottom: 20 },
-  formField: { marginBottom: 16 },
-  label: { fontSize: 14, marginBottom: 6 },
-  input: {
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 15,
-    minHeight: 48,
-  },
-  textarea: {
-    borderWidth: 1,
-    borderRadius: 10,
-    paddingHorizontal: 14,
-    paddingVertical: 12,
-    fontSize: 15,
-    minHeight: 120,
-  },
-  serviceOptions: { flexDirection: "row", flexWrap: "wrap", gap: 8 },
-  serviceBtn: {
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    borderWidth: 1,
-  },
-  serviceBtnText: { fontSize: 13 },
-  errorCard: { borderRadius: 10, padding: 12, marginBottom: 12 },
-  errorText: { fontSize: 14 },
-  submitBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 8,
-    borderRadius: 12,
-    paddingVertical: 16,
-    marginTop: 8,
-  },
-  submitBtnText: { fontSize: 17, fontWeight: "700" },
-  successContainer: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    paddingHorizontal: 32,
-    gap: 16,
-  },
-  successIcon: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  successTitle: { fontSize: 24, fontWeight: "700", textAlign: "center" },
-  successBody: { fontSize: 16, textAlign: "center", lineHeight: 24 },
-  resetBtn: {
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 8,
-    marginTop: 8,
-  },
+function SummaryRow({ label, value }: { label: string; value: string }) {
+  const colors = useColors();
+  return <View style={stylesStatic.summaryRow}><Text style={[stylesStatic.summaryLabel, { color: colors.mutedForeground }]}>{label}</Text><Text style={[stylesStatic.summaryValue, { color: colors.foreground }]}>{value}</Text></View>;
+}
+
+function Field(props: React.ComponentProps<typeof TextInput> & { label: string; optional?: boolean }) {
+  const colors = useColors();
+  return (
+    <View style={stylesStatic.fieldGroup}>
+      <Text style={[stylesStatic.label, { color: colors.foreground }]}>{props.label}{props.optional ? <Text style={{ color: colors.mutedForeground }}> · optional</Text> : null}</Text>
+      <TextInput {...props} style={[stylesStatic.input, { color: colors.foreground, backgroundColor: colors.card, borderColor: colors.borderStrong }]} placeholderTextColor={colors.mutedForeground} />
+    </View>
+  );
+}
+
+const stylesStatic = StyleSheet.create({
+  fieldGroup: { gap: 7 },
+  label: { fontSize: 13, fontWeight: "700" },
+  input: { minHeight: 52, borderWidth: 1, borderRadius: 14, borderCurve: "continuous", paddingHorizontal: 14, fontSize: 15 },
+  summaryRow: { flexDirection: "row", justifyContent: "space-between", gap: 12, paddingVertical: 9 },
+  summaryLabel: { fontSize: 12 },
+  summaryValue: { flex: 1, textAlign: "right", fontSize: 12, fontWeight: "700" },
 });
+
+function makeStyles(colors: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    screen: { flex: 1, backgroundColor: colors.background },
+    hero: { backgroundColor: colors.heroBackground, paddingHorizontal: 22, paddingBottom: 30, gap: 8 },
+    brandRow: { flexDirection: "row", alignItems: "center", gap: 12, marginBottom: 10 },
+    brandName: { color: colors.heroForeground, fontSize: 16, letterSpacing: 0.8, ...font("heavy") },
+    heroKicker: { color: colors.heroMuted, fontSize: 9, letterSpacing: 2, marginTop: 4, ...font("bold") },
+    heroTitle: { color: colors.heroForeground, fontSize: 31, lineHeight: 36, letterSpacing: -0.8, ...font("heavy") },
+    heroBody: { color: colors.heroMuted, fontSize: 14, lineHeight: 21, ...font("regular") },
+    content: { paddingHorizontal: 20, paddingTop: 26, gap: 14 },
+    recentCard: { minHeight: 72, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 18, borderCurve: "continuous", padding: 13, flexDirection: "row", alignItems: "center", gap: 11 },
+    recentIcon: { width: 38, height: 38, borderRadius: 13, backgroundColor: colors.success, alignItems: "center", justifyContent: "center" },
+    recentTitle: { color: colors.foreground, fontSize: 13, ...font("bold") },
+    recentBody: { color: colors.mutedForeground, fontSize: 9, lineHeight: 14, marginTop: 2, ...font("regular") },
+    clearConfirmation: { width: 40, height: 40, alignItems: "center", justifyContent: "center" },
+    sectionKicker: { color: colors.primary, fontSize: 9, letterSpacing: 1.8, marginTop: 8, ...font("bold") },
+    sectionTitle: { color: colors.foreground, fontSize: 24, lineHeight: 29, letterSpacing: -0.5, ...font("heavy") },
+    sectionBody: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, ...font("regular") },
+    serviceList: { gap: 0 },
+    serviceRow: { flexDirection: "row", alignItems: "center", gap: 12, minHeight: 86, paddingVertical: 14, borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderStrong },
+    serviceRowSelected: { backgroundColor: colors.primaryMuted, marginHorizontal: -10, paddingHorizontal: 10, borderRadius: 14, borderCurve: "continuous" },
+    serviceIcon: { width: 42, height: 42, borderRadius: 14, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
+    serviceIconSelected: { backgroundColor: colors.primary },
+    serviceCopy: { flex: 1, gap: 3 },
+    serviceTitle: { color: colors.foreground, fontSize: 15, ...font("bold") },
+    serviceBody: { color: colors.mutedForeground, fontSize: 11, lineHeight: 16, ...font("regular") },
+    windowRow: { flexDirection: "row", gap: 8 },
+    windowButton: { flex: 1, minHeight: 48, alignItems: "center", justifyContent: "center", borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 14, borderCurve: "continuous" },
+    windowButtonSelected: { borderColor: colors.primary, backgroundColor: colors.primaryMuted },
+    windowText: { color: colors.mutedForeground, fontSize: 12, ...font("semibold") },
+    windowTextSelected: { color: colors.primary },
+    fieldGroup: { gap: 7 },
+    label: { color: colors.foreground, fontSize: 13, ...font("bold") },
+    textarea: { minHeight: 140, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, color: colors.foreground, borderRadius: 16, borderCurve: "continuous", padding: 14, fontSize: 15, lineHeight: 21, ...font("regular") },
+    separationCard: { flexDirection: "row", alignItems: "flex-start", gap: 10, backgroundColor: colors.muted, borderRadius: 14, padding: 13 },
+    separationText: { flex: 1, color: colors.mutedForeground, fontSize: 10, lineHeight: 15, ...font("regular") },
+    error: { color: colors.destructive, fontSize: 12, lineHeight: 18, ...font("semibold") },
+    submit: { minHeight: 58, flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: 18, borderRadius: 17, borderCurve: "continuous", backgroundColor: colors.primary },
+    submitText: { color: "#FFFFFF", fontSize: 16, ...font("bold") },
+    disabled: { opacity: 0.42 },
+    pressed: { opacity: 0.8, transform: [{ scale: 0.995 }] },
+    confirmation: { flex: 1, justifyContent: "center", paddingHorizontal: 26, gap: 14 },
+    successIcon: { width: 58, height: 58, borderRadius: 18, backgroundColor: colors.success, alignItems: "center", justifyContent: "center" },
+    confirmationKicker: { color: colors.primary, fontSize: 9, letterSpacing: 2, ...font("bold") },
+    confirmationTitle: { color: colors.foreground, fontSize: 31, lineHeight: 36, ...font("heavy") },
+    confirmationBody: { color: colors.mutedForeground, fontSize: 14, lineHeight: 21, ...font("regular") },
+    confirmationCard: { backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 18, borderCurve: "continuous", paddingHorizontal: 14, paddingVertical: 6 },
+  });
+}

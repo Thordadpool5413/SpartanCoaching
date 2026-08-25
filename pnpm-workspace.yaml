@@ -13,8 +13,8 @@ catalog:
   '@tailwindcss/vite': ^4.1.14
   '@tanstack/react-query': ^5.90.21
   '@types/node': ^25.3.3
-  '@types/react': 19.2.17
-  '@types/react-dom': 19.2.3
+  '@types/react': 19.1.10
+  '@types/react-dom': 19.1.7
   '@vitejs/plugin-react': ^5.0.4
   class-variance-authority: ^0.7.1
   clsx: ^2.1.1
@@ -71,8 +71,8 @@ packageExtensions:
 
 overrides:
   # Single React type root — prevents dual @types/react ref incompatibility on tsc.
-  "@types/react": "19.2.17"
-  "@types/react-dom": "19.2.3"
+  "@types/react": "19.1.10"
+  "@types/react-dom": "19.1.7"
   # Keep brace-expansion major-compatible (RN codegen needs expand() from 1.x/2.x).
   # A flat pin of ALL majors to 5.x breaks iOS "Install pods" with:
   # TypeError: expand is not a function. Patch each major separately.

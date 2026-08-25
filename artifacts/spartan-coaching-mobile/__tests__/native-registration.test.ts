@@ -13,6 +13,7 @@ describe("native registration contract", () => {
     const home = read("app/(tabs)/index.tsx");
     const welcome = read("components/WelcomeExperience.tsx");
     const account = read("app/(tabs)/account.tsx");
+    const membership = read("app/membership.tsx");
 
     expect(screen).toContain("Create secure account");
     expect(screen).toContain("register({ name, email, password })");
@@ -24,8 +25,10 @@ describe("native registration contract", () => {
     expect(api).toContain("noPhi: true");
     expect(login).toContain('router.push("/register" as Href)');
     expect(home).toContain("<WelcomeExperience");
-    expect(welcome).toContain('router.push("/register" as Href)');
-    expect(account).toContain('router.push("/register" as Href)');
+    expect(welcome).toContain('open("/membership")');
+    expect(account).toContain('router.push("/membership" as any)');
+    expect(membership).toContain('router.push("/register" as any)');
+    expect(membership).toContain("Apple confirmed your membership");
     expect(login).toContain('type Href');
     expect(login).not.toContain('openWebsite("/register")');
   });

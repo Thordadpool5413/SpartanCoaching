@@ -210,6 +210,7 @@ export type MobileMember = {
   organizationId: number;
   status: string;
   jobRole?: string | null;
+  alsoLeadsTeam?: boolean;
   territoryNote?: string | null;
   topObjections?: string | null;
   checklistProgress?: Record<string, boolean | string>;
@@ -275,17 +276,22 @@ export type BillingStatus = {
 
 export type AppleBillingConfig = {
   configured: boolean;
-  appAccountToken: string;
+  appAccountToken?: string;
   products: Array<{ id: string; tier: "standard" | "elite" }>;
 };
 
 export type AppleVerificationResult = {
   applied: boolean;
+  verified?: boolean;
   active?: boolean;
   tier?: "standard" | "elite";
   productId?: string;
   expiresAt?: string;
 };
+
+export async function fetchAppleBillingCatalog(): Promise<AppleBillingConfig> {
+  return apiGet<AppleBillingConfig>("/api/billing/apple/catalog");
+}
 
 export async function fetchAppleBillingConfig(): Promise<AppleBillingConfig> {
   return apiGet<AppleBillingConfig>("/api/billing/apple/config");
@@ -293,6 +299,26 @@ export async function fetchAppleBillingConfig(): Promise<AppleBillingConfig> {
 
 export async function verifyAppleTransaction(signedTransaction: string): Promise<AppleVerificationResult> {
   return apiPost<AppleVerificationResult>("/api/billing/apple/verify", { signedTransaction });
+}
+
+export async function verifyGuestAppleTransaction(
+  signedTransaction: string,
+  appAccountToken?: string,
+): Promise<AppleVerificationResult> {
+  return apiPost<AppleVerificationResult>("/api/billing/apple/guest-verify", {
+    signedTransaction,
+    ...(appAccountToken ? { appAccountToken } : {}),
+  });
+}
+
+export async function claimAppleTransaction(
+  signedTransaction: string,
+  appAccountToken?: string,
+): Promise<AppleVerificationResult> {
+  return apiPost<AppleVerificationResult>("/api/billing/apple/claim", {
+    signedTransaction,
+    ...(appAccountToken ? { appAccountToken } : {}),
+  });
 }
 
 export async function fetchBillingStatus(): Promise<BillingStatus | null> {
@@ -303,25 +329,7 @@ export async function fetchBillingStatus(): Promise<BillingStatus | null> {
   }
 }
 
-/** Start individual weekly Checkout ($14.99/wk). Returns Stripe-hosted URL. */
-export async function startIndividualCheckout(
-  plan: "standard_weekly" | "elite_weekly" = "standard_weekly",
-): Promise<{ url: string }> {
-  const site = getWebSiteUrl();
-  // Bridge page opens app deep link after Stripe (see CheckoutReturn.tsx).
-  return apiPost<{ url: string }>("/api/billing/checkout", {
-    plan,
-    successUrl: `${site}/checkout-return?from=app&activated=1`,
-    cancelUrl: `${site}/account?billing=canceled&from=app`,
-  });
-}
-
-/** Open Stripe Customer Portal (cancel / update card). */
-export async function openBillingPortal(): Promise<{ url: string }> {
-  return apiPost<{ url: string }>("/api/billing/portal", {});
-}
-
-/** Site origin for membership / account deep links in the browser. */
+/** Site origin for approved first party source links and API served resources. */
 export function getWebSiteUrl(): string {
   return getBaseUrl() || "https://spartanhospicecoaching.com";
 }
@@ -397,6 +405,28 @@ export async function registerMobile(input: {
   }
   await setSessionToken(data.token);
   return data as MobileAuthUser & { token: string };
+}
+
+export async function requestPasswordResetMobile(email: string): Promise<{ ok: boolean; message: string }> {
+  const response = await fetch(`${getBase()}/api/auth/forgot-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...clientPlatformHeaders() },
+    body: JSON.stringify({ email: email.trim().toLowerCase() }),
+  });
+  const data = await response.json().catch(() => ({})) as { ok?: boolean; message?: string; error?: string };
+  if (!response.ok) throw new ApiError(data.error || "Password reset could not be requested", response.status);
+  return { ok: true, message: data.message || "If an account exists for that email, a reset link has been sent." };
+}
+
+export async function resetPasswordMobile(input: { token: string; password: string }): Promise<{ ok: boolean }> {
+  const response = await fetch(`${getBase()}/api/auth/reset-password`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...clientPlatformHeaders() },
+    body: JSON.stringify(input),
+  });
+  const data = await response.json().catch(() => ({})) as { ok?: boolean; error?: string };
+  if (!response.ok) throw new ApiError(data.error || "Password could not be reset", response.status);
+  return { ok: true };
 }
 
 export async function logoutMobile(): Promise<void> {
@@ -502,6 +532,14 @@ export type OrgMemberSummary = {
   lastLoginAt?: string | null;
 };
 
+export type AdminSharedSummary = {
+  id: string;
+  ownerName: string;
+  summary: string;
+  commitments: string[];
+  sharedAt: string;
+};
+
 export async function fetchPlatformAdminOverview() {
   const [metrics, organizations, requests] = await Promise.all([
     apiGet<AdminMetrics>("/api/admin/access-metrics"),
@@ -516,11 +554,12 @@ export async function fetchPlatformAdminOverview() {
 }
 
 export async function fetchOrganizationAdminOverview() {
-  const [members, usage] = await Promise.all([
+  const [members, usage, shared] = await Promise.all([
     apiGet<{ members: OrgMemberSummary[]; invites: Array<{ id: number; email: string; role: string; status: string }>; seatLimit: number }>("/api/org/members"),
-    apiGet<{ total: number; days: number; byTool: Array<{ toolName: string; count: number }>; byMember: Array<{ email: string; count: number }> }>("/api/org/usage"),
+    apiGet<{ total: number; days: number; byTool: Array<{ toolName: string; count: number }>; byMember: Array<{ email: string; count: number }>; completionTotal: number; completionTrend: Array<{ date: string; count: number }> }>("/api/org/usage"),
+    apiGet<{ summaries: AdminSharedSummary[] }>("/api/org/shared-summaries"),
   ]);
-  return { ...members, usage };
+  return { ...members, usage, sharedSummaries: shared.summaries || [] };
 }
 
 export async function inviteOrganizationMember(input: { name: string; email: string; role?: "member" | "org_admin" }) {
@@ -546,6 +585,7 @@ export async function fetchValueReceipt(): Promise<ValueReceipt | null> {
 
 export async function updateOnboardingMobile(body: {
   jobRole?: string | null;
+  alsoLeadsTeam?: boolean;
   territoryNote?: string | null;
   topObjections?: string | null;
   checklistItem?: { id: string; done: boolean };

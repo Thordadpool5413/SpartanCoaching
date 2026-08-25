@@ -4,6 +4,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -160,6 +161,7 @@ export default function Portal() {
   const { toast } = useToast();
   const { startCheckout, checkoutPending } = useBillingActions();
   const [jobRole, setJobRole] = useState<string>("");
+  const [alsoLeadsTeam, setAlsoLeadsTeam] = useState(false);
   const [territoryNote, setTerritoryNote] = useState("");
   const [topObjections, setTopObjections] = useState("");
   const [checklist, setChecklist] = useState<Record<string, boolean | string>>({});
@@ -175,6 +177,7 @@ export default function Portal() {
       const data = await res.json();
       const m = data.member;
       setJobRole(m.jobRole || "");
+      setAlsoLeadsTeam(Boolean(m.alsoLeadsTeam));
       setTerritoryNote(m.territoryNote || "");
       setTopObjections(m.topObjections || "");
       setChecklist(m.checklistProgress || {});
@@ -211,7 +214,7 @@ export default function Portal() {
 
   const startHere = START_HERE[jobRole || "other"] || START_HERE.other;
 
-  const saveProfile = async (roleOverride?: string) => {
+  const saveProfile = async (roleOverride?: string, leadershipOverride?: boolean) => {
     const role = roleOverride ?? jobRole;
     setSavingProfile(true);
     try {
@@ -221,6 +224,7 @@ export default function Portal() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           jobRole: role || null,
+          alsoLeadsTeam: leadershipOverride ?? alsoLeadsTeam,
           territoryNote: territoryNote.trim() || null,
           topObjections: topObjections.trim() || null,
         }),
@@ -755,6 +759,21 @@ export default function Portal() {
                 <SelectItem value="other">Other</SelectItem>
               </SelectContent>
             </Select>
+            <div className="flex items-center justify-between gap-4 rounded-xl border border-border bg-background/60 p-3">
+              <div>
+                <Label htmlFor="also-leads-team" className="font-semibold">I also lead a team</Label>
+                <p className="text-xs text-muted-foreground mt-1">Adds relevant leadership guidance without changing your primary role.</p>
+              </div>
+              <Switch
+                id="also-leads-team"
+                checked={alsoLeadsTeam}
+                onCheckedChange={(checked) => {
+                  setAlsoLeadsTeam(checked);
+                  void saveProfile(undefined, checked);
+                }}
+                data-testid="switch-also-leads-team"
+              />
+            </div>
             {savingProfile && <p className="text-xs text-muted-foreground">Saving…</p>}
           </Card>
 

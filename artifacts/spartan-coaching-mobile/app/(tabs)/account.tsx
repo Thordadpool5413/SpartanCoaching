@@ -1,49 +1,28 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { Feather } from "@expo/vector-icons";
+import { router, useFocusEffect } from "expo-router";
+import React, { useCallback, useMemo, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  AppState,
-  Linking,
   Platform,
   Pressable,
   ScrollView,
   StyleSheet,
+  Switch,
   Text,
   TextInput,
   View,
 } from "react-native";
-import { Feather } from "@expo/vector-icons";
-import { router, useFocusEffect, type Href } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import {
-  entitlementShellCopy,
-  formatHoursRemainingLabel,
-  resolveEntitlementShell,
-} from "@workspace/field-kit-catalog";
+import { AppleSubscriptionActions } from "@/components/AppleSubscriptionActions";
+import { SpartanHeader } from "@/components/ui/SpartanHeader";
 import { SpartanButton } from "@/components/ui/SpartanButton";
-import {
-  AppleSubscriptionActions,
-  type AppleSubscriptionDisplayPrices,
-} from "@/components/AppleSubscriptionActions";
-import { StatusChip } from "@/components/ui/StatusChip";
 import { useColors } from "@/hooks/useColors";
 import {
   deleteAccountMobile,
-  fetchBillingStatus,
   fetchOnboardingMobile,
-  getWebSiteUrl,
-  openBillingPortal,
-  startIndividualCheckout,
   updateOnboardingMobile,
-  type BillingStatus,
 } from "@/lib/api";
-import {
-  APP_STORE_PRIVACY_URL,
-  APP_STORE_SUPPORT_URL,
-  APP_STORE_TERMS_URL,
-  APP_STORE_TRUST_URL,
-} from "@/lib/appStoreReadiness";
-import { markCheckoutPending } from "@/lib/activationCeremony";
 import { useAppearancePreference, type AppearancePreference } from "@/lib/AppearanceContext";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
@@ -64,26 +43,17 @@ const APPEARANCES: Array<{ id: AppearancePreference; label: string; icon: React.
 
 export default function AccountScreen() {
   const colors = useColors();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
   const insets = useSafeAreaInsets();
   const { preference, setPreference } = useAppearancePreference();
-  const { user, isLoading, isAuthenticated, canUseFieldKit, canUseElite, logout, refresh } = useAuth();
+  const { user, isLoading, isAuthenticated, canUseFieldKit, canUseElite, canManageOrganization, logout, refresh } = useAuth();
   const [jobRole, setJobRole] = useState("");
+  const [alsoLeadsTeam, setAlsoLeadsTeam] = useState(false);
   const [territoryNote, setTerritoryNote] = useState("");
   const [topObjections, setTopObjections] = useState("");
   const [saving, setSaving] = useState(false);
-  const [message, setMessage] = useState<string | null>(null);
-  const [billing, setBilling] = useState<BillingStatus | null>(null);
-  const [billingLoading, setBillingLoading] = useState(false);
-  const [billingError, setBillingError] = useState<string | null>(null);
-  const [checkoutPending, setCheckoutPending] = useState(false);
-  const [portalPending, setPortalPending] = useState(false);
+  const [profileMessage, setProfileMessage] = useState<string | null>(null);
   const [deletePending, setDeletePending] = useState(false);
-  const [selectedPlan, setSelectedPlan] = useState<"standard_weekly" | "elite_weekly">("elite_weekly");
-  const [applePrices, setApplePrices] = useState<AppleSubscriptionDisplayPrices>({});
-  const billingLastFetchedRef = useRef(0);
-  const stripeOpenedRef = useRef(false);
-  const appStateRef = useRef(AppState.currentState);
-  const BILLING_STALE_MS = 30_000;
 
   const topPad = Platform.OS === "web" ? 67 : insets.top;
   const bottomPad = Platform.OS === "web" ? 34 : insets.bottom + 24;
@@ -93,177 +63,81 @@ export default function AccountScreen() {
     try {
       const data = await fetchOnboardingMobile();
       setJobRole(data.member.jobRole || "");
+      setAlsoLeadsTeam(Boolean(data.member.alsoLeadsTeam));
       setTerritoryNote(data.member.territoryNote || "");
       setTopObjections(data.member.topObjections || "");
     } catch {
-      // The account remains usable when optional profile data is offline.
+      // Optional profile context can fail offline without blocking Account.
     }
   }, [canUseFieldKit]);
 
-  const loadBilling = useCallback(async () => {
-    if (!isAuthenticated) return;
-    setBillingLoading(true);
-    setBillingError(null);
-    try {
-      const value = await fetchBillingStatus();
-      setBilling(value);
-      billingLastFetchedRef.current = Date.now();
-    } catch {
-      setBillingError("Membership status could not be refreshed. Your last verified access is still shown.");
-    } finally {
-      setBillingLoading(false);
-    }
-  }, [isAuthenticated]);
-
   useFocusEffect(
     useCallback(() => {
-      void loadProfile();
-      void loadBilling();
       void refresh();
-    }, [loadProfile, loadBilling, refresh]),
+      void loadProfile();
+    }, [loadProfile, refresh]),
   );
 
-  useEffect(() => {
-    const subscription = AppState.addEventListener("change", (nextState) => {
-      if (appStateRef.current !== "active" && nextState === "active") {
-        if (stripeOpenedRef.current) {
-          stripeOpenedRef.current = false;
-          void loadBilling();
-        } else if (Date.now() - billingLastFetchedRef.current >= BILLING_STALE_MS) {
-          void loadBilling();
-        }
-        void refresh();
-      }
-      appStateRef.current = nextState;
-    });
-    return () => subscription.remove();
-  }, [loadBilling, refresh]);
-
   if (isLoading) {
-    return <View style={[styles.center, { backgroundColor: colors.background }]}><ActivityIndicator color={colors.primary} /></View>;
+    return <View style={[styles.center, { paddingTop: topPad }]}><ActivityIndicator color={colors.primary} /></View>;
   }
 
   if (!isAuthenticated || !user) {
     return (
-      <ScrollView style={{ flex: 1, backgroundColor: colors.background }} contentContainerStyle={{ paddingTop: topPad + 24, paddingBottom: bottomPad, paddingHorizontal: 20 }}>
-        <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>MEMBER ACCESS</Text>
-        <Text style={[styles.pageTitle, { color: colors.foreground }, font("heavy")]}>Your field system</Text>
-        <Text style={[styles.pageSubtitle, { color: colors.mutedForeground }, font("regular")]}>Sign in with the same account you use on the Spartan Coaching website. Your membership, saved work, and private commitments follow you.</Text>
-        <View style={[styles.heroCard, { backgroundColor: colors.heroBackground, borderColor: colors.primary }]}>
-          <Text style={[styles.heroEyebrow, { color: colors.heroMuted }, font("bold")]}>HOSPICE SALES PRO</Text>
-          <Text style={[styles.heroTitle, { color: colors.heroForeground }, font("heavy")]}>One account. Every field tool.</Text>
-          <View style={{ marginTop: 17, gap: 11 }}>
-            <Benefit icon="target" title="Standard" body="Core planning, practice, outreach, and field resources at $14.99 per week." inverted />
-            <Benefit icon="zap" title="Elite" body="Adds private Spartan Coach and deidentified clinical education tools at $19.99 per week." inverted />
-            <Benefit icon="users" title="Company teams" body="Contracted seats, organization access, and discounted rates." inverted />
-          </View>
-        </View>
-        <SpartanButton title="Client login" onPress={() => router.push("/login")} style={{ marginTop: 18 }} />
-        <SpartanButton title="Create an individual account" variant="outline" onPress={() => router.push("/register" as Href)} style={{ marginTop: 10 }} testID="button-create-account" />
-        <Pressable onPress={() => router.push("/(tabs)/contact")} style={styles.textLink}><Text style={[{ color: colors.primary }, font("bold")]}>Team access or consulting</Text></Pressable>
+      <ScrollView style={styles.screen} contentInsetAdjustmentBehavior="automatic" contentContainerStyle={{ paddingTop: topPad + 20, paddingHorizontal: 20, paddingBottom: bottomPad + 24 }}>
+        <SpartanHeader title="Account" showAccount={false} />
+        <Text style={styles.kicker}>ACCOUNT</Text>
+        <Text style={styles.pageTitle}>Explore first. Connect an account when it has something worth protecting.</Text>
+        <Text style={styles.pageSubtitle}>You can tour the system and purchase through Apple before creating a Spartan account. Signing in connects membership, saved work, commitments, and preferences across your devices.</Text>
+
+        <Pressable onPress={() => router.push("/access" as any)} style={styles.heroAction} accessibilityRole="button">
+          <View style={styles.heroIcon}><Feather name="grid" size={22} color="#FFFFFF" /></View>
+          <View style={{ flex: 1 }}><Text style={styles.heroActionTitle}>See everything in Spartan Coaching</Text><Text style={styles.heroActionBody}>Understand every destination and access level before you commit.</Text></View>
+          <Feather name="chevron-right" size={20} color="#FFFFFF" />
+        </Pressable>
+
+        <SpartanButton title="Compare memberships and subscribe" onPress={() => router.push("/membership" as any)} style={{ marginTop: 18 }} />
+        <SpartanButton title="Sign in" variant="outline" onPress={() => router.push("/login" as any)} style={{ marginTop: 10 }} />
+        <Pressable onPress={() => router.push("/(tabs)/contact" as any)} style={styles.simpleLink}><Text style={styles.simpleLinkText}>Company access or human consulting</Text><Feather name="chevron-right" size={17} color={colors.primary} /></Pressable>
       </ScrollView>
     );
   }
 
   const org = user.organization;
-  const fieldKit = user.fieldKit;
-  const billingOrg = billing?.organization;
-  const isPersonal = org?.type === "personal";
   const isCompany = org?.type === "company";
-  const isPlatform = org?.type === "platform" || user.member.role === "platform_admin";
-  const isComp = billingOrg?.billingPlan === "comp" || org?.billingPlan === "comp";
-  const billingProvider = billingOrg?.billingProvider || org?.billingProvider || null;
-  const billingState = billingOrg?.billingStatus || org?.billingStatus || "";
-  const hasPaidSubscription = ["active", "trialing"].includes(billingState) && (
-    billingProvider === "apple" ||
-    Boolean(billingOrg?.hasStripeSubscription || org?.hasStripeSubscription)
-  );
-  const cancelAtPeriodEnd = Boolean(billingOrg?.cancelAtPeriodEnd ?? org?.cancelAtPeriodEnd);
-  const periodEnd = billingOrg?.currentPeriodEnd || org?.currentPeriodEnd;
-  const canCheckout = Boolean(
-    isPersonal &&
-    !isPlatform &&
-    !isComp &&
-    !hasPaidSubscription &&
-    ["trial", "expired", "suspended", "active"].includes(org?.status || ""),
-  );
-  const canPortal = Boolean(billing?.canOpenPortal || billingOrg?.hasStripeCustomer || org?.hasStripeCustomer);
-  const shellId = resolveEntitlementShell({
-    isAuthenticated: true,
-    orgStatus: org?.status,
-    orgType: org?.type,
-    billingPlan: billingOrg?.billingPlan || org?.billingPlan,
-    fieldKitAllowed: canUseFieldKit,
-    fieldKitReason: fieldKit?.reason,
-    cancelAtPeriodEnd,
-    hasPaidSubscription,
-    hoursRemaining: fieldKit?.hoursRemaining,
-  });
-  const shellCopy = entitlementShellCopy(shellId, { hoursLabel: formatHoursRemainingLabel(fieldKit?.hoursRemaining) });
-  const currentTier = isCompany ? "Team membership" : canUseElite ? "Hospice Sales Pro Elite" : canUseFieldKit ? "Hospice Sales Pro Standard" : "Membership inactive";
-  const currentPrice = billingProvider === "apple" && Platform.OS === "ios"
-    ? canUseElite
-      ? applePrices.elite_weekly
-      : applePrices.standard_weekly
-    : canUseElite
-      ? "$19.99"
-      : "$14.99";
-
-  const subscribe = async () => {
-    setCheckoutPending(true);
-    try {
-      const { url } = await startIndividualCheckout(selectedPlan);
-      if (!(await Linking.canOpenURL(url))) throw new Error("Secure checkout could not be opened.");
-      stripeOpenedRef.current = true;
-      await markCheckoutPending();
-      await Linking.openURL(url);
-    } catch (error: any) {
-      Alert.alert("Checkout unavailable", String(error?.message || "Try again from the website Account page.").replace(/^\d+:\s*/, "").slice(0, 280));
-    } finally {
-      setCheckoutPending(false);
-    }
-  };
-
-  const manageBilling = async () => {
-    setPortalPending(true);
-    try {
-      const { url } = await openBillingPortal();
-      stripeOpenedRef.current = true;
-      await markCheckoutPending();
-      await Linking.openURL(url);
-    } catch (error: any) {
-      Alert.alert("Billing unavailable", String(error?.message || "Try again from the website Account page.").replace(/^\d+:\s*/, "").slice(0, 280));
-    } finally {
-      setPortalPending(false);
-    }
-  };
+  const isAdmin = canManageOrganization;
+  const isPersonal = org?.type === "personal";
+  const tier = isCompany
+    ? canUseElite ? "Company Elite" : canUseFieldKit ? "Company Standard" : "Company access pending"
+    : canUseElite ? "Elite" : canUseFieldKit ? "Standard" : "No active membership";
 
   const saveProfile = async () => {
     setSaving(true);
-    setMessage(null);
+    setProfileMessage(null);
     try {
       await updateOnboardingMobile({
         jobRole: jobRole || null,
+        alsoLeadsTeam,
         territoryNote: territoryNote.trim() || null,
         topObjections: topObjections.trim() || null,
       });
       await refresh();
-      setMessage("Profile saved");
+      setProfileMessage("Profile saved");
     } catch (error: any) {
-      setMessage(error?.message || "Profile could not be saved");
+      setProfileMessage(error?.message || "Profile could not be saved");
     } finally {
       setSaving(false);
     }
   };
 
-  const deleteAccount = () => {
+  const confirmDelete = () => {
     if (user.member.role === "platform_admin") {
       Alert.alert("Not available", "Platform administrator accounts cannot be deleted from the app.");
       return;
     }
     Alert.alert(
       "Delete your account?",
-      "This permanently closes the account and signs you out. Manage any active subscription before deletion.",
+      "This permanently closes your Spartan account and signs you out. If you have an Apple subscription, manage that subscription separately through Apple before deleting the account.",
       [
         { text: "Cancel", style: "cancel" },
         {
@@ -274,7 +148,7 @@ export default function AccountScreen() {
             try {
               await deleteAccountMobile();
               await logout();
-              router.replace("/(tabs)");
+              router.replace("/(tabs)" as any);
             } catch (error: any) {
               Alert.alert("Could not delete account", String(error?.message || "Contact support for help.").slice(0, 280));
             } finally {
@@ -286,153 +160,69 @@ export default function AccountScreen() {
     );
   };
 
+  const initials = user.member.name.split(/\s+/).filter(Boolean).slice(0, 2).map((part) => part[0]).join("").toUpperCase();
+
   return (
     <ScrollView
-      style={{ flex: 1, backgroundColor: colors.background }}
-      contentContainerStyle={{ paddingTop: topPad + 18, paddingBottom: bottomPad + 12, paddingHorizontal: 20 }}
+      style={styles.screen}
+      contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={{ paddingTop: topPad + 16, paddingHorizontal: 20, paddingBottom: bottomPad + 30 }}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
-      keyboardDismissMode="on-drag"
+      testID="screen-account"
     >
-      <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>MY SPARTAN</Text>
+      <SpartanHeader title="Account" showAccount={false} />
+      <Text style={styles.kicker}>MY SPARTAN</Text>
       <View style={styles.identityRow}>
-        <View style={[styles.avatar, { backgroundColor: colors.primary }]}>
-          <Text style={[styles.avatarText, { color: colors.primaryForeground }, font("heavy")]}>{user.member.name.split(/\s+/).map((part) => part[0]).join("").slice(0, 2).toUpperCase()}</Text>
-        </View>
-        <View style={{ flex: 1 }}>
-          <Text style={[styles.memberName, { color: colors.foreground }, font("heavy")]}>{user.member.name}</Text>
-          <Text style={[styles.memberEmail, { color: colors.mutedForeground }, font("regular")]}>{user.member.email}</Text>
-        </View>
+        <View style={styles.avatar}><Text style={styles.avatarText}>{initials}</Text></View>
+        <View style={{ flex: 1 }}><Text style={styles.memberName}>{user.member.name}</Text><Text style={styles.memberEmail}>{user.member.email}</Text></View>
       </View>
 
-      {(user.member.role === "org_admin" || user.member.role === "platform_admin") ? (
-        <Pressable onPress={() => router.push("/admin")} style={[styles.adminHero, { backgroundColor: colors.primaryMuted, borderColor: colors.primary }]} testID="account-admin-hero">
-          <View style={[styles.adminHeroIcon, { backgroundColor: colors.primary }]}><Feather name="shield" size={19} color={colors.primaryForeground} /></View>
-          <View style={{ flex: 1 }}><Text style={[styles.adminHeroEyebrow, { color: colors.primary }, font("bold")]}>ADMIN WORKSPACE</Text><Text style={[styles.adminHeroTitle, { color: colors.foreground }, font("bold")]}>Manage {user.member.role === "platform_admin" ? "the platform" : "your team"}</Text><Text style={[styles.adminHeroBody, { color: colors.mutedForeground }, font("regular")]}>Live access, members, invitations, contracted seats, and adoption.</Text></View>
+      <Pressable onPress={() => router.push("/access" as any)} style={styles.membershipCard} accessibilityRole="button" testID="account-membership-card">
+        <View style={{ flex: 1 }}>
+          <Text style={styles.cardKicker}>YOUR ACCESS</Text>
+          <Text style={styles.membershipTitle}>{tier}</Text>
+          <Text style={styles.membershipBody}>{isCompany ? "Provided through your organization contract and seat assignment." : canUseElite ? "The complete field system plus private Coach." : canUseFieldKit ? "The complete field system without private Coach." : "Explore the app and choose Standard or Elite when you are ready."}</Text>
+        </View>
+        <Feather name="chevron-right" size={22} color={colors.heroForeground} />
+      </Pressable>
+
+      {isPersonal ? (
+        <View style={styles.section}>
+          <Text style={styles.sectionKicker}>APPLE MEMBERSHIP</Text>
+          <Text style={styles.sectionTitle}>{canUseFieldKit ? "Manage individual access" : "Choose individual access"}</Text>
+          <Text style={styles.sectionBody}>Individual iOS membership is purchased and managed through Apple. Spartan Coaching does not send you to browser checkout for an iPhone subscription.</Text>
+          {canUseFieldKit ? <AppleSubscriptionActions isAuthenticated showManage onEntitlementChanged={refresh} /> : <SpartanButton title="Compare Standard and Elite" onPress={() => router.push("/membership" as any)} />}
+        </View>
+      ) : null}
+
+      {isCompany ? (
+        <View style={styles.section} testID="company-apple-renewal-guidance">
+          <Text style={styles.sectionKicker}>PREVIOUS INDIVIDUAL APPLE ACCESS</Text>
+          <Text style={styles.sectionTitle}>Company access does not cancel an Apple subscription.</Text>
+          <Text style={styles.sectionBody}>If you previously subscribed to Spartan Coaching through Apple, your company seat is active separately. Manage the individual subscription privately in Apple Subscriptions to prevent another renewal. Your organization cannot see whether you have or cancel an individual Apple subscription.</Text>
+          <AppleSubscriptionActions isAuthenticated showManage showRestore={false} />
+        </View>
+      ) : null}
+
+      {isAdmin ? (
+        <Pressable onPress={() => router.push("/admin" as any)} style={styles.adminCard} testID="account-admin-hero">
+          <View style={styles.adminIcon}><Feather name="shield" size={20} color="#FFFFFF" /></View>
+          <View style={{ flex: 1 }}><Text style={styles.adminTitle}>Organization Admin</Text><Text style={styles.adminBody}>Manage seats, members, invitations, roles, adoption, and explicitly shared information. Private Coach content is never exposed here.</Text></View>
           <Feather name="chevron-right" size={20} color={colors.primary} />
         </Pressable>
       ) : null}
 
-      <View style={[styles.membershipCard, { backgroundColor: colors.heroBackground, borderColor: canUseElite ? colors.primary : colors.borderStrong }]} testID="card-membership-billing">
-        <View style={styles.membershipTop}>
-          <View style={{ flex: 1 }}>
-            <Text style={[styles.heroEyebrow, { color: colors.heroMuted }, font("bold")]}>YOUR MEMBERSHIP</Text>
-            <Text style={[styles.membershipTitle, { color: colors.heroForeground }, font("heavy")]}>{currentTier}</Text>
-          </View>
-          <StatusChip label={shellCopy.chip} role={canUseFieldKit ? "active" : shellId === "trial" ? "trial" : "locked"} testID="account-status-chip" />
-        </View>
-
-        {isPersonal && !isPlatform && hasPaidSubscription && currentPrice ? (
-          <Text style={[styles.membershipPrice, { color: colors.heroForeground }, font("heavy")]}>{currentPrice}<Text style={[styles.membershipCadence, { color: colors.heroMuted }, font("semibold")]}> per week</Text></Text>
-        ) : null}
-        <Text style={[styles.membershipBody, { color: colors.heroMuted }, font("regular")]}>{shellCopy.body}</Text>
-        {periodEnd && hasPaidSubscription ? <Text style={[styles.renewal, { color: colors.heroForeground }, font("semibold")]}>{cancelAtPeriodEnd ? "Access until" : "Renews"} {new Date(periodEnd).toLocaleDateString()}</Text> : null}
-
-        {billingLoading ? <View style={styles.loadingRow}><ActivityIndicator size="small" color={colors.primary} /><Text style={[{ color: colors.heroMuted }, font("regular")]}>Refreshing access</Text></View> : null}
-        {billingError ? <Text accessibilityRole="alert" style={[styles.billingError, { color: colors.heroMuted }, font("regular")]}>{billingError}</Text> : null}
-        {!billingLoading && canPortal ? <SpartanButton title={portalPending ? "Opening billing" : "Manage membership"} variant="outline" onPress={() => void manageBilling()} loading={portalPending} style={{ marginTop: 16, borderColor: colors.heroMuted }} testID="button-manage-billing" /> : null}
-        {!billingLoading && !canPortal ? <SpartanButton title="Refresh access" variant="outline" onPress={() => { void loadBilling(); void refresh(); }} style={{ marginTop: 16, borderColor: colors.heroMuted }} /> : null}
-        {Platform.OS === "ios" && isPersonal && !canCheckout ? (
-          <View style={{ marginTop: 9 }}>
-            <AppleSubscriptionActions
-              showManage={billingProvider === "apple" && hasPaidSubscription}
-              onPricesLoaded={setApplePrices}
-              onEntitlementChanged={async () => { await loadBilling(); await refresh(); }}
-            />
-          </View>
-        ) : null}
-      </View>
-
-      {canCheckout ? (
-        <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]} testID="card-day-zero">
-          <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>CHOOSE YOUR ACCESS</Text>
-          <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Built for the work you do</Text>
-          <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>Standard unlocks the field system. Elite adds private voice coaching and deidentified clinical education.</Text>
-          <View style={styles.planGrid}>
-            <PlanChoice
-              selected={selectedPlan === "standard_weekly"}
-              title="Standard"
-              price={Platform.OS === "ios" ? applePrices.standard_weekly || "Apple price" : "$14.99"}
-              cadence={Platform.OS === "ios" && !applePrices.standard_weekly ? "" : " / week"}
-              body="Planning, practice, outreach, resources"
-              onPress={() => setSelectedPlan("standard_weekly")}
-            />
-            <PlanChoice
-              selected={selectedPlan === "elite_weekly"}
-              title="Elite"
-              price={Platform.OS === "ios" ? applePrices.elite_weekly || "Apple price" : "$19.99"}
-              cadence={Platform.OS === "ios" && !applePrices.elite_weekly ? "" : " / week"}
-              body="Everything plus Coach and clinical tools"
-              badge="BEST FIT"
-              onPress={() => {
-                if (Platform.OS !== "ios" && billing?.individualWeeklyElitePriceConfigured === false) {
-                  Alert.alert("Elite web checkout unavailable", "Standard remains available while Elite web billing is configured.");
-                  return;
-                }
-                setSelectedPlan("elite_weekly");
-              }}
-            />
-          </View>
-          <View style={{ marginTop: 14 }}>
-            {Platform.OS === "ios" ? (
-              <AppleSubscriptionActions
-                plan={selectedPlan}
-                showPurchase
-                onPricesLoaded={setApplePrices}
-                onEntitlementChanged={async () => { await loadBilling(); await refresh(); }}
-              />
-            ) : (
-              <SpartanButton
-                title={selectedPlan === "elite_weekly" ? "Choose Elite" : "Choose Standard"}
-                onPress={() => void subscribe()}
-                loading={checkoutPending}
-                testID="button-subscribe"
-              />
-            )}
-          </View>
-          <Text style={[styles.purchaseNote, { color: colors.mutedForeground }, font("regular")]}>Apple purchases are finished only after the signed transaction is verified by Spartan Coaching and bound to this account.</Text>
-        </View>
-      ) : null}
-
-      <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]} testID="card-your-membership">
-        <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>ACCESS</Text>
-        <AccessRow icon="target" title="Core field system" state={canUseFieldKit ? "Unlocked" : "Locked"} active={canUseFieldKit} />
-        <AccessRow icon="mic" title="Private Spartan Coach" state={canUseElite ? "Unlocked" : "Elite"} active={Boolean(canUseElite)} onPress={() => router.push(canUseElite ? "/(tabs)/coach" : "/(tabs)/account")} />
-        <AccessRow icon="shield" title="Deidentified clinical education" state={canUseElite ? "Unlocked" : "Elite"} active={Boolean(canUseElite)} onPress={() => router.push(canUseElite ? "/ai-tools" as any : "/(tabs)/account")} />
-        {isCompany ? <Text style={[styles.teamNote, { color: colors.mutedForeground }, font("regular")]}>Seat changes and contracted billing are managed by your organization administrator.</Text> : null}
-        {(user.member.role === "org_admin" || user.member.role === "platform_admin") ? (
-          <Pressable onPress={() => router.push("/admin")} style={[styles.inlineLink, { borderTopColor: colors.border }]} testID="account-admin-console">
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.inlineTitle, { color: colors.foreground }, font("bold")]}>Open Admin</Text>
-              <Text style={[styles.inlineBody, { color: colors.mutedForeground }, font("regular")]}>Manage members, contracted seats, invitations, and adoption inside the app.</Text>
-            </View>
-            <Feather name="chevron-right" size={18} color={colors.primary} />
-          </Pressable>
-        ) : null}
-      </View>
-
-      <Pressable onPress={() => void Linking.openURL(`${getWebSiteUrl()}/account`)} style={[styles.webContinuity, { backgroundColor: colors.heroBackground }]} testID="account-web-continuity">
-        <View style={[styles.webContinuityIcon, { backgroundColor: colors.primary }]}><Feather name="monitor" size={19} color={colors.primaryForeground} /></View>
-        <View style={{ flex: 1 }}><Text style={[styles.webContinuityEyebrow, { color: colors.primary }, font("bold")]}>IPHONE AND WEB</Text><Text style={[styles.webContinuityTitle, { color: colors.heroForeground }, font("bold")]}>Continue in the web workspace</Text><Text style={[styles.webContinuityBody, { color: colors.heroMuted }, font("regular")]}>Use the same account, membership, saved work, and commitments when a larger screen is useful.</Text></View>
-        <Feather name="arrow-up-right" size={19} color={colors.heroForeground} />
-      </Pressable>
-
-      <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-        <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>APPEARANCE</Text>
-        <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Make it yours</Text>
-        <View style={styles.appearanceGrid}>
+      <View style={styles.section}>
+        <Text style={styles.sectionKicker}>APPEARANCE</Text>
+        <Text style={styles.sectionTitle}>Make the app feel native to your iPhone.</Text>
+        <View style={styles.appearanceRow}>
           {APPEARANCES.map((item) => {
             const selected = preference === item.id;
             return (
-              <Pressable
-                key={item.id}
-                onPress={() => void setPreference(item.id)}
-                style={[styles.appearanceChoice, { backgroundColor: selected ? colors.primary : colors.background, borderColor: selected ? colors.primary : colors.border }]}
-                accessibilityRole="radio"
-                accessibilityState={{ checked: selected }}
-              >
-                <Feather name={item.icon} size={18} color={selected ? colors.primaryForeground : colors.foreground} />
-                <Text style={[styles.appearanceLabel, { color: selected ? colors.primaryForeground : colors.foreground }, font("bold")]}>{item.label}</Text>
+              <Pressable key={item.id} onPress={() => setPreference(item.id)} style={[styles.appearanceChoice, selected && styles.appearanceSelected]} accessibilityState={{ selected }}>
+                <Feather name={item.icon} size={18} color={selected ? colors.primary : colors.mutedForeground} />
+                <Text style={[styles.appearanceText, selected && { color: colors.primary }]}>{item.label}</Text>
               </Pressable>
             );
           })}
@@ -440,178 +230,131 @@ export default function AccountScreen() {
       </View>
 
       {canUseFieldKit ? (
-        <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>FIELD PROFILE</Text>
-          <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Tune the experience</Text>
-          <Text style={[styles.fieldLabel, { color: colors.mutedForeground }, font("bold")]}>ROLE</Text>
+        <View style={styles.section}>
+          <Text style={styles.sectionKicker}>FIELD CONTEXT</Text>
+          <Text style={styles.sectionTitle}>Give the app useful context without giving it patient data.</Text>
+          <Text style={styles.sectionBody}>These preferences help shape planning and coaching. Do not enter patient PHI.</Text>
+          <Text style={styles.label}>Primary role</Text>
           <View style={styles.roleWrap}>
             {ROLES.map((role) => {
               const selected = jobRole === role.id;
-              return (
-                <Pressable key={role.id} onPress={() => setJobRole(role.id)} style={[styles.roleChip, { backgroundColor: selected ? colors.primaryMuted : colors.background, borderColor: selected ? colors.primary : colors.border }]}>
-                  <Text style={[styles.roleLabel, { color: selected ? colors.primary : colors.foreground }, font("bold")]}>{role.label}</Text>
-                </Pressable>
-              );
+              return <Pressable key={role.id} onPress={() => setJobRole(role.id)} style={[styles.roleChip, selected && styles.roleChipSelected]}><Text style={[styles.roleText, selected && { color: colors.primary }]}>{role.label}</Text></Pressable>;
             })}
           </View>
-          <Text style={[styles.fieldLabel, { color: colors.mutedForeground }, font("bold")]}>TERRITORY CONTEXT</Text>
-          <TextInput value={territoryNote} onChangeText={setTerritoryNote} placeholder="Market, facilities, focus" placeholderTextColor={colors.mutedForeground} multiline style={[styles.input, { color: colors.foreground, backgroundColor: colors.background, borderColor: colors.border }]} />
-          <Text style={[styles.fieldLabel, { color: colors.mutedForeground }, font("bold")]}>COMMON OBJECTIONS</Text>
-          <TextInput value={topObjections} onChangeText={setTopObjections} placeholder="Not ready, already have a provider" placeholderTextColor={colors.mutedForeground} multiline style={[styles.input, { color: colors.foreground, backgroundColor: colors.background, borderColor: colors.border }]} />
-          <SpartanButton title="Save field profile" onPress={() => void saveProfile()} loading={saving} style={{ marginTop: 14 }} />
-          {message ? <Text accessibilityRole="alert" style={[styles.saveMessage, { color: colors.mutedForeground }, font("regular")]}>{message}</Text> : null}
-          <Text style={[styles.noPhi, { color: colors.mutedForeground }, font("regular")]}>Coaching context only. Never enter patient PHI.</Text>
+          <View style={styles.leadershipRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.label}>I also lead a team</Text>
+              <Text style={styles.leadershipBody}>Home adapts with useful leadership context without changing your primary role or main navigation.</Text>
+            </View>
+            <Switch value={alsoLeadsTeam} onValueChange={setAlsoLeadsTeam} trackColor={{ false: colors.muted, true: colors.primaryMuted }} thumbColor={alsoLeadsTeam ? colors.primary : colors.card} />
+          </View>
+          <Text style={styles.label}>Territory context</Text>
+          <TextInput style={styles.input} value={territoryNote} onChangeText={setTerritoryNote} placeholder="Territory priorities, account mix, leadership context" placeholderTextColor={colors.mutedForeground} multiline />
+          <Text style={styles.label}>Top objections</Text>
+          <TextInput style={styles.input} value={topObjections} onChangeText={setTopObjections} placeholder="Common non patient specific objections you want to practice" placeholderTextColor={colors.mutedForeground} multiline />
+          {profileMessage ? <Text style={styles.profileMessage}>{profileMessage}</Text> : null}
+          <SpartanButton title={saving ? "Saving…" : "Save field context"} onPress={saveProfile} disabled={saving} />
         </View>
       ) : null}
 
-      <View style={[styles.sectionCard, { backgroundColor: colors.card, borderColor: colors.border }]} testID="card-privacy-legal">
-        <Text style={[styles.sectionEyebrow, { color: colors.primary }, font("bold")]}>TRUST</Text>
-        <Text style={[styles.sectionTitle, { color: colors.foreground }, font("heavy")]}>Privacy is part of the product</Text>
-        <Text style={[styles.sectionBody, { color: colors.mutedForeground }, font("regular")]}>Raw Coach conversations remain private and are removed after 90 days. Only summaries and commitments you explicitly share can be visible to a manager.</Text>
-        {[
-          { label: "Privacy policy", url: APP_STORE_PRIVACY_URL, testID: "link-privacy" },
-          { label: "Terms of service", url: APP_STORE_TERMS_URL, testID: "link-terms" },
-          { label: "Trust center", url: APP_STORE_TRUST_URL, testID: "link-trust" },
-          { label: "Support", url: APP_STORE_SUPPORT_URL, testID: "link-support" },
-        ].map((item) => (
-          <Pressable key={item.url} onPress={() => void Linking.openURL(item.url)} style={[styles.legalRow, { borderTopColor: colors.border }]} testID={item.testID}>
-            <Text style={[styles.legalLabel, { color: colors.foreground }, font("semibold")]}>{item.label}</Text>
-            <Feather name="arrow-up-right" size={17} color={colors.primary} />
-          </Pressable>
-        ))}
+      {canUseElite ? (
+        <View style={styles.section} testID="account-clinical-context">
+          <Text style={styles.sectionKicker}>CLINICAL CONTEXT</Text>
+          <Text style={styles.sectionTitle}>Set the jurisdiction before clinical education tools use it.</Text>
+          <Text style={styles.sectionBody}>Save your primary state and Medicare Administrative Contractor region. This is account context only and never patient information.</Text>
+          <LinkRow label="State and MAC context" onPress={() => router.push("/jurisdiction" as any)} />
+        </View>
+      ) : null}
+
+      <View style={styles.section}>
+        <Text style={styles.sectionKicker}>PRIVACY & CONTROL</Text>
+        <Text style={styles.sectionTitle}>Know what stays private.</Text>
+        <InfoRow icon="lock" title="Raw Coach conversations" body="Private and hard deleted after 90 days. Organization admins never see prompts, drafts, recordings, transcripts, or unshared outputs." />
+        <InfoRow icon="eye" title="Shared information" body="Only summaries and commitments you explicitly share can become visible to an organization administrator." />
+        <InfoRow icon="database" title="Coach memory" body="Off by default. When enabled, it is visible, editable, and deletable by you." />
+        <InfoRow icon="shield" title="Patient information" body="PHI is prohibited. Clinical or legal risk should be rerouted to the responsible medical, compliance, legal, or leadership channel." />
       </View>
 
-      <SpartanButton
-        title="Sign out"
-        variant="outline"
-        onPress={async () => {
-          await logout();
-          router.replace("/(tabs)");
-        }}
-        style={{ marginTop: 22 }}
-        testID="button-sign-out"
-      />
-      <Pressable onPress={deleteAccount} disabled={deletePending} style={styles.deleteButton} testID="button-delete-account">
-        <Text style={[styles.deleteText, { color: colors.destructive }, font("bold")]}>{deletePending ? "Deleting account" : "Delete account"}</Text>
-      </Pressable>
-      <Text style={[styles.deleteNote, { color: colors.mutedForeground }, font("regular")]}>Account deletion is permanent. Manage an active subscription first.</Text>
+      <View style={styles.section}>
+        <Text style={styles.sectionKicker}>HELP & LEGAL</Text>
+        <LinkRow label="Support" onPress={() => router.push("/support" as any)} />
+        <LinkRow label="Privacy policy" onPress={() => router.push({ pathname: "/legal", params: { document: "privacy" } } as any)} />
+        <LinkRow label="Terms" onPress={() => router.push({ pathname: "/legal", params: { document: "terms" } } as any)} />
+        <LinkRow label="Trust & safety" onPress={() => router.push({ pathname: "/legal", params: { document: "trust" } } as any)} />
+        <LinkRow label="Human consulting" onPress={() => router.push("/(tabs)/contact" as any)} />
+        <LinkRow label="Take the guided tour again" onPress={() => router.push("/tour" as any)} />
+      </View>
+
+      <View style={styles.section}>
+        <SpartanButton title="Sign out" variant="outline" onPress={async () => { await logout(); router.replace("/(tabs)" as any); }} />
+        <Pressable disabled={deletePending} onPress={confirmDelete} style={styles.deleteButton}><Text style={styles.deleteText}>{deletePending ? "Deleting account…" : "Delete account"}</Text></Pressable>
+      </View>
     </ScrollView>
   );
 }
 
-function Benefit({ icon, title, body, inverted }: { icon: React.ComponentProps<typeof Feather>["name"]; title: string; body: string; inverted?: boolean }) {
+function InfoRow({ icon, title, body }: { icon: React.ComponentProps<typeof Feather>["name"]; title: string; body: string }) {
   const colors = useColors();
-  return (
-    <View style={styles.benefit}>
-      <View style={[styles.benefitIcon, { backgroundColor: inverted ? colors.primary : colors.primaryMuted }]}><Feather name={icon} size={17} color={inverted ? colors.primaryForeground : colors.primary} /></View>
-      <View style={{ flex: 1 }}>
-        <Text style={[styles.benefitTitle, { color: inverted ? colors.heroForeground : colors.foreground }, font("bold")]}>{title}</Text>
-        <Text style={[styles.benefitBody, { color: inverted ? colors.heroMuted : colors.mutedForeground }, font("regular")]}>{body}</Text>
-      </View>
-    </View>
-  );
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+  return <View style={styles.infoRow}><View style={styles.infoIcon}><Feather name={icon} size={17} color={colors.primary} /></View><View style={{ flex: 1 }}><Text style={styles.infoTitle}>{title}</Text><Text style={styles.infoBody}>{body}</Text></View></View>;
 }
 
-function PlanChoice({ selected, title, price, cadence = " / week", body, badge, onPress }: { selected: boolean; title: string; price: string; cadence?: string; body: string; badge?: string; onPress: () => void }) {
+function LinkRow({ label, onPress }: { label: string; onPress: () => void }) {
   const colors = useColors();
-  return (
-    <Pressable
-      onPress={onPress}
-      accessibilityRole="radio"
-      accessibilityState={{ checked: selected }}
-      accessibilityLabel={`${title}, ${price}${cadence}`}
-      style={[styles.plan, { backgroundColor: selected ? colors.primaryMuted : colors.background, borderColor: selected ? colors.primary : colors.border, borderWidth: selected ? 2 : 1 }]}
-    >
-      {badge ? <Text style={[styles.planBadge, { color: colors.primary }, font("bold")]}>{badge}</Text> : null}
-      <Text style={[styles.planTitle, { color: colors.foreground }, font("heavy")]}>{title}</Text>
-      <Text style={[styles.planPrice, { color: colors.primary }, font("heavy")]}>{price}<Text style={[styles.planCadence, { color: colors.mutedForeground }, font("regular")]}>{cadence}</Text></Text>
-      <Text style={[styles.planBody, { color: colors.mutedForeground }, font("regular")]}>{body}</Text>
-    </Pressable>
-  );
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+  return <Pressable onPress={onPress} style={styles.linkRow}><Text style={styles.linkLabel}>{label}</Text><Feather name="chevron-right" size={19} color={colors.mutedForeground} /></Pressable>;
 }
 
-function AccessRow({ icon, title, state, active, onPress }: { icon: React.ComponentProps<typeof Feather>["name"]; title: string; state: string; active: boolean; onPress?: () => void }) {
-  const colors = useColors();
-  return (
-    <Pressable onPress={onPress} disabled={!onPress} style={[styles.accessRow, { borderTopColor: colors.border }]}>
-      <View style={[styles.accessIcon, { backgroundColor: active ? colors.primaryMuted : colors.muted }]}><Feather name={icon} size={17} color={active ? colors.primary : colors.mutedForeground} /></View>
-      <Text style={[styles.accessTitle, { color: colors.foreground }, font("semibold")]}>{title}</Text>
-      <Text style={[styles.accessState, { color: active ? colors.success : colors.mutedForeground }, font("bold")]}>{state}</Text>
-      {onPress ? <Feather name="chevron-right" size={17} color={colors.mutedForeground} /> : null}
-    </Pressable>
-  );
+function makeStyles(colors: ReturnType<typeof useColors>) {
+  return StyleSheet.create({
+    screen: { flex: 1, backgroundColor: colors.background },
+    center: { flex: 1, backgroundColor: colors.background, alignItems: "center", justifyContent: "center" },
+    kicker: { color: colors.primary, fontSize: 10, letterSpacing: 2, ...font("bold") },
+    pageTitle: { color: colors.foreground, fontSize: 32, lineHeight: 37, letterSpacing: -0.9, marginTop: 8, ...font("heavy") },
+    pageSubtitle: { color: colors.mutedForeground, fontSize: 15, lineHeight: 22, marginTop: 9, ...font("regular") },
+    heroAction: { minHeight: 96, flexDirection: "row", alignItems: "center", gap: 12, marginTop: 22, backgroundColor: colors.heroBackground, borderRadius: 20, borderCurve: "continuous", padding: 16 },
+    heroIcon: { width: 46, height: 46, borderRadius: 15, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
+    heroActionTitle: { color: colors.heroForeground, fontSize: 16, ...font("bold") },
+    heroActionBody: { color: colors.heroMuted, fontSize: 11, lineHeight: 16, marginTop: 3, ...font("regular") },
+    simpleLink: { minHeight: 52, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 4 },
+    simpleLinkText: { color: colors.primary, fontSize: 13, ...font("bold") },
+    identityRow: { flexDirection: "row", alignItems: "center", gap: 13, marginTop: 13, marginBottom: 20 },
+    avatar: { width: 56, height: 56, borderRadius: 20, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
+    avatarText: { color: colors.primaryForeground, fontSize: 18, ...font("heavy") },
+    memberName: { color: colors.foreground, fontSize: 22, ...font("heavy") },
+    memberEmail: { color: colors.mutedForeground, fontSize: 12, marginTop: 2, ...font("regular") },
+    membershipCard: { minHeight: 142, flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: colors.heroBackground, borderRadius: 22, borderCurve: "continuous", padding: 18, marginBottom: 18 },
+    cardKicker: { color: colors.heroMuted, fontSize: 9, letterSpacing: 1.8, ...font("bold") },
+    membershipTitle: { color: colors.heroForeground, fontSize: 25, lineHeight: 30, marginTop: 5, ...font("heavy") },
+    membershipBody: { color: colors.heroMuted, fontSize: 11, lineHeight: 17, marginTop: 5, ...font("regular") },
+    adminCard: { flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: colors.primaryMuted, borderWidth: 1, borderColor: colors.primary, borderRadius: 18, borderCurve: "continuous", padding: 15, marginBottom: 18 },
+    adminIcon: { width: 44, height: 44, borderRadius: 14, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
+    adminTitle: { color: colors.foreground, fontSize: 15, ...font("bold") },
+    adminBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 3, ...font("regular") },
+    section: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderStrong, paddingTop: 22, marginTop: 7, gap: 12 },
+    sectionKicker: { color: colors.primary, fontSize: 9, letterSpacing: 1.8, ...font("bold") },
+    sectionTitle: { color: colors.foreground, fontSize: 22, lineHeight: 27, ...font("heavy") },
+    sectionBody: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, ...font("regular") },
+    appearanceRow: { flexDirection: "row", gap: 8 },
+    appearanceChoice: { flex: 1, minHeight: 58, alignItems: "center", justifyContent: "center", gap: 5, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, borderRadius: 15, borderCurve: "continuous" },
+    appearanceSelected: { borderColor: colors.primary, backgroundColor: colors.primaryMuted },
+    appearanceText: { color: colors.mutedForeground, fontSize: 11, ...font("semibold") },
+    label: { color: colors.foreground, fontSize: 12, ...font("bold") },
+    roleWrap: { flexDirection: "row", flexWrap: "wrap", gap: 7 },
+    roleChip: { minHeight: 40, justifyContent: "center", paddingHorizontal: 12, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 20, backgroundColor: colors.card },
+    roleChipSelected: { borderColor: colors.primary, backgroundColor: colors.primaryMuted },
+    roleText: { color: colors.mutedForeground, fontSize: 11, ...font("semibold") },
+    leadershipRow: { minHeight: 72, flexDirection: "row", alignItems: "center", gap: 14, borderRadius: 16, borderWidth: 1, borderColor: colors.borderStrong, backgroundColor: colors.card, paddingHorizontal: 14, paddingVertical: 11 },
+    leadershipBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 3, ...font("regular") },
+    input: { minHeight: 64, color: colors.foreground, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 14, borderCurve: "continuous", padding: 12, fontSize: 13, lineHeight: 18, ...font("regular") },
+    profileMessage: { color: colors.primary, fontSize: 11, ...font("semibold") },
+    infoRow: { flexDirection: "row", alignItems: "flex-start", gap: 11, paddingVertical: 9 },
+    infoIcon: { width: 38, height: 38, borderRadius: 13, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
+    infoTitle: { color: colors.foreground, fontSize: 13, ...font("bold") },
+    infoBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 3, ...font("regular") },
+    linkRow: { minHeight: 50, flexDirection: "row", alignItems: "center", borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border, gap: 10 },
+    linkLabel: { flex: 1, color: colors.foreground, fontSize: 13, ...font("semibold") },
+    deleteButton: { minHeight: 48, alignItems: "center", justifyContent: "center" },
+    deleteText: { color: colors.destructive, fontSize: 12, ...font("bold") },
+  });
 }
-
-const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: "center", justifyContent: "center" },
-  kicker: { fontSize: 10, letterSpacing: 2.2, marginBottom: 8 },
-  pageTitle: { fontSize: 35, letterSpacing: -1, marginBottom: 8 },
-  pageSubtitle: { fontSize: 14, lineHeight: 21 },
-  heroCard: { borderWidth: 1, borderRadius: 22, padding: 20, marginTop: 20 },
-  heroEyebrow: { fontSize: 9, letterSpacing: 1.8 },
-  heroTitle: { fontSize: 24, lineHeight: 29, letterSpacing: -0.5, marginTop: 10 },
-  textLink: { minHeight: 48, justifyContent: "center", alignItems: "center", marginTop: 8 },
-  identityRow: { flexDirection: "row", alignItems: "center", gap: 13, marginBottom: 18 },
-  avatar: { width: 48, height: 48, borderRadius: 16, alignItems: "center", justifyContent: "center" },
-  avatarText: { fontSize: 17 },
-  memberName: { fontSize: 24, letterSpacing: -0.5 },
-  memberEmail: { fontSize: 12, marginTop: 3 },
-  adminHero: { minHeight: 94, borderRadius: 20, borderWidth: 1, flexDirection: "row", alignItems: "center", gap: 12, padding: 15, marginBottom: 14 },
-  adminHeroIcon: { width: 44, height: 44, borderRadius: 14, alignItems: "center", justifyContent: "center" },
-  adminHeroEyebrow: { fontSize: 8, letterSpacing: 1.5 },
-  adminHeroTitle: { fontSize: 15, marginTop: 4 },
-  adminHeroBody: { fontSize: 11, lineHeight: 16, marginTop: 3 },
-  membershipCard: { borderWidth: 1, borderRadius: 24, padding: 20 },
-  membershipTop: { flexDirection: "row", alignItems: "flex-start", gap: 12 },
-  membershipTitle: { fontSize: 23, lineHeight: 28, letterSpacing: -0.5, marginTop: 7 },
-  membershipPrice: { fontSize: 30, letterSpacing: -0.8, marginTop: 16 },
-  membershipCadence: { fontSize: 13 },
-  membershipBody: { fontSize: 13, lineHeight: 20, marginTop: 8 },
-  renewal: { fontSize: 12, marginTop: 11 },
-  loadingRow: { flexDirection: "row", alignItems: "center", gap: 8, marginTop: 15 },
-  billingError: { fontSize: 11, lineHeight: 17, marginTop: 12 },
-  sectionCard: { borderWidth: StyleSheet.hairlineWidth * 2, borderRadius: 21, padding: 18, marginTop: 14 },
-  sectionEyebrow: { fontSize: 9, letterSpacing: 1.8, marginBottom: 7 },
-  sectionTitle: { fontSize: 21, letterSpacing: -0.4 },
-  sectionBody: { fontSize: 13, lineHeight: 19, marginTop: 6 },
-  planGrid: { flexDirection: "row", gap: 9, marginTop: 16 },
-  plan: { flex: 1, borderRadius: 17, padding: 14, minHeight: 154 },
-  planBadge: { fontSize: 8, letterSpacing: 1.2, marginBottom: 5 },
-  planTitle: { fontSize: 16 },
-  planPrice: { fontSize: 21, marginTop: 7 },
-  planCadence: { fontSize: 10 },
-  planBody: { fontSize: 11, lineHeight: 16, marginTop: 8 },
-  purchaseNote: { fontSize: 10, lineHeight: 15, textAlign: "center", marginTop: 11 },
-  accessRow: { minHeight: 59, borderTopWidth: StyleSheet.hairlineWidth, flexDirection: "row", alignItems: "center", gap: 10 },
-  accessIcon: { width: 34, height: 34, borderRadius: 11, alignItems: "center", justifyContent: "center" },
-  accessTitle: { flex: 1, fontSize: 13 },
-  accessState: { fontSize: 11 },
-  teamNote: { fontSize: 12, lineHeight: 18, marginTop: 8 },
-  inlineLink: { borderTopWidth: StyleSheet.hairlineWidth, flexDirection: "row", alignItems: "center", paddingTop: 14, marginTop: 4 },
-  inlineTitle: { fontSize: 13 },
-  inlineBody: { fontSize: 11, lineHeight: 16, marginTop: 3 },
-  webContinuity: { minHeight: 104, borderRadius: 21, padding: 16, marginTop: 14, flexDirection: "row", alignItems: "center", gap: 12 },
-  webContinuityIcon: { width: 44, height: 44, borderRadius: 14, alignItems: "center", justifyContent: "center" },
-  webContinuityEyebrow: { fontSize: 8, letterSpacing: 1.5 },
-  webContinuityTitle: { fontSize: 14, marginTop: 4 },
-  webContinuityBody: { fontSize: 11, lineHeight: 16, marginTop: 4 },
-  appearanceGrid: { flexDirection: "row", gap: 8, marginTop: 14 },
-  appearanceChoice: { flex: 1, minHeight: 67, borderWidth: 1, borderRadius: 15, alignItems: "center", justifyContent: "center", gap: 7 },
-  appearanceLabel: { fontSize: 12 },
-  fieldLabel: { fontSize: 9, letterSpacing: 1.3, marginTop: 16 },
-  roleWrap: { flexDirection: "row", flexWrap: "wrap", gap: 7, marginTop: 9 },
-  roleChip: { borderWidth: 1, borderRadius: 999, paddingHorizontal: 11, paddingVertical: 8 },
-  roleLabel: { fontSize: 11 },
-  input: { borderWidth: 1, borderRadius: 14, minHeight: 78, padding: 13, marginTop: 8, fontSize: 14, textAlignVertical: "top" },
-  saveMessage: { fontSize: 12, textAlign: "center", marginTop: 8 },
-  noPhi: { fontSize: 10, textAlign: "center", marginTop: 8 },
-  legalRow: { minHeight: 51, borderTopWidth: StyleSheet.hairlineWidth, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
-  legalLabel: { fontSize: 13 },
-  deleteButton: { minHeight: 48, alignItems: "center", justifyContent: "center", marginTop: 8 },
-  deleteText: { fontSize: 13 },
-  deleteNote: { fontSize: 10, lineHeight: 15, textAlign: "center" },
-  benefit: { flexDirection: "row", alignItems: "flex-start", gap: 11 },
-  benefitIcon: { width: 34, height: 34, borderRadius: 11, alignItems: "center", justifyContent: "center" },
-  benefitTitle: { fontSize: 14 },
-  benefitBody: { fontSize: 12, lineHeight: 17, marginTop: 2 },
-});

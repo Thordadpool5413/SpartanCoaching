@@ -11,9 +11,13 @@ describe("Apple subscription contract", () => {
     ]);
   });
 
-  it("uses localized StoreKit prices and does not gate iOS Elite on Stripe", () => {
+  it("uses localized StoreKit prices and keeps iOS membership independent of Stripe", () => {
     const account = fs.readFileSync(
       path.resolve(__dirname, "../app/(tabs)/account.tsx"),
+      "utf8",
+    );
+    const membership = fs.readFileSync(
+      path.resolve(__dirname, "../app/membership.tsx"),
       "utf8",
     );
     const actions = fs.readFileSync(
@@ -21,11 +25,15 @@ describe("Apple subscription contract", () => {
       "utf8",
     );
 
-    expect(account).toContain("applePrices.standard_weekly");
-    expect(account).toContain("applePrices.elite_weekly");
-    expect(account).toContain('Platform.OS !== "ios" && billing?.individualWeeklyElitePriceConfigured === false');
+    expect(membership).toContain("prices.standard_weekly");
+    expect(membership).toContain("prices.elite_weekly");
+    expect(membership).toContain("onPricesLoaded={setPrices}");
     expect(actions).toContain("onPricesLoaded");
     expect(actions).toContain("displayPrice");
+    expect(account).not.toContain("startIndividualCheckout");
+    expect(account).not.toContain("openBillingPortal");
+    expect(membership).not.toContain("startIndividualCheckout");
+    expect(membership).not.toContain("stripe");
   });
 
   it("maps products to separate entitlement tiers", () => {
@@ -40,13 +48,48 @@ describe("Apple subscription contract", () => {
 
   it("purchases and restores only after server verification", () => {
     const source = fs.readFileSync(path.resolve(__dirname, "../components/AppleSubscriptionActions.tsx"), "utf8");
-    expect(source).toContain("appAccountToken: config.appAccountToken");
-    expect(source).toContain("verifyAppleTransaction(purchase.purchaseToken)");
+    expect(source).toContain("appAccountToken,");
+    expect(source).toContain("verifyGuestAppleTransaction(purchase.purchaseToken");
+    expect(source).toContain("claimAppleTransaction(purchase.purchaseToken");
     expect(source).toContain("finishTransaction({ purchase, isConsumable: false })");
     expect(source).toContain("getAvailablePurchases({ onlyIncludeActiveItemsIOS: true })");
     expect(source).toContain("deepLinkToSubscriptions({})");
     expect(source).toContain("renews automatically each week");
-    expect(source).toContain("APP_STORE_TERMS_URL");
-    expect(source).toContain("APP_STORE_PRIVACY_URL");
+    expect(source).toContain('params: { document: "terms" }');
+    expect(source).toContain('params: { document: "privacy" }');
+    expect(source).not.toContain("Linking.openURL");
+  });
+
+  it("keeps Expo Go visual QA from evaluating any native StoreKit module", () => {
+    const source = fs.readFileSync(path.resolve(__dirname, "../components/AppleSubscriptionActions.tsx"), "utf8");
+    const session = fs.readFileSync(path.resolve(__dirname, "../lib/applePurchaseSession.ts"), "utf8");
+
+    expect(source).toContain("Constants.expoGoConfig");
+    expect(source).toContain('require("react-native-iap")');
+    expect(source).not.toContain('from "react-native-iap";');
+    expect(source).toContain("Visual preview in Expo Go");
+    expect(source).toContain("installed private iPhone build");
+
+    expect(session).toContain('require("react-native-iap")');
+    expect(session).not.toContain('from "react-native-iap";');
+    expect(session).toContain('if (Platform.OS !== "ios" || Constants.expoGoConfig != null) return false;');
+    expect(session.indexOf("Constants.expoGoConfig != null")).toBeLessThan(session.indexOf("loadIapRuntime();"));
+  });
+
+  it("allows Apple purchase before Spartan account creation", () => {
+    const membership = fs.readFileSync(path.resolve(__dirname, "../app/membership.tsx"), "utf8");
+    const api = fs.readFileSync(path.resolve(__dirname, "../lib/api.ts"), "utf8");
+    expect(membership).toContain("Payment happens through Apple before Spartan account creation");
+    expect(membership).toContain("Add private Coach when you want the complete system");
+    expect(membership).toContain("<AppleSubscriptionActions");
+    expect(membership).toContain('router.push("/register" as any)');
+    expect(api).toContain('"/api/billing/apple/guest-verify"');
+    expect(api).toContain('"/api/billing/apple/claim"');
+  });
+
+  it("auto claims purchases only into personal workspaces", () => {
+    const auth = fs.readFileSync(path.resolve(__dirname, "../lib/AuthContext.tsx"), "utf8");
+    expect(auth).toContain('data.organization?.type === "personal"');
+    expect(auth).toContain("shouldClaimApplePurchase(data) && await claimCurrentApplePurchases()");
   });
 });

@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
-  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -16,10 +15,6 @@ import { SpartanButton } from "@/components/ui/SpartanButton";
 import { SpartanInput } from "@/components/ui/SpartanInput";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
-import {
-  APP_STORE_PRIVACY_URL,
-  APP_STORE_TERMS_URL,
-} from "@/lib/appStoreReadiness";
 import { ApiError } from "@/lib/api";
 import { font } from "@/lib/typography";
 
@@ -37,7 +32,7 @@ export default function RegisterScreen() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!isLoading && isAuthenticated) router.replace("/(tabs)/account");
+    if (!isLoading && isAuthenticated) router.replace("/(tabs)");
   }, [isAuthenticated, isLoading]);
 
   const submit = async () => {
@@ -51,7 +46,7 @@ export default function RegisterScreen() {
     setPending(true);
     try {
       await register({ name, email, password });
-      router.replace("/(tabs)/account");
+      router.replace("/(tabs)");
     } catch (caught: unknown) {
       const message = caught instanceof Error ? caught.message : "Account creation failed";
       const status = caught instanceof ApiError ? caught.status : undefined;
@@ -82,7 +77,15 @@ export default function RegisterScreen() {
         <View style={styles.frame}>
           <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>INDIVIDUAL MEMBERSHIP</Text>
           <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Build your field advantage.</Text>
-          <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Create one private Spartan Coaching account, then choose Standard or Elite through Apple.</Text>
+          <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Create one private Spartan Coaching account to protect your Apple membership, history, commitments, and preferences.</Text>
+
+          <View style={[styles.recoveryCard, { backgroundColor: colors.primaryMuted, borderColor: colors.primary }]} testID="register-company-recovery-note">
+            <Feather name="bookmark" size={18} color={colors.primary} />
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.recoveryTitle, { color: colors.foreground }, font("bold")]}>Returning after company access?</Text>
+              <Text style={[styles.recoveryBody, { color: colors.mutedForeground }, font("regular")]}>Use the same email address you used with your company seat. If you reactivate individual access within 30 days of offboarding, preserved private commitments reconnect to this personal account. Raw Coach conversations are not restored.</Text>
+            </View>
+          </View>
 
           <View style={[styles.card, { backgroundColor: colors.card, borderColor: colors.borderStrong ?? colors.border }]}>
             <SpartanInput label="Full name" autoComplete="name" value={name} onChangeText={setName} placeholder="Your name" />
@@ -98,8 +101,8 @@ export default function RegisterScreen() {
               testID="register-accept-terms"
             />
             <View style={styles.legalLinks}>
-              <Pressable accessibilityRole="link" onPress={() => void Linking.openURL(APP_STORE_TERMS_URL)}><Text style={[styles.legalLink, { color: colors.primary }, font("semibold")]}>Terms</Text></Pressable>
-              <Pressable accessibilityRole="link" onPress={() => void Linking.openURL(APP_STORE_PRIVACY_URL)}><Text style={[styles.legalLink, { color: colors.primary }, font("semibold")]}>Privacy Policy</Text></Pressable>
+              <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: "/legal", params: { document: "terms" } } as any)}><Text style={[styles.legalLink, { color: colors.primary }, font("semibold")]}>Terms</Text></Pressable>
+              <Pressable accessibilityRole="link" onPress={() => router.push({ pathname: "/legal", params: { document: "privacy" } } as any)}><Text style={[styles.legalLink, { color: colors.primary }, font("semibold")]}>Privacy Policy</Text></Pressable>
             </View>
             <ConsentRow
               checked={noPhi}
@@ -164,7 +167,10 @@ const styles = StyleSheet.create({
   frame: { width: "100%", maxWidth: 520, alignSelf: "center", paddingHorizontal: 20 },
   kicker: { fontSize: 11, letterSpacing: 2.1, marginTop: 10 },
   title: { fontSize: 36, lineHeight: 40, letterSpacing: -1.1, marginTop: 10 },
-  subtitle: { fontSize: 15, lineHeight: 22, marginTop: 9, marginBottom: 22 },
+  subtitle: { fontSize: 15, lineHeight: 22, marginTop: 9, marginBottom: 16 },
+  recoveryCard: { minHeight: 98, flexDirection: "row", alignItems: "flex-start", gap: 11, borderWidth: 1, borderRadius: 18, padding: 14, marginBottom: 16 },
+  recoveryTitle: { fontSize: 13 },
+  recoveryBody: { fontSize: 11, lineHeight: 17, marginTop: 3 },
   card: { borderWidth: 1, borderRadius: 22, padding: 20, gap: 4 },
   consent: { minHeight: 52, flexDirection: "row", alignItems: "flex-start", gap: 11, paddingVertical: 9 },
   checkbox: { width: 24, height: 24, borderRadius: 7, borderWidth: 1.5, alignItems: "center", justifyContent: "center" },

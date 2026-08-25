@@ -23,6 +23,14 @@ describe("Apple subscription verification contract", () => {
     expect(migration).toContain("uq_client_org_apple_original_transaction");
   });
 
+  it("supports purchase before account creation and secure claim after sign in", () => {
+    expect(source).toContain('/api/billing/apple/catalog');
+    expect(source).toContain('/api/billing/apple/guest-verify');
+    expect(source).toContain('/api/billing/apple/claim');
+    expect(source).toContain("previewTransaction(verified)");
+    expect(source).toContain("requireAccountBinding: false");
+  });
+
   it("handles lifecycle notifications and expiration", () => {
     expect(source).toContain('/api/billing/apple/notifications');
     expect(source).toContain("verifyAndDecodeNotification");

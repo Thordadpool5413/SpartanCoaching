@@ -1,6 +1,7 @@
 import { Feather } from "@expo/vector-icons";
 import { SPARTAN_AI_TOOLS } from "@workspace/spartan-ai-tools";
 import { router } from "expo-router";
+import { goBackOrReplace } from "@/lib/navigation";
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ActivityIndicator,
@@ -137,9 +138,9 @@ export default function AiToolsIndex() {
       style={{ flex: 1, backgroundColor: colors.background }}
       contentContainerStyle={styles.container}
     >
-      <Pressable onPress={() => router.back()} style={styles.back} testID="advanced-back">
+      <Pressable onPress={() => goBackOrReplace("/(tabs)/tools")} style={styles.back} testID="advanced-back">
         <Feather name="arrow-left" size={18} color={colors.primary} />
-        <Text style={[{ color: colors.primary }, font("semibold")]}>Tools</Text>
+        <Text style={[{ color: colors.primary }, font("semibold")]}>Explore</Text>
       </Pressable>
       <Text style={[styles.title, { color: colors.foreground }, font("bold")]}>
         Advanced library

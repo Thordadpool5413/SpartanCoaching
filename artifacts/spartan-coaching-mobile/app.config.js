@@ -36,7 +36,7 @@ const associatedDomains = getAssociatedDomains();
 
 module.exports = {
   expo: {
-    name: "Spartan Coaching",
+    name: "Hospice Sales Pro",
     slug: "spartan-coaching",
     version: "1.0.0",
     orientation: "portrait",
@@ -45,9 +45,9 @@ module.exports = {
     userInterfaceStyle: "automatic",
     newArchEnabled: true,
     splash: {
-      image: "./assets/images/spartan-stamp.png",
+      image: "./assets/images/helmet-mark.png",
       resizeMode: "contain",
-      backgroundColor: "#171513",
+      backgroundColor: "#07111F",
     },
     ios: {
       bundleIdentifier: "com.spartancoaching.fieldkit",
@@ -159,8 +159,8 @@ module.exports = {
         UIApplicationShortcutItems: [
           {
             UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.today",
-            UIApplicationShortcutItemTitle: "Today's briefing",
-            UIApplicationShortcutItemSubtitle: "Open your next move",
+            UIApplicationShortcutItemTitle: "Open Field Guide",
+            UIApplicationShortcutItemSubtitle: "Choose your next move",
             UIApplicationShortcutItemIconType: "UIApplicationShortcutIconTypeTask",
             UIApplicationShortcutItemUserInfo: {
               url: "spartan-coaching-mobile://home",
@@ -177,7 +177,7 @@ module.exports = {
           },
           {
             UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.practice",
-            UIApplicationShortcutItemTitle: "Practice",
+            UIApplicationShortcutItemTitle: "Open Explore",
             UIApplicationShortcutItemSubtitle: "Prepare for the moment",
             UIApplicationShortcutItemIconType: "UIApplicationShortcutIconTypeCompose",
             UIApplicationShortcutItemUserInfo: {
@@ -199,6 +199,19 @@ module.exports = {
     },
     plugins: [
       ["expo-router", { origin: getRouterOrigin() }],
+      [
+        "expo-splash-screen",
+        {
+          image: "./assets/images/helmet-mark.png",
+          imageWidth: 212,
+          resizeMode: "contain",
+          backgroundColor: "#07111F",
+          dark: {
+            image: "./assets/images/helmet-mark.png",
+            backgroundColor: "#07111F",
+          },
+        },
+      ],
       "expo-font",
       "expo-secure-store",
       [
@@ -217,7 +230,7 @@ module.exports = {
           color: "#C8102E",
           sounds: [],
           androidMode: "default",
-          androidCollapsedTitle: "Spartan Coaching",
+          androidCollapsedTitle: "Hospice Sales Pro",
         },
       ],
     ],

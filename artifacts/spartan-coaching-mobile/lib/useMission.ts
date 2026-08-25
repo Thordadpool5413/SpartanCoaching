@@ -182,10 +182,10 @@ export function useMission(): MissionState {
     const nextCall = today?.calls?.find((c) => c.status !== "completed" && c.status !== "cancelled");
     if (nextCall) {
       return {
-        title: nextCall.purpose || "Next visit on Command Center",
-        subtitle: "Open Command Center to prepare, practice, and complete this call.",
-        ctaLabel: "Open Command Center",
-        href: { pathname: "/(tabs)/command" },
+        title: nextCall.purpose || "Prepare the next conversation",
+        subtitle: "Open Field Planner to prepare, practice, and complete this visit.",
+        ctaLabel: "Open Field Planner",
+        href: { pathname: "/sales-workflow" },
         kind: "command",
       };
     }
@@ -207,8 +207,8 @@ export function useMission(): MissionState {
     return {
       title: start.title,
       subtitle: start.blurb,
-      ctaLabel: "Open Command Center",
-      href: { pathname: "/(tabs)/command" },
+      ctaLabel: "Open Field Planner",
+      href: { pathname: "/sales-workflow" },
       kind: "command",
     };
   }, [shell, needsRole, nextChecklistItem, jobRole, today]);

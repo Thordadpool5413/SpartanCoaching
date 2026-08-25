@@ -67,6 +67,7 @@ export function publicMember(member: ClientMember) {
     status: member.status,
     lastLoginAt: member.lastLoginAt,
     jobRole: (member as any).jobRole ?? null,
+    alsoLeadsTeam: (member as { alsoLeadsTeam?: boolean }).alsoLeadsTeam ?? false,
     territoryNote: (member as any).territoryNote ?? null,
     topObjections: (member as any).topObjections ?? null,
     checklistProgress: checklist,

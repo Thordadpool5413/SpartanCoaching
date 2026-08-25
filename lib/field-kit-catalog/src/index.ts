@@ -4,6 +4,7 @@
  */
 
 export * from "./membership-plans";
+export * from "./hhh-mac-jurisdictions";
 
 export type FieldKitCategory = "Prepare" | "Practice" | "Plan" | "Measure" | "Outreach" | "Learn";
 
@@ -34,6 +35,8 @@ export interface FieldKitTool {
   mobile: MobileDelivery;
   /** Optional tool tab key inside tools.tsx flow */
   mobileToolTab?: string;
+  /** Individual membership required for live use. */
+  membership?: "standard" | "elite";
   /**
    * Competitive-edge framing for the Membership marketing page.
    * scenario: the real-world pressure moment this tool resolves.
@@ -144,8 +147,9 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
     whenToUse: "After a call you want to coach or self-review (no PHI).",
     howSteps: ["Upload or paste audio notes", "Review the transcript", "Pull one coaching moment"],
     why: "Self-coaching beats guessing what happened on the call.",
-    mobileRoute: "/tool-web",
-    mobile: "webview",
+    mobileRoute: "/transcriber",
+    mobile: "native",
+    membership: "elite",
     scenario:
       "You just left a hard conversation and want to coach yourself (or a rep) without relying on memory alone.",
     outcome:

@@ -28,6 +28,15 @@ jest.mock("@react-native-async-storage/async-storage", () =>
   require("@react-native-async-storage/async-storage/jest/async-storage-mock"),
 );
 
+/**
+ * Vector icons load font assets asynchronously in React Native. Unit tests do
+ * not need that native side effect, and leaving it enabled creates misleading
+ * post-render state update warnings even when the screen behavior is correct.
+ */
+jest.mock("@expo/vector-icons", () => ({
+  Feather: "Feather",
+}));
+
 process.env.EXPO_PUBLIC_API_URL =
   process.env.EXPO_PUBLIC_API_URL || "https://spartanhospicecoaching.com";
 

@@ -6,7 +6,8 @@ import {
   registerMobile,
   type MobileAuthUser,
 } from "@/lib/api";
-import { hasEliteMembership, resolveMembershipTier, type MembershipTier } from "@workspace/field-kit-catalog";
+import { hasContractedOrganizationAdminAccess, hasEliteMembership, resolveMembershipTier, type MembershipTier } from "@workspace/field-kit-catalog";
+import { claimCurrentApplePurchases } from "@/lib/applePurchaseSession";
 
 type AuthContextValue = {
   user: MobileAuthUser | null;
@@ -14,6 +15,7 @@ type AuthContextValue = {
   isAuthenticated: boolean;
   canUseFieldKit: boolean;
   canUseElite: boolean;
+  canManageOrganization: boolean;
   membershipTier: MembershipTier;
   refresh: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
@@ -23,6 +25,10 @@ type AuthContextValue = {
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+
+function shouldClaimApplePurchase(data: MobileAuthUser) {
+  return data.organization?.type === "personal";
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<MobileAuthUser | null>(null);
@@ -50,6 +56,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       organization: data.organization,
       fieldKit: data.fieldKit,
     });
+    try {
+      if (shouldClaimApplePurchase(data) && await claimCurrentApplePurchases()) {
+        const refreshed = await fetchMeMobile();
+        if (refreshed) setUser(refreshed);
+      }
+    } catch {
+      // Signing in must still succeed if StoreKit is temporarily unavailable.
+    }
   }, []);
 
   const register = useCallback(async (input: { name: string; email: string; password: string }) => {
@@ -59,6 +73,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       organization: data.organization,
       fieldKit: data.fieldKit,
     });
+    try {
+      if (shouldClaimApplePurchase(data) && await claimCurrentApplePurchases()) {
+        const refreshed = await fetchMeMobile();
+        if (refreshed) setUser(refreshed);
+      }
+    } catch {
+      // Account creation must still succeed. Restore remains available in app.
+    }
   }, []);
 
   const logout = useCallback(async () => {
@@ -79,6 +101,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: !!user?.member,
         canUseFieldKit: !!user?.fieldKit?.allowed,
         canUseElite: !!user?.fieldKit?.allowed && hasEliteMembership(membershipInput),
+        canManageOrganization: hasContractedOrganizationAdminAccess({
+          memberRole: user?.member?.role,
+          organizationType: user?.organization?.type,
+          organizationStatus: user?.organization?.status,
+          billingPlan: user?.organization?.billingPlan,
+        }),
         membershipTier: resolveMembershipTier(membershipInput),
         refresh,
         login,

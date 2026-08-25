@@ -18,7 +18,16 @@ describe("personalization engine (HSP-37)", () => {
     expect(p.schemaVersion).toBe(1);
     expect(p.recent).toEqual([]);
     expect(p.favorites.tools).toEqual([]);
+    expect(p.jurisdiction).toEqual({ state: null, macRegion: null });
     expect(buildPersonalizationView({ payload: p }).emptyHistory).toBe(true);
+  });
+
+  it("normalizes member state and Medicare contractor context", () => {
+    const p = normalizePayload({
+      schemaVersion: 1,
+      jurisdiction: { state: " Florida ", macRegion: " NGS Jurisdiction K " },
+    });
+    expect(p.jurisdiction).toEqual({ state: "Florida", macRegion: "NGS Jurisdiction K" });
   });
 
   it("pushRecent de-dupes and keeps newest first", () => {
@@ -43,12 +52,10 @@ describe("personalization engine (HSP-37)", () => {
 
   it("toggleList supports favorite add/remove", () => {
     expect(toggleList([], "objections", true)).toEqual(["objections"]);
-    expect(toggleList(["objections", "research"], "objections", false)).toEqual([
-      "research",
-    ]);
+    expect(toggleList(["objections", "research"], "objections", false)).toEqual(["research"]);
   });
 
-  it("recommended today explains favorites and pins", () => {
+  it("recommendations explain favorites and pins", () => {
     const payload = normalizePayload({
       schemaVersion: 1,
       favorites: { tools: ["objections"], resources: [] },
@@ -67,7 +74,7 @@ describe("personalization engine (HSP-37)", () => {
     expect(view.emptyHistory).toBe(false);
     const whys = view.recommendedToday.map((r) => r.why);
     expect(whys.some((w) => /Pinned by you/i.test(w))).toBe(true);
-    expect(whys.some((w) => /Favorite/i.test(w))).toBe(true);
+    expect(whys.some((w) => /favorite/i.test(w))).toBe(true);
   });
 
   it("continue includes drafts with explainable why", () => {
@@ -82,7 +89,7 @@ describe("personalization engine (HSP-37)", () => {
         },
       ],
     });
-    expect(view.continueItems[0]!.why).toMatch(/Continue draft/i);
+    expect(view.continueItems[0]!.why).toMatch(/Continue/i);
     expect(view.emptyHistory).toBe(false);
   });
 
@@ -109,8 +116,6 @@ describe("personalization engine (HSP-37)", () => {
       payload,
       toolTitleById: { objections: "Objection Handler" },
     });
-    expect(view.recommendedToday.every((r) => r.id !== "fav-tool:objections")).toBe(
-      true,
-    );
+    expect(view.recommendedToday.every((r) => r.id !== "fav-tool:objections")).toBe(true);
   });
 });

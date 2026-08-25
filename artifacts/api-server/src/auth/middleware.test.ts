@@ -152,13 +152,19 @@ test("requireOrgAdmin rejects ordinary member", () => {
   expect((state.body as { code?: string }).code).toBe("ORG_ADMIN_REQUIRED");
 });
 
-test("requireOrgAdmin allows org_admin and platform_admin", () => {
+test("requireOrgAdmin allows contracted org_admin and platform_admin", () => {
   for (const role of ["org_admin", "platform_admin"] as const) {
     const req = {
       clientMemberId: 7,
       fieldKit: {
         allowed: true,
         member: { id: 7, role, status: "active" },
+        org: role === "org_admin" ? {
+          id: 2,
+          type: "company",
+          status: "active",
+          billingPlan: "corporate_contract",
+        } : null,
       },
     } as unknown as AuthedRequest;
     const { response } = responseRecorder();
@@ -168,4 +174,18 @@ test("requireOrgAdmin allows org_admin and platform_admin", () => {
     }) as NextFunction);
     expect(called).toBe(true);
   }
+});
+
+test("requireOrgAdmin rejects an org_admin without an active company contract", () => {
+  const req = {
+    clientMemberId: 7,
+    fieldKit: {
+      allowed: true,
+      member: { id: 7, role: "org_admin", status: "active" },
+      org: { id: 2, type: "personal", status: "active", billingPlan: "individual_weekly_elite" },
+    },
+  } as unknown as AuthedRequest;
+  const { response, state } = responseRecorder();
+  requireOrgAdmin(req, response, (() => undefined) as NextFunction);
+  expect(state.status).toBe(403);
 });

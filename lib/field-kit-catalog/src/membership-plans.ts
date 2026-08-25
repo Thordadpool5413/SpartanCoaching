@@ -21,6 +21,21 @@ export type MembershipTier = "none" | "standard" | "elite" | "organization";
 export const COMPANY_STANDARD_PLAN = "corporate_contract" as const;
 export const COMPANY_ELITE_PLAN = "corporate_contract_elite" as const;
 
+export function hasContractedOrganizationAdminAccess(input: {
+  memberRole?: string | null;
+  organizationType?: string | null;
+  organizationStatus?: string | null;
+  billingPlan?: string | null;
+}): boolean {
+  if (input.memberRole === "platform_admin") return true;
+  return (
+    input.memberRole === "org_admin" &&
+    input.organizationType === "company" &&
+    input.organizationStatus === "active" &&
+    (input.billingPlan === COMPANY_STANDARD_PLAN || input.billingPlan === COMPANY_ELITE_PLAN)
+  );
+}
+
 export function resolveMembershipTier(input: {
   billingPlan?: string | null;
   organizationType?: string | null;

@@ -12,33 +12,61 @@ describe("protected Spartan Coaching brand asset", () => {
     );
   });
 
-  it("keeps the approved helmet on every square launch asset", () => {
-    for (const name of ["icon.png", "logo.png", "spartan-stamp.png"]) {
-      const asset = fs.readFileSync(
-        path.resolve(__dirname, `../assets/images/${name}`),
-      );
-      expect(createHash("sha256").update(asset).digest("hex")).toBe(
-        "6fe975b859ec56296dad621103c47c742886916e06403aa6106a65a1fa1cf96a",
-      );
-
-      expect(asset.readUInt32BE(16)).toBe(2048);
-      expect(asset.readUInt32BE(20)).toBe(2048);
-      expect(asset[25]).toBe(2);
-    }
+  it("uses the approved helmet on a warm ivory App Store icon", () => {
+    const asset = fs.readFileSync(
+      path.resolve(__dirname, "../assets/images/icon.png"),
+    );
+    expect(createHash("sha256").update(asset).digest("hex")).toBe(
+      "68a1a9cd0b24b27c322ae1ab10e4b19168c8ce8c8f5ab9d20334a580a45e3016",
+    );
+    expect(asset.readUInt32BE(16)).toBe(2048);
+    expect(asset.readUInt32BE(20)).toBe(2048);
+    expect(asset[25]).toBe(2);
   });
 
-  it("uses only the supplied helmet mark in the member entry experience", () => {
+  it("retains the earlier square logo only as a protected source asset", () => {
+    const asset = fs.readFileSync(
+      path.resolve(__dirname, "../assets/images/logo.png"),
+    );
+    expect(createHash("sha256").update(asset).digest("hex")).toBe(
+      "6fe975b859ec56296dad621103c47c742886916e06403aa6106a65a1fa1cf96a",
+    );
+    expect(asset.readUInt32BE(16)).toBe(2048);
+    expect(asset.readUInt32BE(20)).toBe(2048);
+    expect(asset[25]).toBe(2);
+  });
+
+  it("keeps the supplied distressed Spartan Coaching logo unchanged", () => {
+    const asset = fs.readFileSync(
+      path.resolve(__dirname, "../assets/images/brand-stamp.png"),
+    );
+    expect(createHash("sha256").update(asset).digest("hex")).toBe(
+      "5a7db9fa3af9c888849cf62d66f3b0581e799608b9a9bec476351e30ea6268d0",
+    );
+  });
+
+  it("uses a transparent helmet master for native compact identity", () => {
+    const asset = fs.readFileSync(
+      path.resolve(__dirname, "../assets/images/helmet-mark.png"),
+    );
+    expect(createHash("sha256").update(asset).digest("hex")).toBe(
+      "0d63506cc699d1e97788857ba9d9024b3a7f5558691d3da46dbdbd7d949fa762",
+    );
+    expect(asset.readUInt32BE(16)).toBe(1254);
+    expect(asset.readUInt32BE(20)).toBe(1254);
+    expect(asset[25]).toBe(6);
+  });
+
+  it("uses the transparent helmet for native identity and keeps account recovery complete", () => {
     const login = fs.readFileSync(path.resolve(__dirname, "../app/login.tsx"), "utf8");
     const home = fs.readFileSync(path.resolve(__dirname, "../app/(tabs)/index.tsx"), "utf8");
     const coach = fs.readFileSync(path.resolve(__dirname, "../app/(tabs)/coach.tsx"), "utf8");
     const helmet = fs.readFileSync(path.resolve(__dirname, "../components/brand/HelmetMark.tsx"), "utf8");
     expect(login).toContain("<HelmetMark");
-    expect(home).toContain("<HelmetMark");
+    expect(home).toContain("<SpartanHeader");
     expect(coach).toContain("<HelmetMark");
-    expect(helmet).toContain('require("@/assets/images/logo.png")');
-    for (const source of [login, home, coach]) {
-      expect(source).not.toContain("spartan-coaching-lockup.png");
-    }
+    expect(helmet).toContain('require("@/assets/images/helmet-mark.png")');
+    expect(helmet).not.toContain("backgroundColor");
     expect(login).toContain("Forgot password");
     expect(login).toContain("Sign in securely");
   });

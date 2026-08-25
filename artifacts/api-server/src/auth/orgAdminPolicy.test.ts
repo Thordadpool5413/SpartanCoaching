@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   aggregateOrgUsage,
+  aggregateCompletionTrend,
   evaluateDisableMember,
   evaluateRoleChange,
   isAssignableOrgRole,
@@ -20,6 +21,21 @@ describe("resolveSeatCap", () => {
 
   it("ignores zero/negative billableSeats", () => {
     expect(resolveSeatCap({ seatLimit: 4, billableSeats: 0 })).toBe(4);
+  });
+});
+
+describe("aggregateCompletionTrend", () => {
+  it("counts only safe completion outcomes for members in the organization", () => {
+    const now = new Date("2026-08-18T16:00:00.000Z");
+    const out = aggregateCompletionTrend([
+      { memberId: 2, eventName: "tool_completion", createdAt: Date.parse("2026-08-18T10:00:00.000Z") },
+      { memberId: 2, eventName: "next_action_confirmation", createdAt: Date.parse("2026-08-17T10:00:00.000Z") },
+      { memberId: 9, eventName: "tool_completion", createdAt: Date.parse("2026-08-18T10:00:00.000Z") },
+      { memberId: 2, eventName: "subscription_start", createdAt: Date.parse("2026-08-18T10:00:00.000Z") },
+    ], new Set([2]), now);
+    expect(out.total).toBe(2);
+    expect(out.trend).toHaveLength(7);
+    expect(out.trend.at(-1)).toEqual({ date: "2026-08-18", count: 1 });
   });
 });
 

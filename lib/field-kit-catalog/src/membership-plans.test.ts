@@ -7,6 +7,7 @@ import {
   canUseDeidentifiedClinical,
   canUsePhiClinical,
   hasEliteMembership,
+  hasContractedOrganizationAdminAccess,
   hasStandardMembership,
   resolveMembershipTier,
 } from "./membership-plans";
@@ -45,5 +46,27 @@ describe("membership plans", () => {
     expect(canUsePhiClinical("organization", false)).toBe(false);
     expect(canUsePhiClinical("organization", true)).toBe(false);
     expect(canUsePhiClinical("organization", true, "platform_admin")).toBe(false);
+  });
+
+  it("opens organization administration only for an active contracted company admin", () => {
+    expect(hasContractedOrganizationAdminAccess({ memberRole: "platform_admin" })).toBe(true);
+    expect(hasContractedOrganizationAdminAccess({
+      memberRole: "org_admin",
+      organizationType: "company",
+      organizationStatus: "active",
+      billingPlan: COMPANY_STANDARD_PLAN,
+    })).toBe(true);
+    expect(hasContractedOrganizationAdminAccess({
+      memberRole: "org_admin",
+      organizationType: "personal",
+      organizationStatus: "active",
+      billingPlan: "individual_weekly_elite",
+    })).toBe(false);
+    expect(hasContractedOrganizationAdminAccess({
+      memberRole: "org_admin",
+      organizationType: "company",
+      organizationStatus: "pending",
+      billingPlan: COMPANY_STANDARD_PLAN,
+    })).toBe(false);
   });
 });

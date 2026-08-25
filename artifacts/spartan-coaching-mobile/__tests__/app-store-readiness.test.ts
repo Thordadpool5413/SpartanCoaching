@@ -35,7 +35,8 @@ describe("App Store readiness contract (HSP-46)", () => {
     expect(APP_REVIEW_NOTES).toMatch(/Delete account/i);
     expect(APP_REVIEW_NOTES).toMatch(/Standard/i);
     expect(APP_REVIEW_NOTES).toMatch(/Elite/i);
-    expect(APP_REVIEW_NOTES).toMatch(/inside the iPhone app/i);
+    expect(APP_REVIEW_NOTES).toMatch(/native Apple purchase/i);
+    expect(APP_REVIEW_NOTES).toMatch(/No Spartan account is required before payment/i);
   });
 
   it("readinessSummary counts statuses", () => {

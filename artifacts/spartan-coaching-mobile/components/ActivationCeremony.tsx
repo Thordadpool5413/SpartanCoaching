@@ -1,10 +1,10 @@
 /**
  * One-time unlock ceremony after Hospice Sales Pro access becomes active.
- * Also refreshes entitlement when returning from Stripe Checkout.
+ * It is triggered by the authoritative entitlement transition after Apple
+ * purchase verification, account claim, or company seat activation.
  */
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
-  AppState,
   Modal,
   Pressable,
   StyleSheet,
@@ -19,17 +19,14 @@ import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import {
-  clearCheckoutPending,
   hasSeenActivation,
-  isCheckoutPending,
   markActivationSeen,
-  wasStripeOpenedRecently,
 } from "@/lib/activationCeremony";
 import { radius } from "@/lib/spacing";
 
 export function ActivationCeremony() {
   const colors = useColors();
-  const { canUseFieldKit, isAuthenticated, user, refresh } = useAuth();
+  const { canUseFieldKit, isAuthenticated, user } = useAuth();
   const [visible, setVisible] = useState(false);
   const prevAllowed = useRef<boolean | null>(null);
   const memberId = user?.member?.id;
@@ -37,10 +34,7 @@ export function ActivationCeremony() {
   const tryShow = useCallback(async () => {
     if (!isAuthenticated || !canUseFieldKit || !memberId) return;
     const seen = await hasSeenActivation(memberId);
-    const pending = await isCheckoutPending();
-    const fromStripe = await wasStripeOpenedRecently();
-    // Show if never seen, or returning from checkout
-    if (!seen || pending || fromStripe) {
+    if (!seen) {
       setVisible(true);
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     }
@@ -53,42 +47,16 @@ export function ActivationCeremony() {
     if (prev === false && canUseFieldKit === true) {
       void tryShow();
     } else if (prev === null && canUseFieldKit) {
-      // Cold start already unlocked — only if checkout pending
-      void (async () => {
-        if ((await isCheckoutPending()) || (await wasStripeOpenedRecently())) {
-          await tryShow();
-        }
-      })();
+      void tryShow();
     }
   }, [canUseFieldKit, tryShow]);
 
-  // Return from Safari / Stripe → refresh entitlement, maybe ceremony
-  useEffect(() => {
-    const sub = AppState.addEventListener("change", (next) => {
-      if (next === "active") {
-        void (async () => {
-          const pending = await isCheckoutPending();
-          const fromStripe = await wasStripeOpenedRecently();
-          if (pending || fromStripe) {
-            await refresh();
-            // slight delay for server webhook
-            setTimeout(() => {
-              void refresh().then(() => tryShow());
-            }, 800);
-          }
-        })();
-      }
-    });
-    return () => sub.remove();
-  }, [refresh, tryShow]);
-
-  const dismiss = async (goCommand: boolean) => {
+  const dismiss = async (openExplore: boolean) => {
     if (memberId) await markActivationSeen(memberId);
-    await clearCheckoutPending();
     setVisible(false);
-    if (goCommand) {
+    if (openExplore) {
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      router.push("/(tabs)/command");
+      router.push("/(tabs)/tools");
     }
   };
 
@@ -104,7 +72,7 @@ export function ActivationCeremony() {
             <Feather name="check-circle" size={28} color={colors.primary} />
           </View>
           <Text style={[{ color: colors.primary, fontSize: 10, letterSpacing: 1.4, marginTop: 14 }, font("bold")]}>
-            HOSPICE SALES PRO
+            YOUR MEMBERSHIP IS ACTIVE
           </Text>
           <Text style={[{ color: colors.foreground, fontSize: 22, marginTop: 8, textAlign: "center" }, font("heavy")]}>
             {firstName ? `You're in, ${firstName}` : "You're in"}
@@ -121,14 +89,14 @@ export function ActivationCeremony() {
               font("regular"),
             ]}
           >
-            Tools are unlocked on web and this iPhone. Start in Command Center — add your next
-            facility account (no PHI) and run the day from there.
+            Your tools are ready on this iPhone. Explore what your membership includes, then choose
+            the one resource that helps with the conversation in front of you.
           </Text>
           <SpartanButton
-            title="Open Command Center"
+            title="Explore your tools"
             onPress={() => void dismiss(true)}
             style={{ marginTop: 20, alignSelf: "stretch" }}
-            testID="activation-open-command"
+            testID="activation-open-explore"
           />
           <Pressable
             onPress={() => void dismiss(false)}

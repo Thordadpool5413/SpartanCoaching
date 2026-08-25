@@ -5,12 +5,13 @@
  * Clinical / vault tool ids are never written to device storage.
  */
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { OFFLINE_QUEUE_BLOCKED_TOOL_IDS } from "@/lib/offlineQueue";
+import { trackProductOutcome } from "@/lib/analytics";
+import { OFFLINE_STORAGE_BLOCKED_TOOL_IDS } from "@/lib/offlineArchitecture";
 
 const draftKey = (toolId: string) => `hsp_tool_draft_v1_${toolId}`;
 const resultKey = (toolId: string) => `hsp_tool_result_v1_${toolId}`;
 
-const BLOCKED = new Set<string>(OFFLINE_QUEUE_BLOCKED_TOOL_IDS);
+const BLOCKED = new Set<string>(OFFLINE_STORAGE_BLOCKED_TOOL_IDS);
 
 function isDeviceStorageAllowed(toolId: string): boolean {
   if (!toolId || BLOCKED.has(toolId)) return false;
@@ -59,6 +60,7 @@ export async function saveToolLastResult(toolId: string, result: string): Promis
   try {
     if (!result.trim()) return;
     await AsyncStorage.setItem(resultKey(toolId), result);
+    void trackProductOutcome("tool_completion", { toolId, platform: "ios" });
   } catch {
     // ignore
   }

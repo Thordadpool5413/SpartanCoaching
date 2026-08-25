@@ -1,26 +1,26 @@
 # App Store screenshot shot list
 
-Capture the current four tab iPhone experience. Never upload the legacy generated mockups in `store/screenshots` or `store/screenshots/6.7`.
+Capture the current five destination iPhone experience. Never upload legacy generated mockups in `store/screenshots` or `store/screenshots/6.7`.
 
 ## Marketing screenshots
 
-Capture five real screens at 1320 by 2868 from iPhone 16 Pro Max. Use a demo account with fictional company and facility names. Do not show patient information, private Coach history, email addresses, phone numbers, or real customer data.
+Capture five real screens at 1320 by 2868 from iPhone 17 Pro Max. Use a demo account with fictional company and facility names. Do not show patient information, private Coach history, email addresses, phone numbers, or real customer data.
 
 | Order | File | Current screen and state | Public message | Required proof |
 | --- | --- | --- | --- | --- |
-| 1 | `01-today-field-briefing.png` | Today with an active membership and one current mission | Know the next move | One primary action, readable briefing, current tab bar |
+| 1 | `01-home-next-move.png` | Home with an active membership and one current commitment | Know what to do next | Three clear starts, current commitment, five destination tab bar |
 | 2 | `02-private-spartan-coach.png` | Coach in Prepare or Review using fictional, deidentified context | Practice the conversation privately | Privacy cue, clear action, no raw history or real transcript |
-| 3 | `03-practice-workspace.png` | Practice catalog at its initial state | Prepare for the moment | Three featured paths with no search results or keyboard |
-| 4 | `04-objection-result.png` | Objection tool with a generated fictional result | Turn objections into action | Suggested output, approval warning, next action visible |
-| 5 | `05-library.png` | Library on Read with a featured field note | Keep the method within reach | Current content, Read selected, no loading or error state |
+| 3 | `03-explore.png` | Explore at its initial state | Everything in one place | Library, My Work, access map, complete native tool catalog |
+| 4 | `04-my-work.png` | My Work with fictional saved work | Pick up where you left off | Commitment, saved work, offline item, no private customer data |
+| 5 | `05-library.png` | Library on Read with a complete native field note | Read less. Use more. | Search, current content, Read selected, no loading or error state |
 
 Recommended captions:
 
-1. Know the next move
+1. Know what to do next
 2. Practice the conversation privately
-3. Prepare for the moment
-4. Turn objections into action
-5. Keep the method within reach
+3. Find every tool and resource
+4. Pick up where you left off
+5. Read less. Use more.
 
 ## Subscription review screenshot
 
@@ -38,11 +38,11 @@ Use these review images for the corresponding subscriptions in App Store Connect
 4. Confirm the helmet app icon and launch screen before capture.
 5. Set the iPhone appearance to System and capture the marketing set in Light first. Capture a Dark alternate only after the Light set passes.
 6. Wait for all remote content to load. Do not capture skeletons, spinners, empty error cards, alerts, keyboards, or debug banners.
-7. Keep the status bar clean and the tab bar visible on Today, Coach, Practice, and Library.
+7. Keep the status bar clean and the tab bar visible on Home, Coach, Explore, My Work, and Account. Library is reached through Explore.
 8. Use real simulator or device captures. Do not generate, redraw, or compose product UI screenshots.
 9. Review every image at full size for clipping, Dynamic Island collisions, incorrect safe area, broken type wrapping, and accidental private data.
 10. Keep the original captures. Do not resize the 6.9 inch set before upload.
 
 ## Device sizes
 
-The required primary set is iPhone 16 Pro Max at 1320 by 2868. A dedicated iPhone 15 Plus set at 1290 by 2796 is optional. App Store Connect can use the 6.9 inch set as the fallback for smaller current iPhone slots.
+The required primary set is iPhone 17 Pro Max at 1320 by 2868. A dedicated iPhone 15 Plus set at 1290 by 2796 is optional. App Store Connect can use the 6.9 inch set as the fallback for smaller current iPhone slots.

@@ -1,268 +1,41 @@
-/**
- * Tests for the billing card in the Account screen.
- * Covers the cancel-at-period-end edge case: "Access until <date>" should appear
- * instead of "Renews <date>", and the "Manage billing / cancel" button should still
- * be visible so the user can reverse the cancel.
- */
-import React from "react";
-import { render, waitFor, cleanup, act } from "@testing-library/react-native";
+import fs from "node:fs";
+import path from "node:path";
 
-// ---------------------------------------------------------------------------
-// Module mocks — must be declared before any imports that pull in these paths
-// ---------------------------------------------------------------------------
+const root = path.resolve(__dirname, "..");
+const account = fs.readFileSync(path.join(root, "app/(tabs)/account.tsx"), "utf8");
+const membership = fs.readFileSync(path.join(root, "app/membership.tsx"), "utf8");
+const appleActions = fs.readFileSync(path.join(root, "components/AppleSubscriptionActions.tsx"), "utf8");
 
-const mockFetchBillingStatus = jest.fn();
-const mockFetchOnboardingMobile = jest.fn();
-const mockStartIndividualCheckout = jest.fn();
-const mockOpenBillingPortal = jest.fn();
-
-jest.mock("@/lib/api", () => ({
-  fetchBillingStatus: (...args: unknown[]) => mockFetchBillingStatus(...args),
-  fetchAppleBillingConfig: jest.fn().mockResolvedValue({
-    configured: true,
-    appAccountToken: "65b35d18-1d82-4f4f-9d3d-bf81f82a32fb",
-    products: [],
-  }),
-  verifyAppleTransaction: jest.fn().mockResolvedValue({ applied: true, active: true }),
-  fetchOnboardingMobile: (...args: unknown[]) => mockFetchOnboardingMobile(...args),
-  startIndividualCheckout: (...args: unknown[]) => mockStartIndividualCheckout(...args),
-  openBillingPortal: (...args: unknown[]) => mockOpenBillingPortal(...args),
-  updateOnboardingMobile: jest.fn().mockResolvedValue({ member: {} }),
-  fetchValueReceipt: jest.fn().mockResolvedValue({
-    days: 7,
-    since: new Date().toISOString(),
-    checklistDone: 0,
-    totalEvents: 0,
-    events: [],
-    highlights: ["No tracked activity yet"],
-  }),
-  getWebSiteUrl: () => "https://spartancoaching.com",
-}));
-
-const mockUser = {
-  member: {
-    id: 1,
-    email: "test@example.com",
-    name: "Test User",
-    role: "member",
-    organizationId: 10,
-    status: "active",
-  },
-  organization: {
-    id: 10,
-    name: "Acme Hospice",
-    type: "personal",
-    seatLimit: 1,
-    status: "active",
-    billingPlan: "individual",
-    billingStatus: "active",
-    currentPeriodEnd: "2026-08-15T00:00:00.000Z",
-    cancelAtPeriodEnd: true,
-    hasStripeCustomer: true,
-    hasStripeSubscription: true,
-  },
-  fieldKit: { allowed: true, reason: null, hoursRemaining: null },
-};
-
-const mockRefresh = jest.fn().mockResolvedValue(undefined);
-
-jest.mock("@/lib/AuthContext", () => ({
-  useAuth: () => ({
-    user: mockUser,
-    isLoading: false,
-    isAuthenticated: true,
-    canUseFieldKit: true,
-    logout: jest.fn(),
-    refresh: mockRefresh,
-  }),
-}));
-
-jest.mock("@/hooks/useColors", () => ({
-  useColors: () => ({
-    background: "#000",
-    foreground: "#fff",
-    primary: "#e8291e",
-    mutedForeground: "#888",
-    card: "#111",
-    border: "#333",
-  }),
-}));
-
-jest.mock("@/hooks/useAccessibilityPrefs", () => ({
-  useAccessibilityPrefs: () => ({ reduceMotion: true }),
-}));
-
-jest.mock("@/lib/onboarding", () => ({
-  formatTrialRemaining: () => null,
-  isChecklistDone: () => false,
-  visibleChecklist: () => [],
-}));
-
-jest.mock("react-native-safe-area-context", () => ({
-  useSafeAreaInsets: () => ({ top: 0, bottom: 0, left: 0, right: 0 }),
-}));
-
-// useFocusEffect must call its callback immediately so state updates run in tests
-jest.mock("expo-router", () => ({
-  router: { push: jest.fn() },
-  useFocusEffect: (cb: () => void | (() => void)) => {
-    // require is allowed inside jest.mock factories; React is not in scope here
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const { useEffect } = require("react") as typeof import("react");
-    useEffect(cb, []);
-  },
-}));
-
-jest.mock("@expo/vector-icons", () => ({
-  Feather: () => null,
-}));
-
-jest.mock("expo-haptics", () => ({
-  impactAsync: jest.fn(),
-  notificationAsync: jest.fn(),
-  ImpactFeedbackStyle: { Light: "light", Medium: "medium" },
-  NotificationFeedbackType: { Success: "success" },
-}));
-
-jest.mock("@/lib/analytics", () => ({
-  trackMobileEvent: jest.fn().mockResolvedValue(undefined),
-}));
-
-// ---------------------------------------------------------------------------
-// Import the component under test AFTER mocks are set up
-// ---------------------------------------------------------------------------
-import AccountScreen from "../app/(tabs)/account";
-
-afterEach(cleanup);
-
-// ---------------------------------------------------------------------------
-// Helpers
-// ---------------------------------------------------------------------------
-
-/** Billing response that represents an active subscription being canceled at period end. */
-function makeBillingCanceling(periodEnd: string) {
-  return {
-    configured: true,
-    individualWeeklyPriceConfigured: true,
-    canCheckoutIndividual: false,
-    canOpenPortal: true,
-    organization: {
-      id: 10,
-      type: "personal",
-      status: "active",
-      billingPlan: "individual",
-      billingStatus: "active",
-      currentPeriodEnd: periodEnd,
-      cancelAtPeriodEnd: true,
-      hasStripeCustomer: true,
-      hasStripeSubscription: true,
-      billableSeats: null,
-      seatLimit: 1,
-      contractRef: null,
-    },
-  };
-}
-
-/** Billing response that represents a normally-renewing active subscription. */
-function makeBillingRenewing(periodEnd: string) {
-  return {
-    configured: true,
-    individualWeeklyPriceConfigured: true,
-    canCheckoutIndividual: false,
-    canOpenPortal: true,
-    organization: {
-      id: 10,
-      type: "personal",
-      status: "active",
-      billingPlan: "individual",
-      billingStatus: "active",
-      currentPeriodEnd: periodEnd,
-      cancelAtPeriodEnd: false,
-      hasStripeCustomer: true,
-      hasStripeSubscription: true,
-      billableSeats: null,
-      seatLimit: 1,
-      contractRef: null,
-    },
-  };
-}
-
-const PERIOD_END = "2026-08-15T00:00:00.000Z";
-
-// ---------------------------------------------------------------------------
-// Tests
-// ---------------------------------------------------------------------------
-
-describe("Account screen billing card — cancel-at-period-end", () => {
-  beforeEach(() => {
-    mockFetchOnboardingMobile.mockResolvedValue({
-      member: { ...mockUser.member, checklistProgress: {} },
-    });
+describe("Account membership contract", () => {
+  it("uses Apple subscription controls for individual iOS membership", () => {
+    expect(account).toContain("AppleSubscriptionActions");
+    expect(account).toContain("Individual iOS membership is purchased and managed through Apple");
+    expect(account).toContain('router.push("/membership" as any)');
   });
 
-  it('shows "Access until" date when cancelAtPeriodEnd is true', async () => {
-    mockFetchBillingStatus.mockResolvedValue(makeBillingCanceling(PERIOD_END));
-
-    const { queryByText, getByText } = render(<AccountScreen />);
-
-    await waitFor(() => {
-      // Billing must have loaded (loading indicator gone)
-      const expectedDate = new Date(PERIOD_END).toLocaleDateString();
-      const dateLabel = getByText(`Access until ${expectedDate}`);
-      expect(dateLabel).toBeTruthy();
-    });
-
-    // Must NOT show "Renews" when canceling
-    expect(queryByText(/^Renews /)).toBeNull();
+  it("does not launch Stripe or browser checkout from Account", () => {
+    expect(account).not.toContain("startIndividualCheckout");
+    expect(account).not.toContain("openBillingPortal");
+    expect(account).not.toContain("checkout.stripe.com");
+    expect(account).not.toContain("billing.stripe.com");
+    expect(account).not.toContain("button-subscribe");
   });
 
-  it('shows "Renews" date when cancelAtPeriodEnd is false', async () => {
-    mockFetchBillingStatus.mockResolvedValue(makeBillingRenewing(PERIOD_END));
-
-    const { queryByText, getByText } = render(<AccountScreen />);
-
-    await waitFor(() => {
-      const expectedDate = new Date(PERIOD_END).toLocaleDateString();
-      const dateLabel = getByText(`Renews ${expectedDate}`);
-      expect(dateLabel).toBeTruthy();
-    });
-
-    expect(queryByText(/^Access until /)).toBeNull();
+  it("keeps company seats separate from Apple individual billing and gives renewal cleanup to the member", () => {
+    expect(account).toContain('org?.type === "company"');
+    expect(account).toContain("Provided through your organization contract and seat assignment");
+    expect(account).toContain("Company access does not cancel an Apple subscription");
+    expect(account).toContain("Your organization cannot see whether you have or cancel an individual Apple subscription");
+    expect(account).toContain("showManage showRestore={false}");
+    expect(appleActions).toContain("showRestore = true");
+    expect(appleActions).toContain("{showRestore ? (");
+    expect(membership).toContain("Company seats are governed by the provider agreement");
+    expect(membership).toContain("separate from an individual Apple subscription");
   });
 
-  it('still shows "Manage billing / cancel" button when subscription is canceling', async () => {
-    mockFetchBillingStatus.mockResolvedValue(makeBillingCanceling(PERIOD_END));
-
-    const { getByTestId } = render(<AccountScreen />);
-
-    await waitFor(() => {
-      const btn = getByTestId("button-manage-billing");
-      expect(btn).toBeTruthy();
-    });
-  });
-
-  it('shows canceling status chip when cancelAtPeriodEnd is true', async () => {
-    mockFetchBillingStatus.mockResolvedValue(makeBillingCanceling(PERIOD_END));
-
-    const { getAllByText } = render(<AccountScreen />);
-
-    await waitFor(() => {
-      // Craft Phase 4 entitlement shell chip (may also appear as Status label)
-      expect(getAllByText("Hospice Sales Pro · active · canceling").length).toBeGreaterThan(0);
-    });
-  });
-
-  it("shows the canceling blurb in the membership card", async () => {
-    mockFetchBillingStatus.mockResolvedValue(makeBillingCanceling(PERIOD_END));
-
-    const { getAllByText } = render(<AccountScreen />);
-
-    await waitFor(() => {
-      expect(
-        getAllByText(
-          "Your subscription is set to cancel. You keep tools until the current period ends. Reverse cancel in Manage billing if needed.",
-        ).length,
-      ).toBeGreaterThan(0);
-    });
+  it("keeps consulting commercially separate", () => {
+    expect(account).toContain("Human consulting");
+    expect(membership).toContain("Company seats and consulting are separate");
+    expect(membership).toContain("Human consulting is separately scoped and contracted");
   });
 });

@@ -21,19 +21,19 @@ type Props = {
 
 const BENEFITS = [
   "Live generation on field tools",
-  "Command Center for today’s visits",
-  "Saves and checklist synced to web",
-  "Cancel anytime · same seat on iPhone & website",
+  "Field Planner for upcoming conversations",
+  "Saved work and commitments stay with your account",
+  "Cancel anytime · one membership across iPhone and web",
 ];
 
 /**
  * Locked, expired, and trial membership card.
- * Native Apple purchase and restore actions live in Account after sign in.
+ * Native Apple purchase and restore actions are available before sign in.
  */
 export function PaywallCard({
   isAuthenticated,
   title = "$14.99/week · cancel anytime",
-  body = "Unlock live tools and Command Center on this iPhone. Sign in or create an account, then choose Standard or Elite through Apple.",
+  body = "Compare Standard and Elite, then subscribe securely through Apple. Create or sign in to your Spartan account after purchase to sync access.",
   onPrimary,
   primaryLabel,
   orgStatus,
@@ -41,7 +41,7 @@ export function PaywallCard({
 }: Props) {
   const colors = useColors();
   const label =
-    primaryLabel ?? (isAuthenticated ? "Choose membership" : "Sign in to continue");
+    primaryLabel ?? "View memberships";
 
   useEffect(() => {
     void trackMobileEvent("craft", "paywall_view", {
@@ -58,18 +58,14 @@ export function PaywallCard({
       metadata: {
         surface: "paywall",
         platform: "ios",
-        source: isAuthenticated ? "account" : "login",
+        source: "membership",
       },
     });
     if (onPrimary) {
       onPrimary();
       return;
     }
-    if (isAuthenticated) {
-      router.push("/(tabs)/account");
-    } else {
-      router.push("/login");
-    }
+    router.push("/membership" as any);
   };
 
   return (
@@ -129,7 +125,7 @@ export function PaywallCard({
           font("regular"),
         ]}
       >
-        Already subscribed? Sign in with the same Spartan Coaching account, then use Restore Apple Purchases in Account if access does not appear automatically.
+        Already subscribed? Restore with Apple now, then sign in to the Spartan account that holds your history.
       </Text>
     </View>
   );

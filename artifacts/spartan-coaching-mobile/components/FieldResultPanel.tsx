@@ -1,7 +1,6 @@
 import React, { useState, type ReactNode } from "react";
 import {
   ActivityIndicator,
-  Linking,
   Pressable,
   Share,
   StyleSheet,
@@ -14,7 +13,6 @@ import * as Haptics from "expo-haptics";
 import { router } from "expo-router";
 import { useColors } from "@/hooks/useColors";
 import { font } from "@/lib/typography";
-import { getWebSiteUrl } from "@/lib/api";
 import { trackMobileEvent } from "@/lib/analytics";
 
 /**
@@ -31,8 +29,6 @@ export function FieldResultPanel({
   onSave,
   saved,
   children,
-  /** Optional web path for “Open on web” continuity */
-  webPath,
   showCommandHandoff = true,
 }: {
   title?: string;
@@ -44,7 +40,6 @@ export function FieldResultPanel({
   onSave?: () => void | Promise<void>;
   saved?: boolean;
   children?: ReactNode;
-  webPath?: string;
   showCommandHandoff?: boolean;
 }) {
   const colors = useColors();
@@ -211,37 +206,17 @@ export function FieldResultPanel({
                 metadata: { surface: "result", platform: "ios", source: "command" },
               });
               void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              router.push("/(tabs)/command");
+              router.push("/tool/playbook" as never);
             }}
             style={({ pressed }) => [
               styles.btn,
               { borderColor: colors.border, opacity: pressed ? 0.75 : 1 },
             ]}
-            accessibilityLabel="Open Command Center"
+            accessibilityLabel="Open Field Planner"
           >
             <Feather name="target" size={15} color={colors.mutedForeground} />
             <Text style={[styles.btnText, { color: colors.mutedForeground }, font("semibold")]}>
-              Command
-            </Text>
-          </Pressable>
-        ) : null}
-        {webPath ? (
-          <Pressable
-            onPress={() => {
-              void trackMobileEvent("craft", "web_handoff_tap", {
-                metadata: { surface: "result", platform: "ios", source: "web" },
-              });
-              void Linking.openURL(`${getWebSiteUrl()}${webPath.startsWith("/") ? webPath : `/${webPath}`}`);
-            }}
-            style={({ pressed }) => [
-              styles.btn,
-              { borderColor: colors.border, opacity: pressed ? 0.75 : 1 },
-            ]}
-            accessibilityLabel="Open on website"
-          >
-            <Feather name="external-link" size={15} color={colors.mutedForeground} />
-            <Text style={[styles.btnText, { color: colors.mutedForeground }, font("semibold")]}>
-              Web
+              Plan
             </Text>
           </Pressable>
         ) : null}
@@ -250,7 +225,7 @@ export function FieldResultPanel({
         {disclaimer}
       </Text>
       <Text style={[styles.disclaimer, { color: colors.mutedForeground, marginTop: 4 }, font("regular")]}>
-        Same seat as the website · finish the job before the next visit
+        Saved to your Spartan account · ready for the next visit
       </Text>
     </View>
   );

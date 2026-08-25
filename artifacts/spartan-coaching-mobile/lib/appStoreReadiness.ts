@@ -72,10 +72,10 @@ export const APP_STORE_READINESS_ITEMS: ReadinessItem[] = [
   },
   {
     id: "native_account_creation",
-    area: "Native account creation",
+    area: "Purchase-first membership and native account protection",
     status: "implemented",
     evidence:
-      "The iPhone app creates an individual account through /api/auth/register, requires Terms and Privacy acceptance, requires a no PHI commitment, and opens the native Apple membership choice after registration.",
+      "A customer can choose Standard or Elite and complete the StoreKit purchase before creating a Spartan account. The verified purchase is then claimed after native registration or sign in so access and saved work can sync without charging twice.",
   },
   {
     id: "subscription_disclosure",
@@ -88,7 +88,7 @@ export const APP_STORE_READINESS_ITEMS: ReadinessItem[] = [
     id: "subscription_model",
     area: "Apple subscriptions",
     status: "risk",
-    evidence: `Native StoreKit purchase is implemented for Standard ${STANDARD_WEEKLY_PLAN.displayPrice} (${STANDARD_WEEKLY_PLAN.appleProductId}) and Elite ${ELITE_WEEKLY_PLAN.displayPrice} (${ELITE_WEEKLY_PLAN.appleProductId}). The API verifies Apple's signed JWS, binds appAccountToken to the member, prevents transaction reuse, and accepts verified App Store Server Notifications. Release remains blocked until both products and production verification values are configured and tested.`,
+    evidence: `Native StoreKit purchase is implemented for Standard ${STANDARD_WEEKLY_PLAN.displayPrice} (${STANDARD_WEEKLY_PLAN.appleProductId}) and Elite ${ELITE_WEEKLY_PLAN.displayPrice} (${ELITE_WEEKLY_PLAN.appleProductId}). The API verifies Apple's signed JWS before account creation, securely claims the original transaction after authentication, prevents transaction reuse, and accepts verified App Store Server Notifications. Release remains blocked until the complete Sandbox lifecycle matrix passes.`,
     action:
       "Create both products in App Store Connect, configure APPLE_APP_ID and Apple root certificates, register the notification URL, then run purchase, renewal, upgrade, cancellation, refund, and restore on a Sandbox Apple ID and physical iPhone.",
   },
@@ -96,7 +96,7 @@ export const APP_STORE_READINESS_ITEMS: ReadinessItem[] = [
     id: "restore_access",
     area: "Restore purchases / access",
     status: "implemented",
-    evidence: "Account exposes Restore Apple Purchases. Every restored active subscription is server verified and bound to the signed in member before StoreKit is finished.",
+    evidence: "Membership and Account expose Restore Apple Purchases. Restore works before sign in; the verified purchase is claimed after native account creation or sign in before access is granted.",
   },
   {
     id: "sign_in_with_apple",
@@ -156,11 +156,11 @@ export const APP_STORE_READINESS_ITEMS: ReadinessItem[] = [
 /** Suggested App Review notes (paste into ASC; no secrets). */
 export const APP_REVIEW_NOTES = [
   "Hospice Sales Pro is a multiplatform membership (web + iOS) for hospice field sales coaching tools.",
-  "Account creation: Create an individual membership from Sign In or Account. Registration completes inside the iPhone app and opens the native Apple membership choice.",
+  "Purchase flow: open Membership, choose Standard or Elite, and complete the native Apple purchase. No Spartan account is required before payment. After Apple confirms the purchase, create or sign in to one private Spartan account to protect and sync access without a second charge.",
   "Account deletion: Account tab → Delete account (requires confirm DELETE). Completes within the app.",
   `Apple subscriptions: Standard ${STANDARD_WEEKLY_PLAN.displayPrice} and Hospice Sales Pro Elite ${ELITE_WEEKLY_PLAN.displayPrice}. Purchases and restores are verified by the Spartan Coaching API before access is granted.`,
   "App Store submission remains blocked until production server verification, App Store Connect declarations, and the Sandbox purchase matrix are complete.",
-  "Demo: use provided reviewer credentials if attached; otherwise create an account and use Subscribe, or request evaluation access via Contact.",
+  "Demo: reviewers may browse Home, Coach, Explore, My Work, Library, and the guided tour before purchase. Use provided reviewer credentials for live gated tools or the native Membership screen to inspect StoreKit products.",
   "No patient PHI. Elite clinical tools accept deidentified information only, provide suggested education, and require medical director, compliance, or both to approve output.",
   `Support: ${APP_STORE_SUPPORT_URL} · Privacy: ${APP_STORE_PRIVACY_URL}`,
 ].join("\n");

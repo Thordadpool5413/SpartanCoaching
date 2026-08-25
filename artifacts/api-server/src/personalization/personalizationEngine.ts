@@ -1,6 +1,6 @@
 /**
  * Explainable personalization engine (HSP-37).
- * Pure functions — no opaque ranking; every recommendation has a `why`.
+ * Pure functions. Every recommendation has a human-readable reason.
  */
 
 import {
@@ -44,19 +44,19 @@ const STARTER_FOR_ROLE: Record<
       id: "starter-objections",
       title: "Objection Handler",
       href: "/tools/objections",
-      why: "Starter for new reps — practice one live pushback line today.",
+      why: "A practical starting point for rehearsing one live pushback line.",
     },
     {
       id: "starter-command",
       title: "Command Center",
       href: "/tools/sales-workflow",
-      why: "Starter spine — open one account and plan the next visit.",
+      why: "Open one account, prepare the visit, and define the next move.",
     },
     {
       id: "starter-weekly",
       title: "Weekly Plan Builder",
       href: "/tools/weekly-plan-builder",
-      why: "Starter rhythm — structure Monday–Friday before the week runs you.",
+      why: "Create a deliberate weekly rhythm before the calendar creates one for you.",
     },
   ],
   director: [
@@ -64,34 +64,38 @@ const STARTER_FOR_ROLE: Record<
       id: "starter-activity",
       title: "Activity Calculator",
       href: "/tools/activity-calculator",
-      why: "Leader starter — turn goals into daily conversation targets.",
+      why: "Translate goals into specific daily conversation targets.",
     },
     {
       id: "starter-command",
       title: "Command Center",
       href: "/tools/sales-workflow",
-      why: "See team day structure from the same spine reps use.",
+      why: "Use the same field workflow your team uses to understand execution quality.",
     },
   ],
   default: [
     {
       id: "starter-portal",
-      title: "Portal home",
+      title: "Home",
       href: "/portal",
-      why: "New workspace — start from your next action checklist.",
+      why: "Start from the next useful action instead of searching the entire product.",
     },
     {
       id: "starter-objections",
       title: "Objection Handler",
       href: "/tools/objections",
-      why: "Common first tool — field-ready talk tracks without PHI.",
+      why: "A common first field tool for building useful talk tracks without PHI.",
     },
   ],
 };
 
-export function normalizePayload(
-  raw: unknown,
-): PersonalizationPayload {
+function cleanContextValue(value: unknown, max: number): string | null {
+  if (typeof value !== "string") return null;
+  const cleaned = value.trim().slice(0, max);
+  return cleaned.length >= 2 ? cleaned : null;
+}
+
+export function normalizePayload(raw: unknown): PersonalizationPayload {
   const base = emptyPersonalizationPayload();
   if (!raw || typeof raw !== "object") return base;
   const p = raw as Partial<PersonalizationPayload>;
@@ -119,13 +123,14 @@ export function normalizePayload(
             id: String((r as PersonalizationRecentItem).id).slice(0, 200),
             title: String((r as PersonalizationRecentItem).title).slice(0, 300),
             href: String((r as PersonalizationRecentItem).href).slice(0, 500),
-            at: String((r as PersonalizationRecentItem).at || new Date().toISOString()).slice(
-              0,
-              40,
-            ),
+            at: String((r as PersonalizationRecentItem).at || new Date().toISOString()).slice(0, 40),
           }))
       : [],
     dismissedRecommendationIds: uniqStrings(p.dismissedRecommendationIds ?? [], 50),
+    jurisdiction: {
+      state: cleanContextValue(p.jurisdiction?.state, 80),
+      macRegion: cleanContextValue(p.jurisdiction?.macRegion, 120),
+    },
   };
 }
 
@@ -154,19 +159,11 @@ export function pushRecent(
     href: item.href,
     at: item.at || new Date().toISOString(),
   };
-  next.recent = [entry, ...next.recent.filter((r) => !(r.kind === entry.kind && r.id === entry.id))].slice(
-    0,
-    30,
-  );
+  next.recent = [entry, ...next.recent.filter((r) => !(r.kind === entry.kind && r.id === entry.id))].slice(0, 30);
   return next;
 }
 
-export function toggleList(
-  list: string[],
-  id: string,
-  on: boolean,
-  max = 20,
-): string[] {
+export function toggleList(list: string[], id: string, on: boolean, max = 20): string[] {
   const cleaned = uniqStrings(list, max);
   if (on) {
     if (cleaned.includes(id)) return cleaned;
@@ -182,10 +179,6 @@ export type DraftHint = {
   status: string;
 };
 
-/**
- * Build continue + recommended today from prefs + optional draft hints.
- * All `why` strings are human-readable (no opaque scores).
- */
 export function buildPersonalizationView(input: {
   payload: PersonalizationPayload;
   jobRole?: string | null;
@@ -211,7 +204,7 @@ export function buildPersonalizationView(input: {
       kind: "draft",
       title: d.title || d.resourceKey,
       href: d.href,
-      why: "Continue draft — you have unsaved or in-progress resource work.",
+      why: "Continue work that is already in progress.",
     });
   }
 
@@ -224,7 +217,7 @@ export function buildPersonalizationView(input: {
       kind: "workflow",
       title: workflowRecent.title,
       href: workflowRecent.href,
-      why: "Continue workflow — you opened Command Center recently.",
+      why: "Continue the field workflow you opened recently.",
     });
   }
 
@@ -236,7 +229,7 @@ export function buildPersonalizationView(input: {
         kind: r.kind,
         title: r.title,
         href: r.href,
-        why: "Continue where you left off — recent open on this account.",
+        why: "Continue where you left off on this account.",
       });
     }
     if (continueItems.length >= 6) break;
@@ -251,7 +244,7 @@ export function buildPersonalizationView(input: {
       id: `pin-tool:${id}`,
       title: titles[id] || id,
       href: toolHref(id),
-      why: "Pinned by you — always shown in Recommended today.",
+      why: "Pinned by you for reliable quick access.",
       source: "pinned",
     });
   }
@@ -263,7 +256,7 @@ export function buildPersonalizationView(input: {
       id: `fav-tool:${id}`,
       title: titles[id] || id,
       href: toolHref(id),
-      why: "Favorite tool — you marked this for quick access.",
+      why: "You marked this as a favorite tool.",
       source: "favorite",
     });
   }
@@ -274,16 +267,13 @@ export function buildPersonalizationView(input: {
       id: `pin-res:${id}`,
       title: id,
       href: resourceHref(id),
-      why: "Pinned resource — saved for field use.",
+      why: "Pinned by you for field use.",
       source: "pinned",
     });
   }
 
   if (emptyHistory) {
-    const roleKey =
-      input.jobRole && STARTER_FOR_ROLE[input.jobRole]
-        ? input.jobRole
-        : "default";
+    const roleKey = input.jobRole && STARTER_FOR_ROLE[input.jobRole] ? input.jobRole : "default";
     for (const s of STARTER_FOR_ROLE[roleKey] || STARTER_FOR_ROLE.default!) {
       if (dismissed.has(s.id)) continue;
       recommendedToday.push({
@@ -317,7 +307,7 @@ function toolHref(toolId: string): string {
     "email-templates": "/tools/email-templates",
     "cold-call": "/tools/cold-call-script",
   };
-  return map[toolId] || `/tools`;
+  return map[toolId] || "/tools";
 }
 
 function resourceHref(id: string): string {

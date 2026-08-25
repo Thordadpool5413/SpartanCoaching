@@ -11,10 +11,9 @@ const config = getDefaultConfig(projectRoot);
  * GitHub Actions CI: watch monorepo root so Expo serverRoot-relative entry
  * URLs resolve during static build (last-known-green pattern).
  *
- * Replit / local: never watch monorepo root — it often contains
- * `.local/share/pnpm/_tmp_*` which pnpm deletes while Metro watches → ENOENT.
- * Instead watch app + lib packages + workspace node_modules (pnpm store
- * realpaths for linked packages like expo-router).
+ * Replit / local: preserve Expo's package-aware monorepo defaults, then add
+ * the app, local libraries, and workspace node_modules. Unsafe transient
+ * folders remain excluded so deleted pnpm temporary paths cannot crash Metro.
  */
 const isCi =
   process.env.CI === "true" ||
@@ -92,17 +91,16 @@ if (isCi) {
     ...new Set([...(config.watchFolders ?? []), workspaceRoot, projectRoot]),
   ];
 } else {
-  // Replit/local: never watch monorepo root (siblings include .local).
-  // Must include workspace node_modules so pnpm realpath of expo-router is
-  // in Metro's FileMap — without it, every entry URL 404s during static build.
+  // Preserve Expo defaults. They contain package roots, not the broad
+  // workspace root, and are required for Expo Doctor compatibility.
   const workspaceNodeModules = path.join(workspaceRoot, "node_modules");
   const safeLocalFolders = [
+    ...(config.watchFolders ?? []),
     projectRoot,
     ...collectLibPackages(),
     workspaceNodeModules,
   ].filter((dir) => fs.existsSync(dir) && !isUnsafeWatchRoot(dir));
 
-  // Hard replace — do not keep Expo's monorepo-root watchFolders default.
   config.watchFolders = [...new Set(safeLocalFolders)];
 }
 

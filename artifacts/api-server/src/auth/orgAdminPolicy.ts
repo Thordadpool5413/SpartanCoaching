@@ -110,3 +110,34 @@ export function aggregateOrgUsage(
       .sort((a, b) => b.count - a.count),
   };
 }
+
+const COMPLETION_OUTCOMES = new Set([
+  "workflow_completion",
+  "next_action_confirmation",
+  "tool_completion",
+  "result_save",
+  "resource_completion",
+]);
+
+export function aggregateCompletionTrend(
+  rows: readonly { memberId: number | null; eventName: string; createdAt: number }[],
+  memberIds: ReadonlySet<number>,
+  now = new Date(),
+): { total: number; trend: Array<{ date: string; count: number }> } {
+  const countByDate = new Map<string, number>();
+  let total = 0;
+  for (const row of rows) {
+    if (row.memberId == null || !memberIds.has(row.memberId) || !COMPLETION_OUTCOMES.has(row.eventName)) continue;
+    const date = new Date(row.createdAt).toISOString().slice(0, 10);
+    countByDate.set(date, (countByDate.get(date) ?? 0) + 1);
+    total += 1;
+  }
+  const trend = Array.from({ length: 7 }, (_, index) => {
+    const date = new Date(now);
+    date.setUTCHours(0, 0, 0, 0);
+    date.setUTCDate(date.getUTCDate() - (6 - index));
+    const key = date.toISOString().slice(0, 10);
+    return { date: key, count: countByDate.get(key) ?? 0 };
+  });
+  return { total, trend };
+}

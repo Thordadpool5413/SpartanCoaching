@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import {
   KeyboardAvoidingView,
-  Linking,
   Platform,
   Pressable,
   ScrollView,
@@ -14,7 +13,7 @@ import { router, type Href } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { useAuth } from "@/lib/AuthContext";
-import { ApiError, getWebSiteUrl } from "@/lib/api";
+import { ApiError } from "@/lib/api";
 import { SpartanButton } from "@/components/ui/SpartanButton";
 import { SpartanInput } from "@/components/ui/SpartanInput";
 import { font } from "@/lib/typography";
@@ -32,15 +31,6 @@ export default function LoginScreen() {
   useEffect(() => {
     if (!isLoading && isAuthenticated) router.replace("/(tabs)");
   }, [isLoading, isAuthenticated]);
-
-  const openWebsite = async (path: string) => {
-    const url = `${getWebSiteUrl()}${path}`;
-    if (!(await Linking.canOpenURL(url))) {
-      setError("The Spartan Coaching website could not be opened on this device.");
-      return;
-    }
-    await Linking.openURL(url);
-  };
 
   const onSubmit = async () => {
     setError(null);
@@ -112,7 +102,7 @@ export default function LoginScreen() {
             />
             <Pressable
               accessibilityRole="link"
-              onPress={() => void openWebsite("/forgot-password")}
+              onPress={() => router.push("/forgot-password" as Href)}
               style={styles.forgot}
               testID="button-forgot-password"
             >
@@ -132,14 +122,25 @@ export default function LoginScreen() {
           </View>
 
           <View style={styles.secondaryActions}>
+            <View style={[styles.recoveryCard, { backgroundColor: colors.card, borderColor: colors.borderStrong ?? colors.border }]} testID="company-offboarding-recovery">
+              <Feather name="refresh-cw" size={18} color={colors.primary} />
+              <View style={{ flex: 1 }}>
+                <Text style={[styles.recoveryTitle, { color: colors.foreground }, font("bold")]}>Company access ended?</Text>
+                <Text style={[styles.recoveryBody, { color: colors.mutedForeground }, font("regular")]}>Choose individual access through Apple, then create the personal account with the same email. Preserved private commitments can reconnect during the 30 day recovery window.</Text>
+              </View>
+            </View>
             <Pressable
               accessibilityRole="link"
-              onPress={() => router.push("/register" as Href)}
+              onPress={() => router.push("/membership" as Href)}
               style={[styles.linkButton, { borderColor: colors.borderStrong ?? colors.border }]}
-              testID="button-create-account"
+              testID="button-choose-membership"
             >
-              <Text style={[styles.linkButtonText, { color: colors.foreground }, font("bold")]}>Create an individual membership</Text>
+              <Text style={[styles.linkButtonText, { color: colors.foreground }, font("bold")]}>Choose a membership</Text>
               <Feather name="arrow-right" size={18} color={colors.primary} />
+            </Pressable>
+            <Pressable accessibilityRole="button" onPress={() => router.push("/register" as Href)} style={styles.contactLink} testID="button-create-account">
+              <Text style={[styles.contactText, { color: colors.primary }, font("semibold")]}>Create an account for an existing Apple purchase</Text>
+              <Feather name="chevron-right" size={17} color={colors.primary} />
             </Pressable>
             <Pressable accessibilityRole="button" onPress={() => router.push("/(tabs)/contact")} style={styles.contactLink}>
               <Text style={[styles.contactText, { color: colors.mutedForeground }, font("semibold")]}>Company team or consulting access</Text>
@@ -176,6 +177,9 @@ const styles = StyleSheet.create({
   trustRow: { borderTopWidth: StyleSheet.hairlineWidth, flexDirection: "row", alignItems: "flex-start", gap: 9, marginTop: 18, paddingTop: 16 },
   trustText: { flex: 1, fontSize: 11, lineHeight: 17 },
   secondaryActions: { paddingTop: 14, gap: 4 },
+  recoveryCard: { minHeight: 88, flexDirection: "row", alignItems: "flex-start", gap: 11, borderWidth: 1, borderRadius: 16, padding: 14, marginBottom: 6 },
+  recoveryTitle: { fontSize: 13 },
+  recoveryBody: { fontSize: 11, lineHeight: 17, marginTop: 3 },
   linkButton: { minHeight: 56, borderWidth: 1, borderRadius: 16, paddingHorizontal: 17, flexDirection: "row", alignItems: "center", justifyContent: "space-between" },
   linkButtonText: { fontSize: 14 },
   contactLink: { minHeight: 50, paddingHorizontal: 12, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 3 },

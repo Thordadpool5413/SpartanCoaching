@@ -19,6 +19,9 @@ import { authLimit } from "../rateLimits";
 
 const BUNDLE_ID = "com.spartancoaching.fieldkit";
 const VERIFY_BODY = z.object({ signedTransaction: z.string().min(80).max(80_000) });
+const CLAIM_BODY = VERIFY_BODY.extend({
+  appAccountToken: z.string().uuid().optional(),
+});
 const NOTIFICATION_BODY = z.object({ signedPayload: z.string().min(80).max(200_000) });
 
 type VerifiedAppleTransaction = {
@@ -234,6 +237,27 @@ async function applyTransaction(input: {
   };
 }
 
+function assertOptionalAccountToken(
+  verified: VerifiedAppleTransaction,
+  appAccountToken?: string,
+) {
+  if (!appAccountToken) return;
+  if (verified.payload.appAccountToken?.toLowerCase() !== appAccountToken.toLowerCase()) {
+    throw new Error("The Apple purchase does not match this device purchase session");
+  }
+}
+
+function previewTransaction(verified: VerifiedAppleTransaction) {
+  const transaction = completePayload(verified.payload);
+  return {
+    verified: true,
+    active: transaction.active,
+    tier: transaction.plan.id === ELITE_WEEKLY_PLAN.id ? "elite" as const : "standard" as const,
+    productId: verified.payload.productId,
+    expiresAt: transaction.expiresDate.toISOString(),
+  };
+}
+
 export function appleBillingConfigured() {
   return rootCertificates().length > 0 && Number(process.env.APPLE_APP_ID) > 0;
 }
@@ -247,6 +271,35 @@ export function registerAppleBillingRoutes(app: Express) {
       bundleId: process.env.APPLE_BUNDLE_ID?.trim() || BUNDLE_ID,
       products: [STANDARD_WEEKLY_PLAN.appleProductId, ELITE_WEEKLY_PLAN.appleProductId],
     });
+  });
+
+  // Public product catalog. StoreKit supplies the localized prices on device.
+  // No account is required to inspect or purchase an Apple subscription.
+  app.get("/api/billing/apple/catalog", (_request, response) => {
+    return response.json({
+      configured: appleBillingConfigured(),
+      products: [
+        { id: STANDARD_WEEKLY_PLAN.appleProductId, tier: "standard" },
+        { id: ELITE_WEEKLY_PLAN.appleProductId, tier: "elite" },
+      ],
+    });
+  });
+
+  // Verify a completed StoreKit purchase before the customer creates or signs
+  // into a Spartan account. This endpoint does not grant product access.
+  app.post("/api/billing/apple/guest-verify", authLimit, async (request, response) => {
+    try {
+      if (!appleBillingConfigured()) {
+        return response.status(503).json({ error: "Apple billing verification is not configured", code: "APPLE_BILLING_NOT_CONFIGURED" });
+      }
+      const body = CLAIM_BODY.parse(request.body);
+      const verified = await verifyTransaction(body.signedTransaction);
+      assertOptionalAccountToken(verified, body.appAccountToken);
+      return response.json(previewTransaction(verified));
+    } catch (error: any) {
+      console.warn("Guest Apple transaction verification rejected", { message: error?.message || "unknown" });
+      return response.status(422).json({ error: error?.message || "Apple transaction could not be verified", code: "APPLE_TRANSACTION_REJECTED" });
+    }
   });
 
   app.get("/api/billing/apple/config", requireAuth, async (request: AuthedRequest, response) => {
@@ -285,6 +338,31 @@ export function registerAppleBillingRoutes(app: Express) {
     } catch (error: any) {
       console.warn("Apple transaction verification rejected", { message: error?.message || "unknown" });
       return response.status(422).json({ error: error?.message || "Apple transaction could not be verified", code: "APPLE_TRANSACTION_REJECTED" });
+    }
+  });
+
+  // Claim a purchase that was completed before account creation. StoreKit's
+  // signed transaction is the proof of purchase. applyTransaction prevents an
+  // original transaction from being attached to more than one organization.
+  app.post("/api/billing/apple/claim", requireAuth, authLimit, async (request: AuthedRequest, response) => {
+    try {
+      if (!appleBillingConfigured()) {
+        return response.status(503).json({ error: "Apple billing verification is not configured", code: "APPLE_BILLING_NOT_CONFIGURED" });
+      }
+      const body = CLAIM_BODY.parse(request.body);
+      const member = request.fieldKit?.member;
+      if (!member) return response.status(401).json({ error: "Authentication required", code: "UNAUTHENTICATED" });
+      const verified = await verifyTransaction(body.signedTransaction);
+      assertOptionalAccountToken(verified, body.appAccountToken);
+      const result = await applyTransaction({
+        verified,
+        memberId: member.id,
+        requireAccountBinding: false,
+      });
+      return response.json(result);
+    } catch (error: any) {
+      console.warn("Apple transaction claim rejected", { message: error?.message || "unknown" });
+      return response.status(422).json({ error: error?.message || "Apple transaction could not be claimed", code: "APPLE_TRANSACTION_REJECTED" });
     }
   });
 
