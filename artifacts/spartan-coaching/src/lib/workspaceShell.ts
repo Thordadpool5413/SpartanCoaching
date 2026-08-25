@@ -21,6 +21,8 @@ import {
   UserCircle,
   Wrench,
 } from "lucide-react";
+import type { SpartanDestinationId } from "@workspace/field-kit-catalog";
+import { getDestinationContract } from "@workspace/field-kit-catalog";
 
 export const WORKSPACE_SHELL_VERSION = "workspace-shell-v1";
 
@@ -49,6 +51,7 @@ export type WorkspaceNavItem = {
   match: (location: string) => boolean;
   /** Role gate — omit = any authenticated member */
   roles?: Array<"org_admin" | "platform_admin" | "member" | "rep">;
+  destinationId?: SpartanDestinationId;
 };
 
 /**
@@ -161,6 +164,7 @@ export function workspaceNavForRole(
   const items: WorkspaceNavItem[] = [
     {
       id: "home",
+      destinationId: "home",
       href: "/portal",
       label: "Home",
       icon: Home,
@@ -169,6 +173,7 @@ export function workspaceNavForRole(
     },
     {
       id: "command",
+      destinationId: "command",
       href: "/tools/sales-workflow",
       label: "Command Center",
       short: "Command",
@@ -178,6 +183,7 @@ export function workspaceNavForRole(
     },
     {
       id: "tools",
+      destinationId: "explore",
       href: "/tools",
       label: "Tools",
       icon: Wrench,
@@ -192,6 +198,7 @@ export function workspaceNavForRole(
     },
     {
       id: "resources",
+      destinationId: "library",
       href: "/resources",
       label: "Resources",
       icon: FolderOpen,
@@ -203,6 +210,7 @@ export function workspaceNavForRole(
     },
     {
       id: "learn",
+      destinationId: "library",
       href: "/portal/learn",
       label: "Learn",
       icon: BookOpen,
@@ -227,6 +235,7 @@ export function workspaceNavForRole(
     },
     {
       id: "saved",
+      destinationId: "my-work",
       href: "/resources/weekly-plan",
       label: "Saved work",
       short: "Saved",
@@ -319,6 +328,25 @@ export function utilityWorkspaceNav(
       item.id === "org_admin" ||
       item.id === "platform_admin",
   );
+}
+
+/** Contract check used by tests and future nav builders before rendering. */
+export function workspaceNavContractErrors(
+  nav: readonly WorkspaceNavItem[],
+): string[] {
+  const errors: string[] = [];
+  const ids = new Set<string>();
+  const hrefs = new Set<string>();
+  for (const item of nav) {
+    if (ids.has(item.id)) errors.push(`duplicate workspace nav id ${item.id}`);
+    ids.add(item.id);
+    if (hrefs.has(item.href)) errors.push(`duplicate workspace nav href ${item.href}`);
+    hrefs.add(item.href);
+    if (item.destinationId && !getDestinationContract(item.destinationId)) {
+      errors.push(`${item.id} references an unknown destination`);
+    }
+  }
+  return errors;
 }
 
 /** Login URL with return path for deep links after expired session. */

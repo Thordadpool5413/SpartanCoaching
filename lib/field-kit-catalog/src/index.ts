@@ -7,6 +7,14 @@ export * from "./membership-plans";
 export * from "./hhh-mac-jurisdictions";
 
 export type FieldKitCategory = "Prepare" | "Practice" | "Plan" | "Measure" | "Outreach" | "Learn";
+export type { CatalogDestinationOwner } from "./destination-contract";
+export {
+  SPARTAN_DESTINATION_CONTRACTS,
+  getDestinationContract,
+  validateDestinationContracts,
+  catalogOwnershipErrors,
+} from "./destination-contract";
+export type { SpartanDestinationContract, SpartanDestinationId } from "./destination-contract";
 
 export type ChecklistId =
   | "objection"
@@ -19,6 +27,8 @@ export type MobileDelivery = "native" | "webview" | "missing";
 
 export interface FieldKitTool {
   id: string;
+  /** Destination that owns this tool before it is exposed to search, tours, or navigation. */
+  owner: import("./destination-contract").CatalogDestinationOwner;
   title: string;
   description: string;
   /** Web path (absolute site path) */
@@ -76,6 +86,7 @@ export const FIELD_KIT_HOW =
 export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   {
     id: "sales-workflow",
+    owner: "command",
     title: "Sales Command Center",
     description: "Plan each account call, practice, capture outcomes, review coaching, and schedule the next step.",
     path: "/tools/sales-workflow",
@@ -96,6 +107,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "playbooks",
+    owner: "explore",
     title: "Playbook Generator",
     description: "Custom strategic playbooks for any sales scenario — talking points and next steps.",
     path: "/tools/playbooks",
@@ -117,6 +129,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "objections",
+    owner: "explore",
     title: "Objection Handler",
     description: "Field-ready responses to hospice objections you hear this week.",
     path: "/tools/objections",
@@ -139,6 +152,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "research",
+    owner: "explore",
     title: "Grounded Research",
     description: "Territory and market questions with credible sources.",
     path: "/tools/research",
@@ -156,6 +170,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "transcribe",
+    owner: "explore",
     title: "Call Transcriber",
     description: "Transcribe and review calls for coaching moments.",
     path: "/tools/transcribe",
@@ -173,6 +188,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "email-templates",
+    owner: "explore",
     title: "Email Templates",
     description: "Follow-ups, thank-yous, and value-adds that stay professional.",
     path: "/tools/email-templates",
@@ -190,6 +206,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "role-play",
+    owner: "explore",
     title: "Role-Play Practice",
     description: "Simulate physician and family conversations with feedback.",
     path: "/tools/role-play",
@@ -208,6 +225,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "activity-calculator",
+    owner: "explore",
     title: "Activity Calculator",
     description: "Turn admission goals into daily conversation targets.",
     path: "/tools/activity-calculator",
@@ -225,6 +243,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "rep-cost",
+    owner: "explore",
     title: "Rep Cost Calculator",
     description: "Fully loaded cost per call, referral, and admission.",
     path: "/tools/rep-cost-calculator",
@@ -241,6 +260,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "roi",
+    owner: "explore",
     title: "ROI Calculator",
     description: "Estimate coaching impact on revenue and conversion.",
     path: "/tools/roi-calculator",
@@ -257,6 +277,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "branch",
+    owner: "explore",
     title: "Branch Profitability Simulator",
     description: "Break-even ADC, staffing, and cash runway for your branch.",
     path: "/tools/branch-profitability",
@@ -273,6 +294,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "cold-call",
+    owner: "explore",
     title: "Cold Call Script Generator",
     description: "Openers, objection handlers, and a clear next-step ask.",
     path: "/tools/cold-call-script",
@@ -290,6 +312,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "weekly-plan",
+    owner: "explore",
     title: "Weekly Plan Builder",
     description: "Monday–Friday territory plan with win conditions.",
     path: "/tools/weekly-plan-builder",
@@ -308,6 +331,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "brand-video",
+    owner: "library",
     title: "Brand Video",
     description: "Share the Spartan brand video with prospects — public link.",
     path: "/brand-video",

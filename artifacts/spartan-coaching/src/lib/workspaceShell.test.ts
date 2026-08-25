@@ -10,6 +10,7 @@ import {
   canAccessNavItem,
   loginWithReturn,
   normalizePath,
+  workspaceNavContractErrors,
 } from "./workspaceShell";
 
 describe("workspace shell (HSP-32)", () => {
@@ -100,5 +101,13 @@ describe("workspace shell (HSP-32)", () => {
     expect(org?.href).toBe("/org/admin");
     expect(org?.match("/org/admin")).toBe(true);
     expect(org?.match("/account")).toBe(false);
+  });
+
+  it("keeps the primary workspace rail unique and destination-owned", () => {
+    const nav = workspaceNavForRole("member");
+    expect(workspaceNavContractErrors(nav)).toEqual([]);
+    expect(new Set(primaryWorkspaceNav("member").map((item) => item.id)).size).toBe(
+      primaryWorkspaceNav("member").length,
+    );
   });
 });

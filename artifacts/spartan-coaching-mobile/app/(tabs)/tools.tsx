@@ -119,7 +119,18 @@ function ToolsCatalogScreen() {
     const timer = setTimeout(() => {
       void apiGet<SearchResponse>(`/api/v1/search?q=${encodeURIComponent(q)}&limit=12`)
         .then((data) => {
-          if (!cancelled) setRemoteGroups(data.groups || []);
+          if (!cancelled) {
+            // Explore owns interactive tools; Library owns resources. Do not
+            // let a broad search quietly turn this screen into both.
+            setRemoteGroups(
+              (data.groups || [])
+                .map((group) => ({
+                  ...group,
+                  hits: group.hits.filter((hit) => hit.type !== "resource"),
+                }))
+                .filter((group) => group.hits.length > 0),
+            );
+          }
         })
         .catch(() => {
           if (!cancelled) setRemoteGroups([]);

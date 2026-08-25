@@ -1,7 +1,10 @@
+import type { SpartanDestinationId } from "@workspace/field-kit-catalog";
+
 export type SpartanAccess = "visitor" | "standard" | "elite" | "company" | "admin";
 
 export type SpartanOffering = {
   id: string;
+  destinationId?: SpartanDestinationId;
   title: string;
   promise: string;
   route: string;
@@ -14,6 +17,7 @@ export type SpartanOffering = {
 export const SPARTAN_OFFERINGS: SpartanOffering[] = [
   {
     id: "home",
+    destinationId: "home",
     title: "Home",
     promise: "Know the next useful move without turning your day into a CRM dashboard.",
     route: "/(tabs)",
@@ -43,6 +47,7 @@ export const SPARTAN_OFFERINGS: SpartanOffering[] = [
   },
   {
     id: "tools",
+    destinationId: "explore",
     title: "Explore",
     promise: "Find the field tool that fits the job in front of you.",
     route: "/(tabs)/tools",
@@ -57,6 +62,7 @@ export const SPARTAN_OFFERINGS: SpartanOffering[] = [
   },
   {
     id: "my-work",
+    destinationId: "my-work",
     title: "My Work",
     promise: "Resume commitments, saved plans, downloads, and approved outputs without hunting through tools.",
     route: "/(tabs)/my-work",
@@ -71,6 +77,7 @@ export const SPARTAN_OFFERINGS: SpartanOffering[] = [
   },
   {
     id: "library",
+    destinationId: "library",
     title: "Library",
     promise: "Read, listen, practice the Spartan Method, and keep approved resources close to the field.",
     route: "/(tabs)/learn",

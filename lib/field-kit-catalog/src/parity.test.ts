@@ -24,9 +24,19 @@ import {
   getToolById as getTool,
    getToolWorkGuide,
    getResourceWorkGuide,
+  validateDestinationContracts,
+  catalogOwnershipErrors,
 } from "./index";
 
 describe("Membership mobile parity", () => {
+  it("defines the seven destination jobs and only known cross-links", () => {
+    expect(validateDestinationContracts()).toEqual([]);
+  });
+
+  it("requires every searchable or tourable catalog destination to name an owner", () => {
+    expect(catalogOwnershipErrors(FIELD_KIT_TOOLS)).toEqual([]);
+  });
+
   it("ships at least 12 catalog tools", () => {
     expect(FIELD_KIT_TOOLS.length).toBeGreaterThanOrEqual(12);
   });
