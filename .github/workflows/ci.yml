@@ -100,3 +100,32 @@ jobs:
       # HSP-48 — automated release gate (no live SITE_URL in CI)
       - name: Release gate automated suites
         run: node scripts/release-gate.mjs
+
+  browser-release-gate:
+    name: Browser release gate
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: false
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - name: Install Playwright browsers
+        run: pnpm exec playwright install --with-deps chromium webkit
+      - name: Test desktop and mobile customer journeys
+        run: pnpm run test:e2e
+      - name: Upload browser evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-release-evidence
+          path: |
+            playwright-report
+            test-results/playwright
+          retention-days: 14
