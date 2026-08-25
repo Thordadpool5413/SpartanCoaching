@@ -274,6 +274,11 @@ export async function runSpartanAiTool(
   }
 
   const jurisdiction = isClinicalTool(tool) ? currentClinicalJurisdiction() : null;
+  const model = tool.deterministic
+    ? "deterministic-v1"
+    : (options.model ?? process.env.OPENAI_MODEL ?? "gpt-5");
+  const timeoutMs =
+    options.timeoutMs ?? (isClinicalTool(tool) ? 120_000 : 90_000);
   const model = tool.deterministic ? "deterministic-v1" : modelForTool(tool, options);
   const timeoutMs = options.timeoutMs ?? (isClinicalTool(tool) ? 60_000 : 35_000);
 

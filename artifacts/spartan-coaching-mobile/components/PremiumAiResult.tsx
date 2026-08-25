@@ -1,4 +1,6 @@
 import { Feather } from "@expo/vector-icons";
+import React, { useMemo } from "react";
+import { StyleSheet, Text, View } from "react-native";
 import * as Clipboard from "expo-clipboard";
 import React, { useMemo, useState } from "react";
 import { Pressable, StyleSheet, Text, View } from "react-native";
@@ -34,6 +36,10 @@ function sectionMeta(key: string): SectionMeta {
   return match ? { ...match.meta, title: match.meta.title } : { title: humanize(key), tone: "detail", icon: "file-text", order: 60 };
 }
 
+function scalar(value: unknown): string {
+  if (value == null) return "Not provided";
+  if (typeof value === "boolean") return value ? "Yes" : "No";
+  return String(value);
 function cleanPresentationText(value: string): string {
   return value
     .replace(/^\s*#{1,6}\s*/gm, "")
@@ -131,6 +137,8 @@ function ValueBlock({ value, depth = 0 }: { value: unknown; depth?: number }) {
     return <Text selectable style={styles.valueText}>{scalar(value)}</Text>;
   }
 
+  if (Array.isArray(value)) {
+    if (value.length === 0) return <Text style={styles.emptyText}>None noted.</Text>;
   if (isEmailOption(value)) return <EmailOptionCard option={value} index={0} />;
 
   if (Array.isArray(value)) {
@@ -201,6 +209,7 @@ export function PremiumAiResult({ output, watermark, reviewStatus }: { output: u
         <View style={styles.reviewBanner}>
           <Feather name="shield" size={18} color={colors.primary} />
           <View style={{ flex: 1 }}>
+            <Text style={styles.reviewTitle}>{watermark}</Text>
             <Text style={styles.reviewTitle}>{cleanPresentationText(watermark)}</Text>
             <Text style={styles.reviewBody}>{reviewStatus ? `Review status: ${humanize(reviewStatus)}.` : "Human review is required where indicated before external or clinical use."}</Text>
           </View>

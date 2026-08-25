@@ -77,6 +77,7 @@ export default function MyWorkScreen() {
             <Text style={styles.sectionLabel}>SAVED WORK</Text>
             <WorkRow icon="calendar" title="Weekly plan" body="Resume the plan you are building." onPress={() => router.push("/resource-work" as never)} />
             <WorkRow icon="edit-3" title="Conversation plans" body="Open saved preparation and follow through." onPress={() => router.push("/tool/playbook" as never)} />
+            {canUseElite ? <WorkRow icon="shield" title="Saved Elite outputs" body="Open the Elite library to review nonclinical history and required approval status." onPress={() => router.push("/ai-tools" as never)} /> : null}
             {canUseElite ? <WorkRow icon="shield" title="Saved Elite outputs" body="Review completed nonclinical work, status, and full results." onPress={() => router.push("/saved-ai-outputs" as never)} /> : null}
 
             {reports.length ? (
@@ -133,11 +134,13 @@ function WorkRow({ icon, title, body, onPress }: { icon: React.ComponentProps<ty
 function makeStyles(colors: ReturnType<typeof useColors>) {
   return StyleSheet.create({
     screen: { flex: 1, backgroundColor: colors.background },
+    page: { paddingHorizontal: 24 },
     page: { paddingHorizontal: 22 },
     badge: { alignSelf: "flex-start", marginTop: 16, borderRadius: 999, backgroundColor: colors.secondary, paddingHorizontal: 11, paddingVertical: 7 },
     badgeText: { color: colors.primary, fontSize: 9, letterSpacing: 1, ...font("bold") },
     title: { color: colors.foreground, fontSize: 38, lineHeight: 44, letterSpacing: -1.3, marginTop: 22, ...font("heavy") },
     subtitle: { color: colors.mutedForeground, fontSize: 15, lineHeight: 22, marginTop: 5, ...font("regular") },
+    sectionLabel: { color: colors.primary, fontSize: 10, letterSpacing: 1.8, marginTop: 28, marginBottom: 10, ...font("bold") },
     sectionLabel: { color: colors.primary, fontSize: 10, letterSpacing: 1.8, marginTop: 36, marginBottom: 14, ...font("bold") },
     sectionHeading: { flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
     openLibrary: { color: colors.primary, fontSize: 11, marginTop: 20, ...font("bold") },
@@ -146,6 +149,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     privateLabel: { color: colors.primary, fontSize: 9, letterSpacing: 1.4, ...font("bold") },
     commitmentTitle: { color: colors.foreground, fontSize: 19, lineHeight: 24, marginTop: 20, ...font("heavy") },
     commitmentBody: { color: colors.mutedForeground, fontSize: 12, lineHeight: 18, marginTop: 5, ...font("regular") },
+    row: { minHeight: 82, flexDirection: "row", alignItems: "center", gap: 12, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.borderStrong, paddingVertical: 12 },
     row: { minHeight: 94, flexDirection: "row", alignItems: "center", gap: 14, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 18, borderCurve: "continuous", backgroundColor: colors.card, paddingHorizontal: 16, paddingVertical: 15, marginBottom: 12 },
     rowIcon: { width: 42, height: 42, borderRadius: 14, borderCurve: "continuous", alignItems: "center", justifyContent: "center", backgroundColor: colors.primaryMuted },
     rowTitle: { color: colors.foreground, fontSize: 15, ...font("bold") },

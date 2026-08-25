@@ -166,6 +166,7 @@ export default function AccountScreen() {
     <ScrollView
       style={styles.screen}
       contentInsetAdjustmentBehavior="automatic"
+      contentContainerStyle={{ paddingTop: topPad + 16, paddingHorizontal: 20, paddingBottom: bottomPad + 30 }}
       contentContainerStyle={{ paddingTop: topPad + 16, paddingHorizontal: 22, paddingBottom: bottomPad + 40 }}
       showsVerticalScrollIndicator={false}
       keyboardShouldPersistTaps="handled"
@@ -318,11 +319,13 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     heroActionBody: { color: colors.heroMuted, fontSize: 11, lineHeight: 16, marginTop: 3, ...font("regular") },
     simpleLink: { minHeight: 52, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 4 },
     simpleLinkText: { color: colors.primary, fontSize: 13, ...font("bold") },
+    identityRow: { flexDirection: "row", alignItems: "center", gap: 13, marginTop: 13, marginBottom: 20 },
     identityRow: { flexDirection: "row", alignItems: "center", gap: 14, marginTop: 18, marginBottom: 26 },
     avatar: { width: 56, height: 56, borderRadius: 20, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
     avatarText: { color: colors.primaryForeground, fontSize: 18, ...font("heavy") },
     memberName: { color: colors.foreground, fontSize: 22, ...font("heavy") },
     memberEmail: { color: colors.mutedForeground, fontSize: 12, marginTop: 2, ...font("regular") },
+    membershipCard: { minHeight: 142, flexDirection: "row", alignItems: "center", gap: 10, backgroundColor: colors.heroBackground, borderRadius: 22, borderCurve: "continuous", padding: 18, marginBottom: 18 },
     membershipCard: { minHeight: 156, flexDirection: "row", alignItems: "center", gap: 12, backgroundColor: colors.heroBackground, borderRadius: 24, borderCurve: "continuous", padding: 21, marginBottom: 24 },
     cardKicker: { color: colors.heroMuted, fontSize: 9, letterSpacing: 1.8, ...font("bold") },
     membershipTitle: { color: colors.heroForeground, fontSize: 25, lineHeight: 30, marginTop: 5, ...font("heavy") },
@@ -331,6 +334,7 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     adminIcon: { width: 44, height: 44, borderRadius: 14, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
     adminTitle: { color: colors.foreground, fontSize: 15, ...font("bold") },
     adminBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 3, ...font("regular") },
+    section: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderStrong, paddingTop: 22, marginTop: 7, gap: 12 },
     section: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: colors.borderStrong, paddingTop: 28, marginTop: 14, marginBottom: 8, gap: 15 },
     sectionKicker: { color: colors.primary, fontSize: 9, letterSpacing: 1.8, ...font("bold") },
     sectionTitle: { color: colors.foreground, fontSize: 22, lineHeight: 27, ...font("heavy") },
@@ -348,6 +352,11 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
     leadershipBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 3, ...font("regular") },
     input: { minHeight: 64, color: colors.foreground, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.borderStrong, borderRadius: 14, borderCurve: "continuous", padding: 12, fontSize: 13, lineHeight: 18, ...font("regular") },
     profileMessage: { color: colors.primary, fontSize: 11, ...font("semibold") },
+    infoRow: { flexDirection: "row", alignItems: "flex-start", gap: 11, paddingVertical: 9 },
+    infoIcon: { width: 38, height: 38, borderRadius: 13, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
+    infoTitle: { color: colors.foreground, fontSize: 13, ...font("bold") },
+    infoBody: { color: colors.mutedForeground, fontSize: 10, lineHeight: 15, marginTop: 3, ...font("regular") },
+    linkRow: { minHeight: 50, flexDirection: "row", alignItems: "center", borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: colors.border, gap: 10 },
     infoRow: { flexDirection: "row", alignItems: "flex-start", gap: 13, paddingVertical: 13 },
     infoIcon: { width: 38, height: 38, borderRadius: 13, backgroundColor: colors.primaryMuted, alignItems: "center", justifyContent: "center" },
     infoTitle: { color: colors.foreground, fontSize: 13, ...font("bold") },

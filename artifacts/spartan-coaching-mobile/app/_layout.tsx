@@ -120,6 +120,17 @@ export default function RootLayout() {
         <ErrorBoundary>
           <QueryClientProvider client={queryClient}>
             <AuthProvider>
+              <ClientConfigBootstrap />
+              <AppOpenTracker />
+              <DeepLinkRouter />
+              <ActivationCeremony />
+              <StatusBar style={colorScheme === "dark" ? "light" : "dark"} />
+              <GestureHandlerRootView style={{ flex: 1 }}>
+                <KeyboardProvider>
+                  <RootLayoutNav />
+                </KeyboardProvider>
+                {launchVisible ? <LaunchExperience onComplete={completeLaunch} /> : null}
+              </GestureHandlerRootView>
               <CoachSessionProvider>
                 <ClientConfigBootstrap />
                 <AppOpenTracker />
