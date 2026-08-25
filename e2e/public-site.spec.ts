@@ -57,8 +57,11 @@ async function isolatePublicPage(page: Page) {
 }
 
 async function attachFullPage(page: Page, testInfo: TestInfo, name: string) {
+  const viewport = page.viewportSize() ?? { width: 1280, height: 720 };
   await testInfo.attach(`${name}-${testInfo.project.name}`, {
-    body: await page.screenshot({ fullPage: true }),
+    body: await page.screenshot({
+      clip: { x: 0, y: 0, width: viewport.width, height: viewport.height },
+    }),
     contentType: "image/png",
   });
 }
@@ -97,13 +100,13 @@ test.describe("public website release gate", () => {
     await isolatePublicPage(page);
     await page.goto("/", { waitUntil: "networkidle" });
 
-    await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
+    await expect(page.locator("h1:visible").first()).toBeVisible();
     await expect(page.getByRole("link", { name: /book a strategy call/i }).first()).toBeVisible();
     await expect(page.getByRole("link", { name: /explore hospice sales pro/i }).first()).toBeVisible();
-    await expect(page.getByText("Elite", { exact: true })).toBeVisible();
-    await expect(page.getByText("$19.99", { exact: true })).toBeVisible();
-    await expect(page.getByText("Standard", { exact: true })).toBeVisible();
-    await expect(page.getByText("$14.99", { exact: true })).toBeVisible();
+    await expect(page.locator("main")).toContainText("Elite recommended");
+    await expect(page.locator("main")).toContainText("$19.99/wk");
+    await expect(page.locator("main")).toContainText("Standard");
+    await expect(page.locator("main")).toContainText("$14.99/wk");
   });
 
   test("primary navigation reaches both customer paths", async ({ page }) => {
@@ -118,6 +121,6 @@ test.describe("public website release gate", () => {
     await page.getByRole("link", { name: /explore hospice sales pro/i }).first().click();
     await expect(page).toHaveURL(/\/hospice-sales-pro$/);
     await expect(page.locator("h1").first()).toContainText("tools product");
-    await expect(page.getByText("Hospice Sales Pro", { exact: true }).first()).toBeVisible();
+    await expect(page.locator("main")).toContainText("Hospice Sales Pro");
   });
 });

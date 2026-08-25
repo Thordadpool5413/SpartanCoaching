@@ -317,21 +317,6 @@ export function FieldResultPanel({
               styles.secondaryAction,
               { borderColor: colors.border, opacity: pressed ? 0.75 : 1 },
             ]}
-            accessibilityLabel="Open Field Planner"
-          >
-            <Feather name="target" size={15} color={colors.mutedForeground} />
-            <Text style={[styles.btnText, { color: colors.mutedForeground }, font("semibold")]}>
-              Plan
-            </Text>
-          </Pressable>
-        ) : null}
-      </View>
-      <Text style={[styles.disclaimer, { color: colors.mutedForeground }, font("regular")]}>
-        {disclaimer}
-      </Text>
-      <Text style={[styles.disclaimer, { color: colors.mutedForeground, marginTop: 4 }, font("regular")]}>
-        Saved to your Spartan account · ready for the next visit
-      </Text>
             accessibilityRole="button"
             accessibilityLabel="Open Field Planner"
           >

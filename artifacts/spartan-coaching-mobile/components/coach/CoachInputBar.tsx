@@ -18,7 +18,7 @@ const QUICK_PROMPTS = [
 interface CoachInputBarProps {
   followUp: string;
   busy: boolean;
-  followUpInputRef: React.RefObject<TextInput>;
+  followUpInputRef: React.RefObject<TextInput | null>;
   onFollowUpChange: (text: string) => void;
   onSendFollowUp: () => void;
   onPromptSelect: (prompt: string) => void;

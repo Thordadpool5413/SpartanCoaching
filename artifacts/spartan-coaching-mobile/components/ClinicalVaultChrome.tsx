@@ -1,8 +1,3 @@
-import React, { useEffect, useState } from "react";
-import { Pressable, StyleSheet, Text, View } from "react-native";
-import { Feather } from "@expo/vector-icons";
-import { router } from "expo-router";
-import { useColors } from "@/hooks/useColors";
 import React, { useEffect, useRef, useState } from "react";
 import { Animated, Pressable, StyleSheet, Text, View } from "react-native";
 import { BlurView } from "expo-blur";
@@ -42,18 +37,6 @@ export function ClinicalVaultHubBanner() {
       style={[styles.hub, { borderColor: VAULT.border }]}
       accessibilityRole="summary"
     >
-      <View style={[styles.iconWell, { backgroundColor: VAULT.surfaceStrong }]}>
-        <Feather name="shield" size={20} color={VAULT.accent} />
-      </View>
-      <View style={{ flex: 1, gap: 8 }}>
-        <Text style={[{ color: colors.foreground, fontSize: 18 }, font("bold")]}>{VAULT_COPY.hubTitle}</Text>
-        <Text style={[{ color: colors.mutedForeground, fontSize: 14, lineHeight: 21 }, font("regular")]}>{VAULT_COPY.hubBody}</Text>
-        <View style={styles.chips}>
-          {VAULT_COPY.chips.map((chip) => (
-            <View key={chip} style={[styles.chip, { borderColor: VAULT.borderSubtle, backgroundColor: colors.background }]}>
-              <Text style={[{ color: colors.foreground, fontSize: 10 }, font("semibold")]}>{chip.toUpperCase()}</Text>
-            </View>
-          ))}
       <VaultPulse reduceMotion={reduceMotion} />
       <BlurView intensity={18} tint="dark" style={StyleSheet.absoluteFill} />
       <View style={[styles.hubContent]}>
@@ -77,22 +60,12 @@ export function ClinicalVaultHubBanner() {
 }
 
 export function ClinicalVaultToolBanner() {
-  const colors = useColors();
   const [jurisdiction, setJurisdiction] = useState<JurisdictionContext | null>(null);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
     void fetchJurisdictionContext()
-      .then((context) => {
-        if (!cancelled) setJurisdiction(context);
-      })
-      .catch(() => {
-        if (!cancelled) setJurisdiction(null);
-      })
-      .finally(() => {
-        if (!cancelled) setLoaded(true);
-      });
       .then((context) => { if (!cancelled) setJurisdiction(context); })
       .catch(() => { if (!cancelled) setJurisdiction(null); })
       .finally(() => { if (!cancelled) setLoaded(true); });
@@ -103,22 +76,6 @@ export function ClinicalVaultToolBanner() {
 
   return (
     <View style={[styles.toolBanner, { borderColor: VAULT.border, backgroundColor: VAULT.surface }]} accessibilityRole="summary">
-      <Feather name="shield" size={18} color={VAULT.accent} />
-      <View style={{ flex: 1, gap: 5 }}>
-        <Text style={[{ color: colors.foreground, fontSize: 14 }, font("bold")]}>{VAULT_COPY.toolBannerTitle}</Text>
-        <Text style={[{ color: colors.mutedForeground, fontSize: 13, lineHeight: 19 }, font("regular")]}>{VAULT_COPY.toolBannerBody}</Text>
-        {loaded ? (
-          <View style={[styles.jurisdiction, { borderTopColor: VAULT.borderSubtle }]} testID="clinical-jurisdiction-state">
-            <View style={[styles.statusDot, { backgroundColor: ready ? colors.success : colors.destructive }]} />
-            <View style={{ flex: 1 }}>
-              <Text style={[{ color: colors.foreground, fontSize: 11 }, font("bold")]}>{ready ? "Jurisdiction context ready" : "Jurisdiction context required"}</Text>
-              <Text style={[{ color: colors.mutedForeground, fontSize: 10, lineHeight: 15 }, font("regular")]}>{ready ? `${jurisdiction!.state} · ${jurisdiction!.macRegion}` : "Set your state and Medicare Administrative Contractor region before running clinical education tools."}</Text>
-            </View>
-            <Pressable accessibilityRole="button" onPress={() => router.push("/jurisdiction" as any)} style={styles.contextButton}>
-              <Text style={[{ color: VAULT.accent, fontSize: 10 }, font("bold")]}>{ready ? "Edit" : "Set"}</Text>
-            </Pressable>
-          </View>
-        ) : null}
       <View style={[styles.toolBannerAccentBar, { backgroundColor: VAULT.accent }]} />
       <View style={styles.toolBannerInner}>
         <View style={[styles.iconWellSm, { backgroundColor: VAULT.surfaceStrong }]}>
@@ -159,7 +116,6 @@ export function ClinicalVaultBadge() {
   return (
     <View style={[styles.badge, { borderColor: VAULT.border, backgroundColor: VAULT.surface }]}>
       <Feather name="shield" size={12} color={VAULT.accent} />
-      <Text style={[{ color: VAULT.text, fontSize: 12 }, font("semibold")]}>{VAULT_COPY.badge}</Text>
       <Text style={[{ color: VAULT.accentSoft, fontSize: 12 }, font("semibold")]}>{VAULT_COPY.badge}</Text>
     </View>
   );
