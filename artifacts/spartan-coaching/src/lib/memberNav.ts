@@ -6,6 +6,7 @@ import {
   Home,
   LayoutDashboard,
   MessageCircle,
+  Sparkles,
   UserCircle,
   Wrench,
 } from "lucide-react";
