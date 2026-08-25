@@ -16,7 +16,7 @@ const DEFAULT_ITEMS = [
   {
     icon: Lock,
     title: "Clear Hospice Sales Pro path",
-    body: "Individuals at $14.99/week, cancel anytime. Teams activate seats under contract after evaluation.",
+    body: "Elite is recommended at $19.99/week. Standard is $14.99/week. Cancel anytime. Teams activate seats under contract.",
   },
   {
     icon: FileCheck,
@@ -51,7 +51,7 @@ export function TrustStrip({ className, compact = false, showLinks = true }: Tru
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
             Two clear offers: consulting stays human; Hospice Sales Pro unlocks tools on web and iPhone. Individuals self-serve
-            at $14.99/week; teams and evaluations request access first, then continue under contract when it fits.
+            with recommended Elite at $19.99/week or Standard at $14.99/week; teams and evaluations request access first, then continue under contract when it fits.
           </p>
         </div>
       )}
@@ -94,7 +94,7 @@ export function TrustStrip({ className, compact = false, showLinks = true }: Tru
             Create account · Hospice Sales Pro
           </Link>
           <Link href="/hospice-sales-pro" className="text-muted-foreground hover:text-primary transition-colors font-medium">
-            Pricing · $14.99/wk
+            Elite $19.99/wk · Standard $14.99/wk
           </Link>
           <Link href="/request-access" className="text-muted-foreground hover:text-primary transition-colors font-medium">
             Team / evaluation

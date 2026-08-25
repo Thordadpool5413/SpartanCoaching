@@ -13,13 +13,10 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
   Alert,
-  KeyboardAvoidingView,
   Modal,
-  Platform,
   Pressable,
   ScrollView,
   StyleSheet,
-  Switch,
   Text,
   TextInput,
   View,
@@ -28,7 +25,6 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import {
   useAppearancePreference,
-  type AppearancePreference,
 } from "@/lib/AppearanceContext";
 import { useAuth } from "@/lib/AuthContext";
 import { ApiError, transcribeAudio } from "@/lib/api";
@@ -42,6 +38,7 @@ import {
   saveCoachPreferences,
   sendCoachMessage,
   type CoachConversation,
+  type CoachMessage,
   type CoachPreference,
 } from "@/lib/coachApi";
 import { font } from "@/lib/typography";
@@ -49,13 +46,15 @@ import { trackProductOutcome } from "@/lib/analytics";
 import { cacheCommitment } from "@/lib/commitmentCache";
 import { HelmetMark } from "@/components/brand/HelmetMark";
 import { SpartanHeader } from "@/components/ui/SpartanHeader";
+import { useCoachSession } from "@/lib/CoachSessionContext";
+import { SpartanHeader } from "@/components/ui/SpartanHeader";
+import { cleanFieldCopy } from "@/components/FieldResultPanel";
+import { CoachEliteGate } from "@/components/coach/CoachEliteGate";
+import { CoachSettingsPanel } from "@/components/coach/CoachSettingsPanel";
+import { CoachMessageThread } from "@/components/coach/CoachMessageThread";
+import { CoachInputBar } from "@/components/coach/CoachInputBar";
+import { CoachShell, type CoachStep } from "@/components/coach/CoachShell";
 
-type CoachStep = "prepare" | "rehearse" | "review";
-const STEPS: Array<{ id: CoachStep; label: string }> = [
-  { id: "prepare", label: "Prepare" },
-  { id: "rehearse", label: "Rehearse" },
-  { id: "review", label: "Commit" },
-];
 const defaultPreference: CoachPreference = {
   memoryEnabled: false,
   responseStyle: "balanced",
@@ -66,7 +65,10 @@ export default function CoachScreen() {
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const { user, isLoading: authLoading, isAuthenticated, canUseElite } = useAuth();
   const appearance = useAppearancePreference();
+  const { setVoiceActive } = useCoachSession();
   const rehearsalInput = useRef<TextInput>(null);
+  const followUpInput = useRef<TextInput>(null);
+  const coachScroll = useRef<ScrollView>(null);
   const recorder = useAudioRecorder(RecordingPresets.HIGH_QUALITY);
   const recorderState = useAudioRecorderState(recorder, 250);
 
@@ -76,13 +78,17 @@ export default function CoachScreen() {
   const [rehearsal, setRehearsal] = useState("");
   const [commitment, setCommitment] = useState("");
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [messages, setMessages] = useState<CoachMessage[]>([]);
+  const [followUp, setFollowUp] = useState("");
   const [conversationId, setConversationId] = useState<string | null>(null);
   const [conversations, setConversations] = useState<CoachConversation[]>([]);
   const [preference, setPreference] = useState(defaultPreference);
   const [busy, setBusy] = useState(false);
+  const [coachReplying, setCoachReplying] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [landingVisible, setLandingVisible] = useState(true);
+  const [landingPrompt, setLandingPrompt] = useState("");
 
   useEffect(() => {
     if (!canUseElite) return;
@@ -129,6 +135,7 @@ export default function CoachScreen() {
       await setAudioModeAsync({ allowsRecording: true, playsInSilentMode: true });
       await recorder.prepareToRecordAsync();
       recorder.record();
+      setVoiceActive(true);
       void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     } catch {
       Alert.alert(
@@ -143,11 +150,13 @@ export default function CoachScreen() {
     setBusy(true);
     try {
       await recorder.stop();
+      setVoiceActive(false);
       await setAudioModeAsync({ allowsRecording: false, playsInSilentMode: true });
       if (!recorder.uri) throw new Error("Recording file was not created");
       setRehearsal(await transcribeAudio(recorder.uri));
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (error) {
+      setVoiceActive(false);
       const message =
         error instanceof ApiError && error.status === 403
           ? "Hospice Sales Pro Elite is required for private voice rehearsal."
@@ -182,6 +191,7 @@ export default function CoachScreen() {
       ].join("\n");
       const answer = await sendCoachMessage(id, prompt, Crypto.randomUUID());
       setFeedback(answer.content);
+      setMessages([answer]);
       if (!commitment.trim()) setCommitment(intention.trim());
       setStep("review");
       setConversations(await listCoachConversations());
@@ -197,6 +207,84 @@ export default function CoachScreen() {
               : "Coach could not review this rehearsal. Your wording remains here.";
       Alert.alert("Review unavailable", message);
     } finally {
+      setBusy(false);
+    }
+  }
+
+  async function sendFollowUp() {
+    const text = followUp.trim();
+    if (!conversationId || !text || busy) return;
+    const requestId = Crypto.randomUUID();
+    const optimisticUser: CoachMessage = {
+      id: requestId,
+      role: "user",
+      content: text,
+      createdAt: new Date().toISOString(),
+      clientRequestId: requestId,
+    };
+    setMessages((current) => [...current, optimisticUser]);
+    setFollowUp("");
+    setBusy(true);
+    setCoachReplying(true);
+    requestAnimationFrame(() => coachScroll.current?.scrollToEnd({ animated: true }));
+    try {
+      const answer = await sendCoachMessage(conversationId, text, requestId);
+      setMessages((current) => [...current, answer]);
+      setFeedback(answer.content);
+      setConversations(await listCoachConversations());
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      requestAnimationFrame(() => coachScroll.current?.scrollToEnd({ animated: true }));
+    } catch (error) {
+      setMessages((current) => current.filter((message) => message.id !== requestId));
+      setFollowUp(text);
+      const message =
+        error instanceof ApiError && error.code === "POTENTIAL_PHI_DETECTED"
+          ? "Remove names, dates, contact details, and other patient identifiers."
+          : error instanceof ApiError && error.code === "ELITE_REQUIRED"
+            ? "Your account needs Hospice Sales Pro Elite to continue with Coach."
+            : error instanceof ApiError && error.status === 401
+              ? "Sign in again to continue this private conversation."
+              : "Coach could not respond. Your message is still here so you can try again.";
+      Alert.alert("Coach unavailable", message);
+    } finally {
+      setCoachReplying(false);
+      setBusy(false);
+    }
+  }
+
+  async function startDirectConversation() {
+    const text = landingPrompt.trim();
+    if (!text || busy) return;
+    setBusy(true);
+    setCoachReplying(true);
+    try {
+      const created = await createCoachConversation(text.slice(0, 76));
+      const requestId = Crypto.randomUUID();
+      const userMessage: CoachMessage = {
+        id: requestId,
+        role: "user",
+        content: text,
+        createdAt: new Date().toISOString(),
+        clientRequestId: requestId,
+      };
+      const answer = await sendCoachMessage(created.id, text, requestId);
+      setConversationId(created.id);
+      setSituation(text);
+      setMessages([userMessage, answer]);
+      setFeedback(answer.content);
+      setLandingPrompt("");
+      setStep("review");
+      setLandingVisible(false);
+      setConversations(await listCoachConversations());
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+    } catch (error) {
+      const message =
+        error instanceof ApiError && error.code === "POTENTIAL_PHI_DETECTED"
+          ? "Remove names, dates, contact details, and other patient identifiers."
+          : "Coach could not start the conversation. Your message is still here so you can try again.";
+      Alert.alert("Coach unavailable", message);
+    } finally {
+      setCoachReplying(false);
       setBusy(false);
     }
   }
@@ -231,6 +319,8 @@ export default function CoachScreen() {
     setRehearsal("");
     setCommitment("");
     setFeedback(null);
+    setMessages([]);
+    setFollowUp("");
     setConversationId(null);
     setLandingVisible(showLanding);
   }
@@ -243,9 +333,19 @@ export default function CoachScreen() {
       const lastCoach = [...loaded.messages]
         .reverse()
         .find((message) => message.role === "assistant");
+      const visibleMessages = loaded.messages.filter(
+        (message) =>
+          !(
+            message.role === "user" &&
+            message.content.startsWith("Coach this private hospice sales rehearsal.")
+          ),
+      );
       setConversationId(item.id);
+      setCommitment("");
       setSituation(item.title);
       setFeedback(lastCoach?.content ?? null);
+      setMessages(visibleMessages);
+      setFollowUp("");
       setStep(lastCoach ? "review" : "rehearse");
       setLandingVisible(false);
     } catch {
@@ -288,6 +388,8 @@ export default function CoachScreen() {
     }
   }
 
+  // ── Auth / loading states ──────────────────────────────────────────────────
+
   if (authLoading) {
     return (
       <View style={styles.centered}>
@@ -297,20 +399,33 @@ export default function CoachScreen() {
   }
 
   if (!isAuthenticated || !canUseElite) {
+    return <CoachEliteGate isAuthenticated={isAuthenticated} />;
+  }
+
+  // ── Landing / home screen ──────────────────────────────────────────────────
+
+  if (landingVisible) {
     return (
       <SafeAreaView
         style={styles.safe}
         edges={["top"]}
-        testID="screen-elite-coach-gate"
+        testID="screen-elite-coach-home"
       >
         <ScrollView contentContainerStyle={styles.gateContent}>
           <SpartanHeader title="Coach" actionLabel={isAuthenticated ? undefined : "Sign in"} />
           <View style={styles.gateBadge}>
             <Feather name="shield" size={15} color={colors.primary} />
             <Text style={styles.gateBadgeText}>HOSPICE SALES PRO ELITE</Text>
+        <ScrollView
+          contentContainerStyle={styles.coachHomeContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <SpartanHeader title="Coach" />
+          <View style={styles.coachHomeBadge}>
+            <Text style={styles.coachHomeBadgeText}>ELITE · PRIVATE</Text>
           </View>
-          <Text style={styles.gateTitle}>
-            Private practice that prepares you for the room.
+          <Text style={styles.coachHomeTitle}>
+            Practice the conversation before it matters.
           </Text>
           <Text style={styles.gateBody}>
             Rehearse by voice or text, receive direct coaching, and leave with
@@ -332,11 +447,10 @@ export default function CoachScreen() {
           </Pressable>
           <Text style={styles.gatePrice}>
             Hospice Sales Pro Elite is $19.99 per week. Cancel anytime.
+          <Text style={styles.coachHomeBody}>
+            Spartan Coach listens for the concern beneath the words, asks when
+            context is missing, and helps you leave with one commitment.
           </Text>
-        </ScrollView>
-      </SafeAreaView>
-    );
-  }
 
   if (landingVisible) {
     return (
@@ -418,190 +532,110 @@ export default function CoachScreen() {
           showsVerticalScrollIndicator={false}
         >
           <View style={styles.topBar}>
+          <View
+            style={styles.coachComposer}
+            testID="coach-direct-conversation"
+          >
+            <Text style={styles.coachComposerKicker}>START HERE</Text>
+            <Text style={styles.coachComposerTitle}>What is on your mind?</Text>
+            <TextInput
+              value={landingPrompt}
+              onChangeText={setLandingPrompt}
+              placeholder="Tell Coach what happened, what feels difficult, or what you want to practice"
+              placeholderTextColor={colors.mutedForeground}
+              multiline
+              maxLength={4000}
+              textAlignVertical="top"
+              style={styles.coachLandingInput}
+              accessibilityLabel="Start a private Coach conversation"
+            />
             <Pressable
-              accessibilityLabel="Open private Coach history"
-              onPress={() => setHistoryOpen(true)}
-              style={styles.iconButton}
+              disabled={!landingPrompt.trim() || busy}
+              onPress={() => void startDirectConversation()}
+              style={[
+                styles.landingSendButton,
+                (!landingPrompt.trim() || busy) && styles.disabled,
+              ]}
+              accessibilityRole="button"
             >
-              <Feather name="clock" size={20} color={colors.foreground} />
+              {busy ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <>
+                  <Text style={styles.landingSendText}>Talk with Coach</Text>
+                  <Feather name="arrow-up" size={19} color="#FFFFFF" />
+                </>
+              )}
             </Pressable>
-            <BrandLockup compact styles={styles} />
             <Pressable
-              accessibilityLabel="Open Coach settings"
-              onPress={() => setSettingsOpen(true)}
-              style={styles.iconButton}
+              accessibilityRole="button"
+              onPress={() => {
+                setLandingVisible(false);
+                setStep("prepare");
+                void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }}
+              style={styles.guidedRehearsalButton}
+              testID="coach-begin-preparation"
             >
-              <Feather name="sliders" size={20} color={colors.foreground} />
+              <Feather name="mic" size={18} color={colors.primary} />
+              <Text style={styles.guidedRehearsalText}>
+                Use guided voice rehearsal
+              </Text>
+              <Feather name="chevron-right" size={18} color={colors.primary} />
             </Pressable>
           </View>
 
-          <View style={styles.intro}>
-            <View style={styles.eliteRow}>
-              <View style={styles.redRule} />
-              <Text style={styles.eliteLabel}>SPARTAN COACH</Text>
-            </View>
-            <Text style={styles.title}>
-              Prepare for the conversation that matters.
-            </Text>
-            <Text style={styles.subtitle}>
-              Good {timeOfDay()}, {firstName}. No patient information. Your raw
-              rehearsal stays private.
-            </Text>
-          </View>
-
-          <StepRail step={step} onChange={setStep} styles={styles} colors={colors} />
-
-          {step === "prepare" ? (
-            <View style={styles.section}>
-              <Text style={styles.sectionNumber}>01</Text>
-              <Text style={styles.sectionTitle}>Brief the Coach</Text>
-              <Text style={styles.sectionBody}>
-                Describe the professional situation without patient names,
-                dates, contact details, or identifying facts.
+          <Pressable
+            accessibilityRole="button"
+            onPress={() =>
+              conversations.length
+                ? setHistoryOpen(true)
+                : setLandingVisible(false)
+            }
+            style={({ pressed }) => [
+              styles.resumeCard,
+              pressed && styles.rowPressed,
+            ]}
+            testID="coach-resume-private-conversation"
+          >
+            <Feather
+              name={conversations.length ? "clock" : "message-circle"}
+              size={21}
+              color={colors.primary}
+            />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.resumeTitle}>
+                {conversations.length
+                  ? "Resume a private conversation"
+                  : "Start your first private conversation"}
               </Text>
-              <Field
-                label="WHAT ARE YOU WALKING INTO?"
-                placeholder="Example: A case manager is hesitant to introduce hospice earlier"
-                value={situation}
-                onChangeText={setSituation}
-                maxLength={700}
-                styles={styles}
-                colors={colors}
-              />
-              <Field
-                label="WHAT OUTCOME DO YOU WANT?"
-                placeholder="Example: Earn agreement for a 15 minute education follow up"
-                value={intention}
-                onChangeText={setIntention}
-                maxLength={350}
-                styles={styles}
-                colors={colors}
-              />
-              <PrivacyBar styles={styles} colors={colors} />
-              <Pressable
-                style={[
-                  styles.primaryButton,
-                  (!situation.trim() || !intention.trim()) && styles.disabled,
-                ]}
-                onPress={goToRehearsal}
-              >
-                <Text style={styles.primaryButtonText}>Start rehearsal</Text>
-                <Feather name="arrow-right" size={19} color="#FFFFFF" />
-              </Pressable>
-            </View>
-          ) : null}
-
-          {step === "rehearse" ? (
-            <View style={styles.section}>
-              <Text style={styles.sectionNumber}>02</Text>
-              <Text style={styles.sectionTitle}>Say it out loud</Text>
-              <Text style={styles.sectionBody}>
-                Practice the exact words you want to use. Coach evaluates
-                clarity, empathy, and the strength of your next step.
+              <Text style={styles.resumeBody}>
+                {conversations.length
+                  ? `${conversations.length} private ${
+                      conversations.length === 1
+                        ? "conversation"
+                        : "conversations"
+                    } available`
+                  : "Begin with the professional situation and the outcome you want."}
               </Text>
-              <View
-                style={[
-                  styles.recorderCard,
-                  recorderState.isRecording && styles.recorderCardActive,
-                ]}
-              >
-                <View style={styles.recordingStatusRow}>
-                  <View
-                    style={[
-                      styles.recordingDot,
-                      recorderState.isRecording && styles.recordingDotActive,
-                    ]}
-                  />
-                  <Text style={styles.recordingStatus}>
-                    {recorderState.isRecording
-                      ? formatDuration(recorderState.durationMillis)
-                      : busy
-                        ? "TRANSCRIBING"
-                        : "READY"}
-                  </Text>
-                </View>
-                <Pressable
-                  accessibilityLabel={
-                    recorderState.isRecording
-                      ? "Stop recording and transcribe"
-                      : "Start private rehearsal recording"
-                  }
-                  onPress={() =>
-                    recorderState.isRecording
-                      ? void stopAndTranscribe()
-                      : void startRecording()
-                  }
-                  disabled={busy}
-                  style={[
-                    styles.recordButton,
-                    recorderState.isRecording && styles.recordButtonActive,
-                  ]}
-                >
-                  {busy ? (
-                    <ActivityIndicator color="#FFFFFF" />
-                  ) : (
-                    <Feather
-                      name={recorderState.isRecording ? "square" : "mic"}
-                      size={30}
-                      color="#FFFFFF"
-                    />
-                  )}
-                </Pressable>
-                <Text style={styles.recordingInstruction}>
-                  {recorderState.isRecording ? "Tap to stop" : "Tap to record"}
-                </Text>
-                <Text style={styles.recordingPrivacy}>
-                  Audio is used for transcription. The transcript is sent only
-                  when you request Coach feedback.
-                </Text>
-              </View>
-
-              <View style={styles.transcriptHeader}>
-                <Text style={styles.fieldLabel}>YOUR REHEARSAL</Text>
-                <Text style={styles.characterCount}>{rehearsal.length}/1800</Text>
-              </View>
-              <TextInput
-                ref={rehearsalInput}
-                value={rehearsal}
-                onChangeText={setRehearsal}
-                placeholder="Your transcript appears here. You can also type or edit it."
-                placeholderTextColor={colors.mutedForeground}
-                multiline
-                maxLength={1800}
-                textAlignVertical="top"
-                style={styles.rehearsalInput}
-              />
-              <Pressable
-                disabled={!rehearsal.trim() || busy}
-                onPress={() => void requestFeedback()}
-                style={[
-                  styles.primaryButton,
-                  (!rehearsal.trim() || busy) && styles.disabled,
-                ]}
-              >
-                {busy ? (
-                  <ActivityIndicator color="#FFFFFF" />
-                ) : (
-                  <>
-                    <Text style={styles.primaryButtonText}>Get private feedback</Text>
-                    <Feather name="arrow-up-right" size={19} color="#FFFFFF" />
-                  </>
-                )}
-              </Pressable>
-              <Pressable onPress={() => setStep("prepare")} style={styles.textButton}>
-                <Feather name="arrow-left" size={17} color={colors.mutedForeground} />
-                <Text style={styles.textButtonLabel}>Edit briefing</Text>
-              </Pressable>
             </View>
-          ) : null}
+            <Feather
+              name="chevron-right"
+              size={20}
+              color={colors.mutedForeground}
+            />
+          </Pressable>
 
-          {step === "review" ? (
-            <View style={styles.section}>
-              <Text style={styles.sectionNumber}>03</Text>
-              <Text style={styles.sectionTitle}>Leave with one move</Text>
-              <Text style={styles.sectionBody}>
-                Review the coaching, then decide what you will do. Coach cannot
-                save a commitment for you.
+          <View style={styles.coachPrivacyCard}>
+            <Feather name="shield" size={22} color={colors.foreground} />
+            <View style={{ flex: 1 }}>
+              <Text style={styles.coachPrivacyTitle}>
+                Your privacy is protected
+              </Text>
+              <Text style={styles.coachPrivacyBody}>
+                Raw Coach conversations stay private and expire after 90 days.
+                Nothing is shared unless you explicitly share a summary or
+                commitment.
               </Text>
               {feedback ? (
                 <View style={styles.feedbackCard} accessibilityLiveRegion="polite">
@@ -656,33 +690,21 @@ export default function CoachScreen() {
                 </Text>
               </Pressable>
             </View>
-          ) : null}
+          </View>
         </ScrollView>
-      </KeyboardAvoidingView>
 
-      <HistorySheet
-        visible={historyOpen}
-        conversations={conversations}
-        onClose={() => setHistoryOpen(false)}
-        onOpen={openConversation}
-        onDelete={confirmDelete}
-        styles={styles}
-        colors={colors}
-      />
-      <SettingsSheet
-        visible={settingsOpen}
-        preference={preference}
-        appearance={appearance.preference}
-        onClose={() => setSettingsOpen(false)}
-        onPreference={updatePreference}
-        onAppearance={appearance.setPreference}
-        styles={styles}
-        colors={colors}
-        initials={initials}
-      />
-    </SafeAreaView>
-  );
-}
+        <HistorySheet
+          visible={historyOpen}
+          conversations={conversations}
+          onClose={() => setHistoryOpen(false)}
+          onOpen={openConversation}
+          onDelete={confirmDelete}
+          styles={styles}
+          colors={colors}
+        />
+      </SafeAreaView>
+    );
+  }
 
 function BrandLockup({
   compact = false,
@@ -703,64 +725,272 @@ function BrandLockup({
     </View>
   );
 }
+  // ── Main guided session ────────────────────────────────────────────────────
 
-function StepRail({
-  step,
-  onChange,
-  styles,
-  colors,
-}: {
-  step: CoachStep;
-  onChange: (next: CoachStep) => void;
-  styles: ReturnType<typeof makeStyles>;
-  colors: ReturnType<typeof useColors>;
-}) {
-  const current = STEPS.findIndex((item) => item.id === step);
   return (
-    <View
-      style={styles.stepRail}
-      accessibilityLabel={`Coach step ${current + 1} of 3`}
+    <CoachShell
+      firstName={firstName}
+      step={step}
+      coachScrollRef={coachScroll}
+      onStepChange={setStep}
+      onHistoryOpen={() => setHistoryOpen(true)}
+      onSettingsOpen={() => setSettingsOpen(true)}
+      modals={
+        <>
+          <HistorySheet
+            visible={historyOpen}
+            conversations={conversations}
+            onClose={() => setHistoryOpen(false)}
+            onOpen={openConversation}
+            onDelete={confirmDelete}
+            styles={styles}
+            colors={colors}
+          />
+          <CoachSettingsPanel
+            visible={settingsOpen}
+            preference={preference}
+            appearance={appearance.preference}
+            initials={initials}
+            onClose={() => setSettingsOpen(false)}
+            onPreference={updatePreference}
+            onAppearance={appearance.setPreference}
+          />
+        </>
+      }
     >
-      {STEPS.map((item, index) => {
-        const active = index === current;
-        const complete = index < current;
-        return (
+      {/* ── Prepare step ── */}
+      {step === "prepare" ? (
+        <View style={styles.section}>
+          <Text style={styles.sectionNumber}>01</Text>
+          <Text style={styles.sectionTitle}>Brief the Coach</Text>
+          <Text style={styles.sectionBody}>
+            Describe the professional situation without patient names, dates,
+            contact details, or identifying facts.
+          </Text>
+          <Field
+            label="WHAT ARE YOU WALKING INTO?"
+            placeholder="Example: A case manager is hesitant to introduce hospice earlier"
+            value={situation}
+            onChangeText={setSituation}
+            maxLength={700}
+            styles={styles}
+            colors={colors}
+          />
+          <Field
+            label="WHAT OUTCOME DO YOU WANT?"
+            placeholder="Example: Earn agreement for a 15 minute education follow up"
+            value={intention}
+            onChangeText={setIntention}
+            maxLength={350}
+            styles={styles}
+            colors={colors}
+          />
+          <PrivacyBar styles={styles} colors={colors} />
           <Pressable
-            key={item.id}
-            onPress={() => onChange(item.id)}
-            style={styles.stepItem}
-            accessibilityRole="tab"
-            accessibilityState={{ selected: active }}
-            accessibilityLabel={`${item.label}, step ${index + 1} of 3`}
+            style={[
+              styles.primaryButton,
+              (!situation.trim() || !intention.trim()) && styles.disabled,
+            ]}
+            onPress={goToRehearsal}
           >
-            <View
+            <Text style={styles.primaryButtonText}>Start rehearsal</Text>
+            <Feather name="arrow-right" size={19} color="#FFFFFF" />
+          </Pressable>
+        </View>
+      ) : null}
+
+      {/* ── Rehearse step ── */}
+      {step === "rehearse" ? (
+        <View style={styles.section}>
+          <Text style={styles.sectionNumber}>02</Text>
+          <Text style={styles.sectionTitle}>Say it out loud</Text>
+          <Text style={styles.sectionBody}>
+            Practice the exact words you want to use. Coach evaluates clarity,
+            empathy, and the strength of your next step.
+          </Text>
+          <View
+            style={[
+              styles.recorderCard,
+              recorderState.isRecording && styles.recorderCardActive,
+            ]}
+          >
+            <View style={styles.recordingStatusRow}>
+              <View
+                style={[
+                  styles.recordingDot,
+                  recorderState.isRecording && styles.recordingDotActive,
+                ]}
+              />
+              <Text style={styles.recordingStatus}>
+                {recorderState.isRecording
+                  ? formatDuration(recorderState.durationMillis)
+                  : busy
+                    ? "TRANSCRIBING"
+                    : "READY"}
+              </Text>
+            </View>
+            <Pressable
+              accessibilityLabel={
+                recorderState.isRecording
+                  ? "Stop recording and transcribe"
+                  : "Start private rehearsal recording"
+              }
+              onPress={() =>
+                recorderState.isRecording
+                  ? void stopAndTranscribe()
+                  : void startRecording()
+              }
+              disabled={busy}
               style={[
-                styles.stepCircle,
-                (active || complete) && styles.stepCircleActive,
+                styles.recordButton,
+                recorderState.isRecording && styles.recordButtonActive,
               ]}
             >
-              {complete ? (
-                <Feather name="check" size={14} color="#FFFFFF" />
+              {busy ? (
+                <ActivityIndicator color="#FFFFFF" />
               ) : (
-                <Text
-                  style={[
-                    styles.stepNumber,
-                    active && { color: colors.primaryForeground },
-                  ]}
-                >
-                  {index + 1}
-                </Text>
+                <Feather
+                  name={recorderState.isRecording ? "square" : "mic"}
+                  size={30}
+                  color="#FFFFFF"
+                />
               )}
-            </View>
-            <Text style={[styles.stepLabel, active && styles.stepLabelActive]}>
-              {item.label}
+            </Pressable>
+            <Text style={styles.recordingInstruction}>
+              {recorderState.isRecording ? "Tap to stop" : "Tap to record"}
+            </Text>
+            <Text style={styles.recordingPrivacy}>
+              Audio is used for transcription. The transcript is sent only when
+              you request Coach feedback.
+            </Text>
+          </View>
+
+          <View style={styles.transcriptHeader}>
+            <Text style={styles.fieldLabel}>YOUR REHEARSAL</Text>
+            <Text style={styles.characterCount}>{rehearsal.length}/1800</Text>
+          </View>
+          <TextInput
+            ref={rehearsalInput}
+            value={rehearsal}
+            onChangeText={setRehearsal}
+            placeholder="Your transcript appears here. You can also type or edit it."
+            placeholderTextColor={colors.mutedForeground}
+            multiline
+            maxLength={1800}
+            textAlignVertical="top"
+            style={styles.rehearsalInput}
+          />
+          <Pressable
+            disabled={!rehearsal.trim() || busy}
+            onPress={() => void requestFeedback()}
+            style={[
+              styles.primaryButton,
+              (!rehearsal.trim() || busy) && styles.disabled,
+            ]}
+          >
+            {busy ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <>
+                <Text style={styles.primaryButtonText}>
+                  Get private feedback
+                </Text>
+                <Feather name="arrow-up-right" size={19} color="#FFFFFF" />
+              </>
+            )}
+          </Pressable>
+          <Pressable
+            onPress={() => setStep("prepare")}
+            style={styles.textButton}
+          >
+            <Feather name="arrow-left" size={17} color={colors.mutedForeground} />
+            <Text style={styles.textButtonLabel}>Edit briefing</Text>
+          </Pressable>
+        </View>
+      ) : null}
+
+      {/* ── Review step ── */}
+      {step === "review" ? (
+        <View style={styles.section}>
+          <Text style={styles.sectionNumber}>03</Text>
+          <Text style={styles.sectionTitle}>
+            Keep the conversation going
+          </Text>
+          <Text style={styles.sectionBody}>
+            Ask questions, challenge the advice, practice another version, or
+            work through what still feels unclear.
+          </Text>
+
+          <CoachMessageThread
+            messages={messages}
+            feedback={feedback}
+            coachReplying={coachReplying}
+            onReturnToRehearsal={() => setStep("rehearse")}
+          />
+
+          {feedback ? (
+            <CoachInputBar
+              followUp={followUp}
+              busy={busy}
+              followUpInputRef={followUpInput}
+              onFollowUpChange={setFollowUp}
+              onSendFollowUp={() => void sendFollowUp()}
+              onPromptSelect={(prompt) => {
+                setFollowUp(prompt);
+                requestAnimationFrame(() => followUpInput.current?.focus());
+              }}
+            />
+          ) : null}
+
+          <View style={styles.commitmentDivider} />
+          <Text style={styles.commitmentTitle}>
+            Turn the conversation into action
+          </Text>
+          <Text style={styles.commitmentBody}>
+            When you are ready, choose the one move you will make next.
+          </Text>
+          <Field
+            label="MY COMMITMENT"
+            placeholder="Write one specific action you will take"
+            value={commitment}
+            onChangeText={setCommitment}
+            maxLength={350}
+            styles={styles}
+            colors={colors}
+          />
+          <Pressable
+            disabled={!feedback || !commitment.trim() || busy}
+            onPress={() => void saveCommitment()}
+            style={[
+              styles.primaryButton,
+              (!feedback || !commitment.trim() || busy) && styles.disabled,
+            ]}
+          >
+            {busy ? (
+              <ActivityIndicator color="#FFFFFF" />
+            ) : (
+              <>
+                <Text style={styles.primaryButtonText}>Save commitment</Text>
+                <Feather name="check" size={20} color="#FFFFFF" />
+              </>
+            )}
+          </Pressable>
+          <Pressable
+            onPress={() => resetSession(false)}
+            style={styles.secondaryButton}
+          >
+            <Feather name="plus" size={18} color={colors.foreground} />
+            <Text style={styles.secondaryButtonText}>
+              Start a new rehearsal
             </Text>
           </Pressable>
-        );
-      })}
-    </View>
+        </View>
+      ) : null}
+    </CoachShell>
   );
 }
+
+// ── Local helper components ────────────────────────────────────────────────
 
 function Field({
   label,
@@ -783,7 +1013,9 @@ function Field({
     <View style={styles.fieldGroup}>
       <View style={styles.fieldMeta}>
         <Text style={styles.fieldLabel}>{label}</Text>
-        <Text style={styles.characterCount}>{value.length}/{maxLength}</Text>
+        <Text style={styles.characterCount}>
+          {value.length}/{maxLength}
+        </Text>
       </View>
       <TextInput
         value={value}
@@ -813,27 +1045,6 @@ function PrivacyBar({
         Raw conversations stay private for 90 days. Only summaries and
         commitments you explicitly share can leave Coach.
       </Text>
-    </View>
-  );
-}
-
-function ValueRow({
-  icon,
-  text,
-  styles,
-  colors,
-}: {
-  icon: "mic" | "message-circle" | "lock";
-  text: string;
-  styles: ReturnType<typeof makeStyles>;
-  colors: ReturnType<typeof useColors>;
-}) {
-  return (
-    <View style={styles.valueRow}>
-      <View style={styles.valueIcon}>
-        <Feather name={icon} size={18} color={colors.primary} />
-      </View>
-      <Text style={styles.valueText}>{text}</Text>
     </View>
   );
 }
@@ -886,7 +1097,11 @@ function HistorySheet({
           </Text>
           {conversations.length === 0 ? (
             <View style={styles.emptyHistory}>
-              <Feather name="message-circle" size={28} color={colors.mutedForeground} />
+              <Feather
+                name="message-circle"
+                size={28}
+                color={colors.mutedForeground}
+              />
               <Text style={styles.emptyHistoryText}>
                 Your private rehearsals will appear here.
               </Text>
@@ -920,7 +1135,11 @@ function HistorySheet({
                   hitSlop={12}
                   style={styles.deleteButton}
                 >
-                  <Feather name="trash-2" size={17} color={colors.destructive} />
+                  <Feather
+                    name="trash-2"
+                    size={17}
+                    color={colors.destructive}
+                  />
                 </Pressable>
               </Pressable>
             ))
@@ -931,154 +1150,7 @@ function HistorySheet({
   );
 }
 
-function SettingsSheet({
-  visible,
-  preference,
-  appearance,
-  onClose,
-  onPreference,
-  onAppearance,
-  styles,
-  colors,
-  initials,
-}: {
-  visible: boolean;
-  preference: CoachPreference;
-  appearance: AppearancePreference;
-  onClose: () => void;
-  onPreference: (next: CoachPreference) => Promise<void>;
-  onAppearance: (next: AppearancePreference) => Promise<void>;
-  styles: ReturnType<typeof makeStyles>;
-  colors: ReturnType<typeof useColors>;
-  initials: string;
-}) {
-  return (
-    <Modal
-      visible={visible}
-      animationType="slide"
-      presentationStyle="pageSheet"
-      onRequestClose={onClose}
-    >
-      <SafeAreaView style={styles.sheet} edges={["top", "bottom"]}>
-        <View style={styles.sheetHeader}>
-          <View>
-            <Text style={styles.sheetKicker}>SPARTAN COACH</Text>
-            <Text style={styles.sheetTitle}>Preferences</Text>
-          </View>
-          <Pressable
-            onPress={onClose}
-            style={styles.closeButton}
-            accessibilityRole="button"
-            accessibilityLabel="Close Coach preferences"
-          >
-            <Feather name="x" size={20} color={colors.foreground} />
-          </Pressable>
-        </View>
-        <ScrollView
-          contentContainerStyle={styles.settingsContent}
-          showsVerticalScrollIndicator={false}
-        >
-          <View style={styles.profileStrip}>
-            <View style={styles.initials}>
-              <Text style={styles.initialsText}>{initials}</Text>
-            </View>
-            <View style={styles.flex}>
-              <Text style={styles.profileTitle}>Private coaching space</Text>
-              <Text style={styles.profileBody}>
-                Raw conversations are visible only to you.
-              </Text>
-            </View>
-          </View>
-          <Text style={styles.settingsLabel}>MEMORY</Text>
-          <View style={styles.settingCard}>
-            <View style={styles.flex}>
-              <Text style={styles.settingTitle}>Personal memory</Text>
-              <Text style={styles.settingBody}>
-                Off by default. Coach uses only the items you explicitly save.
-              </Text>
-            </View>
-            <Switch
-              value={preference.memoryEnabled}
-              accessibilityLabel="Personal memory"
-              onValueChange={(memoryEnabled) =>
-                void onPreference({ ...preference, memoryEnabled })
-              }
-              trackColor={{ false: colors.borderStrong, true: colors.primary }}
-            />
-          </View>
-          <Text style={styles.settingsLabel}>RESPONSE STYLE</Text>
-          <View style={styles.optionGroup}>
-            {(["concise", "balanced", "detailed"] as const).map(
-              (responseStyle) => (
-                <Pressable
-                  key={responseStyle}
-                  onPress={() =>
-                    void onPreference({ ...preference, responseStyle })
-                  }
-                  style={styles.optionRow}
-                  accessibilityRole="radio"
-                  accessibilityState={{ checked: preference.responseStyle === responseStyle }}
-                >
-                  <Text style={styles.optionText}>
-                    {responseStyle[0].toUpperCase() + responseStyle.slice(1)}
-                  </Text>
-                  {preference.responseStyle === responseStyle ? (
-                    <View style={styles.selectedCheck}>
-                      <Feather name="check" size={14} color="#FFFFFF" />
-                    </View>
-                  ) : null}
-                </Pressable>
-              ),
-            )}
-          </View>
-          <Text style={styles.settingsLabel}>APPEARANCE</Text>
-          <View style={styles.appearanceRow}>
-            {(["system", "light", "dark"] as const).map((choice) => (
-              <Pressable
-                key={choice}
-                onPress={() => void onAppearance(choice)}
-                style={[
-                  styles.appearanceChoice,
-                  appearance === choice && styles.appearanceChoiceSelected,
-                ]}
-                accessibilityRole="radio"
-                accessibilityState={{ checked: appearance === choice }}
-              >
-                <Feather
-                  name={
-                    choice === "system"
-                      ? "smartphone"
-                      : choice === "light"
-                        ? "sun"
-                        : "moon"
-                  }
-                  size={19}
-                  color={appearance === choice ? "#FFFFFF" : colors.foreground}
-                />
-                <Text
-                  style={[
-                    styles.appearanceText,
-                    appearance === choice && styles.appearanceTextSelected,
-                  ]}
-                >
-                  {choice[0].toUpperCase() + choice.slice(1)}
-                </Text>
-              </Pressable>
-            ))}
-          </View>
-          <PrivacyBar styles={styles} colors={colors} />
-        </ScrollView>
-      </SafeAreaView>
-    </Modal>
-  );
-}
-
-function timeOfDay() {
-  const hour = new Date().getHours();
-  if (hour < 12) return "morning";
-  if (hour < 17) return "afternoon";
-  return "evening";
-}
+// ── Utilities ────────────────────────────────────────────────────────────────
 
 function formatDuration(milliseconds = 0) {
   const totalSeconds = Math.floor(milliseconds / 1000);
@@ -1090,7 +1162,6 @@ function formatDuration(milliseconds = 0) {
 function makeStyles(colors: ReturnType<typeof useColors>) {
   return StyleSheet.create({
     safe: { flex: 1, backgroundColor: colors.background },
-    flex: { flex: 1 },
     centered: {
       flex: 1,
       alignItems: "center",
@@ -1361,57 +1432,25 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       fontSize: 14,
       ...font("semibold"),
     },
-    feedbackCard: {
-      marginTop: 20,
-      borderRadius: 18,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.card,
-      padding: 18,
+    commitmentDivider: {
+      height: StyleSheet.hairlineWidth,
+      backgroundColor: colors.border,
+      marginTop: 24,
+      marginBottom: 18,
     },
-    feedbackHeader: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 10,
-      marginBottom: 15,
-    },
-    feedbackMark: {
-      width: 34,
-      height: 34,
-      borderRadius: 10,
-      backgroundColor: colors.primary,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    feedbackTitle: {
+    commitmentTitle: {
       color: colors.foreground,
-      fontSize: 17,
+      fontSize: 18,
+      lineHeight: 23,
       ...font("bold"),
     },
-    feedbackText: {
-      color: colors.foreground,
-      fontSize: 15,
-      lineHeight: 23,
-      ...font("regular"),
-    },
-    emptyReview: {
-      borderRadius: 16,
-      backgroundColor: colors.card,
-      borderWidth: 1,
-      borderColor: colors.border,
-      padding: 18,
-      marginTop: 20,
-    },
-    emptyReviewText: {
+    commitmentBody: {
       color: colors.mutedForeground,
-      fontSize: 14,
+      fontSize: 13,
+      lineHeight: 19,
+      marginTop: 5,
+      marginBottom: 14,
       ...font("regular"),
-    },
-    inlineLink: {
-      color: colors.primary,
-      fontSize: 14,
-      marginTop: 8,
-      ...font("semibold"),
     },
     secondaryButton: {
       minHeight: 54,
@@ -1430,74 +1469,148 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       fontSize: 15,
       ...font("semibold"),
     },
-    gateContent: {
+    coachHomeContent: {
       paddingHorizontal: 22,
-      paddingTop: 14,
-      paddingBottom: 40,
+      paddingTop: 8,
+      paddingBottom: 44,
     },
-    gateBadge: {
+    coachHomeBadge: {
       alignSelf: "flex-start",
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 7,
-      marginTop: 28,
-      paddingHorizontal: 11,
-      paddingVertical: 7,
-      borderRadius: 20,
+      borderRadius: 999,
       backgroundColor: colors.primaryMuted,
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      marginTop: 12,
     },
-    gateBadgeText: {
+    coachHomeBadgeText: {
       color: colors.primary,
       fontSize: 10,
-      letterSpacing: 1.3,
+      letterSpacing: 0.8,
       ...font("bold"),
     },
-    gateTitle: {
+    coachHomeTitle: {
       color: colors.foreground,
-      fontSize: 34,
-      lineHeight: 39,
-      letterSpacing: -1,
-      marginTop: 16,
+      fontSize: 32,
+      lineHeight: 38,
+      letterSpacing: -0.9,
+      marginTop: 24,
+      maxWidth: 390,
       ...font("heavy"),
     },
-    gateBody: {
+    coachHomeBody: {
       color: colors.mutedForeground,
-      fontSize: 17,
-      lineHeight: 25,
-      marginTop: 12,
+      fontSize: 15,
+      lineHeight: 22,
+      marginTop: 8,
+      maxWidth: 390,
       ...font("regular"),
     },
-    valueCard: {
-      marginTop: 24,
-      borderRadius: 18,
+    coachComposer: {
+      minHeight: 290,
       borderWidth: 1,
-      borderColor: colors.border,
+      borderColor: colors.borderStrong,
+      borderRadius: 26,
+      borderCurve: "continuous",
       backgroundColor: colors.card,
-      padding: 16,
-      gap: 15,
+      padding: 20,
+      marginTop: 34,
     },
-    valueRow: { flexDirection: "row", alignItems: "center", gap: 12 },
-    valueIcon: {
-      width: 36,
-      height: 36,
-      borderRadius: 11,
-      backgroundColor: colors.primaryMuted,
+    coachComposerKicker: {
+      color: colors.primary,
+      fontSize: 9,
+      letterSpacing: 1.7,
+      ...font("bold"),
+    },
+    coachComposerTitle: {
+      color: colors.foreground,
+      fontSize: 21,
+      marginTop: 6,
+      ...font("heavy"),
+    },
+    coachLandingInput: {
+      minHeight: 112,
+      maxHeight: 180,
+      color: colors.foreground,
+      backgroundColor: colors.background,
+      borderWidth: 1,
+      borderColor: colors.borderStrong,
+      borderRadius: 17,
+      borderCurve: "continuous",
+      padding: 15,
+      fontSize: 15,
+      lineHeight: 22,
+      marginTop: 14,
+      ...font("regular"),
+    },
+    landingSendButton: {
+      minHeight: 52,
+      borderRadius: 16,
+      borderCurve: "continuous",
+      backgroundColor: colors.primary,
+      flexDirection: "row",
       alignItems: "center",
       justifyContent: "center",
-    },
-    valueText: {
-      flex: 1,
-      color: colors.foreground,
-      fontSize: 14,
-      lineHeight: 20,
-      ...font("medium"),
-    },
-    gatePrice: {
-      color: colors.mutedForeground,
-      fontSize: 12,
-      lineHeight: 18,
-      textAlign: "center",
+      gap: 9,
       marginTop: 12,
+    },
+    landingSendText: { color: "#FFFFFF", fontSize: 15, ...font("bold") },
+    guidedRehearsalButton: {
+      minHeight: 50,
+      flexDirection: "row",
+      alignItems: "center",
+      gap: 9,
+      marginTop: 10,
+      paddingHorizontal: 4,
+    },
+    guidedRehearsalText: {
+      flex: 1,
+      color: colors.primary,
+      fontSize: 13,
+      ...font("bold"),
+    },
+    resumeCard: {
+      minHeight: 104,
+      flexDirection: "row",
+      alignItems: "flex-start",
+      gap: 12,
+      borderWidth: 1,
+      borderColor: colors.borderStrong,
+      borderRadius: 20,
+      backgroundColor: colors.card,
+      padding: 16,
+      marginTop: 20,
+    },
+    resumeTitle: { color: colors.foreground, fontSize: 17, ...font("bold") },
+    resumeBody: {
+      color: colors.mutedForeground,
+      fontSize: 13,
+      lineHeight: 18,
+      marginTop: 5,
+      ...font("regular"),
+    },
+    coachPrivacyCard: {
+      minHeight: 144,
+      flexDirection: "row",
+      alignItems: "flex-start",
+      gap: 12,
+      borderWidth: 1,
+      borderColor: colors.borderStrong,
+      borderRadius: 24,
+      borderCurve: "continuous",
+      backgroundColor: colors.secondary,
+      padding: 20,
+      marginTop: 24,
+    },
+    coachPrivacyTitle: {
+      color: colors.foreground,
+      fontSize: 17,
+      ...font("bold"),
+    },
+    coachPrivacyBody: {
+      color: colors.mutedForeground,
+      fontSize: 13,
+      lineHeight: 19,
+      marginTop: 8,
       ...font("regular"),
     },
     coachHomeContent: { paddingHorizontal: 20, paddingTop: 8, paddingBottom: 38 },
@@ -1597,113 +1710,5 @@ function makeStyles(colors: ReturnType<typeof useColors>) {
       fontSize: 14,
       ...font("regular"),
     },
-    settingsContent: { padding: 20, paddingBottom: 42 },
-    profileStrip: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 13,
-      paddingBottom: 22,
-    },
-    initials: {
-      width: 48,
-      height: 48,
-      borderRadius: 24,
-      backgroundColor: colors.primary,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    initialsText: { color: "#FFFFFF", fontSize: 15, ...font("bold") },
-    profileTitle: {
-      color: colors.foreground,
-      fontSize: 16,
-      ...font("bold"),
-    },
-    profileBody: {
-      color: colors.mutedForeground,
-      fontSize: 12,
-      marginTop: 3,
-      ...font("regular"),
-    },
-    settingsLabel: {
-      color: colors.primary,
-      fontSize: 10,
-      letterSpacing: 1.6,
-      marginTop: 22,
-      marginBottom: 9,
-      ...font("bold"),
-    },
-    settingCard: {
-      flexDirection: "row",
-      alignItems: "center",
-      gap: 14,
-      borderRadius: 16,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.card,
-      padding: 16,
-    },
-    settingTitle: {
-      color: colors.foreground,
-      fontSize: 16,
-      ...font("semibold"),
-    },
-    settingBody: {
-      color: colors.mutedForeground,
-      fontSize: 12,
-      lineHeight: 18,
-      marginTop: 4,
-      ...font("regular"),
-    },
-    optionGroup: {
-      borderRadius: 16,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.card,
-      overflow: "hidden",
-    },
-    optionRow: {
-      minHeight: 54,
-      paddingHorizontal: 16,
-      flexDirection: "row",
-      alignItems: "center",
-      justifyContent: "space-between",
-      borderBottomWidth: StyleSheet.hairlineWidth,
-      borderBottomColor: colors.border,
-    },
-    optionText: {
-      color: colors.foreground,
-      fontSize: 15,
-      ...font("medium"),
-    },
-    selectedCheck: {
-      width: 24,
-      height: 24,
-      borderRadius: 12,
-      backgroundColor: colors.primary,
-      alignItems: "center",
-      justifyContent: "center",
-    },
-    appearanceRow: { flexDirection: "row", gap: 8 },
-    appearanceChoice: {
-      flex: 1,
-      minHeight: 64,
-      borderRadius: 15,
-      borderWidth: 1,
-      borderColor: colors.border,
-      backgroundColor: colors.card,
-      alignItems: "center",
-      justifyContent: "center",
-      gap: 7,
-    },
-    appearanceChoiceSelected: {
-      backgroundColor: colors.primary,
-      borderColor: colors.primary,
-    },
-    appearanceText: {
-      color: colors.foreground,
-      fontSize: 12,
-      ...font("semibold"),
-    },
-    appearanceTextSelected: { color: "#FFFFFF" },
   });
 }

@@ -5,7 +5,7 @@ import {
   FolderOpen,
   Home,
   LayoutDashboard,
-  Phone,
+  MessageCircle,
   UserCircle,
   Wrench,
 } from "lucide-react";
@@ -75,11 +75,11 @@ export const MEMBER_NAV: MemberNavItem[] = [
     match: (loc) => loc === "/account" || loc.startsWith("/account/"),
   },
   {
-    href: "/contact?service=Hospice+Sales+Pro+Debrief",
+    href: "/portal/coach",
     label: "Coach",
     short: "Coach",
-    icon: Phone,
-    match: (loc) => loc.startsWith("/contact"),
+    icon: MessageCircle,
+    match: (loc) => loc.startsWith("/portal/coach"),
   },
 ];
 
@@ -121,7 +121,7 @@ export const PREVIEW_NAV: MemberNavItem[] = [
   {
     href: "/register",
     label: "Join",
-    icon: Phone,
+    icon: MessageCircle,
     match: (loc) => loc === "/register" || loc === "/login",
   },
 ];

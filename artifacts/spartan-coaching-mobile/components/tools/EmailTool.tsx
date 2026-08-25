@@ -15,7 +15,7 @@ import { ToolShell } from "./ToolShell";
 import { toolStyles as styles } from "./toolStyles";
 
 const EMAIL_TYPES = [
-  { value: "follow_up" as const, label: "Follow-Up" },
+  { value: "follow_up" as const, label: "Follow Up" },
   { value: "thank_you" as const, label: "Thank You" },
   { value: "value_add" as const, label: "Value Add" },
 ];
@@ -63,7 +63,7 @@ export function EmailTool() {
           },
           label: "Email Templates",
         });
-        setError("Offline or network error — queued to retry.");
+        setError("Offline or network error. Queued to retry.");
       } else {
         setError(userFacingApiError(e));
       }
@@ -75,9 +75,9 @@ export function EmailTool() {
   return (
     <ToolShell
       title="Email Templates"
-      subtitle="Follow-up, thank-you, or value-add drafts for referral partners."
+      subtitle="Follow up, thank you, or value add drafts for referral partners."
       category="Prepare"
-      ctaTitle="Generate email"
+      ctaTitle={result ? "Create another draft" : "Generate email"}
       onCta={generate}
       ctaLoading={loading}
       ctaDisabled={emailContext.trim().length < 10}
@@ -146,7 +146,7 @@ export function EmailTool() {
           result
             ? async () => {
                 const typeLabel = EMAIL_TYPES.find((et) => et.value === emailType)?.label ?? emailType;
-                const title = recipientName ? `${typeLabel} — ${recipientName}` : typeLabel;
+                const title = recipientName ? `${typeLabel}: ${recipientName}` : typeLabel;
                 await saved.saveResponse(title, result);
                 setSavedId("saved");
               }
@@ -157,8 +157,8 @@ export function EmailTool() {
       {!!result && (
         <>
           <ReminderPicker
-            title="Send your follow-up email"
-            body="Your email is ready — set a reminder to send it."
+            title="Send your follow up email"
+            body="Your email is ready. Set a reminder to send it."
             storageKey="email"
             contact={recipientName || undefined}
           />

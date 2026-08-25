@@ -292,7 +292,7 @@ export default function Portal() {
       ? formatTrialRemaining(fieldKit?.hoursRemaining)
       : organization?.status === "active"
         ? organization?.billingPlan === "individual_weekly"
-          ? "Member · $14.99/wk"
+          ? "Hospice Sales Pro member"
           : organization?.billingPlan === "corporate_contract"
             ? "Member · Team"
             : organization?.billingPlan === "comp"
@@ -358,7 +358,7 @@ export default function Portal() {
                 ) : (
                   <CreditCard className="w-3.5 h-3.5" />
                 )}
-                Continue $14.99/wk
+                Continue with Hospice Sales Pro
               </button>
             )}
           </div>

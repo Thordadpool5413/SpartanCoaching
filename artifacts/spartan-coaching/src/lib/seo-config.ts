@@ -39,14 +39,14 @@ const seoDefaults: Record<string, SEOConfig> = {
   '/': {
     title: 'Spartan Coaching | Hospice Sales Consulting & Hospice Sales Pro',
     description:
-      'Practical hospice growth coaching from Nick Lynch. Consulting for teams — and Hospice Sales Pro for tools & resources on web and iPhone ($14.99/week, cancel anytime).',
+      'Hospice growth authority and consulting from Nick Lynch. Hospice Sales Pro turns the system into daily execution on web and iPhone. Elite is recommended at $19.99/week; Standard is $14.99/week.',
     keywords:
       'hospice sales consulting, hospice sales coaching, hospice growth coaching, Hospice Sales Pro, Nick Lynch, referral development',
   },
   '/services': {
     title: 'Coaching Services | Spartan Coaching',
     description:
-      'Hospice growth consulting: individual coaching, leadership systems, and Hospice Sales Pro tools. Individual $14.99/week; team seats under contract.',
+      'Hospice growth consulting, leadership systems, and Hospice Sales Pro. Elite is recommended at $19.99/week; Standard is $14.99/week; team seats are contracted.',
     keywords: 'hospice sales coaching, Hospice Sales Pro, leadership coaching, consulting services',
   },
   '/programs': {
@@ -64,7 +64,7 @@ const seoDefaults: Record<string, SEOConfig> = {
   '/tools': {
     title: 'Hospice Sales Pro Tools | Spartan Coaching',
     description:
-      'Preview Hospice Sales Pro tools free. Subscribe for $14.99/week to run playbooks, objections, role-play, calculators, and weekly planning live. No PHI in consumer tools.',
+      'Preview Hospice Sales Pro tools free. Elite is recommended at $19.99/week and Standard remains available at $14.99/week. Run field tools on web and iPhone.',
     keywords: 'Hospice Sales Pro tools, sales playbooks, objection handling, territory research, AI coaching tools',
   },
   '/welcome': {
@@ -81,7 +81,7 @@ const seoDefaults: Record<string, SEOConfig> = {
   '/request-access': {
     title: 'Team & Evaluation Access | Spartan Coaching',
     description:
-      'Request team or evaluation access for Hospice Sales Pro. Individuals can create an account and subscribe self-serve for $14.99/week. Teams continue under contract.',
+      'Request team or evaluation access for Hospice Sales Pro. Individuals can choose recommended Elite at $19.99/week or Standard at $14.99/week. Teams continue under contract.',
     keywords: 'Hospice Sales Pro team access, request evaluation, hospice sales tools, company seats, $14.99 week',
   },
   '/portal': {
@@ -92,26 +92,26 @@ const seoDefaults: Record<string, SEOConfig> = {
   },
   '/account': {
     title: 'Account | Spartan Coaching',
-    description: 'Manage Hospice Sales Pro, subscribe $14.99/week, cancel anytime, and team seats.',
+    description: 'Manage Hospice Sales Pro, choose recommended Elite at $19.99/week or Standard at $14.99/week, cancel anytime, and manage team seats.',
     keywords: 'account, Hospice Sales Pro, cancel subscription',
     noIndex: true,
   },
   '/hospice-sales-pro': {
-    title: 'Hospice Sales Pro $14.99/week | Spartan Coaching',
+    title: 'Hospice Sales Pro Elite $19.99/week | Spartan Coaching',
     description:
-      'Hospice Sales Pro $14.99/week — tools & resources on web and iPhone. Create account, subscribe, cancel anytime. Provider seats weekly under contract. Coaching engagement-based.',
+      'Hospice Sales Pro Elite is recommended at $19.99/week. Standard remains available at $14.99/week. Use the Spartan system daily on web and iPhone.',
     keywords: 'Hospice Sales Pro, $14.99 week, hospice sales tools, team seats, cancel anytime',
   },
   '/field-kit-membership': {
-    title: 'Hospice Sales Pro $14.99/week | Spartan Coaching',
+    title: 'Hospice Sales Pro Elite $19.99/week | Spartan Coaching',
     description:
-      'Hospice Sales Pro $14.99/week — create account, subscribe, cancel anytime. Provider seats weekly under contract. Coaching engagement-based.',
+      'Choose recommended Hospice Sales Pro Elite at $19.99/week or Standard at $14.99/week. Create an account, subscribe, and cancel anytime.',
     keywords: 'Hospice Sales Pro, $14.99 week, hospice sales tools, team seats, cancel anytime',
   },
   '/pricing/field-kit': {
-    title: 'Hospice Sales Pro $14.99/week | Spartan Coaching',
+    title: 'Hospice Sales Pro Elite and Standard | Spartan Coaching',
     description:
-      'Hospice Sales Pro pricing: individuals $14.99/week self-serve; team seats under hospice contract.',
+      'Hospice Sales Pro pricing: recommended Elite is $19.99/week, Standard is $14.99/week, and team seats use a hospice contract.',
     keywords: 'Hospice Sales Pro pricing, hospice consulting tools, $14.99 week',
   },
   '/tools/playbooks': {
@@ -237,7 +237,7 @@ const seoDefaults: Record<string, SEOConfig> = {
   '/faq': {
     title: 'FAQ | Spartan Coaching',
     description:
-      'Hospice Sales Pro access, 24h/72h evaluation trials, $14.99/week individual, team contracts, cancel anytime, and no-PHI compliance.',
+      'Hospice Sales Pro access, evaluation trials, recommended Elite at $19.99/week, Standard at $14.99/week, team contracts, and no PHI compliance.',
     keywords: 'hospice coaching FAQ, Hospice Sales Pro access, evaluation trial, $14.99 week, cancel subscription',
   },
   '/terms': {

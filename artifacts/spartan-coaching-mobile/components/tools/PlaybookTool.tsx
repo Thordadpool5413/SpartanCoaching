@@ -80,7 +80,7 @@ export function PlaybookTool() {
           body: { scenario, desiredOutcomes: desiredOutcomes || undefined },
           label: "Playbook Generator",
         });
-        setError("Offline or network error — queued to retry. Showing last result if available.");
+        setError("Offline or network error. Queued to retry. Showing the last result if available.");
       } else {
         setError(userFacingApiError(e));
       }
@@ -97,11 +97,11 @@ export function PlaybookTool() {
   return (
     <ToolShell
       title="Playbook Generator"
-      subtitle="Custom talking points and a clear next-step ask for this visit."
+      subtitle="Custom talking points and a clear next step for this visit."
       category="Prepare"
       whenToUse="Before an account visit when you need a specific approach, not a generic script."
       howSteps={["Describe the scenario (no PHI).", "Optional: desired outcomes.", "Generate and execute."]}
-      ctaTitle="Build playbook"
+      ctaTitle={result ? "Create another playbook" : "Build playbook"}
       onCta={generate}
       ctaLoading={loading}
       ctaDisabled={scenario.trim().length < 10}
@@ -164,7 +164,7 @@ export function PlaybookTool() {
         <>
           <ReminderPicker
             title="Execute your playbook"
-            body="Your playbook is ready — set a reminder to put it into action."
+            body="Your playbook is ready. Set a reminder to put it into action."
             storageKey="playbook"
           />
           <SavedResponsesSection items={saved.savedItems} onDelete={saved.deleteResponse} />

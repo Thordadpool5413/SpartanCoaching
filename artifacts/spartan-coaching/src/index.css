@@ -167,7 +167,7 @@ body {
   --font-display: 'Barlow Condensed', 'Inter', ui-sans-serif, sans-serif;
   --radius: 0.75rem;
   --noise-bg: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.75' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
-  
+
   /* Enhanced shadows with refined depth and red tint */
   --shadow-2xs: 0 1px 3px 0 rgb(0 0 0 / 0.08), 0 0 1px 0 rgb(239 68 68 / 0.03);
   --shadow-xs: 0 2px 8px -1px rgb(0 0 0 / 0.12), 0 0 2px 0 rgb(239 68 68 / 0.04);
@@ -372,7 +372,7 @@ body {
     font-variant-ligatures: common-ligatures;
     transition: background-color 0.2s ease, color 0.15s ease;
   }
-  
+
   #root {
     width: 100%;
     overflow-x: hidden;
@@ -522,7 +522,7 @@ body {
   html[data-theme-mode="dark"] .text-gray-800 {
     color: hsl(var(--foreground)) !important;
   }
-  
+
   button, a, input, textarea, select {
     -webkit-tap-highlight-color: transparent;
   }
@@ -572,23 +572,23 @@ body {
       min-height: -webkit-fill-available;
       min-height: calc(var(--vh, 1vh) * 100);
     }
-    
+
     .mobile-safe-padding {
       padding-bottom: env(safe-area-inset-bottom);
     }
-    
+
     /* Optimize spacing for mobile */
     .spacing-container {
       padding-left: 1rem;
       padding-right: 1rem;
     }
-    
+
     /* Full width cards on mobile */
     .card {
       width: 100%;
     }
-    
-    
+
+
     /* Prevent text from causing overflow */
     h1, h2, h3, h4, h5, h6, p, span, div {
       word-wrap: break-word;
@@ -602,91 +602,91 @@ body {
     p {
       hyphens: auto;
     }
-    
+
     /* Optimize hero text size for mobile */
     .text-hero {
       font-size: 2rem !important;
       line-height: 1.1 !important;
       letter-spacing: -0.025em !important;
     }
-    
+
     /* Optimize heading sizes for mobile readability */
     .text-h1 {
       font-size: 1.875rem !important;
       line-height: 1.15 !important;
     }
-    
+
     .text-h2 {
       font-size: 1.625rem !important;
       line-height: 1.2 !important;
     }
-    
+
     .text-h3 {
       font-size: 1.25rem !important;
       line-height: 1.3 !important;
     }
-    
+
     /* Optimize body text for mobile */
     .text-body-lg {
       font-size: 1.0625rem !important;
       line-height: 1.65 !important;
     }
-    
+
     .text-body {
       font-size: 0.9375rem !important;
       line-height: 1.65 !important;
     }
-    
+
     /* Constrain content width without blocking scroll */
     section, header, footer, nav {
       max-width: 100vw;
     }
-    
+
     .container, [class*="container"] {
       max-width: 100vw;
     }
-    
+
     /* Touch-friendly interactions - don't override padding/size which breaks icon buttons */
     button, a[role="button"], input[type="button"], input[type="submit"] {
       touch-action: manipulation;
       -webkit-tap-highlight-color: transparent;
     }
-    
+
     /* Better input fields */
     input, textarea, select {
       font-size: 16px !important; /* Prevents zoom on iOS */
       padding: 14px 16px;
       min-height: 48px;
     }
-    
+
     /* Optimize scrolling */
     * {
       -webkit-overflow-scrolling: touch;
     }
-    
+
     /* Better card spacing on mobile */
     .gap-cards {
       gap: 0.875rem;
     }
-    
+
     .spacing-section {
       padding-top: 2rem;
       padding-bottom: 2rem;
     }
-    
+
     /* Optimize container padding with safe areas */
     .spacing-container {
       padding-left: max(1rem, env(safe-area-inset-left));
       padding-right: max(1rem, env(safe-area-inset-right));
     }
-    
-    
+
+
     /* Better modal sizing on mobile */
     [role="dialog"] {
       max-width: calc(100vw - 2rem);
       max-height: calc(100vh - 2rem);
     }
-    
+
     /* Reduce motion for better performance */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -695,7 +695,7 @@ body {
         transition-duration: 0.01ms !important;
       }
     }
-    
+
     /* Disable expensive animations on mobile for performance */
     .animate-fade-in,
     .animate-fade-in-up,
@@ -706,43 +706,43 @@ body {
       opacity: 1;
       transform: none;
     }
-    
+
     /* Keep essential transitions only */
     .transition-smooth,
     .transition-elegant {
       transition: opacity 0.2s ease;
     }
-    
+
     /* Disable hover effects on mobile */
     .card-lift:hover {
       transform: none;
       box-shadow: var(--shadow-md);
     }
-    
+
     /* Optimize video elements for mobile */
     video {
       max-width: 100%;
       height: auto;
       object-fit: cover;
     }
-    
+
     /* Improve button touch response */
     button:active {
       transform: scale(0.98);
       transition: transform 0.1s ease;
     }
-    
+
     /* Better spacing for mobile cards */
     .card {
       margin-bottom: 1rem;
     }
-    
+
     /* Optimize images for mobile */
     img {
       max-width: 100%;
       height: auto;
     }
-    
+
     /* Better mobile navigation */
     nav {
       position: sticky;
@@ -956,41 +956,41 @@ body {
 
   /* Spartan gradient utilities - enhanced depth and vibrancy */
   .bg-spartan-gradient {
-    background: linear-gradient(135deg, 
-      hsl(0 88% 56%) 0%, 
+    background: linear-gradient(135deg,
+      hsl(0 88% 56%) 0%,
       hsl(0 85% 60%) 25%,
       hsl(0 82% 58%) 50%,
       hsl(0 85% 62%) 75%,
       hsl(0 88% 64%) 100%
     );
   }
-  
+
   .bg-spartan-gradient-subtle {
-    background: linear-gradient(135deg, 
-      hsl(var(--primary) / 0.10) 0%, 
+    background: linear-gradient(135deg,
+      hsl(var(--primary) / 0.10) 0%,
       hsl(var(--primary) / 0.06) 35%,
       hsl(var(--primary) / 0.04) 65%,
       hsl(var(--destructive) / 0.10) 100%
     );
   }
-  
+
   .bg-spartan-gradient-radial {
-    background: radial-gradient(circle at 35% 45%, 
-      hsl(var(--primary) / 0.18) 0%, 
+    background: radial-gradient(circle at 35% 45%,
+      hsl(var(--primary) / 0.18) 0%,
       hsl(var(--primary) / 0.08) 35%,
       hsl(var(--primary) / 0.03) 60%,
       transparent 80%
     );
   }
-  
+
   /* Gradient text utilities with enhanced vibrancy */
   .text-gradient {
     @apply bg-clip-text text-transparent;
   }
-  
+
   .text-gradient-primary {
-    background: linear-gradient(120deg, 
-      hsl(0 88% 56%) 0%, 
+    background: linear-gradient(120deg,
+      hsl(0 88% 56%) 0%,
       hsl(0 92% 60%) 35%,
       hsl(0 85% 58%) 65%,
       hsl(0 88% 62%) 100%
@@ -1001,8 +1001,8 @@ body {
   }
 
   .text-gradient-elegant {
-    background: linear-gradient(125deg, 
-      hsl(var(--foreground)) 0%, 
+    background: linear-gradient(125deg,
+      hsl(var(--foreground)) 0%,
       hsl(var(--foreground) / 0.88) 40%,
       hsl(var(--foreground) / 0.75) 100%
     );
@@ -1010,7 +1010,7 @@ body {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
   }
-  
+
   /* Refined typography scale with display font and clamp sizing */
   .text-hero {
     font-family: var(--font-display);
@@ -1021,7 +1021,7 @@ body {
     text-wrap: balance;
     text-shadow: 0 2px 40px hsl(var(--primary) / 0.12);
   }
-  
+
   .text-h1 {
     font-family: var(--font-display);
     font-size: clamp(2.15rem, 4.4vw, 3.55rem);
@@ -1030,7 +1030,7 @@ body {
     letter-spacing: -0.03em;
     text-wrap: balance;
   }
-  
+
   .text-h2 {
     font-family: var(--font-display);
     font-size: clamp(1.55rem, 3vw, 2.5rem);
@@ -1039,7 +1039,7 @@ body {
     letter-spacing: -0.025em;
     text-wrap: balance;
   }
-  
+
   .text-h3 {
     font-family: var(--font-display);
     font-size: 1.5rem;
@@ -1163,97 +1163,97 @@ body {
       0 1px 0 hsl(var(--foreground) / 0.04) inset,
       0 10px 28px -12px rgba(15, 23, 42, 0.12) !important;
   }
-  
+
   @media (min-width: 1024px) {
     .text-h3 {
       font-size: 1.875rem;  /* 30px desktop */
       letter-spacing: -0.02em;
     }
   }
-  
+
   .text-body-lg {
     font-size: 1.125rem;   /* 18px mobile */
     line-height: 1.65;
     letter-spacing: -0.01em;
   }
-  
+
   @media (min-width: 1024px) {
     .text-body-lg {
       font-size: 1.25rem;  /* 20px desktop */
     }
   }
-  
+
   .text-body {
     font-size: 1rem;       /* 16px mobile */
     line-height: 1.65;
     letter-spacing: -0.005em;
   }
-  
+
   @media (min-width: 1024px) {
     .text-body {
       font-size: 1.125rem; /* 18px desktop */
     }
   }
-  
+
   /* Consistent spacing rhythm utilities - 32/48/72px */
   .spacing-section {
     padding-top: 2rem;     /* 32px mobile */
     padding-bottom: 2rem;
   }
-  
+
   @media (min-width: 768px) {
     .spacing-section {
       padding-top: 3rem;   /* 48px tablet */
       padding-bottom: 3rem;
     }
   }
-  
+
   @media (min-width: 1024px) {
     .spacing-section {
       padding-top: 4.5rem;  /* 72px desktop */
       padding-bottom: 4.5rem;
     }
   }
-  
+
   .spacing-container {
     @apply px-4 md:px-8 lg:px-12;
   }
-  
+
   .spacing-card {
     @apply p-6 md:p-8;
   }
-  
+
   .spacing-card-sm {
     @apply p-4 md:p-6;
   }
-  
+
   .gap-cards {
     @apply gap-4 md:gap-6;
   }
-  
+
   .gap-sections {
     gap: 2rem;            /* 32px mobile */
   }
-  
+
   @media (min-width: 768px) {
     .gap-sections {
       gap: 3rem;          /* 48px tablet */
     }
   }
-  
+
   @media (min-width: 1024px) {
     .gap-sections {
       gap: 4.5rem;        /* 72px desktop */
     }
   }
-  
+
   /* Touch manipulation for better mobile performance */
   .touch-manipulation {
     touch-action: manipulation;
     -webkit-user-select: none;
     user-select: none;
   }
-  
+
   /* Smooth transitions */
   .transition-smooth {
     transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1262,7 +1262,7 @@ body {
   .transition-elegant {
     transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  
+
   /* Mobile-optimized button states */
   @media (hover: none) and (pointer: coarse) {
     .hover-elevate:active::after,
@@ -1427,12 +1427,12 @@ body {
       0 18px 48px -12px hsl(var(--primary) / 0.42),
       var(--shadow-lg);
   }
-  
+
   /* Pulse glow animation — restrained */
   .glow-pulse {
     animation: glowPulse 3.2s ease-in-out infinite;
   }
-  
+
   @keyframes glowPulse {
     0%, 100% {
       box-shadow:
@@ -1447,49 +1447,49 @@ body {
         var(--shadow-lg);
     }
   }
-  
+
   /* Card lift — disciplined, not toy bounce */
   .card-lift {
-    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), 
+    transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
                 box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1),
                 border-color 0.28s ease;
   }
-  
+
   .card-lift:hover {
     transform: translateY(-4px);
     box-shadow: var(--shadow-xl);
     border-color: hsl(var(--primary) / 0.28);
   }
-  
+
   .card-lift:active {
     transform: translateY(-1px);
     transition: transform 0.12s ease-out;
   }
-  
+
   /* Subtle card lift for less prominent cards */
   .card-lift-subtle {
-    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), 
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
                 box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   }
-  
+
   .card-lift-subtle:hover {
     transform: translateY(-3px);
     box-shadow: var(--shadow-lg);
   }
-  
+
   /* Subtle border gradient */
   .border-gradient {
     position: relative;
     border: 1px solid transparent;
-    background: 
+    background:
       linear-gradient(var(--background), var(--background)) padding-box,
-      linear-gradient(135deg, 
-        hsl(var(--primary) / 0.3), 
+      linear-gradient(135deg,
+        hsl(var(--primary) / 0.3),
         hsl(var(--primary) / 0.1),
         hsl(var(--destructive) / 0.2)
       ) border-box;
   }
-  
+
   /* Text shimmer effect */
   .text-shimmer {
     background: linear-gradient(
@@ -1504,7 +1504,7 @@ body {
     -webkit-text-fill-color: transparent;
     animation: shimmer 3s linear infinite;
   }
-  
+
   @keyframes shimmer {
     to {
       background-position: 200% center;

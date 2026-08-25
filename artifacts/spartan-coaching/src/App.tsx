@@ -1,5 +1,5 @@
 import { Switch, Route, useLocation, Router as WouterRouter } from "wouter";
-import { useEffect, useRef, lazy, Suspense, useState, type ComponentType, type ReactNode } from "react";
+import { useEffect, useRef, lazy, Suspense, type ComponentType } from "react";
 import { pageView } from "./lib/ga";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
@@ -13,7 +13,6 @@ import { AuthProvider, useAuth } from "@/context/AuthContext";
 import { RequireFieldKit } from "@/components/RequireFieldKit";
 import { TrialBanner } from "@/components/TrialBanner";
 import { FieldKitChecklistToast } from "@/components/FieldKitChecklistToast";
-import { hasSeenIntro, shouldSkipIntro } from "@/lib/intro";
 import { isWorkspacePath, loginWithReturn } from "@/lib/workspaceShell";
 
 const ChatWidget = lazy(() => import("@/components/ChatWidget").then(m => ({ default: m.ChatWidget })));
@@ -30,6 +29,7 @@ const ForgotPassword = lazy(() => import("@/pages/ForgotPassword"));
 const ResetPassword = lazy(() => import("@/pages/ResetPassword"));
 const Portal = lazy(() => import("@/pages/Portal"));
 const PortalLearn = lazy(() => import("@/pages/PortalLearn"));
+const Coach = lazy(() => import("@/pages/Coach"));
 const Account = lazy(() => import("@/pages/Account"));
 const OrgAdmin = lazy(() => import("@/pages/OrgAdmin"));
 const MagicLogin = lazy(() => import("@/pages/MagicLogin"));
@@ -95,6 +95,7 @@ const SignAgreements = lazy(() => import("@/pages/SignAgreements"));
 const BrandVideo = lazy(() => import("@/pages/BrandVideo"));
 const AiToolsHub = lazy(() => import("@/pages/AiToolsHub"));
 const AiTool = lazy(() => import("@/pages/AiTool"));
+const SavedAiOutputs = lazy(() => import("@/pages/SavedAiOutputs"));
 
 function withFieldKit(Page: ComponentType): ComponentType {
   return function GatedPage() {
@@ -124,6 +125,7 @@ const GatedQuiz = withFieldKit(Quiz);
 const GatedKnowledgeBase = withFieldKit(KnowledgeBase);
 const GatedAiToolsHub = withFieldKit(AiToolsHub);
 const GatedAiTool = withFieldKit(AiTool);
+const GatedSavedAiOutputs = withFieldKit(SavedAiOutputs);
 
 function AssessmentRoute() {
   return <Assessment />;
@@ -177,35 +179,6 @@ function PageLoader() {
   );
 }
 
-function IntroGate({ children }: { children: ReactNode }) {
-  const [location, setLocation] = useLocation();
-  const { isAuthenticated, isLoading } = useAuth();
-  const [ready, setReady] = useState(false);
-
-  useEffect(() => {
-    // Wait for auth so logged-in clients never hit the splash
-    if (isLoading) return;
-
-    if (shouldSkipIntro(location) || isAuthenticated) {
-      setReady(true);
-      return;
-    }
-    if (!hasSeenIntro() && location === "/") {
-      setLocation("/welcome");
-    }
-    setReady(true);
-  }, [location, setLocation, isAuthenticated, isLoading]);
-
-  if (!ready || isLoading) {
-    return (
-      <div className="flex items-center justify-center min-h-screen bg-background">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-      </div>
-    );
-  }
-  return <>{children}</>;
-}
-
 function Router() {
   return (
     <>
@@ -223,6 +196,7 @@ function Router() {
           <Route path="/reset-password" component={ResetPassword} />
           <Route path="/portal" component={Portal} />
           <Route path="/portal/learn" component={PortalLearn} />
+          <Route path="/portal/coach" component={Coach} />
           <Route path="/account" component={Account} />
           <Route path="/org/admin" component={OrgAdmin} />
           <Route path="/magic-login" component={MagicLogin} />
@@ -251,6 +225,7 @@ function Router() {
           <Route path="/tools/weekly-plan-builder" component={GatedWeeklyPlan} />
           <Route path="/tools/sales-workflow" component={GatedSalesWorkflow} />
           <Route path="/tools/ai" component={GatedAiToolsHub} />
+          <Route path="/my-work/elite-outputs" component={GatedSavedAiOutputs} />
           <Route path="/tools/ai/:toolId" component={GatedAiTool} />
           <Route path="/drills" component={GatedDrills} />
 
@@ -392,11 +367,9 @@ function App() {
         <TooltipProvider>
           <AuthProvider>
             <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
-              <IntroGate>
-                <AppLayout />
-                <FieldKitChecklistToast />
-                <Toaster />
-              </IntroGate>
+              <AppLayout />
+              <FieldKitChecklistToast />
+              <Toaster />
             </WouterRouter>
           </AuthProvider>
         </TooltipProvider>

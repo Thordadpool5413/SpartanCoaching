@@ -4,8 +4,12 @@ import * as Haptics from "expo-haptics";
 import { router, type Href } from "expo-router";
 import { goBackOrReplace } from "@/lib/navigation";
 import React, { useEffect, useMemo, useState } from "react";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { goBackOrReplace } from "@/lib/navigation";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import {
   ActivityIndicator,
+  Keyboard,
   Platform,
   Pressable,
   ScrollView,
@@ -17,11 +21,16 @@ import {
   View,
 } from "react-native";
 import {
+  buildAiToolExperienceInput,
   buildConnectedToolInput,
+  getAiToolExperience,
   getSpartanAiToolConnections,
   getSpartanAiTool,
-  type AiToolField,
-  type AiToolSpec,
+  hydrateAiToolExperienceValues,
+  initialAiToolExperienceValues,
+  type AiToolExperienceContext,
+  type AiToolExperienceField,
+  type AiToolExperienceValue,
   type SpartanAiToolId,
 } from "@workspace/spartan-ai-tools";
 import { consumeAiToolHandoff, stageAiToolHandoff } from "@/lib/aiToolHandoff";
@@ -35,7 +44,7 @@ import { VAULT, VAULT_COPY } from "@/lib/clinicalVaultTheme";
 import { ClinicalVaultBadge, ClinicalVaultToolBanner } from "@/components/ClinicalVaultChrome";
 import { PremiumAiResult, formatAiResultForSharing } from "@/components/PremiumAiResult";
 
-type FormValue = string | boolean;
+type FormValue = AiToolExperienceValue;
 type ToolRun = {
   id?: string;
   status?: string;
@@ -112,7 +121,118 @@ function Field({ field, value, onChange }: { field: AiToolField; value: FormValu
               </Pressable>
             );
           })}
+function GuidedField({
+  field,
+  value,
+  onChange,
+}: {
+  field: AiToolExperienceField;
+  value: FormValue;
+  onChange: (next: FormValue) => void;
+}) {
+  const colors = useColors();
+  const styles = useMemo(() => makeStyles(colors), [colors]);
+  const options = field.options ?? [];
+  const selectedValues = Array.isArray(value) ? value : [];
+  const initialCustom =
+    field.kind === "multi-choice"
+      ? selectedValues.find((item) => !options.includes(item)) ?? ""
+      : typeof value === "string" && value && !options.includes(value)
+        ? value
+        : "";
+  const [otherOpen, setOtherOpen] = useState(Boolean(initialCustom));
+  const [otherValue, setOtherValue] = useState(initialCustom);
+
+  const selectSingle = (option: string) => {
+    setOtherOpen(false);
+    setOtherValue("");
+    onChange(option);
+    if (Platform.OS !== "web") void Haptics.selectionAsync();
+  };
+
+  const toggleMultiple = (option: string) => {
+    const current = Array.isArray(value) ? value : [];
+    onChange(
+      current.includes(option)
+        ? current.filter((item) => item !== option)
+        : [...current, option],
+    );
+    if (Platform.OS !== "web") void Haptics.selectionAsync();
+  };
+
+  const updateOther = (next: string) => {
+    const previous = otherValue;
+    setOtherValue(next);
+    if (field.kind === "multi-choice") {
+      const current = Array.isArray(value) ? value : [];
+      onChange([
+        ...current.filter((item) => item !== previous && options.includes(item)),
+        ...(next.trim() ? [next] : []),
+      ]);
+    } else {
+      onChange(next);
+    }
+  };
+
+  if (field.kind === "single-choice" || field.kind === "multi-choice") {
+    return (
+      <View style={styles.field}>
+        <Text style={styles.label}>
+          {field.label}
+          {field.required ? " *" : ""}
+        </Text>
+        {field.helper ? <Text style={styles.fieldHint}>{field.helper}</Text> : null}
+        <View accessibilityRole={field.kind === "single-choice" ? "radiogroup" : undefined} style={styles.choiceRow}>
+          {options.map((option) => {
+            const selected =
+              field.kind === "multi-choice"
+                ? selectedValues.includes(option)
+                : value === option;
+            return (
+              <Pressable
+                key={option}
+                accessibilityRole={field.kind === "single-choice" ? "radio" : "checkbox"}
+                accessibilityLabel={`${field.label}: ${option}`}
+                accessibilityState={{ checked: selected }}
+                onPress={() =>
+                  field.kind === "multi-choice"
+                    ? toggleMultiple(option)
+                    : selectSingle(option)
+                }
+                style={[styles.choice, selected && styles.choiceSelected]}
+              >
+                <Text style={[styles.choiceText, selected && styles.choiceTextSelected]}>
+                  {option}
+                </Text>
+              </Pressable>
+            );
+          })}
+          {field.allowOther ? (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={`Add another ${field.label.toLowerCase()}`}
+              onPress={() => {
+                setOtherOpen(true);
+                if (field.kind === "single-choice") onChange(otherValue);
+                if (Platform.OS !== "web") void Haptics.selectionAsync();
+              }}
+              style={[styles.choice, otherOpen && styles.choiceSelected]}
+            >
+              <Text style={[styles.choiceText, otherOpen && styles.choiceTextSelected]}>Other</Text>
+            </Pressable>
+          ) : null}
         </View>
+        {otherOpen ? (
+          <TextInput
+            accessibilityLabel={`Other ${field.label}`}
+            value={otherValue}
+            onChangeText={updateOther}
+            placeholder="Enter your own response"
+            placeholderTextColor={colors.mutedForeground}
+            autoFocus
+            style={styles.input}
+          />
+        ) : null}
       </View>
     );
   }
@@ -123,10 +243,18 @@ function Field({ field, value, onChange }: { field: AiToolField; value: FormValu
       <Text style={styles.label}>{field.label}{field.required ? " *" : ""}</Text>
       {field.kind === "string-list" ? <Text style={styles.fieldHint}>One item per line.</Text> : null}
       {(field.kind === "json" || field.kind === "json-list") ? <Text style={styles.fieldHint}>Structured data is supported here. Keep patient identifiers out of every field.</Text> : null}
+  const multiline = field.kind === "long-text";
+  return (
+    <View style={styles.field}>
+      <Text style={styles.label}>
+        {field.label}
+        {field.required ? " *" : ""}
+      </Text>
+      {field.helper ? <Text style={styles.fieldHint}>{field.helper}</Text> : null}
       <TextInput
         accessibilityLabel={field.label}
         value={String(value ?? "")}
-        onChangeText={onChange}
+        onChangeText={(next) => onChange(field.kind === "number" ? Number(next) : next)}
         placeholder={field.placeholder}
         placeholderTextColor={colors.mutedForeground}
         multiline={multiline}
@@ -140,13 +268,21 @@ function Field({ field, value, onChange }: { field: AiToolField; value: FormValu
 
 export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
   const tool = getSpartanAiTool(toolId)!;
+  const experience = getAiToolExperience(toolId);
   const colors = useColors();
   const styles = useMemo(() => makeStyles(colors), [colors]);
   const { isOnline, isChecking, refresh } = useNetworkStatus();
   const [values, setValues] = useState(() => initialForm(tool));
+  const insets = useSafeAreaInsets();
+  const scrollRef = useRef<ScrollView>(null);
+  const { isOnline, isChecking, refresh } = useNetworkStatus();
+  const [values, setValues] = useState<Record<string, FormValue>>(() => initialAiToolExperienceValues(toolId));
   const [run, setRun] = useState<ToolRun | null>(null);
+  const [experienceContext, setExperienceContext] = useState<AiToolExperienceContext>({});
   const [history, setHistory] = useState<ToolRun[]>([]);
   const [busy, setBusy] = useState(false);
+  const [elapsedSeconds, setElapsedSeconds] = useState(0);
+  const [progressStage, setProgressStage] = useState(0);
   const [error, setError] = useState("");
   const [confirmedDeidentified, setConfirmedDeidentified] = useState(false);
   const clinical = tool.containsPhi;
@@ -173,6 +309,25 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
       } else {
         const response = await apiGet<{ runs: ToolRun[] }>(`/api/ai-tools/${tool.id}/runs`);
         setHistory(response.runs || []);
+        const savedRuns = response.runs || [];
+        setHistory(savedRuns);
+        if (tool.id === "content-recommender" || tool.id === "content-gap-analyzer") {
+          const [articleResponse, podcastResponse, resourceResponse] = await Promise.all([
+            apiGet<{ articles?: Array<Record<string, unknown>> }>("/api/articles"),
+            apiGet<{ podcasts?: Array<Record<string, unknown>> }>("/api/podcasts"),
+            apiGet<{ resources?: Array<Record<string, unknown>> }>("/api/resources"),
+          ]);
+          const contentCatalog = [
+            ...(articleResponse.articles ?? []).map((item) => ({ ...item, contentType: "article" })),
+            ...(podcastResponse.podcasts ?? []).map((item) => ({ ...item, contentType: "audio" })),
+            ...(resourceResponse.resources ?? []).map((item) => ({ ...item, contentType: "resource" })),
+          ];
+          setExperienceContext({
+            contentCatalog,
+            interactionHistory: savedRuns.map((item) => ({ toolId: tool.id, status: item.status, createdAt: item.createdAt })),
+            usageMetrics: savedRuns.map((item) => ({ toolId: tool.id, completion: item.status ?? "completed", createdAt: item.createdAt })),
+          });
+        }
       }
     } catch (caught) {
       if (clinical) setJurisdictionChecking(false);
@@ -184,14 +339,38 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
     const handoff = consumeAiToolHandoff(tool.id);
     if (handoff) {
       setValues(initialForm(tool, buildConnectedToolInput(handoff.sourceToolId, tool.id, handoff.output)));
+      setValues(
+        hydrateAiToolExperienceValues(
+          tool.id,
+          buildConnectedToolInput(handoff.sourceToolId, tool.id, handoff.output),
+        ),
+      );
+    } else {
+      setValues(initialAiToolExperienceValues(tool.id));
     }
   }, [tool.id]);
+
+  useEffect(() => {
+    if (!busy) {
+      setElapsedSeconds(0);
+      setProgressStage(0);
+      return;
+    }
+    const startedAt = Date.now();
+    const timer = setInterval(() => {
+      const elapsed = Math.floor((Date.now() - startedAt) / 1000);
+      setElapsedSeconds(elapsed);
+      setProgressStage(Math.min(experience.progressStages.length - 1, Math.floor(elapsed / 4)));
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [busy, experience.progressStages.length]);
 
   useEffect(() => {
     if (!networkBlocked) void loadData();
   }, [tool.id, networkBlocked]);
 
   async function runTool() {
+    Keyboard.dismiss();
     if (networkBlocked) {
       setError("Secure connection required. Advanced tools do not process or queue protected work while this device is offline.");
       if (!isChecking) void refresh();
@@ -202,6 +381,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
     setError("");
     try {
       const input = parsedInput(tool, values);
+      const input = tool.inputSchema.parse(buildAiToolExperienceInput(tool.id, values, experienceContext)) as Record<string, unknown>;
       let completed: ToolRun;
       if (clinical) {
         const response = await apiPost<{ result: ToolRun }>(`/api/ai-tools/${tool.id}/ephemeral-runs`, { input, confirmedDeidentified });
@@ -212,6 +392,7 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         setHistory((current) => [response.run, ...current.filter((item) => item.id !== response.run.id)]);
       }
       setRun(completed);
+      requestAnimationFrame(() => scrollRef.current?.scrollToEnd({ animated: true }));
       void trackProductOutcome("tool_completion", { toolId: tool.id, platform: "ios" });
       if (Platform.OS !== "web") void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (caught) {
@@ -249,13 +430,21 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
   }
 
   const runLabel = run ? "Run it again" : `Build ${tool.name.toLowerCase()}`;
+  const runLabel = run ? "Build a new version" : experience.submitLabel;
+  const missingRequired = experience.fields.some((field) => {
+    if (!field.required) return false;
+    const value = values[field.key];
+    return Array.isArray(value) ? value.length === 0 : String(value ?? "").trim().length === 0;
+  });
 
   return (
     <ScrollView
+      ref={scrollRef}
       contentInsetAdjustmentBehavior="automatic"
       keyboardShouldPersistTaps="handled"
       style={styles.screen}
       contentContainerStyle={[styles.container, clinical && styles.clinicalContainer]}
+      contentContainerStyle={[styles.container, { paddingTop: Math.max(insets.top + 12, 28) }, clinical && styles.clinicalContainer]}
       showsVerticalScrollIndicator={false}
       testID={`ai-tool-${tool.id}`}
     >
@@ -274,6 +463,11 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         <View style={styles.promiseRow}>
           <Feather name="zap" size={16} color={colors.primary} />
           <Text style={styles.promiseText}>Give it the right context. Get a structured result you can act on, review, save, or continue into the next compatible workflow.</Text>
+        <Text style={styles.title}>{experience.title ?? tool.name}</Text>
+        <Text style={styles.description}>{experience.promise}</Text>
+        <View style={styles.promiseRow}>
+          <Feather name="zap" size={16} color={colors.primary} />
+          <Text style={styles.promiseText}>Make a few clear choices. Spartan handles the structure and gives you a result you can use.</Text>
         </View>
       </View>
 
@@ -321,6 +515,23 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
         </View>
       ) : null}
 
+
+      {networkBlocked ? (
+        <View accessibilityRole="alert" style={styles.networkCard}>
+          <View style={styles.safetyHeading}>
+            <Feather name={isChecking ? "wifi" : "wifi-off"} size={18} color={colors.primary} />
+            <Text style={styles.safetyTitle}>{isChecking ? "Checking secure connection" : "Secure connection required"}</Text>
+          </View>
+          <Text style={styles.warningText}>Advanced tools run online so protected work is never queued on this device. Existing results can remain visible, but running, exporting, and sharing stay locked until the service is reachable.</Text>
+          {!isChecking ? (
+            <Pressable accessibilityRole="button" accessibilityLabel="Check secure connection" onPress={() => void refresh()} style={styles.networkAction}>
+              <Text style={styles.networkActionText}>Check connection</Text>
+              <Feather name="refresh-cw" size={16} color={colors.primary} />
+            </Pressable>
+          ) : null}
+        </View>
+      ) : null}
+
       {tool.safetyWarnings.length ? (
         <View style={styles.safetyCard}>
           <View style={styles.safetyHeading}><Feather name="shield" size={18} color={clinical ? VAULT.accent : colors.primary} /><Text style={styles.safetyTitle}>Before you use this tool</Text></View>
@@ -349,6 +560,8 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
       <View style={styles.formCard}>
         {tool.fields.map((field) => (
           <Field key={field.key} field={field} value={values[field.key] ?? (field.kind === "boolean" ? false : "")} onChange={(value) => setValues((current) => ({ ...current, [field.key]: value }))} />
+        {experience.fields.map((field) => (
+          <GuidedField key={field.key} field={field} value={values[field.key] ?? (field.kind === "multi-choice" ? [] : "")} onChange={(value) => setValues((current) => ({ ...current, [field.key]: value }))} />
         ))}
         {error ? <View style={styles.errorCard}><Feather name="alert-circle" size={17} color={colors.destructive} /><Text style={styles.error}>{error}</Text></View> : null}
         <Pressable
@@ -359,12 +572,33 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
           style={[styles.primaryButton, (busy || networkBlocked || (clinical && (!confirmedDeidentified || jurisdictionChecking || !jurisdiction?.state || !jurisdiction?.macRegion))) && styles.disabled]}
         >
           {busy ? <ActivityIndicator color="#FFFFFF" /> : <><Text style={styles.primaryButtonText}>{isChecking ? "Checking connection" : !isOnline ? "Secure connection required" : runLabel}</Text><Feather name="arrow-right" size={20} color="#FFFFFF" /></>}
+          disabled={busy || missingRequired || networkBlocked || (clinical && (!confirmedDeidentified || jurisdictionChecking || !jurisdiction?.state || !jurisdiction?.macRegion))}
+          onPress={runTool}
+          style={[styles.primaryButton, (busy || missingRequired || networkBlocked || (clinical && (!confirmedDeidentified || jurisdictionChecking || !jurisdiction?.state || !jurisdiction?.macRegion))) && styles.disabled]}
+        >
+          {busy ? (
+            <View accessibilityRole="progressbar" accessibilityLiveRegion="polite" style={{ alignItems: "center", gap: 6 }}>
+              <View style={{ flexDirection: "row", alignItems: "center", gap: 10 }}>
+                <ActivityIndicator color="#FFFFFF" />
+                <Text style={styles.primaryButtonText}>{experience.progressStages[progressStage]}</Text>
+              </View>
+              <Text style={[styles.primaryButtonText, { fontSize: 11, opacity: 0.82 }]}>
+                {elapsedSeconds < 8 ? "Building your result" : `Still working · ${elapsedSeconds}s`}
+              </Text>
+            </View>
+          ) : (
+            <>
+              <Text style={styles.primaryButtonText}>{isChecking ? "Checking connection" : !isOnline ? "Secure connection required" : runLabel}</Text>
+              <Feather name="arrow-right" size={20} color="#FFFFFF" />
+            </>
+          )}
         </Pressable>
       </View>
 
       <View style={styles.workflowHeading}>
         <Text style={styles.sectionKicker}>2 · RESULT</Text>
         <Text style={styles.sectionTitle}>{run?.output != null ? "Turn the output into a decision." : "The useful part appears here."}</Text>
+        <Text style={styles.sectionTitle}>{run?.output != null ? experience.resultTitle : "Your result will appear here."}</Text>
         <Text style={styles.sectionBody}>{clinical ? "Clinical results are ephemeral, watermarked, and presented with review requirements." : "Results are saved to your account so you can return to them without rebuilding the work."}</Text>
       </View>
 

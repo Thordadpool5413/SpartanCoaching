@@ -1,8 +1,6 @@
 import { Tabs } from "expo-router";
-import { SymbolView } from "expo-symbols";
-import { Feather } from "@expo/vector-icons";
 import React from "react";
-import { Platform, StyleSheet } from "react-native";
+import { StyleSheet } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { useColors } from "@/hooks/useColors";
 import { HelmetMark } from "@/components/brand/HelmetMark";
@@ -23,6 +21,7 @@ function TabIcon({ route, color }: { route: keyof typeof TAB_ICONS; color: strin
   }
   return <Feather name={icon.android} size={22} color={color} />;
 }
+import { TabIcon } from "@/components/ui/TabIcon";
 
 export default function TabLayout() {
   const colors = useColors();
@@ -58,13 +57,14 @@ export default function TabLayout() {
         options={{
           title: "Home",
           tabBarIcon: ({ color }) => <TabIcon route="index" color={color} />,
+          tabBarIcon: ({ color }) => <TabIcon name="home" color={color} size={24} />,
         }}
       />
       <Tabs.Screen
         name="coach"
         options={{
           title: "Coach",
-          tabBarIcon: ({ color }) => <TabIcon route="coach" color={color} />,
+          tabBarIcon: () => <HelmetMark size={27} />,
         }}
       />
       <Tabs.Screen
@@ -72,6 +72,7 @@ export default function TabLayout() {
         options={{
           title: "Explore",
           tabBarIcon: ({ color }) => <TabIcon route="tools" color={color} />,
+          tabBarIcon: ({ color }) => <TabIcon name="explore" color={color} size={24} />,
         }}
       />
       <Tabs.Screen
@@ -79,13 +80,14 @@ export default function TabLayout() {
         options={{
           title: "My Work",
           tabBarIcon: ({ color }) => <TabIcon route="my-work" color={color} />,
+          tabBarIcon: ({ color }) => <TabIcon name="my-work" color={color} size={24} />,
         }}
       />
       <Tabs.Screen
         name="account"
         options={{
           title: "Account",
-          tabBarIcon: ({ color }) => <TabIcon route="account" color={color} />,
+          tabBarIcon: ({ color }) => <TabIcon name="account" color={color} size={24} />,
         }}
       />
       <Tabs.Screen name="command" options={{ href: null }} />

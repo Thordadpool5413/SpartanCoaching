@@ -211,7 +211,7 @@ export default function Home() {
                   "Sales Command Center",
                   "Objections · role-play · email · playbooks",
                   "Weekly plan · activity · ROI · branch math",
-                  "Resources & learn · $14.99/wk · cancel anytime",
+                  "Elite recommended · $19.99/wk · Standard $14.99/wk",
                 ],
                 href: "/hospice-sales-pro",
                 cta: "Explore Hospice Sales Pro",

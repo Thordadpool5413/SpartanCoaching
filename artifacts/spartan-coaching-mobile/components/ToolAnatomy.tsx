@@ -20,7 +20,7 @@ function SectionLabel({ label }: { label: string }) {
           fontSize: 10,
           letterSpacing: 1.4,
           textTransform: "uppercase",
-          marginBottom: 6,
+          marginBottom: 10,
         },
         font("bold"),
       ]}
@@ -179,18 +179,18 @@ export function ToolAnatomyFeedback({
 }
 
 const styles = StyleSheet.create({
-  block: { marginTop: 14 },
+  block: { marginTop: 24 },
   card: {
     borderWidth: StyleSheet.hairlineWidth * 2,
-    borderRadius: 12,
-    padding: 12,
+    borderRadius: 16,
+    padding: 16,
   },
   relatedRow: {
     borderWidth: StyleSheet.hairlineWidth * 2,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 12,
-    marginBottom: 8,
+    borderRadius: 14,
+    paddingHorizontal: 16,
+    paddingVertical: 14,
+    marginBottom: 10,
     minHeight: 44,
     flexDirection: "row",
     alignItems: "center",

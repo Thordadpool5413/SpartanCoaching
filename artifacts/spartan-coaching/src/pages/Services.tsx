@@ -291,7 +291,7 @@ export default function Services() {
                   <p className="text-3xl font-black text-primary">{service.price}</p>
                   <p className="text-sm text-muted-foreground">{service.duration}</p>
                 </div>
-                
+
                 <div className="mb-4">
                   <p className="text-sm font-semibold text-foreground mb-2">The Problem:</p>
                   <p className="text-sm text-muted-foreground leading-relaxed">{service.problem}</p>
@@ -354,7 +354,7 @@ export default function Services() {
                   <p className="text-3xl font-black text-primary">{service.price}</p>
                   <p className="text-sm text-muted-foreground">{service.duration}</p>
                 </div>
-                
+
                 <div className="mb-4">
                   <p className="text-sm font-semibold text-foreground mb-2">The Problem:</p>
                   <p className="text-sm text-muted-foreground leading-relaxed">{service.problem}</p>
@@ -433,7 +433,7 @@ export default function Services() {
                   <p className="text-3xl font-black text-primary">{service.price}</p>
                   <p className="text-sm text-muted-foreground">{service.duration}</p>
                 </div>
-                
+
                 <div className="mb-4">
                   <p className="text-sm font-semibold text-foreground mb-2">The Problem:</p>
                   <p className="text-sm text-muted-foreground leading-relaxed">{service.problem}</p>

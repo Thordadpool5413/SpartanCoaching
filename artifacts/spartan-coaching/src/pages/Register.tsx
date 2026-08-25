@@ -77,7 +77,7 @@ export default function Register() {
       await refresh();
       toast({
         title: "Account created",
-        description: "Next: subscribe to unlock live tools — $14.99/week, cancel anytime.",
+        description: "Next: choose recommended Elite at $19.99/week or Standard at $14.99/week. Cancel anytime.",
       });
       setLocation("/account?welcome=1");
     } catch (err: any) {
@@ -112,7 +112,7 @@ export default function Register() {
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed">
             Then subscribe for{" "}
-            <strong className="text-foreground">$14.99/week</strong> to unlock live tools. Cancel
+            <strong className="text-foreground">Elite at $19.99/week</strong>, recommended for the complete product, or Standard at $14.99/week. Cancel
             anytime.{" "}
             <Link href="/request-access" className="font-semibold text-primary hover:underline">
               Need team access instead?

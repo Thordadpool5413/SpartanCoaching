@@ -220,7 +220,7 @@ export default function Tools() {
                   </h2>
                   <p className="text-sm text-muted-foreground leading-relaxed max-w-xl">
                     Browse real interfaces. Unlock live generation, Command Center, and saves with Hospice
-                    Sales Pro — $14.99/week, cancel anytime. Already subscribed? Sign in with the same
+                    Sales Pro Elite is recommended at $19.99/week. Standard remains available at $14.99/week. Cancel anytime. Already subscribed? Sign in with the same
                     email (access restores from your account).
                   </p>
                   <ul className="mt-3 grid sm:grid-cols-2 gap-1.5 text-xs text-muted-foreground">

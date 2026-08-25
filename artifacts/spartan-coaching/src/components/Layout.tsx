@@ -74,8 +74,8 @@ function MobileNavSection({ title }: { title: string }) {
   );
 }
 
-function NavDropdown({ label, items, dataTestId }: { 
-  label: string; 
+function NavDropdown({ label, items, dataTestId }: {
+  label: string;
   items: { path: string; label: string; description: string }[];
   dataTestId: string;
 }) {
@@ -112,7 +112,7 @@ function NavDropdown({ label, items, dataTestId }: {
       document.removeEventListener("keydown", onKey);
     };
   }, [open]);
-  
+
   return (
     <div
       ref={rootRef}
@@ -121,7 +121,7 @@ function NavDropdown({ label, items, dataTestId }: {
       onMouseEnter={() => setOpen(true)}
       onMouseLeave={() => setOpen(false)}
     >
-      <button 
+      <button
         type="button"
         className={cn(
           "px-3 py-2 rounded-lg text-sm font-medium transition-colors hover-elevate flex items-center gap-1 whitespace-nowrap cursor-pointer",
@@ -478,7 +478,7 @@ export function Footer() {
     { href: "/resources", label: "Resources" },
     { href: "/portal/learn", label: "Learn" },
     { href: "/account", label: "Account" },
-    { href: "/contact?service=Hospice+Sales+Pro+Debrief", label: "Coach" },
+    { href: "/portal/coach", label: "Coach" },
     { href: "/compliance", label: "Compliance" },
     { href: "/faq", label: "FAQ" },
   ];
@@ -522,7 +522,7 @@ export function Footer() {
               <p className="text-xs text-muted-foreground/90 leading-relaxed border-l-2 border-primary/50 pl-3">
                 {canUseFieldKit
                   ? "No PHI in tools · Cancel anytime from Account · Ethics-first field work"
-                  : `Consulting for teams · ${PRICING_FACTS.productName} ${PRICING_FACTS.individualWeeklyShort} · Preview free · Cancel anytime · No PHI in tools`}
+                  : `Elite recommended ${PRICING_FACTS.eliteWeeklyShort} · Standard ${PRICING_FACTS.individualWeeklyShort} · Preview free · Cancel anytime`}
               </p>
               <div className="flex flex-col gap-2">
                 <a href="mailto:nick@spartanhospicecoaching.com" className="text-sm text-muted-foreground hover:text-foreground transition-colors" data-testid="link-footer-email">

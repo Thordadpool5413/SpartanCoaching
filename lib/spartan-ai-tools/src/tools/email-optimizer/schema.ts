@@ -1,4 +1,5 @@
 import { z } from "zod";
+
 export const inputSchema = z
   .object({
     prospectType: z.string().trim().min(1).max(100),
@@ -13,49 +14,34 @@ export const inputSchema = z
     includeSequence: z.boolean().default(true),
   })
   .strict();
+
 export const emailTemplateSchema = z
   .object({
     id: z.string().min(1),
-    label: z.string().min(1),
-    subject: z.string().min(1).max(160),
-    previewText: z.string().min(1).max(200),
-    body: z.string().min(1),
-    rationale: z.string().min(1),
-    callToAction: z.string().min(1),
+    label: z.string().min(1).max(80),
+    subject: z.string().min(1).max(120),
+    body: z.string().min(1).max(1_500),
+    rationale: z.string().min(1).max(280),
   })
   .strict();
+
 export const sequenceStepSchema = z
   .object({
-    day: z.number().int().min(0).max(60),
-    purpose: z.string().min(1),
-    subject: z.string().min(1),
-    body: z.string().min(1),
+    day: z.number().int().min(1).max(30),
+    purpose: z.string().min(1).max(120),
+    subject: z.string().min(1).max(120),
+    body: z.string().min(1).max(900),
   })
   .strict();
+
 export const outputSchema = z
   .object({
-    templates: z.array(emailTemplateSchema).min(3).max(3),
-    sequence: z.array(sequenceStepSchema).max(6),
-    personalizationElements: z.array(z.string().min(1)).max(8),
-    simulatedMetrics: z
-      .object({
-        disclaimer: z.string().min(1),
-        relativeRanking: z
-          .array(
-            z
-              .object({
-                templateId: z.string(),
-                rank: z.number().int().min(1).max(3),
-                rationale: z.string(),
-              })
-              .strict(),
-          )
-          .length(3),
-      })
-      .strict(),
-    simulationNotice: z.string().min(1),
-    complianceReview: z.array(z.string().min(1)).max(6),
+    templates: z.array(emailTemplateSchema).length(3),
+    sequence: z.array(sequenceStepSchema).max(3),
+    coachingNotes: z.array(z.string().min(1).max(240)).max(3),
+    complianceReview: z.array(z.string().min(1).max(240)).max(4),
   })
   .strict();
+
 export type ToolInput = z.infer<typeof inputSchema>;
 export type ToolOutput = z.infer<typeof outputSchema>;
