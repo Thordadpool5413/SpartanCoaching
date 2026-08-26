@@ -82,10 +82,10 @@ import {
   formatCitationsForPrompt,
 } from "../knowledge/spartanCorpus";
 import { searchNpiProviders } from "../knowledge/npiLookup";
-import { buildAccountBrief } from "../knowledge/providerIntelligence";
-import { POLICY_TOPICS, buildPolicyBrief } from "../knowledge/policyIntelligence";
+import { ACCOUNT_TYPES, buildAccountBrief } from "../knowledge/providerIntelligence";
+import { POLICY_AUDIENCES, POLICY_TOPICS, buildPolicyBrief } from "../knowledge/policyIntelligence";
 import { loadLatestCoverageSnapshot } from "../clinical/coverageBootstrap";
-import { searchCmsHospices } from "../knowledge/cmsHospiceLookup";
+import { getCmsHospiceProfile, searchCmsHospices } from "../knowledge/cmsHospiceLookup";
 
 /** Express 5 params may be string | string[] — normalize for parseInt / lookups. */
 function paramStr(req: Request, key: string): string {
@@ -473,10 +473,18 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
       )
         ? req.body.relationshipStage
         : "new";
+      const requestedAccountType = String(req.body?.accountType || "");
+      const accountType = ACCOUNT_TYPES.includes(requestedAccountType as (typeof ACCOUNT_TYPES)[number])
+        ? requestedAccountType as (typeof ACCOUNT_TYPES)[number]
+        : undefined;
       const brief = buildAccountBrief({
         provider,
         meetingPurpose: typeof req.body?.meetingPurpose === "string" ? req.body.meetingPurpose : undefined,
         knownContext: typeof req.body?.knownContext === "string" ? req.body.knownContext : undefined,
+        accountType,
+        knownBarrier: typeof req.body?.knownBarrier === "string" ? req.body.knownBarrier : undefined,
+        stakeholderRole: typeof req.body?.stakeholderRole === "string" ? req.body.stakeholderRole : undefined,
+        desiredCommitment: typeof req.body?.desiredCommitment === "string" ? req.body.desiredCommitment : undefined,
         relationshipStage,
       });
       res.json({ brief });
@@ -493,8 +501,15 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
         return res.status(400).json({ error: "Choose a policy topic before building the guide." });
       }
       const snapshot = await loadLatestCoverageSnapshot();
+      const requestedAudience = String(req.body?.audience || "referral-source");
+      const audience = POLICY_AUDIENCES.includes(requestedAudience as (typeof POLICY_AUDIENCES)[number])
+        ? requestedAudience as (typeof POLICY_AUDIENCES)[number]
+        : "referral-source";
       res.json({
-        brief: buildPolicyBrief(topic as (typeof POLICY_TOPICS)[number], snapshot),
+        brief: buildPolicyBrief(topic as (typeof POLICY_TOPICS)[number], snapshot, {
+          audience,
+          concern: typeof req.body?.concern === "string" ? req.body.concern : undefined,
+        }),
       });
     } catch (error: any) {
       console.error("Policy brief error:", error);
@@ -504,15 +519,29 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
 
   app.get("/api/intelligence/hospice-market", requireElite, lightAiLimit, async (req, res) => {
     try {
-      const results = await searchCmsHospices({
+      const result = await searchCmsHospices({
         state: String(req.query.state || ""),
         city: req.query.city ? String(req.query.city) : undefined,
+        county: req.query.county ? String(req.query.county) : undefined,
+        zipCode: req.query.zipCode ? String(req.query.zipCode) : undefined,
+        name: req.query.name ? String(req.query.name) : undefined,
+        ownership: req.query.ownership ? String(req.query.ownership) : undefined,
         limit: req.query.limit ? Number(req.query.limit) : 25,
       });
-      res.json({ results, count: results.length });
+      res.json({ ...result, count: result.summary.totalMatched });
     } catch (error: any) {
       console.error("Hospice market lookup error:", error);
       res.status(400).json({ error: clientErrorMessage(error, "Hospice market lookup failed") });
+    }
+  });
+
+  app.get("/api/intelligence/hospice-profile", requireElite, lightAiLimit, async (req, res) => {
+    try {
+      const profile = await getCmsHospiceProfile(String(req.query.ccn || ""));
+      res.json({ profile });
+    } catch (error: any) {
+      console.error("Hospice profile lookup error:", error);
+      res.status(400).json({ error: clientErrorMessage(error, "Hospice profile could not be built") });
     }
   });
 
