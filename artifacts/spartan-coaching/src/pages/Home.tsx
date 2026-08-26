@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { Helmet } from "react-helmet-async";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Briefcase, Wrench, CheckCircle } from "lucide-react";
+import { ArrowRight, Briefcase, Wrench, CheckCircle, Sparkles, ShieldCheck, MapPinned } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { TrustStrip } from "@/components/TrustStrip";
 import { ProofStrip } from "@/components/ProofStrip";
@@ -101,6 +101,45 @@ export default function Home() {
         <h1 className="sr-only" data-testid="text-home-hero-title">
           Close the conversational gap. Get eligible patients into care earlier.
         </h1>
+      </section>
+
+      <section className="relative border-y border-amber-500/25 bg-card py-14 sm:py-18" data-testid="section-spartan-intelligence-public">
+        <div className="absolute inset-0 bg-spartan-gradient-radial opacity-20 pointer-events-none" />
+        <div className="relative mx-auto max-w-6xl px-4 sm:px-6 lg:px-8">
+          <FadeIn>
+            <div className="grid gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+              <div>
+                <p className="text-kicker mb-3">New in Elite</p>
+                <h2 className="text-3xl sm:text-4xl font-display font-black tracking-tight text-foreground">
+                  Spartan Intelligence
+                </h2>
+                <p className="mt-4 max-w-xl text-base leading-relaxed text-muted-foreground">
+                  Verified public data turned into practical preparation for the next provider conversation.
+                  Know the account, understand the policy, and enter with a clear objective.
+                </p>
+                <Button asChild size="lg" className="mt-7 min-h-11 w-full font-bold sm:w-auto">
+                  <Link href="/spartan-intelligence" data-testid="button-home-spartan-intelligence">
+                    Explore Spartan Intelligence
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+              </div>
+              <div className="grid gap-3 sm:grid-cols-3">
+                {[
+                  { icon: ShieldCheck, title: "Referral Intelligence", body: "Verify providers and prepare focused account conversations." },
+                  { icon: Sparkles, title: "CMS Policy Navigator", body: "Translate complex Medicare topics into clear field language." },
+                  { icon: MapPinned, title: "Market Explorer", body: "Search official CMS hospice enrollment data by location." },
+                ].map(({ icon: Icon, title, body }) => (
+                  <Card key={title} className="border border-border/80 bg-background/70 p-5">
+                    <Icon className="h-5 w-5 text-amber-500" />
+                    <h3 className="mt-4 text-base font-bold text-foreground">{title}</h3>
+                    <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{body}</p>
+                  </Card>
+                ))}
+              </div>
+            </div>
+          </FadeIn>
+        </div>
       </section>
 
       {/* ── 2. AUTHORITY STRIP (photo + credentials — hire confidence) ── */}

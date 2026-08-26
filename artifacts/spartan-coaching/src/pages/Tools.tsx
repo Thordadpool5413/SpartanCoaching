@@ -17,6 +17,9 @@ import {
   KeyRound,
   BrainCircuit,
   Crosshair,
+  Sparkles,
+  ShieldCheck,
+  MapPinned,
 } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
@@ -204,6 +207,53 @@ export default function Tools() {
             </p>
           )}
         </div>
+      </SlideUp>
+
+      <SlideUp delay={0.05}>
+        <section className="mb-12" data-testid="public-spartan-intelligence">
+          <Card className="overflow-hidden border border-amber-500/45 bg-gradient-to-br from-amber-500/[0.12] via-card to-card p-6 sm:p-8 shadow-elite">
+            <div className="flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-between">
+              <div className="max-w-3xl">
+                <div className="mb-4 flex items-center gap-3">
+                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/15 text-amber-500">
+                    <Sparkles className="h-6 w-6" />
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-bold uppercase tracking-widest text-amber-500">
+                      New in Hospice Sales Pro Elite
+                    </p>
+                    <h2 className="text-2xl font-display font-black tracking-tight text-foreground sm:text-3xl">
+                      Spartan Intelligence
+                    </h2>
+                  </div>
+                </div>
+                <p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
+                  Walk into the room with verified provider context, a clearer policy conversation,
+                  and a focused view of the hospice market you serve.
+                </p>
+                <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                  {[
+                    { icon: ShieldCheck, title: "Referral Intelligence", body: "Verify public provider records and prepare the right conversation." },
+                    { icon: BrainCircuit, title: "CMS Policy Navigator", body: "Turn complex Medicare topics into clear field language." },
+                    { icon: MapPinned, title: "Market Explorer", body: "Search official CMS hospice enrollment data by state and city." },
+                  ].map(({ icon: Icon, title, body }) => (
+                    <div key={title} className="rounded-xl border border-border/80 bg-background/60 p-4">
+                      <Icon className="mb-3 h-5 w-5 text-amber-500" />
+                      <h3 className="text-sm font-bold text-foreground">{title}</h3>
+                      <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{body}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <Button asChild size="lg" className="min-h-12 w-full shrink-0 font-bold lg:w-auto">
+                <Link href="/spartan-intelligence" data-testid="button-public-spartan-intelligence">
+                  Explore Spartan Intelligence
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Link>
+              </Button>
+            </div>
+          </Card>
+        </section>
       </SlideUp>
 
       {showCatalogGate && (
