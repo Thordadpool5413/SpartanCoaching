@@ -314,6 +314,20 @@ function ToolsCatalogScreen() {
   );
 }
 
+function ExploreDestination({ icon, title, body, onPress }: { icon: React.ComponentProps<typeof Feather>["name"]; title: string; body: string; onPress: () => void }) {
+  const colors = useColors();
+  return (
+    <Pressable accessibilityRole="button" onPress={onPress} style={({ pressed }) => [styles.destinationCard, { backgroundColor: colors.card, borderColor: colors.borderStrong, opacity: pressed ? 0.7 : 1 }]}>
+      <View style={[styles.destinationIcon, { backgroundColor: colors.primaryMuted }]}><Feather name={icon} size={19} color={colors.primary} /></View>
+      <View style={styles.destinationCopy}>
+        <Text style={[styles.destinationTitle, { color: colors.foreground }, font("bold")]}>{title}</Text>
+        <Text style={[styles.destinationBody, { color: colors.mutedForeground }, font("regular")]}>{body}</Text>
+      </View>
+      <Feather name="chevron-right" size={19} color={colors.primary} />
+    </Pressable>
+  );
+}
+
 function ActionRow({ title, subtitle, icon, badge, onPress, testID }: { title: string; subtitle?: string; icon: React.ComponentProps<typeof Feather>["name"]; badge?: string; onPress: () => void; testID?: string }) {
   const colors = useColors();
   return (
@@ -374,6 +388,12 @@ const styles = StyleSheet.create({
   subtitle: { fontSize: 14, lineHeight: 20, marginTop: 5, maxWidth: 340 },
   searchShell: { minHeight: 50, borderWidth: 1, borderRadius: 16, paddingHorizontal: 14, flexDirection: "row", alignItems: "center", gap: 10, marginTop: 16 },
   search: { flex: 1, fontSize: 15, minHeight: 48 },
+  destinationGrid: { gap: 14, marginBottom: 36 },
+  destinationCard: { minHeight: 104, flexDirection: "row", alignItems: "center", gap: 14, borderWidth: 1, borderRadius: 20, borderCurve: "continuous", paddingHorizontal: 17, paddingVertical: 16 },
+  destinationIcon: { width: 44, height: 44, borderRadius: 14, alignItems: "center", justifyContent: "center" },
+  destinationCopy: { flex: 1 },
+  destinationTitle: { fontSize: 15 },
+  destinationBody: { fontSize: 12, lineHeight: 17, marginTop: 3 },
   directoryHeading: { flexDirection: "row", alignItems: "flex-start", gap: 14 },
   countBadge: { width: 60, height: 60, borderRadius: 20, borderCurve: "continuous", alignItems: "center", justifyContent: "center" },
   countNumber: { color: "#FFFFFF", fontSize: 21, lineHeight: 23 },

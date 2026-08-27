@@ -1,6 +1,5 @@
 import { Card } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
-import { Target, Users, TrendingUp, Linkedin, BookOpen, Repeat, Heart, Handshake, ShieldCheck, ArrowRight } from "lucide-react";
 import { Target, Users, TrendingUp, Linkedin, BookOpen, Repeat, Heart, Handshake, ShieldCheck, ArrowRight, Wrench } from "lucide-react";
 import { Link } from "wouter";
 import nickPhoto from "@assets/nick-photo.jpg";
@@ -419,6 +418,9 @@ export default function About() {
               </p>
               <Link href="/services" className="font-semibold text-primary hover:underline">View services →</Link>
             </Card>
+          </div>
+        </div>
+
         {/* How consulting + Hospice Sales Pro fit together */}
         <div className="mt-16 mb-12 space-y-6" data-testid="section-about-approach">
           <h2 className="text-h2 text-foreground text-center">How we work with clients</h2>

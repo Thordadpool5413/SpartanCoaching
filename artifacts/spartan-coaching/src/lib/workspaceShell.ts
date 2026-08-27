@@ -193,14 +193,6 @@ export function workspaceNavForRole(
       match: (loc) => normalizePath(loc).startsWith("/tools/intelligence"),
     },
     {
-      id: "accounts",
-      href: "/tools/sales-workflow",
-      label: "Accounts",
-      icon: Building2,
-      primary: true,
-      match: (loc) => normalizePath(loc).startsWith("/tools/sales-workflow"),
-    },
-    {
       id: "tools",
       destinationId: "explore",
       href: "/tools",

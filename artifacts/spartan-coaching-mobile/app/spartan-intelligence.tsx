@@ -1,7 +1,4 @@
 import { Feather } from "@expo/vector-icons";
-import { router } from "expo-router";
-import React, { useState } from "react";
-import { Alert, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import * as Clipboard from "expo-clipboard";
 import { router } from "expo-router";
@@ -13,58 +10,6 @@ import { useColors } from "@/hooks/useColors";
 import { apiGet, apiPost } from "@/lib/api";
 import { font } from "@/lib/typography";
 
-type NpiHit = {
-  npi: string;
-  name: string;
-  credential?: string;
-  taxonomy?: string;
-  city?: string;
-  state?: string;
-  phone?: string;
-  status?: string;
-  lastUpdated?: string;
-  taxonomies: string[];
-  source: { label: string; url: string; checkedAt: string };
-};
-
-type Brief = {
-  headline: string;
-  verifiedFacts: Array<{ label: string; value: string }>;
-  meetingObjective: string;
-  opening: string;
-  discoveryQuestions: string[];
-  preparation: string[];
-  nextMove: string;
-  limitations: string[];
-};
-
-type PolicyTopic = "hospice-benefit" | "documentation" | "levels-of-care" | "election";
-type PolicyBrief = {
-  title: string;
-  answer: string;
-  talkTrack: string;
-  reviewChecklist: string[];
-  boundary: string;
-  source: { label: string; liveCmsSnapshot: boolean };
-};
-type HospiceOrganization = {
-  npi: string; ccn: string; organizationName: string; doingBusinessAs: string;
-  city: string; state: string; zipCode: string; ownership: string;
-};
-
-const policyTopics: Array<{ value: PolicyTopic; label: string }> = [
-  { value: "hospice-benefit", label: "Hospice benefit" },
-  { value: "documentation", label: "Documentation" },
-  { value: "levels-of-care", label: "Levels of care" },
-  { value: "election", label: "Election" },
-];
-
-const stages = [
-  { value: "new", label: "New" },
-  { value: "developing", label: "Developing" },
-  { value: "active", label: "Active" },
-  { value: "reengage", label: "Reconnect" },
-] as const;
 type Workspace = "referral" | "market" | "policy";
 type Choice = { value: string; label: string };
 type Source = { label: string; url?: string; checkedAt?: string };
@@ -193,6 +138,7 @@ function ReferralWorkspace({ colors }: { colors: ReturnType<typeof useColors> })
   const [state, setState] = useState("");
   const [results, setResults] = useState<NpiHit[]>([]);
   const [selected, setSelected] = useState<NpiHit | null>(null);
+  /*
   const [stage, setStage] = useState<(typeof stages)[number]["value"]>("new");
   const [purpose, setPurpose] = useState("");
   const [brief, setBrief] = useState<Brief | null>(null);
@@ -328,6 +274,7 @@ function BriefBlock({ title, text, colors, strong = false }: { title: string; te
 
 const styles = StyleSheet.create({
   screen: { flex: 1 }, content: { paddingHorizontal: 22, gap: 20 }, back: { flexDirection: "row", alignItems: "center", gap: 8, minHeight: 44 }, backText: { fontSize: 15 }, kicker: { fontSize: 11, letterSpacing: 2.2, marginTop: 4 }, title: { fontSize: 37, lineHeight: 41, letterSpacing: -1.2, maxWidth: 560 }, subtitle: { fontSize: 17, lineHeight: 25, maxWidth: 620 }, card: { borderWidth: 1, borderRadius: 24, padding: 20, gap: 16 }, policyResult: { borderWidth: 1, borderRadius: 18, padding: 16, gap: 15 }, marketResult: { borderWidth: 1, borderRadius: 16, padding: 14, flexDirection: "row", alignItems: "center", gap: 12 }, section: { gap: 10 }, sectionTitle: { fontSize: 23, lineHeight: 29 }, eyebrow: { fontSize: 10, letterSpacing: 2 }, segmentRow: { flexDirection: "row", gap: 10 }, segment: { flex: 1, minHeight: 44, borderWidth: 1, borderRadius: 14, alignItems: "center", justifyContent: "center" }, segmentText: { fontSize: 14, textTransform: "capitalize" }, fieldRow: { flexDirection: "row", gap: 12 }, field: { gap: 8 }, label: { fontSize: 14 }, input: { minHeight: 52, borderWidth: 1, borderRadius: 15, paddingHorizontal: 15, fontSize: 16 }, multiline: { minHeight: 96, paddingTop: 14, textAlignVertical: "top" }, result: { borderWidth: 1, borderRadius: 18, padding: 15, flexDirection: "row", alignItems: "center", gap: 12 }, icon: { width: 40, height: 40, borderRadius: 13, alignItems: "center", justifyContent: "center" }, resultTitle: { fontSize: 16, lineHeight: 21 }, resultMeta: { fontSize: 13, lineHeight: 19, marginTop: 3 }, source: { fontSize: 11, marginTop: 5 }, stageWrap: { flexDirection: "row", flexWrap: "wrap", gap: 8 }, stage: { borderWidth: 1, borderRadius: 999, minHeight: 40, paddingHorizontal: 14, alignItems: "center", justifyContent: "center" }, stageText: { fontSize: 13 }, brief: { borderWidth: 1, borderRadius: 24, padding: 20, gap: 18 }, block: { gap: 7 }, briefLabel: { fontSize: 10, letterSpacing: 1.8 }, briefText: { flex: 1, fontSize: 16, lineHeight: 24 }, question: { flexDirection: "row", alignItems: "flex-start", gap: 12 }, number: { width: 28, height: 28, borderRadius: 14, alignItems: "center", justifyContent: "center" }, numberText: { color: "#FFFFFF", fontSize: 12 }, note: { borderTopWidth: 1, paddingTop: 16, flexDirection: "row", gap: 10 }, noteText: { flex: 1, fontSize: 12, lineHeight: 18 },
+  */
   const [accountType, setAccountType] = useState("physician-practice");
   const [stage, setStage] = useState("new");
   const [purpose, setPurpose] = useState("");

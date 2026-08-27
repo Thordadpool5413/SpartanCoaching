@@ -2,7 +2,7 @@ import { Link } from "wouter";
 import { Helmet } from "react-helmet-async";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Briefcase, Wrench, CheckCircle } from "lucide-react";
+import { ArrowRight, Briefcase, Wrench, CheckCircle, Sparkles, ShieldCheck, MapPinned } from "lucide-react";
 import { SEO } from "@/components/SEO";
 import { TrustStrip } from "@/components/TrustStrip";
 import { ProofStrip } from "@/components/ProofStrip";
@@ -19,19 +19,6 @@ import { PRICING_FACTS } from "@/lib/complianceCopy";
 
 const CANONICAL_ORIGIN = SITE_ORIGIN;
 
-/** Kinetic brand hero, progressively enhanced with a static, readable message. */
-import { ArrowRight, Briefcase, Wrench, CheckCircle, Sparkles, ShieldCheck, MapPinned } from "lucide-react";
-import { SEO } from "@/components/SEO";
-import { TrustStrip } from "@/components/TrustStrip";
-import { ProofStrip } from "@/components/ProofStrip";
-import { FadeIn, StaggerContainer, StaggerItem } from "@/components/animations";
-import { lazy, Suspense, Component } from "react";
-import type { ReactNode } from "react";
-import nickPhoto from "@assets/nick-photo.jpg";
-
-const CANONICAL_ORIGIN = "https://spartanhospicecoaching.com";
-
-/** Kinetic brand hero (SpartanHeroAnimation) — full-bleed, no HTML text overlay. */
 const SpartanHeroAnimation = lazy(() =>
   import("@/components/SpartanHeroAnimation").then((m) => ({
     default: m.SpartanHeroAnimation,
@@ -49,7 +36,6 @@ class AnimationErrorBoundary extends Component<
   render() {
     return this.state.failed ? (
       <div className="absolute inset-0 bg-background" />
-      <div className="absolute inset-0 bg-black" />
     ) : (
       this.props.children
     );
@@ -187,20 +173,7 @@ export default function Home() {
               </div>
             </div>
           </div>
-      {/* ── 1. HERO — SpartanHeroAnimation only (no HTML text overlay) ── */}
-      <section
-        className="relative min-h-[85vh] sm:min-h-screen flex items-center justify-center overflow-hidden bg-background"
-        data-testid="section-hero"
-      >
-        <AnimationErrorBoundary>
-          <Suspense fallback={<div className="absolute inset-0 bg-background" />}>
-            <SpartanHeroAnimation />
-          </Suspense>
-        </AnimationErrorBoundary>
-        {/* SEO/a11y only — not painted over the animation */}
-        <h1 className="sr-only" data-testid="text-home-hero-title">
-          Close the conversational gap. Get eligible patients into care earlier.
-        </h1>
+        </div>
       </section>
 
       <section className="relative border-y border-amber-500/25 bg-card py-14 sm:py-18" data-testid="section-spartan-intelligence-public">
@@ -277,27 +250,25 @@ export default function Home() {
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center md:justify-start">
                   <Button size="lg" asChild className="font-bold min-h-11 w-full sm:w-auto" data-testid="button-authority-contact">
-                      <Link
-                        href="/contact"
-                        onClick={() =>
-                          trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_authority_contact")
-                        }
-                      >
-                    <Link href="/contact">
+                    <Link
+                      href="/contact"
+                      onClick={() =>
+                        trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_authority_contact")
+                      }
+                    >
                       Book a strategy call
                       <ArrowRight className="ml-2 w-4 h-4" />
                     </Link>
                   </Button>
                   <Button size="lg" variant="outline" asChild className="font-bold min-h-11 w-full sm:w-auto" data-testid="button-authority-about">
-                      <Link
-                        href="/about"
-                        onClick={() =>
-                          trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_authority_about")
-                        }
-                      >
-                        About Nick Lynch
-                      </Link>
-                    <Link href="/about">About Nick Lynch</Link>
+                    <Link
+                      href="/about"
+                      onClick={() =>
+                        trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_authority_about")
+                      }
+                    >
+                      About Nick Lynch
+                    </Link>
                   </Button>
                 </div>
               </div>
@@ -338,11 +309,6 @@ export default function Home() {
             <p className="text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed text-sm sm:text-base">
               Choose human coaching for the team or a field system for the work between conversations.
             </p>
-              <p className="text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed text-sm sm:text-base">
-                Hire Spartan for human consulting — or run{" "}
-                <strong className="text-foreground">Hospice Sales Pro</strong> for Command Center, tools, and
-                resources on web and iPhone.
-              </p>
             </div>
           </FadeIn>
           <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 lg:gap-8">
@@ -368,7 +334,6 @@ export default function Home() {
                   "Objections · role-play · email · playbooks",
                   "Weekly plan · activity · ROI · branch math",
                   `Elite recommended · ${PRICING_FACTS.eliteWeeklyShort} · Standard ${PRICING_FACTS.individualWeeklyShort}`,
-                  "Elite recommended · $19.99/wk · Standard $14.99/wk",
                 ],
                 href: "/hospice-sales-pro",
                 cta: "Explore Hospice Sales Pro",
@@ -409,7 +374,6 @@ export default function Home() {
                           )
                         }
                       >
-                      <Link href={p.href}>
                         {p.cta}
                         <ArrowRight className="ml-2 w-4 h-4" />
                       </Link>
@@ -477,9 +441,9 @@ export default function Home() {
             <h2 className="text-h1 font-bold text-foreground mb-6 font-display" data-testid="text-closing-title">
               Stop winging it.
             </h2>
-              <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-               Start with the next move that fits your work. We will keep the path clear from there.
-             </p>
+            <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
+              Start with the next move that fits your work. We will keep the path clear from there.
+            </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button size="lg" asChild className="font-bold px-10 shadow-lg" data-testid="button-closing-contact">
                 <Link
@@ -488,12 +452,6 @@ export default function Home() {
                     trackPublicFunnelEvent(PUBLIC_FUNNEL_EVENT.ctaClick, "home_closing_contact")
                   }
                 >
-            <p className="text-body-lg text-muted-foreground max-w-2xl mx-auto mb-10 leading-relaxed">
-              If you are ready to build a system that holds when the week is hard, reach out. Honest conversation — no pressure.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" asChild className="font-bold px-10 shadow-lg" data-testid="button-closing-contact">
-                <Link href="/contact">
                   Book a strategy call
                   <ArrowRight className="ml-2 w-5 h-5" />
                 </Link>
@@ -507,7 +465,6 @@ export default function Home() {
                 >
                   Explore Hospice Sales Pro
                 </Link>
-                <Link href="/hospice-sales-pro">Explore Hospice Sales Pro</Link>
               </Button>
             </div>
             <p className="mt-6 text-sm text-muted-foreground">

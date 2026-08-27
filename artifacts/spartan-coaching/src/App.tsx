@@ -251,7 +251,7 @@ function Router() {
           <Route path="/tools/weekly-plan-builder" component={GatedWeeklyPlan} />
           <Route path="/tools/sales-workflow" component={GatedSalesWorkflow} />
           <Route path="/tools/intelligence" component={GatedSpartanIntelligence} />
-          <Route path="/tools/intelligence" component={GatedSpartanIntelligence} />\n          <Route path="/spartan-intelligence" component={GatedSpartanIntelligence} />
+          <Route path="/spartan-intelligence" component={GatedSpartanIntelligence} />
           <Route path="/tools/ai" component={GatedAiToolsHub} />
           <Route path="/my-work/elite-outputs" component={GatedSavedAiOutputs} />
           <Route path="/tools/ai/:toolId" component={GatedAiTool} />

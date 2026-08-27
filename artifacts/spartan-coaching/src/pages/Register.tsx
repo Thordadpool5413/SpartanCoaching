@@ -83,7 +83,6 @@ export default function Register() {
       toast({
         title: "Account created",
         description: `Next: confirm ${requestedPlanLabel}. Cancel anytime.`,
-        description: "Next: choose recommended Elite at $19.99/week or Standard at $14.99/week. Cancel anytime.",
       });
       setLocation(`/account?welcome=1&subscribe=1&plan=${requestedPlan}`);
     } catch (err: any) {

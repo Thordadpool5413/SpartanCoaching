@@ -107,6 +107,7 @@ export const FIELD_KIT_TOOLS: FieldKitTool[] = [
   },
   {
     id: "spartan-intelligence",
+    owner: "explore",
     title: "Spartan Intelligence",
     description: "Verify referral sources and turn public provider data into focused account preparation.",
     path: "/tools/intelligence",

@@ -284,10 +284,6 @@ export default function Tools() {
                     Elite adds private Coach and deidentified clinical guidance. Already subscribed? Sign in with
                     the same email to restore access.
                   </p>
-                    Browse real interfaces. Unlock live generation, Command Center, and saves with Hospice
-                    Sales Pro Elite is recommended at $19.99/week. Standard remains available at $14.99/week. Cancel anytime. Already subscribed? Sign in with the same
-                    email (access restores from your account).
-                  </p>
                   <ul className="mt-3 grid sm:grid-cols-2 gap-1.5 text-xs text-muted-foreground">
                     <li className="flex gap-1.5">
                       <span className="text-primary font-bold">✓</span> Live generation on field tools

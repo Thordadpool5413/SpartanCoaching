@@ -23,6 +23,13 @@ import { haptics } from "@/lib/haptics";
 import { font } from "@/lib/typography";
 import { MAX_FONT_SIZE_MULTIPLIER } from "@/lib/iosProductQuality";
 
+const HOME_JOBS = [
+  { icon: "edit-3" as const, label: "Plan", description: "Build the plan", route: "/(tabs)/tools?category=Plan" as Href },
+  { icon: "message-circle" as const, label: "Practice", description: "Rehearse the moment", route: "/(tabs)/tools?category=Practice" as Href },
+  { icon: "bar-chart-2" as const, label: "Measure", description: "Track progress", route: "/(tabs)/tools?category=Measure" as Href },
+  { icon: "book-open" as const, label: "Library", description: "Learn and use", route: "/(tabs)/tools?view=library" as Href },
+];
+
 type HomeAction = {
   icon: React.ComponentProps<typeof Feather>["name"];
   title: string;

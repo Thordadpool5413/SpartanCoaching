@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 import { SubscribeCTA } from "@/components/SubscribeCTA";
+import { ProductMap } from "@/components/elite/ProductMap";
 import { SectionHeader } from "@/components/elite/SectionHeader";
 import { AppHandoffPanel } from "@/components/AppHandoffPanel";
 import { PRICING_FACTS, PUBLIC_CLAIM_SAFE } from "@/lib/complianceCopy";
@@ -57,8 +58,7 @@ export default function FieldKitMembership() {
         <p className="text-body-lg text-muted-foreground leading-relaxed">
           Choose an individual membership, request provider seats, or manage the access you already have.
           {` ${PRICING_FACTS.heroLine}`}
-          <span className="text-primary">Command Center · practice · plans · resources.</span>
-        </h1>
+        </p>
         <p className="text-body-lg text-muted-foreground leading-relaxed">
           Hospice Sales Pro is what you open on web and iPhone between coaching sessions — or on its own:
           Sales Command Center, objections, role-play, playbooks, weekly plans, calculators, and field resources.{" "}
@@ -190,7 +190,6 @@ export default function FieldKitMembership() {
             </ul>
             <div data-testid="button-tier-individual-subscribe">
               <SubscribeCTA surface="membership_pricing" showHint={false} testId="button-tier-individual" plan="standard_weekly" />
-              <SubscribeCTA surface="membership_pricing" showHint={false} testId="button-tier-individual" />
             </div>
           </Card>
 
@@ -220,12 +219,6 @@ export default function FieldKitMembership() {
             <div data-testid="button-tier-elite-subscribe">
               <SubscribeCTA surface="membership_pricing" showHint={false} testId="button-tier-elite" plan="elite_weekly" />
             </div>
-            <Button asChild className="w-full font-bold">
-              <Link href="/account?subscribe=1&plan=elite_weekly" data-testid="button-tier-elite">
-                Choose Elite
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </Button>
           </Card>
 
           <Card className="order-3 flex flex-col border border-border p-6 bg-card" data-testid="card-tier-team">
@@ -294,6 +287,8 @@ export default function FieldKitMembership() {
           title="One field system. Web and iPhone."
           description="Create or sign in with the same Hospice Sales Pro account on both surfaces. Web purchases restore after sign in; App Store purchases restore from Account on iPhone."
         />
+      </div>
+
       {/* ── Why (end-user edge) ── */}
       <div
         className="rounded-xl border border-primary/25 bg-primary/[0.04] p-8 sm:p-10 mb-14 text-center max-w-3xl mx-auto"
@@ -333,19 +328,6 @@ export default function FieldKitMembership() {
           </li>
           <li>
             <strong className="text-foreground">Manage from Account</strong> — cancel individual access anytime; teams request contracted seats.
-            <strong className="text-foreground">Preview free</strong> — open any tool UI on the Tools page without
-            paying.
-          </li>
-          <li>
-            <strong className="text-foreground">Create your account</strong> — two minutes, no admin approval for
-            individual seats.
-          </li>
-          <li>
-            <strong className="text-foreground">Choose Standard or Elite</strong> from Account. Standard is {PRICING_FACTS.individualWeeklyLabel}. Elite is {PRICING_FACTS.eliteWeeklyLabel}. Cancel anytime.
-          </li>
-          <li>
-            <strong className="text-foreground">Teams / providers:</strong> request team access — seats and weekly
-            per-user rate under contract.
           </li>
         </ol>
         <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 flex-wrap items-center">

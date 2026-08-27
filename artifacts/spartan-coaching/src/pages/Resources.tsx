@@ -251,7 +251,6 @@ export default function Resources() {
     member?.role === "org_admin" || member?.role === "platform_admin";
 
   const { data: resourcesData, isLoading, isError, refetch: refetchResources } = useQuery<{
-  const { data: resourcesData, isLoading, isError } = useQuery<{
     resources: SelectResource[];
     ownershipLabel?: string;
   }>({
@@ -518,7 +517,6 @@ export default function Resources() {
         <p className="text-body-lg text-muted-foreground leading-relaxed">
           {canUseFieldKit
             ? "Current templates, scripts, and checklists for work you want to take into the field."
-            ? "Work aids for the field — templates, scripts, and checklists. Not buried under Learn: pair with Tools intents (prepare a visit, plan the week)."
             : "Download field-tested templates, scripts, checklists, and guides to elevate your hospice sales performance."}
         </p>
         {canUseFieldKit && (
@@ -885,17 +883,6 @@ export default function Resources() {
 
                     {(() => {
                       const arch = resourceArchitecture(resource);
-                      const arch =
-                        (
-                          resource as SelectResource & {
-                            architecture?: {
-                              whenToUse?: string;
-                              expectedOutcome?: string;
-                              experienceLevel?: string;
-                              clinicalSensitivity?: string;
-                            };
-                          }
-                        ).architecture || resource.contentArchitecture;
                       if (!arch) return null;
                       return (
                         <div className="space-y-2 mb-4 text-sm text-muted-foreground">
