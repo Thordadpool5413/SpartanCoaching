@@ -1,76 +1,74 @@
-# Spartan Coaching iOS redesign visual QA
+# Spartan Intelligence Design QA
 
-## Evidence
+## Comparison target
 
-- Source visual truth: `/workspace/scratch/b30826574356/visual-target/Spartan coaching field guide home.png`
-- Source Library identity: `/Spartan coaching field guide home.png`
-- Source pixels: `853 x 1844`
-- Intended iOS viewport: modern 6.1 inch iPhone portrait, concept reference normalized by proportion rather than treated as a pixel exact device capture
-- Implementation route: `artifacts/spartan-coaching-mobile/app/(tabs)/index.tsx`
-- Implementation screenshot: unavailable
-- Implementation CSS size and density: unavailable because no browser or simulator capture could be produced
-- State: authenticated individual member with active access, light appearance, no saved commitment required for the reference state
+- Source visual truth: `/workspace/scratch/050b35085450/generated_images/exec-40e693d8-3b4c-43d9-88b5-60819c084171.png`
+- Implementation route: `/tools/intelligence`
+- Implementation screenshot: unavailable because the managed browser preview could not reach the isolated local Vite process
+- Intended viewport: desktop, 1488 by 1058 CSS pixels
+- Source pixels: 1488 by 1058
+- Implementation pixels: unavailable
+- Density normalization: source is treated as 1x; implementation capture could not be produced
+- State: authenticated paid workspace, dark theme, Referral Intelligence selected
 
-## Verification completed
+## Full-view comparison evidence
 
-- The selected Field Guide composition is implemented as the authenticated Home decision surface.
-- The exact distressed Spartan Coaching stamp is used as the brand identity.
-- The helmet remains a compact action icon and is not used as the primary logo.
-- Home, Coach, Tools, Library, and Account are the persistent authenticated tabs.
-- The guided tour is a native four step route with fictional examples and a no PHI boundary.
-- TypeScript project build passes.
-- Mobile typecheck passes.
-- Mobile tests pass: 24 suites and 105 tests.
-- Expo web production export completes successfully.
-- Repository diff integrity passes.
-
-## Full view comparison evidence
-
-Blocked. The source visual was opened and inspected at `853 x 1844`. The implementation could not be opened in the cloud browser because that browser cannot access the local Expo port. This Linux workspace also has no `xcrun` or iOS Simulator, so a native implementation screenshot could not be captured.
+The source image was opened and inspected. It establishes the mission-board hierarchy, three selectable missions, a persistent intelligence rail, a focused work area, and a trust boundary. The implementation was not visually compared because the managed preview environment could not expose the running local application to the cloud browser.
 
 ## Focused region comparison evidence
 
-Blocked for the same reason. The intended focused checks are the distressed stamp crop, midnight header depth, Home title wrapping, red primary action, secondary row spacing, bottom tab labels, and the light and dark theme transitions.
+Blocked. No browser-rendered implementation image was available for the required same-input comparison of navigation, mission selector, work panel, typography, spacing, colors, and responsive behavior.
 
 ## Findings
 
-- [P1] Rendered fidelity is not yet proven
-  - Location: authenticated Home, launch experience, guided tour, and tab bar.
-  - Evidence: source target is available, but no implementation screenshot exists for a same viewport comparison.
-  - Impact: typography wrapping, vertical rhythm, safe area behavior, asset scale, and bottom tab fit could still differ on a real iPhone even though type and bundle checks pass.
-  - Fix: capture the authenticated Home and tour on the registered iPhone or an iOS Simulator in both light and dark appearances, then compare them with the source target in one combined image.
+- [P1] Browser-rendered evidence is missing
+  - Location: `/tools/intelligence`
+  - Evidence: production build and interaction tests pass, but the cloud browser received a connection refusal from the managed local preview.
+  - Impact: typography, spacing, color-token mapping, responsive behavior, and visible integration with the real paid workspace cannot be signed off from code alone.
+  - Fix: open the route in a reachable authenticated preview, capture the desktop and mobile states, test all three mission selectors, inspect console errors, and compare the desktop capture with the source visual in one combined image.
+
+## Required fidelity surfaces
+
+- Fonts and typography: implementation uses the existing paid-workspace font and weight tokens; visual verification remains blocked.
+- Spacing and layout rhythm: implementation uses the existing responsive container, card, border, and spacing tokens; visual verification remains blocked.
+- Colors and visual tokens: implementation uses semantic theme tokens and preserves user-selectable themes; visual verification remains blocked.
+- Image quality and asset fidelity: the target contains no required photographic asset in the product workspace. Icons use the existing Lucide icon family. Visual verification remains blocked.
+- Copy and content: mission copy is concise, specific to referral, policy, and market preparation, and does not expose technical provider data structures.
+- Responsiveness and accessibility: semantic buttons, `aria-current`, `aria-live`, visible labels, and responsive grid classes are present. Browser verification remains blocked.
 
 ## Primary interactions tested
 
-- Route contracts and button destinations are covered by automated tests.
-- Guided tour progression is covered by source contract tests.
-- Apple purchase and restore actions remain in Account and are covered by tests.
-- Direct browser clicking could not be completed because the local preview was unreachable from the cloud browser.
+- Dedicated Intelligence navigation destination resolves independently from Tools.
+- Referral Intelligence is the default mission.
+- Selecting CMS Policy Navigator replaces the referral workspace with the policy workspace.
+- Selecting Market Explorer replaces the policy workspace with the market workspace.
 
 ## Console errors checked
 
-- Expo production export completed without application compile errors.
-- No browser console was available because the preview could not be opened in the cloud browser.
-- Expo reported patch level compatibility recommendations for six dependencies. These are maintenance warnings and were not changed during the visual redesign.
+Not available because the local route could not be reached by the managed browser.
 
 ## Comparison history
 
-- Pass 1: source reference recovered and opened. Browser render blocked by local port isolation.
-- Recovery: Expo local preview started successfully after assigning a writable Expo cache directory.
-- Pass 2: cloud browser remained unable to reach the preview. iOS Simulator fallback was unavailable because the workspace is Linux and has no Apple simulator runtime.
-- Result: no visual fixes were claimed from unobserved evidence.
+### Pass 1
+
+- Earlier finding: the feature was buried inside Tools instead of having its own visible workspace destination.
+- Fix made: added a dedicated Intelligence item to desktop and member navigation, excluded the route from generic Tools matching, and rebuilt the page as a coordinated three-mission workspace using the real product shell.
+- Post-fix evidence: focused navigation and interaction tests pass; production build passes. Browser visual evidence remains unavailable.
 
 ## Implementation checklist
 
-1. Pull the redesign branch into Replit.
-2. Open the app on the registered iPhone using a development or internal preview build.
-3. Capture authenticated Home, guided tour step one, Tools, Coach, Library, Account, and the launch screen in light appearance.
-4. Repeat the same captures in dark appearance.
-5. Compare Home and tour against the selected Field Guide visual at the same crop.
-6. Correct any P0, P1, or P2 mismatch before creating the next TestFlight build.
+- [x] Dedicated paid-workspace destination
+- [x] Three coordinated, functional mission states
+- [x] Existing NPI, CMS policy, and hospice market tools retained
+- [x] Existing website tokens and selectable themes retained
+- [x] Focused interaction test coverage
+- [x] Typecheck and production build
+- [ ] Authenticated browser capture at desktop and mobile widths
+- [ ] Combined source and implementation visual comparison
+- [ ] Console verification in the rendered route
 
 ## Final result
 
 final result: blocked
 
-Blocker: browser rendered and native simulator evidence are unavailable in this Linux workspace.
+Blocker: the managed cloud browser could not reach the isolated local preview, so the required browser-rendered comparison could not be completed.

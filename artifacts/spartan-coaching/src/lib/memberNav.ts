@@ -2,6 +2,7 @@ import type { LucideIcon } from "lucide-react";
 import {
   BookOpen,
   Crosshair,
+  Database,
   FolderOpen,
   Home,
   LayoutDashboard,
@@ -37,6 +38,13 @@ export const MEMBER_NAV: MemberNavItem[] = [
     label: "Command",
     icon: Crosshair,
     match: (loc) => loc.startsWith("/tools/sales-workflow"),
+  },
+  {
+    href: "/tools/intelligence",
+    label: "Intelligence",
+    short: "Intel",
+    icon: Database,
+    match: (loc) => loc.startsWith("/tools/intelligence"),
   },
   {
     href: "/tools",
