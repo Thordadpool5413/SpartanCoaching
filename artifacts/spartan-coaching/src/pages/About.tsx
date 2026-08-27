@@ -1,7 +1,6 @@
 import { Card } from "@/components/ui/card";
 import { BackButton } from "@/components/BackButton";
 import { Target, Users, TrendingUp, Linkedin, BookOpen, Repeat, Heart, Handshake, ShieldCheck, ArrowRight } from "lucide-react";
-import { Target, Users, TrendingUp, Linkedin, BookOpen, Repeat, Heart, Handshake, ShieldCheck, ArrowRight, Wrench } from "lucide-react";
 import { Link } from "wouter";
 import nickPhoto from "@assets/nick-photo.jpg";
 import { Button } from "@/components/ui/button";
@@ -419,38 +418,6 @@ export default function About() {
               </p>
               <Link href="/services" className="font-semibold text-primary hover:underline">View services →</Link>
             </Card>
-        {/* How consulting + Hospice Sales Pro fit together */}
-        <div className="mt-16 mb-12 space-y-6" data-testid="section-about-approach">
-          <h2 className="text-h2 text-foreground text-center">How we work with clients</h2>
-          <p className="text-body text-muted-foreground text-center max-w-2xl mx-auto leading-relaxed">
-            Spartan is a consulting practice first. Coaching and team systems are the core. Hospice Sales Pro is the tools and resources layer — web and iPhone — for people who want execution between sessions or on their own.
-          </p>
-          <div className="grid md:grid-cols-3 gap-4">
-            {[
-              {
-                icon: Users,
-                title: "Human coaching",
-                text: "1:1, leadership, and field work that changes behavior on Tuesday — not another deck.",
-              },
-              {
-                icon: Wrench,
-                title: "Hospice Sales Pro",
-                text: "Command Center, Coach, practice tools, plans, and calculators. Elite recommended at $19.99/wk · Standard $14.99/wk · team seats under contract.",
-              },
-              {
-                icon: ShieldCheck,
-                title: "Ethics baked in",
-                text: "No PHI in tools. No inducement training. Compliance-aware messaging that protects patients and the profession.",
-              },
-            ].map(({ icon: Icon, title, text }) => (
-              <Card key={title} className="spacing-card border-2">
-                <div className="w-11 h-11 rounded-lg bg-primary/15 text-primary flex items-center justify-center mb-3">
-                  <Icon className="w-5 h-5" />
-                </div>
-                <h3 className="text-h3 font-bold text-foreground mb-2">{title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{text}</p>
-              </Card>
-            ))}
           </div>
         </div>
 

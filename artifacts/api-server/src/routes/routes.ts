@@ -89,10 +89,6 @@ import {
   formatCitationsForPrompt,
 } from "../knowledge/spartanCorpus";
 import { searchNpiProviders } from "../knowledge/npiLookup";
-import { buildAccountBrief } from "../knowledge/providerIntelligence";
-import { POLICY_TOPICS, buildPolicyBrief } from "../knowledge/policyIntelligence";
-import { loadLatestCoverageSnapshot } from "../clinical/coverageBootstrap";
-import { searchCmsHospices } from "../knowledge/cmsHospiceLookup";
 import { ACCOUNT_TYPES, buildAccountBrief } from "../knowledge/providerIntelligence";
 import { POLICY_AUDIENCES, POLICY_TOPICS, buildPolicyBrief } from "../knowledge/policyIntelligence";
 import { loadLatestCoverageSnapshot } from "../clinical/coverageBootstrap";
@@ -513,8 +509,6 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
         return res.status(400).json({ error: "Choose a policy topic before building the guide." });
       }
       const snapshot = await loadLatestCoverageSnapshot();
-      res.json({
-        brief: buildPolicyBrief(topic as (typeof POLICY_TOPICS)[number], snapshot),
       const requestedAudience = String(req.body?.audience || "referral-source");
       const audience = POLICY_AUDIENCES.includes(requestedAudience as (typeof POLICY_AUDIENCES)[number])
         ? requestedAudience as (typeof POLICY_AUDIENCES)[number]
@@ -533,12 +527,6 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
 
   app.get("/api/intelligence/hospice-market", requireElite, lightAiLimit, async (req, res) => {
     try {
-      const results = await searchCmsHospices({
-        state: String(req.query.state || ""),
-        city: req.query.city ? String(req.query.city) : undefined,
-        limit: req.query.limit ? Number(req.query.limit) : 25,
-      });
-      res.json({ results, count: results.length });
       const result = await searchCmsHospices({
         state: String(req.query.state || ""),
         city: req.query.city ? String(req.query.city) : undefined,

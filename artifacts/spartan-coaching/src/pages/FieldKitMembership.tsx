@@ -17,10 +17,6 @@ import { SectionHeader } from "@/components/elite/SectionHeader";
 import { AppHandoffPanel } from "@/components/AppHandoffPanel";
 import { PRICING_FACTS, PUBLIC_CLAIM_SAFE } from "@/lib/complianceCopy";
 import { PublicConversionPanel } from "@/components/PublicConversionPanel";
-import { FIELD_KIT_TOOLS, FIELD_KIT_CATEGORIES, FIELD_KIT_CAT_BLURBS } from "@workspace/field-kit-catalog";
-
-// Gated tools only (exclude brand-video which is public)
-const GATED_TOOLS = FIELD_KIT_TOOLS.filter((t) => !t.public);
 
 const TIER_TEAM_FEATURES = [
   "Multi-seat organization account",
@@ -46,7 +42,6 @@ export default function FieldKitMembership() {
       <SEO />
 
       {/* This destination owns choosing and managing access, not tool discovery. */}
-      {/* ── Hero — Hospice Sales Pro product ── */}
       <div className="text-center max-w-3xl mx-auto mb-10 space-y-4">
         <p className="text-kicker justify-center">Hospice Sales Pro</p>
         <h1 className="text-h1 font-display font-black text-foreground">
@@ -57,12 +52,6 @@ export default function FieldKitMembership() {
         <p className="text-body-lg text-muted-foreground leading-relaxed">
           Choose an individual membership, request provider seats, or manage the access you already have.
           {` ${PRICING_FACTS.heroLine}`}
-          <span className="text-primary">Command Center · practice · plans · resources.</span>
-        </h1>
-        <p className="text-body-lg text-muted-foreground leading-relaxed">
-          Hospice Sales Pro is what you open on web and iPhone between coaching sessions — or on its own:
-          Sales Command Center, objections, role-play, playbooks, weekly plans, calculators, and field resources.{" "}
-          {PRICING_FACTS.heroLine}
         </p>
         <div className="flex flex-col items-center gap-3 pt-2" data-testid="membership-hero-cta">
           <SubscribeCTA
@@ -110,48 +99,6 @@ export default function FieldKitMembership() {
           </Button>
         </div>
       </Card>
-      {/* ── Product map BEFORE pricing (understandability) ── */}
-      <div className="mb-14" data-testid="section-tool-grid">
-        <SectionHeader
-          kicker="What's inside"
-          title="One daily spine. Clear tool groups."
-          description="Hospice Sales Pro is not thirteen equal features. Open Command Center for the day, then use practice, plan, and resources as satellites — same product on web and iPhone."
-        />
-        <ProductMap className="mb-8" />
-
-        <details className="rounded-xl border border-border bg-card/50 p-4 sm:p-5">
-          <summary className="cursor-pointer text-sm font-bold text-foreground">
-            Full tool list ({GATED_TOOLS.length})
-          </summary>
-          <div className="space-y-6 mt-4">
-            {FIELD_KIT_CATEGORIES.filter((cat) => GATED_TOOLS.some((t) => t.category === cat)).map((cat) => {
-              const tools = GATED_TOOLS.filter((t) => t.category === cat);
-              const config = FIELD_KIT_CAT_BLURBS[cat];
-              return (
-                <div key={cat}>
-                  <div className="flex items-baseline gap-3 mb-3 border-b border-border pb-2">
-                    <h3 className="text-base font-bold text-foreground">{config?.label ?? cat}</h3>
-                    {config?.blurb && (
-                      <p className="text-sm text-muted-foreground">{config.blurb}</p>
-                    )}
-                  </div>
-                  <div className="grid sm:grid-cols-2 gap-3">
-                    {tools.map((tool) => (
-                      <div key={tool.id} className="flex gap-3 p-3 rounded-lg border border-border bg-card">
-                        <CheckCircle className="w-4 h-4 text-primary shrink-0 mt-0.5" />
-                        <div>
-                          <p className="text-sm font-bold text-foreground">{tool.title}</p>
-                          <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{tool.description}</p>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </details>
-      </div>
 
       {/* ── Access options (pricing after product understanding) ── */}
       <div className="mb-14">
@@ -190,7 +137,6 @@ export default function FieldKitMembership() {
             </ul>
             <div data-testid="button-tier-individual-subscribe">
               <SubscribeCTA surface="membership_pricing" showHint={false} testId="button-tier-individual" plan="standard_weekly" />
-              <SubscribeCTA surface="membership_pricing" showHint={false} testId="button-tier-individual" />
             </div>
           </Card>
 
@@ -220,12 +166,6 @@ export default function FieldKitMembership() {
             <div data-testid="button-tier-elite-subscribe">
               <SubscribeCTA surface="membership_pricing" showHint={false} testId="button-tier-elite" plan="elite_weekly" />
             </div>
-            <Button asChild className="w-full font-bold">
-              <Link href="/account?subscribe=1&plan=elite_weekly" data-testid="button-tier-elite">
-                Choose Elite
-                <ArrowRight className="ml-2 w-4 h-4" />
-              </Link>
-            </Button>
           </Card>
 
           <Card className="order-3 flex flex-col border border-border p-6 bg-card" data-testid="card-tier-team">
@@ -294,31 +234,6 @@ export default function FieldKitMembership() {
           title="One field system. Web and iPhone."
           description="Create or sign in with the same Hospice Sales Pro account on both surfaces. Web purchases restore after sign in; App Store purchases restore from Account on iPhone."
         />
-      {/* ── Why (end-user edge) ── */}
-      <div
-        className="rounded-xl border border-primary/25 bg-primary/[0.04] p-8 sm:p-10 mb-14 text-center max-w-3xl mx-auto"
-        data-testid="section-why-membership"
-      >
-        <TrendingUp className="w-8 h-8 text-primary mx-auto mb-4" />
-        <h2 className="text-h3 font-bold text-foreground mb-3">
-          Walk in prepared — not hoping the conversation goes your way.
-          <br />
-          <span className="text-primary">
-            Standard builds prepared field work. Elite adds private coaching and clinical guidance.
-          </span>
-        </h2>
-        <p className="text-muted-foreground leading-relaxed mb-4">
-          The Objection Handler gives you the response before you walk into the room. Weekly Plan Builder makes Monday
-          intentional. Command Center turns every visit into a continuous, coachable account workflow — not ten random
-          tabs.
-        </p>
-        <p className="text-sm text-muted-foreground leading-relaxed">
-          Preview tools free. Subscribe to generate, save, and run live. Cancel anytime from Account — access continues
-          through the period you already paid for.
-        </p>
-        <div className="mt-6 flex justify-center" data-testid="membership-roi-subscribe">
-          <SubscribeCTA surface="membership_pricing" showPreview showHint={false} testId="membership-why-cta" />
-        </div>
       </div>
 
       {/* ── How it works ── */}
@@ -333,19 +248,6 @@ export default function FieldKitMembership() {
           </li>
           <li>
             <strong className="text-foreground">Manage from Account</strong> — cancel individual access anytime; teams request contracted seats.
-            <strong className="text-foreground">Preview free</strong> — open any tool UI on the Tools page without
-            paying.
-          </li>
-          <li>
-            <strong className="text-foreground">Create your account</strong> — two minutes, no admin approval for
-            individual seats.
-          </li>
-          <li>
-            <strong className="text-foreground">Choose Standard or Elite</strong> from Account. Standard is {PRICING_FACTS.individualWeeklyLabel}. Elite is {PRICING_FACTS.eliteWeeklyLabel}. Cancel anytime.
-          </li>
-          <li>
-            <strong className="text-foreground">Teams / providers:</strong> request team access — seats and weekly
-            per-user rate under contract.
           </li>
         </ol>
         <div className="flex flex-col sm:flex-row gap-3 justify-center pt-2 flex-wrap items-center">
