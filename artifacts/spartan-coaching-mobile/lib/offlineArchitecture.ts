@@ -20,6 +20,7 @@ export type OfflineWorkflowId =
   | "classic_field_generate"
   | "tool_draft_and_last_result"
   | "offline_generate_queue"
+  | "member_continuity"
   | "saved_responses_view"
   | "saved_responses_write"
   | "command_center"
@@ -69,7 +70,7 @@ export const OFFLINE_WORKFLOW_MATRIX: readonly OfflineWorkflowSpec[] = [
     label: "Tool form drafts + last result cache",
     capability: "offline_capable",
     aiWorksOffline: false,
-    notes: "Local drafts and last successful text only; clinical tools blocked from device storage.",
+    notes: "Approved classic-tool drafts and last successful text sync after sign-in; clinical tools remain blocked from device and continuity storage.",
   },
   {
     id: "offline_generate_queue",
@@ -77,6 +78,14 @@ export const OFFLINE_WORKFLOW_MATRIX: readonly OfflineWorkflowSpec[] = [
     capability: "queued_write",
     aiWorksOffline: false,
     notes: "AsyncStorage queue with de-dupe, max attempts, mutex flush, PHI allowlist.",
+  },
+  {
+    id: "member_continuity",
+    label: "Saved work and commitments",
+    capability: "queued_write",
+    aiWorksOffline: false,
+    notes:
+      "Non-clinical commitments, Field drafts/results, calculator reports, and library download metadata sync to the signed-in member. Last client edit wins; equal timestamps use mutation ID. Clinical/vault content and generate request bodies never sync.",
   },
   {
     id: "saved_responses_view",
@@ -125,7 +134,7 @@ export const OFFLINE_WORKFLOW_MATRIX: readonly OfflineWorkflowSpec[] = [
     label: "Sign in / session refresh",
     capability: "online_required",
     aiWorksOffline: false,
-    notes: "Expired auth stops queue flush until re-login; 401 does not drop queued generates.",
+    notes: "Generated tool input is session-only. Reconnect and submit again after an unavailable response.",
   },
   {
     id: "org_admin",

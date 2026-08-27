@@ -17,6 +17,7 @@ import { Copy, Download, Loader2, CalendarDays } from "lucide-react";
 import { FieldKitToolLayout } from "@/components/FieldKitToolLayout";
 import { markFieldKitChecklistDone } from "@/lib/fieldKitProgress";
 import { ToolAnatomyRelated } from "@/components/ToolAnatomy";
+import { ToolResultActions } from "@/components/ToolResultActions";
 import {
   getToolById,
   recommendRelated,
@@ -257,6 +258,18 @@ export default function WeeklyPlanBuilder() {
               <div data-testid="text-plan-content">
                 <MarkdownContent content={plan} />
               </div>
+              <ToolResultActions
+                toolId="weekly-plan"
+                description="Open your first account, run the Monday visit, and use the Command Center to keep the week moving."
+                actions={[
+                  {
+                    id: "open-command-center",
+                    label: "Open Sales Command Center",
+                    href: "/tools/sales-workflow",
+                  },
+                ]}
+                persistenceNote="This plan is not saved automatically. Copy or download it if you need a working copy; downloads are not synced to iPhone."
+              />
             </Card>
           )}
 

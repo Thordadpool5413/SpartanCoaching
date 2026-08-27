@@ -7,7 +7,9 @@ import { Badge } from "@/components/ui/badge";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Download, Mail, User, Printer } from "lucide-react";
 import { BackButton } from "@/components/BackButton";
 import type { SelectResource } from "@shared/schema";
@@ -16,8 +18,18 @@ import { trackEvent } from "@/lib/analytics";
 import { apiRequest } from "@/lib/queryClient";
 import { ContentNotice } from "@/components/ContentNotice";
 import { FieldKitChrome } from "@/components/FieldKitChrome";
+import { ToolResultActions } from "@/components/ToolResultActions";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
+import { PublicConversionPanel } from "@/components/PublicConversionPanel";
+import { trackProductOutcome } from "@/lib/analytics";
+import {
+  FIELD_KIT_TOOLS,
+  getResourceWorkGuide,
+  getToolById,
+  getToolWorkGuide,
+  type FieldKitResourceWorkflowCustomization,
+} from "@/lib/fieldKitCatalog";
 
 type ProviderResourceItem = {
   id: number;
@@ -28,7 +40,208 @@ type ProviderResourceItem = {
   status: string;
   ownershipLabel?: string;
   isProviderOwned?: boolean;
+  meta?: {
+    workflow?: FieldKitResourceWorkflowCustomization | null;
+    [key: string]: unknown;
+  } | null;
 };
+
+type ProviderWorkflowForm = {
+  job: string;
+  expectedOutput: string;
+  reviewCheckpoint: string;
+  nextToolId: string;
+};
+
+const EMPTY_PROVIDER_WORKFLOW: ProviderWorkflowForm = {
+  job: "",
+  expectedOutput: "",
+  reviewCheckpoint: "",
+  nextToolId: "",
+};
+
+function workflowPayload(form: ProviderWorkflowForm): FieldKitResourceWorkflowCustomization | undefined {
+  const workflow: FieldKitResourceWorkflowCustomization = {
+    job: form.job.trim() || undefined,
+    expectedOutput: form.expectedOutput.trim() || undefined,
+    reviewCheckpoint: form.reviewCheckpoint.trim() || undefined,
+    nextToolId: form.nextToolId || undefined,
+  };
+  return Object.values(workflow).some(Boolean) ? workflow : undefined;
+}
+
+function workflowForm(item: ProviderResourceItem): ProviderWorkflowForm {
+  return {
+    job: item.meta?.workflow?.job || "",
+    expectedOutput: item.meta?.workflow?.expectedOutput || "",
+    reviewCheckpoint: item.meta?.workflow?.reviewCheckpoint || "",
+    nextToolId: item.meta?.workflow?.nextToolId || "",
+  };
+}
+
+function ProviderWorkflowFields({
+  value,
+  onChange,
+  idPrefix,
+}: {
+  value: ProviderWorkflowForm;
+  onChange: (next: ProviderWorkflowForm) => void;
+  idPrefix: string;
+}) {
+  const update = (key: keyof ProviderWorkflowForm, next: string) =>
+    onChange({ ...value, [key]: next });
+
+  return (
+    <div className="grid gap-3 md:grid-cols-2">
+      <div className="md:col-span-2">
+        <Label htmlFor={`${idPrefix}-job`}>Field job (optional)</Label>
+        <Textarea
+          id={`${idPrefix}-job`}
+          value={value.job}
+          onChange={(event) => update("job", event.target.value)}
+          maxLength={500}
+          placeholder="What field job does this resource support?"
+          className="mt-1 min-h-16"
+          data-testid={`${idPrefix}-workflow-job`}
+        />
+      </div>
+      <div>
+        <Label htmlFor={`${idPrefix}-output`}>Expected output (optional)</Label>
+        <Textarea
+          id={`${idPrefix}-output`}
+          value={value.expectedOutput}
+          onChange={(event) => update("expectedOutput", event.target.value)}
+          maxLength={500}
+          placeholder="What should a rep have when finished?"
+          className="mt-1 min-h-16"
+          data-testid={`${idPrefix}-workflow-output`}
+        />
+      </div>
+      <div>
+        <Label htmlFor={`${idPrefix}-review`}>Review checkpoint (optional)</Label>
+        <Textarea
+          id={`${idPrefix}-review`}
+          value={value.reviewCheckpoint}
+          onChange={(event) => update("reviewCheckpoint", event.target.value)}
+          maxLength={500}
+          placeholder="What should be checked before using it?"
+          className="mt-1 min-h-16"
+          data-testid={`${idPrefix}-workflow-review`}
+        />
+      </div>
+      <div className="md:col-span-2">
+        <Label>Next Field Kit tool (optional)</Label>
+        <Select
+          value={value.nextToolId || "__none__"}
+          onValueChange={(next) => update("nextToolId", next === "__none__" ? "" : next)}
+        >
+          <SelectTrigger className="mt-1" data-testid={`${idPrefix}-workflow-next-tool`}>
+            <SelectValue placeholder="Use the safe default for this resource type" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="__none__">Use the safe default for this resource type</SelectItem>
+            {FIELD_KIT_TOOLS.map((tool) => (
+              <SelectItem key={tool.id} value={tool.id}>
+                {tool.title}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+        <p className="mt-1 text-xs text-muted-foreground">
+          Guidance is organization-authored. Do not include member details, patient information, or PHI.
+        </p>
+      </div>
+    </div>
+  );
+}
+
+type ResourceArchitecture = {
+  jobToAccomplish?: string;
+  useCase?: string;
+  whenToUse?: string;
+  expectedOutcome?: string;
+  role?: string[];
+  completionTimeMinutes?: number | null;
+  relatedToolIds?: string[];
+  clinicalSensitivity?: string;
+  experienceLevel?: string;
+};
+
+type ResourceWorkflow = {
+  phase: "prepare" | "practice" | "execute" | "review";
+  job: string;
+  checklist: [string, string, string];
+  tool?: ReturnType<typeof getToolById>;
+};
+
+function resourceArchitecture(resource: SelectResource): ResourceArchitecture {
+  return (
+    (resource as SelectResource & { architecture?: ResourceArchitecture }).architecture ??
+    resource.contentArchitecture ??
+    {}
+  );
+}
+
+/**
+ * A download needs a job and a finish line. This intentionally uses only
+ * resource metadata and catalog IDs, never member-entered content.
+ */
+function resourceWorkflow(resource: SelectResource): ResourceWorkflow {
+  const architecture = resourceArchitecture(resource);
+  const category = resource.category;
+  const defaults: Record<string, Omit<ResourceWorkflow, "job"> & { job: string }> = {
+    template: {
+      phase: "prepare",
+      job: "Build a clear field plan before the next visit or territory block.",
+      checklist: [
+        "Choose one account, meeting, or planning block.",
+        "Fill it with deidentified professional context only.",
+        "Carry one commitment into the next field action.",
+      ],
+      tool: getToolById("playbooks"),
+    },
+    script: {
+      phase: "practice",
+      job: "Rehearse the language before the live conversation.",
+      checklist: [
+        "Pick the exact moment you expect to face.",
+        "Practice one opening or response aloud.",
+        "Adjust the wording after the real conversation.",
+      ],
+      tool: getToolById("role-play"),
+    },
+    checklist: {
+      phase: "execute",
+      job: "Move a real account or weekly commitment to a clear next step.",
+      checklist: [
+        "Use it immediately before or after the field task.",
+        "Mark the commitment kept, moved, or blocked.",
+        "Capture the owner and date for the follow-through.",
+      ],
+      tool: getToolById("sales-workflow"),
+    },
+    guide: {
+      phase: "review",
+      job: "Turn a lesson into one change in the next field block.",
+      checklist: [
+        "Read for one situation you will face this week.",
+        "Choose one behavior or phrase to try.",
+        "Review what changed after the next conversation.",
+      ],
+      tool: getToolById("weekly-plan"),
+    },
+  };
+  const fallback = defaults[category] ?? defaults.guide;
+  const relatedTool = architecture.relatedToolIds
+    ?.map((id) => getToolById(id))
+    .find((tool) => Boolean(tool));
+
+  return {
+    ...fallback,
+    job: architecture.jobToAccomplish || architecture.useCase || fallback.job,
+    tool: relatedTool ?? fallback.tool,
+  };
+}
 
 export default function Resources() {
   const { canUseFieldKit, member } = useAuth();
@@ -37,6 +250,7 @@ export default function Resources() {
   const isOrgAdmin =
     member?.role === "org_admin" || member?.role === "platform_admin";
 
+  const { data: resourcesData, isLoading, isError, refetch: refetchResources } = useQuery<{
   const { data: resourcesData, isLoading, isError } = useQuery<{
     resources: SelectResource[];
     ownershipLabel?: string;
@@ -64,9 +278,17 @@ export default function Resources() {
   const [newTitle, setNewTitle] = useState("");
   const [newUrl, setNewUrl] = useState("");
   const [newKind, setNewKind] = useState("script");
+  const [newWorkflow, setNewWorkflow] = useState<ProviderWorkflowForm>(
+    EMPTY_PROVIDER_WORKFLOW,
+  );
+  const [editingProviderId, setEditingProviderId] = useState<number | null>(null);
+  const [editingWorkflow, setEditingWorkflow] = useState<ProviderWorkflowForm>(
+    EMPTY_PROVIDER_WORKFLOW,
+  );
 
   const createProviderMutation = useMutation({
     mutationFn: async () => {
+      const workflow = workflowPayload(newWorkflow);
       const res = await fetch("/api/v1/provider-resources", {
         method: "POST",
         credentials: "include",
@@ -76,6 +298,7 @@ export default function Resources() {
           fileUrl: newUrl,
           kind: newKind,
           status: "published",
+          meta: workflow ? { workflow } : undefined,
         }),
       });
       if (!res.ok) {
@@ -90,12 +313,57 @@ export default function Resources() {
     onSuccess: () => {
       setNewTitle("");
       setNewUrl("");
+      setNewWorkflow(EMPTY_PROVIDER_WORKFLOW);
       queryClient.invalidateQueries({ queryKey: ["/api/v1/provider-resources"] });
       toast({ title: "Provider resource added" });
     },
     onError: (e: Error) => {
       toast({
         title: "Could not add resource",
+        description: e.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const updateProviderMutation = useMutation({
+    mutationFn: async ({
+      item,
+      workflow,
+    }: {
+      item: ProviderResourceItem;
+      workflow: ProviderWorkflowForm;
+    }) => {
+      const nextWorkflow = workflowPayload(workflow);
+      const res = await fetch(`/api/v1/provider-resources/${item.id}`, {
+        method: "PATCH",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          meta: {
+            ...(item.meta || {}),
+            workflow: nextWorkflow || null,
+          },
+        }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(
+          (err as { error?: { message?: string } })?.error?.message ||
+            "Update failed",
+        );
+      }
+      return res.json();
+    },
+    onSuccess: () => {
+      setEditingProviderId(null);
+      setEditingWorkflow(EMPTY_PROVIDER_WORKFLOW);
+      queryClient.invalidateQueries({ queryKey: ["/api/v1/provider-resources"] });
+      toast({ title: "Resource guidance updated" });
+    },
+    onError: (e: Error) => {
+      toast({
+        title: "Could not update guidance",
         description: e.message,
         variant: "destructive",
       });
@@ -134,6 +402,11 @@ export default function Resources() {
     // Members already inside Membership — no lead gate
     if (canUseFieldKit) {
       trackEvent("resource_download", resource.title);
+      trackProductOutcome("resource_completion", {
+        resourceId: String(resource.id),
+        surface: "resource-library",
+        platform: "web",
+      });
       window.open(url, "_blank");
       return;
     }
@@ -149,6 +422,11 @@ export default function Resources() {
     onSuccess: () => {
       if (selectedResource) {
         trackEvent("resource_download", selectedResource.title);
+        trackProductOutcome("resource_completion", {
+          resourceId: String(selectedResource.id),
+          surface: "resource-library",
+          platform: "web",
+        });
         window.open(selectedResource.fileUrl, '_blank');
       }
       setGateOpen(false);
@@ -202,6 +480,9 @@ export default function Resources() {
         <BackButton />
         <div className="text-center max-w-2xl mx-auto py-20">
           <p className="text-destructive">Failed to load resources. Please try again later.</p>
+          <Button type="button" variant="outline" className="mt-4" onClick={() => void refetchResources()}>
+            Try again
+          </Button>
         </div>
       </div>
     );
@@ -236,11 +517,15 @@ export default function Resources() {
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed">
           {canUseFieldKit
+            ? "Current templates, scripts, and checklists for work you want to take into the field."
             ? "Work aids for the field — templates, scripts, and checklists. Not buried under Learn: pair with Tools intents (prepare a visit, plan the week)."
             : "Download field-tested templates, scripts, checklists, and guides to elevate your hospice sales performance."}
         </p>
         {canUseFieldKit && (
           <p className="text-sm text-muted-foreground mt-3">
+            This library is for downloadable work aids. Use{" "}
+            <Link href="/tools" className="font-semibold text-primary hover:underline">Tools</Link>
+            {" "}when you need an interactive workspace.
             Start from intent on{" "}
             <Link href="/tools" className="font-semibold text-primary hover:underline">
               Tools
@@ -256,7 +541,22 @@ export default function Resources() {
         )}
       </div>
       {!canUseFieldKit && <ContentNotice />}
-
+      <Card className="mb-8 border border-border bg-muted/30 p-4 sm:p-5" data-testid="resources-work-guide">
+        <div className="grid gap-4 sm:grid-cols-3 text-sm">
+          <div>
+            <p className="font-bold text-foreground">Choose for the next job</p>
+            <p className="mt-1 text-muted-foreground leading-relaxed">Open a script, checklist, template, or guide that supports the next visit, conversation, or planning block.</p>
+          </div>
+          <div>
+            <p className="font-bold text-foreground">Keep the boundary clear</p>
+            <p className="mt-1 text-muted-foreground leading-relaxed">Field resources are work aids. Do not add patient identifiers, PHI, or clinical records to downloaded copies.</p>
+          </div>
+          <div>
+            <p className="font-bold text-foreground">Download is not saved work</p>
+            <p className="mt-1 text-muted-foreground leading-relaxed">Downloads are not automatically added to My Work or synced to iPhone. Return here to re-download the current version.</p>
+          </div>
+        </div>
+      </Card>
       {canUseFieldKit && (
         <div className="mb-12 space-y-4" data-testid="provider-resource-library">
           <div className="flex flex-wrap items-end justify-between gap-3">
@@ -313,6 +613,16 @@ export default function Resources() {
                   />
                 </div>
               </div>
+              <div className="rounded-lg border border-border/70 bg-muted/20 p-3">
+                <p className="mb-3 text-sm font-semibold text-foreground">
+                  Optional field guidance
+                </p>
+                <ProviderWorkflowFields
+                  value={newWorkflow}
+                  onChange={setNewWorkflow}
+                  idPrefix="new-provider"
+                />
+              </div>
               <Button
                 type="button"
                 disabled={
@@ -337,40 +647,128 @@ export default function Resources() {
             </p>
           ) : (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-cards">
-              {providerItems.map((item) => (
-                <Card
-                  key={item.id}
-                  className="flex flex-col border-2 spacing-card"
-                  data-testid={`provider-resource-card-${item.id}`}
-                >
-                  <div className="flex flex-wrap gap-1.5 mb-2">
-                    <Badge variant="default">Provider owned</Badge>
-                    <Badge variant="outline">{item.kind}</Badge>
-                    <Badge variant="secondary">{item.status}</Badge>
-                  </div>
-                  <h3 className="text-h3 text-foreground leading-tight mb-2">
-                    {item.title}
-                  </h3>
-                  {item.description ? (
-                    <p className="text-sm text-muted-foreground mb-4 line-clamp-3">
-                      {item.description}
-                    </p>
-                  ) : null}
-                  <Button
-                    className="mt-auto w-full gap-2"
-                    onClick={() => {
-                      trackEvent("provider_resource_open", item.title);
-                      window.open(item.fileUrl, "_blank");
-                    }}
-                    data-testid={`button-open-provider-${item.id}`}
+              {providerItems.map((item) => {
+                const workflow = getResourceWorkGuide({
+                  category: item.kind,
+                  workflow: item.meta?.workflow,
+                });
+                const nextTool = workflow.nextToolId ? getToolById(workflow.nextToolId) : undefined;
+                return (
+                  <Card
+                    key={item.id}
+                    className="flex flex-col border-2 spacing-card"
+                    data-testid={`provider-resource-card-${item.id}`}
                   >
-                    <Download className="w-4 h-4" />
-                    Open
-                  </Button>
-                </Card>
-              ))}
+                    <div className="flex flex-wrap gap-1.5 mb-2">
+                      <Badge variant="default">Provider owned</Badge>
+                      <Badge variant="outline">{item.kind}</Badge>
+                      <Badge variant="secondary">{item.status}</Badge>
+                    </div>
+                    <h3 className="text-h3 text-foreground leading-tight mb-2">
+                      {item.title}
+                    </h3>
+                    {item.description ? (
+                      <p className="text-sm text-muted-foreground mb-3 line-clamp-3">
+                        {item.description}
+                      </p>
+                    ) : null}
+                    <div
+                      className="mb-4 rounded-lg border border-border/70 bg-muted/25 p-3 text-xs leading-relaxed text-muted-foreground"
+                      data-testid={`provider-resource-workflow-${item.id}`}
+                    >
+                      <Badge variant="outline" className="mb-2 text-[10px] uppercase tracking-wide text-primary">
+                        {workflow.phase}
+                      </Badge>
+                      <p><span className="font-semibold text-foreground">Job: </span>{workflow.job}</p>
+                      <p className="mt-1"><span className="font-semibold text-foreground">Safe use: </span>{workflow.inputHint}</p>
+                      <p className="mt-1"><span className="font-semibold text-foreground">Expected output: </span>{workflow.outputPreview}</p>
+                      <p className="mt-1"><span className="font-semibold text-foreground">Saved: </span>{workflow.persistence}</p>
+                      <p className="mt-1"><span className="font-semibold text-foreground">Review: </span>{workflow.reviewCheckpoint}</p>
+                      {nextTool ? (
+                        <Link href={nextTool.path} className="mt-2 inline-flex min-h-8 items-center font-bold text-primary hover:underline">
+                          Next: {nextTool.title}
+                        </Link>
+                      ) : null}
+                    </div>
+                    {isOrgAdmin && editingProviderId === item.id ? (
+                      <div className="mb-4 rounded-lg border border-primary/30 bg-primary/5 p-3">
+                        <p className="mb-3 text-sm font-semibold text-foreground">
+                          Tailor field guidance
+                        </p>
+                        <ProviderWorkflowFields
+                          value={editingWorkflow}
+                          onChange={setEditingWorkflow}
+                          idPrefix={`edit-provider-${item.id}`}
+                        />
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          <Button
+                            type="button"
+                            size="sm"
+                            disabled={updateProviderMutation.isPending}
+                            onClick={() =>
+                              updateProviderMutation.mutate({
+                                item,
+                                workflow: editingWorkflow,
+                              })
+                            }
+                            data-testid={`button-save-provider-guidance-${item.id}`}
+                          >
+                            {updateProviderMutation.isPending ? "Saving…" : "Save guidance"}
+                          </Button>
+                          <Button
+                            type="button"
+                            size="sm"
+                            variant="outline"
+                            onClick={() => setEditingProviderId(null)}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      </div>
+                    ) : null}
+                    <Button
+                      className="mt-auto w-full gap-2"
+                      onClick={() => {
+                        trackEvent("provider_resource_open", item.title);
+                        window.open(item.fileUrl, "_blank");
+                      }}
+                      data-testid={`button-open-provider-${item.id}`}
+                    >
+                      <Download className="w-4 h-4" />
+                      Open
+                    </Button>
+                    {isOrgAdmin && editingProviderId !== item.id ? (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        className="mt-2 w-full"
+                        onClick={() => {
+                          setEditingProviderId(item.id);
+                          setEditingWorkflow(workflowForm(item));
+                        }}
+                        data-testid={`button-edit-provider-guidance-${item.id}`}
+                      >
+                        Edit field guidance
+                      </Button>
+                    ) : null}
+                  </Card>
+                );
+              })}
             </div>
           )}
+        </div>
+      )}
+
+      {canUseFieldKit && (
+        <div className="mb-12">
+          <ToolResultActions
+            toolId="resources"
+            title="Use the current copy in the field"
+            description="Opening or downloading a resource does not save it to My Work or sync it to iPhone. Return to this library when you need the current copy."
+            actions={[{ id: "open-tools", label: "Open Tools", href: "/tools" }]}
+            persistenceNote="Downloads remain separate from saved tool outputs."
+            testId="resources-next-action"
+          />
         </div>
       )}
 
@@ -455,6 +853,30 @@ export default function Resources() {
                       );
                     })()}
 
+
+                    {(() => {
+                      const life = (
+                        resource as SelectResource & {
+                          lifecycle?: {
+                            hasNewerVersion?: boolean;
+                            documentVersionLine?: string;
+                            currentVersion?: { id: number; versionLabel: string; title: string };
+                          };
+                        }
+                      ).lifecycle;
+                      if (!life?.hasNewerVersion || !life.currentVersion) return null;
+                      return (
+                        <div
+                          className="mb-3 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-foreground"
+                          data-testid={`resource-newer-${resource.id}`}
+                        >
+                          A newer version is available (v{life.currentVersion.versionLabel}
+                          {life.currentVersion.title ? `: ${life.currentVersion.title}` : ""}
+                          ). This copy is retained for history — do not treat it as current.
+                        </div>
+                      );
+                    })()}
+
                     {resource.description && (
                       <p className="text-base text-muted-foreground leading-relaxed mb-3 line-clamp-3">
                         {resource.description}
@@ -462,6 +884,7 @@ export default function Resources() {
                     )}
 
                     {(() => {
+                      const arch = resourceArchitecture(resource);
                       const arch =
                         (
                           resource as SelectResource & {
@@ -501,6 +924,67 @@ export default function Resources() {
                               </Badge>
                             ) : null}
                           </div>
+                        </div>
+                      );
+                    })()}
+
+                    {(() => {
+                      const workflow = resourceWorkflow(resource);
+                      const resourceGuide = getResourceWorkGuide({
+                        category: resource.category,
+                        relatedToolIds: resourceArchitecture(resource).relatedToolIds,
+                      });
+                      const relatedGuide = workflow.tool
+                        ? getToolWorkGuide(workflow.tool)
+                        : null;
+                      return (
+                        <div
+                          className="mb-4 rounded-lg border border-border/70 bg-muted/25 p-3"
+                          data-testid={`resource-workflow-${resource.id}`}
+                        >
+                          <div className="flex flex-wrap items-center gap-2">
+                            <Badge variant="outline" className="text-[10px] uppercase tracking-wide text-primary">
+                              {workflow.phase}
+                            </Badge>
+                            <p className="text-xs font-semibold text-foreground">Completion checklist</p>
+                          </div>
+                          <p className="mt-2 text-xs leading-relaxed text-muted-foreground">
+                            <span className="font-semibold text-foreground">Job: </span>
+                            {workflow.job}
+                          </p>
+                          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                            <span className="font-semibold text-foreground">Safe use: </span>
+                            {resourceGuide.inputHint}
+                          </p>
+                          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                            <span className="font-semibold text-foreground">Expected output: </span>
+                            {resourceGuide.outputPreview}
+                          </p>
+                          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                            <span className="font-semibold text-foreground">Saved: </span>
+                            {resourceGuide.persistence}
+                          </p>
+                          <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+                            <span className="font-semibold text-foreground">Review: </span>
+                            {resourceGuide.reviewCheckpoint}
+                          </p>
+                          <ol className="mt-2 space-y-1 text-xs leading-relaxed text-muted-foreground">
+                            {workflow.checklist.map((step, index) => (
+                              <li key={step}>
+                                <span className="mr-1 font-bold text-primary">{index + 1}.</span>
+                                {step}
+                              </li>
+                            ))}
+                          </ol>
+                          {workflow.tool ? (
+                            <Link
+                              href={workflow.tool.path}
+                              className="mt-3 inline-flex min-h-9 items-center text-xs font-bold text-primary hover:underline"
+                              data-testid={`resource-next-tool-${resource.id}`}
+                            >
+                              Next: {workflow.tool.title} · {relatedGuide?.phase}
+                            </Link>
+                          ) : null}
                         </div>
                       );
                     })()}
@@ -631,6 +1115,16 @@ export default function Resources() {
           </form>
         </DialogContent>
       </Dialog>
+      {!canUseFieldKit && (
+        <PublicConversionPanel
+          source="resources"
+          audience="Hospice sales professionals looking for a usable template, script, checklist, or printable plan."
+          promise="Start with an immediate resource, then continue into the tools and workflow that fit the task."
+          evidence="Resources identify their intended use and expected outcome; optional email updates are separate from delivery."
+          primary={{ label: "Preview Hospice Sales Pro tools", href: "/tools", token: "tools_preview" }}
+          secondary={{ label: "Explore Hospice Sales Pro", href: "/hospice-sales-pro", token: "hospice_sales_pro" }}
+        />
+      )}
     </div>
   );
 }

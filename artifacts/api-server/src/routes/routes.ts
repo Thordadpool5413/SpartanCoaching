@@ -34,6 +34,12 @@ import { db } from "../db";
 import { objectUploadTokens } from "@workspace/db";
 import { storage } from "../storage";
 import {
+  appendEphemeralRoleplayMessage,
+  createEphemeralRoleplaySession,
+  finishEphemeralRoleplaySession,
+  getEphemeralRoleplaySession,
+} from "../ephemeralRoleplay";
+import {
   generateComplexResponse,
   generateQuickResponse,
   generateGroundedSearch,
@@ -67,6 +73,7 @@ import {
   visitorAnalyticsSchema,
 } from "@workspace/db";
 import { sanitizeAnalyticsMetadata } from "@workspace/field-kit-catalog";
+import { isAcceptedClientAnalyticsEvent, isSafeAnalyticsLabel, isSafeAnalyticsPagePath } from "../analytics/validation";
 
 import {
   ObjectStorageService,
@@ -86,6 +93,10 @@ import { buildAccountBrief } from "../knowledge/providerIntelligence";
 import { POLICY_TOPICS, buildPolicyBrief } from "../knowledge/policyIntelligence";
 import { loadLatestCoverageSnapshot } from "../clinical/coverageBootstrap";
 import { searchCmsHospices } from "../knowledge/cmsHospiceLookup";
+import { ACCOUNT_TYPES, buildAccountBrief } from "../knowledge/providerIntelligence";
+import { POLICY_AUDIENCES, POLICY_TOPICS, buildPolicyBrief } from "../knowledge/policyIntelligence";
+import { loadLatestCoverageSnapshot } from "../clinical/coverageBootstrap";
+import { getCmsHospiceProfile, searchCmsHospices } from "../knowledge/cmsHospiceLookup";
 
 /** Express 5 params may be string | string[] — normalize for parseInt / lookups. */
 function paramStr(req: Request, key: string): string {
@@ -112,6 +123,7 @@ export function registerRoutes(app: Express): void {
           { "/": "/login*" }, { "/": "/portal*" }, { "/": "/account*" },
           { "/": "/command*" }, { "/": "/workflow*" }, { "/": "/coach*" },
           { "/": "/tools*" }, { "/": "/tool/*" }, { "/": "/learn*" },
+          { "/": "/app*" },
         ],
       }],
     },
@@ -473,10 +485,18 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
       )
         ? req.body.relationshipStage
         : "new";
+      const requestedAccountType = String(req.body?.accountType || "");
+      const accountType = ACCOUNT_TYPES.includes(requestedAccountType as (typeof ACCOUNT_TYPES)[number])
+        ? requestedAccountType as (typeof ACCOUNT_TYPES)[number]
+        : undefined;
       const brief = buildAccountBrief({
         provider,
         meetingPurpose: typeof req.body?.meetingPurpose === "string" ? req.body.meetingPurpose : undefined,
         knownContext: typeof req.body?.knownContext === "string" ? req.body.knownContext : undefined,
+        accountType,
+        knownBarrier: typeof req.body?.knownBarrier === "string" ? req.body.knownBarrier : undefined,
+        stakeholderRole: typeof req.body?.stakeholderRole === "string" ? req.body.stakeholderRole : undefined,
+        desiredCommitment: typeof req.body?.desiredCommitment === "string" ? req.body.desiredCommitment : undefined,
         relationshipStage,
       });
       res.json({ brief });
@@ -495,6 +515,15 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
       const snapshot = await loadLatestCoverageSnapshot();
       res.json({
         brief: buildPolicyBrief(topic as (typeof POLICY_TOPICS)[number], snapshot),
+      const requestedAudience = String(req.body?.audience || "referral-source");
+      const audience = POLICY_AUDIENCES.includes(requestedAudience as (typeof POLICY_AUDIENCES)[number])
+        ? requestedAudience as (typeof POLICY_AUDIENCES)[number]
+        : "referral-source";
+      res.json({
+        brief: buildPolicyBrief(topic as (typeof POLICY_TOPICS)[number], snapshot, {
+          audience,
+          concern: typeof req.body?.concern === "string" ? req.body.concern : undefined,
+        }),
       });
     } catch (error: any) {
       console.error("Policy brief error:", error);
@@ -510,9 +539,29 @@ ${corpusBlock ? `\nGround your approach in these Spartan Method sources:\n${corp
         limit: req.query.limit ? Number(req.query.limit) : 25,
       });
       res.json({ results, count: results.length });
+      const result = await searchCmsHospices({
+        state: String(req.query.state || ""),
+        city: req.query.city ? String(req.query.city) : undefined,
+        county: req.query.county ? String(req.query.county) : undefined,
+        zipCode: req.query.zipCode ? String(req.query.zipCode) : undefined,
+        name: req.query.name ? String(req.query.name) : undefined,
+        ownership: req.query.ownership ? String(req.query.ownership) : undefined,
+        limit: req.query.limit ? Number(req.query.limit) : 25,
+      });
+      res.json({ ...result, count: result.summary.totalMatched });
     } catch (error: any) {
       console.error("Hospice market lookup error:", error);
       res.status(400).json({ error: clientErrorMessage(error, "Hospice market lookup failed") });
+    }
+  });
+
+  app.get("/api/intelligence/hospice-profile", requireElite, lightAiLimit, async (req, res) => {
+    try {
+      const profile = await getCmsHospiceProfile(String(req.query.ccn || ""));
+      res.json({ profile });
+    } catch (error: any) {
+      console.error("Hospice profile lookup error:", error);
+      res.status(400).json({ error: clientErrorMessage(error, "Hospice profile could not be built") });
     }
   });
 
@@ -1544,6 +1593,11 @@ Build a specific Monday–Friday territory plan for this week.`;
   app.post("/api/analytics/track", analyticsLimit, async (req, res) => {
     try {
       const visitorData = insertVisitorSchema.parse(req.body);
+      if (
+        !isSafeAnalyticsPagePath(visitorData.pagePath)
+      ) {
+        return res.status(400).json({ error: "Invalid analytics page path" });
+      }
       
       await storage.trackVisitor(visitorData);
       
@@ -1577,11 +1631,22 @@ Build a specific Monday–Friday territory plan for this week.`;
       const safeMetadata = sanitizeAnalyticsMetadata(
         (bodyWithoutMemberId as { metadata?: unknown }).metadata,
       );
-      const eventData = insertEventTrackingSchema.parse({
+      const parsedEvent = insertEventTrackingSchema.safeParse({
         ...bodyWithoutMemberId,
         metadata: safeMetadata,
         memberId: sessionMemberId,
       });
+      if (!parsedEvent.success) {
+        return res.status(400).json({ error: "Invalid analytics event" });
+      }
+      const eventData = parsedEvent.data;
+      if (
+        !isSafeAnalyticsLabel(eventData.eventType) ||
+        !isSafeAnalyticsLabel(eventData.eventName) ||
+        !isAcceptedClientAnalyticsEvent(eventData.eventType, eventData.eventName)
+      ) {
+        return res.status(400).json({ error: "Invalid analytics event" });
+      }
       await storage.trackEvent(eventData);
       res.json({ success: true });
     } catch (error: any) {
@@ -1680,9 +1745,9 @@ Build a specific Monday–Friday territory plan for this week.`;
     }
   });
 
-  // ===== TENANT-SAFE ROLE-PLAY PRACTICE =====
-  // New sessions always store memberId + organizationId. Pre-tenant legacy rows
-  // (null ownership) are never listed, read, continued, or mutated here.
+  // ===== SESSION-ONLY ROLE-PLAY PRACTICE =====
+  // Current sessions live only in this process and are discarded after feedback
+  // or a short idle TTL. Legacy database rows are never restored here.
 
   app.post(
     "/api/roleplay/sessions",
@@ -1698,7 +1763,7 @@ Build a specific Monday–Friday territory plan for this week.`;
         }
 
         const { scenarioId, scenarioTitle, scenarioDescription } = roleplayStartSchema.parse(req.body);
-        const session = await storage.createRoleplaySession({
+        const session = createEphemeralRoleplaySession({
           memberId: member.id,
           organizationId: org.id,
           scenarioId,
@@ -1714,8 +1779,7 @@ Build a specific Monday–Friday territory plan for this week.`;
           [],
           scenarioDescription,
         );
-        await storage.createRoleplayMessage({
-          sessionId: session.id,
+        appendEphemeralRoleplayMessage(session, {
           role: "character",
           content: initialResponse,
         });
@@ -1739,7 +1803,7 @@ Build a specific Monday–Friday territory plan for this week.`;
    */
   app.get("/api/roleplay/sessions", requireFieldKit, async (req: AuthedRequest, res) => {
     try {
-      res.json(await storage.getRoleplaySessionsForMember(req.clientMemberId!));
+      res.json([]);
     } catch (error: any) {
       console.error("Get roleplay sessions error:", error);
       res.json([]);
@@ -1748,9 +1812,7 @@ Build a specific Monday–Friday territory plan for this week.`;
 
   app.get("/api/roleplay/stats", requireFieldKit, async (req: AuthedRequest, res) => {
     try {
-      const memberId = req.clientMemberId!;
-      const stats = await storage.getRoleplayStatsForMember(memberId);
-      res.json(stats);
+      res.json([]);
     } catch (error: any) {
       console.error("Get roleplay stats error:", error);
       res.json([]);
@@ -1762,19 +1824,14 @@ Build a specific Monday–Friday territory plan for this week.`;
       const id = paramInt(req, "id");
       if (!Number.isFinite(id)) return res.status(400).json({ error: "Invalid session id" });
 
-      const session = await storage.getRoleplaySession(id);
+      const session = getEphemeralRoleplaySession(
+        id,
+        req.clientMemberId!,
+        req.fieldKit?.member?.organizationId ?? -1,
+      );
       if (!session) return res.status(404).json({ error: "Session not found" });
 
-      const memberId = req.clientMemberId!;
-      const orgId = req.fieldKit?.member?.organizationId;
-      const isOwner = session.memberId === memberId;
-      const sameOrg = orgId != null && session.organizationId === orgId;
-      if (!isOwner || !sameOrg) {
-        return res.status(404).json({ error: "Session not found" });
-      }
-
-      const messages = await storage.getRoleplayMessages(id);
-      res.json({ session, messages });
+      res.json({ session, messages: session.messages });
     } catch (error: any) {
       console.error("Get roleplay session error:", error);
       res.status(500).json({ error: clientErrorMessage(error, "Failed to get session") });
@@ -1792,32 +1849,29 @@ Build a specific Monday–Friday territory plan for this week.`;
         if (!Number.isFinite(sessionId)) return res.status(400).json({ error: "Invalid session id" });
 
         const { content } = roleplayMessageSchema.parse(req.body);
-        const session = await storage.getRoleplaySession(sessionId);
-        const orgId = req.fieldKit?.member?.organizationId;
-        if (
-          !session ||
-          session.memberId !== req.clientMemberId ||
-          (orgId != null && session.organizationId !== orgId)
-        ) {
+        const session = getEphemeralRoleplaySession(
+          sessionId,
+          req.clientMemberId!,
+          req.fieldKit?.member?.organizationId ?? -1,
+        );
+        if (!session) {
           return res.status(404).json({ error: "Session not found" });
         }
         if (session.status !== "active") {
           return res.status(400).json({ error: "Session is no longer active" });
         }
 
-        await storage.createRoleplayMessage({ sessionId, role: "user", content });
-
-        const messages = await storage.getRoleplayMessages(sessionId);
-        const history = messages.map((m) => ({ role: m.role, content: m.content }));
+        const history = [...session.messages];
+        appendEphemeralRoleplayMessage(session, { role: "user", content });
 
         const response = await generateRoleplayResponse(
           session.scenarioId,
           session.scenarioTitle,
           content,
-          history.slice(0, -1),
+          history,
           session.scenarioDescription ?? undefined,
         );
-        await storage.createRoleplayMessage({ sessionId, role: "character", content: response });
+        appendEphemeralRoleplayMessage(session, { role: "character", content: response });
 
         storage.trackEvent({ eventType: "ai_tool_usage", eventName: "roleplay" }).catch(() => {});
         res.json({ response });
@@ -1841,25 +1895,19 @@ Build a specific Monday–Friday territory plan for this week.`;
         const sessionId = paramInt(req, "id");
         if (!Number.isFinite(sessionId)) return res.status(400).json({ error: "Invalid session id" });
 
-        const session = await storage.getRoleplaySession(sessionId);
-        const orgId = req.fieldKit?.member?.organizationId;
-        if (
-          !session ||
-          session.memberId !== req.clientMemberId ||
-          (orgId != null && session.organizationId !== orgId)
-        ) {
+        const session = getEphemeralRoleplaySession(
+          sessionId,
+          req.clientMemberId!,
+          req.fieldKit?.member?.organizationId ?? -1,
+        );
+        if (!session) {
           return res.status(404).json({ error: "Session not found" });
         }
 
-        const messages = await storage.getRoleplayMessages(sessionId);
-        const transcript = messages.map((m) => ({ role: m.role, content: m.content }));
+        const transcript = session.messages;
 
         const { feedback, rating } = await generateRoleplayFeedback(session.scenarioTitle, transcript);
-        const updated = await storage.updateRoleplaySession(sessionId, {
-          status: "completed",
-          feedback,
-          rating,
-        });
+        const updated = finishEphemeralRoleplaySession(session, feedback, rating);
 
         storage.trackEvent({ eventType: "ai_tool_usage", eventName: "roleplay_feedback" }).catch(() => {});
         res.json({ session: updated, feedback, rating });

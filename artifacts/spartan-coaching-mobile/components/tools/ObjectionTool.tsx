@@ -1,15 +1,13 @@
-import React, { useEffect, useState } from "react";
-import { Text, TextInput, View } from "react-native";
+import React, { useState } from "react";
+import { Text, TextInput } from "react-native";
 import { impactLight, notifySuccess } from "@/lib/iosProductQuality";
 import { useAccessibilityPrefs } from "@/hooks/useAccessibilityPrefs";
 import { useColors } from "@/hooks/useColors";
 import { apiPost } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
-import { useSavedResponses } from "@/hooks/useSavedResponses";
 import { CitationsBlock, type CitationItem } from "@/components/ui/CitationsBlock";
 import { ReminderPicker } from "@/components/ReminderPicker";
-import { SavedResponsesSection } from "@/components/SavedResponsesSection";
 import {
   ToolAnatomyEvidence,
   ToolAnatomyNextMove,
@@ -19,15 +17,10 @@ import {
 } from "@/components/ToolAnatomy";
 import { ToolShell } from "./ToolShell";
 import { toolStyles as styles } from "./toolStyles";
-import {
-  loadToolDraft,
-  loadToolLastResult,
-  saveToolDraft,
-  saveToolLastResult,
-} from "@/lib/toolDraftCache";
-import { enqueueGenerate, shouldEnqueueOnError, userFacingApiError } from "@/lib/offlineQueue";
+import { shouldEnqueueOnError, userFacingApiError } from "@/lib/offlineQueue";
 import {
   getToolById,
+  MOBILE_FIELD_RESULT_ACTIONS,
   recommendRelated,
   relatedToAnatomyItems,
 } from "@workspace/field-kit-catalog";
@@ -38,7 +31,6 @@ export function ObjectionTool() {
   const colors = useColors();
   const { canUseFieldKit } = useAuth();
   const { reduceMotion } = useAccessibilityPrefs();
-  const saved = useSavedResponses("objection");
   const relatedItems = relatedToAnatomyItems(
     recommendRelated(
       "objections",
@@ -56,27 +48,6 @@ export function ObjectionTool() {
   const [citations, setCitations] = useState<CitationItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [savedId, setSavedId] = useState<string | null>(null);
-  const [fromCache, setFromCache] = useState(false);
-
-  useEffect(() => {
-    void (async () => {
-      const draft = await loadToolDraft<{ objection?: string }>(TOOL_ID);
-      if (draft?.objection) setObjection(draft.objection);
-      const last = await loadToolLastResult(TOOL_ID);
-      if (last) {
-        setResult(last);
-        setFromCache(true);
-      }
-    })();
-  }, []);
-
-  useEffect(() => {
-    const t = setTimeout(() => {
-      void saveToolDraft(TOOL_ID, { objection });
-    }, 400);
-    return () => clearTimeout(t);
-  }, [objection]);
 
   const generate = async () => {
     if (objection.trim().length < 5) return;
@@ -87,32 +58,18 @@ export function ObjectionTool() {
     void impactLight(reduceMotion);
     setLoading(true);
     setError(null);
-    setSavedId(null);
-    setFromCache(false);
     try {
       const data = await apiPost<{ response: string; citations?: CitationItem[] }>("/api/objections", {
         objection,
       });
       setResult(data.response);
       setCitations(data.citations || []);
-      await saveToolLastResult(TOOL_ID, data.response);
       void notifySuccess(reduceMotion);
     } catch (e: unknown) {
       if (shouldEnqueueOnError(e)) {
-        await enqueueGenerate({
-          toolId: TOOL_ID,
-          path: "/api/objections",
-          body: { objection },
-          label: "Objection Handler",
-        });
-        setError("Offline or network error — queued to retry. Showing last result if available.");
+        setError("No response was created while you were offline. Reconnect and submit again; your input was not saved.");
       } else {
         setError(userFacingApiError(e));
-      }
-      const last = await loadToolLastResult(TOOL_ID);
-      if (last) {
-        setResult(last);
-        setFromCache(true);
       }
     } finally {
       setLoading(false);
@@ -124,6 +81,7 @@ export function ObjectionTool() {
       title="Objection Handler"
       subtitle="Paste a real line you heard — field-ready talk track in seconds."
       category="Practice"
+      catalogToolId="objections"
       whenToUse="Before or after a visit when you hear 'not ready,' preferred hospice, or timing pushback."
       howSteps={[
         "Paste the objection (no patient names or PHI).",
@@ -142,13 +100,6 @@ export function ObjectionTool() {
         next step — never invent clinical claims.
       </ToolAnatomyWhy>
 
-      {fromCache && result ? (
-        <View style={[styles.offlineBanner, { backgroundColor: colors.primaryMuted }]}>
-          <Text style={[{ color: colors.primary, fontSize: 12 }, font("semibold")]}>
-            Showing last successful result (may be offline / cached)
-          </Text>
-        </View>
-      ) : null}
       <Text style={[styles.label, { color: colors.foreground }, font("semibold")]}>
         What objection are you hearing?
       </Text>
@@ -172,16 +123,7 @@ export function ObjectionTool() {
         content={result || undefined}
         loading={loading && !result}
         error={error}
-        onSave={
-          result
-            ? async () => {
-                const title = objection.length > 60 ? objection.slice(0, 57) + "…" : objection;
-                await saved.saveResponse(title, result);
-                setSavedId("saved");
-              }
-            : undefined
-        }
-        saved={!!savedId}
+        nextAction={MOBILE_FIELD_RESULT_ACTIONS.objections}
       >
         {result ? (
           <ToolAnatomyEvidence>
@@ -198,7 +140,6 @@ export function ObjectionTool() {
               storageKey="objection"
             />
           </ToolAnatomyNextMove>
-          <SavedResponsesSection items={saved.savedItems} onDelete={saved.deleteResponse} />
         </>
       )}
       <ToolAnatomyRelated items={relatedItems} />

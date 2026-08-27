@@ -460,6 +460,7 @@ export class DatabaseStorage implements IStorage {
       mobileAppOpenDay,
       mobileAppOpenWeek,
       mobileAppOpenMonth,
+      publicFunnelCounts,
     ] = await Promise.all([
       this.getEventCounts("ai_tool_usage"),
       this.getEventCounts("resource_download"),
@@ -469,7 +470,11 @@ export class DatabaseStorage implements IStorage {
       db.select({ count: count() }).from(eventTracking).where(and(eq(eventTracking.eventType, "mobile_app_open"), gte(eventTracking.createdAt, dayAgo))),
       db.select({ count: count() }).from(eventTracking).where(and(eq(eventTracking.eventType, "mobile_app_open"), gte(eventTracking.createdAt, weekAgo))),
       db.select({ count: count() }).from(eventTracking).where(and(eq(eventTracking.eventType, "mobile_app_open"), gte(eventTracking.createdAt, monthAgo))),
+      this.getEventCounts("public_funnel"),
     ]);
+    const publicFunnel = new Map(
+      publicFunnelCounts.map((entry) => [entry.eventName, entry.count]),
+    );
     return {
       aiToolUsage,
       resourceDownloads,
@@ -480,6 +485,15 @@ export class DatabaseStorage implements IStorage {
         day: mobileAppOpenDay[0]?.count || 0,
         week: mobileAppOpenWeek[0]?.count || 0,
         month: mobileAppOpenMonth[0]?.count || 0,
+      },
+      // A successful contact is server-derived. We intentionally do not accept
+      // a browser "success" signal, so a failed request can never inflate it.
+      publicFunnel: {
+        ctaClicks: publicFunnel.get("cta_click") ?? 0,
+        contactStarts: publicFunnel.get("contact_start") ?? 0,
+        contactSuccesses: contactResults[0]?.count || 0,
+        contactFailures: publicFunnel.get("contact_failure") ?? 0,
+        appInterest: publicFunnel.get("app_interest") ?? 0,
       },
     };
   }

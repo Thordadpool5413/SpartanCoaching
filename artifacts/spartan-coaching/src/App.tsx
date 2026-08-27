@@ -7,16 +7,23 @@ import { HelmetProvider } from "react-helmet-async";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Header, Footer } from "@/components/Layout";
-import { AppShell } from "@/components/AppShell";
 import { CommandPalette } from "@/components/CommandPalette";
 import { AuthProvider, useAuth } from "@/context/AuthContext";
-import { RequireFieldKit } from "@/components/RequireFieldKit";
-import { TrialBanner } from "@/components/TrialBanner";
-import { FieldKitChecklistToast } from "@/components/FieldKitChecklistToast";
 import { isWorkspacePath, loginWithReturn } from "@/lib/workspaceShell";
+import { PageLoadingState, RouteErrorBoundary } from "@/components/RouteRecovery";
+import { SEO } from "@/components/SEO";
+import { recordCampaignClickOnce, rememberCampaignAttribution } from "@/lib/campaignAttribution";
 
 const ChatWidget = lazy(() => import("@/components/ChatWidget").then(m => ({ default: m.ChatWidget })));
 const StickyBookCall = lazy(() => import("@/components/StickyBookCall").then(m => ({ default: m.StickyBookCall })));
+const AppShell = lazy(() => import("@/components/AppShell").then(m => ({ default: m.AppShell })));
+const TrialBanner = lazy(() => import("@/components/TrialBanner").then(m => ({ default: m.TrialBanner })));
+const FieldKitChecklistToast = lazy(() =>
+  import("@/components/FieldKitChecklistToast").then(m => ({ default: m.FieldKitChecklistToast })),
+);
+const RequireFieldKit = lazy(() =>
+  import("@/components/RequireFieldKit").then(m => ({ default: m.RequireFieldKit })),
+);
 
 const NotFound = lazy(() => import("@/pages/not-found"));
 const Home = lazy(() => import("@/pages/Home"));
@@ -35,6 +42,7 @@ const OrgAdmin = lazy(() => import("@/pages/OrgAdmin"));
 const MagicLogin = lazy(() => import("@/pages/MagicLogin"));
 const CheckoutReturn = lazy(() => import("@/pages/CheckoutReturn"));
 const FieldKitMembership = lazy(() => import("@/pages/FieldKitMembership"));
+const AppLander = lazy(() => import("@/pages/AppLander"));
 const RedirectToMembership = lazy(() =>
   import("@/pages/Redirect").then((m) => ({ default: m.RedirectToMembership })),
 );
@@ -173,21 +181,36 @@ function VisitorTracker() {
   return null;
 }
 
+function CampaignAttributionTracker() {
+  const [location] = useLocation();
+
+  useEffect(() => {
+    // A click is represented by a valid tagged landing arrival. The external
+    // ad platform click itself is not observable from the site.
+    const attribution = rememberCampaignAttribution(window.location.search);
+    if (attribution) recordCampaignClickOnce(attribution);
+  }, [location]);
+
+  return null;
+}
+
 function PageLoader() {
-  return (
-    <div className="flex items-center justify-center min-h-[50vh]">
-      <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
-    </div>
-  );
+  return <PageLoadingState />;
 }
 
 function Router() {
+  const [location] = useLocation();
+
   return (
     <>
       <ScrollToTop />
       <VisitorTracker />
-      <Suspense fallback={<PageLoader />}>
-        <Switch>
+      <CampaignAttributionTracker />
+      {/* Baseline metadata applies to every route; route pages may add specific overrides. */}
+      <SEO />
+      <RouteErrorBoundary resetKey={location}>
+        <Suspense fallback={<PageLoader />}>
+          <Switch>
           <Route path="/" component={Home} />
           <Route path="/welcome" component={Welcome} />
           <Route path="/login" component={Login} />
@@ -204,6 +227,7 @@ function Router() {
           <Route path="/magic-login" component={MagicLogin} />
           <Route path="/checkout-return" component={CheckoutReturn} />
           <Route path="/hospice-sales-pro" component={FieldKitMembership} />
+          <Route path="/app" component={AppLander} />
           {/* Legacy URLs → Hospice Sales Pro lander */}
           <Route path="/membership" component={RedirectToMembership} />
           <Route path="/field-kit" component={RedirectToMembership} />
@@ -227,6 +251,7 @@ function Router() {
           <Route path="/tools/weekly-plan-builder" component={GatedWeeklyPlan} />
           <Route path="/tools/sales-workflow" component={GatedSalesWorkflow} />
           <Route path="/tools/intelligence" component={GatedSpartanIntelligence} />
+          <Route path="/tools/intelligence" component={GatedSpartanIntelligence} />\n          <Route path="/spartan-intelligence" component={GatedSpartanIntelligence} />
           <Route path="/tools/ai" component={GatedAiToolsHub} />
           <Route path="/my-work/elite-outputs" component={GatedSavedAiOutputs} />
           <Route path="/tools/ai/:toolId" component={GatedAiTool} />
@@ -269,9 +294,10 @@ function Router() {
           <Route path="/assessment-results/:submissionId" component={AssessmentResultsPDF} />
           <Route path="/sign/:token" component={SignAgreements} />
           <Route path="/brand-video" component={BrandVideo} />
-          <Route component={NotFound} />
-        </Switch>
-      </Suspense>
+            <Route component={NotFound} />
+          </Switch>
+        </Suspense>
+      </RouteErrorBoundary>
     </>
   );
 }
@@ -324,18 +350,19 @@ function AppLayout() {
   // Paid application shell — separate from public marketing website
   if (onWorkspace) {
     return (
-      <>
+      <Suspense fallback={<PageLoader />}>
         <a href="#main-content" className="skip-link">
           Skip to main content
         </a>
         <AppShell>
           <TrialBanner />
+          <FieldKitChecklistToast />
           <Router />
         </AppShell>
         <Suspense fallback={null}>
           <CommandPalette />
         </Suspense>
-      </>
+      </Suspense>
     );
   }
 
@@ -346,7 +373,11 @@ function AppLayout() {
       </a>
       <div className="flex flex-col min-h-screen bg-background text-foreground safe-area-x">
         <Header />
-        <TrialBanner />
+        {isAuthenticated && (
+          <Suspense fallback={null}>
+            <TrialBanner />
+          </Suspense>
+        )}
         <main id="main-content" className="flex-1 bg-background" tabIndex={-1}>
           <Router />
         </main>
@@ -371,7 +402,6 @@ function App() {
           <AuthProvider>
             <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, "")}>
               <AppLayout />
-              <FieldKitChecklistToast />
               <Toaster />
             </WouterRouter>
           </AuthProvider>

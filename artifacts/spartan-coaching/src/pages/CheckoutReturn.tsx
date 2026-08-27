@@ -4,6 +4,7 @@ import { SEO } from "@/components/SEO";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
 import { trackProductOutcome } from "@/lib/analytics";
+import { APP_STORE_URL } from "@/lib/appHandoff";
 
 /**
  * Bridge after Stripe Checkout.
@@ -52,9 +53,14 @@ export default function CheckoutReturn() {
       </p>
       <div className="flex flex-col sm:flex-row gap-3">
         {fromApp ? (
-          <Button asChild size="lg" className="font-bold" data-testid="checkout-open-app">
-            <a href="spartan-coaching-mobile://account?activated=1">Open app</a>
-          </Button>
+          <>
+            <Button asChild size="lg" className="font-bold" data-testid="checkout-open-app">
+              <a href="spartan-coaching-mobile://account?activated=1">Open app</a>
+            </Button>
+            <Button asChild size="lg" variant="outline" className="font-bold" data-testid="checkout-app-store-fallback">
+              <a href={APP_STORE_URL} target="_blank" rel="noopener noreferrer">Get the iPhone app</a>
+            </Button>
+          </>
         ) : null}
         <Button asChild size="lg" variant={fromApp ? "outline" : "default"} className="font-bold">
           <Link href="/portal?activated=1">Continue on web</Link>

@@ -1,11 +1,13 @@
 import { Link } from "wouter";
 import { Shield, Lock, UserCheck, FileCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { FIELD_KIT_PHI, PRICING_FACTS } from "@/lib/complianceCopy";
 
 const DEFAULT_ITEMS = [
   {
     icon: Shield,
     title: "No PHI in tools",
+    body: `${FIELD_KIT_PHI.short}. Hospice Sales Pro tools support planning and messaging, not clinical records.`,
     body: "Hospice Sales Pro tools are for planning and messaging — never patient identifiers or clinical records.",
   },
   {
@@ -16,7 +18,7 @@ const DEFAULT_ITEMS = [
   {
     icon: Lock,
     title: "Clear Hospice Sales Pro path",
-    body: "Elite is recommended at $19.99/week. Standard is $14.99/week. Cancel anytime. Teams activate seats under contract.",
+    body: `Elite is ${PRICING_FACTS.eliteWeeklyLabel}. Standard is ${PRICING_FACTS.individualWeeklyLabel}. Cancel anytime. Teams activate seats under contract.`,
   },
   {
     icon: FileCheck,
@@ -51,6 +53,7 @@ export function TrustStrip({ className, compact = false, showLinks = true }: Tru
           </h2>
           <p className="text-sm text-muted-foreground leading-relaxed">
             Two clear offers: consulting stays human; Hospice Sales Pro unlocks tools on web and iPhone. Individuals self-serve
+            with recommended Elite at {PRICING_FACTS.eliteWeeklyLabel} or Standard at {PRICING_FACTS.individualWeeklyLabel}; teams and evaluations request access first, then continue under contract when it fits.
             with recommended Elite at $19.99/week or Standard at $14.99/week; teams and evaluations request access first, then continue under contract when it fits.
           </p>
         </div>
@@ -94,6 +97,7 @@ export function TrustStrip({ className, compact = false, showLinks = true }: Tru
             Create account · Hospice Sales Pro
           </Link>
           <Link href="/hospice-sales-pro" className="text-muted-foreground hover:text-primary transition-colors font-medium">
+            Elite {PRICING_FACTS.eliteWeeklyShort} · Standard {PRICING_FACTS.individualWeeklyShort}
             Elite $19.99/wk · Standard $14.99/wk
           </Link>
           <Link href="/request-access" className="text-muted-foreground hover:text-primary transition-colors font-medium">

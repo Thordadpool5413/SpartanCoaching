@@ -12,6 +12,8 @@ import {
   presentCoreResourceLabel,
   presentProviderResource,
   sanitizeFileUrl,
+  sanitizeMeta,
+  validateWorkflowMetadata,
   allowedTransitions,
 } from "./providerResourceLibrary";
 
@@ -91,5 +93,75 @@ describe("providerResourceLibrary (HSP-28)", () => {
     expect(allowedTransitions("published")).toContain("archived");
     expect(allowedTransitions("archived")).toContain("deleted");
     expect(allowedTransitions("deleted")).toHaveLength(0);
+  });
+
+  it("accepts only static workflow guidance with a real catalog next tool", () => {
+    expect(
+      validateWorkflowMetadata({
+        job: "Prepare the escalation conversation before calling the manager.",
+        expectedOutput: "A clear escalation summary with the approved next action.",
+        reviewCheckpoint: "Confirm the escalation owner and due time before sending.",
+        nextToolId: "sales-workflow",
+      }),
+    ).toEqual({
+      ok: true,
+      value: {
+        job: "Prepare the escalation conversation before calling the manager.",
+        expectedOutput: "A clear escalation summary with the approved next action.",
+        reviewCheckpoint: "Confirm the escalation owner and due time before sending.",
+        nextToolId: "sales-workflow",
+      },
+    });
+    expect(validateWorkflowMetadata({ nextToolId: "not-a-tool" })).toMatchObject({
+      ok: false,
+      code: "INVALID_NEXT_TOOL",
+    });
+    expect(validateWorkflowMetadata({ patientName: "Do not store this" })).toMatchObject({
+      ok: false,
+      code: "INVALID_WORKFLOW",
+    });
+  });
+
+  it("keeps valid workflow guidance but drops unvalidated metadata fields", () => {
+    expect(
+      sanitizeMeta({
+        workflow: {
+          job: "Prepare the call.",
+          nextToolId: "playbooks",
+        },
+        memberName: "Never retained",
+      }),
+    ).toEqual({
+      workflow: {
+        job: "Prepare the call.",
+        nextToolId: "playbooks",
+      },
+    });
+  });
+
+  it.each([
+    ["name", "Patient name: Jane Smith"],
+    ["date of birth", "DOB: 03/14/1941"],
+    ["medical record number", "MRN: AB-12345"],
+    ["phone number", "Call (404) 555-1212"],
+    ["email address", "Send to jane@example.com"],
+  ])("rejects potential %s from durable workflow guidance", (_, text) => {
+    expect(validateWorkflowMetadata({ job: text })).toMatchObject({
+      ok: false,
+      code: "POTENTIAL_PHI_DETECTED",
+    });
+  });
+
+  it("does not present malformed or identifier-bearing legacy workflow metadata", () => {
+    const item = presentProviderResource({
+      ...row,
+      meta: {
+        workflow: {
+          job: "Patient name: Jane Smith",
+          nextToolId: "sales-workflow",
+        },
+      },
+    });
+    expect(item.meta).toBeNull();
   });
 });

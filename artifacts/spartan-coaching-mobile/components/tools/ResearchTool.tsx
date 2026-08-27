@@ -1,16 +1,16 @@
 import React, { useState } from "react";
-import { Share, Text, TextInput, Pressable, View } from "react-native";
-import { Feather } from "@expo/vector-icons";
+import { Text, TextInput, View } from "react-native";
 import * as Haptics from "expo-haptics";
 import { useColors } from "@/hooks/useColors";
 import { apiPost } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 import { font } from "@/lib/typography";
 import { CitationsBlock, type CitationItem } from "@/components/ui/CitationsBlock";
-import { enqueueGenerate, shouldEnqueueOnError, userFacingApiError } from "@/lib/offlineQueue";
-import { saveToolLastResult } from "@/lib/toolDraftCache";
+import { shouldEnqueueOnError, userFacingApiError } from "@/lib/offlineQueue";
+import { FieldResultPanel } from "@/components/FieldResultPanel";
 import { ToolShell } from "./ToolShell";
 import { toolStyles as styles } from "./toolStyles";
+import { MOBILE_FIELD_RESULT_ACTIONS } from "@workspace/field-kit-catalog";
 
 export function ResearchTool() {
   const colors = useColors();
@@ -41,16 +41,9 @@ export function ResearchTool() {
       setResult(text);
       setSources(data.sources || []);
       setCitations(data.spartanCitations || []);
-      if (text) await saveToolLastResult("research", text);
     } catch (e: unknown) {
       if (shouldEnqueueOnError(e)) {
-        await enqueueGenerate({
-          toolId: "research",
-          path: "/api/research",
-          body: { query, useGrounding: true },
-          label: "Grounded Research",
-        });
-        setError("Offline or network error — queued to retry.");
+        setError("No research result was created while you were offline. Reconnect and submit again; your input was not saved.");
       } else {
         setError(userFacingApiError(e));
       }
@@ -64,6 +57,7 @@ export function ResearchTool() {
       title="Grounded Research"
       subtitle="Territory and market questions with sources."
       category="Prepare"
+      catalogToolId="research"
       ctaTitle="Research"
       onCta={generate}
       ctaLoading={loading}
@@ -86,12 +80,15 @@ export function ResearchTool() {
         multiline
         textAlignVertical="top"
       />
-      {!!error && (
-        <Text style={[styles.errorText, { color: colors.primary }, font("regular")]}>{error}</Text>
-      )}
-      {!!result && (
-        <View style={[styles.resultCard, { backgroundColor: colors.card, borderColor: colors.border }]}>
-          <Text style={[styles.resultText, { color: colors.foreground }, font("regular")]}>{result}</Text>
+      <FieldResultPanel
+        title="Research"
+        content={result || undefined}
+        loading={loading && !result}
+        error={error}
+        nextAction={MOBILE_FIELD_RESULT_ACTIONS.research}
+      >
+        {result ? (
+          <View style={{ paddingHorizontal: 22, gap: 12 }}>
           <CitationsBlock items={citations} title="Spartan Method grounding" />
           {sources.length > 0 && (
             <View style={{ marginTop: 12, gap: 6 }}>
@@ -105,28 +102,9 @@ export function ResearchTool() {
               ))}
             </View>
           )}
-        </View>
-      )}
-      {!!result && (
-        <Pressable
-          onPress={() => void Share.share({ message: result })}
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 6,
-            borderWidth: 1.5,
-            borderColor: colors.border,
-            borderRadius: 10,
-            paddingVertical: 11,
-            marginTop: 12,
-            minHeight: 44,
-          }}
-        >
-          <Feather name="share" size={15} color={colors.mutedForeground} />
-          <Text style={[{ color: colors.mutedForeground, fontSize: 14 }, font("semibold")]}>Share</Text>
-        </Pressable>
-      )}
+          </View>
+        ) : null}
+      </FieldResultPanel>
     </ToolShell>
   );
 }

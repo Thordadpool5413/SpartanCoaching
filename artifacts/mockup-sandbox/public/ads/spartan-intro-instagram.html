@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Spartan Coaching — Instagram Intro</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet" />
+    <style>
+      :root {
+        --ink: #101b2b;
+        --paper: #f0eee9;
+        --red: #b42631;
+        --muted: #5c6470;
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; width: 100%; min-height: 100%; }
+      body {
+        background: var(--ink);
+        color: var(--ink);
+        font-family: "DM Sans", sans-serif;
+        -webkit-font-smoothing: antialiased;
+      }
+      .ad {
+        position: relative;
+        width: 100vw;
+        height: 100vh;
+        min-height: 100vh;
+        overflow: hidden;
+        background: var(--paper);
+        padding: max(5.5vh, env(safe-area-inset-top)) 7.4vw max(5.2vh, env(safe-area-inset-bottom)) 8.2vw;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+      .topline {
+        width: 100%;
+        display: flex;
+        align-items: flex-start;
+        justify-content: flex-start;
+      }
+      .logo {
+        width: 31vw;
+        height: auto;
+        max-width: 38vh;
+        object-fit: contain;
+        object-position: left top;
+      }
+      .message {
+        width: 84vw;
+        max-width: 84vh;
+        margin-top: 4vh;
+      }
+      h1 {
+        margin: 0;
+        max-width: 78vw;
+        color: var(--ink);
+        font-family: "Barlow Condensed", sans-serif;
+        font-size: clamp(3.8rem, 13.5vw, 9.8rem);
+        font-weight: 700;
+        line-height: .88;
+        letter-spacing: -.035em;
+        text-wrap: balance;
+      }
+      .benefit {
+        margin: 4.8vh 0 0;
+        max-width: 67vw;
+        color: var(--red);
+        font-size: clamp(1.15rem, 4.1vw, 3rem);
+        font-weight: 600;
+        line-height: 1.12;
+        letter-spacing: -.035em;
+      }
+      .foot {
+        display: flex;
+        align-items: flex-end;
+        justify-content: space-between;
+        gap: 5vw;
+        color: var(--muted);
+        font-size: clamp(.62rem, 2vw, 1.2rem);
+        font-weight: 500;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+      }
+      .url { white-space: nowrap; }
+      @media (max-aspect-ratio: 3/4) {
+        .logo { width: 35vw; }
+        h1 { font-size: 14vw; }
+        .benefit { max-width: 73vw; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        * { scroll-behavior: auto; }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="ad" aria-label="Spartan Coaching Instagram advertisement">
+      <div class="topline">
+        <img class="logo" src="/__mockup/images/spartan-logo.png" alt="Spartan Coaching" />
+      </div>
+      <section class="message">
+        <h1>Make the next<br />conversation count.</h1>
+        <p class="benefit">Hospice sales coaching with structure and heart.</p>
+      </section>
+      <footer class="foot">
+        <span>Spartan Coaching</span>
+        <span class="url">Spartanhospicecoaching.com</span>
+      </footer>
+    </main>
+  </body>
+</html>
