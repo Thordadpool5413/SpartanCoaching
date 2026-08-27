@@ -9,6 +9,7 @@ import { SpartanButton } from "@/components/ui/SpartanButton";
 import { useColors } from "@/hooks/useColors";
 import { apiGet, apiPost } from "@/lib/api";
 import { font } from "@/lib/typography";
+import { encodeStorageJson } from "@/lib/storageJson";
 
 type Workspace = "referral" | "market" | "policy";
 type Choice = { value: string; label: string };
@@ -461,7 +462,7 @@ function PolicyResult({ brief, colors }: { brief: PolicyBrief; colors: ReturnTyp
 function ResultPanel({ eyebrow, title, shareText, colors, children }: { eyebrow: string; title: string; shareText: string; colors: ReturnType<typeof useColors>; children: React.ReactNode }) {
   const save = async () => {
     const raw = await AsyncStorage.getItem(SAVED_STORAGE_NAME); const current = raw ? JSON.parse(raw) as unknown[] : [];
-    await AsyncStorage.setItem(SAVED_STORAGE_NAME, JSON.stringify([{ title, text: shareText, savedAt: new Date().toISOString() }, ...current].slice(0, 20)));
+    await AsyncStorage.setItem(SAVED_STORAGE_NAME, encodeStorageJson([{ title, text: shareText, savedAt: new Date().toISOString() }, ...current].slice(0, 20)));
     DeviceEventEmitter.emit("spartan-intelligence-saved");
     Alert.alert("Saved", "This intelligence brief is saved on your device.");
   };
@@ -495,7 +496,7 @@ function SavedBriefs({ colors }: { colors: ReturnType<typeof useColors> }) {
   const remove = async (savedAt: string) => {
     const next = items.filter((item) => item.savedAt !== savedAt);
     setItems(next);
-    await AsyncStorage.setItem(SAVED_STORAGE_NAME, JSON.stringify(next));
+    await AsyncStorage.setItem(SAVED_STORAGE_NAME, encodeStorageJson(next));
   };
   return <View style={[styles.savedPanel, { backgroundColor: colors.card, borderColor: colors.borderStrong }]}>
     <Pressable accessibilityRole="button" accessibilityState={{ expanded: open }} onPress={() => setOpen(!open)} style={styles.savedHeader}>
