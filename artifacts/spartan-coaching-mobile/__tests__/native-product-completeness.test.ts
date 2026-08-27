@@ -108,6 +108,16 @@ describe("native product completeness", () => {
     expect(ceremony).toContain("entitlement transition");
   });
 
+  it("keeps every authenticated and AI request connected in store builds", () => {
+    const api = read("lib/api.ts");
+    const home = read("app/(tabs)/index.tsx");
+    expect(api).toContain('const PRODUCTION_ORIGIN = "https://spartanhospicecoaching.com"');
+    expect(api).toContain("return PRODUCTION_ORIGIN");
+    expect(api).toContain("REQUEST_TIMEOUT");
+    expect(api).toContain("NETWORK_UNAVAILABLE");
+    expect(home).not.toContain('fetch("/api/');
+  });
+
   it("keeps account recovery and administrator work native", () => {
     const login = read("app/login.tsx");
     const admin = read("app/admin.tsx");

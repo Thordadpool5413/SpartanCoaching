@@ -37,7 +37,6 @@ import {
 } from "lucide-react";
 import { FieldKitGate } from "@/components/FieldKitGate";
 import { ToolDisclaimer } from "@/components/ToolDisclaimer";
-import { FieldKitChrome } from "@/components/FieldKitChrome";
 import { MembershipActivation } from "@/components/MembershipActivation";
 import { useBillingActions } from "@/hooks/useBillingActions";
 import { ProductMap } from "@/components/elite/ProductMap";
@@ -307,23 +306,12 @@ export default function Portal() {
 
   const firstName = member?.name?.split(" ")[0] || "";
 
-  // Mirror iOS Home mission grammar (craft Phase 3)
-  const nextHint = needsRole
-    ? "Pick your role"
-    : nextItem
-      ? nextItem.title
-      : allDone
-        ? "Open Command Center for today’s accounts"
-        : startHere.title;
-
   const isPaidMember = organization?.status === "active";
 
   return (
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 surface-page min-h-[70vh]" data-testid="page-portal">
       <SEO />
       <MembershipActivation />
-
-      <FieldKitChrome nextHint={nextHint} />
 
       {/* Welcome — short, then one mission action */}
       <div className="mb-8 space-y-3">
@@ -455,8 +443,11 @@ export default function Portal() {
         )}
       </p>
 
-      <ActivationLoopPanel enabled={canUseFieldKit} />
-      <PersonalizationPanel />
+      {isFirstSession ? <ActivationLoopPanel enabled={canUseFieldKit} /> : null}
+      <details className="mb-8 rounded-xl border border-border bg-card p-4" open={isFirstSession && needsRole}>
+        <summary className="cursor-pointer font-bold text-foreground">Personalize this workspace</summary>
+        <div className="mt-4"><PersonalizationPanel /></div>
+      </details>
 
       {/* Daily spine — Sales Command Center */}
       <Card
@@ -506,48 +497,26 @@ export default function Portal() {
       </Card>
 
       <Card
-        className="mb-8 border border-amber-500/40 bg-gradient-to-br from-amber-500/[0.1] via-card to-card p-5 sm:p-7"
+        className="mb-8 border border-primary/25 bg-primary/[0.04] p-5"
         data-testid="section-spartan-intelligence"
       >
         <div className="flex flex-col lg:flex-row lg:items-center gap-6 justify-between">
-          <div className="space-y-4 min-w-0">
+          <div className="min-w-0">
             <div className="flex items-start gap-3">
               <div className="w-11 h-11 rounded-lg bg-amber-500/15 text-amber-500 flex items-center justify-center shrink-0">
                 <Sparkles className="w-5 h-5" />
               </div>
               <div>
-                <p className="text-[10px] font-bold tracking-widest text-amber-500 uppercase">
-                  New in Elite
+                <p className="text-[10px] font-bold tracking-widest text-primary uppercase">
+                  Verified field intelligence
                 </p>
                 <h2 className="text-xl sm:text-2xl font-display font-black text-foreground">
                   Spartan Intelligence
                 </h2>
                 <p className="text-sm text-muted-foreground leading-relaxed max-w-2xl mt-2">
-                  Walk into the room knowing the provider, the policy conversation, and the enrolled hospice landscape.
-                  Verified public data becomes practical field preparation.
+                  Verify a referral source, answer a CMS policy question, or explore an enrolled hospice market in one focused workspace.
                 </p>
               </div>
-            </div>
-            <div className="grid sm:grid-cols-3 gap-3">
-              {[
-                {
-                  title: "Referral Intelligence",
-                  body: "Verify a provider through CMS NPPES and build a focused meeting brief.",
-                },
-                {
-                  title: "CMS Policy Navigator",
-                  body: "Turn complex hospice policy topics into clear, reviewable field language.",
-                },
-                {
-                  title: "Hospice Market Explorer",
-                  body: "Search official CMS enrollment data by state and city.",
-                },
-              ].map((item) => (
-                <div key={item.title} className="rounded-xl border border-border/80 bg-background/55 p-4">
-                  <p className="font-bold text-sm text-foreground">{item.title}</p>
-                  <p className="text-xs text-muted-foreground leading-relaxed mt-1.5">{item.body}</p>
-                </div>
-              ))}
             </div>
           </div>
           <Button asChild size="lg" className="font-bold shrink-0">
@@ -874,22 +843,10 @@ export default function Portal() {
       )}
 
       {/* Hospice Sales Pro map — spine + satellites (compact) */}
-      <section className="mb-10" data-testid="section-tool-map">
-        <div className="flex flex-wrap items-end justify-between gap-2 mb-4">
-          <div>
-            <h2 className="text-lg font-bold text-foreground">Hospice Sales Pro</h2>
-            <p className="text-sm text-muted-foreground">
-              Today starts in Command Center. Everything else is optional support.
-            </p>
-          </div>
-          <Button asChild variant="outline" size="sm" className="font-bold">
-            <Link href="/tools">
-              All tools <ArrowRight className="ml-1 w-3.5 h-3.5" />
-            </Link>
-          </Button>
-        </div>
-        <ProductMap />
-      </section>
+      <details className="mb-10 rounded-xl border border-border bg-card p-4" data-testid="section-tool-map">
+        <summary className="cursor-pointer font-bold text-foreground">See how the full workspace fits together</summary>
+        <div className="mt-4"><ProductMap /></div>
+      </details>
 
       {/* Quick links — quiet */}
       <section className="mb-10 grid sm:grid-cols-2 gap-3" data-testid="section-portal-kit-links">

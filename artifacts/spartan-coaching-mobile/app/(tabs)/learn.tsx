@@ -22,6 +22,7 @@ import { apiGet } from "@/lib/api";
 import { useAuth } from "@/lib/AuthContext";
 import { groupResources, type ResourceLike } from "@/lib/resourceGroups";
 import { openToolHref } from "@/lib/toolDeepLinks";
+import { stageAiToolHandoff } from "@/lib/aiToolHandoff";
 import { font } from "@/lib/typography";
 import {
   getResourceWorkGuide,
@@ -100,6 +101,27 @@ function openLibraryItem(input: {
       version: input.version || "",
     },
   } as any);
+}
+
+function applyResourceWithSpartan(input: {
+  title: string;
+  description?: string | null;
+  whenToUse?: string;
+  expectedOutcome?: string;
+}) {
+  void Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+  stageAiToolHandoff({
+    sourceToolId: "content-recommender",
+    targetToolId: "content-generator",
+    output: {
+      selectedResource: input.title,
+      description: input.description || "",
+      whenToUse: input.whenToUse || "",
+      expectedOutcome: input.expectedOutcome || "",
+      instruction: "Help the member apply this approved resource to the field job in front of them. Do not invent claims or patient context.",
+    },
+  });
+  router.push("/ai-tools/content-generator" as any);
 }
 
 export default function LearnScreen() {
@@ -315,6 +337,8 @@ export default function LearnScreen() {
                   <ResourceWorkflowNote
                     category={item.kind}
                     workflow={item.meta?.workflow}
+                    resourceTitle={item.title}
+                    resourceDescription={item.description}
                     testID={`provider-resource-workflow-${item.id}`}
                   />
                 </View>
@@ -356,6 +380,10 @@ export default function LearnScreen() {
                       <ResourceWorkflowNote
                         category={item.category}
                         relatedToolIds={architecture?.relatedToolIds}
+                        resourceTitle={item.title}
+                        resourceDescription={item.description}
+                        whenToUse={architecture?.whenToUse}
+                        expectedOutcome={architecture?.expectedOutcome}
                         testID={`resource-workflow-${item.id}`}
                       />
                     </View>
@@ -410,11 +438,19 @@ function ResourceWorkflowNote({
   category,
   relatedToolIds,
   workflow: customWorkflow,
+  resourceTitle,
+  resourceDescription,
+  whenToUse,
+  expectedOutcome,
   testID,
 }: {
   category?: string | null;
   relatedToolIds?: string[];
   workflow?: FieldKitResourceWorkflowCustomization | null;
+  resourceTitle: string;
+  resourceDescription?: string | null;
+  whenToUse?: string;
+  expectedOutcome?: string;
   testID: string;
 }) {
   const colors = useColors();
@@ -446,6 +482,16 @@ function ResourceWorkflowNote({
           <Feather name="arrow-right" size={15} color={colors.primary} />
         </Pressable>
       ) : null}
+      <Pressable
+        onPress={() => applyResourceWithSpartan({ title: resourceTitle, description: resourceDescription, whenToUse, expectedOutcome })}
+        accessibilityRole="button"
+        accessibilityLabel={`Apply ${resourceTitle} with Spartan`}
+        style={styles.resourceAiAction}
+      >
+        <Feather name="zap" size={15} color="#FFFFFF" />
+        <Text style={[styles.resourceAiActionText, font("bold")]}>Apply with Spartan</Text>
+        <Feather name="arrow-right" size={15} color="#FFFFFF" />
+      </Pressable>
     </View>
   );
 }
@@ -489,6 +535,8 @@ const styles = StyleSheet.create({
   resourceWorkflowTitle: { fontSize: 12, lineHeight: 17, marginTop: 5 },
   resourceWorkflowBody: { fontSize: 10, lineHeight: 15, marginTop: 5 },
   resourceWorkflowNext: { minHeight: 36, marginTop: 7, flexDirection: "row", alignItems: "center", gap: 5 },
+  resourceAiAction: { minHeight: 44, marginTop: 10, borderRadius: 13, backgroundColor: "#C8102E", paddingHorizontal: 14, flexDirection: "row", alignItems: "center", justifyContent: "center", gap: 8 },
+  resourceAiActionText: { color: "#FFFFFF", fontSize: 12 },
   modeIntro: { minHeight: 112, borderRadius: 22, borderCurve: "continuous", padding: 17, flexDirection: "row", alignItems: "flex-start", gap: 13, marginBottom: 24 },
   modeIcon: { width: 42, height: 42, borderRadius: 13, borderCurve: "continuous", alignItems: "center", justifyContent: "center" },
   modeTitleRow: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: 8 },

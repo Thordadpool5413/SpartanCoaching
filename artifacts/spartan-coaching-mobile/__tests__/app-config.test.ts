@@ -103,7 +103,7 @@ describe("Expo production configuration", () => {
     expect(shortcuts.map((item: { UIApplicationShortcutItemTitle: string }) => item.UIApplicationShortcutItemTitle)).toEqual([
       "Open Field Guide",
       "Spartan Coach",
-      "Open Explore",
+      "Open Tools",
     ]);
     expect(shortcuts.map((item: { UIApplicationShortcutItemUserInfo: { url: string } }) => item.UIApplicationShortcutItemUserInfo.url)).toEqual([
       "spartan-coaching-mobile://home",

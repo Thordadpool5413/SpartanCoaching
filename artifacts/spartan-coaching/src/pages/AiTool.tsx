@@ -763,7 +763,7 @@ export default function AiToolPage() {
     <FieldKitToolLayout
       title={tool.name}
       showHowTo={false}
-      showChrome={!tool.containsPhi}
+      showChrome={false}
     >
       <SEO
         title={`${tool.name} | Spartan Coaching`}

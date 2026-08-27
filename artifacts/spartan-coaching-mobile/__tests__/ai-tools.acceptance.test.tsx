@@ -146,7 +146,7 @@ describe("native advanced tool acceptance", () => {
           : `/api/ai-tools/${tool.id}/runs`;
         const expectedBody = expect.objectContaining({ input: expect.any(Object) });
         if (tool.containsPhi) {
-          expect(apiPostMock).toHaveBeenCalledWith(expectedPath, expectedBody);
+          expect(apiPostMock).toHaveBeenCalledWith(expectedPath, expectedBody, { retry: true });
         } else {
           expect(apiPostMock).toHaveBeenCalledWith(expectedPath, expectedBody, {
             idempotencyKey: "40000000-0000-4000-8000-000000000001",

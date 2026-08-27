@@ -18,12 +18,9 @@ import {
   BrainCircuit,
   Crosshair,
   Sparkles,
-  ShieldCheck,
-  MapPinned,
 } from "lucide-react";
 import { Link } from "wouter";
 import { Button } from "@/components/ui/button";
-import { BackButton } from "@/components/BackButton";
 import { SEO } from "@/components/SEO";
 import { SlideUp, StaggerContainer, StaggerItem } from "@/components/animations";
 import { Input } from "@/components/ui/input";
@@ -31,11 +28,8 @@ import { Badge } from "@/components/ui/badge";
 import { useMemo, useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
-import { FieldKitChrome } from "@/components/FieldKitChrome";
 import { PRICING_FACTS } from "@/lib/complianceCopy";
 import {
-  FIELD_KIT_WHAT,
-  FIELD_KIT_HOW,
   FIELD_KIT_TOOLS,
   FIELD_KIT_CATEGORIES,
   FIELD_KIT_DAILY_TOOL_IDS,
@@ -178,87 +172,34 @@ export default function Tools() {
   return (
     <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 surface-page min-h-[70vh]" data-testid="page-tools">
       <SEO />
-      <BackButton />
-      <FieldKitChrome />
       <SlideUp>
-        <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-14">
-          <p className="text-kicker mb-4 justify-center">Hospice Sales Pro</p>
+        <div className="max-w-4xl mb-8 sm:mb-10">
+          <p className="text-kicker mb-3">Hospice Sales Pro workspace</p>
           <h1 className="text-h1 font-black text-foreground mb-4" data-testid="text-tools-title">
-            What do you need to do?
+            What needs to move next?
           </h1>
           <p className="text-body-lg text-muted-foreground leading-relaxed">
             {showCatalogGate
               ? "Start from intent — prepare a visit, handle an objection, plan the week — then open tools or field resources. Live generation unlocks with Hospice Sales Pro."
-              : FIELD_KIT_WHAT}
+              : "Start with the job, not the feature. Open one focused workspace, finish the work, and keep the result in My Work."}
           </p>
-          <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed">
-            <Link href={PRODUCT_SURFACE_PLACEMENT.field_resources.webPath} className="font-semibold text-primary hover:underline">
-              {PRODUCT_SURFACE_PLACEMENT.field_resources.label}
-            </Link>
-            {" "}
-            are work aids (templates & scripts), not only Learn content.{" "}
-            <Link href="/articles" className="font-semibold text-primary hover:underline">
-              {PRODUCT_SURFACE_PLACEMENT.learn.label}
-            </Link>
-            {" "}
-            is for articles, podcasts, and fundamentals.
-          </p>
-          {!showCatalogGate && (
-            <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed">
-              {FIELD_KIT_HOW}{" "}
-              <Link href="/portal" className="font-semibold text-primary hover:underline">
-                Back to Portal
-              </Link>
-            </p>
-          )}
-          {showCatalogGate && (
-            <p className="text-sm text-muted-foreground mt-3 max-w-2xl mx-auto leading-relaxed">
-              Open any tool to preview the full UI. Tap or click inside a locked tool for subscribe / trial
-              options.
-            </p>
-          )}
         </div>
       </SlideUp>
 
       <SlideUp delay={0.05}>
-        <section className="mb-12" data-testid="public-spartan-intelligence">
-          <Card className="overflow-hidden border border-amber-500/45 bg-gradient-to-br from-amber-500/[0.12] via-card to-card p-6 sm:p-8 shadow-elite">
-            <div className="flex flex-col gap-7 lg:flex-row lg:items-center lg:justify-between">
-              <div className="max-w-3xl">
-                <div className="mb-4 flex items-center gap-3">
-                  <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-amber-500/15 text-amber-500">
-                    <Sparkles className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-amber-500">
-                      New in Hospice Sales Pro Elite
-                    </p>
-                    <h2 className="text-2xl font-display font-black tracking-tight text-foreground sm:text-3xl">
-                      Spartan Intelligence
-                    </h2>
-                  </div>
-                </div>
-                <p className="max-w-2xl text-base leading-relaxed text-muted-foreground">
-                  Walk into the room with verified provider context, a clearer policy conversation,
-                  and a focused view of the hospice market you serve.
-                </p>
-                <div className="mt-6 grid gap-3 sm:grid-cols-3">
-                  {[
-                    { icon: ShieldCheck, title: "Referral Intelligence", body: "Verify public provider records and prepare the right conversation." },
-                    { icon: BrainCircuit, title: "CMS Policy Navigator", body: "Turn complex Medicare topics into clear field language." },
-                    { icon: MapPinned, title: "Market Explorer", body: "Search official CMS hospice enrollment data by state and city." },
-                  ].map(({ icon: Icon, title, body }) => (
-                    <div key={title} className="rounded-xl border border-border/80 bg-background/60 p-4">
-                      <Icon className="mb-3 h-5 w-5 text-amber-500" />
-                      <h3 className="text-sm font-bold text-foreground">{title}</h3>
-                      <p className="mt-1.5 text-xs leading-relaxed text-muted-foreground">{body}</p>
-                    </div>
-                  ))}
+        <section className="mb-8" data-testid="public-spartan-intelligence">
+          <Card className="border border-primary/25 bg-primary/[0.05] p-4 sm:p-5">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex items-start gap-3">
+                <div className="rounded-xl bg-primary p-2.5 text-primary-foreground"><Sparkles className="h-5 w-5" /></div>
+                <div>
+                  <p className="font-black text-foreground">Spartan Intelligence</p>
+                  <p className="mt-1 text-sm text-muted-foreground">Verify an account, answer a CMS policy question, or explore a market.</p>
                 </div>
               </div>
-              <Button asChild size="lg" className="min-h-12 w-full shrink-0 font-bold lg:w-auto">
+              <Button asChild className="min-h-11 shrink-0 font-bold">
                 <Link href="/spartan-intelligence" data-testid="button-public-spartan-intelligence">
-                  Explore Spartan Intelligence
+                  Open Intelligence
                   <ArrowRight className="ml-2 h-4 w-4" />
                 </Link>
               </Button>

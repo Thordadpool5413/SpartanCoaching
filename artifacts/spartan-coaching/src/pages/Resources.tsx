@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Link } from "wouter";
+import { Link, useLocation } from "wouter";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,19 +10,18 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Download, Mail, User, Printer } from "lucide-react";
-import { BackButton } from "@/components/BackButton";
+import { Download, Mail, User, Printer, Sparkles } from "lucide-react";
 import type { SelectResource } from "@shared/schema";
 import { SEO } from "@/components/SEO";
 import { trackEvent } from "@/lib/analytics";
 import { apiRequest } from "@/lib/queryClient";
 import { ContentNotice } from "@/components/ContentNotice";
-import { FieldKitChrome } from "@/components/FieldKitChrome";
 import { ToolResultActions } from "@/components/ToolResultActions";
 import { useAuth } from "@/context/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { PublicConversionPanel } from "@/components/PublicConversionPanel";
 import { trackProductOutcome } from "@/lib/analytics";
+import { stageAiToolHandoff } from "@/lib/aiToolHandoff";
 import {
   FIELD_KIT_TOOLS,
   getResourceWorkGuide,
@@ -244,6 +243,7 @@ function resourceWorkflow(resource: SelectResource): ResourceWorkflow {
 }
 
 export default function Resources() {
+  const [, navigate] = useLocation();
   const { canUseFieldKit, member } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -413,6 +413,32 @@ export default function Resources() {
     setGateOpen(true);
   };
 
+  const applyResourceWithSpartan = ({
+    title,
+    description,
+    job,
+    expectedOutcome,
+  }: {
+    title: string;
+    description?: string | null;
+    job?: string;
+    expectedOutcome?: string;
+  }) => {
+    stageAiToolHandoff({
+      sourceToolId: "content-recommender",
+      targetToolId: "content-generator",
+      output: {
+        selectedResource: title,
+        description: description || undefined,
+        fieldJob: job,
+        expectedOutcome,
+        instruction: "Use this resource as the starting point. Create a deidentified field-ready version for the user's next professional conversation. Never request or include PHI.",
+      },
+    });
+    trackEvent("resource_ai_apply", title);
+    navigate("/tools/ai/content-generator");
+  };
+
   const leadMutation = useMutation({
     mutationFn: async (data: { name: string; email: string; resourceId: number; resourceTitle: string }) => {
       const res = await apiRequest("POST", "/api/resource-leads", data);
@@ -476,7 +502,6 @@ export default function Resources() {
     return (
       <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
         <SEO />
-        <BackButton />
         <div className="text-center max-w-2xl mx-auto py-20">
           <p className="text-destructive">Failed to load resources. Please try again later.</p>
           <Button type="button" variant="outline" className="mt-4" onClick={() => void refetchResources()}>
@@ -491,7 +516,6 @@ export default function Resources() {
     return (
       <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
         <SEO />
-        <BackButton />
         <div className="text-center max-w-2xl mx-auto py-20">
           <h1 className="text-h1 text-foreground mb-6" data-testid="text-resources-title">Training Resources Library</h1>
           <p className="text-body-lg text-muted-foreground">
@@ -505,55 +529,26 @@ export default function Resources() {
   return (
     <div className="w-full max-w-7xl mx-auto spacing-container spacing-section">
       <SEO />
-      <BackButton />
-      {canUseFieldKit && <FieldKitChrome />}
-      <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
+      <div className="max-w-3xl mb-8 sm:mb-10">
         <p className="text-xs font-bold tracking-widest text-primary uppercase mb-3">
           {canUseFieldKit ? "Hospice Sales Pro · Field resources" : "Training library"}
         </p>
         <h1 className="text-h1 text-foreground mb-6" data-testid="text-resources-title">
-          {canUseFieldKit ? "Field resources" : "Training Resources Library"}
+          {canUseFieldKit ? "Find it. Adapt it. Use it." : "Training Resources Library"}
         </h1>
         <p className="text-body-lg text-muted-foreground leading-relaxed">
           {canUseFieldKit
-            ? "Current templates, scripts, and checklists for work you want to take into the field."
+            ? "Start with a trusted template, script, or checklist. Download the original or use Spartan AI to adapt a working copy for the next conversation."
             : "Download field-tested templates, scripts, checklists, and guides to elevate your hospice sales performance."}
         </p>
-        {canUseFieldKit && (
-          <p className="text-sm text-muted-foreground mt-3">
-            This library is for downloadable work aids. Use{" "}
-            <Link href="/tools" className="font-semibold text-primary hover:underline">Tools</Link>
-            {" "}when you need an interactive workspace.
-            Start from intent on{" "}
-            <Link href="/tools" className="font-semibold text-primary hover:underline">
-              Tools
-            </Link>
-            {" "}
-            (e.g. handle an objection → Objection Handler + objection cards).{" "}
-            <Link href="/articles" className="font-semibold text-primary hover:underline">
-              Learn
-            </Link>
-            {" "}
-            is for articles and fundamentals.
-          </p>
-        )}
       </div>
       {!canUseFieldKit && <ContentNotice />}
-      <Card className="mb-8 border border-border bg-muted/30 p-4 sm:p-5" data-testid="resources-work-guide">
-        <div className="grid gap-4 sm:grid-cols-3 text-sm">
-          <div>
-            <p className="font-bold text-foreground">Choose for the next job</p>
-            <p className="mt-1 text-muted-foreground leading-relaxed">Open a script, checklist, template, or guide that supports the next visit, conversation, or planning block.</p>
-          </div>
-          <div>
-            <p className="font-bold text-foreground">Keep the boundary clear</p>
-            <p className="mt-1 text-muted-foreground leading-relaxed">Field resources are work aids. Do not add patient identifiers, PHI, or clinical records to downloaded copies.</p>
-          </div>
-          <div>
-            <p className="font-bold text-foreground">Download is not saved work</p>
-            <p className="mt-1 text-muted-foreground leading-relaxed">Downloads are not automatically added to My Work or synced to iPhone. Return here to re-download the current version.</p>
-          </div>
+      <Card className="mb-8 flex flex-col gap-3 border border-primary/20 bg-primary/[0.04] p-4 sm:flex-row sm:items-center sm:justify-between" data-testid="resources-work-guide">
+        <div>
+          <p className="font-bold text-foreground">Keep professional context deidentified</p>
+          <p className="mt-1 text-sm text-muted-foreground">Do not enter patient identifiers, PHI, or clinical records. AI-adapted work can be saved to My Work.</p>
         </div>
+        <Button asChild variant="outline" className="shrink-0"><Link href="/my-work">Open My Work</Link></Button>
       </Card>
       {canUseFieldKit && (
         <div className="mb-12 space-y-4" data-testid="provider-resource-library">
@@ -582,7 +577,9 @@ export default function Resources() {
           </div>
 
           {isOrgAdmin && (
-            <Card className="border-2 p-4 space-y-3">
+            <details className="rounded-xl border border-border bg-card p-4">
+              <summary className="cursor-pointer text-sm font-bold text-foreground">Manage provider resources</summary>
+            <div className="mt-4 space-y-3">
               <p className="text-sm font-semibold">Add provider resource (org admin)</p>
               <div className="grid md:grid-cols-3 gap-3">
                 <div>
@@ -633,7 +630,8 @@ export default function Resources() {
               >
                 {createProviderMutation.isPending ? "Saving…" : "Publish to library"}
               </Button>
-            </Card>
+            </div>
+            </details>
           )}
 
           {providerLoading ? (
@@ -670,13 +668,12 @@ export default function Resources() {
                         {item.description}
                       </p>
                     ) : null}
-                    <div
+                    <details
                       className="mb-4 rounded-lg border border-border/70 bg-muted/25 p-3 text-xs leading-relaxed text-muted-foreground"
                       data-testid={`provider-resource-workflow-${item.id}`}
                     >
-                      <Badge variant="outline" className="mb-2 text-[10px] uppercase tracking-wide text-primary">
-                        {workflow.phase}
-                      </Badge>
+                      <summary className="cursor-pointer font-semibold text-foreground">How to use this resource</summary>
+                      <Badge variant="outline" className="mb-2 mt-3 text-[10px] uppercase tracking-wide text-primary">{workflow.phase}</Badge>
                       <p><span className="font-semibold text-foreground">Job: </span>{workflow.job}</p>
                       <p className="mt-1"><span className="font-semibold text-foreground">Safe use: </span>{workflow.inputHint}</p>
                       <p className="mt-1"><span className="font-semibold text-foreground">Expected output: </span>{workflow.outputPreview}</p>
@@ -687,7 +684,7 @@ export default function Resources() {
                           Next: {nextTool.title}
                         </Link>
                       ) : null}
-                    </div>
+                    </details>
                     {isOrgAdmin && editingProviderId === item.id ? (
                       <div className="mb-4 rounded-lg border border-primary/30 bg-primary/5 p-3">
                         <p className="mb-3 text-sm font-semibold text-foreground">
@@ -724,8 +721,9 @@ export default function Resources() {
                         </div>
                       </div>
                     ) : null}
+                    <div className="mt-auto grid gap-2 sm:grid-cols-2">
                     <Button
-                      className="mt-auto w-full gap-2"
+                      className="w-full gap-2"
                       onClick={() => {
                         trackEvent("provider_resource_open", item.title);
                         window.open(item.fileUrl, "_blank");
@@ -735,6 +733,16 @@ export default function Resources() {
                       <Download className="w-4 h-4" />
                       Open
                     </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full gap-2"
+                      onClick={() => applyResourceWithSpartan({ title: item.title, description: item.description, job: workflow.job, expectedOutcome: workflow.outputPreview })}
+                      data-testid={`button-ai-provider-${item.id}`}
+                    >
+                      <Sparkles className="w-4 h-4" /> Apply with Spartan
+                    </Button>
+                    </div>
                     {isOrgAdmin && editingProviderId !== item.id ? (
                       <Button
                         type="button"
@@ -850,31 +858,6 @@ export default function Resources() {
                         </div>
                       );
                     })()}
-
-
-                    {(() => {
-                      const life = (
-                        resource as SelectResource & {
-                          lifecycle?: {
-                            hasNewerVersion?: boolean;
-                            documentVersionLine?: string;
-                            currentVersion?: { id: number; versionLabel: string; title: string };
-                          };
-                        }
-                      ).lifecycle;
-                      if (!life?.hasNewerVersion || !life.currentVersion) return null;
-                      return (
-                        <div
-                          className="mb-3 rounded-md border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-xs text-foreground"
-                          data-testid={`resource-newer-${resource.id}`}
-                        >
-                          A newer version is available (v{life.currentVersion.versionLabel}
-                          {life.currentVersion.title ? `: ${life.currentVersion.title}` : ""}
-                          ). This copy is retained for history — do not treat it as current.
-                        </div>
-                      );
-                    })()}
-
                     {resource.description && (
                       <p className="text-base text-muted-foreground leading-relaxed mb-3 line-clamp-3">
                         {resource.description}
@@ -925,12 +908,13 @@ export default function Resources() {
                         ? getToolWorkGuide(workflow.tool)
                         : null;
                       return (
-                        <div
+                        <details
                           className="mb-4 rounded-lg border border-border/70 bg-muted/25 p-3"
                           data-testid={`resource-workflow-${resource.id}`}
                         >
+                          <summary className="cursor-pointer text-xs font-semibold text-foreground">How to use this resource</summary>
                           <div className="flex flex-wrap items-center gap-2">
-                            <Badge variant="outline" className="text-[10px] uppercase tracking-wide text-primary">
+                            <Badge variant="outline" className="mt-3 text-[10px] uppercase tracking-wide text-primary">
                               {workflow.phase}
                             </Badge>
                             <p className="text-xs font-semibold text-foreground">Completion checklist</p>
@@ -972,18 +956,34 @@ export default function Resources() {
                               Next: {workflow.tool.title} · {relatedGuide?.phase}
                             </Link>
                           ) : null}
-                        </div>
+                        </details>
                       );
                     })()}
 
-                    <Button
-                      className="w-full gap-2"
-                      onClick={() => openDownload(resource)}
-                      data-testid={`button-download-${resource.id}`}
-                    >
-                      <Download className="w-4 h-4" />
-                      Download
-                    </Button>
+                    <div className="grid gap-2 sm:grid-cols-2">
+                      <Button className="w-full gap-2" onClick={() => openDownload(resource)} data-testid={`button-download-${resource.id}`}>
+                        <Download className="w-4 h-4" /> Download
+                      </Button>
+                      {canUseFieldKit ? (
+                        <Button
+                          type="button"
+                          variant="outline"
+                          className="w-full gap-2"
+                          onClick={() => {
+                            const arch = resourceArchitecture(resource);
+                            applyResourceWithSpartan({
+                              title: resource.title,
+                              description: resource.description,
+                              job: arch.jobToAccomplish || arch.useCase,
+                              expectedOutcome: arch.expectedOutcome,
+                            });
+                          }}
+                          data-testid={`button-ai-resource-${resource.id}`}
+                        >
+                          <Sparkles className="w-4 h-4" /> Apply with Spartan
+                        </Button>
+                      ) : null}
+                    </div>
                   </div>
                 </Card>
               ))}

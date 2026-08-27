@@ -6,7 +6,6 @@ import { BookOpen, Headphones, FolderOpen, Flame, HelpCircle, ArrowRight } from 
 import { ToolDisclaimer } from "@/components/ToolDisclaimer";
 import { useAuth } from "@/context/AuthContext";
 import { FieldKitGate } from "@/components/FieldKitGate";
-import { FieldKitChrome } from "@/components/FieldKitChrome";
 
 const LINKS = [
   {
@@ -69,7 +68,6 @@ export default function PortalLearn() {
   return (
     <div className="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 lg:py-16 surface-page" data-testid="page-portal-learn">
       <SEO />
-      {canUseFieldKit && <FieldKitChrome />}
       <div className="mb-10 space-y-3">
         <p className="text-xs font-bold tracking-widest text-primary uppercase">Portal · Learn</p>
         <h1 className="text-h1 font-display font-black">Build judgment between sessions</h1>

@@ -153,7 +153,7 @@ function ToolsCatalogScreen() {
       router.push(tool.mobileRoute as any);
       return;
     }
-    Alert.alert("Tool could not open", "Return to Explore and try again. If this continues, send a support request from Account.");
+    Alert.alert("Tool could not open", "Return to Tools and try again. If this continues, send a support request from Account.");
   };
 
   const accessLabel = (tool: FieldKitTool) => {
@@ -182,7 +182,7 @@ function ToolsCatalogScreen() {
       router.push(native as any);
       return;
     }
-    Alert.alert("Result could not open", "Use Explore to find the native version. If it is missing, send a support request from Account.");
+    Alert.alert("Result could not open", "Use Tools to find the native version. If it is missing, send a support request from Account.");
   };
 
   const q = filter.trim().toLowerCase();
@@ -206,8 +206,8 @@ function ToolsCatalogScreen() {
     <View style={[styles.screen, { backgroundColor: colors.background }]} testID="screen-explore">
       <View style={[styles.header, { paddingTop: topPad + 12, borderBottomColor: colors.border }]}>
         <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>FIELD TOOL DIRECTORY</Text>
-        <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Explore</Text>
-        <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Find the field tool that fits the job in front of you. Library, My Work, and access each have their own destination.</Text>
+        <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Tools</Text>
+        <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Choose the job in front of you, then open the right workspace. Library and My Work stay separate so nothing feels buried.</Text>
         <View style={[styles.searchShell, { backgroundColor: colors.card, borderColor: colors.border }]}>
           <Feather name="search" size={18} color={colors.mutedForeground} />
           <TextInput
@@ -237,7 +237,7 @@ function ToolsCatalogScreen() {
         {!q ? (
           <View style={styles.destinationGrid} testID="explore-destinations">
             <ExploreDestination icon="crosshair" title="Spartan Intelligence" body={canUseElite ? "Verify referral sources, explore markets, and prepare with CMS data." : "Elite guided provider, market, and CMS policy intelligence."} onPress={() => router.push((canUseElite ? "/spartan-intelligence" : "/access") as any)} />
-            <ExploreDestination icon="book-open" title="Library" body="Read, listen, and use field resources inside the app." onPress={() => router.push("/(tabs)/tools?view=library" as any)} />
+            <ExploreDestination icon="book-open" title="Library" body="Read, listen, and use field resources inside the app." onPress={() => router.push("/(tabs)/learn" as any)} />
             <ExploreDestination icon="check-circle" title="My Work" body="Resume plans, commitments, downloads, and approvals." onPress={() => router.push("/(tabs)/my-work" as any)} />
           </View>
         ) : null}

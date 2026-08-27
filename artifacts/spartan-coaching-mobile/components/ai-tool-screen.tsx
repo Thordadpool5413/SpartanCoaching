@@ -307,7 +307,11 @@ export function AiToolScreen({ toolId }: { toolId: SpartanAiToolId }) {
       const input = tool.inputSchema.parse(buildAiToolExperienceInput(tool.id, values, experienceContext)) as Record<string, unknown>;
       let completed: ToolRun;
       if (clinical) {
-        const response = await apiPost<{ result: ToolRun }>(`/api/ai-tools/${tool.id}/ephemeral-runs`, { input, confirmedDeidentified });
+        const response = await apiPost<{ result: ToolRun }>(
+          `/api/ai-tools/${tool.id}/ephemeral-runs`,
+          { input, confirmedDeidentified },
+          { retry: true },
+        );
         completed = response.result;
       } else {
         const response = await apiPost<{ run: ToolRun }>(`/api/ai-tools/${tool.id}/runs`, { input }, { idempotencyKey: Crypto.randomUUID() });
