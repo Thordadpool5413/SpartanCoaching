@@ -12,6 +12,7 @@ import {
   BookOpen,
   Clock,
   Crosshair,
+  Database,
   FolderOpen,
   Home,
   MessageCircle,
@@ -29,6 +30,7 @@ export const WORKSPACE_SHELL_VERSION = "workspace-shell-v1";
 export type WorkspaceNavId =
   | "home"
   | "command"
+  | "intelligence"
   | "tools"
   | "resources"
   | "learn"
@@ -182,6 +184,18 @@ export function workspaceNavForRole(
       match: (loc) => normalizePath(loc).startsWith("/tools/sales-workflow"),
     },
     {
+      id: "intelligence",
+      destinationId: "explore",
+      href: "/tools/intelligence",
+      label: "Intelligence",
+      icon: Database,
+      primary: true,
+      match: (loc) => {
+        const p = normalizePath(loc);
+        return p.startsWith("/tools/intelligence") || p.startsWith("/spartan-intelligence");
+      },
+    },
+    {
       id: "tools",
       destinationId: "explore",
       href: "/tools",
@@ -192,7 +206,8 @@ export function workspaceNavForRole(
         const p = normalizePath(loc);
         return (
           (p === "/tools" || p.startsWith("/tools/")) &&
-          !p.startsWith("/tools/sales-workflow")
+          !p.startsWith("/tools/sales-workflow") &&
+          !p.startsWith("/tools/intelligence")
         );
       },
     },
