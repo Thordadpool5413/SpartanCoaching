@@ -89,11 +89,11 @@ export function ActivationCeremony() {
               font("regular"),
             ]}
           >
-            Your tools are ready on this iPhone. Explore what your membership includes, then choose
+            Your tools are ready on this iPhone. See what your membership includes, then choose
             the one resource that helps with the conversation in front of you.
           </Text>
           <SpartanButton
-            title="Explore your tools"
+            title="Open your tools"
             onPress={() => void dismiss(true)}
             style={{ marginTop: 20, alignSelf: "stretch" }}
             testID="activation-open-explore"

@@ -105,9 +105,9 @@ export default function SpartanIntelligenceScreen() {
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <ScrollView keyboardShouldPersistTaps="handled" contentInsetAdjustmentBehavior="automatic" contentContainerStyle={[styles.content, { paddingTop: insets.top + 12, paddingBottom: insets.bottom + 48 }]}>
-        <Pressable accessibilityRole="button" accessibilityLabel="Back to Explore" onPress={() => router.back()} style={styles.back}>
+        <Pressable accessibilityRole="button" accessibilityLabel="Back to Tools" onPress={() => router.back()} style={styles.back}>
           <Feather name="arrow-left" size={18} color={colors.primary} />
-          <Text style={[styles.backText, { color: colors.primary }, font("bold")]}>Explore</Text>
+          <Text style={[styles.backText, { color: colors.primary }, font("bold")]}>Tools</Text>
         </Pressable>
         <View style={styles.hero}>
           <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>SPARTAN INTELLIGENCE</Text>
@@ -228,7 +228,7 @@ function ReferralWorkspace({ colors }: { colors: ReturnType<typeof useColors> })
   return (
     <View style={[styles.screen, { backgroundColor: colors.background }]}>
       <ScrollView keyboardShouldPersistTaps="handled" contentContainerStyle={[styles.content, { paddingTop: insets.top + 18, paddingBottom: insets.bottom + 40 }]}>
-        <Pressable onPress={() => router.back()} style={styles.back}><Feather name="arrow-left" size={18} color={colors.primary} /><Text style={[styles.backText, { color: colors.primary }, font("bold")]}>Explore</Text></Pressable>
+        <Pressable onPress={() => router.back()} style={styles.back}><Feather name="arrow-left" size={18} color={colors.primary} /><Text style={[styles.backText, { color: colors.primary }, font("bold")]}>Tools</Text></Pressable>
         <Text style={[styles.kicker, { color: colors.primary }, font("bold")]}>SPARTAN INTELLIGENCE</Text>
         <Text style={[styles.title, { color: colors.foreground }, font("heavy")]}>Know the account before you enter the room.</Text>
         <Text style={[styles.subtitle, { color: colors.mutedForeground }, font("regular")]}>Verify the public provider record, then build a focused meeting brief grounded in your relationship.</Text>

@@ -48,7 +48,7 @@ export const SPARTAN_OFFERINGS: SpartanOffering[] = [
   {
     id: "tools",
     destinationId: "explore",
-    title: "Explore",
+    title: "Tools",
     promise: "Find the field tool that fits the job in front of you.",
     route: "/(tabs)/tools",
     access: ["visitor", "standard", "elite", "company", "admin"],

@@ -3,11 +3,13 @@ import Constants from "expo-constants";
 import { API_CONTRACT_VERSION } from "@workspace/field-kit-catalog";
 
 const TOKEN_KEY = "spartan_session_token";
+const PRODUCTION_ORIGIN = "https://spartanhospicecoaching.com";
+const DEFAULT_TIMEOUT_MS = 45_000;
 
 /**
- * Production builds must set EXPO_PUBLIC_API_URL (full origin) or EXPO_PUBLIC_DOMAIN (host only).
- * Prefer EXPO_PUBLIC_API_URL=https://your-host.example
- * See artifacts/spartan-coaching-mobile/store/README.md for EAS secrets.
+ * EAS may override the origin for preview builds. Store builds always retain a
+ * first party fallback so a missed public environment variable cannot disable
+ * sign in, Coach, Intelligence, and every AI tool at once.
  */
 export function getBaseUrl(): string {
   const full = process.env.EXPO_PUBLIC_API_URL?.trim();
@@ -19,14 +21,7 @@ export function getBaseUrl(): string {
     }
     return `https://${domain}`;
   }
-  return "";
-}
-
-if (!getBaseUrl()) {
-  console.error(
-    "[Spartan] EXPO_PUBLIC_API_URL / EXPO_PUBLIC_DOMAIN is not set — API calls will fail. " +
-      "Set an EAS secret before TestFlight/production builds.",
-  );
+  return PRODUCTION_ORIGIN;
 }
 
 const getBase = () => getBaseUrl();
@@ -104,12 +99,62 @@ async function readApiError(res: Response): Promise<ApiError> {
   }
 }
 
+async function fetchApi(
+  path: string,
+  init: RequestInit,
+  options?: { timeoutMs?: number; retry?: boolean },
+): Promise<Response> {
+  const timeoutMs = options?.timeoutMs ?? DEFAULT_TIMEOUT_MS;
+  const attempts = options?.retry ? 2 : 1;
+  let lastError: unknown;
+
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const response = await fetch(`${getBase()}${path}`, {
+        ...init,
+        signal: controller.signal,
+      });
+      clearTimeout(timeout);
+      if (
+        attempt + 1 < attempts &&
+        (response.status === 429 || response.status === 502 || response.status === 503 || response.status === 504)
+      ) {
+        await new Promise((resolve) => setTimeout(resolve, 650));
+        continue;
+      }
+      return response;
+    } catch (error) {
+      clearTimeout(timeout);
+      lastError = error;
+      if (attempt + 1 < attempts) {
+        await new Promise((resolve) => setTimeout(resolve, 650));
+        continue;
+      }
+    }
+  }
+
+  if (lastError instanceof Error && lastError.name === "AbortError") {
+    throw new ApiError(
+      "Spartan took too long to respond. Your work is still on this screen, so you can try again.",
+      504,
+      "REQUEST_TIMEOUT",
+    );
+  }
+  throw new ApiError(
+    "Spartan could not reach the secure service. Check your connection and try again.",
+    0,
+    "NETWORK_UNAVAILABLE",
+  );
+}
+
 export async function apiPost<T>(
   path: string,
   body: unknown,
-  options?: { idempotencyKey?: string },
+  options?: { idempotencyKey?: string; retry?: boolean },
 ): Promise<T> {
-  const res = await fetch(`${getBase()}${path}`, {
+  const res = await fetchApi(path, {
     method: "POST",
     headers: await authHeaders(
       options?.idempotencyKey
@@ -117,7 +162,7 @@ export async function apiPost<T>(
         : undefined,
     ),
     body: JSON.stringify(body),
-  });
+  }, { retry: Boolean(options?.idempotencyKey || options?.retry) });
   if (!res.ok) {
     throw await readApiError(res);
   }
@@ -125,9 +170,9 @@ export async function apiPost<T>(
 }
 
 export async function apiGet<T>(path: string): Promise<T> {
-  const res = await fetch(`${getBase()}${path}`, {
+  const res = await fetchApi(path, {
     headers: await authHeaders(),
-  });
+  }, { retry: true });
   if (!res.ok) {
     throw await readApiError(res);
   }
@@ -135,7 +180,7 @@ export async function apiGet<T>(path: string): Promise<T> {
 }
 
 export async function apiPut<T>(path: string, body: unknown): Promise<T> {
-  const res = await fetch(`${getBase()}${path}`, {
+  const res = await fetchApi(path, {
     method: "PUT",
     headers: await authHeaders(),
     body: JSON.stringify(body),
@@ -145,7 +190,7 @@ export async function apiPut<T>(path: string, body: unknown): Promise<T> {
 }
 
 export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
-  const res = await fetch(`${getBase()}${path}`, {
+  const res = await fetchApi(path, {
     method: "PATCH",
     headers: await authHeaders(),
     body: JSON.stringify(body),
@@ -157,7 +202,7 @@ export async function apiPatch<T>(path: string, body: unknown): Promise<T> {
 }
 
 export async function apiDelete<T>(path: string): Promise<T> {
-  const res = await fetch(`${getBase()}${path}`, {
+  const res = await fetchApi(path, {
     method: "DELETE",
     headers: await authHeaders(),
   });

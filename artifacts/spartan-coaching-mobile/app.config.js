@@ -176,7 +176,7 @@ module.exports = {
           },
           {
             UIApplicationShortcutItemType: "com.spartancoaching.fieldkit.practice",
-            UIApplicationShortcutItemTitle: "Open Explore",
+            UIApplicationShortcutItemTitle: "Open Tools",
             UIApplicationShortcutItemSubtitle: "Prepare for the moment",
             UIApplicationShortcutItemIconType: "UIApplicationShortcutIconTypeCompose",
             UIApplicationShortcutItemUserInfo: {

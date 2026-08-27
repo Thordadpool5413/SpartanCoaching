@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Search, Loader2, Building2, User } from "lucide-react";
+import { ToolResultActions } from "@/components/ToolResultActions";
 
 export type NpiHit = {
   npi: string;
@@ -272,6 +273,26 @@ export function NpiLookupPanel({
           <BriefSection title="Before you walk in"><ul className="space-y-2">{brief.preparation.map((item) => <li key={item} className="flex gap-2"><span className="font-bold text-primary">•</span><span>{item}</span></li>)}</ul></BriefSection>
           <BriefSection title="Walk out with this"><p className="font-semibold">{brief.nextMove}</p></BriefSection>
           <div className="pt-3 border-t border-border text-xs text-muted-foreground space-y-1"><p>Source: <a className="text-primary underline" href={brief.source.url} target="_blank" rel="noreferrer">{brief.source.label}</a></p><p>{brief.limitations[0]}</p></div>
+          <ToolResultActions
+            toolId="spartan-intelligence"
+            title="Keep the brief moving"
+            description="Save this preparation so it is available in My Work on web and iPhone."
+            saveResult={{
+              toolId: "spartan-intelligence",
+              title: brief.headline,
+              kind: "intelligence_brief",
+              value: JSON.stringify(brief),
+              input: {
+                providerNpi: selected?.npi,
+                providerName: selected?.name,
+                relationshipStage,
+                meetingPurpose,
+              },
+              nextAction: { title: brief.nextMove, href: "/tools/intelligence" },
+            }}
+            actions={[{ id: "open-my-work", label: "Open My Work", href: "/my-work" }]}
+            testId="account-brief-actions"
+          />
         </div>
       ) : null}
     </Card>
